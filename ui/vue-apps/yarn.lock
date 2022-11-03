@@ -2905,9 +2905,9 @@ camelcase@^6.0.0:
   integrity sha512-8KMDF1Vz2gzOq54ONPJS65IvTUaB1cHJ2DMM7MbPmLZljDH1qpzzLsWdiN9pHh6qvkRVDTi/07+eNGch/oLU4w==
 
 caniuse-lite@^1.0.30001093, caniuse-lite@^1.0.30001154:
-  version "1.0.30001336"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/caniuse-lite/-/caniuse-lite-1.0.30001336.tgz"
-  integrity sha512-/YxSlBmL7iKXTbIJ48IQTnAOBk7XmWsxhBF1PZLOko5Dt9qc4Pl+84lfqG3Tc4EuavurRn1QLoVJGxY2iSycfw==
+  version "1.0.30001429"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/caniuse-lite/-/caniuse-lite-1.0.30001429.tgz"
+  integrity sha512-511ThLu1hF+5RRRt0zYCf2U2yRr9GPF6m5y90SBCWsvSoYoW7yAGlv/elyPaNfvGCkp6kj/KFZWU0BMA69Prsg==
 
 capture-exit@^1.2.0:
   version "1.2.0"
@@ -6595,6 +6595,18 @@ locate-path@^5.0.0:
   dependencies:
     p-locate "^4.1.0"
 
+lodash._baseget@^3.0.0:
+  version "3.7.2"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/lodash._baseget/-/lodash._baseget-3.7.2.tgz#1b6ae1d5facf3c25532350a13c1197cb8bb674f4"
+  integrity sha512-OgVr3AufoSqlh6eHWOLdLzRdn6TU3LlEGQjtsyLr9XRtPoXUywzquM1uYE+qQAno1kB9CvpI1gsvGwiVwPinog==
+
+lodash._topath@^3.0.0:
+  version "3.8.1"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/lodash._topath/-/lodash._topath-3.8.1.tgz#3ec5e2606014f4cb97f755fe6914edd8bfc00eac"
+  integrity sha512-QsF5c8A+Biv0oxuSCd05JqhXHPCjvFT0nMXVevfMgU1pp5iEHVSin2cKXi3lQe5+px285p7kAHVtOnbNE79syw==
+  dependencies:
+    lodash.isarray "^3.0.0"
+
 lodash.camelcase@^4.3.0:
   version "4.3.0"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/lodash.camelcase/-/lodash.camelcase-4.3.0.tgz#b28aa6288a2b9fc651035c7711f65ab6190331a6"
@@ -6639,6 +6651,19 @@ lodash.findlast@^4.6.0:
 lodash.flatmap@^4.5.0:
   version "4.5.0"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/lodash.flatmap/-/lodash.flatmap-4.5.0.tgz#ef8cbf408f6e48268663345305c6acc0b778702e"
+
+lodash.get@^3.7.0:
+  version "3.7.0"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/lodash.get/-/lodash.get-3.7.0.tgz#3ce68ae2c91683b281cc5394128303cbf75e691f"
+  integrity sha512-7iD0aRHu/B8gcCDNx53lJi33R4TzpbOB3Mfk4XpIN7WFUt+W5rI+6CtHhpJ52B6zhhRvogtuNSDFZc3xgcbClQ==
+  dependencies:
+    lodash._baseget "^3.0.0"
+    lodash._topath "^3.0.0"
+
+lodash.isarray@^3.0.0:
+  version "3.0.4"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/lodash.isarray/-/lodash.isarray-3.0.4.tgz#79e4eb88c36a8122af86f844aa9bcd851b5fbb55"
+  integrity sha512-JwObCrNJuT0Nnbuecmqr5DgtuBppuCvGD9lxjFpAzwnVtdGoDQ1zig+5W8k5/6Gcn0gZ3936HDAlGd28i7sOGQ==
 
 lodash.isequal@^4.5.0:
   version "4.5.0"

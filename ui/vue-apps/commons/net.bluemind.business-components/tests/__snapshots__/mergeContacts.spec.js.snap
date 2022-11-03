@@ -1,0 +1,163 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Merge contacts Merge contacts from different address books 1`] = `
+Object {
+  "value": Object {
+    "communications": Object {
+      "emails": Array [
+        Object {
+          "parameters": Array [
+            Object {
+              "label": "TYPE",
+              "value": "home",
+            },
+          ],
+          "value": "georges.abitbol@dev.bluemind.net",
+        },
+        Object {
+          "parameters": Array [
+            Object {
+              "label": "TYPE",
+              "value": "work",
+            },
+          ],
+          "value": "gabitbol@devenv.dev.bluemind.net",
+        },
+        Object {
+          "parameters": Array [
+            Object {
+              "label": "TYPE",
+              "value": "work",
+            },
+          ],
+          "value": "georges.a@dev.bluemind.net",
+        },
+        Object {
+          "parameters": Array [
+            Object {
+              "label": "TYPE",
+              "value": "home",
+            },
+          ],
+          "value": "georges.bitbol@dev.bluemind.net",
+        },
+        Object {
+          "parameters": Array [
+            Object {
+              "label": "TYPE",
+              "value": "work",
+            },
+          ],
+          "value": "georges.b@dev.bluemind.net",
+        },
+      ],
+      "tels": Array [
+        Object {
+          "ext": null,
+          "parameters": Array [
+            Object {
+              "label": "TYPE",
+              "value": "voice",
+            },
+            Object {
+              "label": "TYPE",
+              "value": "work",
+            },
+          ],
+          "value": "0615249193",
+        },
+        Object {
+          "ext": null,
+          "parameters": Array [
+            Object {
+              "label": "TYPE",
+              "value": "home",
+            },
+            Object {
+              "label": "TYPE",
+              "value": "voice",
+            },
+          ],
+          "value": "0615249194",
+        },
+        Object {
+          "ext": null,
+          "parameters": Array [
+            Object {
+              "label": "TYPE",
+              "value": "voice",
+            },
+            Object {
+              "label": "TYPE",
+              "value": "work",
+            },
+          ],
+          "value": "0615249100",
+        },
+        Object {
+          "ext": null,
+          "parameters": Array [
+            Object {
+              "label": "TYPE",
+              "value": "home",
+            },
+            Object {
+              "label": "TYPE",
+              "value": "voice",
+            },
+          ],
+          "value": "0615249101",
+        },
+      ],
+    },
+    "deliveryAddressing": Array [
+      Object {
+        "address": Object {
+          "countryName": "France",
+          "extentedAddress": null,
+          "locality": "Tolosa",
+          "parameters": Array [
+            Object {
+              "label": "TYPE",
+              "value": "work",
+            },
+          ],
+          "postOfficeBox": "BP 007",
+          "postalCode": "31000",
+          "region": "",
+          "streetAddress": "6 avenue du Pont",
+          "value": null,
+        },
+      },
+    ],
+    "identification": Object {
+      "anniversary": null,
+      "birthday": null,
+      "formatedName": Object {
+        "parameters": Array [],
+        "value": "Georges A",
+      },
+      "gender": Object {
+        "parameters": Array [],
+        "text": null,
+        "value": null,
+      },
+      "name": Object {
+        "additionalNames": "",
+        "familyNames": "A",
+        "givenNames": "Georges",
+        "parameters": Array [],
+        "prefixes": "",
+        "suffixes": "",
+        "value": null,
+      },
+      "nickname": Object {
+        "parameters": Array [],
+        "value": null,
+      },
+      "photo": true,
+      "photoBinary": "photoBinary",
+    },
+  },
+}
+`;

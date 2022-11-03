@@ -1,0 +1,68 @@
+{
+    "values": [
+        {
+            "containerUid": "book:Contacts_E34DD2DD-25AC-4548-927F-C7D183203608",
+            "value": {
+                "kind": "individual",
+                "mail": "georges.abitbol@dev.bluemind.net",
+                "tel": "0615249193",
+                "formatedName": "Georges A",
+                "categories": [],
+                "memberCount": 0,
+                "photo": false,
+                "source": null
+            },
+            "uid": "69341cba-8390-4c14-988b-4ad4a2959357",
+            "version": 2,
+            "displayName": "Georges A",
+            "externalId": null,
+            "createdBy": "E34DD2DD-25AC-4548-927F-C7D183203608",
+            "updatedBy": "E34DD2DD-25AC-4548-927F-C7D183203608",
+            "created": 1667482983190,
+            "updated": 1667485527603
+        },
+        {
+            "containerUid": "book:CollectedContacts_E34DD2DD-25AC-4548-927F-C7D183203608",
+            "value": {
+                "kind": "individual",
+                "mail": "georges.bitbol@dev.bluemind.net",
+                "tel": "0615249100",
+                "formatedName": "Georges B",
+                "categories": [],
+                "memberCount": 0,
+                "photo": false,
+                "source": null
+            },
+            "uid": "69341cba-8390-4c14-988b-4ad4a2959357",
+            "version": 3,
+            "displayName": "Georges B",
+            "externalId": null,
+            "createdBy": "E34DD2DD-25AC-4548-927F-C7D183203608",
+            "updatedBy": "E34DD2DD-25AC-4548-927F-C7D183203608",
+            "created": 1667483008952,
+            "updated": 1667485541139
+        },
+        {
+            "containerUid": "addressbook_75a0d5b3.internal",
+            "value": {
+                "kind": "individual",
+                "mail": "gabitbol@devenv.dev.bluemind.net",
+                "tel": null,
+                "formatedName": "Georges Abitbol",
+                "categories": [],
+                "memberCount": 0,
+                "photo": false,
+                "source": "bm://75a0d5b3.internal/users/E34DD2DD-25AC-4548-927F-C7D183203608"
+            },
+            "uid": "E34DD2DD-25AC-4548-927F-C7D183203608",
+            "version": 3,
+            "displayName": "Georges Abitbol",
+            "externalId": null,
+            "createdBy": "system",
+            "updatedBy": "system",
+            "created": 1667410111266,
+            "updated": 1667410121642
+        }
+    ],
+    "total": 3
+}

@@ -1,6 +1,6 @@
 <template>
     <bm-popover triggers="click blur" :target="target" placement="bottom" no-fade>
-        <resolved-contact :criteria="criteria">
+        <resolved-contact :address="address">
             <template v-slot:default="{ resolvedContact }">
                 <contact-card :contact="resolvedContact" />
             </template>
@@ -17,8 +17,8 @@ export default {
     name: "ContactPopover",
     components: { BmPopover, ContactCard, ResolvedContact },
     props: {
-        criteria: {
-            type: Object,
+        address: {
+            type: String,
             required: true
         },
         target: {

@@ -1,0 +1,29 @@
+{
+    "book:Contacts_E34DD2DD-25AC-4548-927F-C7D183203608": {
+        "name": "Mes contacts",
+        "domainUid": "75a0d5b3.internal",
+        "owner": "E34DD2DD-25AC-4548-927F-C7D183203608",
+        "system": false,
+        "settings": {},
+        "orgUnitUid": null,
+        "expectedId": null
+    },
+    "book:CollectedContacts_E34DD2DD-25AC-4548-927F-C7D183203608": {
+        "name": "Contacts collectés",
+        "domainUid": "75a0d5b3.internal",
+        "owner": "E34DD2DD-25AC-4548-927F-C7D183203608",
+        "system": false,
+        "settings": {},
+        "orgUnitUid": null,
+        "expectedId": null
+    },
+    "addressbook_75a0d5b3.internal": {
+        "name": "Annuaire",
+        "domainUid": "75a0d5b3.internal",
+        "owner": "addressbook_75a0d5b3.internal",
+        "system": false,
+        "settings": {},
+        "orgUnitUid": null,
+        "expectedId": null
+    }
+}

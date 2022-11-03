@@ -1,0 +1,243 @@
+[
+    {
+        "value": {
+            "kind": "individual",
+            "source": null,
+            "identification": {
+                "formatedName": { "parameters": [], "value": "Georges A" },
+                "name": {
+                    "parameters": [],
+                    "value": null,
+                    "familyNames": "A",
+                    "givenNames": "Georges",
+                    "additionalNames": "",
+                    "prefixes": "",
+                    "suffixes": ""
+                },
+                "nickname": { "parameters": [], "value": null },
+                "photo": false,
+                "photoBinary": null,
+                "birthday": null,
+                "anniversary": null,
+                "gender": { "parameters": [], "value": null, "text": null }
+            },
+            "deliveryAddressing": [
+                {
+                    "address": {
+                        "parameters": [{ "label": "TYPE", "value": "work" }],
+                        "value": null,
+                        "postOfficeBox": "BP 007",
+                        "extentedAddress": null,
+                        "streetAddress": "6 avenue du Pont",
+                        "locality": "Tolosa",
+                        "region": "",
+                        "postalCode": "31000",
+                        "countryName": "France"
+                    }
+                }
+            ],
+            "communications": {
+                "tels": [
+                    {
+                        "parameters": [
+                            { "label": "TYPE", "value": "voice" },
+                            { "label": "TYPE", "value": "work" }
+                        ],
+                        "value": "0615249193",
+                        "ext": null
+                    },
+                    {
+                        "parameters": [
+                            { "label": "TYPE", "value": "home" },
+                            { "label": "TYPE", "value": "voice" }
+                        ],
+                        "value": "0615249194",
+                        "ext": null
+                    }
+                ],
+                "emails": [
+                    {
+                        "parameters": [{ "label": "TYPE", "value": "home" }],
+                        "value": "georges.abitbol@dev.bluemind.net"
+                    },
+                    {
+                        "parameters": [{ "label": "TYPE", "value": "work" }],
+                        "value": "gabitbol@devenv.dev.bluemind.net"
+                    },
+                    { "parameters": [{ "label": "TYPE", "value": "work" }], "value": "georges.a@dev.bluemind.net" }
+                ],
+                "impps": [],
+                "langs": []
+            },
+            "organizational": {
+                "title": null,
+                "role": null,
+                "org": { "company": null, "division": null, "department": null },
+                "member": []
+            },
+            "explanatory": { "urls": [], "categories": [], "note": null },
+            "security": { "key": { "parameters": [], "value": null } },
+            "related": { "spouse": null, "manager": null, "assistant": null }
+        },
+        "uid": "69341cba-8390-4c14-988b-4ad4a2959357",
+        "internalId": 85,
+        "version": 2,
+        "displayName": "Georges A",
+        "externalId": null,
+        "createdBy": "E34DD2DD-25AC-4548-927F-C7D183203608",
+        "updatedBy": "E34DD2DD-25AC-4548-927F-C7D183203608",
+        "created": 1667482983190,
+        "updated": 1667485527603,
+        "flags": ["Seen"]
+    },
+    {
+        "value": {
+            "kind": "individual",
+            "source": null,
+            "identification": {
+                "formatedName": { "parameters": [], "value": "Georges B" },
+                "name": {
+                    "parameters": [],
+                    "value": null,
+                    "familyNames": "B",
+                    "givenNames": "Georges",
+                    "additionalNames": "",
+                    "prefixes": "",
+                    "suffixes": ""
+                },
+                "nickname": { "parameters": [], "value": null },
+                "photo": false,
+                "photoBinary": null,
+                "birthday": null,
+                "anniversary": null,
+                "gender": { "parameters": [], "value": null, "text": null }
+            },
+            "deliveryAddressing": [
+                {
+                    "address": {
+                        "parameters": [{ "label": "TYPE", "value": "work" }],
+                        "value": null,
+                        "postOfficeBox": "BP 007",
+                        "extentedAddress": null,
+                        "streetAddress": "6 avenue du Pont",
+                        "locality": "Tolosa",
+                        "region": "",
+                        "postalCode": "31000",
+                        "countryName": "France"
+                    }
+                }
+            ],
+            "communications": {
+                "tels": [
+                    {
+                        "parameters": [
+                            { "label": "TYPE", "value": "voice" },
+                            { "label": "TYPE", "value": "work" }
+                        ],
+                        "value": "0615249100",
+                        "ext": null
+                    },
+                    {
+                        "parameters": [
+                            { "label": "TYPE", "value": "home" },
+                            { "label": "TYPE", "value": "voice" }
+                        ],
+                        "value": "0615249101",
+                        "ext": null
+                    }
+                ],
+                "emails": [
+                    {
+                        "parameters": [{ "label": "TYPE", "value": "home" }],
+                        "value": "georges.bitbol@dev.bluemind.net"
+                    },
+                    {
+                        "parameters": [{ "label": "TYPE", "value": "work" }],
+                        "value": "gabitbol@devenv.dev.bluemind.net"
+                    },
+                    { "parameters": [{ "label": "TYPE", "value": "work" }], "value": "georges.b@dev.bluemind.net" }
+                ],
+                "impps": [],
+                "langs": []
+            },
+            "organizational": {
+                "title": null,
+                "role": null,
+                "org": { "company": null, "division": null, "department": null },
+                "member": []
+            },
+            "explanatory": { "urls": [], "categories": [], "note": null },
+            "security": { "key": { "parameters": [], "value": null } },
+            "related": { "spouse": null, "manager": null, "assistant": null }
+        },
+        "uid": "69341cba-8390-4c14-988b-4ad4a2959357",
+        "internalId": 86,
+        "version": 3,
+        "displayName": "Georges B",
+        "externalId": null,
+        "createdBy": "E34DD2DD-25AC-4548-927F-C7D183203608",
+        "updatedBy": "E34DD2DD-25AC-4548-927F-C7D183203608",
+        "created": 1667483008952,
+        "updated": 1667485541139,
+        "flags": ["Seen"]
+    },
+    {
+        "value": {
+            "kind": "individual",
+            "source": "bm://75a0d5b3.internal/users/E34DD2DD-25AC-4548-927F-C7D183203608",
+            "identification": {
+                "formatedName": { "parameters": [], "value": "Georges Abitbol" },
+                "name": {
+                    "parameters": [],
+                    "value": null,
+                    "familyNames": "Abitbol",
+                    "givenNames": "Georges",
+                    "additionalNames": null,
+                    "prefixes": null,
+                    "suffixes": null
+                },
+                "nickname": { "parameters": [], "value": null },
+                "photo": true,
+                "photoBinary": null,
+                "birthday": null,
+                "anniversary": null,
+                "gender": { "parameters": [], "value": null, "text": null }
+            },
+            "deliveryAddressing": [],
+            "communications": {
+                "tels": [],
+                "emails": [
+                    {
+                        "parameters": [
+                            { "label": "DEFAULT", "value": "true" },
+                            { "label": "SYSTEM", "value": "false" },
+                            { "label": "TYPE", "value": "work" }
+                        ],
+                        "value": "gabitbol@devenv.dev.bluemind.net"
+                    }
+                ],
+                "impps": [],
+                "langs": []
+            },
+            "organizational": {
+                "title": null,
+                "role": null,
+                "org": { "company": null, "division": null, "department": null },
+                "member": []
+            },
+            "explanatory": { "urls": [], "categories": [], "note": null },
+            "security": { "key": { "parameters": [], "value": null } },
+            "related": { "spouse": null, "manager": null, "assistant": null }
+        },
+        "uid": "E34DD2DD-25AC-4548-927F-C7D183203608",
+        "internalId": 20,
+        "version": 3,
+        "displayName": "Georges Abitbol",
+        "externalId": null,
+        "createdBy": "system",
+        "updatedBy": "system",
+        "created": 1667410111266,
+        "updated": 1667410121642,
+        "flags": ["Seen"]
+    }
+]

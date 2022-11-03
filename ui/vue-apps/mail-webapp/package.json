@@ -39,6 +39,7 @@
         "lodash.escaperegexp": "^4.1.0",
         "lodash.findlast": "^4.6.0",
         "lodash.flatmap": "^4.5.0",
+        "lodash.get": "^3.7.0",
         "lodash.isequal": "^4.5.0",
         "lodash.last": "^3.0.0",
         "lodash.map": "^4.6.0",

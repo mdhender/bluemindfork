@@ -19,7 +19,23 @@ function searchVCardsHelper(pattern, size = 5, noGroup = false) {
     return { from: 0, size, query: esQuery, orderBy: VCardQueryOrderBy.Pertinance, escapeQuery: false };
 }
 
-export { ContactValidator, DirEntryAdaptor, searchVCardsHelper, RecipientAdaptor, VCardAdaptor, VCardInfoAdaptor };
+function searchVCardsByIdHelper(uid, containerUid, size = 5, noGroup = false) {
+    const groupPart = noGroup ? "" : "(value.kind:group AND _exists_:value.organizational.member) OR ";
+    const containerPart = containerUid ? ` AND containerUid:${escape(containerUid)}` : "";
+    const esQuery =
+        "(uid:" + escape(uid) + containerPart + ") AND (" + groupPart + "_exists_:value.communications.emails.value)";
+    return { from: 0, size, query: esQuery, orderBy: VCardQueryOrderBy.Pertinance, escapeQuery: false };
+}
+
+export {
+    ContactValidator,
+    DirEntryAdaptor,
+    searchVCardsByIdHelper,
+    searchVCardsHelper,
+    RecipientAdaptor,
+    VCardAdaptor,
+    VCardInfoAdaptor
+};
 
 function escape(term) {
     const charsToEscape = ["\\", "+", "-", "&&", "||", "!", "(", ")", "{", "}", "[", "]", "^", '"', "~", "*", "?", ":"];
