@@ -120,6 +120,22 @@ public class EmlStructureTests {
 		compareStructure("bm_ndr.eml");
 	}
 
+	@Test
+	public void testQEncodingSpacesTolerance() throws Exception {
+		try (InputStream inputStream = EmlStructureTests.class.getClassLoader()
+				.getResourceAsStream("data/qencoding.eml");
+				FileBackedOutputStream fbos = new FileBackedOutputStream(32000)) {
+			inputStream.transferTo(fbos);
+
+			MessageBodyData result = BodyStreamProcessor
+					.processBody(VertxStream.stream(Buffer.buffer(fbos.asByteSource().read())))
+					.get(2, TimeUnit.SECONDS);
+
+			assertEquals("Service mot de passe BTT : Attention, le mot de passe de toi est expirée (77 jours)",
+					result.body.subject);
+		}
+	}
+
 	private void compareStructure(String eml) {
 		Set<String> addressesFromMime4j = new LinkedHashSet<>();
 		Set<String> addressesFromMailboxItem = new LinkedHashSet<>();

@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.mail.internet.MimeUtility;
+import javax.mail.internet.ParseException;
 
 import org.apache.james.mime4j.dom.Body;
 import org.apache.james.mime4j.dom.Entity;
@@ -112,15 +113,7 @@ public class BodyStreamProcessor {
 		mb.bodyVersion = BODY_VERSION;
 		IStreamTransfer transfer = OffloadedBodyFactory.sharedBufferTransfer();
 		try (Message parsed = Mime4JHelper.parse(emlInput, new OffloadedBodyFactory(transfer))) {
-			String subject = parsed.getSubject();
-			if (subject != null) {
-				mb.subject = subject.replace("\u0000", "");
-				try {
-					mb.subject = MimeUtility.decodeText(mb.subject);
-				} catch (UnsupportedEncodingException | UnsupportedCharsetException e) {
-					logger.warn("Cannot decode subject {}", e.getMessage());
-				}
-			}
+			parseSubject(mb, parsed);
 
 			mb.date = parsed.getDate();
 			mb.size = (int) emlInput.getCount();
@@ -180,6 +173,22 @@ public class BodyStreamProcessor {
 			throw new RuntimeException(e);
 		}
 
+	}
+
+	private static void parseSubject(MessageBody mb, Message parsed) throws ParseException {
+		String subject = parsed.getSubject();
+		if (subject != null) {
+			mb.subject = subject.replace("\u0000", "");
+			try {
+				mb.subject = MimeUtility.decodeWord(mb.subject);
+			} catch (UnsupportedEncodingException | UnsupportedCharsetException e) {
+				try {
+					mb.subject = MimeUtility.decodeText(mb.subject);
+				} catch (UnsupportedEncodingException | UnsupportedCharsetException e1) {
+					logger.warn("Cannot decode subject {}", e1.getMessage());
+				}
+			}
+		}
 	}
 
 	private static void cleanUnreferencedInlineAttachments(Optional<Document> jsoup, MessageBody mb, Message parsed) {
