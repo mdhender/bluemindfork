@@ -26,7 +26,7 @@ public class MailFilterRuleDeliveryHook implements IDeliveryHook {
 		}
 
 		ResolvedBox box = content.box();
-		RuleEngine engine = new RuleEngine(provider, new Sendmail(), content, vacationCacheFactory);
+		RuleEngine engine = new RuleEngine(ctx, new Sendmail(), content, vacationCacheFactory);
 		IInCoreMailboxes mailboxesApi = provider.instance(IInCoreMailboxes.class, box.dom.uid);
 
 		MailFilter domainFilters = mailboxesApi.getDomainFilter();

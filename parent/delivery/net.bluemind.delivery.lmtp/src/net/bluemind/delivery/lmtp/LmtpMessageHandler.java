@@ -50,6 +50,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.delivery.lmtp.common.DeliveryContent;
 import net.bluemind.delivery.lmtp.common.FreezableDeliveryContent;
+import net.bluemind.delivery.lmtp.common.IDeliveryContext;
 import net.bluemind.delivery.lmtp.common.IDeliveryHook;
 import net.bluemind.delivery.lmtp.common.LmtpEnvelope;
 import net.bluemind.delivery.lmtp.common.ResolvedBox;
@@ -66,16 +67,18 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 	private static final Logger logger = LoggerFactory.getLogger(LmtpMessageHandler.class);
 	private final ApiProv prov;
 	private final MailboxLookup lookup;
+	private final IDeliveryContext deliveryContext;
 	private Counter internalCount;
 	private Counter externalCount;
 
 	public LmtpMessageHandler(ApiProv prov) {
 		this.prov = prov;
 		this.lookup = new MailboxLookup(prov);
+		this.deliveryContext = new DeliveryContext(prov.system(), lookup);
 		Registry reg = MetricsRegistry.get();
 		IdFactory idf = new IdFactory("bm-lmtpd", reg, LmtpMessageHandler.class);
-		internalCount = reg.counter(idf.name("deliveries", "source", "internal"));
-		externalCount = reg.counter(idf.name("deliveries", "source", "external"));
+		this.internalCount = reg.counter(idf.name("deliveries", "source", "internal"));
+		this.externalCount = reg.counter(idf.name("deliveries", "source", "external"));
 	}
 
 	@Override
@@ -104,7 +107,7 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 		if (freezedContent.isEmpty()) {
 			return;
 		}
-		doDeliver(subtree, freezedContent);
+		doDeliver(freezedContent);
 
 		Optional.ofNullable(lookup.lookupEmail(from)) //
 				.ifPresentOrElse(box -> internalCount.increment(), () -> externalCount.increment());
@@ -129,8 +132,9 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 				: freezableContent;
 	}
 
-	private void doDeliver(String subtree, FreezableDeliveryContent freezableContent) {
+	private void doDeliver(FreezableDeliveryContent freezableContent) {
 		ResolvedBox tgtBox = freezableContent.content().box();
+		String subtree = IMailReplicaUids.subtreeUid(tgtBox.dom.uid, tgtBox.mbox);
 		ItemValue<MailboxReplica> folder = freezableContent.content().folderItem();
 		MailboxRecord mailboxRecord = freezableContent.content().mailboxRecord();
 		String guid = freezableContent.serializedMessage().guid();
@@ -188,7 +192,7 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 		List<IDeliveryHook> hooks = LmtpHooks.get();
 		for (IDeliveryHook hook : hooks) {
 			try {
-				content = hook.preDelivery(prov::system, content);
+				content = hook.preDelivery(deliveryContext, content);
 			} catch (Exception e) {
 				logger.error("[delivery] failed to apply delivery hook {} on {}", //
 						hook.getClass().getCanonicalName(), content, e);

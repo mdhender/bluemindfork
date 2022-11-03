@@ -79,8 +79,10 @@ public class MailFilterSanitizer implements ISanitizer<MailFilter> {
 		if (obj.rules == null) {
 			obj.rules = Collections.emptyList();
 		}
-		obj.rules = obj.rules.stream() //
-				.filter(rule -> rule.move().map(move -> !Strings.isNullOrEmpty(move.folder())).orElse(true)) //
+		obj.rules = obj.rules.stream()
+				.filter(rule -> rule.move()
+						.map(move -> !Strings.isNullOrEmpty(move.folder()) && !Strings.isNullOrEmpty(move.subtree()))
+						.orElse(true))
 				.map(rule -> {
 					rule.transfer().ifPresent(transfer -> transfer.emails = sanitizeEmailList(transfer.emails));
 					rule.redirect().ifPresent(redirect -> redirect.emails = sanitizeEmailList(redirect.emails));

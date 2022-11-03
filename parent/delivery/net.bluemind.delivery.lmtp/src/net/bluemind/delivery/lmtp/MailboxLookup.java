@@ -31,6 +31,7 @@ import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
+import net.bluemind.delivery.lmtp.common.IMailboxLookup;
 import net.bluemind.delivery.lmtp.common.ResolvedBox;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
@@ -38,7 +39,7 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.mailbox.api.IMailboxes;
 
-public class MailboxLookup {
+public class MailboxLookup implements IMailboxLookup {
 
 	private final IServiceProvider sp;
 	private static final Logger logger = LoggerFactory.getLogger(MailboxLookup.class);

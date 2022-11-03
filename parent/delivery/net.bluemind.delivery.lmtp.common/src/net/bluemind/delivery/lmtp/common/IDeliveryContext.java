@@ -22,4 +22,6 @@ import net.bluemind.core.rest.IServiceProvider;
 public interface IDeliveryContext {
 
 	public IServiceProvider provider();
+
+	public IMailboxLookup mailboxLookup();
 }

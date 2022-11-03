@@ -387,115 +387,92 @@ public class SieveRuleEditorDialog extends Composite {
 	}
 
 	private void initFolders() {
-		moveTo.addItem(constants.inbox(), "INBOX");
-		moveTo.addItem(constants.sent(), "Sent");
+		moveTo.addItem(constants.inbox(), "user:INBOX");
+		moveTo.addItem(constants.sent(), "user:Sent");
 
 		if (type == Type.DOMAIN) {
 			// 3.0 style
-			moveTo.addItem(constants.trash(), "Trash");
-			moveTo.addItem(constants.spam(), "Junk");
+			moveTo.addItem(constants.trash(), "user:Trash");
+			moveTo.addItem(constants.spam(), "user:Junk");
 		} else {
-			List<CompletableFuture<Void>> futures = new ArrayList<>();
-			CompletableFuture<Void> mfFuture = addMyFolders(futures);
-			addOtherFolders(futures);
-
-			CompletableFuture.allOf(mfFuture).thenAccept(o -> value.move()
-					.ifPresent(move -> moveTo.setSelectedIndex(getItemByValue(moveTo, move.folder()))));
+			addMyFolders() //
+				.thenCompose(v -> addOtherFolders()) //
+				.thenAccept(o -> value.move()
+						.ifPresent(move -> moveTo.setSelectedIndex(getItemByValue(moveTo, move.asString()))));
 		}
 	}
 
-	private void addOtherFolders(List<CompletableFuture<Void>> futures) {
+	private CompletableFuture<Void> addOtherFolders() {
 		IDirectoryPromise dir = new DirectoryGwtEndpoint(Ajax.TOKEN.getSessionId(), domainUid).promiseApi();
-		if (type == Type.USER) {
-			IUserSubscriptionPromise service = new UserSubscriptionGwtEndpoint(Ajax.TOKEN.getSessionId(), domainUid)
-					.promiseApi();
-			CompletableFuture<Void> otherMboxes = service.listSubscriptions(mbox, "mailboxacl").thenApply(res -> {
-				return res.stream()//
-						.filter(cd -> /* cd.writable */ true)//
-						.collect(
-								Collectors.toMap(k -> k.containerUid.substring("mailbox:acls-".length()), v -> v.name));
-			}).thenCompose(writableMailboxes -> {
-				return dir
-						.search(DirEntryQuery.entries(writableMailboxes.keySet().stream().collect(Collectors.toList())))
-						.thenApply(ret -> {
-							List<MoveToMailbox> mboxes = new ArrayList<>();
-							ret.values.forEach(v -> {
-								mboxes.add(MoveToMailbox.create(v.uid, writableMailboxes.get(v.uid),
-										v.value.displayName, v.value.kind));
-							});
-							return mboxes;
-						});
-
-			}).thenApply(entries -> {
-				return entries.stream().filter(e -> !e.uid.equals(mbox)).map(entry -> {
-					String subtree2 = "subtree_" + domainUid.replace('.', '_') + "!"
-							+ (entry.kind == Kind.USER ? "user." : "") + entry.uid;
-					ReadOnlyMailboxFoldersEndpointPromise mf2 = new ReadOnlyMailboxFoldersEndpointPromise(
-							new ReadOnlyMailboxFoldersSockJsEndpoint(Ajax.TOKEN.getSessionId(), subtree2));
-					CompletableFuture<Void> mfFuture2 = mf2.all().thenAccept(folders -> {
-						folders.stream().sorted((a, b) -> a.value.fullName.compareTo(b.value.fullName))
-								.forEach(folder -> {
-									if (!folder.flags.contains(ItemFlag.Deleted)) {
-										String prefix = entry.kind == Kind.USER ? "Autres utilisateurs"
-												: "Dossiers partagés";
-										if (!matches(folder.value.name, "outbox")) {
-											String foldername = folder.value.fullName;
-											if (foldername.equalsIgnoreCase("trash")) {
-												moveTo.addItem(prefix + "/" + constants.trash(),
-														prefix + "/" + "Trash");
-											} else if (foldername.equalsIgnoreCase("junk")) {
-												moveTo.addItem(prefix + "/" + constants.spam(), prefix + "/" + "Junk");
-											} else if (foldername.equalsIgnoreCase("drafts")) {
-												moveTo.addItem(prefix + "/" + constants.drafts(),
-														prefix + "/" + "Drafts");
-											} else {
-												if (foldername.equals(entry.mailboxName)) {
-													moveTo.addItem(
-															prefix + "/" + entry.mailboxName + "/" + constants.inbox(),
-															prefix + "/" + entry.mailboxName);
-												} else {
-													moveTo.addItem(prefix + "/" + foldername);
-												}
-											}
-										}
-									}
-								});
-					});
-					futures.add(mfFuture2);
-
-					return entry;
-				}).toArray(CompletableFuture[]::new);
-			}).thenCompose(CompletableFuture::allOf).exceptionally(e -> {
-				return null;
-			});
-			futures.add(otherMboxes);
+		if (type != Type.USER) {
+			return CompletableFuture.completedFuture(null);
 		}
+		IUserSubscriptionPromise service = new UserSubscriptionGwtEndpoint(Ajax.TOKEN.getSessionId(), domainUid)
+				.promiseApi();
+		return service.listSubscriptions(mbox, "mailboxacl")
+			.thenApply(res ->  res.stream()
+					.collect(Collectors.toMap(k -> k.containerUid.substring("mailbox:acls-".length()), v -> v.name)))
+			.thenCompose(writableMailboxes -> dir
+					.search(DirEntryQuery.entries(writableMailboxes.keySet().stream().collect(Collectors.toList())))
+					.thenApply(ret -> ret.values.stream()
+							.map(v -> MoveToMailbox.create(v.uid, writableMailboxes.get(v.uid), v.value.displayName, v.value.kind))
+							.collect(Collectors.toList())))
+			.thenCompose(entries -> {
+				CompletableFuture<?>[] entriesFuture = entries.stream() //
+						.filter(e -> !e.uid.equals(mbox)) //
+						.map(entry -> {
+							String subtree2 = "subtree_" + domainUid.replace('.', '_') + "!" + (entry.kind == Kind.USER ? "user." : "") + entry.uid;
+							ReadOnlyMailboxFoldersEndpointPromise mf2 = new ReadOnlyMailboxFoldersEndpointPromise(
+									new ReadOnlyMailboxFoldersSockJsEndpoint(Ajax.TOKEN.getSessionId(), subtree2));
+							return mf2.all().thenAccept(folders -> {
+								folders.stream().sorted((a, b) -> a.value.fullName.compareTo(b.value.fullName))
+										.filter(folder -> !folder.flags.contains(ItemFlag.Deleted) && !matches(folder.value.name, "outbox"))
+										.forEach(folder -> {
+											String prefix = entry.kind == Kind.USER ? "Autres utilisateurs/" + entry.displayName : "Dossiers partagés";
+											String foldername = folder.value.fullName;
+											String value = subtree2 + ":" + folder.internalId + ":" + prefix + "/" + foldername;  
+											if (foldername.equalsIgnoreCase("trash")) {
+												moveTo.addItem(prefix + "/" + constants.trash(), value);
+											} else if (foldername.equalsIgnoreCase("junk")) {
+												moveTo.addItem(prefix + "/" + constants.spam(), value);
+											} else if (foldername.equalsIgnoreCase("drafts")) {
+												moveTo.addItem(prefix + "/" + constants.drafts(), value);
+											} else if (foldername.equalsIgnoreCase("inbox")) {
+												moveTo.addItem(prefix + "/" + constants.inbox(), value);
+											} else if (foldername.equalsIgnoreCase("sent")) {
+												moveTo.addItem(prefix + "/" + constants.sent(), value);
+											} else if (foldername.equals(entry.mailboxName)) {
+												moveTo.addItem(prefix + "/" + entry.mailboxName + "/" + constants.inbox(), value);
+											} else {
+												moveTo.addItem(prefix + "/" + foldername, value);
+											}
+										});
+								});
+				}).toArray(CompletableFuture[]::new);
+				return CompletableFuture.allOf(entriesFuture);
+			}).exceptionally(e -> null);
 	}
 
-	private CompletableFuture<Void> addMyFolders(List<CompletableFuture<Void>> futures) {
+	private CompletableFuture<Void> addMyFolders() {
 		String subtree = "subtree_" + domainUid.replace('.', '_') + "!" + (type == Type.USER ? "user." : "") + mbox;
 		ReadOnlyMailboxFoldersEndpointPromise mf = new ReadOnlyMailboxFoldersEndpointPromise(
 				new ReadOnlyMailboxFoldersSockJsEndpoint(Ajax.TOKEN.getSessionId(), subtree));
-		CompletableFuture<Void> mfFuture = mf.all().thenAccept(folders -> {
-			folders.stream().sorted((a, b) -> a.value.fullName.compareTo(b.value.fullName)).forEach(folder -> {
-				if (!folder.flags.contains(ItemFlag.Deleted)) {
-					if (!matches(folder.value.name, "inbox", "sent", "outbox")) {
-						String foldername = folder.value.fullName;
-						if (foldername.equalsIgnoreCase("trash")) {
-							moveTo.addItem(constants.trash(), "Trash");
-						} else if (foldername.equalsIgnoreCase("junk")) {
-							moveTo.addItem(constants.spam(), "Junk");
-						} else if (foldername.equalsIgnoreCase("drafts")) {
-							moveTo.addItem(constants.drafts(), "Drafts");
-						} else {
-							moveTo.addItem(folder.value.fullName);
-						}
+		return mf.all().thenAccept(folders -> {
+			folders.stream().sorted((a, b) -> a.value.fullName.compareTo(b.value.fullName))
+				.filter(folder -> !folder.flags.contains(ItemFlag.Deleted) && !matches(folder.value.name, "inbox", "sent", "outbox"))
+				.forEach(folder -> {
+					String foldername = folder.value.fullName;
+					if (foldername.equalsIgnoreCase("trash")) {
+						moveTo.addItem(constants.trash(), "user:Trash");
+					} else if (foldername.equalsIgnoreCase("junk")) {
+						moveTo.addItem(constants.spam(), "user:Junk");
+					} else if (foldername.equalsIgnoreCase("drafts")) {
+						moveTo.addItem(constants.drafts(), "user:Drafts");
+					} else {
+						moveTo.addItem(folder.value.fullName, "user:" + folder.internalId + ":" + folder.value.fullName);
 					}
-				}
+				});
 			});
-		});
-		futures.add(mfFuture);
-		return mfFuture;
 	}
 
 	private boolean matches(String folder, String... folders) {
@@ -628,7 +605,7 @@ public class SieveRuleEditorDialog extends Composite {
 		value.move().ifPresent(move -> {
 			cbMoveTo.setValue(Boolean.TRUE);
 			moveTo.setEnabled(true);
-			moveTo.setSelectedIndex(getItemByValue(moveTo, move.folder()));
+			moveTo.setSelectedIndex(getItemByValue(moveTo, move.asString()));
 		});
 		checkForm();
 	}
@@ -679,7 +656,7 @@ public class SieveRuleEditorDialog extends Composite {
 			rule.addDiscard();
 		}
 		if (cbMoveTo.getValue()) {
-			rule.addMove(moveTo.getValue(moveTo.getSelectedIndex()));
+			rule.addMoveFromString(moveTo.getValue(moveTo.getSelectedIndex()));
 		}
 
 		if (cbForwardTo.getValue()) {

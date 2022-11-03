@@ -144,13 +144,17 @@ export function toString(filter, i18n) {
     const and = ` ${i18n.t("common.and")} `;
 
     const actions = filter.actions
-        .map(action =>
-            i18n.t(`preferences.mail.filters.action.${action.name}`, {
-                value: [ACTIONS.FORWARD.name, ACTIONS.TRANSFER.name].includes(action.name)
-                    ? action.emails.join(and)
-                    : action.value
-            })
-        )
+        .map(action => {
+            let value;
+            if ([ACTIONS.FORWARD.name, ACTIONS.TRANSFER.name].includes(action.name)) {
+                value = action.emails.join(and);
+            } else if (ACTIONS.DELIVER.name === action.name) {
+                value = action.folder;
+            } else {
+                value = action.value;
+            }
+            return i18n.t(`preferences.mail.filters.action.${action.name}`, { value });
+        })
         .join(and);
 
     const criteria = filter.criteria

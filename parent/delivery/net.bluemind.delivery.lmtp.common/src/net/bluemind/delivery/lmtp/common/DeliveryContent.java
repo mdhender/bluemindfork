@@ -18,6 +18,10 @@ public record DeliveryContent(String from, ResolvedBox box, ItemValue<MailboxRep
 		return message == null;
 	}
 
+	public DeliveryContent withBox(ResolvedBox box) {
+		return new DeliveryContent(from, box, folderItem, message, mailboxRecord, stop, size);
+	}
+
 	public DeliveryContent withSize(long size) {
 		return new DeliveryContent(from, box, folderItem, message, mailboxRecord, stop, size);
 	}

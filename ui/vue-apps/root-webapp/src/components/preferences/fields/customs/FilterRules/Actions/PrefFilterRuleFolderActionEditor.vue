@@ -1,7 +1,7 @@
 <template>
     <bm-form-select
         v-if="userFolders.length > 0"
-        v-model="action.folder"
+        v-model="folderValue"
         :options="userFolders"
         :auto-min-width="false"
         class="pref-filter-rule-folder-action-editor"
@@ -11,9 +11,9 @@
             <div v-if="slotProps.selected" class="folder-path font-weight-normal" :title="slotProps.selected.value">
                 <bm-icon
                     class="mr-4"
-                    :icon="icon(slotProps.selected.value)"
-                    :tooltip="slotProps.selected.value"
-                    :aria-label="slotProps.selected.value"
+                    :icon="icon(slotProps.selected.value.folder)"
+                    :tooltip="slotProps.selected.value.folder"
+                    :aria-label="slotProps.selected.value.folder"
                 >
                 </bm-icon>
                 <span class="d-inline-block text-truncate">{{ start(slotProps.selected.text) }}</span>
@@ -27,9 +27,9 @@
             <div class="folder-path" :title="slotProps.item.value">
                 <bm-icon
                     class="mr-4"
-                    :icon="icon(slotProps.item.value)"
-                    :tooltip="slotProps.item.value"
-                    :aria-label="slotProps.item.value"
+                    :icon="icon(slotProps.item.value.folder)"
+                    :tooltip="slotProps.item.value.folder"
+                    :aria-label="slotProps.item.value.folder"
                 >
                 </bm-icon>
                 <span class="d-inline-block text-truncate">{{ start(slotProps.item.text) }}</span>
@@ -56,6 +56,18 @@ export default {
         return {
             userFolders: []
         };
+    },
+    computed: {
+        folderValue: {
+            get() {
+                return { subtree: this.action.subtree, id: this.action.id, folder: this.action.folder };
+            },
+            set(value) {
+                this.$set(this.action, "subtree", value?.subtree);
+                this.$set(this.action, "id", value?.id);
+                this.$set(this.action, "folder", value?.folder);
+            }
+        }
     },
     async created() {
         const userId = inject("UserSession").userId;
@@ -104,32 +116,36 @@ const DEFAULT_FOLDER_NAMES = {
 };
 
 function sort(raw) {
-    const i18n = inject("i18n");
-
     const result = [];
 
-    result.push({ text: i18n.t("common.folder.inbox"), value: DEFAULT_FOLDER_NAMES.INBOX });
-    result.push({ text: i18n.t("common.folder.trash"), value: DEFAULT_FOLDER_NAMES.TRASH });
-    result.push({ text: i18n.t("common.folder.junk"), value: DEFAULT_FOLDER_NAMES.JUNK });
+    result.push(userFolder(DEFAULT_FOLDER_NAMES.INBOX));
+    result.push(userFolder(DEFAULT_FOLDER_NAMES.TRASH));
+    result.push(userFolder(DEFAULT_FOLDER_NAMES.JUNK));
 
     let customFolders = raw
         .map(
             r =>
-                !Object.values(DEFAULT_FOLDER_NAMES).includes(r.value.fullName) && {
-                    text: r.value.fullName,
-                    value: r.value.fullName
-                }
+                !Object.values(DEFAULT_FOLDER_NAMES).includes(r.value.fullName) &&
+                userFolder(r.value.fullName, r.internalId)
         )
         .filter(Boolean);
     customFolders = customFolders.sort((a, b) => a.text.localeCompare(b.text));
     result.push.apply(result, customFolders);
 
-    result.push({ text: i18n.t("common.folder.templates"), value: DEFAULT_FOLDER_NAMES.TEMPLATES });
-    result.push({ text: i18n.t("common.folder.drafts"), value: DEFAULT_FOLDER_NAMES.DRAFTS });
-    result.push({ text: i18n.t("common.folder.sent"), value: DEFAULT_FOLDER_NAMES.SENT });
-    result.push({ text: i18n.t("common.folder.outbox"), value: DEFAULT_FOLDER_NAMES.OUTBOX });
+    result.push(userFolder(DEFAULT_FOLDER_NAMES.TEMPLATES));
+    result.push(userFolder(DEFAULT_FOLDER_NAMES.DRAFTS));
+    result.push(userFolder(DEFAULT_FOLDER_NAMES.SENT));
+    result.push(userFolder(DEFAULT_FOLDER_NAMES.OUTBOX));
 
     return result;
+}
+
+function userFolder(folder, id) {
+    const i18n = inject("i18n");
+    const text = Object.values(DEFAULT_FOLDER_NAMES).includes(folder)
+        ? i18n.t(`common.folder.${folder.toLowerCase()}`)
+        : folder;
+    return { text, value: { subtree: "user", id: id ? id : null, folder } };
 }
 </script>
 

@@ -230,6 +230,12 @@ public class MailFilterRule {
 		return this;
 	}
 
+	public MailFilterRule addCopyFromString(String value) {
+		removeAction(MailFilterRuleActionName.COPY);
+		actions.add(MailFilterRuleActionCopy.fromString(value));
+		return this;
+	}
+
 	public Optional<MailFilterRuleActionMove> move() {
 		return actions.stream() //
 				.filter(action -> action.name.equals(MailFilterRuleActionName.MOVE)) //
@@ -239,6 +245,12 @@ public class MailFilterRule {
 	public MailFilterRule addMove(String destinationFolder) {
 		removeAction(MailFilterRuleActionName.MOVE);
 		actions.add(new MailFilterRuleActionMove(destinationFolder));
+		return this;
+	}
+
+	public MailFilterRule addMoveFromString(String value) {
+		removeAction(MailFilterRuleActionName.MOVE);
+		actions.add(MailFilterRuleActionMove.fromString(value));
 		return this;
 	}
 

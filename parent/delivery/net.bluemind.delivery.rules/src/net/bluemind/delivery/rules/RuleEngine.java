@@ -43,7 +43,13 @@ import net.bluemind.core.sendmail.SendmailHelper;
 import net.bluemind.delivery.lmtp.common.DeliveryContent;
 import net.bluemind.delivery.lmtp.common.FreezableDeliveryContent;
 import net.bluemind.delivery.lmtp.common.FreezableDeliveryContent.SerializedMessage;
+import net.bluemind.delivery.lmtp.common.IDeliveryContext;
+import net.bluemind.delivery.lmtp.common.IMailboxLookup;
 import net.bluemind.delivery.lmtp.common.ResolvedBox;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
+import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirEntryPath;
+import net.bluemind.directory.api.IDirectory;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.mailbox.api.rules.FieldValueProvider;
 import net.bluemind.mailbox.api.rules.MailFilterRule;
@@ -72,6 +78,7 @@ public class RuleEngine {
 	private static final Logger logger = LoggerFactory.getLogger(RuleEngine.class);
 
 	private final IServiceProvider serviceProvider;
+	private final IMailboxLookup mailboxLookup;
 	private final ISendmail mailer;
 	private final DeliveryContent originalContent;
 	private final FieldValueProvider fieldValueProvider;
@@ -86,9 +93,10 @@ public class RuleEngine {
 
 	}
 
-	public RuleEngine(IServiceProvider serviceProvider, ISendmail mailer, DeliveryContent content,
+	public RuleEngine(IDeliveryContext ctx, ISendmail mailer, DeliveryContent content,
 			MailboxVacationSendersCache.Factory vacationCacheFactory) {
-		this.serviceProvider = serviceProvider;
+		this.serviceProvider = ctx.provider();
+		this.mailboxLookup = ctx.mailboxLookup();
 		this.mailer = mailer;
 		this.originalContent = content;
 		this.fieldValueProvider = new FieldValueMessageProvider(originalContent.message(), originalContent.size());
@@ -113,7 +121,11 @@ public class RuleEngine {
 	}
 
 	private String originalPartition() {
-		return CyrusPartition.forServerAndDomain(originalBox().entry.dataLocation, originalBox().dom.uid).name;
+		return partition(originalBox());
+	}
+
+	private String partition(ResolvedBox box) {
+		return CyrusPartition.forServerAndDomain(box.entry.dataLocation, box.dom.uid).name;
 	}
 
 	public DeliveryContent apply(List<MailFilterRule> rules) {
@@ -204,10 +216,23 @@ public class RuleEngine {
 	}
 
 	private DeliveryContent copy(DeliveryContent nextContent, MailFilterRuleActionCopy copy) {
-		String subtree = originalSubtree();
+		String subtree;
+		ResolvedBox box;
+		if (copy.subtree().equals("user")) {
+			subtree = originalSubtree();
+			box = originalBox();
+		} else {
+			subtree = copy.subtree();
+			box = subtreeToBox(subtree);
+		}
+
+		if (box == null) {
+			return nextContent;
+		}
+
+		String partition = partition(box);
 		IDbReplicatedMailboxes treeApi = serviceProvider.instance(IDbByContainerReplicatedMailboxes.class, subtree);
 		ItemValue<MailboxReplica> copyFolder = treeApi.byReplicaName(copy.folder());
-		String partition = originalPartition();
 		try {
 			FreezableDeliveryContent copiedContent = FreezableDeliveryContent.copy(nextContent);
 			SerializedMessage serializedMessage = copiedContent.serializedMessage();
@@ -256,11 +281,49 @@ public class RuleEngine {
 	}
 
 	private DeliveryContent move(DeliveryContent nextContent, MailFilterRuleActionMove move) {
-		String subtree = originalSubtree();
+		String subtree;
+		ResolvedBox box;
+		if (move.subtree().equals("user")) {
+			subtree = originalSubtree();
+			box = originalBox();
+		} else {
+			subtree = move.subtree();
+			box = subtreeToBox(subtree);
+		}
+		if (box == null) {
+			logger.info("[rules] looking for subtree:{} box:null", subtree);
+			return nextContent;
+		}
 		IDbReplicatedMailboxes treeApi = serviceProvider.instance(IDbByContainerReplicatedMailboxes.class, subtree);
-		ItemValue<MailboxReplica> newFolder = treeApi.byReplicaName(move.folder());
-		logger.info("[rules] moving to {} [{}]", move.folder(), nextContent);
-		return nextContent.withFolder(newFolder);
+		ItemValue<MailboxReplica> newFolder = (move.id() == null) //
+				? treeApi.byReplicaName(move.folder())
+				: treeApi.getCompleteById(move.id());
+		String newFolderName = (newFolder != null) ? newFolder.value.fullName : null;
+		logger.info("[rules] moving to {} (id={}, name={}) [{}]", move.folder(), move.id(), newFolderName, nextContent);
+		return (newFolder != null) ? nextContent.withFolder(newFolder).withBox(box) : nextContent;
+	}
+
+	private record DirEntryPath(String domainUid, String path) {
+
+	}
+
+	private ResolvedBox subtreeToBox(String subtree) {
+		DirEntryPath dirEntryPath = subtreeToDirEntryPath(subtree);
+		IDirectory dirApi = serviceProvider.instance(IDirectory.class, dirEntryPath.domainUid);
+		DirEntry entry = dirApi.getEntry(dirEntryPath.path);
+		return mailboxLookup.lookupEmail(entry.email);
+	}
+
+	private DirEntryPath subtreeToDirEntryPath(String subtree) {
+		String[] tokens = subtree.split("!");
+		String domainUid = tokens[0].replace("subtree_", "").replace("_", ".");
+		if (tokens[1].contains("user.")) {
+			String path = IDirEntryPath.path(domainUid, tokens[1].replace("user.", ""), Kind.USER);
+			return new DirEntryPath(domainUid, path);
+		} else {
+			String path = IDirEntryPath.path(domainUid, tokens[1], Kind.MAILSHARE);
+			return new DirEntryPath(domainUid, path);
+		}
 	}
 
 	private DeliveryContent redirect(DeliveryContent nextContent, MailFilterRuleActionRedirect redirect) {

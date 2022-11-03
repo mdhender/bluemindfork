@@ -27,6 +27,8 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sendmail.testhelper.FakeSendmail;
 import net.bluemind.delivery.lmtp.MailboxLookup;
 import net.bluemind.delivery.lmtp.common.DeliveryContent;
+import net.bluemind.delivery.lmtp.common.IDeliveryContext;
+import net.bluemind.delivery.lmtp.common.IMailboxLookup;
 import net.bluemind.delivery.lmtp.common.ResolvedBox;
 import net.bluemind.delivery.rules.MailboxVacationSendersCache;
 import net.bluemind.delivery.rules.RuleEngine;
@@ -95,7 +97,18 @@ public class AbstractRuleEngineTests {
 				: null;
 		DeliveryContent content = new DeliveryContent(from, boxUser1, rootFolderUser1, message, mailboxRecord);
 		MailboxVacationSendersCache.Factory vacationCacheFactory = MailboxVacationSendersCache.Factory.build("/tmp");
-		return new RuleEngine(provider, mailer, content, vacationCacheFactory);
+		IDeliveryContext deliveryContext = new IDeliveryContext() {
+			@Override
+			public IServiceProvider provider() {
+				return provider;
+			}
+
+			@Override
+			public IMailboxLookup mailboxLookup() {
+				return null;
+			}
+		};
+		return new RuleEngine(deliveryContext, mailer, content, vacationCacheFactory);
 	}
 
 	protected List<MailFilterRule> rulesMatchingSubjectOf(Message message, Consumer<MailFilterRule>... actionSetters) {
