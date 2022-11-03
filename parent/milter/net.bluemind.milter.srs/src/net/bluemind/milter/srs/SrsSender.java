@@ -34,6 +34,7 @@ import com.google.common.base.Strings;
 import net.bluemind.config.InstallationId;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
+import net.bluemind.milter.MilterHeaders;
 import net.bluemind.milter.action.DomainAliasCache;
 import net.bluemind.milter.action.MilterPreAction;
 import net.bluemind.milter.action.MilterPreActionsFactory;
@@ -119,14 +120,20 @@ public class SrsSender implements MilterPreAction {
 		}
 
 		if (DomainAliasCache.allAliases().stream().anyMatch(d -> senderEmail.endsWith("@" + d))) {
-			logger.info("sender is from local domain {}", senderEmail);
+			if (logger.isDebugEnabled()) {
+				logger.debug("sender is from local domain {}", senderEmail);
+			}
+
 			// senderEmail is from local domain - no sender SRS
 			return false;
 		}
 
 		if (rcptTo.stream().map(SrsUtils::getDomainFromEmail).filter(Optional::isPresent).map(Optional::get)
 				.allMatch(d -> DomainAliasCache.allAliases().contains(d))) {
-			logger.info("recipients are in local domain {}", rcptTo);
+			if (logger.isDebugEnabled()) {
+				logger.debug("recipients are in local domain {}", rcptTo);
+			}
+
 			// recipients are in local domain - no sender SRS
 			return false;
 		}
@@ -146,28 +153,34 @@ public class SrsSender implements MilterPreAction {
 	}
 
 	private Optional<String> senderSrsDomain(UpdatedMailMessage modifiedMail) {
-		Optional<String> senderSrs = Optional.ofNullable(modifiedMail.properties.get("{auth_authen}"))
-				.map(authAuthens -> authAuthens.stream().filter(Objects::nonNull).findFirst().orElse(null))
-				.map(login -> SrsUtils.getDomainFromEmail(login).orElseGet(defaultDomain::get));
+		Optional<String> senderSrs = senderSrsDomainFromHeader(modifiedMail);
 
 		if (senderSrs.isPresent()) {
+			if (logger.isDebugEnabled()) {
+				logger.info("SRS sender domain get from " + MilterHeaders.SIEVE_REDIRECT + " header");
+			}
 			return senderSrs;
 		}
 
-		return senderSrsDomainFromHeader(modifiedMail);
+		return Optional.ofNullable(modifiedMail.properties.get("{auth_authen}"))
+				.map(authAuthens -> authAuthens.stream().filter(Objects::nonNull).findFirst().orElse(null))
+				.map(login -> SrsUtils.getDomainFromEmail(login).map(this::getDomainAlias)
+						.orElseGet(() -> getDomainAlias(defaultDomain.get())));
 	}
 
 	private Optional<String> senderSrsDomainFromHeader(UpdatedMailMessage modifiedMail) {
 		return Optional.ofNullable(modifiedMail.getMessage()).map(Message::getHeader)
-				.map(header -> header.getField("X-BM-redirect-for")).map(Field::getBody)
+				.map(header -> header.getField(MilterHeaders.SIEVE_REDIRECT)).map(Field::getBody)
 				.map(email -> SrsUtils.getDomainFromEmail(email)
 						.filter(domain -> DomainAliasCache.allAliases().contains(domain)).orElse(null))
 				.map(this::getDomainAlias);
 	}
 
 	private String getDomainAlias(String domain) {
+		// return domain defaultAlias if domain is domainUid or domain is not an alias.
+		// Otherwise, return domain
 		return Optional.ofNullable(domain).map(DomainAliasCache::getDomain)
-				.filter(domainValue -> !domainValue.value.aliases.contains(domain))
+				.filter(domainValue -> domainValue.uid.equals(domain) || !domainValue.value.aliases.contains(domain))
 				.map(domainValue -> domainValue.value.defaultAlias).orElse(domain);
 	}
 }

@@ -53,13 +53,25 @@ public class SrsSenderTests {
 
 	@Before
 	public void before() {
-		Domain domain = new Domain();
-		domain.aliases = new HashSet<>(Arrays.asList("domain.tld", "alias.tld"));
-		domain.defaultAlias = "domain.tld";
-
 		domainUid = UUID.randomUUID().toString() + ".internal";
+		Domain domain = getDomain(domainUid, false);
 
+		fillDomainCache(domainUid, domain);
+	}
+
+	private void fillDomainCache(String domainUid, Domain domain) {
 		DomainAliasCacheFiller.addDomain(ItemValue.create(Item.create(domainUid, null), domain));
+	}
+
+	private Domain getDomain(String domainUid, boolean domainUidIsAlias) {
+		Domain domain = new Domain();
+		domain.defaultAlias = "domain.tld";
+		domain.aliases = new HashSet<>(Arrays.asList("domain.tld", "alias.tld"));
+		if (domainUidIsAlias) {
+			domain.aliases.add(domainUid);
+		}
+
+		return domain;
 	}
 
 	@Test
@@ -136,6 +148,13 @@ public class SrsSenderTests {
 		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.startsWith("SRS0=")).orElse(false));
 		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.endsWith("@default-domain.tld")).orElse(false));
 
+		// Auth with no domain, default domain id domainUid, null header
+		updateMailMessage.envelopSender = Optional.empty();
+		updateMailMessage.properties.put("{auth_authen}", Arrays.asList("login"));
+		assertTrue(SrsSender.build(domainUid).execute(updateMailMessage));
+		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.startsWith("SRS0=")).orElse(false));
+		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.endsWith("@domain.tld")).orElse(false));
+
 		// Auth with domain, default domain, null header
 		updateMailMessage.envelopSender = Optional.empty();
 		updateMailMessage.properties.put("{auth_authen}", Arrays.asList("login@domain.tld"));
@@ -148,15 +167,38 @@ public class SrsSenderTests {
 		updateMailMessage.properties.put("{mail_addr}", Arrays.asList("sender@ext-domain.tld"));
 		updateMailMessage.properties.put("{rcpt_addr}", Arrays.asList("rcpt@ext-domain.tld", "rcpt@domain.tld"));
 
+		// Auth with domain UID, default domain, null header
+		updateMailMessage.envelopSender = Optional.empty();
+		updateMailMessage.properties.put("{auth_authen}", Arrays.asList("login@" + domainUid));
+		assertTrue(SrsSender.build("default-domain.tld").execute(updateMailMessage));
+		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.startsWith("SRS0=")).orElse(false));
+		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.endsWith("@domain.tld")).orElse(false));
+
 		Header header = new HeaderImpl();
 		header.setField(new RawField(MilterHeaders.SIEVE_REDIRECT, "login@header-domain.tld"));
 		updateMailMessage.getMessage().setHeader(header);
 
+		// Auth with domain, default domain, header
 		updateMailMessage.envelopSender = Optional.empty();
 		updateMailMessage.properties.put("{auth_authen}", Arrays.asList("login@domain.tld"));
 		assertTrue(SrsSender.build("default-domain.tld").execute(updateMailMessage));
 		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.startsWith("SRS0=")).orElse(false));
 		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.endsWith("@domain.tld")).orElse(false));
+
+		// Auth with domain UID, default domain, header
+		updateMailMessage.envelopSender = Optional.empty();
+		updateMailMessage.properties.put("{auth_authen}", Arrays.asList("login@" + domainUid));
+		assertTrue(SrsSender.build("default-domain.tld").execute(updateMailMessage));
+		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.startsWith("SRS0=")).orElse(false));
+		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.endsWith("@domain.tld")).orElse(false));
+	}
+
+	@Test
+	public void execute_nonLocalSender_nonLocalRcpt_domainUidIsAlias() {
+		Domain domain = getDomain(domainUid, true);
+		fillDomainCache(domainUid, domain);
+
+		execute_nonLocalSender_nonLocalRcpt();
 	}
 
 	@Test
