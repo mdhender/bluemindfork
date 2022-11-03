@@ -17,11 +17,17 @@
  */
 package net.bluemind.delivery.lmtp;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.StandardSocketOptions;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.subethamail.smtp.MessageHandlerFactory;
 import org.subethamail.smtp.helper.SimpleMessageListenerAdapter;
 import org.subethamail.smtp.server.SMTPServer;
 
@@ -37,6 +43,32 @@ import net.bluemind.network.topology.Topology;
 public class LmtpStarter extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(LmtpStarter.class);
+
+	public class ReuseAddrSMTPServer extends SMTPServer {
+		public ReuseAddrSMTPServer(MessageHandlerFactory handlerFactory, ExecutorService threadPool) {
+			super(handlerFactory, null, threadPool);
+		}
+
+		@Override
+		protected ServerSocket createServerSocket() throws IOException {
+			InetSocketAddress isa;
+			InetAddress bindAddress = getBindAddress();
+			int port = getPort();
+			if (bindAddress == null) {
+				isa = new InetSocketAddress(port);
+			} else {
+				isa = new InetSocketAddress(bindAddress, port);
+			}
+
+			ServerSocket serverSocket = new ServerSocket(); // NOSONAR: no autoclosable here
+			serverSocket.setReuseAddress(true);
+			serverSocket.bind(isa, this.getBacklog());
+			if (port == 0) {
+				this.setPort(serverSocket.getLocalPort());
+			}
+			return serverSocket;
+		}
+	}
 
 	@Override
 	public void start() {
@@ -54,7 +86,7 @@ public class LmtpStarter extends AbstractVerticle {
 
 		LmtpMessageHandler msgHandler = new LmtpMessageHandler(prov);
 		ExecutorService threadPool = Executors.newCachedThreadPool(new DefaultThreadFactory("lmtp"));
-		SMTPServer srv = new SMTPServer(new SimpleMessageListenerAdapter(msgHandler), null, threadPool);
+		SMTPServer srv = new ReuseAddrSMTPServer(new SimpleMessageListenerAdapter(msgHandler), threadPool);
 		srv.getCommandHandler().addCommand(new LhloCommand());
 		srv.setSoftwareName("bm-lmtpd");
 		srv.setPort(2400);
