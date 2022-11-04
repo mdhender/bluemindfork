@@ -58,6 +58,10 @@ public class ReadInputStream extends InputStream {
 			queue.offerLast(new ByteBufInputStream(byteBuf));
 			checkQueueSize();
 		});
+		this.inputStream.exceptionHandler(ex -> {
+			exception = ex instanceof Exception ? (Exception) ex : new Exception(ex);
+			ended.set(true);
+		});
 		inputStream.resume();
 		logger.debug("created {}", this);
 	}
