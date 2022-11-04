@@ -38,6 +38,8 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -505,17 +507,20 @@ public class InstallationService implements IInstallation {
 		final AsyncFile aFile = VertxPlatform.getVertx().fileSystem().openBlocking(archiveFile.getAbsolutePath(),
 				new OpenOptions());
 
-		read.pipeTo(aFile, ar -> {
-			if (ar.succeeded()) {
-				ArchiveHelper.checkFileSize(archiveFile);
-				logger.info("Subscription archive has been submitted.");
-				Distribution serverOs = OsVersionDetectionFactory.create().detect();
-				byte[] licence = ArchiveHelper.getSubscriptionFile(archiveFile, serverOs);
-				SubscriptionProviders.getSubscriptionProvider().updateSubscription(licence, serverOs);
-			} else {
-				logger.error("Subscription archive read/write error", ar.cause());
-			}
-		});
+		try {
+			CompletableFuture<Void> v = read.pipeTo(aFile).toCompletionStage().toCompletableFuture();
+			read.resume();
+			v.get();
+		} catch (InterruptedException | ExecutionException e) {
+			logger.error("Subscription archive file cannot be read because: {}", e.getMessage());
+			throw new ServerFault(e);
+		}
+
+		ArchiveHelper.checkFileSize(archiveFile);
+		Distribution serverOs = OsVersionDetectionFactory.create().detect();
+		byte[] licence = ArchiveHelper.getSubscriptionFile(archiveFile, serverOs);
+		SubscriptionProviders.getSubscriptionProvider().updateSubscription(licence, serverOs);
+		logger.info("Subscription archive has been submitted.");
 	}
 
 	@Override
