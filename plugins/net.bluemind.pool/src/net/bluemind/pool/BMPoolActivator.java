@@ -165,10 +165,15 @@ public class BMPoolActivator extends Plugin {
 				config.setPoolName(dbName + "@" + dbHost);
 
 				config.setDriverClassName(cf.getDriverClass());
-				config.addDataSourceProperty("cachePrepStmts", "true");
+				// List of settings for PostgreSQL JDBC:
+				// https://jdbc.postgresql.org/documentation/use/
 				config.addDataSourceProperty("sslmode", "disable");
-				config.addDataSourceProperty("prepStmtCacheSize", "250");
-				config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+				config.addDataSourceProperty("preparedStatementCacheQueries", "2048");
+				config.addDataSourceProperty("preparedStatementCacheSizeMiB", "16");
+				config.addDataSourceProperty("preferQueryMode", "extendedCacheEverything");
+				config.addDataSourceProperty("defaultRowFetchSize", "2048");
+				config.addDataSourceProperty("ApplicationName", "BlueMind");
+				config.addDataSourceProperty("reWriteBatchedInserts", "true");
 				config.setConnectionTestQuery(cf.getKeepAliveQuery());
 				if (schema != null) {
 					config.setSchema(schema);
