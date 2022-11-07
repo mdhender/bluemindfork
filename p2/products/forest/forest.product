@@ -33,7 +33,6 @@
       <plugin id="com.github.luben.zstd"/>
       <plugin id="com.google.guava"/>
       <plugin id="com.google.guava.failureaccess"/>
-      <plugin id="com.google.gwt.user"/>
       <plugin id="com.hazelcast"/>
       <plugin id="com.netflix.spectator.api"/>
       <plugin id="com.sun.mail.jakarta.mail"/>

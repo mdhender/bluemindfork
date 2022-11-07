@@ -9,8 +9,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.google.gwt.core.shared.GwtIncompatible;
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.GwtIncompatible;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleAction;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionAddHeaders;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionCategorize;

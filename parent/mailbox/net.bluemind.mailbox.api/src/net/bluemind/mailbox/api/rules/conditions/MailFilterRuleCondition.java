@@ -10,9 +10,9 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.gwt.core.shared.GwtIncompatible;
 
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.GwtIncompatible;
 import net.bluemind.mailbox.api.rules.FieldValueProvider;
 import net.bluemind.mailbox.api.rules.ParameterValueProvider;
 

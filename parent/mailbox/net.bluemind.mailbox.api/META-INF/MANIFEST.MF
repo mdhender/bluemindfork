@@ -9,8 +9,7 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0";visibility:=ree
  net.bluemind.core.task.api,
  net.bluemind.directory.api;visibility:=reexport,
  javax.validation.api,
- com.fasterxml.jackson.core.jackson-annotations;visibility:=reexport,
- com.google.gwt.user
+ com.fasterxml.jackson.core.jackson-annotations;visibility:=reexport
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: net.bluemind.mailbox.api,
  net.bluemind.mailbox.api.rules,

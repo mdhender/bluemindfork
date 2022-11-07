@@ -4,11 +4,10 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.google.gwt.core.shared.GwtIncompatible;
 
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.GwtIncompatible;
 import net.bluemind.mailbox.api.rules.FieldValueProvider;
 import net.bluemind.mailbox.api.rules.ParameterValueProvider;
 

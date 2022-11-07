@@ -36,7 +36,6 @@
       <plugin id="com.github.ben-manes.caffeine"/>
       <plugin id="com.google.guava"/>
       <plugin id="com.google.guava.failureaccess"/>
-      <plugin id="com.google.gwt.user"/>
       <plugin id="com.google.gwt.servlet"/>
       <plugin id="com.google.jsinterop.annotations"/>
       <plugin id="com.hazelcast"/>
