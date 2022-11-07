@@ -24,6 +24,7 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
+import net.bluemind.core.api.fault.ServerFault;
 
 public class ReadInputStream extends InputStream {
 
@@ -44,22 +46,27 @@ public class ReadInputStream extends InputStream {
 	private AtomicBoolean paused = new AtomicBoolean(false);
 
 	private ByteBufInputStream currentBuff;
-	public Exception exception;
+	public final AtomicReference<IOException> exception = new AtomicReference<>();
 	private AtomicBoolean ended = new AtomicBoolean();
 
 	public ReadInputStream(ReadStream<Buffer> inputStream) {
 		this.inputStream = inputStream;
 		queue = new LinkedBlockingDeque<>();
-		this.inputStream.endHandler(endHandle -> {
-			ended.set(true);
-		});
+		this.inputStream.endHandler(endHandle -> ended.set(true));
 		this.inputStream.handler(handleBuffer -> {
+			if (exception.get() != null) {
+				// beforeRead might have set/thrown an exception (eg. SizeLimitedReadStream),
+				// the vertx stream needs to be cut...
+				// HttpServerRequestImpl:114 seems to miss
+				// pending.exceptionHandler(context::reportException)
+				throw new ServerFault(exception.get());
+			}
 			ByteBuf byteBuf = handleBuffer.getByteBuf();
 			queue.offerLast(new ByteBufInputStream(byteBuf));
 			checkQueueSize();
 		});
 		this.inputStream.exceptionHandler(ex -> {
-			exception = ex instanceof Exception ? (Exception) ex : new Exception(ex);
+			exception.set(ex instanceof IOException ? (IOException) ex : new IOException(ex)); // NOSONAR 4.8 compat
 			ended.set(true);
 		});
 		inputStream.resume();
@@ -71,9 +78,16 @@ public class ReadInputStream extends InputStream {
 		return read(b, 0, b.length);
 	}
 
+	private void failIfStreamFailed() throws IOException {
+		IOException ex = exception.get();
+		if (ex != null) {
+			throw ex;
+		}
+	}
+
 	@Override
 	public int read(byte[] arr, int off, int len) throws IOException {
-
+		failIfStreamFailed();
 		InputStream b = currentStream();
 		if (b == null) {
 			return -1;
@@ -93,6 +107,7 @@ public class ReadInputStream extends InputStream {
 
 	@Override
 	public int read() throws IOException {
+		failIfStreamFailed();
 		InputStream b = currentStream();
 		if (b == null) {
 			return -1;

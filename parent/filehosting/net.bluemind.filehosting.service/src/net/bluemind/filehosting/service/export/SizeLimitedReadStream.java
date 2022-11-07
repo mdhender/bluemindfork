@@ -43,7 +43,7 @@ public class SizeLimitedReadStream extends net.bluemind.core.rest.utils.ReadInpu
 			bytesRead += bytesToRead;
 			if (bytesRead > maxDataSize) {
 				FileSizeExceededException e = new FileSizeExceededException(maxDataSize);
-				this.exception = e;
+				exception.set(e);
 				throw e;
 			}
 		}

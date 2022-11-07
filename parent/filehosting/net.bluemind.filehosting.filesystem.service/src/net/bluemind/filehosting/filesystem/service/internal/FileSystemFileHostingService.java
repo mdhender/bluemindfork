@@ -18,10 +18,6 @@
  */
 package net.bluemind.filehosting.filesystem.service.internal;
 
-import com.google.common.io.CountingInputStream;
-
-import io.vertx.core.file.OpenOptions;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -39,6 +35,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.io.CountingInputStream;
+
+import io.vertx.core.file.OpenOptions;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ErrorCode;
@@ -242,8 +241,8 @@ public class FileSystemFileHostingService implements IFileHostingService, IInter
 
 			getNodeClient().writeFile(file.getAbsolutePath(), readInputStream);
 			logger.info("Wrote {} byte(s) to {}", readInputStream.getCount(), file.getAbsolutePath());
-			if (sl.exception != null) {
-				throw sl.exception;
+			if (sl.exception.get() != null) {
+				throw sl.exception.get();
 			} else if (maxAttachmentSize > 0 && readInputStream.getCount() > maxAttachmentSize) {
 				throw new FileSizeExceededException(maxAttachmentSize);
 			}

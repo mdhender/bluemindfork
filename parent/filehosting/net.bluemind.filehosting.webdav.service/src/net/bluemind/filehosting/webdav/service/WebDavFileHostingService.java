@@ -220,8 +220,8 @@ public abstract class WebDavFileHostingService implements IFileHostingService {
 				SizeLimitedReadStream readInputStream = new SizeLimitedReadStream(VertxStream.read(document),
 						maxAttachmentSize);
 				webdavContext.sardine.put(uri, readInputStream);
-				if (readInputStream.exception != null) {
-					throw new ServerFault(readInputStream.exception);
+				if (readInputStream.exception.get() != null) {
+					throw new ServerFault(readInputStream.exception.get());
 				}
 			}
 			return null;
