@@ -38,7 +38,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.mail.internet.MimeUtility;
-import javax.mail.internet.ParseException;
 
 import org.apache.james.mime4j.dom.Body;
 import org.apache.james.mime4j.dom.Entity;
@@ -175,13 +174,13 @@ public class BodyStreamProcessor {
 
 	}
 
-	private static void parseSubject(MessageBody mb, Message parsed) throws ParseException {
+	private static void parseSubject(MessageBody mb, Message parsed) {
 		String subject = parsed.getSubject();
 		if (subject != null) {
 			mb.subject = subject.replace("\u0000", "");
 			try {
 				mb.subject = MimeUtility.decodeWord(mb.subject);
-			} catch (UnsupportedEncodingException | UnsupportedCharsetException e) {
+			} catch (Exception e) {
 				try {
 					mb.subject = MimeUtility.decodeText(mb.subject);
 				} catch (UnsupportedEncodingException | UnsupportedCharsetException e1) {
