@@ -21,7 +21,10 @@ package net.bluemind.ui.adminconsole.directory.ou;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -49,6 +52,7 @@ import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.TextBox;
 
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IOrgUnitsPromise;
 import net.bluemind.directory.api.OrgUnit;
 import net.bluemind.directory.api.OrgUnitPath;
@@ -64,6 +68,8 @@ import net.bluemind.ui.adminconsole.base.ui.ACSimplePager;
 import net.bluemind.ui.adminconsole.directory.ou.OrgUnitListMgmt.TreeAction;
 import net.bluemind.ui.adminconsole.directory.ou.event.OUCheckBoxEvent;
 import net.bluemind.ui.adminconsole.directory.ou.event.OUCheckBoxEventHandler;
+import net.bluemind.ui.adminconsole.directory.ou.event.OUDirEntryEditEvent;
+import net.bluemind.ui.adminconsole.directory.ou.event.OUDirEntryEditEventHandler;
 import net.bluemind.ui.adminconsole.directory.ou.event.OUResourcesEvent;
 import net.bluemind.ui.adminconsole.directory.ou.event.OUResourcesEventHandler;
 import net.bluemind.ui.adminconsole.directory.ou.event.OURoleDetailEvent;
@@ -71,8 +77,8 @@ import net.bluemind.ui.adminconsole.directory.ou.event.OURoleDetailEventHandler;
 import net.bluemind.ui.adminconsole.directory.ou.l10n.OrgUnitConstants;
 import net.bluemind.ui.adminconsole.directory.ou.model.OrgUnitItem;
 
-public class OrgUnitsBrowser extends Composite
-		implements IGwtScreenRoot, OUCheckBoxEventHandler, OUResourcesEventHandler, OURoleDetailEventHandler {
+public class OrgUnitsBrowser extends Composite implements IGwtScreenRoot, OUCheckBoxEventHandler,
+		OUResourcesEventHandler, OURoleDetailEventHandler, OUDirEntryEditEventHandler {
 
 	private OrgUnitListMgmt unitListMngt = OrgUnitListMgmt.get();
 
@@ -161,6 +167,7 @@ public class OrgUnitsBrowser extends Composite
 		OrgUnitListMgmt.CHECK_EVENT_BUS.addHandler(OUCheckBoxEvent.TYPE, this);
 		OrgUnitListMgmt.RESOURCES_BUS.addHandler(OUResourcesEvent.TYPE, this);
 		OrgUnitListMgmt.ROLE_DETAIL_BUS.addHandler(OURoleDetailEvent.TYPE, this);
+		OrgUnitListMgmt.DIRECTORY_EDIT_BUS.addHandler(OUDirEntryEditEvent.TYPE, this);
 
 		tabContainer.addSelectionHandler(event -> {
 			if (event.getSelectedItem() == 0 || event.getSelectedItem() == 1) {
@@ -397,6 +404,11 @@ public class OrgUnitsBrowser extends Composite
 	@Override
 	public void onRoleSelected(OURoleDetailEvent roleClickEvent) {
 		ouRolesTree.loadOuRoleTreeContext(roleClickEvent.itemValue.uid, domainUid, unitListMngt.focusedItem);
+	}
+
+	@Override
+	public void onEntrySelected(OUDirEntryEditEvent entryClickEvent) {
+		resourceGrid.openDirEntryInNewTab(entryClickEvent.itemValue.value);
 	}
 
 	private OrgUnitConstants getTexts() {

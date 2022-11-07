@@ -134,6 +134,7 @@ public class RowEventTranslator<T> implements EventTranslator<T> {
 			break;
 		}
 		case DOMAIN:
+		default:
 			break;
 		}
 	}

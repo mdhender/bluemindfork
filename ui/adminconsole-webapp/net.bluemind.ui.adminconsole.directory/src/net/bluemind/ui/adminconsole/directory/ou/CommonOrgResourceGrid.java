@@ -23,7 +23,6 @@ import java.util.concurrent.CompletableFuture;
 
 import com.google.gwt.cell.client.Cell.Context;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.resources.client.ClientBundle;
@@ -56,7 +55,6 @@ import net.bluemind.ui.admin.client.forms.det.TooltipedImageCell;
 import net.bluemind.ui.adminconsole.base.DomainsHolder;
 import net.bluemind.ui.adminconsole.directory.IconTips;
 import net.bluemind.ui.adminconsole.directory.ou.event.OUCheckBoxEvent;
-import net.bluemind.ui.adminconsole.directory.ou.event.OURoleDetailEvent;
 import net.bluemind.ui.adminconsole.directory.ou.l10n.OrgUnitConstants;
 import net.bluemind.ui.common.client.forms.Ajax;
 
@@ -97,12 +95,6 @@ public class CommonOrgResourceGrid extends DataGrid<ItemValue<DirEntry>> impleme
 
 		this.selectionModel = new SingleSelectionModel<>(item -> (item == null) ? null : item.uid);
 		setSelectionModel(this.selectionModel);
-
-		addCellPreviewHandler(event -> {
-			if (BrowserEvents.CLICK.equalsIgnoreCase(event.getNativeEvent().getType())) {
-				OrgUnitListMgmt.ROLE_DETAIL_BUS.fireEvent(new OURoleDetailEvent(event.getValue()));
-			}
-		});
 
 		typeColumn = new Column<ItemValue<DirEntry>, TippedResource>(new TooltipedImageCell()) {
 

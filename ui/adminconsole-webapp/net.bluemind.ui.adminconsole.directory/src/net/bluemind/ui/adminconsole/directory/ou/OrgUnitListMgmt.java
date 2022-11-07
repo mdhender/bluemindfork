@@ -40,6 +40,7 @@ public class OrgUnitListMgmt {
 	public static final EventBus CHECK_EVENT_BUS = GWT.create(SimpleEventBus.class);
 	public static final EventBus RESOURCES_BUS = GWT.create(SimpleEventBus.class);
 	public static final EventBus ROLE_DETAIL_BUS = GWT.create(SimpleEventBus.class);
+	public static final EventBus DIRECTORY_EDIT_BUS = GWT.create(SimpleEventBus.class);
 
 	private static OrgUnitListMgmt instance;
 

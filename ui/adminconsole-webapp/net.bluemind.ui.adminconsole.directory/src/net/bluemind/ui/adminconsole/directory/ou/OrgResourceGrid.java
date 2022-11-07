@@ -17,15 +17,20 @@
   */
 package net.bluemind.ui.adminconsole.directory.ou;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import com.google.gwt.cell.client.Cell.Context;
+import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.HasData;
-import com.google.gwt.view.client.NoSelectionModel;
+import com.google.gwt.view.client.SingleSelectionModel;
 
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.container.model.ItemValue;
@@ -33,8 +38,10 @@ import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.DirEntryQuery;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
+import net.bluemind.ui.adminconsole.base.DomainsHolder;
 import net.bluemind.ui.adminconsole.base.orgunit.OUUtils;
 import net.bluemind.ui.adminconsole.directory.ou.event.OUCheckBoxEvent;
+import net.bluemind.ui.adminconsole.directory.ou.event.OUDirEntryEditEvent;
 import net.bluemind.ui.adminconsole.directory.ou.model.OrgUnitItem;
 
 public class OrgResourceGrid extends CommonOrgResourceGrid {
@@ -45,7 +52,13 @@ public class OrgResourceGrid extends CommonOrgResourceGrid {
 	private TextColumn<ItemValue<DirEntry>> orgUnitColumn;
 
 	public OrgResourceGrid() {
-		super(constants.emptyResourceTable(), new NoSelectionModel<>(item -> (item == null) ? null : item.uid));
+		super(constants.emptyResourceTable(), new SingleSelectionModel<>(item -> (item == null) ? null : item.uid));
+
+		addCellPreviewHandler(event -> {
+			if (BrowserEvents.CLICK.equalsIgnoreCase(event.getNativeEvent().getType())) {
+				OrgUnitListMgmt.DIRECTORY_EDIT_BUS.fireEvent(new OUDirEntryEditEvent(event.getValue()));
+			}
+		});
 
 		emailColumn = new TextColumn<ItemValue<DirEntry>>() {
 
@@ -136,6 +149,66 @@ public class OrgResourceGrid extends CommonOrgResourceGrid {
 		};
 		provider.addDataDisplay(this);
 
+	}
+
+	public void openDirEntryInNewTab(DirEntry de) {
+		String url = "index.html#";
+		Map<String, String> params = new HashMap<>();
+
+		switch (de.kind) {
+		case MAILSHARE: {
+			params.put("entryUid", de.entryUid);
+			params.put("domainUid", DomainsHolder.get().getSelectedDomain().uid);
+			url += "editMailshare?";
+		}
+			break;
+		case EXTERNALUSER: {
+			params.put("entryUid", de.entryUid);
+			params.put("domainUid", DomainsHolder.get().getSelectedDomain().uid);
+			url += "editExternalUser?";
+		}
+			break;
+		case GROUP: {
+			params.put("entryUid", de.entryUid);
+			params.put("domainUid", DomainsHolder.get().getSelectedDomain().uid);
+			url += "editGroup?";
+		}
+			break;
+		case RESOURCE: {
+			params.put("entryUid", de.entryUid);
+			params.put("domainUid", DomainsHolder.get().getSelectedDomain().uid);
+			url += "editResource?";
+		}
+			break;
+		case USER: {
+			params.put("entryUid", de.entryUid);
+			params.put("domainUid", DomainsHolder.get().getSelectedDomain().uid);
+			url += "editUser?";
+			break;
+		}
+		case ADDRESSBOOK: {
+			params.put("entryUid", de.entryUid);
+			params.put("domainUid", DomainsHolder.get().getSelectedDomain().uid);
+			url += "editBook?";
+			break;
+		}
+
+		case CALENDAR: {
+			params.put("entryUid", de.entryUid);
+			params.put("domainUid", DomainsHolder.get().getSelectedDomain().uid);
+			url += "editCalendar?";
+			break;
+		}
+		default:
+			break;
+		}
+
+		if (!params.isEmpty()) {
+			for (Entry<String, String> entry : params.entrySet()) {
+				url += entry.getKey() + "=" + entry.getValue() + "&";
+			}
+			Window.open(url, "_blank", "");
+		}
 	}
 
 	private DirEntryQuery createDirEntryQuery() {

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.HasData;
@@ -37,6 +38,7 @@ import net.bluemind.directory.api.gwt.endpoint.OrgUnitsGwtEndpoint;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
 import net.bluemind.ui.adminconsole.base.DomainsHolder;
 import net.bluemind.ui.adminconsole.directory.ou.event.OUCheckBoxEvent;
+import net.bluemind.ui.adminconsole.directory.ou.event.OURoleDetailEvent;
 import net.bluemind.ui.adminconsole.directory.ou.model.OrgUnitItem;
 import net.bluemind.ui.common.client.forms.Ajax;
 
@@ -46,6 +48,12 @@ public class OrgAdminResourceGrid extends CommonOrgResourceGrid {
 
 	public OrgAdminResourceGrid() {
 		super(constants.emptyRoleTable(), new SingleSelectionModel<>(item -> (item == null) ? null : item.uid));
+
+		addCellPreviewHandler(event -> {
+			if (BrowserEvents.CLICK.equalsIgnoreCase(event.getNativeEvent().getType())) {
+				OrgUnitListMgmt.ROLE_DETAIL_BUS.fireEvent(new OURoleDetailEvent(event.getValue()));
+			}
+		});
 	}
 
 	public void reload(SimplePager pager) {
