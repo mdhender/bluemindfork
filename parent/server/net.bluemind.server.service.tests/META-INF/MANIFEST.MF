@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.server.service.tests
 Bundle-SymbolicName: net.bluemind.server.service.tests
 Bundle-Version: 4.1.0.qualifier
-Fragment-Host: net.bluemind.server.service
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
@@ -21,5 +20,8 @@ Require-Bundle: org.junit,
  net.bluemind.tests.defaultdata,
  net.bluemind.core.elasticsearch.testshelper,
  net.bluemind.hsm.service;bundle-version="4.1.0",
- net.bluemind.core.tests.testshelper
+ net.bluemind.core.tests.testshelper,
+ net.bluemind.server.service;bundle-version="4.1.0",
+ net.bluemind.role.api,
+ net.bluemind.server.persistence
 Automatic-Module-Name: net.bluemind.server.service.tests

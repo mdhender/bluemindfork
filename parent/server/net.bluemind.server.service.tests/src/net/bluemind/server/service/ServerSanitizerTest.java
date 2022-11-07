@@ -25,7 +25,6 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 import net.bluemind.server.api.Server;
-import net.bluemind.server.service.internal.ServerSanitizer;
 
 public class ServerSanitizerTest {
 

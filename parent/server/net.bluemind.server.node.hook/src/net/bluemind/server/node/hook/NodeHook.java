@@ -63,8 +63,8 @@ public class NodeHook extends DefaultServerHook {
 			remote.writeFile("/etc/bm/server.uid", new ByteArrayInputStream(server.uid.getBytes()));
 			remote.ping();
 		} catch (Exception sf) {
-			logger.info("waiting for node 8022 switch... ({})", sf.getMessage());
-			new NetworkHelper(adr).waitForListeningPort(8022, 5, TimeUnit.SECONDS);
+			logger.info("waiting for node {} 8022 switch... ({})", adr, sf.getMessage());
+			waitForPort(adr);
 		}
 
 		// copy ini, core token, cert
@@ -155,10 +155,22 @@ public class NodeHook extends DefaultServerHook {
 		} catch (ServerFault sf) {
 			// leave some time to restart as ssl
 			logger.info("Node {} is restarting in secure mode ({})", localhost, sf.getMessage());
-			new NetworkHelper(localhost).waitForListeningPort(8022, 5, TimeUnit.SECONDS);
+			waitForPort(localhost);
 			// now my connection should be secure
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+		}
+	}
+
+	private void waitForPort(String adr) {
+		if ("false".equals(System.getProperty("node.hook.wait"))) {
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		} else {
+			new NetworkHelper(adr).waitForListeningPort(8022, 5, TimeUnit.SECONDS);
 		}
 	}
 

@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.server.service.internal;
+package net.bluemind.server.service;
 
 import org.apache.commons.lang3.StringUtils;
 

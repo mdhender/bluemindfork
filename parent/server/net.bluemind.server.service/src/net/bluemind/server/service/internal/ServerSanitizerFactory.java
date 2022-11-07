@@ -22,6 +22,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.service.ServerSanitizer;
 
 public class ServerSanitizerFactory implements ISanitizerFactory<Server> {
 

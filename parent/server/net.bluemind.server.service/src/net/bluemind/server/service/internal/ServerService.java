@@ -55,6 +55,7 @@ import net.bluemind.server.api.CommandStatus;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.hook.IServerHook;
+import net.bluemind.server.service.ServerValidator;
 
 public final class ServerService implements IServer {
 

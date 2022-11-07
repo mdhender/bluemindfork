@@ -32,7 +32,9 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -74,6 +76,16 @@ public class ServerServiceTests {
 	private ServerStore serverStore;
 	private ItemStore itemStore;
 	private String domainUid;
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty("node.hook.wait", "false");
+	}
+
+	@AfterClass
+	public static void afterClass() {
+		System.clearProperty("node.hook.wait");
+	}
 
 	@Before
 	public void before() throws Exception {
@@ -416,7 +428,6 @@ public class ServerServiceTests {
 
 	private String create(Server srv) {
 		String uid = UUID.randomUUID().toString();
-
 		try {
 			TaskRef tr = getService(serverManagerSecurityContext).create(uid, srv);
 			waitForTaskRef(tr);

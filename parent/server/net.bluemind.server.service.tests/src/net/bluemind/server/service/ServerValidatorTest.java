@@ -24,7 +24,6 @@ import org.junit.Test;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.server.api.Server;
-import net.bluemind.server.service.internal.ServerValidator;
 
 public class ServerValidatorTest {
 
