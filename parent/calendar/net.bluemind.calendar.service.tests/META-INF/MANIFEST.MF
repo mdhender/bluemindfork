@@ -1,13 +1,13 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Tests
+Bundle-Name: net.bluemind.calendar.service.tests
 Bundle-SymbolicName: net.bluemind.calendar.service.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Fragment-Host: net.bluemind.calendar.service
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
  net.bluemind.core.context;bundle-version="1.0.0",
+ net.bluemind.calendar.service;bundle-version="4.1.0",
  net.bluemind.core.elasticsearch.testshelper;bundle-version="1.0.0",
  net.bluemind.server.service;bundle-version="1.0.0",
  net.bluemind.server.api;bundle-version="1.0.0",
@@ -43,5 +43,26 @@ Require-Bundle: org.junit,
  net.bluemind.videoconferencing.service;bundle-version="4.1.0",
  net.bluemind.videoconferencing.saas.api,
  net.bluemind.videoconferencing.saas.service,
- net.bluemind.videoconferencing.bluemind
+ net.bluemind.videoconferencing.bluemind,
+ net.bluemind.system.api,
+ net.bluemind.user.service,
+ net.bluemind.core.container.service,
+ net.bluemind.deferredaction.api,
+ net.bluemind.tag.persistence,
+ net.bluemind.attachment.api,
+ net.bluemind.calendar.auditlog,
+ net.bluemind.core.auditlog,
+ net.bluemind.calendar.helper,
+ net.bluemind.core.sendmail,
+ org.apache.james.apache-mime4j-dom,
+ net.bluemind.calendar.persistence,
+ slf4j.api,
+ net.bluemind.lib.ical4j,
+ net.bluemind.calendar.pdf,
+ net.bluemind.calendar.occurrence,
+ net.bluemind.role.api,
+ net.bluemind.videoconferencing.api,
+ net.bluemind.resource.api,
+ net.bluemind.resource.helper,
+ net.bluemind.core.rest.http
 Automatic-Module-Name: net.bluemind.calendar.service.tests

@@ -108,8 +108,7 @@ public class EventDeferredActionExecutorTests {
 		EventCreator.defaultVEvent(eventDate).withAlarm(-1).saveOnCalendar(calendar);
 
 		MockedSendmail mailer = new MockedSendmail();
-		EventDeferredActionExecutor executor = new EventDeferredActionExecutor();
-		executor.mailHelper = new EventMailHelper(mailer);
+		EventDeferredActionExecutor executor = new EventDeferredActionExecutor(new EventMailHelper(mailer));
 
 		assertEquals(1, getDeferredActions(eventDate).size());
 		executor.execute(eventDate);
@@ -132,8 +131,7 @@ public class EventDeferredActionExecutorTests {
 		String uid = EventCreator.defaultVEvent(eventDate).withAlarm(-1).saveOnCalendar(calendar);
 
 		MockedSendmail mailer = new MockedSendmail();
-		EventDeferredActionExecutor executor = new EventDeferredActionExecutor();
-		executor.mailHelper = new EventMailHelper(mailer);
+		EventDeferredActionExecutor executor = new EventDeferredActionExecutor(new EventMailHelper(mailer));
 
 		assertEquals(1, getDeferredActions(eventDate).size());
 
@@ -159,8 +157,7 @@ public class EventDeferredActionExecutorTests {
 				.saveOnCalendar(calendar);
 
 		MockedSendmail mailer = new MockedSendmail();
-		EventDeferredActionExecutor executor = new EventDeferredActionExecutor();
-		executor.mailHelper = new EventMailHelper(mailer);
+		EventDeferredActionExecutor executor = new EventDeferredActionExecutor(new EventMailHelper(mailer));
 
 		List<ItemValue<DeferredAction>> beforeExecute = getDeferredActions(eventDate.plusDays(1));
 		assertEquals(1, beforeExecute.size());

@@ -25,6 +25,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.elasticsearch.common.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.bluemind.calendar.EventChangesMerge;
 import net.bluemind.calendar.api.VEventChanges;
@@ -41,6 +43,8 @@ import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.icalendar.parser.CalendarOwner;
 
 public abstract class ICSImportTask extends BlockingServerTask implements IServerTask {
+
+	private static final Logger logger = LoggerFactory.getLogger(ICSImportTask.class);
 
 	protected final IInternalCalendar service;
 	protected final Optional<CalendarOwner> owner;
@@ -61,11 +65,15 @@ public abstract class ICSImportTask extends BlockingServerTask implements IServe
 		ContainerUpdatesResult ret = new ContainerUpdatesResult();
 		try {
 			Consumer<ItemValue<VEventSeries>> consumer = (series -> {
-				sanitizeSeries(series);
-				ContainerUpdatesResult importEventResult = importEvent(series);
-				ret.added.addAll(importEventResult.added);
-				ret.updated.addAll(importEventResult.updated);
-				ret.unhandled.addAll(importEventResult.unhandled);
+				try {
+					sanitizeSeries(series);
+					ContainerUpdatesResult importEventResult = importEvent(series);
+					ret.added.addAll(importEventResult.added);
+					ret.updated.addAll(importEventResult.updated);
+					ret.unhandled.addAll(importEventResult.unhandled);
+				} catch (Throwable t) { // NOSONAR class not found on hibernate f... validator
+					monitor.log("Failed to deal with series " + series.uid, t);
+				}
 			});
 			convertToVEventList(consumer);
 			monitor.progress(1, "ICS parsed ( " + ret.total() + " events )");
@@ -93,7 +101,6 @@ public abstract class ICSImportTask extends BlockingServerTask implements IServe
 				service.updates(changes, false);
 			}
 			monitor.end(true, ret.total() + " events synchronized", JsonUtils.asString(ret));
-
 		} finally {
 			if (ret.synced() > 0) {
 				service.emitNotification();
@@ -161,7 +168,6 @@ public abstract class ICSImportTask extends BlockingServerTask implements IServe
 		ret.added.addAll(result.added);
 		ret.updated.addAll(result.updated);
 		ret.unhandled.addAll(result.errors.stream().map(e -> e.uid).collect(Collectors.toList()));
-
 		return ret;
 	}
 

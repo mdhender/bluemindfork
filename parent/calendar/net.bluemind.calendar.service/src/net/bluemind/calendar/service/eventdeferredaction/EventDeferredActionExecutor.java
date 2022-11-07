@@ -62,12 +62,16 @@ public class EventDeferredActionExecutor implements IDeferredActionExecutor {
 
 	private IServiceProvider provider;
 	private IDomains domainsService;
-	EventMailHelper mailHelper;
+	private EventMailHelper mailHelper;
 
 	public EventDeferredActionExecutor() {
+		this(new EventMailHelper());
+	}
+
+	public EventDeferredActionExecutor(EventMailHelper h) {
 		provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		domainsService = provider.instance(IDomains.class);
-		mailHelper = new EventMailHelper();
+		this.mailHelper = h;
 	}
 
 	@Override
