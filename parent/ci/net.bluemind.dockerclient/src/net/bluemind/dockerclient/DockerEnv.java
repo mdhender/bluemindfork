@@ -29,9 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.asynchttpclient.AsyncHttpClient;
-import org.asynchttpclient.DefaultAsyncHttpClient;
-import org.asynchttpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,31 +36,18 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+
 public class DockerEnv {
 
 	private static final Logger logger = LoggerFactory.getLogger(DockerEnv.class);
 
 	private static final ObjectMapper mapper = new ObjectMapper();
 	private static List<Image> images;
-	private static Map<String, String> imageIp = new HashMap<String, String>();
-
-	private static AsyncHttpClient httpClient;
-
-	private static class HttpHost {
-		String host;
-		int port;
-
-		public HttpHost(String h, int p) {
-			this.host = h;
-			this.port = p;
-		}
-
-		public String path(String p) {
-			return "http://" + host + ":" + port + p;
-		}
-	}
-
-	private static HttpHost dockerHost;
+	private static Map<String, String> imageIp = new HashMap<>();
+	private static OkHttpClient httpClient;
+	private static URL dockerUrl;
 
 	static {
 		try {
@@ -86,28 +70,28 @@ public class DockerEnv {
 		String home = System.getProperty("user.home");
 		File f = new File(home + "/.docker.io.properties");
 
-		httpClient = new DefaultAsyncHttpClient();
-		URL dockerUrl = new URL("http://localhost:4243");
+		String urlString = "unix:///var/run/docker.sock";
+		dockerUrl = new URL("http://localhost:21512/");
+
 		if (f.exists()) {
 			logger.info("load docker conf from ~/.docker.io.properties");
 			Properties p = new Properties();
 			try (InputStream pfile = new FileInputStream(f)) {
 				p.load(pfile);
 			}
-			String urlString = p.getProperty("docker.io.url");
-			if (urlString != null) {
-				dockerUrl = new URL(urlString);
-			}
-			// builder.uri(p.getProperty("docker.io.url"));
-		} else {
-			logger.info("load docker conf from env");
-			// builder = DefaultDockerClient.fromEnv();
+			urlString = p.getProperty("docker.io.url");
 		}
 
-		dockerHost = new HttpHost(dockerUrl.getHost(), dockerUrl.getPort() != -1 ? dockerUrl.getPort() : 80);
+		if (urlString.startsWith("unix://")) {
+			httpClient = new OkHttpClient.Builder()
+					.socketFactory(new UnixDomainSocketFactory(new File(urlString.substring("unix://".length()))))
+					.build();
+		} else {
+			httpClient = new OkHttpClient.Builder().build();
+			dockerUrl = new URL(urlString);
+		}
 
 		images = loadImages(new File(""));
-
 		for (Image i : images) {
 			String ip = retrieveIp(i);
 			logger.info("container [{}] ip: {}", i.getName(), ip);
@@ -126,12 +110,13 @@ public class DockerEnv {
 		name = name + "-junit";
 
 		try {
-			Response resp = httpClient.prepareGet(dockerHost.path("/containers/" + name + "/json")).execute().get();
-			logger.debug("containers/{}/json", name);
+			var req = new Request.Builder().method("GET", null).addHeader("Accept", "application/json")
+					.url(dockerUrl.toURI().resolve("/containers/" + name + "/json").toURL()).build();
 
+			var x = httpClient.newCall(req).execute();
 			// NetworkSettings
 			// IPAddress
-			JsonNode c = mapper.readTree(resp.getResponseBody());
+			JsonNode c = mapper.readTree(x.body().bytes());
 			logger.debug("{}", c);
 			if (c.get("NetworkSettings") == null) {
 				return null;
@@ -155,14 +140,10 @@ public class DockerEnv {
 			return Collections.emptyList();
 		}
 		try {
-			List<Image> ret = mapper.readValue(ciJson,
-
-					new TypeReference<List<Image>>() {
-					});
-			return ret;
+			return mapper.readValue(ciJson, new TypeReference<List<Image>>() {
+			});
 		} catch (Exception e) {
 			e.printStackTrace();
-
 			return Collections.emptyList();
 		}
 	}

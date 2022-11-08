@@ -9,5 +9,6 @@ Export-Package: net.bluemind.dockerclient
 Require-Bundle: slf4j.api;bundle-version="1.7.5",
  com.fasterxml.jackson.core.jackson-databind,
  com.fasterxml.jackson.core.jackson-core,
- org.asynchttpclient.async-http-client;bundle-version="2.10.4"
+ net.bluemind.okhttp;bundle-version="4.10.0",
+ com.github.jnr.uber;bundle-version="1.0.0"
 Automatic-Module-Name: net.bluemind.dockerclient
