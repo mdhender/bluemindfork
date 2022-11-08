@@ -71,7 +71,7 @@ public class CalendarSettings implements ICalendarSettings {
 		return adapt(containerSettings.get());
 	}
 
-	static CalendarSettingsData adapt(Map<String, String> map) {
+	public static CalendarSettingsData adapt(Map<String, String> map) {
 		CalendarSettingsData ret = new CalendarSettingsData();
 
 		if (map == null) {
@@ -105,7 +105,7 @@ public class CalendarSettings implements ICalendarSettings {
 		return ret;
 	}
 
-	static Map<String, String> adapt(CalendarSettingsData config) {
+	public static Map<String, String> adapt(CalendarSettingsData config) {
 
 		String daysAsString = Joiner.on(",").join(config.workingDays);
 		String minDuration = config.minDuration != null ? config.minDuration.toString() : null;
@@ -123,7 +123,7 @@ public class CalendarSettings implements ICalendarSettings {
 				.put(CFG_TIMEZONE, tz).build();
 	}
 
-	static void validate(CalendarSettingsData settings) throws ServerFault {
+	public static void validate(CalendarSettingsData settings) throws ServerFault {
 
 		ParametersValidator.notNull(settings);
 		ParametersValidator.notNull(settings.workingDays);
