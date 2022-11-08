@@ -9,7 +9,7 @@
             <div class="d-flex">
                 <div class="custom-col-left text-right pr-4">{{ $t("common.from") }}</div>
                 <div class="custom-col-right">
-                    <contact :contact="message.from" no-avatar transparent bold show-address popover />
+                    <mail-contact :contact="message.from" no-avatar transparent bold show-address popover />
                 </div>
             </div>
             <div class="d-flex">
@@ -77,12 +77,12 @@
 </template>
 
 <script>
-import { Contact } from "@bluemind/business-components";
 import { BmButtonClose } from "@bluemind/styleguide";
+import MailContact from "./MailContact";
 
 export default {
     name: "MailViewerRecipientsMoreContent",
-    components: { BmButtonClose, Contact },
+    components: { BmButtonClose, MailContact },
     props: {
         message: {
             type: Object,

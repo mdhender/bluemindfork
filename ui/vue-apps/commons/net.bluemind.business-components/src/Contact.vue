@@ -54,7 +54,11 @@
                 </span>
             </bm-chip>
         </bm-button>
-        <contact-popover v-if="popover" :target="uniqueId" :address="contact.address" />
+        <contact-popover v-if="popover" :target="uniqueId" :address="contact.address">
+            <template #email="slotProps">
+                <slot name="email" :email="slotProps.email" />
+            </template>
+        </contact-popover>
     </div>
 </template>
 

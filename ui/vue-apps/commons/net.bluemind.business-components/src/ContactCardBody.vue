@@ -5,7 +5,9 @@
             <div class="d-flex flex-column ml-4">
                 <span v-for="email in emails" :key="email.address" class="mb-3">
                     <strong>
-                        <a :href="`mailto://${email.address}`">{{ email.address }}</a>
+                        <slot name="email" :email="email.address">
+                            {{ email.address }}
+                        </slot>
                     </strong>
                 </span>
             </div>
@@ -35,6 +37,7 @@
 <script>
 import { formatAddress } from "localized-address-format";
 import { BmIcon } from "@bluemind/styleguide";
+
 import l10n from "./l10n";
 
 export default {

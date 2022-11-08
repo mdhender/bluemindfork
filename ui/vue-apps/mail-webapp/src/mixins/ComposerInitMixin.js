@@ -146,8 +146,9 @@ export default {
         },
 
         // case of a new message
-        async initNewMessage(folder) {
+        async initNewMessage(folder, to = []) {
             const message = createEmpty(folder);
+            message.to = to;
             this.$_ComposerInitMixin_ADD_MESSAGES({ messages: [message] });
             const identity = this.getIdentityForNewMessage();
             await this.setFrom(identity, message);

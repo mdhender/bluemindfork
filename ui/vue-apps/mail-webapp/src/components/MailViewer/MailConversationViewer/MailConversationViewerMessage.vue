@@ -4,7 +4,7 @@
         <template slot="head">
             <div class="conversation-viewer-message-head d-flex flex-fill justify-content-between align-items-start">
                 <div class="d-flex align-self-center overflow-hidden no-wrap">
-                    <contact :contact="message.from" no-avatar transparent show-address bold-dn popover />
+                    <mail-contact :contact="message.from" no-avatar transparent show-address bold-dn popover />
                     <mail-folder-icon
                         v-if="folder.key !== conversation.folderRef.key"
                         variant="caption"
@@ -63,7 +63,6 @@
 <script>
 import { mapGetters, mapState } from "vuex";
 import { BmExtension } from "@bluemind/extensions.vue";
-import { Contact } from "@bluemind/business-components";
 import MailConversationViewerItem from "./MailConversationViewerItem";
 import MailViewerContentLoading from "../../MailViewer/MailViewerContentLoading";
 import MailViewerToolbar from "../MailViewerToolbar";
@@ -74,20 +73,21 @@ import BodyViewer from "../BodyViewer";
 import { MESSAGE_IS_LOADED } from "~/getters";
 import MailFolderIcon from "../../MailFolderIcon";
 import MailAttachmentIcon from "../../MailAttachmentIcon";
+import MailContact from "../MailContact";
 
 export default {
     name: "MailConversationViewerMessage",
     components: {
         BmExtension,
         BodyViewer,
-        Contact,
-        MailFolderIcon,
+        MailAttachmentIcon,
+        MailContact,
         MailConversationViewerFlags,
         MailConversationViewerItem,
+        MailFolderIcon,
         MailViewerContentLoading,
         MailViewerToolbar,
-        MailViewerToolbarForMobile,
-        MailAttachmentIcon
+        MailViewerToolbarForMobile
     },
     mixins: [MailConversationViewerItemMixin],
     computed: {

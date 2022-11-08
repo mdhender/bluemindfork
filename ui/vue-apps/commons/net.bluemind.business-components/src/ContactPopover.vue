@@ -2,7 +2,11 @@
     <bm-popover triggers="click blur" :target="target" placement="bottom" no-fade>
         <resolved-contact :address="address">
             <template v-slot:default="{ resolvedContact }">
-                <contact-card :contact="resolvedContact" />
+                <contact-card :contact="resolvedContact">
+                    <template #email="slotProps">
+                        <slot name="email" :email="slotProps.email" />
+                    </template>
+                </contact-card>
             </template>
         </resolved-contact>
     </bm-popover>

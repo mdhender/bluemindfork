@@ -61,12 +61,15 @@ export default {
                     await this.$waitFor(() => this.identities.length, assertIdentities);
                     let message;
                     const folder = this.folders[folderKey];
-                    const { action, message: related } = this.$route.query || {};
+                    const { action, message: related, to } = this.$route.query || {};
                     if (isNewMessage({ remoteRef: { internalId } })) {
                         if (action && related) {
                             message = await this.initRelatedMessage(folder, action, MessagePathParam.parse(related));
                         } else {
-                            message = await this.initNewMessage(folder);
+                            message = await this.initNewMessage(
+                                folder,
+                                to?.split(",").map(address => ({ address }))
+                            );
                         }
                     } else {
                         message = await this.FETCH_MESSAGE_IF_NOT_LOADED({ internalId, folder });
