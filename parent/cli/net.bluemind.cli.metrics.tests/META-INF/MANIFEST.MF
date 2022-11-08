@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.cli.metrics.tests
 Bundle-SymbolicName: net.bluemind.cli.metrics.tests
 Bundle-Version: 4.1.0.qualifier
-Bundle-Activator: net.bluemind.cli.metrics.tests.Activator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  org.junit,

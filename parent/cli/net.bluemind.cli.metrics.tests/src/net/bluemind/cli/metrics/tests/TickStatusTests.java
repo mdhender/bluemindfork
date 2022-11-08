@@ -18,6 +18,7 @@
 package net.bluemind.cli.metrics.tests;
 
 import org.junit.Test;
+import org.osgi.framework.Version;
 
 import net.bluemind.cli.launcher.CLIManager;
 
@@ -28,7 +29,7 @@ public class TickStatusTests {
 
 	@Test
 	public void testTickStatusCommand() {
-		CLIManager cli = new CLIManager(Activator.context.getBundle().getVersion());
+		CLIManager cli = new CLIManager(new Version(4, 1, 0));
 		cli.processArgs("tick", "status");
 	}
 
