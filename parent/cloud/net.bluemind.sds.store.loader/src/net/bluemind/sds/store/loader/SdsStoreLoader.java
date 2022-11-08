@@ -64,9 +64,11 @@ public class SdsStoreLoader {
 	}
 
 	public Optional<ISdsSyncStore> forSysconf(SystemConf sysconf) {
-		ArchiveKind storeType = ArchiveKind
-				.fromName(Optional.ofNullable(sysconf.stringValue(SysConfKeys.archive_kind.name())).orElse("cyrus"));
-		System.err.println("storeType: " + storeType);
+		String archiveKind = Optional.ofNullable(sysconf.stringValue(SysConfKeys.archive_kind.name())).orElse("cyrus");
+		if (archiveKind.isBlank() || archiveKind.equalsIgnoreCase("none")) {
+			archiveKind = "cyrus";
+		}
+		ArchiveKind storeType = ArchiveKind.fromName(archiveKind);
 		if (storeType == null || !storeType.isSdsArchive()) {
 			return Optional.empty();
 		}
