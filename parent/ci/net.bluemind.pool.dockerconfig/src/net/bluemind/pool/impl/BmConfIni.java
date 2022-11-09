@@ -69,6 +69,7 @@ public class BmConfIni extends IniFile {
 			overrideMap.put("user", "test");
 			overrideMap.put("password", "test");// NOSONAR
 			overrideMap.put("dbtype", "PGSQL");
+			overrideMap.put("dbpoolsize", "2"); // Limit the number of postgresql connections
 			topo.add(tagged(host, TagDescriptor.bm_pgsql.getTag()));
 			topo.add(tagged(host, TagDescriptor.bm_pgsql_data.getTag()));
 		}
