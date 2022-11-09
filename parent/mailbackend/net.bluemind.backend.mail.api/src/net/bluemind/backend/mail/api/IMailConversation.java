@@ -19,41 +19,32 @@ package net.bluemind.backend.mail.api;
 
 import java.util.List;
 
-import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
-
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.SortDescriptor;
 
 /**
  * Handle message conversations for a given container (per user or mail-share).
  */
 @BMApi(version = "3")
-@Path("/mail_conversation/{conversationContainer}")
+@Path("/mail_conversation/{subtreeContainer}")
 public interface IMailConversation {
 
 	/** Retrieve the conversation having the given Cyrus identifier. */
 	@GET
 	@Path("{uid}")
-	public ItemValue<Conversation> getComplete(@PathParam(value = "uid") String uid);
+	public Conversation get(@PathParam(value = "uid") String uid);
 
 	@POST
 	@Path("_mget")
-	public List<ItemValue<Conversation>> multipleGet(List<String> uids) throws ServerFault;
+	public List<Conversation> multipleGet(List<String> uids) throws ServerFault;
 
 	/** Retrieve the conversations of the given folder. */
 	@POST
 	public List<String> byFolder(@QueryParam(value = "folder") String folderUid, SortDescriptor sorted);
-
-	@DELETE
-	@Path("{containerUid}/{itemId}/_message")
-	public void removeMessage(@PathParam(value = "containerUid") String containerUid,
-			@PathParam(value = "itemId") Long itemId);
-
 }

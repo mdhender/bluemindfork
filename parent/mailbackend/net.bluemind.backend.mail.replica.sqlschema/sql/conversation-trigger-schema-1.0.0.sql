@@ -8,6 +8,7 @@ CREATE OR REPLACE VIEW view_conversation_get_message_body_data AS
 
 CREATE OR REPLACE VIEW view_conversation_by_mailbox_record AS
     SELECT
+        subtree_id,
         container_id,
         conversation_id,
         bit_OR(system_flags) & 2 = 2 AS flagged,
@@ -16,7 +17,7 @@ CREATE OR REPLACE VIEW view_conversation_by_mailbox_record AS
         min(internal_date) AS first
     FROM t_mailbox_record
     WHERE system_flags::bit(32) & 4::bit(32) = 0::bit(32)
-    GROUP BY container_id, conversation_id;
+    GROUP BY subtree_id, container_id, conversation_id;
 
 CREATE OR REPLACE VIEW view_conversation_get_conversation AS
     SELECT folder_id, conversation_id, "date", first, size, unseen, flagged
@@ -165,9 +166,14 @@ CREATE OR REPLACE FUNCTION v_conversation_by_folder_add_trigger() RETURNS TRIGGE
 AS $$
 DECLARE
     ret t_mailbox_record;
+    disable_conversation_triggers boolean;
 BEGIN
-    SELECT v_conversation_by_folder_add(NEW) INTO ret;
-    RETURN ret;
+    SELECT INTO disable_conversation_triggers COALESCE(current_setting('bm.disable_conversation_triggers', true)::bool, false);
+    IF disable_conversation_triggers = true THEN
+        RETURN NEW;
+    END IF;
+    PERFORM v_conversation_by_folder_add(NEW);
+    RETURN NEW;
 END;
 $$;
 
@@ -213,7 +219,8 @@ BEGIN
         -- Otherwise, just update the unseen / flagged and date fields at this stage
         SELECT flagged, unseen, "date", first
         FROM view_conversation_by_mailbox_record
-        WHERE container_id = old_record.container_id
+        WHERE subtree_id = old_record.subtree_id
+        AND container_id = old_record.container_id
         AND conversation_id = old_record.conversation_id
         INTO NEW_CONVERSATION;
 
@@ -286,7 +293,13 @@ $$;
 CREATE OR REPLACE FUNCTION v_conversation_by_folder_remove_trigger() RETURNS TRIGGER
     LANGUAGE plpgsql
 AS $$
+DECLARE
+    disable_conversation_triggers boolean;
 BEGIN
+    SELECT INTO disable_conversation_triggers COALESCE(current_setting('bm.disable_conversation_triggers', true)::bool, false);
+    IF disable_conversation_triggers = true THEN
+        RETURN NULL;
+    END IF;
     PERFORM v_conversation_by_folder_remove(OLD, NEW);
     RETURN NULL;
 END;
@@ -300,6 +313,7 @@ DECLARE
     EXISTING record;
     CURRENT_CONVERSATION record;
     NEW_RECORD_BODY record;
+    disable_conversation_triggers boolean;
 
     new_sender TEXT := NULL;
     new_subject TEXT := NULL;
@@ -311,6 +325,11 @@ DECLARE
     new_unseen BOOLEAN := NULL;
     new_flagged BOOLEAN := NULL;
 BEGIN
+    SELECT INTO disable_conversation_triggers COALESCE(current_setting('bm.disable_conversation_triggers', true)::bool, false);
+    IF disable_conversation_triggers = true THEN
+        RETURN NULL;
+    END IF;
+
     SELECT "date", first, size, unseen, flagged
     FROM v_conversation_by_folder
     WHERE folder_id = OLD.container_id
@@ -396,7 +415,8 @@ BEGIN
         SELECT flagged, unseen, date, first
         INTO new_flagged, new_unseen, new_date
         FROM view_conversation_by_mailbox_record
-        WHERE container_id = OLD.container_id
+        WHERE subtree_id = OLD.subtree_id
+        AND container_id = OLD.container_id
         AND conversation_id = OLD.conversation_id;
 
     -- Message is unseen or flagged and conversation is not
@@ -436,16 +456,20 @@ BEGIN
 END;
 $$;
 
-
 CREATE OR REPLACE FUNCTION v_conversation_by_folder_conversation_id_changed() RETURNS TRIGGER
     LANGUAGE plpgsql
 AS $$
 DECLARE
+    disable_conversation_triggers boolean;
     ret t_mailbox_record;
 BEGIN
+    SELECT INTO disable_conversation_triggers COALESCE(current_setting('bm.disable_conversation_triggers', true)::bool, false);
+    IF disable_conversation_triggers = true THEN
+        RETURN NULL;
+    END IF;
     PERFORM v_conversation_by_folder_remove(OLD, NEW);
-    SELECT v_conversation_by_folder_add(NEW) INTO ret;
-    RETURN ret;
+    PERFORM v_conversation_by_folder_add(NEW);
+    RETURN NEW;
 END;
 $$;
 

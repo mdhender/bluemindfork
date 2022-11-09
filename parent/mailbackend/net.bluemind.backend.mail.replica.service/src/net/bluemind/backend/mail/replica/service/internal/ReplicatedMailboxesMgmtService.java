@@ -66,6 +66,8 @@ import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.index.MailIndexActivator;
+import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.mailbox.api.Mailbox;
 
 public class ReplicatedMailboxesMgmtService implements IReplicatedMailboxesMgmt {
 
@@ -95,16 +97,30 @@ public class ReplicatedMailboxesMgmtService implements IReplicatedMailboxesMgmt 
 			throw new ServerFault("Cannot find records container of folder " + replicatedMailboxUid,
 					ErrorCode.SQL_ERROR);
 		}
-		MailboxRecordStore store = new MailboxRecordStore(ds, recordsContainer);
 
-		List<Set<MailboxRecordItemUri>> refs = new ArrayList<>();
-		try {
-			String guid = store.getImapUidReferences(uid, mailbox);
-			refs.add(getBodyGuidReferences(guid));
-		} catch (SQLException e) {
-			logger.warn("Cannot read referenced message body", e);
+		IMailboxes mailboxesApi = context.su().provider().instance(IMailboxes.class, recordsContainer.domainUid);
+		ItemValue<Mailbox> mailboxIv = mailboxesApi.getComplete(recordsContainer.owner);
+		if (mailbox == null) {
+			throw ServerFault.notFound("mailbox of " + recordsContainer.owner + " not found");
 		}
-		return refs;
+		String subtreeContainerUid = IMailReplicaUids.subtreeUid(recordsContainer.domainUid, mailboxIv);
+		try {
+			Container subtreeContainer = cs.get(subtreeContainerUid);
+			if (subtreeContainer == null) {
+				throw ServerFault.notFound("subtree " + subtreeContainerUid);
+			}
+			MailboxRecordStore store = new MailboxRecordStore(ds, recordsContainer, subtreeContainer);
+			List<Set<MailboxRecordItemUri>> refs = new ArrayList<>();
+			try {
+				String guid = store.getImapUidReferences(uid, mailbox);
+				refs.add(getBodyGuidReferences(guid));
+			} catch (SQLException e) {
+				logger.warn("Cannot read referenced message body", e);
+			}
+			return refs;
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
 	}
 
 	@Override

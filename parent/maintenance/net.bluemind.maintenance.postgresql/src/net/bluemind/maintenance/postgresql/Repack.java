@@ -130,15 +130,6 @@ public class Repack implements IMaintenanceScript {
 						+ " -t \"t_container_changeset_${i}\"\n");
 				sb.append("done\n");
 
-				// Conversations
-				sb.append("conversationsPartitionCount=$(psql -d " + dbName
-						+ " -AtqE -c \"SELECT COALESCE(current_setting('bm.conversation_partitions', true)::integer, "
-						+ DEFAULT_CONVERSATION_PARTITION_COUNT + ") -1 AS partition_count;\")\n");
-				sb.append("for i in $(seq 0 ${conversationsPartitionCount}); do\n");
-				sb.append("  pg_repack --wait-timeout " + TimeUnit.HOURS.toSeconds(4) + " -d " + dbName
-						+ " -t \"t_conversation_${i}\"\n");
-				sb.append("done\n");
-
 				// Conversation reference
 				sb.append("conversationsReferencePartitionCount=$(psql -d " + dbName
 						+ " -AtqE -c \"SELECT COALESCE(current_setting('bm.conversationreference_partitions', true)::integer, "

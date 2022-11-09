@@ -30,15 +30,19 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+
+import javax.sql.DataSource;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-import net.bluemind.backend.cyrus.replication.testhelper.CyrusGUID;
-import net.bluemind.backend.cyrus.replication.testhelper.MailboxUniqueId;
 import net.bluemind.backend.mail.api.DispositionType;
+import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Header;
 import net.bluemind.backend.mail.api.MessageBody.Part;
@@ -46,24 +50,61 @@ import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.core.rest.IServiceProvider;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.utils.JsonUtils;
+import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.server.api.Server;
+import net.bluemind.system.state.RunningState;
+import net.bluemind.system.state.StateContext;
+import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class MessageBodyStoreTests {
-
+	protected String partition;
+	protected String user1Uid;
+	protected String user1MboxRoot;
+	protected String domainUid = "test" + System.currentTimeMillis() + ".lab";
+	protected DataSource datasource;
 	private MessageBodyStore bodyStore;
+
+	@BeforeClass
+	public static void sysprop() {
+		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("imap.port", "1144");
+	}
 
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 
-		bodyStore = new MessageBodyStore(JdbcTestHelper.getInstance().getDataSource());
+		Server pipo = new Server();
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
+		pipo.tags = Collections.singletonList("mail/imap");
+
+		VertxPlatform.spawnBlocking(25, TimeUnit.SECONDS);
+		partition = "dataloc__" + domainUid.replace('.', '_');
+		datasource = JdbcTestHelper.getInstance().getMailboxDataDataSource();
+		JdbcActivator.getInstance().addMailboxDataSource("dataloc", datasource);
+		PopulateHelper.initGlobalVirt(pipo);
+		PopulateHelper.addDomain(domainUid, Routing.internal);
+		user1Uid = PopulateHelper.addUser("u1-" + System.currentTimeMillis(), domainUid, Routing.internal);
+		user1MboxRoot = "user." + user1Uid.replace('.', '^');
+		assertNotNull(user1Uid);
+		StateContext.setInternalState(new RunningState());
+		bodyStore = new MessageBodyStore(JdbcTestHelper.getInstance().getMailboxDataDataSource());
 	}
 
 	@After
@@ -78,7 +119,7 @@ public class MessageBodyStoreTests {
 
 	@Test
 	public void testExisting() throws SQLException {
-		String guid = CyrusGUID.randomGuid();
+		String guid = UUID.randomUUID().toString().replace("-", "");
 		MessageBody mb = simpleTextBody(guid);
 		bodyStore.store(mb);
 
@@ -91,7 +132,7 @@ public class MessageBodyStoreTests {
 
 	@Test
 	public void testDelete() throws SQLException {
-		String guid = CyrusGUID.randomGuid();
+		String guid = UUID.randomUUID().toString().replace("-", "");
 		MessageBody mb = simpleTextBody(guid);
 		bodyStore.store(mb);
 		MessageBody reloaded = bodyStore.get(guid);
@@ -105,7 +146,7 @@ public class MessageBodyStoreTests {
 
 	@Test
 	public void testCrudSimple() throws SQLException {
-		String guid = CyrusGUID.randomGuid();
+		String guid = UUID.randomUUID().toString().replace("-", "");
 		MessageBody mb = simpleTextBody(guid);
 		bodyStore.store(mb);
 		MessageBody reloaded = bodyStore.get(guid);
@@ -145,7 +186,7 @@ public class MessageBodyStoreTests {
 		long time = System.currentTimeMillis();
 		String[] existing = new String[CNT];
 		for (int i = 0; i < CNT; i++) {
-			String guid = CyrusGUID.randomGuid();
+			String guid = UUID.randomUUID().toString().replace("-", "");
 			MessageBody mb = simpleTextBody(guid);
 			bodyStore.store(mb);
 			existing[i] = guid;
@@ -174,21 +215,37 @@ public class MessageBodyStoreTests {
 		return randSlice;
 	}
 
+	protected IServiceProvider provider(String userUid) {
+		SecurityContext secCtx = new SecurityContext("sid-" + userUid, userUid, Collections.emptyList(),
+				Collections.emptyList(), domainUid);
+		return ServerSideServiceProvider.getProvider(secCtx);
+	}
+
 	@Test
 	public void testdeleteOrphan() throws SQLException {
-		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
+		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getMailboxDataDataSource(),
 				SecurityContext.SYSTEM);
-		String boxUniqueId = MailboxUniqueId.random();
-		String containerId = IMailReplicaUids.mboxRecords(boxUniqueId);
-		Container container = Container.create(containerId, IMailReplicaUids.MAILBOX_RECORDS, "test", "me", true);
-		container = containerHome.create(container);
+		IMailboxFolders user1MailboxFolderService = provider(user1Uid).instance(IMailboxFolders.class, partition,
+				user1MboxRoot);
+		String user1InboxUid = user1MailboxFolderService.byName("INBOX").uid;
+		Container container = containerHome.get(IMailReplicaUids.mboxRecords(user1InboxUid));
 
-		ItemStore itemStore = new ItemStore(JdbcTestHelper.getInstance().getDataSource(), container,
+		ItemStore itemStore = new ItemStore(JdbcTestHelper.getInstance().getMailboxDataDataSource(), container,
 				SecurityContext.SYSTEM);
-		MailboxRecordStore boxRecordStore = new MailboxRecordStore(JdbcTestHelper.getInstance().getDataSource(),
-				container);
+		IMailboxes mailboxesApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IMailboxes.class, domainUid);
+		// TODO: optimize: we don't need all that stuff, just the mailbox container id
+		ItemValue<Mailbox> mailbox = mailboxesApi.getComplete(user1Uid);
 
-		String guid = CyrusGUID.randomGuid();
+		String subtreeContainerUid = IMailReplicaUids.subtreeUid(domainUid, mailbox);
+		Container subtreeContainer = containerHome.get(subtreeContainerUid);
+		if (subtreeContainer == null) {
+			throw ServerFault.notFound("subtree " + subtreeContainerUid);
+		}
+		MailboxRecordStore boxRecordStore = new MailboxRecordStore(
+				JdbcTestHelper.getInstance().getMailboxDataDataSource(), container, subtreeContainer);
+
+		String guid = UUID.randomUUID().toString().replace("-", "");
 		MessageBody mb = simpleTextBody(guid);
 		bodyStore.store(mb);
 		MessageBody reloaded = bodyStore.get(guid);
@@ -205,7 +262,7 @@ public class MessageBodyStoreTests {
 		Item it = itemStore.get(uniqueId);
 		boxRecordStore.create(it, record);
 
-		String guid2 = CyrusGUID.randomGuid();
+		String guid2 = UUID.randomUUID().toString().replace("-", "");
 		mb = simpleTextBody(guid2);
 		mb.subject = "expired";
 		bodyStore.store(mb);
@@ -223,7 +280,7 @@ public class MessageBodyStoreTests {
 		Item it2 = itemStore.get(uniqueId2);
 		boxRecordStore.create(it2, record2);
 
-		String guid3 = CyrusGUID.randomGuid();
+		String guid3 = UUID.randomUUID().toString().replace("-", "");
 		mb = simpleTextBody(guid3);
 		bodyStore.store(mb);
 		reloaded = bodyStore.get(guid3);
@@ -250,7 +307,7 @@ public class MessageBodyStoreTests {
 	}
 
 	private void adjustCreationDate(String guid) throws SQLException {
-		try (Connection con = JdbcTestHelper.getInstance().getDataSource().getConnection();
+		try (Connection con = JdbcTestHelper.getInstance().getMailboxDataDataSource().getConnection();
 				PreparedStatement stm = con.prepareStatement(
 						"update t_message_body_purge_queue set created = now() - '1 year'::interval where encode(message_body_guid, 'hex') = ? ")) {
 			stm.setString(1, guid);
@@ -260,12 +317,12 @@ public class MessageBodyStoreTests {
 
 	@Test
 	public void testDeleteAll() throws SQLException {
-		String guid = CyrusGUID.randomGuid();
+		String guid = UUID.randomUUID().toString().replace("-", "");
 		MessageBody mb = simpleTextBody(guid);
 		bodyStore.store(mb);
 		assertNotNull(bodyStore.get(guid));
 
-		String guid2 = CyrusGUID.randomGuid();
+		String guid2 = UUID.randomUUID().toString().replace("-", "");
 		mb = simpleTextBody(guid2);
 		bodyStore.store(mb);
 		assertNotNull(bodyStore.get(guid2));
@@ -278,7 +335,7 @@ public class MessageBodyStoreTests {
 
 	@Test
 	public void testCrudWithAttachment() throws SQLException {
-		String guid = CyrusGUID.randomGuid();
+		String guid = UUID.randomUUID().toString().replace("-", "");
 		MessageBody mb = simpleTextBody(guid);
 		mb.structure.children.add(Part.create("mia_callista.png", "image/png", "1.2"));
 		bodyStore.store(mb);

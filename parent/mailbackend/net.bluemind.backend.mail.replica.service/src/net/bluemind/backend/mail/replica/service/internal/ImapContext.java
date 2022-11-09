@@ -49,6 +49,7 @@ public class ImapContext {
 
 	public final String latd;
 	public final String server;
+	public final int port;
 	private final String sid;
 	public final String partition;
 	private Optional<PoolableStoreClient> imapClient = Optional.empty();
@@ -97,7 +98,13 @@ public class ImapContext {
 	private ImapContext(String latd, String partition, String imapSrv, String sid, AuthUser user) {
 		this.partition = partition;
 		this.latd = latd;
-		this.server = imapSrv;
+		// Test mode
+		if (System.getProperty("imap.local.ipaddr", "").equals(imapSrv)) {
+			this.server = "127.0.0.1";
+		} else {
+			this.server = imapSrv;
+		}
+		this.port = Integer.valueOf(System.getProperty("imap.port", "1143"));
 		this.sid = sid;
 		this.user = user;
 	}
@@ -131,7 +138,7 @@ public class ImapContext {
 		if (imapClient.isPresent() && !imapClient.get().isClosed()) {
 			return imapClient.get();
 		} else {
-			PoolableStoreClient sc = new PoolableStoreClient(server, 1143, latd, sid);
+			PoolableStoreClient sc = new PoolableStoreClient(server, port, latd, sid);
 			try {
 				boolean minaClientOk = sc.login();
 				if (!minaClientOk) {

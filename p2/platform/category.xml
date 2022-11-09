@@ -49,7 +49,6 @@
    <bundle id="net.bluemind.aws.s3.patch" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.aws.s3.utils" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.backend.cyrus" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.annotationdb" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.backend.cyrus.bmgroups" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.backend.cyrus.index" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.backend.cyrus.integrity.check" version="4.1.0.qualifier"/>

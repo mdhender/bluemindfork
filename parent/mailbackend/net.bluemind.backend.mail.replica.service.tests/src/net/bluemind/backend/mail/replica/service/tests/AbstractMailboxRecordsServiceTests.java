@@ -40,27 +40,23 @@ import org.junit.Before;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
-import net.bluemind.backend.cyrus.replication.testhelper.MailboxUniqueId;
+import net.bluemind.backend.cyrus.CyrusService;
+import net.bluemind.backend.mail.api.IMailboxFolders;
+import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
-import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
-import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
-import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
-import net.bluemind.backend.mail.replica.api.utils.Subtree;
-import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
-import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
-import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.Item;
-import net.bluemind.core.container.persistence.ContainerStore;
-import net.bluemind.core.container.persistence.ItemStore;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.utils.InputReadStream;
-import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.mailbox.api.IMailboxAclUids;
+import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.pool.impl.BmConfIni;
+import net.bluemind.server.api.Server;
+import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public abstract class AbstractMailboxRecordsServiceTests<T> {
 
@@ -68,7 +64,7 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 	protected String mboxUniqueId2;
 	protected String partition;
 	protected MailboxReplicaRootDescriptor mboxDescriptor;
-	protected String dom;
+	protected String domainUid = "domain-" + System.currentTimeMillis() + ".test";
 	protected DataSource datasource;
 
 	protected Vertx vertx;
@@ -84,79 +80,34 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
+
 		ElasticsearchTestHelper.getInstance().beforeTest();
 		vertx = VertxPlatform.getVertx();
 
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
-		dom = "vagrant" + System.currentTimeMillis() + ".vmw";
 
-		partition = "dataloc__" + dom.replace('.', '_');
+		Server pipo = new Server();
+		pipo.ip = new BmConfIni().get("imap-role");
+		pipo.tags = Collections.singletonList("mail/imap");
+
+		ItemValue<Server> cyrusServer = ItemValue.create("localhost", pipo);
+		CyrusService cyrusService = new CyrusService(cyrusServer);
+		cyrusService.reset();
+
+		PopulateHelper.initGlobalVirt(pipo);
+		PopulateHelper.addDomain(domainUid, Routing.internal);
+		partition = "dataloc__" + domainUid.replace('.', '_');
 		datasource = JdbcTestHelper.getInstance().getMailboxDataDataSource();
 		JdbcActivator.getInstance().addMailboxDataSource("dataloc", datasource);
-		mboxUniqueId = MailboxUniqueId.random();
-		mboxUniqueId2 = MailboxUniqueId.random();
-		SecurityContext securityContext = SecurityContext.ANONYMOUS;
-		BmTestContext testContext = new BmTestContext(securityContext);
-
-		ContainerStore containerHome = new ContainerStore(testContext, datasource, securityContext);
-
-		Subtree subtreeId = SubtreeContainer.mailSubtreeUid(dom, Namespace.users, "me");
-		ContainerStore dirHome = new ContainerStore(testContext, JdbcTestHelper.getInstance().getDataSource(),
-				securityContext);
-
-		// init a subtree with an inbox
-		Container container = Container.create(subtreeId.subtreeUid(), IMailReplicaUids.REPLICATED_MBOXES, "test", "me",
-				true);
-		String conversationSubtreeUid = IMailReplicaUids.conversationSubtreeUid(dom, "me");
-		Container containerConversion = Container.create(conversationSubtreeUid,
-				IMailReplicaUids.REPLICATED_CONVERSATIONS, "test", "me", true);
-		Container conversionCont = containerHome.create(containerConversion);
-		Container acl = Container.create(IMailboxAclUids.uidForMailbox("me"), IMailboxAclUids.MAILBOX_ACL_PREFIX,
-				"acls", "me", true);
-		acl.domainUid = dom;
-		container.domainUid = dom;
-		container = containerHome.create(container);
-		acl = containerHome.create(acl);
-		dirHome.createOrUpdateContainerLocation(container, "dataloc");
-
-		MailboxReplicaStore mboxStore = new MailboxReplicaStore(datasource, container, dom);
-		ItemStore items = new ItemStore(datasource, container, securityContext);
-		Item mboxRef = items.create(Item.create(mboxUniqueId, null));
-		assertNotNull("failed to create replicated mbox item", mboxRef);
-		MailboxReplica replica = new MailboxReplica();
-		replica.fullName = "INBOX";
-		replica.name = "INBOX";
-		replica.acls = Collections.emptyList();
-		replica.recentTime = replica.lastAppendDate = replica.lastAppendDate = replica.pop3LastLogin = new Date();
-		replica.options = "";
-		mboxStore.create(mboxRef, replica);
-
-		Item mboxRef2 = items.create(Item.create(mboxUniqueId2, null));
-		assertNotNull("failed to create replicated mbox item", mboxRef2);
-		MailboxReplica replica2 = new MailboxReplica();
-		replica2.fullName = "SUB";
-		replica2.name = "SUB";
-		replica2.acls = Collections.emptyList();
-		replica2.recentTime = replica.lastAppendDate = replica.lastAppendDate = replica.pop3LastLogin = new Date();
-		replica2.options = "";
-		mboxStore.create(mboxRef2, replica2);
-
-		// for the records
-		String containerId = IMailReplicaUids.mboxRecords(mboxUniqueId);
-		container = Container.create(containerId, IMailReplicaUids.MAILBOX_RECORDS, "test", "me", true);
-		container.domainUid = dom;
-		container = containerHome.create(container);
-
-		String containerId2 = IMailReplicaUids.mboxRecords(mboxUniqueId2);
-		Container container2 = Container.create(containerId2, IMailReplicaUids.MAILBOX_RECORDS, "test", "me", true);
-		container2.domainUid = dom;
-		container2 = containerHome.create(container2);
-
-		dirHome.createOrUpdateContainerLocation(conversionCont, "dataloc");
-		dirHome.createOrUpdateContainerLocation(container, "dataloc");
-		dirHome.createOrUpdateContainerLocation(container2, "dataloc");
-		dirHome.createOrUpdateContainerLocation(acl, "dataloc");
-
+		String userUid = PopulateHelper.addUser("me", domainUid, Routing.internal);
+		SecurityContext secCtx = new SecurityContext("sid", userUid, Collections.emptyList(), Collections.emptyList(),
+				domainUid);
+		IMailboxFolders mailboxFolderService = ServerSideServiceProvider.getProvider(secCtx)
+				.instance(IMailboxFolders.class, partition, "user." + userUid.replace(".", "^"));
+		ItemValue<MailboxFolder> folder = mailboxFolderService.byName("INBOX");
+		mboxUniqueId = folder.uid;
+		mboxUniqueId2 = mailboxFolderService.byName("Sent").uid;
+		assertNotNull(userUid);
 	}
 
 	@After

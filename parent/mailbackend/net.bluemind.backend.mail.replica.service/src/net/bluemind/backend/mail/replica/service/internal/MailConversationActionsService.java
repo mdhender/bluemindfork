@@ -19,11 +19,13 @@
 package net.bluemind.backend.mail.replica.service.internal;
 
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
+
+import com.google.common.collect.Lists;
 
 import net.bluemind.backend.mail.api.IItemsTransfer;
 import net.bluemind.backend.mail.api.IMailConversationActions;
@@ -47,21 +49,20 @@ import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.user.api.IUser;
 
 public class MailConversationActionsService implements IMailConversationActions {
-
 	private final RBACManager rbacManager;
 	private final BmContext context;
-	private final Container container;
+	private final Container subtreeContainer;
 	private final String replicatedMailboxUid;
 	private final MailboxRecordStore recordStore;
 
-	public MailConversationActionsService(BmContext context, DataSource ds, Container conversationContainer,
+	public MailConversationActionsService(BmContext context, DataSource ds, Container subtreeContainer,
 			String replicatedMailboxUid, MailboxRecordStore recordStore) {
-		this.container = conversationContainer;
-		this.rbacManager = RBACManager.forContext(context)
-				.forContainer(IMailboxAclUids.uidForMailbox(conversationContainer.owner));
-		this.context = context;
-		this.replicatedMailboxUid = replicatedMailboxUid;
+		this.subtreeContainer = subtreeContainer;
 		this.recordStore = recordStore;
+		this.replicatedMailboxUid = replicatedMailboxUid;
+		this.rbacManager = RBACManager.forContext(context)
+				.forContainer(IMailboxAclUids.uidForMailbox(subtreeContainer.owner));
+		this.context = context;
 	}
 
 	@Override
@@ -93,48 +94,51 @@ public class MailConversationActionsService implements IMailConversationActions 
 		rbacManager.check(Verb.Write.name());
 		IMailboxItems mailboxItemsService = context.getServiceProvider().instance(IMailboxItems.class,
 				replicatedMailboxUid);
-		List<Long> itemIds = getItemidsByConversationUids(conversationUids);
-		mailboxItemsService.multipleDeleteById(itemIds);
+		Lists.partition(conversationUids, 500).stream().map(this::getItemidsByConversationUids)
+				.forEach(mailboxItemsService::multipleDeleteById);
 	}
 
 	private List<ItemIdentifier> transferAction(String targetMailboxUid, List<String> conversationUids,
 			BiFunction<IItemsTransfer, List<Long>, List<ItemIdentifier>> op) {
-		List<Long> itemsByConversations = getItemidsByConversationUids(conversationUids);
 		IItemsTransfer transferService = context.getServiceProvider().instance(IItemsTransfer.class,
 				replicatedMailboxUid, targetMailboxUid);
-		return op.apply(transferService, itemsByConversations);
+		return Lists.partition(conversationUids, 500).stream().map(this::getItemidsByConversationUids)
+				.map(itemids -> op.apply(transferService, itemids)).flatMap(Collection::stream).toList();
+
 	}
 
 	private Ack flagAction(ConversationFlagUpdate flagUpdate, BiFunction<IMailboxItems, List<Long>, Ack> action) {
 		rbacManager.check(Verb.Write.name());
 		IMailboxItems mailboxItemsService = context.getServiceProvider().instance(IMailboxItems.class,
 				replicatedMailboxUid);
-		List<Long> itemsByConversations = getItemidsByConversationUids(flagUpdate.conversationUids);
-		return action.apply(mailboxItemsService, itemsByConversations);
+		return Lists.partition(flagUpdate.conversationUids, 500).stream().map(this::getItemidsByConversationUids)
+				.map(itemIds -> action.apply(mailboxItemsService, itemIds)).reduce((first, second) -> second)
+				.orElse(new Ack());
 	}
 
 	@Override
 	public ImportMailboxItemsStatus importItems(long folderDestinationId, ImportMailboxConversationSet conversationSet)
 			throws ServerFault {
 		rbacManager.check(Verb.Write.name());
-		String partition = container.domainUid.replace('.', '_');
-		String userLogin = "user." + context.getServiceProvider().instance(IUser.class, container.domainUid)
-				.getComplete(container.owner).value.login.replace('.', '^');
+		String partition = subtreeContainer.domainUid.replace('.', '_');
+		// TODO: this is weird to use "user." as we can work on other type of mailbox
+		String userLogin = "user." + context.getServiceProvider().instance(IUser.class, subtreeContainer.domainUid)
+				.getComplete(subtreeContainer.owner).value.login.replace('.', '^');
 
 		IMailboxFolders mailboxItemsService = context.getServiceProvider().instance(IMailboxFolders.class, partition,
 				userLogin);
 		List<Long> itemsByConversations = getItemidsByConversationUids(conversationSet.conversationUids);
 
 		ImportMailboxItemSet itemSet = ImportMailboxItemSet.of(conversationSet.mailboxFolderId,
-				itemsByConversations.stream().map(MailboxItemId::of).collect(Collectors.toList()), null,
-				conversationSet.deleteFromSource);
+				itemsByConversations.stream().map(MailboxItemId::of).toList(), null, conversationSet.deleteFromSource);
 		return mailboxItemsService.importItems(folderDestinationId, itemSet);
 	}
 
 	private List<Long> getItemidsByConversationUids(List<String> conversationUids) {
 		List<Long> itemsByConversations;
 		try {
-			itemsByConversations = recordStore.getItemsByConversations(conversationUids);
+			itemsByConversations = recordStore.getItemsByConversations(
+					conversationUids.stream().map(uid -> Long.parseUnsignedLong(uid, 16)).toArray(Long[]::new));
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}

@@ -71,7 +71,6 @@ public class UserSync extends DirEntryWithMailboxSync<User> {
 
 	private static final List<String> SKIPPED_TYPES = Lists.newArrayList(//
 			MapiFolderContainer.TYPE, //
-			IMailReplicaUids.REPLICATED_CONVERSATIONS, //
 			IMailboxAclUids.TYPE, //
 			IDeferredActionContainerUids.TYPE//
 	);

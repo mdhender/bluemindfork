@@ -24,6 +24,9 @@ import com.google.common.base.Strings;
 
 public class CyrusGUID {
 
+	private CyrusGUID() {
+	}
+
 	private static final Random r = new Random();
 
 	public static String randomGuid() {

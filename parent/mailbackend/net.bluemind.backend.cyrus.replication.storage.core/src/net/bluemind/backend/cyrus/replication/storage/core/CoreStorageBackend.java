@@ -38,13 +38,11 @@ import net.bluemind.authentication.api.IAuthenticationPromise;
 import net.bluemind.backend.cyrus.partitions.CyrusBoxes.ReplicatedBox;
 import net.bluemind.backend.cyrus.replication.server.state.StorageApiLink;
 import net.bluemind.backend.cyrus.replication.server.state.StorageLinkFactory;
-import net.bluemind.backend.mail.api.IMailConversationPromise;
 import net.bluemind.backend.mail.replica.api.ICyrusReplicationAnnotationsPromise;
 import net.bluemind.backend.mail.replica.api.ICyrusReplicationArtifactsPromise;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecordsPromise;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodiesPromise;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxesPromise;
-import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesMgmtPromise;
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesRootMgmtPromise;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
@@ -59,7 +57,6 @@ import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.VertxPromiseServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
-import net.bluemind.mailbox.api.IMailboxesPromise;
 import net.bluemind.network.topology.Topology;
 
 public class CoreStorageBackend implements StorageApiLink {
@@ -233,16 +230,5 @@ public class CoreStorageBackend implements StorageApiLink {
 	@Override
 	public CompletableFuture<List<ResolvedMailbox>> resolveNames(List<String> names) {
 		return asyncProv.instance(IReplicatedMailboxesMgmtPromise.class).resolve(names);
-	}
-
-	@Override
-	public CompletableFuture<IMailConversationPromise> conversations(ReplicatedBox userFrom) {
-		String domain = userFrom.partition.replace('_', '.');
-		return asyncProv.instance(IMailboxesPromise.class, domain).byName(userFrom.asDescriptor().name)
-				.thenCompose(mbox -> {
-					String conversationSubtreeUid = IMailReplicaUids.conversationSubtreeUid(domain, mbox.uid);
-					return CompletableFuture.completedFuture(
-							asyncProv.instance(IMailConversationPromise.class, conversationSubtreeUid));
-				});
 	}
 }

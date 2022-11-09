@@ -38,31 +38,51 @@ create index IF NOT EXISTS i_mailbox_replica on t_mailbox_replica (item_id);
 create index IF NOT EXISTS i_mailbox_replica_names on t_mailbox_replica (container_id, name);
 
 
-create table IF NOT EXISTS t_mailbox_record (
-	message_body_guid bytea not null,
-	imap_uid int8 not null,
-	mod_seq int8 not null,
-	last_updated timestamp not null,
-	internal_date timestamp not null,
-	system_flags int4 not null,
-	other_flags text[],
-	container_id int4 not null references t_container(id) ON UPDATE CASCADE  on delete cascade,
-	conversation_id bigint,
-	item_id bigint references t_container_item(id) ON UPDATE CASCADE  on delete cascade
-);
-create index IF NOT EXISTS t_mailbox_record_imap_uid ON t_mailbox_record (imap_uid);
-create index IF NOT EXISTS i_mailbox_record_cid_imap_uid ON t_mailbox_record (container_id, imap_uid);
-create index IF NOT EXISTS t_mailbox_record_body_guid ON t_mailbox_record (message_body_guid);
-create index IF NOT EXISTS i_mailbox_record on t_mailbox_record (item_id);
+-- PLEASE BE CAREFUL OF ALIGNMENT ON THIS TABLE!
+CREATE TABLE IF NOT EXISTS t_mailbox_record (
+    item_id int8 NOT NULL REFERENCES t_container_item(id) ON DELETE CASCADE,
+    subtree_id int4 NOT NULL REFERENCES t_container(id) ON DELETE CASCADE,
+    container_id int4 NOT NULL REFERENCES t_container(id) ON DELETE CASCADE,
+    imap_uid int8 NOT NULL,
+    mod_seq int8 NOT NULL,
+    conversation_id int8,
+    last_updated timestamp NOT NULL,
+    internal_date timestamp NOT NULL,
+    system_flags int4 NOT NULL,
+    message_body_guid bytea NOT NULL,
+    other_flags text[],
+    PRIMARY KEY (subtree_id, item_id)
+) PARTITION BY HASH(subtree_id);
 
-create index if not exists i_mailbox_record_imap_idset on t_mailbox_record (container_id, system_flags, imap_uid) include (item_id);
+CREATE INDEX IF NOT EXISTS t_mailbox_record_p_container_id_imap_uid_idx
+    ON t_mailbox_record (container_id, imap_uid);
+CREATE INDEX IF NOT EXISTS t_mailbox_record_p_message_body_guid_idx
+    ON t_mailbox_record (message_body_guid);
+CREATE INDEX IF NOT EXISTS t_mailbox_record_p_container_id_system_flags_imap_uid_item__idx
+    ON t_mailbox_record (container_id, system_flags, imap_uid) INCLUDE (item_id);
+CREATE INDEX IF NOT EXISTS t_mailbox_record_p_last_updated_message_body_guid_item_id_idx
+    ON t_mailbox_record (last_updated)
+    INCLUDE (message_body_guid, item_id)
+    WHERE (((system_flags)::bit(32) & (1<<31)::bit(32)) = (1<<31)::bit(32));
+CREATE INDEX IF NOT EXISTS t_mailbox_record_p_container_id_conversation_id_system_flag_idx
+    ON t_mailbox_record (container_id, conversation_id, system_flags)
+    WHERE (system_flags::bit(32) & 4::bit(32)) = 0::bit(32);
 
--- Expunged flag specialized index
--- used in MailboxRecordStore.getExpiredItems()
-CREATE INDEX ON t_mailbox_record (last_updated)
-	INCLUDE (message_body_guid, item_id)
-	WHERE (((system_flags)::bit(32) & (1<<31)::bit(32)) = (1<<31)::bit(32));
-
+DO LANGUAGE plpgsql
+$$
+DECLARE
+    partition TEXT;
+    partition_count INTEGER;
+BEGIN
+    SELECT INTO partition_count COALESCE(current_setting('bm.mailbox_record_partitions', true)::integer, 256);
+    FOR partition_key IN 0..(partition_count-1)
+    LOOP
+        partition := 't_mailbox_record_' || partition_key;
+        RAISE NOTICE 'CREATING t_mailbox_record PARTITION %...', partition;
+        EXECUTE 'CREATE TABLE ' || partition || ' PARTITION OF t_mailbox_record FOR VALUES WITH (MODULUS '|| partition_count || ', REMAINDER ' || partition_key || ');';
+    END LOOP;
+END;
+$$;
 
 -- t_message_body orphan purge system
 -- see MessageBodyStore.deleteOrphanBodies()
@@ -153,53 +173,18 @@ create table IF NOT EXISTS t_subtree_uid (
 
 create index IF NOT EXISTS subtree_uid_idx ON t_subtree_uid (domain_uid, mailbox_name);
 
-CREATE TABLE t_conversation (
-	messages JSONB not null,
-	container_id int8 not null,
-	item_id int8 not null REFERENCES t_container_item(id) ON DELETE CASCADE,
-	unique(container_id, item_id)
-) PARTITION BY HASH (container_id);
-CREATE INDEX i_conversation_item_id ON t_conversation (item_id);
-
-DO LANGUAGE plpgsql
-$$
-DECLARE
-  partition TEXT;
-  partition_count INTEGER;
-BEGIN
-  SELECT INTO partition_count COALESCE(current_setting('bm.conversation_partitions', true)::integer, 25);
-
-  FOR partition_key IN 0..(partition_count-1)
-  LOOP
-    partition := 't_conversation_' || partition_key;
-    RAISE NOTICE 'CREATING CHANGESET PARTITION %...', partition;
-    EXECUTE 'CREATE TABLE ' || partition || ' PARTITION OF t_conversation FOR VALUES WITH (MODULUS '|| partition_count || ', REMAINDER ' || partition_key || ');';
-  END LOOP;
-END;
-$$;
-
-
-CREATE INDEX IF NOT EXISTS i_t_mailbox_record_conversation_date
-  ON t_mailbox_record (conversation_id, internal_date)
-  WHERE (system_flags::bit(32) & 4::bit(32)) = 0::bit(32);
-
-CREATE INDEX IF NOT EXISTS i_t_mailbox_record_conversation_flags
-  ON t_mailbox_record (container_id, conversation_id, system_flags)
-  WHERE (system_flags::bit(32) & 4::bit(32)) = 0::bit(32);
-
 CREATE TABLE IF NOT EXISTS v_conversation_by_folder (
     folder_id integer NOT NULL REFERENCES t_container ON DELETE CASCADE,
+    size integer NULL,
     conversation_id bigint NOT NULL,
     date timestamp without time zone,
     first timestamp without time zone,
-    subject text NULL, 
-    size integer NULL, 
-    sender text NULL,
     unseen boolean NOT NULL default false, 
     flagged boolean NOT NULL default false,
+    subject text NULL,
+    sender text NULL,
     UNIQUE(folder_id, conversation_id)
 ) PARTITION BY HASH (folder_id);
-
 
 CREATE INDEX IF NOT EXISTS v_conversation_by_folder_subject
     ON v_conversation_by_folder (folder_id, subject DESC) INCLUDE (conversation_id);
@@ -254,7 +239,6 @@ END;
 $$;
 
 ---------------------------------------
-
 CREATE TABLE IF NOT EXISTS s_mailbox_record (
     item_id bigint NOT NULL,
     container_id integer NOT NULL,
@@ -320,7 +304,12 @@ CREATE OR REPLACE FUNCTION s_mailbox_record_add() RETURNS TRIGGER
 AS $$
 DECLARE
     body record;
+    disable_sort_triggers boolean;
 BEGIN
+    SELECT INTO disable_sort_triggers COALESCE(current_setting('bm.disable_sort_triggers', true)::bool, false);
+    IF disable_sort_triggers = true THEN
+        RETURN NULL;
+    END IF;
     SELECT
         regexp_replace(unaccent(subject), '^([\W]*|re\s*:)+', '', 'i') AS subject,
         jsonb_path_query(recipients, '$[*] ? (@.kind == "Originator")') ->> 'address' AS sender,
@@ -342,7 +331,12 @@ CREATE OR REPLACE FUNCTION s_mailbox_record_update() RETURNS TRIGGER
 AS $$
 DECLARE
     body record;
+    disable_sort_triggers boolean;
 BEGIN
+    SELECT INTO disable_sort_triggers COALESCE(current_setting('bm.disable_sort_triggers', true)::bool, false);
+    IF disable_sort_triggers = true THEN
+        RETURN NULL;
+    END IF;
     IF (OLD.message_body_guid != NEW.message_body_guid) THEN
         SELECT
             regexp_replace(unaccent(subject), '^([\W]*|re\s*:)+', '', 'i') AS subject,
@@ -383,7 +377,12 @@ CREATE OR REPLACE FUNCTION s_mailbox_record_remove() RETURNS TRIGGER
     LANGUAGE plpgsql
 AS $$
 DECLARE
+    disable_sort_triggers boolean;
 BEGIN
+    SELECT INTO disable_sort_triggers COALESCE(current_setting('bm.disable_sort_triggers', true)::bool, false);
+    IF disable_sort_triggers = true THEN
+        RETURN NULL;
+    END IF;
     DELETE FROM s_mailbox_record WHERE container_id = OLD.container_id AND item_id = OLD.item_id;
     RETURN NULL;
 END;
@@ -393,7 +392,12 @@ CREATE OR REPLACE FUNCTION s_mailbox_record_truncate() RETURNS TRIGGER
     LANGUAGE plpgsql
 AS $$
 DECLARE
+    disable_sort_triggers boolean;
 BEGIN
+    SELECT INTO disable_sort_triggers COALESCE(current_setting('bm.disable_sort_triggers', true)::bool, false);
+    IF disable_sort_triggers = true THEN
+        RETURN NULL;
+    END IF;
     TRUNCATE s_mailbox_record;
     RETURN NULL;
 END;

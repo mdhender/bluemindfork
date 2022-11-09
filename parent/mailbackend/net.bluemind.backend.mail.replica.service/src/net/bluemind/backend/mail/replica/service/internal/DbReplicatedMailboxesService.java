@@ -31,7 +31,6 @@ import net.bluemind.backend.mail.replica.api.AppendTx;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
-import net.bluemind.backend.mail.replica.api.IInternalMailConversation;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
@@ -190,11 +189,6 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 			if (recordsApi != null) {
 				logger.info("Purge records in {} {}...", uid, toDelete);
 				recordsApi.deleteAll();
-				String conversationSubTreeUid = IMailReplicaUids.conversationSubtreeUid(container.domainUid,
-						container.owner);
-				IInternalMailConversation conversationService = context.provider()
-						.instance(IInternalMailConversation.class, conversationSubTreeUid);
-				conversationService.deleteAllById(deleted.id);
 			}
 
 			context.provider().instance(IContainers.class).delete(toDelete);

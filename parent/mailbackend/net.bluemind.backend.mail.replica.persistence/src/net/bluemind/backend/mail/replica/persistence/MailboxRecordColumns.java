@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag.System;
@@ -73,8 +72,7 @@ public class MailboxRecordColumns {
 			int encodedFlags = rs.getInt(index++);
 			value.flags = extractSystemFlags(encodedFlags);
 			value.internalFlags = InternalFlag.of(encodedFlags);
-			value.flags.addAll(
-					toList(rs.getArray(index++)).stream().map(MailboxItemFlag::new).collect(Collectors.toList()));
+			value.flags.addAll(toList(rs.getArray(index++)).stream().map(MailboxItemFlag::new).toList());
 			value.conversationId = (Long) rs.getObject(index++);
 			return index;
 		};
@@ -89,7 +87,7 @@ public class MailboxRecordColumns {
 		}
 	}
 
-	public static StatementValues<MailboxRecord> values(long containerId, final Item item) {
+	public static StatementValues<MailboxRecord> values(long subtreeContainerId, long containerId, final Item item) {
 		return (Connection con, PreparedStatement statement, int index, int currentRow, MailboxRecord value) -> {
 			statement.setString(index++, value.messageBody);
 			statement.setLong(index++, value.imapUid);
@@ -110,6 +108,7 @@ public class MailboxRecordColumns {
 			statement.setInt(index++, compoundFlags);
 			statement.setArray(index++, con.createArrayOf("text", otherFlags.toArray()));
 			statement.setObject(index++, value.conversationId);
+			statement.setLong(index++, subtreeContainerId);
 			statement.setLong(index++, containerId);
 			statement.setLong(index++, item.id);
 			return 0;

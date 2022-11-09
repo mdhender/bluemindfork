@@ -24,6 +24,8 @@ import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.directory.api.BaseDirEntry;
+import net.bluemind.directory.api.DirEntry;
 import net.bluemind.mailbox.api.Mailbox;
 
 /**
@@ -42,7 +44,6 @@ public interface IMailReplicaUids {
 	public static final String MAILBOX_RECORDS = "mailbox_records";
 	public static final String MAILBOX_RECORDS_PREFIX = "mbox_records_";
 	public static final String REPLICATED_MBOXES = "replicated_mailboxes";
-	public static final String REPLICATED_CONVERSATIONS = "replicated_conversations";
 
 	/**
 	 * Repair operation id for repairing the subtrees containers
@@ -99,20 +100,6 @@ public interface IMailReplicaUids {
 		return subtreeUid(domainUid, mbox);
 	}
 
-	/**
-	 * Returns the unique identifier of the conversation subtree container for the
-	 * given mailbox.
-	 * 
-	 * @param domainUid the domain identifier
-	 * @param mbox      the {@link Mailbox} item
-	 * @return conversation subtree container UID
-	 */
-	@GET
-	@Path("{domain}/_conversation_subtree")
-	public default String getConversationSubtreeUid(@PathParam("domain") String domainUid, ItemValue<Mailbox> mbox) {
-		return conversationSubtreeUid(domainUid, mbox.uid);
-	}
-
 	public static String mboxRecords(@PathParam("uid") String mailboxUniqueId) {
 		return MAILBOX_RECORDS_PREFIX + mailboxUniqueId;
 	}
@@ -129,8 +116,8 @@ public interface IMailReplicaUids {
 		return "subtree_" + domainUid.replace('.', '_') + "!" + type.nsPrefix + uid;
 	}
 
-	public static String conversationSubtreeUid(@PathParam("domainUid") String domainUid, String uid) {
-		return "subtree_" + domainUid.replace('.', '_') + "!" + uid + "_conversations";
+	public static String subtreeUid(String domainUid, DirEntry de) {
+		return "subtree_" + domainUid.replace('.', '_') + "!"
+				+ (de.kind == BaseDirEntry.Kind.USER ? Mailbox.Type.user.nsPrefix : "") + de.entryUid;
 	}
-
 }

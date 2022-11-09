@@ -23,12 +23,12 @@ import static org.junit.Assert.assertNull;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.bluemind.backend.cyrus.replication.testhelper.MailboxUniqueId;
 import net.bluemind.backend.mail.replica.api.AppendTx;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
@@ -82,7 +82,7 @@ public class MailboxReplicaStoreTests {
 	@Test
 	public void testCrudSimple() throws SQLException {
 		MailboxReplica mb = simpleReplica();
-		String uniqueId = MailboxUniqueId.random();
+		String uniqueId = UUID.randomUUID().toString().replace("-", "");
 		itemStore.create(Item.create(uniqueId, null));
 		Item it = itemStore.get(uniqueId);
 		boxReplicaStore.create(it, mb);
@@ -106,7 +106,7 @@ public class MailboxReplicaStoreTests {
 	@Test
 	public void testCreateTwoDeleteAll() throws SQLException {
 		MailboxReplica mb = simpleReplica();
-		String uniqueId = MailboxUniqueId.random();
+		String uniqueId = UUID.randomUUID().toString().replace("-", "");
 		itemStore.create(Item.create(uniqueId, null));
 		Item it = itemStore.get(uniqueId);
 		boxReplicaStore.create(it, mb);
@@ -114,7 +114,7 @@ public class MailboxReplicaStoreTests {
 		MailboxReplica mb2 = simpleReplica();
 		mb2.name = "another";
 		mb2.fullName = "another";
-		String uniqueId2 = MailboxUniqueId.random();
+		String uniqueId2 = UUID.randomUUID().toString().replace("-", "");
 		itemStore.create(Item.create(uniqueId2, null));
 		Item it2 = itemStore.get(uniqueId2);
 		boxReplicaStore.create(it2, mb2);
@@ -137,7 +137,7 @@ public class MailboxReplicaStoreTests {
 	public void testAclsPersistence() throws SQLException {
 		MailboxReplica mb = simpleReplica();
 		mb.acls = Arrays.asList(MailboxReplica.Acl.create("admin0", "lrsp"));
-		String uniqueId = MailboxUniqueId.random();
+		String uniqueId = UUID.randomUUID().toString().replace("-", "");
 		itemStore.create(Item.create(uniqueId, null));
 		Item it = itemStore.get(uniqueId);
 		boxReplicaStore.create(it, mb);

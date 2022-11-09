@@ -52,7 +52,6 @@ import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.replica.api.ICyrusReplicationArtifacts;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
-import net.bluemind.backend.mail.replica.api.IInternalMailConversation;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
@@ -433,9 +432,6 @@ public class DirectoryXfer implements AutoCloseable {
 		// useless and lost
 		containerXfer.xfer(monitor.subWork(1), IMailReplicaUids.MAILBOX_RECORDS,
 				containerUid -> sp.instance(IDbMailboxRecords.class, IMailReplicaUids.uniqueId(containerUid)));
-		containerXfer.xfer(monitor.subWork(1), IMailReplicaUids.REPLICATED_CONVERSATIONS,
-				containerUid -> context.provider().instance(IInternalMailConversation.class,
-						IMailReplicaUids.conversationSubtreeUid(domainUid, entryUid)));
 
 		// Groups don't have mapi containers
 		if (dirEntry.value.kind != BaseDirEntry.Kind.GROUP) {

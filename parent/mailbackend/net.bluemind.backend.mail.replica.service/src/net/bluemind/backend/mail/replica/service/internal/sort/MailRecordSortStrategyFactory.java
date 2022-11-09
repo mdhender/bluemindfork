@@ -28,7 +28,6 @@ public abstract class MailRecordSortStrategyFactory {
 	protected static final Logger logger = LoggerFactory.getLogger(MailRecordSortStrategyFactory.class);
 
 	public static IMailRecordSortStrategy get(SortDescriptor sortDesc) {
-
 		MailboxRecordsSort mailSortEngine = getRecordsSortStrategy(sortDesc);
 
 		switch (mailSortEngine) {
@@ -60,6 +59,7 @@ public abstract class MailRecordSortStrategyFactory {
 			this.description = description;
 		}
 
+		@SuppressWarnings("unused")
 		public String description() {
 			return description;
 		}

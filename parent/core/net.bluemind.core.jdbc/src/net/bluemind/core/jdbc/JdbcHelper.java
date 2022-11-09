@@ -22,7 +22,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLWarning;
 import java.sql.Statement;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +77,23 @@ public class JdbcHelper {
 			try (ResultSet rs = st.executeQuery()) {
 				return rs.next();
 			}
+		}
+	}
+
+	public static void readWarnings(Statement stmt, Consumer<String> logConsumer) {
+		try {
+			SQLWarning warn = stmt.getWarnings();
+			while (warn != null) {
+				String msg = warn.getMessage();
+				// There is no need to alarm the administrator / user about "CREATE *** IF NOT
+				// EXISTS
+				if (!msg.endsWith("does not exist, skipping") && !msg.endsWith("already exists, skipping")) {
+					logConsumer.accept(warn.getMessage());
+				}
+				warn = warn.getNextWarning();
+			}
+		} catch (SQLException e) {
+			// ok
 		}
 	}
 }

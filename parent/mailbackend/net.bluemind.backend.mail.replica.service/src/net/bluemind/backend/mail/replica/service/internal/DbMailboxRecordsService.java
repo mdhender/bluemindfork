@@ -22,7 +22,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,17 +48,14 @@ import com.google.common.base.CharMatcher;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
-import net.bluemind.backend.mail.api.Conversation;
-import net.bluemind.backend.mail.api.Conversation.MessageRef;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.RecipientKind;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.api.flags.WellKnownFlags;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
+import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
-import net.bluemind.backend.mail.replica.api.IInternalMailConversation;
-import net.bluemind.backend.mail.replica.api.IInternalRecordBasedMailConversations;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
@@ -83,7 +79,6 @@ import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
-import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.persistence.ItemStore;
@@ -97,16 +92,13 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.system.api.SystemState;
 import net.bluemind.system.state.StateContext;
 
-public class DbMailboxRecordsService extends BaseMailboxRecordsService
-		implements IInternalRecordBasedMailConversations {
+public class DbMailboxRecordsService extends BaseMailboxRecordsService implements IDbMailboxRecords {
 
 	private static final Logger logger = LoggerFactory.getLogger(DbMailboxRecordsService.class);
 
 	private Optional<ItemValue<MailboxFolder>> mboxFolder = Optional.empty();
 
 	private final IMailIndexService indexService;
-
-	private final IInternalMailConversation conversationService;
 
 	private final DataSource savedDs;
 
@@ -119,12 +111,6 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 		}
 		this.indexService = index;
 		this.savedDs = ds;
-		this.conversationService = createConversationService(context);
-	}
-
-	private IInternalMailConversation createConversationService(BmContext context) {
-		String uid = IMailReplicaUids.conversationSubtreeUid(container.domainUid, container.owner);
-		return context.provider().instance(IInternalMailConversation.class, uid);
 	}
 
 	@Override
@@ -496,13 +482,6 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 						&& !idxAndNotif.value.flags.contains(MailboxItemFlag.System.Deleted.value())) {
 					newMailNotification.add(idxAndNotif);
 				}
-				if (mr.conversationId != null) {
-					try {
-						addMessageToConversation(idxAndNotif.internalId, mr.internalDate, mr.conversationId);
-					} catch (Exception e) {
-						logger.warn("Cannot store conversation", e);
-					}
-				}
 			});
 
 			AtomicInteger softDelete = new AtomicInteger();
@@ -560,30 +539,6 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 		}
 		EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, contVersion, itemIds,
 				createdIds);
-	}
-
-	private void addMessageToConversation(long recInternalId, Date internalDate, long conversationId) {
-		String convUid = Long.toHexString(conversationId);
-		ItemValue<Conversation> conversation = conversationService.getComplete(convUid);
-		if (conversation == null) {
-			Conversation newConversation = new Conversation();
-			newConversation.messageRefs = new ArrayList<>();
-			MessageRef messageId = new MessageRef();
-			messageId.folderUid = mailboxUniqueId;
-			messageId.itemId = recInternalId;
-			messageId.date = internalDate;
-			newConversation.messageRefs.add(messageId);
-			conversationService.create(convUid, newConversation);
-		} else {
-			MessageRef messageId = new MessageRef();
-			messageId.folderUid = mailboxUniqueId;
-			messageId.itemId = recInternalId;
-			messageId.date = internalDate;
-			if (!conversation.value.messageRefs.contains(messageId)) {
-				conversation.value.messageRefs.add(messageId);
-				conversationService.update(conversation.uid, conversation.value);
-			}
-		}
 	}
 
 	private static final ExecutorService ES_CRUD_POOL = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS,
@@ -656,7 +611,6 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 			itemUids.forEach(rec -> {
 				ItemVersion iv = storeService.delete(rec.itemId);
 				lastVersion.set(iv.version);
-				conversationService.removeMessage(IMailReplicaUids.uniqueId(container.uid), rec.itemId);
 			});
 			return null;
 		});
@@ -702,27 +656,24 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
-		storeService.xfer(ds, c, new MailboxRecordStore(ds, c));
-	}
-
-	@Override
-	public List<ImapBinding> havingBodyVersionLowerThan(final int version) {
+		IMailboxes mailboxesApi = context.su().provider().instance(IMailboxes.class, container.domainUid);
+		ItemValue<Mailbox> mailbox = mailboxesApi.getComplete(container.owner);
+		if (mailbox == null) {
+			throw ServerFault.notFound("mailbox of " + container.owner + " not found");
+		}
+		String subtreeContainerUid = IMailReplicaUids.subtreeUid(container.domainUid, mailbox);
 		try {
-			return this.recordStore.havingBodyVersionLowerThan(version);
+			Container subtreeContainer = cs.get(subtreeContainerUid);
+			storeService.xfer(ds, c, new MailboxRecordStore(ds, c, subtreeContainer));
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
 	}
 
 	@Override
-	public List<Long> getConversationIds(SortDescriptor sorted) {
+	public List<ImapBinding> havingBodyVersionLowerThan(final int version) {
 		try {
-			SortDescriptor sortDesc = sorted;
-			if (sortDesc == null) {
-				sortDesc = new SortDescriptor();
-			}
-			sortDescSanitizer.create(sortDesc);
-			return this.recordStore.getConversationIds(sortDesc);
+			return this.recordStore.havingBodyVersionLowerThan(version);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}

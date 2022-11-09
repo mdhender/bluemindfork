@@ -25,7 +25,6 @@ import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
-import net.bluemind.backend.mail.replica.api.IInternalMailConversation;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
@@ -82,9 +81,6 @@ public class ContainerToIDataShardSupport {
 				return sp.instance(IOwnerSubscriptions.class, domainUid, entryUid);
 			case IMailReplicaUids.MAILBOX_RECORDS:
 				return sp.instance(IDbMailboxRecords.class, IMailReplicaUids.uniqueId(container.uid));
-			case IMailReplicaUids.REPLICATED_CONVERSATIONS:
-				return sp.instance(IInternalMailConversation.class,
-						IMailReplicaUids.conversationSubtreeUid(domainUid, entryUid));
 			case MapiFolderContainer.TYPE:
 				return sp.instance(IMapiFolder.class, container.uid);
 			case IWebAppDataUids.TYPE:

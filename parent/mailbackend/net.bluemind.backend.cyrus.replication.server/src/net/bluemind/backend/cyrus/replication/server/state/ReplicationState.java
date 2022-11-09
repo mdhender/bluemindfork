@@ -413,32 +413,9 @@ public class ReplicationState {
 	}
 
 	public CompletableFuture<List<MboxRecord>> records(MailboxFolder known) {
-		ReplicatedBox userFrom = ReplicatedBoxes.forCyrusMailbox(known.getName());
-		return storage.conversations(userFrom).thenCompose(
-				conversationApi -> storage.mailboxRecords(known.getUniqueId()).thenCompose(recApi -> recApi.all() //
-						.thenCompose(records -> {
-							List<CompletableFuture<MboxRecord>> resolvedRecs = new ArrayList<>(records.size());
-							for (ItemValue<MailboxRecord> singleRecord : records) {
-								CompletableFuture<MboxRecord> composedRec = null;
-								try {
-									composedRec = conversationApi
-											.getComplete(Long.toHexString(singleRecord.value.conversationId))
-											.thenApply(c -> {
-												MboxRecord convertedRecord = c != null
-														? DtoConverters.from(singleRecord.value,
-																singleRecord.value.conversationId)
-														: DtoConverters.from(singleRecord.value);
-												return convertedRecord;
-											});
-								} catch (Exception e) {
-									composedRec = CompletableFuture
-											.completedFuture(DtoConverters.from(singleRecord.value));
-								}
-								resolvedRecs.add(composedRec);
-							}
-							return CompletableFuture.allOf(resolvedRecs.toArray(new CompletableFuture[0])).thenApply(
-									(ret) -> resolvedRecs.stream().map(f -> f.join()).collect(Collectors.toList()));
-						})))
+		return storage.mailboxRecords(known.getUniqueId()) //
+				.thenCompose(recApi -> recApi.all() //
+						.thenApply(records -> records.stream().map(r -> DtoConverters.from(r.value)).toList()))
 				.exceptionally(e -> {
 					logger.warn("Error while creating MBoxRecords", e);
 					return Collections.emptyList();

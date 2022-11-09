@@ -35,9 +35,6 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Splitter;
 
 import net.bluemind.backend.mail.api.MessageBody;
@@ -51,73 +48,92 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
-import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.container.persistence.AbstractItemValueStore;
 import net.bluemind.core.container.persistence.LongCreator;
 import net.bluemind.core.container.persistence.StringCreator;
 
+/*
+ * PLEASE READ ME
+ * 
+ * A word of warning: this table is partitionned by subtree_id and container_id,
+ * so EVERY SINGLE REQUEST **MUST** use subtree_id and container_id
+ */
+
 public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
-
-	private static final Logger logger = LoggerFactory.getLogger(MailboxRecordStore.class);
 	private static final Creator<MailboxRecord> MB_CREATOR = con -> new MailboxRecord();
-	private final Container container;
+	private final Container folderContainer;
+	private final Container subtreeContainer;
 
-	public MailboxRecordStore(DataSource pool, Container container) {
+	public MailboxRecordStore(DataSource pool, Container folderContainer, Container subtreeContainer) {
 		super(pool);
-		this.container = container;
+		this.folderContainer = folderContainer;
+		this.subtreeContainer = subtreeContainer;
 	}
 
+	/*
+	 * Deprecated: specifying folderContainer and mailboxContainerId is mandatory
+	 * because t_mailbox_record is partitioned by mailbox
+	 */
+	@Deprecated(forRemoval = true)
 	public MailboxRecordStore(DataSource pool) {
-		this(pool, null);
+		this(pool, null, null);
 	}
 
 	private static final String REC_CREATE_QUERY = "INSERT INTO t_mailbox_record (message_body_guid, "
-			+ MailboxRecordColumns.COLUMNS.names() + ", container_id, item_id) VALUES (decode(?, 'hex'), "
-			+ MailboxRecordColumns.COLUMNS.values() + ", ?, ?)";
+			+ MailboxRecordColumns.COLUMNS.names() + ", subtree_id, container_id, item_id) VALUES (decode(?, 'hex'), "
+			+ MailboxRecordColumns.COLUMNS.values() + ", ?, ?, ?)";
 
 	@Override
 	public void create(Item item, MailboxRecord value) throws SQLException {
-		insert(REC_CREATE_QUERY, value, MailboxRecordColumns.values(container.id, item));
+		insert(REC_CREATE_QUERY, value, MailboxRecordColumns.values(subtreeContainer.id, folderContainer.id, item));
 	}
 
 	private static final String REC_UPDATE_QUERY = "UPDATE t_mailbox_record SET (message_body_guid, "
 			+ MailboxRecordColumns.COLUMNS.names() + ") = (decode(?, 'hex'), " + MailboxRecordColumns.COLUMNS.values()
-			+ " )" + " WHERE container_id = ? AND item_id = ?";
+			+ " )" + " WHERE subtree_id = ? AND container_id = ? AND item_id = ?";
 
 	@Override
 	public void update(Item item, MailboxRecord value) throws SQLException {
-		update(REC_UPDATE_QUERY, value, MailboxRecordColumns.values(container.id, item));
+		update(REC_UPDATE_QUERY, value, MailboxRecordColumns.values(subtreeContainer.id, folderContainer.id, item));
 	}
 
 	@Override
 	public void delete(Item item) throws SQLException {
-		delete("DELETE FROM t_mailbox_record WHERE item_id = ?", new Object[] { item.id });
+		delete("DELETE FROM t_mailbox_record WHERE subtree_id = ? AND container_id = ? AND item_id = ?",
+				new Object[] { subtreeContainer.id, folderContainer.id, item.id });
 	}
 
 	private static final String GET_ITEM_QUERY = "SELECT encode(message_body_guid, 'hex'), "
-			+ MailboxRecordColumns.COLUMNS.names() + " FROM t_mailbox_record WHERE item_id = ?";
+			+ MailboxRecordColumns.COLUMNS.names()
+			+ " FROM t_mailbox_record WHERE subtree_id = ? AND container_id = ? AND item_id = ?";
 	private static final List<EntityPopulator<MailboxRecord>> POPULATORS = Arrays
 			.asList(MailboxRecordColumns.populator());
 
 	@Override
 	public MailboxRecord get(Item item) throws SQLException {
-		return unique(GET_ITEM_QUERY, MB_CREATOR, POPULATORS, new Object[] { item.id });
+		return unique(GET_ITEM_QUERY, MB_CREATOR, POPULATORS,
+				new Object[] { subtreeContainer.id, folderContainer.id, item.id });
 	}
 
 	@Override
 	public List<MailboxRecord> getMultiple(List<Item> items) throws SQLException {
 		String query = "select item_id, encode(message_body_guid, 'hex'), " + MailboxRecordColumns.COLUMNS.names()
-				+ " FROM t_mailbox_record WHERE item_id = ANY(?::int8[])";
+				+ " FROM t_mailbox_record WHERE subtree_id = ? AND container_id = ? AND item_id = ANY(?::int8[])";
 		List<ItemV<MailboxRecord>> values = select(query, items.size(), con -> new ItemV<MailboxRecord>(),
 				(ResultSet rs, int index, ItemV<MailboxRecord> itemv) -> {
 					itemv.itemId = rs.getLong(index++);
 					itemv.value = new MailboxRecord();
 					return MailboxRecordColumns.populator().populate(rs, index, itemv.value);
-				}, new Object[] { items.stream().map(i -> i.id).toArray(Long[]::new) });
+				}, new Object[] { subtreeContainer.id, folderContainer.id,
+						items.stream().map(i -> i.id).toArray(Long[]::new) });
 
 		return join(items, values);
 	}
 
+	/*
+	 * This one is a bit special and doesn't need subtreeContainerId /
+	 * folderContainerId as it must scan the whole table
+	 */
 	public List<MailboxRecordItemV> getExpiredItems(int days) throws SQLException {
 		String query = "select c.uid, mbr.item_id, encode(message_body_guid, 'hex'), "
 				+ MailboxRecordColumns.COLUMNS.names("mbr") + " FROM t_mailbox_record mbr " //
@@ -137,7 +153,8 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 
 	@Override
 	public void deleteAll() throws SQLException {
-		delete("DELETE FROM t_mailbox_record WHERE container_id = ?", new Object[] { container.id });
+		delete("DELETE FROM t_mailbox_record WHERE subtree_id = ? AND container_id = ?",
+				new Object[] { subtreeContainer.id, folderContainer.id });
 	}
 
 	/**
@@ -151,27 +168,27 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		if (uidArrays.length == 0) {
 			return Collections.emptyList();
 		}
-		String inString = Arrays.stream(uidArrays).mapToObj(Long::toString).collect(Collectors.joining(","));
 		String query = "" + //
 				"SELECT mr.imap_uid, mr.item_id FROM t_mailbox_record mr "
-				+ "WHERE mr.container_id=? AND mr.imap_uid IN (" + inString + ")";
-		return select(query, RecordID.CREATOR, RecordID.POPULATOR, new Object[] { container.id });
+				+ "WHERE mr.subtree_id = ? AND mr.container_id = ? AND mr.imap_uid = ANY(?)";
+		return select(query, RecordID.CREATOR, RecordID.POPULATOR,
+				new Object[] { subtreeContainer.id, folderContainer.id, uidArrays });
 	}
 
 	public List<ImapBinding> bindings(List<Long> itemIds) throws SQLException {
 		if (itemIds.isEmpty()) {
 			return Collections.emptyList();
 		}
-		String inString = itemIds.stream().map(Object::toString).collect(Collectors.joining(","));
-		String query = "" + //
-				"SELECT item_id, imap_uid, encode(message_body_guid, 'hex') FROM t_mailbox_record "
-				+ "WHERE container_id = ? AND item_id IN (" + inString + ")";
+		String query = """
+				SELECT item_id, imap_uid, encode(message_body_guid, 'hex') FROM t_mailbox_record
+				WHERE subtree_id = ? AND container_id = ? AND item_id = ANY (?)
+				""";
 		List<ImapBinding> notSorted = select(query, rs -> new ImapBinding(), (rs, index, value) -> {
 			value.itemId = rs.getInt(index++);
 			value.imapUid = rs.getInt(index++);
 			value.bodyGuid = rs.getString(index++);
 			return index;
-		}, new Object[] { container.id });
+		}, new Object[] { subtreeContainer.id, folderContainer.id, itemIds.toArray(Long[]::new) });
 		List<ImapBinding> ret = new ArrayList<>(notSorted.size());
 		Map<Long, ImapBinding> sortHelper = notSorted.stream().collect(Collectors.toMap(ib -> ib.itemId, ib -> ib));
 		itemIds.forEach(k -> Optional.ofNullable(sortHelper.get(k)).ifPresent(ret::add));
@@ -179,7 +196,8 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 	}
 
 	public List<Long> sortedIds(String query) throws SQLException {
-		return select(query, LongCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
+		return select(query, LongCreator.FIRST, Collections.emptyList(),
+				new Object[] { subtreeContainer.id, folderContainer.id });
 	}
 
 	/**
@@ -192,7 +210,7 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		sql.append("SELECT ci.id, mbr.imap_uid, encode(mbr.message_body_guid, 'hex') FROM t_mailbox_record mbr ");
 		sql.append("INNER JOIN t_container_item ci ON ci.id = mbr.item_id ");
 		sql.append("LEFT JOIN t_message_body mb ON mbr.message_body_guid = mb.guid ");
-		sql.append("WHERE ci.container_id = ? ");
+		sql.append("WHERE mbr.subtree_id = ? AND ci.container_id = ? ");
 		sql.append("AND (mb.body_version < ? OR mb.guid IS NULL) ");
 		sql.append("AND (ci.flags::bit(32) & (" + ItemFlag.Deleted.value + ")::bit(32)) = 0::bit(32) ");
 		sql.append("AND (mbr.system_flags::bit(32) & (" + InternalFlag.expunged.value + ")::bit(32)) = 0::bit(32)");
@@ -201,26 +219,27 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 			value.imapUid = rs.getInt(index++);
 			value.bodyGuid = rs.getString(index++);
 			return index;
-		}, new Object[] { container.id, version });
+		}, new Object[] { subtreeContainer.id, folderContainer.id, version });
 	}
 
 	public List<ImapBinding> recentItems(Date d) throws SQLException {
 		String query = "SELECT rec.item_id, rec.imap_uid, encode(rec.message_body_guid, 'hex') FROM t_mailbox_record rec "
 				+ "INNER JOIN t_message_body mb ON rec.message_body_guid = mb.guid "//
-				+ "WHERE rec.container_id = ? AND mb.date_header >= ?";
+				+ "WHERE rec.subtree_id = ? AND rec.container_id = ? AND mb.date_header >= ?";
 
 		return select(query, rs -> new ImapBinding(), (rs, index, value) -> {
 			value.itemId = rs.getInt(index++);
 			value.imapUid = rs.getInt(index++);
 			value.bodyGuid = rs.getString(index++);
 			return index;
-		}, new Object[] { container.id, Timestamp.from(d.toInstant()) });
+		}, new Object[] { subtreeContainer.id, folderContainer.id, Timestamp.from(d.toInstant()) });
 	}
 
 	public List<ImapBinding> unreadItems() throws SQLException {
+		// TODO optimize: we don't need item.flags, do we ?
 		String query = "SELECT item.id, rec.imap_uid FROM t_mailbox_record rec "
 				+ "INNER JOIN t_container_item item ON rec.item_id=item.id " //
-				+ "WHERE item.container_id = ? " //
+				+ "WHERE rec.subtree_id = ? AND item.container_id = ? " //
 				+ "AND (item.flags::bit(32) & (" + ItemFlag.Deleted.value + ")::bit(32)) = 0::bit(32) " // not deleted
 				+ "AND (item.flags::bit(32) & (" + ItemFlag.Seen.value + ")::bit(32)) = 0::bit(32) " // not seen
 				+ "ORDER BY internal_date DESC";
@@ -230,20 +249,22 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 			value.imapUid = rs.getInt(index++);
 			value.bodyGuid = null;
 			return index;
-		}, new Object[] { container.id });
+		}, new Object[] { subtreeContainer.id, folderContainer.id });
 	}
 
 	public long weight() throws SQLException {
+		// TODO optimize: we don't need item.flags, do we ?
+
 		String query = "SELECT SUM(b.size) FROM t_mailbox_record rec "
 				+ "INNER JOIN t_container_item item ON rec.item_id=item.id " //
 				+ "INNER JOIN t_message_body b ON rec.message_body_guid=b.guid " //
-				+ "WHERE item.container_id = ? " //
+				+ "WHERE rec.subtree_id = ? AND item.container_id = ? " //
 				+ "AND (item.flags::bit(32) & (" + ItemFlag.Deleted.value + ")::bit(32)) = 0::bit(32) ";
 
 		AtomicLong weight = unique(query, con -> new AtomicLong(), (rs, index, value) -> {
 			value.set(rs.getLong(1));
 			return index;
-		}, container.id);
+		}, new Object[] { subtreeContainer.id, folderContainer.id });
 		return weight.get();
 
 	}
@@ -264,6 +285,7 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		}
 	}
 
+	// TODO: this query is a problem: access cross partitions
 	public List<MailboxRecordItemUri> getBodyGuidReferences(String guid) throws SQLException {
 		String query = "SELECT c.uid, ci.uid, encode(mbr.message_body_guid, 'hex'), mbr.imap_uid, c.owner " //
 				+ "FROM t_mailbox_record mbr " //
@@ -286,45 +308,10 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 				+ "FROM t_mailbox_record mbr " //
 				+ "JOIN t_container_item ci ON ci.id = mbr.item_id " //
 				+ "JOIN t_container c ON c.id = ci.container_id " //
-				+ "WHERE c.id=? AND mbr.imap_uid = ? AND c.owner = ? ORDER BY ci.created";
+				+ "WHERE mbr.subtree_id = ? AND c.id = ? AND mbr.imap_uid = ? AND c.owner = ? ORDER BY ci.created";
 
-		return unique(query, StringCreator.FIRST, Collections.emptyList(), new Object[] { container.id, uid, owner });
-	}
-
-	public List<Long> getConversationIds(SortDescriptor sorted) throws SQLException {
-		StringBuilder query = new StringBuilder("FROM v_conversation_by_folder " //
-				+ "WHERE folder_id=?");
-
-		if (isFilteredOnNotDeletedAndImportant(sorted)) {
-			query.append(" AND flagged is TRUE ");
-		} else if (isFilteredOnNotDeletedAndNotSeen(sorted)) {
-			query.append(" AND unseen is TRUE ");
-		}
-
-		if (!sorted.fields.isEmpty()) {
-			sorted.fields.stream().filter(f -> "internal_date".equals(f.column)).forEach(f -> f.column = "date");
-
-			String sort = sorted.fields.stream()
-					.map(f -> f.column + " " + (f.dir == SortDescriptor.Direction.Asc ? "ASC" : "DESC"))
-					.collect(Collectors.joining(","));
-			query.append(" ORDER BY ").append(sort);
-		}
-
-		String sqlValues = "SELECT conversation_id " + query.toString();
-
-		return select(sqlValues, LongCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
-	}
-
-	private static boolean isFilteredOnNotDeletedAndNotSeen(SortDescriptor sortDesc) {
-		return sortDesc.filter != null && sortDesc.filter.mustNot.size() == 2
-				&& sortDesc.filter.mustNot.stream().anyMatch(f -> f == ItemFlag.Seen)
-				&& sortDesc.filter.mustNot.stream().anyMatch(f -> f == ItemFlag.Deleted);
-	}
-
-	private static boolean isFilteredOnNotDeletedAndImportant(SortDescriptor sortDesc) {
-		return sortDesc.filter != null && sortDesc.filter.must.size() == 1 && sortDesc.filter.mustNot.size() == 1
-				&& sortDesc.filter.must.stream().anyMatch(f -> f == ItemFlag.Important)
-				&& sortDesc.filter.mustNot.stream().anyMatch(f -> f == ItemFlag.Deleted);
+		return unique(query, StringCreator.FIRST, Collections.emptyList(),
+				new Object[] { subtreeContainer.id, folderContainer.id, uid, owner });
 	}
 
 	private int adaptFlag(ItemFlag flag) {
@@ -340,13 +327,17 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		}
 	}
 
-	public List<Long> getItemsByConversations(List<String> conversationUids) throws SQLException {
-		Long[] conversationIds = conversationUids.stream().map(uid -> Long.parseUnsignedLong(uid, 16))
-				.toArray(Long[]::new);
-		String select = "SELECT ci.id FROM t_mailbox_record rec JOIN t_container_item ci on rec.item_id = ci.id WHERE rec.conversation_id = ANY(?) AND rec.container_id = ? AND (ci.flags::bit(32) & 2::bit(32)) = 0::bit(32)";
-
+	public List<Long> getItemsByConversations(Long[] conversationIds) throws SQLException {
+		String select = """
+				SELECT item_id
+				FROM t_mailbox_record rec
+				WHERE rec.subtree_id = ?
+				AND rec.container_id = ?
+				AND rec.conversation_id = ANY(?)
+				AND system_flags::bit(32) & 4::bit(32) = 0::bit(32)
+				""";
 		return select(select, LongCreator.FIRST, Collections.emptyList(),
-				new Object[] { conversationIds, container.id });
+				new Object[] { subtreeContainer.id, folderContainer.id, conversationIds });
 	}
 
 	private String filterSql(String recAlias, ItemFlagFilter filter) {
@@ -363,9 +354,10 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 	}
 
 	public List<Long> imapIdset(String set, ItemFlagFilter itemFilter) throws SQLException {
-		String q = "select rec.item_id from t_mailbox_record rec " + " WHERE rec.container_id=? AND " + asSql(set)
-				+ filterSql("rec", itemFilter) + " ORDER BY rec.imap_uid";
-		return select(q, LongCreator.FIRST, Collections.emptyList(), new Object[] { container.id });
+		String q = "select rec.item_id from t_mailbox_record rec WHERE rec.subtree_id = ? AND rec.container_id = ? AND "
+				+ asSql(set) + filterSql("rec", itemFilter) + " ORDER BY rec.imap_uid";
+		return select(q, LongCreator.FIRST, Collections.emptyList(),
+				new Object[] { subtreeContainer.id, folderContainer.id });
 	}
 
 	public static String asSql(String idset) {
@@ -392,7 +384,7 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 
 	private static final String SLICE_QUERY = "SELECT item_id, encode(message_body_guid, 'hex'), "
 			+ MailboxRecordColumns.COLUMNS.names()
-			+ " FROM t_mailbox_record WHERE container_id=? AND item_id = ANY (?::int8[])";
+			+ " FROM t_mailbox_record WHERE subtree_id = ? AND container_id = ? AND item_id = ANY(?::int8[])";
 
 	public List<WithId<MailboxRecord>> slice(List<Long> itemIds) throws SQLException {
 		EntityPopulator<MailboxRecord> popul = MailboxRecordColumns.populator();
@@ -401,7 +393,7 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 				(ResultSet rs, int idx, WithId<MailboxRecord> toUpd) -> {
 					toUpd.itemId = rs.getInt(idx++);
 					return popul.populate(rs, idx, toUpd.value);
-				}, new Object[] { container.id, itemIds.stream().toArray(Long[]::new) });
+				}, new Object[] { subtreeContainer.id, folderContainer.id, itemIds.toArray(Long[]::new) });
 		return sort(results, itemIds, r -> r.itemId);
 	}
 

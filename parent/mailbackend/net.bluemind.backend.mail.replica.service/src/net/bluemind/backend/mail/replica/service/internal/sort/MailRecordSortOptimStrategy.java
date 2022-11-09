@@ -33,8 +33,10 @@ public class MailRecordSortOptimStrategy extends MailRecordSortStrategy {
 
 	@Override
 	public String queryToSort() {
+		// The horrible ?::bool is there because the record store will always query with
+		// a subtree_id as first parameter
 		StringBuilder query = new StringBuilder(
-				"SELECT rec.item_id FROM s_mailbox_record rec WHERE rec.container_id = ? ");
+				"SELECT rec.item_id FROM s_mailbox_record rec WHERE ? IS NOT NULL AND rec.container_id = ? ");
 
 		if (isFilteredOnNotDeletedAndImportant(sortDesc)) {
 			query.append(" AND rec.flagged is TRUE ");

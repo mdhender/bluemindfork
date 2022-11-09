@@ -49,7 +49,9 @@ import com.google.common.collect.Sets;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
+import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.core.api.ListResult;
+import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcActivator;
@@ -79,7 +81,7 @@ public class CyrusSdsBackup {
 
 	private static final String SELECT_GUID_QUERY = "SELECT encode(message_body_guid, 'hex') AS guid, internal_date " //
 			+ "FROM t_mailbox_record JOIN t_container ON (t_mailbox_record.container_id = t_container.id) " //
-			+ "WHERE t_container.uid = ?";
+			+ "WHERE t_mailbox_record.subtree_id = ? AND t_container.uid = ?";
 
 	private ServerSideServiceProvider provider() {
 		return ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
@@ -146,9 +148,16 @@ public class CyrusSdsBackup {
 
 		IDbReplicatedMailboxes mailboxapi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDbReplicatedMailboxes.class, part.name, "user." + mailbox.uid.replace('.', '^'));
-		generateSdsMailboxJson(ds, outputPath, domain, mailbox.uid, user.value.login, mailbox.value, mailboxapi.all());
+		generateSdsMailboxJson(ds, outputPath, domain, mailbox.uid, user.value.login, mailbox.value, mailboxapi.all(),
+				getSubtreeContainerId(domain.uid, mailbox.value, mailbox.uid));
 		index.add(mailbox.uid, outputPath);
 		return outputPath;
+	}
+
+	private long getSubtreeContainerId(String domainUid, Mailbox mailbox, String mailboxUid) {
+		IContainers containerApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IContainers.class);
+		return containerApi.get(IMailReplicaUids.subtreeUid(domainUid, mailbox.type, mailboxUid)).internalId;
 	}
 
 	private Path backupSdsMailshare(Path basePath, CyrusSdsIndexWriter index, ItemValue<Domain> domain,
@@ -160,13 +169,14 @@ public class CyrusSdsBackup {
 		DataSource ds = JdbcActivator.getInstance().getMailboxDataSource(mailshare.value.dataLocation);
 		IDbReplicatedMailboxes mailboxapi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDbReplicatedMailboxes.class, part.name, mailshare.value.name);
-		generateSdsMailboxJson(ds, outputPath, domain, mailshare.uid, mailshare.value.name, mailbox, mailboxapi.all());
+		generateSdsMailboxJson(ds, outputPath, domain, mailshare.uid, mailshare.value.name, mailbox, mailboxapi.all(),
+				getSubtreeContainerId(domain.uid, mailbox, mailshare.uid));
 		index.add(mailshare.uid, outputPath);
 		return outputPath;
 	}
 
 	private void generateSdsMailboxJson(DataSource ds, Path outputPath, ItemValue<Domain> domain, String mailboxUid,
-			String userLogin, Mailbox mailbox, List<ItemValue<MailboxFolder>> folders)
+			String userLogin, Mailbox mailbox, List<ItemValue<MailboxFolder>> folders, long subtreeContainerId)
 			throws SQLException, IOException {
 		Set<PosixFilePermission> backupPermissions = PosixFilePermissions.fromString("rw-------");
 
@@ -201,7 +211,7 @@ public class CyrusSdsBackup {
 				generator.writeStringField("name", folder.value.name);
 				generator.writeArrayFieldStart("messages");
 
-				generateSdsFolderContent(ds, folder, generator);
+				generateSdsFolderContent(ds, folder, subtreeContainerId, generator);
 
 				generator.writeEndArray();
 				generator.writeEndObject();
@@ -211,11 +221,14 @@ public class CyrusSdsBackup {
 		}
 	}
 
-	private void generateSdsFolderContent(DataSource ds, ItemValue<MailboxFolder> folder, JsonGenerator generator)
-			throws SQLException, IOException {
+	private void generateSdsFolderContent(DataSource ds, ItemValue<MailboxFolder> folder, long subtreeContainerId,
+			JsonGenerator generator) throws SQLException, IOException {
 
 		try (Connection conn = ds.getConnection(); PreparedStatement st = conn.prepareStatement(SELECT_GUID_QUERY)) {
-			st.setString(1, "mbox_records_" + folder.uid);
+			// TODO: do not compile, we need subtree id here
+			st.setLong(1, subtreeContainerId);
+			st.setString(2, "mbox_records_" + folder.uid);
+			st.setMaxFieldSize(2048);
 			try (ResultSet rs = st.executeQuery()) {
 				while (rs.next()) {
 					String guid = rs.getString(1);

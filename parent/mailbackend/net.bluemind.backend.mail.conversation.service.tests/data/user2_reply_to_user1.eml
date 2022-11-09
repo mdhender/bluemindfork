@@ -1,0 +1,15 @@
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 8bit
+Date: Tue, 15 Sep 2020 09:45:06 +0200
+From: user2 user2 <user2@dev-bm4.test>
+To: user1 user1 <user1@dev-bm4.test>
+Subject: Re: message 1 from user1 to user2
+In-Reply-To: <c40c8dea7c420a8186fb2c83fd12f440@dev-bm4.test>
+References: <c40c8dea7c420a8186fb2c83fd12f440@dev-bm4.test>
+Message-ID: <e941b29b7e9369bc089d537559f60c9d@dev-bm4.test>
+X-Sender: user2@dev-bm4.test
+
+message 2 from user2 to user1
+

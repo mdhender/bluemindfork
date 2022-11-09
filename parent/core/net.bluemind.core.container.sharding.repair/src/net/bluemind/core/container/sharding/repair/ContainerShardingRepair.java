@@ -145,10 +145,10 @@ public class ContainerShardingRepair implements IDirEntryRepairSupport {
 		private final IServiceProvider sp;
 		private final ContainerStore directoryContainerStore;
 
+		// TODO: NOT ANYMORE
 		private final List<String> nonTransferableData = Lists.newArrayList(//
 				IMailReplicaUids.MAILBOX_RECORDS, // synced by replication
 				IMailReplicaUids.REPLICATED_MBOXES, // synced by replication
-				IMailReplicaUids.REPLICATED_CONVERSATIONS, // synced by replication
 				IFlatHierarchyUids.TYPE // synced by replication
 		);
 		private String dirEntryLocation; // NOSONAR: used in lambda, and not final

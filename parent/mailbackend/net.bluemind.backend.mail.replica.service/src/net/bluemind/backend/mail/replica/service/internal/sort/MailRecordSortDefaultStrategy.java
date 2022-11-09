@@ -27,12 +27,11 @@ public class MailRecordSortDefaultStrategy extends MailRecordSortStrategy {
 
 	@Override
 	public String queryToSort() {
-		logger.info("MailRecordSortDefaultStrategy is used to sort with {}", sortDesc.toString());
-
+		logger.info("MailRecordSortDefaultStrategy is used to sort with {}", sortDesc);
 		StringBuilder query = new StringBuilder("SELECT item.id FROM t_mailbox_record rec "
 				+ "INNER JOIN t_container_item item ON rec.item_id = item.id " //
 				+ "INNER JOIN t_message_body body ON rec.message_body_guid = body.guid " //
-				+ "WHERE item.container_id = ? ");
+				+ "WHERE item.subtree_id = ? AND item.container_id = ? ");
 
 		if (sortDesc.filter != null && (!sortDesc.filter.must.isEmpty() || !sortDesc.filter.mustNot.isEmpty())) {
 			sortDesc.filter.must.forEach(must -> query

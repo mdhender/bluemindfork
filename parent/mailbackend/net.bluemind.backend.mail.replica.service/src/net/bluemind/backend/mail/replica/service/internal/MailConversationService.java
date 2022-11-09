@@ -19,188 +19,79 @@
 package net.bluemind.backend.mail.replica.service.internal;
 
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
-import jakarta.ws.rs.PathParam;
 
+import jakarta.ws.rs.PathParam;
 import net.bluemind.backend.mail.api.Conversation;
-import net.bluemind.backend.mail.api.Conversation.MessageRef;
-import net.bluemind.backend.mail.replica.api.IInternalMailConversation;
-import net.bluemind.backend.mail.replica.api.IInternalRecordBasedMailConversations;
+import net.bluemind.backend.mail.api.IMailConversation;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
-import net.bluemind.backend.mail.replica.persistence.ConversationStore;
-import net.bluemind.backend.mail.replica.persistence.InternalConversation;
-import net.bluemind.backend.mail.replica.persistence.InternalConversation.InternalMessageRef;
+import net.bluemind.backend.mail.replica.persistence.MailboxRecordConversationStore;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.core.container.persistence.AbstractItemValueStore.ItemV;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 
-public class MailConversationService implements IInternalMailConversation {
-
-	private final ConversationStoreService storeService;
-	private final ConversationStore conversationStore;
+public class MailConversationService implements IMailConversation {
+	private final MailboxRecordConversationStore conversationStore;
 	private final RBACManager rbacManager;
 	private final ContainerStore containerStore;
-	private final BmContext context;
-	private final Container container;
 
-	public MailConversationService(BmContext context, DataSource ds, Container conversationContainer) {
-		this.container = conversationContainer;
-		this.conversationStore = new ConversationStore(ds, conversationContainer);
-		this.storeService = new ConversationStoreService(ds, context.getSecurityContext(), conversationContainer);
+	public MailConversationService(BmContext context, DataSource ds, Container subtreeContainer) {
 		this.rbacManager = RBACManager.forContext(context)
-				.forContainer(IMailboxAclUids.uidForMailbox(conversationContainer.owner));
+				.forContainer(IMailboxAclUids.uidForMailbox(subtreeContainer.owner));
 		this.containerStore = new ContainerStore(context, ds, context.getSecurityContext());
-		this.context = context;
+		this.conversationStore = new MailboxRecordConversationStore(ds, subtreeContainer);
 	}
 
 	@Override
-	public void create(String uid, Conversation conversation) {
-		rbacManager.check(Verb.Write.name());
-		storeService.create(uid, createDisplayName(uid), conversationToInternal(conversation));
-	}
-
-	@Override
-	public void update(String uid, Conversation conversation) {
-		rbacManager.check(Verb.Write.name());
-		storeService.update(uid, createDisplayName(uid), conversationToInternal(conversation));
-	}
-
-	@Override
-	public ItemValue<Conversation> getComplete(@PathParam(value = "uid") String uid) {
+	public Conversation get(@PathParam(value = "uid") String uid) {
 		rbacManager.check(Verb.Read.name());
-		ItemValue<InternalConversation> itemValue = storeService.get(uid, null);
-		if (itemValue == null) {
-			return null;
+		try {
+			return conversationStore.get(uid);
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
 		}
-		return conversationToPublic(itemValue);
 	}
 
-	private String createDisplayName(String uid) {
-		return "conversation_" + uid;
+	@Override
+	public List<Conversation> multipleGet(List<String> uids) throws ServerFault {
+		rbacManager.check(Verb.Read.name());
+		if (uids.isEmpty()) {
+			return Collections.emptyList();
+		} else if (uids.size() > 200) {
+			throw new ServerFault("Invalid parameters: should not specify more than 200 conversationUids at a time");
+		}
+		try {
+			return conversationStore.getMultiple(uids);
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
 	}
 
 	@Override
 	public List<String> byFolder(String folderUid, SortDescriptor sorted) {
 		rbacManager.check(Verb.Read.name());
-
-		IInternalRecordBasedMailConversations recordsService = context.provider()
-				.instance(IInternalRecordBasedMailConversations.class, folderUid);
-		List<Long> conversations = recordsService.getConversationIds(sorted);
-
-		return conversations.stream().map(Long::toHexString).collect(Collectors.toList());
-	}
-
-	@Override
-	public List<ItemValue<Conversation>> multipleGet(List<String> uids) throws ServerFault {
-		return storeService.getMultiple(uids).stream().map(this::conversationToPublic).collect(Collectors.toList());
-	}
-
-	@Override
-	public void removeMessage(String folderUid, Long itemId) {
-		rbacManager.check(Verb.Write.name());
 		try {
-			long folderId = uidToId(folderUid);
-			ItemV<InternalConversation> conversation = conversationStore.byMessage(folderId, itemId);
-			if (conversation != null) {
-				conversation.value.removeMessage(folderId, itemId);
-				if (conversation.value.messageRefs.isEmpty()) {
-					storeService.delete(conversation.itemId);
-				} else {
-					storeService.update(conversation.itemId, createDisplayName("" + conversation.itemId),
-							conversation.value);
-				}
-			}
+			return conversationStore.getConversationIds(getFolderIdFromUid(folderUid), sorted).stream()
+					.map(Long::toHexString).toList();
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
 	}
 
-	@Override
-	public void deleteAll(String folderUid) {
-		deleteAllById(uidToId(folderUid));
-	}
-
-	@Override
-	public void deleteAllById(long folderId) {
+	private long getFolderIdFromUid(String folderUid) {
 		try {
-			conversationStore.deleteMessagesInFolder(folderId);
+			return containerStore.get(IMailReplicaUids.mboxRecords(folderUid)).id;
 		} catch (SQLException e) {
 			throw new ServerFault(e);
 		}
 	}
 
-	private InternalConversation conversationToInternal(Conversation conversation) {
-		InternalConversation internal = new InternalConversation();
-		internal.messageRefs = conversation.messageRefs.stream().map(this::messageToInternal)
-				.collect(Collectors.toList());
-		return internal;
-	}
-
-	private ItemValue<Conversation> conversationToPublic(ItemValue<InternalConversation> itemValue) {
-		Conversation external = new Conversation();
-		external.messageRefs = itemValue.value.messageRefs.stream().map(this::messageToPublic).filter(Objects::nonNull)
-				.collect(Collectors.toList());
-		return ItemValue.create(itemValue, external);
-	}
-
-	private InternalMessageRef messageToInternal(MessageRef messageid) {
-		InternalMessageRef internal = new InternalMessageRef();
-		internal.date = messageid.date;
-		internal.itemId = messageid.itemId;
-		internal.folderId = uidToId(messageid.folderUid);
-		return internal;
-	}
-
-	private MessageRef messageToPublic(InternalMessageRef internalMessageId) {
-		MessageRef external = new MessageRef();
-		try {
-			external.folderUid = idToUid(internalMessageId.folderId);
-		} catch (NullPointerException e) {
-			return null;
-		}
-		external.date = internalMessageId.date;
-		external.itemId = internalMessageId.itemId;
-		return external;
-	}
-
-	private String idToUid(long folderId) {
-		try {
-			return IMailReplicaUids.getUniqueId(containerStore.get(folderId).uid);
-		} catch (SQLException e) {
-			throw new ServerFault(e);
-		}
-	}
-
-	private long uidToId(String folderUid) {
-		try {
-			Container res = containerStore.get(IMailReplicaUids.mboxRecords(folderUid));
-			return res.id;
-		} catch (SQLException e) {
-			throw new ServerFault(e);
-		}
-	}
-
-	@Override
-	public void xfer(String serverUid) throws ServerFault {
-		DataSource ds = context.getMailboxDataSource(serverUid);
-		ContainerStore cs = new ContainerStore(null, ds, context.getSecurityContext());
-		Container c;
-		try {
-			c = cs.get(container.uid);
-		} catch (SQLException e) {
-			throw ServerFault.sqlFault(e);
-		}
-		storeService.xfer(ds, c, new ConversationStore(ds, c));
-	}
 }

@@ -23,12 +23,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -47,17 +44,8 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.replication.client.UnparsedResponse;
 import net.bluemind.backend.cyrus.replication.protocol.parsing.ParenObjectParser;
-import net.bluemind.backend.mail.api.Conversation;
-import net.bluemind.backend.mail.api.MessageBody;
-import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
-import net.bluemind.backend.mail.replica.api.IInternalMailConversation;
-import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesMgmt;
-import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.ResolvedMailbox;
-import net.bluemind.core.container.api.ContainerQuery;
-import net.bluemind.core.container.api.IContainers;
-import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.imap.IMAPException;
@@ -200,62 +188,6 @@ public class ManyMailboxesTests extends AbstractRollingReplicationTests {
 			System.err.println(l);
 		}
 		assertEquals(1, response.dataLines.size());
-	}
-
-	@Test
-	public void testGetFullMailboxShouldExportConversations()
-			throws IMAPException, InterruptedException, ExecutionException, TimeoutException {
-		String mbox = mailboxes.stream().filter(v -> v.contains("junit00001")).findFirst().get();
-		ContainerQuery query = ContainerQuery.ownerAndType("junit00001", IMailReplicaUids.MAILBOX_RECORDS);
-		ContainerDescriptor inbox = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IContainers.class).allForUser(domainUid, "junit00001", query) //
-				.stream().filter(c -> c.name.equals("INBOX")).findFirst().get();
-
-		query = ContainerQuery.ownerAndType("junit00001", IMailReplicaUids.REPLICATED_CONVERSATIONS);
-		ContainerDescriptor convContainer = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IContainers.class).allForUser(domainUid, "junit00001", query).get(0);
-
-		IInternalMailConversation mc = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IInternalMailConversation.class, convContainer.uid);
-
-		long c1Id = 3711925925872193241l;
-		Conversation conversation = new Conversation();
-		conversation.messageRefs = Collections.emptyList();
-		mc.create(Long.toHexString(c1Id), conversation);
-
-		IDbMailboxRecords recs = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IDbMailboxRecords.class, inbox.uid.substring(13));
-		MailboxRecord record = new MailboxRecord();
-		record.body = new MessageBody();
-		record.imapUid = 1;
-		record.internalDate = new Date();
-		record.lastUpdated = new Date();
-		record.messageBody = "FF";
-		record.conversationId = c1Id;
-		recs.create(UUID.randomUUID().toString(), record);
-
-		long c2Id = 1334025322620571353l;
-		conversation = new Conversation();
-		conversation.messageRefs = Collections.emptyList();
-		mc.create(Long.toHexString(c2Id), conversation);
-
-		record = new MailboxRecord();
-		record.body = new MessageBody();
-		record.imapUid = 2;
-		record.internalDate = new Date();
-		record.lastUpdated = new Date();
-		record.messageBody = "FF";
-		record.conversationId = c2Id;
-		recs.create(UUID.randomUUID().toString(), record);
-
-		UnparsedResponse response = fullMailbox(mbox).get(30, TimeUnit.SECONDS);
-		assertNotNull(response);
-
-		String ret = String.join("\n", response.dataLines);
-		assertTrue(
-				ret.contains("ANNOTATIONS (%(ENTRY /vendor/cmu/cyrus-imapd/thrid USERID NIL VALUE 338368f6842cced9))"));
-		assertTrue(
-				ret.contains("ANNOTATIONS (%(ENTRY /vendor/cmu/cyrus-imapd/thrid USERID NIL VALUE 128368f6842cced9))"));
 	}
 
 	@Test

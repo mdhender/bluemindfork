@@ -33,13 +33,17 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import javax.sql.DataSource;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-import net.bluemind.backend.cyrus.replication.testhelper.CyrusGUID;
-import net.bluemind.backend.cyrus.replication.testhelper.MailboxUniqueId;
+import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
@@ -50,41 +54,98 @@ import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore.MailboxRecordItemV;
 import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.core.rest.IServiceProvider;
+import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.server.api.Server;
+import net.bluemind.system.state.RunningState;
+import net.bluemind.system.state.StateContext;
+import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class MailboxRecordStoreTests {
+	protected String partition;
+	protected String user1Uid;
+	protected String user1MboxRoot;
+	protected String domainUid = "test" + System.currentTimeMillis() + ".lab";
 
 	private ItemStore itemStore;
 	private MailboxRecordStore boxRecordStore;
 	private MessageBodyStore bodyStore;
 
+	@BeforeClass
+	public static void sysprop() {
+		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("imap.port", "1144");
+	}
+
+	protected IServiceProvider provider(String userUid) {
+		SecurityContext secCtx = new SecurityContext("sid-" + userUid, userUid, Collections.emptyList(),
+				Collections.emptyList(), domainUid);
+		return ServerSideServiceProvider.getProvider(secCtx);
+	}
+
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
-		SecurityContext securityContext = SecurityContext.ANONYMOUS;
+		Server pipo = new Server();
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
+		pipo.tags = Collections.singletonList("mail/imap");
 
-		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
-				securityContext);
-		String boxUniqueId = MailboxUniqueId.random();
-		String containerId = IMailReplicaUids.mboxRecords(boxUniqueId);
-		Container container = Container.create(containerId, IMailReplicaUids.MAILBOX_RECORDS, "test", "me", true);
-		container = containerHome.create(container);
+		VertxPlatform.spawnBlocking(25, TimeUnit.SECONDS);
+		partition = "dataloc__" + domainUid.replace('.', '_');
+		DataSource datasource = JdbcTestHelper.getInstance().getMailboxDataDataSource();
+		JdbcActivator.getInstance().addMailboxDataSource("dataloc", datasource);
+		PopulateHelper.initGlobalVirt(pipo);
+		PopulateHelper.addDomain(domainUid, Routing.internal);
+		user1Uid = PopulateHelper.addUser("u1-" + System.currentTimeMillis(), domainUid, Routing.internal);
+		user1MboxRoot = "user." + user1Uid.replace('.', '^');
+		assertNotNull(user1Uid);
+		StateContext.setInternalState(new RunningState());
+		SecurityContext securityContext = SecurityContext.ANONYMOUS;
+		ContainerStore containerStore = new ContainerStore(null,
+				JdbcTestHelper.getInstance().getMailboxDataDataSource(), securityContext);
+
+		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getMailboxDataDataSource(),
+				SecurityContext.SYSTEM);
+		IMailboxFolders user1MailboxFolderService = provider(user1Uid).instance(IMailboxFolders.class, partition,
+				user1MboxRoot);
+		String user1InboxUid = user1MailboxFolderService.byName("INBOX").uid;
+		Container container = containerHome.get(IMailReplicaUids.mboxRecords(user1InboxUid));
 
 		assertNotNull(container);
 
-		itemStore = new ItemStore(JdbcTestHelper.getInstance().getDataSource(), container, securityContext);
-		boxRecordStore = new MailboxRecordStore(JdbcTestHelper.getInstance().getDataSource(), container);
+		itemStore = new ItemStore(JdbcTestHelper.getInstance().getMailboxDataDataSource(), container, securityContext);
+		IMailboxes mailboxesApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IMailboxes.class, container.domainUid);
+		ItemValue<Mailbox> mailbox = mailboxesApi.getComplete(container.owner);
+		if (mailbox == null) {
+			throw ServerFault.notFound("mailbox of " + container.owner + " not found");
+		}
+		String subtreeContainerUid = IMailReplicaUids.subtreeUid(container.domainUid, mailbox);
+		Container subtreeContainer = containerStore.get(subtreeContainerUid);
+		if (subtreeContainer == null) {
+			throw ServerFault.notFound("subtree " + subtreeContainerUid);
+		}
+		boxRecordStore = new MailboxRecordStore(JdbcTestHelper.getInstance().getMailboxDataDataSource(), container,
+				subtreeContainer);
 		boxRecordStore.deleteAll();
-		bodyStore = new MessageBodyStore(JdbcTestHelper.getInstance().getDataSource());
+		bodyStore = new MessageBodyStore(JdbcTestHelper.getInstance().getMailboxDataDataSource());
 	}
 
 	@After
@@ -284,7 +345,7 @@ public class MailboxRecordStoreTests {
 	private MailboxRecord simpleRecord() {
 		MailboxRecord record = new MailboxRecord();
 		record.imapUid = 42;
-		record.messageBody = CyrusGUID.randomGuid();
+		record.messageBody = UUID.randomUUID().toString().replace("-", "");
 		record.internalDate = new Date();
 		record.lastUpdated = new Date();
 		record.flags = Arrays.asList(MailboxItemFlag.System.Seen.value());

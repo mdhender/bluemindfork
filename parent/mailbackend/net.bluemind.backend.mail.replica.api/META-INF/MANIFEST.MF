@@ -6,12 +6,13 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.commons,
- net.bluemind.core.container.api;bundle-version="4.1.0",
- com.google.guava;bundle-version="19.0.0",
+ net.bluemind.core.container.api,
+ com.google.guava,
  net.bluemind.backend.mail.api;visibility:=reexport,
  net.bluemind.mailbox.api;visibility:=reexport,
- io.vertx.core;bundle-version="2.1.6",
- com.fasterxml.jackson.core.jackson-annotations
+ io.vertx.core,
+ com.fasterxml.jackson.core.jackson-annotations,
+ net.bluemind.directory.api;visibility:=reexport
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.backend.mail.replica.api,

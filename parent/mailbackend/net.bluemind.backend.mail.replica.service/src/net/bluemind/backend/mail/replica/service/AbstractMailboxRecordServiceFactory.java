@@ -35,6 +35,7 @@ import net.bluemind.backend.mail.replica.service.internal.NoopMailboxRecordServi
 import net.bluemind.backend.mail.replica.service.internal.RecordsItemFlagProvider;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.persistence.IWeightProvider;
@@ -44,6 +45,8 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
+import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.mailbox.api.Mailbox;
 
 public abstract class AbstractMailboxRecordServiceFactory<T>
 		implements ServerSideServiceProvider.IServerSideServiceFactory<T> {
@@ -72,7 +75,20 @@ public abstract class AbstractMailboxRecordServiceFactory<T>
 				LoggerFactory.getLogger(this.getClass()).warn("Missing container {}", uid);
 				return createNoopService();
 			}
-			MailboxRecordStore recordStore = new MailboxRecordStore(ds, recordsContainer);
+
+			IMailboxes mailboxesApi = context.su().provider().instance(IMailboxes.class, recordsContainer.domainUid);
+			ItemValue<Mailbox> mailbox = mailboxesApi.getComplete(recordsContainer.owner);
+			if (mailbox == null) {
+				throw ServerFault.notFound("mailbox of " + recordsContainer.owner + " not found");
+			}
+			String subtreeContainerUid = IMailReplicaUids.subtreeUid(recordsContainer.domainUid, mailbox);
+			Container subtreeContainer = cs.get(subtreeContainerUid);
+			if (subtreeContainer == null) {
+				LoggerFactory.getLogger(this.getClass()).warn("Missing subtree container {}", subtreeContainerUid);
+				return createNoopService();
+			}
+			MailboxRecordStore recordStore = new MailboxRecordStore(ds, recordsContainer, subtreeContainer);
+
 			ContainerStoreService<MailboxRecord> storeService = new NotDecoratedStoreService<>(ds,
 					context.getSecurityContext(), recordsContainer, recordStore, flagsProvider, recordSeedProvider,
 					toWeight);

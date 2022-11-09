@@ -3441,8 +3441,12 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 	@Test
 	public void testMailConversation() throws Exception {
 		String user2Uid = PopulateHelper.addUser("user2", domainUid, Routing.internal);
+
+		IMailboxes mailboxesApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IMailboxes.class, domainUid);
+		var mailbox = mailboxesApi.getComplete(userUid);
 		IMailConversation user1ConversationService = provider().instance(IMailConversation.class,
-				IMailReplicaUids.conversationSubtreeUid(domainUid, userUid));
+				IMailReplicaUids.subtreeUid(domainUid, mailbox));
 		IMailboxFolders user1MboxesApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
 		ItemValue<MailboxFolder> user1Inbox = user1MboxesApi.byName("INBOX");
 		ItemValue<MailboxFolder> user1SentBox = user1MboxesApi.byName("Sent");
@@ -3468,8 +3472,8 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		assertEquals(1, user1SentConversations.size());
 		String conversationUid = user1SentConversations.get(0);
 
-		ItemValue<Conversation> conversation = user1ConversationService.getComplete(user1SentConversations.get(0));
-		long numberOfMessagesInConversation = conversation.value.messageRefs.size();
+		Conversation conversation = user1ConversationService.get(user1SentConversations.get(0));
+		long numberOfMessagesInConversation = conversation.messageRefs.size();
 		assertEquals(1, numberOfMessagesInConversation);
 
 		//
@@ -3484,17 +3488,17 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		user1InboxConversations.removeIf(excludedConversations::contains);
 
 		assertEquals(1, user1InboxConversations.size());
-		conversation = user1ConversationService.getComplete(user1InboxConversations.get(0));
-		assertEquals(2, conversation.value.messageRefs.size());
-		assertEquals(user1ItemId, conversation.value.messageRefs.get(0).itemId);
-		assertEquals(user1ItemId2, conversation.value.messageRefs.get(1).itemId);
+		conversation = user1ConversationService.get(user1InboxConversations.get(0));
+		assertEquals(2, conversation.messageRefs.size());
+		assertEquals(user1ItemId2, conversation.messageRefs.get(0).itemId);
+		assertEquals(user1ItemId, conversation.messageRefs.get(1).itemId);
 		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid,
 				createSortDescriptor(ItemFlagFilter.all()));
 		user1SentConversations.removeIf(excludedConversations::contains);
 		assertEquals(1, user1SentConversations.size());
 		assertEquals(conversationUid, user1InboxConversations.get(0));
-		conversation = user1ConversationService.getComplete(user1InboxConversations.get(0));
-		numberOfMessagesInConversation = conversation.value.messageRefs.size();
+		conversation = user1ConversationService.get(user1InboxConversations.get(0));
+		numberOfMessagesInConversation = conversation.messageRefs.size();
 		assertEquals(2, numberOfMessagesInConversation);
 
 		//
@@ -3523,11 +3527,12 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		assertNotNull(moved);
 		user1SentConversations = user1ConversationService.byFolder(user1SentBox.uid,
 				createSortDescriptor(ItemFlagFilter.all()));
+
 		user1SentConversations.removeIf(excludedConversations::contains);
-		assertEquals(2, user1SentConversations.size());
-		conversation = user1ConversationService.getComplete(user1SentConversations.get(0));
-		numberOfMessagesInConversation = conversation.value.messageRefs.size();
-		assertEquals(3, numberOfMessagesInConversation);
+		assertEquals(1, user1SentConversations.size());
+		conversation = user1ConversationService.get(user1SentConversations.get(0));
+		numberOfMessagesInConversation = conversation.messageRefs.size();
+		assertEquals(1, numberOfMessagesInConversation);
 
 		//
 		// move reply message to trash
@@ -3538,8 +3543,8 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid,
 				createSortDescriptor(ItemFlagFilter.all()));
 		assertEquals(1, user1InboxConversations.size());
-		conversation = user1ConversationService.getComplete(user1InboxConversations.get(0));
-		numberOfMessagesInConversation = conversation.value.messageRefs.size();
+		conversation = user1ConversationService.get(user1InboxConversations.get(0));
+		numberOfMessagesInConversation = conversation.messageRefs.size();
 		assertEquals(1, numberOfMessagesInConversation);
 
 		//
@@ -3553,8 +3558,8 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid,
 				createSortDescriptor(ItemFlagFilter.all()));
 		assertEquals(1, user1InboxConversations.size());
-		conversation = user1ConversationService.getComplete(user1InboxConversations.get(0));
-		numberOfMessagesInConversation = conversation.value.messageRefs.size();
+		conversation = user1ConversationService.get(user1InboxConversations.get(0));
+		numberOfMessagesInConversation = conversation.messageRefs.size();
 		assertEquals(1, numberOfMessagesInConversation);
 	}
 
@@ -3590,6 +3595,7 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		}
 	}
 
+	@Override
 	protected SortDescriptor createSortDescriptor(ItemFlagFilter flagFilter) {
 		SortDescriptor sortDesc = new SortDescriptor();
 		sortDesc.filter = flagFilter;

@@ -127,5 +127,4 @@ public class CLIManager {
 	public int processArgs(String... args) {
 		return mainCommand.execute(args);
 	}
-
 }

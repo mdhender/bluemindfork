@@ -17,6 +17,7 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -119,7 +120,7 @@ public class RepairSupportTests extends AbstractRollingReplicationTests {
 		TaskRef taskRef = maintenanceApi.repair(config);
 		TaskStatus status = TaskUtils.wait(adminProv, taskRef);
 		System.err.println("status " + status);
-		assertTrue(status.state == State.Success);
+		assertEquals("State should be success", State.Success, status.state);
 	}
 
 }

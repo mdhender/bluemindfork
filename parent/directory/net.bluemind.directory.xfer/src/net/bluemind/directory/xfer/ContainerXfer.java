@@ -75,9 +75,9 @@ public class ContainerXfer {
 	private final DirEntry dirEntry;
 	private final CleanupOpsAccumulator cleanupOps;
 
+	// TODO: NOT ANYMORE
 	private final List<String> nonTransferableData = Lists.newArrayList(//
 			IMailReplicaUids.MAILBOX_RECORDS, // synced by replication
-			IMailReplicaUids.REPLICATED_CONVERSATIONS, // synced by replication
 			MapiFolderContainer.TYPE, // useless if transferred (as item ids are changed)
 			MapiFAIContainer.TYPE // useless if transferred (as item ids are changed
 	);

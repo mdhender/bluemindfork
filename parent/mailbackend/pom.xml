@@ -16,8 +16,6 @@
 		<module>net.bluemind.backend.cyrus.bmgroups.tests</module>
 		<module>net.bluemind.backend.cyrus.mailboxesdb</module>
 		<module>net.bluemind.backend.cyrus.mailboxesdb.tests</module>
-		<module>net.bluemind.backend.cyrus.annotationdb</module>
-		<module>net.bluemind.backend.cyrus.annotationdb.tests</module>
 		<module>net.bluemind.backend.cyrus.tests</module>
 		<module>net.bluemind.backend.cyrus.index</module>
 		<module>net.bluemind.backend.cyrus.index.tests</module>
@@ -31,6 +29,7 @@
 		<module>net.bluemind.imap.vertx</module>
 		<module>net.bluemind.imap.vertx.tests</module>
 		<module>net.bluemind.backend.mail.api</module>
+		<module>net.bluemind.backend.mail.conversation.service.tests</module>
 		<module>net.bluemind.backend.mail.replica.api</module>
 		<module>net.bluemind.backend.mail.replica.utils</module>
 		<module>net.bluemind.backend.mail.replica.persistence</module>

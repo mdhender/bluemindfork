@@ -51,35 +51,35 @@ public class MailConversationActionsServiceFactory
 		if (params == null || params.length < 2) {
 			throw new ServerFault("wrong number of instance parameters");
 		}
+		String subtreeContainerUid = params[0];
+		String replicatedMailboxUid = params[1];
 
-		String containerUid = params[0];
-		DataSource ds = DataSourceRouter.get(context, containerUid);
+		DataSource ds = DataSourceRouter.get(context, subtreeContainerUid);
 		if (ds == context.getDataSource()) {
-			throw new ServerFault("Service is invoked with directory datasource for " + containerUid + ".");
+			throw new ServerFault("Service is invoked with directory datasource for " + subtreeContainerUid + ".");
 		}
 
 		ContainerStore containerStore = new ContainerStore(context, ds, context.getSecurityContext());
-		Container container = null;
+		Container subtreeContainer = null;
 		try {
-			container = containerStore.get(containerUid);
+			subtreeContainer = containerStore.get(subtreeContainerUid);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
 
-		if (container == null) {
-			throw new ServerFault("container " + containerUid + " not found", ErrorCode.NOT_FOUND);
+		if (subtreeContainer == null) {
+			throw new ServerFault("container " + subtreeContainerUid + " not found", ErrorCode.NOT_FOUND);
 		}
 
-		if (!container.type.equals(IMailReplicaUids.REPLICATED_CONVERSATIONS)) {
-			throw new ServerFault(
-					"Incompatible conversation container type: " + container.type + ", uid: " + container.uid);
+		if (!subtreeContainer.type.equals(IMailReplicaUids.REPLICATED_MBOXES)) {
+			throw new ServerFault("Incompatible conversation container type: " + subtreeContainer.type + ", uid: "
+					+ subtreeContainer.uid);
 		}
 
 		if (ds.equals(context.getDataSource())) {
-			throw new ServerFault("wrong datasource container.uid " + container.uid);
+			throw new ServerFault("wrong datasource container.uid " + subtreeContainer.uid);
 		}
 
-		String replicatedMailboxUid = params[1];
 		String recordsContainerUid = IMailReplicaUids.mboxRecords(replicatedMailboxUid);
 		ContainerStore cs = new ContainerStore(context, ds, context.getSecurityContext());
 		Container recordsContainer;
@@ -88,9 +88,8 @@ public class MailConversationActionsServiceFactory
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
-		MailboxRecordStore recordStore = new MailboxRecordStore(ds, recordsContainer);
-
-		return new MailConversationActionsService(context, ds, container, replicatedMailboxUid, recordStore);
+		MailboxRecordStore recordStore = new MailboxRecordStore(ds, recordsContainer, subtreeContainer);
+		return new MailConversationActionsService(context, ds, subtreeContainer, replicatedMailboxUid, recordStore);
 	}
 
 }
