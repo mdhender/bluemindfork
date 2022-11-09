@@ -9,9 +9,9 @@ Export-Package: net.bluemind.core.container.api,
  net.bluemind.core.container.model.acl
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.commons;visibility:=reexport,
- javax.validation.api,
  net.bluemind.core.task.api;visibility:=reexport,
- net.bluemind.core.rest;bundle-version="4.1.0"
+ net.bluemind.core.rest;bundle-version="4.1.0",
+ jakarta.validation.jakarta.validation-api;bundle-version="3.0.2"
 Eclipse-RegisterBuddy: net.bluemind.core.rest
 Automatic-Module-Name: net.bluemind.core.container.api
 Bundle-Vendor: bluemind.net

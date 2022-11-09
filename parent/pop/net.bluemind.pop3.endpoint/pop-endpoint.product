@@ -42,7 +42,7 @@
       <plugin id="io.vertx.core"/>
       <plugin id="io.vertx.web"/>
       <plugin id="jakarta.ws.rs-api"/>
-      <plugin id="javax.validation.api"/>
+      <plugin id="jakarta.validation.jakarta.validation-api"/>
       <plugin id="javax.xml"/>
       <plugin id="net.bluemind.addressbook.api"/>
       <plugin id="net.bluemind.authentication.api"/>

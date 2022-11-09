@@ -7,6 +7,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
  net.bluemind.core.annotationvalidator;bundle-version="1.0.0",
  net.bluemind.core.validator,
- javax.validation.api,
- net.bluemind.core.commons
+ net.bluemind.core.commons,
+ jakarta.validation.jakarta.validation-api;bundle-version="3.0.2"
 Automatic-Module-Name: net.bluemind.core.annotationvalidator.tests

@@ -8,7 +8,7 @@ Export-Package: net.bluemind.system.api,
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0";visibility:=reexport,
  net.bluemind.core.task.api;visibility:=reexport,
- javax.validation.api,
- net.bluemind.user.api
+ net.bluemind.user.api,
+ jakarta.validation.jakarta.validation-api;bundle-version="3.0.2"
 Automatic-Module-Name: net.bluemind.system.api
 Import-Package: net.bluemind.server.api

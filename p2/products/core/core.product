@@ -57,8 +57,7 @@
       <plugin id="jakarta.ws.rs-api"/>
       <plugin id="jakarta.xml.bind-api"/>
       <plugin id="javax.activation"/>
-      <plugin id="javax.validation"/>
-      <plugin id="javax.validation.api"/>
+      <plugin id="jakarta.validation.jakarta.validation-api"/>
       <plugin id="javax.xml"/>
       <plugin id="jcl.over.slf4j"/>
       <plugin id="jul.to.slf4j"/>

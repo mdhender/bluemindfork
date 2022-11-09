@@ -7,6 +7,6 @@ Export-Package: net.bluemind.tag.api
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.core.container.api;bundle-version="1.0.0",
- javax.validation.api
+ jakarta.validation.jakarta.validation-api;bundle-version="3.0.2"
 Eclipse-RegisterBuddy: net.bluemind.core.rest
 Automatic-Module-Name: net.bluemind.tag.api

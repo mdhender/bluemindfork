@@ -18,8 +18,7 @@
  */
 package net.bluemind.tag.api;
 
-import javax.validation.constraints.NotNull;
-
+import jakarta.validation.constraints.NotNull;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.container.model.ItemValue;
 

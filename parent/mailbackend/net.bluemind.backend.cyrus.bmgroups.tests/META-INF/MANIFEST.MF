@@ -15,9 +15,8 @@ Require-Bundle: net.bluemind.backend.cyrus.bmgroups,
  net.bluemind.pool,
  net.bluemind.tests.defaultdata,
  net.bluemind.backend.cyrus,
- com.github.jnr.unixsocket,
- com.github.jnr.enxio,
  net.bluemind.core.rest.http.vertx;bundle-version="4.1.0",
  net.bluemind.network.topology.producer;bundle-version="4.1.0",
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ com.github.jnr.uber;bundle-version="1.0.0"
 Automatic-Module-Name: net.bluemind.backend.cyrus.bmgroups.tests

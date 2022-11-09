@@ -23,18 +23,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.ValidationProviderResolver;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
-import javax.validation.bootstrap.ProviderSpecificBootstrap;
-import javax.validation.spi.ValidationProvider;
-
 import org.hibernate.validator.HibernateValidator;
 import org.hibernate.validator.HibernateValidatorConfiguration;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.ValidationProviderResolver;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import jakarta.validation.bootstrap.ProviderSpecificBootstrap;
+import jakarta.validation.spi.ValidationProvider;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;

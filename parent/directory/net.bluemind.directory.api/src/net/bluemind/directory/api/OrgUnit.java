@@ -18,8 +18,7 @@
  */
 package net.bluemind.directory.api;
 
-import javax.validation.constraints.Pattern;
-
+import jakarta.validation.constraints.Pattern;
 import net.bluemind.core.api.BMApi;
 
 /**

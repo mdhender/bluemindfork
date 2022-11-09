@@ -9,11 +9,10 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.validator;visibility:=reexport,
  slf4j.api,
  org.hibernate.validator,
- org.jboss.logging.jboss-logging;bundle-version="3.1.4",
+ org.jboss.logging.jboss-logging,
  net.bluemind.core.rest;visibility:=reexport,
- javax.validation;visibility:=reexport,
- javax.validation.api;visibility:=reexport,
- com.fasterxml.classmate
+ com.fasterxml.classmate,
+ jakarta.validation.jakarta.validation-api
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.annotationvalidator

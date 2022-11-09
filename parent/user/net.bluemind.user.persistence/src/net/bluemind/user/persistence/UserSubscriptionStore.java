@@ -22,8 +22,8 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
 
+import jakarta.validation.constraints.NotNull;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.persistence.BooleanCreator;

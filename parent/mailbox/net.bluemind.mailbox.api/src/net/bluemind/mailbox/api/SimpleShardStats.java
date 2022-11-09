@@ -20,8 +20,7 @@ package net.bluemind.mailbox.api;
 
 import java.util.Set;
 
-import javax.validation.constraints.NotNull;
-
+import jakarta.validation.constraints.NotNull;
 import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")

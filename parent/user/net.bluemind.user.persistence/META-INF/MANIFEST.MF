@@ -20,7 +20,7 @@ Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.mailbox.identity.api,
  net.bluemind.mailbox.persistence,
  net.bluemind.mailbox.api,
- javax.validation.api,
- org.bouncycastle.bcprov;bundle-version="1.70.0"
+ org.bouncycastle.bcprov;bundle-version="1.70.0",
+ jakarta.validation.jakarta.validation-api;bundle-version="3.0.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.user.persistence

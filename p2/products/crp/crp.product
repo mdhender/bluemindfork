@@ -45,7 +45,7 @@
       <plugin id="javax.activation"/>
       <plugin id="javax.annotation"/>
       <plugin id="javax.inject"/>
-      <plugin id="javax.validation.api"/>
+      <plugin id="jakarta.validation.jakarta.validation-api"/>
       <plugin id="javax.xml"/>
       <plugin id="jcl.over.slf4j"/>
       <plugin id="jul.to.slf4j"/>

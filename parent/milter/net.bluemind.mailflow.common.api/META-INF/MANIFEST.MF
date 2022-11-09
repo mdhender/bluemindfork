@@ -6,6 +6,6 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: www.bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.commons,
- javax.validation.api
+ jakarta.validation.jakarta.validation-api;bundle-version="3.0.2"
 Export-Package: net.bluemind.mailflow.common.api
 Automatic-Module-Name: net.bluemind.mailflow.common.api

@@ -22,10 +22,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.validation.constraints.NotNull;
-
 import com.google.common.base.MoreObjects;
 
+import jakarta.validation.constraints.NotNull;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.Required;
 

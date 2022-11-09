@@ -20,11 +20,10 @@ package net.bluemind.core.annotationvalidator.tests;
 
 import static org.junit.Assert.fail;
 
-import javax.validation.constraints.NotNull;
-
 import org.junit.Before;
 import org.junit.Test;
 
+import jakarta.validation.constraints.NotNull;
 import net.bluemind.core.annotationvalidator.AnnotationValidator;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.validator.IValidatorFactory;
