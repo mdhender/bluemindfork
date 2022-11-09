@@ -3,9 +3,9 @@ BMSDS="1.0.0-351"
 
 BMES="7.17.7-bluemind104"
 
-KAFKA="3.1.0-bluemind21"
-MINIO="2022.02.24-bluemind21"
-WEED="2.90-bluemind21"
+KAFKA="3.3.1-bluemind23"
+MINIO="2022.11.08-bluemind23"
+WEED="3.34-bluemind23"
 
 BMJDK="17.0.5+8-bluemind14"
 BMSNZIP="1.0.4-bluemind4"
