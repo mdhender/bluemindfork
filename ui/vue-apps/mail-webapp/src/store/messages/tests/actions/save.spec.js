@@ -12,6 +12,8 @@ const { MessageAdaptor, MessageStatus, createWithMetadata } = messageUtils;
 const { FileStatus } = fileUtils;
 
 jest.mock("../../../api/apiMessages");
+jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+
 let itemsService, draft, context, saveParams;
 
 const draftInternalId = "draft-internal-id";

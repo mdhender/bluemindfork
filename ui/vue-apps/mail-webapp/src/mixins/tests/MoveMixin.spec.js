@@ -6,6 +6,8 @@ mapActions.mockReturnValue({});
 mapGetters.mockReturnValue({});
 mapState.mockReturnValue({});
 
+jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+
 describe("MoveMixin", () => {
     beforeAll(() => {
         MoveMixin.$_MoveMixin_move = jest.fn();

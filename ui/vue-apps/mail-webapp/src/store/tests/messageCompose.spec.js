@@ -17,6 +17,8 @@ import {
 
 Vue.use(Vuex);
 
+jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+
 describe("messageCompose", () => {
     let store;
     beforeEach(() => {

@@ -4,6 +4,8 @@ import { messageUtils, loadingStatusUtils } from "@bluemind/mail";
 const { MessageStatus } = messageUtils;
 const { LoadingStatus } = loadingStatusUtils;
 
+jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+
 describe("mutations", () => {
     describe("ADD_MESSAGES", () => {
         test("when state is empty", () => {

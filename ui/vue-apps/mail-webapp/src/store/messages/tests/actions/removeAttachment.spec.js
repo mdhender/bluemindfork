@@ -11,6 +11,8 @@ const { FileStatus } = fileUtils;
 
 ServiceLocator.register({ provide: "i18n", use: { t: n => n } });
 
+jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+
 describe("removeAttachment action", () => {
     let mockedClient, context;
     const address = "2.3";

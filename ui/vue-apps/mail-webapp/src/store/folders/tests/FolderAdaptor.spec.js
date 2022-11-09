@@ -6,6 +6,8 @@ import { FolderAdaptor } from "../helpers/FolderAdaptor";
 const { MailboxType } = mailboxUtils;
 const { isDefault } = folderUtils;
 
+jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+
 //TODO: rework on folder adaptors
 // - test coverage is low
 // - interfaces are uncertain and heterogeneous

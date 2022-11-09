@@ -75,7 +75,7 @@ export default {
             );
             let html = insertionResult.contentsWithImageInserted[0];
 
-            insertionResult = InlineImageHelper.insertAsLocalUrl([html], localImages, partsData);
+            insertionResult = InlineImageHelper.insertAsLocalUrl([html], localImages, partsData, this.message.key);
             html = insertionResult.contentsWithImageInserted[0];
 
             return html;
@@ -103,7 +103,7 @@ export default {
         });
     },
     destroyed() {
-        InlineImageHelper.cleanLocalImages();
+        InlineImageHelper.cleanLocalImages(this.message.key);
     },
     methods: {
         ...mapActions("mail", { FETCH_PART_DATA })

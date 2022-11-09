@@ -19,6 +19,7 @@ import injector from "@bluemind/inject";
 
 Vue.use(Vuex);
 jest.mock("../../api/apiFolders");
+jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
 
 injector.register({
     provide: "i18n",

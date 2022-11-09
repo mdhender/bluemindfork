@@ -1,23 +1,24 @@
 import { attachmentUtils, fileUtils } from "@bluemind/mail";
-import EmlParser from "../helpers/EmlParser";
+import { messageUtils } from "@bluemind/mail";
 
 import { ADD_MESSAGES, SET_PART_DATA } from "~/mutations";
-import MessageAdaptor from "../helpers/MessageAdaptor";
 import { ADD_LOCAL_ATTACHMENT } from "~/actions";
 
 export default async function ({ commit, dispatch }, { emlUrl }) {
     const fetched = await fetch(emlUrl);
     const blob = await fetched.blob();
-    const parsed = await EmlParser.parseEml(blob);
-
-    const message = MessageAdaptor.fromMailboxItem(
-        { internalId: 0, value: parsed, version: 0 },
-        { key: "no-folder", uid: "no-remote-ref-uid" }
+    const { body, partsData, uid } = await messageUtils.EmlParser.parseEml(blob);
+    const message = messageUtils.MessageAdaptor.fromMailboxItem(
+        { internalId: 0, value: { body, partsData }, version: 0 },
+        {
+            key: "importedEmlFakeFolderKey-" + uid,
+            uid: "importedEmlFakeFolderKeyRemoteRefUid-" + uid
+        }
     );
     commit(ADD_MESSAGES, { messages: [message] });
 
     const visit = async part => {
-        const partData = parsed.partsData[part.address];
+        const partData = partsData[part.address];
         if (part.dispositionType === "ATTACHMENT") {
             await dispatch(ADD_LOCAL_ATTACHMENT, {
                 message,
@@ -33,7 +34,7 @@ export default async function ({ commit, dispatch }, { emlUrl }) {
         }
         part.children?.forEach(visit);
     };
-    await visit(parsed.body.structure);
+    await visit(body.structure);
 
     return message;
 }

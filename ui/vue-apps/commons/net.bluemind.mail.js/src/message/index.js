@@ -1,10 +1,10 @@
-
 import cloneDeep from "lodash.clonedeep";
 import escapeRegExp from "lodash.escaperegexp";
 import merge from "lodash.merge";
 import pick from "lodash.pick";
 
 import { LoadingStatus } from "../loading-status";
+import EmlParser from "./EmlParser";
 import MessageAdaptor from "./MessageAdaptor";
 import { Flag } from "@bluemind/email";
 
@@ -224,6 +224,7 @@ export default {
     isFlagged,
     isForward,
     isUnread,
+    EmlParser,
     MessageAdaptor,
     MessageCreationModes,
     MessageForwardAttributeSeparator,

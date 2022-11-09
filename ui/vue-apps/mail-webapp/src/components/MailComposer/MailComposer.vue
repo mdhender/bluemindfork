@@ -53,7 +53,7 @@
                 <mail-composer-attach-zone :text="$tc('mail.new.attachments.eml.drop.zone')" />
             </div>
         </bm-dropzone>
-        <div v-show="!showConversationDropzone">
+        <div v-show="!showConversationDropzone" class="h-100">
             <bm-file-drop-zone
                 class="h-100 my-2"
                 :should-activate-fn="shouldActivate"

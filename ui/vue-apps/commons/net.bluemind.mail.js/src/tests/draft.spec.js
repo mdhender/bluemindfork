@@ -1,6 +1,8 @@
 import { MockI18NProvider } from "@bluemind/test-utils";
 import ServiceLocator from "@bluemind/inject";
 
+jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+
 import { create, MessageCreationModes, MessageHeader } from "../message";
 import {
     computeCcRecipients,

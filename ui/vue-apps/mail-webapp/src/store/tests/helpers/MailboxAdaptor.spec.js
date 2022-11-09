@@ -1,6 +1,8 @@
 import { MailboxAdaptor } from "../../helpers/MailboxAdaptor";
 import containers from "../data/users/alice/containers.json";
 
+jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+
 describe("MailboxAdaptor", () => {
     describe("fromMailboxContainer", () => {
         const mailshare = containers.find(({ type, name }) => type === "mailboxacl" && name === "read.write");

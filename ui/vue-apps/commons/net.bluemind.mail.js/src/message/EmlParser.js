@@ -3,23 +3,43 @@ import PostalMime from "postal-mime";
 import { MessageBodyRecipientKind as RecipientKind } from "@bluemind/backend.mail.api";
 
 const Cache = new Map();
+const CACHE_MAX = 20;
 
 export default {
     async parseBodyStructure({ bodyVersion, date, guid, ...options }, eml) {
         const body = { bodyVersion, date, guid, ...options, size: eml.size };
-        const message = Cache.has(guid) ? Cache.get(guid) : await new PostalMime().parse(eml);
+        const uid = uniqueId(eml);
+        const message = await cachedParse(eml, uid);
         return build(body, message).body;
     },
     async parseEml(eml) {
-        const guid = "temp-message";
-        const message = Cache.has(guid) ? Cache.get(guid) : await new PostalMime().parse(eml);
-        const { body, partsData } = build({ bodyVersion: 0, date: message.date, guid, size: eml.size }, message);
-        return { body, partsData };
+        const uid = await uniqueId(eml);
+        const message = await cachedParse(eml, uid);
+        const { body, partsData } = build({ bodyVersion: 0, date: message.date, size: eml.size }, message);
+        return { body, partsData, uid };
     }
 };
 
+async function uniqueId(eml) {
+    const arrayBuffer = await eml.arrayBuffer();
+    const sha = await crypto.subtle.digest("SHA-256", arrayBuffer);
+    return window.btoa(String.fromCharCode(...new Uint8Array(sha)));
+}
+
+async function cachedParse(eml, uid) {
+    let message = Cache.get(uid);
+    if (!message) {
+        message = await new PostalMime().parse(eml);
+        Cache.set(uid, message);
+        if (Cache.size > CACHE_MAX) {
+            const firstEntryKey = Cache.keys().next()?.value;
+            Cache.delete(firstEntryKey);
+        }
+    }
+    return message;
+}
+
 function build(body, message) {
-    // Cache.set(guid, message);
     body.smartAttach = message.attachments.some(({ disposition }) => disposition === "attachment");
     const rootPart = buildStructure(message);
     const partsData = {};

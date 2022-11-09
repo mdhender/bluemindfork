@@ -2,6 +2,8 @@ import { FOLDERS, FOLDER_BY_PATH, FOLDERS_BY_PATH, FOLDER_HAS_CHILDREN, FOLDER_G
 import { FOLDER_GET_DESCENDANTS } from "../../types/getters";
 import getters from "../getters";
 
+jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+
 describe("getters", () => {
     test("FOLDERS", () => {
         const state = {

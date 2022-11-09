@@ -8,6 +8,8 @@ mapActions.mockReturnValue({});
 mapGetters.mockReturnValue({});
 mapState.mockReturnValue({});
 
+jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+
 describe("RemoveMixin", () => {
     beforeAll(() => {
         RemoveMixin.$router = { navigate: jest.fn() };

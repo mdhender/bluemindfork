@@ -20,6 +20,8 @@ import {
     USER_MAILBOXES
 } from "~/getters";
 
+jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+
 const { MailboxType } = mailboxUtils;
 const { LoadingStatus } = loadingStatusUtils;
 

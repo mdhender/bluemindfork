@@ -19,6 +19,9 @@ const mutations = {
         files.forEach(file => Vue.set(state, file.key, file));
     },
     [REMOVE_FILE]: (state, { key }) => {
+        if (state[key]?.url?.startsWith("blob:")) {
+            URL.revokeObjectURL(state[key].url);
+        }
         Vue.delete(state, key);
     },
     [SET_FILE_PROGRESS]: (state, { key, loaded, total }) => {

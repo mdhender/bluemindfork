@@ -17,6 +17,8 @@ import cloneDeep from "lodash.clonedeep";
 import store from "../selection";
 import { default as storeOptions } from "~/store/conversationList";
 
+jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+
 describe("selection", () => {
     let state;
     beforeEach(() => {

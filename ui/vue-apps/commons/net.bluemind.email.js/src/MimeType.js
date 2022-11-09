@@ -92,6 +92,7 @@ const XHTML_SUFFIXES = ["xhtml"];
 const OPEN_DOCUMENT_TEXT_SUFFIXES = ["odt"];
 const OPEN_DOCUMENT_CALC_SUFFIXES = ["odc"];
 const OPEN_DOCUMENT_PRESENTATION_SUFFIXES = ["odp"];
+const MESSAGE_SUFFIXES = ["eml"];
 
 export default {
     AUDIO,
@@ -318,11 +319,10 @@ function getFromFilename(name) {
         return OPEN_DOCUMENT_CALC;
     } else if (OPEN_DOCUMENT_PRESENTATION_SUFFIXES.includes(suffix)) {
         return OPEN_DOCUMENT_PRESENTATION;
+    } else if (MESSAGE_SUFFIXES.includes(suffix)) {
+        return MESSAGE;
     } else {
         return "";
-    }
-    if (name.toLowerCase().endsWith(".eml")) {
-        return MESSAGE;
     }
 }
 /* 

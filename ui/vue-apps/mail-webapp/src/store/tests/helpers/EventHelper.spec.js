@@ -10,6 +10,8 @@ import EventHelper from "../../helpers/EventHelper";
 import { InjectI18NDependency } from "@bluemind/test-utils";
 InjectI18NDependency.registerCommonL10N();
 
+jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+
 describe("EventHelper adapter", () => {
     const userUid = "B2CBEEFD-147C-451A-9229-1B6C9697D202";
 
