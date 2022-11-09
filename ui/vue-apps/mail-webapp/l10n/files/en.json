@@ -311,12 +311,14 @@
     "mail.list.menu.filter.flagged": "flagged",
     "mail.list.menu.filter.unread": "unread",
     "mail.list.menu.filter": "Filter",
+    "mail.list.menu.sort": "Sort",
     "mail.list.range.future": "Future",
     "mail.list.range.last_month": "Last month",
     "mail.list.range.last_week": "Last week",
     "mail.list.range.older": "Older",
     "mail.list.range.past_month": "{date}",
     "mail.list.range.past_year": "{date}",
+    "mail.list.range.size": "< {max}|{min} - {max}|{min} +",
     "mail.list.range.this_month": "This month",
     "mail.list.range.this_week": "This week",
     "mail.list.range.today": "Today",
@@ -467,6 +469,33 @@
         "create_subfolder": {
             "modal": {
                 "title": "Create a subfolder of \"{name}\""
+            }
+        },
+        "list": {
+            "sort": {
+                "title": "Sort by",
+                "fields": {
+                    "date": {
+                        "label": "Date",
+                        "asc": "Date (oldest)",
+                        "desc": "Date (most recent)"
+                    },
+                    "sender": {
+                        "label": "From",
+                        "asc": "From (A - Z)",
+                        "desc": "From (Z - A)"
+                    },
+                    "subject": {
+                        "label": "Subject",
+                        "asc": "Subject (A - Z)",
+                        "desc": "Subject (Z - A)"
+                    },
+                    "size": {
+                        "label": "Size",
+                        "asc": "Size (smallest)",
+                        "desc": "Size (largest)"
+                    }
+                }
             }
         },
         "rename_folder": {

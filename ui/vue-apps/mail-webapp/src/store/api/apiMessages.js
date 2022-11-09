@@ -7,6 +7,7 @@ import { messageUtils } from "@bluemind/mail";
 import { ItemFlag } from "@bluemind/core.container.api";
 import { FolderAdaptor } from "../folders/helpers/FolderAdaptor";
 const { MessageAdaptor } = messageUtils;
+import { ConversationListFilter, SortOrder } from "../conversationList";
 
 const MAX_CHUNK_SIZE = 500;
 
@@ -50,24 +51,12 @@ export default {
         const requests = map(byFolder, ({ itemsId }, sourceUid) => importApi(sourceUid, destinationUid).move(itemsId));
         return Promise.all(requests);
     },
-    async sortedIds(filter, folder) {
-        const service = inject("MailboxItemsPersistence", folder.remoteRef.uid);
-        switch (filter) {
-            case "unread": {
-                return await service.unreadItems();
-            }
-            case "flagged": {
-                const filters = { must: [ItemFlag.Important], mustNot: [ItemFlag.Deleted] };
-                return await service.filteredChangesetById(0, filters).then(changeset => {
-                    return changeset.created.map(itemVersion => itemVersion.id);
-                });
-            }
-            default:
-                return await service.sortedIds();
-        }
+    sortedIds(filter, sort, folder) {
+        return api(folder.remoteRef.uid).sortedIds(toSortDescriptor(filter, sort));
     },
-    async search({ pattern, folder }, filter, currentFolder) {
-        const payload = { query: searchQuery(pattern, filter, folder && folder.uid), sort: searchSort() };
+
+    async search({ pattern, folder }, filter, sort, currentFolder) {
+        const payload = { query: searchQuery(pattern, filter, folder && folder.uid), sort: toSearchSort(sort) };
         const { results } = await folderApi(currentFolder.mailboxRef.uid).searchItems(payload);
         if (!results) {
             return [];
@@ -114,8 +103,8 @@ function searchQuery(query, filter, folderUid) {
 
 function filterQuery(filter) {
     switch (filter) {
-        case "unread":
-        case "flagged":
+        case ConversationListFilter.UNREAD:
+        case ConversationListFilter.FLAGGED:
             return "is:" + filter;
         default:
             return "";
@@ -126,10 +115,44 @@ function searchScope(folderUid) {
     return { folderScope: { folderUid }, isDeepTraversal: false };
 }
 
-function searchSort() {
-    return { criteria: [{ field: "date", order: "Desc" }] };
+function toSearchSort(sort) {
+    const searchSort = { criteria: [{ field: null, order: sort.order === SortOrder.ASC ? "Asc" : "Desc" }] };
+    switch (sort.field) {
+        case "date":
+        case "size":
+            searchSort.criteria[0].field = sort.field;
+            break;
+        case "subject":
+            searchSort.criteria[0].field = "subject_kw";
+            break;
+        case "sender":
+            searchSort.criteria[0].field = "headers.from";
+            break;
+    }
+    return searchSort;
 }
 
 function extractFolderUid(containerUid) {
     return containerUid.replace("mbox_records_", "");
+}
+
+function toSortDescriptor(filter, sort) {
+    const sortDescriptor = {
+        fields: [
+            {
+                column: sort.field === "date" ? "internal_date" : sort.field,
+                dir: sort.order === SortOrder.ASC ? "Asc" : "Desc"
+            }
+        ],
+        filter: { must: [], mustNot: [ItemFlag.Deleted] }
+    };
+    switch (filter) {
+        case ConversationListFilter.UNREAD:
+            sortDescriptor.filter.mustNot.push(ItemFlag.Seen);
+            break;
+        case ConversationListFilter.FLAGGED:
+            sortDescriptor.filter.must.push(ItemFlag.Important);
+            break;
+    }
+    return sortDescriptor;
 }

@@ -1,4 +1,6 @@
+import { ItemFlag } from "@bluemind/core.container.api";
 import { inject } from "@bluemind/inject";
+import { ConversationListFilter, SortOrder } from "../conversationList";
 
 export default {
     multipleGet(conversations, mailboxRef) {
@@ -24,6 +26,9 @@ export default {
                 conversations.map(({ remoteRef: { uid } }) => uid)
             )
         );
+    },
+    sortedIds(filter, sort, folder) {
+        return conversationApi(folder.mailboxRef.uid).byFolder(folder.remoteRef.uid, toSortDescriptor(filter, sort));
     }
 };
 
@@ -61,4 +66,25 @@ function conversationApi(mailboxUid) {
 
 function conversationActionsApi(mailboxUid, folderUid) {
     return inject("MailConversationActionsPersistence", mailboxUid, folderUid);
+}
+
+function toSortDescriptor(filter, sort) {
+    const sortDescriptor = {
+        fields: [
+            {
+                column: sort.field,
+                dir: sort.order === SortOrder.ASC ? "Asc" : "Desc"
+            }
+        ],
+        filter: { must: [], mustNot: [ItemFlag.Deleted] }
+    };
+    switch (filter) {
+        case ConversationListFilter.UNREAD:
+            sortDescriptor.filter.mustNot.push(ItemFlag.Seen);
+            break;
+        case ConversationListFilter.FLAGGED:
+            sortDescriptor.filter.must.push(ItemFlag.Important);
+            break;
+    }
+    return sortDescriptor;
 }

@@ -1,4 +1,5 @@
 import { openDB, DBSchema, IDBPDatabase, IDBPTransaction, StoreNames, StoreValue } from "idb";
+import sortedIndexBy from "lodash.sortedindexby";
 import { MailFolder, MailItem, MailItemLight, OwnerSubscription, Reconciliation } from "./entry";
 import { logger } from "./logger";
 
@@ -26,9 +27,8 @@ interface MailSchema extends DBSchema {
         indexes: { "by-folderUid": string };
     };
     mail_item_light: {
-        key: [string, number];
-        value: MailItemLight;
-        indexes: { "by-folderUid": string };
+        key: string;
+        value: MailItemLight[];
     };
     owner_subscriptions: {
         key: string;
@@ -43,7 +43,7 @@ export class MailDB {
         this.dbPromise = this.openDB(userAtDomain);
     }
     private async openDB(userAtDomain: string): Promise<IDBPDatabase<MailSchema>> {
-        const schemaVersion = 10;
+        const schemaVersion = 11;
         return await openDB<MailSchema>(`${userAtDomain}:webapp/mail`, schemaVersion, {
             upgrade(db, oldVersion) {
                 logger.log(`[SW][DB] Upgrading from ${oldVersion} to ${schemaVersion}`);
@@ -59,10 +59,7 @@ export class MailDB {
                     "folderUid"
                 );
                 db.createObjectStore("mail_folders", { keyPath: "uid" }).createIndex("by-mailboxRoot", "mailboxRoot");
-                db.createObjectStore("mail_item_light", { keyPath: ["folderUid", "internalId"] }).createIndex(
-                    "by-folderUid",
-                    "folderUid"
-                );
+                db.createObjectStore("mail_item_light");
                 db.createObjectStore("owner_subscriptions", { keyPath: "uid" }).createIndex(
                     "by-type",
                     "value.containerType"
@@ -73,6 +70,14 @@ export class MailDB {
                 this.dbPromise = this.openDB(userAtDomain);
             }
         });
+    }
+
+    async getTx<StoreName extends StoreNames<MailSchema>>(
+        storeName: StoreName,
+        mode: IDBTransactionMode,
+        tx?: IDBPTransaction<MailSchema, StoreName[]>
+    ): Promise<IDBPTransaction<MailSchema, StoreName[]>> {
+        return tx || (await this.dbPromise).transaction([storeName], mode);
     }
 
     async getSyncOptions(uid: string) {
@@ -143,13 +148,6 @@ export class MailDB {
         await this.putItems(items, "mail_items", optionalTransaction);
     }
 
-    async putMailItemLight(
-        items: MailItemLight[],
-        optionalTransaction?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[]>
-    ) {
-        await this.putItems(items, "mail_item_light", optionalTransaction);
-    }
-
     async putOwnerSubscriptions(
         items: OwnerSubscription[],
         optionalTransaction?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[]>
@@ -171,8 +169,13 @@ export class MailDB {
         return (await this.dbPromise).getAllFromIndex("mail_items", "by-folderUid", folderUid);
     }
 
-    async getAllMailItemLight(folderUid: string) {
-        return (await this.dbPromise).getAllFromIndex("mail_item_light", "by-folderUid", folderUid);
+    async getAllMailItemLight(
+        folderUid: string,
+        optTx?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[]>
+    ): Promise<MailItemLight[]> {
+        const tx = await this.getTx("mail_item_light", "readonly", optTx);
+        const store = tx.objectStore("mail_item_light");
+        return (await store.get(folderUid)) || [];
     }
 
     async getMailItems(folderUid: string, ids: number[]) {
@@ -199,18 +202,51 @@ export class MailDB {
             items.map(mailItem => ({ ...mailItem, folderUid: uid })),
             tx
         );
-        this.putMailItemLight(
-            items.map(mailItem => ({
-                internalId: mailItem.internalId,
-                flags: mailItem.flags,
-                date: mailItem.value.body.date,
-                folderUid: uid
-            })),
-            tx
-        );
+        this.setMailItemLight(uid, items, deletedIds, tx);
         deletedIds.map(id => tx.objectStore("mail_items").delete([uid, id]));
-        deletedIds.map(id => tx.objectStore("mail_item_light").delete([uid, id]));
         await tx.objectStore("sync_options").put(syncOptions);
         await tx.done;
     }
+    async setMailItemLight(
+        folderUid: string,
+        items: MailItem[],
+        deleted: number[],
+        optTx?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[]>
+    ) {
+        const lights: Array<MailItemLight> = await this.getAllMailItemLight(folderUid, optTx);
+        deleted.forEach(id => {
+            const dummy = { internalId: id, flags: [], date: 0, subject: "", size: 0, sender: "" };
+            const index = sortedIndexBy(lights, dummy, "internalId");
+            if (lights[index]?.internalId === id) {
+                lights.splice(index, 1);
+            }
+        });
+        items.forEach(mail => {
+            const light = toLight(mail);
+            const index = sortedIndexBy(lights, light, "internalId");
+            if (lights[index]?.internalId === light.internalId) {
+                lights.splice(index, 1, light);
+            } else {
+                lights.splice(index, 0, light);
+            }
+        });
+        const tx = (await this.dbPromise).transaction("mail_item_light", "readwrite");
+        // const tx = await this.getTx("mail_item_light", "readwrite", optTx);
+
+        await tx.objectStore("mail_item_light").put(lights, folderUid);
+        await tx.done;
+    }
+}
+
+function toLight(mail: MailItem): MailItemLight {
+    return {
+        internalId: mail.internalId,
+        flags: mail.flags,
+        date: mail.value.body.date,
+        subject: mail.value.body.subject?.toLowerCase().replace(/^(\W*|re\s*:)*/i, ""),
+        size: mail.value.body.size,
+        sender: mail.value.body.recipients
+            ?.find((recipient: any) => recipient.kind === "Originator")
+            ?.address?.toLowerCase()
+    };
 }

@@ -311,12 +311,14 @@
     "mail.list.menu.filter.flagged": "markiert",
     "mail.list.menu.filter.unread": "ungelesen",
     "mail.list.menu.filter": "Filter",
+    "mail.list.menu.sort": "Ordner",
     "mail.list.range.future": "Zukunft",
     "mail.list.range.last_month": "Im vergangenen Monat",
     "mail.list.range.last_week": "Letzte Woche",
     "mail.list.range.older": "Älter",
     "mail.list.range.past_month": "{date}",
     "mail.list.range.past_year": "{date}",
+    "mail.list.range.size": "< {max}|{min} - {max}|{min} +",
     "mail.list.range.this_month": "Diesen Monat",
     "mail.list.range.this_week": "Diese Woche",
     "mail.list.range.today": "Heute",
@@ -467,6 +469,33 @@
         "create_subfolder": {
             "modal": {
                 "title": "Einen Unterordner von \"{name}\" erstellen"
+            }
+        },
+        "list": {
+            "sort": {
+                "title": "Sortieren nach",
+                "field": {
+                    "date": {
+                        "label": "Datum",
+                        "asc": "Datum (frühestes)",
+                        "desc": "Datum (spätestes)"
+                    },
+                    "sender": {
+                        "label": "Von",
+                        "asc": "Von (A - Z)",
+                        "desc": "Von (Z - A)"
+                    },
+                    "subject": {
+                        "label": "Betreff",
+                        "asc": "Betreff (A - Z)",
+                        "desc": "Betreff (Z - A)"
+                    },
+                    "size": {
+                        "label": "Größe",
+                        "asc": "Größe (kleinste)",
+                        "desc": "Größe (größte)"
+                    }
+                }
             }
         },
         "rename_folder": {

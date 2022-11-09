@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MailDB API and store mail_items_light getAllMailItemLight 1`] = `
+Object {
+  "date": 9876543210,
+  "flags": Array [],
+  "internalId": 456,
+  "sender": "to2@to.com",
+  "size": 2,
+  "subject": "s2",
+}
+`;
+
+exports[`MailDB API and store mail_items_light setMailItemLight 1`] = `
+Array [
+  Array [
+    Object {
+      "date": 2001-01-01T01:01:01.001Z,
+      "flags": Array [
+        "foobar",
+      ],
+      "internalId": "bar",
+      "sender": undefined,
+      "size": undefined,
+      "subject": undefined,
+    },
+    Object {
+      "date": 2001-01-01T01:01:01.001Z,
+      "flags": Array [
+        "foobaz",
+      ],
+      "internalId": "baz",
+      "sender": undefined,
+      "size": undefined,
+      "subject": undefined,
+    },
+    Object {
+      "date": 2001-01-01T01:01:01.001Z,
+      "flags": Array [
+        "foobar",
+      ],
+      "internalId": "foobar",
+      "sender": undefined,
+      "size": undefined,
+      "subject": undefined,
+    },
+  ],
+]
+`;

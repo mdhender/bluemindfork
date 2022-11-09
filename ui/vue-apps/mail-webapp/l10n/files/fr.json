@@ -200,7 +200,6 @@
     "mail.actions.move.item.warning.self": "Ce message est déjà dans {path}",
     "mail.actions.move.item": "Déplacer le message vers {path} | Déplacer les messages sélectionnés vers {path}",
     "mail.actions.move": "Déplacer",
-    "mail.actions.other": "Autres actions",
     "mail.actions.purge.modal.content": "Supprimer définitivement le message \"{subject}\" ? | Supprimer définitivement les messages sélectionnés ?",
     "mail.actions.purge.draft.modal.content": "Supprimer le brouillon \"{subject}\" enregistré le {date} ?",
     "mail.actions.purge.draft.modal.content.time": "Supprimer le brouillon \"{subject}\" enregistré à {time} ?",
@@ -311,12 +310,14 @@
     "mail.list.menu.filter.flagged": "marqué",
     "mail.list.menu.filter.unread": "non lu",
     "mail.list.menu.filter": "Filtrer",
+    "mail.list.menu.sort": "Trier",
     "mail.list.range.future": "Futur",
     "mail.list.range.last_month": "Le mois dernier",
     "mail.list.range.last_week": "La semaine dernière",
     "mail.list.range.older": "Anciens",
     "mail.list.range.past_month": "{date}",
     "mail.list.range.past_year": "{date}",
+    "mail.list.range.size": "< {max}|{min} - {max}|{min} +",
     "mail.list.range.this_month": "Ce mois",
     "mail.list.range.this_week": "Cette semaine",
     "mail.list.range.today": "Aujourd'hui",
@@ -467,6 +468,33 @@
         "create_subfolder": {
             "modal": {
                 "title": "Créer un sous-dossier de \"{name}\""
+            }
+        },
+        "list": {
+            "sort": {
+                "title": "Trier par",
+                "fields": {
+                    "date": {
+                        "label": "Date",
+                        "asc": "Date (plus ancien)",
+                        "desc": "Date (plus récent)"
+                    },
+                    "sender": {
+                        "label": "De",
+                        "asc": "De (A - Z)",
+                        "desc": "De (Z - A)"
+                    },
+                    "subject": {
+                        "label": "Objet",
+                        "asc": "Objet (A - Z)",
+                        "desc": "Objet (Z - A)"
+                    },
+                    "size": {
+                        "label": "Taille",
+                        "asc": "Taille (plus petit)",
+                        "desc": "Taille (plus gros)"
+                    }
+                }
             }
         },
         "rename_folder": {

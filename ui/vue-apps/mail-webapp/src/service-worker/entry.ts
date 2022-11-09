@@ -44,7 +44,14 @@ interface MailItemValue {
 
 export type MailItem = ItemValue<MailItemValue>;
 
-export type MailItemLight = { internalId: number; flags: "Seen"[]; date: number };
+export type MailItemLight = {
+    internalId: number;
+    flags: "Seen"[];
+    date: number;
+    subject: string;
+    size: number;
+    sender: string;
+};
 
 export interface FilteredChangeSet {
     created: { id: number; version: number }[];
@@ -86,6 +93,11 @@ export interface Flags {
     mustNot: string[];
 }
 
+export interface Field {
+    column: string;
+    dir: "Desc" | "Asc";
+}
+
 interface OwnerSubscriptionValue {
     containerUid: string;
     offlineSync: boolean;
@@ -95,3 +107,8 @@ interface OwnerSubscriptionValue {
     name: string;
 }
 export type OwnerSubscription = ItemValue<OwnerSubscriptionValue>;
+
+export type SortDescriptor = {
+    filter: Flags;
+    fields: Array<Field>;
+};

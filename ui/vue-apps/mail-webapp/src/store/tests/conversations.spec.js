@@ -72,7 +72,7 @@ describe("conversations", () => {
             provide: "MailConversationPersistence",
             use: {
                 byFolder: jest.fn(() => [
-                    { value: { messageRefs: [{ itemId: "internalIdNEW", folderUid: folder.key }] } }
+                    { messageRefs: [{ itemId: "internalIdNEW", folderUid: folder.key }] }
                 ])
             }
         });

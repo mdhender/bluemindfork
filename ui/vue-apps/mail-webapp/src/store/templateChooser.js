@@ -59,6 +59,9 @@ async function search(pattern, folder) {
 }
 
 async function list(folder) {
-    const sortedIds = (await apiMessages.sortedIds(undefined, folder)).slice(0, 100);
+    const sortedIds = (await apiMessages.sortedIds(undefined, { field: "subject", order: "asc" }, folder)).slice(
+        0,
+        100
+    );
     return sortedIds.map(id => createConversationStub(id, FolderAdaptor.toRef(folder)));
 }

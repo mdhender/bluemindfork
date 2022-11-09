@@ -209,7 +209,8 @@ function reducedMetadata(folderKey, messages) {
         hasAttachment = false,
         hasICS = false,
         preview,
-        date = -1;
+        date = -1,
+        binarySize = 0;
     messages.forEach(m => {
         if (m.folderRef.key === folderKey) {
             if (isUnread(m)) {
@@ -219,6 +220,7 @@ function reducedMetadata(folderKey, messages) {
             if (isFlagged(m)) {
                 flags.add(Flag.FLAGGED);
             }
+            binarySize = m.size > binarySize ? m.size : binarySize;
         }
 
         m.flags?.forEach(flag => [Flag.ANSWERED, Flag.FORWARDED].includes(flag) && flags.add(flag));
@@ -238,7 +240,7 @@ function reducedMetadata(folderKey, messages) {
         }
     });
 
-    return { unreadCount, flags: Array.from(flags), loading, hasAttachment, hasICS, preview, date };
+    return { unreadCount, flags: Array.from(flags), loading, hasAttachment, hasICS, preview, date, binarySize };
 }
 
 export default {
@@ -282,8 +284,7 @@ async function fetchConversationIfNotLoaded({ commit, state }, { uid, folder, co
     if (!state.conversationByKey[key]) {
         let refs;
         if (conversationsActivated) {
-            const { value } = await inject("MailConversationPersistence", folder.mailboxRef.uid).getComplete(uid);
-            refs = value.messageRefs;
+            refs = (await inject("MailConversationPersistence", folder.mailboxRef.uid).getComplete(uid)).messageRefs;
         } else {
             uid = Number(uid);
             refs = [{ itemId: uid, folderUid: folder.remoteRef.uid }];
@@ -311,9 +312,9 @@ async function fetchConversations({ commit, state }, { conversations, folder, co
             newMessage = state.messages[getLastGeneratedNewMessageKey()];
         }
         (await apiConversations.multipleGet(conversations, folder.mailboxRef)).forEach(raw => {
-            const key = messageKey(raw.uid, folder.key);
-            const conversationRef = { key, uid: raw.uid };
-            raw.value.messageRefs.forEach(({ itemId, folderUid }) => {
+            const key = messageKey(raw.conversationUid, folder.key);
+            const conversationRef = { key, uid: raw.conversationUid };
+            raw.messageRefs.forEach(({ itemId, folderUid }) => {
                 if (newMessage?.folderRef.uid === folderUid && newMessage?.remoteRef.internalId === itemId) {
                     messages.push(newMessage);
                 } else {
@@ -499,6 +500,6 @@ function fakeConversationToMessage(conversation) {
     return createOnlyMetadata({
         internalId: conversation.remoteRef.uid,
         folder: conversation.folderRef,
-        conversationRef: { key: conversation.key, uid: conversation.uid }
+        conversationRef: { key: conversation.key, uid: conversation.conversationUid }
     });
 }

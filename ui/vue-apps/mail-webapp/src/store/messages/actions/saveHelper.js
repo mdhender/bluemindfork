@@ -42,7 +42,6 @@ export async function save(context, draft, messageCompose, files) {
         inlineImages = [];
     try {
         context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.SAVING }]);
-
         ({ tmpAddresses, inlineImages } = await prepareDraft(context, service, draft, messageCompose));
         const structure = createDraftStructure(tmpAddresses[0], tmpAddresses[1], files, inlineImages);
         await createEmlOnServer(context, draft, service, structure);

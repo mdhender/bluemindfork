@@ -1,10 +1,17 @@
 import FDBFactory from "fake-indexeddb/lib/FDBFactory";
 import { MailDB } from "../MailDB";
 
+class MockDate extends Date {
+    constructor() {
+        super("2001-01-01T01:01:01.001Z");
+    }
+}
+
 describe("MailDB", () => {
     describe("DB creation", () => {
         beforeEach(() => {
             global.indexedDB = new FDBFactory();
+            global.Date = MockDate;
         });
 
         test("Test Singleton creation", async () => {
@@ -259,46 +266,71 @@ describe("MailDB", () => {
                 db = new MailDB("foo");
             });
 
-            test("putMailItemLight", async () => {
-                await db.putMailItemLight([
-                    {
-                        folderUid: "bar",
-                        internalId: "foo"
-                    }
-                ]);
+            test("setMailItemLight", async () => {
+                await db.setMailItemLight(
+                    "foo",
+                    [
+                        {
+                            internalId: "baz",
+                            flags: ["foobaz"],
+                            value: {
+                                body: {
+                                    date: new Date()
+                                }
+                            }
+                        },
+                        {
+                            internalId: "bar",
+                            flags: ["foobar"],
+                            value: {
+                                body: {
+                                    date: new Date("December 17, 1995 03:24:00")
+                                }
+                            }
+                        },
+                        {
+                            internalId: "foobar",
+                            flags: ["foobar"],
+                            value: {
+                                body: {
+                                    date: new Date("December 17, 1995 03:24:00")
+                                }
+                            }
+                        }
+                    ],
+                    ["baz", "foobar"]
+                );
                 const actual = await (await db.dbPromise).getAll("mail_item_light");
-                expect(actual).toMatchInlineSnapshot(`
-                    Array [
-                      Object {
-                        "folderUid": "bar",
-                        "internalId": "foo",
-                      },
-                    ]
-                `);
+                expect(actual).toMatchSnapshot();
             });
 
             test("getAllMailItemLight", async () => {
-                const mails = [
-                    { folderUid: "bar", internalId: "baz" },
-                    { folderUid: "bar", internalId: "foo" },
-                    { folderUid: "baz", internalId: "foo" }
-                ];
-                for (const item of mails) {
-                    await (await db.dbPromise).put("mail_item_light", item);
-                }
+                await (await db.dbPromise).put(
+                    "mail_item_light",
+                    {
+                        internalId: 123,
+                        flags: [],
+                        date: 123467890,
+                        subject: "s1",
+                        size: 1,
+                        sender: "to1@to.com"
+                    },
+                    "foo"
+                );
+                await (await db.dbPromise).put(
+                    "mail_item_light",
+                    {
+                        internalId: 456,
+                        flags: [],
+                        date: 9876543210,
+                        subject: "s2",
+                        size: 2,
+                        sender: "to2@to.com"
+                    },
+                    "bar"
+                );
                 const actual = await db.getAllMailItemLight("bar");
-                expect(actual).toMatchInlineSnapshot(`
-                    Array [
-                      Object {
-                        "folderUid": "bar",
-                        "internalId": "baz",
-                      },
-                      Object {
-                        "folderUid": "bar",
-                        "internalId": "foo",
-                      },
-                    ]
-                `);
+                expect(actual).toMatchSnapshot();
             });
         });
 
@@ -356,7 +388,7 @@ describe("MailDB", () => {
                         "internalId": "bar",
                         "value": Object {
                           "body": Object {
-                            "date": 1995-12-17T03:24:00.000Z,
+                            "date": 2001-01-01T01:01:01.001Z,
                           },
                         },
                       },
@@ -365,14 +397,38 @@ describe("MailDB", () => {
                 expect(await (await db.dbPromise).getAll("sync_options")).toEqual([syncOptions]);
                 expect(await (await db.dbPromise).getAll("mail_item_light")).toMatchInlineSnapshot(`
                     Array [
-                      Object {
-                        "date": 1995-12-17T03:24:00.000Z,
-                        "flags": Array [
-                          "foobar",
-                        ],
-                        "folderUid": "foo",
-                        "internalId": "bar",
-                      },
+                      Array [
+                        Object {
+                          "date": 2001-01-01T01:01:01.001Z,
+                          "flags": Array [
+                            "foobar",
+                          ],
+                          "internalId": "bar",
+                          "sender": undefined,
+                          "size": undefined,
+                          "subject": undefined,
+                        },
+                        Object {
+                          "date": 2001-01-01T01:01:01.001Z,
+                          "flags": Array [
+                            "foobaz",
+                          ],
+                          "internalId": "baz",
+                          "sender": undefined,
+                          "size": undefined,
+                          "subject": undefined,
+                        },
+                        Object {
+                          "date": 2001-01-01T01:01:01.001Z,
+                          "flags": Array [
+                            "foobar",
+                          ],
+                          "internalId": "foobar",
+                          "sender": undefined,
+                          "size": undefined,
+                          "subject": undefined,
+                        },
+                      ],
                     ]
                 `);
             });

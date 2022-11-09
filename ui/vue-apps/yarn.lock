@@ -1760,6 +1760,18 @@
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/@types/json-schema/-/json-schema-7.0.9.tgz#97edc9037ea0c38585320b28964dde3b39e4660d"
   integrity sha512-qcUXuemtEu+E5wZSJHNxUXeCZhAfXKQ41D+duX+VYPde7xyEVZci+/oXKJL13tnRs9lR2pr4fod59GT6/X1/yQ==
 
+"@types/lodash.sortedindexby@^4.6.7":
+  version "4.6.7"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/@types/lodash.sortedindexby/-/lodash.sortedindexby-4.6.7.tgz#cf79e24b7ffa01e36bb752bc1ab31e85a196ba8f"
+  integrity sha512-NeVuclpGRu8wa1D1Qwdo3jE4aTvDTNf+ShijTw28QA55hBBqk3+ARBulwzWmH8I5I3AViKU86GNsNes6rL8/qw==
+  dependencies:
+    "@types/lodash" "*"
+
+"@types/lodash@*":
+  version "4.14.184"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/@types/lodash/-/lodash-4.14.184.tgz#23f96cd2a21a28e106dc24d825d4aa966de7a9fe"
+  integrity sha512-RoZphVtHbxPZizt4IcILciSWiC6dcn+eZ8oX9IWEYfDMcocdd42f7NPI6fQj+6zI8y4E0L7gu2pcZKLGTRaV9Q==
+
 "@types/minimatch@*":
   version "3.0.3"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"

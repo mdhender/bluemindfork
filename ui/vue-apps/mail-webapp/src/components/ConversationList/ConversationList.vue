@@ -26,8 +26,8 @@
             >
                 <div v-if="CONVERSATION_IS_LOADED(conversation)" class="bg-surface">
                     <conversation-list-separator
-                        v-if="dateRangeByKey[conversation.key]"
-                        :text="dateRangeText(dateRangeByKey[conversation.key])"
+                        v-if="rangeByKey[conversation.key]"
+                        :text="rangeByKey[conversation.key]"
                     />
                     <draggable-conversation
                         :ref="'conversation-' + conversation.key"
@@ -58,11 +58,14 @@
 </template>
 
 <script>
-import { BmListGroup } from "@bluemind/styleguide";
 import { mapState, mapGetters, mapActions } from "vuex";
+import { computeUnit } from "@bluemind/file-utils";
+import { inject } from "@bluemind/inject";
 import { loadingStatusUtils } from "@bluemind/mail";
 import { CONVERSATION_IS_LOADED, CONVERSATION_METADATA } from "~/getters";
+import { BmListGroup } from "@bluemind/styleguide";
 import { FETCH_CONVERSATIONS, FETCH_MESSAGE_METADATA } from "~/actions";
+import { SortField } from "~/store/conversationList";
 import ConversationListItemLoading from "./ConversationListItemLoading";
 import ConversationListSeparator from "./ConversationListSeparator";
 import DateRanges from "./DateRanges";
@@ -126,15 +129,82 @@ export default {
             focused: null,
             anchored: null,
             draggedConversation: null,
-            LoadingStatus,
-            dateRangeByKey: {}
+            LoadingStatus
         };
     },
     computed: {
-        ...mapGetters("mail", { CONVERSATION_IS_LOADED, CONVERSATION_METADATA }),
+        ...mapGetters("mail", { CONVERSATION_IS_LOADED }),
         ...mapState("mail", {
-            messages: ({ conversations }) => conversations.messages
+            messages: ({ conversations }) => conversations.messages,
+            sort: ({ conversationList }) => conversationList.sort
         }),
+        rangeByKey() {
+            const rangeByKey = {};
+            const conversations = this.conversationKeys.map(conversationKey =>
+                this.$store.getters[`mail/${CONVERSATION_METADATA}`](conversationKey)
+            );
+            switch (this.sort.field) {
+                case SortField.DATE:
+                    {
+                        const allDateRanges = new DateRanges();
+                        const currentDateRanges = [];
+                        conversations.forEach(conversation => {
+                            if (conversation.date) {
+                                const dateRange = getDateRange(conversation, allDateRanges, currentDateRanges);
+                                if (dateRange) {
+                                    rangeByKey[conversation.key] = this.$t(dateRange.i18n, {
+                                        date: this.$d(dateRange.date, dateRange.dateFormat)
+                                    });
+                                }
+                            }
+                        });
+                    }
+                    break;
+                case SortField.SIZE:
+                    {
+                        const allSizeRanges = [
+                            { max: 1999 },
+                            { min: 2000, max: 9999 },
+                            { min: 10000, max: 99999 },
+                            { min: 100000, max: 999999 },
+                            { min: 1000000 }
+                        ];
+                        const currentSizeRanges = [];
+                        conversations.forEach(({ key, binarySize }) => {
+                            if (binarySize) {
+                                const sizeRange = allSizeRanges.find(
+                                    ({ min, max }) => (!min || min <= binarySize) && (!max || max >= binarySize)
+                                );
+                                if (sizeRange && !currentSizeRanges.includes(sizeRange)) {
+                                    const pluralizationCount = sizeRange.min ? (sizeRange.max ? 1 : 2) : 0;
+                                    rangeByKey[key] = this.$tc("mail.list.range.size", pluralizationCount, {
+                                        min: computeUnit(sizeRange.min, inject("i18n")),
+                                        max: computeUnit(sizeRange.max, inject("i18n"))
+                                    });
+                                    currentSizeRanges.push(sizeRange);
+                                }
+                            }
+                        });
+                    }
+                    break;
+                case SortField.SENDER:
+                    {
+                        const currentSenders = [];
+                        conversations.forEach(({ key, from }) => {
+                            const { address, dn } = from | { address: "", dn: "" };
+                            if (address && !currentSenders.includes(address)) {
+                                rangeByKey[key] = dn ? `${dn} <${address}>` : address;
+                                currentSenders.push(address);
+                            }
+                        });
+                    }
+                    break;
+                case SortField.SUBJECT:
+                default:
+                    break;
+            }
+            return rangeByKey;
+        },
         selectionMode() {
             return Array.isArray(this.selected) && this.selected.length > 0
                 ? SELECTION_MODE.MULTI
@@ -170,8 +240,7 @@ export default {
                         : [];
                 });
                 if (messagesToLoad.length > 0) {
-                    await this.FETCH_MESSAGE_METADATA({ messages: messagesToLoad });
-                    this.dateRangeByKey = this.buildDateRangeByKey();
+                    this.FETCH_MESSAGE_METADATA({ messages: messagesToLoad });
                 }
             },
             immediate: true
@@ -242,28 +311,6 @@ export default {
         },
         isSelected(key) {
             return Array.isArray(this.selected) ? this.selected.indexOf(key) >= 0 : this.selected === key;
-        },
-        dateRangeText(dateRange) {
-            return this.$t(dateRange.i18n, {
-                date: this.$d(dateRange.date, dateRange.dateFormat)
-            });
-        },
-        buildDateRangeByKey() {
-            const dateRangeByKey = {};
-            const allDateRanges = new DateRanges();
-            const currentDateRanges = [];
-            const conversations = this.conversationKeys
-                .map(key => this.CONVERSATION_METADATA(key))
-                .filter(conversation => conversation.loading !== LoadingStatus.ERROR);
-            conversations.forEach(conversation => {
-                if (conversation.date) {
-                    const dateRange = getDateRange(conversation, allDateRanges, currentDateRanges);
-                    if (dateRange) {
-                        dateRangeByKey[conversation.key] = dateRange;
-                    }
-                }
-            });
-            return dateRangeByKey;
         }
     }
 };

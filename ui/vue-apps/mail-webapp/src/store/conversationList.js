@@ -1,5 +1,4 @@
 import { conversationUtils } from "@bluemind/mail";
-import { inject } from "@bluemind/inject";
 import apiMessages from "./api/apiMessages";
 import searchModule from "./search";
 import { FETCH_CONVERSATION_LIST_KEYS, CONVERSATION_LIST_NEXT_PAGE, REFRESH_CONVERSATION_LIST_KEYS } from "~/actions";
@@ -19,13 +18,14 @@ import {
 import {
     REMOVE_CONVERSATIONS,
     RESET_CONVERSATION_LIST_PAGE,
-    SET_CONVERSATION_LIST,
     SET_CONVERSATION_LIST_FILTER,
+    SET_CONVERSATION_LIST_PAGE,
+    SET_CONVERSATION_LIST_SORT,
     SET_CONVERSATION_LIST_STATUS,
-    SET_CONVERSATION_LIST_PAGE
+    SET_CONVERSATION_LIST
 } from "~/mutations";
-import { ItemFlag } from "@bluemind/core.container.api";
 import { FolderAdaptor } from "./folders/helpers/FolderAdaptor";
+import apiConversations from "./api/apiConversations";
 
 const { createConversationStub } = conversationUtils;
 const PAGE_SIZE = 50;
@@ -43,6 +43,16 @@ export const ConversationListFilter = {
     FLAGGED: "flagged"
 };
 
+export const SortField = {
+    DATE: "date",
+    SENDER: "sender",
+    SUBJECT: "subject",
+    SIZE: "size"
+};
+export const SortOrder = {
+    ASC: "asc",
+    DESC: "desc"
+};
 const state = {
     _keys: [],
     _removed: [],
@@ -52,7 +62,11 @@ const state = {
     filter: ConversationListFilter.ALL,
 
     width: null,
-    synced: ["width"]
+    synced: ["width"],
+    sort: {
+        field: SortField.DATE,
+        order: SortOrder.DESC
+    }
 };
 
 const mutations = {
@@ -72,7 +86,9 @@ const mutations = {
     [SET_CONVERSATION_LIST_PAGE]: (state, page) => {
         state.currentPage = page;
     },
-
+    [SET_CONVERSATION_LIST_SORT]: (state, sort) => {
+        state.sort = sort;
+    },
     [REMOVE_CONVERSATIONS]: (state, conversations) => {
         const keys = new Set(conversations.map(({ key }) => key));
         for (let i = 0; i < state._keys.length && keys.size > 0; i++) {
@@ -110,32 +126,16 @@ const actions = {
     }
 };
 
-async function search({ filter, search }, folder) {
-    let searchResults = await apiMessages.search(search, filter, folder);
+async function search({ filter, search, sort }, folder) {
+    let searchResults = await apiMessages.search(search, filter, sort, folder);
     return searchResults.map(({ id, folderRef }) => createConversationStub(id, folderRef));
 }
 
 async function list(state, folder, conversationsActivated) {
     const folderRef = FolderAdaptor.toRef(folder);
-    if (conversationsActivated) {
-        const flagFilter = { mustNot: [ItemFlag.Deleted] };
-        switch (state.filter) {
-            case ConversationListFilter.UNREAD:
-                flagFilter.mustNot.push(ItemFlag.Seen);
-                break;
-            case ConversationListFilter.FLAGGED:
-                flagFilter.must = [ItemFlag.Important];
-                break;
-        }
-        const conversationIds = await inject("MailConversationPersistence", folder.mailboxRef.uid).byFolder(
-            folder.remoteRef.uid,
-            flagFilter
-        );
-        return conversationIds.map(uid => createConversationStub(uid, folderRef));
-    } else {
-        const sortedIds = await apiMessages.sortedIds(state.filter, folder);
-        return sortedIds.map(id => createConversationStub(id, folderRef));
-    }
+    const api = conversationsActivated ? apiConversations : apiMessages;
+    const sortedIds = await api.sortedIds(state.filter, state.sort, folder);
+    return sortedIds.map(id => createConversationStub(id, folderRef));
 }
 
 const getters = {

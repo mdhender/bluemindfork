@@ -39,7 +39,7 @@ export default {
             MY_INBOX,
             MY_MAILBOX
         }),
-        ...mapState("mail", ["activeFolder", "folders", "route"]),
+        ...mapState("mail", ["activeFolder", "folders", "route", "conversationList"]),
         $_RouterMixin_query() {
             const query = MessageQueryParam.parse(this.$route.params.messagequery);
             return {
@@ -51,6 +51,15 @@ export default {
         }
     },
     watch: {
+        "conversationList.sort": {
+            deep: true,
+            handler() {
+                this.FETCH_CONVERSATION_LIST_KEYS({
+                    folder: this.folders[this.activeFolder],
+                    conversationsActivated: this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`]
+                });
+            }
+        },
         "$route.params.messagequery": {
             immediate: true,
             async handler() {
@@ -71,6 +80,7 @@ export default {
                 }
             }
         },
+
         route: {
             immediate: true,
             deep: true,

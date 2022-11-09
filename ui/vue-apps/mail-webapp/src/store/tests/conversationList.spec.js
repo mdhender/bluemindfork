@@ -1,7 +1,13 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import cloneDeep from "lodash.clonedeep";
-import { default as storeOptions, ConversationListStatus, ConversationListFilter } from "../conversationList";
+import {
+    default as storeOptions,
+    ConversationListStatus,
+    ConversationListFilter,
+    SortField,
+    SortOrder
+} from "../conversationList";
 import apiMessages from "../api/apiMessages";
 import {
     CONVERSATION_LIST_COUNT,
@@ -18,13 +24,14 @@ import {
 } from "~/getters";
 import { CONVERSATION_LIST_NEXT_PAGE, FETCH_CONVERSATION_LIST_KEYS } from "~/actions";
 import {
+    REMOVE_CONVERSATIONS,
     RESET_CONVERSATION_LIST_PAGE,
-    SET_CONVERSATION_LIST,
     SET_CONVERSATION_LIST_FILTER,
     SET_CONVERSATION_LIST_PAGE,
+    SET_CONVERSATION_LIST_SORT,
     SET_CONVERSATION_LIST_STATUS,
-    SET_SEARCH_PATTERN,
-    REMOVE_CONVERSATIONS
+    SET_CONVERSATION_LIST,
+    SET_SEARCH_PATTERN
 } from "~/mutations";
 jest.mock("../api/apiMessages");
 Vue.use(Vuex);
@@ -167,6 +174,12 @@ describe("conversationList", () => {
         test("RESET_CONVERSATION_LIST_PAGE", () => {
             storeOptions.mutations[RESET_CONVERSATION_LIST_PAGE](state);
             expect(state.currentPage).toEqual(0);
+        });
+        test("SET_CONVERSATION_LIST_SORT", () => {
+            expect(state.sort).toEqual({ field: SortField.DATE, order: SortOrder.DESC });
+            const newSort = { field: SortField.SIZE, order: SortOrder.DESC };
+            storeOptions.mutations[SET_CONVERSATION_LIST_SORT](state, newSort);
+            expect(state.sort).toEqual(newSort);
         });
     });
     describe("getters", () => {
