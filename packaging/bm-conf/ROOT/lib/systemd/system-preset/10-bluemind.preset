@@ -31,4 +31,5 @@ disable postgresql-9.6.service
 disable postgresql-11.service
 disable postgresql-12.service
 disable postgresql-14.service
+disable postgresql-15.service
 disable postgresql@.service

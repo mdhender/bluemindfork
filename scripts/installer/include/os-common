@@ -4,7 +4,6 @@ REDHAT8="redhat-8"
 UBUNTU_BIONIC="ubuntu-bionic"
 UBUNTU_FOCAL="ubuntu-focal"
 UBUNTU_JAMMY="ubuntu-jammy"
-DEBIAN_STRETCH="debian-stretch"
 DEBIAN_BUSTER="debian-buster"
 DEBIAN_BULLSEYE="debian-bullseye"
 
@@ -58,17 +57,6 @@ check_debian_buster() {
     if [ -e "/etc/debian_version" ]; then
         release=`cat /etc/debian_version`
         if [[ "${release}" == *"10."* ]]; then
-            return 0
-        fi
-    fi
-    
-    return 1
-}
-
-check_debian_stretch() {
-    if [ -e "/etc/debian_version" ]; then
-        release=`cat /etc/debian_version`
-        if [[ "${release}" == *"9."* ]]; then
             return 0
         fi
     fi
@@ -141,14 +129,6 @@ detect_os() {
     if [ -e "./buster" ]; then
         INSTALLER_VERSION=${DEBIAN_BUSTER}
         if check_debian_buster; then
-            OS_VERSION=${INSTALLER_VERSION}
-            source "./include/os-debian-squeeze-base"
-        fi
-    fi
-    
-    if [ -e "./stretch" ]; then
-        INSTALLER_VERSION=${DEBIAN_STRETCH}
-        if check_debian_stretch; then
             OS_VERSION=${INSTALLER_VERSION}
             source "./include/os-debian-squeeze-base"
         fi

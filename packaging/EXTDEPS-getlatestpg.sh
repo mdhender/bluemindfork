@@ -4,12 +4,12 @@
 
 set -e
 
-APT_DISTNAMES="bionic focal jammy stretch buster bullseye"  # Use space separator
+APT_DISTNAMES="bionic focal jammy buster bullseye"  # Use space separator
 RPM_RHEL_VERSIONS="7 8"  # Use space separator
 
 
 PGVERSION=$1
-[ ! -z "${PGVERSION}" ] && shift || PGVERSION=14
+[ ! -z "${PGVERSION}" ] && shift || PGVERSION=15
 TEMPDIR=$(mktemp -d)
 
 trap "{ rm -fr \"$TEMPDIR\"; }" EXIT
