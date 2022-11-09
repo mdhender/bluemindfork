@@ -22,9 +22,14 @@ import java.util.HashMap;
 import net.bluemind.addressbook.api.AddressBookDescriptor;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
+import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.IDomains;
 
 public class AddressBookDescriptorSanitizer implements ISanitizer<AddressBookDescriptor> {
 
@@ -55,6 +60,14 @@ public class AddressBookDescriptorSanitizer implements ISanitizer<AddressBookDes
 	private void sanitize(AddressBookDescriptor obj) throws ServerFault {
 		if (obj.settings == null) {
 			obj.settings = new HashMap<>();
+		}
+
+		if (obj.domainUid != null) {
+			ItemValue<Domain> domainItem = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(IDomains.class).findByNameOrAliases(obj.domainUid);
+			if (domainItem != null) {
+				obj.domainUid = domainItem.uid;
+			}
 		}
 	}
 

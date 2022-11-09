@@ -19,10 +19,16 @@ package net.bluemind.addressbook.service.internal;
 
 import net.bluemind.addressbook.api.AddressBookDescriptor;
 import net.bluemind.core.api.ParametersValidator;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.validator.IValidator;
 import net.bluemind.core.validator.IValidatorFactory;
+import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.IDomains;
 
 public class AddressBookDescriptorValidator implements IValidator<AddressBookDescriptor> {
 
@@ -52,8 +58,15 @@ public class AddressBookDescriptorValidator implements IValidator<AddressBookDes
 
 	private void validate(AddressBookDescriptor obj) throws ServerFault {
 		ParametersValidator.notNull(obj);
-		ParametersValidator.notNullAndNotEmpty(obj.name);
 		ParametersValidator.notNull(obj.settings);
+		ParametersValidator.notNullAndNotEmpty(obj.name);
+		ParametersValidator.notNullAndNotEmpty(obj.domainUid);
+
+		ItemValue<Domain> domainItem = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomains.class).findByNameOrAliases(obj.domainUid);
+		if (domainItem == null) {
+			throw new ServerFault(String.format("Domain %s not found", obj.domainUid), ErrorCode.UNKNOWN);
+		}
 	}
 
 }
