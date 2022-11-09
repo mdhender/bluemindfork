@@ -16,6 +16,8 @@
             },
             "many_files": "Many files are selected"
     },
+    "contact.card.show_contact": "Show contact",
+    "contact.card.show_contact.tooltip": "Open Contact application in a new tab.",
     "contact.info.type.cell": "mobile",
     "contact.info.type.fax": "fax",
     "contact.info.type.home": "personal",

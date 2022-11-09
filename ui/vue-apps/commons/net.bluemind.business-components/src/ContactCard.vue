@@ -6,23 +6,22 @@
                 <slot name="email" :email="slotProps.email" />
             </template>
         </contact-card-body>
+        <contact-card-footer :contact="contact" />
     </div>
     <contact-card-skeleton v-else class="contact-card" />
 </template>
 
 <script>
 import ContactCardBody from "./ContactCardBody";
+import ContactCardFooter from "./ContactCardFooter";
 import ContactCardHeader from "./ContactCardHeader";
 import ContactCardSkeleton from "./ContactCardSkeleton";
 
 export default {
     name: "ContactCard",
-    components: { ContactCardBody, ContactCardHeader, ContactCardSkeleton },
+    components: { ContactCardBody, ContactCardFooter, ContactCardHeader, ContactCardSkeleton },
     props: {
-        contact: {
-            type: Object,
-            default: null
-        }
+        contact: { type: Object, default: undefined }
     }
 };
 </script>

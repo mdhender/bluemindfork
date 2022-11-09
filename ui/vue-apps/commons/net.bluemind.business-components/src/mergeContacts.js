@@ -9,11 +9,12 @@ export default async function merge(contacts, contactContainerUids) {
 
     const contactsWithContainerUid = contacts.map((c, index) => ({ ...c, containerUid: contactContainerUids[index] }));
     const sortedContacts = await sortContacts(contactsWithContainerUid);
+    const bestContactForIdentification = bestContact(sortedContacts, "value.identification.formatedName.value");
     const photoBinary = await fetchPhoto(bestContact(sortedContacts, "value.identification.photo"));
     return {
         value: {
             identification: {
-                ...bestContact(sortedContacts, "value.identification.formatedName.value")?.value?.identification,
+                ...bestContactForIdentification.value?.identification,
                 photo: !!photoBinary,
                 photoBinary
             },
@@ -22,7 +23,9 @@ export default async function merge(contacts, contactContainerUids) {
                 emails: mergeList(sortedContacts, "value.communications.emails", "value")
             },
             deliveryAddressing: mergeList(sortedContacts, "value.deliveryAddressing")
-        }
+        },
+        uid: bestContactForIdentification.uid,
+        containerUid: bestContactForIdentification.containerUid
     };
 }
 

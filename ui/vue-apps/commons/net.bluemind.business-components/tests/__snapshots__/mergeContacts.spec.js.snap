@@ -2,6 +2,8 @@
 
 exports[`Merge contacts Merge contacts from different address books 1`] = `
 Object {
+  "containerUid": "addressbook_75a0d5b3.internal",
+  "uid": "E34DD2DD-25AC-4548-927F-C7D183203608",
   "value": Object {
     "communications": Object {
       "emails": Array [
