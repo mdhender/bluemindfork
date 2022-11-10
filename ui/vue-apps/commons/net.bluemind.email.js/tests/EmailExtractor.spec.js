@@ -2,10 +2,11 @@ import EmailExtractor from "../src/EmailExtractor";
 
 describe("EmailExtractor", () => {
     const testData = [
-        { email: "my@mail.com", expectedAddress: "my@mail.com", expectedDN: undefined },
-        { email: "My Mail <my@mail.com>", expectedAddress: "my@mail.com", expectedDN: "My Mail" },
-        { email: "Not Valid", expectedAddress: null, expectedDN: undefined },
-        { email: "", expectedAddress: null, expectedDN: undefined },
+        { email: "my@mail.com   ", expectedAddress: "my@mail.com", expectedDN: undefined },
+        { email: "    My Mail <my@mail.com>", expectedAddress: "my@mail.com", expectedDN: "My Mail" },
+        { email: "My Mail     my@mail.com", expectedAddress: "my@mail.com", expectedDN: "My Mail" },
+        { email: "My Mail", expectedAddress: null, expectedDN: "My Mail" },
+        { email: "", expectedAddress: null, expectedDN: "" },
         { email: undefined, expectedAddress: null, expectedDN: undefined }
     ];
     test.each(testData)("Extract address '%j'", ({ email, expectedAddress }) => {

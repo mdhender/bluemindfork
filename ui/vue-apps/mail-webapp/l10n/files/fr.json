@@ -149,6 +149,8 @@
     "alert.mail.attach_eml.fetch.error": "Erreur lors de la récupération du message au format EML. Impossible de l'attacher.",
     "alert.mail.forward_eml.fetch.error": "Erreur lors de la récupération du message au format EML. Impossible de le transférer.",
     "alert.mail.message.draft.attach.error": "Pièce-jointe en erreur. Réessayez.",
+    "mail.actions.add_contact": "Ajouter le contact",
+    "mail.actions.add_contact.tooltip": "Ajoute le contact à votre carnet d’adresses.",
     "mail.actions.attach.aria": "Joindre un fichier",
     "mail.actions.attach": "Joindre",
     "mail.actions.attach.max_size": "La taille d'un message est limitée à {size}",

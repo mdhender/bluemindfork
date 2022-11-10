@@ -149,6 +149,8 @@
     "alert.mail.attach_eml.fetch.error": "Fehler beim Abrufen der Nachricht im EML-Format. Kann nicht angefügt werden.",
     "alert.mail.forward_eml.fetch.error": "Fehler beim Abrufen der Nachricht im EML-Format. Kann nicht weitergeleitet werden.",
     "alert.mail.message.draft.attach.error": "Fehler beim Anhängen. Bitte erneut versuchen.",
+    "mail.actions.add_contact": "Kontakt hinzufügen",
+    "mail.actions.add_contact.tooltip": "Fügt den Kontakt Ihrem Adressbuch hinzu.",
     "mail.actions.attach.aria": "Anhang beifügen",
     "mail.actions.attach": "Anhängen",
     "mail.actions.attach.max_size": "E-Mail Größe ist beschränkt auf {size}",

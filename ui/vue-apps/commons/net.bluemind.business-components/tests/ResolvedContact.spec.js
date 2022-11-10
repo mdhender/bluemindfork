@@ -13,7 +13,7 @@ describe("ResolvedContact component", () => {
     test("Mount with address prop", async () => {
         const wrapper = mount(ResolvedContact, {
             propsData: {
-                address: "test.address@bluemind.net"
+                recipient: "Test Address <test.address@bluemind.net>"
             },
             slots: {
                 default: "<div>Hello!</div>"

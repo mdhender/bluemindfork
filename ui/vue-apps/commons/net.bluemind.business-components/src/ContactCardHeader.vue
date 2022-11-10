@@ -1,5 +1,5 @@
 <template>
-    <div class="contact-card-header d-flex align-items-center mb-4">
+    <div class="contact-card-header d-flex align-items-center mb-5">
         <bm-avatar :alt="displayName" :urn="image" size="md" />
         <h3 class="my-0 ml-4">{{ displayName }}</h3>
     </div>

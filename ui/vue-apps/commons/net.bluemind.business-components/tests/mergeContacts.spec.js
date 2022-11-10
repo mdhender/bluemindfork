@@ -8,7 +8,7 @@ jest.mock("@bluemind/inject", () => {
                 return { getComplete: uid => getCompleteBookResults[uid] };
             }
             if (service === "UserSession") {
-                return { userId: "", domain: "" };
+                return { userId: "E34DD2DD-25AC-4548-927F-C7D183203608", domain: "75a0d5b3.internal" };
             }
         }
     };

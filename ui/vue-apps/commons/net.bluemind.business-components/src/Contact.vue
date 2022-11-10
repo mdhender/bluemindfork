@@ -54,9 +54,12 @@
                 </span>
             </bm-chip>
         </bm-button>
-        <contact-popover v-if="popover" :target="uniqueId" :address="contact.address">
+        <contact-popover v-if="popover" :target="uniqueId" :recipient="recipient">
             <template #email="slotProps">
                 <slot name="email" :email="slotProps.email" />
+            </template>
+            <template #actions="slotProps">
+                <slot name="actions" :contact="slotProps.contact" />
             </template>
         </contact-popover>
     </div>
@@ -144,6 +147,11 @@ export default {
                 return this.contact.address;
             }
             return this.contact.dn || this.contact.address;
+        },
+        recipient() {
+            return this.contact.dn
+                ? this.contact.dn + (this.contact.address ? ` <${this.contact.address}>` : "")
+                : this.contact.address;
         },
         icon() {
             return this.invalid ? "exclamation" : null;

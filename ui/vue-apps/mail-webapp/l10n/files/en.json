@@ -149,6 +149,8 @@
     "alert.mail.attach_eml.fetch.error": "Failed to retrieve message in EML format. Unable to attach it.",
     "alert.mail.forward_eml.fetch.error": "Failed to retrieve message in EML format. Unable to forward it.",
     "alert.mail.message.draft.attach.error": "Attachment error. Try again.",
+    "mail.actions.add_contact": "Add contact",
+    "mail.actions.add_contact.tooltip": "Adds the contact to your address book.",
     "mail.actions.attach.aria": "Attach a file",
     "mail.actions.attach": "Attach",
     "mail.actions.attach.max_size": "Message size is limited to {size}",

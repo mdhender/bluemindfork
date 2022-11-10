@@ -10,20 +10,28 @@ Object {
         Object {
           "parameters": Array [
             Object {
-              "label": "TYPE",
-              "value": "home",
+              "label": "DEFAULT",
+              "value": "true",
             },
-          ],
-          "value": "georges.abitbol@dev.bluemind.net",
-        },
-        Object {
-          "parameters": Array [
+            Object {
+              "label": "SYSTEM",
+              "value": "false",
+            },
             Object {
               "label": "TYPE",
               "value": "work",
             },
           ],
           "value": "gabitbol@devenv.dev.bluemind.net",
+        },
+        Object {
+          "parameters": Array [
+            Object {
+              "label": "TYPE",
+              "value": "home",
+            },
+          ],
+          "value": "georges.abitbol@dev.bluemind.net",
         },
         Object {
           "parameters": Array [
@@ -137,7 +145,7 @@ Object {
       "birthday": null,
       "formatedName": Object {
         "parameters": Array [],
-        "value": "Georges A",
+        "value": "Georges Abitbol",
       },
       "gender": Object {
         "parameters": Array [],
@@ -145,12 +153,12 @@ Object {
         "value": null,
       },
       "name": Object {
-        "additionalNames": "",
-        "familyNames": "A",
+        "additionalNames": null,
+        "familyNames": "Abitbol",
         "givenNames": "Georges",
         "parameters": Array [],
-        "prefixes": "",
-        "suffixes": "",
+        "prefixes": null,
+        "suffixes": null,
         "value": null,
       },
       "nickname": Object {

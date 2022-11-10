@@ -4,6 +4,7 @@ import RecipientAdaptor from "./RecipientAdaptor";
 import VCardAdaptor from "./VCardAdaptor";
 import VCardInfoAdaptor from "./VCardInfoAdaptor";
 import { VCardQueryOrderBy } from "@bluemind/addressbook.api";
+import { EmailExtractor } from "@bluemind/email";
 
 function searchVCardsHelper(pattern, size = 5, noGroup = false) {
     const escaped = escape(pattern);
@@ -27,12 +28,31 @@ function searchVCardsByIdHelper(uid, containerUid, size = 5, noGroup = false) {
     return { from: 0, size, query: esQuery, orderBy: VCardQueryOrderBy.Pertinance, escapeQuery: false };
 }
 
+function recipientStringToVCardItem(recipientString) {
+    const address = EmailExtractor.extractEmail(recipientString);
+    const displayName = EmailExtractor.extractDN(recipientString) || guessName(address);
+    return {
+        value: {
+            identification: { formatedName: { parameters: [], value: displayName } },
+            communications: { emails: [{ parameters: [], value: address }] }
+        }
+    };
+}
+function guessName(address) {
+    return address
+        ?.split("@")[0]
+        ?.split(".")
+        .map(token => token.charAt(0).toUpperCase() + token.slice(1).toLowerCase())
+        .join(" ");
+}
+
 export {
     ContactValidator,
     DirEntryAdaptor,
     searchVCardsByIdHelper,
     searchVCardsHelper,
     RecipientAdaptor,
+    recipientStringToVCardItem,
     VCardAdaptor,
     VCardInfoAdaptor
 };

@@ -1,9 +1,13 @@
 <template>
-    <div class="contact-card-footer ml-3">
-        <bm-button variant="text-accent" :href="link" target="_blank" :title="$t('contact.card.show_contact.tooltip')">
-            {{ $t("contact.card.show_contact") }}
-        </bm-button>
-    </div>
+    <bm-button
+        class="contact-action-show"
+        variant="text-accent"
+        :href="link"
+        target="_blank"
+        :title="$t('contact.card.show_contact.tooltip')"
+    >
+        {{ $t("contact.card.show_contact") }}
+    </bm-button>
 </template>
 
 <script>
@@ -12,10 +16,10 @@ import { inject } from "@bluemind/inject";
 import { BmButton } from "@bluemind/styleguide";
 
 export default {
-    name: "ContactCardFooter",
+    name: "ContactActionShow",
     components: { BmButton },
     props: {
-        contact: { type: Object, required: true }
+        contact: { type: Object, default: undefined }
     },
     computed: {
         link() {
