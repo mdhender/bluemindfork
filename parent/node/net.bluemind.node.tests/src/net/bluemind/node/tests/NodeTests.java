@@ -28,6 +28,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -333,6 +334,19 @@ public class NodeTests {
 		} finally {
 			new File(file).delete();
 		}
+	}
+
+	@Test
+	public void testWriteTheRead64k() {
+		byte[] withoutLF = new byte[65536];
+		ThreadLocalRandom.current().nextBytes(withoutLF);
+		byte[] enc = Base64.getEncoder().encode(withoutLF);
+
+		String dir = System.getProperty("java.io.tmpdir");
+		String file = dir + "/" + System.currentTimeMillis() + ".junit";
+		nc.writeFile(file, new ByteArrayInputStream(enc));
+		byte[] reRead = nc.read(file);
+		assertEquals(enc.length, reRead.length);
 	}
 
 	@Test

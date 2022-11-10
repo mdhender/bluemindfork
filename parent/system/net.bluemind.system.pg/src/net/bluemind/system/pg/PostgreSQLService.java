@@ -17,9 +17,11 @@
   */
 package net.bluemind.system.pg;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -200,7 +202,7 @@ public class PostgreSQLService {
 	}
 
 	protected InputStream getConf(String conf) throws IOException {
-		return Files.asByteSource(new File(PG_CONF_PATH + "/" + conf)).openStream();
+		return new ByteArrayInputStream(java.nio.file.Files.readAllBytes(Paths.get(PG_CONF_PATH, conf)));
 	}
 
 }
