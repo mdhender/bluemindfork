@@ -67,6 +67,7 @@ else
     mvn -Dbm-runtime.url=https://forge.bluemind.net/staging/p2/bluemind/$BM_VERSION/ clean install
 fi
 
+yarn --version
 node --version
 yarn install
 rm -f jest.json jest.xml
@@ -74,14 +75,12 @@ yarn test-ci || true
 mv report.xml jest.xml
 
 if [ "$PUBLISH_NPM" == "true" ]; then
-    for path in $(find . -path ./node_modules -prune -o -name package.json -print); do
-        if [[ $path != *"target/classes"* ]]; then
-            if grep -q "name\": \"@bluemind" $path; then
-                pushd $(dirname $path)
-                echo "Publishing $path"
-                yarn publish --no-git-tag-version --no-commit-hooks --new-version $BM_VERSION
-                popd
-            fi
+    for path in $(node -pe 'Object.values(JSON.parse((JSON.parse(process.argv[1]).data))).forEach(({location}) => console.log(location))' "$(yarn --json workspaces info)"); do
+        if [[ $path != "undefined" ]]; then
+            pushd $path
+            echo "Publishing $path"
+            yarn publish --no-git-tag-version --no-commit-hooks --new-version $BM_VERSION
+            popd
         fi
     done
 fi
