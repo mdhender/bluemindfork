@@ -16,7 +16,9 @@
             <bm-icon icon="phone" variant="secondary" />
             <div class="d-flex flex-column ml-4">
                 <span v-for="phone in phones" :key="phone.number" class="mb-3">
-                    <strong>{{ phone.number }}</strong>
+                    <a :href="`tel:${phone.number.replace(/\s+/g, '')}`">
+                        <strong>{{ phone.number }}</strong>
+                    </a>
                     <span class="ml-2 text-neutral">{{ phone.type }}</span>
                 </span>
             </div>
