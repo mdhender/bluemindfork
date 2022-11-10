@@ -63,7 +63,7 @@ public class JdbcHelper {
 			st.execute("set auto_explain.log_analyze to on");
 			st.execute("set auto_explain.log_verbose to on");
 			st.execute("set auto_explain.log_triggers to on");
-			st.execute("set auto_explain.log_nested_statement to on");
+			st.execute("set auto_explain.log_nested_statements to on");
 			st.execute("set auto_explain.log_timing to on");
 		}
 	}
