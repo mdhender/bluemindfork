@@ -28,12 +28,4 @@ public interface SubscriptionConstants extends Messages {
 	String off();
 
 	String tooFat(long total);
-
-	String tooFatWarningTitle();
-
-	String tooFatWarningContent(long items);
-
-	String yes();
-
-	String no();
 }

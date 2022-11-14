@@ -29,7 +29,6 @@ import java.util.concurrent.CompletableFuture;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -38,11 +37,7 @@ import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HTMLTable.Cell;
 import com.google.gwt.user.client.ui.Label;
@@ -152,7 +147,7 @@ public abstract class BaseSubscriptionsEditor extends CompositeGwtWidgetElement 
 			public void seletected(ContainerDescriptor desc) {
 				if (!subscription.containsKey(desc.uid)) {
 					desc.offlineSync = true;
-					CompletableFuture.allOf(addEntry(desc, true));
+					CompletableFuture.allOf(addEntry(desc));
 				}
 			}
 		});
@@ -187,17 +182,17 @@ public abstract class BaseSubscriptionsEditor extends CompositeGwtWidgetElement 
 		List<CompletableFuture<Count>> entries = new ArrayList<>();
 
 		for (ContainerSubscriptionDescriptor cd : containers) {
-			entries.add(addEntry(cd, cd.offlineSync));
+			entries.add(addEntry(cd));
 		}
 
 		CompletableFuture.allOf(entries.toArray(new CompletableFuture[0]));
 	}
 
-	public CompletableFuture<Count> addEntry(ContainerDescriptor f, boolean isNew) {
-		return addEntry(ContainerSubscriptionDescriptor.create(f, true), isNew);
+	public CompletableFuture<Count> addEntry(ContainerDescriptor f) {
+		return addEntry(ContainerSubscriptionDescriptor.create(f, true));
 	}
 
-	public CompletableFuture<Count> addEntry(ContainerSubscriptionDescriptor f, boolean isNew) {
+	public CompletableFuture<Count> addEntry(ContainerSubscriptionDescriptor f) {
 
 		IContainerManagementPromise service = new ContainerManagementSockJsEndpoint(Ajax.TOKEN.getSessionId(),
 				f.containerUid).promiseApi();
@@ -257,7 +252,6 @@ public abstract class BaseSubscriptionsEditor extends CompositeGwtWidgetElement 
 				public void onValueChange(ValueChangeEvent<Boolean> event) {
 					if (event.getValue() && value.total > maxItemsLimit) {
 						warningIcon.setVisible(true);
-						fatContainerWarning(value.total, sb, warningIcon);
 					} else {
 						warningIcon.setVisible(false);
 					}
@@ -268,9 +262,6 @@ public abstract class BaseSubscriptionsEditor extends CompositeGwtWidgetElement 
 			if (f.offlineSync && value.total > maxItemsLimit) {
 				// danger danger, high voltage
 				warningIcon.setVisible(true);
-				if (isNew) {
-					fatContainerWarning(value.total, sb, warningIcon);
-				}
 			}
 
 			table.setWidget(row, i++, sb);
@@ -294,66 +285,6 @@ public abstract class BaseSubscriptionsEditor extends CompositeGwtWidgetElement 
 
 	protected boolean canUnsubscribe(ContainerSubscriptionDescriptor f) {
 		return !(f.owner != null && f.owner.equals(userId) && f.defaultContainer);
-	}
-
-	/**
-	 * @param items
-	 * @param sb
-	 */
-	private void fatContainerWarning(long items, SwitchButton sb, Label warningIcon) {
-		DialogBox os = new DialogBox();
-
-		FlowPanel buttons = new FlowPanel();
-		Button ok = new Button(SubscriptionConstants.INST.yes());
-		ok.addStyleName("button");
-		ok.addStyleName("primary");
-		ok.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				os.hide();
-			}
-		});
-
-		Button cancel = new Button(SubscriptionConstants.INST.no());
-		cancel.addStyleName("button");
-		cancel.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				os.hide();
-				sb.setValue(false);
-				warningIcon.setVisible(false);
-			}
-		});
-
-		buttons.add(ok);
-		buttons.add(cancel);
-		buttons.getElement().getStyle().setPadding(5, Unit.PX);
-
-		DockLayoutPanel dlp = new DockLayoutPanel(Unit.PX);
-		dlp.setHeight("150px");
-		dlp.setWidth("500px");
-
-		Label warn = new Label(SubscriptionConstants.INST.tooFatWarningTitle());
-		warn.addStyleName("modal-dialog-title");
-		dlp.addNorth(warn, 40);
-
-		Label content = new Label(SubscriptionConstants.INST.tooFatWarningContent(items));
-		content.addStyleName(s.itemCountWarningDialogContent());
-		dlp.addSouth(buttons, 40);
-
-		dlp.add(content);
-
-		os.addStyleName("dialog");
-		os.getElement().setAttribute("style", "padding:0");
-		os.setWidget(dlp);
-		os.setGlassEnabled(true);
-		os.setAutoHideEnabled(false);
-		os.setGlassStyleName("modalOverlay");
-		os.setModal(true);
-		os.center();
-		os.show();
 	}
 
 	abstract protected String getLabel(ContainerSubscriptionDescriptor f, String ownerDisplayName);
