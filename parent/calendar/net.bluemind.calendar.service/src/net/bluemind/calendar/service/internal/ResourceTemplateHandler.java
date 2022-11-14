@@ -23,6 +23,8 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.context.SecurityContext;
@@ -135,6 +137,9 @@ public final class ResourceTemplateHandler {
 		final Optional<String> resourceId = this.toResourceId(resourceAttendee);
 		if (!resourceId.isPresent()) {
 			LOGGER.warn("Attendee identifier not found {}", JsonUtils.asString(resourceAttendee));
+			return;
+		}
+		if (Strings.isNullOrEmpty(vEvent.description)) {
 			return;
 		}
 		vEvent.description = RESOURCE_TEMPLATE_HELPER.removeTemplate(vEvent.description, resourceId.get());

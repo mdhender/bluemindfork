@@ -208,6 +208,34 @@ public class VEventSeriesSanitizerTests {
 		this.checkDescription(vEvents, expectedResult);
 	}
 
+	@Test
+	public void onResourceDeleted_DescriptionIsNull() {
+		// first, create an event with a resource
+		final String oldDescription = "2 individuals attendees and 1 resource attendee having a template";
+		final VEventMessage oldEventMessage = this.eventCreation(oldDescription, true);
+
+		// build an event without a resource
+		final String description = "delete 1 resource attendee having an already transformed template in the description";
+		final VEventMessage vEventMessage = this.buildEvent(description + transformedTemplate, false);
+		vEventMessage.oldEvent = oldEventMessage.vevent.copy();
+
+		vEventMessage.vevent.main.description = null;
+
+		// execute the code
+		final Map<String, String> params = new HashMap<>(2);
+		params.put("owner", vEventMessage.container.owner);
+		params.put("domainUid", this.domainUid);
+		sanitizer.update(vEventMessage.oldEvent, vEventMessage.vevent, params);
+
+		// check the result - the processed template should have been removed
+		Assert.assertNotNull(vEventMessage.vevent);
+		final List<VEvent> vEvents = vEventMessage.vevent.flatten();
+		Assert.assertNotNull(vEvents);
+		vEvents.forEach(vEvent -> {
+			Assert.assertNull(vEvent.description);
+		});
+	}
+
 	/**
 	 * Test {@link ResourceDescriptionAdapterHook#onEventUpdated(VEventMessage)} :
 	 * add a resource having a template.
