@@ -44,7 +44,6 @@ public class MailboxRecordColumns {
 
 	public static final Columns COLUMNS = Columns.create() //
 			.col("imap_uid")//
-			.col("mod_seq")//
 			.col("last_updated")//
 			.col("internal_date")//
 			.col("system_flags")//
@@ -66,7 +65,7 @@ public class MailboxRecordColumns {
 		return (ResultSet rs, int index, MailboxRecord value) -> {
 			value.messageBody = rs.getString(index++);
 			value.imapUid = rs.getLong(index++);
-			value.modSeq = rs.getLong(index++);
+			value.modSeq = 0; // TODO: REMOVED IN BM 5.x: remove all modSeq thingy
 			value.lastUpdated = rs.getTimestamp(index++);
 			value.internalDate = rs.getTimestamp(index++);
 			int encodedFlags = rs.getInt(index++);
@@ -91,7 +90,6 @@ public class MailboxRecordColumns {
 		return (Connection con, PreparedStatement statement, int index, int currentRow, MailboxRecord value) -> {
 			statement.setString(index++, value.messageBody);
 			statement.setLong(index++, value.imapUid);
-			statement.setLong(index++, value.modSeq);
 			statement.setTimestamp(index++, Timestamp.from(value.lastUpdated.toInstant()));
 			statement.setTimestamp(index++, Timestamp.from(value.internalDate.toInstant()));
 			int compoundFlags = 0;

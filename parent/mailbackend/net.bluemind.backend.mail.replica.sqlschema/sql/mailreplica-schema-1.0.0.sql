@@ -44,7 +44,6 @@ CREATE TABLE IF NOT EXISTS t_mailbox_record (
     subtree_id int4 NOT NULL REFERENCES t_container(id) ON DELETE CASCADE,
     container_id int4 NOT NULL REFERENCES t_container(id) ON DELETE CASCADE,
     imap_uid int8 NOT NULL,
-    mod_seq int8 NOT NULL,
     conversation_id int8,
     last_updated timestamp NOT NULL,
     internal_date timestamp NOT NULL,
