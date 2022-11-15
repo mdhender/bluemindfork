@@ -193,15 +193,9 @@ public class VEventSanitizer {
 		 * RFC 5545 3.8.2.2. The value type of the "DTEND" property MUST be the same as
 		 * the "DTSTART" property
 		 */
-		if (vevent.dtstart != null && vevent.dtend != null && vevent.dtend.precision != vevent.dtstart.precision) {
-			vevent.dtend.precision = vevent.dtstart.precision;
-			if (vevent.dtend.precision == Precision.Date) {
-				vevent.dtend.iso8601 = new SimpleDateFormat("yyyy-MM-dd")
-						.format(new BmDateTimeWrapper(vevent.dtend).toDate());
-			} else {
-				vevent.dtend.iso8601 = DateTimeFormatter.ISO_OFFSET_DATE_TIME
-						.format(new BmDateTimeWrapper(vevent.dtend).toDateTime());
-			}
+		sanitizePrecision(vevent.dtstart, vevent.dtend);
+		if (vevent.exdate != null && !vevent.exdate.isEmpty()) {
+			vevent.exdate.forEach(ex -> sanitizePrecision(vevent.dtstart, ex));
 		}
 
 		// cleanup alarm
@@ -246,6 +240,22 @@ public class VEventSanitizer {
 		vevent.draft &= !sendNotification;
 
 		sanitizeTimezone(vevent);
+	}
+
+	private void sanitizePrecision(BmDateTime dtStart, BmDateTime toAdapt) {
+		if (dtStart != null && toAdapt != null && dtStart.precision != toAdapt.precision) {
+			if (dtStart.precision == Precision.Date) {
+				toAdapt.iso8601 = new SimpleDateFormat("yyyy-MM-dd").format(new BmDateTimeWrapper(toAdapt).toDate());
+				toAdapt.precision = Precision.Date;
+				toAdapt.timezone = null;
+			} else {
+				DateTimeFormatter dt = DateTimeFormatter.ISO_DATE_TIME;
+				toAdapt.iso8601 = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+						.format(new BmDateTimeWrapper(toAdapt).toDateTime());
+				toAdapt.precision = Precision.DateTime;
+				toAdapt.timezone = dtStart.timezone;
+			}
+		}
 	}
 
 	private void sanitizeTimezone(VEvent vevent) {

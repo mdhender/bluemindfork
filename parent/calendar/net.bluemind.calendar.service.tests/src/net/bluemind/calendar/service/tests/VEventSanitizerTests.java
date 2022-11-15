@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -68,6 +69,8 @@ import net.bluemind.group.api.Member;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.Organizer;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
+import net.bluemind.icalendar.api.ICalendarElement.RRule;
+import net.bluemind.icalendar.api.ICalendarElement.RRule.Frequency;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.pool.impl.BmConfIni;
@@ -184,12 +187,30 @@ public class VEventSanitizerTests {
 		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, user1DefaultCalendar);
 
 		VEvent vevent = new VEvent();
+		ZonedDateTime exDate = ZonedDateTime.of(2015, 06, 01, 0, 0, 0, 0, defaultTz);
 
 		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
-		vevent.dtend = BmDateTimeWrapper.create(date1, Precision.DateTime);
+		vevent.dtend = BmDateTimeWrapper.create(exDate, Precision.DateTime);
 
 		sanitizer.sanitize(vevent, true);
 		assertEquals(vevent.dtstart.precision, vevent.dtend.precision);
+		assertEquals(Precision.Date, vevent.dtstart.precision);
+	}
+
+	@Test
+	public void testPrecisionOfExDatesIsSameAsDTstart() throws ServerFault {
+
+		VEventSanitizer sanitizer = new VEventSanitizer(test1Context, user1DefaultCalendar);
+
+		VEvent vevent = new VEvent();
+
+		vevent.dtstart = BmDateTimeWrapper.create(date1, Precision.Date);
+		vevent.rrule = new RRule();
+		vevent.rrule.frequency = Frequency.DAILY;
+		vevent.exdate = new HashSet<>(Arrays.asList(BmDateTimeWrapper.create(date1, Precision.DateTime)));
+
+		sanitizer.sanitize(vevent, true);
+		assertEquals(vevent.dtstart.precision, vevent.exdate.iterator().next().precision);
 		assertEquals(Precision.Date, vevent.dtstart.precision);
 	}
 
