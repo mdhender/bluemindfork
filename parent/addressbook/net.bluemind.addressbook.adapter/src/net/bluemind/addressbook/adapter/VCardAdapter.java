@@ -22,6 +22,7 @@ package net.bluemind.addressbook.adapter;
 import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -583,14 +584,14 @@ public final class VCardAdapter {
 
 	private static List<net.fortuna.ical4j.vcard.Parameter> toVCard(List<Parameter> parameters) {
 		List<net.fortuna.ical4j.vcard.Parameter> ret = new ArrayList<>(parameters.size());
-		for (Parameter p : parameters) {
+		List<String> vcardParameters = Arrays.asList(net.fortuna.ical4j.vcard.Parameter.Id.values()).stream()
+				.map(id -> id.getPname()).toList();
+		parameters.stream().filter(p -> vcardParameters.contains(p.label)).forEach(p -> {
 			ParameterFactory<?> paramFactory = parameterFactoryRegistry.getFactory(p.label);
-			if (paramFactory == null) {
-				LOGGER.warn("********************** Missing factory for label {}", p.label);
-			} else {
+			if (paramFactory != null) {
 				ret.add(paramFactory.createParameter(p.label, p.value));
 			}
-		}
+		});
 		return ret;
 	}
 
