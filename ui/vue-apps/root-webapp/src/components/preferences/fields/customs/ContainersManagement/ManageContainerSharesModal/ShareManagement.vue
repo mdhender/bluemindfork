@@ -48,7 +48,7 @@ import { ContainerHelper, ContainerType } from "../container";
 import { PublishMode } from "@bluemind/calendar.api";
 import { searchVCardsHelper, DirEntryAdaptor, VCardInfoAdaptor, VCardAdaptor } from "@bluemind/contact";
 import { Verb } from "@bluemind/core.container.api";
-import { BaseDirEntryKind } from "@bluemind/directory.api";
+import { BaseDirEntry } from "@bluemind/directory.api";
 import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { BmFormAutocompleteInput, BmSpinner } from "@bluemind/ui-components";
@@ -185,7 +185,7 @@ export default {
         async loadDirectorySuggestions() {
             const dirEntries = await inject("DirectoryPersistence").search({
                 nameOrEmailFilter: this.searchedInput,
-                kindsFilter: [BaseDirEntryKind.USER, BaseDirEntryKind.GROUP],
+                kindsFilter: [BaseDirEntry.Kind.USER, BaseDirEntry.Kind.GROUP],
                 size: 10
             });
             return dirEntries.values.filter(this.filterSearchResults).map(DirEntryAdaptor.toContact);

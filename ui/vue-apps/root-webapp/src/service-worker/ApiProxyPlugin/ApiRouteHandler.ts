@@ -1,12 +1,13 @@
+import { EndPointMetadata } from "@bluemind/api.commons";
 import session from "../session";
-import { APIClient, ExecutionParameters, MethodMetadatas } from "./types";
+import { ApiEndPointClass, ExecutionParameters, IApiProxy } from "./types";
 
 export class ApiRouteHandler {
-    client: typeof APIClient;
+    client: ApiEndPointClass;
     next: ApiRouteHandler | null;
     priority: number;
-    metadatas: MethodMetadatas;
-    constructor(client: typeof APIClient, metadatas: MethodMetadatas, priority: number) {
+    metadatas: EndPointMetadata.MethodMetadata;
+    constructor(client: ApiEndPointClass, metadatas: EndPointMetadata.MethodMetadata, priority: number) {
         this.client = client;
         this.metadatas = metadatas;
         this.priority = priority;
@@ -20,12 +21,14 @@ export class ApiRouteHandler {
         }
         return this;
     }
-    async execute(parameters: ExecutionParameters, ...overwrite: Array<any>): Promise<any> {
+    async execute(parameters: ExecutionParameters, ...overwrite: Array<unknown>): Promise<unknown> {
         parameters = overwrite.length > 0 ? { ...parameters, method: overwrite } : parameters;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const client: any = new this.client(await session.sid, ...parameters.client);
         if (this.next) {
             client.next = this.next.execute.bind(this.next, parameters);
         } else {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const client: any = RootApiClientFactory.create(this.client, await session.sid, ...parameters.client);
             const args = overwrite.length > 0 ? overwrite : parameters.method;
             return client[this.metadatas.name](...args);
@@ -35,10 +38,10 @@ export class ApiRouteHandler {
 }
 
 const RootApiClientFactory = {
-    create(client: typeof APIClient, ...parameters: Array<any>): APIClient {
+    create(client: ApiEndPointClass, sid: string, ...parameters: Array<string>): IApiProxy {
         while (Object.getPrototypeOf(client).prototype?.getMetadata) {
             client = Object.getPrototypeOf(client);
         }
-        return new client(...parameters);
+        return new client(sid, ...parameters);
     }
 };

@@ -1,45 +1,18 @@
-export class APIClient {
-    // eslint-disable-next-line no-unused-vars
-    constructor(sid?: string, base?: string) {}
-    getMetadata(): ClientMetadatas {
-        return { className: "", packageName: "", path: { value: "", parameters: [] }, methods: [] };
-    }
-}
-
-export type ClientMetadatas = EndPointMetadatas & {
-    methods: Array<MethodMetadatas>;
-};
-export type Path = {
-    value: string;
-    parameters: Array<string>;
-};
-
-export type EndPointMetadatas = {
-    className: string;
-    packageName: string;
-    path: Path;
-};
-
-export type MethodMetadatas = {
-    name: string;
-    verb: "GET" | "POST" | "PUT";
-    path: Path;
-    inParams: Array<ParameterMetadatas>;
-    outParam: ParameterType;
-    produce: string | undefined;
-};
-
-export type ParameterMetadatas = {
-    name: string;
-    type: ParameterType;
-    paramType: "PathParam" | "Body" | "QueryParam";
-};
+import { ApiEndPoint } from "@bluemind/api.commons";
 
 export type ExecutionParameters = {
-    client: Array<any>;
-    method: Array<any>;
+    client: Array<string>;
+    method: Array<unknown>;
 };
 
-export type ParameterType = {
-    name: string;
-};
+//
+export interface GenericApiClient {
+    [key: string]: (...args: Array<unknown>) => Promise<unknown>;
+}
+
+export type ApiEndPointClass = new (sid: string, ...args: Array<string>) => IApiProxy;
+
+// FIXME: This type need to be exported (plugin proxy class should implement this)
+export interface IApiProxy extends ApiEndPoint {
+    next?: (...args: Array<unknown>) => Promise<unknown>;
+}

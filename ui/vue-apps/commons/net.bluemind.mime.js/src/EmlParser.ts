@@ -1,5 +1,5 @@
 import { PostalMime } from "postal-mime";
-import { MessageBody, MessageBodyRecipientKind as RecipientKind } from "@bluemind/backend.mail.api";
+import { MessageBody } from "@bluemind/backend.mail.api";
 import MimeParser from "./MimeParser";
 
 export default class extends MimeParser {
@@ -16,10 +16,10 @@ export default class extends MimeParser {
         this.body.smartAttach = this.hasAttachment();
         this.body.preview = preview(message);
         this.body.recipients = [
-            recipient(RecipientKind.Originator, this.message?.from),
-            ...(message.to?.map(recipient.bind(null, RecipientKind.Primary)) || []),
-            ...(message.cc?.map(recipient.bind(null, RecipientKind.CarbonCopy)) || []),
-            ...(message.bcc?.map(recipient.bind(null, RecipientKind.BlindCarbonCopy)) || [])
+            recipient(MessageBody.RecipientKind.Originator, this.message?.from),
+            ...(message.to?.map(recipient.bind(null, MessageBody.RecipientKind.Primary)) || []),
+            ...(message.cc?.map(recipient.bind(null, MessageBody.RecipientKind.CarbonCopy)) || []),
+            ...(message.bcc?.map(recipient.bind(null, MessageBody.RecipientKind.BlindCarbonCopy)) || [])
         ].filter(Boolean) as Array<MessageBody.Recipient>;
 
         this.body.date = new Date(message.date || "").getTime();
@@ -51,7 +51,7 @@ function headers(headers: Array<PostalMime.Header>): Array<MessageBody.Header> {
             if (!values.has(key)) {
                 values.set(key, { name: key, values: [header.value] });
             } else {
-                values.get(key)?.values.push(header.value);
+                values.get(key)?.values?.push(header.value);
             }
         }
     });

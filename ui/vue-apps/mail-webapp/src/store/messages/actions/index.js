@@ -8,9 +8,8 @@ import {
     moveMessages,
     removeMessages
 } from "./actions";
-import { default as addAttachment, addLocalAttachment } from "./addAttachment";
+import { addAttachment, addLocalAttachment, removeAttachment } from "./attachment";
 import importEml from "./importEml";
-import removeAttachment from "./removeAttachment";
 import { debouncedSave, saveAsap } from "./save";
 import send from "./send";
 import {

@@ -1,12 +1,12 @@
 {
     "name": "@bluemind/conf",
-    "version": "4.1.0",
+    "version": "5.0.0",
     "description": "BlueMind configuration files for front-end development",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "dependencies": {
-        "@bluemind/eslint-config": "^4.1.0",
-        "@bluemind/prettier-config": "^4.1.0"
+        "@bluemind/eslint-config":"^5.0.0",
+        "@bluemind/prettier-config":"^5.0.0"
     },
     "prettier": "@bluemind/prettier-config"
 }

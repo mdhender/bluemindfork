@@ -21,11 +21,14 @@ package net.bluemind.core.container.model;
 import java.util.Date;
 
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.Required;
 
 @BMApi(version = "3")
 public class ItemContainerValue<T> {
 
+	@Required
 	public String containerUid;
+	@Required
 	public T value;
 	public String uid;
 	public long version;

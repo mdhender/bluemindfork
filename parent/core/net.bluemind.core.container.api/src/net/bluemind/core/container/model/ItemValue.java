@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.EnumSet;
 
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.Required;
 
 /**
  * Generic container item value {@link Item}
@@ -31,6 +32,7 @@ import net.bluemind.core.api.BMApi;
 @BMApi(version = "3")
 public class ItemValue<T> {
 
+	@Required
 	public T value;
 	public String uid;
 	public long internalId;

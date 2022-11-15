@@ -1,10 +1,5 @@
-import {
-    MailboxItemsClient,
-    ItemValue,
-    MailboxItem,
-    MessageBody,
-    MessageBodyRecipientKind
-} from "@bluemind/backend.mail.api";
+import { MailboxItemsClient, MailboxItem, MessageBody } from "@bluemind/backend.mail.api";
+import { ItemValue } from "@bluemind/core.container.api";
 import { MimeParser } from "@bluemind/mime";
 import {
     CRYPTO_HEADERS,
@@ -21,10 +16,10 @@ import { checkCertificateValidity, getMyCertificate, getMyPrivateKey } from "./p
 import { logger } from "./environnment/logger";
 
 export function isEncrypted(item: ItemValue<MailboxItem>): boolean {
-    return PKCS7_MIMES.includes(item.value.body.structure.mime);
+    return PKCS7_MIMES.includes(item.value!.body!.structure!.mime!);
 }
 export function isSigned(item: ItemValue<MailboxItem>): boolean {
-    return item.value.body.structure.mime === MULTIPART_SIGNED_MIME;
+    return item.value!.body!.structure!.mime === MULTIPART_SIGNED_MIME;
 }
 
 export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): Promise<ItemValue<MailboxItem>> {
@@ -32,21 +27,21 @@ export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): 
     try {
         const sid = await session.sid;
         const client = new MailboxItemsClient(sid, folderUid);
-        const part = item.value.body.structure;
+        const part = item.value!.body!.structure!;
         const key = await getMyPrivateKey();
         const certificate = await getMyCertificate();
         // FIXME: use correct date instead of internalDate
-        checkCertificateValidity(certificate, new Date(item.value.internalDate));
-        const data = await client.fetch(item.value.imapUid, part.address, part.encoding, part.mime);
+        checkCertificateValidity(certificate, new Date(item.value!.body!.date!));
+        const data = await client.fetch(item.value!.imapUid!, part.address!, part.encoding!, part.mime!);
         const content = await pkcs7.decrypt(data, key, certificate);
         if (content) {
             const parser = await new MimeParser(part.address).parse(content);
             const parts = parser.getParts();
             for (const part of parts) {
-                const content = parser.getPartContent(part.address);
-                savePart(folderUid, item.value.imapUid, part, content);
+                const content = parser.getPartContent(part.address!);
+                savePart(folderUid, item.value!.imapUid!, part, content);
             }
-            item.value.body.structure = parser.structure as MessageBody.Part;
+            item.value!.body!.structure = parser.structure as MessageBody.Part;
         }
         setHeader(item, ENCRYPTED_HEADER_NAME, CRYPTO_HEADERS.DECRYPTED);
     } catch (error: unknown) {
@@ -63,7 +58,7 @@ export function encrypt() {
 export async function verify(folderUid: string, item: ItemValue<MailboxItem>): Promise<ItemValue<MailboxItem>> {
     try {
         const client = new MailboxItemsClient(await session.sid, folderUid);
-        const eml = await client.fetchComplete(item.value.imapUid).then(eml => eml.text());
+        const eml = await client.fetchComplete(item.value!.imapUid!).then(eml => eml.text());
         const { toDigest, pkcs7Part } = extractSignedData(eml);
         await pkcs7.verify(pkcs7Part, toDigest, getSenderAddress(item));
         setHeader(item, SIGNED_HEADER_NAME, CRYPTO_HEADERS.VERIFIED);
@@ -80,15 +75,17 @@ export function sign() {
 }
 
 function getSenderAddress(item: ItemValue<MailboxItem>): string {
-    const from = item.value.body.recipients.find(recipient => recipient.kind === MessageBodyRecipientKind.Originator);
+    const from = item.value!.body!.recipients!.find(
+        recipient => recipient.kind === MessageBody.RecipientKind.Originator
+    );
     if (!from) {
         throw new RecipientNotFoundError();
     }
-    return from.address;
+    return from.address!;
 }
 
 //FIXME: This should be imported from a third party package
-async function savePart(uid: string, imap: string, part: MessageBody.Part, content: ArrayBuffer | undefined) {
+async function savePart(uid: string, imap: number, part: MessageBody.Part, content: ArrayBuffer | undefined) {
     const cache = await caches.open("part-cache");
     const { address } = part;
     const request = new Request(`/api/mail_items/${uid}/part/${imap}/${address}`);
@@ -96,13 +93,13 @@ async function savePart(uid: string, imap: string, part: MessageBody.Part, conte
 }
 
 function setHeader(item: ItemValue<MailboxItem>, headerName: string, headerValue: number) {
-    const index = item.value.body.headers.findIndex(({ name }) => name === headerName);
+    const index = item.value!.body!.headers!.findIndex(({ name }) => name === headerName);
     if (index === -1) {
-        item.value.body.headers.push({ name: headerName, values: [headerValue.toString()] });
+        item.value!.body!.headers!.push({ name: headerName, values: [headerValue.toString()] });
     } else {
-        const currentValue = item.value.body.headers[index].values[0];
+        const currentValue = item.value!.body!.headers![index]!.values![0];
         const newValue = parseInt(currentValue) | headerValue;
-        item.value.body.headers[index].values[0] = newValue.toString();
+        item.value!.body!.headers![index]!.values![0] = newValue.toString();
     }
 }
 

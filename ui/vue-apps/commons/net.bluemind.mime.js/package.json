@@ -1,15 +1,13 @@
 {
     "name": "@bluemind/mime",
-    "version": "4.1.0",
+    "version": "5.0.0",
     "description": "BlueMind mime helper",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "main": "src/index.ts",
     "dependencies": {
+        "@bluemind/backend.mail.api":"^5.0.0",
         "lodash.partition": "^4.6.0",
         "postal-mime": "^1.0.13"
-    },
-    "devDependencies": {
-        "@bluemind/backend.mail.api": "^4.1.0"
     }
 }

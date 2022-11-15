@@ -29,6 +29,7 @@ import java.util.Optional;
 import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.Required;
 
 /**
  * %(UID 3 MODSEQ 4 LAST_UPDATED 1483363360 FLAGS (\Seen) INTERNALDATE
@@ -41,6 +42,7 @@ public class MailboxItem {
 	/**
 	 * UID of the {@link MessageBody}, guid in replication protocol
 	 */
+	@Required
 	public MessageBody body;
 
 	public long imapUid;

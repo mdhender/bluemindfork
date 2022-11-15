@@ -9,15 +9,13 @@
         <download-button v-if="hasButton(ActionButtons.DOWNLOAD)" :ref="`download-button-${file.key}`" :file="file" />
         <other-button v-if="hasButton(ActionButtons.OTHER)" :file="file" :message="message" />
         <template v-if="hasButton(ActionButtons.REMOVE)">
-            <cancel-button v-if="isUploading(file)" @cancel="cancel(file)" />
-            <remove-button v-else @remove="removeAttachment(file)" />
+            <remove-button @remove="removeAttachment(file)" />
         </template>
     </bm-button-toolbar>
 </template>
 
 <script>
 import { mapMutations } from "vuex";
-import global from "@bluemind/global";
 import { BmButtonToolbar } from "@bluemind/ui-components";
 import { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_FILE_KEY } from "~/mutations";
 import { RemoveAttachmentCommand } from "~/commands";
@@ -26,9 +24,8 @@ import PreviewButton from "./ActionButtons/PreviewButton";
 import DownloadButton from "./ActionButtons/DownloadButton";
 import OtherButton from "./ActionButtons/OtherButton";
 import RemoveButton from "./ActionButtons/RemoveButton";
-import CancelButton from "./ActionButtons/CancelButton";
 
-const { isAllowedToPreview, ActionButtons, isUploading } = fileUtils;
+const { isAllowedToPreview, ActionButtons } = fileUtils;
 const { isViewable } = partUtils;
 
 export default {
@@ -38,8 +35,7 @@ export default {
         PreviewButton,
         DownloadButton,
         OtherButton,
-        RemoveButton,
-        CancelButton
+        RemoveButton
     },
     mixins: [RemoveAttachmentCommand],
     props: {
@@ -78,15 +74,11 @@ export default {
             const attachment = this.message.attachments.find(attachment => attachment.fileKey === key);
             this.$execute("remove-attachment", { attachment, message: this.message });
         },
-        cancel(file) {
-            global.cancellers[file.key].cancel();
-        },
         hasButton(button) {
             return this.buttons.length === 0 || this.buttons.includes(button);
         },
         isViewable,
-        isAllowedToPreview,
-        isUploading
+        isAllowedToPreview
     }
 };
 </script>

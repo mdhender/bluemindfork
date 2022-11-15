@@ -1,7 +1,9 @@
+import { ProgressMonitor } from "@bluemind/api.commons";
 import { inject } from "@bluemind/inject";
 import { attachmentUtils, fileUtils } from "@bluemind/mail";
-import global from "@bluemind/global";
 import { getPartDownloadUrl } from "@bluemind/email";
+
+import { DEBOUNCED_SAVE_MESSAGE } from "~/actions";
 
 import {
     ADD_ATTACHMENT,
@@ -19,27 +21,28 @@ import {
 const { AttachmentAdaptor } = attachmentUtils;
 const { FileStatus } = fileUtils;
 
-export default async function ({ commit }, { message, attachment, content }) {
+const AbortControllers = new Map();
+
+export async function addAttachment({ commit }, { message, attachment, content }) {
     const { attachments, files } = AttachmentAdaptor.extractFiles([attachment], message);
     const file = files.pop();
     const attachmentInfos = attachments.pop();
 
     commit(ADD_FILE, { file });
     commit(ADD_ATTACHMENT, { messageKey: message.key, attachment: attachmentInfos });
-    global.cancellers = global.cancellers || {};
-    global.cancellers[file.key] = { cancel: undefined };
+    const canceller = new AbortController();
+    AbortControllers.set(file.key, canceller);
 
     commit(SET_FILE_STATUS, { key: attachmentInfos.fileKey, status: FileStatus.NOT_LOADED });
     commit(SET_MESSAGE_HAS_ATTACHMENT, { key: message.key, hasAttachment: true });
 
     try {
         const service = inject("MailboxItemsPersistence", message.folderRef.uid);
-        const address = await service.uploadPart(
-            content,
-            global.cancellers[file.key],
-            createOnUploadProgress(commit, attachmentInfos)
-        );
-
+        const monitor = new ProgressMonitor();
+        monitor.addEventListener("progress", onUploadProgressMonitor(commit, attachmentInfos), {
+            mode: ProgressMonitor.UPLOAD
+        });
+        const address = await service.uploadPart(content, { signal: canceller.signal, monitor });
         commit(SET_ATTACHMENT_ADDRESS, {
             messageKey: message.key,
             oldAddress: attachmentInfos.address,
@@ -63,6 +66,8 @@ export default async function ({ commit }, { message, attachment, content }) {
     } catch (event) {
         const error = event.target && event.target.error ? event.target.error : event;
         handleError(commit, message, error, attachmentInfos);
+    } finally {
+        AbortControllers.delete(file.key);
     }
 }
 
@@ -87,21 +92,11 @@ export function addLocalAttachment({ commit }, { message, attachment, content })
     commit(SET_MESSAGE_HAS_ATTACHMENT, { key: message.key, hasAttachment: true });
 }
 
-function createOnUploadProgress(commit, attachment) {
-    return progress => {
-        commit(SET_FILE_PROGRESS, {
-            key: attachment.fileKey,
-            loaded: progress.loaded,
-            total: progress.total
-        });
-    };
-}
-
 function handleError(commit, draft, error, attachment) {
-    if (error.message === "CANCELLED_BY_CLIENT") {
+    if (error.name === "AbortError") {
         commit(REMOVE_ATTACHMENT, { messageKey: draft.key, address: attachment.address });
-        commit(REMOVE_FILE, { key: attachment.fileKey });
-        commit(SET_MESSAGE_HAS_ATTACHMENT, {
+        commit("REMOVE_FILE", { key: attachment.fileKey });
+        commit("SET_MESSAGE_HAS_ATTACHMENT", {
             key: draft.key,
             hasAttachment: draft.attachments.length > 0
         });
@@ -116,4 +111,30 @@ function handleError(commit, draft, error, attachment) {
             status: FileStatus.ERROR
         });
     }
+}
+
+export async function removeAttachment({ commit, dispatch, state }, { messageKey, attachment, messageCompose }) {
+    const draft = state[messageKey];
+    if (AbortControllers.has(attachment.fileKey)) {
+        AbortControllers.get(attachment.fileKey).abort();
+    } else {
+        commit(REMOVE_FILE, { key: attachment.fileKey });
+        commit(REMOVE_ATTACHMENT, { messageKey, address: attachment.address });
+        commit(SET_MESSAGE_HAS_ATTACHMENT, {
+            key: messageKey,
+            hasAttachment: draft.attachments.length > 0
+        });
+        dispatch(DEBOUNCED_SAVE_MESSAGE, { draft, messageCompose });
+        inject("MailboxItemsPersistence", draft.folderRef.uid).removePart(attachment.address);
+    }
+}
+
+function onUploadProgressMonitor(commit, attachment) {
+    return progress => {
+        commit(SET_FILE_PROGRESS, {
+            key: attachment.fileKey,
+            loaded: progress.loaded,
+            total: progress.total
+        });
+    };
 }

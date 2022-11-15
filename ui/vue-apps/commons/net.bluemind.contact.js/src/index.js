@@ -3,7 +3,7 @@ import DirEntryAdaptor from "./DirEntryAdaptor";
 import RecipientAdaptor from "./RecipientAdaptor";
 import VCardAdaptor from "./VCardAdaptor";
 import VCardInfoAdaptor from "./VCardInfoAdaptor";
-import { VCardKind, VCardQueryOrderBy } from "@bluemind/addressbook.api";
+import { VCard, VCardQuery } from "@bluemind/addressbook.api";
 import { EmailExtractor } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 
@@ -23,7 +23,7 @@ function searchVCardsHelper(pattern, size = 5, noGroup = false) {
         ") AND (" +
         groupPart +
         "_exists_:value.communications.emails.value)";
-    return { from: 0, size, query: esQuery, orderBy: VCardQueryOrderBy.Pertinance, escapeQuery: false };
+    return { from: 0, size, query: esQuery, orderBy: VCardQuery.OrderBy.Pertinance, escapeQuery: false };
 }
 
 function searchVCardsByIdHelper(uid, containerUid, size = 5, noGroup = false) {
@@ -31,7 +31,7 @@ function searchVCardsByIdHelper(uid, containerUid, size = 5, noGroup = false) {
     const containerPart = containerUid ? ` AND containerUid:${escape(containerUid)}` : "";
     const esQuery =
         "(uid:" + escape(uid) + containerPart + ") AND (" + groupPart + "_exists_:value.communications.emails.value)";
-    return { from: 0, size, query: esQuery, orderBy: VCardQueryOrderBy.Pertinance, escapeQuery: false };
+    return { from: 0, size, query: esQuery, orderBy: VCardQuery.OrderBy.Pertinance, escapeQuery: false };
 }
 
 function recipientStringToVCardItem(recipientString) {
@@ -79,7 +79,7 @@ async function fetchMembersWithAddress(contactContainerUid, contactUid) {
                                 containerUid: m.containerUid,
                                 uid: m.itemUid,
                                 memberCount: m.memberCount || 0,
-                                kind: m.kind || VCardKind.individual
+                                kind: m.kind || VCard.Kind.individual
                             }
                           : await fetchMembersWithAddress(m.containerUid || contactContainerUid, m.itemUid)
                   )

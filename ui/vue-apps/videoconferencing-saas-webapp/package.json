@@ -1,19 +1,19 @@
 {
     "name": "@bluemind/videoconferencing.saas",
-    "version": "4.1.0",
+    "version": "5.0.0",
     "description": "BlueMind VideoConferencing Saas",
     "author": "BlueMind SAS",
     "main": "src/run.js",
     "license": "AGPL-3.0-only",
     "dependencies": {
-        "@bluemind/videoconferencing.saas.api": "^4.1.0",
-        "@bluemind/i18n": "^4.1.0",
-        "@bluemind/inject": "^4.1.0",
-        "@bluemind/l10n": "^4.1.0",
-        "@bluemind/uuid": "^4.1.0"
+        "@bluemind/videoconferencing.saas.api":"^5.0.0",
+        "@bluemind/i18n":"^5.0.0",
+        "@bluemind/inject":"^5.0.0",
+        "@bluemind/l10n":"^5.0.0",
+        "@bluemind/uuid":"^5.0.0"
     },
     "devDependencies": {
-        "@bluemind/conf": "^4.1.0"
+        "@bluemind/conf":"^5.0.0"
     },
     "scripts": {
         "build": "webpack --env production --progress --profile --color",

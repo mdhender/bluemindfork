@@ -1,4 +1,4 @@
-import { MessageBodyRecipientKind as RecipientKind } from "@bluemind/backend.mail.api";
+import { MessageBody } from "@bluemind/backend.mail.api";
 import { messageUtils } from "@bluemind/mail";
 import MessageAdaptor, { getEventInfo } from "../message/MessageAdaptor";
 
@@ -28,7 +28,7 @@ describe("MessageAdaptor", () => {
         });
         test("remove backslash characters used for escape purpose in recipients", () => {
             const recipients = [];
-            Object.values(RecipientKind).forEach(kind => {
+            Object.values(MessageBody.RecipientKind).forEach(kind => {
                 recipients.push({
                     dn: "\\John\\ %Un\\\\tel\\% \\(plop\\) \\",
                     address: "random@mail.com",

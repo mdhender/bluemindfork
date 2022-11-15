@@ -125,7 +125,6 @@ export default {
         opacity: 0.5;
     }
 
-    .cancel-button,
     .remove-button {
         margin-left: $sp-2;
     }

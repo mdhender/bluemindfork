@@ -1,12 +1,12 @@
 {
     "name": "@bluemind/sentry",
-    "version": "4.1.0",
+    "version": "5.0.0",
     "description": "BlueMind Sentry helper",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "main": "src/index.js",
     "dependencies": {
-        "@bluemind/inject": "^4.1.0",
+        "@bluemind/inject":"^5.0.0",
         "@sentry/tracing": "^6.0.1",
         "@sentry/vue": "^6.0.1"
     }

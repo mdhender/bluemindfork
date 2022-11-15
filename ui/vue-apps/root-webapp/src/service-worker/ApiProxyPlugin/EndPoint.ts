@@ -2,20 +2,20 @@ import { RegExpRoute, Route } from "workbox-routing";
 import { RouteHandlerCallbackOptions } from "workbox-core";
 
 import { ApiRouteHandler } from "./ApiRouteHandler";
-import { APIClient, EndPointMetadatas, ExecutionParameters, MethodMetadatas, ParameterType } from "./types";
-
+import { ApiEndPointClass, ExecutionParameters } from "./types";
+import { EndPointMetadata } from "@bluemind/api.commons";
 export class EndPoint {
-    static key(method: MethodMetadatas, endpoint: EndPointMetadatas): string {
+    static key(method: EndPointMetadata.MethodMetadata, endpoint: EndPointMetadata): string {
         return `${endpoint.packageName}.${endpoint.className}#${method.name}`;
     }
 
-    endpoint: EndPointMetadatas;
-    metadatas: MethodMetadatas;
+    endpoint: EndPointMetadata;
+    metadatas: EndPointMetadata.MethodMetadata;
     handler: ApiRouteHandler | null;
     url: string;
     regExp: RegExp;
 
-    constructor(metadatas: MethodMetadatas, endpoint: EndPointMetadatas) {
+    constructor(metadatas: EndPointMetadata.MethodMetadata, endpoint: EndPointMetadata) {
         this.endpoint = endpoint;
         this.metadatas = metadatas;
         this.handler = null;
@@ -34,7 +34,7 @@ export class EndPoint {
         return new RegExpRoute(this.regExp, this.handle.bind(this), this.metadatas.verb);
     }
 
-    chain(client: typeof APIClient, priority: number) {
+    chain(client: ApiEndPointClass, priority: number) {
         this.handler = new ApiRouteHandler(client, this.metadatas, priority).chain(this.handler);
     }
     async handle({ request, params }: RouteHandlerCallbackOptions): Promise<Response> {
@@ -54,7 +54,7 @@ export class EndPoint {
     async parse(request: Request, params: string[]): Promise<ExecutionParameters> {
         const query = new URL(request.url).searchParams;
         const result: ExecutionParameters = { client: [], method: [] };
-        result.client = this.endpoint.path.parameters.map(() => params.shift());
+        result.client = this.endpoint.path.parameters.map(() => params.shift() as string);
         for (const input of this.metadatas.inParams) {
             switch (input.paramType) {
                 case "PathParam":
@@ -99,6 +99,6 @@ export class EndPoint {
     }
 }
 
-function isStream(type: ParameterType) {
+function isStream(type: EndPointMetadata.ParameterType) {
     return type.name === "Stream";
 }

@@ -5,6 +5,17 @@ import { RegExpRoute } from "workbox-routing";
 import { ApiRouteHandler } from "../ApiRouteHandler";
 global.fetch = jest.fn();
 
+class Request {
+    constructor(params) {
+        for (let key in params) {
+            this[key] = params[key];
+        }
+    }
+    clone() {
+        return this;
+    }
+}
+
 jest.mock("../ApiRouteHandler");
 jest.mock("workbox-routing");
 
@@ -120,7 +131,7 @@ describe("EndPoint", () => {
         test("to call handler execute function with request parameters as parameters ", async () => {
             const endpoint = new EndPoint(metadatas.methods[0], metadatas);
             endpoint.chain(MockApiClient, 0);
-            const request = { url: `https://domain.tld/${endpoint.url}` };
+            const request = new Request({ url: `https://domain.tld/${endpoint.url}` });
             endpoint.parse = jest.fn().mockReturnValue(Promise.resolve("Parameters"));
             await endpoint.handle({ request, params: [] });
 
@@ -131,22 +142,23 @@ describe("EndPoint", () => {
         test("to call reply with handler execute result ", async () => {
             const endpoint = new EndPoint(metadatas.methods[0], metadatas);
             endpoint.chain(MockApiClient, 0);
-            const request = { url: `https://domain.tld/${endpoint.url}` };
-            endpoint.handler.execute.mockReturnValue("Result");
+            const request = new Request({ url: `https://domain.tld/${endpoint.url}` });
+
+            endpoint.handler.execute.mockResolvedValue("Result");
             endpoint.reply = jest.fn();
             await endpoint.handle({ request, params: [] });
             expect(endpoint.reply).toBeCalledWith("Result");
         });
         test("to call fetch with request if there is no handler ", async () => {
             const endpoint = new EndPoint(metadatas.methods[0], metadatas);
-            const request = { url: `https://domain.tld/${endpoint.url}` };
+            const request = new Request({ url: `https://domain.tld/${endpoint.url}` });
 
             await endpoint.handle({ request, params: [] });
             expect(fetch).toBeCalledWith(request);
         });
         test("to call replyError if an error occurs ", async () => {
             const endpoint = new EndPoint(metadatas.methods[0], metadatas);
-            const request = { url: `https://domain.tld/${endpoint.url}` };
+            const request = new Request({ url: `https://domain.tld/${endpoint.url}` });
             endpoint.chain(MockApiClient, 0);
             endpoint.handler.execute.mockRejectedValue("Network Error");
             endpoint.replyError = jest.fn();
@@ -163,7 +175,7 @@ describe("EndPoint", () => {
                     parameters: ["0", "1"]
                 }
             });
-            const request = { url: `https://domain.tld/api/service/` };
+            const request = new Request({ url: `https://domain.tld/api/service/` });
             const result = await endpoint.parse(request, ["zero", "one", "two"]);
             expect(result.client).toEqual(["zero", "one"]);
         });
@@ -173,7 +185,7 @@ describe("EndPoint", () => {
                 { name: "1", paramType: "PathParam" }
             ];
             const endpoint = new EndPoint(metadatas.methods[0], metadatas);
-            const request = { url: `https://domain.tld/api/service/` };
+            const request = new Request({ url: `https://domain.tld/api/service/` });
             const result = await endpoint.parse(request, ["zero", "one", "two"]);
             expect(result.method).toEqual(["zero", "one"]);
         });
@@ -183,32 +195,32 @@ describe("EndPoint", () => {
                 { name: "1", paramType: "QueryParam" }
             ];
             const endpoint = new EndPoint(metadatas.methods[0], metadatas);
-            const request = { url: `https://domain.tld/api/service/?ignored=true&0=zero&1=one` };
+            const request = new Request({ url: `https://domain.tld/api/service/?ignored=true&0=zero&1=one` });
             const result = await endpoint.parse(request, []);
             expect(result.method).toEqual(["zero", "one"]);
         });
         test("to parse method body stream parameters from request body as text", async () => {
-            metadatas.methods[0].inParams = [{ name: "0", type: { name: "Stream" }, paramType: "BodyParam" }];
+            metadatas.methods[0].inParams = [{ name: "0", type: { name: "Stream" }, paramType: "Body" }];
             const endpoint = new EndPoint(metadatas.methods[0], metadatas);
-            const request = { url: `https://domain.tld/`, text: jest.fn().mockResolvedValue("BodyBody") };
+            const request = new Request({ url: `https://domain.tld/`, text: jest.fn().mockResolvedValue("BodyBody") });
             const result = await endpoint.parse(request, []);
             expect(result.method).toEqual(["BodyBody"]);
         });
 
         test("to parse method body parameters from request body as json", async () => {
-            metadatas.methods[0].inParams = [{ name: "0", type: { name: "Custom" }, paramType: "BodyParam" }];
+            metadatas.methods[0].inParams = [{ name: "0", type: { name: "Custom" }, paramType: "Body" }];
             const endpoint = new EndPoint(metadatas.methods[0], metadatas);
-            const bodyParam = {};
-            const request = { url: `https://domain.tld/`, json: jest.fn().mockResolvedValue(bodyParam) };
+            const Body = {};
+            const request = new Request({ url: `https://domain.tld/`, json: jest.fn().mockResolvedValue(Body) });
             const result = await endpoint.parse(request, []);
-            expect(result.method).toEqual([bodyParam]);
+            expect(result.method).toEqual([Body]);
         });
-        test("[NOT IMPLEMENTED] to serve method stream parameters as a Stream implementation", async () => {
+        test.skip("[NOT IMPLEMENTED] to serve method stream parameters as a Stream implementation", async () => {
             //FIXME : Not yet implmented...
-            metadatas.methods[0].inParams = [{ name: "0", type: { name: "Stream" }, paramType: "BodyParam" }];
+            metadatas.methods[0].inParams = [{ name: "0", type: { name: "Stream" }, paramType: "Body" }];
             const endpoint = new EndPoint(metadatas.methods[0], metadatas);
-            const bodyParam = {};
-            const request = { url: `https://domain.tld/`, text: jest.fn().mockResolvedValue(bodyParam) };
+            const Body = {};
+            const request = new Request({ url: `https://domain.tld/`, text: jest.fn().mockResolvedValue(Body) });
             const result = await endpoint.parse(request, []);
             expect(result.method[0]).toBeInstanceOf(ReadableStream);
         });

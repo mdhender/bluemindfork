@@ -1,0 +1,18 @@
+{
+    "name": "@bluemind/webapp.wrapper",
+    "version": "5.0.0",
+    "description": "BlueMind old application wrapper",
+    "author": "BlueMind SAS",
+    "main": "src/run.js",
+    "license": "AGPL-3.0-only",
+    "dependencies": {
+        "@bluemind/inject":"^5.0.0"
+    },
+    "devDependencies": {
+        "@bluemind/conf":"^5.0.0"
+    },
+    "scripts": {
+        "build": "webpack --env production --progress --profile --color",
+        "dev": "webpack serve --env development --progress --color --port 9181"
+    }
+}

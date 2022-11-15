@@ -1,6 +1,6 @@
 {
     "name": "@bluemind/vue-sockjs",
-    "version": "4.1.0",
+    "version": "5.0.0",
     "description": "Plugin to connect sockjs with vue-bus",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
@@ -9,6 +9,6 @@
         "@vue/test-utils": "^1.0.0-beta.25"
     },
     "dependencies": {
-        "@bluemind/sockjs": "^4.1.0"
+        "@bluemind/sockjs":"^5.0.0"
     }
 }

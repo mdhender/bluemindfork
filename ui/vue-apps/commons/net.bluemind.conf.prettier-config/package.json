@@ -1,6 +1,6 @@
 {
     "name": "@bluemind/prettier-config",
-    "version": "4.1.0",
+    "version": "5.0.0",
     "description": "Shareable prettier config by BlueMind",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",

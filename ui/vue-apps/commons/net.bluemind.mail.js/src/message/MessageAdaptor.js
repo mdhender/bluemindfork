@@ -1,6 +1,6 @@
 import merge from "lodash.merge";
 
-import { MessageBodyRecipientKind as RecipientKind } from "@bluemind/backend.mail.api";
+import { MessageBody } from "@bluemind/backend.mail.api";
 
 import GetAttachmentPartsVisitor from "./GetAttachmentPartsVisitor";
 import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
@@ -67,20 +67,20 @@ export default {
 };
 
 function computeRecipients(remoteRecipients) {
-    const from = remoteRecipients.find(rcpt => rcpt.kind === RecipientKind.Originator) || {
+    const from = remoteRecipients.find(rcpt => rcpt.kind === MessageBody.RecipientKind.Originator) || {
         dn: "Anonymous",
         address: "no-reply@no-reply.com"
     };
     return {
         from: { dn: normalizeDn(from.dn), address: from.address },
         to: remoteRecipients
-            .filter(rcpt => rcpt.kind === RecipientKind.Primary)
+            .filter(rcpt => rcpt.kind === MessageBody.RecipientKind.Primary)
             .map(rcpt => ({ dn: normalizeDn(rcpt.dn), address: rcpt.address })),
         cc: remoteRecipients
-            .filter(rcpt => rcpt.kind === RecipientKind.CarbonCopy)
+            .filter(rcpt => rcpt.kind === MessageBody.RecipientKind.CarbonCopy)
             .map(rcpt => ({ dn: normalizeDn(rcpt.dn), address: rcpt.address })),
         bcc: remoteRecipients
-            .filter(rcpt => rcpt.kind === RecipientKind.BlindCarbonCopy)
+            .filter(rcpt => rcpt.kind === MessageBody.RecipientKind.BlindCarbonCopy)
             .map(rcpt => ({ dn: normalizeDn(rcpt.dn), address: rcpt.address }))
     };
 }
@@ -99,10 +99,10 @@ function normalizeDn(dn) {
 }
 
 function buildRecipients(local) {
-    const primaries = buildRecipientsForKind(RecipientKind.Primary, local.to);
-    const carbonCopies = buildRecipientsForKind(RecipientKind.CarbonCopy, local.cc);
-    const blindCarbonCopies = buildRecipientsForKind(RecipientKind.BlindCarbonCopy, local.bcc);
-    const originator = buildRecipientsForKind(RecipientKind.Originator, [local.from]);
+    const primaries = buildRecipientsForKind(MessageBody.RecipientKind.Primary, local.to);
+    const carbonCopies = buildRecipientsForKind(MessageBody.RecipientKind.CarbonCopy, local.cc);
+    const blindCarbonCopies = buildRecipientsForKind(MessageBody.RecipientKind.BlindCarbonCopy, local.bcc);
+    const originator = buildRecipientsForKind(MessageBody.RecipientKind.Originator, [local.from]);
 
     return primaries.concat(carbonCopies).concat(blindCarbonCopies).concat(originator);
 }

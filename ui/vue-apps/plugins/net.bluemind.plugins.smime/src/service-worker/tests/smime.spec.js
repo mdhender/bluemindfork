@@ -55,10 +55,10 @@ const mainEncrypted = {
                 address: "1",
                 mime: "application/pkcs7-mime"
             },
-            headers: []
+            headers: [],
+            date: 1668534530000
         },
-        imapUid: 99,
-        internalDate: 1668534530000
+        imapUid: 99
     }
 };
 
@@ -71,7 +71,7 @@ const unecrypted = {
                 children: [{ mime: "text/plain" }, { mime: "text/html" }]
             },
             headers: [],
-            internalDate: 1668534530
+            date: 1668534530
         }
     }
 };
@@ -134,10 +134,10 @@ describe("smime", () => {
                             address: "1",
                             mime: "application/pkcs7-mime"
                         },
-                        headers: []
+                        headers: [],
+                        date: 1000
                     },
-                    imapUid: 99,
-                    internalDate: 1000
+                    imapUid: 99
                 }
             };
             const item = await smime.decrypt("uid", old);

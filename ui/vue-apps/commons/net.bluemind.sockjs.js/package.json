@@ -1,15 +1,15 @@
 {
     "name": "@bluemind/sockjs",
-    "version": "4.1.0",
+    "version": "5.0.0",
     "description": "Plugin to connect bluemind sockjs bus",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "main": "src/index.js",
     "dependencies": {
-        "@bluemind/event": "^4.1.0",
-        "@bluemind/global": "^4.1.0",
-        "@bluemind/inject": "^4.1.0",
-        "@bluemind/uuid": "^4.1.0",
+        "@bluemind/event":"^5.0.0",
+        "@bluemind/global":"^5.0.0",
+        "@bluemind/inject":"^5.0.0",
+        "@bluemind/uuid":"^5.0.0",
         "sockjs-client": "^1.6.1"
     }
 }

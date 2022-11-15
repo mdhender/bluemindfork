@@ -1,12 +1,12 @@
 {
     "name": "@bluemind/webappdata",
-    "version": "4.1.0",
+    "version": "5.0.0",
     "description": "BlueMind package for webappdata helper",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "main": "src/index.js",
     "dependencies": {
-        "@bluemind/webappdata.api": "^4.1.0",
+        "@bluemind/webappdata.api":"^5.0.0",
         "lodash.snakecase": "^4.1.1"
     }
 }

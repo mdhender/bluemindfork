@@ -20,7 +20,7 @@ import {
     SET_MESSAGE_SIZE
 } from "~/mutations";
 import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
-import { VCardKind } from "@bluemind/addressbook.api";
+import { VCard } from "@bluemind/addressbook.api";
 import { fetchMembersWithAddress } from "@bluemind/contact";
 import { DISCLAIMER_SELECTOR } from "@bluemind/mail/src/signature";
 
@@ -200,7 +200,7 @@ async function expandGroupRecipients(recipients) {
     const expanded = [];
     await Promise.all(
         recipients?.map(async recipient => {
-            if (recipient.kind === VCardKind.group && !recipient.address) {
+            if (recipient.kind === VCard.Kind.group && !recipient.address) {
                 expanded.push(...(await fetchMembersWithAddress(recipient.containerUid, recipient.uid)));
             } else {
                 expanded.push(recipient);

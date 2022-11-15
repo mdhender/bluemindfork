@@ -1,12 +1,12 @@
 {
     "name": "@bluemind/email",
-    "version": "4.1.0",
+    "version": "5.0.0",
     "description": "BlueMind email helper",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "main": "src/index.js",
     "dependencies": {
-        "@bluemind/html-utils": "^4.1.0",
-        "@bluemind/uuid": "^4.1.0"
+        "@bluemind/html-utils":"^5.0.0",
+        "@bluemind/uuid":"^5.0.0"
     }
 }

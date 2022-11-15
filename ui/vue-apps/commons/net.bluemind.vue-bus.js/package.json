@@ -1,6 +1,6 @@
 {
     "name": "@bluemind/vue-bus",
-    "version": "4.1.0",
+    "version": "5.0.0",
     "description": "Global bus used by external components to trigger actions to Vue/Vuex",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",

@@ -1,6 +1,6 @@
 import partition from "lodash.partition";
 import PostalMime from "postal-mime";
-import { MessageBodyRecipientKind as RecipientKind } from "@bluemind/backend.mail.api";
+import { MessageBody } from "@bluemind/backend.mail.api";
 
 const Cache = new Map();
 const CACHE_MAX = 20;
@@ -62,12 +62,14 @@ function build(body, message) {
     }
     body.preview = body.preview?.replaceAll("\n", "").replaceAll("\n", "").substring(0, 120).trim();
 
-    const from = { kind: RecipientKind.Originator, dn: message.from.name, address: message.from.address };
-    const toArray = message.to?.map(to => ({ kind: RecipientKind.Primary, dn: to.name, address: to.address })) || [];
-    const ccArray = message.cc?.map(cc => ({ kind: RecipientKind.CarbonCopy, dn: cc.name, address: cc.address })) || [];
+    const from = { kind: MessageBody.RecipientKind.Originator, dn: message.from.name, address: message.from.address };
+    const toArray =
+        message.to?.map(to => ({ kind: MessageBody.RecipientKind.Primary, dn: to.name, address: to.address })) || [];
+    const ccArray =
+        message.cc?.map(cc => ({ kind: MessageBody.RecipientKind.CarbonCopy, dn: cc.name, address: cc.address })) || [];
     const bccArray =
         message.bcc?.map(bcc => ({
-            kind: RecipientKind.BlindCarbonCopy,
+            kind: MessageBody.RecipientKind.BlindCarbonCopy,
             dn: bcc.name,
             address: bcc.address
         })) || [];

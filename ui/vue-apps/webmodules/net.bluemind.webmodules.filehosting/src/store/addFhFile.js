@@ -45,7 +45,7 @@ export default async function addFhFile({ commit }, { file, message, content, sh
 }
 
 function handleError(commit, message, error, file) {
-    if (error.message === "CANCELLED_BY_CLIENT") {
+    if (error.name === "AbortError") {
         commit("REMOVE_ATTACHMENT", { messageKey: message.key, address: file.address });
         commit("REMOVE_FILE", { key: file.key });
         commit("SET_MESSAGE_HAS_ATTACHMENT", {

@@ -1,12 +1,12 @@
 {
     "name": "@bluemind/inject",
-    "version": "4.1.0",
+    "version": "5.0.0",
     "description": "Dependencies injection framework",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "main": "src/index.js",
     "dependencies": {
-        "@bluemind/global": "^4.1.0",
+        "@bluemind/global":"^5.0.0",
         "lodash.isfunction": "^3.0.9",
         "lodash.isnil": "^4.0.0",
         "lodash.isstring": "^4.0.1",

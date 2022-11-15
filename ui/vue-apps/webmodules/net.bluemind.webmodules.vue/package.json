@@ -1,7 +1,7 @@
 {
     "name": "@bluemind/webmodules.vue",
     "description": "BlueMind webmodule to provide one instance of vuejs, vue-router and vuex",
-    "version": "4.1.0",
+    "version": "5.0.0",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "scripts": {

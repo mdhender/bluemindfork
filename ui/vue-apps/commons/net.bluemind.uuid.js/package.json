@@ -1,6 +1,6 @@
 {
     "name": "@bluemind/uuid",
-    "version": "4.1.0",
+    "version": "5.0.0",
     "description": "UUID generator for BlueMind",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",

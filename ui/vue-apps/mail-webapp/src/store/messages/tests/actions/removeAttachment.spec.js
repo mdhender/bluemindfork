@@ -2,7 +2,7 @@ import ServiceLocator from "@bluemind/inject";
 import { MockMailboxItemsClient } from "@bluemind/test-utils";
 import { fileUtils } from "@bluemind/mail";
 
-import removeAttachment from "../../actions/removeAttachment";
+import { removeAttachment } from "../../actions/attachment";
 import { MY_DRAFTS } from "~/getters";
 import { REMOVE_ATTACHMENT, REMOVE_FILE } from "~/mutations";
 import { DEBOUNCED_SAVE_MESSAGE } from "~/actions";

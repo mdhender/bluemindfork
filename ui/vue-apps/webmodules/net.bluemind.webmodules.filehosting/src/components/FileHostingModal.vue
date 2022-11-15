@@ -70,7 +70,7 @@
     </bm-modal>
 </template>
 <script>
-import { mapGetters } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 import global from "@bluemind/global";
 import { BmModal, BmButtonClose, BmButton, BmIcon, BmLabelIcon } from "@bluemind/ui-components";
 import { computeUnit } from "@bluemind/file-utils";
@@ -78,6 +78,7 @@ import { fileUtils } from "@bluemind/mail";
 import FilehostingL10N from "../l10n";
 import DetachmentItem from "./DetachmentItem";
 import { GET_FH_FILE } from "../store/types/getters";
+import { REMOVE_FH_ATTACHMENT } from "../store/types/actions";
 
 const { FileStatus, isUploading } = fileUtils;
 
@@ -137,11 +138,12 @@ export default {
         }
     },
     methods: {
+        ...mapActions("mail", [REMOVE_FH_ATTACHMENT]),
         displaySize(size) {
             return computeUnit(size, this.$i18n);
         },
         cancel(key) {
-            global.cancellers[key].cancel();
+            this.REMOVE_FH_ATTACHMENT({ key });
             const index = this.fhFileKeys.findIndex(fileKey => {
                 return fileKey === key;
             });

@@ -20,9 +20,9 @@
 						<apiName>net.bluemind.attachment.api</apiName>
 						<apiName>net.bluemind.authentication.api</apiName>
 						<apiName>net.bluemind.backend.mail.api</apiName>
-						<apiName>net.bluemind.backend.mail.replica.api</apiName>
 						<apiName>net.bluemind.calendar.api</apiName>
 						<apiName>net.bluemind.core.container.api</apiName>
+						<apiName>net.bluemind.core.commons</apiName>
 						<apiName>net.bluemind.core.task.api</apiName>
 						<apiName>net.bluemind.cti.api</apiName>
 						<apiName>net.bluemind.customproperties.api</apiName>
@@ -44,7 +44,6 @@
 						<apiName>net.bluemind.mailflow.common.api</apiName>
 						<apiName>net.bluemind.mailmessage.api</apiName>
 						<apiName>net.bluemind.mailshare.api</apiName>
-						<apiName>net.bluemind.node.api</apiName>
 						<apiName>net.bluemind.resource.api</apiName>
 						<apiName>net.bluemind.role.api</apiName>
 						<apiName>net.bluemind.scheduledjob.api</apiName>

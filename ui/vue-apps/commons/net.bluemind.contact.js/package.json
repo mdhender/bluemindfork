@@ -1,11 +1,11 @@
 {
     "name": "@bluemind/contact",
-    "version": "4.1.0",
+    "version": "5.0.0",
     "description": "BlueMind contact helper",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "main": "src/index.js",
     "dependencies": {
-        "@bluemind/addressbook.api": "^4.1.0"
+        "@bluemind/addressbook.api":"^5.0.0"
     }
 }

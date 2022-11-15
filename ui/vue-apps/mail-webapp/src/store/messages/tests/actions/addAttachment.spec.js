@@ -1,7 +1,7 @@
 import ServiceLocator from "@bluemind/inject";
 import { MockMailboxItemsClient } from "@bluemind/test-utils";
 import { fileUtils } from "@bluemind/mail";
-import { default as addAttachment, addLocalAttachment } from "../../actions/addAttachment";
+import { addAttachment, addLocalAttachment } from "../../actions/attachment";
 import {
     ADD_ATTACHMENT,
     ADD_FILE,
@@ -118,10 +118,10 @@ describe("addAttachment action", () => {
     });
 
     test("Cancelled by user", async () => {
-        mockedClient.uploadPart.mockImplementation(() => Promise.reject({ message: "CANCELLED_BY_CLIENT" }));
+        mockedClient.uploadPart.mockImplementation(() => Promise.reject({ name: "AbortError" }));
         jest.useFakeTimers();
         await addAttachment(context, actionParams);
-        expect(mockedClient.uploadPart).toHaveBeenCalledWith(expect.anything(), expect.anything(), expect.anything());
+        expect(mockedClient.uploadPart).toHaveBeenCalledWith(expect.anything(), expect.anything());
         expect(context.commit).toHaveBeenNthCalledWith(1, ADD_FILE, expect.anything());
         expect(context.commit).toHaveBeenNthCalledWith(2, ADD_ATTACHMENT, expect.anything());
         jest.runAllTimers();
