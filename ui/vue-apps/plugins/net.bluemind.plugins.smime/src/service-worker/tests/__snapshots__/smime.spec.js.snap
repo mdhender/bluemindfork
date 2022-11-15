@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`smime decrypt add decrypted parts content to part cache 1`] = `
+Object {
+  "/api/mail_items/uid/part/99/1.1.1?encoding=quoted-printable&mime=text%2Fplain&charset=utf-8": MockResponse {},
+  "/api/mail_items/uid/part/99/1.1.2.1?encoding=quoted-printable&mime=text%2Fhtml&charset=utf-8": MockResponse {},
+  "/api/mail_items/uid/part/99/1.1.2.2?encoding=base64&mime=image%2Fpng&charset=us-ascii&filename=AUDIO.png": MockResponse {},
+  "/api/mail_items/uid/part/99/1.2?encoding=base64&mime=image%2Fgif&charset=us-ascii&filename=chooser.gif": MockResponse {},
+}
+`;

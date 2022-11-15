@@ -14,6 +14,7 @@ declare module "@bluemind/backend.mail.api" {
     export interface MailboxItem {
         body: MessageBody;
         imapUid: string;
+        internalDate: number;
     }
 
     export interface MessageBody {

@@ -5,8 +5,9 @@ import { CRYPTO_HEADERS, CRYPTO_HEADER_NAME, PKCS7_MIMES } from "../lib/constant
 import session from "./environnment/session";
 
 import pkcs7 from "./pkcs7";
-import { getMyCertificate, getMyPrivateKey } from "./pki";
-import { SmimeErrors } from "./exceptions";
+import { getMyCertificate, getMyPrivateKey, isCertificateExpired } from "./pki";
+
+import { SmimeErrors, ExpiredCredentialsError } from "./exceptions";
 
 export function isEncrypted(item: ItemValue<MailboxItem>): boolean {
     return PKCS7_MIMES.includes(item.value.body.structure.mime);
@@ -21,6 +22,10 @@ export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): 
         const part = encryptedItem.value.body.structure;
         const key = await getMyPrivateKey();
         const certificate = await getMyCertificate();
+        // FIXME: use correct date instead of internalDate
+        if (isCertificateExpired(certificate, new Date(item.value.internalDate))) {
+            throw new ExpiredCredentialsError();
+        }
         const data = await client.fetch(encryptedItem.value.imapUid, part.address, part.encoding, part.mime);
         const content = await pkcs7.decrypt(data, key, certificate);
         if (content) {
@@ -74,7 +79,6 @@ export function setHeader(item: ItemValue<MailboxItem>, header: string) {
 }
 
 export default {
-    CRYPTO_HEADERS,
     isEncrypted,
     decrypt,
     encrypt,
