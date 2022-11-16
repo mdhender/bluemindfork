@@ -1410,7 +1410,6 @@ ul.bm-ui-form-inline li {
 }
 
 .bm-ui-form-fieldset-attendees-container {
-  width: 252px;
   border-left:1px solid #CCC;
   background: #eee;
   float: right;
@@ -1493,7 +1492,6 @@ label.bm-ui-form-append {
 .bm-ui-form-attendee-entry span {
   vertical-align:middle;
   display: inline-block;
-  max-width: 150px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;

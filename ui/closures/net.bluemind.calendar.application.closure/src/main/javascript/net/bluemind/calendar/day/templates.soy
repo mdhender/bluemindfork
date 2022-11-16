@@ -583,20 +583,20 @@
  */
 {template .attendees_}
   <div class="{css bubble-attendees-container}">
-    <ul class="{css attendees}">
+    <ul class="{css attendees}">    
     {foreach $attendee in $attendees}
       {if $attendee['partStatus'] == 'Declined'}
         <li title="{if $attendee['mailto']}<{$attendee['mailto']}>{/if}">
-      	  <span class="{css declined}">{$attendee['commonName']}</span>
+      	  <span class="{css declined}">{$attendee['commonName']} {if $attendee['mailto']}<i>&lt;{$attendee['mailto']}&gt;</i>{/if}</span>
       {elseif $attendee['partStatus'] == 'Accepted'}
         <li title="{if $attendee['mailto']}{$attendee['mailto']}{/if}">
-      	  <span class="{css accepted}">{$attendee['commonName']}</span>
+      	  <span class="{css accepted}">{$attendee['commonName']} {if $attendee['mailto']}<i>&lt;{$attendee['mailto']}&gt;</i>{/if}</span>
       {elseif $attendee['partStatus'] == 'Tentative'}
         <li title="{if $attendee['mailto']}{$attendee['mailto']}{/if}">
-      	  <span class="{css tentative}">{$attendee['commonName']}</span>
+      	  <span class="{css tentative}">{$attendee['commonName']} {if $attendee['mailto']}<i>&lt;{$attendee['mailto']}&gt;</i>{/if}</span>
       {else}
         <li title="{if $attendee['mailto']}{$attendee['mailto']}{/if}">
-      	  <span class="{css needsaction}">{$attendee['commonName']}</span>
+      	  <span class="{css needsaction}">{$attendee['commonName']} {if $attendee['mailto']}<i>&lt;{$attendee['mailto']}&gt;</i>{/if}</span>
       {/if}
       {if $attendee['counterDate']}
       &nbsp;<span style="color:orange;">

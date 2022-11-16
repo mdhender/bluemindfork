@@ -726,18 +726,18 @@
 	  {else}
 	    <i class="fa fa-user" style="padding-right:5px"></i>
 	  {/if}
-    
+   
     {if $attendee['partStatus'] == 'Declined'}
       <span class="{css declined}" title="{$attendee['commonName']}{if $attendee['mailto']}<{$attendee['mailto']}>{/if}{if $attendee['responseComment']}&#13;{$attendee['responseComment'] |escapeHtmlAttribute}{/if}">
-      	{$attendee['commonName']} {if $attendee['mailto']}<{$attendee['mailto']}>{/if}
+      	{$attendee['commonName']} {if $attendee['mailto']}<i>&lt;{$attendee['mailto']}&gt;</i>{/if}
       </span>
     {elseif $attendee['partStatus'] == 'Accepted'}
       <span class="{css accepted}" title="{$attendee['commonName']}{if $attendee['mailto']}<{$attendee['mailto']}>{/if}{if $attendee['responseComment']}&#13;{$attendee['responseComment'] |escapeHtmlAttribute}{/if}">
-      	{$attendee['commonName']} {if $attendee['mailto']}<{$attendee['mailto']}>{/if}
+      	{$attendee['commonName']} {if $attendee['mailto']}<i>&lt;{$attendee['mailto']}&gt;</i>{/if}
       </span>
     {else}
       <span class="{css needsaction}" title="{$attendee['commonName']}{if $attendee['mailto']}<{$attendee['mailto'] |escapeHtmlAttribute}>{/if}{if $attendee['responseComment']}&#13;{$attendee['responseComment'] |escapeHtmlAttribute}{/if}">
-      	{$attendee['commonName']} {if $attendee['mailto']}<{$attendee['mailto']}>{/if}
+      	{$attendee['commonName']} {if $attendee['mailto']}<i>&lt;{$attendee['mailto']}&gt;</i>{/if}
       </span>
     {/if}    
     <input type='hidden' value='{$attendee['uri']}' name='attendees' />
