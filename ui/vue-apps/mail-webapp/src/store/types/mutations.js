@@ -133,5 +133,6 @@ export const SET_PREVIEW_FILE_KEY = "SET_PREVIEW_FILE_KEY";
 export const SET_PREVIEW_MESSAGE_KEY = "SET_PREVIEW_MESSAGE_KEY";
 
 // appData (automatically added by vuex plugin)
+export const ADD_ADDRESS_WEIGHT = "ADD_ADDRESS_WEIGHT";
 export const SET_SHOW_FORMATTING_TOOLBAR = "SET_SHOW_FORMATTING_TOOLBAR";
 export const SET_WIDTH = "SET_WIDTH";

@@ -1,4 +1,5 @@
 import activeMessage from "./activeMessage";
+import addressAutocomplete from "./addressAutocomplete";
 import consultPanel from "./consultPanel";
 import conversationList from "./conversationList";
 import conversations from "./conversations";
@@ -20,6 +21,7 @@ export default {
     mutations,
     modules: {
         activeMessage,
+        addressAutocomplete,
         consultPanel,
         conversationList,
         conversations,

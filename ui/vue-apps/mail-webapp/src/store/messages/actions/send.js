@@ -10,12 +10,12 @@ import { REMOVE_MESSAGES, SET_MESSAGES_STATUS } from "~/mutations";
 const { MessageAdaptor, MessageStatus, MessageHeader, MessageCreationModes } = messageUtils;
 
 /** Send the last draft: move it to the Outbox then flush. */
-export default async function (context, { draftKey, myMailboxKey, outbox, myDraftsFolder, messageCompose, files }) {
-    const draft = context.state[draftKey];
+export default async function (context, { draft, myMailboxKey, outbox, myDraftsFolder, messageCompose, files }) {
+    draft = context.state[draft.key];
 
     await context.dispatch(SAVE_MESSAGE, { draft, messageCompose, files });
 
-    context.commit(SET_MESSAGES_STATUS, [{ key: draftKey, status: MessageStatus.SENDING }]);
+    context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.SENDING }]);
 
     validateDraft(draft, inject("i18n"));
     const messageInOutboxId = await moveToOutbox(

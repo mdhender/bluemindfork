@@ -172,7 +172,7 @@ export default {
         },
         send() {
             this.$_ComposerActionsMixin_SEND_MESSAGE({
-                draftKey: this.message.key,
+                draft: this.message,
                 myMailboxKey: this.$_ComposerActionsMixin_MY_MAILBOX_KEY,
                 outbox: this.$_ComposerActionsMixin_MY_OUTBOX,
                 myDraftsFolder: this.$_ComposerActionsMixin_MY_DRAFTS,
