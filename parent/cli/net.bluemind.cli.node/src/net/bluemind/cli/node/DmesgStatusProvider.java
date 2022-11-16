@@ -17,7 +17,6 @@
  */
 package net.bluemind.cli.node;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
@@ -52,15 +51,19 @@ public class DmesgStatusProvider implements IStatusProvider {
 			 */
 			@Override
 			public void log(String l, boolean isContinued) {
-				String justTheDate = l.substring(0, l.indexOf(','));
-				String log = l.substring(l.indexOf(' ') + 1);
 				try {
+					int commaInDateIdx = l.indexOf(',');
+					if (commaInDateIdx == -1) {
+						return;
+					}
+					String justTheDate = l.substring(0, commaInDateIdx);
+					String log = l.substring(l.indexOf(' ') + 1);
 					Date date = iso.parse(justTheDate);
 					if (now - date.getTime() < TimeUnit.DAYS.toMillis(2)) {
 						ctx.warn("DMESG {}: {}", date, log);
 					}
-				} catch (ParseException e) {
-					e.printStackTrace();
+				} catch (Exception e) {
+					// ok
 				}
 			}
 
