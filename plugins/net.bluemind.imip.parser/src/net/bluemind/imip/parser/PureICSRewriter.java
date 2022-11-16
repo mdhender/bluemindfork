@@ -46,6 +46,7 @@ import net.bluemind.imip.parser.impl.IMIPParserHelper;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.component.CalendarComponent;
+import net.fortuna.ical4j.util.Strings;
 
 /**
  * Adds an html part when email body is only an ICS
@@ -80,6 +81,7 @@ public class PureICSRewriter {
 		MessageImpl nm = new MessageImpl();
 		Header nh = new HeaderImpl();
 		Header old = m.getHeader();
+		logger.info("IMIP message rewritten (id:{})", m.getMessageId());
 		// copy all headers except the ones we will replace
 		for (Field f : old.getFields()) {
 			String n = f.getName();
@@ -108,7 +110,7 @@ public class PureICSRewriter {
 		}
 
 		if (altDesc != null) {
-			String htmlValue = altDesc.getValue();
+			String htmlValue = Strings.unescape(altDesc.getValue());
 			logger.debug("htmlValue:\n{}", htmlValue);
 			htmlPart.setBody(bbf.textBody(htmlValue));
 		} else {
