@@ -275,6 +275,10 @@ public class BasicRoles {
 	 */
 	public static final String ROLE_MANAGE_OU = "manageOU";
 	/**
+	 * Permission to show the organizational units.
+	 */
+	public static final String ROLE_SHOW_OU = "showOU";
+	/**
 	 * Permission to manage backups.
 	 */
 	public static final String ROLE_DATAPROTECT = "manageDataProtect";

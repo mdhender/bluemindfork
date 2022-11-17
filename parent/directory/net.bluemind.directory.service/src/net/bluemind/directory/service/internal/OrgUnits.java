@@ -226,10 +226,10 @@ public class OrgUnits implements IOrgUnits {
 
 	@Override
 	public Set<String> getAdministrators(String uid) {
-		if (!rbacManager.forOrgUnit(uid).roles().contains(BasicRoles.ROLE_MANAGE_OU)) {
+		if (!rbacManager.forOrgUnit(uid).roles().contains(BasicRoles.ROLE_SHOW_OU)) {
 			throw new ServerFault(String.format("%s@%s Doesnt have role %s", //
 					context.getSecurityContext().getSubject(), context.getSecurityContext().getContainerUid(), //
-					BasicRoles.ROLE_MANAGE_OU), ErrorCode.PERMISSION_DENIED);
+					BasicRoles.ROLE_SHOW_OU), ErrorCode.PERMISSION_DENIED);
 		}
 
 		ItemValue<OrgUnit> ou = storeService.get(uid);

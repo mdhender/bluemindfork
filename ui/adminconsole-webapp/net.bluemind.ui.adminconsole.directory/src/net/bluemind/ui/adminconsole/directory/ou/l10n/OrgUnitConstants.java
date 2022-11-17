@@ -84,4 +84,10 @@ public interface OrgUnitConstants extends Messages {
 	public String forbiddenRootEdition();
 
 	public String invalidOuName();
+
+	public String forbiddenRoleEdition();
+
+	public String forbiddenRoleCreation();
+
+	public String forbiddenRoleDeletion();
 }

@@ -21,10 +21,7 @@ package net.bluemind.ui.adminconsole.directory.ou;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -52,7 +49,6 @@ import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.TextBox;
 
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IOrgUnitsPromise;
 import net.bluemind.directory.api.OrgUnit;
 import net.bluemind.directory.api.OrgUnitPath;
@@ -63,6 +59,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtScreenRoot;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtScreenRoot;
 import net.bluemind.gwtconsoleapp.base.notification.Notification;
+import net.bluemind.role.api.BasicRoles;
 import net.bluemind.ui.adminconsole.base.DomainsHolder;
 import net.bluemind.ui.adminconsole.base.ui.ACSimplePager;
 import net.bluemind.ui.adminconsole.directory.ou.OrgUnitListMgmt.TreeAction;
@@ -185,9 +182,22 @@ public class OrgUnitsBrowser extends Composite implements IGwtScreenRoot, OUChec
 
 		orgUnitPromiseApi = new OrgUnitsGwtEndpoint(Ajax.TOKEN.getSessionId(), domainUid).promiseApi();
 
-		newButton.addClickHandler(event -> createOrgUnit());
+		if (!hasManageRole()) {
+			newButton.setEnabled(false);
+			newButton.setTitle(getTexts().forbiddenRoleCreation());
+			editButton.setEnabled(false);
+			editButton.setTitle(getTexts().forbiddenRoleEdition());
+			deleteButton.setEnabled(false);
+			deleteButton.setTitle(getTexts().forbiddenRoleDeletion());
+		} else {
+			newButton.addClickHandler(event -> createOrgUnit());
+			editButton.addClickHandler(event -> editOrgUnit(getItemToEdit()));
+		}
 
-		editButton.addClickHandler(event -> editOrgUnit(getItemToEdit()));
+	}
+
+	private boolean hasManageRole() {
+		return Ajax.TOKEN.getRoles().contains(BasicRoles.ROLE_MANAGE_OU);
 	}
 
 	private void createOrgUnit() {
@@ -313,8 +323,8 @@ public class OrgUnitsBrowser extends Composite implements IGwtScreenRoot, OUChec
 	private void reloadAfterAction(List<OrgUnitPath> list, TreeAction action) {
 		unitGrid.reload(list, action, search.getValue());
 		unitGrid.allOrgUnits.setValue(false);
-		deleteButton.setEnabled(unitListMngt.hasSelectedItems());
-		editButton.setEnabled(unitListMngt.hasSelectedItems() && getItemToEdit().isPresent());
+		deleteButton.setEnabled(hasManageRole() && unitListMngt.hasSelectedItems());
+		editButton.setEnabled(hasManageRole() && unitListMngt.hasSelectedItems() && getItemToEdit().isPresent());
 	}
 
 	protected void onScreenShown() {
@@ -378,8 +388,8 @@ public class OrgUnitsBrowser extends Composite implements IGwtScreenRoot, OUChec
 
 	@Override
 	public void onOuCheckBoxChanged(OUCheckBoxEvent checkedItemEvent) {
-		deleteButton.setEnabled(checkedItemEvent.selectedItems);
-		editButton.setEnabled(checkedItemEvent.selectedItems && getItemToEdit().isPresent());
+		deleteButton.setEnabled(hasManageRole() && checkedItemEvent.selectedItems);
+		editButton.setEnabled(hasManageRole() && checkedItemEvent.selectedItems && getItemToEdit().isPresent());
 
 		pagerResource.setVisible(resourceGrid.getRowCount() >= OrgResourceGrid.PAGE_SIZE);
 		pagerResource.setDisplay(resourceGrid);

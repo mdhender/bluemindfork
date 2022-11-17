@@ -424,6 +424,13 @@ public class BaseRolesProvider implements IRolesProvider {
 						.giveRoles(BasicRoles.ROLE_MANAGER), //
 
 				RoleDescriptor
+						.create(BasicRoles.ROLE_SHOW_OU, CATEGORY_ADMINISTRATION, rb.getString("role.showOU.label"),
+								rb.getString("role.showOU.description"))
+						.withParent(BasicRoles.ROLE_MANAGE_OU)//
+						.forDirEntry(Kind.ORG_UNIT) //
+						.giveRoles(BasicRoles.ROLE_MANAGER), //
+
+				RoleDescriptor
 						.create(BasicRoles.ROLE_DATAPROTECT, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageDataProtect.label"),
 								rb.getString("role.manageDataProtect.description"))

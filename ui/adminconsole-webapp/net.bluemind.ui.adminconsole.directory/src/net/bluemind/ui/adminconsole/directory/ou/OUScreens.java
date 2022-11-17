@@ -45,8 +45,8 @@ public class OUScreens {
 		JsArray<Contributed<Screen>> screens = JsArray.createArray().cast();
 
 		screens.push(Contributed.create("dir2",
-				Screen.create("ouBrowser", OrgUnitConstants.INST.browse(), BasicRoles.ROLE_MANAGE_OU, false)
-						.withOURoles(BasicRoles.ROLE_MANAGE_OU)));
+				Screen.create("ouBrowser", OrgUnitConstants.INST.browse(), BasicRoles.ROLE_SHOW_OU, false)
+						.withOURoles(BasicRoles.ROLE_SHOW_OU)));
 
 		return MenuContribution.create(sections, screens);
 
