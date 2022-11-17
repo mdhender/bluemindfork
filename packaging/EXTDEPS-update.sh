@@ -71,6 +71,8 @@ function updateDependencies() {
         updatePomFile ${file} bm-jdk ${BMJDK}
         updatePomFile ${file} bm-elasticsearch 1:${BMES}
         updatePomFile ${file} bm-php ${BMPHP}
+        updatePomFile ${file} bm-keycloak ${BMKEYCLOAK}
+
     fi
 
     file="debian/control"
@@ -88,6 +90,7 @@ function updateDependencies() {
         updateControlFile ${file} bm-jdk ${BMJDK}
         updateControlFile ${file} bm-elasticsearch 1:${BMES}
         updateControlFile ${file} bm-php ${BMPHP}
+        updateControlFile ${file} bm-keycloak ${BMKEYCLOAK}
     fi
 
     for file in redhat/*.spec; do
@@ -107,6 +110,7 @@ function updateDependencies() {
         updateSpecFile ${file} bm-jdk ${BMJDK}
         updateSpecFile ${file} bm-elasticsearch 1:${BMES}
         updateSpecFile ${file} bm-php ${BMPHP}
+        updateSpecFile ${file} bm-keycloak ${BMKEYCLOAK}
     done
 }
 
