@@ -254,6 +254,9 @@ nginxConfiguration /etc/nginx/bm-sentry.conf /usr/share/bm-client-access/conf/bm
 nginxConfiguration /etc/nginx/bm-upstream-sentry.conf /usr/share/bm-client-access/conf/bm-nginx/bm-upstream-sentry.conf
 
 
+# Keycloak
+nginxConfiguration /etc/nginx/bm-upstream-keycloak.conf /usr/share/bm-client-access/conf/bm-nginx/bm-upstream-keycloak.conf
+
 generateDhParam
 createDefaultVhost
 createDomainsVhosts

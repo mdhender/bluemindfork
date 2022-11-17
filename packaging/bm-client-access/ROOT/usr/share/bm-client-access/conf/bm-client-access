@@ -38,5 +38,10 @@ upstream sentry {
   include /etc/nginx/bm-upstream-sentry.conf;
 }
 
+upstream keycloak {
+  ip_hash;
+  include /etc/nginx/bm-upstream-keycloak.conf;
+}
+
 include /etc/nginx/bluemind/bluemind-vhosts.conf;
 include /etc/nginx/bluemind/*/bluemind-vhosts.conf;
