@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.keycloak.service
+Bundle-SymbolicName: net.bluemind.keycloak.service;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.bluemind.net
+Automatic-Module-Name: net.bluemind.keycloak.service
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: net.bluemind.server.hook,
+ net.bluemind.node.client,
+ net.bluemind.core.rest,
+ net.bluemind.node.api,
+ slf4j.api

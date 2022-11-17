@@ -103,6 +103,10 @@
 				<desc lang="fr">Données utilisateurs</desc>
 				<desc lang="en">Users data</desc>
 			</tag>
+			<tag value="bm/keycloak" multival="false" mandatory="true" autoAssign="true">
+				<desc lang="fr">Serveur d'authentification</desc>
+				<desc lang="en">Authentication server</desc>
+			</tag>
 		</kind>
 	</hostTags>
 </domainTemplate>

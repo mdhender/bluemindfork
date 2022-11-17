@@ -286,6 +286,7 @@
       <plugin id="net.bluemind.jdbc.driver.pgsql" fragment="true"/>
       <plugin id="net.bluemind.jdbc.pgsql.provider"/>
       <plugin id="net.bluemind.kafka.client"/>
+      <plugin id="net.bluemind.keycloak.service"/>
       <plugin id="net.bluemind.ldap.directory.client"/>
       <plugin id="net.bluemind.lib.elasticsearch"/>
       <plugin id="net.bluemind.lib.ical4j"/>

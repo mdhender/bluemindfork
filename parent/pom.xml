@@ -75,6 +75,7 @@
 		<module>webappdata</module>
 		<module>imap</module>
 		<module>smime</module>
+		<module>keycloak</module>
 	</modules>
 	<build>
 		<plugins>

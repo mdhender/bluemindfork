@@ -35,7 +35,8 @@ public enum TagDescriptor {
 	bm_contact("bm/contact"), //
 	mail_smtp_edge("mail/smtp-edge"), //
 	bm_metrics_influx("metrics/influxdb"), //
-	bm_filehosting("filehosting/data");
+	bm_filehosting("filehosting/data"), //
+	bm_keycloak("bm/keycloak");
 
 	private final String tag;
 
