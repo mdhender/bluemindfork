@@ -8,22 +8,23 @@ import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
 public class HotUpgradeTaskFilter {
-
-	private final List<HotUpgradeTaskStatus> statuses;
-	private final boolean onlyRetryable;
-	private final boolean onlyReady;
-	private final List<HotUpgradeTaskExecutionMode> mode;
+	private List<HotUpgradeTaskStatus> statuses;
+	private boolean onlyRetryable;
+	private boolean onlyReady;
+	private boolean onlyMandatory;
+	private List<HotUpgradeTaskExecutionMode> mode;
 
 	private HotUpgradeTaskFilter(List<HotUpgradeTaskStatus> statuses, boolean onlyRetryable, boolean onlyReady,
-			List<HotUpgradeTaskExecutionMode> mode) {
+			boolean onlyMandatory, List<HotUpgradeTaskExecutionMode> mode) {
 		this.statuses = Collections.unmodifiableList(statuses);
 		this.onlyRetryable = onlyRetryable;
 		this.onlyReady = onlyReady;
+		this.onlyMandatory = onlyMandatory;
 		this.mode = Collections.unmodifiableList(mode);
 	}
 
 	private HotUpgradeTaskFilter(List<HotUpgradeTaskStatus> statuses) {
-		this(statuses, false, false,
+		this(statuses, false, false, false,
 				Arrays.asList(HotUpgradeTaskExecutionMode.DIRECT, HotUpgradeTaskExecutionMode.JOB));
 	}
 
@@ -40,7 +41,8 @@ public class HotUpgradeTaskFilter {
 	}
 
 	public HotUpgradeTaskFilter onlyRetryable(boolean onlyRetryable) {
-		return new HotUpgradeTaskFilter(statuses, onlyRetryable, onlyReady, mode);
+		this.onlyRetryable = onlyRetryable;
+		return this;
 	}
 
 	public boolean onlyReady() {
@@ -48,11 +50,22 @@ public class HotUpgradeTaskFilter {
 	}
 
 	public HotUpgradeTaskFilter onlyReady(boolean onlyReady) {
-		return new HotUpgradeTaskFilter(statuses, onlyRetryable, onlyReady, mode);
+		this.onlyReady = onlyReady;
+		return this;
 	}
 
 	public HotUpgradeTaskFilter mode(HotUpgradeTaskExecutionMode... mode) {
-		return new HotUpgradeTaskFilter(statuses, onlyRetryable, onlyReady, Arrays.asList(mode));
+		this.mode = Arrays.asList(mode);
+		return this;
+	}
+
+	public boolean onlyMandatory() {
+		return onlyMandatory;
+	}
+
+	public HotUpgradeTaskFilter onlyMandatory(boolean onlyMandatory) {
+		this.onlyMandatory = onlyMandatory;
+		return this;
 	}
 
 	public static HotUpgradeTaskFilter filter(HotUpgradeTaskStatus... statuses) {
