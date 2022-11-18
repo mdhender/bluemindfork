@@ -109,9 +109,7 @@ public abstract class TaskManager implements Handler<Message<JsonObject>> {
 	}
 
 	public final TaskStatus status() {
-		TaskStatus s = status;
-		logger.info("[{}] task status : {} {} on {}", taskId, status.state, status.progress, status.steps);
-		return s;
+		return status;
 	}
 
 	public final String getId() {
