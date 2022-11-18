@@ -337,21 +337,6 @@ net.bluemind.calendar.navigation.NavigationPresenter.prototype.showView_ = funct
   this.ctx.service('calendarviews').getView(e.viewUid).then(function(view) {
     lview = view;
     this.view_.setSelected(view);
-    if (this.ctx.online) {
-      var viewType = view['value']['type'];
-      if (viewType == 'DAY') {
-        this.ctx.helper('url').redirect("/day/?range=day&refresh=" + goog.now(), true);
-      } else if (viewType == 'WEEK') {
-        this.ctx.helper('url').redirect("/day/?range=week&refresh=" + goog.now(), true);
-      } else if (viewType == 'MONTH') {
-        this.ctx.helper('url').redirect("/month/?refresh=" + goog.now(), true);
-      } else if (viewType == 'LIST') {
-        this.ctx.helper('url').redirect("/list/?refresh=" + goog.now(), true);
-      } else {
-        this.ctx.helper('url').reload();
-      }
-      return 
-    }
   }, null, this).then(function() {
     return this.ctx.service('folders').getFoldersRemote(null, lview['value']['calendars']);
   }, null, this).thenCatch(function(e) {
@@ -367,6 +352,21 @@ net.bluemind.calendar.navigation.NavigationPresenter.prototype.showView_ = funct
     });
   }, this).then(function(folders) {
     this.ctx.service('calendarsMgmt').setCalendars(folders);
+    if (this.ctx.online) {
+      var viewType = lview['value']['type'];
+      if (viewType == 'DAY') {
+        this.ctx.helper('url').redirect("/day/?range=day&refresh=" + goog.now(), true);
+      } else if (viewType == 'WEEK') {
+        this.ctx.helper('url').redirect("/day/?range=week&refresh=" + goog.now(), true);
+      } else if (viewType == 'MONTH') {
+        this.ctx.helper('url').redirect("/month/?refresh=" + goog.now(), true);
+      } else if (viewType == 'LIST') {
+        this.ctx.helper('url').redirect("/list/?refresh=" + goog.now(), true);
+      } else {
+        this.ctx.helper('url').reload();
+      }
+      return 
+    }
   }, function(error) {
     this.ctx.notifyError(net.bluemind.calendar.Messages.errorLoading(error), error);
   }, this);
