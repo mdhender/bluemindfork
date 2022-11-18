@@ -18,10 +18,12 @@
  */
 package net.bluemind.node.server.handlers;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.atomic.LongAdder;
 
@@ -39,7 +41,6 @@ public class WriteFile implements Handler<HttpServerRequest> {
 		public WriteException(IOException ioe) {
 			super(ioe);
 		}
-
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(WriteFile.class);
@@ -52,12 +53,21 @@ public class WriteFile implements Handler<HttpServerRequest> {
 	}
 
 	private void writeFile(final HttpServerRequest req, final String path) {
-		File asFile = new File(path);
-		asFile.getParentFile().mkdirs();
+		// LC: write to temporary file, then move atomically, so the file is either
+		// fully written, or not present
+		Path originalPath = Paths.get(path);
 		try {
-			SeekableByteChannel chan = Files.newByteChannel(asFile.toPath(), StandardOpenOption.CREATE,
+			Files.createDirectories(originalPath.getParent());
+			Path tempPath = Files.createTempFile(originalPath.getParent(), ".nc_", "");
+			SeekableByteChannel chan = Files.newByteChannel(tempPath, StandardOpenOption.CREATE, // NOSONAR: async
+																									// handler
 					StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
 			req.exceptionHandler(t -> {
+				try {
+					Files.deleteIfExists(tempPath);
+				} catch (IOException ie) {
+					// Ignore
+				}
 				safeClose(chan);
 				do500(t, req);
 			});
@@ -73,8 +83,14 @@ public class WriteFile implements Handler<HttpServerRequest> {
 			});
 			req.endHandler(v -> {
 				safeClose(chan);
-				logger.info("PUT {} completed, wrote {} byte(s)", path, len.sum());
-				req.response().end();
+				try {
+					Files.move(tempPath, originalPath, StandardCopyOption.ATOMIC_MOVE);
+					logger.info("PUT {} completed, wrote {} byte(s)", originalPath, len.sum());
+					req.response().end();
+				} catch (IOException e) {
+					logger.error("PUT {} rename to {} failed", tempPath, originalPath);
+					do500(new WriteException(e), req);
+				}
 			});
 		} catch (IOException e) {
 			do500(e, req);

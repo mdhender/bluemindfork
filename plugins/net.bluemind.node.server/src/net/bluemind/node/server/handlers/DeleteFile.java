@@ -33,7 +33,7 @@ public class DeleteFile implements Handler<HttpServerRequest> {
 	@Override
 	public void handle(HttpServerRequest req) {
 		final String path = req.params().get("param0");
-		logger.info("DELETE {}...", path);
+		logger.info("DELETE {}", path);
 
 		File file = new File(path);
 		if (!file.exists() || !file.isFile()) {
