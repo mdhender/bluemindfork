@@ -135,7 +135,7 @@ public class BackupDataProvider implements AutoCloseable {
 
 		PgContext restorePgContext = restorePg(dpg, pgsqlTag, targetDatabase);
 		PgContext restorePgDataContext = restorePg(dpg, pgsqlDataTag, targetDatabase + "data");
-		String bjDataDatalocation = dpg.parts.stream().filter(g -> g.tag.equals(pgsqlDataTag)).findFirst().get().server;
+		String bjDataDatalocation = restorable.datalocation;
 		// This seems weird, but we force the servername aka datalocation to be master
 		// for bj
 		String bjDatalocation = "master";

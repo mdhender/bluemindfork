@@ -33,6 +33,7 @@ public class Restorable {
 	private String liveEntryUid;
 	public String domainUid;
 	public String displayName;
+	public String datalocation;
 
 	public static Restorable create(String domainUid, DirEntry d) {
 		Restorable ret = new Restorable();
@@ -60,6 +61,7 @@ public class Restorable {
 
 		ret.domainUid = domainUid;
 		ret.entryUid = d.entryUid;
+		ret.datalocation = d.dataLocation;
 
 		return ret;
 	}
