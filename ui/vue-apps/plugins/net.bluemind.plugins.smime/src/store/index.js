@@ -1,8 +1,7 @@
 import { CHECK_IF_ASSOCIATED, DISSOCIATE_CRYPTO_FILES } from "./actionTypes";
 import { SMIME_AVAILABLE } from "./getterTypes";
-import { IS_SW_AVAILABLE } from "../helper";
 import { SET_LOADING, SET_SW_ERROR, SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT } from "./mutationTypes";
-import { SMIME_INTERNAL_API_URL, PKIStatus } from "../lib/constants";
+import { IS_SW_AVAILABLE, SMIME_INTERNAL_API_URL, PKIStatus } from "../lib/constants";
 
 export default {
     namespaced: true,

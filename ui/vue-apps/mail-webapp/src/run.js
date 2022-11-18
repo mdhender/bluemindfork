@@ -3,7 +3,6 @@ import Vue from "vue";
 import router from "@bluemind/router";
 import { extensions } from "@bluemind/extensions";
 
-import MailAlertRenderer from "./components/MailAlertRenderer";
 import * as MailAlertComponents from "./components/MailAlerts";
 import * as ThreadAlertComponents from "./components/MailThread/Alerts";
 import MailApp from "./components/MailApp";
@@ -26,7 +25,6 @@ registerMailtoHandler();
 Vue.component("MailViewerContent", MailViewerContent);
 
 Vue.component("mail-webapp", MailApp);
-Vue.component("MailAlertRenderer", MailAlertRenderer);
 const AlertComponents = { ...MailAlertComponents, ...ThreadAlertComponents };
 for (let component in AlertComponents) {
     Vue.component(component, AlertComponents[component]);

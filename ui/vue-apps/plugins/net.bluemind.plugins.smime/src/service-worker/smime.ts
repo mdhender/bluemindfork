@@ -18,6 +18,7 @@ import { RecipientNotFoundError, SmimeErrors } from "./exceptions";
 import extractSignedData from "./signedDataParser";
 import pkcs7 from "./pkcs7/";
 import { checkCertificateValidity, getMyCertificate, getMyPrivateKey } from "./pki";
+import { logger } from "./environnment/logger";
 
 export function isEncrypted(item: ItemValue<MailboxItem>): boolean {
     return PKCS7_MIMES.includes(item.value.body.structure.mime);
@@ -67,6 +68,7 @@ export async function verify(folderUid: string, item: ItemValue<MailboxItem>): P
         await pkcs7.verify(pkcs7Part, toDigest, getSenderAddress(item));
         setHeader(item, SIGNED_HEADER_NAME, CRYPTO_HEADERS.VERIFIED);
     } catch (error) {
+        logger.error(error);
         const errorName = error instanceof SmimeErrors ? error.name : CRYPTO_HEADERS.UNKNOWN;
         setHeader(item, SIGNED_HEADER_NAME, errorName);
     }

@@ -34,7 +34,7 @@ import { mapGetters, mapState } from "vuex";
 import { BmButton, BmIcon, BmLabelIcon, BmSpinner } from "@bluemind/ui-components";
 import { CHECK_IF_ASSOCIATED, DISSOCIATE_CRYPTO_FILES } from "../../store/actionTypes";
 import { SMIME_AVAILABLE } from "../../store/getterTypes";
-import { IS_SW_AVAILABLE } from "../../helper";
+import { IS_SW_AVAILABLE } from "../../lib/constants";
 import ImportSmimeKeyModal from "./ImportSmimeKeyModal";
 import unsetKeyIllustration from "../../../assets/setting-encryption-key-unset.png";
 import setKeyIllustration from "../../../assets/setting-encryption-key-set.png";

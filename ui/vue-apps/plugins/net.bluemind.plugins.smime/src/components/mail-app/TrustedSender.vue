@@ -4,6 +4,8 @@
 
 <script>
 import { BmIcon } from "@bluemind/ui-components";
+import { CRYPTO_HEADERS, SIGNED_HEADER_NAME } from "../../lib/constants";
+
 export default {
     name: "TrustedSender",
     components: { BmIcon },
@@ -15,9 +17,8 @@ export default {
     },
     computed: {
         isVerified() {
-            // FIXME after merge with feat/decrypt
-            const cryptoHeader = this.message.headers.find(header => header.name === "X-BM-Signed");
-            return cryptoHeader?.values.find(value => value === "VERIFIED");
+            const cryptoHeader = this.message.headers.find(header => header.name === SIGNED_HEADER_NAME);
+            return cryptoHeader?.values.find(value => value === CRYPTO_HEADERS.VERIFIED);
         }
     }
 };

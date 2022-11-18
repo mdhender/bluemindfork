@@ -1,8 +1,7 @@
-export const SMIME_INTERNAL_API_URL = "/service-worker-internal/smime";
-// FIXME: move these mime type declarations to MimeType.js
 export const PKCS7_MIMES = ["application/pkcs7-mime", "application/x-pkcs7-mime"];
 export const MULTIPART_SIGNED_MIME = "multipart/signed";
 
+export const SMIME_INTERNAL_API_URL = "/service-worker-internal/smime";
 export enum PKIStatus {
     EMPTY = 0,
     CERTIFICATE_OK = 1,
@@ -31,3 +30,8 @@ export const CRYPTO_HEADERS = {
     UNMATCHED_RECIPIENTS: "UNMATCHED_RECIPIENTS",
     UNKNOWN: "UNKNOWN"
 };
+export enum SMIMEPrefKeys {
+    SIGNATURE = "sign_message_by_default",
+    ENCRYPTION = "encrypt_message_by_default"
+}
+export const IS_SW_AVAILABLE = !!navigator.serviceWorker?.controller;
