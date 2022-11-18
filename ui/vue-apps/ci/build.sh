@@ -87,7 +87,7 @@ fi
 
 if [ "$TRIGGER_SONAR" == "true" ]; then
     yarn add sonarqube-scanner --dev -W
-    ./node_modules/sonarqube-scanner/src/bin/sonar-scanner -Dsonar.host.url=http://sonar.blue-mind.loc:9000/sonar/ -Dsonar.projectKey=vue-apps -Dsonar.login=1f83913160353db8f1dab30c05326c79ef5d8428 $SONAR_BRANCH_FLAG -Dsonar.exclusions="**/node/**,**/node_modules/**"
+    ./node_modules/sonarqube-scanner/src/bin/sonar-scanner -Dsonar.host.url=http://sonar.blue-mind.loc:9000/sonar/ -Dsonar.projectKey=vue-apps -Dsonar.login=1f83913160353db8f1dab30c05326c79ef5d8428 $SONAR_BRANCH_FLAG -Dsonar.exclusions="**/node/**,**/node_modules/**" -Dsonar.java.binaries='**/target'
 fi
 
 
