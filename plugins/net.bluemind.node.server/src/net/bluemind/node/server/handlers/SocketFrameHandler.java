@@ -33,18 +33,15 @@ public class SocketFrameHandler implements Handler<WebSocketFrame> {
 	private static final Logger logger = LoggerFactory.getLogger(SocketFrameHandler.class);
 	private StringBuilder current;
 	private final Vertx vertx;
-	private final ServerWebSocket ws;
 	private final String addr;
 
 	public SocketFrameHandler(ServerWebSocket ws, Vertx vertx) {
 		current = new StringBuilder();
-		this.ws = ws;
 		this.vertx = vertx;
 		logger.debug("Created for vertx {}", this.vertx);
 		this.addr = ws.textHandlerID() + ".bm";
 		MessageConsumer<String> withReply = vertx.eventBus().consumer(addr);
 		withReply.handler(strMsg -> {
-
 			ws.writeFinalTextFrame(strMsg.body());
 			if (ws.writeQueueFull()) {
 				ws.drainHandler(v -> strMsg.reply(addr));
