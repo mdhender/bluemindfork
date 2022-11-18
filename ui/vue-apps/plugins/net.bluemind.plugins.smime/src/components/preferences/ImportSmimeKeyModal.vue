@@ -57,10 +57,10 @@
 <script>
 import { mapGetters, mapMutations, mapState } from "vuex";
 import { MimeType } from "@bluemind/email";
-import { BmButton, BmFileDropZone, BmIcon, BmLabelIcon, BmModal, BmSpinner } from "@bluemind/styleguide";
-import { SMIME_AVAILABLE } from "../store/getterTypes";
-import { SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT } from "../store/mutationTypes";
-import { SMIME_INTERNAL_API_URL, PKIEntry } from "../lib/constants";
+import { BmButton, BmFileDropZone, BmIcon, BmLabelIcon, BmModal, BmSpinner } from "@bluemind/ui-components";
+import { SMIME_AVAILABLE } from "../../store/getterTypes";
+import { SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT } from "../../store/mutationTypes";
+import { SMIME_INTERNAL_API_URL, PKIEntry } from "../../lib/constants";
 
 export default {
     name: "ImportSmimeKeyModal",

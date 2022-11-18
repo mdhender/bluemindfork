@@ -1,25 +1,28 @@
 <template>
-    <mail-contact-card-slots
-        :component="Contact"
-        class="mail-viewer-from"
-        :contact="contact"
-        avatar-size="md"
-        show-address
-        transparent
-        bold-dn
-        enable-card
-    />
+    <div class="mail-viewer-from">
+        <mail-contact-card-slots
+            :component="Contact"
+            :contact="message.from"
+            avatar-size="md"
+            show-address
+            transparent
+            bold-dn
+            enable-card
+        />
+        <bm-extension id="webapp.mail" path="viewer.sender.suffix" :message="message" />
+    </div>
 </template>
 
 <script>
 import { Contact } from "@bluemind/business-components";
+import { BmExtension } from "@bluemind/extensions.vue";
 import MailContactCardSlots from "../MailContactCardSlots";
 
 export default {
     name: "MailViewerFrom",
-    components: { MailContactCardSlots },
+    components: { MailContactCardSlots, BmExtension },
     props: {
-        contact: {
+        message: {
             type: Object,
             required: true
         }
@@ -29,3 +32,15 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/ui-components/src/css/variables";
+
+.mail-viewer-from {
+    display: flex;
+    align-items: center;
+    .bm-contact {
+        margin-right: $sp-3;
+    }
+}
+</style>

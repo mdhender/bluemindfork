@@ -55,14 +55,12 @@ export default {
                     class: "montserrat"
                 },
                 {
-                    value:
-                        "Garamond, Apple Garamond, Palatino Linotype, Palatino, Baskerville, Baskerville Old Face, serif",
+                    value: "Garamond, Apple Garamond, Palatino Linotype, Palatino, Baskerville, Baskerville Old Face, serif",
                     text: "Garamond",
                     class: "garamond"
                 },
                 {
-                    value:
-                        "Georgia, Constantia, Lucida Bright, Lucidabright, Lucida Serif, Lucida, DejaVu Serif, serif",
+                    value: "Georgia, Constantia, Lucida Bright, Lucidabright, Lucida Serif, Lucida, DejaVu Serif, serif",
                     text: "Georgia",
                     class: "georgia"
                 },
@@ -72,8 +70,7 @@ export default {
                     class: "helvetica"
                 },
                 {
-                    value:
-                        "Verdana, Verdana Ref, Corbel, Lucida Grande, Lucida Sans Unicode, Lucida Sans, DejaVu Sans, Liberation Sans, sans-serif",
+                    value: "Verdana, Verdana Ref, Corbel, Lucida Grande, Lucida Sans Unicode, Lucida Sans, DejaVu Sans, Liberation Sans, sans-serif",
                     text: "Verdana",
                     class: "verdana"
                 }

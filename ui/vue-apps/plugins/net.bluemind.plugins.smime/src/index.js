@@ -1,13 +1,22 @@
 import Vue from "vue";
 import { extensions } from "@bluemind/extensions";
 import store from "@bluemind/store";
-import PrefSmime from "./components/PrefSmime";
+import TrustedSender from "./components/mail-app/TrustedSender";
+import PrefSmime from "./components/preferences/PrefSmime";
 import SmimeStore from "./store";
 import { SMIME_AVAILABLE } from "./store/getterTypes";
 
 store.registerModule("smime", SmimeStore);
 
 Vue.component("PrefSmime", PrefSmime);
+Vue.component("TrustedSender", TrustedSender);
+
+extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
+    component: {
+        path: "viewer.sender.suffix",
+        name: "TrustedSender"
+    }
+});
 
 const SIGNATURE_PREF = "sign_message_by_default";
 const ENCRYPTION_PREF = "encrypt_message_by_default";

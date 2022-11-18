@@ -2,7 +2,7 @@
     <bm-toggleable-button
         v-bind="[$attrs, $props]"
         class="bm-button-copy"
-        style="width: 7.5rem; flex: none;"
+        style="width: 7.5rem; flex: none"
         :pressed="pressed"
         :icon="pressed ? 'check' : 'copy'"
         @click="action"

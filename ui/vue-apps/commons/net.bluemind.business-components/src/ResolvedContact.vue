@@ -82,9 +82,9 @@ async function searchResultsToContact(searchResults) {
     }, {});
 
     const promises = Object.keys(groupedByContainer).map(async containerUid =>
-        (
-            await inject("AddressBookPersistence", containerUid).multipleGet(groupedByContainer[containerUid])
-        ).map(res => ({ ...res, containerUid }))
+        (await inject("AddressBookPersistence", containerUid).multipleGet(groupedByContainer[containerUid])).map(
+            res => ({ ...res, containerUid })
+        )
     );
     const fullContacts = (await Promise.all(promises)).flatMap(r => r);
 
