@@ -475,6 +475,7 @@
       <plugin id="net.bluemind.xivo.client"/>
       <plugin id="net.bluemind.xivo.common"/>
       <plugin id="net.bluemind.xmpp.coresession"/>
+      <plugin id="net.bluemind.system.systemcheck"/>
       <plugin id="net.java.dev.jna"/>
       <plugin id="net.sf.jtidy"/>
       <plugin id="org.apache.batik.anim"/>

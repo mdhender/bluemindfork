@@ -55,7 +55,8 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.domain.hook,
  net.bluemind.core.caches.registry,
  com.github.ben-manes.caffeine,
- net.bluemind.system.pg
+ net.bluemind.system.pg,
+ net.bluemind.system.systemcheck
 Bundle-ClassPath: .
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.system.service,

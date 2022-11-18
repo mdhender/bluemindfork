@@ -76,6 +76,8 @@ import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
+import net.bluemind.core.task.service.LoggingTaskMonitor;
+import net.bluemind.core.task.service.NullTaskMonitor;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.directory.api.IDirEntryMaintenance;
 import net.bluemind.directory.api.RepairConfig;
@@ -113,6 +115,7 @@ import net.bluemind.system.schemaupgrader.ISchemaUpgradersProvider;
 import net.bluemind.system.service.clone.CloneSupport;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.system.subscriptionprovider.SubscriptionProviders;
+import net.bluemind.systemcheck.UpgradeCheck;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
@@ -526,6 +529,12 @@ public class InstallationService implements IInstallation {
 	@Override
 	public void updateSubscriptionVersion(String version) {
 		RBACManager.forContext(context).check(BasicRoles.ROLE_MANAGE_SUBSCRIPTION);
+
+		if (!UpgradeCheck.setupOk(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM),
+				new LoggingTaskMonitor(logger, new NullTaskMonitor(), 0), getVersion())) {
+			throw new ServerFault(
+					String.format("Unable to set upgrade version to: %s - Checks have been failed", version));
+		}
 
 		SubscriptionProviders.getSubscriptionProvider()
 				.updateSubscriptionUrl(OsVersionDetectionFactory.create().detect(), version);
