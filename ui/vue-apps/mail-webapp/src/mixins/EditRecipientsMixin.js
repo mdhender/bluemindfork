@@ -6,6 +6,7 @@ import { mapActions, mapMutations } from "vuex";
 import { CHECK_CORPORATE_SIGNATURE } from "~/actions";
 import apiAddressbooks from "~/store/api/apiAddressbooks";
 import { SET_MESSAGE_BCC, SET_MESSAGE_CC, SET_MESSAGE_TO } from "~/mutations";
+import { ADDRESS_AUTOCOMPLETE } from "~/getters";
 import ComposerActionsMixin from "./ComposerActionsMixin";
 
 const recipientModes = { TO: 1, CC: 2, BCC: 4 }; // flags for the display mode of MailComposer's recipients fields
@@ -95,9 +96,17 @@ export default {
                     if (results.values.length === 0) {
                         this.autocompleteResults = undefined;
                     } else {
-                        this.autocompleteResults = results.values.map(vcardInfo =>
-                            VCardInfoAdaptor.toContact(vcardInfo)
+                        const { sortedAddresses, excludedAddresses } = this.$store.getters[
+                            `mail/${ADDRESS_AUTOCOMPLETE}`
+                        ];
+
+                        const contacts = results.values?.filter(
+                            contact => !excludedAddresses.includes(contact.value.mail)
                         );
+                        const priorityFn = address => sortedAddresses.indexOf(address) || Number.MAX_VALUE;
+                        contacts.sort((a, b) => priorityFn(b.value.mail) - priorityFn(a.value.mail));
+
+                        this.autocompleteResults = contacts.map(vcardInfo => VCardInfoAdaptor.toContact(vcardInfo));
                     }
                 });
             }

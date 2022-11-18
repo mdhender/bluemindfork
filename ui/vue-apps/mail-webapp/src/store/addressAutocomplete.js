@@ -1,5 +1,5 @@
 import { SEND_MESSAGE } from "~/actions";
-import { ADDRESS_AUTOCOMPLETE_LIST } from "~/getters";
+import { ADDRESS_AUTOCOMPLETE } from "~/getters";
 import { ADD_ADDRESS_WEIGHT } from "~/mutations";
 
 export default {
@@ -15,10 +15,16 @@ export default {
     },
 
     getters: {
-        [ADDRESS_AUTOCOMPLETE_LIST]: state =>
-            Object.keys(state.addressWeights).sort(
-                (a, b) => (state.addressWeights[b] || 0) - (state.addressWeights[a] || 0)
-            )
+        [ADDRESS_AUTOCOMPLETE]: state => {
+            const addressAutoComplete = { sortedAddresses: [], excludedAddresses: [] };
+            Object.keys(state.addressWeights).forEach(address => {
+                state.addressWeights[address] > 0
+                    ? addressAutoComplete.sortedAddresses.push(address)
+                    : addressAutoComplete.excludedAddresses.push(address);
+            });
+            addressAutoComplete.sortedAddresses.sort((a, b) => state.addressWeights[b] - state.addressWeights[a]);
+            return addressAutoComplete;
+        }
     },
 
     actions: {

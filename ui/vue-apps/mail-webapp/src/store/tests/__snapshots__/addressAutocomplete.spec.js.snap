@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`address autocomplete ADD_ADDRESS_WEIGHT mutation & ADDRESS_AUTOCOMPLETE_LIST getter 1`] = `
+exports[`address autocomplete ADD_ADDRESS_WEIGHT mutation & ADDRESS_AUTOCOMPLETE getter (sorted addresses) 1`] = `
 Object {
   "address-1": 2,
   "address-2": 3,
