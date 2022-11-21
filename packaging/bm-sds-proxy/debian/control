@@ -6,6 +6,6 @@ Standards-Version: 3.9.1
 
 Package: bm-sds-proxy
 Architecture: amd64
-Depends: bm-jdk (= 17.0.5+8-bluemind14)
+Depends: bm-jdk (= 17.0.5+8-bluemind16)
 Description: BlueMind SDS proxy
  BlueMind SDS proxy is mandatory to use cyrus-imapd with an S3 object store
