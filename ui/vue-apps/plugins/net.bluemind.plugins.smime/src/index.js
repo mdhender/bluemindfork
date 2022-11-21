@@ -1,6 +1,7 @@
 import Vue from "vue";
 import { extensions } from "@bluemind/extensions";
 import store from "@bluemind/store";
+import SmimeBodyWrapper from "./components/mail-app/SmimeBodyWrapper";
 import TrustedSender from "./components/mail-app/TrustedSender";
 import UntrustedSenderAlert from "./components/mail-app/UntrustedSenderAlert";
 import UntrustedSenderTrigger from "./components/mail-app/UntrustedSenderTrigger";
@@ -12,6 +13,7 @@ import { SMIME_AVAILABLE } from "./store/getterTypes";
 store.registerModule("smime", SmimeStore);
 
 Vue.component("PrefSmime", PrefSmime);
+Vue.component("SmimeBodyWrapper", SmimeBodyWrapper);
 Vue.component("TrustedSender", TrustedSender);
 Vue.component("UntrustedSenderAlert", UntrustedSenderAlert);
 Vue.component("UntrustedSenderTrigger", UntrustedSenderTrigger);
@@ -27,6 +29,13 @@ extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
     component: {
         path: "viewer.header",
         name: "UntrustedSenderTrigger"
+    }
+});
+
+extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
+    component: {
+        path: "viewer.body",
+        name: "SmimeBodyWrapper"
     }
 });
 

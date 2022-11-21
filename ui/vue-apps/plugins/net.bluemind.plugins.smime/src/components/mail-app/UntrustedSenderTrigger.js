@@ -1,5 +1,5 @@
 import { mapActions } from "vuex";
-import { CRYPTO_HEADERS, SIGNED_HEADER_NAME } from "../../lib/constants";
+import { isSigned, isVerified } from "../../lib/helper";
 
 export default {
     props: {
@@ -10,7 +10,7 @@ export default {
     },
     data() {
         return {
-            alert: { name: "smime.untrusted_sender", uid: "SMIME_UNTRUSTED_SENDER" },
+            alert: { name: "smime.untrusted_sender", uid: "SMIME_UNTRUSTED_SENDER", payload: this.message.key },
             options: { area: "right-panel", icon: "lock", renderer: "UntrustedSenderAlert" }
         };
     },
@@ -36,13 +36,3 @@ export default {
         return "";
     }
 };
-
-function isVerified(headers) {
-    const cryptoHeader = headers.find(header => header.name === SIGNED_HEADER_NAME);
-    return cryptoHeader?.values.find(value => value === CRYPTO_HEADERS.VERIFIED);
-}
-
-function isSigned(headers) {
-    const cryptoHeader = headers.find(header => header.name === SIGNED_HEADER_NAME);
-    return !!cryptoHeader;
-}

@@ -1,15 +1,25 @@
 import { CHECK_IF_ASSOCIATED, DISSOCIATE_CRYPTO_FILES } from "./actionTypes";
 import { SMIME_AVAILABLE } from "./getterTypes";
-import { SET_LOADING, SET_SW_ERROR, SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT } from "./mutationTypes";
+import {
+    DISPLAY_UNTRUSTED,
+    SET_LOADING,
+    SET_SW_ERROR,
+    SET_HAS_PRIVATE_KEY,
+    SET_HAS_PUBLIC_CERT
+} from "./mutationTypes";
 import { IS_SW_AVAILABLE, SMIME_INTERNAL_API_URL, PKIStatus } from "../lib/constants";
 
 export default {
     namespaced: true,
     state: {
+        // preferences
         hasPrivateKey: false,
         hasPublicCert: false,
         loading: true,
-        swError: false
+        swError: false,
+
+        // mail-app
+        displayUntrusted: []
     },
     getters: {
         [SMIME_AVAILABLE]: state => IS_SW_AVAILABLE && state.hasPublicCert && state.hasPrivateKey
@@ -46,6 +56,9 @@ export default {
         }
     },
     mutations: {
+        [DISPLAY_UNTRUSTED]: (state, messageKey) => {
+            state.displayUntrusted.push(messageKey);
+        },
         [SET_LOADING]: (state, loading) => {
             state.loading = loading;
         },

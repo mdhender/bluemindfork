@@ -1,10 +1,10 @@
 <template>
-    <bm-icon v-if="isVerified" icon="check-stamp" class="trusted-sender" />
+    <bm-icon v-if="isVerified(message.headers)" icon="check-stamp" class="trusted-sender" />
 </template>
 
 <script>
 import { BmIcon } from "@bluemind/ui-components";
-import { CRYPTO_HEADERS, SIGNED_HEADER_NAME } from "../../lib/constants";
+import { isVerified } from "../../lib/helper";
 
 export default {
     name: "TrustedSender",
@@ -15,11 +15,8 @@ export default {
             required: true
         }
     },
-    computed: {
-        isVerified() {
-            const cryptoHeader = this.message.headers.find(header => header.name === SIGNED_HEADER_NAME);
-            return cryptoHeader?.values.find(value => value === CRYPTO_HEADERS.VERIFIED);
-        }
+    data() {
+        return { isVerified };
     }
 };
 </script>
