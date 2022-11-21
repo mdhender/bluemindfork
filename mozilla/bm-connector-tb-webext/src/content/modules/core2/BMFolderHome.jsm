@@ -275,19 +275,25 @@ let BMFolderHome = {
                     continue;
                 }
                 let card = directory.getCardFromProperty("bm-id", entry.id, false);
-                if (card) {
-                    directory.deleteCards([card]);
-                }
-                card = Components.classes["@mozilla.org/addressbook/cardproperty;1"]
+                let toCreate = false;
+                if (!card) {
+                    card = Components.classes["@mozilla.org/addressbook/cardproperty;1"]
                                 .createInstance(Components.interfaces.nsIAbCard);
+                    toCreate = true;
+                }
                 card.setProperty("bm-ab-uri", directory.URI);
                 card.setProperty("bm-added", "false");
                 card.setProperty("bm-updated", "false");
                 card.setProperty("bm-folder", aFolder.id);
+                card.setProperty("PreferDisplayName", true);
                 this._entryToCard(entry, card);
                 this._setPhoto(entry, aFolder.id, card);
-                card.UID = entry.id;
-                directory.addCard(card);
+                if (toCreate) {
+                    card.UID = entry.id;
+                    directory.addCard(card);
+                } else {
+                    directory.modifyCard(card);
+                }
             }
             
             for (let entry of upDlists) {
@@ -472,6 +478,7 @@ let BMFolderHome = {
     _entryToCard: function(aEntry, /*nsIAbCard*/ aCard) {
         let contact = new BMContact(aCard);
         this._contactHome.fillContactFromEntry(aEntry, contact);
+        contact.beforeSave();
     },
     _listToEntry: function(/*nsIAbDirectory*/ aList, /*nsIAbDirectory*/ parent) {
         let list = new BMDlist(aList);

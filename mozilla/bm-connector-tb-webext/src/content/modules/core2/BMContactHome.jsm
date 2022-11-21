@@ -24,6 +24,8 @@ this.EXPORTED_SYMBOLS = ["BMContactHome", "BMContact"];
 
 var { bmUtils, HashMap, BMXPComObject, BmPrefListener, BMError } = ChromeUtils.import("chrome://bm/content/modules/bmUtils.jsm");
 
+var { VCardProperties } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
+
 function BMContactHome() {
     this._logger = Components.classes["@blue-mind.net/logger;1"].getService()
                             .wrappedJSObject.getLogger("BMContactHome: ");
@@ -323,17 +325,36 @@ imFieldByLabel["xmpp"] = "_JabberId";
 imFieldByLabel["irc"] = "_IRC";
 
 function BMContact(/*nsIAbCard*/ aCard) {
-    this._card = aCard;
     let props = aCard.vCardProperties;
     if (props) {
+        this._card = aCard.wrappedJSObject; 
         this._props = props.toPropertyMap();
         this._getProp = function(propName, defValue) {
             return this._props.has(propName) ? this._props.get(propName) : defValue;
         };
+        this._setProp = function(propName, value) {
+            if ([null, undefined, ""].includes(value)) {
+                this._card._properties.delete(propName);
+                return;
+            }
+            if (typeof value == "boolean") {
+                value = value ? "1" : "0";
+            }
+            this._card._properties.set(propName, "" + value);
+        };
+        this.beforeSave = function() {
+            // recalculate VCardProperties from modified properties
+            this._card._vCardProperties = VCardProperties.fromPropertyMap(this._card._properties);
+        };
     } else {
+        this._card = aCard;
         this._getProp = function(propName, defValue) {
             return this._card.getProperty(propName, defValue);
         };
+        this._setProp = function(propName, value) {
+            this._card.setProperty(propName, value);
+        };
+        this.beforeSave = function() {};
     }
     this._logger = Components.classes["@blue-mind.net/logger;1"].getService()
                             .wrappedJSObject.getLogger("BMContact: ");
@@ -344,19 +365,19 @@ BMContact.prototype = {
         return this._getProp("bm-id", null);
     },
     setId: function(value) {
-        this._card.setProperty("bm-id", value);
+        this._setProp("bm-id", value);
     },
     getExtId: function() {
         return this._getProp("bm-extId", null);
     },
     setExtId: function(value) {
-        this._card.setProperty("bm-extId", value);
+        this._setProp("bm-extId", value);
     },
     getFolder: function() {
         return this._getProp("bm-folder", null);
     },
     setFolder: function(value) {
-        this._card.setProperty("bm-folder", value);
+        this._setProp("bm-folder", value);
     },
     getLastName: function() {
         return this._getProp("LastName", null);
@@ -380,62 +401,62 @@ BMContact.prototype = {
         return this._getProp("X-BM-middleName", null);
     },
     setMiddleName: function(value) {
-        this._card.setProperty("X-BM-middleName", value);
+        this._setProp("X-BM-middleName", value);
     },
     getSuffix: function() {
         return this._getProp("X-BM-suffix", null);
     },
     setSuffix: function(value) {
-        this._card.setProperty("X-BM-suffix", value);
+        this._setProp("X-BM-suffix", value);
     },
     getAka: function() {
         return this._getProp("NickName", null);
     },
     setAka: function(value) {
-        this._card.setProperty("NickName", value);
+        this._setProp("NickName", value);
     },
     getGender: function() {
         return this._getProp("X-BM-gender", null); 
     },
     setGender: function(value) {
-        this._card.setProperty("X-BM-gender", value);
+        this._setProp("X-BM-gender", value);
     },
     getNotes: function() {
         return this._getProp("Notes", null);
     },
     setNotes: function(value) {
         //FIXME tb do not suport HTML
-        this._card.setProperty("Notes", bmUtils.convertToPlainText(value));
+        this._setProp("Notes", bmUtils.convertToPlainText(value));
     },
     getTitle: function() {
         return this._getProp("Title");
     },
     setTitle: function(value) {
-        this._card.setProperty("Title", value);
+        this._setProp("Title", value);
     },
     getCompany: function() {
         return this._getProp("Company");
     },
     setCompany: function(value) {
-        this._card.setProperty("Company", value); 
+        this._setProp("Company", value); 
     },
     getJobTitle: function() {
         return this._getProp("JobTitle");
     },
     setJobTitle: function(value) {
-        this._card.setProperty("JobTitle", value);
+        this._setProp("JobTitle", value);
     },
     getDepartment: function() {
         return this._getProp("Department", null);
     },
     setDepartment: function(value) {
-        this._card.setProperty("Department", value);
+        this._setProp("Department", value);
     },
     getRole: function() {
         return this._getProp("X-BM-role", null);
     },
     setRole: function(value) {
-        this._card.setProperty("X-BM-role", value);
+        this._setProp("X-BM-role", value);
     },
     getBirth: function() {
         let birth = null;
@@ -450,13 +471,13 @@ BMContact.prototype = {
     setBirth: function(value) {
         if (value) {
             let birth = new Date(value);
-            this._card.setProperty("BirthYear", birth.getFullYear());
-            this._card.setProperty("BirthMonth", birth.getMonth() + 1);
-            this._card.setProperty("BirthDay", birth.getDate());
+            this._setProp("BirthYear", birth.getFullYear());
+            this._setProp("BirthMonth", birth.getMonth() + 1);
+            this._setProp("BirthDay", birth.getDate());
         } else {
-            this._card.setProperty("BirthYear", "");
-            this._card.setProperty("BirthMonth", "");
-            this._card.setProperty("BirthDay", "");
+            this._setProp("BirthYear", "");
+            this._setProp("BirthMonth", "");
+            this._setProp("BirthDay", "");
         }
     },
     getAnniversary: function() {
@@ -472,13 +493,13 @@ BMContact.prototype = {
     setAnniversary: function(value) {
         if (value) {
             let anniv = new Date(value);
-            this._card.setProperty("AnniversaryYear", anniv.getFullYear);
-            this._card.setProperty("AnniversaryMonth", anniv.getMonth() + 1);
-            this._card.setProperty("AnniversaryDay", anniv.getDate());
+            this._setProp("AnniversaryYear", anniv.getFullYear);
+            this._setProp("AnniversaryMonth", anniv.getMonth() + 1);
+            this._setProp("AnniversaryDay", anniv.getDate());
         } else {
-            this._card.setProperty("AnniversaryYear", "");
-            this._card.setProperty("AnniversaryMonth", "");
-            this._card.setProperty("AnniversaryDay", "");
+            this._setProp("AnniversaryYear", "");
+            this._setProp("AnniversaryMonth", "");
+            this._setProp("AnniversaryDay", "");
         }
     },
     //FIXME not clear if there is 2 WebSites in tbird
@@ -503,13 +524,13 @@ BMContact.prototype = {
         if (value.length > 0) {
             site = value.shift().url;
         }
-        this._card.setProperty("WebPage1", site);
+        this._setProp("WebPage1", site);
         site = null;
         if (value.length > 0) {
             site = value.shift().url;
         }
-        this._card.setProperty("WebPage2", site);
-        this._card.setProperty("X-BM-extraWebPages", JSON.stringify(value));
+        this._setProp("WebPage2", site);
+        this._setProp("X-BM-extraWebPages", JSON.stringify(value));
     },
     getPhones: function() {
         let phones = [];
@@ -562,12 +583,12 @@ BMContact.prototype = {
                 extras.push(phone);
             }
         }
-        this._card.setProperty("WorkPhone", work);
-        this._card.setProperty("HomePhone", home);
-        this._card.setProperty("FaxNumber", fax);
-        this._card.setProperty("PagerNumber", page);
-        this._card.setProperty("CellularNumber", mobile);
-        this._card.setProperty("X-BM-extraPhones", JSON.stringify(extras));
+        this._setProp("WorkPhone", work);
+        this._setProp("HomePhone", home);
+        this._setProp("FaxNumber", fax);
+        this._setProp("PagerNumber", page);
+        this._setProp("CellularNumber", mobile);
+        this._setProp("X-BM-extraPhones", JSON.stringify(extras));
     },
     _containsTypes: function(label, types) {
         let labels = label.split(",");
@@ -606,9 +627,9 @@ BMContact.prototype = {
             }
         }
         for (let imField in imValues) {
-            this._card.setProperty(imField, imValues[imField]);
+            this._setProp(imField, imValues[imField]);
         }
-        this._card.setProperty("X-BM-extraIms", JSON.stringify(extras));
+        this._setProp("X-BM-extraIms", JSON.stringify(extras));
     },
     getEmails: function() {
         let emails = [];
@@ -636,8 +657,8 @@ BMContact.prototype = {
         if (value.length > 0) {
             email = value.shift().email;
         }
-        this._card.setProperty("SecondEmail", email);
-        this._card.setProperty("X-BM-extraEmails", JSON.stringify(value));
+        this._setProp("SecondEmail", email);
+        this._setProp("X-BM-extraEmails", JSON.stringify(value));
     },
     getAddresses: function() {
         let addresses = [];
@@ -709,49 +730,49 @@ BMContact.prototype = {
         if (!home) {
             home = {street: null, zipcode: null, town: null, state: null, country: null, expresspostal: null};
         }
-        this._card.setProperty("HomeAddress", home.street);
-        this._card.setProperty("HomeZipCode", home.zipcode);
-        this._card.setProperty("HomeCity", home.town);
-        this._card.setProperty("HomeState", home.state);
-        this._card.setProperty("HomeCountry", home.country);
-        this._card.setProperty("X-BM-homeExpresspostal", home.expresspostal);
+        this._setProp("HomeAddress", home.street);
+        this._setProp("HomeZipCode", home.zipcode);
+        this._setProp("HomeCity", home.town);
+        this._setProp("HomeState", home.state);
+        this._setProp("HomeCountry", home.country);
+        this._setProp("X-BM-homeExpresspostal", home.expresspostal);
         
         this._logger.debug("set work address: " + work);
         if (!work) {
             work = {street: null, zipcode: null, town: null, state: null, country: null, expresspostal: null};
         }
-        this._card.setProperty("WorkAddress", work.street);
-        this._card.setProperty("WorkZipCode", work.zipcode);
-        this._card.setProperty("WorkCity", work.town);
-        this._card.setProperty("WorkState", work.state);
-        this._card.setProperty("WorkCountry", work.country);
-        this._card.setProperty("X-BM-workExpresspostal", work.expresspostal);
+        this._setProp("WorkAddress", work.street);
+        this._setProp("WorkZipCode", work.zipcode);
+        this._setProp("WorkCity", work.town);
+        this._setProp("WorkState", work.state);
+        this._setProp("WorkCountry", work.country);
+        this._setProp("X-BM-workExpresspostal", work.expresspostal);
         
-        this._card.setProperty("X-BM-extraAddresses", JSON.stringify(extras));
+        this._setProp("X-BM-extraAddresses", JSON.stringify(extras));
     },
     getTags: function() {
         return JSON.parse(this._getProp("X-BM-tags", "[]"));
     },
     setTags: function(value) {
-        this._card.setProperty("X-BM-tags", JSON.stringify(value));
+        this._setProp("X-BM-tags", JSON.stringify(value));
     },
     getAssistant: function() {
         return this._getProp("X-BM-assistant", null);
     },
     setAssistant: function(value) {
-        this._card.setProperty("X-BM-assistant", value);
+        this._setProp("X-BM-assistant", value);
     },
     getManager: function() {
         return this._getProp("X-BM-manager", null);
     },
     setManager: function(value) {
-        this._card.setProperty("X-BM-manager", value);
+        this._setProp("X-BM-manager", value);
     },
     getSpouse: function() {
         return this._getProp("X-BM-spouse", null);
     },
     setSpouse: function(value) {
-        this._card.setProperty("X-BM-spouse", value);
+        this._setProp("X-BM-spouse", value);
     },
     hasPhoto: function() {
         let photoName = this._getProp("PhotoName", null);
