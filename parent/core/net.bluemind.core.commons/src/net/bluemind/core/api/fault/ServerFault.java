@@ -18,6 +18,8 @@
  */
 package net.bluemind.core.api.fault;
 
+import org.slf4j.helpers.MessageFormatter;
+
 @SuppressWarnings("serial")
 public class ServerFault extends RuntimeException {
 
@@ -32,6 +34,11 @@ public class ServerFault extends RuntimeException {
 		this.code = ErrorCode.UNKNOWN;
 	}
 
+	public ServerFault(String s, Throwable t, Object... args) {
+		super(MessageFormatter.arrayFormat(s, args).getMessage(), t);
+		this.code = ErrorCode.UNKNOWN;
+	}
+
 	public ServerFault(Throwable t) {
 		super(t);
 		this.code = ErrorCode.UNKNOWN;
@@ -42,12 +49,17 @@ public class ServerFault extends RuntimeException {
 		this.code = t.getCode();
 	}
 
-	public ServerFault(String s) {
-		this(s, ErrorCode.UNKNOWN);
+	public ServerFault(String s, Object... args) {
+		this(MessageFormatter.arrayFormat(s, args).getMessage(), ErrorCode.UNKNOWN);
 	}
 
 	public ServerFault(String s, ErrorCode ec) {
 		super(s);
+		this.code = ec;
+	}
+
+	public ServerFault(String s, ErrorCode ec, Object... args) {
+		this(s, args);
 		this.code = ec;
 	}
 
@@ -71,20 +83,20 @@ public class ServerFault extends RuntimeException {
 		return sf;
 	}
 
-	public static ServerFault notFound(String message) {
-		ServerFault sf = new ServerFault(message);
+	public static ServerFault notFound(String message, Object... args) {
+		ServerFault sf = new ServerFault(message, args);
 		sf.setCode(ErrorCode.NOT_FOUND);
 		return sf;
 	}
 
-	public static ServerFault alreadyExists(String message) {
-		ServerFault sf = new ServerFault(message);
+	public static ServerFault alreadyExists(String message, Object... args) {
+		ServerFault sf = new ServerFault(message, args);
 		sf.setCode(ErrorCode.ALREADY_EXISTS);
 		return sf;
 	}
 
-	public static ServerFault tooManyResults(String message) {
-		ServerFault sf = new ServerFault(message);
+	public static ServerFault tooManyResults(String message, Object... args) {
+		ServerFault sf = new ServerFault(message, args);
 		sf.setCode(ErrorCode.MAX_ITEM_COUNT);
 		return sf;
 	}
