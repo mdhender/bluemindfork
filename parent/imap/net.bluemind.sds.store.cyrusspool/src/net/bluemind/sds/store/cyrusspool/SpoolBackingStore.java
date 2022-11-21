@@ -89,7 +89,7 @@ public class SpoolBackingStore implements ISdsBackingStore {
 		String target = livePath(req.guid);
 		INodeClient nc = NodeActivator.get(roundRobin.next().value.address());
 
-		ByteBuf bb = Unpooled.directBuffer(2 * (int) new File(req.filename).length());
+		ByteBuf bb = Unpooled.buffer(2 * (int) new File(req.filename).length());
 		try (InputStream input = Files.newInputStream(Paths.get(req.filename));
 				ByteBufOutputStream bbo = new ByteBufOutputStream(bb);
 				OutputStream zst = new ZstdOutputStream(bbo, RecyclingBufferPool.INSTANCE, -3)) {
