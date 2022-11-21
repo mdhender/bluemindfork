@@ -2,7 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import cloneDeep from "lodash.clonedeep";
 import { ADDRESS_AUTOCOMPLETE } from "~/getters";
-import { ADD_ADDRESS_WEIGHT } from "~/mutations";
+import { ADD_ADDRESS_WEIGHT, SET_ADDRESS_WEIGHT } from "~/mutations";
 import storeData from "../addressAutocomplete";
 
 Vue.use(Vuex);
@@ -55,5 +55,20 @@ describe("address autocomplete", () => {
         const { excludedAddresses } = store.getters[ADDRESS_AUTOCOMPLETE];
         expect(excludedAddresses[0]).toEqual(address2);
         expect(excludedAddresses[1]).toEqual(address4);
+    });
+
+    test("SET_ADDRESS_WEIGHT mutation", () => {
+        const address1 = "address-1";
+        store.commit(SET_ADDRESS_WEIGHT, { address: address1, weight: 1 });
+        store.commit(SET_ADDRESS_WEIGHT, { address: address1, weight: -3 });
+        store.commit(SET_ADDRESS_WEIGHT, { address: address1, weight: 4 });
+
+        const address2 = "address-2";
+        store.commit(SET_ADDRESS_WEIGHT, { address: address2, weight: 5 });
+        store.commit(SET_ADDRESS_WEIGHT, { address: address2, weight: null });
+        store.commit(SET_ADDRESS_WEIGHT, { address: address2, weight: undefined });
+
+        expect(store.state.addressWeights[address1]).toBe(4);
+        expect(store.state.addressWeights[address2]).toBe(undefined);
     });
 });

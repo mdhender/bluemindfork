@@ -5,7 +5,7 @@ import { inject } from "@bluemind/inject";
 import { mapActions, mapMutations } from "vuex";
 import { CHECK_CORPORATE_SIGNATURE } from "~/actions";
 import apiAddressbooks from "~/store/api/apiAddressbooks";
-import { SET_MESSAGE_BCC, SET_MESSAGE_CC, SET_MESSAGE_TO } from "~/mutations";
+import { SET_ADDRESS_WEIGHT, SET_MESSAGE_BCC, SET_MESSAGE_CC, SET_MESSAGE_TO } from "~/mutations";
 import { ADDRESS_AUTOCOMPLETE } from "~/getters";
 import ComposerActionsMixin from "./ComposerActionsMixin";
 
@@ -31,7 +31,7 @@ export default {
              * $_EditRecipientsMixin_mode = TO means we want to display TO field only
              */
             $_EditRecipientsMixin_mode: recipientModes.TO | recipientModes.CC | recipientModes.BCC,
-            autocompleteResults: [],
+            searchResults: undefined,
             autocompleteResultsTo: [],
             autocompleteResultsCc: [],
             autocompleteResultsBcc: [],
@@ -54,6 +54,21 @@ export default {
             set(mode) {
                 this._data.$_EditRecipientsMixin_mode = mode;
             }
+        },
+        autocompleteResults() {
+            let autocompleteResults;
+            if (this.searchResults) {
+                const { sortedAddresses, excludedAddresses } = this.$store.getters[`mail/${ADDRESS_AUTOCOMPLETE}`];
+
+                const contacts = this.searchResults.values?.filter(
+                    contact => !excludedAddresses.includes(contact.value.mail)
+                );
+                const priorityFn = address => sortedAddresses.indexOf(address) || Number.MAX_VALUE;
+                contacts?.sort((a, b) => priorityFn(b.value.mail) - priorityFn(a.value.mail));
+
+                autocompleteResults = contacts?.map(vcardInfo => VCardInfoAdaptor.toContact(vcardInfo));
+            }
+            return autocompleteResults || [];
         }
     },
     watch: {
@@ -77,7 +92,7 @@ export default {
     },
     methods: {
         ...mapActions("mail", { CHECK_CORPORATE_SIGNATURE }),
-        ...mapMutations("mail", { SET_MESSAGE_TO, SET_MESSAGE_CC, SET_MESSAGE_BCC }),
+        ...mapMutations("mail", { SET_ADDRESS_WEIGHT, SET_MESSAGE_TO, SET_MESSAGE_CC, SET_MESSAGE_BCC }),
         async expandContact(contacts, index, updateFn) {
             const contact = contacts[index];
             contact.members = await fetchContactMembers(contactContainerUid(contact), contact.uid);
@@ -88,28 +103,8 @@ export default {
             this.fieldFocused = fieldFocused;
             this.debouncedSearch(searchedPattern);
         },
-        search(searchedRecipient) {
-            if (searchedRecipient === "") {
-                this.autocompleteResults = [];
-            } else {
-                return apiAddressbooks.search(searchedRecipient).then(results => {
-                    if (results.values.length === 0) {
-                        this.autocompleteResults = undefined;
-                    } else {
-                        const { sortedAddresses, excludedAddresses } = this.$store.getters[
-                            `mail/${ADDRESS_AUTOCOMPLETE}`
-                        ];
-
-                        const contacts = results.values?.filter(
-                            contact => !excludedAddresses.includes(contact.value.mail)
-                        );
-                        const priorityFn = address => sortedAddresses.indexOf(address) || Number.MAX_VALUE;
-                        contacts.sort((a, b) => priorityFn(b.value.mail) - priorityFn(a.value.mail));
-
-                        this.autocompleteResults = contacts.map(vcardInfo => VCardInfoAdaptor.toContact(vcardInfo));
-                    }
-                });
-            }
+        async search(searchedRecipient) {
+            this.searchResults = searchedRecipient === "" ? null : await apiAddressbooks.search(searchedRecipient);
         },
         getAutocompleteResults(fromField) {
             if (fromField !== this.fieldFocused || this.autocompleteResults === undefined) {

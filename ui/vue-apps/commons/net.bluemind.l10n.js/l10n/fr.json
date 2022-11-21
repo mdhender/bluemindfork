@@ -248,7 +248,10 @@
         },
         "contact-input": {
             "invalid": "Adresse invalide",
-            "members": "{count} membre|{count} membres"
+            "members": "{count} membre|{count} membres",
+            "autocomplete": {
+                "delete": "Retirer cette proposition"
+            }
         },
         "input": {
             "clear": "Effacer la saisie",

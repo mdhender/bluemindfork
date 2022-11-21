@@ -1,16 +1,19 @@
 import { SEND_MESSAGE } from "~/actions";
 import { ADDRESS_AUTOCOMPLETE } from "~/getters";
-import { ADD_ADDRESS_WEIGHT } from "~/mutations";
+import { ADD_ADDRESS_WEIGHT, SET_ADDRESS_WEIGHT } from "~/mutations";
 
 export default {
     state: {
         addressWeights: {},
-        synced: { addressWeights: ADD_ADDRESS_WEIGHT }
+        synced: { addressWeights: [ADD_ADDRESS_WEIGHT, SET_ADDRESS_WEIGHT] }
     },
 
     mutations: {
         [ADD_ADDRESS_WEIGHT]: (state, { address, weight }) => {
             state.addressWeights[address] = (state.addressWeights[address] || 0) + weight;
+        },
+        [SET_ADDRESS_WEIGHT]: (state, { address, weight }) => {
+            state.addressWeights[address] = weight;
         }
     },
 

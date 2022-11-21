@@ -11,6 +11,7 @@
                     @search="searchedPattern => onSearch('to', searchedPattern)"
                     @update:contacts="updateTo"
                     @expand="expandContact(to, $event, updateTo)"
+                    @delete="SET_ADDRESS_WEIGHT({ address: $event.address, weight: -1 })"
                 >
                     {{ $t("common.to") }}
                 </bm-contact-input>
