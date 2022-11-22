@@ -60,7 +60,7 @@ export async function multipleGetById({ request, params }: RouteHandlerCallbackO
             const session = await Session.instance();
             if (await session.db.isSubscribed(folderUid)) {
                 const syncOptions = await session.db.getSyncOptions(folderUid);
-                if (!!syncOptions?.pending) {
+                if (syncOptions?.pending) {
                     await syncMailFolder(folderUid);
                 }
                 const mailItems = await session.db.getMailItems(folderUid, ids);
@@ -85,7 +85,7 @@ export async function sortedIds({ request, params }: RouteHandlerCallbackOptions
             const session = await Session.instance();
             if (await session.db.isSubscribed(folderUid)) {
                 const syncOptions = await session.db.getSyncOptions(folderUid);
-                if (!!syncOptions?.pending) {
+                if (syncOptions?.pending) {
                     await syncMailFolder(folderUid);
                 }
                 const allMailItems: Array<MailItemLight> = await session.db.getAllMailItemLight(folderUid);
@@ -120,7 +120,7 @@ export async function filteredChangesetById({ request, params }: RouteHandlerCal
         const session = await Session.instance();
         if (await session.db.isSubscribed(folderUid)) {
             const syncOptions = await session.db.getSyncOptions(folderUid);
-            if (!!syncOptions?.pending) {
+            if (syncOptions?.pending) {
                 await syncMailFolder(folderUid);
             }
             const allMailItems: Array<MailItemLight> = await session.db.getAllMailItemLight(folderUid);

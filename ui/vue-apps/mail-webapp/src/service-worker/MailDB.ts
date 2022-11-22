@@ -75,8 +75,8 @@ export class MailDB {
     async getTx<StoreName extends StoreNames<MailSchema>>(
         storeName: StoreName,
         mode: IDBTransactionMode,
-        tx?: IDBPTransaction<MailSchema, StoreName[]>
-    ): Promise<IDBPTransaction<MailSchema, StoreName[]>> {
+        tx?: IDBPTransaction<MailSchema, StoreName[], IDBTransactionMode>
+    ): Promise<IDBPTransaction<MailSchema, StoreName[], IDBTransactionMode>> {
         return tx || (await this.dbPromise).transaction([storeName], mode);
     }
 
@@ -174,7 +174,7 @@ export class MailDB {
 
     async getAllMailItemLight(
         folderUid: string,
-        optTx?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[]>
+        optTx?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[], IDBTransactionMode>
     ): Promise<MailItemLight[]> {
         const tx = await this.getTx("mail_item_light", "readonly", optTx);
         const store = tx.objectStore("mail_item_light");
@@ -214,7 +214,7 @@ export class MailDB {
         folderUid: string,
         items: MailItem[],
         deleted: number[],
-        optTx?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[]>
+        optTx?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[], IDBTransactionMode>
     ) {
         const lights: Array<MailItemLight> = await this.getAllMailItemLight(folderUid, optTx);
         deleted.forEach(id => {

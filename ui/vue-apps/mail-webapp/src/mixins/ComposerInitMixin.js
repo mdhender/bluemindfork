@@ -260,9 +260,8 @@ export default {
                 this.ERROR({
                     alert: { name: "mail.forward_eml.fetch", uid: "FWD_EML_UID" }
                 });
-                const conversation = this.$store.state.mail.conversations.conversationByKey[
-                    related.conversationRef.key
-                ];
+                const conversation =
+                    this.$store.state.mail.conversations.conversationByKey[related.conversationRef.key];
                 this.$router.navigate({ name: "v:mail:conversation", params: { conversation } });
                 return;
             }
