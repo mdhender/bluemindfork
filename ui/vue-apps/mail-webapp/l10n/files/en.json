@@ -241,7 +241,7 @@
     "mail.compose.reply.body": "On {date}, {name} wrote:",
     "mail.content.alert.images.blocked": "Remote content has been blocked to protect your privacy.",
     "mail.content.alert.images.show": "Show content",
-    "mail.content.alert.images.trust.sender": "Always trust content of {sender}",
+    "mail.content.alert.images.trust.sender": "Always trust content from {sender}",
     "mail.content.alert.readonly": "Read-only message. Some actions (like Move or Remove) may not be available.",
     "mail.content.blindcopy": "blind copy",
     "mail.content.body": "Message content",
