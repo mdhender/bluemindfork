@@ -198,19 +198,30 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/styleguide/css/type";
 @import "~@bluemind/styleguide/css/variables";
 
-.conversation-list-item-middle {
-    gap: 0;
-    .from-or-to-row {
-        height: base-px-to-rem(20);
+.conversation-list-item-full,
+.conversation-list-item-compact {
+    .conversation-list-item-middle {
+        gap: 0;
+        .from-or-to-row {
+            height: base-px-to-rem(20);
+        }
+        .subject-row,
+        .preview-row {
+            height: base-px-to-rem(16);
+            @extend %caption;
+        }
     }
 }
 
-.conversation-list-item-normal .conversation-list-item-middle {
-    gap: base-px-to-rem(1);
-    .from-or-to-row {
-        height: base-px-to-rem(24);
+.conversation-list-item-normal {
+    .conversation-list-item-middle {
+        gap: base-px-to-rem(1);
+        .from-or-to-row {
+            height: base-px-to-rem(24);
+        }
     }
 }
 
