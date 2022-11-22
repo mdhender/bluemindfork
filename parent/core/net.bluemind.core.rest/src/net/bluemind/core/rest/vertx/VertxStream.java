@@ -142,6 +142,14 @@ public class VertxStream {
 		}
 	}
 
+	public static Stream stream(ReadStream<Buffer> stream, String mime) {
+		return stream(stream, mime, null, null);
+	}
+
+	public static Stream stream(ReadStream<Buffer> stream, String mime, String charset) {
+		return stream(stream, mime, charset, null);
+	}
+
 	public static Stream stream(ReadStream<Buffer> stream, String mime, String charset, String fileName) {
 		if (stream instanceof Stream) {
 			return (Stream) stream;

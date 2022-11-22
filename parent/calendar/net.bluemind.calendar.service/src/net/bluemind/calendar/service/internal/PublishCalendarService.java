@@ -225,7 +225,7 @@ public class PublishCalendarService implements IPublishCalendar {
 
 		};
 
-		return VertxStream.stream(stream);
+		return VertxStream.stream(stream, "text/calendar");
 	}
 
 	@Override
