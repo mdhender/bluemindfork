@@ -101,12 +101,12 @@ public class ValidationPolicy {
 
 		String cachedLatd = tokenCache.getIfPresent(password);
 		if (cachedLatd != null && cachedLatd.equals(latd)) {
-			logger.info("Access to {} granted from token cache for {}", service, latd);
+			logger.debug("Access to {} granted from token cache for {}", service, latd);
 			return true;
 		}
 		String cachedPw = pwCache.getIfPresent(latd);
 		if (cachedPw != null && cachedPw.equals(hash.hashString(password, StandardCharsets.UTF_8).toString())) {
-			logger.info("Access to {} granted from pw cache for {}", service, latd);
+			logger.debug("Access to {} granted from pw cache for {}", service, latd);
 			return true;
 		}
 
