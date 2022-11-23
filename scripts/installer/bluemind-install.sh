@@ -111,16 +111,16 @@ sanity_install() {
 check_install() {
   display_message "${txt_check_intall}"
   
-  count=0
-  success=1
+  local count=0
+  local success=-1
 
-  ports="80 443 5432 8021 8080"
-  while [ ${count} -lt 3 ] && [ ${success} != 0 ]; do
+  local ports="80 443 5432 8021 8080"
+  while [ ${count} -lt 3 ] && [ ${success} -ne 0 ]; do
     count=$((count+1))
 
     sleep 5
     for i in ${ports}; do
-      exec 3<>/dev/tcp/127.0.0.1/$i 2> /dev/null
+      timeout 10 bash -c "cat < /dev/null 2> /dev/null > /dev/tcp/127.0.0.1/${i}"
       ret=$?
 
       if [ ${ret} -ne 0 ]; then
