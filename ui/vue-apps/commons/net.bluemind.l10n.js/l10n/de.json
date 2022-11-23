@@ -240,6 +240,9 @@
         "chip": {
             "close": "Entfernen"
         },
+        "clipboard": {
+            "copy": "In Zwischenablage kopieren."
+        },
         "color-picker": {
             "customize": "Anpassen",
             "toolbar": {

@@ -144,7 +144,7 @@ export default {
         }
     }
 }
-.popover {
+.contact-card-popover {
     @include until-lg {
         display: none !important;
     }

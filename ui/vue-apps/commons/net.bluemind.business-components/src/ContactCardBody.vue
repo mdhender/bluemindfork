@@ -2,55 +2,63 @@
     <div class="contact-card-body ml-3">
         <div v-if="emails.length" class="d-flex">
             <bm-icon icon="user-enveloppe" variant="secondary" />
-            <div class="d-flex flex-column ml-4">
-                <span v-for="email in emails" :key="email.address" class="mb-3">
+            <ol class="d-flex flex-column p-0 ml-4">
+                <li v-for="email in emails" :key="email.address" class="d-flex">
                     <strong>
                         <slot name="email" :email="email.address">
                             {{ email.address }}
                         </slot>
                     </strong>
-                </span>
-            </div>
+                    <bm-icon-button-copy :text="email.address" size="sm" class="ml-4" />
+                </li>
+            </ol>
         </div>
         <div v-if="phones.length" class="d-flex mt-4">
             <bm-icon icon="phone" variant="secondary" />
-            <div class="d-flex flex-column ml-4">
-                <span v-for="phone in phones" :key="phone.number" class="mb-3">
+            <ol class="d-flex flex-column p-0 ml-4">
+                <li v-for="phone in phones" :key="phone.number" class="d-flex" :text="phone.number">
                     <a :href="`tel:${phone.number.replace(/\s+/g, '')}`">
                         <strong>{{ phone.number }}</strong>
                     </a>
                     <span class="ml-2 text-neutral">{{ phone.type }}</span>
-                </span>
-            </div>
+                    <bm-icon-button-copy :text="phone.number" size="sm" class="ml-4" />
+                </li>
+            </ol>
         </div>
         <div v-if="locations.length" class="d-flex mt-4">
             <bm-icon icon="world" variant="secondary" />
-            <div class="d-flex flex-column ml-4">
-                <div v-for="(location, index) in locations" :key="index" class="mb-3">
-                    <div v-for="(line, i) in location.lines" :key="i">
-                        <strong>{{ line }}</strong>
+            <ol class="d-flex flex-column p-0 ml-4">
+                <li v-for="(location, index) in locations" :key="index" class="d-flex">
+                    <div>
+                        <div v-for="(line, i) in location.lines" :key="i">
+                            <strong>{{ line }}</strong>
+                        </div>
                     </div>
-                </div>
-            </div>
+                    <bm-icon-button-copy :text="location.lines.join(EOL)" size="sm" class="ml-4" />
+                </li>
+            </ol>
         </div>
     </div>
 </template>
 
 <script>
 import { formatAddress } from "localized-address-format";
-import { BmIcon } from "@bluemind/styleguide";
+import { BmIcon, BmIconButtonCopy } from "@bluemind/styleguide";
 
 import l10n from "./l10n";
 
 export default {
     name: "ContactCardBody",
-    components: { BmIcon },
+    components: { BmIcon, BmIconButtonCopy },
     componentI18N: { messages: l10n },
     props: {
         contact: {
             type: Object,
             required: true
         }
+    },
+    data() {
+        return { EOL: navigator.userAgent.indexOf("Win") !== -1 ? "\r\n" : "\n" };
     },
     computed: {
         emails() {
@@ -101,3 +109,19 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+.contact-card-body {
+    ol {
+        li {
+            list-style-type: none;
+            .bm-icon-button-copy:not(.active) {
+                visibility: hidden;
+            }
+            &:hover .bm-icon-button-copy {
+                visibility: visible;
+            }
+        }
+    }
+}
+</style>

@@ -1,5 +1,5 @@
 <template>
-    <bm-popover triggers="click blur" :target="target" placement="bottom" no-fade>
+    <bm-popover triggers="click blur" :target="target" placement="bottom" no-fade custom-class="contact-card-popover">
         <resolved-contact :recipient="recipient">
             <template v-slot:default="{ resolvedContact }">
                 <contact-card :contact="resolvedContact">
