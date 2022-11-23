@@ -232,7 +232,16 @@ public class SpoolBackingStore implements ISdsBackingStore {
 
 	@Override
 	public CompletableFuture<SdsResponse> delete(DeleteRequest req) {
-		logger.info("You do not really want to delete {}", req.guid);
+		for (Path p : Arrays.asList(Paths.get(livePath(req.guid)), Paths.get(archivePath(req.guid)))) {
+			try {
+				if (Files.deleteIfExists(p)) {
+					logger.info("removed {}: {}", req.guid, p);
+					return CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
+				}
+			} catch (IOException e) {
+				// Nothing to worry about
+			}
+		}
 		return CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
 	}
 
