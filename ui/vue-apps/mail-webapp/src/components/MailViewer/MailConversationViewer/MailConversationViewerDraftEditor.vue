@@ -16,17 +16,7 @@
                     @check-and-repair="checkAndRepairFrom"
                 />
                 <div class="to-contact-input">
-                    <bm-contact-input
-                        ref="to"
-                        variant="underline"
-                        :contacts="message.to"
-                        :autocomplete-results="autocompleteResultsTo"
-                        :validate-address-fn="validateAddress"
-                        @search="searchedPattern => onSearch('to', searchedPattern)"
-                        @update:contacts="updateTo"
-                    >
-                        {{ $t("common.to") }}
-                    </bm-contact-input>
+                    <mail-composer-recipient :message="message" recipient-type="to" />
                     <mail-open-in-popup-with-shift v-slot="action" :href="route" :next="consult">
                         <bm-icon-button
                             variant="compact"
@@ -46,16 +36,7 @@
                 <div class="d-flex conversation-viewer-row flex-nowrap">
                     <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
                     <div class="cc-contact-input">
-                        <bm-contact-input
-                            variant="underline"
-                            :contacts="message.cc"
-                            :autocomplete-results="autocompleteResultsCc"
-                            :validate-address-fn="validateAddress"
-                            @search="searchedPattern => onSearch('cc', searchedPattern)"
-                            @update:contacts="updateCc"
-                        >
-                            {{ $t("common.cc") }}
-                        </bm-contact-input>
+                        <mail-composer-recipient :message="message" recipient-type="cc" />
                         <bm-button
                             v-if="!(displayedRecipientFields & recipientModes.BCC)"
                             variant="text"
@@ -70,17 +51,7 @@
             <template v-if="displayedRecipientFields & recipientModes.BCC">
                 <div class="d-flex conversation-viewer-row flex-nowrap">
                     <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
-                    <bm-contact-input
-                        variant="underline"
-                        class="flex-fill"
-                        :contacts="message.bcc"
-                        :autocomplete-results="autocompleteResultsBcc"
-                        :validate-address-fn="validateAddress"
-                        @search="searchedPattern => onSearch('bcc', searchedPattern)"
-                        @update:contacts="updateBcc"
-                    >
-                        {{ $t("common.bcc") }}
-                    </bm-contact-input>
+                    <mail-composer-recipient :message="message" recipient-type="bcc" />
                 </div>
             </template>
             <div class="d-flex conversation-viewer-row flex-nowrap">
@@ -123,20 +94,21 @@
 
 <script>
 import { mapMutations, mapState } from "vuex";
-import { BmButton, BmContactInput, BmIconButton } from "@bluemind/ui-components";
+import { BmButton, BmIconButton } from "@bluemind/ui-components";
 import { messageUtils } from "@bluemind/mail";
 import { ComposerActionsMixin, ComposerInitMixin, ComposerMixin, EditRecipientsMixin } from "~/mixins";
 import { AddAttachmentsCommand } from "~/commands";
+import { REMOVE_MESSAGES, SET_MESSAGE_COMPOSING } from "~/mutations";
 import MailComposerAttachments from "../../MailComposer/MailComposerAttachments";
 import MailComposerContent from "../../MailComposer/MailComposerContent";
 import MailComposerFooter from "../../MailComposer/MailComposerFooter";
+import MailComposerRecipient from "../../MailComposer/MailComposerRecipient";
 import MailComposerSender from "../../MailComposer/MailComposerSender";
 import MailConversationViewerItem from "./MailConversationViewerItem";
 import MailConversationViewerItemMixin from "./MailConversationViewerItemMixin";
 import MailConversationViewerVerticalLine from "./MailConversationViewerVerticalLine";
-import { REMOVE_MESSAGES, SET_MESSAGE_COMPOSING } from "~/mutations";
-import MessagePathParam from "~/router/MessagePathParam";
 import MailOpenInPopupWithShift from "../../MailOpenInPopupWithShift";
+import MessagePathParam from "~/router/MessagePathParam";
 
 const { MessageStatus } = messageUtils;
 
@@ -144,11 +116,11 @@ export default {
     name: "MailConversationViewerDraftEditor",
     components: {
         BmButton,
-        BmContactInput,
         BmIconButton,
         MailComposerAttachments,
         MailComposerContent,
         MailComposerFooter,
+        MailComposerRecipient,
         MailComposerSender,
         MailConversationViewerItem,
         MailConversationViewerVerticalLine,
@@ -244,6 +216,15 @@ export default {
     }
     .bm-rich-editor .ProseMirror {
         padding: $sp-2 0 $sp-2 $sp-3;
+    }
+
+    .bm-contact-input {
+        &.expanded-search .delete-autocomplete {
+            visibility: hidden;
+        }
+        .bm-contact-input-autocomplete-extra {
+            width: 18rem;
+        }
     }
 }
 </style>

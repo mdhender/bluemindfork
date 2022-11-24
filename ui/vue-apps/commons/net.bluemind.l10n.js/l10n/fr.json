@@ -253,7 +253,8 @@
             "invalid": "Adresse invalide",
             "members": "{count} membre|{count} membres",
             "autocomplete": {
-                "delete": "Retirer cette proposition"
+                "delete": "Retirer cette suggestion",
+                "expand": "Élargir la recherche"
             }
         },
         "input": {

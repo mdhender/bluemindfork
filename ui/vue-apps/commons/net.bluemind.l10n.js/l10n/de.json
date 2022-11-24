@@ -253,7 +253,8 @@
             "invalid": "Ungültige Adresse",
             "members": "{count} Mitglied|{count} Mitglieder",
             "autocomplete": {
-                "delete": "Diesen Vorschlag entfernen"
+                "delete": "Diesen Vorschlag entfernen",
+                "expand": "Forschung erweitern"
             }
         },
         "input": {

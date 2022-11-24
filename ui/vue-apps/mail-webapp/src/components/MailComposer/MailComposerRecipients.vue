@@ -2,19 +2,7 @@
     <div class="mail-composer-recipients pr-1">
         <bm-row class="align-items-center">
             <bm-col :cols="displayedRecipientFields == recipientModes.TO ? 11 : 12">
-                <bm-contact-input
-                    ref="to"
-                    variant="underline"
-                    :contacts.sync="to"
-                    :autocomplete-results="autocompleteResultsTo"
-                    :validate-address-fn="validateDnAndAddress"
-                    @search="searchedPattern => onSearch('to', searchedPattern)"
-                    @update:contacts="updateTo"
-                    @expand="expandContact(to, $event, updateTo)"
-                    @delete="SET_ADDRESS_WEIGHT({ address: $event.address, weight: -1 })"
-                >
-                    {{ $t("common.to") }}
-                </bm-contact-input>
+                <mail-composer-recipient :message="message" recipient-type="to" />
             </bm-col>
             <bm-col v-if="displayedRecipientFields == recipientModes.TO" cols="1" class="text-center">
                 <bm-icon-button
@@ -26,18 +14,7 @@
         </bm-row>
         <div v-if="displayedRecipientFields > recipientModes.TO" class="d-flex align-items-center">
             <div class="cc-contact-input">
-                <bm-contact-input
-                    variant="underline"
-                    :contacts.sync="cc"
-                    :autocomplete-results="autocompleteResultsCc"
-                    :validate-address-fn="validateDnAndAddress"
-                    class="w-100"
-                    @search="searchedPattern => onSearch('cc', searchedPattern)"
-                    @update:contacts="updateCc"
-                    @expand="expandContact(cc, $event, updateCc)"
-                >
-                    {{ $t("common.cc") }}
-                </bm-contact-input>
+                <mail-composer-recipient :message="message" recipient-type="cc" />
                 <bm-button
                     v-if="displayedRecipientFields == (recipientModes.TO | recipientModes.CC)"
                     variant="text"
@@ -53,25 +30,16 @@
             class="align-items-center"
         >
             <bm-col>
-                <bm-contact-input
-                    variant="underline"
-                    :contacts.sync="bcc"
-                    :autocomplete-results="autocompleteResultsBcc"
-                    :validate-address-fn="validateDnAndAddress"
-                    @search="searchedPattern => onSearch('bcc', searchedPattern)"
-                    @update:contacts="updateBcc"
-                    @expand="expandContact(bcc, $event, updateBcc)"
-                >
-                    {{ $t("common.bcc") }}
-                </bm-contact-input>
+                <mail-composer-recipient :message="message" recipient-type="bcc" />
             </bm-col>
         </bm-row>
     </div>
 </template>
 
 <script>
-import { BmButton, BmIconButton, BmCol, BmContactInput, BmRow } from "@bluemind/ui-components";
+import { BmButton, BmIconButton, BmCol, BmRow } from "@bluemind/ui-components";
 import { ComposerActionsMixin, EditRecipientsMixin } from "~/mixins";
+import MailComposerRecipient from "./MailComposerRecipient";
 
 export default {
     name: "MailComposerRecipients",
@@ -79,8 +47,8 @@ export default {
         BmButton,
         BmIconButton,
         BmCol,
-        BmContactInput,
-        BmRow
+        BmRow,
+        MailComposerRecipient
     },
     mixins: [ComposerActionsMixin, EditRecipientsMixin]
 };
@@ -110,6 +78,15 @@ export default {
             width: $bcc-button-width;
             right: 0;
             bottom: base-px-to-rem(3);
+        }
+    }
+
+    .bm-contact-input {
+        &.expanded-search .delete-autocomplete {
+            visibility: hidden;
+        }
+        .bm-contact-input-autocomplete-extra {
+            width: 18rem;
         }
     }
 }
