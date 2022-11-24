@@ -4,11 +4,13 @@ import { mapExtensions } from "@bluemind/extensions";
 import BmExtensionList from "./BmExtensionList";
 import BmExtensionDecorator from "./BmExtensionDecorator";
 import BmExtensionRenderless from "./BmExtensionRenderless";
+import BmExtensionChainOfResponsibility from "./BmExtensionChainOfResponsibility";
 
 const BmExtensionType = {
     LIST: "list",
     DECORATOR: "decorator",
-    RENDERLESS: "renderless"
+    RENDERLESS: "renderless",
+    CHAIN_OF_RESPONSIBILITY: "chain-of-responsibility"
 };
 
 export default {
@@ -48,6 +50,8 @@ export default {
                 return h(BmExtensionDecorator, options);
             case BmExtensionType.RENDERLESS:
                 return h(BmExtensionRenderless, options);
+            case BmExtensionType.CHAIN_OF_RESPONSIBILITY:
+                return h(BmExtensionChainOfResponsibility, options);
             default:
                 return h(BmExtensionList, options);
         }
