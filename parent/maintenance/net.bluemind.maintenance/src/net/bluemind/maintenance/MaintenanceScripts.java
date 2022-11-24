@@ -22,6 +22,9 @@ import java.util.List;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 
 public class MaintenanceScripts {
+	private MaintenanceScripts() {
+	}
+
 	public static List<IMaintenanceScript> getMaintenanceScripts() {
 		RunnableExtensionLoader<IMaintenanceScript> epLoader = new RunnableExtensionLoader<>();
 		return epLoader.loadExtensionsWithPriority("net.bluemind.maintenance", "scripts", "java", "code");

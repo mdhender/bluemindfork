@@ -478,14 +478,14 @@ public class JdbcAbstractStore {
 		}
 		for (int i = 0; i < parameters.length; i++) {
 			Object param = parameters[i];
-			if (param instanceof Integer[]) {
-				st.setArray(currentIndex++, conn.createArrayOf("int4", (Integer[]) param));
-			} else if (param instanceof Long[]) {
-				st.setArray(currentIndex++, conn.createArrayOf("int8", (Long[]) param));
-			} else if (param instanceof String[]) {
-				st.setArray(currentIndex++, conn.createArrayOf("text", (String[]) param));
-			} else if (param instanceof Byte[]) {
-				st.setArray(currentIndex++, conn.createArrayOf(BYTEA, (Byte[]) param));
+			if (param instanceof Integer[] intparam) {
+				st.setArray(currentIndex++, conn.createArrayOf("int4", intparam));
+			} else if (param instanceof Long[] longparam) {
+				st.setArray(currentIndex++, conn.createArrayOf("int8", longparam));
+			} else if (param instanceof String[] stringparam) {
+				st.setArray(currentIndex++, conn.createArrayOf("text", stringparam));
+			} else if (param instanceof Byte[] byteparam) {
+				st.setArray(currentIndex++, conn.createArrayOf(BYTEA, byteparam));
 			} else {
 				st.setObject(currentIndex++, param);
 			}

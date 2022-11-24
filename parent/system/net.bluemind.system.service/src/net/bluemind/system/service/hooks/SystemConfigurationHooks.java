@@ -55,7 +55,6 @@ public class SystemConfigurationHooks {
 		RunnableExtensionLoader<ISystemConfigurationValidator> validatorLoader = new RunnableExtensionLoader<>();
 		this.validators = validatorLoader.loadExtensionsWithPriority("net.bluemind.system", "hook", "validator",
 				"class");
-
 	}
 
 	public void sanitize(SystemConf previous, Map<String, String> values) throws ServerFault {
