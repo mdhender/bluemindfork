@@ -31,10 +31,12 @@ import com.google.common.base.Suppliers;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
+import net.bluemind.backend.mail.replica.api.IMessageBodyTierChange;
 import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
 import net.bluemind.backend.mail.replica.service.internal.DbMessageBodiesService;
 import net.bluemind.backend.mail.replica.service.sds.MessageBodyObjectStore;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 
@@ -47,7 +49,8 @@ public class DbMessageBodiesServiceFactory
 		logger.debug("For partition {}...", partition);
 		MessageBodyStore bodyStore = new MessageBodyStore(context.getMailboxDataSource(partition.serverUid));
 		Supplier<MessageBodyObjectStore> bodyObjectStore = Suppliers.memoize(() -> new MessageBodyObjectStore(context));
-		return new DbMessageBodiesService(bodyStore, bodyObjectStore);
+		return new DbMessageBodiesService(bodyStore, bodyObjectStore, Suppliers.memoize(() -> ServerSideServiceProvider
+				.getProvider(SecurityContext.SYSTEM).instance(IMessageBodyTierChange.class, partition.serverUid)));
 	}
 
 	@Override

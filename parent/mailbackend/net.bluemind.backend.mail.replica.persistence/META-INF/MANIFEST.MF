@@ -10,7 +10,8 @@ Require-Bundle: org.eclipse.core.runtime,
  io.vertx.core,
  slf4j.api;bundle-version="1.7.5",
  net.bluemind.backend.mail.api,
- net.bluemind.backend.mail.replica.sqlschema;bundle-version="4.1.0"
+ net.bluemind.backend.mail.replica.sqlschema,
+ org.postgresql.jdbc42
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.backend.mail.replica.persistence

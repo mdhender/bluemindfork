@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.backend.mail.replica.api.TierMove;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -39,6 +41,7 @@ import net.bluemind.sds.dto.MgetRequest;
 import net.bluemind.sds.dto.MgetRequest.Transfer;
 import net.bluemind.sds.dto.PutRequest;
 import net.bluemind.sds.dto.SdsResponse;
+import net.bluemind.sds.dto.TierMoveRequest;
 import net.bluemind.sds.store.ISdsSyncStore;
 import net.bluemind.sds.store.loader.SdsStoreLoader;
 import net.bluemind.sds.store.noop.NoopStoreFactory;
@@ -133,11 +136,16 @@ public class MessageBodyObjectStore {
 		});
 	}
 
-	public void store(String uid, File tmpFile) {
+	public void store(String uid, Date deliveryDate, File tmpFile) {
 		logger.info("Store {} with {}", uid, objectStore);
 		PutRequest pr = new PutRequest();
 		pr.filename = tmpFile.getAbsolutePath();
 		pr.guid = uid;
+		pr.deliveryDate = deliveryDate;
 		objectStore.upload(pr);
+	}
+
+	public List<String> tierMove(List<TierMove> tierMoves) {
+		return objectStore.tierMove(new TierMoveRequest(tierMoves)).moved;
 	}
 }

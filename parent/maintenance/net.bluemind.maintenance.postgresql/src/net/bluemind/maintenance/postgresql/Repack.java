@@ -19,6 +19,7 @@ package net.bluemind.maintenance.postgresql;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -138,7 +139,14 @@ public class Repack implements IMaintenanceScript {
 				sb.append("  pg_repack --wait-timeout " + TimeUnit.HOURS.toSeconds(4) + " -d " + dbName
 						+ " -t \"t_conversationreference_${i}\"\n");
 				sb.append("done\n");
+
+				// q_message_body_tier_change
+				for (String tableName : Arrays.asList("q_message_body_tier_change")) {
+					sb.append("pg_repack --wait-timeout " + TimeUnit.HOURS.toSeconds(4) + " -d " + dbName + " -t \""
+							+ tableName + "\"\n");
+				}
 			}
+
 			String scriptPath = "/tmp/maintenance_repack_" + System.nanoTime() + ".sh";
 			nodeClient.writeFile(scriptPath, new ByteArrayInputStream(sb.toString().getBytes()));
 			NCUtils.exec(nodeClient, "chmod +x " + scriptPath);

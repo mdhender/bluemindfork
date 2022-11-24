@@ -24,6 +24,8 @@ import net.bluemind.sds.dto.GetRequest;
 import net.bluemind.sds.dto.MgetRequest;
 import net.bluemind.sds.dto.PutRequest;
 import net.bluemind.sds.dto.SdsResponse;
+import net.bluemind.sds.dto.TierMoveRequest;
+import net.bluemind.sds.dto.TierMoveResponse;
 
 public interface ISdsSyncStore {
 
@@ -37,6 +39,7 @@ public interface ISdsSyncStore {
 
 	SdsResponse delete(DeleteRequest req);
 
-	void close();
+	TierMoveResponse tierMove(TierMoveRequest tierMoveRequest);
 
+	void close();
 }

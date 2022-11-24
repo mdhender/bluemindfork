@@ -32,6 +32,8 @@ import net.bluemind.sds.dto.GetRequest;
 import net.bluemind.sds.dto.MgetRequest;
 import net.bluemind.sds.dto.PutRequest;
 import net.bluemind.sds.dto.SdsResponse;
+import net.bluemind.sds.dto.TierMoveRequest;
+import net.bluemind.sds.dto.TierMoveResponse;
 import net.bluemind.system.api.ArchiveKind;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
@@ -117,6 +119,18 @@ public interface ISdsBackingStoreFactory {
 					throw new ServerFault("delete got interrupted", ErrorCode.UNKNOWN);
 				} catch (TimeoutException | ExecutionException e) {
 					throw new ServerFault("delete failed or timed out", ErrorCode.TIMEOUT);
+				}
+			}
+
+			@Override
+			public TierMoveResponse tierMove(TierMoveRequest tierMoveRequest) {
+				try {
+					return asyncStore.tierMove(tierMoveRequest).get(60, TimeUnit.SECONDS);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					throw new ServerFault("tier move got interrupted", ErrorCode.UNKNOWN);
+				} catch (TimeoutException | ExecutionException e) {
+					throw new ServerFault("tier move failed or timed out", ErrorCode.TIMEOUT);
 				}
 			}
 

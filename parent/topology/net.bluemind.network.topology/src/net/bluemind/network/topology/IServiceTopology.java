@@ -73,4 +73,14 @@ public interface IServiceTopology {
 		return nodes().stream().filter(si -> si.value.tags.contains(tag)).findAny();
 	}
 
+	/**
+	 * 
+	 * @param tag
+	 * @return list of servers matching the specified tag
+	 */
+
+	default List<ItemValue<Server>> all(String tag) {
+		return nodes().stream().filter(si -> si.value.tags.contains(tag)).toList();
+	}
+
 }

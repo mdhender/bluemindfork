@@ -25,7 +25,7 @@ public enum ArchiveKind {
 	ScalityRing("scalityring", true),
 
 	// cyrus archive
-	Cyrus("cyrus", true),
+	Cyrus("cyrus", true, true),
 
 	// store on local filesystem
 	Dummy("dummy"),
@@ -38,14 +38,20 @@ public enum ArchiveKind {
 
 	private final String name;
 	private final boolean isSdsArchive;
+	private final boolean supportsHsm;
 
-	private ArchiveKind(String name, boolean isSdsArchive) {
+	private ArchiveKind(String name, boolean isSdsArchive, boolean supportsHsm) {
 		this.name = name;
 		this.isSdsArchive = isSdsArchive;
+		this.supportsHsm = supportsHsm;
+	}
+
+	private ArchiveKind(String name, boolean isSdsArchive) {
+		this(name, isSdsArchive, false);
 	}
 
 	private ArchiveKind(String name) {
-		this(name, false);
+		this(name, false, false);
 	}
 
 	@Override
@@ -55,6 +61,10 @@ public enum ArchiveKind {
 
 	public boolean isSdsArchive() {
 		return this.isSdsArchive;
+	}
+
+	public boolean supportsHsm() {
+		return this.supportsHsm;
 	}
 
 	public static ArchiveKind fromName(String name) {

@@ -17,6 +17,7 @@
  */
 package net.bluemind.sds.proxy.tests;
 
+import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
 import io.vertx.core.Vertx;
@@ -27,6 +28,8 @@ import net.bluemind.sds.dto.ExistResponse;
 import net.bluemind.sds.dto.GetRequest;
 import net.bluemind.sds.dto.PutRequest;
 import net.bluemind.sds.dto.SdsResponse;
+import net.bluemind.sds.dto.TierMoveRequest;
+import net.bluemind.sds.dto.TierMoveResponse;
 import net.bluemind.sds.store.ISdsBackingStore;
 import net.bluemind.sds.store.ISdsBackingStoreFactory;
 import net.bluemind.system.api.ArchiveKind;
@@ -78,6 +81,13 @@ public class SdsTestStore implements ISdsBackingStore {
 	@Override
 	public CompletableFuture<SdsResponse> delete(DeleteRequest req) {
 		return CompletableFuture.completedFuture(new SdsResponse());
+	}
+
+	@Override
+	public CompletableFuture<TierMoveResponse> tierMove(TierMoveRequest tierMoveRequest) {
+		vertx.eventBus().publish("test.store.tierMove", tierMoveRequest.moves.size());
+		return CompletableFuture.completedFuture(new TierMoveResponse(
+				tierMoveRequest.moves.stream().map(tm -> tm.messageBodyGuid).toList(), Collections.emptyList()));
 	}
 
 	@Override

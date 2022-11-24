@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +47,7 @@ import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Header;
 import net.bluemind.backend.mail.parsing.BodyStreamProcessor;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
+import net.bluemind.backend.mail.replica.api.IMessageBodyTierChange;
 import net.bluemind.backend.mail.replica.api.MailApiHeaders;
 import net.bluemind.backend.mail.replica.indexing.IndexedMessageBody;
 import net.bluemind.backend.mail.replica.indexing.RecordIndexActivator;
@@ -67,10 +69,13 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 
 	protected final MessageBodyStore bodyStore;
 	private final Supplier<MessageBodyObjectStore> bodyObjectStore;
+	private final Supplier<IMessageBodyTierChange> bodyTierChangeService;
 
-	public DbMessageBodiesService(MessageBodyStore bodyStore, Supplier<MessageBodyObjectStore> bodyObjectStore) {
+	public DbMessageBodiesService(MessageBodyStore bodyStore, Supplier<MessageBodyObjectStore> bodyObjectStore,
+			Supplier<IMessageBodyTierChange> bodyTierChangeService) {
 		this.bodyStore = bodyStore;
 		this.bodyObjectStore = bodyObjectStore;
+		this.bodyTierChangeService = bodyTierChangeService;
 	}
 
 	private static final File TMP = new File(System.getProperty("java.io.tmpdir"));
@@ -79,6 +84,18 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 
 	@Override
 	public void create(String uid, Stream pristine) {
+		_create(uid, new Date(), pristine);
+	}
+
+	@Override
+	public void createWithDeliveryDate(String uid, Date deliveryDate, Stream pristine) {
+		_create(uid, deliveryDate, pristine);
+	}
+
+	/*
+	 * deliveryDate is used to choose the correct storage tier
+	 */
+	public void _create(String uid, Date deliveryDate, Stream pristine) {
 		if (exists(uid)) {
 			try {
 				logger.warn("Skipping existing body {}", uid);
@@ -110,15 +127,15 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 		Stream eml = VertxStream.localPath(tmpFile.toPath());
 		MessageBodyObjectStore objectStore = bodyObjectStore.get();
 		try {
-			objectStore.store(uid, tmpFile);
-			parseAndIndex(uid, eml);
+			objectStore.store(uid, deliveryDate, tmpFile);
+			parseAndIndex(uid, deliveryDate, eml);
 		} finally {
 			tmpFile.delete(); // NOSONAR
 		}
 
 	}
 
-	private void parseAndIndex(String uid, Stream eml) {
+	private void parseAndIndex(String uid, Date deliveryDate, Stream eml) {
 		CompletableFuture<Void> promise = BodyStreamProcessor.processBody(eml).exceptionally(t -> {
 			logger.error(t.getMessage(), t);
 			return null;
@@ -127,6 +144,7 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 			if (body != null) {
 				logger.debug("Got body '{}'", body.subject);
 				body.guid = uid;
+				body.created = deliveryDate == null ? new Date() : deliveryDate;
 				Optional<Header> idHeader = body.headers.stream()
 						.filter(h -> MailApiHeaders.X_BM_INTERNAL_ID.equals(h.name)).findAny();
 				Optional<Header> prevHeader = body.headers.stream()
@@ -265,6 +283,7 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 		try {
 			bodyStore.store(mb);
 			BodiesCache.bodies.put(mb.guid, mb);
+			bodyTierChangeService.get().createBody(mb);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}

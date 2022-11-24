@@ -9,7 +9,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava,
  com.fasterxml.jackson.core.jackson-annotations,
  io.vertx.core,
- net.bluemind.system.api
+ net.bluemind.system.api,
+ net.bluemind.backend.mail.replica.api;visibility:=reexport
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.sds.store
 Bundle-ActivationPolicy: lazy

@@ -17,6 +17,7 @@
   */
 package net.bluemind.backend.mail.replica.api;
 
+import java.util.Date;
 import java.util.List;
 
 import jakarta.ws.rs.DELETE;
@@ -25,7 +26,6 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
-
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.Stream;
@@ -45,6 +45,16 @@ public interface IDbMessageBodies {
 	@PUT
 	@Path("{uid}")
 	void create(@PathParam("uid") String uid, Stream eml);
+
+	/**
+	 * 
+	 * @param uid:          message body guid (sha1 hexdump on the body content)
+	 * @param deliveryDate: given by an imap client
+	 * @param eml
+	 */
+	@PUT
+	@Path("{uid}/_withdeliverydate")
+	void createWithDeliveryDate(@PathParam("uid") String uid, Date deliveryDate, Stream eml);
 
 	@GET
 	@Path("{uid}/complete")

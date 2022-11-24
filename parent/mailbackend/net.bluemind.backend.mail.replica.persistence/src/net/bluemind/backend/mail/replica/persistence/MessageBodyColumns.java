@@ -55,7 +55,8 @@ public class MessageBodyColumns {
 			.col("date_header")//
 			.col("size")//
 			.col("preview")//
-			.col("body_version");
+			.col("body_version")//
+			.col("created");
 
 	private static final ListReader<Header> headersReader = JsonUtils.listReader(Header.class);
 	private static final ListReader<Recipient> recipientReader = JsonUtils.listReader(Recipient.class);
@@ -82,6 +83,7 @@ public class MessageBodyColumns {
 			value.size = rs.getInt(index++);
 			value.preview = rs.getString(index++);
 			value.bodyVersion = rs.getInt(index++);
+			value.created = rs.getTimestamp(index++);
 			value.smartAttach = value.structure.hasRealAttachments();
 			return index;
 		};
@@ -113,7 +115,8 @@ public class MessageBodyColumns {
 				statement.setInt(index++, value.size);
 				statement.setString(index++, value.preview);
 				statement.setInt(index++, value.bodyVersion);
-
+				statement.setTimestamp(index++, value.created == null ? new Timestamp(new Date(0).getTime())
+						: Timestamp.from(value.created.toInstant()));
 				if (guid != null) {
 					statement.setString(index++, guid);
 				}

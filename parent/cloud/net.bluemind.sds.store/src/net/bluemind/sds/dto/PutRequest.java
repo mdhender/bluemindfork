@@ -17,13 +17,20 @@
   */
 package net.bluemind.sds.dto;
 
+import java.util.Date;
+
 public class PutRequest extends TransferRequest {
+	public Date deliveryDate; // NOSONAR: we don't care
 
 	public static PutRequest of(String guid, String filename) {
+		return PutRequest.of(guid, new Date(), filename);
+	}
+
+	public static PutRequest of(String guid, Date deliveryDate, String filename) {
 		PutRequest pr = new PutRequest();
 		pr.guid = guid;
 		pr.filename = filename;
+		pr.deliveryDate = deliveryDate;
 		return pr;
 	}
-
 }

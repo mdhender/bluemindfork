@@ -464,7 +464,8 @@ public class MailApiConnection implements MailboxConnection {
 
 		IConversationReference conversationReferenceApi = prov.instance(IConversationReference.class, me.domainUid,
 				me.uid);
-		bodiesApi.create(bodyGuid, VertxStream.stream(Buffer.buffer(buffer)));
+		Date bodyDeliveryDate = deliveryDate == null ? new Date(appendTx.internalStamp) : deliveryDate;
+		bodiesApi.createWithDeliveryDate(bodyGuid, bodyDeliveryDate, VertxStream.stream(Buffer.buffer(buffer)));
 		MessageBody messageBody = bodiesApi.getComplete(bodyGuid);
 		Set<String> references = (messageBody.references != null) ? Sets.newHashSet(messageBody.references)
 				: Sets.newHashSet();
@@ -473,7 +474,7 @@ public class MailApiConnection implements MailboxConnection {
 
 		MailboxRecord rec = new MailboxRecord();
 		rec.imapUid = appendTx.imapUid;
-		rec.internalDate = deliveryDate == null ? new Date(appendTx.internalStamp) : deliveryDate;
+		rec.internalDate = bodyDeliveryDate;
 		rec.messageBody = bodyGuid;
 		rec.modSeq = appendTx.modSeq;
 		rec.conversationId = conversationId;

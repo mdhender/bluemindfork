@@ -32,7 +32,6 @@ import net.bluemind.core.container.persistence.StringCreator;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 
 public class MessageBodyStore extends JdbcAbstractStore {
-
 	private static final Creator<MessageBody> MB_CREATOR = rs -> new MessageBody();
 
 	public MessageBodyStore(DataSource pool) {
@@ -55,7 +54,7 @@ public class MessageBodyStore extends JdbcAbstractStore {
 	}
 
 	public void deleteAll() throws SQLException {
-		delete("TRUNCATE t_message_body", new Object[0]);
+		delete("TRUNCATE t_message_body CASCADE", new Object[0]);
 	}
 
 	private static final String GET_QUERY = "SELECT " + MessageBodyColumns.COLUMNS.names()
@@ -84,14 +83,14 @@ public class MessageBodyStore extends JdbcAbstractStore {
 	}
 
 	public boolean exists(String uid) throws SQLException {
-		String q = "select 1 from t_message_body mb where guid = decode(?, 'hex')";
+		String q = "SELECT 1 FROM t_message_body WHERE guid = decode(?, 'hex')";
 		Boolean found = unique(q, rs -> Boolean.TRUE, Collections.emptyList(), new Object[] { uid });
 		return found != null;
 	}
 
 	public List<String> existing(List<String> toCheck) throws SQLException {
 		List<String> theList = java.util.Optional.ofNullable(toCheck).orElse(Collections.emptyList());
-		String q = "select encode(guid, 'hex') from t_message_body mb where guid = ANY(?::bytea[])";
+		String q = "SELECT encode(guid, 'hex') FROM t_message_body WHERE guid = ANY(?::bytea[])";
 		return select(q, StringCreator.FIRST, (rs, index, val) -> index, new Object[] { toByteArray(theList) });
 	}
 

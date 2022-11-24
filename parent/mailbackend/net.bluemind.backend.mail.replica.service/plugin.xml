@@ -30,6 +30,9 @@
             api="net.bluemind.backend.mail.replica.api.IDbMessageBodies">
       </endpoint>
       <endpoint
+            api="net.bluemind.backend.mail.replica.api.IMessageBodyTierChange">
+      </endpoint>
+      <endpoint
             api="net.bluemind.backend.mail.api.IMailboxItems">
       </endpoint>
       <endpoint
@@ -128,6 +131,9 @@
       <serviceFactory
             class="net.bluemind.backend.mail.replica.service.internal.ItemsTransferService$Factory">
       </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.backend.mail.replica.service.internal.MessageBodyTierChangeService$Factory">
+      </serviceFactory>
    </extension>
    <extension
          point="net.bluemind.core.sanitizerfactory">
@@ -215,6 +221,8 @@
       <verticle
             impl="net.bluemind.backend.mail.replica.service.sds.SdsMessageBodyExpirationTimer$Factory">
       </verticle>
+      <verticle
+      		impl="net.bluemind.backend.mail.replica.service.internal.MessageBodyTierChangeTimer$Factory" />
    </extension>
    <extension
          point="net.bluemind.directory.repairSupport">
@@ -266,5 +274,15 @@
       <listener
             impl="net.bluemind.backend.mail.replica.service.internal.hooks.CleanTemporaryParts">
       </listener>
+   </extension>
+   
+   <extension
+         point="net.bluemind.system.hook">
+      <observer
+            class="net.bluemind.backend.mail.replica.service.internal.MessageBodyTierChangeSysconfObserver">
+      </observer>
+	  <validator
+            class="net.bluemind.backend.mail.replica.service.internal.MessageBodyTierChangeSysconfObserver">
+      </validator>
    </extension>
 </plugin>

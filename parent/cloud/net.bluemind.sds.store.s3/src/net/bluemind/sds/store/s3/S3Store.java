@@ -19,6 +19,7 @@ package net.bluemind.sds.store.s3;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -48,6 +49,8 @@ import net.bluemind.sds.dto.MgetRequest.Transfer;
 import net.bluemind.sds.dto.PutRequest;
 import net.bluemind.sds.dto.SdsError;
 import net.bluemind.sds.dto.SdsResponse;
+import net.bluemind.sds.dto.TierMoveRequest;
+import net.bluemind.sds.dto.TierMoveResponse;
 import net.bluemind.sds.store.ISdsBackingStore;
 import net.bluemind.sds.store.SdsException;
 import net.bluemind.sds.store.s3.zstd.ZstdRequestBody;
@@ -303,6 +306,12 @@ public class S3Store implements ISdsBackingStore {
 					return SdsResponse.UNTAGGED_OK;
 				});
 
+	}
+
+	@Override
+	public CompletableFuture<TierMoveResponse> tierMove(TierMoveRequest tierMoveRequest) {
+		return CompletableFuture.completedFuture(new TierMoveResponse(
+				tierMoveRequest.moves.stream().map(tm -> tm.messageBodyGuid).toList(), Collections.emptyList()));
 	}
 
 	@Override

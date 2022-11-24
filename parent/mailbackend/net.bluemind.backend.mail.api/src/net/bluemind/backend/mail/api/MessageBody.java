@@ -221,6 +221,7 @@ public class MessageBody {
 	public boolean smartAttach;
 
 	public Date date;
+	public Date created;
 	public int size;
 	public List<Header> headers = Collections.emptyList();
 	public List<Recipient> recipients = Collections.emptyList();

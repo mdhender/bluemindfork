@@ -18,6 +18,7 @@
 package net.bluemind.backend.cyrus.replication.storage.mock;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -76,6 +77,11 @@ public class MockMessageBodiesPromise implements IDbMessageBodiesPromise {
 	public CompletableFuture<Boolean> exists(String uid) {
 		logger.info("Mock {} does not exist", uid);
 		return CompletableFuture.completedFuture(false);
+	}
+
+	@Override
+	public CompletableFuture<Void> createWithDeliveryDate(String uid, Date deliveryDate, Stream eml) {
+		return CompletableFuture.completedFuture(null);
 	}
 
 }

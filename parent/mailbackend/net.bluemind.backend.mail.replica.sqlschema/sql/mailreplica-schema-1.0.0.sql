@@ -13,6 +13,21 @@ create table IF NOT EXISTS t_message_body (
 	created TIMESTAMP not null default now()
 );
 
+-- This index is used by MessageBodyTierChangeService (tier requeues)
+CREATE INDEX IF NOT EXISTS t_message_body_created_guid_idx ON t_message_body (created, guid);
+
+CREATE TYPE enum_q_tier AS ENUM (
+    'NORMAL',
+    'SLOW'
+);
+
+CREATE TABLE IF NOT EXISTS q_message_body_tier_change (
+    message_body_guid bytea PRIMARY KEY REFERENCES t_message_body(guid) ON DELETE CASCADE,
+    change_after timestamp not null,
+    tier enum_q_tier not null
+);
+CREATE INDEX IF NOT EXISTS i_q_message_body_tier_change ON q_message_body_tier_change(change_after);
+
 create table IF NOT EXISTS t_mailbox_replica (
 	short_name text not null,
 	parent_uid text,

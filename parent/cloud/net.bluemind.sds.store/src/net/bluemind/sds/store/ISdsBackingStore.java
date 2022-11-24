@@ -27,6 +27,8 @@ import net.bluemind.sds.dto.MgetRequest;
 import net.bluemind.sds.dto.PutRequest;
 import net.bluemind.sds.dto.SdsError;
 import net.bluemind.sds.dto.SdsResponse;
+import net.bluemind.sds.dto.TierMoveRequest;
+import net.bluemind.sds.dto.TierMoveResponse;
 
 public interface ISdsBackingStore {
 
@@ -54,5 +56,8 @@ public interface ISdsBackingStore {
 
 	CompletableFuture<SdsResponse> delete(DeleteRequest req);
 
+	CompletableFuture<TierMoveResponse> tierMove(TierMoveRequest tierMoveRequest);
+
 	public void close();
+
 }

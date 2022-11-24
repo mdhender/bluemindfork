@@ -24,6 +24,9 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -52,6 +55,9 @@ import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesMgmt;
 import net.bluemind.backend.mail.replica.api.MailboxRecordItemUri;
+import net.bluemind.backend.mail.replica.api.Tier;
+import net.bluemind.backend.mail.replica.api.TierMove;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
@@ -69,8 +75,14 @@ import net.bluemind.sds.dto.GetRequest;
 import net.bluemind.sds.dto.PutRequest;
 import net.bluemind.sds.dto.SdsError;
 import net.bluemind.sds.dto.SdsResponse;
+import net.bluemind.sds.dto.TierMoveRequest;
+import net.bluemind.sds.dto.TierMoveResponse;
 import net.bluemind.sds.store.ISdsBackingStore;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.api.ArchiveKind;
+import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.api.SystemConf;
+import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 
 public class SpoolBackingStore implements ISdsBackingStore {
 
@@ -78,17 +90,19 @@ public class SpoolBackingStore implements ISdsBackingStore {
 	private final IServiceProvider prov;
 	private final ConcurrentLinkedDeque<ItemValue<Server>> backends;
 	private final Iterator<ItemValue<Server>> roundRobin;
+	private final SystemConf sysconf;
 
 	public SpoolBackingStore(@SuppressWarnings("unused") Vertx vertx, IServiceProvider prov,
 			List<ItemValue<Server>> backends) {
 		this.prov = prov;
 		this.backends = new ConcurrentLinkedDeque<>(backends);
 		this.roundRobin = Iterators.cycle(backends);
+		this.sysconf = LocalSysconfCache.get();
 	}
 
 	@Override
 	public CompletableFuture<SdsResponse> upload(PutRequest req) {
-		String target = livePath(req.guid);
+		String target = chooseTarget(req);
 		INodeClient nc = NodeActivator.get(roundRobin.next().value.address());
 
 		ByteBuf bb = Unpooled.buffer(2 * (int) new File(req.filename).length());
@@ -107,6 +121,25 @@ public class SpoolBackingStore implements ISdsBackingStore {
 			return exception(e);
 		}
 
+	}
+
+	/*
+	 * Returns the path to store the new message, watching deliveryDate to choose
+	 * the correct storage tier
+	 */
+	private String chooseTarget(PutRequest req) {
+		if (req.deliveryDate == null) {
+			return livePath(req.guid);
+		}
+		ArchiveKind archiveKind = ArchiveKind.fromName(sysconf.stringValue(SysConfKeys.archive_kind.name()));
+		Integer archiveDays = sysconf.integerValue(SysConfKeys.archive_days.name(), 0);
+		if (archiveKind != null && archiveKind.supportsHsm() && archiveDays > 0
+				&& req.deliveryDate.toInstant().isBefore(Instant.now().plus(archiveDays, ChronoUnit.DAYS))) {
+			// deliveryDate is before now() + tierChangeDelay => direct insert to archive
+			return archivePath(req.guid);
+		} else {
+			return livePath(req.guid);
+		}
 	}
 
 	private static CompletableFuture<SdsResponse> exception(Throwable t) {
@@ -171,6 +204,39 @@ public class SpoolBackingStore implements ISdsBackingStore {
 		SdsResponse sr = new SdsResponse();
 		sr.error = new SdsError(guid + " not found.");
 		return CompletableFuture.completedFuture(sr);
+	}
+
+	@Override
+	public CompletableFuture<TierMoveResponse> tierMove(TierMoveRequest tierMoveRequest) {
+		logger.debug("Tier move request {}", tierMoveRequest);
+		List<String> errors = new ArrayList<>();
+		List<String> successes = new ArrayList<>();
+		for (TierMove move : tierMoveRequest.moves) {
+			String from;
+			String to;
+
+			if (move.tier.equals(Tier.SLOW)) {
+				from = livePath(move.messageBodyGuid);
+				to = archivePath(move.messageBodyGuid);
+			} else {
+				from = archivePath(move.messageBodyGuid);
+				to = livePath(move.messageBodyGuid);
+			}
+
+			for (ItemValue<Server> backend : backends) {
+				INodeClient nc = NodeActivator.get(backend.value.address());
+				if (nc.exists(from)) {
+					try {
+						nc.moveFile(from, to);
+						successes.add(move.messageBodyGuid);
+					} catch (ServerFault e) {
+						errors.add(move.messageBodyGuid);
+					}
+					break;
+				}
+			}
+		}
+		return CompletableFuture.completedFuture(new TierMoveResponse(successes, errors));
 	}
 
 	private boolean locatePath(String targetPath, String emlPath) {
