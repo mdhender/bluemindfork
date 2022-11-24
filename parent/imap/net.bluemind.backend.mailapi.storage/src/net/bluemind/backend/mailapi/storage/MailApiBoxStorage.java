@@ -68,7 +68,7 @@ public class MailApiBoxStorage implements IMailboxesStorage {
 	}
 
 	@Override
-	public void rewriteCyrusConfiguration(String serverUid) {
+	public void rewriteCyrusConfiguration(String serverUid, boolean reload) {
 		// OK
 		logger.info("cyrus is not here, rewriteCyrusConfiguration({}) does nothing", serverUid);
 	}

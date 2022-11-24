@@ -18,6 +18,8 @@
  */
 package net.bluemind.backend.cyrus;
 
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 
 import net.bluemind.core.api.fault.ServerFault;
@@ -26,6 +28,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.mailbox.service.MailboxesStorageFactory;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.hook.ISystemConfigurationObserver;
@@ -34,15 +37,21 @@ public class CyrusSysConfObserver implements ISystemConfigurationObserver {
 
 	@Override
 	public void onUpdated(BmContext context, SystemConf previous, SystemConf conf) throws ServerFault {
-
 		boolean initialized = false;
 
 		String prev = previous.stringValue(SysConfKeys.imap_max_child.name());
 		String now = conf.stringValue(SysConfKeys.imap_max_child.name());
+
+		// NOTE: Topololgy can't be used here, because during setup, the topology
+		// is not available yet
+		IServer serverApi = context.su().provider().instance(IServer.class, "default");
+		List<ItemValue<Server>> backends = serverApi.allComplete().stream()
+				.filter(ivs -> ivs.value.tags.contains(TagDescriptor.mail_imap.getTag())).toList();
+
 		if (!StringUtils.equals(prev, now)) {
 			initialized = true;
-			IServer servers = context.su().provider().instance(IServer.class, "default");
-			for (ItemValue<Server> server : servers.allComplete()) {
+
+			for (ItemValue<Server> server : backends) {
 				if (server.value.tags.contains("mail/imap")) {
 					MailboxesStorageFactory.getMailStorage().initialize(context.su(), server);
 				}
@@ -63,12 +72,8 @@ public class CyrusSysConfObserver implements ISystemConfigurationObserver {
 
 			if ((!equals(prevArchiveKind, currentArchiveKind)) || (!equals(prevHsmDays, currentHsmDays))
 					|| (!equals(prevHsmThreshold, currentHsmThreshold)) || (!equals(prevRetention, currentRetention))) {
-				for (ItemValue<Server> server : context.provider().instance(IServer.class, "default").allComplete()) {
-					if (server.value.tags.contains("mail/imap")) {
-						MailboxesStorageFactory.getMailStorage().rewriteCyrusConfiguration(server.uid);
-						CyrusService cyrusService = new CyrusService(server.value.address());
-						cyrusService.reload();
-					}
+				for (ItemValue<Server> server : backends) {
+					MailboxesStorageFactory.getMailStorage().rewriteCyrusConfiguration(server.uid, true);
 				}
 			}
 		}

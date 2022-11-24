@@ -149,7 +149,7 @@ public class VoidMailboxesStorage implements IMailboxesStorage {
 	}
 
 	@Override
-	public void rewriteCyrusConfiguration(String serverUid) {
+	public void rewriteCyrusConfiguration(String serverUid, boolean reload) {
 		logger.warn("VOID MAILSTORAGE rewriteCyrusConfiguration");
 	}
 

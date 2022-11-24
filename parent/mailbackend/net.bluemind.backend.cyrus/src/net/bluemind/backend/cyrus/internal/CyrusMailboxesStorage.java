@@ -542,7 +542,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 		CyrusReplication replication = new CyrusReplication(service, server.uid);
 		replication.write();
 
-		rewriteCyrusConfiguration(server.uid);
+		rewriteCyrusConfiguration(server.uid, false);
 
 		new CyrusProxyPassword(service, server.uid).write();
 		new CyrusAdmins(service, server.uid).write();
@@ -1142,7 +1142,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 	}
 
 	@Override
-	public void rewriteCyrusConfiguration(String serverUid) {
+	public void rewriteCyrusConfiguration(String serverUid, boolean reload) {
 		SystemConf sysConf = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(ISystemConfiguration.class).getValues();
 		int maxChild = getMaxChild(sysConf);
@@ -1153,6 +1153,10 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 		hsm.write();
 		Cyrus cyrusConf = new Cyrus(service, serverUid, maxChild, retention);
 		cyrusConf.write();
+		if (reload) {
+			CyrusService cyrusService = new CyrusService(service.getComplete(serverUid).value.address());
+			cyrusService.reload();
+		}
 	}
 
 	private int getRetention(SystemConf sysConf) {

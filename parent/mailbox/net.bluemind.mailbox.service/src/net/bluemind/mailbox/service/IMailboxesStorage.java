@@ -48,8 +48,7 @@ public interface IMailboxesStorage {
 	void update(BmContext context, String domainUid, ItemValue<Mailbox> previousValue, ItemValue<Mailbox> value)
 			throws ServerFault;
 
-	boolean mailboxRequiresCreationInCyrus(BmContext context, String domainUid, Mailbox previous,
-			Mailbox current);
+	boolean mailboxRequiresCreationInCyrus(BmContext context, String domainUid, Mailbox previous, Mailbox current);
 
 	void create(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault;
 
@@ -155,6 +154,6 @@ public interface IMailboxesStorage {
 	void move(String domainUid, ItemValue<Mailbox> mailbox, ItemValue<Server> sourceServer,
 			ItemValue<Server> dstServer);
 
-	void rewriteCyrusConfiguration(String serverUid);
+	void rewriteCyrusConfiguration(String serverUid, boolean reload);
 
 }

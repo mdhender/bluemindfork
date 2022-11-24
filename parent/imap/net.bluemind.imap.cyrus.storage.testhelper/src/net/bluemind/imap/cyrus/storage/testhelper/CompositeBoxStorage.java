@@ -105,8 +105,8 @@ public class CompositeBoxStorage implements IMailboxesStorage {
 		mailApi.move(domainUid, mailbox, sourceServer, dstServer);
 	}
 
-	public void rewriteCyrusConfiguration(String serverUid) {
-		cyrus.rewriteCyrusConfiguration(serverUid);
+	public void rewriteCyrusConfiguration(String serverUid, boolean reload) {
+		cyrus.rewriteCyrusConfiguration(serverUid, reload);
 	}
 
 	@Override
