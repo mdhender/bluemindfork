@@ -12,7 +12,7 @@
 
 <script>
 import { DISPLAY_UNTRUSTED } from "../../store/mutationTypes";
-import { BmButton } from "@bluemind/styleguide";
+import { BmButton } from "@bluemind/ui-components";
 
 export default {
     name: "UntrustedSenderAlert",

@@ -18,11 +18,11 @@
         </div>
 
         <template v-if="!isConversation && isMessageListStyleFull">
-            <bm-icon v-if="conversation.hasAttachment" class="mail-attachment-icon" icon="paper-clip" />
-            <bm-icon v-if="conversation.hasICS" class="mail-attachment-icon" icon="calendar" />
+            <bm-icon v-if="conversation.hasAttachment" class="mail-icon" icon="paper-clip" />
+            <bm-icon v-if="conversation.hasICS" class="mail-icon" icon="calendar" />
         </template>
         <template v-else-if="!isConversation || isMessageListStyleFull">
-            <mail-attachment-icon :message="conversation" />
+            <mail-icon :message="conversation" />
         </template>
     </div>
 </template>
@@ -31,7 +31,7 @@
 import { BmAvatar, BmCheck, BmIcon } from "@bluemind/ui-components";
 import { mapGetters, mapState } from "vuex";
 import { CONVERSATIONS_ACTIVATED, MY_DRAFTS, MY_SENT } from "~/getters";
-import MailAttachmentIcon from "../MailAttachmentIcon";
+import MailIcon from "../MailIcon";
 import { SELECTION_MODE } from "./ConversationList";
 
 export default {
@@ -40,7 +40,7 @@ export default {
         BmAvatar,
         BmCheck,
         BmIcon,
-        MailAttachmentIcon
+        MailIcon
     },
     props: {
         conversation: {
@@ -101,7 +101,7 @@ export default {
     flex-direction: column;
     align-items: center;
 
-    .mail-attachment-icon {
+    .mail-icon {
         color: $neutral-fg;
     }
 }

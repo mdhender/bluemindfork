@@ -57,7 +57,7 @@
         </template>
         <template slot="content">
             <div v-if="!isMessageExpanded" class="d-flex flex-fill align-items-center pb-2 pr-6">
-                <mail-attachment-icon class="mr-3" :message="message" />
+                <mail-icon class="mr-3" :message="message" />
                 <div class="text-truncate">{{ message.preview }}</div>
             </div>
             <div v-else class="d-flex flex-fill pb-2 pr-6">
@@ -85,22 +85,22 @@ import MailConversationViewerItemMixin from "./MailConversationViewerItemMixin";
 import BodyViewer from "../BodyViewer";
 import { MESSAGE_IS_LOADED } from "~/getters";
 import MailFolderIcon from "../../MailFolderIcon";
-import MailAttachmentIcon from "../../MailAttachmentIcon";
 import MailContactCardSlots from "../../MailContactCardSlots";
+import MailIcon from "../../MailIcon";
 
 export default {
     name: "MailConversationViewerMessage",
     components: {
         BmExtension,
         BodyViewer,
-        MailAttachmentIcon,
         MailContactCardSlots,
         MailConversationViewerFlags,
         MailConversationViewerItem,
         MailFolderIcon,
         MailViewerContentLoading,
         MailViewerToolbar,
-        MailViewerToolbarForMobile
+        MailViewerToolbarForMobile,
+        MailIcon
     },
     mixins: [MailConversationViewerItemMixin],
     data() {

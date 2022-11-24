@@ -6,17 +6,27 @@ import TrustedSender from "./components/mail-app/TrustedSender";
 import UntrustedSenderAlert from "./components/mail-app/UntrustedSenderAlert";
 import UntrustedSenderTrigger from "./components/mail-app/UntrustedSenderTrigger";
 import PrefSmime from "./components/preferences/PrefSmime";
+import LockIcon from "./components/mail-app/LockIcon";
 import { SMIMEPrefKeys } from "./lib/constants";
 import SmimeStore from "./store";
 import { SMIME_AVAILABLE } from "./store/getterTypes";
 
 store.registerModule("smime", SmimeStore);
 
+Vue.component("LockIcon", LockIcon);
 Vue.component("PrefSmime", PrefSmime);
 Vue.component("SmimeBodyWrapper", SmimeBodyWrapper);
 Vue.component("TrustedSender", TrustedSender);
 Vue.component("UntrustedSenderAlert", UntrustedSenderAlert);
 Vue.component("UntrustedSenderTrigger", UntrustedSenderTrigger);
+
+extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
+    component: {
+        name: "LockIcon",
+        path: "list.conversation.icon",
+        priority: 10
+    }
+});
 
 extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
     component: {

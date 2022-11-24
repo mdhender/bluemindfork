@@ -1,5 +1,5 @@
 <script>
-import { BmButton } from "@bluemind/styleguide";
+import { BmButton } from "@bluemind/ui-components";
 import { isSigned, isVerified } from "../../lib/helper";
 import untrustedIllustration from "../../../assets/mail-app-untrusted.png";
 
@@ -43,7 +43,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/_variables";
 
 .smime-body-wrapper {
     display: flex;

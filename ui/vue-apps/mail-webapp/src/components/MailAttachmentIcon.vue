@@ -1,7 +1,7 @@
 <template>
     <bm-icon
         v-if="message.hasAttachment || message.hasICS"
-        class="mail-attachment-icon"
+        class="mail-icon"
         :icon="message.hasICS ? 'calendar' : 'paper-clip'"
     />
 </template>
@@ -10,7 +10,7 @@
 import { BmIcon } from "@bluemind/ui-components";
 
 export default {
-    name: "MailAttachmentIcon",
+    name: "MailIcon",
     components: {
         BmIcon
     },

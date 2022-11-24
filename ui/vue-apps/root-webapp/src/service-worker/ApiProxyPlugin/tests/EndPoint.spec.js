@@ -3,8 +3,6 @@ import { Response } from "node-fetch";
 import { EndPoint } from "../EndPoint";
 import { RegExpRoute } from "workbox-routing";
 import { ApiRouteHandler } from "../ApiRouteHandler";
-
-global.Response = Response;
 global.fetch = jest.fn();
 
 jest.mock("../ApiRouteHandler");

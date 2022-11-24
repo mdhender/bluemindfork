@@ -1,5 +1,6 @@
 import smime from "../smime";
 import pkcs7 from "../pkcs7";
+import pki from "../pki";
 
 import {
     InvalidCredentialsError,
@@ -11,16 +12,7 @@ import {
 import { CRYPTO_HEADERS, ENCRYPTED_HEADER_NAME } from "../../lib/constants";
 import { readFile } from "./helpers";
 
-jest.mock("../pki", () => ({
-    getMyPrivateKey: () => Promise.resolve("PrivateKey"),
-    getMyCertificate: () =>
-        Promise.resolve({
-            validity: {
-                notBefore: new Date("2022-09-25T13:43:26.000Z"),
-                notAfter: new Date("2023-09-25T13:43:26.000Z")
-            }
-        })
-}));
+jest.mock("../pki", () => jest.fn);
 jest.mock("@bluemind/backend.mail.api", () => ({
     MailboxItemsClient: () => ({
         fetch: () => Promise.resolve("data")
@@ -87,6 +79,16 @@ const unecrypted = {
 describe("smime", () => {
     beforeEach(() => {
         pkcs7.decrypt = jest.fn(() => Promise.resolve("content"));
+        pki.getMyPrivateKey = jest.fn(() => Promise.resolve("PrivateKey"));
+        pki.getMyCertificate = jest.fn(() =>
+            Promise.resolve({
+                validity: {
+                    notBefore: new Date("2022-09-25T13:43:26.000Z"),
+                    notAfter: new Date("2023-09-25T13:43:26.000Z")
+                }
+            })
+        );
+        pki.isCertificateExpired = jest.fn(() => false);
     });
 
     describe("isEncrypted", () => {
@@ -123,6 +125,7 @@ describe("smime", () => {
             expect(mockCache).toMatchSnapshot();
         });
         test("raise an error if the certificate is expired", async () => {
+            pki.isCertificateExpired = jest.fn(() => true);
             const old = {
                 value: {
                     body: {
