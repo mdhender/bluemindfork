@@ -221,6 +221,17 @@ public final class AHCHttpNodeClient implements INodeClient {
 		}
 	}
 
+	@Override
+	public void moveFile(String origin, String destination) throws ServerFault {
+		Request built = new RequestBuilder("POST", true, false).setUri(withPath("/move")).build();
+		BoundRequestBuilder req = cli.getClient().prepareRequest(built);
+		try {
+			run(req, new MoveHandler(origin, destination));
+		} catch (Exception t) {
+			throw new ServerFault(t.getMessage());
+		}
+	}
+
 	private <T> T run(BoundRequestBuilder req, DefaultAsyncHandler<T> handler) {
 		try {
 			return handler.prepare(req).execute(handler).get();
@@ -259,5 +270,4 @@ public final class AHCHttpNodeClient implements INodeClient {
 		cli.getWebsocketLink().startWsAction(req, ph);
 
 	}
-
 }

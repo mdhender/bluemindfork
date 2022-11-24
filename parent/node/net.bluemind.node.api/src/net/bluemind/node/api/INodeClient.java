@@ -167,4 +167,15 @@ public interface INodeClient {
 	 * @throws ServerFault
 	 */
 	void deleteFile(String path) throws ServerFault;
+
+	/*
+	 * Moves a file from a path, to another
+	 * 
+	 * @param origin: Original path
+	 * 
+	 * @param destination: Destination path
+	 * 
+	 * @throws ServerFault
+	 */
+	void moveFile(String origin, String destination) throws ServerFault;
 }

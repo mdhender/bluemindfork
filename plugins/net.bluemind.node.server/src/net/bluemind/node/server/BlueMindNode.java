@@ -19,6 +19,7 @@
 package net.bluemind.node.server;
 
 import java.nio.channels.ClosedChannelException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,7 @@ import net.bluemind.node.server.handlers.GetStatus;
 import net.bluemind.node.server.handlers.Interrupt;
 import net.bluemind.node.server.handlers.ListFiles;
 import net.bluemind.node.server.handlers.ListMatches;
+import net.bluemind.node.server.handlers.MoveFile;
 import net.bluemind.node.server.handlers.SendFile;
 import net.bluemind.node.server.handlers.SubmitCommand;
 import net.bluemind.node.server.handlers.WebSocketProcessHandler;
@@ -101,6 +103,7 @@ public abstract class BlueMindNode extends AbstractVerticle {
 		rm.regex(HttpMethod.PUT, FS_OPS_RE, new WriteFile());
 		rm.regex(HttpMethod.DELETE, FS_OPS_RE, new DeleteFile());
 		rm.regex(HttpMethod.GET, "/list(/.*)", new ListFiles());
+		rm.post("/move", new MoveFile());
 		rm.regex(HttpMethod.GET, "/match/([^/]*)(/.*)", new ListMatches());
 		rm.options("/", (HttpServerRequest event) -> {
 			logger.info("{} / => OK", event.method());

@@ -50,6 +50,7 @@ import net.bluemind.node.api.ProcessHandler;
 import net.bluemind.node.client.NodePathEscaper;
 import net.bluemind.node.client.impl.FBOSInput;
 import net.bluemind.node.client.impl.ahc.JsonHelper;
+import net.bluemind.node.client.impl.ahc.MoveHandler.MoveJsonHelper;
 import net.bluemind.node.shared.ActiveExecQuery;
 import net.bluemind.node.shared.ExecDescriptor;
 import net.bluemind.node.shared.ExecRequest;
@@ -458,6 +459,19 @@ public class OkHttpNodeClient implements INodeClient {
 			throw new ServerFault(e);
 		}
 
+	}
+
+	@Override
+	public void moveFile(String origin, String destination) throws ServerFault {
+		Request delReq = new Request.Builder().url(withPath("/move"))
+				.post(RequestBody.create(MoveJsonHelper.toJsonString(origin, destination), MEDIA_TYPE_JSON)).build();
+		try (Response delResp = client.newCall(delReq).execute()) {
+			if (!delResp.isSuccessful()) {
+				logger.warn("mv {} {} failed (code {})", origin, destination, delResp.code());
+			}
+		} catch (IOException e) {
+			throw new ServerFault(e);
+		}
 	}
 
 }

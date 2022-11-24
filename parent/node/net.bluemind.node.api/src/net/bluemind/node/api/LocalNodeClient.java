@@ -168,7 +168,15 @@ public class LocalNodeClient implements INodeClient {
 		} catch (IOException e) {
 			throw new ServerFault(e);
 		}
+	}
 
+	@Override
+	public void moveFile(String origin, String destination) {
+		try {
+			Files.move(Paths.get(origin), Paths.get(destination));
+		} catch (IOException e) {
+			throw new ServerFault(e);
+		}
 	}
 
 }

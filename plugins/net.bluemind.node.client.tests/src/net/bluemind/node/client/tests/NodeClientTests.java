@@ -24,6 +24,8 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -645,6 +647,33 @@ public class NodeClientTests extends TestCase {
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Test thrown an axception");
+		}
+	}
+
+	public void testMove() throws IOException {
+		Path src = java.nio.file.Files.createTempFile("src", ".tmp");
+		Path to = Paths.get(src.toString() + ".moved");
+		try {
+			INodeClient nc = client();
+			nc.moveFile(src.toString(), to.toString());
+			assertTrue(java.nio.file.Files.exists(to));
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("move failed");
+		} finally {
+			java.nio.file.Files.deleteIfExists(src);
+			java.nio.file.Files.deleteIfExists(to);
+		}
+	}
+
+	public void testMoveFail() {
+		Path src = Paths.get("/tmp/does/not/exists/for/sure");
+		Path to = Paths.get(src.toString() + ".moved");
+		try {
+			INodeClient nc = client();
+			nc.moveFile(src.toString(), to.toString());
+			fail("move inexistent file must fail");
+		} catch (Exception e) {
 		}
 	}
 
