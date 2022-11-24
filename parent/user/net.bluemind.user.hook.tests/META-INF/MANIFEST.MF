@@ -25,7 +25,6 @@ Require-Bundle: org.junit,
  net.bluemind.group.service;bundle-version="1.0.0",
  net.bluemind.domain.api;bundle-version="1.0.0",
  net.bluemind.mailbox.api,
- net.bluemind.hsm.service;bundle-version="4.1.0",
  net.bluemind.core.task.service;bundle-version="4.1.0",
  net.bluemind.user.hook
 Automatic-Module-Name: net.bluemind.user.hook.tests

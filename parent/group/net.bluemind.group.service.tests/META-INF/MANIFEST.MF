@@ -19,7 +19,6 @@ Require-Bundle: org.junit,
  net.bluemind.core.tests.testshelper,
  net.bluemind.addressbook.domainbook;bundle-version="1.0.0",
  net.bluemind.mailbox.persistence;bundle-version="1.0.0",
- net.bluemind.hsm.service;bundle-version="4.1.0",
  net.bluemind.externaluser.service;bundle-version="4.1.0",
  net.bluemind.externaluser.api;bundle-version="4.1.0"
 Automatic-Module-Name: net.bluemind.group.service.tests

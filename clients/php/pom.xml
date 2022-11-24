@@ -86,11 +86,6 @@
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
-			<artifactId>net.bluemind.hsm.api.php</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.mailbox.api.php</artifactId>
 			<version>${project.version}</version>
 		</dependency>

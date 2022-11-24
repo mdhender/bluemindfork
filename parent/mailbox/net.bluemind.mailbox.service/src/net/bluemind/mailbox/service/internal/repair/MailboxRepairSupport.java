@@ -90,7 +90,6 @@ public class MailboxRepairSupport implements IDirEntryRepairSupport {
 				new MailboxImapHierarchyMaintenanceOperation(context), new MailboxQuotaMaintenanceOperation(context),
 				new MailboxIndexExistsMaintenanceOperation(context),
 				new MailboxPostfixMapsMaintenanceOperation(context),
-				new MailboxHsmMigrationMaintenanceOperation(context),
 				new MailboxDefaultFoldersMaintenanceOperation(context),
 				new MailboxSharedSeenMaintenanceOperation(context));
 	}

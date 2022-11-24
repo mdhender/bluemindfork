@@ -268,11 +268,6 @@
       <plugin id="net.bluemind.group.service"/>
       <plugin id="net.bluemind.group.sqlschema"/>
       <plugin id="net.bluemind.hornetq.client"/>
-      <plugin id="net.bluemind.hsm.api"/>
-      <plugin id="net.bluemind.hsm.processor"/>
-      <plugin id="net.bluemind.hsm.service"/>
-      <plugin id="net.bluemind.hsm.storage"/>
-      <plugin id="net.bluemind.hsm.storage.snappy"/>
       <plugin id="net.bluemind.i18n.labels"/>
       <plugin id="net.bluemind.icalendar.api"/>
       <plugin id="net.bluemind.icalendar.parser"/>

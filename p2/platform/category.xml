@@ -376,14 +376,6 @@
    <bundle id="net.bluemind.hps.auth.cas" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.hps.auth.core2" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.hps.auth.krb" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.hsm.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.hsm.api.gwt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.hsm.api.php" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.hsm.hooks" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.hsm.processor" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.hsm.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.hsm.storage" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.hsm.storage.snappy" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.i18n.labels" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.icalendar.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.icalendar.api.gwt" version="4.1.0.qualifier"/>

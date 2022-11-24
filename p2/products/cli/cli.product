@@ -132,7 +132,6 @@
       <plugin id="net.bluemind.forest.instance.cli"/>
       <plugin id="net.bluemind.group.api"/>
       <plugin id="net.bluemind.hornetq.client"/>
-      <plugin id="net.bluemind.hsm.api"/>
       <plugin id="net.bluemind.icalendar.api"/>
       <plugin id="net.bluemind.imap"/>
       <plugin id="net.bluemind.lib.elasticsearch"/>

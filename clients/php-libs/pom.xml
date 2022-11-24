@@ -23,7 +23,6 @@
 		<module>net.bluemind.documentfolder.api.php</module>
 		<module>net.bluemind.domain.api.php</module>
 		<module>net.bluemind.group.api.php</module>
-		<module>net.bluemind.hsm.api.php</module>
 		<module>net.bluemind.mailbox.api.php</module>
 		<module>net.bluemind.mailbox.identity.api.php</module>
 		<module>net.bluemind.mailshare.api.php</module>

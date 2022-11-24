@@ -27,7 +27,6 @@ Require-Bundle: net.bluemind.core.context;bundle-version="1.0.0";resolution:=opt
  net.bluemind.externaluser.api;bundle-version="1.0.0";resolution:=optional,
  net.bluemind.filehosting.api;bundle-version="1.0.0";resolution:=optional,
  net.bluemind.group.api;bundle-version="1.0.0";resolution:=optional,
- net.bluemind.hsm.api;bundle-version="1.0.0";resolution:=optional,
  net.bluemind.icalendar.api;bundle-version="1.0.0";resolution:=optional,
  net.bluemind.im.api;bundle-version="1.0.0";resolution:=optional,
  net.bluemind.mailbox.api;bundle-version="1.0.0";resolution:=optional,

@@ -66,8 +66,6 @@
    <bundle id="net.bluemind.addressbook.ui.contacteditor" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.ui.gwtsharing" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.ui.gwtuser" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.hsm.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.hsm.api.gwt" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailflow.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailflow.api.gwt" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.role.api" version="4.1.0.qualifier"/>

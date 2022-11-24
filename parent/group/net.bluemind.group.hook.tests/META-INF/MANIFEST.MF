@@ -23,7 +23,6 @@ Require-Bundle: org.junit,
  net.bluemind.tests.defaultdata;bundle-version="1.0.0",
  net.bluemind.addressbook.domainbook;bundle-version="1.0.0",
  net.bluemind.domain.api;bundle-version="1.0.0",
- net.bluemind.hsm.service;bundle-version="4.1.0",
  net.bluemind.externaluser.service;bundle-version="4.1.0",
  net.bluemind.core.task.service;bundle-version="4.1.0"
 Automatic-Module-Name: net.bluemind.group.hook.tests

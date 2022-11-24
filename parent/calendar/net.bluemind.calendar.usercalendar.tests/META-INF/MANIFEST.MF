@@ -20,7 +20,6 @@ Require-Bundle: org.junit,
  net.bluemind.addressbook.domainbook;bundle-version="1.0.0",
  net.bluemind.mailbox.service;bundle-version="1.0.0",
  net.bluemind.domain.api;bundle-version="1.0.0",
- net.bluemind.hsm.service;bundle-version="4.1.0",
  net.bluemind.server.hook,
  net.bluemind.core.tests.testshelper,
  net.bluemind.core.task.service;bundle-version="4.1.0"
