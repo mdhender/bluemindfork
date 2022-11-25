@@ -24,12 +24,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Throwables;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.common.io.FileBackedOutputStream;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.task.api.TaskStatus;
 
 public class StatusHandler extends DefaultAsyncHandler<TaskStatus> {
@@ -58,7 +58,7 @@ public class StatusHandler extends DefaultAsyncHandler<TaskStatus> {
 			return TaskStatus.create(10, state.ended ? 10 : 1, lastLogEntry, state, "" + exitCode);
 		} catch (Exception e) {
 			logger.error("[{}] Status check failure.", pid);
-			throw Throwables.propagate(e);
+			throw new ServerFault(e);
 		} finally {
 			try {
 				body.reset();
