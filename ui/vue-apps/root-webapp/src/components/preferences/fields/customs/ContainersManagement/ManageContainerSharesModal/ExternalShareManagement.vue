@@ -19,7 +19,7 @@
             <bm-row class="share-entry-body">
                 <div class="share-entry-col url-and-copy-button">
                     <div class="share-url text-truncate">{{ external.url }}</div>
-                    <bm-button-copy variant="text" size="lg" :content-provider="() => external.url" />
+                    <bm-button-copy variant="text" size="lg" :text="() => external.url" />
                 </div>
                 <div class="share-entry-col select-and-button">
                     <bm-form-select

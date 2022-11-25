@@ -38,7 +38,7 @@
                     <div class="sid-value text-truncate">
                         {{ row.value }}
                     </div>
-                    <bm-button-copy variant="text" size="lg" :content-provider="() => row.value" />
+                    <bm-button-copy variant="text" size="lg" :text="() => row.value" />
                 </div>
             </template>
             <template #cell(action)="row">
