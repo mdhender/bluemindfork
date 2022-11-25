@@ -20,7 +20,6 @@ package net.bluemind.sds.store.cyrusspool;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -33,8 +32,6 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
-import net.bluemind.node.api.ProcessHandler;
-import net.bluemind.node.shared.ExecRequest;
 import net.bluemind.sds.store.ISdsBackingStore;
 import net.bluemind.sds.store.ISdsBackingStoreFactory;
 import net.bluemind.server.api.IServer;
@@ -75,33 +72,10 @@ public class SpoolStoreFactory implements ISdsBackingStoreFactory {
 		}
 		logger.info("Setting up directories on backend {}", b);
 		INodeClient nc = NodeActivator.get(b.value.address());
-		CountDownLatch cdl = new CountDownLatch(realSuffix.size() * 2);
-		ProcessHandler ph = new ProcessHandler() {
 
-			@Override
-			public void log(String l, boolean isContinued) {
-				// ok
-			}
-
-			@Override
-			public void completed(int exitCode) {
-				cdl.countDown();
-			}
-
-			@Override
-			public void starting(String taskRef) {
-				// ok
-			}
-
-		};
 		for (String s : realSuffix) {
-			nc.asyncExecute(ExecRequest.anonymousWithoutOutput("mkdir -p /var/spool/cyrus/data/by_hash/" + s), ph);
-			nc.asyncExecute(ExecRequest.anonymousWithoutOutput("mkdir -p /var/spool/bm-hsm/data/by_hash/" + s), ph);
-		}
-		try {
-			cdl.await();
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
+			nc.mkdirs("/var/spool/cyrus/data/by_hash/" + s);
+			nc.mkdirs("/var/spool/bm-hsm/data/by_hash/" + s);
 		}
 	}
 

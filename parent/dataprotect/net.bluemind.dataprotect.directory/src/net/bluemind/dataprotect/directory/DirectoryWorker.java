@@ -75,7 +75,6 @@ public class DirectoryWorker extends DefaultWorker {
 
 					String path = dir + "/" + dom.uid;
 					NCUtils.waitFor(nc, nc.executeCommandNoOut(String.format("mkdir -p %s", path)));
-
 					try {
 						File snapshot = new File(path, String.format("snapshot-%s", blob.getToVersion()));
 						nc.writeFile(snapshot.getPath(), blob.getInputStream());

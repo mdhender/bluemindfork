@@ -525,9 +525,12 @@ public class MboxRestoreService {
 	private void restoreFsFolders(IToolSession session, String rootPath, Set<String> path, INodeClient nc,
 			int mailPartId) {
 		logger.info("restore fs folder {}", rootPath);
+		// node using cyrus does not supports mkdirs..
+		// nc.mkdirs(rootPath, "rwx------", "cyrus", "mail");
 		NCUtils.exec(nc, String.format("mkdir -p '%s'", rootPath));
 		NCUtils.exec(nc, String.format("chown cyrus:mail '%s'", rootPath));
 		NCUtils.exec(nc, String.format("chmod 700 '%s'", rootPath));
+
 		path.forEach(f -> session.restoreOneFolder(mailPartId, f, rootPath));
 	}
 

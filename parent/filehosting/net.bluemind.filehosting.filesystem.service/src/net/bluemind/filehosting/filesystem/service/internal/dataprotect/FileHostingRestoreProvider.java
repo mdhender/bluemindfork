@@ -51,7 +51,6 @@ import net.bluemind.dataprotect.service.IRestoreActionProvider;
 import net.bluemind.filehosting.filesystem.service.internal.FileSystemFileHostingService;
 import net.bluemind.node.api.FileDescription;
 import net.bluemind.node.api.INodeClient;
-import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
@@ -119,10 +118,8 @@ public class FileHostingRestoreProvider implements IRestoreActionProvider {
 					int lastSlash = filepath.lastIndexOf('/');
 					String parent = filepath.substring(0, lastSlash);
 					parent = parent.substring(target.length());
-					NCUtils.exec(nc, "mkdir -p " + parent);
-					String theMove = "mv " + filepath + " " + parent;
-					logger.warn("***** " + theMove);
-					NCUtils.exec(nc, theMove);
+					nc.mkdirs(parent);
+					nc.moveFile(filepath, parent);
 				}
 				monitor.end(false, "finished", "{ \"status\": \"not_implemented\" }");
 			}

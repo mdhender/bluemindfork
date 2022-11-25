@@ -55,7 +55,7 @@ public class BmIptablesRules extends AbstractConfFile {
 			iptablesScripts = render(mcf, data);
 		}
 
-		NCUtils.execNoOut(nc, "mkdir -p " + IptablesPath.IPTABLES_PATH);
+		nc.mkdirs(IptablesPath.IPTABLES_PATH);
 
 		nc.writeFile(IptablesPath.IPTABLES_SCRIPT_PATH, new ByteArrayInputStream(iptablesScripts.getBytes()));
 

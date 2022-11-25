@@ -58,11 +58,9 @@ import com.google.common.base.Strings;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.node.api.INodeClient;
-import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.client.AHCNodeClientFactory;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.CertData;
@@ -164,13 +162,11 @@ public abstract class CertifEngine implements ICertifEngine {
 
 	private void copyCertToNode(INodeClient nc, String ca, String certPlusKey) {
 		if (Strings.isNullOrEmpty(domainUid) || SecurityCertificateHelper.isGlobalVirtDomain(domainUid)) {
-			TaskRef tr = nc.executeCommand("mkdir -p /var/lib/bm-ca");
-			NCUtils.waitFor(nc, tr);
+			nc.mkdirs("/var/lib/bm-ca");
 			nc.writeFile("/var/lib/bm-ca/cacert.pem", new ByteArrayInputStream(ca.getBytes()));
 		}
 
-		TaskRef tr = nc.executeCommand("mkdir -p /etc/bm/certs");
-		NCUtils.waitFor(nc, tr);
+		nc.mkdirs("/etc/bm/certs");
 		for (String certFilePath : getCertificateFilePaths()) {
 			nc.writeFile(certFilePath, new ByteArrayInputStream(certPlusKey.getBytes()));
 		}

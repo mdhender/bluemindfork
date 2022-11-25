@@ -56,10 +56,7 @@ public class MoveHandler extends DefaultAsyncHandler<Boolean> {
 		public static String toJsonString(String src, String dst) {
 			StringWriter sw = new StringWriter(128);
 			try (JsonGenerator generator = new JsonFactory().createGenerator(sw)) {
-				generator.writeStartObject();
-				generator.writeStringField("src", src);
-				generator.writeStringField("dst", dst);
-				generator.writeEndObject();
+				createNode(generator, src, dst);
 				return sw.toString();
 			} catch (IOException e) {
 				throw new ServerFault(e);
@@ -70,14 +67,19 @@ public class MoveHandler extends DefaultAsyncHandler<Boolean> {
 			ByteBuf buf = Unpooled.buffer();
 			try (OutputStream out = new ByteBufOutputStream(buf);
 					JsonGenerator generator = new JsonFactory().createGenerator(out, JsonEncoding.UTF8)) {
-				generator.writeStartObject();
-				generator.writeStringField("src", src);
-				generator.writeStringField("dst", dst);
-				generator.writeEndObject();
+				createNode(generator, src, dst);
+				return buf;
 			} catch (IOException e) {
 				throw new ServerFault(e);
 			}
-			return buf;
+		}
+
+		private static void createNode(JsonGenerator generator, String src, String dst) throws IOException {
+			generator.writeStartObject();
+			generator.writeStringField("src", src);
+			generator.writeStringField("dst", dst);
+			generator.writeEndObject();
+			generator.flush();
 		}
 	}
 

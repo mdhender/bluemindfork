@@ -53,6 +53,16 @@ public class MoveFile implements Handler<HttpServerRequest> {
 			}
 			Path src = Paths.get(jso.getString("src"));
 			Path dst = Paths.get(jso.getString("dst"));
+			Path parentDir = dst.getParent();
+			if (!Files.exists(parentDir)) {
+				logger.info("mv {} -> {}: parent directory {} does not exists, creating", src, dst, parentDir);
+				try {
+					Files.createDirectories(parentDir);
+				} catch (IOException e) {
+					do500(e, req);
+					return;
+				}
+			}
 			logger.info("mv {} {}", src, dst);
 			try {
 				Files.move(src, dst);
