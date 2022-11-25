@@ -19,12 +19,18 @@
 package net.bluemind.node.server.handlers;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.AclFileAttributeView;
+import java.nio.file.attribute.FileOwnerAttributeView;
+import java.nio.file.attribute.PosixFileAttributeView;
+import java.nio.file.attribute.PosixFileAttributes;
+import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.util.concurrent.atomic.LongAdder;
 
 import org.slf4j.Logger;
@@ -62,6 +68,7 @@ public class WriteFile implements Handler<HttpServerRequest> {
 			SeekableByteChannel chan = Files.newByteChannel(tempPath, StandardOpenOption.CREATE, // NOSONAR: async
 																									// handler
 					StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+			copyAllAttributes(originalPath, tempPath);
 			req.exceptionHandler(t -> {
 				try {
 					Files.deleteIfExists(tempPath);
@@ -94,6 +101,39 @@ public class WriteFile implements Handler<HttpServerRequest> {
 			});
 		} catch (IOException e) {
 			do500(e, req);
+		}
+	}
+
+	private void copyAllAttributes(Path src, Path dst) throws IOException {
+		if (!Files.exists(src)) {
+			return;
+		}
+		AclFileAttributeView acl = Files.getFileAttributeView(src, AclFileAttributeView.class);
+		if (acl != null) {
+			Files.getFileAttributeView(dst, AclFileAttributeView.class).setAcl(acl.getAcl());
+		}
+		FileOwnerAttributeView ownerAttrs = Files.getFileAttributeView(src, FileOwnerAttributeView.class);
+		if (ownerAttrs != null) {
+			FileOwnerAttributeView targetOwner = Files.getFileAttributeView(dst, FileOwnerAttributeView.class);
+			targetOwner.setOwner(ownerAttrs.getOwner());
+		}
+		PosixFileAttributeView posixAttrs = Files.getFileAttributeView(src, PosixFileAttributeView.class);
+		if (posixAttrs != null) {
+			PosixFileAttributes sourcePosix = posixAttrs.readAttributes();
+			PosixFileAttributeView targetPosix = Files.getFileAttributeView(dst, PosixFileAttributeView.class);
+			targetPosix.setPermissions(sourcePosix.permissions());
+			targetPosix.setGroup(sourcePosix.group());
+		}
+		UserDefinedFileAttributeView userAttrs = Files.getFileAttributeView(src, UserDefinedFileAttributeView.class);
+		if (userAttrs != null) {
+			UserDefinedFileAttributeView targetUser = Files.getFileAttributeView(dst,
+					UserDefinedFileAttributeView.class);
+			for (String key : userAttrs.list()) {
+				ByteBuffer buffer = ByteBuffer.allocate(userAttrs.size(key));
+				userAttrs.read(key, buffer);
+				buffer.flip();
+				targetUser.write(key, buffer);
+			}
 		}
 	}
 
