@@ -36,6 +36,7 @@ import net.bluemind.node.server.handlers.GetStatus;
 import net.bluemind.node.server.handlers.Interrupt;
 import net.bluemind.node.server.handlers.ListFiles;
 import net.bluemind.node.server.handlers.ListMatches;
+import net.bluemind.node.server.handlers.MakeDirs;
 import net.bluemind.node.server.handlers.MoveFile;
 import net.bluemind.node.server.handlers.SendFile;
 import net.bluemind.node.server.handlers.SubmitCommand;
@@ -104,6 +105,7 @@ public abstract class BlueMindNode extends AbstractVerticle {
 		rm.regex(HttpMethod.DELETE, FS_OPS_RE, new DeleteFile());
 		rm.regex(HttpMethod.GET, "/list(/.*)", new ListFiles());
 		rm.post("/move", new MoveFile());
+		rm.post("/mkdirs", new MakeDirs());
 		rm.regex(HttpMethod.GET, "/match/([^/]*)(/.*)", new ListMatches());
 		rm.options("/", (HttpServerRequest event) -> {
 			logger.info("{} / => OK", event.method());

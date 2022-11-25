@@ -179,4 +179,13 @@ public class LocalNodeClient implements INodeClient {
 		}
 	}
 
+	@Override
+	public void mkdirs(String dst, String permissions, String owner, String group) throws ServerFault {
+		try {
+			Files.createDirectories(Paths.get(dst));
+		} catch (IOException e) {
+			throw new ServerFault(e);
+		}
+	}
+
 }

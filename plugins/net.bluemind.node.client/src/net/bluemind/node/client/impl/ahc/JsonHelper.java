@@ -70,8 +70,8 @@ public class JsonHelper {
 		if (wsRid != null) {
 			generator.writeNumberField("ws-rid", wsRid.longValue());
 		}
-
 		generator.writeEndObject();
+		generator.flush();
 	}
 
 	public static String toJsonString(ExecRequest execReq, Long wsRid) {

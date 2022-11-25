@@ -50,6 +50,7 @@ import net.bluemind.node.api.ProcessHandler;
 import net.bluemind.node.client.NodePathEscaper;
 import net.bluemind.node.client.impl.FBOSInput;
 import net.bluemind.node.client.impl.ahc.JsonHelper;
+import net.bluemind.node.client.impl.ahc.MkdirsHandler.MkdirsJsonHelper;
 import net.bluemind.node.client.impl.ahc.MoveHandler.MoveJsonHelper;
 import net.bluemind.node.shared.ActiveExecQuery;
 import net.bluemind.node.shared.ExecDescriptor;
@@ -474,4 +475,18 @@ public class OkHttpNodeClient implements INodeClient {
 		}
 	}
 
+	@Override
+	public void mkdirs(String dst, String permissions, String owner, String group) throws ServerFault {
+		Request delReq = new Request.Builder()
+				.url(withPath("/mkdirs")).post(RequestBody
+						.create(MkdirsJsonHelper.toJsonString(dst, permissions, owner, group), MEDIA_TYPE_JSON))
+				.build();
+		try (Response delResp = client.newCall(delReq).execute()) {
+			if (!delResp.isSuccessful()) {
+				logger.warn("mkdirs {} failed (code {})", dst, delResp.code());
+			}
+		} catch (IOException e) {
+			throw new ServerFault(e);
+		}
+	}
 }

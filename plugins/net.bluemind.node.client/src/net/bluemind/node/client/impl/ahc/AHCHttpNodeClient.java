@@ -232,6 +232,17 @@ public final class AHCHttpNodeClient implements INodeClient {
 		}
 	}
 
+	@Override
+	public void mkdirs(String dst, String permissions, String owner, String group) throws ServerFault {
+		Request built = new RequestBuilder("POST", true, false).setUri(withPath("/mkdirs")).build();
+		BoundRequestBuilder req = cli.getClient().prepareRequest(built);
+		try {
+			run(req, new MkdirsHandler(dst, permissions, owner, group));
+		} catch (Exception t) {
+			throw new ServerFault(t.getMessage());
+		}
+	}
+
 	private <T> T run(BoundRequestBuilder req, DefaultAsyncHandler<T> handler) {
 		try {
 			return handler.prepare(req).execute(handler).get();

@@ -178,4 +178,21 @@ public interface INodeClient {
 	 * @throws ServerFault
 	 */
 	void moveFile(String origin, String destination) throws ServerFault;
+
+	/**
+	 * Create a directory and all required parents
+	 * 
+	 * @param dst:         directory to create
+	 * @param permissions: "java" permissions, like: "rwxrwx---", or "rw--------"
+	 * @throws ServerFault
+	 */
+	void mkdirs(String dst, String permissions, String owner, String group) throws ServerFault;
+
+	default void mkdirs(String dst, String permissions) throws ServerFault {
+		mkdirs(dst, permissions, "", "");
+	}
+
+	default void mkdirs(String dst) throws ServerFault {
+		mkdirs(dst, "", "", "");
+	}
 }

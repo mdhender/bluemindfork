@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -674,6 +675,22 @@ public class NodeClientTests extends TestCase {
 			nc.moveFile(src.toString(), to.toString());
 			fail("move inexistent file must fail");
 		} catch (Exception e) {
+		}
+	}
+
+	public void testMkdirs() throws IOException {
+		Path tempDirParent = java.nio.file.Files.createTempDirectory("nctest");
+		try {
+			INodeClient nc = client();
+			Path fullDir = tempDirParent.resolve("i/am/a/subfolder/of/subfolder");
+			nc.mkdirs(fullDir.toString());
+			assertTrue(java.nio.file.Files.exists(fullDir));
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("mkdirs failed");
+		} finally {
+			java.nio.file.Files.walk(tempDirParent).sorted(Comparator.reverseOrder()).map(Path::toFile)
+					.forEach(File::delete);
 		}
 	}
 
