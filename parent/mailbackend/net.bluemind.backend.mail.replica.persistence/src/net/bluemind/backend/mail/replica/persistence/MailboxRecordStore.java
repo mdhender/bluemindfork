@@ -130,27 +130,6 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		return join(items, values);
 	}
 
-	/*
-	 * This one is a bit special and doesn't need subtreeContainerId /
-	 * folderContainerId as it must scan the whole table
-	 */
-	public List<MailboxRecordItemV> getExpiredItems(int days) throws SQLException {
-		String query = "select c.uid, mbr.item_id, encode(message_body_guid, 'hex'), "
-				+ MailboxRecordColumns.COLUMNS.names("mbr") + " FROM t_mailbox_record mbr " //
-				+ "JOIN t_container c on c.id = mbr.container_id "//
-				+ "WHERE mbr.system_flags::bit(32) & (" + InternalFlag.expunged.value + ")::bit(32)= " //
-				+ "(" + InternalFlag.expunged.value + ")::bit(32) " //
-				+ "AND mbr.last_updated < (now() - interval '" + days + " days') LIMIT 10000";
-
-		return select(query, con -> new MailboxRecordItemV(), (rs, index, itemv) -> {
-			itemv.containerUid = rs.getString(index++);
-			itemv.item = new ItemV<>();
-			itemv.item.itemId = rs.getLong(index++);
-			itemv.item.value = new MailboxRecord();
-			return MailboxRecordColumns.populator().populate(rs, index, itemv.item.value);
-		}, new Object[0]);
-	}
-
 	@Override
 	public void deleteAll() throws SQLException {
 		delete("DELETE FROM t_mailbox_record WHERE subtree_id = ? AND container_id = ?",
@@ -270,19 +249,25 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 	}
 
 	public static class MailboxRecordItemV {
-		private ItemV<MailboxRecord> item;
 		private String containerUid;
+		private long itemId;
+		private long imapUid;
 
 		private MailboxRecordItemV() {
-		}
-
-		public ItemV<MailboxRecord> item() {
-			return item;
 		}
 
 		public String containerUid() {
 			return containerUid;
 		}
+
+		public long imapUid() {
+			return imapUid;
+		}
+
+		public long itemId() {
+			return itemId;
+		}
+
 	}
 
 	// TODO: this query is a problem: access cross partitions

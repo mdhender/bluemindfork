@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
-  * Copyright © Blue Mind SAS, 2012-2017
+  * Copyright © Blue Mind SAS, 2012-2022
   *
   * This file is part of BlueMind. BlueMind is a messaging and collaborative
   * solution.
@@ -18,20 +18,23 @@
 package net.bluemind.backend.mail.replica.persistence.tests;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -40,22 +43,16 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.IMailboxFolders;
-import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
-import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
-import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
-import net.bluemind.backend.mail.replica.api.WithId;
+import net.bluemind.backend.mail.replica.api.MailboxRecordExpunged;
+import net.bluemind.backend.mail.replica.persistence.MailboxRecordExpungedStore;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
-import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
-import net.bluemind.core.container.model.ItemFlag;
-import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ItemStore;
@@ -73,7 +70,7 @@ import net.bluemind.system.state.RunningState;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
-public class MailboxRecordStoreTests {
+public class MailboxRecordExpungedStoreTests {
 	protected String partition;
 	protected String user1Uid;
 	protected String user1MboxRoot;
@@ -81,7 +78,7 @@ public class MailboxRecordStoreTests {
 
 	private ItemStore itemStore;
 	private MailboxRecordStore boxRecordStore;
-	private MessageBodyStore bodyStore;
+	private MailboxRecordExpungedStore expungedRecordStore;
 
 	@BeforeClass
 	public static void sysprop() {
@@ -105,7 +102,7 @@ public class MailboxRecordStoreTests {
 		pipo.tags = Collections.singletonList("mail/imap");
 
 		VertxPlatform.spawnBlocking(25, TimeUnit.SECONDS);
-		partition = CyrusPartition.forServerAndDomain(pipo.ip, domainUid).name;
+		partition = "dataloc__" + domainUid.replace('.', '_');
 		DataSource datasource = JdbcTestHelper.getInstance().getMailboxDataDataSource();
 		JdbcActivator.getInstance().addMailboxDataSource("dataloc", datasource);
 		PopulateHelper.initGlobalVirt(pipo);
@@ -143,7 +140,7 @@ public class MailboxRecordStoreTests {
 		boxRecordStore = new MailboxRecordStore(JdbcTestHelper.getInstance().getMailboxDataDataSource(), container,
 				subtreeContainer);
 		boxRecordStore.deleteAll();
-		bodyStore = new MessageBodyStore(JdbcTestHelper.getInstance().getMailboxDataDataSource());
+		expungedRecordStore = new MailboxRecordExpungedStore(JdbcTestHelper.getInstance().getMailboxDataDataSource());
 	}
 
 	@After
@@ -152,119 +149,152 @@ public class MailboxRecordStoreTests {
 	}
 
 	@Test
-	public void testFlagsMatch() throws SQLException {
-		MailboxRecord mb = simpleRecord();
-		mb.flags = Arrays.asList(MailboxItemFlag.System.Seen.value(), MailboxItemFlag.System.Deleted.value());
+	public void testGetExpiredMessagesOnEmptyTableShouldReturnEmptyList() throws Exception {
+		assertEquals(0, expungedRecordStore.getExpiredItems(7).size());
+	}
 
+	@Test
+	public void testGetExpiredMessagesOnNonExpiredItemsShouldReturnEmptyList() throws Exception {
+		MailboxRecord mb = simpleRecord(10);
 		String uniqueId = "rec" + System.currentTimeMillis();
-		Item it = Item.create(uniqueId, null);
-		it.flags = Arrays.asList(ItemFlag.Seen, ItemFlag.Deleted);
-		itemStore.create(it);
+		itemStore.create(Item.create(uniqueId, null));
+		Item it = itemStore.get(uniqueId);
+		boxRecordStore.create(it, mb);
+
+		mb = simpleRecord(20);
+		uniqueId = "rec" + System.currentTimeMillis();
+		itemStore.create(Item.create(uniqueId, null));
 		it = itemStore.get(uniqueId);
-
 		boxRecordStore.create(it, mb);
-		MailboxRecord reloaded = boxRecordStore.get(it);
-		assertNotNull(reloaded);
-		assertNotNull(reloaded.flags);
-		List<ImapBinding> unread = boxRecordStore.unreadItems();
-		assertTrue(unread.isEmpty());
 
-		itemStore.update(it.uid, null, Collections.emptyList());
-		unread = boxRecordStore.unreadItems();
-		assertFalse(unread.isEmpty());
+		assertEquals(0, expungedRecordStore.getExpiredItems(7).size());
 	}
 
 	@Test
-	public void testCrudSimple() throws SQLException {
-		MailboxRecord mb = simpleRecord();
+	public void testGetExpiredMessagesOnOldUnexpiredItemsShouldReturnEmptyList() throws Exception {
+		MailboxRecord mb = simpleRecord(10);
 		String uniqueId = "rec" + System.currentTimeMillis();
+		mb.lastUpdated = adaptDate(10);
 		itemStore.create(Item.create(uniqueId, null));
 		Item it = itemStore.get(uniqueId);
 		boxRecordStore.create(it, mb);
-		MailboxRecord reloaded = boxRecordStore.get(it);
-		assertNotNull(reloaded);
-		assertNotNull(reloaded.flags);
-		assertEquals(mb.messageBody, reloaded.messageBody);
 
-		List<MailboxRecord> multiple = boxRecordStore.getMultiple(Arrays.asList(it));
-		assertTrue(multiple.size() == 1);
+		mb = simpleRecord(20);
+		uniqueId = "rec" + System.currentTimeMillis();
+		mb.lastUpdated = adaptDate(6);
+		itemStore.create(Item.create(uniqueId, null));
+		it = itemStore.get(uniqueId);
+		boxRecordStore.create(it, mb);
 
-		System.out.println("beforeFlags: " + reloaded.flags);
-		reloaded.internalFlags = EnumSet.of(InternalFlag.expunged);
-		reloaded.flags = Arrays.asList(MailboxItemFlag.System.Answered.value(), new MailboxItemFlag("$john"),
-				new MailboxItemFlag("$bang"));
-		boxRecordStore.update(it, reloaded);
-		MailboxRecord reloaded2 = boxRecordStore.get(it);
-		assertEquals(reloaded.flags, reloaded2.flags);
-		assertEquals(reloaded.internalFlags, reloaded2.internalFlags);
-		System.out.println("afterFlags: " + reloaded2.flags + ", internal: " + reloaded2.internalFlags);
+		assertEquals(0, expungedRecordStore.getExpiredItems(7).size());
+	}
 
-		List<ImapBinding> asBindings = boxRecordStore.bindings(Arrays.asList(it.id));
-		assertNotNull(asBindings);
-		assertFalse(asBindings.isEmpty());
-
-		// we check for 0 & empty list because the bodies are not created
-		asBindings = boxRecordStore.havingBodyVersionLowerThan(0);
-		assertNotNull(asBindings);
-		assertTrue(asBindings.isEmpty());
-
-		List<Long> set = boxRecordStore.imapIdset("1:*", ItemFlagFilter.all());
-		assertEquals(1, set.size());
-		System.err.println("set: " + set);
-		set = boxRecordStore.imapIdset("42,43", ItemFlagFilter.all());
-		assertEquals(1, set.size());
-		set = boxRecordStore.imapIdset("42", ItemFlagFilter.create().mustNot(ItemFlag.Deleted));
-		assertEquals(1, set.size());
-
-		List<WithId<MailboxRecord>> withIds = boxRecordStore.slice(set);
-		assertEquals(1, withIds.size());
-		assertEquals(42, withIds.get(0).value.imapUid);
-		assertEquals(set.iterator().next().longValue(), withIds.get(0).itemId);
-
-		boxRecordStore.delete(it);
-		reloaded = boxRecordStore.get(it);
-		assertNull(reloaded);
-
+	private void insertExpungedMessages() throws SQLException {
+		// insert with expire date -10 days
+		insertExpungedExpiredMessage(10, 10, false);
+		// update with expire date -8 days
+		insertExpungedExpiredMessage(20, 8, true);
+		// insert with expire date -3 days
+		insertExpungedExpiredMessage(30, 3, false);
 	}
 
 	@Test
-	public void testRecentItems() throws SQLException {
-		MailboxRecord mb = simpleRecord();
-		MessageBody body = body(mb.messageBody, new Date());
-		bodyStore.store(body);
+	public void testGetExpiredMessagesOnExpiredItems() throws Exception {
+		insertExpungedMessages();
 
-		String uniqueId = "rec" + System.currentTimeMillis();
-		itemStore.create(Item.create(uniqueId, null));
-		Item it = itemStore.get(uniqueId);
-		boxRecordStore.create(it, mb);
-		MailboxRecord reloaded = boxRecordStore.get(it);
-		assertNotNull(reloaded);
-		assertNotNull(reloaded.flags);
-
-		List<ImapBinding> existing = boxRecordStore.recentItems(new Date(0));
-		Optional<ImapBinding> optRec = existing.stream().filter(ib -> ib.itemId == it.id).findAny();
-		assertTrue(optRec.isPresent());
-
-		Date after = new Date(it.created.getTime() + 1000);
-		existing = boxRecordStore.recentItems(after);
-		assertTrue(existing.isEmpty());
+		List<MailboxRecordExpunged> expiredItems = expungedRecordStore.getExpiredItems(5);
+		assertEquals(2, expiredItems.size());
 	}
 
-	private MailboxRecord simpleRecord() {
+	@Test
+	public void testCheckExpungedQueue() throws Exception {
+		insertExpungedMessages();
+
+		try (Connection con = JdbcTestHelper.getInstance().getMailboxDataDataSource().getConnection();
+				PreparedStatement stm = con.prepareStatement("SELECT COUNT(*) FROM q_mailbox_record_expunged ;")) {
+			ResultSet executeQuery = stm.executeQuery();
+			executeQuery.next();
+			int count = executeQuery.getInt(1);
+			assertEquals(3, count);
+		}
+	}
+
+	@Test
+	public void testDeleteOnlyExpiredExpunged() throws SQLException {
+		insertExpungedMessages();
+
+		List<MailboxRecordExpunged> expiredItems = expungedRecordStore.getExpiredItems(5);
+		assertEquals(2, expiredItems.size());
+
+		Map<Integer, List<Long>> mapOfExpunged = expiredItems.stream().collect(Collectors.groupingBy(
+				MailboxRecordExpunged::containerId, Collectors.mapping(rec -> rec.imapUid, Collectors.toList())));
+
+		mapOfExpunged.forEach((k, v) -> {
+			try {
+				expungedRecordStore.deleteExpunged(k, v);
+			} catch (SQLException e) {
+				fail();
+			}
+		});
+
+		try (Connection con = JdbcTestHelper.getInstance().getMailboxDataDataSource().getConnection();
+				PreparedStatement stm = con.prepareStatement("SELECT COUNT(*) FROM q_mailbox_record_expunged ;")) {
+			ResultSet executeQuery = stm.executeQuery();
+			executeQuery.next();
+			int count = executeQuery.getInt(1);
+			assertEquals(1, count);
+		}
+
+	}
+
+	private void insertExpungedExpiredMessage(long imapUid, int daysBeforeNow, boolean update) throws SQLException {
+		MailboxRecord mb = simpleRecord(imapUid);
+		String uniqueId = "rec" + System.currentTimeMillis();
+		if (daysBeforeNow > 0) {
+			mb.lastUpdated = adaptDate(daysBeforeNow);
+		}
+		itemStore.create(Item.create(uniqueId, null));
+		Item it = itemStore.get(uniqueId);
+
+		if (update && daysBeforeNow > 0) {
+			boxRecordStore.create(it, mb);
+			mb.internalFlags = Arrays.asList(MailboxRecord.InternalFlag.expunged);
+			boxRecordStore.update(it, mb);
+
+			try (Connection con = JdbcTestHelper.getInstance().getMailboxDataDataSource().getConnection();
+					PreparedStatement stm = con
+							.prepareStatement("UPDATE q_mailbox_record_expunged set created = ? WHERE item_id = ?;")) {
+				stm.setDate(1, adaptSqlDate(daysBeforeNow));
+				stm.setLong(2, it.id);
+				int updated = stm.executeUpdate();
+				assertEquals(1, updated);
+			}
+		} else {
+			mb.internalFlags = Arrays.asList(MailboxRecord.InternalFlag.expunged);
+			boxRecordStore.create(it, mb);
+		}
+	}
+
+	private Date adaptDate(int daysBeforeNow) {
+		LocalDate localDate = LocalDate.now();
+		LocalDate adapted = localDate.minusDays(daysBeforeNow);
+		return Date.from(adapted.atStartOfDay(ZoneId.systemDefault()).toInstant());
+	}
+
+	private java.sql.Date adaptSqlDate(int daysBeforeNow) {
+		LocalDate localDate = LocalDate.now();
+		LocalDate adapted = localDate.minusDays(daysBeforeNow);
+		return java.sql.Date.valueOf(adapted);
+	}
+
+	private MailboxRecord simpleRecord(long imapUid) {
 		MailboxRecord record = new MailboxRecord();
-		record.imapUid = 42;
+		record.imapUid = imapUid;
 		record.messageBody = UUID.randomUUID().toString().replace("-", "");
 		record.internalDate = new Date();
 		record.lastUpdated = new Date();
 		record.flags = Arrays.asList(MailboxItemFlag.System.Seen.value());
 		return record;
-	}
-
-	private MessageBody body(String guid, Date d) {
-		MessageBody mb = new MessageBody();
-		mb.date = d;
-		mb.guid = guid;
-		return mb;
 	}
 
 }

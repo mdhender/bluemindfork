@@ -20,7 +20,6 @@ package net.bluemind.backend.mail.replica.service.internal;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -33,15 +32,10 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 
-import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
-import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.IReplicatedDataExpiration;
 import net.bluemind.backend.mail.replica.indexing.RecordIndexActivator;
-import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
-import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore.MailboxRecordItemV;
 import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
 import net.bluemind.backend.mail.replica.service.sds.MessageBodyObjectStore;
-import net.bluemind.core.container.persistence.ContainersHierarchyNodeStore;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
@@ -65,41 +59,6 @@ public class ReplicatedDataExpirationService implements IReplicatedDataExpiratio
 		this.serverUid = serverUid;
 		this.bodyStore = new MessageBodyStore(pool);
 		this.bodyObjectStore = Suppliers.memoize(() -> new MessageBodyObjectStore(context));
-	}
-
-	@Override
-	public TaskRef deleteExpired(int days) {
-
-		return context.provider().instance(ITasksManager.class).run(m -> BlockingServerTask.run(m, monitor -> {
-			monitor.begin(1, "Expiring expunged messages (" + days + " days) on server " + serverUid);
-			logger.info("Expiring expunged messages ({} days) on server {}", days, serverUid);
-
-			MailboxRecordStore store = new MailboxRecordStore(pool);
-			List<MailboxRecordItemV> expiredItems = store.getExpiredItems(days);
-
-			Map<String, List<Long>> partitioned = expiredItems.stream()
-					.collect(Collectors.groupingBy(MailboxRecordItemV::containerUid,
-							Collectors.mapping(rec -> rec.item().value.imapUid, Collectors.toList())));
-
-			partitioned.entrySet().forEach(entry -> {
-				String mboxUniqueId = IMailReplicaUids.uniqueId(entry.getKey());
-				try {
-					List<Long> imapUids = entry.getValue();
-					logger.info("Expiring {} messages of mailbox {}", imapUids.size(), mboxUniqueId);
-					monitor.log("Expiring " + imapUids.size() + " messages of mailbox " + mboxUniqueId);
-
-					context.provider().instance(IDbMailboxRecords.class, mboxUniqueId).deleteImapUids(imapUids);
-				} catch (Exception e) {
-					logger.error("Error cleaning up {}: {}", mboxUniqueId, e.getMessage());
-				}
-			});
-
-			new ContainersHierarchyNodeStore(pool, null).removeDeletedRecords(days);
-
-			monitor.end(true, "", "");
-
-		}));
-
 	}
 
 	@Override

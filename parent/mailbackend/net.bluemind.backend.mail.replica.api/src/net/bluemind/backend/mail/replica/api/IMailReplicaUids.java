@@ -44,6 +44,7 @@ public interface IMailReplicaUids {
 	public static final String MAILBOX_RECORDS = "mailbox_records";
 	public static final String MAILBOX_RECORDS_PREFIX = "mbox_records_";
 	public static final String REPLICATED_MBOXES = "replicated_mailboxes";
+	public static final String SUBTREE_PREFIX = "subtree_";
 
 	/**
 	 * Repair operation id for repairing the subtrees containers
@@ -113,11 +114,15 @@ public interface IMailReplicaUids {
 	}
 
 	public static String subtreeUid(String domainUid, Mailbox.Type type, String uid) {
-		return "subtree_" + domainUid.replace('.', '_') + "!" + type.nsPrefix + uid;
+		return subtreePrefix(domainUid) + type.nsPrefix + uid;
 	}
 
 	public static String subtreeUid(String domainUid, DirEntry de) {
-		return "subtree_" + domainUid.replace('.', '_') + "!"
-				+ (de.kind == BaseDirEntry.Kind.USER ? Mailbox.Type.user.nsPrefix : "") + de.entryUid;
+		return subtreePrefix(domainUid) + (de.kind == BaseDirEntry.Kind.USER ? Mailbox.Type.user.nsPrefix : "")
+				+ de.entryUid;
+	}
+
+	private static String subtreePrefix(String domainUid) {
+		return SUBTREE_PREFIX + domainUid.replace('.', '_') + "!";
 	}
 }

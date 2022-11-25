@@ -450,3 +450,70 @@ CREATE OR REPLACE TRIGGER virtual_message_record_expunge
 CREATE OR REPLACE TRIGGER virtual_message_record_truncate
     AFTER TRUNCATE ON t_mailbox_record FOR EACH STATEMENT
     EXECUTE PROCEDURE s_mailbox_record_truncate();
+    
+-----------------------------------------------------------
+-- t_mailbox_record expunged purge system
+-- see MailboxRecordStore.getExpiredItems()
+CREATE TABLE IF NOT EXISTS q_mailbox_record_expunged (
+	container_id integer not null REFERENCES t_container(id) ON DELETE CASCADE,
+	subtree_id integer not null REFERENCES t_container(id) ON DELETE CASCADE,
+	item_id bigint not null REFERENCES t_container_item(id) ON DELETE CASCADE,
+	imap_uid bigint not null,
+	created TIMESTAMP NOT NULL,
+    PRIMARY KEY (subtree_id, item_id)
+);
+
+CREATE INDEX IF NOT EXISTS q_mailbox_record_expunged_container_id_idx
+    ON q_mailbox_record_expunged (container_id);
+CREATE INDEX IF NOT EXISTS q_mailbox_record_expunged_subtree_id_idx
+    ON q_mailbox_record_expunged (subtree_id);
+CREATE INDEX IF NOT EXISTS q_mailbox_record_expunged_item_id_idx
+    ON q_mailbox_record_expunged (item_id);
+CREATE INDEX IF NOT EXISTS q_mailbox_record_expunged_imap_uid_idx
+    ON q_mailbox_record_expunged (imap_uid);
+CREATE INDEX IF NOT EXISTS q_mailbox_record_expunged_created_idx
+    ON q_mailbox_record_expunged (created);
+
+
+CREATE OR REPLACE FUNCTION fct_mailbox_record_expunged() RETURNS trigger AS
+$$
+DECLARE
+	bypass boolean;
+BEGIN
+	SELECT INTO bypass coalesce(current_setting('bluemind.bypass_mailbox_record_expunged_queue', true)::boolean, false);
+	IF bypass = false THEN
+        IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
+            -- we want to add to the queue expunged messages
+            INSERT INTO q_mailbox_record_expunged (container_id, subtree_id, item_id, imap_uid, created) 
+            VALUES (NEW.container_id, NEW.subtree_id, NEW.item_id, NEW.imap_uid, NEW.last_updated)
+            -- do nothing on conflict because a message can be expunge only once
+            ON CONFLICT(subtree_id, item_id) DO NOTHING;
+        ELSIF TG_OP = 'DELETE' THEN
+            -- we want to remove from the queue deleted messages
+            DELETE FROM q_mailbox_record_expunged 
+            WHERE subtree_id = OLD.subtree_id
+            AND item_id = OLD.item_id;
+	    END IF;
+	END IF;
+	RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE TRIGGER trigger_mailbox_record_expunged_insert
+    AFTER INSERT ON t_mailbox_record FOR EACH ROW
+    -- WHEN new message is Expunged 
+	WHEN (((NEW.system_flags)::bit(32) & (1<<31)::bit(32)) = (1<<31)::bit(32))
+    EXECUTE PROCEDURE fct_mailbox_record_expunged();
+
+CREATE OR REPLACE TRIGGER trigger_mailbox_record_expunged_update
+    AFTER UPDATE ON t_mailbox_record FOR EACH ROW
+    -- WHEN updated message became Expunged 
+	WHEN ((((OLD.system_flags)::bit(32) & (1<<31)::bit(32)) = 0::bit(32)) 
+    AND (((NEW.system_flags)::bit(32) & (1<<31)::bit(32)) = (1<<31)::bit(32)))
+    EXECUTE PROCEDURE fct_mailbox_record_expunged();
+
+CREATE OR REPLACE TRIGGER trigger_mailbox_record_expunged_delete
+    AFTER DELETE ON t_mailbox_record FOR EACH ROW
+    EXECUTE PROCEDURE fct_mailbox_record_expunged();
+    

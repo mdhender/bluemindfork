@@ -50,6 +50,9 @@
       <endpoint
             api="net.bluemind.backend.mail.replica.api.IReplicatedDataExpiration">
       </endpoint>
+      <endpoint
+            api="net.bluemind.backend.mail.replica.api.IMailboxRecordExpunged">
+      </endpoint>
        <endpoint
              api="net.bluemind.backend.mail.api.IOutbox">
        </endpoint>
@@ -85,6 +88,9 @@
       </serviceFactory>
       <serviceFactory
             class="net.bluemind.backend.mail.replica.service.MailConversationActionsServiceFactory">
+      </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.backend.mail.replica.service.MailboxRecordExpungedServiceFactory">
       </serviceFactory>
       <serviceFactory
             class="net.bluemind.backend.mail.replica.service.ImapReplicatedMailboxesServiceFactory">

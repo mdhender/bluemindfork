@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2018
+ * Copyright © Blue Mind SAS, 2012-2022
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -22,17 +22,13 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
 import net.bluemind.core.api.BMApi;
-import net.bluemind.core.task.api.TaskRef;
 
 @BMApi(version = "3", internal = true)
-@Path("/replicated_data_expiration/{serverUid}")
-public interface IReplicatedDataExpiration {
+@Path("/record_expunged_expiration/{serverUid}")
+public interface IMailboxRecordExpunged {
 
 	@POST
-	@Path("_delete_orphan_messagebodies")
-	public void deleteOrphanMessageBodies();
+	@Path("_delete")
+	public void delete(@QueryParam("days") int days);
 
-	@POST
-	@Path("_delete_orphan_from_objectstorage")
-	public TaskRef deleteMessageBodiesFromObjectStore(@QueryParam("days") int days);
 }
