@@ -1145,6 +1145,14 @@
   dependencies:
     axios "^0.18.0"
 
+"@bluemind/email@^5.0.0":
+  version "5.0.1399"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/email/-/email-5.0.1399.tgz#734bea58efafc58c64dd81ddc051bdadeee69e9f"
+  integrity sha512-6tYS5hQYUjtDOqjUY0nmdnRNK+phPdS2Z6HXM2aQ3CRPA4Q4zNzc03l2O10AZrDZ4uh+SONiJaS3oNQFngcQ0Q==
+  dependencies:
+    "@bluemind/html-utils" "^4.1.0"
+    "@bluemind/uuid" "^4.1.0"
+
 "@bluemind/filehosting.api@^4.1.0":
   version "4.1.64127"
   resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/filehosting.api/-/filehosting.api-4.1.64127.tgz#651daab4ed4d18ffb117af683a2dd2f387f3a9d2"
@@ -1167,11 +1175,11 @@
     axios "^0.18.0"
 
 "@bluemind/styleguide@^0.1.0":
-  version "0.1.2689"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.2689.tgz#9ae51bc5d9706a5f68d5492f037b37e14b2b5f4b"
-  integrity sha512-YLNZXaNdF5h8vxLT2CCo1jZ32lj8CR6VQ1pnVLDhVhIiZgE9zgsloxnlvT+AXTuIe54L66ckoiLJYF/Qqct0+w==
+  version "0.1.2746"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.2746.tgz#a207860752fcce1f17a998619fbe2e876f187982"
+  integrity sha512-JLUR0C6+W8L3syVJaKhEc2y//P4xGMgaLpaiDnG3J9euQMkUF9JspmKy6vgoZTFSPyLPk5wB0uxvAk0wTyzpBA==
   dependencies:
-    "@bluemind/email" "^4.1.0"
+    "@bluemind/email" "^5.0.0"
     "@bluemind/file-utils" "^4.1.0"
     "@fortawesome/fontawesome-svg-core" "^1.2.12"
     "@fortawesome/vue-fontawesome" "^0.1.4"
