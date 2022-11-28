@@ -2,7 +2,7 @@
     <text-html-file-viewer v-slot="content" v-bind="$props">
         <i-frame class="border-0">
             <template v-slot:head>
-                <base target="_blank" />
+                <base href="/webapp/" />
                 <link type="text/css" rel="stylesheet" href="css/montserrat/index.css" />
             </template>
             <template v-slot:style>

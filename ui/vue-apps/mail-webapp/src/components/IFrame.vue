@@ -62,8 +62,10 @@ export default {
         }
     },
     render(h) {
-        // Src doc is needed to have the rigth dtd.
-        return h("iframe", { class: "i-frame", on: { load: this.mount }, domProps: { srcdoc: "<html></html>" } });
+        // Src or srcdoc is needed to have the rigth dtd.
+        // Use of src instead of srcdoc to force the SW to intercept the request,
+        // a workaround for this bug is Chrome: https://github.com/w3c/ServiceWorker/issues/765
+        return h("iframe", { class: "i-frame", on: { load: this.mount }, domProps: { src: "/webapp/blank" } });
     }
 };
 

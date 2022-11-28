@@ -16,6 +16,10 @@
                path="index.html">
          </handler>
          <handler
+               class="net.bluemind.webmodules.webapp.handlers.WebAppBlankHandler"
+               path="blank/">
+         </handler>
+         <handler
                class="net.bluemind.webmodules.webapp.handlers.PartContentUrlHandler"
                path="part/url/">
          </handler>
@@ -42,5 +46,4 @@
             id="webapp.preferences">
       </export-extension-point>            
     </extension>
-
 </plugin>
