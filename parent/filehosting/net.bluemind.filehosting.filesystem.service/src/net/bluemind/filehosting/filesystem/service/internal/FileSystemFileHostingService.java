@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.CountingInputStream;
 
+import io.vertx.core.file.AsyncFile;
 import io.vertx.core.file.OpenOptions;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
@@ -295,8 +296,11 @@ public class FileSystemFileHostingService implements IInternalFileHostingService
 
 	private Stream getFileStream(File file) throws ServerFault {
 		if (file.exists()) {
-			return VertxStream.stream(
-					VertxPlatform.getVertx().fileSystem().openBlocking(file.getAbsolutePath(), new OpenOptions()));
+			AsyncFile asyncFile = VertxPlatform.getVertx().fileSystem().openBlocking(file.getAbsolutePath(),
+					new OpenOptions());
+			return VertxStream.stream(asyncFile, (v) -> {
+				asyncFile.close();
+			});
 		} else {
 			InputStream openStream = getNodeClient().openStream(file.getAbsolutePath());
 			return VertxStream.stream(new InputReadStream(openStream));

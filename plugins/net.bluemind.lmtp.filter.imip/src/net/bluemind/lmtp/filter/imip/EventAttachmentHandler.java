@@ -26,6 +26,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.vertx.core.file.AsyncFile;
 import io.vertx.core.file.OpenOptions;
 import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.attachment.api.IAttachment;
@@ -107,8 +108,9 @@ public class EventAttachmentHandler {
 			String authKey = provider.instance(IAuthentication.class).su(userLogin + "@" + domain).authKey;
 			ClientSideServiceProvider userProvider = ClientSideServiceProvider.getProvider(coreUrl, authKey);
 			IAttachment attachApi = userProvider.instance(IAttachment.class, domain);
-			Stream stream = VertxStream.stream(VertxPlatform.getVertx().fileSystem()
-					.openBlocking(new File(cidValue.tmpFile).getAbsolutePath(), new OpenOptions()));
+			AsyncFile openBlocking = VertxPlatform.getVertx().fileSystem()
+					.openBlocking(new File(cidValue.tmpFile).getAbsolutePath(), new OpenOptions());
+			Stream stream = VertxStream.stream(openBlocking, v -> openBlocking.close());
 			String url = attachApi.share(cid, stream).publicUrl;
 			AttachedFile file = new AttachedFile();
 			file.name = cidValue.name;

@@ -338,7 +338,7 @@ public class FileSystemFileHostingServiceTests {
 				new OpenOptions());
 		String path = "/test.txt";
 		long time = System.currentTimeMillis();
-		service.store(path, VertxStream.stream(stream));
+		service.store(path, VertxStream.stream(stream, v -> stream.close()));
 		System.out.println("took " + (System.currentTimeMillis() - time) + " ms to write " + tmpStuff.toFile().length()
 				+ " bytes");
 		System.err.println("Getting file " + path);
@@ -371,7 +371,7 @@ public class FileSystemFileHostingServiceTests {
 				new OpenOptions());
 		String path = "/test.txt";
 		long time = System.currentTimeMillis();
-		service.store(path, VertxStream.stream(stream));
+		service.store(path, VertxStream.stream(stream, v -> stream.close()));
 		System.out.println("took " + (System.currentTimeMillis() - time) + " ms to write " + tmpStuff.toFile().length()
 				+ " bytes");
 		System.err.println("Getting file " + path);

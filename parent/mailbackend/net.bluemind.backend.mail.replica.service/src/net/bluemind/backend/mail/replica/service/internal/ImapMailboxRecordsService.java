@@ -61,6 +61,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.file.AsyncFile;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.mail.api.ImapAck;
@@ -624,8 +625,9 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			throw new ServerFault("Trying to fetch tmp part " + address + " which doesnt exist");
 		}
 		// temporary parts are already decoded because getForUpdate already did it
-		return VertxStream.stream(
-				VertxPlatform.getVertx().fileSystem().openBlocking(tmpPart.getAbsolutePath(), new OpenOptions()));
+		AsyncFile openBlocking = VertxPlatform.getVertx().fileSystem().openBlocking(tmpPart.getAbsolutePath(),
+				new OpenOptions());
+		return VertxStream.stream(openBlocking, v -> openBlocking.close());
 	}
 
 	private ReadStream<Buffer> imapFetch(long imapUid, String address) {
