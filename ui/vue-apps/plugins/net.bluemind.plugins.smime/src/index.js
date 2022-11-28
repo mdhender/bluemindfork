@@ -1,5 +1,6 @@
 import Vue from "vue";
 import { extensions } from "@bluemind/extensions";
+import i18n, { TranslationRegistry } from "@bluemind/i18n";
 import store from "@bluemind/store";
 import SmimeBodyWrapper from "./components/mail-app/SmimeBodyWrapper";
 import TrustedSender from "./components/mail-app/TrustedSender";
@@ -10,8 +11,11 @@ import DecryptErrorTrigger from "./components/mail-app/DecryptErrorTrigger";
 import PrefSmime from "./components/preferences/PrefSmime";
 import LockIcon from "./components/mail-app/LockIcon";
 import { SMIMEPrefKeys } from "./lib/constants";
+import SmimeL10N from "./l10n/";
 import SmimeStore from "./store";
 import { SMIME_AVAILABLE } from "./store/getterTypes";
+
+TranslationRegistry.register(SmimeL10N);
 
 store.registerModule("smime", SmimeStore);
 
@@ -66,7 +70,7 @@ extensions.register("webapp.preferences", "net.bluemind.plugins.smime", {
         categories: [
             {
                 id: "security",
-                name: "Sécurité", // FIXME i18n
+                name: i18n.t("common.security"),
                 icon: "key",
                 groups: prefSmimeGroups()
             }
@@ -78,7 +82,7 @@ function prefSmimeGroups() {
     return [
         {
             id: "smime",
-            name: "Chiffrement S/MIME", // FIXME i18n
+            name: i18n.t("smime.preferences.import_field.title"),
             fields: [
                 {
                     id: "field",
@@ -88,7 +92,7 @@ function prefSmimeGroups() {
         },
         {
             id: "smime_encrypt_pref",
-            name: "Chiffrement des messages par défaut", // FIXME i18n
+            name: i18n.t("smime.preferences.encrypt_field.title"),
             visible: () => store.getters["smime/" + SMIME_AVAILABLE],
             fields: [
                 {
@@ -99,7 +103,7 @@ function prefSmimeGroups() {
                             setting: SMIMEPrefKeys.ENCRYPTION_PREF,
                             default: "true",
                             autosave: true,
-                            label: "Par défaut, chiffrer mes messages à l'envoi" // FIXME i18n
+                            label: i18n.t("smime.preferences.encrypt_field.label")
                         }
                     }
                 }
@@ -107,7 +111,7 @@ function prefSmimeGroups() {
         },
         {
             id: "smime_signature_pref",
-            name: "Signature des messages par défaut", // FIXME i18n
+            name: i18n.t("smime.preferences.signature_field.title"),
             visible: () => store.getters["smime/" + SMIME_AVAILABLE],
             fields: [
                 {
@@ -118,7 +122,7 @@ function prefSmimeGroups() {
                             setting: SMIMEPrefKeys.SIGNATURE_PREF,
                             default: "false",
                             autosave: true,
-                            label: "Par défaut, signer mes messages à l'envoi" // FIXME i18n
+                            label: i18n.t("smime.preferences.signature_field.label")
                         }
                     }
                 }

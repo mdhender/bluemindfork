@@ -1,7 +1,7 @@
 import { loadingStatusUtils } from "@bluemind/mail";
 import { DateComparator, WeekDayCodes } from "@bluemind/date";
 import { WeekDay } from "@bluemind/i18n";
-import injector from "@bluemind/inject";
+import i18n from "@bluemind/i18n";
 import { sanitizeHtml } from "@bluemind/html-utils";
 
 const { LoadingStatus } = loadingStatusUtils;
@@ -95,32 +95,30 @@ export default {
 };
 
 function adaptDate(dtstart, dtend, rrule) {
-    const vueI18n = injector.getProvider("i18n").get();
-
     // recurrent event
     if (rrule) {
-        return adaptRecurrentEvent(dtstart, dtend, rrule, vueI18n);
+        return adaptRecurrentEvent(dtstart, dtend, rrule, i18n);
     }
 
     // all day event
     if (dtstart.precision === "Date") {
-        return adaptAllDayEvent(dtstart, dtend, vueI18n);
+        return adaptAllDayEvent(dtstart, dtend, i18n);
     }
 
     const startDate = new Date(dtstart.iso8601);
     const endDate = new Date(dtend.iso8601);
     if (DateComparator.isSameDay(startDate, endDate)) {
         // same day, different hours
-        return vueI18n.t("common.duration.sameday", {
-            date: vueI18n.d(startDate, "full_date_long"),
-            startDate: vueI18n.d(startDate, "short_time"),
-            endDate: vueI18n.d(endDate, "short_time")
+        return i18n.t("common.duration.sameday", {
+            date: i18n.d(startDate, "full_date_long"),
+            startDate: i18n.d(startDate, "short_time"),
+            endDate: i18n.d(endDate, "short_time")
         });
     } else {
         // different days, different hours
-        return vueI18n.t("common.duration.weekday", {
-            startDate: vueI18n.d(startDate, "full_date_time_long"),
-            endDate: vueI18n.d(endDate, "full_date_time_long")
+        return i18n.t("common.duration.weekday", {
+            startDate: i18n.d(startDate, "full_date_time_long"),
+            endDate: i18n.d(endDate, "full_date_time_long")
         });
     }
 }

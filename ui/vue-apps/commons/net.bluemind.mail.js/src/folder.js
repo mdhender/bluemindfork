@@ -1,5 +1,4 @@
-import { inject } from "@bluemind/inject";
-import injector from "@bluemind/inject";
+import i18n from "@bluemind/i18n";
 import { MailboxType } from "./mailbox";
 
 export function create(key, name, parent, mailbox) {
@@ -120,8 +119,7 @@ export function translatePath(path) {
 }
 
 function translateDefaultName(name) {
-    const vueI18n = injector.getProvider("i18n").get();
-    return vueI18n.t("common.folder." + name.toLowerCase());
+    return i18n.t("common.folder." + name.toLowerCase());
 }
 
 export function normalize(folderPath, getFolderByPath) {
@@ -151,31 +149,29 @@ const FOLDER_PATH_MAX_LENGTH = 250;
 
 /** @return true or an explanation about why it's not valid */
 export function isNameValid(name, path, getFolderByPath) {
-    const vueI18n = injector.getProvider("i18n").get();
-
     path = removeTrailingSlashes(path);
 
     if (name.trim().length === 0) {
-        return vueI18n.t("mail.actions.folder.invalid.empty");
+        return i18n.t("mail.actions.folder.invalid.empty");
     }
     if (path.length > FOLDER_PATH_MAX_LENGTH) {
-        return vueI18n.t("mail.actions.folder.invalid.too_long");
+        return i18n.t("mail.actions.folder.invalid.too_long");
     }
 
     const invalidCharacter = getInvalidCharacter(name.toLowerCase());
     if (invalidCharacter) {
-        return vueI18n.t("common.invalid.character", {
+        return i18n.t("common.invalid.character", {
             character: invalidCharacter
         });
     }
 
     const normalizedPath = normalize(path, getFolderByPath);
     if (getFolderByPath(normalizedPath)) {
-        return vueI18n.t("mail.actions.folder.invalid.already_exist");
+        return i18n.t("mail.actions.folder.invalid.already_exist");
     }
 
     if (!ascendantsAllowSubfolder(normalizedPath, getFolderByPath)) {
-        return vueI18n.t("mail.actions.folder.subfolder.forbidden");
+        return i18n.t("mail.actions.folder.subfolder.forbidden");
     }
 
     return true;
@@ -211,7 +207,7 @@ export function getInvalidCharacter(name) {
 
 function translate(name) {
     if (DEFAULT_FOLDERS[name.toUpperCase()]) {
-        return inject("i18n").t("common.folder." + name.toLowerCase()) || name;
+        return i18n.t("common.folder." + name.toLowerCase()) || name;
     }
     return name;
 }

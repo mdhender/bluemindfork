@@ -75,7 +75,6 @@ import global from "@bluemind/global";
 import { BmModal, BmButtonClose, BmButton, BmIcon, BmLabelIcon } from "@bluemind/ui-components";
 import { computeUnit } from "@bluemind/file-utils";
 import { fileUtils } from "@bluemind/mail";
-import FilehostingL10N from "../l10n";
 import DetachmentItem from "./DetachmentItem";
 import { GET_FH_FILE } from "../store/types/getters";
 import { REMOVE_FH_ATTACHMENT } from "../store/types/actions";
@@ -85,7 +84,6 @@ const { FileStatus, isUploading } = fileUtils;
 export default {
     name: "FileHostingModal",
     components: { BmModal, BmButtonClose, BmButton, BmIcon, DetachmentItem, BmLabelIcon },
-    componentI18N: { messages: FilehostingL10N },
     props: {
         sizeLimit: {
             type: Number,

@@ -26,7 +26,6 @@ import { mapActions, mapMutations, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
 
 import { mapExtensions } from "@bluemind/extensions";
-import CommonL10N from "@bluemind/l10n";
 import { inject } from "@bluemind/inject";
 import { BmAlertArea } from "@bluemind/ui-components";
 
@@ -47,7 +46,7 @@ export default {
         BmAlertArea,
         SystemAlertArea
     },
-    componentI18N: { messages: [CommonL10N, SettingsL10N] },
+    componentI18N: { messages: SettingsL10N },
 
     data() {
         const session = inject("UserSession");

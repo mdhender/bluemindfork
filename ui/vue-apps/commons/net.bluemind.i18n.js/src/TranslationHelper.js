@@ -1,5 +1,5 @@
-// if there are duplicate keys between both params, translation2 values overwrite translation1 values.
 export default {
+    // if there are duplicate keys between both params, translation2 values overwrite translation1 values.
     mergeTranslations(translation1, translation2) {
         let res = {};
         for (let lang in translation1) {

@@ -1,10 +1,10 @@
 <template>
-    <bm-modal v-model="show" centered :title="$t('preferences.mail.security.smime.import_certificate_modal.title')">
+    <bm-modal v-model="show" centered :title="$t('smime.preferences.import_field.modal.title')">
         <bm-label-icon v-if="!SMIME_AVAILABLE" class="mb-3" icon="info-circle">
-            {{ $t("preferences.mail.security.smime.import_certificate_modal.supported_formats") }}
+            {{ $t("smime.preferences.import_field.modal.supported_formats") }}
         </bm-label-icon>
         <bm-label-icon v-if="invalidFile" class="text-danger mb-3" icon="exclamation-circle-fill">
-            {{ $t("preferences.mail.security.smime.import_certificate_modal.unsupported_file_type") }}
+            {{ $t("smime.preferences.import_field.modal.unsupported_file") }}
         </bm-label-icon>
         <bm-file-drop-zone
             v-if="!SMIME_AVAILABLE"
@@ -16,7 +16,7 @@
             <template #dropZone>
                 <div class="text-center my-6">
                     <h2 class="mt-4 mb-6">
-                        {{ $t("preferences.mail.security.smime.import_certificate_modal.label") }}
+                        {{ $t("common.drop_files") }}
                     </h2>
                     <div class="mb-4">{{ $t("common.or") }}</div>
                     <bm-button variant="fill-accent" @click="openFilePicker">{{ $t("common.browse") }}</bm-button>
@@ -30,16 +30,16 @@
         </div>
         <div class="mt-6">
             <bm-label-icon v-if="hasPrivateKey" class="text-success" icon="check-circle">
-                {{ $t("preferences.mail.security.smime.import_certificate_modal.private_key_associated") }}
+                {{ $t("smime.preferences.import_field.modal.key_associated") }}
             </bm-label-icon>
             <bm-label-icon v-else class="text-danger" icon="exclamation-circle">
-                {{ $t("preferences.mail.security.smime.import_certificate_modal.private_key_disassociated") }}
+                {{ $t("smime.preferences.import_field.modal.key_disassociated") }}
             </bm-label-icon>
             <bm-label-icon v-if="hasPublicCert" class="text-success mt-4" icon="check-circle">
-                {{ $t("preferences.mail.security.smime.import_certificate_modal.pub_cert_associated") }}
+                {{ $t("smime.preferences.import_field.modal.certificate_associated") }}
             </bm-label-icon>
             <bm-label-icon v-else class="text-danger mt-4" icon="exclamation-circle">
-                {{ $t("preferences.mail.security.smime.import_certificate_modal.pub_cert_disassociated") }}
+                {{ $t("smime.preferences.import_field.modal.certificate_disassociated") }}
             </bm-label-icon>
         </div>
         <input

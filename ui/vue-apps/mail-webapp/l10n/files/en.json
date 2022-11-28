@@ -372,7 +372,7 @@
     "mail.message.starter.templates.details": "to use it for a new message or modify it",
     "mail.messages.multiple.drag_shadow": "The selected thread | {count} selected threads",
     "mail.new.attachments.drop.zone": "Drop your file as attachment | Drop your files as attachments",
-    "mail.new.attachments.eml.drop.zone": "Drop your message as an attachment | Drop your messages as attachments",
+    "mail.new.attachments.eml.drop.zone": "Drop your message as attachment | Drop your messages as attachments",
     "mail.new.attachments.images.drop.zone": "Drop your image as attachment | Drop your images as attachments",
     "mail.new.images.drop.zone": "Drop your image right into the message | Drop your images right into the message",
     "mail.new.subject.aria": "Message subject",

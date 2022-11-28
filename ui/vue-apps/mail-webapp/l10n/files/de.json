@@ -372,7 +372,7 @@
     "mail.message.starter.templates.details": "um es für ein neue Nachricht zu verwenden oder es zu ändern",
     "mail.messages.multiple.drag_shadow": "Die ausgewählte Konversation | {count} ausgewählte Konversationen",
     "mail.new.attachments.drop.zone": "Platzieren Sie eine Datei als Anhang | Dateien als Anhang platzieren",
-    "mail.new.attachments.eml.drop.zone": "Nachricht als Anlage löschen | Nachrichten als Anhänge löschen",
+    "mail.new.attachments.eml.drop.zone": "Droppen Sie Ihre Nachricht als Anhang | Droppen Sie Ihre Nachrichten als Anhänge",
     "mail.new.attachments.images.drop.zone": "Platzieren Sie ein Bild als Anhang | Bilder als Anhang platzieren",
     "mail.new.images.drop.zone": "Bild direkt in den Inhalt platzieren | Bilder direkt in den Inhalt platzieren",
     "mail.new.subject.aria": "E-Mailbetreff",

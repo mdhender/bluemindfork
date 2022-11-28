@@ -43,9 +43,9 @@
 
 <script>
 import { DirEntryAdaptor } from "@bluemind/contact";
-import { inject } from "@bluemind/inject";
 import { Contact } from "@bluemind/business-components";
 import { BmFormSelect, BmLabelIcon, BmRow } from "@bluemind/ui-components";
+import i18n from "@bluemind/i18n";
 import { ContainerHelper, ContainerType } from "../container";
 
 export default {
@@ -90,7 +90,7 @@ export default {
         },
         shareOptions(isPlural = false) {
             const count = isPlural ? 0 : 1;
-            return ContainerHelper.use(this.container.type).getOptions(inject("i18n"), count, this.isMyDefaultCalendar);
+            return ContainerHelper.use(this.container.type).getOptions(i18n, count, this.isMyDefaultCalendar);
         }
     }
 };

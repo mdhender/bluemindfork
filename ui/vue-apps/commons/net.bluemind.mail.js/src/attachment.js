@@ -1,6 +1,5 @@
 import { getPartDownloadUrl, MimeType } from "@bluemind/email";
-import { inject } from "@bluemind/inject";
-import injector from "@bluemind/inject";
+import i18n from "@bluemind/i18n";
 import UUIDGenerator from "@bluemind/uuid";
 import file from "./file";
 
@@ -8,9 +7,7 @@ const { FileStatus } = file;
 
 export function create(part, status) {
     const progress = status === FileStatus.NOT_LOADED ? { loaded: 0, total: 100 } : { loaded: 100, total: 100 };
-    const filename = part.fileName
-        ? part.fileName
-        : inject("i18n").t("mail.attachment.untitled", { mimeType: part.mime });
+    const filename = part.fileName ? part.fileName : i18n.t("mail.attachment.untitled", { mimeType: part.mime });
 
     let mime = part.mime;
     const mimeFromExtension = mime === "application/octet-stream" && getTypeFromExtension(filename);
@@ -74,8 +71,7 @@ const AttachmentAdaptor = {
     createFileFromPart(part, key, message) {
         const progress =
             part.status === FileStatus.NOT_LOADED ? { loaded: 0, total: 100 } : { loaded: 100, total: 100 };
-        const name =
-            part.fileName || injector.getProvider("i18n").get().t("mail.attachment.untitled", { mimeType: part.mime });
+        const name = part.fileName || i18n.t("mail.attachment.untitled", { mimeType: part.mime });
         const mime = part.mime || "application/octet-stream";
         const url = message ? getPartDownloadUrl(message.folderRef.uid, message.remoteRef.imapUid, part) : null;
         const file = {

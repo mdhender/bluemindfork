@@ -1,3 +1,4 @@
+import i18n from "@bluemind/i18n";
 import { inject } from "@bluemind/inject";
 import { fileUtils } from "@bluemind/mail";
 
@@ -67,7 +68,7 @@ function handleError(commit, message, error, file) {
 
 function getBmHeader({ url, name, expirationDate }, file) {
     let bmHeader = `filehosting;url=${url}`;
-    bmHeader += name ? `;name=${name}` : `;name=${inject("i18n").t("mail.viewer.no.name")}`;
+    bmHeader += name ? `;name=${name}` : `;name=${i18n.t("mail.viewer.no.name")}`;
     bmHeader += file.size ? `;size=${file.size}` : ";size=0";
     bmHeader += file.type ? `;mime=${file.type}` : ";mime=application/octet-stream";
     bmHeader += expirationDate ? `;expirationDate=${expirationDate}` : "";
@@ -76,6 +77,6 @@ function getBmHeader({ url, name, expirationDate }, file) {
 
 function getMozillaHeader({ url, name }) {
     let mozillaHeader = `cloudFile;url=${url}`;
-    mozillaHeader += name ? `;name=${name}` : `;name=${inject("i18n").t("mail.viewer.no.name")}`;
+    mozillaHeader += name ? `;name=${name}` : `;name=${i18n.t("mail.viewer.no.name")}`;
     return mozillaHeader;
 }

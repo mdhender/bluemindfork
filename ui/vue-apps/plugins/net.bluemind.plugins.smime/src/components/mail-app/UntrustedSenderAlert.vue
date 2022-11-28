@@ -1,11 +1,8 @@
 <template>
     <div>
-        <!-- {{ $t("mail.content.alert.images.blocked") }} -->
-        <!-- FIXME i18n -->
-        Le message a été signé par son expéditeur mais la signature n'a pas pu être validée.
+        {{ $t("smime.mailapp.alert.untrusted") }}
         <bm-button v-if="!isAlreadyDisplayed" variant="link" class="ml-3" @click="displayMessage">
-            <!-- FIXME i18n -->
-            Afficher quand même
+            {{ $t("common.display_anyway") }}
         </bm-button>
     </div>
 </template>

@@ -20,7 +20,6 @@ module.exports = {
         "<rootDir>/commons/net.bluemind.html.js",
         "<rootDir>/commons/net.bluemind.i18n.js",
         "<rootDir>/commons/net.bluemind.inject.js",
-        "<rootDir>/commons/net.bluemind.l10n.js",
         "<rootDir>/commons/net.bluemind.mail.js",
         "<rootDir>/commons/net.bluemind.mime.js",
         "<rootDir>/commons/net.bluemind.roles.js",

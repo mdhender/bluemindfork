@@ -1,7 +1,9 @@
 import Vue from "vue";
 import { extensions } from "@bluemind/extensions";
+import { TranslationRegistry } from "@bluemind/i18n";
 import injector from "@bluemind/inject";
 import { AttachmentClient } from "@bluemind/attachment.api";
+import FilehostingL10N from "./l10n";
 import AddAttachmentsHandler from "~/handlers/AddAttachmentsHandler";
 import RemoveAttachmentHandler from "~/handlers/RemoveAttachmentHandler";
 import RenderlessFileItem from "~/components/RenderlessFileItem";
@@ -12,6 +14,8 @@ import DetachButton from "~/components/DetachButton";
 import ChooserButton from "~/components/ChooserButton";
 import CopyToDriveItem from "~/components/OtherActionsItems/CopyToDriveItem";
 import DetachItem from "~/components/OtherActionsItems/DetachItem";
+
+TranslationRegistry.register(FilehostingL10N);
 
 Vue.component("fh-renderless-file-item", RenderlessFileItem);
 Vue.component("cloud-icon", CloudIcon);

@@ -36,7 +36,9 @@ export default {
     },
     render(h) {
         const src = this.untrusted ? untrustedIllustration : undecryptedIllustration;
-        const text = this.untrusted ? "Que se passe-t-il ?" : "Pourquoi je ne peux pas afficher ce message ?"; //  FIXME i18n
+        const text = this.untrusted
+            ? this.$t("common.whats_going_on")
+            : this.$t("smime.mailapp.body_wrapper.cant_display");
 
         if ((!this.forceDisplay && this.untrusted) || this.undecrypted) {
             const imgDiv = h("div", {}, [h("img", { attrs: { src } })]);

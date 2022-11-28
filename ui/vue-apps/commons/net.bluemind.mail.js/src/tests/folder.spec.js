@@ -1,6 +1,8 @@
 const { create, rename, compare, match, translatePath, DEFAULT_FOLDERS } = require("../folder");
 const { MailboxType } = require("../mailbox");
-import injector from "@bluemind/inject";
+jest.mock("@bluemind/i18n", () => {
+    return { t: () => "translated" };
+});
 
 describe("Folder model functions", () => {
     describe("create", () => {
@@ -126,9 +128,6 @@ describe("Folder model functions", () => {
     describe("isDefault", () => {
         const user = { type: MailboxType.USER, remoteRef: {} };
         const mailshare = { type: MailboxType.MAILSHARE, remoteRef: {}, root: "mailshareRoot" };
-        beforeAll(() => {
-            injector.register({ provide: "i18n", use: { t: n => n } });
-        });
         test("INBOX in user mailbox is a default folder", () => {
             expect(create(undefined, "INBOX", undefined, user).default).toBeTruthy();
         });
@@ -264,9 +263,6 @@ describe("Folder model functions", () => {
     });
 
     describe("translatePath", () => {
-        beforeAll(() => {
-            injector.register({ provide: "i18n", use: { t: () => "translated" } });
-        });
         test("Translate default user folders", () => {
             Object.values(DEFAULT_FOLDERS).forEach(defaultFolderName => {
                 expect(translatePath(defaultFolderName)).toBe("translated");

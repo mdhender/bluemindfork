@@ -99,7 +99,6 @@ export default {
         display: none;
     }
     * .date {
-        text-align: left;
         white-space: nowrap;
         color: $neutral-fg-lo1;
     }
@@ -113,27 +112,19 @@ export default {
     .sender-and-recipients {
         display: none;
     }
-    .sender,
-    .mail-viewer-recipients {
-        order: 0;
-        margin: 0;
-    }
     .body-viewer {
         order: 2;
+        margin-top: $sp-5;
         padding: 0;
     }
-    .sender,
-    .mail-viewer-recipients,
-    .title {
+    .title,
+    * .date {
         padding-left: $sp-6;
         padding-right: $sp-5;
     }
     .title {
         padding-top: $sp-5;
         color: $neutral-fg-hi1;
-    }
-    .sender {
-        margin-bottom: $sp-5;
     }
     & > hr {
         margin: $sp-3 0 0 0;

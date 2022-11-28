@@ -2,7 +2,7 @@ import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
 import { ERROR } from "@bluemind/alert.store";
 import { InlineImageHelper, MimeType } from "@bluemind/email";
-import { inject } from "@bluemind/inject";
+import i18n from "@bluemind/i18n";
 import { sanitizeHtml } from "@bluemind/html-utils";
 import { BmRichEditor } from "@bluemind/ui-components";
 import { attachmentUtils, draftUtils, loadingStatusUtils, messageUtils, partUtils } from "@bluemind/mail";
@@ -209,7 +209,7 @@ export default {
                 previousMessage,
                 creationMode,
                 this.userPrefTextOnly,
-                inject("i18n")
+                i18n
             );
 
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(BmRichEditor.constants.NEW_LINE);

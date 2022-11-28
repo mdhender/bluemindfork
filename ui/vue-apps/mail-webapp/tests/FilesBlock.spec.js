@@ -1,6 +1,9 @@
 import { BmProgress } from "@bluemind/ui-components";
 jest.mock("@bluemind/ui-components/src/css/_variables.scss", () => ({ iconsColors: "" }));
 jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+jest.mock("@bluemind/i18n", () => {
+    return { t: () => "translated" };
+});
 
 import FilesBlock from "../src/components/MailAttachment/FilesBlock";
 import { createStore, createWrapper } from "./testUtils";

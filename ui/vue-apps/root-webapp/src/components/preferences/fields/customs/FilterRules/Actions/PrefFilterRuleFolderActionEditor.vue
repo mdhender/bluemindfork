@@ -40,6 +40,7 @@
 </template>
 
 <script>
+import i18n from "@bluemind/i18n";
 import { inject } from "@bluemind/inject";
 import { BmFormSelect, BmIcon } from "@bluemind/ui-components";
 
@@ -141,7 +142,6 @@ function sort(raw) {
 }
 
 function userFolder(folder, id) {
-    const i18n = inject("i18n");
     const text = Object.values(DEFAULT_FOLDER_NAMES).includes(folder)
         ? i18n.t(`common.folder.${folder.toLowerCase()}`)
         : folder;

@@ -221,9 +221,14 @@
     "common.file.size": "File size",
     "common.files.selected": "No file selected | 1 file selected | {count} selected files",
     "common": {
+        "associate": "Associate",
+        "display_anyway": "Display anyway",
+        "dissociate": "Dissociate",
+        "drop_files": "Drop your files",
         "open_in_window": "Open in new window",
         "open_in_window_with_shift": "Press Shift to open in new window",
-        "open_action_in_window_with_shift": "{action} (@:common.open_in_window_with_shift)"
+        "open_action_in_window_with_shift": "{action} (@:common.open_in_window_with_shift)",
+        "whats_going_on": "What's going on?"
     },
     "styleguide": {
         "alert": {

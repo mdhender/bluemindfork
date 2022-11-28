@@ -2,13 +2,13 @@
     <div
         v-if="files.length > 0"
         :class="`composer-links ${className}`"
-        style="padding: 15px; background-color: #d9edff;"
+        style="padding: 15px; background-color: #d9edff"
         contenteditable="false"
     >
-        <div style="margin-bottom: 15px;">
+        <div style="margin-bottom: 15px">
             {{ $tc("filehosting.link", files.length) }}
         </div>
-        <composer-links :files="files" style="padding: 15px;" />
+        <composer-links :files="files" style="padding: 15px" />
     </div>
 </template>
 

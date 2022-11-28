@@ -1,4 +1,4 @@
-import { AvailableLanguages } from "./index";
+import AvailableLanguages from "./AvailableLanguages";
 
 export default function (timeformat) {
     let dateTimeFormats = {

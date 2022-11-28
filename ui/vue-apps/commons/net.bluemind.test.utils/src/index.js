@@ -1,4 +1,3 @@
-export { default as InjectI18NDependency } from "./InjectI18NDependency";
 export { default as MountComponentUtils } from "./MountComponentUtils";
 
 export { default as MockCalendarClient } from "./mocks/MockCalendarClient";

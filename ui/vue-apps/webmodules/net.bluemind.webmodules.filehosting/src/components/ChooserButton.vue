@@ -26,14 +26,12 @@ import { inject } from "@bluemind/inject";
 import { BmIconButton, BmModal } from "@bluemind/ui-components";
 import { MimeType } from "@bluemind/email";
 import { Chooser } from "@bluemind/business-components";
-import FilehostingL10N from "../l10n";
 import { LINK_FH_ATTACHMENT } from "../store/types/actions";
 import getContentWithLinks from "../helpers/getContentWithLinks";
 
 export default {
     name: "ChooserButton",
     components: { BmIconButton, BmModal, Chooser },
-    componentI18N: { messages: FilehostingL10N },
     props: {
         message: {
             type: Object,

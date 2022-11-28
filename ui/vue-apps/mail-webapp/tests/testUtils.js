@@ -27,14 +27,6 @@ inject.register({
     use: { userId }
 });
 
-inject.register({
-    provide: "i18n",
-    use: {
-        t: () => {},
-        tc: () => {}
-    }
-});
-
 const mailbox = {
     key: "MY_MAILBOX",
     type: "users",

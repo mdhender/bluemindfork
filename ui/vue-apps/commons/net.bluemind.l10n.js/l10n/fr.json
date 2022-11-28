@@ -221,9 +221,14 @@
     "common.file.size": "Taille du fichier",
     "common.files.selected": "Pas de fichier sélectionné | 1 fichier sélectionné | {count} fichiers sélectionnés",
     "common": {
+        "associate": "Associer",
+        "display_anyway": "Afficher quand même",
+        "dissociate": "Dissocier",
+        "drop_files": "Déposer vos fichiers",
         "open_in_window": "Ouvrir dans une nouvelle fenêtre",
         "open_in_window_with_shift": "Appuyez sur Maj pour ouvrir dans une nouvelle fenêtre",
-        "open_action_in_window_with_shift": "{action} (@:common.open_in_window_with_shift)"
+        "open_action_in_window_with_shift": "{action} (@:common.open_in_window_with_shift)",
+        "whats_going_on": "Que se passe-t-il ?"
     },
     "styleguide": {
         "alert": {

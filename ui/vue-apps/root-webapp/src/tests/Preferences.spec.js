@@ -6,12 +6,6 @@ jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
 
 import ServiceLocator from "@bluemind/inject";
 ServiceLocator.register({
-    provide: "i18n",
-    factory: () => ({
-        t: () => ""
-    })
-});
-ServiceLocator.register({
     provide: "UserSession",
     factory: () => ({ roles: "" })
 });

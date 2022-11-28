@@ -17,13 +17,11 @@
 
 <script>
 import { computeUnit } from "@bluemind/file-utils";
-import FilehostingL10N from "../l10n";
 import FhConfirmBox from "./ConfirmBox";
 
 export default {
     name: "FhMustDetachConfirmBox",
     components: { FhConfirmBox },
-    componentI18N: { messages: FilehostingL10N },
     props: {
         files: {
             type: Array,

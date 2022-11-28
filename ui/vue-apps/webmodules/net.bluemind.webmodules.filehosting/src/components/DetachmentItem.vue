@@ -29,14 +29,12 @@
 import { BmLabelIcon, BmProgress, BmIcon } from "@bluemind/ui-components";
 import { computeUnit } from "@bluemind/file-utils";
 import { fileUtils } from "@bluemind/mail";
-import FilehostingL10N from "../l10n";
 
 const { FileStatus, VERY_LARGE_FILE_SIZE } = fileUtils;
 
 export default {
     name: "DetachmentItem",
     components: { BmLabelIcon, BmProgress, BmIcon },
-    componentI18N: { messages: FilehostingL10N },
     props: {
         file: {
             type: Object,

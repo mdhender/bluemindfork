@@ -60,7 +60,7 @@
 <script>
 import { mapState, mapGetters, mapActions } from "vuex";
 import { computeUnit } from "@bluemind/file-utils";
-import { inject } from "@bluemind/inject";
+import i18n from "@bluemind/i18n";
 import { loadingStatusUtils } from "@bluemind/mail";
 import { CONVERSATION_IS_LOADED, CONVERSATION_METADATA } from "~/getters";
 import { BmListGroup } from "@bluemind/ui-components";
@@ -181,8 +181,8 @@ export default {
                                 if (sizeRange && !currentSizeRanges.includes(sizeRange)) {
                                     const pluralizationCount = sizeRange.min ? (sizeRange.max ? 1 : 2) : 0;
                                     rangeByKey[key] = this.$tc("mail.list.range.size", pluralizationCount, {
-                                        min: computeUnit(sizeRange.min, inject("i18n")),
-                                        max: computeUnit(sizeRange.max, inject("i18n"))
+                                        min: computeUnit(sizeRange.min, i18n),
+                                        max: computeUnit(sizeRange.max, i18n)
                                     });
                                     currentSizeRanges.push(sizeRange);
                                 }

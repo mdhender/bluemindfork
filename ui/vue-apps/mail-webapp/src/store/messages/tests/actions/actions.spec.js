@@ -4,12 +4,7 @@ import cloneDeep from "lodash.clonedeep";
 
 import { Flag } from "@bluemind/email";
 import ServiceLocator, { inject } from "@bluemind/inject";
-import {
-    MockMailboxItemsClient,
-    MockMailboxFoldersClient,
-    MockItemsTransferClient,
-    MockI18NProvider
-} from "@bluemind/test-utils";
+import { MockMailboxItemsClient, MockMailboxFoldersClient, MockItemsTransferClient } from "@bluemind/test-utils";
 import { messageUtils, loadingStatusUtils } from "@bluemind/mail";
 
 import messageStore from "../../index";
@@ -29,11 +24,12 @@ import { FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
 import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
 
 jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
-
+jest.mock("@bluemind/i18n", () => {
+    return { t: () => "" };
+});
 const { LoadingStatus } = loadingStatusUtils;
 const { MessageAdaptor, MessageStatus, createOnlyMetadata, createWithMetadata } = messageUtils;
 Vue.use(Vuex);
-ServiceLocator.register({ provide: "i18n", factory: () => MockI18NProvider });
 
 describe("Messages actions", () => {
     let store;

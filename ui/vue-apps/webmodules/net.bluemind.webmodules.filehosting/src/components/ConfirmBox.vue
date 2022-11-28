@@ -22,13 +22,11 @@
 </template>
 <script>
 import { BmIcon } from "@bluemind/ui-components";
-import FilehostingL10N from "../l10n";
 import DetachmentItem from "./DetachmentItem";
 
 export default {
     name: "FhConfirmBox",
     components: { BmIcon, DetachmentItem },
-    componentI18N: { messages: FilehostingL10N },
     props: {
         files: {
             type: Array,

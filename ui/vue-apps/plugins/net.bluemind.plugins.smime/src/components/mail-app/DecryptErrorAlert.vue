@@ -1,7 +1,7 @@
 <template>
     <div class="decrypt-error-alert">
-        <!-- FIXME i18n -->
-        Impossible d'afficher le message chiffré
+        {{ $t("smime.mailapp.alert.decrypt_failed") }}
+        <!-- FIXME: est-ce qu'on affiche un code d'erreur à l'utilisateur ? -->
         <span v-if="code" class="code">(Code erreur {{ code }})</span>
     </div>
 </template>

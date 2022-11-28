@@ -9,8 +9,6 @@ import { DEBOUNCED_SAVE_MESSAGE } from "~/actions";
 
 const { FileStatus } = fileUtils;
 
-ServiceLocator.register({ provide: "i18n", use: { t: n => n } });
-
 jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
 
 describe("removeAttachment action", () => {

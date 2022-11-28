@@ -22,12 +22,10 @@
 
 <script>
 import { BmIconButton } from "@bluemind/ui-components";
-import FilehostingL10N from "../l10n";
 
 export default {
     name: "DetachButton",
     components: { BmIconButton },
-    componentI18N: { messages: FilehostingL10N },
     props: {
         message: {
             type: Object,

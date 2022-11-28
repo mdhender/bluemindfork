@@ -14,7 +14,6 @@ import {
 } from "~/mutations";
 
 const { FileStatus } = fileUtils;
-ServiceLocator.register({ provide: "i18n", use: { t: n => n } });
 
 jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
 

@@ -1,13 +1,6 @@
-import injector from "@bluemind/inject";
 import { create } from "../attachment";
 import { FileStatus } from "../file";
 
-injector.register({
-    provide: "i18n",
-    factory: () => ({
-        t: () => ""
-    })
-});
 describe("attachment model", () => {
     test("adapt attachment mime type according to filename if it's an application/octet-stream", () => {
         const status = FileStatus.UPLOADED;

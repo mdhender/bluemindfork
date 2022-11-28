@@ -1,5 +1,6 @@
 import { ContactValidator } from "@bluemind/contact";
 import { Flag } from "@bluemind/email";
+import i18n from "@bluemind/i18n";
 import { inject } from "@bluemind/inject";
 import { retrieveTaskResult } from "@bluemind/task";
 import { folderUtils, messageUtils } from "@bluemind/mail";
@@ -17,7 +18,7 @@ export default async function (context, { draft, myMailboxKey, outbox, myDraftsF
 
     context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.SENDING }]);
 
-    validateDraft(draft, inject("i18n"));
+    validateDraft(draft, i18n);
     const messageInOutboxId = await moveToOutbox(
         draft.remoteRef.internalId,
         myMailboxKey,

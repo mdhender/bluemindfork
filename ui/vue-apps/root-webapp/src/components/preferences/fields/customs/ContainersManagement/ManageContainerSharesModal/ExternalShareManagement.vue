@@ -45,7 +45,7 @@
 import { publishModeOptions } from "./ExternalShareHelper";
 import { PublishMode } from "@bluemind/calendar.api";
 import { VCardInfoAdaptor } from "@bluemind/contact";
-import { inject } from "@bluemind/inject";
+import i18n from "@bluemind/i18n";
 import { Contact } from "@bluemind/business-components";
 import { BmButtonCopy, BmIconButton, BmFormSelect, BmLabelIcon, BmRow } from "@bluemind/ui-components";
 
@@ -63,7 +63,7 @@ export default {
         }
     },
     data() {
-        return { publishModeOptions: publishModeOptions(inject("i18n")), VCardInfoAdaptor };
+        return { publishModeOptions: publishModeOptions(i18n), VCardInfoAdaptor };
     },
     computed: {
         noExternalShareSet() {

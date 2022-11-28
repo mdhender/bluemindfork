@@ -3,4 +3,4 @@ import registerRequireContextHook from "babel-plugin-require-context-hook/regist
 
 registerRequireContextHook();
 
-window.bmcSessionInfos = { sid: "", userId: "" };
+window.bmcSessionInfos = { lang: "fr", sid: "", userId: "" };

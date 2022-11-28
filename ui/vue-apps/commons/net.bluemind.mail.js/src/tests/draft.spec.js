@@ -1,8 +1,8 @@
 import { MockI18NProvider } from "@bluemind/test-utils";
-import ServiceLocator from "@bluemind/inject";
-
+jest.mock("@bluemind/i18n", () => MockI18NProvider);
 jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
 
+import i18n from "@bluemind/i18n";
 import { create, MessageCreationModes, MessageHeader } from "../message";
 import {
     computeCcRecipients,
@@ -12,9 +12,6 @@ import {
     quotePreviousMessage,
     computeIdentityForReplyOrForward
 } from "../draft";
-
-ServiceLocator.register({ provide: "i18n", factory: () => MockI18NProvider });
-const vueI18n = ServiceLocator.getProvider("i18n").get();
 
 const previousMessageFrom = { address: "someone@vm40.net", dn: "Some One" };
 const previousMessageTo = [
@@ -72,7 +69,7 @@ describe("Compute reply / forward quoted previous message", () => {
     let itemsService = {};
     itemsService.uploadPart = jest.fn().mockReturnValue("2");
 
-    vueI18n.t = jest.fn().mockImplementation((key, params) => {
+    i18n.t = jest.fn().mockImplementation((key, params) => {
         if (key === "mail.compose.reply.body") {
             return "On " + params.date + ", " + params.name + " wrote:";
         } else if (key === "mail.compose.forward.prev.message.info.title") {
@@ -100,7 +97,7 @@ describe("Compute reply / forward quoted previous message", () => {
             previousMessage,
             MessageCreationModes.REPLY,
             userPrefTextOnly,
-            vueI18n
+            i18n
         );
         expect(contentWithSeparator).toMatchSnapshot();
         contentWithSeparator = quotePreviousMessage(
@@ -108,7 +105,7 @@ describe("Compute reply / forward quoted previous message", () => {
             previousMessage,
             MessageCreationModes.REPLY_ALL,
             userPrefTextOnly,
-            vueI18n
+            i18n
         );
         expect(contentWithSeparator).toMatchSnapshot();
     });
@@ -123,7 +120,7 @@ describe("Compute reply / forward quoted previous message", () => {
             previousMessage,
             MessageCreationModes.FORWARD,
             userPrefTextOnly,
-            vueI18n
+            i18n
         );
         expect(contentWithSeparator).toMatchSnapshot();
     });

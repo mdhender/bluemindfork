@@ -12,6 +12,7 @@
     "dependencies": {
         "@bluemind/backend.mail.api":"^5.0.0",
         "@bluemind/extensions":"^5.0.0",
+        "@bluemind/i18n": "^5.0.0",
         "@bluemind/mime":"^5.0.0",
         "@bluemind/mail": "^5.0.0",
         "idb": "^7.1.0",

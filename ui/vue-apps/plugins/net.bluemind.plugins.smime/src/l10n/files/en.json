@@ -1,0 +1,41 @@
+{
+    "smime": {
+        "mailapp": {
+            "alert": {
+                "untrusted": "Message was signed by sender but signature could not be verified.",
+                "decrypt_failed": "Unable to display the encrypted message."
+            },
+            "body_wrapper": {
+                "cant_display": "Why I can't I see this message ?"
+            }
+        },
+        "preferences": {
+            "import_field": {
+                "title": "S/MIME encryption",
+                "cert_and_key_associated": "Your private key and public certificate have been associated.",
+                "cert_or_key_dissociated": "You do not have any public certificate or private key associated.",
+                "modal": {
+                    "key_associated": "Your private key is associated.",
+                    "key_disassociated": "Your private key is not associated.",
+                    "certificate_associated": "Your public certificate is associated.",
+                    "certificate_disassociated": "Your public certificate is not associated.",
+                    "supported_formats": "Supported formats: to be defined... !",
+                    "title": "Import my private key and my public certificate",
+                    "unsupported_file": "This file format is not supported."
+                }
+            },
+            "encrypt_field": {
+                "title": "Message encryption by default",
+                "label": "By default, encrypt messages when sending"
+            },
+            "signature_field": {
+                "title": "Message signature by default",
+                "label": "By default, sign messages when sending"
+            },
+            "service_worker": {
+                "error": "Synchronization error...",
+                "undefined": "Your browser does not support S/MIME encryption."
+            }
+        }
+    }
+}

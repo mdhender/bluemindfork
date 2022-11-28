@@ -1,0 +1,41 @@
+{
+    "smime": {
+        "mailapp": {
+            "alert": {
+                "untrusted": "Le message a été signé par son expéditeur mais la signature n'a pas pu être validée.",
+                "decrypt_failed": "Impossible d'afficher le message chiffré."
+            },
+            "body_wrapper": {
+                "cant_display": "Pourquoi je ne peux pas voir ce message ?"
+            }
+        },
+        "preferences": {
+            "import_field": {
+                "title": "Chiffrement S/MIME",
+                "cert_and_key_associated": "Votre clef privée et votre certificat public ont bien été associés.",
+                "cert_or_key_dissociated": "Vous n'avez pas de clef privée ou de certificat public associés.",
+                "modal": {
+                    "key_associated": "Votre clef privée est associée.",
+                    "key_disassociated": "Votre clef privée n'est pas associée.",
+                    "certificate_associated": "Votre certificat public est associé.",
+                    "certificate_disassociated": "Votre certificat public n'est pas associé.",
+                    "supported_formats": "Formats supportés : à définir... !",
+                    "title": "Importer ma clef privée et mon certificat public",
+                    "unsupported_file": "Ce format de fichier n'est pas supporté."
+                }
+            },
+            "encrypt_field": {
+                "title": "Chiffrement des messages par défaut",
+                "label": "Par défaut, chiffrer mes messages à l'envoi"
+            },
+            "signature_field": {
+                "title": "Signature des messages par défaut",
+                "label": "Par défaut, signer mes messages à l'envoi"
+            },
+            "service_worker": {
+                "error": "Erreur de synchronisation...",
+                "undefined": "Votre navigateur ne permet pas le support du chiffrement S/MIME."
+            }
+        }
+    }
+}

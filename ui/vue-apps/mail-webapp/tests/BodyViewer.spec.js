@@ -1,17 +1,15 @@
 import flushPromises from "flush-promises";
 import inject from "@bluemind/inject";
-import { MockI18NProvider } from "@bluemind/test-utils";
 
 inject.register({ provide: "UserSession", factory: () => ({ roles: "" }) });
-const vueI18n = inject.register({ provide: "i18n", factory: () => MockI18NProvider });
-vueI18n.t = jest.fn().mockImplementation(() => {
-    return "Untitled";
-});
 
 import { createStore, createWrapper } from "./testUtils";
 import BodyViewer from "../src/components/MailViewer/BodyViewer";
 
 jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+jest.mock("@bluemind/i18n", () => {
+    return { t: () => "Untitled" };
+});
 
 describe("BodyViewer.spec", () => {
     test("image/* file type is a viewer capacity", async () => {

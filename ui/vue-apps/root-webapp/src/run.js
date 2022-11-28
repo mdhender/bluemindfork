@@ -1,10 +1,9 @@
 import Vue from "vue";
 import Vue2TouchEvents from "vue2-touch-events";
-import VueI18n from "vue-i18n";
 
 import { default as AlertStore, DefaultAlert } from "@bluemind/alert.store";
-import { generateDateTimeFormats, InheritTranslationsMixin } from "@bluemind/i18n";
-import injector, { inject } from "@bluemind/inject";
+import i18n, { generateDateTimeFormats } from "@bluemind/i18n";
+import { inject } from "@bluemind/inject";
 import router from "@bluemind/router";
 import { initSentry } from "@bluemind/sentry";
 import store from "@bluemind/store";
@@ -27,11 +26,11 @@ registerDependencies(userSession);
 initWebApp(userSession);
 initSentry(userSession);
 
-async function initWebApp(userSession) {
+function initWebApp(userSession) {
+    setDateTimeFormat(userSession);
     initStore();
     setVuePlugins(userSession);
     Vue.component("DefaultAlert", DefaultAlert);
-    const i18n = await initI18N(userSession);
     router.addRoutes(routes);
     new Vue({ el: "#app", i18n, render: h => h(MainApp), router, store });
     if (userSession.userId) {
@@ -40,7 +39,6 @@ async function initWebApp(userSession) {
 }
 
 function setVuePlugins(userSession) {
-    Vue.use(VueI18n);
     Vue.use(VueBus, store);
     if (userSession.userId) {
         Vue.use(VueSockjsPlugin, VueBus);
@@ -58,29 +56,6 @@ function initStore() {
     store.registerModule("preferences", PreferencesStore);
 }
 
-async function initI18N(userSession) {
-    let lang, timeformat;
-    if (userSession.userId) {
-        const langPromise = inject("UserSettingsPersistence").getOne(userSession.userId, "lang");
-        const timeformatPromise = inject("UserSettingsPersistence").getOne(userSession.userId, "timeformat");
-        [lang, timeformat] = await Promise.all([langPromise, timeformatPromise]);
-    }
-
-    // lang can be any of AvailableLanguages
-    Vue.mixin(InheritTranslationsMixin);
-
-    let fallbackLang = "en";
-    const navigatorLang = navigator.language;
-    if (navigatorLang) {
-        fallbackLang = navigator.language.split("-")[0];
-    }
-    const dateTimeFormats = generateDateTimeFormats(timeformat);
-
-    const i18n = new VueI18n({ locale: lang, fallbackLocale: fallbackLang, dateTimeFormats });
-    injector.register({ provide: "i18n", use: i18n });
-    return i18n;
-}
-
 async function showNotification(message) {
     const result = await Notification.requestPermission();
     if (result === "granted") {
@@ -90,6 +65,12 @@ async function showNotification(message) {
             });
         });
     }
+}
+
+function setDateTimeFormat(session) {
+    inject("UserSettingsPersistence")
+        .getOne(session.userId, "timeformat")
+        .then(timeformat => i18n.setDateTimeFormat(generateDateTimeFormats(timeformat)));
 }
 
 (async () => {

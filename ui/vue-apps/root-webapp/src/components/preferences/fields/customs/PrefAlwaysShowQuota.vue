@@ -23,7 +23,7 @@
 import { mapState } from "vuex";
 
 import { USED_QUOTA_PERCENTAGE_WARNING } from "@bluemind/email";
-import { inject } from "@bluemind/inject";
+import i18n from "@bluemind/i18n";
 import { computeUnit } from "@bluemind/file-utils";
 import { BmProgress } from "@bluemind/ui-components";
 
@@ -42,10 +42,10 @@ export default {
             return this.quota && !this.quota.total;
         },
         displayedUsedQuota() {
-            return computeUnit(this.quota.used * 1000, inject("i18n"));
+            return computeUnit(this.quota.used * 1000, i18n);
         },
         displayedTotalQuota() {
-            return computeUnit(this.quota.total * 1000, inject("i18n"));
+            return computeUnit(this.quota.total * 1000, i18n);
         },
         usedQuotaPercentage() {
             return (this.quota.used / this.quota.total) * 100;

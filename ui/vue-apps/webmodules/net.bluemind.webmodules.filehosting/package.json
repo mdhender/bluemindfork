@@ -13,6 +13,7 @@
         "@bluemind/api.commons": "^5.0.0",
         "@bluemind/store": "^5.0.0",
         "@bluemind/attachment.api": "^5.0.0",
+        "@bluemind/i18n": "^5.0.0",
         "@bluemind/inject": "^5.0.0",
         "@bluemind/uuid": "^5.0.0",
         "@bluemind/global": "^5.0.0",

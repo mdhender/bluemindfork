@@ -15,18 +15,13 @@ import {
 } from "~/actions";
 import { FOLDER_BY_PATH } from "~/getters";
 import { ADD_FOLDER } from "~/mutations";
-import injector from "@bluemind/inject";
 
 Vue.use(Vuex);
-jest.mock("../../api/apiFolders");
-jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
-
-injector.register({
-    provide: "i18n",
-    use: {
-        t: jest.fn()
-    }
+jest.mock("@bluemind/i18n", () => {
+    return { t: () => "" };
 });
+jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+jest.mock("../../api/apiFolders");
 
 describe("actions", () => {
     let store;

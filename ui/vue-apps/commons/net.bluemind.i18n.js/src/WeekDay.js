@@ -1,3 +1,5 @@
+import i18n from "@bluemind/i18n";
+
 const weekday = {
     MO: "common.monday",
     TU: "common.tuesday",
@@ -8,10 +10,8 @@ const weekday = {
     SU: "common.sunday"
 };
 
-import injector from "@bluemind/inject";
-
 export default {
     compute(abbreviation) {
-        return injector.getProvider("i18n").get().t(weekday[abbreviation]);
+        return i18n.t(weekday[abbreviation]);
     }
 };
