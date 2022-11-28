@@ -175,6 +175,8 @@ public class PostgreSQLService {
 		try {
 			logger.info(".. write postgresql.conf");
 			nc.writeFile(PG_CONF_PATH + "/postgresql.conf", getConf("postgresql.conf"));
+			NCUtils.execOrFail(nc, "chown postgres:postgres " + PG_CONF_PATH + "/postgresql.conf " + PG_CONF_PATH
+					+ "/postgresql.conf.local " + PG_CONF_PATH + "/postgresql.conf.pimp");
 		} catch (ServerFault | IOException e) {
 			throw new ServerFault("Fail to write postgresql.conf", e);
 		}
@@ -182,6 +184,8 @@ public class PostgreSQLService {
 		try {
 			logger.info(".. write pg_hba.conf");
 			nc.writeFile(PG_CONF_PATH + "/pg_hba.conf", getConf("pg_hba.conf"));
+			NCUtils.execOrFail(nc, "chown postgres:postgres " + PG_CONF_PATH + "/pg_hba.conf");
+
 		} catch (ServerFault | IOException e) {
 			throw new ServerFault("Fail to write pg_hba.conf", e);
 		}
