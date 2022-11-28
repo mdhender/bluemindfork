@@ -29,7 +29,10 @@ import net.bluemind.directory.api.IOrgUnits;
 import net.bluemind.directory.api.OrgUnit;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.role.api.BasicRoles;
+import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
@@ -45,11 +48,17 @@ public class RBACManagerTests {
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
-
-		PopulateHelper.initGlobalVirt();
+		BmConfIni ini = new BmConfIni();
+		Server cyrus = new Server();
+		cyrus.ip = ini.get("imap-role");
+		cyrus.tags = Arrays.asList(TagDescriptor.mail_imap.getTag());
+		Server pg = new Server();
+		pg.tags = Arrays.asList(TagDescriptor.bm_pgsql_data.getTag());
+		pg.ip = ini.get("bluemind/postgres-tests");
+		PopulateHelper.initGlobalVirt(cyrus, pg);
 
 		domainUid = "bmtest.lan";
-		PopulateHelper.createTestDomain(domainUid);
+		PopulateHelper.createTestDomain(domainUid, cyrus, pg);
 
 		userUid = PopulateHelper.addUser("toto", domainUid, Routing.none);
 		containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM);

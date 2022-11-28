@@ -108,14 +108,6 @@ public class BmConfIni extends IniFile {
 			overrideMap.put(DockerContainer.SAMBA4.getHostProperty(), samba4Host);
 		}
 
-		String mailboxRoleHost = DockerEnv.getIp(DockerContainer.MAILBOX_ROLE.getName());
-		if (mailboxRoleHost != null) {
-			overrideMap.put(DockerContainer.MAILBOX_ROLE.getHostProperty(), mailboxRoleHost);
-			topo.add(tagged(mailboxRoleHost, TagDescriptor.mail_imap.getTag()));
-			topo.add(tagged(mailboxRoleHost, TagDescriptor.bm_pgsql_data.getTag()));
-
-		}
-
 		String proxy = DockerEnv.getIp(DockerContainer.PROXY.getName());
 		if (proxy != null) {
 			overrideMap.put(DockerContainer.PROXY.getHostProperty(), proxy);

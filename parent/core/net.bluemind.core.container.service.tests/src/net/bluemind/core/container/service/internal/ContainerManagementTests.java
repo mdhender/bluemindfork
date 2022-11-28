@@ -40,6 +40,9 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.pool.impl.BmConfIni;
+import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUserSubscription;
 
@@ -56,11 +59,18 @@ public class ContainerManagementTests {
 
 	@Before
 	public void before() throws Exception {
-
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
-		PopulateHelper.initGlobalVirt();
+		BmConfIni ini = new BmConfIni();
+		Server cyrus = new Server();
+		cyrus.ip = ini.get("imap-role");
+		cyrus.tags = Arrays.asList(TagDescriptor.mail_imap.getTag());
+		Server pg = new Server();
+		pg.tags = Arrays.asList(TagDescriptor.bm_pgsql_data.getTag());
+		pg.ip = ini.get("bluemind/postgres-tests");
+
+		PopulateHelper.initGlobalVirt(cyrus, pg);
 
 		PopulateHelper.addDomain(domainUid);
 		PopulateHelper.addUser("subject", domainUid);

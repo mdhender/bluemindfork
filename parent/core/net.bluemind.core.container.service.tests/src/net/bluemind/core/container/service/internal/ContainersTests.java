@@ -55,6 +55,9 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.pool.impl.BmConfIni;
+import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class ContainersTests {
@@ -70,9 +73,17 @@ public class ContainersTests {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 
-		PopulateHelper.initGlobalVirt();
+		BmConfIni ini = new BmConfIni();
+		Server cyrus = new Server();
+		cyrus.ip = ini.get("imap-role");
+		cyrus.tags = Arrays.asList(TagDescriptor.mail_imap.getTag());
+		Server pg = new Server();
+		pg.tags = Arrays.asList(TagDescriptor.bm_pgsql_data.getTag());
+		pg.ip = ini.get("bluemind/postgres-tests");
+
+		PopulateHelper.initGlobalVirt(cyrus, pg);
 		domainUid = "bmtest.lan";
-		PopulateHelper.addDomain(domainUid);
+		PopulateHelper.createTestDomain(domainUid, cyrus, pg);
 		PopulateHelper.addUser("test", domainUid);
 
 		admin0SecurityContext = new SecurityContext(Token.admin0(), "admin0", Arrays.<String>asList(),

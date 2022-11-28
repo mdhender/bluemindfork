@@ -94,7 +94,7 @@ public class ContainerStoreServiceTests {
 	@Test
 	public void testXfer() throws SQLException {
 		BmConfIni conf = new BmConfIni();
-		String dbHost = conf.get("mailbox-role");
+		String dbHost = conf.get("pgxfer");
 
 		initDataServer(dbHost);
 

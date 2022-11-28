@@ -48,6 +48,7 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class MaintenanceTests {
 	public String mailboxIp;
+	public String pgdataIp;
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -64,20 +65,25 @@ public class MaintenanceTests {
 
 		BmConfIni ini = new BmConfIni();
 		Server cyrus = new Server();
-		mailboxIp = ini.get("mailbox-role");
-		cyrus.ip = ini.get("mailbox-role");
-		cyrus.tags = Arrays.asList(TagDescriptor.mail_imap.getTag(), TagDescriptor.bm_pgsql_data.getTag());
-		PopulateHelper.initGlobalVirt(cyrus);
+		mailboxIp = ini.get("imap-role");
+		cyrus.ip = ini.get("imap-role");
+		cyrus.tags = Arrays.asList(TagDescriptor.mail_imap.getTag());
+
+		Server pg = new Server();
+		pgdataIp = pg.ip = ini.get("bluemind/postgres-tests");
+		pg.tags = Arrays.asList(TagDescriptor.bm_pgsql_data.getTag());
+		PopulateHelper.initGlobalVirt(cyrus, pg);
 	}
 
 	private Server initDataServer() {
 		Server srv = new Server();
-		srv.fqdn = mailboxIp;
-		srv.ip = mailboxIp;
-		srv.name = mailboxIp;
+		srv.fqdn = pgdataIp;
+		srv.ip = pgdataIp;
+		srv.name = pgdataIp;
 		srv.tags = Arrays.asList(TagDescriptor.bm_pgsql_data.getTag());
-		ItemValue<Server> server = ItemValue.create(mailboxIp, srv);
+		ItemValue<Server> server = ItemValue.create(pgdataIp, srv);
 		PostgreSQLService service = new TestPostgreSQLService();
+		// This name CANNOT be overriden (something else somewhere needs the name as is)
 		String dbName = "bj-data";
 		service.addDataServer(server, dbName);
 		return srv;

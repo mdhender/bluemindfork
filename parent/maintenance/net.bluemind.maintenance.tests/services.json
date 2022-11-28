@@ -3,5 +3,5 @@
 },{
 	"name":"bluemind/node-tests"
 }, {
-	"name":"bluemind/mailbox-role"
+	"name":"bluemind/imap-role"
 }]

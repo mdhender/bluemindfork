@@ -477,13 +477,13 @@ public class OkHttpNodeClient implements INodeClient {
 
 	@Override
 	public void mkdirs(String dst, String permissions, String owner, String group) throws ServerFault {
-		Request delReq = new Request.Builder()
+		Request mkdirsReq = new Request.Builder()
 				.url(withPath("/mkdirs")).post(RequestBody
 						.create(MkdirsJsonHelper.toJsonString(dst, permissions, owner, group), MEDIA_TYPE_JSON))
 				.build();
-		try (Response delResp = client.newCall(delReq).execute()) {
-			if (!delResp.isSuccessful()) {
-				logger.warn("mkdirs {} failed (code {})", dst, delResp.code());
+		try (Response mkdirResp = client.newCall(mkdirsReq).execute()) {
+			if (!mkdirResp.isSuccessful()) {
+				logger.warn("mkdirs {} failed (code {})", dst, mkdirResp.code());
 			}
 		} catch (IOException e) {
 			throw new ServerFault(e);

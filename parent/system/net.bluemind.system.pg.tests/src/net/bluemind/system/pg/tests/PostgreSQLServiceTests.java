@@ -48,7 +48,7 @@ public class PostgreSQLServiceTests {
 	@Test
 	public void testAddDataServer() {
 		BmConfIni conf = new BmConfIni();
-		String dbHost = conf.get("mailbox-role");
+		String dbHost = conf.get("bluemind/postgres-tests");
 
 		assertNotNull(dbHost);
 

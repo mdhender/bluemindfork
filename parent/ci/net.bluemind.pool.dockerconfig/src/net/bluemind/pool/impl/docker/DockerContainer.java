@@ -24,8 +24,6 @@ public enum DockerContainer {
 
 	S3("bluemind/s3", "s3"),
 
-	MAILBOX_ROLE("bluemind/mailbox-role", "mailbox-role"),
-
 	PROXY("bluemind/proxy", "proxy"),
 
 	SCALITYRING("bluemind/scalityring", "scalityring");
