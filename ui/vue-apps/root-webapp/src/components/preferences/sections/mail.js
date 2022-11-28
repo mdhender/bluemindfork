@@ -349,6 +349,12 @@ export default function (i18n) {
                                 }
                             }
                         ]
+                    },
+                    {
+                        id: "recipient-autocomplete",
+                        name: i18n.t("preferences.mail.advanced.recipient_autocomplete.title"),
+                        visible: { name: "RoleCondition", args: [Roles.HAS_MAIL_WEBAPP] },
+                        fields: [{ id: "reset", component: { name: "PrefDeleteRecipientPriorities" } }]
                     }
                 ]
             }

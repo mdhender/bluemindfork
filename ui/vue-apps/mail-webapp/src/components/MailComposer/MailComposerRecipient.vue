@@ -13,6 +13,7 @@
         @expand="expandContact(contacts, $event, update)"
         @expandSearch="expandSearch = true"
         @autocompleteHidden="expandSearch = false"
+        @delete="SET_ADDRESS_WEIGHT({ address: $event.address, weight: -1 })"
     >
         {{ $t(`common.${recipientType}`) }}
     </bm-contact-input>
@@ -27,7 +28,7 @@ import { inject } from "@bluemind/inject";
 import { BmContactInput } from "@bluemind/styleguide";
 import { CHECK_CORPORATE_SIGNATURE } from "~/actions";
 import apiAddressbooks from "~/store/api/apiAddressbooks";
-import { SET_MESSAGE_BCC, SET_MESSAGE_CC, SET_MESSAGE_TO } from "~/mutations";
+import { SET_ADDRESS_WEIGHT, SET_MESSAGE_BCC, SET_MESSAGE_CC, SET_MESSAGE_TO } from "~/mutations";
 import { ADDRESS_AUTOCOMPLETE } from "~/getters";
 import { ComposerActionsMixin } from "~/mixins";
 
@@ -52,8 +53,8 @@ export default {
         },
         autocompleteExpandedResults() {
             let autocompleteExpandedResults;
+            const { sortedAddresses } = this.$store.getters[`mail/${ADDRESS_AUTOCOMPLETE}`];
             if (this.searchResults) {
-                const { sortedAddresses } = this.$store.getters[`mail/${ADDRESS_AUTOCOMPLETE}`];
                 const contacts = this.searchResults.values;
                 const priorityFn = address => sortedAddresses.indexOf(address) || Number.MAX_VALUE;
                 contacts?.sort((a, b) => priorityFn(b.value.mail) - priorityFn(a.value.mail));
@@ -63,8 +64,8 @@ export default {
         },
         autocompleteResults() {
             let autocompleteResults;
+            const { excludedAddresses } = this.$store.getters[`mail/${ADDRESS_AUTOCOMPLETE}`];
             if (this.autocompleteExpandedResults) {
-                const { excludedAddresses } = this.$store.getters[`mail/${ADDRESS_AUTOCOMPLETE}`];
                 autocompleteResults = this.autocompleteExpandedResults.filter(
                     ({ address }) => !excludedAddresses.includes(address)
                 );
@@ -86,7 +87,7 @@ export default {
     },
     methods: {
         ...mapActions("mail", { CHECK_CORPORATE_SIGNATURE }),
-        ...mapMutations("mail", { SET_MESSAGE_TO, SET_MESSAGE_CC, SET_MESSAGE_BCC }),
+        ...mapMutations("mail", { SET_ADDRESS_WEIGHT, SET_MESSAGE_TO, SET_MESSAGE_CC, SET_MESSAGE_BCC }),
         async expandContact(contacts, index, updateFn) {
             const contact = contacts[index];
             contact.members = await fetchContactMembers(contactContainerUid(contact), contact.uid);

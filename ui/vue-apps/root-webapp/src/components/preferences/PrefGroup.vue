@@ -31,12 +31,13 @@ import PrefAllDayEventReminder from "./fields/customs/PrefAllDayEventReminder";
 import PrefAlwaysShowQuota from "./fields/customs/PrefAlwaysShowQuota";
 import PrefAPIKey from "./fields/customs/PrefAPIKey";
 import PrefAutomaticReply from "./fields/customs/PrefAutomaticReply";
+import PrefDeleteRecipientPriorities from "./fields/customs/PrefDeleteRecipientPriorities";
+import PrefDomainFilterRules from "./fields/customs/FilterRules/PrefDomainFilterRules";
 import PrefDownloads from "./fields/customs/PrefDownloads";
 import PrefEmailsForwarding from "./fields/customs/PrefEmailsForwarding";
 import PrefEnableNotifications from "./fields/customs/PrefEnableNotifications";
+import PrefEntryName from "./PrefEntryName";
 import PrefEventReminder from "./fields/customs/PrefEventReminder";
-import PrefDomainFilterRules from "./fields/customs/FilterRules/PrefDomainFilterRules";
-import PrefMyFilterRules from "./fields/customs/FilterRules/PrefMyFilterRules";
 import PrefExtAccountCreation from "./fields/customs/ExternalAccounts/PrefExtAccountCreation";
 import PrefExtAccountList from "./fields/customs/ExternalAccounts/PrefExtAccountList";
 import PrefIMSetPhonePresence from "./fields/customs/PrefIMSetPhonePresence";
@@ -49,14 +50,14 @@ import PrefManageOtherAddressBooks from "./fields/customs/ContainersManagement/C
 import PrefManageOtherCalendars from "./fields/customs/ContainersManagement/Calendars/PrefManageOtherCalendars";
 import PrefManageOtherMailboxes from "./fields/customs/ContainersManagement/Mailboxes/PrefManageOtherMailboxes";
 import PrefManageOtherTodoLists from "./fields/customs/ContainersManagement/Tasks/PrefManageOtherTodoLists";
+import PrefMyFilterRules from "./fields/customs/FilterRules/PrefMyFilterRules";
 import PrefPassword from "./fields/customs/PrefPassword";
 import PrefRemoteImage from "./fields/customs/PrefRemoteImage";
 import PrefResetLocalData from "./fields/customs/PrefResetLocalData";
+import PrefSwitchWebmail from "./fields/customs/PrefSwitchWebmail";
 import PrefTags from "./fields/customs/Tags/PrefTags";
 import PrefWorkHours from "./fields/customs/PrefWorkHours";
 import PrefWorkingDays from "./fields/customs/PrefWorkingDays";
-import PrefSwitchWebmail from "./fields/customs/PrefSwitchWebmail";
-import PrefEntryName from "./PrefEntryName";
 
 import { BmFormGroup } from "@bluemind/ui-components";
 import Navigation from "./mixins/Navigation";
@@ -65,24 +66,25 @@ export default {
     name: "PrefGroup",
     components: {
         BmFormGroup,
+        PrefAllDayEventReminder,
+        PrefAlwaysShowQuota,
+        PrefAPIKey,
+        PrefAutomaticReply,
+        PrefDeleteRecipientPriorities,
+        PrefDomainFilterRules,
+        PrefDownloads,
+        PrefEmailsForwarding,
+        PrefEnableNotifications,
         PrefEntryName,
+        PrefEventReminder,
+        PrefExtAccountCreation,
+        PrefExtAccountList,
         PrefFieldCheck,
         PrefFieldChoice,
         PrefFieldComboBox,
         PrefFieldInput,
         PrefFieldSelect,
         PrefFieldSwitch,
-        PrefAllDayEventReminder,
-        PrefAlwaysShowQuota,
-        PrefAPIKey,
-        PrefAutomaticReply,
-        PrefDomainFilterRules,
-        PrefDownloads,
-        PrefEmailsForwarding,
-        PrefEnableNotifications,
-        PrefEventReminder,
-        PrefExtAccountCreation,
-        PrefExtAccountList,
         PrefIMSetPhonePresence,
         PrefManageIdentities,
         PrefManageMyAddressBooks,
