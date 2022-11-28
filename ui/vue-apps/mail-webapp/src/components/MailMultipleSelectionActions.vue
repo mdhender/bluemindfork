@@ -19,7 +19,7 @@
             >
                 <div class="arrow-up" />
                 <bm-button
-                    v-if="showMarkAsRead"
+                    v-if="showMarkAsReadInMain() || showMarkAsReadInOthers()"
                     variant="outline"
                     :title="markAsReadAriaText()"
                     :aria-label="markAsReadAriaText()"
@@ -28,35 +28,35 @@
                     >{{ markAsReadText }}
                 </bm-button>
                 <bm-button
-                    v-if="showMarkAsUnread"
+                    v-if="showMarkAsUnreadInMain() || showMarkAsUnreadInOthers()"
                     variant="outline"
                     :title="markAsUnreadAriaText()"
                     :aria-label="markAsUnreadAriaText()"
+                    icon="unread"
                     @click="markAsUnread()"
                 >
-                    <template v-slot:icon>
-                        <bm-unread-fill-icon />
-                    </template>
                     {{ markAsUnreadText }}
                 </bm-button>
                 <bm-button
-                    v-if="showMarkAsFlagged"
+                    v-if="showMarkAsFlaggedInMain || showMarkAsFlaggedInOthers"
                     class="mark-as-flagged-button"
                     variant="outline"
                     :title="markAsFlaggedAriaText()"
                     :aria-label="markAsFlaggedAriaText()"
                     icon="flag-fill"
                     @click="markAsFlagged()"
-                    >{{ markAsFlaggedText }}
+                >
+                    {{ markAsFlaggedText }}
                 </bm-button>
                 <bm-button
-                    v-if="showMarkAsUnflagged"
+                    v-if="showMarkAsUnflaggedInMain || showMarkAsUnflaggedInOthers"
                     variant="outline"
                     :title="markAsUnflaggedAriaText()"
                     :aria-label="markAsUnflaggedAriaText()"
                     icon="flag-outline"
                     @click="markAsUnflagged()"
-                    >{{ markAsUnflaggedText }}
+                >
+                    {{ markAsUnflaggedText }}
                 </bm-button>
                 <bm-button
                     variant="outline"
@@ -114,7 +114,7 @@
 
 <script>
 import { CLEAR, INFO, REMOVE } from "@bluemind/alert.store";
-import { BmAlertArea, BmButton, BmLabelIcon, BmIcon, BmUnreadFillIcon } from "@bluemind/styleguide";
+import { BmAlertArea, BmButton, BmLabelIcon, BmIcon } from "@bluemind/styleguide";
 import { mapActions, mapState, mapGetters, mapMutations } from "vuex";
 import { folderUtils } from "@bluemind/mail";
 import MailFolderIcon from "./MailFolderIcon";
@@ -144,7 +144,6 @@ export default {
         BmAlertArea,
         BmButton,
         BmIcon,
-        BmUnreadFillIcon,
         BmLabelIcon,
         MailFolderIcon,
         ChooseFolderModal

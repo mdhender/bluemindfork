@@ -48,36 +48,38 @@ export default {
             $_FlagMixin_CURRENT_MAILBOX: CURRENT_MAILBOX,
             $_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED: SEVERAL_CONVERSATIONS_SELECTED
         }),
-        showMarkAsRead() {
-            return this.isMarkAsUnreadPressed;
-        },
-        showMarkAsUnread() {
-            return !this.isMarkAsUnreadPressed;
-        },
-        isMarkAsUnreadPressed() {
+        showMarkAsFlaggedInMain() {
             if (this.conversation) {
-                return !this.conversation.flags.includes(Flag.SEEN);
+                return !this.conversation.flags.includes(Flag.FLAGGED);
             } else if (this.$_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED) {
-                return this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_UNREAD;
+                return this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED;
             } else if (this.$_FlagMixin_CURRENT_CONVERSATION_METADATA) {
-                return !this.$_FlagMixin_CURRENT_CONVERSATION_METADATA.flags.includes(Flag.SEEN);
+                return !this.$_FlagMixin_CURRENT_CONVERSATION_METADATA.flags.includes(Flag.FLAGGED);
             }
             return false;
         },
-        showMarkAsFlagged() {
-            return !this.isMarkAsFlaggedPressed;
+        showMarkAsFlaggedInOthers() {
+            if (this.conversation) {
+                return false;
+            } else if (this.$_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED) {
+                return (
+                    !this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED &&
+                    !this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED
+                ); // mixed or indeterminate state
+            }
+            return false;
         },
-        showMarkAsUnflagged() {
-            return this.isMarkAsFlaggedPressed;
-        },
-        isMarkAsFlaggedPressed() {
+        showMarkAsUnflaggedInMain() {
             if (this.conversation) {
                 return this.conversation.flags.includes(Flag.FLAGGED);
             } else if (this.$_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED) {
-                return this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED;
+                return !this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED;
             } else if (this.$_FlagMixin_CURRENT_CONVERSATION_METADATA) {
                 return this.$_FlagMixin_CURRENT_CONVERSATION_METADATA.flags.includes(Flag.FLAGGED);
             }
+            return false;
+        },
+        showMarkAsUnflaggedInOthers() {
             return false;
         }
     },
@@ -89,6 +91,49 @@ export default {
             $_FlagMixin_markAsUnread: MARK_CONVERSATIONS_AS_UNREAD,
             $_FlagMixin_markFolderAsRead: MARK_FOLDER_AS_READ
         }),
+        showMarkAsReadInMain(isTemplate = false) {
+            if (isTemplate) {
+                return false;
+            } else if (this.conversation) {
+                return !this.conversation.flags.includes(Flag.SEEN);
+            } else if (this.$_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED) {
+                return !this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_READ;
+            } else if (this.$_FlagMixin_CURRENT_CONVERSATION_METADATA) {
+                return !this.$_FlagMixin_CURRENT_CONVERSATION_METADATA.flags.includes(Flag.SEEN);
+            }
+            return false;
+        },
+        showMarkAsReadInOthers(isTemplate = false) {
+            if (isTemplate) {
+                return this.showMarkAsReadInMain(false); // "|| this.showMarkAsReadInOthers(false)" is implied
+            }
+            return false;
+        },
+        showMarkAsUnreadInMain(isTemplate) {
+            if (isTemplate) {
+                return false;
+            } else if (this.conversation) {
+                return this.conversation.flags.includes(Flag.SEEN);
+            } else if (this.$_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED) {
+                return this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_READ;
+            } else if (this.$_FlagMixin_CURRENT_CONVERSATION_METADATA) {
+                return this.$_FlagMixin_CURRENT_CONVERSATION_METADATA.flags.includes(Flag.SEEN);
+            }
+            return false;
+        },
+        showMarkAsUnreadInOthers(isTemplate) {
+            if (isTemplate) {
+                return this.showMarkAsUnreadInMain(false) || this.showMarkAsUnreadInOthers(false);
+            } else if (this.conversation) {
+                return false;
+            } else if (this.$_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED) {
+                return (
+                    !this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_READ &&
+                    !this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_UNREAD
+                ); // mixed or indeterminate state
+            }
+            return false;
+        },
         markAsRead(conversations) {
             if (
                 !conversations &&

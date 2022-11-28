@@ -24,15 +24,37 @@
             </bm-dropdown-item>
         </mail-open-in-popup-with-shift>
         <bm-dropdown-item
-            v-if="isTemplate && showMarkAsRead"
-            icon="read"
+            v-if="showMarkAsReadInOthers(isTemplate)"
             :title="markAsReadAriaText()"
+            icon="read"
             @click="markAsRead()"
         >
             {{ markAsReadText }}
         </bm-dropdown-item>
-        <bm-dropdown-item v-else-if="isTemplate" icon="unread" :title="markAsUnreadAriaText()" @click="markAsUnread()">
+        <bm-dropdown-item
+            v-if="showMarkAsUnreadInOthers(isTemplate)"
+            :title="markAsUnreadAriaText()"
+            icon="unread"
+            @click="markAsUnread()"
+        >
             {{ markAsUnreadText }}
+        </bm-dropdown-item>
+        <bm-dropdown-item
+            v-if="showMarkAsFlaggedInOthers"
+            :title="markAsFlaggedAriaText()"
+            icon="flag-fill"
+            class="mark-as-flagged-item"
+            @click="markAsFlagged()"
+        >
+            {{ markAsFlaggedText }}
+        </bm-dropdown-item>
+        <bm-dropdown-item
+            v-if="showMarkAsUnflaggedInOthers"
+            :title="markAsUnflaggedAriaText()"
+            icon="flag-outline"
+            @click="markAsUnflagged()"
+        >
+            {{ markAsUnflaggedText }}
         </bm-dropdown-item>
         <bm-dropdown-item
             icon="printer"
@@ -164,3 +186,15 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/styleguide/css/_variables";
+
+.mail-toolbar-consult-message-other-actions {
+    .mark-as-flagged-item {
+        .bm-icon {
+            color: $warning-fg;
+        }
+    }
+}
+</style>

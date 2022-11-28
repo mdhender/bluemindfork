@@ -17,8 +17,39 @@
                 icon="plus-enveloppe"
                 @click.prevent.stop="editFromTemplate(conversation)"
             />
-            <mark-as-unread-icon-button v-else variant="compact" :conversation="conversation" />
-            <mark-as-flagged-icon-button variant="compact" :conversation="conversation" />
+            <bm-icon-button
+                v-if="showMarkAsReadInMain(isTemplate)"
+                :aria-label="markAsReadAriaText(1, subject)"
+                :title="markAsReadAriaText(1, subject)"
+                variant="compact"
+                icon="read"
+                @click.prevent.stop="markAsRead(conversation)"
+            />
+            <bm-icon-button
+                v-if="showMarkAsUnreadInMain(isTemplate)"
+                :aria-label="markAsUnreadAriaText(1, subject)"
+                :title="markAsUnreadAriaText(1, subject)"
+                variant="compact"
+                icon="unread"
+                @click.prevent.stop="markAsUnread(conversation)"
+            />
+            <bm-icon-button
+                v-if="showMarkAsFlaggedInMain"
+                :aria-label="markAsFlaggedAriaText(1, subject)"
+                :title="markAsFlaggedAriaText(1, subject)"
+                variant="compact"
+                icon="flag-outline"
+                @click.prevent.stop="markAsFlagged(conversation)"
+            />
+            <bm-icon-button
+                v-if="showMarkAsUnflaggedInMain"
+                :aria-label="markAsUnflaggedAriaText(1, subject)"
+                :title="markAsUnflaggedAriaText(1, subject)"
+                variant="compact"
+                icon="flag-fill"
+                class="text-warning"
+                @click.prevent.stop="markAsUnflagged(conversation)"
+            />
         </template>
     </bm-button-group>
 </template>
@@ -27,8 +58,6 @@
 import { BmButtonGroup, BmIconButton } from "@bluemind/styleguide";
 import { mapState, mapGetters } from "vuex";
 import { messageUtils } from "@bluemind/mail";
-import MarkAsFlaggedIconButton from "../MarkAsFlaggedIconButton";
-import MarkAsUnreadIconButton from "../MarkAsUnreadIconButton";
 import { ActionTextMixin, FlagMixin, RemoveMixin, MailRoutesMixin } from "~/mixins";
 import { MY_DRAFTS, MY_TEMPLATES } from "~/getters";
 import MessagePathParam from "~/router/MessagePathParam";
@@ -39,9 +68,7 @@ export default {
     name: "ConversationListItemQuickActionButtons",
     components: {
         BmButtonGroup,
-        BmIconButton,
-        MarkAsFlaggedIconButton,
-        MarkAsUnreadIconButton
+        BmIconButton
     },
     mixins: [ActionTextMixin, FlagMixin, RemoveMixin, MailRoutesMixin],
     props: {

@@ -170,8 +170,6 @@
     "mail.actions.mark_as_read": "Mark as read",
     "mail.actions.mark_as_unflagged": "Remove flag",
     "mail.actions.mark_as_unread": "Mark as unread",
-    "mail.actions.mark_conversations_as_read": "Mark as read",
-    "mail.actions.mark_conversations_as_unread": "Mark as unread",
     "mail.actions.mark_flagged.aria": "Flag {subject} | Flag selected messages",
     "mail.actions.mark_conversations_flagged.aria": "Flag {subject} | Flag selected conversations",
     "mail.actions.mark_flagged": "Flag",
