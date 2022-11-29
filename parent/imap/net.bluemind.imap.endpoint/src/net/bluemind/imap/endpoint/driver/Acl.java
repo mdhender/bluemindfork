@@ -15,34 +15,16 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.imap.endpoint.exec;
+package net.bluemind.imap.endpoint.driver;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
+public class Acl {
 
-public class Capabilities {
-
-	private String all;
-
-	public Capabilities() {
-		this.all = Arrays.asList(//
-				"IMAP4rev1", //
-				"LITERAL+", //
-				"ID", //
-				"ACL", //
-				"RIGHTS=kxten", //
-				"QUOTA", //
-				"NAMESPACE", //
-				"UIDPLUS", //
-				"XLIST", //
-				"SPECIAL-USE", //
-				"IDLE", //
-				"BM-ROCKS" //
-		).stream().collect(Collectors.joining(" "));
+	private Acl() {
 	}
 
-	public String all() {
-		return all;
-	}
+	// see net.bluemind.imap.Acl
+	public static final String ALL = "lrswipkxtea";
+	public static final String RW = "lrswipkxte";
+	public static final String RO = "lrp";
 
 }

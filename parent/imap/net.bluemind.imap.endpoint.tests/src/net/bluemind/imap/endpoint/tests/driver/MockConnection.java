@@ -29,15 +29,17 @@ import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.streams.WriteStream;
+import net.bluemind.imap.endpoint.driver.Acl;
 import net.bluemind.imap.endpoint.driver.CopyResult;
 import net.bluemind.imap.endpoint.driver.FetchedItem;
 import net.bluemind.imap.endpoint.driver.IdleToken;
 import net.bluemind.imap.endpoint.driver.ListNode;
 import net.bluemind.imap.endpoint.driver.MailPart;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
+import net.bluemind.imap.endpoint.driver.NamespaceInfos;
+import net.bluemind.imap.endpoint.driver.QuotaRoot;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
 import net.bluemind.imap.endpoint.driver.UpdateMode;
-import net.bluemind.mailbox.api.MailboxQuota;
 
 public class MockConnection implements MailboxConnection {
 
@@ -71,7 +73,7 @@ public class MockConnection implements MailboxConnection {
 			return f1.value.fullName.compareTo(f2.value.fullName);
 		}).map(f -> {
 			ListNode ln = new ListNode();
-			ln.replica = f;
+			ln.imapMountPoint = f.value.fullName;
 			ln.hasChildren = false;
 			ln.specialUse = Collections.emptyList();
 			return ln;
@@ -87,9 +89,10 @@ public class MockConnection implements MailboxConnection {
 	}
 
 	@Override
-	public MailboxQuota quota() {
-		// TODO Auto-generated method stub
-		return null;
+	public QuotaRoot quota(SelectedFolder sf) {
+		QuotaRoot qr = new QuotaRoot();
+		qr.rootName = "INBOX";
+		return qr;
 	}
 
 	@Override
@@ -168,5 +171,15 @@ public class MockConnection implements MailboxConnection {
 			return null;
 		}
 		return model.rename(selectedFolder, newName);
+	}
+
+	@Override
+	public NamespaceInfos namespaces() {
+		return new NamespaceInfos("Other guys", "Shared stuff");
+	}
+
+	@Override
+	public String imapAcl(SelectedFolder selected) {
+		return Acl.ALL;
 	}
 }

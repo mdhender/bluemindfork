@@ -40,6 +40,7 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.common.collect.Streams;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
@@ -52,6 +53,7 @@ import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.AppendTx;
+import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
@@ -62,8 +64,7 @@ import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplica.Acl;
 import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.core.container.api.Count;
-import net.bluemind.core.container.api.IContainers;
-import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.api.IOwnerSubscriptions;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
@@ -78,13 +79,18 @@ import net.bluemind.imap.endpoint.EndpointRuntimeException;
 import net.bluemind.imap.endpoint.driver.CopyResult;
 import net.bluemind.imap.endpoint.driver.FetchedItem;
 import net.bluemind.imap.endpoint.driver.IdleToken;
+import net.bluemind.imap.endpoint.driver.ImapMailbox;
 import net.bluemind.imap.endpoint.driver.ListNode;
 import net.bluemind.imap.endpoint.driver.MailPart;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
+import net.bluemind.imap.endpoint.driver.NamespaceInfos;
+import net.bluemind.imap.endpoint.driver.QuotaRoot;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
 import net.bluemind.imap.endpoint.driver.UpdateMode;
+import net.bluemind.lib.jutf7.UTF7Converter;
+import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
-import net.bluemind.mailbox.api.MailboxQuota;
+import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.system.api.SysConfKeys;
 
 public class MailApiConnection implements MailboxConnection {
@@ -95,15 +101,29 @@ public class MailApiConnection implements MailboxConnection {
 	private final AuthUser me;
 	private final IDbReplicatedMailboxes foldersApi;
 	private final int sizeLimit;
+	private final IOwnerSubscriptions subApi;
+	private final ItemValue<Mailbox> myMailbox;
+	private final IServiceProvider suProv;
+	private final String sharedRootPrefix;
+	private final String userRootPrefix;
+
+	private final FolderResolver folderResolver;
 
 	private Consumer activeCons;
 
-	public MailApiConnection(IServiceProvider userProv, AuthUser me, SharedMap<String, String> config) {
+	public MailApiConnection(IServiceProvider userProv, IServiceProvider suProv, AuthUser me,
+			SharedMap<String, String> config) {
 		this.prov = userProv;
+		this.suProv = suProv;
 		this.me = me;
+		this.myMailbox = suProv.instance(IMailboxes.class, me.domainUid).getComplete(me.uid);
 		this.foldersApi = prov.instance(IDbReplicatedMailboxes.class, me.domainUid, "user." + me.value.login);
+		this.subApi = prov.instance(IOwnerSubscriptions.class, me.domainUid, me.uid);
 		this.sizeLimit = Integer
 				.parseInt(Optional.ofNullable(config.get(SysConfKeys.message_size_limit.name())).orElse("10000000"));
+		this.sharedRootPrefix = DriverConfig.get().getString(DriverConfig.SHARED_VIRTUAL_ROOT) + "/";
+		this.userRootPrefix = DriverConfig.get().getString(DriverConfig.USER_VIRTUAL_ROOT) + "/";
+		this.folderResolver = new FolderResolver(userProv, suProv, me, myMailbox);
 	}
 
 	@Override
@@ -113,23 +133,74 @@ public class MailApiConnection implements MailboxConnection {
 
 	@Override
 	public SelectedFolder select(String fName) {
-		ItemValue<MailboxReplica> existing = foldersApi.byReplicaName(fName);
+		ImapMailbox resolved = folderResolver.resolveBox(fName);
+		if (resolved == null) {
+			logger.warn("[{}] Mailbox resolution failed for {}", this, fName);
+			return null;
+		}
+		if (!resolved.readable) {
+			logger.warn("[{}] mailbox {} is not readable.", this, fName);
+			return null;
+		}
+		ItemValue<MailboxReplica> existing = resolved.replica();
+
 		if (existing == null) {
 			logger.debug("[{}] folder {} not found.", this, fName);
 			return null;
 		}
+
 		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, existing.uid);
 		long exist = recApi.count(ItemFlagFilter.all()).total;
 		long unseen = recApi.count(ItemFlagFilter.create().mustNot(ItemFlag.Seen, ItemFlag.Deleted)).total;
-		IContainers conApi = prov.instance(IContainers.class);
-		ContainerDescriptor recContainer = conApi.get(IMailReplicaUids.mboxRecords(existing.uid));
-		CyrusPartition part = CyrusPartition.forServerAndDomain(recContainer.datalocation, recContainer.domainUid);
-		return new SelectedFolder(existing, part.name, exist, unseen);
+		CyrusPartition part = CyrusPartition.forServerAndDomain(resolved.owner.value.dataLocation, me.domainUid);
+		return new SelectedFolder(resolved, existing, recApi, part.name, exist, unseen);
+	}
+
+	private IDbReplicatedMailboxes resolvedFolderApi(ItemValue<Mailbox> owner) {
+		return owner == myMailbox ? foldersApi
+				: prov.instance(IDbByContainerReplicatedMailboxes.class,
+						IMailReplicaUids.subtreeUid(me.domainUid, owner));
+	}
+
+	private String shareToFullName(ItemValue<Mailbox> owner, ItemValue<MailboxReplica> parent, String fName) {
+		if (parent == null) {
+			return null;
+		}
+		if (fName.startsWith(sharedRootPrefix)) {
+			return parent.value.fullName + "/" + fName.substring(fName.lastIndexOf('/') + 1);
+		}
+		if (parent.internalId == 0) {
+			// virtual inbox in user shares, created by virtualUserInbox
+			return "INBOX/" + fName.substring(fName.lastIndexOf('/') + 1);
+		} else {
+			String prefix = userRootPrefix + owner.value.name + "/";
+			return fName.substring(prefix.length());
+		}
+
 	}
 
 	@Override
-	public String create(String fName) {
-		ItemValue<MailboxReplica> folder = foldersApi.byReplicaName(fName);
+	public String create(String imapFolderName) {
+		String fName = imapFolderName;
+		ItemValue<Mailbox> owner = myMailbox;
+		if (fName.startsWith(sharedRootPrefix) || fName.startsWith(userRootPrefix)) {
+			String shareParent = fName.substring(0, fName.lastIndexOf('/'));
+			ImapMailbox resolvedParent = folderResolver.resolveBox(shareParent);
+			owner = resolvedParent.owner;
+			if (owner != null) {
+				ItemValue<MailboxReplica> parentBox = resolvedParent.foldersApi
+						.byReplicaName(resolvedParent.replicaName);
+				fName = shareToFullName(owner, parentBox, fName);
+			}
+		}
+		if (owner == null || fName == null) {
+			logger.warn("[{}] Failed to resolve mailbox to create in ({} -> {})", this, imapFolderName, fName);
+			return null;
+		}
+
+		IDbReplicatedMailboxes resolvedFoldersApi = resolvedFolderApi(owner);
+
+		ItemValue<MailboxReplica> folder = resolvedFoldersApi.byReplicaName(fName);
 		if (folder != null && folder.value != null) {
 			logger.warn("[{}] folder {} already exists.", this, fName);
 			return null;
@@ -151,67 +222,104 @@ public class MailApiConnection implements MailboxConnection {
 			mr.acls.add(Acl.create(me.uid + "@" + me.domainUid, "lrswipkxtecda"));
 			mr.acls.add(Acl.create("admin0", "lrswipkxtecda"));
 			mr.deleted = false;
-			foldersApi.create(UUID.randomUUID().toString(), mr);
+			String pipoUid = UUID.randomUUID().toString();
+			resolvedFoldersApi.create(pipoUid, mr);
 		}
 		return fName;
 	}
 
 	@Override
 	public boolean delete(String fName) {
-		ItemValue<MailboxReplica> folder = foldersApi.byReplicaName(fName);
-		if (folder == null) {
-			logger.warn("[{}] folder {} does not exists.", this, fName);
+		SelectedFolder toDel = select(fName);
+
+		if (toDel == null) {
+			logger.warn("[{}] folder {} does not exists (delete op).", this, fName);
 			return false;
 		} else {
-			foldersApi.delete(folder.uid);
+			toDel.mailbox.foldersApi.delete(toDel.folder.uid);
 			return true;
 		}
 	}
 
 	@Override
 	public List<ListNode> list(String reference, String mailboxPattern) {
+		List<NamespacedFolder> withShares = fullHierarchyLoad();
+
+		if (mailboxPattern.equals("%")) {
+			withShares = withShares.stream().filter(nf -> nf.folder().value.parentUid == null).toList();
+		} else if (!(mailboxPattern.contains("%") || mailboxPattern.contains("*"))) {
+			Predicate<NamespacedFolder> filter = matcher(mailboxPattern);
+			withShares = withShares.stream().filter(filter).toList();
+		}
+
+		return withShares.stream().sorted(Replicas::compareNamespaced).map(this::asListNode).toList();
+	}
+
+	private List<NamespacedFolder> fullHierarchyLoad() {
 		List<ItemValue<MailboxReplica>> allFolders = foldersApi.allReplicas();
 		Set<String> parents = allFolders.stream().map(f -> f.value.parentUid).filter(Objects::nonNull)
 				.collect(Collectors.toSet());
+		List<NamespacedFolder> allMyFolders = allFolders.stream()
+				.map(mr -> new NamespacedFolder(myMailbox, myMailbox, mr, parents)).toList();
 
-		if (mailboxPattern.equals("%")) {
-			allFolders = allFolders.stream().filter(f -> f.value.parentUid == null).sorted(Replicas::compare).toList();
-		} else if (!(mailboxPattern.contains("%") || mailboxPattern.contains("*"))) {
-			Predicate<ItemValue<MailboxReplica>> filter = matcher(mailboxPattern);
-			allFolders = allFolders.stream().filter(filter).sorted(Replicas::compare).toList();
-		}
-
-		return allFolders.stream().map(f -> asListNode(parents, f)).toList();
+		return loadSubscribedSharedFolders(allMyFolders);
 	}
 
-	private Predicate<ItemValue<MailboxReplica>> matcher(String mailboxPattern) {
+	private List<NamespacedFolder> loadSubscribedSharedFolders(List<NamespacedFolder> allMyFolders) {
+		String myAcls = IMailboxAclUids.uidForMailbox(me.uid);
+		IMailboxes mboxApi = suProv.instance(IMailboxes.class, me.domainUid);
+		List<String> mboxUids = subApi.list().stream().filter(
+				iv -> iv.value.containerType.equals(IMailboxAclUids.TYPE) && !iv.value.containerUid.equals(myAcls))
+				.map(iv -> IMailboxAclUids.mailboxForUid(iv.value.containerUid)).toList();
+		List<ItemValue<Mailbox>> toMount = mboxApi.multipleGet(mboxUids);
+
+		List<NamespacedFolder> mboxFolders = toMount.stream().flatMap(mb -> {
+
+			IDbReplicatedMailboxes mbFolderApi = prov.instance(IDbByContainerReplicatedMailboxes.class,
+					IMailReplicaUids.subtreeUid(me.domainUid, mb));
+			List<ItemValue<MailboxReplica>> sharedFolders = mbFolderApi.allReplicas();
+			Set<String> sharedParents = sharedFolders.stream().map(f -> f.value.parentUid).filter(Objects::nonNull)
+					.collect(Collectors.toSet());
+			return sharedFolders.stream().map(sf -> new NamespacedFolder(myMailbox, mb, sf, sharedParents));
+		}).toList();
+
+		List<NamespacedFolder> withShares = Streams.concat(allMyFolders.stream(), mboxFolders.stream()).toList();
+		logger.info("[{}] {} folder(s) including {} shared mailboxes", this, withShares.size(), toMount.size());
+		return withShares;
+	}
+
+	private Predicate<NamespacedFolder> matcher(String mailboxPattern) {
 		String sanitized = CharMatcher.is('"').removeFrom(mailboxPattern);
 		if (sanitized.equalsIgnoreCase("inbox")) {
 			sanitized = "INBOX";
 		}
-		final String san = sanitized;
-		return f -> f.value.fullName.contains(san);
+		final String san = UTF7Converter.decode(sanitized);
+
+		return nf -> nf.fullNameWithMountpoint().contains(san);
 	}
 
-	private ListNode asListNode(Set<String> parents, ItemValue<MailboxReplica> f) {
+	private ListNode asListNode(NamespacedFolder f) {
 		ListNode ln = new ListNode();
-		ln.hasChildren = parents.contains(f.uid);
-		ln.replica = f;
-		switch (f.value.name) {
-		case "Sent":
-			ln.specialUse = Collections.singletonList("\\sent");
-			break;
-		case "Trash":
-			ln.specialUse = Collections.singletonList("\\trash");
-			break;
-		case "Drafts":
-			ln.specialUse = Collections.singletonList("\\drafts");
-			break;
-		case "Junk":
-			ln.specialUse = Collections.singletonList("\\junk");
-			break;
-		default:
-			ln.specialUse = Collections.emptyList();
+		ln.hasChildren = f.parents().contains(f.folder().uid);
+		ln.imapMountPoint = f.fullNameWithMountpoint();
+		ln.selectable = !f.virtual();
+		if (!f.otherMailbox()) {
+			switch (f.folder().value.fullName) {
+			case "Sent":
+				ln.specialUse = Collections.singletonList("\\sent");
+				break;
+			case "Trash":
+				ln.specialUse = Collections.singletonList("\\trash");
+				break;
+			case "Drafts":
+				ln.specialUse = Collections.singletonList("\\drafts");
+				break;
+			case "Junk":
+				ln.specialUse = Collections.singletonList("\\junk");
+				break;
+			default:
+				ln.specialUse = Collections.emptyList();
+			}
 		}
 		return ln;
 	}
@@ -262,9 +370,19 @@ public class MailApiConnection implements MailboxConnection {
 	}
 
 	@Override
-	public MailboxQuota quota() {
-		IMailboxes mboxApi = prov.instance(IMailboxes.class, me.domainUid);
-		return mboxApi.getMailboxQuota(me.uid);
+	public QuotaRoot quota(SelectedFolder sf) {
+		QuotaRoot qr = new QuotaRoot();
+		IMailboxes mboxApi = suProv.instance(IMailboxes.class, me.domainUid);
+		qr.quota = mboxApi.getMailboxQuota(sf.mailbox.owner.uid);
+
+		if (sf.mailbox.owner == myMailbox) {
+			qr.rootName = "INBOX";
+		} else if (sf.mailbox.owner.value.type.sharedNs) {
+			qr.rootName = sharedRootPrefix + sf.mailbox.owner.value.name;
+		} else {
+			qr.rootName = userRootPrefix + sf.mailbox.owner.value.name;
+		}
+		return qr;
 	}
 
 	@Override
@@ -305,13 +423,12 @@ public class MailApiConnection implements MailboxConnection {
 		if (selected == null) {
 			return 0L;
 		}
-		AppendTx appendTx = foldersApi.prepareAppend(selected.folder.internalId, 1);
+		AppendTx appendTx = selected.mailbox.foldersApi.prepareAppend(selected.folder.internalId, 1);
 
 		@SuppressWarnings("deprecation")
 		HashFunction hash = Hashing.sha1();
 		String bodyGuid = hash.hashBytes(buffer.duplicate().nioBuffer()).toString();
-		String partition = CyrusPartition.forServerAndDomain(me.value.dataLocation, me.domainUid).name;
-		IDbMessageBodies bodiesApi = prov.instance(IDbMessageBodies.class, partition);
+		IDbMessageBodies bodiesApi = prov.instance(IDbMessageBodies.class, selected.partition);
 
 		IConversationReference conversationReferenceApi = prov.instance(IConversationReference.class, me.domainUid,
 				me.uid);
@@ -331,8 +448,7 @@ public class MailApiConnection implements MailboxConnection {
 		rec.flags = flags(flags);
 		rec.lastUpdated = rec.internalDate;
 
-		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
-		recApi.create(appendTx.imapUid + ".", rec);
+		selected.recApi.create(appendTx.imapUid + ".", rec);
 		return appendTx.imapUid;
 	}
 
@@ -415,31 +531,52 @@ public class MailApiConnection implements MailboxConnection {
 
 	@Override
 	public CopyResult copyTo(SelectedFolder source, String folder, String idset) {
-		ItemValue<MailboxReplica> target = foldersApi.byReplicaName(folder);
+		SelectedFolder target = select(folder);
 		if (target == null) {
 			throw new EndpointRuntimeException("Folder '" + folder + "' is missing.");
 		}
-		IDbMailboxRecords srcRecApi = prov.instance(IDbMailboxRecords.class, source.folder.uid);
+		IDbMailboxRecords srcRecApi = source.recApi;
 		List<Long> matchingRecords = srcRecApi.imapIdSet(idset, "");
 
-		IDbMailboxRecords tgtRecApi = prov.instance(IDbMailboxRecords.class, target.uid);
-		AppendTx tx = foldersApi.prepareAppend(target.internalId, matchingRecords.size());
+		IDbMailboxRecords tgtRecApi = target.recApi;
+
+		boolean copyBodies = !source.partition.equals(target.partition);
+
+		AppendTx tx = target.mailbox.foldersApi.prepareAppend(target.folder.internalId, matchingRecords.size());
 		long start = tx.imapUid - (matchingRecords.size() - 1);
 		long end = tx.imapUid;
 		long cnt = start;
 		List<MailboxRecord> toCreate = new ArrayList<>(matchingRecords.size());
 		List<Long> sourceImapUid = new ArrayList<>(matchingRecords.size());
+
+		List<String> bodiesToTransfert = new ArrayList<>(matchingRecords.size());
+
 		for (Long recId : matchingRecords) {
 			ItemValue<MailboxRecord> toCopy = srcRecApi.getCompleteById(recId);
 			sourceImapUid.add(toCopy.value.imapUid);
 			MailboxRecord copy = toCopy.value;
 			copy.imapUid = cnt++;
+			if (copyBodies) {
+				bodiesToTransfert.add(toCopy.value.messageBody);
+			}
 			toCreate.add(copy);
 		}
+
+		if (copyBodies) {
+			IDbMessageBodies sourceBodies = prov.instance(IDbMessageBodies.class, source.partition);
+			IDbMessageBodies targetBodies = prov.instance(IDbMessageBodies.class, target.partition);
+			List<String> toTransfer = targetBodies.missing(bodiesToTransfert);
+			logger.info("Starting transfer of {} missing bodies from {} -> {}", toTransfer.size(), source.partition,
+					target.partition);
+			for (List<String> slice : Lists.partition(toTransfer, 50)) {
+				sourceBodies.multiple(slice).forEach(targetBodies::update);
+			}
+		}
+
 		tgtRecApi.updates(toCreate);
 		String sourceSet = sourceImapUid.stream().mapToLong(Long::longValue).mapToObj(Long::toString)
 				.collect(Collectors.joining(","));
-		return new CopyResult(sourceSet, start, end, target.value.uidValidity);
+		return new CopyResult(sourceSet, start, end, target.folder.value.uidValidity);
 	}
 
 	@Override
@@ -465,6 +602,10 @@ public class MailApiConnection implements MailboxConnection {
 
 	@Override
 	public boolean subscribe(String fName) {
+		return ignoreSubRelatedCall(fName);
+	}
+
+	private boolean ignoreSubRelatedCall(String fName) {
 		ItemValue<MailboxReplica> folder = foldersApi.byReplicaName(fName);
 		if (folder == null) {
 			logger.warn("[{}] folder {} does not exists.", this, fName);
@@ -477,14 +618,7 @@ public class MailApiConnection implements MailboxConnection {
 
 	@Override
 	public boolean unsubscribe(String fName) {
-		ItemValue<MailboxReplica> folder = foldersApi.byReplicaName(fName);
-		if (folder == null) {
-			logger.warn("[{}] folder {} does not exists.", this, fName);
-			return false;
-		} else {
-			// TODO Auto-generated method stub
-			return true;
-		}
+		return ignoreSubRelatedCall(fName);
 	}
 
 	@Override
@@ -499,6 +633,22 @@ public class MailApiConnection implements MailboxConnection {
 			renamed.name = renamed.fullName.substring(renamed.fullName.lastIndexOf('/') + 1);
 			foldersApi.update(folder.uid, renamed);
 			return renamed.fullName;
+		}
+	}
+
+	@Override
+	public NamespaceInfos namespaces() {
+		return new NamespaceInfos(userRootPrefix, sharedRootPrefix);
+	}
+
+	@Override
+	public String imapAcl(SelectedFolder selected) {
+		if (selected.mailbox.readOnly) {
+			return net.bluemind.imap.endpoint.driver.Acl.RO;
+		} else if (selected.mailbox.owner == myMailbox) {
+			return net.bluemind.imap.endpoint.driver.Acl.ALL;
+		} else {
+			return net.bluemind.imap.endpoint.driver.Acl.RW;
 		}
 	}
 

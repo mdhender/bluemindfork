@@ -30,6 +30,7 @@ import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.cmd.StatusCommand;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
+import net.bluemind.lib.jutf7.UTF7Converter;
 import net.bluemind.lib.vertx.Result;
 
 /**
@@ -65,7 +66,7 @@ public class StatusProcessor extends AuthenticatedCommandProcessor<StatusCommand
 		}
 
 		StringBuilder resp = new StringBuilder();
-		resp.append("* STATUS " + sc.folder() + " (");
+		resp.append("* STATUS \"" + UTF7Converter.encode(sc.folder()) + "\" (");
 		List<String> props = folderProperties(sc, selected);
 		resp.append(props.stream().collect(Collectors.joining(" ")));
 		resp.append(")\r\n");

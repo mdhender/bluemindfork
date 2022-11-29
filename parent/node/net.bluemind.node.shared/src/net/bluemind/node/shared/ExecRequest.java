@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
 
+import com.google.common.base.MoreObjects;
+
 public class ExecRequest {
 
 	public enum Options {
@@ -71,5 +73,11 @@ public class ExecRequest {
 	public static ExecRequest named(String group, String name, String cmd, Options... options) {
 		return new ExecRequest(group, name, cmd,
 				options.length == 0 ? EnumSet.noneOf(Options.class) : EnumSet.copyOf(Arrays.asList(options)));
+	}
+
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(ExecRequest.class).add("g", group).add("n", name).add("cmd", command)
+				.toString();
 	}
 }

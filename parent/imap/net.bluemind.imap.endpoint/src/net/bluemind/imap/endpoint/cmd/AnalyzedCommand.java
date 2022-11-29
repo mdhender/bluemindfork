@@ -21,6 +21,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import com.google.common.base.MoreObjects;
+
 import io.netty.buffer.ByteBuf;
 import net.bluemind.imap.endpoint.parsing.Part;
 import net.bluemind.imap.endpoint.parsing.Part.Type;
@@ -32,6 +34,13 @@ public abstract class AnalyzedCommand {
 	public static class FlatCommand {
 		String fullCmd;
 		ByteBuf[] literals;
+
+		@Override
+		public String toString() {
+			return MoreObjects.toStringHelper(FlatCommand.class).add("c", fullCmd).add("lit", literals.length)
+					.toString();
+		}
+
 	}
 
 	protected AnalyzedCommand(RawImapCommand raw) {

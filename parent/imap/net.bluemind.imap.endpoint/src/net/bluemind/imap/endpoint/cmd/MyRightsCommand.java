@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 
 public class MyRightsCommand extends AbstractFolderNameCommand {
 
-	private static final Pattern quotedString = Pattern.compile("myrights \"??([^\"\\s]+)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern quotedString = Pattern.compile("myrights \"?([^\"]+)", Pattern.CASE_INSENSITIVE);
 
 	protected MyRightsCommand(RawImapCommand raw) {
 		super(raw, quotedString);

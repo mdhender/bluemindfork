@@ -20,13 +20,11 @@ package net.bluemind.imap.endpoint.driver;
 
 import java.util.List;
 
-import net.bluemind.backend.mail.replica.api.MailboxReplica;
-import net.bluemind.core.container.model.ItemValue;
-
 public class ListNode {
 
 	public boolean hasChildren;
 	public List<String> specialUse;
-	public ItemValue<MailboxReplica> replica;
+	public boolean selectable;
+	public String imapMountPoint;
 
 }

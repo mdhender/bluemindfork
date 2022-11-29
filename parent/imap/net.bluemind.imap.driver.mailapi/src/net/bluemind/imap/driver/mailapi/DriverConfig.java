@@ -30,6 +30,9 @@ public class DriverConfig {
 	private static final Logger logger = LoggerFactory.getLogger(DriverConfig.class);
 	private static final Config INSTANCE = loadConfig();
 
+	public static final String USER_VIRTUAL_ROOT = "driver.virtual-root.user";
+	public static final String SHARED_VIRTUAL_ROOT = "driver.virtual-root.shared";
+
 	private DriverConfig() {
 
 	}

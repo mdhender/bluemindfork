@@ -38,7 +38,7 @@ public abstract class AbstractSelectorProcessor<T extends AbstractFolderNameComm
 		extends AuthenticatedCommandProcessor<T> {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractSelectorProcessor.class);
 
-	protected boolean isReadOnly() {
+	protected boolean isAlwaysReadOnly() {
 		return true;
 	}
 
@@ -62,10 +62,8 @@ public abstract class AbstractSelectorProcessor<T extends AbstractFolderNameComm
 		resp.append("* OK [UIDVALIDITY " + selected.folder.value.uidValidity + "] Ok\r\n");
 		resp.append("* OK [UIDNEXT " + (selected.folder.value.lastUid + 1) + "] Ok\r\n");
 		resp.append("* OK [HIGHESTMODSEQ " + selected.folder.value.highestModSeq + "] Ok\r\n");
-		if (isReadOnly()) {
+		if (isAlwaysReadOnly() || selected.mailbox.readOnly) {
 			resp.append(sc.raw().tag() + " OK [READ-ONLY] Completed\r\n");
-			// TODO: READ-ONLY support required
-			logger.warn("READ-ONLY is not supported yet: opening READ-WRITE instead");
 		} else {
 			resp.append(sc.raw().tag() + " OK [READ-WRITE] Completed\r\n");
 		}

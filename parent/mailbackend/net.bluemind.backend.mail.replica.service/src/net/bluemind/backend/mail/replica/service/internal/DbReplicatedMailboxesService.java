@@ -100,7 +100,7 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 		}
 
 		// create the records container
-		IContainers containerService = context.provider().instance(IContainers.class);
+		IContainers containerService = context.su().provider().instance(IContainers.class);
 		if (containerService.getIfPresent(recordsContainerUid) == null) {
 			ContainerDescriptor toCreate = ContainerDescriptor.create(recordsContainerUid, replica.name,
 					container.owner, IMailReplicaUids.MAILBOX_RECORDS, domainUid, false);
@@ -191,7 +191,7 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 				recordsApi.deleteAll();
 			}
 
-			context.provider().instance(IContainers.class).delete(toDelete);
+			context.su().provider().instance(IContainers.class).delete(toDelete);
 			MboxReplicasCache.invalidate(uid);
 
 			EmitReplicationEvents.subtreeUpdated(container.uid, container.owner,

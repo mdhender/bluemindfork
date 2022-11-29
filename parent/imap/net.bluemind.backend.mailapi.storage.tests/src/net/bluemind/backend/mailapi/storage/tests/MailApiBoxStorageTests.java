@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
-import org.elasticsearch.client.Client;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -46,7 +45,6 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.StoreClient;
-import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
@@ -79,7 +77,6 @@ public class MailApiBoxStorageTests {
 
 	@Before
 	public void before() throws Exception {
-		ElasticsearchTestHelper.getInstance().beforeTest(25);
 
 		domainUid = "test" + System.currentTimeMillis() + ".lab";
 
@@ -102,11 +99,12 @@ public class MailApiBoxStorageTests {
 		VertxPlatform.spawnBlocking(25, TimeUnit.SECONDS);
 
 		PopulateHelper.initGlobalVirt(esServer, impaServer);
+
+		ElasticsearchTestHelper.getInstance().beforeTest(1);
+
 		PopulateHelper.addDomain(domainUid, Routing.none);
 		PopulateHelper.addUser(loginUser1, domainUid, Routing.internal);
 		mboxUser1 = systemServiceProvider().instance(IMailboxes.class, domainUid).getComplete(loginUser1);
-
-		Client c = ESearchActivator.getClient();
 
 		this.secCtxUser1 = new SecurityContext(apiKey, user1Login, Collections.emptyList(), Collections.emptyList(),
 				domainUid);
@@ -115,7 +113,7 @@ public class MailApiBoxStorageTests {
 
 	@Test
 	public void testGetQuotaNoSpecificFlags() throws Exception {
-		try (StoreClient sc = new StoreClient("127.0.0.1", 1144, mailUser1, loginUser1)) {
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, mailUser1, loginUser1)) {
 			assertTrue(sc.login());
 
 			// Create 100 mails
@@ -133,7 +131,7 @@ public class MailApiBoxStorageTests {
 
 	@Test
 	public void testGetQuotaWithSomeMailsFlagedDeleted() throws Exception {
-		try (StoreClient sc = new StoreClient("127.0.0.1", 1144, mailUser1, loginUser1)) {
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, mailUser1, loginUser1)) {
 			assertTrue(sc.login());
 
 			// Create 100 mails
@@ -155,7 +153,7 @@ public class MailApiBoxStorageTests {
 
 	@Test
 	public void testGetMaxQuotaForUser() throws Exception {
-		try (StoreClient sc = new StoreClient("127.0.0.1", 1144, mailUser1, loginUser1)) {
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, mailUser1, loginUser1)) {
 			assertTrue(sc.login());
 
 			// Create 100 mails

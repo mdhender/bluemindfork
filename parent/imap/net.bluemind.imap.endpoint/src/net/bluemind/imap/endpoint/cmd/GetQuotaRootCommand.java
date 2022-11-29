@@ -21,8 +21,7 @@ import java.util.regex.Pattern;
 
 public class GetQuotaRootCommand extends AbstractFolderNameCommand {
 
-	private static final Pattern quotedString = Pattern.compile("getquotaroot \"??([^\"\\s]+)",
-			Pattern.CASE_INSENSITIVE);
+	private static final Pattern quotedString = Pattern.compile("getquotaroot \"?([^\"]+)", Pattern.CASE_INSENSITIVE);
 
 	protected GetQuotaRootCommand(RawImapCommand raw) {
 		super(raw, quotedString);

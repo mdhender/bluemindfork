@@ -28,6 +28,7 @@ import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.authentication.api.LoginResponse.Status;
 import net.bluemind.config.BmIni;
+import net.bluemind.config.Token;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Shared;
@@ -39,9 +40,8 @@ public class MailApiDriver implements MailboxDriver {
 
 	private static final Logger logger = LoggerFactory.getLogger(MailApiDriver.class);
 
-	private IAuthentication anonAuthApi;
-
-	private String coreUrl;
+	private final IAuthentication anonAuthApi;
+	private final String coreUrl;
 
 	public MailApiDriver() {
 		String host = Optional.ofNullable(BmIni.value("external-url")).orElse("127.0.0.1");
@@ -66,7 +66,8 @@ public class MailApiDriver implements MailboxDriver {
 		IServiceProvider userProv = SPResolver.get().resolve(login.authKey);
 		AuthUser current = userProv.instance(IAuthentication.class).getCurrentUser();
 		logger.info("[{}] logged-in.", current.value.defaultEmail());
-		return new MailApiConnection(userProv, current, MQ.sharedMap(Shared.MAP_SYSCONF));
+		return new MailApiConnection(userProv, SPResolver.get().resolve(Token.admin0()), current,
+				MQ.sharedMap(Shared.MAP_SYSCONF));
 	}
 
 }

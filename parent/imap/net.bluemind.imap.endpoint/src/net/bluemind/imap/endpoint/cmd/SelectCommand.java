@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 
 public class SelectCommand extends AbstractFolderNameCommand {
 
-	private static final Pattern quotedString = Pattern.compile("select \"??([^\"\\s]+)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern quotedString = Pattern.compile("select \"?([^\"]+)", Pattern.CASE_INSENSITIVE);
 
 	protected SelectCommand(RawImapCommand raw) {
 		super(raw, quotedString);

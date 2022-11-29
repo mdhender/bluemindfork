@@ -89,6 +89,8 @@ public class RawCommandAnalyzer {
 		case 'n':
 			if (cmd.equals("noop")) {
 				return new NoopCommand(raw);
+			} else if (cmd.equals("namespace")) {
+				return new NamespaceCommand(raw);
 			}
 			return null;
 		case 'r':

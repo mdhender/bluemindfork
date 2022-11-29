@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 
 public class GetAclCommand extends AbstractFolderNameCommand {
 
-	private static final Pattern quotedString = Pattern.compile("getacl \"??([^\"\\s]+)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern quotedString = Pattern.compile("getacl \"?([^\"]+)", Pattern.CASE_INSENSITIVE);
 
 	protected GetAclCommand(RawImapCommand raw) {
 		super(raw, quotedString);

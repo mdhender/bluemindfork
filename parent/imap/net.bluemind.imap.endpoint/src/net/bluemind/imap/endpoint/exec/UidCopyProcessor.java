@@ -42,7 +42,9 @@ public class UidCopyProcessor extends SelectedStateCommandProcessor<UidCopyComma
 		MailboxConnection con = ctx.mailbox();
 
 		try {
-			CopyResult allocatedIds = con.copyTo(ctx.selected(), command.folder(), command.idset());
+			String targetFolder = command.folder();
+			logger.debug("[{}] prepare copy to {}", con, targetFolder);
+			CopyResult allocatedIds = con.copyTo(ctx.selected(), targetFolder, command.idset());
 			ctx.write(command.raw().tag() + " OK [COPYUID " + allocatedIds.targetUidValidity + " "
 					+ allocatedIds.sourceSet + " " + allocatedIds.set() + "] Done\r\n");
 		} catch (Exception e) {

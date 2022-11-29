@@ -24,7 +24,9 @@ import java.util.stream.Collectors;
 
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.imap.endpoint.driver.ImapMailbox;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
+import net.bluemind.mailbox.api.Mailbox;
 
 public class MockModel {
 
@@ -41,6 +43,10 @@ public class MockModel {
 	}
 
 	public void registerFolder(UUID uid, String fullName) {
+		Mailbox mb = new Mailbox();
+		mb.name = "mock";
+		ItemValue<Mailbox> mbItem = ItemValue.create("mock-mailbox-uid", mb);
+
 		MailboxReplica repl = new MailboxReplica();
 		repl.uidValidity = System.currentTimeMillis() / 1000;
 		repl.lastUid = 3;
@@ -50,7 +56,11 @@ public class MockModel {
 		repl.highestModSeq = 42;
 		ItemValue<MailboxReplica> item = ItemValue.create(uid.toString(), repl);
 		item.displayName = repl.name;
-		SelectedFolder sf = new SelectedFolder(item, "part_bidon", 3, 1);
+
+		ImapMailbox imapBox = new ImapMailbox();
+		imapBox.owner = mbItem;
+
+		SelectedFolder sf = new SelectedFolder(imapBox, item, null, "part_bidon", 3, 1);
 		folders.put(uid.toString(), sf);
 	}
 

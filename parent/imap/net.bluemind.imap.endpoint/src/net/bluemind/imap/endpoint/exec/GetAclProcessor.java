@@ -24,8 +24,10 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.cmd.GetAclCommand;
+import net.bluemind.imap.endpoint.driver.Acl;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
+import net.bluemind.lib.jutf7.UTF7Converter;
 import net.bluemind.lib.vertx.Result;
 
 /**
@@ -55,13 +57,11 @@ public class GetAclProcessor extends AuthenticatedCommandProcessor<GetAclCommand
 			missingFolder(sc, ctx, completed);
 			return;
 		}
-
+		logger.debug("ACL for {} -> ro: {}", selected, selected.mailbox.readOnly);
 		StringBuilder resp = new StringBuilder();
-		resp.append("* ACL \"" + sc.folder() + "\" me lrswipkxtea\r\n");
+		resp.append("* ACL \"" + UTF7Converter.encode(sc.folder()) + "\" me "
+				+ (selected.mailbox.readOnly ? Acl.RO : Acl.RW) + "\r\n");
 		resp.append(sc.raw().tag() + " OK Completed\r\n");
-		if (logger.isWarnEnabled()) {
-			logger.warn("Full rights hardcoded for {}", sc.folder());
-		}
 
 		ctx.write(resp.toString());
 		completed.handle(Result.success());

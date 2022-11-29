@@ -87,6 +87,9 @@ public abstract class AbstractListProcessor<T extends AbstractListCommand> exten
 
 	private void render(List<ListNode> folders, StringBuilder sb) {
 		for (ListNode ln : folders) {
+			if (!ln.selectable) {
+				continue;
+			}
 			sb.append("* ").append(listCommand).append(" (");
 			sb.append(ln.hasChildren ? "\\HasChildren" : "\\HasNoChildren");
 			if (withSpecialUse && !ln.specialUse.isEmpty()) {
@@ -94,7 +97,7 @@ public abstract class AbstractListProcessor<T extends AbstractListCommand> exten
 			}
 			sb.append(") \"/\" ");
 
-			sb.append("\"").append(UTF7Converter.encode(ln.replica.value.fullName)).append("\"\r\n");
+			sb.append("\"").append(UTF7Converter.encode(ln.imapMountPoint)).append("\"\r\n");
 		}
 	}
 

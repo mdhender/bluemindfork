@@ -41,7 +41,6 @@ import net.bluemind.mailbox.api.IMailboxes;
 
 public class MailboxLookup implements IMailboxLookup {
 
-	private final IServiceProvider sp;
 	private static final Logger logger = LoggerFactory.getLogger(MailboxLookup.class);
 
 	private static final Cache<String, ResolvedBox> cache = Caffeine.newBuilder().expireAfterWrite(1, TimeUnit.MINUTES)
@@ -56,27 +55,65 @@ public class MailboxLookup implements IMailboxLookup {
 
 	}
 
+	private final ApiProv prov;
+
 	public MailboxLookup(ApiProv prov) {
-		this.sp = prov.system();
+		this.prov = prov;
 	}
 
 	public ResolvedBox lookupEmail(String recipient) {
-		ResolvedBox recip = cache.getIfPresent(recipient);
-		if (recip == null) {
-			recip = lookupEmail0(recipient);
-			if (recip != null) {
-				cache.put(recipient, recip);
-			}
+		if (logger.isDebugEnabled()) {
+			logger.debug("Lookup '{}' (null: {})", recipient, recipient == null);
 		}
-		return recip;
+		return cache.get(recipient, this::lookupEmail0);
 	}
 
 	private ResolvedBox lookupEmail0(String recipient) {
+		if (recipient.startsWith("+")) {
+			return lookupEmailShared(recipient.substring(1));
+		} else {
+			return lookupEmailUser(recipient);
+		}
+	}
+
+	private ResolvedBox lookupEmailShared(String recipient) {
 		Mailbox m4jBox = LenientAddressBuilder.DEFAULT.parseMailbox(recipient);
 		if (m4jBox == null) {
-			logger.warn("Cannot parse '{}'", m4jBox);
+			logger.warn("Cannot parse (shared) '{}'", m4jBox);
 			return null;
 		}
+		IServiceProvider sp = prov.system();
+		IDomains domApi = sp.instance(IDomains.class);
+		ItemValue<Domain> dom = domApi.findByNameOrAliases(m4jBox.getDomain());
+		if (dom == null) {
+			logger.warn("Domain {} not found for {} lookup", m4jBox.getDomain(), recipient);
+			return null;
+		}
+		IMailboxes mboxApi = sp.instance(IMailboxes.class, dom.uid);
+		if (logger.isDebugEnabled()) {
+			logger.debug("Lookup share mailbox named {}@{}", m4jBox.getLocalPart(), dom.uid);
+		}
+		ItemValue<net.bluemind.mailbox.api.Mailbox> mailbox = mboxApi.byName(m4jBox.getLocalPart());
+		if (mailbox == null) {
+			logger.info("Share mailbox with name '{}' not found for domain {}", m4jBox.getLocalPart(), dom.uid);
+			return null;
+		}
+		IDirectory dirApi = sp.instance(IDirectory.class, dom.uid);
+		DirEntry entry = dirApi.findByEntryUid(mailbox.uid);
+		if (entry == null) {
+			return null;
+		}
+		return new ResolvedBox(entry, mailbox, dom);
+	}
+
+	private ResolvedBox lookupEmailUser(String recipient) {
+		Mailbox m4jBox = LenientAddressBuilder.DEFAULT.parseMailbox(recipient);
+		if (m4jBox == null) {
+			logger.warn("Cannot parse (user) '{}'", m4jBox);
+			return null;
+		}
+		IServiceProvider sp = prov.system();
+
 		IDomains domApi = sp.instance(IDomains.class);
 		ItemValue<Domain> dom = domApi.findByNameOrAliases(m4jBox.getDomain());
 		if (dom == null) {

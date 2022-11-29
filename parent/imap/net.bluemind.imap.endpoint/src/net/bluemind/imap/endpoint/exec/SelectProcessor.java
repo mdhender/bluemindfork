@@ -35,6 +35,22 @@ import net.bluemind.imap.endpoint.cmd.SelectCommand;
  * . OK [READ-WRITE] Completed
  * </code>
  * 
+ * 
+ * <code>
+ * . select "Dossiers partag&AOk-s/read.only"
+ * * 1 EXISTS
+ * * 0 RECENT
+ * * FLAGS (\Answered \Flagged \Draft \Deleted \Seen)
+ * * OK [PERMANENTFLAGS ()] Ok
+ * * OK [UNSEEN 1] Ok
+ * * OK [UIDVALIDITY 1626984990] Ok
+ * * OK [UIDNEXT 2] Ok
+ * * OK [HIGHESTMODSEQ 7873668] Ok
+ * * OK [URLMECH INTERNAL] Ok
+ * * OK [ANNOTATIONS 65536] Ok
+ * . OK [READ-ONLY] Completed
+ * </code>
+ * 
  *
  */
 public class SelectProcessor extends AbstractSelectorProcessor<SelectCommand> {
@@ -44,7 +60,7 @@ public class SelectProcessor extends AbstractSelectorProcessor<SelectCommand> {
 	}
 
 	@Override
-	protected boolean isReadOnly() {
+	protected boolean isAlwaysReadOnly() {
 		return false;
 	}
 }

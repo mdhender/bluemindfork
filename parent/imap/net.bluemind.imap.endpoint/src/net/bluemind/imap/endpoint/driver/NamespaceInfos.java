@@ -15,34 +15,12 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.imap.endpoint.exec;
+package net.bluemind.imap.endpoint.driver;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
-public class Capabilities {
-
-	private String all;
-
-	public Capabilities() {
-		this.all = Arrays.asList(//
-				"IMAP4rev1", //
-				"LITERAL+", //
-				"ID", //
-				"ACL", //
-				"RIGHTS=kxten", //
-				"QUOTA", //
-				"NAMESPACE", //
-				"UIDPLUS", //
-				"XLIST", //
-				"SPECIAL-USE", //
-				"IDLE", //
-				"BM-ROCKS" //
-		).stream().collect(Collectors.joining(" "));
-	}
-
-	public String all() {
-		return all;
-	}
+/**
+ * @param otherUsers      ends with '/'
+ * @param sharedMailboxes ends with '/'
+ */
+public record NamespaceInfos(String otherUsers, String sharedMailboxes) {
 
 }

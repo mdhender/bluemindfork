@@ -50,7 +50,6 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.delivery.lmtp.common.DeliveryContent;
 import net.bluemind.delivery.lmtp.common.FreezableDeliveryContent;
-import net.bluemind.delivery.lmtp.common.IDeliveryContext;
 import net.bluemind.delivery.lmtp.common.IDeliveryHook;
 import net.bluemind.delivery.lmtp.common.LmtpEnvelope;
 import net.bluemind.delivery.lmtp.common.ResolvedBox;
@@ -67,14 +66,12 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 	private static final Logger logger = LoggerFactory.getLogger(LmtpMessageHandler.class);
 	private final ApiProv prov;
 	private final MailboxLookup lookup;
-	private final IDeliveryContext deliveryContext;
 	private Counter internalCount;
 	private Counter externalCount;
 
 	public LmtpMessageHandler(ApiProv prov) {
 		this.prov = prov;
 		this.lookup = new MailboxLookup(prov);
-		this.deliveryContext = new DeliveryContext(prov.system(), lookup);
 		Registry reg = MetricsRegistry.get();
 		IdFactory idf = new IdFactory("bm-lmtpd", reg, LmtpMessageHandler.class);
 		this.internalCount = reg.counter(idf.name("deliveries", "source", "internal"));
@@ -190,9 +187,10 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 
 	private FreezableDeliveryContent applyHooks(DeliveryContent content) throws IOException {
 		List<IDeliveryHook> hooks = LmtpHooks.get();
+		DeliveryContext ctx = new DeliveryContext(prov.system(), lookup);
 		for (IDeliveryHook hook : hooks) {
 			try {
-				content = hook.preDelivery(deliveryContext, content);
+				content = hook.preDelivery(ctx, content);
 			} catch (Exception e) {
 				logger.error("[delivery] failed to apply delivery hook {} on {}", //
 						hook.getClass().getCanonicalName(), content, e);

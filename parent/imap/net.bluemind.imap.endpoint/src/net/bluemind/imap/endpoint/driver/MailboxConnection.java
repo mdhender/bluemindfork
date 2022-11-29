@@ -24,7 +24,6 @@ import java.util.concurrent.CompletableFuture;
 
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.streams.WriteStream;
-import net.bluemind.mailbox.api.MailboxQuota;
 
 public interface MailboxConnection {
 
@@ -51,7 +50,7 @@ public interface MailboxConnection {
 	CompletableFuture<Void> fetch(SelectedFolder selected, String idset, List<MailPart> fetchSpec,
 			WriteStream<FetchedItem> output);
 
-	MailboxQuota quota();
+	QuotaRoot quota(SelectedFolder selected);
 
 	long append(String folder, List<String> flags, Date deliveryDate, ByteBuf buffer);
 
@@ -71,5 +70,9 @@ public interface MailboxConnection {
 	void idleMonitor(SelectedFolder selected, WriteStream<IdleToken> ctx);
 
 	void notIdle();
+
+	NamespaceInfos namespaces();
+
+	String imapAcl(SelectedFolder selected);
 
 }

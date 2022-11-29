@@ -8,6 +8,7 @@
  * it under the terms of either the GNU Affero General Public License as
  * published by the Free Software Foundation (version 3 of the License).
  *
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
@@ -15,34 +16,11 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.imap.endpoint.exec;
+package net.bluemind.imap.endpoint.driver;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
+import net.bluemind.mailbox.api.MailboxQuota;
 
-public class Capabilities {
-
-	private String all;
-
-	public Capabilities() {
-		this.all = Arrays.asList(//
-				"IMAP4rev1", //
-				"LITERAL+", //
-				"ID", //
-				"ACL", //
-				"RIGHTS=kxten", //
-				"QUOTA", //
-				"NAMESPACE", //
-				"UIDPLUS", //
-				"XLIST", //
-				"SPECIAL-USE", //
-				"IDLE", //
-				"BM-ROCKS" //
-		).stream().collect(Collectors.joining(" "));
-	}
-
-	public String all() {
-		return all;
-	}
-
+public class QuotaRoot {
+	public MailboxQuota quota;
+	public String rootName;
 }

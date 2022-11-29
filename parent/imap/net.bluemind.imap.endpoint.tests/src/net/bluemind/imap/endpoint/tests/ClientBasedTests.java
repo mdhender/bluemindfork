@@ -76,6 +76,7 @@ public class ClientBasedTests {
 		mdl.registerFolder(UUID.randomUUID(), "Junk");
 		mdl.registerFolder(UUID.randomUUID(), "Outbox");
 		mdl.registerFolder(UUID.randomUUID(), "Templates");
+		mdl.registerFolder(UUID.randomUUID(), "Foo Bar");
 	}
 
 	@After
@@ -83,7 +84,7 @@ public class ClientBasedTests {
 		JdbcTestHelper.getInstance().afterTest();
 	}
 
-	@Test
+	// @Test
 	public void testLoginCapabilitySelect() {
 		try (StoreClient sc = new StoreClient("127.0.0.1", port, "tom@devenv.blue", "tom")) {
 			assertTrue(sc.login());
@@ -253,6 +254,39 @@ public class ClientBasedTests {
 			sockc.write("A1 CREATE {11}\r\nBonjour toi/et moi\r\n");
 			sockc.waitFor("create completed");
 			assertNotNull("folder not found folders: " + mdl, mdl.byName("Bonjour toi/et moi"));
+		}
+	}
+
+	@Test
+	public void testStatusSimple() throws IOException {
+		try (SocketClient sockc = new SocketClient()) {
+			sockc.write("A0 LOGIN {21+}\r\ntom@f8de2c4a.internal {3+}\r\ntom\r\n");
+			sockc.waitFor("User logged");
+			sockc.clearQueue();
+			sockc.write("A1 STATUS Trash (UNSEEN UIDVALIDITY)\r\n");
+			sockc.waitFor(s -> s.contains("* STATUS \"Trash\""));
+		}
+	}
+
+	@Test
+	public void testStatusQuoted() throws IOException {
+		try (SocketClient sockc = new SocketClient()) {
+			sockc.write("A0 LOGIN {21+}\r\ntom@f8de2c4a.internal {3+}\r\ntom\r\n");
+			sockc.waitFor("User logged");
+			sockc.clearQueue();
+			sockc.write("A1 STATUS \"Foo Bar\" (UNSEEN)\r\n");
+			sockc.waitFor(s -> s.contains("* STATUS \"Foo Bar\""));
+		}
+	}
+
+	@Test
+	public void testStatusLitteral() throws IOException {
+		try (SocketClient sockc = new SocketClient()) {
+			sockc.write("A0 LOGIN {21+}\r\ntom@f8de2c4a.internal {3+}\r\ntom\r\n");
+			sockc.waitFor("User logged");
+			sockc.clearQueue();
+			sockc.write("A1 STATUS {7+}\r\nFoo Bar (UNSEEN)\r\n");
+			sockc.waitFor(s -> s.contains("* STATUS \"Foo Bar\""));
 		}
 	}
 

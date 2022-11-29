@@ -25,9 +25,10 @@ import io.vertx.core.Handler;
 import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.cmd.GetQuotaRootCommand;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
+import net.bluemind.imap.endpoint.driver.QuotaRoot;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
+import net.bluemind.lib.jutf7.UTF7Converter;
 import net.bluemind.lib.vertx.Result;
-import net.bluemind.mailbox.api.MailboxQuota;
 
 /**
  * 
@@ -35,6 +36,13 @@ import net.bluemind.mailbox.api.MailboxQuota;
  * . getquotaroot Inbox
  * * QUOTAROOT Inbox INBOX
  * * QUOTA INBOX (STORAGE 1251 1024000)
+ * . OK Completed
+ * </code>
+ * 
+ * <code>
+ * . getquotaroot "Autres utilisateurs/tom/Archive"
+ * * QUOTAROOT "Autres utilisateurs/tom/Archive" "Autres utilisateurs/tom"
+ * * QUOTA "Autres utilisateurs/tom" (STORAGE 6258125 8388608)
  * . OK Completed
  * </code>
  * 
@@ -54,13 +62,15 @@ public class GetQuotaRootProcessor extends AuthenticatedCommandProcessor<GetQuot
 			return;
 		}
 
-		MailboxQuota quota = con.quota();
+		QuotaRoot qr = con.quota(selected);
 
 		StringBuilder resp = new StringBuilder();
-		resp.append("* QUOTAROOT " + sc.folder() + " INBOX\r\n");
-		if (quota != null && quota.quota != null) {
-			resp.append("* QUOTA INBOX (STORAGE " + quota.used + " " + quota.quota + ")\r\n");
-			logger.debug("Returning quota {}", quota);
+		resp.append("* QUOTAROOT \"" + UTF7Converter.encode(sc.folder()) + "\" \"" + UTF7Converter.encode(qr.rootName)
+				+ "\"\r\n");
+		if (qr.quota != null && qr.quota.quota != null) {
+			resp.append("* QUOTA \"" + UTF7Converter.encode(qr.rootName) + "\" (STORAGE " + qr.quota.used + " "
+					+ qr.quota.quota + ")\r\n");
+			logger.debug("Returning quota {}", qr);
 		}
 		resp.append(sc.raw().tag() + " OK Completed\r\n");
 

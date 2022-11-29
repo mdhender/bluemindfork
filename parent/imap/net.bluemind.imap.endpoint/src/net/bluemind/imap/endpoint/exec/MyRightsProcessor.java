@@ -26,6 +26,7 @@ import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.cmd.MyRightsCommand;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
+import net.bluemind.lib.jutf7.UTF7Converter;
 import net.bluemind.lib.vertx.Result;
 
 /**
@@ -59,7 +60,8 @@ public class MyRightsProcessor extends AuthenticatedCommandProcessor<MyRightsCom
 		}
 
 		StringBuilder resp = new StringBuilder();
-		resp.append("* MYRIGHTS \"" + sc.folder() + "\" lrswipkxtecda\r\n");
+		String imapAcl = con.imapAcl(selected);
+		resp.append("* MYRIGHTS \"" + UTF7Converter.encode(sc.folder()) + "\" " + imapAcl + "\r\n");
 		resp.append(sc.raw().tag() + " OK Completed\r\n");
 		if (logger.isWarnEnabled()) {
 			logger.warn("Full rights hardcoded for {}", sc.folder());

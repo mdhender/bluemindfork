@@ -17,23 +17,32 @@
  */
 package net.bluemind.imap.driver.mailapi;
 
-import net.bluemind.backend.mail.replica.api.MailboxReplica;
-import net.bluemind.core.container.model.ItemValue;
-
 public class Replicas {
 
 	private Replicas() {
 
 	}
 
-	public static int compare(ItemValue<MailboxReplica> f1, ItemValue<MailboxReplica> f2) {
-		if (f1.value.fullName.equals("INBOX")) {
+	public static int compare(String f1, String f2) {
+
+		if (f1.equals("INBOX")) {
 			return -1;
 		}
-		if (f2.value.fullName.equals("INBOX")) {
+		if (f2.equals("INBOX")) {
 			return 1;
 		}
-		return f1.value.fullName.compareTo(f2.value.fullName);
+
+		return f1.compareTo(f2);
+	}
+
+	public static int compareNamespaced(NamespacedFolder f1, NamespacedFolder f2) {
+		if (f2.otherMailbox() && !f1.otherMailbox()) {
+			return -1;
+		}
+		if (f1.otherMailbox() && !f2.otherMailbox()) {
+			return 1;
+		}
+		return compare(f1.fullNameWithMountpoint(), f2.fullNameWithMountpoint());
 	}
 
 }

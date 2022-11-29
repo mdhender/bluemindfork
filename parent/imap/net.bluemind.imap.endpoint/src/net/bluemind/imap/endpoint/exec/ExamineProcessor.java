@@ -44,7 +44,7 @@ public class ExamineProcessor extends AbstractSelectorProcessor<ExamineCommand> 
 	}
 
 	@Override
-	protected boolean isReadOnly() {
+	protected boolean isAlwaysReadOnly() {
 		return true;
 	}
 }
