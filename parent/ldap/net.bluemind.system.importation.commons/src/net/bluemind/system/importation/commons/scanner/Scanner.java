@@ -542,7 +542,7 @@ public abstract class Scanner {
 		try {
 			entry = getUserFromDn(userDn).orElse(null);
 		} catch (LdapException le) {
-			importLogger.warning(Messages.groupMemberCheckFail(userDn.getName(), le));
+			importLogger.error(Messages.groupMemberCheckFail(userDn.getName(), le));
 		}
 
 		if (entry == null) {

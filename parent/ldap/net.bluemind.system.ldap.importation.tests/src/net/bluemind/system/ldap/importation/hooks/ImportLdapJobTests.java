@@ -104,7 +104,7 @@ public class ImportLdapJobTests {
 		ItemValue<Domain> d = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class)
 				.get(domain.uid);
 
-		assertEquals(ImportLdapJob.getDateInGeneralizedTimeFormat(initialDate),
+		assertEquals(ImportLdapJob.getDateInGeneralizedTimeFormat(startDate),
 				d.value.properties.get(LdapProperties.import_ldap_lastupdate.name()));
 	}
 

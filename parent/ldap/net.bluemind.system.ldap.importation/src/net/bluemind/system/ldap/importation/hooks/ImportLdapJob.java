@@ -118,17 +118,15 @@ public class ImportLdapJob implements IScheduledJob {
 			throws ServerFault {
 		switch (importStatus) {
 		case SUCCESS:
-			logger.info("LDAP import job terminated");
+		case COMPLETED_WITH_WARNINGS:
+			logger.info("LDAP import job terminated: {}", importStatus);
 			domain.value.properties.put(LdapProperties.import_ldap_lastupdate.name(),
 					getDateInGeneralizedTimeFormat(d));
 			ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class).update(domain.uid,
 					domain.value);
 			break;
-		case COMPLETED_WITH_WARNINGS:
-			logger.warn("LDAP import job terminated with warning");
-			break;
 		default:
-			logger.error("LDAP import job terminated with error");
+			logger.error("LDAP import job terminated with error: {}", importStatus);
 			break;
 		}
 	}
