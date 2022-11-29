@@ -24,8 +24,6 @@ import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.sendmail.testhelper.TestMail;
 import net.bluemind.delivery.lmtp.common.DeliveryContent;
-import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionFollowUp.DueDate;
-import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionFollowUp.FollowUpAction;
 import net.bluemind.mime4j.common.AddressableEntity;
 import net.bluemind.mime4j.common.Mime4JHelper;
 
@@ -80,18 +78,6 @@ public class RuleEngineActionsTests extends AbstractRuleEngineTests {
 		DeliveryContent result = engine.apply(rules);
 
 		assertNull(result.message());
-	}
-
-	@Test
-	public void testFollowUp() {
-		var message = new MessageBuilder("Subject").build();
-		var engine = engineOn(message);
-		var rules = rulesMatchingSubjectOf(message,
-				rule -> rule.addFollowUp(FollowUpAction.FOLLOW_UP, DueDate.NEXT_WEEK));
-
-		DeliveryContent result = engine.apply(rules);
-		// TODO
-		assertNotNull(result.message());
 	}
 
 	@Test
@@ -360,17 +346,6 @@ public class RuleEngineActionsTests extends AbstractRuleEngineTests {
 		DeliveryContent result = engine.apply(rules);
 
 		assertNull(result.message().getHeader().getField("X-Bm-Otlk-Name-Keywords"));
-	}
-
-	@Test
-	public void testUnfollow() {
-		var message = new MessageBuilder("Subject").header("X-Bm-Otlk-Flag-Request", FollowUpAction.FOLLOW_UP.name())
-				.build();
-		var engine = engineOn(message);
-		var rules = rulesMatchingSubjectOf(message, rule -> rule.addUncategorize());
-
-		DeliveryContent result = engine.apply(rules);
-		// TODO
 	}
 
 	@Test
