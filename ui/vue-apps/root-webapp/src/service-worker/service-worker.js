@@ -27,3 +27,4 @@ ApiRouteRegistry.routes().forEach(route => registerRoute(route));
 registerRoute(DefaultRoutes.STYLES);
 registerRoute(DefaultRoutes.IMAGES);
 registerRoute(DefaultRoutes.SCRIPTS);
+registerRoute(DefaultRoutes.BLANK);

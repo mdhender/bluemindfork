@@ -19,7 +19,8 @@ const DefaulRoutes = {
         })
     ),
     // Scripts: Use network with a fallback on cache
-    SCRIPTS: new Route(({ request }) => request.destination === "script", new NetworkFirst())
+    SCRIPTS: new Route(({ request }) => request.destination === "script", new NetworkFirst()),
+    BLANK: new Route(({ url }) => url.pathname === "/webapp/blank", new CacheFirst())
 };
 
 export default DefaulRoutes;

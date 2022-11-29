@@ -90,12 +90,8 @@ function getSenderAddress(item: ItemValue<MailboxItem>): string {
 //FIXME: This should be imported from a third party package
 async function savePart(uid: string, imap: string, part: MessageBody.Part, content: ArrayBuffer | undefined) {
     const cache = await caches.open("part-cache");
-    const { address, charset, mime, encoding, fileName } = part;
-    let queryStrings = `encoding=${encoding}&mime=${encodeURIComponent(mime)}&charset=${charset}`;
-    if (fileName) {
-        queryStrings += `&filename=${fileName}`;
-    }
-    const request = new Request(`/api/mail_items/${uid}/part/${imap}/${address}?${queryStrings}`);
+    const { address } = part;
+    const request = new Request(`/api/mail_items/${uid}/part/${imap}/${address}`);
     cache.put(request.url, new Response(content));
 }
 

@@ -1,37 +1,51 @@
 import { registerRoute } from "workbox-routing";
 import { CacheFirst } from "workbox-strategies";
 
-import { logger } from "../logger";
 import Session from "../session";
 
-const WEBSERVER_HANDLER_BASE_URL = "part/url/";
-const strategy = new CacheFirst({ cacheName: "part-cache" });
+const WEBSERVER_HANDLER_BASE_URL = "/webapp/part/url/";
+
+class PartPlugin {
+    cacheKeyWillBeUsed({ request }) {
+        const url = new URL(request.url);
+        if (url.pathname === WEBSERVER_HANDLER_BASE_URL) {
+            const { folderUid, imapUid, address } = Object.fromEntries(url.searchParams.entries());
+            return `/api/mail_items/${folderUid}/part/${imapUid}/${address}`;
+        } else {
+            return url.pathname;
+        }
+    }
+    async requestWillFetch({ request }) {
+        const url = new URL(request.url);
+        if (url.pathname === WEBSERVER_HANDLER_BASE_URL) {
+            const params = Object.fromEntries(url.searchParams.entries());
+            return await buildCoreRequestFromWebserverHandlerUrl(params);
+        }
+        return request;
+    }
+    async handlerWillRespond({ request, response }) {
+        const url = new URL(request.url);
+        const { mime, charset, filename } = Object.fromEntries(url.searchParams.entries());
+        const headers = new Headers(response.headers);
+        headers.set("Content-Type", `${mime};charset=${charset}`);
+        if (filename) {
+            headers.set("Content-Disposition", `inline; filename="${filename}"`);
+        } else {
+            headers.set("Content-Disposition", `inline`);
+        }
+        return new Response(await response.blob(), { headers });
+    }
+}
+
+const strategy = new CacheFirst({ cacheName: "part-cache", plugins: [new PartPlugin()] });
 
 export default function () {
-    registerRoute(matchWebserverPartHandler, fetchPartUsingCoreAPI);
+    registerRoute(matchWebserverPartHandler, strategy);
     registerRoute(/\/api\/mail_items\/([^/]+)\/part\/([^/]+)\/([^/?]+)/, strategy);
 }
 
 function matchWebserverPartHandler({ url }) {
-    return url.pathname.startsWith("/webapp/" + WEBSERVER_HANDLER_BASE_URL);
-}
-
-async function fetchPartUsingCoreAPI({ event, request, url }) {
-    try {
-        const params = Object.fromEntries(url.searchParams.entries());
-
-        const coreRequest = await buildCoreRequestFromWebserverHandlerUrl(params);
-        const response = await strategy.handle({ event, request: coreRequest });
-
-        const headers = new Headers(response.headers);
-        headers.set("Content-Type", params.mime + ";charset=" + params.charset);
-        headers.set("Content-Disposition", `inline; filename="${params.filename}"`);
-
-        return new Response(await response.blob(), { headers });
-    } catch (e) {
-        logger.warn("Fail to redirect to Core API.. use webserver part handler instead ", { e });
-        return fetch(request);
-    }
+    return url.pathname === WEBSERVER_HANDLER_BASE_URL;
 }
 
 async function buildCoreRequestFromWebserverHandlerUrl(params) {
