@@ -20,15 +20,16 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.mailbox.api,
  net.bluemind.core.container.persistence,
  net.bluemind.domain.api,
- net.bluemind.core.sanitizer,
+ net.bluemind.core.sanitizer;visibility:=reexport,
  net.bluemind.core.validator,
- net.bluemind.system.importation.commons;bundle-version="1.0.0",
+ net.bluemind.system.importation.commons;visibility:=reexport,
  org.apache.commons.lang3,
  net.bluemind.system.ldap.importation.api,
  net.bluemind.system.schemaupgrader,
  net.bluemind.core.task.service,
  net.bluemind.eclipse.common,
- net.bluemind.metrics.registry
+ net.bluemind.metrics.registry,
+ net.bluemind.scheduledjob.service;bundle-version="4.1.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: blue-mind.net
@@ -41,6 +42,9 @@ Export-Package: net.bluemind.system.ldap.importation;
    net.bluemind.core.rest,
    net.bluemind.core.container.model,
    net.bluemind.system.importation.commons",
+ net.bluemind.system.ldap.importation.hooks,
+ net.bluemind.system.ldap.importation.internal.scanner,
+ net.bluemind.system.ldap.importation.internal.tools,
  net.bluemind.system.ldap.importation.search;
   uses:="net.bluemind.system.importation.search,
    org.slf4j,

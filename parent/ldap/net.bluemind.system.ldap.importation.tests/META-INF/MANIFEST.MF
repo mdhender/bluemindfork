@@ -1,23 +1,23 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.system.ldap.importation.tests
-Bundle-SymbolicName: net.bluemind.system.ldap.importation.tests;singleton:=true
+Bundle-SymbolicName: net.bluemind.system.ldap.importation.tests
+Bundle-Vendor: bluemind.net
 Bundle-Version: 4.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Fragment-Host: net.bluemind.system.ldap.importation
 Require-Bundle: org.junit,
- net.bluemind.core.jdbc.testshelper,
- net.bluemind.core.sessions,
- net.bluemind.pool,
- net.bluemind.server.api,
- net.bluemind.tests.defaultdata,
- net.bluemind.core.tests.testshelper,
- net.bluemind.core.rest.http,
+ net.bluemind.core.container.persistence,
  net.bluemind.domain.api,
- net.bluemind.core.rest.http.vertx;bundle-version="1.0.0",
- net.bluemind.scheduledjob.service;bundle-version="1.0.0",
- net.bluemind.domain.service;bundle-version="1.0.0",
+ net.bluemind.authentication.provider,
+ net.bluemind.user.api,
  net.bluemind.system.ldap.tests.helpers,
+ net.bluemind.tests.defaultdata,
+ net.bluemind.core.jdbc.testshelper,
+ net.bluemind.core.tests.testshelper,
+ net.bluemind.system.ldap.importation.api,
+ net.bluemind.system.ldap.importation,
+ net.bluemind.lib.ldap,
+ net.bluemind.addressbook.api,
  net.bluemind.system.ldap.importation.tests.enhancer,
- org.apache.commons.collections
+ net.bluemind.core.sessions
 Automatic-Module-Name: net.bluemind.system.ldap.importation.tests

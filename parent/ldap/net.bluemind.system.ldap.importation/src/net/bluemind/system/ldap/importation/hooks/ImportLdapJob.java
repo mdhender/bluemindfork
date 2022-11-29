@@ -114,7 +114,7 @@ public class ImportLdapJob implements IScheduledJob {
 		sched.finish(rid, importLogger.repportStatus.get().getJobStatus());
 	}
 
-	protected void updateLastUpdateDomainDate(ItemValue<Domain> domain, JobExitStatus importStatus, Date d)
+	public void updateLastUpdateDomainDate(ItemValue<Domain> domain, JobExitStatus importStatus, Date d)
 			throws ServerFault {
 		switch (importStatus) {
 		case SUCCESS:
@@ -131,7 +131,7 @@ public class ImportLdapJob implements IScheduledJob {
 		}
 	}
 
-	protected static String getDateInGeneralizedTimeFormat(Date date) {
+	public static String getDateInGeneralizedTimeFormat(Date date) {
 		SimpleDateFormat sdf = new SimpleDateFormat(LdapConstants.GENERALIZED_TIME_FORMAT);
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
