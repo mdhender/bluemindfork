@@ -5,6 +5,7 @@ import registerCSSRoute from "./workbox/registerCSSRoute";
 import registerSessionInfoRoute from "./workbox/registerSessionInfoRoute";
 import registerScriptRoute from "./workbox/registerScriptRoute";
 import registerPartRoute from "./workbox/registerPartRoute";
+import registerBlankRoute from "./workbox/registerBlankRoute";
 
 import { syncMailbox, syncMailFolders, syncMailFolder } from "./sync";
 import Session from "./session";
@@ -19,6 +20,7 @@ registerPartRoute();
 registerApiRoute(apiRoutes);
 registerCSSRoute();
 registerScriptRoute();
+registerBlankRoute();
 
 self.addEventListener("message", async ({ data }) => {
     switch (data.type) {

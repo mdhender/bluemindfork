@@ -17,7 +17,7 @@
          </handler>
          <handler
                class="net.bluemind.webmodules.webapp.handlers.WebAppBlankHandler"
-               path="blank/">
+               path="blank">
          </handler>
          <handler
                class="net.bluemind.webmodules.webapp.handlers.PartContentUrlHandler"
