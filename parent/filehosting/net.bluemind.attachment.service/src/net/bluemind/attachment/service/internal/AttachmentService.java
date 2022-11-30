@@ -90,7 +90,7 @@ public class AttachmentService implements IAttachment {
 			if (!service.exists(path)) {
 				AsyncFile readStream = VertxPlatform.getVertx().fileSystem().openBlocking(tmp.getAbsolutePath(),
 						new OpenOptions().setRead(true));
-				Stream asStream = VertxStream.stream(readStream, (v) -> readStream.close());
+				Stream asStream = VertxStream.stream(readStream);
 				service.store(path, asStream);
 			}
 

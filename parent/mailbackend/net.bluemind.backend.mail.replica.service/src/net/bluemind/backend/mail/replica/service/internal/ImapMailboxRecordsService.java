@@ -627,7 +627,12 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		// temporary parts are already decoded because getForUpdate already did it
 		AsyncFile openBlocking = VertxPlatform.getVertx().fileSystem().openBlocking(tmpPart.getAbsolutePath(),
 				new OpenOptions());
-		return VertxStream.stream(openBlocking, v -> openBlocking.close());
+		return VertxStream.stream(openBlocking, v -> {
+			try {
+				openBlocking.close();
+			} catch (IllegalStateException e) {
+			}
+		});
 	}
 
 	private ReadStream<Buffer> imapFetch(long imapUid, String address) {

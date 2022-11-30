@@ -110,7 +110,12 @@ public class EventAttachmentHandler {
 			IAttachment attachApi = userProvider.instance(IAttachment.class, domain);
 			AsyncFile openBlocking = VertxPlatform.getVertx().fileSystem()
 					.openBlocking(new File(cidValue.tmpFile).getAbsolutePath(), new OpenOptions());
-			Stream stream = VertxStream.stream(openBlocking, v -> openBlocking.close());
+			Stream stream = VertxStream.stream(openBlocking, v -> {
+				try {
+					openBlocking.close();
+				} catch (IllegalStateException e) {
+				}
+			});
 			String url = attachApi.share(cid, stream).publicUrl;
 			AttachedFile file = new AttachedFile();
 			file.name = cidValue.name;

@@ -134,7 +134,10 @@ public class SdsFileHostingService implements IInternalFileHostingService {
 			return VertxStream.stream(vxStream, end -> {
 				logger.debug("Stream has ending, closing then clearing tmp file {}", tmp);
 				vx.setTimer(50, tid -> {
-					vxStream.close();
+					try {
+						vxStream.close();
+					} catch (IllegalStateException e) {
+					}
 					logger.debug("Closing in timer {}", tid);
 					tmp.delete(); // NOSONAR
 				});

@@ -48,7 +48,12 @@ public class TikaGetHashHandler implements Handler<HttpServerRequest> {
 			headers.add("X-BM-TikaHash", hash);
 			resp.setChunked(true);
 			AsyncFile asyncFile = vertx.fileSystem().openBlocking(f.getAbsolutePath(), new OpenOptions());
-			asyncFile.pipeTo(resp, v -> asyncFile.close());
+			asyncFile.pipeTo(resp, v -> {
+				try {
+					asyncFile.close();
+				} catch (IllegalStateException e) {
+				}
+			});
 		} else {
 			resp.setStatusCode(404).end();
 		}
