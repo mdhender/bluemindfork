@@ -37,10 +37,7 @@ $autoloader->setDefaultAutoloader(function($class) {
 
 class LocateCoreStrategy {
   public function execute() {
-    $ini_array = parse_ini_file("/etc/bm/bm.ini");
-
-    $locator = new LocatorService($ini_array['locator'] ? $ini_array['locator'] : $ini_array['host']);
-    return $locator->get('bm/core', 'fake@global.virt');
+    return $_SESSION['bm_sso']['bmTopoCore'];
   }
 }
 

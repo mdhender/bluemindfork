@@ -28,7 +28,6 @@
  */
 
 require_once('rcube/user.php');
-require_once('rcube/locator.php');
 require_once('rcube/uiextension.php');
 
     function BMgetallheaders()
@@ -62,10 +61,6 @@ class bm_sso extends rcube_plugin {
   private $ssoToken;
   private $lang;
   private $rcmail;
-
-  private function getHost($service) {
-    return '127.0.0.1';
-  }
 
   public function init() {
     $this->initFromHeaders();
@@ -128,6 +123,10 @@ class bm_sso extends rcube_plugin {
      $_SESSION['bm_sso']['bmDefaultEmail'] = $hds['BMUSERDEFAULTEMAIL'];
      $_SESSION['bm_sso']['bmPartition'] = $hds['BMPARTITION'];
      $_SESSION['bm_sso']['bmDataLocation'] = $hds['BMDATALOCATION'];
+     $_SESSION['bm_sso']['bmTopoCore'] = $hds['BMTOPOCORE'];
+     $_SESSION['bm_sso']['bmTopoEs'] = $hds['BMTOPOIMAP'];
+     $_SESSION['bm_sso']['bmTopoImap'] = $hds['BMTOPOES'];
+     $_SESSION['bm_sso']['bmTopoCti'] = $hds['BMTOPOCTI'];
      $this->domain = $hds['BMUSERDOMAINID'];
   }
 
@@ -165,10 +164,10 @@ class bm_sso extends rcube_plugin {
     }
 
     // ui extension
-    $uiExtensionService = new UiExtentionService($this->getHost("bm/core"), $_SESSION['bm_sso']['bmLang']);
+    $uiExtensionService = new UiExtentionService($_SESSION['bm_sso']['bmTopoCore'], $_SESSION['bm_sso']['bmLang']);
     $this->rcmail->output->set_env('bmExtensions', $uiExtensionService->get(), false);
 
-    $_SESSION['bm']['core'] = "http://" . $this->getHost('bm/core') . ":8090";
+    $_SESSION['bm']['core'] = "http://" . $_SESSION['bm_sso']['bmTopoCore'] . ":8090";
 
     return $args;
   }
@@ -190,10 +189,10 @@ class bm_sso extends rcube_plugin {
     $args['pass'] = $this->ssoToken;
     $args['token'] = $this->ssoToken;
     $args['valid'] = true;
-    $args['host'] = $this->getHost('mail/imap');
+    $args['host'] = $_SERVER['HTTP_BMTOPOIMAP'];
     $_SESSION['bm_sso']['bmUserUid'] = $this->ssoUserUid;
     $args['cookiecheck'] = false;
-    $args['core'] = "http://" . $this->getHost('bm/core') . ":8090";
+    $args['core'] = "http://" . $_SERVER['HTTP_BMTOPOCORE'] . ":8090";
 
     $sc = new BM\UserSettingsClient($args['core'], $this->ssoToken, $this->ssoDomain);
     $settings = $sc->get($this->ssoUserUid);

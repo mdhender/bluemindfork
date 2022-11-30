@@ -82,14 +82,12 @@ class bm_xivo extends rcube_plugin {
 
   public function isEnabled() {
     if (!isset($_SESSION['bm']['cti']['enabled'])) {
-      $ini_array = parse_ini_file("/etc/bm/bm.ini");
-      $locator = new LocatorService($ini_array['locator'] ? $ini_array['locator'] : $ini_array['host']);
 
       // FIXME
       // $enabled =  $identity->isAllowed('/cti/dial');
       $enabled = true;
       try {
-        $enabled =  $enabled && $locator->get('cti/frontend', $_SESSION['bm_sso']['bmLogin']);
+        $enabled =  $enabled && !empty($_SESSION['bm_sso']['bmTopoCti']);
       } catch (Exception $e) {
         $enabled = false;
       }

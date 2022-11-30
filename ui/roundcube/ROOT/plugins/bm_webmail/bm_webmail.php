@@ -27,21 +27,12 @@
  */
 
 require_once('rcube/user.php');
-require_once('rcube/locator.php');
 require_once('rcube/webresources.php');
   
  
 class bm_webmail extends rcube_plugin {
 
   private $rcmail;
-
-  private function getHost($service) {
-    $ini_array = parse_ini_file("/etc/bm/bm.ini");
-    $locator = new LocatorService($ini_array['locator'] ? $ini_array['locator'] : $ini_array['host']);
-    $host = $locator->get($service, 'admin0@global.virt');
-    return $host;
-
-  }
 
   public function init() {
     $this->rcmail = rcmail::get_instance();
@@ -52,7 +43,7 @@ class bm_webmail extends rcube_plugin {
 
   public function startup($args) {
     // web resources
-    $webResourcesService = new WebResourcesService($this->getHost("bm/core"), $_SESSION['bm_sso']['bmLang']);
+    $webResourcesService = new WebResourcesService($_SESSION['bm_sso']['bmTopoCore'], $_SESSION['bm_sso']['bmLang']);
     $r = $webResourcesService->get();
     $bundles = '';
     if ($r != null) {
@@ -71,7 +62,7 @@ class bm_webmail extends rcube_plugin {
 
   public function render_page($args) {
     if ($this->rcmail->task == 'settings' || ($this->rcmail->task == 'mail' && ($this->rcmail->action == '' || $this->rcmail->action == 'show'))) {
-      $webResourcesService = new WebResourcesService($this->getHost("bm/core"), $_SESSION['bm_sso']['bmLang']);
+      $webResourcesService = new WebResourcesService($_SESSION['bm_sso']['bmTopoCore'], $_SESSION['bm_sso']['bmLang']);
       $r = $webResourcesService->get();
       if ($r != null) {
         foreach ($r->css as $css) {

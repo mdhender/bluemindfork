@@ -107,21 +107,11 @@ class rcube_storage_bm extends rcube_imap {
 
   private function _index($query = array()) {
     if (!$this->client) {
-      $hosts = $_SESSION['bm']['hosts']['es'];
-      if (!$hosts) {
-        $ini_array = parse_ini_file("/etc/bm/bm.ini");
-        $locator = new LocatorService($ini_array['locator'] ? $ini_array['locator'] : $ini_array['host']);
-        $hosts  = $locator->getAll('bm/es', $_SESSION['bm_sso']['bmLogin']);
-        $_SESSION['bm']['hosts']['es'] = $hosts;
-      }
-      $connections = array();
-      foreach($hosts as $host) {
-        $connections[] = array(
-          'host' => $host,
-          'port' => 9200
-        );
-        $this->client = new Elastica\Client(array('connections' => $connections));
-      }
+      $connections[] = array(
+        'host' => $_SESSION['bm_sso']['bmTopoEs'],
+        'port' => 9200
+      );
+      $this->client = new Elastica\Client(array('connections' => $connections));
     }
     $index = new Elastica\Search($this->client);
 
