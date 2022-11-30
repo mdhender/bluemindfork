@@ -41,6 +41,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.DispositionType;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.MessageBody;
@@ -95,7 +96,7 @@ public class MessageBodyStoreTests {
 		pipo.tags = Collections.singletonList("mail/imap");
 
 		VertxPlatform.spawnBlocking(25, TimeUnit.SECONDS);
-		partition = "dataloc__" + domainUid.replace('.', '_');
+		partition = CyrusPartition.forServerAndDomain(pipo.ip, domainUid).name;
 		datasource = JdbcTestHelper.getInstance().getMailboxDataDataSource();
 		JdbcActivator.getInstance().addMailboxDataSource("dataloc", datasource);
 		PopulateHelper.initGlobalVirt(pipo);

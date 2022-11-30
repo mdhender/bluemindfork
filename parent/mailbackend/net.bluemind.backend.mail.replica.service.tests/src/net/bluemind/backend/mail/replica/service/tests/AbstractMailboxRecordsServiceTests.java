@@ -41,6 +41,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.cyrus.CyrusService;
+import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
@@ -96,7 +97,8 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 
 		PopulateHelper.initGlobalVirt(pipo);
 		PopulateHelper.addDomain(domainUid, Routing.internal);
-		partition = "dataloc__" + domainUid.replace('.', '_');
+
+		partition = CyrusPartition.forServerAndDomain(pipo.ip, domainUid).name;
 		datasource = JdbcTestHelper.getInstance().getMailboxDataDataSource();
 		JdbcActivator.getInstance().addMailboxDataSource("dataloc", datasource);
 		String userUid = PopulateHelper.addUser("me", domainUid, Routing.internal);

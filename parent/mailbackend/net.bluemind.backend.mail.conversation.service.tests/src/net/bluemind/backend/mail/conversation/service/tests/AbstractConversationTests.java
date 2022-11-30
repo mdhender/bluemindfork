@@ -43,6 +43,7 @@ import com.google.common.io.ByteStreams;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
+import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.IMailConversation;
 import net.bluemind.backend.mail.api.IMailConversationActions;
 import net.bluemind.backend.mail.api.IMailboxFolders;
@@ -106,7 +107,7 @@ public class AbstractConversationTests {
 		pipo.tags = Collections.singletonList("mail/imap");
 
 		VertxPlatform.spawnBlocking(25, TimeUnit.SECONDS);
-		partition = "dataloc__" + domainUid.replace('.', '_');
+		partition = CyrusPartition.forServerAndDomain(pipo.ip, domainUid).name;
 		datasource = JdbcTestHelper.getInstance().getMailboxDataDataSource();
 		JdbcActivator.getInstance().addMailboxDataSource("dataloc", datasource);
 
