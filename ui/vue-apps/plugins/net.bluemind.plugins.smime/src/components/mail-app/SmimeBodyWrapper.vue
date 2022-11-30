@@ -1,7 +1,8 @@
 <script>
 import { BmButton } from "@bluemind/ui-components";
-import { isSigned, isVerified } from "../../lib/helper";
+import { isDecrypted, isSigned, isVerified } from "../../lib/helper";
 import untrustedIllustration from "../../../assets/mail-app-untrusted.png";
+import undecryptedIllustration from "../../../assets/mail-app-undecrypted.png";
 
 export default {
     name: "SmimeBodyWrapper",
@@ -17,21 +18,33 @@ export default {
         }
     },
     data() {
-        return { isVerified, isSigned, untrustedIllustration };
+        return {
+            untrustedIllustration,
+            undecryptedIllustration
+        };
     },
     computed: {
         forceDisplay() {
             return this.$store.state.smime.displayUntrusted.indexOf(this.message.key) !== -1;
+        },
+        untrusted() {
+            return isSigned(this.message.headers) && !isVerified(this.message.headers);
+        },
+        undecrypted() {
+            return !isDecrypted(this.message.headers);
         }
     },
     render(h) {
-        if (!this.forceDisplay && isSigned(this.message.headers) && !isVerified(this.message.headers)) {
-            const imgDiv = h("div", {}, [h("img", { attrs: { src: untrustedIllustration } })]);
+        const src = this.untrusted ? untrustedIllustration : undecryptedIllustration;
+        const text = this.untrusted ? "Que se passe-t-il ?" : "Pourquoi je ne peux pas afficher ce message ?"; //  FIXME i18n
+
+        if ((!this.forceDisplay && this.untrusted) || this.undecrypted) {
+            const imgDiv = h("div", {}, [h("img", { attrs: { src } })]);
             //  FIXME doc url
             const button = h(
                 "bm-button",
                 { props: { variant: "link" }, class: "mt-6", attrs: { target: "_blank" } },
-                "Que se passe-t-il ?" //  FIXME i18n
+                text
             );
             const children = [imgDiv, button];
             return h("div", { class: "smime-body-wrapper py-8" }, [children]);
