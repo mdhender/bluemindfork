@@ -14,7 +14,6 @@ const ExtensionPriorityOne = {
     },
     render: function (h) {
         if (this.color === "blue") {
-            console.log("hello", this.color);
             return h("h1", textOne);
         } else {
             return this.next();

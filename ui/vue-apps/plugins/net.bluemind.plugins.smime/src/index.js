@@ -5,6 +5,8 @@ import SmimeBodyWrapper from "./components/mail-app/SmimeBodyWrapper";
 import TrustedSender from "./components/mail-app/TrustedSender";
 import UntrustedSenderAlert from "./components/mail-app/UntrustedSenderAlert";
 import UntrustedSenderTrigger from "./components/mail-app/UntrustedSenderTrigger";
+import DecryptErrorAlert from "./components/mail-app/DecryptErrorAlert";
+import DecryptErrorTrigger from "./components/mail-app/DecryptErrorTrigger";
 import PrefSmime from "./components/preferences/PrefSmime";
 import LockIcon from "./components/mail-app/LockIcon";
 import { SMIMEPrefKeys } from "./lib/constants";
@@ -19,6 +21,8 @@ Vue.component("SmimeBodyWrapper", SmimeBodyWrapper);
 Vue.component("TrustedSender", TrustedSender);
 Vue.component("UntrustedSenderAlert", UntrustedSenderAlert);
 Vue.component("UntrustedSenderTrigger", UntrustedSenderTrigger);
+Vue.component("DecryptErrorTrigger", DecryptErrorTrigger);
+Vue.component("DecryptErrorAlert", DecryptErrorAlert);
 
 extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
     component: {
@@ -39,6 +43,13 @@ extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
     component: {
         path: "viewer.header",
         name: "UntrustedSenderTrigger"
+    }
+});
+
+extensions.register("webapp.mail", "net.bluemind.plugins.smime.encryption", {
+    component: {
+        path: "viewer.header",
+        name: "DecryptErrorTrigger"
     }
 });
 

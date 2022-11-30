@@ -1,6 +1,6 @@
 <script>
 import { BmButton } from "@bluemind/ui-components";
-import { isDecrypted, isSigned, isVerified } from "../../lib/helper";
+import { isDecrypted, isEncrypted, isSigned, isVerified } from "../../lib/helper";
 import untrustedIllustration from "../../../assets/mail-app-untrusted.png";
 import undecryptedIllustration from "../../../assets/mail-app-undecrypted.png";
 
@@ -25,13 +25,13 @@ export default {
     },
     computed: {
         forceDisplay() {
-            return this.$store.state.smime.displayUntrusted.indexOf(this.message.key) !== -1;
+            return this.$store.state.smime.displayUntrusted.includes(this.message.key);
         },
         untrusted() {
             return isSigned(this.message.headers) && !isVerified(this.message.headers);
         },
         undecrypted() {
-            return !isDecrypted(this.message.headers);
+            return isEncrypted(this.message.headers) && !isDecrypted(this.message.headers);
         }
     },
     render(h) {

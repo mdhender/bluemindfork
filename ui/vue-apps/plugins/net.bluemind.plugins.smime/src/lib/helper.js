@@ -17,3 +17,8 @@ export function isDecrypted(headers) {
     const cryptoHeader = headers.find(header => header.name === ENCRYPTED_HEADER_NAME);
     return cryptoHeader?.values.find(value => value === CRYPTO_HEADERS.DECRYPTED);
 }
+
+export function getDecryptedError(headers) {
+    const cryptoHeader = headers.find(header => header.name === ENCRYPTED_HEADER_NAME);
+    return cryptoHeader?.values[0];
+}
