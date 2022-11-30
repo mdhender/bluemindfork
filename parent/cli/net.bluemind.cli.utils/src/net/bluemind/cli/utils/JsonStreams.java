@@ -50,13 +50,12 @@ public class JsonStreams {
 
 	private void streamJson(Promise<Object> pushed, ReadStream<Buffer> jsFile, Consumer<JsonObject> keyAndValueProc) {
 		JsonParser parser = JsonParser.newParser().objectValueMode();
+		jsFile.pause();
 		parser.exceptionHandler(t -> {
 			ctx.error("parser error {}", t.getMessage());
 			pushed.fail(t);
 		});
-		parser.endHandler(v -> {
-			pushed.complete();
-		});
+		parser.endHandler(v -> pushed.tryComplete());
 		parser.handler(js -> {
 			if (js.type() == JsonEventType.VALUE) {
 				keyAndValueProc.accept(js.objectValue());
@@ -65,7 +64,7 @@ public class JsonStreams {
 
 		jsFile.exceptionHandler(t -> {
 			ctx.error("ERROR {}", t.getMessage(), t);
-			pushed.fail(t);
+			pushed.tryFail(t);
 		});
 		jsFile.endHandler(v -> parser.end());
 		jsFile.handler(parser::write);

@@ -18,8 +18,8 @@
  */
 package net.bluemind.core.rest.http.internal;
 
-import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,11 +31,11 @@ import io.vertx.core.streams.ReadStream;
 public class BufferedStream implements ReadStream<Buffer> {
 	private static final Logger logger = LoggerFactory.getLogger(BufferedStream.class);
 	private Handler<Void> endHandler;
-	private boolean pause;
 	private Handler<Buffer> dataHandler;
 	private Handler<Throwable> exceptionHandler;
-	private final Queue<Buffer> q = new LinkedList<>();
-	private boolean end;
+	private final Queue<Buffer> q = new ConcurrentLinkedQueue<>();
+	private volatile boolean ended = false;
+	private volatile boolean paused = false;
 
 	@Override
 	public BufferedStream handler(Handler<Buffer> handler) {
@@ -50,29 +50,28 @@ public class BufferedStream implements ReadStream<Buffer> {
 		if (logger.isDebugEnabled()) {
 			logger.debug("pause {}", this);
 		}
-		this.pause = true;
+		paused = true;
 		return this;
 	}
 
 	@Override
 	public BufferedStream resume() {
-		pause = false;
+		paused = false;
 		drain();
 		return this;
 	}
 
-	private void drain() {
+	private synchronized void drain() {
 		try {
 			if (dataHandler != null) {
-				synchronized (q) {
-					while (!pause && !q.isEmpty()) {
-						dataHandler.handle(q.poll());
-					}
+				while (!q.isEmpty() && !paused) {
+					dataHandler.handle(q.poll());
 				}
 			}
 
-			if (!pause && endHandler != null && end) {
+			if (!paused && endHandler != null && ended) {
 				endHandler.handle(null);
+				endHandler = null;
 			}
 		} catch (Exception e) {
 			exceptionHandler.handle(e);
@@ -93,10 +92,8 @@ public class BufferedStream implements ReadStream<Buffer> {
 
 	public void write(Buffer data) {
 		if (data != null && data.length() > 0) {
-			synchronized (q) {
-				q.add(data);
-				drain();
-			}
+			q.add(data);
+			drain();
 		}
 	}
 
@@ -105,7 +102,7 @@ public class BufferedStream implements ReadStream<Buffer> {
 	}
 
 	public void end() {
-		end = true;
+		ended = true;
 		if (logger.isDebugEnabled()) {
 			logger.debug("endcall drain {}", this);
 		}
