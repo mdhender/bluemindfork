@@ -352,7 +352,7 @@ public class RuleEngine {
 
 	private DeliveryContent reply(DeliveryContent nextContent, MailFilterRuleActionReply reply, boolean isVacation) {
 		if (!isVacation) {
-			return doReply(nextContent, reply);
+			return doReply(nextContent, reply, isVacation);
 		}
 		MailboxVacationSendersCache recipients = vacationCacheFactory.get(originalBox().mbox.uid);
 		AddressList addressList = originalMessage().getReplyTo();
@@ -361,17 +361,22 @@ public class RuleEngine {
 				: addressList.flatten().stream().findFirst().map(Mailbox::getAddress).orElse(null);
 		return recipients.ifMissingDoGetOrElseGet(sender, () -> {
 			logger.info("[rules][vacation] must reply to {} [{}]", sender, nextContent);
-			return doReply(nextContent, reply);
+			return doReply(nextContent, reply, isVacation);
 		}, () -> {
 			logger.info("[rules][vacation] skip reply to {} [{}]", sender, nextContent);
 			return nextContent;
 		});
 	}
 
-	private DeliveryContent doReply(DeliveryContent nextContent, MailFilterRuleActionReply reply) {
+	private DeliveryContent doReply(DeliveryContent nextContent, MailFilterRuleActionReply reply, boolean isVacation) {
 		MessageCreator creator = new MessageCreator(originalBox(), originalMessage());
 		Message replyMessage = creator.newMessageWithOriginalCited(originalMessage().getFrom(), "Re", reply.subject,
 				reply.plainBody, reply.htmlBody, true);
+		if (isVacation) {
+			RawField raw = new RawField("X-Autoreply", "yes"); // "Auto-Submitted", "auto-replied"
+			UnstructuredField parsed = UnstructuredFieldImpl.PARSER.parse(raw, DecodeMonitor.SILENT);
+			replyMessage.getHeader().addField(parsed);
+		}
 		String sender = originalMessage().getFrom().stream().findFirst().map(Mailbox::getAddress).orElse(null);
 		logger.info("[rules] replying to {} [{}]", sender, nextContent);
 		mailer.send(SendmailCredentials.asAdmin0(), originalBox().dom.uid, replyMessage);

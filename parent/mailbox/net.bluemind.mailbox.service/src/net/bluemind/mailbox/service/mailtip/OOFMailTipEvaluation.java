@@ -91,9 +91,9 @@ public class OOFMailTipEvaluation implements IMailTipEvaluation {
 	private boolean isActive(Date start, Date end) {
 		long utcNow = System.currentTimeMillis();
 		if (end == null) {
-			return utcNow > start.getTime();
+			return (start != null) ? utcNow > start.getTime() : true;
 		} else {
-			return utcNow > start.getTime() && utcNow < end.getTime();
+			return (start != null) ? utcNow > start.getTime() && utcNow < end.getTime() : utcNow < end.getTime();
 		}
 	}
 
