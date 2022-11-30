@@ -1,5 +1,6 @@
 package net.bluemind.mailbox.api.rules.actions;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +21,10 @@ public class MailFilterRuleActionCategorize extends MailFilterRuleActionAddHeade
 		super(Collections.singletonMap("X-Bm-Otlk-Name-Keywords",
 				categories.stream().collect(Collectors.joining(LIST_SEPARATOR))));
 		this.name = MailFilterRuleActionName.CATEGORIZE;
+	}
+
+	public List<String> categories() {
+		return Arrays.asList(headers.getOrDefault("X-Bm-Otlk-Name-Keywords", "").split(LIST_SEPARATOR));
 	}
 
 	@Override
