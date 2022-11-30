@@ -132,7 +132,7 @@ public class Messages {
 		return messages;
 	}
 
-	public static Map<String, String> failedLookupEntryDn(Dn entryDn, LdapException le) {
+	public static Map<String, String> failedLookupEntryDn(Dn entryDn, Exception le) {
 		HashMap<String, String> messages = new HashMap<String, String>(2);
 		messages.put("en", "Error on getting entry " + entryDn.getName() + ": " + le.getMessage());
 		messages.put("fr",

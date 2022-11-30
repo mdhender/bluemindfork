@@ -75,6 +75,13 @@ public abstract class Scanner {
 		NOT_FOUND, SUSPEND_IN_DIRECTORY;
 	}
 
+	@SuppressWarnings("serial")
+	private class EntryNotFound extends Exception {
+		public EntryNotFound() {
+			super("DN not found in directory");
+		}
+	}
+
 	private class EntryInfos {
 		public final Dn dn;
 		public final boolean suspended;
@@ -406,9 +413,9 @@ public abstract class Scanner {
 		try {
 			// modifyTimestamp and canonicalName are return only if explicitly requested by
 			// some directory server
-			entry = ldapCon.lookup(groupDn, "*", "+", getParameter().ldapDirectory.extIdAttribute, "modifyTimestamp",
-					"canonicalName");
-		} catch (LdapException le) {
+			entry = Optional.ofNullable(ldapCon.lookup(groupDn, "*", "+", getParameter().ldapDirectory.extIdAttribute,
+					"modifyTimestamp", "canonicalName")).orElseThrow(() -> new EntryNotFound());
+		} catch (EntryNotFound | LdapException le) {
 			logger.error(String.format("%s: %s", groupDn.getName(), le.getMessage()), le);
 			importLogger.error(Messages.failedLookupEntryDn(groupDn, le));
 			return Optional.empty();
@@ -641,9 +648,9 @@ public abstract class Scanner {
 		try {
 			// modifyTimestamp and canonicalName are return only if explicitly requested by
 			// some directory
-			entry = ldapCon.lookup(userDn, "*", "+", getParameter().ldapDirectory.extIdAttribute, "modifyTimestamp",
-					"canonicalName");
-		} catch (LdapException le) {
+			entry = Optional.ofNullable(ldapCon.lookup(userDn, "*", "+", getParameter().ldapDirectory.extIdAttribute,
+					"modifyTimestamp", "canonicalName")).orElseThrow(() -> new EntryNotFound());
+		} catch (EntryNotFound | LdapException le) {
 			logger.error("{}: {}", userDn.getName(), le.getMessage(), le);
 			importLogger.error(Messages.failedLookupEntryDn(userDn, le));
 			return;
