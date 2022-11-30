@@ -23,6 +23,7 @@
 package net.bluemind.backend.mail.replica.service.tests;
 
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Objects;
 
 import org.junit.Before;
@@ -31,6 +32,7 @@ import com.google.common.io.ByteStreams;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
+import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.core.api.Stream;
@@ -41,12 +43,17 @@ import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.pool.impl.BmConfIni;
+import net.bluemind.server.api.Server;
+import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public abstract class AbstractMessageBodiesServiceTests {
 
 	protected String partition;
 	protected MailboxReplicaRootDescriptor mboxDescriptor;
 	protected Vertx vertx;
+	protected String domainUid;
 
 	protected Stream openResource(String path) {
 		try (InputStream inputStream = AbstractReplicatedMailboxesServiceTests.class.getClassLoader()
@@ -64,7 +71,16 @@ public abstract class AbstractMessageBodiesServiceTests {
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 		vertx = VertxPlatform.getVertx();
 
-		partition = "datalocation__vagrant" + System.currentTimeMillis() + "_vmw";
+		domainUid = "vagrant" + System.currentTimeMillis() + ".vmw";
+
+		Server pipo = new Server();
+		pipo.ip = new BmConfIni().get("imap-role");
+		pipo.tags = Collections.singletonList("mail/imap");
+		PopulateHelper.initGlobalVirt(pipo);
+		PopulateHelper.addDomain(domainUid, Routing.internal);
+
+		partition = CyrusPartition.forServerAndDomain(pipo.ip, domainUid).name;
+
 		JdbcActivator.getInstance().addMailboxDataSource("datalocation", JdbcActivator.getInstance().getDataSource());
 		ElasticsearchTestHelper.getInstance().beforeTest();
 	}
