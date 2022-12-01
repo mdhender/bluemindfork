@@ -51,7 +51,7 @@ import io.vertx.core.streams.Pipe;
 import io.vertx.core.streams.WriteStream;
 import net.bluemind.metrics.registry.IdFactory;
 
-public class WrappedRequest implements HttpServerRequestInternal {
+public class WrappedRequest extends HttpServerRequestInternal {
 
 	private final HttpServerRequestInternal impl;
 	private final WrappedResponse response;

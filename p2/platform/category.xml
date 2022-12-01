@@ -46,7 +46,6 @@
    <bundle id="net.bluemind.authentication.provider" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.authentication.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.authentication.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.aws.s3.patch" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.aws.s3.utils" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.backend.cyrus" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.backend.cyrus.bmgroups" version="4.1.0.qualifier"/>

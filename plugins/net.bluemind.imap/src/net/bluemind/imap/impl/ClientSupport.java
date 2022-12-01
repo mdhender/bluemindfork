@@ -30,8 +30,6 @@ import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.SSLException;
-
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
@@ -194,7 +192,6 @@ public final class ClientSupport {
 	private void activateSSL() {
 		try {
 			sslFilter = new MinigTLSFilter();
-			sslFilter.setUseClientMode(true);
 			session.getFilterChain().addFirst("tls", sslFilter);
 			logger.debug("Network traffic with IMAP server will be encrypted. ");
 		} catch (Exception t) {
@@ -204,16 +201,7 @@ public final class ClientSupport {
 
 	public void logout() {
 		if (session != null) {
-			if (sslFilter != null) {
-				try {
-					sslFilter.stopSsl(session);
-				} catch (SSLException e) {
-					logger.warn("error stopping ssl", e);
-				} catch (IllegalStateException ei) {
-					logger.warn("imap connection is already stop");
-				}
-			}
-			session.close();
+			session.closeNow();
 		}
 	}
 

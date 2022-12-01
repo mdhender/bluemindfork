@@ -11,7 +11,6 @@
 	<modules>
 		<module>net.bluemind.aws.s3.tests</module>
 		<module>net.bluemind.aws.s3.utils</module>
-		<module>net.bluemind.aws.s3.patch</module>
 		<module>net.bluemind.sds.proxy</module>
 		<module>net.bluemind.sds.proxy.tests</module>
 		<module>net.bluemind.sds.proxy.launcher</module>

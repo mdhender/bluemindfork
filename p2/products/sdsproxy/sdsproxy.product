@@ -53,7 +53,6 @@
       <plugin id="net.bluemind.addressbook.api"/>
       <plugin id="net.bluemind.authentication.api"/>
       <plugin id="net.bluemind.aws.s3"/>
-      <plugin id="net.bluemind.aws.s3.patch" fragment="true"/>
       <plugin id="net.bluemind.aws.s3.utils"/>
       <plugin id="net.bluemind.backend.cyrus.partitions"/>
       <plugin id="net.bluemind.backend.mail.api"/>

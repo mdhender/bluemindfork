@@ -36,7 +36,7 @@ public class MinigTLSFilter extends SslFilter {
 
 	public MinigTLSFilter() {
 		super(CTX);
-		setEnabledProtocols(new String[] { "TLSv1", "TLSv1.1", "TLSv1.2" });
+		setEnabledProtocols(new String[] { "TLSv1", "TLSv1.1", "TLSv1.2", "TLSv1.3" });
 		// setEnabledCipherSuites(new String[] { "TLS_RSA_WITH_AES_128_CBC_SHA"
 		// });
 	}
