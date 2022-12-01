@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
 import io.vertx.core.AbstractVerticle;
 import net.bluemind.backend.mail.replica.api.IReplicatedDataExpiration;
 import net.bluemind.core.context.SecurityContext;
@@ -42,7 +43,8 @@ public class ReplicatedDataExpirationTimer extends AbstractVerticle {
 	ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 	private static final int default_expiration = 7;
 	private static final Logger logger = LoggerFactory.getLogger(ReplicatedDataExpirationTimer.class);
-	private static final Executor executor = Executors.newSingleThreadExecutor();
+	private static final Executor executor = Executors
+			.newSingleThreadExecutor(new DefaultThreadFactory("replicated-data-expiration"));
 
 	@Override
 	public void start() {

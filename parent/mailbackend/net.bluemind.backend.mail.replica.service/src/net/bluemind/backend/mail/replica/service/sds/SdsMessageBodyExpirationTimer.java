@@ -28,6 +28,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Verticle;
 import net.bluemind.backend.mail.replica.api.IReplicatedDataExpiration;
@@ -59,7 +60,8 @@ public class SdsMessageBodyExpirationTimer extends AbstractVerticle {
 
 	ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 	private static final int DEFAULT_RETENTION_DAYS = 90;
-	private static final Executor executor = Executors.newSingleThreadExecutor();
+	private static final Executor executor = Executors
+			.newSingleThreadExecutor(new DefaultThreadFactory("sds-body-expiration"));
 
 	@Override
 	public void start() {

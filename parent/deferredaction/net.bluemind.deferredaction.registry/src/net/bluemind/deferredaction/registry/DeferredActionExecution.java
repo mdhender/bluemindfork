@@ -26,13 +26,14 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
 import io.vertx.core.AbstractVerticle;
 import net.bluemind.system.api.SystemState;
 import net.bluemind.system.state.StateContext;
 
 public class DeferredActionExecution extends AbstractVerticle {
 
-	private static final Executor executor = Executors.newSingleThreadExecutor();
+	private static final Executor executor = Executors.newSingleThreadExecutor(new DefaultThreadFactory("deferred-action"));
 	private static final Logger logger = LoggerFactory.getLogger(DeferredActionExecution.class);
 
 	@Override
@@ -43,10 +44,10 @@ public class DeferredActionExecution extends AbstractVerticle {
 	private void execute(Long timerId) {
 		if (StateContext.getState() == SystemState.CORE_STATE_RUNNING) {
 			executor.execute(() -> {
-				DeferredActionPluginLoader.executors.forEach(executor -> {
-					logger.debug("Executing deferred action executor {}", executor.getSupportedActionId());
+				DeferredActionPluginLoader.executors.forEach(exe -> {
+					logger.debug("Executing deferred action executor {}", exe.getSupportedActionId());
 					try {
-						executor.create().execute(ZonedDateTime.now().plusMinutes(5));
+						exe.create().execute(ZonedDateTime.now().plusMinutes(5));
 					} catch (Exception e) {
 						logger.warn("Error while executing deferred actions", e);
 					}
