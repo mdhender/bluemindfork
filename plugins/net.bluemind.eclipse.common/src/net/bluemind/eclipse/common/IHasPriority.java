@@ -19,7 +19,10 @@
 package net.bluemind.eclipse.common;
 
 public interface IHasPriority {
-
+	/**
+	 * 
+	 * biggest priority is sorted first
+	 *
+	 */
 	public int priority();
-
 }

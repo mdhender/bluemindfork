@@ -74,13 +74,18 @@ public class RunnableExtensionLoader<T> {
 			return this;
 		}
 
+		/**
+		 * 
+		 * biggest priority is sorted first
+		 *
+		 */
 		public Builder withPriority(boolean b) {
 			this.withPriority = b;
 			return this;
 		}
 
 		public <T> List<T> load() {
-			RunnableExtensionLoader<T> rel = new RunnableExtensionLoader<T>();
+			RunnableExtensionLoader<T> rel = new RunnableExtensionLoader<>();
 			if (withPriority) {
 				return rel.loadExtensionsWithPriority(pluginId, pointName, element, implAttr);
 			} else {
@@ -104,12 +109,12 @@ public class RunnableExtensionLoader<T> {
 	 * @return
 	 */
 	public List<T> loadExtensions(String pluginId, String pointName, String element, String attribute) {
-		List<T> factories = new LinkedList<T>();
+		List<T> factories = new LinkedList<>();
 		IExtensionRegistry registry = Platform.getExtensionRegistry();
 		Objects.requireNonNull(registry, "OSGi registry is null");
 		IExtensionPoint point = registry.getExtensionPoint(pluginId, pointName);
 		if (point == null) {
-			logger.error("point " + pluginId + "." + pointName + " [" + element + " " + attribute + "=XXX] not found.");
+			logger.error("extension point {}.{} [{} {}] not found", pluginId, pointName, element, attribute);
 			return factories;
 		}
 		IExtension[] extensions = point.getExtensions();
@@ -117,20 +122,19 @@ public class RunnableExtensionLoader<T> {
 		for (IExtension ie : extensions) {
 			for (IConfigurationElement e : ie.getConfigurationElements()) {
 				if (element.equals(e.getName())) {
-
 					try {
 						@SuppressWarnings("unchecked")
 						T factory = (T) e.createExecutableExtension(attribute);
 						factories.add(factory);
-						logger.debug(factory.getClass().getName() + " loaded.");
+						logger.debug("{} loaded", factory.getClass().getName());
 					} catch (CoreException ce) {
-						logger.error(ie.getNamespaceIdentifier() + ": " + ce.getMessage(), ce);
+						logger.error("{}: {}", ie.getNamespaceIdentifier(), ce.getMessage(), ce);
 					}
 
 				}
 			}
 		}
-		logger.debug("Loaded " + factories.size() + " implementors of " + pluginId + "." + pointName);
+		logger.debug("Loaded {} implementors of {}.{}", factories.size(), pluginId, pointName);
 		return factories;
 	}
 
@@ -147,6 +151,8 @@ public class RunnableExtensionLoader<T> {
 	/**
 	 * Load plugins declaring an executable extension
 	 * 
+	 * biggest priority is sorted first
+	 * 
 	 * @param pluginId
 	 * @param pointName
 	 * @param element
@@ -157,7 +163,7 @@ public class RunnableExtensionLoader<T> {
 		List<FactoryExtension<T>> factories = new LinkedList<>();
 		IExtensionPoint point = Platform.getExtensionRegistry().getExtensionPoint(pluginId, pointName);
 		if (point == null) {
-			logger.error("point " + pluginId + "." + pointName + " [" + element + " " + attribute + "=XXX] not found.");
+			logger.error("extension point {}.{} [{} {}] not found", pluginId, pointName, element, attribute);
 			return Collections.emptyList();
 		}
 		IExtension[] extensions = point.getExtensions();
@@ -165,7 +171,6 @@ public class RunnableExtensionLoader<T> {
 		for (IExtension ie : extensions) {
 			for (IConfigurationElement e : ie.getConfigurationElements()) {
 				if (element.equals(e.getName())) {
-
 					try {
 						@SuppressWarnings("unchecked")
 						T factory = (T) e.createExecutableExtension(attribute);
@@ -179,16 +184,16 @@ public class RunnableExtensionLoader<T> {
 							}
 						}
 
-						if (factory instanceof IHasPriority) {
-							priority = ((IHasPriority) factory).priority();
+						if (factory instanceof IHasPriority ihasPriority) {
+							priority = ihasPriority.priority();
 						}
 						FactoryExtension<T> fe = new FactoryExtension<>();
 						fe.factory = factory;
 						fe.priority = priority;
 						factories.add(fe);
-						logger.debug(factory.getClass().getName() + " loaded.");
+						logger.debug("{} loaded", factory.getClass().getName());
 					} catch (CoreException ce) {
-						logger.error(ie.getNamespaceIdentifier() + ": " + ce.getMessage(), ce);
+						logger.error("{}: {}", ie.getNamespaceIdentifier(), ce.getMessage(), ce);
 					} catch (Exception ex) {
 						logger.error(ex.getMessage(), ex);
 					}
@@ -197,11 +202,9 @@ public class RunnableExtensionLoader<T> {
 			}
 		}
 
-		logger.info("Loaded " + factories.size() + " implementors of " + pluginId + "." + pointName);
-
-		return factories.stream().sorted(FactoryExtension::compareTo).map(fe -> {
-			return fe.factory;
-		}).collect(Collectors.toList());
+		logger.info("Loaded {} implementors of {}.{}", factories.size(), pluginId, pointName);
+		return factories.stream().sorted(FactoryExtension::compareTo).map(fe -> fe.factory)
+				.collect(Collectors.toList());
 	}
 
 }
