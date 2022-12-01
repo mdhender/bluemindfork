@@ -3,10 +3,9 @@ import pkcs7 from "../pkcs7";
 import pki from "../pki";
 
 import {
-    InvalidCredentialsError,
-    ExpiredCredentialsError,
-    RevokedCrendentialsError,
-    UntrustedCredentialsError,
+    ExpiredCertificateError,
+    RevokedCertificateError,
+    UntrustedCertificateError,
     RecipientNotFoundError
 } from "../exceptions";
 import { CRYPTO_HEADERS, ENCRYPTED_HEADER_NAME } from "../../lib/constants";
@@ -88,7 +87,7 @@ describe("smime", () => {
                 }
             })
         );
-        pki.isCertificateExpired = jest.fn(() => false);
+        pki.checkCertificateValidity = jest.fn();
     });
 
     describe("isEncrypted", () => {
@@ -125,7 +124,9 @@ describe("smime", () => {
             expect(mockCache).toMatchSnapshot();
         });
         test("raise an error if the certificate is expired", async () => {
-            pki.isCertificateExpired = jest.fn(() => true);
+            pki.checkCertificateValidity = jest.fn(() => {
+                throw new ExpiredCertificateError();
+            });
             const old = {
                 value: {
                     body: {
@@ -140,45 +141,39 @@ describe("smime", () => {
                 }
             };
             const item = await smime.decrypt("uid", old);
-            expect(getCryptoHeader(item).values[0]).toEqual(CRYPTO_HEADERS.EXPIRED_CREDENTIALS);
+            expect(getCryptoHeaderCode(item)).toEqual(CRYPTO_HEADERS.EXPIRED_CERTIFICATE);
         });
         test("add a header if the message is crypted", async () => {
             const item = await smime.decrypt("uid", mainEncrypted);
-            expect(getCryptoHeader(item)).toBeTruthy();
+            expect(getCryptoHeaderCode(item)).toBeTruthy();
         });
         test("add a header if the message is correcty decrypted", async () => {
             const item = await smime.decrypt("uid", mainEncrypted);
-            expect(getCryptoHeader(item).values[0]).toEqual(CRYPTO_HEADERS.DECRYPTED);
-        });
-        test("add a header if the message cannot be decrypted because private key or certificate are not valid", async () => {
-            pkcs7.decrypt = jest.fn(() => Promise.reject(new InvalidCredentialsError()));
-
-            const item = await smime.decrypt("uid", mainEncrypted);
-            expect(getCryptoHeader(item).values[0]).toEqual(CRYPTO_HEADERS.INVALID_CREDENTIALS);
+            expect(getCryptoHeaderCode(item)).toEqual(CRYPTO_HEADERS.DECRYPTED);
         });
         test("add a header if the message cannot be decrypted because private key or certificate are expired", async () => {
-            pkcs7.decrypt = jest.fn(() => Promise.reject(new ExpiredCredentialsError()));
+            pkcs7.decrypt = jest.fn(() => Promise.reject(new ExpiredCertificateError()));
 
             const item = await smime.decrypt("uid", mainEncrypted);
-            expect(getCryptoHeader(item).values[0]).toEqual(CRYPTO_HEADERS.EXPIRED_CREDENTIALS);
+            expect(getCryptoHeaderCode(item)).toEqual(CRYPTO_HEADERS.EXPIRED_CERTIFICATE);
         });
         test("add a header if the message cannot be decrypted because private key or certificate are revoked", async () => {
-            pkcs7.decrypt = jest.fn(() => Promise.reject(new RevokedCrendentialsError()));
+            pkcs7.decrypt = jest.fn(() => Promise.reject(new RevokedCertificateError()));
 
             const item = await smime.decrypt("uid", mainEncrypted);
-            expect(getCryptoHeader(item).values[0]).toEqual(CRYPTO_HEADERS.REVOKED_CREDENTIALS);
+            expect(getCryptoHeaderCode(item)).toEqual(CRYPTO_HEADERS.REVOKED_CERTIFICATE);
         });
         test("add a header if the message cannot be decrypted because private key or certificate are not trusted", async () => {
-            pkcs7.decrypt = jest.fn(() => Promise.reject(new UntrustedCredentialsError()));
+            pkcs7.decrypt = jest.fn(() => Promise.reject(new UntrustedCertificateError()));
 
             const item = await smime.decrypt("uid", mainEncrypted);
-            expect(getCryptoHeader(item).values[0]).toEqual(CRYPTO_HEADERS.UNTRUSTED_CREDENTIALS);
+            expect(getCryptoHeaderCode(item)).toEqual(CRYPTO_HEADERS.UNTRUSTED_CERTIFICATE);
         });
         test("add a header if the given certificate does not match any recipient", async () => {
             pkcs7.decrypt = jest.fn(() => Promise.reject(new RecipientNotFoundError()));
 
             const item = await smime.decrypt("uid", mainEncrypted);
-            expect(getCryptoHeader(item).values[0]).toEqual(CRYPTO_HEADERS.UNMATCHED_RECIPIENTS);
+            expect(getCryptoHeaderCode(item)).toEqual(CRYPTO_HEADERS.UNMATCHED_RECIPIENTS);
         });
     });
 });
@@ -187,6 +182,7 @@ function readEml(file) {
     return readFile(`${file}.eml`);
 }
 
-function getCryptoHeader(item) {
-    return item.value.body.headers.find(h => h.name === ENCRYPTED_HEADER_NAME);
+function getCryptoHeaderCode(item) {
+    const code = item.value.body.headers.find(h => h.name === ENCRYPTED_HEADER_NAME).values[0];
+    return parseInt(code);
 }

@@ -1,5 +1,5 @@
 import { PKIStatus } from "../../lib/constants";
-import { ExpiredCredentialsError, InvalidCertificateError, InvalidKeyError } from "../exceptions";
+import { ExpiredCertificateError, InvalidCertificateError, InvalidKeyError } from "../exceptions";
 import { checkCertificateValidity, getMyCertificate, getMyPrivateKey } from "../pki";
 import db from "../SMimeDB";
 import { readFile } from "./helpers";
@@ -44,6 +44,14 @@ describe("pki", () => {
                 expect(error).toBeInstanceOf(InvalidCertificateError);
             }
         });
+        test("raise an error if the pkiStatus is not OK", async () => {
+            db.getPKIStatus = jest.fn(() => Promise.resolve(PKIStatus.EMPTY));
+            try {
+                await getMyPrivateKey();
+            } catch (error) {
+                expect(error).toBeInstanceOf(InvalidKeyError);
+            }
+        });
         test("raise an error if the certificate is revoked", () => {});
         test("raise an error if the certificate is not trusted", () => {});
     });
@@ -77,13 +85,13 @@ describe("pki", () => {
         test("raise an error if the private key is not trusted", () => {});
     });
     describe("checkCertificateValidity", () => {
-        test("throw ExpiredCredentialsError if certificate is expired", done => {
+        test("throw ExpiredCertificateError if certificate is expired", done => {
             const certificate = { validity: { notBefore: new Date(100), notAfter: new Date(1000) } };
             try {
                 checkCertificateValidity(certificate, new Date(3000));
                 done.fail();
             } catch (error) {
-                expect(error).toBeInstanceOf(ExpiredCredentialsError);
+                expect(error).toBeInstanceOf(ExpiredCertificateError);
                 done();
             }
         });

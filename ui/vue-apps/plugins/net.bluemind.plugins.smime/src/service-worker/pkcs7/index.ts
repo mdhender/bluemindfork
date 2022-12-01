@@ -1,5 +1,5 @@
 import { pkcs7, pki, asn1, util } from "node-forge";
-import { RecipientNotFoundError, InvalidCredentialsError } from "../exceptions";
+import { RecipientNotFoundError, InvalidCertificateError,  DecryptError } from "../exceptions";
 import { checkMessageIntegrity, checkSignatureValidity, getSignedDataEnvelope, getSigningTime } from "./verify";
 import { checkCertificateValidity, getCertificate } from "../pki";
 
@@ -11,16 +11,21 @@ export async function decrypt(
     const buffer = await data.arrayBuffer();
     const text = asn1.fromDer(new util.ByteStringBuffer(buffer));
     const envelope = <pkcs7.Captured<pkcs7.PkcsEnvelopedData>>pkcs7.messageFromAsn1(text);
+    let recipient;
     try {
-        const recipient = envelope.findRecipient(certificate);
-        if (recipient) {
+        recipient = envelope.findRecipient(certificate);
+    } catch (error) {
+        throw new InvalidCertificateError(error);
+    }
+    if (recipient) {
+        try {
             envelope.decrypt(recipient, privateKey);
             return envelope.content?.toString();
-        } else {
-            throw new RecipientNotFoundError();
+        } catch (error) {
+            throw new DecryptError(error);
         }
-    } catch (error) {
-        throw new InvalidCredentialsError(error);
+    } else {
+        throw new RecipientNotFoundError();
     }
 }
 

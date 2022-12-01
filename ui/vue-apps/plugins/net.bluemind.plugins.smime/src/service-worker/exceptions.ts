@@ -1,27 +1,22 @@
 import { CRYPTO_HEADERS } from "../lib/constants";
 
 export abstract class SmimeErrors extends Error {
-    name: string;
-    constructor(message: string, name: string, error?: unknown) {
+    code: number;
+    constructor(message: string, code: number, error?: unknown) {
         const fullMessage = error && error instanceof Error ? `${message}: ${error.message}` : message;
         super(fullMessage);
-        this.name = name;
+        this.code = code;
     }
 }
 
-export class InvalidCredentialsError extends SmimeErrors {
-    constructor(error?: unknown) {
-        super("Invalid private key or certificate", CRYPTO_HEADERS.INVALID_CREDENTIALS, error);
-    }
-}
 export class InvalidKeyError extends SmimeErrors {
     constructor(error?: unknown) {
-        super("Invalid private key", CRYPTO_HEADERS.INVALID_CREDENTIALS, error);
+        super("Invalid private key", CRYPTO_HEADERS.INVALID_KEY, error);
     }
 }
 export class InvalidCertificateError extends SmimeErrors {
     constructor(error?: unknown) {
-        super("Invalid certificate", CRYPTO_HEADERS.INVALID_CREDENTIALS, error);
+        super("Invalid certificate", CRYPTO_HEADERS.INVALID_CERTIFICATE, error);
     }
 }
 
@@ -43,14 +38,14 @@ export class InvalidPkcs7EnvelopeError extends SmimeErrors {
     }
 }
 
-export class RevokedCrendentialsError extends SmimeErrors {
+export class RevokedCertificateError extends SmimeErrors {
     constructor(error?: unknown) {
-        super("Revoked certificate or private key", CRYPTO_HEADERS.REVOKED_CREDENTIALS, error);
+        super("Revoked certificate", CRYPTO_HEADERS.REVOKED_CERTIFICATE, error);
     }
 }
-export class ExpiredCredentialsError extends SmimeErrors {
+export class ExpiredCertificateError extends SmimeErrors {
     constructor(error?: unknown) {
-        super("Expired certificate or private key", CRYPTO_HEADERS.EXPIRED_CREDENTIALS, error);
+        super("Expired certificate ", CRYPTO_HEADERS.EXPIRED_CERTIFICATE, error);
     }
 }
 
@@ -60,13 +55,18 @@ export class UnsupportedAlgorithmError extends SmimeErrors {
     }
 }
 
-export class UntrustedCredentialsError extends SmimeErrors {
+export class UntrustedCertificateError extends SmimeErrors {
     constructor(error?: unknown) {
-        super("Untrusted certificate or private key", CRYPTO_HEADERS.UNTRUSTED_CREDENTIALS, error);
+        super("Untrusted certificate", CRYPTO_HEADERS.UNTRUSTED_CERTIFICATE, error);
     }
 }
 export class RecipientNotFoundError extends SmimeErrors {
     constructor(error?: unknown) {
         super("The certificate does not match any of the recipients", CRYPTO_HEADERS.UNMATCHED_RECIPIENTS, error);
+    }
+}
+export class DecryptError extends SmimeErrors {
+    constructor(error?: unknown) {
+        super("An error occured on decryption", CRYPTO_HEADERS.DECRYPT_FAILURE, error);
     }
 }

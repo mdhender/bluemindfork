@@ -1,11 +1,6 @@
 import { pki } from "node-forge";
 import { PKIStatus } from "../lib/constants";
-import {
-    ExpiredCredentialsError,
-    InvalidKeyError,
-    InvalidCertificateError,
-    InvalidCredentialsError
-} from "./exceptions";
+import { ExpiredCertificateError, InvalidKeyError, InvalidCertificateError } from "./exceptions";
 
 import db from "./SMimeDB";
 
@@ -35,14 +30,16 @@ export function checkCertificateValidity(certificate: pki.Certificate, sendingDa
     // TODO ? check chain of certificate (see pki.verifyCertificateChain)
     const isExpired = certificate.validity.notBefore > sendingDate || certificate.validity.notAfter < sendingDate;
     if (isExpired) {
-        throw new ExpiredCredentialsError();
+        throw new ExpiredCertificateError();
     }
 }
 
 async function load(): Promise<void> {
-    if (((await db.getPKIStatus()) & PKIStatus.OK) === PKIStatus.OK) {
+    const pkiStatus = await db.getPKIStatus();
+    if ((pkiStatus & PKIStatus.OK) === PKIStatus.OK) {
         try {
-            PRIVATE_KEY = pki.privateKeyFromPem(await ((await db.getPrivateKey()) as Blob).text());
+            const key = await ((await db.getPrivateKey()) as Blob).text()
+            PRIVATE_KEY = pki.privateKeyFromPem(key);
         } catch (error) {
             throw new InvalidKeyError(error);
         }
@@ -51,7 +48,9 @@ async function load(): Promise<void> {
         } catch (error) {
             throw new InvalidCertificateError(error);
         }
+    } else if (pkiStatus & PKIStatus.PRIVATE_KEY_OK) {
+        throw new InvalidCertificateError();
     } else {
-        throw new InvalidCredentialsError();
+        throw new InvalidKeyError();
     }
 }

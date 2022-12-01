@@ -6,7 +6,7 @@ export function isSigned(headers) {
 
 export function isVerified(headers) {
     const cryptoHeader = headers.find(header => header.name === SIGNED_HEADER_NAME);
-    return cryptoHeader?.values.find(value => value === CRYPTO_HEADERS.VERIFIED);
+    return cryptoHeader?.values[0] & CRYPTO_HEADERS.VERIFIED;
 }
 
 export function isEncrypted(headers) {
@@ -15,10 +15,10 @@ export function isEncrypted(headers) {
 
 export function isDecrypted(headers) {
     const cryptoHeader = headers.find(header => header.name === ENCRYPTED_HEADER_NAME);
-    return cryptoHeader?.values.find(value => value === CRYPTO_HEADERS.DECRYPTED);
+    return cryptoHeader?.values[0] & CRYPTO_HEADERS.DECRYPTED;
 }
 
-export function getDecryptedError(headers) {
+export function getDecryptHeader(headers) {
     const cryptoHeader = headers.find(header => header.name === ENCRYPTED_HEADER_NAME);
     return cryptoHeader?.values[0];
 }

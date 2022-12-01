@@ -50,8 +50,8 @@ export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): 
         }
         setHeader(item, ENCRYPTED_HEADER_NAME, CRYPTO_HEADERS.DECRYPTED);
     } catch (error: unknown) {
-        const errorName = error instanceof SmimeErrors ? error.name : CRYPTO_HEADERS.UNKNOWN;
-        setHeader(item, ENCRYPTED_HEADER_NAME, errorName);
+        const errorCode = error instanceof SmimeErrors ? error.code : CRYPTO_HEADERS.UNKNOWN;
+        setHeader(item, ENCRYPTED_HEADER_NAME, errorCode);
     }
     return item;
 }
@@ -69,8 +69,8 @@ export async function verify(folderUid: string, item: ItemValue<MailboxItem>): P
         setHeader(item, SIGNED_HEADER_NAME, CRYPTO_HEADERS.VERIFIED);
     } catch (error) {
         logger.error(error);
-        const errorName = error instanceof SmimeErrors ? error.name : CRYPTO_HEADERS.UNKNOWN;
-        setHeader(item, SIGNED_HEADER_NAME, errorName);
+        const errorCode = error instanceof SmimeErrors ? error.code : CRYPTO_HEADERS.UNKNOWN;
+        setHeader(item, SIGNED_HEADER_NAME, errorCode);
     }
     return item;
 }
@@ -95,12 +95,14 @@ async function savePart(uid: string, imap: string, part: MessageBody.Part, conte
     cache.put(request.url, new Response(content));
 }
 
-function setHeader(item: ItemValue<MailboxItem>, headerName: string, headerValue: string) {
+function setHeader(item: ItemValue<MailboxItem>, headerName: string, headerValue: number) {
     const index = item.value.body.headers.findIndex(({ name }) => name === headerName);
     if (index === -1) {
-        item.value.body.headers.push({ name: headerName, values: [headerValue] });
+        item.value.body.headers.push({ name: headerName, values: [headerValue.toString()] });
     } else {
-        item.value.body.headers[index].values.push(headerValue);
+        const currentValue = item.value.body.headers[index].values[0];
+        const newValue = parseInt(currentValue) | headerValue;
+        item.value.body.headers[index].values[0] = newValue.toString();
     }
 }
 

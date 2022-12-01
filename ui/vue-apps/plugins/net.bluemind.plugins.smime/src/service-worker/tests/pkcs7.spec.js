@@ -3,9 +3,15 @@ import { pki } from "node-forge";
 import path from "path";
 import { CRYPTO_HEADERS } from "../../lib/constants";
 import extractSignedData from "../signedDataParser";
-import { InvalidCredentialsError, InvalidMessageIntegrityError, InvalidSignatureError } from "../exceptions";
+import {
+    DecryptError,
+    InvalidKeyError,
+    InvalidMessageIntegrityError,
+    InvalidSignatureError,
+    RecipientNotFoundError
+} from "../exceptions";
 import { base64ToArrayBuffer, readFile } from "./helpers";
-import { checkSignatureValidity, getSignedDataEnvelope, checkMessageIntegrity } from "../pkcs7/pkcs7Verify";
+import { checkSignatureValidity, getSignedDataEnvelope, checkMessageIntegrity } from "../pkcs7/verify";
 import pkcs7 from "../pkcs7/";
 
 const blob = {
@@ -20,6 +26,7 @@ const blobMultipleRecipients = {
 };
 
 const privatekeyTxt = readTxt("credentials/privateKey");
+const otherPrivateKey = readTxt("credentials/otherPrivateKey");
 const certificateTxt = readTxt("credentials/certificate");
 const otherCertificateTxt = readTxt("credentials/otherCertificate");
 
@@ -31,15 +38,6 @@ describe("pkcs7", () => {
             const res = await pkcs7.decrypt(blob, mockKey, mockCertificate);
             expect(res).toMatchSnapshot();
         });
-        test("raise an error if the private key is wrong", async () => {
-            const mockCertificate = pki.certificateFromPem(certificateTxt);
-            try {
-                await pkcs7.decrypt(blob, "what", mockCertificate);
-            } catch (error) {
-                expect(error).toBeInstanceOf(InvalidCredentialsError);
-            }
-        });
-
         test("select the right recipient if multiple recipient are present", async () => {
             const mockKey = pki.privateKeyFromPem(privatekeyTxt);
             const mockCertificate = pki.certificateFromPem(certificateTxt);
@@ -53,7 +51,17 @@ describe("pkcs7", () => {
             try {
                 await pkcs7.decrypt(blob, mockKey, mockOtherCertificateTxt);
             } catch (error) {
-                expect(error).toBeInstanceOf(InvalidCredentialsError);
+                expect(error).toBeInstanceOf(RecipientNotFoundError);
+            }
+        });
+
+        test("raise an error on decrypt failure", async () => {
+            const mockKey = pki.privateKeyFromPem(otherPrivateKey);
+            const mockCertificate = pki.certificateFromPem(certificateTxt);
+            try {
+                await pkcs7.decrypt(blob, mockKey, mockCertificate);
+            } catch (error) {
+                expect(error).toBeInstanceOf(DecryptError);
             }
         });
     });
@@ -74,7 +82,7 @@ describe("pkcs7", () => {
                 done.fail();
             } catch (error) {
                 expect(error).toBeInstanceOf(InvalidSignatureError);
-                expect(error.name).toBe(CRYPTO_HEADERS.INVALID_SIGNATURE);
+                expect(error.code).toBe(CRYPTO_HEADERS.INVALID_SIGNATURE);
                 done();
             }
         });
@@ -92,7 +100,7 @@ describe("pkcs7", () => {
                 done.fail();
             } catch (error) {
                 expect(error).toBeInstanceOf(InvalidMessageIntegrityError);
-                expect(error.name).toBe(CRYPTO_HEADERS.INVALID_MESSAGE_INTEGRITY);
+                expect(error.code).toBe(CRYPTO_HEADERS.INVALID_MESSAGE_INTEGRITY);
                 done();
             }
         });
