@@ -79,6 +79,12 @@
                </appinfo>
             </annotation>
          </attribute>
+         <attribute name="priority" type="string">
+            <annotation>
+               <documentation>
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 
@@ -94,6 +100,12 @@
                </appinfo>
             </annotation>
          </attribute>
+         <attribute name="priority" type="string">
+            <annotation>
+               <documentation>
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 
@@ -107,6 +119,12 @@
                <appinfo>
                   <meta.attribute kind="java" basedOn=":net.bluemind.systemconf.hook.ISystemConfigurationSanitizor"/>
                </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="priority" type="string">
+            <annotation>
+               <documentation>
+               </documentation>
             </annotation>
          </attribute>
       </complexType>

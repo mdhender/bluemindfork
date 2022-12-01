@@ -21,6 +21,9 @@ package net.bluemind.system.service.hooks;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
@@ -42,14 +45,16 @@ public class SystemConfigurationHooks {
 	private List<ISystemConfigurationValidator> validators;
 
 	private SystemConfigurationHooks() {
-		RunnableExtensionLoader<ISystemConfigurationObserver> observerLoader = new RunnableExtensionLoader<ISystemConfigurationObserver>();
-		this.observers = observerLoader.loadExtensions("net.bluemind.system", "hook", "observer", "class");
+		RunnableExtensionLoader<ISystemConfigurationObserver> observerLoader = new RunnableExtensionLoader<>();
+		this.observers = observerLoader.loadExtensionsWithPriority("net.bluemind.system", "hook", "observer", "class");
 
-		RunnableExtensionLoader<ISystemConfigurationSanitizor> sanitizorLoader = new RunnableExtensionLoader<ISystemConfigurationSanitizor>();
-		this.sanitizors = sanitizorLoader.loadExtensions("net.bluemind.system", "hook", "sanitizor", "class");
+		RunnableExtensionLoader<ISystemConfigurationSanitizor> sanitizorLoader = new RunnableExtensionLoader<>();
+		this.sanitizors = sanitizorLoader.loadExtensionsWithPriority("net.bluemind.system", "hook", "sanitizor",
+				"class");
 
-		RunnableExtensionLoader<ISystemConfigurationValidator> validatorLoader = new RunnableExtensionLoader<ISystemConfigurationValidator>();
-		this.validators = validatorLoader.loadExtensions("net.bluemind.system", "hook", "validator", "class");
+		RunnableExtensionLoader<ISystemConfigurationValidator> validatorLoader = new RunnableExtensionLoader<>();
+		this.validators = validatorLoader.loadExtensionsWithPriority("net.bluemind.system", "hook", "validator",
+				"class");
 
 	}
 
@@ -66,8 +71,21 @@ public class SystemConfigurationHooks {
 	}
 
 	public void fireUpdated(BmContext context, SystemConf previous, SystemConf conf) throws ServerFault {
+		Exception lastFault = null;
 		for (ISystemConfigurationObserver hook : observers) {
-			hook.onUpdated(context, previous, conf);
+			try {
+				hook.onUpdated(context, previous, conf);
+			} catch (Exception e) {
+				logger.error("hook {} onUpdated failed: {}", hook, e.getMessage(), e);
+				lastFault = e;
+			}
+		}
+		if (lastFault != null) {
+			if (lastFault instanceof ServerFault serverfault) {
+				throw serverfault;
+			} else {
+				throw new ServerFault(lastFault);
+			}
 		}
 	}
 }
