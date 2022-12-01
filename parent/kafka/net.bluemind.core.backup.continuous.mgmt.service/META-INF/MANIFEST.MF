@@ -35,7 +35,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.notes.api,
  net.bluemind.deferredaction.api,
  net.bluemind.mailbox.service,
- net.bluemind.backend.cyrus,
  net.bluemind.scheduledjob.api,
  net.bluemind.backend.cyrus.partitions,
  net.bluemind.group.service
