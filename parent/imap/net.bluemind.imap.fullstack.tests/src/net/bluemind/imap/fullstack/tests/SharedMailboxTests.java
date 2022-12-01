@@ -80,6 +80,7 @@ import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.mailbox.service.common.DefaultFolder;
 import net.bluemind.mailshare.api.IMailshare;
 import net.bluemind.mailshare.api.Mailshare;
 import net.bluemind.server.api.Server;
@@ -441,6 +442,42 @@ public class SharedMailboxTests {
 			System.err.println("nsi othe: " + nsi.getOtherUsers());
 			System.err.println("nsi shar: " + nsi.getMailShares());
 
+		}
+	}
+
+	@Test
+	public void ensureWeCantDeleteImportantFolder() throws IMAPException {
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "john")) {
+			assertTrue(sc.login());
+			Set<String> deletedFolders = new HashSet<>();
+
+			sc.create("INBOX/notDel");
+			sc.create("INBOX/notDel/Tutu");
+
+			String folder1 = DriverConfig.get().getString(DriverConfig.SHARED_VIRTUAL_ROOT) + "/" + mboxShare.value.name
+					+ "/deletable";
+			sc.create(folder1);
+
+			String folder2 = DriverConfig.get().getString(DriverConfig.USER_VIRTUAL_ROOT) + "/" + userShare.value.login
+					+ "/deletable";
+			sc.create(folder2);
+
+			for (ListInfo li : sc.listAll()) {
+				if (!li.isSelectable()) {
+					continue;
+				}
+				CreateMailboxResult deleted = sc.deleteMailbox(li.getName());
+				if (deleted.isOk()) {
+					System.err.println("We deleted " + li.getName());
+					deletedFolders.add(li.getName());
+				}
+			}
+
+			assertFalse("INBOX must not be deletable over imap", deletedFolders.contains("INBOX"));
+			DefaultFolder.USER_FOLDERS_NAME
+					.forEach(f -> assertFalse(f + " must not be deletable", deletedFolders.contains(f)));
+			System.err.println("We did " + deletedFolders.size() + " deletions: " + deletedFolders);
+			assertEquals(3, deletedFolders.size());
 		}
 	}
 

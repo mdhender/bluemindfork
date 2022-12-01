@@ -32,7 +32,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.lib.ristretto,
  net.bluemind.delivery.lmtp;bundle-version="4.1.0",
  net.bluemind.core.elasticsearch.testshelper,
- net.bluemind.mailindex.schema;bundle-version="4.1.0"
+ net.bluemind.mailindex.schema;bundle-version="4.1.0",
+ net.bluemind.mailbox.service
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.imap.fullstack.tests
 Bundle-ActivationPolicy: lazy

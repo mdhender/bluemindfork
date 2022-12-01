@@ -111,6 +111,11 @@ public class MailApiConnection implements MailboxConnection {
 
 	private Consumer activeCons;
 
+	// DefaultFolder class is in mailbox.service bundle :'(
+	private static final Set<String> USER_PROTECTED = Set.of("INBOX", "Sent", "Drafts", "Trash", "Junk", "Outbox",
+			"Templates");
+	private static final Set<String> SHARE_PROTECTED = Set.of("Sent", "Trash");
+
 	public MailApiConnection(IServiceProvider userProv, IServiceProvider suProv, AuthUser me,
 			SharedMap<String, String> config) {
 		this.prov = userProv;
@@ -235,10 +240,36 @@ public class MailApiConnection implements MailboxConnection {
 		if (toDel == null) {
 			logger.warn("[{}] folder {} does not exists (delete op).", this, fName);
 			return false;
+		} else if (toDel.mailbox.readOnly || isProtected(toDel) || hasChildren(fName)) {
+			return false;
 		} else {
 			toDel.mailbox.foldersApi.delete(toDel.folder.uid);
 			return true;
 		}
+	}
+
+	private boolean hasChildren(String fName) {
+		List<ListNode> children = list("", fName + "/");
+		boolean ret = !children.isEmpty();
+		if (ret) {
+			logger.warn("[{}] Cannot delete {} because it has children ({})", this, fName, children);
+		}
+		return ret;
+	}
+
+	private boolean isProtected(SelectedFolder toDel) {
+		boolean ret = false;
+		if (toDel.mailbox.owner == myMailbox || !toDel.mailbox.owner.value.type.sharedNs) {
+			ret = USER_PROTECTED.contains(toDel.folder.value.fullName);
+		} else {
+			String mbox = toDel.mailbox.owner.value.name;
+			ret = toDel.folder.value.fullName.equals(mbox) || SHARE_PROTECTED.stream().map(s -> mbox + "/" + s)
+					.anyMatch(fn -> fn.equals(toDel.folder.value.fullName));
+		}
+		if (ret) {
+			logger.warn("[{}] Cannot delete {} because it is protected", this, toDel);
+		}
+		return ret;
 	}
 
 	@Override
@@ -251,6 +282,7 @@ public class MailApiConnection implements MailboxConnection {
 			Predicate<NamespacedFolder> filter = matcher(mailboxPattern);
 			withShares = withShares.stream().filter(filter).toList();
 		}
+		// TODO glob support for titi/%/% or titi/* is missing and returns everything
 
 		return withShares.stream().sorted(Replicas::compareNamespaced).map(this::asListNode).toList();
 	}
