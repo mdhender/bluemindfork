@@ -19,6 +19,7 @@ export default {
 
 <style lang="scss">
 @import "~@bluemind/styleguide/css/_variables";
+
 /* Body selector is used to overwrite default selector */
 body {
     #header:empty,
@@ -50,6 +51,7 @@ body {
         h2 {
             margin-block-start: 0.83em;
             margin-block-end: 0.83em;
+            line-height: 1.3125;
         }
         .goog-button-base {
             line-height: inherit;
@@ -64,6 +66,11 @@ body {
         *::before,
         *::after {
             box-sizing: revert;
+        }
+        font-size: 12px;
+        line-height: 1.5;
+        .title {
+            font-size: inherit;
         }
     }
 
