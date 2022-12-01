@@ -278,11 +278,14 @@
    
    <extension
          point="net.bluemind.system.hook">
+      <!-- We want this observer to run "last" -->
       <observer
-            class="net.bluemind.backend.mail.replica.service.internal.MessageBodyTierChangeSysconfObserver">
+            class="net.bluemind.backend.mail.replica.service.internal.MessageBodyTierChangeSysconfObserver"
+            priority="0">
       </observer>
-	  <validator
-            class="net.bluemind.backend.mail.replica.service.internal.MessageBodyTierChangeSysconfObserver">
+      <validator
+            class="net.bluemind.backend.mail.replica.service.internal.MessageBodyTierChangeSysconfObserver"
+            priority="100">
       </validator>
    </extension>
 </plugin>

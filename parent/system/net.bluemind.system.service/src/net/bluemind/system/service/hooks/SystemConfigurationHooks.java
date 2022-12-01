@@ -33,8 +33,8 @@ import net.bluemind.system.hook.ISystemConfigurationSanitizor;
 import net.bluemind.system.hook.ISystemConfigurationValidator;
 
 public class SystemConfigurationHooks {
-
 	private static final SystemConfigurationHooks INSTANCE = new SystemConfigurationHooks();
+	private static final Logger logger = LoggerFactory.getLogger(SystemConfigurationHooks.class);
 
 	public static SystemConfigurationHooks getInstance() {
 		return INSTANCE;

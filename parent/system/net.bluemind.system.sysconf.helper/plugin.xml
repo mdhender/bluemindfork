@@ -3,9 +3,10 @@
 <plugin>
    <extension
          point="net.bluemind.system.hook">
+      <!-- This observer should run first in order to allow other observers to rely on LocalSysconf -->
       <observer
-            class="net.bluemind.system.sysconf.helper.LocalSysconfCache$Updater">
+            class="net.bluemind.system.sysconf.helper.LocalSysconfCache$Updater"
+            priority="9999">
       </observer>
    </extension>
-
 </plugin>
