@@ -12,7 +12,8 @@ Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:
  net.bluemind.restbus.api.gwt;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.user.api.gwt;bundle-version="4.1.0"
 Export-Package: net.bluemind.system.api.gwt.endpoint,
+ net.bluemind.system.api.gwt.js,
  net.bluemind.system.api.gwt.serder,
- net.bluemind.system.api.gwt.js
+ net.bluemind.system.api.hot.upgrade.gwt.endpoint
 Automatic-Module-Name: net.bluemind.system.api.gwt
 

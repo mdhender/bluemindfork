@@ -28,6 +28,7 @@ import net.bluemind.gwtconsoleapp.base.editor.ScreenElementContribution;
 import net.bluemind.gwtconsoleapp.base.editor.ScreenElementContributorUnwrapper;
 import net.bluemind.gwtconsoleapp.base.editor.ScreenRoot;
 import net.bluemind.ui.adminconsole.monitoring.screens.GlobalStatusScreen;
+import net.bluemind.ui.adminconsole.monitoring.screens.HotUpgradeStatusScreen;
 
 public class MonitoringScreensContributor implements ScreenElementContributorUnwrapper {
 
@@ -38,6 +39,9 @@ public class MonitoringScreensContributor implements ScreenElementContributorUnw
 
 		contribs.push(ScreenElementContribution.create(null, null,
 				ScreenRoot.create("checkGlobalStatus", GlobalStatusScreen.TYPE)));
+
+		contribs.push(ScreenElementContribution.create(null, null,
+				ScreenRoot.create("checkHotUpgradeStatus", HotUpgradeStatusScreen.TYPE)));
 
 		return contribs;
 	}

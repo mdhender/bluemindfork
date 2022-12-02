@@ -1,0 +1,70 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:c="urn:import:com.google.gwt.user.cellview.client"
+	xmlns:bj="urn:import:net.bluemind.ui.admin.client" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:f="urn:import:net.bluemind.ui.adminconsole.monitoring.screens" xmlns:common="urn:import:net.bluemind.ui.common.client.forms">
+
+	<ui:style>
+	.title {
+		font-weight: bold;
+	}
+		
+	.borderPanel {
+		padding-left: 10px;
+		padding-right: 10px;
+	}
+	
+	.panel {
+		margin: 5px;
+	}
+	
+	</ui:style>
+
+
+	<ui:with field="c"
+		type="net.bluemind.ui.adminconsole.monitoring.l10n.ScreensConstants" />
+		<g:HTMLPanel>
+			<br></br>
+			
+			<g:Label ui:field="info"/>
+			
+			<br></br>
+				<g:TabLayoutPanel ui:field="tabContainer"
+					barUnit="PX" barHeight="25" width="100%" height="100%">
+					
+					<g:tab>
+						<g:customHeader>
+							<g:Label text="{c.running}" />
+						</g:customHeader>
+
+						<g:FlowPanel>
+							<f:HotUpgradeTasksGrid ui:field="running" />
+						</g:FlowPanel>
+					</g:tab>
+
+					<g:tab>
+						<g:customHeader>
+							<g:Label text="{c.planned}" />
+						</g:customHeader>
+
+						<g:FlowPanel>
+							<f:HotUpgradeTasksGrid ui:field="planned" />
+						</g:FlowPanel>
+					</g:tab>
+
+
+					<g:tab>
+						<g:customHeader>
+							<g:Label text="{c.finished}" />
+						</g:customHeader>
+
+						<g:FlowPanel>
+							<f:HotUpgradeTasksGrid ui:field="finished" />
+						</g:FlowPanel>
+					</g:tab>
+
+				</g:TabLayoutPanel>
+		</g:HTMLPanel>
+
+	</ui:UiBinder>

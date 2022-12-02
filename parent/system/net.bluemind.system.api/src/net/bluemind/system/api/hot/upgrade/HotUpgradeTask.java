@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.GwtIncompatible;
 import net.bluemind.core.utils.JsonUtils;
 
 @BMApi(version = "3")
@@ -43,6 +44,7 @@ public class HotUpgradeTask {
 		return this;
 	}
 
+	@GwtIncompatible
 	public Map<String, Object> getParameters() {
 		if (Objects.isNull(deserializedParameters)) {
 			deserializedParameters = JsonUtils.readMap(parameters, String.class, Object.class);
@@ -50,20 +52,24 @@ public class HotUpgradeTask {
 		return deserializedParameters;
 	}
 
+	@GwtIncompatible
 	public String getParameterAsString(String name) {
 		return (String) getParameters().get(name);
 	}
 
+	@GwtIncompatible
 	@SuppressWarnings("unchecked")
 	public <T> List<T> getParameterAsList(String name) {
 		return (List<T>) getParameters().get(name);
 	}
 
+	@GwtIncompatible
 	public HotUpgradeTask setParameters(Map<String, Object> parameters) {
 		this.parameters = JsonUtils.asString(parameters);
 		return this;
 	}
 
+	@GwtIncompatible
 	public String groupName() {
 		return this.createdAt.toInstant().toEpochMilli() + "-" + this.operation;
 	}

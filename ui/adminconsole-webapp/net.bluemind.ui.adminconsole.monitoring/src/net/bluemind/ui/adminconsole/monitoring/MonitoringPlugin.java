@@ -28,12 +28,14 @@ import net.bluemind.gwtconsoleapp.base.editor.BasePlugin;
 import net.bluemind.gwtconsoleapp.base.editor.ScreenElementContributor;
 import net.bluemind.gwtconsoleapp.base.menus.MenuContributor;
 import net.bluemind.ui.adminconsole.monitoring.screens.GlobalStatusScreen;
+import net.bluemind.ui.adminconsole.monitoring.screens.HotUpgradeStatusScreen;
 
 public class MonitoringPlugin implements EntryPoint {
 
 	public static void init() {
 		BasePlugin.install();
 		GlobalStatusScreen.registerType();
+		HotUpgradeStatusScreen.registerType();
 
 		MenuContributor.exportAsfunction("NetBluemindUiAdminconsoleMonitoringContributor",
 				MenuContributor.create(new MonitoringMenusContributor()));

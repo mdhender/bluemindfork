@@ -8,11 +8,11 @@ import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
 public class HotUpgradeTaskFilter {
-	private List<HotUpgradeTaskStatus> statuses;
-	private boolean onlyRetryable;
-	private boolean onlyReady;
-	private boolean onlyMandatory;
-	private List<HotUpgradeTaskExecutionMode> mode;
+	public List<HotUpgradeTaskStatus> statuses;
+	public boolean onlyRetryable;
+	public boolean onlyReady;
+	public boolean onlyMandatory;
+	public List<HotUpgradeTaskExecutionMode> mode;
 
 	private HotUpgradeTaskFilter(List<HotUpgradeTaskStatus> statuses, boolean onlyRetryable, boolean onlyReady,
 			boolean onlyMandatory, List<HotUpgradeTaskExecutionMode> mode) {

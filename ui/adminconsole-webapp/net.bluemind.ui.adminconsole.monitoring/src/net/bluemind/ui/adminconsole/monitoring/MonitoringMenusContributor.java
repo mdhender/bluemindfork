@@ -51,6 +51,9 @@ public class MonitoringMenusContributor implements MenuContributorUnwrapped {
 		screens.push(Contributed.create("bmHealth",
 				Screen.create("checkGlobalStatus", v.globalStatusScreenTitle(), "bmMonitoring", true)));
 
+		screens.push(Contributed.create("bmHealth",
+				Screen.create("checkHotUpgradeStatus", v.HotUpgradeStatusScreenTitle(), "bmMonitoring", true)));
+
 		return MenuContribution.create(sections, screens);
 	}
 }

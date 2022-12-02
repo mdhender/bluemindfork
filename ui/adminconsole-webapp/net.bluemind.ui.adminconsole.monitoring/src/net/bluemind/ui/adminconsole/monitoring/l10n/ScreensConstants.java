@@ -22,9 +22,12 @@
   */
 package net.bluemind.ui.adminconsole.monitoring.l10n;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.ConstantsWithLookup;
 
 public interface ScreensConstants extends ConstantsWithLookup {
+
+	ScreensConstants INST = GWT.create(ScreensConstants.class);
 
 	String date();
 
@@ -52,4 +55,23 @@ public interface ScreensConstants extends ConstantsWithLookup {
 
 	String days();
 
+	String operation();
+
+	String createdAt();
+
+	String updatedAt();
+
+	String status();
+
+	String executionMode();
+
+	String mandatory();
+
+	String events();
+
+	String running();
+
+	String planned();
+
+	String finished();
 }

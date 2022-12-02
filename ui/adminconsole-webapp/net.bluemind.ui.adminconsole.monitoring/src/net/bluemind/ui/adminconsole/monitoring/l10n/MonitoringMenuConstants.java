@@ -32,4 +32,6 @@ public interface MonitoringMenuConstants extends ConstantsWithLookup {
 
 	String globalStatusScreenTitle();
 
+	String HotUpgradeStatusScreenTitle();
+
 }
