@@ -17,6 +17,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -216,6 +217,9 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 			logger.debug("bootstrap: {}, clientId: {}, inst: {}", bootstrapServer, clientId,
 					InstallationId.getIdentifier());
 		}
+		// https://stackoverflow.com/questions/37363119/kafka-producer-org-apache-kafka-common-serialization-stringserializer-could-no#:~:text=instance%20like%20this-,Thread.currentThread().setContextClassLoader(null)%3B%0AProducer%3CString%2C%20String%3E%20producer%20%3D%20new%20KafkaProducer(props)%3B,-hope%20my%20answer
+		ClassLoader savedCl = Thread.currentThread().getContextClassLoader();
+		Thread.currentThread().setContextClassLoader(null);
 		Properties cp = new Properties();
 		cp.setProperty("bootstrap.servers", bootstrapServer);
 		cp.setProperty("group.id", group);
@@ -225,9 +229,11 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 		cp.setProperty("fetch.max.wait.ms", "100");
 		cp.setProperty("auto.offset.reset", "earliest");
 		cp.setProperty("auto.commit.interval.ms", "1000");
-		cp.setProperty("key.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer");
-		cp.setProperty("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer");
-		return new KafkaConsumer<>(cp);
+		cp.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getCanonicalName());
+		cp.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getCanonicalName());
+		KafkaConsumer<byte[], byte[]> ret = new KafkaConsumer<>(cp);
+		Thread.currentThread().setContextClassLoader(savedCl);
+		return ret;
 	}
 
 	@Override
