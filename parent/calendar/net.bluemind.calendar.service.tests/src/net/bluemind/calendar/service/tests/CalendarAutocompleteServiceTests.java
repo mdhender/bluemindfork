@@ -318,7 +318,7 @@ public class CalendarAutocompleteServiceTests {
 		List<CalendarLookupResponse> res = service.calendarLookup("david", Verb.Read);
 		assertEquals(0, res.size());
 
-		createTestUser("u1", "david", "phan", Verb.Read);
+		createTestUser("u1", "david", "phan", Verb.All);
 
 		createTestUser("u2", "John", "Bang", Verb.Read);
 		createTestUser("u3", "daivd", "Gilmour", Verb.Invitation);

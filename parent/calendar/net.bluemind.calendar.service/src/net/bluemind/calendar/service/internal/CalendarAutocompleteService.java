@@ -81,7 +81,7 @@ public class CalendarAutocompleteService implements ICalendarAutocomplete {
 		// To convert the calendar we match the user vcard with the calendar and
 		// build a
 		// CalendarLookupResponse with the VCard infos.
-		return calendars.stream().filter(c -> c.verbs.stream().anyMatch(v -> v.equals(Verb.Read)))
+		return calendars.stream().filter(c -> c.verbs.stream().anyMatch(v -> v.can(Verb.Read)))
 				.map(c -> calendarToCalendarLookupResponse(c, members)).collect(Collectors.toList());
 
 	}
