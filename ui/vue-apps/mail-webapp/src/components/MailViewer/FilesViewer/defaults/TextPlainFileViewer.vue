@@ -1,6 +1,6 @@
 <template>
     <!-- eslint-disable-next-line vue/no-v-html -->
-    <div v-if="content" class="text-plain-file-viewer" v-html="toHtml" />
+    <div v-if="content !== undefined" class="text-plain-file-viewer" v-html="toHtml" />
     <mail-viewer-content-loading v-else />
 </template>
 
