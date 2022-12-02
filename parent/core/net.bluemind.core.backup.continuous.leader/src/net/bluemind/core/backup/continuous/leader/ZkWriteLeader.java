@@ -30,6 +30,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.leader.LeaderLatch;
 import org.apache.curator.framework.recipes.leader.LeaderLatch.CloseMode;
+import org.apache.curator.framework.recipes.leader.LeaderLatch.State;
 import org.apache.curator.framework.recipes.leader.LeaderLatchListener;
 import org.apache.curator.retry.BoundedExponentialBackoffRetry;
 import org.apache.curator.shaded.com.google.common.base.MoreObjects;
@@ -47,6 +48,7 @@ public class ZkWriteLeader implements InstallationWriteLeader {
 	private LeaderLatch latch;
 	private CuratorFramework curator;
 	private final CompletableFuture<Void> electionResult;
+	private final String path;
 
 	public ZkWriteLeader() {
 		this(zkBootstrap());
@@ -56,6 +58,7 @@ public class ZkWriteLeader implements InstallationWriteLeader {
 		RetryPolicy rt = new BoundedExponentialBackoffRetry(100, 10000, 15);
 		this.curator = CuratorFrameworkFactory.newClient(zkBootstrap, rt);
 		this.electionResult = new CompletableFuture<>();
+		this.path = "/" + InstallationId.getIdentifier() + ".leader";
 		curator.start();
 		try {
 			logger.info("Connecting to zk {}...", zkBootstrap);
@@ -65,9 +68,7 @@ public class ZkWriteLeader implements InstallationWriteLeader {
 			Thread.currentThread().interrupt();
 			return;
 		}
-		String path = "/" + InstallationId.getIdentifier() + ".leader";
-		this.latch = new LeaderLatch(curator, path,
-				participantId());
+		this.latch = new LeaderLatch(curator, path, participantId());
 		try {
 			latch.addListener(new LeaderLatchListener() {
 
@@ -87,9 +88,10 @@ public class ZkWriteLeader implements InstallationWriteLeader {
 			});
 			latch.start();
 			electionResult.get(20, TimeUnit.SECONDS);
-			logger.info("latch {} started, leader => {}, participants: {}", latch, isLeader(), latch.getParticipants());
+			logger.info("[{}] latch {} started, leader => {}, participants: {}", path, latch, isLeader(),
+					latch.getParticipants());
 		} catch (TimeoutException to) {
-			logger.warn("latch {} timed out, leader: {} ({})", latch, isLeader(), to.getMessage());
+			logger.warn("[{}] latch {} timed out, leader: {} ({})", path, latch, isLeader(), to.getMessage());
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 		} catch (Exception e) {
@@ -98,7 +100,9 @@ public class ZkWriteLeader implements InstallationWriteLeader {
 	}
 
 	private String participantId() {
-		return DataLocation.current() + "-" + System.getProperty("net.bluemind.property.product", "unknown");
+		return DataLocation.current() + "-" //
+				+ System.getProperty("net.bluemind.property.product", "unknown") + "-"//
+				+ System.getProperty("zk.participant", "unknown");
 	}
 
 	@Override
@@ -122,7 +126,10 @@ public class ZkWriteLeader implements InstallationWriteLeader {
 	@Override
 	public void releaseLeadership() {
 		try {
-			latch.close(CloseMode.NOTIFY_LEADER);
+			if (latch.getState() == State.STARTED) {
+				latch.close(CloseMode.NOTIFY_LEADER);
+				logger.info("[{}] latch {} closed.", path, latch);
+			}
 		} catch (Exception e) {
 			throw new ZkRuntimeException(e);
 		}

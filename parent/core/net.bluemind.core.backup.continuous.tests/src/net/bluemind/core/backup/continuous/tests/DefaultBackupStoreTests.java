@@ -24,10 +24,13 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collection;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
 import com.google.common.hash.Hashing;
 
@@ -49,8 +52,11 @@ public class DefaultBackupStoreTests {
 
 	private static ZkKafkaContainer kafka;
 
+	@Rule
+	public final TestName testName = new TestName();
+
 	@BeforeClass
-	public static void before() {
+	public static void beforeClass() {
 		kafka = new ZkKafkaContainer();
 		kafka.start();
 		String ip = kafka.inspectAddress();
@@ -60,13 +66,21 @@ public class DefaultBackupStoreTests {
 	}
 
 	@Before
-	public void setUp() {
+	public void before() {
+		System.clearProperty("bm.mcast.id");
+		InstallationId.reload();
+		System.setProperty("zk.participant", testName.getMethodName());
 		DefaultLeader.reset();
 		DefaultBackupStore.reset();
 	}
 
+	@After
+	public void after() {
+		DefaultLeader.leader().releaseLeadership();
+	}
+
 	@AfterClass
-	public static void after() {
+	public static void afterClass() {
 		DefaultLeader.leader().releaseLeadership();
 
 		kafka.stop();
