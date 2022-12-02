@@ -105,7 +105,10 @@ public class MilterHandler implements JilterHandler {
 	@Override
 	public JilterStatus helo(String helohost, Properties properties) {
 		logger.debug("helo");
-		accumulator.helo(properties);
+		if (accumulator != null) {
+			// nagios milter.pl sends helo before connect
+			accumulator.helo(properties);
+		}
 		return JilterStatus.SMFIS_CONTINUE;
 	}
 
