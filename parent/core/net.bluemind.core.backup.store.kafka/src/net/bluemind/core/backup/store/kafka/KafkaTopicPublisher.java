@@ -62,6 +62,8 @@ public class KafkaTopicPublisher implements TopicPublisher {
 		producerProps.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
 				"org.apache.kafka.common.serialization.ByteArraySerializer");
 		producerProps.setProperty(ProducerConfig.LINGER_MS_CONFIG, Integer.toString(250));
+		producerProps.setProperty(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, Integer.toString(1));
+		producerProps.setProperty(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
 		producerProps.setProperty(ProducerConfig.BATCH_SIZE_CONFIG, Integer.toString(256 * 1024));
 		return new KafkaProducer<>(producerProps);
 	}
