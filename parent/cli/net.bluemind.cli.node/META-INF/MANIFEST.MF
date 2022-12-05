@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.config,
  net.bluemind.metrics.alerts.api,
  net.bluemind.node.api,
- net.bluemind.eclipse.common
+ net.bluemind.eclipse.common,
+ com.google.guava
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.cli.node
 Bundle-ActivationPolicy: lazy
