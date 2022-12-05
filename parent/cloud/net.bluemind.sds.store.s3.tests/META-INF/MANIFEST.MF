@@ -6,9 +6,6 @@ Bundle-Version: 4.1.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.authentication.service,
- net.bluemind.backend.cyrus,
- net.bluemind.backend.cyrus.replication.storage.core,
- net.bluemind.backend.cyrus.replication.testhelper,
  net.bluemind.backend.mail.replica.api,
  net.bluemind.backend.mail.replica.service,
  net.bluemind.core.elasticsearch.testshelper,
@@ -21,13 +18,19 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.network.topology,
  net.bluemind.network.topology.producer,
  net.bluemind.pool,
- net.bluemind.sds.proxy.mgmt,
  net.bluemind.sds.store.s3,
- net.bluemind.sds.proxy.testhelper,
  net.bluemind.system.api,
  net.bluemind.tests.defaultdata,
  net.bluemind.vertx.testhelper,
- org.junit
+ org.junit,
+ net.bluemind.system.state,
+ net.bluemind.backend.mailapi.storage,
+ net.bluemind.backend.cyrus.partitions,
+ net.bluemind.imap.serviceprovider.incore,
+ net.bluemind.delivery.conversationreference.service,
+ net.bluemind.delivery.conversationreference.sqlschema,
+ net.bluemind.imap.endpoint,
+ net.bluemind.imap.driver.mailapi
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.sds.store.s3.tests
 Bundle-ActivationPolicy: lazy

@@ -40,8 +40,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
-import net.bluemind.backend.cyrus.Sudo;
-import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxFoldersByContainer;
 import net.bluemind.backend.mail.api.MailboxFolder;
@@ -60,23 +58,13 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
-import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.IServerTaskMonitor;
-import net.bluemind.core.task.service.TaskUtils;
-import net.bluemind.core.task.service.TaskUtils.ExtendedTaskStatus;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
 import net.bluemind.dataprotect.api.PartGeneration;
 import net.bluemind.dataprotect.service.BackupPath;
-import net.bluemind.dataprotect.service.DPContextFactory;
-import net.bluemind.dataprotect.service.IDPContext;
-import net.bluemind.dataprotect.service.IDPContext.ITool;
-import net.bluemind.dataprotect.service.IDPContext.IToolConfig;
-import net.bluemind.dataprotect.service.IDPContext.IToolSession;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
-import net.bluemind.directory.api.IDirEntryMaintenance;
 import net.bluemind.directory.api.IDirectory;
-import net.bluemind.directory.api.RepairConfig;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
@@ -89,13 +77,9 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Type;
 import net.bluemind.mailbox.service.common.DefaultFolder;
 import net.bluemind.network.topology.Topology;
-import net.bluemind.node.api.ExitList;
-import net.bluemind.node.api.INodeClient;
-import net.bluemind.node.api.NCUtils;
-import net.bluemind.node.api.NodeActivator;
-import net.bluemind.server.api.Assignment;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.helper.ArchiveHelper;
 import net.bluemind.system.sysconf.helper.LocalSysconfCache;
@@ -132,16 +116,20 @@ public class MboxRestoreService {
 	 */
 
 	public void restore(DataProtectGeneration dpg, ItemValue<Mailbox> mbox, ItemValue<Domain> domain, Mode mode,
-			IServerTaskMonitor monitor) throws ServerFault, IMAPException {
+			IServerTaskMonitor monitor) throws ServerFault {
 		if (dpg == null) {
 			throw new NullPointerException("DataProtectGeneration can't be null");
 		}
 		String serverUid = null;
-		PartGeneration mailPart = null;
 		for (PartGeneration pg : dpg.parts) {
+			// This is used in TESTS only
+			if (System.getProperty("imap.local.ipaddr", "").equals(mbox.value.dataLocation)) {
+				serverUid = pg.server;
+				break;
+			}
+
 			if ("mail/imap".equals(pg.tag) && mbox.value.dataLocation.equals(pg.server)) {
 				serverUid = pg.server;
-				mailPart = pg;
 				break;
 			}
 		}
@@ -163,88 +151,9 @@ public class MboxRestoreService {
 				throw sf;
 			}
 		} else {
-			restoreRsync(domain, dpg, mailPart, mbox, boxFsFolders, mode, monitor);
+			throw new ServerFault("Restore backup of a non non archiveKind spool "
+					+ sysconf.stringValue(SysConfKeys.archive_kind.name()) + " is not supported");
 		}
-	}
-
-	private void restoreRsync(ItemValue<Domain> domain, DataProtectGeneration dpg, PartGeneration mailPart,
-			ItemValue<Mailbox> mbox, BoxFsFolders boxFsFolders, Mode mode, IServerTaskMonitor monitor)
-			throws IMAPException {
-		String serverUid = mailPart.server;
-		IDPContext dpCtx = DPContextFactory.newContext(monitor);
-		ITool restTool = dpCtx.tool();
-
-		IServiceProvider sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-		IServer srvApi = sp.instance(IServer.class, InstallationId.getIdentifier());
-		ItemValue<Server> source = srvApi.getComplete(serverUid);
-		IToolConfig conf = restTool.configure(source, "mail/imap", new HashSet<>());
-		IToolSession session = restTool.newSession(conf);
-		INodeClient nc = NodeActivator.get(source.value.address());
-
-		switch (mode) {
-		case Replace:
-			boxFsFolders.allFolders().forEach(f -> {
-				NCUtils.exec(nc, String.format("rm -fr '%s'", f));
-			});
-			session.restore(mailPart.id, boxFsFolders.allFolders());
-
-			IDirEntryMaintenance demApi = sp.instance(IDirEntryMaintenance.class, domain.uid, mbox.uid);
-			TaskRef tr = demApi.repair(RepairConfig
-					.create(new HashSet<>(Arrays.asList("mailboxAcls", "mailboxDefaultFolders")), false, true, true));
-
-			ExtendedTaskStatus extStatus = TaskUtils.wait(sp, tr);
-			extStatus.logs.stream().forEach(monitor::log);
-			break;
-		case Subfolder:
-			if (mbox.value.type == Type.mailshare) {
-				try (StoreClient sc = new StoreClient(source.value.address(), 1143, "admin0", Token.admin0())) {
-					sc.login(false);
-					String partosh = CyrusPartition.forServerAndDomain(source.uid, domain.uid).name;
-					sc.createMailbox(BoxFsFolders.fsLogin(mbox.value.name) + "/" + boxFsFolders.restoreFolderName + "@"
-							+ domain.uid, partosh);
-				}
-			}
-
-			int mailPartId = mailPart.id;
-
-			restoreFsFolders(session, boxFsFolders.restoreDataRoot, boxFsFolders.dataPath, nc, mailPartId);
-			restoreFsFolders(session, boxFsFolders.restoreMetaRoot, boxFsFolders.metaPath, nc, mailPartId);
-			if (nc.exists("/var/spool/bm-hsm/cyrus-archives")) {
-				restoreFsFolders(session, boxFsFolders.restoreArchiveRoot, boxFsFolders.archivePath, nc, mailPartId);
-			}
-
-			break;
-		default:
-			logger.error("Unsupported restore mode: {}", mode);
-			monitor.end(false, "finished", "{ \"status\": \"Unsupported restore mode\" }");
-			return;
-		}
-
-		// ensure mbox files are owned by cyrus:mail
-		boxFsFolders.allFolders().forEach(f -> {
-			logger.debug(String.format("Ensure cyrus:mail ownership on '%s' and sub-files", f));
-			NCUtils.exec(nc, String.format("chown -R cyrus:mail '%s'", f));
-		});
-
-		String recon = "/usr/sbin/reconstruct -r -f -R -G -I " + BoxFsFolders.namespace(mbox) + mbox.value.name + "@"
-				+ domain.uid;
-		logger.info("Reconstruct command: {}", recon);
-		ExitList el = NCUtils.exec(nc, recon);
-		for (String msg : el) {
-			logger.info("RECONSTRUCT: {}", msg);
-		}
-
-		logger.info("[{}] Restore hsm for {}", mbox, dpg);
-		restoreHsm(dpg, restTool, domain, mbox);
-
-		IDirEntryMaintenance repairSupport = sp.instance(IDirEntryMaintenance.class, domain.uid, mbox.uid);
-		Set<String> ops = repairSupport.getAvailableOperations().stream().map(mo -> mo.identifier)
-				.collect(Collectors.toSet());
-		TaskRef repairTask = repairSupport.repair(RepairConfig.create(ops, false, true, true));
-		TaskUtils.wait(sp, repairTask);
-
-		monitor.end(true, "finished", "{ \"status\": \"not_implemented\" }");
-		logger.info("ending task with mon {}", monitor);
 	}
 
 	/**
@@ -268,8 +177,7 @@ public class MboxRestoreService {
 		String entryUid = null;
 		if (!dirEntry.isPresent()) {
 			IGroup groupService = sp.instance(IGroup.class, domainUid);
-			List<ItemValue<DirEntry>> groups = entries.stream().filter(de -> de.value.kind == Kind.GROUP)
-					.collect(Collectors.toList());
+			List<ItemValue<DirEntry>> groups = entries.stream().filter(de -> de.value.kind == Kind.GROUP).toList();
 			for (int i = 0; i < groups.size(); i++) {
 				ItemValue<DirEntry> g = groups.get(i);
 				List<Member> members = groupService.getExpandedUserMembers(g.uid);
@@ -352,8 +260,8 @@ public class MboxRestoreService {
 		if (mode == Mode.Replace) {
 			// We need to remove child firsts
 			List<ItemValue<MailboxFolder>> liveFolders = foldersService.all(); //
-			liveFolders.sort((a, b) -> Long.valueOf(a.value.fullName.chars().filter(ch -> ch == '/').count())
-					.compareTo(b.value.fullName.chars().filter(ch -> ch == '/').count()));
+			liveFolders.sort((a, b) -> Long.compare(a.value.fullName.chars().filter(ch -> ch == '/').count(),
+					b.value.fullName.chars().filter(ch -> ch == '/').count()));
 			Collections.reverse(liveFolders);
 			for (ItemValue<MailboxFolder> liveFolder : liveFolders) {
 				if (!defaultFolders.contains(liveFolder.value.fullName)) {
@@ -385,8 +293,8 @@ public class MboxRestoreService {
 		List<CyrusSdsBackupFolder> folders = sdsBackupMailbox.getFolders();
 
 		// sort by hierarchy depth
-		folders.sort((a, b) -> Long.valueOf(a.fullNameWithoutInbox(inboxName).chars().filter(ch -> ch == '/').count())
-				.compareTo(b.fullNameWithoutInbox(inboxName).chars().filter(ch -> ch == '/').count()));
+		folders.sort((a, b) -> Long.compare(a.fullNameWithoutInbox(inboxName).chars().filter(ch -> ch == '/').count(),
+				b.fullNameWithoutInbox(inboxName).chars().filter(ch -> ch == '/').count()));
 
 		for (CyrusSdsBackupFolder folder : folders) {
 			MailboxFolder createdfolder = new MailboxFolder();
@@ -425,17 +333,25 @@ public class MboxRestoreService {
 				logger.debug("{} is a defaultFolder, so it will not be created", createdfolder);
 			}
 
+			int imapPort = Integer.parseInt(System.getProperty("imap.port", "1143"));
+			String imapHost = source.value.address();
+			// Test mode
+			if (System.getProperty("imap.local.ipaddr", "").equals(imapHost)) {
+				imapHost = "localhost";
+			}
+
 			if (mbox.value.type == Type.mailshare) {
-				try (StoreClient sc = new StoreClient(source.value.address(), 1143, "admin0", Token.admin0())) {
+				try (StoreClient sc = new StoreClient(imapHost, imapPort, "admin0", Token.admin0())) {
 					if (!sc.login()) {
 						throw new ServerFault("Error logging in as admin0");
 					}
 					restoreSdsMessages(live, sc, folder, createdfolder.fullName + "@" + domain.uid, monitor);
 				}
 			} else {
-				try (Sudo sudo = Sudo.forLogin(mbox.value.name, domain.uid)) {
-					try (StoreClient sc = new StoreClient(source.value.address(), 1143,
-							mbox.value.name + "@" + domain.uid, sudo.context.getSessionId())) {
+				try (Sudo sudo = new Sudo(mbox.value.name, domain.uid)) {
+
+					try (StoreClient sc = new StoreClient(imapHost, imapPort, mbox.value.name + "@" + domain.uid,
+							sudo.context.getSessionId())) {
 						if (!sc.login()) {
 							throw new ServerFault("error logging in to " + source.value.address() + ":1143 as "
 									+ mbox.value.name + "@" + domain.uid);
@@ -461,8 +377,7 @@ public class MboxRestoreService {
 		AtomicLong restorationCounter = new AtomicLong(0);
 		List<List<CyrusSdsBackupMessage>> partitioned = Lists.partition(folder.messages(), 32);
 		partitioned.stream().forEach(msgList -> {
-			Path[] paths = sds
-					.mopen(msgList.stream().map(msg -> msg.guid).collect(Collectors.toList()).toArray(new String[0]));
+			Path[] paths = sds.mopen(msgList.stream().map(msg -> msg.guid).toList().toArray(new String[0]));
 			int idx = 0;
 			for (Path p : paths) {
 				// msgList and paths must be in the same order, this is critical
@@ -492,46 +407,4 @@ public class MboxRestoreService {
 		});
 
 	}
-
-	private void restoreHsm(DataProtectGeneration dpg, ITool restTool, ItemValue<Domain> d, ItemValue<Mailbox> mbox) {
-		IServiceProvider sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-		IServer srvApi = sp.instance(IServer.class, InstallationId.getIdentifier());
-		List<Assignment> assignments = srvApi.getAssignments(d.uid);
-
-		Optional<Assignment> ass = assignments.stream().filter(a -> a.tag.equals("mail/archive")).findFirst();
-		if (!ass.isPresent()) {
-			logger.info("No mail/archive for domain {}", d.uid);
-			return;
-		}
-
-		Optional<PartGeneration> mailPart = dpg.parts.stream()
-				.filter(pg -> pg.tag.equals("mail/archive") && pg.server.equals(ass.get().serverUid)).findFirst();
-
-		if (!mailPart.isPresent()) {
-			logger.info("No PartGeneration for domain {}, tag mail/archive", d.uid);
-			return;
-		}
-
-		ItemValue<Server> source = srvApi.getComplete(mailPart.get().server);
-		IToolConfig conf = restTool.configure(source, "mail/archive", new HashSet<>());
-		IToolSession session = restTool.newSession(conf);
-
-		Set<String> toRestore = new HashSet<>();
-		toRestore.add("/var/spool/bm-hsm/snappy/user/" + d.uid + "/" + mbox.uid);
-
-		session.restore(mailPart.get().id, toRestore);
-	}
-
-	private void restoreFsFolders(IToolSession session, String rootPath, Set<String> path, INodeClient nc,
-			int mailPartId) {
-		logger.info("restore fs folder {}", rootPath);
-		// node using cyrus does not supports mkdirs..
-		// nc.mkdirs(rootPath, "rwx------", "cyrus", "mail");
-		NCUtils.exec(nc, String.format("mkdir -p '%s'", rootPath));
-		NCUtils.exec(nc, String.format("chown cyrus:mail '%s'", rootPath));
-		NCUtils.exec(nc, String.format("chmod 700 '%s'", rootPath));
-
-		path.forEach(f -> session.restoreOneFolder(mailPartId, f, rootPath));
-	}
-
 }

@@ -96,7 +96,7 @@ public class ToolSession implements IToolSession {
 		appendDir(bd).append(next.id).append('/');
 		String backupDir = bd.toString();
 		INodeClient nc = nc();
-		NCUtils.execNoOut(nc, "mkdir -p " + backupDir);
+		nc.mkdirs(backupDir);
 		NCUtils.execNoOut(nc, "chmod +x /usr/share/bm-node/rsync-backup.sh");
 
 		List<BackCommand> toRun = cfg.getDirs().stream().map(dir -> makeBackupCommand(nc, previous, next, dir))
@@ -290,7 +290,7 @@ public class ToolSession implements IToolSession {
 	@Override
 	public String tmpDirectory() throws ServerFault {
 		String ret = "/var/backups/bluemind/temp/" + System.nanoTime();
-		NCUtils.execNoOut(nc(), "mkdir -p " + ret);
+		nc().mkdirs(ret);
 		return ret;
 	}
 

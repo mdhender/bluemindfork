@@ -24,7 +24,9 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -38,42 +40,31 @@ import org.junit.BeforeClass;
 import com.google.common.collect.Lists;
 
 import net.bluemind.aws.s3.utils.S3Configuration;
-import net.bluemind.backend.cyrus.CyrusService;
-import net.bluemind.backend.cyrus.ServerHook;
-import net.bluemind.backend.cyrus.replication.testhelper.CyrusReplicationHelper;
-import net.bluemind.backend.cyrus.replication.testhelper.SyncServerHelper;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxFoldersByContainer;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
-import net.bluemind.config.InstallationId;
-import net.bluemind.config.Token;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
-import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
-import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
-import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
 import net.bluemind.dataprotect.api.IDataProtect;
 import net.bluemind.dataprotect.api.PartGeneration;
 import net.bluemind.dataprotect.api.Restorable;
 import net.bluemind.dataprotect.api.RestorableKind;
-import net.bluemind.dataprotect.mailbox.tests.ApplyMailboxReplicationObserver.Watcher;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
-import net.bluemind.hornetq.client.MQ;
-import net.bluemind.imap.Acl;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -83,16 +74,15 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailshare.api.IMailshare;
 import net.bluemind.mailshare.api.Mailshare;
-import net.bluemind.network.topology.Topology;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.pool.impl.BmConfIni;
-import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.DomainTemplate;
 import net.bluemind.system.api.IDomainTemplate;
 import net.bluemind.tests.defaultdata.PopulateHelper;
+import net.bluemind.user.api.IUserSubscription;
 
 public class AbstractRestoreTests {
 	protected static final boolean RUN_AS_ROOT = System.getProperty("user.name").equals("root");
@@ -102,6 +92,7 @@ public class AbstractRestoreTests {
 
 	protected String login;
 	protected String mailshareLogin;
+	protected String mailshareUid;
 	protected String domain;
 	protected String latd;
 
@@ -109,7 +100,7 @@ public class AbstractRestoreTests {
 	protected IDataProtect backupApi;
 	protected IMailboxes mboxApi;
 	protected ItemValue<Mailbox> mbox;
-	protected String loginUid;
+	protected String userUid;
 	protected int inboxMessages = 0;
 
 	protected ServerSideServiceProvider sp;
@@ -119,8 +110,6 @@ public class AbstractRestoreTests {
 	protected String subFolder;
 	protected String subFolderWithSpace;
 	protected Restorable restorable;
-	protected CyrusService cyrusService;
-	protected CyrusReplicationHelper cyrusReplication;
 
 	protected S3Configuration initSdsStore() throws Exception {
 		// overridden in MboxRestoreSdsTests
@@ -130,6 +119,9 @@ public class AbstractRestoreTests {
 	@BeforeClass
 	public static void beforeClass() {
 		System.setProperty("ahcnode.fail.https.ok", "true");
+		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("imap.port", "1143");
 	}
 
 	@Before
@@ -161,51 +153,37 @@ public class AbstractRestoreTests {
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		esServer.tags = Lists.newArrayList("bm/es");
 
-		String cyrusIp = new BmConfIni().get("imap-role");
 		imapServer = new Server();
-		imapServer.ip = cyrusIp;
+		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
 		imapServer.tags = Lists.newArrayList("mail/imap", "mail/archive");
-
-		ItemValue<Server> cyrusServer = ItemValue.create("imapserver", imapServer);
-		cyrusService = new CyrusService(cyrusServer);
-		cyrusService.reset();
 
 		Server dbServer = new Server();
 		dbServer.ip = new BmConfIni().get("host");
 		dbServer.tags = Lists.newArrayList("bm/pgsql", "bm/pgsql-data");
 
-		warmUpNodes(esServer, dbServer, imapServer);
+		warmUpNodes(esServer, dbServer);
 
-		INodeClient nc = NodeActivator.get(imapServer.address());
-		NCUtils.exec(nc, "rm -fr /var/backups/bluemind/dp_spool");
-		NCUtils.exec(nc, "rm -fr /var/backups/bluemind/temp");
-		NCUtils.exec(nc, "rm -fr /var/backups/bluemind/work");
+//		INodeClient nc = NodeActivator.get(imapServer.address());
+//		NCUtils.exec(nc, "rm -fr /var/backups/bluemind/dp_spool");
+//		NCUtils.exec(nc, "rm -fr /var/backups/bluemind/temp");
+//		NCUtils.exec(nc, "rm -fr /var/backups/bluemind/work");
 
 		PopulateHelper.initGlobalVirt(false, core, esServer, dbServer, imapServer);
 		PopulateHelper.addDomainAdmin("admin0", "global.virt");
 		PopulateHelper.addDomain(domain, Routing.none);
 		S3Configuration s3config = initSdsStore();
-		setupReplication(cyrusIp);
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
-		startReplication();
 		sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 
-		ItemValue<Domain> domainItem = sp.instance(IDomains.class).get(domain);
-
-		IServer serverService = sp.instance(IServer.class, InstallationId.getIdentifier());
-
-		ItemValue<Server> serverValue = serverService.getComplete(cyrusIp);
-		BmContext context = new BmTestContext(SecurityContext.SYSTEM);
-		new ServerHook().onServerAssigned(context, serverValue, domainItem, "mail/imap");
-
-		loginUid = PopulateHelper.addUser(login, password, domain, Routing.internal);
+		userUid = PopulateHelper.addUser(login, password, domain, Routing.internal);
 
 		mboxApi = sp.instance(IMailboxes.class, domain);
 		mbox = mboxApi.byEmail(latd);
 		testDomain = sp.instance(IDomains.class).get(domain);
 		assertNotNull(mbox);
 
-		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, password)) {
+		try (StoreClient sc = new StoreClient("localhost", 1143, latd, password)) {
+			System.err.println("LATD: " + latd + " password " + password);
 			assertTrue(sc.login());
 			for (String fname : Arrays.asList("data/junit.eml", "data/vip.eml")) {
 				try (InputStream mail = this.getClass().getClassLoader().getResourceAsStream(fname)) {
@@ -217,7 +195,7 @@ public class AbstractRestoreTests {
 
 		}
 
-		IMailboxFolders foldersService = sp.getContext().su("junit-" + UUID.randomUUID().toString(), loginUid, domain)
+		IMailboxFolders foldersService = sp.getContext().su("junit-" + UUID.randomUUID().toString(), userUid, domain)
 				.getServiceProvider()
 				.instance(IMailboxFoldersByContainer.class, IMailReplicaUids.subtreeUid(domain, mbox));
 		for (int i = 0; i < 30; i++) {
@@ -228,21 +206,17 @@ public class AbstractRestoreTests {
 				Thread.sleep(100);
 			}
 		}
-		String inboxUid = foldersService.byName("INBOX").uid;
-		Watcher w = ApplyMailboxReplicationObserver.addWatcher(inboxUid);
 		// Inject a good amount of emails in a folder
-		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, password)) {
+		try (StoreClient sc = new StoreClient("localhost", 1143, latd, password)) {
 			sc.login();
 			for (int i = 0; i < 100; i++) {
 				try (InputStream in = new ByteArrayInputStream(("From: Me-" + System.currentTimeMillis()
 						+ "@junit.test\r\n\r\nTo you " + i + System.nanoTime() + "\r\n").getBytes())) {
 					int added = sc.append("INBOX", in, new FlagsList());
 					inboxMessages += (added > 0 ? 1 : 0);
-					w.waitForUid(added);
 				}
 			}
 		}
-		assertTrue("Replication events not received in time", w.await(2, TimeUnit.MINUTES));
 
 		IMailshare msApi = sp.instance(IMailshare.class, domain);
 		Mailshare share = new Mailshare();
@@ -253,13 +227,14 @@ public class AbstractRestoreTests {
 		share.emails = Arrays.asList(e);
 		share.dataLocation = imapServer.ip;
 		share.routing = Mailbox.Routing.internal;
-
-		msApi.create(mailshareLogin + "_" + domain, share);
+		mailshareUid = mailshareLogin + "_" + domain;
+		msApi.create(mailshareUid, share);
 		String containerName = IMailboxAclUids.uidForMailbox(mailshareLogin + "_" + domain);
-		IContainerManagement contApi = sp.instance(IContainerManagement.class, containerName);
+		IContainerManagement contMgmtApi = sp.instance(IContainerManagement.class, containerName);
 		System.out.println("********** share the mailshare ***********");
-		contApi.setAccessControlList(Arrays.asList(AccessControlEntry.create(loginUid, Verb.All)));
-
+		List<AccessControlEntry> accessControlList = new ArrayList<>(contMgmtApi.getAccessControlList());
+		accessControlList.add(AccessControlEntry.create(userUid, Verb.All));
+		contMgmtApi.setAccessControlList(accessControlList);
 		sharedMbox = mboxApi.byEmail(mailshareLogin + "@" + domain);
 		// add email in the mailshare
 		List<String> mailshareFolders = Arrays.asList( //
@@ -270,29 +245,23 @@ public class AbstractRestoreTests {
 				share.name + "/ms-sub1/sub1-sub1/sub1-sub1-sub1"//
 		);
 
-		IMailboxFolders mailshareFoldersService = sp.getContext()
-				.su("junit-ms-" + UUID.randomUUID().toString(), loginUid, domain).getServiceProvider()
-				.instance(IMailboxFoldersByContainer.class, IMailReplicaUids.subtreeUid(domain, sharedMbox));
-		String mailshareSentUid = mailshareFoldersService.byName(mailshareLogin + "/Sent").uid;
-		Watcher sharedw = ApplyMailboxReplicationObserver.addWatcher(mailshareSentUid);
+		IUserSubscription subs = sp.instance(IUserSubscription.class, domain);
+		subs.subscribe(userUid, Collections
+				.singletonList(ContainerSubscription.create(IMailboxAclUids.uidForMailbox(mailshareUid), true)));
 
-		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, "admin0", Token.admin0())) {
+		try (StoreClient sc = new StoreClient("localhost", 1143, latd, password)) {
 			assertTrue(sc.login());
-			// assertTrue("Create of " + share.name + " failed", sc.create(share.name + "@"
-			// + domain));
-			assertTrue(sc.setAcl(share.name + "@" + domain, latd, Acl.RW));
-
+			String sentFolderName = "Dossiers partagés/" + mailshareLogin + "/Sent";
 			try (InputStream mail = this.getClass().getClassLoader().getResourceAsStream("data/junit.eml")) {
-				int added = sc.append(mailshareLogin + "/Sent@" + domain, mail, new FlagsList());
-				assertTrue("Unable to add email to " + mailshareLogin + "/Sent@" + domain, added > 0);
-				sharedw.waitForUid(added);
+				int added = sc.append(sentFolderName, mail, new FlagsList());
+				assertTrue("Unable to add email to " + sentFolderName, added > 0);
 				System.out.println("Added email uid: " + added + " to the mailshare");
 			}
 			for (String fn : mailshareFolders) {
-				assertTrue("Unable to create folder " + fn + "@" + domain, sc.create(fn + "@" + domain));
+				String fullFolderName = "Dossiers partagés/" + fn;
+				assertTrue("Unable to create folder " + fullFolderName, sc.create(fullFolderName));
 			}
 		}
-		assertTrue("Replication events not received in time for mailshare", sharedw.await(2, TimeUnit.MINUTES));
 
 		for (String fn : mailshareFolders) {
 			waitFolderAvailable(sharedMbox, login, domain, fn, 30, TimeUnit.SECONDS);
@@ -301,7 +270,7 @@ public class AbstractRestoreTests {
 		subFolder = "subFolder folder " + System.nanoTime();
 		subFolderWithSpace = subFolder + "/this is sub folder";
 
-		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, password)) {
+		try (StoreClient sc = new StoreClient("localhost", 1143, latd, password)) {
 			assertTrue(sc.login());
 			assertTrue(sc.create(subFolder));
 			assertTrue(sc.create(subFolderWithSpace));
@@ -311,22 +280,20 @@ public class AbstractRestoreTests {
 			waitFolderAvailable(mbox, login, domain, fn, 30, TimeUnit.SECONDS);
 		}
 
-		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, password)) {
+		try (StoreClient sc = new StoreClient("localhost", 1143, latd, password)) {
 			assertTrue(sc.login());
 			try (InputStream mail = this.getClass().getClassLoader().getResourceAsStream("data/coucou.eml")) {
 				int added = sc.append("INBOX", mail, new FlagsList());
-				w.waitForUid(added);
 				assertTrue("Appending an archived email to the mailbox failed.", added > 0);
 				inboxMessages++;
 			}
 		}
 
 		assertEquals("incorrect number of inbox messages", 103, inboxMessages);
-		assertTrue("Replication events not received in time", w.await(30, TimeUnit.SECONDS));
 
 		restorable = new Restorable();
 		restorable.domainUid = domain;
-		restorable.entryUid = loginUid;
+		restorable.entryUid = userUid;
 		restorable.kind = RestorableKind.USER;
 
 		testSDSStore(s3config);
@@ -338,7 +305,7 @@ public class AbstractRestoreTests {
 	protected void waitFolderAvailable(ItemValue<Mailbox> mbox, String login, String domain, String fn, long timeout,
 			TimeUnit timeoutUnit) {
 		IMailboxFolders folderservice = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext()
-				.su("junit-checkfolder-" + UUID.randomUUID().toString(), loginUid, domain).getServiceProvider()
+				.su("junit-checkfolder-" + UUID.randomUUID().toString(), userUid, domain).getServiceProvider()
 				.instance(IMailboxFoldersByContainer.class, IMailReplicaUids.subtreeUid(domain, mbox));
 		long timeoutms = timeoutUnit.toMillis(timeout);
 		long waited = 0;
@@ -414,9 +381,21 @@ public class AbstractRestoreTests {
 			p.waitFor(10, TimeUnit.SECONDS);
 		}
 
-		Process p = Runtime.getRuntime()
-				.exec("sudo chown -R " + System.getProperty("user.name") + " /var/spool/bm-hollowed");
+		Process p = Runtime.getRuntime().exec("sudo chown -R " + System.getProperty("user.name") + ":"
+				+ System.getProperty("user.name") + " /var/spool/bm-hollowed");
 		p.waitFor(10, TimeUnit.SECONDS);
+	}
+
+	protected void makeBackupFilesReadable() {
+		if (!RUN_AS_ROOT) {
+			try {
+				Process p = Runtime.getRuntime()
+						.exec("sudo chown -R " + System.getProperty("user.name") + " /var/backups/bluemind");
+				p.waitFor(10, TimeUnit.SECONDS);
+			} catch (IOException | InterruptedException e) {
+				e.printStackTrace(System.err);
+			}
+		}
 	}
 
 	private void warmUpNodes(Server... nodes) {
@@ -444,33 +423,6 @@ public class AbstractRestoreTests {
 		}
 	}
 
-	protected CyrusReplicationHelper setupReplication(String cyrusIp) {
-		cyrusReplication = new CyrusReplicationHelper(cyrusIp);
-		cyrusReplication.installReplication();
-		JdbcActivator.getInstance().addMailboxDataSource(cyrusReplication.server().uid,
-				JdbcTestHelper.getInstance().getMailboxDataDataSource());
-		return cyrusReplication;
-	}
-
-	protected void startReplication() throws Exception {
-		MQ.init().get(30, TimeUnit.SECONDS);
-		Topology.get();
-		SyncServerHelper.waitFor();
-		cyrusReplication.startReplication().get(5, TimeUnit.SECONDS);
-	}
-
-	protected void disableCyrusArchive(String cyrusIp) {
-		INodeClient nodeClient = NodeActivator.get(cyrusIp);
-		try (InputStream in = new ByteArrayInputStream(
-				("object_storage_enabled: 0\n" + "archive_enabled: 0\n").getBytes())) {
-			nodeClient.writeFile("/etc/cyrus-hsm", in);
-			cyrusService.reload();
-		} catch (IOException e) {
-			e.printStackTrace(System.err);
-			throw new ServerFault(e);
-		}
-	}
-
 	@After
 	public void after() throws Exception {
 		try {
@@ -481,9 +433,7 @@ public class AbstractRestoreTests {
 		}
 
 		System.err.println("Waiting for last events...");
-		cyrusReplication.stopReplication().get(5, TimeUnit.SECONDS);
 		JdbcTestHelper.getInstance().afterTest();
-		disableCyrusArchive(cyrusService.server().value.ip);
 		Thread.sleep(2000);
 	}
 

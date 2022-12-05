@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -75,6 +76,14 @@ public class RestoreWebAppDataTaskTests {
 	private BmTestContext testContext;
 	private Restorable restorable;
 
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty("ahcnode.fail.https.ok", "true");
+		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("imap.port", "1143");
+	}
+
 	@Before
 	public void before() throws Exception {
 		prepareLocalFilesystem();
@@ -87,9 +96,8 @@ public class RestoreWebAppDataTaskTests {
 		core.ip = new BmConfIni().get("node-host");
 		core.tags = getTagsExcept("bm/pgsql", "bm/pgsql-data", "mail/imap");
 
-		String cyrusIp = new BmConfIni().get("imap-role");
 		Server imapServer = new Server();
-		imapServer.ip = cyrusIp;
+		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
 		imapServer.tags = Lists.newArrayList("mail/imap");
 
 		Server dbServer = new Server();
@@ -161,6 +169,7 @@ public class RestoreWebAppDataTaskTests {
 	private void doBackup() throws Exception {
 		TaskRef task = testContext.provider().instance(IDataProtect.class).saveAll();
 		track(task);
+		makeBackupFilesReadable();
 		List<DataProtectGeneration> generations = testContext.provider().instance(IDataProtect.class)
 				.getAvailableGenerations();
 		assertTrue(generations.size() > 0);
@@ -213,5 +222,17 @@ public class RestoreWebAppDataTaskTests {
 		webappdata.key = key;
 		webappdata.value = "my-value";
 		return webappdata;
+	}
+
+	protected void makeBackupFilesReadable() {
+		if (!RUN_AS_ROOT) {
+			try {
+				Process p = Runtime.getRuntime()
+						.exec("sudo chown -R " + System.getProperty("user.name") + " /var/backups/bluemind");
+				p.waitFor(10, TimeUnit.SECONDS);
+			} catch (IOException | InterruptedException e) {
+				e.printStackTrace(System.err);
+			}
+		}
 	}
 }

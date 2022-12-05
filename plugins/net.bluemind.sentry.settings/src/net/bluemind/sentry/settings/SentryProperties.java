@@ -139,7 +139,7 @@ public class SentryProperties {
 			try {
 				Files.setPosixFilePermissions(SENTRY_TEMP_PARENT_DIR, sentryTempParentPermissions);
 			} catch (Exception e) {
-				// permission denied for sds-proxy, just continue
+				// permission denied, just continue
 			}
 		}
 
@@ -149,7 +149,7 @@ public class SentryProperties {
 			try {
 				Files.setPosixFilePermissions(SENTRY_TEMP_PATH, sentryTempPermissions);
 			} catch (Exception e) {
-				// permission denied for sds-proxy, just continue
+				// permission denied, just continue
 			}
 		}
 
@@ -159,7 +159,7 @@ public class SentryProperties {
 			try {
 				Files.setPosixFilePermissions(SENTRY_CONF_DIR, sentryConfdirPermissions);
 			} catch (Exception e) {
-				// permission denied for sds-proxy, just continue
+				// permission denied, just continue
 			}
 		}
 	}

@@ -95,6 +95,7 @@
       <plugin id="net.bluemind.backend.cyrus.index"/>
       <plugin id="net.bluemind.backend.cyrus.partitions"/>
       <plugin id="net.bluemind.backend.mail.api"/>
+      <plugin id="net.bluemind.backend.mail.dataprotect"/>
       <plugin id="net.bluemind.backend.mail.parsing"/>
       <plugin id="net.bluemind.backend.mail.replica.api"/>
       <plugin id="net.bluemind.backend.mail.replica.indexing"/>
@@ -163,7 +164,6 @@
       <plugin id="net.bluemind.core.rest.http"/>
       <plugin id="net.bluemind.core.rest.http.vertx"/>
       <plugin id="net.bluemind.core.sanitizer"/>
-      <plugin id="net.bluemind.core.sds.configurator"/>
       <plugin id="net.bluemind.core.sendmail"/>
       <plugin id="net.bluemind.core.serialization"/>
       <plugin id="net.bluemind.core.sessions"/>
@@ -377,7 +377,6 @@
       <plugin id="net.bluemind.scheduledjob.scheduler"/>
       <plugin id="net.bluemind.scheduledjob.service"/>
       <plugin id="net.bluemind.scheduledjob.sqlschema"/>
-      <plugin id="net.bluemind.sds.proxy.mgmt"/>
       <plugin id="net.bluemind.sds.store"/>
       <plugin id="net.bluemind.sds.store.cyrusspool"/>
       <plugin id="net.bluemind.sds.store.loader"/>

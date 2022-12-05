@@ -19,14 +19,11 @@
 package net.bluemind.dataprotect.persistence;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -40,6 +37,7 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
 import net.bluemind.dataprotect.api.PartGeneration;
+import net.bluemind.node.api.FileDescription;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.IServer;
@@ -69,18 +67,18 @@ public class GenerationWriter {
 		}
 	}
 
-	public DataProtectGeneration read() throws IOException {
-		byte[] readAllBytes = Files.readAllBytes(path);
+	public DataProtectGeneration read() {
+		byte[] readAllBytes = getNodeClient().read(path.toAbsolutePath().toString());
 		return JsonUtils.read(new String(readAllBytes), DataProtectGeneration.class);
 	}
 
 	public void addPart(PartGeneration part) {
-		logger.info("Adding part {} to generation {} of file {}", part.id, part.generationId, path.toString());
+		logger.info("Adding part {} to generation {} of file {}", part.id, part.generationId, path);
 		DataProtectGeneration dpg;
 		try {
 			dpg = read();
-		} catch (IOException e) {
-			logger.warn("Cannot read generation {}: {}:{}", path, e.getClass().getName(), e.getMessage());
+		} catch (ServerFault sf) {
+			logger.warn("Cannot read generation {}: {}", path, sf.getMessage());
 			return;
 		}
 		dpg.parts.add(part);
@@ -92,8 +90,8 @@ public class GenerationWriter {
 		DataProtectGeneration dpg;
 		try {
 			dpg = read();
-		} catch (IOException e) {
-			logger.warn("Cannot read generation {}: {}:{}", path, e.getClass().getName(), e.getMessage());
+		} catch (ServerFault sf) {
+			logger.warn("Cannot read generation {}: {}", path, sf.getMessage());
 			return;
 		}
 		dpg.parts.remove(part);
@@ -106,49 +104,54 @@ public class GenerationWriter {
 		if (!backupPath.toFile().exists()) {
 			return Collections.emptyList();
 		}
-		try (Stream<Path> files = Files.list(backupPath)) {
-			return files //
-					.filter(GenerationWriter::isGeneration) //
+		var nodeClient = getNodeClient();
+		try {
+			return nodeClient.listFiles(backupPath.toString()).stream().filter(GenerationWriter::isGeneration) //
 					.map(GenerationWriter::readFromPath) //
-					.collect(Collectors.toList());
-		} catch (IOException e) {
-			logger.warn("Cannot read generation files", e);
+					.toList();
+		} catch (ServerFault sf) {
+			logger.warn("Cannot read generation files: {}", sf.getMessage());
 			return Collections.emptyList();
 		}
+
 	}
 
-	private static DataProtectGeneration readFromPath(Path path) {
+	private static DataProtectGeneration readFromPath(FileDescription fd) {
 		try {
-			return new GenerationWriter(path).read();
-		} catch (IOException e) {
-			logger.warn("Cannot read generation {}:{}", path, e.getMessage());
+			return new GenerationWriter(Paths.get(fd.getPath())).read();
+		} catch (ServerFault sf) {
+			logger.warn("Cannot read generation {}: {}", fd.getPath(), sf.getMessage());
 			return null;
 		}
 	}
 
 	public static void deleteGenerationFiles() {
-		try (Stream<Path> files = Files.list(Paths.get(backupFolder))) {
-			files.filter(GenerationWriter::isGeneration).forEach(path -> {
-				logger.info("Deleting generation file {}", path.toString());
-				getNodeClient().deleteFile(path.toString());
+		var nodeClient = getNodeClient();
+		try {
+			Stream<FileDescription> files = nodeClient.listFiles(Paths.get(backupFolder).toString()).stream();
+			files.filter(GenerationWriter::isGeneration).forEach(fd -> {
+				logger.info("Deleting generation file {}", fd);
+				getNodeClient().deleteFile(fd.getPath());
 			});
-		} catch (IOException e) {
-			logger.warn("Cannot delete generation files", e);
+		} catch (ServerFault sf) {
+			logger.warn("Cannot delete generation files: {}", sf.getMessage());
 		}
 	}
 
 	public static void deleteOtherGenerations(List<DataProtectGeneration> generations) {
-		try (Stream<Path> files = Files.list(Paths.get(backupFolder))) {
+		var nodeClient = getNodeClient();
+		try {
+			Stream<FileDescription> files = nodeClient.listFiles(Paths.get(backupFolder).toString()).stream();
 			files.filter(GenerationWriter::isGeneration) //
-					.filter(path -> {
-						return notPresent(generations, path.getFileName().toString());
+					.filter(fd -> {
+						return notPresent(generations, fd.getName());
 					}) //
-					.forEach(path -> {
-						logger.info("Deleting generation file {}", path.toString());
-						getNodeClient().deleteFile(path.toString());
+					.forEach(fd -> {
+						logger.info("Deleting generation file {}", fd.getPath());
+						nodeClient.deleteFile(fd.getPath());
 					});
-		} catch (IOException e) {
-			logger.warn("Cannot delete generation files", e);
+		} catch (ServerFault sf) {
+			logger.warn("Cannot delete generation files: {}", sf.getMessage());
 		}
 	}
 
@@ -163,12 +166,11 @@ public class GenerationWriter {
 	}
 
 	public static void deleteGenerationFile(int id) {
-		Paths.get(backupFolder + "/generation-" + id + ".json").toFile().delete();
+		getNodeClient().deleteFile(Paths.get(backupFolder + "/generation-" + id + ".json").toAbsolutePath().toString());
 	}
 
-	private static boolean isGeneration(Path filename) {
-		String name = filename.getFileName().toString();
-		return name.startsWith("generation");
+	private static boolean isGeneration(FileDescription fd) {
+		return fd.getName().startsWith("generation");
 	}
 
 	private static INodeClient getNodeClient() {

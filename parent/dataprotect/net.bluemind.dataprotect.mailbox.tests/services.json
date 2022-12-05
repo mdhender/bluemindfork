@@ -8,10 +8,6 @@
       "volumes":[ { "localPath":"/var/backups/bluemind", "containerPath":"/var/backups/bluemind" } ]
      },
     {
-      "name":"bluemind/imap-role",
-      "volumes":[ { "localPath":"/var/backups/bluemind", "containerPath":"/var/backups/bluemind" } ]
-    },
-    {
      	"name":"bluemind/node-tests",
         "volumes":[ { "localPath":"/var/backups/bluemind", "containerPath":"/var/backups/bluemind" },
                   { "localPath":"/var/spool/bm-hollowed", "containerPath":"/var/spool/bm-hollowed" } ]

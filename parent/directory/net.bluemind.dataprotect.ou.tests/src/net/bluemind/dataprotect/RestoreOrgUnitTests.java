@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -68,7 +69,6 @@ public class RestoreOrgUnitTests {
 	private static final boolean RUN_AS_ROOT = System.getProperty("user.name").equals("root");
 
 	private DataProtectGeneration latestGen;
-	private Server imapServer;
 	private String changUid = UUID.randomUUID().toString();
 	private BmTestContext testContext;
 	private Restorable restorable;
@@ -79,6 +79,14 @@ public class RestoreOrgUnitTests {
 	@AfterClass
 	public static void afterClass() {
 		VertxPlatform.getVertx().close();
+	}
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty("ahcnode.fail.https.ok", "true");
+		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("imap.port", "1143");
 	}
 
 	@Before
@@ -94,10 +102,9 @@ public class RestoreOrgUnitTests {
 		core.ip = new BmConfIni().get("node-host");
 		core.tags = getTagsExcept("bm/es", "mail/imap", "bm/pgsql", "bm/pgsql-data");
 
-		String cyrusIp = new BmConfIni().get("imap-role");
-		imapServer = new Server();
-		imapServer.ip = cyrusIp;
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		Server imapServer = new Server();
+		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
+		imapServer.tags = Lists.newArrayList("mail/imap", "mail/archive");
 
 		Server dbServer = new Server();
 		dbServer.ip = new BmConfIni().get("host");

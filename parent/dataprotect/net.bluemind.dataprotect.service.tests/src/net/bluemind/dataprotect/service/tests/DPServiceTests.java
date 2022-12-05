@@ -41,6 +41,7 @@ import javax.sql.DataSource;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -89,6 +90,14 @@ public class DPServiceTests {
 	private BmTestContext adminZero;
 	private DataSource dataSource;
 
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty("ahcnode.fail.https.ok", "true");
+		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("imap.port", "1143");
+	}
+
 	@Before
 	public void before() throws Exception {
 		prepareLocalFilesystem();
@@ -104,9 +113,8 @@ public class DPServiceTests {
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		esServer.tags = Lists.newArrayList("bm/es");
 
-		String cyrusIp = new BmConfIni().get("imap-role");
 		Server imapServer = new Server();
-		imapServer.ip = cyrusIp;
+		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
 		imapServer.tags = Lists.newArrayList("mail/imap");
 
 		Server dbServer = new Server();
@@ -334,6 +342,7 @@ public class DPServiceTests {
 		assertNotNull(ref);
 		TaskStatus result = track(ref);
 		assertTrue(result.state.succeed);
+		makeBackupFilesReadable();
 
 		dp = getService(testCtx, IDataProtect.class);
 
@@ -378,6 +387,7 @@ public class DPServiceTests {
 		assertNotNull(ref);
 		TaskStatus result = track(ref);
 		assertTrue(result.state.succeed);
+		makeBackupFilesReadable();
 
 		List<DataProtectGeneration> gensAfter = dp.getAvailableGenerations();
 		DataProtectGeneration gen = gensAfter.get(0);
@@ -391,7 +401,7 @@ public class DPServiceTests {
 		assertTrue(gotImapTag);
 
 		ISystemConfiguration sysApi = getService(ISystemConfiguration.class);
-		Map<String, String> values = new HashMap<String, String>();
+		Map<String, String> values = new HashMap<>();
 		values.put(SysConfKeys.dpBackupSkipTags.name(), "mail/imap,mail/archive");
 		sysApi.updateMutableValues(values);
 
@@ -446,4 +456,15 @@ public class DPServiceTests {
 		return fromContext(adminZero).instance(klass, params);
 	}
 
+	protected void makeBackupFilesReadable() {
+		if (!RUN_AS_ROOT) {
+			try {
+				Process p = Runtime.getRuntime()
+						.exec("sudo chown -R " + System.getProperty("user.name") + " /var/backups/bluemind");
+				p.waitFor(10, TimeUnit.SECONDS);
+			} catch (IOException | InterruptedException e) {
+				e.printStackTrace(System.err);
+			}
+		}
+	}
 }

@@ -77,8 +77,6 @@ import net.bluemind.pool.impl.docker.DockerContainer;
 import net.bluemind.sds.dto.GetRequest;
 import net.bluemind.sds.dto.MgetRequest;
 import net.bluemind.sds.dto.MgetRequest.Transfer;
-import net.bluemind.sds.proxy.mgmt.SdsProxyManager;
-import net.bluemind.sds.proxy.testhelper.ObjectStoreTestHelper;
 import net.bluemind.sds.store.ISdsBackingStore;
 import net.bluemind.sds.store.scalityring.ScalityConfiguration;
 import net.bluemind.sds.store.scalityring.ScalityRingStoreFactory;

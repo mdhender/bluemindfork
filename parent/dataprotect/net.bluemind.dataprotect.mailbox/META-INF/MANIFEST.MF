@@ -34,9 +34,9 @@ Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  net.bluemind.system.sysconf.helper,
  net.bluemind.network.topology,
- net.bluemind.backend.cyrus,
  net.bluemind.group.api,
- net.bluemind.system.helper
+ net.bluemind.system.helper,
+ net.bluemind.backend.mail.dataprotect;bundle-version="4.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.dataprotect.mailbox

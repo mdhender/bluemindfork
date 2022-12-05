@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -84,10 +85,17 @@ public class RestoreUserTests {
 	static final String latd = login + "@" + domain;
 
 	private DataProtectGeneration latestGen;
-	private Server imapServer;
 	private String changUid;
 	private BmTestContext testContext;
 	private Restorable restorable;
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty("ahcnode.fail.https.ok", "true");
+		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("imap.port", "1143");
+	}
 
 	@Before
 	public void before() throws Exception {
@@ -107,9 +115,8 @@ public class RestoreUserTests {
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		esServer.tags = Lists.newArrayList("bm/es");
 
-		String cyrusIp = new BmConfIni().get("imap-role");
-		imapServer = new Server();
-		imapServer.ip = cyrusIp;
+		Server imapServer = new Server();
+		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
 		imapServer.tags = Lists.newArrayList("mail/imap");
 
 		Server dbServer = new Server();
@@ -179,9 +186,10 @@ public class RestoreUserTests {
 	}
 
 	private void doBackup() throws Exception {
-
 		TaskRef task = testContext.provider().instance(IDataProtect.class).saveAll();
 		track(task);
+		makeBackupFilesReadable();
+
 		List<DataProtectGeneration> generations = testContext.provider().instance(IDataProtect.class)
 				.getAvailableGenerations();
 		assertTrue(generations.size() > 0);
@@ -359,5 +367,17 @@ public class RestoreUserTests {
 		assertEquals("bang-bang", rule.move().map(move -> move.folder()).orElse(null));
 
 		assertTrue("restore failed", monitor.success);
+	}
+
+	protected void makeBackupFilesReadable() {
+		if (!RUN_AS_ROOT) {
+			try {
+				Process p = Runtime.getRuntime()
+						.exec("sudo chown -R " + System.getProperty("user.name") + " /var/backups/bluemind");
+				p.waitFor(10, TimeUnit.SECONDS);
+			} catch (IOException | InterruptedException e) {
+				e.printStackTrace(System.err);
+			}
+		}
 	}
 }

@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -515,8 +516,16 @@ public class SaveAllTask extends BlockingServerTask implements IServerTask {
 
 				last = server;
 
-				if (!allowedMountPoint(monitor, server, nc) || !sharedDataStore(monitor, server, nc, fn)) {
-					validBackupStore = false;
+				if (!System.getProperty("node.local.ipaddr").equals(server.value.ip)) {
+					if (!allowedMountPoint(monitor, server, nc) || !sharedDataStore(monitor, server, nc, fn)) {
+						validBackupStore = false;
+					}
+				} else {
+					// TEST MODE ONLY
+					Process p = Runtime.getRuntime()
+							.exec("sudo chown -R " + System.getProperty("user.name") + " /var/backups/bluemind");
+					p.waitFor(10, TimeUnit.SECONDS);
+
 				}
 
 				monitor.progress(1, String.format("%s checked on %s", backupRoot, server.value.address()));

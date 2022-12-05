@@ -17,9 +17,11 @@
  */
 package net.bluemind.node.api;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,6 +29,10 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -45,6 +51,11 @@ import net.bluemind.node.shared.ExecRequest;
 public class LocalNodeClient implements INodeClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(LocalNodeClient.class);
+	private final Map<String, TaskStatus> tasks;
+
+	public LocalNodeClient() {
+		tasks = new ConcurrentHashMap<>();
+	}
 
 	@Override
 	public void ping() throws ServerFault {
@@ -84,10 +95,12 @@ public class LocalNodeClient implements INodeClient {
 	@Override
 	public void writeFile(String path, InputStream content) throws ServerFault {
 		Path asPath = Paths.get(path);
-		try {
-			Files.createDirectories(asPath.getParent());
-		} catch (IOException e) {
-			throw new ServerFault(e);
+		if (!Files.exists(asPath.getParent())) {
+			try {
+				Files.createDirectories(asPath.getParent());
+			} catch (IOException e) {
+				throw new ServerFault(e);
+			}
 		}
 		try (OutputStream out = Files.newOutputStream(asPath)) {
 			ByteStreams.copy(content, out);
@@ -98,7 +111,32 @@ public class LocalNodeClient implements INodeClient {
 
 	@Override
 	public TaskRef executeCommand(String cmd) throws ServerFault {
-		throw new ServerFault("unsupported op (" + cmd + ")");
+		try {
+			ProcessBuilder pb = new ProcessBuilder();
+			System.err.println("Execute " + cmd);
+			pb.command(cmd.split(" "));
+			pb.redirectErrorStream(true);
+			Process proc = pb.start();
+			TaskStatus ts = new TaskStatus();
+			ts.result = "0";
+			ts.lastLogEntry = "";
+			var reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+			CompletableFuture.supplyAsync(() -> {
+				reader.lines().forEach(l -> ts.lastLogEntry += l);
+				System.err.println("output: " + ts.lastLogEntry);
+				return ts.lastLogEntry;
+			}).join();
+			TaskRef ref = TaskRef.create("tsk-" + proc.pid());
+			tasks.put(ref.id, ts);
+			proc.waitFor(5, TimeUnit.SECONDS);
+			ts.state = proc.exitValue() == 0 ? State.Success : State.InError;
+			ts.result = String.valueOf(proc.exitValue());
+			return ref;
+		} catch (IOException e) {
+			throw new ServerFault(e);
+		} catch (InterruptedException e) {
+			throw new ServerFault(e);
+		}
 	}
 
 	@Override
@@ -132,10 +170,7 @@ public class LocalNodeClient implements INodeClient {
 
 	@Override
 	public TaskStatus getExecutionStatus(TaskRef task) throws ServerFault {
-		TaskStatus ts = new TaskStatus();
-		ts.state = State.Success;
-		ts.result = "0";
-		return ts;
+		return tasks.get(task.id);
 	}
 
 	@Override

@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -79,10 +80,17 @@ public class RestoreCalendarsTaskTests {
 	static final String latd = login + "@" + domain;
 
 	private DataProtectGeneration latestGen;
-	private Server imapServer;
 	private String changUid;
 	private BmTestContext testContext;
 	private Restorable restorable;
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty("ahcnode.fail.https.ok", "true");
+		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("imap.port", "1143");
+	}
 
 	@Before
 	public void before() throws Exception {
@@ -101,10 +109,9 @@ public class RestoreCalendarsTaskTests {
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		esServer.tags = Lists.newArrayList("bm/es");
 
-		String cyrusIp = new BmConfIni().get("imap-role");
-		imapServer = new Server();
-		imapServer.ip = cyrusIp;
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		Server imapServer = new Server();
+		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
+		imapServer.tags = Lists.newArrayList("mail/imap", "mail/archive");
 
 		Server dbServer = new Server();
 		dbServer.ip = new BmConfIni().get("host");

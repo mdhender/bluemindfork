@@ -16,18 +16,6 @@
       </mailbox-storage>
    </extension>
    <extension
-         point="net.bluemind.dataprotect.service.backupworker">
-      <backup_worker
-            impl="net.bluemind.backend.cyrus.dataprotect.CyrusWorker">
-      </backup_worker>
-   </extension>
-   <extension
-         point="net.bluemind.dataprotect.service.backupworker">
-      <backup_worker
-            impl="net.bluemind.backend.cyrus.dataprotect.CyrusSdsWorker">
-      </backup_worker>
-   </extension>
-   <extension
          point="net.bluemind.core.container.hooks.aclhook">
       <acl_hook
             impl="net.bluemind.backend.cyrus.CyrusBackendHook">

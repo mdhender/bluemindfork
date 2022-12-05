@@ -266,7 +266,7 @@ public class DPService implements IDataProtect {
 
 	private void checkRestoreItemAccess(Restorable item) {
 		if (!item.domainUid.equals(ctx.getSecurityContext().getContainerUid()) || item.entryUid == null) {
-			throw new ServerFault(String.format("%s@%s Doesnt have perms to restore {}", //
+			throw new ServerFault(String.format("%s@%s Doesnt have perms to restore %s", //
 					ctx.getSecurityContext().getSubject(), ctx.getSecurityContext().getContainerUid(), //
 					item.domainUid), ErrorCode.PERMISSION_DENIED);
 		}
@@ -275,9 +275,8 @@ public class DPService implements IDataProtect {
 
 		if (!ctx.getServiceProvider().instance(IDirectory.class, ctx.getSecurityContext().getContainerUid())
 				.search(DirEntryQuery.entries(item.entryUid)).values.stream().filter(e -> e.value.orgUnitPath != null)
-						.filter(e -> e.value.orgUnitPath.path().stream().anyMatch(oup -> allowedOu.contains(oup)))
-						.findFirst().isPresent()) {
-			throw new ServerFault(String.format("%s@%s Doesnt have perms to restore {} from domain {}", //
+				.anyMatch(e -> e.value.orgUnitPath.path().stream().anyMatch(allowedOu::contains))) {
+			throw new ServerFault(String.format("%s@%s Doesnt have perms to restore %s from domain %s", //
 					ctx.getSecurityContext().getSubject(), ctx.getSecurityContext().getContainerUid(), //
 					item.entryUid, item.domainUid), ErrorCode.PERMISSION_DENIED);
 		}

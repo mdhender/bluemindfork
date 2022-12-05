@@ -107,7 +107,7 @@ public class MailboxRecordStoreTests {
 		VertxPlatform.spawnBlocking(25, TimeUnit.SECONDS);
 		partition = CyrusPartition.forServerAndDomain(pipo.ip, domainUid).name;
 		DataSource datasource = JdbcTestHelper.getInstance().getMailboxDataDataSource();
-		JdbcActivator.getInstance().addMailboxDataSource("dataloc", datasource);
+		JdbcActivator.getInstance().addMailboxDataSource(pipo.ip, datasource);
 		PopulateHelper.initGlobalVirt(pipo);
 		PopulateHelper.addDomain(domainUid, Routing.internal);
 		user1Uid = PopulateHelper.addUser("u1-" + System.currentTimeMillis(), domainUid, Routing.internal);

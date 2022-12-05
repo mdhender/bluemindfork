@@ -65,6 +65,7 @@
    <bundle id="net.bluemind.backend.mail.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.backend.mail.api.gwt" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.backend.mail.api.php" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.backend.mail.dataprotect" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.backend.mailapi.storage" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.backend.mail.parsing" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.backend.mail.replica.api" version="4.1.0.qualifier"/>
@@ -194,7 +195,6 @@
    <bundle id="net.bluemind.core.rest.http.vertx" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.rest.tests.services" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.sanitizer" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.core.sds.configurator" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.sendmail" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.sendmail.testhelper" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.core.serialization" version="4.1.0.qualifier"/>
@@ -540,10 +540,6 @@
    <bundle id="net.bluemind.scheduledjob.scheduler" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.scheduledjob.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.scheduledjob.sqlschema" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.sds.proxy" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.sds.proxy.launcher" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.sds.proxy.mgmt" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.sds.proxy.testhelper" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.sds.store" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.sds.store.cyrusspool" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.sds.store.loader" version="4.1.0.qualifier"/>

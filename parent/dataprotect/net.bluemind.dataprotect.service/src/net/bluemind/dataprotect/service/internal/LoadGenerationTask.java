@@ -145,10 +145,8 @@ public class LoadGenerationTask extends BlockingServerTask implements IServerTas
 			try {
 				allowedUids.addAll(
 						ctx.getServiceProvider().instance(IDirectory.class, ctx.getSecurityContext().getContainerUid())
-								.search(DirEntryQuery.all()).values
-								.stream().filter(e -> e.value.orgUnitPath != null)
-								.filter(e -> e.value.orgUnitPath.path().stream()
-										.anyMatch(oup -> allowedOu.contains(oup)))
+								.search(DirEntryQuery.all()).values.stream().filter(e -> e.value.orgUnitPath != null)
+								.filter(e -> e.value.orgUnitPath.path().stream().anyMatch(allowedOu::contains))
 								.map(e -> e.uid).collect(Collectors.toSet()));
 			} catch (ServerFault sf) {
 				logger.error("Unable to get allowed entries UIDs for {}@{}: {}", ctx.getSecurityContext().getSubject(),

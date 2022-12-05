@@ -62,7 +62,6 @@ import net.bluemind.imap.SearchQuery;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.sds.dto.GetRequest;
-import net.bluemind.sds.proxy.mgmt.SdsProxyManager;
 import net.bluemind.sds.store.ISdsBackingStore;
 import net.bluemind.sds.store.s3.S3StoreFactory;
 import net.bluemind.system.api.ISystemConfiguration;
@@ -71,8 +70,6 @@ import net.bluemind.system.api.SysConfKeys;
 public class MboxRestoreSdsTests extends AbstractRestoreTests {
 	@Override
 	protected S3Configuration initSdsStore() throws Exception {
-		cyrusService.reload();
-
 		String bucket = "junit-" + System.currentTimeMillis();
 		S3Configuration config = S3Configuration
 				.withEndpointAndBucket("http://" + DockerEnv.getIp("bluemind/s3") + ":8000", bucket);
@@ -85,14 +82,9 @@ public class MboxRestoreSdsTests extends AbstractRestoreTests {
 				.put(SysConfKeys.sds_s3_region.name(), config.getRegion()) //
 				.put(SysConfKeys.sds_s3_bucket.name(), config.getBucket()) //
 				.build();
-		cyrusService.reload();
 		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		ISystemConfiguration sysConfApi = prov.instance(ISystemConfiguration.class);
 		sysConfApi.updateMutableValues(freshConf);
-
-		try (SdsProxyManager sdsMgmt = new SdsProxyManager(VertxPlatform.getVertx(), imapServer.ip)) {
-			sdsMgmt.applyConfiguration(config.asJson()).get(5, TimeUnit.SECONDS);
-		}
 		return config;
 	}
 
@@ -104,8 +96,8 @@ public class MboxRestoreSdsTests extends AbstractRestoreTests {
 		ByteBuf hash = Unpooled.wrappedBuffer(Hashing.sha1().hashBytes(emlData).asBytes());
 		String guid = ByteBufUtil.hexDump(hash);
 		// System.err.println("Body guid should be " + guid);
-		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, password)) {
-			sc.login();
+		try (StoreClient sc = new StoreClient("localhost", 1143, latd, password)) {
+			assertTrue(sc.login());
 			int added = sc.append("INBOX", new ByteArrayInputStream(emlData), new FlagsList());
 			assertTrue(added > 0);
 			inboxMessages += 1;
@@ -133,16 +125,18 @@ public class MboxRestoreSdsTests extends AbstractRestoreTests {
 	public void restoreSdsUserInSubfolder() throws Exception {
 		MboxRestoreService mbr = new MboxRestoreService();
 		assertNotNull(mbr);
+		makeBackupFilesReadable();
 
 		TestMonitor monitor = new TestMonitor();
 		mbr.restore(latestGen, mbox, testDomain, Mode.Subfolder, monitor);
 		assertTrue(monitor.finished);
 
-		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, password)) {
+		try (StoreClient sc = new StoreClient("localhost", 1143, latd, password)) {
 			assertTrue(sc.login());
 			boolean found = false;
 			ListResult list = sc.listAll();
 			for (ListInfo li : list) {
+				System.err.println(li);
 				if (li.getName().startsWith("restored-") && li.isSelectable()) {
 					found = true;
 					assertTrue(sc.select(li.getName()));
@@ -163,18 +157,19 @@ public class MboxRestoreSdsTests extends AbstractRestoreTests {
 	public void restoreSdsUserReplace() throws Exception {
 		/* Create a new subfolder, must be deleted by the restore process */
 		IMailboxFolders foldersService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext()
-				.su("junit-" + UUID.randomUUID().toString(), loginUid, domain).getServiceProvider()
+				.su("junit-" + UUID.randomUUID().toString(), userUid, domain).getServiceProvider()
 				.instance(IMailboxFoldersByContainer.class, IMailReplicaUids.subtreeUid(domain, mbox));
 		foldersService.createBasic(MailboxFolder.of("petitchat"));
 		foldersService.createBasic(MailboxFolder.of("petitchat/groschien"));
 		MboxRestoreService mbr = new MboxRestoreService();
 		assertNotNull(mbr);
+		makeBackupFilesReadable();
 
 		TestMonitor monitor = new TestMonitor();
 		mbr.restore(latestGen, mbox, testDomain, Mode.Replace, monitor);
 		assertTrue(monitor.finished);
 
-		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, password)) {
+		try (StoreClient sc = new StoreClient("localhost", 1143, latd, password)) {
 			assertTrue(sc.login());
 			ListResult list = sc.listAll();
 			for (ListInfo li : list) {
@@ -193,6 +188,7 @@ public class MboxRestoreSdsTests extends AbstractRestoreTests {
 	public void restoreSdsMailshareInSubfolder() throws Exception {
 		MboxRestoreService mbr = new MboxRestoreService();
 		assertNotNull(mbr);
+		makeBackupFilesReadable();
 
 		TestMonitor monitor = new TestMonitor();
 		mbr.restore(latestGen, sharedMbox, testDomain, Mode.Subfolder, monitor);
@@ -210,7 +206,7 @@ public class MboxRestoreSdsTests extends AbstractRestoreTests {
 		).stream().map(fn -> "Dossiers partagés/" + sharedMbox.value.name + (fn.isEmpty() ? fn : "/" + fn))
 				.collect(Collectors.toList());
 
-		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, password)) {
+		try (StoreClient sc = new StoreClient("localhost", 1143, latd, password)) {
 			assertTrue(sc.login());
 			ListResult list = sc.listAll();
 			for (ListInfo li : list) {
@@ -228,17 +224,18 @@ public class MboxRestoreSdsTests extends AbstractRestoreTests {
 	public void restoreSdsMailshareReplace() throws Exception {
 		/* Create a new subfolder, must be deleted by the restore process */
 		IMailboxFolders foldersService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext()
-				.su("junit-" + UUID.randomUUID().toString(), loginUid, domain).getServiceProvider()
+				.su("junit-" + UUID.randomUUID().toString(), userUid, domain).getServiceProvider()
 				.instance(IMailboxFoldersByContainer.class, IMailReplicaUids.subtreeUid(domain, sharedMbox));
 		foldersService.createBasic(MailboxFolder.of(mailshareLogin + "/petitchat"));
 		foldersService.createBasic(MailboxFolder.of(mailshareLogin + "/petitchat/groschien"));
 
 		MboxRestoreService mbr = new MboxRestoreService();
 		assertNotNull(mbr);
+		makeBackupFilesReadable();
 
 		int size = 0;
 		// empty the mailbox
-		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, "admin0", Token.admin0())) {
+		try (StoreClient sc = new StoreClient("localhost", 1143, "admin0", Token.admin0())) {
 			assertTrue(sc.login());
 			assertTrue(sc.select(mailshareLogin + "/Sent@" + domain));
 			Collection<Integer> all = sc.uidSearch(new SearchQuery());
@@ -256,7 +253,7 @@ public class MboxRestoreSdsTests extends AbstractRestoreTests {
 		mbr.restore(latestGen, sharedMbox, testDomain, Mode.Replace, monitor);
 		assertTrue(monitor.finished);
 
-		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, "admin0", Token.admin0())) {
+		try (StoreClient sc = new StoreClient("localhost", 1143, "admin0", Token.admin0())) {
 			assertTrue(sc.login());
 			sc.select(mailshareLogin + "/Sent@" + domain);
 			Collection<Integer> all = sc.uidSearch(new SearchQuery());
@@ -264,7 +261,7 @@ public class MboxRestoreSdsTests extends AbstractRestoreTests {
 			assertFalse(mailshareLogin + "/Sent@" + domain + "should not be empty after restore", all.isEmpty());
 		}
 
-		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, password)) {
+		try (StoreClient sc = new StoreClient("localhost", 1143, latd, password)) {
 			assertTrue(sc.login());
 			ListResult list = sc.listAll();
 			for (ListInfo li : list) {

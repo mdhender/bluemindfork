@@ -1,5 +1,0 @@
-object_storage_enabled: 1
-archive_enabled: 1
-archive_days: 0
-archive_maxsize: 0
-archive_keepflagged: 0
