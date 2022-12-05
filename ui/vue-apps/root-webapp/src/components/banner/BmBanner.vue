@@ -25,7 +25,6 @@
 <script>
 import { BmIconButton, BmNavbar, BmNavbarBrand } from "@bluemind/ui-components";
 import { BmExtension } from "@bluemind/extensions.vue";
-import BannerL10N from "../../../l10n/banner/";
 import BmBannerApplications from "./BmBannerApplications";
 import BmBannerMenu from "./BmBannerMenu";
 import BmBannerHelp from "./BmBannerHelp";
@@ -43,7 +42,6 @@ export default {
         BmNavbar,
         BmNavbarBrand
     },
-    componentI18N: { messages: BannerL10N },
     props: {
         applications: {
             required: true,

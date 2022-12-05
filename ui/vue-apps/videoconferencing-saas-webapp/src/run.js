@@ -1,9 +1,10 @@
 import Vue from "vue";
-
-import BlueMindVideoApp from "./BlueMindVideoApp.vue";
+import { TranslationRegistry } from "@bluemind/i18n";
 import injector from "@bluemind/inject";
 import router from "@bluemind/router";
 import { VideoConferencingSaasClient } from "@bluemind/videoconferencing.saas.api";
+import BlueMindVideoApp from "./BlueMindVideoApp";
+import VideoAppL10N from "../l10n";
 
 function registerAPIClients() {
     injector.register({
@@ -22,6 +23,7 @@ function registerUserSession() {
     });
 }
 
+TranslationRegistry.register(VideoAppL10N);
 registerAPIClients();
 registerUserSession();
 

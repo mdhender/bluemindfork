@@ -8,7 +8,6 @@
 
 <script>
 import { mapState } from "vuex";
-import ChooserL10N from "../l10n";
 import ChooserFooter from "./ChooserFooter/ChooserFooter";
 import ChooserHeader from "./ChooserHeader/ChooserHeader";
 import ChooserMain from "./ChooserMain/ChooserMain";
@@ -23,7 +22,6 @@ export default {
             required: true
         }
     },
-    componentI18N: { messages: ChooserL10N },
     computed: {
         ...mapState("chooser", ["insertAsLink", "selectedFiles"])
     },

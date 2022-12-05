@@ -2,7 +2,7 @@ import Vue from "vue";
 import Vue2TouchEvents from "vue2-touch-events";
 
 import { default as AlertStore, DefaultAlert } from "@bluemind/alert.store";
-import i18n, { generateDateTimeFormats } from "@bluemind/i18n";
+import i18n, { generateDateTimeFormats, TranslationRegistry } from "@bluemind/i18n";
 import { inject } from "@bluemind/inject";
 import router from "@bluemind/router";
 import { initSentry } from "@bluemind/sentry";
@@ -13,15 +13,19 @@ import { extend } from "@bluemind/vuex-router";
 import VueSockjsPlugin from "@bluemind/vue-sockjs";
 
 import routes from "./routes";
+import BannerL10N from "../l10n/banner/";
 import registerDependencies from "./registerDependencies";
 import PreferencesStore from "./preferences/store";
 import RootAppStore from "./rootAppStore";
+import SettingsL10N from "../l10n/preferences/";
 import SettingsStore from "./settingsStore";
 import MainApp from "./components/MainApp";
 import NotificationManager from "./NotificationManager";
 import Command from "../plugins/Command";
 
 const userSession = window.bmcSessionInfos;
+TranslationRegistry.register(BannerL10N);
+TranslationRegistry.register(SettingsL10N);
 registerDependencies(userSession);
 initWebApp(userSession);
 initSentry(userSession);

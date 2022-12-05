@@ -8,14 +8,12 @@
 import { inject } from "@bluemind/inject";
 import Jitsi from "./components/Jitsi.vue";
 import router from "@bluemind/router";
-import VideoAppL10N from "../l10n";
 
 export default {
     name: "BlueMindVideoApp",
     components: {
         Jitsi
     },
-    componentI18N: { messages: VideoAppL10N },
     data() {
         return {
             shown: false,

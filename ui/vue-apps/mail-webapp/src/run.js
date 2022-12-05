@@ -1,15 +1,19 @@
 import Vue from "vue";
 
+import { TranslationRegistry } from "@bluemind/i18n";
 import router from "@bluemind/router";
 import { extensions } from "@bluemind/extensions";
 
 import * as MailAlertComponents from "./components/MailAlerts";
 import * as ThreadAlertComponents from "./components/MailThread/Alerts";
 import MailApp from "./components/MailApp";
+import MailAppL10N from "../l10n/";
 import mailRoutes from "./router";
 import registerAPIClients from "./registerApiClients";
 import DecoratedFileItem from "./components/MailAttachment/DecoratedFileItem";
 import MailViewerContent from "./components/MailViewer/MailViewerContent";
+
+TranslationRegistry.register(MailAppL10N);
 
 Vue.component("decorated-file-item", DecoratedFileItem);
 extensions.register("webapp.mail", "file-item", {

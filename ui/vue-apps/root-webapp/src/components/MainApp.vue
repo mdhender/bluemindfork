@@ -33,7 +33,6 @@ import About from "./About";
 import BaseUri from "../routes/BaseUriRegExp";
 import BmBanner from "./banner/BmBanner";
 import Preferences from "./preferences/Preferences";
-import SettingsL10N from "../../l10n/preferences/";
 import SystemAlertArea from "./SystemAlertArea";
 import favicon from "../../assets/favicon.png";
 
@@ -46,8 +45,6 @@ export default {
         BmAlertArea,
         SystemAlertArea
     },
-    componentI18N: { messages: SettingsL10N },
-
     data() {
         const session = inject("UserSession");
 
