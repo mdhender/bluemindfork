@@ -161,6 +161,7 @@ public class DataProtectJob implements IScheduledJob {
 	public Set<String> getLockedResources() {
 		Set<String> resources = new HashSet<>();
 		resources.add("mails");
+		resources.add("database");
 		return resources;
 	}
 

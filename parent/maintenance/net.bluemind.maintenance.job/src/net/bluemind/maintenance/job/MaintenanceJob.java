@@ -19,9 +19,9 @@
 package net.bluemind.maintenance.job;
 
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -103,7 +103,9 @@ public class MaintenanceJob implements IScheduledJob {
 
 	@Override
 	public Set<String> getLockedResources() {
-		return Collections.emptySet();
+		Set<String> locked = new HashSet<>();
+		locked.add("database");
+		return locked;
 	}
 
 	@Override

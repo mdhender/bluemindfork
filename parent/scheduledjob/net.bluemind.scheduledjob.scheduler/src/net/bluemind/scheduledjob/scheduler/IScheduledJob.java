@@ -18,6 +18,7 @@
  */
 package net.bluemind.scheduledjob.scheduler;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
 
@@ -47,7 +48,9 @@ public interface IScheduledJob {
 
 	String getJobId();
 
-	Set<String> getLockedResources();
+	default Set<String> getLockedResources() {
+		return Collections.emptySet();
+	}
 
 	boolean supportsScheduling();
 

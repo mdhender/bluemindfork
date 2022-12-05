@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -160,11 +159,6 @@ public class ExecutionsCleanerJob implements IScheduledJob {
 		public int compare(JobExecution o1, JobExecution o2) {
 			return o2.id - o1.id;
 		}
-	}
-
-	@Override
-	public Set<String> getLockedResources() {
-		return Collections.emptySet();
 	}
 
 	@Override

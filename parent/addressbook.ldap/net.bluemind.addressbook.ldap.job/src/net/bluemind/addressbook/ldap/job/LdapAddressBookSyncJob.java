@@ -18,10 +18,8 @@
 package net.bluemind.addressbook.ldap.job;
 
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
@@ -169,11 +167,6 @@ public class LdapAddressBookSyncJob implements IScheduledJob {
 	@Override
 	public String getJobId() {
 		return getClass().getName();
-	}
-
-	@Override
-	public Set<String> getLockedResources() {
-		return Collections.emptySet();
 	}
 
 	@Override

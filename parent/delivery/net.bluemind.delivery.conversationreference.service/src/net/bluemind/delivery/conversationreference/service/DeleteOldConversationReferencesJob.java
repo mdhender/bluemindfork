@@ -18,10 +18,8 @@
 package net.bluemind.delivery.conversationreference.service;
 
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,11 +84,6 @@ public class DeleteOldConversationReferencesJob implements IScheduledJob {
 	@Override
 	public String getJobId() {
 		return getClass().getCanonicalName();
-	}
-
-	@Override
-	public Set<String> getLockedResources() {
-		return Collections.emptySet();
 	}
 
 	@Override

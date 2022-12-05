@@ -19,13 +19,11 @@
 package net.bluemind.filehosting.filesystem.job;
 
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
@@ -145,11 +143,6 @@ public class FileHostingCleanUpJob implements IScheduledJob {
 	@Override
 	public String getJobId() {
 		return "net.bluemind.filehosting.filesystem.job.FileHostingCleanUpJob";
-	}
-
-	@Override
-	public Set<String> getLockedResources() {
-		return Collections.emptySet();
 	}
 
 	@Override

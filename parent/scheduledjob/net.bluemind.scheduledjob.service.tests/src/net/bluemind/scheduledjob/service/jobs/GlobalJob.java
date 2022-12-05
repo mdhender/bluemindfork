@@ -18,9 +18,7 @@
  */
 package net.bluemind.scheduledjob.service.jobs;
 
-import java.util.Collections;
 import java.util.Date;
-import java.util.Set;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.scheduledjob.api.JobExitStatus;
@@ -51,11 +49,6 @@ public class GlobalJob implements IScheduledJob {
 	@Override
 	public String getJobId() {
 		return "GlobalJob";
-	}
-
-	@Override
-	public Set<String> getLockedResources() {
-		return Collections.emptySet();
 	}
 
 	@Override

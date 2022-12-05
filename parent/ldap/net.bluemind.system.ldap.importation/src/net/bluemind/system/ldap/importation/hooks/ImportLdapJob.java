@@ -19,11 +19,9 @@
 package net.bluemind.system.ldap.importation.hooks;
 
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -171,11 +169,6 @@ public class ImportLdapJob implements IScheduledJob {
 	@Override
 	public String getJobId() {
 		return LdapConstants.JID;
-	}
-
-	@Override
-	public Set<String> getLockedResources() {
-		return Collections.emptySet();
 	}
 
 	@Override
