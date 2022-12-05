@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
@@ -34,11 +33,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import net.bluemind.backend.mail.api.gwt.endpoint.ReadOnlyMailboxFoldersEndpointPromise;
 import net.bluemind.backend.mail.api.gwt.endpoint.ReadOnlyMailboxFoldersSockJsEndpoint;
 import net.bluemind.core.container.model.ItemFlag;
-import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
-import net.bluemind.directory.api.DirEntryQuery;
-import net.bluemind.directory.api.IDirectoryPromise;
-import net.bluemind.directory.api.gwt.endpoint.DirectoryGwtEndpoint;
 import net.bluemind.mailbox.api.rules.MailFilterRule;
 import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
 import net.bluemind.mailbox.api.utils.RuleHandler;
@@ -46,8 +41,6 @@ import net.bluemind.mailbox.api.utils.RuleParser;
 import net.bluemind.ui.common.client.forms.Ajax;
 import net.bluemind.ui.common.client.forms.DoneCancelActionBar;
 import net.bluemind.ui.mailbox.filter.multipleforward.MultipleForward;
-import net.bluemind.user.api.IUserSubscriptionPromise;
-import net.bluemind.user.api.gwt.endpoint.UserSubscriptionGwtEndpoint;
 
 public class SieveRuleEditorDialog extends Composite {
 
@@ -391,66 +384,12 @@ public class SieveRuleEditorDialog extends Composite {
 		moveTo.addItem(constants.sent(), "user:Sent");
 
 		if (type == Type.DOMAIN) {
-			// 3.0 style
 			moveTo.addItem(constants.trash(), "user:Trash");
 			moveTo.addItem(constants.spam(), "user:Junk");
 		} else {
-			addMyFolders() //
-				.thenCompose(v -> addOtherFolders()) //
-				.thenAccept(o -> value.move()
-						.ifPresent(move -> moveTo.setSelectedIndex(getItemByValue(moveTo, move.asString()))));
+			addMyFolders().thenAccept(o -> value.move()
+					.ifPresent(move -> moveTo.setSelectedIndex(getItemByValue(moveTo, move.asString()))));
 		}
-	}
-
-	private CompletableFuture<Void> addOtherFolders() {
-		IDirectoryPromise dir = new DirectoryGwtEndpoint(Ajax.TOKEN.getSessionId(), domainUid).promiseApi();
-		if (type != Type.USER) {
-			return CompletableFuture.completedFuture(null);
-		}
-		IUserSubscriptionPromise service = new UserSubscriptionGwtEndpoint(Ajax.TOKEN.getSessionId(), domainUid)
-				.promiseApi();
-		return service.listSubscriptions(mbox, "mailboxacl")
-			.thenApply(res ->  res.stream()
-					.collect(Collectors.toMap(k -> k.containerUid.substring("mailbox:acls-".length()), v -> v.name)))
-			.thenCompose(writableMailboxes -> dir
-					.search(DirEntryQuery.entries(writableMailboxes.keySet().stream().collect(Collectors.toList())))
-					.thenApply(ret -> ret.values.stream()
-							.map(v -> MoveToMailbox.create(v.uid, writableMailboxes.get(v.uid), v.value.displayName, v.value.kind))
-							.collect(Collectors.toList())))
-			.thenCompose(entries -> {
-				CompletableFuture<?>[] entriesFuture = entries.stream() //
-						.filter(e -> !e.uid.equals(mbox)) //
-						.map(entry -> {
-							String subtree2 = "subtree_" + domainUid.replace('.', '_') + "!" + (entry.kind == Kind.USER ? "user." : "") + entry.uid;
-							ReadOnlyMailboxFoldersEndpointPromise mf2 = new ReadOnlyMailboxFoldersEndpointPromise(
-									new ReadOnlyMailboxFoldersSockJsEndpoint(Ajax.TOKEN.getSessionId(), subtree2));
-							return mf2.all().thenAccept(folders -> {
-								folders.stream().sorted((a, b) -> a.value.fullName.compareTo(b.value.fullName))
-										.filter(folder -> !folder.flags.contains(ItemFlag.Deleted) && !matches(folder.value.name, "outbox"))
-										.forEach(folder -> {
-											String prefix = entry.kind == Kind.USER ? "Autres utilisateurs/" + entry.displayName : "Dossiers partagés";
-											String foldername = folder.value.fullName;
-											String value = subtree2 + ":" + folder.internalId + ":" + prefix + "/" + foldername;  
-											if (foldername.equalsIgnoreCase("trash")) {
-												moveTo.addItem(prefix + "/" + constants.trash(), value);
-											} else if (foldername.equalsIgnoreCase("junk")) {
-												moveTo.addItem(prefix + "/" + constants.spam(), value);
-											} else if (foldername.equalsIgnoreCase("drafts")) {
-												moveTo.addItem(prefix + "/" + constants.drafts(), value);
-											} else if (foldername.equalsIgnoreCase("inbox")) {
-												moveTo.addItem(prefix + "/" + constants.inbox(), value);
-											} else if (foldername.equalsIgnoreCase("sent")) {
-												moveTo.addItem(prefix + "/" + constants.sent(), value);
-											} else if (foldername.equals(entry.mailboxName)) {
-												moveTo.addItem(prefix + "/" + entry.mailboxName + "/" + constants.inbox(), value);
-											} else {
-												moveTo.addItem(prefix + "/" + foldername, value);
-											}
-										});
-								});
-				}).toArray(CompletableFuture[]::new);
-				return CompletableFuture.allOf(entriesFuture);
-			}).exceptionally(e -> null);
 	}
 
 	private CompletableFuture<Void> addMyFolders() {
@@ -459,20 +398,22 @@ public class SieveRuleEditorDialog extends Composite {
 				new ReadOnlyMailboxFoldersSockJsEndpoint(Ajax.TOKEN.getSessionId(), subtree));
 		return mf.all().thenAccept(folders -> {
 			folders.stream().sorted((a, b) -> a.value.fullName.compareTo(b.value.fullName))
-				.filter(folder -> !folder.flags.contains(ItemFlag.Deleted) && !matches(folder.value.name, "inbox", "sent", "outbox"))
-				.forEach(folder -> {
-					String foldername = folder.value.fullName;
-					if (foldername.equalsIgnoreCase("trash")) {
-						moveTo.addItem(constants.trash(), "user:Trash");
-					} else if (foldername.equalsIgnoreCase("junk")) {
-						moveTo.addItem(constants.spam(), "user:Junk");
-					} else if (foldername.equalsIgnoreCase("drafts")) {
-						moveTo.addItem(constants.drafts(), "user:Drafts");
-					} else {
-						moveTo.addItem(folder.value.fullName, "user:" + folder.internalId + ":" + folder.value.fullName);
-					}
-				});
-			});
+					.filter(folder -> !folder.flags.contains(ItemFlag.Deleted)
+							&& !matches(folder.value.name, "inbox", "sent", "outbox"))
+					.forEach(folder -> {
+						String foldername = folder.value.fullName;
+						if (foldername.equalsIgnoreCase("trash")) {
+							moveTo.addItem(constants.trash(), "user:Trash");
+						} else if (foldername.equalsIgnoreCase("junk")) {
+							moveTo.addItem(constants.spam(), "user:Junk");
+						} else if (foldername.equalsIgnoreCase("drafts")) {
+							moveTo.addItem(constants.drafts(), "user:Drafts");
+						} else {
+							moveTo.addItem(folder.value.fullName,
+									"user:" + folder.internalId + ":" + folder.value.fullName);
+						}
+					});
+		});
 	}
 
 	private boolean matches(String folder, String... folders) {
@@ -590,7 +531,7 @@ public class SieveRuleEditorDialog extends Composite {
 
 		});
 
-		cbDiscard.setValue(value.discard().isPresent());
+		cbDiscard.setValue(value.markAsDeleted().isPresent());
 		cbMarkAsRead.setValue(value.markAsRead().isPresent());
 		cbMarkAsImportant.setValue(value.markAsImportant().isPresent());
 
@@ -653,7 +594,7 @@ public class SieveRuleEditorDialog extends Composite {
 			rule.addMarkAsImportant();
 		}
 		if (cbDiscard.getValue()) {
-			rule.addDiscard();
+			rule.addMarkAsDeleted();
 		}
 		if (cbMoveTo.getValue()) {
 			rule.addMoveFromString(moveTo.getValue(moveTo.getSelectedIndex()));

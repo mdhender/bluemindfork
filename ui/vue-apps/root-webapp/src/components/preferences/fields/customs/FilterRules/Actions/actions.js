@@ -7,7 +7,7 @@ import PrefFilterRuleForwardActionEditor from "./PrefFilterRuleForwardActionEdit
 
 export default [
     {
-        match: action => [ACTIONS.DISCARD.name, ACTIONS.READ.name, ACTIONS.STAR.name].includes(action.name),
+        match: action => [ACTIONS.DELETE.name, ACTIONS.READ.name, ACTIONS.STAR.name].includes(action.name),
         text,
         value: true,
         viewer: PrefFilterRuleActionNoValue

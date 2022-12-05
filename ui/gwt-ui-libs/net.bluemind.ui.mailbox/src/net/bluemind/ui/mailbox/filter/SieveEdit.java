@@ -49,6 +49,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.rules.MailFilterRule;
+import net.bluemind.mailbox.api.rules.MailFilterRule.Trigger;
 import net.bluemind.mailbox.api.rules.gwt.js.JsMailFilterRule;
 import net.bluemind.mailbox.api.rules.gwt.serder.MailFilterRuleGwtSerDer;
 import net.bluemind.ui.common.client.icon.Trash;
@@ -214,7 +215,7 @@ public class SieveEdit extends CompositeGwtWidgetElement {
 		FlowPanel actionsFP = new FlowPanel();
 		rule.markAsRead().ifPresent(markAsRead -> actionsFP.add(new Label(constants.markAsRead())));
 		rule.markAsImportant().ifPresent(markAsImportant -> actionsFP.add(new Label(constants.markAsImportant())));
-		rule.discard().ifPresent(discard -> actionsFP.add(new Label(constants.discard())));
+		rule.markAsDeleted().ifPresent(discard -> actionsFP.add(new Label(constants.discard())));
 		rule.move().ifPresent(move -> {
 			String target = move.folder().toLowerCase();
 			if (target.equalsIgnoreCase("inbox")) {
@@ -321,11 +322,12 @@ public class SieveEdit extends CompositeGwtWidgetElement {
 	}
 
 	public boolean hasChanged() {
-		if (loadedFilters.size() != sieveFilters.size())
+		List<MailFilterRule> rules = loadedFilters.stream().filter(this::isManageable).collect(Collectors.toList());
+		if (rules.size() != sieveFilters.size())
 			return true;
 
-		for (int i = 0; i < loadedFilters.size(); i++) {
-			if (!loadedFilters.get(i).equals(sieveFilters.get(i))) {
+		for (int i = 0; i < rules.size(); i++) {
+			if (!rules.get(i).equals(sieveFilters.get(i))) {
 				return true;
 			}
 		}
@@ -335,10 +337,13 @@ public class SieveEdit extends CompositeGwtWidgetElement {
 	@Override
 	public void saveModel(JavaScriptObject m) {
 		MailSettingsModel model = MailSettingsModel.get(m);
+		List<MailFilterRule> rules = new ArrayList<>();
+		rules.addAll(sieveFilters);
+		rules.addAll(loadedFilters.stream().filter(rule -> !isManageable(rule)).collect(Collectors.toList()));
 		if (model.getJsMailFilter() != null) {
 			model.getJsMailFilter()
 					.setRules(new GwtSerDerUtils.ListSerDer<MailFilterRule>(new MailFilterRuleGwtSerDer())
-							.serialize(sieveFilters).isArray().getJavaScriptObject().<JsArray<JsMailFilterRule>>cast());
+							.serialize(rules).isArray().getJavaScriptObject().<JsArray<JsMailFilterRule>>cast());
 		}
 	}
 
@@ -369,15 +374,21 @@ public class SieveEdit extends CompositeGwtWidgetElement {
 		} else {
 			asWidget().setVisible(true);
 			setLoadedFilters(mf.rules);
-			hasFilter(!mf.rules.isEmpty());
+
+			List<MailFilterRule> rules = mf.rules.stream().filter(this::isManageable).collect(Collectors.toList());
+			hasFilter(!rules.isEmpty());
 			while (filters.getRowCount() > 1) {
 				filters.removeRow(1);
 			}
-			for (MailFilterRule f : mf.rules) {
+			for (MailFilterRule f : rules) {
 				addFilter(f);
 			}
 		}
 
+	}
+
+	private boolean isManageable(MailFilterRule rule) {
+		return rule.client.equals("bluemind") && rule.trigger == Trigger.IN && !rule.deferred;
 	}
 
 	public static final String TYPE = "bm.mailbox.MailFiltersEditor";

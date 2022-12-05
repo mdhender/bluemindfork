@@ -235,6 +235,12 @@ public class MailFilterRule {
 		return this;
 	}
 
+	public MailFilterRule addMove(String subtree, Long id, String destinationFolder) {
+		removeAction(MailFilterRuleActionName.MOVE);
+		actions.add(new MailFilterRuleActionMove(subtree, id, destinationFolder));
+		return this;
+	}
+
 	public MailFilterRule addMoveFromString(String value) {
 		removeAction(MailFilterRuleActionName.MOVE);
 		actions.add(MailFilterRuleActionMove.fromString(value));
