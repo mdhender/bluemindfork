@@ -50,6 +50,7 @@ CREATE TABLE t_domainmailfilter_rule (
     deferred_action BOOLEAN DEFAULT FALSE NOT NULL,
     conditions JSONB DEFAULT '[]'::jsonb NOT NULL,
     actions JSONB DEFAULT '[]'::jsonb NOT NULL,
+    client_properties JSONB DEFAULT '{}'::jsonb NOT NULL,
     row_idx 	integer DEFAULT 0 NOT NULL,
     active		boolean DEFAULT true,
     stop      boolean DEFAULT true
@@ -65,6 +66,7 @@ CREATE TABLE t_mailfilter_rule (
     deferred_action BOOLEAN DEFAULT FALSE NOT NULL,
     conditions JSONB DEFAULT '[]'::jsonb NOT NULL,
     actions JSONB DEFAULT '[]'::jsonb NOT NULL,
+    client_properties JSONB DEFAULT '{}'::jsonb NOT NULL,
     row_idx 	integer DEFAULT 0 NOT NULL,
     active		boolean DEFAULT true,
     stop      boolean DEFAULT true
