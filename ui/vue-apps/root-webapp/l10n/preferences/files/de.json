@@ -125,7 +125,7 @@
     "preferences.mail.advanced.recipient_autocomplete.confirm_deletion.title": "Vorschläge zurücksetzen",
     "preferences.mail.advanced.recipient_autocomplete.confirm_deletion": "Empfängerprioritäten, die während der E-Mail-Nutzung erworben wurden, werden zurückgesetzt.",
     "preferences.mail.advanced.recipient_autocomplete.title": "Vorgeschlagene Adressaten",
-    "preferences.mail.advanced.recipient_autocomplete": "Die Prioritäten der Vorschläge, die bei der Eingabe eines Empfängers gemacht wurden, zurücksetzen.",
+    "preferences.mail.advanced.recipient_autocomplete": "Die Prioritäten der Vorschläge, die bei der Eingabe eines Empfängers gemacht wurden, zurücksetzen",
     "preferences.mail.advanced.switch.title": "Webmailer-Version",
     "preferences.mail.advanced.switch.label": "den neuen Webmailer testen",
     "preferences.mail.advanced.switch.modern.missing_features": "Sie verwenden die neue Version des Webmailers, beachten Sie dass manche Funktionen noch nicht enthalten sind:",

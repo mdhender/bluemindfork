@@ -125,7 +125,7 @@
     "preferences.mail.advanced.recipient_autocomplete.confirm_deletion.title": "Reset suggestions",
     "preferences.mail.advanced.recipient_autocomplete.confirm_deletion": "Recipient priorities collected during the use of the messaging application will be reset.",
     "preferences.mail.advanced.recipient_autocomplete.title": "Recipient suggestions",
-    "preferences.mail.advanced.recipient_autocomplete": "Reset priorities of suggestions done by recipient input.",
+    "preferences.mail.advanced.recipient_autocomplete": "Reset priorities of suggestions done by recipient input",
     "preferences.mail.advanced.switch.title": "Mail application version",
     "preferences.mail.advanced.switch.label": "Try the new webmail version",
     "preferences.mail.advanced.switch.modern.missing_features": "You are using the new version of the mail application, please note, some features might not be present yet:",
