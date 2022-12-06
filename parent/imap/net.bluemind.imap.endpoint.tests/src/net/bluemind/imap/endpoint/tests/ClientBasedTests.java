@@ -183,6 +183,7 @@ public class ClientBasedTests {
 		try (StoreClient sc = new StoreClient("127.0.0.1", port, "tom@devenv.blue", "tom")) {
 			assertTrue(sc.login());
 			ListResult result = sc.listAll();
+			System.err.println("Got " + result.size() + " folders");
 			assertTrue(result.size() > 5);
 			result = sc.listSubscribed();
 			assertTrue(result.size() > 5);

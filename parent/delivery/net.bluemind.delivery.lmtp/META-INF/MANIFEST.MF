@@ -26,8 +26,11 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.imap.serviceprovider,
  com.github.ben-manes.caffeine,
  net.bluemind.core.caches.registry,
- net.bluemind.hornetq.client
+ net.bluemind.hornetq.client,
+ org.rocksdb.jni,
+ com.typesafe.config
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.delivery.lmtp
 Bundle-ActivationPolicy: lazy
-Export-Package: net.bluemind.delivery.lmtp
+Export-Package: net.bluemind.delivery.lmtp,
+ net.bluemind.delivery.lmtp.dedup

@@ -17,6 +17,8 @@
   */
 package net.bluemind.delivery.lmtp.tests;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
@@ -47,6 +49,7 @@ import net.bluemind.delivery.lmtp.ApiProv;
 import net.bluemind.delivery.lmtp.LmtpMessageHandler;
 import net.bluemind.delivery.lmtp.MailboxLookup;
 import net.bluemind.delivery.lmtp.common.ResolvedBox;
+import net.bluemind.delivery.lmtp.dedup.DuplicateDeliveryDb;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
@@ -66,6 +69,8 @@ public class LmtpMessageHandlerTests {
 	private MailboxLookup lookup;
 	private SecurityContext defaultSecurityContext;
 	private BmTestContext context;
+
+	private static DuplicateDeliveryDb dedup = DuplicateDeliveryDb.get();
 
 	@Before
 	public void before() throws Exception {
@@ -124,7 +129,7 @@ public class LmtpMessageHandlerTests {
 	@Test
 	public void testSavedMailHasRightConversationId() throws Exception {
 		ApiProv prov = k -> context.getServiceProvider();
-		LmtpMessageHandler messageHandler = new LmtpMessageHandler(prov);
+		LmtpMessageHandler messageHandler = new LmtpMessageHandler(prov, dedup);
 		messageHandler.deliver(emailUser1, emailUser2, eml("emls/test_mail.eml"));
 
 		ResolvedBox tgtBox = lookup.lookupEmail(emailUser2);
@@ -145,7 +150,7 @@ public class LmtpMessageHandlerTests {
 	@Test
 	public void testSavedMailEmptyReferences() throws Exception {
 		ApiProv prov = k -> context.getServiceProvider();
-		LmtpMessageHandler messageHandler = new LmtpMessageHandler(prov);
+		LmtpMessageHandler messageHandler = new LmtpMessageHandler(prov, dedup);
 		messageHandler.deliver(emailUser1, emailUser2, eml("emls/test_mail_empty_references.eml"));
 
 		ResolvedBox tgtBox = lookup.lookupEmail(emailUser2);
@@ -171,7 +176,7 @@ public class LmtpMessageHandlerTests {
 	@Test
 	public void testSavedMailNoReferences() throws Exception {
 		ApiProv prov = k -> context.getServiceProvider();
-		LmtpMessageHandler messageHandler = new LmtpMessageHandler(prov);
+		LmtpMessageHandler messageHandler = new LmtpMessageHandler(prov, dedup);
 		messageHandler.deliver(emailUser1, emailUser2, eml("emls/test_mail_no_references.eml"));
 
 		ResolvedBox tgtBox = lookup.lookupEmail(emailUser2);
@@ -192,6 +197,23 @@ public class LmtpMessageHandlerTests {
 				.asLong();
 
 		Assert.assertEquals(hashMessageId, (long) mail.value.conversationId);
+	}
+
+	@Test
+	public void testDeduplicationByMessageId() throws Exception {
+		ApiProv prov = k -> context.getServiceProvider();
+		long before = dedup.dedupCount();
+		LmtpMessageHandler messageHandler = new LmtpMessageHandler(prov, dedup);
+		messageHandler.deliver(emailUser1, emailUser2, eml("emls/test_dedup.eml"));
+		long afterFirst = dedup.dedupCount();
+		assertEquals(before, afterFirst);
+
+		for (int i = 0; i < 10; i++) {
+			messageHandler.deliver(emailUser1, emailUser2, eml("emls/test_dedup.eml"));
+			long duplicate = dedup.dedupCount();
+			System.err.println("duplicates: " + duplicate);
+		}
+		assertEquals(afterFirst + 10, dedup.dedupCount());
 	}
 
 	protected IServiceProvider systemServiceProvider() {

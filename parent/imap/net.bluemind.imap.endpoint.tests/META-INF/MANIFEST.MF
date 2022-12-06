@@ -12,7 +12,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.imap,
  org.awaitility;bundle-version="4.2.0",
  org.hamcrest;bundle-version="2.1.0",
- net.bluemind.imap.driver.mailapi;bundle-version="4.1.0",
  net.bluemind.backend.mail.replica.api,
  slf4j.api,
  com.google.guava

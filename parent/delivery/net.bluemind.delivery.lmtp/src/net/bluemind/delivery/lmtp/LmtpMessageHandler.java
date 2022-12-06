@@ -55,6 +55,7 @@ import net.bluemind.delivery.lmtp.common.FreezableDeliveryContent;
 import net.bluemind.delivery.lmtp.common.IDeliveryHook;
 import net.bluemind.delivery.lmtp.common.LmtpEnvelope;
 import net.bluemind.delivery.lmtp.common.ResolvedBox;
+import net.bluemind.delivery.lmtp.dedup.DuplicateDeliveryDb;
 import net.bluemind.delivery.lmtp.filters.IMessageFilter;
 import net.bluemind.delivery.lmtp.filters.LmtpFilters;
 import net.bluemind.delivery.lmtp.filters.PermissionDeniedException;
@@ -70,12 +71,14 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 	private static final Logger logger = LoggerFactory.getLogger(LmtpMessageHandler.class);
 	private final ApiProv prov;
 	private final MailboxLookup lookup;
-	private Counter internalCount;
-	private Counter externalCount;
+	private final Counter internalCount;
+	private final Counter externalCount;
+	private final DuplicateDeliveryDb dedup;
 
-	public LmtpMessageHandler(ApiProv prov) {
+	public LmtpMessageHandler(ApiProv prov, DuplicateDeliveryDb dedup) {
 		this.prov = prov;
 		this.lookup = new MailboxLookup(prov);
+		this.dedup = dedup;
 		Registry reg = MetricsRegistry.get();
 		IdFactory idf = new IdFactory("bm-lmtpd", reg, LmtpMessageHandler.class);
 		this.internalCount = reg.counter(idf.name("deliveries", "source", "internal"));
@@ -108,10 +111,12 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 		if (freezedContent.isEmpty()) {
 			return;
 		}
-		doDeliver(freezedContent);
 
-		Optional.ofNullable(lookup.lookupEmail(from)) //
-				.ifPresentOrElse(box -> internalCount.increment(), () -> externalCount.increment());
+		boolean delivered = dedup.runIfUnique(freezedContent, () -> doDeliver(freezedContent));
+		if (delivered) {
+			Optional.ofNullable(lookup.lookupEmail(from)) //
+					.ifPresentOrElse(box -> internalCount.increment(), externalCount::increment);
+		}
 	}
 
 	private FreezableDeliveryContent preDelivery(String from, ResolvedBox tgtBox, String subtree, InputStream data)

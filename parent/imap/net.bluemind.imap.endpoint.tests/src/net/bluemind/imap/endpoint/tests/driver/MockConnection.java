@@ -63,7 +63,7 @@ public class MockConnection implements MailboxConnection {
 
 	@Override
 	public List<ListNode> list(String reference, String mailboxPattern) {
-		return model.folders.values().stream().map(sf -> sf.folder).sorted((f1, f2) -> {
+		List<ListNode> ret = model.folders.values().stream().map(sf -> sf.folder).sorted((f1, f2) -> {
 			if (f1.value.fullName.equals("INBOX")) {
 				return -1;
 			}
@@ -76,8 +76,13 @@ public class MockConnection implements MailboxConnection {
 			ln.imapMountPoint = f.value.fullName;
 			ln.hasChildren = false;
 			ln.specialUse = Collections.emptyList();
+			ln.selectable = true;
 			return ln;
 		}).collect(Collectors.toList());
+
+		System.err.println("list('" + reference + "', '" + mailboxPattern + "') -> " + ret.size() + " node(s)");
+
+		return ret;
 	}
 
 	@Override

@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.net.StandardSocketOptions;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -31,9 +30,13 @@ import org.subethamail.smtp.MessageHandlerFactory;
 import org.subethamail.smtp.helper.SimpleMessageListenerAdapter;
 import org.subethamail.smtp.server.SMTPServer;
 
+import com.typesafe.config.Config;
+
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Verticle;
+import net.bluemind.delivery.lmtp.config.DeliveryConfig;
+import net.bluemind.delivery.lmtp.dedup.DuplicateDeliveryDb;
 import net.bluemind.imap.serviceprovider.SPResolver;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
@@ -84,12 +87,14 @@ public class LmtpStarter extends AbstractVerticle {
 
 		ApiProv prov = k -> SPResolver.get().resolve(k);
 
-		LmtpMessageHandler msgHandler = new LmtpMessageHandler(prov);
+		Config config = DeliveryConfig.get();
+		DuplicateDeliveryDb dedup = DuplicateDeliveryDb.get();
+		LmtpMessageHandler msgHandler = new LmtpMessageHandler(prov, dedup);
 		ExecutorService threadPool = Executors.newCachedThreadPool(new DefaultThreadFactory("lmtp"));
 		SMTPServer srv = new ReuseAddrSMTPServer(new SimpleMessageListenerAdapter(msgHandler), threadPool);
 		srv.getCommandHandler().addCommand(new LhloCommand());
 		srv.setSoftwareName("bm-lmtpd");
-		srv.setPort(2400);
+		srv.setPort(config.getInt("lmtp.port"));
 		srv.start();
 		return srv;
 	}
