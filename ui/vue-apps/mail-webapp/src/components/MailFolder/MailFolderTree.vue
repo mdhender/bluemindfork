@@ -119,9 +119,9 @@ export default {
             }
         }
 
-        color: $primary-fg-hi1;
+        color: $primary-fg;
         &:hover {
-            color: $highest;
+            color: $primary-fg-hi1;
         }
     }
 

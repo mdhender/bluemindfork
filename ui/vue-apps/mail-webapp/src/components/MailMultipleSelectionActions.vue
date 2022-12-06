@@ -246,7 +246,7 @@ $arrow-height: math.div($arrow-width, 2);
     }
 
     h1 {
-        color: $primary-fg-hi1;
+        color: $neutral-fg-hi1;
         font-size: 2rem;
     }
     hr {

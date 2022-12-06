@@ -71,10 +71,11 @@ $caret-spacing: 0;
 $outline-style: dashed;
 $outline: 1px $outline-style $neutral-fg-hi1;
 
-$drag-color: $fill-tertiary-bg;
+$drag-color: $fill-tertiary-fg;
+$drag-bg-color: $fill-tertiary-bg;
 $drag-border-color: $fill-tertiary-bg;
-$drag-active-bg-color: $tertiary-bg;
-$drag-hover-bg-color: $tertiary-bg-hi1;
+$drop-active-bg-color: $tertiary-bg;
+$drop-hover-bg-color: $tertiary-bg-hi1;
 
 // Typography
 

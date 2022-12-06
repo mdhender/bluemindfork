@@ -385,5 +385,12 @@ $items-info: (
         text-align: start;
         margin-top: $sp-3;
     }
+
+    & ~ .invalid-feedback {
+        color: $danger-fg;
+    }
+    & ~ .valid-feedback {
+        color: $success-fg;
+    }
 }
 </style>

@@ -69,7 +69,7 @@ export default {
 @import "~@bluemind/ui-components/src/css/variables";
 
 .mail-message-starter h1 {
-    color: $primary-fg-hi1;
+    color: $neutral-fg-hi1;
     font-size: 2rem;
 }
 
