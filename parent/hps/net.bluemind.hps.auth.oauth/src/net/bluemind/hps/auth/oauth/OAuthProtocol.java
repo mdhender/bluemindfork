@@ -95,7 +95,7 @@ public class OAuthProtocol implements IAuthProtocol {
 
 		String codeVerifier = codeVerifierCache.getIfPresent(state);
 		if (Strings.isNullOrEmpty(codeVerifier)) {
-			error(request, "Failed to fetch codeVerifier");
+			error(request, new Throwable("Failed to fetch codeVerifier"));
 			return;
 		}
 
@@ -110,6 +110,7 @@ public class OAuthProtocol implements IAuthProtocol {
 				params += "&code=" + code;
 				params += "&code_verifier=" + codeVerifier;
 				params += "&redirect_uri=" + redirectUri;
+				params += "&scope=openid";
 
 				byte[] postData = params.getBytes(StandardCharsets.UTF_8);
 
@@ -119,7 +120,7 @@ public class OAuthProtocol implements IAuthProtocol {
 
 				req.send(Buffer.buffer(postData)).onSuccess(resp -> {
 					if (resp.statusCode() >= 400) {
-						error(request, resp.statusMessage());
+						error(request, new Throwable(resp.statusMessage()));
 						return;
 					}
 					resp.bodyHandler(buf -> {
@@ -127,16 +128,16 @@ public class OAuthProtocol implements IAuthProtocol {
 						String token = response.getString("access_token");
 						resp.bodyHandler(body -> validateToken(request, protocol, provider, ss, forwadedFor, token));
 					});
-				}).onFailure(e -> error(request, e.getMessage()));
-			}).onFailure(e -> error(request, e.getMessage()));
+				}).onFailure(e -> error(request, e));
+			}).onFailure(e -> error(request, e));
 		} catch (Exception e) {
-			error(request, e.getMessage());
+			error(request, e);
 		}
 
 	}
 
-	private void error(HttpServerRequest req, String message) {
-		logger.error("Error during auth: {}", message);
+	private void error(HttpServerRequest req, Throwable e) {
+		logger.error("Error during auth: {}", e.getMessage(), e);
 		req.response().setStatusCode(500);
 		req.response().end();
 	}
@@ -149,7 +150,7 @@ public class OAuthProtocol implements IAuthProtocol {
 			req.putHeader("Authorization", "Bearer " + token);
 			req.send().onSuccess(resp -> {
 				if (resp.statusCode() >= 400) {
-					error(request, resp.statusMessage());
+					error(request, new Throwable(resp.statusMessage()));
 					return;
 				}
 				resp.bodyHandler(buf -> {
@@ -203,7 +204,7 @@ public class OAuthProtocol implements IAuthProtocol {
 
 			@Override
 			public void failure(Throwable e) {
-				error(request, e.getMessage());
+				error(request, e);
 			}
 
 		});
@@ -241,6 +242,7 @@ public class OAuthProtocol implements IAuthProtocol {
 		location += "&state=" + state;
 		location += "&code_challenge_method=S256";
 		location += "&response_type=code";
+		location += "&scope=openid";
 
 		req.response().headers().add(HttpHeaders.LOCATION, location);
 		req.response().setStatusCode(302);
