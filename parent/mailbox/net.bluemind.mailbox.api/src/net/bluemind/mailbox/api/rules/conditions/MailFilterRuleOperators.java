@@ -66,6 +66,8 @@ public class MailFilterRuleOperators {
 			return (RangeOperator<T>) MailFilterRuleOperators.LongOperator.RANGE_OPERATOR;
 		} else if (field.type().equals(Date.class)) {
 			return (RangeOperator<T>) MailFilterRuleOperators.DateOperator.RANGE_OPERATOR;
+		} else if (field.type().equals(List.class)) {
+			return (RangeOperator<T>) MailFilterRuleOperators.ListOperator.RANGE_OPERATOR;
 		}
 		return null;
 	}
@@ -194,6 +196,23 @@ public class MailFilterRuleOperators {
 			public boolean match(List<String> values, List<String> parameters) {
 				return values != null && parameters.stream().anyMatch(
 						parameter -> values.stream().anyMatch(value -> WildcardMatcher.match(value, parameter)));
+			}
+		};
+
+		public static final RangeOperator<List<String>> RANGE_OPERATOR = new RangeOperator<List<String>>() {
+			@Override
+			public boolean match(List<String> values, String lowerBoundParameter, String upperBoundParameter,
+					boolean inclusive) {
+				return values != null && values.stream() //
+						.map(value -> {
+							try {
+								return Long.parseLong(value);
+							} catch (Exception e) {
+								return null;
+							}
+						}).filter(Objects::nonNull) //
+						.anyMatch(value -> LongOperator.RANGE_OPERATOR.match(value, lowerBoundParameter,
+								upperBoundParameter, inclusive));
 			}
 		};
 	}
