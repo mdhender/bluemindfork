@@ -3841,6 +3841,41 @@ electron-to-chromium@^1.4.284:
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/electron-to-chromium/-/electron-to-chromium-1.4.294.tgz#ad80317b85f0859a9454680fbc1c726fefa7e6fd"
   integrity sha512-PuHZB3jEN7D8WPPjLmBQAsqQz8tWHlkkB4n0E2OYw8RwVdmBYV0Wn+rUFH8JqYyIRb4HQhhedgxlZL163wqLrQ==
 
+emailjs-addressparser@^2.0.2:
+  version "2.0.3"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/emailjs-addressparser/-/emailjs-addressparser-2.0.3.tgz#b9c1cbaf70da13622075944ce757f3be5451fb99"
+  integrity sha512-GjahNdp1fRsWBGxmwC4o7XEoEf7QsdsVrbZFoeulEKNp49NrIUZcZfGMKCPDv5kExiuJLulq/7tJY+ei6BRitA==
+
+emailjs-base64@^1.1.4:
+  version "1.1.4"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/emailjs-base64/-/emailjs-base64-1.1.4.tgz#392fa38cb6aa35dccd3af3637ffc14c1c7ce9612"
+  integrity sha512-4h0xp1jgVTnIQBHxSJWXWanNnmuc5o+k4aHEpcLXSToN8asjB5qbXAexs7+PEsUKcEyBteNYsSvXUndYT2CGGA==
+
+emailjs-mime-builder@2.0.5:
+  version "2.0.5"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/emailjs-mime-builder/-/emailjs-mime-builder-2.0.5.tgz#fedd7c7fd273accdd7033dc649f335c3eb2188f6"
+  integrity sha512-fkaUn6IA4onX3SmVpqvVTlkdrusM9lq+xnrA24euyMUga2B44Ue0ftE48aSNveEWPgGLtHfSd04lGWhT2/AOpw==
+  dependencies:
+    emailjs-addressparser "^2.0.2"
+    emailjs-mime-codec "^2.0.5"
+    emailjs-mime-types "^2.0.0"
+    punycode "1.4.1"
+    ramda "^0.25.0"
+
+emailjs-mime-codec@^2.0.5:
+  version "2.0.9"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/emailjs-mime-codec/-/emailjs-mime-codec-2.0.9.tgz#d184451b6f2e55c5868b0f0a82d18fe2b82f0c97"
+  integrity sha512-7qJo4pFGcKlWh/kCeNjmcgj34YoJWY0ekZXEHYtluWg4MVBnXqGM4CRMtZQkfYwitOhUgaKN5EQktJddi/YIDQ==
+  dependencies:
+    emailjs-base64 "^1.1.4"
+    ramda "^0.26.1"
+    text-encoding "^0.7.0"
+
+emailjs-mime-types@^2.0.0:
+  version "2.1.0"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/emailjs-mime-types/-/emailjs-mime-types-2.1.0.tgz#976877d38300cf0b1f4b89ed1bb0dd6e7449fc63"
+  integrity sha512-vlmgTAE3cya0GHoqHYgvmzG342sKGsHhddJhOSqXIZM0V7kjUAKxXmol3NTyeuHltggCp6HJT3NRqJuDkchCrw==
+
 emittery@^0.7.1:
   version "0.7.2"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/emittery/-/emittery-0.7.2.tgz#25595908e13af0f5674ab419396e2fb394cdfa82"
@@ -8263,6 +8298,11 @@ pump@^3.0.0:
     end-of-stream "^1.1.0"
     once "^1.3.1"
 
+punycode@1.4.1:
+  version "1.4.1"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/punycode/-/punycode-1.4.1.tgz#c0d5a63b2718800ad8e1eb0fa5269c84dd41845e"
+  integrity sha512-jmYNElW7yvO7TV33CjSmvSiE2yco3bV2czu/OzDKdMNVZQWfxCblURLhf+47syQRBntjfLdd/H0egrzIG+oaFQ==
+
 punycode@^2.1.0, punycode@^2.1.1:
   version "2.3.0"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/punycode/-/punycode-2.3.0.tgz#f67fa67c94da8f4d0cfff981aee4118064199b8f"
@@ -8294,6 +8334,16 @@ queue-microtask@^1.2.2:
   version "1.2.3"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/queue-microtask/-/queue-microtask-1.2.3.tgz#4929228bbc724dfac43e0efb058caf7b6cfb6243"
   integrity sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==
+
+ramda@^0.25.0:
+  version "0.25.0"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/ramda/-/ramda-0.25.0.tgz#8fdf68231cffa90bc2f9460390a0cb74a29b29a9"
+  integrity sha512-GXpfrYVPwx3K7RQ6aYT8KPS8XViSXUVJT1ONhoKPE9VAleW42YE+U+8VEyGWt41EnEQW7gwecYJriTI0pKoecQ==
+
+ramda@^0.26.1:
+  version "0.26.1"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/ramda/-/ramda-0.26.1.tgz#8d41351eb8111c55353617fc3bbffad8e4d35d06"
+  integrity sha512-hLWjpy7EnsDBb0p+Z3B7rPi3GDeRG5ZtiI33kJhTt+ORCd38AbAIjB/9zRIUoeTbE/AVX5ZkU7m6bznsvrf8eQ==
 
 randomatic@^3.0.0:
   version "3.1.1"
@@ -9547,6 +9597,11 @@ test-exclude@^6.0.0:
     "@istanbuljs/schema" "^0.1.2"
     glob "^7.1.4"
     minimatch "^3.0.4"
+
+text-encoding@^0.7.0:
+  version "0.7.0"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/text-encoding/-/text-encoding-0.7.0.tgz#f895e836e45990624086601798ea98e8f36ee643"
+  integrity sha512-oJQ3f1hrOnbRLOcwKz0Liq2IcrvDeZRHXhd9RgLrsT+DjWY/nty1Hi7v3dtkaEYbPYe0mUoOfzRrMwfXXwgPUA==
 
 text-table@^0.2.0:
   version "0.2.0"

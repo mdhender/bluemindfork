@@ -2,15 +2,15 @@ import fs from "fs";
 import { pki } from "node-forge";
 import path from "path";
 import { CRYPTO_HEADERS } from "../../lib/constants";
+import { base64ToArrayBuffer } from "../../lib/helper";
 import extractSignedData from "../signedDataParser";
 import {
     DecryptError,
-    InvalidKeyError,
     InvalidMessageIntegrityError,
     InvalidSignatureError,
     RecipientNotFoundError
 } from "../exceptions";
-import { base64ToArrayBuffer, readFile } from "./helpers";
+import { readFile } from "./helpers";
 import { checkSignatureValidity, getSignedDataEnvelope, checkMessageIntegrity } from "../pkcs7/verify";
 import pkcs7 from "../pkcs7/";
 

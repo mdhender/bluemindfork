@@ -28,10 +28,9 @@ export class ApiRouteHandler {
         if (this.next) {
             client.next = this.next.execute.bind(this.next, parameters);
         } else {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const client: any = RootApiClientFactory.create(this.client, await session.sid, ...parameters.client);
+            const next: any = RootApiClientFactory.create(this.client, await session.sid, ...parameters.client);
             const args = overwrite.length > 0 ? overwrite : parameters.method;
-            return client[this.metadatas.name](...args);
+            client.next = next[this.metadatas.name].bind(next, ...args);
         }
         return await client[this.metadatas.name](...parameters.method);
     }

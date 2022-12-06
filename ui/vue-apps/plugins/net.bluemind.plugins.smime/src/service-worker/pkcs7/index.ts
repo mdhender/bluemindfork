@@ -2,6 +2,7 @@ import { pkcs7, pki, asn1, util } from "node-forge";
 import { RecipientNotFoundError, InvalidCertificateError, DecryptError } from "../exceptions";
 import { checkMessageIntegrity, checkSignatureValidity, getSignedDataEnvelope, getSigningTime } from "./verify";
 import { checkCertificateValidity, getCertificate } from "../pki/";
+import { binaryToArrayBuffer } from "../../lib/helper";
 
 export async function decrypt(
     data: Blob,
@@ -29,8 +30,16 @@ export async function decrypt(
     }
 }
 
-export async function crypt() {
-    return null;
+export function encrypt(content: string, certificate: pki.Certificate): Blob {
+    const envelope = pkcs7.createEnvelopedData();
+    envelope.addRecipient(certificate);
+    envelope.content = util.createBuffer(content);
+    envelope.encrypt();
+
+    const asn1Content = envelope.toAsn1();
+    const bytes = asn1.toDer(asn1Content).getBytes();
+    const buffer = binaryToArrayBuffer(bytes);
+    return new Blob([buffer]);
 }
 
 export async function verify(pkcs7: ArrayBuffer, toDigest: string, senderAddress: string) {
@@ -49,4 +58,4 @@ export async function sign() {
     return null;
 }
 
-export default { decrypt, crypt, verify, sign };
+export default { decrypt, encrypt, verify, sign };

@@ -1,7 +1,7 @@
-import { MailboxItem, MailboxItemsClient } from "@bluemind/backend.mail.api";
+import { ImapItemIdentifier, MailboxItem, MailboxItemsClient } from "@bluemind/backend.mail.api";
 import { ItemValue } from "@bluemind/core.container.api";
 import { logger } from "./environnment/logger";
-import { decrypt, isEncrypted, isSigned, verify } from "./smime";
+import { decrypt, encrypt, isEncrypted, isSigned, verify } from "./smime";
 
 export default class SMimeApiProxy extends MailboxItemsClient {
     next?: (...args: Array<unknown>) => Promise<never>;
@@ -20,5 +20,13 @@ export default class SMimeApiProxy extends MailboxItemsClient {
             logger.error(e);
         }
         return items;
+    }
+    async create(item: MailboxItem): Promise<ImapItemIdentifier> {
+        try {
+            item = await encrypt(item, this.replicatedMailboxUid);
+        } catch (e) {
+            logger.error(e);
+        }
+        return await this.next!(item);
     }
 }

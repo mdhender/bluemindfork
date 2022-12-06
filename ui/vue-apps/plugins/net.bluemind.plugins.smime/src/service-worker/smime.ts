@@ -1,3 +1,5 @@
+// FIXME: typing emailjs-mime-builder
+import MimeBuilder from "emailjs-mime-builder";
 import { MailboxItemsClient, MailboxItem, MessageBody } from "@bluemind/backend.mail.api";
 import { ItemValue } from "@bluemind/core.container.api";
 import { MimeParser } from "@bluemind/mime";
@@ -51,8 +53,30 @@ export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): 
     return item;
 }
 
-export function encrypt() {
-    return null;
+export async function encrypt(item: MailboxItem, folderUid: string) {
+    const encryptedItem = { ...item };
+    // TODO: get the certificates for all recipients
+    const certificate = await getMyCertificate();
+    if (item.body.structure) {
+        const sid = await session.sid;
+        const client = new MailboxItemsClient(sid, folderUid);
+
+        //TODO: create the real mime tree
+        const root = new MimeBuilder("text/plain").setContent("toto");
+        const mimeTree = root.build();
+        const encryptedPart = pkcs7.encrypt(mimeTree, certificate);
+        const address = await client.uploadPart(encryptedPart);
+        const part = {
+            address,
+            charset: "utf-8",
+            encoding: "base64",
+            mime: PKCS7_MIMES[0]
+        };
+        encryptedItem.body.structure = part;
+        return encryptedItem;
+    }
+
+    return encryptedItem;
 }
 
 export async function verify(folderUid: string, item: ItemValue<MailboxItem>): Promise<ItemValue<MailboxItem>> {
