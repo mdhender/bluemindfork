@@ -85,7 +85,7 @@ public class HotUpgradeTasksGrid extends DataGrid<HotUpgradeTask> {
 						Collections.sort(values, Comparator.comparing(x -> x.status.name()));
 					} else if (columnSortInfo.getColumn().equals(executionMode)) {
 						Collections.sort(values, Comparator.comparing(x -> x.executionMode.name()));
-					} else if (columnSortInfo.getColumn().equals(executionMode)) {
+					} else if (columnSortInfo.getColumn().equals(mandatory)) {
 						Collections.sort(values, Comparator.comparing(x -> x.mandatory));
 					}
 
