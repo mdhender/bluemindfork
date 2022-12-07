@@ -151,7 +151,7 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 					sl.boxName = replica.fullName;
 					logger.info("Updating cached location for {} from {} to {}", uid, oldName, sl.boxName);
 				}
-				IContainers contApi = context.provider().instance(IContainers.class);
+				IContainers contApi = context.su().provider().instance(IContainers.class);
 				ContainerModifiableDescriptor cmd = new ContainerModifiableDescriptor();
 				cmd.deleted = replica.deleted;
 				cmd.name = replica.name;

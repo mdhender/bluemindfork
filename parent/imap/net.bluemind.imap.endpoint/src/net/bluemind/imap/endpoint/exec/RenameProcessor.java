@@ -53,8 +53,12 @@ public class RenameProcessor extends AuthenticatedCommandProcessor<RenameCommand
 		if (!error.isBlank()) {
 			ctx.write(renameCommand.raw().tag() + " NO rename failure: " + error + "\r\n");
 		} else {
-			con.rename(renameCommand.srcFolder(), renameCommand.dstFolder());
-			ctx.write(renameCommand.raw().tag() + " OK rename completed\r\n");
+			String newName = con.rename(renameCommand.srcFolder(), renameCommand.dstFolder());
+			if (newName != null) {
+				ctx.write(renameCommand.raw().tag() + " OK rename completed\r\n");
+			} else {
+				ctx.write(renameCommand.raw().tag() + " NO rename failed\r\n");
+			}
 		}
 		completed.handle(Result.success());
 	}

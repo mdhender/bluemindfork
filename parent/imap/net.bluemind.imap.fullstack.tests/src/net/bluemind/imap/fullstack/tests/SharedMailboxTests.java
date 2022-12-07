@@ -50,6 +50,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
+import com.typesafe.config.Config;
 
 import net.bluemind.addressbook.domainbook.verticle.DomainBookVerticle;
 import net.bluemind.core.api.Email;
@@ -430,6 +431,39 @@ public class SharedMailboxTests {
 			boolean listsDeletedFolder = sc.listAll().stream().filter(ListInfo::isSelectable).map(ListInfo::getName)
 					.anyMatch(foldersFromThisTest::contains);
 			assertFalse("One of " + foldersFromThisTest + " is still present", listsDeletedFolder);
+		}
+	}
+
+	@Test
+	public void renameToSharedMbox() throws IMAPException {
+		Config config = DriverConfig.get();
+		String mboxSharePrefix = config.getString(DriverConfig.SHARED_VIRTUAL_ROOT) + "/" + mboxShare.value.name;
+		String userSharePrefix = config.getString(DriverConfig.USER_VIRTUAL_ROOT) + "/" + userShare.value.login;
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "john")) {
+			assertTrue(sc.login());
+			assertTrue(sc.create("created"));
+			assertTrue(sc.rename("created", "moved"));
+			assertTrue(sc.rename("moved", "Trash/moved"));
+			assertFalse(sc.rename("Trash/moved", mboxSharePrefix + "/moved"));
+			assertFalse(sc.rename("Trash/moved", userSharePrefix + "/moved"));
+
+			ListResult results = sc.listAll();
+			results.stream().anyMatch(result -> result.getName().equals("Trash/moved"));
+			results.stream().noneMatch(result -> result.getName().equals(mboxSharePrefix + "/moved"));
+			results.stream().noneMatch(result -> result.getName().equals(userSharePrefix + "/moved"));
+
+			assertTrue(sc.create(userSharePrefix + "/created"));
+			assertTrue(sc.rename(userSharePrefix + "/created", userSharePrefix + "/moved"));
+			assertTrue(sc.rename(userSharePrefix + "/moved", userSharePrefix + "/Trash/moved"));
+			assertTrue(sc.rename(userSharePrefix + "/Trash/moved", userSharePrefix + "/INBOX/moved"));
+			results = sc.listAll();
+			results.stream().anyMatch(result -> result.getName().equals(userSharePrefix + "/INBOX/moved"));
+
+			assertTrue(sc.create(mboxSharePrefix + "/created"));
+			assertFalse(sc.rename(mboxSharePrefix + "/created", userSharePrefix + "/created"));
+			results.stream().anyMatch(result -> result.getName().equals(mboxSharePrefix + "/created"));
+			results.stream().noneMatch(result -> result.getName().equals(userSharePrefix + "/created"));
+
 		}
 	}
 

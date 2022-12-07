@@ -655,17 +655,37 @@ public class MailApiConnection implements MailboxConnection {
 	}
 
 	@Override
-	public String rename(String fName, String newName) {
-		ItemValue<MailboxReplica> folder = foldersApi.byReplicaName(fName);
-		if (folder == null) {
-			logger.warn("[{}] folder {} does not exists.", this, fName);
+	public String rename(String fullName, String newName) {
+		SelectedFolder toRename = select(fullName);
+		if (toRename == null) {
+			logger.warn("[{}] folder {} does not exists.", this, fullName);
+			return null;
+		}
+
+		ItemValue<Mailbox> owner = myMailbox;
+		String absoluteNewName = newName;
+		if (newName.startsWith(sharedRootPrefix) || newName.startsWith(userRootPrefix)) {
+			String shareParent = newName.substring(0, newName.lastIndexOf('/'));
+			ImapMailbox resolvedParent = folderResolver.resolveBox(shareParent);
+			owner = resolvedParent.owner;
+			if (owner != null) {
+				ItemValue<MailboxReplica> parentBox = resolvedParent.foldersApi
+						.byReplicaName(resolvedParent.replicaName);
+				absoluteNewName = shareToFullName(owner, parentBox, newName);
+			}
+		}
+
+		if (owner == null || absoluteNewName == null || !owner.uid.equals(toRename.mailbox.owner.uid)) {
+			logger.warn("[{}] folder {} can't be renamed to {}.", this, fullName, newName);
 			return null;
 		} else {
-			MailboxReplica renamed = MailboxReplica.from(folder.value);
-			renamed.fullName = newName;
-			renamed.name = renamed.fullName.substring(renamed.fullName.lastIndexOf('/') + 1);
-			foldersApi.update(folder.uid, renamed);
+			MailboxReplica renamed = MailboxReplica.from(toRename.folder.value);
+			renamed.name = null;
+			renamed.parentUid = null;
+			renamed.fullName = absoluteNewName;
+			resolvedFolderApi(toRename.mailbox.owner).update(toRename.folder.uid, renamed);
 			return renamed.fullName;
+
 		}
 	}
 

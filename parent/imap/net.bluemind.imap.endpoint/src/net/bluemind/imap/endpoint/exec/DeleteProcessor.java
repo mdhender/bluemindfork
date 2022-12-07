@@ -36,14 +36,14 @@ public class DeleteProcessor extends AuthenticatedCommandProcessor<DeleteCommand
 	}
 
 	@Override
-	protected void checkedOperation(DeleteCommand createCommand, ImapContext ctx,
+	protected void checkedOperation(DeleteCommand deleteCommand, ImapContext ctx,
 			Handler<AsyncResult<Void>> completed) {
 		MailboxConnection con = ctx.mailbox();
-		boolean success = con.delete(createCommand.folder());
+		boolean success = con.delete(deleteCommand.folder());
 		if (success) {
-			ctx.write(createCommand.raw().tag() + " OK delete completed\r\n");
+			ctx.write(deleteCommand.raw().tag() + " OK delete completed\r\n");
 		} else {
-			ctx.write(createCommand.raw().tag() + " NO delete failed\r\n");
+			ctx.write(deleteCommand.raw().tag() + " NO delete failed\r\n");
 		}
 		completed.handle(Result.success());
 	}
