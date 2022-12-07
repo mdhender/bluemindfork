@@ -6,8 +6,8 @@
 </template>
 
 <script>
-import BaseField from "../../mixins/BaseField";
 import { BmIcon } from "@bluemind/ui-components";
+import { BaseField } from "@bluemind/preferences";
 import PrefReadMore from "../PrefReadMore";
 
 export default {

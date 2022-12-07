@@ -1,52 +1,52 @@
 <template>
     <div v-if="IS_SW_AVAILABLE" class="pref-smime">
-        <bm-spinner v-if="loading" />
-        <div v-else-if="swError">
+        <div v-if="swError">
             {{ $t("smime.preferences.service_worker.error") }}
         </div>
         <template v-else>
             <img :src="SMIME_AVAILABLE ? setKeyIllustration : unsetKeyIllustration" class="mr-5" />
             <div class="d-inline-block align-middle">
                 <template v-if="SMIME_AVAILABLE">
-                    <bm-label-icon icon="check-circle" icon-size="lg">
+                    <bm-label-icon icon="check-circle" :inline="false">
                         {{ $t("smime.preferences.import_field.cert_and_key_associated") }}
                     </bm-label-icon>
-                    <bm-button variant="text" class="d-block mt-5 ml-6" @click="dissociate">
+                    <bm-button variant="text" class="mt-5 ml-6" @click="dissociate">
                         {{ $t("common.dissociate") }}
                     </bm-button>
                 </template>
                 <template v-else>
-                    {{ $t("smime.preferences.import_field.cert_or_key_dissociated") }}
-                    <bm-button variant="text-accent" class="d-block mt-5 ml-4" @click="openUploadModal">
-                        <bm-icon icon="key" class="mr-3" />
+                    <div>{{ $t("smime.preferences.import_field.cert_or_key_dissociated") }}</div>
+                    <bm-button icon="key" variant="text-accent" class="mt-5 ml-4" @click="openUploadModal">
                         {{ $t("common.associate") }}
                     </bm-button>
                 </template>
             </div>
         </template>
-        <import-smime-key-modal ref="import-modal" />
+        <import-pkcs12-modal ref="import-modal" @ok="needReload" />
     </div>
     <div v-else>{{ $t("smime.preferences.service_worker.undefined") }}</div>
 </template>
 
 <script>
 import { mapGetters, mapState } from "vuex";
-import { BmButton, BmIcon, BmLabelIcon, BmSpinner } from "@bluemind/ui-components";
+import { BaseField } from "@bluemind/preferences";
+import { BmButton, BmLabelIcon } from "@bluemind/ui-components";
 import { CHECK_IF_ASSOCIATED, DISSOCIATE_CRYPTO_FILES } from "../../store/actionTypes";
 import { SMIME_AVAILABLE } from "../../store/getterTypes";
 import { IS_SW_AVAILABLE } from "../../lib/constants";
-import ImportSmimeKeyModal from "./ImportSmimeKeyModal";
+import ImportPkcs12Modal from "./ImportPkcs12Modal";
 import unsetKeyIllustration from "../../../assets/setting-encryption-key-unset.png";
 import setKeyIllustration from "../../../assets/setting-encryption-key-set.png";
 
 export default {
     name: "PrefSmime",
-    components: { BmButton, BmIcon, BmLabelIcon, BmSpinner, ImportSmimeKeyModal },
+    components: { BmButton, BmLabelIcon, ImportPkcs12Modal },
+    mixins: [BaseField],
     data() {
         return { IS_SW_AVAILABLE, setKeyIllustration, unsetKeyIllustration };
     },
     computed: {
-        ...mapState("smime", ["hasPrivateKey", "hasPublicCert", "loading", "swError"]),
+        ...mapState("smime", ["hasPrivateKey", "hasPublicCert", "swError"]),
         ...mapGetters("smime", [SMIME_AVAILABLE])
     },
     mounted() {
@@ -56,8 +56,12 @@ export default {
         openUploadModal() {
             this.$refs["import-modal"].open();
         },
-        dissociate() {
-            this.$store.dispatch("smime/" + DISSOCIATE_CRYPTO_FILES);
+        async dissociate() {
+            await this.$store.dispatch("smime/" + DISSOCIATE_CRYPTO_FILES);
+            this.NEED_RELOAD();
+        },
+        needReload() {
+            this.NEED_RELOAD();
         }
     }
 };

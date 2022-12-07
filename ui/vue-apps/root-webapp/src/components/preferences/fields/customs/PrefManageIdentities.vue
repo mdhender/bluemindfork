@@ -42,7 +42,7 @@ import { BmButton, BmIcon, BmPagination, BmTable } from "@bluemind/ui-components
 import { Contact } from "@bluemind/business-components";
 
 import ManageIdentityModal from "./ManageIdentityModal";
-import BaseField from "../../mixins/BaseField";
+import { BaseField } from "@bluemind/preferences";
 
 export default {
     name: "PrefManageIdentities",

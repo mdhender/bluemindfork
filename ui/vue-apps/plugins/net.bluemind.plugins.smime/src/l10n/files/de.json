@@ -15,12 +15,11 @@
                 "cert_and_key_associated": "Your private key and public certificate have been associated.",
                 "cert_or_key_dissociated": "You do not have any public certificate or private key associated.",
                 "modal": {
-                    "key_associated": "Your private key is associated.",
-                    "key_disassociated": "Your private key is not associated.",
-                    "certificate_associated": "Your public certificate is associated.",
-                    "certificate_disassociated": "Your public certificate is not associated.",
-                    "supported_formats": "Supported formats: to be defined... !",
+                    "no_cert_found": "No certificate has been found",
+                    "no_private_key_found": "No private key has been found",
+                    "supported_formats": "Supported format: PKCS#12",
                     "title": "Import my private key and my public certificate",
+                    "unlock_pkcs12": "Enter password to unlock PKCS#12 file",
                     "unsupported_file": "This file format is not supported."
                 }
             },

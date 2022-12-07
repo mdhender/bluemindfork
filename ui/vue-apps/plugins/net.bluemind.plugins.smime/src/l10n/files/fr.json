@@ -12,15 +12,14 @@
         "preferences": {
             "import_field": {
                 "title": "Chiffrement S/MIME",
-                "cert_and_key_associated": "Votre clef privée et votre certificat public ont bien été associés.",
-                "cert_or_key_dissociated": "Vous n'avez pas de clef privée ou de certificat public associés.",
+                "cert_and_key_associated": "Votre clé privée et votre certificat public ont bien été associés.",
+                "cert_or_key_dissociated": "Vous n'avez pas de clé privée ou de certificat public associés.",
                 "modal": {
-                    "key_associated": "Votre clef privée est associée.",
-                    "key_disassociated": "Votre clef privée n'est pas associée.",
-                    "certificate_associated": "Votre certificat public est associé.",
-                    "certificate_disassociated": "Votre certificat public n'est pas associé.",
-                    "supported_formats": "Formats supportés : à définir... !",
-                    "title": "Importer ma clef privée et mon certificat public",
+                    "no_cert_found": "Aucun certificat n'a été trouvé.",
+                    "no_private_key_found": "Aucune clé privée n'a été trouvée.",
+                    "supported_formats": "Format supporté : PKCS#12",
+                    "title": "Importer ma clé privée et mon certificat public",
+                    "unlock_pkcs12": "Saisissez le mot de passe pour déverrouiller le fichier PKCS#12",
                     "unsupported_file": "Ce format de fichier n'est pas supporté."
                 }
             },

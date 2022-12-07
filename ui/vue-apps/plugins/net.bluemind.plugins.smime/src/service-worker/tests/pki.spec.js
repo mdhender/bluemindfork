@@ -1,9 +1,9 @@
 import { PKIStatus } from "../../lib/constants";
 import { ExpiredCertificateError, InvalidCertificateError, InvalidKeyError } from "../exceptions";
 import { checkCertificateValidity, getMyCertificate, getMyPrivateKey } from "../pki";
-import db from "../SMimeDB";
+import db from "../pki/SMimeDB";
 import { readFile } from "./helpers";
-jest.mock("../SMimeDB");
+jest.mock("../pki/SMimeDB");
 
 const mockCertificateTxt = readTxt("documents/certificate");
 const mockKeyTxt = readTxt("documents/privateKey");

@@ -22,7 +22,7 @@ import BmCalendarBadge from "./BmCalendarBadge";
 import BmCalendarItem from "./BmCalendarItem";
 import { ContainerHelper, ContainerType } from "../container";
 import CalendarHelper from "./helper";
-import BaseField from "../../../../mixins/BaseField";
+import { BaseField } from "@bluemind/preferences";
 import ContainersManagement from "../ContainersManagement";
 import { mapMutations, mapState } from "vuex";
 

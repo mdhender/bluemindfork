@@ -24,7 +24,7 @@ import { inject } from "@bluemind/inject";
 import { containerToAddressBookDescriptor, ContainerHelper, ContainerType } from "../container";
 import AddressbookHelper from "./helper";
 import BmAddressbookItem from "./BmAddressbookItem";
-import BaseField from "../../../../mixins/BaseField";
+import { BaseField } from "@bluemind/preferences";
 import ContainersManagement from "../ContainersManagement";
 import { SUCCESS } from "@bluemind/alert.store";
 import { SAVE_ALERT } from "../../../../Alerts/defaultAlerts";

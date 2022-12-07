@@ -22,7 +22,7 @@ import AddressbookHelper from "./helper";
 import BmAddressbookBadge from "./BmAddressbookBadge";
 import BmAddressbookItem from "./BmAddressbookItem";
 import { ContainerHelper, ContainerType } from "../container";
-import BaseField from "../../../../mixins/BaseField";
+import { BaseField } from "@bluemind/preferences";
 import ContainersManagement from "../ContainersManagement";
 import { mapMutations, mapState } from "vuex";
 

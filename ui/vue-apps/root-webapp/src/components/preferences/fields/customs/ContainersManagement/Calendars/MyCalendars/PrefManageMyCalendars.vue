@@ -24,7 +24,7 @@ import { SUCCESS } from "@bluemind/alert.store";
 
 import { containerToCalendarDescriptor, ContainerHelper, ContainerType } from "../../container";
 import CalendarHelper from "../helper";
-import BaseField from "../../../../../mixins/BaseField";
+import { BaseField } from "@bluemind/preferences";
 import BmCalendarItem from "../BmCalendarItem";
 import ContainersManagement from "../../ContainersManagement";
 import { SAVE_ALERT } from "../../../../../Alerts/defaultAlerts";

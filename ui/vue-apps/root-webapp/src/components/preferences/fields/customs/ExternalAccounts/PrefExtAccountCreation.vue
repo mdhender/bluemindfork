@@ -38,7 +38,7 @@
 
 <script>
 import { inject } from "@bluemind/inject";
-import BaseField from "../../../mixins/BaseField";
+import { BaseField } from "@bluemind/preferences";
 import PrefExtAccountModal from "./PrefExtAccountModal";
 import { mapMutations } from "vuex";
 

@@ -23,11 +23,10 @@
 import { mapState } from "vuex";
 
 import { USED_QUOTA_PERCENTAGE_WARNING } from "@bluemind/email";
+import { BaseField } from "@bluemind/preferences";
 import i18n from "@bluemind/i18n";
 import { computeUnit } from "@bluemind/file-utils";
 import { BmProgress } from "@bluemind/ui-components";
-
-import BaseField from "../../mixins/BaseField";
 
 export default {
     name: "PrefAlwaysShowQuota",

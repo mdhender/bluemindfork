@@ -1,6 +1,6 @@
 import { registerRoute } from "workbox-routing";
 import { extensions } from "@bluemind/extensions";
-import db from "./SMimeDB";
+import { clearMyCryptoFiles, getMyStatus, setMyCertificate, setMyPrivateKey } from "./pki";
 import SMimeApiProxy from "./SMimeApiProxy";
 import { PKIEntry, SMIME_INTERNAL_API_URL } from "../lib/constants";
 
@@ -14,20 +14,22 @@ registerRoute(`${SMIME_INTERNAL_API_URL}/${PKIEntry.PRIVATE_KEY}`, setPrivateKey
 registerRoute(`${SMIME_INTERNAL_API_URL}/${PKIEntry.CERTIFICATE}`, setCertificate, "PUT");
 
 async function hasCryptoFilesHandler() {
-    return new Response(await db.getPKIStatus());
+    return new Response(await getMyStatus());
 }
 
 async function deleteCryptoFilesHandler() {
-    await db.clearPKI();
+    await clearMyCryptoFiles();
     return new Response();
 }
 
 async function setPrivateKey({ request }) {
-    db.setPrivateKey(await request.blob());
+    const blob = await request.blob();
+    await setMyPrivateKey(blob);
     return new Response();
 }
 
 async function setCertificate({ request }) {
-    db.setCertificate(await request.blob());
+    const blob = await request.blob();
+    await setMyCertificate(blob);
     return new Response();
 }

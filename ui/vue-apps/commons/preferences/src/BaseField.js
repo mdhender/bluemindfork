@@ -13,14 +13,6 @@ export default {
             default: false
         }
     },
-    methods: {
-        NEED_RELOAD() {
-            this.$store.commit("preferences/fields/NEED_RELOAD", { id: this.id });
-        },
-        PUSH_STATE(state) {
-            this.$store.commit("preferences/fields/PUSH_STATE", { id: this.id, ...state });
-        }
-    },
     mounted() {
         if (!this.$store.hasModule(["preferences", "fields", this.id])) {
             this.$store.registerModule(["preferences", "fields", this.id], { state: { current: null, saved: null } });
@@ -29,6 +21,14 @@ export default {
     destroyed() {
         if (this.$store.hasModule(["preferences", "fields", this.id])) {
             this.$store.unregisterModule(["preferences", "fields", this.id]);
+        }
+    },
+    methods: {
+        NEED_RELOAD() {
+            this.$store.commit("preferences/fields/NEED_RELOAD", { id: this.id });
+        },
+        PUSH_STATE(state) {
+            this.$store.commit("preferences/fields/PUSH_STATE", { id: this.id, ...state });
         }
     }
 };

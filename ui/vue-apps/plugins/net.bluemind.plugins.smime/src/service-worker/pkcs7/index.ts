@@ -1,7 +1,7 @@
 import { pkcs7, pki, asn1, util } from "node-forge";
-import { RecipientNotFoundError, InvalidCertificateError,  DecryptError } from "../exceptions";
+import { RecipientNotFoundError, InvalidCertificateError, DecryptError } from "../exceptions";
 import { checkMessageIntegrity, checkSignatureValidity, getSignedDataEnvelope, getSigningTime } from "./verify";
-import { checkCertificateValidity, getCertificate } from "../pki";
+import { checkCertificateValidity, getCertificate } from "../pki/";
 
 export async function decrypt(
     data: Blob,

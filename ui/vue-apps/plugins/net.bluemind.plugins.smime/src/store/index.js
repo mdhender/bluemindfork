@@ -1,12 +1,6 @@
 import { CHECK_IF_ASSOCIATED, DISSOCIATE_CRYPTO_FILES } from "./actionTypes";
 import { SMIME_AVAILABLE } from "./getterTypes";
-import {
-    DISPLAY_UNTRUSTED,
-    SET_LOADING,
-    SET_SW_ERROR,
-    SET_HAS_PRIVATE_KEY,
-    SET_HAS_PUBLIC_CERT
-} from "./mutationTypes";
+import { DISPLAY_UNTRUSTED, SET_SW_ERROR, SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT } from "./mutationTypes";
 import { IS_SW_AVAILABLE, SMIME_INTERNAL_API_URL, PKIStatus } from "../lib/constants";
 
 export default {
@@ -15,7 +9,6 @@ export default {
         // preferences
         hasPrivateKey: false,
         hasPublicCert: false,
-        loading: true,
         swError: false,
 
         // mail-app
@@ -27,7 +20,6 @@ export default {
     actions: {
         async [CHECK_IF_ASSOCIATED]({ commit }) {
             if (IS_SW_AVAILABLE) {
-                commit(SET_LOADING, true);
                 try {
                     const response = await fetch(SMIME_INTERNAL_API_URL, { method: "GET" });
                     const status = await response.json();
@@ -36,13 +28,10 @@ export default {
                     commit(SET_SW_ERROR, false);
                 } catch {
                     commit(SET_SW_ERROR, true);
-                } finally {
-                    commit(SET_LOADING, false);
                 }
             }
         },
         async [DISSOCIATE_CRYPTO_FILES]({ commit }) {
-            commit(SET_LOADING, true);
             try {
                 await fetch(SMIME_INTERNAL_API_URL, { method: "DELETE" });
                 commit(SET_HAS_PUBLIC_CERT, false);
@@ -50,17 +39,12 @@ export default {
                 commit(SET_SW_ERROR, false);
             } catch {
                 commit(SET_SW_ERROR, true);
-            } finally {
-                commit(SET_LOADING, false);
             }
         }
     },
     mutations: {
         [DISPLAY_UNTRUSTED]: (state, messageKey) => {
             state.displayUntrusted.push(messageKey);
-        },
-        [SET_LOADING]: (state, loading) => {
-            state.loading = loading;
         },
         [SET_SW_ERROR]: (state, swError) => {
             state.swError = swError;

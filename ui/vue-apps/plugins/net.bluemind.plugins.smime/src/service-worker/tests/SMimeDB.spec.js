@@ -1,4 +1,4 @@
-import db from "../SMimeDB";
+import db from "../pki/SMimeDB";
 
 describe("SMimeDB", () => {
     describe("clearPKI", () => {

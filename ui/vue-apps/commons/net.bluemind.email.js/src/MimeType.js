@@ -59,6 +59,7 @@ const PKCS_8 = "application/pkcs8";
 const PKCS_12 = "application/x-pkcs12";
 const CRYPTO_CERT = "application/pkix-cert";
 const X509_CERT = "application/x-x509-ca-cert";
+const PEM_FILE = "application/x-pem-file";
 
 const MP4_SUFFIXES = ["mp4"];
 const MOV_SUFFIXES = ["mov"];
@@ -101,6 +102,7 @@ const OPEN_DOCUMENT_TEXT_SUFFIXES = ["odt"];
 const OPEN_DOCUMENT_CALC_SUFFIXES = ["odc"];
 const OPEN_DOCUMENT_PRESENTATION_SUFFIXES = ["odp"];
 const MESSAGE_RFC822_SUFFIXES = ["eml"];
+const PKCS_12_SUFFIXES = ["p12", "pfx"];
 
 export default {
     AUDIO,
@@ -116,8 +118,10 @@ export default {
     MULTIPART_RELATED,
     MULTIPART_REPORT,
     PDF,
+    PEM_FILE,
     PKCS_8,
     PKCS_12,
+    PKCS_12_SUFFIXES,
     TEXT,
     TEXT_PLAIN,
     TEXT_HTML,
@@ -341,6 +345,8 @@ function getFromFilename(name) {
         return OPEN_DOCUMENT_PRESENTATION;
     } else if (MESSAGE_RFC822_SUFFIXES.includes(suffix)) {
         return MESSAGE_RFC822;
+    } else if (PKCS_12_SUFFIXES.includes(suffix)) {
+        return PKCS_12;
     } else {
         return "";
     }

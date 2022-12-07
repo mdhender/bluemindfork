@@ -21,7 +21,7 @@
 import BmTodoListBadge from "./BmTodoListBadge";
 import BmTodoListItem from "./BmTodoListItem";
 import { ContainerHelper, ContainerType } from "../container";
-import BaseField from "../../../../mixins/BaseField";
+import { BaseField } from "@bluemind/preferences";
 import ContainersManagement from "../ContainersManagement";
 import TodoListHelper from "./helper";
 import { mapMutations, mapState } from "vuex";

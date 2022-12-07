@@ -19,7 +19,7 @@
 
 <script>
 import { BmButton, BmLabelIcon, BmSpinner } from "@bluemind/ui-components";
-import BaseField from "../../mixins/BaseField";
+import { BaseField } from "@bluemind/preferences";
 
 export default {
     name: "PrefResetLocalData",

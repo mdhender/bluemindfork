@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import BaseField from "../../mixins/BaseField";
+import { BaseField } from "@bluemind/preferences";
 import mailAppVersionSettingImageClassic from "~/../assets/setting-mail-app-version-classic.png";
 import mailAppVersionSettingImageModern from "~/../assets/setting-mail-app-version-modern.png";
 

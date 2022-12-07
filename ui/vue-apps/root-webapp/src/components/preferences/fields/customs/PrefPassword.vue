@@ -13,7 +13,7 @@
 import { BmButton } from "@bluemind/ui-components";
 import { mapState } from "vuex";
 import ChangePasswordModal from "./ChangePasswordModal";
-import BaseField from "../../mixins/BaseField";
+import { BaseField } from "@bluemind/preferences";
 
 export default {
     name: "PrefPassword",

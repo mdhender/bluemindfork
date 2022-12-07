@@ -12,7 +12,7 @@ import session from "./environnment/session";
 import { RecipientNotFoundError, SmimeErrors } from "./exceptions";
 import extractSignedData from "./signedDataParser";
 import pkcs7 from "./pkcs7/";
-import { checkCertificateValidity, getMyCertificate, getMyPrivateKey } from "./pki";
+import { checkCertificateValidity, getMyCertificate, getMyPrivateKey } from "./pki/";
 import { logger } from "./environnment/logger";
 
 export function isEncrypted(item: ItemValue<MailboxItem>): boolean {

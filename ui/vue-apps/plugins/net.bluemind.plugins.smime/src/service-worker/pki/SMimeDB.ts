@@ -1,7 +1,7 @@
 import { DBSchema, IDBPDatabase, openDB } from "idb";
-import { logger } from "./environnment/logger";
-import { PKIEntry, PKIStatus } from "../lib/constants";
-import session from "./environnment/session";
+import { logger } from "../environnment/logger";
+import { PKIEntry, PKIStatus } from "../../lib/constants";
+import session from "../environnment/session";
 
 interface SMimeSchema extends DBSchema {
     pki: {

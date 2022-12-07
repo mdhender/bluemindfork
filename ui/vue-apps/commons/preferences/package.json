@@ -1,0 +1,8 @@
+{
+    "name": "@bluemind/preferences",
+    "version": "5.0.0",
+    "description": "BlueMind helper package for preference app and extensions",
+    "license": "AGPL-3.0-only",
+    "author": "Blue Mind SAS",
+    "main": "src/index.js"
+}

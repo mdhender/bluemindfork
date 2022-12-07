@@ -26,7 +26,7 @@
 
 <script>
 import { ContainerHelper, ContainerType } from "../container";
-import BaseField from "../../../../mixins/BaseField";
+import { BaseField } from "@bluemind/preferences";
 import ContainersManagement from "../ContainersManagement";
 import MailboxHelper from "./helper";
 import { Contact } from "@bluemind/business-components";

@@ -1,6 +1,6 @@
 import isEqual from "lodash.isequal";
 import cloneDeep from "lodash.clonedeep";
-import BaseField from "./BaseField";
+import { BaseField } from "@bluemind/preferences";
 import { mapActions } from "vuex";
 import { ERROR } from "@bluemind/alert.store";
 

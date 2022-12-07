@@ -13,7 +13,7 @@
 import { mapExtensions } from "@bluemind/extensions";
 import { inject } from "@bluemind/inject";
 import PrefDownload from "./PrefDownload";
-import BaseField from "../../mixins/BaseField";
+import { BaseField } from "@bluemind/preferences";
 
 export default {
     name: "PrefDownloads",

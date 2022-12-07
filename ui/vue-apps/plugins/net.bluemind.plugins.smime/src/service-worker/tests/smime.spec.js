@@ -1,6 +1,6 @@
 import smime from "../smime";
 import pkcs7 from "../pkcs7";
-import pki from "../pki";
+import pki from "../pki/";
 
 import {
     ExpiredCertificateError,
@@ -11,7 +11,7 @@ import {
 import { CRYPTO_HEADERS, ENCRYPTED_HEADER_NAME } from "../../lib/constants";
 import { readFile } from "./helpers";
 
-jest.mock("../pki", () => jest.fn);
+jest.mock("../pki/", () => jest.fn);
 jest.mock("@bluemind/backend.mail.api", () => ({
     MailboxItemsClient: () => ({
         fetch: () => Promise.resolve("data")

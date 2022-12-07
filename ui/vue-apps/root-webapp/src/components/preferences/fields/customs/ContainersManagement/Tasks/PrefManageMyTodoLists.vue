@@ -22,7 +22,7 @@ import { inject } from "@bluemind/inject";
 
 import { containerToModifiableDescriptor, ContainerHelper, ContainerType } from "../container";
 import BmTodoListItem from "./BmTodoListItem";
-import BaseField from "../../../../mixins/BaseField";
+import { BaseField } from "@bluemind/preferences";
 import ContainersManagement from "../ContainersManagement";
 import TodoListHelper from "./helper";
 
