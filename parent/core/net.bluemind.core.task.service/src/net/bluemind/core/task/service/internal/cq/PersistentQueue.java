@@ -57,6 +57,7 @@ public class PersistentQueue implements AutoCloseable {
 
 	static {
 		AbstractReferenceCounted.disableReferenceTracing();
+		System.setProperty("chronicle.analytics.disable", "true");
 	}
 
 	public static PersistentQueue createFor(String taskId) {
