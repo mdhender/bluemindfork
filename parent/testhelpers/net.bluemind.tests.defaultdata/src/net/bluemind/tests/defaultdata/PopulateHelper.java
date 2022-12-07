@@ -399,7 +399,7 @@ public class PopulateHelper {
 	public static User getUser(String login, String password, String domain, Mailbox.Routing mailrouting) {
 		User admin = new User();
 		admin.login = login;
-		admin.password = login;
+		admin.password = password;
 		admin.routing = mailrouting;
 
 		admin.dataLocation = new BmConfIni().get("imap-role") != null ? new BmConfIni().get("imap-role")
