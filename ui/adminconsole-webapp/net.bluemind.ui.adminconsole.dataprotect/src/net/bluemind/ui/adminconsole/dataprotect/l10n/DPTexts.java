@@ -75,6 +75,8 @@ public interface DPTexts extends Messages {
 
 	String backupHSM();
 
+	String backupES();
+
 	String replacemailbox();
 
 	String subfoldermailbox();

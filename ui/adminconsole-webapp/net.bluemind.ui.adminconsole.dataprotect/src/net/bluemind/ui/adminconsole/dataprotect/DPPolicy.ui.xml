@@ -52,6 +52,14 @@
 					<g:CheckBox ui:field="backupHSM" />
 				</td>
 			</tr>
+			<tr>
+				<td style="color: #24638f; font-weight: bold">
+					<g:Label text="{txt.backupES}" />
+				</td>
+				<td style="padding-left:15px">
+					<g:CheckBox ui:field="backupES" />
+				</td>
+			</tr>
 		</table>
 
 		<div class="{style.actionBar}">

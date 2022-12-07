@@ -71,6 +71,9 @@ public class DPPolicy extends Composite implements IGwtScreenRoot {
 	@UiField
 	CheckBox backupHSM;
 
+	@UiField
+	CheckBox backupES;
+
 	private ScreenRoot instance;
 
 	public DPPolicy(ScreenRoot instance) {
@@ -127,6 +130,12 @@ public class DPPolicy extends Composite implements IGwtScreenRoot {
 							}
 						}
 
+						if (!backupES.getValue().booleanValue()) {
+							skipTags.add("bm/es");
+						} else {
+							skipTags.remove("bm/es");
+						}
+
 						values.put(SysConfKeys.dpBackupSkipTags.name(), toString(skipTags));
 						sysApi.updateMutableValues(values, new DefaultAsyncHandler<Void>() {
 							@Override
@@ -181,6 +190,7 @@ public class DPPolicy extends Composite implements IGwtScreenRoot {
 								.setValue(!value.stringList(SysConfKeys.dpBackupSkipTags.name()).contains("mail/imap"));
 						backupHSM.setValue(
 								!value.stringList(SysConfKeys.dpBackupSkipTags.name()).contains("mail/cyrus_archives"));
+						backupES.setValue(!value.stringList(SysConfKeys.dpBackupSkipTags.name()).contains("bm/es"));
 
 					}
 				});
