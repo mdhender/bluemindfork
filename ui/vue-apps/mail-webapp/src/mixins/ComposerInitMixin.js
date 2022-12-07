@@ -107,7 +107,7 @@ export default {
                 );
                 this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES(insertionResult.imageInlined);
                 content = insertionResult.contentsWithImageInserted[0];
-                content = sanitizeHtml(content);
+                content = sanitizeHtml(content, true);
             }
 
             const editorData = handleSeparator(content);
@@ -198,7 +198,7 @@ export default {
                     this.$_ComposerInitMixin_partsByMessageKey[previousMessage.key]
                 );
                 contentFromPreviousMessage = insertionResult.contentsWithImageInserted[0];
-                contentFromPreviousMessage = sanitizeHtml(contentFromPreviousMessage);
+                contentFromPreviousMessage = sanitizeHtml(contentFromPreviousMessage, true);
             }
             const collapsed = quotePreviousMessage(
                 contentFromPreviousMessage,
@@ -290,7 +290,7 @@ export default {
                     partsWithCid,
                     this.$_ComposerInitMixin_partsByMessageKey[previousMessage.key]
                 );
-                content = sanitizeHtml(result.contentsWithImageInserted[0]);
+                content = sanitizeHtml(result.contentsWithImageInserted[0], true);
             }
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(content);
             this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);

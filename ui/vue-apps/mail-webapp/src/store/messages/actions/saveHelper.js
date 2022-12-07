@@ -70,7 +70,7 @@ async function prepareDraft(context, service, draft, messageCompose) {
         ? messageCompose.editorContent + messageCompose.collapsedContent
         : messageCompose.editorContent;
     wholeContent = insertCorporateSignaturePlaceholder(wholeContent, messageCompose.corporateSignature);
-    wholeContent = sanitizeHtml(wholeContent);
+    wholeContent = sanitizeHtml(wholeContent, true);
 
     const insertionResult = InlineImageHelper.insertCid(wholeContent, messageCompose.inlineImagesSaved);
 

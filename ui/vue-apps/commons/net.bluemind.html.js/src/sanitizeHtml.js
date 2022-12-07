@@ -38,8 +38,8 @@ const ADDITIONAL_ALLOWED_ATTRIBUTES_FOR_ANY_TAG = [
 const ALLOWED_LINK_PROTOCOLS = ["http", "https"];
 const LINK_REGEX = new RegExp(`^(${ALLOWED_LINK_PROTOCOLS.join("|")})://(.*)`, "i");
 
-export default function (html, useInIframe = false) {
-    if (!useInIframe) {
+export default function (html, avoidStyleInvading) {
+    if (avoidStyleInvading) {
         html = preventStyleInvading(html);
     }
 

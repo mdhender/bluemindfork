@@ -122,6 +122,7 @@
 import cloneDeep from "lodash.clonedeep";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { EmailValidator } from "@bluemind/email";
+import { signatureUtils } from "@bluemind/mail";
 import { sanitizeHtml } from "@bluemind/html-utils";
 import { inject } from "@bluemind/inject";
 import BmRoles from "@bluemind/roles";
@@ -214,9 +215,8 @@ export default {
     methods: {
         ...mapMutations("root-app", ["ADD_IDENTITY", "REMOVE_IDENTITY", "UPDATE_IDENTITY"]),
         ...mapActions("alert", { SUCCESS }),
-
         onInput(content) {
-            this.identity.signature = content;
+            this.identity.signature = signatureUtils.trimSignature(content);
         },
         async open(identityDescription) {
             this.modalStatus = "NOT-LOADED";
@@ -350,7 +350,8 @@ function toIdentityDescription(id, identity) {
         email: identity.email,
         displayname: identity.displayname,
         isDefault: identity.isDefault,
-        signature: identity.signature
+        signature: identity.signature,
+        mbox: identity.mailboxUid
     };
 }
 </script>

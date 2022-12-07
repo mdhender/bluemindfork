@@ -2,6 +2,8 @@ import inject from "@bluemind/inject";
 import rootAppStore from "../rootAppStore";
 import { MockMailboxesClient } from "@bluemind/test-utils";
 
+jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+
 const userId = "user:id";
 const mailboxesClient = new MockMailboxesClient();
 inject.register({ provide: "MailboxesPersistence", factory: () => mailboxesClient });

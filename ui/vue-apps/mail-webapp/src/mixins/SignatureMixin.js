@@ -74,8 +74,9 @@ export default {
                     !editorRef.hasContent(PERSONAL_SIGNATURE_SELECTOR(personalSignature.id)) &&
                     this.$_SignatureMixin_insertSignaturePref === "true"
                 ) {
-                    const content = wrapPersonalSignature(personalSignature);
+                    const content = wrapPersonalSignature({ html: personalSignature.html, id: personalSignature.id });
                     editorRef.insertContent(content, { triggerOnChange: !isNewMessage(this.message) });
+                    editorRef.insertContent(document.createElement("br"));
                     this.$store.commit(`mail/${SET_DRAFT_EDITOR_CONTENT}`, editorRef.getContent());
                 }
                 this.$_SignatureMixin_onPersonalSignatureChange();
@@ -110,7 +111,10 @@ export default {
                         !editorRef.hasContent(PERSONAL_SIGNATURE_SELECTOR(this.personalSignature.id)) &&
                         this.$_SignatureMixin_insertSignaturePref === "true"
                     ) {
-                        editorRef.insertContent(wrapPersonalSignature(this.personalSignature));
+                        editorRef.insertContent(
+                            wrapPersonalSignature({ html: this.personalSignature.html, id: this.personalSignature.id })
+                        );
+                        editorRef.insertContent(document.createElement("br"));
                         this.$store.commit(`mail/${SET_DRAFT_EDITOR_CONTENT}`, editorRef.getContent());
                     }
                 }
@@ -127,7 +131,10 @@ export default {
             if (editorRef.hasContent(selector)) {
                 editorRef.removeContent(selector);
             } else {
-                editorRef.insertContent(wrapPersonalSignature(this.personalSignature));
+                editorRef.insertContent(
+                    wrapPersonalSignature({ html: this.personalSignature.html, id: this.personalSignature.id })
+                );
+                editorRef.insertContent(document.createElement("br"));
             }
             this.$_SignatureMixin_onPersonalSignatureChange();
         },

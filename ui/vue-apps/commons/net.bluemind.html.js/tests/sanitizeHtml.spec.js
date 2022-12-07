@@ -7,7 +7,7 @@ describe("Sanitize HTML using the 'xss' library", () => {
         const additionalTags = ["html", "body", "head", "style", "button", "table", "resourcetemplate"];
         additionalTags.forEach(tag => {
             const input = "<" + tag + ">inner</" + tag + ">";
-            expect(sanitizeHtml(input, true)).toEqual(input);
+            expect(sanitizeHtml(input)).toEqual(input);
         });
     });
     /** We want to keep more attributes than those allowed by the 'xss' library. */
@@ -28,30 +28,30 @@ describe("Sanitize HTML using the 'xss' library", () => {
         ];
         additionalAttributes.forEach(attribute => {
             const input = "<div " + attribute + '="someValue">inner</div>';
-            expect(sanitizeHtml(input, true)).toEqual(input);
+            expect(sanitizeHtml(input)).toEqual(input);
         });
     });
     /** We do more filtering than the 'xss' library to links URLs.  */
     test("Link having no protocol is rejected", () => {
         const url = '<a href="ta/ta/yoyo">linkDisplay</a>';
-        expect(sanitizeHtml(url, true)).toEqual("<a>linkDisplay</a>");
+        expect(sanitizeHtml(url)).toEqual("<a>linkDisplay</a>");
     });
     test("Link having a forbidden protocol is rejected", () => {
         const url = '<a href="proctocol://ta/ta/yoyo">linkDisplay</a>';
-        expect(sanitizeHtml(url, true)).toEqual("<a>linkDisplay</a>");
+        expect(sanitizeHtml(url)).toEqual("<a>linkDisplay</a>");
     });
     test("Link having an allowed protocol is kept", () => {
         const url = '<a href="https://ta/ta/yoyo">linkDisplay</a>';
-        expect(sanitizeHtml(url, true)).toEqual(url);
+        expect(sanitizeHtml(url)).toEqual(url);
     });
     test("Link having an allowed protocol but a wrong case is fixed", () => {
         const url = '<a href="hTtpS://ta/ta/yoyo">linkDisplay</a>';
         const fixedUrl = '<a href="https://ta/ta/yoyo">linkDisplay</a>';
-        expect(sanitizeHtml(url, true)).toEqual(fixedUrl);
+        expect(sanitizeHtml(url)).toEqual(fixedUrl);
     });
     test("Image with blob source should be allowed", () => {
         const url = '<img src="blob:https://webmail-test.loc/8aa75f30-e3e2-4d70-89ba-a8062b762b3e" />';
-        expect(sanitizeHtml(url, true)).toEqual(url);
+        expect(sanitizeHtml(url)).toEqual(url);
     });
 });
 

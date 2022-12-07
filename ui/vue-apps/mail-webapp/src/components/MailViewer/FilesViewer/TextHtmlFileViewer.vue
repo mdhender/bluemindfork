@@ -81,7 +81,7 @@ export default {
             return html;
         },
         html() {
-            let html = linkifyHtml(sanitizeHtml(this.htmlWithImages, true));
+            let html = linkifyHtml(sanitizeHtml(this.htmlWithImages));
             if (this.blockImages) {
                 html = blockRemoteImages(html);
             }

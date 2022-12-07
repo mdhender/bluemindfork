@@ -23,7 +23,7 @@ export default {
             recuridIsoDate,
             uid: event.uid,
             serverEvent: event,
-            sanitizedDescription: infos.description ? sanitizeHtml(infos.description) : undefined,
+            sanitizedDescription: infos.description ? sanitizeHtml(infos.description, true) : undefined,
             counter: adaptCounter(event, originator, recuridIsoDate),
             loading: LoadingStatus.LOADED
         };

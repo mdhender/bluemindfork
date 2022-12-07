@@ -1,5 +1,6 @@
 import { containsHtml, text2html } from "@bluemind/html-utils";
 import { inject } from "@bluemind/inject";
+import { signatureUtils } from "@bluemind/mail";
 
 const state = {
     appState: "loading",
@@ -64,7 +65,8 @@ const getters = {
             }
         }
         return identity;
-    }
+    },
+    GET_IDENTITY: state => id => state.identities.find(identity => identity.id === id)
 };
 
 function convertSignaturesToHtml(identities, userLang) {
@@ -72,6 +74,7 @@ function convertSignaturesToHtml(identities, userLang) {
         if (!containsHtml(identity.signature)) {
             identity.signature = text2html(identity.signature, userLang);
         }
+        identity.signature = signatureUtils.trimSignature(identity.signature);
         return identity;
     });
 }

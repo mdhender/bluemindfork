@@ -2,6 +2,8 @@ import Preferences from "../components/preferences/Preferences";
 jest.mock("@bluemind/ui-components/src/css/_variables.scss", () => ({ iconsColors: "" }));
 import { MountComponentUtils } from "@bluemind/test-utils";
 
+jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+
 import ServiceLocator from "@bluemind/inject";
 ServiceLocator.register({
     provide: "i18n",

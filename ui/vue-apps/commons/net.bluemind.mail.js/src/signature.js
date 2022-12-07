@@ -58,6 +58,46 @@ function removeTextSignature(raw, content) {
     return raw.replace(regexp, "");
 }
 
+function isSignatureLineEmpty(node) {
+    // no text or no images
+    return (
+        !node ||
+        (!node.innerText?.trim() &&
+            (node.nodeType !== Node.ELEMENT_NODE ||
+                (!node.querySelector("img[src]:not([src=''])") &&
+                    !node.style.getPropertyValue("background-image") &&
+                    !node.querySelector("[style*='background-image']")?.style.getPropertyValue("background-image"))))
+    );
+}
+
+/** Remove leading and trailing empty lines. */
+function trimSignature(signature) {
+    if (signature?.length) {
+        const body = new DOMParser().parseFromString(signature, "text/html")?.body;
+        const lines = body && Array.from(body.childNodes);
+        if (lines) {
+            for (const line of lines) {
+                if (isSignatureLineEmpty(line)) {
+                    body.removeChild(line);
+                } else {
+                    break;
+                }
+            }
+            if (body.hasChildNodes()) {
+                for (const line of lines.reverse()) {
+                    if (isSignatureLineEmpty(line)) {
+                        body.removeChild(line);
+                    } else {
+                        break;
+                    }
+                }
+            }
+            return body.innerHTML;
+        }
+        return signature;
+    }
+}
+
 export default {
     CORPORATE_SIGNATURE_PLACEHOLDER,
     CORPORATE_SIGNATURE_SELECTOR,
@@ -66,6 +106,7 @@ export default {
     PERSONAL_SIGNATURE_SELECTOR,
     removeSignature,
     removeSignatureAttr,
+    trimSignature,
     wrapCorporateSignature,
     wrapPersonalSignature
 };
