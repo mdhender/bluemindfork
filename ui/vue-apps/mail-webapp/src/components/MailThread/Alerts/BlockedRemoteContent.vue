@@ -14,7 +14,7 @@ import { mapActions, mapGetters, mapMutations } from "vuex";
 import { AlertMixin, REMOVE } from "@bluemind/alert.store";
 import { RecipientAdaptor, VCardAdaptor } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";
-import { BmButton } from "@bluemind/styleguide";
+import { BmButton } from "@bluemind/ui-components";
 import { SET_BLOCK_REMOTE_IMAGES } from "~/mutations";
 import { ACTIVE_MESSAGE } from "~/getters";
 

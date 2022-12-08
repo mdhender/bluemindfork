@@ -31,7 +31,7 @@
                     />
                 </div>
             </template>
-            <template #cell(selected)="{item}">
+            <template #cell(selected)="{ item }">
                 <template v-if="isDirectory(item)">
                     <div class="icon-or-check-wrapper">
                         <bm-icon icon="folder-fill" />
@@ -48,7 +48,7 @@
                     </div>
                 </template>
             </template>
-            <template #cell(size)="{item}">
+            <template #cell(size)="{ item }">
                 <span v-if="isDirectory(item)"> {{ $t("common.folder") }} </span>
                 <span v-else>{{ displaySize(item.size) }} </span>
             </template>
@@ -59,7 +59,7 @@
 
 <script>
 import { mapState } from "vuex";
-import { BmCheck, BmIcon, BmFileIcon, BmPagination, BmTable, BmSpinner } from "@bluemind/styleguide";
+import { BmCheck, BmIcon, BmFileIcon, BmPagination, BmTable, BmSpinner } from "@bluemind/ui-components";
 import { computeUnit } from "@bluemind/file-utils";
 import {
     ADD_SELECTED_FILE,
@@ -180,8 +180,8 @@ export default {
 @use "sass:map";
 @use "sass:math";
 
-@import "~@bluemind/styleguide/css/_variables";
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
 
 .chooser-files-table {
     .bm-table {

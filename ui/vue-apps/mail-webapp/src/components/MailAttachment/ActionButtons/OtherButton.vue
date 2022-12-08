@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { BmIconDropdown } from "@bluemind/styleguide";
+import { BmIconDropdown } from "@bluemind/ui-components";
 import { BmExtension } from "@bluemind/extensions.vue";
 
 export default {

@@ -1,0 +1,235 @@
+@use "sass:map";
+@import "mixins/_buttons.scss";
+
+// stylelint-disable selector-no-qualifying-type
+
+// In _reboot.scss file used by Bootstrap, there is a rule to "remove focus outline in
+// Chromium when it shouldn't be visible (e.g. as result of mouse click or touch tap)"
+// but it lacks "!important" so we repeat this rule here with "!important" added:
+button:focus:not(:focus-visible) {
+    outline: 0 !important;
+    // And we extend it to disable focus shadow for fill buttons:
+    box-shadow: none !important;
+}
+
+//
+// Base styles
+//
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: $btn-font-family;
+    font-weight: $btn-font-weight;
+    text-decoration: none;
+    white-space: $btn-white-space;
+    vertical-align: middle;
+    user-select: none;
+    background-color: transparent;
+    @include transition($btn-transition);
+
+    &:not(:disabled):not(.disabled) {
+        cursor: pointer;
+    }
+
+    > .slot-wrapper {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+// Future-proof disabling of clicks on `<a>` elements
+a.btn.disabled,
+fieldset:disabled a.btn {
+    pointer-events: none;
+}
+
+//
+// Alternate buttons
+//
+
+.btn-fill-accent {
+    @include bm-button-fill-variant("fill-secondary");
+}
+.btn-fill {
+    @include bm-button-fill-variant("fill-neutral");
+}
+.btn-fill-danger {
+    @include bm-button-fill-variant("fill-danger");
+}
+.btn-outline-accent {
+    @include bm-button-outline-variant("secondary");
+}
+.btn-outline {
+    @include bm-button-outline-variant("neutral");
+}
+.btn-outline-danger {
+    @include bm-button-outline-variant("danger");
+}
+.btn-text-accent {
+    @include bm-button-text-variant("secondary");
+}
+.btn-text {
+    @include bm-button-text-variant("neutral");
+}
+.btn-outline-on-fill-primary {
+    @include bm-button-outline-variant("fill-primary");
+}
+.btn-text-on-fill-primary {
+    @include bm-button-text-variant("fill-primary");
+}
+
+//
+// Link buttons
+//
+
+// Make a button look and behave like a link
+.btn-link {
+    font-weight: $font-weight-normal;
+    color: $link-color;
+    text-decoration: $link-decoration;
+    border: none;
+    padding: 0;
+
+    > .bm-icon {
+        $size: map-get($icon-sizes, "xs");
+        width: $size;
+        height: $size;
+        margin-right: $sp-3;
+    }
+
+    @include hover() {
+        color: $link-hover-color;
+        text-decoration: $link-hover-decoration;
+    }
+
+    &:focus,
+    &.focus {
+        text-decoration: $link-hover-decoration;
+        outline-width: 1px !important;
+        outline-style: $outline-style !important;
+        outline-color: $neutral-fg;
+        &:hover,
+        &.hover {
+            outline-color: $neutral-fg-hi1;
+        }
+    }
+
+    &:disabled,
+    &.disabled {
+        color: $btn-link-disabled-color;
+        pointer-events: none;
+    }
+
+    .show > &.dropdown-toggle {
+        @include box-shadow(none);
+
+        &:focus,
+        &.focus {
+            @include box-shadow(none);
+        }
+    }
+}
+
+@each $bp-key, $bp-value in $grid-breakpoints {
+    @media (min-width: $bp-value) {
+        .btn-#{$bp-key}-fill-accent {
+            @include bm-button-fill-variant("fill-secondary", $important: true);
+        }
+        .btn-#{$bp-key}-fill {
+            @include bm-button-fill-variant("fill-neutral", $important: true);
+        }
+        .btn-#{$bp-key}-fill-danger {
+            @include bm-button-fill-variant("fill-danger", $important: true);
+        }
+        .btn-#{$bp-key}-outline-accent {
+            @include bm-button-outline-variant("secondary", $important: true);
+        }
+        .btn-#{$bp-key}-outline {
+            @include bm-button-outline-variant("neutral", $important: true);
+        }
+        .btn-#{$bp-key}-outline-danger {
+            @include bm-button-outline-variant("danger", $important: true);
+        }
+        .btn-#{$bp-key}-text-accent {
+            @include bm-button-text-variant("secondary", $important: true);
+        }
+        .btn-#{$bp-key}-text {
+            @include bm-button-text-variant("neutral", $important: true);
+        }
+        .btn-#{$bp-key}-outline-on-fill-primary {
+            @include bm-button-outline-variant("fill-primary", $important: true);
+        }
+        .btn-#{$bp-key}-text-on-fill-primary {
+            @include bm-button-text-variant("fill-primary", $important: true);
+        }
+    }
+}
+
+.btn-no-hover-bg {
+    &::before {
+        display: none;
+    }
+}
+
+.btn-transparent-bg {
+    background-color: transparent;
+    &:hover,
+    &:focus {
+        background-color: transparent;
+    }
+}
+
+button.close,
+%btn-close {
+    font-size: base-px-to-rem(32);
+    font-weight: normal;
+    $btn-size: map-get($btn-close-sizes, "md");
+    line-height: $btn-size;
+    width: $btn-size;
+    flex: none;
+    opacity: 1 !important;
+    &:hover {
+        color: $neutral-fg-hi1;
+    }
+    &:disabled,
+    &.disabled {
+        color: $neutral-fg-disabled;
+    }
+}
+button.close[size="xs"],
+%btn-close-xs {
+    font-size: base-px-to-rem(24);
+    font-weight: lighter;
+    $btn-size: map-get($btn-close-sizes, "xs");
+    line-height: $btn-size;
+    width: $btn-size;
+}
+button.close[size="sm"],
+%btn-close-sm {
+    font-size: base-px-to-rem(24);
+    $btn-size: map-get($btn-close-sizes, "sm");
+    line-height: $btn-size;
+    width: $btn-size;
+}
+button.close[size="lg"],
+%btn-close-lg {
+    font-size: base-px-to-rem(40);
+    $btn-size: map-get($btn-close-sizes, "lg");
+    line-height: $btn-size;
+    width: $btn-size;
+}
+
+// reset bootstrap behavior (see bootstrap file button-group.scss l.42) to fix a border problem on hover
+.btn-group {
+    > .btn:not(:first-child),
+    > .btn-group:not(:first-child) {
+        margin-left: unset;
+    }
+}
+
+.btn-group.show .dropdown-toggle {
+    box-shadow: none;
+}

@@ -46,7 +46,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .fh-must-detach-confirm-box {
     .progress {

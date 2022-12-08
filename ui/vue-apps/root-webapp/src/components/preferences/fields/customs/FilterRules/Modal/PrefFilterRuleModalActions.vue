@@ -42,7 +42,7 @@
 
 <script>
 import { all as allActions, resolve as resolveAction } from "../Actions/actionResolver.js";
-import { BmButton, BmIconButton, BmFormGroup, BmFormSelect } from "@bluemind/styleguide";
+import { BmButton, BmIconButton, BmFormGroup, BmFormSelect } from "@bluemind/ui-components";
 
 export default {
     name: "PrefFilterRuleModalActions",

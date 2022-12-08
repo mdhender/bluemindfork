@@ -9,7 +9,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { BmListGroup, BmListGroupItem } from "@bluemind/styleguide";
+import { BmListGroup, BmListGroupItem } from "@bluemind/ui-components";
 import { CONVERSATION_LIST_COUNT } from "~/getters";
 
 export default {

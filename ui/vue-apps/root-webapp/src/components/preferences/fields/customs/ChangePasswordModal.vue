@@ -71,7 +71,7 @@
 <script>
 import { mapActions } from "vuex";
 import { inject } from "@bluemind/inject";
-import { BmForm, BmFormGroup, BmFormInput, BmModal } from "@bluemind/styleguide";
+import { BmForm, BmFormGroup, BmFormInput, BmModal } from "@bluemind/ui-components";
 import { SUCCESS } from "@bluemind/alert.store";
 import { SAVE_ALERT } from "../../Alerts/defaultAlerts";
 

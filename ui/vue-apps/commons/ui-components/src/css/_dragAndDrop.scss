@@ -1,0 +1,39 @@
+.bm-drag-in-progress iframe {
+    pointer-events: none;
+}
+
+.bm-drag-active {
+    outline: 1px solid $drag-color !important;
+    border-color: transparent !important;
+}
+
+.bm-drag-tooltip {
+    background-color: $drag-color;
+    font-weight: $font-weight-bold;
+    margin-top: $sp-1;
+    line-height: $line-height-sm;
+    padding: $sp-3 $sp-4;
+    z-index: $zindex-tooltip;
+}
+
+.bm-drag-cloned {
+    opacity: 0.55;
+}
+
+.bm-dropzone-active {
+    background-color: $drag-active-bg-color !important;
+}
+
+.bm-dropzone-show-dropzone {
+    outline: 2px dashed $drag-border-color !important;
+}
+
+.bm-dropzone-hover {
+    background-color: $drag-hover-bg-color !important;
+    outline: 2px solid $drag-border-color !important;
+}
+
+.bm-dropzone-inline-hover {
+    background-color: $tertiary-bg-lo1 !important;
+    outline: 2px solid $drag-border-color !important;
+}

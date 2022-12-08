@@ -16,7 +16,7 @@
     </div>
 </template>
 <script>
-import { BmIcon } from "@bluemind/styleguide";
+import { BmIcon } from "@bluemind/ui-components";
 import { MimeType } from "@bluemind/email";
 import { fileUtils } from "@bluemind/mail";
 
@@ -58,7 +58,7 @@ export default {
 </script>
 <style lang="scss">
 @use "sass:map";
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .file-thumbnail {
     aspect-ratio: 14 / 5;

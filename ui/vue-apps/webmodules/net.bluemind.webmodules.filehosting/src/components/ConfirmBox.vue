@@ -21,7 +21,7 @@
     </div>
 </template>
 <script>
-import { BmIcon } from "@bluemind/styleguide";
+import { BmIcon } from "@bluemind/ui-components";
 import FilehostingL10N from "../l10n";
 import DetachmentItem from "./DetachmentItem";
 
@@ -38,7 +38,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .fh-confirm-box {
     .text-neutral-fg-lo2 {

@@ -63,7 +63,7 @@
 <script>
 import { mapGetters, mapState } from "vuex";
 import { BmExtension } from "@bluemind/extensions.vue";
-import { BmContact } from "@bluemind/styleguide";
+import { BmContact } from "@bluemind/ui-components";
 import MailConversationViewerItem from "./MailConversationViewerItem";
 import MailViewerContentLoading from "../../MailViewer/MailViewerContentLoading";
 import MailViewerToolbar from "../MailViewerToolbar";
@@ -101,7 +101,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/variables.scss";
 
 .mail-conversation-viewer-message {
     .conversation-viewer-message-head {

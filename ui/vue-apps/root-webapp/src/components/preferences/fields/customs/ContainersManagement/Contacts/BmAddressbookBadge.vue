@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { BmBadge } from "@bluemind/styleguide";
+import { BmBadge } from "@bluemind/ui-components";
 
 export default {
     name: "BmAddressbookBadge",
@@ -24,8 +24,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_type";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/_type";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .badge.bm-addressbook-badge {
     padding: $sp-3 $sp-4 $sp-3 $sp-5;

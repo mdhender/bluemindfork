@@ -1,0 +1,166 @@
+@import "_colorPalette.scss";
+
+$surface: var(--surface);
+$backdrop: var(--backdrop);
+$highest: var(--highest);
+$lowest: var(--lowest);
+$modal-backdrop: var(--modal-backdrop);
+$shadow-color: var(--shadow-color);
+
+$neutral-bg-hi1: var(--neutral-bg-hi1);
+$neutral-bg: var(--neutral-bg);
+$neutral-bg-lo1: var(--neutral-bg-lo1);
+$neutral-fg-hi1: var(--neutral-fg-hi1);
+$neutral-fg: var(--neutral-fg);
+$neutral-fg-lo1: var(--neutral-fg-lo1);
+$neutral-fg-lo2: var(--neutral-fg-lo2);
+$neutral-fg-lo3: var(--neutral-fg-lo3);
+$neutral-fg-disabled: var(--neutral-fg-disabled);
+
+$primary-fg-hi1: var(--primary-fg-hi1);
+$primary-fg: var(--primary-fg);
+$primary-fg-lo1: var(--primary-fg-lo1);
+$primary-fg-lo2: var(--primary-fg-lo2);
+$primary-fg-disabled: var(--primary-fg-disabled);
+
+$secondary-bg-hi1: var(--secondary-bg-hi1);
+$secondary-bg: var(--secondary-bg);
+$secondary-bg-lo1: var(--secondary-bg-lo1);
+$secondary-fg-hi1: var(--secondary-fg-hi1);
+$secondary-fg: var(--secondary-fg);
+$secondary-fg-lo1: var(--secondary-fg-lo1);
+$secondary-fg-lo2: var(--secondary-fg-lo2);
+$secondary-fg-disabled: var(--secondary-fg-disabled);
+
+$tertiary-bg-hi1: var(--tertiary-bg-hi1);
+$tertiary-bg: var(--tertiary-bg);
+$tertiary-bg-lo1: var(--tertiary-bg-lo1);
+$tertiary-fg-hi1: var(--tertiary-fg-hi1);
+$tertiary-fg: var(--tertiary-fg);
+$tertiary-fg-lo1: var(--tertiary-fg-lo1);
+$tertiary-fg-lo2: var(--tertiary-fg-lo2);
+$tertiary-fg-disabled: var(--tertiary-fg-disabled);
+
+$danger-bg-hi1: var(--danger-bg-hi1);
+$danger-bg: var(--danger-bg);
+$danger-bg-lo1: var(--danger-bg-lo1);
+$danger-fg-hi1: var(--danger-fg-hi1);
+$danger-fg: var(--danger-fg);
+$danger-fg-lo1: var(--danger-fg-lo1);
+$danger-fg-lo2: var(--danger-fg-lo2);
+$danger-fg-disabled: var(--danger-fg-disabled);
+
+$warning-bg-hi1: var(--warning-bg-hi1);
+$warning-bg: var(--warning-bg);
+$warning-bg-lo1: var(--warning-bg-lo1);
+$warning-fg-hi1: var(--warning-fg-hi1);
+$warning-fg: var(--warning-fg);
+$warning-fg-lo1: var(--warning-fg-lo1);
+$warning-fg-lo2: var(--warning-fg-lo2);
+$warning-fg-disabled: var(--warning-fg-disabled);
+
+$success-bg-hi1: var(--success-bg-hi1);
+$success-bg: var(--success-bg);
+$success-bg-lo1: var(--success-bg-lo1);
+$success-fg-hi1: var(--success-fg-hi1);
+$success-fg: var(--success-fg);
+$success-fg-lo1: var(--success-fg-lo1);
+$success-fg-lo2: var(--success-fg-lo2);
+$success-fg-disabled: var(--success-fg-disabled);
+
+$info-bg-hi1: var(--info-bg-hi1);
+$info-bg: var(--info-bg);
+$info-bg-lo1: var(--info-bg-lo1);
+$info-fg-hi1: var(--info-fg-hi1);
+$info-fg: var(--info-fg);
+$info-fg-lo1: var(--info-fg-lo1);
+$info-fg-lo2: var(--info-fg-lo2);
+$info-fg-disabled: var(--info-fg-disabled);
+
+$fill-neutral-bg-hi1: var(--fill-neutral-bg-hi1);
+$fill-neutral-bg: var(--fill-neutral-bg);
+$fill-neutral-bg-lo1: var(--fill-neutral-bg-lo1);
+$fill-neutral-bg-disabled: var(--fill-neutral-bg-disabled);
+$fill-neutral-fg-hi1: var(--fill-neutral-fg-hi1);
+$fill-neutral-fg: var(--fill-neutral-fg);
+$fill-neutral-fg-lo1: var(--fill-neutral-fg-lo1);
+$fill-neutral-fg-lo2: var(--fill-neutral-fg-lo2);
+$fill-neutral-fg-disabled: var(--fill-neutral-fg-disabled);
+
+$fill-primary-bg-hi1: var(--fill-primary-bg-hi1);
+$fill-primary-bg: var(--fill-primary-bg);
+$fill-primary-bg-lo1: var(--fill-primary-bg-lo1);
+$fill-primary-bg-disabled: var(--fill-primary-bg-disabled);
+$fill-primary-fg-hi1: var(--fill-primary-fg-hi1);
+$fill-primary-fg: var(--fill-primary-fg);
+$fill-primary-fg-lo1: var(--fill-primary-fg-lo1);
+$fill-primary-fg-lo2: var(--fill-primary-fg-lo2);
+$fill-primary-fg-disabled: var(--fill-primary-fg-disabled);
+
+$fill-secondary-bg-hi1: var(--fill-secondary-bg-hi1);
+$fill-secondary-bg: var(--fill-secondary-bg);
+$fill-secondary-bg-lo1: var(--fill-secondary-bg-lo1);
+$fill-secondary-bg-disabled: var(--fill-secondary-bg-disabled);
+$fill-secondary-fg: var(--fill-secondary-fg);
+$fill-secondary-fg-lo1: var(--fill-secondary-fg-lo1);
+$fill-secondary-fg-lo2: var(--fill-secondary-fg-lo2);
+$fill-secondary-fg-disabled: var(--fill-secondary-fg-disabled);
+
+$fill-tertiary-bg-hi1: var(--fill-tertiary-bg-hi1);
+$fill-tertiary-bg: var(--fill-tertiary-bg);
+$fill-tertiary-bg-lo1: var(--fill-tertiary-bg-lo1);
+$fill-tertiary-bg-disabled: var(--fill-tertiary-bg-disabled);
+$fill-tertiary-fg-hi1: var(--fill-tertiary-fg-hi1);
+$fill-tertiary-fg: var(--fill-tertiary-fg);
+$fill-tertiary-fg-lo1: var(--fill-tertiary-fg-lo1);
+$fill-tertiary-fg-lo2: var(--fill-tertiary-fg-lo2);
+$fill-tertiary-fg-disabled: var(--fill-tertiary-fg-disabled);
+
+$fill-danger-bg-hi1: var(--fill-danger-bg-hi1);
+$fill-danger-bg: var(--fill-danger-bg);
+$fill-danger-bg-lo1: var(--fill-danger-bg-lo1);
+$fill-danger-bg-disabled: var(--fill-danger-bg-disabled);
+$fill-danger-fg: var(--fill-danger-fg);
+$fill-danger-fg-lo1: var(--fill-danger-fg-lo1);
+$fill-danger-fg-lo2: var(--fill-danger-fg-lo2);
+$fill-danger-fg-disabled: var(--fill-danger-fg-disabled);
+
+$fill-warning-bg-hi1: var(--fill-warning-bg-hi1);
+$fill-warning-bg: var(--fill-warning-bg);
+$fill-warning-bg-lo1: var(--fill-warning-bg-lo1);
+$fill-warning-bg-disabled: var(--fill-warning-bg-disabled);
+$fill-warning-fg: var(--fill-warning-fg);
+$fill-warning-fg-lo1: var(--fill-warning-fg-lo1);
+$fill-warning-fg-lo2: var(--fill-warning-fg-lo2);
+$fill-warning-fg-disabled: var(--fill-warning-fg-disabled);
+
+$fill-success-bg-hi1: var(--fill-success-bg-hi1);
+$fill-success-bg: var(--fill-success-bg);
+$fill-success-bg-lo1: var(--fill-success-bg-lo1);
+$fill-success-bg-disabled: var(--fill-success-bg-disabled);
+$fill-success-fg: var(--fill-success-fg);
+$fill-success-fg-lo1: var(--fill-success-fg-lo1);
+$fill-success-fg-lo2: var(--fill-success-fg-lo2);
+$fill-success-fg-disabled: var(--fill-success-fg-disabled);
+
+$fill-info-bg-hi1: var(--fill-info-bg-hi1);
+$fill-info-bg: var(--fill-info-bg);
+$fill-info-bg-lo1: var(--fill-info-bg-lo1);
+$fill-info-bg-disabled: var(--fill-info-bg-disabled);
+$fill-info-fg: var(--fill-info-fg);
+$fill-info-fg-lo1: var(--fill-info-fg-lo1);
+$fill-info-fg-lo2: var(--fill-info-fg-lo2);
+$fill-info-fg-disabled: var(--fill-info-fg-disabled);
+
+$colors: (
+    "celery": $celery,
+    "red": $red-600,
+    "danube": $danube,
+    "blue": $blue-500,
+    "jaffa": $jaffa,
+    "lavender": $lavender,
+    "oslo": $oslo,
+    "tapestry": $tapestry,
+    "turquoise": $turquoise,
+    "venus": $venus
+);

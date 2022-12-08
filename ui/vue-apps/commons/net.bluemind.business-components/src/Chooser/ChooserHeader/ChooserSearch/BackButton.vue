@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { BmButton, BmIcon } from "@bluemind/styleguide";
+import { BmButton, BmIcon } from "@bluemind/ui-components";
 import { UNSET_SEARCH_PATTERN, UNSET_SEARCH_MODE } from "../../store/mutations";
 
 export default {

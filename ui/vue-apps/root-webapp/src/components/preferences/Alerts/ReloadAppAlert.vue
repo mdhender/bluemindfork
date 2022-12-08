@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { BmButton } from "@bluemind/styleguide";
+import { BmButton } from "@bluemind/ui-components";
 
 export default {
     name: "ReloadAppAlert",
@@ -20,7 +20,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .reload-app-alert {
     display: flex;

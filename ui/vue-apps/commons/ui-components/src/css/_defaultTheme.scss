@@ -1,0 +1,182 @@
+@import "_colorPalette.scss";
+
+// $bg-step-lo is the opacity to apply to $fill-bg to get bg-lo1
+// (this is not a mistake, bg-lo1 is generated from $fill-bg rather than $bg to
+// provide sufficient color variation when stacking semi-transparent backgrounds)
+// $fg-steps-lo is the list of opacities to apply to $fg to get fg-lo*
+// $fill-bg-step-lo is the opacity to apply to $fill-bg to get fill-bg-lo1
+// $fill-fg-steps-lo is the list of opacities to apply to $fill-fg to get fill-fg-lo*
+// To skip a color, pass null. To skip a list of color steps, pass an empty list ().
+@mixin generate-variant(
+    $variant-name,
+    $bg-hi1: null,
+    $bg: null,
+    $bg-step-lo: 0.08,
+    $fg-hi1: null,
+    $fg: null,
+    $fg-steps-lo: (0.5, 0.2),
+    $fill-bg-hi1: $fg-hi1,
+    $fill-bg: $fg,
+    $fill-bg-step-lo: 0.5,
+    $fill-fg-hi1: null,
+    $fill-fg: null,
+    $fill-fg-steps-lo: (0.7, 0.4)
+) {
+    @if ($bg-hi1) {
+        --#{$variant-name}-bg-hi1: #{$bg-hi1};
+    }
+    @if ($bg) {
+        --#{$variant-name}-bg: #{$bg};
+    }
+    @if ($bg-step-lo) {
+        --#{$variant-name}-bg-lo1: #{rgba($fill-bg, $bg-step-lo)}; // see comment above mixin
+    }
+    @if ($fg-hi1) {
+        --#{$variant-name}-fg-hi1: #{$fg-hi1};
+    }
+    @if ($fg) {
+        --#{$variant-name}-fg: #{$fg};
+    }
+    @if length($fg-steps-lo) != 0 {
+        @for $i from 1 through length($fg-steps-lo) {
+            $step: nth($fg-steps-lo, $i);
+            --#{$variant-name}-fg-lo#{$i}: #{rgba($fg, $step)};
+        }
+    }
+
+    @if ($fill-bg-hi1) {
+        --fill-#{$variant-name}-bg-hi1: #{$fill-bg-hi1};
+    }
+    @if ($fill-bg) {
+        --fill-#{$variant-name}-bg: #{$fill-bg};
+    }
+    @if ($fill-bg-step-lo) {
+        --fill-#{$variant-name}-bg-lo1: #{rgba($fill-bg, $fill-bg-step-lo)};
+    }
+    @if ($fill-fg-hi1) {
+        --fill-#{$variant-name}-fg-hi1: #{$fill-fg-hi1};
+    }
+    @if ($fill-fg) {
+        --fill-#{$variant-name}-fg: #{$fill-fg};
+    }
+    @if length($fill-fg-steps-lo) != 0 {
+        @for $i from 1 through length($fill-fg-steps-lo) {
+            $step: nth($fill-fg-steps-lo, $i);
+            --fill-#{$variant-name}-fg-lo#{$i}: #{rgba($fill-fg, $step)};
+        }
+    }
+}
+
+:root {
+    --surface: #{$white};
+    --backdrop: #{$gray-100};
+    --highest: #{$black};
+    --lowest: #{$white};
+    --modal-backdrop: #{rgba($black, 0.4)};
+    --shadow-color: #{rgba($black, 0.25)};
+
+    @include generate-variant(
+        "neutral",
+        $bg-hi1: $gray-200,
+        $bg: $gray-100,
+        $bg-step-lo: 0.06,
+        $fg-hi1: $gray-900,
+        $fg: $gray-600,
+        $fg-steps-lo: (0.8, 0.4, 0.1),
+        $fill-fg-hi1: $blue-200,
+        $fill-fg: $white
+    );
+    --neutral-fg-disabled: var(--neutral-fg-lo2);
+    --fill-neutral-bg-disabled: var(--fill-neutral-bg-lo1);
+    --fill-neutral-fg-disabled: var(--fill-neutral-fg-lo2);
+
+    @include generate-variant(
+        "primary",
+        $fg-hi1: $blue-800,
+        $fg: $blue-700,
+        $fg-steps-lo: (0.35, 0.15),
+        $fill-bg-hi1: $blue-900,
+        $fill-bg: $blue-800,
+        $fill-fg-hi1: $blue-400,
+        $fill-fg: $white
+    );
+    --primary-fg-disabled: var(--primary-fg-lo1);
+    --fill-primary-bg-disabled: var(--fill-primary-bg-lo1);
+    --fill-primary-fg-disabled: var(--fill-primary-fg-lo2);
+
+    @include generate-variant(
+        "secondary",
+        $bg-hi1: $blue-200,
+        $bg: $blue-100,
+        $fg-hi1: $blue-600,
+        $fg: $blue-500,
+        $fill-fg: $white
+    );
+    --secondary-fg-disabled: var(--secondary-fg-lo1);
+    --fill-secondary-bg-disabled: var(--fill-secondary-bg-lo1);
+    --fill-secondary-fg-disabled: var(--fill-secondary-fg-lo2);
+
+    @include generate-variant(
+        "tertiary",
+        $bg-hi1: $yellow-200,
+        $bg: $yellow-100,
+        $fg-hi1: $yellow-700,
+        $fg: $yellow-600,
+        $fill-bg-hi1: $yellow-450,
+        $fill-bg: $yellow-400,
+        $fill-fg-hi1: $blue-700,
+        $fill-fg: $gray-900,
+        $fill-fg-steps-lo: (0.5, 0.25)
+    );
+    --tertiary-fg-disabled: var(--tertiary-fg-lo1);
+    --fill-tertiary-bg-disabled: var(--fill-tertiary-bg-lo1);
+    --fill-tertiary-fg-disabled: var(--fill-tertiary-fg-lo2);
+
+    @include generate-variant(
+        "danger",
+        $bg-hi1: $red-200,
+        $bg: $red-100,
+        $fg-hi1: $red-600,
+        $fg: $red-500,
+        $fill-fg: $white
+    );
+    --danger-fg-disabled: var(--danger-fg-lo1);
+    --fill-danger-bg-disabled: var(--fill-danger-bg-lo1);
+    --fill-danger-fg-disabled: var(--fill-danger-fg-lo2);
+
+    @include generate-variant(
+        "warning",
+        $bg-hi1: $orange-200,
+        $bg: $orange-100,
+        $fg-hi1: $orange-600,
+        $fg: $orange-500,
+        $fill-fg: $white
+    );
+    --warning-fg-disabled: var(--warning-fg-lo1);
+    --fill-warning-bg-disabled: var(--fill-warning-bg-lo1);
+    --fill-warning-fg-disabled: var(--fill-warning-fg-lo2);
+
+    @include generate-variant(
+        "success",
+        $bg-hi1: $green-200,
+        $bg: $green-100,
+        $fg-hi1: $green-600,
+        $fg: $green-500,
+        $fill-fg: $white
+    );
+    --success-fg-disabled: var(--success-fg-lo1);
+    --fill-success-bg-disabled: var(--fill-success-bg-lo1);
+    --fill-success-fg-disabled: var(--fill-success-fg-lo2);
+
+    @include generate-variant(
+        "info",
+        $bg-hi1: $turquoise-200,
+        $bg: $turquoise-100,
+        $fg-hi1: $turquoise-600,
+        $fg: $turquoise-500,
+        $fill-fg: $white
+    );
+    --info-fg-disabled: var(--info-fg-lo1);
+    --fill-info-bg-disabled: var(--fill-info-bg-lo1);
+    --fill-info-fg-disabled: var(--fill-info-fg-lo2);
+}

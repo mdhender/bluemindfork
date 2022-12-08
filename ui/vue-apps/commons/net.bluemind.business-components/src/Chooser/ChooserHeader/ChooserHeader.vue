@@ -30,8 +30,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
 
 .chooser-header {
     width: 100%;

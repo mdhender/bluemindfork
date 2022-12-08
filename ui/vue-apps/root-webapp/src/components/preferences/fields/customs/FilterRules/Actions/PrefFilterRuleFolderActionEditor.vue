@@ -41,7 +41,7 @@
 
 <script>
 import { inject } from "@bluemind/inject";
-import { BmFormSelect, BmIcon } from "@bluemind/styleguide";
+import { BmFormSelect, BmIcon } from "@bluemind/ui-components";
 
 export default {
     name: "PrefFilterRuleFolderActionEditor",
@@ -150,7 +150,7 @@ function userFolder(folder, id) {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins";
+@import "~@bluemind/ui-components/src/css/mixins";
 
 .pref-filter-rule-folder-action-editor {
     min-width: 0 !important;

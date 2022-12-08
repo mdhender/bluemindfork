@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BmAvatar BmAvatar should match snapshot 1`] = `
+<div
+  class="bm-avatar bm-avatar-md"
+  title="Yeah Yeah"
+>
+  <svg
+    aria-hidden="true"
+    id="hexagon"
+    role="img"
+    version="1.1"
+    viewBox="0 0 100 120"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <g
+      style="clip-path: url(#bm-clip-path-hexagon);"
+    >
+      <rect
+        fill="#17a2b8"
+        height="120"
+        width="100"
+        x="0"
+        y="0"
+      />
+       
+      <!---->
+    </g>
+  </svg>
+   
+  <div
+    id="overlay"
+  >
+    <p
+      id="letter"
+    >
+      Y
+    </p>
+  </div>
+   
+  <!---->
+</div>
+`;

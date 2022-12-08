@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import { BmIconButton } from "@bluemind/styleguide";
+import { BmIconButton } from "@bluemind/ui-components";
 import FilehostingL10N from "../l10n";
 
 export default {

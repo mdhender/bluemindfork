@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { BmFormCheckbox } from "@bluemind/styleguide";
+import { BmFormCheckbox } from "@bluemind/ui-components";
 import OneSettingField from "../../mixins/OneSettingField";
 
 export default {
@@ -65,7 +65,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-working-days {
     .choices {

@@ -84,7 +84,7 @@
 <script>
 import cloneDeep from "lodash.clonedeep";
 import { inject } from "@bluemind/inject";
-import { BmButton, BmForm, BmFormGroup, BmFormInput, BmLabelIcon, BmModal, BmSpinner } from "@bluemind/styleguide";
+import { BmButton, BmForm, BmFormGroup, BmFormInput, BmLabelIcon, BmModal, BmSpinner } from "@bluemind/ui-components";
 
 const TestStatus = {
     IDLE: Symbol("IDLE"),

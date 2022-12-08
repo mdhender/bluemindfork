@@ -58,7 +58,7 @@ import PrefWorkingDays from "./fields/customs/PrefWorkingDays";
 import PrefSwitchWebmail from "./fields/customs/PrefSwitchWebmail";
 import PrefEntryName from "./PrefEntryName";
 
-import { BmFormGroup } from "@bluemind/styleguide";
+import { BmFormGroup } from "@bluemind/ui-components";
 import Navigation from "./mixins/Navigation";
 
 export default {
@@ -118,7 +118,7 @@ export default {
 
 <style lang="scss">
 @import "./_variables";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-group {
     .pref-field {

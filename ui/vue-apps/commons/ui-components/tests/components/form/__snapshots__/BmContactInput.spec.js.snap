@@ -1,0 +1,79 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BmContactInput BmContactInput should match snapshot 1`] = `
+<div
+  class="bm-contact-input d-flex"
+>
+  <label
+    class="bm-contact-input-label"
+    for="new10"
+  >
+    To
+  </label>
+   
+  <div
+    class="flex-fill d-flex"
+  >
+    <div
+      class="flex-fill d-flex flex-nowrap overflow-hidden"
+    >
+       
+      <div
+        class="bm-form-autocomplete-input position-relative flex-fill"
+        data-browse=""
+        data-browse-default=""
+        data-browse-key="new"
+        tabindex="0"
+      >
+        <div
+          class="bm-form-input position-relative bm-form-input-sm"
+        >
+          <input
+            autocomplete="off"
+            class="form-control form-control-sm"
+            data-browse=""
+            data-browse-default=""
+            data-browse-key="new"
+            icon=""
+            type="text"
+            variant="outline"
+          />
+           
+          <!---->
+        </div>
+         
+        <div
+          class="list-group suggestions shadow position-absolute list-no-borders z-index-200 overflow-auto"
+          style="display: none;"
+          tabindex="-1"
+        >
+           
+          <!---->
+        </div>
+      </div>
+    </div>
+     
+    <div
+      class="bm-chip bm-more-items-badge position-absolute bm-chip-md d-none"
+    >
+      <div
+        class="chip-part chip-left-part"
+      />
+       
+      <div
+        class="chip-part chip-main-part"
+      >
+        <div
+          class="text-truncate caption-bold"
+        >
+          <span>
+            + 0
+          </span>
+        </div>
+         
+        <!---->
+      </div>
+    </div>
+  </div>
+</div>
+`;

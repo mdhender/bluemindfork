@@ -27,7 +27,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-read-more-label {
     display: flex;

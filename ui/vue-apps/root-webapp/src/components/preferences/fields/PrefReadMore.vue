@@ -9,7 +9,7 @@
     </div>
 </template>
 <script>
-import { BmButton } from "@bluemind/styleguide";
+import { BmButton } from "@bluemind/ui-components";
 
 export default {
     name: "PrefReadMore",
@@ -28,7 +28,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-read-more {
     color: $neutral-fg-lo1;

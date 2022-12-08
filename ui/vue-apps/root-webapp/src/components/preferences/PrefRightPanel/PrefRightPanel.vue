@@ -12,7 +12,7 @@
 import debounce from "lodash.debounce";
 import { mapActions, mapGetters, mapState } from "vuex";
 
-import { BmCol } from "@bluemind/styleguide";
+import { BmCol } from "@bluemind/ui-components";
 import { ERROR, REMOVE, WARNING } from "@bluemind/alert.store";
 
 import PrefRightPanelFooter from "./PrefRightPanelFooter";
@@ -172,7 +172,7 @@ function doesNodeMatch(node, pattern) {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-right-panel {
     padding: 0 !important;

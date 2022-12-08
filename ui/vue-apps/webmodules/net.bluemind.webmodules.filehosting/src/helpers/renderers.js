@@ -1,5 +1,5 @@
 import Vue from "vue";
-import { BmTooLargeBox } from "@bluemind/styleguide";
+import { BmTooLargeBox } from "@bluemind/ui-components";
 import FhConfirmBox from "~/components/ConfirmBox";
 import FhMustDetachConfirmBox from "~/components/MustDetachConfirmBox";
 import FileHostingModal from "~/components/FileHostingModal";

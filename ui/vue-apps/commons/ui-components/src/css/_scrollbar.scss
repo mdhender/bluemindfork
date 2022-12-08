@@ -1,0 +1,91 @@
+/** Customized scrollbars for WebKit based browsers. Only elements having the class 'scroller' are affected. */
+
+// the scrollbar appears automatically by default
+.scroller-y {
+    overflow: scroll;
+    overflow-x: hidden;
+    overflow-y: overlay;
+    padding-right: $scroll-width;
+}
+
+// the element containing the scrollbar appears only on hover...
+.scroller-y.scroller-visible-on-hover {
+    visibility: hidden;
+}
+*:hover > .scroller-visible-on-hover {
+    visibility: visible;
+}
+// ... but elements under the one containing the scrollbar should be always visible
+.scroller-visible-on-hover > * {
+    visibility: visible !important;
+}
+
+// set at least one style here in order to activate the customization of the scrollbar
+.scroller-y::-webkit-scrollbar {
+    width: $scroll-width;
+    height: $scroll-width;
+}
+
+.scroller-y::-webkit-scrollbar-corner {
+    background-color: transparent;
+}
+
+.scroller-y::-webkit-scrollbar-thumb {
+    border: solid ($scroll-width * 0.3) transparent;
+    border-radius: $scrollbar-thumb-border-radius;
+    background-color: $scrollbar-color;
+    background-clip: content-box;
+    &:hover {
+        background-color: $scrollbar-color-hover;
+    }
+    &:active {
+        background-color: $scrollbar-color-active;
+    }
+    // since border is transparent, add it twice to have a correct visible min-height
+    min-height: $scrollbar-thumb-border-radius * 2 + 10px !important;
+}
+
+// scroll arrow up
+.scroller-y::-webkit-scrollbar-button:single-button:vertical:decrement {
+    background-image: $arrow-image-up;
+    &:hover {
+        background-image: $arrow-image-up-hover;
+    }
+    &:active {
+        background-image: $arrow-image-up-active;
+    }
+}
+
+// scroll arrow down
+.scroller-y::-webkit-scrollbar-button:single-button:vertical:increment {
+    background-image: $arrow-image-down;
+    &:hover {
+        background-image: $arrow-image-down-hover;
+    }
+    &:active {
+        background-image: $arrow-image-down-active;
+    }
+}
+
+// scroll arrow left
+.scroller-y::-webkit-scrollbar-button:single-button:horizontal:decrement {
+    background-image: $arrow-image-left;
+    &:hover {
+        background-image: $arrow-image-left-hover;
+    }
+    &:active {
+        background-image: $arrow-image-left-active;
+    }
+}
+
+// scroll arrow right
+.scroller-y::-webkit-scrollbar-button:single-button:horizontal:increment {
+    background-image: $arrow-image-right;
+    &:hover {
+        background-image: $arrow-image-right-hover;
+        cursor: grab !important;
+    }
+    &:active {
+        background-image: $arrow-image-right-active;
+    }
+}

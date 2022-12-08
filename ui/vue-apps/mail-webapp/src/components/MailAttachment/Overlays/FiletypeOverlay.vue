@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { BmIcon } from "@bluemind/styleguide";
+import { BmIcon } from "@bluemind/ui-components";
 import { MimeType } from "@bluemind/email";
 import { PreviewMixin } from "~/mixins";
 
@@ -30,8 +30,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@bluemind/styleguide/css/_fileTypeIconsColors.scss";
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "@bluemind/ui-components/src/css/_fileTypeIconsColors.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .action-overlay {
     @each $file-type, $color in $file-type-icons-colors {

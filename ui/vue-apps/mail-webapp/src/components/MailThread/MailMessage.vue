@@ -16,7 +16,7 @@
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
 import { INFO, REMOVE } from "@bluemind/alert.store";
-import { BmAlertArea } from "@bluemind/styleguide";
+import { BmAlertArea } from "@bluemind/ui-components";
 
 import { SET_ACTIVE_FOLDER, SET_BLOCK_REMOTE_IMAGES, SET_MESSAGE_COMPOSING } from "~/mutations";
 import { ACTIVE_MESSAGE, CONVERSATION_LIST_IS_SEARCH_MODE, MY_DRAFTS } from "~/getters";
@@ -98,8 +98,8 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .mail-message {
     .mail-composer ~ .mail-viewer {

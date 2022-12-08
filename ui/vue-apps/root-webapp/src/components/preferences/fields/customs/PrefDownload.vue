@@ -18,7 +18,7 @@
 
 <script>
 import mime from "mime";
-import { BmButton } from "@bluemind/styleguide";
+import { BmButton } from "@bluemind/ui-components";
 import fileTypeAppIcon from "../../../../../assets/file-type-app-icon.svg";
 import fileTypeDocIcon from "../../../../../assets/file-type-doc-icon.svg";
 import fileTypeImgIcon from "../../../../../assets/file-type-img-icon.svg";
@@ -69,7 +69,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-download {
     div {

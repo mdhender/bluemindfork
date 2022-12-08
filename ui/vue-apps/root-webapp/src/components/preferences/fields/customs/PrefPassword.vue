@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { BmButton } from "@bluemind/styleguide";
+import { BmButton } from "@bluemind/ui-components";
 import { mapState } from "vuex";
 import ChangePasswordModal from "./ChangePasswordModal";
 import BaseField from "../../mixins/BaseField";
@@ -31,7 +31,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-password {
     .creation-date {

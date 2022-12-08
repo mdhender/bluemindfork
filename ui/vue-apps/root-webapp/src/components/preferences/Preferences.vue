@@ -37,7 +37,7 @@ import { REMOVE } from "@bluemind/alert.store";
 import { generateDateTimeFormats } from "@bluemind/i18n";
 import { inject } from "@bluemind/inject";
 import Roles from "@bluemind/roles";
-import { BmContainer, BmRow, BmSpinner } from "@bluemind/styleguide";
+import { BmContainer, BmRow, BmSpinner } from "@bluemind/ui-components";
 
 import getPreferenceSections from "./sections";
 import SettingsL10N from "../../../l10n/preferences/";
@@ -174,8 +174,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
 
 @media only screen {
     @include from-lg {

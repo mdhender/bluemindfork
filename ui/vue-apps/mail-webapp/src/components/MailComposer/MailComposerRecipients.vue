@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import { BmButton, BmIconButton, BmCol, BmContactInput, BmRow } from "@bluemind/styleguide";
+import { BmButton, BmIconButton, BmCol, BmContactInput, BmRow } from "@bluemind/ui-components";
 import { ComposerActionsMixin, EditRecipientsMixin } from "~/mixins";
 
 export default {
@@ -86,7 +86,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .mail-composer-recipients {
     .bm-contact-input-label {

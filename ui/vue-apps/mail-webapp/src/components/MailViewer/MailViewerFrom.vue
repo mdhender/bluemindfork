@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { BmContact } from "@bluemind/styleguide";
+import { BmContact } from "@bluemind/ui-components";
 
 export default {
     name: "MailViewerFrom",

@@ -1,0 +1,162 @@
+@import "_variables";
+@import "mixins/_responsiveness";
+
+$line-height-small: base-px-to-rem(12);
+$line-height-regular: base-px-to-rem(16);
+$line-height-medium: base-px-to-rem(20);
+$line-height-high: base-px-to-rem(24);
+
+%h1,
+h1,
+.h1 {
+    font-weight: $font-weight-light;
+    font-size: $h1-font-size;
+    line-height: $h1-line-height;
+    font-style: normal;
+}
+
+%h2,
+h2,
+.h2 {
+    font-weight: $font-weight-bold;
+    font-size: $h2-font-size;
+    line-height: $h2-line-height;
+    font-style: normal;
+}
+
+%h3,
+h3,
+.h3 {
+    font-weight: $font-weight-bold;
+    font-size: $h3-font-size;
+    line-height: $h3-line-height;
+    font-style: normal;
+}
+
+%title,
+.title {
+    font-weight: $font-weight-light;
+    font-size: $title-font-size-sm;
+    line-height: $title-line-height-sm;
+    font-style: normal;
+    @include from-lg {
+        font-size: $title-font-size;
+        line-height: $title-line-height;
+    }
+}
+
+%regular,
+.regular {
+    font-weight: $font-weight-normal;
+    font-size: $font-size-base;
+    line-height: $line-height-regular;
+    font-style: normal;
+}
+
+%regular-medium,
+.medium {
+    font-weight: $font-weight-normal;
+    font-size: $font-size-base;
+    line-height: $line-height-medium;
+    font-style: normal;
+}
+
+%regular-high,
+body,
+.high {
+    font-weight: $font-weight-normal;
+    font-size: $font-size-base;
+    line-height: $line-height-high;
+    font-style: normal;
+}
+
+%bold,
+.bold {
+    font-weight: $font-weight-bold;
+    font-size: $font-size-base;
+    line-height: $line-height-regular;
+    font-style: normal;
+}
+
+%bold-medium,
+b.medium,
+.bold.medium,
+.bold-medium {
+    font-weight: $font-weight-bold;
+    font-size: $font-size-base;
+    line-height: $line-height-medium;
+    font-style: normal;
+}
+
+%italic,
+.italic {
+    font-weight: $font-weight-normal;
+    font-size: $font-size-base;
+    line-height: $line-height-regular;
+    font-style: italic;
+}
+
+%caption,
+caption,
+.caption {
+    font-weight: $font-weight-normal;
+    font-size: $font-size-sm;
+    line-height: $line-height-small;
+    letter-spacing: -0.01em;
+    font-style: normal;
+}
+
+%caption-bold,
+caption b,
+.caption b,
+.caption.bold,
+.caption-bold {
+    font-weight: $font-weight-bold;
+    font-size: $font-size-sm;
+    line-height: $line-height-small;
+    letter-spacing: -0.02em;
+    font-style: normal;
+}
+
+%caption-italic,
+caption i,
+.caption i,
+.caption.italic,
+.caption-italic {
+    font-weight: $font-weight-normal;
+    font-size: $font-size-sm;
+    line-height: $line-height-small;
+    letter-spacing: -0.01em;
+    font-style: italic;
+}
+
+hr {
+    border: 0;
+    border-top: $hr-border-width solid $hr-border-color;
+}
+
+mark,
+.mark {
+    padding: $mark-padding;
+    background-color: $mark-bg;
+}
+
+.list-unstyled {
+    padding-left: 0;
+    list-style: none;
+}
+
+.blockquote {
+    margin-bottom: $spacer;
+}
+
+.blockquote-footer {
+    display: block;
+    @extend %caption;
+    color: $blockquote-small-color;
+    margin-top: $sp-2;
+
+    &::before {
+        content: "\2014\00A0"; // em dash, nbsp
+    }
+}

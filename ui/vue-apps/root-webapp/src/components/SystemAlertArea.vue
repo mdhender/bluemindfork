@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { BmAlertArea, BmButton } from "@bluemind/styleguide";
+import { BmAlertArea, BmButton } from "@bluemind/ui-components";
 import { AlertTypes } from "@bluemind/alert.store";
 
 export default {

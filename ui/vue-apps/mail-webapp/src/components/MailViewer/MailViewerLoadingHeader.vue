@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import { BmCol, BmRow, BmSkeleton, BmSkeletonAvatar } from "@bluemind/styleguide";
+import { BmCol, BmRow, BmSkeleton, BmSkeletonAvatar } from "@bluemind/ui-components";
 
 export default {
     name: "MailVIewerLoadingHeader",

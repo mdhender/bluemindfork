@@ -20,7 +20,7 @@
 <script>
 import { mapGetters, mapMutations, mapState } from "vuex";
 
-import { BmIconButton, BmButtonToolbar } from "@bluemind/styleguide";
+import { BmIconButton, BmButtonToolbar } from "@bluemind/ui-components";
 
 import MailToolbarComposeMessage from "./MailToolbarComposeMessage";
 import MailToolbarSelectedConversations from "./MailToolbarSelectedConversations";
@@ -74,8 +74,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins/responsiveness";
-@import "~@bluemind/styleguide/css/variables";
+@import "~@bluemind/ui-components/src/css/mixins/responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .mail-toolbar {
     @include until-lg {

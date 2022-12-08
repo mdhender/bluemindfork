@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { BmButtonClose } from "@bluemind/styleguide";
+import { BmButtonClose } from "@bluemind/ui-components";
 
 export default {
     name: "RemoveButton",

@@ -63,7 +63,7 @@
 </template>
 
 <script>
-import { BmButtonToolbar, BmIconDropdown, BmDropdownDivider, BmDropdownItemButton } from "@bluemind/styleguide";
+import { BmButtonToolbar, BmIconDropdown, BmDropdownDivider, BmDropdownItemButton } from "@bluemind/ui-components";
 import { mapActions } from "vuex";
 import { Flag } from "@bluemind/email";
 import {
@@ -114,7 +114,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .mail-viewer-toolbar-for-mobile {
     .dropdown-divider {

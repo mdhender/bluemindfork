@@ -86,7 +86,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapState } from "vuex";
-import { BmDropdownItem, BmIcon } from "@bluemind/styleguide";
+import { BmDropdownItem, BmIcon } from "@bluemind/ui-components";
 import { messageUtils } from "@bluemind/mail";
 import {
     ActionTextMixin,
@@ -188,7 +188,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .mail-toolbar-consult-message-other-actions {
     .mark-as-flagged-item {

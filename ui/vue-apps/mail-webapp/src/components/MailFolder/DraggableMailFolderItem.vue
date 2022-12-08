@@ -20,7 +20,7 @@
 </template>
 <script>
 import { mapActions, mapState, mapGetters } from "vuex";
-import { BmDraggable } from "@bluemind/styleguide";
+import { BmDraggable } from "@bluemind/ui-components";
 import { folderUtils } from "@bluemind/mail";
 import { MOVE_FOLDER } from "~/actions";
 import { IS_DESCENDANT, FOLDER_HAS_CHILDREN } from "~/getters";

@@ -55,7 +55,7 @@
 <script>
 import { mapGetters, mapState } from "vuex";
 import { BmExtension } from "@bluemind/extensions.vue";
-import { BmIcon } from "@bluemind/styleguide";
+import { BmIcon } from "@bluemind/ui-components";
 import { DateComparator } from "@bluemind/date";
 import { Flag } from "@bluemind/email";
 import { folderUtils } from "@bluemind/mail";
@@ -198,8 +198,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/type";
-@import "~@bluemind/styleguide/css/variables";
+@import "~@bluemind/ui-components/src/css/type";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .conversation-list-item-full,
 .conversation-list-item-compact {

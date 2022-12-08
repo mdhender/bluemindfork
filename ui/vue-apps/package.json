@@ -8,7 +8,8 @@
             "root-webapp",
             "videoconferencing-saas-webapp",
             "webapp-wrapper", 
-            "webmodules/net.bluemind.webmodules.filehosting"
+            "webmodules/net.bluemind.webmodules.filehosting",
+            "webmodules/net.bluemind.webmodules.styleguide"
         ],
         "nohoist": [
             "**/bootstrap-vue",
@@ -52,12 +53,12 @@
         "url-loader": "^4.1.0",
         "vue": "^2.6.14",
         "vue-jest": "^4.0.0-rc.0",
-        "vue-loader": "^15.9.2",
+        "vue-loader": "^15.9.6",
         "vue-router": "^3.5.2",
         "vue-template-compiler": "^2.6.14",
         "vuex": "3.6.2",
         "webpack": "^5.49.0",
-        "webpack-cli": "^4.6.0",
+        "webpack-cli": "^4.8.0",
         "webpack-dev-server": "^3.11.0",
         "webpack-merge": "^5.7.3"
     },
@@ -69,7 +70,7 @@
         "root": "cd root-webapp && yarn dev",
         "mail": "cd mail-webapp && yarn dev",
         "videoconferencing-saas": "cd videoconferencing-saas-webapp && yarn dev",
-	"filehosting-plugin": "cd webmodules/net.bluemind.webmodules.filehosting && yarn dev",
+	    "filehosting-plugin": "cd webmodules/net.bluemind.webmodules.filehosting && yarn dev",
         "test-ci": "NODE_ICU_DATA=node_modules/full-icu jest --ci --json --config node_modules/@bluemind/conf/jest.config.js --testResultsProcessor jest-jenkins-reporter --coverage --coverageReporters cobertura > jest.json"
     },
     "prettier": "@bluemind/prettier-config",

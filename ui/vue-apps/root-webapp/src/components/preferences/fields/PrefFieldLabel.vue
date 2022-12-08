@@ -28,7 +28,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 legend.col-form-label {
     padding-bottom: $sp-2;

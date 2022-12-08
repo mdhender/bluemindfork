@@ -14,7 +14,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { BmLabelIcon, BmIcon } from "@bluemind/styleguide";
+import { BmLabelIcon, BmIcon } from "@bluemind/ui-components";
 import FilehostingL10N from "../l10n";
 import { GET_FH_FILE } from "../store/types/getters";
 

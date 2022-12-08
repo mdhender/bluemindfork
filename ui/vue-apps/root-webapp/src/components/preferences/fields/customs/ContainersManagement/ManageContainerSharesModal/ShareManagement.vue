@@ -51,7 +51,7 @@ import { Verb } from "@bluemind/core.container.api";
 import { BaseDirEntryKind } from "@bluemind/directory.api";
 import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
-import { BmContact, BmFormAutocompleteInput, BmSpinner } from "@bluemind/styleguide";
+import { BmContact, BmFormAutocompleteInput, BmSpinner } from "@bluemind/ui-components";
 import UUIDHelper from "@bluemind/uuid";
 import { SUCCESS } from "@bluemind/alert.store";
 import { SAVE_ALERT_MODAL } from "../../../../Alerts/defaultAlerts";
@@ -309,8 +309,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .share-management {
     .share-entry-body {

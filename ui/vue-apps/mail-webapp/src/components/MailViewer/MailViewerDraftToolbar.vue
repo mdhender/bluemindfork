@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { BmButtonToolbar, BmIconButton } from "@bluemind/styleguide";
+import { BmButtonToolbar, BmIconButton } from "@bluemind/ui-components";
 import { DraftMixin, ComposerInitMixin, RemoveMixin } from "~/mixins";
 import { SET_MESSAGE_COMPOSING } from "~/mutations";
 import MessagePathParam from "~/router/MessagePathParam";
@@ -61,7 +61,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 .mail-viewer-mobile-actions {
     bottom: 0;
     box-shadow: 0 -0.125rem 0.125rem rgba($highest, 0.25);

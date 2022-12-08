@@ -1,5 +1,5 @@
 import Preferences from "../components/preferences/Preferences";
-jest.mock("@bluemind/styleguide/css/_variables.scss", () => ({ iconsColors: "" }));
+jest.mock("@bluemind/ui-components/src/css/_variables.scss", () => ({ iconsColors: "" }));
 import { MountComponentUtils } from "@bluemind/test-utils";
 
 import ServiceLocator from "@bluemind/inject";

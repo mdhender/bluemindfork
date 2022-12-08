@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { BmIconDropdown, BmDropdownDivider, BmDropdownItemButton, BmIcon } from "@bluemind/styleguide";
+import { BmIconDropdown, BmDropdownDivider, BmDropdownItemButton, BmIcon } from "@bluemind/ui-components";
 import { RemoveMixin, ComposerInitMixin } from "~/mixins";
 
 export default {
@@ -48,7 +48,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .mail-viewer-draft-toolbar-for-mobile {
     .dropdown-divider {

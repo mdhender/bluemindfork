@@ -18,7 +18,7 @@
 
 <script>
 import { mapState } from "vuex";
-import { BmFormSelect } from "@bluemind/styleguide";
+import { BmFormSelect } from "@bluemind/ui-components";
 
 export default {
     name: "MailComposerSender",

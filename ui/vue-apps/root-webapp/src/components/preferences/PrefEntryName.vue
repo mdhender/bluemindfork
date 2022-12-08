@@ -8,7 +8,7 @@
     </div>
 </template>
 <script>
-import { BmLabelIcon } from "@bluemind/styleguide";
+import { BmLabelIcon } from "@bluemind/ui-components";
 
 export default {
     name: "PrefEntryName",
@@ -23,7 +23,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .fallback-pref-entry-name {
     .entry-disabled {

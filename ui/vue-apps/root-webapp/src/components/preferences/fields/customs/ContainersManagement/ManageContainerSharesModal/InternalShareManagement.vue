@@ -44,7 +44,7 @@
 <script>
 import { DirEntryAdaptor } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";
-import { BmContact, BmFormSelect, BmLabelIcon, BmRow } from "@bluemind/styleguide";
+import { BmContact, BmFormSelect, BmLabelIcon, BmRow } from "@bluemind/ui-components";
 import { ContainerHelper, ContainerType } from "../container";
 
 export default {
@@ -96,7 +96,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .internal-share-management {
     .share-entry-body {

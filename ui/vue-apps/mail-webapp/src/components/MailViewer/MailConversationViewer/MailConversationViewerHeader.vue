@@ -14,7 +14,7 @@
     </div>
 </template>
 <script>
-import { BmIconButton } from "@bluemind/styleguide";
+import { BmIconButton } from "@bluemind/ui-components";
 export default {
     name: "MailConversationViewerHeader",
     components: { BmIconButton },

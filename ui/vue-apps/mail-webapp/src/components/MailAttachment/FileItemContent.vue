@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import { BmContainer, BmProgress, BmNotice } from "@bluemind/styleguide";
+import { BmContainer, BmProgress, BmNotice } from "@bluemind/ui-components";
 import { fileUtils } from "@bluemind/mail";
 import { PreviewMixin } from "~/mixins";
 import FileThumbnail from "./FileItem/FileThumbnail";
@@ -84,7 +84,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .file-item .container {
     position: relative;

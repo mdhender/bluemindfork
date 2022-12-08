@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BmChip BmChip should match snapshot 1`] = `
+<div
+  class="bm-chip bm-chip-md"
+>
+  <div
+    class="chip-part chip-left-part"
+  />
+   
+  <div
+    class="chip-part chip-main-part"
+  >
+    <div
+      class="text-truncate regular"
+    >
+      efzefez@ezfef.fr
+    </div>
+     
+    <!---->
+  </div>
+</div>
+`;

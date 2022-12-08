@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { BmFormDatePicker, BmFormRadio, BmFormRadioGroup, BmFormTimePicker } from "@bluemind/styleguide";
+import { BmFormDatePicker, BmFormRadio, BmFormRadioGroup, BmFormTimePicker } from "@bluemind/ui-components";
 
 // The code in this file uses the following terminology:
 //
@@ -168,7 +168,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-automatic-reply-optional-date {
     display: flex;

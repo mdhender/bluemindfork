@@ -43,7 +43,7 @@
 <script>
 import { ERROR } from "@bluemind/alert.store";
 import { folderUtils, messageUtils } from "@bluemind/mail";
-import { BmDraggable } from "@bluemind/styleguide";
+import { BmDraggable } from "@bluemind/ui-components";
 import { AddAttachmentsCommand } from "~/commands";
 import { MoveMixin, SelectionMixin } from "~/mixins";
 import apiMessages from "~/store/api/apiMessages";
@@ -164,7 +164,7 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "~@bluemind/styleguide/css/variables";
+@import "~@bluemind/ui-components/src/css/variables";
 .draggable-conversation {
     cursor: pointer;
 

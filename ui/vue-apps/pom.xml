@@ -22,6 +22,7 @@
 		</repository>
 	</repositories>
 	<modules>
+		<module>commons</module>
 		<module>mail-webapp</module>
 		<module>root-webapp</module>
 		<module>videoconferencing-saas-webapp</module>

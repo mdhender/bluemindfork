@@ -69,7 +69,7 @@ import { ContainerType, isManaged } from "./container";
 import ManageMyContainerMenu from "./ManageMyContainerMenu";
 import { ERROR, LOADING, SUCCESS } from "@bluemind/alert.store";
 import { inject } from "@bluemind/inject";
-import { BmButton, BmIconButton, BmFormCheckbox, BmIcon, BmTable } from "@bluemind/styleguide";
+import { BmButton, BmIconButton, BmFormCheckbox, BmIcon, BmTable } from "@bluemind/ui-components";
 import { retrieveTaskResult } from "@bluemind/task";
 import { mapActions, mapState } from "vuex";
 import { SAVE_ALERT } from "../../../Alerts/defaultAlerts";
@@ -274,8 +274,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .containers-management-table {
     &.b-table {

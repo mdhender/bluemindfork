@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { BmSkeleton } from "@bluemind/styleguide";
+import { BmSkeleton } from "@bluemind/ui-components";
 
 export default {
     name: "MailViewerContentLoading",
@@ -23,7 +23,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .text-plain-part-loading {
     margin-top: $sp-3;

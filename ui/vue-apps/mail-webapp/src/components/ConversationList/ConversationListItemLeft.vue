@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import { BmAvatar, BmCheck, BmIcon } from "@bluemind/styleguide";
+import { BmAvatar, BmCheck, BmIcon } from "@bluemind/ui-components";
 import { mapGetters, mapState } from "vuex";
 import { CONVERSATIONS_ACTIVATED, MY_DRAFTS, MY_SENT } from "~/getters";
 import MailAttachmentIcon from "../MailAttachmentIcon";
@@ -94,7 +94,7 @@ export default {
 
 <style lang="scss">
 @use "sass:math";
-@import "~@bluemind/styleguide/css/variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .conversation-list-item-left {
     display: flex;

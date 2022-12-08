@@ -6,7 +6,7 @@
 
 <script>
 import BmCalendarItem from "./BmCalendarItem";
-import { BmBadge } from "@bluemind/styleguide";
+import { BmBadge } from "@bluemind/ui-components";
 
 export default {
     name: "BmCalendarBadge",
@@ -25,8 +25,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_type";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/_type";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .badge.bm-calendar-badge {
     display: flex !important;

@@ -6,3 +6,4 @@ report.xml
 coverage
 **/web-resources/*
 !**/web-resources/static
+dist/

@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { BmLabelIcon, BmProgress, BmIcon } from "@bluemind/styleguide";
+import { BmLabelIcon, BmProgress, BmIcon } from "@bluemind/ui-components";
 import { computeUnit } from "@bluemind/file-utils";
 import { fileUtils } from "@bluemind/mail";
 import FilehostingL10N from "../l10n";
@@ -60,7 +60,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .fh-file-item {
     .progress {

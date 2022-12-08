@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import { BmIconDropdown, BmCaptionedIconDropdown } from "@bluemind/styleguide";
+import { BmIconDropdown, BmCaptionedIconDropdown } from "@bluemind/ui-components";
 
 export default {
     name: "MailToolbarResponsiveDropdown",

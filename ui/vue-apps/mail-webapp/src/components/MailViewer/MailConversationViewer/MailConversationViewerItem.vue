@@ -49,7 +49,7 @@
     </div>
 </template>
 <script>
-import { BmContact } from "@bluemind/styleguide";
+import { BmContact } from "@bluemind/ui-components";
 import MailConversationViewerItemMixin from "./MailConversationViewerItemMixin";
 import MailConversationViewerVerticalLine from "./MailConversationViewerVerticalLine";
 import MailViewerRecipients from "../MailViewerRecipients";
@@ -92,7 +92,7 @@ export default {
 </script>
 <style lang="scss">
 @use "sass:math";
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .mail-conversation-viewer-item {
     .avatar-wrapper {

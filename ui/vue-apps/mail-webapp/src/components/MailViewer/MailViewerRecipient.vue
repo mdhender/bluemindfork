@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import { BmContact, BmMoreItemsBadge, OverflownElements } from "@bluemind/styleguide";
+import { BmContact, BmMoreItemsBadge, OverflownElements } from "@bluemind/ui-components";
 
 export default {
     name: "MailViewerRecipient",

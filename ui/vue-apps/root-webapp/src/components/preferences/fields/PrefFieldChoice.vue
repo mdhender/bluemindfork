@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { BmFormRadio, BmFormRadioGroup } from "@bluemind/styleguide";
+import { BmFormRadio, BmFormRadioGroup } from "@bluemind/ui-components";
 import OneSettingField from "../mixins/OneSettingField";
 
 export default {
@@ -31,8 +31,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-field-choice {
     gap: $sp-5;

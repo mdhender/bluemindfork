@@ -50,7 +50,7 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
-import { BmCounterBadge, BmDropzone, BmIcon } from "@bluemind/styleguide";
+import { BmCounterBadge, BmDropzone, BmIcon } from "@bluemind/ui-components";
 import UUIDGenerator from "@bluemind/uuid";
 import { folderUtils } from "@bluemind/mail";
 import MailFolderIcon from "../MailFolderIcon";
@@ -152,8 +152,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .mail-folder-item {
     display: flex;

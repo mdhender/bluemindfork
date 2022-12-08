@@ -10,7 +10,7 @@
     />
 </template>
 <script>
-import { BmIconButton } from "@bluemind/styleguide";
+import { BmIconButton } from "@bluemind/ui-components";
 import RoomGenerator from "@bluemind/uuid";
 
 const roles = ["hasFullVideoconferencing", "hasSimpleVideoconferencing"];

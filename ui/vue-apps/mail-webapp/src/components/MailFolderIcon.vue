@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { BmLabelIcon, BmIcon } from "@bluemind/styleguide";
+import { BmLabelIcon, BmIcon } from "@bluemind/ui-components";
 import { DEFAULT_FOLDER_NAMES } from "~/store/folders/helpers/DefaultFolders";
 import { mailboxUtils } from "@bluemind/mail";
 
@@ -95,8 +95,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/mixins";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .mail-folder-icon.bm-label-icon {
     & > div {

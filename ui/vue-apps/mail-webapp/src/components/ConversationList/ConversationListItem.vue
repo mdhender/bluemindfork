@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import { BmListGroupItem } from "@bluemind/styleguide";
+import { BmListGroupItem } from "@bluemind/ui-components";
 import { mapState } from "vuex";
 import { messageUtils } from "@bluemind/mail";
 import ConversationListItemLeft from "./ConversationListItemLeft";
@@ -93,7 +93,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/variables";
+@import "~@bluemind/ui-components/src/css/variables";
 @import "./_variables.scss";
 
 .list-group-item.conversation-list-item {

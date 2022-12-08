@@ -15,7 +15,7 @@
 </template>
 <script>
 import { mapActions, mapGetters } from "vuex";
-import { BmButton } from "@bluemind/styleguide";
+import { BmButton } from "@bluemind/ui-components";
 import { SHOW_MORE_FOR_MAILSHARES } from "~/actions";
 import { FILTERED_MAILSHARE_RESULTS, MAILSHARES } from "~/getters";
 import MailMailboxIcon from "../MailMailboxIcon";

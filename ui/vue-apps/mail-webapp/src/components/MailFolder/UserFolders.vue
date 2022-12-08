@@ -26,7 +26,7 @@
 <script>
 import { mapActions, mapGetters } from "vuex";
 import { folderUtils, loadingStatusUtils } from "@bluemind/mail";
-import { BmDropzone } from "@bluemind/styleguide";
+import { BmDropzone } from "@bluemind/ui-components";
 import { CREATE_FOLDER } from "~/actions";
 import { MAILBOX_ROOT_FOLDERS } from "~/getters";
 import { FolderTreeMixin } from "~/mixins";

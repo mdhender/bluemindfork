@@ -5,7 +5,7 @@
     </div>
 </template>
 <script>
-import { BmIcon } from "@bluemind/styleguide";
+import { BmIcon } from "@bluemind/ui-components";
 import MailFolderIcon from "../MailFolderIcon";
 
 export default {
@@ -21,8 +21,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins";
-@import "~@bluemind/styleguide/css/variables";
+@import "~@bluemind/ui-components/src/css/mixins";
+@import "~@bluemind/ui-components/src/css/variables";
 
 $shadow-width: 200px;
 

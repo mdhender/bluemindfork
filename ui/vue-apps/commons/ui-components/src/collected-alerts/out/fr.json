@@ -1,0 +1,4 @@
+{
+    "alert.mail.message.draft.delete.error": "\"{subject}\" n'a pas été supprimé.{br}{reason}",
+    "alert.mail.send.loading": "Envoi de \"{subject}\" en cours..."
+} 

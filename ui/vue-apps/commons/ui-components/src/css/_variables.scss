@@ -1,0 +1,479 @@
+@use "sass:map";
+@use "sass:math";
+@import "_colors.scss";
+
+//
+// See node_modules/bootstrap/scss/_variables.scss for the file structure.
+//
+// Custom (non-Bootstrap) variables are added in relevant sections.
+//
+
+// Items in Figma design system have sizes in pixels. These are "base" sizes that
+// apply at default browser font size. For values that are expected to change
+// proportionally when browser font size is changed, the rem unit must be used.
+// This function makes the conversion from "base" px sizes to rem sizes.
+@function base-px-to-rem($value) {
+    @return math.div($value, 16) * 1rem;
+}
+
+// Options
+
+$enable-shadows: true;
+$enable-responsive-font-sizes: false;
+
+// Body
+
+$body-bg: $backdrop;
+$body-color: $neutral-fg-hi1;
+
+// Surface
+
+$surface-bg: $surface;
+$surface-active-bg: $secondary-bg-lo1;
+$surface-active-color: $neutral-fg-hi1;
+
+// Links
+
+$link-color: $neutral-fg;
+$link-decoration: underline;
+$link-hover-color: $neutral-fg-hi1;
+
+// Grid breakpoints
+
+$grid-breakpoints: (
+    xs: 0,
+    lg: 992px
+);
+
+// Grid columns
+
+$grid-gutter-width: 8px;
+
+// Components
+
+// $line-heigh-lg and $line-height-sm moved into Typography as they require $font-size-base
+
+$border-color: $neutral-fg-lo2;
+
+$border-radius: base-px-to-rem(1);
+$border-radius-lg: $border-radius;
+$border-radius-sm: $border-radius;
+
+$box-shadow-sm: 0 0 base-px-to-rem(8) $shadow-color;
+$box-shadow: base-px-to-rem(2) base-px-to-rem(2) base-px-to-rem(4) $shadow-color;
+$box-shadow-lg: 0 base-px-to-rem(8) base-px-to-rem(16) $shadow-color;
+
+$component-active-color: $surface;
+
+$caret-width: base-px-to-rem(4);
+$caret-spacing: 0;
+
+$outline-style: dashed;
+$outline: 1px $outline-style $neutral-fg-hi1;
+
+$drag-color: $fill-tertiary-bg;
+$drag-border-color: $fill-tertiary-bg;
+$drag-active-bg-color: $tertiary-bg;
+$drag-hover-bg-color: $tertiary-bg-hi1;
+
+// Typography
+
+$font-family-base: "Montserrat", sans-serif;
+
+$font-size-base: base-px-to-rem(13);
+$font-size-lg: base-px-to-rem(18);
+$font-size-sm: base-px-to-rem(12);
+
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-bold: 600;
+
+$line-height-base: math.div(base-px-to-rem(20), $font-size-base);
+
+$line-height-lg: math.div(base-px-to-rem(24), $font-size-base);
+$line-height-sm: math.div(base-px-to-rem(16), $font-size-base);
+
+$h1-font-size: base-px-to-rem(30);
+$h1-line-height: base-px-to-rem(40);
+$h2-font-size: base-px-to-rem(20);
+$h2-line-height: base-px-to-rem(24);
+$h3-font-size: base-px-to-rem(16);
+$h3-line-height: base-px-to-rem(18);
+
+$title-font-size: base-px-to-rem(20);
+$title-line-height: base-px-to-rem(28);
+$title-font-size-sm: base-px-to-rem(18);
+$title-line-height-sm: base-px-to-rem(24);
+
+$text-muted: $neutral-fg-lo1;
+
+$blockquote-small-color: $neutral-fg-lo1;
+
+$hr-border-color: $neutral-fg-lo2;
+
+$kbd-box-shadow: 0 -0.1rem 0 $shadow-color;
+
+$mark-padding: 0;
+
+$mark-bg: $tertiary-bg-hi1;
+
+// Tables
+
+$table-accent-bg: $neutral-bg-lo1;
+
+$table-border-width: 1px;
+
+$table-head-bg: transparent;
+$table-head-color: $neutral-fg;
+
+// Buttons + Forms
+
+$input-btn-padding-y: 0.25rem;
+$input-btn-font-size: $font-size-base;
+$input-btn-line-height: $line-height-sm;
+
+$input-btn-focus-width: 4px;
+
+$input-btn-font-size-sm: $font-size-base;
+$input-btn-line-height-sm: $line-height-sm;
+
+$input-btn-font-size-lg: $font-size-base;
+$input-btn-line-height-lg: $line-height-sm;
+
+// Buttons
+
+$btn-border-width: 1px;
+
+$btn-icon-label-gap: base-px-to-rem(6);
+
+$btn-dropdown-padding-x: calc(#{base-px-to-rem(9)} - #{$btn-border-width});
+$btn-dropdown-padding-x-sm: calc(#{base-px-to-rem(6)} - #{$btn-border-width});
+$btn-dropdown-padding-x-lg: calc(#{base-px-to-rem(12)} - #{$btn-border-width});
+
+// $btn-border-width moved above because it was needed to compute paddings
+
+$btn-font-weight: $font-weight-bold;
+$btn-focus-width: $input-btn-focus-width !default;
+
+$btn-link-disabled-color: $neutral-fg-disabled;
+
+// Icon buttons
+
+$icon-btn-height: base-px-to-rem(30);
+$icon-btn-height-sm: base-px-to-rem(24);
+$icon-btn-height-lg: base-px-to-rem(36);
+
+$icon-btn-width-regular: base-px-to-rem(50);
+$icon-btn-width-regular-sm: base-px-to-rem(40);
+$icon-btn-width-regular-lg: base-px-to-rem(60);
+
+$icon-btn-width-compact: $icon-btn-height;
+$icon-btn-width-compact-sm: $icon-btn-height-sm;
+$icon-btn-width-compact-lg: $icon-btn-height-lg;
+
+// Button close
+
+$btn-close-sizes: ();
+
+@mixin bm-btn-close-size($size-name, $base-px-size) {
+    $btn-close-sizes: map-merge(
+        $btn-close-sizes,
+        (
+            $size-name: base-px-to-rem($base-px-size)
+        )
+    ) !global;
+}
+
+@include bm-btn-close-size("xs", 12);
+@include bm-btn-close-size("sm", 14);
+@include bm-btn-close-size("md", 24);
+@include bm-btn-close-size("lg", 30);
+
+// Forms
+
+$input-bg: transparent;
+$input-disabled-bg: $neutral-bg-lo1;
+
+$input-color: $neutral-fg;
+$input-border-color: $neutral-fg;
+$input-disabled-border-color: $neutral-fg-disabled;
+$input-box-shadow: none;
+
+$input-focus-border-color: $secondary-fg;
+$input-focus-color: $neutral-fg-hi1;
+$input-focus-box-shadow: none;
+
+$input-placeholder-color: $neutral-fg-lo1;
+
+$input-height: base-px-to-rem(36);
+$input-height-sm: base-px-to-rem(30);
+
+$input-group-addon-bg: $neutral-bg-lo1;
+
+$custom-control-indicator-size: 1rem;
+$custom-control-indicator-bg: $fill-secondary-fg;
+
+$custom-control-indicator-border-color: $neutral-fg;
+
+$custom-control-label-disabled-color: $neutral-fg-disabled;
+
+$custom-control-indicator-checked-color: $fill-secondary-fg;
+$custom-control-indicator-checked-bg: $fill-secondary-bg;
+$custom-control-indicator-checked-disabled-bg: $fill-secondary-bg-disabled;
+
+$custom-checkbox-indicator-border-radius: 0.25em;
+$custom-control-gutter: 0.5rem;
+
+$custom-checkbox-indicator-indeterminate-bg: $custom-control-indicator-checked-bg;
+
+$custom-switch-width: base-px-to-rem(45);
+$custom-switch-height: base-px-to-rem(16);
+$custom-control-indicator-size: 1rem;
+$custom-switch-indicator-size: 0.5rem;
+
+$custom-checkbox-size: base-px-to-rem(14);
+$custom-radio-size: base-px-to-rem(14);
+
+$custom-select-disabled-color: $neutral-fg-disabled;
+$custom-select-disabled-bg: $input-disabled-bg;
+$custom-select-indicator-color: $neutral-fg-hi1;
+
+$custom-select-box-shadow: none;
+
+$custom-range-track-bg: $neutral-bg-hi1;
+$custom-range-track-box-shadow: none;
+
+$custom-range-thumb-bg: $fill-secondary-bg;
+$custom-range-thumb-box-shadow: $box-shadow-sm;
+$custom-range-thumb-active-bg: $fill-secondary-bg-hi1;
+$custom-range-thumb-disabled-bg: $fill-secondary-bg-disabled;
+
+// Tree
+
+$tree-expand-btn-width: base-px-to-rem(20);
+$tree-expand-btn-width-tactile: base-px-to-rem(30);
+
+$tree-node-height: base-px-to-rem(30);
+$tree-node-height-tactile: base-px-to-rem(36);
+
+// Avatars, chips and badges
+
+$avatar-width: base-px-to-rem(25);
+$avatar-height: base-px-to-rem(30);
+$avatar-width-sm: base-px-to-rem(20);
+$avatar-height-sm: base-px-to-rem(24);
+$avatar-width-xl: base-px-to-rem(70);
+$avatar-height-xl: base-px-to-rem(84);
+
+$chip-height: base-px-to-rem(20);
+$chip-height-lg: base-px-to-rem(24);
+
+$color-badge-size: base-px-to-rem(24);
+$color-badge-size-lg: base-px-to-rem(30);
+
+$counter-badge-height: base-px-to-rem(20);
+$counter-badge-width-below-100: base-px-to-rem(20);
+$counter-badge-width: base-px-to-rem(26);
+
+// Navs
+
+$nav-link-disabled-color: $neutral-fg-disabled;
+
+$nav-tabs-border-color: $neutral-fg-lo2;
+$nav-tabs-link-hover-border-color: $neutral-fg-lo3 $neutral-fg-lo3 $nav-tabs-border-color;
+$nav-tabs-link-active-color: $neutral-fg;
+$nav-tabs-link-active-border-color: $neutral-fg-lo2 $neutral-fg-lo2 $neutral-fg-lo1;
+
+$nav-divider-color: $neutral-fg-lo3;
+
+// Dropdowns
+
+$dropdown-padding-y: 0;
+$dropdown-spacer: base-px-to-rem(8);
+$dropdown-bg: $surface;
+$dropdown-border-color: transparent;
+$dropdown-divider-bg: $neutral-bg-lo1;
+$dropdown-box-shadow: $box-shadow-sm;
+
+$dropdown-link-color: $neutral-fg;
+$dropdown-link-hover-color: $neutral-fg-hi1;
+$dropdown-link-hover-bg: $neutral-bg-lo1;
+
+$dropdown-link-disabled-color: $neutral-fg-disabled;
+
+$dropdown-item-padding-y: 0.5rem;
+$dropdown-item-padding-x: 1.75rem;
+
+// Pagination
+
+$pagination-bg: $surface;
+$pagination-border-color: $neutral-fg-lo3;
+
+$pagination-hover-bg: $neutral-bg-lo1;
+$pagination-hover-border-color: $pagination-border-color;
+
+$pagination-active-color: $secondary-fg;
+$pagination-active-bg: $pagination-bg;
+$pagination-active-border-color: $pagination-border-color;
+
+$pagination-disabled-color: $neutral-fg-disabled;
+$pagination-disabled-bg: $pagination-bg;
+$pagination-disabled-border-color: $pagination-border-color;
+
+// Cards
+
+$card-spacer-y: 0.25rem;
+$card-spacer-x: 0.75rem;
+$card-border-color: transparent;
+$card-cap-bg: $fill-primary-bg;
+$card-cap-color: $fill-primary-fg;
+$card-bg: $surface;
+
+// Tooltips
+
+$tooltip-max-width: 500px;
+$tooltip-color: $fill-neutral-fg;
+$tooltip-bg: $fill-neutral-bg-hi1;
+
+// Popovers
+
+$popover-bg: $surface;
+$popover-header-bg: transparent;
+$popover-border-color: transparent;
+$popover-box-shadow: $box-shadow-sm;
+
+$popover-arrow-outer-color: $surface;
+
+// Modals
+
+$modal-title-line-height: 3.5rem;
+
+$modal-content-bg: $surface;
+$modal-content-border-color: $primary-fg;
+$modal-content-border-width: 2px;
+$modal-content-box-shadow-xs: $box-shadow-sm;
+$modal-content-box-shadow-sm-up: $box-shadow;
+
+$modal-header-border-width: unset;
+$modal-footer-border-width: unset;
+$modal-header-padding-y: 1rem;
+$modal-header-padding-x: 1rem;
+$modal-header-padding: $modal-header-padding-y $modal-header-padding-x 0 1.5rem;
+
+$modal-backdrop-bg: $modal-backdrop;
+$modal-backdrop-opacity: 1;
+
+// Alerts
+
+$alert-padding-x: 1.25em;
+
+$alert-bg-level: -11;
+$alert-border-level: -11;
+
+// Progress bars
+
+$progress-bg: $neutral-bg;
+$progress-box-shadow: none;
+$progress-bar-color: $lowest;
+$progress-bar-bg: $fill-secondary-bg;
+
+// List group
+
+$list-group-bg: $surface;
+$list-group-border-color: $neutral-fg-lo2;
+$list-group-border-width: 0;
+
+$list-group-hover-bg: $neutral-bg-lo1;
+$list-group-active-color: $surface-active-color;
+$list-group-active-bg: $surface-active-bg;
+$list-group-active-border-color: $list-group-border-color;
+
+$list-group-disabled-color: $neutral-fg-disabled;
+
+$list-group-action-color: $neutral-fg;
+$list-group-action-hover-color: $neutral-fg-hi1;
+
+$list-group-action-active-bg: $neutral-bg-lo1;
+
+// Image thumbnails
+
+$thumbnail-border-color: $neutral-fg-lo2;
+$thumbnail-box-shadow: none;
+
+// Figures
+
+$figure-caption-color: $neutral-fg-lo1;
+
+// Close
+
+$close-font-size: 2.5em;
+$close-font-weight: $font-weight-light;
+$close-color: $neutral-fg;
+$close-text-shadow: none;
+
+// Code
+
+$code-color: $tertiary-fg;
+
+$kbd-color: $neutral-fg-hi1;
+$kbd-bg: $neutral-bg;
+
+$pre-color: $neutral-fg-hi1;
+
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+@import "scrollbarVariables";
+@import "~bootstrap/scss/mixins";
+
+$theme-variants: "neutral", "primary", "secondary", "tertiary", "danger", "warning", "success", "info";
+
+// Icons
+
+$icon-sizes: ();
+
+@mixin bm-icon-size($size-name, $base-px-size) {
+    $icon-sizes: map-merge(
+        $icon-sizes,
+        (
+            $size-name: base-px-to-rem($base-px-size)
+        )
+    ) !global;
+}
+
+@include bm-icon-size("xs", 12);
+@include bm-icon-size("sm", 14);
+@include bm-icon-size("md", 16);
+@include bm-icon-size("lg", 20);
+@include bm-icon-size("xl", 24);
+@include bm-icon-size("2xl", 48);
+@include bm-icon-size("3xl", 72);
+
+// Spacers
+
+@mixin bm-spacer($index, $base-px-value) {
+    $spacers: map-merge(
+        $spacers,
+        (
+            $index: base-px-to-rem($base-px-value)
+        )
+    ) !global;
+}
+
+@include bm-spacer(0, 0);
+@include bm-spacer(1, 1);
+@include bm-spacer(2, 2);
+@include bm-spacer(3, 4);
+@include bm-spacer(4, 8);
+@include bm-spacer(5, 10);
+@include bm-spacer(6, 20);
+@include bm-spacer(7, 40);
+@include bm-spacer(8, 80);
+
+$sp-1: map-get($spacers, 1);
+$sp-2: map-get($spacers, 2);
+$sp-3: map-get($spacers, 3);
+$sp-4: map-get($spacers, 4);
+$sp-5: map-get($spacers, 5);
+$sp-6: map-get($spacers, 6);
+$sp-7: map-get($spacers, 7);
+$sp-8: map-get($spacers, 8);

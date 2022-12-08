@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { BmForm, BmFormColorPicker, BmFormGroup, BmFormInput, BmModal } from "@bluemind/styleguide";
+import { BmForm, BmFormColorPicker, BmFormGroup, BmFormInput, BmModal } from "@bluemind/ui-components";
 import tagColors from "./tagColors";
 
 export default {

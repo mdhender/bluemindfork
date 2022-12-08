@@ -14,7 +14,7 @@
 import { mapActions, mapGetters, mapState } from "vuex";
 
 import { INFO, REMOVE } from "@bluemind/alert.store";
-import { BmAlertArea } from "@bluemind/styleguide";
+import { BmAlertArea } from "@bluemind/ui-components";
 
 import { CURRENT_CONVERSATION_METADATA } from "~/getters";
 import MailConversationViewer from "../MailViewer/MailConversationViewer";
@@ -55,8 +55,8 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .mail-thread {
     .mail-composer ~ .mail-viewer {

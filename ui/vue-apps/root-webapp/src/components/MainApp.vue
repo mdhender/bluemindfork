@@ -28,7 +28,7 @@ import GlobalEvents from "vue-global-events";
 import { mapExtensions } from "@bluemind/extensions";
 import CommonL10N from "@bluemind/l10n";
 import { inject } from "@bluemind/inject";
-import { BmAlertArea } from "@bluemind/styleguide";
+import { BmAlertArea } from "@bluemind/ui-components";
 
 import About from "./About";
 import BmBanner from "./banner/BmBanner";
@@ -127,7 +127,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 body {
     height: 100vh; // fallback for the following line (if not supported by browser)
     height: var(--app-height);

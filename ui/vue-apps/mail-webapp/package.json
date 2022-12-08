@@ -60,7 +60,7 @@
     },
     "devDependencies": {
         "@bluemind/conf": "^4.1.0",
-        "@bluemind/styleguide": "^0.1.0",
+        "@bluemind/ui-components": "^4.1.0",
         "@bluemind/test-utils": "^4.1.0",
         "@types/lodash.sortedindexby": "^4.6.7",
         "@vue/test-utils": "^1.1.4",
@@ -72,7 +72,7 @@
         "webpack-bundle-analyzer": "^3.6.0"
     },
     "peerDependencies": {
-        "@bluemind/styleguide": "^0.1.0",
+        "@bluemind/ui-components": "^4.1.0",
         "vue-router": "^3.5.2",
         "vuex": "3.6.2"
     },

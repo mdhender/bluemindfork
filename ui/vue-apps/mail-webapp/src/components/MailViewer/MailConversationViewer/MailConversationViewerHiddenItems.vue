@@ -19,7 +19,7 @@
     </div>
 </template>
 <script>
-import { BmButton, BmAvatar } from "@bluemind/styleguide";
+import { BmButton, BmAvatar } from "@bluemind/ui-components";
 
 export default {
     name: "MailConversationViewerHiddenItems",
@@ -47,7 +47,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .mail-conversation-viewer-hidden-items {
     background-color: $neutral-bg;

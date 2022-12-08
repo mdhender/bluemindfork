@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import { BmButtonGroup } from "@bluemind/styleguide";
+import { BmButtonGroup } from "@bluemind/ui-components";
 import InsertAsAttachmentButton from "./InsertAsAttachmentButton";
 import InsertAsLinkButton from "./InsertAsLinkButton";
 export default {
@@ -27,8 +27,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
 
 .chooser-option-toolbar {
     .btn-outline {

@@ -17,7 +17,7 @@
 <script>
 import { mapState } from "vuex";
 
-import { BmCol, BmIcon } from "@bluemind/styleguide";
+import { BmCol, BmIcon } from "@bluemind/ui-components";
 import { USED_QUOTA_PERCENTAGE_WARNING } from "@bluemind/email";
 
 import MailFolderSidebarHeader from "./MailFolderSidebarHeader";

@@ -136,7 +136,7 @@ import {
     BmModal,
     BmRichEditor,
     BmSpinner
-} from "@bluemind/styleguide";
+} from "@bluemind/ui-components";
 import UUIDGenerator from "@bluemind/uuid";
 import { SUCCESS } from "@bluemind/alert.store";
 import { SAVE_ALERT } from "../../Alerts/defaultAlerts";
@@ -356,8 +356,8 @@ function toIdentityDescription(id, identity) {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .manage-identity-modal-body {
     .fa-star-fill {

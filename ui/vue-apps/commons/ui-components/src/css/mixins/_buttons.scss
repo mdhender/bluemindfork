@@ -1,0 +1,252 @@
+@use "sass:math";
+@import "../variables";
+
+@mixin bm-button-state($text, $bg, $stroke: transparent, $important: false) {
+    color: $text if($important, !important, null);
+    background-color: $bg if($important, !important, null);
+    border-width: if($stroke == transparent, 0, 1px) if($important, !important, null);
+    border-style: solid if($important, !important, null);
+    border-color: $stroke if($important, !important, null);
+    border-radius: $border-radius;
+    background-clip: padding-box; // prevent background from going below border (for semi-transparent colors)
+    box-shadow: none;
+    opacity: 1;
+}
+
+@mixin bm-button-state-outline($text, $bg, $stroke, $important: false) {
+    @include bm-button-state($text, $bg, $important: $important);
+    outline: 1px dashed $stroke if($important, !important, null);
+    box-shadow: none if($important, !important, null);
+}
+
+@mixin bm-button-state-shadow($text, $bg, $stroke, $important: false) {
+    @include bm-button-state($text, $bg, $stroke, $important: $important);
+    outline: 0 if($important, !important, null);
+    $shadow: if($stroke == transparent, $bg, $stroke);
+    box-shadow: 0 0 $btn-focus-width $shadow if($important, !important, null);
+}
+
+@mixin bm-button-variant(
+    $normal-text,
+    $normal-bg: transparent,
+    $normal-stroke: transparent,
+    $hovered-text: $normal-text,
+    $hovered-bg: transparent,
+    $hovered-stroke: transparent,
+    $disabled-text: $normal-text,
+    $disabled-bg: transparent,
+    $disabled-stroke: transparent,
+    $focused-stroke: transparent,
+    $focused-hovered-stroke: transparent,
+    $important: false
+) {
+    text-decoration: none;
+    position: relative;
+    z-index: 0;
+
+    &.rounded-circle::before {
+        border-radius: 50% !important;
+    }
+
+    @include bm-button-state($normal-text, $normal-bg, $normal-stroke, $important: $important);
+
+    &:hover,
+    &.hover {
+        text-decoration: none; // remove decoration for links
+        // hover background is not set on the button directly but on &::before to manage animation
+        @include bm-button-state($hovered-text, $normal-bg, $hovered-stroke, $important: $important);
+    }
+
+    @if ($hovered-bg != transparent) {
+        &::before {
+            position: absolute;
+            content: "";
+            height: 100%;
+            width: 100%;
+            transform: scale(0);
+            transform-origin: bottom center;
+            top: 0;
+            left: 0;
+            z-index: -1;
+
+            background-color: $hovered-bg if($important, !important, null);
+            border: none;
+            box-shadow: none;
+            box-sizing: border-box;
+        }
+
+        &:hover::before,
+        &.hover::before {
+            animation: radial-out 225ms forwards;
+        }
+    }
+
+    &:focus,
+    &.focus {
+        @if $focused-stroke == transparent {
+            @include bm-button-state-shadow($normal-text, $normal-bg, $normal-stroke, $important: $important);
+        } @else {
+            @include bm-button-state-outline($normal-text, $normal-bg, $focused-stroke, $important: $important);
+        }
+
+        &:hover,
+        &.hover {
+            @if $focused-hovered-stroke == transparent {
+                @include bm-button-state-shadow($hovered-text, $normal-bg, $hovered-stroke, $important: $important);
+            } @else {
+                @include bm-button-state-outline(
+                    $hovered-text,
+                    $normal-bg,
+                    $focused-hovered-stroke,
+                    $important: $important
+                );
+            }
+        }
+    }
+
+    &.disabled,
+    &:disabled {
+        @include bm-button-state($disabled-text, $disabled-bg, $disabled-stroke, $important: $important);
+
+        &::before {
+            background-color: transparent;
+        }
+    }
+
+    .show > &.dropdown-toggle {
+        @include bm-button-state($hovered-text, $hovered-bg, $hovered-stroke, $important: $important);
+
+        &:focus,
+        &.focus {
+            @if $focused-hovered-stroke == transparent {
+                @include bm-button-state-shadow($hovered-text, $hovered-bg, $hovered-stroke, $important: $important);
+            } @else {
+                @include bm-button-state-outline($hovered-text, $hovered-bg, $focused-hovered-stroke, $important);
+            }
+        }
+    }
+}
+
+@mixin bm-button-size($padding-y, $padding-x, $important: false) {
+    padding: $padding-y $padding-x if($important, !important, null);
+    @include font-size($font-size-base);
+    line-height: $line-height-sm;
+    @include border-radius($border-radius, 0);
+    text-align: if($padding-x == 0, start, center) if($important, !important, null);
+    gap: $btn-icon-label-gap;
+}
+
+// get padding-y from measured height of a one-line button
+@function one-line-btn-height-to-padding-y($one-line-btn-height) {
+    $font-height: $line-height-sm * $font-size-base;
+    @return math.div($one-line-btn-height - $font-height, 2);
+}
+
+@function subtract-border-width($n, $border-width) {
+    @if ($border-width == 0) {
+        @return $n;
+    } @else {
+        @return calc(#{$n} - #{$border-width});
+    }
+}
+
+@mixin bm-button-all-sizes($style, $important: false) {
+    $font-height: $line-height-sm * $font-size-base;
+    $border-width: if($style == "outline", 1px, 0);
+    @include bm-button-size(
+        $padding-y: subtract-border-width(one-line-btn-height-to-padding-y(base-px-to-rem(30)), $border-width),
+        $padding-x: if($style == "text", 0, subtract-border-width(base-px-to-rem(10), $border-width)),
+        $important: $important
+    );
+    &.btn-sm {
+        @include bm-button-size(
+            $padding-y: subtract-border-width(one-line-btn-height-to-padding-y(base-px-to-rem(24)), $border-width),
+            $padding-x: if($style == "text", 0, subtract-border-width(base-px-to-rem(8), $border-width)),
+            $important: $important
+        );
+    }
+    &.btn-lg {
+        @include bm-button-size(
+            $padding-y: subtract-border-width(one-line-btn-height-to-padding-y(base-px-to-rem(36)), $border-width),
+            $padding-x: if($style == "text", 0, subtract-border-width(base-px-to-rem(12), $border-width)),
+            $important: $important
+        );
+    }
+}
+
+// Button variants
+//
+// Easily pump out default styles, as well as :hover, :focus,
+// and disabled options for all buttons
+
+@mixin bm-button-fill-variant($variant, $important: false) {
+    @include bm-button-variant(
+        $normal-text: var(--#{$variant}-fg),
+        $normal-bg: var(--#{$variant}-bg),
+        $hovered-bg: var(--#{$variant}-bg-hi1),
+        $disabled-bg: var(--#{$variant}-bg-disabled),
+        $important: $important
+    );
+    @include bm-button-all-sizes("fill", $important);
+}
+
+@mixin bm-button-outline-variant($variant, $important: false) {
+    @include bm-button-variant(
+        $normal-text: var(--#{$variant}-fg),
+        $hovered-text: var(--#{$variant}-fg-hi1),
+        $disabled-text: var(--#{$variant}-fg-disabled),
+        $normal-stroke: var(--#{$variant}-fg),
+        $hovered-stroke: var(--#{$variant}-fg-hi1),
+        $disabled-stroke: var(--#{$variant}-fg-disabled),
+        $normal-bg:  var(--surface),
+        $hovered-bg: var(--#{$variant}-bg-lo1),
+        $important: $important
+    );
+    @include bm-button-all-sizes("outline", $important);
+}
+
+@mixin bm-button-text-variant($variant, $important: false) {
+    @include bm-button-variant(
+        $normal-text: var(--#{$variant}-fg),
+        $hovered-text: var(--#{$variant}-fg-hi1),
+        $disabled-text: var(--#{$variant}-fg-disabled),
+        $hovered-bg: var(--#{$variant}-bg-lo1),
+        $focused-stroke: var(--#{$variant}-fg),
+        $focused-hovered-stroke: var(--#{$variant}-fg-hi1),
+        $important: $important
+    );
+    @include bm-button-all-sizes("text", $important);
+}
+
+@mixin bm-icon-button-regular-variant($variant, $important: false) {
+    @include bm-button-variant(
+        $normal-text: var(--#{$variant}-fg),
+        $hovered-text: var(--#{$variant}-fg-hi1),
+        $disabled-text: var(--#{$variant}-fg-disabled),
+        $hovered-bg: var(--#{$variant}-bg-lo1),
+        $focused-stroke: var(--#{$variant}-fg),
+        $focused-hovered-stroke: var(--#{$variant}-fg-hi1),
+        $important: $important
+    );
+}
+
+@mixin bm-icon-button-compact-variant($variant, $important: false) {
+    @include bm-button-variant(
+        $normal-text: var(--#{$variant}-fg),
+        $hovered-text: var(--#{$variant}-fg-hi1),
+        $disabled-text: var(--#{$variant}-fg-disabled),
+        $focused-stroke: var(--#{$variant}-fg),
+        $focused-hovered-stroke: var(--#{$variant}-fg-hi1),
+        $important: $important
+    );
+}
+
+@mixin set-button-icon-sizes($button-selector, $sizes-map) {
+    @each $button-size, $icon-size in $sizes-map {
+        #{$button-selector}.btn-#{$button-size} .bm-icon {
+            $icon-size-value: map-get($icon-sizes, $icon-size);
+            width: $icon-size-value;
+            height: $icon-size-value;
+        }
+    }
+}

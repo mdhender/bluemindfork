@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { BmButton } from "@bluemind/styleguide";
+import { BmButton } from "@bluemind/ui-components";
 import emptyMessageIllustration from "../../assets/home-page.png";
 import NewMessage from "./NewMessage";
 import { mapGetters, mapMutations } from "vuex";
@@ -66,7 +66,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .mail-message-starter h1 {
     color: $primary-fg-hi1;

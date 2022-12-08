@@ -1,0 +1,251 @@
+.b-form-datepicker {
+    $padding-x: $sp-5;
+
+    height: $input-height !important;
+    padding: 0 $padding-x !important;
+
+    > .btn > .bm-icon,
+    > label {
+        color: $neutral-fg;
+    }
+    &.hover,
+    &:hover {
+        > .btn > .bm-icon,
+        > label {
+            color: $neutral-fg-hi1;
+        }
+    }
+
+    &.show,
+    &.focus,
+    &:focus {
+        border: 2 * $input-border-width solid $secondary-fg;
+        padding: 0 calc(#{$padding-x} - #{$input-border-width}) !important;
+
+        > .btn > .bm-icon {
+            color: $secondary-fg;
+        }
+        > .btn {
+            outline: none !important;
+        }
+    }
+
+    label.form-control {
+        display: flex;
+        align-items: center;
+        min-height: 0 !important;
+        overflow: hidden;
+        white-space: nowrap !important;
+        text-overflow: ellipsis;
+    }
+
+    &[aria-disabled="true"] {
+        border: 1px solid $neutral-fg-lo2;
+    }
+    > .dropdown-menu {
+        padding: 0 !important;
+        box-shadow: $box-shadow-sm;
+    }
+}
+
+.b-calendar {
+    $padding-y: $sp-5;
+    $padding-x: $sp-6;
+    $year-months-height: $input-height;
+    $year-months-weekdays-gap: $sp-3;
+    $weekdays-height: 1rem;
+    $weekdays-grid-gap: $sp-2;
+    $grid-row-height: 1.5rem;
+    $grid-gap: $sp-3;
+
+    background-color: $surface-active-bg;
+    padding: $padding-y $padding-x;
+    position: relative;
+
+    // Overwrite BCalendar styles
+
+    .b-calendar-inner {
+        display: flex;
+    }
+    .b-calendar-grid-caption {
+        visibility: hidden;
+        height: $year-months-height;
+        margin-bottom: $year-months-weekdays-gap;
+    }
+
+    .b-calendar-nav {
+        position: absolute;
+        right: $padding-x;
+        top: $padding-y;
+        height: $year-months-height;
+
+        align-items: center;
+
+        .btn {
+            @include bm-icon-button-compact-variant("neutral");
+            height: $icon-btn-height-sm;
+            width: $icon-btn-width-compact-sm;
+
+            &:nth-child(odd) {
+                @include sr-only();
+            }
+        }
+    }
+
+    .b-calendar-grid {
+        background-color: transparent;
+        border: none;
+    }
+
+    .b-calendar-grid-weekdays {
+        small {
+            @extend %caption-bold;
+            height: $weekdays-height;
+        }
+        border-bottom: none !important;
+        margin-bottom: $weekdays-grid-gap;
+    }
+
+    .b-calendar-grid-body .row {
+        height: $grid-row-height;
+        margin-bottom: $grid-gap;
+
+        .btn {
+            color: $neutral-fg !important;
+            &.text-muted {
+                color: $neutral-fg-lo2 !important;
+            }
+        }
+        div.bg-light {
+            background: none !important;
+            .btn {
+                color: $neutral-fg-disabled !important;
+            }
+        }
+    }
+
+    .b-calendar-footer {
+        order: -1;
+        margin: 0;
+    }
+
+    .form-control:focus {
+        box-shadow: none;
+    }
+
+    // BM Calendar styles
+    .b-calendar-grid-body {
+        .col[data-date] {
+            .btn {
+                height: $grid-row-height;
+                width: $grid-row-height;
+                font-size: $font-size-base;
+                line-height: $line-height-base;
+                font-weight: $font-weight-normal !important;
+                padding: $sp-1;
+                margin: 0 auto;
+            }
+
+            &.bm-calendar-date-standard {
+                .btn {
+                    color: $neutral-fg;
+                    background-color: transparent;
+                    box-shadow: none;
+                    &:hover,
+                    &.focus {
+                        background-color: $fill-neutral-bg-hi1;
+                        color: $fill-neutral-fg !important;
+                        box-shadow: none;
+                    }
+                }
+            }
+
+            &.bm-calendar-date-initial,
+            &.bm-calendar-date-selected {
+                .btn {
+                    color: $fill-secondary-fg !important;
+                    background-color: $fill-secondary-bg;
+                    box-shadow: none;
+                    &:hover,
+                    &.focus {
+                        color: $fill-secondary-fg;
+                        background-color: $fill-secondary-bg-hi1;
+                        box-shadow: none;
+                    }
+                }
+            }
+            &.bm-calendar-date-range {
+                &.right.bm-calendar-date-initial,
+                &.left.bm-calendar-date-selected {
+                    background: linear-gradient(to left, $secondary-bg-hi1 50%, transparent 50%);
+                }
+                &.right.bm-calendar-date-selected,
+                &.left.bm-calendar-date-initial {
+                    background: linear-gradient(to right, $secondary-bg-hi1 50%, transparent 50%);
+                }
+                background: $secondary-bg-hi1;
+            }
+        }
+    }
+    .bm-calendar-weeknum {
+        color: $primary-fg;
+        padding-right: $sp-5;
+
+        .row {
+            align-items: flex-end;
+            height: $grid-row-height;
+            margin-bottom: $grid-gap;
+            span {
+                @extend %caption;
+                line-height: base-px-to-rem(22);
+            }
+        }
+
+        .bm-calendar-weekdays-spacer {
+            padding-top: $year-months-height + $year-months-weekdays-gap + $weekdays-height + $weekdays-grid-gap;
+            margin-bottom: 0;
+        }
+    }
+
+    .bm-calendar-date-weekend {
+        color: $neutral-fg !important;
+    }
+
+    .bm-calendar-caption {
+        position: absolute;
+        color: $primary-fg;
+        text-transform: uppercase;
+        height: $year-months-height;
+        font-weight: $font-weight-bold;
+
+        align-items: center;
+
+        .bm-form-select .dropdown-item {
+            text-align: center;
+        }
+
+        .bm-form-select.form-select-inline .btn.dropdown-toggle {
+            padding-left: $sp-2;
+            padding-right: $sp-2;
+        }
+
+        .btn {
+            color: $primary-fg;
+            background-color: transparent !important;
+            border: none;
+            box-shadow: none;
+            &:hover,
+            &:focus {
+                color: $primary-fg-hi1;
+            }
+            .selected-text {
+                font-weight: $font-weight-bold !important;
+                color: $primary-fg;
+            }
+        }
+    }
+
+    .b-calendar-grid-help {
+        border-top: none !important;
+    }
+}

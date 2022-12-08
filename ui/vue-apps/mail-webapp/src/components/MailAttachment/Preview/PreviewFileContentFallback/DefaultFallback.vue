@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { BmIcon } from "@bluemind/styleguide";
+import { BmIcon } from "@bluemind/ui-components";
 
 export default {
     name: "DefaultFallback",
@@ -25,7 +25,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .default-fallback {
     display: flex;

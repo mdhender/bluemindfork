@@ -46,7 +46,7 @@
     </bm-icon-dropdown>
 </template>
 <script>
-import { BmIconDropdown, BmDropdownItemButton, BmDropdownDivider, BmDropdownHeader } from "@bluemind/styleguide";
+import { BmIconDropdown, BmDropdownItemButton, BmDropdownDivider, BmDropdownHeader } from "@bluemind/ui-components";
 import { mapGetters, mapState } from "vuex";
 import { SET_CONVERSATION_LIST_SORT } from "~/mutations";
 import { SortField, SortOrder } from "~/store/conversationList";

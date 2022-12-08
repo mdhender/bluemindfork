@@ -21,7 +21,7 @@
     </mail-open-in-popup-with-shift>
 </template>
 <script>
-import { BmButton, BmFloatingActionButton } from "@bluemind/styleguide";
+import { BmButton, BmFloatingActionButton } from "@bluemind/ui-components";
 import { mapGetters } from "vuex";
 import { MY_DRAFTS } from "~/getters";
 import { MailRoutesMixin } from "~/mixins";
@@ -63,7 +63,7 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .bm-button.btn-md.new-message {
     width: 90%;

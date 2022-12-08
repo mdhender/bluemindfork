@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { BmFormGroup, BmComboBox } from "@bluemind/styleguide";
+import { BmFormGroup, BmComboBox } from "@bluemind/ui-components";
 import OneSettingField from "../mixins/OneSettingField";
 import PrefFieldLabel from "./PrefFieldLabel";
 

@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { BmIcon } from "@bluemind/styleguide";
+import { BmIcon } from "@bluemind/ui-components";
 
 export default {
     name: "PreviewOverlay",
@@ -20,7 +20,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .preview-overlay {
     background-color: rgba(10, 42, 134, 0.5);

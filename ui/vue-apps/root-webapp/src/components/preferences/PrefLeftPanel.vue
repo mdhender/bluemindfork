@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { BmIconButton, BmCol, BmLabelIcon } from "@bluemind/styleguide";
+import { BmIconButton, BmCol, BmLabelIcon } from "@bluemind/ui-components";
 import PrefLeftPanelNav from "./PrefLeftPanelNav";
 
 export default {
@@ -36,7 +36,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-left-panel {
     background-color: $fill-primary-bg;

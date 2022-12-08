@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import { BmListGroupItem, BmSkeleton, BmSkeletonAvatar } from "@bluemind/styleguide";
+import { BmListGroupItem, BmSkeleton, BmSkeletonAvatar } from "@bluemind/ui-components";
 
 export default {
     name: "ConversationListItemLoading",
@@ -46,7 +46,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .list-group-item.conversation-list-item-loading {
     &.conversation-list-item-compact {

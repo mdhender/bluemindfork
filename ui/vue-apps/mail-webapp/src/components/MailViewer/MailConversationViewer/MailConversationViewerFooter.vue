@@ -25,7 +25,7 @@
 
 <script>
 import { mapState } from "vuex";
-import { BmButtonToolbar, BmButton } from "@bluemind/styleguide";
+import { BmButtonToolbar, BmButton } from "@bluemind/ui-components";
 import { ReplyAndForwardRoutesMixin } from "~/mixins";
 import MailOpenInPopupWithShift from "../../MailOpenInPopupWithShift";
 
@@ -53,8 +53,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins/_responsiveness.scss";
-@import "~@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness.scss";
+@import "~@bluemind/ui-components/src/css/variables.scss";
 @import "../_variables.scss";
 
 .mail-conversation-viewer-footer {

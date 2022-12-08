@@ -43,7 +43,7 @@
 
 <script>
 import debounce from "lodash/debounce";
-import { BmFormColorPicker, BmFormGroup, BmFormInput, BmFormSelect, BmSpinner } from "@bluemind/styleguide";
+import { BmFormColorPicker, BmFormGroup, BmFormInput, BmFormSelect, BmSpinner } from "@bluemind/ui-components";
 
 export default {
     name: "CreateOrUpdateCalendar",

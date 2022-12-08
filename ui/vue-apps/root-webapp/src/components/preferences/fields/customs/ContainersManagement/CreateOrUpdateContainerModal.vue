@@ -48,7 +48,7 @@ import { ContainerHelper, ContainerType } from "./container";
 import CreateOrUpdateCalendar from "./Calendars/MyCalendars/CreateOrUpdateCalendar";
 import ImportFile from "./ImportFile";
 import { WARNING, SUCCESS } from "@bluemind/alert.store";
-import { BmForm, BmFormGroup, BmFormInput, BmModal } from "@bluemind/styleguide";
+import { BmForm, BmFormGroup, BmFormInput, BmModal } from "@bluemind/ui-components";
 import UUIDGenerator from "@bluemind/uuid";
 import cloneDeep from "lodash.clonedeep";
 import { mapActions } from "vuex";
@@ -164,7 +164,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .create-or-update-container-modal .fa-calendar {
     color: $neutral-fg;

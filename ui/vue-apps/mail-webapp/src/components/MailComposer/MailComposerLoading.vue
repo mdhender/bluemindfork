@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { BmForm } from "@bluemind/styleguide";
+import { BmForm } from "@bluemind/ui-components";
 
 import MailComposerFooterLoading from "./MailComposerFooterLoading";
 import MailComposerRecipientsLoading from "./MailComposerRecipientsLoading";

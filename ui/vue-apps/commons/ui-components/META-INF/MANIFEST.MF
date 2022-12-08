@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ui-components
+Bundle-SymbolicName: ui-components;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: www.bluemind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: net.bluemind.webmodules.webapp,
+ net.bluemind.extensions.closure,
+ net.bluemind.webmodule
+Web-Resources: web-resources
+Web-Dependencies: net.bluemind.webmodules.vue
+Automatic-Module-Name: ui-components

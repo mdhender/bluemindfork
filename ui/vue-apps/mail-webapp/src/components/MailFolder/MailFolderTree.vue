@@ -33,7 +33,7 @@
 
 <script>
 import { mapGetters, mapState } from "vuex";
-import { BmButton, BmCollapse, BmTree } from "@bluemind/styleguide";
+import { BmButton, BmCollapse, BmTree } from "@bluemind/ui-components";
 import { FOLDER_GET_CHILDREN } from "~/getters";
 import { FolderMixin, MailRoutesMixin } from "~/mixins";
 import DraggableMailFolderItem from "./DraggableMailFolderItem";
@@ -78,8 +78,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_type";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/_type";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .mail-folder-tree {
     background-color: $surface;

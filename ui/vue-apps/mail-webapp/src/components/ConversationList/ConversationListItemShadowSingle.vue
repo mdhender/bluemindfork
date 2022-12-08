@@ -12,7 +12,7 @@
     </bm-row>
 </template>
 <script>
-import { BmRow, BmCol, BmAvatar, BmIcon } from "@bluemind/styleguide";
+import { BmRow, BmCol, BmAvatar, BmIcon } from "@bluemind/ui-components";
 
 export default {
     name: "ConversationListItemShadowSingle",

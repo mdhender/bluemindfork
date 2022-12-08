@@ -6,7 +6,7 @@
 
 <script>
 import { mapState } from "vuex";
-import { BmButton, BmIcon } from "@bluemind/styleguide";
+import { BmButton, BmIcon } from "@bluemind/ui-components";
 import { SET_PATH } from "../../store/mutations";
 
 export default {

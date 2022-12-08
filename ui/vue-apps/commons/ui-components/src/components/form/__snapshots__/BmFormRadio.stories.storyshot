@@ -1,0 +1,2195 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Storyshots Components/Forms Radio buttons 1`] = `
+<div
+  class="story"
+>
+  <div
+    class="ml-4"
+  >
+    <h2
+      class="my-4"
+    >
+      Classic radio buttons - Choose an option
+    </h2>
+     
+    <div
+      class="bv-no-focus-ring"
+      role="radiogroup"
+      tabindex="-1"
+    >
+      <div
+        class="custom-control custom-control-inline custom-radio"
+      >
+        <input
+          autocomplete="off"
+          class="custom-control-input"
+          type="radio"
+          value="A"
+        />
+        <label
+          class="custom-control-label"
+        >
+          <span>
+            Some are selected other are not
+          </span>
+        </label>
+      </div>
+      <div
+        class="custom-control custom-control-inline custom-radio"
+      >
+        <input
+          autocomplete="off"
+          class="custom-control-input"
+          type="radio"
+          value="B"
+        />
+        <label
+          class="custom-control-label"
+        >
+          <span>
+            I'm selected
+          </span>
+        </label>
+      </div>
+      <div
+        class="custom-control custom-control-inline custom-radio"
+      >
+        <input
+          autocomplete="off"
+          class="custom-control-input"
+          type="radio"
+          value="C"
+        />
+        <label
+          class="custom-control-label"
+        >
+          <span>
+            I'm not
+          </span>
+        </label>
+      </div>
+    </div>
+     
+    <h2
+      class="my-4"
+    >
+      Radio buttons with images - Choose an option
+    </h2>
+     
+    <div
+      class="d-flex align-items-end bv-no-focus-ring"
+      role="radiogroup"
+      tabindex="-1"
+    >
+      <div
+        class="bm-form-radio with-img"
+      >
+        <label
+          class="bm-form-radio-img-label bm-form-radio-checked"
+          for="679img A"
+        >
+          <img
+            src=""
+          />
+        </label>
+         
+        <div
+          class="d-flex flex-fill justify-content-center m-0 py-2 px-0 custom-control custom-control-inline custom-radio"
+        >
+          <input
+            autocomplete="off"
+            class="custom-control-input"
+            id="679img A"
+            type="radio"
+            value="img A"
+          />
+          <label
+            class="custom-control-label"
+            for="679img A"
+          />
+        </div>
+         
+        <label
+          for="679img A"
+        >
+           
+          <div>
+            image A
+          </div>
+        </label>
+      </div>
+       
+      <div
+        class="bm-form-radio with-img"
+      >
+        <label
+          class="bm-form-radio-img-label"
+          for="681img B"
+        >
+          <div
+            class="bg-light"
+          />
+        </label>
+         
+        <div
+          class="d-flex flex-fill justify-content-center m-0 py-2 px-0 custom-control custom-control-inline custom-radio"
+        >
+          <input
+            autocomplete="off"
+            class="custom-control-input"
+            id="681img B"
+            type="radio"
+            value="img B"
+          />
+          <label
+            class="custom-control-label"
+            for="681img B"
+          />
+        </div>
+         
+        <label
+          for="681img B"
+        >
+           image B 
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots Components|Forms Radio buttons 1`] = `
+<div
+  class="story"
+>
+  <div
+    class="storybook-addon-vue-info src-components-Docs-container-1Ukn"
+  >
+    <div>
+      <h1
+        class="src-components-Header-title-1opt"
+      >
+        Components|Forms
+      </h1>
+       
+      <h2
+        class="src-components-Header-subtitle-v58S"
+      >
+        Radio buttons
+      </h2>
+    </div>
+     
+    <div
+      class="src-components-SectionContainer-container-1UVl"
+    >
+      <label
+        class="src-components-SectionContainer-label-32Bo"
+      >
+        Preview
+      </label>
+       
+      <div
+        class="src-components-SectionContainer-contents-3s6X"
+      >
+        <div
+          class="src-components-Preview-preview-30u8 sb-preview"
+        >
+          <div
+            class="ml-4"
+          >
+            <h2
+              class="my-4"
+            >
+              Classic radio buttons - Choose an option
+            </h2>
+             
+            <div
+              class="bv-no-focus-ring"
+              role="radiogroup"
+              tabindex="-1"
+            >
+              <div
+                class="custom-control custom-control-inline custom-radio"
+              >
+                <input
+                  autocomplete="off"
+                  class="custom-control-input"
+                  type="radio"
+                  value="A"
+                />
+                <label
+                  class="custom-control-label"
+                >
+                  <span>
+                    Some are selected other are not
+                  </span>
+                </label>
+              </div>
+              <div
+                class="custom-control custom-control-inline custom-radio"
+              >
+                <input
+                  autocomplete="off"
+                  class="custom-control-input"
+                  type="radio"
+                  value="B"
+                />
+                <label
+                  class="custom-control-label"
+                >
+                  <span>
+                    I'm selected
+                  </span>
+                </label>
+              </div>
+              <div
+                class="custom-control custom-control-inline custom-radio"
+              >
+                <input
+                  autocomplete="off"
+                  class="custom-control-input"
+                  type="radio"
+                  value="C"
+                />
+                <label
+                  class="custom-control-label"
+                >
+                  <span>
+                    I'm not
+                  </span>
+                </label>
+              </div>
+            </div>
+             
+            <h2
+              class="my-4"
+            >
+              Radio buttons with images - Choose an option
+            </h2>
+             
+            <div
+              class="d-flex align-items-end bv-no-focus-ring"
+              role="radiogroup"
+              tabindex="-1"
+            >
+              <div
+                class="bm-form-radio with-img"
+              >
+                <label
+                  class="bm-form-radio-img-label bm-form-radio-checked"
+                  for="1199img A"
+                >
+                  <img
+                    src=""
+                  />
+                </label>
+                 
+                <div
+                  class="d-flex flex-fill justify-content-center m-0 py-2 px-0 custom-control custom-control-inline custom-radio"
+                >
+                  <input
+                    autocomplete="off"
+                    class="custom-control-input"
+                    id="1199img A"
+                    type="radio"
+                    value="img A"
+                  />
+                  <label
+                    class="custom-control-label"
+                    for="1199img A"
+                  />
+                </div>
+                 
+                <label
+                  for="1199img A"
+                >
+                   
+                  <div>
+                    image A
+                  </div>
+                </label>
+              </div>
+               
+              <div
+                class="bm-form-radio with-img"
+              >
+                <label
+                  class="bm-form-radio-img-label"
+                  for="1201img B"
+                >
+                  <div
+                    class="bg-light"
+                  />
+                </label>
+                 
+                <div
+                  class="d-flex flex-fill justify-content-center m-0 py-2 px-0 custom-control custom-control-inline custom-radio"
+                >
+                  <input
+                    autocomplete="off"
+                    class="custom-control-input"
+                    id="1201img B"
+                    type="radio"
+                    value="img B"
+                  />
+                  <label
+                    class="custom-control-label"
+                    for="1201img B"
+                  />
+                </div>
+                 
+                <label
+                  for="1201img B"
+                >
+                   image B 
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+     
+    <section
+      class="src-components-Summary-container-2crO"
+    >
+      <p>
+        The BmFormRadio is nice
+      </p>
+      
+
+    </section>
+     
+    <div
+      class="src-components-SectionContainer-container-1UVl"
+    >
+      <label
+        class="src-components-SectionContainer-label-32Bo"
+      >
+        Story source
+      </label>
+       
+      <div
+        class="src-components-SectionContainer-contents-3s6X"
+      >
+        <pre
+          class="html src-components-StorySource-codeBlock-2XbE hljs xml"
+        >
+          <code>
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                div
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                class
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "ml-4"
+              </span>
+              &gt;
+            </span>
+            
+    
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                h2
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                class
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "my-4"
+              </span>
+              &gt;
+            </span>
+            Classic radio buttons - Choose an option
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                h2
+              </span>
+              &gt;
+            </span>
+            
+    
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                bm-form-radio-group
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                v-model
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "simpleRadio"
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                :options
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "options"
+              </span>
+              /&gt;
+            </span>
+            
+
+
+    
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                h2
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                class
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "my-4"
+              </span>
+              &gt;
+            </span>
+            Radio buttons with images - Choose an option
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                h2
+              </span>
+              &gt;
+            </span>
+            
+    
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                bm-form-radio-group
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                v-model
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "radioWithImage"
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                class
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "d-flex align-items-end"
+              </span>
+              &gt;
+            </span>
+            
+        
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                bm-form-radio
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                value
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "img A"
+              </span>
+              &gt;
+            </span>
+            
+            
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                template
+              </span>
+               #
+              <span
+                class="hljs-attr"
+              >
+                img
+              </span>
+              &gt;
+            </span>
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                img
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                :src
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "attachment"
+              </span>
+               /&gt;
+            </span>
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                template
+              </span>
+              &gt;
+            </span>
+            
+            
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                template
+              </span>
+              &gt;
+            </span>
+             
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                div
+              </span>
+              &gt;
+            </span>
+            image A
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                div
+              </span>
+              &gt;
+            </span>
+             
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                template
+              </span>
+              &gt;
+            </span>
+            
+        
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                bm-form-radio
+              </span>
+              &gt;
+            </span>
+            
+        
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                bm-form-radio
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                value
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "img B"
+              </span>
+              &gt;
+            </span>
+            
+            
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                template
+              </span>
+               #
+              <span
+                class="hljs-attr"
+              >
+                img
+              </span>
+              &gt;
+            </span>
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                div
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                v-html
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "logoBM"
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                class
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "bg-light"
+              </span>
+               /&gt;
+            </span>
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                template
+              </span>
+              &gt;
+            </span>
+            
+            
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                template
+              </span>
+              &gt;
+            </span>
+            image B 
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                template
+              </span>
+              &gt;
+            </span>
+            
+        
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                bm-form-radio
+              </span>
+               &gt;
+            </span>
+            
+    
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                bm-form-radio-group
+              </span>
+              &gt;
+            </span>
+            
+
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                div
+              </span>
+              &gt;
+            </span>
+          </code>
+        </pre>
+      </div>
+    </div>
+     
+    <hr
+      class="src-components-Separator-separator-1eBy"
+    />
+     
+    <div
+      class="src-components-Component-container-1CeL"
+    >
+      <h2
+        class="src-components-Component-title-2XL9"
+      >
+        # &lt;BmFormRadio/&gt;
+      </h2>
+       
+      <!---->
+       
+      <!---->
+       
+      <!---->
+    </div>
+    <div
+      class="src-components-Component-container-1CeL"
+    >
+      <h2
+        class="src-components-Component-title-2XL9"
+      >
+        # &lt;BmFormRadioGroup/&gt;
+      </h2>
+       
+      <div
+        class="src-components-Table-container-3ImG"
+      >
+        <label
+          class="src-components-Table-label-3GH2"
+        >
+          Props
+        </label>
+         
+        <div
+          class="src-components-Table-contents-2Hzm"
+        >
+          <table
+            class="src-components-Table-table-3VHw"
+          >
+            <thead>
+              <tr>
+                <th>
+                  Name
+                </th>
+                 
+                <th>
+                  Type
+                </th>
+                 
+                <th>
+                  Default
+                </th>
+                 
+                <th>
+                  Description
+                </th>
+              </tr>
+            </thead>
+             
+            <tbody>
+              <tr>
+                <td>
+                  
+          id
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          name
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          disabled
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          required
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          form
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          autofocus
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          validated
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          ariaInvalid
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean | string
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          stacked
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          plain
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          buttons
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          buttonVariant
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  "secondary"
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          options
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  array | object
+                </td>
+                 
+                <td>
+                  []
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          valueField
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  "value"
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          textField
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  "text"
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          htmlField
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  "html"
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          disabledField
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  "disabled"
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          size
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          state
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  null
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          checked
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  any
+                </td>
+                 
+                <td>
+                  null
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+       
+      <!---->
+       
+      <!---->
+    </div>
+    <div
+      class="src-components-Component-container-1CeL"
+    >
+      <h2
+        class="src-components-Component-title-2XL9"
+      >
+        # &lt;BmFormGroup/&gt;
+      </h2>
+       
+      <div
+        class="src-components-Table-container-3ImG"
+      >
+        <label
+          class="src-components-Table-label-3GH2"
+        >
+          Props
+        </label>
+         
+        <div
+          class="src-components-Table-contents-2Hzm"
+        >
+          <table
+            class="src-components-Table-table-3VHw"
+          >
+            <thead>
+              <tr>
+                <th>
+                  Name
+                </th>
+                 
+                <th>
+                  Type
+                </th>
+                 
+                <th>
+                  Default
+                </th>
+                 
+                <th>
+                  Description
+                </th>
+              </tr>
+            </thead>
+             
+            <tbody>
+              <tr>
+                <td>
+                  
+          label
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelFor
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelSize
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelSrOnly
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelCols
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  number | string | boolean
+                </td>
+                 
+                <td>
+                  null
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelColsSm
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  number | string | boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelColsMd
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  number | string | boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelColsLg
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  number | string | boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelColsXl
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  number | string | boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelAlign
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelAlignSm
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelAlignMd
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelAlignLg
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelAlignXl
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelClass
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string | array | object
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          description
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          invalidFeedback
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          validFeedback
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          tooltip
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          feedbackAriaLive
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  "assertive"
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          validated
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          disabled
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+       
+      <!---->
+       
+      <!---->
+    </div>
+    <div
+      class="src-components-Component-container-1CeL"
+    >
+      <h2
+        class="src-components-Component-title-2XL9"
+      >
+        # &lt;BFormRadio/&gt;
+      </h2>
+       
+      <div
+        class="src-components-Table-container-3ImG"
+      >
+        <label
+          class="src-components-Table-label-3GH2"
+        >
+          Props
+        </label>
+         
+        <div
+          class="src-components-Table-contents-2Hzm"
+        >
+          <table
+            class="src-components-Table-table-3VHw"
+          >
+            <thead>
+              <tr>
+                <th>
+                  Name
+                </th>
+                 
+                <th>
+                  Type
+                </th>
+                 
+                <th>
+                  Default
+                </th>
+                 
+                <th>
+                  Description
+                </th>
+              </tr>
+            </thead>
+             
+            <tbody>
+              <tr>
+                <td>
+                  
+          id
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          value
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  any
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          checked
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  any
+                </td>
+                 
+                <td>
+                  null
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          inline
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          plain
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          button
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          buttonVariant
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          ariaLabel
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          ariaLabelledby
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          name
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          disabled
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          required
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          form
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          autofocus
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          size
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          state
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  null
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+       
+      <!---->
+       
+      <!---->
+    </div>
+  </div>
+</div>
+`;

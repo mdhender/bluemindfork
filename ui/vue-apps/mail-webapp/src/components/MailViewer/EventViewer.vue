@@ -25,7 +25,7 @@
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
 import { INFO, WARNING, REMOVE } from "@bluemind/alert.store";
-import { BmChoiceGroup } from "@bluemind/styleguide";
+import { BmChoiceGroup } from "@bluemind/ui-components";
 import { loadingStatusUtils } from "@bluemind/mail";
 import MailInlinesBlock from "./MailInlinesBlock";
 import ReplyToCounterProposal from "./ReplyToCounterProposal";
@@ -122,7 +122,7 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .event-viewer {
     .invitation {

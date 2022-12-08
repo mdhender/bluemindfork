@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { BmIcon } from "@bluemind/styleguide";
+import { BmIcon } from "@bluemind/ui-components";
 
 export default {
     name: "MailComposerAttachZone",
@@ -25,6 +25,6 @@ $image-height: 181px;
 
 .mail-composer-attach-zone {
     min-height: $image-height;
-    background: url("~@bluemind/styleguide/assets/attachment.png") no-repeat center center;
+    background: url("~@bluemind/ui-components/src/assets/attachment.png") no-repeat center center;
 }
 </style>

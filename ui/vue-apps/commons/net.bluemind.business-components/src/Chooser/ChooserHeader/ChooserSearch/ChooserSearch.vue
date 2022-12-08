@@ -20,7 +20,7 @@
 
 <script>
 import { mapGetters, mapState } from "vuex";
-import { BmFormInput } from "@bluemind/styleguide";
+import { BmFormInput } from "@bluemind/ui-components";
 import { SET_SEARCH_PATTERN, SET_SEARCH_MODE } from "../../store/mutations";
 import { HAS_VALID_PATTERN } from "../../store/getters";
 import BackButton from "./BackButton";
@@ -63,7 +63,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .chooser-search {
     width: 100%;

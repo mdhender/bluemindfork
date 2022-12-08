@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { BmButtonToolbar } from "@bluemind/styleguide";
+import { BmButtonToolbar } from "@bluemind/ui-components";
 
 export default {
     name: "ConversationListItemActions",
@@ -15,8 +15,8 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins/responsiveness";
-@import "~@bluemind/styleguide/css/variables";
+@import "~@bluemind/ui-components/src/css/mixins/responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .conversation-list-item {
     .conversation-list-item-actions {

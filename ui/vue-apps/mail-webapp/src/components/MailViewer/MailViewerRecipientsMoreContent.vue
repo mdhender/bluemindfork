@@ -74,7 +74,7 @@
 </template>
 
 <script>
-import { BmButtonClose, BmContact } from "@bluemind/styleguide";
+import { BmButtonClose, BmContact } from "@bluemind/ui-components";
 
 export default {
     name: "MailViewerRecipientsMoreContent",
@@ -93,7 +93,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .mail-viewer-recipients-more-content {
     $left-col-width: 4rem;

@@ -46,7 +46,7 @@ import { publishModeOptions } from "./ExternalShareHelper";
 import { PublishMode } from "@bluemind/calendar.api";
 import { VCardInfoAdaptor } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";
-import { BmButtonCopy, BmIconButton, BmContact, BmFormSelect, BmLabelIcon, BmRow } from "@bluemind/styleguide";
+import { BmButtonCopy, BmIconButton, BmContact, BmFormSelect, BmLabelIcon, BmRow } from "@bluemind/ui-components";
 
 export default {
     name: "ExternalShareManagement",
@@ -95,7 +95,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .external-share-management {
     .share-entry {

@@ -53,7 +53,7 @@
 
 <script>
 import { all as allCriteria, resolve as resolveCriterion } from "../Criteria/criterionResolver.js";
-import { BmButton, BmIconButton, BmFormGroup, BmFormSelect } from "@bluemind/styleguide";
+import { BmButton, BmIconButton, BmFormGroup, BmFormSelect } from "@bluemind/ui-components";
 
 export default {
     name: "PrefFilterRuleModalCriteria",

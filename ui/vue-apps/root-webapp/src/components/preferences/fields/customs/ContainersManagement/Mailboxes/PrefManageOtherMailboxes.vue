@@ -29,7 +29,7 @@ import { ContainerHelper, ContainerType } from "../container";
 import BaseField from "../../../../mixins/BaseField";
 import ContainersManagement from "../ContainersManagement";
 import MailboxHelper from "./helper";
-import { BmContact } from "@bluemind/styleguide";
+import { BmContact } from "@bluemind/ui-components";
 import { mapMutations, mapState } from "vuex";
 
 ContainerHelper.register(ContainerType.MAILBOX, MailboxHelper);

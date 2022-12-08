@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { BmIconButton, BmNavbar, BmNavbarBrand } from "@bluemind/styleguide";
+import { BmIconButton, BmNavbar, BmNavbarBrand } from "@bluemind/ui-components";
 import { BmExtension } from "@bluemind/extensions.vue";
 import BannerL10N from "../../../l10n/banner/";
 import BmBannerApplications from "./BmBannerApplications";
@@ -69,7 +69,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .bm-banner {
     &.navbar {

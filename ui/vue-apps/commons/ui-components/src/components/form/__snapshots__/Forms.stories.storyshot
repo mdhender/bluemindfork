@@ -1,0 +1,4458 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Storyshots Components/Forms ContactInput 1`] = `
+<div
+  class="story"
+>
+  <div>
+    <h1>
+      Initialized with contacts
+    </h1>
+     
+    <div
+      class="mb-5"
+    >
+      <div
+        class="bm-contact-input d-flex align-items-center"
+      >
+        <button
+          class="btn btn-simple-dark"
+          data-browse=""
+          for="new708"
+          tabindex="-1"
+          type="button"
+        >
+           To 
+        </button>
+         
+        <label
+          class="sr-only"
+          for="new708"
+        >
+           To 
+        </label>
+         
+        <div
+          class="flex-fill d-flex flex-wrap align-content-between "
+        >
+          <div
+            class="d-inline-flex align-items-center p-1"
+          >
+            <div
+              class="d-inline-flex contacts-wrapper align-items-center"
+              data-browse=""
+              data-browse-key="0"
+              tabindex="-1"
+            >
+              <div
+                class="error"
+              >
+                <div
+                  class="bm-chip d-inline-flex align-items-center position-relative pr-2 bm-chip-light"
+                  title="Adresse invalide"
+                >
+                  <div
+                    class="left-part"
+                  >
+                    <div
+                      class="w-100 h-100 d-flex justify-content-center align-items-center bg-danger"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="svg-inline--fa fa-exclamation fa-w-16"
+                        data-icon="exclamation"
+                        data-prefix="fas"
+                        focusable="false"
+                        role="img"
+                        viewBox="0 0 12 12"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          class=""
+                          d="M6.5 3C6.5 2.72386 6.27614 2.5 6 2.5C5.72386 2.5 5.5 2.72386 5.5 3V7C5.5 7.27614 5.72386 7.5 6 7.5C6.27614 7.5 6.5 7.27614 6.5 7L6.5 3ZM6 9.5C6.27614 9.5 6.5 9.27614 6.5 9C6.5 8.72386 6.27614 8.5 6 8.5C5.72386 8.5 5.5 8.72386 5.5 9C5.5 9.27614 5.72386 9.5 6 9.5Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                   
+                  <span
+                    class="pl-2 bm-chip-content flex-shrink-1 text-truncate pr-2"
+                  >
+                    
+        monsieur.patate#bluemind.net
+    
+                  </span>
+                   
+                  <button
+                    aria-label="Supprimer monsieur.patate#bluemind.net"
+                    class="close flex-shrink-0"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="d-inline-flex align-items-center p-1"
+          >
+            <div
+              class="d-inline-flex contacts-wrapper align-items-center"
+              data-browse=""
+              data-browse-key="1"
+              tabindex="-1"
+            >
+              <div
+                class="d-inline-flex bm-contact"
+              >
+                <div
+                  class="bm-chip d-inline-flex align-items-center position-relative pr-2 bm-chip-light"
+                  title="Alright"
+                >
+                  <div
+                    class="left-part"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="bm-avatar"
+                      role="img"
+                      style="width: 2em; height: 2em;"
+                      version="1.1"
+                      viewBox="0 0 200 200"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <title>
+                        Alright
+                      </title>
+                       
+                      <g
+                        style="clip-path: url(#bm-clip-path-hexagon);"
+                      >
+                        <rect
+                          fill=""
+                          height="200"
+                          width="200"
+                          x="0"
+                          y="0"
+                        />
+                         
+                        <text
+                          fill="#fff"
+                          font-size="100"
+                          text-anchor="middle"
+                          x="100"
+                          y="135"
+                        >
+                          
+            A
+        
+                        </text>
+                      </g>
+                    </svg>
+                  </div>
+                   
+                  <span
+                    class="pl-2 bm-chip-content flex-shrink-1 text-truncate pr-2"
+                  >
+                    
+        Alright
+    
+                  </span>
+                   
+                  <button
+                    aria-label="Supprimer Alright"
+                    class="close flex-shrink-0"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+           
+          <div
+            class="bm-form-autocomplete-input position-relative flex-fill"
+            data-browse=""
+            data-browse-default=""
+            data-browse-key="new"
+          >
+            <div
+              class="bm-form-input position-relative"
+            >
+              <input
+                autocomplete="off"
+                class="form-control"
+                data-browse="true"
+                data-browse-default="true"
+                data-browse-key="new"
+                icon=""
+                tabindex="0"
+                type="text"
+              />
+               
+              <!---->
+            </div>
+             
+            <div
+              class="list-group suggestions shadow-sm mw-100 position-absolute list-no-borders"
+              style="display: none;"
+              tabindex="-1"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+     
+    <h1>
+      When contacts have same dn
+    </h1>
+     
+    <div
+      class="mb-5"
+    >
+      <div
+        class="bm-contact-input d-flex align-items-center"
+      >
+        <button
+          class="btn btn-simple-dark"
+          data-browse=""
+          for="new719"
+          tabindex="-1"
+          type="button"
+        >
+           To 
+        </button>
+         
+        <label
+          class="sr-only"
+          for="new719"
+        >
+           To 
+        </label>
+         
+        <div
+          class="flex-fill d-flex flex-wrap align-content-between "
+        >
+          <div
+            class="d-inline-flex align-items-center p-1"
+          >
+            <div
+              class="d-inline-flex contacts-wrapper align-items-center"
+              data-browse=""
+              data-browse-key="2"
+              tabindex="-1"
+            >
+              <div
+                class="d-inline-flex bm-contact"
+              >
+                <div
+                  class="bm-chip d-inline-flex align-items-center position-relative pr-2 bm-chip-light"
+                  title="John Doe <john.doe@at-home.net>"
+                >
+                  <div
+                    class="left-part"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="bm-avatar"
+                      role="img"
+                      style="width: 2em; height: 2em;"
+                      version="1.1"
+                      viewBox="0 0 200 200"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <title>
+                        John Doe &lt;john.doe@at-home.net&gt;
+                      </title>
+                       
+                      <g
+                        style="clip-path: url(#bm-clip-path-hexagon);"
+                      >
+                        <rect
+                          fill=""
+                          height="200"
+                          width="200"
+                          x="0"
+                          y="0"
+                        />
+                         
+                        <text
+                          fill="#fff"
+                          font-size="100"
+                          text-anchor="middle"
+                          x="100"
+                          y="135"
+                        >
+                          
+            J
+        
+                        </text>
+                      </g>
+                    </svg>
+                  </div>
+                   
+                  <span
+                    class="pl-2 bm-chip-content flex-shrink-1 text-truncate pr-2"
+                  >
+                    
+        John Doe &lt;john.doe@at-home.net&gt;
+    
+                  </span>
+                   
+                  <button
+                    aria-label="Supprimer John Doe <john.doe@at-home.net>"
+                    class="close flex-shrink-0"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="d-inline-flex align-items-center p-1"
+          >
+            <div
+              class="d-inline-flex contacts-wrapper align-items-center"
+              data-browse=""
+              data-browse-key="3"
+              tabindex="-1"
+            >
+              <div
+                class="d-inline-flex bm-contact"
+              >
+                <div
+                  class="bm-chip d-inline-flex align-items-center position-relative pr-2 bm-chip-light"
+                  title="John Doe <john.doe@at-work.com>"
+                >
+                  <div
+                    class="left-part"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="bm-avatar"
+                      role="img"
+                      style="width: 2em; height: 2em;"
+                      version="1.1"
+                      viewBox="0 0 200 200"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <title>
+                        John Doe &lt;john.doe@at-work.com&gt;
+                      </title>
+                       
+                      <g
+                        style="clip-path: url(#bm-clip-path-hexagon);"
+                      >
+                        <rect
+                          fill=""
+                          height="200"
+                          width="200"
+                          x="0"
+                          y="0"
+                        />
+                         
+                        <text
+                          fill="#fff"
+                          font-size="100"
+                          text-anchor="middle"
+                          x="100"
+                          y="135"
+                        >
+                          
+            J
+        
+                        </text>
+                      </g>
+                    </svg>
+                  </div>
+                   
+                  <span
+                    class="pl-2 bm-chip-content flex-shrink-1 text-truncate pr-2"
+                  >
+                    
+        John Doe &lt;john.doe@at-work.com&gt;
+    
+                  </span>
+                   
+                  <button
+                    aria-label="Supprimer John Doe <john.doe@at-work.com>"
+                    class="close flex-shrink-0"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+           
+          <div
+            class="bm-form-autocomplete-input position-relative flex-fill"
+            data-browse=""
+            data-browse-default=""
+            data-browse-key="new"
+          >
+            <div
+              class="bm-form-input position-relative"
+            >
+              <input
+                autocomplete="off"
+                class="form-control"
+                data-browse="true"
+                data-browse-default="true"
+                data-browse-key="new"
+                icon=""
+                tabindex="0"
+                type="text"
+              />
+               
+              <!---->
+            </div>
+             
+            <div
+              class="list-group suggestions shadow-sm mw-100 position-absolute list-no-borders"
+              style="display: none;"
+              tabindex="-1"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+     
+    <h1>
+      With autocomplete
+    </h1>
+     
+    <div
+      style="height: 300px;"
+    >
+      <div
+        class="bm-contact-input d-flex align-items-center"
+      >
+        <button
+          class="btn btn-simple-dark"
+          data-browse=""
+          for="new731"
+          tabindex="-1"
+          type="button"
+        >
+           
+                    To 
+                
+        </button>
+         
+        <label
+          class="sr-only"
+          for="new731"
+        >
+           
+                    To 
+                
+        </label>
+         
+        <div
+          class="flex-fill d-flex flex-wrap align-content-between "
+        >
+           
+          <div
+            class="bm-form-autocomplete-input position-relative flex-fill"
+            data-browse=""
+            data-browse-default=""
+            data-browse-key="new"
+          >
+            <div
+              class="bm-form-input position-relative"
+            >
+              <input
+                autocomplete="off"
+                class="form-control"
+                data-browse="true"
+                data-browse-default="true"
+                data-browse-key="new"
+                icon=""
+                tabindex="0"
+                type="text"
+              />
+               
+              <!---->
+            </div>
+             
+            <div
+              class="list-group suggestions shadow-sm mw-100 position-absolute list-no-borders"
+              style="display: none;"
+              tabindex="-1"
+            />
+          </div>
+        </div>
+      </div>
+       
+      <p>
+        Total emails : 0
+      </p>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots Components/Forms Form checkbox 1`] = `
+<div
+  class="story"
+>
+  <div
+    class="custom-control custom-switch"
+  >
+    <input
+      autocomplete="off"
+      class="custom-control-input"
+      type="checkbox"
+      value="true"
+    />
+    <label
+      class="custom-control-label"
+    >
+      Make me switch !
+    </label>
+  </div>
+</div>
+`;
+
+exports[`Storyshots Components/Forms Form inputs 1`] = `
+<div
+  class="story"
+>
+  <div>
+    <div>
+      <h1>
+        <b>
+          Inputs
+        </b>
+      </h1>
+      
+                
+                With reset prop on :
+                
+      <div
+        class="bm-form-input position-relative mb-2"
+      >
+        <input
+          class="form-control bm-form-input-padding"
+          reset="true"
+          type="text"
+        />
+         
+        <!---->
+      </div>
+      
+                
+                With icon prop on :
+                
+      <div
+        class="bm-form-input position-relative mb-2"
+      >
+        <input
+          class="form-control bm-form-input-padding"
+          icon="pencil"
+          type="text"
+        />
+         
+        <div
+          class="icon-wrapper position-absolute"
+        >
+          <svg
+            aria-hidden="true"
+            class="icon h-100 svg-inline--fa fa-pencil fa-w-16"
+            data-icon="pencil"
+            data-prefix="fas"
+            focusable="false"
+            role="img"
+            viewBox="0 0 12 12"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              class=""
+              d="M10.7768 3.40514L5.05462 9.12782C5.01603 9.17607 4.95813 9.21468 4.90023 9.23398L0.664065 10.9614C0.606167 10.9903 0.53862 11 0.480723 11C0.355278 11 0.239483 10.9517 0.142987 10.8552C0.00789322 10.7201 -0.0403547 10.5175 0.036842 10.3341L1.76412 6.0976C1.78342 6.0397 1.82201 5.98179 1.87026 5.94319L7.59246 0.220506C7.74686 0.0564491 8.12319 -0.15586 8.81796 0.172254C9.18464 0.345961 9.58993 0.645123 9.96626 1.02149C10.7093 1.75492 11.3558 2.82611 10.7768 3.40514ZM10.0242 2.79716C9.99521 2.64276 9.81187 2.22779 9.29079 1.70667C8.77936 1.18555 8.35478 1.00219 8.20039 0.973237L7.72756 1.44611C8.06529 1.61981 8.43198 1.89002 8.76971 2.22779C9.0785 2.52695 9.36799 2.89367 9.56098 3.26038L10.0242 2.79716ZM8.08459 2.91297C7.55386 2.38219 7.13893 2.19884 6.99419 2.17954L3.21155 5.96249C3.56859 6.1555 3.93527 6.44501 4.24406 6.75383C4.55285 7.05299 4.84233 7.4197 5.03532 7.78642L8.81796 4.00346C8.79866 3.85871 8.62497 3.44374 8.08459 2.91297ZM2.27554 8.72251C2.41064 8.86726 2.51678 9.00237 2.59398 9.13747L4.28266 8.44265C4.21511 8.24964 4.01247 7.87327 3.56859 7.42935C3.12471 6.98543 2.74837 6.78278 2.54573 6.71522L1.86061 8.40404C1.99571 8.48125 2.1308 8.5874 2.27554 8.72251ZM4.5 10H10.5C10.77 10 11 10.22 11 10.5C11 10.78 10.78 11 10.5 11H4.5C4.22 11 4 10.78 4 10.5C4 10.22 4.22 10 4.5 10Z"
+              fill="currentColor"
+            />
+          </svg>
+        </div>
+      </div>
+      
+                
+                Disabled input :
+                
+      <div
+        class="bm-form-input position-relative mb-2"
+      >
+        <input
+          class="form-control bm-form-input-padding"
+          disabled="disabled"
+          icon="pencil"
+          type="text"
+        />
+         
+        <div
+          class="icon-wrapper position-absolute"
+        >
+          <svg
+            aria-hidden="true"
+            class="icon h-100 svg-inline--fa fa-pencil fa-w-16"
+            data-icon="pencil"
+            data-prefix="fas"
+            focusable="false"
+            role="img"
+            viewBox="0 0 12 12"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              class=""
+              d="M10.7768 3.40514L5.05462 9.12782C5.01603 9.17607 4.95813 9.21468 4.90023 9.23398L0.664065 10.9614C0.606167 10.9903 0.53862 11 0.480723 11C0.355278 11 0.239483 10.9517 0.142987 10.8552C0.00789322 10.7201 -0.0403547 10.5175 0.036842 10.3341L1.76412 6.0976C1.78342 6.0397 1.82201 5.98179 1.87026 5.94319L7.59246 0.220506C7.74686 0.0564491 8.12319 -0.15586 8.81796 0.172254C9.18464 0.345961 9.58993 0.645123 9.96626 1.02149C10.7093 1.75492 11.3558 2.82611 10.7768 3.40514ZM10.0242 2.79716C9.99521 2.64276 9.81187 2.22779 9.29079 1.70667C8.77936 1.18555 8.35478 1.00219 8.20039 0.973237L7.72756 1.44611C8.06529 1.61981 8.43198 1.89002 8.76971 2.22779C9.0785 2.52695 9.36799 2.89367 9.56098 3.26038L10.0242 2.79716ZM8.08459 2.91297C7.55386 2.38219 7.13893 2.19884 6.99419 2.17954L3.21155 5.96249C3.56859 6.1555 3.93527 6.44501 4.24406 6.75383C4.55285 7.05299 4.84233 7.4197 5.03532 7.78642L8.81796 4.00346C8.79866 3.85871 8.62497 3.44374 8.08459 2.91297ZM2.27554 8.72251C2.41064 8.86726 2.51678 9.00237 2.59398 9.13747L4.28266 8.44265C4.21511 8.24964 4.01247 7.87327 3.56859 7.42935C3.12471 6.98543 2.74837 6.78278 2.54573 6.71522L1.86061 8.40404C1.99571 8.48125 2.1308 8.5874 2.27554 8.72251ZM4.5 10H10.5C10.77 10 11 10.22 11 10.5C11 10.78 10.78 11 10.5 11H4.5C4.22 11 4 10.78 4 10.5C4 10.22 4.22 10 4.5 10Z"
+              fill="currentColor"
+            />
+          </svg>
+        </div>
+      </div>
+       
+      <div
+        class="form-group mb-5"
+        id="exampleInputGroup1"
+        role="group"
+      >
+        <label
+          class="d-block"
+          for="exampleInput1"
+          id="exampleInputGroup1__BV_label_"
+        >
+          With form group :
+        </label>
+        <div
+          class="bv-no-focus-ring"
+        >
+          <div
+            class="bm-form-input position-relative"
+          >
+            <input
+              aria-required="true"
+              class="form-control"
+              id="exampleInput1"
+              placeholder="Enter email"
+              required="required"
+              type="email"
+            />
+             
+            <!---->
+          </div>
+          <!---->
+          <!---->
+          <small
+            class="form-text text-muted"
+            id="exampleInputGroup1__BV_description_"
+            tabindex="-1"
+          >
+            We'll never share your email with anyone else.
+          </small>
+        </div>
+      </div>
+    </div>
+     
+    <div>
+      <h1>
+        <b>
+          Textarea
+        </b>
+      </h1>
+       
+      <textarea
+        class="mb-5 form-control"
+        rows="2"
+        wrap="soft"
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots Components|Forms ContactInput 1`] = `
+<div
+  class="story"
+>
+  <div
+    class="storybook-addon-vue-info src-components-Docs-container-1Ukn"
+  >
+    <div>
+      <h1
+        class="src-components-Header-title-1opt"
+      >
+        Components|Forms
+      </h1>
+       
+      <h2
+        class="src-components-Header-subtitle-v58S"
+      >
+        ContactInput
+      </h2>
+    </div>
+     
+    <div
+      class="src-components-SectionContainer-container-1UVl"
+    >
+      <label
+        class="src-components-SectionContainer-label-32Bo"
+      >
+        Preview
+      </label>
+       
+      <div
+        class="src-components-SectionContainer-contents-3s6X"
+      >
+        <div
+          class="src-components-Preview-preview-30u8 sb-preview"
+        >
+          <div>
+            <h1>
+              Initialized with contacts
+            </h1>
+             
+            <div
+              class="mb-5"
+            >
+              <div
+                class="bm-contact-input d-flex align-items-center"
+              >
+                <button
+                  class="btn btn-simple-dark"
+                  data-browse=""
+                  for="new1275"
+                  tabindex="-1"
+                  type="button"
+                >
+                   To 
+                </button>
+                 
+                <label
+                  class="sr-only"
+                  for="new1275"
+                >
+                   To 
+                </label>
+                 
+                <div
+                  class="flex-fill d-flex flex-wrap align-content-between "
+                >
+                  <div
+                    class="d-inline-flex align-items-center p-1"
+                  >
+                    <div
+                      class="d-inline-flex contacts-wrapper align-items-center"
+                      data-browse=""
+                      data-browse-key="0"
+                      tabindex="-1"
+                    >
+                      <div
+                        class="error"
+                      >
+                        <div
+                          class="bm-chip d-inline-flex align-items-center position-relative pr-2 bm-chip-light"
+                          title="Adresse invalide"
+                        >
+                          <div
+                            class="left-part"
+                          >
+                            <div
+                              class="w-100 h-100 d-flex justify-content-center align-items-center bg-danger"
+                            >
+                              <svg
+                                aria-hidden="true"
+                                class="svg-inline--fa fa-exclamation fa-w-16"
+                                data-icon="exclamation"
+                                data-prefix="fas"
+                                focusable="false"
+                                role="img"
+                                viewBox="0 0 12 12"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  class=""
+                                  d="M6.5 3C6.5 2.72386 6.27614 2.5 6 2.5C5.72386 2.5 5.5 2.72386 5.5 3V7C5.5 7.27614 5.72386 7.5 6 7.5C6.27614 7.5 6.5 7.27614 6.5 7L6.5 3ZM6 9.5C6.27614 9.5 6.5 9.27614 6.5 9C6.5 8.72386 6.27614 8.5 6 8.5C5.72386 8.5 5.5 8.72386 5.5 9C5.5 9.27614 5.72386 9.5 6 9.5Z"
+                                  fill="currentColor"
+                                />
+                              </svg>
+                            </div>
+                          </div>
+                           
+                          <span
+                            class="pl-2 bm-chip-content flex-shrink-1 text-truncate pr-2"
+                          >
+                            
+        monsieur.patate#bluemind.net
+    
+                          </span>
+                           
+                          <button
+                            aria-label="Supprimer monsieur.patate#bluemind.net"
+                            class="close flex-shrink-0"
+                            tabindex="-1"
+                            type="button"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="d-inline-flex align-items-center p-1"
+                  >
+                    <div
+                      class="d-inline-flex contacts-wrapper align-items-center"
+                      data-browse=""
+                      data-browse-key="1"
+                      tabindex="-1"
+                    >
+                      <div
+                        class="d-inline-flex bm-contact"
+                      >
+                        <div
+                          class="bm-chip d-inline-flex align-items-center position-relative pr-2 bm-chip-light"
+                          title="Alright"
+                        >
+                          <div
+                            class="left-part"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="bm-avatar"
+                              role="img"
+                              style="width: 2em; height: 2em;"
+                              version="1.1"
+                              viewBox="0 0 200 200"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <title>
+                                Alright
+                              </title>
+                               
+                              <g
+                                style="clip-path: url(#bm-clip-path-hexagon);"
+                              >
+                                <rect
+                                  fill=""
+                                  height="200"
+                                  width="200"
+                                  x="0"
+                                  y="0"
+                                />
+                                 
+                                <text
+                                  fill="#fff"
+                                  font-size="100"
+                                  text-anchor="middle"
+                                  x="100"
+                                  y="135"
+                                >
+                                  
+            A
+        
+                                </text>
+                              </g>
+                            </svg>
+                          </div>
+                           
+                          <span
+                            class="pl-2 bm-chip-content flex-shrink-1 text-truncate pr-2"
+                          >
+                            
+        Alright
+    
+                          </span>
+                           
+                          <button
+                            aria-label="Supprimer Alright"
+                            class="close flex-shrink-0"
+                            tabindex="-1"
+                            type="button"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                   
+                  <div
+                    class="bm-form-autocomplete-input position-relative flex-fill"
+                    data-browse=""
+                    data-browse-default=""
+                    data-browse-key="new"
+                  >
+                    <div
+                      class="bm-form-input position-relative"
+                    >
+                      <input
+                        autocomplete="off"
+                        class="form-control"
+                        data-browse="true"
+                        data-browse-default="true"
+                        data-browse-key="new"
+                        icon=""
+                        tabindex="0"
+                        type="text"
+                      />
+                       
+                      <!---->
+                    </div>
+                     
+                    <div
+                      class="list-group suggestions shadow-sm mw-100 position-absolute list-no-borders"
+                      style="display: none;"
+                      tabindex="-1"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+             
+            <h1>
+              When contacts have same dn
+            </h1>
+             
+            <div
+              class="mb-5"
+            >
+              <div
+                class="bm-contact-input d-flex align-items-center"
+              >
+                <button
+                  class="btn btn-simple-dark"
+                  data-browse=""
+                  for="new1286"
+                  tabindex="-1"
+                  type="button"
+                >
+                   To 
+                </button>
+                 
+                <label
+                  class="sr-only"
+                  for="new1286"
+                >
+                   To 
+                </label>
+                 
+                <div
+                  class="flex-fill d-flex flex-wrap align-content-between "
+                >
+                  <div
+                    class="d-inline-flex align-items-center p-1"
+                  >
+                    <div
+                      class="d-inline-flex contacts-wrapper align-items-center"
+                      data-browse=""
+                      data-browse-key="2"
+                      tabindex="-1"
+                    >
+                      <div
+                        class="d-inline-flex bm-contact"
+                      >
+                        <div
+                          class="bm-chip d-inline-flex align-items-center position-relative pr-2 bm-chip-light"
+                          title="John Doe <john.doe@at-home.net>"
+                        >
+                          <div
+                            class="left-part"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="bm-avatar"
+                              role="img"
+                              style="width: 2em; height: 2em;"
+                              version="1.1"
+                              viewBox="0 0 200 200"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <title>
+                                John Doe &lt;john.doe@at-home.net&gt;
+                              </title>
+                               
+                              <g
+                                style="clip-path: url(#bm-clip-path-hexagon);"
+                              >
+                                <rect
+                                  fill=""
+                                  height="200"
+                                  width="200"
+                                  x="0"
+                                  y="0"
+                                />
+                                 
+                                <text
+                                  fill="#fff"
+                                  font-size="100"
+                                  text-anchor="middle"
+                                  x="100"
+                                  y="135"
+                                >
+                                  
+            J
+        
+                                </text>
+                              </g>
+                            </svg>
+                          </div>
+                           
+                          <span
+                            class="pl-2 bm-chip-content flex-shrink-1 text-truncate pr-2"
+                          >
+                            
+        John Doe &lt;john.doe@at-home.net&gt;
+    
+                          </span>
+                           
+                          <button
+                            aria-label="Supprimer John Doe <john.doe@at-home.net>"
+                            class="close flex-shrink-0"
+                            tabindex="-1"
+                            type="button"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="d-inline-flex align-items-center p-1"
+                  >
+                    <div
+                      class="d-inline-flex contacts-wrapper align-items-center"
+                      data-browse=""
+                      data-browse-key="3"
+                      tabindex="-1"
+                    >
+                      <div
+                        class="d-inline-flex bm-contact"
+                      >
+                        <div
+                          class="bm-chip d-inline-flex align-items-center position-relative pr-2 bm-chip-light"
+                          title="John Doe <john.doe@at-work.com>"
+                        >
+                          <div
+                            class="left-part"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="bm-avatar"
+                              role="img"
+                              style="width: 2em; height: 2em;"
+                              version="1.1"
+                              viewBox="0 0 200 200"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <title>
+                                John Doe &lt;john.doe@at-work.com&gt;
+                              </title>
+                               
+                              <g
+                                style="clip-path: url(#bm-clip-path-hexagon);"
+                              >
+                                <rect
+                                  fill=""
+                                  height="200"
+                                  width="200"
+                                  x="0"
+                                  y="0"
+                                />
+                                 
+                                <text
+                                  fill="#fff"
+                                  font-size="100"
+                                  text-anchor="middle"
+                                  x="100"
+                                  y="135"
+                                >
+                                  
+            J
+        
+                                </text>
+                              </g>
+                            </svg>
+                          </div>
+                           
+                          <span
+                            class="pl-2 bm-chip-content flex-shrink-1 text-truncate pr-2"
+                          >
+                            
+        John Doe &lt;john.doe@at-work.com&gt;
+    
+                          </span>
+                           
+                          <button
+                            aria-label="Supprimer John Doe <john.doe@at-work.com>"
+                            class="close flex-shrink-0"
+                            tabindex="-1"
+                            type="button"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                   
+                  <div
+                    class="bm-form-autocomplete-input position-relative flex-fill"
+                    data-browse=""
+                    data-browse-default=""
+                    data-browse-key="new"
+                  >
+                    <div
+                      class="bm-form-input position-relative"
+                    >
+                      <input
+                        autocomplete="off"
+                        class="form-control"
+                        data-browse="true"
+                        data-browse-default="true"
+                        data-browse-key="new"
+                        icon=""
+                        tabindex="0"
+                        type="text"
+                      />
+                       
+                      <!---->
+                    </div>
+                     
+                    <div
+                      class="list-group suggestions shadow-sm mw-100 position-absolute list-no-borders"
+                      style="display: none;"
+                      tabindex="-1"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+             
+            <h1>
+              With autocomplete
+            </h1>
+             
+            <div
+              style="height: 300px;"
+            >
+              <div
+                class="bm-contact-input d-flex align-items-center"
+              >
+                <button
+                  class="btn btn-simple-dark"
+                  data-browse=""
+                  for="new1298"
+                  tabindex="-1"
+                  type="button"
+                >
+                   
+                    To 
+                
+                </button>
+                 
+                <label
+                  class="sr-only"
+                  for="new1298"
+                >
+                   
+                    To 
+                
+                </label>
+                 
+                <div
+                  class="flex-fill d-flex flex-wrap align-content-between "
+                >
+                   
+                  <div
+                    class="bm-form-autocomplete-input position-relative flex-fill"
+                    data-browse=""
+                    data-browse-default=""
+                    data-browse-key="new"
+                  >
+                    <div
+                      class="bm-form-input position-relative"
+                    >
+                      <input
+                        autocomplete="off"
+                        class="form-control"
+                        data-browse="true"
+                        data-browse-default="true"
+                        data-browse-key="new"
+                        icon=""
+                        tabindex="0"
+                        type="text"
+                      />
+                       
+                      <!---->
+                    </div>
+                     
+                    <div
+                      class="list-group suggestions shadow-sm mw-100 position-absolute list-no-borders"
+                      style="display: none;"
+                      tabindex="-1"
+                    />
+                  </div>
+                </div>
+              </div>
+               
+              <p>
+                Total emails : 0
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+     
+    <section
+      class="src-components-Summary-container-2crO"
+    >
+      <p>
+        Most of the time, this component will be instantiate with no contact.
+Then, at each change, an event is emitted and returns the whole contacts list. 
+        <br />
+        
+If needed it can be instantiated with an emails props (in the case of a Draft message for example).
+        <br />
+        <br />
+        
+To set up autocomplete, the 'search' event returns the searched pattern and 
+you can submit matching proposals by using the 'autocomplete-results' property.
+      </p>
+      
+
+    </section>
+     
+    <div
+      class="src-components-SectionContainer-container-1UVl"
+    >
+      <label
+        class="src-components-SectionContainer-label-32Bo"
+      >
+        Story source
+      </label>
+       
+      <div
+        class="src-components-SectionContainer-contents-3s6X"
+      >
+        <pre
+          class="html src-components-StorySource-codeBlock-2XbE hljs xml"
+        >
+          <code>
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                div
+              </span>
+              &gt;
+            </span>
+            
+    
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                h1
+              </span>
+              &gt;
+            </span>
+            Initialized with contacts
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                h1
+              </span>
+              &gt;
+            </span>
+            
+    
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                div
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                class
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "mb-5"
+              </span>
+              &gt;
+            </span>
+            
+        
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                bm-contact-input
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                :contacts.sync
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "emails_initialized"
+              </span>
+              &gt;
+            </span>
+             To 
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                bm-contact-input
+              </span>
+              &gt;
+            </span>
+            
+    
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                div
+              </span>
+              &gt;
+            </span>
+            
+    
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                h1
+              </span>
+              &gt;
+            </span>
+            When contacts have same dn
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                h1
+              </span>
+              &gt;
+            </span>
+            
+    
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                div
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                class
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "mb-5"
+              </span>
+              &gt;
+            </span>
+            
+        
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                bm-contact-input
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                :contacts.sync
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "contactsWithSameDn"
+              </span>
+              &gt;
+            </span>
+             To 
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                bm-contact-input
+              </span>
+              &gt;
+            </span>
+            
+    
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                div
+              </span>
+              &gt;
+            </span>
+            
+    
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                h1
+              </span>
+              &gt;
+            </span>
+            With autocomplete
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                h1
+              </span>
+              &gt;
+            </span>
+            
+    
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                div
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                style
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "height: 300px;"
+              </span>
+              &gt;
+            </span>
+            
+        
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                bm-contact-input
+              </span>
+               
+            
+              <span
+                class="hljs-attr"
+              >
+                ref
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "contact-input"
+              </span>
+              
+            
+              <span
+                class="hljs-attr"
+              >
+                :contacts.sync
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "emails"
+              </span>
+               
+            
+              <span
+                class="hljs-attr"
+              >
+                :autocomplete-results
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "matchingResults()"
+              </span>
+               
+            @
+              <span
+                class="hljs-attr"
+              >
+                search
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "(newValue) =&gt; currentValue = newValue"
+              </span>
+               &gt;
+            </span>
+             
+            To 
+        
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                bm-contact-input
+              </span>
+              &gt;
+            </span>
+            
+        
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                p
+              </span>
+              &gt;
+            </span>
+            Total emails : {{ emails.length }}
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                p
+              </span>
+              &gt;
+            </span>
+            
+    
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                div
+              </span>
+              &gt;
+            </span>
+            
+
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                div
+              </span>
+              &gt;
+            </span>
+          </code>
+        </pre>
+      </div>
+    </div>
+     
+    <hr
+      class="src-components-Separator-separator-1eBy"
+    />
+     
+    <div
+      class="src-components-Component-container-1CeL"
+    >
+      <h2
+        class="src-components-Component-title-2XL9"
+      >
+        # &lt;BmContactInput/&gt;
+      </h2>
+       
+      <div
+        class="src-components-Table-container-3ImG"
+      >
+        <label
+          class="src-components-Table-label-3GH2"
+        >
+          Props
+        </label>
+         
+        <div
+          class="src-components-Table-contents-2Hzm"
+        >
+          <table
+            class="src-components-Table-table-3VHw"
+          >
+            <thead>
+              <tr>
+                <th>
+                  Name
+                </th>
+                 
+                <th>
+                  Type
+                </th>
+                 
+                <th>
+                  Default
+                </th>
+                 
+                <th>
+                  Description
+                </th>
+              </tr>
+            </thead>
+             
+            <tbody>
+              <tr>
+                <td>
+                  
+          contacts
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  array
+                </td>
+                 
+                <td>
+                  []
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          autocompleteResults
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  array
+                </td>
+                 
+                <td>
+                  []
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+       
+      <!---->
+       
+      <!---->
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots Components|Forms Form checkbox 1`] = `
+<div
+  class="story"
+>
+  <div
+    class="storybook-addon-vue-info src-components-Docs-container-1Ukn"
+  >
+    <div>
+      <h1
+        class="src-components-Header-title-1opt"
+      >
+        Components|Forms
+      </h1>
+       
+      <h2
+        class="src-components-Header-subtitle-v58S"
+      >
+        Form checkbox
+      </h2>
+    </div>
+     
+    <div
+      class="src-components-SectionContainer-container-1UVl"
+    >
+      <label
+        class="src-components-SectionContainer-label-32Bo"
+      >
+        Preview
+      </label>
+       
+      <div
+        class="src-components-SectionContainer-contents-3s6X"
+      >
+        <div
+          class="src-components-Preview-preview-30u8 sb-preview"
+        >
+          <div
+            class="custom-control custom-switch"
+          >
+            <input
+              autocomplete="off"
+              class="custom-control-input"
+              type="checkbox"
+              value="true"
+            />
+            <label
+              class="custom-control-label"
+            >
+              Make me switch !
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+     
+    <section
+      class="src-components-Summary-container-2crO"
+    />
+     
+    <div
+      class="src-components-SectionContainer-container-1UVl"
+    >
+      <label
+        class="src-components-SectionContainer-label-32Bo"
+      >
+        Story source
+      </label>
+       
+      <div
+        class="src-components-SectionContainer-contents-3s6X"
+      >
+        <pre
+          class="html src-components-StorySource-codeBlock-2XbE hljs xml"
+        >
+          <code>
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                bm-form-checkbox
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                switch
+              </span>
+              &gt;
+            </span>
+            Make me switch !
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                bm-form-checkbox
+              </span>
+              &gt;
+            </span>
+          </code>
+        </pre>
+      </div>
+    </div>
+     
+    <hr
+      class="src-components-Separator-separator-1eBy"
+    />
+     
+    <div
+      class="src-components-Component-container-1CeL"
+    >
+      <h2
+        class="src-components-Component-title-2XL9"
+      >
+        # &lt;BmFormCheckbox/&gt;
+      </h2>
+       
+      <div
+        class="src-components-Table-container-3ImG"
+      >
+        <label
+          class="src-components-Table-label-3GH2"
+        >
+          Props
+        </label>
+         
+        <div
+          class="src-components-Table-contents-2Hzm"
+        >
+          <table
+            class="src-components-Table-table-3VHw"
+          >
+            <thead>
+              <tr>
+                <th>
+                  Name
+                </th>
+                 
+                <th>
+                  Type
+                </th>
+                 
+                <th>
+                  Default
+                </th>
+                 
+                <th>
+                  Description
+                </th>
+              </tr>
+            </thead>
+             
+            <tbody>
+              <tr>
+                <td>
+                  
+          value
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  any
+                </td>
+                 
+                <td>
+                  true
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          checked
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  any
+                </td>
+                 
+                <td>
+                  null
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          inline
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          plain
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          button
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          buttonVariant
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          ariaLabel
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          ariaLabelledby
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          id
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          name
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          disabled
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          required
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          form
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          autofocus
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          size
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          state
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  null
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          uncheckedValue
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  any
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          indeterminate
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          switch
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+       
+      <!---->
+       
+      <!---->
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots Components|Forms Form inputs 1`] = `
+<div
+  class="story"
+>
+  <div
+    class="storybook-addon-vue-info src-components-Docs-container-1Ukn"
+  >
+    <div>
+      <h1
+        class="src-components-Header-title-1opt"
+      >
+        Components|Forms
+      </h1>
+       
+      <h2
+        class="src-components-Header-subtitle-v58S"
+      >
+        Form inputs
+      </h2>
+    </div>
+     
+    <div
+      class="src-components-SectionContainer-container-1UVl"
+    >
+      <label
+        class="src-components-SectionContainer-label-32Bo"
+      >
+        Preview
+      </label>
+       
+      <div
+        class="src-components-SectionContainer-contents-3s6X"
+      >
+        <div
+          class="src-components-Preview-preview-30u8 sb-preview"
+        >
+          <div>
+            <div>
+              <h1>
+                <b>
+                  Inputs
+                </b>
+              </h1>
+              
+                
+                With reset prop on :
+                
+              <div
+                class="bm-form-input position-relative mb-2"
+              >
+                <input
+                  class="form-control bm-form-input-padding"
+                  reset="true"
+                  type="text"
+                />
+                 
+                <!---->
+              </div>
+              
+                
+                With icon prop on :
+                
+              <div
+                class="bm-form-input position-relative mb-2"
+              >
+                <input
+                  class="form-control bm-form-input-padding"
+                  icon="pencil"
+                  type="text"
+                />
+                 
+                <div
+                  class="icon-wrapper position-absolute"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="icon h-100 svg-inline--fa fa-pencil fa-w-16"
+                    data-icon="pencil"
+                    data-prefix="fas"
+                    focusable="false"
+                    role="img"
+                    viewBox="0 0 12 12"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      class=""
+                      d="M10.7768 3.40514L5.05462 9.12782C5.01603 9.17607 4.95813 9.21468 4.90023 9.23398L0.664065 10.9614C0.606167 10.9903 0.53862 11 0.480723 11C0.355278 11 0.239483 10.9517 0.142987 10.8552C0.00789322 10.7201 -0.0403547 10.5175 0.036842 10.3341L1.76412 6.0976C1.78342 6.0397 1.82201 5.98179 1.87026 5.94319L7.59246 0.220506C7.74686 0.0564491 8.12319 -0.15586 8.81796 0.172254C9.18464 0.345961 9.58993 0.645123 9.96626 1.02149C10.7093 1.75492 11.3558 2.82611 10.7768 3.40514ZM10.0242 2.79716C9.99521 2.64276 9.81187 2.22779 9.29079 1.70667C8.77936 1.18555 8.35478 1.00219 8.20039 0.973237L7.72756 1.44611C8.06529 1.61981 8.43198 1.89002 8.76971 2.22779C9.0785 2.52695 9.36799 2.89367 9.56098 3.26038L10.0242 2.79716ZM8.08459 2.91297C7.55386 2.38219 7.13893 2.19884 6.99419 2.17954L3.21155 5.96249C3.56859 6.1555 3.93527 6.44501 4.24406 6.75383C4.55285 7.05299 4.84233 7.4197 5.03532 7.78642L8.81796 4.00346C8.79866 3.85871 8.62497 3.44374 8.08459 2.91297ZM2.27554 8.72251C2.41064 8.86726 2.51678 9.00237 2.59398 9.13747L4.28266 8.44265C4.21511 8.24964 4.01247 7.87327 3.56859 7.42935C3.12471 6.98543 2.74837 6.78278 2.54573 6.71522L1.86061 8.40404C1.99571 8.48125 2.1308 8.5874 2.27554 8.72251ZM4.5 10H10.5C10.77 10 11 10.22 11 10.5C11 10.78 10.78 11 10.5 11H4.5C4.22 11 4 10.78 4 10.5C4 10.22 4.22 10 4.5 10Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </div>
+              </div>
+              
+                
+                Disabled input :
+                
+              <div
+                class="bm-form-input position-relative mb-2"
+              >
+                <input
+                  class="form-control bm-form-input-padding"
+                  disabled="disabled"
+                  icon="pencil"
+                  type="text"
+                />
+                 
+                <div
+                  class="icon-wrapper position-absolute"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="icon h-100 svg-inline--fa fa-pencil fa-w-16"
+                    data-icon="pencil"
+                    data-prefix="fas"
+                    focusable="false"
+                    role="img"
+                    viewBox="0 0 12 12"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      class=""
+                      d="M10.7768 3.40514L5.05462 9.12782C5.01603 9.17607 4.95813 9.21468 4.90023 9.23398L0.664065 10.9614C0.606167 10.9903 0.53862 11 0.480723 11C0.355278 11 0.239483 10.9517 0.142987 10.8552C0.00789322 10.7201 -0.0403547 10.5175 0.036842 10.3341L1.76412 6.0976C1.78342 6.0397 1.82201 5.98179 1.87026 5.94319L7.59246 0.220506C7.74686 0.0564491 8.12319 -0.15586 8.81796 0.172254C9.18464 0.345961 9.58993 0.645123 9.96626 1.02149C10.7093 1.75492 11.3558 2.82611 10.7768 3.40514ZM10.0242 2.79716C9.99521 2.64276 9.81187 2.22779 9.29079 1.70667C8.77936 1.18555 8.35478 1.00219 8.20039 0.973237L7.72756 1.44611C8.06529 1.61981 8.43198 1.89002 8.76971 2.22779C9.0785 2.52695 9.36799 2.89367 9.56098 3.26038L10.0242 2.79716ZM8.08459 2.91297C7.55386 2.38219 7.13893 2.19884 6.99419 2.17954L3.21155 5.96249C3.56859 6.1555 3.93527 6.44501 4.24406 6.75383C4.55285 7.05299 4.84233 7.4197 5.03532 7.78642L8.81796 4.00346C8.79866 3.85871 8.62497 3.44374 8.08459 2.91297ZM2.27554 8.72251C2.41064 8.86726 2.51678 9.00237 2.59398 9.13747L4.28266 8.44265C4.21511 8.24964 4.01247 7.87327 3.56859 7.42935C3.12471 6.98543 2.74837 6.78278 2.54573 6.71522L1.86061 8.40404C1.99571 8.48125 2.1308 8.5874 2.27554 8.72251ZM4.5 10H10.5C10.77 10 11 10.22 11 10.5C11 10.78 10.78 11 10.5 11H4.5C4.22 11 4 10.78 4 10.5C4 10.22 4.22 10 4.5 10Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </div>
+              </div>
+               
+              <div
+                class="form-group mb-5"
+                id="exampleInputGroup1"
+                role="group"
+              >
+                <label
+                  class="d-block"
+                  for="exampleInput1"
+                  id="exampleInputGroup1__BV_label_"
+                >
+                  With form group :
+                </label>
+                <div
+                  class="bv-no-focus-ring"
+                >
+                  <div
+                    class="bm-form-input position-relative"
+                  >
+                    <input
+                      aria-required="true"
+                      class="form-control"
+                      id="exampleInput1"
+                      placeholder="Enter email"
+                      required="required"
+                      type="email"
+                    />
+                     
+                    <!---->
+                  </div>
+                  <!---->
+                  <!---->
+                  <small
+                    class="form-text text-muted"
+                    id="exampleInputGroup1__BV_description_"
+                    tabindex="-1"
+                  >
+                    We'll never share your email with anyone else.
+                  </small>
+                </div>
+              </div>
+            </div>
+             
+            <div>
+              <h1>
+                <b>
+                  Textarea
+                </b>
+              </h1>
+               
+              <textarea
+                class="mb-5 form-control"
+                rows="2"
+                wrap="soft"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+     
+    <section
+      class="src-components-Summary-container-2crO"
+    />
+     
+    <div
+      class="src-components-SectionContainer-container-1UVl"
+    >
+      <label
+        class="src-components-SectionContainer-label-32Bo"
+      >
+        Story source
+      </label>
+       
+      <div
+        class="src-components-SectionContainer-contents-3s6X"
+      >
+        <pre
+          class="html src-components-StorySource-codeBlock-2XbE hljs xml"
+        >
+          <code>
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                div
+              </span>
+              &gt;
+            </span>
+            
+    
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                div
+              </span>
+              &gt;
+            </span>
+            
+        
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                h1
+              </span>
+              &gt;
+            </span>
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                b
+              </span>
+              &gt;
+            </span>
+            Inputs
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                b
+              </span>
+              &gt;
+            </span>
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                h1
+              </span>
+              &gt;
+            </span>
+            
+        
+        With reset prop on :
+        
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                bm-form-input
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                type
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "text"
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                reset
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                v-model
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "textInput1"
+              </span>
+               @
+              <span
+                class="hljs-attr"
+              >
+                reset
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "textInput1=''"
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                class
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "mb-2"
+              </span>
+              &gt;
+            </span>
+            
+        
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                bm-form-input
+              </span>
+              &gt;
+            </span>
+            
+        
+        With icon prop on :
+        
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                bm-form-input
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                type
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "text"
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                icon
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "pencil"
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                v-model
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "textInput2"
+              </span>
+               @
+              <span
+                class="hljs-attr"
+              >
+                reset
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "textInput2=''"
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                class
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "mb-2"
+              </span>
+              &gt;
+            </span>
+            
+        
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                bm-form-input
+              </span>
+              &gt;
+            </span>
+            
+        
+        Disabled input :
+        
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                bm-form-input
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                type
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "text"
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                icon
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "pencil"
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                v-model
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "textInput2"
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                disabled
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                class
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "mb-2"
+              </span>
+              &gt;
+            </span>
+            
+        
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                bm-form-input
+              </span>
+              &gt;
+            </span>
+            
+        
+        
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                bm-form-group
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                id
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "exampleInputGroup1"
+              </span>
+              
+                    
+              <span
+                class="hljs-attr"
+              >
+                label
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "With form group :"
+              </span>
+              
+                    
+              <span
+                class="hljs-attr"
+              >
+                label-for
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "exampleInput1"
+              </span>
+              
+                    
+              <span
+                class="hljs-attr"
+              >
+                description
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "We'll never share your email with anyone else."
+              </span>
+              
+                    
+              <span
+                class="hljs-attr"
+              >
+                class
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "mb-5"
+              </span>
+              &gt;
+            </span>
+            
+            
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                bm-form-input
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                id
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "exampleInput1"
+              </span>
+              
+                    
+              <span
+                class="hljs-attr"
+              >
+                type
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "email"
+              </span>
+              
+                    
+              <span
+                class="hljs-attr"
+              >
+                required
+              </span>
+              
+                    
+              <span
+                class="hljs-attr"
+              >
+                placeholder
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "Enter email"
+              </span>
+               /&gt;
+            </span>
+            
+            
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                bm-form-input
+              </span>
+              &gt;
+            </span>
+            
+        
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                bm-form-group
+              </span>
+              &gt;
+            </span>
+            
+    
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                div
+              </span>
+              &gt;
+            </span>
+            
+    
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                div
+              </span>
+              &gt;
+            </span>
+            
+        
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                h1
+              </span>
+              &gt;
+            </span>
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                b
+              </span>
+              &gt;
+            </span>
+            Textarea
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                b
+              </span>
+              &gt;
+            </span>
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                h1
+              </span>
+              &gt;
+            </span>
+            
+        
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                bm-form-textarea
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                class
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "mb-5"
+              </span>
+              &gt;
+            </span>
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                bm-form-textarea
+              </span>
+              &gt;
+            </span>
+            
+    
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                div
+              </span>
+              &gt;
+            </span>
+            
+
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                div
+              </span>
+              &gt;
+            </span>
+          </code>
+        </pre>
+      </div>
+    </div>
+     
+    <hr
+      class="src-components-Separator-separator-1eBy"
+    />
+     
+    <div
+      class="src-components-Component-container-1CeL"
+    >
+      <h2
+        class="src-components-Component-title-2XL9"
+      >
+        # &lt;BmForm/&gt;
+      </h2>
+       
+      <div
+        class="src-components-Table-container-3ImG"
+      >
+        <label
+          class="src-components-Table-label-3GH2"
+        >
+          Props
+        </label>
+         
+        <div
+          class="src-components-Table-contents-2Hzm"
+        >
+          <table
+            class="src-components-Table-table-3VHw"
+          >
+            <thead>
+              <tr>
+                <th>
+                  Name
+                </th>
+                 
+                <th>
+                  Type
+                </th>
+                 
+                <th>
+                  Default
+                </th>
+                 
+                <th>
+                  Description
+                </th>
+              </tr>
+            </thead>
+             
+            <tbody>
+              <tr>
+                <td>
+                  
+          id
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          inline
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          novalidate
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          validated
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+       
+      <!---->
+       
+      <!---->
+    </div>
+    <div
+      class="src-components-Component-container-1CeL"
+    >
+      <h2
+        class="src-components-Component-title-2XL9"
+      >
+        # &lt;BmFormInput/&gt;
+      </h2>
+       
+      <div
+        class="src-components-Table-container-3ImG"
+      >
+        <label
+          class="src-components-Table-label-3GH2"
+        >
+          Props
+        </label>
+         
+        <div
+          class="src-components-Table-contents-2Hzm"
+        >
+          <table
+            class="src-components-Table-table-3VHw"
+          >
+            <thead>
+              <tr>
+                <th>
+                  Name
+                </th>
+                 
+                <th>
+                  Type
+                </th>
+                 
+                <th>
+                  Default
+                </th>
+                 
+                <th>
+                  Description
+                </th>
+              </tr>
+            </thead>
+             
+            <tbody>
+              <tr>
+                <td>
+                  
+          icon
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          actionableIcon
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          reset
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          leftIcon
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+       
+      <!---->
+       
+      <!---->
+    </div>
+    <div
+      class="src-components-Component-container-1CeL"
+    >
+      <h2
+        class="src-components-Component-title-2XL9"
+      >
+        # &lt;BmFormGroup/&gt;
+      </h2>
+       
+      <div
+        class="src-components-Table-container-3ImG"
+      >
+        <label
+          class="src-components-Table-label-3GH2"
+        >
+          Props
+        </label>
+         
+        <div
+          class="src-components-Table-contents-2Hzm"
+        >
+          <table
+            class="src-components-Table-table-3VHw"
+          >
+            <thead>
+              <tr>
+                <th>
+                  Name
+                </th>
+                 
+                <th>
+                  Type
+                </th>
+                 
+                <th>
+                  Default
+                </th>
+                 
+                <th>
+                  Description
+                </th>
+              </tr>
+            </thead>
+             
+            <tbody>
+              <tr>
+                <td>
+                  
+          label
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelFor
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelSize
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelSrOnly
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelCols
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  number | string | boolean
+                </td>
+                 
+                <td>
+                  null
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelColsSm
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  number | string | boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelColsMd
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  number | string | boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelColsLg
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  number | string | boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelColsXl
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  number | string | boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelAlign
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelAlignSm
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelAlignMd
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelAlignLg
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelAlignXl
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          labelClass
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string | array | object
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          description
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          invalidFeedback
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          validFeedback
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          tooltip
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          feedbackAriaLive
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  "assertive"
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          validated
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          disabled
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+       
+      <!---->
+       
+      <!---->
+    </div>
+    <div
+      class="src-components-Component-container-1CeL"
+    >
+      <h2
+        class="src-components-Component-title-2XL9"
+      >
+        # &lt;BmFormTextarea/&gt;
+      </h2>
+       
+      <div
+        class="src-components-Table-container-3ImG"
+      >
+        <label
+          class="src-components-Table-label-3GH2"
+        >
+          Props
+        </label>
+         
+        <div
+          class="src-components-Table-contents-2Hzm"
+        >
+          <table
+            class="src-components-Table-table-3VHw"
+          >
+            <thead>
+              <tr>
+                <th>
+                  Name
+                </th>
+                 
+                <th>
+                  Type
+                </th>
+                 
+                <th>
+                  Default
+                </th>
+                 
+                <th>
+                  Description
+                </th>
+              </tr>
+            </thead>
+             
+            <tbody>
+              <tr>
+                <td>
+                  
+          id
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          name
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          disabled
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          required
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          form
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          autofocus
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          size
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          state
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  null
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          value
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string | number
+                </td>
+                 
+                <td>
+                  ""
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          ariaInvalid
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean | string
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          readonly
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          plaintext
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          autocomplete
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          placeholder
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          formatter
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  function
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          lazyFormatter
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          trim
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          number
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          lazy
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          debounce
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  number | string
+                </td>
+                 
+                <td>
+                  0
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          rows
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  number | string
+                </td>
+                 
+                <td>
+                  2
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          maxRows
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  number | string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          wrap
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  "soft"
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          noResize
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          noAutoShrink
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+       
+      <!---->
+       
+      <!---->
+    </div>
+  </div>
+</div>
+`;

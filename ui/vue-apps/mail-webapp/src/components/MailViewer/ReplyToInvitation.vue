@@ -77,7 +77,7 @@
 <script>
 import { mapActions, mapState } from "vuex";
 
-import { BmIcon, BmToggleableButton, BmSkeleton, BmSkeletonButton } from "@bluemind/styleguide";
+import { BmIcon, BmToggleableButton, BmSkeleton, BmSkeletonButton } from "@bluemind/ui-components";
 import { loadingStatusUtils } from "@bluemind/mail";
 
 import { SET_EVENT_STATUS } from "~/actions";
@@ -131,7 +131,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 @import "./_variables.scss";
 
 .reply-to-invitation {

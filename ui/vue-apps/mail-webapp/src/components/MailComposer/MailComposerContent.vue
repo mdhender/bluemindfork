@@ -46,7 +46,7 @@
 import { mapMutations, mapState } from "vuex";
 
 import { createCid, CID_DATA_ATTRIBUTE } from "@bluemind/email";
-import { BmFileDropZone, BmIcon, BmIconButton, BmRichEditor } from "@bluemind/styleguide";
+import { BmFileDropZone, BmIcon, BmIconButton, BmRichEditor } from "@bluemind/ui-components";
 import { draftUtils, signatureUtils } from "@bluemind/mail";
 
 import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT } from "~/mutations";
@@ -144,7 +144,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .mail-composer-content {
     .bm-rich-editor .roosterjs-container {

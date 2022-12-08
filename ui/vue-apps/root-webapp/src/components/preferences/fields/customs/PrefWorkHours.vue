@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import { BmFormCheckbox, BmFormTimePicker } from "@bluemind/styleguide";
+import { BmFormCheckbox, BmFormTimePicker } from "@bluemind/ui-components";
 import MultipleSettingsField from "../../mixins/MultipleSettingsField";
 
 const WORK_HOURS_START_SETTING = "work_hours_start";

@@ -32,7 +32,7 @@
 
 <script>
 import { ContainerType } from "./container";
-import { BmIconDropdown, BmDropdownItemButton } from "@bluemind/styleguide";
+import { BmIconDropdown, BmDropdownItemButton } from "@bluemind/ui-components";
 
 export default {
     name: "ManageMyContainerMenu",

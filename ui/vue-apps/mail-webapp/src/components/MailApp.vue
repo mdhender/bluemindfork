@@ -88,7 +88,7 @@ import GlobalEvents from "vue-global-events";
 import { BmExtension } from "@bluemind/extensions.vue";
 import { inject } from "@bluemind/inject";
 import BmRoles from "@bluemind/roles";
-import { BmFormCheckbox, BmIconButton, BmCol, BmRow } from "@bluemind/styleguide";
+import { BmFormCheckbox, BmIconButton, BmCol, BmRow } from "@bluemind/ui-components";
 import { Multipane, MultipaneResizer } from "@bluemind/vue-multipane";
 
 import {
@@ -188,10 +188,10 @@ export default {
 
 <style lang="scss">
 @use "sass:math";
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
-@import "~@bluemind/styleguide/css/_type";
-@import "~@bluemind/styleguide/css/_variables";
-@import "~@bluemind/styleguide/css/_zIndex.scss";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/_type";
+@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/_zIndex.scss";
 
 .mail-app {
     .topbar {

@@ -1,1 +1,1 @@
-import "@bluemind/styleguide/css/bluemind.scss";
+import "@bluemind/ui-components/src/css/bluemind.scss";

@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { BmFormGroup, BmFormInput } from "@bluemind/styleguide";
+import { BmFormGroup, BmFormInput } from "@bluemind/ui-components";
 import OneSettingField from "../mixins/OneSettingField";
 import PrefFieldLabel from "./PrefFieldLabel";
 

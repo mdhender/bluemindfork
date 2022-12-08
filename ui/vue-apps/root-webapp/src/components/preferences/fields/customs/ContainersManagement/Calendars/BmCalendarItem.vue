@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { BmColorBadge } from "@bluemind/styleguide";
+import { BmColorBadge } from "@bluemind/ui-components";
 
 export default {
     name: "BmCalendarItem",
@@ -25,7 +25,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .bm-calendar-item {
     .bm-color-badge {

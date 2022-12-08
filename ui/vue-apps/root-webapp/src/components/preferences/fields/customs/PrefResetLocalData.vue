@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { BmButton, BmLabelIcon, BmSpinner } from "@bluemind/styleguide";
+import { BmButton, BmLabelIcon, BmSpinner } from "@bluemind/ui-components";
 import BaseField from "../../mixins/BaseField";
 
 export default {

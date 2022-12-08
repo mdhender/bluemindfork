@@ -8,6 +8,6 @@ module.exports = merge(common, {
         minimizer: [new TerserPlugin()]
     },
     externals: {
-        "@bluemind/styleguide": "BmStyleguide"
+        "@bluemind/ui-components": "BmUiComponents"
     }
 });

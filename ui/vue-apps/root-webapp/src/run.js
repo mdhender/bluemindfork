@@ -8,7 +8,7 @@ import injector from "@bluemind/inject";
 import router from "@bluemind/router";
 import { initSentry } from "@bluemind/sentry";
 import store from "@bluemind/store";
-import { BmModalPlugin } from "@bluemind/styleguide";
+import { BmModalPlugin } from "@bluemind/ui-components";
 import UUIDGenerator from "@bluemind/uuid";
 import VueBus from "@bluemind/vue-bus";
 import { extend } from "@bluemind/vuex-router";

@@ -34,7 +34,7 @@
 <script>
 import { isValidPhoneNumber } from "libphonenumber-js";
 
-import { BmFormGroup, BmFormInput, BmFormRadio, BmFormRadioGroup } from "@bluemind/styleguide";
+import { BmFormGroup, BmFormInput, BmFormRadio, BmFormRadioGroup } from "@bluemind/ui-components";
 
 import OneSettingField from "../../mixins/OneSettingField";
 
@@ -74,7 +74,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-im-set-phone-presence {
     .bm-form-radio {

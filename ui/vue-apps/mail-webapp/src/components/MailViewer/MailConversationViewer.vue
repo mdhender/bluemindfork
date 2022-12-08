@@ -281,8 +281,8 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "@bluemind/styleguide/css/mixins/_responsiveness.scss";
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "@bluemind/ui-components/src/css/mixins/_responsiveness.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 @import "./_variables.scss";
 
 .mail-conversation-viewer {

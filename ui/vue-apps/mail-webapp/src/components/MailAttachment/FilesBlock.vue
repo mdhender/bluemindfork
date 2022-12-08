@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import { BmButton, BmButtonExpand, BmCol, BmRow } from "@bluemind/styleguide";
+import { BmButton, BmButtonExpand, BmCol, BmRow } from "@bluemind/ui-components";
 
 import FileItem from "./FileItem";
 import FilesHeader from "./FilesHeader";
@@ -123,7 +123,7 @@ export default {
 
 <style lang="scss">
 @use "sass:math";
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 @import "../MailViewer/_variables.scss";
 
 .files-block {

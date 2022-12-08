@@ -73,7 +73,7 @@ import CreateOrUpdateContainerModal from "./CreateOrUpdateContainerModal";
 import ImportModal from "./ImportModal";
 import ManageContainerSharesModal from "./ManageContainerSharesModal/ManageContainerSharesModal";
 import SubscribeOtherContainersModal from "./SubscribeOtherContainersModal";
-import { BmButton, BmFormInput, BmPagination } from "@bluemind/styleguide";
+import { BmButton, BmFormInput, BmPagination } from "@bluemind/ui-components";
 
 export default {
     name: "ContainersManagement",
@@ -174,7 +174,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .containers-management {
     .b-table .fa-star-fill {

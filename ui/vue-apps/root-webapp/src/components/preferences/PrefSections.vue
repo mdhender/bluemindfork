@@ -19,7 +19,7 @@
 
 <script>
 import { mapMutations } from "vuex";
-import { BmListGroup } from "@bluemind/styleguide";
+import { BmListGroup } from "@bluemind/ui-components";
 import PrefCategory from "./PrefCategory";
 import PrefSectionNavbar from "./PrefSectionNavbar";
 import Navigation from "./mixins/Navigation";
@@ -41,8 +41,8 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
 @import "./_variables";
 
 .pref-sections {

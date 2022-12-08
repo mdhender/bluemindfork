@@ -11,7 +11,7 @@
 
 <script>
 import folderFilterNoResults from "../../../assets/folder-filter-no-results.png";
-import { BmButton } from "@bluemind/styleguide";
+import { BmButton } from "@bluemind/ui-components";
 
 export default {
     name: "FilteredListEmpty",

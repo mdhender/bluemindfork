@@ -1,0 +1,13 @@
+@import "../_variables";
+
+@mixin from-lg {
+    @media (min-width: map-get($grid-breakpoints, "lg")) {
+        @content;
+    }
+}
+
+@mixin until-lg {
+    @media (max-width: map-get($grid-breakpoints, "lg") - 1px) {
+        @content;
+    }
+}

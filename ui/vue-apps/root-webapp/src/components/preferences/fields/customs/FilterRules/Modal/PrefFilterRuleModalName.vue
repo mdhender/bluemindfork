@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import { BmFormGroup, BmFormInput } from "@bluemind/styleguide";
+import { BmFormGroup, BmFormInput } from "@bluemind/ui-components";
 export default {
     name: "PrefFilterRuleModalName",
     components: { BmFormGroup, BmFormInput },
@@ -33,7 +33,7 @@ export default {
 
 <style lang="scss">
 @use "sass:math";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-filter-rule-modal-name {
     #pref-filter-rule-modal-name-input {

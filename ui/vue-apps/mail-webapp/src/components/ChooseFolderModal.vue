@@ -86,7 +86,7 @@
 
 <script>
 import { mapGetters, mapState } from "vuex";
-import { BmFormAutocompleteInput, BmIcon, BmModal, BmNotice } from "@bluemind/styleguide";
+import { BmFormAutocompleteInput, BmIcon, BmModal, BmNotice } from "@bluemind/ui-components";
 import { folderUtils, mailboxUtils } from "@bluemind/mail";
 import { FOLDER_BY_PATH } from "~/getters";
 import { FilterFolderMixin } from "~/mixins";

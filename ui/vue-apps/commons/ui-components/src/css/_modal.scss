@@ -1,0 +1,67 @@
+@import "type";
+@import "_buttons";
+
+.modal-content {
+    border: unset;
+    border-top: $modal-content-border-width solid $modal-content-border-color;
+    box-shadow: $box-shadow-lg;
+}
+
+.modal-header,
+.modal-body,
+.modal-footer {
+    padding-left: base-px-to-rem(32);
+    padding-right: base-px-to-rem(24);
+}
+
+.modal-header {
+    padding-top: base-px-to-rem(24);
+    padding-bottom: $sp-5;
+    gap: $sp-5;
+
+    .modal-title {
+        @extend %title;
+    }
+
+    .close {
+        padding: initial;
+        margin: initial;
+        @extend %btn-close, %btn-close-lg;
+    }
+}
+
+.modal-body {
+    padding-top: $sp-5;
+    padding-bottom: $sp-7;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    @extend %regular-medium;
+    color: $neutral-fg;
+    & > p {
+        margin: 0;
+    }
+}
+
+.modal-footer {
+    padding-top: base-px-to-rem(16);
+    padding-bottom: base-px-to-rem(16);
+    gap: $sp-5 $sp-7;
+    & > .btn {
+        margin: 0;
+    }
+}
+
+.modal-fluid {
+    max-width: 80%;
+}
+
+.modal-dialog.modal-dialog-centered {
+    // prevent style invading with old apps (those using net.bluemind.commons.closure)
+    font-family: unset;
+    border: unset;
+    -webkit-box-shadow: unset;
+    box-shadow: unset;
+    z-index: unset;
+}

@@ -32,7 +32,7 @@
 <script>
 import { mapGetters, mapMutations, mapState } from "vuex";
 import { inject } from "@bluemind/inject";
-import { BmListGroup, BmListGroupItem, BmScrollspy } from "@bluemind/styleguide";
+import { BmListGroup, BmListGroupItem, BmScrollspy } from "@bluemind/ui-components";
 import Navigation from "./mixins/Navigation";
 import PrefSectionIcon from "./PrefSectionIcon";
 
@@ -74,8 +74,8 @@ export default {
 
 <style lang="scss">
 @use "sass:math";
-@import "~@bluemind/styleguide/css/_type";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/_type";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-left-panel-nav .app-item {
     border-bottom: 0 !important;

@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { BmListGroup, BmScrollspy } from "@bluemind/styleguide";
+import { BmListGroup, BmScrollspy } from "@bluemind/ui-components";
 import Navigation from "../mixins/Navigation";
 import PrefSectionNavbar from "../PrefSectionNavbar";
 import { mapState } from "vuex";
@@ -57,7 +57,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-right-panel-nav {
     min-height: 4em;

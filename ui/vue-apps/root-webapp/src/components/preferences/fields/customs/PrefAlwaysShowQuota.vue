@@ -25,7 +25,7 @@ import { mapState } from "vuex";
 import { USED_QUOTA_PERCENTAGE_WARNING } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { computeUnit } from "@bluemind/file-utils";
-import { BmProgress } from "@bluemind/styleguide";
+import { BmProgress } from "@bluemind/ui-components";
 
 import BaseField from "../../mixins/BaseField";
 

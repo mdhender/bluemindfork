@@ -1,0 +1,12 @@
+export const bmOrganization = {
+    prefix: "fas",
+    iconName: "organization",
+    icon: [
+        12,
+        12,
+        [],
+        null,
+        // eslint-disable-next-line max-len
+        `M7 3H8V4H7V3Z M8 5H7V6H8V5Z M8 7H7V8H8V7Z M4 1H11V11H12V12H0V11H1V5H4V1ZM5 5H6V11H7V9H8V11H10V10H9V9H10V8H9V7H10V6H9V5H10V4H9V3H10V2H5V3H6V4H5V5ZM3 6H2V7H3V6ZM4 6V7H5V6H4ZM3 8H2V9H3V8ZM3 10H2V11H3V10ZM4 11H5V10H4V11ZM5 8H4V9H5V8Z`
+    ]
+};

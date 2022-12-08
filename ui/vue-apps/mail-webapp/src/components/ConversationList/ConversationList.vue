@@ -63,7 +63,7 @@ import { computeUnit } from "@bluemind/file-utils";
 import { inject } from "@bluemind/inject";
 import { loadingStatusUtils } from "@bluemind/mail";
 import { CONVERSATION_IS_LOADED, CONVERSATION_METADATA } from "~/getters";
-import { BmListGroup } from "@bluemind/styleguide";
+import { BmListGroup } from "@bluemind/ui-components";
 import { FETCH_CONVERSATIONS, FETCH_MESSAGE_METADATA } from "~/actions";
 import { SortField } from "~/store/conversationList";
 import ConversationListItemLoading from "./ConversationListItemLoading";
@@ -152,9 +152,12 @@ export default {
                             if (conversation.date) {
                                 const dateRange = getDateRange(conversation, allDateRanges, currentDateRanges);
                                 if (dateRange) {
-                                    rangeByKey[conversation.key] = this.$t(dateRange.i18n, {
-                                        date: this.$d(dateRange.date, dateRange.dateFormat)
-                                    });
+                                    rangeByKey[conversation.key] = this.$t(
+                                        dateRange.i18n,
+                                        dateRange.date && {
+                                            date: this.$d(dateRange.date, dateRange.dateFormat)
+                                        }
+                                    );
                                 }
                             }
                         });

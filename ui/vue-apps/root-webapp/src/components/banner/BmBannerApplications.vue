@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import { BmCol, BmPopover, BmRow } from "@bluemind/styleguide";
+import { BmCol, BmPopover, BmRow } from "@bluemind/ui-components";
 import BmAppIcon from "../BmAppIcon";
 
 export default {
@@ -55,7 +55,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .bm-banner-applications {
     max-width: unset !important;

@@ -19,7 +19,7 @@
 
 <script>
 import { mapState } from "vuex";
-import { BmBreadcrumb, BmBreadcrumbItem, BmIcon } from "@bluemind/styleguide";
+import { BmBreadcrumb, BmBreadcrumbItem, BmIcon } from "@bluemind/ui-components";
 import { RESET_PATH, SET_PATH } from "../../store/mutations";
 import FolderUpButton from "./FolderUpButton";
 
@@ -48,7 +48,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .chooser-breadcrumb {
     .breadcrumb {

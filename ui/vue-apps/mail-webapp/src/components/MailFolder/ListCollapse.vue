@@ -20,7 +20,7 @@
     </div>
 </template>
 <script>
-import { BmButton, BmCollapse } from "@bluemind/styleguide";
+import { BmButton, BmCollapse } from "@bluemind/ui-components";
 
 export default {
     name: "FilteredMailbox",
@@ -43,8 +43,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_type";
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/_type";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .folder-list-collapse {
     padding-top: $sp-3;

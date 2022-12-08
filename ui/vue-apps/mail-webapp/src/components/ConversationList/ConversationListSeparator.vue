@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import { BmListGroupSeparator } from "@bluemind/styleguide";
+import { BmListGroupSeparator } from "@bluemind/ui-components";
 export default {
     name: "ConversationListSeparator",
     components: {
@@ -23,7 +23,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/variables";
+@import "~@bluemind/ui-components/src/css/variables";
 .list-group-separator.conversation-list-separator {
     background-color: $neutral-bg;
     color: $neutral-fg;

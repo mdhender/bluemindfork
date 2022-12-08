@@ -37,7 +37,7 @@
 <script>
 import GlobalEvents from "vue-global-events";
 
-import { BmLogo } from "@bluemind/styleguide";
+import { BmLogo } from "@bluemind/ui-components";
 
 import aboutBackgroundImg from "../../assets/about-background.png";
 import aboutVersionImg from "../../assets/about-version.png";
@@ -70,7 +70,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 .about {
     > div {
         background-color: $blue-800;

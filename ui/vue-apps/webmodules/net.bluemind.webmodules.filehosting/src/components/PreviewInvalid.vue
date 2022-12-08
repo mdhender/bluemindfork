@@ -8,7 +8,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { BmIcon } from "@bluemind/styleguide";
+import { BmIcon } from "@bluemind/ui-components";
 import FilehostingL10N from "../l10n";
 import { GET_FH_FILE } from "../store/types/getters";
 
@@ -33,7 +33,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .preview-invalid {
     display: flex;

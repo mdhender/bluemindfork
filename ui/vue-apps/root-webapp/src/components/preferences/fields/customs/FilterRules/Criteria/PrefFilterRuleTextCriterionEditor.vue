@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { BmFormInput } from "@bluemind/styleguide";
+import { BmFormInput } from "@bluemind/ui-components";
 
 export default {
     name: "PrefFilterRuleTextCriterionEditor",

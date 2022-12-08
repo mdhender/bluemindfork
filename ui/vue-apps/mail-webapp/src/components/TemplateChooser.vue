@@ -35,7 +35,7 @@
 import debounce from "lodash.debounce";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { draftUtils } from "@bluemind/mail";
-import { BmModal, BmFormInput } from "@bluemind/styleguide";
+import { BmModal, BmFormInput } from "@bluemind/ui-components";
 import { SET_TEMPLATE_CHOOSER_VISIBLE, SET_TEMPLATE_LIST_SEARCH_PATTERN } from "~/mutations";
 import { DEBOUNCED_SAVE_MESSAGE, FETCH_TEMPLATES_KEYS } from "~/actions";
 import { MY_TEMPLATES } from "~/getters";
@@ -122,7 +122,7 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "~@bluemind/styleguide/css/variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .template-chooser {
     &.modal-dialog {

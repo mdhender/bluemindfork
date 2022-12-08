@@ -32,7 +32,7 @@
 
 <script>
 import { mapMutations, mapState } from "vuex";
-import { BmIcon, BmFileDropZone } from "@bluemind/styleguide";
+import { BmIcon, BmFileDropZone } from "@bluemind/ui-components";
 import { partUtils, fileUtils } from "@bluemind/mail";
 import FilesBlock from "../MailAttachment/FilesBlock";
 import { RemoveAttachmentCommand } from "~/commands";

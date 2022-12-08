@@ -1,0 +1,36 @@
+{
+    "name": "@bluemind/ui-components",
+    "version": "4.1.0",
+    "description": "BlueMind UI components library",
+    "author": "Blue Mind SAS",
+    "license": "AGPL-3.0-only",
+    "main": "src/index.js",
+    "dependencies": {
+        "@bluemind/alert.store":  "^4.1.0",
+        "@bluemind/email": "^4.1.0",
+        "@bluemind/file-utils": "^4.1.0",
+        "@fortawesome/fontawesome-svg-core": "^1.2.12",
+        "@fortawesome/vue-fontawesome": "^0.1.4",
+        "bootstrap": "^4.6.0",
+        "bootstrap-vue": "^2.22.0",
+        "interactjs": "^1.10.11",
+        "lodash.clonedeep": "^4.5.0",
+        "lodash.debounce": "^4.0.8",
+        "lodash.isequal": "^4.5.0",
+        "lodash.iteratee": "^4.7.0",
+        "lodash.sortedindexby": "^4.6.0",
+        "lodash.throttle": "^4.1.1",
+        "roosterjs-editor-api": "^8.22.0",
+        "roosterjs-editor-core": "^8.22.0",
+        "roosterjs-editor-dom": "^8.22.0",
+        "roosterjs-editor-plugins": "^8.22.0",
+        "roosterjs-editor-types": "^8.22.0",
+        "vue-global-events": "^1.1.2"
+    },
+    "devDependencies": {
+        "mini-css-extract-plugin": "^1.6.0"
+    },
+    "scripts": {
+        "build": "webpack --env production --progress --color"
+    }
+}

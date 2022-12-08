@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import { BmSpinner } from "@bluemind/styleguide";
+import { BmSpinner } from "@bluemind/ui-components";
 
 export default {
     name: "FilteredListLoading",

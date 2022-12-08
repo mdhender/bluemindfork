@@ -102,7 +102,7 @@ import {
     BmDropdownItem,
     BmDropdownItemButton,
     BmDropdownItemToggle
-} from "@bluemind/styleguide";
+} from "@bluemind/ui-components";
 import { draftUtils, messageUtils } from "@bluemind/mail";
 
 import { ComposerActionsMixin, FormattedDateMixin } from "~/mixins";
@@ -239,8 +239,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_type";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/_type";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .mail-composer-toolbar {
     flex-wrap: wrap;

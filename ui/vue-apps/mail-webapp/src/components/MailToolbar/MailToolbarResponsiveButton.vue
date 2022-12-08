@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import { BmIconButton, BmCaptionedIconButton } from "@bluemind/styleguide";
+import { BmIconButton, BmCaptionedIconButton } from "@bluemind/ui-components";
 
 export default {
     name: "MailToolbarResponsiveButton",

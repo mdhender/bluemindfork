@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import { BmButtonGroup, BmIconButton } from "@bluemind/styleguide";
+import { BmButtonGroup, BmIconButton } from "@bluemind/ui-components";
 import { mapState, mapGetters } from "vuex";
 import { messageUtils } from "@bluemind/mail";
 import { ActionTextMixin, FlagMixin, RemoveMixin, MailRoutesMixin } from "~/mixins";

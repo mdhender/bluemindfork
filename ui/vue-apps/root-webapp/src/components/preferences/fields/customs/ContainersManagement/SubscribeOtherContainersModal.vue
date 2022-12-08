@@ -62,7 +62,7 @@
 
 <script>
 import { inject } from "@bluemind/inject";
-import { BmFormCheckbox, BmFormInput, BmModal, BmPagination, BmSpinner, BmTable } from "@bluemind/styleguide";
+import { BmFormCheckbox, BmFormInput, BmModal, BmPagination, BmSpinner, BmTable } from "@bluemind/ui-components";
 import { mapActions } from "vuex";
 import { SUCCESS } from "@bluemind/alert.store";
 import { ContainerType } from "./container";
@@ -209,8 +209,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .add-containers-modal {
     .selected-containers {

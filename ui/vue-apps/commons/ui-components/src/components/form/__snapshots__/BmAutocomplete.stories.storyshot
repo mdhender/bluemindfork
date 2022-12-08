@@ -1,0 +1,426 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Storyshots Components|Forms Autocomplete 1`] = `
+<div
+  class="story"
+>
+  <div
+    class="storybook-addon-vue-info src-components-Docs-container-1Ukn"
+  >
+    <div>
+      <h1
+        class="src-components-Header-title-1opt"
+      >
+        Components|Forms
+      </h1>
+       
+      <h2
+        class="src-components-Header-subtitle-v58S"
+      >
+        Autocomplete
+      </h2>
+    </div>
+     
+    <div
+      class="src-components-SectionContainer-container-1UVl"
+    >
+      <label
+        class="src-components-SectionContainer-label-32Bo"
+      >
+        Preview
+      </label>
+       
+      <div
+        class="src-components-SectionContainer-contents-3s6X"
+      >
+        <div
+          class="src-components-Preview-preview-30u8 sb-preview"
+        >
+          <div
+            style="height: 250px;"
+          >
+            <div
+              class="bm-autocomplete position-relative"
+            >
+              <div
+                class="bm-form-input position-relative"
+              >
+                <input
+                  autocomplete="off"
+                  class="form-control pr-4"
+                  icon="search"
+                  type="text"
+                />
+                 
+                <div
+                  class="icon-wrapper position-absolute"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="icon h-100 svg-inline--fa fa-search fa-w-16"
+                    data-icon="search"
+                    data-prefix="fas"
+                    focusable="false"
+                    role="img"
+                    viewBox="0 0 12 12"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      class=""
+                      d="M9.01595 8.30884C9.63176 7.53901 10 6.56251 10 5.5C10 3.01472 7.98528 1 5.5 1C3.01472 1 1 3.01472 1 5.5C1 7.98528 3.01472 10 5.5 10C6.56251 10 7.53901 9.63176 8.30884 9.01595L11.1464 11.8536C11.3417 12.0488 11.6583 12.0488 11.8536 11.8536C12.0488 11.6583 12.0488 11.3417 11.8536 11.1464L9.01595 8.30884ZM9 5.5C9 7.433 7.433 9 5.5 9C3.567 9 2 7.433 2 5.5C2 3.567 3.567 2 5.5 2C7.433 2 9 3.567 9 5.5Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </div>
+              </div>
+               
+              <div
+                class="list-group suggestions shadow-sm mw-100 position-absolute list-no-borders"
+                style="display: none;"
+                tabindex="-1"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+     
+    <section
+      class="src-components-Summary-container-2crO"
+    >
+      <p>
+        You can find a more complex example of how to use this component and its slots in 
+
+        <a
+          data-sb-kind="Components|Forms"
+          data-sb-story="ContactInput with autocomplete"
+          href="#"
+        >
+          
+the first BmContactInput story
+        </a>
+        .
+      </p>
+      
+
+    </section>
+     
+    <div
+      class="src-components-SectionContainer-container-1UVl"
+    >
+      <label
+        class="src-components-SectionContainer-label-32Bo"
+      >
+        Story source
+      </label>
+       
+      <div
+        class="src-components-SectionContainer-contents-3s6X"
+      >
+        <pre
+          class="html src-components-StorySource-codeBlock-2XbE hljs xml"
+        >
+          <code>
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                div
+              </span>
+               
+              <span
+                class="hljs-attr"
+              >
+                style
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "height: 250px"
+              </span>
+              &gt;
+            </span>
+            
+    
+            <span
+              class="hljs-tag"
+            >
+              &lt;
+              <span
+                class="hljs-name"
+              >
+                bm-autocomplete
+              </span>
+                     
+        
+              <span
+                class="hljs-attr"
+              >
+                v-model
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "value"
+              </span>
+              
+        
+              <span
+                class="hljs-attr"
+              >
+                search-icon
+              </span>
+              
+        
+              <span
+                class="hljs-attr"
+              >
+                :items
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "items"
+              </span>
+              
+        @
+              <span
+                class="hljs-attr"
+              >
+                input
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "onInputUpdate"
+              </span>
+              
+        @
+              <span
+                class="hljs-attr"
+              >
+                selected
+              </span>
+              =
+              <span
+                class="hljs-string"
+              >
+                "onSelect"
+              </span>
+               
+        /&gt;
+            </span>
+            
+
+            <span
+              class="hljs-tag"
+            >
+              &lt;/
+              <span
+                class="hljs-name"
+              >
+                div
+              </span>
+              &gt;
+            </span>
+          </code>
+        </pre>
+      </div>
+    </div>
+     
+    <hr
+      class="src-components-Separator-separator-1eBy"
+    />
+     
+    <div
+      class="src-components-Component-container-1CeL"
+    >
+      <h2
+        class="src-components-Component-title-2XL9"
+      >
+        # &lt;BmAutocomplete/&gt;
+      </h2>
+       
+      <div
+        class="src-components-Table-container-3ImG"
+      >
+        <label
+          class="src-components-Table-label-3GH2"
+        >
+          Props
+        </label>
+         
+        <div
+          class="src-components-Table-contents-2Hzm"
+        >
+          <table
+            class="src-components-Table-table-3VHw"
+          >
+            <thead>
+              <tr>
+                <th>
+                  Name
+                </th>
+                 
+                <th>
+                  Type
+                </th>
+                 
+                <th>
+                  Default
+                </th>
+                 
+                <th>
+                  Description
+                </th>
+              </tr>
+            </thead>
+             
+            <tbody>
+              <tr>
+                <td>
+                  
+          value
+          
+                  <sup
+                    class="src-components-Component-required-37Qh"
+                  >
+                    *
+                  </sup>
+                </td>
+                 
+                <td>
+                  string
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          items
+          
+                  <sup
+                    class="src-components-Component-required-37Qh"
+                  >
+                    *
+                  </sup>
+                </td>
+                 
+                <td>
+                  array
+                </td>
+                 
+                <td>
+                  
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          maxResults
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  number
+                </td>
+                 
+                <td>
+                  5
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          selectedResult
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  number
+                </td>
+                 
+                <td>
+                  0
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          searchIcon
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  false
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  
+          enableAutoFocusOut
+          
+                  <!---->
+                </td>
+                 
+                <td>
+                  boolean
+                </td>
+                 
+                <td>
+                  true
+                </td>
+                 
+                <td>
+                  
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+       
+      <!---->
+       
+      <!---->
+    </div>
+  </div>
+</div>
+`;

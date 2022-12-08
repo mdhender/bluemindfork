@@ -6,7 +6,7 @@
 
 <script>
 import ImportFile from "./ImportFile";
-import { BmModal } from "@bluemind/styleguide";
+import { BmModal } from "@bluemind/ui-components";
 
 export default {
     name: "ImportModal",

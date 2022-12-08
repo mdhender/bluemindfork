@@ -3,7 +3,7 @@
     <bm-skeleton-img v-else />
 </template>
 <script>
-import { BmSkeletonImg } from "@bluemind/styleguide";
+import { BmSkeletonImg } from "@bluemind/ui-components";
 import FileViewerMixin from "../FileViewerMixin";
 
 export default {

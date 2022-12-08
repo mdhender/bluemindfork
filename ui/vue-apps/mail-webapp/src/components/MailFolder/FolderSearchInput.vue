@@ -15,7 +15,7 @@
 
 <script>
 import debounce from "lodash.debounce";
-import { BmFormInput } from "@bluemind/styleguide";
+import { BmFormInput } from "@bluemind/ui-components";
 import { SET_FOLDER_FILTER_LOADED, SET_FOLDER_FILTER_LOADING, SET_FOLDER_FILTER_PATTERN } from "~/mutations";
 import { mapMutations, mapState } from "vuex";
 

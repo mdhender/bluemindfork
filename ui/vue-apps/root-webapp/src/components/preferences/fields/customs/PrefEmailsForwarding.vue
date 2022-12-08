@@ -23,7 +23,7 @@
 import { searchVCardsHelper, VCardInfoAdaptor } from "@bluemind/contact";
 import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
-import { BmContactInput, BmFormCheckbox } from "@bluemind/styleguide";
+import { BmContactInput, BmFormCheckbox } from "@bluemind/ui-components";
 import CentralizedSaving from "../../mixins/CentralizedSaving";
 
 export default {
@@ -72,7 +72,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-emails-forwarding {
     display: flex;

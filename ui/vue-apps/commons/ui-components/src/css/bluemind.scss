@@ -1,0 +1,152 @@
+@import "variables";
+@import "type";
+@import "fileTypeIconsColors";
+@import "bootstrap";
+@import "~bootstrap-vue/src/index.scss";
+@import "alert";
+@import "animations";
+@import "buttons";
+@import "customControls";
+@import "dragAndDrop";
+@import "dropdown";
+@import "lists";
+@import "mixins";
+@import "modal";
+@import "scrollbar";
+@import "skeleton";
+@import "zIndex";
+@import "calendar";
+
+@import "defaultTheme";
+
+.bg-surface {
+    background-color: $surface-bg;
+}
+
+.form-control {
+    color: $neutral-fg;
+}
+
+.form-control:disabled {
+    border-color: $input-disabled-border-color;
+    color: $input-disabled-border-color;
+}
+
+textarea.form-control {
+    @extend %regular-high;
+
+    $padding: $sp-5;
+
+    padding: $padding;
+
+    color: $neutral-fg;
+    &::placeholder {
+        color: $neutral-fg-lo1;
+    }
+
+    &.hover,
+    &:hover {
+        color: $neutral-fg-hi1;
+        border-color: $neutral-fg-hi1;
+    }
+
+    &.focus,
+    &:focus {
+        color: $neutral-fg-hi1;
+        border-color: $secondary-fg;
+        border-width: 2 * $input-border-width;
+        padding: calc(#{$padding} - #{$input-border-width});
+    }
+
+    &.disabled,
+    &:disabled {
+        color: $neutral-fg-lo1;
+        border-color: $neutral-fg-disabled;
+        &::placeholder {
+            color: $neutral-fg-lo2;
+        }
+    }
+}
+
+.custom-radio * {
+    cursor: pointer;
+}
+
+.b-popover-primary {
+    background-color: $fill-primary-bg !important;
+    border-color: $primary-fg !important;
+}
+.b-popover-primary .arrow::after {
+    border-bottom-color: $primary-fg !important;
+}
+
+a {
+    outline-color: $neutral-fg-hi1;
+    &:focus,
+    &:active {
+        color: $neutral-fg-hi1;
+    }
+}
+
+nav a {
+    outline-color: $lowest;
+}
+
+a.nav-link,
+a.nav-link:hover,
+a.nav-link:focus {
+    text-decoration: underline;
+}
+
+.overlay {
+    background-color: $modal-backdrop;
+}
+
+.bottom-0 {
+    bottom: 0;
+}
+
+.top-0 {
+    top: 0;
+}
+
+.bottom-1 {
+    bottom: $sp-1;
+}
+
+.right-1 {
+    right: $sp-1;
+}
+
+.tooltip {
+    top: 0; //tooltip positionning fix
+}
+
+.text-condensed {
+    line-height: $line-height-sm;
+}
+
+.text-overflow {
+    @include text-overflow;
+}
+
+.flex-fill {
+    min-height: 0;
+    min-width: 0;
+}
+
+.cursor-not-allowed {
+    cursor: not-allowed;
+}
+
+@each $breakpoint in map-keys($grid-breakpoints) {
+    @include media-breakpoint-up($breakpoint) {
+        $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
+
+        @each $value in $positions {
+            .position#{$infix}-#{$value} {
+                position: $value !important;
+            }
+        }
+    }
+}

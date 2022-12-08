@@ -38,7 +38,7 @@
 <script>
 import { mapState } from "vuex";
 import { inject } from "@bluemind/inject";
-import { BmButton, BmContact, BmIcon, BmPagination, BmTable } from "@bluemind/styleguide";
+import { BmButton, BmContact, BmIcon, BmPagination, BmTable } from "@bluemind/ui-components";
 
 import ManageIdentityModal from "./ManageIdentityModal";
 import BaseField from "../../mixins/BaseField";
@@ -114,7 +114,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-manage-identities {
     .b-table {

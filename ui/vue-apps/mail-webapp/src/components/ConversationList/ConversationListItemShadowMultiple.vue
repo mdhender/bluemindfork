@@ -12,7 +12,7 @@
     </bm-row>
 </template>
 <script>
-import { BmRow, BmCol, BmIcon } from "@bluemind/styleguide";
+import { BmRow, BmCol, BmIcon } from "@bluemind/ui-components";
 
 export default {
     name: "ConversationListItemShadowMultiple",
@@ -31,7 +31,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .mail-conversation-list-item-shadow-multiple::before,
 .mail-conversation-list-item-shadow-multiple::after {

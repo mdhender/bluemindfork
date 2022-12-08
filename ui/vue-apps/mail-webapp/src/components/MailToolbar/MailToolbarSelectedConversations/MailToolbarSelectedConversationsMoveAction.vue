@@ -83,7 +83,7 @@ import {
     BmDropdownForm,
     BmDropdownItemButton,
     BmNotice
-} from "@bluemind/styleguide";
+} from "@bluemind/ui-components";
 import { mapGetters, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
 import { folderUtils } from "@bluemind/mail";
@@ -169,8 +169,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/variables";
-@import "~@bluemind/styleguide/css/mixins";
+@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/mixins";
 
 .mail-toolbar-selected-conversations-move-action {
     .dropdown-menu {

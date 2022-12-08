@@ -90,7 +90,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { BmDropzone, BmFileDropZone, BmIconButton, BmFormInput, BmForm } from "@bluemind/styleguide";
+import { BmDropzone, BmFileDropZone, BmIconButton, BmFormInput, BmForm } from "@bluemind/ui-components";
 import { ComposerActionsMixin, ComposerMixin, FileDropzoneMixin } from "~/mixins";
 import { MY_TEMPLATES } from "~/getters";
 import { AddAttachmentsCommand } from "~/commands";
@@ -142,8 +142,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .mail-composer {
     @include from-lg {

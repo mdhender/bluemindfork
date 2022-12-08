@@ -30,7 +30,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { BmFormInput, BmNotice } from "@bluemind/styleguide";
+import { BmFormInput, BmNotice } from "@bluemind/ui-components";
 import { folderUtils } from "@bluemind/mail";
 import { FOLDER_BY_PATH } from "~/getters";
 
@@ -153,7 +153,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 .mail-folder-input {
     .bm-form-input input:not(:focus) {
         border-bottom-color: $neutral-fg-lo3;

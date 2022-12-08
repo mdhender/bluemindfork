@@ -26,7 +26,7 @@
 
 <script>
 import { CRITERIA_MATCHERS } from "../filterRules.js";
-import { BmButton, BmIcon, BmFormInput, BmFormSelect } from "@bluemind/styleguide";
+import { BmButton, BmIcon, BmFormInput, BmFormSelect } from "@bluemind/ui-components";
 
 export default {
     name: "PrefFilterRuleHeaderCriterionEditor",

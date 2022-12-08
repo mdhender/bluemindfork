@@ -31,7 +31,7 @@
 
 <script>
 import { mapState } from "vuex";
-import { BmIcon } from "@bluemind/styleguide";
+import { BmIcon } from "@bluemind/ui-components";
 import { computeUnit } from "@bluemind/file-utils";
 import { INSERT_AS_ATTACHMENT, INSERT_AS_LINK } from "../store/mutations";
 import ChooserMainToolbar from "./ChooserMainToolbar/ChooserMainToolbar";
@@ -102,8 +102,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
 
 .chooser-footer {
     min-width: 100%;

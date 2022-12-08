@@ -93,7 +93,7 @@
 <script>
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { Flag } from "@bluemind/email";
-import { BmIconDropdown, BmDropdownItem } from "@bluemind/styleguide";
+import { BmIconDropdown, BmDropdownItem } from "@bluemind/ui-components";
 import { messageUtils, folderUtils } from "@bluemind/mail";
 import { EmlMixin, RemoveMixin, MoveMixin, PrintMixin, MailRoutesMixin, ReplyAndForwardRoutesMixin } from "~/mixins";
 import {

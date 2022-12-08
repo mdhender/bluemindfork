@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { BmButtonToolbar, BmIconButton } from "@bluemind/styleguide";
+import { BmButtonToolbar, BmIconButton } from "@bluemind/ui-components";
 import { mapState } from "vuex";
 import { ReplyAndForwardRoutesMixin } from "~/mixins";
 import MailViewerToolbarOtherActions from "./MailViewerToolbarOtherActions";
@@ -79,8 +79,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
 .mail-viewer-toolbar {
     bottom: 0;
     $nb-buttons: 4;

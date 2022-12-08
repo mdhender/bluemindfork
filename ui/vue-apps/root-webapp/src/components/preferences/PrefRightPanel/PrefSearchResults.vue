@@ -46,7 +46,7 @@ import emptyResultsIllustration from "../../../../assets/setting-empty-search-re
 import PrefGroup from "../PrefGroup";
 import PrefSectionIcon from "../PrefSectionIcon";
 import RightPanelAlerts from "../mixins/RightPanelAlerts";
-import { BmButton, BmButtonExpand, BmSpinner } from "@bluemind/styleguide";
+import { BmButton, BmButtonExpand, BmSpinner } from "@bluemind/ui-components";
 import { mapGetters } from "vuex";
 
 export default {
@@ -137,8 +137,8 @@ function parseNodeAndHighlight(node, search) {
 
 <style lang="scss">
 @use "sass:math";
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
 @import "../_variables";
 
 .pref-search-results {

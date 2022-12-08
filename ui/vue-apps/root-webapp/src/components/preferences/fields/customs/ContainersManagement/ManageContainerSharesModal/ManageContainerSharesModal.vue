@@ -36,7 +36,7 @@
 import { mapActions, mapState } from "vuex";
 import { inject } from "@bluemind/inject";
 import { REMOVE } from "@bluemind/alert.store";
-import { BmAlertArea, BmButton, BmButtonClose, BmIconButton, BmModal, BmRow } from "@bluemind/styleguide";
+import { BmAlertArea, BmButton, BmButtonClose, BmIconButton, BmModal, BmRow } from "@bluemind/ui-components";
 import { ContainerType, isDefault } from "../container";
 import AvailabilitiesManagement from "./AvailabilitiesManagement";
 import ShareManagement from "./ShareManagement";
@@ -106,8 +106,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .manage-shares-modal {
     .modal-body {

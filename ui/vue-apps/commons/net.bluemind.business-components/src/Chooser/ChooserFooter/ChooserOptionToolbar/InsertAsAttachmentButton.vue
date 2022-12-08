@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { BmButton, BmLabelIcon } from "@bluemind/styleguide";
+import { BmButton, BmLabelIcon } from "@bluemind/ui-components";
 import { mapState } from "vuex";
 
 export default {
@@ -37,7 +37,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .insert-as-attachment-button {
     &.selected {

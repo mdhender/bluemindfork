@@ -18,7 +18,7 @@
     </div>
 </template>
 <script>
-import { BmIcon, BmSkeleton, BmTree } from "@bluemind/styleguide";
+import { BmIcon, BmSkeleton, BmTree } from "@bluemind/ui-components";
 export default {
     name: "FolderListLoading",
     components: { BmIcon, BmTree, BmSkeleton },
@@ -43,7 +43,7 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .folder-list-loading {
     .title {

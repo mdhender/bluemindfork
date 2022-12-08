@@ -24,7 +24,7 @@
 
 <script>
 import cloneDeep from "lodash.clonedeep";
-import { BmForm, BmModal } from "@bluemind/styleguide";
+import { BmForm, BmModal } from "@bluemind/ui-components";
 import PrefFilterRuleModalActions from "./PrefFilterRuleModalActions";
 import PrefFilterRuleModalCriteria from "./PrefFilterRuleModalCriteria";
 import PrefFilterRuleModalName from "./PrefFilterRuleModalName";
@@ -102,8 +102,8 @@ function areEqual(filterA, filterB) {
 </script>
 
 <style lang="scss">
-@import "@bluemind/styleguide/css/_type.scss";
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "@bluemind/ui-components/src/css/_type.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 
 $circled-number-size: base-px-to-rem(36);
 $circled-number-right-margin: $sp-4;

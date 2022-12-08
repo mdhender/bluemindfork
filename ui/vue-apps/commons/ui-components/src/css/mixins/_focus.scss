@@ -1,0 +1,4 @@
+@mixin default-focus($color, $apply-offset: false) {
+    outline: 1px $outline-style $color;
+    outline-offset: if($apply-offset, 3px, -1px);
+}

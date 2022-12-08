@@ -1,0 +1,51 @@
+@keyframes width-grow {
+    from {
+        width: 0%;
+    }
+    to {
+        width: 100%;
+    }
+}
+
+@keyframes width-shrink {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0%;
+    }
+}
+
+.slide-in-from-left {
+    animation: slideInFromleft 0.5s ease-in;
+}
+
+@keyframes slideInFromleft {
+    0% {
+        opacity: 0;
+        transform: translateX(-100%);
+    }
+    60% {
+        transform: translateX(0%);
+    }
+    65% {
+        transform: translateX(5%);
+    }
+    70% {
+        opacity: 1;
+    }
+    80% {
+        transform: translate(0%);
+    }
+}
+
+@keyframes radial-out {
+    from {
+        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transform: scale(0.5);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+

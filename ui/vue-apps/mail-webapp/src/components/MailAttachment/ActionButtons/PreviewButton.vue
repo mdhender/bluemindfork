@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { BmIconButton } from "@bluemind/styleguide";
+import { BmIconButton } from "@bluemind/ui-components";
 import { MimeType } from "@bluemind/email";
 
 export default {

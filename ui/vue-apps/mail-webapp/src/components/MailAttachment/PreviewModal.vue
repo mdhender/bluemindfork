@@ -23,7 +23,7 @@
 
 <script>
 import { mapMutations } from "vuex";
-import { BmCollapse, BmModal } from "@bluemind/styleguide";
+import { BmCollapse, BmModal } from "@bluemind/ui-components";
 
 import { SET_PREVIEW_FILE_KEY } from "~/mutations";
 import PreviewFile from "./Preview/PreviewFile";
@@ -95,7 +95,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/variables";
+@import "~@bluemind/ui-components/src/css/variables";
 #preview-modal .modal-body {
     .content {
         display: flex;

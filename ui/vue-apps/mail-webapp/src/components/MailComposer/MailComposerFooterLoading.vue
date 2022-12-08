@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { BmButton, BmIconButton } from "@bluemind/styleguide";
+import { BmButton, BmIconButton } from "@bluemind/ui-components";
 
 export default {
     name: "MailComposerFooterLoading",

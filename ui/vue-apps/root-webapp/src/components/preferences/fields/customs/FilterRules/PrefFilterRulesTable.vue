@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import { BmBadge, BmButtonExpand, BmIconButton, BmFormCheckbox, BmPagination, BmTable } from "@bluemind/styleguide";
+import { BmBadge, BmButtonExpand, BmIconButton, BmFormCheckbox, BmPagination, BmTable } from "@bluemind/ui-components";
 import PrefFilterRuleDetails from "./PrefFilterRuleDetails";
 import { toString as filterToString } from "./filterRules";
 
@@ -111,7 +111,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-filter-rules-table {
     .b-table {

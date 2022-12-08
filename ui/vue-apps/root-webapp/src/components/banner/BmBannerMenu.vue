@@ -40,7 +40,7 @@
 <script>
 import { inject } from "@bluemind/inject";
 import BmRoles from "@bluemind/roles";
-import { BmAvatar, BmDropdownItem, BmNavbarNav, BmNavItem, BmNavItemDropdown } from "@bluemind/styleguide";
+import { BmAvatar, BmDropdownItem, BmNavbarNav, BmNavItem, BmNavItemDropdown } from "@bluemind/ui-components";
 
 import { mapMutations, mapState } from "vuex";
 
@@ -86,7 +86,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .bm-banner-user {
     min-width: 10rem;

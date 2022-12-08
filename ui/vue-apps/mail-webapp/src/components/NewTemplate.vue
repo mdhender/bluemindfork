@@ -12,7 +12,7 @@
     </mail-open-in-popup-with-shift>
 </template>
 <script>
-import { BmButton, BmClipping } from "@bluemind/styleguide";
+import { BmButton, BmClipping } from "@bluemind/ui-components";
 import { mapGetters } from "vuex";
 import { MY_TEMPLATES } from "~/getters";
 import { MailRoutesMixin } from "~/mixins";

@@ -22,7 +22,7 @@ import { mapActions } from "vuex";
 import linkifyHtml from "linkifyjs/html";
 import { MimeType, InlineImageHelper } from "@bluemind/email";
 import { sanitizeHtml, blockRemoteImages } from "@bluemind/html-utils";
-import { BmIconButton } from "@bluemind/styleguide";
+import { BmIconButton } from "@bluemind/ui-components";
 import { messageUtils, partUtils } from "@bluemind/mail";
 
 import brokenImageIcon from "~/../assets/brokenImageIcon.png";

@@ -4,7 +4,7 @@ import { ERROR } from "@bluemind/alert.store";
 import { InlineImageHelper, MimeType } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import { sanitizeHtml } from "@bluemind/html-utils";
-import { BmRichEditor } from "@bluemind/styleguide";
+import { BmRichEditor } from "@bluemind/ui-components";
 import { attachmentUtils, draftUtils, loadingStatusUtils, messageUtils, partUtils } from "@bluemind/mail";
 
 import { FETCH_PART_DATA, FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";

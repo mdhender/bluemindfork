@@ -1,10 +1,8 @@
 <template>
-    <bm-button class="preview-message-header px-5 d-none d-lg-flex" variant="text" :icon="icon">
-        Message
-    </bm-button>
+    <bm-button class="preview-message-header px-5 d-none d-lg-flex" variant="text" :icon="icon"> Message </bm-button>
 </template>
 <script>
-import { BmButton } from "@bluemind/styleguide";
+import { BmButton } from "@bluemind/ui-components";
 
 export default {
     name: "PreviewMessageHeader",
@@ -22,7 +20,7 @@ export default {
 
 <style lang="scss">
 @use "sass:map";
-@import "~@bluemind/styleguide/css/variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .preview-message-header.btn {
     justify-content: start;

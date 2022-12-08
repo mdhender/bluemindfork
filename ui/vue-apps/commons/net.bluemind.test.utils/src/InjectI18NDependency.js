@@ -4,7 +4,7 @@ import { generateDateTimeFormats } from "@bluemind/i18n";
 import CommonL10N from "@bluemind/l10n";
 import injector from "@bluemind/inject";
 
-jest.mock("@bluemind/styleguide", () => ({
+jest.mock("@bluemind/ui-components", () => ({
     StyleguideL10N: {
         en: {},
         fr: {}

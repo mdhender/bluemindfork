@@ -12,7 +12,7 @@
 <script>
 import MailViewerLoadingHeader from "./MailViewerLoadingHeader";
 import MailViewerContentLoading from "../MailViewer/MailViewerContentLoading";
-import { BmCol, BmRow } from "@bluemind/styleguide";
+import { BmCol, BmRow } from "@bluemind/ui-components";
 
 export default {
     name: "MailViewerLoading",

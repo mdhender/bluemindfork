@@ -1,0 +1,115 @@
+@import "./variables";
+@import "./type";
+
+$transition-opacity-ease-in-out: opacity 0.24s ease-in-out;
+
+.b-dropdown-form {
+    padding: $sp-5;
+    padding-right: $sp-6;
+}
+
+.b-dropdown-form .bm-form-input input.with-icon {
+    padding-left: $sp-2;
+}
+
+a.dropdown-item {
+    text-decoration: none;
+}
+
+.dropdown-menu {
+    box-shadow: $box-shadow;
+    border: none;
+    padding: $sp-2;
+}
+
+.b-dropdown-form,
+.dropdown-item {
+    padding-left: map-get($icon-sizes, "md") + 2 * $sp-4 - $dropdown-spacer;
+    padding-right: $sp-6;
+}
+
+.dropdown-header {
+    padding: $sp-4;
+    padding-left: $dropdown-spacer + $sp-4;
+    @extend %caption-bold;
+    color: $neutral-fg-lo1;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    position: relative;
+    & > *:not(.dropdown-item-content):first-child {
+        position: absolute;
+        left: 0.5rem;
+    }
+    .dropdown-item-content {
+        flex: auto 1 1;
+    }
+    line-height: $line-height-sm;
+    height: $input-height;
+
+    &:active,
+    &.active {
+        color: $neutral-fg-hi1;
+        background-color: $secondary-bg-lo1;
+        &:focus,
+        &:hover {
+            background-color: $secondary-bg;
+        }
+    }
+    .shortcut {
+        color: $neutral-fg-lo1;
+        opacity: 0;
+        padding-left: $sp-4;
+        transition: $transition-opacity-ease-in-out;
+    }
+    &.hover .shortcut,
+    &:hover .shortcut,
+    &.focus .shortcut,
+    &:focus .shortcut {
+        opacity: 1;
+    }
+}
+
+.dropdown-divider {
+    margin: 0;
+}
+
+// Primary high-filled dropdown
+.dropdown-on-fill-primary {
+    .dropdown-menu {
+        background-color: $fill-primary-bg-hi1 !important;
+        border-color: $fill-primary-bg-hi1 !important;
+        color: $fill-primary-fg;
+        text-decoration: none;
+        &:active,
+        &:visited,
+        &:hover,
+        &:focus,
+        &:hover::before {
+            background-color: $fill-primary-bg-hi1 !important;
+            border-color: $fill-primary-bg-hi1 !important;
+            color: $fill-primary-fg-hi1 !important;
+            text-decoration: none;
+        }
+    }
+
+    .dropdown-item {
+        color: $fill-primary-fg;
+        &.focus,
+        &:focus,
+        &.hover,
+        &:hover {
+            color: $fill-primary-fg-hi1 !important;
+        }
+        &.active,
+        &:active {
+            background-color: $fill-primary-bg;
+        }
+
+        .shortcut {
+            color: $fill-primary-fg-lo1;
+        }
+    }
+}

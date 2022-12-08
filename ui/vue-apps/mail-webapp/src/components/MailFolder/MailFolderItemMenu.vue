@@ -50,7 +50,7 @@
 
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
-import { BmIconDropdown, BmDropdownItemButton } from "@bluemind/styleguide";
+import { BmIconDropdown, BmDropdownItemButton } from "@bluemind/ui-components";
 import { folderUtils } from "@bluemind/mail";
 import { IS_DESCENDANT, FOLDER_BY_PATH, FOLDER_HAS_CHILDREN, MAILBOX_TRASH } from "~/getters";
 import { CREATE_FOLDER, EMPTY_FOLDER, MARK_FOLDER_AS_READ, MOVE_FOLDER, REMOVE_FOLDER } from "~/actions";

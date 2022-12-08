@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { BmContactInput, BmFormCheckbox } from "@bluemind/styleguide";
+import { BmContactInput, BmFormCheckbox } from "@bluemind/ui-components";
 import { searchVCardsHelper, VCardInfoAdaptor } from "@bluemind/contact";
 import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";

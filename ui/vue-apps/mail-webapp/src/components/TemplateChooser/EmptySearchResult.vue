@@ -37,7 +37,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/variables";
+@import "~@bluemind/ui-components/src/css/variables";
 .empty-search-result {
     .search-pattern {
         color: $primary-fg-hi1;

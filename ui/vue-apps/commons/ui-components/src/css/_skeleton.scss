@@ -1,0 +1,13 @@
+.b-skeleton-text {
+    height: auto;
+    @if $enable-rounded {
+        border-radius: $border-radius;
+    }
+}
+
+// Avatar
+.b-skeleton-avatar {
+    width: 2em;
+    height: 2em;
+    border-radius: 50%;
+}

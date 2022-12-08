@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { BmIcon } from "@bluemind/styleguide";
+import { BmIcon } from "@bluemind/ui-components";
 export default {
     name: "BmAppIcon",
     components: { BmIcon },

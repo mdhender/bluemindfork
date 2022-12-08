@@ -21,7 +21,7 @@
 
 <script>
 import { SECONDS_PER_DAY, SECONDS_PER_HOUR, SECONDS_PER_MINUTE } from "@bluemind/date";
-import { BmFormCheckbox, BmFormInputNumber, BmFormSelect } from "@bluemind/styleguide";
+import { BmFormCheckbox, BmFormInputNumber, BmFormSelect } from "@bluemind/ui-components";
 import OneSettingField from "../../mixins/OneSettingField";
 
 const SECONDS_FOR_DEFAULT_REMINDER = 15 * SECONDS_PER_MINUTE;
@@ -81,7 +81,7 @@ function findBestTimeUnit(seconds) {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-event-reminder {
     div.bm-form-select {

@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BmFormAutocompleteInput BmFormAutocompleteInput should match snapshot 1`] = `
+<div
+  class="bm-form-autocomplete-input position-relative"
+>
+  <div
+    class="bm-form-input position-relative bm-form-input-md"
+  >
+    <input
+      autocomplete="off"
+      class="form-control form-control-md"
+      icon=""
+      type="text"
+      variant="outline"
+    />
+     
+    <!---->
+  </div>
+   
+  <div
+    class="list-group suggestions shadow position-absolute list-no-borders z-index-200 overflow-auto"
+    style="display: none;"
+    tabindex="-1"
+  >
+    <div
+      class="list-group-item active"
+    >
+      Apple
+    </div>
+    <div
+      class="list-group-item"
+    >
+      Banana
+    </div>
+    <div
+      class="list-group-item"
+    >
+      Orange
+    </div>
+    <div
+      class="list-group-item"
+    >
+      Mango
+    </div>
+     
+    <!---->
+  </div>
+</div>
+`;

@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { BmLabelIcon } from "@bluemind/styleguide";
+import { BmLabelIcon } from "@bluemind/ui-components";
 import PrefFilterRuleAction from "./PrefFilterRuleAction";
 
 export default {

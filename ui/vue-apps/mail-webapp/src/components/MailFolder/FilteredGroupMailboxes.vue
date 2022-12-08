@@ -15,7 +15,7 @@
 </template>
 <script>
 import { mapActions, mapGetters } from "vuex";
-import { BmButton } from "@bluemind/styleguide";
+import { BmButton } from "@bluemind/ui-components";
 import { SHOW_MORE_FOR_GROUP_MAILBOXES } from "~/actions";
 import { FILTERED_GROUP_MAILBOX_RESULTS, GROUP_MAILBOXES } from "~/getters";
 import MailMailboxIcon from "../MailMailboxIcon";

@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import { BmFormCheckbox, BmFormGroup, BmFormInput, BmRichEditor } from "@bluemind/styleguide";
+import { BmFormCheckbox, BmFormGroup, BmFormInput, BmRichEditor } from "@bluemind/ui-components";
 import PrefAutomaticReplyOptionalDate from "./PrefAutomaticReplyOptionalDate.vue";
 import CentralizedSaving from "../../mixins/CentralizedSaving";
 
@@ -131,7 +131,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-automatic-reply {
     max-width: base-px-to-rem(700);

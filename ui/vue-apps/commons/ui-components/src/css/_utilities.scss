@@ -1,0 +1,14 @@
+@import "~bootstrap/scss/utilities";
+@import "variables";
+
+@each $variant in $theme-variants {
+    .bg-#{$variant} {
+        background-color: var(--fill-#{$variant}-bg) !important;
+    }
+    .text-#{$variant} {
+        color: var(--#{$variant}-fg) !important;
+    }
+    .border-#{$variant} {
+        border-color: var(--#{$variant}-fg) !important;
+    }
+}

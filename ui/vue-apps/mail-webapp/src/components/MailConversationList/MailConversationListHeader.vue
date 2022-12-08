@@ -59,7 +59,7 @@ import {
     BmDropdownHeader,
     BmDropdownItemButton,
     BmIcon
-} from "@bluemind/styleguide";
+} from "@bluemind/ui-components";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import { UNSELECT_ALL_CONVERSATIONS, SET_CONVERSATION_LIST_SORT, SET_SELECTION } from "~/mutations";
 import { ALL_CONVERSATIONS_ARE_SELECTED, SELECTION_IS_EMPTY, CONVERSATION_LIST_ALL_KEYS } from "~/getters";
@@ -138,8 +138,8 @@ export default {
 <style lang="scss">
 @use "sass:map";
 @use "sass:math";
-@import "~@bluemind/styleguide/css/mixins";
-@import "~@bluemind/styleguide/css/variables";
+@import "~@bluemind/ui-components/src/css/mixins";
+@import "~@bluemind/ui-components/src/css/variables";
 @import "../ConversationList/_variables.scss";
 
 .mail-conversation-list-header {

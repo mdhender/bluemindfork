@@ -18,7 +18,7 @@
 import { ContainerHelper, ContainerType } from "../container";
 import ManageContainerSharesModal from "../ManageContainerSharesModal/ManageContainerSharesModal";
 import MailboxHelper from "./helper";
-import { BmButton, BmFormCheckbox } from "@bluemind/styleguide";
+import { BmButton, BmFormCheckbox } from "@bluemind/ui-components";
 import { mapState } from "vuex";
 
 ContainerHelper.register(ContainerType.MAILBOX, MailboxHelper);

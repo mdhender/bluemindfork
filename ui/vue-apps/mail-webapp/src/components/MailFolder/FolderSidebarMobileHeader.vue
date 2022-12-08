@@ -31,7 +31,7 @@
 <script>
 import { mapMutations } from "vuex";
 import injector from "@bluemind/inject";
-import { BmAvatar, BmIconDropdown, BmDropdownItemButton, BmDropdownItem } from "@bluemind/styleguide";
+import { BmAvatar, BmIconDropdown, BmDropdownItemButton, BmDropdownItem } from "@bluemind/ui-components";
 
 export default {
     name: "FolderSidebarMobileHeader",
@@ -51,7 +51,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .folder-sidebar-mobile-header {
     background-color: $fill-primary-bg-hi1 !important;

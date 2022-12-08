@@ -123,7 +123,7 @@
 
 <script>
 import { mapMutations, mapState } from "vuex";
-import { BmButton, BmContactInput, BmIconButton } from "@bluemind/styleguide";
+import { BmButton, BmContactInput, BmIconButton } from "@bluemind/ui-components";
 import { messageUtils } from "@bluemind/mail";
 import { ComposerActionsMixin, ComposerInitMixin, ComposerMixin, EditRecipientsMixin } from "~/mixins";
 import { AddAttachmentsCommand } from "~/commands";
@@ -190,7 +190,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .mail-conversation-viewer-draft-editor {
     .bm-contact-input-label {

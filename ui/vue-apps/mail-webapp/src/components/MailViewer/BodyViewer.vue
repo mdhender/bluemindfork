@@ -151,7 +151,7 @@ class CidSet extends Set {
 </script>
 
 <style lang="scss">
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .body-viewer {
     display: flex;

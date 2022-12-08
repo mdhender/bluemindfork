@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { BmFormInput } from "@bluemind/styleguide";
+import { BmFormInput } from "@bluemind/ui-components";
 import { mapMutations, mapState } from "vuex";
 
 export default {
@@ -30,7 +30,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .search-input {
     background-color: $surface;

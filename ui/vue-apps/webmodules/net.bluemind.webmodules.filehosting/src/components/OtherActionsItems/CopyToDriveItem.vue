@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { BmDropdownItem } from "@bluemind/styleguide";
+import { BmDropdownItem } from "@bluemind/ui-components";
 import OtherActionsMixin from "~/mixins/OtherActionsMixin";
 import { SHARE_ATTACHMENT } from "~/store/types/actions";
 

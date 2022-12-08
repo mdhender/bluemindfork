@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BmNotice should match snapshot 1`] = `
+<div
+  class="bm-notice d-flex px-2"
+>
+  <div
+    class="arrow-up"
+  />
+   
+  <span
+    class="text-center w-100 text-condensed py-1"
+  >
+    
+  </span>
+</div>
+`;

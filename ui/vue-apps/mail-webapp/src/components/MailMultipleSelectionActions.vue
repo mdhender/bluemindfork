@@ -114,7 +114,7 @@
 
 <script>
 import { CLEAR, INFO, REMOVE } from "@bluemind/alert.store";
-import { BmAlertArea, BmButton, BmLabelIcon, BmIcon } from "@bluemind/styleguide";
+import { BmAlertArea, BmButton, BmLabelIcon, BmIcon } from "@bluemind/ui-components";
 import { mapActions, mapState, mapGetters, mapMutations } from "vuex";
 import { folderUtils } from "@bluemind/mail";
 import MailFolderIcon from "./MailFolderIcon";
@@ -234,8 +234,8 @@ export default {
 
 <style lang="scss">
 @use "sass:math";
-@import "@bluemind/styleguide/css/mixins/_responsiveness.scss";
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "@bluemind/ui-components/src/css/mixins/_responsiveness.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 
 $arrow-width: 3rem;
 $arrow-height: math.div($arrow-width, 2);

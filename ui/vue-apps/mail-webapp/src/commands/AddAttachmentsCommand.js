@@ -1,5 +1,5 @@
 import { partUtils, attachmentUtils, fileUtils } from "@bluemind/mail";
-import { BmTooLargeBox } from "@bluemind/styleguide";
+import { BmTooLargeBox } from "@bluemind/ui-components";
 import UUIDGenerator from "@bluemind/uuid";
 import { ADD_ATTACHMENT, DEBOUNCED_SAVE_MESSAGE } from "~/actions";
 

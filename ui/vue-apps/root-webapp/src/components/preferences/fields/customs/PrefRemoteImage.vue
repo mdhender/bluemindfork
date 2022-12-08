@@ -7,7 +7,7 @@
 
 <script>
 import BaseField from "../../mixins/BaseField";
-import { BmIcon } from "@bluemind/styleguide";
+import { BmIcon } from "@bluemind/ui-components";
 import PrefReadMore from "../PrefReadMore";
 
 export default {
@@ -25,7 +25,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-remote-image {
     display: flex;

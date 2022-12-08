@@ -6,7 +6,7 @@
 
 <script>
 import { Flag } from "@bluemind/email";
-import { BmIcon } from "@bluemind/styleguide";
+import { BmIcon } from "@bluemind/ui-components";
 
 export default {
     name: "MailConversationViewerFlags",

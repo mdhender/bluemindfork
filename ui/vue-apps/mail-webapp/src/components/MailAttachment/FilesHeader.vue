@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { BmIcon, BmProgress } from "@bluemind/styleguide";
+import { BmIcon, BmProgress } from "@bluemind/ui-components";
 import { displayWithUnit } from "@bluemind/file-utils";
 
 export default {
@@ -76,7 +76,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .files-header {
     display: flex;

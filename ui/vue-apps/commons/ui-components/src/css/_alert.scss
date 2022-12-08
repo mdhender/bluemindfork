@@ -1,0 +1,9 @@
+$alert-variants: "danger", "warning", "success", "info", "neutral";
+
+@each $variant in $alert-variants {
+    .alert-#{$variant} {
+        color: $neutral-fg-hi1;
+        background-color: var(--#{$variant}-bg);
+        border: none;
+    }
+}

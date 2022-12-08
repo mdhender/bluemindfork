@@ -81,7 +81,7 @@
 <script>
 import { mapGetters, mapMutations } from "vuex";
 
-import { BmButtonGroup, BmDropdownItem } from "@bluemind/styleguide";
+import { BmButtonGroup, BmDropdownItem } from "@bluemind/ui-components";
 import { messageUtils } from "@bluemind/mail";
 import MailToolbarResponsiveButton from "./MailToolbarResponsiveButton";
 import MailToolbarResponsiveDropdown from "./MailToolbarResponsiveDropdown";

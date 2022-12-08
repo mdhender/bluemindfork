@@ -82,7 +82,7 @@ import {
     BmFormInput,
     BmIcon,
     BmToggle
-} from "@bluemind/styleguide";
+} from "@bluemind/ui-components";
 import { folderUtils, loadingStatusUtils } from "@bluemind/mail";
 
 import debounce from "lodash.debounce";
@@ -263,8 +263,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .mail-search-form {
     .no-border-right {

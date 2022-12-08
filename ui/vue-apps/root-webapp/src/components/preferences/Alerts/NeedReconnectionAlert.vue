@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { BmButton } from "@bluemind/styleguide";
+import { BmButton } from "@bluemind/ui-components";
 
 export default {
     name: "NeedReconnectionAlert",

@@ -7,7 +7,7 @@
 
 <script>
 import { inject } from "@bluemind/inject";
-import { BmAvatar } from "@bluemind/styleguide";
+import { BmAvatar } from "@bluemind/ui-components";
 import BmAppIcon from "../BmAppIcon";
 
 export default {
@@ -31,7 +31,7 @@ export default {
 
 <style lang="scss">
 @import "./_variables";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-section-icon {
     width: $section-icon-size;

@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { BmButton } from "@bluemind/styleguide";
+import { BmButton } from "@bluemind/ui-components";
 import { mapActions, mapGetters } from "vuex";
 
 export default {
@@ -34,8 +34,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
 @import "../_variables";
 
 .pref-right-panel-footer.modal-footer {

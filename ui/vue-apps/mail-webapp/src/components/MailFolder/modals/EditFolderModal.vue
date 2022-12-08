@@ -29,8 +29,8 @@
 </template>
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
-import { BmModal } from "@bluemind/styleguide";
-import { BmFormInput, BmNotice } from "@bluemind/styleguide";
+import { BmModal } from "@bluemind/ui-components";
+import { BmFormInput, BmNotice } from "@bluemind/ui-components";
 import { folderUtils } from "@bluemind/mail";
 import { FOLDER_BY_PATH } from "~/getters";
 import { CREATE_FOLDER, RENAME_FOLDER } from "~/actions";

@@ -35,7 +35,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins";
+@import "~@bluemind/ui-components/src/css/mixins";
 
 .content-empty-folder {
     & > div {

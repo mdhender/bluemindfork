@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { BmDropdownItem } from "@bluemind/styleguide";
+import { BmDropdownItem } from "@bluemind/ui-components";
 import { DETACH_ATTACHMENT } from "~/store/types/actions";
 import OtherActionsMixin from "~/mixins/OtherActionsMixin";
 

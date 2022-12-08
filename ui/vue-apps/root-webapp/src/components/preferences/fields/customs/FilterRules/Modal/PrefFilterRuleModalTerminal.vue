@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { BmFormCheckbox, BmFormGroup } from "@bluemind/styleguide";
+import { BmFormCheckbox, BmFormGroup } from "@bluemind/ui-components";
 import PrefReadMore from "../../../PrefReadMore";
 
 export default {
@@ -29,7 +29,7 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-filter-rule-modal-terminal {
     .pref-read-more {

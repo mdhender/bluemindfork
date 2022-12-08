@@ -52,7 +52,7 @@
 <script>
 import { ContainerHelper } from "./container";
 import { inject } from "@bluemind/inject";
-import { BmButton, BmButtonClose, BmFileDropZone, BmIcon, BmProgress } from "@bluemind/styleguide";
+import { BmButton, BmButtonClose, BmFileDropZone, BmIcon, BmProgress } from "@bluemind/ui-components";
 import { retrieveTaskResult } from "@bluemind/task";
 
 export default {

@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { BmFormCheckbox } from "@bluemind/styleguide";
+import { BmFormCheckbox } from "@bluemind/ui-components";
 import OneSettingField from "../mixins/OneSettingField";
 import PrefFieldLabel from "./PrefFieldLabel";
 

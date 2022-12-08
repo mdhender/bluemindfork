@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { BmContact } from "@bluemind/styleguide";
+import { BmContact } from "@bluemind/ui-components";
 import PrefFilterRuleCriterion from "./PrefFilterRuleCriterion";
 export default {
     name: "PrefFilterRuleContactCriterion",

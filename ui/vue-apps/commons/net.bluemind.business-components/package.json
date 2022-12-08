@@ -12,6 +12,6 @@
         "@bluemind/attachment.api": "^4.1.0"
     },
     "peerDependencies": {
-        "@bluemind/styleguide": "^0.1.0"
+        "@bluemind/ui-components": "^4.1.0"
     }
 }

@@ -21,7 +21,7 @@
 <script>
 import Navigation from "./mixins/Navigation";
 import PrefSectionIcon from "./PrefSectionIcon";
-import { BmLabelIcon, BmListGroupItem } from "@bluemind/styleguide";
+import { BmLabelIcon, BmListGroupItem } from "@bluemind/ui-components";
 
 export default {
     name: "PrefSectionNavbar",
@@ -37,8 +37,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_type";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/_type";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-section-navbar {
     width: 100%;

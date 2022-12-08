@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import { BmIconButton, BmIcon, BmPagination, BmTable } from "@bluemind/styleguide";
+import { BmIconButton, BmIcon, BmPagination, BmTable } from "@bluemind/ui-components";
 export default {
     name: "PrefTagsTable",
     components: { BmIconButton, BmIcon, BmPagination, BmTable },
@@ -70,7 +70,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-tags-table {
     .b-table {

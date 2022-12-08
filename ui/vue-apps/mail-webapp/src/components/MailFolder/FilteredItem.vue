@@ -69,9 +69,9 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_type";
-@import "~@bluemind/styleguide/css/_variables";
-@import "~@bluemind/styleguide/css/mixins";
+@import "~@bluemind/ui-components/src/css/_type";
+@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/mixins";
 
 .filtered-item .folder-item {
     padding-right: $sp-3;

@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { BmButton, BmButtonExpand } from "@bluemind/styleguide";
+import { BmButton, BmButtonExpand } from "@bluemind/ui-components";
 import PrefFilterRulesTable from "./PrefFilterRulesTable";
 
 export default {
@@ -52,7 +52,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-filter-rules-subset {
     .disabled {

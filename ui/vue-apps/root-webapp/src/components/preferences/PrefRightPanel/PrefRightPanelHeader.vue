@@ -28,7 +28,7 @@
 
 <script>
 import PrefSearchInput from "./PrefSearchInput";
-import { BmIconButton, BmButtonClose } from "@bluemind/styleguide";
+import { BmIconButton, BmButtonClose } from "@bluemind/ui-components";
 import { mapMutations, mapState } from "vuex";
 
 export default {
@@ -58,8 +58,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/mixins/_responsiveness";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/variables";
 @import "../_variables";
 
 .pref-right-panel-header {

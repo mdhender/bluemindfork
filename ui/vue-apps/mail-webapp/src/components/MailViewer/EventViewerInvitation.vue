@@ -60,7 +60,7 @@
 </template>
 <script>
 import { mapState } from "vuex";
-import { BmIconButton, BmLabelIcon } from "@bluemind/styleguide";
+import { BmIconButton, BmLabelIcon } from "@bluemind/ui-components";
 import { loadingStatusUtils } from "@bluemind/mail";
 import MailViewerContentLoading from "./MailViewerContentLoading";
 
@@ -102,7 +102,7 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .event-viewer-invitation {
     .bm-label-icon {

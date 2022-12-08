@@ -1,0 +1,29 @@
+@import "./_type.scss";
+
+.list-group-item {
+    &,
+    & .font-size-lg {
+        @extend %regular;
+    }
+    border-bottom: 1px solid $neutral-fg-lo2;
+    background-color: $surface;
+    padding-left: $sp-5;
+    padding-right: $sp-5;
+    height: $input-height;
+    display: flex;
+    align-items: center;
+}
+
+a.list-group-item {
+    text-decoration: none;
+}
+
+.list-group-separator {
+    border-bottom: 1px solid $neutral-fg-lo3;
+}
+
+.list-no-borders .list-group-item,
+.list-no-borders .list-group-item:first-child,
+.list-no-borders .list-group-item:last-child {
+    border: none !important;
+}

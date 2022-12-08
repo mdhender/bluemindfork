@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@bluemind/email@^5.0.0":
-  version "5.0.1126"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/email/-/email-5.0.1126.tgz#d7df0d43ecc29f973caccafe2b621dc02212ec99"
-  integrity sha512-MLBhtSs7BK527FXlAUGuMLBGZVA+1Xe7QWK/Uplki8emRVYUXR2hlAxEFLaEn2tPpPbtE4jnMVZE4mWdUp8M9g==
+"@bluemind/email@^4.1.0":
+  version "4.1.63737"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/email/-/email-4.1.63737.tgz#7f5e62f7bd0ca7c2e3fbc68656d37043e6b6ba2c"
+  integrity sha512-Q96DqxBfdariT5O22BWTy2nBA4KTn3JmPtP7zZ2iwS1VRzM1kkyP3Ad4TdPYCV+S5wuma0PxV6oFE7U8VnPDbA==
   dependencies:
     "@bluemind/html-utils" "^4.1.0"
     "@bluemind/uuid" "^4.1.0"
@@ -27,12 +27,12 @@
     lodash.startswith "^4.2.1"
     xss "^1.0.6"
 
-"@bluemind/styleguide@0.1.2721":
-  version "0.1.2721"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/styleguide/-/styleguide-0.1.2721.tgz#c23683831a279e545cff51fa56a7f946b5d86015"
-  integrity sha512-RAUH8qIyRW62Lxkka7ZI/sotgA/sZ62eM/NaicJsxfLuOExCVr194SSYG7jFi+IiQDVbUWgduKQSKkBEg01R/A==
+"@bluemind/ui-components@^4.0.0":
+  version "4.9.2708"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/ui-components/-/styleguide-4.9.2708.tgz#68067c597654de977b27f372961825d03609698d"
+  integrity sha512-v6rBBSFi1mi+Ep0oIpqbj6ZFbCt1J5zYzi1fJPhEkX3Ty/lm7Vu11RfgIiNujd4lZygwPsEVNSID4fITIqlXQg==
   dependencies:
-    "@bluemind/email" "^5.0.0"
+    "@bluemind/email" "^4.1.0"
     "@bluemind/file-utils" "^4.1.0"
     "@fortawesome/fontawesome-svg-core" "^1.2.12"
     "@fortawesome/vue-fontawesome" "^0.1.4"

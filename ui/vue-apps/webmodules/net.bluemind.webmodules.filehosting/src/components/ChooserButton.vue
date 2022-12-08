@@ -23,7 +23,7 @@
 
 <script>
 import { inject } from "@bluemind/inject";
-import { BmIconButton, BmModal } from "@bluemind/styleguide";
+import { BmIconButton, BmModal } from "@bluemind/ui-components";
 import { MimeType } from "@bluemind/email";
 import { Chooser } from "@bluemind/business-components";
 import FilehostingL10N from "../l10n";
@@ -86,7 +86,7 @@ function addMimeType(file) {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 #chooser-modal {
     header.modal-header {

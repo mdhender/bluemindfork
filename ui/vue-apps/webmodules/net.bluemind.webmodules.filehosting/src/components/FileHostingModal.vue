@@ -72,7 +72,7 @@
 <script>
 import { mapGetters } from "vuex";
 import global from "@bluemind/global";
-import { BmModal, BmButtonClose, BmButton, BmIcon, BmLabelIcon } from "@bluemind/styleguide";
+import { BmModal, BmButtonClose, BmButton, BmIcon, BmLabelIcon } from "@bluemind/ui-components";
 import { computeUnit } from "@bluemind/file-utils";
 import { fileUtils } from "@bluemind/mail";
 import FilehostingL10N from "../l10n";
@@ -164,7 +164,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 
 #file-hosting-modal {
     .text-neutral-fg-lo2 {

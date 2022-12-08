@@ -33,7 +33,7 @@
 <script>
 import isEqual from "lodash.isequal";
 import { inject } from "@bluemind/inject";
-import { BmIconButton, BmPagination, BmTable } from "@bluemind/styleguide";
+import { BmIconButton, BmPagination, BmTable } from "@bluemind/ui-components";
 import CentralizedSaving from "../../../mixins/CentralizedSaving";
 import PrefExtAccountModal from "./PrefExtAccountModal";
 import { mapState } from "vuex";
@@ -155,7 +155,7 @@ function removeExternalAccount(externalAccount) {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-ext-account-list {
     img {

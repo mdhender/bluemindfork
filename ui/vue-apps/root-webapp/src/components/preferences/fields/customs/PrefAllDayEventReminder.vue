@@ -20,7 +20,7 @@
 
 <script>
 import { SECONDS_PER_DAY, SECONDS_PER_HOUR } from "@bluemind/date";
-import { BmFormCheckbox, BmFormSelect, BmFormTimePicker } from "@bluemind/styleguide";
+import { BmFormCheckbox, BmFormSelect, BmFormTimePicker } from "@bluemind/ui-components";
 import OneSettingField from "../../mixins/OneSettingField";
 
 const SECONDS_FOR_ALL_DAY_REMINDER = (24 - 9) * SECONDS_PER_HOUR; // "09:00", 1 day before
@@ -85,7 +85,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .pref-all-day-default-event-reminder {
     div.bm-form-select,

@@ -1,0 +1,44 @@
+$file-type-audio: #333333;
+$file-type-code: #cbb700;
+$file-type-compressed: #987769;
+$file-type-data: #0058bf;
+$file-type-excel: #01d016;
+$file-type-ics: #1ad4c9;
+$file-type-image: #fe005b;
+$file-type-message: #cbb700;
+$file-type-pdf: #dc2800;
+$file-type-presentation: #fe4c00;
+$file-type-system: #9384b9;
+$file-type-unknown: #999999;
+$file-type-vcard: #8a08c8;
+$file-type-video: #333333;
+$file-type-word: #1a83ff;
+
+$file-type-icons-colors: () !default;
+// stylelint-disable-next-line scss/dollar-variable-default
+$file-type-icons-colors: map-merge(
+    (
+        "file-type-audio": $file-type-audio,
+        "file-type-code": $file-type-code,
+        "file-type-compressed": $file-type-compressed,
+        "file-type-data": $file-type-data,
+        "file-type-excel": $file-type-excel,
+        "file-type-ics": $file-type-ics,
+        "file-type-image": $file-type-image,
+        "file-type-message": $file-type-message,
+        "file-type-pdf": $file-type-pdf,
+        "file-type-presentation": $file-type-presentation,
+        "file-type-system": $file-type-system,
+        "file-type-unknown": $file-type-unknown,
+        "file-type-vcard": $file-type-vcard,
+        "file-type-video": $file-type-video,
+        "file-type-word": $file-type-word
+    ),
+    $file-type-icons-colors
+);
+
+@each $file-type, $value in $file-type-icons-colors {
+    .fa-#{$file-type} {
+        color: $value;
+    }
+}

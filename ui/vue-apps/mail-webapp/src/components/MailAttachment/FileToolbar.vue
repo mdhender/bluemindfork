@@ -18,7 +18,7 @@
 <script>
 import { mapMutations } from "vuex";
 import global from "@bluemind/global";
-import { BmButtonToolbar } from "@bluemind/styleguide";
+import { BmButtonToolbar } from "@bluemind/ui-components";
 import { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_FILE_KEY } from "~/mutations";
 import { RemoveAttachmentCommand } from "~/commands";
 import { fileUtils, partUtils } from "@bluemind/mail";

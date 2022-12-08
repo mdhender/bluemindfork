@@ -19,7 +19,7 @@
 <script>
 import { mapActions, mapState } from "vuex";
 import { BmExtension } from "@bluemind/extensions.vue";
-import { BmAlertArea, BmIcon } from "@bluemind/styleguide";
+import { BmAlertArea, BmIcon } from "@bluemind/ui-components";
 import { partUtils, fileUtils } from "@bluemind/mail";
 import { REMOVE } from "@bluemind/alert.store";
 import { MimeType } from "@bluemind/email";
@@ -118,7 +118,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@bluemind/styleguide/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .preview-file-content {
     background-color: $highest;

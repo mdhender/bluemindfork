@@ -48,7 +48,7 @@
 
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
-import { BmButton, BmIcon } from "@bluemind/styleguide";
+import { BmButton, BmIcon } from "@bluemind/ui-components";
 import { loadingStatusUtils } from "@bluemind/mail";
 import { ACCEPT_COUNTER_EVENT, DECLINE_COUNTER_EVENT } from "~/actions";
 import { ACTIVE_MESSAGE } from "~/getters";
@@ -94,7 +94,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/variables";
 
 .reply-to-counter-proposal {
     background-color: $neutral-bg-lo1;
