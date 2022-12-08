@@ -23,10 +23,10 @@ import static org.junit.Assert.fail;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -79,6 +79,8 @@ public class MailboxRecordExpungedStoreTests {
 	private ItemStore itemStore;
 	private MailboxRecordStore boxRecordStore;
 	private MailboxRecordExpungedStore expungedRecordStore;
+	private Container subtreeContainer;
+	private Container container;
 
 	@BeforeClass
 	public static void sysprop() {
@@ -120,7 +122,7 @@ public class MailboxRecordExpungedStoreTests {
 		IMailboxFolders user1MailboxFolderService = provider(user1Uid).instance(IMailboxFolders.class, partition,
 				user1MboxRoot);
 		String user1InboxUid = user1MailboxFolderService.byName("INBOX").uid;
-		Container container = containerHome.get(IMailReplicaUids.mboxRecords(user1InboxUid));
+		container = containerHome.get(IMailReplicaUids.mboxRecords(user1InboxUid));
 
 		assertNotNull(container);
 
@@ -132,7 +134,7 @@ public class MailboxRecordExpungedStoreTests {
 			throw ServerFault.notFound("mailbox of " + container.owner + " not found");
 		}
 		String subtreeContainerUid = IMailReplicaUids.subtreeUid(container.domainUid, mailbox);
-		Container subtreeContainer = containerStore.get(subtreeContainerUid);
+		subtreeContainer = containerStore.get(subtreeContainerUid);
 		if (subtreeContainer == null) {
 			throw ServerFault.notFound("subtree " + subtreeContainerUid);
 		}
@@ -140,7 +142,8 @@ public class MailboxRecordExpungedStoreTests {
 		boxRecordStore = new MailboxRecordStore(JdbcTestHelper.getInstance().getMailboxDataDataSource(), container,
 				subtreeContainer);
 		boxRecordStore.deleteAll();
-		expungedRecordStore = new MailboxRecordExpungedStore(JdbcTestHelper.getInstance().getMailboxDataDataSource());
+		expungedRecordStore = new MailboxRecordExpungedStore(JdbcTestHelper.getInstance().getMailboxDataDataSource(),
+				container, subtreeContainer);
 	}
 
 	@After
@@ -189,13 +192,18 @@ public class MailboxRecordExpungedStoreTests {
 		assertEquals(0, expungedRecordStore.getExpiredItems(7).size());
 	}
 
-	private void insertExpungedMessages() throws SQLException {
+	private List<Item> insertExpungedMessages() throws SQLException {
+		List<Item> items = new ArrayList<>();
 		// insert with expire date -10 days
-		insertExpungedExpiredMessage(10, 10, false);
+		Item it = insertExpungedExpiredMessage(10, 10, false);
+		items.add(it);
 		// update with expire date -8 days
-		insertExpungedExpiredMessage(20, 8, true);
+		it = insertExpungedExpiredMessage(20, 8, true);
+		items.add(it);
 		// insert with expire date -3 days
-		insertExpungedExpiredMessage(30, 3, false);
+		it = insertExpungedExpiredMessage(30, 3, false);
+		items.add(it);
+		return items;
 	}
 
 	@Test
@@ -210,13 +218,8 @@ public class MailboxRecordExpungedStoreTests {
 	public void testCheckExpungedQueue() throws Exception {
 		insertExpungedMessages();
 
-		try (Connection con = JdbcTestHelper.getInstance().getMailboxDataDataSource().getConnection();
-				PreparedStatement stm = con.prepareStatement("SELECT COUNT(*) FROM q_mailbox_record_expunged ;")) {
-			ResultSet executeQuery = stm.executeQuery();
-			executeQuery.next();
-			int count = executeQuery.getInt(1);
-			assertEquals(3, count);
-		}
+		List<MailboxRecordExpunged> allExpunged = expungedRecordStore.fetch();
+		assertEquals(3, allExpunged.size());
 	}
 
 	@Test
@@ -237,17 +240,53 @@ public class MailboxRecordExpungedStoreTests {
 			}
 		});
 
-		try (Connection con = JdbcTestHelper.getInstance().getMailboxDataDataSource().getConnection();
-				PreparedStatement stm = con.prepareStatement("SELECT COUNT(*) FROM q_mailbox_record_expunged ;")) {
-			ResultSet executeQuery = stm.executeQuery();
-			executeQuery.next();
-			int count = executeQuery.getInt(1);
-			assertEquals(1, count);
-		}
-
+		Long count = expungedRecordStore.count();
+		assertEquals(1, count.intValue());
 	}
 
-	private void insertExpungedExpiredMessage(long imapUid, int daysBeforeNow, boolean update) throws SQLException {
+	@Test
+	public void testCount() throws SQLException {
+		insertExpungedMessages();
+		Long count = expungedRecordStore.count();
+		assertEquals(3L, count.longValue());
+		expungedRecordStore.deleteAll();
+	}
+
+	@Test
+	public void testFetch() throws SQLException {
+		List<Item> items = insertExpungedMessages();
+		List<MailboxRecordExpunged> fetch = expungedRecordStore.fetch();
+		assertEquals(items.size(), fetch.size());
+		expungedRecordStore.deleteAll();
+	}
+
+	@Test
+	public void testGet() throws SQLException {
+		List<Item> items = insertExpungedMessages();
+		long id = items.get(0).id;
+		MailboxRecordExpunged item = expungedRecordStore.get(id);
+		assertEquals(id, item.itemId.longValue());
+		expungedRecordStore.deleteAll();
+	}
+
+	public void testStore() throws SQLException {
+		MailboxRecordExpunged record = new MailboxRecordExpunged();
+		Date now = new Date();
+		record.itemId = 2L;
+		record.imapUid = 3L;
+		record.created = now;
+		expungedRecordStore.store(record);
+
+		MailboxRecordExpunged item = expungedRecordStore.get(record.itemId);
+		assertNotNull(item);
+		assertEquals(container.id, item.containerId.longValue());
+		assertEquals(subtreeContainer.id, item.subtreeId.longValue());
+		assertEquals(2L, item.itemId.longValue());
+		assertEquals(3L, item.imapUid.longValue());
+		assertEquals(now, item.created);
+	}
+
+	private Item insertExpungedExpiredMessage(long imapUid, int daysBeforeNow, boolean update) throws SQLException {
 		MailboxRecord mb = simpleRecord(imapUid);
 		String uniqueId = "rec" + System.currentTimeMillis();
 		if (daysBeforeNow > 0) {
@@ -273,6 +312,7 @@ public class MailboxRecordExpungedStoreTests {
 			mb.internalFlags = Arrays.asList(MailboxRecord.InternalFlag.expunged);
 			boxRecordStore.create(it, mb);
 		}
+		return it;
 	}
 
 	private Date adaptDate(int daysBeforeNow) {

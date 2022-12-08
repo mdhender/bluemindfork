@@ -51,6 +51,15 @@ public class MailboxRecordExpungedColumns {
 
 	}
 
+	public static EntityPopulator<MailboxRecordExpunged> populator(Long itemId) {
+		final EntityPopulator<MailboxRecordExpunged> simple = simplePopulator();
+		return (ResultSet rs, int index, MailboxRecordExpunged value) -> {
+			value.itemId = itemId;
+			return simple.populate(rs, index, value);
+		};
+
+	}
+
 	public static EntityPopulator<MailboxRecordExpunged> simplePopulator() {
 		return (ResultSet rs, int index, MailboxRecordExpunged value) -> {
 			value.containerId = rs.getInt(index++);
@@ -62,15 +71,13 @@ public class MailboxRecordExpungedColumns {
 		};
 	}
 
-	public static StatementValues<MailboxRecordExpunged> values(Integer containerId, Long itemId) {
+	public static StatementValues<MailboxRecordExpunged> values(Long itemId) {
 		return new StatementValues<MailboxRecordExpunged>() {
 
 			@Override
 			public int setValues(Connection con, PreparedStatement statement, int index, int currentRow,
 					MailboxRecordExpunged value) throws SQLException {
-				if (containerId != null) {
-					statement.setInt(index++, containerId);
-				}
+				statement.setInt(index++, value.containerId);
 				statement.setInt(index++, value.subtreeId);
 				if (itemId != null) {
 					statement.setLong(index++, itemId);

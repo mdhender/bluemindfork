@@ -29,14 +29,18 @@ import net.bluemind.core.api.BMApi;
 @BMApi(version = "3", internal = true)
 public class MailboxRecordExpunged {
 
-	public Date created;
-	public Long imapUid;
-	public Long itemId;
 	public Integer containerId;
 	public Integer subtreeId;
+	public Long itemId;
+	public Long imapUid;
+	public Date created;
 
 	public Integer containerId() {
 		return containerId;
+	}
+
+	public Long imapUid() {
+		return imapUid;
 	}
 
 	@Override

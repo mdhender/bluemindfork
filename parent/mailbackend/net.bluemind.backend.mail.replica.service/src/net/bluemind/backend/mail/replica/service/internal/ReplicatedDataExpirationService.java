@@ -18,8 +18,10 @@
  */
 package net.bluemind.backend.mail.replica.service.internal;
 
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -32,10 +34,17 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 
+import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
+import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.IReplicatedDataExpiration;
+import net.bluemind.backend.mail.replica.api.MailboxRecordExpunged;
 import net.bluemind.backend.mail.replica.indexing.RecordIndexActivator;
+import net.bluemind.backend.mail.replica.persistence.MailboxRecordExpungedStore;
 import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
 import net.bluemind.backend.mail.replica.service.sds.MessageBodyObjectStore;
+import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.ContainersHierarchyNodeStore;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
@@ -48,14 +57,20 @@ public class ReplicatedDataExpirationService implements IReplicatedDataExpiratio
 	private final BmContext context;
 	private final String serverUid;
 	private final MessageBodyStore bodyStore;
+	private final MailboxRecordExpungedStore expungedStore;
 	private final Supplier<MessageBodyObjectStore> bodyObjectStore;
+	private final ContainerStore containerStore;
+	private final DataSource pool;
 
 	private static final Logger logger = LoggerFactory.getLogger(ReplicatedDataExpirationService.class);
 
 	public ReplicatedDataExpirationService(BmContext context, DataSource pool, String serverUid) {
 		this.context = context;
+		this.pool = pool;
 		this.serverUid = serverUid;
 		this.bodyStore = new MessageBodyStore(pool);
+		this.containerStore = new ContainerStore(context, pool, context.getSecurityContext());
+		this.expungedStore = new MailboxRecordExpungedStore(pool);
 		this.bodyObjectStore = Suppliers.memoize(() -> new MessageBodyObjectStore(context, serverUid));
 	}
 
@@ -94,16 +109,60 @@ public class ReplicatedDataExpirationService implements IReplicatedDataExpiratio
 		}));
 	}
 
+	@Override
+	public void deleteExpiredExpunged(int days) {
+		JdbcAbstractStore.doOrFail(() -> {
+			logger.info("Expiring expunged messages ({} days) on server {}", days, serverUid);
+			List<MailboxRecordExpunged> expiredItems;
+			do {
+				expiredItems = expungedStore.getExpiredItems(days);
+				logger.info("Found {} message expiring to delete", expiredItems.size());
+
+				Map<Integer, List<Long>> partitioned = expiredItems.stream()
+						.collect(Collectors.groupingBy(MailboxRecordExpunged::containerId,
+								Collectors.mapping(rec -> rec.imapUid, Collectors.toList())));
+
+				partitioned.entrySet().forEach(entry -> {
+					List<Long> imapUids = entry.getValue();
+					Integer containerId = entry.getKey();
+					try {
+						Container container = containerStore.get(containerId);
+						logger.info("Expiring {} messages of container {}", imapUids.size(), containerId);
+						context.provider().instance(IDbMailboxRecords.class, IMailReplicaUids.uniqueId(container.uid))
+								.deleteImapUids(imapUids);
+					} catch (SQLException e) {
+						logger.error("Error retrieving container {}: {}", containerId, e.getMessage());
+					} catch (Exception e) {
+						logger.error("Error cleaning up expiring messages on container {}: {}", containerId,
+								e.getMessage());
+					}
+					try {
+						logger.info("Purge {} expunged messages of queue for container {}", imapUids.size(),
+								containerId);
+						expungedStore.deleteExpunged(containerId, imapUids);
+					} catch (Exception e) {
+						logger.error("Error cleaning up expunged messages on container {}: {}", containerId,
+								e.getMessage());
+					}
+				});
+			} while (expiredItems.size() > 0);
+
+			new ContainersHierarchyNodeStore(pool, null).removeExpiredDeletedContainers(days);
+
+			return null;
+		});
+	}
+
 	private void removeFromSdsStore(IServerTaskMonitor monitor, MessageBodyObjectStore sdsStore, List<String> guids) {
 		logger.info("Removing {} from object storage", guids.size());
 		for (List<String> partitionedGuids : Lists.partition(guids, 100)) {
-			monitor.log("Removing " + partitionedGuids.size() + " objects from object storage");
+			monitor.log("Removing {} objects from object storage", partitionedGuids.size());
 			try {
 				sdsStore.delete(partitionedGuids);
 			} catch (Exception e) {
 				String guidListString = partitionedGuids.stream().collect(Collectors.joining(","));
 				logger.error("sdsStore.delete() failed on guids: [{}]", guidListString, e);
-				monitor.log("sdsStore.delete() failed on guids: " + guidListString);
+				monitor.log("sdsStore.delete() failed on guids: [{}]", guidListString);
 			}
 		}
 	}

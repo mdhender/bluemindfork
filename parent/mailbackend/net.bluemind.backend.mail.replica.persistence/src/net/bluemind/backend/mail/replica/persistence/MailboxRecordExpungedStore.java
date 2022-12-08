@@ -27,43 +27,33 @@ import javax.sql.DataSource;
 import org.postgresql.util.PGInterval;
 
 import net.bluemind.backend.mail.replica.api.MailboxRecordExpunged;
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 
 public class MailboxRecordExpungedStore extends JdbcAbstractStore {
 
-	private static final Creator<MailboxRecordExpunged> MB_CREATOR = rs -> new MailboxRecordExpunged();
+	protected static final Creator<MailboxRecordExpunged> MB_CREATOR = rs -> new MailboxRecordExpunged();
 
 	public static final Integer LIMIT = 1000;
+
+	private Container folderContainer;
+	private Container subtreeContainer;
 
 	public MailboxRecordExpungedStore(DataSource pool) {
 		super(pool);
 		Objects.requireNonNull(pool, "datasource must not be null");
+		this.folderContainer = null;
+		this.subtreeContainer = null;
 	}
 
-	private static final String CREATE_QUERY = "INSERT INTO q_mailbox_record_expunged ( "
-			+ MailboxRecordExpungedColumns.COLUMNS.names() + ") VALUES ("
-			+ MailboxRecordExpungedColumns.COLUMNS.values() + " ON CONFLICT DO NOTHUING";
-
-	public void store(MailboxRecordExpunged value) throws SQLException {
-		insert(CREATE_QUERY, value, Arrays.asList(MailboxRecordExpungedColumns.values(value.containerId, value.itemId),
-				MailboxRecordExpungedColumns.values(null, null)));
-	}
-
-	public void delete(Integer containerId, Long itemId) throws SQLException {
-		delete("DELETE FROM q_mailbox_record_expunged WHERE container_id = ? AND item_id = ?",
-				new Object[] { containerId, itemId });
+	public MailboxRecordExpungedStore(DataSource pool, Container folderContainer, Container subtreeContainer) {
+		this(pool);
+		this.folderContainer = folderContainer;
+		this.subtreeContainer = subtreeContainer;
 	}
 
 	public void deleteAll() throws SQLException {
 		delete("TRUNCATE q_mailbox_record_expunged", new Object[0]);
-	}
-
-	private static final String GET_QUERY = "SELECT " + MailboxRecordExpungedColumns.COLUMNS.names()
-			+ " FROM q_mailbox_record_expunged WHERE container_id = ? AND item_id = ?";
-
-	public MailboxRecordExpunged get(Integer containerId, Long itemId) throws SQLException {
-		return unique(GET_QUERY, MB_CREATOR, MailboxRecordExpungedColumns.populator(containerId.intValue(), itemId),
-				new Object[] { containerId, itemId });
 	}
 
 	public List<MailboxRecordExpunged> getExpiredItems(int days) throws SQLException {
@@ -90,4 +80,67 @@ public class MailboxRecordExpungedStore extends JdbcAbstractStore {
 				new Object[] { containerId, imapUids.stream().toArray(Long[]::new) });
 	}
 
+	private static final String CREATE_QUERY = "INSERT INTO q_mailbox_record_expunged ( "
+			+ MailboxRecordExpungedColumns.COLUMNS.names() + ") VALUES ("
+			+ MailboxRecordExpungedColumns.COLUMNS.values() + " ON CONFLICT DO NOTHUING";
+
+	public void store(MailboxRecordExpunged value) throws SQLException {
+		if (folderContainer == null || subtreeContainer == null) {
+			return;
+		}
+		insert(CREATE_QUERY, value, Arrays.asList(MailboxRecordExpungedColumns.values(value.itemId),
+				MailboxRecordExpungedColumns.values(null)));
+	}
+
+	public void delete(Long itemId) throws SQLException {
+		if (folderContainer == null || subtreeContainer == null) {
+			return;
+		}
+		delete("DELETE FROM q_mailbox_record_expunged WHERE container_id = ? AND subtree_id = ? AND item_id = ?",
+				new Object[] { folderContainer.id, subtreeContainer.id, itemId });
+	}
+
+	private static final String GET_QUERY = "SELECT " + MailboxRecordExpungedColumns.COLUMNS.names()
+			+ " FROM q_mailbox_record_expunged WHERE container_id = ? AND subtree_id = ? AND item_id = ?";
+
+	public MailboxRecordExpunged get(Long itemId) throws SQLException {
+		if (folderContainer == null || subtreeContainer == null) {
+			return null;
+		}
+		return unique(GET_QUERY, MB_CREATOR, MailboxRecordExpungedColumns.populator(itemId),
+				new Object[] { folderContainer.id, subtreeContainer.id, itemId });
+	}
+
+	private static final String FETCH_QUERY = "SELECT " + MailboxRecordExpungedColumns.COLUMNS.names()
+			+ " FROM q_mailbox_record_expunged WHERE container_id = ? AND subtree_id = ?";
+
+	public List<MailboxRecordExpunged> fetch() throws SQLException {
+		if (folderContainer == null || subtreeContainer == null) {
+			return null;
+		}
+		return select(FETCH_QUERY, con -> new MailboxRecordExpunged(), POPULATOR,
+				new Object[] { folderContainer.id, subtreeContainer.id });
+	}
+
+	private static final EntityPopulator<MailboxRecordExpunged> POPULATOR = (rs, index, value) -> {
+		value.containerId = rs.getInt(index++);
+		value.subtreeId = rs.getInt(index++);
+		value.itemId = rs.getLong(index++);
+		value.imapUid = rs.getLong(index++);
+		value.created = rs.getDate(index++);
+		return index;
+	};
+
+	public Long count() throws SQLException {
+		if (folderContainer == null || subtreeContainer == null) {
+			return null;
+		}
+		String q = "SELECT COUNT(*) FROM q_mailbox_record_expunged WHERE container_id = ? AND subtree_id = ?";
+		return unique(q, rs -> rs.getLong(1), (rs, index, v) -> index,
+				new Object[] { folderContainer.id, subtreeContainer.id });
+	}
+
+	public String getContainerUid() {
+		return folderContainer.uid;
+	}
 }

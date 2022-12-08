@@ -19,9 +19,8 @@
 package net.bluemind.backend.mail.replica.service.internal;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -33,9 +32,9 @@ import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.IMailboxRecordExpunged;
 import net.bluemind.backend.mail.replica.api.MailboxRecordExpunged;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordExpungedStore;
-import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.persistence.ContainerStore;
-import net.bluemind.core.container.persistence.ContainersHierarchyNodeStore;
+import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.Count;
+import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.rest.BmContext;
 
@@ -43,61 +42,64 @@ public class MailboxRecordExpungedService implements IMailboxRecordExpunged {
 
 	private final BmContext context;
 	private final DataSource pool;
-	private final String serverUid;
-	private final ContainerStore containerStore;
 	private final MailboxRecordExpungedStore expungedStore;
 
 	private static final Logger logger = LoggerFactory.getLogger(MailboxRecordExpungedService.class);
 
-	public MailboxRecordExpungedService(BmContext context, DataSource pool, String serverUid) {
+	public MailboxRecordExpungedService(BmContext context, DataSource pool, MailboxRecordExpungedStore store) {
 		this.context = context;
 		this.pool = pool;
-		this.serverUid = serverUid;
-		this.containerStore = new ContainerStore(context, pool, context.getSecurityContext());
-		this.expungedStore = new MailboxRecordExpungedStore(pool);
+		this.expungedStore = store;
 	}
 
 	@Override
-	public void delete(int days) {
+	public void delete(long itemId) {
 		JdbcAbstractStore.doOrFail(() -> {
-			logger.info("Expiring expunged messages ({} days) on server {}", days, serverUid);
-			List<MailboxRecordExpunged> expiredItems;
-			do {
-				expiredItems = expungedStore.getExpiredItems(days);
-				logger.info("Found {} message expiring to delete", expiredItems.size());
-
-				Map<Integer, List<Long>> partitioned = expiredItems.stream()
-						.collect(Collectors.groupingBy(MailboxRecordExpunged::containerId,
-								Collectors.mapping(rec -> rec.imapUid, Collectors.toList())));
-
-				partitioned.entrySet().forEach(entry -> {
-					List<Long> imapUids = entry.getValue();
-					Integer containerId = entry.getKey();
-					try {
-						Container container = containerStore.get(containerId);
-						logger.info("Expiring {} messages of container {}", imapUids.size(), containerId);
-						context.provider().instance(IDbMailboxRecords.class, IMailReplicaUids.uniqueId(container.uid))
-								.deleteImapUids(imapUids);
-					} catch (SQLException e) {
-						logger.error("Error retrieving container {}: {}", containerId, e.getMessage());
-					} catch (Exception e) {
-						logger.error("Error cleaning up expiring messages on container {}: {}", containerId,
-								e.getMessage());
-					}
-					try {
-						logger.info("Purge {} expunged messages of queue for container {}", imapUids.size(),
-								containerId);
-						expungedStore.deleteExpunged(containerId, imapUids);
-					} catch (Exception e) {
-						logger.error("Error cleaning up expunged messages on container {}: {}", containerId,
-								e.getMessage());
-					}
-				});
-			} while (expiredItems.size() > 0);
-
-			new ContainersHierarchyNodeStore(pool, null).removeDeletedRecords(days);
+			MailboxRecordExpunged record = get(itemId);
+			Long imapUid = record.imapUid;
+			Integer containerId = record.containerId;
+			try {
+				context.provider()
+						.instance(IDbMailboxRecords.class, IMailReplicaUids.uniqueId(expungedStore.getContainerUid()))
+						.deleteImapUids(Arrays.asList(imapUid));
+			} catch (Exception e) {
+				logger.error("Error cleaning up message {} on container {}: {}", imapUid, containerId, e.getMessage());
+			}
+			try {
+				logger.info("Purge expunged message {} of queue for container {}", imapUid, containerId);
+				expungedStore.deleteExpunged(containerId, Arrays.asList(imapUid));
+			} catch (Exception e) {
+				logger.error("Error cleaning up message {} on container {}: {}", imapUid, containerId, e.getMessage());
+			}
 
 			return null;
 		});
+	}
+
+	@Override
+	public List<MailboxRecordExpunged> fetch() {
+		try {
+			return expungedStore.fetch();
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+	}
+
+	@Override
+	public Count count(ItemFlagFilter filter) {
+		try {
+			return Count.of(expungedStore.count());
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+	}
+
+	@Override
+	public MailboxRecordExpunged get(long itemId) {
+		try {
+			return expungedStore.get(itemId);
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
 	}
 }

@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.vertx.core.AbstractVerticle;
-import net.bluemind.backend.mail.replica.api.IMailboxRecordExpunged;
 import net.bluemind.backend.mail.replica.api.IReplicatedDataExpiration;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -59,9 +58,8 @@ public class ReplicatedDataExpirationTimer extends AbstractVerticle {
 			Set<String> servers = getServers();
 			servers.forEach(server -> {
 				long time = System.currentTimeMillis();
-				IMailboxRecordExpunged serviceExp = provider.instance(IMailboxRecordExpunged.class, server);
-				serviceExp.delete(expiration);
 				IReplicatedDataExpiration service = provider.instance(IReplicatedDataExpiration.class, server);
+				service.deleteExpiredExpunged(expiration);
 				service.deleteOrphanMessageBodies();
 				time = System.currentTimeMillis() - time;
 				logger.info("cleanup process took {}ms.", time);

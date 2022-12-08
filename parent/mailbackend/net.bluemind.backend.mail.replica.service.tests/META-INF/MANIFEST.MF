@@ -59,7 +59,8 @@ Require-Bundle: org.junit,
  net.bluemind.imap.cyrus.storage.testhelper;bundle-version="4.1.0",
  org.awaitility,
  org.hamcrest;bundle-version="2.2.0",
- net.bluemind.core.caches.testhelper
+ net.bluemind.core.caches.testhelper,
+ net.bluemind.role.api
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.backend.mail.replica.service.tests

@@ -79,11 +79,14 @@ public class ContainersHierarchyNodeStore extends AbstractItemValueStore<Contain
 				new Object[] { container.id });
 	}
 
-	public void removeDeletedRecords(int days) throws SQLException {
-		String select = "SELECT ci.id FROM t_container_hierarchy h JOIN t_container_item ci ON h.item_id = ci.id "
-				+ "WHERE container_type = '" + IMailReplicaUids.MAILBOX_RECORDS + "' AND ci.flags::bit(32) & ("
-				+ ItemFlag.Deleted.value + ")::bit(32) = (" + ItemFlag.Deleted.value + ")::bit(32) " + //
-				"AND ci.updated < (now() - interval '" + days + " days')";
+	public void removeExpiredDeletedContainers(int days) throws SQLException {
+		String select = "SELECT ci.id " //
+				+ "FROM t_container_hierarchy h " //
+				+ "JOIN t_container_item ci ON h.item_id = ci.id " //
+				+ "WHERE h.container_type = '" + IMailReplicaUids.MAILBOX_RECORDS //
+				+ "' AND ci.flags::bit(32) & (" //
+				+ ItemFlag.Deleted.value + ")::bit(32) = (" + ItemFlag.Deleted.value + ")::bit(32) " //
+				+ "AND ci.updated < (now() - interval '" + days + " days')";
 		List<Long> selected = select(select, rs -> rs.getLong(1), (rs, index, val) -> index);
 
 		delete("DELETE FROM t_container_hierarchy WHERE item_id = ANY (?)",

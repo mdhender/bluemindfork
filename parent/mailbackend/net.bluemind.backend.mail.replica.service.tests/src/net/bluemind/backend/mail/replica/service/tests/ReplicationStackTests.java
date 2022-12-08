@@ -99,7 +99,6 @@ import net.bluemind.backend.mail.replica.api.QuotaRoot;
 import net.bluemind.backend.mail.replica.api.utils.Subtree;
 import net.bluemind.backend.mail.replica.service.ReplicationEvents;
 import net.bluemind.backend.mail.replica.service.internal.ItemsTransferService;
-import net.bluemind.backend.mail.replica.service.internal.MailboxRecordExpungedService;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Email;
@@ -123,14 +122,12 @@ import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
-import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.sessions.Sessions;
-import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
@@ -3550,8 +3547,6 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		//
 		provider().instance(IMailboxFolders.class, partition, mboxRoot).emptyFolder(trash.internalId);
 		Thread.sleep(1000);
-		new MailboxRecordExpungedService(new BmTestContext(SecurityContext.SYSTEM),
-				JdbcTestHelper.getInstance().getMailboxDataDataSource(), "bm/core").delete(0);
 		user1InboxConversations = user1ConversationService.byFolder(user1Inbox.uid,
 				createSortDescriptor(ItemFlagFilter.all()));
 		assertEquals(1, user1InboxConversations.size());

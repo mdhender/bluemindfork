@@ -35,4 +35,8 @@ public interface IReplicatedDataExpiration {
 	@POST
 	@Path("_delete_orphan_from_objectstorage")
 	public TaskRef deleteMessageBodiesFromObjectStore(@QueryParam("days") int days);
+
+	@POST
+	@Path("_delete_expunged_expired")
+	public void deleteExpiredExpunged(@QueryParam("days") int days);
 }

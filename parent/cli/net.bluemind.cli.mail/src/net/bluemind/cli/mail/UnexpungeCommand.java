@@ -19,7 +19,6 @@
 package net.bluemind.cli.mail;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -36,15 +35,15 @@ import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
+import net.bluemind.backend.mail.replica.api.IMailboxRecordExpunged;
+import net.bluemind.backend.mail.replica.api.MailboxRecordExpunged;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.cli.utils.CliUtils.ResolvedMailbox;
-import net.bluemind.core.api.ListResult;
 import net.bluemind.core.container.api.Count;
-import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
@@ -120,29 +119,35 @@ public class UnexpungeCommand implements ICmdLet, Runnable {
 			folders.all().forEach(c -> ctx.info(" * " + c.value.fullName));
 		} else {
 			ctx.info("Located folder is " + located);
+			IMailboxRecordExpunged expungeApi = userProv.instance(IMailboxRecordExpunged.class, located.uid);
 			IMailboxItems itemsApi = userProv.instance(IMailboxItems.class, located.uid);
-			ItemFlagFilter deletedFilter = ItemFlagFilter.create().must(ItemFlag.Deleted);
-			Count deleted = itemsApi.count(deletedFilter);
-			ctx.info("Folder has " + deleted.total + " deleted message(s)");
 
-			if (deleted.total > 0) {
-				if (days == 0 && id == 0) {
-					showDeletedMessages(itemsApi, mi -> true, mi -> {
-					});
-				} else if (days > 0) {
-					ctx.info("Recovering messages less than " + days + " day(s)) old");
-					long now = System.currentTimeMillis();
-					Predicate<ItemValue<MailboxItem>> pred = mi -> TimeUnit.MILLISECONDS
-							.toDays(now - mi.updated.getTime()) < days;
-					showDeletedMessages(itemsApi, pred, new Unexpunger(ctx, itemsApi));
-				} else if (id > 0) {
-					ctx.info("Recover message with id " + id);
-					if (!dry) {
-						ItemIdentifier ack = itemsApi.unexpunge(id);
-						ctx.info("ack: " + ack.version);
-					} else {
-						ctx.info("dry mode is ON.");
-					}
+			Count count = expungeApi.count(ItemFlagFilter.all());
+			ctx.info("Folder has " + count.total + " deleted message(s)");
+
+			if (days == 0 && id == 0) {
+				Predicate<MailboxRecordExpunged> filter = mi -> true;
+				List<MailboxRecordExpunged> expungeList = expungeApi.fetch();
+				List<Long> ids = expungeList.stream().filter(e -> filter.test(e)).map(e -> e.itemId).toList();
+				List<ItemValue<MailboxItem>> recordsList = itemsApi.multipleGetById(ids);
+				showDeletedMessages(recordsList, mi -> {
+				});
+			} else if (days > 0) {
+				ctx.info("Recovering messages less than " + days + " day(s)) old");
+				long now = System.currentTimeMillis();
+				Predicate<MailboxRecordExpunged> filter = mi -> TimeUnit.MILLISECONDS
+						.toDays(now - mi.created.getTime()) < days;
+				List<MailboxRecordExpunged> expungeList = expungeApi.fetch();
+				List<Long> ids = expungeList.stream().filter(e -> filter.test(e)).map(e -> e.itemId).toList();
+				List<ItemValue<MailboxItem>> recordsList = itemsApi.multipleGetById(ids);
+				showDeletedMessages(recordsList, new Unexpunger(ctx, itemsApi));
+			} else if (id > 0) {
+				ctx.info("Recover message with id " + id);
+				if (!dry) {
+					ItemIdentifier ack = itemsApi.unexpunge(id);
+					ctx.info("ack: " + ack.version);
+				} else {
+					ctx.info("dry mode is ON.");
 				}
 			}
 		}
@@ -151,47 +156,24 @@ public class UnexpungeCommand implements ICmdLet, Runnable {
 
 	}
 
-	private void showDeletedMessages(IMailboxItems itemsApi, Predicate<ItemValue<MailboxItem>> filter,
-			Consumer<ItemValue<MailboxItem>> cons) {
-		long cv = itemsApi.getVersion();
-		int start = 0;
-		int page = 25;
+	private void showDeletedMessages(List<ItemValue<MailboxItem>> expungeList, Consumer<ItemValue<MailboxItem>> cons) {
 
-		ListResult<Long> chunk = itemsApi.allIds("+deleted", cv, page, start);
-		long fetched = 0;
-		List<ItemValue<MailboxItem>> toRestore = new LinkedList<>();
-		while (!chunk.values.isEmpty()) {
-			toRestore.addAll(showChunk(itemsApi, chunk, filter));
-
-			start += chunk.values.size();
-			fetched += chunk.values.size();
-			chunk = itemsApi.allIds("+deleted", cv, page, start);
-		}
-		ctx.info("Checked " + fetched + " deleted item(s), will restore " + toRestore.size() + " item(s)");
-		toRestore.forEach(cons);
-	}
-
-	private List<ItemValue<MailboxItem>> showChunk(IMailboxItems itemsApi, ListResult<Long> chunk,
-			Predicate<ItemValue<MailboxItem>> filter) {
-		List<ItemValue<MailboxItem>> mget = itemsApi.multipleGetById(chunk.values);
 		String[] headers = { "id", "subject", "preview", "last-modification" };
-		int chunkSize = mget.size();
+		int chunkSize = expungeList.size();
 		List<String[]> data = new ArrayList<>(chunkSize);
 		List<ItemValue<MailboxItem>> ret = new ArrayList<>(chunkSize);
 		for (int i = 0; i < chunkSize; i++) {
-			ItemValue<MailboxItem> item = mget.get(i);
-			if (filter.test(item)) {
-				String[] dataRow = new String[headers.length];
-				dataRow[0] = Long.toString(item.internalId);
-				dataRow[1] = item.value.body.subject;
-				dataRow[2] = item.value.body.preview;
-				dataRow[3] = item.updated.toString();
-				data.add(dataRow);
-				if (!dry) {
-					ret.add(item);
-				} else {
-					ctx.info("Skipping action on " + item + " because dry mode is enabled.");
-				}
+			ItemValue<MailboxItem> item = expungeList.get(i);
+			String[] dataRow = new String[headers.length];
+			dataRow[0] = Long.toString(item.internalId);
+			dataRow[1] = item.value.body.subject;
+			dataRow[2] = item.value.body.preview;
+			dataRow[3] = item.updated.toString();
+			data.add(dataRow);
+			if (!dry) {
+				ret.add(item);
+			} else {
+				ctx.info("Skipping action on " + item + " because dry mode is enabled.");
 			}
 		}
 		if (!data.isEmpty()) {
@@ -199,7 +181,9 @@ public class UnexpungeCommand implements ICmdLet, Runnable {
 			forDisplay = data.toArray(forDisplay);
 			ctx.info(AsciiTable.getTable(headers, forDisplay));
 		}
-		return ret;
+
+		ctx.info("Checked " + expungeList.size() + " deleted item(s), will restore " + ret.size() + " item(s)");
+		ret.forEach(cons);
 	}
 
 	public static class Unexpunger implements Consumer<ItemValue<MailboxItem>> {

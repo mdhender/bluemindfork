@@ -18,17 +18,29 @@
  */
 package net.bluemind.backend.mail.replica.api;
 
+import java.util.List;
+
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.container.api.ICountingSupport;
 
 @BMApi(version = "3", internal = true)
-@Path("/record_expunged_expiration/{serverUid}")
-public interface IMailboxRecordExpunged {
+@Path("/record_expunged/{replicatedMailboxUid}")
+public interface IMailboxRecordExpunged extends ICountingSupport {
 
 	@POST
 	@Path("_delete")
-	public void delete(@QueryParam("days") int days);
+	public void delete(@QueryParam("id") long itemId);
+
+	@GET
+	@Path("_fetch")
+	public List<MailboxRecordExpunged> fetch();
+
+	@GET
+	@Path("_get")
+	public MailboxRecordExpunged get(@QueryParam("id") long itemId);
 
 }

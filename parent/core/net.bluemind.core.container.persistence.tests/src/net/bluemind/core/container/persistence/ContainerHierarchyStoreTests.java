@@ -142,7 +142,7 @@ public class ContainerHierarchyStoreTests {
 		hierStore.create(item2, node2);
 		assertNotNull(hierStore.get(item2));
 
-		hierStore.removeDeletedRecords(7);
+		hierStore.removeExpiredDeletedContainers(7);
 
 		assertNotNull(hierStore.get(item));
 		assertNull(hierStore.get(item2));

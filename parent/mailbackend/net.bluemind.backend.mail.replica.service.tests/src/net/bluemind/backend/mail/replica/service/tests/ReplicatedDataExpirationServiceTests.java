@@ -46,11 +46,9 @@ import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.cyrus.replication.testhelper.CyrusGUID;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
-import net.bluemind.backend.mail.replica.api.IMailboxRecordExpunged;
 import net.bluemind.backend.mail.replica.api.IReplicatedDataExpiration;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
-import net.bluemind.backend.mail.replica.service.internal.MailboxRecordExpungedService;
 import net.bluemind.backend.mail.replica.service.internal.ReplicatedDataExpirationService;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.container.model.ItemValue;
@@ -67,7 +65,7 @@ public class ReplicatedDataExpirationServiceTests extends AbstractMailboxRecords
 	@Test
 	public void testDeletingExpiredMailsOnEmptyTable() {
 		try {
-			getExpungedService().delete(7);
+			getExpirationService().deleteExpiredExpunged(7);
 		} catch (Exception e) {
 			fail("Error while executing expiration task " + e.getMessage());
 		}
@@ -83,7 +81,7 @@ public class ReplicatedDataExpirationServiceTests extends AbstractMailboxRecords
 
 			assertEquals(4, getService(SecurityContext.SYSTEM).all().size());
 
-			getExpungedService().delete(10);
+			getExpirationService().deleteExpiredExpunged(10);
 
 			try (Connection con = JdbcTestHelper.getInstance().getMailboxDataDataSource().getConnection();
 					PreparedStatement stm = con.prepareStatement("SELECT count(*) from q_mailbox_record_expunged;")) {
@@ -112,7 +110,6 @@ public class ReplicatedDataExpirationServiceTests extends AbstractMailboxRecords
 	@Test
 	public void testDeleteOrphanBodies() throws SQLException {
 		IReplicatedDataExpiration expirationService = getExpirationService();
-		IMailboxRecordExpunged expungedService = getExpungedService();
 		MailboxRecord rec1 = null;
 		try {
 			rec1 = createRecord(10, 15, true);
@@ -121,7 +118,7 @@ public class ReplicatedDataExpirationServiceTests extends AbstractMailboxRecords
 			createRecord(40, 5, false);
 			assertEquals(4, getService(SecurityContext.SYSTEM).all().size());
 
-			expungedService.delete(10);
+			expirationService.deleteExpiredExpunged(10);
 
 			try (Connection con = JdbcTestHelper.getInstance().getMailboxDataDataSource().getConnection();
 					PreparedStatement stm = con.prepareStatement("SELECT count(*) from q_mailbox_record_expunged;")) {
@@ -260,12 +257,6 @@ public class ReplicatedDataExpirationServiceTests extends AbstractMailboxRecords
 	protected IReplicatedDataExpiration getExpirationService() {
 		BmTestContext testCtx = new BmTestContext(SecurityContext.SYSTEM);
 		return new ReplicatedDataExpirationService(testCtx, JdbcTestHelper.getInstance().getMailboxDataDataSource(),
-				"bm/core");
-	}
-
-	protected IMailboxRecordExpunged getExpungedService() {
-		BmTestContext testCtx = new BmTestContext(SecurityContext.SYSTEM);
-		return new MailboxRecordExpungedService(testCtx, JdbcTestHelper.getInstance().getMailboxDataDataSource(),
 				"bm/core");
 	}
 

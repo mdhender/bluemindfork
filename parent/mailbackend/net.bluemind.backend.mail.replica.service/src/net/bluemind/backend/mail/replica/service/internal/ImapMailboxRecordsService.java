@@ -78,6 +78,7 @@ import net.bluemind.backend.mail.parsing.EmlBuilder;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IInternalMailboxItems;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
+import net.bluemind.backend.mail.replica.api.IMailboxRecordExpunged;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailApiHeaders;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
@@ -572,6 +573,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		if (item == null) {
 			throw ServerFault.notFound("itemId " + itemId + " not found for unexpunge");
 		}
+
 		long imapUid = item.value.imapUid;
 		InputStream directRead = fetchCompleteOIO(imapUid);
 		CompletableFuture<Long> completion = ReplicationEvents.onMailboxChanged(mailboxUniqueId);
@@ -585,6 +587,9 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				return completion.thenApply(version -> {
 					try {
 						RecordID itemRec = recordStore.identifiers(readded).iterator().next();
+						IMailboxRecordExpunged expungeApi = context.provider()
+								.instance(IMailboxRecordExpunged.class, IMailReplicaUids.uniqueId(container.uid));
+						expungeApi.delete(itemId);
 						return new ItemIdentifier(null, itemRec.itemId, version);
 					} catch (SQLException e) {
 						throw ServerFault.sqlFault(e);
