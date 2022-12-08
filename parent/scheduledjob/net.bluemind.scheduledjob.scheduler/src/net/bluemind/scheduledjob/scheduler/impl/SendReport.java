@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -76,33 +77,39 @@ public class SendReport implements Runnable {
 		try {
 			Job job = service.getJobFromId(rid.jid);
 			if (job != null && job.sendReport && !job.recipients.isEmpty()) {
-				String domain = rid.domainUid;
+				String domainUid = rid.domainUid;
 
-				String from = "no-reply@" + getNoReplyDomainName(domain);
+				String from = "no-reply@"
+						+ getDomainDefaultAlias(domainUid).orElseGet(() -> getExternalUrl().orElse(domainUid));
+
 				logger.info("Sending report using sender address {}", from);
 				Message m = getMessage(rid, job, from);
-				mailer.send(SendmailCredentials.asAdmin0(), from, domain, m);
+				mailer.send(SendmailCredentials.asAdmin0(), from, domainUid, m);
 			}
-		} catch (ServerFault e) {
+		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 	}
 
-	private String getNoReplyDomainName(String domain) {
-		if (StringUtils.isNotBlank(domain) && !domain.equals("global.virt")) {
-			return domain;
-		} else {
-			ISystemConfiguration sysConf = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-					.instance(ISystemConfiguration.class);
-			SystemConf conf = sysConf.getValues();
-			String externalUrl = conf.stringValue(SysConfKeys.external_url.name());
-			if (StringUtils.isNotBlank(externalUrl)) {
-				return externalUrl;
-			} else {
-				return domain;
-			}
+	private Optional<String> getDomainDefaultAlias(String domainUid) {
+		if (StringUtils.isBlank(domainUid) || domainUid.equals("global.virt")) {
+			return Optional.empty();
 		}
 
+		return Optional.ofNullable(
+				Optional.ofNullable(domainService.get(domainUid)).map(d -> d.value.defaultAlias).orElse(null));
+	}
+
+	private Optional<String> getExternalUrl() {
+		ISystemConfiguration sysConf = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class);
+		SystemConf conf = sysConf.getValues();
+		String externalUrl = conf.stringValue(SysConfKeys.external_url.name());
+		if (StringUtils.isBlank(externalUrl)) {
+			return Optional.empty();
+		}
+
+		return Optional.of(externalUrl);
 	}
 
 	private Message getMessage(RunIdImpl rid, Job job, String from) {
