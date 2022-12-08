@@ -48,7 +48,8 @@ public class DbMessageBodiesServiceFactory
 	private IDbMessageBodies getService(BmContext context, CyrusPartition partition) {
 		logger.debug("For partition {}...", partition);
 		MessageBodyStore bodyStore = new MessageBodyStore(context.getMailboxDataSource(partition.serverUid));
-		Supplier<MessageBodyObjectStore> bodyObjectStore = Suppliers.memoize(() -> new MessageBodyObjectStore(context));
+		Supplier<MessageBodyObjectStore> bodyObjectStore = Suppliers
+				.memoize(() -> new MessageBodyObjectStore(context, partition.serverUid));
 		return new DbMessageBodiesService(bodyStore, bodyObjectStore, Suppliers.memoize(() -> ServerSideServiceProvider
 				.getProvider(SecurityContext.SYSTEM).instance(IMessageBodyTierChange.class, partition.serverUid)));
 	}

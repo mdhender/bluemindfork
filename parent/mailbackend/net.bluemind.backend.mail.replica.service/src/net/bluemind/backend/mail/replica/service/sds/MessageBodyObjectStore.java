@@ -54,7 +54,7 @@ public class MessageBodyObjectStore {
 	private final BmContext ctx;
 	private final ISdsSyncStore objectStore;
 
-	public MessageBodyObjectStore(BmContext ctx) {
+	public MessageBodyObjectStore(BmContext ctx, String datalocation) {
 		this.ctx = ctx;
 		if (logger.isDebugEnabled()) {
 			logger.debug("Object store for {}", this.ctx);
@@ -62,8 +62,8 @@ public class MessageBodyObjectStore {
 
 		SystemConf config = LocalSysconfCache.get();
 
-		this.objectStore = new SdsStoreLoader().forSysconf(config)
-				.orElseGet(() -> new NoopStoreFactory().createSync(VertxPlatform.getVertx(), config));
+		this.objectStore = new SdsStoreLoader().forSysconf(config, datalocation)
+				.orElseGet(() -> new NoopStoreFactory().createSync(VertxPlatform.getVertx(), config, datalocation));
 		if (logger.isDebugEnabled()) {
 			logger.debug("Reading with {}", objectStore);
 		}

@@ -77,7 +77,8 @@ public class SdsFileHostingService implements IInternalFileHostingService {
 			.hmacSha256(InstallationId.getIdentifier().replace("bluemind-", "").getBytes());
 
 	private static final Supplier<ISdsSyncStore> sds = Suppliers.memoizeWithExpiration(
-			() -> new SdsDocumentStoreLoader().forSysconf(LocalSysconfCache.get()).orElse(null), 5, TimeUnit.MINUTES);
+			() -> new SdsDocumentStoreLoader().forSysconf(LocalSysconfCache.get(), "unused").orElse(null), 5,
+			TimeUnit.MINUTES);
 
 	public SdsFileHostingService() {
 		if (logger.isDebugEnabled()) {

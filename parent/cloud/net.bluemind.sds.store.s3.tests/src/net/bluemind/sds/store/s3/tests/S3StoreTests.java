@@ -70,7 +70,7 @@ public class S3StoreTests {
 		JsonObject s3js = config.asJson();
 		System.err.println(s3js.encodePrettily());
 
-		ISdsBackingStore store = new S3StoreFactory().create(VertxPlatform.getVertx(), s3js);
+		ISdsBackingStore store = new S3StoreFactory().create(VertxPlatform.getVertx(), s3js, "foobar");
 		assertNotNull(store);
 	}
 
@@ -78,7 +78,7 @@ public class S3StoreTests {
 	public void objectDoesNotExist() {
 		S3Configuration config = S3Configuration.withEndpointAndBucket("http://" + s3Ip + ":8000",
 				"junit-" + System.currentTimeMillis());
-		ISdsBackingStore store = new S3StoreFactory().create(VertxPlatform.getVertx(), config.asJson());
+		ISdsBackingStore store = new S3StoreFactory().create(VertxPlatform.getVertx(), config.asJson(), "foobar");
 		ExistRequest er = new ExistRequest();
 		er.mailbox = "titi";
 		er.guid = UUID.randomUUID().toString();
@@ -90,7 +90,7 @@ public class S3StoreTests {
 	public void putObject() throws IOException {
 		S3Configuration config = S3Configuration.withEndpointAndBucket("http://" + s3Ip + ":8000",
 				"junit-" + System.currentTimeMillis());
-		ISdsBackingStore store = new S3StoreFactory().create(VertxPlatform.getVertx(), config.asJson());
+		ISdsBackingStore store = new S3StoreFactory().create(VertxPlatform.getVertx(), config.asJson(), "foobar");
 		ExistRequest er = new ExistRequest();
 		er.mailbox = "titi";
 		er.guid = UUID.randomUUID().toString();
@@ -113,7 +113,7 @@ public class S3StoreTests {
 	public void deleteObject() throws IOException {
 		S3Configuration config = S3Configuration.withEndpointAndBucket("http://" + s3Ip + ":8000",
 				"junit-" + System.currentTimeMillis());
-		ISdsBackingStore store = new S3StoreFactory().create(VertxPlatform.getVertx(), config.asJson());
+		ISdsBackingStore store = new S3StoreFactory().create(VertxPlatform.getVertx(), config.asJson(), "foobar");
 
 		PutRequest pr = new PutRequest();
 		pr.mailbox = "tata";
@@ -148,7 +148,7 @@ public class S3StoreTests {
 	public void getObject() throws IOException {
 		S3Configuration config = S3Configuration.withEndpointAndBucket("http://" + s3Ip + ":8000",
 				"junit-" + System.currentTimeMillis());
-		ISdsBackingStore store = new S3StoreFactory().create(VertxPlatform.getVertx(), config.asJson());
+		ISdsBackingStore store = new S3StoreFactory().create(VertxPlatform.getVertx(), config.asJson(), "foobar");
 
 		PutRequest put = new PutRequest();
 		put.mailbox = "titi";
@@ -173,7 +173,7 @@ public class S3StoreTests {
 	public void getObjectNotFound() throws IOException {
 		S3Configuration config = S3Configuration.withEndpointAndBucket("http://" + s3Ip + ":8000",
 				"junit-" + System.currentTimeMillis());
-		ISdsBackingStore store = new S3StoreFactory().create(VertxPlatform.getVertx(), config.asJson());
+		ISdsBackingStore store = new S3StoreFactory().create(VertxPlatform.getVertx(), config.asJson(), "foobar");
 		Path path = tempContent();
 		GetRequest get = new GetRequest();
 		get.mailbox = "titi";
@@ -190,7 +190,7 @@ public class S3StoreTests {
 	public void getObjects() throws IOException {
 		S3Configuration config = S3Configuration.withEndpointAndBucket("http://" + s3Ip + ":8000",
 				"junit-" + System.currentTimeMillis());
-		ISdsBackingStore store = new S3StoreFactory().create(VertxPlatform.getVertx(), config.asJson());
+		ISdsBackingStore store = new S3StoreFactory().create(VertxPlatform.getVertx(), config.asJson(), "foobar");
 
 		PutRequest put = new PutRequest();
 		put.mailbox = "titi";
@@ -225,7 +225,7 @@ public class S3StoreTests {
 	public void getManyObjects() throws IOException {
 		S3Configuration config = S3Configuration.withEndpointAndBucket("http://" + s3Ip + ":8000",
 				"junit-" + System.currentTimeMillis());
-		ISdsBackingStore store = new S3StoreFactory().create(VertxPlatform.getVertx(), config.asJson());
+		ISdsBackingStore store = new S3StoreFactory().create(VertxPlatform.getVertx(), config.asJson(), "foobar");
 
 		int cnt = 100;
 		List<PutRequest> puts = new ArrayList<>(cnt);
@@ -257,7 +257,7 @@ public class S3StoreTests {
 	public void getManyObjectsOneNotFound() throws IOException {
 		S3Configuration config = S3Configuration.withEndpointAndBucket("http://" + s3Ip + ":8000",
 				"junit-" + System.currentTimeMillis());
-		ISdsBackingStore store = new S3StoreFactory().create(VertxPlatform.getVertx(), config.asJson());
+		ISdsBackingStore store = new S3StoreFactory().create(VertxPlatform.getVertx(), config.asJson(), "foobar");
 
 		int cnt = 5;
 		List<PutRequest> puts = new ArrayList<>(cnt);

@@ -30,6 +30,7 @@ import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.sds.store.ISdsBackingStore;
@@ -85,8 +86,8 @@ public class SpoolStoreFactory implements ISdsBackingStoreFactory {
 	}
 
 	@Override
-	public ISdsBackingStore create(Vertx vertx, JsonObject configuration) {
-		return new SpoolBackingStore(vertx, prov, backends);
+	public ISdsBackingStore create(Vertx vertx, JsonObject configuration, String dataLocation) {
+		return new SpoolBackingStore(vertx, prov, Topology.get().datalocation(dataLocation));
 	}
 
 }

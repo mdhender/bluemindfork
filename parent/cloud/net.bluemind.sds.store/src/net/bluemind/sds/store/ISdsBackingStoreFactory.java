@@ -42,9 +42,9 @@ public interface ISdsBackingStoreFactory {
 
 	public ArchiveKind kind();
 
-	public ISdsBackingStore create(Vertx vertx, JsonObject configuration);
+	public ISdsBackingStore create(Vertx vertx, JsonObject configuration, String dataLocation);
 
-	public default ISdsBackingStore create(Vertx vertx, SystemConf sysconf) {
+	public default ISdsBackingStore create(Vertx vertx, SystemConf sysconf, String dataLocation) {
 		JsonObject jsonconf = new JsonObject()//
 				.put("storeType", sysconf.stringValue(SysConfKeys.archive_kind.name()))//
 				.put("endpoint", sysconf.stringValue(SysConfKeys.sds_s3_endpoint.name()))//
@@ -53,11 +53,11 @@ public interface ISdsBackingStoreFactory {
 				.put("region", sysconf.stringValue(SysConfKeys.sds_s3_region.name()))//
 				.put("bucket", sysconf.stringValue(SysConfKeys.sds_s3_bucket.name()))//
 				.put("insecure", sysconf.booleanValue(SysConfKeys.sds_s3_insecure.name(), false));
-		return this.create(vertx, jsonconf);
+		return this.create(vertx, jsonconf, dataLocation);
 	}
 
-	default ISdsSyncStore createSync(Vertx vertx, SystemConf sysconf) {
-		return syncStore(create(vertx, sysconf));
+	default ISdsSyncStore createSync(Vertx vertx, SystemConf sysconf, String dataLocation) {
+		return syncStore(create(vertx, sysconf, dataLocation));
 	}
 
 	default ISdsSyncStore syncStore(ISdsBackingStore asyncStore) {

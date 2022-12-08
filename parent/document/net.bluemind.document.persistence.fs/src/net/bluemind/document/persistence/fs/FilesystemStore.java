@@ -44,7 +44,7 @@ public class FilesystemStore implements IDocumentStore {
 	}
 
 	private IDocumentStore selectStoreStrategy() {
-		Optional<ISdsSyncStore> optSds = new SdsDocumentStoreLoader().forSysconf(LocalSysconfCache.get());
+		Optional<ISdsSyncStore> optSds = new SdsDocumentStoreLoader().forSysconf(LocalSysconfCache.get(), "unused");
 		return optSds.map(SdsStoreImpl::create).orElseGet(FilesystemStoreImpl::new);
 	}
 

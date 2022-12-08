@@ -146,7 +146,7 @@ public class PopulateKafkaTests {
 		this.bucket = "junit-clone-kafka-" + System.currentTimeMillis();
 		S3Configuration s3conf = S3Configuration.withEndpointAndBucket(s3, bucket);
 		System.err.println(s3conf.asJson().encodePrettily());
-		ISdsBackingStore sds = new S3StoreFactory().create(VertxPlatform.getVertx(), s3conf.asJson());
+		ISdsBackingStore sds = new S3StoreFactory().create(VertxPlatform.getVertx(), s3conf.asJson(), "unused");
 
 		await().atMost(20, TimeUnit.SECONDS).until(DefaultLeader.leader()::isLeader);
 

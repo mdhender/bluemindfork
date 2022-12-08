@@ -104,7 +104,7 @@ public class MboxRestoreSdsTests extends AbstractRestoreTests {
 		}
 
 		// check s3
-		ISdsBackingStore s3 = new S3StoreFactory().create(VertxPlatform.getVertx(), config.asJson());
+		ISdsBackingStore s3 = new S3StoreFactory().create(VertxPlatform.getVertx(), config.asJson(), "unused_by_s3");
 		GetRequest gr = new GetRequest();
 		gr.mailbox = login;
 		gr.guid = guid;

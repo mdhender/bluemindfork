@@ -51,7 +51,8 @@ public class SdsStoreLoader {
 		return rel.loadExtensions("net.bluemind.sds", "store", "store", "factory");
 	}
 
-	protected ISdsSyncStore createSync(ISdsBackingStoreFactory factory, Vertx vertx, SystemConf sysconf) {
+	protected ISdsSyncStore createSync(ISdsBackingStoreFactory factory, Vertx vertx, SystemConf sysconf,
+			String dataLocation) {
 		JsonObject jsonconf = new JsonObject()//
 				.put("storeType", sysconf.stringValue(SysConfKeys.archive_kind.name()))//
 				.put("endpoint", sysconf.stringValue(SysConfKeys.sds_s3_endpoint.name()))//
@@ -60,10 +61,11 @@ public class SdsStoreLoader {
 				.put("region", sysconf.stringValue(SysConfKeys.sds_s3_region.name()))//
 				.put("bucket", sysconf.stringValue(SysConfKeys.sds_s3_bucket.name()))//
 				.put("insecure", sysconf.booleanValue(SysConfKeys.sds_s3_insecure.name(), false));
-		return currentStore.get(jsonconf.encode(), k -> factory.syncStore(factory.create(vertx, jsonconf)));
+		return currentStore.get(dataLocation + "_" + jsonconf.encode(),
+				k -> factory.syncStore(factory.create(vertx, jsonconf, dataLocation)));
 	}
 
-	public Optional<ISdsSyncStore> forSysconf(SystemConf sysconf) {
+	public Optional<ISdsSyncStore> forSysconf(SystemConf sysconf, String dataLocation) {
 		String archiveKind = Optional.ofNullable(sysconf.stringValue(SysConfKeys.archive_kind.name())).orElse("cyrus");
 		if (archiveKind.isBlank() || archiveKind.equalsIgnoreCase("none")) {
 			archiveKind = "cyrus";
@@ -73,6 +75,6 @@ public class SdsStoreLoader {
 			return Optional.empty();
 		}
 		return stores.stream().filter(sbs -> sbs.kind() == storeType).findAny()
-				.map(s -> createSync(s, VertxPlatform.getVertx(), sysconf));
+				.map(s -> createSync(s, VertxPlatform.getVertx(), sysconf, dataLocation));
 	}
 }

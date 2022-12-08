@@ -28,11 +28,9 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentLinkedDeque;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import com.github.luben.zstd.RecyclingBufferPool;
 import com.github.luben.zstd.ZstdInputStream;
 import com.github.luben.zstd.ZstdOutputStream;
-import com.google.common.collect.Iterators;
 import com.google.common.io.ByteStreams;
 
 import io.netty.buffer.ByteBuf;
@@ -88,22 +85,20 @@ public class SpoolBackingStore implements ISdsBackingStore {
 
 	private static final Logger logger = LoggerFactory.getLogger(SpoolBackingStore.class);
 	private final IServiceProvider prov;
-	private final ConcurrentLinkedDeque<ItemValue<Server>> backends;
-	private final Iterator<ItemValue<Server>> roundRobin;
 	private final SystemConf sysconf;
+	private ItemValue<Server> backend;
 
 	public SpoolBackingStore(@SuppressWarnings("unused") Vertx vertx, IServiceProvider prov,
-			List<ItemValue<Server>> backends) {
+			ItemValue<Server> backend) {
 		this.prov = prov;
-		this.backends = new ConcurrentLinkedDeque<>(backends);
-		this.roundRobin = Iterators.cycle(backends);
+		this.backend = backend;
 		this.sysconf = LocalSysconfCache.get();
 	}
 
 	@Override
 	public CompletableFuture<SdsResponse> upload(PutRequest req) {
 		String target = chooseTarget(req);
-		INodeClient nc = NodeActivator.get(roundRobin.next().value.address());
+		INodeClient nc = NodeActivator.get(backend.value.address());
 
 		ByteBuf bb = Unpooled.buffer(2 * (int) new File(req.filename).length());
 		try (InputStream input = Files.newInputStream(Paths.get(req.filename));
@@ -223,16 +218,13 @@ public class SpoolBackingStore implements ISdsBackingStore {
 				to = livePath(move.messageBodyGuid);
 			}
 
-			for (ItemValue<Server> backend : backends) {
-				INodeClient nc = NodeActivator.get(backend.value.address());
-				if (nc.exists(from)) {
-					try {
-						nc.moveFile(from, to);
-						successes.add(move.messageBodyGuid);
-					} catch (ServerFault e) {
-						errors.add(move.messageBodyGuid);
-					}
-					break;
+			INodeClient nc = NodeActivator.get(backend.value.address());
+			if (nc.exists(from)) {
+				try {
+					nc.moveFile(from, to);
+					successes.add(move.messageBodyGuid);
+				} catch (ServerFault e) {
+					errors.add(move.messageBodyGuid);
 				}
 			}
 		}
@@ -240,12 +232,7 @@ public class SpoolBackingStore implements ISdsBackingStore {
 	}
 
 	private boolean locatePath(String targetPath, String emlPath) {
-		for (ItemValue<Server> b : backends) {
-			if (onNode(targetPath, emlPath, b)) {
-				return true;
-			}
-		}
-		return false;
+		return onNode(targetPath, emlPath, backend);
 	}
 
 	private boolean onNode(String targetPath, String emlPath, ItemValue<Server> b) {

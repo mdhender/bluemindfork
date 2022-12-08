@@ -74,7 +74,7 @@ public class ScalityRingStoreTests {
 	private ISdsBackingStore getStore() {
 		ScalityConfiguration config = new ScalityConfiguration("http://localhost:4552/sproxy/");
 		JsonObject configjs = config.asJson();
-		return new ScalityRingStoreFactory().create(VertxPlatform.getVertx(), configjs);
+		return new ScalityRingStoreFactory().create(VertxPlatform.getVertx(), configjs, "unused_by_scality");
 	}
 
 	@Test
@@ -186,7 +186,8 @@ public class ScalityRingStoreTests {
 	public void deleteFails() throws IOException {
 		ScalityConfiguration config = new ScalityConfiguration("http://localhost:1/sproxy/");
 		JsonObject configjs = config.asJson();
-		ISdsBackingStore store = new ScalityRingStoreFactory().create(VertxPlatform.getVertx(), configjs);
+		ISdsBackingStore store = new ScalityRingStoreFactory().create(VertxPlatform.getVertx(), configjs,
+				"unused_by_scality");
 
 		DeleteRequest dr = new DeleteRequest();
 		dr.guid = "non.existent.delete";

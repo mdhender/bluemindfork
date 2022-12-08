@@ -25,33 +25,32 @@ public enum ArchiveKind {
 	ScalityRing("scalityring", true),
 
 	// cyrus archive
-	Cyrus("cyrus", true, true),
+	Cyrus("cyrus", true, true, true),
 
 	// store on local filesystem
 	Dummy("dummy"),
 
 	// no store at all
-	Noop("noop"),
-
-	// for some sds-proxy junits
-	Test("test");
+	Noop("noop");
 
 	private final String name;
 	private final boolean isSdsArchive;
 	private final boolean supportsHsm;
+	private final boolean shardedByDatalocation;
 
-	private ArchiveKind(String name, boolean isSdsArchive, boolean supportsHsm) {
+	private ArchiveKind(String name, boolean isSdsArchive, boolean supportsHsm, boolean shardedByDatalocation) {
 		this.name = name;
 		this.isSdsArchive = isSdsArchive;
 		this.supportsHsm = supportsHsm;
+		this.shardedByDatalocation = shardedByDatalocation;
 	}
 
 	private ArchiveKind(String name, boolean isSdsArchive) {
-		this(name, isSdsArchive, false);
+		this(name, isSdsArchive, false, false);
 	}
 
 	private ArchiveKind(String name) {
-		this(name, false, false);
+		this(name, false, false, false);
 	}
 
 	@Override
@@ -65,6 +64,17 @@ public enum ArchiveKind {
 
 	public boolean supportsHsm() {
 		return this.supportsHsm;
+	}
+
+	/**
+	 * When true, the backing store has a separated dataset on each datalocation. S3
+	 * and Scality hold the data for every location whereas the Cyrus store uses
+	 * bm-node to split its data depending on datalocations.
+	 * 
+	 * @return
+	 */
+	public boolean isShardedByDatalocation() {
+		return this.shardedByDatalocation;
 	}
 
 	public static ArchiveKind fromName(String name) {

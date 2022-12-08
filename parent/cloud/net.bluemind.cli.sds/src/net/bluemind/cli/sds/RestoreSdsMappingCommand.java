@@ -125,7 +125,7 @@ public class RestoreSdsMappingCommand implements ICmdLet, Runnable {
 				ctx.error("Failed to login to backend {} as ", back.value.address(), login);
 				System.exit(1);
 			}
-			long restored = restoreFolders(sdsMapping, objects, sc);
+			long restored = restoreFolders(back.uid, sdsMapping, objects, sc);
 			ctx.info("Restore is finished. We restored {} from object store.", restored);
 		} catch (IMAPException | ParseException e) {
 			throw new CliException(e);
@@ -133,10 +133,10 @@ public class RestoreSdsMappingCommand implements ICmdLet, Runnable {
 
 	}
 
-	private long restoreFolders(JsonObject sdsMapping, Set<String> objects, StoreClient sc)
+	private long restoreFolders(String datalocation, JsonObject sdsMapping, Set<String> objects, StoreClient sc)
 			throws IMAPException, ParseException {
 		SystemConf sysconf = ctx.adminApi().instance(ISystemConfiguration.class).getValues();
-		ISdsSyncStore sds = new SdsStoreLoader().forSysconf(sysconf)
+		ISdsSyncStore sds = new SdsStoreLoader().forSysconf(sysconf, datalocation)
 				.orElseThrow(() -> new CliException("Failed to load sds store."));
 
 		JsonArray folders = sdsMapping.getJsonArray("folders");

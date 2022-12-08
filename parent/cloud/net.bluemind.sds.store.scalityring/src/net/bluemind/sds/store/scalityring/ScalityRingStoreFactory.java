@@ -49,13 +49,15 @@ public class ScalityRingStoreFactory implements ISdsBackingStoreFactory {
 	}
 
 	@Override
-	public ISdsBackingStore create(Vertx vertx, JsonObject configuration) {
+	public ISdsBackingStore create(Vertx vertx, JsonObject configuration, String dataLocation) {
 		String type = configuration.getString("storeType");
 		if (type == null || !type.equals(kind().toString())) {
 			throw new IllegalArgumentException(
 					"Configuration is not for a scality ring backend: " + configuration.encode());
 		}
-		logger.debug("Configuring with {}", configuration.encode());
+		if (logger.isDebugEnabled()) {
+			logger.debug("Configuring with {}", configuration.encode());
+		}
 		ScalityConfiguration scalityConfig = ScalityConfiguration.from(configuration);
 		return new ScalityRingStore(scalityConfig, getHttpClient(),
 				ScalityHttpClientConfig.get().getInt("scality.parallism"), registry, idFactory);
@@ -69,8 +71,10 @@ public class ScalityRingStoreFactory implements ISdsBackingStoreFactory {
 	protected static AsyncHttpClient getHttpClient() {
 		boolean trustAll = true;
 		Config httpconf = ScalityHttpClientConfig.get();
-		logger.info("ScalityRing http client using the following settings: {}", httpconf.entrySet().stream()
-				.map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.joining(",")));
+		if (logger.isInfoEnabled()) {
+			logger.info("ScalityRing http client using the following settings: {}", httpconf.entrySet().stream()
+					.map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.joining(",")));
+		}
 		AsyncHttpClientConfig httpClientConfig = new DefaultAsyncHttpClientConfig.Builder() //
 				.setFollowRedirect(httpconf.getBoolean("scality.follow-redirect"))
 				.setMaxConnectionsPerHost(httpconf.getInt("scality.max-connections-per-host"))

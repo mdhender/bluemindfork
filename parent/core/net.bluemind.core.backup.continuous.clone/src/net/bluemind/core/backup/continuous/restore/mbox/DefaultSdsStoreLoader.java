@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import io.vertx.core.Vertx;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.sds.store.ISdsBackingStoreFactory;
@@ -34,6 +35,7 @@ import net.bluemind.system.api.SystemConf;
 public class DefaultSdsStoreLoader implements ISdsStoreLoader {
 
 	private final List<ISdsBackingStoreFactory> stores;
+	private static final String FAKE_LOC = "fake_loc";
 
 	public DefaultSdsStoreLoader() {
 		RunnableExtensionLoader<ISdsBackingStoreFactory> rel = new RunnableExtensionLoader<>();
@@ -44,14 +46,18 @@ public class DefaultSdsStoreLoader implements ISdsStoreLoader {
 		ArchiveKind archiveKind = ArchiveKind.fromName(sysconf.stringValue(SysConfKeys.archive_kind.name()));
 		Vertx vertx = VertxPlatform.getVertx();
 		if (archiveKind == null) {
-			return new NoopStoreFactory().createSync(vertx, sysconf);
+			return new NoopStoreFactory().createSync(vertx, sysconf, FAKE_LOC);
+		}
+		if (archiveKind.isShardedByDatalocation()) {
+			throw new ServerFault("ArchivedKind " + archiveKind
+					+ " is sharded by datalocation. A 'real' SDS store is needed for cloning.");
 		}
 
 		Optional<ISdsBackingStoreFactory> optFactory = stores.stream().filter(sbs -> sbs.kind() == archiveKind)
 				.findAny();
 
-		return optFactory.map(s -> s.createSync(vertx, sysconf))
-				.orElseGet(() -> new NoopStoreFactory().createSync(vertx, sysconf));
+		return optFactory.map(s -> s.createSync(vertx, sysconf, FAKE_LOC))
+				.orElseGet(() -> new NoopStoreFactory().createSync(vertx, sysconf, FAKE_LOC));
 	}
 
 }

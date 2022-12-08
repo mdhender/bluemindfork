@@ -345,7 +345,8 @@ public class MboxRestoreService {
 					if (!sc.login()) {
 						throw new ServerFault("Error logging in as admin0");
 					}
-					restoreSdsMessages(live, sc, folder, createdfolder.fullName + "@" + domain.uid, monitor);
+					restoreSdsMessages(live, mbox.value.dataLocation, sc, folder,
+							createdfolder.fullName + "@" + domain.uid, monitor);
 				}
 			} else {
 				try (Sudo sudo = new Sudo(mbox.value.name, domain.uid)) {
@@ -356,7 +357,7 @@ public class MboxRestoreService {
 							throw new ServerFault("error logging in to " + source.value.address() + ":1143 as "
 									+ mbox.value.name + "@" + domain.uid);
 						}
-						restoreSdsMessages(live, sc, folder, createdfolder.fullName, monitor);
+						restoreSdsMessages(live, mbox.value.dataLocation, sc, folder, createdfolder.fullName, monitor);
 					}
 				}
 			}
@@ -365,9 +366,9 @@ public class MboxRestoreService {
 		logger.info("ending task with mon {}", monitor);
 	}
 
-	private void restoreSdsMessages(BmContext context, StoreClient sc, CyrusSdsBackupFolder folder, String mboxFolder,
-			IServerTaskMonitor monitor) {
-		MessageBodyObjectStore sds = new MessageBodyObjectStore(context);
+	private void restoreSdsMessages(BmContext context, String datalocation, StoreClient sc, CyrusSdsBackupFolder folder,
+			String mboxFolder, IServerTaskMonitor monitor) {
+		MessageBodyObjectStore sds = new MessageBodyObjectStore(context, datalocation);
 
 		FlagsList flags = new FlagsList();
 		flags.add(Flag.BMARCHIVED);

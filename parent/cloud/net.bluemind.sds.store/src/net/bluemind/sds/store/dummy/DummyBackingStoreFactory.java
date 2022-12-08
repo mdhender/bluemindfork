@@ -33,7 +33,7 @@ public class DummyBackingStoreFactory implements ISdsBackingStoreFactory {
 	}
 
 	@Override
-	public ISdsBackingStore create(Vertx vertx, JsonObject configuration) {
+	public ISdsBackingStore create(Vertx vertx, JsonObject configuration, String dataLocation) {
 		String type = configuration.getString("storeType");
 		if (type == null || !type.equals(kind().toString())) {
 			throw new IllegalArgumentException("Configuration is not for a dummy backend: " + configuration.encode());

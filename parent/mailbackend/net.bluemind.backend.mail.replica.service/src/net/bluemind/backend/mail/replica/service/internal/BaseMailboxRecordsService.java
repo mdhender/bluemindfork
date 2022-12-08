@@ -223,7 +223,7 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 			try {
 				String guid = recordStore.getImapUidReferences(imapUid, container.owner);
 				if (guid != null) {
-					MessageBodyObjectStore sds = new MessageBodyObjectStore(context.su());
+					MessageBodyObjectStore sds = new MessageBodyObjectStore(context.su(), datalocation);
 					Path sdsDl = sds.open(guid);
 					if (sdsDl != null) {
 						logger.info("Read {} aka {} from SDS", imapUid, guid);

@@ -43,7 +43,7 @@ public class NoopSyncStore implements ISdsBackingStore {
 		}
 
 		@Override
-		public ISdsBackingStore create(Vertx vertx, JsonObject configuration) {
+		public ISdsBackingStore create(Vertx vertx, JsonObject configuration, String dataLocation) {
 			return new NoopSyncStore();
 		}
 	};

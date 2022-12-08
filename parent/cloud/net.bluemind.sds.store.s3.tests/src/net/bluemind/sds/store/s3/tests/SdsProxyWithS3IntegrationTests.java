@@ -167,7 +167,7 @@ public class SdsProxyWithS3IntegrationTests {
 		}
 
 		// check s3
-		ISdsBackingStore s3 = new S3StoreFactory().create(VertxPlatform.getVertx(), config.asJson());
+		ISdsBackingStore s3 = new S3StoreFactory().create(VertxPlatform.getVertx(), config.asJson(), "dont_care");
 		GetRequest gr = new GetRequest();
 		gr.mailbox = "titi";
 		gr.guid = guid;

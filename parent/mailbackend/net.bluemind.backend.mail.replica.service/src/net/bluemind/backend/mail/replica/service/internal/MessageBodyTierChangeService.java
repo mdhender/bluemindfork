@@ -96,7 +96,7 @@ public class MessageBodyTierChangeService implements IMessageBodyTierChange {
 		this.context = context;
 		this.server = server;
 		this.tierChangeQueueStore = new MessageBodyTierChangeQueueStore(dataSource);
-		this.bodyObjectStore = Suppliers.memoize(() -> new MessageBodyObjectStore(context));
+		this.bodyObjectStore = Suppliers.memoize(() -> new MessageBodyObjectStore(context, server.uid));
 		this.sysconf = LocalSysconfCache.get();
 	}
 

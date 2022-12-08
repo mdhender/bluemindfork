@@ -86,10 +86,11 @@ public class FileHostingMigrator {
 				.put("region", conf.get(SysConfKeys.sds_filehosting_s3_region.name()))//
 				.put("bucket", conf.get(SysConfKeys.sds_filehosting_s3_bucket.name()));
 
-		return factory.map(f -> f.syncStore(f.create(VertxPlatform.getVertx(), jsonconf))).orElseThrow(() -> {
-			ctx.error("Unable to get a factory for store type " + storeType.name());
-			throw new ServerFault("Unable to get a factory for store type " + storeType.name());
-		});
+		return factory.map(f -> f.syncStore(f.create(VertxPlatform.getVertx(), jsonconf, "not_a_valid_location")))
+				.orElseThrow(() -> {
+					ctx.error("Unable to get a factory for store type " + storeType.name());
+					throw new ServerFault("Unable to get a factory for store type " + storeType.name());
+				});
 	}
 
 	public void migrateFileHosting(Path rootPath) throws IOException {

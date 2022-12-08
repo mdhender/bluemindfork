@@ -10,7 +10,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.eclipse.common,
  io.vertx.core,
  net.bluemind.lib.vertx,
- com.github.ben-manes.caffeine
+ com.github.ben-manes.caffeine,
+ slf4j.api
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.sds.store.loader
 Bundle-ActivationPolicy: lazy

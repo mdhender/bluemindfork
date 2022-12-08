@@ -43,7 +43,7 @@ public class S3StoreFactory implements ISdsBackingStoreFactory {
 	}
 
 	@Override
-	public ISdsBackingStore create(Vertx vertx, JsonObject configuration) {
+	public ISdsBackingStore create(Vertx vertx, JsonObject configuration, String dataLocation) {
 		String type = configuration.getString("storeType");
 		if (type == null || !type.equals(kind().toString())) {
 			throw new IllegalArgumentException("Configuration is not for an s3 backend: " + configuration.encode());

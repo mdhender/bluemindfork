@@ -46,7 +46,6 @@ import net.bluemind.core.task.service.ITasksManager;
 public class ReplicatedDataExpirationService implements IReplicatedDataExpiration {
 
 	private final BmContext context;
-	private final DataSource pool;
 	private final String serverUid;
 	private final MessageBodyStore bodyStore;
 	private final Supplier<MessageBodyObjectStore> bodyObjectStore;
@@ -55,10 +54,9 @@ public class ReplicatedDataExpirationService implements IReplicatedDataExpiratio
 
 	public ReplicatedDataExpirationService(BmContext context, DataSource pool, String serverUid) {
 		this.context = context;
-		this.pool = pool;
 		this.serverUid = serverUid;
 		this.bodyStore = new MessageBodyStore(pool);
-		this.bodyObjectStore = Suppliers.memoize(() -> new MessageBodyObjectStore(context));
+		this.bodyObjectStore = Suppliers.memoize(() -> new MessageBodyObjectStore(context, serverUid));
 	}
 
 	@Override
