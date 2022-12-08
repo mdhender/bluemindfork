@@ -26,10 +26,10 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import net.bluemind.backend.cyrus.replication.testhelper.MailboxUniqueId;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
+import net.bluemind.backend.mail.replica.service.tests.compat.MailboxUniqueId;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;

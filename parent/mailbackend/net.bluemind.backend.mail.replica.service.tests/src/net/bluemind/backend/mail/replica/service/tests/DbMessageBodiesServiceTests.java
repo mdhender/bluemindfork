@@ -28,9 +28,9 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-import net.bluemind.backend.cyrus.replication.testhelper.CyrusGUID;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
+import net.bluemind.backend.mail.replica.service.tests.compat.CyrusGUID;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;

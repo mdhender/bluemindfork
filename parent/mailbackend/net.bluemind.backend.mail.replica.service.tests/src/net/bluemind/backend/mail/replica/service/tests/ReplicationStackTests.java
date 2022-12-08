@@ -99,6 +99,7 @@ import net.bluemind.backend.mail.replica.api.QuotaRoot;
 import net.bluemind.backend.mail.replica.api.utils.Subtree;
 import net.bluemind.backend.mail.replica.service.ReplicationEvents;
 import net.bluemind.backend.mail.replica.service.internal.ItemsTransferService;
+import net.bluemind.backend.mail.replica.service.internal.MailboxRecordExpungedService;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Email;
@@ -1265,7 +1266,6 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 	@Test
 	public void mailshareTransfers()
 			throws IMAPException, InterruptedException, ExecutionException, TimeoutException, IOException {
-		ItemsTransferService.FORCE_CROSS = false;
 
 		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IMailshare mailshareApi = prov.instance(IMailshare.class, domainUid);
@@ -1341,7 +1341,6 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 	@Test
 	public void mailshareCrossBackend()
 			throws IMAPException, InterruptedException, ExecutionException, TimeoutException, IOException {
-		ItemsTransferService.FORCE_CROSS = true;
 
 		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IMailshare mailshareApi = prov.instance(IMailshare.class, domainUid);

@@ -39,7 +39,6 @@ import org.junit.Test;
 import com.google.common.io.ByteStreams;
 
 import io.vertx.core.buffer.Buffer;
-import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.ImportMailboxItemSet;
@@ -78,10 +77,6 @@ import net.bluemind.mailshare.api.Mailshare;
 
 public class InboxSubFolderReplicationTests extends AbstractRollingReplicationTests {
 
-	private String apiKey;
-	protected String partition;
-	protected String mboxRoot;
-
 	@Before
 	public void before() throws Exception {
 		super.before();
@@ -95,9 +90,6 @@ public class InboxSubFolderReplicationTests extends AbstractRollingReplicationTe
 			System.out.println("Mail " + added + " added:\n" + tree);
 			return null;
 		});
-		CyrusPartition part = CyrusPartition.forServerAndDomain(cyrusReplication.server(), domainUid);
-		this.partition = part.name;
-		this.mboxRoot = "user." + userUid.replace('.', '^');
 
 		this.apiKey = "sid";
 		SecurityContext secCtx = new SecurityContext("sid", userUid, Collections.emptyList(), Collections.emptyList(),

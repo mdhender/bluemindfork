@@ -9,5 +9,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.jdbc,
  net.bluemind.core.commons,
  slf4j.api,
- net.bluemind.core.container.persistence
+ net.bluemind.core.container.persistence,
+ net.bluemind.delivery.conversationreference.sqlschema;bundle-version="4.1.0"
 Export-Package: net.bluemind.delivery.conversationreference.persistence

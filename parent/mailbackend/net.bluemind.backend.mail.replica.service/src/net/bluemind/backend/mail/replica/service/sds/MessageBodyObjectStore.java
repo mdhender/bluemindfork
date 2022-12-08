@@ -34,6 +34,7 @@ import net.bluemind.backend.mail.replica.api.TierMove;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.sds.dto.DeleteRequest;
 import net.bluemind.sds.dto.ExistRequest;
 import net.bluemind.sds.dto.GetRequest;
@@ -53,6 +54,7 @@ public class MessageBodyObjectStore {
 	private static final Logger logger = LoggerFactory.getLogger(MessageBodyObjectStore.class);
 	private final BmContext ctx;
 	private final ISdsSyncStore objectStore;
+	private boolean singleNamespaceBody;
 
 	public MessageBodyObjectStore(BmContext ctx, String datalocation) {
 		this.ctx = ctx;
@@ -61,12 +63,22 @@ public class MessageBodyObjectStore {
 		}
 
 		SystemConf config = LocalSysconfCache.get();
-
-		this.objectStore = new SdsStoreLoader().forSysconf(config, datalocation)
+		SdsStoreLoader loader = new SdsStoreLoader();
+		this.singleNamespaceBody = Topology.get().singleNode() || !loader.archiveKind(config).isShardedByDatalocation();
+		this.objectStore = loader.forSysconf(config, datalocation)
 				.orElseGet(() -> new NoopStoreFactory().createSync(VertxPlatform.getVertx(), config, datalocation));
 		if (logger.isDebugEnabled()) {
 			logger.debug("Reading with {}", objectStore);
 		}
+	}
+
+	/**
+	 * Only one namespace for all body guid's (eg. single S3 bucket for all)
+	 * 
+	 * @return true if object store ignores datalocation
+	 */
+	public boolean isSingleNamespaceBody() {
+		return singleNamespaceBody;
 	}
 
 	/**

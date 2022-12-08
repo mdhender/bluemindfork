@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -36,25 +35,18 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.replica.service.tests.ReplicationEventsRecorder.Hierarchy;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
-import net.bluemind.core.sessions.Sessions;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.mime.MimeTree;
 
 public class HttpFetchPartWithFilenameTests extends AbstractRollingReplicationTests {
-
-	private String apiKey;
-	protected String partition;
-	protected String mboxRoot;
 
 	@Before
 	public void before() throws Exception {
@@ -69,14 +61,6 @@ public class HttpFetchPartWithFilenameTests extends AbstractRollingReplicationTe
 			System.out.println("Mail " + added + " added:\n" + tree);
 			return null;
 		});
-		CyrusPartition part = CyrusPartition.forServerAndDomain(cyrusReplication.server(), domainUid);
-		this.partition = part.name;
-		this.mboxRoot = "user." + userUid.replace('.', '^');
-
-		this.apiKey = "sid";
-		SecurityContext secCtx = new SecurityContext("sid", userUid, Collections.emptyList(), Collections.emptyList(),
-				domainUid);
-		Sessions.get().put(apiKey, secCtx);
 
 		long delay = System.currentTimeMillis();
 		Hierarchy hierarchy = null;

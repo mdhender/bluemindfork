@@ -77,6 +77,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemFlagFilter;
+import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -170,17 +171,53 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		itemValue.version = version.version;
 		updateIndex(Collections.singletonList(itemValue));
 		if (!isUpdate) {
-			logger.info("Sending event for created item {}v{}", version.id, version);
+			logger.debug("Sending event for created item {}", version);
 			EmitReplicationEvents.recordCreated(mailboxUniqueId, version.version, version.id, mail.imapUid);
 			EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, version.version,
 					new long[] { version.id }, version.id);
 		} else {
-			logger.info("Sending event for replaced item {}v{}", version.id, version);
+			logger.debug("Sending event for replaced item {}", version);
 			EmitReplicationEvents.recordUpdated(mailboxUniqueId, version, mail);
 			EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, version.version,
 					new long[] { version.id });
 		}
 		return version.id;
+	}
+
+	@Override
+	public List<ItemIdentifier> multiCreate(List<MailboxRecord> mails) {
+		SubtreeLocation recordsLocation = locationOrFault();
+		List<ItemIdentifier> returned = new ArrayList<>(mails.size());
+		List<ItemValue<MailboxRecord>> toIndex = new ArrayList<>(mails.size());
+		ItemVersion version = null;
+		for (MailboxRecord mail : mails) {
+			String uid = mail.imapUid + ".";
+			ExpectedId knownInternalId = BodyInternalIdCache.expectedRecordId(container.owner, mail.messageBody);
+			if (knownInternalId != null) {
+				logger.info("************************ Create from replication with a preset id {}", knownInternalId);
+				if (knownInternalId.updateOfBody == null) {
+					version = storeService.createWithId(uid, knownInternalId.id, null, uid, mail);
+				} else {
+					logger.info("********** UPDATE by id to point record to new message body");
+					version = storeService.update(knownInternalId.id, uid, mail);
+				}
+				BodyInternalIdCache.invalidateBody(mail.messageBody);
+			} else {
+				version = storeService.create(uid, uid, mail);
+			}
+
+			ItemValue<MailboxRecord> itemValue = ItemValue.create(uid, mail);
+			itemValue.internalId = version.id;
+			itemValue.version = version.version;
+			returned.add(ItemIdentifier.of(uid, version.id, version.version));
+			toIndex.add(itemValue);
+		}
+		updateIndex(toIndex);
+		if (version != null) {
+			EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, version.version,
+					new long[] { version.id });
+		}
+		return returned;
 	}
 
 	private SubtreeLocation locationOrFault() {
@@ -571,7 +608,6 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 					logger.error("[{}] Es CRUD op failed", mailboxUniqueId, e);
 				}
 			});
-
 		}
 	}
 

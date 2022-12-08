@@ -18,39 +18,38 @@
  */
 package net.bluemind.backend.mail.replica.service.internal;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 
 import net.bluemind.backend.mail.api.IItemsTransfer;
-import net.bluemind.backend.mail.api.MailboxItem;
-import net.bluemind.backend.mail.api.MessageBody;
-import net.bluemind.backend.mail.api.MessageBody.Part;
+import net.bluemind.backend.mail.api.MailboxFolder;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
+import net.bluemind.backend.mail.replica.api.AppendTx;
+import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
-import net.bluemind.backend.mail.replica.api.IInternalMailboxItems;
+import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
-import net.bluemind.backend.mail.replica.api.ImapBinding;
-import net.bluemind.backend.mail.replica.service.ReplicationEvents;
-import net.bluemind.core.api.Stream;
-import net.bluemind.core.api.fault.ErrorCode;
+import net.bluemind.backend.mail.replica.api.MailboxRecord;
+import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
+import net.bluemind.backend.mail.replica.api.WithId;
+import net.bluemind.backend.mail.replica.service.sds.MessageBodyObjectStore;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.api.IOfflineMgmt;
-import net.bluemind.core.container.api.IdRange;
+import net.bluemind.core.container.api.IContainers;
+import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemIdentifier;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.mailbox.api.Mailbox;
 
 public class ItemsTransferService implements IItemsTransfer {
 
@@ -73,7 +72,7 @@ public class ItemsTransferService implements IItemsTransfer {
 
 	@FunctionalInterface
 	public interface PostCopyOp {
-		void operation(List<Long> srcItems);
+		void operation(List<WithId<MailboxRecord>> srcItems);
 	}
 
 	public interface ICopyStrategy {
@@ -83,29 +82,44 @@ public class ItemsTransferService implements IItemsTransfer {
 	private static final Logger logger = LoggerFactory.getLogger(ItemsTransferService.class);
 
 	private final IDbMailboxRecords fromRecords;
-	private final IInternalMailboxItems fromImap;
-	private final IInternalMailboxItems toRecords;
-	private ICopyStrategy copyStrat;
+	private final IDbMailboxRecords toRecords;
+	private final ICopyStrategy copyStrat;
 
-	@VisibleForTesting
-	public static boolean FORCE_CROSS = false; // NOSONAR
+	private final ItemValue<Mailbox> fromOwner;
+	private final ItemValue<Mailbox> toOwner;
+
+	private IDbReplicatedMailboxes toFolders;
+
+	private ItemValue<MailboxFolder> target;
 
 	public ItemsTransferService(BmContext context, String fromUid, String toUid) {
+		IContainers contApi = context.provider().instance(IContainers.class);
+		ContainerDescriptor fromContainer = contApi.getIfPresent(IMailReplicaUids.mboxRecords(fromUid));
+		if (fromContainer == null) {
+			throw ServerFault.notFound("container " + IMailReplicaUids.mboxRecords(fromUid) + " not found.");
+		}
+		ContainerDescriptor toContainer = contApi.getIfPresent(IMailReplicaUids.mboxRecords(toUid));
+		if (toContainer == null) {
+			throw ServerFault.notFound("container " + IMailReplicaUids.mboxRecords(toUid) + " not found.");
+		}
+
+		IMailboxes mboxApi = context.su().provider().instance(IMailboxes.class, fromContainer.domainUid);
+		this.fromOwner = mboxApi.getComplete(fromContainer.owner);
+		this.toOwner = fromContainer.owner.equals(toContainer.owner) ? fromOwner
+				: mboxApi.getComplete(toContainer.owner);
 
 		this.fromRecords = context.provider().instance(IDbMailboxRecords.class, fromUid);
-		this.fromImap = context.provider().instance(IInternalMailboxItems.class, fromUid);
-		this.toRecords = context.provider().instance(IInternalMailboxItems.class, toUid);
+		this.toRecords = context.provider().instance(IDbMailboxRecords.class, toUid);
+		this.toFolders = context.provider().instance(IDbByContainerReplicatedMailboxes.class,
+				IMailReplicaUids.subtreeUid(toContainer.domainUid, toOwner));
+		this.target = toFolders.getComplete(toUid);
 		this.copyStrat = loadStrat(context, fromUid, toUid);
 	}
 
 	private ICopyStrategy loadStrat(BmContext context, String fromUid, String toUid) {
 		String loc1 = DataSourceRouter.location(context, IMailReplicaUids.mboxRecords(fromUid));
 		String loc2 = DataSourceRouter.location(context, IMailReplicaUids.mboxRecords(toUid));
-		if (loc1.equals(loc2) && !FORCE_CROSS) {
-			return new ImapCopyStrategy(context, toUid);
-		} else {
-			return new CrossBackendCopyStrategy();
-		}
+		return new MailApiCopyStrategy(context, loc1, loc2);
 	}
 
 	@Override
@@ -114,104 +128,78 @@ public class ItemsTransferService implements IItemsTransfer {
 		});
 	}
 
-	public class CrossBackendCopyStrategy implements ICopyStrategy {
-		public List<ItemIdentifier> copy(List<Long> itemIds, PostCopyOp op) {
-			List<ImapBinding> srcItems = fromRecords.imapBindings(itemIds);
-			List<MailboxItem> toCreate = new ArrayList<>(itemIds.size());
-			List<String> parts = new ArrayList<>(itemIds.size());
-			for (ImapBinding src : srcItems) {
-				MailboxItem mi = new MailboxItem();
-				Stream emlStream = fromRecords.fetchComplete(src.imapUid);
-				String asPartId = toRecords.uploadPart(emlStream);
-				parts.add(asPartId);
-				mi.body = new MessageBody();
-				mi.body.structure = Part.create(null, "message/rfc822", asPartId);
-				toCreate.add(mi);
-			}
-			return toRecords.multiCreate(toCreate);
-		}
+	public interface BodyTransfer {
+		public static final BodyTransfer NOOP = (guid, date) -> {
+		};
+
+		void transfer(String guid, Date date);
 	}
 
-	public class ImapCopyStrategy implements ICopyStrategy {
-		private String toUid;
-		private BmContext context;
+	public class MailApiCopyStrategy implements ICopyStrategy {
 
-		public ImapCopyStrategy(BmContext context, String toUid) {
-			this.toUid = toUid;
-			this.context = context;
+		private BodyTransfer bodyXfer;
+
+		public MailApiCopyStrategy(BmContext context, String sourceLocation, String targetLocation) {
+			bodyXfer = BodyTransfer.NOOP;
+			if (!targetLocation.equals(sourceLocation)) {
+				MessageBodyObjectStore srcBodies = new MessageBodyObjectStore(context, sourceLocation);
+				if (!srcBodies.isSingleNamespaceBody()) {
+					MessageBodyObjectStore tgtBodies = new MessageBodyObjectStore(context, targetLocation);
+					this.bodyXfer = (guid, date) -> {
+						File toXfer = null;
+						try {
+							toXfer = srcBodies.open(guid).toFile();
+							tgtBodies.store(guid, date, toXfer);
+						} finally {
+							if (toXfer != null) {
+								toXfer.delete();// NOSONAR do not throw
+							}
+						}
+					};
+				}
+			}
 		}
 
 		public List<ItemIdentifier> copy(List<Long> itemIds, PostCopyOp op) {
 			List<ItemIdentifier> ret = new ArrayList<>(itemIds.size());
-			for (List<Long> someItemIds : Lists.partition(itemIds, 100)) {
-				ret.addAll(copySome(someItemIds, op));
+			for (List<Long> slice : Lists.partition(itemIds, 500)) {
+				List<WithId<MailboxRecord>> records = fromRecords.slice(slice);
+				AppendTx tx = toFolders.prepareAppend(target.internalId, records.size());
+				long start = tx.imapUid - (records.size() - 1);
+				long end = tx.imapUid;
+				logger.info("Create imapUids [ {} - {} ]", start, end);
+				long cnt = start;
+				List<MailboxRecord> copies = new ArrayList<>(records.size());
+				for (WithId<MailboxRecord> iv : records) {
+					MailboxRecord copy = iv.value.copy();
+					copy.imapUid = cnt++;
+					bodyXfer.transfer(copy.messageBody, copy.internalDate);
+					copies.add(copy);
+				}
+				ret.addAll(toRecords.multiCreate(copies));
+				op.operation(records);
 			}
 			return ret;
-		}
-
-		private List<ItemIdentifier> copySome(List<Long> itemIds, PostCopyOp op) {
-			List<ImapBinding> srcItems = fromRecords.imapBindings(itemIds);
-			if (srcItems.isEmpty()) {
-				return Collections.emptyList();
-			}
-			String destImap = toRecords.imapFolder();
-			String srcImap = fromImap.imapFolder();
-			IOfflineMgmt idAllocator = context.provider().instance(IOfflineMgmt.class,
-					context.getSecurityContext().getContainerUid(), context.getSecurityContext().getSubject());
-			IdRange idRange = idAllocator.allocateOfflineIds(srcItems.size());
-			long startId = idRange.globalCounter;
-			long expec = startId;
-			for (ImapBinding ib : srcItems) {
-				GuidExpectedIdCache.store(toUid + ":" + ib.bodyGuid, expec++);
-			}
-
-			CompletableFuture<?> replicated = ReplicationEvents.onAnyRecordIdChanged(toUid, idRange);
-			CompletableFuture<Map<Integer, Integer>> freshImapUids = new CompletableFuture<>();
-			toRecords.imapExecutor().withClient(sc -> {
-				if (sc.select(srcImap)) {
-					Map<Integer, Integer> mapping = sc.uidCopy(
-							srcItems.stream().map(ib -> (int) ib.imapUid).collect(Collectors.toList()), destImap);
-					if (!mapping.isEmpty()) {
-						logger.info("IMAP copy returned {} item(s)", mapping.size());
-						op.operation(itemIds);
-					} else {
-						logger.warn("IMAP copy returned no items");
-						replicated.complete(null);
-					}
-					freshImapUids.complete(mapping);
-				} else {
-					ServerFault ex = new ServerFault("Failed to select " + srcImap);
-					freshImapUids.completeExceptionally(ex);
-					replicated.completeExceptionally(ex);
-				}
-			});
-			try {
-				return replicated.thenCompose(v -> freshImapUids).thenApply(mapping -> {
-					List<ItemIdentifier> ret = new ArrayList<>(srcItems.size());
-					long v = toRecords.getVersion();
-					long start = startId;
-					for (int imapUid : mapping.values()) {
-						ret.add(ItemIdentifier.of(imapUid + ".", start++, v));
-					}
-					return ret;
-				}).get(ImapMailboxRecordsService.DEFAULT_TIMEOUT, TimeUnit.SECONDS);
-			} catch (TimeoutException to) {
-				throw new ServerFault("timeout: " + to.getMessage(), ErrorCode.TIMEOUT);
-			} catch (Exception e) {
-				throw new ServerFault(e);
-			}
-
 		}
 	}
 
 	public List<ItemIdentifier> transferImpl(List<Long> itemIds, PostCopyOp op) {
-		List<ItemIdentifier> ret = copyStrat.copy(itemIds, op);
-		return ret;
+		return copyStrat.copy(itemIds, op);
 	}
 
 	@Override
 	public List<ItemIdentifier> move(List<Long> itemIds) {
-		return transferImpl(itemIds, fromImap::multipleDeleteById);
+
+		return transferImpl(itemIds, origSlice -> {
+			MailboxItemFlag delFlag = MailboxItemFlag.System.Deleted.value();
+			List<MailboxRecord> flagged = origSlice.stream().map(wid -> {
+				MailboxRecord ret = wid.value;
+				ret.flags.add(delFlag);
+				ret.internalFlags.add(InternalFlag.expunged);
+				return ret;
+			}).toList();
+			fromRecords.updates(flagged);
+		});
 	}
 
 }

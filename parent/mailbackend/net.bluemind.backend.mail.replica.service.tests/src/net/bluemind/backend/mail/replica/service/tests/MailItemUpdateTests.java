@@ -51,16 +51,12 @@ import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.mime.MimeTree;
 
 public class MailItemUpdateTests extends AbstractRollingReplicationTests {
 
-	private String partition;
-	private String mboxRoot;
-	private String apiKey;
 	private ItemValue<MailboxFolder> inbox;
 	private IMailboxItems mailApi;
 	private ItemValue<MailboxItem> mailObject;
@@ -69,13 +65,6 @@ public class MailItemUpdateTests extends AbstractRollingReplicationTests {
 	@Override
 	public void before() throws Exception {
 		super.before();
-
-		this.partition = domainUid.replace('.', '_');
-		this.mboxRoot = "user." + userUid.replace('.', '^');
-
-		this.apiKey = "sid";
-		Sessions.get().put(apiKey,
-				new SecurityContext("sid", userUid, Collections.emptyList(), Collections.emptyList(), domainUid));
 
 		imapAsUser(sc -> {
 			int added = sc.append("INBOX", testEml(), new FlagsList());

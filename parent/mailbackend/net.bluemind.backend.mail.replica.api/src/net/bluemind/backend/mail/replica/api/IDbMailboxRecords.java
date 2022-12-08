@@ -37,6 +37,7 @@ import net.bluemind.core.container.api.IDataShardSupport;
 import net.bluemind.core.container.api.IReadByIdSupport;
 import net.bluemind.core.container.api.IRestoreItemCrudSupport;
 import net.bluemind.core.container.api.ISortingSupport;
+import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 
 /**
@@ -86,6 +87,10 @@ public interface IDbMailboxRecords extends IChangelogSupport, IDataShardSupport,
 	@PUT
 	@Path("{uid}")
 	Long create(@PathParam("uid") String uid, MailboxRecord mail);
+
+	@PUT
+	@Path("_mCreate")
+	List<ItemIdentifier> multiCreate(List<MailboxRecord> mails);
 
 	@POST
 	@Path("{uid}")

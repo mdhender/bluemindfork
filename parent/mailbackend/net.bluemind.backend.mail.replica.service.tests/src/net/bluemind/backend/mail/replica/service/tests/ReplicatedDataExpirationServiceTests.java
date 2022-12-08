@@ -43,13 +43,13 @@ import org.junit.Test;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
-import net.bluemind.backend.cyrus.replication.testhelper.CyrusGUID;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.api.IReplicatedDataExpiration;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.service.internal.ReplicatedDataExpirationService;
+import net.bluemind.backend.mail.replica.service.tests.compat.CyrusGUID;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;

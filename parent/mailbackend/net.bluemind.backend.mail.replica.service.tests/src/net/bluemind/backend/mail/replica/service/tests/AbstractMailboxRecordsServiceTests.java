@@ -40,7 +40,6 @@ import org.junit.Before;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
-import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.MailboxFolder;
@@ -55,7 +54,6 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.utils.InputReadStream;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
@@ -88,12 +86,8 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		Server pipo = new Server();
-		pipo.ip = new BmConfIni().get("imap-role");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 		pipo.tags = Collections.singletonList("mail/imap");
-
-		ItemValue<Server> cyrusServer = ItemValue.create("localhost", pipo);
-		CyrusService cyrusService = new CyrusService(cyrusServer);
-		cyrusService.reset();
 
 		PopulateHelper.initGlobalVirt(pipo);
 		PopulateHelper.addDomain(domainUid, Routing.internal);

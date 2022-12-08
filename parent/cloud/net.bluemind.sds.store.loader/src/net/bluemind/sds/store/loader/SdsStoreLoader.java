@@ -66,15 +66,19 @@ public class SdsStoreLoader {
 	}
 
 	public Optional<ISdsSyncStore> forSysconf(SystemConf sysconf, String dataLocation) {
-		String archiveKind = Optional.ofNullable(sysconf.stringValue(SysConfKeys.archive_kind.name())).orElse("cyrus");
-		if (archiveKind.isBlank() || archiveKind.equalsIgnoreCase("none")) {
-			archiveKind = "cyrus";
-		}
-		ArchiveKind storeType = ArchiveKind.fromName(archiveKind);
+		ArchiveKind storeType = archiveKind(sysconf);
 		if (storeType == null || !storeType.isSdsArchive()) {
 			return Optional.empty();
 		}
 		return stores.stream().filter(sbs -> sbs.kind() == storeType).findAny()
 				.map(s -> createSync(s, VertxPlatform.getVertx(), sysconf, dataLocation));
+	}
+
+	public ArchiveKind archiveKind(SystemConf sysconf) {
+		String archiveKind = Optional.ofNullable(sysconf.stringValue(SysConfKeys.archive_kind.name())).orElse("cyrus");
+		if (archiveKind.isBlank() || archiveKind.equalsIgnoreCase("none")) {
+			archiveKind = "cyrus";
+		}
+		return ArchiveKind.fromName(archiveKind);
 	}
 }

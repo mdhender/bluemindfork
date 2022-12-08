@@ -26,6 +26,7 @@ import java.util.UUID;
 
 import com.google.common.collect.ImmutableMap;
 
+import freemarker.cache.StrongCacheStorage;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 
@@ -42,10 +43,18 @@ public class EmlTemplates {
 	private EmlTemplates() {
 	}
 
-	public static InputStream withRandomMessageId(String tplName) {
+	private static final Configuration fmCfg = configure();
+
+	private static Configuration configure() {
 		Configuration fmCfg = new Configuration(Configuration.VERSION_2_3_30);
 		fmCfg.setClassForTemplateLoading(EmlTemplates.class, "/data");
+		fmCfg.setCacheStorage(new StrongCacheStorage());
 		fmCfg.setTagSyntax(Configuration.AUTO_DETECT_TAG_SYNTAX);
+
+		return fmCfg;
+	}
+
+	public static InputStream withRandomMessageId(String tplName) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.US_ASCII);
 		try {

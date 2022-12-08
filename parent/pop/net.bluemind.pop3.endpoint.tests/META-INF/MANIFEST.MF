@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.pop3.endpoint.tests
 Bundle-SymbolicName: net.bluemind.pop3.endpoint.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Bundle-Activator: net.bluemind.pop3.endpoint.tests.Activator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.lib.vertx,
@@ -16,16 +15,13 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.tests.defaultdata,
  net.bluemind.pool,
  net.bluemind.core.elasticsearch.testshelper,
- net.bluemind.backend.cyrus,
  net.bluemind.hornetq.client,
- net.bluemind.backend.cyrus.replication.testhelper,
  net.bluemind.network.topology,
  net.bluemind.vertx.testhelper,
  net.bluemind.backend.mail.api,
  net.bluemind.backend.mail.replica.service;bundle-version="4.1.0",
  net.bluemind.backend.mail.replica.api,
  net.bluemind.config,
- net.bluemind.backend.cyrus.replication.storage.core;bundle-version="4.1.0",
  net.bluemind.authentication.service;bundle-version="4.1.0",
  net.bluemind.core.sessions;bundle-version="4.1.0",
  net.bluemind.core.rest.http,
@@ -33,7 +29,10 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.backend.mail.replica.service.tests,
  net.bluemind.imap,
  net.bluemind.pop3.driver;bundle-version="4.1.0",
- com.typesafe.config
+ com.typesafe.config,
+ net.bluemind.backend.mailapi.storage;bundle-version="4.1.0",
+ net.bluemind.backend.cyrus.partitions,
+ net.bluemind.system.state
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.pop3.endpoint.tests
 Bundle-ActivationPolicy: lazy

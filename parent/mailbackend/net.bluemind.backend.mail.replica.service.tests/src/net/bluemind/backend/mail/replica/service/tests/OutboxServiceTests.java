@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -24,13 +23,12 @@ import org.junit.Test;
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.VCard;
-import net.bluemind.backend.cyrus.partitions.CyrusPartition;
-import net.bluemind.backend.cyrus.replication.testhelper.ExpectCommand;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.IOutbox;
 import net.bluemind.backend.mail.api.IUserInbox;
 import net.bluemind.backend.mail.api.MailboxFolder;
+import net.bluemind.backend.mail.replica.service.tests.compat.ExpectCommand;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IOfflineMgmt;
 import net.bluemind.core.container.model.ItemFlag;
@@ -39,7 +37,6 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
-import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.imap.FlagsList;
@@ -47,9 +44,6 @@ import net.bluemind.imap.mime.MimeTree;
 
 public class OutboxServiceTests extends AbstractRollingReplicationTests {
 
-	private String apiKey;
-	private String partition;
-	private String mboxRoot;
 	private ClientSideServiceProvider provider;
 
 	private IMailboxFolders mailboxFolderService;
@@ -62,6 +56,7 @@ public class OutboxServiceTests extends AbstractRollingReplicationTests {
 	private static final int ALLOC_COUNT = 42;
 
 	@Before
+	@Override
 	public void before() throws Exception {
 		super.before();
 
@@ -75,16 +70,7 @@ public class OutboxServiceTests extends AbstractRollingReplicationTests {
 			return null;
 		});
 
-		CyrusPartition part = CyrusPartition.forServerAndDomain(cyrusReplication.server(), domainUid);
-		this.partition = part.name;
-		this.mboxRoot = "user." + userUid.replace('.', '^');
-
-		this.apiKey = "sid";
-		SecurityContext secCtx = new SecurityContext("sid", userUid, Collections.emptyList(), Collections.emptyList(),
-				domainUid);
-		Sessions.get().put(apiKey, secCtx);
-
-		provider = ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", "sid");
+		provider = ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", this.apiKey);
 
 		mailboxFolderService = provider.instance(IMailboxFolders.class, partition, mboxRoot);
 		outboxUid = ensureFolder("Outbox", 10, TimeUnit.SECONDS);

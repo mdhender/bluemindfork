@@ -22,6 +22,7 @@
  */
 package net.bluemind.backend.mail.replica.api;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.EnumSet;
@@ -89,6 +90,20 @@ public class MailboxRecord extends MailboxItem {
 	@Override
 	public String toString() {
 		return super.toString() + "[intFl: " + internalFlags + ", thrid: " + conversationId + "]";
+	}
+
+	public MailboxRecord copy() {
+		MailboxRecord ret = new MailboxRecord();
+		ret.body = body;
+		ret.imapUid = imapUid;
+		ret.flags = new ArrayList<>(flags);
+		ret.internalFlags = EnumSet.copyOf(internalFlags);
+		ret.messageBody = messageBody;
+		ret.modSeq = modSeq;
+		ret.internalDate = internalDate;
+		ret.lastUpdated = lastUpdated;
+		ret.conversationId = conversationId;
+		return ret;
 	}
 
 }

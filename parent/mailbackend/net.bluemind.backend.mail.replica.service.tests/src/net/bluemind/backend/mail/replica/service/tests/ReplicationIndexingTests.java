@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -52,18 +51,16 @@ import org.junit.Test;
 import com.google.common.io.ByteStreams;
 
 import io.vertx.core.json.JsonObject;
-import net.bluemind.backend.cyrus.partitions.CyrusPartition;
-import net.bluemind.backend.cyrus.replication.testhelper.ExpectCommand;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.indexing.IMailIndexService;
 import net.bluemind.backend.mail.replica.indexing.RecordIndexActivator;
 import net.bluemind.backend.mail.replica.service.tests.ReplicationEventsRecorder.Hierarchy;
+import net.bluemind.backend.mail.replica.service.tests.compat.ExpectCommand;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.sessions.Sessions;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
@@ -73,9 +70,6 @@ import net.bluemind.user.api.User;
 
 public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 
-	private String apiKey;
-	private String partition;
-	private String mboxRoot;
 	private ExpectCommand expectCommand;
 
 	@Before
@@ -84,15 +78,6 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 		RecordIndexActivator.reload();
 		Optional<IMailIndexService> indexer = RecordIndexActivator.getIndexer();
 		assertTrue("Indexing support is missing", indexer.isPresent());
-
-		this.apiKey = "sid";
-		SecurityContext secCtx = new SecurityContext("sid", userUid, Collections.emptyList(), Collections.emptyList(),
-				domainUid);
-		Sessions.get().put(apiKey, secCtx);
-
-		CyrusPartition part = CyrusPartition.forServerAndDomain(cyrusReplication.server(), domainUid);
-		this.partition = part.name;
-		this.mboxRoot = "user." + userUid.replace('.', '^');
 
 		long delay = System.currentTimeMillis();
 		Hierarchy hierarchy = null;
