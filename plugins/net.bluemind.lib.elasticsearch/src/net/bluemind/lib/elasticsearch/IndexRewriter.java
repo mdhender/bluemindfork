@@ -83,6 +83,7 @@ public class IndexRewriter {
 		ReindexRequestBuilder reindexBuilder = new ReindexRequestBuilder(client, ReindexAction.INSTANCE)
 				.source(fromIndex).destination(toIndex).setSlices(numberOfShards).abortOnVersionConflict(false);
 		reindexBuilder.destination().setOpType(OpType.INDEX);
+		reindexBuilder.source().setScroll("1d");
 		BulkByScrollResponse reindexResponse = reindexBuilder.get();
 		if (!reindexResponse.getBulkFailures().isEmpty()) {
 			logger.error("{} reindexation failures", reindexResponse.getBulkFailures().size());

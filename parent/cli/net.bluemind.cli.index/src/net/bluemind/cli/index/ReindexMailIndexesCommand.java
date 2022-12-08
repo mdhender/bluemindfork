@@ -168,7 +168,7 @@ public class ReindexMailIndexesCommand implements ICmdLet, Runnable {
 		ReindexRequestBuilder builder = new ReindexRequestBuilder(client, ReindexAction.INSTANCE).source(srcIndex)
 				.destination(targetIndex).setSlices(slices).abortOnVersionConflict(false).filter(ownerQuery);
 		builder.destination().setOpType(OpType.INDEX);
-		builder.source().setSize(batchSize);
+		builder.source().setSize(batchSize).setScroll("1d");
 		script.ifPresent(builder::script);
 		BulkByScrollResponse ret = builder.get();
 		ctx.info("Reindexing {} from index {} to {}: {}", type, srcIndex, targetIndex,
