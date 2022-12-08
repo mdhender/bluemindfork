@@ -6,7 +6,7 @@ inject.register({ provide: "UserSession", factory: () => ({ roles: "" }) });
 import { createStore, createWrapper } from "./testUtils";
 import BodyViewer from "../src/components/MailViewer/BodyViewer";
 
-jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+// FIXME
 jest.mock("@bluemind/i18n", () => {
     return { t: () => "Untitled" };
 });

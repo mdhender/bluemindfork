@@ -23,7 +23,6 @@ import { MockMailboxFoldersClient, MockMailboxItemsClient } from "@bluemind/test
 const { LoadingStatus } = loadingStatusUtils;
 
 jest.mock("../api/apiMessages");
-jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
 
 Vue.use(Vuex);
 
@@ -72,9 +71,7 @@ describe("conversations", () => {
         ServiceLocator.register({
             provide: "MailConversationPersistence",
             use: {
-                byFolder: jest.fn(() => [
-                    { messageRefs: [{ itemId: "internalIdNEW", folderUid: folder.key }] }
-                ])
+                byFolder: jest.fn(() => [{ messageRefs: [{ itemId: "internalIdNEW", folderUid: folder.key }] }])
             }
         });
         ServiceLocator.register({ provide: "MailboxItemsPersistence", use: new MockMailboxItemsClient(messagesData) });

@@ -11,6 +11,7 @@ describe("MimeParser", () => {
                 Object {
                   "address": "1",
                   "charset": "utf-8",
+                  "children": Array [],
                   "dispositionType": "INLINE",
                   "encoding": "quoted-printable",
                   "mime": "text/plain",
@@ -25,6 +26,7 @@ describe("MimeParser", () => {
                 Object {
                   "address": "1",
                   "charset": "utf-8",
+                  "children": Array [],
                   "dispositionType": "INLINE",
                   "encoding": "quoted-printable",
                   "mime": "text/html",
@@ -42,6 +44,7 @@ describe("MimeParser", () => {
                     Object {
                       "address": "1",
                       "charset": "utf-8",
+                      "children": Array [],
                       "dispositionType": "INLINE",
                       "encoding": "quoted-printable",
                       "mime": "text/plain",
@@ -50,6 +53,7 @@ describe("MimeParser", () => {
                     Object {
                       "address": "2",
                       "charset": "utf-8",
+                      "children": Array [],
                       "dispositionType": "INLINE",
                       "encoding": "quoted-printable",
                       "mime": "text/html",
@@ -70,6 +74,7 @@ describe("MimeParser", () => {
                     Object {
                       "address": "1",
                       "charset": "utf-8",
+                      "children": Array [],
                       "dispositionType": "INLINE",
                       "encoding": "quoted-printable",
                       "mime": "text/html",
@@ -78,6 +83,7 @@ describe("MimeParser", () => {
                     Object {
                       "address": "2",
                       "charset": "us-ascii",
+                      "children": Array [],
                       "contentId": "<0d196b557d8acd1f1f81a9f96a331f4c@bluemind.net>",
                       "dispositionType": "INLINE",
                       "encoding": "base64",
@@ -100,6 +106,7 @@ describe("MimeParser", () => {
                     Object {
                       "address": "1",
                       "charset": "utf-8",
+                      "children": Array [],
                       "dispositionType": "INLINE",
                       "encoding": "quoted-printable",
                       "mime": "text/plain",
@@ -108,6 +115,7 @@ describe("MimeParser", () => {
                     Object {
                       "address": "2",
                       "charset": "us-ascii",
+                      "children": Array [],
                       "contentId": undefined,
                       "dispositionType": "ATTACHMENT",
                       "encoding": "base64",
@@ -133,6 +141,7 @@ describe("MimeParser", () => {
                         Object {
                           "address": "1.1",
                           "charset": "utf-8",
+                          "children": Array [],
                           "dispositionType": "INLINE",
                           "encoding": "quoted-printable",
                           "mime": "text/plain",
@@ -144,6 +153,7 @@ describe("MimeParser", () => {
                             Object {
                               "address": "1.2.1",
                               "charset": "utf-8",
+                              "children": Array [],
                               "dispositionType": "INLINE",
                               "encoding": "quoted-printable",
                               "mime": "text/html",
@@ -152,6 +162,7 @@ describe("MimeParser", () => {
                             Object {
                               "address": "1.2.2",
                               "charset": "us-ascii",
+                              "children": Array [],
                               "contentId": "<a0fdd7347c653e453159dd85588d6ad6@bluemind.net>",
                               "dispositionType": "INLINE",
                               "encoding": "base64",
@@ -168,6 +179,7 @@ describe("MimeParser", () => {
                     Object {
                       "address": "2",
                       "charset": "us-ascii",
+                      "children": Array [],
                       "contentId": undefined,
                       "dispositionType": "ATTACHMENT",
                       "encoding": "base64",

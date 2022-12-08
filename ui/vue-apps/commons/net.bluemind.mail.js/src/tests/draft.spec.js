@@ -1,6 +1,5 @@
 import { MockI18NProvider } from "@bluemind/test-utils";
 jest.mock("@bluemind/i18n", () => MockI18NProvider);
-jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
 
 import i18n from "@bluemind/i18n";
 import { create, MessageCreationModes, MessageHeader } from "../message";

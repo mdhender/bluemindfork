@@ -20,7 +20,6 @@ Vue.use(Vuex);
 jest.mock("@bluemind/i18n", () => {
     return { t: () => "" };
 });
-jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
 jest.mock("../../api/apiFolders");
 
 describe("actions", () => {

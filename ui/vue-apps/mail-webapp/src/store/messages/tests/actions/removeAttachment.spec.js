@@ -9,8 +9,6 @@ import { DEBOUNCED_SAVE_MESSAGE } from "~/actions";
 
 const { FileStatus } = fileUtils;
 
-jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
-
 describe("removeAttachment action", () => {
     let mockedClient, context;
     const address = "2.3";

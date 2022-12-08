@@ -15,8 +15,6 @@ import {
 
 const { FileStatus } = fileUtils;
 
-jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
-
 describe("addAttachment action", () => {
     global.URL.createObjectURL = jest.fn();
     const message = {

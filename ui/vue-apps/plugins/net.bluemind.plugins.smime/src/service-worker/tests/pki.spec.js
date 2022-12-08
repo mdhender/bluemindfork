@@ -5,8 +5,8 @@ import db from "../SMimeDB";
 import { readFile } from "./helpers";
 jest.mock("../SMimeDB");
 
-const mockCertificateTxt = readTxt("credentials/certificate");
-const mockKeyTxt = readTxt("credentials/privateKey");
+const mockCertificateTxt = readTxt("documents/certificate");
+const mockKeyTxt = readTxt("documents/privateKey");
 
 const mockKey = {
     text: jest.fn(() => Promise.resolve(mockKeyTxt))

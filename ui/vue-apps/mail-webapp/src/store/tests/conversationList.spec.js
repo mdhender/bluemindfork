@@ -35,7 +35,6 @@ import {
 } from "~/mutations";
 
 jest.mock("../api/apiMessages");
-jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
 
 Vue.use(Vuex);
 

@@ -25,10 +25,10 @@ const blobMultipleRecipients = {
     }
 };
 
-const privatekeyTxt = readTxt("credentials/privateKey");
-const otherPrivateKey = readTxt("credentials/otherPrivateKey");
-const certificateTxt = readTxt("credentials/certificate");
-const otherCertificateTxt = readTxt("credentials/otherCertificate");
+const privatekeyTxt = readTxt("documents/privateKey");
+const otherPrivateKey = readTxt("documents/otherPrivateKey");
+const certificateTxt = readTxt("documents/certificate");
+const otherCertificateTxt = readTxt("documents/otherCertificate");
 
 describe("pkcs7", () => {
     describe("decrypt", () => {

@@ -1,4 +1,3 @@
-const { TextEncoder, TextDecoder } = require("util");
 process.env.TZ = "GMT";
 
 module.exports = {
@@ -7,10 +6,6 @@ module.exports = {
     verbose: true,
     moduleFileExtensions: ["ts", "js", "json", "vue"],
     modulePathIgnorePatterns: ["open/clients/js/target/", "target"],
-    globals: {
-        TextDecoder,
-        TextEncoder
-    },
     transform: {
         "^.+\\.[t|j]sx?$": "babel-jest",
         ".+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2|svg)$": "jest-transform-stub",

@@ -3,7 +3,6 @@ jest.mock("@bluemind/ui-components/src/css/_variables.scss", () => ({ iconsColor
 import { createWrapper } from "./testUtils";
 jest.mock("@bluemind/ui-components/src/css/exports/avatar.scss", () => ({ 1: "#007bff" }));
 jest.mock("~/store/api/apiConversations");
-jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
 jest.mock("@bluemind/i18n", () => {
     return { t: () => "" };
 });

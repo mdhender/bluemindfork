@@ -23,7 +23,7 @@ import {
 import { FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
 import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
 
-jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
+// FIXME: move it in global setup ?
 jest.mock("@bluemind/i18n", () => {
     return { t: () => "" };
 });

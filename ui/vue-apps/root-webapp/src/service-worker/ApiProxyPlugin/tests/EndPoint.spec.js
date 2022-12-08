@@ -5,6 +5,7 @@ import { RegExpRoute } from "workbox-routing";
 import { ApiRouteHandler } from "../ApiRouteHandler";
 global.fetch = jest.fn();
 
+global.Response = Response;
 class Request {
     constructor(params) {
         for (let key in params) {

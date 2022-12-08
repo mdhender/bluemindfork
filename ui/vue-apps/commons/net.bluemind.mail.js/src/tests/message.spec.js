@@ -9,8 +9,6 @@ import {
     setDispositionNotificationHeader
 } from "../message";
 
-jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
-
 describe("Message model", () => {
     test("update key when it's already set", () => {
         const oldInternalId = 123;

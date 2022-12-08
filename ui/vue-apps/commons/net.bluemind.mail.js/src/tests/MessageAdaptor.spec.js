@@ -2,8 +2,6 @@ import { MessageBody } from "@bluemind/backend.mail.api";
 import { messageUtils } from "@bluemind/mail";
 import MessageAdaptor, { getEventInfo } from "../message/MessageAdaptor";
 
-jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
-
 describe("MessageAdaptor", () => {
     test("message model and message adaptor share same properties", () => {
         const emptyRemote = { value: { body: { headers: [], recipients: [], structure: { mime: "" } } } };

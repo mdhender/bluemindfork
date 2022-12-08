@@ -2,19 +2,17 @@ import { FOLDERS, FOLDER_BY_PATH, FOLDERS_BY_PATH, FOLDER_HAS_CHILDREN, FOLDER_G
 import { FOLDER_GET_DESCENDANTS } from "../../types/getters";
 import getters from "../getters";
 
-jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
-
 describe("getters", () => {
     test("FOLDERS", () => {
         const state = {
-            "1": { key: "1", imapName: "1", path: "1", parent: null, mailboxRef: { key: "1" } },
-            "3": { key: "3", imapName: "3", path: "1/2/3", parent: "2", mailboxRef: { key: "1" } },
-            "6": { key: "6", imapName: "6", path: "6", parent: null, mailboxRef: { key: "1" } },
-            "8": { key: "7", imapName: "2", path: "2", parent: "1", mailboxRef: { key: "2" } },
-            "5": { key: "5", imapName: "5", path: "1/5", parent: "1", mailboxRef: { key: "1" } },
-            "2": { key: "2", imapName: "2", path: "1/2", parent: "1", mailboxRef: { key: "1" } },
-            "7": { key: "7", imapName: "1", path: "1", parent: null, mailboxRef: { key: "2" } },
-            "4": { key: "4", imapName: "4", path: "1/2/4", parent: "2", mailboxRef: { key: "1" } }
+            1: { key: "1", imapName: "1", path: "1", parent: null, mailboxRef: { key: "1" } },
+            3: { key: "3", imapName: "3", path: "1/2/3", parent: "2", mailboxRef: { key: "1" } },
+            6: { key: "6", imapName: "6", path: "6", parent: null, mailboxRef: { key: "1" } },
+            8: { key: "7", imapName: "2", path: "2", parent: "1", mailboxRef: { key: "2" } },
+            5: { key: "5", imapName: "5", path: "1/5", parent: "1", mailboxRef: { key: "1" } },
+            2: { key: "2", imapName: "2", path: "1/2", parent: "1", mailboxRef: { key: "1" } },
+            7: { key: "7", imapName: "1", path: "1", parent: null, mailboxRef: { key: "2" } },
+            4: { key: "4", imapName: "4", path: "1/2/4", parent: "2", mailboxRef: { key: "1" } }
         };
         expect(getters[FOLDERS](state)).toEqual([
             state["1"],
@@ -35,7 +33,7 @@ describe("getters", () => {
             mailboxRef: { key: "mbkey" }
         };
         const state = {
-            "123": folder
+            123: folder
         };
         const fakeGetters = { [FOLDERS]: getters[FOLDERS](state) };
         expect(getters[FOLDERS_BY_PATH](state, fakeGetters)("foo")).toEqual([folder]);
@@ -49,7 +47,7 @@ describe("getters", () => {
             mailboxRef: { key: "mbkey" }
         };
         const state = {
-            "123": folder
+            123: folder
         };
         const fakeGetters = {
             [FOLDERS_BY_PATH]: getters[FOLDERS_BY_PATH](state, { [FOLDERS]: getters[FOLDERS](state) })
@@ -59,9 +57,9 @@ describe("getters", () => {
     });
     test("FOLDER_HAS_CHILDREN", () => {
         const state = {
-            "1": { key: "1", imapName: "1", path: "1", parent: null, mailboxRef: { key: "1" } },
-            "2": { key: "2", imapName: "2", path: "1/2", parent: "1", mailboxRef: { key: "1" } },
-            "3": { key: "3", imapName: "3", path: "1/2/3", parent: "unknown", mailboxRef: { key: "1" } }
+            1: { key: "1", imapName: "1", path: "1", parent: null, mailboxRef: { key: "1" } },
+            2: { key: "2", imapName: "2", path: "1/2", parent: "1", mailboxRef: { key: "1" } },
+            3: { key: "3", imapName: "3", path: "1/2/3", parent: "unknown", mailboxRef: { key: "1" } }
         };
         const fakeGetters = { [FOLDERS]: getters[FOLDERS](state) };
         fakeGetters[FOLDER_GET_CHILDREN] = getters[FOLDER_GET_CHILDREN](state, fakeGetters);
@@ -71,9 +69,9 @@ describe("getters", () => {
     });
     test("FOLDER_GET_CHILDREN", () => {
         const state = {
-            "1": { key: "1", imapName: "1", path: "1", parent: null, mailboxRef: { key: "1" } },
-            "2": { key: "2", imapName: "2", path: "1/2", parent: "1", mailboxRef: { key: "1" } },
-            "3": { key: "3", imapName: "3", path: "1/2/3", parent: "unknown", mailboxRef: { key: "1" } }
+            1: { key: "1", imapName: "1", path: "1", parent: null, mailboxRef: { key: "1" } },
+            2: { key: "2", imapName: "2", path: "1/2", parent: "1", mailboxRef: { key: "1" } },
+            3: { key: "3", imapName: "3", path: "1/2/3", parent: "unknown", mailboxRef: { key: "1" } }
         };
         const fakeGetters = { [FOLDERS]: getters[FOLDERS](state) };
         expect(getters[FOLDER_GET_CHILDREN](state, fakeGetters)({ key: "1" })).toEqual([state["2"]]);
@@ -82,9 +80,9 @@ describe("getters", () => {
     });
     test("FOLDER_GET_DESCENDANTS", () => {
         const state = {
-            "1": { key: "1", imapName: "1", path: "1", parent: null, mailboxRef: { key: "1" } },
-            "2": { key: "2", imapName: "2", path: "1/2", parent: "1", mailboxRef: { key: "1" } },
-            "3": { key: "3", imapName: "3", path: "1/2/3", parent: "2", mailboxRef: { key: "1" } }
+            1: { key: "1", imapName: "1", path: "1", parent: null, mailboxRef: { key: "1" } },
+            2: { key: "2", imapName: "2", path: "1/2", parent: "1", mailboxRef: { key: "1" } },
+            3: { key: "3", imapName: "3", path: "1/2/3", parent: "2", mailboxRef: { key: "1" } }
         };
         const fakeGetters = { [FOLDERS]: getters[FOLDERS](state) };
         fakeGetters[FOLDER_GET_CHILDREN] = getters[FOLDER_GET_CHILDREN](state, fakeGetters);

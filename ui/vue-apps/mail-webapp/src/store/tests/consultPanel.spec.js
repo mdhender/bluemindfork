@@ -12,8 +12,6 @@ const calendarService = new MockCalendarClient();
 inject.register({ provide: "CalendarPersistence", factory: () => calendarService });
 Vue.use(Vuex);
 
-jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
-
 describe("consultPanel node", () => {
     const userUid = "user:uid",
         icsUid = "event:uid",
