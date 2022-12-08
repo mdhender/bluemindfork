@@ -74,7 +74,7 @@ public class UserUpdateCommand extends SingleOrDomainOperation {
 	@Option(names = "--external-id", description = "update user external id (used by AD/LDAP synchronisaion), empty to unset")
 	public String extId = null;
 
-	@Option(names = "--quota", description = "update user mailbox quota")
+	@Option(names = "--quota", description = "update user mailbox quota (KiB)")
 	public Integer quota = null;
 
 	private List<UpdateCommand> commands = new ArrayList<>();
