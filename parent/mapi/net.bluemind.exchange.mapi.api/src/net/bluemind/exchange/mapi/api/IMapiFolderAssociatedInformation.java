@@ -27,7 +27,6 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
-
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IDataShardSupport;
@@ -70,6 +69,10 @@ public interface IMapiFolderAssociatedInformation extends IDataShardSupport {
 	@GET
 	@Path("folder/{folderId}")
 	List<ItemValue<MapiFAI>> getByFolderId(@PathParam("folderId") String identifier) throws ServerFault;
+
+	@GET
+	@Path("{id}/completeById")
+	ItemValue<MapiFAI> getCompleteById(@PathParam("id") long id);
 
 	/**
 	 * Tries to batch delete all the FAIs with the given internal ids.

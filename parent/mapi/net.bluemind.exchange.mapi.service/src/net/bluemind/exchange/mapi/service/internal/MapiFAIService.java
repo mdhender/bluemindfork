@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.json.JsonObject;
+import jakarta.ws.rs.PathParam;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
@@ -131,6 +132,11 @@ public class MapiFAIService implements IMapiFolderAssociatedInformation {
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
+	}
+
+	@Override
+	public ItemValue<MapiFAI> getCompleteById(@PathParam("id") long id) {
+		return storeService.get(id, null);
 	}
 
 	private String getPreloadExtId(MapiFAI fai) {
