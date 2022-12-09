@@ -78,6 +78,7 @@
       <plugin id="net.bluemind.delivery.lmtp.common"/>
       <plugin id="net.bluemind.delivery.lmtp.filters"/>
       <plugin id="net.bluemind.delivery.lmtp.hooks"/>
+      <plugin id="net.bluemind.delivery.rules"/>
       <plugin id="net.bluemind.directory.api"/>
       <plugin id="net.bluemind.domain.api"/>
       <plugin id="net.bluemind.eclipse.common"/>

@@ -259,6 +259,7 @@
    <bundle id="net.bluemind.delivery.lmtp.filters" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.delivery.lmtp.filter.testhelper" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.delivery.lmtp.hooks" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.delivery.rules" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.device.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.device.api.gwt" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.device.api.php" version="4.1.0.qualifier"/>
