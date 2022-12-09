@@ -18,7 +18,10 @@
  */
 package net.bluemind.dav.server.proto;
 
+import org.slf4j.Logger;
+
 import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.dav.server.store.DavResource;
@@ -31,4 +34,15 @@ public interface IDavProtocol<Q, R> {
 	void execute(LoggedCore lc, Q query, Handler<R> handler);
 
 	void write(R response, HttpServerResponse sr);
+
+	default void logReq(Logger logger, final HttpServerRequest r, Buffer body) {
+		for (String hn : r.headers().names()) {
+			logger.info("{}: {}", hn, r.headers().get(hn));
+		}
+		if (body != null) {
+			logger.info("parse '{}'\n{}", r.path(), body.toString());
+		} else {
+			logger.info("parse '{}' q:'{}'", r.path(), r.query());
+		}
+	}
 }

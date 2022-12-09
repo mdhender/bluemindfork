@@ -51,7 +51,7 @@ public class MissingProtocol implements IDavProtocol<UnknownQuery, UnknownRespon
 		Body.handle(r, new Handler<Buffer>() {
 			@Override
 			public void handle(Buffer b) {
-				logReq(r, b);
+				logReq(logger, r, b);
 				handler.handle(uq);
 			}
 		});
@@ -68,15 +68,4 @@ public class MissingProtocol implements IDavProtocol<UnknownQuery, UnknownRespon
 		sr.setStatusCode(errorCode).setStatusMessage("Not implemented").end();
 	}
 
-	private void logReq(HttpServerRequest r, Buffer body) {
-		logger.error("{} {}", r.method(), r.path());
-		for (String hn : r.headers().names()) {
-			logger.error("{}: {}", hn, r.headers().get(hn));
-		}
-		if (body != null) {
-			logger.error("parse '{}'\n{}", r.path(), body.toString());
-		} else {
-			logger.error("parse '{}' q:'{}'", r.path(), r.query());
-		}
-	}
 }

@@ -55,7 +55,7 @@ public class FreeBusyProtocol implements IDavProtocol<FBQuery, FBResponse> {
 
 			@Override
 			public void handle(Buffer ics) {
-				logReq(r, ics);
+				logReq(logger, r, ics);
 				FBQuery fb = new FBQuery(davRes);
 				try {
 					fb.setIcs(ics.getBytes());
@@ -99,17 +99,6 @@ public class FreeBusyProtocol implements IDavProtocol<FBQuery, FBResponse> {
 			srb.newUnknownRecipientResponse("urn:uuid:" + calUid);
 		}
 		srb.sendAs(sr);
-	}
-
-	private void logReq(final HttpServerRequest r, Buffer body) {
-		for (String hn : r.headers().names()) {
-			logger.info("{}: {}", hn, r.headers().get(hn));
-		}
-		if (body != null) {
-			logger.info("parse '{}'\n{}", r.path(), body.toString());
-		} else {
-			logger.info("parse '{}' q:'{}'", r.path(), r.query());
-		}
 	}
 
 }

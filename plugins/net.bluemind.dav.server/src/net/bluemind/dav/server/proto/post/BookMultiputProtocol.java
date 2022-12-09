@@ -73,7 +73,7 @@ public class BookMultiputProtocol implements IDavProtocol<BookMultiputQuery, Boo
 
 	@Override
 	public void execute(LoggedCore lc, BookMultiputQuery query, Handler<BookMultiputResponse> handler) {
-		logger.warn("{} vcards to process.", query.getVcards().size());
+		logger.info("{} vcards to process.", query.getVcards().size());
 		try {
 			ContainerDescriptor bookFolder = BookUtils.addressbook(lc, query.getResource());
 			IAddressBook bookApi = lc.getCore().instance(IAddressBook.class, bookFolder.uid);

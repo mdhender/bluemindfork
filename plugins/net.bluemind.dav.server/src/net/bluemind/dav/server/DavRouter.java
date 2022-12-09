@@ -38,11 +38,11 @@ import net.bluemind.dav.server.proto.options.OptionsProtocol;
 import net.bluemind.dav.server.proto.post.BookMultiputProtocol;
 import net.bluemind.dav.server.proto.post.FreeBusyProtocol;
 import net.bluemind.dav.server.proto.post.PushProtocol;
+import net.bluemind.dav.server.proto.post.VEventStuffPostProtocol;
 import net.bluemind.dav.server.proto.propfind.PropFindProtocol;
 import net.bluemind.dav.server.proto.proppatch.PropPatchProtocol;
 import net.bluemind.dav.server.proto.put.PutProtocol;
 import net.bluemind.dav.server.proto.report.ReportProtocol;
-import net.bluemind.dav.server.proto.sharing.SharingProtocol;
 import net.bluemind.dav.server.routing.MethodRouter;
 import net.bluemind.dav.server.store.ResType;
 import net.bluemind.vertx.common.http.BasicAuthHandler;
@@ -76,7 +76,7 @@ public final class DavRouter implements Handler<HttpServerRequest> {
 		}
 
 		mr.postHandler(ResType.SCHEDULE_OUTBOX, new FreeBusyProtocol());
-		mr.postHandler(ResType.VSTUFF_CONTAINER, new SharingProtocol());
+		mr.postHandler(ResType.VSTUFF_CONTAINER, new VEventStuffPostProtocol());
 		mr.postHandler(ResType.APNS, new PushProtocol());
 		mr.postHandler(ResType.VCARDS_CONTAINER, new BookMultiputProtocol());
 

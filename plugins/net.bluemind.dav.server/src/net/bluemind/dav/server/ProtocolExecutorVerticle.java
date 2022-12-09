@@ -21,11 +21,11 @@ import net.bluemind.dav.server.proto.options.OptionsProtocol;
 import net.bluemind.dav.server.proto.post.BookMultiputProtocol;
 import net.bluemind.dav.server.proto.post.FreeBusyProtocol;
 import net.bluemind.dav.server.proto.post.PushProtocol;
+import net.bluemind.dav.server.proto.post.VEventStuffPostProtocol;
 import net.bluemind.dav.server.proto.propfind.PropFindProtocol;
 import net.bluemind.dav.server.proto.proppatch.PropPatchProtocol;
 import net.bluemind.dav.server.proto.put.PutProtocol;
 import net.bluemind.dav.server.proto.report.ReportProtocol;
-import net.bluemind.dav.server.proto.sharing.SharingProtocol;
 import net.bluemind.dav.server.store.LoggedCore;
 
 public final class ProtocolExecutorVerticle extends AbstractVerticle {
@@ -41,7 +41,7 @@ public final class ProtocolExecutorVerticle extends AbstractVerticle {
 		registerProtocol(vertx.eventBus(), new BookMultiputProtocol());
 		registerProtocol(vertx.eventBus(), new FreeBusyProtocol());
 		registerProtocol(vertx.eventBus(), new PushProtocol());
-		registerProtocol(vertx.eventBus(), new SharingProtocol());
+		registerProtocol(vertx.eventBus(), new VEventStuffPostProtocol());
 		registerProtocol(vertx.eventBus(), new PropFindProtocol());
 		registerProtocol(vertx.eventBus(), new PropPatchProtocol());
 		registerProtocol(vertx.eventBus(), new PutProtocol());

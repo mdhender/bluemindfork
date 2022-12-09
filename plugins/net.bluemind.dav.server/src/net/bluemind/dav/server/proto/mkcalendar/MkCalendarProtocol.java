@@ -32,7 +32,7 @@ public class MkCalendarProtocol implements IDavProtocol<MkCalQuery, MkCalRespons
 		Body.handle(r, new Handler<Buffer>() {
 			@Override
 			public void handle(Buffer b) {
-				logReq(r, b);
+				logReq(logger, r, b);
 				MkCalQuery q = new MkCalQueryParser().parse(davRes, r.headers(), b);
 				handler.handle(q);
 			}
@@ -88,15 +88,4 @@ public class MkCalendarProtocol implements IDavProtocol<MkCalQuery, MkCalRespons
 		sr.setStatusCode(201).setStatusMessage("Created.").end();
 	}
 
-	private void logReq(HttpServerRequest r, Buffer body) {
-		logger.error("{} {}", r.method(), r.path());
-		for (String hn : r.headers().names()) {
-			logger.error("{}: {}", hn, r.headers().get(hn));
-		}
-		if (body != null) {
-			logger.error("parse '{}'\n{}", r.path(), body.toString());
-		} else {
-			logger.error("parse '{}' q:'{}'", r.path(), r.query());
-		}
-	}
 }

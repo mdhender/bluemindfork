@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<C:share xmlns:C="http://calendarserver.org/ns/">
+  <C:set>
+    <A:href xmlns:A="DAV:">mailto:test@bluemind.net</A:href>
+    <C:common-name>test@bluemind.net</C:common-name>
+    <C:summary>Test</C:summary>
+    <C:read-write/>
+  </C:set>
+</C:share>

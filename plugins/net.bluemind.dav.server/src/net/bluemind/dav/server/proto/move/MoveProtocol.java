@@ -40,7 +40,7 @@ public class MoveProtocol implements IDavProtocol<MoveQuery, MoveResponse> {
 
 			@Override
 			public void handle(Buffer event) {
-				logReq(r, event);
+				logReq(logger, r, event);
 				handler.handle(new MoveQuery(davRes));
 			}
 		});
@@ -56,17 +56,6 @@ public class MoveProtocol implements IDavProtocol<MoveQuery, MoveResponse> {
 	public void write(MoveResponse response, HttpServerResponse sr) {
 		logger.error("Not implemented");
 		sr.setStatusCode(403).setStatusMessage("Not implemented").end();
-	}
-
-	private void logReq(final HttpServerRequest r, Buffer body) {
-		for (String hn : r.headers().names()) {
-			logger.info("{}: {}", hn, r.headers().get(hn));
-		}
-		if (body != null) {
-			logger.info("parse '{}'\n{}", r.path(), body.toString());
-		} else {
-			logger.info("parse '{}' q:'{}'", r.path(), r.query());
-		}
 	}
 
 }

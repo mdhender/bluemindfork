@@ -237,7 +237,7 @@ public class EditResource extends CompositeGwtWidgetElement {
 
 	native String atob(String encoded)
 	/*-{
-		return atob(encoded);
+    return atob(encoded);
 	}-*/;
 
 	private void loadIcon(String rUid) {

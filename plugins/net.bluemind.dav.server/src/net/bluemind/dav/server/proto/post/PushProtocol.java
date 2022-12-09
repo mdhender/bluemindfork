@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Handler;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.dav.server.proto.DavHeaders;
@@ -40,23 +39,12 @@ public class PushProtocol implements IDavProtocol<PushQuery, PushResponse> {
 
 			@Override
 			public void handle(Void v) {
-				logReq(r, null);
+				logReq(logger, r, null);
 				PushQuery pq = new PushQuery(davRes);
 				DavHeaders.parse(pq, r.headers());
 				handler.handle(pq);
 			}
 		});
-	}
-
-	private void logReq(final HttpServerRequest r, Buffer body) {
-		for (String hn : r.headers().names()) {
-			logger.info("{}: {}", hn, r.headers().get(hn));
-		}
-		if (body != null) {
-			logger.info("parse '{}'\n{}", r.path(), body.toString());
-		} else {
-			logger.info("parse '{}' q:'{}'", r.path(), r.query());
-		}
 	}
 
 	@Override

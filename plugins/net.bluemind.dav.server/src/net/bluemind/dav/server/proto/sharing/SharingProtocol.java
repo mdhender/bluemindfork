@@ -25,56 +25,25 @@ import java.util.regex.Matcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vertx.core.Handler;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
-import net.bluemind.dav.server.proto.IDavProtocol;
+import net.bluemind.dav.server.proto.post.VEventStuffPostProtocol.VEventStuffContext;
 import net.bluemind.dav.server.proto.sharing.Sharing.SharingAction;
 import net.bluemind.dav.server.proto.sharing.Sharing.SharingType;
-import net.bluemind.dav.server.store.DavResource;
 import net.bluemind.dav.server.store.LoggedCore;
 import net.bluemind.dav.server.store.ResType;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.DirEntryQuery;
 import net.bluemind.directory.api.IDirectory;
-import net.bluemind.vertx.common.Body;
 
-public class SharingProtocol implements IDavProtocol<SharingQuery, SharingResponse> {
+public class SharingProtocol {
 
 	private static final Logger logger = LoggerFactory.getLogger(SharingProtocol.class);
 
-	@Override
-	public void parse(final HttpServerRequest r, final DavResource davRes, final Handler<SharingQuery> handler) {
-		Body.handle(r, new Handler<Buffer>() {
-
-			@Override
-			public void handle(Buffer event) {
-				logReq(r, event);
-				SharingQuery sr = new SharingQueryParser().parse(davRes, r.headers(), event);
-				handler.handle(sr);
-			}
-		});
-	}
-
-	private void logReq(final HttpServerRequest r, Buffer body) {
-		for (String hn : r.headers().names()) {
-			logger.debug("{}: {}", hn, r.headers().get(hn));
-		}
-		if (body != null) {
-			logger.debug("parse '{}'\n{}", r.path(), body.toString());
-		} else {
-			logger.debug("parse '{}' q:'{}'", r.path(), r.query());
-		}
-	}
-
-	@Override
-	public void execute(LoggedCore lc, SharingQuery query, Handler<SharingResponse> handler) {
+	public static SharingResponse execute(LoggedCore lc, SharingQuery query, VEventStuffContext ctx) {
 		SharingResponse sr = new SharingResponse();
 
 		try {
@@ -119,11 +88,7 @@ public class SharingProtocol implements IDavProtocol<SharingQuery, SharingRespon
 			logger.error(e.getMessage(), e);
 		}
 
-		handler.handle(sr);
+		return sr;
 	}
 
-	@Override
-	public void write(SharingResponse response, HttpServerResponse sr) {
-		sr.setStatusCode(200).end();
-	}
 }
