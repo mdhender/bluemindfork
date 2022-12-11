@@ -35,6 +35,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 
@@ -143,6 +144,11 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	public ContainerStoreService(DataSource pool, SecurityContext securityContext, Container container,
 			IItemValueStore<T> itemValueStore) {
 		this(pool, securityContext, container, itemValueStore, v -> UNFLAGGED, v -> 0L, seed -> seed);
+	}
+
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(getClass()).add("items", itemValueStore).add("cont", container).toString();
 	}
 
 	private void assertChangeLog() {

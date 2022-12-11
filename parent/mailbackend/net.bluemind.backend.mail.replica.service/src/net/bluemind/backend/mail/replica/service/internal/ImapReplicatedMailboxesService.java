@@ -18,7 +18,7 @@
 package net.bluemind.backend.mail.replica.service.internal;
 
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -60,17 +60,15 @@ import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.imap.CreateMailboxResult;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
-import net.bluemind.imap.ListInfo;
-import net.bluemind.imap.ListResult;
 import net.bluemind.imap.StoreClient;
 
 public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesService
@@ -201,27 +199,9 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		if (toDelete.value.deleted) {
 			throw ServerFault.notFound("Folder with id " + id + " has already been deleted.");
 		}
-		logger.info("toDelete: {}", toDelete);
-		UpdatedName newName = updateName(toDelete.value, container.uid);
-		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(newName.subtreeContainer);
-		final String fnName = newName.imapName;
-		final String fnToWath = newName.subtreeContainer;
-		imapContext.withImapClient(sc -> {
-			logger.info("Deleting {}", fnName);
-			selectInbox(sc);
-			CreateMailboxResult delRes = sc.deleteMailbox(fnName);
-			if (delRes.isOk()) {
-				try {
-					return future.get(20, TimeUnit.SECONDS);
-				} catch (Exception e) {
-					logger.warn("Failed to delete folder {} {}", fnName, fnToWath);
-					throw new ServerFault(e);
-				}
-			} else {
-				logger.warn("Delete of {} failed: {}", fnName, delRes.getMessage());
-				return null;
-			}
-		});
+		MboxReplicasCache.invalidate(toDelete.uid);
+		ItemVersion delResult = storeService.delete(toDelete.internalId);
+		logger.info("Deleting {} -> {}", toDelete, delResult);
 	}
 
 	private void selectInbox(StoreClient sc) throws IMAPException {
@@ -237,12 +217,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			throw ServerFault.notFound("Folder with id " + id + " not found");
 		}
 		logger.info("Start deepDelete of {}...", toDelete);
-		imapContext.withImapClient(sc -> {
-			selectInbox(sc);
-			deleteChildFolders(toDelete, sc);
-			return null;
-		});
-
+		deleteChildFolders(toDelete);
 		deleteById(id);
 	}
 
@@ -264,11 +239,11 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		ItemFlagFilter filter = ItemFlagFilter.create().mustNot(ItemFlag.Deleted);
 		Count count = context.provider().instance(IDbMailboxRecords.class, folder.uid).count(filter);
 		logger.info("Start emptying {} (deleteChildFolders={})...", folder, deleteChildFolders);
+		if (deleteChildFolders) {
+			deleteChildFolders(folder);
+		}
 		imapContext.withImapClient(storeClient -> {
 			selectInbox(storeClient);
-			if (deleteChildFolders) {
-				deleteChildFolders(folder, storeClient);
-			}
 			logger.info("On purge of '{}'", folder.value.fullName);
 			if (count.total > 0) {
 				flag(storeClient, folder, Flag.DELETED, storeClient::expunge);
@@ -319,25 +294,14 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		}
 	}
 
-	private void deleteChildFolders(ItemValue<MailboxFolder> toClean, StoreClient sc) {
-		String childPrefix = imapPath(toClean.value) + "/";
-		ListResult allFolders = sc.listAll();
-		List<String> toRemove = allFolders.stream()//
-				.filter(ListInfo::isSelectable).filter(li -> {
-					String check = li.getName();
-					return check.startsWith(childPrefix);
-				}).map(ListInfo::getName).sorted(Comparator.reverseOrder())//
-				.collect(Collectors.toList());
-
-		for (String childFolder : toRemove) {
-			logger.info("On deletion of child folder '{}'", childFolder);
-			try {
-				sc.deleteMailbox(childFolder);
-			} catch (IMAPException e) {
-				throw new ServerFault(e);
-			}
-
-		}
+	private void deleteChildFolders(ItemValue<MailboxFolder> toClean) {
+		FolderTree fullTree = FolderTree.of(all());
+		List<ItemValue<MailboxFolder>> children = fullTree.children(toClean);
+		Collections.reverse(children);
+		children.forEach(child -> {
+			MboxReplicasCache.invalidate(child.uid);
+			storeService.delete(child.internalId);
+		});
 	}
 
 	@Override

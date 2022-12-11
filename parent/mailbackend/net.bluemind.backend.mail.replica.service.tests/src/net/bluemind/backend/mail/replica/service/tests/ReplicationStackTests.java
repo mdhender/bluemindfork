@@ -690,7 +690,7 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		mboxesApi.deepDelete(folderItem.internalId);
 		System.err.println("deepDelete ends.");
 
-		System.err.println("start checking for " + folderItem.value);
+		System.err.println("start checking for " + folderItem.internalId + " " + folderName + " " + folderItem.value);
 		String folderUid = folderItem.uid;
 		folderItem = mboxesApi.byName(folderName);
 		assertNull(folderItem);
