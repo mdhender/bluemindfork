@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
@@ -58,6 +59,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.lib.ical4j.vcard.Builder;
+import net.bluemind.tag.api.TagRef;
 import net.bluemind.utils.FileUtils;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.vcard.Property;
@@ -371,6 +373,29 @@ public class VCardServiceImportTests extends AbstractServiceTests {
 
 		assertEquals("+777", props.get(1).getValue());
 		assertEquals("HOME", props.get(1).getParameter(net.fortuna.ical4j.vcard.Parameter.Id.TYPE).getValue());
+	}
+
+	@Test
+	public void testExportCategories() throws ServerFault {
+		VCard card = defaultVCard();
+		card.explanatory.categories = new ArrayList<>();
+
+		card.explanatory.categories.add(tagRef1);
+		card.explanatory.categories.add(tagRef2);
+
+		net.fortuna.ical4j.vcard.VCard export = export(card);
+		List<Property> props = export.getProperties(Id.CATEGORIES);
+		assertEquals(1, props.size());
+		assertEquals("tag1,tag2", props.get(0).getValue());
+	}
+
+	@Test
+	public void testImportCategories() throws ServerFault {
+		ItemValue<VCard> imported = importProperty(true, "CATEGORIES:tag1,tag2");
+		List<TagRef> refs = imported.value.explanatory.categories;
+		assertEquals(2, refs.size());
+		assertEquals("tag1", refs.get(0).label);
+		assertEquals("tag2", refs.get(1).label);
 	}
 
 	@Test
@@ -814,7 +839,7 @@ public class VCardServiceImportTests extends AbstractServiceTests {
 		VCard card = cardItem.value;
 		assertEquals(1, card.explanatory.categories.size());
 		assertEquals("Collègue", card.explanatory.categories.get(0).label);
-		assertEquals("000000", card.explanatory.categories.get(0).color);
+		assertEquals("3d98ff", card.explanatory.categories.get(0).color);
 	}
 
 	@Test

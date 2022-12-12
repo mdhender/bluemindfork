@@ -19,8 +19,10 @@
 package net.bluemind.dav.server.proto.post;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
@@ -32,6 +34,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import net.bluemind.addressbook.adapter.AddressbookOwner;
 import net.bluemind.addressbook.adapter.VCardAdapter;
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.VCardChanges;
@@ -51,6 +54,7 @@ import net.bluemind.dav.server.store.ResType;
 import net.bluemind.dav.server.store.SyncTokens;
 import net.bluemind.dav.server.xml.DOMUtils;
 import net.bluemind.dav.server.xml.MultiStatusBuilder;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.vertx.common.Body;
 import net.fortuna.ical4j.vcard.Property.Id;
 import net.fortuna.ical4j.vcard.VCard;
@@ -134,7 +138,9 @@ public class BookMultiputProtocol implements IDavProtocol<BookMultiputQuery, Boo
 
 	private net.bluemind.addressbook.api.VCard coreCard(LoggedCore lc, VCardPut vcp, ContainerDescriptor bookFolder) {
 		VCard vc = vcp.getVcard();
-		net.bluemind.addressbook.api.VCard coreCard = VCardAdapter.adaptCard(vc, s -> s).value;
+		net.bluemind.addressbook.api.VCard coreCard = VCardAdapter.adaptCard(vc, s -> s,
+				Optional.of(new AddressbookOwner(lc.getDomain(), lc.getUser().uid, Kind.USER)),
+				Collections.emptyList()).value;
 		if (coreCard.kind == net.bluemind.addressbook.api.VCard.Kind.group) {
 			coreCard.organizational.member = coreCard.organizational.member.stream().map(m -> {
 				m.containerUid = bookFolder.uid;

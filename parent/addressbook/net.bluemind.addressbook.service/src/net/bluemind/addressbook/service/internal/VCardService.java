@@ -29,10 +29,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.addressbook.adapter.AddressbookOwner;
 import net.bluemind.addressbook.adapter.VCardAdapter;
 import net.bluemind.addressbook.adapter.VCardVersion;
 import net.bluemind.addressbook.api.IVCardService;
@@ -45,16 +47,21 @@ import net.bluemind.core.container.model.ContainerUpdatesResult;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.service.internal.RBACManager;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.core.task.service.NullTaskMonitor;
 import net.bluemind.core.utils.JsonUtils;
+import net.bluemind.directory.api.BaseDirEntry;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
+import net.bluemind.directory.api.IDirectory;
 import net.bluemind.lib.ical4j.vcard.Builder;
+import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.api.ITags;
-import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagRef;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.vcard.Parameter;
@@ -185,10 +192,13 @@ public class VCardService implements IVCardService {
 
 		String seed = "" + System.currentTimeMillis();
 		for (net.fortuna.ical4j.vcard.VCard card : cards) {
-			bmCards.add(
-					VCardAdapter.adaptCard(card, s -> UUID.nameUUIDFromBytes(seed.concat(s).getBytes()).toString()));
+			BaseDirEntry.Kind calOwnerType = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(IDirectory.class, container.domainUid).findByEntryUid(container.owner).kind;
+
+			bmCards.add(VCardAdapter.adaptCard(card, s -> UUID.nameUUIDFromBytes(seed.concat(s).getBytes()).toString(),
+					Optional.of(new AddressbookOwner(container.domainUid, container.owner, calOwnerType)),
+					getAllTags()));
 		}
-		bmCards.forEach(this::resolveCategories);
 		monitor.progress(1, "Parsed " + bmCards.size() + " cards ");
 		ImportStats ret = doImport(bmCards, monitor.subWork(2));
 		monitor.end(true, ret.importedCount() + "/" + ret.total + " vcards imported in " + container.uid,
@@ -196,45 +206,37 @@ public class VCardService implements IVCardService {
 		return ret;
 	}
 
-	private void resolveCategories(ItemValue<VCard> card) {
-		String tagsContainerUid = "tags_" + container.owner;
-		String tagsDomainContainerUid = "tags_" + container.domainUid;
+	private List<TagRef> getAllTags() {
+		List<TagRef> allTags = new ArrayList<>();
 
-		card.value.explanatory.categories.forEach(tag -> {
-			boolean tagPresent = searchAndSetTag(tagsContainerUid, tag.label, tag);
-			if (!tagPresent) {
-				tagPresent = searchAndSetTag(tagsDomainContainerUid, tag.label, tag);
-				if (!tagPresent) {
-					ITags tagService = context.su().provider().instance(ITags.class, tagsContainerUid);
-					String uid = UUID.randomUUID().toString();
-					Tag t = Tag.create(tag.label, tag.color);
-					tagService.create(uid, t);
-					ItemValue<Tag> createdTag = tagService.getComplete(uid);
-					tag.containerUid = tagsContainerUid;
-					tag.itemUid = createdTag.uid;
-				}
-			}
-		});
+		BaseDirEntry.Kind calOwnerType = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDirectory.class, container.domainUid).findByEntryUid(container.owner).kind;
+
+		if (calOwnerType != Kind.CALENDAR && calOwnerType != Kind.RESOURCE) {
+			// owner tags
+			allTags.addAll(getTagsService().all().stream()
+					.map(tag -> TagRef.create(ITagUids.defaultUserTags(container.owner), tag))
+					.collect(Collectors.toList()));
+		}
+
+		// domain tags
+		ITags service = context.su().provider().instance(ITags.class, ITagUids.defaultUserTags(container.domainUid));
+		allTags.addAll(
+				service.all().stream().map(tag -> TagRef.create(ITagUids.defaultUserTags(container.domainUid), tag))
+						.collect(Collectors.toList()));
+
+		return allTags;
 	}
 
-	private boolean searchAndSetTag(String tagsContainer, String label, TagRef ref) {
-		if (tagsContainer.equals("tags_global.virt")) {
-			return false;
+	private ITags getTagsService() {
+		if (container.owner.equals(context.getSecurityContext().getSubject())) {
+			return context.getServiceProvider().instance(ITags.class, ITagUids.defaultUserTags(container.owner));
+		} else {
+			try (Sudo asUser = new Sudo(container.owner, container.domainUid)) {
+				return ServerSideServiceProvider.getProvider(asUser.context).instance(ITags.class,
+						ITagUids.defaultUserTags(container.owner));
+			}
 		}
-		ITags tagService;
-		try {
-			tagService = context.su().provider().instance(ITags.class, tagsContainer);
-		} catch (ServerFault e) {
-			return false;
-		}
-		Optional<ItemValue<Tag>> storedTag = tagService.all().stream().filter(t -> t.value.label.equals(label))
-				.findFirst();
-		if (storedTag.isPresent()) {
-			ref.containerUid = tagsContainer;
-			ref.itemUid = storedTag.get().uid;
-			return true;
-		}
-		return false;
 	}
 
 	private ImportStats doImport(List<ItemValue<VCard>> bmCards, IServerTaskMonitor monitor) throws ServerFault {

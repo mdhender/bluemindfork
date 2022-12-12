@@ -30,6 +30,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -50,10 +51,15 @@ import net.bluemind.addressbook.api.VCard.DeliveryAddressing;
 import net.bluemind.addressbook.api.VCard.Parameter;
 import net.bluemind.core.api.Regex;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.utils.UIDGenerator;
+import net.bluemind.directory.api.BaseDirEntry;
 import net.bluemind.lib.ical4j.vcard.property.AddressbookServerKind;
 import net.bluemind.lib.ical4j.vcard.property.AddressbookServerMember;
 import net.bluemind.lib.ical4j.vcard.property.NoteAsHtml;
+import net.bluemind.tag.api.ITagUids;
+import net.bluemind.tag.api.ITags;
+import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagRef;
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.vcard.ParameterFactory;
@@ -120,7 +126,7 @@ public final class VCardAdapter {
 	}
 
 	public static final ItemValue<VCard> adaptCard(net.fortuna.ical4j.vcard.VCard card,
-			Function<String, String> uidGenerator) {
+			Function<String, String> uidGenerator, Optional<AddressbookOwner> addressbookOwner, List<TagRef> allTags) {
 		String retUid = UIDGenerator.uid();
 		VCard retCard = new VCard();
 
@@ -176,6 +182,9 @@ public final class VCardAdapter {
 		}
 
 		retCard.deliveryAddressing = das;
+
+		retCard.explanatory.categories = parseVcfCategories(card.getProperties(Id.CATEGORIES), addressbookOwner,
+				allTags);
 
 		List<Property> telProps = card.getProperties(Id.TEL);
 		List<Tel> tels = new ArrayList<>(telProps.size());
@@ -265,22 +274,6 @@ public final class VCardAdapter {
 			retCard.security.key = VCard.Security.Key.create(key.getValue(), fromVCard(key.getParameters()));
 		}
 
-		List<Property> categoriesProps = card.getProperties(Id.CATEGORIES);
-		List<TagRef> cats = new ArrayList<>(categoriesProps.size());
-		for (Property p : categoriesProps) {
-			Categories cat = (Categories) p;
-			Iterator<String> it = cat.getCategories().iterator();
-			while (it.hasNext()) {
-				String v = it.next();
-				// FIXME auto create tags ?
-				TagRef ref = new TagRef();
-				ref.color = "000000";
-				ref.label = v;
-				cats.add(ref);
-			}
-		}
-		retCard.explanatory.categories = cats;
-
 		Note noteProp = (Note) card.getProperty(Id.NOTE);
 		if (noteProp != null) {
 			Property noteAsHtml = card.getExtendedProperty("NOTE-HTML");
@@ -332,6 +325,56 @@ public final class VCardAdapter {
 		}
 
 		return ItemValue.create(retUid, retCard);
+	}
+
+	private static List<TagRef> parseVcfCategories(List<Property> categoriesPropList, Optional<AddressbookOwner> owner,
+			List<TagRef> allTags) {
+		if (categoriesPropList == null || categoriesPropList.isEmpty()) {
+			return null;
+		}
+		if (!owner.isPresent()) {
+			return null;
+		}
+
+		AddressbookOwner calOwner = owner.get();
+
+		Optional<String> containerUid = calOwner.kind != BaseDirEntry.Kind.ADDRESSBOOK
+				&& calOwner.kind != BaseDirEntry.Kind.RESOURCE ? Optional.of(ITagUids.defaultUserTags(calOwner.userUid))
+						: Optional.empty();
+		Optional<ITags> service = containerUid.map(uid -> {
+			try (Sudo asUser = new Sudo(calOwner.userUid, calOwner.domainUid)) {
+				return ServerSideServiceProvider.getProvider(asUser.context).instance(ITags.class, uid);
+			}
+		});
+
+		List<TagRef> categories = new ArrayList<>(categoriesPropList.size());
+
+		for (@SuppressWarnings("unchecked")
+		Iterator<Property> it = categoriesPropList.iterator(); it.hasNext();) {
+			Property category = it.next();
+			String labelValue = category.getValue();
+			if (Strings.isNullOrEmpty(labelValue)) {
+				continue;
+			}
+			String[] values = labelValue.split(",");
+			for (String label : values) {
+				Optional<TagRef> exsistingTag = allTags.stream().filter(tag -> label.equals(tag.label)).findFirst();
+				if (exsistingTag.isPresent()) {
+					categories.add(exsistingTag.get());
+				} else {
+					// 3d98ff blue
+					service.ifPresent(s -> {
+						String uid = UUID.randomUUID().toString();
+						s.create(uid, Tag.create(label, "3d98ff"));
+
+						TagRef tr = TagRef.create(containerUid.get(), s.getComplete(uid));
+						allTags.add(tr);
+						categories.add(tr);
+					});
+				}
+			}
+		}
+		return categories;
 	}
 
 	private static Optional<String> getParamValue(List<net.fortuna.ical4j.vcard.Parameter> list, String parameterId) {
@@ -404,13 +447,17 @@ public final class VCardAdapter {
 			}
 		}
 
+		if (vcard.explanatory.categories != null && !vcard.explanatory.categories.isEmpty()) {
+			properties.add(
+					new Categories(vcard.explanatory.categories.stream().map(c -> c.label).toArray(String[]::new)));
+		}
+
 		for (Tel tel : vcard.communications.tels) {
 			try {
 				properties.add(new Telephone(toVCard(tel.parameters), tel.value));
 			} catch (URISyntaxException e) {
 				LOGGER.warn("error during vcard export", e);
 			}
-
 		}
 
 		for (Communications.Email mail : vcard.communications.emails) {
