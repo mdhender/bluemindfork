@@ -42,11 +42,15 @@ import net.bluemind.backend.mail.api.ImportMailboxItemsStatus;
 import net.bluemind.backend.mail.api.ImportMailboxItemsStatus.ImportStatus;
 import net.bluemind.backend.mail.api.ImportMailboxItemsStatus.ImportedMailboxItem;
 import net.bluemind.backend.mail.api.MailboxFolder;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
+import net.bluemind.backend.mail.replica.api.MailboxRecord;
+import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
+import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
 import net.bluemind.backend.mail.replica.service.ReplicationEvents;
 import net.bluemind.core.api.fault.ErrorCode;
@@ -242,14 +246,10 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		if (deleteChildFolders) {
 			deleteChildFolders(folder);
 		}
-		imapContext.withImapClient(storeClient -> {
-			selectInbox(storeClient);
-			logger.info("On purge of '{}'", folder.value.fullName);
-			if (count.total > 0) {
-				flag(storeClient, folder, Flag.DELETED, storeClient::expunge);
-			}
-			return null;
-		});
+		logger.info("On purge of '{}'", folder.value.fullName);
+		if (count.total > 0) {
+			flag(folder, MailboxItemFlag.System.Deleted);
+		}
 	}
 
 	public void markFolderAsRead(long id) {
@@ -264,7 +264,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			logger.info("Start marking as read {}...", folder);
 			imapContext.withImapClient(storeClient -> {
 				selectInbox(storeClient);
-				flag(storeClient, folder, Flag.SEEN, null);
+				flag(folder, MailboxItemFlag.System.Seen);
 				return null;
 			});
 		} else {
@@ -272,25 +272,20 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		}
 	}
 
-	private void flag(StoreClient storeClient, ItemValue<MailboxFolder> folder, Flag flag, Runnable onSuccess) {
-		try {
-			FlagsList flags = new FlagsList();
-			flags.add(flag);
-
-			String folderName = imapPath(folder.value);
-			logger.info("Add flag {} to '{}'", flag, folderName);
-			if (storeClient.select(folderName)) {
-				boolean flagApplied = storeClient.uidStore("1:*", flags, true);
-				if (!flagApplied) {
-					logger.warn("Could not apply flag {} to folder '{}'", flag, folderName);
-				} else if (onSuccess != null) {
-					onSuccess.run();
+	private void flag(ItemValue<MailboxFolder> folder, MailboxItemFlag.System flag) {
+		IDbMailboxRecords writeDelegate = context.provider().instance(IDbMailboxRecords.class, folder.uid);
+		List<Long> allIds = writeDelegate.imapIdSet("1:*", "");
+		for (List<Long> slice : Lists.partition(allIds, 500)) {
+			List<WithId<MailboxRecord>> recSlice = writeDelegate.slice(slice);
+			List<MailboxRecord> updates = recSlice.stream().map(wid -> {
+				MailboxRecord mr = wid.value;
+				mr.flags.add(flag.value());
+				if (flag == MailboxItemFlag.System.Deleted) {
+					mr.internalFlags.add(InternalFlag.expunged);
 				}
-			} else {
-				logger.warn("Could not select folder '{}', flag {} not applied", folderName, flag);
-			}
-		} catch (IMAPException e) {
-			throw new ServerFault(e);
+				return mr;
+			}).toList();
+			writeDelegate.updates(updates);
 		}
 	}
 

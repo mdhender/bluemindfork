@@ -118,9 +118,6 @@ public class MailApiTestsBase {
 			System.err.println(" * " + ivs);
 		});
 
-		// SplittedShardsMapping.map(new BmConfIni().get("imap-role"),
-		// PopulateHelper.FAKE_CYRUS_IP);
-
 		long time = System.currentTimeMillis();
 		this.domUid = "devenv" + time + ".blue";
 		this.alias = "devenv" + time + ".red";

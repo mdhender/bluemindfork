@@ -21,6 +21,9 @@ package net.bluemind.sds.store.loader;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalCause;
@@ -37,6 +40,8 @@ import net.bluemind.system.api.SystemConf;
 
 public class SdsStoreLoader {
 
+	private static final Logger logger = LoggerFactory.getLogger(SdsStoreLoader.class);
+
 	private static final Cache<String, ISdsSyncStore> currentStore = Caffeine.newBuilder()
 			.evictionListener((String k, ISdsSyncStore v, RemovalCause c) -> {
 				if (v != null) {
@@ -48,7 +53,12 @@ public class SdsStoreLoader {
 
 	private static List<ISdsBackingStoreFactory> loadStores() {
 		RunnableExtensionLoader<ISdsBackingStoreFactory> rel = new RunnableExtensionLoader<>();
-		return rel.loadExtensions("net.bluemind.sds", "store", "store", "factory");
+		List<ISdsBackingStoreFactory> loadedStores = rel.loadExtensions("net.bluemind.sds", "store", "store",
+				"factory");
+		if (loadedStores.isEmpty()) {
+			logger.warn("Having {} sds.store implementations seems wrong.", loadedStores.size());
+		}
+		return loadedStores;
 	}
 
 	protected ISdsSyncStore createSync(ISdsBackingStoreFactory factory, Vertx vertx, SystemConf sysconf,
@@ -70,6 +80,7 @@ public class SdsStoreLoader {
 		if (storeType == null || !storeType.isSdsArchive()) {
 			return Optional.empty();
 		}
+
 		return stores.stream().filter(sbs -> sbs.kind() == storeType).findAny()
 				.map(s -> createSync(s, VertxPlatform.getVertx(), sysconf, dataLocation));
 	}

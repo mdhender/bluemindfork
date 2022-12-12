@@ -65,8 +65,10 @@ public class MessageBodyObjectStore {
 		SystemConf config = LocalSysconfCache.get();
 		SdsStoreLoader loader = new SdsStoreLoader();
 		this.singleNamespaceBody = Topology.get().singleNode() || !loader.archiveKind(config).isShardedByDatalocation();
-		this.objectStore = loader.forSysconf(config, datalocation)
-				.orElseGet(() -> new NoopStoreFactory().createSync(VertxPlatform.getVertx(), config, datalocation));
+		this.objectStore = loader.forSysconf(config, datalocation).orElseGet(() -> {
+			logger.warn("[{}] Returning noop store which might be wrong", datalocation);
+			return new NoopStoreFactory().createSync(VertxPlatform.getVertx(), config, datalocation);
+		});
 		if (logger.isDebugEnabled()) {
 			logger.debug("Reading with {}", objectStore);
 		}
