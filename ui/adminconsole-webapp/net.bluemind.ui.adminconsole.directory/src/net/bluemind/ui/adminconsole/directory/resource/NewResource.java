@@ -28,6 +28,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiFactory;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
@@ -93,6 +94,9 @@ public class NewResource extends CompositeGwtWidgetElement {
 	@UiField
 	ListBox mailBackend;
 
+	@UiField
+	CheckBox hidden;
+
 	ServerFinder serverFinder = new ServerFinder("mail/imap");
 
 	private ItemValue<Domain> domain;
@@ -150,6 +154,7 @@ public class NewResource extends CompositeGwtWidgetElement {
 		rd.setDescription(desc.asEditor().getValue());
 		rd.setEmails(mailTable.asEditor().getValue());
 		rd.setDataLocation(mailBackend.getSelectedValue());
+		rd.setHidden(hidden.getValue());
 		rd.setProperties(JsArray.createArray().<JsArray<JsResourceDescriptorPropertyValue>>cast());
 		rd.setOrgUnitUid(delegation.asEditor().getValue());
 		JsArrayString admins = JavaScriptObject.createArray().cast();

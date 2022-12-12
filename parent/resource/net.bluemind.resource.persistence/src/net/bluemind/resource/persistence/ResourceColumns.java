@@ -42,7 +42,8 @@ public class ResourceColumns {
 			.col("description")//
 			.col("mailbox_location")//
 			.col("values") //
-			.col("reservation_mode", "resource_reservation_mode_type");
+			.col("reservation_mode", "resource_reservation_mode_type") //
+			.col("hidden");
 
 	public static ResourceStore.StatementValues<ResourceDescriptor> statementValues(final Item item) {
 		return new ResourceTypeStore.StatementValues<ResourceDescriptor>() {
@@ -60,6 +61,7 @@ public class ResourceColumns {
 				}
 				statement.setObject(index++, values);
 				statement.setString(index++, desc.reservationMode.name());
+				statement.setBoolean(index++, desc.hidden);
 				statement.setLong(index++, item.id);
 				return index;
 			}
@@ -85,6 +87,7 @@ public class ResourceColumns {
 
 				value.properties = properties;
 				value.reservationMode = ResourceReservationMode.valueOf(rs.getString(index++));
+				value.hidden = rs.getBoolean(index++);
 				return index;
 			}
 

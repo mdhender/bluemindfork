@@ -31,5 +31,6 @@ create table t_resource (
   description text NULL,
   mailbox_location varchar(64) NOT NULL,
   "values"  hstore,
-  reservation_mode resource_reservation_mode_type
+  reservation_mode resource_reservation_mode_type,
+  hidden	boolean default false
 );

@@ -103,6 +103,9 @@ public class EditResource extends CompositeGwtWidgetElement {
 	Label customPropTitle;
 
 	@UiField
+	CheckBox hidden;
+
+	@UiField
 	Image icon;
 
 	private ResourceProperties resourceProperties;
@@ -203,6 +206,7 @@ public class EditResource extends CompositeGwtWidgetElement {
 		description.asEditor().setValue(resourceDescriptor.getDescription());
 		loadResourceProperties(resourceDescriptor.getTypeIdentifier());
 		loadIcon(rUid);
+		hidden.setValue(resourceDescriptor.getHidden());
 
 		if (map.get("domain") != null) {
 			mailTable.setDomain(
@@ -265,6 +269,7 @@ public class EditResource extends CompositeGwtWidgetElement {
 		JsArray<JsResourceDescriptorPropertyValue> values = JsArray.createArray().cast();
 		resourceProperties.saveValues(values);
 		resourceDescriptor.setProperties(values);
+		resourceDescriptor.setHidden(hidden.getValue());
 
 		if (reservationModeOwner.getValue()) {
 			resourceDescriptor.setReservationMode(JsResourceReservationMode.OWNER_MANAGED());

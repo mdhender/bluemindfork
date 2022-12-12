@@ -141,6 +141,17 @@
 			<f:TextEdit ui:field="description" titleText="{mc.description}"
 				mandatory="false" />
 				
+			<tr>
+				<td>
+					<ui:msg ui:name="text" key="hideFromGal">Hide from Blue Mind address
+						lists</ui:msg>
+				</td>
+				<td>	
+					<g:CheckBox ui:field="hidden">
+					</g:CheckBox>
+				</td>
+			</tr>
+				
 		</table>
 
 		<g:Label ui:field="customPropTitle" text="{mc.customProperties}"

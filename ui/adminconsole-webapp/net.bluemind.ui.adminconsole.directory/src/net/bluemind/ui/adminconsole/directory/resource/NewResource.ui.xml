@@ -62,6 +62,15 @@
 
 			<f:TextEdit ui:field="desc" titleText="{mc.description}"
 				mandatory="false" />
+			
+			<tr>
+				<td colspan="2">	
+					<g:CheckBox ui:field="hidden">
+						<ui:msg ui:name="text" key="hideFromGal">Hide from Blue Mind address
+						lists</ui:msg>
+					</g:CheckBox>
+				</td>
+			</tr>
 			<tr>
 				<td>
 					<g:Label text="{mc.managers}" />
