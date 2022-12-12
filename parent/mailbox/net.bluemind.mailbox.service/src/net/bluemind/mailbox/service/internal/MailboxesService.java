@@ -299,6 +299,21 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	}
 
 	@Override
+	public MailFilter.Vacation getMailboxVacation(String mailboxUid) throws ServerFault {
+		MailFilter filter = getMailboxFilter(mailboxUid);
+		return filter.vacation;
+	}
+
+	@Override
+	public void setMailboxVacation(String mailboxUid, MailFilter.Vacation vacation) throws ServerFault {
+		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX_FILTER);
+
+		MailFilter filter = getMailboxFilter(mailboxUid);
+		filter.vacation = vacation;
+		setMailboxFilter(mailboxUid, filter);
+	}
+
+	@Override
 	public MailFilter getMailboxFilter(String mailboxUid) throws ServerFault {
 		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX_FILTER);
 		MailFilter filter = storeService.getFilter(mailboxUid);

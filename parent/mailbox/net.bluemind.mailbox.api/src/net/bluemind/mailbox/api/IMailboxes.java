@@ -10,7 +10,6 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
-
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -101,6 +100,15 @@ public interface IMailboxes {
 	@GET
 	@Path("_byType")
 	public List<String> byType(@QueryParam("email") Mailbox.Type type) throws ServerFault;
+
+	@GET
+	@Path("{mailboxUid}/_vacation")
+	MailFilter.Vacation getMailboxVacation(String mailboxUid);
+
+	@POST
+	@Path("{mailboxUid}/_vacation")
+	public void setMailboxVacation(@PathParam("mailboxUid") String mailboxUid, MailFilter.Vacation vacation)
+			throws ServerFault;
 
 	@GET
 	@Path("{mailboxUid}/_filter")

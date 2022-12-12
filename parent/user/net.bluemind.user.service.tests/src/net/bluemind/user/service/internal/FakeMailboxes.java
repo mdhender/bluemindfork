@@ -90,6 +90,16 @@ public class FakeMailboxes implements IMailboxes {
 	}
 
 	@Override
+	public MailFilter.Vacation getMailboxVacation(String mailboxUid) throws ServerFault {
+		throw new ServerFault("not implemented");
+	}
+
+	@Override
+	public void setMailboxVacation(String mailboxUid, MailFilter.Vacation vacation) throws ServerFault {
+		throw new ServerFault("not implemented");
+	}
+
+	@Override
 	public MailFilter getMailboxFilter(String mailboxUid) throws ServerFault {
 		throw new ServerFault("not implemented");
 	}
