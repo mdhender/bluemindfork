@@ -18,6 +18,7 @@
  */
 package net.bluemind.dav.server.proto.report.caldav;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -44,6 +45,7 @@ import net.bluemind.dav.server.proto.report.caldav.CalendarQueryQuery.Filter;
 import net.bluemind.dav.server.store.DavResource;
 import net.bluemind.dav.server.store.DavStore;
 import net.bluemind.dav.server.store.LoggedCore;
+import net.bluemind.dav.server.store.ResType;
 import net.bluemind.dav.server.store.SyncTokens;
 import net.bluemind.dav.server.xml.DOMUtils;
 import net.bluemind.dav.server.xml.MultiStatusBuilder;
@@ -62,6 +64,11 @@ public class CalendarQueryExecutor implements IReportExecutor {
 		CalendarQueryQuery cmq = (CalendarQueryQuery) rq;
 		DavStore ds = new DavStore(lc);
 		DavResource dr = ds.from(cmq.getPath());
+
+		if (dr.getResType() == ResType.SCHEDULE_INBOX) { // we don't support search requests on the scheduling inbox
+			return new CalendarQueryResponse(rq.getPath(), root, Collections.emptyList(), cmq.getProps());
+		}
+
 		ContainerDescriptor cd = lc.vStuffContainer(dr);
 		VEventQuery query = new VEventQuery();
 		query.from = 0;
