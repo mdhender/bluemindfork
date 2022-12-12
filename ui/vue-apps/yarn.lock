@@ -1064,6 +1064,17 @@
     "@bluemind/html-utils" "^4.1.0"
     "@bluemind/uuid" "^4.1.0"
 
+"@bluemind/emailjs-mime-builder@^2.0.5-bluemind1":
+  version "2.0.5-bluemind1"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/emailjs-mime-builder/-/emailjs-mime-builder-2.0.5-bluemind1.tgz#e0975ba849208dc0aae254281a0de19e9dc597c6"
+  integrity sha512-6EvI+7KhdnM95ijCK2qmi8oG7cmq/X2FeOJfw8I6dwRx54HKuOGvEYLOG6HSeuNzd+LSQwu0usnfyCokRbUSsg==
+  dependencies:
+    emailjs-addressparser "^2.0.2"
+    emailjs-mime-codec "^2.0.8"
+    emailjs-mime-types "^2.1.0"
+    punycode "2.1.1"
+    ramda "^0.26.1"
+
 "@bluemind/filehosting.api@^5.0.0":
   version "5.0.2572"
   resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/filehosting.api/-/filehosting.api-5.0.2572.tgz#044e151ff1af587dbc991e567ebd48a3a4f6f1e2"
@@ -1111,11 +1122,7 @@
   resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/mailmessage.api/-/mailmessage.api-5.0.2572.tgz#c49fac93fd309018d44eb522152aa652c83a632f"
   integrity sha512-kmlfK/zc+0hpcebZr7WbH/OLbnrsAPjYbeHuVUntZRcrm68AdrSnvunc0GWDTnWt9fkr15bZ+aJFMZgUzUxqEg==
   dependencies:
-<<<<<<< HEAD
-    "@bluemind/api.commons" "^5.0.2572"
-=======
     "@bluemind/api.commons" "^5.0.1582"
->>>>>>> c96510da5e6 (rebase master)
 
 "@bluemind/system.api@^5.0.0":
   version "5.0.2572"
@@ -2553,15 +2560,9 @@ aws-sign2@~0.7.0:
   integrity sha512-08kcGqnYf/YmjoRhfxyu+CLxBjUtHLXLXX/vUfx9l2LYzG3c1m61nrpyFUZI6zeS+Li/wWMMidD9KgrqtGq3mA==
 
 aws4@^1.8.0:
-<<<<<<< HEAD
-  version "1.12.0"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/aws4/-/aws4-1.12.0.tgz#ce1c9d143389679e253b314241ea9aa5cec980d3"
-  integrity sha512-NmWvPnx0F1SfrQbYwOi7OeaNGokp9XhzNioJ/CSBs8Qa4vxug81mhJEAVZwxXuBmYB5KDRfMq/F3RR0BIU7sWg==
-=======
   version "1.11.0"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/aws4/-/aws4-1.11.0.tgz#d61f46d83b2519250e2784daf5b09479a8b41c59"
   integrity sha512-xh1Rl34h6Fi1DC2WWKfxUTVqRsNnr6LsKz2+hfwDxQJWmrx8+c7ylaqBMcHfl1U1r2dsifOvKX3LQuLNZ+XSvA==
->>>>>>> c96510da5e6 (rebase master)
 
 babel-code-frame@^6.26.0:
   version "6.26.0"
@@ -3851,18 +3852,7 @@ emailjs-base64@^1.1.4:
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/emailjs-base64/-/emailjs-base64-1.1.4.tgz#392fa38cb6aa35dccd3af3637ffc14c1c7ce9612"
   integrity sha512-4h0xp1jgVTnIQBHxSJWXWanNnmuc5o+k4aHEpcLXSToN8asjB5qbXAexs7+PEsUKcEyBteNYsSvXUndYT2CGGA==
 
-emailjs-mime-builder@2.0.5:
-  version "2.0.5"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/emailjs-mime-builder/-/emailjs-mime-builder-2.0.5.tgz#fedd7c7fd273accdd7033dc649f335c3eb2188f6"
-  integrity sha512-fkaUn6IA4onX3SmVpqvVTlkdrusM9lq+xnrA24euyMUga2B44Ue0ftE48aSNveEWPgGLtHfSd04lGWhT2/AOpw==
-  dependencies:
-    emailjs-addressparser "^2.0.2"
-    emailjs-mime-codec "^2.0.5"
-    emailjs-mime-types "^2.0.0"
-    punycode "1.4.1"
-    ramda "^0.25.0"
-
-emailjs-mime-codec@^2.0.5:
+emailjs-mime-codec@^2.0.8:
   version "2.0.9"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/emailjs-mime-codec/-/emailjs-mime-codec-2.0.9.tgz#d184451b6f2e55c5868b0f0a82d18fe2b82f0c97"
   integrity sha512-7qJo4pFGcKlWh/kCeNjmcgj34YoJWY0ekZXEHYtluWg4MVBnXqGM4CRMtZQkfYwitOhUgaKN5EQktJddi/YIDQ==
@@ -3871,7 +3861,7 @@ emailjs-mime-codec@^2.0.5:
     ramda "^0.26.1"
     text-encoding "^0.7.0"
 
-emailjs-mime-types@^2.0.0:
+emailjs-mime-types@^2.1.0:
   version "2.1.0"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/emailjs-mime-types/-/emailjs-mime-types-2.1.0.tgz#976877d38300cf0b1f4b89ed1bb0dd6e7449fc63"
   integrity sha512-vlmgTAE3cya0GHoqHYgvmzG342sKGsHhddJhOSqXIZM0V7kjUAKxXmol3NTyeuHltggCp6HJT3NRqJuDkchCrw==
@@ -8298,15 +8288,10 @@ pump@^3.0.0:
     end-of-stream "^1.1.0"
     once "^1.3.1"
 
-punycode@1.4.1:
-  version "1.4.1"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/punycode/-/punycode-1.4.1.tgz#c0d5a63b2718800ad8e1eb0fa5269c84dd41845e"
-  integrity sha512-jmYNElW7yvO7TV33CjSmvSiE2yco3bV2czu/OzDKdMNVZQWfxCblURLhf+47syQRBntjfLdd/H0egrzIG+oaFQ==
-
-punycode@^2.1.0, punycode@^2.1.1:
-  version "2.3.0"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/punycode/-/punycode-2.3.0.tgz#f67fa67c94da8f4d0cfff981aee4118064199b8f"
-  integrity sha512-rRV+zQD8tVFys26lAGR9WUuS4iUAngJScM+ZRSKtvl5tKeZ2t5bvdNFdNHBW9FWR4guGHlgmsZ1G7BSm2wTbuA==
+punycode@2.1.1, punycode@^2.1.0, punycode@^2.1.1:
+  version "2.1.1"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
+  integrity sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
 
 qs@6.10.3:
   version "6.10.3"
@@ -8334,11 +8319,6 @@ queue-microtask@^1.2.2:
   version "1.2.3"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/queue-microtask/-/queue-microtask-1.2.3.tgz#4929228bbc724dfac43e0efb058caf7b6cfb6243"
   integrity sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==
-
-ramda@^0.25.0:
-  version "0.25.0"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/ramda/-/ramda-0.25.0.tgz#8fdf68231cffa90bc2f9460390a0cb74a29b29a9"
-  integrity sha512-GXpfrYVPwx3K7RQ6aYT8KPS8XViSXUVJT1ONhoKPE9VAleW42YE+U+8VEyGWt41EnEQW7gwecYJriTI0pKoecQ==
 
 ramda@^0.26.1:
   version "0.26.1"

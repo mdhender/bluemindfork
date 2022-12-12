@@ -1,8 +1,6 @@
-// FIXME: typing emailjs-mime-builder
-import MimeBuilder from "emailjs-mime-builder";
 import { MailboxItemsClient, MailboxItem, MessageBody } from "@bluemind/backend.mail.api";
 import { ItemValue } from "@bluemind/core.container.api";
-import { MimeParser } from "@bluemind/mime";
+import { MimeParser, MimeBuilder } from "@bluemind/mime";
 import {
     CRYPTO_HEADERS,
     ENCRYPTED_HEADER_NAME,
@@ -39,9 +37,9 @@ export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): 
         if (content) {
             const parser = await new MimeParser(part.address).parse(content);
             const parts = parser.getParts();
-            for (const part of parts) {
-                const content = parser.getPartContent(part.address!);
-                savePart(folderUid, item.value!.imapUid!, part, content);
+            for (const p of parts) {
+                const content = parser.getPartContent(p.address!);
+                savePart(folderUid, item.value!.imapUid!, p, content);
             }
             item.value!.body!.structure = parser.structure as MessageBody.Part;
         }
@@ -55,25 +53,32 @@ export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): 
 
 export async function encrypt(item: MailboxItem, folderUid: string) {
     const encryptedItem = { ...item };
+
     // TODO: get the certificates for all recipients
     const certificate = await getMyCertificate();
-    if (item.body.structure) {
+    if (encryptedItem.body.structure && encryptedItem.imapUid) {
         const sid = await session.sid;
         const client = new MailboxItemsClient(sid, folderUid);
 
-        //TODO: create the real mime tree
-        const root = new MimeBuilder("text/plain").setContent("toto");
-        const mimeTree = root.build();
-        const encryptedPart = pkcs7.encrypt(mimeTree, certificate);
-        const address = await client.uploadPart(encryptedPart);
-        const part = {
-            address,
-            charset: "utf-8",
-            encoding: "base64",
-            mime: PKCS7_MIMES[0]
+        const getContentFn = async (p: MessageBody.Part): Promise<Uint8Array | null> => {
+            if (encryptedItem.imapUid && p.address) {
+                const data = await client.fetch(encryptedItem.imapUid, p.address, p.encoding, p.mime);
+                return new Uint8Array(await data.arrayBuffer());
+            }
+            return null;
         };
-        encryptedItem.body.structure = part;
-        return encryptedItem;
+        const mimeTree = await new MimeBuilder(getContentFn).build(encryptedItem.body.structure);
+        if (mimeTree) {
+            const encryptedPart = pkcs7.encrypt(mimeTree, certificate);
+            const address = await client.uploadPart(encryptedPart);
+            const part = {
+                address,
+                charset: "utf-8",
+                encoding: "base64",
+                mime: PKCS7_MIMES[0]
+            };
+            encryptedItem.body.structure = part;
+        }
     }
 
     return encryptedItem;
@@ -82,7 +87,7 @@ export async function encrypt(item: MailboxItem, folderUid: string) {
 export async function verify(folderUid: string, item: ItemValue<MailboxItem>): Promise<ItemValue<MailboxItem>> {
     try {
         const client = new MailboxItemsClient(await session.sid, folderUid);
-        const eml = await client.fetchComplete(item.value!.imapUid!).then(eml => eml.text());
+        const eml = await client.fetchComplete(item.value.imapUid!).then(eml => eml.text());
         const { toDigest, pkcs7Part } = extractSignedData(eml);
         await pkcs7.verify(pkcs7Part, toDigest, getSenderAddress(item));
         setHeader(item, SIGNED_HEADER_NAME, CRYPTO_HEADERS.VERIFIED);
@@ -99,13 +104,16 @@ export function sign() {
 }
 
 function getSenderAddress(item: ItemValue<MailboxItem>): string {
-    const from = item.value!.body!.recipients!.find(
-        recipient => recipient.kind === MessageBody.RecipientKind.Originator
-    );
-    if (!from) {
-        throw new RecipientNotFoundError();
+    if (item.value.body.recipients) {
+        const from = item.value.body.recipients.find(
+            recipient => recipient.kind === MessageBody.RecipientKind.Originator
+        );
+        if (!from) {
+            throw new RecipientNotFoundError();
+        }
+        return from.address || "";
     }
-    return from.address!;
+    return "";
 }
 
 //FIXME: This should be imported from a third party package
@@ -116,14 +124,17 @@ async function savePart(uid: string, imap: number, part: MessageBody.Part, conte
     cache.put(request.url, new Response(content));
 }
 
-function setHeader(item: ItemValue<MailboxItem>, headerName: string, headerValue: number) {
-    const index = item.value!.body!.headers!.findIndex(({ name }) => name === headerName);
-    if (index === -1) {
-        item.value!.body!.headers!.push({ name: headerName, values: [headerValue.toString()] });
-    } else {
-        const currentValue = item.value!.body!.headers![index]!.values![0];
-        const newValue = parseInt(currentValue) | headerValue;
-        item.value!.body!.headers![index]!.values![0] = newValue.toString();
+function setHeader(item: ItemValue<MailboxItem>, headerName: string, headerValue: number): void {
+    if (item.value.body?.headers) {
+        const index = item.value.body.headers.findIndex(({ name }) => name === headerName);
+
+        if (index === -1) {
+            item.value.body.headers.push({ name: headerName, values: [headerValue.toString()] });
+        } else {
+            const currentValues = item.value.body.headers[index].values || [];
+            const newValue = parseInt(currentValues[0]) | headerValue;
+            item.value.body.headers[index] = { name: headerName, values: [newValue.toString()] };
+        }
     }
 }
 

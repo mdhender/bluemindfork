@@ -1,5 +1,5 @@
 import { ImapItemIdentifier, MailboxItem, MailboxItemsClient } from "@bluemind/backend.mail.api";
-import { ItemValue } from "@bluemind/core.container.api";
+import { Ack, ItemValue } from "@bluemind/core.container.api";
 import { logger } from "./environnment/logger";
 import { decrypt, encrypt, isEncrypted, isSigned, verify } from "./smime";
 
@@ -7,26 +7,63 @@ export default class SMimeApiProxy extends MailboxItemsClient {
     next?: (...args: Array<unknown>) => Promise<never>;
     async multipleGetById() {
         const items: Array<ItemValue<MailboxItem>> = await this.next!();
-        try {
-            for (let i = 0; i < items.length; i++) {
+
+        for (let i = 0; i < items.length; i++) {
+            try {
                 if (isEncrypted(items[i])) {
                     items[i] = await decrypt(this.replicatedMailboxUid, items[i]);
                 }
                 if (isSigned(items[i])) {
                     items[i] = await verify(this.replicatedMailboxUid, items[i]);
                 }
+            } catch (e) {
+                logger.error(e);
+            }
+        }
+
+        return items;
+    }
+    async getCompleteById(): Promise<ItemValue<MailboxItem>> {
+        let item: ItemValue<MailboxItem> = await this.next!();
+        try {
+            if (isEncrypted(item)) {
+                item = await decrypt(this.replicatedMailboxUid, item);
+            }
+            if (isSigned(item)) {
+                item = await verify(this.replicatedMailboxUid, item);
             }
         } catch (e) {
             logger.error(e);
         }
-        return items;
+        return item;
+    }
+    async getForUpdate(): Promise<ItemValue<MailboxItem>> {
+        let item: ItemValue<MailboxItem> = await this.next!();
+        try {
+            if (isEncrypted(item)) {
+                item = await decrypt(this.replicatedMailboxUid, item);
+            }
+        } catch (e) {
+            logger.error(e);
+        }
+        return item;
     }
     async create(item: MailboxItem): Promise<ImapItemIdentifier> {
         try {
+            //TODO Only encrypt if an encrypt header is present
             item = await encrypt(item, this.replicatedMailboxUid);
         } catch (e) {
             logger.error(e);
         }
         return await this.next!(item);
+    }
+    async updateById(id: number, item: MailboxItem): Promise<Ack> {
+        try {
+            //TODO Only encrypt if an encrypt header is present
+            item = await encrypt(item, this.replicatedMailboxUid);
+        } catch (e) {
+            logger.error(e);
+        }
+        return await this.next!(id, item);
     }
 }

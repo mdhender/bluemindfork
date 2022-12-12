@@ -29,7 +29,7 @@ class PartPlugin {
         const headers = new Headers(response.headers);
         headers.set("Content-Type", `${mime};charset=${charset}`);
         if (filename) {
-            headers.set("Content-Disposition", `inline; filename="${filename}"`);
+            headers.set("Content-Disposition", `inline; filename="${encodeURIComponent(filename)}"`);
         } else {
             headers.set("Content-Disposition", `inline`);
         }

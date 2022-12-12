@@ -1,0 +1,87 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MimeBuilder alternative 1`] = `
+"Content-Type: multipart/alternative;
+ boundary=\\"
+
+
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+text
+
+Content-Type: text/html
+Content-Transfer-Encoding: quoted-printable
+
+<div>text</div>
+
+"
+`;
+
+exports[`MimeBuilder basic 1`] = `
+"Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+text"
+`;
+
+exports[`MimeBuilder with attachment 1`] = `
+"Content-Type: multipart/mixed;
+ boundary=\\"
+
+
+Content-Type: multipart/alternative;
+ boundary=\\"
+
+
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+text
+
+Content-Type: text/html
+Content-Transfer-Encoding: quoted-printable
+
+<div>text</div>
+
+
+
+Content-Type: image/png
+Content-Disposition: attachment; filename=capture.png
+Content-Transfer-Encoding: base64
+
+YSBtb2NrZWQgaW1hZ2U=
+
+"
+`;
+
+exports[`MimeBuilder with inline image 1`] = `
+"Content-Type: multipart/alternative;
+ boundary=\\"
+
+
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+text
+
+Content-Type: multipart/related;
+ boundary=\\"
+
+
+Content-Type: text/html
+Content-Transfer-Encoding: quoted-printable
+
+<div>text</div>
+
+Content-Type: image/png
+Content-Disposition: inline
+Content-Id: <37E0D401-EC3D-4A26-BB5E-0F02C2CB7413@bluemind.net>
+Content-Transfer-Encoding: base64
+
+YSBtb2NrZWQgaW1hZ2U=
+
+
+
+"
+`;

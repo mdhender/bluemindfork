@@ -17,8 +17,8 @@
         "@bluemind/mail": "^5.0.0",
         "idb": "^7.1.0",
         "node-forge": "^1.3.1",
-        "workbox-routing": "^6.5.4",
-        "emailjs-mime-builder": "2.0.5"
+        "workbox-routing": "^6.5.4"
+
     },
     "devDependencies": {
         "@bluemind/conf":"^5.0.0",

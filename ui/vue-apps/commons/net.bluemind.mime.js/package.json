@@ -7,6 +7,7 @@
     "main": "src/index.ts",
     "dependencies": {
         "@bluemind/backend.mail.api":"^5.0.0",
+        "@bluemind/emailjs-mime-builder": "^2.0.5-bluemind1",
         "lodash.partition": "^4.6.0",
         "postal-mime": "^1.0.13"
     }
