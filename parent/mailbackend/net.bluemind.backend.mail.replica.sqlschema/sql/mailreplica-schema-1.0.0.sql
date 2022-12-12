@@ -24,6 +24,7 @@ CREATE TYPE enum_q_tier AS ENUM (
 CREATE TABLE IF NOT EXISTS q_message_body_tier_change (
     message_body_guid bytea PRIMARY KEY REFERENCES t_message_body(guid) ON DELETE CASCADE,
     change_after timestamp not null,
+    retries integer not null default 0,
     tier enum_q_tier not null
 );
 CREATE INDEX IF NOT EXISTS i_q_message_body_tier_change ON q_message_body_tier_change(change_after);
