@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -83,10 +84,19 @@ public class SdsProxyWithS3IntegrationTests {
 	private CyrusPartition partition;
 
 	@BeforeClass
-	public static void sysprop() {
-		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+	public static void setProp() {
+		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + ",127.0.0.1");
 		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
 		System.setProperty("imap.port", "1143");
+		System.setProperty("ahcnode.fail.https.ok", "true");
+	}
+
+	@AfterClass
+	public static void clearProp() {
+		System.clearProperty("node.local.ipaddr");
+		System.clearProperty("imap.local.ipaddr");
+		System.clearProperty("imap.port");
+		System.clearProperty("ahcnode.fail.https.ok");
 	}
 
 	@Before
@@ -103,11 +113,12 @@ public class SdsProxyWithS3IntegrationTests {
 		assertNotNull(esServer.ip);
 		esServer.tags = Lists.newArrayList("bm/es");
 
-		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
+		VertxPlatform.spawnBlocking(25, TimeUnit.SECONDS);
 
-		PopulateHelper.initGlobalVirt(pipo);
-		ElasticsearchTestHelper.getInstance().beforeTest();
-		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.none);
+		PopulateHelper.initGlobalVirt(pipo, esServer);
+
+		MQ.init().get(30, TimeUnit.SECONDS);
+		Topology.get();
 
 		String unique = "" + System.currentTimeMillis();
 		domainUid = "test" + unique + ".lab";
@@ -115,8 +126,7 @@ public class SdsProxyWithS3IntegrationTests {
 
 		PopulateHelper.addDomain(domainUid, Routing.none);
 
-		MQ.init().get(30, TimeUnit.SECONDS);
-		Topology.get();
+		ElasticsearchTestHelper.getInstance().beforeTest();
 
 		this.partition = CyrusPartition.forServerAndDomain(Topology.get().any("mail/imap"), domainUid);
 
