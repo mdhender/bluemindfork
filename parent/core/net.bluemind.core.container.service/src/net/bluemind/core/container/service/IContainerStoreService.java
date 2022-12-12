@@ -134,7 +134,7 @@ public interface IContainerStoreService<T> {
 	 */
 	public void deleteAll();
 
-	public void touch(String uid);
+	public ItemVersion touch(String uid);
 
 	public List<String> allUids();
 

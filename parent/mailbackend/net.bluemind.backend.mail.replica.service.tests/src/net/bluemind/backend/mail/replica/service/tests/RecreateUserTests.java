@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.Collections;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -30,7 +29,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.bluemind.backend.cyrus.replication.client.SyncClient;
 import net.bluemind.backend.mail.replica.service.tests.ReplicationEventsRecorder.Hierarchy;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -102,22 +100,23 @@ public class RecreateUserTests extends AbstractRollingReplicationTests {
 		assertNotEquals(theUser.internalId, newUser.internalId);
 
 		Thread.sleep(2000);
-		System.err.println("Connecting with syncClient");
-		SyncClient sc = new SyncClient("127.0.0.1", 2501);
-
 		AtomicInteger mailboxes = new AtomicInteger();
 
-		sc.connect().thenCompose(c -> {
-			return sc.getUser(userUid + "@" + domainUid);
-		}).thenCompose(userResp -> {
-			for (String s : userResp.dataLines) {
-				System.err.println("S: " + s);
-				if (s.startsWith("* MAILBOX")) {
-					mailboxes.incrementAndGet();
-				}
-			}
-			return sc.disconnect();
-		}).get(5, TimeUnit.SECONDS);
+		// System.err.println("Connecting with syncClient");
+//		SyncClient sc = new SyncClient("127.0.0.1", 2501);
+//
+//
+//		sc.connect().thenCompose(c -> {
+//			return sc.getUser(userUid + "@" + domainUid);
+//		}).thenCompose(userResp -> {
+//			for (String s : userResp.dataLines) {
+//				System.err.println("S: " + s);
+//				if (s.startsWith("* MAILBOX")) {
+//					mailboxes.incrementAndGet();
+//				}
+//			}
+//			return sc.disconnect();
+//		}).get(5, TimeUnit.SECONDS);
 
 		// +1 for the root (aka INBOX)
 		int expected = DefaultFolder.USER_FOLDERS.size() + 1;

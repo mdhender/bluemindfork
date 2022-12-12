@@ -18,9 +18,7 @@
 package net.bluemind.backend.mail.replica.service.tests;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,7 +30,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.bluemind.backend.cyrus.replication.client.SyncClient;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
@@ -137,15 +134,15 @@ public class SwapUserTests extends AbstractRollingReplicationTests {
 
 		Thread.sleep(400);
 
-		System.err.println("Connecting with syncClient");
-		SyncClient sc = new SyncClient("127.0.0.1", 2501);
-		sc.connect().thenCompose(c -> {
-			return sc.getUser(userUid + "@" + domainUid);
-		}).thenCompose(userResp -> {
-			assertTrue("Cyrus returns 'OK success' for unknown or deleted mailboxes but we did not: " + userResp,
-					userResp.isOk());
-			return sc.disconnect();
-		}).get(5, TimeUnit.SECONDS);
+//		System.err.println("Connecting with syncClient");
+//		SyncClient sc = new SyncClient("127.0.0.1", 2501);
+//		sc.connect().thenCompose(c -> {
+//			return sc.getUser(userUid + "@" + domainUid);
+//		}).thenCompose(userResp -> {
+//			assertTrue("Cyrus returns 'OK success' for unknown or deleted mailboxes but we did not: " + userResp,
+//					userResp.isOk());
+//			return sc.disconnect();
+//		}).get(5, TimeUnit.SECONDS);
 
 		ItemValue<User> toRename = userApi.getComplete(replMbox.uid);
 		toRename.value.login = theUser.value.login;
@@ -155,16 +152,16 @@ public class SwapUserTests extends AbstractRollingReplicationTests {
 		System.err.println("Sleeping 3sec after update returned.");
 		Thread.sleep(3000);
 
-		System.err.println("Second check with syncClient");
-		SyncClient sc2 = new SyncClient("127.0.0.1", 2501);
-		sc2.connect().thenCompose(c -> {
-			return sc2.getUser(userUid + "@" + domainUid);
-		}).thenCompose(userResp -> {
-			assertTrue("'OK success' expected after rename but we did not: " + userResp, userResp.isOk());
-			System.err.println(userResp);
-			assertFalse("GET USER must not return an empty response after the rename", userResp.dataLines.isEmpty());
-			return sc2.disconnect();
-		}).get(5, TimeUnit.SECONDS);
+//		System.err.println("Second check with syncClient");
+//		SyncClient sc2 = new SyncClient("127.0.0.1", 2501);
+//		sc2.connect().thenCompose(c -> {
+//			return sc2.getUser(userUid + "@" + domainUid);
+//		}).thenCompose(userResp -> {
+//			assertTrue("'OK success' expected after rename but we did not: " + userResp, userResp.isOk());
+//			System.err.println(userResp);
+//			assertFalse("GET USER must not return an empty response after the rename", userResp.dataLines.isEmpty());
+//			return sc2.disconnect();
+//		}).get(5, TimeUnit.SECONDS);
 
 	}
 
@@ -201,15 +198,15 @@ public class SwapUserTests extends AbstractRollingReplicationTests {
 
 		allEvents.get(10, TimeUnit.SECONDS);
 		System.err.println("All events completed.");
-		SyncClient sc2 = new SyncClient("127.0.0.1", 2501);
-		sc2.connect().thenCompose(c -> {
-			return sc2.getMailboxes(domainUid + "!" + mailshare.name.replace('.', '^'));
-		}).thenCompose(userResp -> {
-			assertTrue("'OK success' expected after rename but we did not: " + userResp, userResp.isOk());
-			System.err.println(userResp);
-			assertFalse("GET MAILBOX must not return an empty response after the rename", userResp.dataLines.isEmpty());
-			return sc2.disconnect();
-		}).get(5, TimeUnit.SECONDS);
+//		SyncClient sc2 = new SyncClient("127.0.0.1", 2501);
+//		sc2.connect().thenCompose(c -> {
+//			return sc2.getMailboxes(domainUid + "!" + mailshare.name.replace('.', '^'));
+//		}).thenCompose(userResp -> {
+//			assertTrue("'OK success' expected after rename but we did not: " + userResp, userResp.isOk());
+//			System.err.println(userResp);
+//			assertFalse("GET MAILBOX must not return an empty response after the rename", userResp.dataLines.isEmpty());
+//			return sc2.disconnect();
+//		}).get(5, TimeUnit.SECONDS);
 
 	}
 
@@ -260,15 +257,15 @@ public class SwapUserTests extends AbstractRollingReplicationTests {
 		assertNotNull("inbox for replacement user not replicated in time", replInbox);
 		System.err.println("Replacement populated in " + (System.currentTimeMillis() - wait) + "ms.");
 
-		SyncClient sc2 = new SyncClient("127.0.0.1", 2501);
-		sc2.connect().thenCompose(c -> {
-			return sc2.getUser(mailshare.name + "@" + domainUid);
-		}).thenCompose(userResp -> {
-			assertTrue("'OK success' expected after rename but we did not: " + userResp, userResp.isOk());
-			System.err.println(userResp);
-			assertFalse("GET MAILBOX must not return an empty response after the rename", userResp.dataLines.isEmpty());
-			return sc2.disconnect();
-		}).get(5, TimeUnit.SECONDS);
+//		SyncClient sc2 = new SyncClient("127.0.0.1", 2501);
+//		sc2.connect().thenCompose(c -> {
+//			return sc2.getUser(mailshare.name + "@" + domainUid);
+//		}).thenCompose(userResp -> {
+//			assertTrue("'OK success' expected after rename but we did not: " + userResp, userResp.isOk());
+//			System.err.println(userResp);
+//			assertFalse("GET MAILBOX must not return an empty response after the rename", userResp.dataLines.isEmpty());
+//			return sc2.disconnect();
+//		}).get(5, TimeUnit.SECONDS);
 
 	}
 

@@ -722,9 +722,9 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	}
 
 	@Override
-	public void touch(String uid) {
+	public ItemVersion touch(String uid) {
 		checkWritable();
-		doOrFail(() -> {
+		return doOrFail(() -> {
 			Item item = itemStore.touch(uid);
 
 			if (item == null) {
@@ -741,7 +741,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 				containerChangeEventProducer.get().produceEvent();
 			}
-			return null;
+			return new ItemVersion(item.id, item.version);
 		});
 	}
 

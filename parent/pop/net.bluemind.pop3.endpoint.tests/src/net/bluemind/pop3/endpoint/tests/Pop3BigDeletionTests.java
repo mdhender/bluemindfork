@@ -48,18 +48,19 @@ public class Pop3BigDeletionTests extends Pop3TestsBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(Pop3BigDeletionTests.class);
 
+	public static final int COUNT = 10;
+
 	@Test
 	public void testDeletionOfSeveralMails() throws Exception {
 		ItemValue<MailboxFolder> inbox = provider().instance(IMailboxFolders.class, partition.name, mboxRoot)
 				.byName("INBOX");
 		Assert.assertNotNull(inbox);
 
-		List<ItemValue<MailboxItem>> createdEmails = IntStream.range(0, 1_000).boxed().map(i -> {
+		List<ItemValue<MailboxItem>> createdEmails = IntStream.range(0, COUNT).boxed().map(i -> {
 			try {
 				return createEmail(user1Login, "INBOX", testEml01());
-			} catch (IOException e) {
-				e.printStackTrace();
-				return null;
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 		}).collect(Collectors.toList());
 		Thread.sleep(4000);
@@ -79,6 +80,7 @@ public class Pop3BigDeletionTests extends Pop3TestsBase {
 
 			IntStream.range(1, createdEmails.size() + 1).boxed().forEach(i -> {
 				try {
+
 					out.write(("DELE " + i + "\r\n").getBytes());
 					out.flush();
 					Thread.sleep(20);
@@ -88,7 +90,10 @@ public class Pop3BigDeletionTests extends Pop3TestsBase {
 			});
 
 			out.write(("QUIT\r\n").getBytes());
+			System.err.println("Yeah yeah pre del");
+			queue.stream().forEach(s -> System.err.println(s));
 			out.flush();
+			System.err.println("Yeah yeah post del");
 		}
 
 		try (Socket sock = new Socket()) {
@@ -102,6 +107,7 @@ public class Pop3BigDeletionTests extends Pop3TestsBase {
 			out.flush();
 			Thread.sleep(1_000);
 
+			System.err.println("Calling stat...");
 			out.write(("STAT\r\n").getBytes());
 			out.flush();
 			Awaitility.await().atMost(4, TimeUnit.SECONDS)

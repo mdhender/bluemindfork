@@ -205,7 +205,14 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		}
 		MboxReplicasCache.invalidate(toDelete.uid);
 		ItemVersion delResult = storeService.delete(toDelete.internalId);
+		notifyUpdate(toDelete.value.parentUid != null ? getComplete(toDelete.value.parentUid) : toDelete,
+				delResult.version);
 		logger.info("Deleting {} -> {}", toDelete, delResult);
+	}
+
+	private void notifyUpdate(ItemValue<MailboxFolder> parent, long version) {
+		EmitReplicationEvents.subtreeUpdated(container.uid, container.owner,
+				ItemIdentifier.of(parent.uid, parent.internalId, version), false);
 	}
 
 	private void selectInbox(StoreClient sc) throws IMAPException {
@@ -258,18 +265,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		if (folder == null || folder.value == null) {
 			throw ServerFault.notFound("Folder with id " + id + " not found");
 		}
-		ItemFlagFilter filter = ItemFlagFilter.create().mustNot(ItemFlag.Seen);
-		Count count = context.provider().instance(IDbMailboxRecords.class, folder.uid).count(filter);
-		if (count.total != 0) {
-			logger.info("Start marking as read {}...", folder);
-			imapContext.withImapClient(storeClient -> {
-				selectInbox(storeClient);
-				flag(folder, MailboxItemFlag.System.Seen);
-				return null;
-			});
-		} else {
-			logger.info("No item to mark as seen in folder {}", folder);
-		}
+		flag(folder, MailboxItemFlag.System.Seen);
 	}
 
 	private void flag(ItemValue<MailboxFolder> folder, MailboxItemFlag.System flag) {
@@ -287,6 +283,13 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			}).toList();
 			writeDelegate.updates(updates);
 		}
+		if (allIds.isEmpty()) {
+			logger.info("No item to mark as {} in folder {}", flag, folder);
+		} else {
+			ItemVersion touched = storeService.touch(folder.uid);
+			EmitReplicationEvents.subtreeUpdated(container.uid, container.owner,
+					ItemIdentifier.of(folder.uid, folder.internalId, touched.version), true);
+		}
 	}
 
 	private void deleteChildFolders(ItemValue<MailboxFolder> toClean) {
@@ -295,7 +298,8 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		Collections.reverse(children);
 		children.forEach(child -> {
 			MboxReplicasCache.invalidate(child.uid);
-			storeService.delete(child.internalId);
+			ItemVersion delVersion = storeService.delete(child.internalId);
+			notifyUpdate(toClean, delVersion.version);
 		});
 	}
 

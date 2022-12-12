@@ -96,31 +96,26 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 	/*
 	 * deliveryDate is used to choose the correct storage tier
 	 */
-	public void _create(String uid, Date deliveryDate, Stream pristine) {
+	private void _create(String uid, Date deliveryDate, Stream pristine) {
 		if (exists(uid)) {
-			try {
-				logger.warn("Skipping existing body {}", uid);
-				VertxStream.sink(pristine).get(10, TimeUnit.SECONDS);
-				return;
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-				throw new ServerFault(e);
-			}
+			logger.warn("Skipping existing body {}", uid);
+			VertxStream.sink(pristine).orTimeout(10, TimeUnit.SECONDS).join();
+			return;
 		}
 
 		File tmpFile = new File(TMP, uid + "." + System.nanoTime());
 		ReadStream<Buffer> classic = VertxStream.read(pristine);
-		if (classic instanceof LocalPathStream) {
-			LocalPathStream lps = (LocalPathStream) classic;
+		if (classic instanceof LocalPathStream lps) {
 			tmpFile = lps.path().toFile();
 			logger.info("Using local-stream from {} ({} byte(s))", tmpFile, tmpFile.length());
 		} else {
 			AsyncFile tmpStream = VertxPlatform.getVertx().fileSystem().openBlocking(tmpFile.getAbsolutePath(),
 					TMP_OPTS);
-			CompletableFuture<Void> prom = classic.pipeTo(tmpStream).toCompletionStage().toCompletableFuture();
+			CompletableFuture<Void> prom = classic.pipeTo(tmpStream).toCompletionStage().toCompletableFuture()
+					.orTimeout(10, TimeUnit.SECONDS);
 			classic.resume();
-			prom.join();
 			logger.info("Using netbased-stream {}", classic);
+			prom.join();
 		}
 
 		logger.info("File copy of {} stream created ({} byte(s))", uid, tmpFile.length());
