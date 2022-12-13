@@ -151,7 +151,11 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 	@Override
 	public Count count(ItemFlagFilter filter) {
 		rbac.check(Verb.Read.name());
-		return storeService.count(filter);
+		try {
+			return recordStore.count(filter);
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
 	}
 
 	@Override

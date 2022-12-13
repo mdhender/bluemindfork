@@ -44,6 +44,7 @@ import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxRecordItemUri;
 import net.bluemind.backend.mail.replica.api.WithId;
+import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemFlag;
@@ -229,6 +230,15 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 			value.bodyGuid = null;
 			return index;
 		}, new Object[] { subtreeContainer.id, folderContainer.id });
+	}
+
+	public Count count(ItemFlagFilter itemFilter) throws SQLException {
+		String query = "SELECT count(*) FROM t_mailbox_record rec "
+				+ "WHERE rec.subtree_id = ? AND rec.container_id = ? " //
+				+ filterSql("rec", itemFilter);
+		long count = unique(query, rs -> rs.getLong(1), (rs, index, v) -> index,
+				new Object[] { subtreeContainer.id, folderContainer.id });
+		return Count.of(count);
 	}
 
 	public long weight() throws SQLException {
