@@ -62,7 +62,7 @@ public class CommonOrgResourceGrid extends DataGrid<ItemValue<DirEntry>> impleme
 
 	protected final OrgUnitListMgmt unitListMngt = OrgUnitListMgmt.get();
 
-	public static final int PAGE_SIZE = 15;
+	public static final int PAGE_SIZE = 10;
 
 	public interface DCGBundle extends ClientBundle {
 
@@ -161,7 +161,7 @@ public class CommonOrgResourceGrid extends DataGrid<ItemValue<DirEntry>> impleme
 		setColumnWidth(displayNameColumn, 60, Unit.PX);
 		displayNameColumn.setSortable(true);
 
-		setHeight("350px");
+		setHeight("250px");
 
 		setEmptyTableWidget(new Label(emptyTableLabel));
 		setLoadingIndicator(null);

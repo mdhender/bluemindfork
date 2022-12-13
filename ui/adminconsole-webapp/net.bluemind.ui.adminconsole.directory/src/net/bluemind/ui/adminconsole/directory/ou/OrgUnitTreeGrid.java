@@ -20,6 +20,7 @@ package net.bluemind.ui.adminconsole.directory.ou;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -193,6 +194,12 @@ public class OrgUnitTreeGrid extends Grid implements IGwtWidgetElement {
 
 		finalList.forEach(OrgUnitItem::orderingItemChildren);
 		finalList.forEach(OrgUnitItem::updateRoot);
+		Collections.sort(finalList, new Comparator<OrgUnitItem>() {
+			@Override
+			public int compare(OrgUnitItem arg0, OrgUnitItem arg1) {
+				return arg0.getName().compareTo(arg1.getName());
+			}
+		});
 		return finalList;
 	}
 

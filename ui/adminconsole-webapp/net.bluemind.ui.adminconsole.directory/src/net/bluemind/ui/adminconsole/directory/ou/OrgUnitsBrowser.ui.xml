@@ -73,7 +73,7 @@
 				</g:ScrollPanel>
 
 				<g:TabLayoutPanel ui:field="tabContainer"
-					barUnit="PX" barHeight="25" width="100%" height="450px">
+					barUnit="PX" barHeight="25" width="100%" height="350px">
 					<g:tab>
 						<g:customHeader>
 							<g:Label text="{ou.ouResourceTab}" />
