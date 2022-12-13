@@ -63,6 +63,10 @@ public class WriteFile implements Handler<HttpServerRequest> {
 		// fully written, or not present
 		Path originalPath = Paths.get(path);
 		try {
+			if (!Files.exists(originalPath.getParent())) {
+				Files.createDirectories(originalPath.getParent());
+			}
+
 			Files.createDirectories(originalPath.getParent());
 			Path tempPath = Files.createTempFile(originalPath.getParent(), ".nc_", "");
 			SeekableByteChannel chan = Files.newByteChannel(tempPath, StandardOpenOption.CREATE, // NOSONAR: async
