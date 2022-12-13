@@ -534,6 +534,10 @@ public final class ESearchActivator implements BundleActivator {
 		clients.clear();
 	}
 
+	public static MailspoolStats mailspoolStats() {
+		return new MailspoolStats(getClient());
+	}
+
 	private static class IndexDefinition {
 		private final String index;
 		private final byte[] schema;

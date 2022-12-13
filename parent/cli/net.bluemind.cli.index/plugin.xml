@@ -38,6 +38,9 @@
        <registration
              impl="net.bluemind.cli.index.PruneAliasesCommand$Reg" priority="200">
        </registration>
+       <registration
+             impl="net.bluemind.cli.index.MailboxEsCoherency$Reg" priority="200">
+       </registration>
    </extension>
 
 </plugin>
