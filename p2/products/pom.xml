@@ -12,7 +12,6 @@
 		<module>core</module>
 		<module>hps</module>
 		<module>hps-extensions</module>
-		<module>lmtpd</module>
 		<module>milter</module>
 		<module>node</module>
 		<module>pimp</module>

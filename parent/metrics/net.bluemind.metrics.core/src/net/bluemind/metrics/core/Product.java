@@ -19,10 +19,6 @@ public enum Product {
 
 	HPS("bm-hps", Family.JVM, new String[0], true, "bm/hps"),
 
-	LMTPD("bm-lmtpd", Family.JVM, new String[0], false, "bm/core"),
-
-	LOCATOR("bm-locator", Family.JVM, new String[0], false, "bm/core"),
-
 	MILTER("bm-milter", Family.JVM, new String[0], false, "mail/smtp", "mail/smtp-edge"),
 
 	// As node is on all servers, it doesn't have its tag, don't forget when you

@@ -44,15 +44,10 @@ function collect() {
 
 # eclipse product logs
 collect bm core
-collect bm-tomcat bm-java
-collect bm-tomcat solr
 collect bm-hps hps
-collect bm-lmtpd lmtpd
 collect bm-eas eas
 collect bm-node node
 collect ysnp ysnp
-collect bm-locator locator
-collect bm-mq hornetq
 
 # hprof files
 if ls /var/log/*.hprof > /dev/null 2>&1; then
