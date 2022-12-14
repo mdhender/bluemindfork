@@ -330,8 +330,8 @@ public class FolderBackend extends CoreConnect {
 				.multipleGetById(userSubscriptions.updated.stream().map(itemIdentifier -> itemIdentifier.id)
 						.collect(Collectors.toList()));
 
-		updatedUserSubscriptions.stream()
-				.filter(c -> "mailboxacl".equals(c.value.containerType) && !userMboxSubscriptionUid.equals(c.uid))
+		updatedUserSubscriptions.stream().filter(
+				c -> IMailboxAclUids.TYPE.equals(c.value.containerType) && !userMboxSubscriptionUid.equals(c.uid))
 				.forEach(containerSub -> {
 					String containerUid = containerSub.uid
 							.replace(String.format("sub-of-%s-to-", bs.getUser().getUid()), "");
@@ -346,7 +346,7 @@ public class FolderBackend extends CoreConnect {
 
 				});
 
-		updatedUserSubscriptions.stream().filter(c -> !"mailboxacl".equals(c.value.containerType))
+		updatedUserSubscriptions.stream().filter(c -> ACCEPTED_CONTAINERS.contains(c.value.containerType))
 				.forEach(container -> {
 					try {
 						String nodeUid = ContainerHierarchyNode.uidFor(container.value.containerUid,
