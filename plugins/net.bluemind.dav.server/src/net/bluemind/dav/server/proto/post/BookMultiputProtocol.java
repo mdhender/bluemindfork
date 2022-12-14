@@ -19,7 +19,6 @@
 package net.bluemind.dav.server.proto.post;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -55,6 +54,9 @@ import net.bluemind.dav.server.store.SyncTokens;
 import net.bluemind.dav.server.xml.DOMUtils;
 import net.bluemind.dav.server.xml.MultiStatusBuilder;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
+import net.bluemind.tag.api.ITagUids;
+import net.bluemind.tag.api.ITags;
+import net.bluemind.tag.api.TagRef;
 import net.bluemind.vertx.common.Body;
 import net.fortuna.ical4j.vcard.Property.Id;
 import net.fortuna.ical4j.vcard.VCard;
@@ -139,8 +141,7 @@ public class BookMultiputProtocol implements IDavProtocol<BookMultiputQuery, Boo
 	private net.bluemind.addressbook.api.VCard coreCard(LoggedCore lc, VCardPut vcp, ContainerDescriptor bookFolder) {
 		VCard vc = vcp.getVcard();
 		net.bluemind.addressbook.api.VCard coreCard = VCardAdapter.adaptCard(vc, s -> s,
-				Optional.of(new AddressbookOwner(lc.getDomain(), lc.getUser().uid, Kind.USER)),
-				Collections.emptyList()).value;
+				Optional.of(new AddressbookOwner(lc.getDomain(), lc.getUser().uid, Kind.USER)), getAllTags(lc)).value;
 		if (coreCard.kind == net.bluemind.addressbook.api.VCard.Kind.group) {
 			coreCard.organizational.member = coreCard.organizational.member.stream().map(m -> {
 				m.containerUid = bookFolder.uid;
@@ -148,6 +149,12 @@ public class BookMultiputProtocol implements IDavProtocol<BookMultiputQuery, Boo
 			}).collect(Collectors.toList());
 		}
 		return coreCard;
+	}
+
+	private List<TagRef> getAllTags(LoggedCore lc) {
+		return lc.getCore().instance(ITags.class, ITagUids.defaultUserTags(lc.getUser().uid)).all().stream()
+				.map(tag -> TagRef.create(ITagUids.defaultUserTags(lc.getUser().uid), tag))
+				.collect(Collectors.toList());
 	}
 
 	private String getCardId(VCardPut vcp) {
