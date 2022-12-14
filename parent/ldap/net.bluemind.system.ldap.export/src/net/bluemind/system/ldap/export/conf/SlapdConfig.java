@@ -132,7 +132,7 @@ public class SlapdConfig {
 		INodeClient nodeClient = NodeActivator.get(server.value.address());
 
 		disableApparmor(nodeClient);
-		stopAndRemoveConf(nodeClient);
+		stopSlapd(nodeClient);
 
 		configureSlapd(nodeClient);
 		startSlapd(nodeClient);
@@ -166,8 +166,16 @@ public class SlapdConfig {
 	}
 
 	private void configureSlapd(INodeClient nodeClient) {
-		logger.info("Create LDAP configuration");
-		String ldifPath = "/tmp/slapd.init.ldif";
+		logger.info("Configuring slapd");
+
+		// Re-create database folder
+		List<FileDescription> files = nodeClient.listFiles(varLibPath);
+		if (files.size() != 0) {
+			NCUtils.exec(nodeClient, String.format("/bin/rm -rf %s",
+					files.stream().map(fd -> fd.getPath()).collect(Collectors.joining(" "))));
+		}
+		NCUtils.exec(nodeClient, "/bin/mkdir -p " + varLibPath);
+		NCUtils.exec(nodeClient, "/bin/chown " + owner + ":" + group + " " + varLibPath);
 
 		Map<String, Object> confData = new HashMap<>();
 		confData.put("varRunPath", varRunPath);
@@ -176,14 +184,33 @@ public class SlapdConfig {
 		confData.put("usrLibPath", usrLibPath);
 		confData.put("varLibPath", varLibPath);
 
-		nodeClient.writeFile(ldifPath, getContentFromTemplate("slapd.init.ldif", confData));
-
-		NCUtils.exec(nodeClient, "/usr/sbin/slapadd -F " + confPath + " -b cn=config -l " + ldifPath);
-		NCUtils.exec(nodeClient, "/bin/chown -R " + owner + ":" + group + " " + confPath);
+		if (!initSlapd(nodeClient, "slapd.init.bdb.ldif", confData)
+				&& !initSlapd(nodeClient, "slapd.init.mdb.ldif", confData)) {
+			throw new ServerFault("Neither bdb nor mdb are present - no valid configuration available !");
+		}
 
 		nodeClient.writeFile(slapdDefaultPath, getContentFromTemplate(slapdDefaultTemplate, Collections.emptyMap()));
 
 		initSasl(nodeClient);
+	}
+
+	private boolean initSlapd(INodeClient nodeClient, String template, Map<String, Object> data) {
+		String ldifPath = "/tmp/slapd.init.ldif";
+
+		NCUtils.exec(nodeClient, "/bin/rm -rf " + confPath);
+		NCUtils.exec(nodeClient, "/bin/mkdir -p " + confPath);
+		NCUtils.exec(nodeClient, "/bin/chown " + owner + ":" + group + " " + confPath);
+
+		nodeClient.writeFile(ldifPath, getContentFromTemplate(template, data));
+		int code = NCUtils.exec(nodeClient, "/usr/sbin/slapadd -F " + confPath + " -b cn=config -l " + ldifPath)
+				.getExitCode();
+		if (code != 0) {
+			return false;
+		}
+
+		NCUtils.exec(nodeClient, "/bin/chown -R " + owner + ":" + group + " " + confPath);
+		logger.info("{} generated from {} template", confPath, template);
+		return true;
 	}
 
 	private ByteArrayInputStream getContentFromTemplate(String name, Map<String, Object> data) {
@@ -207,33 +234,21 @@ public class SlapdConfig {
 		return new ByteArrayInputStream(sw.toString().getBytes());
 	}
 
-	private void stopAndRemoveConf(INodeClient nodeClient) {
-		logger.info("Initializing slapd configuration");
-
-		stopSlapd(nodeClient);
-
-		logger.info("Reset LDAP configuration");
-		NCUtils.exec(nodeClient, "/bin/rm -rf " + confPath);
-		NCUtils.exec(nodeClient, "/bin/mkdir -p " + confPath);
-		NCUtils.exec(nodeClient, "/bin/chown " + owner + ":" + group + " " + confPath);
-
-		List<FileDescription> files = nodeClient.listFiles(varLibPath);
-		if (files.size() != 0) {
-			NCUtils.exec(nodeClient, String.format("/bin/rm -rf %s",
-					files.stream().map(fd -> fd.getPath()).collect(Collectors.joining(" "))));
-		}
-		NCUtils.exec(nodeClient, "/bin/mkdir -p " + varLibPath);
-		NCUtils.exec(nodeClient, "/bin/chown " + owner + ":" + group + " " + varLibPath);
-	}
-
 	private void disableApparmor(INodeClient nodeClient) {
-		List<FileDescription> files = nodeClient.listFiles(APPARMOR_SLAPD_CONF);
-		if (!files.isEmpty()) {
-			logger.info("Disable apparmor for LDAP service on: " + server.value.address());
-
-			NCUtils.exec(nodeClient, "ln -s " + APPARMOR_SLAPD_CONF + " " + APPARMOR_DISABLE_SLAPD);
-			NCUtils.exec(nodeClient, "service " + APPARMOR_INIT_SCRIPT + " teardown");
-			NCUtils.exec(nodeClient, "service " + APPARMOR_INIT_SCRIPT + " restart");
+		try {
+			if (NCUtils.exec(nodeClient, "apparmor_status --enabled").getExitCode() != 0) {
+				return;
+			}
+		} catch (ServerFault sf) {
+			logger.warn("Unable to get apparmor status, assume disabled");
+			return;
 		}
+
+		logger.info("Disable apparmor for LDAP service on: " + server.value.address());
+
+		NCUtils.exec(nodeClient, "ln -s " + APPARMOR_SLAPD_CONF + " " + APPARMOR_DISABLE_SLAPD);
+		NCUtils.exec(nodeClient, "service " + APPARMOR_INIT_SCRIPT + " teardown");
+		NCUtils.exec(nodeClient, "service " + APPARMOR_INIT_SCRIPT + " restart");
+		NCUtils.exec(nodeClient, "apparmor_parser -R " + APPARMOR_DISABLE_SLAPD);
 	}
 }

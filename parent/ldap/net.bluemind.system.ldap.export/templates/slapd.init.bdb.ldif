@@ -115,10 +115,15 @@ olcMaxDerefDepth: 15
 olcReadOnly: FALSE
 olcRootDN: uid=admin,dc=local
 olcRootPW:: e1NBU0x9YWRtaW4wQGdsb2JhbC52aXJ0
+# Database backend configuration
 olcSyncUseSubentry: FALSE
 olcMonitoring: FALSE
-olcDbCacheSize: 1000
+olcDbMode: 0600
+olcDbSearchStack: 16
 olcDbCheckpoint: 256 15
+olcDbNoSync: FALSE
+olcDbCacheFree: 1
+olcDbCacheSize: 1000
 olcDbConfig: {0}set_cachesize 0 2097152 0
 olcDbConfig: {1}set_lg_regionmax 1048576
 olcDbConfig: {2}set_lg_bsize 2097152
@@ -127,9 +132,12 @@ olcDbConfig: {4}set_flags DB_LOG_AUTOREMOVE
 olcDbConfig: {5}set_lk_max_objects 1500
 olcDbConfig: {6}set_lk_max_locks 1500
 olcDbConfig: {7}set_lk_max_lockers 1500
-olcDbNoSync: FALSE
+olcDbDNcacheSize: 1000
 olcDbDirtyRead: FALSE
 olcDbIDLcacheSize: 0
+olcDbLinearIndex: FALSE
+olcDbShmKey: 0
+# Index
 olcDbIndex: objectClass eq,pres
 olcDbIndex: uid eq,pres,sub
 olcDbIndex: bmUid eq,pres,sub
@@ -145,12 +153,6 @@ olcDbIndex: cn eq,pres,sub
 olcDbIndex: mail eq,pres,sub
 olcDbIndex: surname eq,pres,sub
 olcDbIndex: givenname eq,pres,sub
-olcDbLinearIndex: FALSE
-olcDbMode: 0600
-olcDbSearchStack: 16
-olcDbShmKey: 0
-olcDbCacheFree: 1
-olcDbDNcacheSize: 1000
 olcAccess: to attrs=userPassword,shadowLastChange
   by self write
   by anonymous auth
@@ -180,3 +182,4 @@ objectClass: olcDatabaseConfig
 olcDatabase: {2}monitor
 olcAccess: {0}to dn.subtree="cn=monitor" by dn.base="uid=admin,cn=config" write
 olcAccess: {1}to dn.subtree="cn=monitor" by * none
+

@@ -1,0 +1,172 @@
+# Global config:
+dn: cn=config
+objectClass: olcGlobal
+cn: config
+olcPidFile: ${varRunPath}/slapd.pid
+olcArgsFile: ${varRunPath}/slapd.args
+olcConfigDir: ${confPath}
+olcAttributeOptions: lang-
+olcAuthzPolicy: none
+olcConcurrency: 0
+olcConnMaxPending: 100
+olcConnMaxPendingAuth: 1000
+olcGentleHUP: FALSE
+olcIdleTimeout: 0
+olcIndexSubstrIfMaxLen: 4
+olcIndexSubstrIfMinLen: 2
+olcIndexSubstrAnyLen: 4
+olcIndexSubstrAnyStep: 2
+olcIndexIntLen: 4
+olcLocalSSF: 71
+olcLogLevel: none
+olcReadOnly: FALSE
+olcReverseLookup: FALSE
+olcSaslSecProps: noplain,noanonymous
+olcSizeLimit: unlimited
+olcSockbufMaxIncoming: 262143
+olcSockbufMaxIncomingAuth: 16777215
+olcThreads: 16
+olcTLSCertificateFile: /etc/ssl/certs/bm_cert.pem
+olcTLSCertificateKeyFile: /etc/ssl/certs/bm_cert.pem
+olcTLSVerifyClient: never
+olcToolThreads: 1
+olcWriteTimeout: 0
+
+# Frontend settings
+dn: olcDatabase={-1}frontend,cn=config
+objectClass: olcDatabaseConfig
+objectClass: olcFrontendConfig
+olcDatabase: {-1}frontend
+olcLastMod: TRUE
+olcAddContentAcl: FALSE
+olcMaxDerefDepth: 0
+olcReadOnly: FALSE
+olcSchemaDN: cn=Subschema
+olcSizeLimit: unlimited
+olcSyncUseSubentry: FALSE
+olcMonitoring: FALSE
+# Allow unlimited access to local connection from the local root user
+olcAccess: {0}to * by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage by * break
+# Allow unauthenticated read access for schema and base DN autodiscovery
+olcAccess: {1}to dn.exact="" by * read
+olcAccess: {2}to dn.base="cn=Subschema" by * read
+
+# Config db settings
+dn: olcDatabase=config,cn=config
+objectClass: olcDatabaseConfig
+olcDatabase: config
+# Allow unlimited access to local connection from the local root user
+olcAccess: {0}to * by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage by * break
+olcAccess: {1}to *  by * none
+olcRootDN: uid=admin,cn=config
+olcRootPW:: e1NBU0x9YWRtaW4wQGdsb2JhbC52aXJ0
+olcMaxDerefDepth: 15
+olcAddContentAcl: TRUE
+olcLastMod: TRUE
+olcReadOnly: FALSE
+olcSyncUseSubentry: FALSE
+olcMonitoring: FALSE
+
+# Load schemas
+dn: cn=schema,cn=config
+objectClass: olcSchemaConfig
+cn: schema
+
+include: file://${schemaPath}/core.ldif
+include: file://${schemaPath}/cosine.ldif
+include: file://${schemaPath}/nis.ldif
+include: file://${schemaPath}/inetorgperson.ldif
+
+dn: cn=bluemind,cn=schema,cn=config
+objectClass: olcSchemaConfig
+cn: bluemind
+olcAttributeTypes: {0}( 1.3.6.1.4.1.39073.2.1 NAME 'bmUid' DESC 'BlueMind UID' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{256} SINGLE-VALUE )
+olcAttributeTypes: {1}( 1.3.6.1.4.1.39073.2.2 NAME 'bmVersion' DESC 'BlueMind changset version' EQUALITY integerMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
+olcAttributeTypes: {2}( 1.3.6.1.4.1.39073.2.3 NAME 'bmHidden' DESC 'BlueMind hidden status' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{256} SINGLE-VALUE )
+olcObjectClasses: {0}( 1.3.6.1.4.1.39073.1.1 NAME 'bmGroup' DESC 'BlueMind group' SUP top AUXILIARY MAY ( member $ mail $ bmUid $ bmHidden ) )
+olcObjectClasses: {1}( 1.3.6.1.4.1.39073.1.2 NAME 'bmUser' DESC 'BlueMind user' SUP top AUXILIARY MUST ( bmUid ) MAY ( bmHidden ) )
+olcObjectClasses: {2}( 1.3.6.1.4.1.39073.1.3 NAME 'bmDomain' DESC 'BlueMind domain' SUP top AUXILIARY MUST ( bmVersion ) )
+
+# Load module
+dn: cn=module{0},cn=config
+objectClass: olcModuleList
+cn: module{0}
+olcModulePath: ${usrLibPath}
+olcModuleLoad: back_mdb
+olcModuleLoad: back_monitor
+olcModuleLoad: memberof
+olcModuleLoad: syncprov
+
+# Set defaults for the backend
+dn: olcBackend=mdb,cn=config
+objectClass: olcBackendConfig
+olcBackend: mdb
+
+# The database definition.
+dn: olcDatabase={1}mdb,cn=config
+objectClass: olcDatabaseConfig
+objectClass: olcMdbConfig
+olcDatabase: {1}mdb
+olcDbDirectory: ${varLibPath}
+olcSuffix: dc=local
+olcAddContentAcl: FALSE
+olcLastMod: TRUE
+olcMaxDerefDepth: 15
+olcReadOnly: FALSE
+olcRootDN: uid=admin,dc=local
+olcRootPW:: e1NBU0x9YWRtaW4wQGdsb2JhbC52aXJ0
+# Database backend configuration
+olcSyncUseSubentry: FALSE
+olcMonitoring: FALSE
+olcDbMode: 0600
+olcDbSearchStack: 16
+olcDbCheckpoint: 256 15
+olcDbNoSync: FALSE
+# 2GB
+olcDbMaxSize: 2147483648
+# Index
+olcDbIndex: objectClass eq,pres
+olcDbIndex: uid eq,pres,sub
+olcDbIndex: bmUid eq,pres,sub
+olcDbIndex: member eq,pres
+olcDbIndex: memberOf eq,pres
+olcDbIndex: memberUid eq,pres
+olcDbIndex: displayName eq,pres,sub
+olcDbIndex: uidNumber eq,pres
+olcDbIndex: gidNumber eq,pres
+olcDbIndex: loginShell eq,pres
+olcDbIndex: ou eq,pres,sub
+olcDbIndex: cn eq,pres,sub
+olcDbIndex: mail eq,pres,sub
+olcDbIndex: surname eq,pres,sub
+olcDbIndex: givenname eq,pres,sub
+olcAccess: to attrs=userPassword,shadowLastChange
+  by self write
+  by anonymous auth
+  by * none
+olcAccess: to dn.base="" by * read
+olcAccess: to *
+  by * read
+
+dn: olcOverlay={0}memberof,olcDatabase={1}mdb,cn=config
+objectClass: olcOverlayConfig
+objectClass: olcMemberOf
+olcOverlay: {0}memberof
+olcMemberOfDangling: ignore
+olcMemberOfRefInt: FALSE
+olcMemberOfGroupOC: posixGroup
+olcMemberOfMemberAD: member
+olcMemberOfMemberOfAD: memberOf
+
+dn: olcOverlay={1}syncprov,olcDatabase={1}mdb,cn=config
+objectClass: olcOverlayConfig
+objectClass: olcConfig
+olcOverlay: {1}syncprov
+
+# The monitor database
+dn: olcDatabase={2}monitor,cn=config
+objectClass: olcDatabaseConfig
+olcDatabase: {2}monitor
+olcAccess: {0}to dn.subtree="cn=monitor" by dn.base="uid=admin,cn=config" write
+olcAccess: {1}to dn.subtree="cn=monitor" by * none
+

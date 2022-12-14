@@ -85,8 +85,11 @@ public class LdapHelper {
 			BindResponse response = ldapCon.bind(bindRequest);
 
 			if (ResultCodeEnum.SUCCESS != response.getLdapResult().getResultCode() || !ldapCon.isAuthenticated()) {
-				throw new ServerFault("Fail to authenticate to LDAP server: " + ldapHost.value.address());
+				throw new ServerFault("Fail to authenticate to LDAP server: " + ldapHost.value.address() + " as: "
+						+ configDirectoryRootDn);
 			}
+		} catch (ServerFault sf) {
+			throw sf;
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
