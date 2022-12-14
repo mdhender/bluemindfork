@@ -509,6 +509,7 @@
 							<configuration>
 								<draftCompile>${gwt.draft}</draftCompile>
 								<optimize>${gwt.optimize}</optimize>
+								<style>PRETTY</style>
 								<inplace>true</inplace>
 								<generateJsInteropExports>true</generateJsInteropExports>
 								<warSourceDirectory>web-resources</warSourceDirectory>
