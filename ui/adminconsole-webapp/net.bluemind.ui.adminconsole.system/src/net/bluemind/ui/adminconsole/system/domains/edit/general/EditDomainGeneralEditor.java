@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
@@ -215,19 +216,22 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 
 		String domainLanguage = SettingsModel.domainSettingsFrom(model).get(DomainSettingsKeys.lang.name());
 		domainLanguage = null != domainLanguage ? domainLanguage : LocaleIdTranslation.DEFAULT_ID;
-		language.setSelectedIndex(languageMapping.get(domainLanguage));
+		language.setSelectedIndex(Optional.ofNullable(languageMapping.get(domainLanguage))
+				.orElseGet(() -> languageMapping.get(LocaleIdTranslation.DEFAULT_ID)));
 
 		String domainDateFormat = SettingsModel.domainSettingsFrom(model).get(DomainSettingsKeys.date.name());
 		domainDateFormat = domainDateFormat != null ? domainDateFormat : DateFormatTranslation.DEFAULT_DATE_FORMAT;
-		dateFormat.setSelectedIndex(dateFormatMapping.get(domainDateFormat));
+		dateFormat.setSelectedIndex(Optional.ofNullable(dateFormatMapping.get(domainDateFormat))
+				.orElseGet(() -> dateFormatMapping.get(DateFormatTranslation.DEFAULT_DATE_FORMAT)));
 
 		String domainTimeFormat = SettingsModel.domainSettingsFrom(model).get(DomainSettingsKeys.timeformat.name());
 		domainTimeFormat = domainTimeFormat != null ? domainTimeFormat : TimeFormatTranslation.DEFAULT_TIME_FORMAT;
-		timeFormat.setSelectedIndex(timeFormatMapping.get(domainTimeFormat));
+		timeFormat.setSelectedIndex(Optional.ofNullable(timeFormatMapping.get(domainTimeFormat))
+				.orElseGet(() -> timeFormatMapping.get(TimeFormatTranslation.DEFAULT_TIME_FORMAT)));
 
 		String domainTz = SettingsModel.domainSettingsFrom(model).get(DomainSettingsKeys.timezone.name());
 		domainTz = null != domainTz ? domainTz : DEFAULT_TZ;
-		tz.setSelectedIndex(tzMapping.get(domainTz));
+		tz.setSelectedIndex(Optional.ofNullable(tzMapping.get(domainTz)).orElseGet(() -> tzMapping.get(DEFAULT_TZ)));
 
 		String externalUrlSetting = SettingsModel.domainSettingsFrom(model).get(DomainSettingsKeys.external_url.name());
 		if (null != externalUrlSetting) {

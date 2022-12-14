@@ -227,7 +227,7 @@ public class SlapdConfig {
 	}
 
 	private void disableApparmor(INodeClient nodeClient) {
-		List<FileDescription> files = nodeClient.listFiles("/etc/init.d/" + APPARMOR_INIT_SCRIPT);
+		List<FileDescription> files = nodeClient.listFiles(APPARMOR_SLAPD_CONF);
 		if (!files.isEmpty()) {
 			logger.info("Disable apparmor for LDAP service on: " + server.value.address());
 
