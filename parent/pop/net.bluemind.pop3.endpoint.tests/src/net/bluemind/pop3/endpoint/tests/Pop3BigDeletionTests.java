@@ -17,10 +17,10 @@
  */
 package net.bluemind.pop3.endpoint.tests;
 
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.List;
@@ -33,22 +33,15 @@ import java.util.stream.Stream;
 import org.awaitility.Awaitility;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.typesafe.config.Config;
 
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.pop3.endpoint.Pop3Config;
 
 public class Pop3BigDeletionTests extends Pop3TestsBase {
 
-	private static final Logger logger = LoggerFactory.getLogger(Pop3BigDeletionTests.class);
-
-	public static final int COUNT = 10;
+	public static final int COUNT = 100;
 
 	@Test
 	public void testDeletionOfSeveralMails() throws Exception {
@@ -78,21 +71,27 @@ public class Pop3BigDeletionTests extends Pop3TestsBase {
 
 			Awaitility.await().atMost(4, TimeUnit.SECONDS).until(() -> (testConditionForQueue(queue, 2, "^\\+OK$")));
 
-			IntStream.range(1, createdEmails.size() + 1).boxed().forEach(i -> {
-				try {
-
-					out.write(("DELE " + i + "\r\n").getBytes());
-					out.flush();
-					Thread.sleep(20);
-				} catch (IOException | InterruptedException e) {
-					e.printStackTrace();
-				}
-			});
-
-			out.write(("QUIT\r\n").getBytes());
 			System.err.println("Yeah yeah pre del");
-			queue.stream().forEach(s -> System.err.println(s));
+			queue.clear();
+			for (int i = 1; i < createdEmails.size() + 1; i++) {
+				try {
+					final int cnt = i;
+					System.err.println("del " + cnt);
+					out.write(("DELE " + cnt + "\r\n").getBytes());
+					out.flush();
+					Awaitility.await().atMost(4, TimeUnit.SECONDS)
+							.until(() -> (testConditionForQueue(queue, 1, "^\\+OK message " + cnt + " deleted$")));
+					queue.clear();
+				} catch (IOException e) {
+					fail(e.getMessage());
+				}
+			}
+
+			System.err.println("Send pop quit.");
+			out.write(("QUIT\r\n").getBytes());
 			out.flush();
+			Awaitility.await().atMost(1, TimeUnit.MINUTES).until(() -> (testConditionForQueue(queue, 1, "^\\+OK$")));
+
 			System.err.println("Yeah yeah post del");
 		}
 
@@ -116,34 +115,9 @@ public class Pop3BigDeletionTests extends Pop3TestsBase {
 	}
 
 	private Boolean testConditionForQueue(ConcurrentLinkedDeque<String> q, Integer condition, String regex) {
-		Stream<String> list = Arrays.asList(q.stream().reduce((e, s) -> e + s).get().split("\r\n")).stream()
+		Stream<String> list = Arrays.asList(q.stream().reduce((e, s) -> e + s).orElse("").split("\r\n")).stream()
 				.filter(s -> s.matches(regex));
 		return list.count() == condition;
 	}
 
-	private ConcurrentLinkedDeque<String> rawSocket(Socket sock) throws IOException {
-
-		Config conf = Pop3Config.get();
-		int port = conf.getInt("pop3.port");
-		sock.connect(new InetSocketAddress("127.0.0.1", port));
-		ConcurrentLinkedDeque<String> queue = new ConcurrentLinkedDeque<>();
-		Thread t = new Thread(() -> {
-			try {
-				InputStream in = sock.getInputStream();
-				byte[] buf = new byte[1024];
-				while (true) {
-					int read = in.read(buf, 0, 1024);
-					if (read == -1) {
-						break;
-					}
-					String resp = new String(buf, 0, read);
-					logger.debug("QUEUE OFFER: " + resp);
-					queue.offer(resp);
-				}
-			} catch (Exception e) {
-			}
-		});
-		t.start();
-		return queue;
-	}
 }

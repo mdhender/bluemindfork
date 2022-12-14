@@ -110,20 +110,14 @@ public class Pop3Context {
 	}
 
 	public CompletableFuture<ConcurrentMap<Integer, MailItemData>> getMap() {
-		CompletableFuture<ConcurrentMap<Integer, MailItemData>> cfmap = new CompletableFuture<>();
-
 		if (mapMailsForSession.size() == 0) {
-			con.mapPopIdtoMailId().thenAccept(map -> {
+			return con.mapPopIdtoMailId().thenApply(map -> {
 				mapMailsForSession = map;
-				cfmap.complete(map);
-			}).exceptionally(ex -> {
-				cfmap.completeExceptionally(ex);
-				return null;
+				return map;
 			});
 		} else {
 			return CompletableFuture.completedFuture(mapMailsForSession);
 		}
-		return cfmap;
 	}
 
 	public void close() {

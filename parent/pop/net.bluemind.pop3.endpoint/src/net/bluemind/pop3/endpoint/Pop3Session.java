@@ -110,23 +110,24 @@ public class Pop3Session {
 			logger.error("cmd {} not supported", cmd);
 			ctx.write("-ERR unknown command" + CRLF);
 		} else {
-			proc.run(ctx, cmd);
+			proc.run(ctx, cmd).exceptionally(ex -> {
+				logger.error("[{}] {} failed: {}", ctx.getLogin(), cmd, ex.getMessage(), ex);
+				ctx.write("-ERR command failed" + CRLF);
+				return null;
+			});
 		}
 	}
 
 	private static class QuitProcessor implements PopProcessor {
 		public CompletableFuture<Void> run(Pop3Context ctx, String cmd) {
-			return ctx.write("+OK" + CRLF).thenAccept(v -> {
-				ctx.mapMailsForSession = new ConcurrentHashMap<>();
-				if (!ctx.mailsToDelete.isEmpty()) {
-					ctx.connection().delete(ctx, ctx.mailsToDelete.values().stream().collect(Collectors.toList()))
-							.thenAccept(result -> {
-								ctx.close();
-							});
-				} else {
-					ctx.close();
-				}
-			});
+			ctx.mapMailsForSession = new ConcurrentHashMap<>();
+			if (!ctx.mailsToDelete.isEmpty()) {
+				logger.info("[{}] Deleting {} messages before QUIT", ctx.getLogin(), ctx.mailsToDelete.size());
+				return ctx.connection().delete(ctx, ctx.mailsToDelete.values().stream().collect(Collectors.toList()))
+						.thenCompose(result -> ctx.write("+OK" + CRLF)).thenAccept(v -> ctx.close());
+			} else {
+				return ctx.write("+OK" + CRLF).thenAccept(v -> ctx.close());
+			}
 		}
 	}
 
@@ -143,7 +144,7 @@ public class Pop3Session {
 		public CompletableFuture<Void> run(Pop3Context ctx, String cmd) {
 			String pass = cmd.substring("PASS ".length());
 			ctx.connect(pass).thenAccept(connected -> {
-				if (connected) {
+				if (Boolean.TRUE.equals(connected)) {
 					ctx.write("+OK" + CRLF);
 				} else {
 					ctx.write("-ERR Invalid login or password\r\n");
@@ -184,13 +185,9 @@ public class Pop3Session {
 			if (ctx.connection() == null) {
 				return ctx.write("-ERR invalid command\r\n");
 			} else {
-				ctx.connection().stat().thenAccept(stat -> ctx.write("+OK " + stat.count() + " " + stat.size() + CRLF))
-						.exceptionally(ex -> {
-							ctx.write("-ERR invalid command\r\n");
-							return null;
-						});
+				return ctx.connection().stat()
+						.thenCompose(stat -> ctx.write("+OK " + stat.count() + " " + stat.size() + CRLF));
 			}
-			return null;
 		}
 	}
 
@@ -208,27 +205,17 @@ public class Pop3Session {
 				if (param != null) {
 					try {
 						Integer id = Integer.parseInt(param);
-						return ctx.connection().listUnique(ctx, id).exceptionally(ex -> {
-							logger.error(ex.getMessage());
-							return null;
-						});
+						return ctx.connection().listUnique(ctx, id);
 					} catch (NumberFormatException e) {
 						logger.error("{} - bad parameter for LIST method: {}. Integer expected", ctx.getLogin(), param);
 						return ctx.write("-ERR invalid command\r\n");
 					}
 				} else {
 					ListItemStream stream = new ListItemStream(ctx);
-					ctx.connection().stat().thenAccept(stat -> {
+					return ctx.connection().stat().thenCompose(stat -> {
 						ctx.write("+OK " + stat.count() + " messages (" + stat.size() + " octets)\r\n");
-						ctx.connection().list(ctx, stream).thenCompose(v -> {
-							return ctx.write("." + CRLF);
-						});
-					}).exceptionally(ex -> {
-						logger.error(ex.getMessage());
-						ctx.write("-ERR invalid command\r\n");
-						return null;
+						return ctx.connection().list(ctx, stream).thenCompose(v -> ctx.write("." + CRLF));
 					});
-					return null;
 				}
 			}
 		}
@@ -268,19 +255,18 @@ public class Pop3Session {
 					return ctx.write("-ERR no such message" + CRLF);
 				}
 				String param = cmd.substring(space, cmd.length()).trim();
-				ctx.connection().retr(ctx, param).thenAccept(item -> {
+				return ctx.connection().retr(ctx, param).thenCompose(item -> {
 					if (item == null) {
-						ctx.write("-ERR no such message" + CRLF);
+						return ctx.write("-ERR no such message" + CRLF);
 					} else {
 						ctx.write("+OK " + item.getMailSize() + " octets" + CRLF);
-						item.completableFuture.thenAccept(bb -> {
+						return item.completableFuture.thenCompose(bb -> {
 							ctx.write(bb);
-							ctx.write("." + CRLF);
+							return ctx.write("." + CRLF);
 						});
 					}
 				});
 			}
-			return null;
 		}
 	}
 
@@ -296,38 +282,34 @@ public class Pop3Session {
 
 	private static class DeleProcessor implements PopProcessor {
 		public CompletableFuture<Void> run(Pop3Context ctx, String cmd) {
-
-			CompletableFuture<Void> cf = new CompletableFuture<>();
-
 			if (ctx.connection() == null) {
 				ctx.write("-ERR invalid command" + CRLF);
-				cf.complete(null);
+				return CompletableFuture.completedFuture(null);
 			} else {
 				int space = cmd.indexOf(' ');
 				if (space == -1) {
 					ctx.write("-ERR no such message" + CRLF);
-					cf.complete(null);
-					return cf;
+					return CompletableFuture.completedFuture(null);
 				}
 				String param = cmd.substring(space, cmd.length()).trim();
+				Integer id;
 				try {
-					Integer id = Integer.parseInt(param);
-					ctx.getMap().thenAccept(map -> {
-						if (map.containsKey(id)) {
-							registry.counter(idFactory.name("deletedMails", "login", ctx.getLogin())).increment();
-							ctx.mailsToDelete.put(id, map.get(id).getItemId());
-							map.remove(id);
-							ctx.write("+OK message " + param + " deleted" + CRLF);
-						} else {
-							ctx.write("-ERR no such message" + CRLF);
-						}
-						cf.complete(null);
-					});
+					id = Integer.parseInt(param);
 				} catch (NumberFormatException e) {
 					ctx.write("-ERR no such message" + CRLF);
+					return CompletableFuture.completedFuture(null);
 				}
+				return ctx.getMap().thenCompose(map -> {
+					if (map.containsKey(id)) {
+						registry.counter(idFactory.name("deletedMails", "login", ctx.getLogin())).increment();
+						ctx.mailsToDelete.put(id, map.get(id).getItemId());
+						map.remove(id);
+						return ctx.write("+OK message " + param + " deleted" + CRLF);
+					} else {
+						return ctx.write("-ERR no such message" + CRLF);
+					}
+				});
 			}
-			return cf;
 		}
 	}
 

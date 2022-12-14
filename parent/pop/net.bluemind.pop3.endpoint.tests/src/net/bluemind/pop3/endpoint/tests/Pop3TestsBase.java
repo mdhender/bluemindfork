@@ -24,13 +24,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
+import com.typesafe.config.Config;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -70,6 +71,7 @@ import net.bluemind.hornetq.client.MQ;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.pop3.endpoint.Pop3Config;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.state.RunningState;
 import net.bluemind.system.state.StateContext;
@@ -100,7 +102,7 @@ public class Pop3TestsBase {
 	protected SecurityContext secCtxUser1;
 	protected String apiKey;
 	protected IdRange allocations;
-	protected List<ItemValue<MailboxItem>> createdMails;
+	// protected List<ItemValue<MailboxItem>> createdMails;
 	protected CyrusPartition partition;
 
 	private static final Logger logger = LoggerFactory.getLogger(Pop3TestsBase.class);
@@ -159,11 +161,6 @@ public class Pop3TestsBase {
 		ItemValue<MailboxFolder> inbox = provider().instance(IMailboxFolders.class, partition.name, mboxRoot)
 				.byName("INBOX");
 		assertNotNull("Unable to retrieve INBOX", inbox);
-
-		this.createdMails = Stream.of(createEmail(user1Login, "INBOX", testEml01()),
-				createEmail(user1Login, "INBOX", testEml01()), createEmail(user1Login, "INBOX", testEml01()),
-				createEmail(user1Login, "INBOX", testEml01()), createEmail(user1Login, "INBOX", testEml02()))
-				.collect(Collectors.toList());
 
 		StateContext.setInternalState(new RunningState());
 		System.err.println("==== BEFORE " + testName.getMethodName() + " ends ====");
@@ -234,6 +231,32 @@ public class Pop3TestsBase {
 			logger.warn(e.getMessage());
 		}
 		return null;
+	}
+
+	protected ConcurrentLinkedDeque<String> rawSocket(Socket sock) throws IOException {
+
+		Config conf = Pop3Config.get();
+		int port = conf.getInt("pop3.port");
+
+		sock.connect(new InetSocketAddress("127.0.0.1", port));
+		ConcurrentLinkedDeque<String> queue = new ConcurrentLinkedDeque<>();
+		Thread t = new Thread(() -> {
+			try {
+				InputStream in = sock.getInputStream();
+				byte[] buf = new byte[16];
+				while (true) {
+					int read = in.read(buf, 0, 16);
+					if (read == -1) {
+						break;
+					}
+					String resp = new String(buf, 0, read);
+					queue.offer(resp);
+				}
+			} catch (Exception e) {
+			}
+		});
+		t.start();
+		return queue;
 	}
 
 }

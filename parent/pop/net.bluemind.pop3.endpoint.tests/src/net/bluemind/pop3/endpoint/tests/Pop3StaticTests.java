@@ -23,12 +23,15 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.awaitility.Awaitility;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,12 +40,25 @@ import com.typesafe.config.Config;
 
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.MailboxFolder;
+import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.pop3.endpoint.Pop3Config;
 
 public class Pop3StaticTests extends Pop3TestsBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(Pop3StaticTests.class);
+
+	private List<ItemValue<MailboxItem>> createdMails;
+
+	@Before
+	@Override
+	public void before() throws Exception {
+		super.before();
+		this.createdMails = Stream.of(createEmail(user1Login, "INBOX", testEml01()),
+				createEmail(user1Login, "INBOX", testEml01()), createEmail(user1Login, "INBOX", testEml01()),
+				createEmail(user1Login, "INBOX", testEml01()), createEmail(user1Login, "INBOX", testEml02()))
+				.collect(Collectors.toList());
+	}
 
 	@Test
 	public void testUSerCanLogin() throws Exception {
@@ -567,32 +583,6 @@ public class Pop3StaticTests extends Pop3TestsBase {
 
 			queue.clear();
 		}
-	}
-
-	private ConcurrentLinkedDeque<String> rawSocket(Socket sock) throws IOException {
-
-		Config conf = Pop3Config.get();
-		int port = conf.getInt("pop3.port");
-
-		sock.connect(new InetSocketAddress("127.0.0.1", port));
-		ConcurrentLinkedDeque<String> queue = new ConcurrentLinkedDeque<>();
-		Thread t = new Thread(() -> {
-			try {
-				InputStream in = sock.getInputStream();
-				byte[] buf = new byte[16];
-				while (true) {
-					int read = in.read(buf, 0, 16);
-					if (read == -1) {
-						break;
-					}
-					String resp = new String(buf, 0, read);
-					queue.offer(resp);
-				}
-			} catch (Exception e) {
-			}
-		});
-		t.start();
-		return queue;
 	}
 
 	private ConcurrentLinkedDeque<String> rawSocketSlow(Socket sock) throws IOException {

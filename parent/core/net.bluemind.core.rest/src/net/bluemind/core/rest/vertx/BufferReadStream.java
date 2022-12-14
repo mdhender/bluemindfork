@@ -42,7 +42,7 @@ public class BufferReadStream implements ReadStream<Buffer> {
 		return this;
 	}
 
-	private void read() {
+	private synchronized void read() {
 		if (!running) {
 			return;
 		}
