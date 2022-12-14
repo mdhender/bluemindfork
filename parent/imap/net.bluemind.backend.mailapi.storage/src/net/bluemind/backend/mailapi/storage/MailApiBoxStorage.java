@@ -103,6 +103,7 @@ public class MailApiBoxStorage implements IMailboxesStorage {
 			// nothing to do, we are not dealing with a rename
 			return;
 		}
+		logger.info("Rename from {} to {}", previousBoxItem.value.name, currentBoxItem.value.name);
 		CyrusPartition partition = CyrusPartition.forServerAndDomain(currentBoxItem.value.dataLocation, domainUid);
 		IReplicatedMailboxesRootMgmt rootMgmtApi = context.provider().instance(IReplicatedMailboxesRootMgmt.class,
 				partition.name);

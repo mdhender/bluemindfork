@@ -81,20 +81,23 @@ public class PerOwnerMailboxEventProducerTests extends AbstractRollingReplicatio
 
 	@Test
 	public void expectEventOnCreate() throws InterruptedException {
+		CountDownLatch latch = expectOwnerEvent();
 		addMessageInUserInbox();
-		expectOwnerEvent();
+		assertTrue("Expected 1 specific update to occur on owner bus", latch.await(10, TimeUnit.SECONDS));
 	}
 
 	@Test
 	public void expectEventOnUpdate() throws InterruptedException {
+		CountDownLatch latch = expectOwnerEvent();
 		flagMessageInUserInbox(Flag.SEEN);
-		expectOwnerEvent();
+		assertTrue("Expected 1 specific update to occur on owner bus", latch.await(10, TimeUnit.SECONDS));
 	}
 
 	@Test
 	public void expectEventOnDelete() throws InterruptedException {
+		CountDownLatch latch = expectOwnerEvent();
 		flagMessageInUserInbox(Flag.DELETED);
-		expectOwnerEvent();
+		assertTrue("Expected 1 specific update to occur on owner bus", latch.await(10, TimeUnit.SECONDS));
 	}
 
 	private void addMessageInUserInbox() {
@@ -110,14 +113,11 @@ public class PerOwnerMailboxEventProducerTests extends AbstractRollingReplicatio
 		});
 	}
 
-	private void expectOwnerEvent() throws InterruptedException {
-		CountDownLatch ownerReplicationLock = expectMessages("mailreplica." + userUid + ".updated", 1,
+	private CountDownLatch expectOwnerEvent() {
+		return expectMessages("mailreplica." + userUid + ".updated", 1,
 				msg -> msg.getString("owner").equals(userUid) && msg.getString("mailbox").equals(inbox.uid)
 						&& msg.getString("container").equals("mbox_records_" + inbox.uid)
 						&& Objects.nonNull(msg.getLong("version")));
-
-		assertTrue("Expected 1 specific update to occur on owner bus",
-				ownerReplicationLock.await(10, TimeUnit.SECONDS));
 	}
 
 }

@@ -24,59 +24,23 @@ package net.bluemind.backend.mail.replica.service.tests;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.util.concurrent.TimeUnit;
-
 import org.junit.Before;
 import org.junit.Test;
-
-import com.google.common.collect.Lists;
 
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesRootMgmt;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
+import net.bluemind.backend.mailapi.testhelper.MailApiTestsBase;
 import net.bluemind.core.context.SecurityContext;
-import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
-import net.bluemind.core.jdbc.JdbcTestHelper;
-import net.bluemind.core.sessions.Sessions;
-import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.mailbox.api.Mailbox.Routing;
-import net.bluemind.pool.impl.BmConfIni;
-import net.bluemind.server.api.Server;
-import net.bluemind.tests.defaultdata.PopulateHelper;
 
-public abstract class AbstractReplicatedMailboxesRootMgmtServiceTests {
+public abstract class AbstractReplicatedMailboxesRootMgmtServiceTests extends MailApiTestsBase {
 
 	protected String partition;
-	protected String apiKey;
 
 	@Before
 	public void before() throws Exception {
-		JdbcTestHelper.getInstance().beforeTest();
-		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
-		ElasticsearchTestHelper.getInstance().beforeTest();
-
-		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
-		this.apiKey = "test-session";
-		Sessions.get().put(apiKey, SecurityContext.SYSTEM);
-
-		partition = "vagrant_vmw";
-
-		Server esServer = new Server();
-		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
-		System.out.println("ES is " + esServer.ip);
-		assertNotNull(esServer.ip);
-		esServer.tags = Lists.newArrayList("bm/es");
-
-		BmConfIni ini = new BmConfIni();
-		String cyrusIp = ini.get("imap-role");
-		Server imapServer = new Server();
-		imapServer.ip = cyrusIp;
-		imapServer.tags = Lists.newArrayList("mail/imap");
-
-		PopulateHelper.initGlobalVirt(esServer, imapServer);
-
-		PopulateHelper.addDomain("vagrant.vmw", Routing.none);
-		PopulateHelper.addUser("john", "vagrant.vmw", Routing.none);
+		super.before();
+		partition = domUid;
 	}
 
 	@Test
@@ -88,7 +52,7 @@ public abstract class AbstractReplicatedMailboxesRootMgmtServiceTests {
 	@Test
 	public void testCrud() {
 		IReplicatedMailboxesRootMgmt service = getService(SecurityContext.SYSTEM);
-		MailboxReplicaRootDescriptor root = MailboxReplicaRootDescriptor.create(Namespace.users, "john");
+		MailboxReplicaRootDescriptor root = MailboxReplicaRootDescriptor.create(Namespace.users, userUid);
 		service.create(root);
 		service.delete(root.ns.name(), root.name);
 	}

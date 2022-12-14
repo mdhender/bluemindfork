@@ -33,9 +33,7 @@ import org.junit.BeforeClass;
 
 import com.google.common.collect.Lists;
 
-import net.bluemind.backend.cyrus.CyrusService;
-import net.bluemind.backend.cyrus.replication.testhelper.CyrusReplicationHelper;
-import net.bluemind.backend.cyrus.replication.testhelper.SyncServerHelper;
+import net.bluemind.backend.mailapi.testhelper.MailApiTestsBase;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -56,8 +54,6 @@ import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class AbstractMultibackendTests {
-	protected CyrusReplicationHelper cyrusReplication1;
-	protected CyrusReplicationHelper cyrusReplication2;
 
 	protected ItemValue<Server> cyrusServer1;
 	protected ItemValue<Server> cyrusServer2;
@@ -69,6 +65,7 @@ public class AbstractMultibackendTests {
 
 	@BeforeClass
 	public static void setXferTestMode() {
+		MailApiTestsBase.beforeClass();
 		System.setProperty("bluemind.testmode", "true");
 	}
 
@@ -84,18 +81,14 @@ public class AbstractMultibackendTests {
 		esServer.tags = Lists.newArrayList("bm/es");
 
 		Server imapServer = new Server();
-		imapServer.ip = new BmConfIni().get("imap-role");
+		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
 		imapServer.tags = Lists.newArrayList("mail/imap", "bm/pgsql-data");
 		cyrusServer1 = ItemValue.create(imapServer.ip, imapServer);
-		CyrusService cyrusService1 = new CyrusService(cyrusServer1);
-		cyrusService1.reset();
 
 		Server imapServer2 = new Server();
-		imapServer2.ip = new BmConfIni().get("imap2-role");
+		imapServer2.ip = PopulateHelper.FAKE_CYRUS_IP_2;
 		imapServer2.tags = Lists.newArrayList("mail/imap", "bm/pgsql-data");
 		cyrusServer2 = ItemValue.create(imapServer2.ip, imapServer2);
-		CyrusService cyrusService2 = new CyrusService(cyrusServer2);
-		cyrusService2.reset();
 
 		Server pg2 = new Server();
 		shardIp = new BmConfIni().get("pg2");
@@ -114,17 +107,6 @@ public class AbstractMultibackendTests {
 		JdbcTestHelper.getInstance().initNewServer(pg2.ip);
 		SplittedShardsMapping.map(pg2.ip, imapServer2.ip);
 
-		cyrusReplication1 = new CyrusReplicationHelper(imapServer.ip);
-		cyrusReplication1.installReplication();
-
-		cyrusReplication2 = new CyrusReplicationHelper(imapServer2.ip);
-		cyrusReplication2.installReplication();
-
-		SyncServerHelper.waitFor();
-
-		cyrusReplication1.startReplication().get(5, TimeUnit.SECONDS);
-		cyrusReplication2.startReplication().get(5, TimeUnit.SECONDS);
-
 		PopulateHelper.addUser(userUid, domainUid, Routing.internal);
 
 		context = new SecurityContext("user", userUid, Arrays.<String>asList(), Arrays.<String>asList(), domainUid);
@@ -133,8 +115,6 @@ public class AbstractMultibackendTests {
 
 	@After
 	public void after() throws Exception {
-		cyrusReplication1.stopReplication().get(5, TimeUnit.SECONDS);
-		cyrusReplication2.stopReplication().get(5, TimeUnit.SECONDS);
 		JdbcTestHelper.getInstance().afterTest();
 	}
 

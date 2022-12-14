@@ -34,7 +34,6 @@ import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
-import net.bluemind.backend.mail.replica.service.tests.ReplicationEventsRecorder.Hierarchy;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -59,18 +58,14 @@ public class RecordUpdatesTests extends AbstractRollingReplicationTests {
 	}
 
 	@Before
+	@Override
 	public void before() throws Exception {
 		super.before();
 
-		Hierarchy hier = rec.hierarchy(domainUid, userUid);
-		assertNotNull(hier);
-		int attempts = 0;
 		IMailboxFolders fapi = foldersApi();
-		while (fapi.byName("INBOX") == null && attempts++ < 1000) {
-			Thread.sleep(100);
-		}
 
 		this.inbox = fapi.byName("INBOX");
+		assertNotNull(inbox);
 
 		FlagsList fl = new FlagsList();
 		fl.add(Flag.SEEN);
@@ -87,7 +82,6 @@ public class RecordUpdatesTests extends AbstractRollingReplicationTests {
 
 		long count = 0;
 		while (count < MESSAGES) {
-			Thread.sleep(20);
 			count = itemsApi().count(ItemFlagFilter.create().mustNot(ItemFlag.Deleted)).total;
 			System.err.println("Count is at " + count);
 		}

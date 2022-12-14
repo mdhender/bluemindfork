@@ -166,7 +166,7 @@ public final class ClientSupport {
 			cf.awaitUninterruptibly(20, TimeUnit.SECONDS);
 			if (!cf.isConnected()) {
 				lock.release();
-				throw new IMAPException("Connection to IMAP failed or timed-out");
+				throw new IMAPException("[" + login + "] Connection to IMAP " + address + " failed or timed-out");
 			}
 			session = cf.getSession();
 			logger.debug("Connection established");

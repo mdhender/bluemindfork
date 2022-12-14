@@ -22,23 +22,12 @@
   */
 package net.bluemind.directory.xfer;
 
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Vertx;
-import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.imap.Annotation;
-import net.bluemind.imap.Flag;
-import net.bluemind.imap.FlagsList;
-import net.bluemind.imap.IMAPException;
-import net.bluemind.imap.StoreClient;
-import net.bluemind.network.topology.Topology;
-import net.bluemind.server.api.Server;
 
 public class WaitReplicationFinished {
 	private static final Logger logger = LoggerFactory.getLogger(WaitReplicationFinished.class);
@@ -46,57 +35,8 @@ public class WaitReplicationFinished {
 	private WaitReplicationFinished() {
 	}
 
+	@SuppressWarnings("unused")
 	public static CompletableFuture<Long> doProbe(Vertx vertx, Probe probe) {
-		CompletableFuture<Long> replFeeback = new CompletableFuture<>();
-		ItemValue<Server> backend = Topology.get().datalocation(probe.dataLocation);
-
-		String backendAddress = backend.value.address();
-
-		try (StoreClient sc = new StoreClient(backendAddress, 1143, probe.latd, probe.authKey)) {
-			if (!sc.login()) {
-				throw new IMAPException("Login failed for " + probe.latd + " (" + backendAddress + ")");
-			}
-			String mboxName = "INBOX";
-			boolean selected = sc.select(mboxName);
-			if (!selected) {
-				throw new IMAPException("SELECT of " + mboxName + " (" + backendAddress + ") failed");
-			}
-			Annotation annot = sc.getAnnotation(mboxName, "/vendor/cmu/cyrus-imapd/uniqueid")
-					.get("/vendor/cmu/cyrus-imapd/uniqueid");
-			if (annot == null) {
-				throw new IMAPException("/vendor/cmu/cyrus-imapd/uniqueid annotation is missing");
-			}
-
-			logger.info("Mailbox {} ({}) selected folder: {}, uniqueId: {}", probe.latd, backendAddress, selected,
-					annot.valueShared);
-
-			String eml = "From: waitreplication@bluemind.net\r\nSubject: PROBE\r\n\r\nprobed.\r\n\r\n";
-			FlagsList fl = new FlagsList();
-			fl.add(Flag.DELETED);
-			int addedUid = sc.append(mboxName, new ByteArrayInputStream(eml.getBytes(StandardCharsets.US_ASCII)), fl);
-			logger.info("Mailbox {} ({}) added uid: {}", probe.latd, backendAddress, addedUid);
-			if (addedUid <= 0) {
-				throw new IMAPException(
-						"Failed to add a message to mailbox " + probe.latd + " (" + backendAddress + ")");
-			}
-
-			CompletableFuture<Void> applyMailboxPromise = ReplicationFeebackObserver.addWatcher(vertx,
-					annot.valueShared, addedUid, 30, TimeUnit.MINUTES);
-
-			long now = System.currentTimeMillis();
-			applyMailboxPromise.whenComplete((v, ex) -> {
-				if (ex != null) {
-					logger.error("applyMailbox failed {}@{}: {}", probe.latd, backendAddress, ex);
-					replFeeback.completeExceptionally(ex);
-				} else {
-					replFeeback.complete(System.currentTimeMillis() - now);
-				}
-			});
-		} catch (Exception ex) {
-			logger.error("check replication failed {}@{}: {}", probe.latd, backendAddress, ex);
-			replFeeback.completeExceptionally(ex);
-		}
-		return replFeeback;
-
+		return CompletableFuture.completedFuture(Long.valueOf(1L));
 	}
 }

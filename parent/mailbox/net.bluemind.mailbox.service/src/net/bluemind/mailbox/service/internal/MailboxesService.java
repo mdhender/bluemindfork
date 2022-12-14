@@ -795,8 +795,9 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 						e);
 			}
 		}
-
-		mailboxStorage().update(context, domainUid, previousItemValue, itemValue);
+		IMailboxesStorage storage = mailboxStorage();
+		logger.info("[{}] Update to {}", storage, itemValue);
+		storage.update(context, domainUid, previousItemValue, itemValue);
 
 		for (IMailboxHook hook : hooks) {
 			try {

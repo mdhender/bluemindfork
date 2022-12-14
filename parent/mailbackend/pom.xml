@@ -28,6 +28,7 @@
 		<module>net.bluemind.backend.systemconf.tests</module>
 		<module>net.bluemind.imap.vertx</module>
 		<module>net.bluemind.imap.vertx.tests</module>
+		<module>net.bluemind.backend.mailapi.testhelper</module>
 		<module>net.bluemind.backend.mail.api</module>
 		<module>net.bluemind.backend.mail.conversation.service.tests</module>
 		<module>net.bluemind.backend.mail.dataprotect</module>

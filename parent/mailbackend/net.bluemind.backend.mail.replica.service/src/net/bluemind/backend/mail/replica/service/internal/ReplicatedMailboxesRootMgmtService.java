@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
+import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesRootMgmt;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
@@ -181,8 +182,26 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 		ContainerModifiableDescriptor cm = new ContainerModifiableDescriptor();
 		cm.defaultContainer = true;
 		cm.name = subtreeName(rename.to);
-		logger.info("Renaming subtree from {} to {}", subtreeName(rename.from), cm.name);
+		if (logger.isInfoEnabled()) {
+			logger.info("Renaming subtree from {} to {}", subtreeName(rename.from), cm.name);
+		}
 		contApi.update(rename.subtreeUid, cm);
+
+		if (rename.from.ns == Namespace.shared) {
+			IDbByContainerReplicatedMailboxes api = context.provider().instance(IDbByContainerReplicatedMailboxes.class,
+					rename.subtreeUid);
+			int len = rename.from.name.length();
+			List<ItemValue<MailboxReplica>> replicas = api.allReplicas();
+			logger.info("[{} -> {}] Updating {} folder(s)", rename.from.name, rename.to.name, replicas.size());
+			replicas.forEach(iv -> {
+				MailboxReplica copy = MailboxReplica.from(iv.value);
+				copy.name = null;
+				copy.parentUid = null;
+				String prev = iv.value.fullName;
+				copy.fullName = rename.to.name + prev.substring(len);
+				api.update(iv.uid, copy);
+			});
+		}
 	}
 
 	@Override

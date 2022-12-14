@@ -20,8 +20,10 @@ package net.bluemind.backend.mail.api;
 import java.util.List;
 
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.GwtIncompatible;
 
 @BMApi(version = "3")
+@GwtIncompatible
 public class ImportMailboxItemSet {
 
 	@BMApi(version = "3")

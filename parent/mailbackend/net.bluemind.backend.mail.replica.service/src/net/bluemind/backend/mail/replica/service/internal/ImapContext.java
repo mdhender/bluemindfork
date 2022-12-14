@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalCause;
+import com.google.common.base.Splitter;
 
 import net.bluemind.authentication.api.AuthUser;
 import net.bluemind.authentication.api.IAuthentication;
@@ -99,11 +100,9 @@ public class ImapContext {
 		this.partition = partition;
 		this.latd = latd;
 		// Test mode
-		if (System.getProperty("imap.local.ipaddr", "").equals(imapSrv)) {
-			this.server = "127.0.0.1";
-		} else {
-			this.server = imapSrv;
-		}
+		this.server = Splitter.on(",").omitEmptyStrings().splitToStream(System.getProperty("imap.local.ipaddr", ""))
+				.filter(imapSrv::equals).findFirst().map(s -> "127.0.0.1").orElse(imapSrv);
+
 		this.port = Integer.valueOf(System.getProperty("imap.port", "1143"));
 		this.sid = sid;
 		this.user = user;

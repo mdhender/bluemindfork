@@ -23,6 +23,7 @@
 package net.bluemind.backend.mail.replica.service.tests;
 
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesRootMgmt;
+import net.bluemind.config.Token;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 
@@ -30,7 +31,7 @@ public class HttpReplicatedMailboxesRootMgmtServiceTests extends AbstractReplica
 
 	@Override
 	protected IReplicatedMailboxesRootMgmt getService(SecurityContext ctx) {
-		return ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", apiKey)
+		return ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", Token.admin0())
 				.instance(IReplicatedMailboxesRootMgmt.class, partition);
 	}
 

@@ -55,7 +55,6 @@ import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.indexing.IMailIndexService;
 import net.bluemind.backend.mail.replica.indexing.RecordIndexActivator;
-import net.bluemind.backend.mail.replica.service.tests.ReplicationEventsRecorder.Hierarchy;
 import net.bluemind.backend.mail.replica.service.tests.compat.ExpectCommand;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -79,18 +78,6 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 		Optional<IMailIndexService> indexer = RecordIndexActivator.getIndexer();
 		assertTrue("Indexing support is missing", indexer.isPresent());
 
-		long delay = System.currentTimeMillis();
-		Hierarchy hierarchy = null;
-		do {
-			Thread.sleep(200);
-			hierarchy = rec.hierarchy(domainUid, userUid);
-			System.out.println("Hierarchy version is " + hierarchy.exactVersion);
-			if (System.currentTimeMillis() - delay > 10000) {
-				throw new TimeoutException("Hierarchy init took more than 10sec");
-			}
-		} while (hierarchy.exactVersion < 6);
-		System.out.println("Hierarchy is now at version " + hierarchy.exactVersion);
-		System.err.println("before is complete, starting test.");
 		this.expectCommand = new ExpectCommand();
 	}
 

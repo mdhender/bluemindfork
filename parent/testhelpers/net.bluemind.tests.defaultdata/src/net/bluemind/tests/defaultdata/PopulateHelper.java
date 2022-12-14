@@ -82,6 +82,7 @@ public class PopulateHelper {
 	}
 
 	public static final String FAKE_CYRUS_IP = "10.1.2.3";
+	public static final String FAKE_CYRUS_IP_2 = "10.1.22.33";
 
 	private static String installationId() throws IOException {
 		return InstallationId.getIdentifier();

@@ -19,14 +19,13 @@ package net.bluemind.backend.mail.replica.service.internal;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -34,25 +33,25 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
+import net.bluemind.backend.mail.api.IItemsTransfer;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxFoldersByContainer;
 import net.bluemind.backend.mail.api.ImportMailboxItemSet;
 import net.bluemind.backend.mail.api.ImportMailboxItemSet.MailboxItemId;
 import net.bluemind.backend.mail.api.ImportMailboxItemsStatus;
-import net.bluemind.backend.mail.api.ImportMailboxItemsStatus.ImportStatus;
-import net.bluemind.backend.mail.api.ImportMailboxItemsStatus.ImportedMailboxItem;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
+import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
+import net.bluemind.backend.mail.replica.api.MailboxReplica.Acl;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
-import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
 import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
-import net.bluemind.backend.mail.replica.service.ReplicationEvents;
+import net.bluemind.backend.mail.replica.service.internal.BodyInternalIdCache.ExpectedId;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
@@ -68,24 +67,17 @@ import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
-import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.imap.Flag;
-import net.bluemind.imap.FlagsList;
-import net.bluemind.imap.IMAPException;
-import net.bluemind.imap.StoreClient;
 
 public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesService
 		implements IMailboxFolders, IMailboxFoldersByContainer {
 
 	private static final Logger logger = LoggerFactory.getLogger(ImapReplicatedMailboxesService.class);
-	private final ImapContext imapContext;
 
 	public ImapReplicatedMailboxesService(MailboxReplicaRootDescriptor root, Container cont, BmContext context,
 			MailboxReplicaStore store, ContainerStoreService<MailboxReplica> mboxReplicaStore,
 			ContainerStore contStore) {
 		super(root, cont, context, store, mboxReplicaStore, contStore);
-		this.imapContext = ImapContext.of(context);
 		logger.debug("Created.");
 	}
 
@@ -114,25 +106,33 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 
 		MailboxFolder value = nameSanitizer.sanitizeNames(v);
 
-		String toWatch = container.uid;
-		final String fnOld = imapPath(current.value);
-		final String fnNew = imapPath(value);
-
-		if (fnOld.equals(fnNew)) {
-			logger.warn("Rename attempt to same name '{}'", fnOld);
+		if (value.fullName.equals(current.value.fullName)) {
+			logger.warn("Rename attempt to same name '{}'", value.fullName);
 			storeService.touch(current.uid);
 			ItemValue<MailboxFolder> touched = getCompleteById(id);
 			return Ack.create(touched.version);
 		}
 
-		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onSubtreeUpdate(toWatch);
-		return imapContext.withImapClient(sc -> {
-			logger.info("Rename attempt of '{}' to '{}'", fnOld, fnNew);
-			selectInbox(sc);
-			sc.rename(fnOld, fnNew);
-			long version = future.get(10, TimeUnit.SECONDS).version;
-			return Ack.create(version);
-		});
+		FolderTree fullTree = FolderTree.of(all());
+		List<ItemValue<MailboxFolder>> renameTargets = fullTree.children(current);
+		IDbByContainerReplicatedMailboxes writeDelegate = context.provider()
+				.instance(IDbByContainerReplicatedMailboxes.class, container.uid);
+		ItemValue<MailboxReplica> curReplica = writeDelegate.getCompleteById(current.internalId);
+		MailboxReplica curCopy = MailboxReplica.from(curReplica.value);
+		curCopy.name = null;
+		curCopy.parentUid = null;
+		curCopy.fullName = value.fullName;
+		writeDelegate.update(curReplica.uid, curCopy);
+		for (ItemValue<MailboxFolder> tgt : renameTargets) {
+			ItemValue<MailboxReplica> parent = getCompleteReplica(tgt.value.parentUid);
+			ItemValue<MailboxReplica> replicaTgt = getCompleteReplica(tgt.uid);
+			MailboxReplica tgtCopy = MailboxReplica.from(replicaTgt.value);
+			tgtCopy.name = null;
+			tgtCopy.parentUid = null;
+			tgtCopy.fullName = parent.value.fullName + "/" + replicaTgt.value.name;
+			writeDelegate.update(tgt.uid, tgtCopy);
+		}
+		return Ack.create(storeService.getVersion());
 	}
 
 	@Override
@@ -140,56 +140,45 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		rbac.check(Verb.Write.name());
 
 		MailboxFolder value = nameSanitizer.sanitizeNames(v);
-		UpdatedName newName = updateName(value, container.uid);
 
-		ItemValue<MailboxFolder> folder = byName(newName.fullName);
+		ItemValue<MailboxReplica> folder = byReplicaName(value.fullName);
 		if (folder != null) {
 			return ItemIdentifier.of(folder.uid, folder.internalId, folder.version);
 		}
 
 		FolderInternalIdCache.storeExpectedRecordId(container, value.fullName, hierId);
-		final String computedName = newName.imapName;
-
-		CompletableFuture<ItemIdentifier> future = ReplicationEvents.onMailboxCreated(newName.subtreeContainer,
-				newName.fullName);
-		logger.info("{} Should create fn: '{}' (parent: {})", root, newName.fullName, newName.parentUid);
-		return imapContext.withImapClient(sc -> {
-			boolean ok = sc.create(computedName);
-			if (ok) {
-				return future.get(10, TimeUnit.SECONDS);
-			} else {
-				throw new ServerFault("IMAP create of '" + computedName + "' in " + root + " failed.");
-			}
-		});
+		IDbByContainerReplicatedMailboxes writeDelegate = context.provider()
+				.instance(IDbByContainerReplicatedMailboxes.class, container.uid);
+		MailboxReplica mr = new MailboxReplica();
+		mr.fullName = value.fullName;
+		mr.highestModSeq = 0;
+		mr.xconvModSeq = 0;
+		mr.lastUid = 0;
+		mr.recentUid = 0;
+		mr.options = "";
+		mr.syncCRC = 0;
+		mr.quotaRoot = null;
+		mr.uidValidity = 0;
+		mr.lastAppendDate = new Date();
+		mr.pop3LastLogin = new Date();
+		mr.recentTime = new Date();
+		mr.acls = new LinkedList<>();
+		mr.acls.add(Acl.create(container.owner + "@" + container.domainUid, "lrswipkxtecda"));
+		mr.acls.add(Acl.create("admin0", "lrswipkxtecda"));
+		mr.deleted = false;
+		String pipoUid = UUID.randomUUID().toString();
+		writeDelegate.create(pipoUid, mr);
+		ItemValue<MailboxReplica> created = getCompleteReplica(pipoUid);
+		return ItemIdentifier.of(created.uid, created.internalId, created.version);
 	}
 
 	@Override
 	public ItemIdentifier createBasic(MailboxFolder value) {
 		rbac.check(Verb.Write.name());
 
-		ImapContext ctx = imapContext;
-		IOfflineMgmt offlineApi = context.provider().instance(IOfflineMgmt.class, ctx.user.domainUid, ctx.user.uid);
+		IOfflineMgmt offlineApi = context.provider().instance(IOfflineMgmt.class, container.domainUid, container.owner);
 		IdRange alloc = offlineApi.allocateOfflineIds(1);
 		return createForHierarchy(alloc.globalCounter, value);
-	}
-
-	private static class UpdatedName {
-		String subtreeContainer;
-		String fullName;
-		String parentUid;
-		String imapName;
-
-		public UpdatedName(String subtreeContainer, String fullName, String imapName, String parentUid) {
-			this.subtreeContainer = subtreeContainer;
-			this.fullName = fullName;
-			this.imapName = imapName;
-			this.parentUid = parentUid;
-		}
-
-	}
-
-	private UpdatedName updateName(MailboxFolder folder, String containerUid) {
-		return new UpdatedName(containerUid, fullPath(folder), imapPath(folder), folder.parentUid);
 	}
 
 	@Override
@@ -213,10 +202,6 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 	private void notifyUpdate(ItemValue<MailboxFolder> parent, long version) {
 		EmitReplicationEvents.subtreeUpdated(container.uid, container.owner,
 				ItemIdentifier.of(parent.uid, parent.internalId, version), false);
-	}
-
-	private void selectInbox(StoreClient sc) throws IMAPException {
-		sc.select("INBOX");
 	}
 
 	@Override
@@ -287,8 +272,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			logger.info("No item to mark as {} in folder {}", flag, folder);
 		} else {
 			ItemVersion touched = storeService.touch(folder.uid);
-			EmitReplicationEvents.subtreeUpdated(container.uid, container.owner,
-					ItemIdentifier.of(folder.uid, folder.internalId, touched.version), true);
+			notifyUpdate(folder, touched.version);
 		}
 	}
 
@@ -311,19 +295,6 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		String importOpID = UUID.randomUUID().toString();
 
 		int len = mailboxItems.ids.size();
-		if (expectedIds == null || expectedIds.isEmpty()) {
-			expectedIds = new ArrayList<>(len);
-			IOfflineMgmt idAllocator = context.provider().instance(IOfflineMgmt.class, container.domainUid,
-					container.owner);
-			IdRange idRange = idAllocator.allocateOfflineIds(len);
-			for (int i = 0; i < idRange.count; i++) {
-				expectedIds.add(MailboxItemId.of(idRange.globalCounter + i));
-			}
-		}
-
-		if (expectedIds.size() != len) {
-			throw new ServerFault("expectedIds size does not match with itemIds size", ErrorCode.INVALID_PARAMETER);
-		}
 
 		ItemValue<MailboxFolder> destinationFolder = getCompleteById(id);
 		if (destinationFolder == null) {
@@ -335,147 +306,52 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			throw new ServerFault("Cannot find source mailboxfolder");
 		}
 
+		// context.provider().instance(, null)
+
 		IDbMailboxRecords sourceMailboxItemsService = context.provider().instance(IDbMailboxRecords.class,
 				sourceFolder.uid);
 
-		ImportMailboxItemsStatus finalResult = new ImportMailboxItemsStatus();
-		finalResult.doneIds = new ArrayList<ImportedMailboxItem>(len);
-
-		logger.info("[{}] Op {} to import {} item(s) from {} into {}", imapContext.latd, importOpID,
+		logger.info("[{}] Op {} to import {} item(s) from {} into {}", container.name, importOpID,
 				mailboxItems.ids.size(), sourceFolder.value.fullName, destinationFolder.value.fullName);
-		Iterator<MailboxItemId> expectedIdsIterator = expectedIds.iterator();
 
-		String srcFolder = imapPath(sourceFolder.value);
-		String dstFolder = imapPath(destinationFolder.value);
-
-		Lists.partition(mailboxItems.ids, 200).forEach(ids -> {
-
-			List<Long> idSlice = ids.stream().map(k -> k.id).collect(Collectors.toList());
-			List<ImapBinding> itemsSlice = sourceMailboxItemsService.imapBindings(idSlice);
-			if (itemsSlice.isEmpty()) {
-				return;
+		if (expectedIds != null && !expectedIds.isEmpty()) {
+			if (expectedIds.size() != len) {
+				throw new ServerFault("expectedIds size does not match with itemIds size", ErrorCode.INVALID_PARAMETER);
 			}
+			ListIterator<MailboxItemId> expectedIdsIterator = expectedIds.listIterator();
 
-			Map<Long, Long> imapUidItemId = new HashMap<>();
-			Map<Long, Long> imapUidExpectedId = new HashMap<>();
+			Lists.partition(mailboxItems.ids, 200).forEach(ids -> {
 
-			List<Integer> allImapUids = new ArrayList<>(itemsSlice.size());
-			itemsSlice.forEach(item -> {
-				MailboxItemId expected = expectedIdsIterator.next();
-				imapUidItemId.put(item.imapUid, item.itemId);
-				imapUidExpectedId.put(item.imapUid, expected.id);
-				allImapUids.add((int) item.imapUid);
-				GuidExpectedIdCache.store(destinationFolder.uid + ":" + item.bodyGuid, expected.id);
-			});
+				List<Long> idSlice = ids.stream().map(k -> k.id).toList();
 
-			ImportMailboxItemsStatus copyRes = imapContext.withImapClient(sc -> {
-				ImportMailboxItemsStatus ret = new ImportMailboxItemsStatus();
-				List<ImportedMailboxItem> doneIds = new ArrayList<>(allImapUids.size());
-				ret.doneIds = doneIds;
-
-				CompletableFuture<Long> rootPromise = ReplicationEvents.onMailboxChanged(destinationFolder.uid)
-						.thenApply(version -> {
-							logger.info("[{}] Op {} destination folder {} changed {}", imapContext.latd, importOpID,
-									destinationFolder.value.fullName, version);
-							return version;
-						});
-
-				logger.info("{} Copying {} items from {} to {}", importOpID, allImapUids.size(), srcFolder, dstFolder);
-
-				if (sc.select(srcFolder)) {
-					Map<Integer, Integer> result = sc.uidCopy(allImapUids, dstFolder);
-					if (result.isEmpty()) {
-						// nothing was copied, so the replication promise will
-						// never resolve
-						logger.warn("[{}] None of {} was copied to {}", imapContext.latd, allImapUids, dstFolder);
-						return ret;
-					} else {
-						result.forEach((imapUid, newImapUid) -> {
-							if (imapUidItemId.containsKey(Long.valueOf(imapUid))) {
-								doneIds.add(ImportedMailboxItem.of(imapUidItemId.get(Long.valueOf(imapUid)),
-										imapUidExpectedId.get(Long.valueOf(imapUid))));
-							}
-						});
-					}
-
-					if (mailboxItems.deleteFromSource) {
-						rootPromise = rootPromise.thenCompose(destVersion -> {
-							CompletableFuture<Long> future = ReplicationEvents.onMailboxChanged(sourceFolder.uid)
-									.thenApply(version -> {
-										logger.info("[{}] Op {} source folder {} changed {}", imapContext.latd,
-												importOpID, sourceFolder.value.fullName, version);
-										return version;
-									});
-							FlagsList fl = new FlagsList();
-							fl.add(Flag.DELETED);
-
-							try {
-								sc.select(srcFolder);
-								sc.uidStore(allImapUids, fl, true);
-							} catch (IMAPException e) {
-								logger.error(e.getMessage(), e);
-								future.completeExceptionally(e);
-							}
-
-							return future;
-						});
-					}
-
-					try {
-						rootPromise.get(15, TimeUnit.SECONDS);
-					} catch (TimeoutException timeoutException) {
-						logger.warn(timeoutException.getMessage(), timeoutException);
-					} catch (Exception e) {
-						throw e;
-					}
+				List<ImapBinding> itemsSlice = sourceMailboxItemsService.imapBindings(idSlice);
+				if (itemsSlice.isEmpty()) {
+					return;
 				}
 
-				return ret;
+				Map<Long, Long> imapUidItemId = new HashMap<>();
+				Map<Long, Long> imapUidExpectedId = new HashMap<>();
+
+				List<Integer> allImapUids = new ArrayList<>(itemsSlice.size());
+				itemsSlice.forEach(item -> {
+					MailboxItemId expected = expectedIdsIterator.next();
+					imapUidItemId.put(item.imapUid, item.itemId);
+					imapUidExpectedId.put(item.imapUid, expected.id);
+					allImapUids.add((int) item.imapUid);
+					BodyInternalIdCache.storeExpectedRecordId(item.bodyGuid,
+							new ExpectedId(expected.id, container.owner, null));
+					GuidExpectedIdCache.store(destinationFolder.uid + ":" + item.bodyGuid, expected.id);
+				});
 			});
-
-			finalResult.doneIds.addAll(copyRes.doneIds);
-		});
-
-		if (finalResult.doneIds.size() == expectedIds.size()) {
-			finalResult.status = ImportStatus.SUCCESS;
-		} else if (finalResult.doneIds.isEmpty()) {
-			finalResult.status = ImportStatus.ERROR;
-		} else {
-			finalResult.status = ImportStatus.PARTIAL;
 		}
 
-		return finalResult;
-	}
+		IItemsTransfer transferApi = context.provider().instance(IItemsTransfer.class, sourceFolder.uid,
+				destinationFolder.uid);
+		boolean move = mailboxItems.deleteFromSource;
+		List<Long> sourceObjects = mailboxItems.ids.stream().map(k -> k.id).toList();
+		List<ItemIdentifier> copies = move ? transferApi.move(sourceObjects) : transferApi.copy(sourceObjects);
+		return ImportMailboxItemsStatus.fromTransferResult(sourceObjects, copies);
 
-	private String imapPath(MailboxFolder folder) {
-		return imapPath(folder.fullName);
-	}
-
-	private String imapPath(String fullName) {
-		Namespace ns = root.ns;
-		SecurityContext security = context.getSecurityContext();
-		if (ns == Namespace.users && !security.fromGlobalVirt() && !container.owner.equals(security.getSubject())) {
-			String root = container.name.substring(6);
-			if (fullName.equals("INBOX")) {
-				return "Autres utilisateurs/" + root;
-			}
-			return "Autres utilisateurs/" + root + "/" + fullName;
-
-		} else {
-			return fullPath(fullName);
-		}
-	}
-
-	private String fullPath(MailboxFolder folder) {
-		return fullPath(folder.fullName);
-	}
-
-	private String fullPath(String fullName) {
-		if (root.ns == Namespace.users) {
-			return fullName;
-		} else {
-			return "Dossiers partagés/" + fullName;
-		}
 	}
 
 }

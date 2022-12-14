@@ -17,11 +17,15 @@
   */
 package net.bluemind.backend.mail.api;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.GwtIncompatible;
+import net.bluemind.core.container.model.ItemIdentifier;
 
 @BMApi(version = "3")
 public class ImportMailboxItemsStatus {
@@ -60,6 +64,29 @@ public class ImportMailboxItemsStatus {
 	@Override
 	public String toString() {
 		return "ImportStatus{r: " + status + ", work: " + Arrays.toString(doneIds.toArray()) + "}";
+	}
+
+	@GwtIncompatible
+	public static ImportMailboxItemsStatus fromTransferResult(List<Long> sourceIds, List<ItemIdentifier> destIds) {
+		ImportMailboxItemsStatus ret = new ImportMailboxItemsStatus();
+
+		if (sourceIds == null || destIds == null || destIds.isEmpty()) {
+			ret.status = ImportStatus.ERROR;
+			ret.doneIds = Collections.emptyList();
+		} else {
+			if (sourceIds.size() > destIds.size()) {
+				ret.status = ImportStatus.PARTIAL;
+			} else {
+				ret.status = ImportStatus.SUCCESS;
+			}
+			ret.doneIds = new ArrayList<>(destIds.size());
+			Iterator<Long> srcIt = sourceIds.iterator();
+			Iterator<ItemIdentifier> dstIt = destIds.iterator();
+			while (dstIt.hasNext()) {
+				ret.doneIds.add(ImportedMailboxItem.of(srcIt.next(), dstIt.next().id));
+			}
+		}
+		return ret;
 	}
 
 }

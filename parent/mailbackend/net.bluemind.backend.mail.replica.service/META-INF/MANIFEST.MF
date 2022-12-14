@@ -55,8 +55,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.sds.store.loader,
  net.bluemind.system.config,
  net.bluemind.core.sanitizer,
- net.bluemind.system.hook,
- net.bluemind.backend.mail.replica.hook
+ net.bluemind.backend.mail.replica.hook,
+ net.bluemind.system.hook
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.backend.mail.replica.service,

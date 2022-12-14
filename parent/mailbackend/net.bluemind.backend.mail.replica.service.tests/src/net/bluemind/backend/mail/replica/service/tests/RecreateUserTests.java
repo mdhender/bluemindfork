@@ -18,26 +18,26 @@
 package net.bluemind.backend.mail.replica.service.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.Collections;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.bluemind.backend.mail.replica.service.tests.ReplicationEventsRecorder.Hierarchy;
+import net.bluemind.backend.mail.api.IMailboxFoldersByContainer;
+import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.TaskUtils;
+import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.service.common.DefaultFolder;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -46,35 +46,10 @@ import net.bluemind.user.api.User;
 
 public class RecreateUserTests extends AbstractRollingReplicationTests {
 
-	private String apiKey;
-
 	@Before
+	@Override
 	public void before() throws Exception {
 		super.before();
-
-		this.apiKey = "sid";
-		SecurityContext secCtx = new SecurityContext("sid", userUid, Collections.emptyList(), Collections.emptyList(),
-				domainUid);
-		Sessions.get().put(apiKey, secCtx);
-
-		long delay = System.currentTimeMillis();
-		Hierarchy hierarchy = null;
-		do {
-			Thread.sleep(200);
-			hierarchy = rec.hierarchy(domainUid, userUid);
-			System.out.println("Hierarchy version is " + hierarchy.exactVersion);
-			if (System.currentTimeMillis() - delay > 10000) {
-				throw new TimeoutException("Hierarchy init took more than 10sec");
-			}
-		} while (hierarchy.exactVersion < 6);
-		System.out.println("Hierarchy is now at version " + hierarchy.exactVersion);
-		System.err.println("before is complete, starting test.");
-	}
-
-	@After
-	public void after() throws Exception {
-		System.err.println("Test is over, after starts...");
-		super.after();
 	}
 
 	private IServiceProvider suProvider() {
@@ -86,6 +61,10 @@ public class RecreateUserTests extends AbstractRollingReplicationTests {
 		IUser userApi = suProvider().instance(IUser.class, domainUid);
 		ItemValue<User> theUser = userApi.getComplete(userUid);
 		assertNotNull(theUser);
+
+		IMailboxFoldersByContainer foldersApi = userProvider.instance(IMailboxFoldersByContainer.class,
+				IMailReplicaUids.subtreeUid(domUid, Mailbox.Type.user, userUid));
+		Set<Long> currentFolders = foldersApi.all().stream().map(iv -> iv.internalId).collect(Collectors.toSet());
 
 		long brokenCircuits = CircuitBreaksCounter.breaks();
 
@@ -100,27 +79,17 @@ public class RecreateUserTests extends AbstractRollingReplicationTests {
 		assertNotEquals(theUser.internalId, newUser.internalId);
 
 		Thread.sleep(2000);
-		AtomicInteger mailboxes = new AtomicInteger();
 
-		// System.err.println("Connecting with syncClient");
-//		SyncClient sc = new SyncClient("127.0.0.1", 2501);
-//
-//
-//		sc.connect().thenCompose(c -> {
-//			return sc.getUser(userUid + "@" + domainUid);
-//		}).thenCompose(userResp -> {
-//			for (String s : userResp.dataLines) {
-//				System.err.println("S: " + s);
-//				if (s.startsWith("* MAILBOX")) {
-//					mailboxes.incrementAndGet();
-//				}
-//			}
-//			return sc.disconnect();
-//		}).get(5, TimeUnit.SECONDS);
+		foldersApi = userProvider.instance(IMailboxFoldersByContainer.class,
+				IMailReplicaUids.subtreeUid(domUid, Mailbox.Type.user, userUid));
+		Set<Long> freshFolders = foldersApi.all().stream().map(iv -> iv.internalId).collect(Collectors.toSet());
 
 		// +1 for the root (aka INBOX)
 		int expected = DefaultFolder.USER_FOLDERS.size() + 1;
-		assertEquals("we should have at least " + expected, expected, mailboxes.get());
+		assertEquals("we should have at least " + expected, expected, freshFolders.size());
+
+		boolean intersect = currentFolders.stream().anyMatch(freshFolders::contains);
+		assertFalse("fresh folder internalId must all be different", intersect);
 
 		long brokenInTest = CircuitBreaksCounter.breaks() - brokenCircuits;
 		assertEquals("circuit breaker should not trigger", 0, brokenInTest);

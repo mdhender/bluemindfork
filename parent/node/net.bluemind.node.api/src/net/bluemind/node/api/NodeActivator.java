@@ -1,10 +1,7 @@
 package net.bluemind.node.api;
 
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import org.osgi.framework.BundleActivator;
@@ -25,8 +22,6 @@ public class NodeActivator implements BundleActivator {
 	private static final Logger logger = LoggerFactory.getLogger(NodeActivator.class);
 	private static BundleContext context;
 
-	private static final Set<String> localNodes = new HashSet<>(
-			Splitter.on(",").omitEmptyStrings().splitToList(System.getProperty("node.local.ipaddr", "")));
 	private static final Supplier<INodeClient> localNodeClient = LocalNodeClient::new;
 
 	static BundleContext getContext() {
@@ -57,18 +52,20 @@ public class NodeActivator implements BundleActivator {
 			return null;
 		}
 
-		Collections.sort(ncfs, new Comparator<INodeClientFactory>() {
-			@Override
-			public int compare(INodeClientFactory o1, INodeClientFactory o2) {
-				// biggest priority first
-				return Integer.compare(o2.getPriority(), o1.getPriority());
-			}
+		Collections.sort(ncfs, (INodeClientFactory o1, INodeClientFactory o2) -> {
+			// biggest priority first
+			return Integer.compare(o2.getPriority(), o1.getPriority());
 		});
 		return ncfs.get(0);
 	}
 
+	private static boolean requiresLocalNode(String host) {
+		return Splitter.on(",").omitEmptyStrings().splitToStream(System.getProperty("node.local.ipaddr", ""))
+				.anyMatch(host::equals);
+	}
+
 	public static INodeClient get(String host) throws ServerFault {
-		if (localNodes.contains(host)) {
+		if (requiresLocalNode(host)) {
 			logger.info("Using local-node for {}", host);
 			return localNodeClient.get();
 		}

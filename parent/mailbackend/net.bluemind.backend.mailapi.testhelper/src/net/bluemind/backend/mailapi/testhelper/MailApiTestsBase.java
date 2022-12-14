@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.backend.mail.replica.service.tests;
+package net.bluemind.backend.mailapi.testhelper;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -37,9 +37,9 @@ import org.junit.rules.TestName;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+import com.typesafe.config.Config;
 
 import net.bluemind.addressbook.domainbook.verticle.DomainBookVerticle;
-import net.bluemind.backend.mail.replica.service.tests.AbstractRollingReplicationTests.ImapActions;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.api.IContainerManagement;
@@ -52,6 +52,7 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.imap.StoreClient;
+import net.bluemind.imap.driver.mailapi.DriverConfig;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
@@ -70,11 +71,17 @@ import net.bluemind.user.api.User;
 
 public class MailApiTestsBase {
 
+	@FunctionalInterface
+	public static interface ImapActions<T> {
+
+		T run(StoreClient sc) throws Exception;
+	}
+
 	private ServerSideServiceProvider serverProv;
 
 	protected String domUid;
 	protected String alias;
-	protected String userUid;
+	public String userUid;
 
 	protected ServerSideServiceProvider userProvider;
 
@@ -83,8 +90,8 @@ public class MailApiTestsBase {
 
 	@BeforeClass
 	public static void beforeClass() {
-		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
-		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + "," + PopulateHelper.FAKE_CYRUS_IP_2);
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + "," + PopulateHelper.FAKE_CYRUS_IP_2);
 		System.setProperty("ahcnode.fail.https.ok", "true");
 	}
 
@@ -93,6 +100,11 @@ public class MailApiTestsBase {
 		System.clearProperty("node.local.ipaddr");
 		System.clearProperty("imap.local.ipaddr");
 		System.clearProperty("ahcnode.fail.https.ok");
+	}
+
+	protected String imapRoot(ItemValue<Mailshare> share) {
+		Config config = DriverConfig.get();
+		return config.getString(DriverConfig.SHARED_VIRTUAL_ROOT) + "/" + share.value.name;
 	}
 
 	@Before

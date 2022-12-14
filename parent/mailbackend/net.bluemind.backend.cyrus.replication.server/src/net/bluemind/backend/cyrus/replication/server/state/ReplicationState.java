@@ -254,7 +254,7 @@ public class ReplicationState {
 	}
 
 	public CompletableFuture<List<SieveScript>> sieveByUser(String userName) {
-		return CompletableFuture.completedFuture(null);
+		return CompletableFuture.completedFuture(Collections.emptyList());
 	}
 
 	public CompletableFuture<Void> seenOverlay(SeenOverlay seen) {

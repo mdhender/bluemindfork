@@ -24,9 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,7 +36,6 @@ import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
 import net.bluemind.backend.mail.replica.api.utils.Subtree;
 import net.bluemind.backend.mail.replica.service.ReplicationEvents;
-import net.bluemind.backend.mail.replica.service.tests.ReplicationEventsRecorder.Hierarchy;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.container.model.ItemIdentifier;
@@ -69,23 +66,6 @@ public class SwapUserTests extends AbstractRollingReplicationTests {
 	public void before() throws Exception {
 		super.before();
 
-		this.apiKey = "sid";
-		SecurityContext secCtx = new SecurityContext("sid", userUid, Collections.emptyList(), Collections.emptyList(),
-				domainUid);
-		Sessions.get().put(apiKey, secCtx);
-
-		long delay = System.currentTimeMillis();
-		Hierarchy hierarchy = null;
-		do {
-			Thread.sleep(200);
-			hierarchy = rec.hierarchy(domainUid, userUid);
-			System.out.println("Hierarchy version is " + hierarchy.exactVersion);
-			if (System.currentTimeMillis() - delay > 10000) {
-				throw new TimeoutException("Hierarchy init took more than 10sec");
-			}
-		} while (hierarchy.exactVersion < 6);
-		System.out.println("Hierarchy is now at version " + hierarchy.exactVersion);
-
 		// populate another user to do the mailbox swap
 		String willReplace = PopulateHelper.addUser(userUid + ".replacement", domainUid);
 		SecurityContext replSc = new SecurityContext("repsid", willReplace, Collections.emptyList(),
@@ -108,13 +88,6 @@ public class SwapUserTests extends AbstractRollingReplicationTests {
 
 		System.err.println("before is complete, starting test.");
 
-	}
-
-	@After
-	@Override
-	public void after() throws Exception {
-		System.err.println("Test is over, after starts...");
-		super.after();
 	}
 
 	private IServiceProvider suProvider() {

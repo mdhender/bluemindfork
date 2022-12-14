@@ -55,6 +55,7 @@ import net.bluemind.backend.mail.api.MessageBody.Header;
 import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.MailApiHeaders;
+import net.bluemind.backend.mailapi.testhelper.MailApiTestsBase;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
@@ -183,12 +184,13 @@ public abstract class AbstractRollingReplicationTests extends MailApiTestsBase {
 
 	protected CountDownLatch expectMessages(String vertxAddress, int count, Predicate<JsonObject> msgFilter) {
 		CountDownLatch msgLock = new CountDownLatch(count);
+		System.err.println("Consuming on " + vertxAddress);
 		AtomicReference<Handler<Message<JsonObject>>> ref = new AtomicReference<>();
 		MessageConsumer<JsonObject> cons = VertxPlatform.eventBus().consumer(vertxAddress);
 		Handler<Message<JsonObject>> h = (Message<JsonObject> msg) -> {
 			JsonObject payload = msg.body();
 			boolean matches = msgFilter.test(payload);
-			System.out.println("GOT 1 (match: " + matches + ") (still expects "
+			System.out.println("GOT 1 on " + vertxAddress + " (match: " + matches + ") (still expects "
 					+ (msgLock.getCount() - (matches ? 1 : 0)) + "): " + payload.encodePrettily());
 			if (matches) {
 				msgLock.countDown();

@@ -683,7 +683,20 @@ public class MailApiConnection implements MailboxConnection {
 			renamed.name = null;
 			renamed.parentUid = null;
 			renamed.fullName = absoluteNewName;
-			resolvedFolderApi(toRename.mailbox.owner).update(toRename.folder.uid, renamed);
+			List<ItemValue<MailboxReplica>> children = list("", fullName + "/").stream()
+					.map(ln -> select(ln.imapMountPoint).folder).toList();
+			IDbReplicatedMailboxes resFolderApi = resolvedFolderApi(toRename.mailbox.owner);
+			resFolderApi.update(toRename.folder.uid, renamed);
+			if (!children.isEmpty()) {
+				logger.info("[{}] {} child renames NEEDED", this, children.size());
+				for (ItemValue<MailboxReplica> current : children) {
+					logger.info("[{}] Update child folder {}", this, current.value.fullName);
+					MailboxReplica copy = MailboxReplica.from(current.value);
+					copy.fullName = resFolderApi.getComplete(copy.parentUid).value.fullName + "/" + copy.name;
+					resFolderApi.update(current.uid, copy);
+				}
+			}
+
 			return renamed.fullName;
 
 		}

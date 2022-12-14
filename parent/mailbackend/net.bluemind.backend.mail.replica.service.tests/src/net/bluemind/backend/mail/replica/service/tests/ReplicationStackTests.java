@@ -131,6 +131,7 @@ import net.bluemind.imap.mime.MimeTree;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailshare.api.IMailshare;
 import net.bluemind.mailshare.api.Mailshare;
@@ -1070,35 +1071,19 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 	@Test
 	public void mailshareCreateAndUpdate()
 			throws IMAPException, InterruptedException, ExecutionException, TimeoutException {
-		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-		IMailshare mailshareApi = prov.instance(IMailshare.class, domainUid);
-		Mailshare mailshare = new Mailshare();
-		mailshare.name = "shared" + System.currentTimeMillis();
-		mailshare.emails = Arrays.asList(Email.create(mailshare.name + "@" + domainUid, true));
-		mailshare.routing = Routing.internal;
 
 		// setup events expectations
 		CompletableFuture<MailboxReplicaRootDescriptor> onRoot = ReplicationEvents.onMailboxRootCreated();
-		MailboxReplicaRootDescriptor expected = MailboxReplicaRootDescriptor.create(Namespace.shared, mailshare.name);
-		Subtree sub = SubtreeContainer.mailSubtreeUid(domainUid, expected.ns, mailshare.name);
-		String subtreeUid = sub.subtreeUid();
-		System.err.println("On subtree update " + subtreeUid);
-		CompletableFuture<ItemIdentifier> onSubtree = ReplicationEvents.onSubtreeUpdate(subtreeUid);
-		CompletableFuture<Void> allEvents = CompletableFuture.allOf(onRoot, onSubtree);
 
-		System.err.println("Before create.....");
-		mailshareApi.create(mailshare.name, mailshare);
+		ItemValue<Mailshare> mailshareIv = sharedMailshare("shared", domUid, userUid);
+		Mailshare mailshare = mailshareIv.value;
 
-		IContainerManagement c = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IContainerManagement.class, IMailboxAclUids.uidForMailbox(mailshare.name));
-		List<AccessControlEntry> accessControlList = new ArrayList<>(c.getAccessControlList());
-		accessControlList.add(AccessControlEntry.create(userUid, Verb.Write));
-		c.setAccessControlList(accessControlList);
+		onRoot.orTimeout(10, TimeUnit.SECONDS).join();
+		String subtreeUid = IMailReplicaUids.subtreeUid(domUid, Mailbox.Type.mailshare, mailshareIv.uid);
 
-		allEvents.get(10, TimeUnit.SECONDS);
 		MailboxReplicaRootDescriptor created = onRoot.get();
 		assertNotNull(created);
-		System.err.println("**** ROOT is " + created.ns + ", " + created.name + ", version: " + onSubtree.get());
+		System.err.println("**** ROOT is " + created.ns + ", " + created.name);
 		Thread.sleep(500);
 		IMailboxFolders folders = provider().instance(IMailboxFolders.class, partition, mailshare.name);
 		List<ItemValue<MailboxFolder>> allFolders = folders.all();
@@ -1110,26 +1095,20 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 			}
 		}
 		assertNotNull(sent);
-		imapAsCyrusAdmin(sc -> {
+		imapAsUser(sc -> {
+
+			boolean ren = sc.rename(imapRoot(mailshareIv) + "/Sent", imapRoot(mailshareIv) + "/Middle/Sent");
+			assertFalse("we should not create a hole in the hierarchy", ren);
+
+			sc.create(imapRoot(mailshareIv) + "/Middle");
+			sc.create(imapRoot(mailshareIv) + "/Middle/Finger");
 			CompletableFuture<ItemIdentifier> onMsSubtree = ReplicationEvents.onSubtreeUpdate(subtreeUid);
-			boolean ren = sc.rename(mailshare.name + "/Sent@" + domainUid,
-					mailshare.name + "/Middle/Sent@" + domainUid);
-			assertTrue("rename failed", ren);
-			onMsSubtree.get(20, TimeUnit.SECONDS);
+			ren = sc.rename(imapRoot(mailshareIv) + "/Middle/Finger", imapRoot(mailshareIv) + "/Middle/Ground");
+			assertTrue("middle/finger -> middle/ground should work", ren);
+			onMsSubtree.orTimeout(20, TimeUnit.SECONDS).join();
 			return null;
 		});
 
-		IDbReplicatedMailboxes fullFolders = provider().instance(IDbReplicatedMailboxes.class, partition,
-				mailshare.name);
-		List<ItemValue<MailboxReplica>> allFoldersFull = fullFolders.allReplicas();
-		boolean found = false;
-		for (ItemValue<MailboxReplica> folder : allFoldersFull) {
-			System.out.println("Got " + folder.uid + ", " + folder.value.fullName);
-			if ((mailshare.name + "/Middle/Sent").equals(folder.value.fullName)) {
-				found = true;
-			}
-		}
-		assertTrue(found);
 	}
 
 	@Test
@@ -1615,23 +1594,18 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		ItemIdentifier freshId = folders.createBasic(child);
 		ItemValue<MailboxFolder> freshFolder = folders.getComplete(freshId.uid);
 		assertNotNull(freshFolder);
+		System.err.println("Finished creating " + freshFolder.value);
 
-		try {
-			folders.createBasic(child);
-			fail("folder already exists, creation should fail");
-		} catch (Exception e) {
-		}
+		ItemIdentifier secondId = folders.createBasic(child);
+		assertEquals(freshFolder.internalId, secondId.id);
 
 		MailboxFolder child2 = new MailboxFolder();
 		child2.name = "t.st" + millis;
 		child2.parentUid = root.uid;
-		folders.createBasic(child2);
+		ItemIdentifier c2result = folders.createBasic(child2);
 
-		try {
-			folders.createBasic(child2);
-			fail("folder already exists, creation should fail");
-		} catch (Exception e) {
-		}
+		ItemIdentifier c2replay = folders.createBasic(child2);
+		assertEquals(c2result.id, c2replay.id);
 
 	}
 
@@ -2543,12 +2517,13 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 	public void copyIn_ExpectedIdsSizeDoesNotMatch() {
 		IMailboxFolders foldersApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
 
-		ImportMailboxItemSet toCopy = ImportMailboxItemSet.copyIn(0L,
+		ItemIdentifier fresh = foldersApi.createBasic(MailboxFolder.of("yeah"));
+		ImportMailboxItemSet toCopy = ImportMailboxItemSet.copyIn(foldersApi.byName("INBOX").internalId,
 				Arrays.asList(MailboxItemId.of(0L), MailboxItemId.of(1L), MailboxItemId.of(2L)),
 				Arrays.asList(MailboxItemId.of(0L)));
 
 		try {
-			foldersApi.importItems(0L, toCopy);
+			foldersApi.importItems(fresh.id, toCopy);
 			fail();
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
@@ -3012,7 +2987,8 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		boolean foundTrash = false;
 
 		for (ItemValue<MailboxReplica> folder : allFoldersFull) {
-			System.out.println("Got " + folder.uid + ", " + folder.value.fullName);
+			System.out.println(
+					"Got " + folder.uid + ", " + folder.value.fullName + " (looking for " + mailshare.name + ")");
 			foundSent |= (mailshare.name + "/Sent").equals(folder.value.fullName);
 			foundTrash |= (mailshare.name + "/Trash").equals(folder.value.fullName);
 			if (mailshare.name.equals(folder.value.fullName)) {

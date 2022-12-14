@@ -32,6 +32,7 @@ import com.google.common.io.ByteStreams;
 import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
+import net.bluemind.backend.mailapi.testhelper.MailApiTestsBase;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;

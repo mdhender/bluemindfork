@@ -47,7 +47,7 @@ import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 public class CalendarXferTests extends AbstractMultibackendTests {
 	@Parameterized.Parameters
 	public static Object[][] data() {
-		return new Object[10][0];
+		return new Object[3][0];
 	}
 
 	@Test

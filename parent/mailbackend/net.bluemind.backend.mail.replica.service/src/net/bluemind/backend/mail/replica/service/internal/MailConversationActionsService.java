@@ -30,10 +30,10 @@ import com.google.common.collect.Lists;
 import net.bluemind.backend.mail.api.IItemsTransfer;
 import net.bluemind.backend.mail.api.IMailConversationActions;
 import net.bluemind.backend.mail.api.IMailboxFolders;
+import net.bluemind.backend.mail.api.IMailboxFoldersByContainer;
 import net.bluemind.backend.mail.api.IMailboxItems;
-import net.bluemind.backend.mail.api.ImportMailboxItemSet;
-import net.bluemind.backend.mail.api.ImportMailboxItemSet.MailboxItemId;
 import net.bluemind.backend.mail.api.ImportMailboxItemsStatus;
+import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.flags.ConversationFlagUpdate;
 import net.bluemind.backend.mail.api.flags.FlagUpdate;
 import net.bluemind.backend.mail.api.flags.ImportMailboxConversationSet;
@@ -42,11 +42,11 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemIdentifier;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.mailbox.api.IMailboxAclUids;
-import net.bluemind.user.api.IUser;
 
 public class MailConversationActionsService implements IMailConversationActions {
 	private final RBACManager rbacManager;
@@ -120,18 +120,18 @@ public class MailConversationActionsService implements IMailConversationActions 
 	public ImportMailboxItemsStatus importItems(long folderDestinationId, ImportMailboxConversationSet conversationSet)
 			throws ServerFault {
 		rbacManager.check(Verb.Write.name());
-		String partition = subtreeContainer.domainUid.replace('.', '_');
-		// TODO: this is weird to use "user." as we can work on other type of mailbox
-		String userLogin = "user." + context.getServiceProvider().instance(IUser.class, subtreeContainer.domainUid)
-				.getComplete(subtreeContainer.owner).value.login.replace('.', '^');
 
-		IMailboxFolders mailboxItemsService = context.getServiceProvider().instance(IMailboxFolders.class, partition,
-				userLogin);
+		IMailboxFolders mailboxItemsService = context.getServiceProvider().instance(IMailboxFoldersByContainer.class,
+				subtreeContainer.uid);
+
+		ItemValue<MailboxFolder> dest = mailboxItemsService.getCompleteById(folderDestinationId);
+		IItemsTransfer transferApi = context.provider().instance(IItemsTransfer.class, replicatedMailboxUid, dest.uid);
+
 		List<Long> itemsByConversations = getItemidsByConversationUids(conversationSet.conversationUids);
+		List<ItemIdentifier> result = conversationSet.deleteFromSource ? transferApi.move(itemsByConversations)
+				: transferApi.copy(itemsByConversations);
 
-		ImportMailboxItemSet itemSet = ImportMailboxItemSet.of(conversationSet.mailboxFolderId,
-				itemsByConversations.stream().map(MailboxItemId::of).toList(), null, conversationSet.deleteFromSource);
-		return mailboxItemsService.importItems(folderDestinationId, itemSet);
+		return ImportMailboxItemsStatus.fromTransferResult(itemsByConversations, result);
 	}
 
 	private List<Long> getItemidsByConversationUids(List<String> conversationUids) {

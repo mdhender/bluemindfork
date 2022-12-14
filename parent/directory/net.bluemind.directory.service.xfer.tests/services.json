@@ -8,12 +8,5 @@
 	{
 		"name": "bluemind/postgres-tests",
 		"bindName": "pg2"
-	},
-	{
-		"name": "bluemind/imap-role"
-	},
-	{
-		"name": "bluemind/imap-role",
-		"bindName": "imap2-role"
 	}
 ]

@@ -30,7 +30,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.TimeoutException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -52,7 +51,6 @@ import net.bluemind.backend.mail.api.MessageBody.Header;
 import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.MailApiHeaders;
-import net.bluemind.backend.mail.replica.service.tests.ReplicationEventsRecorder.Hierarchy;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.Stream;
@@ -95,19 +93,6 @@ public class InboxSubFolderReplicationTests extends AbstractRollingReplicationTe
 		SecurityContext secCtx = new SecurityContext("sid", userUid, Collections.emptyList(), Collections.emptyList(),
 				domainUid);
 		Sessions.get().put(apiKey, secCtx);
-
-		long delay = System.currentTimeMillis();
-		Hierarchy hierarchy = null;
-		do {
-			Thread.sleep(400);
-			hierarchy = rec.hierarchy(domainUid, userUid);
-			System.out.println("Hierarchy version is " + hierarchy.exactVersion);
-			if (System.currentTimeMillis() - delay > 30000) {
-				throw new TimeoutException("Hierarchy init took more than 20sec");
-			}
-		} while (hierarchy.exactVersion < 7);
-		System.out.println("Hierarchy is now at version " + hierarchy.exactVersion);
-		System.err.println("before is complete, starting test.");
 	}
 
 	@After
