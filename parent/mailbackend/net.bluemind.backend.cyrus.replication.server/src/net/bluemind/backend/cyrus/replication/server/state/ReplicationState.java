@@ -43,7 +43,6 @@ import net.bluemind.backend.cyrus.replication.server.Token;
 import net.bluemind.backend.cyrus.replication.server.utils.LiteralTokens;
 import net.bluemind.backend.cyrus.replication.server.utils.ReplicatedBoxes;
 import net.bluemind.backend.mail.api.MessageBody;
-import net.bluemind.backend.mail.replica.api.ICyrusReplicationArtifactsPromise;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecordsPromise;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxesPromise;
 import net.bluemind.backend.mail.replica.api.MailboxAnnotation;
@@ -186,78 +185,32 @@ public class ReplicationState {
 	}
 
 	public CompletableFuture<Void> quota(QuotaRoot sub) {
-		CompletableFuture<Void> ret = new CompletableFuture<>();
-		String[] splited = sub.root.split("!");
-		String domain = splited[0];
-		String boxName = splited[1];
-		if (boxName.startsWith("user.")) {
-			boxName = boxName.replaceFirst("user.", "");
-		}
-		String userId = boxName + "@" + domain;
-		storage.cyrusArtifacts(userId).thenCompose(api -> {
-			if (sub.limit == 0) {
-				return api.deleteQuota(sub);
-			} else {
-				return api.storeQuota(sub);
-			}
-		}).whenComplete((any, ex) -> {
-			if (ex != null) {
-				logger.error(ex.getMessage(), ex);
-			}
-			ret.complete(null);
-		});
-		return ret;
+		return CompletableFuture.completedFuture(null);
+
 	}
 
 	public CompletableFuture<Void> annotate(MailboxAnnotation sub) {
-		CompletableFuture<Void> ret = new CompletableFuture<>();
-		storage.cyrusAnnotations().thenCompose(api -> {
-			return api.storeAnnotation(sub);
-		}).whenComplete((any, ex) -> {
-			if (ex != null) {
-				logger.error(ex.getMessage(), ex);
-			}
-			ret.complete(null);
-		});
-		return ret;
+		return CompletableFuture.completedFuture(null);
 	}
 
 	public CompletableFuture<List<QuotaRoot>> quotaByUser(String userName) {
-		return storage.cyrusArtifacts(userName).thenCompose(api -> api.quotas());
+		return CompletableFuture.completedFuture(Collections.emptyList());
 	}
 
 	public CompletableFuture<List<MailboxAnnotation>> annotationsByMailbox(String mbox) {
-		return storage.cyrusAnnotations().thenCompose(api -> api.annotations(mbox));
+		return CompletableFuture.completedFuture(Collections.emptyList());
 	}
 
 	public CompletableFuture<Void> sub(MailboxSub sub) {
-		CompletableFuture<Void> ret = new CompletableFuture<>();
-		storage.cyrusArtifacts(sub.userId).thenCompose(api -> {
-			return api.storeSub(sub);
-		}).whenComplete((any, ex) -> {
-			if (ex != null) {
-				logger.error(ex.getMessage(), ex);
-			}
-			ret.complete(null);
-		});
-		return ret;
+		return CompletableFuture.completedFuture(null);
 	}
 
 	public CompletableFuture<Void> unsub(MailboxSub sub) {
-		CompletableFuture<Void> ret = new CompletableFuture<>();
-		storage.cyrusArtifacts(sub.userId).thenCompose(api -> {
-			return api.deleteSub(sub);
-		}).whenComplete((any, ex) -> {
-			if (ex != null) {
-				logger.error(ex.getMessage(), ex);
-			}
-			ret.complete(null);
-		});
-		return ret;
+		return CompletableFuture.completedFuture(null);
 	}
 
 	public CompletableFuture<List<MailboxSub>> subByUser(String userName) {
-		return storage.cyrusArtifacts(userName).thenCompose(api -> api.subs());
+		return CompletableFuture.completedFuture(Collections.emptyList());
 	}
 
 	public CompletableFuture<Void> registerFolder(MailboxFolder folder) {
@@ -293,48 +246,23 @@ public class ReplicationState {
 	}
 
 	public CompletableFuture<Void> sieve(SieveData sd) {
-		SieveScript sieve = sd.script;
-		sd.literalRef.ifPresent(litToken -> {
-			File dest = new File(Token.ROOT, sieve.userId + "_" + sieve.fileName);
-			LiteralTokens.export(litToken, dest);
-			dest.delete();
-		});
-		return storage.cyrusArtifacts(sieve.userId).thenCompose(api -> {
-			return api.storeScript(sieve);
-		});
+		return CompletableFuture.completedFuture(null);
 	}
 
 	public CompletableFuture<Void> unsieve(SieveData sd) {
-		SieveScript sieve = sd.script;
-		sd.literalRef.ifPresent(litToken -> {
-			File dest = new File(Token.ROOT, sieve.userId + "_" + sieve.fileName);
-			LiteralTokens.export(litToken, dest);
-			dest.delete();
-		});
-		return storage.cyrusArtifacts(sieve.userId).thenCompose(api -> api.deleteScript(sieve));
+		return CompletableFuture.completedFuture(null);
 	}
 
 	public CompletableFuture<List<SieveScript>> sieveByUser(String userName) {
-		return storage.cyrusArtifacts(userName).thenCompose(api -> {
-			return api.sieves();
-		});
+		return CompletableFuture.completedFuture(null);
 	}
 
 	public CompletableFuture<Void> seenOverlay(SeenOverlay seen) {
-		CompletableFuture<Void> ret = new CompletableFuture<>();
-		storage.cyrusArtifacts(seen.userId).thenCompose(api -> {
-			return api.storeSeen(seen);
-		}).whenComplete((any, ex) -> {
-			if (ex != null) {
-				logger.error(ex.getMessage(), ex);
-			}
-			ret.complete(null);
-		});
-		return ret;
+		return CompletableFuture.completedFuture(null);
 	}
 
 	public CompletableFuture<List<SeenOverlay>> seenOverlayByUser(String userName) {
-		return storage.cyrusArtifacts(userName).thenCompose(ICyrusReplicationArtifactsPromise::seens);
+		return CompletableFuture.completedFuture(Collections.emptyList());
 	}
 
 	public CompletableFuture<Void> updateRecords(String boxUniqueId, List<MailboxRecord> mboxState) {

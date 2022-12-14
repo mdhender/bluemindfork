@@ -49,7 +49,6 @@ import net.bluemind.addressbook.api.IAddressBooksMgmt;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
-import net.bluemind.backend.mail.replica.api.ICyrusReplicationArtifacts;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
@@ -245,8 +244,6 @@ public class DirectoryXfer implements AutoCloseable {
 			doRemoveTargetMailbox(mailbox);
 			doXferContainers(entryUid, mailbox, containerXfer, monitor);
 
-			doXferCyrusArtifacts(entryUid, domainUid, mailbox, monitor);
-
 			// We must set the dataLocation before even trying to move
 			// the data, because otherwise, the replication service will try to access
 			// the mailbox using the wrong location, and will take the wrong decisions
@@ -374,14 +371,6 @@ public class DirectoryXfer implements AutoCloseable {
 			}
 		}
 		monitor.end(true, "Reindex " + containerType + "done", "");
-	}
-
-	private void doXferCyrusArtifacts(String entryUid, String domainUid, ItemValue<Mailbox> mailbox,
-			IServerTaskMonitor monitor) {
-		String userId = mailbox.value.name + "@" + domainUid;
-		IServiceProvider sp = ServerSideServiceProvider.getProvider(dataContext);
-		ICyrusReplicationArtifacts cyrusArtifcatsService = sp.instance(ICyrusReplicationArtifacts.class, userId);
-		cyrusArtifcatsService.xfer(targetServerUid);
 	}
 
 	private void doXferContainers(String entryUid, ItemValue<Mailbox> mailbox, ContainerXfer containerXfer,

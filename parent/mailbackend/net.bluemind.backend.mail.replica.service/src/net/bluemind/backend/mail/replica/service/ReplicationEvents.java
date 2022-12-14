@@ -22,8 +22,6 @@ import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.annotations.VisibleForTesting;
-
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
@@ -37,7 +35,6 @@ import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.utils.ThreadContextHelper;
 import net.bluemind.lib.vertx.VertxPlatform;
 
-@VisibleForTesting
 public class ReplicationEvents {
 
 	private ReplicationEvents() {

@@ -136,48 +136,6 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trigger_message_record_purge AFTER DELETE OR INSERT ON t_mailbox_record
 	FOR EACH ROW EXECUTE PROCEDURE trigger_message_record_purge();
 
-create table IF NOT EXISTS t_seen_overlay (
-	user_id text not null,
-	unique_id text not null,
-	last_read int8 not null,
-	last_uid int8 not null,
-	last_change int8 not null,
-	seen_uids text not null,
-	unique (user_id, unique_id)
-);
-create index IF NOT EXISTS t_seenoverlay_by_user_id ON t_seen_overlay (user_id);
-create index IF NOT EXISTS t_seenoverlay_by_both ON t_seen_overlay (user_id, unique_id);
-
-create table IF NOT EXISTS t_mailbox_sub (
-	user_id text not null,
-	mbox text not null
-);
-create index IF NOT EXISTS t_mailboxsub_by_user_id ON t_mailbox_sub (user_id);
-alter table t_mailbox_sub drop constraint if exists ct_unique_mbox_subs;
-alter table t_mailbox_sub add constraint ct_unique_mbox_subs unique (user_id, mbox);
-
-create table IF NOT EXISTS t_quota_root (
-	root text not null primary key,
-	limit_kb int not null
-);
-
-create table IF NOT EXISTS t_mailbox_annotation (
-	mbox text not null,
-	user_id text not null, -- empty string when global
-	entry text not null,
-	value text,
-	unique (mbox, user_id, entry)
-);
-
-create table IF NOT EXISTS t_sieve_script (
-	user_id text not null,
-	filename text not null,
-	last_update int8 not null,
-	active boolean not null,
-	primary key (user_id, filename)
-);
-create index IF NOT EXISTS t_sieve_by_user_id ON t_sieve_script (user_id);
-
 create table IF NOT EXISTS t_subtree_uid (
 	domain_uid	text not null,
 	mailbox_uid text not null,

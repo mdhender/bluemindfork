@@ -27,8 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Vertx;
 import net.bluemind.backend.cyrus.partitions.CyrusBoxes.ReplicatedBox;
-import net.bluemind.backend.mail.replica.api.ICyrusReplicationAnnotationsPromise;
-import net.bluemind.backend.mail.replica.api.ICyrusReplicationArtifactsPromise;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecordsPromise;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodiesPromise;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxesPromise;
@@ -87,10 +85,6 @@ public interface StorageApiLink {
 	 * @return access to db hierarchy api
 	 */
 	public CompletableFuture<ApiDesc> replicatedMailboxes(ReplicatedBox box);
-
-	public CompletableFuture<ICyrusReplicationArtifactsPromise> cyrusArtifacts(String userId);
-
-	public CompletableFuture<ICyrusReplicationAnnotationsPromise> cyrusAnnotations();
 
 	public CompletableFuture<Boolean> validate(String login, String secret);
 

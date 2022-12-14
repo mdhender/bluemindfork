@@ -42,7 +42,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -64,6 +63,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.AsyncFile;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.core.streams.ReadStream;
+import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.ImapAck;
 import net.bluemind.backend.mail.api.ImapItemIdentifier;
 import net.bluemind.backend.mail.api.MailboxItem;
@@ -76,7 +76,6 @@ import net.bluemind.backend.mail.api.utils.PartsWalker;
 import net.bluemind.backend.mail.parsing.Bodies;
 import net.bluemind.backend.mail.parsing.EmlBuilder;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
-import net.bluemind.backend.mail.replica.api.IInternalMailboxItems;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.IMailboxRecordExpunged;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
@@ -123,7 +122,7 @@ import net.bluemind.mime4j.common.OffloadedBodyFactory;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 
-public class ImapMailboxRecordsService extends BaseMailboxRecordsService implements IInternalMailboxItems {
+public class ImapMailboxRecordsService extends BaseMailboxRecordsService implements IMailboxItems {
 
 	private static final Logger logger = LoggerFactory.getLogger(ImapMailboxRecordsService.class);
 	public static final Integer DEFAULT_TIMEOUT = 18; // sec
@@ -147,34 +146,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		bodyStore = new MessageBodyStore(ds);
 	}
 
-	@Override
 	public String imapFolder() {
 		return imapFolder;
-	}
-
-	@Override
-	public ImapCommandRunner imapExecutor() {
-
-		return (Consumer<ImapClient> sc) -> imapContext.withImapClient(inSc -> {
-			ImapClient ic = new ImapClient() {
-
-				@Override
-				public Map<Integer, Integer> uidCopy(Collection<Integer> uids, String destMailbox) {
-					return inSc.uidCopy(uids, destMailbox);
-				}
-
-				@Override
-				public boolean select(String mbox) {
-					try {
-						return inSc.select(mbox);
-					} catch (IMAPException e) {
-						throw new ServerFault(e);
-					}
-				}
-			};
-			sc.accept(ic);
-			return null;
-		});
 	}
 
 	@Override

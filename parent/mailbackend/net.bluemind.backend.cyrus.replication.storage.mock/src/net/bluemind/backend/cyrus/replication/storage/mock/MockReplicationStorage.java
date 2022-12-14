@@ -28,8 +28,6 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.Vertx;
 import net.bluemind.backend.cyrus.partitions.CyrusBoxes.ReplicatedBox;
 import net.bluemind.backend.cyrus.replication.server.state.StorageApiLink;
-import net.bluemind.backend.mail.replica.api.ICyrusReplicationAnnotationsPromise;
-import net.bluemind.backend.mail.replica.api.ICyrusReplicationArtifactsPromise;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecordsPromise;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodiesPromise;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxesPromise;
@@ -86,16 +84,6 @@ public class MockReplicationStorage implements StorageApiLink {
 	@Override
 	public CompletableFuture<IDbMailboxRecordsPromise> mailboxRecords(String mboxUniqueId) {
 		return BrokenPromises.withServerFault("mock records " + mboxUniqueId);
-	}
-
-	@Override
-	public CompletableFuture<ICyrusReplicationArtifactsPromise> cyrusArtifacts(String userId) {
-		return null;
-	}
-
-	@Override
-	public CompletableFuture<ICyrusReplicationAnnotationsPromise> cyrusAnnotations() {
-		return null;
 	}
 
 	@Override

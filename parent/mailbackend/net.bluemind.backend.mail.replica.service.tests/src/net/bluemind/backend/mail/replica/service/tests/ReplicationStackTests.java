@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -51,7 +50,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.base.CharMatcher;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 
 import io.vertx.core.Vertx;
@@ -81,19 +79,14 @@ import net.bluemind.backend.mail.api.flags.FlagUpdate;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.api.utils.PartsWalker;
 import net.bluemind.backend.mail.parsing.Bodies;
-import net.bluemind.backend.mail.replica.api.ICyrusReplicationAnnotations;
-import net.bluemind.backend.mail.replica.api.ICyrusReplicationArtifacts;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailApiAnnotations;
 import net.bluemind.backend.mail.replica.api.MailApiHeaders;
-import net.bluemind.backend.mail.replica.api.MailboxAnnotation;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
-import net.bluemind.backend.mail.replica.api.MailboxSub;
-import net.bluemind.backend.mail.replica.api.QuotaRoot;
 import net.bluemind.backend.mail.replica.api.utils.Subtree;
 import net.bluemind.backend.mail.replica.service.ReplicationEvents;
 import net.bluemind.backend.mail.replica.service.internal.ItemsTransferService;
@@ -920,114 +913,6 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		assertTrue(foundItem.value.fullName.endsWith(" "));
 		assertTrue(subItem.value.name.endsWith(" "));
 		assertTrue(subItem.value.fullName.endsWith(" "));
-	}
-
-	@Test
-	public void createSubThenUnsub() throws IMAPException, InterruptedException {
-		IServiceProvider clientProv = provider();
-		IMailboxFolders mboxesApi = clientProv.instance(IMailboxFolders.class, partition, mboxRoot);
-		List<ItemValue<MailboxFolder>> allBoxes = mboxesApi.all();
-		ItemValue<MailboxFolder> inbox = null;
-		for (ItemValue<MailboxFolder> box : allBoxes) {
-			if (box.value.name.equals("INBOX")) {
-				inbox = box;
-				break;
-			}
-		}
-		assertNotNull(inbox);
-		MailboxReplica toCreate = new MailboxReplica();
-		long time = System.currentTimeMillis() / 1000;
-		toCreate.name = "create" + time;
-		IOfflineMgmt idAllocator = provider().instance(IOfflineMgmt.class, domainUid, userUid);
-		IdRange oneId = idAllocator.allocateOfflineIds(1);
-		ItemIdentifier created = mboxesApi.createForHierarchy(oneId.globalCounter, toCreate);
-		System.out.println("Got a create of version " + created.version);
-		ContainerChangeset<Long> changed = mboxesApi.changesetById(created.version - 1);
-		long newItemId = changed.created.get(0);
-		System.out.println("From changelog: itemId should be " + newItemId);
-		ItemValue<MailboxFolder> foundItem = mboxesApi.getCompleteById(newItemId);
-		System.out.println("Found " + foundItem.value.name);
-
-		imapAsUser(sc -> {
-			sc.subscribe(toCreate.name);
-			return null;
-		});
-
-		Thread.sleep(200);
-
-		ICyrusReplicationArtifacts cyrusArtifactsApi = clientProv.instance(ICyrusReplicationArtifacts.class,
-				userUid + "@" + domainUid);
-		Optional<MailboxSub> sub = cyrusArtifactsApi.subs().stream().filter(ms -> ms.mboxName.endsWith(toCreate.name))
-				.findAny();
-		assertTrue(sub.isPresent());
-
-		imapAsUser(sc -> {
-			sc.unsubscribe(toCreate.name);
-			return null;
-		});
-		Thread.sleep(200);
-		sub = cyrusArtifactsApi.subs().stream().filter(ms -> ms.mboxName.endsWith(toCreate.name)).findAny();
-		assertFalse(sub.isPresent());
-	}
-
-	@Test
-	public void setQuotaThenUnset() throws IMAPException, InterruptedException {
-		IServiceProvider clientProv = provider();
-
-		imapAsCyrusAdmin(sc -> {
-			sc.setQuota("user/" + userUid + "@" + domainUid, 42);
-			return null;
-		});
-
-		Thread.sleep(200);
-
-		ICyrusReplicationArtifacts cyrusArtifactsApi = clientProv.instance(ICyrusReplicationArtifacts.class,
-				userUid + "@" + domainUid);
-		Optional<QuotaRoot> sub = cyrusArtifactsApi.quotas().stream().findAny();
-		assertTrue(sub.isPresent());
-
-		imapAsCyrusAdmin(sc -> {
-			sc.setQuota("user/" + userUid + "@" + domainUid, 0);
-			return null;
-		});
-		Thread.sleep(200);
-		sub = cyrusArtifactsApi.quotas().stream().findAny();
-		assertFalse(sub.isPresent());
-	}
-
-	private String encodeJson(JsonObject js) {
-		return Base64.getUrlEncoder().encodeToString(js.encode().getBytes());
-	}
-
-	@Test
-	public void annotateFolder() throws IMAPException, InterruptedException {
-		IServiceProvider clientProv = provider();
-
-		imapAsUser(sc -> {
-			sc.setMailboxAnnotation("INBOX", MailApiAnnotations.FOLDER_META,
-					ImmutableMap.of("value.priv", encodeJson(new JsonObject().put("john", "wick"))));
-			return null;
-		});
-
-		Thread.sleep(200);
-
-		ICyrusReplicationAnnotations cyrusAnnotationsApi = clientProv.instance(ICyrusReplicationAnnotations.class);
-		List<MailboxAnnotation> annotated = cyrusAnnotationsApi.annotations(domainUid + "!" + mboxRoot);
-		System.err.println("annots: " + annotated);
-		assertFalse(annotated.isEmpty());
-		JsonObject fetchedJs = annotated.stream().filter(ma -> ma.entry.equals(MailApiAnnotations.FOLDER_META))
-				.findFirst().map(ma -> new JsonObject(Buffer.buffer(Base64.getUrlDecoder().decode(ma.value))))
-				.orElseThrow(() -> new IMAPException("missing folder/meta"));
-		assertEquals("wick", fetchedJs.getString("john"));
-
-		imapAsUser(sc -> {
-			sc.setMailboxAnnotation("INBOX", MailApiAnnotations.FOLDER_META,
-					ImmutableMap.of("value.priv", encodeJson(new JsonObject().put("john", "doe"))));
-			return null;
-		});
-
-		Thread.sleep(500);
-
 	}
 
 	@Test

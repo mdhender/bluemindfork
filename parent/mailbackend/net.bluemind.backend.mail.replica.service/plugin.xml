@@ -39,12 +39,6 @@
             api="net.bluemind.backend.mail.replica.api.IDbMailboxRecords">
       </endpoint>
       <endpoint
-            api="net.bluemind.backend.mail.replica.api.ICyrusReplicationArtifacts">
-      </endpoint>
-       <endpoint
-            api="net.bluemind.backend.mail.replica.api.ICyrusReplicationAnnotations">
-      </endpoint>
-      <endpoint
             api="net.bluemind.backend.mail.api.IReadOnlyMailboxFolders">
       </endpoint>
       <endpoint
@@ -100,15 +94,6 @@
       </serviceFactory>
       <serviceFactory
             class="net.bluemind.backend.mail.replica.service.ImapMailboxRecordsServiceFactory">
-      </serviceFactory>
-      <serviceFactory
-            class="net.bluemind.backend.mail.replica.service.InternalMailboxItemsServiceFactory">
-      </serviceFactory>
-      <serviceFactory
-            class="net.bluemind.backend.mail.replica.service.CyrusArtifactsServiceFactory">
-      </serviceFactory>
-      <serviceFactory
-            class="net.bluemind.backend.mail.replica.service.CyrusAnnotationsServiceFactory">
       </serviceFactory>
       <serviceFactory
             class="net.bluemind.backend.mail.replica.service.ImapByContainerReplicatedMailboxesServiceFactory">

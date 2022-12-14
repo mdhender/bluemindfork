@@ -38,8 +38,6 @@ import net.bluemind.authentication.api.IAuthenticationPromise;
 import net.bluemind.backend.cyrus.partitions.CyrusBoxes.ReplicatedBox;
 import net.bluemind.backend.cyrus.replication.server.state.StorageApiLink;
 import net.bluemind.backend.cyrus.replication.server.state.StorageLinkFactory;
-import net.bluemind.backend.mail.replica.api.ICyrusReplicationAnnotationsPromise;
-import net.bluemind.backend.mail.replica.api.ICyrusReplicationArtifactsPromise;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecordsPromise;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodiesPromise;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxesPromise;
@@ -197,16 +195,6 @@ public class CoreStorageBackend implements StorageApiLink {
 	public CompletableFuture<ApiDesc> replicatedMailboxes(ReplicatedBox box) {
 		MailboxReplicaRootDescriptor root = MailboxReplicaRootDescriptor.create(box.ns, box.local);
 		return replicatedMailboxes(box.partition, root).thenApply(mboxApi -> new ApiDesc(box.partition, root, mboxApi));
-	}
-
-	public CompletableFuture<ICyrusReplicationArtifactsPromise> cyrusArtifacts(String userId) {
-		ICyrusReplicationArtifactsPromise promApi = asyncProv.instance(ICyrusReplicationArtifactsPromise.class, userId);
-		return CompletableFuture.completedFuture(promApi);
-	}
-
-	public CompletableFuture<ICyrusReplicationAnnotationsPromise> cyrusAnnotations() {
-		ICyrusReplicationAnnotationsPromise promApi = asyncProv.instance(ICyrusReplicationAnnotationsPromise.class);
-		return CompletableFuture.completedFuture(promApi);
 	}
 
 	public CompletableFuture<Boolean> validate(String login, String secret) {

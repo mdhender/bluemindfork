@@ -45,11 +45,9 @@ import net.bluemind.backend.mail.api.MailboxFolderSearchQuery;
 import net.bluemind.backend.mail.api.SearchQuery;
 import net.bluemind.backend.mail.api.SearchQuery.SearchScope;
 import net.bluemind.backend.mail.api.SearchResult;
-import net.bluemind.backend.mail.replica.api.ICyrusReplicationAnnotations;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesMgmt;
-import net.bluemind.backend.mail.replica.api.MailboxAnnotation;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecordItemUri;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
@@ -194,7 +192,6 @@ public class ReplicatedMailboxesMgmtService implements IReplicatedMailboxesMgmt 
 		}
 		Map<String, IDbReplicatedMailboxes> subApis = new HashMap<>();
 		IServiceProvider apis = context.provider();
-		ICyrusReplicationAnnotations annotApi = apis.instance(ICyrusReplicationAnnotations.class);
 		return names.stream().map(cyrusName -> {
 			int exMarkIdx = cyrusName.indexOf('!');
 			if (exMarkIdx < 0) {
@@ -220,10 +217,7 @@ public class ReplicatedMailboxesMgmtService implements IReplicatedMailboxesMgmt 
 			resolved.partition = dto.box.partition;
 			resolved.replica = replica;
 			if (dto.box.ns == Namespace.users) {
-				List<MailboxAnnotation> found = annotApi.annotations(dto.name);
-				if (found != null) {
-					resolved.annotations = found;
-				}
+
 			}
 			return resolved;
 		}).filter(Objects::nonNull).collect(Collectors.toList());
