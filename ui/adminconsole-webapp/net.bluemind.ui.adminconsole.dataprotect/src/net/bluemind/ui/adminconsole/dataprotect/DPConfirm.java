@@ -23,8 +23,6 @@ import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.BorderStyle;
 import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
@@ -40,26 +38,16 @@ public class DPConfirm extends DialogBox {
 		Button ok = new Button("OK");
 		ok.addStyleName("button");
 		ok.addStyleName("primary");
-		ok.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				if (okCommand != null) {
-					hide();
-					Scheduler.get().scheduleDeferred(okCommand);
-				}
+		ok.addClickHandler(event -> {
+			if (okCommand != null) {
+				hide();
+				Scheduler.get().scheduleDeferred(okCommand);
 			}
 		});
 
 		Button cancel = new Button("Cancel");
 		cancel.addStyleName("button");
-		cancel.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				hide();
-			}
-		});
+		cancel.addClickHandler(event -> hide());
 
 		buttons.add(ok);
 		buttons.add(cancel);

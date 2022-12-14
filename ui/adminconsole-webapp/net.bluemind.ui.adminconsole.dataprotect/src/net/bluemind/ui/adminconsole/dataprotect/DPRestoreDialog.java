@@ -18,12 +18,9 @@
  */
 package net.bluemind.ui.adminconsole.dataprotect;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
@@ -45,25 +42,15 @@ public class DPRestoreDialog extends DialogBox {
 		Button ok = new Button(DPTexts.INST.restore());
 		ok.addStyleName("button");
 		ok.addStyleName("primary");
-		ok.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				if (okCommand != null) {
-					hide();
-					Scheduler.get().scheduleDeferred(okCommand);
-				}
+		ok.addClickHandler(event -> {
+			if (okCommand != null) {
+				hide();
+				Scheduler.get().scheduleDeferred(okCommand);
 			}
 		});
 		Button cancel = new Button(DPTexts.INST.cancel());
 		cancel.addStyleName("button");
-		cancel.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				hide();
-			}
-		});
+		cancel.addClickHandler(event -> hide());
 
 		buttons.add(ok);
 		buttons.add(cancel);
@@ -98,11 +85,6 @@ public class DPRestoreDialog extends DialogBox {
 		RadioButton rb = new RadioButton("restoreOps");
 		rb.setText(DpTextsHelper.translate(rop.identifier));
 		content.setWidget(content.getRowCount(), 1, rb);
-		rb.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				setOkCommand(cmd);
-			}
-		});
+		rb.addClickHandler(event -> setOkCommand(cmd));
 	}
 }

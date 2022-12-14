@@ -61,41 +61,36 @@ public class RestoreActionHandler extends ActionHandler<ClientRestorable> {
 
 	@Override
 	public ScheduledCommand getCommand() {
-		ScheduledCommand cmd = new ScheduledCommand() {
-			@Override
-			public void execute() {
-				GWT.log("Restore " + getName() + " on " + getObject() + " with " + rop.identifier + " from gen "
-						+ rd.generation);
+		return () -> {
+			GWT.log("Restore " + getName() + " on " + getObject() + " with " + rop.identifier + " from gen "
+					+ rd.generation);
 
-				DpApi.get().run(rd, new AsyncHandler<TaskRef>() {
+			DpApi.get().run(rd, new AsyncHandler<TaskRef>() {
 
-					@Override
-					public void success(TaskRef result) {
-						// FIXME
-						GWT.log("Should find a way to give " + gc + " value to progress");
-						Map<String, String> ssr = new HashMap<>();
-						ssr.put("task", result.id + "");
-						ssr.put("success", "dpGenBrowser");
-						ssr.put("return", "dpGenBrowser");
-						GenerationContentGwtSerDer sd = new GenerationContentGwtSerDer();
-						String gcString = sd.serialize(gc).toString();
-						GWT.log("Passing along:\n" + gcString);
-						ssr.put("mode", "restore");
-						ProgressScreen.putValue("genContentString", gcString);
+				@Override
+				public void success(TaskRef result) {
+					// FIXME
+					GWT.log("Should find a way to give " + gc + " value to progress");
+					Map<String, String> ssr = new HashMap<>();
+					ssr.put("task", result.id + "");
+					ssr.put("success", "dpGenBrowser");
+					ssr.put("return", "dpGenBrowser");
+					GenerationContentGwtSerDer sd = new GenerationContentGwtSerDer();
+					String gcString = sd.serialize(gc).toString();
+					GWT.log("Passing along:\n" + gcString);
+					ssr.put("mode", "restore");
+					ProgressScreen.putValue("genContentString", gcString);
 
-						GWT.log("Received restore task to track: " + result.id);
-						Actions.get().showWithParams2("progress", ssr);
-					}
+					GWT.log("Received restore task to track: " + result.id);
+					Actions.get().showWithParams2("progress", ssr);
+				}
 
-					@Override
-					public void failure(Throwable e) {
-						GWT.log(e.getMessage(), e);
-					}
-				});
-
-			}
+				@Override
+				public void failure(Throwable e) {
+					GWT.log(e.getMessage(), e);
+				}
+			});
 		};
-		return cmd;
 	}
 
 	@Override

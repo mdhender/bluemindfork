@@ -25,7 +25,6 @@ import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -74,28 +73,12 @@ public class DPPolicy extends Composite implements IGwtScreenRoot {
 	@UiField
 	CheckBox backupES;
 
-	private ScreenRoot instance;
-
 	public DPPolicy(ScreenRoot instance) {
-		this.instance = instance;
 		HTMLPanel panel = binder.createAndBindUi(this);
 		initWidget(panel);
 
-		actionBar.setSaveAction(new ScheduledCommand() {
-
-			@Override
-			public void execute() {
-				saveClicked();
-			}
-		});
-
-		actionBar.setCancelAction(new ScheduledCommand() {
-
-			@Override
-			public void execute() {
-				cancelClicked();
-			}
-		});
+		actionBar.setSaveAction(this::saveClicked);
+		actionBar.setCancelAction(this::cancelClicked);
 	}
 
 	private void saveClicked() {
@@ -113,9 +96,8 @@ public class DPPolicy extends Composite implements IGwtScreenRoot {
 
 					@Override
 					public void success(SystemConf value) {
-						Map<String, String> values = new HashMap<String, String>();
-						Set<String> skipTags = new HashSet<String>(
-								value.stringList(SysConfKeys.dpBackupSkipTags.name()));
+						Map<String, String> values = new HashMap<>();
+						Set<String> skipTags = new HashSet<>(value.stringList(SysConfKeys.dpBackupSkipTags.name()));
 						if (!backupMails.getValue().booleanValue()) {
 							skipTags.add("mail/imap");
 							skipTags.add("mail/archive");
@@ -140,7 +122,7 @@ public class DPPolicy extends Composite implements IGwtScreenRoot {
 						sysApi.updateMutableValues(values, new DefaultAsyncHandler<Void>() {
 							@Override
 							public void success(Void value) {
-								Actions.get().showWithParams2("root", new HashMap<String, String>());
+								Actions.get().showWithParams2("root", new HashMap<>());
 							}
 						});
 					}

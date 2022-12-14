@@ -20,7 +20,6 @@ package net.bluemind.ui.adminconsole.dataprotect;
 
 import java.util.concurrent.CompletableFuture;
 
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 
@@ -47,12 +46,7 @@ public class ForgetGenHandler implements ClickHandler {
 		event.stopPropagation();
 
 		DPConfirm dpc = new DPConfirm(DPTexts.INST.confirmForget());
-		dpc.setOkCommand(new ScheduledCommand() {
-			@Override
-			public void execute() {
-				forgetCall();
-			}
-		});
+		dpc.setOkCommand(this::forgetCall);
 		dpc.center();
 	}
 

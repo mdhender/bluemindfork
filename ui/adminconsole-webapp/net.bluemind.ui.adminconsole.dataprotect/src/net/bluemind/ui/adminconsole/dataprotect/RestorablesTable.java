@@ -66,15 +66,7 @@ public class RestorablesTable extends DataGrid<ClientRestorable> {
 		if (locale.length() > 2) {
 			locale = locale.substring(0, 2);
 		}
-
-		this.keyProvider = new ProvidesKey<ClientRestorable>() {
-
-			@Override
-			public Object getKey(ClientRestorable item) {
-				return item.entryUid + "@" + item.domainUid;
-			}
-		};
-		this.selectionModel = new NoSelectionModel<ClientRestorable>(keyProvider);
+		this.selectionModel = new NoSelectionModel<>(item -> item.entryUid + "@" + item.domainUid);
 		setSelectionModel(this.selectionModel);
 
 		Column<ClientRestorable, TippedResource> typeColumn = new Column<ClientRestorable, TippedResource>(
@@ -125,10 +117,10 @@ public class RestorablesTable extends DataGrid<ClientRestorable> {
 		}
 
 		Column<ClientRestorable, List<ActionHandler<ClientRestorable>>> actions = new Column<ClientRestorable, List<ActionHandler<ClientRestorable>>>(
-				new ActionRestoreCell<ClientRestorable>()) {
+				new ActionRestoreCell<>()) {
 			@Override
 			public List<ActionHandler<ClientRestorable>> getValue(ClientRestorable d) {
-				List<ActionHandler<ClientRestorable>> trans = new LinkedList<ActionHandler<ClientRestorable>>();
+				List<ActionHandler<ClientRestorable>> trans = new LinkedList<>();
 				if (d.deleted && d.kind == RestorableKind.USER) {
 					RestoreOperation restore = new RestoreOperation();
 					restore.identifier = "complete.restore." + d.kind.name().toLowerCase();
@@ -163,7 +155,7 @@ public class RestorablesTable extends DataGrid<ClientRestorable> {
 		setLoadingIndicator(null);
 		setPageSize(Integer.MAX_VALUE);
 
-		ldp = new ListDataProvider<ClientRestorable>();
+		ldp = new ListDataProvider<>();
 		ldp.addDataDisplay(this);
 	}
 
@@ -222,7 +214,7 @@ public class RestorablesTable extends DataGrid<ClientRestorable> {
 	public void setContent(GenerationContent content) {
 		this.content = content;
 		List<ItemValue<Domain>> doms = content.domains;
-		this.domIdx = new HashMap<String, Domain>();
+		this.domIdx = new HashMap<>();
 		for (ItemValue<Domain> d : doms) {
 			domIdx.put(d.uid, d.value);
 		}

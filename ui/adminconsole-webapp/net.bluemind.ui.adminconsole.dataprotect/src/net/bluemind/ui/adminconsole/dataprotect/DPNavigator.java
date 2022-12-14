@@ -42,7 +42,6 @@ import net.bluemind.dataprotect.api.DataProtectGeneration;
 import net.bluemind.dataprotect.api.gwt.endpoint.DataProtectGwtEndpoint;
 import net.bluemind.gwtconsoleapp.base.editor.ScreenRoot;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtScreenRoot;
-import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtScreenRoot;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
 import net.bluemind.system.api.InstallationVersion;
@@ -155,14 +154,7 @@ public class DPNavigator extends Composite implements IGwtScreenRoot {
 	}
 
 	public static void registerType() {
-		GwtScreenRoot.register(TYPE, new IGwtDelegateFactory<IGwtScreenRoot, ScreenRoot>() {
-
-			@Override
-			public IGwtScreenRoot create(ScreenRoot screenRoot) {
-				return new DPNavigator(screenRoot);
-			}
-		});
-
+		GwtScreenRoot.register(TYPE, screenRoot -> new DPNavigator(screenRoot));
 	}
 
 	@Override
@@ -176,19 +168,15 @@ public class DPNavigator extends Composite implements IGwtScreenRoot {
 	@Override
 	public void loadModel(JavaScriptObject model) {
 		GWT.log("dpn load model");
-
 	}
 
 	@Override
 	public void saveModel(JavaScriptObject model) {
 		GWT.log("dpn save model");
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void doLoad(ScreenRoot instance) {
 		GWT.log("dpn doLoad " + instance);
-
 	}
 }

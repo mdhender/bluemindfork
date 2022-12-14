@@ -48,15 +48,14 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
 import net.bluemind.dataprotect.api.GenerationContent;
 import net.bluemind.dataprotect.api.Restorable;
+import net.bluemind.dataprotect.api.RestorableKind;
 import net.bluemind.dataprotect.api.gwt.endpoint.DataProtectGwtEndpoint;
 import net.bluemind.dataprotect.api.gwt.serder.GenerationContentGwtSerDer;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
-import net.bluemind.domain.api.Domain;
 import net.bluemind.gwtconsoleapp.base.editor.Ajax;
 import net.bluemind.gwtconsoleapp.base.editor.ScreenRoot;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtScreenRoot;
-import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtScreenRoot;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
 import net.bluemind.ui.adminconsole.base.Actions;
@@ -228,7 +227,7 @@ public class GenerationBrowser extends Composite implements IGwtScreenRoot {
 		restorables.setGeneration(generationId);
 		restorables.setContent(content);
 
-		LinkedList<Restorable> matches = new LinkedList<Restorable>();
+		LinkedList<Restorable> matches = new LinkedList<>();
 		int limit = 500;
 
 		if (activeFilters == 0 || usersToggle.isDown() || mailsharesToggle.isDown() || ouToggle.isDown()) {
@@ -270,17 +269,14 @@ public class GenerationBrowser extends Composite implements IGwtScreenRoot {
 			Iterator<Restorable> iter = matches.iterator();
 			while (iter.hasNext()) {
 				Restorable rest = iter.next();
-				switch (rest.kind) {
-				case DOMAIN:
+				if (rest.kind == RestorableKind.DOMAIN) {
 					if (!rest.entryUid.equals(domain)) {
 						iter.remove();
 					}
-					break;
-				default:
+				} else {
 					if (!rest.domainUid.equals(domain)) {
 						iter.remove();
 					}
-					break;
 				}
 			}
 		}
@@ -293,13 +289,6 @@ public class GenerationBrowser extends Composite implements IGwtScreenRoot {
 			return true;
 		}
 		return de.displayName.toLowerCase().contains(q);
-	}
-
-	private boolean matches(Domain d, String q) {
-		if (q.isEmpty()) {
-			return true;
-		}
-		return d.name.toLowerCase().contains(q);
 	}
 
 	public void setInfosLabel() {
@@ -343,14 +332,7 @@ public class GenerationBrowser extends Composite implements IGwtScreenRoot {
 	}
 
 	public static void registerType() {
-		GwtScreenRoot.register(TYPE, new IGwtDelegateFactory<IGwtScreenRoot, ScreenRoot>() {
-
-			@Override
-			public IGwtScreenRoot create(ScreenRoot screenRoot) {
-				return new GenerationBrowser(screenRoot);
-			}
-		});
-
+		GwtScreenRoot.register(TYPE, GenerationBrowser::new);
 	}
 
 	@Override

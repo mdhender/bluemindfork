@@ -21,8 +21,6 @@ package net.bluemind.ui.adminconsole.dataprotect;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.Constants;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -55,25 +53,13 @@ public class CrudActionBar extends ButtonBar {
 
 	public void setCancelAction(final ScheduledCommand cancel) {
 		Button cb = newStdButton(cc.cancel());
-		cb.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				Scheduler.get().scheduleDeferred(cancel);
-			}
-		});
+		cb.addClickHandler(event -> Scheduler.get().scheduleDeferred(cancel));
 		hp.add(cb);
 	}
 
 	public void setSaveAction(final ScheduledCommand save) {
 		Button sb = newPrimaryButton(cc.save());
-		sb.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				Scheduler.get().scheduleDeferred(save);
-			}
-		});
+		sb.addClickHandler(event -> Scheduler.get().scheduleDeferred(save));
 		hp.add(sb);
 	}
 }

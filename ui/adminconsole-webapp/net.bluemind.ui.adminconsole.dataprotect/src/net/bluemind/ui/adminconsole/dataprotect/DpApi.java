@@ -23,8 +23,10 @@ import net.bluemind.dataprotect.api.gwt.endpoint.DataProtectGwtEndpoint;
 import net.bluemind.ui.common.client.forms.Ajax;
 
 public class DpApi {
-
 	private static final DataProtectGwtEndpoint api = new DataProtectGwtEndpoint(Ajax.TOKEN.getSessionId());
+
+	private DpApi() {
+	}
 
 	public static DataProtectGwtEndpoint get() {
 		return api;

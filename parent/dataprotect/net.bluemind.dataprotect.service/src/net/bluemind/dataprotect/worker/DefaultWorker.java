@@ -19,7 +19,7 @@
 
 package net.bluemind.dataprotect.worker;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -50,7 +50,7 @@ public abstract class DefaultWorker implements IBackupWorker {
 	@Override
 	public Set<String> getDataDirs() {
 		logger.info("getDataDirs");
-		return new HashSet<>();
+		return Collections.emptySet();
 	}
 
 	@Override

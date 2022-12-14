@@ -27,7 +27,7 @@ public abstract class ActionHandler<T> {
 	private String name;
 	private T object;
 
-	public ActionHandler(String name, T object) {
+	ActionHandler(String name, T object) {
 		this.name = name;
 		this.object = object;
 	}

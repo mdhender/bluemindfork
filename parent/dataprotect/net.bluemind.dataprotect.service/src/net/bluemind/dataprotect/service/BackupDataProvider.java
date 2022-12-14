@@ -108,8 +108,8 @@ public class BackupDataProvider implements AutoCloseable {
 		}
 		DPContext dpc = new DPContext(monitor);
 		BmConfIni ini = new BmConfIni();
-		Map<String, Object> params = ImmutableMap.<String, Object>of("toDatabase", targetDatabase, "user",
-				ini.get("user"), "pass", ini.get("password"));
+		Map<String, Object> params = Map.of("toDatabase", targetDatabase, "user", ini.get("user"), "pass",
+				ini.get("password"));
 		pgWorker.restore(dpc, pgPart, params);
 
 		IServiceProvider liveSp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
@@ -209,8 +209,7 @@ public class BackupDataProvider implements AutoCloseable {
 
 		DPContext dpc = new DPContext(monitor);
 		BmConfIni ini = new BmConfIni();
-		Map<String, Object> params = ImmutableMap.<String, Object>of("toDatabase", dbName, "user", ini.get("user"),
-				"pass", ini.get("password"));
+		Map<String, Object> params = Map.of("toDatabase", dbName, "user", ini.get("user"), "pass", ini.get("password"));
 		worker.get().restore(dpc, pgPart.get(), params);
 
 		String server = pgPart.get().server;

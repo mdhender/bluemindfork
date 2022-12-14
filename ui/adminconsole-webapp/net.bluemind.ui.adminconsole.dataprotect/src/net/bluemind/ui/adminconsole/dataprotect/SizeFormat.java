@@ -21,6 +21,8 @@ package net.bluemind.ui.adminconsole.dataprotect;
 import com.google.gwt.i18n.client.NumberFormat;
 
 public class SizeFormat {
+	private SizeFormat() {
+	}
 
 	public static String readableFileSize(long size) {
 		if (size <= 0)

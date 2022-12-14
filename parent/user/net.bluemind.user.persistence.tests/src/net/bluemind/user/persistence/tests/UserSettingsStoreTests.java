@@ -76,7 +76,7 @@ public class UserSettingsStoreTests {
 
 		installation = Container.create(InstallationId.getIdentifier(), "installation", "installation", "me", true);
 		installation = containerStore.create(installation);
-		AclStore aclStore = new AclStore(JdbcTestHelper.getInstance().getDataSource());
+		AclStore aclStore = new AclStore(null, JdbcTestHelper.getInstance().getDataSource());
 		aclStore.store(installation, Arrays.asList(AccessControlEntry.create(securityContext.getSubject(), Verb.All)));
 
 		userStore = new UserStore(JdbcTestHelper.getInstance().getDataSource(), domain);
