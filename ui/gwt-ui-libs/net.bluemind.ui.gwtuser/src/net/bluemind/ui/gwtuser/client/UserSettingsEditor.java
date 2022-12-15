@@ -18,8 +18,11 @@
  */
 package net.bluemind.ui.gwtuser.client;
 
+import java.util.Date;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.TimeZone;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
@@ -49,6 +52,9 @@ public class UserSettingsEditor extends CompositeGwtWidgetElement {
 	private ListBox timeFormat;
 	private ListBox defaultApp;
 	private WidgetElement instance;
+
+	private static final String DEFAULT_PRETTY_DATE_FORMAT = "31/12/2012";
+	private static final String DEFAULT_DATE_FORMAT = "dd/MM/yyyy";
 
 	public UserSettingsEditor(WidgetElement instance) {
 		this.instance = instance;
@@ -82,7 +88,7 @@ public class UserSettingsEditor extends CompositeGwtWidgetElement {
 
 		// Date format
 		dateFormat = new ListBox();
-		dateFormat.addItem("31/12/2012", "dd/MM/yyyy");
+		dateFormat.addItem(DEFAULT_PRETTY_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 		dateFormat.addItem("2012-12-31", "yyyy-MM-dd");
 		dateFormat.addItem("12/31/2012", "MM/dd/yyyy");
 		dateFormat.addItem("31.12.2012", "dd.MM.yyyy");
@@ -141,14 +147,15 @@ public class UserSettingsEditor extends CompositeGwtWidgetElement {
 
 		listboxSetValue(lang, value(model, "lang"));
 		listboxSetValue(tz, value(model, "timezone"));
-		listboxSetValue(dateFormat, value(model, "date"));
+		listboxSetDateValue(value(model, "date"));
 		listboxSetValue(timeFormat, value(model, "timeformat"));
 		listboxSetValue(defaultApp, value(model, "default_app"));
 	}
 
-	private void listboxSetValue(ListBox listbox, String value) {
+	private static void listboxSetValue(ListBox listbox, String value) {
 		if (value == null) {
 			listbox.setSelectedIndex(-1);
+			return;
 		}
 		for (int i = 0; i < listbox.getItemCount(); i++) {
 			if (value.equals(listbox.getValue(i))) {
@@ -156,10 +163,41 @@ public class UserSettingsEditor extends CompositeGwtWidgetElement {
 				break;
 			}
 		}
-
 	}
 
-	private void listboxGetValue(ListBox listbox, JSONObject model, String key) {
+	private void listboxSetDateValue(String value) {
+		if (value == null || DEFAULT_DATE_FORMAT.equals(value)) {
+			dateFormat.setSelectedIndex(0);
+			return;
+		}
+		boolean found = false;
+		for (int i = 0; i < dateFormat.getItemCount(); i++) {
+			if (value.equals(dateFormat.getValue(i))) {
+				dateFormat.setSelectedIndex(i);
+				found = true;
+				break;
+			}
+		}
+
+		if (!found) {
+			dateFormat.addItem(prettyDateFormatToDisplay(value), value);
+			dateFormat.setSelectedIndex(dateFormat.getItemCount() - 1);
+		}
+	}
+
+	private static String prettyDateFormatToDisplay(String format) {
+		String dateStr = DEFAULT_PRETTY_DATE_FORMAT;
+		try {
+			// 31/12/2012
+			Date date = new Date(1356912001000L);
+			dateStr = DateTimeFormat.getFormat(format).format(date);
+		} catch (IllegalArgumentException e) {
+			// use DEFAULT_DATE_FORMAT
+		}
+		return dateStr;
+	}
+
+	private static void listboxGetValue(ListBox listbox, JSONObject model, String key) {
 		int index = listbox.getSelectedIndex();
 		if (index >= 0) {
 			model.put(key, new JSONString(listbox.getValue(index)));
@@ -168,7 +206,7 @@ public class UserSettingsEditor extends CompositeGwtWidgetElement {
 		}
 	}
 
-	private String value(JSONObject model, String key) {
+	private static String value(JSONObject model, String key) {
 		JSONValue value = model.get(key);
 		if (value != null && value.isString() != null) {
 			return value.isString().stringValue();

@@ -110,6 +110,8 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 
 	private HashMap<String, Integer> defaultAliasesMapping;
 
+	private String domainDateFormat;
+
 	private static EditDomainGeneralUiBinder uiBinder = GWT.create(EditDomainGeneralUiBinder.class);
 
 	interface EditDomainGeneralUiBinder extends UiBinder<HTMLPanel, EditDomainGeneralEditor> {
@@ -219,10 +221,14 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		language.setSelectedIndex(Optional.ofNullable(languageMapping.get(domainLanguage))
 				.orElseGet(() -> languageMapping.get(LocaleIdTranslation.DEFAULT_ID)));
 
-		String domainDateFormat = SettingsModel.domainSettingsFrom(model).get(DomainSettingsKeys.date.name());
+		domainDateFormat = SettingsModel.domainSettingsFrom(model).get(DomainSettingsKeys.date.name());
 		domainDateFormat = domainDateFormat != null ? domainDateFormat : DateFormatTranslation.DEFAULT_DATE_FORMAT;
-		dateFormat.setSelectedIndex(Optional.ofNullable(dateFormatMapping.get(domainDateFormat))
-				.orElseGet(() -> dateFormatMapping.get(DateFormatTranslation.DEFAULT_DATE_FORMAT)));
+		Integer index = dateFormatMapping.get(domainDateFormat);
+		if (index == null) {
+			dateFormat.addItem(DateFormatTranslation.prettyDateFormatToDisplay(domainDateFormat));
+			index = dateFormat.getItemCount() - 1;
+		}
+		dateFormat.setSelectedIndex(index);
 
 		String domainTimeFormat = SettingsModel.domainSettingsFrom(model).get(DomainSettingsKeys.timeformat.name());
 		domainTimeFormat = domainTimeFormat != null ? domainTimeFormat : TimeFormatTranslation.DEFAULT_TIME_FORMAT;
@@ -272,8 +278,9 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 
 		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.lang.name(),
 				LocaleIdTranslation.getIdByLanguage(language.getSelectedItemText()));
+		String selectedItemText = dateFormat.getSelectedItemText();
 		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.date.name(),
-				DateFormatTranslation.getKeyByFormat(dateFormat.getSelectedItemText()));
+				DateFormatTranslation.getKeyByFormat(selectedItemText != null ? selectedItemText : domainDateFormat));
 		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.timeformat.name(),
 				TimeFormatTranslation.getKeyByFormat(timeFormat.getSelectedItemText()));
 

@@ -18,8 +18,11 @@
  */
 package net.bluemind.ui.adminconsole.system.domains.edit.general.l10n;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.google.gwt.i18n.client.DateTimeFormat;
 
 public class DateFormatTranslation {
 
@@ -35,6 +38,18 @@ public class DateFormatTranslation {
 
 	public static String getKeyByFormat(String dateFormatStr) {
 		return formats.entrySet().stream().filter(e -> dateFormatStr.equals(e.getValue())).map(e -> e.getKey())
-				.findFirst().orElse(DEFAULT_DATE_FORMAT);
+				.findFirst().orElse(null);
+	}
+
+	public static String prettyDateFormatToDisplay(String domainDateFormat) {
+		String dateStr = formats.get(DEFAULT_DATE_FORMAT);
+		try {
+			// 31/12/2012
+			Date date = new Date(1356912001000L);
+			dateStr = DateTimeFormat.getFormat(domainDateFormat).format(date);
+		} catch (IllegalArgumentException e) {
+			// use DEFAULT_DATE_FORMAT
+		}
+		return dateStr;
 	}
 }
