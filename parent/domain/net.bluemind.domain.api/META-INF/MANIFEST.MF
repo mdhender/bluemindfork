@@ -8,5 +8,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.commons,
  net.bluemind.core.container.api;visibility:=reexport,
  net.bluemind.core.task.api,
- com.fasterxml.jackson.core.jackson-annotations
+ com.fasterxml.jackson.core.jackson-annotations,
+ jakarta.validation.jakarta.validation-api
 Automatic-Module-Name: net.bluemind.domain.api

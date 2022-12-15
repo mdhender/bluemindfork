@@ -44,7 +44,8 @@ Require-Bundle: net.bluemind.domain.api;bundle-version="1.0.0",
  net.bluemind.mailbox.persistence,
  com.github.ben-manes.caffeine,
  net.bluemind.role.hook,
- net.bluemind.system.api
+ net.bluemind.system.api,
+ jakarta.validation.jakarta.validation-api
 Export-Package: net.bluemind.domain.service,
  net.bluemind.domain.service.internal
 Automatic-Module-Name: net.bluemind.domain.service

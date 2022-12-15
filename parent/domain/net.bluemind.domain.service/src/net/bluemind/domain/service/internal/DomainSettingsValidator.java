@@ -18,6 +18,9 @@
  */
 package net.bluemind.domain.service.internal;
 
+import java.time.DateTimeException;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -67,6 +70,8 @@ public class DomainSettingsValidator {
 		checkDefaultDomain(context, domainUid,
 				Optional.ofNullable(settings.get(DomainSettingsKeys.default_domain.name()))
 						.map(dd -> dd.isEmpty() ? null : dd));
+		checkDates(settings);
+		checkLanguage(settings);
 	}
 
 	public void update(BmContext context, Map<String, String> oldSettings, Map<String, String> newSettings,
@@ -104,12 +109,78 @@ public class DomainSettingsValidator {
 		checkDefaultDomain(context, domainUid,
 				Optional.ofNullable(newSettings.get(DomainSettingsKeys.default_domain.name()))
 						.map(dd -> dd.isEmpty() ? null : dd));
+		checkDates(newSettings);
+		checkLanguage(newSettings);
 	}
 
 	private void checkSplitDomain(Map<String, String> settings) throws ServerFault {
 		if (isForwardUnknownToRelay(settings) && null == getRelay(settings)) {
 			throw new ServerFault("Split domain relay hostname cannot be empty", ErrorCode.INVALID_PARAMETER);
 		}
+	}
+
+	private void checkLanguage(Map<String, String> settings) {
+		if (settings.containsKey(DomainSettingsKeys.lang.name())) {
+			String lang = settings.get(DomainSettingsKeys.lang.name()).toLowerCase();
+			if (!(lang.equals("de") || lang.equals("en") || lang.equals("es") || lang.equals("fr") || lang.equals("it")
+					|| lang.equals("pl") || lang.equals("sl") || lang.equals("zh") || lang.equals("hu"))) {
+				throw new ServerFault("Languages " + lang + " is not supported", ErrorCode.INVALID_PARAMETER);
+			}
+		}
+
+	}
+
+	private void checkDates(Map<String, String> settings) {
+		if (settings.containsKey(DomainSettingsKeys.date.name())) {
+			String datePattern = settings.get(DomainSettingsKeys.date.name());
+			if (datePattern == null || datePattern.isBlank()) {
+				throw new ServerFault("Blank date pattern is invalid", ErrorCode.INVALID_PARAMETER);
+			}
+			try {
+				DateTimeFormatter.ofPattern(datePattern);
+				for (char c : datePattern.toCharArray()) {
+					if (Character.isLetter(c)) {
+						if (!(c == 'y' || c == 'M' || c == 'd')) {
+							throw new IllegalArgumentException("pattern contains invalid temporal chars");
+						}
+					}
+				}
+			} catch (IllegalArgumentException e) {
+				throw new ServerFault("Date pattern " + datePattern + " is invalid: " + e.getMessage(),
+						ErrorCode.INVALID_PARAMETER);
+			}
+		}
+
+		if (settings.containsKey(DomainSettingsKeys.timeformat.name())) {
+			String timePattern = settings.get(DomainSettingsKeys.timeformat.name());
+			if (timePattern == null || timePattern.isBlank()) {
+				throw new ServerFault("Blank time pattern is invalid", ErrorCode.INVALID_PARAMETER);
+			}
+			try {
+				DateTimeFormatter.ofPattern(timePattern);
+				for (char c : timePattern.toCharArray()) {
+					if (Character.isLetter(c)) {
+						if (!(c == 'h' || c == 'H' || c == 'k' || c == 'K' || c == 'm' || c == 's')) {
+							throw new IllegalArgumentException("pattern contains invalid temporal chars");
+						}
+					}
+				}
+			} catch (IllegalArgumentException e) {
+				throw new ServerFault("Time pattern " + timePattern + " is invalid: " + e.getMessage(),
+						ErrorCode.INVALID_PARAMETER);
+			}
+		}
+
+		if (settings.containsKey(DomainSettingsKeys.timezone.name())) {
+			String timeZone = settings.get(DomainSettingsKeys.timezone.name());
+			try {
+				ZoneId.of(timeZone);
+			} catch (DateTimeException e) {
+				throw new ServerFault("Zone ID " + timeZone + " is invalid: " + e.getMessage(),
+						ErrorCode.INVALID_PARAMETER);
+			}
+		}
+
 	}
 
 	private boolean isForwardUnknownToRelay(Map<String, String> settings) {

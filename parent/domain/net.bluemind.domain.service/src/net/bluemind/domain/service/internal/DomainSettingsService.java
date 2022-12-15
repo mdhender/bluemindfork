@@ -57,6 +57,7 @@ public class DomainSettingsService implements IDomainSettings, IInCoreDomainSett
 	private final GlobalSettingsStore settingsStore;
 	private final DomainSettingsStore domainSettingsStore;
 	private final DomainSettingsValidator validator = new DomainSettingsValidator();
+	private final DomainSettingsSanitizer sanitizer = new DomainSettingsSanitizer();
 	private final Validator extValidator;
 	private final String domainUid;
 	private final BmContext context;
@@ -79,11 +80,14 @@ public class DomainSettingsService implements IDomainSettings, IInCoreDomainSett
 	}
 
 	@Override
-	public void set(Map<String, String> settings) throws ServerFault {
+	public void set(Map<String, String> settingsMap) throws ServerFault {
 		rbac.check(BasicRoles.ROLE_ADMIN);
 		cache.invalidate(domainUid);
 
 		logger.debug("Set domain settings: {}", domainUid);
+		Map<String, String> settings = new HashMap<>(settingsMap);
+		sanitizer.sanitize(settings);
+
 		DomainSettings newDomainSettings = new DomainSettings(domainUid, settings);
 
 		ItemValue<DomainSettings> oldValues = domainSettingsStoreService.get(domainUid, null);
