@@ -70,3 +70,8 @@ export class DecryptError extends SmimeErrors {
         super("An error occured on decryption", CRYPTO_HEADERS.DECRYPT_FAILURE, error);
     }
 }
+export class EncryptError extends SmimeErrors {
+    constructor(error?: unknown) {
+        super("An error occured on encryption", CRYPTO_HEADERS.ENCRYPT_FAILURE, error);
+    }
+}

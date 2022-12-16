@@ -1,5 +1,5 @@
 import { pkcs7, pki, asn1, util } from "node-forge";
-import { RecipientNotFoundError, InvalidCertificateError, DecryptError } from "../exceptions";
+import { RecipientNotFoundError, InvalidCertificateError, DecryptError, EncryptError } from "../exceptions";
 import { checkMessageIntegrity, checkSignatureValidity, getSignedDataEnvelope, getSigningTime } from "./verify";
 import { checkCertificateValidity, getCertificate } from "../pki/";
 import { binaryToArrayBuffer } from "../../lib/helper";
@@ -30,16 +30,20 @@ export async function decrypt(
     }
 }
 
-export function encrypt(content: string, certificate: pki.Certificate): Blob {
-    const envelope = pkcs7.createEnvelopedData();
-    envelope.addRecipient(certificate);
-    envelope.content = util.createBuffer(content);
-    envelope.encrypt();
+export function encrypt(content: string, certificates: pki.Certificate[]): Blob {
+    try {
+        const envelope = pkcs7.createEnvelopedData();
+        certificates.forEach(certificate => envelope.addRecipient(certificate));
+        envelope.content = util.createBuffer(content);
+        envelope.encrypt();
 
-    const asn1Content = envelope.toAsn1();
-    const bytes = asn1.toDer(asn1Content).getBytes();
-    const buffer = binaryToArrayBuffer(bytes);
-    return new Blob([buffer]);
+        const asn1Content = envelope.toAsn1();
+        const bytes = asn1.toDer(asn1Content).getBytes();
+        const buffer = binaryToArrayBuffer(bytes);
+        return new Blob([buffer]);
+    } catch (error) {
+        throw new EncryptError(error);
+    }
 }
 
 export async function verify(pkcs7: ArrayBuffer, toDigest: string, senderAddress: string) {

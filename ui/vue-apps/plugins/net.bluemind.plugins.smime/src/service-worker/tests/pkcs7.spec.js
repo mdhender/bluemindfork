@@ -6,6 +6,7 @@ import { base64ToArrayBuffer } from "../../lib/helper";
 import extractSignedData from "../signedDataParser";
 import {
     DecryptError,
+    EncryptError,
     InvalidMessageIntegrityError,
     InvalidSignatureError,
     RecipientNotFoundError
@@ -29,24 +30,21 @@ const privatekeyTxt = readTxt("documents/privateKey");
 const otherPrivateKey = readTxt("documents/otherPrivateKey");
 const certificateTxt = readTxt("documents/certificate");
 const otherCertificateTxt = readTxt("documents/otherCertificate");
+const mockKey = pki.privateKeyFromPem(privatekeyTxt);
+const mockCertificate = pki.certificateFromPem(certificateTxt);
 
 describe("pkcs7", () => {
     describe("decrypt", () => {
         test("decrypt pkc7 part if the right private key is given", async () => {
-            const mockKey = pki.privateKeyFromPem(privatekeyTxt);
-            const mockCertificate = pki.certificateFromPem(certificateTxt);
             const res = await pkcs7.decrypt(blob, mockKey, mockCertificate);
             expect(res).toMatchSnapshot();
         });
         test("select the right recipient if multiple recipient are present", async () => {
-            const mockKey = pki.privateKeyFromPem(privatekeyTxt);
-            const mockCertificate = pki.certificateFromPem(certificateTxt);
             const res = await pkcs7.decrypt(blobMultipleRecipients, mockKey, mockCertificate);
             expect(res).toMatchSnapshot();
         });
 
         test("raise an error if the given certificate does not match any recipient", async () => {
-            const mockKey = pki.privateKeyFromPem(privatekeyTxt);
             const mockOtherCertificateTxt = pki.certificateFromPem(otherCertificateTxt);
             try {
                 await pkcs7.decrypt(blob, mockKey, mockOtherCertificateTxt);
@@ -57,7 +55,6 @@ describe("pkcs7", () => {
 
         test("raise an error on decrypt failure", async () => {
             const mockKey = pki.privateKeyFromPem(otherPrivateKey);
-            const mockCertificate = pki.certificateFromPem(certificateTxt);
             try {
                 await pkcs7.decrypt(blob, mockKey, mockCertificate);
             } catch (error) {
@@ -102,6 +99,20 @@ describe("pkcs7", () => {
                 expect(error).toBeInstanceOf(InvalidMessageIntegrityError);
                 expect(error.code).toBe(CRYPTO_HEADERS.INVALID_MESSAGE_INTEGRITY);
                 done();
+            }
+        });
+    });
+    describe("encrypt", () => {
+        beforeEach(() => {});
+        test("encrypt message with my own certificate", async () => {
+            const result = pkcs7.encrypt("hello", [mockCertificate]);
+            expect(result).toBeTruthy();
+        });
+        test("error in encrypt raise an error", async () => {
+            try {
+                pkcs7.encrypt("hello", ["wrongCertificate"]);
+            } catch (error) {
+                expect(error).toBeInstanceOf(EncryptError);
             }
         });
     });

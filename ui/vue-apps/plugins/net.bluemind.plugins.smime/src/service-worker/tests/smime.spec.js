@@ -1,20 +1,32 @@
 import smime from "../smime";
 import pkcs7 from "../pkcs7";
 import pki from "../pki/";
-
+import forge from "node-forge";
 import {
     ExpiredCertificateError,
     RevokedCertificateError,
     UntrustedCertificateError,
-    RecipientNotFoundError
+    RecipientNotFoundError,
+    EncryptError
 } from "../exceptions";
-import { CRYPTO_HEADERS, ENCRYPTED_HEADER_NAME } from "../../lib/constants";
+import { CRYPTO_HEADERS, ENCRYPTED_HEADER_NAME, PKCS7_MIMES } from "../../lib/constants";
 import { readFile } from "./helpers";
 
 jest.mock("../pki/", () => jest.fn);
+jest.mock("@bluemind/mime", () => {
+    return {
+        ...jest.requireActual("@bluemind/mime"),
+        MimeBuilder: () => ({
+            build: () => "dummy structure"
+        })
+    };
+});
+
+const mockUploadPart = jest.fn(() => Promise.resolve("address"));
 jest.mock("@bluemind/backend.mail.api", () => ({
     MailboxItemsClient: () => ({
-        fetch: () => Promise.resolve("data")
+        fetch: () => Promise.resolve("data"),
+        uploadPart: mockUploadPart
     })
 }));
 jest.mock("../pkcs7", () => jest.fn);
@@ -75,6 +87,10 @@ const unecrypted = {
         }
     }
 };
+
+const certificateTxt = readTxt("documents/certificate");
+const mockCertificate = forge.pki.certificateFromPem(certificateTxt);
+
 describe("smime", () => {
     beforeEach(() => {
         pkcs7.decrypt = jest.fn(() => Promise.resolve("content"));
@@ -176,6 +192,25 @@ describe("smime", () => {
             expect(getCryptoHeaderCode(item)).toEqual(CRYPTO_HEADERS.UNMATCHED_RECIPIENTS);
         });
     });
+    describe.only("encrypt", () => {
+        beforeEach(() => {
+            pkcs7.encrypt = jest.fn(() => "encrypted");
+            pki.getMyCertificate = jest.fn(() => Promise.resolve(mockCertificate));
+        });
+        test("adapt message body structure and upload new encrypted part when the main part has to be encrypted ", async () => {
+            const structure = await smime.encrypt(item, "folderUid");
+            expect(mockUploadPart).toHaveBeenCalled();
+            expect(structure.body.structure.address).toBe("address");
+            expect(structure.body.structure.mime).toBe(PKCS7_MIMES[0]);
+        });
+        test("add a header if the message cannot be encrypted", async () => {
+            pkcs7.encrypt = jest.fn(() => {
+                throw new EncryptError();
+            });
+            await smime.encrypt(item, "folderUid");
+            expect(getCryptoHeaderCode({ value: item })).toEqual(CRYPTO_HEADERS.ENCRYPT_FAILURE);
+        });
+    });
 });
 
 function readEml(file) {
@@ -186,3 +221,47 @@ function getCryptoHeaderCode(item) {
     const code = item.value.body.headers.find(h => h.name === ENCRYPTED_HEADER_NAME).values[0];
     return parseInt(code);
 }
+
+function readTxt(file) {
+    return readFile(`${file}.txt`);
+}
+
+const item = {
+    body: {
+        date: 1671032461777,
+        subject: "Mail",
+        headers: [],
+        recipients: [
+            {
+                kind: "Primary",
+                dn: "math",
+                address: "math@devenv.blue"
+            },
+            {
+                kind: "Originator",
+                dn: "math",
+                address: "math@devenv.blue"
+            }
+        ],
+        messageId: "<lbntihyw.j2pop9bobhc0@devenv.blue>",
+        structure: {
+            mime: "multipart/alternative",
+            children: [
+                {
+                    mime: "text/plain",
+                    address: "06a5ccf7-4094-4c7f-8533-eb99b072b28d",
+                    encoding: "quoted-printable",
+                    charset: "utf-8"
+                },
+                {
+                    mime: "text/html",
+                    address: "9ba724be-a4b9-4679-be0c-1c5207401d38",
+                    encoding: "quoted-printable",
+                    charset: "utf-8"
+                }
+            ]
+        }
+    },
+    imapUid: 424,
+    flags: ["\\Seen"]
+};

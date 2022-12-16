@@ -40,5 +40,6 @@ export default class MimeBuilder {
             }
             return node;
         }
+        throw new Error("Malformed item");
     }
 }

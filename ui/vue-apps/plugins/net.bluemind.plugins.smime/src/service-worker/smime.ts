@@ -9,7 +9,7 @@ import {
     SIGNED_HEADER_NAME
 } from "../lib/constants";
 import session from "./environnment/session";
-import { RecipientNotFoundError, SmimeErrors } from "./exceptions";
+import { EncryptError, RecipientNotFoundError, SmimeErrors } from "./exceptions";
 import extractSignedData from "./signedDataParser";
 import pkcs7 from "./pkcs7/";
 import { checkCertificateValidity, getMyCertificate, getMyPrivateKey } from "./pki/";
@@ -51,36 +51,45 @@ export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): 
     return item;
 }
 
-export async function encrypt(item: MailboxItem, folderUid: string) {
+export async function encrypt(item: MailboxItem, folderUid: string): Promise<MailboxItem> {
     const encryptedItem = { ...item };
+    const sid = await session.sid;
+    const client = new MailboxItemsClient(sid, folderUid);
+    let mimeTree: string | undefined;
 
     // TODO: get the certificates for all recipients
-    const certificate = await getMyCertificate();
-    if (encryptedItem.body.structure && encryptedItem.imapUid) {
-        const sid = await session.sid;
-        const client = new MailboxItemsClient(sid, folderUid);
-
-        const getContentFn = async (p: MessageBody.Part): Promise<Uint8Array | null> => {
-            if (encryptedItem.imapUid && p.address) {
-                const data = await client.fetch(encryptedItem.imapUid, p.address, p.encoding, p.mime);
+    try {
+        const certificate = await getMyCertificate();
+        if (encryptedItem.body.structure && encryptedItem.imapUid) {
+            const getContentFn = async (p: MessageBody.Part): Promise<Uint8Array | null> => {
+                if (!encryptedItem.imapUid || !p.address) {
+                    return null;
+                }
+                const data: Blob = await client.fetch(encryptedItem.imapUid, p.address, p.encoding, p.mime);
                 return new Uint8Array(await data.arrayBuffer());
-            }
-            return null;
-        };
-        const mimeTree = await new MimeBuilder(getContentFn).build(encryptedItem.body.structure);
-        if (mimeTree) {
-            const encryptedPart = pkcs7.encrypt(mimeTree, certificate);
-            const address = await client.uploadPart(encryptedPart);
-            const part = {
-                address,
-                charset: "utf-8",
-                encoding: "base64",
-                mime: PKCS7_MIMES[0]
             };
-            encryptedItem.body.structure = part;
-        }
-    }
 
+            try {
+                mimeTree = await new MimeBuilder(getContentFn).build(encryptedItem.body.structure);
+            } catch (error) {
+                throw new EncryptError(error);
+            }
+            if (mimeTree) {
+                const encryptedPart = pkcs7.encrypt(mimeTree, [certificate]);
+                const address = await client.uploadPart(encryptedPart);
+                const part = {
+                    address,
+                    charset: "utf-8",
+                    encoding: "base64",
+                    mime: PKCS7_MIMES[0]
+                };
+                encryptedItem.body.structure = part;
+            }
+        }
+    } catch (error) {
+        const errorCode = error instanceof SmimeErrors ? error.code : CRYPTO_HEADERS.UNKNOWN;
+        setHeader({ value: encryptedItem }, ENCRYPTED_HEADER_NAME, errorCode);
+    }
     return encryptedItem;
 }
 
@@ -120,8 +129,10 @@ function getSenderAddress(item: ItemValue<MailboxItem>): string {
 async function savePart(uid: string, imap: number, part: MessageBody.Part, content: ArrayBuffer | undefined) {
     const cache = await caches.open("part-cache");
     const { address } = part;
-    const request = new Request(`/api/mail_items/${uid}/part/${imap}/${address}`);
-    cache.put(request.url, new Response(content));
+    if (address) {
+        const request = new Request(constructCacheUrl(uid, imap, address));
+        cache.put(request.url, new Response(content));
+    }
 }
 
 function setHeader(item: ItemValue<MailboxItem>, headerName: string, headerValue: number): void {
@@ -136,6 +147,10 @@ function setHeader(item: ItemValue<MailboxItem>, headerName: string, headerValue
             item.value.body.headers[index] = { name: headerName, values: [newValue.toString()] };
         }
     }
+}
+
+function constructCacheUrl(folderUid: string, imapUid: number, address: string) {
+    return `/api/mail_items/${folderUid}/part/${imapUid}/${address}`;
 }
 
 export default {
