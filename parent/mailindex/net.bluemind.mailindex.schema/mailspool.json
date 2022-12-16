@@ -24,7 +24,14 @@
 						"split_on_case_change": false
 					}
 				}
-			}
+			},
+			"merge" : {
+	          "policy" : {
+	            "max_merged_segment" : "1gb",
+	            "expunge_deletes_allowed" : "5.0",
+	            "deletes_pct_allowed" : "20.0"
+	          }
+	        }
 		}
 	},
 	"mappings": {
