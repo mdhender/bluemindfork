@@ -24,6 +24,7 @@
 <script>
 export default {
     name: "BmExtensionList",
+    functional: true,
     props: {
         decorator: {
             type: String,
@@ -33,6 +34,21 @@ export default {
         extensions: {
             type: Array,
             required: true
+        }
+    },
+    render(h, { props, data: { attrs }, scopedSlots }) {
+        if (scopedSlots.default) {
+            return props.extensions.map(extension => scopedSlots.default({ extension }));
+        } else if (props.decorator) {
+            return props.extensions.map(extension =>
+                h(
+                    props.decorator,
+                    { props: { key: extension.$id, ...extension.props }, attrs },
+                    h(extension.name, { props: { key: extension.$id }, attrs })
+                )
+            );
+        } else {
+            return props.extensions.map(extension => h(extension.name, { props: { key: extension.$id }, attrs }));
         }
     }
 };

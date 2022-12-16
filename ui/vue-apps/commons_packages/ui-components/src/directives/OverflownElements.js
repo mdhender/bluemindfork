@@ -1,22 +1,44 @@
-import debounce from "lodash.debounce";
+import throttle from "lodash.throttle";
 
 export default {
-    bind(el) {
-        const debouncedEmitOverflownElements = debounce(() => emitOverflownElements(el), 25);
-        const resizeObserver = new ResizeObserver(debouncedEmitOverflownElements);
+    bind(el, binding, vnode) {
+        let last;
+        const listener = throttle(() => {
+            const detail = getDetail(vnode.elm);
+            if (hasChanged(detail, last)) {
+                emit(vnode, detail);
+                last = detail;
+                listener.cancel();
+            }
+        }, 250);
+        const resizeObserver = new ResizeObserver(listener);
         resizeObserver.observe(el);
-        const mutationObserver = new MutationObserver(debouncedEmitOverflownElements);
+        const mutationObserver = new MutationObserver(listener);
         mutationObserver.observe(el, { childList: true });
     }
 };
 
-function emitOverflownElements(parentElement) {
+function getDetail(element) {
+    const container = element.getBoundingClientRect();
     const detail = [];
-    const parentRect = parentElement.getBoundingClientRect();
-    for (const childElement of parentElement.children) {
-        detail.push({ element: childElement, overflows: overflows(parentRect, childElement.getBoundingClientRect()) });
+    for (const child of element.children) {
+        detail.push({ element: child, overflows: overflows(container, child.getBoundingClientRect()) });
     }
-    parentElement.dispatchEvent(new CustomEvent("overflown", { detail }));
+    return detail;
+}
+
+function hasChanged(detail, old) {
+    return (
+        detail.length !== old?.length ||
+        detail.some((entry, i) => old[i].element !== entry.element || old[i].overflows !== entry.overflows)
+    );
+}
+function emit(vnode, detail) {
+    if (vnode.child) {
+        vnode.child.$emit("overflown", { detail });
+    } else {
+        vnode.elm.dispatchEvent(new CustomEvent("overflown", { detail }));
+    }
 }
 
 function overflows(parentRect, childRect) {

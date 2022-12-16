@@ -35,22 +35,17 @@ export default {
             required: true
         }
     },
-    computed: {
-        loaded() {
-            return Cache.get(this.id, this.path).filter(({ $loaded }) => $loaded.status);
-        }
-    },
-    render(h) {
-        const extensions = this.loaded;
+    render(h, { data, listeners, props, scopedSlots }) {
+        const extensions = Cache.get(props.id, props.path).filter(({ $loaded }) => $loaded.status);
         const options = {
             props: {
                 extensions
             },
-            attrs: this.$attrs,
-            on: this.$listeners,
-            scopedSlots: this.$scopedSlots
+            attrs: data.attrs,
+            on: listeners,
+            scopedSlots: scopedSlots
         };
-        switch (this.type) {
+        switch (props.type) {
             case BmExtensionType.DECORATOR:
                 return h(BmExtensionDecorator, options);
             case BmExtensionType.RENDERLESS:
@@ -74,7 +69,7 @@ export const Cache = {
     },
     load(id) {
         const extensions = new Map();
-        const roles = inject("UserSession").roles.split(",");
+        const roles = inject("UserSession")?.roles.split(",") || [];
         this.map.set(id, extensions);
         mapExtensions(id, ["component"])?.component?.forEach(component => {
             if (!component.role || roles.includes(component.role)) {
