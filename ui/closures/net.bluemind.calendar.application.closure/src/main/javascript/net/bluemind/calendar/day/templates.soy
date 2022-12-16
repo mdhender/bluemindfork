@@ -254,7 +254,7 @@
           {if $event.organizer}
             <tr>
               <th>{msg meaning="calendar.event.organizer" desc="organizer"}Organizer{/msg}</th>
-              <td>{$event.organizer['commonName']}</td>
+              <td>{$event.organizer['commonName']} {if $event.organizer['mailto']}<i>&lt;{$event.organizer['mailto']}&gt;</i>{/if}</td>
             </tr>
           {/if}
 
@@ -430,7 +430,7 @@
           {if $event.organizer}
             <tr>
               <th>{msg meaning="calendar.event.organizer" desc="organizer"}Organizer{/msg}</th>
-              <td colspan="2">{$event.organizer['commonName']}</td>
+              <td colspan="2">{$event.organizer['commonName']} {if $event.organizer['mailto']}<i>&lt;{$event.organizer['mailto']}&gt;</i>{/if}</td>
             </tr>
           {/if}
 

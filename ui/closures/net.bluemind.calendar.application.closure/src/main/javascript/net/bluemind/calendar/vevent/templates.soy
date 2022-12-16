@@ -655,7 +655,7 @@
               <div class="{css ecs-detail}">
                 {if $event.organizer }
                     <div class="{css detailLabel}">{msg meaning="calendar.event.organizer" desc="organizer"}Organizer{/msg}</div>
-                    <div class="{css detailValue}">{$event.organizer['commonName']}</div>
+                    <div class="{css detailValue}">{$event.organizer['commonName']} {if $event.organizer['mailto']}<i>&lt;{$event.organizer['mailto']}&gt;</i>{/if}</div>
                 {/if}
                 {if $event.location}
                   <div class="{css detailLabel}">{msg meaning="calendar.event.location" desc="event location label"}Location{/msg}</div>
