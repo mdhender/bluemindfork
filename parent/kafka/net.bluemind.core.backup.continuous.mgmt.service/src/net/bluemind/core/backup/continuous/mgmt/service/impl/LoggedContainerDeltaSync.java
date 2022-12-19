@@ -97,6 +97,7 @@ public abstract class LoggedContainerDeltaSync<O, T> extends ContainerSync {
 			List<ItemValue<T>> loadedItems = crudApi
 					.multipleGetById(chunk.stream().map(iv -> iv.id).collect(Collectors.toList()));
 			for (ItemValue<T> item : loadedItems) {
+				preSync(target, contMon, item);
 				sink.store(remap(contMon, item));
 				contMon.progress(1, null);
 			}
@@ -114,6 +115,9 @@ public abstract class LoggedContainerDeltaSync<O, T> extends ContainerSync {
 
 	protected ItemValue<T> remap(@SuppressWarnings("unused") IServerTaskMonitor contMon, ItemValue<T> item) {
 		return item;
+	}
+
+	protected void preSync(IBackupStoreFactory target, IServerTaskMonitor entryMon, ItemValue<T> itemValue) {
 	}
 
 }

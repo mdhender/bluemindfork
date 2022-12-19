@@ -17,19 +17,18 @@ public class MessageBodyHook implements IMessageBodyHook, ContinuousContenairiza
 	}
 
 	@Override
-	public void preCreate(String domainUid, String ownerId, String mailboxUniqueId, MailboxRecord mailboxRecord) {
-		MessageBody messageBody = fetchMessageBody(domainUid, ownerId, mailboxUniqueId, mailboxRecord);
+	public void preCreate(String domainUid, String ownerId, MailboxRecord mailboxRecord) {
+		MessageBody messageBody = fetchMessageBody(domainUid, ownerId, mailboxRecord);
 		save(domainUid, ownerId, messageBody.guid, messageBody, true);
 	}
 
 	@Override
-	public void preUpdate(String domainUid, String ownerId, String mailboxUniqueId, MailboxRecord mailboxRecord) {
-		MessageBody messageBody = fetchMessageBody(domainUid, ownerId, mailboxUniqueId, mailboxRecord);
+	public void preUpdate(String domainUid, String ownerId, MailboxRecord mailboxRecord) {
+		MessageBody messageBody = fetchMessageBody(domainUid, ownerId, mailboxRecord);
 		save(domainUid, ownerId, messageBody.guid, messageBody, false);
 	}
 
-	private MessageBody fetchMessageBody(String domainUid, String ownerId, String mailboxUniqueId,
-			MailboxRecord mailboxRecord) {
+	public static MessageBody fetchMessageBody(String domainUid, String ownerId, MailboxRecord mailboxRecord) {
 		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IMailboxes mailboxesApi = prov.instance(IMailboxes.class, domainUid);
 		var mailbox = mailboxesApi.getComplete(ownerId);

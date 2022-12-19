@@ -5,6 +5,8 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.hash.Hashing;
+
 import net.bluemind.core.backup.continuous.DefaultBackupStore;
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.container.model.ContainerDescriptor;
@@ -55,7 +57,7 @@ public interface ContinuousContenairization<T> {
 
 	default ItemValue<T> itemValue(String uid, T identity, boolean created) {
 		ItemValue<T> iv = ItemValue.create(uid, identity);
-		iv.internalId = iv.uid.hashCode();
+		iv.internalId = Hashing.sipHash24().hashBytes(iv.uid.getBytes()).asLong();
 		if (created) {
 			iv.created = new Date();
 		} else {

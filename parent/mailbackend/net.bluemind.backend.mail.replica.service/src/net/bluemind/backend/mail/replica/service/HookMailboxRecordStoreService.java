@@ -31,7 +31,7 @@ public class HookMailboxRecordStoreService<T> extends ContainerStoreService<T> {
 	@Override
 	public ItemVersion createWithId(String uid, Long internalId, String extId, String displayName, T value) {
 		MailboxRecord mailboxRecord = (MailboxRecord) value;
-		hooks.forEach(hook -> hook.preCreate(container.domainUid, container.owner, mailboxUniqueId, mailboxRecord));
+		hooks.forEach(hook -> hook.preCreate(container.domainUid, container.owner, mailboxRecord));
 		return super.createWithId(uid, internalId, extId, displayName, value, changelogStore, itemStore,
 				itemValueStore);
 	}
@@ -39,28 +39,28 @@ public class HookMailboxRecordStoreService<T> extends ContainerStoreService<T> {
 	@Override
 	public ItemVersion create(String uid, String displayName, T value) {
 		MailboxRecord mailboxRecord = (MailboxRecord) value;
-		hooks.forEach(hook -> hook.preCreate(container.domainUid, container.owner, mailboxUniqueId, mailboxRecord));
+		hooks.forEach(hook -> hook.preCreate(container.domainUid, container.owner, mailboxRecord));
 		return super.createWithId(uid, null, null, displayName, value);
 	}
 
 	@Override
 	public ItemVersion create(Item item, T value) {
 		MailboxRecord mailboxRecord = (MailboxRecord) value;
-		hooks.forEach(hook -> hook.preCreate(container.domainUid, container.owner, mailboxUniqueId, mailboxRecord));
+		hooks.forEach(hook -> hook.preCreate(container.domainUid, container.owner, mailboxRecord));
 		return super.create(item, value);
 	}
 
 	@Override
 	public ItemVersion update(long itemId, String displayName, T value) {
 		MailboxRecord mailboxRecord = (MailboxRecord) value;
-		hooks.forEach(hook -> hook.preUpdate(container.domainUid, container.owner, mailboxUniqueId, mailboxRecord));
+		hooks.forEach(hook -> hook.preUpdate(container.domainUid, container.owner, mailboxRecord));
 		return super.update(itemId, displayName, value);
 	}
 
 	@Override
 	public ItemVersion update(String uid, String displayName, T value) {
 		MailboxRecord mailboxRecord = (MailboxRecord) value;
-		hooks.forEach(hook -> hook.preUpdate(container.domainUid, container.owner, mailboxUniqueId, mailboxRecord));
+		hooks.forEach(hook -> hook.preUpdate(container.domainUid, container.owner, mailboxRecord));
 		Item item = new Item();
 		item.uid = uid;
 		return super.update(item, displayName, value);
@@ -69,7 +69,7 @@ public class HookMailboxRecordStoreService<T> extends ContainerStoreService<T> {
 	@Override
 	public ItemVersion update(Item item, String displayName, T value) {
 		MailboxRecord mailboxRecord = (MailboxRecord) value;
-		hooks.forEach(hook -> hook.preUpdate(container.domainUid, container.owner, mailboxUniqueId, mailboxRecord));
+		hooks.forEach(hook -> hook.preUpdate(container.domainUid, container.owner, mailboxRecord));
 		return super.update(item, displayName, value);
 	}
 

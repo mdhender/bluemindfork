@@ -26,7 +26,7 @@ public class MessageBodyESSourceHook implements IMessageBodyHook, ContinuousCont
 	}
 
 	@Override
-	public void preCreate(String domainUid, String ownerId, String mailboxUniqueId, MailboxRecord mailboxRecord) {
+	public void preCreate(String domainUid, String ownerId, MailboxRecord mailboxRecord) {
 		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IMailboxes mailboxesApi = prov.instance(IMailboxes.class, domainUid);
 		var mailbox = mailboxesApi.getComplete(ownerId);
@@ -43,7 +43,7 @@ public class MessageBodyESSourceHook implements IMessageBodyHook, ContinuousCont
 	}
 
 	@Override
-	public void preUpdate(String domainUid, String ownerId, String mailboxUniqueId, MailboxRecord mailboxRecord) {
+	public void preUpdate(String domainUid, String ownerId, MailboxRecord mailboxRecord) {
 		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IMailboxes mailboxesApi = prov.instance(IMailboxes.class, domainUid);
 		var mailbox = mailboxesApi.getComplete(ownerId);

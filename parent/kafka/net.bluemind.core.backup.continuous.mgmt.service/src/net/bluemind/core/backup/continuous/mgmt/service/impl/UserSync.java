@@ -138,7 +138,6 @@ public class UserSync extends DirEntryWithMailboxSync<User> {
 
 			processContainers(entryMon, target, nodes, stored);
 		}
-
 		return stored;
 	}
 
@@ -197,5 +196,4 @@ public class UserSync extends DirEntryWithMailboxSync<User> {
 			}
 		}
 	}
-
 }
