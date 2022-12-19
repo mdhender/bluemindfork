@@ -67,7 +67,6 @@ public class WriteFile implements Handler<HttpServerRequest> {
 				Files.createDirectories(originalPath.getParent());
 			}
 
-			Files.createDirectories(originalPath.getParent());
 			Path tempPath = Files.createTempFile(originalPath.getParent(), ".nc_", "");
 			SeekableByteChannel chan = Files.newByteChannel(tempPath, StandardOpenOption.CREATE, // NOSONAR: async
 																									// handler
