@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { BmAvatar } from "@bluemind/styleguide";
+import { BmAvatar } from "@bluemind/ui-components";
 
 export default {
     name: "ContactCardHeader",

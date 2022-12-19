@@ -13,7 +13,7 @@
 <script>
 import { mapExtensions } from "@bluemind/extensions";
 import { inject } from "@bluemind/inject";
-import { BmButton } from "@bluemind/styleguide";
+import { BmButton } from "@bluemind/ui-components";
 
 export default {
     name: "ContactActionShow",

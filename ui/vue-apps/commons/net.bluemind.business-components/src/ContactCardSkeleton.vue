@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { BmSkeleton, BmSkeletonAvatar } from "@bluemind/styleguide";
+import { BmSkeleton, BmSkeletonAvatar } from "@bluemind/ui-components";
 
 export default {
     name: "ContactCardSkeleton",

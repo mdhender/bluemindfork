@@ -25,7 +25,7 @@ import { mapActions, mapMutations } from "vuex";
 import { RecipientAdaptor, VCardAdaptor, VCardInfoAdaptor } from "@bluemind/contact";
 import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
-import { BmContactInput } from "@bluemind/styleguide";
+import { BmContactInput } from "@bluemind/ui-components";
 import { CHECK_CORPORATE_SIGNATURE } from "~/actions";
 import apiAddressbooks from "~/store/api/apiAddressbooks";
 import { SET_ADDRESS_WEIGHT, SET_MESSAGE_BCC, SET_MESSAGE_CC, SET_MESSAGE_TO } from "~/mutations";

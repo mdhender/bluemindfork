@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import { BmButton, BmLabelIcon } from "@bluemind/styleguide";
+import { BmButton, BmLabelIcon } from "@bluemind/ui-components";
 export default {
     name: "PrefDeleteRecipientPriorities",
     components: { BmButton, BmLabelIcon },

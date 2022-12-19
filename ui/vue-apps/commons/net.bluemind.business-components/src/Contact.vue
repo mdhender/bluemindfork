@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import { BmAvatar, BmButton, BmChip, BmIconButton } from "@bluemind/styleguide";
+import { BmAvatar, BmButton, BmChip, BmIconButton } from "@bluemind/ui-components";
 import ContactPopover from "./ContactPopover";
 
 export default {
@@ -192,7 +192,7 @@ export default {
 
 <style lang="scss">
 @use "sass:math";
-@import "~@bluemind/styleguide/css/_variables";
+@import "~@bluemind/ui-components/src/css/_variables.scss";
 
 $avatar-text-gap: $sp-4;
 

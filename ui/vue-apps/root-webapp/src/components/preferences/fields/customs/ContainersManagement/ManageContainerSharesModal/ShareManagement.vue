@@ -51,7 +51,7 @@ import { Verb } from "@bluemind/core.container.api";
 import { BaseDirEntryKind } from "@bluemind/directory.api";
 import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
-import { BmFormAutocompleteInput, BmSpinner } from "@bluemind/styleguide";
+import { BmFormAutocompleteInput, BmSpinner } from "@bluemind/ui-components";
 import { Contact } from "@bluemind/business-components";
 import UUIDHelper from "@bluemind/uuid";
 import { SUCCESS } from "@bluemind/alert.store";

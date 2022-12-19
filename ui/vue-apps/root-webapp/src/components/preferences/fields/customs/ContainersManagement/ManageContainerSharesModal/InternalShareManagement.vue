@@ -45,7 +45,7 @@
 import { DirEntryAdaptor } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";
 import { Contact } from "@bluemind/business-components";
-import { BmFormSelect, BmLabelIcon, BmRow } from "@bluemind/styleguide";
+import { BmFormSelect, BmLabelIcon, BmRow } from "@bluemind/ui-components";
 import { ContainerHelper, ContainerType } from "../container";
 
 export default {

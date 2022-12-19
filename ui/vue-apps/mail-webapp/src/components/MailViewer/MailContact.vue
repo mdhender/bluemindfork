@@ -39,7 +39,7 @@
 import { mapGetters } from "vuex";
 import { Contact, ContactActionShow } from "@bluemind/business-components";
 import { inject } from "@bluemind/inject";
-import { BmButton } from "@bluemind/styleguide";
+import { BmButton } from "@bluemind/ui-components";
 import UUIDGenerator from "@bluemind/uuid";
 import { MY_DRAFTS } from "~/getters";
 import { MailRoutesMixin } from "~/mixins";

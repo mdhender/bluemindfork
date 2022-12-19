@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import { BmMoreItemsBadge, OverflownElements } from "@bluemind/styleguide";
+import { BmMoreItemsBadge, OverflownElements } from "@bluemind/ui-components";
 import MailContact from "./MailContact";
 
 export default {

@@ -77,7 +77,7 @@
 </template>
 
 <script>
-import { BmButtonClose } from "@bluemind/styleguide";
+import { BmButtonClose } from "@bluemind/ui-components";
 import MailContact from "./MailContact";
 
 export default {

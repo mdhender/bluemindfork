@@ -43,7 +43,7 @@
 
 <script>
 import { formatAddress } from "localized-address-format";
-import { BmIcon, BmIconButtonCopy } from "@bluemind/styleguide";
+import { BmIcon, BmIconButtonCopy } from "@bluemind/ui-components";
 
 import l10n from "./l10n";
 

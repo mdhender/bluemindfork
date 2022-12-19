@@ -38,7 +38,7 @@
 <script>
 import { mapState } from "vuex";
 import { inject } from "@bluemind/inject";
-import { BmButton, BmIcon, BmPagination, BmTable } from "@bluemind/styleguide";
+import { BmButton, BmIcon, BmPagination, BmTable } from "@bluemind/ui-components";
 import { Contact } from "@bluemind/business-components";
 
 import ManageIdentityModal from "./ManageIdentityModal";

@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { BmPopover } from "@bluemind/styleguide";
+import { BmPopover } from "@bluemind/ui-components";
 import ContactCard from "./ContactCard";
 import ResolvedContact from "./ResolvedContact";
 

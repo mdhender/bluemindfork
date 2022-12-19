@@ -47,7 +47,7 @@ import { PublishMode } from "@bluemind/calendar.api";
 import { VCardInfoAdaptor } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";
 import { Contact } from "@bluemind/business-components";
-import { BmButtonCopy, BmIconButton, BmFormSelect, BmLabelIcon, BmRow } from "@bluemind/styleguide";
+import { BmButtonCopy, BmIconButton, BmFormSelect, BmLabelIcon, BmRow } from "@bluemind/ui-components";
 
 export default {
     name: "ExternalShareManagement",
