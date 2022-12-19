@@ -15,8 +15,10 @@
 		},
 		"many_files": "Viele Dateien werden ausgewählt"
 	},
+	"contact.address_book": "Im Adressbuch \"{name}\"",
+    "contact.card.phone_call": "die Nummer {number} anrufen",
     "contact.card.show_contact": "Kontakt anzeigen",
-    "contact.card.show_contact.tooltip": "Öffnen Sie die Kontaktanwendung auf einer neuen Registerkarte.",
+    "contact.card.show_contact.tooltip": "Öffnen Sie die Kontaktanwendung auf einer neuen Registerkarte",
     "contact.info.type.cell": "mobil",
     "contact.info.type.fax": "Fax",
     "contact.info.type.home": "persönlich",

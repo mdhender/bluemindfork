@@ -137,7 +137,9 @@ export default {
             return false;
         },
         submit(event) {
-            if (!this.selectResult(-1, event) && this.value !== "") {
+            if (this.selectedResult_ === "extra") {
+                this.$emit("submitExtra");
+            } else if (!this.selectResult(-1, event) && this.value !== "") {
                 this.$emit("submit");
                 this.closeSuggestions();
                 event.preventDefault();
@@ -163,6 +165,9 @@ export default {
             } else {
                 this.selectedResult_ = 0;
             }
+        },
+        focus() {
+            this.$refs.input.focus();
         }
     }
 };
@@ -173,6 +178,8 @@ export default {
 
 .bm-form-autocomplete-input {
     min-width: 15vw;
+    $max-nb-suggestions: 5;
+    $suggestion-height: $input-height;
 
     .list-group-separator {
         border-color: $neutral-fg-lo2 !important;
@@ -182,8 +189,8 @@ export default {
         cursor: pointer;
         background-color: $surface;
         width: 100%;
-        max-height: 33vh;
         border: 2 * $input-border-width solid $secondary-fg;
+        max-height: max(33vh, #{$max-nb-suggestions * $suggestion-height});
 
         .list-group-item {
             &.hover,

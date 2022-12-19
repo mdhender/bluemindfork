@@ -220,6 +220,7 @@
     "mail.actions.save.aria": "E-Mail speichern",
     "mail.actions.send.aria": "E-Mail versenden",
     "mail.actions.send": "Senden",
+    "mail.actions.send_message.tooltip": "Senden Sie eine E-Mail an '{address}'",
     "mail.actions.show_sender": "Feld \"Von\" anzeigen",
     "mail.actions.show_source": "Quellcode anzeigen",
     "mail.actions.spam.aria": "Nachricht als Spam kennzeichnen",

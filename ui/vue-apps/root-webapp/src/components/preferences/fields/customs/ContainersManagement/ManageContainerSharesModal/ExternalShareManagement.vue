@@ -107,7 +107,7 @@ export default {
             display: flex;
             align-items: flex-end;
 
-            .bm-contact {
+            .contact {
                 max-width: 100%;
             }
         }

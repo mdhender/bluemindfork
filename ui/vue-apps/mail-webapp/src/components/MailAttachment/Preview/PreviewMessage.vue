@@ -95,7 +95,7 @@ export default {
     display: flex;
     flex-direction: column;
 
-    .sender .bm-contact {
+    .sender .contact {
         display: none;
     }
     * .date {
@@ -109,7 +109,7 @@ export default {
     .mail-sender-splitter {
         display: none;
     }
-    .mail-viewer-recipients {
+    .sender-and-recipients {
         display: none;
     }
     .sender,

@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 
-jest.mock("../../../src/css/exports/avatar.scss", () => ({
+jest.mock("@bluemind/ui-components/src/css/exports/avatar.scss", () => ({
     1: "#007bff",
     2: "#6610f2",
     3: "#6f42c1",
@@ -15,10 +15,10 @@ jest.mock("../../../src/css/exports/avatar.scss", () => ({
     12: "#6c757d",
     13: "#343a40"
 }));
-jest.mock("../../../src/css/exports/colors.scss", () => ({}));
+jest.mock("@bluemind/ui-components/src/css/exports/colors.scss", () => ({}));
 
-import BmContactInput from "../../../src/components/form/BmContactInput";
-import exampleContacts from "../../data/contacts";
+import ContactInput from "../src/ContactInput";
+import exampleContacts from "@bluemind/ui-components/tests/data/contacts";
 
 class ResizeObserver {
     observe() {}
@@ -31,9 +31,9 @@ class MutationObserver {
 window.ResizeObserver = ResizeObserver;
 window.MutationObserver = MutationObserver;
 
-describe("BmContactInput", () => {
+describe("ContactInput", () => {
     function defaultMount() {
-        return mount(BmContactInput, {
+        return mount(ContactInput, {
             propsData: { validateAddressFn: () => true },
             slots: {
                 default: "To"
@@ -47,7 +47,7 @@ describe("BmContactInput", () => {
     }
 
     function mountWithData() {
-        return mount(BmContactInput, {
+        return mount(ContactInput, {
             propsData: {
                 contacts: exampleContacts.slice(0, 3),
                 autocompleteResults: exampleContacts,
@@ -69,17 +69,17 @@ describe("BmContactInput", () => {
         expect(defaultMount().vm).toBeTruthy();
     });
 
-    test("BmContactInput should match snapshot", () => {
+    test("ContactInput should match snapshot", () => {
         expect(defaultMount().vm.$el).toMatchSnapshot();
     });
 
-    test("BmContactInput displays a label and an input", () => {
+    test("ContactInput displays a label and an input", () => {
         const wrapper = defaultMount();
         expect(wrapper.text()).toContain("To");
         expect(wrapper.html()).toContain("<input");
     });
 
-    test("BmContactInput instanciated with emails also displays contacts", () => {
+    test("ContactInput instanciated with emails also displays contacts", () => {
         const wrapper = mountWithData();
         expect(wrapper.text()).toContain("To");
         expect(wrapper.html()).toContain("<input");
@@ -91,16 +91,15 @@ describe("BmContactInput", () => {
     test("Edit a contact", async () => {
         const wrapper = mountWithData();
         expect(wrapper.findAll(".contact-wrapper").length).toBe(3);
-        wrapper.vm.$data.contacts_[0].selected = true; // set a selected contact
-
-        expect(wrapper.findAll(".bm-contact").length).toBe(3);
+        wrapper.vm.$data.contacts_[2].selected = true; // set a selected contact
+        expect(wrapper.findAll(".contact").length).toBe(3);
         expect(wrapper.findAll("input").length).toBe(1);
 
-        wrapper.find(".contact-wrapper").trigger("dblclick");
+        wrapper.find("input").trigger("keydown.backspace");
 
         await wrapper.vm.$nextTick();
-        expect(wrapper.text()).toContain(exampleContacts[1].dn);
-        expect(wrapper.findAll(".bm-contact").length).toBe(2);
+        expect(wrapper.text()).toContain(exampleContacts[3].dn);
+        expect(wrapper.findAll(".contact").length).toBe(2);
         expect(wrapper.findAll("input").length).toBe(2);
     });
 

@@ -153,7 +153,7 @@ export default {
 
     word-break: break-word !important;
 
-    .bm-contact-input input,
+    .contact-input input,
     textarea {
         border: none;
     }

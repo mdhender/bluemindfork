@@ -69,7 +69,7 @@ export default {
         min-width: 0;
         position: relative;
 
-        .bm-contact-input {
+        .contact-input {
             padding-right: $bcc-button-width;
         }
 
@@ -81,12 +81,12 @@ export default {
         }
     }
 
-    .bm-contact-input {
+    .contact-input {
         &.expanded-search .delete-autocomplete {
             visibility: hidden;
         }
         .bm-contact-input-autocomplete-extra {
-            width: 18rem;
+            width: base-px-to-rem(288);
         }
     }
 }

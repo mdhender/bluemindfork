@@ -2,7 +2,7 @@
     <div class="mail-folder-tree">
         <bm-button
             variant="text"
-            class="collapse-tree-btn text-truncate"
+            class="collapse-tree-btn"
             size="sm"
             :aria-controls="id"
             :aria-expanded="!collapsed"
@@ -78,6 +78,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/ui-components/src/css/_mixins.scss";
 @import "~@bluemind/ui-components/src/css/_type";
 @import "~@bluemind/ui-components/src/css/variables";
 
@@ -126,6 +127,10 @@ export default {
 
     .mail-folder-input svg {
         margin-left: $sp-1;
+    }
+
+    .bm-button .bm-button-content {
+        @include text-overflow;
     }
 }
 </style>

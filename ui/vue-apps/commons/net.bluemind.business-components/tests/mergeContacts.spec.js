@@ -20,10 +20,12 @@ describe("Merge contacts", () => {
     test("Merge contacts from different address books", async () => {
         const searchResults = require("./data/searchResults.json");
         const getCompleteResults = require("./data/getCompleteResults.json");
-        const contact = await mergeContacts(
-            getCompleteResults,
-            searchResults.values.map(v => v.containerUid)
-        );
+        const contactsWithContainerUid = getCompleteResults.map(res => ({
+            ...res,
+            containerUid: searchResults.values.find(v => v.uid === res.uid && v.displayName === res.displayName)
+                ?.containerUid
+        }));
+        const contact = await mergeContacts(contactsWithContainerUid);
         expect(contact).toMatchSnapshot();
     });
 });

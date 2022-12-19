@@ -9,15 +9,24 @@
             <div class="d-flex">
                 <div class="custom-col-left text-right pr-4">{{ $t("common.from") }}</div>
                 <div class="custom-col-right">
-                    <mail-contact :contact="message.from" no-avatar transparent bold show-address popover />
+                    <mail-contact-card-slots
+                        :component="Contact"
+                        :contact="message.from"
+                        no-avatar
+                        transparent
+                        bold
+                        show-address
+                        popover
+                    />
                 </div>
             </div>
             <div class="d-flex">
                 <div class="custom-col-left text-right pr-4">{{ $t("common.to") }}</div>
                 <div class="custom-col-right d-flex flex-column">
-                    <contact
+                    <mail-contact-card-slots
                         v-for="(contact, index) in message.to"
                         :key="`${contact.address}#${index}`"
+                        :component="Contact"
                         :contact="contact"
                         no-avatar
                         transparent
@@ -31,9 +40,10 @@
             <div v-if="message.cc && message.cc.length" class="d-flex">
                 <div class="custom-col-left text-right pr-4">{{ $t("common.cc") }}</div>
                 <div class="custom-col-right d-flex flex-column">
-                    <contact
+                    <mail-contact-card-slots
                         v-for="(contact, index) in message.cc"
                         :key="`${contact.address}#${index}`"
+                        :component="Contact"
                         :contact="contact"
                         no-avatar
                         transparent
@@ -47,9 +57,10 @@
             <div v-if="message.bcc && message.bcc.length" class="d-flex">
                 <div class="custom-col-left text-right pr-4">{{ $t("common.bcc") }}</div>
                 <div class="custom-col-right d-flex flex-column">
-                    <contact
+                    <mail-contact-card-slots
                         v-for="(contact, index) in message.bcc"
                         :key="`${contact.address}#${index}`"
+                        :component="Contact"
                         :contact="contact"
                         no-avatar
                         transparent
@@ -77,12 +88,13 @@
 </template>
 
 <script>
+import { Contact } from "@bluemind/business-components";
 import { BmButtonClose } from "@bluemind/ui-components";
-import MailContact from "./MailContact";
+import MailContactCardSlots from "../MailContactCardSlots";
 
 export default {
     name: "MailViewerRecipientsMoreContent",
-    components: { BmButtonClose, MailContact },
+    components: { BmButtonClose, MailContactCardSlots },
     props: {
         message: {
             type: Object,
@@ -92,6 +104,9 @@ export default {
             type: Boolean,
             default: false
         }
+    },
+    data() {
+        return { Contact };
     }
 };
 </script>

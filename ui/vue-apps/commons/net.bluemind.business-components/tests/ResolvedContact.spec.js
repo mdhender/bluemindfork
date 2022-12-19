@@ -3,7 +3,8 @@ import ResolvedContact from "../src/ResolvedContact";
 jest.mock("@bluemind/inject", () => ({
     inject: () => ({
         search: () => Promise.resolve({ values: [{}] }),
-        getComplete: () => Promise.resolve({})
+        getComplete: () => Promise.resolve({}),
+        multipleGet: () => Promise.resolve([{}])
     })
 }));
 

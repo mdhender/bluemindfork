@@ -27,7 +27,6 @@ export default {
 
 function lastErrorReason(error) {
     if (error) {
-        const lastSemiColonIndex = error.toString().lastIndexOf(":");
-        return error.toString().substring(lastSemiColonIndex >= 0 ? lastSemiColonIndex + 1 : 0);
+        return error.toString()?.match(/(?:.(?<!Exception:))+$/i)[0];
     }
 }

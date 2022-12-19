@@ -136,7 +136,7 @@ describe("BrowsableContainer", () => {
     });
     test("Expect focus change to trigger browse:focus event", () => {
         const wrapper = shallowMount(TestComponent, {
-            attachToDocument: true,
+            attachTo: document.body,
             localVue: Vue,
             slots: {
                 default:
@@ -166,7 +166,7 @@ describe("BrowsableContainer", () => {
     });
     test("Expect component blur to trigger browse:blur event", () => {
         const wrapper = shallowMount(TestComponent, {
-            attachToDocument: true,
+            attachTo: document.body,
             localVue: Vue,
             slots: {
                 default:
@@ -177,11 +177,22 @@ describe("BrowsableContainer", () => {
         wrapper.vm.focus();
         wrapper.trigger("focusin");
         wrapper.vm.focusNext();
-        wrapper.trigger("focusout");
+        wrapper.trigger("focusout", { relatedTarget: document.getElementById("second") });
+        let events = wrapper.emitted("browse:blur");
+        expect(events).toBeFalsy();
+
+        wrapper.trigger("focusout", { relatedTarget: undefined });
+        events = wrapper.emitted("browse:blur");
+        expect(events).toBeFalsy();
+
         wrapper.trigger("focusin");
+        wrapper.trigger("focusout", { relatedTarget: document.body });
+        events = wrapper.emitted("browse:blur");
+        expect(events).toBeFalsy();
+
         document.activeElement.blur();
-        wrapper.trigger("focusout");
-        const events = wrapper.emitted("browse:blur");
+        wrapper.trigger("focusout", { relatedTarget: document.body });
+        events = wrapper.emitted("browse:blur");
         expect(events.length).toBe(1);
     });
     test("Expect navigation to avoid invisible elements", () => {

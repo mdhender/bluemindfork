@@ -1,5 +1,8 @@
 <template>
-    <contact v-bind="[$attrs, $props]" class="mail-contact">
+    <component :is="component" v-bind="[$attrs, $props]" class="mail-contact-card-slots" v-on="$listeners">
+        <template #default>
+            <slot />
+        </template>
         <template #email="slotProps">
             <router-link
                 :to="
@@ -9,6 +12,7 @@
                         query: { to: slotProps.email }
                     })
                 "
+                :title="$t('mail.actions.send_message.tooltip', { address: slotProps.email })"
             >
                 {{ slotProps.email }}
             </router-link>
@@ -32,12 +36,12 @@
                 {{ $t("mail.actions.add_contact") }}
             </bm-button>
         </template>
-    </contact>
+    </component>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
-import { Contact, ContactActionShow } from "@bluemind/business-components";
+import { ContactActionShow } from "@bluemind/business-components";
 import { inject } from "@bluemind/inject";
 import { BmButton } from "@bluemind/ui-components";
 import UUIDGenerator from "@bluemind/uuid";
@@ -45,17 +49,17 @@ import { MY_DRAFTS } from "~/getters";
 import { MailRoutesMixin } from "~/mixins";
 
 export default {
-    name: "MailContact",
-    components: { BmButton, Contact, ContactActionShow },
+    name: "MailContactCardSlots",
+    components: { BmButton, ContactActionShow },
     mixins: [MailRoutesMixin],
+    props: {
+        component: { type: Object, required: true }
+    },
     data() {
         return { loading: false };
     },
     computed: {
         ...mapGetters("mail", { MY_DRAFTS })
-    },
-    updated() {
-        this.focusAction();
     },
     methods: {
         async addContact(contact) {
@@ -66,17 +70,13 @@ export default {
             this.loading = false;
             contact.uid = uid;
             contact.containerUid = containerUid;
-            this.focusAction();
-        },
-        focusAction() {
-            this.$nextTick(() => this.$refs["action"]?.$el.focus());
         }
     }
 };
 </script>
 
 <style lang="scss">
-.mail-contact {
+.mail-contact-card-slots {
     .bm-button .slot-wrapper {
         display: flex;
     }

@@ -1,6 +1,6 @@
 <template>
     <div class="pref-filter-rule-forward-action-editor">
-        <bm-contact-input
+        <contact-input
             :contacts="contacts"
             :max-contacts="1"
             :autocomplete-results="autocompleteResults"
@@ -15,14 +15,15 @@
 </template>
 
 <script>
-import { BmContactInput, BmFormCheckbox } from "@bluemind/ui-components";
+import { BmFormCheckbox } from "@bluemind/ui-components";
+import { ContactInput } from "@bluemind/business-components";
 import { searchVCardsHelper, VCardInfoAdaptor } from "@bluemind/contact";
 import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 
 export default {
     name: "PrefFilterRuleForwardActionEditor",
-    components: { BmContactInput, BmFormCheckbox },
+    components: { BmFormCheckbox, ContactInput },
     props: {
         action: {
             type: Object,

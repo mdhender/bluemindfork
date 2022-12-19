@@ -38,7 +38,7 @@ export default {
     toMailboxItem(local, structure) {
         return {
             body: {
-                date: local.date.getTime(),
+                date: new Date(local.date).getTime(),
                 subject: local.subject,
                 headers: local.headers,
                 recipients: buildRecipients(local),

@@ -166,7 +166,7 @@ Object {
         "value": null,
       },
       "photo": true,
-      "photoBinary": "photoBinary",
+      "photoBinary": "http://localhost/api/addressbooks/addressbook_75a0d5b3.internal/E34DD2DD-25AC-4548-927F-C7D183203608/photo",
     },
   },
 }

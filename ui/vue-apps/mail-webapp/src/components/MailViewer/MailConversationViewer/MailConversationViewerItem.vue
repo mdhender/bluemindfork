@@ -13,7 +13,13 @@
             </div>
             <div class="d-flex min-height conversation-viewer-row click-to-collapse-zone flex-nowrap" @click="collapse">
                 <div class="avatar-wrapper vertical-line" :class="{ first: index === 0, last: index === maxIndex }">
-                    <mail-contact :contact="message.from" no-text avatar-size="md" popover />
+                    <mail-contact-card-slots
+                        :component="Contact"
+                        :contact="message.from"
+                        no-text
+                        avatar-size="md"
+                        popover
+                    />
                 </div>
                 <slot name="head" />
             </div>
@@ -49,14 +55,15 @@
     </div>
 </template>
 <script>
+import { Contact } from "@bluemind/business-components";
 import MailConversationViewerItemMixin from "./MailConversationViewerItemMixin";
 import MailConversationViewerVerticalLine from "./MailConversationViewerVerticalLine";
 import MailViewerRecipients from "../MailViewerRecipients";
-import MailContact from "../MailContact";
+import MailContactCardSlots from "../../MailContactCardSlots";
 
 export default {
     name: "MailConversationViewerItem",
-    components: { MailContact, MailConversationViewerVerticalLine, MailViewerRecipients },
+    components: { MailContactCardSlots, MailConversationViewerVerticalLine, MailViewerRecipients },
     mixins: [MailConversationViewerItemMixin],
     props: {
         isDraft: {
@@ -67,6 +74,9 @@ export default {
             type: Boolean,
             default: false
         }
+    },
+    data() {
+        return { Contact };
     },
     methods: {
         collapse(event) {

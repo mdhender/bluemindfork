@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-viewer-recipients" tabindex="0" @keyup.esc.prevent.stop="toShowMore = false">
+    <div class="mail-viewer-recipients" @keyup.esc.prevent.stop="toShowMore = false">
         <mail-viewer-recipient
             v-if="message.to.length"
             id="mail-viewer-recipient-to"
@@ -39,6 +39,7 @@
             triggers="manuel"
             :show.sync="toShowMore"
             placement="bottom"
+            custom-class="recipients-popover"
             no-fade
         >
             <mail-viewer-recipients-more-content :message="message" @close="toShowMore = false" />
@@ -49,6 +50,7 @@
             triggers="manuel"
             :show.sync="ccShowMore"
             placement="bottom"
+            custom-class="recipients-popover"
             no-fade
         >
             <mail-viewer-recipients-more-content :message="message" @close="ccShowMore = false" />
@@ -59,6 +61,7 @@
             triggers="manuel"
             :show.sync="bccShowMore"
             placement="bottom"
+            custom-class="recipients-popover"
             no-fade
         >
             <mail-viewer-recipients-more-content :message="message" @close="bccShowMore = false" />
@@ -144,6 +147,7 @@ export default {
         }
     }
 }
+.recipients-popover,
 .contact-card-popover {
     @include until-lg {
         display: none !important;
@@ -155,6 +159,13 @@ export default {
 
     .arrow {
         display: none;
+    }
+
+    div:focus,
+    .contact-card-body a:focus {
+        outline-width: 1px !important;
+        outline-style: dashed !important;
+        outline-color: var(--neutral-fg);
     }
 }
 </style>

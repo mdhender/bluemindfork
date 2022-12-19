@@ -15,11 +15,14 @@
             },
             "many_files": "De nombreux fichiers sont sélectionnés"
     },
+    "contact.address_book": "Dans le carnet d'adresses \"{name}\"",
+    "contact.card.phone_call": "Appeler le numéro {number}",
     "contact.card.show_contact": "Afficher le contact",
-    "contact.card.show_contact.tooltip": "Ouvre l'application Contacts dans un nouvel onglet.",
+    "contact.card.show_contact.tooltip": "Ouvrir l'application Contacts dans un nouvel onglet",
     "contact.info.type.cell": "mobile",
     "contact.info.type.fax": "fax",
     "contact.info.type.home": "personnel",
     "contact.info.type.voice": "société",
     "contact.info.type.work": "société"
+    
 }

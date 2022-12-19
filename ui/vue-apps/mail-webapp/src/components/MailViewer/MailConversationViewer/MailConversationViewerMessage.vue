@@ -4,7 +4,15 @@
         <template slot="head">
             <div class="conversation-viewer-message-head d-flex flex-fill justify-content-between align-items-start">
                 <div class="d-flex align-self-center overflow-hidden no-wrap">
-                    <mail-contact :contact="message.from" no-avatar transparent show-address bold-dn popover />
+                    <mail-contact-card-slots
+                        :component="Contact"
+                        :contact="message.from"
+                        no-avatar
+                        transparent
+                        show-address
+                        bold-dn
+                        popover
+                    />
                     <mail-folder-icon
                         v-if="folder.key !== conversation.folderRef.key"
                         variant="caption"
@@ -62,6 +70,7 @@
 </template>
 <script>
 import { mapGetters, mapState } from "vuex";
+import { Contact } from "@bluemind/business-components";
 import { BmExtension } from "@bluemind/extensions.vue";
 import MailConversationViewerItem from "./MailConversationViewerItem";
 import MailViewerContentLoading from "../../MailViewer/MailViewerContentLoading";
@@ -73,7 +82,7 @@ import BodyViewer from "../BodyViewer";
 import { MESSAGE_IS_LOADED } from "~/getters";
 import MailFolderIcon from "../../MailFolderIcon";
 import MailAttachmentIcon from "../../MailAttachmentIcon";
-import MailContact from "../MailContact";
+import MailContactCardSlots from "../../MailContactCardSlots";
 
 export default {
     name: "MailConversationViewerMessage",
@@ -81,7 +90,7 @@ export default {
         BmExtension,
         BodyViewer,
         MailAttachmentIcon,
-        MailContact,
+        MailContactCardSlots,
         MailConversationViewerFlags,
         MailConversationViewerItem,
         MailFolderIcon,
@@ -90,6 +99,9 @@ export default {
         MailViewerToolbarForMobile
     },
     mixins: [MailConversationViewerItemMixin],
+    data() {
+        return { Contact };
+    },
     computed: {
         ...mapGetters("mail", { MESSAGE_IS_LOADED }),
         ...mapState("mail", ["folders", "mailboxes"]),
@@ -106,7 +118,7 @@ export default {
 .mail-conversation-viewer-message {
     .conversation-viewer-message-head {
         height: $input-height;
-        .bm-contact {
+        .contact {
             flex-shrink: 10;
         }
         .mail-folder-icon {

@@ -16,7 +16,7 @@
                     y="0"
                     width="120"
                     height="120"
-                    :xlink:href="url"
+                    :xlink:href="imageUrl"
                     @error="invalidUrl = true"
                 />
             </g>
@@ -58,6 +58,10 @@ export default {
             default: ""
         },
         urn: {
+            type: String,
+            default: ""
+        },
+        url: {
             type: String,
             default: ""
         },
@@ -114,7 +118,7 @@ export default {
             return Math.abs(hash);
         },
         hasPhoto() {
-            return this.url && !this.invalidUrl;
+            return this.imageUrl && !this.invalidUrl;
         },
         hasIcon() {
             return this.icon;
@@ -147,7 +151,10 @@ export default {
             }
             return this.alt;
         },
-        url() {
+        imageUrl() {
+            if (this.url) {
+                return this.url;
+            }
             if (this.urn) {
                 const [item, container] = this.urn.split("@");
                 return this.location + URL.replace("{container}", container).replace("{item}", item);

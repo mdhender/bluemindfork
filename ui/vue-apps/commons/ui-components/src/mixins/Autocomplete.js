@@ -54,7 +54,11 @@ export default {
         },
         onFocusOut(event) {
             if (this.enableAutoFocusOut) {
-                if (!this.$el.contains(document.activeElement) && !this.$el.contains(event.relatedTarget)) {
+                if (
+                    event.relatedTarget &&
+                    !this.$el.contains(event.relatedTarget) &&
+                    !this.$el.contains(document.activeElement)
+                ) {
                     this.closeSuggestions();
                 }
             }

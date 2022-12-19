@@ -3,4 +3,5 @@ registerDependencies();
 import { Chooser } from "./Chooser/index.js";
 import Contact from "./Contact";
 import ContactActionShow from "./actions/ContactActionShow";
-export { Contact, ContactActionShow, Chooser };
+import ContactInput from "./ContactInput";
+export { Contact, ContactActionShow, ContactInput, Chooser };

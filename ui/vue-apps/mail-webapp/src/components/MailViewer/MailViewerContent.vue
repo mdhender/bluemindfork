@@ -69,7 +69,7 @@ export default {
         display: flex;
         align-items: center;
 
-        .bm-contact {
+        .contact {
             flex: 1;
             .contact-main-part {
                 margin-left: $single-mail-avatar-main-gap !important;

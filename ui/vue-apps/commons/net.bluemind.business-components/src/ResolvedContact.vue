@@ -49,7 +49,7 @@ export default {
         },
         async recipientToContact() {
             const searchToken = EmailExtractor.extractEmail(this.recipient) || EmailExtractor.extractDN(this.recipient);
-            const searchResults = await inject("AddressBooksPersistence").search(searchVCardsHelper(searchToken));
+            const searchResults = await inject("AddressBooksPersistence").search(searchVCardsHelper(searchToken, -1));
             return searchResults.values?.length
                 ? searchResultsToContact(searchResults)
                 : recipientStringToVCardItem(this.recipient);
@@ -67,13 +67,21 @@ export default {
 };
 
 async function searchResultsToContact(searchResults) {
-    const promises = searchResults.values?.map(
-        async v => await inject("AddressBookPersistence", v.containerUid).getComplete(v.uid)
+    const groupedByContainer = searchResults.values?.reduce((res, current) => {
+        if (!res[current.containerUid]) {
+            res[current.containerUid] = [];
+        }
+        res[current.containerUid].push(current.uid);
+        return res;
+    }, {});
+
+    const promises = Object.keys(groupedByContainer).map(async containerUid =>
+        (
+            await inject("AddressBookPersistence", containerUid).multipleGet(groupedByContainer[containerUid])
+        ).map(res => ({ ...res, containerUid }))
     );
-    const fullContacts = await Promise.all(promises);
-    return mergeContacts(
-        fullContacts,
-        searchResults.values?.map(pc => pc.containerUid)
-    );
+    const fullContacts = (await Promise.all(promises)).flatMap(r => r);
+
+    return mergeContacts(fullContacts);
 }
 </script>

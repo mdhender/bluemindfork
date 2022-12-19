@@ -65,15 +65,34 @@ export default {
             if (!str) {
                 return "";
             }
-            let begin = str.toLowerCase().indexOf(this.inputValue.toLowerCase());
-            if (begin !== -1) {
-                let result = str.slice(0, begin);
-                result += "<strong>";
-                result += str.slice(begin, this.inputValue.length + begin);
-                result += "</strong>";
-                result += str.slice(this.inputValue.length + begin, str.length);
-                return result;
-            }
+
+            const tokens = this.inputValue.split(/\s+/);
+            const uniqueTokens = [];
+            const normalizeFn = value =>
+                value
+                    .toLowerCase()
+                    .normalize("NFD")
+                    .replace(/\p{Diacritic}/gu, "");
+
+            tokens.forEach(token => {
+                if (token?.length) {
+                    const uniqueToken = normalizeFn(token);
+                    if (!uniqueTokens.includes(uniqueToken)) {
+                        uniqueTokens.push(uniqueToken);
+                        const normalizedStr = normalizeFn(str);
+                        let start = normalizedStr.indexOf(uniqueToken);
+                        if (start !== -1) {
+                            let result = str.slice(0, start);
+                            result += "<strong>";
+                            result += str.slice(start, uniqueToken.length + start);
+                            result += "</strong>";
+                            result += str.slice(uniqueToken.length + start, str.length);
+                            str = result;
+                        }
+                    }
+                }
+            });
+
             return str;
         }
     }

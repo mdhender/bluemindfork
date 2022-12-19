@@ -1,16 +1,12 @@
 import get from "lodash.get";
 import isEqual from "lodash.isequal";
+import { isCollectAddressBook, isDomainAddressBook, isPersonalAddressBook } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";
 
-export default async function merge(contacts, contactContainerUids) {
-    if (contacts?.length !== contactContainerUids?.length) {
-        throw "'contacts' and 'contactContainerUids' must have the same length";
-    }
-
-    const contactsWithContainerUid = contacts.map((c, index) => ({ ...c, containerUid: contactContainerUids[index] }));
+export default async function merge(contactsWithContainerUid) {
     const sortedContacts = await sortContacts(contactsWithContainerUid);
     const bestContactForIdentification = bestContact(sortedContacts, "value.identification.formatedName.value");
-    const photoBinary = await fetchPhoto(bestContact(sortedContacts, "value.identification.photo"));
+    const photoBinary = await photoUrl(bestContact(sortedContacts, "value.identification.photo"));
     return {
         value: {
             identification: {
@@ -54,21 +50,20 @@ async function sortContacts(contacts) {
 }
 
 function priority(containerUid, userId, domain) {
-    if (containerUid === `addressbook_${domain}`) {
+    if (isDomainAddressBook(containerUid, domain)) {
         return 3;
     }
-    if (containerUid === `book:Contacts_${userId}`) {
+    if (isPersonalAddressBook(containerUid, userId)) {
         return 2;
     }
-    if (containerUid === `book:CollectedContacts_${userId}`) {
+    if (isCollectAddressBook(containerUid, userId)) {
         return 0;
     }
     return 1;
 }
 
-async function fetchPhoto(contact) {
+async function photoUrl(contact) {
     if (contact) {
-        const photoURL = `api/addressbooks/${contact.containerUid}/${contact.uid}/photo`;
-        return await fetch(photoURL);
+        return `${window.location.protocol}//${window.location.hostname}/api/addressbooks/${contact.containerUid}/${contact.uid}/photo`;
     }
 }

@@ -123,7 +123,7 @@
     "preferences.mail.my_mailbox.can_edit_my_mailbox_and_manage_shares": "Kann lesend auf mein Mailkonto zugreifen und meine Freigaben verwalten",
     "preferences.mail.advanced.recipient_autocomplete.confirm_deletion.success": "Vorschläge werden zurückgesetzt.",
     "preferences.mail.advanced.recipient_autocomplete.confirm_deletion.title": "Vorschläge zurücksetzen",
-    "preferences.mail.advanced.recipient_autocomplete.confirm_deletion": "Empfängerprioritäten, die während der E-Mail-Nutzung erworben wurden, werden zurückgesetzt.",
+    "preferences.mail.advanced.recipient_autocomplete.confirm_deletion": "Empfängerprioritäten, die während der E-Mail-Nutzung generiert wurden, werden zurückgesetzt.",
     "preferences.mail.advanced.recipient_autocomplete.title": "Vorgeschlagene Adressaten",
     "preferences.mail.advanced.recipient_autocomplete": "Die Prioritäten der Vorschläge, die bei der Eingabe eines Empfängers gemacht wurden, zurücksetzen",
     "preferences.mail.advanced.switch.title": "Webmailer-Version",

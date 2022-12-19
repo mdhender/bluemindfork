@@ -2,7 +2,7 @@
     <div class="contact-card-body ml-3">
         <div v-if="emails.length" class="d-flex">
             <bm-icon icon="user-enveloppe" variant="secondary" />
-            <ol class="d-flex flex-column p-0 ml-4">
+            <ol class="d-flex flex-column p-0 ml-4 mb-0">
                 <li v-for="email in emails" :key="email.address" class="d-flex">
                     <strong>
                         <slot name="email" :email="email.address">
@@ -15,20 +15,23 @@
         </div>
         <div v-if="phones.length" class="d-flex mt-4">
             <bm-icon icon="phone" variant="secondary" />
-            <ol class="d-flex flex-column p-0 ml-4">
+            <ol class="d-flex flex-column p-0 ml-4 mb-0">
                 <li v-for="phone in phones" :key="phone.number" class="d-flex" :text="phone.number">
-                    <a :href="`tel:${phone.number.replace(/\s+/g, '')}`">
+                    <a
+                        :href="`tel:${phone.number.replace(/\s+/g, '')}`"
+                        :title="$t('contact.card.phone_call', { number: phone.number })"
+                    >
                         <strong>{{ phone.number }}</strong>
                     </a>
-                    <span class="ml-2 text-neutral">{{ phone.type }}</span>
+                    <span class="ml-4 text-neutral">{{ phone.type }}</span>
                     <bm-icon-button-copy :text="phone.number" size="sm" class="ml-4" />
                 </li>
             </ol>
         </div>
         <div v-if="locations.length" class="d-flex mt-4">
             <bm-icon icon="world" variant="secondary" />
-            <ol class="d-flex flex-column p-0 ml-4">
-                <li v-for="(location, index) in locations" :key="index" class="d-flex">
+            <ol class="d-flex flex-column p-0 ml-4 mb-0">
+                <li v-for="(location, index) in locations" :key="index" class="d-flex text-neutral">
                     <div>
                         <div v-for="(line, i) in location.lines" :key="i">
                             <strong>{{ line }}</strong>
@@ -111,6 +114,8 @@ export default {
 </script>
 
 <style lang="scss">
+@import "@bluemind/ui-components/src/css/_type.scss";
+
 .contact-card-body {
     ol {
         li {
@@ -122,6 +127,14 @@ export default {
                 visibility: visible;
             }
         }
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+    .bm-icon-button-copy {
+        height: $line-height-regular;
     }
 }
 </style>

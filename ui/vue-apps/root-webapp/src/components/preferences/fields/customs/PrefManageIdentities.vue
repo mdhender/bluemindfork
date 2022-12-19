@@ -130,7 +130,7 @@ export default {
     }
     .identity-cell {
         width: 100%;
-        .bm-contact {
+        .contact {
             max-width: 100%;
         }
     }

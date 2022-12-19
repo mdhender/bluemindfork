@@ -5,9 +5,17 @@
             <div
                 v-for="(recipient, index) in recipients"
                 :key="recipient.address + index"
-                class="d-inline-flex viewer-recipient-item"
+                class="d-inline-flex viewer-recipient-item align-items-center"
             >
-                <mail-contact :contact="recipient" class="overflow-hidden" no-avatar transparent bold popover />
+                <mail-contact-card-slots
+                    :component="Contact"
+                    :contact="recipient"
+                    class="overflow-hidden"
+                    no-avatar
+                    transparent
+                    bold
+                    popover
+                />
                 <template v-if="index != recipients.length - hiddenContactCount - 1">,&nbsp;</template>
             </div>
         </div>
@@ -22,11 +30,12 @@
 
 <script>
 import { BmMoreItemsBadge, OverflownElements } from "@bluemind/ui-components";
-import MailContact from "./MailContact";
+import { Contact } from "@bluemind/business-components";
+import MailContactCardSlots from "../MailContactCardSlots";
 
 export default {
     name: "MailViewerRecipient",
-    components: { BmMoreItemsBadge, MailContact },
+    components: { BmMoreItemsBadge, MailContactCardSlots },
     directives: { OverflownElements },
     props: {
         recipients: {
@@ -35,7 +44,7 @@ export default {
         }
     },
     data() {
-        return { hiddenContactCount: 0 };
+        return { hiddenContactCount: 0, Contact };
     },
     methods: {
         hideContacts(overflownEvent) {

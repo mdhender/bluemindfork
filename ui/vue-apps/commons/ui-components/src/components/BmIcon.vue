@@ -8,8 +8,15 @@
         :rotation="rotation"
         :flip="flip"
         :transform="transform"
+        :title="title"
     />
-    <font-awesome-layers v-else class="bm-icon" :class="size ? `fa-${size}` : ''" :fixed-width="fixedWidth">
+    <font-awesome-layers
+        v-else
+        class="bm-icon"
+        :class="size ? `fa-${size}` : ''"
+        :fixed-width="fixedWidth"
+        :title="title"
+    >
         <font-awesome-icon
             v-for="(stackedIcon, index) in stacked"
             :key="index"
@@ -172,6 +179,7 @@ import { bmUnread } from "../icons/bmUnread";
 import { bmUpload } from "../icons/bmUpload";
 import { bmUser } from "../icons/bmUser";
 import { bmUserAdd } from "../icons/bmUserAdd";
+import { bmUserCheck } from "../icons/bmUserCheck";
 import { bmUserCalendar } from "../icons/bmUserCalendar";
 import { bmUserEnveloppe } from "../icons/bmUserEnveloppe";
 import { bmVideo } from "../icons/bmVideo";
@@ -195,6 +203,10 @@ export default {
         FontAwesomeLayers
     },
     props: {
+        fixedWidth: { type: Boolean, default: false },
+        flip: { type: String, default: undefined },
+        icon: { type: [Object, Array, String], default: undefined },
+        rotation: { type: String, default: undefined },
         size: {
             type: String,
             default: "md",
@@ -202,36 +214,10 @@ export default {
                 return ["xs", "sm", "md", "lg", "xl", "2xl", "3xl"].indexOf(value) > -1;
             }
         },
-        icon: {
-            type: [Object, Array, String],
-            required: false,
-            default: undefined
-        },
-        stacked: {
-            type: Array,
-            required: false,
-            default: undefined
-        },
-        fixedWidth: {
-            type: Boolean,
-            default: false
-        },
-        variant: {
-            type: String,
-            default: ""
-        },
-        rotation: {
-            type: String,
-            default: undefined
-        },
-        flip: {
-            type: String,
-            default: undefined
-        },
-        transform: {
-            type: String,
-            default: undefined
-        }
+        stacked: { type: Array, default: undefined },
+        title: { type: String, default: undefined },
+        transform: { type: String, default: undefined },
+        variant: { type: String, default: "" }
     },
     computed: {
         variantClass() {
@@ -391,6 +377,7 @@ function initIcons() {
     library.add(bmUpload);
     library.add(bmUser);
     library.add(bmUserAdd);
+    library.add(bmUserCheck);
     library.add(bmUserCalendar);
     library.add(bmUserEnveloppe);
     library.add(bmVideo);

@@ -1,6 +1,6 @@
 <template>
     <div
-        class="bm-contact-input d-flex"
+        class="contact-input d-flex"
         :class="{ disabled, underline: variant === 'underline', inline: variant === 'inline' }"
     >
         <label :for="makeUniq('new')" class="bm-contact-input-label"><slot /></label>
@@ -14,40 +14,49 @@
                 <div
                     v-for="(contact, index) in contacts_"
                     :key="contact.key"
-                    class="align-items-center d-inline-flex contact"
+                    class="align-items-center d-inline-flex contact-and-input"
                     :class="{ 'flex-fill': contact.edit }"
                 >
                     <div
                         :class="{ active: contact.selected, 'flex-fill': contact.edit }"
-                        :data-browse-key="contact.key"
-                        data-browse
                         class="d-inline-flex contact-wrapper align-items-center mw-100"
-                        tabindex="-1"
-                        @keydown.enter.prevent="edit(contact)"
-                        @keydown.delete="onRemove(contact)"
-                        @keydown.down="$emit('expand', index)"
-                        @dblclick="edit(contact)"
                     >
-                        <bm-contact
+                        <contact
                             v-if="!contact.edit"
+                            :data-browse-key="contact.key"
+                            data-browse
                             :contact="contact"
                             :invalid="!valid(contact)"
                             :selected="valid(contact) && contact.selected"
                             :show-address="valid(contact) && (contact.hasBeenEdited || anyContactHasSameDn(contact))"
                             :closeable="!disabled"
                             class="mw-100"
+                            popover
                             @remove="onRemove(contact)"
                             @expand="$emit('expand', index)"
-                        />
+                            @keydown.native.delete="onRemove(contact)"
+                            @keydown.native.down="$emit('expand', index)"
+                        >
+                            <template #email="slotProps">
+                                <slot name="email" :email="slotProps.email" />
+                            </template>
+                            <template #actions="slotProps">
+                                <slot name="actions" :contact="slotProps.contact" />
+                            </template>
+                        </contact>
                         <bm-form-autocomplete-input
                             v-else
+                            ref="edit"
                             v-model="contact.input"
+                            :data-browse-key="contact.key"
+                            data-browse
                             size="sm"
                             :items="canDisplayAutocomplete ? autocompleteResults : []"
                             :class="{ beingEdited: 'flex-fill' }"
                             @click.native="showAutocomplete(true)"
                             @selected="selectedContact => editFromAutocomplete(contact, selectedContact)"
                             @submit="submit(contact)"
+                            @submitExtra="$emit('expandSearch')"
                             @keydown.native.delete.stop
                             @keydown.native.left="preventPrevious"
                             @keydown.native.right="preventNext"
@@ -62,13 +71,13 @@
                                 <bm-contact-input-autocomplete-item
                                     :contact="item"
                                     :input-value="contact.input"
-                                    @delete="$emit('delete', item)"
+                                    @delete="$emit('delete', item) && $refs.edit[0].focus()"
                                 />
                             </template>
                             <template #extra>
                                 <bm-contact-input-autocomplete-extra
                                     v-if="showExpand"
-                                    @click.native="$emit('expandSearch')"
+                                    @click.native="$emit('expandSearch') && $refs.edit[0].focus()"
                                 />
                             </template>
                         </bm-form-autocomplete-input>
@@ -89,6 +98,7 @@
                     @focus="showAutocomplete(true)"
                     @selected="createFromAutocomplete"
                     @submit="create"
+                    @submitExtra="$emit('expandSearch')"
                     @keydown.native.left="preventPrevious"
                     @keydown.native.right="preventNext"
                     @keydown.native.backspace="forcePrevious"
@@ -103,11 +113,14 @@
                         <bm-contact-input-autocomplete-item
                             :contact="item"
                             :input-value="value"
-                            @delete="$emit('delete', item)"
+                            @delete="$emit('delete', item) && $refs.new.focus()"
                         />
                     </template>
                     <template #extra>
-                        <bm-contact-input-autocomplete-extra v-if="showExpand" @click.native="$emit('expandSearch')" />
+                        <bm-contact-input-autocomplete-extra
+                            v-if="showExpand"
+                            @click.native="$emit('expandSearch') && $refs.new.focus()"
+                        />
                     </template>
                 </bm-form-autocomplete-input>
             </div>
@@ -125,14 +138,16 @@
 </template>
 
 <script>
-import BmContact from "../BmContact";
-import BmContactInputAutocompleteExtra from "./BmContactInputAutocompleteExtra";
-import BmContactInputAutocompleteItem from "./BmContactInputAutocompleteItem";
-import BmFormAutocompleteInput from "./BmFormAutocompleteInput";
-import BmMoreItemsBadge from "../BmMoreItemsBadge";
-import BrowsableContainer from "../../mixins/BrowsableContainer";
-import MakeUniq from "../../mixins/MakeUniq";
-import OverflownElements from "../../directives/OverflownElements";
+import Contact from "./Contact";
+import {
+    BmContactInputAutocompleteExtra,
+    BmContactInputAutocompleteItem,
+    BmFormAutocompleteInput,
+    BmMoreItemsBadge,
+    BrowsableContainer,
+    MakeUniq,
+    OverflownElements
+} from "@bluemind/ui-components";
 
 let key = 0;
 
@@ -153,9 +168,9 @@ function toItem({ address, dn, kind, members, uid, urn }) {
 }
 
 export default {
-    name: "BmContactInput",
+    name: "ContactInput",
     components: {
-        BmContact,
+        Contact,
         BmContactInputAutocompleteExtra,
         BmContactInputAutocompleteItem,
         BmFormAutocompleteInput,
@@ -233,11 +248,7 @@ export default {
         "current.edit": function (value, old) {
             if (this.current && value !== old) {
                 if (value) {
-                    this.$nextTick(() => {
-                        this.focusByKey(
-                            this.current.key
-                        ).firstElementChild.firstElementChild.firstElementChild.select();
-                    });
+                    this.$nextTick(() => this.focusByKey(this.current.key).select());
                 } else {
                     this.focusByKey(this.current.key);
                 }
@@ -462,10 +473,10 @@ function isVisible(element) {
 
 <style lang="scss">
 @use "sass:math";
-@import "../../css/_variables.scss";
-@import "../../css/_type.scss";
+@import "@bluemind/ui-components/src/css/_variables.scss";
+@import "@bluemind/ui-components/src/css/_type.scss";
 
-.bm-contact-input {
+.contact-input {
     border: $input-border-width solid $neutral-fg;
 
     &.underline {
@@ -521,16 +532,12 @@ function isVisible(element) {
         }
     }
 
-    .contact,
+    .contact-and-input,
     .bm-form-input,
     .bm-form-input .form-control {
         height: calc(#{$input-height} - #{4 * $input-border-width});
         padding-top: 0 !important;
         padding-bottom: 0 !important;
-    }
-
-    .bm-contact {
-        cursor: pointer;
     }
 
     &.disabled {
@@ -565,6 +572,8 @@ function isVisible(element) {
     }
 
     $inputMinWidth: 10vw;
+    $max-nb-suggestions: 5;
+    $suggestion-height: $input-height + $sp-2 + $line-height-small;
 
     .bm-form-autocomplete-input {
         min-width: $inputMinWidth;
@@ -572,9 +581,10 @@ function isVisible(element) {
         .suggestions {
             border: none;
             padding: $sp-2;
+            max-height: max(33vh, #{$max-nb-suggestions * $suggestion-height});
 
             .list-group-item {
-                height: $input-height + $sp-2 + $line-height-small;
+                height: $suggestion-height;
                 .bm-contact-input-autocomplete-item {
                     flex: 1;
                 }
@@ -588,7 +598,8 @@ function isVisible(element) {
         }
     }
 
-    .bm-contact {
+    .contact {
+        cursor: pointer;
         display: inline-flex;
         align-items: center;
         margin: $sp-2 + $sp-1 $sp-3;

@@ -1,5 +1,5 @@
 <template>
-    <bm-contact-input
+    <contact-input
         class="pref-filter-rule-contact-criterion-editor"
         tabindex="0"
         :contacts="contacts"
@@ -12,14 +12,14 @@
 </template>
 
 <script>
-import { BmContactInput } from "@bluemind/ui-components";
+import { ContactInput } from "@bluemind/business-components";
 import { searchVCardsHelper, VCardInfoAdaptor } from "@bluemind/contact";
 import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 
 export default {
     name: "PrefFilterRuleContactCriterionEditor",
-    components: { BmContactInput },
+    components: { ContactInput },
     props: {
         criterion: {
             type: Object,
@@ -43,7 +43,7 @@ export default {
         criterion: {
             async handler(criterion) {
                 if (criterion?.value) {
-                    // FIXME BmContactInput.watch:contacts should use isEqual instead of length comparison
+                    // FIXME ContactInput.watch:contacts should use isEqual instead of length comparison
                     this.dn = (await searchContacts(criterion.value))[0]?.dn || "";
                 }
             },

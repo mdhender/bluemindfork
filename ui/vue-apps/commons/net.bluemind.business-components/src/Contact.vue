@@ -1,6 +1,16 @@
 <template>
-    <div class="contact">
-        <bm-button :id="uniqueId" variant="text" :class="{ 'avatar-on-left': !noAvatar && !expandable, invalid }">
+    <div class="contact flex-fill">
+        <a
+            :id="uniqueId"
+            class="btn btn-link text-truncate"
+            role="button"
+            :class="{ 'avatar-on-left': !noAvatar && !expandable, invalid }"
+            tabindex="0"
+            @click="showPopover = !showPopover"
+            @keypress.enter="showPopover = !showPopover"
+            @keydown.tab.exact="showPopover ? focusPopover() : undefined"
+            @keydown.tab.shift="showPopover ? (showPopover = false) : undefined"
+        >
             <div v-if="transparent || noText" class="transparent-contact" :title="tooltip">
                 <template v-if="!noAvatar">
                     <bm-avatar :size="avatarSize" :alt="dn" :urn="contact.urn" :icon="icon" :color="avatarColor" />
@@ -24,7 +34,7 @@
                         variant="compact"
                         size="sm"
                         icon="plus"
-                        @click="$emit('expand')"
+                        @click.stop="$emit('expand')"
                     />
                     <bm-avatar size="sm" icon="group" :color="groupColor" />
                 </template>
@@ -53,8 +63,14 @@
                     {{ showAddress ? ` ${address}` : "" }}
                 </span>
             </bm-chip>
-        </bm-button>
-        <contact-popover v-if="popover" :target="uniqueId" :recipient="recipient">
+        </a>
+        <contact-popover
+            v-if="popover"
+            ref="contact-popover"
+            :target="uniqueId"
+            :recipient="recipient"
+            :show.sync="showPopover"
+        >
             <template #email="slotProps">
                 <slot name="email" :email="slotProps.email" />
             </template>
@@ -66,13 +82,18 @@
 </template>
 
 <script>
-import { BmAvatar, BmButton, BmChip, BmIconButton } from "@bluemind/ui-components";
+import { BmAvatar, BmChip, BmIconButton } from "@bluemind/ui-components";
 import ContactPopover from "./ContactPopover";
 
 export default {
     name: "Contact",
-    components: { BmAvatar, BmButton, BmIconButton, BmChip, ContactPopover },
+    components: { BmAvatar, BmIconButton, BmChip, ContactPopover },
     props: {
+        // only applicable outside a contact chip, i.e. with transparent or no-text prop set to true
+        avatarSize: { type: String, default: "sm" },
+        bold: { type: Boolean, default: false },
+        boldDn: { type: Boolean, default: false },
+        closeable: { type: Boolean, default: false },
         contact: {
             type: Object,
             default() {
@@ -85,58 +106,17 @@ export default {
                 };
             }
         },
-        invalid: {
-            type: Boolean,
-            default: false
-        },
-        selected: {
-            type: Boolean,
-            default: false
-        },
-        closeable: {
-            type: Boolean,
-            default: false
-        },
-        transparent: {
-            type: Boolean,
-            default: false
-        },
-        noText: {
-            type: Boolean,
-            default: false
-        },
-        noAvatar: {
-            type: Boolean,
-            default: false
-        },
-        // only applicable outside a contact chip, i.e. with transparent or no-text prop set to true
-        avatarSize: {
-            type: String,
-            default: "sm"
-        },
-        showAddress: {
-            type: Boolean,
-            default: false
-        },
-        bold: {
-            type: Boolean,
-            default: false
-        },
-        boldDn: {
-            type: Boolean,
-            default: false
-        },
-        textTruncate: {
-            type: Boolean,
-            default: true
-        },
-        popover: {
-            type: Boolean,
-            default: false
-        }
+        invalid: { type: Boolean, default: false },
+        noAvatar: { type: Boolean, default: false },
+        noText: { type: Boolean, default: false },
+        popover: { type: Boolean, default: false },
+        selected: { type: Boolean, default: false },
+        showAddress: { type: Boolean, default: false },
+        textTruncate: { type: Boolean, default: true },
+        transparent: { type: Boolean, default: false }
     },
     data() {
-        return { groupColor: "#0095fa" };
+        return { groupColor: "#0095fa", showPopover: false };
     },
     computed: {
         address() {
@@ -186,6 +166,11 @@ export default {
         uniqueId() {
             return `contact-${this._uid}`;
         }
+    },
+    methods: {
+        focusPopover() {
+            this.$refs["contact-popover"].focus();
+        }
     }
 };
 </script>
@@ -198,7 +183,6 @@ $avatar-text-gap: $sp-4;
 
 .contact {
     display: inline-flex;
-    min-width: 0;
 
     .transparent-contact {
         display: inline-flex;
@@ -247,6 +231,10 @@ $avatar-text-gap: $sp-4;
         .bm-chip .chip-main-part {
             color: $danger-fg-hi1;
         }
+    }
+
+    a.btn {
+        text-decoration: none;
     }
 }
 </style>

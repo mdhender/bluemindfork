@@ -20,6 +20,8 @@ import {
     SET_MESSAGE_SIZE
 } from "~/mutations";
 import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
+import { VCardKind } from "@bluemind/addressbook.api";
+import { fetchMembersWithAddress } from "@bluemind/contact";
 
 const { isNewMessage } = draftUtils;
 const { FileStatus } = fileUtils;
@@ -37,6 +39,7 @@ export function isReadyToBeSaved(draft, files) {
 }
 
 export async function save(context, draft, messageCompose, files) {
+    draft = { ...draft };
     const service = inject("MailboxItemsPersistence", draft.folderRef.uid);
     let tmpAddresses = [],
         inlineImages = [];
@@ -44,6 +47,8 @@ export async function save(context, draft, messageCompose, files) {
         context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.SAVING }]);
         ({ tmpAddresses, inlineImages } = await prepareDraft(context, service, draft, messageCompose));
         const structure = createDraftStructure(tmpAddresses[0], tmpAddresses[1], files, inlineImages);
+
+        await expandGroups(draft);
         await createEmlOnServer(context, draft, service, structure);
 
         context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.IDLE }]);
@@ -97,7 +102,7 @@ async function createEmlOnServer(context, draft, service, structure) {
     context.commit(SET_MESSAGE_HEADERS, { messageKey: draft.key, headers });
     context.commit(SET_MESSAGE_DATE, { messageKey: draft.key, date: saveDate });
 
-    const remoteMessage = MessageAdaptor.toMailboxItem(draft, structure);
+    const remoteMessage = MessageAdaptor.toMailboxItem({ ...draft, headers }, structure);
     const { imapUid, id: internalId } = isNewMessage(draft)
         ? await service.create(remoteMessage)
         : {
@@ -176,4 +181,25 @@ function forceMailRewriteOnServer(draft) {
     }
 
     return { saveDate, headers };
+}
+
+/** Recursively convert groups having no address to recipients with an address.  */
+async function expandGroups(draft) {
+    draft.to = await expandGroupRecipients(draft.to);
+    draft.cc = await expandGroupRecipients(draft.cc);
+    draft.bcc = await expandGroupRecipients(draft.bcc);
+}
+
+async function expandGroupRecipients(recipients) {
+    const expanded = [];
+    await Promise.all(
+        recipients?.map(async recipient => {
+            if (recipient.kind === VCardKind.group && !recipient.address) {
+                expanded.push(...(await fetchMembersWithAddress(recipient.containerUid, recipient.uid)));
+            } else {
+                expanded.push(recipient);
+            }
+        })
+    );
+    return expanded;
 }

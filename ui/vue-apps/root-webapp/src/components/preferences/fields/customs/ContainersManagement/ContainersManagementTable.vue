@@ -288,7 +288,7 @@ export default {
     .name-cell {
         width: 100%;
 
-        .bm-contact {
+        .contact {
             margin-top: base-px-to-rem(8);
         }
     }

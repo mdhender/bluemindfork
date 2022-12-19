@@ -1,12 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`BmContactInput BmContactInput should match snapshot 1`] = `
+exports[`ContactInput ContactInput should match snapshot 1`] = `
 <div
-  class="bm-contact-input d-flex"
+  class="contact-input d-flex"
 >
   <label
     class="bm-contact-input-label"
-    for="new10"
+    for="new11"
   >
     To
   </label>

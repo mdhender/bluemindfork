@@ -93,7 +93,7 @@ function init(vm) {
 }
 
 function handleBlur(event, vm) {
-    if (!vm.$el.contains(document.activeElement) && !vm.$el.contains(event.relatedTarget)) {
+    if (event.relatedTarget && !vm.$el.contains(event.relatedTarget) && !vm.$el.contains(document.activeElement)) {
         vm.$emit("browse:blur");
     }
 }

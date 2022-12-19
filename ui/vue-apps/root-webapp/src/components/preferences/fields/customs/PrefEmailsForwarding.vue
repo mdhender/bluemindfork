@@ -3,7 +3,7 @@
         <bm-form-checkbox v-model="value.enabled">
             {{ $t("preferences.mail.emails_forwarding.to") }}
         </bm-form-checkbox>
-        <bm-contact-input
+        <contact-input
             class="mr-5 pref-field-input"
             :auto-collapsible="false"
             :disabled="!value.enabled"
@@ -23,12 +23,13 @@
 import { searchVCardsHelper, VCardInfoAdaptor } from "@bluemind/contact";
 import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
-import { BmContactInput, BmFormCheckbox } from "@bluemind/ui-components";
+import { BmFormCheckbox } from "@bluemind/ui-components";
+import { ContactInput } from "@bluemind/business-components";
 import CentralizedSaving from "../../mixins/CentralizedSaving";
 
 export default {
     name: "PrefEmailsForwarding",
-    components: { BmContactInput, BmFormCheckbox },
+    components: { BmFormCheckbox, ContactInput },
     mixins: [CentralizedSaving],
     data() {
         return {
@@ -79,7 +80,7 @@ export default {
     flex-direction: column;
     gap: $sp-5;
 
-    .bm-contact-input {
+    .contact-input {
         max-width: 100%;
     }
 }

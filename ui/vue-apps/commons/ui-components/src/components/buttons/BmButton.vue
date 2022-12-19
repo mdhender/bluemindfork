@@ -1,7 +1,7 @@
 <template>
     <b-button class="bm-button" v-bind="[$attrs, $props]" :disabled="disabled || loading" v-on="$listeners">
-        <bm-overlay :show="hasIcon && loading" variant="transparent">
-            <div :class="loading ? 'invisible' : 'visible'">
+        <bm-overlay v-if="hasIcon" :show="hasIcon && loading" variant="transparent" class="bm-button-icon">
+            <div :class="{ loading: 'invisible' }">
                 <slot name="icon">
                     <bm-icon v-if="icon" :icon="icon" />
                 </slot>
@@ -10,7 +10,7 @@
                 <bm-spinner :size="0.12" thick />
             </template>
         </bm-overlay>
-        <bm-overlay :show="!hasIcon && loading" :opacity="0">
+        <bm-overlay :show="!hasIcon && loading" :opacity="0" class="bm-button-content">
             <span class="slot-wrapper"><slot /></span>
             <template #overlay>
                 <bm-spinner :size="0.12" thick />

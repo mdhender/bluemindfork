@@ -5,7 +5,7 @@ export default {
         return contact.address
             ? EmailValidator.validateAddress(contact.address)
             : contact.kind === "group"
-            ? contact.members?.length
+            ? contact.members?.length || contact.memberCount
             : false;
     }
 };
