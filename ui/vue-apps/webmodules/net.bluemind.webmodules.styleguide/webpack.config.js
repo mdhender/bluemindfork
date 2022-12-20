@@ -46,7 +46,7 @@ module.exports = {
         extensions: ["*", ".js", ".vue", ".json", ".css", ".scss"]
     },
     devtool: "source-map",
-    entry: "./src/index.js",
+    entry: "./index.js",
     output: {
         path: path.resolve(__dirname, "dist"),
         filename: "ui-components.js",

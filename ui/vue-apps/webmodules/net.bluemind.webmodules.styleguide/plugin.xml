@@ -6,7 +6,7 @@
       <web-module-provider
           module="*">
          <js
-               path="js/styleguide.js">
+               path="js/ui-components.js">
          </js>
          <web-resource
                bundle="net.bluemind.webmodules.styleguide">

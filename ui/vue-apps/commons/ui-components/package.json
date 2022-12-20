@@ -6,7 +6,7 @@
     "license": "AGPL-3.0-only",
     "main": "src/index.js",
     "dependencies": {
-        "@bluemind/alert.store":  "^4.1.0",
+        "@bluemind/alert.store": "^4.1.0",
         "@bluemind/email": "^4.1.0",
         "@bluemind/file-utils": "^4.1.0",
         "@fortawesome/fontawesome-svg-core": "^1.2.12",
@@ -26,11 +26,5 @@
         "roosterjs-editor-plugins": "^8.22.0",
         "roosterjs-editor-types": "^8.22.0",
         "vue-global-events": "^1.1.2"
-    },
-    "devDependencies": {
-        "mini-css-extract-plugin": "^1.6.0"
-    },
-    "scripts": {
-        "build": "webpack --env production --progress --color"
     }
 }

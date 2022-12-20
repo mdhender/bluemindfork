@@ -2,17 +2,22 @@
     "name": "@bluemind/webmodules.styleguide",
     "description": "Bluemind webmodule to provide one instance of BlueMind Styleguide",
     "version": "4.1.0",
+    "main": "index.js",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "scripts": {
-        "build": "npm-run-all -s clean copy:*",
+        "build": "npm-run-all -s clean compile copy:*",
         "clean": "rm -fr ./web-resources/* && mkdir -p ./web-resources/js/ && mkdir -p ./web-resources/css/",
-        "copy:js": "cp ../../node_modules/@bluemind/ui-components/dist/ui-components.js ./web-resources/js/styleguide.js",
-        "copy:js-map": "cp ../../node_modules/@bluemind/ui-components/dist/ui-components.js.map ./web-resources/js/styleguide.js.map",
-        "copy:css": "cp ../../node_modules/@bluemind/ui-components/dist/ui-components.css ./web-resources/css/styleguide.css"
+        "compile": "webpack --env production --progress --color",
+        "copy:js": "cp ./dist/ui-components.js ./web-resources/js/ui-components.js",
+        "copy:js-map": "cp ./dist/ui-components.js.map ./web-resources/js/ui-components.js.map",
+        "copy:css": "cp ./dist/ui-components.css ./web-resources/css/ui-components.css"
     },
     "devDependencies": {
-        "npm-run-all": "^4.1.5"
+        "mini-css-extract-plugin": "^1.6.0",
+        "npm-run-all": "^4.1.5",
+        "webpack": "^5.49.0",
+        "webpack-cli": "^4.8.0"
     },
     "dependencies": {
         "@bluemind/ui-components": "^4.1.0"

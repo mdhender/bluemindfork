@@ -3,11 +3,10 @@
     "workspaces": {
         "packages": [
             "commons/*",
-            "mailbackend/*",
             "mail-webapp",
             "root-webapp",
             "videoconferencing-saas-webapp",
-            "webapp-wrapper", 
+            "webapp-wrapper",
             "webmodules/net.bluemind.webmodules.filehosting",
             "webmodules/net.bluemind.webmodules.styleguide"
         ],
@@ -70,7 +69,7 @@
         "root": "cd root-webapp && yarn dev",
         "mail": "cd mail-webapp && yarn dev",
         "videoconferencing-saas": "cd videoconferencing-saas-webapp && yarn dev",
-	    "filehosting-plugin": "cd webmodules/net.bluemind.webmodules.filehosting && yarn dev",
+        "filehosting-plugin": "cd webmodules/net.bluemind.webmodules.filehosting && yarn dev",
         "test-ci": "NODE_ICU_DATA=node_modules/full-icu jest --ci --json --config node_modules/@bluemind/conf/jest.config.js --testResultsProcessor jest-jenkins-reporter --coverage --coverageReporters cobertura > jest.json"
     },
     "prettier": "@bluemind/prettier-config",
