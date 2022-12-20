@@ -86,18 +86,22 @@ label.red {
   color: red !important;
 }
 
-#bm-ics-bandal {
+.bm-bandal {
   background-color: #dbeaf9;
-  color: -moz-dialogtext;
   border-bottom: 1px solid #bfbfbf;
   padding: 3px;
 }
 
-#bm-counter-bandal {
-  background-color: #dbeaf9;
-  color: -moz-dialogtext;
-  border-bottom: 1px solid #bfbfbf;
-  padding: 3px;
+@media (prefers-color-scheme: dark) {
+  .bm-bandal {
+    background-color:#15427c;
+  }
+}
+
+@media (prefers-contrast) {
+  .bm-bandal:not(:-moz-lwtheme) {
+    background-color: SelectedItem;
+  }
 }
 
 #menu-task-bm {

@@ -134,7 +134,8 @@ function onLoad(activatedWhileWindowOpen) {
         <!--Message view-->
         <hbox id="bm-ics-bandal"
                 collapsed="true"
-                insertbefore="messagepanewrapper">
+                insertbefore="messagepanewrapper"
+                class="bm-bandal">
             <description class="msgNotificationBarText" value="__MSG_bm.icsbandal.description__"/>
             <div class="grid-two-column">
                 <div>
@@ -174,7 +175,8 @@ function onLoad(activatedWhileWindowOpen) {
         </hbox>
         <hbox id="bm-counter-bandal"
                 collapsed="true"
-                insertbefore="messagepanewrapper">
+                insertbefore="messagepanewrapper"
+                class="bm-bandal">
             <description class="msgNotificationBarText" value="__MSG_bm.counter.description__"/>
             <div class="grid-two-column">
                 <div>
