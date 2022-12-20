@@ -1064,11 +1064,6 @@
     "@bluemind/html-utils" "^4.1.0"
     "@bluemind/uuid" "^4.1.0"
 
-"@bluemind/file-utils@^4.1.0":
-  version "4.9.2708"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/file-utils/-/file-utils-4.9.2708.tgz#505f0bd8ced1d91a28ce2ac9b14225f1f55103c6"
-  integrity sha512-MsZORscggZiII43LNjcEgcV9vwJlx+WlEVYmb0dgyFuKlG9WN7ZmZBhbimhmXeoTWqZ/MwpF4EOgKlIS2M8EHQ==
-
 "@bluemind/filehosting.api@^5.0.0":
   version "5.0.2572"
   resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/filehosting.api/-/filehosting.api-5.0.2572.tgz#044e151ff1af587dbc991e567ebd48a3a4f6f1e2"
@@ -1116,7 +1111,11 @@
   resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/mailmessage.api/-/mailmessage.api-5.0.2572.tgz#c49fac93fd309018d44eb522152aa652c83a632f"
   integrity sha512-kmlfK/zc+0hpcebZr7WbH/OLbnrsAPjYbeHuVUntZRcrm68AdrSnvunc0GWDTnWt9fkr15bZ+aJFMZgUzUxqEg==
   dependencies:
+<<<<<<< HEAD
     "@bluemind/api.commons" "^5.0.2572"
+=======
+    "@bluemind/api.commons" "^5.0.1582"
+>>>>>>> c96510da5e6 (rebase master)
 
 "@bluemind/system.api@^5.0.0":
   version "5.0.2572"
@@ -2554,9 +2553,15 @@ aws-sign2@~0.7.0:
   integrity sha512-08kcGqnYf/YmjoRhfxyu+CLxBjUtHLXLXX/vUfx9l2LYzG3c1m61nrpyFUZI6zeS+Li/wWMMidD9KgrqtGq3mA==
 
 aws4@^1.8.0:
+<<<<<<< HEAD
   version "1.12.0"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/aws4/-/aws4-1.12.0.tgz#ce1c9d143389679e253b314241ea9aa5cec980d3"
   integrity sha512-NmWvPnx0F1SfrQbYwOi7OeaNGokp9XhzNioJ/CSBs8Qa4vxug81mhJEAVZwxXuBmYB5KDRfMq/F3RR0BIU7sWg==
+=======
+  version "1.11.0"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/aws4/-/aws4-1.11.0.tgz#d61f46d83b2519250e2784daf5b09479a8b41c59"
+  integrity sha512-xh1Rl34h6Fi1DC2WWKfxUTVqRsNnr6LsKz2+hfwDxQJWmrx8+c7ylaqBMcHfl1U1r2dsifOvKX3LQuLNZ+XSvA==
+>>>>>>> c96510da5e6 (rebase master)
 
 babel-code-frame@^6.26.0:
   version "6.26.0"
@@ -2898,10 +2903,10 @@ bluebird@^3.1.1, bluebird@^3.5.5:
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/bluebird/-/bluebird-3.7.2.tgz#9f229c15be272454ffa973ace0dbee79a1b0c36f"
   integrity sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==
 
-body-parser@1.20.1:
-  version "1.20.1"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/body-parser/-/body-parser-1.20.1.tgz#b1812a8912c195cd371a3ee5e66faa2338a5c668"
-  integrity sha512-jWi7abTbYwajOytWCQc37VulmWiRae5RyTpaCyDcS5/lMdtwSz5lOpDE67srw/HYe35f1z3fDQw+3txg7gNtWw==
+body-parser@1.20.0:
+  version "1.20.0"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/body-parser/-/body-parser-1.20.0.tgz#3de69bd89011c11573d7bfee6a64f11b6bd27cc5"
+  integrity sha512-DfJ+q6EPcGKZD1QWUjSpqp+Q7bDQTsQIF4zfUAtZ6qk+H/3/QRhg9CEp39ss+/T2vw0+HaidC0ecJj/DRLIaKg==
   dependencies:
     bytes "3.1.2"
     content-type "~1.0.4"
@@ -2911,7 +2916,7 @@ body-parser@1.20.1:
     http-errors "2.0.0"
     iconv-lite "0.4.24"
     on-finished "2.4.1"
-    qs "6.11.0"
+    qs "6.10.3"
     raw-body "2.5.1"
     type-is "~1.6.18"
     unpipe "1.0.0"
@@ -8263,10 +8268,10 @@ punycode@^2.1.0, punycode@^2.1.1:
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/punycode/-/punycode-2.3.0.tgz#f67fa67c94da8f4d0cfff981aee4118064199b8f"
   integrity sha512-rRV+zQD8tVFys26lAGR9WUuS4iUAngJScM+ZRSKtvl5tKeZ2t5bvdNFdNHBW9FWR4guGHlgmsZ1G7BSm2wTbuA==
 
-qs@6.11.0:
-  version "6.11.0"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/qs/-/qs-6.11.0.tgz#fd0d963446f7a65e1367e01abd85429453f0c37a"
-  integrity sha512-MvjoMCJwEarSbUYk5O+nmoSzSutSsTwF85zcHPQ9OrlFoZOYIjaqBAJIqIXjptyD5vThxGq52Xu/MaJzRkIk4Q==
+qs@6.10.3:
+  version "6.10.3"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/qs/-/qs-6.10.3.tgz#d6cde1b2ffca87b5aa57889816c5f81535e22e8e"
+  integrity sha512-wr7M2E0OFRfIfJZjKGieI8lBKb7fRCH4Fv5KNPEs7gJ8jadvotdsS08PzOKR7opXhZ/Xkjtt3WF9g38drmyRqQ==
   dependencies:
     side-channel "^1.0.4"
 

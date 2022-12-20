@@ -119,6 +119,7 @@ import { bmKey } from "../icons/bmKey";
 import { bmList } from "../icons/bmList";
 import { bmListShared } from "../icons/bmListShared";
 import { bmLock } from "../icons/bmLock";
+import { bmLockFill } from "../icons/bmLockFill";
 import { bmLoop } from "../icons/bmLoop";
 import { bmMessage } from "../icons/bmMessage";
 import { bmMinus } from "../icons/bmMinus";
@@ -318,6 +319,7 @@ function initIcons() {
     library.add(bmList);
     library.add(bmListShared);
     library.add(bmLock);
+    library.add(bmLockFill);
     library.add(bmLoop);
     library.add(bmMessage);
     library.add(bmMinus);

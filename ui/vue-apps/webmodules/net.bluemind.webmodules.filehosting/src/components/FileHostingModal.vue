@@ -71,7 +71,6 @@
 </template>
 <script>
 import { mapActions, mapGetters } from "vuex";
-import global from "@bluemind/global";
 import { BmModal, BmButtonClose, BmButton, BmIcon, BmLabelIcon } from "@bluemind/ui-components";
 import { computeUnit } from "@bluemind/file-utils";
 import { fileUtils } from "@bluemind/mail";

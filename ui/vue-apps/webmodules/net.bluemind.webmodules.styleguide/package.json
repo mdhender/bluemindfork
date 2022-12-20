@@ -14,6 +14,6 @@
         "webpack-cli": "^4.8.0"
     },
     "dependencies": {
-        "@bluemind/ui-components": "^4.1.0"
+        "@bluemind/ui-components": "^5.0.0"
     }
 }

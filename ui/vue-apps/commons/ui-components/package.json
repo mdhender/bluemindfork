@@ -1,14 +1,14 @@
 {
     "name": "@bluemind/ui-components",
-    "version": "4.1.0",
+    "version": "5.0.0",
     "description": "BlueMind UI components library",
     "author": "Blue Mind SAS",
     "license": "AGPL-3.0-only",
     "main": "src/index.js",
     "dependencies": {
-        "@bluemind/alert.store": "^4.1.0",
-        "@bluemind/email": "^4.1.0",
-        "@bluemind/file-utils": "^4.1.0",
+        "@bluemind/alert.store":  "^5.0.0",
+        "@bluemind/email": "^5.0.0",
+        "@bluemind/file-utils": "^5.0.0",
         "@fortawesome/fontawesome-svg-core": "^1.2.12",
         "@fortawesome/vue-fontawesome": "^0.1.4",
         "bootstrap": "^4.6.0",

@@ -29,7 +29,7 @@ exports[`BmTree BmTree should match snapshot 1`] = `
       >
         <svg
           aria-hidden="true"
-          class="bm-icon svg-inline--fa fa-chevron-right fa-w-16 fa-md"
+          class="bm-icon svg-inline--fa fa-chevron-right fa-md"
           data-icon="chevron-right"
           data-prefix="fas"
           focusable="false"
@@ -74,7 +74,7 @@ exports[`BmTree BmTree should match snapshot 1`] = `
       >
         <svg
           aria-hidden="true"
-          class="bm-icon svg-inline--fa fa-chevron-right fa-w-16 fa-md"
+          class="bm-icon svg-inline--fa fa-chevron-right fa-md"
           data-icon="chevron-right"
           data-prefix="fas"
           focusable="false"

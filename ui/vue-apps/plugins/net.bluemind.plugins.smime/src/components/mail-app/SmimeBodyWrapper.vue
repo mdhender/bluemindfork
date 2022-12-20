@@ -58,8 +58,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/_variables";
-
+@import "~@bluemind/ui-components/src/css/variables.scss";
 .smime-body-wrapper {
     display: flex;
     flex-direction: column;

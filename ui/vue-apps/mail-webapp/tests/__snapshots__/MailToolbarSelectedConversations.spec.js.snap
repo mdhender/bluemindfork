@@ -17,7 +17,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-plus-enveloppe fa-w-16 fa-md"
+        class="bm-icon svg-inline--fa fa-plus-enveloppe fa-md"
         data-icon="plus-enveloppe"
         data-prefix="fas"
         focusable="false"
@@ -43,7 +43,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-plus-enveloppe fa-w-16 fa-md"
+        class="bm-icon svg-inline--fa fa-plus-enveloppe fa-md"
         data-icon="plus-enveloppe"
         data-prefix="fas"
         focusable="false"
@@ -79,7 +79,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-read fa-w-16 fa-md"
+        class="bm-icon svg-inline--fa fa-read fa-md"
         data-icon="read"
         data-prefix="fas"
         focusable="false"
@@ -105,7 +105,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-read fa-w-16 fa-md"
+        class="bm-icon svg-inline--fa fa-read fa-md"
         data-icon="read"
         data-prefix="fas"
         focusable="false"
@@ -140,7 +140,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-unread fa-w-16 fa-md"
+        class="bm-icon svg-inline--fa fa-unread fa-md"
         data-icon="unread"
         data-prefix="fas"
         focusable="false"
@@ -166,7 +166,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-unread fa-w-16 fa-md"
+        class="bm-icon svg-inline--fa fa-unread fa-md"
         data-icon="unread"
         data-prefix="fas"
         focusable="false"
@@ -210,7 +210,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
       >
         <svg
           aria-hidden="true"
-          class="bm-icon svg-inline--fa fa-folder fa-w-16 fa-md"
+          class="bm-icon svg-inline--fa fa-folder fa-md"
           data-icon="folder"
           data-prefix="fas"
           focusable="false"
@@ -266,7 +266,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
                   >
                     <svg
                       aria-hidden="true"
-                      class="bm-icon ornament-icon svg-inline--fa fa-search fa-w-16 fa-md"
+                      class="bm-icon ornament-icon svg-inline--fa fa-search fa-md"
                       data-icon="search"
                       data-prefix="fas"
                       focusable="false"
@@ -298,7 +298,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
               >
                 <svg
                   aria-hidden="true"
-                  class="bm-icon mail-folder-icon svg-inline--fa fa-trash fa-w-16 fa-fw fa-md"
+                  class="bm-icon mail-folder-icon svg-inline--fa fa-trash fa-fw fa-md"
                   data-icon="trash"
                   data-prefix="fas"
                   focusable="false"
@@ -382,7 +382,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
               >
                 <svg
                   aria-hidden="true"
-                  class="bm-icon mail-folder-icon svg-inline--fa fa-inbox fa-w-16 fa-fw fa-md"
+                  class="bm-icon mail-folder-icon svg-inline--fa fa-inbox fa-fw fa-md"
                   data-icon="inbox"
                   data-prefix="fas"
                   focusable="false"
@@ -505,7 +505,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
                   >
                     <svg
                       aria-hidden="true"
-                      class="bm-icon ornament-icon svg-inline--fa fa-plus fa-w-16 fa-md"
+                      class="bm-icon ornament-icon svg-inline--fa fa-plus fa-md"
                       data-icon="plus"
                       data-prefix="fas"
                       focusable="false"
@@ -588,7 +588,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
       >
         <svg
           aria-hidden="true"
-          class="bm-icon svg-inline--fa fa-folder fa-w-16 fa-md"
+          class="bm-icon svg-inline--fa fa-folder fa-md"
           data-icon="folder"
           data-prefix="fas"
           focusable="false"
@@ -650,7 +650,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
                   >
                     <svg
                       aria-hidden="true"
-                      class="bm-icon ornament-icon svg-inline--fa fa-search fa-w-16 fa-md"
+                      class="bm-icon ornament-icon svg-inline--fa fa-search fa-md"
                       data-icon="search"
                       data-prefix="fas"
                       focusable="false"
@@ -682,7 +682,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
               >
                 <svg
                   aria-hidden="true"
-                  class="bm-icon mail-folder-icon svg-inline--fa fa-trash fa-w-16 fa-fw fa-md"
+                  class="bm-icon mail-folder-icon svg-inline--fa fa-trash fa-fw fa-md"
                   data-icon="trash"
                   data-prefix="fas"
                   focusable="false"
@@ -766,7 +766,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
               >
                 <svg
                   aria-hidden="true"
-                  class="bm-icon mail-folder-icon svg-inline--fa fa-inbox fa-w-16 fa-fw fa-md"
+                  class="bm-icon mail-folder-icon svg-inline--fa fa-inbox fa-fw fa-md"
                   data-icon="inbox"
                   data-prefix="fas"
                   focusable="false"
@@ -889,7 +889,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
                   >
                     <svg
                       aria-hidden="true"
-                      class="bm-icon ornament-icon svg-inline--fa fa-plus fa-w-16 fa-md"
+                      class="bm-icon ornament-icon svg-inline--fa fa-plus fa-md"
                       data-icon="plus"
                       data-prefix="fas"
                       focusable="false"
@@ -967,7 +967,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-trash fa-w-16 fa-md"
+        class="bm-icon svg-inline--fa fa-trash fa-md"
         data-icon="trash"
         data-prefix="fas"
         focusable="false"
@@ -993,7 +993,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-trash fa-w-16 fa-md"
+        class="bm-icon svg-inline--fa fa-trash fa-md"
         data-icon="trash"
         data-prefix="fas"
         focusable="false"
@@ -1028,7 +1028,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-flag-fill fa-w-16 fa-md"
+        class="bm-icon svg-inline--fa fa-flag-fill fa-md"
         data-icon="flag-fill"
         data-prefix="fas"
         focusable="false"
@@ -1054,7 +1054,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-flag-fill fa-w-16 fa-md"
+        class="bm-icon svg-inline--fa fa-flag-fill fa-md"
         data-icon="flag-fill"
         data-prefix="fas"
         focusable="false"
@@ -1090,7 +1090,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-flag-outline fa-w-16 fa-md"
+        class="bm-icon svg-inline--fa fa-flag-outline fa-md"
         data-icon="flag-outline"
         data-prefix="fas"
         focusable="false"
@@ -1116,7 +1116,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="bm-icon svg-inline--fa fa-flag-outline fa-w-16 fa-md"
+        class="bm-icon svg-inline--fa fa-flag-outline fa-md"
         data-icon="flag-outline"
         data-prefix="fas"
         focusable="false"
@@ -1164,7 +1164,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
       >
         <svg
           aria-hidden="true"
-          class="bm-icon svg-inline--fa fa-3dots fa-w-16 fa-md"
+          class="bm-icon svg-inline--fa fa-3dots fa-md"
           data-icon="3dots"
           data-prefix="fas"
           focusable="false"
@@ -1197,7 +1197,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="bm-icon svg-inline--fa fa-pencil fa-w-16 fa-fw fa-md"
+              class="bm-icon svg-inline--fa fa-pencil fa-fw fa-md"
               data-icon="pencil"
               data-prefix="fas"
               focusable="false"
@@ -1247,7 +1247,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="bm-icon svg-inline--fa fa-printer fa-w-16 fa-fw fa-md"
+              class="bm-icon svg-inline--fa fa-printer fa-fw fa-md"
               data-icon="printer"
               data-prefix="fas"
               focusable="false"
@@ -1311,7 +1311,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="bm-icon svg-inline--fa fa-code fa-w-16 fa-fw fa-md"
+              class="bm-icon svg-inline--fa fa-code fa-fw fa-md"
               data-icon="code"
               data-prefix="fas"
               focusable="false"
@@ -1350,7 +1350,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="bm-icon svg-inline--fa fa-download fa-w-16 fa-fw fa-md"
+              class="bm-icon svg-inline--fa fa-download fa-fw fa-md"
               data-icon="download"
               data-prefix="fas"
               focusable="false"
@@ -1389,7 +1389,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="bm-icon svg-inline--fa fa-with-attachment fa-w-16 fa-fw fa-md"
+              class="bm-icon svg-inline--fa fa-with-attachment fa-fw fa-md"
               data-icon="with-attachment"
               data-prefix="fas"
               focusable="false"
@@ -1438,7 +1438,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
       >
         <svg
           aria-hidden="true"
-          class="bm-icon svg-inline--fa fa-3dots fa-w-16 fa-md"
+          class="bm-icon svg-inline--fa fa-3dots fa-md"
           data-icon="3dots"
           data-prefix="fas"
           focusable="false"
@@ -1477,7 +1477,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="bm-icon svg-inline--fa fa-pencil fa-w-16 fa-fw fa-md"
+              class="bm-icon svg-inline--fa fa-pencil fa-fw fa-md"
               data-icon="pencil"
               data-prefix="fas"
               focusable="false"
@@ -1527,7 +1527,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="bm-icon svg-inline--fa fa-printer fa-w-16 fa-fw fa-md"
+              class="bm-icon svg-inline--fa fa-printer fa-fw fa-md"
               data-icon="printer"
               data-prefix="fas"
               focusable="false"
@@ -1591,7 +1591,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="bm-icon svg-inline--fa fa-code fa-w-16 fa-fw fa-md"
+              class="bm-icon svg-inline--fa fa-code fa-fw fa-md"
               data-icon="code"
               data-prefix="fas"
               focusable="false"
@@ -1630,7 +1630,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="bm-icon svg-inline--fa fa-download fa-w-16 fa-fw fa-md"
+              class="bm-icon svg-inline--fa fa-download fa-fw fa-md"
               data-icon="download"
               data-prefix="fas"
               focusable="false"
@@ -1669,7 +1669,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="bm-icon svg-inline--fa fa-with-attachment fa-w-16 fa-fw fa-md"
+              class="bm-icon svg-inline--fa fa-with-attachment fa-fw fa-md"
               data-icon="with-attachment"
               data-prefix="fas"
               focusable="false"
