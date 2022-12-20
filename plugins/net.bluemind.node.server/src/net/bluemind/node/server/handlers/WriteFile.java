@@ -27,10 +27,15 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.AclFileAttributeView;
+import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileOwnerAttributeView;
 import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFileAttributes;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.concurrent.atomic.LongAdder;
 
 import org.slf4j.Logger;
@@ -41,6 +46,9 @@ import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
 
 public class WriteFile implements Handler<HttpServerRequest> {
+	static final FileAttribute<Set<PosixFilePermission>> defaultPermissions = PosixFilePermissions
+			.asFileAttribute(EnumSet.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE,
+					PosixFilePermission.GROUP_READ, PosixFilePermission.OTHERS_READ));
 
 	@SuppressWarnings("serial")
 	private static class WriteException extends RuntimeException {
@@ -67,7 +75,7 @@ public class WriteFile implements Handler<HttpServerRequest> {
 				Files.createDirectories(originalPath.getParent());
 			}
 
-			Path tempPath = Files.createTempFile(originalPath.getParent(), ".nc_", "");
+			Path tempPath = Files.createTempFile(originalPath.getParent(), ".nc_", "", defaultPermissions);
 			SeekableByteChannel chan = Files.newByteChannel(tempPath, StandardOpenOption.CREATE, // NOSONAR: async
 																									// handler
 					StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
