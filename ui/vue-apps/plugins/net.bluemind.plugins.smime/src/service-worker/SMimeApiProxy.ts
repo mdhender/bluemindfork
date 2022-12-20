@@ -1,5 +1,6 @@
 import { ImapItemIdentifier, MailboxItem, MailboxItemsClient } from "@bluemind/backend.mail.api";
 import { Ack, ItemValue } from "@bluemind/core.container.api";
+import { hasToBeEncrypted } from "../lib/helper";
 import { logger } from "./environnment/logger";
 import { decrypt, encrypt, isEncrypted, isSigned, verify } from "./smime";
 
@@ -50,8 +51,9 @@ export default class SMimeApiProxy extends MailboxItemsClient {
     }
     async create(item: MailboxItem): Promise<ImapItemIdentifier> {
         try {
-            //TODO Only encrypt if an encrypt header is present
-            item = await encrypt(item, this.replicatedMailboxUid);
+            if (item.body.headers && hasToBeEncrypted(item.body.headers)) {
+                item = await encrypt(item, this.replicatedMailboxUid);
+            }
         } catch (e) {
             logger.error(e);
         }
@@ -59,8 +61,9 @@ export default class SMimeApiProxy extends MailboxItemsClient {
     }
     async updateById(id: number, item: MailboxItem): Promise<Ack> {
         try {
-            //TODO Only encrypt if an encrypt header is present
-            item = await encrypt(item, this.replicatedMailboxUid);
+            if (item.body.headers && hasToBeEncrypted(item.body.headers)) {
+                item = await encrypt(item, this.replicatedMailboxUid);
+            }
         } catch (e) {
             logger.error(e);
         }

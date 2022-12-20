@@ -7,6 +7,10 @@
             },
             "body_wrapper": {
                 "cant_display": "Pourquoi je ne peux pas voir ce message ?"
+            },
+            "composer": {
+                "encrypt": "Chiffrer le message",
+                "unencrypt": "Déchiffrer le message"
             }
         },
         "preferences": {

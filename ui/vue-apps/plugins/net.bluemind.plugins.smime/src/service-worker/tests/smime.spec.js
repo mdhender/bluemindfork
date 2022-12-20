@@ -165,7 +165,7 @@ describe("smime", () => {
         });
         test("add a header if the message is correcty decrypted", async () => {
             const item = await smime.decrypt("uid", mainEncrypted);
-            expect(getCryptoHeaderCode(item)).toEqual(CRYPTO_HEADERS.DECRYPTED);
+            expect(getCryptoHeaderCode(item)).toEqual(CRYPTO_HEADERS.OK);
         });
         test("add a header if the message cannot be decrypted because private key or certificate are expired", async () => {
             pkcs7.decrypt = jest.fn(() => Promise.reject(new ExpiredCertificateError()));
