@@ -59,7 +59,7 @@ public class NodeActivator implements BundleActivator {
 		return ncfs.get(0);
 	}
 
-	private static boolean requiresLocalNode(String host) {
+	public static boolean requiresLocalNode(String host) {
 		return Splitter.on(",").omitEmptyStrings().splitToStream(System.getProperty("node.local.ipaddr", ""))
 				.anyMatch(host::equals);
 	}

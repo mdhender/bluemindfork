@@ -242,6 +242,10 @@ public class PopulateKafkaTests {
 							sysconfMap.put(SysConfKeys.sds_s3_bucket.name(), bucket);
 							sysconfMap.put(SysConfKeys.sds_s3_access_key.name(), "accessKey1");
 							sysconfMap.put(SysConfKeys.sds_s3_secret_key.name(), "verySecretKey1");
+							sysconfMap.put(SysConfKeys.sds_filehosting_endpoint.name(), s3);
+							sysconfMap.put(SysConfKeys.sds_filehosting_s3_bucket.name(), bucket);
+							sysconfMap.put(SysConfKeys.sds_filehosting_s3_access_key.name(), "accessKey1");
+							sysconfMap.put(SysConfKeys.sds_filehosting_s3_secret_key.name(), "verySecretKey1");
 						}
 						// System.err.println(descriptor + ":\nkey:" + key.encode() + "\nvalue:" +
 						// value.encode());
@@ -300,12 +304,18 @@ public class PopulateKafkaTests {
 		DirEntry found = dirApi.getByEmail("sylvain@devenv.blue");
 		assertNotNull(found);
 		System.err.println("Got " + found);
-		IUser user = prov.instance(IUser.class, domFound.uid);
-		ItemValue<User> asUser = user.getComplete(found.entryUid);
-		System.err.println("user: " + asUser);
-		LoginResponse sudo = prov.instance(IAuthentication.class).su(asUser.value.defaultEmailAddress());
-		assertNotNull(sudo.authUser.roles);
-		System.err.println("roles: " + sudo.authUser.roles);
+		try {
+			IUser user = prov.instance(IUser.class, domFound.uid);
+			ItemValue<User> asUser = user.getComplete(found.entryUid);
+			System.err.println("user: " + asUser);
+
+			LoginResponse sudo = prov.instance(IAuthentication.class).su(asUser.value.defaultEmailAddress());
+			assertNotNull(sudo.authUser.roles);
+			System.err.println("roles: " + sudo.authUser.roles);
+		} catch (Throwable t) {
+			t.printStackTrace();
+			fail(t.getMessage());
+		}
 
 //		assertTrue(sudo.authUser.roles.contains("hasMailWebapp"));
 

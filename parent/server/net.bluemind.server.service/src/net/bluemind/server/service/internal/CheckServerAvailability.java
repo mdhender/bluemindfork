@@ -25,13 +25,15 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.node.api.INodeClient;
-import net.bluemind.node.client.AHCNodeClientFactory;
+import net.bluemind.node.api.INodeClientFactory;
+import net.bluemind.node.api.NodeActivator;
+import net.bluemind.node.client.OkHttpNodeClientFactory;
 import net.bluemind.server.api.Server;
 import net.bluemind.server.hook.DefaultServerHook;
 
 public class CheckServerAvailability extends DefaultServerHook {
 
-	private AHCNodeClientFactory ncf = new AHCNodeClientFactory();
+	private INodeClientFactory ncf = new OkHttpNodeClientFactory();
 
 	private static final Logger logger = LoggerFactory.getLogger(CheckServerAvailability.class);
 
@@ -51,7 +53,7 @@ public class CheckServerAvailability extends DefaultServerHook {
 	}
 
 	private void checkServerIsAvailable(Server server) {
-		INodeClient nc = ncf.create(server.address());
+		INodeClient nc = ncf.create(NodeActivator.requiresLocalNode(server.address()) ? "127.0.0.1" : server.address());
 		nc.ping();
 		logger.info("server {} is joinable", server.address());
 	}
