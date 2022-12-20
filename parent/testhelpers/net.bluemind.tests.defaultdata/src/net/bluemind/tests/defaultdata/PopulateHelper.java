@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -464,9 +465,16 @@ public class PopulateHelper {
 	}
 
 	public static String addGroup(String domainUid, String uid, String name, List<Member> members) {
+		return addGroup(domainUid, uid, name, members, false);
+	}
+
+	public static String addGroup(String domainUid, String uid, String name, List<Member> members, boolean withEmail) {
 		IGroup groups = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IGroup.class, domainUid);
 		Group grp = new Group();
 		grp.name = name;
+		if (withEmail) {
+			grp.emails = Collections.singleton(Email.create(name + "@" + domainUid, true));
+		}
 		groups.create(uid, grp);
 		groups.add(uid, members);
 		return uid;

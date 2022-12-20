@@ -192,11 +192,10 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		if (toDelete.value.deleted) {
 			throw ServerFault.notFound("Folder with id " + id + " has already been deleted.");
 		}
-		MboxReplicasCache.invalidate(toDelete.uid);
-		ItemVersion delResult = storeService.delete(toDelete.internalId);
-		notifyUpdate(toDelete.value.parentUid != null ? getComplete(toDelete.value.parentUid) : toDelete,
-				delResult.version);
-		logger.info("Deleting {} -> {}", toDelete, delResult);
+
+		IDbByContainerReplicatedMailboxes writeDelegate = context.provider()
+				.instance(IDbByContainerReplicatedMailboxes.class, container.uid);
+		writeDelegate.delete(toDelete.uid);
 	}
 
 	private void notifyUpdate(ItemValue<MailboxFolder> parent, long version) {
