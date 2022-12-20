@@ -21,9 +21,14 @@ package net.bluemind.backend.mailapi.testhelper;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -51,6 +56,7 @@ import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
+import net.bluemind.directory.hollow.datamodel.consumer.DirectorySearchFactory;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.imap.driver.mailapi.DriverConfig;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -107,10 +113,37 @@ public class MailApiTestsBase {
 		return config.getString(DriverConfig.SHARED_VIRTUAL_ROOT) + "/" + share.value.name;
 	}
 
+	protected boolean suspendBookSync() {
+		return true;
+	}
+
+	protected boolean setupUserAndProvider() {
+		return true;
+	}
+
+	protected void cleanupHollowData() {
+		System.err.println("cleanup of hollow data");
+		DirectorySearchFactory.reset();
+
+		File dir = new File("/var/spool/bm-hollowed/directory");
+		if (dir.exists() && dir.isDirectory()) {
+			try {
+				Files.walk(dir.toPath(), FileVisitOption.FOLLOW_LINKS).sorted(Comparator.reverseOrder())
+						.map(Path::toFile).forEach(File::delete);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			dir.mkdirs();
+		}
+	}
+
 	@Before
 	public void before() throws Exception {
 		System.err.println("==== BEFORE " + testName.getMethodName() + " starts ====");
-		DomainBookVerticle.suspended = true;
+		DomainBookVerticle.suspended = suspendBookSync();
+		if (!suspendBookSync()) {
+			cleanupHollowData();
+		}
 		JdbcTestHelper.getInstance().beforeTest();
 
 		Server pipo = new Server();
@@ -139,13 +172,15 @@ public class MailApiTestsBase {
 
 		this.serverProv = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 
-		this.userUid = PopulateHelper.addUser("john", domUid, Routing.internal);
-		assertNotNull(userUid);
+		if (setupUserAndProvider()) {
+			this.userUid = PopulateHelper.addUser("john", domUid, Routing.internal);
+			assertNotNull(userUid);
 
-		SecurityContext userSec = new SecurityContext("sid", userUid, Collections.emptyList(), Collections.emptyList(),
-				domUid);
-		Sessions.get().put("sid", userSec);
-		this.userProvider = ServerSideServiceProvider.getProvider(userSec);
+			SecurityContext userSec = new SecurityContext("sid", userUid, Collections.emptyList(),
+					Collections.emptyList(), domUid);
+			Sessions.get().put("sid", userSec);
+			this.userProvider = ServerSideServiceProvider.getProvider(userSec);
+		}
 
 		StateContext.setInternalState(new RunningState());
 		System.err.println("==== BEFORE " + testName.getMethodName() + " ends ====");
@@ -156,6 +191,9 @@ public class MailApiTestsBase {
 	public void after() throws Exception {
 		System.err.println("===== AFTER " + testName.getMethodName() + " starts =====");
 		JdbcTestHelper.getInstance().afterTest();
+		if (!suspendBookSync()) {
+			cleanupHollowData();
+		}
 		System.err.println("===== AFTER ends =====");
 	}
 
@@ -206,6 +244,10 @@ public class MailApiTestsBase {
 
 	public final <T> T imapAsUser(ImapActions<T> actions) {
 		return imapAction(userUid + "@" + domUid, userUid, actions);
+	}
+
+	public final <T> T imapAsUser(String userUidForImap, ImapActions<T> actions) {
+		return imapAction(userUidForImap + "@" + domUid, userUidForImap, actions);
 	}
 
 	private <T> T imapAction(String imapLogin, String imapPass, ImapActions<T> actions) {

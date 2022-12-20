@@ -163,12 +163,6 @@
    <extension
          point="net.bluemind.directory.repairSupport">
       <repairSupport
-            factory="net.bluemind.backend.mail.replica.service.internal.repair.ReplicationParentUidRepair$RepairFactory">
-      </repairSupport>
-   </extension>
-   <extension
-         point="net.bluemind.directory.repairSupport">
-      <repairSupport
             factory="net.bluemind.backend.mail.replica.service.internal.repair.MultiInboxRepair$RepairFactory">
       </repairSupport>
    </extension>
@@ -188,12 +182,6 @@
          point="net.bluemind.directory.repairSupport">
       <repairSupport
             factory="net.bluemind.backend.mail.replica.service.internal.repair.DefaultPartitionRepair$RepairFactory">
-      </repairSupport>
-   </extension>
-   <extension
-         point="net.bluemind.directory.repairSupport">
-      <repairSupport
-            factory="net.bluemind.backend.mail.replica.service.internal.repair.ReApplyDeletionsRepair$RepairFactory">
       </repairSupport>
    </extension>
    <extension

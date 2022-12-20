@@ -74,6 +74,7 @@ import net.bluemind.backend.mail.replica.service.internal.BodyInternalIdCache.Ex
 import net.bluemind.backend.mail.replica.service.internal.BodyInternalIdCache.VanishedBody;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -371,20 +372,20 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 	}
 
 	@Override
-	public void updates(List<MailboxRecord> recs) {
+	public Ack updates(List<MailboxRecord> recs) {
 		if (recs.isEmpty()) {
-			return;
+			return Ack.create(getVersion());
 		}
 
 		if (processClonedRefs(recs)) {
-			return;
+			return Ack.create(getVersion());
 		} else if (StateContext.getState() == SystemState.CORE_STATE_CLONING) {
 			logger.warn("[{}] unknown ids in MailboxRecordItemCache {}", mailboxUniqueId,
 					MailboxRecordItemCache.stats());
-			return;
+			return Ack.create(getVersion());
 		}
 
-		updatesImpl(recs);
+		return updatesImpl(recs);
 	}
 
 	private boolean processClonedRefs(List<MailboxRecord> recs) {
@@ -416,7 +417,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 
 	}
 
-	private void updatesImpl(List<MailboxRecord> recs) {
+	private Ack updatesImpl(List<MailboxRecord> recs) {
 		List<MailboxRecord> records = fixFlags(recs);
 		logger.info("[{}] Update with {} record(s)", mailboxUniqueId, records.size());
 		long time = System.currentTimeMillis();
@@ -577,6 +578,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		}
 		EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, contVersion, itemIds,
 				createdIds);
+		return Ack.create(contVersion);
 	}
 
 	private static final ExecutorService ES_CRUD_POOL = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS,

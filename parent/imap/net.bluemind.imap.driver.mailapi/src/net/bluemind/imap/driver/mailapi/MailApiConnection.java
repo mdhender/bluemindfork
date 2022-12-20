@@ -526,8 +526,7 @@ public class MailApiConnection implements MailboxConnection {
 	public void updateFlags(SelectedFolder selected, List<Long> toUpdate, UpdateMode mode, List<String> flags) {
 		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
 		for (List<Long> slice : Lists.partition(toUpdate, DriverConfig.get().getInt("driver.records-mget"))) {
-			List<MailboxRecord> recs = recApi.multipleGetById(slice).stream().map(iv -> iv.value)
-					.collect(Collectors.toList()); // NOSONAR we mutate it
+			List<MailboxRecord> recs = recApi.slice(slice).stream().map(iv -> iv.value).collect(Collectors.toList()); // NOSONAR
 			for (MailboxRecord item : recs) {
 				List<MailboxItemFlag> commandFlags = flags(flags);
 				List<InternalFlag> internalFlags = internalFlags(flags);

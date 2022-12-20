@@ -76,11 +76,6 @@ public interface IMailboxItems
 	List<Long> unreadItems();
 
 	/**
-	 * Removes extra records (missing on imap server)
-	 */
-	void resync();
-
-	/**
 	 * Get the list of {@link ItemValue#internalId} for {@link MailboxItem}
 	 * delivered or updated after or at the given date.
 	 * 

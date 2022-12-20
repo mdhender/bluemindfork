@@ -36,6 +36,7 @@ import javax.sql.DataSource;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -54,6 +55,7 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.utils.InputReadStream;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
@@ -67,6 +69,20 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 	protected DataSource datasource;
 
 	protected Vertx vertx;
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + "," + PopulateHelper.FAKE_CYRUS_IP_2);
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + "," + PopulateHelper.FAKE_CYRUS_IP_2);
+		System.setProperty("ahcnode.fail.https.ok", "true");
+	}
+
+	@BeforeClass
+	public static void afterClass() {
+		System.clearProperty("node.local.ipaddr");
+		System.clearProperty("imap.local.ipaddr");
+		System.clearProperty("ahcnode.fail.https.ok");
+	}
 
 	protected ReadStream<Buffer> openResource(String path) {
 		InputStream inputStream = AbstractReplicatedMailboxesServiceTests.class.getClassLoader()
@@ -104,6 +120,10 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 		mboxUniqueId = folder.uid;
 		mboxUniqueId2 = mailboxFolderService.byName("Sent").uid;
 		assertNotNull(userUid);
+
+		Topology.get().nodes().forEach(iv -> {
+			System.err.println("uid: " + iv.uid + " -> iv.value " + iv.value);
+		});
 	}
 
 	@After

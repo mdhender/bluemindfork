@@ -89,7 +89,14 @@ public class HollowDataHandler implements Handler<HttpServerRequest>, NeedVertxE
 	}
 
 	private void retrieveData(Target target, HttpServerResponse resp) {
-		vertx.executeBlocking((Promise<BlobData> prom) -> prom.complete(getDataBlob(target)), false, ar -> {
+		vertx.executeBlocking((Promise<BlobData> prom) -> {
+			BlobData blob = getDataBlob(target);
+			if (blob != null) {
+				prom.complete(blob);
+			} else {
+				prom.fail(new NullPointerException("blob " + target + " is null"));
+			}
+		}, false, ar -> {
 			if (ar.failed()) {
 				error(resp, ar.cause(), target);
 			} else {
@@ -121,6 +128,10 @@ public class HollowDataHandler implements Handler<HttpServerRequest>, NeedVertxE
 	private BlobData getDataBlob(Target target) {
 		DataSerializer ds = getSerializerBySet(target.set, target.subset);
 		HollowConsumer.Blob blob = getBlobRetriever(ds, target).apply(target.version);
+		if (blob == null) {
+			logger.warn("Blob is null {}:{}:{}:{}", target.type.name(), target.set, target.subset, target.version);
+			return null;
+		}
 		try {
 			File tempFile = File.createTempFile("target.set", "" + System.currentTimeMillis());
 			Files.copy(blob.getInputStream(), tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);

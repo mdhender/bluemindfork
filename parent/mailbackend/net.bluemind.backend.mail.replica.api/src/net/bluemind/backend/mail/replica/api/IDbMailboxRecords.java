@@ -31,6 +31,7 @@ import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.Stream;
+import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.IChangelogSupport;
 import net.bluemind.core.container.api.ICountingSupport;
 import net.bluemind.core.container.api.IDataShardSupport;
@@ -75,7 +76,7 @@ public interface IDbMailboxRecords extends IChangelogSupport, IDataShardSupport,
 
 	/**
 	 * Quick alternative to {@link IDbMailboxRecords#multipleGetById(List)}, this
-	 * one with not load ItemValue stuff.
+	 * one with not load ItemValue stuff. Body is not loaded.
 	 * 
 	 * @param ids
 	 * @return
@@ -102,7 +103,7 @@ public interface IDbMailboxRecords extends IChangelogSupport, IDataShardSupport,
 
 	@POST
 	@Path("_updates")
-	void updates(List<MailboxRecord> records);
+	Ack updates(List<MailboxRecord> records);
 
 	@DELETE
 	@Path("_deleteImapUids")

@@ -45,24 +45,25 @@ public class DirectorySerializationVerticle extends AbstractVerticle {
 
 	private void startImpl(long timerId) {
 		logger.info("Delayed start from timer {}", timerId);
-		// Only one must be instantiated
-		activateSerializers();
-		// Concurrency is handled inside eventbus handlers
-		registerDomainChangeHandler();
-		registerDirectoryChangeHandler();
+		try {
+			// Only one must be instantiated
+			activateSerializers();
+			// Concurrency is handled inside eventbus handlers
+			registerDomainChangeHandler();
+			registerDirectoryChangeHandler();
+		} catch (Exception e) {
+			logger.warn("error loading serializers, retrying in 1sec ({})", e.getMessage());
+			vertx.setTimer(1000, this::startImpl);
+		}
 	}
 
 	private void activateSerializers() {
-		try {
-			IDomains domApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
-			domApi.all().stream().filter(dom -> !"global.virt".equals(dom.uid)).forEach(dom -> {
-				DirectorySerializer ser = createSerializer(dom.uid);
-				Serializers.put(dom.uid, ser);
-				logger.info("{} registered for {}", ser, dom.uid);
-			});
-		} catch (Exception e) {
-			logger.warn("Cannot activate domain serializers", e);
-		}
+		IDomains domApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
+		domApi.all().stream().filter(dom -> !"global.virt".equals(dom.uid)).forEach(dom -> {
+			DirectorySerializer ser = createSerializer(dom.uid);
+			Serializers.put(dom.uid, ser);
+			logger.info("{} registered for {}", ser, dom.uid);
+		});
 	}
 
 	private DirectorySerializer createSerializer(String domainUid) {

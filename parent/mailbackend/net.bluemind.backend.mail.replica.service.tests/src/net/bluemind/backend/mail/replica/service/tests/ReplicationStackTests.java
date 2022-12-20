@@ -89,8 +89,6 @@ import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
 import net.bluemind.backend.mail.replica.api.utils.Subtree;
 import net.bluemind.backend.mail.replica.service.ReplicationEvents;
-import net.bluemind.backend.mail.replica.service.internal.ItemsTransferService;
-import net.bluemind.backend.mail.replica.service.internal.MailboxRecordExpungedService;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Email;

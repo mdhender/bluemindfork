@@ -59,6 +59,7 @@ import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.core.tests.BmTestContext;
+import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class ReplicatedDataExpirationServiceTests extends AbstractMailboxRecordsServiceTests<IDbMailboxRecords> {
 
@@ -257,7 +258,7 @@ public class ReplicatedDataExpirationServiceTests extends AbstractMailboxRecords
 	protected IReplicatedDataExpiration getExpirationService() {
 		BmTestContext testCtx = new BmTestContext(SecurityContext.SYSTEM);
 		return new ReplicatedDataExpirationService(testCtx, JdbcTestHelper.getInstance().getMailboxDataDataSource(),
-				"bm/core");
+				PopulateHelper.FAKE_CYRUS_IP);
 	}
 
 }

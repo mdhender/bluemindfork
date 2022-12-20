@@ -25,9 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -35,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -81,7 +78,9 @@ import net.bluemind.backend.mail.replica.api.IMailboxRecordExpunged;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailApiHeaders;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
+import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
+import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
 import net.bluemind.backend.mail.replica.persistence.RecordID;
@@ -97,7 +96,6 @@ import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.IOfflineMgmt;
 import net.bluemind.core.container.api.IdRange;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
@@ -112,7 +110,6 @@ import net.bluemind.core.utils.ThreadContextHelper;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
-import net.bluemind.imap.SearchQuery;
 import net.bluemind.imap.TaggedResult;
 import net.bluemind.imap.vertx.stream.EmptyStream;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -189,57 +186,17 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public void expunge() {
-		imapContext.withImapClient(sc -> {
-			sc.select(imapFolder);
-			sc.expunge();
-			logger.info("{} Expunged {}", imapContext.latd, imapFolder);
-			return null;
-		});
-	}
-
-	@Override
-	public void resync() {
-		rbac.check(Verb.Write.name());
-		long time = System.currentTimeMillis();
-		Collection<Integer> imapUids = imapContext.withImapClient(sc -> {
-			sc.select(imapFolder);
-			return sc.uidSearch(new SearchQuery());
-		});
-		Set<Long> knownUids = imapUids.stream().map(Integer::longValue).collect(Collectors.toSet());
-		List<String> allUids = storeService.allUids();
-		List<ItemValue<MailboxRecord>> extraRecords = new ArrayList<>(allUids.size());
-		List<ItemValue<MailboxRecord>> unlinkedRecords = new ArrayList<>(allUids.size());
-		for (List<String> slice : Lists.partition(allUids, 50)) {
-			List<ItemValue<MailboxRecord>> records = storeService.getMultiple(slice);
-			for (ItemValue<MailboxRecord> iv : records) {
-				if (!knownUids.contains(iv.value.imapUid)) {
-					if (!checkExistOnBackend(iv.value.imapUid)) {
-						unlinkedRecords.add(iv);
-					} else if (!iv.flags.contains(ItemFlag.Deleted)) {
-						extraRecords.add(iv);
-					}
-				}
+		IDbMailboxRecords writeDelegate = context.provider().instance(IDbMailboxRecords.class, container.uid);
+		List<Long> toExpunge = writeDelegate.imapIdSet("1:*", "+deleted");
+		for (List<Long> slice : Lists.partition(toExpunge, 1024)) {
+			List<MailboxRecord> recs = writeDelegate.slice(slice).stream().map(iv -> iv.value)
+					.collect(Collectors.toList());// NOSONAR
+			for (MailboxRecord item : recs) {
+				item.internalFlags.add(InternalFlag.expunged);
 			}
+			writeDelegate.updates(recs);
 		}
-		logger.debug("Found {} extra record(s), {} unlinked record(s) before resync of {}", extraRecords.size(),
-				unlinkedRecords.size(), imapFolder);
-		if (!extraRecords.isEmpty()) {
-			IDbMailboxRecords recsApi = context.provider().instance(IDbMailboxRecords.class,
-					IMailReplicaUids.uniqueId(container.uid));
-			List<MailboxRecord> batch = extraRecords.stream().map(iv -> {
-				MailboxRecord ret = iv.value;
-				ret.flags.add(MailboxItemFlag.System.Deleted.value());
-				return ret;
-			}).collect(Collectors.toList());
-			recsApi.updates(batch);
-		}
-		if (!unlinkedRecords.isEmpty()) {
-			IDbMailboxRecords recsApi = context.provider().instance(IDbMailboxRecords.class,
-					IMailReplicaUids.uniqueId(container.uid));
-			recsApi.deleteImapUids(unlinkedRecords.stream().map(iv -> iv.value.imapUid).collect(Collectors.toList()));
-		}
-		time = System.currentTimeMillis() - time;
-		logger.debug("{} re-sync completed in {}ms.", imapFolder, time);
+		logger.info("Expunged {} record(s)", toExpunge.size());
 	}
 
 	@Override
@@ -388,8 +345,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	@Override
 	public ImapItemIdentifier create(MailboxItem value) {
 		rbac.check(Verb.Write.name());
-		IOfflineMgmt offlineApi = context.provider().instance(IOfflineMgmt.class, imapContext.user.domainUid,
-				imapContext.user.uid);
+		IOfflineMgmt offlineApi = context.provider().instance(IOfflineMgmt.class, container.domainUid, container.owner);
 		IdRange alloc = offlineApi.allocateOfflineIds(1);
 		return create(alloc.globalCounter, value);
 	}
@@ -533,10 +489,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 			return adapted;
 		}).filter(Objects::nonNull).collect(Collectors.toList());
-	}
-
-	private List<ItemValue<MailboxItem>> multipleByIdWithoutBody(List<Long> ids) {
-		return storeService.getMultipleById(ids).stream().map(this::adapt).collect(Collectors.toList());
 	}
 
 	public ItemIdentifier unexpunge(long itemId) {
@@ -769,33 +721,44 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		FlagUpdate flagUpdate = FlagUpdate.of(ids, MailboxItemFlag.System.Deleted.value());
 		addFlag(flagUpdate);
 
-		List<Integer> deletedUids = multipleByIdWithoutBody(flagUpdate.itemsId).stream()
-				.filter(item -> item.value.flags.contains(MailboxItemFlag.System.Deleted.value()))
-				.map(item -> Math.toIntExact(item.value.imapUid)).toList();
-		imapContext.withImapClient(sc -> {
-			sc.uidExpunge(deletedUids);
-			return true;
-		});
 	}
 
 	@Override
 	public Ack addFlag(FlagUpdate flagUpdate) {
 		rbac.check(Verb.Write.name());
-		List<String> imapUidsToMark = multipleByIdWithoutBody(flagUpdate.itemsId).stream()
-				.filter(item -> !item.value.flags.contains(flagUpdate.mailboxItemFlag))
-				.map(item -> Long.toString(item.value.imapUid)).collect(Collectors.toList());
 
-		return addFlagsImapCommand(imapUidsToMark, flagUpdate.mailboxItemFlag.flag);
+		return touchFlag(flagUpdate, rec -> {
+			rec.value.flags.add(flagUpdate.mailboxItemFlag);
+			if (MailboxItemFlag.System.Deleted.value().equals(flagUpdate.mailboxItemFlag)) {
+				rec.value.internalFlags.add(InternalFlag.expunged);
+			}
+			return rec.value;
+		});
+	}
+
+	@FunctionalInterface
+	private interface FlagOperation {
+		MailboxRecord touchFlags(WithId<MailboxRecord> mr);
+	}
+
+	private Ack touchFlag(FlagUpdate target, FlagOperation op) {
+		rbac.check(Verb.Write.name());
+
+		IDbMailboxRecords writeDelegate = context.provider().instance(IDbMailboxRecords.class, mailboxUniqueId);
+		List<WithId<MailboxRecord>> slice = writeDelegate.slice(target.itemsId);
+		if (slice.isEmpty()) {
+			return Ack.create(0);
+		}
+		return writeDelegate.updates(slice.stream().map(op::touchFlags).toList());
 	}
 
 	@Override
 	public Ack deleteFlag(FlagUpdate flagUpdate) {
 		rbac.check(Verb.Write.name());
-		List<String> imapUidsToMark = multipleByIdWithoutBody(flagUpdate.itemsId).stream()
-				.filter(item -> item.value.flags.contains(flagUpdate.mailboxItemFlag))
-				.map(item -> Long.toString(item.value.imapUid)).collect(Collectors.toList());
-
-		return removeFlagsImapCommand(imapUidsToMark, flagUpdate.mailboxItemFlag.flag);
+		return touchFlag(flagUpdate, rec -> {
+			rec.value.flags.remove(flagUpdate.mailboxItemFlag);
+			return rec.value;
+		});
 	}
 
 	private Ack updateFlagsImapCommand(String prefix, List<String> imapUids, String... flags) {
@@ -806,14 +769,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		cmd.append(String.join(",", imapUids) + " ");
 		cmd.append(prefix + "FLAGS.SILENT (" + String.join(" ", flags) + ")");
 		return doImapCommand(cmd.toString());
-	}
-
-	private Ack removeFlagsImapCommand(List<String> imapUids, String... flags) {
-		return updateFlagsImapCommand("-", imapUids, flags);
-	}
-
-	private Ack addFlagsImapCommand(List<String> imapUids, String... flags) {
-		return updateFlagsImapCommand("+", imapUids, flags);
 	}
 
 	private Ack overwriteFlagsImapCommand(List<String> imapUids, String... flags) {

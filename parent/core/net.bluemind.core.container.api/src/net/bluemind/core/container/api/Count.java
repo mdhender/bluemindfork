@@ -30,4 +30,9 @@ public class Count {
 		return c;
 	}
 
+	@Override
+	public String toString() {
+		return "Count{v: " + total + "}";
+	}
+
 }

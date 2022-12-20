@@ -68,6 +68,9 @@ public class MailFilterRuleVacationMapper implements MailFilterRuleTypeMapper<Ma
 	}
 
 	private Date parse(String parameter) {
+		if (parameter == null) {
+			return null;
+		}
 		try {
 			return formatter.parse(parameter);
 		} catch (ParseException e) {

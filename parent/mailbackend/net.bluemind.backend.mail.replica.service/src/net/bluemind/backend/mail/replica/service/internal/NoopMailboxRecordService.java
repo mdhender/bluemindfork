@@ -31,6 +31,7 @@ import net.bluemind.backend.mail.replica.api.Weight;
 import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
@@ -135,8 +136,9 @@ public class NoopMailboxRecordService implements IDbMailboxRecords {
 	}
 
 	@Override
-	public void updates(List<MailboxRecord> records) {
+	public Ack updates(List<MailboxRecord> records) {
 		logger.info("NOOP operation IDbMailboxRecords#updates");
+		return Ack.create(0L);
 
 	}
 
@@ -210,7 +212,7 @@ public class NoopMailboxRecordService implements IDbMailboxRecords {
 	public void restore(ItemValue<MailboxRecord> item, boolean isCreate) {
 		logger.info("NOOP operation IDbMailboxRecords#restore");
 	}
-	
+
 	public List<ItemIdentifier> multiCreate(List<MailboxRecord> mails) {
 		logger.info("NOOP operation IDbMailboxRecords#multiCreate");
 		return Collections.emptyList();
