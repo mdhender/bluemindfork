@@ -2880,9 +2880,6 @@ net.bluemind.calendar.vevent.ui.Form.prototype.handleAddAttendee_ = function(e) 
           ret['mailto'] = vcard['mailto'];
         } else {
           ret['mailto'] = net.bluemind.calendar.vevent.ui.Form.defaultEmail_(vcard['value']['communications']['emails']);
-          if (vcard['value']['communications']['emails'] && vcard['value']['communications']['emails'].length > 0) {
-            ret['mailto'] = vcard['value']['communications']['emails'][0]['value'];
-          }
           if (vcard['value']['identification']['photo'] && ret['dir'] && goog.string.startsWith(ret['dir'], 'bm://')) {
             ret['icon'] = '/api/directory/' + this.ctx.user['domainUid'] + '/_icon/'
                 + encodeURIComponent(goog.string.removeAt(ret['dir'], 0, 5));
