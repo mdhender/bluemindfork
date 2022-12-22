@@ -33,6 +33,8 @@ public class ImaptestPlanBuilder {
 	private int clients;
 	private Duration duration;
 	private Integer select;
+	private Integer logout;
+	private Integer checkpoint;
 	private boolean onlyLoginSelectLogout;
 
 	public ImaptestPlanBuilder() {
@@ -65,6 +67,12 @@ public class ImaptestPlanBuilder {
 		}
 		if (select != null) {
 			sb.append(" select=" + select);
+		}
+		if (logout != null) {
+			sb.append(" logout=" + logout);
+		}
+		if (checkpoint != null) {
+			sb.append(" checkpoint=" + checkpoint);
 		}
 
 		return sb.toString();
@@ -108,6 +116,16 @@ public class ImaptestPlanBuilder {
 	 */
 	public ImaptestPlanBuilder select(int i) {
 		this.select = i;
+		return this;
+	}
+
+	public ImaptestPlanBuilder logout(int i) {
+		this.logout = i;
+		return this;
+	}
+
+	public ImaptestPlanBuilder checkpoint(int i) {
+		this.checkpoint = i;
 		return this;
 	}
 

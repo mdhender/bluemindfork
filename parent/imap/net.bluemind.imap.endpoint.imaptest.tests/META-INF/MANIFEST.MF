@@ -7,7 +7,8 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.backend.mailapi.testhelper;bundle-version="4.1.0",
  net.bluemind.imap.docker.imaptest;bundle-version="4.1.0",
- org.junit
+ org.junit,
+ com.google.guava
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.imap.endpoint.imaptests.tests
 Bundle-ActivationPolicy: lazy

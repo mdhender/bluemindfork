@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.ContainerLaunchException;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.BaseConsumer;
 import org.testcontainers.containers.output.OutputFrame;
@@ -72,7 +73,11 @@ public class DovecotImaptestRunner extends GenericContainer<DovecotImaptestRunne
 	}
 
 	public List<String> runPlan() {
-		start();
+		try {
+			start();
+		} catch (ContainerLaunchException cle) {
+			logger.warn("launch error, imap test panic ? ({})", cle.getMessage());// NOSONAR
+		}
 		return List.copyOf(consumer.logFrames);
 	}
 
