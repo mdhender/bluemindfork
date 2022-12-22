@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.imap.endpoint.imaptest.tests
+Bundle-SymbolicName: net.bluemind.imap.endpoint.imaptest.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.backend.mailapi.testhelper;bundle-version="4.1.0",
+ net.bluemind.imap.docker.imaptest;bundle-version="4.1.0",
+ org.junit
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: net.bluemind.imap.endpoint.imaptests.tests
+Bundle-ActivationPolicy: lazy

@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.imap.docker.imaptest
+Bundle-SymbolicName: net.bluemind.imap.docker.imaptest;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Export-Package: net.bluemind.imap.docker.imaptest
+Bundle-Activator: net.bluemind.imap.docker.imaptest.ImaptestActivator
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ org.junit,
+ net.bluemind.testcontainers,
+ slf4j.api
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: net.bluemind.imap.docker.imaptest
+Bundle-ActivationPolicy: lazy

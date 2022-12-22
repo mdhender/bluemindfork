@@ -12,6 +12,8 @@
 	<modules>
 		<module>net.bluemind.imap.endpoint</module>
 		<module>net.bluemind.imap.endpoint.tests</module>
+		<module>net.bluemind.imap.docker.imaptest</module>
+		<module>net.bluemind.imap.endpoint.imaptest.tests</module>
 		<module>net.bluemind.imap.driver.mailapi</module>
 		<module>net.bluemind.sds.store.cyrusspool</module>
 		<module>net.bluemind.backend.mailapi.storage</module>
