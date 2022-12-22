@@ -33,6 +33,8 @@ public class SimpleShardStats {
 
 	public long docCount;
 
+	public long deletedCount;
+
 	/**
 	 * index size in byte
 	 */

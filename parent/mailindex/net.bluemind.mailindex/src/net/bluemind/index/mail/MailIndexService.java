@@ -840,6 +840,7 @@ public class MailIndexService implements IMailIndexService {
 			}
 
 			is.docCount = stat.getTotal().docs.getCount();
+			is.deletedCount = stat.getTotal().docs.getDeleted();
 			is.indexName = indexName;
 
 			ret.add(is);
