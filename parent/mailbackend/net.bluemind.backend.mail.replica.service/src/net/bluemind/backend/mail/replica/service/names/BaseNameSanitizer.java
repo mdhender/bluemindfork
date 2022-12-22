@@ -133,7 +133,8 @@ public abstract class BaseNameSanitizer implements INameSanitizer {
 								replica.parentUid, computedParentUid);
 					}
 				} else {
-					logger.warn("[{}] could not resolve parent {}. Hole in hierarchy !", root, parentName);
+					throw new ServerFault("[" + root + "] Invalid folder: parent of " + replica.fullName + " ("
+							+ parentName + ") not found");
 				}
 				replica.parentUid = computedParentUid;
 			}
