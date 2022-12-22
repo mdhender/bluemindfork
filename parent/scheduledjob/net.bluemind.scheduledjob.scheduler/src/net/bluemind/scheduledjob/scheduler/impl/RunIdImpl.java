@@ -52,7 +52,7 @@ public class RunIdImpl implements IScheduledJobRunId {
 	}
 
 	public void addEntry(LogEntry le) {
-		if (entries.size() >= 20000) {
+		if (entries.size() >= 50000) {
 			logger.warn("Not recording '{}' in database, too much logs already.", le.content);
 			return;
 		}

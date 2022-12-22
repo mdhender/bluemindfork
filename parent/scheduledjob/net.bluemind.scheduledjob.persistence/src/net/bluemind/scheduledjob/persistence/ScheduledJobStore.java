@@ -359,8 +359,8 @@ public class ScheduledJobStore extends JdbcAbstractStore {
 
 		}
 
-		// FIXIT-9: limit 20000 to prevent hprof when we saved loads of crap
-		q.append(" ORDER BY stamp ASC LIMIT 20000");
+		// FIXIT-9: limit 50000 to prevent hprof when we saved loads of crap
+		q.append(" ORDER BY stamp ASC LIMIT 50000");
 		String query = q.toString();
 
 		try {
