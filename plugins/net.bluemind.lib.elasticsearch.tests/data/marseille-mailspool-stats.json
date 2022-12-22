@@ -1,0 +1,324 @@
+[
+  {
+    "index": "mailspool_84",
+    "count": 2892695,
+    "deleted": 397436,
+    "refresh_count": 122386,
+    "refresh_duration": 46424181
+  },
+  {
+    "index": "mailspool_62",
+    "count": 110831,
+    "deleted": 1842,
+    "refresh_count": 3653,
+    "refresh_duration": 1767710
+  },
+  {
+    "index": "mailspool_83",
+    "count": 2254156,
+    "deleted": 121807,
+    "refresh_count": 77108,
+    "refresh_duration": 22103145
+  },
+  {
+    "index": "mailspool_61",
+    "count": 3387548,
+    "deleted": 1434877,
+    "refresh_count": 67906,
+    "refresh_duration": 54130528
+  },
+  {
+    "index": "mailspool_82",
+    "count": 5266069,
+    "deleted": 619071,
+    "refresh_count": 132637,
+    "refresh_duration": 97799539
+  },
+  {
+    "index": "mailspool_60",
+    "count": 5608541,
+    "deleted": 1349455,
+    "refresh_count": 185296,
+    "refresh_duration": 225332206
+  },
+  {
+    "index": "mailspool_81",
+    "count": 4575618,
+    "deleted": 893584,
+    "refresh_count": 116102,
+    "refresh_duration": 98257856
+  },
+  {
+    "index": "mailspool_88",
+    "count": 2307710,
+    "deleted": 213695,
+    "refresh_count": 96542,
+    "refresh_duration": 29466580
+  },
+  {
+    "index": "mailspool_66",
+    "count": 4554633,
+    "deleted": 1312180,
+    "refresh_count": 130413,
+    "refresh_duration": 134627882
+  },
+  {
+    "index": "mailspool_87",
+    "count": 5997794,
+    "deleted": 1082496,
+    "refresh_count": 168034,
+    "refresh_duration": 163179610
+  },
+  {
+    "index": "mailspool_65",
+    "count": 4411205,
+    "deleted": 527972,
+    "refresh_count": 101822,
+    "refresh_duration": 79076184
+  },
+  {
+    "index": "mailspool_86",
+    "count": 5537939,
+    "deleted": 771122,
+    "refresh_count": 131619,
+    "refresh_duration": 106744679
+  },
+  {
+    "index": "mailspool_64",
+    "count": 4120022,
+    "deleted": 512840,
+    "refresh_count": 95427,
+    "refresh_duration": 63078201
+  },
+  {
+    "index": "mailspool_85",
+    "count": 2329432,
+    "deleted": 852043,
+    "refresh_count": 139721,
+    "refresh_duration": 44981294
+  },
+  {
+    "index": "mailspool_63",
+    "count": 4227253,
+    "deleted": 743854,
+    "refresh_count": 104964,
+    "refresh_duration": 70972199
+  },
+  {
+    "index": "mailspool_69",
+    "count": 3854869,
+    "deleted": 775347,
+    "refresh_count": 85750,
+    "refresh_duration": 67258550
+  },
+  {
+    "index": "mailspool_68",
+    "count": 5793316,
+    "deleted": 1247235,
+    "refresh_count": 222378,
+    "refresh_duration": 202231165
+  },
+  {
+    "index": "mailspool_89",
+    "count": 2315572,
+    "deleted": 102225,
+    "refresh_count": 78603,
+    "refresh_duration": 24776380
+  },
+  {
+    "index": "mailspool_67",
+    "count": 4357280,
+    "deleted": 1185896,
+    "refresh_count": 140696,
+    "refresh_duration": 137306192
+  },
+  {
+    "index": "mailspool_91",
+    "count": 5119208,
+    "deleted": 882317,
+    "refresh_count": 112767,
+    "refresh_duration": 79019402
+  },
+  {
+    "index": "mailspool_90",
+    "count": 4287336,
+    "deleted": 1696648,
+    "refresh_count": 86602,
+    "refresh_duration": 75601406
+  },
+  {
+    "index": "mailspool_95",
+    "count": 4076554,
+    "deleted": 635121,
+    "refresh_count": 114802,
+    "refresh_duration": 60010147
+  },
+  {
+    "index": "mailspool_73",
+    "count": 5849815,
+    "deleted": 1645977,
+    "refresh_count": 187804,
+    "refresh_duration": 211106481
+  },
+  {
+    "index": "mailspool_51",
+    "count": 110784,
+    "deleted": 1088,
+    "refresh_count": 4889,
+    "refresh_duration": 281130
+  },
+  {
+    "index": "mailspool_94",
+    "count": 4685323,
+    "deleted": 706772,
+    "refresh_count": 106385,
+    "refresh_duration": 70655928
+  },
+  {
+    "index": "mailspool_72",
+    "count": 4686834,
+    "deleted": 335654,
+    "refresh_count": 143371,
+    "refresh_duration": 127448003
+  },
+  {
+    "index": "mailspool_93",
+    "count": 1735240,
+    "deleted": 191154,
+    "refresh_count": 43177,
+    "refresh_duration": 10259982
+  },
+  {
+    "index": "mailspool_71",
+    "count": 4711015,
+    "deleted": 1588416,
+    "refresh_count": 204918,
+    "refresh_duration": 236206151
+  },
+  {
+    "index": "mailspool_92",
+    "count": 4278054,
+    "deleted": 490365,
+    "refresh_count": 119298,
+    "refresh_duration": 81660087
+  },
+  {
+    "index": "mailspool_70",
+    "count": 4986222,
+    "deleted": 727791,
+    "refresh_count": 130819,
+    "refresh_duration": 112268626
+  },
+  {
+    "index": "mailspool_77",
+    "count": 4673761,
+    "deleted": 715182,
+    "refresh_count": 135569,
+    "refresh_duration": 112299773
+  },
+  {
+    "index": "mailspool_55",
+    "count": 4945879,
+    "deleted": 1355580,
+    "refresh_count": 131082,
+    "refresh_duration": 140456599
+  },
+  {
+    "index": "mailspool_76",
+    "count": 4613149,
+    "deleted": 984729,
+    "refresh_count": 119283,
+    "refresh_duration": 113227206
+  },
+  {
+    "index": "mailspool_54",
+    "count": 4261529,
+    "deleted": 1040393,
+    "refresh_count": 130533,
+    "refresh_duration": 97676748
+  },
+  {
+    "index": "mailspool_75",
+    "count": 4507128,
+    "deleted": 875689,
+    "refresh_count": 124097,
+    "refresh_duration": 113297400
+  },
+  {
+    "index": "mailspool_53",
+    "count": 5316878,
+    "deleted": 1456191,
+    "refresh_count": 180287,
+    "refresh_duration": 232411357
+  },
+  {
+    "index": "mailspool_96",
+    "count": 2704599,
+    "deleted": 212845,
+    "refresh_count": 152718,
+    "refresh_duration": 51561739
+  },
+  {
+    "index": "mailspool_74",
+    "count": 3841159,
+    "deleted": 1095966,
+    "refresh_count": 114424,
+    "refresh_duration": 103144283
+  },
+  {
+    "index": "mailspool_52",
+    "count": 5272738,
+    "deleted": 607425,
+    "refresh_count": 168801,
+    "refresh_duration": 171814559
+  },
+  {
+    "index": "mailspool_59",
+    "count": 5567584,
+    "deleted": 1489278,
+    "refresh_count": 156600,
+    "refresh_duration": 157352924
+  },
+  {
+    "index": "mailspool_58",
+    "count": 1211279,
+    "deleted": 62729,
+    "refresh_count": 15854,
+    "refresh_duration": 3538802
+  },
+  {
+    "index": "mailspool_79",
+    "count": 3999975,
+    "deleted": 567085,
+    "refresh_count": 95308,
+    "refresh_duration": 76794684
+  },
+  {
+    "index": "mailspool_57",
+    "count": 2141287,
+    "deleted": 449786,
+    "refresh_count": 4000,
+    "refresh_duration": 2388539
+  },
+  {
+    "index": "mailspool_78",
+    "count": 1935984,
+    "deleted": 94645,
+    "refresh_count": 40258,
+    "refresh_duration": 10569052
+  },
+  {
+    "index": "mailspool_56",
+    "count": 1598919,
+    "deleted": 26184,
+    "refresh_count": 27316,
+    "refresh_duration": 6254099
+  },
+  {
+    "index": "mailspool_80",
+    "count": 4975446,
+    "deleted": 1018731,
+    "refresh_count": 128722,
+    "refresh_duration": 132055308
+  }
+]

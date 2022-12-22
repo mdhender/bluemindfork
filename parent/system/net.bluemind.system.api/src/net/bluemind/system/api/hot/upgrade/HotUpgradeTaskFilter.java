@@ -8,14 +8,15 @@ import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
 public class HotUpgradeTaskFilter {
+	public String operation;
 	public List<HotUpgradeTaskStatus> statuses;
 	public boolean onlyRetryable;
 	public boolean onlyReady;
 	public boolean onlyMandatory;
 	public List<HotUpgradeTaskExecutionMode> mode;
 
-	private HotUpgradeTaskFilter(List<HotUpgradeTaskStatus> statuses, boolean onlyRetryable, boolean onlyReady,
-			boolean onlyMandatory, List<HotUpgradeTaskExecutionMode> mode) {
+	private HotUpgradeTaskFilter(String operation, List<HotUpgradeTaskStatus> statuses, boolean onlyRetryable,
+			boolean onlyReady, boolean onlyMandatory, List<HotUpgradeTaskExecutionMode> mode) {
 		this.statuses = Collections.unmodifiableList(statuses);
 		this.onlyRetryable = onlyRetryable;
 		this.onlyReady = onlyReady;
@@ -24,12 +25,21 @@ public class HotUpgradeTaskFilter {
 	}
 
 	private HotUpgradeTaskFilter(List<HotUpgradeTaskStatus> statuses) {
-		this(statuses, false, false, false,
+		this(null, statuses, false, false, false,
 				Arrays.asList(HotUpgradeTaskExecutionMode.DIRECT, HotUpgradeTaskExecutionMode.JOB));
 	}
 
 	public HotUpgradeTaskFilter() {
 		this(Collections.emptyList());
+	}
+
+	public String operation() {
+		return operation;
+	}
+
+	public HotUpgradeTaskFilter operation(String operation) {
+		this.operation = operation;
+		return this;
 	}
 
 	public List<HotUpgradeTaskStatus> getStatuses() {

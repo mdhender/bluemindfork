@@ -43,6 +43,8 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Platform;
 import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.admin.cluster.state.ClusterStateResponse;
+import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest.AliasActions;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesAction;
@@ -60,6 +62,7 @@ import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.cluster.routing.ShardRouting;
 import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
@@ -463,6 +466,10 @@ public final class ESearchActivator implements BundleActivator {
 		}
 	}
 
+	public static Optional<String> initIndexIfNotExists(String index) {
+		return initIndexIfNotExists(getClient(), index);
+	}
+
 	public static Optional<String> initIndexIfNotExists(Client client, String index) {
 		return indexDefinitionOf(index).map(indexDefinition -> {
 			return new GetAliasesRequestBuilder(client, GetAliasesAction.INSTANCE).get().getAliases().keySet().stream() //
@@ -536,6 +543,27 @@ public final class ESearchActivator implements BundleActivator {
 
 	public static MailspoolStats mailspoolStats() {
 		return new MailspoolStats(getClient());
+	}
+
+	public static String nodeId(String indexName) {
+		Client client = getClient();
+		ClusterStateResponse response = client.admin().cluster().prepareState()//
+				.setIndices(indexName).setRoutingTable(true).setBlocks(false).setNodes(false).setCustoms(false)
+				.setMetadata(true).get();
+		ShardRouting routing = response.getState().getRoutingTable().getIndicesRouting().get(indexName).shard(0)
+				.primaryShard();
+		return routing.currentNodeId();
+	}
+
+	public static long fsAvailableOnNode(String nodeId) {
+		Client client = getClient();
+		ClusterStatsResponse response = client.admin().cluster().prepareClusterStats().get();
+		return response.getNodesMap().get(nodeId).nodeStats().getFs().getTotal().getAvailable().getBytes();
+	}
+
+	public static long fsAvailable(String indexName) {
+		String indexNodeId = nodeId(indexName);
+		return fsAvailableOnNode(indexNodeId);
 	}
 
 	private static class IndexDefinition {

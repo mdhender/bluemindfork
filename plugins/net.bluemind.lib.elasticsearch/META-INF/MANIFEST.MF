@@ -14,7 +14,10 @@ Require-Bundle: org.eclipse.core.runtime,
  io.vertx.core
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: .
-Export-Package: net.bluemind.lib.elasticsearch
+Export-Package: net.bluemind.lib.elasticsearch,
+ net.bluemind.lib.elasticsearch.allocations,
+ net.bluemind.lib.elasticsearch.allocations.newshard,
+ net.bluemind.lib.elasticsearch.allocations.rebalance
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.lib.elasticsearch
 

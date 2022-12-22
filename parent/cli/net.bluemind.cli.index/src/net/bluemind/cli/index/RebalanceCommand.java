@@ -21,7 +21,14 @@ package net.bluemind.cli.index;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.elasticsearch.client.Client;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.reindex.UpdateByQueryAction;
+import org.elasticsearch.index.reindex.UpdateByQueryRequestBuilder;
 
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
@@ -29,6 +36,14 @@ import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.cli.utils.Tasks;
 import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.lib.elasticsearch.allocations.AllocationShardStats;
+import net.bluemind.lib.elasticsearch.allocations.BoxAllocation;
+import net.bluemind.lib.elasticsearch.allocations.rebalance.Rebalance;
+import net.bluemind.lib.elasticsearch.allocations.rebalance.RebalanceBoxAllocator;
+import net.bluemind.lib.elasticsearch.allocations.rebalance.RebalanceConfig;
+import net.bluemind.lib.elasticsearch.allocations.rebalance.RebalanceSourcesCountByRefreshDurationRatio;
+import net.bluemind.lib.elasticsearch.allocations.rebalance.RebalanceSpecificationFactory;
 import net.bluemind.mailbox.api.IMailboxMgmt;
 import net.bluemind.mailbox.api.ShardStats;
 import net.bluemind.mailbox.api.ShardStats.MailboxStats;
@@ -37,23 +52,55 @@ import picocli.CommandLine.Option;
 
 @Command(name = "rebalance", description = "Rebalance mailspool indices")
 public class RebalanceCommand implements ICmdLet, Runnable {
+	enum Strategy {
+		size, refresh_duration_ratio, refresh_duration_threshold
+	}
 
 	@Option(names = "--domain", description = "domain for mailboxes")
 	public String domain = "global.virt";
 
 	@Option(names = "--apply", description = "Run the operations on the indices (we default to dry mode)")
-	public boolean rebalance = false;
+	public boolean applyRebalance = false;
+
+	@Option(names = "--strategy", description = "Rebalance strategy to use (default ${DEFAULT-VALUE}): ${COMPLETION-CANDIDATES}")
+	public Strategy strategy = Strategy.size;
+
+	@Option(names = "--low-ratio", description = "Low refresh duration ratio to use if --strategy=refresh-duration-ratio (default=${DEFAULT-VALUE})")
+	public double lowRatio = 0.2;
+
+	@Option(names = "--high-ratio", description = "High refresh duration ratio to use if --strategy=refresh-duration-ratio (default=${DEFAULT-VALUE})")
+	public double highRatio = 0.2;
+
+	@Option(names = "--low-threshold", description = "Low refresh duration threshold to use if --strategy=refresh-duration-threshold (default=${DEFAULT-VALUE})")
+	public long lowThreshold = 400;
+
+	@Option(names = "--high-threshold", description = "High refresh duration threshold to use if --strategy=refresh-duration-threshold (default=${DEFAULT-VALUE})")
+	public long highThreshold = 800;
+
+	@Option(names = "--no-force-refresh", description = "Don't force indices to refresh to compute refresh duration")
+	public boolean noForceRefresh = false;
+
+	@Option(names = "--show-refresh-duration", description = "Show the index refresh duration")
+	public boolean showRefreshDuration = false;
 
 	private CliContext ctx;
 
 	@Override
 	public void run() {
+		IMailboxMgmt mboxMgmt = ctx.longRequestTimeoutAdminApi().instance(IMailboxMgmt.class, "global.virt");
+		List<ShardStats> existing = mboxMgmt.getShardsStats();
 
 		CliUtils utils = new CliUtils(ctx);
 		String domUid = utils.getDomainUidByDomain(domain);
+		mboxMgmt = ctx.longRequestTimeoutAdminApi().instance(IMailboxMgmt.class, domUid);
+		if (strategy.equals(Strategy.size)) {
+			bySize(mboxMgmt, existing);
+		} else {
+			byRefreshDuration(strategy.name().replace("_", "-"), mboxMgmt, existing);
+		}
+	}
 
-		IMailboxMgmt mboxMgmt = ctx.longRequestTimeoutAdminApi().instance(IMailboxMgmt.class, "global.virt");
-		List<ShardStats> existing = mboxMgmt.getShardsStats();
+	private void bySize(IMailboxMgmt mboxMgmt, List<ShardStats> existing) {
 		int startCount = 1;
 		int totalBoxes = 0;
 		for (ShardStats ss : existing) {
@@ -63,9 +110,8 @@ public class RebalanceCommand implements ICmdLet, Runnable {
 
 		}
 		int avgBoxCount = totalBoxes / existing.size();
-		ctx.info("average box count: {}", avgBoxCount);
 
-		mboxMgmt = ctx.longRequestTimeoutAdminApi().instance(IMailboxMgmt.class, domUid);
+		ctx.info("average box count: {}", avgBoxCount);
 
 		existing.sort((s1, s2) -> Long.compare(s2.size, s1.size));
 		int mid = existing.size() / 2;
@@ -87,6 +133,7 @@ public class RebalanceCommand implements ICmdLet, Runnable {
 			}
 			long srcGb = source.size / 1024 / 1024 / 1024;
 			long targetGb = target.size / 1024 / 1024 / 1024;
+			long boxSize = Math.round(((double) source.size / source.mailboxes.size()) * 1.5);
 			if (Math.abs(srcGb - targetGb) < 1) {
 				ctx.warn(source.indexName + " and " + target.indexName + " have similar size (" + srcGb + " vs "
 						+ targetGb + ")");
@@ -94,24 +141,115 @@ public class RebalanceCommand implements ICmdLet, Runnable {
 			}
 			MailboxStats topSrc = source.topMailbox.get(0);
 			ctx.info("From {} ({}GB) to {} ({}GB)", source.indexName, srcGb, target.indexName, targetGb);
-			ctx.info("Move {} ({}) from {} to {}", topSrc.mailboxUid, topSrc.docCount, source.indexName,
-					target.indexName);
+			ctx.info("Move {} ({}) from {} to {} (size:{})", topSrc.mailboxUid, topSrc.docCount, source.indexName,
+					target.indexName, boxSize);
 
-			if (rebalance) {
-				try {
-					TaskRef ref = mboxMgmt.moveIndex(topSrc.mailboxUid, target.indexName, true);
-					Tasks.follow(ctx, ref, "",
-							String.format("Failed to move index from %s to %s", topSrc.mailboxUid, tgt));
-				} catch (Exception e) {
-					if (e.getMessage() != null) {
-						ctx.warn("WARN " + e.getMessage());
-					} else {
-						ctx.warn("WARN exception occured", e);
-					}
-				}
+			applyRebalance(mboxMgmt, topSrc.mailboxUid, target.indexName, boxSize);
+		}
+	}
+
+	private void byRefreshDuration(String strategyName, IMailboxMgmt mboxMgmt, List<ShardStats> existing) {
+		List<AllocationShardStats> statsBefore = toAllocationStats(existing);
+		Map<String, Long> refreshDurations = refreshDurations(mboxMgmt, statsBefore);
+
+		RebalanceConfig rebalanceConfig = new RebalanceConfig(lowRatio, highRatio, lowThreshold, highThreshold);
+		Rebalance rebalance = new RebalanceSpecificationFactory(rebalanceConfig, refreshDurations)
+				.instance(strategyName).apply(statsBefore);
+		if (rebalance.sources.isEmpty() || rebalance.targets.isEmpty()) {
+			ctx.info("No rebalance performed given the parameters");
+		} else {
+			ctx.info("Start rebalancing");
+			Map<AllocationShardStats, Integer> sourcesCount = new RebalanceSourcesCountByRefreshDurationRatio(
+					refreshDurations).apply(rebalance);
+			List<BoxAllocation> allocations = new RebalanceBoxAllocator().apply(rebalance, sourcesCount);
+			allocations.forEach(allocation -> {
+				AllocationShardStats sourceStat = statsBefore.stream()
+						.filter(stat -> stat.indexName.equals(allocation.sourceIndex)).findFirst().orElse(null);
+				long boxSize = Math.round(((double) sourceStat.size / sourceStat.mailboxes.size()) * 1.5);
+				ctx.info("Move {} from {} to {} (size: {})", allocation.mbox, allocation.sourceIndex,
+						allocation.targetIndex, boxSize);
+				applyRebalance(mboxMgmt, allocation.mbox, allocation.targetIndex, boxSize);
+			});
+		}
+	}
+
+	protected List<AllocationShardStats> toAllocationStats(List<ShardStats> stats) {
+		return stats.stream()
+				.map(stat -> new AllocationShardStats(stat.indexName, stat.mailboxes, stat.docCount, stat.deletedCount,
+						stat.externalRefreshCount, stat.externalRefreshDuration, stat.size))
+				.collect(Collectors.toList());
+	}
+
+	private Map<String, Long> refreshDurations(IMailboxMgmt mboxMgmt, List<AllocationShardStats> statsBefore) {
+		Map<String, Long> refreshDurations;
+		if (noForceRefresh) {
+			refreshDurations = refreshDurations(statsBefore);
+		} else {
+			triggerExternalRefresh(statsBefore);
+			List<ShardStats> existingAfter = mboxMgmt.getShardsStats();
+			List<AllocationShardStats> statsAfter = toAllocationStats(existingAfter);
+			refreshDurations = refreshDurations(statsBefore, statsAfter);
+		}
+		refreshDurations.forEach((indexName, refreshDuration) -> ctx.info("{}: {}ms", indexName, refreshDuration));
+		return refreshDurations;
+	}
+
+	private Map<String, Long> refreshDurations(List<AllocationShardStats> shardStats) {
+		return shardStats.stream().collect(Collectors.toMap(stat -> stat.indexName,
+				stat -> stat.externalRefreshDuration / stat.externalRefreshCount));
+	}
+
+	private Map<String, Long> refreshDurations(List<AllocationShardStats> statsBefore,
+			List<AllocationShardStats> statsAfter) {
+		Map<String, AllocationShardStats> afterByName = statsAfter.stream()
+				.collect(Collectors.toMap(stat -> stat.indexName, stat -> stat));
+		return statsBefore.stream().collect(Collectors.toMap(statBefore -> statBefore.indexName, statBefore -> {
+			AllocationShardStats statAfter = afterByName.get(statBefore.indexName);
+			long deltaDuration = statAfter.externalRefreshDuration - statBefore.externalRefreshDuration;
+			long deltaCount = statAfter.externalRefreshCount - statBefore.externalRefreshCount;
+			return deltaCount != 0 //
+					? deltaDuration / deltaCount //
+					: statBefore.externalRefreshDuration / statBefore.externalRefreshCount;
+		}));
+	}
+
+	private void triggerExternalRefresh(List<AllocationShardStats> shardStats) {
+		ctx.info("Force refreshing indices");
+		shardStats.stream().forEach(stat -> {
+			Client client = ESearchActivator.getClient();
+			UpdateByQueryRequestBuilder updateByQuery = new UpdateByQueryRequestBuilder(client,
+					UpdateByQueryAction.INSTANCE);
+			try {
+				updateByQuery.source(stat.indexName).maxDocs(1).refresh(true)
+						.filter(QueryBuilders.termQuery("body_msg_link", "record")).get();
+			} catch (Exception e) {
+				ctx.info("Failed to force refresh {} (will use the current stat instead)", stat.indexName);
 			}
+		});
+	}
+
+	private void applyRebalance(IMailboxMgmt mboxMgmt, String mailboxUid, String targetIndexName, long boxSize) {
+		if (!applyRebalance) {
+			return;
 		}
 
+		long fsAvailable = ESearchActivator.fsAvailable(targetIndexName);
+		if (boxSize > fsAvailable) {
+			ctx.warn("Space available on target index node is lower than estimated box size: {}Mb < {}Mb",
+					fsAvailable / (1024d * 1024d), boxSize / (1024d * 1024d));
+		}
+
+		try {
+			TaskRef ref = mboxMgmt.moveIndex(mailboxUid, targetIndexName, true);
+			Tasks.follow(ctx, ref, "",
+					String.format("Failed to move index from %s to %s", mailboxUid, targetIndexName));
+		} catch (Exception e) {
+			if (e.getMessage() != null) {
+				ctx.warn("WARN " + e.getMessage());
+			} else {
+				ctx.warn("WARN exception occured", e);
+			}
+		}
 	}
 
 	@Override

@@ -772,6 +772,8 @@ public class MailIndexService implements IMailIndexService {
 
 			is.docCount = stat.getTotal().docs.getCount();
 			is.indexName = indexName;
+			is.externalRefreshDuration = stat.getTotal().getRefresh().getExternalTotalTimeInMillis();
+			is.externalRefreshCount = stat.getTotal().getRefresh().getExternalTotal();
 
 			is.state = ShardStats.State.OK;
 
@@ -841,6 +843,8 @@ public class MailIndexService implements IMailIndexService {
 
 			is.docCount = stat.getTotal().docs.getCount();
 			is.deletedCount = stat.getTotal().docs.getDeleted();
+			is.externalRefreshCount = stat.getTotal().getRefresh().getExternalTotal();
+			is.externalRefreshDuration = stat.getTotal().getRefresh().getExternalTotalTimeInMillis();
 			is.indexName = indexName;
 
 			ret.add(is);

@@ -35,6 +35,10 @@ public class SimpleShardStats {
 
 	public long deletedCount;
 
+	public long externalRefreshCount;
+
+	public long externalRefreshDuration;
+
 	/**
 	 * index size in byte
 	 */
