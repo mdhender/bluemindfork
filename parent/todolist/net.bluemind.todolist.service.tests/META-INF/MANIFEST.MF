@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.todolist.service.tests
 Bundle-SymbolicName: net.bluemind.todolist.service.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Fragment-Host: net.bluemind.todolist.service
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
@@ -16,5 +15,17 @@ Require-Bundle: org.junit,
  net.bluemind.core.rest.tests.services,
  net.bluemind.authentication.service;bundle-version="4.1.0",
  net.bluemind.system.api,
- com.sun.mail.jakarta.mail
+ com.sun.mail.jakarta.mail,
+ net.bluemind.todolist.persistence,
+ net.bluemind.tag.persistence,
+ net.bluemind.core.container.persistence,
+ net.bluemind.tag.api,
+ net.bluemind.todolist.service,
+ net.bluemind.core.container.service,
+ net.bluemind.todolist.api,
+ net.bluemind.core.rest.http,
+ net.bluemind.todolist.hook,
+ net.bluemind.user.persistence,
+ org.mnode.ical4j,
+ net.bluemind.lib.ical4j
 Automatic-Module-Name: net.bluemind.todolist.service.tests

@@ -33,5 +33,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.container.sharding,
  net.bluemind.attachment.api
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Export-Package: net.bluemind.todolist.service
+Export-Package: net.bluemind.todolist.service,
+ net.bluemind.todolist.service.internal
 Automatic-Module-Name: net.bluemind.todolist.service

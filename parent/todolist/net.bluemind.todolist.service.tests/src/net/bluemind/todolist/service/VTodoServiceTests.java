@@ -617,6 +617,19 @@ public class VTodoServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
+	public void testKerioAlarmImport() throws Exception {
+		IVTodo vtodoService = getVTodoService();
+		String ics = getIcsFromFile("kerio_alarm.ics");
+
+		wait(vtodoService.importIcs(ics));
+
+		ItemValue<VTodo> vtodo = getService(defaultSecurityContext).getComplete("5dbf2cbb-edae-4678-ab5a-dc891bf8242b");
+		assertNotNull(vtodo);
+
+		assertEquals(1, vtodo.value.alarm.size());
+	}
+
+	@Test
 	public void testImportNullDtStart() throws Exception {
 		IVTodo vtodoService = getVTodoService();
 		String ics = getIcsFromFile("testImportNullDtStart.ics");
