@@ -111,23 +111,24 @@ public class LoadGenerationTask extends BlockingServerTask implements IServerTas
 			dom.name = domainUid;
 			gc.domains.add(ItemValue.create(domainUid, dom));
 
-			dd.all().stream().filter(isAllowed()).forEach(abRecord -> {
-				DirEntry de = new DirEntry();
-				de.entryUid = abRecord.getUid();
-				de.displayName = abRecord.getName();
-				de.kind = Kind.valueOf(abRecord.getKind().getValue());
-				// ui try to guess the domainUid with the path
-				de.path = domainUid + "/";
-				if (abRecord.getDataLocation() != null) {
-					de.dataLocation = abRecord.getDataLocation().getServer().getValue();
-				}
-				if (abRecord.getEmails() != null && !abRecord.getEmails().isEmpty()) {
-					de.email = abRecord.getEmails().stream().filter(Email::getIsDefault).findFirst()
-							.orElse(abRecord.getEmails().get(0)).getAddress();
-				}
+			dd.all().stream().sorted((a, b) -> a.getName().compareTo(b.getName())).filter(isAllowed())
+					.forEach(abRecord -> {
+						DirEntry de = new DirEntry();
+						de.entryUid = abRecord.getUid();
+						de.displayName = abRecord.getName();
+						de.kind = Kind.valueOf(abRecord.getKind().getValue());
+						// ui try to guess the domainUid with the path
+						de.path = domainUid + "/";
+						if (abRecord.getDataLocation() != null) {
+							de.dataLocation = abRecord.getDataLocation().getServer().getValue();
+						}
+						if (abRecord.getEmails() != null && !abRecord.getEmails().isEmpty()) {
+							de.email = abRecord.getEmails().stream().filter(Email::getIsDefault).findFirst()
+									.orElse(abRecord.getEmails().get(0)).getAddress();
+						}
 
-				gc.entries.add(ItemValue.create(de.entryUid, de));
-			});
+						gc.entries.add(ItemValue.create(de.entryUid, de));
+					});
 		}
 
 		logger.info("Sending generation with {} capabilities", gc.capabilities.size());
