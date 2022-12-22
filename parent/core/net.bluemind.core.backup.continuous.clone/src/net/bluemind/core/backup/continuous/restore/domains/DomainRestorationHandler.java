@@ -17,6 +17,7 @@ import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreMailboxId
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreMailflow;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreOwnerSubscriptions;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreResourceType;
+import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreSmimeCacert;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreTags;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreUserAccounts;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreUserMailIdentities;
@@ -74,7 +75,8 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 				new RestoreMailboxIdentity(log, domain, target, state), //
 				new RestoreUserMailIdentities(log, domain, target, state), //
 				new RestoreWebAppData(log, domain, target, state), //
-				new RestoreCalendarView(log, domain, target, state)) // //
+				new RestoreCalendarView(log, domain, target, state), // //
+                new RestoreSmimeCacert(log, domain, target, state)) // //
 				.stream().collect(Collectors.toMap(RestoreDomainType::type, Function.identity()));
 	}
 

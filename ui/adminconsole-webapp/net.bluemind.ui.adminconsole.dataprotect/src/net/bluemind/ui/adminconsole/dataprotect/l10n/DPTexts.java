@@ -103,4 +103,5 @@ public interface DPTexts extends Messages {
 	
 	String retentionDaysTitle();
 
+	String replacesmimecerts();
 }

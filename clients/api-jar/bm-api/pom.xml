@@ -471,5 +471,10 @@
             <artifactId>net.bluemind.webappdata.api</artifactId>
             <version>5.0.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>net.bluemind</groupId>
+            <artifactId>net.bluemind.smime.cacerts.api</artifactId>
+            <version>4.1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>

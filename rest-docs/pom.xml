@@ -81,6 +81,7 @@
 						<apiName>net.bluemind.notes.api</apiName>
 						<apiName>net.bluemind.user.api</apiName>
 						<apiName>net.bluemind.webappdata.api</apiName>
+						<apiName>net.bluemind.smime.cacerts.api</apiName>
 					</apiNames>
 				</configuration>
 				<executions>

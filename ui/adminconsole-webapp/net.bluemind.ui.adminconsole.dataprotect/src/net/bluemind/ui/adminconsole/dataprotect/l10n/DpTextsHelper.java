@@ -50,6 +50,8 @@ public class DpTextsHelper {
 			return DPTexts.INST.sendcalendarsics();
 		case "send.todolist.ics":
 			return DPTexts.INST.sendtodolistics();
+		case "replace.smimecerts":
+			return DPTexts.INST.replacesmimecerts();
 		default:
 			return identifier;
 		}

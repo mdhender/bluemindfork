@@ -36,7 +36,6 @@ public class DomainHook extends DomainHookAdapter {
 
 	@Override
 	public void onCreated(BmContext context, ItemValue<Domain> domain) throws ServerFault {
-
 		BmContext systemContext = context.su();
 
 		IAddressBooksMgmt mgmt = systemContext.provider().instance(IAddressBooksMgmt.class);

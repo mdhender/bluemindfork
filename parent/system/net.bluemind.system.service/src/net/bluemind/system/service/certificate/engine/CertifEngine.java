@@ -69,6 +69,7 @@ import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.hook.ISystemHook;
 import net.bluemind.system.service.certificate.lets.encrypt.LetsEncryptCertificate;
 import net.bluemind.system.service.helper.SecurityCertificateHelper;
+import net.bluemind.utils.CertificateUtils;
 
 public abstract class CertifEngine implements ICertifEngine {
 
@@ -212,17 +213,10 @@ public abstract class CertifEngine implements ICertifEngine {
 		byte[] certificateData = certData.certificate.getBytes();
 		byte[] pkeyData = certData.privateKey.getBytes();
 
-		CertificateFactory cf = null;
-		try {
-			cf = CertificateFactory.getInstance("X.509");
-		} catch (CertificateException e) {
-			throw new ServerFault("CertificateFactory not available", e);
-		}
-
 		// loading CAs
 		Collection<? extends Certificate> certificates = null;
 		try {
-			certificates = cf.generateCertificates(new ByteArrayInputStream(caData));
+			certificates = CertificateUtils.generateX509Certificates(caData);
 		} catch (CertificateException e) {
 			logger.error("error during ca read : {}", e.getMessage(), e);
 			throw new ServerFault("Certificate Authority not valid : " + e.getMessage(), e);
@@ -248,7 +242,7 @@ public abstract class CertifEngine implements ICertifEngine {
 		// load certificate
 		X509Certificate cert = null;
 		try {
-			cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certificateData));
+			cert = (X509Certificate) CertificateUtils.generateX509Certificate(certificateData);
 		} catch (CertificateException e) {
 			logger.error("error reading certificate: {}", e.getMessage(), e);
 			throw new ServerFault("Certificate not valid : " + e.getMessage(), e);
@@ -256,7 +250,7 @@ public abstract class CertifEngine implements ICertifEngine {
 
 		// verify cert is valid against trused CAs (caData)
 		try {
-			CertPath cp = cf.generateCertPath(Arrays.asList(cert));
+			CertPath cp = CertificateFactory.getInstance(CertificateUtils.X509).generateCertPath(Arrays.asList(cert));
 
 			// list of trusted CA (from caData)
 			PKIXParameters pkixp = new PKIXParameters(tA);

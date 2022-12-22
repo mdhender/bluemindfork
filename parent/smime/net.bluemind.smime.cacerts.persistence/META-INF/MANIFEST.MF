@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Persistance
+Bundle-SymbolicName: net.bluemind.smime.cacerts.persistence;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: net.bluemind.smime.cacerts.api;bundle-version="1.0.0",
+ net.bluemind.core.container.persistence;bundle-version="1.0.0",
+ net.bluemind.core.jdbc;bundle-version="1.0.0",
+ net.bluemind.core.container.api;bundle-version="1.0.0",
+ slf4j.api,
+ net.bluemind.smime.cacerts.sqlschema;bundle-version="1.0.0";visibility:=reexport
+Export-Package: net.bluemind.smime.cacerts.persistence
+Automatic-Module-Name: net.bluemind.smime.cacerts.persistence

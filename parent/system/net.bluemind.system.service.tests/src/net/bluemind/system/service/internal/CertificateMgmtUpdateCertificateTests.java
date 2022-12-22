@@ -148,8 +148,8 @@ public class CertificateMgmtUpdateCertificateTests {
 
 	@Test
 	public void testUpdateCertificate_globalvirt() throws ServerFault, IOException {
-		CertData certificateDate = createCertData(CertificateDomainEngine.FILE, "global.virt", null);
-		service.updateCertificate(certificateDate);
+		CertData certificateData = createCertData(CertificateDomainEngine.FILE, "global.virt", null);
+		service.updateCertificate(certificateData);
 
 		checkFiles(1, true, null);
 		deleteFiles(true, null);
@@ -157,8 +157,8 @@ public class CertificateMgmtUpdateCertificateTests {
 
 	@Test
 	public void testUpdateCertificate_domain() throws ServerFault, IOException {
-		CertData certificateDate = createCertData(CertificateDomainEngine.FILE, domainUid, null);
-		service.updateCertificate(certificateDate);
+		CertData certificateData = createCertData(CertificateDomainEngine.FILE, domainUid, null);
+		service.updateCertificate(certificateData);
 
 		checkFiles(0, true, null);
 		checkFiles(1, false, domainUid);
@@ -169,9 +169,9 @@ public class CertificateMgmtUpdateCertificateTests {
 	@Test
 	public void testUpdateCertificate_invalidDomain() throws ServerFault, IOException {
 		String invalidDomainUid = "unknown.domain.loc";
-		CertData certificateDate = createCertData(CertificateDomainEngine.FILE, invalidDomainUid, null);
+		CertData certificateData = createCertData(CertificateDomainEngine.FILE, invalidDomainUid, null);
 		try {
-			service.updateCertificate(certificateDate);
+			service.updateCertificate(certificateData);
 		} catch (ServerFault sfe) {
 			assertEquals(ErrorCode.NOT_FOUND, sfe.getCode());
 			assertTrue(sfe.getMessage().contains("Domain " + invalidDomainUid + " doesnt exists"));
@@ -277,18 +277,18 @@ public class CertificateMgmtUpdateCertificateTests {
 		assertEquals(CertificateDomainEngine.FILE.name(),
 				settingsApi.get().get(DomainSettingsKeys.ssl_certif_engine.name()));
 
-		CertData certificateDate = CertificateMgmtUpdateCertificateTests.createCertData(CertificateDomainEngine.FILE,
+		CertData certificateData = CertificateMgmtUpdateCertificateTests.createCertData(CertificateDomainEngine.FILE,
 				domainUid, null);
-		service.updateCertificate(certificateDate);
+		service.updateCertificate(certificateData);
 
 		// check files created
 		checkFiles(1, false, domainUid);
 
 		// DISABLE
 		try {
-			certificateDate = CertificateMgmtUpdateCertificateTests.createCertData(CertificateDomainEngine.DISABLED,
+			certificateData = CertificateMgmtUpdateCertificateTests.createCertData(CertificateDomainEngine.DISABLED,
 					domainUid, null);
-			service.updateCertificate(certificateDate);
+			service.updateCertificate(certificateData);
 		} catch (ServerFault e) {
 			// catch the error occurred trying to restart nginx
 			assertTrue(e.getMessage().contains("503"));
@@ -312,9 +312,9 @@ public class CertificateMgmtUpdateCertificateTests {
 		assertEquals(CertificateDomainEngine.FILE.name(),
 				settingsApi.get().get(DomainSettingsKeys.ssl_certif_engine.name()));
 
-		CertData certificateDate = CertificateMgmtUpdateCertificateTests.createCertData(CertificateDomainEngine.FILE,
+		CertData certificateData = CertificateMgmtUpdateCertificateTests.createCertData(CertificateDomainEngine.FILE,
 				domainUid, null);
-		service.updateCertificate(certificateDate);
+		service.updateCertificate(certificateData);
 
 		// check files created
 		checkFiles(1, false, domainUid);
@@ -328,9 +328,9 @@ public class CertificateMgmtUpdateCertificateTests {
 		assertTrue(LetsEncryptCertificate.isTosApproved(domainService.get(domainUid).value));
 
 		try {
-			certificateDate = CertificateMgmtUpdateCertificateTests.createCertData(CertificateDomainEngine.DISABLED,
+			certificateData = CertificateMgmtUpdateCertificateTests.createCertData(CertificateDomainEngine.DISABLED,
 					domainUid, null);
-			service.updateCertificate(certificateDate);
+			service.updateCertificate(certificateData);
 		} catch (ServerFault e) {
 			// catch the error occurred trying to restart nginx
 			assertTrue(e.getMessage().contains("503"));
@@ -355,9 +355,9 @@ public class CertificateMgmtUpdateCertificateTests {
 		settingsApi.set(settingsMap);
 		assertEquals(CertificateDomainEngine.FILE.name(), settingsApi.get().get(SysConfKeys.ssl_certif_engine.name()));
 
-		CertData certificateDate = CertificateMgmtUpdateCertificateTests.createCertData(CertificateDomainEngine.FILE,
+		CertData certificateData = CertificateMgmtUpdateCertificateTests.createCertData(CertificateDomainEngine.FILE,
 				domainVirt.uid, null);
-		service.updateCertificate(certificateDate);
+		service.updateCertificate(certificateData);
 
 		// check files created
 		checkFiles(1, false, null);
@@ -366,9 +366,9 @@ public class CertificateMgmtUpdateCertificateTests {
 		assertTrue(LetsEncryptCertificate.isTosApproved(domainService.get(domainVirt.uid).value));
 
 		try {
-			certificateDate = CertificateMgmtUpdateCertificateTests.createCertData(CertificateDomainEngine.DISABLED,
+			certificateData = CertificateMgmtUpdateCertificateTests.createCertData(CertificateDomainEngine.DISABLED,
 					domainVirt.uid, null);
-			service.updateCertificate(certificateDate);
+			service.updateCertificate(certificateData);
 		} catch (ServerFault e) {
 			assertTrue(e.getMessage().contains("Cannot disable 'global.virt' domain Certificate"));
 		}

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.domain.domainHook">
+      <hook
+            class="net.bluemind.smime.cacerts.service.domainhook.DomainHook">
+      </hook>
+   </extension>
+   <extension
+         point="net.bluemind.core.validatorfactory">
+      <validatorfactory
+            implementation="net.bluemind.smime.cacerts.service.internal.SmimeCacertValidator$Factory">
+      </validatorfactory>
+   </extension>
+    <extension
+         point="net.bluemind.core.sanitizerfactory">
+      <sanitizerfactory
+            implementation="net.bluemind.smime.cacerts.service.internal.SmimeCacertSanitizer$Factory">
+      </sanitizerfactory>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.smime.cacerts.api.ISmimeCACert">
+      </endpoint>
+      <endpoint
+            api="net.bluemind.smime.cacerts.api.ISmimeCacertUids" inline="true">
+      </endpoint>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.smime.cacerts.service.SmimeCACertServiceFactory">
+      </serviceFactory>
+   </extension>
+   <extension
+         point="net.bluemind.core.container.repair">
+      <repair
+            impl="net.bluemind.smime.cacerts.service.internal.DomainSmimeCacertsRepair">
+      </repair>
+   </extension>
+</plugin>

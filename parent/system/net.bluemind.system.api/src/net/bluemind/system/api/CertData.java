@@ -109,5 +109,4 @@ public class CertData {
 	public static CertData createForDisable(String domainUid) {
 		return CertData.create(CertificateDomainEngine.DISABLED, null, null, null, domainUid, null);
 	}
-
 }

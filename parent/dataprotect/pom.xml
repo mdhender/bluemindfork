@@ -35,5 +35,7 @@
 		<module>net.bluemind.dataprotect.user</module>
 		<module>net.bluemind.dataprotect.webappdata.tests</module>
 		<module>net.bluemind.dataprotect.webappdata</module>
+		<module>net.bluemind.dataprotect.smime.cacerts</module>
+		<module>net.bluemind.dataprotect.smime.cacerts.tests</module>
 	</modules>
 </project>

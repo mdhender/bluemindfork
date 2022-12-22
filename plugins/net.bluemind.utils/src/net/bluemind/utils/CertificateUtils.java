@@ -2,8 +2,11 @@ package net.bluemind.utils;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.ByteArrayInputStream;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Collection;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
@@ -27,6 +30,8 @@ public class CertificateUtils {
 
 	private static final String PK_SIGNATURE_BEGIN = "-----BEGIN PRIVATE KEY-----";
 	private static final String PK_SIGNATURE_END = "-----END PRIVATE KEY-----";
+
+	public static final String X509 = "X.509";
 
 	private CertificateUtils() {
 	}
@@ -102,5 +107,14 @@ public class CertificateUtils {
 			return null;
 		}
 		return cert.substring(begin, end).getBytes();
+	}
+
+	public static Certificate generateX509Certificate(byte[] certFile) throws CertificateException {
+		return CertificateFactory.getInstance(X509).generateCertificate(new ByteArrayInputStream(certFile));
+	}
+
+	public static Collection<? extends Certificate> generateX509Certificates(byte[] certFile)
+			throws CertificateException {
+		return CertificateFactory.getInstance(X509).generateCertificates(new ByteArrayInputStream(certFile));
 	}
 }

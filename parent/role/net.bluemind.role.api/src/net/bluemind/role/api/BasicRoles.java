@@ -227,6 +227,10 @@ public class BasicRoles {
 	 */
 	public static final String ROLE_MANAGE_DOMAIN_AB = "manageDomainAB";
 	/**
+	 * Permission to manage the domain S/MIME certificates.
+	 */
+	public static final String ROLE_MANAGE_DOMAIN_SMIME = "manageDomainSmime";
+	/**
 	 * Permission to manage the domain addressbook sharings.
 	 */
 	public static final String ROLE_MANAGE_DOMAIN_AB_SHARING = "manageDomainABSharings";

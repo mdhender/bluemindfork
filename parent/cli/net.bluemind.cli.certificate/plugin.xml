@@ -11,5 +11,17 @@
             impl="net.bluemind.cli.certificate.LetsEncryptManageCommand$Reg"
             priority="105">
       </registration>
+      <registration
+            impl="net.bluemind.cli.certificate.smime.SmimeCommandAdd$Reg"
+            priority="110">
+      </registration>
+      <registration
+            impl="net.bluemind.cli.certificate.smime.SmimeCommandRemove$Reg"
+            priority="115">
+      </registration>
+      <registration
+            impl="net.bluemind.cli.certificate.smime.SmimeCommandList$Reg"
+            priority="120">
+      </registration>
    </extension>
 </plugin>

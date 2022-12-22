@@ -75,6 +75,7 @@
 		<module>kafka</module>
 		<module>webappdata</module>
 		<module>imap</module>
+		<module>smime</module>
 	</modules>
 	<build>
 		<plugins>

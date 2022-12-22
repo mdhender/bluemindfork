@@ -359,6 +359,14 @@ public class BaseRolesProvider implements IRolesProvider {
 						.withContainerRoles(Verb.Manage.name()), //
 
 				RoleDescriptor
+						.create(BasicRoles.ROLE_MANAGE_DOMAIN_SMIME, CATEGORY_ADMINISTRATION,
+								rb.getString("role.manageDomainSmime.label"),
+								rb.getString("role.manageDomainSmime.description"))
+						.withParent(BasicRoles.ROLE_ADMIN) //
+						.giveRoles(BasicRoles.ROLE_MANAGER) //
+						.withContainerRoles(Verb.Manage.name()), //
+
+				RoleDescriptor
 						.create(BasicRoles.ROLE_MANAGE_DOMAIN_LDAP_AB, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageDomainLDAPAB.label"),
 								rb.getString("role.manageDomainLDAPAB.description"))

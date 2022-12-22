@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests
+Bundle-SymbolicName: net.bluemind.smime.cacerts.persistence.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: org.junit,
+ net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
+ net.bluemind.smime.cacerts.api,
+ net.bluemind.smime.cacerts.persistence,
+ net.bluemind.core.container.persistence,
+ slf4j.api
+Automatic-Module-Name: net.bluemind.smime.cacerts.persistence.tests
