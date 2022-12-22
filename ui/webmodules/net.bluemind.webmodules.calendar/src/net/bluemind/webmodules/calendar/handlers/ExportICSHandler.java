@@ -18,33 +18,21 @@
  */
 package net.bluemind.webmodules.calendar.handlers;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.streams.ReadStream;
 import net.bluemind.calendar.api.IVEventPromise;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.container.api.IContainersPromise;
 import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.VertxPromiseServiceProvider;
-import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.webmodule.server.NeedVertx;
+import net.bluemind.webmodule.server.export.ExportHelper;
 
 public class ExportICSHandler implements Handler<HttpServerRequest>, NeedVertx {
 
-	private static Logger logger = LoggerFactory.getLogger(ExportICSHandler.class);
 	private HttpClientProvider prov;
 
 	@Override
@@ -61,7 +49,6 @@ public class ExportICSHandler implements Handler<HttpServerRequest>, NeedVertx {
 	@Override
 	public void handle(final HttpServerRequest request) {
 		String container = request.params().get("container");
-		String latd = request.headers().get("BMUserLATD");
 		String sessionId = request.headers().get("BMSessionId");
 
 		final VertxPromiseServiceProvider clientProvider = new VertxPromiseServiceProvider(prov, locator, sessionId);
@@ -69,39 +56,11 @@ public class ExportICSHandler implements Handler<HttpServerRequest>, NeedVertx {
 		IContainersPromise icp = clientProvider.instance(IContainersPromise.class);
 		IVEventPromise ivep = clientProvider.instance(IVEventPromise.class, container);
 
-		icp.get(container).thenCombine(ivep.exportAll(), (containerDescriptor, ics) -> {
-			String date = ZonedDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HHmm"));
-			String filename = String.format("%s-bluemind-export-%s.ics", containerDescriptor.name, date);
-
-			HttpServerResponse resp = request.response();
-			resp.headers().set("Content-Type", "text/calendar;charset=UTF-8");
-
-			String ua = request.headers().get("User-Agent");
-			if (ua.contains("firefox")) {
-				resp.headers().set("Content-Disposition", "attachment; filename=*utf8''\"" + filename + "\"");
-			} else if (ua.contains("msie")) {
-				try {
-					resp.headers().set("Content-Disposition",
-							"attachment; filename=\"" + URLEncoder.encode(filename, "UTF-8") + "\"");
-				} catch (UnsupportedEncodingException e) {
-					logger.error(e.getMessage(), e);
-				}
-			} else {
-				resp.headers().set("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-			}
-
-			ReadStream<Buffer> read = VertxStream.read(ics);
-			resp.setChunked(true);
-			read.pipeTo(resp);
-			return null;
-		}).exceptionally(e -> {
-			logger.error("error ics export of calendar {} ", container, e);
-			request.response().setStatusCode(500);
-			request.response().setStatusMessage(e.getMessage());
-			request.response().end();
-			return null;
-		});
-
+		icp.get(container).thenCombine(ivep.exportAll(),
+				(containerDescriptor, ics) -> ExportHelper.setResponse(request, "vevent", containerDescriptor, ics))
+				.exceptionally(e -> {
+					return ExportHelper.error(request.response(), container, e);
+				});
 	}
 
 }

@@ -14,7 +14,11 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.common.freemarker,
  net.bluemind.metrics.registry,
  net.bluemind.sentry.settings,
- jakarta.activation-api
+ jakarta.activation-api,
+ net.bluemind.core.rest,
+ net.bluemind.core.container.api;bundle-version="4.1.0",
+ net.bluemind.core.rest.http,
+ net.bluemind.network.topology
 Closure-Bundle-Type: Embedded
 Web-Resources: web-resources
 Closure-Inputs: BundlesManager.js
@@ -22,6 +26,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx
 Export-Package: net.bluemind.webmodule.server,
+ net.bluemind.webmodule.server.export,
  net.bluemind.webmodule.server.filters,
  net.bluemind.webmodule.server.handlers
 Bundle-Activator: net.bluemind.webmodule.server.WebModuleServerActivator
