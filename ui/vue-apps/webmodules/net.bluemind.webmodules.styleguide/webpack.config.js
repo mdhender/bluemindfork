@@ -4,7 +4,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
     mode: "production",
-    plugins: [new VueLoaderPlugin(), new MiniCssExtractPlugin({ filename: "ui-components.css" })],
+    plugins: [new VueLoaderPlugin(), new MiniCssExtractPlugin({ filename: "css/styleguide.css" })],
     module: {
         rules: [
             {
@@ -48,9 +48,10 @@ module.exports = {
     devtool: "source-map",
     entry: "./index.js",
     output: {
-        path: path.resolve(__dirname, "dist"),
-        filename: "ui-components.js",
+        path: path.resolve(__dirname, "web-resources"),
+        filename: "js/ui-components.js",
         library: "BmUiComponents",
-        libraryTarget: "umd"
+        libraryTarget: "umd",
+        clean: true
     }
 };
