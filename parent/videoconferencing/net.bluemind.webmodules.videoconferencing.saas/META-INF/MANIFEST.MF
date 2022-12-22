@@ -8,6 +8,7 @@ Web-Resources: web-resources
 Require-Bundle: io.vertx.core,
  net.bluemind.core.rest.http,
  net.bluemind.webmodule.server,
- slf4j.api
+ slf4j.api,
+ net.bluemind.webmodules.vue
 Bundle-Localization: OSGI-INF/l10n/bundle
 Automatic-Module-Name: net.bluemind.webmodules.videoconferencing.saas
