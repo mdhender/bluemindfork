@@ -6,10 +6,10 @@
             role="button"
             :class="{ 'avatar-on-left': !noAvatar && !expandable, invalid }"
             tabindex="0"
-            @click="showPopover = !showPopover"
-            @keypress.enter="showPopover = !showPopover"
-            @keydown.tab.exact="showPopover ? focusPopover() : undefined"
-            @keydown.tab.shift="showPopover ? (showPopover = false) : undefined"
+            @click="showContactCard = !showContactCard"
+            @keypress.enter="showContactCard = !showContactCard"
+            @keydown.tab.exact="showContactCard ? focusPopover() : undefined"
+            @keydown.tab.shift="showContactCard ? (showContactCard = false) : undefined"
         >
             <div v-if="transparent || noText" class="transparent-contact" :title="tooltip">
                 <template v-if="!noAvatar">
@@ -64,30 +64,45 @@
                 </span>
             </bm-chip>
         </a>
-        <contact-popover
-            v-if="popover"
-            ref="contact-popover"
-            :target="uniqueId"
-            :recipient="recipient"
-            :show.sync="showPopover"
-        >
-            <template #email="slotProps">
-                <slot name="email" :email="slotProps.email" />
+        <resolved-contact v-if="enableCard" :recipient="recipient">
+            <template v-slot:default="{ resolvedContact }">
+                <div>
+                    <contact-popover
+                        ref="contact-popover"
+                        :target="uniqueId"
+                        :contact="resolvedContact"
+                        :show.sync="showContactCard"
+                    >
+                        <template #email="slotProps">
+                            <slot name="email" :email="slotProps.email" />
+                        </template>
+                        <template #actions="slotProps">
+                            <slot name="actions" :contact="slotProps.contact" />
+                        </template>
+                    </contact-popover>
+                    <contact-modal :contact="resolvedContact" :show.sync="showContactCard">
+                        <template #email="slotProps">
+                            <slot name="email" :email="slotProps.email" />
+                        </template>
+                        <template #actions="slotProps">
+                            <slot name="actions" :contact="slotProps.contact" />
+                        </template>
+                    </contact-modal>
+                </div>
             </template>
-            <template #actions="slotProps">
-                <slot name="actions" :contact="slotProps.contact" />
-            </template>
-        </contact-popover>
+        </resolved-contact>
     </div>
 </template>
 
 <script>
 import { BmAvatar, BmChip, BmIconButton } from "@bluemind/ui-components";
+import ContactModal from "./ContactModal";
 import ContactPopover from "./ContactPopover";
+import ResolvedContact from "./ResolvedContact";
 
 export default {
     name: "Contact",
-    components: { BmAvatar, BmIconButton, BmChip, ContactPopover },
+    components: { BmAvatar, BmIconButton, BmChip, ContactModal, ContactPopover, ResolvedContact },
     props: {
         // only applicable outside a contact chip, i.e. with transparent or no-text prop set to true
         avatarSize: { type: String, default: "sm" },
@@ -109,14 +124,14 @@ export default {
         invalid: { type: Boolean, default: false },
         noAvatar: { type: Boolean, default: false },
         noText: { type: Boolean, default: false },
-        popover: { type: Boolean, default: false },
+        enableCard: { type: Boolean, default: false },
         selected: { type: Boolean, default: false },
         showAddress: { type: Boolean, default: false },
         textTruncate: { type: Boolean, default: true },
         transparent: { type: Boolean, default: false }
     },
     data() {
-        return { groupColor: "#0095fa", showPopover: false };
+        return { groupColor: "#0095fa", showContactCard: false };
     },
     computed: {
         address() {

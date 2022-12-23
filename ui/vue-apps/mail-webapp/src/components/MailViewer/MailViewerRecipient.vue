@@ -14,7 +14,7 @@
                     no-avatar
                     transparent
                     bold
-                    popover
+                    enable-card
                 />
                 <template v-if="index != recipients.length - hiddenContactCount - 1">,&nbsp;</template>
             </div>

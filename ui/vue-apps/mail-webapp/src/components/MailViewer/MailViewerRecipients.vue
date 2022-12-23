@@ -147,25 +147,17 @@ export default {
         }
     }
 }
-.recipients-popover,
-.contact-card-popover {
+.recipients-popover {
     @include until-lg {
         display: none !important;
     }
     max-width: 50vw !important;
-    min-width: 28.25rem;
+    min-width: $popover-min-width;
     max-height: 65vh;
     overflow: auto;
 
     .arrow {
         display: none;
-    }
-
-    div:focus,
-    .contact-card-body a:focus {
-        outline-width: 1px !important;
-        outline-style: dashed !important;
-        outline-color: var(--neutral-fg);
     }
 }
 </style>

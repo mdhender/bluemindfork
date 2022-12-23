@@ -8,7 +8,7 @@
             </div>
         </div>
         <div v-else class="default-preview">
-            <bm-icon :icon="matchingIcon" size="3xl" class="m-auto preview-file-type" />
+            <bm-icon :icon="matchingIcon" size="4xl" class="m-auto preview-file-type" />
         </div>
         <div class="thumbnail-overlay position-absolute">
             <slot name="overlay" :hasPreview="hasPreview" />
@@ -62,7 +62,7 @@ export default {
 
 .file-thumbnail {
     aspect-ratio: 14 / 5;
-    min-height: map-get($icon-sizes, "3xl");
+    min-height: map-get($icon-sizes, "4xl");
 
     margin-top: $sp-3;
 

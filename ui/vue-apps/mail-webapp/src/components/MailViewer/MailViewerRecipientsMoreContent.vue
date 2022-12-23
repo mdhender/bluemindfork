@@ -16,7 +16,7 @@
                         transparent
                         bold
                         show-address
-                        popover
+                        enable-card
                     />
                 </div>
             </div>
@@ -33,7 +33,7 @@
                         bold
                         show-address
                         :text-truncate="false"
-                        popover
+                        enable-card
                     />
                 </div>
             </div>
@@ -50,7 +50,7 @@
                         bold
                         show-address
                         :text-truncate="false"
-                        popover
+                        enable-card
                     />
                 </div>
             </div>
@@ -67,7 +67,7 @@
                         bold
                         show-address
                         :text-truncate="false"
-                        popover
+                        enable-card
                     />
                 </div>
             </div>

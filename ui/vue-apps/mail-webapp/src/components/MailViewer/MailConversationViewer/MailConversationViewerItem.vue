@@ -18,7 +18,7 @@
                         :contact="message.from"
                         no-text
                         avatar-size="md"
-                        popover
+                        enable-card
                     />
                 </div>
                 <slot name="head" />

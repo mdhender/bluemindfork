@@ -7,7 +7,7 @@
         show-address
         transparent
         bold-dn
-        popover
+        enable-card
     />
 </template>
 

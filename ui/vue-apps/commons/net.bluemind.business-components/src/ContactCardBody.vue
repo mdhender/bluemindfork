@@ -1,41 +1,42 @@
 <template>
     <div class="contact-card-body ml-3">
         <div v-if="emails.length" class="d-flex">
-            <bm-icon icon="user-enveloppe" variant="secondary" />
-            <ol class="d-flex flex-column p-0 ml-4 mb-0">
+            <div><bm-icon icon="user-enveloppe" variant="secondary" /></div>
+            <ol class="d-flex flex-column flex-fill p-0 ml-4 mb-0">
                 <li v-for="email in emails" :key="email.address" class="d-flex">
-                    <strong>
-                        <slot name="email" :email="email.address">
-                            {{ email.address }}
-                        </slot>
-                    </strong>
+                    <slot name="email" :email="email.address">
+                        <strong class="d-flex flex-fill">
+                            <strong>{{ email.address }}</strong>
+                        </strong>
+                    </slot>
                     <bm-icon-button-copy :text="email.address" size="sm" class="ml-4" />
                 </li>
             </ol>
         </div>
         <div v-if="phones.length" class="d-flex mt-4">
-            <bm-icon icon="phone" variant="secondary" />
-            <ol class="d-flex flex-column p-0 ml-4 mb-0">
+            <div><bm-icon icon="phone" variant="secondary" /></div>
+            <ol class="d-flex flex-column flex-fill p-0 ml-4 mb-0">
                 <li v-for="phone in phones" :key="phone.number" class="d-flex" :text="phone.number">
                     <a
+                        class="text-truncate"
                         :href="`tel:${phone.number.replace(/\s+/g, '')}`"
                         :title="$t('contact.card.phone_call', { number: phone.number })"
                     >
                         <strong>{{ phone.number }}</strong>
                     </a>
-                    <span class="ml-4 text-neutral">{{ phone.type }}</span>
+                    <span class="ml-4 text-neutral text-truncate">{{ phone.type }}</span>
                     <bm-icon-button-copy :text="phone.number" size="sm" class="ml-4" />
                 </li>
             </ol>
         </div>
         <div v-if="locations.length" class="d-flex mt-4">
-            <bm-icon icon="world" variant="secondary" />
-            <ol class="d-flex flex-column p-0 ml-4 mb-0">
-                <li v-for="(location, index) in locations" :key="index" class="d-flex text-neutral">
-                    <div>
-                        <div v-for="(line, i) in location.lines" :key="i">
-                            <strong>{{ line }}</strong>
-                        </div>
+            <div><bm-icon icon="world" variant="secondary" /></div>
+            <ol class="d-flex flex-column flex-fill p-0 ml-4 mb-0">
+                <li v-for="(location, index) in locations" :key="index" class="d-flex text-neutral flex-fill">
+                    <div class="d-flex flex-column min-width-0">
+                        <strong v-for="(line, i) in location.lines" :key="i" class="text-truncate">
+                            {{ line }}
+                        </strong>
                     </div>
                     <bm-icon-button-copy :text="location.lines.join(EOL)" size="sm" class="ml-4" />
                 </li>
@@ -135,6 +136,10 @@ export default {
 
     .bm-icon-button-copy {
         height: $line-height-regular;
+    }
+
+    .min-width-0 {
+        min-width: 0;
     }
 }
 </style>

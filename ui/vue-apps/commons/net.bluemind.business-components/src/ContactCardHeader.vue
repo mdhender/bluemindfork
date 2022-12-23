@@ -1,11 +1,11 @@
 <template>
-    <div class="contact-card-header d-flex align-items-center mb-5">
-        <bm-avatar :alt="displayName" :url="contact.value.identification.photoBinary" size="md" />
-        <h3 class="my-0 ml-4 mr-auto">{{ displayName }}</h3>
+    <div class="contact-card-header d-flex align-items-center mb-6">
+        <bm-avatar :alt="displayName" :url="contact.value.identification.photoBinary" size="lg" />
+        <div class="title my-0 ml-5 mr-auto text-truncate">{{ displayName }}</div>
         <bm-icon
             v-if="addressBook"
             icon="user-check"
-            class="text-neutral"
+            class="text-neutral ml-4"
             :title="$t('contact.address_book', { name: addressBook.name })"
         />
     </div>

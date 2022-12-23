@@ -12,9 +12,10 @@
                         query: { to: slotProps.email }
                     })
                 "
+                class="text-truncate"
                 :title="$t('mail.actions.send_message.tooltip', { address: slotProps.email })"
             >
-                {{ slotProps.email }}
+                <strong>{{ slotProps.email }}</strong>
             </router-link>
         </template>
         <template #actions="slotProps">

@@ -50,7 +50,7 @@ export default {
             type: String,
             default: "md",
             validator: function (value) {
-                return ["sm", "md", "xl"].includes(value);
+                return ["sm", "md", "lg", "xl"].includes(value);
             }
         },
         alt: {
@@ -127,8 +127,10 @@ export default {
             switch (this.size) {
                 case "sm":
                     return "sm";
-                case "xl":
+                case "lg":
                     return "2xl";
+                case "xl":
+                    return "3xl";
                 default:
                     return "md";
             }
@@ -246,6 +248,22 @@ export default {
             $radius: base-px-to-rem(3.5);
             @include status($radius);
             top: base-px-to-rem(1.5);
+        }
+    }
+
+    &.bm-avatar-lg {
+        width: $avatar-width-lg;
+        height: $avatar-height-lg;
+        font-size: base-px-to-rem(30);
+
+        #count.count-overflows {
+            font-size: base-px-to-rem(26);
+        }
+
+        #status {
+            $radius: base-px-to-rem(7);
+            @include status($radius);
+            top: base-px-to-rem(3);
         }
     }
 

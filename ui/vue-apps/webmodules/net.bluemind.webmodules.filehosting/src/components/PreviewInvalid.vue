@@ -1,6 +1,6 @@
 <template>
     <div v-if="isFhExpiredFile" class="preview-invalid">
-        <div><bm-icon icon="cloud-exclamation" size="3xl" /></div>
+        <div><bm-icon icon="cloud-exclamation" size="4xl" /></div>
         <span class="text"> {{ $t("mail.preview.nopreview.invalid") }}</span>
     </div>
     <div v-else><slot /></div>

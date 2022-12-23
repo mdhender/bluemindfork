@@ -211,7 +211,7 @@ export default {
             type: String,
             default: "md",
             validator: function validator(value) {
-                return ["xs", "sm", "md", "lg", "xl", "2xl", "3xl"].indexOf(value) > -1;
+                return ["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl"].indexOf(value) > -1;
             }
         },
         stacked: { type: Array, default: undefined },

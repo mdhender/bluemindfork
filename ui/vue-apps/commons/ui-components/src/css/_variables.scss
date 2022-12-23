@@ -262,6 +262,8 @@ $avatar-width: base-px-to-rem(25);
 $avatar-height: base-px-to-rem(30);
 $avatar-width-sm: base-px-to-rem(20);
 $avatar-height-sm: base-px-to-rem(24);
+$avatar-width-lg: base-px-to-rem(50);
+$avatar-height-lg: base-px-to-rem(60);
 $avatar-width-xl: base-px-to-rem(70);
 $avatar-height-xl: base-px-to-rem(84);
 
@@ -343,6 +345,8 @@ $popover-border-color: transparent;
 $popover-box-shadow: $box-shadow-sm;
 
 $popover-arrow-outer-color: $surface;
+
+$popover-min-width: base-px-to-rem(452);
 
 // Modals
 
@@ -445,8 +449,9 @@ $icon-sizes: ();
 @include bm-icon-size("md", 16);
 @include bm-icon-size("lg", 20);
 @include bm-icon-size("xl", 24);
-@include bm-icon-size("2xl", 48);
-@include bm-icon-size("3xl", 72);
+@include bm-icon-size("2xl", 32);
+@include bm-icon-size("3xl", 48);
+@include bm-icon-size("4xl", 72);
 
 // Spacers
 

@@ -11,7 +11,7 @@
                         transparent
                         show-address
                         bold-dn
-                        popover
+                        enable-card
                     />
                     <mail-folder-icon
                         v-if="folder.key !== conversation.folderRef.key"

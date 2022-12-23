@@ -1,6 +1,6 @@
 <template>
     <div class="default-fallback">
-        <div><bm-icon :icon="icon" size="3xl" /></div>
+        <div><bm-icon :icon="icon" size="4xl" /></div>
         <span class="text">{{ text }}</span>
     </div>
 </template>
