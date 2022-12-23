@@ -91,3 +91,8 @@ export class InvalidCertificateRecipientError extends SmimeErrors {
         super("Invalid certificate", CRYPTO_HEADERS.INVALID_CERTIFICATE_RECIPIENT, error);
     }
 }
+export class SignError extends SmimeErrors {
+    constructor(error?: unknown) {
+        super("An error occured when signing", CRYPTO_HEADERS.SIGN_FAILURE, error);
+    }
+}

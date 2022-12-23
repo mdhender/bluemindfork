@@ -35,10 +35,17 @@ export function checkSignatureValidity(envelope: pkcs7.Captured<pkcs7.PkcsSigned
 
 export function checkMessageIntegrity(envelope: pkcs7.Captured<pkcs7.PkcsSignedData>, contentToDigest: string) {
     const algo = getHashFunction(asn1.derToOid(envelope.rawCapture.digestAlgorithm));
-    const computedDigest = algo.update(contentToDigest).digest().bytes();
+    const computedDigest = algo.create().update(contentToDigest).digest().bytes();
     const messageDigest = getMessageDigest(envelope.rawCapture.authenticatedAttributesAsn1);
     if (util.bytesToHex(<string>messageDigest) !== util.bytesToHex(computedDigest)) {
-        throw new InvalidMessageIntegrityError();
+        if (contentToDigest.match(/(?<!\r)\n/) === null) {
+            throw new InvalidMessageIntegrityError();
+        }
+        contentToDigest = contentToDigest.replace(/(?<!\r)\n/g, "\r\n");
+        const newDigest = algo.create().update(contentToDigest).digest().bytes();
+        if (util.bytesToHex(<string>messageDigest) !== util.bytesToHex(newDigest)) {
+            throw new InvalidMessageIntegrityError();
+        }
     }
 }
 
@@ -75,15 +82,15 @@ function getDigestAttrAlgo(algorithmOid: string) {
 function getHashFunction(algorithmOid: string) {
     switch (algorithmOid) {
         case pki.oids.md5:
-            return md.md5.create();
+            return md.md5;
         case pki.oids.sha1:
-            return md.sha1.create();
+            return md.sha1;
         case pki.oids.sha256:
-            return md.sha256.create();
+            return md.sha256;
         case pki.oids.sha384:
-            return md.sha384.create();
+            return md.sha384;
         case pki.oids.sha512:
-            return md.sha512.create();
+            return md.sha512;
         default:
             throw new UnsupportedAlgorithmError(pki.oids[algorithmOid]);
     }

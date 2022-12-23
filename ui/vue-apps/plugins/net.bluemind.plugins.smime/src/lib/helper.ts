@@ -19,6 +19,11 @@ export function hasToBeEncrypted(headers: MessageBody.Header[]): boolean {
     return !!value && !!(parseInt(value) & CRYPTO_HEADERS.TO_DO);
 }
 
+export function hasToBeSigned(headers: MessageBody.Header[]): boolean {
+    // TODO
+    return true;
+}
+
 export function isDecrypted(headers: MessageBody.Header[]): boolean {
     const value = findHeaderValue(headers, ENCRYPTED_HEADER_NAME);
     return !!value && !!(parseInt(value) & CRYPTO_HEADERS.OK);
@@ -54,20 +59,6 @@ export function removeHeader(headers: MessageBody.Header[] = [], headerName: str
         newHeaders.splice(index, 1);
     }
     return newHeaders;
-}
-
-export function binaryToArrayBuffer(binarysSring: string): ArrayBuffer {
-    const len = binarysSring.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-        bytes[i] = binarysSring.charCodeAt(i);
-    }
-    return bytes.buffer;
-}
-
-export function base64ToArrayBuffer(base64: string): ArrayBuffer {
-    const binary_string = atob(base64);
-    return binaryToArrayBuffer(binary_string);
 }
 
 function findHeaderValue(headers: MessageBody.Header[], headerName: string): string | null {

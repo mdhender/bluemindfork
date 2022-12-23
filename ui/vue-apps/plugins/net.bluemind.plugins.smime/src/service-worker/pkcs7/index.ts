@@ -1,8 +1,14 @@
 import { pkcs7, pki, asn1, util } from "node-forge";
-import { UnmatchedCertificateError, InvalidCertificateError, DecryptError, EncryptError } from "../exceptions";
+import {
+    InvalidCertificateError,
+    DecryptError,
+    EncryptError,
+    SignError,
+    UnmatchedCertificateError
+} from "../exceptions";
 import { checkMessageIntegrity, checkSignatureValidity, getSignedDataEnvelope, getSigningTime } from "./verify";
-import { checkCertificateValidity, getCertificate } from "../pki/";
-import { binaryToArrayBuffer } from "../../lib/helper";
+import { checkCertificateValidity, getMyCertificate, getMyPrivateKey } from "../pki/";
+import { binaryToArrayBuffer } from "@bluemind/arraybuffer";
 
 export async function decrypt(
     data: Blob,
@@ -46,20 +52,53 @@ export function encrypt(content: string, certificates: pki.Certificate[]): Blob 
     }
 }
 
-export async function verify(pkcs7: ArrayBuffer, toDigest: string, senderAddress: string) {
+export async function verify(pkcs7: ArrayBuffer, toDigest: string) {
     const envelope = getSignedDataEnvelope(pkcs7);
     const signingTime = getSigningTime(envelope);
-    let certificate = await getCertificate(senderAddress);
-    if (!certificate) {
-        certificate = envelope.certificates[0];
-    }
+    const certificate = envelope.certificates[0];
     checkCertificateValidity(certificate, signingTime);
     checkSignatureValidity(envelope, certificate);
     checkMessageIntegrity(envelope, toDigest);
 }
 
-export async function sign() {
-    return null;
+// create PKCS#7 signed data with authenticatedAttributes
+// attributes include: PKCS#9 content-type, message-digest, and signing-time
+export async function sign(content: string) {
+    try {
+        const p7 = pkcs7.createSignedData();
+        p7.content = util.createBuffer(content);
+
+        const privateKey = await getMyPrivateKey();
+        const myCert = await getMyCertificate();
+
+        // FIXME: add CA cert ?
+        p7.addCertificate(myCert);
+        p7.addSigner({
+            key: privateKey,
+            certificate: myCert,
+            digestAlgorithm: pki.oids.sha256,
+            authenticatedAttributes: [
+                {
+                    type: pki.oids.contentType,
+                    value: pki.oids.data
+                },
+                {
+                    type: pki.oids.messageDigest // value will be auto-populated at signing time
+                },
+                {
+                    type: pki.oids.signingTime,
+                    value: asn1.dateToUtcTime(new Date())
+                }
+            ]
+        });
+
+        p7.sign({ detached: true }); // PKCS#7 sign in detached mode: includes the signature and certificate without the signed data
+        const bytes = asn1.toDer(p7.toAsn1()).getBytes();
+        const buffer = binaryToArrayBuffer(bytes);
+        return new Blob([buffer]);
+    } catch (error) {
+        throw new SignError(error);
+    }
 }
 
 export default { decrypt, encrypt, verify, sign };

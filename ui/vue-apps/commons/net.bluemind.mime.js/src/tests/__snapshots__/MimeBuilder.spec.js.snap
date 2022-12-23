@@ -5,12 +5,12 @@ exports[`MimeBuilder alternative 1`] = `
  boundary=\\"
 
 
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
 text
 
-Content-Type: text/html
+Content-Type: text/html; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
 <div>text</div>
@@ -19,7 +19,7 @@ Content-Transfer-Encoding: quoted-printable
 `;
 
 exports[`MimeBuilder basic 1`] = `
-"Content-Type: text/plain
+"Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
 text"
@@ -34,20 +34,20 @@ Content-Type: multipart/alternative;
  boundary=\\"
 
 
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
 text
 
-Content-Type: text/html
+Content-Type: text/html; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
 <div>text</div>
 
 
 
-Content-Type: image/png
-Content-Disposition: attachment; filename=capture.png
+Content-Type: image/png; charset=us-ascii
+Content-Disposition: attachment; filename=capture.png; size=79360
 Content-Transfer-Encoding: base64
 
 YSBtb2NrZWQgaW1hZ2U=
@@ -60,7 +60,7 @@ exports[`MimeBuilder with inline image 1`] = `
  boundary=\\"
 
 
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
 text
@@ -69,7 +69,7 @@ Content-Type: multipart/related;
  boundary=\\"
 
 
-Content-Type: text/html
+Content-Type: text/html; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
 <div>text</div>

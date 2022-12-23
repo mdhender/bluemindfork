@@ -17,7 +17,7 @@ export interface Session {
     // accountType: Promise<string>;
     // defaultEmail: Promise<string>;
     sid: Promise<string>;
-    // userId: Promise<string>;
+    userId: Promise<string>;
     // hasIM: Promise<string>;
     // lang: Promise<string>;
     domain: Promise<string>;
@@ -40,6 +40,9 @@ const session: Session = {
     },
     get login() {
         return instance().then(({ login }) => login);
+    },
+    get userId() {
+        return instance().then(({ userId }) => userId);
     },
     get domain() {
         return instance().then(({ domain }) => domain);

@@ -1,5 +1,6 @@
 declare module "node-forge" {
     namespace asn1 {
+        function dateToUtcTime(date: Date): string;
         function utcTimeToDate(utcTime: string): Date;
         function prettyPrint(asn1: asn1.Asn1, level?: number, indentation?: number): void;
     }

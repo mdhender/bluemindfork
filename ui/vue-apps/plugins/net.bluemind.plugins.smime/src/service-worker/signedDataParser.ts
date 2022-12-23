@@ -1,13 +1,11 @@
-import { base64ToArrayBuffer } from "../lib/helper";
+import { base64ToArrayBuffer } from "@bluemind/arraybuffer";
 
 export default function (eml: string): { toDigest: string; pkcs7Part: ArrayBuffer } {
-    const newLine = "\r\n";
     const iMultipartLine = eml.indexOf("Content-Type: multipart/signed");
     const iBoundary = eml.indexOf("boundary", iMultipartLine);
-    const endOfMultipartLine = eml.indexOf(newLine, iMultipartLine);
-    const boundaryValue = "--" + eml.substring(iBoundary + 'boundary="'.length, endOfMultipartLine - 1);
-
-    const { toDigest, beginOfPkcs7 } = extractContentToDigest(eml, boundaryValue, endOfMultipartLine);
+    const endOfBoundary = eml.indexOf('"', iBoundary + 'boundary="'.length);
+    const boundaryValue = "--" + eml.substring(iBoundary + 'boundary="'.length, endOfBoundary);
+    const { toDigest, beginOfPkcs7 } = extractContentToDigest(eml, boundaryValue, endOfBoundary);
     const pkcs7Part = extractSignedPart(eml, beginOfPkcs7, boundaryValue);
     return { toDigest, pkcs7Part };
 }

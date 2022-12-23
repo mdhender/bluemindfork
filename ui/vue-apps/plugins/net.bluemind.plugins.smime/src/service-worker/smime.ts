@@ -1,7 +1,8 @@
 import { pki } from "node-forge";
-import { MailboxItemsClient, MailboxItem, MessageBody } from "@bluemind/backend.mail.api";
+import { DispositionType, MailboxItemsClient, MailboxItem, MessageBody } from "@bluemind/backend.mail.api";
 import { ItemValue } from "@bluemind/core.container.api";
 import { MimeParser, MimeBuilder } from "@bluemind/mime";
+import UUIDGenerator from "@bluemind/uuid";
 import {
     CRYPTO_HEADERS,
     ENCRYPTED_HEADER_NAME,
@@ -10,12 +11,12 @@ import {
     SIGNED_HEADER_NAME
 } from "../lib/constants";
 import session from "./environnment/session";
-import { EncryptError, UnmatchedCertificateError, SmimeErrors } from "./exceptions";
+import { EncryptError, SmimeErrors } from "./exceptions";
 import extractSignedData from "./signedDataParser";
 import pkcs7 from "./pkcs7/";
 import { checkCertificateValidity, getMyCertificate, getMyPrivateKey, getCertificate } from "./pki/";
-import { logger } from "./environnment/logger";
 import { addHeaderValue } from "../lib/helper";
+import { logger } from "./environnment/logger";
 
 export function isEncrypted(item: ItemValue<MailboxItem>): boolean {
     return PKCS7_MIMES.includes(item.value!.body!.structure!.mime!);
@@ -68,30 +69,17 @@ export async function encrypt(item: MailboxItem, folderUid: string): Promise<Mai
         certificates.push(myCertificate);
 
         if (encryptedItem.body.structure && encryptedItem.imapUid) {
-            const getContentFn = async (p: MessageBody.Part): Promise<Uint8Array | null> => {
-                if (!encryptedItem.imapUid || !p.address) {
-                    return null;
-                }
-                const data: Blob = await client.fetch(encryptedItem.imapUid, p.address, p.encoding, p.mime);
-                return new Uint8Array(await data.arrayBuffer());
-            };
-
             try {
-                mimeTree = await new MimeBuilder(getContentFn).build(encryptedItem.body.structure);
+                mimeTree = await new MimeBuilder(getRemoteContentFn(client, item.imapUid!)).build(
+                    encryptedItem.body.structure
+                );
             } catch (error) {
                 throw new EncryptError(error);
             }
-            if (mimeTree) {
-                const encryptedPart = pkcs7.encrypt(mimeTree, certificates);
-                const address = await client.uploadPart(encryptedPart);
-                const part = {
-                    address,
-                    charset: "utf-8",
-                    encoding: "base64",
-                    mime: PKCS7_MIMES[0]
-                };
-                encryptedItem.body.structure = part;
-            }
+            const encryptedPart = pkcs7.encrypt(mimeTree, certificates);
+            const address = await client.uploadPart(encryptedPart);
+            const part = { address, charset: "utf-8", encoding: "base64", mime: PKCS7_MIMES[0] };
+            encryptedItem.body.structure = part;
         }
     } catch (error) {
         const errorCode = error instanceof SmimeErrors ? error.code : CRYPTO_HEADERS.UNKNOWN;
@@ -105,7 +93,7 @@ export async function verify(folderUid: string, item: ItemValue<MailboxItem>): P
         const client = new MailboxItemsClient(await session.sid, folderUid);
         const eml = await client.fetchComplete(item.value.imapUid!).then(eml => eml.text());
         const { toDigest, pkcs7Part } = extractSignedData(eml);
-        await pkcs7.verify(pkcs7Part, toDigest, getSenderAddress(item));
+        await pkcs7.verify(pkcs7Part, toDigest);
         item.value.body.headers = addHeaderValue(item.value.body.headers, SIGNED_HEADER_NAME, CRYPTO_HEADERS.OK);
     } catch (error) {
         logger.error(error);
@@ -115,21 +103,85 @@ export async function verify(folderUid: string, item: ItemValue<MailboxItem>): P
     return item;
 }
 
-export function sign() {
-    return null;
+export async function sign(item: MailboxItem, folderUid: string): Promise<MailboxItem> {
+    try {
+        item.body.structure = removePreviousSignedPart(item.body.structure!);
+        const client = new MailboxItemsClient(await session.sid, folderUid);
+
+        const unsignedContent = await new MimeBuilder(getRemoteContentFn(client, item.imapUid!)).build(
+            item.body.structure!
+        );
+        const { content: unsignedWithoutHeaders, headers } = splitHeadersAndContent(unsignedContent);
+        const contentType = extractContentType(headers);
+
+        const unsignedPartAddress = await client.uploadPart(unsignedWithoutHeaders);
+        const unsignedPart = { ...item.body.structure, address: unsignedPartAddress, children: [] };
+        if (!unsignedPart.headers) unsignedPart.headers = [];
+        unsignedPart.headers.push({ name: "Content-Type", values: [contentType] });
+
+        const signedContent = await pkcs7.sign(unsignedContent);
+        const signedPartAddress = await client.uploadPart(signedContent);
+        const signedPart = buildSignedPart(signedPartAddress);
+
+        item.body.structure = buildMultipartSigned(UUIDGenerator.generate(), [unsignedPart, signedPart]);
+    } catch (error) {
+        logger.error(error);
+        const errorCode = error instanceof SmimeErrors ? error.code : CRYPTO_HEADERS.UNKNOWN;
+        item.body.headers = addHeaderValue(item.body.headers, SIGNED_HEADER_NAME, errorCode);
+    }
+    return item;
 }
 
-function getSenderAddress(item: ItemValue<MailboxItem>): string {
-    if (item.value.body.recipients) {
-        const from = item.value.body.recipients.find(
-            recipient => recipient.kind === MessageBody.RecipientKind.Originator
-        );
-        if (!from) {
-            throw new UnmatchedCertificateError();
+function buildSignedPart(address: string) {
+    return {
+        address,
+        mime: "application/pkcs7-signature",
+        dispositionType: DispositionType.ATTACHMENT,
+        fileName: "smime.p7s",
+        headers: [
+            { name: "Content-Type", values: ['application/pkcs7-signature; name="smime.p7s"'] },
+            { name: "Content-Transfer-Encoding", values: ["base64"] }
+        ]
+    };
+}
+
+function buildMultipartSigned(boundaryValue: string, children: Array<MessageBody.Part>) {
+    const contentType = `multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256; boundary="${boundaryValue}"`;
+    return { mime: "multipart/signed", headers: [{ name: "Content-Type", values: [contentType] }], children };
+}
+
+function removePreviousSignedPart(structure: MessageBody.Part): MessageBody.Part {
+    // FIXME: use MimeType.js once this package is usable in worker
+    if (structure.mime === "multipart/mixed" && structure.children) {
+        const signedPartIndex = structure.children.findIndex(part => part.mime === "application/pkcs7-signature");
+        if (signedPartIndex !== -1) {
+            structure.children.splice(signedPartIndex, 1);
+            if (structure.children.length === 1) {
+                return structure.children[0];
+            }
         }
-        return from.address || "";
     }
-    return "";
+    return structure;
+}
+
+function getRemoteContentFn(client: MailboxItemsClient, imapUid: number) {
+    return async (p: MessageBody.Part): Promise<Uint8Array> => {
+        const data: Blob = await client.fetch(imapUid, p.address!, p.encoding, p.mime, p.charset);
+        return new Uint8Array(await data.arrayBuffer());
+    };
+}
+
+function splitHeadersAndContent(content: string): { content: string; headers: string } {
+    const lineBreak = "\r\n";
+    const separator = lineBreak + lineBreak;
+    const separatorIndex = content.indexOf(separator);
+    const headers = content.substring(0, separatorIndex).toLowerCase();
+    return { content: content.substring(separatorIndex + separator.length), headers };
+}
+
+function extractContentType(headers: string): string {
+    const match = new RegExp(/content-type:\s?((?:(?![\w-]+:).*(?:\n|$))*)/gi).exec(headers)?.input || "";
+    return match.replace("content-type: ", "");
 }
 
 //FIXME: This should be imported from a third party package
@@ -146,10 +198,4 @@ function constructCacheUrl(folderUid: string, imapUid: number, address: string) 
     return `/api/mail_items/${folderUid}/part/${imapUid}/${address}`;
 }
 
-export default {
-    isEncrypted,
-    decrypt,
-    encrypt,
-    verify,
-    sign
-};
+export default { isEncrypted, decrypt, encrypt, verify, sign };

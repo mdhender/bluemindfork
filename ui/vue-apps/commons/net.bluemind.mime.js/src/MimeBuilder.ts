@@ -2,44 +2,48 @@ import Builder from "@bluemind/emailjs-mime-builder";
 import { MessageBody } from "@bluemind/backend.mail.api";
 
 export default class MimeBuilder {
-    getContent: (part: MessageBody.Part) => Promise<Uint8Array | null>;
+    private getContent: (part: MessageBody.Part) => Promise<Uint8Array | string>;
 
-    constructor(getContent: (part: MessageBody.Part) => Promise<Uint8Array | null>) {
+    constructor(getContent: (part: MessageBody.Part) => Promise<Uint8Array | string>) {
         this.getContent = getContent;
     }
 
-    async build(part: MessageBody.Part): Promise<string | undefined> {
-        return (await this.appendPart(part))?.build();
+    async build(part: MessageBody.Part): Promise<string> {
+        return (await this.appendPart(part)).build();
     }
-    private async appendPart(part: MessageBody.Part): Promise<Builder | undefined> {
-        if (part.mime) {
-            const node = new Builder(part.mime);
-            if (part.mime.startsWith("multipart/") && part.children) {
-                for (const child of part.children) {
-                    const newNode = await this.appendPart(child);
-                    if (newNode) {
-                        node.appendChild(newNode);
-                    }
-                }
-            } else {
-                const content = await this.getContent(part);
-                if (content) {
-                    node.setContent(content);
-                }
 
-                if (part.dispositionType) {
-                    if (part.dispositionType === "ATTACHMENT" && part.fileName) {
-                        node.setHeader("Content-Disposition", `attachment; filename="${part.fileName}`);
-                    } else {
-                        node.setHeader("Content-Disposition", part.dispositionType.toLowerCase());
-                    }
-                }
-                if (part.contentId) {
-                    node.setHeader("Content-ID", part.contentId);
-                }
+    private async appendPart(part: MessageBody.Part): Promise<Builder> {
+        const node = new Builder(this.getContentType(part));
+        if (part.mime!.startsWith("multipart/") && part.children) {
+            for (const child of part.children) {
+                const newNode = await this.appendPart(child);
+                node.appendChild(newNode);
             }
-            return node;
+        } else {
+            const content = await this.getContent(part);
+            node.setContent(content);
+            if (part.dispositionType === "ATTACHMENT" && part.fileName) {
+                node.setHeader("Content-Disposition", `attachment; filename="${part.fileName}`);
+            } else if (part.dispositionType) {
+                node.setHeader("Content-Disposition", part.dispositionType.toLowerCase());
+            }
+            if (part.contentId) {
+                node.setHeader("Content-ID", part.contentId);
+            }
         }
-        throw new Error("Malformed item");
+        part.headers?.forEach(header => {
+            if (header.name && header.values && header.values[0]) {
+                node.setHeader(header.name, header.values[0]);
+            }
+        });
+        return node;
+    }
+
+    private getContentType(part: MessageBody.Part): string {
+        const hasHeader = part.headers?.find(({ name }) => name?.toLowerCase() === "content-type");
+        if (hasHeader) {
+            return hasHeader.values![0];
+        }
+        return " " + part.mime + (part.charset ? "; charset=" + part.charset : "");
     }
 }
