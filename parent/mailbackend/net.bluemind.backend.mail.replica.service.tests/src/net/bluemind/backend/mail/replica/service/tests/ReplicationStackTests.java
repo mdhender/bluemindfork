@@ -46,6 +46,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import org.awaitility.Awaitility;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -161,35 +162,12 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 		IServiceProvider prov = provider();
 
 		IMailboxFolders userMboxesApi = prov.instance(IMailboxFolders.class, partition, mboxRoot);
-		List<ItemValue<MailboxFolder>> found = userMboxesApi.all();
-		long delay = System.currentTimeMillis();
-		while (found.isEmpty()) {
-			Thread.sleep(50);
-			if (System.currentTimeMillis() - delay > 30000) {
-				throw new TimeoutException("Wait for inbox took more than 30sec");
-			}
-			found = userMboxesApi.all();
-		}
+		Awaitility.await().atMost(30, TimeUnit.SECONDS)
+				.until(() -> userMboxesApi.all().stream().anyMatch(iv -> iv.value.fullName.equals("INBOX")));
+		ItemValue<MailboxFolder> inbox = userMboxesApi.byName("INBOX");
 
-		ItemValue<MailboxFolder> inbox = null;
-		for (ItemValue<MailboxFolder> iv : found) {
-			if (iv.value.name.equals("INBOX")) {
-				inbox = iv;
-				break;
-			}
-		}
-		assertNotNull(inbox);
-		System.err.println("Wait for record in inbox...");
 		IMailboxItems recordsApi = prov.instance(IMailboxItems.class, inbox.uid);
-		ContainerChangeset<Long> allById = recordsApi.changesetById(0L);
-		delay = System.currentTimeMillis();
-		while (allById.created.isEmpty()) {
-			Thread.sleep(50);
-			if (System.currentTimeMillis() - delay > 30000) {
-				throw new TimeoutException("Wait for record took more than 30sec");
-			}
-			allById = recordsApi.changesetById(0L);
-		}
+		Awaitility.await().atMost(30, TimeUnit.SECONDS).until(() -> !recordsApi.changesetById(0L).created.isEmpty());
 
 		IOfflineMgmt idAllocator = provider().instance(IOfflineMgmt.class, domainUid, userUid);
 		this.allocations = idAllocator.allocateOfflineIds(2);
@@ -3274,6 +3252,21 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 				time < maxTime ? "" : " (max wait reached)"));
 
 		assertTrue("Expected the message to have a 'Seen' flag", messageIsSeen(message));
+	}
+
+	@Test
+	public void testCreateEmlStructure() throws Exception {
+		long user1ItemId = createEml("data/with_inlines.eml", userUid, mboxRoot, "INBOX");
+		IMailboxFolders folderApi = provider().instance(IMailboxFolders.class, partition, mboxRoot);
+		ItemValue<MailboxFolder> inbox = folderApi.byName("INBOX");
+
+		IMailboxItems pubRecApi = provider().instance(IMailboxItems.class, inbox.uid);
+		ItemValue<MailboxItem> fullRec = pubRecApi.getCompleteById(user1ItemId);
+		System.err.println("body: " + fullRec.value.body);
+		assertNotNull(fullRec.value.body);
+		JsonObject structJs = new JsonObject(JsonUtils.asString(fullRec.value.body));
+		System.err.println(structJs.encodePrettily());
+		assertTrue(fullRec.value.body.structure.mime.startsWith("multipart"));
 	}
 
 	@Test
