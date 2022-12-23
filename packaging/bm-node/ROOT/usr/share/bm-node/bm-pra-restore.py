@@ -283,65 +283,8 @@ def restoreBmCore(bmCoreTagBackupPath, p_ids):
 
 
 def restoreMailImap(bmcyrusBackupPath, p_ids, mailImapPath):
-    spool_cyrus_path = "/var/spool/cyrus/"
-    lib_cyrus_path = "/var/lib/cyrus/"
-    bm_conf_cyrus_path = bmcyrusBackupPath + "/bm/conf/"
-    bm_cyrus_path = get_path_with_id(bm_conf_cyrus_path, p_ids)
-
-    restoreCertificate()
-
-    for f in ["cyrus.conf", "imapd.conf", "cyrus-admins", "cyrus-partitions"]:
-        execCmd(
-            LOG_FILE,
-            [
-                "cp",
-                "-f",
-                bm_cyrus_path + "/var/backups/bluemind/work/conf/etc/" + f,
-                "/etc/" + f,
-            ],
-            None,
-            "Restoring " + f + " file",
-        )
-
-    execCmd(
-        LOG_FILE,
-        ["rsync", "-avH", mailImapPath + lib_cyrus_path, lib_cyrus_path],
-        None,
-        "Restoring Cyrus lib files",
-    )
-
-    execCmd(
-        LOG_FILE,
-        [
-            "rsync",
-            "-avH",
-            "--delete",
-            mailImapPath + spool_cyrus_path,
-            spool_cyrus_path,
-        ],
-        None,
-        "Restoring Cyrus spool files",
-    )
-
-    execCmd(
-        LOG_FILE,
-        ["chown", "-R", "cyrus:mail", lib_cyrus_path, spool_cyrus_path],
-        None,
-        "Fixing Cyrus files rights",
-    )
-
-    for f in ["/etc/bm/bm-cyrus-imapd.disabled", "/etc/bm/bm-lmtpd.disabled"]:
-        if path.exists(f):
-            execCmd(
-                LOG_FILE,
-                [
-                    "rm",
-                    "-f",
-                    f,
-                ],
-                None,
-                "Deleting" + f + " file",
-            )
+    # LC TODO: THIS WILL NOT WORK
+    return
 
 
 def restoreBmEs(bmEsBackupPath, p_ids, bmEsPath):
@@ -593,19 +536,8 @@ def restoreBmPgsqlData(bmPgsqlPath):
 
 
 def restoreMailArchive(mailArchivePath):
-    if os.path.exists(mailArchivePath + "/var/spool/bm-hsm"):
-        execCmd(
-            LOG_FILE,
-            [
-                "rsync",
-                "-avH",
-                "--delete",
-                mailArchivePath + "/var/spool/bm-hsm/",
-                "/var/spool/bm-hsm/",
-            ],
-            None,
-            "Restoring BlueMind HSM directory",
-        )
+    # LC TODO: THIS WILL NOT WORK
+    return
 
 
 def restoreFilehostingData(filehostingDataPath):
