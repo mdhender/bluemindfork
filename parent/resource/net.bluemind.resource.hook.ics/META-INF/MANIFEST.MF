@@ -25,3 +25,4 @@ Require-Bundle: net.bluemind.calendar.hook,
  net.bluemind.common.freemarker,
  net.bluemind.calendar.occurrence
 Automatic-Module-Name: net.bluemind.resource.hook.ics
+Export-Package: net.bluemind.resource.hook.ics

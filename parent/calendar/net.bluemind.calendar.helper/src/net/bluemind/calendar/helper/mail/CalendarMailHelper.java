@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -102,14 +101,8 @@ public class CalendarMailHelper extends ReminderMailHelper<VEvent> {
 
 		data.put("allday", vevent.allDay() ? "true" : "false");
 
-		List<String> attendees = new LinkedList<>();
-		for (VEvent.Attendee attendee : vevent.attendees) {
-			if (Strings.isNullOrEmpty(attendee.commonName)) {
-				attendees.add(attendee.mailto);
-			} else {
-				attendees.add(attendee.commonName);
-			}
-		}
+		List<String> attendees = vevent.attendees.stream().map(CalendarMailHelper::attendeeDisplayName).toList();
+
 		if (!attendees.isEmpty()) {
 			data.put("attendees", attendees);
 		}
@@ -129,6 +122,14 @@ public class CalendarMailHelper extends ReminderMailHelper<VEvent> {
 		super.addICalendarelementDataToMap(vevent, valarm, data);
 
 		return data;
+	}
+
+	public static String attendeeDisplayName(VEvent.Attendee attendee) {
+		if (Strings.isNullOrEmpty(attendee.commonName)) {
+			return attendee.mailto;
+		} else {
+			return attendee.commonName;
+		}
 	}
 
 	/**

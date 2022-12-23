@@ -21,6 +21,7 @@ package net.bluemind.reminder.mail;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 
@@ -96,6 +97,16 @@ public abstract class ReminderMailHelper<T extends ICalendarElement> {
 			Map<String, Object> data) throws IOException, TemplateException {
 		if (null == locale) {
 			locale = "fr";
+		}
+
+		if (!data.containsKey("deleted_attendees")) {
+			data.put("deleted_attendees", Collections.emptySet());
+		}
+		if (!data.containsKey("added_attendees")) {
+			data.put("added_attendees", Collections.emptySet());
+		}
+		if (!data.containsKey("changes")) {
+			data.put("changes", Collections.emptySet());
 		}
 
 		StringWriter sw = new StringWriter();

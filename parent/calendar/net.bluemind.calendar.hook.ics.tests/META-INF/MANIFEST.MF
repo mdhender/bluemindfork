@@ -4,7 +4,6 @@ Bundle-Name: net.bluemind.calendar.hook.ics.tests
 Bundle-SymbolicName: net.bluemind.calendar.hook.ics.tests;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: blue-mind.net
-Fragment-Host: net.bluemind.calendar.hook.ics
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper,
@@ -43,5 +42,12 @@ Require-Bundle: org.junit,
  net.bluemind.document.persistence.fs,
  net.bluemind.core.sendmail.testhelper,
  net.bluemind.videoconferencing.service;bundle-version="5.0.0",
- net.bluemind.resource.service;bundle-version="5.0.0"
+ net.bluemind.resource.service;bundle-version="5.0.0",
+ net.bluemind.calendar.hook,
+ net.bluemind.calendar.hook.ics,
+ net.bluemind.core.sendmail,
+ net.bluemind.videoconferencing.api,
+ net.bluemind.resource.api,
+ org.apache.james.apache-mime4j-core,
+ net.bluemind.calendar.helper
 Automatic-Module-Name: net.bluemind.calendar.hook.ics.tests

@@ -19,76 +19,107 @@
 package net.bluemind.calendar.hook;
 
 import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import org.slf4j.LoggerFactory;
 
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.RRule;
 
 public class VEventUtil {
 
+	public static enum EventChanges {
+		EVENT, URL, CONFERENCE, SUMMARY, RRULE, PRIORITY, LOCATION, DESCRIPTION, DTSTART, DTEND, TRANSPARENCY,
+		CLASSIFICATION, ATTACHMENTS, ATTENDEES
+	}
+
 	public static <T extends VEvent> boolean eventChanged(T oldEvent, T newEvent) {
+		return !eventChanges(oldEvent, newEvent).isEmpty();
+	}
+
+	public static <T extends VEvent> EnumSet<EventChanges> eventChanges(T oldEvent, T newEvent) {
+
+		EnumSet<EventChanges> changes = EnumSet.noneOf(EventChanges.class);
 
 		if (oldEvent == null && newEvent != null || oldEvent != null && newEvent == null) {
-			return true;
+			LoggerFactory.getLogger(VEventUtil.class).info("CH 1");
+			changes.add(EventChanges.EVENT);
+			return changes;
 		}
 
 		if (oldEvent == null && newEvent == null) {
-			return false;
+			changes.add(EventChanges.EVENT);
+			return changes;
 		}
 
 		if (changed(oldEvent.sequence, newEvent.sequence)) {
-			return true;
+			changes.add(EventChanges.EVENT);
+		}
+
+		Set<ICalendarElement.Attendee> attendeesDiff = new HashSet<>(
+				ICalendarElement.diff(oldEvent.attendees, newEvent.attendees));
+		if (!attendeesDiff.isEmpty()) {
+			changes.add(EventChanges.ATTENDEES);
+		}
+
+		attendeesDiff = new HashSet<>(ICalendarElement.diff(newEvent.attendees, oldEvent.attendees));
+		if (!attendeesDiff.isEmpty()) {
+			changes.add(EventChanges.ATTENDEES);
 		}
 
 		if (changed(oldEvent.url, newEvent.url)) {
-			return true;
+			changes.add(EventChanges.URL);
 		}
 
 		if (changed(oldEvent.conference, newEvent.conference)) {
-			return true;
+			changes.add(EventChanges.CONFERENCE);
 		}
 
 		if (changed(oldEvent.summary, newEvent.summary)) {
-			return true;
+			changes.add(EventChanges.SUMMARY);
 		}
 
 		if (rRuleChanged(oldEvent.rrule, newEvent.rrule)) {
-			return true;
+			changes.add(EventChanges.RRULE);
 		}
 
 		if (changed(oldEvent.priority, newEvent.priority)) {
-			return true;
+			changes.add(EventChanges.PRIORITY);
 		}
 
 		if (changed(oldEvent.location, newEvent.location)) {
-			return true;
+			changes.add(EventChanges.LOCATION);
 		}
 
 		if (changed(oldEvent.description, newEvent.description)) {
-			return true;
+			changes.add(EventChanges.DESCRIPTION);
 		}
 
 		if (changed(oldEvent.dtstart, newEvent.dtstart)) {
-			return true;
+			changes.add(EventChanges.DTSTART);
 		}
 
 		if (changed(oldEvent.dtend, newEvent.dtend)) {
-			return true;
+			changes.add(EventChanges.DTEND);
 		}
 
 		if (changed(oldEvent.transparency, newEvent.transparency)) {
-			return true;
+			changes.add(EventChanges.TRANSPARENCY);
 		}
 
 		if (changed(oldEvent.classification, newEvent.classification)) {
-			return true;
+			changes.add(EventChanges.CLASSIFICATION);
 		}
 
 		if (listChanged(oldEvent.attachments, newEvent.attachments)) {
-			return true;
+			changes.add(EventChanges.ATTACHMENTS);
 		}
 
-		return false;
+		return changes;
 	}
 
 	private static boolean rRuleChanged(RRule rule1, RRule rule2) {

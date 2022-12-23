@@ -74,6 +74,11 @@ h2 {
   font-size: medium;
 }
 
+.old_date {
+  color: #2D2D2D;
+  font-size: smaller;
+}
+
 .tz {
   font-size: smaller;
   font-style: italic;
