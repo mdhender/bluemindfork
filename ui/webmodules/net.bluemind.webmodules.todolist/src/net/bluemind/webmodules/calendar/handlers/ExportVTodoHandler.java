@@ -21,20 +21,17 @@ package net.bluemind.webmodules.calendar.handlers;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
-import net.bluemind.core.container.api.IContainersPromise;
-import net.bluemind.core.rest.http.HttpClientProvider;
-import net.bluemind.core.rest.http.VertxPromiseServiceProvider;
-import net.bluemind.todolist.api.IVTodoPromise;
+import net.bluemind.todolist.api.IVTodo;
 import net.bluemind.webmodule.server.NeedVertx;
 import net.bluemind.webmodule.server.export.ExportHelper;
 
 public class ExportVTodoHandler implements Handler<HttpServerRequest>, NeedVertx {
 
-	private HttpClientProvider prov;
+	private Vertx vertx;
 
 	@Override
 	public void setVertx(Vertx vertx) {
-		prov = new HttpClientProvider(vertx);
+		this.vertx = vertx;
 	}
 
 	@Override
@@ -42,17 +39,8 @@ public class ExportVTodoHandler implements Handler<HttpServerRequest>, NeedVertx
 		String container = request.params().get("containerUid");
 		String sessionId = request.headers().get("BMSessionId");
 
-		final VertxPromiseServiceProvider clientProvider = new VertxPromiseServiceProvider(prov, ExportHelper.locator(),
-				sessionId);
-
-		IContainersPromise icp = clientProvider.instance(IContainersPromise.class);
-		IVTodoPromise ivep = clientProvider.instance(IVTodoPromise.class, container);
-
-		icp.get(container).thenCombine(ivep.exportAll(),
-				(containerDescriptor, ics) -> ExportHelper.setResponse(request, "vtodo", containerDescriptor, ics))
-				.exceptionally(e -> {
-					return ExportHelper.error(request.response(), container, e);
-				});
+		ExportHelper.export(vertx, sessionId, request, "vtodo", container,
+				client -> client.instance(IVTodo.class, container).exportAll());
 	}
 
 }
