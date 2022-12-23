@@ -39,6 +39,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -50,6 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 
@@ -72,6 +74,8 @@ import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.api.utils.PartsWalker;
 import net.bluemind.backend.mail.parsing.Bodies;
 import net.bluemind.backend.mail.parsing.EmlBuilder;
+import net.bluemind.backend.mail.replica.api.AppendTx;
+import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.IMailboxRecordExpunged;
@@ -83,7 +87,6 @@ import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namesp
 import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
-import net.bluemind.backend.mail.replica.persistence.RecordID;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore.SubtreeLocation;
 import net.bluemind.backend.mail.replica.service.ReplicationEvents;
@@ -110,7 +113,6 @@ import net.bluemind.core.utils.ThreadContextHelper;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
-import net.bluemind.imap.TaggedResult;
 import net.bluemind.imap.vertx.stream.EmptyStream;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mime4j.common.Mime4JHelper;
@@ -127,6 +129,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	private final ImapContext imapContext;
 	private final Namespace namespace;
 	private final MessageBodyStore bodyStore;
+	private final Supplier<IDbMailboxRecords> writeDelegate;
+	private final Supplier<IDbByContainerReplicatedMailboxes> foldersWriteDelegate;
 
 	public ImapMailboxRecordsService(DataSource ds, Container cont, BmContext context, String mailboxUniqueId,
 			MailboxRecordStore recordStore, ContainerStoreService<MailboxRecord> storeService) {
@@ -141,6 +145,10 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		logger.debug("imapContext {}, namespace {}, subtree {}", imapContext, namespace, recordsLocation);
 
 		bodyStore = new MessageBodyStore(ds);
+		this.writeDelegate = Suppliers
+				.memoize(() -> context.provider().instance(IDbMailboxRecords.class, mailboxUniqueId));
+		this.foldersWriteDelegate = Suppliers.memoize(() -> context.provider()
+				.instance(IDbByContainerReplicatedMailboxes.class, recordsLocation.subtreeContainer));
 	}
 
 	public String imapFolder() {
@@ -186,15 +194,14 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	@Override
 	public void expunge() {
-		IDbMailboxRecords writeDelegate = context.provider().instance(IDbMailboxRecords.class, container.uid);
-		List<Long> toExpunge = writeDelegate.imapIdSet("1:*", "+deleted");
+		IDbMailboxRecords writer = writeDelegate.get();
+		List<Long> toExpunge = writer.imapIdSet("1:*", "+deleted");
 		for (List<Long> slice : Lists.partition(toExpunge, 1024)) {
-			List<MailboxRecord> recs = writeDelegate.slice(slice).stream().map(iv -> iv.value)
-					.collect(Collectors.toList());// NOSONAR
+			List<MailboxRecord> recs = writer.slice(slice).stream().map(iv -> iv.value).collect(Collectors.toList());// NOSONAR
 			for (MailboxRecord item : recs) {
 				item.internalFlags.add(InternalFlag.expunged);
 			}
-			writeDelegate.updates(recs);
+			writer.updates(recs);
 		}
 		logger.info("Expunged {} record(s)", toExpunge.size());
 	}
@@ -226,9 +233,11 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		if (subjectChanged || headersChanged) {
 			return mailRewrite(current, mail);
 		} else if (flagsChanged) {
-			String[] flagNames = mail.flags.stream().map(f -> f.flag).toArray(String[]::new);
-			Ack ack = overwriteFlagsImapCommand(Arrays.asList(Long.toString(mail.imapUid)), flagNames);
-			return ImapAck.create(ack.version, mail.imapUid);
+			IDbMailboxRecords writer = writeDelegate.get();
+			MailboxRecord toUpd = writer.getCompleteById(id).value;
+			toUpd.flags = mail.flags;
+			Ack updAck = writer.updates(Collections.singletonList(toUpd));
+			return ImapAck.create(updAck.version, toUpd.imapUid);
 		} else {
 			logger.warn("Subject/Headers/Flags did not change, doing nothing on {} {}.", id, mail);
 			return ImapAck.create(current.version, mail.imapUid);
@@ -499,35 +508,16 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			throw ServerFault.notFound("itemId " + itemId + " not found for unexpunge");
 		}
 
-		long imapUid = item.value.imapUid;
-		InputStream directRead = fetchCompleteOIO(imapUid);
-		CompletableFuture<Long> completion = ReplicationEvents.onMailboxChanged(mailboxUniqueId);
-		int readded = imapContext.withImapClient(sc -> {
-			int newUid = sc.append(imapFolder, directRead, new FlagsList());
-			logger.debug("Previous body re-injected in {} with imapUid {}", imapFolder, newUid);
-			return newUid;
-		});
-		if (readded > 0) {
-			try {
-				return completion.thenApply(version -> {
-					try {
-						RecordID itemRec = recordStore.identifiers(readded).iterator().next();
-						IMailboxRecordExpunged expungeApi = context.provider()
-								.instance(IMailboxRecordExpunged.class, IMailReplicaUids.uniqueId(container.uid));
-						expungeApi.delete(itemId);
-						return new ItemIdentifier(null, itemRec.itemId, version);
-					} catch (SQLException e) {
-						throw ServerFault.sqlFault(e);
-					}
-				}).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
-			} catch (TimeoutException e) {
-				throw new ServerFault(e.getMessage(), ErrorCode.TIMEOUT);
-			} catch (Exception e) {
-				throw new ServerFault(e);
-			}
-		} else {
-			throw new ServerFault("Failed to re-add message " + item);
-		}
+		AppendTx unexpTx = foldersWriteDelegate.get().prepareAppend(container.id, 1);
+		MailboxRecord freshRec = item.value.copy();
+		freshRec.imapUid = unexpTx.imapUid;
+		Long itemRec = writeDelegate.get().create(unexpTx.imapUid + ".", freshRec);
+		ItemValue<MailboxItem> fullFresh = getCompleteById(itemRec);
+		IMailboxRecordExpunged expungeApi = context.provider().instance(IMailboxRecordExpunged.class,
+				IMailReplicaUids.uniqueId(container.uid));
+		expungeApi.delete(itemId);
+		return fullFresh.identifier();
+
 	}
 
 	@Override
@@ -646,45 +636,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		return new File(Bodies.getFolder(sid), partId + ".part");
 	}
 
-	private Ack doImapCommand(String imapCommand) {
-		CompletableFuture<Long> repEvent = ReplicationEvents.onMailboxChanged(mailboxUniqueId);
-		boolean imapCommandOk = imapContext.withImapClient(sc -> {
-			boolean select = sc.select(imapFolder);
-			if (!select) {
-				logger.error("Failed to select '{}'? IMAP command {}", imapFolder, imapCommand);
-				return false;
-			}
-			TaggedResult result = sc.tagged(imapCommand);
-			logger.debug("{}, Unseen updates ok ? {}", imapCommand, result.isOk());
-			if (!result.isOk()) {
-				logger.error("'{}' failed", imapCommand);
-				for (int i = 0; i < result.getOutput().length; i++) {
-					logger.error("  * {}", result.getOutput()[i]);
-				}
-				return false;
-			}
-			return true;
-		});
-		try {
-			Long v = repEvent.get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
-			return Ack.create(v);
-		} catch (TimeoutException e) {
-			if (!imapCommandOk) {
-				throw new ServerFault(
-						"TimeOut running '" + imapCommand + "' in folder " + imapFolder + " for " + imapContext.latd,
-						ErrorCode.TIMEOUT);
-			}
-
-			logger.warn(
-					"No event received from replication for imap command '{}' on mailbox {}. Should resync mail items on DB",
-					imapCommand, mailboxUniqueId);
-
-			return Ack.create(getVersion());
-		} catch (Exception e) {
-			throw new ServerFault(e);
-		}
-	}
-
 	@Override
 	public List<Long> unreadItems() {
 		rbac.check(Verb.Read.name());
@@ -744,12 +695,12 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	private Ack touchFlag(FlagUpdate target, FlagOperation op) {
 		rbac.check(Verb.Write.name());
 
-		IDbMailboxRecords writeDelegate = context.provider().instance(IDbMailboxRecords.class, mailboxUniqueId);
-		List<WithId<MailboxRecord>> slice = writeDelegate.slice(target.itemsId);
+		IDbMailboxRecords writer = writeDelegate.get();
+		List<WithId<MailboxRecord>> slice = writer.slice(target.itemsId);
 		if (slice.isEmpty()) {
 			return Ack.create(0);
 		}
-		return writeDelegate.updates(slice.stream().map(op::touchFlags).toList());
+		return writer.updates(slice.stream().map(op::touchFlags).toList());
 	}
 
 	@Override
@@ -759,20 +710,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			rec.value.flags.remove(flagUpdate.mailboxItemFlag);
 			return rec.value;
 		});
-	}
-
-	private Ack updateFlagsImapCommand(String prefix, List<String> imapUids, String... flags) {
-		if (imapUids.isEmpty()) {
-			return Ack.create(0L);
-		}
-		StringBuilder cmd = new StringBuilder("UID STORE ");
-		cmd.append(String.join(",", imapUids) + " ");
-		cmd.append(prefix + "FLAGS.SILENT (" + String.join(" ", flags) + ")");
-		return doImapCommand(cmd.toString());
-	}
-
-	private Ack overwriteFlagsImapCommand(List<String> imapUids, String... flags) {
-		return updateFlagsImapCommand("", imapUids, flags);
 	}
 
 	@Override

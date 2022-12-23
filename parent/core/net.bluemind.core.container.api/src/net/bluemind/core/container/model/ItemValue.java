@@ -98,6 +98,14 @@ public class ItemValue<T> {
 		return item;
 	}
 
+	public ItemIdentifier identifier() {
+		return ItemIdentifier.of(uid, internalId, version);
+	}
+
+	public ItemVersion itemVersion() {
+		return new ItemVersion(internalId, version);
+	}
+
 	@Override
 	public String toString() {
 		return "ItemValue{uid: " + uid + ", id: " + internalId + ", extId: " + externalId + ", dn: " + displayName
