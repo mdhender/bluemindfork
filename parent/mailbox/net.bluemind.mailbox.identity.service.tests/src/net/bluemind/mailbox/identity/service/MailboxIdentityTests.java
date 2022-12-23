@@ -64,7 +64,6 @@ import net.bluemind.mailbox.identity.api.IMailboxIdentity;
 import net.bluemind.mailbox.identity.api.Identity;
 import net.bluemind.mailbox.identity.api.IdentityDescription;
 import net.bluemind.mailbox.identity.api.SignatureFormat;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
@@ -83,6 +82,8 @@ public class MailboxIdentityTests {
 
 	@Before
 	public void before() throws Exception {
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+
 		JdbcTestHelper.getInstance().beforeTest();
 
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
@@ -94,19 +95,18 @@ public class MailboxIdentityTests {
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		esServer.tags = Lists.newArrayList("bm/es");
 
-		String cyrusIp = new BmConfIni().get("imap-role");
-		Server imapServer = new Server();
-		imapServer.ip = cyrusIp;
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
-		PopulateHelper.initGlobalVirt(esServer, imapServer);
+		PopulateHelper.initGlobalVirt(esServer, pipo);
 
-		PopulateHelper.createTestDomain(domainUid, esServer, imapServer);
+		PopulateHelper.createTestDomain(domainUid, esServer, pipo);
 
 		IServer serverService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,
 				InstallationId.getIdentifier());
 
-		ItemValue<Server> dataLocation = serverService.getComplete(cyrusIp);
+		ItemValue<Server> dataLocation = serverService.getComplete(PopulateHelper.FAKE_CYRUS_IP);
 
 		testContext = new BmTestContext(SecurityContext.SYSTEM);
 		User user = new User();

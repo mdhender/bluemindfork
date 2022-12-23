@@ -19,7 +19,6 @@ package net.bluemind.user.service;
 
 import static org.junit.Assert.fail;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,9 +28,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
-
-import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcTestHelper;
@@ -42,7 +38,6 @@ import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.User;
@@ -57,24 +52,21 @@ public class MaxUsersHookTests {
 
 	@Before
 	public void before() throws Exception {
+
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+
 		domainUid = "bm.lan";
 
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
-		String cyrusIp = new BmConfIni().get("imap-role");
-		Server imapServer = new Server();
-		imapServer.ip = cyrusIp;
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
-		PopulateHelper.initGlobalVirt(imapServer);
-		PopulateHelper.createTestDomain(domainUid, imapServer);
-
-		// create domain parititon on cyrus
-		new CyrusService(cyrusIp).createPartition(domainUid);
-		new CyrusService(cyrusIp).refreshPartitions(Arrays.asList(domainUid));
-		new CyrusService(cyrusIp).reload();
+		PopulateHelper.initGlobalVirt(pipo);
+		PopulateHelper.createTestDomain(domainUid, pipo);
 
 		context = new BmTestContext(SecurityContext.SYSTEM);
 		settingsService = ServerSideServiceProvider.getProvider(context).instance(IDomainSettings.class, domainUid);

@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.transport.socket.SocketConnector;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
@@ -72,7 +73,7 @@ public class StoreClient implements AutoCloseable {
 	}
 
 	public StoreClient(ITagProducer tp, String hostname, int port, String login, String password) {
-		this(tp, hostname, port, login, password, 60 * 60);
+		this(tp, hostname, port, login, password, (int) TimeUnit.HOURS.toSeconds(1));
 	}
 
 	public StoreClient(ITagProducer tp, String hostname, int port, String login, String password, int timeoutSecs) {

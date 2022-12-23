@@ -59,7 +59,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 
 import net.bluemind.addressbook.api.VCard;
@@ -109,7 +108,6 @@ import net.bluemind.icalendar.api.ICalendarElement.Role;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.service.internal.MailboxStoreService;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.resource.api.IResources;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.server.api.IServer;
@@ -155,17 +153,17 @@ public class IcsHookTests {
 		// esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		// esServer.tags = Lists.newArrayList("bm/es");
 
-		Server imapServer = new Server();
-		imapServer.ip = new BmConfIni().get("imap-role");
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
-		PopulateHelper.initGlobalVirt(imapServer);
+		PopulateHelper.initGlobalVirt(pipo);
 
 		ItemValue<Server> dataLocation = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IServer.class, InstallationId.getIdentifier()).getComplete(imapServer.ip);
+				.instance(IServer.class, InstallationId.getIdentifier()).getComplete(PopulateHelper.FAKE_CYRUS_IP);
 
 		containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM);
-		initDomain(dataLocation, imapServer);
+		initDomain(dataLocation, pipo);
 	}
 
 	private void initDomain(ItemValue<Server> dataLocation, Server... servers) throws Exception {

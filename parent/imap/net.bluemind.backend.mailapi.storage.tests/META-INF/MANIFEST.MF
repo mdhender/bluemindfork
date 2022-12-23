@@ -34,7 +34,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.rest.http.vertx,
  net.bluemind.system.api,
  net.bluemind.system.state,
- net.bluemind.sds.store.cyrusspool,
  net.bluemind.imap.endpoint,
  net.bluemind.delivery.conversationreference.service,
  net.bluemind.delivery.conversationreference.sqlschema

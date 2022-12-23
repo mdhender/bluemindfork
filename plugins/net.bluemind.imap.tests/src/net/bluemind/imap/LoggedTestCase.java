@@ -18,29 +18,103 @@
  */
 package net.bluemind.imap;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
-public abstract class LoggedTestCase extends IMAPTestCase {
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 
-	protected StoreClient sc;
+import com.google.common.collect.Lists;
 
-	public void setUp() {
-		sc = newStore(false);
+import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
+import net.bluemind.core.jdbc.JdbcActivator;
+import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.server.api.Server;
+import net.bluemind.tests.defaultdata.PopulateHelper;
+
+public abstract class LoggedTestCase {
+
+	private static final int PORT = 1143;
+	protected String domainUid;
+	protected String loginUid;
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + "," + PopulateHelper.FAKE_CYRUS_IP_2);
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + "," + PopulateHelper.FAKE_CYRUS_IP_2);
+		System.setProperty("ahcnode.fail.https.ok", "true");
+	}
+
+	@AfterClass
+	public static void afterClass() {
+		System.clearProperty("node.local.ipaddr");
+		System.clearProperty("imap.local.ipaddr");
+		System.clearProperty("ahcnode.fail.https.ok");
+	}
+
+	@Before
+	public void setUp() throws Exception {
+		JdbcTestHelper.getInstance().beforeTest();
+
+		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
+
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
+
+		Server esServer = new Server();
+		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
+		System.out.println("ES is " + esServer.ip);
+		esServer.tags = Lists.newArrayList("bm/es");
+
+		Server pipo = new Server();
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
+		pipo.tags = Lists.newArrayList("mail/imap");
+
+		PopulateHelper.initGlobalVirt(pipo, esServer);
+		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.none);
+		ElasticsearchTestHelper.getInstance().beforeTest();
+
+		domainUid = "test.devenv";
+		loginUid = "user" + System.currentTimeMillis();
+		PopulateHelper.addDomain(domainUid);
+		PopulateHelper.addUser(loginUid, domainUid);
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		System.err.println("===== AFTER starts =====");
+		JdbcTestHelper.getInstance().afterTest();
+		ElasticsearchTestHelper.getInstance().afterTest();
+		System.err.println("===== AFTER ends =====");
 	}
 
 	protected StoreClient newStore(boolean tls) {
-		StoreClient store = new StoreClient(cyrusIp, 1143, testLogin, testPass);
+		StoreClient store = new StoreClient("127.0.0.1", PORT, loginUid + "@" + domainUid, loginUid);
 		boolean login = store.login(tls);
+		assertTrue(login);
 		if (!login) {
-			fail("login failed for " + login + " / " + testPass);
+			fail("login failed for " + login + " / " + loginUid);
 		}
 		return store;
 	}
 
-	public void tearDown() {
-		sc.logout();
+	protected StoreClient newStore(boolean tls, int timeoutsecs) {
+		StoreClient store = new StoreClient("127.0.0.1", PORT, loginUid + "@" + domainUid, loginUid,
+				(int) TimeUnit.SECONDS.toSeconds(timeoutsecs));
+		boolean login = store.login(tls);
+		assertTrue(login);
+		if (!login) {
+			fail("login failed for " + login + " / " + loginUid);
+		}
+		return store;
 	}
 
 	public InputStream getRfc822Message() {

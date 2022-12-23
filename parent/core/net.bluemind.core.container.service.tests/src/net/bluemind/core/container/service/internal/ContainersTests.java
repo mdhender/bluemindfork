@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,16 +75,17 @@ public class ContainersTests {
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 
 		BmConfIni ini = new BmConfIni();
-		Server cyrus = new Server();
-		cyrus.ip = ini.get("imap-role");
-		cyrus.tags = Arrays.asList(TagDescriptor.mail_imap.getTag());
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
+
 		Server pg = new Server();
 		pg.tags = Arrays.asList(TagDescriptor.bm_pgsql_data.getTag());
 		pg.ip = ini.get("bluemind/postgres-tests");
 
-		PopulateHelper.initGlobalVirt(cyrus, pg);
+		PopulateHelper.initGlobalVirt(pipo, pg);
 		domainUid = "bmtest.lan";
-		PopulateHelper.createTestDomain(domainUid, cyrus, pg);
+		PopulateHelper.createTestDomain(domainUid, pipo, pg);
 		PopulateHelper.addUser("test", domainUid);
 
 		admin0SecurityContext = new SecurityContext(Token.admin0(), "admin0", Arrays.<String>asList(),

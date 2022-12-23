@@ -20,6 +20,7 @@ package net.bluemind.mailbox.service.internal.repair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
@@ -31,8 +32,6 @@ import com.google.common.collect.Lists;
 
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
-import net.bluemind.backend.cyrus.CyrusAdmins;
-import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
@@ -74,7 +73,7 @@ public abstract class AbstractRepairTests {
 	protected String domainUid;
 
 	protected Server smtpServer;
-	protected Server imapServer;
+	protected Server pipo;
 	protected Server imapServerNotAssigned;
 
 	protected DirEntryStore dirEntryStore;
@@ -85,6 +84,8 @@ public abstract class AbstractRepairTests {
 
 	@Before
 	public void before() throws Exception {
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+
 		JdbcTestHelper.getInstance().beforeTest();
 
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
@@ -96,32 +97,24 @@ public abstract class AbstractRepairTests {
 		smtpServer.ip = new BmConfIni().get("smtp-role");
 		smtpServer.tags = Lists.newArrayList("mail/smtp");
 
-		imapServer = new Server();
-		imapServer.ip = new BmConfIni().get("imap-role");
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		imapServerNotAssigned = new Server();
 		imapServerNotAssigned.ip = "3.3.3.3";
 		imapServerNotAssigned.tags = Lists.newArrayList("mail/imap");
 
-		PopulateHelper.initGlobalVirt(smtpServer, imapServer, imapServerNotAssigned);
+		PopulateHelper.initGlobalVirt(smtpServer, pipo, imapServerNotAssigned);
 
-		PopulateHelper.createTestDomain(domainUid, smtpServer, imapServer);
-
-		// create domain parititon on cyrus
-		new CyrusService(imapServer.ip).createPartition(domainUid);
-		new CyrusService(imapServer.ip).refreshPartitions(Arrays.asList(domainUid));
-		new CyrusAdmins(
-				ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class, "default"),
-				imapServer.ip).write();
-		new CyrusService(imapServer.ip).reload();
+		PopulateHelper.createTestDomain(domainUid, smtpServer, pipo);
 
 		testUserUid = PopulateHelper.addUser("testuser" + System.currentTimeMillis(), domainUid);
 
 		IServer serverService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,
 				InstallationId.getIdentifier());
 
-		dataLocation = serverService.getComplete(imapServer.ip);
+		dataLocation = serverService.getComplete(PopulateHelper.FAKE_CYRUS_IP);
 
 		defaultSecurityContext = BmTestContext
 				.contextWithSession("admin", "admin", domainUid, SecurityContext.ROLE_ADMIN,

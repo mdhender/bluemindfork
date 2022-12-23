@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -36,8 +37,6 @@ import com.google.common.collect.Lists;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.addressbook.domainbook.IDomainAddressBook;
-import net.bluemind.backend.cyrus.CyrusAdmins;
-import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.calendar.api.CalendarLookupResponse;
 import net.bluemind.calendar.api.ICalendarAutocomplete;
 import net.bluemind.calendar.api.ICalendarUids;
@@ -54,7 +53,6 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.group.api.Group;
@@ -62,9 +60,7 @@ import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.role.api.BasicRoles;
-import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
@@ -91,13 +87,11 @@ public class CalendarAutocompleteServiceTests {
 		esServer.tags = Lists.newArrayList("bm/es");
 
 		this.imapServer = new Server();
-		imapServer.ip = new BmConfIni().get("imap-role");
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		imapServer.tags = Collections.singletonList("mail/imap");
+		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		PopulateHelper.initGlobalVirt(esServer, imapServer);
 		PopulateHelper.createTestDomain(DOMAIN, esServer, imapServer);
-
-		this.createCyrusPartition(imapServer, DOMAIN);
 
 		PopulateHelper.addUser("test", DOMAIN);
 		defaultSecurityContext = new SecurityContext("testUser", "test", Arrays.<String>asList(),
@@ -128,16 +122,6 @@ public class CalendarAutocompleteServiceTests {
 				JdbcTestHelper.getInstance().getDataSource(), dirContainerStore.get(DOMAIN));
 
 		userSubscriptionStore.subscribe(defaultSecurityContext.getSubject(), container);
-	}
-
-	private void createCyrusPartition(final Server imapServer, final String domainUid) {
-		final CyrusService cyrusService = new CyrusService(imapServer.ip);
-		cyrusService.createPartition(domainUid);
-		cyrusService.refreshPartitions(Arrays.asList(domainUid));
-		new CyrusAdmins(
-				ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class, "default"),
-				imapServer.ip).write();
-		cyrusService.reload();
 	}
 
 	protected Container createTestContainer(String uid, String name, Verb verb, boolean isDefault) throws Exception {

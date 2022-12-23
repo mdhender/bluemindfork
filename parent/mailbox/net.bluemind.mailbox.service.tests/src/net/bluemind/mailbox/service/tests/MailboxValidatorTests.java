@@ -106,7 +106,7 @@ public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 		}
 
 		mailshare.routing = Mailbox.Routing.internal;
-		mailshare.dataLocation = imapServer.address();
+		mailshare.dataLocation = pipo.ip;
 		validator.validate(mailshare, uid);
 	}
 
@@ -139,7 +139,7 @@ public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 		Mailbox mailshare = new Mailbox();
 		mailshare.type = Type.mailshare;
 		mailshare.routing = Mailbox.Routing.internal;
-		mailshare.dataLocation = imapServer.address();
+		mailshare.dataLocation = pipo.ip;
 		mailshare.name = "mailshare1";
 		mailshare.emails = new ArrayList<Email>();
 		mailshare.emails.add(email);
@@ -173,7 +173,7 @@ public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 		Mailbox mailshare = new Mailbox();
 		mailshare.type = Type.mailshare;
 		mailshare.routing = Mailbox.Routing.internal;
-		mailshare.dataLocation = imapServer.address();
+		mailshare.dataLocation = pipo.ip;
 		mailshare.name = "mailshare";
 		mailshare.emails = new ArrayList<Email>();
 		mailshare.emails.add(email);
@@ -205,7 +205,7 @@ public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 		Mailbox mailshare = new Mailbox();
 		mailshare.type = Type.mailshare;
 		mailshare.routing = Mailbox.Routing.internal;
-		mailshare.dataLocation = imapServer.address();
+		mailshare.dataLocation = pipo.ip;
 
 		ErrorCode err = null;
 		String uid = UUID.randomUUID().toString();
@@ -287,10 +287,10 @@ public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 
 		try {
 			validator.validate(mailbox, uid);
-			fail("Test must trhown an exception");
+			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
-			assertTrue(sf.getMessage().endsWith(mailbox.dataLocation + " must exist"));
+			assertTrue(sf.getMessage().contains(mailbox.dataLocation + " must exist"));
 		}
 	}
 
@@ -340,7 +340,7 @@ public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 		Mailbox mailshare = new Mailbox();
 		mailshare.type = Type.mailshare;
 		mailshare.routing = Mailbox.Routing.internal;
-		mailshare.dataLocation = imapServer.address();
+		mailshare.dataLocation = pipo.ip;
 		mailshare.name = "mailshare";
 		mailshare.emails = new ArrayList<Email>();
 		mailshare.emails.add(email1);
@@ -364,7 +364,7 @@ public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 		Mailbox mailshare = new Mailbox();
 		mailshare.type = Type.mailshare;
 		mailshare.routing = Mailbox.Routing.internal;
-		mailshare.dataLocation = imapServer.address();
+		mailshare.dataLocation = pipo.ip;
 		mailshare.name = "mailshare";
 		mailshare.emails = new ArrayList<Email>();
 		mailshare.emails.add(email1);
@@ -390,7 +390,7 @@ public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 		Mailbox mailshare = new Mailbox();
 		mailshare.type = Type.mailshare;
 		mailshare.routing = Mailbox.Routing.internal;
-		mailshare.dataLocation = imapServer.address();
+		mailshare.dataLocation = pipo.ip;
 		mailshare.name = "mailshare";
 		mailshare.emails = new ArrayList<Email>();
 		mailshare.emails.add(email1);
@@ -412,7 +412,7 @@ public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 		Mailbox mailshare = new Mailbox();
 		mailshare.type = Type.user;
 		mailshare.routing = Mailbox.Routing.internal;
-		mailshare.dataLocation = imapServer.address();
+		mailshare.dataLocation = pipo.ip;
 		mailshare.name = "mailshare";
 		mailshare.emails = new ArrayList<Email>();
 		try {
@@ -428,7 +428,7 @@ public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 		Mailbox mailshare = new Mailbox();
 		mailshare.type = Type.user;
 		mailshare.routing = Mailbox.Routing.none;
-		mailshare.dataLocation = imapServer.address();
+		mailshare.dataLocation = pipo.ip;
 		mailshare.name = "mailshare";
 		mailshare.emails = new ArrayList<Email>();
 
@@ -445,7 +445,7 @@ public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 		Mailbox mailshare = new Mailbox();
 		mailshare.type = Type.mailshare;
 		mailshare.routing = Mailbox.Routing.internal;
-		mailshare.dataLocation = imapServer.address();
+		mailshare.dataLocation = pipo.ip;
 		mailshare.name = "mailshare";
 		mailshare.emails = new ArrayList<Email>();
 		try {
@@ -460,7 +460,7 @@ public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 		Mailbox mbox = new Mailbox();
 		mbox.type = Type.mailshare;
 		mbox.routing = Mailbox.Routing.external;
-		mbox.dataLocation = imapServer.address();
+		mbox.dataLocation = pipo.ip;
 		mbox.name = "mailshare";
 		try {
 			validator.validate(mbox, UUID.randomUUID().toString());
@@ -474,7 +474,7 @@ public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 		Mailbox mbox = new Mailbox();
 		mbox.type = Type.mailshare;
 		mbox.routing = Mailbox.Routing.external;
-		mbox.dataLocation = imapServer.address();
+		mbox.dataLocation = pipo.ip;
 		mbox.name = "mailshare";
 
 		IDomainSettings domSettingsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
@@ -495,7 +495,7 @@ public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 		Mailbox mbox = new Mailbox();
 		mbox.type = Type.user;
 		mbox.routing = Mailbox.Routing.none;
-		mbox.dataLocation = imapServer.address();
+		mbox.dataLocation = pipo.ip;
 		mbox.emails = new ArrayList<Email>();
 		mbox.name = "bang";
 		mbox.quota = 31;
@@ -519,7 +519,7 @@ public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 		Mailbox mbox = new Mailbox();
 		mbox.type = Type.user;
 		mbox.routing = Mailbox.Routing.none;
-		mbox.dataLocation = imapServer.address();
+		mbox.dataLocation = pipo.ip;
 		mbox.emails = new ArrayList<Email>();
 		mbox.name = "bang";
 		mbox.quota = 31;
@@ -542,7 +542,7 @@ public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 		Mailbox mbox = new Mailbox();
 		mbox.type = Type.user;
 		mbox.routing = Mailbox.Routing.none;
-		mbox.dataLocation = imapServer.address();
+		mbox.dataLocation = pipo.ip;
 		mbox.emails = new ArrayList<Email>();
 		mbox.name = "bang";
 		mbox.quota = 42;
@@ -581,7 +581,7 @@ public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 		Mailbox mbox = new Mailbox();
 		mbox.type = Type.mailshare;
 		mbox.routing = Mailbox.Routing.none;
-		mbox.dataLocation = imapServer.address();
+		mbox.dataLocation = pipo.ip;
 		mbox.emails = new ArrayList<Email>();
 		mbox.name = "bang";
 		mbox.quota = 31;
@@ -604,7 +604,7 @@ public class MailboxValidatorTests extends AbstractMailboxServiceTests {
 		Mailbox mbox = new Mailbox();
 		mbox.type = Type.mailshare;
 		mbox.routing = Mailbox.Routing.none;
-		mbox.dataLocation = imapServer.address();
+		mbox.dataLocation = pipo.ip;
 		mbox.emails = new ArrayList<Email>();
 		mbox.name = "bang";
 		mbox.quota = 42;

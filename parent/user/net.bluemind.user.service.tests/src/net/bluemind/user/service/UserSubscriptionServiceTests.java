@@ -24,6 +24,7 @@ import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -48,7 +49,6 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.directory.service.DirEntryHandler;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IInternalUserSubscription;
@@ -70,14 +70,13 @@ public class UserSubscriptionServiceTests {
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		esServer.tags = Lists.newArrayList("bm/es");
 
-		String cyrusIp = new BmConfIni().get("imap-role");
-		Server imapServer = new Server();
-		imapServer.ip = cyrusIp;
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		System.out.println(DirEntryHandler.class);
 
-		PopulateHelper.initGlobalVirt(esServer, imapServer);
+		PopulateHelper.initGlobalVirt(esServer, pipo);
 		PopulateHelper.addDomain("bm.lan");
 
 		PopulateHelper.addUser("test", "bm.lan");

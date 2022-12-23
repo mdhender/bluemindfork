@@ -38,13 +38,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
-
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
-import net.bluemind.backend.cyrus.CyrusAdmins;
-import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
@@ -70,7 +66,6 @@ import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.CUType;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.resource.api.IResources;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.resource.api.ResourceDescriptor.PropertyValue;
@@ -115,8 +110,8 @@ public class VEventSeriesSanitizerTests {
 		this.provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 
 		Server imapServer = new Server();
-		imapServer.ip = new BmConfIni().get("imap-role");
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		imapServer.tags = Collections.singletonList("mail/imap");
+		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		PopulateHelper.initGlobalVirt(imapServer);
 		this.dataLocation = this.provider.instance(IServer.class, InstallationId.getIdentifier())
@@ -126,8 +121,6 @@ public class VEventSeriesSanitizerTests {
 				SecurityContext.SYSTEM);
 		this.initDomain(dataLocation, imapServer);
 
-		this.createCyrusPartition(imapServer, this.domainUid);
-
 		final IResourceTemplateHelper resourceTemplateHelper = ResourceTemplateHelpers.getInstance();
 		this.transformedTemplate = resourceTemplateHelper.tagBegin(RESOURCE_ID) + "\n"
 				+ "FR Hello! I am a template mate! John Doe invites you to this wonderful event with the property My Custom Prop One Value and also My Custom Prop Two Value and the even better My Custom Prop Three Value !!! How lucky you!\nThis line should be kept."
@@ -135,16 +128,6 @@ public class VEventSeriesSanitizerTests {
 
 		sanitizer = new VEventSeriesSanitizer(new BmTestContext(Sessions.get().getIfPresent(user.login)),
 				Container.create(UUID.randomUUID().toString(), "calendar", "this is calenddar", user.login));
-	}
-
-	private void createCyrusPartition(final Server imapServer, final String domainUid) {
-		final CyrusService cyrusService = new CyrusService(imapServer.ip);
-		cyrusService.createPartition(domainUid);
-		cyrusService.refreshPartitions(Arrays.asList(domainUid));
-		new CyrusAdmins(
-				ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class, "default"),
-				imapServer.ip).write();
-		cyrusService.reload();
 	}
 
 	/**

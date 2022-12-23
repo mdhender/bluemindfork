@@ -48,6 +48,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import javax.sql.DataSource;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -63,9 +65,7 @@ import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.addressbook.domainbook.DomainAddressBook;
-import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.config.InstallationId;
-import net.bluemind.config.Token;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ErrorCode;
@@ -105,14 +105,10 @@ import net.bluemind.domain.api.IDomains;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.persistence.GroupStore;
 import net.bluemind.group.service.internal.ContainerGroupStoreService;
-import net.bluemind.imap.QuotaInfo;
-import net.bluemind.imap.StoreClient;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
-import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.role.api.DefaultRoles;
 import net.bluemind.role.service.IInternalRoles;
@@ -157,6 +153,8 @@ public class UserServiceTests {
 
 	@Before
 	public void before() throws Exception {
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+
 		JdbcTestHelper.getInstance().beforeTest();
 
 		ElasticsearchTestHelper.getInstance().beforeTest();
@@ -187,18 +185,12 @@ public class UserServiceTests {
 		server.ip = "prec";
 		server.tags = Lists.newArrayList("blue/job", "ur/anus");
 
-		String cyrusIp = new BmConfIni().get("imap-role");
-		Server imapServer = new Server();
-		imapServer.ip = cyrusIp;
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
-		PopulateHelper.initGlobalVirt(esServer, server, imapServer);
-		domain = PopulateHelper.createTestDomain(domainUid, esServer, imapServer);
-
-		// create domain parititon on cyrus
-		new CyrusService(cyrusIp).createPartition(domainUid);
-		new CyrusService(cyrusIp).refreshPartitions(Arrays.asList(domainUid));
-		new CyrusService(cyrusIp).reload();
+		PopulateHelper.initGlobalVirt(esServer, server, pipo);
+		domain = PopulateHelper.createTestDomain(domainUid, esServer, pipo);
 
 		PopulateHelper.addUserWithRoles("useradmin", userAdminSecurityContext.getContainerUid(),
 				BasicRoles.ROLE_MANAGE_USER);
@@ -210,13 +202,18 @@ public class UserServiceTests {
 		PopulateHelper.addOrgUnit(domainUid, "fr", "France", null);
 		PopulateHelper.addOrgUnit(domainUid, "tlse", "Toulouse", "fr");
 		PopulateHelper.addOrgUnit(domainUid, "prs", "Paris", "fr");
+
+		DataSource datasource = JdbcTestHelper.getInstance().getMailboxDataDataSource();
+		assertNotNull(datasource);
+		ServerSideServiceProvider.mailboxDataSource.put("bm-master", datasource);
+
 		userContainer = containerHome.get(domainUid);
 		assertNotNull(userContainer);
 
 		serverService = ServerSideServiceProvider.getProvider(domainAdminSecurityContext).instance(IServer.class,
 				InstallationId.getIdentifier());
 
-		dataLocation = serverService.getComplete(cyrusIp);
+		dataLocation = serverService.getComplete(PopulateHelper.FAKE_CYRUS_IP);
 		System.err.println("srv: " + dataLocation.value.fqdn + ", uid: " + dataLocation.uid);
 
 		userStore = new UserStore(JdbcActivator.getInstance().getDataSource(), containerHome.get(domainUid));
@@ -301,10 +298,9 @@ public class UserServiceTests {
 		assertUserEquals(user, full.value);
 		assertEquals(mailboxCopyGuid, user.mailboxCopyGuid);
 		assertItemEquals(userItem.item(), full.item());
-		// after creation, user item is touched 2 times:
+		// after creation, user item is touched 1 time:
 		// - UserService.createWithItem: setMailboxFilter
-		// - CyrusIdentityHook.refreshCyrusSieve: setMailboxFilter
-		assertEquals(item.version + 2, full.item().version);
+		assertEquals(item.version + 1, full.item().version);
 		assertNotNull(full.value.password);
 		assertNotNull(full.value.passwordLastChange);
 		assertFalse(full.value.passwordMustChange);
@@ -326,7 +322,7 @@ public class UserServiceTests {
 		settings.put("mailbox_default_user_quota", "5000");
 		settingsService.set(settings);
 
-		String login = "test." + System.nanoTime();
+		String login = "user" + System.nanoTime();
 		User user = defaultUser(login);
 		String uid = login;
 		getService(domainAdminSecurityContext).create(uid, user);
@@ -334,12 +330,6 @@ public class UserServiceTests {
 		ItemValue<User> full = userStoreService.get(uid);
 		assertEquals(5000, full.value.quota.intValue());
 
-		ItemValue<Mailbox> mbox = testContext.provider().instance(IMailboxes.class, domainUid).getComplete(uid);
-		try (StoreClient sc = new StoreClient(new BmConfIni().get("imap-role"), 1143, "admin0", Token.admin0())) {
-			sc.login();
-			QuotaInfo quota = sc.quota("user/" + mbox.value.name + "@" + domainUid);
-			assertEquals(quota.getLimit(), 5000);
-		}
 	}
 
 	@Test
@@ -437,13 +427,16 @@ public class UserServiceTests {
 		String login = "test." + System.nanoTime();
 		User user = defaultUser(login);
 		String uid = create(user);
+
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 		VertxEventChecker<JsonObject> eventChecker = new VertxEventChecker<>(
-				AddressBookBusAddresses.getChangedEventAddress(DomainAddressBook.getIdentifier(domainUid)));
+				AddressBookBusAddresses.getChangedEventAddress(DomainAddressBook.getIdentifier(domainUid)), 5000);
+
 		VertxEventChecker<String> syncChecker = new VertxEventChecker<>("domainbook.sync." + domainUid);
 
 		user = getService(domainAdminSecurityContext).getComplete(uid).value;
-
 		eventChecker.shouldSuccess();
+
 		System.err.println("Waiting for sync");
 		syncChecker.shouldSuccess();
 		System.err.println("Got sync");

@@ -21,6 +21,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.cmd.AppendCommand;
+import net.bluemind.imap.endpoint.driver.AppendStatus;
 import net.bluemind.lib.vertx.Result;
 
 /**
@@ -36,12 +37,9 @@ public class AppendProcessor extends AuthenticatedCommandProcessor<AppendCommand
 
 	@Override
 	protected void checkedOperation(AppendCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
-		long uid = ctx.mailbox().append(command.folder(), command.flags(), command.deliveryDate(), command.buffer());
-		if (uid > 0) {
-			ctx.write(command.raw().tag() + " OK [APPENDUID " + uid + "] APPEND completed\r\n");
-		} else {
-			ctx.write(command.raw().tag() + " NO Rejected\r\n");
-		}
+		AppendStatus appendStatus = ctx.mailbox().append(command.folder(), command.flags(), command.deliveryDate(),
+				command.buffer());
+		ctx.write(command.raw().tag() + appendStatus.statusName() + "\r\n");
 		completed.handle(Result.success());
 	}
 

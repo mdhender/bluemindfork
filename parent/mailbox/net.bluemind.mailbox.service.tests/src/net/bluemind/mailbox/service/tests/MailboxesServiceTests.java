@@ -37,8 +37,6 @@ import com.google.common.collect.ImmutableMap;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
-import net.bluemind.authentication.api.IAuthentication;
-import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -59,9 +57,6 @@ import net.bluemind.core.tests.vertx.VertxEventChecker;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.DirEntryQuery;
 import net.bluemind.directory.api.IDirectory;
-import net.bluemind.imap.sieve.SieveClient;
-import net.bluemind.imap.sieve.SieveClient.SieveConnectionData;
-import net.bluemind.imap.sieve.SieveScript;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
@@ -73,7 +68,6 @@ import net.bluemind.mailbox.api.rules.MailFilterRule;
 import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
 import net.bluemind.mailshare.api.IMailshare;
 import net.bluemind.mailshare.api.Mailshare;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -596,47 +590,6 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 				accessControlEntries);
 	}
 
-	// Wait for bmsysadmin PR
-	// @Test
-	// public void testMailshareSieve() throws ServerFault {
-	//
-	// IMailboxes service = getService(defaultSecurityContext);
-	// Mailbox mailshare = defaultMailshare("mailshare");
-	// String uid = UUID.randomUUID().toString();
-	// service.create(uid, mailshare);
-	//
-	// MailFilter.Rule rule = new MailFilter.Rule();
-	// rule.active = true;
-	// rule.criteria = "SUBJECT:IS: SubjectTest";
-	// rule.deliver = "test";
-	//
-	// MailFilter filter = MailFilter.create(rule);
-	//
-	// service.setMailboxFilter(uid, filter);
-	// }
-
-	@Test
-	public void testUserSieve() throws Exception {
-
-		IMailboxes service = getService(defaultSecurityContext);
-
-		MailFilterRule rule = new MailFilterRule();
-		rule.conditions.add(MailFilterRuleCondition.equal("subject", "SubjectTest"));
-		rule.addMove("test");
-
-		MailFilter filter = MailFilter.create(rule);
-
-		service.setMailboxFilter("admin", filter);
-		SieveConnectionData connectionData = new SieveConnectionData("admin@" + domainUid, "admin",
-				new BmConfIni().get("imap-role"));
-		try (SieveClient sc = new SieveClient(connectionData)) {
-			assertTrue(sc.login());
-			List<SieveScript> scripts = sc.listscripts();
-			assertEquals(1, scripts.size());
-		}
-
-	}
-
 	@Test
 	public void testGetAll() throws Exception {
 		IMailboxes service = getService(defaultSecurityContext);
@@ -676,6 +629,8 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 	public void testDomainSieve() throws Exception {
 		IMailboxes service = getService(defaultSecurityContext);
 
+		assertEquals(0, service.getDomainFilter().rules.size());
+
 		MailFilterRule rule = new MailFilterRule();
 		rule.conditions.add(MailFilterRuleCondition.equal("subject", "SubjectTest"));
 		rule.addMove("test");
@@ -683,18 +638,8 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 
 		service.setDomainFilter(filter);
 
-		LoginResponse su = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IAuthentication.class)
-				.su("bmhiddensysadmin@" + domainUid);
-
-		SieveConnectionData connectionData = new SieveConnectionData("bmhiddensysadmin@" + domainUid, su.authKey,
-				new BmConfIni().get("imap-role"));
-
-		try (SieveClient sc = new SieveClient(connectionData)) {
-			assertTrue(sc.login());
-			List<SieveScript> scripts = sc.listscripts();
-			assertEquals(1, scripts.size());
-			assertEquals(domainUid + ".sieve", scripts.get(0).getName());
-		}
+		MailFilter retrievedFilter = service.getDomainFilter();
+		assertEquals(1, retrievedFilter.rules.size());
 	}
 
 	private void doUserSetAcls(boolean mustFail, String uid, ArrayList<AccessControlEntry> accessControlEntries)

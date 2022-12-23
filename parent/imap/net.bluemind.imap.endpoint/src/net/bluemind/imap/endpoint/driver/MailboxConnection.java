@@ -52,7 +52,7 @@ public interface MailboxConnection {
 
 	QuotaRoot quota(SelectedFolder selected);
 
-	long append(String folder, List<String> flags, Date deliveryDate, ByteBuf buffer);
+	AppendStatus append(String folder, List<String> flags, Date deliveryDate, ByteBuf buffer);
 
 	void updateFlags(SelectedFolder sf, String idset, UpdateMode mode, List<String> flags);
 

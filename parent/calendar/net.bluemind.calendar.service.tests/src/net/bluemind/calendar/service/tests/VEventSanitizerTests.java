@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -40,8 +41,6 @@ import com.google.common.collect.Lists;
 
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
-import net.bluemind.backend.cyrus.CyrusAdmins;
-import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.calendar.api.CalendarSettingsData;
 import net.bluemind.calendar.api.ICalendarSettings;
 import net.bluemind.calendar.api.ICalendarUids;
@@ -73,8 +72,6 @@ import net.bluemind.icalendar.api.ICalendarElement.RRule;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.Frequency;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
-import net.bluemind.pool.impl.BmConfIni;
-import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
@@ -102,14 +99,12 @@ public class VEventSanitizerTests {
 		esServer.tags = Lists.newArrayList("bm/es");
 
 		Server imapServer = new Server();
-		imapServer.ip = new BmConfIni().get("imap-role");
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		imapServer.tags = Collections.singletonList("mail/imap");
+		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		PopulateHelper.initGlobalVirt(esServer, imapServer);
 
 		PopulateHelper.createTestDomain(domainUid, esServer, imapServer);
-
-		this.createCyrusPartition(imapServer, this.domainUid);
 
 		BmTestContext systemContext = new BmTestContext(SecurityContext.SYSTEM);
 		IUser users = systemContext.provider().instance(IUser.class, domainUid);
@@ -126,16 +121,6 @@ public class VEventSanitizerTests {
 		IGroup groups = systemContext.provider().instance(IGroup.class, domainUid);
 		groups.create("g1", defaultGroup("g1", imapServer.ip));
 		groups.add("g1", Arrays.asList(Member.user("test1")));
-	}
-
-	private void createCyrusPartition(final Server imapServer, final String domainUid) {
-		final CyrusService cyrusService = new CyrusService(imapServer.ip);
-		cyrusService.createPartition(domainUid);
-		cyrusService.refreshPartitions(Arrays.asList(domainUid));
-		new CyrusAdmins(
-				ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class, "default"),
-				imapServer.ip).write();
-		cyrusService.reload();
 	}
 
 	private Group defaultGroup(String name, String cyrusIp) {

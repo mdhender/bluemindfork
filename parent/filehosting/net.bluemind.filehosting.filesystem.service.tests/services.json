@@ -4,8 +4,5 @@
 	},
 	{
 		"name": "bluemind/node-tests"
-	},
-	{
-		"name": "bluemind/imap-role"
 	}
 ]

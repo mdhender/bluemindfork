@@ -25,6 +25,7 @@ import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
@@ -36,8 +37,6 @@ import com.google.common.collect.Lists;
 
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
-import net.bluemind.backend.cyrus.CyrusAdmins;
-import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.calendar.api.CalendarDescriptor;
 import net.bluemind.calendar.api.ICalendarsMgmt;
 import net.bluemind.core.api.Email;
@@ -55,8 +54,6 @@ import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
-import net.bluemind.pool.impl.BmConfIni;
-import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.User;
@@ -80,8 +77,8 @@ public class CalendarsMgmtTests {
 		esServer.tags = Lists.newArrayList("bm/es");
 
 		Server imapServer = new Server();
-		imapServer.ip = new BmConfIni().get("imap-role");
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		imapServer.tags = Collections.singletonList("mail/imap");
+		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		PopulateHelper.initGlobalVirt(esServer, imapServer);
 
@@ -91,8 +88,6 @@ public class CalendarsMgmtTests {
 				.getSecurityContext();
 
 		PopulateHelper.createTestDomain(domainUid, esServer, imapServer);
-
-		this.createCyrusPartition(imapServer, domainUid);
 
 		PopulateHelper.domainAdmin(domainUid, domainAdmin.getSubject());
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
@@ -106,16 +101,6 @@ public class CalendarsMgmtTests {
 		Sessions.get().put(dummy2.getSessionId(), dummy2);
 
 		testContext = new BmTestContext(SecurityContext.SYSTEM);
-	}
-
-	private void createCyrusPartition(final Server imapServer, final String domainUid) {
-		final CyrusService cyrusService = new CyrusService(imapServer.ip);
-		cyrusService.createPartition(domainUid);
-		cyrusService.refreshPartitions(Arrays.asList(domainUid));
-		new CyrusAdmins(
-				ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class, "default"),
-				imapServer.ip).write();
-		cyrusService.reload();
 	}
 
 	private User defaultUser(String login) {

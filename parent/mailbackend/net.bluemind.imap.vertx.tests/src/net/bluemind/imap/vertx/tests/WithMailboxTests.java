@@ -19,7 +19,7 @@ package net.bluemind.imap.vertx.tests;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -29,8 +29,7 @@ import com.google.common.collect.Lists;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.net.NetClient;
-import net.bluemind.backend.cyrus.CyrusService;
-import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.imap.vertx.VXStoreClient;
@@ -39,51 +38,46 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.Mailbox.Type;
-import net.bluemind.pool.impl.BmConfIni;
-import net.bluemind.pool.impl.docker.DockerContainer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public abstract class WithMailboxTests {
 
-	protected String imapIp;
 	protected String mailbox;
 	protected String domain;
 	protected String localPart;
-	protected CyrusService cyrus;
 
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
-		BmConfIni ini = new BmConfIni();
-		imapIp = ini.get(DockerContainer.IMAP.getHostProperty());
-
 		VertxPlatform.spawnBlocking(10, TimeUnit.SECONDS);
 
-		assertNotNull(imapIp);
-		Server imapServer = new Server();
-		imapServer.ip = imapIp;
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		Server esServer = new Server();
+		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
+		System.out.println("ES is " + esServer.ip);
+		assertNotNull(esServer.ip);
+		esServer.tags = Lists.newArrayList("bm/es");
 
-		PopulateHelper.initGlobalVirt(imapServer);
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
-		this.cyrus = new CyrusService(imapIp);
+		PopulateHelper.initGlobalVirt(pipo, esServer);
+
+		ElasticsearchTestHelper.getInstance().beforeTest();
+
 		this.domain = "test" + System.currentTimeMillis() + ".lab";
-		cyrus.createPartition(domain);
-		cyrus.refreshPartitions(Arrays.asList(domain));
-		cyrus.refreshAnnotations();
-		cyrus.reload();
 		this.localPart = "u" + System.currentTimeMillis();
 		this.mailbox = "user/" + localPart + "@" + domain;
 		Mailbox mb = new Mailbox();
 		mb.routing = Routing.internal;
 		mb.type = Type.user;
 		mb.name = localPart;
-		mb.dataLocation = cyrus.server().uid;
-		ItemValue<Mailbox> asItem = ItemValue.create(this.localPart, mb);
-		cyrus.createRoot(domain, asItem);
+		mb.dataLocation = PopulateHelper.FAKE_CYRUS_IP;
+		PopulateHelper.addDomain(domain);
+		PopulateHelper.addUser(localPart, domain);
 	}
 
 	@After
@@ -103,13 +97,7 @@ public abstract class WithMailboxTests {
 	protected VXStoreClient client(Vertx vx) {
 		NetClient client = vx.createNetClient();
 		NetClientConnectionSupport nccs = new NetClientConnectionSupport(vx, client);
-		return new VXStoreClient(nccs, imapIp, 1143, localPart + "@" + domain, "gg");
+		return new VXStoreClient(nccs, "127.0.0.1", 1143, localPart + "@" + domain, localPart);
 	}
-
-//	protected VXStoreClient eventBusClient(Vertx vx) {
-//		EventBus eb = vx.eventBus();
-//		EventBusConnectionSupport nccs = new EventBusConnectionSupport(vx);
-//		return new VXStoreClient(nccs, imapIp, 1143, localPart + "@" + domain, "gg");
-//	}
 
 }

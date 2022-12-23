@@ -20,7 +20,7 @@ package net.bluemind.metrics.core.tests;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
@@ -36,7 +36,6 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.metrics.alerts.api.ITickConfiguration;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
@@ -46,12 +45,16 @@ public class TickConfigurationServiceTests {
 
 	@Before
 	public void before() throws Exception {
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("ahcnode.fail.https.ok", "true");
+
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
-		Server imap = new Server();
-		imap.ip = new BmConfIni().get("imap-role");
-		imap.tags = Arrays.asList("mail/imap");
-		PopulateHelper.initGlobalVirt(imap);
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
+		PopulateHelper.initGlobalVirt(pipo);
 
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 		this.apiKey = "yeah-yeah";

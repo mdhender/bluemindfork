@@ -21,12 +21,11 @@ package net.bluemind.mailbox.service.tests;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import com.google.common.collect.Lists;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
@@ -43,7 +42,6 @@ import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.rules.MailFilterRule;
 import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
@@ -53,6 +51,8 @@ public class DomainFilterHookTests {
 
 	@Before
 	public void before() throws Exception {
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
@@ -60,13 +60,13 @@ public class DomainFilterHookTests {
 
 		domainUid = "bm.lan";
 
-		Server imapServer = new Server();
-		imapServer.ip = new BmConfIni().get("imap-role");
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
-		PopulateHelper.initGlobalVirt(imapServer);
+		PopulateHelper.initGlobalVirt(pipo);
 
-		PopulateHelper.createTestDomain(domainUid, imapServer);
+		PopulateHelper.createTestDomain(domainUid, pipo);
 	}
 
 	@Test

@@ -49,6 +49,7 @@
 		<module>net.bluemind.imap.translate</module>
 		<module>net.bluemind.imap</module>
 		<module>net.bluemind.imap.tests</module>
+		<module>net.bluemind.imap.cyrus.tests</module>
 		<module>net.bluemind.imip.parser.tests</module>
 		<module>net.bluemind.imip.parser</module>
 		<module>net.bluemind.jdbc.driver.pgsql</module>
@@ -59,7 +60,6 @@
 		<module>net.bluemind.lib.globalid</module>
 		<module>net.bluemind.lib.ical4j</module>
 		<module>net.bluemind.lib.jackson</module>
-		<module>net.bluemind.lib.javax.mail.tests</module>
 		<module>net.bluemind.lib.jutf7</module>
 		<module>net.bluemind.lib.ldap.tests</module>
 		<module>net.bluemind.lib.ldap</module>

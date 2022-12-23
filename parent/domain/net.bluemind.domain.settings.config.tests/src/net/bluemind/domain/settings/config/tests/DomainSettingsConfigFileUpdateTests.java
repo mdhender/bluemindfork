@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -99,6 +100,9 @@ public class DomainSettingsConfigFileUpdateTests {
 	@Before
 	public void setup() throws Exception {
 
+		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+
 		JdbcTestHelper.getInstance().beforeTest();
 
 		VertxPlatform.spawnBlocking(20, TimeUnit.SECONDS);
@@ -108,13 +112,13 @@ public class DomainSettingsConfigFileUpdateTests {
 		nodeServer.tags = Lists.newArrayList(TagDescriptor.bm_core.getTag());
 		nodeClient = NodeActivator.get(nodeServer.ip);
 
-		Server imapServer = new Server();
-		imapServer.ip = new BmConfIni().get(DockerContainer.IMAP.getName());
-		imapServer.tags = Lists.newArrayList(TagDescriptor.mail_imap.getTag());
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		domainUid = "testdomain" + System.currentTimeMillis() + ".loc";
 		newAlias = "newdomain" + System.currentTimeMillis() + ".loc";
-		PopulateHelper.initGlobalVirt(false, imapServer, nodeServer);
+		PopulateHelper.initGlobalVirt(false, pipo, nodeServer);
 
 		MQ.init().get(10, TimeUnit.SECONDS);
 

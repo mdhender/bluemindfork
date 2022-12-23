@@ -1,8 +1,4 @@
 [{ 
  	"name":"bluemind/postgres-tests" 
- 	},{
-    "name":"bluemind/imap-role"
-	},{
- 	"name":"bluemind/imap-role",
- 	"bindName":"imap2-role"
-}]
+ 	}
+]

@@ -28,6 +28,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -65,7 +66,6 @@ import net.bluemind.mailbox.identity.api.Identity;
 import net.bluemind.mailbox.identity.api.SignatureFormat;
 import net.bluemind.mailshare.api.IMailshare;
 import net.bluemind.mailshare.api.Mailshare;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -81,28 +81,29 @@ public class MailshareTests {
 
 	@Before
 	public void before() throws Exception {
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+
 		JdbcTestHelper.getInstance().beforeTest();
 
 		ElasticsearchTestHelper.getInstance().beforeTest();
 		domainUid = "bm.lan";
 
-		String cyrusIp = new BmConfIni().get("imap-role");
-		Server imapServer = new Server();
-		imapServer.ip = cyrusIp;
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		esServer.tags = Lists.newArrayList("bm/es");
 
-		PopulateHelper.initGlobalVirt(imapServer, esServer);
+		PopulateHelper.initGlobalVirt(pipo, esServer);
 
-		PopulateHelper.createTestDomain(domainUid, imapServer);
+		PopulateHelper.createTestDomain(domainUid, pipo);
 
 		IServer serverService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,
 				InstallationId.getIdentifier());
 
-		dataLocation = serverService.getComplete(cyrusIp);
+		dataLocation = serverService.getComplete(PopulateHelper.FAKE_CYRUS_IP);
 
 		domainAdminSecurityContext = BmTestContext
 				.contextWithSession("d1", "admin", domainUid, SecurityContext.ROLE_ADMIN).getSecurityContext();

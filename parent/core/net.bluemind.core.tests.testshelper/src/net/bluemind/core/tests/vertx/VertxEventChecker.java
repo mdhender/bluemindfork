@@ -36,7 +36,14 @@ import net.bluemind.lib.vertx.VertxPlatform;
 public class VertxEventChecker<T> {
 	private SettableFuture<Message<T>> futureMessage;
 
+	int timer = 3000;
+
 	public VertxEventChecker(String address) {
+		futureMessage = futureEvent(address);
+	}
+
+	public VertxEventChecker(String address, int timer) {
+		this.timer = timer;
 		futureMessage = futureEvent(address);
 	}
 
@@ -103,7 +110,7 @@ public class VertxEventChecker<T> {
 	private void launchTimer() {
 		if (!futureMessage.isDone() && !futureMessage.isCancelled()) {
 
-			VertxPlatform.getVertx().setTimer(3000, event -> {
+			VertxPlatform.getVertx().setTimer(timer, event -> {
 				if (!futureMessage.isDone() && !futureMessage.isCancelled()) {
 					futureMessage.setException(new TimeoutException());
 				}

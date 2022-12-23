@@ -18,18 +18,15 @@
 package net.bluemind.index.mail.impl;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import net.bluemind.backend.cyrus.CyrusService;
-import net.bluemind.backend.cyrus.replication.testhelper.CyrusReplicationHelper;
 import net.bluemind.backend.mail.replica.indexing.RecordIndexActivator;
-import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -55,7 +52,6 @@ public class IndexTestHelper {
 	public static class Builder {
 
 		private List<String> domains;
-		private boolean replication;
 		private TestDomainOptions domainOptions;
 
 		public Builder withDomains(String... domains) {
@@ -69,7 +65,6 @@ public class IndexTestHelper {
 		}
 
 		public Builder enableCyrusReplication() {
-			this.replication = true;
 			return this;
 		}
 
@@ -84,17 +79,11 @@ public class IndexTestHelper {
 			dbServer.ip = ini.get("host");
 			dbServer.tags = Lists.newArrayList("bm/pgsql", "bm/pgsql-data");
 
-			Server imapServer = new Server();
-			imapServer.ip = ini.get("imap-role");
-			imapServer.tags = Lists.newArrayList("mail/imap");
+			Server pipo = new Server();
+			pipo.tags = Collections.singletonList("mail/imap");
+			pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
-			Optional<CyrusReplicationHelper> repl = Optional.empty();
-			if (replication) {
-				repl = Optional.of(new CyrusReplicationHelper(imapServer.ip));
-			}
-
-			return new IndexTestHelper(ImmutableList.copyOf(domains), repl, dbServer, imapServer, esServer,
-					domainOptions);
+			return new IndexTestHelper(ImmutableList.copyOf(domains), dbServer, pipo, esServer, domainOptions);
 		}
 	}
 
@@ -103,16 +92,14 @@ public class IndexTestHelper {
 	}
 
 	public final List<String> domains;
-	private Optional<CyrusReplicationHelper> replication;
 	public final Server dbServer;
 	public final Server imapServer;
 	public final Server esServer;
 	private TestDomainOptions toProvision;
 
-	private IndexTestHelper(List<String> domains, Optional<CyrusReplicationHelper> repl, Server dbServer,
-			Server imapServer, Server esServer, TestDomainOptions provOpts) {
+	private IndexTestHelper(List<String> domains, Server dbServer, Server imapServer, Server esServer,
+			TestDomainOptions provOpts) {
 		this.domains = domains;
-		this.replication = repl;
 		this.dbServer = dbServer;
 		this.imapServer = imapServer;
 		this.esServer = esServer;
@@ -120,12 +107,11 @@ public class IndexTestHelper {
 	}
 
 	public void beforeTest() throws Exception {
+		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
-
-		ItemValue<Server> cyrusServer = ItemValue.create("localhost", imapServer);
-		CyrusService cyrusService = new CyrusService(cyrusServer);
-		cyrusService.reset();
 
 		PopulateHelper.initGlobalVirt(dbServer, esServer, imapServer);
 		System.err.println("Deploying with es: " + esServer.ip + ", imap: " + imapServer.ip);
@@ -137,8 +123,6 @@ public class IndexTestHelper {
 			PopulateHelper.addDomain(domUid, Routing.none);
 		}
 
-		replication.ifPresent(helper -> helper.installReplication());
-
 		final CompletableFuture<Void> spawn = new CompletableFuture<Void>();
 		VertxPlatform.spawnVerticles(ar -> {
 			if (ar.succeeded()) {
@@ -148,12 +132,9 @@ public class IndexTestHelper {
 			}
 		});
 
-		spawn.thenCompose(depDone -> {
+		spawn.thenApply(replicationStarted -> {
 			System.err.println("Reloading index support...");
 			RecordIndexActivator.reload();
-			System.err.println("Starting replication if needed...");
-			return replication.map(helper -> helper.startReplication()).orElse(CompletableFuture.completedFuture(null));
-		}).thenApply(replicationStarted -> {
 			for (String domUid : domains) {
 				for (int i = 0; i < toProvision.userCount; i++) {
 					String loginAndUid = String.format("user%02d", i);
@@ -169,8 +150,6 @@ public class IndexTestHelper {
 	}
 
 	public void afterTest() throws Exception {
-		replication.map(helper -> helper.stopReplication()).orElse(CompletableFuture.completedFuture(null)).get(30,
-				TimeUnit.SECONDS);
 		JdbcTestHelper.getInstance().afterTest();
 	}
 

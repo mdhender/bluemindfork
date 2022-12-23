@@ -24,7 +24,7 @@ import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +37,6 @@ import com.google.common.collect.Lists;
 
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
-import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
@@ -52,7 +51,6 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.directory.service.DirEntryHandler;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
@@ -78,6 +76,8 @@ public class UserMailIdentitySanitizerTests {
 
 	@Before
 	public void before() throws Exception {
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+
 		JdbcTestHelper.getInstance().beforeTest();
 
 		ElasticsearchTestHelper.getInstance().beforeTest();
@@ -98,7 +98,8 @@ public class UserMailIdentitySanitizerTests {
 				.contextWithSession("sid3" + System.currentTimeMillis(), "user@" + domainUid, domainUid)
 				.getSecurityContext();
 
-		containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), domainAdminSecurityContext);
+		containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
+				domainAdminSecurityContext);
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
@@ -108,20 +109,14 @@ public class UserMailIdentitySanitizerTests {
 		server.ip = "prec";
 		server.tags = Lists.newArrayList("blue/job", "ur/anus");
 
-		String cyrusIp = new BmConfIni().get("imap-role");
-		Server imapServer = new Server();
-		imapServer.ip = cyrusIp;
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		System.out.println(DirEntryHandler.class);
 
-		PopulateHelper.initGlobalVirt(esServer, server, imapServer);
-		PopulateHelper.createTestDomain(domainUid, esServer, imapServer);
-
-		// create domain parititon on cyrus
-		new CyrusService(cyrusIp).createPartition(domainUid);
-		new CyrusService(cyrusIp).refreshPartitions(Arrays.asList(domainUid));
-		new CyrusService(cyrusIp).reload();
+		PopulateHelper.initGlobalVirt(esServer, server, pipo);
+		PopulateHelper.createTestDomain(domainUid, esServer, pipo);
 
 		PopulateHelper.addUserWithRoles("useradmin", userAdminSecurityContext.getContainerUid(),
 				BasicRoles.ROLE_MANAGE_USER);
@@ -135,7 +130,7 @@ public class UserMailIdentitySanitizerTests {
 		serverService = ServerSideServiceProvider.getProvider(domainAdminSecurityContext).instance(IServer.class,
 				InstallationId.getIdentifier());
 
-		dataLocation = serverService.getComplete(cyrusIp);
+		dataLocation = serverService.getComplete(PopulateHelper.FAKE_CYRUS_IP);
 		System.err.println("srv: " + dataLocation.value.fqdn + ", uid: " + dataLocation.uid);
 	}
 

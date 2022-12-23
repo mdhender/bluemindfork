@@ -10,14 +10,25 @@ Require-Bundle: org.eclipse.core.runtime,
  io.netty,
  net.bluemind.imap,
  net.bluemind.pool,
- net.bluemind.backend.cyrus,
  net.bluemind.core.commons;bundle-version="4.1.0",
  net.bluemind.core.jdbc.testshelper;bundle-version="4.1.0",
  net.bluemind.server.api,
  net.bluemind.tests.defaultdata,
  net.bluemind.core.rest,
  io.vertx.core,
- org.apache.james.apache-mime4j-core
+ org.apache.james.apache-mime4j-core,
+ net.bluemind.authentication.service,
+ net.bluemind.backend.mail.replica.api,
+ net.bluemind.backend.mail.replica.service,
+ net.bluemind.core.elasticsearch.testshelper,
+ net.bluemind.backend.mailapi.storage,
+ net.bluemind.imap.serviceprovider.incore,
+ net.bluemind.imap.endpoint,
+ net.bluemind.imap.driver.mailapi,
+ net.bluemind.delivery.conversationreference.service,
+ net.bluemind.delivery.conversationreference.sqlschema,
+ net.bluemind.mailindex,
+ net.bluemind.mailindex.schema
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: bluemind.net
 Automatic-Module-Name: net.bluemind.imap.vertx.tests

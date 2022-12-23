@@ -51,6 +51,7 @@ import net.bluemind.index.mail.integration.IndexTestHelper.TestDomainOptions;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.mailbox.api.ShardStats;
 import net.bluemind.mailbox.api.ShardStats.State;
+import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class MailIndexShardingITTests {
 
@@ -60,6 +61,7 @@ public class MailIndexShardingITTests {
 
 	@Before
 	public void setup() throws Exception {
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
 		this.domainUid = "junit" + System.currentTimeMillis() + ".cli";
 	}
 

@@ -21,7 +21,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -38,7 +38,6 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.IServiceTopology;
 import net.bluemind.network.topology.Topology;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -59,11 +58,9 @@ public class TopologyProducerTests {
 	@Test
 	public void ensureTopologyIsDispatched() throws Exception {
 
-		BmConfIni ini = new BmConfIni();
-
 		Server imapServer = new Server();
-		imapServer.ip = ini.get("imap-role");
-		imapServer.tags = Arrays.asList("mail/imap");
+		imapServer.tags = Collections.singletonList("mail/imap");
+		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		PopulateHelper.initGlobalVirt(imapServer);
 

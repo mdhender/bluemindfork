@@ -24,7 +24,7 @@ import static org.junit.Assert.fail;
 
 import java.io.InputStream;
 import java.time.ZoneId;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.james.mime4j.dom.Message;
@@ -38,8 +38,6 @@ import org.junit.rules.TestName;
 
 import com.google.common.collect.Lists;
 
-import net.bluemind.backend.cyrus.CyrusAdmins;
-import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEventSeries;
@@ -48,7 +46,6 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.delivery.lmtp.common.LmtpEnvelope;
 import net.bluemind.delivery.lmtp.filter.testhelper.EnvelopeBuilder;
@@ -59,8 +56,6 @@ import net.bluemind.lmtp.filter.imip.ImipFilter;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mime4j.common.Mime4JHelper;
-import net.bluemind.pool.impl.BmConfIni;
-import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
@@ -87,6 +82,9 @@ public class Ex2003Tests {
 
 	@Before
 	public void before() throws Exception {
+		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+
 		JdbcTestHelper.getInstance().beforeTest();
 
 		ElasticsearchTestHelper.getInstance().beforeTest();
@@ -98,22 +96,15 @@ public class Ex2003Tests {
 		System.out.println("IP " + esServer.ip);
 		esServer.tags = Lists.newArrayList("bm/es");
 
-		String cyrusIp = new BmConfIni().get("imap-role");
-		Server imapServer = new Server();
-		imapServer.ip = cyrusIp;
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
-		PopulateHelper.initGlobalVirt(esServer, imapServer);
+		PopulateHelper.initGlobalVirt(esServer, pipo);
 
 		PopulateHelper.addDomainAdmin("admin0", "global.virt");
 
-		PopulateHelper.createTestDomain(domainUid, esServer, imapServer);
-		new CyrusService(cyrusIp).createPartition(domainUid);
-		new CyrusService(cyrusIp).refreshPartitions(Arrays.asList(domainUid));
-		new CyrusAdmins(
-				ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class, "default"),
-				imapServer.ip).write();
-		new CyrusService(cyrusIp).reload();
+		PopulateHelper.createTestDomain(domainUid, esServer, pipo);
 
 		PopulateHelper.addDomainAdmin("admin", domainUid, Mailbox.Routing.internal);
 

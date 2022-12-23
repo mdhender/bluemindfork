@@ -18,38 +18,13 @@
  */
 package net.bluemind.imap;
 
-import java.util.Map;
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
 
 public class AclTestCase extends CyradmTestCase {
 
-	public void testCrudAcl() {
-		try {
-			boolean success = sc.setAcl(mboxCyrusName, testLogin, Acl.ALL);
-			if (!success) {
-				fail("error setting acl");
-			}
-			Map<String, Acl> acls = sc.listAcl(mboxCyrusName);
-			System.err.println("acls size: " + acls.size());
-			for (String consumer : acls.keySet()) {
-				System.err.println("consumer: " + consumer + " => " + acls.get(consumer));
-			}
-			assertTrue(acls.size() > 0);
-			assertTrue(acls.containsKey(testLogin));
-
-			int size = acls.size();
-			boolean rm = sc.deleteAcl(mboxCyrusName, testLogin);
-			if (!rm) {
-				fail("could not delete acl");
-			}
-			acls = sc.listAcl(mboxCyrusName);
-			System.err.println("acls.size: " + acls.size());
-			assertEquals(size - 1, acls.size());
-		} catch (IMAPException e) {
-			e.printStackTrace();
-			fail("stacktrace in getAcl");
-		}
-	}
-
+	@Test
 	public void testAclCompare() {
 		Acl all = Acl.ALL;
 		Acl newAcl = new Acl(all.toString());

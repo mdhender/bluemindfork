@@ -39,7 +39,6 @@ import org.junit.Test;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
-import net.bluemind.backend.cyrus.replication.testhelper.CyrusGUID;
 import net.bluemind.backend.mail.api.Conversation;
 import net.bluemind.backend.mail.api.Conversation.MessageRef;
 import net.bluemind.backend.mail.api.IMailConversation;
@@ -124,7 +123,7 @@ public class MailConversationServiceTests extends AbstractConversationTests {
 		assertNotNull(mboxes);
 		ReadStream<Buffer> emlReadStream = openResource("data/with_inlines.eml");
 		Stream bmStream = VertxStream.stream(emlReadStream);
-		String bodyUid = CyrusGUID.randomGuid();
+		String bodyUid = "d34db33f" + UUID.randomUUID().toString().replace("-", "");
 		mboxes.create(bodyUid, bmStream);
 
 		IDbMailboxRecords recordService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
@@ -162,17 +161,17 @@ public class MailConversationServiceTests extends AbstractConversationTests {
 		assertNotNull(mboxes);
 		ReadStream<Buffer> emlReadStream = openResource("data/sort_1.eml");
 		Stream bmStream = VertxStream.stream(emlReadStream);
-		String bodySortUid1 = CyrusGUID.randomGuid();
+		String bodySortUid1 = "d34db33f" + UUID.randomUUID().toString().replace("-", "");
 		mboxes.create(bodySortUid1, bmStream);
 
 		emlReadStream = openResource("data/sort_2.eml");
 		bmStream = VertxStream.stream(emlReadStream);
-		String bodySortUid2 = CyrusGUID.randomGuid();
+		String bodySortUid2 = "d34db33f" + UUID.randomUUID().toString().replace("-", "");
 		mboxes.create(bodySortUid2, bmStream);
 
 		emlReadStream = openResource("data/sort_3.eml");
 		bmStream = VertxStream.stream(emlReadStream);
-		String bodySortUid3 = CyrusGUID.randomGuid();
+		String bodySortUid3 = "d34db33f" + UUID.randomUUID().toString().replace("-", "");
 		mboxes.create(bodySortUid3, bmStream);
 
 		IDbMailboxRecords recordService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
@@ -274,17 +273,17 @@ public class MailConversationServiceTests extends AbstractConversationTests {
 		// test bodies
 		ReadStream<Buffer> emlReadStream = openResource("data/test_subject1.eml");
 		Stream bmStream = VertxStream.stream(emlReadStream);
-		String bodySortUid1 = CyrusGUID.randomGuid();
+		String bodySortUid1 = "d34db33f" + UUID.randomUUID().toString().replace("-", "");
 		mboxes.create(bodySortUid1, bmStream);
 
 		emlReadStream = openResource("data/test_subject2.eml");
 		bmStream = VertxStream.stream(emlReadStream);
-		String bodySortUid2 = CyrusGUID.randomGuid();
+		String bodySortUid2 = "d34db33f" + UUID.randomUUID().toString().replace("-", "");
 		mboxes.create(bodySortUid2, bmStream);
 
 		emlReadStream = openResource("data/test_subject3.eml");
 		bmStream = VertxStream.stream(emlReadStream);
-		String bodySortUid3 = CyrusGUID.randomGuid();
+		String bodySortUid3 = "d34db33f" + UUID.randomUUID().toString().replace("-", "");
 		mboxes.create(bodySortUid3, bmStream);
 
 		IDbMailboxRecords recordService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
@@ -415,7 +414,7 @@ public class MailConversationServiceTests extends AbstractConversationTests {
 
 				IDbMessageBodies mboxes = getBodies(SecurityContext.SYSTEM);
 				Stream bmStream = GenericStream.simpleValue("test", String::getBytes);
-				String bodyUid = CyrusGUID.randomGuid();
+				String bodyUid = "d34db33f" + UUID.randomUUID().toString().replace("-", "");
 				mboxes.create(bodyUid, bmStream);
 
 				MailboxRecord tmpRecord = new MailboxRecord();

@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -32,10 +33,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
-
-import net.bluemind.backend.cyrus.CyrusAdmins;
-import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.IFreebusyMgmt;
 import net.bluemind.calendar.api.IFreebusyUids;
@@ -50,8 +47,6 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.pool.impl.BmConfIni;
-import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.persistence.UserSubscriptionStore;
@@ -70,14 +65,12 @@ public class FreebusyMgmtTests {
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		Server imapServer = new Server();
-		imapServer.ip = new BmConfIni().get("imap-role");
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		imapServer.tags = Collections.singletonList("mail/imap");
+		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		PopulateHelper.initGlobalVirt(imapServer);
 
 		PopulateHelper.createTestDomain(DOMAIN, imapServer);
-
-		this.createCyrusPartition(imapServer, DOMAIN);
 
 		defaultSecurityContext = new SecurityContext("testUser", "test", Arrays.<String>asList(),
 				Arrays.<String>asList(), DOMAIN);
@@ -118,16 +111,6 @@ public class FreebusyMgmtTests {
 
 		Sessions.get().put(anotherSecurityContext.getSessionId(), anotherSecurityContext);
 
-	}
-
-	private void createCyrusPartition(final Server imapServer, final String domainUid) {
-		final CyrusService cyrusService = new CyrusService(imapServer.ip);
-		cyrusService.createPartition(domainUid);
-		cyrusService.refreshPartitions(Arrays.asList(domainUid));
-		new CyrusAdmins(
-				ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class, "default"),
-				imapServer.ip).write();
-		cyrusService.reload();
 	}
 
 	@After

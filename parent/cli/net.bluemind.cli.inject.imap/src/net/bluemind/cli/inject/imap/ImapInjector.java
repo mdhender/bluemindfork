@@ -32,10 +32,12 @@ import net.bluemind.cli.inject.common.GOTMessageProducer;
 import net.bluemind.cli.inject.common.IMessageProducer;
 import net.bluemind.cli.inject.common.MailExchangeInjector;
 import net.bluemind.cli.inject.common.TargetMailbox;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.Server;
 
 public class ImapInjector extends MailExchangeInjector {
 
@@ -49,6 +51,16 @@ public class ImapInjector extends MailExchangeInjector {
 		public ImapTargetMailbox(String email, String sid, int folders) {
 			super(email, sid);
 			this.sc = new StoreClient(Topology.get().any("mail/imap").value.address(), 1143, email, sid);
+			this.lock = new Semaphore(1);
+			this.target = new ArrayList<>(1 + folders * folders);
+			this.target.add("INBOX");
+			this.bound = 1;
+			this.folders = folders;
+		}
+
+		public ImapTargetMailbox(ItemValue<Server> srv, String email, String sid, int folders) {
+			super(email, sid);
+			this.sc = new StoreClient(srv.value.address(), 1143, email, sid);
 			this.lock = new Semaphore(1);
 			this.target = new ArrayList<>(1 + folders * folders);
 			this.target.add("INBOX");
@@ -112,8 +124,17 @@ public class ImapInjector extends MailExchangeInjector {
 		super(provider, domainUid, (em, sid) -> new ImapTargetMailbox(em, sid, folders), prod);
 	}
 
+	public ImapInjector(ItemValue<Server> srv, IServiceProvider provider, String domainUid, IMessageProducer prod,
+			int folders) {
+		super(provider, domainUid, (em, sid) -> new ImapTargetMailbox(srv, em, sid, folders), prod);
+	}
+
 	public ImapInjector(IServiceProvider provider, String domainUid) {
 		this(provider, domainUid, new GOTMessageProducer(), 5);
+	}
+
+	public ImapInjector(ItemValue<Server> srv, IServiceProvider provider, String domainUid) {
+		this(srv, provider, domainUid, new GOTMessageProducer(), 5);
 	}
 
 }

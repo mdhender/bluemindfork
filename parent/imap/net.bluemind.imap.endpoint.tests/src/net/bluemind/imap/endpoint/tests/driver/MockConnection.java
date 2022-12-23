@@ -30,6 +30,8 @@ import org.slf4j.LoggerFactory;
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.streams.WriteStream;
 import net.bluemind.imap.endpoint.driver.Acl;
+import net.bluemind.imap.endpoint.driver.AppendStatus;
+import net.bluemind.imap.endpoint.driver.AppendStatus.WriteStatus;
 import net.bluemind.imap.endpoint.driver.CopyResult;
 import net.bluemind.imap.endpoint.driver.FetchedItem;
 import net.bluemind.imap.endpoint.driver.IdleToken;
@@ -113,8 +115,8 @@ public class MockConnection implements MailboxConnection {
 	}
 
 	@Override
-	public long append(String folder, List<String> flags, Date deliveryDate, ByteBuf buffer) {
-		return 42L;
+	public AppendStatus append(String folder, List<String> flags, Date deliveryDate, ByteBuf buffer) {
+		return new AppendStatus(WriteStatus.WRITTEN, 42L);
 	}
 
 	@Override

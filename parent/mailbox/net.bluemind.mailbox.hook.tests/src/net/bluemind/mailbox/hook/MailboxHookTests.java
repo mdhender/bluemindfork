@@ -21,13 +21,12 @@ package net.bluemind.mailbox.hook;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.google.common.collect.Lists;
 
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Email;
@@ -40,7 +39,6 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -58,10 +56,9 @@ public class MailboxHookTests {
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 		ctx = SecurityContext.SYSTEM;
 
-		String cyrusIp = new BmConfIni().get("imap-role");
 		Server imapServer = new Server();
-		imapServer.ip = cyrusIp;
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		imapServer.tags = Collections.singletonList("mail/imap");
+		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		PopulateHelper.initGlobalVirt(imapServer);
 
@@ -70,7 +67,7 @@ public class MailboxHookTests {
 		IServer serverService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,
 				InstallationId.getIdentifier());
 
-		dataLocation = serverService.getComplete(cyrusIp);
+		dataLocation = serverService.getComplete(PopulateHelper.FAKE_CYRUS_IP);
 
 		PopulateHelper.createTestDomain(domainUid, imapServer);
 

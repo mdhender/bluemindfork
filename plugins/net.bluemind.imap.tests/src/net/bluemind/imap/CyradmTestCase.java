@@ -18,19 +18,29 @@
  */
 package net.bluemind.imap;
 
-import java.util.Arrays;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
-import com.google.common.collect.Lists;
+import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
-import net.bluemind.backend.cyrus.CyrusService;
-import net.bluemind.backend.cyrus.partitions.CyrusPartition;
+import javax.sql.DataSource;
+
+import org.junit.After;
+import org.junit.Before;
+
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
-public abstract class CyradmTestCase extends IMAPTestCase {
-
+public abstract class CyradmTestCase {
+	private static final int PORT = 1143;
 	protected StoreClient sc;
 	protected String mboxCyrusPrefix = "user/";
 	protected String mboxName = "u" + System.currentTimeMillis();
@@ -38,53 +48,49 @@ public abstract class CyradmTestCase extends IMAPTestCase {
 	protected String mboxLogin = mboxName + "@" + domainUid;
 
 	protected String mboxCyrusName = mboxCyrusPrefix + mboxName + "@" + domainUid;
+	protected String loginUid;
+	ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 
+	@Before
 	public void setUp() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
-		Server imapServer = new Server();
-		imapServer.ip = cyrusIp;
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
-		PopulateHelper.initGlobalVirt(imapServer);
+		Server pipo = new Server();
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
+		pipo.tags = Collections.singletonList("mail/imap");
 
-		CyrusService cyrusService = new CyrusService(cyrusIp);
-		CyrusPartition partition = cyrusService.createPartition(domainUid);
-		cyrusService.refreshPartitions(Arrays.asList(domainUid));
-		cyrusService.reload();
+		PopulateHelper.initGlobalVirt(pipo);
 
-		sc = new StoreClient(cyrusIp, 1143, "admin0", "admin");
-		try {
-			boolean login = sc.login();
-			if (!login) {
-				fail("login failed for " + login + "/" + testPass);
-			}
+		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.none);
 
-			System.err.println("creating mailbox: " + mboxCyrusName);
+		ElasticsearchTestHelper.getInstance().beforeTest();
 
-			CreateMailboxResult cmr = sc.createMailbox(mboxCyrusName, partition.name);
-			if (!cmr.isOk()) {
-				String tmp = mboxCyrusName;
-				mboxCyrusName = null;
-				fail("create mailbox " + tmp + " failed: " + cmr.getMessage());
-			}
-		} catch (IMAPException e) {
-			e.printStackTrace();
-			fail("exception on setup");
+		domainUid = "test.devenv";
+		loginUid = "user" + System.currentTimeMillis();
+		PopulateHelper.addDomain(domainUid);
+		PopulateHelper.addUser(loginUid, domainUid);
+
+		DataSource datasource = JdbcTestHelper.getInstance().getMailboxDataDataSource();
+		assertNotNull(datasource);
+		ServerSideServiceProvider.mailboxDataSource.put("bm-master", datasource);
+
+		sc = new StoreClient("127.0.0.1", PORT, loginUid + "@" + domainUid, loginUid);
+		boolean login = sc.login();
+		if (!login) {
+			fail("login failed for " + loginUid);
 		}
+
 	}
 
-	public void tearDown() {
-		try {
-			if (mboxCyrusName != null) {
-				System.err.println("deleting mbox " + mboxCyrusName);
-				sc.setAcl(mboxCyrusName, "admin0", Acl.ALL);
-				sc.deleteMailbox(mboxCyrusName);
-			}
-			sc.logout();
-		} catch (IMAPException e) {
-			e.printStackTrace();
+	@After
+	public void tearDown() throws Exception {
+		JdbcTestHelper.getInstance().afterTest();
+		if (mboxCyrusName != null) {
+			System.err.println("deleting mbox " + mboxCyrusName);
 		}
+		sc.logout();
 	}
 }

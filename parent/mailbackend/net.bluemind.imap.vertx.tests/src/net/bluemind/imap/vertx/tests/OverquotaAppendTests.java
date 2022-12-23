@@ -29,10 +29,13 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
 
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.imap.vertx.ImapResponseStatus.Status;
 import net.bluemind.imap.vertx.VXStoreClient;
 import net.bluemind.imap.vertx.cmd.AppendResponse;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.api.IMailboxes;
 
 public class OverquotaAppendTests extends WithMailboxTests {
 
@@ -52,7 +55,15 @@ public class OverquotaAppendTests extends WithMailboxTests {
 	@Before
 	public void before() throws Exception {
 		super.before();
-		cyrus.setQuota(mailbox, 1);
+		IMailboxes api = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IMailboxes.class,
+				domain);
+		var mbx = api.byName(localPart);
+		assertNotNull(mbx);
+		mbx.value.quota = 1;
+		api.update(mbx.uid, mbx.value);
+		mbx = api.byName(localPart);
+		assertEquals(1, (int) mbx.value.quota);
+
 	}
 
 	@Test

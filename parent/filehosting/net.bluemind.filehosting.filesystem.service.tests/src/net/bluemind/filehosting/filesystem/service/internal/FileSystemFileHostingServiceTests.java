@@ -33,6 +33,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -109,6 +110,8 @@ public class FileSystemFileHostingServiceTests {
 
 	@Before
 	public void setup() throws Exception {
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+
 		JdbcTestHelper.getInstance().beforeTest();
 
 		VertxPlatform.spawnBlocking(1, TimeUnit.MINUTES);
@@ -117,11 +120,11 @@ public class FileSystemFileHostingServiceTests {
 		nodeServer.ip = DockerEnv.getIp("bluemind/node-tests");
 		nodeServer.tags = Lists.newArrayList("filehosting/data");
 
-		Server imapServer = new Server();
-		imapServer.ip = DockerEnv.getIp("bluemind/imap-role");
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
-		PopulateHelper.initGlobalVirt(nodeServer, imapServer);
+		PopulateHelper.initGlobalVirt(nodeServer, pipo);
 
 		IGlobalSettings settings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IGlobalSettings.class);

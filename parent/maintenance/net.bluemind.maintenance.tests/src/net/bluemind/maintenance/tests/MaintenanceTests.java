@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -57,6 +58,9 @@ public class MaintenanceTests {
 
 	@Before
 	public void before() throws Exception {
+		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 
@@ -64,15 +68,14 @@ public class MaintenanceTests {
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		BmConfIni ini = new BmConfIni();
-		Server cyrus = new Server();
-		mailboxIp = ini.get("imap-role");
-		cyrus.ip = ini.get("imap-role");
-		cyrus.tags = Arrays.asList(TagDescriptor.mail_imap.getTag());
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		Server pg = new Server();
 		pgdataIp = pg.ip = ini.get("bluemind/postgres-tests");
 		pg.tags = Arrays.asList(TagDescriptor.bm_pgsql_data.getTag());
-		PopulateHelper.initGlobalVirt(cyrus, pg);
+		PopulateHelper.initGlobalVirt(pipo, pg);
 	}
 
 	private Server initDataServer() {

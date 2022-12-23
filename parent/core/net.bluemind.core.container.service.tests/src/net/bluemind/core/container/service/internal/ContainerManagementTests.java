@@ -63,14 +63,16 @@ public class ContainerManagementTests {
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
 		BmConfIni ini = new BmConfIni();
-		Server cyrus = new Server();
-		cyrus.ip = ini.get("imap-role");
-		cyrus.tags = Arrays.asList(TagDescriptor.mail_imap.getTag());
+
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
+
 		Server pg = new Server();
 		pg.tags = Arrays.asList(TagDescriptor.bm_pgsql_data.getTag());
 		pg.ip = ini.get("bluemind/postgres-tests");
 
-		PopulateHelper.initGlobalVirt(cyrus, pg);
+		PopulateHelper.initGlobalVirt(pipo, pg);
 
 		PopulateHelper.addDomain(domainUid);
 		PopulateHelper.addUser("subject", domainUid);

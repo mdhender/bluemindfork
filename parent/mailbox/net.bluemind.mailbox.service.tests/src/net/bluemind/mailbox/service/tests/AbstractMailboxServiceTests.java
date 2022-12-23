@@ -18,8 +18,11 @@
  */
 package net.bluemind.mailbox.service.tests;
 
+import static org.junit.Assert.assertNotNull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
@@ -31,8 +34,6 @@ import com.google.common.collect.Lists;
 
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
-import net.bluemind.backend.cyrus.CyrusAdmins;
-import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
@@ -41,6 +42,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -73,7 +75,7 @@ public abstract class AbstractMailboxServiceTests {
 	protected String domainUid;
 
 	protected Server smtpServer;
-	protected Server imapServer;
+	protected Server pipo;
 	protected Server imapServerNotAssigned;
 
 	protected DirEntryStore dirEntryStore;
@@ -86,6 +88,8 @@ public abstract class AbstractMailboxServiceTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
@@ -95,32 +99,30 @@ public abstract class AbstractMailboxServiceTests {
 		smtpServer.ip = new BmConfIni().get("smtp-role");
 		smtpServer.tags = Lists.newArrayList("mail/smtp");
 
-		imapServer = new Server();
-		imapServer.ip = new BmConfIni().get("imap-role");
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
+
+		Server esServer = new Server();
+		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
+		assertNotNull(esServer.ip);
+		esServer.tags = Lists.newArrayList("bm/es");
 
 		imapServerNotAssigned = new Server();
 		imapServerNotAssigned.ip = "3.3.3.3";
 		imapServerNotAssigned.tags = Lists.newArrayList("mail/imap");
 
-		PopulateHelper.initGlobalVirt(smtpServer, imapServer, imapServerNotAssigned);
+		PopulateHelper.initGlobalVirt(smtpServer, pipo, imapServerNotAssigned, esServer);
+		ElasticsearchTestHelper.getInstance().beforeTest();
 
-		PopulateHelper.createTestDomain(domainUid, smtpServer, imapServer);
-
-		// create domain parititon on cyrus
-		new CyrusService(imapServer.ip).createPartition(domainUid);
-		new CyrusService(imapServer.ip).refreshPartitions(Arrays.asList(domainUid));
-		new CyrusAdmins(
-				ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class, "default"),
-				imapServer.ip).write();
-		new CyrusService(imapServer.ip).reload();
+		PopulateHelper.createTestDomain(domainUid, smtpServer, pipo, esServer);
 
 		testUserUid = PopulateHelper.addUser("testuser" + System.currentTimeMillis(), domainUid);
 
 		IServer serverService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,
 				InstallationId.getIdentifier());
 
-		dataLocation = serverService.getComplete(imapServer.ip);
+		dataLocation = serverService.getComplete(PopulateHelper.FAKE_CYRUS_IP);
 
 		defaultSecurityContext = BmTestContext
 				.contextWithSession("admin", "admin", domainUid, SecurityContext.ROLE_ADMIN,

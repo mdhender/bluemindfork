@@ -130,8 +130,8 @@ public class MailApiBoxStorage implements IMailboxesStorage {
 		logger.info("Creating subtree {} on {}", root, partition);
 		rootMgmtApi.create(root);
 
-		IDbReplicatedMailboxes foldersApi = context.provider().instance(IDbReplicatedMailboxes.class, partition.name,
-				boxItem.value.type.nsPrefix + boxItem.value.name);
+		IDbReplicatedMailboxes foldersApi = context.su().provider().instance(IDbReplicatedMailboxes.class,
+				partition.name, boxItem.value.type.nsPrefix + boxItem.value.name);
 
 		if (boxItem.value.type.sharedNs) {
 			mailshareFolders(domainUid, boxItem, foldersApi);
@@ -208,7 +208,6 @@ public class MailApiBoxStorage implements IMailboxesStorage {
 
 	@Override
 	public void changeDomainFilter(BmContext context, String domainUid, MailFilter filter) throws ServerFault {
-		// TODO Auto-generated method stub
 
 	}
 

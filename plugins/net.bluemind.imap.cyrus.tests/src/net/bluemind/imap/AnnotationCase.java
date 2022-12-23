@@ -18,9 +18,16 @@
  */
 package net.bluemind.imap;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import java.util.Map.Entry;
 
+import org.junit.Test;
+
 public class AnnotationCase extends CyradmTestCase {
+
+	@Test
 	public void testSpecialUseAnnotation() {
 		String sentFolder = mboxCyrusPrefix + mboxName + "/Sent@" + domainUid;
 		sc.create(sentFolder, "Sent");
@@ -35,20 +42,17 @@ public class AnnotationCase extends CyradmTestCase {
 			assertNull(entry.getValue().valueShared);
 		}
 
-		try (StoreClient usc = new StoreClient(cyrusIp, 1143, mboxLogin, "pass")) {
-			assertTrue(usc.login());
-			annotations = usc.getAnnotation("Sent");
-			for (Entry<String, Annotation> entry : annotations.entrySet()) {
-				System.out.println(entry.getKey() + ", priv: " + entry.getValue().valuePriv + ", shared: "
-						+ entry.getValue().valueShared);
-				if (!"/specialuse".equals(entry.getKey())) {
-					continue;
-				}
-
-				assertEquals("\\Sent", entry.getValue().valuePriv);
-				assertNull(entry.getValue().valueShared);
+		annotations = sc.getAnnotation("Sent");
+		for (Entry<String, Annotation> entry : annotations.entrySet()) {
+			System.out.println(entry.getKey() + ", priv: " + entry.getValue().valuePriv + ", shared: "
+					+ entry.getValue().valueShared);
+			if (!"/specialuse".equals(entry.getKey())) {
+				continue;
 			}
 
+			assertEquals("\\Sent", entry.getValue().valuePriv);
+			assertNull(entry.getValue().valueShared);
 		}
+
 	}
 }

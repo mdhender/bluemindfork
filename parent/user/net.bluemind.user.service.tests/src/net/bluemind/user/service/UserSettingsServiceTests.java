@@ -20,11 +20,12 @@ package net.bluemind.user.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -33,9 +34,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
-
-import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
@@ -49,7 +47,6 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.service.DomainsContainerIdentifier;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -73,6 +70,8 @@ public class UserSettingsServiceTests {
 
 	@Before
 	public void before() throws Exception {
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
@@ -89,18 +88,12 @@ public class UserSettingsServiceTests {
 
 		testDom = "dom." + System.nanoTime() + ".lan";
 
-		String cyrusIp = new BmConfIni().get("imap-role");
-		Server imapServer = new Server();
-		imapServer.ip = cyrusIp;
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
-		PopulateHelper.initGlobalVirt(imapServer);
-		PopulateHelper.createTestDomain(testDom, imapServer);
-
-		// create domain parititon on cyrus
-		new CyrusService(cyrusIp).createPartition(testDom);
-		new CyrusService(cyrusIp).refreshPartitions(Arrays.asList(testDom));
-		new CyrusService(cyrusIp).reload();
+		PopulateHelper.initGlobalVirt(pipo);
+		PopulateHelper.createTestDomain(testDom, pipo);
 
 		Container domains = containerHome.get(DomainsContainerIdentifier.getIdentifier());
 		assertNotNull(domains);
@@ -174,7 +167,7 @@ public class UserSettingsServiceTests {
 	@Test
 	public void testUserDomainSettings() throws ServerFault, InterruptedException, SQLException {
 		HashMap<String, String> domainSettings = new HashMap<String, String>();
-		domainSettings.put("lang", "uk");
+		domainSettings.put("lang", "en");
 		domainSettings.put("work_hours_end", "15");
 		domainSettingsApi.set(domainSettings);
 
@@ -189,6 +182,15 @@ public class UserSettingsServiceTests {
 		assertTrue(us.size() > 0);
 		assertEquals("15", us.get("work_hours_end"));
 		assertEquals("en", us.get("lang"));
+	}
+
+	@Test
+	public void testUserDomainSettingsMustFail() throws ServerFault, InterruptedException, SQLException {
+		HashMap<String, String> domainSettings = new HashMap<String, String>();
+		domainSettings.put("lang", "uk");
+		domainSettings.put("work_hours_end", "15");
+		ServerFault thrown = assertThrows(ServerFault.class, () -> domainSettingsApi.set(domainSettings));
+		assertTrue(thrown.getMessage().contentEquals("Languages uk is not supported"));
 	}
 
 	@Test

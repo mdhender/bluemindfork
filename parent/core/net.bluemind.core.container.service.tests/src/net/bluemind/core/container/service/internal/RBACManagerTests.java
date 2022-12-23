@@ -47,18 +47,22 @@ public class RBACManagerTests {
 
 	@Before
 	public void before() throws Exception {
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+
 		JdbcTestHelper.getInstance().beforeTest();
 		BmConfIni ini = new BmConfIni();
-		Server cyrus = new Server();
-		cyrus.ip = ini.get("imap-role");
-		cyrus.tags = Arrays.asList(TagDescriptor.mail_imap.getTag());
+
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
+
 		Server pg = new Server();
 		pg.tags = Arrays.asList(TagDescriptor.bm_pgsql_data.getTag());
 		pg.ip = ini.get("bluemind/postgres-tests");
-		PopulateHelper.initGlobalVirt(cyrus, pg);
+		PopulateHelper.initGlobalVirt(pipo, pg);
 
 		domainUid = "bmtest.lan";
-		PopulateHelper.createTestDomain(domainUid, cyrus, pg);
+		PopulateHelper.createTestDomain(domainUid, pipo, pg);
 
 		userUid = PopulateHelper.addUser("toto", domainUid, Routing.none);
 		containerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(), SecurityContext.SYSTEM);

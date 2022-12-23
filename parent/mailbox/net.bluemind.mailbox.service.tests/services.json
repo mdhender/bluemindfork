@@ -1,9 +1,12 @@
 [{ 
  	"name":"bluemind/postgres-tests"
- 	    },{
-    "name":"bluemind/imap-role"
-            },{
+ 	    },
+	    {
     "name":"bluemind/smtp-role"
         },{
     "name":"bluemind/node-tests"
-}]
+},
+{
+ 	"name":"bluemind/elasticsearch-tests"
+}
+]

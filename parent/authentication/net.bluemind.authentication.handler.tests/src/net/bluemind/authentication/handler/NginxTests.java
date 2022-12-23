@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -38,8 +39,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
-
 import net.bluemind.core.api.Email;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -51,7 +50,6 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.network.topology.Topology;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
@@ -65,10 +63,12 @@ public class NginxTests {
 	private ItemValue<Domain> domain;
 	private String[] userAlias;
 	private String userLatd;
-	private Server cyrus;
+	private Server pipo;
 
 	@Before
 	public void before() throws Exception {
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+
 		String domainUid = "bm.lan";
 
 		JdbcTestHelper.getInstance().beforeTest();
@@ -81,13 +81,13 @@ public class NginxTests {
 		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ISystemConfiguration.class)
 				.updateMutableValues(currentValues.values);
 
-		cyrus = new Server();
-		cyrus.ip = new BmConfIni().get("imap-role");
-		cyrus.tags = Lists.newArrayList("mail/imap");
+		pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
-		PopulateHelper.initGlobalVirt(cyrus);
+		PopulateHelper.initGlobalVirt(pipo);
 
-		domain = initDomain(domainUid, cyrus);
+		domain = initDomain(domainUid, pipo);
 
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 		Topology.get();
@@ -128,7 +128,7 @@ public class NginxTests {
 
 		assertEquals(200, response.getStatusCode());
 		assertEquals("OK", response.getHeader("Auth-Status"));
-		assertEquals(cyrus.ip, response.getHeader("Auth-Server"));
+		assertEquals(PopulateHelper.FAKE_CYRUS_IP, response.getHeader("Auth-Server"));
 		assertEquals("1143", response.getHeader("Auth-Port"));
 		assertFalse(response.getHeaders().contains("Auth-User"));
 	}
@@ -140,7 +140,7 @@ public class NginxTests {
 
 			assertEquals(200, response.getStatusCode());
 			assertEquals("OK", response.getHeader("Auth-Status"));
-			assertEquals(cyrus.ip, response.getHeader("Auth-Server"));
+			assertEquals(PopulateHelper.FAKE_CYRUS_IP, response.getHeader("Auth-Server"));
 			assertEquals("1143", response.getHeader("Auth-Port"));
 			assertTrue(response.getHeaders().contains("Auth-User"));
 		}
@@ -152,7 +152,7 @@ public class NginxTests {
 
 		assertEquals(200, response.getStatusCode());
 		assertEquals("OK", response.getHeader("Auth-Status"));
-		assertEquals(cyrus.ip, response.getHeader("Auth-Server"));
+		assertEquals(PopulateHelper.FAKE_CYRUS_IP, response.getHeader("Auth-Server"));
 		assertEquals("1110", response.getHeader("Auth-Port"));
 		assertFalse(response.getHeaders().contains("Auth-User"));
 	}
@@ -164,7 +164,7 @@ public class NginxTests {
 
 			assertEquals(200, response.getStatusCode());
 			assertEquals("OK", response.getHeader("Auth-Status"));
-			assertEquals(cyrus.ip, response.getHeader("Auth-Server"));
+			assertEquals(PopulateHelper.FAKE_CYRUS_IP, response.getHeader("Auth-Server"));
 			assertEquals("1110", response.getHeader("Auth-Port"));
 			assertEquals(userLatd, response.getHeader("Auth-User"));
 		}
@@ -199,7 +199,7 @@ public class NginxTests {
 
 		assertEquals(200, response.getStatusCode());
 		assertEquals("OK", response.getHeader("Auth-Status"));
-		assertEquals(cyrus.ip, response.getHeader("Auth-Server"));
+		assertEquals(PopulateHelper.FAKE_CYRUS_IP, response.getHeader("Auth-Server"));
 		assertEquals("1143", response.getHeader("Auth-Port"));
 		assertEquals(String.format("%s@%s", user.login, domain.value.name), response.getHeaders().get("Auth-User"));
 	}

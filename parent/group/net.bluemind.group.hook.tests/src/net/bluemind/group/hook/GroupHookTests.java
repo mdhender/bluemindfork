@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -54,7 +55,6 @@ import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
 import net.bluemind.group.service.internal.ContainerGroupStoreService;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -68,6 +68,8 @@ public class GroupHookTests {
 
 	@Before
 	public void before() throws Exception {
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+
 		domainUid = "bm.lan";
 
 		JdbcTestHelper.getInstance().beforeTest();
@@ -90,19 +92,18 @@ public class GroupHookTests {
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		esServer.tags = Lists.newArrayList("bm/es");
 
-		String cyrusIp = new BmConfIni().get("imap-role");
-		Server imapServer = new Server();
-		imapServer.ip = cyrusIp;
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
-		PopulateHelper.initGlobalVirt(esServer, imapServer);
+		PopulateHelper.initGlobalVirt(esServer, pipo);
 
-		domain = PopulateHelper.createTestDomain(domainUid, esServer, imapServer);
+		domain = PopulateHelper.createTestDomain(domainUid, esServer, pipo);
 
 		IServer serverService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,
 				InstallationId.getIdentifier());
 
-		dataLocation = serverService.getComplete(cyrusIp);
+		dataLocation = serverService.getComplete(PopulateHelper.FAKE_CYRUS_IP);
 
 	}
 

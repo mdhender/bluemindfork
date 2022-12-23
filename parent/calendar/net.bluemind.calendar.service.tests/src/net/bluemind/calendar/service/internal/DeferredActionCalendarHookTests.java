@@ -29,6 +29,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -43,7 +44,6 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
@@ -68,7 +68,6 @@ import net.bluemind.icalendar.api.ICalendarElement.RRule.WeekDay;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm.Action;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.BmDateTimeHelper;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -84,8 +83,8 @@ public class DeferredActionCalendarHookTests {
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		Server imapServer = new Server();
-		imapServer.ip = new BmConfIni().get("imap-role");
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		imapServer.tags = Collections.singletonList("mail/imap");
+		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
 
 		ElasticsearchTestHelper.getInstance().beforeTest();
 		Server esServer = new Server();
@@ -96,11 +95,6 @@ public class DeferredActionCalendarHookTests {
 
 		String domainUid = "defbm.lan";
 		PopulateHelper.createTestDomain(domainUid, imapServer, esServer);
-
-		String cyrusIp = new BmConfIni().get("imap-role");
-		new CyrusService(cyrusIp).createPartition(domainUid);
-		new CyrusService(cyrusIp).refreshPartitions(Arrays.asList(domainUid));
-		new CyrusService(cyrusIp).reload();
 
 		PopulateHelper.addUser("testuser", domainUid);
 		PopulateHelper.addUser("participant1", domainUid);

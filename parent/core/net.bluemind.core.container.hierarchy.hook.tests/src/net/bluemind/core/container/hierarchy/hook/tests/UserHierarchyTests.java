@@ -20,6 +20,7 @@ package net.bluemind.core.container.hierarchy.hook.tests;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,6 +54,8 @@ public class UserHierarchyTests {
 
 	@Before
 	public void before() throws Exception {
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+
 		JdbcTestHelper.getInstance().beforeTest();
 		JdbcTestHelper.getInstance().getDbSchemaService().initialize();
 
@@ -62,12 +65,12 @@ public class UserHierarchyTests {
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		esServer.tags = Lists.newArrayList("bm/es");
 
-		Server imapServer = new Server();
-		imapServer.ip = ini.get("imap-role");
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
-		PopulateHelper.initGlobalVirt(esServer, imapServer);
-		System.err.println("Deploying with es: " + esServer.ip + ", imap: " + imapServer.ip);
+		PopulateHelper.initGlobalVirt(esServer, pipo);
+		System.err.println("Deploying with es: " + esServer.ip + ", imap: " + PopulateHelper.FAKE_CYRUS_IP);
 
 		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.none);
 		ElasticsearchTestHelper.getInstance().beforeTest();

@@ -28,6 +28,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -35,8 +36,6 @@ import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.google.common.collect.Lists;
 
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
@@ -81,7 +80,6 @@ import net.bluemind.icalendar.api.ICalendarElement.RRule.Frequency;
 import net.bluemind.icalendar.api.ICalendarElement.Role;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.resource.service.internal.ResourceContainerStoreService;
 import net.bluemind.server.api.IServer;
@@ -117,14 +115,14 @@ public class IcsHookTests {
 
 		domainUid = "dom" + System.currentTimeMillis() + ".test";
 
-		Server imapServer = new Server();
-		imapServer.ip = new BmConfIni().get("imap-role");
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
-		PopulateHelper.initGlobalVirt(imapServer);
+		PopulateHelper.initGlobalVirt(pipo);
 
 		ItemValue<Server> dataLocation = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IServer.class, InstallationId.getIdentifier()).getComplete(imapServer.ip);
+				.instance(IServer.class, InstallationId.getIdentifier()).getComplete(PopulateHelper.FAKE_CYRUS_IP);
 		dataLocationUid = dataLocation.uid;
 
 		ItemValue<Domain> domain = initDomain(dataLocation);

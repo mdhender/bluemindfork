@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -100,17 +101,16 @@ public class UserMailIdentityTests {
 		esServer.ip = new BmConfIni().get("es-host");
 		esServer.tags = Lists.newArrayList("bm/es");
 
-		String cyrusIp = new BmConfIni().get("imap-role");
-		Server imapServer = new Server();
-		imapServer.ip = cyrusIp;
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
-		PopulateHelper.initGlobalVirt(esServer, imapServer);
+		PopulateHelper.initGlobalVirt(esServer, pipo);
 
 		PopulateHelper.createTestDomain(domainUid);
 		PopulateHelper.unAssignFakeCyrus(domainUid);
-		testContext.provider().instance(IServer.class, InstallationId.getIdentifier()).assign(imapServer.ip, domainUid,
-				"mail/imap");
+		testContext.provider().instance(IServer.class, InstallationId.getIdentifier())
+				.assign(PopulateHelper.FAKE_CYRUS_IP, domainUid, "mail/imap");
 
 		testContext.provider().instance(IOrgUnits.class, domainUid).create("tlse", OrgUnit.create("tlse", null));
 

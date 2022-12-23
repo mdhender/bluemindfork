@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -37,7 +38,6 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 import net.bluemind.addressbook.api.VCard;
-import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -61,7 +61,6 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailshare.api.IMailshare;
 import net.bluemind.mailshare.api.Mailshare;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
@@ -76,6 +75,8 @@ public class ProducerTests {
 
 	@Before
 	public void setup() throws Exception {
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+
 		JdbcTestHelper.getInstance().beforeTest();
 		Serializers.clear();
 		ElasticsearchTestHelper.getInstance().beforeTest();
@@ -85,18 +86,12 @@ public class ProducerTests {
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
 		esServer.tags = Lists.newArrayList("bm/es");
 
-		String cyrusIp = new BmConfIni().get("imap-role");
-		Server imapServer = new Server();
-		imapServer.ip = cyrusIp;
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
-		PopulateHelper.initGlobalVirt(esServer, imapServer);
-		domain = PopulateHelper.createTestDomain(domainUid, esServer, imapServer);
-
-		// create domain parititon on cyrus
-		new CyrusService(cyrusIp).createPartition(domainUid);
-		new CyrusService(cyrusIp).refreshPartitions(Arrays.asList(domainUid));
-		new CyrusService(cyrusIp).reload();
+		PopulateHelper.initGlobalVirt(esServer, pipo);
+		domain = PopulateHelper.createTestDomain(domainUid, esServer, pipo);
 
 		PopulateHelper.addUserWithRoles("useradmin", domainUid, BasicRoles.ROLE_MANAGE_USER);
 
@@ -110,10 +105,10 @@ public class ProducerTests {
 		IExternalUser externalUserService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IExternalUser.class, domain.uid);
 
-		groupService.create("group1", defaultGroup("g1", cyrusIp));
-		groupService.create("group2", defaultGroup("g2", cyrusIp));
+		groupService.create("group1", defaultGroup("g1", PopulateHelper.FAKE_CYRUS_IP));
+		groupService.create("group2", defaultGroup("g2", PopulateHelper.FAKE_CYRUS_IP));
 
-		mailshareService.create("share1", defaultMailshare(cyrusIp));
+		mailshareService.create("share1", defaultMailshare(PopulateHelper.FAKE_CYRUS_IP));
 
 		externalUserService.create("external1", defaultExternalUser("external", "user1"));
 	}

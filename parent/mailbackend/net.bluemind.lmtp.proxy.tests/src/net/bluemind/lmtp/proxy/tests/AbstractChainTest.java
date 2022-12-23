@@ -54,6 +54,7 @@ import net.bluemind.lmtp.testhelper.server.ProxyServer;
 import net.bluemind.metrics.testhelper.MetricsHelper;
 import net.bluemind.metrics.testhelper.TestRegistry;
 import net.bluemind.system.api.SystemState;
+import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public abstract class AbstractChainTest {
 
@@ -61,6 +62,9 @@ public abstract class AbstractChainTest {
 
 	@Before
 	public void before() throws Exception {
+
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+
 		CoreStateListener.state = SystemState.CORE_STATE_RUNNING;
 		System.err.println("init reg for tests...");
 		testRegistry = MetricsHelper.beforeTests();

@@ -76,6 +76,8 @@ import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.imap.endpoint.EndpointRuntimeException;
+import net.bluemind.imap.endpoint.driver.AppendStatus;
+import net.bluemind.imap.endpoint.driver.AppendStatus.WriteStatus;
 import net.bluemind.imap.endpoint.driver.CopyResult;
 import net.bluemind.imap.endpoint.driver.FetchedItem;
 import net.bluemind.imap.endpoint.driver.IdleToken;
@@ -91,6 +93,7 @@ import net.bluemind.lib.jutf7.UTF7Converter;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.api.MailboxQuota;
 import net.bluemind.system.api.SysConfKeys;
 
 public class MailApiConnection implements MailboxConnection {
@@ -125,7 +128,7 @@ public class MailApiConnection implements MailboxConnection {
 		this.foldersApi = prov.instance(IDbReplicatedMailboxes.class, me.domainUid, "user." + me.value.login);
 		this.subApi = prov.instance(IOwnerSubscriptions.class, me.domainUid, me.uid);
 		this.sizeLimit = Integer
-				.parseInt(Optional.ofNullable(config.get(SysConfKeys.message_size_limit.name())).orElse("10000000"));
+				.parseInt(Optional.ofNullable(config.get(SysConfKeys.message_size_limit.name())).orElse("20000000"));
 		this.sharedRootPrefix = DriverConfig.get().getString(DriverConfig.SHARED_VIRTUAL_ROOT) + "/";
 		this.userRootPrefix = DriverConfig.get().getString(DriverConfig.USER_VIRTUAL_ROOT) + "/";
 		this.folderResolver = new FolderResolver(userProv, suProv, me, myMailbox);
@@ -450,11 +453,19 @@ public class MailApiConnection implements MailboxConnection {
 	}
 
 	@Override
-	public long append(String folder, List<String> flags, Date deliveryDate, ByteBuf buffer) {
+	public AppendStatus append(String folder, List<String> flags, Date deliveryDate, ByteBuf buffer) {
 		SelectedFolder selected = select(folder);
+
 		if (selected == null) {
-			return 0L;
+			return new AppendStatus(WriteStatus.EXCEPTIONNALY_REJECTED, 0L);
 		}
+
+		IMailboxes mboxApi = suProv.instance(IMailboxes.class, me.domainUid);
+		MailboxQuota mbxQuota = mboxApi.getMailboxQuota(selected.mailbox.owner.uid);
+		if (mbxQuota.quota != null && mbxQuota.used < (mbxQuota.used + buffer.capacity())) {
+			return new AppendStatus(WriteStatus.OVERQUOTA_REJECTED, 0L);
+		}
+
 		AppendTx appendTx = selected.mailbox.foldersApi.prepareAppend(selected.folder.internalId, 1);
 
 		@SuppressWarnings("deprecation")
@@ -482,7 +493,7 @@ public class MailApiConnection implements MailboxConnection {
 		rec.lastUpdated = rec.internalDate;
 
 		selected.recApi.create(appendTx.imapUid + ".", rec);
-		return appendTx.imapUid;
+		return new AppendStatus(WriteStatus.WRITTEN, appendTx.imapUid);
 	}
 
 	private List<MailboxItemFlag> flags(List<String> flags) {

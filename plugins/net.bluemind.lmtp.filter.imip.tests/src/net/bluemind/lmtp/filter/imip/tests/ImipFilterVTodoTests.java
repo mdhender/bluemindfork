@@ -28,6 +28,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -40,8 +41,6 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 import net.bluemind.addressbook.api.VCard;
-import net.bluemind.backend.cyrus.CyrusAdmins;
-import net.bluemind.backend.cyrus.CyrusService;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.date.BmDateTime.Precision;
@@ -69,7 +68,6 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.resource.api.IResources;
 import net.bluemind.resource.api.ResourceDescriptor;
-import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.todolist.api.ITodoList;
@@ -90,6 +88,9 @@ public class ImipFilterVTodoTests {
 
 	@Before
 	public void before() throws Exception {
+		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
+
 		JdbcTestHelper.getInstance().beforeTest();
 
 		ElasticsearchTestHelper.getInstance().beforeTest();
@@ -101,22 +102,15 @@ public class ImipFilterVTodoTests {
 		// FIXME bm/es for todo indexing?
 		esServer.tags = Lists.newArrayList("bm/es");
 
-		String cyrusIp = new BmConfIni().get("imap-role");
-		Server imapServer = new Server();
-		imapServer.ip = cyrusIp;
-		imapServer.tags = Lists.newArrayList("mail/imap");
+		Server pipo = new Server();
+		pipo.tags = Collections.singletonList("mail/imap");
+		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 
-		PopulateHelper.initGlobalVirt(esServer, imapServer);
+		PopulateHelper.initGlobalVirt(esServer, pipo);
 
 		PopulateHelper.addDomainAdmin("admin0", "global.virt");
 
-		PopulateHelper.createTestDomain(domainUid, esServer, imapServer);
-		new CyrusService(cyrusIp).createPartition(domainUid);
-		new CyrusService(cyrusIp).refreshPartitions(Arrays.asList(domainUid));
-		new CyrusAdmins(
-				ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class, "default"),
-				imapServer.ip).write();
-		new CyrusService(cyrusIp).reload();
+		PopulateHelper.createTestDomain(domainUid, esServer, pipo);
 
 		PopulateHelper.addDomainAdmin("admin", domainUid, Mailbox.Routing.internal);
 
