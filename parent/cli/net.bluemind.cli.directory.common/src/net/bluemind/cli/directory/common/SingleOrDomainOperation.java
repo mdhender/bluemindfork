@@ -63,8 +63,8 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 	@Option(names = "--match", description = "regex that entity must match, for example : [a-c].*")
 	public String match = "";
 
-	@Option(names = "--no-progress", description = "don't display progress messages")
-	public boolean noProgress = false;
+	@Option(names = "--progress", description = "display progress messages")
+	public boolean progress = false;
 
 	public abstract void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) throws Exception;
 
@@ -134,7 +134,7 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 				}
 			}
 
-			if (!noProgress) {
+			if (progress) {
 				ctx.progress(entriesWithDomainUid.size(), ++ended);
 			}
 		}
