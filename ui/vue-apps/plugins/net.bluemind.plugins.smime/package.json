@@ -16,6 +16,7 @@
         "@bluemind/i18n": "^5.0.0",
         "@bluemind/mime": "^5.0.0",
         "@bluemind/mail": "^5.0.0",
+        "@bluemind/email": "^5.0.0",
         "@bluemind/mailmessage.api": "^5.0.0",
         "@bluemind/contact": "^5.0.0",
         "@bluemind/alert.store": "^5.0.0",

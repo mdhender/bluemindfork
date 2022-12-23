@@ -1,0 +1,8 @@
+{
+    "name": "@bluemind/service-worker-utils",
+    "version": "5.0.0",
+    "description": "BlueMind package for service worker helpers",
+    "license": "AGPL-3.0-only",
+    "author": "Blue Mind SAS",
+    "main": "src/index.ts"
+}

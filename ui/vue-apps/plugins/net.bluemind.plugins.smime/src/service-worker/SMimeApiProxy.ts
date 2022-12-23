@@ -1,10 +1,13 @@
 import { ImapItemIdentifier, MailboxItem, MailboxItemsClient } from "@bluemind/backend.mail.api";
 import { Ack, ItemValue } from "@bluemind/core.container.api";
 import { removeSignatureFromStructure, hasToBeEncrypted, hasToBeSigned } from "../lib/helper";
+import { getCacheKey } from "./smimePartCache";
 import { decrypt, encrypt, isEncrypted, isSigned, sign, verify } from "./smime";
 
 export default class SMimeApiProxy extends MailboxItemsClient {
     next?: (...args: Array<unknown>) => Promise<never>;
+    event?: FetchEvent;
+
     async multipleGetById() {
         const items: Array<ItemValue<MailboxItem>> = await this.next!();
 
@@ -56,5 +59,21 @@ export default class SMimeApiProxy extends MailboxItemsClient {
             item = await encrypt(item, this.replicatedMailboxUid);
         }
         return await this.next!(id, item);
+    }
+    async fetch(
+        imapUid: number,
+        address: string,
+        encoding: string,
+        mime: string,
+        charset: string,
+        filename: string
+    ): Promise<Blob> {
+        const smimeCache = await caches.open("smime-part-cache");
+        const key = getCacheKey(this.replicatedMailboxUid, imapUid, address);
+        const cache = await smimeCache.match(key);
+        if (cache) {
+            return cache.blob();
+        }
+        return this.next!(imapUid, address, encoding, mime, charset, filename);
     }
 }

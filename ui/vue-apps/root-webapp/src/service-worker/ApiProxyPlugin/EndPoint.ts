@@ -21,7 +21,7 @@ export class EndPoint {
         this.handler = null;
         this.url = `/api${[endpoint.path.value, metadatas.path.value].filter(Boolean).join("/")}`;
         const query = this.metadatas.inParams.some(({ paramType }) => paramType === "QueryParam") ? "(\\?.*)?" : "";
-        this.regExp = new RegExp(`${this.url.replace(/{[^}]+}/g, "([^_/][^/]*)")}${query}$`);
+        this.regExp = new RegExp(`${this.url.replace(/{[^}]+}/g, "([^_/][^/?]*)")}${query}$`);
     }
 
     priority(): number {
@@ -38,12 +38,12 @@ export class EndPoint {
     chain(client: ApiEndPointClass, priority: number) {
         this.handler = new ApiRouteHandler(client, this.metadatas, priority).chain(this.handler);
     }
-    async handle({ request, params }: RouteHandlerCallbackOptions): Promise<Response> {
+    async handle({ request, params, event }: RouteHandlerCallbackOptions): Promise<Response> {
         if (this.handler) {
             const pathParams: string[] = Array.isArray(params) ? params : [];
             try {
                 const params = await this.parse(request.clone(), pathParams);
-                const result = await this.handler.execute(params);
+                const result = await this.handler.execute(params, event);
                 return this.reply(result);
             } catch (e) {
                 return this.replyError(e);

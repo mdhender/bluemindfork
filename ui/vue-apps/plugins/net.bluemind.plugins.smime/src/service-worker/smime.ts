@@ -18,6 +18,8 @@ import extractSignedData from "./signedDataParser";
 import pkcs7 from "./pkcs7/";
 import { checkCertificateValidity, getMyCertificate, getMyPrivateKey, getCertificate } from "./pki/";
 import { addHeaderValue, resetHeader } from "../lib/helper";
+import { dispatchFetch } from "@bluemind/service-worker-utils";
+import { getCacheKey } from "./smimePartCache";
 
 export function isEncrypted(item: ItemValue<MailboxItem>): boolean {
     return PKCS7_MIMES.includes(item.value!.body!.structure!.mime!);
@@ -43,8 +45,8 @@ export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): 
             const parser = await new MimeParser(part.address).parse(content);
             const parts = parser.getParts();
             for (const p of parts) {
-                const content = parser.getPartContent(p.address!);
-                savePart(folderUid, item.value.imapUid!, p, content);
+                const partContent = parser.getPartContent(p.address!);
+                await savePart(folderUid, item.value!.imapUid!, p, partContent);
             }
             item.value.body.structure = parser.structure as MessageBody.Part;
         }
@@ -72,7 +74,7 @@ export async function encrypt(item: MailboxItem, folderUid: string): Promise<Mai
 
         if (encryptedItem.body.structure && encryptedItem.imapUid) {
             try {
-                mimeTree = await new MimeBuilder(getRemoteContentFn(client, item.imapUid!)).build(
+                mimeTree = await new MimeBuilder(getRemoteContentFn(item.imapUid!, folderUid)).build(
                     encryptedItem.body.structure
                 );
             } catch (error) {
@@ -111,7 +113,7 @@ export async function sign(item: MailboxItem, folderUid: string): Promise<Mailbo
         item.body.structure = removePreviousSignedPart(item.body.structure!);
         const client = new MailboxItemsClient(await session.sid, folderUid);
 
-        const unsignedContent = await new MimeBuilder(getRemoteContentFn(client, item.imapUid!)).build(
+        const unsignedContent = await new MimeBuilder(getRemoteContentFn(item.imapUid!, folderUid)).build(
             item.body.structure!
         );
         const { content: unsignedWithoutHeaders, headers } = splitHeadersAndContent(unsignedContent);
@@ -168,10 +170,13 @@ function removePreviousSignedPart(structure: MessageBody.Part): MessageBody.Part
     return structure;
 }
 
-function getRemoteContentFn(client: MailboxItemsClient, imapUid: number) {
+function getRemoteContentFn(imapUid: number, folderUid: string) {
     return async (p: MessageBody.Part): Promise<string | Uint8Array> => {
-        const data: Blob = await client.fetch(imapUid, p.address!, p.encoding, p.mime, p.charset);
-        return data.text();
+        const filenameParam = p.fileName ? "&filename=" + p.fileName : "";
+        const encodedMime = encodeURIComponent(p.mime!);
+        const apiCoreUrl = `/api/mail_items/${folderUid}/part/${imapUid}/${p.address}?encoding=${p.encoding}&mime=${encodedMime}&charset=${p.charset}${filenameParam}`;
+        const data = await dispatchFetch(new Request(apiCoreUrl));
+        return new Uint8Array(await data.arrayBuffer());
     };
 }
 
@@ -189,17 +194,14 @@ function extractContentType(headers: string): string {
 }
 
 //FIXME: This should be imported from a third party package
-async function savePart(uid: string, imap: number, part: MessageBody.Part, content: ArrayBuffer | undefined) {
-    const cache = await caches.open("part-cache");
+async function savePart(folderUid: string, imapUid: number, part: MessageBody.Part, content: ArrayBuffer | undefined) {
     const { address } = part;
-    if (address) {
-        const request = new Request(constructCacheUrl(uid, imap, address));
-        cache.put(request.url, new Response(content));
-    }
-}
+    const cache: Cache = await caches.open("smime-part-cache");
 
-function constructCacheUrl(folderUid: string, imapUid: number, address: string) {
-    return `/api/mail_items/${folderUid}/part/${imapUid}/${address}`;
+    if (address) {
+        const key = getCacheKey(folderUid, imapUid, address);
+        cache.put(new Request(key), new Response(content));
+    }
 }
 
 export default { isEncrypted, isSigned, decrypt, encrypt, verify, sign };

@@ -9,8 +9,10 @@ import Session from "./session";
 import { logger } from "./logger";
 import BrowserData from "./BrowserData";
 import { MailItemDB } from "./workbox/MailItemDB";
+import { PartApiProxy } from "./workbox/PartApiProxy";
 
 extensions.register("serviceworker.handlers", "mail-webapp", { "api-handler": { class: MailItemDB, priority: 128 } });
+extensions.register("serviceworker.handlers", "mail-webapp", { "part-handler": { class: PartApiProxy, priority: 64 } });
 
 registerSessionInfoRoute();
 registerPartRoute();
