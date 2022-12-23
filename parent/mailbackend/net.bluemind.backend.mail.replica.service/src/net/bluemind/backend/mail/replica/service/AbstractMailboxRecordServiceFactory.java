@@ -89,9 +89,9 @@ public abstract class AbstractMailboxRecordServiceFactory<T>
 			}
 			MailboxRecordStore recordStore = new MailboxRecordStore(ds, recordsContainer, subtreeContainer);
 
-			ContainerStoreService<MailboxRecord> storeService = new HookMailboxRecordStoreService<>(ds,
+			ContainerStoreService<MailboxRecord> storeService = new HookMailboxRecordStoreService(ds,
 					context.getSecurityContext(), recordsContainer, recordStore, flagsProvider, recordSeedProvider,
-					toWeight, mailboxUniqueId);
+					toWeight);
 			storeService = disableChangelogIfSystem(context, recordsContainer, storeService);
 			return create(ds, recordsContainer, context, mailboxUniqueId, recordStore, storeService);
 		} catch (SQLException e) {

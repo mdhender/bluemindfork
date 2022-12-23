@@ -360,7 +360,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		});
 	}
 
-	protected void beforeCreationInBackupStore(ItemValue<T> itemValue) {
+	protected void beforeCreationInBackupStore(@SuppressWarnings("unused") ItemValue<T> itemValue) {
 		// This methode can be override in child class to perform an operation before
 		// backuping a creation
 	}
@@ -483,7 +483,12 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		});
 	}
 
+	protected void preUpdateValue(Item newItem, T newValue, Supplier<T> oldValue) throws SQLException {
+		// override if necessary
+	}
+
 	protected void updateValue(Item item, T value) throws SQLException {
+		preUpdateValue(item, value, () -> doOrFail(() -> itemValueStore.get(item)));
 		itemValueStore.update(item, value);
 	}
 

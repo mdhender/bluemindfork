@@ -1,6 +1,8 @@
 package net.bluemind.backend.mail.replica.service;
 
+import java.sql.SQLException;
 import java.util.List;
+import java.util.function.Supplier;
 
 import javax.sql.DataSource;
 
@@ -8,69 +10,36 @@ import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.hook.IMessageBodyHook;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
-import net.bluemind.core.container.model.ItemVersion;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.IItemValueStore;
 import net.bluemind.core.container.persistence.IWeightProvider;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 
-public class HookMailboxRecordStoreService<T> extends ContainerStoreService<T> {
+public class HookMailboxRecordStoreService extends ContainerStoreService<MailboxRecord> {
 
 	private static List<IMessageBodyHook> hooks = getHooks();
-	private String mailboxUniqueId;
 
 	public HookMailboxRecordStoreService(DataSource pool, SecurityContext securityContext, Container container,
-			IItemValueStore<T> itemValueStore, IItemFlagsProvider<T> fProv, IWeightSeedProvider<T> wsProv,
-			IWeightProvider wProv, String mailboxUniqueId) {
+			IItemValueStore<MailboxRecord> itemValueStore, IItemFlagsProvider<MailboxRecord> fProv,
+			IWeightSeedProvider<MailboxRecord> wsProv, IWeightProvider wProv) {
 		super(pool, securityContext, container, itemValueStore, fProv, wsProv, wProv);
-		this.mailboxUniqueId = mailboxUniqueId;
-
 	}
 
 	@Override
-	public ItemVersion createWithId(String uid, Long internalId, String extId, String displayName, T value) {
-		MailboxRecord mailboxRecord = (MailboxRecord) value;
-		hooks.forEach(hook -> hook.preCreate(container.domainUid, container.owner, mailboxRecord));
-		return super.createWithId(uid, internalId, extId, displayName, value, changelogStore, itemStore,
-				itemValueStore);
+	protected void beforeCreationInBackupStore(ItemValue<MailboxRecord> itemValue) {
+		hooks.forEach(hook -> hook.preCreate(container.domainUid, container.owner, itemValue.value));
 	}
 
 	@Override
-	public ItemVersion create(String uid, String displayName, T value) {
-		MailboxRecord mailboxRecord = (MailboxRecord) value;
-		hooks.forEach(hook -> hook.preCreate(container.domainUid, container.owner, mailboxRecord));
-		return super.createWithId(uid, null, null, displayName, value);
-	}
+	protected void preUpdateValue(Item newItem, MailboxRecord newValue, Supplier<MailboxRecord> oldValue)
+			throws SQLException {
+		MailboxRecord prevRec = oldValue.get();
+		if (!prevRec.messageBody.equals(newValue.messageBody)) {
+			hooks.forEach(hook -> hook.preUpdate(container.domainUid, container.owner, newValue));
+		}
 
-	@Override
-	public ItemVersion create(Item item, T value) {
-		MailboxRecord mailboxRecord = (MailboxRecord) value;
-		hooks.forEach(hook -> hook.preCreate(container.domainUid, container.owner, mailboxRecord));
-		return super.create(item, value);
-	}
-
-	@Override
-	public ItemVersion update(long itemId, String displayName, T value) {
-		MailboxRecord mailboxRecord = (MailboxRecord) value;
-		hooks.forEach(hook -> hook.preUpdate(container.domainUid, container.owner, mailboxRecord));
-		return super.update(itemId, displayName, value);
-	}
-
-	@Override
-	public ItemVersion update(String uid, String displayName, T value) {
-		MailboxRecord mailboxRecord = (MailboxRecord) value;
-		hooks.forEach(hook -> hook.preUpdate(container.domainUid, container.owner, mailboxRecord));
-		Item item = new Item();
-		item.uid = uid;
-		return super.update(item, displayName, value);
-	}
-
-	@Override
-	public ItemVersion update(Item item, String displayName, T value) {
-		MailboxRecord mailboxRecord = (MailboxRecord) value;
-		hooks.forEach(hook -> hook.preUpdate(container.domainUid, container.owner, mailboxRecord));
-		return super.update(item, displayName, value);
 	}
 
 	private static List<IMessageBodyHook> getHooks() {
