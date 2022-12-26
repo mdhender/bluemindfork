@@ -30,6 +30,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.ReadStream;
+import net.bluemind.core.task.service.internal.ISubscriber;
 import net.bluemind.core.task.service.internal.LogStream;
 import net.bluemind.core.task.service.internal.TaskManager;
 
@@ -60,8 +61,9 @@ public class CQTaskManager extends TaskManager implements Handler<Message<JsonOb
 
 	public List<String> getCurrentLogs(int offset) {
 		List<String> ret = new ArrayList<>(64);
-		// we add blanks so offsets are consistent
-		jsQueue.subscriber(offset).fetchAll(js -> ret.add(Optional.ofNullable(js.getString("message")).orElse("")));
+		try (ISubscriber sub = jsQueue.subscriber(offset)) {
+			sub.fetchAll(js -> ret.add(Optional.ofNullable(js.getString("message")).orElse("")));
+		}
 		return ret;
 	}
 
@@ -70,11 +72,12 @@ public class CQTaskManager extends TaskManager implements Handler<Message<JsonOb
 	}
 
 	protected void pushLog(JsonObject log, boolean end) {
-		jsQueue.put(log);
-		for (LogStream reader : readers) {
-			reader.wakeUp();
-			if (end) {
-				reader.end();
+		if (jsQueue.put(log)) {
+			for (LogStream reader : readers) {
+				reader.wakeUp();
+				if (end) {
+					reader.end();
+				}
 			}
 		}
 	}

@@ -47,7 +47,6 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
-import net.bluemind.core.task.service.BlockingServerTask;
 import net.bluemind.core.task.service.IServerTask;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -139,57 +138,73 @@ public class TaskManagerTests {
 
 	@Test
 	public void testManyActiveTasks() {
-		int cnt = 2048;
+		int cnt = 256;
+		int expectedMsg = 200_000;
 		final CountDownLatch cdl = new CountDownLatch(cnt);
 		CompletableFuture<Void> endTask = new CompletableFuture<>();
 		AtomicLong msgs = new AtomicLong();
 
 		for (int i = 0; i < cnt; i++) {
 			String taskId = "tsk_" + i;
-			IServerTask serverTask = new BlockingServerTask() {
+			IServerTask serverTask = new IServerTask() {
+
+				private CompletableFuture<Void> taskProm = new CompletableFuture<>();
 
 				private void logLoop(Vertx vx, IServerTaskMonitor monitor) {
 					vx.setTimer(10, tid -> {
-						monitor.log(taskId + " is alive: Lorem ipsum dolor sit amet, "
-								+ "consectetur adipiscing elit. Donec ut porttitor neque. "
-								+ "In mattis sagittis lobortis.");
-						if (!endTask.isDone()) {
-							logLoop(vx, monitor);
-						} else {
-							monitor.progress(5, null);
-							monitor.end(true, "gg " + tid, "yeah");
-						}
+						vx.executeBlocking(prom -> {
+							monitor.log(taskId + " is alive: Lorem ipsum dolor sit amet, "
+									+ "consectetur adipiscing elit. Donec ut porttitor neque. "
+									+ "In mattis sagittis lobortis.");
+							prom.complete();
+						}, true, ar -> {
+							if (ar.failed()) {
+								taskProm.completeExceptionally(ar.cause());
+							} else if (!endTask.isDone()) {
+								logLoop(vx, monitor);
+							} else {
+								monitor.progress(1, null);
+								monitor.end(true, "gg " + tid, "yeah " + taskId);
+								taskProm.complete(null);
+							}
+						});
 					});
 				}
 
 				@Override
-				public void run(IServerTaskMonitor monitor) {
-					monitor.begin(5, "begin");
+				public CompletableFuture<Void> execute(IServerTaskMonitor monitor) {
+					monitor.begin(2.0 * (expectedMsg / cnt), "begin");
 					logLoop(VertxPlatform.getVertx(), monitor);
+					return taskProm;
 				}
 			};
 			TaskRef taskRef = taskManager.run(serverTask);
 
 			TaskManager task = taskManager.getTaskManager(taskRef.id);
 			assertNotNull(task);
-
+			long time = System.currentTimeMillis();
 			ReadStream<Buffer> reader = task.log();
 			reader.handler(b -> msgs.incrementAndGet());
-			reader.endHandler(v -> cdl.countDown());
+			reader.endHandler(v -> {
+				System.err.println(taskId + " ends after " + (System.currentTimeMillis() - time) + "ms ("
+						+ Thread.currentThread().getName() + ")");
+				cdl.countDown();
+			});
 
 		}
-		while (msgs.get() < 500_000) {
+		while (msgs.get() < expectedMsg) {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 			}
 			System.err.println("Tasks logs have fetched " + msgs.get() + " message(s)");
 		}
 		endTask.complete(null);
 		try {
-			cdl.await(30, TimeUnit.SECONDS);
+			assertTrue(cdl.await(30, TimeUnit.SECONDS));
 		} catch (InterruptedException e) {
-
+			Thread.currentThread().interrupt();
 		}
 	}
 
@@ -214,7 +229,7 @@ public class TaskManagerTests {
 		reader.exceptionHandler(event -> cdl.countDown());
 
 		try {
-			cdl.await(30, TimeUnit.SECONDS);
+			assertTrue(cdl.await(30, TimeUnit.SECONDS));
 		} catch (InterruptedException e) {
 		}
 

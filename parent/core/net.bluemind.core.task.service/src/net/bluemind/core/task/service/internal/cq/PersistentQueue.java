@@ -87,17 +87,17 @@ public class PersistentQueue implements AutoCloseable {
 		return "CQ{uid: " + subId + "}";
 	}
 
-	public synchronized void put(JsonObject js) {
+	public synchronized boolean put(JsonObject js) {
 		if (queue.isClosed()) {
 			if (logger.isWarnEnabled()) {
 				logger.warn("Queue {} {} is closed, msg ({}) dropped", tid, subId, js.encode());
 			}
-			return;
+			return false;
 		}
 		try {
-			onCqThread(() -> {
+			return onCqThread(() -> {
 				appender.writeText(js.encode());
-				return null;
+				return true;
 			}).get(10, TimeUnit.SECONDS);
 		} catch (Exception e) { // NOSONAR
 			throw ServerFault.create(ErrorCode.TIMEOUT, e);
@@ -167,6 +167,11 @@ public class PersistentQueue implements AutoCloseable {
 		@Override
 		public String taskId() {
 			return tid;
+		}
+
+		@Override
+		public void close() {
+			tail.close();
 		}
 
 	}

@@ -144,9 +144,9 @@ public class LogStream implements ReadStream<Buffer>, Stream {
 		}
 	}
 
-	public void end() {
+	public synchronized void end() {
 		ended = true;
-		ended();
+		wakeUp();
 	}
 
 	@Override

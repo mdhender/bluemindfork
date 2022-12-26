@@ -21,12 +21,14 @@ import java.util.function.Consumer;
 
 import io.vertx.core.json.JsonObject;
 
-public interface ISubscriber {
+public interface ISubscriber extends AutoCloseable {
 
 	public void fetchAll(Consumer<JsonObject> handler);
 
 	public JsonObject fetchOne();
 
 	public String taskId();
+
+	void close();
 
 }
