@@ -176,6 +176,9 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 			EmitReplicationEvents.recordCreated(mailboxUniqueId, version.version, version.id, mail.imapUid);
 			EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, version.version,
 					new long[] { version.id }, version.id);
+			if (newMailNotificationCandidate(recordsLocation, itemValue)) {
+				newMailNotification(itemValue);
+			}
 		} else {
 			logger.debug("Sending event for replaced item {}", version);
 			EmitReplicationEvents.recordUpdated(mailboxUniqueId, version, mail);
@@ -417,6 +420,12 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 
 	}
 
+	private boolean newMailNotificationCandidate(SubtreeLocation recordsLocation, ItemValue<MailboxRecord> idxAndNotif) {
+		return "INBOX".equals(recordsLocation.boxName) && recordsLocation.namespace() == Namespace.users
+				&& !idxAndNotif.value.flags.contains(MailboxItemFlag.System.Seen.value())
+				&& !idxAndNotif.value.flags.contains(MailboxItemFlag.System.Deleted.value());
+	}
+
 	private Ack updatesImpl(List<MailboxRecord> recs) {
 		List<MailboxRecord> records = fixFlags(recs);
 		logger.info("[{}] Update with {} record(s)", mailboxUniqueId, records.size());
@@ -516,9 +525,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 				idxAndNotif.version = upsert.version.version;
 
 				pushToIndex.add(idxAndNotif);
-				if ("INBOX".equals(recordsLocation.boxName) && recordsLocation.namespace() == Namespace.users
-						&& !idxAndNotif.value.flags.contains(MailboxItemFlag.System.Seen.value())
-						&& !idxAndNotif.value.flags.contains(MailboxItemFlag.System.Deleted.value())) {
+				if (newMailNotificationCandidate(recordsLocation, idxAndNotif)) {
 					newMailNotification.add(idxAndNotif);
 				}
 			});
