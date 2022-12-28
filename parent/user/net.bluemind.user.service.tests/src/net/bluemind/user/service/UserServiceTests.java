@@ -20,6 +20,7 @@ package net.bluemind.user.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -755,6 +756,47 @@ public class UserServiceTests {
 
 		assertEquals(HashFactory.DEFAULT, HashFactory.algorithm(user.password));
 		assertTrue(HashFactory.getDefault().validate("pw", user.password));
+	}
+
+	@Test
+	public void testASuccessfulCheckforThePasswordShouldUpdateHashIfNecessaryPbkdf2() throws Exception {
+		String login = "test." + System.nanoTime();
+		User user = defaultUser(login);
+
+		// Password is "laurent"
+		String pwHashPbkdf2 = "10000:281830a6450f14eead429958b6936ae3421c1039ab1c32a2:f1a813788f3715cdce39206d485db40bf535808f23d93409";
+
+		String uid = create(user);
+		try (Connection con = JdbcTestHelper.getInstance().getDataSource().getConnection()) {
+			try (PreparedStatement st = con.prepareStatement(
+					"UPDATE t_domain_user SET password = ?, password_algorithm = 'PBKDF2' WHERE login = ?")) {
+				st.setString(1, pwHashPbkdf2);
+				st.setString(2, user.login);
+				st.executeUpdate();
+			}
+		}
+		UserService userService = (UserService) ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IUser.class, domainUid);
+		assertTrue(userService.checkPassword(user.login, "laurent"));
+		String newStoredPassword = "";
+		try (Connection con = JdbcTestHelper.getInstance().getDataSource().getConnection()) {
+			try (PreparedStatement st = con.prepareStatement("SELECT password FROM t_domain_user WHERE login=?")) {
+				st.setString(1, user.login);
+				st.execute();
+				try (ResultSet rs = st.getResultSet()) {
+					if (rs.next()) {
+						newStoredPassword = rs.getString(1);
+					}
+				}
+			}
+		}
+		assertFalse(newStoredPassword.isEmpty());
+		assertNotEquals("Password hash should have been updated", pwHashPbkdf2, newStoredPassword);
+
+		user = userStoreService.get(uid).value;
+
+		assertEquals(HashFactory.DEFAULT, HashFactory.algorithm(user.password));
+		assertTrue(HashFactory.getDefault().validate("laurent", user.password));
 	}
 
 	@Test
@@ -1724,7 +1766,7 @@ public class UserServiceTests {
 		getService(domainAdminSecurityContext).create(uid, user);
 
 		try {
-			getService(domainAdminSecurityContext).setRoles(uid, Collections.EMPTY_SET);
+			getService(domainAdminSecurityContext).setRoles(uid, Collections.emptySet());
 			fail("should not be able to set role for a simple user");
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.FORBIDDEN, sf.getCode());

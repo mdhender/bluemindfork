@@ -40,5 +40,4 @@ public final class MD5Hash implements Hash {
 	public boolean matchesAlgorithm(String password) {
 		return pattern.matcher(password).matches();
 	}
-
 }

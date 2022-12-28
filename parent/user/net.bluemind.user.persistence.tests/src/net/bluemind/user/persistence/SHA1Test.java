@@ -17,17 +17,16 @@
   */
 package net.bluemind.user.persistence;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-import net.bluemind.user.persistence.security.HashAlgorithm;
-import net.bluemind.user.persistence.security.SHA1Hash;
-import net.bluemind.user.persistence.security.HashFactory;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.user.persistence.security.HashAlgorithm;
+import net.bluemind.user.persistence.security.HashFactory;
+import net.bluemind.user.persistence.security.SHA1Hash;
 
 public class SHA1Test {
 	@Test

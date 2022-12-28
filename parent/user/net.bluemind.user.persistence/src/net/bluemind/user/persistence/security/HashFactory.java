@@ -61,7 +61,13 @@ public class HashFactory {
 		return get(algorithm(password));
 	}
 
-	public static boolean usesDefaultAlgorithm(String password) {
-		return algorithm(password) == DEFAULT;
+	public static boolean needsUpgrade(String password) {
+		HashAlgorithm algo = algorithm(password);
+		if (algo != DEFAULT) {
+			return true;
+		} else {
+			Hash h = get(algo);
+			return h.needsUpgrade(password);
+		}
 	}
 }

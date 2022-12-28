@@ -28,4 +28,8 @@ public interface Hash {
 
 	boolean matchesAlgorithm(String password);
 
+	public default boolean needsUpgrade(String hash) {
+		return true;
+	}
+
 }

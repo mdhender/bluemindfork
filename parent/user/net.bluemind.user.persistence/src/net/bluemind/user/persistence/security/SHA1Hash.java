@@ -31,7 +31,7 @@ import net.bluemind.core.api.fault.ServerFault;
 
 public class SHA1Hash implements Hash {
 	private static final String ALGORITHM = "SHA1";
-	
+
 	@Override
 	public String create(String plaintext) throws ServerFault {
 		throw new ServerFault("Don't use SHA1, use PBKDF2 instead please");
@@ -49,8 +49,8 @@ public class SHA1Hash implements Hash {
 		}
 		try {
 			md = MessageDigest.getInstance(ALGORITHM);
-	        md.update(plaintext.getBytes("UTF-8"));
-	        String sha1hash = new String(Base64.getEncoder().encode(md.digest()), "UTF-8");
+			md.update(plaintext.getBytes("UTF-8"));
+			String sha1hash = new String(Base64.getEncoder().encode(md.digest()), "UTF-8");
 			return sha1hash.equals(hash.substring(prefixlen));
 		} catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
 		}

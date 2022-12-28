@@ -564,7 +564,9 @@ public class UserService implements IInCoreUser, IUser {
 		User user = userItem.value;
 		// handle password using older passwordAlgorithm (3.0 -> 3.5, MD5 ->
 		// PBKDF2)
-		if (valid && !HashFactory.usesDefaultAlgorithm(password)) {
+		// PBKDF2 can also be upgraded to PBKDF2 for more iterations and a different
+		// hash algorithm
+		if (valid && HashFactory.needsUpgrade(password)) {
 			if (logger.isInfoEnabled()) {
 				logger.info("Updating password algorithm of user {} from {} to {}", user.login,
 						HashFactory.algorithm(password), HashFactory.DEFAULT.name());

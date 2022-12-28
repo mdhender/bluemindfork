@@ -24,12 +24,10 @@ package net.bluemind.user.persistence.security;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-
+import java.util.Arrays;
 import java.util.Base64;
 
 import net.bluemind.core.api.fault.ServerFault;
@@ -52,15 +50,15 @@ public class SSHAHash implements Hash {
 			throw new ServerFault(e);
 		}
 		try {
-	        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-	        md.update(plaintext.getBytes("UTF-8"));
-	        md.update(salt);
-	        baos.write(md.digest());
-	        baos.write(salt);
-        	return IDENTIFIER + new String(Base64.getEncoder().encode(baos.toByteArray()));
-	    } catch (IOException e) {
-	    	throw new ServerFault(e);
-	    }
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			md.update(plaintext.getBytes("UTF-8"));
+			md.update(salt);
+			baos.write(md.digest());
+			baos.write(salt);
+			return IDENTIFIER + new String(Base64.getEncoder().encode(baos.toByteArray()));
+		} catch (IOException e) {
+			throw new ServerFault(e);
+		}
 	}
 
 	@Override

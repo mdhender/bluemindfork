@@ -59,15 +59,16 @@ public class PBKDF2Hash implements Hash {
 
 	private static final JcaJceHelper bcHelper = new ProviderJcaJceHelper(new BouncyCastleProvider());
 
+	// https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#pbkdf2
 	public static final int SALT_BYTE_SIZE = 24;
 	public static final int HASH_BYTE_SIZE = 24;
-	public static final int PBKDF2_ITERATIONS = 10000;
+	public static final int PBKDF2_ITERATIONS = 720000;
 
 	public static final int ITERATION_INDEX = 0;
 	public static final int SALT_INDEX = 1;
 	public static final int PBKDF2_INDEX = 2;
 
-	private static final Pattern pattern = Pattern.compile("\\d{0,5}:\\S+?:\\S+?");
+	private static final Pattern pattern = Pattern.compile("\\d+:\\S+?:\\S+?");
 
 	@Override
 	public String create(String plaintext) throws ServerFault {
@@ -147,6 +148,13 @@ public class PBKDF2Hash implements Hash {
 			return String.format("%0" + paddingLength + "d", 0) + hex;
 		else
 			return hex;
+	}
+
+	@Override
+	public boolean needsUpgrade(String hash) {
+		String[] params = hash.split(":");
+		int iterations = Integer.parseInt(params[ITERATION_INDEX]);
+		return PBKDF2_ITERATIONS != iterations;
 	}
 
 }
