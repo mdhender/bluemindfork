@@ -79,7 +79,7 @@ public class MailboxRecordExpungedServiceFactory
 			}
 			MailboxRecordExpungedStore recordStore = new MailboxRecordExpungedStore(ds, recordsContainer,
 					subtreeContainer);
-			return new MailboxRecordExpungedService(context, ds, recordStore);
+			return new MailboxRecordExpungedService(context, recordStore);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}

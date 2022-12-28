@@ -22,8 +22,6 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,23 +39,21 @@ import net.bluemind.core.rest.BmContext;
 public class MailboxRecordExpungedService implements IMailboxRecordExpunged {
 
 	private final BmContext context;
-	private final DataSource pool;
 	private final MailboxRecordExpungedStore expungedStore;
 
 	private static final Logger logger = LoggerFactory.getLogger(MailboxRecordExpungedService.class);
 
-	public MailboxRecordExpungedService(BmContext context, DataSource pool, MailboxRecordExpungedStore store) {
+	public MailboxRecordExpungedService(BmContext context, MailboxRecordExpungedStore store) {
 		this.context = context;
-		this.pool = pool;
 		this.expungedStore = store;
 	}
 
 	@Override
 	public void delete(long itemId) {
 		JdbcAbstractStore.doOrFail(() -> {
-			MailboxRecordExpunged record = get(itemId);
-			Long imapUid = record.imapUid;
-			Integer containerId = record.containerId;
+			MailboxRecordExpunged expRecord = get(itemId);
+			Long imapUid = expRecord.imapUid;
+			Integer containerId = expRecord.containerId;
 			try {
 				context.provider()
 						.instance(IDbMailboxRecords.class, IMailReplicaUids.uniqueId(expungedStore.getContainerUid()))

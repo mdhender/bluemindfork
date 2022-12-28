@@ -27,23 +27,15 @@ public class MessageBodyESSourceHook implements IMessageBodyHook, ContinuousCont
 
 	@Override
 	public void preCreate(String domainUid, String ownerId, MailboxRecord mailboxRecord) {
-		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-		IMailboxes mailboxesApi = prov.instance(IMailboxes.class, domainUid);
-		var mailbox = mailboxesApi.getComplete(ownerId);
-
-		Map<String, Object> map = new HashMap<>();
-		try {
-			IndexedMessageBody body = getIndexedMessageBody(mailboxRecord, mailbox.value.dataLocation);
-			map = mapcreateMapFromIndexedMessageBody(body);
-			IndexedMessageBodyDTO dto = new IndexedMessageBodyDTO(map);
-			save(domainUid, ownerId, body.uid, dto, true);
-		} catch (Exception e) {
-			logger.warn("Cannot resync pending data", e);
-		}
+		saveToStore(domainUid, ownerId, mailboxRecord, true);
 	}
 
 	@Override
 	public void preUpdate(String domainUid, String ownerId, MailboxRecord mailboxRecord) {
+		saveToStore(domainUid, ownerId, mailboxRecord, false);
+	}
+
+	private void saveToStore(String domainUid, String ownerId, MailboxRecord mailboxRecord, boolean create) {
 		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IMailboxes mailboxesApi = prov.instance(IMailboxes.class, domainUid);
 		var mailbox = mailboxesApi.getComplete(ownerId);
@@ -53,11 +45,10 @@ public class MessageBodyESSourceHook implements IMessageBodyHook, ContinuousCont
 			IndexedMessageBody body = getIndexedMessageBody(mailboxRecord, mailbox.value.dataLocation);
 			map = mapcreateMapFromIndexedMessageBody(body);
 			IndexedMessageBodyDTO dto = new IndexedMessageBodyDTO(map);
-			save(domainUid, ownerId, body.uid, dto, false);
+			save(domainUid, ownerId, body.uid, dto, create);
 		} catch (Exception e) {
 			logger.warn("Cannot resync pending data", e);
 		}
-
 	}
 
 	private IndexedMessageBody getIndexedMessageBody(MailboxRecord mailboxRecord, String dataLocation)
