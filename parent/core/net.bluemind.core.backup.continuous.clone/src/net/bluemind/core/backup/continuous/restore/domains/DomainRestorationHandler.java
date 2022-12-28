@@ -33,7 +33,6 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.sds.store.ISdsSyncStore;
 
 public class DomainRestorationHandler implements Handler<DataElement> {
 
@@ -42,7 +41,7 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 	private final Set<String> skip;
 
 	public DomainRestorationHandler(IServerTaskMonitor monitor, Set<String> skip, ItemValue<Domain> domain,
-			IServiceProvider target, ISdsSyncStore sdsStore, ISeppukuAckListener byeAck, RestoreState state) {
+			IServiceProvider target, ISeppukuAckListener byeAck, RestoreState state) {
 		this.log = new RestoreLogger(monitor);
 		this.skip = skip;
 		this.restoresByType = Arrays.asList(//
@@ -82,9 +81,9 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 		String payload = new String(event.payload);
 		if (restore != null && !skip.contains(event.key.type)) {
 			try {
-				log.debug("[{}:{}] Processing {}\n {}", event.part, event.offset, event.key, payload);
 				restore.restore(event.key, payload);
 			} catch (Throwable e) {
+				log.monitor().log("[{}:{}] Failure processing type {}", event.part, event.offset, event.key.type);
 				log.failure(restore.type(), event.key, payload, e);
 				throw e;
 			}

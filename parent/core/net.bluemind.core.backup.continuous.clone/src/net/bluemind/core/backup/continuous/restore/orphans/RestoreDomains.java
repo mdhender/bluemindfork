@@ -103,6 +103,7 @@ public class RestoreDomains {
 			domainApi.restore(domain, false);
 		} else {
 			logger.info("CREATE DOMAIN {}", domain);
+			monitor.log("CREATE DOMAIN {}", domain);
 			domainApi.restore(domain, true);
 			for (PromotingServer iv : servers) {
 				for (String tag : iv.clone.value.tags) {

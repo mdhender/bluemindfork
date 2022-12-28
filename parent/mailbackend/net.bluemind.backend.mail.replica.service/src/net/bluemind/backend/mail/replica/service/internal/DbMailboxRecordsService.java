@@ -171,19 +171,21 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		itemValue.internalId = version.id;
 		itemValue.version = version.version;
 		updateIndex(Collections.singletonList(itemValue));
-		if (!isUpdate) {
-			logger.debug("Sending event for created item {}", version);
-			EmitReplicationEvents.recordCreated(mailboxUniqueId, version.version, version.id, mail.imapUid);
-			EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, version.version,
-					new long[] { version.id }, version.id);
-			if (newMailNotificationCandidate(recordsLocation, itemValue)) {
-				newMailNotification(itemValue);
+		if (StateContext.getState() == SystemState.CORE_STATE_RUNNING) {
+			if (!isUpdate) {
+				logger.debug("Sending event for created item {}", version);
+				EmitReplicationEvents.recordCreated(mailboxUniqueId, version.version, version.id, mail.imapUid);
+				EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, version.version,
+						new long[] { version.id }, version.id);
+				if (newMailNotificationCandidate(recordsLocation, itemValue)) {
+					newMailNotification(itemValue);
+				}
+			} else {
+				logger.debug("Sending event for replaced item {}", version);
+				EmitReplicationEvents.recordUpdated(mailboxUniqueId, version, mail);
+				EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, version.version,
+						new long[] { version.id });
 			}
-		} else {
-			logger.debug("Sending event for replaced item {}", version);
-			EmitReplicationEvents.recordUpdated(mailboxUniqueId, version, mail);
-			EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, version.version,
-					new long[] { version.id });
 		}
 		return version.id;
 	}
@@ -420,10 +422,10 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 
 	}
 
-	private boolean newMailNotificationCandidate(SubtreeLocation recordsLocation, ItemValue<MailboxRecord> idxAndNotif) {
-		return "INBOX".equals(recordsLocation.boxName) && recordsLocation.namespace() == Namespace.users
-				&& !idxAndNotif.value.flags.contains(MailboxItemFlag.System.Seen.value())
-				&& !idxAndNotif.value.flags.contains(MailboxItemFlag.System.Deleted.value());
+	private boolean newMailNotificationCandidate(SubtreeLocation loc, ItemValue<MailboxRecord> rec) {
+		return "INBOX".equals(loc.boxName) && loc.namespace() == Namespace.users
+				&& !rec.value.flags.contains(MailboxItemFlag.System.Seen.value())
+				&& !rec.value.flags.contains(MailboxItemFlag.System.Deleted.value());
 	}
 
 	private Ack updatesImpl(List<MailboxRecord> recs) {

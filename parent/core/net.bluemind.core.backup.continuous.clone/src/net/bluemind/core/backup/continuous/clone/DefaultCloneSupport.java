@@ -37,6 +37,9 @@ public class DefaultCloneSupport implements CloneSupport {
 	public IServerTask create(CloneConfiguration conf, IServiceProvider prov, Map<String, String> sysconfOverride) {
 		TopologyMapping tm = new TopologyMapping(conf.uidToIpMapping);
 		IBackupReader reader = DefaultBackupStore.reader();
+		if (conf.mode.suspendBackupWrites()) {
+			DefaultBackupStore.store().pause();
+		}
 		return new InstallFromBackupTask(conf, reader, new SysconfOverride(sysconfOverride), tm, prov);
 	}
 

@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import io.vertx.core.json.JsonObject;
+import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
@@ -22,7 +23,6 @@ import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.mailbox.api.Mailbox;
 
 public class RestoreReplicatedMailboxes implements RestoreDomainType {
 	private static final Logger logger = LoggerFactory.getLogger(RestoreReplicatedMailboxes.class);
@@ -41,6 +41,7 @@ public class RestoreReplicatedMailboxes implements RestoreDomainType {
 		this.domain = domain;
 		this.state = state;
 		this.target = target;
+		logger.debug("init with state {}", this.state);
 	}
 
 	public String type() {
@@ -51,15 +52,13 @@ public class RestoreReplicatedMailboxes implements RestoreDomainType {
 		return mrReader;
 	}
 
-	private IDbReplicatedMailboxes api(ItemValue<Domain> domain, RecordKey key) {
-		String ownerUid = key.owner.split("/")[0];
-		ItemValue<Mailbox> mbox = state.getMailbox(ownerUid);
-		return target.instance(IDbReplicatedMailboxes.class, partition(domain.uid), mboxRoot(mbox));
+	private IDbReplicatedMailboxes api(RecordKey key) {
+		return target.instance(IDbByContainerReplicatedMailboxes.class, key.uid);
 	}
 
 	@Override
 	public void restore(RecordKey key, String payload) {
-		IDbReplicatedMailboxes api = api(domain, key);
+		IDbReplicatedMailboxes api = api(key);
 		if (Operation.isDelete(key)) {
 			delete(key, payload, api);
 		} else {
@@ -81,7 +80,6 @@ public class RestoreReplicatedMailboxes implements RestoreDomainType {
 	}
 
 	private void filterCreateOrUpdate(RecordKey key, String payload, IDbReplicatedMailboxes api) {
-		logger.info("SCL - RestoreReplicatedMailboxes {}", key);
 		VersionnedItem<MailboxReplica> item = reader().read(payload);
 		boolean exists = api.getComplete(item.uid) != null;
 		ItemValue<MailboxReplica> itemValue = map(item);
@@ -98,17 +96,6 @@ public class RestoreReplicatedMailboxes implements RestoreDomainType {
 
 	protected ItemValue<MailboxReplica> map(VersionnedItem<MailboxReplica> item) {
 		return item;
-	}
-
-	private String mboxRoot(ItemValue<Mailbox> mbox) {
-		if (mbox.value.type.sharedNs) {
-			return mbox.value.name.replace(".", "^");
-		}
-		return "user." + mbox.value.name.replace(".", "^");
-	}
-
-	private String partition(String domainUid) {
-		return domainUid.replace(".", "_");
 	}
 
 }

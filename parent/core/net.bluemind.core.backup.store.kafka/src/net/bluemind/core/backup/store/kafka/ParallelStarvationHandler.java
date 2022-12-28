@@ -78,11 +78,11 @@ public class ParallelStarvationHandler implements IRecordStarvationStrategy {
 		lastStarv.set(System.nanoTime());
 		long deltaNanos = lastStarv.get() - lastRec.get();
 		if (logRateLimit.tryAcquire()) {
-			logger.info("Delta between lastStarvation & lastRecord is {}ms.",
+			logger.info("[{}] Delta between lastStarvation & lastRecord is {}ms.", infos.getString("topic"),
 					TimeUnit.NANOSECONDS.toMillis(deltaNanos));
 		}
 		if (deltaNanos > TimeUnit.SECONDS.toNanos(2)) {
-			logger.info("Calling into parent delegate {} (delta {}ms)", delegate.get(),
+			logger.debug("Calling into parent delegate {} (delta {}ms)", delegate.get(),
 					TimeUnit.NANOSECONDS.toMillis(deltaNanos));
 			// when the delegate decides to abort, we always abort & stop calling it
 			synchronized (delegate) {

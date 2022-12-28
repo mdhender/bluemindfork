@@ -34,18 +34,29 @@ public class CloneConfiguration {
 		 * Keeps the clone loop running. {@link IInstallation#promoteLeader()} should be
 		 * called on the tailing clone to trigger the promote process.
 		 */
-		TAIL,
+		TAIL(true),
 
 		/**
 		 * Once received events from upstream install are under a certain threshold,
 		 * trigger {@link IInstallation#demoteLeader()} on the source installation.
 		 */
-		PROMOTE,
+		PROMOTE(true),
 
 		/**
 		 * eg. to create a pre-production copy
 		 */
-		FORK,
+		FORK(false);
+
+		private boolean suspendWrites;
+
+		private Mode(boolean suspendWrites) {
+			this.suspendWrites = suspendWrites;
+		}
+
+		public boolean suspendBackupWrites() {
+			return suspendWrites;
+		}
+
 	}
 
 	public String sourceInstallationId;

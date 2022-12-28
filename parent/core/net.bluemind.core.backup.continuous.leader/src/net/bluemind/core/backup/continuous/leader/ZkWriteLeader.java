@@ -74,14 +74,14 @@ public class ZkWriteLeader implements InstallationWriteLeader {
 
 				@Override
 				public void notLeader() {
-					logger.info("DEMOTED {}", latch);
+					logger.info("[{}] DEMOTED {}", path, latch);
 					VertxPlatform.eventBus().publish("backup.write.leadership", Boolean.FALSE);
 					electionResult.complete(null);
 				}
 
 				@Override
 				public void isLeader() {
-					logger.info("PROMOTED to leader {}", latch);
+					logger.info("[{}] PROMOTED to leader {}", path, latch);
 					VertxPlatform.eventBus().publish("backup.write.leadership", Boolean.TRUE);
 					electionResult.complete(null);
 				}

@@ -7,11 +7,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
-import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
-import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.core.api.fault.ErrorCode;
@@ -70,17 +68,8 @@ public class RestoreMailboxRecords implements RestoreDomainType {
 	}
 
 	private IRestoreItemCrudSupport<MailboxRecord> api(RecordKey key) {
-		String ownerUid = key.owner.split("/")[0];
-		logger.info("SCL - ownerUid : {}", ownerUid);
-		ItemValue<Mailbox> mbox = state.getMailbox(ownerUid);
-		logger.info("SCL - mbox : {}", mbox);
-		IDbReplicatedMailboxes apiReplicatedMailboxes = provider.instance(IDbReplicatedMailboxes.class,
-				partition(this.domain.uid), mboxRoot(mbox));
-		String containerId = key.uid.replace(IMailReplicaUids.MAILBOX_RECORDS_PREFIX, "");
-		logger.info("SCL - containerId : {}", containerId);
-		ItemValue<MailboxFolder> folder = apiReplicatedMailboxes.getComplete(containerId);
-		logger.info("SCL - folder : {}", folder);
-		return provider.instance(IDbMailboxRecords.class, folder.uid);
+		String uniqueId = IMailReplicaUids.getUniqueId(key.uid);
+		return provider.instance(IDbMailboxRecords.class, uniqueId);
 	}
 
 	private void filterCreateOrUpdate(RecordKey key, String payload, IRestoreItemCrudSupport<MailboxRecord> api) {
@@ -90,7 +79,6 @@ public class RestoreMailboxRecords implements RestoreDomainType {
 
 	private void createOrUpdate(IRestoreItemCrudSupport<MailboxRecord> api, RecordKey key,
 			VersionnedItem<MailboxRecord> item) {
-		logger.info("SCL - RestoreMailboxRecords {}", key);
 		boolean exists = exists(api, key, item);
 
 		IDbMessageBodies apiMessageBody = apiMessageBody(key);
@@ -174,17 +162,6 @@ public class RestoreMailboxRecords implements RestoreDomainType {
 		ItemValue<Server> imap = state.getServer(mbox.value.dataLocation);
 		CyrusPartition partition = CyrusPartition.forServerAndDomain(imap, domain.uid);
 		return provider.instance(IDbMessageBodies.class, partition.name);
-	}
-
-	private String mboxRoot(ItemValue<Mailbox> mbox) {
-		if (mbox.value.type.sharedNs) {
-			return mbox.value.name.replace(".", "^");
-		}
-		return "user." + mbox.value.name.replace(".", "^");
-	}
-
-	private String partition(String domainUid) {
-		return domainUid.replace(".", "_");
 	}
 
 }

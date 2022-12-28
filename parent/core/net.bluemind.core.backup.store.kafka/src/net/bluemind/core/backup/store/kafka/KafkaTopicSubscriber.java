@@ -71,7 +71,6 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 
 	@Override
 	public IResumeToken subscribe(IResumeToken index, RecordHandler handler, IRecordStarvationStrategy strat) {
-
 		KafkaToken tok = (KafkaToken) index;
 		if (tok == null) {
 			String splitProp = System.getProperty(CloneDefaults.WORKERS_SYSPROP,
@@ -83,7 +82,8 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 		// ensure tail-mode knows our consumer group id if interrupted
 		strat.checkpoint(topicName, tok);
 
-		ExecutorService pool = Executors.newFixedThreadPool(tok.workers, new DefaultThreadFactory("kafka-clone-pool"));
+		ExecutorService pool = Executors.newFixedThreadPool(tok.workers,
+				new DefaultThreadFactory("clone-p-" + topicName));
 		CompletableFuture<?>[] proms = new CompletableFuture[tok.workers];
 		String group = tok.groupId;
 
@@ -100,6 +100,7 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 		}
 		CompletableFuture.allOf(proms).join();
 		pool.shutdown();
+		logger.info("[{}] ending subscribe loop", topicName);
 		return tok;
 	}
 
@@ -120,8 +121,8 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 						continue;
 					} else {
 						if (!assigned) {
-							logger.info("[{} / {}]  got {} partition(s) assignment(s).", gid, cid,
-									consumer.assignment().size());
+							logger.info("[{} / {}]  got {} partition(s) assignment(s) on {}.", gid, cid,
+									consumer.assignment().size(), topicName);
 							assigned = true;
 							// this is needed for lag evaluation to work
 							Map<TopicPartition, Long> endOffsets = consumer.endOffsets(consumer.assignment());

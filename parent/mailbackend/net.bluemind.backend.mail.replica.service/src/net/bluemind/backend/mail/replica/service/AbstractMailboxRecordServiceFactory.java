@@ -35,7 +35,6 @@ import net.bluemind.backend.mail.replica.service.internal.NoopMailboxRecordServi
 import net.bluemind.backend.mail.replica.service.internal.RecordsItemFlagProvider;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.persistence.IWeightProvider;
@@ -45,8 +44,6 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
-import net.bluemind.mailbox.api.IMailboxes;
-import net.bluemind.mailbox.api.Mailbox;
 
 public abstract class AbstractMailboxRecordServiceFactory<T>
 		implements ServerSideServiceProvider.IServerSideServiceFactory<T> {
@@ -76,12 +73,9 @@ public abstract class AbstractMailboxRecordServiceFactory<T>
 				return createNoopService();
 			}
 
-			IMailboxes mailboxesApi = context.su().provider().instance(IMailboxes.class, recordsContainer.domainUid);
-			ItemValue<Mailbox> mailbox = mailboxesApi.getComplete(recordsContainer.owner);
-			if (mailbox == null) {
-				throw ServerFault.notFound("mailbox of " + recordsContainer.owner + " not found");
-			}
-			String subtreeContainerUid = IMailReplicaUids.subtreeUid(recordsContainer.domainUid, mailbox);
+			DirEntry owner = context.su().provider().instance(IDirectory.class, recordsContainer.domainUid)
+					.findByEntryUid(recordsContainer.owner);
+			String subtreeContainerUid = IMailReplicaUids.subtreeUid(recordsContainer.domainUid, owner);
 			Container subtreeContainer = cs.get(subtreeContainerUid);
 			if (subtreeContainer == null) {
 				LoggerFactory.getLogger(this.getClass()).warn("Missing subtree container {}", subtreeContainerUid);
@@ -92,18 +86,16 @@ public abstract class AbstractMailboxRecordServiceFactory<T>
 			ContainerStoreService<MailboxRecord> storeService = new HookMailboxRecordStoreService(ds,
 					context.getSecurityContext(), recordsContainer, recordStore, flagsProvider, recordSeedProvider,
 					toWeight);
-			storeService = disableChangelogIfSystem(context, recordsContainer, storeService);
+			storeService = disableChangelogIfSystem(context, owner, storeService);
 			return create(ds, recordsContainer, context, mailboxUniqueId, recordStore, storeService);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
 	}
 
-	private <W> ContainerStoreService<W> disableChangelogIfSystem(BmContext context, Container cont,
+	private <W> ContainerStoreService<W> disableChangelogIfSystem(BmContext context, DirEntry owner,
 			ContainerStoreService<W> storeService) {
 		try {
-			DirEntry owner = context.su().provider().instance(IDirectory.class, cont.domainUid)
-					.findByEntryUid(cont.owner);
 			if (owner.system) {
 				storeService = storeService.withoutChangelog();
 			}

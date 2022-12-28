@@ -49,6 +49,9 @@ public class LeaderStateListener implements IStateListener {
 	public void stateChanged(SystemState newState) {
 		if (newState != cur && newState == SystemState.CORE_STATE_DEMOTED) {
 			demote();
+		} else if (newState != cur && cur == SystemState.CORE_STATE_CLONING
+				&& newState == SystemState.CORE_STATE_RUNNING) {
+			DefaultBackupStore.store().resume();
 		}
 		cur = newState;
 	}

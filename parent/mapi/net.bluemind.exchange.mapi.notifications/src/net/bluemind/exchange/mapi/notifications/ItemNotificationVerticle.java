@@ -37,6 +37,8 @@ import net.bluemind.hornetq.client.Producer;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
 public class ItemNotificationVerticle extends AbstractVerticle {
 
@@ -63,6 +65,10 @@ public class ItemNotificationVerticle extends AbstractVerticle {
 
 			final Producer producer = MQ.registerProducer(Topic.MAPI_ITEM_NOTIFICATIONS);
 			eb.consumer(Topic.MAPI_ITEM_NOTIFICATIONS, (Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
+				if (StateContext.getState() != SystemState.CORE_STATE_RUNNING) {
+					return;
+				}
+
 				JsonObject body = msg.body();
 				OOPMessage mqMsg = MQ.newMessage();
 				IContainers contApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)

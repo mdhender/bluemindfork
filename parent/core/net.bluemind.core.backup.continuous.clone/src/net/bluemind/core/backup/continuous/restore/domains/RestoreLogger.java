@@ -1,7 +1,12 @@
 package net.bluemind.core.backup.continuous.restore.domains;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.slf4j.event.Level;
 import org.slf4j.helpers.MessageFormatter;
+
+import com.google.common.util.concurrent.RateLimiter;
 
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.task.service.IServerTaskMonitor;
@@ -14,9 +19,11 @@ public class RestoreLogger {
 	}
 
 	private final IServerTaskMonitor monitor;
+	private final Map<String, RateLimiter> limitByType;
 
 	public RestoreLogger(IServerTaskMonitor monitor) {
 		this.monitor = monitor;
+		this.limitByType = new ConcurrentHashMap<>();
 	}
 
 	public IServerTaskMonitor monitor() {
@@ -115,6 +122,9 @@ public class RestoreLogger {
 
 	private void log(Operation op, String type, String kind, RecordKey key, Level level) {
 		String t = (kind == null) ? type : type + "." + kind;
-		monitor.log("op:" + op + ", type:" + t + ",  key:" + key, level);
+		RateLimiter limit = limitByType.computeIfAbsent(t, k -> RateLimiter.create(1.0 / 2));
+		if (limit.tryAcquire()) {
+			monitor.log("op:" + op + ", type:" + t + ",  key:" + key, level);
+		}
 	}
 }

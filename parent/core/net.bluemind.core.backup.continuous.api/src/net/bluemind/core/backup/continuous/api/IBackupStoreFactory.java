@@ -19,8 +19,6 @@ package net.bluemind.core.backup.continuous.api;
 
 import org.slf4j.LoggerFactory;
 
-import com.google.common.annotations.VisibleForTesting;
-
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 
 public interface IBackupStoreFactory {
@@ -29,13 +27,15 @@ public interface IBackupStoreFactory {
 
 	<T> IBackupStore<T> forContainer(BaseContainerDescriptor c);
 
-	@VisibleForTesting
 	default void pause() {
 		System.setProperty(CloneDefaults.DISABLE_SYSPROP, "true");
 		LoggerFactory.getLogger(IBackupStoreFactory.class).info("{} PAUSED.", this);
 	}
 
-	@VisibleForTesting
+	default boolean isPaused() {
+		return "true".equals(System.getProperty(CloneDefaults.DISABLE_SYSPROP, "xxx"));
+	}
+
 	default void resume() {
 		System.clearProperty(CloneDefaults.DISABLE_SYSPROP);
 		LoggerFactory.getLogger(IBackupStoreFactory.class).info("{} RESUMED.", this);

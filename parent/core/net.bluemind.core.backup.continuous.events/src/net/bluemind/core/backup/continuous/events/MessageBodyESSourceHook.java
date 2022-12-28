@@ -36,6 +36,9 @@ public class MessageBodyESSourceHook implements IMessageBodyHook, ContinuousCont
 	}
 
 	private void saveToStore(String domainUid, String ownerId, MailboxRecord mailboxRecord, boolean create) {
+		if (targetStore().isPaused()) {
+			return;
+		}
 		long time = System.currentTimeMillis();
 		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IMailboxes mailboxesApi = prov.instance(IMailboxes.class, domainUid);

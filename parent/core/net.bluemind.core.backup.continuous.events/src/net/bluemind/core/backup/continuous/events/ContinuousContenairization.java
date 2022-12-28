@@ -29,15 +29,21 @@ public interface ContinuousContenairization<T> {
 	}
 
 	default void save(String domainUid, String ownerUid, Item item, T value) {
-		ContainerDescriptor metaDesc = descriptor(domainUid, ownerUid);
-		ItemValue<T> iv = ItemValue.create(item, value);
-		targetStore().<T>forContainer(metaDesc).store(iv).whenComplete((v, ex) -> log("Save", metaDesc, iv, ex));
+		IBackupStoreFactory store = targetStore();
+		if (!store.isPaused()) {
+			ContainerDescriptor metaDesc = descriptor(domainUid, ownerUid);
+			ItemValue<T> iv = ItemValue.create(item, value);
+			store.<T>forContainer(metaDesc).store(iv).whenComplete((v, ex) -> log("Save", metaDesc, iv, ex));
+		}
 	}
 
 	default void delete(String domainUid, String ownerUid, String itemUid, T previous) {
-		ContainerDescriptor metaDesc = descriptor(domainUid, ownerUid);
-		ItemValue<T> iv = itemValue(itemUid, previous, false);
-		targetStore().<T>forContainer(metaDesc).delete(iv).whenComplete((v, ex) -> log("Delete", metaDesc, iv, ex));
+		IBackupStoreFactory store = targetStore();
+		if (!store.isPaused()) {
+			ContainerDescriptor metaDesc = descriptor(domainUid, ownerUid);
+			ItemValue<T> iv = itemValue(itemUid, previous, false);
+			store.<T>forContainer(metaDesc).delete(iv).whenComplete((v, ex) -> log("Delete", metaDesc, iv, ex));
+		}
 	}
 
 	default void log(String operation, ContainerDescriptor metaDesc, ItemValue<T> iv, Throwable ex) {

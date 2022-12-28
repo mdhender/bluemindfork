@@ -28,14 +28,20 @@ public class MessageBodyHook implements IMessageBodyHook, ContinuousContenairiza
 
 	@Override
 	public void preCreate(String domainUid, String ownerId, MailboxRecord mailboxRecord) {
+		loadAndSave(domainUid, ownerId, mailboxRecord, true);
+	}
+
+	private void loadAndSave(String domainUid, String ownerId, MailboxRecord mailboxRecord, boolean create) {
+		if (targetStore().isPaused()) {
+			return;
+		}
 		MessageBody messageBody = fetchMessageBody(domainUid, ownerId, mailboxRecord);
-		save(domainUid, ownerId, messageBody.guid, messageBody, true);
+		save(domainUid, ownerId, messageBody.guid, messageBody, create);
 	}
 
 	@Override
 	public void preUpdate(String domainUid, String ownerId, MailboxRecord mailboxRecord) {
-		MessageBody messageBody = fetchMessageBody(domainUid, ownerId, mailboxRecord);
-		save(domainUid, ownerId, messageBody.guid, messageBody, false);
+		loadAndSave(domainUid, ownerId, mailboxRecord, false);
 	}
 
 	public static MessageBody fetchMessageBody(String domainUid, String ownerId, MailboxRecord mailboxRecord) {

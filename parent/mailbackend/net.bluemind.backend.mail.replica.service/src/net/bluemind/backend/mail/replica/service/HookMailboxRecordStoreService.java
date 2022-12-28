@@ -46,4 +46,5 @@ public class HookMailboxRecordStoreService extends ContainerStoreService<Mailbox
 		RunnableExtensionLoader<IMessageBodyHook> loader = new RunnableExtensionLoader<>();
 		return loader.loadExtensions("net.bluemind.backend.mail.replica.hook", "messagebodyhook", "hook", "impl");
 	}
+
 }

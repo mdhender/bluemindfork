@@ -30,13 +30,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
 import net.bluemind.core.api.Regex;
 import net.bluemind.core.backup.continuous.DataElement;
 import net.bluemind.core.backup.continuous.IBackupReader;
@@ -117,9 +117,19 @@ public class InstallFromBackupTask extends BlockingServerTask implements IServer
 
 		// exclude, at least, "<mcastid>-crd-dir-entries" created by bm-crp kafka stream
 		List<ILiveStream> domainStreams = streams.domains().stream().filter(d -> Regex.DOMAIN.validate(d.domainUid()))
-				.collect(Collectors.toList());
-		ISdsSyncStore sdsStore = sdsAccess.forSysconf(orphans.sysconf);
-		cloneDomains(monitor.subWork(99), domainStreams, cloneState, orphans, sdsStore);
+				.toList();
+		monitor.log("Filtered domain(s) lists containers {} stream(s) ({}) out of {}", domainStreams.size(),
+				domainStreams.stream().map(ILiveStream::domainUid).toList(),
+				streams.domains().stream().map(ILiveStream::domainUid).toList());
+		try {
+			ISdsSyncStore sdsStore = sdsAccess.forSysconf(orphans.sysconf);
+			monitor.log("using sds store {}", sdsStore);
+			cloneDomains(monitor.subWork(99), domainStreams, cloneState, orphans, sdsStore);
+		} catch (Exception e) {
+			logger.error("cloning error", e);
+			monitor.end(false, e.getMessage(), "FAILED");
+			cloneState.terminate();
+		}
 	}
 
 	public static class ClonedOrphans {
@@ -172,14 +182,17 @@ public class InstallFromBackupTask extends BlockingServerTask implements IServer
 	private void cloneContainerItemIdSeq(IServerTaskMonitor monitor, ILiveStream orphansStream, ClonedOrphans orphans,
 			CloneState cloneState) {
 		RestoreContainerItemIdSeq idSeq = new RestoreContainerItemIdSeq(orphans.topology.values());
-		CompletableFuture.supplyAsync(() -> {
+		ExecutorService orphanTrackerPool = Executors
+				.newSingleThreadExecutor(new DefaultThreadFactory("orphan-tracker"));
+		CompletableFuture<IResumeToken> orphanTrack = CompletableFuture.supplyAsync(() -> {
 			return orphansStream.subscribe(cloneState.forTopic(orphansStream), de -> {
 				if (!de.key.type.equals("container_item_id_seq")) {
 					return;
 				}
 				idSeq.restore(monitor, Arrays.asList(de));
 			}, infos -> (cloneState.isTerminated()) ? ExpectedBehaviour.ABORT : ExpectedBehaviour.RETRY);
-		}, Executors.newSingleThreadExecutor());
+		}, orphanTrackerPool);
+		orphanTrack.whenComplete((v, ex) -> orphanTrackerPool.shutdown());
 	}
 
 	private void cloneDomains(IServerTaskMonitor monitor, List<ILiveStream> domainStreams, CloneState cloneState,
@@ -197,6 +210,7 @@ public class InstallFromBackupTask extends BlockingServerTask implements IServer
 		for (ILiveStream domainStream : domainStreams) {
 			ItemValue<Domain> domain = orphans.domains.get(domainStream.domainUid());
 			IServerTaskMonitor domainMonitor = monitor.subWork(domain.value.defaultAlias, 1);
+			monitor.log("supplyAsync for {} on pool {}", domain.value.defaultAlias, clonePool);
 			toWait[slot++] = CompletableFuture.supplyAsync(() -> {
 				domainMonitor.begin(1, "Working on domain " + domain.uid);
 
@@ -205,14 +219,14 @@ public class InstallFromBackupTask extends BlockingServerTask implements IServer
 
 				try (RestoreState state = new RestoreState(domain.uid, orphans.topology)) {
 					DomainRestorationHandler restoration = new DomainRestorationHandler(domainMonitor,
-							cloneConf.skippedContainerTypes, domain, target, sdsStore, starvation, state);
+							cloneConf.skippedContainerTypes, domain, target, starvation, state);
 					IResumeToken prevState = cloneState.forTopic(domainStream);
 					monitor.log("prevState for " + domainStream + " => " + prevState);
 					domainStreamIndex = domainStream.subscribe(prevState, restoration::handle, starvation); // , false
 				} catch (IOException e) {
 					logger.error("unexpected error when closing", e);
 					domainMonitor.end(false, "Fail to restore " + domain.uid + ": " + e.getMessage(), null);
-				} catch (Exception e) {
+				} catch (Throwable e) { // NOSONAR catch more ?
 					logger.error("unexpected error", e);
 					domainMonitor.end(false, "Fail to restore " + domain.uid + ": " + e.getMessage(), null);
 				} finally {
@@ -223,7 +237,7 @@ public class InstallFromBackupTask extends BlockingServerTask implements IServer
 			}, clonePool);
 		}
 		CompletableFuture<Void> globalProm = CompletableFuture.allOf(toWait);
-		monitor.log("Waiting for domains cloning global promise...");
+		monitor.log("Waiting for domains cloning global promise {}...", globalProm);
 		globalProm.join();
 		cloneState.terminate();
 	}
