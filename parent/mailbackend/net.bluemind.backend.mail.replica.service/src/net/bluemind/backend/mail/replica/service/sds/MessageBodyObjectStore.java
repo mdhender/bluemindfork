@@ -19,8 +19,12 @@ package net.bluemind.backend.mail.replica.service.sds;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -30,6 +34,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import net.bluemind.backend.mail.replica.api.TierMove;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
@@ -113,6 +119,18 @@ public class MessageBodyObjectStore {
 				throw new ServerFault(resp.error.message);
 			}
 		} catch (Exception e) {
+			throw new ServerFault(e);
+		}
+	}
+
+	public ByteBuf openMmap(String guid) {
+		Path tgt = open(guid);
+		try (FileChannel channel = FileChannel.open(tgt, StandardOpenOption.READ)) {
+			MappedByteBuffer map = channel.map(MapMode.READ_ONLY, 0, Files.size(tgt));
+			ByteBuf wrapped = Unpooled.wrappedBuffer(map);
+			Files.delete(tgt);
+			return wrapped.readerIndex(0);
+		} catch (IOException e) {
 			throw new ServerFault(e);
 		}
 	}

@@ -1,7 +1,5 @@
 package net.bluemind.core.backup.continuous.mgmt.service.containers.mail;
 
-import java.util.Map;
-
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -55,8 +53,7 @@ public class IndexedMessageBodySync implements ContinuousContenairization<Indexe
 				.setFetchSource(true).execute().actionGet();
 		if (r.getHits().getTotalHits().value == 1L) {
 			SearchHit searchHit = r.getHits().getAt(0);
-			Map<String, Object> map = searchHit.getSourceAsMap();
-			IndexedMessageBodyDTO indexedMessageBody = new IndexedMessageBodyDTO(map);
+			IndexedMessageBodyDTO indexedMessageBody = new IndexedMessageBodyDTO(searchHit.getSourceRef().array());
 			save(domain.uid, cont.owner, messageBodyId, indexedMessageBody, true);
 			contMon.log("sync 1 item(s) for " + INDEXED_MESSAGE_BODIES + "_" + messageBodyId);
 		}

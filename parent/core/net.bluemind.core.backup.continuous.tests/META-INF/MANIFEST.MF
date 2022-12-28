@@ -25,7 +25,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.apache.commons.compress,
  net.bluemind.core.task.spi,
  net.bluemind.pool,
- net.bluemind.backend.cyrus,
  net.bluemind.server.api,
  net.bluemind.sds.store,
  net.bluemind.core.backup.continuous.clone,
@@ -55,13 +54,13 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.todolist.usertodolist;bundle-version="4.1.0",
  net.bluemind.device.userdevice,
  org.awaitility,
- net.bluemind.backend.cyrus.replication.client,
  org.hamcrest,
  net.bluemind.node.api,
  net.bluemind.mailindex.schema,
  net.bluemind.todolist.service,
  net.bluemind.node.server,
- net.bluemind.vertx.testhelper
+ net.bluemind.vertx.testhelper,
+ net.bluemind.backend.cyrus.partitions
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.core.backup.continuous.tests
 Bundle-ActivationPolicy: lazy

@@ -1,15 +1,10 @@
-package net.bluemind.core.backup.continuous.restore.domains.crud;
-
-import java.util.Base64;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package net.bluemind.core.backup.continuous.restore.domains.replication;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import net.bluemind.backend.mail.replica.indexing.RecordIndexActivator;
 import net.bluemind.core.backup.continuous.RecordKey;
+import net.bluemind.core.backup.continuous.dto.IndexedMessageBodyDTO;
 import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreDomainType;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
@@ -18,8 +13,6 @@ import net.bluemind.core.utils.JsonUtils.ValueReader;
 
 public class RestoreMessageBodyESSource implements RestoreDomainType {
 
-	private static final Logger logger = LoggerFactory.getLogger(RestoreMessageBodyESSource.class);
-
 	private RestoreLogger log;
 
 	public RestoreMessageBodyESSource(RestoreLogger log) {
@@ -27,8 +20,8 @@ public class RestoreMessageBodyESSource implements RestoreDomainType {
 
 	}
 
-	private static final ValueReader<VersionnedItem<Map<String, Object>>> reader = JsonUtils
-			.reader(new TypeReference<VersionnedItem<Map<String, Object>>>() {
+	private static final ValueReader<VersionnedItem<IndexedMessageBodyDTO>> reader = JsonUtils
+			.reader(new TypeReference<VersionnedItem<IndexedMessageBodyDTO>>() {
 			});
 
 	@Override
@@ -42,16 +35,16 @@ public class RestoreMessageBodyESSource implements RestoreDomainType {
 	}
 
 	private void create(RecordKey key, String payload) {
-		VersionnedItem<Map<String, Object>> item = reader().read(payload);
+		VersionnedItem<IndexedMessageBodyDTO> item = reader().read(payload);
 		RecordIndexActivator.getIndexer().ifPresent(service -> {
-			if (item.value.containsKey("data")) {
-				byte[] dataAsBytes = Base64.getDecoder().decode((String) item.value.get("data"));
-				service.storeBodyAsByte(item.uid, dataAsBytes);
+			if (item.value.data != null) {
+				service.storeBodyAsByte(item.uid, item.value.data);
+				log.create(type(), key);
 			}
 		});
 	}
 
-	private ValueReader<VersionnedItem<Map<String, Object>>> reader() {
+	private ValueReader<VersionnedItem<IndexedMessageBodyDTO>> reader() {
 		return reader;
 	}
 }

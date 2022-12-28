@@ -2,6 +2,7 @@ package net.bluemind.core.backup.continuous.events.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -21,6 +23,10 @@ import org.testcontainers.shaded.org.awaitility.Awaitility;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.aws.s3.utils.S3Configuration;
 import net.bluemind.backend.mail.api.MessageBody;
@@ -40,6 +46,8 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.tests.BmTestContext;
+import net.bluemind.core.utils.JsonUtils;
+import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.delivery.lmtp.ApiProv;
 import net.bluemind.delivery.lmtp.LmtpMessageHandler;
 import net.bluemind.delivery.lmtp.dedup.DuplicateDeliveryDb;
@@ -49,7 +57,6 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
-import net.bluemind.sds.store.ISdsBackingStore;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
@@ -68,10 +75,8 @@ public class MailMessageBodyHookTests {
 	private String user1Uid;
 	private String user2Uid;
 	private String iid;
-	private static SecurityContext secCtxUser1;
 	private String s3;
 	private String bucket;
-	private ISdsBackingStore sds;
 	private static ZkKafkaContainer kafka;
 
 	private static DuplicateDeliveryDb dedup = DuplicateDeliveryDb.get();
@@ -131,9 +136,6 @@ public class MailMessageBodyHookTests {
 				.contextWithSession("testUser", "user2", domainUid, SecurityContext.ROLE_SYSTEM).getSecurityContext();
 		context = new BmTestContext(defaultSecurityContext);
 
-		secCtxUser1 = new SecurityContext("apikey", user1Uid, Collections.emptyList(), Collections.emptyList(),
-				domainUid);
-
 		this.s3 = "http://" + DockerEnv.getIp("bluemind/s3") + ":8000";
 		this.bucket = "junit-clone-kafka-" + System.currentTimeMillis();
 		S3Configuration s3conf = S3Configuration.withEndpointAndBucket(s3, bucket);
@@ -150,8 +152,6 @@ public class MailMessageBodyHookTests {
 		ISystemConfiguration sysConfApi = prov.instance(ISystemConfiguration.class);
 		sysConfApi.updateMutableValues(freshConf);
 
-//		sds = new S3StoreFactory().create(VertxPlatform.getVertx(), s3conf.asJson());
-//		System.err.println("sds: " + sds);
 	}
 
 	@After
@@ -231,14 +231,20 @@ public class MailMessageBodyHookTests {
 
 		var streams = reader.forInstallation(iid).domains();
 		List<String> keys = new ArrayList<>();
+		AtomicBoolean assertionsCompleted = new AtomicBoolean();
 		streams.get(0).subscribe(de -> {
 			keys.add(de.key.type);
 			if (de.key.type.equals((new MessageBodyESSourceHook()).type())) {
 				assertEquals("CREATE", de.key.operation);
 				assertEquals(IndexedMessageBodyDTO.class.getCanonicalName(), de.key.valueClass);
 				var jsonObject = new JsonObject(new String(de.payload));
+				System.err.println(jsonObject.encodePrettily());
 				var value = (JsonObject) jsonObject.getValue("value");
-				var data = (JsonObject) value.getValue("data");
+				ValueReader<IndexedMessageBodyDTO> readDto = JsonUtils.reader(IndexedMessageBodyDTO.class);
+				IndexedMessageBodyDTO reRead = readDto.read(value.toString());
+				ByteBuf jsBuf = Unpooled.wrappedBuffer(reRead.data);
+				System.err.println(ByteBufUtil.prettyHexDump(jsBuf));
+				var data = new JsonObject(Buffer.buffer(jsBuf));
 				assertEquals(true, data.containsKey("preview"));
 				assertEquals(true, data.containsKey("date"));
 				assertEquals(true, data.containsKey("cc"));
@@ -254,8 +260,10 @@ public class MailMessageBodyHookTests {
 				assertEquals(true, data.containsKey("from"));
 				assertEquals(true, data.containsKey("to"));
 				assertEquals(true, data.containsKey("has"));
+				assertionsCompleted.set(true);
 			}
 		});
+		assertTrue(assertionsCompleted.get());
 		long messageBodyTypeCount = keys.stream().filter(k -> k.equals((new MessageBodyESSourceHook()).type())).count();
 		// 1 message with messageBodyES types because of 1 recipient
 		assertEquals(1L, messageBodyTypeCount);

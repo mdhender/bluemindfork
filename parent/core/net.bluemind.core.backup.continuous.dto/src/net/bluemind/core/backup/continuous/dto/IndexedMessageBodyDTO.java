@@ -1,9 +1,5 @@
 package net.bluemind.core.backup.continuous.dto;
 
-import java.util.Map;
-
-import net.bluemind.core.utils.JsonUtils;
-
 public class IndexedMessageBodyDTO {
 
 	public byte[] data;
@@ -12,8 +8,8 @@ public class IndexedMessageBodyDTO {
 
 	}
 
-	public IndexedMessageBodyDTO(Map<String, Object> indexedBody) {
-		this.data = JsonUtils.asBytes(indexedBody);
+	public IndexedMessageBodyDTO(byte[] raw) {
+		this.data = raw;
 	}
 
 }

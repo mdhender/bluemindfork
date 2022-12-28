@@ -14,8 +14,6 @@ import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreDeferredA
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreDevice;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreMailboxIdentity;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreMailflow;
-import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreMessageBody;
-import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreMessageBodyESSource;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreOwnerSubscriptions;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreResourceType;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreTags;
@@ -28,6 +26,8 @@ import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreVTodo;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreWebAppData;
 import net.bluemind.core.backup.continuous.restore.domains.crud.directories.RestoreDirectories;
 import net.bluemind.core.backup.continuous.restore.domains.replication.RestoreMailboxRecords;
+import net.bluemind.core.backup.continuous.restore.domains.replication.RestoreMessageBody;
+import net.bluemind.core.backup.continuous.restore.domains.replication.RestoreMessageBodyESSource;
 import net.bluemind.core.backup.continuous.restore.domains.replication.RestoreReplicatedMailboxes;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;

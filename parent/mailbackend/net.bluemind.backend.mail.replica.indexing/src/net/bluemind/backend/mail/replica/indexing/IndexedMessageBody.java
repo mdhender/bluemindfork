@@ -44,6 +44,7 @@ import net.bluemind.backend.mail.parsing.BodyStreamProcessor;
 import net.bluemind.backend.mail.parsing.BodyStreamProcessor.MessageBodyData;
 import net.bluemind.backend.mail.parsing.Keyword;
 import net.bluemind.core.api.Stream;
+import net.bluemind.core.utils.JsonUtils;
 
 public class IndexedMessageBody {
 
@@ -211,6 +212,21 @@ public class IndexedMessageBody {
 			String s = e.getValue().toString();
 			return s.substring(0, Math.min(s.length(), 1024));
 		}));
+	}
+
+	public byte[] asElasticSource() {
+
+		Map<String, Object> sourceMap = new HashMap<>();
+		sourceMap.put("content", content);
+		sourceMap.put("messageId", messageId.toString());
+		sourceMap.put("references", references.stream().map(Object::toString).toList());
+		sourceMap.put("preview", preview);
+		sourceMap.put("subject", subject.toString());
+		sourceMap.put("subject_kw", subject.toString());
+		sourceMap.put("headers", headers());
+		sourceMap.putAll(data);
+
+		return JsonUtils.asBytes(sourceMap);
 	}
 
 }
