@@ -31,9 +31,11 @@ public class ServiceMethodInvocation implements RestServiceInvocation {
 
 	private static Logger logger = LoggerFactory.getLogger(ServiceMethodInvocation.class);
 	private final Method method;
+	private final boolean async;
 
-	public ServiceMethodInvocation(Method method) {
+	public ServiceMethodInvocation(Method method, boolean async) {
 		this.method = method;
+		this.async = async;
 	}
 
 	@Override
@@ -41,16 +43,21 @@ public class ServiceMethodInvocation implements RestServiceInvocation {
 			AsyncHandler<Object> responseHandler) {
 		logger.debug("Invoking method {}.{} : params {}", instance, method, params);
 		try {
-			Object resp = method.invoke(instance, params);
+			Method m = null;
+			if (async) {
+				m = instance.getClass().getMethod(method.getName() + "_async", method.getParameterTypes());
+			} else {
+				m = method;
+			}
+			Object resp = m.invoke(instance, params);
 			responseHandler.success(resp);
 		} catch (InvocationTargetException e) {
 			logger.debug("during call {} {}", instance, params, e.getCause());
 			responseHandler.failure(e.getCause());
-		} catch (IllegalAccessException | IllegalArgumentException e) {
+		} catch (Exception e) {
 			logger.error("during call {} {}", instance, params, e.getCause());
 			responseHandler.failure(e);
 		}
-
 	}
 
 }

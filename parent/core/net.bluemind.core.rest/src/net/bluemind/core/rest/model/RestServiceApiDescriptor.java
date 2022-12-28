@@ -40,15 +40,17 @@ public final class RestServiceApiDescriptor {
 		public final String[] roles;
 		public final String[] produces;
 		public final Type genericType;
+		public final boolean async;
 
 		public MethodDescriptor(String httpMethodName, String path, Method method, String[] roles, String[] produces,
-				Type genericType) {
+				Type genericType, boolean async) {
 			this.httpMethodName = httpMethodName;
 			this.path = path;
 			this.interfaceMethod = method;
 			this.roles = roles;
 			this.produces = produces;
 			this.genericType = genericType;
+			this.async = async;
 		}
 
 		public String getApiInterfaceName() {

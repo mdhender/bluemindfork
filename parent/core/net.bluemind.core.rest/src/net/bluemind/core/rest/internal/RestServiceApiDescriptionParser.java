@@ -29,15 +29,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import jakarta.ws.rs.HttpMethod;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.ws.rs.HttpMethod;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import net.bluemind.common.reflect.ClassVisitor;
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.BMAsyncMethod;
 import net.bluemind.core.api.RequiredRoles;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.IGenericHolder;
@@ -176,8 +176,9 @@ public class RestServiceApiDescriptionParser implements ClassVisitor {
 		String path = buildPath(clazz, method);
 		String[] roles = parseMethodRoles(method);
 		String[] produces = parseMethodProduces(method);
+		boolean async = method.getAnnotation(BMAsyncMethod.class) != null;
 		MethodDescriptor methodDescriptor = new MethodDescriptor(httpMethod.value(), path, method, roles, produces,
-				genericType);
+				genericType, async);
 
 		return methodDescriptor;
 	}

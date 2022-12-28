@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,6 +60,7 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 	private final ResponseBuilder responseBuilder;
 	private final List<IRestFilter> filters;
 	private final String name;
+	private final boolean async;
 	private static final Pattern pathParamsMatcher = Pattern.compile(Pattern.quote("{") + "(.*?)" + Pattern.quote("}"));
 
 	private static final CharSequence X_BM_API_KEY = HttpHeaders.createOptimized("X-BM-ApiKey");
@@ -73,10 +75,11 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 		this.responseBuilder = responseBuilder;
 		this.serviceInvocation = new RestServiceSecurityCheck(
 				Collections.unmodifiableList(Arrays.asList(methodDescriptor.roles)),
-				new ServiceMethodInvocation(methodDescriptor.interfaceMethod));
+				new ServiceMethodInvocation(methodDescriptor.interfaceMethod, methodDescriptor.async));
 		this.filters = filters;
 		this.name = Optional.ofNullable(methodDescriptor.httpMethodName).orElse("UNKNOWN") + "-"
 				+ methodDescriptor.path;
+		this.async = methodDescriptor.async;
 	}
 
 	@Override
@@ -176,6 +179,21 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 
 			@Override
 			public void success(Object value) {
+				if (async) {
+					CompletableFuture<?> ret = (CompletableFuture<?>) value;
+					ret.thenAccept(val -> {
+						createResponse(request, response, val);
+					}).exceptionally(e -> {
+						failure(e);
+						return null;
+					});
+				} else {
+					createResponse(request, response, value);
+				}
+			}
+
+			private void createResponse(final RestRequest request, final AsyncHandler<RestResponse> response,
+					Object value) {
 				RestResponse responseMsg;
 				try {
 					responseMsg = responseBuilder.buildSuccess(request, value);
