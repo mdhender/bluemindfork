@@ -1,5 +1,6 @@
 <script>
 import { BmButton } from "@bluemind/ui-components";
+import { IS_SW_AVAILABLE } from "../../lib/constants";
 import { isDecrypted, isEncrypted, isSigned, isVerified } from "../../lib/helper";
 import untrustedIllustration from "../../../assets/mail-app-untrusted.png";
 import undecryptedIllustration from "../../../assets/mail-app-undecrypted.png";
@@ -40,9 +41,9 @@ export default {
             ? this.$t("common.whats_going_on")
             : this.$t("smime.mailapp.body_wrapper.cant_display");
 
-        if ((!this.forceDisplay && this.untrusted) || this.undecrypted) {
+        if (!IS_SW_AVAILABLE || (!this.forceDisplay && this.untrusted) || this.undecrypted) {
             const imgDiv = h("div", {}, [h("img", { attrs: { src } })]);
-            //  FIXME doc url
+            //  FIXME doc urls: verification failure, decryption failure and missing SW
             const button = h(
                 "bm-button",
                 { props: { variant: "link" }, class: "mt-6", attrs: { target: "_blank" } },
