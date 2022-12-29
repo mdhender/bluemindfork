@@ -621,10 +621,10 @@ public class NoteServiceTests extends AbstractServiceTests {
 
 	@Test
 	public void testSearch_onSubject() throws ServerFault {
-		VNote todo = defaultVNote();
-		todo.subject = "yay";
+		VNote note = defaultVNote();
+		note.subject = "yay";
 		String uid = "test_" + System.nanoTime();
-		getServiceNote(defaultSecurityContext, container.uid).create(uid, todo);
+		getServiceNote(defaultSecurityContext, container.uid).create(uid, note);
 		refreshIndex();
 
 		VNoteQuery query = VNoteQuery.create("value.subject:yay");
@@ -650,10 +650,10 @@ public class NoteServiceTests extends AbstractServiceTests {
 
 	@Test
 	public void testSearch_onBody() throws ServerFault {
-		VNote todo = defaultVNote();
-		todo.body = "yay";
+		VNote note = defaultVNote();
+		note.body = "yay";
 		String uid = "test_" + System.nanoTime();
-		getServiceNote(defaultSecurityContext, container.uid).create(uid, todo);
+		getServiceNote(defaultSecurityContext, container.uid).create(uid, note);
 		refreshIndex();
 
 		VNoteQuery query = VNoteQuery.create("value.body:yay");
@@ -679,9 +679,9 @@ public class NoteServiceTests extends AbstractServiceTests {
 
 	@Test
 	public void testSearch_onColor() throws ServerFault {
-		VNote todo = defaultVNote();
+		VNote note = defaultVNote();
 		String uid = "test_" + System.nanoTime();
-		getServiceNote(defaultSecurityContext, container.uid).create(uid, todo);
+		getServiceNote(defaultSecurityContext, container.uid).create(uid, note);
 		refreshIndex();
 
 		VNoteQuery query = VNoteQuery.create("value.color:YELLOW");

@@ -154,14 +154,14 @@ public class VNoteStoreTests extends AbstractStoreTests {
 	@Test
 	public void testDeleteAll() throws SQLException {
 		String uid = "test_" + System.nanoTime();
-		VNote todo = defaultVNote();
-		createAndGet(uid, todo);
+		VNote note = defaultVNote();
+		createAndGet(uid, note);
 		Item item = itemStore.get(uid);
 		assertNotNull(item);
 
 		String uid2 = "test_" + System.nanoTime();
-		VNote todo2 = defaultVNote();
-		createAndGet(uid2, todo2);
+		VNote note2 = defaultVNote();
+		createAndGet(uid2, note2);
 		Item item2 = itemStore.get(uid2);
 		assertNotNull(item2);
 
@@ -170,12 +170,12 @@ public class VNoteStoreTests extends AbstractStoreTests {
 		assertNull(vNoteStore.get(item2));
 	}
 
-	private VNote createAndGet(String uid, VNote todo) {
+	private VNote createAndGet(String uid, VNote note) {
 		try {
 			itemStore.create(Item.create(uid, UUID.randomUUID().toString()));
 			Item item = itemStore.get(uid);
 
-			vNoteStore.create(item, todo);
+			vNoteStore.create(item, note);
 
 			return vNoteStore.get(item);
 

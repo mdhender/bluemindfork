@@ -26,5 +26,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.user.api,
  net.bluemind.core.task.service
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Export-Package: net.bluemind.notes.service
+Export-Package: net.bluemind.notes.service,
+ net.bluemind.notes.service.internal
 Automatic-Module-Name: net.bluemind.notes.service

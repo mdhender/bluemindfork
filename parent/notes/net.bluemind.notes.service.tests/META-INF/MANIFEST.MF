@@ -3,10 +3,10 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.notes.service.tests
 Bundle-SymbolicName: net.bluemind.notes.service.tests;singleton:=true
 Bundle-Version: 4.1.0.qualifier
-Fragment-Host: net.bluemind.notes.service
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
+ net.bluemind.core.rest.http,
  net.bluemind.core.elasticsearch.testshelper;bundle-version="1.0.0",
  net.bluemind.server.api;bundle-version="1.0.0",
  net.bluemind.tests.defaultdata;bundle-version="1.0.0",
@@ -16,5 +16,13 @@ Require-Bundle: org.junit,
  net.bluemind.core.rest.tests.services,
  net.bluemind.authentication.service;bundle-version="4.1.0",
  net.bluemind.system.api,
- net.bluemind.user.persistence
+ net.bluemind.user.persistence,
+ net.bluemind.tag.persistence,
+ net.bluemind.notes.persistence,
+ net.bluemind.core.container.persistence,
+ net.bluemind.tag.api,
+ net.bluemind.notes.service,
+ net.bluemind.notes.api,
+ net.bluemind.core.container.service,
+ net.bluemind.notes.hook
 Automatic-Module-Name: net.bluemind.notes.service.tests

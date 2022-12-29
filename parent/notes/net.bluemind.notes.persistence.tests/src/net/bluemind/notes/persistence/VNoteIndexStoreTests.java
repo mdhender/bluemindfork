@@ -132,8 +132,8 @@ public class VNoteIndexStoreTests extends AbstractStoreTests {
 		assertEquals(container.uid, source.get("containerUid"));
 
 		@SuppressWarnings("unchecked")
-		Map<String, String> sourceTodo = (Map<String, String>) source.get("value");
-		assertEquals(updatedSubject, sourceTodo.get("subject"));
+		Map<String, String> sourceNote = (Map<String, String>) source.get("value");
+		assertEquals(updatedSubject, sourceNote.get("subject"));
 
 	}
 

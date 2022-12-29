@@ -89,11 +89,11 @@ public class TagEventConsumer implements ITagEventConsumer {
 				continue;
 			}
 
-			VNoteContainerStoreService vtodoContainerStore = new VNoteContainerStoreService(context, dsNote,
+			VNoteContainerStoreService vnoteContainerStore = new VNoteContainerStoreService(context, dsNote,
 					SecurityContext.SYSTEM, currentContainer, new VNoteStore(dsNote, currentContainer));
 
 			try {
-				vtodoContainerStore.touch(itemUri.itemUid);
+				vnoteContainerStore.touch(itemUri.itemUid);
 			} catch (ServerFault e) {
 				logger.error("error during updating item ", e);
 			}

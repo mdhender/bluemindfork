@@ -21,7 +21,6 @@ package net.bluemind.notes.api;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
-
 import net.bluemind.core.api.BMApi;
 
 /**
@@ -52,10 +51,10 @@ public interface INoteUids {
 	}
 
 	/**
-	 * Returns the UID of user-created todolists
+	 * Returns the UID of user-created notes
 	 * 
-	 * @param uniqueUid unique todolist UID
-	 * @return calendar UID
+	 * @param uniqueUid unique notes UID
+	 * @return user notes UID
 	 */
 	@GET
 	@Path("{uid}/_other_notes")
