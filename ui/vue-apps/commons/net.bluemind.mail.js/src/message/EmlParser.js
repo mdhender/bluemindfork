@@ -59,6 +59,8 @@ function build(body, message) {
         body.preview = message.text;
     } else if (message.html) {
         body.preview = message.html.replaceAll(/<[^>]*>/g, "");
+    } else {
+        body.preview = "";
     }
     body.preview = body.preview?.replaceAll("\n", "").replaceAll("\n", "").substring(0, 120).trim();
 

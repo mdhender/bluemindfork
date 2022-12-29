@@ -11,9 +11,14 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import { BmIconButton } from "@bluemind/ui-components";
+import { messageUtils } from "@bluemind/mail";
 import { isEncrypted, addHeaderValue, removeHeader } from "../../lib/helper";
 import { CRYPTO_HEADERS, ENCRYPTED_HEADER_NAME } from "../../lib/constants";
+
+const { MessageCreationModes, messageKey } = messageUtils;
+
 export default {
     name: "EncryptButton",
     components: { BmIconButton },
@@ -24,6 +29,7 @@ export default {
         }
     },
     computed: {
+        ...mapGetters("mail", { ACTIVE_MESSAGE: "ACTIVE_MESSAGE" }),
         title() {
             return this.isEncrypted
                 ? this.$t("smime.mailapp.composer.unencrypt")
@@ -31,6 +37,24 @@ export default {
         },
         isEncrypted() {
             return isEncrypted(this.message.headers);
+        }
+    },
+    watch: {
+        "$route.query.action": {
+            handler(action) {
+                if (action && action !== MessageCreationModes.FORWARD_AS_EML) {
+                    const key = messageKey(...this.$route.query.message.split(":").reverse());
+                    const previous = this.$store.state.mail.conversations.messages[key];
+
+                    if (previous && isEncrypted(previous.headers)) {
+                        this.$store.commit("mail/SET_MESSAGE_HEADERS", {
+                            messageKey: this.ACTIVE_MESSAGE.key,
+                            headers: [{ name: ENCRYPTED_HEADER_NAME, values: [CRYPTO_HEADERS.TO_DO] }]
+                        });
+                    }
+                }
+            },
+            immediate: true
         }
     },
     methods: {
