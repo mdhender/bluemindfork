@@ -132,7 +132,7 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 	}
 
 	private void parseAndIndex(String uid, Date deliveryDate, Stream eml) {
-		CompletableFuture<Void> promise = BodyStreamProcessor.processBody(eml).exceptionally(t -> {
+		BodyStreamProcessor.processBody(eml).exceptionally(t -> {
 			logger.error(t.getMessage(), t);
 			return null;
 		}).thenAccept(bodyData -> {
@@ -143,8 +143,6 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 				body.created = deliveryDate == null ? new Date() : deliveryDate;
 				Optional<Header> idHeader = body.headers.stream()
 						.filter(h -> MailApiHeaders.X_BM_INTERNAL_ID.equals(h.name)).findAny();
-				Optional<Header> prevHeader = body.headers.stream()
-						.filter(h -> MailApiHeaders.X_BM_PREVIOUS_BODY.equals(h.name)).findAny();
 				if (idHeader.isPresent() && StateContext.getState() != SystemState.CORE_STATE_CLONING) {
 					String idStr = idHeader.get().firstValue();
 					int instIdx = idStr.lastIndexOf(':');
@@ -153,12 +151,14 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 						String owner = idStr.substring(0, ownerIdx);
 						String instId = idStr.substring(ownerIdx + 1, instIdx);
 						if (InstallationId.getIdentifier().equals(instId)) {
+							Optional<Header> prevHeader = body.headers.stream()
+									.filter(h -> MailApiHeaders.X_BM_PREVIOUS_BODY.equals(h.name)).findAny();
 							long internalId = Long.parseLong(idStr.substring(instIdx + 1));
 							String prevBody = null;
 							if (prevHeader.isPresent()) {
 								prevBody = prevHeader.get().firstValue();
 							}
-							logger.warn("********** caching {} => {} for owner {}", body.guid, internalId, owner);
+							logger.debug("********** caching {} => {} for owner {}", body.guid, internalId, owner);
 							BodyInternalIdCache.storeExpectedRecordId(body.guid,
 									new ExpectedId(internalId, owner, prevBody));
 						}
@@ -170,13 +170,7 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 					service.storeBody(indexData);
 				});
 			}
-		});
-		try {
-			promise.get(10, TimeUnit.SECONDS);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			throw new ServerFault(e);
-		}
+		}).orTimeout(10, TimeUnit.SECONDS).join();
 	}
 
 	@Override
@@ -190,11 +184,11 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 	}
 
 	public MessageBody getComplete(String uid) {
-		return Optional.ofNullable(BodiesCache.bodies.getIfPresent(uid)).orElseGet(() -> {
+		return BodiesCache.bodies.get(uid, t -> {
 			try {
-				return bodyStore.get(uid);
+				return bodyStore.get(t);
 			} catch (SQLException e) {
-				throw ServerFault.sqlFault(e);
+				throw new ServerFault(e);
 			}
 		});
 	}
