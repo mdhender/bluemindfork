@@ -118,8 +118,14 @@ public class NoopMailboxRecordService implements IDbMailboxRecords {
 	}
 
 	@Override
-	public Long create(String uid, MailboxRecord mail) {
+	public ItemVersion create(String uid, MailboxRecord mail) {
 		logger.info("NOOP operation IDbMailboxRecords#create");
+		return null;
+	}
+
+	@Override
+	public Ack createById(long id, MailboxRecord mail) {
+		logger.info("NOOP operation IDbMailboxRecords#createById");
 		return null;
 	}
 
@@ -127,6 +133,12 @@ public class NoopMailboxRecordService implements IDbMailboxRecords {
 	public void update(String uid, MailboxRecord mail) {
 		logger.info("NOOP operation IDbMailboxRecords#update");
 
+	}
+
+	@Override
+	public Ack updateById(long id, MailboxRecord mail) {
+		logger.info("NOOP operation IDbMailboxRecords#updateById");
+		return null;
 	}
 
 	@Override

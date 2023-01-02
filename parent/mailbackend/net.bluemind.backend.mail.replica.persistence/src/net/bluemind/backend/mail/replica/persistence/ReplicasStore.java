@@ -40,6 +40,7 @@ public class ReplicasStore extends JdbcAbstractStore {
 		public String subtreeContainer;
 		public String boxName;
 		public String partition;
+		public long folderItemId;
 
 		/**
 		 * shared/marketing or users/tom
@@ -73,7 +74,7 @@ public class ReplicasStore extends JdbcAbstractStore {
 		}
 	}
 
-	private static final String BY_UID = "SELECT cont.uid, mr.name, cont.name FROM t_mailbox_replica mr "
+	private static final String BY_UID = "SELECT mr.item_id, cont.uid, mr.name, cont.name FROM t_mailbox_replica mr "
 			+ "INNER JOIN t_container_item item ON mr.item_id = item.id "
 			+ "INNER JOIN t_container cont ON cont.id = item.container_id " + "where item.uid=? ";
 	private static final int SUBTREE_LEN = "subtree_".length();
@@ -81,6 +82,7 @@ public class ReplicasStore extends JdbcAbstractStore {
 	public SubtreeLocation byUniqueId(String uniqueId) throws SQLException {
 
 		SubtreeLocation loc = unique(BY_UID, rs -> new SubtreeLocation(), (rs, index, value) -> {
+			value.folderItemId = rs.getLong(index++);
 			value.subtreeContainer = rs.getString(index++);
 			value.boxName = rs.getString(index++);
 			value.contName = rs.getString(index++);

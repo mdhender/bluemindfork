@@ -65,7 +65,7 @@ import net.bluemind.backend.mail.replica.api.MailApiHeaders;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.mime4j.common.Mime4JHelper;
-import net.bluemind.mime4j.common.Mime4JHelper.SizedStream;
+import net.bluemind.mime4j.common.Mime4JHelper.HashedBuffer;
 
 public class EmlBuilder {
 
@@ -192,25 +192,21 @@ public class EmlBuilder {
 	private static Body createBody(BasicBodyFactory bbf, Part structure, String sid) throws IOException {
 		Body body = null;
 		if (structure.children.isEmpty()) {
-			try (InputStream structureInputStream = inputStream(structure, sid).input) {
-				switch (structure.mime) {
-				case "text/plain":
-				case "text/html":
+			try (InputStream structureInputStream = partStream(structure, sid)) {
+				if (structure.mime.startsWith("text/")) {
 					body = bbf.textBody(structureInputStream, "utf-8");
-					break;
-				default:
+				} else {
 					body = bbf.binaryBody(structureInputStream);
 				}
 			}
 		} else {
-			// multipart
 			MultipartImpl mp = new MultipartImpl(structure.mime.substring("multipart/".length()));
 			for (Part p : structure.children) {
 				logger.info("Adding part {}", p.mime);
 				Body childBody = createBody(bbf, p, sid);
 				BodyPart bp = new BodyPart();
-				if (childBody instanceof MultipartImpl) {
-					bp.setMultipart((MultipartImpl) childBody);
+				if (childBody instanceof MultipartImpl multiPartImpl) {
+					bp.setMultipart(multiPartImpl);
 				} else {
 					setBody(bp, childBody, p);
 				}
@@ -263,16 +259,12 @@ public class EmlBuilder {
 		return emlFile;
 	}
 
-	private static SizedStream inputStream(Part structure, String sid) throws IOException {
+	private static InputStream partStream(Part structure, String sid) throws IOException {
 		final File emlInput = emlFile(structure, sid);
-		InputStream input = stream(emlInput);
-		SizedStream ss = new SizedStream();
-		ss.input = input;
-		ss.size = (int) emlInput.length();
-		return ss;
+		return stream(emlInput);
 	}
 
-	public static SizedStream inputStream(Long id, String previousBody, Date date, Part structure, String owner,
+	public static HashedBuffer inputStream(Long id, String previousBody, Date date, Part structure, String owner,
 			String sid) {
 		final File emlInput = emlFile(structure, sid);
 		try (InputStream in = stream(emlInput); Message asMessage = Mime4JHelper.parse(in, false)) {
@@ -288,7 +280,7 @@ public class EmlBuilder {
 				asMessage.setDate(date);
 			}
 			fillHeader(asMessage.getHeader(), toAdd, true);
-			return Mime4JHelper.asSizedStreamWithoutEncoding(asMessage);
+			return Mime4JHelper.mmapedEML(asMessage, false);
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {

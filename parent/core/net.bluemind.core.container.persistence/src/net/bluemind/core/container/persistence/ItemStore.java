@@ -104,7 +104,7 @@ public class ItemStore extends JdbcAbstractStore {
 		String itemIdSeq = null;
 		if (item.id > 0) {
 			if (item.version == 0L) {
-				long currentSeqValue = unique("SELECT last_value FROM t_container_item_id_seq", new LongCreator(1),
+				long currentSeqValue = unique("SELECT last_value FROM t_container_item_id_seq", LongCreator.FIRST,
 						Collections.emptyList());
 				if (currentSeqValue < item.id) {
 					throw new SQLException("ItemId " + item.id + " needs to be smaller than current sequence value of "

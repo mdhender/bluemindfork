@@ -147,7 +147,16 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 	}
 
 	@Override
-	public Long create(String uid, MailboxRecord mail) {
+	public ItemVersion create(String uid, MailboxRecord mail) {
+		return create0(uid, null, mail);
+	}
+
+	@Override
+	public Ack createById(long id, MailboxRecord mail) {
+		return Ack.create(create0(mail.imapUid + ".", id, mail).version);
+	}
+
+	private ItemVersion create0(String uid, Long internalId, MailboxRecord mail) {
 		SubtreeLocation recordsLocation = locationOrFault();
 
 		ExpectedId knownInternalId = BodyInternalIdCache.expectedRecordId(container.owner, mail.messageBody);
@@ -164,7 +173,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 			}
 			BodyInternalIdCache.invalidateBody(mail.messageBody);
 		} else {
-			version = storeService.create(uid, uid, mail);
+			version = storeService.createWithId(uid, internalId, null, uid, mail);
 		}
 
 		ItemValue<MailboxRecord> itemValue = ItemValue.create(uid, mail);
@@ -187,7 +196,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 						new long[] { version.id });
 			}
 		}
-		return version.id;
+		return version;
 	}
 
 	@Override
@@ -267,6 +276,17 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 
 		EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, upd.version,
 				new long[] { upd.id });
+	}
+
+	@Override
+	public Ack updateById(long id, MailboxRecord mail) {
+		SubtreeLocation recordsLocation = locationOrFault();
+		ItemVersion upd = storeService.update(id, Long.toString(mail.imapUid), mail);
+		EmitReplicationEvents.recordUpdated(mailboxUniqueId, upd, mail);
+
+		EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, upd.version,
+				new long[] { upd.id });
+		return Ack.create(upd.version);
 	}
 
 	@Override

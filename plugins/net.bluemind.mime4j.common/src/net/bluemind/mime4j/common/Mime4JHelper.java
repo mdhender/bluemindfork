@@ -30,8 +30,11 @@ import java.nio.channels.FileChannel.MapMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import org.apache.james.mime4j.codec.DecodeMonitor;
 import org.apache.james.mime4j.dom.BinaryBody;
@@ -63,6 +66,12 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Splitter;
+import com.google.common.hash.Hashing;
+import com.google.common.hash.HashingOutputStream;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.util.internal.PlatformDependent;
 import net.bluemind.common.io.FileBackedOutputStream;
 import net.bluemind.mime4j.common.rewriters.impl.DontTouchHandler;
@@ -182,8 +191,12 @@ public class Mime4JHelper {
 	}
 
 	public static void serialize(Message toDump, OutputStream out) {
+		serialize(toDump, out, true);
+	}
+
+	public static void serialize(Message toDump, OutputStream out, boolean encodeParts) {
 		try {
-			MessageWriter writer = MessageServiceFactory.newInstance().newMessageWriter();
+			MessageWriter writer = writer(encodeParts);
 			writer.writeMessage(toDump, out);
 		} catch (Exception e) {
 			logger.error("Message serialization failed: " + e.getMessage(), e);
@@ -196,24 +209,17 @@ public class Mime4JHelper {
 		}
 	}
 
-	public static void serializeWithoutEncoding(Message toDump, OutputStream out) {
-		try {
-			MessageWriter writer = new DefaultMessageWriter() {
+	private static MessageWriter writer(boolean encodeParts) {
+		if (encodeParts) {
+			return new DefaultMessageWriter();
+		} else {
+			return new DefaultMessageWriter() {
 				@Override
 				protected OutputStream encodeStream(OutputStream out, String encoding, boolean binaryBody)
 						throws IOException {
 					return out;
 				}
 			};
-			writer.writeMessage(toDump, out);
-		} catch (Exception e) {
-			logger.error("Message serialization failed: " + e.getMessage(), e);
-		} finally {
-			try {
-				out.close();
-			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
-			}
 		}
 	}
 
@@ -288,36 +294,55 @@ public class Mime4JHelper {
 	 * @throws IOException
 	 */
 	public static SizedStream asSizedStream(Message msg) throws IOException {
+		return asSizedStream(msg, true);
+	}
+
+	public static SizedStream asSizedStream(Message msg, boolean encode) throws IOException {
 		FileBackedOutputStream fbos = new FileBackedOutputStream(32768, TMP_PREFIX);
-		serialize(msg, fbos);
+		serialize(msg, fbos, encode);
 		SizedStream ks = new SizedStream();
 		ks.input = FBOSInput.from(fbos);
 		ks.size = (int) fbos.asByteSource().size();
 		return ks;
 	}
 
-	public static SizedStream asSizedStreamWithoutEncoding(Message msg) throws IOException {
-		FileBackedOutputStream fbos = new FileBackedOutputStream(32768, TMP_PREFIX);
-		serializeWithoutEncoding(msg, fbos);
-		SizedStream ks = new SizedStream();
-		ks.input = FBOSInput.from(fbos);
-		ks.size = (int) fbos.asByteSource().size();
-		return ks;
+	public static record HashedBuffer(MappedByteBuffer buffer, String sha1, String messageId, Set<String> refs) {
+
+		public ByteBuf nettyBuffer() {
+			return Unpooled.wrappedBuffer(buffer).readerIndex(0);
+		}
 	}
 
-	public static MappedByteBuffer mmapedEML(Message msg) throws IOException {
+	public static HashedBuffer mmapedEML(Message msg) throws IOException {
+		return mmapedEML(msg, true);
+	}
+
+	public static HashedBuffer mmapedEML(Message msg, boolean encode) throws IOException {
 		Path tmpPath = Files.createTempFile(TMP_PREFIX, ".eml");
-		try (FileOutputStream out = new FileOutputStream(tmpPath.toFile())) {
-			serialize(msg, out);
+		String hash = null;
+		try (FileOutputStream out = new FileOutputStream(tmpPath.toFile()); @SuppressWarnings("deprecation")
+		HashingOutputStream h = new HashingOutputStream(Hashing.sha1(), out)) {
+			serialize(msg, h, encode);
+			hash = h.hash().toString();
 		}
 		try (RandomAccessFile raf = new RandomAccessFile(tmpPath.toFile(), "r")) {
-			return raf.getChannel().map(MapMode.READ_ONLY, 0, raf.length());
+			return new HashedBuffer(raf.getChannel().map(MapMode.READ_ONLY, 0, raf.length()), hash, msg.getMessageId(),
+					refs(msg));
 		} finally {
 			// workaround https://bugs.openjdk.java.net/browse/JDK-4715154
 			if (!IS_WINWDOWS) {
 				Files.deleteIfExists(tmpPath);
 			}
 		}
+	}
+
+	private static Set<String> refs(Message msg) {
+		Set<String> ref = new HashSet<>();
+		Optional.ofNullable(msg.getHeader().getField("in-reply-to")).ifPresent(f -> ref.add(f.getBody()));
+		Optional.ofNullable(msg.getHeader().getField("references")).ifPresent(refField -> {
+			Splitter.on(' ').trimResults().omitEmptyStrings().splitToStream(refField.getBody()).forEach(ref::add);
+		});
+		return ref;
 	}
 
 	/**

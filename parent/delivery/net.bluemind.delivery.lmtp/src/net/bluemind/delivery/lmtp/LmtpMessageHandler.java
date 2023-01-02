@@ -162,7 +162,7 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 		mailboxRecord.modSeq = appendTx.modSeq;
 
 		IDbMailboxRecords recs = prov.system().instance(IDbMailboxRecords.class, folder.uid);
-		long id = recs.create(mailboxRecord.imapUid + ".", mailboxRecord);
+		long id = recs.create(mailboxRecord.imapUid + ".", mailboxRecord).id;
 		logger.info("Record with imapUid {} created.", mailboxRecord.imapUid);
 
 		if (!freezableContent.content().deferredActionMessages().isEmpty()) {

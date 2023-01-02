@@ -3320,6 +3320,7 @@ public final class ReplicationStackTests extends AbstractRollingReplicationTests
 
 		assertEquals(1, user1InboxConversations.size());
 		conversation = user1ConversationService.get(user1InboxConversations.get(0));
+		System.err.println("conv: " + conversation);
 		assertEquals(2, conversation.messageRefs.size());
 		assertEquals(user1ItemId2, conversation.messageRefs.get(0).itemId);
 		assertEquals(user1ItemId, conversation.messageRefs.get(1).itemId);

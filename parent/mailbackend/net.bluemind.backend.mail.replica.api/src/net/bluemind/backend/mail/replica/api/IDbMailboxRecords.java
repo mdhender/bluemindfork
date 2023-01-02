@@ -40,6 +40,7 @@ import net.bluemind.core.container.api.IRestoreItemCrudSupport;
 import net.bluemind.core.container.api.ISortingSupport;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.ItemVersion;
 
 /**
  * Database only version of {@link IMailboxItems} for sync server usage.
@@ -86,8 +87,12 @@ public interface IDbMailboxRecords extends IChangelogSupport, IDataShardSupport,
 	List<WithId<MailboxRecord>> slice(List<Long> ids);
 
 	@PUT
+	@Path("id/{id}")
+	Ack createById(long id, MailboxRecord mail);
+
+	@PUT
 	@Path("{uid}")
-	Long create(@PathParam("uid") String uid, MailboxRecord mail);
+	ItemVersion create(@PathParam("uid") String uid, MailboxRecord mail);
 
 	@PUT
 	@Path("_mCreate")
@@ -96,6 +101,10 @@ public interface IDbMailboxRecords extends IChangelogSupport, IDataShardSupport,
 	@POST
 	@Path("{uid}")
 	void update(@PathParam("uid") String uid, MailboxRecord mail);
+
+	@POST
+	@Path("id/{id}")
+	Ack updateById(@PathParam("id") long id, MailboxRecord value);
 
 	@DELETE
 	@Path("{uid}")

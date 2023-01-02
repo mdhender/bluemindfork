@@ -35,6 +35,10 @@ public class BufferReadStream implements ReadStream<Buffer> {
 		this.data = data.getByteBuf();
 	}
 
+	public ByteBuf nettyBuffer() {
+		return this.data.duplicate();
+	}
+
 	@Override
 	public BufferReadStream handler(Handler<Buffer> handler) {
 		this.dataHandler = handler;

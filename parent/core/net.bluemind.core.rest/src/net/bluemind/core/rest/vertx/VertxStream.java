@@ -171,7 +171,7 @@ public class VertxStream {
 	}
 
 	public static CompletableFuture<Void> sink(Stream stream) {
-		if (stream instanceof LocalPathStream) {
+		if (stream instanceof LocalPathStream || stream instanceof BufferReadStream) {
 			return CompletableFuture.completedFuture(null);
 		} else {
 			ReadStream<?> vxStream = (ReadStream<?>) stream;
