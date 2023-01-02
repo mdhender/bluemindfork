@@ -3,7 +3,12 @@ import { CRYPTO_HEADERS } from "../lib/constants";
 export abstract class SmimeErrors extends Error {
     code: number;
     constructor(message: string, code: number, error?: unknown) {
-        const fullMessage = error && error instanceof Error ? `${message}: ${error.message}` : message;
+        let fullMessage;
+        if (error instanceof Error) {
+            fullMessage = `${message}: ${error.message}`;
+        } else if (typeof error === "string") {
+            fullMessage = `${message} ${error}`;
+        }
         super(fullMessage);
         this.code = code;
     }
@@ -60,9 +65,9 @@ export class UntrustedCertificateError extends SmimeErrors {
         super("Untrusted certificate", CRYPTO_HEADERS.UNTRUSTED_CERTIFICATE, error);
     }
 }
-export class RecipientNotFoundError extends SmimeErrors {
+export class UnmatchedCertificateError extends SmimeErrors {
     constructor(error?: unknown) {
-        super("The certificate does not match any of the recipients", CRYPTO_HEADERS.UNMATCHED_RECIPIENTS, error);
+        super("The certificate does not match any of the recipients", CRYPTO_HEADERS.UNMATCHED_CERTIFICATE, error);
     }
 }
 export class DecryptError extends SmimeErrors {
@@ -73,5 +78,16 @@ export class DecryptError extends SmimeErrors {
 export class EncryptError extends SmimeErrors {
     constructor(error?: unknown) {
         super("An error occured on encryption", CRYPTO_HEADERS.ENCRYPT_FAILURE, error);
+    }
+}
+export class CertificateRecipientNotFoundError extends SmimeErrors {
+    constructor(error?: unknown) {
+        super("Certificate not found", CRYPTO_HEADERS.CERTIFICATE_RECIPIENT_NOT_FOUND, error);
+    }
+}
+
+export class InvalidCertificateRecipientError extends SmimeErrors {
+    constructor(error?: unknown) {
+        super("Invalid certificate", CRYPTO_HEADERS.INVALID_CERTIFICATE_RECIPIENT, error);
     }
 }

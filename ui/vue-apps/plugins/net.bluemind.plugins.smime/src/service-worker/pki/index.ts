@@ -1,11 +1,42 @@
 import { pki } from "node-forge";
+import { AddressBooksClient, AddressBookClient, VCardInfo } from "@bluemind/addressbook.api";
+import { searchVCardsHelper } from "@bluemind/contact";
+import { ItemContainerValue } from "@bluemind/core.container.api";
 import { PKIStatus } from "../../lib/constants";
-import { ExpiredCertificateError, InvalidKeyError, InvalidCertificateError } from "../exceptions";
+import session from "../environnment/session";
+import {
+    ExpiredCertificateError,
+    InvalidKeyError,
+    InvalidCertificateError,
+    CertificateRecipientNotFoundError
+} from "../exceptions";
 import db from "./SMimeDB";
 
-export async function getCertificate(email: string): Promise<pki.Certificate | undefined> {
-    // TODO
-    return Promise.resolve(undefined);
+export async function getCertificate(email: string): Promise<pki.Certificate> {
+    const sid = await session.sid;
+    const contactsInfo = await new AddressBooksClient(sid).search(searchVCardsHelper(email));
+    if (contactsInfo.total === 0) {
+        throw new CertificateRecipientNotFoundError(email);
+    }
+    const byContainers = groupByContainer(contactsInfo.values);
+
+    let pem: string | undefined;
+    for (const [containerUid, uids] of Object.entries(byContainers)) {
+        const contacts = await new AddressBookClient(sid, containerUid).multipleGet(uids);
+        const contact = contacts.find(contact => contact.value.security?.key?.value);
+        pem = contact?.value?.security?.key?.value;
+        if (pem) {
+            break;
+        }
+    }
+    if (!pem) {
+        throw new CertificateRecipientNotFoundError(email);
+    }
+    try {
+        return pki.certificateFromPem(pem);
+    } catch (error) {
+        throw new InvalidCertificateError(error);
+    }
 }
 
 export function checkCertificateValidity(certificate: pki.Certificate, sendingDate: Date) {
@@ -76,4 +107,18 @@ export async function getMyCertificate() {
 export async function setMyCertificate(blob: Blob) {
     await db.setCertificate(blob);
     cache.CERTIFICATE = pki.certificateFromPem(await blob.text());
+}
+
+function groupByContainer(contactsInfo: ItemContainerValue<VCardInfo>[]) {
+    const byContainers: { [container: string]: string[] } = contactsInfo.reduce(
+        (byContainer: { [containerUid: string]: string[] }, contactInfo: ItemContainerValue<VCardInfo>) => {
+            if (!byContainer[contactInfo.containerUid]) {
+                byContainer[contactInfo.containerUid] = [];
+            }
+            byContainer[contactInfo.containerUid].push(contactInfo.uid!);
+            return byContainer;
+        },
+        {}
+    );
+    return byContainers;
 }

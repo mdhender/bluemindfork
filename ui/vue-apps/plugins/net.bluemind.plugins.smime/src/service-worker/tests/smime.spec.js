@@ -6,7 +6,7 @@ import {
     ExpiredCertificateError,
     RevokedCertificateError,
     UntrustedCertificateError,
-    RecipientNotFoundError,
+    UnmatchedCertificateError,
     EncryptError
 } from "../exceptions";
 import { CRYPTO_HEADERS, ENCRYPTED_HEADER_NAME, PKCS7_MIMES } from "../../lib/constants";
@@ -24,6 +24,7 @@ jest.mock("@bluemind/mime", () => {
 
 const mockUploadPart = jest.fn(() => Promise.resolve("address"));
 jest.mock("@bluemind/backend.mail.api", () => ({
+    ...jest.requireActual("@bluemind/backend.mail.api"),
     MailboxItemsClient: () => ({
         fetch: () => Promise.resolve("data"),
         uploadPart: mockUploadPart
@@ -103,6 +104,7 @@ describe("smime", () => {
                 }
             })
         );
+        pki.getCertificate = () => [];
         pki.checkCertificateValidity = jest.fn();
     });
 
@@ -186,13 +188,13 @@ describe("smime", () => {
             expect(getCryptoHeaderCode(item)).toEqual(CRYPTO_HEADERS.UNTRUSTED_CERTIFICATE);
         });
         test("add a header if the given certificate does not match any recipient", async () => {
-            pkcs7.decrypt = jest.fn(() => Promise.reject(new RecipientNotFoundError()));
+            pkcs7.decrypt = jest.fn(() => Promise.reject(new UnmatchedCertificateError()));
 
             const item = await smime.decrypt("uid", mainEncrypted);
-            expect(getCryptoHeaderCode(item)).toEqual(CRYPTO_HEADERS.UNMATCHED_RECIPIENTS);
+            expect(getCryptoHeaderCode(item)).toEqual(CRYPTO_HEADERS.UNMATCHED_CERTIFICATE);
         });
     });
-    describe.only("encrypt", () => {
+    describe("encrypt", () => {
         beforeEach(() => {
             pkcs7.encrypt = jest.fn(() => "encrypted");
             pki.getMyCertificate = jest.fn(() => Promise.resolve(mockCertificate));

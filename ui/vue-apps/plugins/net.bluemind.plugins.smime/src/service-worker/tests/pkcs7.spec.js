@@ -9,7 +9,7 @@ import {
     EncryptError,
     InvalidMessageIntegrityError,
     InvalidSignatureError,
-    RecipientNotFoundError
+    UnmatchedCertificateError
 } from "../exceptions";
 import { readFile } from "./helpers";
 import { checkSignatureValidity, getSignedDataEnvelope, checkMessageIntegrity } from "../pkcs7/verify";
@@ -49,7 +49,7 @@ describe("pkcs7", () => {
             try {
                 await pkcs7.decrypt(blob, mockKey, mockOtherCertificateTxt);
             } catch (error) {
-                expect(error).toBeInstanceOf(RecipientNotFoundError);
+                expect(error).toBeInstanceOf(UnmatchedCertificateError);
             }
         });
 

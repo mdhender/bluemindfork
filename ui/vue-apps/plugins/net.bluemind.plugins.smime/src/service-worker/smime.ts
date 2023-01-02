@@ -1,3 +1,4 @@
+import { pki } from "node-forge";
 import { MailboxItemsClient, MailboxItem, MessageBody } from "@bluemind/backend.mail.api";
 import { ItemValue } from "@bluemind/core.container.api";
 import { MimeParser, MimeBuilder } from "@bluemind/mime";
@@ -9,10 +10,10 @@ import {
     SIGNED_HEADER_NAME
 } from "../lib/constants";
 import session from "./environnment/session";
-import { EncryptError, RecipientNotFoundError, SmimeErrors } from "./exceptions";
+import { EncryptError, UnmatchedCertificateError, SmimeErrors } from "./exceptions";
 import extractSignedData from "./signedDataParser";
 import pkcs7 from "./pkcs7/";
-import { checkCertificateValidity, getMyCertificate, getMyPrivateKey } from "./pki/";
+import { checkCertificateValidity, getMyCertificate, getMyPrivateKey, getCertificate } from "./pki/";
 import { logger } from "./environnment/logger";
 import { addHeaderValue } from "../lib/helper";
 
@@ -44,11 +45,7 @@ export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): 
             }
             item.value.body.structure = parser.structure as MessageBody.Part;
         }
-        item.value.body.headers = addHeaderValue(
-            item.value.body?.headers,
-            ENCRYPTED_HEADER_NAME,
-            CRYPTO_HEADERS.OK
-        );
+        item.value.body.headers = addHeaderValue(item.value.body?.headers, ENCRYPTED_HEADER_NAME, CRYPTO_HEADERS.OK);
     } catch (error: unknown) {
         const errorCode = error instanceof SmimeErrors ? error.code : CRYPTO_HEADERS.UNKNOWN;
         item.value.body.headers = addHeaderValue(item.value.body.headers, ENCRYPTED_HEADER_NAME, errorCode);
@@ -61,10 +58,15 @@ export async function encrypt(item: MailboxItem, folderUid: string): Promise<Mai
     const sid = await session.sid;
     const client = new MailboxItemsClient(sid, folderUid);
     let mimeTree: string | undefined;
-
-    // TODO: get the certificates for all recipients
     try {
-        const certificate = await getMyCertificate();
+        const myCertificate = await getMyCertificate();
+        const recipients = item.body.recipients || [];
+        const promises: Promise<pki.Certificate>[] = recipients.flatMap(({ kind, address }) => {
+            return address && kind !== MessageBody.RecipientKind.Originator ? getCertificate(address) : [];
+        });
+        const certificates: pki.Certificate[] = await Promise.all(promises);
+        certificates.push(myCertificate);
+
         if (encryptedItem.body.structure && encryptedItem.imapUid) {
             const getContentFn = async (p: MessageBody.Part): Promise<Uint8Array | null> => {
                 if (!encryptedItem.imapUid || !p.address) {
@@ -80,7 +82,7 @@ export async function encrypt(item: MailboxItem, folderUid: string): Promise<Mai
                 throw new EncryptError(error);
             }
             if (mimeTree) {
-                const encryptedPart = pkcs7.encrypt(mimeTree, [certificate]);
+                const encryptedPart = pkcs7.encrypt(mimeTree, certificates);
                 const address = await client.uploadPart(encryptedPart);
                 const part = {
                     address,
@@ -123,7 +125,7 @@ function getSenderAddress(item: ItemValue<MailboxItem>): string {
             recipient => recipient.kind === MessageBody.RecipientKind.Originator
         );
         if (!from) {
-            throw new RecipientNotFoundError();
+            throw new UnmatchedCertificateError();
         }
         return from.address || "";
     }

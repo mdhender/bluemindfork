@@ -1,5 +1,5 @@
 import { pkcs7, pki, asn1, util } from "node-forge";
-import { RecipientNotFoundError, InvalidCertificateError, DecryptError, EncryptError } from "../exceptions";
+import { UnmatchedCertificateError, InvalidCertificateError, DecryptError, EncryptError } from "../exceptions";
 import { checkMessageIntegrity, checkSignatureValidity, getSignedDataEnvelope, getSigningTime } from "./verify";
 import { checkCertificateValidity, getCertificate } from "../pki/";
 import { binaryToArrayBuffer } from "../../lib/helper";
@@ -26,7 +26,7 @@ export async function decrypt(
             throw new DecryptError(error);
         }
     } else {
-        throw new RecipientNotFoundError();
+        throw new UnmatchedCertificateError();
     }
 }
 

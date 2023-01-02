@@ -5,17 +5,6 @@ import defaultFormat from "./Formatter";
 // Which type of tags should not be parsed
 const SKIPTAGS = ["style", "script", "head", "iframe", "frame", "frameset"];
 
-const SKIPTYPES = [
-    Node.ATTRIBUTE_NODE,
-    Node.CDATA_SECTION_NODE,
-    Node.ENTITY_REFERENCE_NODE,
-    Node.ENTITY_NODE,
-    Node.PROCESSING_INSTRUCTION_NODE,
-    Node.COMMENT_NODE,
-    Node.DOCUMENT_TYPE_NODE,
-    Node.NOTATION_NODE
-];
-
 const SKIPATTRIBUTES = {
     hidden: "true",
     "aria-hidden": "true"
@@ -77,6 +66,16 @@ function skip(element, options) {
 }
 
 function accept(element, formatter, options) {
+    const SKIPTYPES = [
+        Node.ATTRIBUTE_NODE,
+        Node.CDATA_SECTION_NODE,
+        Node.ENTITY_REFERENCE_NODE,
+        Node.ENTITY_NODE,
+        Node.PROCESSING_INSTRUCTION_NODE,
+        Node.COMMENT_NODE,
+        Node.DOCUMENT_TYPE_NODE,
+        Node.NOTATION_NODE
+    ];
     if (SKIPTYPES.indexOf(element.nodeType) > -1) {
         return "";
     }

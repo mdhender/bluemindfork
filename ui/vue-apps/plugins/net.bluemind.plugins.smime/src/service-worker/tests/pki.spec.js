@@ -1,12 +1,19 @@
+import fetchMock from "fetch-mock";
 import { PKIStatus } from "../../lib/constants";
-import { ExpiredCertificateError, InvalidCertificateError, InvalidKeyError } from "../exceptions";
-import { checkCertificateValidity, getMyCertificate, getMyPrivateKey } from "../pki";
+import {
+    CertificateRecipientNotFoundError,
+    ExpiredCertificateError,
+    InvalidCertificateError,
+    InvalidKeyError
+} from "../exceptions";
+import { checkCertificateValidity, getMyCertificate, getMyPrivateKey, getCertificate } from "../pki";
 import db from "../pki/SMimeDB";
 import { readFile } from "./helpers";
-jest.mock("../pki/SMimeDB");
+fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
 
 const mockCertificateTxt = readTxt("documents/certificate");
 const mockKeyTxt = readTxt("documents/privateKey");
+const mockOtherCertificateTxt = readTxt("documents/otherCertificate");
 
 const mockKey = {
     text: jest.fn(() => Promise.resolve(mockKeyTxt))
@@ -14,6 +21,60 @@ const mockKey = {
 const mockCertificate = {
     text: jest.fn(() => Promise.resolve(mockCertificateTxt))
 };
+
+jest.mock("../pki/SMimeDB");
+
+const mockMultipleGet = jest.fn(uids => {
+    if (uids.includes("2DF7A15F-12FD-4864-8279-12ADC6C08BAF")) {
+        return [
+            {
+                value: {
+                    security: {
+                        key: {
+                            parameters: [],
+                            value: mockOtherCertificateTxt
+                        }
+                    }
+                },
+                uid: "2DF7A15F-12FD-4864-8279-12ADC6C08BAF"
+            }
+        ];
+    } else {
+        return [];
+    }
+});
+
+jest.mock("@bluemind/addressbook.api", () => ({
+    AddressBooksClient: () => ({
+        search: searchQuery => {
+            if (searchQuery.query.includes("test@mail.com")) {
+                return {
+                    total: 2,
+                    values: [
+                        {
+                            containerUid: "addressbook_2",
+                            value: { mail: "deux@devenv.blue" },
+                            uid: "AAA"
+                        },
+                        {
+                            containerUid: "addressbook_f8de2c4a.internal",
+                            value: { mail: "deux@devenv.blue" },
+                            uid: "2DF7A15F-12FD-4864-8279-12ADC6C08BAF"
+                        }
+                    ]
+                };
+            } else {
+                return {
+                    total: 0
+                };
+            }
+        }
+    }),
+    AddressBookClient: () => ({
+        multipleGet: mockMultipleGet
+    }),
+    VCardQuery: { OrderBy: { Pertinance: "Pertinance" } }
+}));
 
 describe("pki", () => {
     beforeEach(() => {
@@ -102,6 +163,28 @@ describe("pki", () => {
                 done();
             } catch (error) {
                 done.fail();
+            }
+        });
+    });
+    describe("getCertificate", () => {
+        beforeEach(() => {
+            mockMultipleGet.mockClear();
+        });
+        test("get the user certificate when given an email, if present", async () => {
+            const certificate = await getCertificate("test@mail.com");
+            expect(certificate).toBeTruthy();
+        });
+        test("calls multipleGet on several addressbooks if the user appears in multiple address books", async () => {
+            await getCertificate("test@mail.com");
+            expect(mockMultipleGet).toHaveBeenCalledTimes(2);
+        });
+        test("raise an error if no certificate is found", async done => {
+            try {
+                await getCertificate("unknown");
+                done.fail();
+            } catch (error) {
+                expect(error).toBeInstanceOf(CertificateRecipientNotFoundError);
+                done();
             }
         });
     });

@@ -20,7 +20,7 @@ export interface Session {
     // userId: Promise<string>;
     // hasIM: Promise<string>;
     // lang: Promise<string>;
-    // domain: Promise<string>;
+    domain: Promise<string>;
     // roles: string;
     // formatedName: Promise<string>;
     // bmVersion: Promise<string>;
@@ -40,6 +40,9 @@ const session: Session = {
     },
     get login() {
         return instance().then(({ login }) => login);
+    },
+    get domain() {
+        return instance().then(({ domain }) => domain);
     },
     clear() {
         infos = undefined;
