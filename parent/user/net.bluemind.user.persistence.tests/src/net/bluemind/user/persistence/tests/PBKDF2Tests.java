@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.user.persistence;
+package net.bluemind.user.persistence.tests;
 
 import static org.junit.Assert.assertEquals;
 
@@ -25,7 +25,7 @@ import net.bluemind.user.persistence.security.HashAlgorithm;
 import net.bluemind.user.persistence.security.HashFactory;
 import net.bluemind.user.persistence.security.PBKDF2Hash;
 
-public class PBKDF2Test {
+public class PBKDF2Tests {
 
 	@Test
 	public void testGenerate() {
@@ -35,13 +35,13 @@ public class PBKDF2Test {
 			String hash = HashFactory.getDefault().create("this is password");
 			long done = System.currentTimeMillis() - ts;
 			total += done;
-			// System.err.println(PBKDF2Hash.PBKDF2_ITERATIONS + " iterations.
+			// System.err.println(PBKDF2Hash.iterations() + " iterations.
 			// Hash generated in " + done + " ms");
 			assertEquals(HashAlgorithm.valueOf("PBKDF2"), HashFactory.algorithm(hash));
 		}
 
 		System.err.println(
-				PBKDF2Hash.PBKDF2_ITERATIONS + " iterations, 20 runs. Generate average time: " + (total / 20) + " ms");
+				PBKDF2Hash.iterations() + " iterations, 20 runs. Generate average time: " + (total / 20) + " ms");
 	}
 
 	@Test
@@ -54,11 +54,11 @@ public class PBKDF2Test {
 			HashFactory.getDefault().validate("this is password", hash);
 			long done = System.currentTimeMillis() - ts;
 			total += done;
-			// System.err.println(PBKDF2Hash.PBKDF2_ITERATIONS + " iterations.
+			// System.err.println(PBKDF2Hash.iterations() + " iterations.
 			// Hash validated in " + done + " ms");
 		}
 
 		System.err.println(
-				PBKDF2Hash.PBKDF2_ITERATIONS + " iterations, 200 runs. Validate average time: " + (total / 20) + " ms");
+				PBKDF2Hash.iterations() + " iterations, 200 runs. Validate average time: " + (total / 20) + " ms");
 	}
 }

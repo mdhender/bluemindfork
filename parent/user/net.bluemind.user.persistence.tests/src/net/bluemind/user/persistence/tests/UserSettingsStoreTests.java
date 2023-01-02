@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.user.persistence;
+package net.bluemind.user.persistence.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -45,6 +45,8 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.user.api.User;
 import net.bluemind.user.api.UserSettings;
+import net.bluemind.user.persistence.UserSettingsStore;
+import net.bluemind.user.persistence.UserStore;
 
 public class UserSettingsStoreTests {
 	private static Logger logger = LoggerFactory.getLogger(UserSettingsStoreTests.class);

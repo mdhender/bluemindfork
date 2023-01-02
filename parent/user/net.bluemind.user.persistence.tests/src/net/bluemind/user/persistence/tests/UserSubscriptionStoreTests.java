@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.user.persistence;
+package net.bluemind.user.persistence.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -40,6 +40,8 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.User;
+import net.bluemind.user.persistence.UserStore;
+import net.bluemind.user.persistence.UserSubscriptionStore;
 
 public class UserSubscriptionStoreTests {
 

@@ -59,10 +59,8 @@ public class PBKDF2Hash implements Hash {
 
 	private static final JcaJceHelper bcHelper = new ProviderJcaJceHelper(new BouncyCastleProvider());
 
-	// https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#pbkdf2
 	public static final int SALT_BYTE_SIZE = 24;
 	public static final int HASH_BYTE_SIZE = 24;
-	public static final int PBKDF2_ITERATIONS = 720000;
 
 	public static final int ITERATION_INDEX = 0;
 	public static final int SALT_INDEX = 1;
@@ -74,12 +72,22 @@ public class PBKDF2Hash implements Hash {
 	public String create(String plaintext) throws ServerFault {
 		byte[] salt = generateSalt();
 		byte[] hash;
+		int iterations = iterations();
 		try {
-			hash = pbkdf2(plaintext.toCharArray(), salt, PBKDF2_ITERATIONS, HASH_BYTE_SIZE);
+			hash = pbkdf2(plaintext.toCharArray(), salt, iterations, HASH_BYTE_SIZE);
 		} catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchProviderException e) {
 			throw new ServerFault(e);
 		}
-		return PBKDF2_ITERATIONS + ":" + toHex(salt) + ":" + toHex(hash);
+		return iterations + ":" + toHex(salt) + ":" + toHex(hash);
+	}
+
+	public static int iterations() {
+		try {
+			return HashConfig.get().getInt("bm.security.hash.pbkdf2.iterations");
+		} catch (Exception e) {
+			System.err.println("hashconf: " + HashConfig.get());
+			throw e;
+		}
 	}
 
 	private static final Cache<String, Boolean> hashCache = CacheBuilder.newBuilder()
@@ -154,7 +162,7 @@ public class PBKDF2Hash implements Hash {
 	public boolean needsUpgrade(String hash) {
 		String[] params = hash.split(":");
 		int iterations = Integer.parseInt(params[ITERATION_INDEX]);
-		return PBKDF2_ITERATIONS != iterations;
+		return iterations() != iterations;
 	}
 
 }

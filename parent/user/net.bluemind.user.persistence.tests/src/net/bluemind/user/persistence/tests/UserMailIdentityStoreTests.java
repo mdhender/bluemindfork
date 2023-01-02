@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.user.persistence;
+package net.bluemind.user.persistence.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -42,6 +42,7 @@ import net.bluemind.mailbox.identity.api.IdentityDescription;
 import net.bluemind.mailbox.identity.api.SignatureFormat;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.UserMailIdentity;
+import net.bluemind.user.persistence.UserMailIdentityStore;
 
 public class UserMailIdentityStoreTests {
 
