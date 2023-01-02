@@ -275,7 +275,7 @@ public class EmlBuilder {
 	public static SizedStream inputStream(Long id, String previousBody, Date date, Part structure, String owner,
 			String sid) {
 		final File emlInput = emlFile(structure, sid);
-		try (InputStream in = stream(emlInput); Message asMessage = Mime4JHelper.parse(in)) {
+		try (InputStream in = stream(emlInput); Message asMessage = Mime4JHelper.parse(in, false)) {
 			net.bluemind.backend.mail.api.MessageBody.Header idHeader = net.bluemind.backend.mail.api.MessageBody.Header
 					.create(MailApiHeaders.X_BM_INTERNAL_ID, owner + "#" + InstallationId.getIdentifier() + ":" + id);
 			List<net.bluemind.backend.mail.api.MessageBody.Header> toAdd = Arrays.asList(idHeader);
@@ -284,9 +284,11 @@ public class EmlBuilder {
 						.create(MailApiHeaders.X_BM_PREVIOUS_BODY, previousBody);
 				toAdd = Arrays.asList(idHeader, prevHeader);
 			}
-			asMessage.setDate(date);
+			if (date != null) {
+				asMessage.setDate(date);
+			}
 			fillHeader(asMessage.getHeader(), toAdd, true);
-			return Mime4JHelper.asSizedStream(asMessage);
+			return Mime4JHelper.asSizedStreamWithoutEncoding(asMessage);
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {

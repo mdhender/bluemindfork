@@ -48,6 +48,7 @@ import org.apache.james.mime4j.message.BasicBodyFactory;
 import org.apache.james.mime4j.message.BodyFactory;
 import org.apache.james.mime4j.message.BodyPart;
 import org.apache.james.mime4j.message.DefaultBodyDescriptorBuilder;
+import org.apache.james.mime4j.message.DefaultMessageWriter;
 import org.apache.james.mime4j.message.MessageImpl;
 import org.apache.james.mime4j.parser.ContentHandler;
 import org.apache.james.mime4j.parser.MimeStreamParser;
@@ -162,7 +163,7 @@ public class Mime4JHelper {
 		logger.info("*** Rewriting message parts to make them UTF-8 compatible");
 		MessageImpl message = new MessageImpl();
 		BodyFactory bf = new BasicBodyFactory();
-		return parse(in, message, new XmlSafeEntityBuilder(message, bf));
+		return parse(in, message, new XmlSafeEntityBuilder(message, bf), true);
 	}
 
 	public static void serializeBody(Body toDump, OutputStream out) {
@@ -195,21 +196,50 @@ public class Mime4JHelper {
 		}
 	}
 
+	public static void serializeWithoutEncoding(Message toDump, OutputStream out) {
+		try {
+			MessageWriter writer = new DefaultMessageWriter() {
+				@Override
+				protected OutputStream encodeStream(OutputStream out, String encoding, boolean binaryBody)
+						throws IOException {
+					return out;
+				}
+			};
+			writer.writeMessage(toDump, out);
+		} catch (Exception e) {
+			logger.error("Message serialization failed: " + e.getMessage(), e);
+		} finally {
+			try {
+				out.close();
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
+	}
+
 	public static Message parse(byte[] messageData) {
 		return parse(new ByteArrayInputStream(messageData));
 	}
 
+	public static Message parse(InputStream in, boolean decodeEncoding) {
+		return parse(in, new OffloadedBodyFactory(), decodeEncoding);
+	}
+
 	public static Message parse(InputStream in) {
-		return parse(in, new OffloadedBodyFactory());
+		return parse(in, new OffloadedBodyFactory(), true);
 	}
 
 	public static Message parse(InputStream in, BodyFactory bf) {
-		MessageImpl message = new MessageImpl();
-		return parse(in, message, new DefaultEntityBuilder(message, bf));
+		return parse(in, bf, true);
 	}
 
-	private static Message parse(InputStream in, MessageImpl message, ContentHandler ch) {
-		MimeStreamParser parser = parser();
+	public static Message parse(InputStream in, BodyFactory bf, boolean decodeEncoding) {
+		MessageImpl message = new MessageImpl();
+		return parse(in, message, new DefaultEntityBuilder(message, bf), decodeEncoding);
+	}
+
+	private static Message parse(InputStream in, MessageImpl message, ContentHandler ch, boolean decodeEncoding) {
+		MimeStreamParser parser = parser(decodeEncoding);
 		parser.setContentHandler(ch);
 		try {
 			parser.parse(in);
@@ -220,6 +250,10 @@ public class Mime4JHelper {
 	}
 
 	public static MimeStreamParser parser() {
+		return parser(true);
+	}
+
+	public static MimeStreamParser parser(boolean decodeEncoding) {
 		MimeConfig cfg = new MimeConfig();
 		cfg.setMaxHeaderLen(-1);
 		cfg.setMaxHeaderCount(-1);
@@ -232,7 +266,7 @@ public class Mime4JHelper {
 		tokenStream.setRecursionMode(RecursionMode.M_NO_RECURSE);
 		MimeStreamParser parser = new MimeStreamParser(tokenStream);
 
-		parser.setContentDecoding(true);
+		parser.setContentDecoding(decodeEncoding);
 		return parser;
 	}
 
@@ -256,6 +290,15 @@ public class Mime4JHelper {
 	public static SizedStream asSizedStream(Message msg) throws IOException {
 		FileBackedOutputStream fbos = new FileBackedOutputStream(32768, TMP_PREFIX);
 		serialize(msg, fbos);
+		SizedStream ks = new SizedStream();
+		ks.input = FBOSInput.from(fbos);
+		ks.size = (int) fbos.asByteSource().size();
+		return ks;
+	}
+
+	public static SizedStream asSizedStreamWithoutEncoding(Message msg) throws IOException {
+		FileBackedOutputStream fbos = new FileBackedOutputStream(32768, TMP_PREFIX);
+		serializeWithoutEncoding(msg, fbos);
 		SizedStream ks = new SizedStream();
 		ks.input = FBOSInput.from(fbos);
 		ks.size = (int) fbos.asByteSource().size();
