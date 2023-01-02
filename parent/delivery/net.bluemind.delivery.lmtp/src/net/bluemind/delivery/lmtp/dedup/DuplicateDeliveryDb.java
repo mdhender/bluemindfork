@@ -24,6 +24,8 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.concurrent.atomic.LongAdder;
 
+import org.rocksdb.BlockBasedTableConfig;
+import org.rocksdb.LRUCache;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
@@ -63,14 +65,14 @@ public class DuplicateDeliveryDb {
 	private static final byte[] CONST_VALUE = new byte[] { 0x01 };
 
 	private static final DuplicateDeliveryDb INSTANCE = new DuplicateDeliveryDb(
-			DeliveryConfig.get().getDuration("lmtp.dedup.window"),
-			DeliveryConfig.get().getString("lmtp.dedup.db-path"));
+			DeliveryConfig.get().getDuration("lmtp.dedup.window"), DeliveryConfig.get().getString("lmtp.dedup.db-path"),
+			DeliveryConfig.get().getBytes("lmtp.dedup.lru-size"));
 
 	public static final DuplicateDeliveryDb get() {
 		return INSTANCE;
 	}
 
-	DuplicateDeliveryDb(Duration dedupWindow, String dbPath) {
+	DuplicateDeliveryDb(Duration dedupWindow, String dbPath, long lruSizeBytes) {
 		this.window = dedupWindow;
 		this.deduplications = new LongAdder();
 		Registry reg = MetricsRegistry.get();
@@ -82,6 +84,9 @@ public class DuplicateDeliveryDb {
 		try {
 			Files.createDirectories(dedupPath);
 			Options opts = new Options();
+			BlockBasedTableConfig blockCfg = new BlockBasedTableConfig();
+			blockCfg.setBlockCache(new LRUCache(lruSizeBytes));
+			opts.setTableFormatConfig(blockCfg);
 			opts.setWalRecoveryMode(WALRecoveryMode.SkipAnyCorruptedRecords);
 			opts.setCreateIfMissing(true);
 			this.ttlDb = TtlDB.open(opts, dedupPath.toString(), (int) dedupWindow.toSeconds(), false);
