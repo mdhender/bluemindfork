@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,9 +32,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -70,7 +65,6 @@ import net.bluemind.backend.mail.api.MessageBody.Header;
 import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.api.flags.FlagUpdate;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
-import net.bluemind.backend.mail.api.utils.PartsWalker;
 import net.bluemind.backend.mail.parsing.Bodies;
 import net.bluemind.backend.mail.parsing.EmlBuilder;
 import net.bluemind.backend.mail.replica.api.AppendTx;
@@ -104,12 +98,10 @@ import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.rest.utils.ReadInputStream;
 import net.bluemind.core.rest.vertx.BufferReadStream;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.utils.JsonUtils;
-import net.bluemind.core.utils.ThreadContextHelper;
 import net.bluemind.delivery.conversationreference.api.IConversationReference;
 import net.bluemind.imap.vertx.stream.EmptyStream;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -129,6 +121,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	private final Supplier<IDbMailboxRecords> writeDelegate;
 	private final Supplier<IDbByContainerReplicatedMailboxes> foldersWriteDelegate;
 	private long folderItemId;
+	private final Supplier<MailboxItemDecomposer> decomposer;
 
 	public ImapMailboxRecordsService(DataSource ds, Container cont, BmContext context, String mailboxUniqueId,
 			MailboxRecordStore recordStore, ContainerStoreService<MailboxRecord> storeService) {
@@ -147,10 +140,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 				.memoize(() -> context.provider().instance(IDbMailboxRecords.class, mailboxUniqueId));
 		this.foldersWriteDelegate = Suppliers.memoize(() -> context.provider()
 				.instance(IDbByContainerReplicatedMailboxes.class, recordsLocation.subtreeContainer));
-	}
-
-	public String imapFolder() {
-		return imapFolder;
+		this.decomposer = Suppliers.memoize(() -> new MailboxItemDecomposer(context, container));
 	}
 
 	@Override
@@ -260,7 +250,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			logger.debug("Shoud go from:\n{} to\n{}", JsonUtils.asString(currentStruct),
 					JsonUtils.asString(expectedStruct));
 		}
-		decomposeToTempParts(current.value.imapUid, expectedStruct).orTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS).join();
+
+		decomposer.get().decomposeToTempParts(current.value.body.guid, expectedStruct);
 
 		HashedBuffer sizedStream = createEmlStructure(current.internalId, current.value.body.guid, newValue.body);
 
@@ -536,11 +527,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		}
 	}
 
-	private CompletableFuture<Void> sink(long imapUid, String address, Path out) {
-		ReadStream<Buffer> stream = imapFetch(imapUid, address);
-		return GenericStream.asyncStreamToFile(stream, out.toFile(), StandardOpenOption.CREATE_NEW);
-	}
-
 	@Override
 	public String uploadPart(Stream part) {
 		rbac.check(Verb.Write.name());
@@ -658,8 +644,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			throw ServerFault.notFound("Record " + id + " not found in " + container.uid + " (aka " + imapFolder + ")");
 		}
 
-		long imapUid = mbRec.value.imapUid;
-
 		String bodyGuid = mbRec.value.messageBody;
 		MessageBody body;
 		try {
@@ -671,38 +655,9 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		ItemValue<MailboxItem> adapted = adapt(mbRec);
 		adapted.value.body = body;
 
-		CompletableFuture<Void> ref = decomposeToTempParts(imapUid, adapted.value.body.structure);
-
-		ref.orTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS).join();
+		decomposer.get().decomposeToTempParts(bodyGuid, adapted.value.body.structure);
 
 		return adapted;
-	}
-
-	/**
-	 * Parts with imap addresses will be changed to temporary parts
-	 * 
-	 * @param imapUid
-	 * @param rootPart
-	 * @return
-	 */
-	private CompletableFuture<Void> decomposeToTempParts(long imapUid, Part rootPart) {
-		logger.debug("Decomposing parts into tmp files for EML (imapUid={})", imapUid);
-		PartsWalker<Object> walker = new PartsWalker<>(null);
-		CompletableFuture<Void> root = CompletableFuture.completedFuture(null);
-		AtomicReference<CompletableFuture<Void>> ref = new AtomicReference<>(root);
-		walker.visit((Object c, Part p) -> {
-			if (p.address != null && isImapAddress(p.address) && !p.mime.startsWith("multipart/")) {
-				String replacedPartUid = UUID.randomUUID().toString();
-				File output = partFile(replacedPartUid);
-				ref.set(ref.get().thenCompose(v -> {
-					logger.info("Fetching {} part {}...", imapUid, p.address);
-					CompletableFuture<Void> sinkProm = sink(imapUid, p.address, output.toPath());
-					p.address = replacedPartUid;
-					return ThreadContextHelper.inWorkerThread(sinkProm);
-				}));
-			}
-		}, rootPart);
-		return ref.get();
 	}
 
 }

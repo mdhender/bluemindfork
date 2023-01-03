@@ -305,8 +305,6 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			throw new ServerFault("Cannot find source mailboxfolder");
 		}
 
-		// context.provider().instance(, null)
-
 		IDbMailboxRecords sourceMailboxItemsService = context.provider().instance(IDbMailboxRecords.class,
 				sourceFolder.uid);
 
