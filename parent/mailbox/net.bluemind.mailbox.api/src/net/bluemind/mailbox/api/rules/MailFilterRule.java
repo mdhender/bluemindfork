@@ -321,4 +321,27 @@ public class MailFilterRule {
 				&& Objects.equals(client, other.client) && stop == other.stop && trigger == other.trigger
 				&& type == other.type;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("MailFilterRule [type=");
+		builder.append(type);
+		builder.append(", trigger=");
+		builder.append(trigger);
+		builder.append(", deferred=");
+		builder.append(deferred);
+		builder.append(", active=");
+		builder.append(active);
+		builder.append(", name=");
+		builder.append(name);
+		builder.append(", conditions=[");
+		builder.append(conditions.stream().map(cond -> cond.toString()).collect(Collectors.joining(", ")));
+		builder.append("], actions=[");
+		builder.append(actions.stream().map(action -> action.toString()).collect(Collectors.joining(", ")));
+		builder.append("], stop=");
+		builder.append(stop);
+		builder.append("]");
+		return builder.toString();
+	}
 }

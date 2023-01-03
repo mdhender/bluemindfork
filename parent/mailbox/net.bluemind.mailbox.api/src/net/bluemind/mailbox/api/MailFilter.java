@@ -78,6 +78,19 @@ public class MailFilter {
 			Forwarding other = (Forwarding) obj;
 			return Objects.equals(emails, other.emails) && enabled == other.enabled && localCopy == other.localCopy;
 		}
+
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("MailFilterRule [enabled=");
+			builder.append(enabled);
+			builder.append(", localCopy=");
+			builder.append(localCopy);
+			builder.append(", emails=[");
+			builder.append(emails.stream().collect(Collectors.joining(", ")));
+			builder.append("]]");
+			return builder.toString();
+		}
 	}
 
 	public Forwarding forwarding = new Forwarding();
@@ -120,6 +133,25 @@ public class MailFilter {
 			return enabled == other.enabled && Objects.equals(end, other.end) && Objects.equals(start, other.start)
 					&& Objects.equals(subject, other.subject) && Objects.equals(text, other.text)
 					&& Objects.equals(textHtml, other.textHtml);
+		}
+
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("MailFilterRule [enabled=");
+			builder.append(enabled);
+			builder.append(", start=");
+			builder.append(start);
+			builder.append(", end=");
+			builder.append(end);
+			builder.append(", text=");
+			builder.append(text);
+			builder.append(", textHtml=");
+			builder.append(textHtml);
+			builder.append(", subject=");
+			builder.append(subject);
+			builder.append("]");
+			return builder.toString();
 		}
 	}
 
