@@ -18,7 +18,7 @@ export default {
     render: function (h) {
         if (this.extension) {
             return h(this.extension.name, {
-                props: this.$attrs,
+                attrs: { ...this.$attrs },
                 scopedSlots: {
                     default: attrs =>
                         h("bm-extension-renderless", {

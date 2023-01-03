@@ -100,7 +100,7 @@ export default {
         };
     },
     methods: {
-        ...mapMutations("smime", { SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT }),
+        ...mapMutations("mail", { SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT }),
         open() {
             this.file = undefined;
             this.invalidFile = false;

@@ -1,10 +1,13 @@
+import { mailTipUtils } from "@bluemind/mail";
 import { CHECK_IF_ASSOCIATED, DISSOCIATE_CRYPTO_FILES } from "./actionTypes";
 import { SMIME_AVAILABLE } from "./getterTypes";
 import { DISPLAY_UNTRUSTED, SET_SW_ERROR, SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT } from "./mutationTypes";
 import { IS_SW_AVAILABLE, SMIME_INTERNAL_API_URL, PKIStatus } from "../lib/constants";
 
+const { MailTipTypes } = mailTipUtils;
+
 export default {
-    namespaced: true,
+    namespaced: false,
     state: {
         // preferences
         hasPrivateKey: false,
@@ -12,7 +15,8 @@ export default {
         swError: false,
 
         // mail-app
-        displayUntrusted: []
+        displayUntrusted: [],
+        cannotEncryptEmails: []
     },
     getters: {
         [SMIME_AVAILABLE]: state => IS_SW_AVAILABLE && state.hasPublicCert && state.hasPrivateKey
@@ -54,6 +58,17 @@ export default {
         },
         [SET_HAS_PUBLIC_CERT]: (state, hasPublicCert) => {
             state.hasPublicCert = hasPublicCert;
+        },
+
+        // Listeners
+        SET_MAIL_TIPS: (state, mailTips) => {
+            const cannotEncrypt = tip =>
+                tip.mailtipType === MailTipTypes.HAS_PUBLIC_KEY_CERTIFICATE && tip.value === "false";
+            const cannotEncryptEmails = Object.values(mailTips).flatMap(({ matchingTips, forRecipient }) => {
+                const cannotEncryptTip = matchingTips.some(cannotEncrypt);
+                return cannotEncryptTip && forRecipient?.email ? forRecipient.email : [];
+            });
+            state.cannotEncryptEmails = cannotEncryptEmails;
         }
     }
 };

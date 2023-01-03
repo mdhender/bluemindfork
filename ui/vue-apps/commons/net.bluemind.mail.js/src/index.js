@@ -5,6 +5,7 @@ export { default as fileUtils } from "./file";
 export { default as folderUtils } from "./folder";
 export { default as loadingStatusUtils } from "./loading-status";
 export { default as mailboxUtils } from "./mailbox";
+export { default as mailTipUtils } from "./mailTip";
 export { default as messageUtils } from "./message";
 export { default as partUtils } from "./part";
 export { default as signatureUtils } from "./signature";

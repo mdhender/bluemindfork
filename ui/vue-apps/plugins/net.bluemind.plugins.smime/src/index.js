@@ -9,16 +9,18 @@ import UntrustedSenderTrigger from "./components/mail-app/UntrustedSenderTrigger
 import DecryptErrorAlert from "./components/mail-app/DecryptErrorAlert";
 import DecryptErrorTrigger from "./components/mail-app/DecryptErrorTrigger";
 import EncryptButton from "./components/mail-app/EncryptButton";
+import ContactWithCertificate from "./components/mail-app/ContactWithCertificate";
 import PrefSmime from "./components/preferences/PrefSmime";
 import LockIcon from "./components/mail-app/LockIcon";
 import { SMIMEPrefKeys } from "./lib/constants";
 import SmimeL10N from "./l10n/";
 import SmimeStore from "./store";
 import { SMIME_AVAILABLE } from "./store/getterTypes";
+import GetMailTipsHandler from "./commands/GetMailTipsHandler";
 
 TranslationRegistry.register(SmimeL10N);
 
-store.registerModule("smime", SmimeStore);
+store.registerModule(["mail", "smime"], SmimeStore);
 
 Vue.component("LockIcon", LockIcon);
 Vue.component("PrefSmime", PrefSmime);
@@ -29,6 +31,7 @@ Vue.component("UntrustedSenderTrigger", UntrustedSenderTrigger);
 Vue.component("DecryptErrorTrigger", DecryptErrorTrigger);
 Vue.component("DecryptErrorAlert", DecryptErrorAlert);
 Vue.component("EncryptButton", EncryptButton);
+Vue.component("ContactWithCertificate", ContactWithCertificate);
 
 extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
     component: {
@@ -65,6 +68,12 @@ extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
         name: "SmimeBodyWrapper"
     }
 });
+extensions.register("webapp", "net.bluemind.plugins.smime", {
+    command: {
+        name: "get-mail-tips",
+        fn: GetMailTipsHandler
+    }
+});
 
 extensions.register("webapp.preferences", "net.bluemind.plugins.smime", {
     section: {
@@ -87,6 +96,13 @@ extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
     }
 });
 
+extensions.register("webapp", "net.bluemind.webmodules.smime", {
+    component: {
+        name: "ContactWithCertificate",
+        path: "contact.chip.mail.composer.recipients"
+    }
+});
+
 function prefSmimeGroups() {
     return [
         {
@@ -102,7 +118,7 @@ function prefSmimeGroups() {
         {
             id: "smime_encrypt_pref",
             name: i18n.t("smime.preferences.encrypt_field.title"),
-            visible: () => store.getters["smime/" + SMIME_AVAILABLE],
+            visible: () => store.getters["mail/" + SMIME_AVAILABLE],
             fields: [
                 {
                     id: "field",
@@ -121,7 +137,7 @@ function prefSmimeGroups() {
         {
             id: "smime_signature_pref",
             name: i18n.t("smime.preferences.signature_field.title"),
-            visible: () => store.getters["smime/" + SMIME_AVAILABLE],
+            visible: () => store.getters["mail/" + SMIME_AVAILABLE],
             fields: [
                 {
                     id: "field",

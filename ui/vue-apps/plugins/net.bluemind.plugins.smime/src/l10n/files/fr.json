@@ -10,7 +10,8 @@
             },
             "composer": {
                 "encrypt": "Chiffrer le message",
-                "unencrypt": "Déchiffrer le message"
+                "unencrypt": "Déchiffrer le message",
+                "invalid_recipient" : "Le message ne peut pas être chiffré pour ce destinataire"
             }
         },
         "preferences": {

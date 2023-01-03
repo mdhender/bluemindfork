@@ -34,6 +34,7 @@
                             :closeable="!disabled"
                             class="mw-100"
                             enable-card
+                            :extension="extension"
                             @remove="onRemove(contact)"
                             @expand="$emit('expand', index)"
                             @keydown.native.delete="onRemove(contact)"
@@ -195,6 +196,10 @@ export default {
             validator: function (value) {
                 return ["outline", "underline", "inline"].includes(value);
             }
+        },
+        extension: {
+            type: String,
+            default: undefined
         }
     },
     data() {

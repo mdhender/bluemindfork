@@ -1,3 +1,5 @@
+import { MailTipTypes } from "./mailTip";
+
 export function removeSignature(content, userPrefTextOnly, signature) {
     return userPrefTextOnly ? removeTextSignature(content, signature) : removeHtmlSignature(content);
 }
@@ -39,14 +41,14 @@ export function wrapDisclaimer(html) {
 }
 
 export function isDisclaimer(mailTip) {
-    if (mailTip.mailtipType === "Signature") {
+    if (mailTip.mailtipType === MailTipTypes.SIGNATURE) {
         return JSON.parse(mailTip.value).isDisclaimer;
     }
     return false;
 }
 
 export function isCorporateSignature(mailTip) {
-    if (mailTip.mailtipType === "Signature") {
+    if (mailTip.mailtipType === MailTipTypes.SIGNATURE) {
         return !JSON.parse(mailTip.value).isDisclaimer;
     }
     return false;

@@ -1,6 +1,8 @@
 import { mount } from "@vue/test-utils";
+import inject from "@bluemind/inject";
 
-jest.mock("@bluemind/ui-components/src/css/exports/avatar.scss", () => ({
+inject.register({ provide: "UserSession", factory: () => ({ roles: "" }) });
+jest.mock("../../../src/css/exports/avatar.scss", () => ({
     1: "#007bff",
     2: "#6610f2",
     3: "#6f42c1",

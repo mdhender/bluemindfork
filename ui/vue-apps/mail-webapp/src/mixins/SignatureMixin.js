@@ -1,8 +1,12 @@
 import { mapState } from "vuex";
 import { INFO, REMOVE } from "@bluemind/alert.store";
-import { draftUtils, signatureUtils } from "@bluemind/mail";
-import { CHECK_CORPORATE_SIGNATURE } from "~/actions";
-import { SET_DRAFT_EDITOR_CONTENT } from "~/mutations";
+import { draftUtils, mailTipUtils, signatureUtils } from "@bluemind/mail";
+import {
+    SET_DRAFT_EDITOR_CONTENT,
+    SET_DISCLAIMER,
+    SET_CORPORATE_SIGNATURE,
+    UNSET_CORPORATE_SIGNATURE
+} from "~/mutations";
 
 const { isNewMessage } = draftUtils;
 const {
@@ -10,10 +14,14 @@ const {
     CORPORATE_SIGNATURE_SELECTOR,
     DISCLAIMER_SELECTOR,
     PERSONAL_SIGNATURE_SELECTOR,
+    isCorporateSignature,
+    isDisclaimer,
     wrapCorporateSignature,
     wrapDisclaimer,
     wrapPersonalSignature
 } = signatureUtils;
+const { getMailTipContext } = mailTipUtils;
+
 const corporateSignatureGotInserted = {
     alert: { name: "mail.CORPORATE_SIGNATURE_INSERTED", uid: "CORPORATE_SIGNATURE" },
     options: { area: "right-panel", renderer: "CorporateSignatureAlert" }
@@ -39,6 +47,7 @@ export default {
     computed: {
         ...mapState("mail", {
             personalSignature: state => state.messageCompose.personalSignature,
+            mailTips: state => state.messageCompose.mailTips,
             $_SignatureMixin_corporateSignature: state => state.messageCompose.corporateSignature,
             $_SignatureMixin_disclaimer: state => state.messageCompose.disclaimer,
             $_SignatureMixin_editorContent: state => state.messageCompose.editorContent,
@@ -56,6 +65,28 @@ export default {
     watch: {
         "message.from"() {
             this.$_SignatureMixin_refreshSignature();
+        },
+        mailTips: {
+            handler(mailTips) {
+                if (mailTips.length > 0) {
+                    const matchingTips = mailTips[0].matchingTips;
+
+                    const disclaimer = matchingTips.find(isDisclaimer);
+                    this.$store.commit(SET_DISCLAIMER, disclaimer ? JSON.parse(disclaimer.value) : null);
+
+                    const corporateSignature = matchingTips.find(isCorporateSignature);
+                    if (corporateSignature) {
+                        this.$store.commit(SET_CORPORATE_SIGNATURE, JSON.parse(corporateSignature.value));
+                    } else {
+                        this.$store.commit(UNSET_CORPORATE_SIGNATURE);
+                    }
+                } else {
+                    this.$store.commit(SET_DISCLAIMER, null);
+                    this.$store.commit(UNSET_CORPORATE_SIGNATURE);
+                }
+                this.$_SignatureMixin_checkCorporateSignatureDone = true;
+            },
+            immediate: true
         },
         personalSignature: {
             async handler(personalSignature, old) {
@@ -180,8 +211,7 @@ export default {
             );
         },
         async $_SignatureMixin_refreshSignature() {
-            await this.$store.dispatch("mail/" + CHECK_CORPORATE_SIGNATURE, { message: this.message });
-            this.$_SignatureMixin_checkCorporateSignatureDone = true;
+            await this.$execute("get-mail-tips", { context: getMailTipContext(this.message) });
         },
         async $_SignatureMixin_removePlaceholder() {
             if (this.$_SignatureMixin_checkCorporateSignatureDone) {

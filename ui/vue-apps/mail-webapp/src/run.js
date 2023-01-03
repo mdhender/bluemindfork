@@ -3,6 +3,7 @@ import Vue from "vue";
 import { TranslationRegistry } from "@bluemind/i18n";
 import router from "@bluemind/router";
 import { extensions } from "@bluemind/extensions";
+import { mailTipUtils } from "@bluemind/mail";
 
 import * as MailAlertComponents from "./components/MailAlerts";
 import * as ThreadAlertComponents from "./components/MailThread/Alerts";
@@ -13,13 +14,23 @@ import registerAPIClients from "./registerApiClients";
 import DecoratedFileItem from "./components/MailAttachment/DecoratedFileItem";
 import MailViewerContent from "./components/MailViewer/MailViewerContent";
 
+const { MailTipTypes } = mailTipUtils;
+
 TranslationRegistry.register(MailAppL10N);
 
 Vue.component("decorated-file-item", DecoratedFileItem);
 extensions.register("webapp.mail", "file-item", {
     component: { name: "decorated-file-item", path: "message.file", priority: 0 }
 });
-
+extensions.register("webapp", "signature", {
+    command: {
+        name: "get-mail-tips",
+        fn: ({ context }) => {
+            context.filter.mailTips.push(MailTipTypes.SIGNATURE);
+            return { context };
+        }
+    }
+});
 registerAPIClients();
 router.addRoutes(mailRoutes);
 

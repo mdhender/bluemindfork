@@ -203,7 +203,7 @@ describe("smime", () => {
             expect(structure.body.structure.address).toBe("address");
             expect(structure.body.structure.mime).toBe(PKCS7_MIMES[0]);
         });
-        test("add a header if the message cannot be encrypted", async () => {
+        test("raise an error if the message cannot be encrypted", async () => {
             pkcs7.encrypt = jest.fn(() => {
                 throw new EncryptError();
             });

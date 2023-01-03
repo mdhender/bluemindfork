@@ -10,7 +10,8 @@
             },
             "composer": {
                 "encrypt": "Encrypt the message",
-                "unencrypt": "Unencrypt the message"
+                "unencrypt": "Unencrypt the message",
+                "invalid_recipient" : "The message cannot be encrypted for this recipient"
             }
         },
         "preferences": {

@@ -9,6 +9,7 @@
         "@bluemind/alert.store":  "^5.0.0",
         "@bluemind/email": "^5.0.0",
         "@bluemind/file-utils": "^5.0.0",
+        "@bluemind/extensions.vue": "^5.0.0",
         "@fortawesome/fontawesome-svg-core": "^1.2.12",
         "@fortawesome/vue-fontawesome": "^0.1.4",
         "bootstrap": "^4.6.0",

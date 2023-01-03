@@ -1,7 +1,7 @@
 <template>
-    <div>
+    <div class="untrusted-sender-alert">
         {{ $t("smime.mailapp.alert.untrusted") }}
-        <bm-button v-if="!isAlreadyDisplayed" variant="link" class="ml-3" @click="displayMessage">
+        <bm-button v-if="!isAlreadyDisplayed" variant="link" class="ml-4" @click="displayMessage">
             {{ $t("common.display_anyway") }}
         </bm-button>
     </div>
@@ -25,13 +25,20 @@ export default {
             return this.alert.payload;
         },
         isAlreadyDisplayed() {
-            return this.$store.state.smime.displayUntrusted.indexOf(this.messageKey) !== -1;
+            return this.$store.state.mail.smime.displayUntrusted.indexOf(this.messageKey) !== -1;
         }
     },
     methods: {
         displayMessage() {
-            this.$store.commit("smime/" + DISPLAY_UNTRUSTED, this.messageKey);
+            this.$store.commit("mail/" + DISPLAY_UNTRUSTED, this.messageKey);
         }
     }
 };
 </script>
+
+<style lang="scss">
+.untrusted-sender-alert {
+    display: flex;
+    align-items: center;
+}
+</style>

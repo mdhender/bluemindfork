@@ -31,7 +31,7 @@ export default {
                 });
                 try {
                     await executeHooks.call(this, beforeHooks, payload, options);
-                    this._commands[command].call(this, payload), options;
+                    await this._commands[command].call(this, payload), options;
                     await executeHooks.call(this, afterHooks, payload, options);
                 } catch {
                     return;

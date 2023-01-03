@@ -22,21 +22,24 @@
 
 <script>
 import debounce from "lodash/debounce";
-import { mapActions, mapMutations } from "vuex";
+import { mapMutations } from "vuex";
 import { fetchContactMembers, RecipientAdaptor, VCardInfoAdaptor } from "@bluemind/contact";
 import { EmailValidator } from "@bluemind/email";
 import { ContactInput } from "@bluemind/business-components";
-import { CHECK_CORPORATE_SIGNATURE } from "~/actions";
+import { mailTipUtils } from "@bluemind/mail";
+import { GetMailTips } from "~/commands";
 import apiAddressbooks from "~/store/api/apiAddressbooks";
 import { SET_ADDRESS_WEIGHT, SET_MESSAGE_BCC, SET_MESSAGE_CC, SET_MESSAGE_TO } from "~/mutations";
 import { ADDRESS_AUTOCOMPLETE } from "~/getters";
 import { ComposerActionsMixin } from "~/mixins";
 import MailContactCardSlots from "../MailContactCardSlots";
 
+const { getMailTipContext } = mailTipUtils;
+
 export default {
     name: "MailComposerRecipient",
     components: { MailContactCardSlots },
-    mixins: [ComposerActionsMixin],
+    mixins: [ComposerActionsMixin, GetMailTips],
     props: {
         message: { type: Object, required: true },
         recipientType: { type: String, required: true, validator: value => ["to", "cc", "bcc"].includes(value) }
@@ -102,7 +105,6 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail", { CHECK_CORPORATE_SIGNATURE }),
         ...mapMutations("mail", { SET_ADDRESS_WEIGHT, SET_MESSAGE_TO, SET_MESSAGE_CC, SET_MESSAGE_BCC }),
         async expandContact(index) {
             const contacts = [...this.contacts];
@@ -126,7 +128,7 @@ export default {
                     containerUid: c.urn?.split("@")[1]
                 }))
             });
-            this.CHECK_CORPORATE_SIGNATURE({ message: this.message });
+            this.getMailTips();
             this.debouncedSave();
         },
         validateDnAndAddress(input, contact) {
@@ -136,6 +138,9 @@ export default {
                 ? EmailValidator.validateDnAndAddress(input)
                 : EmailValidator.validateAddress(input);
         }
+    },
+    async getMailTips() {
+        await this.$execute("get-mail-tips", { context: getMailTipContext(this.message) });
     }
 };
 

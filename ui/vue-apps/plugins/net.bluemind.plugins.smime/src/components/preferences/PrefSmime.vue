@@ -46,18 +46,18 @@ export default {
         return { IS_SW_AVAILABLE, setKeyIllustration, unsetKeyIllustration };
     },
     computed: {
-        ...mapState("smime", ["hasPrivateKey", "hasPublicCert", "swError"]),
-        ...mapGetters("smime", [SMIME_AVAILABLE])
+        ...mapState("mail", ["hasPrivateKey", "hasPublicCert", "swError"]),
+        ...mapGetters("mail", [SMIME_AVAILABLE])
     },
     mounted() {
-        this.$store.dispatch("smime/" + CHECK_IF_ASSOCIATED);
+        this.$store.dispatch("mail/" + CHECK_IF_ASSOCIATED);
     },
     methods: {
         openUploadModal() {
             this.$refs["import-modal"].open();
         },
         async dissociate() {
-            await this.$store.dispatch("smime/" + DISSOCIATE_CRYPTO_FILES);
+            await this.$store.dispatch("mail/" + DISSOCIATE_CRYPTO_FILES);
             this.NEED_RELOAD();
         },
         needReload() {

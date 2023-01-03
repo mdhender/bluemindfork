@@ -2,15 +2,16 @@ import Vue from "vue";
 import Vuex from "vuex";
 import cloneDeep from "lodash.clonedeep";
 import inject from "@bluemind/inject";
-import { MockMailboxesClient, MockMailtipClient } from "@bluemind/test-utils";
+import { MockMailboxesClient } from "@bluemind/test-utils";
 import storeOptions from "../messageCompose";
-import { CHECK_CORPORATE_SIGNATURE, LOAD_MAX_MESSAGE_SIZE } from "~/actions";
+import { LOAD_MAX_MESSAGE_SIZE } from "~/actions";
 import { IS_SENDER_SHOWN } from "~/getters";
 import {
     SET_CORPORATE_SIGNATURE,
     SET_DISCLAIMER,
     SET_DRAFT_COLLAPSED_CONTENT,
     SET_DRAFT_EDITOR_CONTENT,
+    SET_MAIL_TIPS,
     SET_MAX_MESSAGE_SIZE,
     SHOW_SENDER
 } from "~/mutations";
@@ -76,34 +77,25 @@ describe("messageCompose", () => {
             store.commit(SHOW_SENDER, "pouet");
             expect(store.state.isSenderShown).toBe("pouet");
         });
+        test("SET_MAIL_TIPS", () => {
+            expect(store.state.mailTips.length).toBe(0);
+            const mailTips = [
+                {
+                    forRecipient: {
+                        email: "keytest@test.com",
+                        name: "keytest",
+                        addressType: "SMTP",
+                        recipientType: "TO"
+                    },
+                    matchingTips: [{ mailtipType: "mailTip", value: "true" }]
+                }
+            ];
+            store.commit(SET_MAIL_TIPS, mailTips);
+            expect(store.state.mailTips).toBe(mailTips);
+        });
     });
 
     describe("actions", () => {
-        test("CHECK_CORPORATE_SIGNATURE", async () => {
-            const corpSign =
-                '{"html":"<p>________</p> \\n<p>THIS IS CORP SIGN \\"test2\\"</p>","text":"________\\n\\nTHIS IS CORP SIGN \\"test2\\"\\n","uid":"140C00FB-8B4A-40D4-8443-7C3A64E78DFB","isDisclaimer":false,"usePlaceholder":false}';
-            const disclaimer =
-                '{"html":"<p>IM DISCLAIMER !!</p>","text":"IM DISCLAIMER !!\\n","uid":"a7a1c863.internal:bm-signature-plugin:disclaimer","isDisclaimer":true,"usePlaceholder":false}';
-            const mailtipService = new MockMailtipClient();
-            inject.register({ provide: "MailTipPersistence", factory: () => mailtipService });
-            mailtipService.getMailTips.mockReturnValue([
-                {
-                    forRecipient: null,
-                    matchingTips: [
-                        { mailtipType: "Signature", value: corpSign },
-                        { mailtipType: "Signature", value: disclaimer }
-                    ]
-                }
-            ]);
-
-            inject.register({ provide: "UserSession", factory: () => ({ defaultEmail: "user@mail.com" }) });
-            const message = { from: {}, to: [{ address: "test@mail.com", dn: "" }], cc: [], bcc: [] };
-            await store.dispatch(CHECK_CORPORATE_SIGNATURE, { message });
-            expect(mailtipService.getMailTips).toHaveBeenCalled();
-            expect(store.state.disclaimer).toStrictEqual(JSON.parse(disclaimer));
-            expect(store.state.corporateSignature).toStrictEqual(JSON.parse(corpSign));
-        });
-
         test("LOAD_MAX_MESSAGE_SIZE", async () => {
             const mailboxesService = new MockMailboxesClient();
             inject.register({ provide: "MailboxesPersistence", factory: () => mailboxesService });

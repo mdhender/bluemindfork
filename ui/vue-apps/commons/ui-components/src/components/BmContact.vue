@@ -7,18 +7,18 @@
         type="renderless"
         v-bind="{ ...$attrs }"
     >
-        <contact-internal v-bind="context" v-on="$listeners" />
+        <bm-contact-internal v-bind="context" v-on="$listeners" />
     </bm-extension>
-    <contact-internal v-else v-bind="{ ...$attrs }" v-on="$listeners" />
+    <bm-contact-internal v-else v-bind="{ ...$attrs }" v-on="$listeners" />
 </template>
 
 <script>
 import { BmExtension } from "@bluemind/extensions.vue";
-import ContactInternal from "./ContactInternal";
+import BmContactInternal from "./BmContactInternal";
 
 export default {
     name: "BmContact",
-    components: { ContactInternal, BmExtension },
+    components: { BmContactInternal, BmExtension },
     props: {
         extension: {
             type: String,

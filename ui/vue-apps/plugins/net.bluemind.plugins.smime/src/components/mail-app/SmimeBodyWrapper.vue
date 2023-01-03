@@ -25,7 +25,7 @@ export default {
     },
     computed: {
         forceDisplay() {
-            return this.$store.state.smime.displayUntrusted.includes(this.message.key);
+            return this.$store.state.mail.smime.displayUntrusted.includes(this.message.key);
         },
         untrusted() {
             return isSigned(this.message.headers) && !isVerified(this.message.headers);
