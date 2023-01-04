@@ -245,7 +245,7 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 	}
 
 	private String readArchiveSizeThreshold(SysConfModel map, SysConfKeys key, int defaultValue) {
-		String limit = Optional.ofNullable(map.get(key.name())).orElse(Integer.toString(defaultValue)).toString();
+		String limit = Optional.ofNullable(map.get(key.name())).orElse(Integer.toString(defaultValue));
 		limit = ValueUtil.removeNonDigitCharacters(limit, defaultValue);
 		int limitInt = Integer.parseInt(limit) / 1024;
 		return String.valueOf(limitInt);

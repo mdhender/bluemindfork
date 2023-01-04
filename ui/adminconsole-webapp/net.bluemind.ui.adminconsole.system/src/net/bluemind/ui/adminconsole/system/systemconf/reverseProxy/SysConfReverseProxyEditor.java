@@ -88,7 +88,7 @@ public class SysConfReverseProxyEditor extends CompositeGwtWidgetElement {
 
 		// NGinx
 		if (map.get(SysConfKeys.sw_password.name()) != null) {
-			swPassword.setText(map.get(SysConfKeys.sw_password.name()).toString());
+			swPassword.setText(map.get(SysConfKeys.sw_password.name()));
 		}
 
 		if (map.get(SysConfKeys.nginx_worker_connections.name()) != null) {
