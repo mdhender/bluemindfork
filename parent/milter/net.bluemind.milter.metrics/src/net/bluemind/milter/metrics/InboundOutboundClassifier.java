@@ -22,12 +22,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.james.mime4j.codec.DecodeMonitor;
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.address.Mailbox;
-import org.apache.james.mime4j.field.address.AddressBuilder;
-import org.apache.james.mime4j.field.address.ParseException;
+import org.apache.james.mime4j.field.address.LenientAddressBuilder;
 import org.apache.james.mime4j.stream.Field;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netflix.spectator.api.Counter;
 import com.netflix.spectator.api.Registry;
@@ -44,7 +44,7 @@ import net.bluemind.milter.action.DomainAliasCache;
 
 public class InboundOutboundClassifier implements IMilterListener {
 
-	public static enum TrafficClass {
+	public enum TrafficClass {
 		INTERNAL, EXTERNAL;
 	}
 
@@ -58,6 +58,8 @@ public class InboundOutboundClassifier implements IMilterListener {
 		}
 	}
 
+	private static final Logger logger = LoggerFactory.getLogger(InboundOutboundClassifier.class);
+
 	private ClassifiedAddress from;
 	private final List<ClassifiedAddress> recipients;
 	private final Registry registry;
@@ -65,16 +67,16 @@ public class InboundOutboundClassifier implements IMilterListener {
 	private int size;
 
 	private Optional<ClassifiedAddress> classify(String email) {
-		try {
-			Mailbox parsed = AddressBuilder.DEFAULT.parseMailbox(email, DecodeMonitor.SILENT);
-			ItemValue<Domain> domain = DomainAliasCache.getDomain(parsed.getDomain());
-			if (domain != null) {
-				return Optional.of(new ClassifiedAddress(parsed.getAddress(), TrafficClass.INTERNAL));
-			} else {
-				return Optional.of(new ClassifiedAddress(parsed.getAddress(), TrafficClass.EXTERNAL));
-			}
-		} catch (ParseException e) {
+		Mailbox parsed = LenientAddressBuilder.DEFAULT.parseMailbox(email);
+		if (parsed == null) {
+			logger.warn("mime4j cannot parse email '{}'", email);
 			return Optional.empty();
+		}
+		ItemValue<Domain> domain = DomainAliasCache.getDomain(parsed.getDomain());
+		if (domain != null) {
+			return Optional.of(new ClassifiedAddress(parsed.getAddress(), TrafficClass.INTERNAL));
+		} else {
+			return Optional.of(new ClassifiedAddress(parsed.getAddress(), TrafficClass.EXTERNAL));
 		}
 	}
 
@@ -92,10 +94,7 @@ public class InboundOutboundClassifier implements IMilterListener {
 
 	@Override
 	public Status onEnvRcpt(String rcpt) {
-		Optional<ClassifiedAddress> recipient = classify(rcpt);
-		if (recipient.isPresent()) {
-			recipients.add(recipient.get());
-		}
+		classify(rcpt).ifPresent(recipients::add);
 		return Status.CONTINUE;
 	}
 
@@ -118,37 +117,34 @@ public class InboundOutboundClassifier implements IMilterListener {
 	@Override
 	public Status onMessage(SmtpEnvelope envelope, Message message) {
 		Field handled = message.getHeader().getField(MilterHeaders.HANDLED);
-		if (handled == null || handled.getBody().equals(MilterInstanceID.get())) {
-			if (from != null) {
-				long inbound = 0;
-				long outbound = 0;
-				long internal = 0;
-				if (from.traficClass == TrafficClass.INTERNAL) {
-					outbound = recipients.stream().filter(r -> r.traficClass == TrafficClass.EXTERNAL).count();
-					internal = recipients.stream().filter(r -> r.traficClass == TrafficClass.INTERNAL).count();
-				} else if (from.traficClass == TrafficClass.EXTERNAL) {
-					inbound = recipients.stream().filter(r -> r.traficClass == TrafficClass.INTERNAL).count();
-				}
-				Counter inboundCounter = registry.counter(idFactory.name("class", "type", "INBOUND"));
-				Counter inboundSizeCounter = registry.counter(idFactory.name("size", "type", "INBOUND"));
-				Counter internalCounter = registry.counter(idFactory.name("class", "type", "INTERNAL"));
-				Counter internalSizeCounter = registry.counter(idFactory.name("size", "type", "INTERNAL"));
-				Counter outboundCounter = registry.counter(idFactory.name("class", "type", "OUTBOUND"));
-				Counter outboundSizeCounter = registry.counter(idFactory.name("size", "type", "OUTBOUND"));
-				if (inbound > 0) {
-					inboundCounter.increment(inbound);
-					inboundSizeCounter.increment(inbound * size);
-				}
-				if (outbound > 0) {
-					outboundCounter.increment(outbound);
-					outboundSizeCounter.increment(outbound * size);
-				}
-				if (internal > 0) {
-					internalCounter.increment(internal);
-					internalSizeCounter.increment(internal * size);
-				}
+		if ((handled == null || handled.getBody().equals(MilterInstanceID.get())) && from != null) {
+			long inbound = 0;
+			long outbound = 0;
+			long internal = 0;
+			if (from.traficClass == TrafficClass.INTERNAL) {
+				outbound = recipients.stream().filter(r -> r.traficClass == TrafficClass.EXTERNAL).count();
+				internal = recipients.stream().filter(r -> r.traficClass == TrafficClass.INTERNAL).count();
+			} else if (from.traficClass == TrafficClass.EXTERNAL) {
+				inbound = recipients.stream().filter(r -> r.traficClass == TrafficClass.INTERNAL).count();
 			}
-
+			Counter inboundCounter = registry.counter(idFactory.name("class", "type", "INBOUND"));
+			Counter inboundSizeCounter = registry.counter(idFactory.name("size", "type", "INBOUND"));
+			Counter internalCounter = registry.counter(idFactory.name("class", "type", "INTERNAL"));
+			Counter internalSizeCounter = registry.counter(idFactory.name("size", "type", "INTERNAL"));
+			Counter outboundCounter = registry.counter(idFactory.name("class", "type", "OUTBOUND"));
+			Counter outboundSizeCounter = registry.counter(idFactory.name("size", "type", "OUTBOUND"));
+			if (inbound > 0) {
+				inboundCounter.increment(inbound);
+				inboundSizeCounter.increment(inbound * size);
+			}
+			if (outbound > 0) {
+				outboundCounter.increment(outbound);
+				outboundSizeCounter.increment(outbound * size);
+			}
+			if (internal > 0) {
+				internalCounter.increment(internal);
+				internalSizeCounter.increment(internal * size);
+			}
 		}
 		return Status.CONTINUE;
 	}
