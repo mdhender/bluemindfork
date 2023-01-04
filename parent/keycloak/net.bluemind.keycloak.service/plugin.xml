@@ -2,6 +2,18 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.keycloak.api.IKeycloakAdmin">
+      </endpoint>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.keycloak.service.KeycloakAdminServiceFactory">
+      </serviceFactory>
+   </extension>
+   <extension
          point="net.bluemind.server.hook.serverhook">
       <hook
             impl="net.bluemind.keycloak.config.KeycloakServerHook"

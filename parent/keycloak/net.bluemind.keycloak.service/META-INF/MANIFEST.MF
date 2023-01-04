@@ -3,6 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.keycloak.service
 Bundle-SymbolicName: net.bluemind.keycloak.service;singleton:=true
 Bundle-Version: 4.1.0.qualifier
+Export-Package: net.bluemind.keycloak.internal,
+ net.bluemind.keycloak.service
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.keycloak.service
 Bundle-RequiredExecutionEnvironment: JavaSE-17
@@ -10,4 +12,10 @@ Require-Bundle: net.bluemind.server.hook,
  net.bluemind.node.client,
  net.bluemind.core.rest,
  net.bluemind.node.api,
- slf4j.api
+ slf4j.api,
+ net.bluemind.keycloak.api,
+ com.google.guava,
+ net.bluemind.config,
+ net.bluemind.core.container.service,
+ net.bluemind.role.api,
+ net.bluemind.network.topology
