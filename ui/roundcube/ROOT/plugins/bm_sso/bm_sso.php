@@ -124,8 +124,8 @@ class bm_sso extends rcube_plugin {
      $_SESSION['bm_sso']['bmPartition'] = $hds['BMPARTITION'];
      $_SESSION['bm_sso']['bmDataLocation'] = $hds['BMDATALOCATION'];
      $_SESSION['bm_sso']['bmTopoCore'] = $hds['BMTOPOCORE'];
-     $_SESSION['bm_sso']['bmTopoEs'] = $hds['BMTOPOIMAP'];
-     $_SESSION['bm_sso']['bmTopoImap'] = $hds['BMTOPOES'];
+     $_SESSION['bm_sso']['bmTopoEs'] = $hds['BMTOPOES'];
+     $_SESSION['bm_sso']['bmTopoImap'] = $hds['BMTOPOIMAP'];
      $_SESSION['bm_sso']['bmTopoCti'] = $hds['BMTOPOCTI'];
      $this->domain = $hds['BMUSERDOMAINID'];
   }
