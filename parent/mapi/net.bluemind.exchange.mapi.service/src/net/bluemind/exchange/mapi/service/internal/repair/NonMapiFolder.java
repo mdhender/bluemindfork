@@ -48,9 +48,9 @@ public class NonMapiFolder {
 	public static boolean legitKind(String k, BaseDirEntry.Kind kind) {
 		switch (kind) {
 		case MAILSHARE:
-			return invalidKindsMailshare.contains(k);
+			return !invalidKindsMailshare.contains(k);
 		case RESOURCE:
-			return invalidKindsRoom.contains(k);
+			return !invalidKindsRoom.contains(k);
 		default:
 			return !invalidKinds.contains(k);
 		}
