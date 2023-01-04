@@ -321,28 +321,17 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		rbac.check(Verb.Write.name());
 		IOfflineMgmt offlineApi = context.provider().instance(IOfflineMgmt.class, container.domainUid, container.owner);
 		IdRange alloc = offlineApi.allocateOfflineIds(1);
-		return create(alloc.globalCounter, value);
+		return createImpl(alloc.globalCounter, value);
 	}
 
 	@Override
 	public ImapAck createById(long id, MailboxItem value) {
 		rbac.check(Verb.Write.name());
-		ImapItemIdentifier itemIdentifier = create(id, value);
+		ImapItemIdentifier itemIdentifier = createImpl(id, value);
 		return ImapAck.create(itemIdentifier.version, itemIdentifier.imapUid);
 	}
 
-	private ImapItemIdentifier create(long id, MailboxItem value) {
-		logger.debug("create {}", id);
-		try {
-			return createAsync(id, value);
-		} catch (ServerFault sf) {
-			throw sf;
-		} catch (Exception e) {
-			throw new ServerFault(e);
-		}
-	}
-
-	private ImapItemIdentifier createAsync(long id, MailboxItem value) {
+	private ImapItemIdentifier createImpl(long id, MailboxItem value) {
 		logger.info("create 'draft' {}", id);
 
 		ItemValue<MailboxItem> existingItem = getCompleteById(id);
@@ -381,19 +370,6 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		return ImapItemIdentifier.of(mr.imapUid, id, ack.version);
 	}
 
-	public List<ItemIdentifier> multiCreate(List<MailboxItem> items) {
-		IOfflineMgmt offlineApi = context.provider().instance(IOfflineMgmt.class, container.domainUid, container.owner);
-		int total = items.size();
-		IdRange alloc = offlineApi.allocateOfflineIds(total);
-		ItemIdentifier[] ret = new ItemIdentifier[total];
-		int i = 0;
-		for (MailboxItem mi : items) {
-			final int slot = i++;
-			ret[slot] = createAsync(alloc.globalCounter++, mi);
-		}
-		return Arrays.asList(ret);
-	}
-
 	@Override
 	public List<ItemValue<MailboxItem>> multipleGetById(List<Long> ids) {
 		if (ids.size() > 500) {
@@ -401,8 +377,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		}
 		rbac.check(Verb.Read.name());
 		List<ItemValue<MailboxRecord>> records = storeService.getMultipleById(ids);
-		List<String> bodiesToLoad = records.stream().map(iv -> iv.value.messageBody).distinct()
-				.collect(Collectors.toList());
+		List<String> bodiesToLoad = records.stream().map(iv -> iv.value.messageBody).distinct().toList();
 
 		Map<String, MessageBody> bodiesByGuid;
 		try {
@@ -425,7 +400,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			}
 
 			return adapted;
-		}).filter(Objects::nonNull).collect(Collectors.toList());
+		}).filter(Objects::nonNull).toList();
 	}
 
 	public ItemIdentifier unexpunge(long itemId) {
