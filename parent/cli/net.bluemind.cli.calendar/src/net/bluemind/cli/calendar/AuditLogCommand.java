@@ -212,12 +212,14 @@ public class AuditLogCommand implements ICmdLet, Runnable {
 
 		String entity = getValue(entry, Arrays.asList("objectMeta"), "container-json", String.class).orElse("");
 
+		String origin = getValue(entry, Arrays.asList("actorMeta"), "origin", String.class).orElse("");
+
 		if (!StringUtil.isNullOrEmpty(calendarQuery) && !entity.contains(calendarQuery)) {
 			return;
 		}
 
 		tblData.add(new Tblrow(date, actor, itemUid.orElse(""), action, showData ? actionData : "", result, entity,
-				additionalData));
+				origin, additionalData));
 
 	}
 
@@ -279,10 +281,11 @@ public class AuditLogCommand implements ICmdLet, Runnable {
 		public final String result;
 		public final String entity;
 		public final String itemUid;
+		public final String origin;
 		public final List<String> otherData;
 
 		public Tblrow(String date, String actor, String itemUid, String action, String data, String result,
-				String entity, List<String> otherData) {
+				String entity, String origin, List<String> otherData) {
 			this.date = date;
 			this.actor = actor;
 			this.itemUid = itemUid;
@@ -290,6 +293,7 @@ public class AuditLogCommand implements ICmdLet, Runnable {
 			this.data = data;
 			this.result = result;
 			this.entity = entity;
+			this.origin = origin;
 			this.otherData = otherData;
 		}
 
@@ -300,6 +304,7 @@ public class AuditLogCommand implements ICmdLet, Runnable {
 			builder.append(action).append("\n");
 			builder.append(result).append("\n");
 			builder.append(itemUid).append("\n");
+			builder.append(origin).append("\n");
 			otherData.stream().forEach(s -> builder.append(s).append("\n"));
 			return builder.toString();
 		}
