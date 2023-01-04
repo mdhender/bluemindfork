@@ -33,7 +33,7 @@ public interface IBackupStoreFactory {
 	}
 
 	default boolean isPaused() {
-		return "true".equals(System.getProperty(CloneDefaults.DISABLE_SYSPROP, "xxx"));
+		return Boolean.getBoolean(CloneDefaults.DISABLE_SYSPROP);
 	}
 
 	default void resume() {
