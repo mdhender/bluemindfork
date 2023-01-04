@@ -20,6 +20,5 @@
 		<module>net.bluemind.exchange.publicfolders.common</module>
 		<module>net.bluemind.exchange.publicfolders.hierarchy</module>
 		<module>net.bluemind.cli.mapi</module>
-		<module>net.bluemind.exchange.mapi.lmtp.filter</module>
 	</modules>
 </project>

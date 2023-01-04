@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="lmtpd" uid="lmtpd" id="net.bluemind.lmtp.lmtpd" application="net.bluemind.lmtp.id1" version="4.1.0.qualifier" useFeatures="false" includeLaunchers="true">
+<product name="lmtpd" uid="lmtpd" id="net.bluemind.lmtp.lmtpd" application="net.bluemind.lmtp.id1" version="4.1.0.qualifier" useFeatures="false" includeLaunchers="true" autoIncludeRequirements="true">
 
    <configIni use="default">
    </configIni>
@@ -45,10 +45,10 @@
       <plugin id="io.vertx.core"/>
       <plugin id="io.vertx.web"/>
       <plugin id="jakarta.activation-api"/>
+      <plugin id="jakarta.validation.jakarta.validation-api"/>
       <plugin id="jakarta.ws.rs-api"/>
       <plugin id="jakarta.xml.bind-api"/>
       <plugin id="javax.activation"/>
-      <plugin id="jakarta.validation.jakarta.validation-api"/>
       <plugin id="javax.xml"/>
       <plugin id="jcl.over.slf4j"/>
       <plugin id="jul.to.slf4j"/>
@@ -83,7 +83,6 @@
       <plugin id="net.bluemind.domain.api"/>
       <plugin id="net.bluemind.eclipse.common"/>
       <plugin id="net.bluemind.elastic.client"/>
-      <plugin id="net.bluemind.exchange.mapi.lmtp.filter"/>
       <plugin id="net.bluemind.filehosting.api"/>
       <plugin id="net.bluemind.group.api"/>
       <plugin id="net.bluemind.hornetq.client"/>
@@ -198,12 +197,12 @@
 
    <configurations>
       <plugin id="net.bluemind.sentry.settings" autoStart="true" startLevel="4" />
+      <plugin id="net.bluemind.startup.dropins" autoStart="true" startLevel="1" />
       <plugin id="org.apache.felix.scr" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="2" />
-      <plugin id="net.bluemind.startup.dropins" autoStart="true" startLevel="1" />
       <property name="osgi.instance.area" value="/var/lib/bm-lmtpd/" />
       <property name="eclipse.registry.MultiLanguage" value="true" />
       <property name="osgi.noShutdown" value="true" />

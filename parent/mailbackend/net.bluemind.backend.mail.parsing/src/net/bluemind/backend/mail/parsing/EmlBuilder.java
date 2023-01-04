@@ -25,7 +25,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -61,8 +61,6 @@ import net.bluemind.backend.mail.api.DispositionType;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.api.MessageBody.Recipient;
-import net.bluemind.backend.mail.replica.api.MailApiHeaders;
-import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.mime4j.common.Mime4JHelper.HashedBuffer;
@@ -91,8 +89,8 @@ public class EmlBuilder {
 		Part structure = mb.structure;
 		try {
 			Body body = createBody(bbf, mb.structure, sid);
-			if (body instanceof MultipartImpl) {
-				msg.setMultipart((MultipartImpl) body);
+			if (body instanceof MultipartImpl mpImpl) {
+				msg.setMultipart(mpImpl);
 			} else {
 				setBody(msg, body, structure);
 			}
@@ -264,27 +262,18 @@ public class EmlBuilder {
 		return stream(emlInput);
 	}
 
-	public static HashedBuffer inputStream(Long id, String previousBody, Date date, Part structure, String owner,
-			String sid) {
+	public static HashedBuffer inputStream(Date date, Part structure, String owner, String sid) {
 		final File emlInput = emlFile(structure, sid);
 		try (InputStream in = stream(emlInput); Message asMessage = Mime4JHelper.parse(in, false)) {
-			net.bluemind.backend.mail.api.MessageBody.Header idHeader = net.bluemind.backend.mail.api.MessageBody.Header
-					.create(MailApiHeaders.X_BM_INTERNAL_ID, owner + "#" + InstallationId.getIdentifier() + ":" + id);
-			List<net.bluemind.backend.mail.api.MessageBody.Header> toAdd = Arrays.asList(idHeader);
-			if (previousBody != null) {
-				net.bluemind.backend.mail.api.MessageBody.Header prevHeader = net.bluemind.backend.mail.api.MessageBody.Header
-						.create(MailApiHeaders.X_BM_PREVIOUS_BODY, previousBody);
-				toAdd = Arrays.asList(idHeader, prevHeader);
-			}
 			if (date != null) {
 				asMessage.setDate(date);
 			}
-			fillHeader(asMessage.getHeader(), toAdd, true);
+			fillHeader(asMessage.getHeader(), Collections.emptyList(), true);
 			return Mime4JHelper.mmapedEML(asMessage, false);
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new ServerFault(e);
 		}
 	}
 

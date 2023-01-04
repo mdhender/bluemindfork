@@ -83,7 +83,6 @@ import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore.SubtreeLocation;
-import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -297,14 +296,9 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		Part structure = body.structure;
 		String sid = this.context.getSecurityContext().getSessionId();
 		if (structure.mime.equals("message/rfc822")) {
-			return EmlBuilder.inputStream(id, previousBody, body.date, structure, container.owner, sid);
+			return EmlBuilder.inputStream(body.date, structure, container.owner, sid);
 		} else {
 			try {
-				body.headers.add(Header.create(MailApiHeaders.X_BM_INTERNAL_ID,
-						container.owner + "#" + InstallationId.getIdentifier() + ":" + id));
-				if (previousBody != null) {
-					body.headers.add(Header.create(MailApiHeaders.X_BM_PREVIOUS_BODY, previousBody));
-				}
 				try (Message msg = EmlBuilder.of(body, sid)) {
 					return Mime4JHelper.mmapedEML(msg);
 				}

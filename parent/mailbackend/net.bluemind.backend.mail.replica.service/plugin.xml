@@ -227,13 +227,7 @@
             impl="net.bluemind.backend.mail.replica.service.internal.BodiesCache$CacheRegistration">
       </reg>
       <reg
-            impl="net.bluemind.backend.mail.replica.service.internal.BodyInternalIdCache$CacheRegistration">
-      </reg>
-      <reg
             impl="net.bluemind.backend.mail.replica.service.internal.FolderInternalIdCache$CacheRegistration">
-      </reg>
-      <reg
-            impl="net.bluemind.backend.mail.replica.service.internal.GuidExpectedIdCache$CacheRegistration">
       </reg>
       <reg
             impl="net.bluemind.backend.mail.replica.service.internal.SubtreeLocations$CacheRegistration">

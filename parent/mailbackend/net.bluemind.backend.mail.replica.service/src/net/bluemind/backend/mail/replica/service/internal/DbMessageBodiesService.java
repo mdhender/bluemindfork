@@ -44,25 +44,19 @@ import io.vertx.core.file.AsyncFile;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.mail.api.MessageBody;
-import net.bluemind.backend.mail.api.MessageBody.Header;
 import net.bluemind.backend.mail.parsing.BodyStreamProcessor;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.api.IMessageBodyTierChange;
-import net.bluemind.backend.mail.replica.api.MailApiHeaders;
 import net.bluemind.backend.mail.replica.indexing.IndexedMessageBody;
 import net.bluemind.backend.mail.replica.indexing.RecordIndexActivator;
 import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
-import net.bluemind.backend.mail.replica.service.internal.BodyInternalIdCache.ExpectedId;
 import net.bluemind.backend.mail.replica.service.sds.MessageBodyObjectStore;
-import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.rest.vertx.VertxStream.LocalPathStream;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.system.api.SystemState;
-import net.bluemind.system.state.StateContext;
 
 public class DbMessageBodiesService implements IDbMessageBodies {
 
@@ -141,29 +135,6 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 				logger.debug("Got body '{}'", body.subject);
 				body.guid = uid;
 				body.created = deliveryDate == null ? new Date() : deliveryDate;
-				Optional<Header> idHeader = body.headers.stream()
-						.filter(h -> MailApiHeaders.X_BM_INTERNAL_ID.equals(h.name)).findAny();
-				if (idHeader.isPresent() && StateContext.getState() != SystemState.CORE_STATE_CLONING) {
-					String idStr = idHeader.get().firstValue();
-					int instIdx = idStr.lastIndexOf(':');
-					int ownerIdx = idStr.lastIndexOf('#');
-					if (instIdx > 0 && ownerIdx > 0 && ownerIdx < instIdx) {
-						String owner = idStr.substring(0, ownerIdx);
-						String instId = idStr.substring(ownerIdx + 1, instIdx);
-						if (InstallationId.getIdentifier().equals(instId)) {
-							Optional<Header> prevHeader = body.headers.stream()
-									.filter(h -> MailApiHeaders.X_BM_PREVIOUS_BODY.equals(h.name)).findAny();
-							long internalId = Long.parseLong(idStr.substring(instIdx + 1));
-							String prevBody = null;
-							if (prevHeader.isPresent()) {
-								prevBody = prevHeader.get().firstValue();
-							}
-							logger.debug("********** caching {} => {} for owner {}", body.guid, internalId, owner);
-							BodyInternalIdCache.storeExpectedRecordId(body.guid,
-									new ExpectedId(internalId, owner, prevBody));
-						}
-					}
-				}
 				update(body);
 				RecordIndexActivator.getIndexer().ifPresent(service -> {
 					IndexedMessageBody indexData = IndexedMessageBody.createIndexBody(body.guid, bodyData);

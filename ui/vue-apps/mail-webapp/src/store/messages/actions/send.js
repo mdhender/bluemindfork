@@ -68,7 +68,6 @@ async function moveToOutbox(draftId, myMailboxKey, outboxId, myDraftsFolderId) {
     const moveResult = await inject("MailboxFoldersPersistence", myMailboxKey).importItems(outboxId, {
         mailboxFolderId: myDraftsFolderId,
         ids: [{ id: draftId }],
-        expectedIds: undefined,
         deleteFromSource: true
     });
     if (!moveResult || moveResult.status !== "SUCCESS") {

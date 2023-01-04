@@ -17,16 +17,13 @@
   */
 package net.bluemind.backend.mail.replica.service.tests;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
@@ -56,7 +53,6 @@ import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.MailApiHeaders;
 import net.bluemind.backend.mailapi.testhelper.MailApiTestsBase;
-import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IOfflineMgmt;
@@ -160,11 +156,6 @@ public abstract class AbstractRollingReplicationTests extends MailApiTestsBase {
 			recordsApi.createById(expectedId, item);
 			ItemValue<MailboxItem> reloaded = recordsApi.getCompleteById(expectedId);
 			assertNotNull(reloaded);
-			assertNotNull(reloaded.value.body.headers);
-			Optional<Header> idHeader = reloaded.value.body.headers.stream()
-					.filter(h -> h.name.equals(MailApiHeaders.X_BM_INTERNAL_ID)).findAny();
-			assertTrue(idHeader.isPresent());
-			assertEquals(owner + "#" + InstallationId.getIdentifier() + ":" + expectedId, idHeader.get().firstValue());
 			recordsApi.removePart(partId);
 			return reloaded;
 		}
@@ -252,9 +243,6 @@ public abstract class AbstractRollingReplicationTests extends MailApiTestsBase {
 		ItemValue<MailboxItem> reloaded = recordsApi.getCompleteById(nextId);
 		assertNotNull(reloaded);
 		assertNotNull(reloaded.value.body.headers);
-		Optional<Header> idHeader = reloaded.value.body.headers.stream()
-				.filter(h -> h.name.equals(MailApiHeaders.X_BM_INTERNAL_ID)).findAny();
-		assertTrue(idHeader.isPresent());
 		recordsApi.removePart(partId);
 		return uploaded;
 	}

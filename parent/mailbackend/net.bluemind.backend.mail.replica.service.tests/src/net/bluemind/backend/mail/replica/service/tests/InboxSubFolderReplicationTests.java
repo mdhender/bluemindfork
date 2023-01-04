@@ -47,11 +47,8 @@ import net.bluemind.backend.mail.api.ImportMailboxItemsStatus.ImportStatus;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.api.MessageBody;
-import net.bluemind.backend.mail.api.MessageBody.Header;
 import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
-import net.bluemind.backend.mail.replica.api.MailApiHeaders;
-import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.container.api.IContainerManagement;
@@ -195,16 +192,13 @@ public class InboxSubFolderReplicationTests extends AbstractRollingReplicationTe
 		long id = offlineId++;
 		addDraft(inbox, id, userUid);
 
-		long id2 = offlineId++;
+		long id2 = offlineId;
 		addDraft(inbox, id2, userUid);
 
 		// copy into sub folder
-		long expectedId = offlineId++;
-		long expectedId2 = offlineId++;
 
 		ImportMailboxItemSet toCopy = ImportMailboxItemSet.copyIn(inbox.internalId,
-				Arrays.asList(MailboxItemId.of(id), MailboxItemId.of(id2)),
-				Arrays.asList(MailboxItemId.of(expectedId), MailboxItemId.of(expectedId2)));
+				Arrays.asList(MailboxItemId.of(id), MailboxItemId.of(id2)));
 
 		ItemValue<MailboxFolder> subFolder = mboxesApi.byName(subFolderName);
 		assertNotNull(subFolder);
@@ -212,16 +206,14 @@ public class InboxSubFolderReplicationTests extends AbstractRollingReplicationTe
 
 		assertEquals(ImportStatus.SUCCESS, ret.status);
 		assertEquals(2, ret.doneIds.size());
-		assertEquals(expectedId, ret.doneIds.get(0).destination);
-		assertEquals(expectedId2, ret.doneIds.get(1).destination);
 
 		// check
 		IMailboxItems itemApi = provider().instance(IMailboxItems.class, inbox.uid);
 		itemApi = provider().instance(IMailboxItems.class, subFolder.uid);
-		ItemValue<MailboxItem> item = itemApi.getCompleteById(expectedId);
+		ItemValue<MailboxItem> item = itemApi.getCompleteById(ret.doneIds.get(0).destination);
 		assertNotNull(item);
 
-		item = itemApi.getCompleteById(expectedId2);
+		item = itemApi.getCompleteById(ret.doneIds.get(1).destination);
 		assertNotNull(item);
 
 	}
@@ -265,21 +257,19 @@ public class InboxSubFolderReplicationTests extends AbstractRollingReplicationTe
 		ItemValue<MailboxFolder> destFolder = mboxesApi.byName(mailshare.name + "/" + dest);
 		assertNotNull(destFolder);
 		// copy into sub folder
-		long expectedId = offlineId++;
 
 		ImportMailboxItemSet toCopy = ImportMailboxItemSet.copyIn(srcFolder.internalId,
-				Arrays.asList(MailboxItemId.of(id)), Arrays.asList(MailboxItemId.of(expectedId)));
+				Arrays.asList(MailboxItemId.of(id)));
 
 		System.err.println("import starts...");
 		ImportMailboxItemsStatus ret = mboxesApi.importItems(destFolder.internalId, toCopy);
 
 		assertEquals(ImportStatus.SUCCESS, ret.status);
 		assertEquals(1, ret.doneIds.size());
-		assertEquals(expectedId, ret.doneIds.get(0).destination);
 
 		// check
 		IMailboxItems itemApi = provider().instance(IMailboxItems.class, destFolder.uid);
-		ItemValue<MailboxItem> item = itemApi.getCompleteById(expectedId);
+		ItemValue<MailboxItem> item = itemApi.getCompleteById(ret.doneIds.get(0).destination);
 		assertNotNull(item);
 	}
 
@@ -318,20 +308,18 @@ public class InboxSubFolderReplicationTests extends AbstractRollingReplicationTe
 
 		ItemValue<MailboxFolder> destFolder = mboxesApi.byName("ms");
 		// copy into sub folder
-		long expectedId = offlineId++;
 
 		ImportMailboxItemSet toCopy = ImportMailboxItemSet.copyIn(srcFolder.internalId,
-				Arrays.asList(MailboxItemId.of(id)), Arrays.asList(MailboxItemId.of(expectedId)));
+				Arrays.asList(MailboxItemId.of(id)));
 
 		ImportMailboxItemsStatus ret = mboxesApi.importItems(destFolder.internalId, toCopy);
 
 		assertEquals(ImportStatus.SUCCESS, ret.status);
 		assertEquals(1, ret.doneIds.size());
-		assertEquals(expectedId, ret.doneIds.get(0).destination);
 
 		// check
 		IMailboxItems itemApi = provider().instance(IMailboxItems.class, destFolder.uid);
-		ItemValue<MailboxItem> item = itemApi.getCompleteById(expectedId);
+		ItemValue<MailboxItem> item = itemApi.getCompleteById(ret.doneIds.get(0).destination);
 		assertNotNull(item);
 	}
 
@@ -372,20 +360,18 @@ public class InboxSubFolderReplicationTests extends AbstractRollingReplicationTe
 		ItemValue<MailboxFolder> destFolder = mboxesApi.byName(mailshare.name + "/" + dest);
 		assertNotNull(destFolder);
 		// copy into sub folder
-		long expectedId = offlineId++;
 
 		ImportMailboxItemSet toCopy = ImportMailboxItemSet.copyIn(srcFolder.internalId,
-				Arrays.asList(MailboxItemId.of(id)), Arrays.asList(MailboxItemId.of(expectedId)));
+				Arrays.asList(MailboxItemId.of(id)));
 
 		ImportMailboxItemsStatus ret = mboxesApi.importItems(destFolder.internalId, toCopy);
 
 		assertEquals(ImportStatus.SUCCESS, ret.status);
 		assertEquals(1, ret.doneIds.size());
-		assertEquals(expectedId, ret.doneIds.get(0).destination);
 
 		// check
 		IMailboxItems itemApi = provider().instance(IMailboxItems.class, destFolder.uid);
-		ItemValue<MailboxItem> item = itemApi.getCompleteById(expectedId);
+		ItemValue<MailboxItem> item = itemApi.getCompleteById(ret.doneIds.get(0).destination);
 		assertNotNull(item);
 	}
 
@@ -408,16 +394,13 @@ public class InboxSubFolderReplicationTests extends AbstractRollingReplicationTe
 		long id = offlineId++;
 		addDraft(inbox, id, userUid);
 
-		long id2 = offlineId++;
+		long id2 = offlineId;
 		addDraft(inbox, id2, userUid);
 
 		// move into sub folder
-		long expectedId = offlineId++;
-		long expectedId2 = offlineId++;
 
 		ImportMailboxItemSet toMove = ImportMailboxItemSet.moveIn(inbox.internalId,
-				Arrays.asList(MailboxItemId.of(id), MailboxItemId.of(id2)),
-				Arrays.asList(MailboxItemId.of(expectedId), MailboxItemId.of(expectedId2)));
+				Arrays.asList(MailboxItemId.of(id), MailboxItemId.of(id2)));
 
 		ItemValue<MailboxFolder> subFolder = mboxesApi.byName(subFolderName);
 		assertNotNull(subFolder);
@@ -425,16 +408,14 @@ public class InboxSubFolderReplicationTests extends AbstractRollingReplicationTe
 
 		assertEquals(ImportStatus.SUCCESS, ret.status);
 		assertEquals(2, ret.doneIds.size());
-		assertEquals(expectedId, ret.doneIds.get(0).destination);
-		assertEquals(expectedId2, ret.doneIds.get(1).destination);
 
 		// check
 		IMailboxItems itemApi = provider().instance(IMailboxItems.class, inbox.uid);
 		itemApi = provider().instance(IMailboxItems.class, subFolder.uid);
-		ItemValue<MailboxItem> item = itemApi.getCompleteById(expectedId);
+		ItemValue<MailboxItem> item = itemApi.getCompleteById(ret.doneIds.get(0).destination);
 		assertNotNull(item);
 
-		item = itemApi.getCompleteById(expectedId2);
+		item = itemApi.getCompleteById(ret.doneIds.get(1).destination);
 		assertNotNull(item);
 
 	}
@@ -462,10 +443,6 @@ public class InboxSubFolderReplicationTests extends AbstractRollingReplicationTe
 			ItemValue<MailboxItem> reloaded = recordsApi.getCompleteById(expectedId);
 			assertNotNull(reloaded);
 			assertNotNull(reloaded.value.body.headers);
-			Optional<Header> idHeader = reloaded.value.body.headers.stream()
-					.filter(h -> h.name.equals(MailApiHeaders.X_BM_INTERNAL_ID)).findAny();
-			assertTrue(idHeader.isPresent());
-			assertEquals(owner + "#" + InstallationId.getIdentifier() + ":" + expectedId, idHeader.get().firstValue());
 			return reloaded;
 		}
 	}

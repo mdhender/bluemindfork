@@ -25,16 +25,6 @@ package net.bluemind.backend.mail.replica.api;
 public final class MailApiHeaders {
 
 	/**
-	 * Store the internal id we want to assign in a header
-	 */
-	public static final String X_BM_INTERNAL_ID = "X-Bm-Internal-Id";
-
-	/**
-	 * The body guid of a message we want to replace
-	 */
-	public static final String X_BM_PREVIOUS_BODY = "X-Bm-Previous-Body";
-
-	/**
 	 * Message date used to force eml rewrite when using updateById, and to detect
 	 * emails to send when flushing Outbox
 	 */
@@ -49,6 +39,7 @@ public final class MailApiHeaders {
 	public static class OutlookProps {
 
 		public static final String FLAG_REQUEST = "X-Bm-Otlk-Flag-Request";
+
 		/**
 		 * undefined, followupComplete, followupFlagged
 		 */
@@ -87,8 +78,7 @@ public final class MailApiHeaders {
 
 	public static final OutlookProps Otlk = new OutlookProps();
 
-	public static final String[] ALL = new String[] { X_BM_INTERNAL_ID, X_BM_PREVIOUS_BODY, X_BM_DRAFT_INFO,
-			X_BM_DRAFT_REFRESH_DATE, //
+	public static final String[] ALL = new String[] { X_BM_DRAFT_INFO, X_BM_DRAFT_REFRESH_DATE, //
 			OutlookProps.FLAG_REQUEST, OutlookProps.FLAG_STATUS, OutlookProps.FLAG_COLOR, //
 			OutlookProps.TASK_DUE_DATE, OutlookProps.TASK_ORDINAL_DATE, OutlookProps.COMMON_START, //
 			OutlookProps.REMINDER_DATE, OutlookProps.REMINDER_SET, //

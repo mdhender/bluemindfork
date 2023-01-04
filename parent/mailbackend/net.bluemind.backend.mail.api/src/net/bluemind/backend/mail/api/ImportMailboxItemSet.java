@@ -19,6 +19,9 @@ package net.bluemind.backend.mail.api;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.GwtIncompatible;
 
@@ -30,10 +33,16 @@ public class ImportMailboxItemSet {
 	public static class MailboxItemId {
 		public long id;
 
+		public MailboxItemId() {
+		}
+
+		@JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+		public MailboxItemId(@JsonProperty("id") long id) {
+			this.id = id;
+		}
+
 		public static MailboxItemId of(long id) {
-			MailboxItemId ret = new MailboxItemId();
-			ret.id = id;
-			return ret;
+			return new MailboxItemId(id);
 		}
 	}
 
@@ -44,32 +53,20 @@ public class ImportMailboxItemSet {
 	 */
 	public List<MailboxItemId> ids;
 
-	/**
-	 * Expected MailboxItems ids
-	 * 
-	 * list can be null ortherwise size must be equals to
-	 * {@link ImportMailboxItemSet#ids} size
-	 */
-	public List<MailboxItemId> expectedIds;
-
 	public boolean deleteFromSource;
 
-	public static ImportMailboxItemSet copyIn(long mailboxFolderId, List<MailboxItemId> ids,
-			List<MailboxItemId> expectedIds) {
-		return ImportMailboxItemSet.of(mailboxFolderId, ids, expectedIds, false);
+	public static ImportMailboxItemSet copyIn(long mailboxFolderId, List<MailboxItemId> ids) {
+		return ImportMailboxItemSet.of(mailboxFolderId, ids, false);
 	}
 
-	public static ImportMailboxItemSet moveIn(long mailboxFolderId, List<MailboxItemId> ids,
-			List<MailboxItemId> expectedIds) {
-		return ImportMailboxItemSet.of(mailboxFolderId, ids, expectedIds, true);
+	public static ImportMailboxItemSet moveIn(long mailboxFolderId, List<MailboxItemId> ids) {
+		return ImportMailboxItemSet.of(mailboxFolderId, ids, true);
 	}
 
-	public static ImportMailboxItemSet of(long mailboxFolderId, List<MailboxItemId> ids,
-			List<MailboxItemId> expectedIds, boolean deleteFromSource) {
+	public static ImportMailboxItemSet of(long mailboxFolderId, List<MailboxItemId> ids, boolean deleteFromSource) {
 		ImportMailboxItemSet ret = new ImportMailboxItemSet();
 		ret.mailboxFolderId = mailboxFolderId;
 		ret.ids = ids;
-		ret.expectedIds = expectedIds;
 		ret.deleteFromSource = deleteFromSource;
 		return ret;
 	}

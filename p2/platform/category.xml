@@ -330,7 +330,6 @@
    <bundle id="net.bluemind.elasticsearch.initializer" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.exchange.mapi.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.exchange.mapi.hook" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.exchange.mapi.lmtp.filter" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.exchange.mapi.notifications" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.exchange.mapi.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.exchange.mapi.service" version="4.1.0.qualifier"/>

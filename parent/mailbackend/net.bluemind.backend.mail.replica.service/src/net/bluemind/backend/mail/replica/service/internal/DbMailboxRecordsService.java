@@ -20,7 +20,6 @@ package net.bluemind.backend.mail.replica.service.internal;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -70,8 +69,6 @@ import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.RecordID;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore.SubtreeLocation;
-import net.bluemind.backend.mail.replica.service.internal.BodyInternalIdCache.ExpectedId;
-import net.bluemind.backend.mail.replica.service.internal.BodyInternalIdCache.VanishedBody;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
@@ -159,41 +156,20 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 	private ItemVersion create0(String uid, Long internalId, MailboxRecord mail) {
 		SubtreeLocation recordsLocation = locationOrFault();
 
-		ExpectedId knownInternalId = BodyInternalIdCache.expectedRecordId(container.owner, mail.messageBody);
 		ItemVersion version = null;
-		boolean isUpdate = false;
-		if (knownInternalId != null) {
-			logger.info("************************ Create from replication with a preset id {}", knownInternalId);
-			if (knownInternalId.updateOfBody == null) {
-				version = storeService.createWithId(uid, knownInternalId.id, null, uid, mail);
-			} else {
-				logger.info("********** UPDATE by id to point record to new message body");
-				version = storeService.update(knownInternalId.id, uid, mail);
-				isUpdate = true;
-			}
-			BodyInternalIdCache.invalidateBody(mail.messageBody);
-		} else {
-			version = storeService.createWithId(uid, internalId, null, uid, mail);
-		}
+		version = storeService.createWithId(uid, internalId, null, uid, mail);
 
 		ItemValue<MailboxRecord> itemValue = ItemValue.create(uid, mail);
 		itemValue.internalId = version.id;
 		itemValue.version = version.version;
 		updateIndex(Collections.singletonList(itemValue));
 		if (StateContext.getState() == SystemState.CORE_STATE_RUNNING) {
-			if (!isUpdate) {
-				logger.debug("Sending event for created item {}", version);
-				EmitReplicationEvents.recordCreated(mailboxUniqueId, version.version, version.id, mail.imapUid);
-				EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, version.version,
-						new long[] { version.id }, version.id);
-				if (newMailNotificationCandidate(recordsLocation, itemValue)) {
-					newMailNotification(itemValue);
-				}
-			} else {
-				logger.debug("Sending event for replaced item {}", version);
-				EmitReplicationEvents.recordUpdated(mailboxUniqueId, version, mail);
-				EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, version.version,
-						new long[] { version.id });
+			logger.debug("Sending event for created item {}", version);
+			EmitReplicationEvents.recordCreated(mailboxUniqueId, version.version, version.id, mail.imapUid);
+			EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, version.version,
+					new long[] { version.id }, version.id);
+			if (newMailNotificationCandidate(recordsLocation, itemValue)) {
+				newMailNotification(itemValue);
 			}
 		}
 		return version;
@@ -207,19 +183,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		ItemVersion version = null;
 		for (MailboxRecord mail : mails) {
 			String uid = mail.imapUid + ".";
-			ExpectedId knownInternalId = BodyInternalIdCache.expectedRecordId(container.owner, mail.messageBody);
-			if (knownInternalId != null) {
-				logger.info("************************ Create from replication with a preset id {}", knownInternalId);
-				if (knownInternalId.updateOfBody == null) {
-					version = storeService.createWithId(uid, knownInternalId.id, null, uid, mail);
-				} else {
-					logger.info("********** UPDATE by id to point record to new message body");
-					version = storeService.update(knownInternalId.id, uid, mail);
-				}
-				BodyInternalIdCache.invalidateBody(mail.messageBody);
-			} else {
-				version = storeService.create(uid, uid, mail);
-			}
+			version = storeService.create(uid, uid, mail);
 
 			ItemValue<MailboxRecord> itemValue = ItemValue.create(uid, mail);
 			itemValue.internalId = version.id;
@@ -373,15 +337,6 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		}
 	}
 
-	private UpsertResult upsertById(String uid, long id, MailboxRecord mr) {
-		try {
-			return UpsertResult.create(storeService.createWithId(uid, id, null, uid, mr));
-		} catch (ServerFault sf) {
-			logger.warn("createById failed: {}, trying updateById of uid: {}, id: {}", sf.getMessage(), uid, id);
-			return UpsertResult.update(storeService.update(id, uid, mr));
-		}
-	}
-
 	private List<MailboxRecord> fixFlags(List<MailboxRecord> toFix) {
 		int len = toFix.size();
 		ArrayList<MailboxRecord> ret = new ArrayList<>(len);
@@ -481,61 +436,12 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 			// apply the changes
 			toCreate.forEach((MailboxRecord mr) -> {
 				String uid = mr.imapUid + ".";
-				VanishedBody vanished = BodyInternalIdCache.vanishedBody(container.owner, mr.messageBody);
 				if (mr.internalFlags.contains(InternalFlag.expunged)) {
-					// when cyrus aggregate commands flag seen/delete with expunged sent by
-					// ImapMailboxRecordsService mailRewrite, we have a vanished body, we wait for
-					// record change and we care about its version.
-					long version = (vanished == null) ? Long.MAX_VALUE : vanished.version.version;
-					EmitReplicationEvents.recordCreated(mailboxUniqueId, version, -1, mr.imapUid);
-					logger.info("Skipping create on expunged record {} v{}", mr.imapUid, version);
-					return;
-				}
-				if (vanished != null) {
-					logger.info("Don't touch {} {} as it vanished", mr.imapUid, mr.messageBody);
-					expungeIndex(Arrays.asList(mr.imapUid));
-					upNotifs.add(UpdateNotif.of(vanished.version, mr));
+					logger.info("Skipping create on expunged record {}", mr.imapUid);
 					return;
 				}
 
-				UpsertResult upsert = null;
-				String guidCacheKey = IMailReplicaUids.uniqueId(container.uid) + ":" + mr.messageBody;
-				Long expId = GuidExpectedIdCache.expectedId(guidCacheKey);
-
-				if (expId != null) {
-					upsert = UpsertResult.create(storeService.createWithId(uid, expId, null, uid, mr));
-					GuidExpectedIdCache.invalidate(guidCacheKey);
-				} else {
-					ExpectedId knownInternalId = BodyInternalIdCache.expectedRecordId(container.owner, mr.messageBody);
-					if (knownInternalId == null) {
-						upsert = upsertByUid(uid, mr);
-					} else {
-						logger.info("Create directly with the right id {} from replication.", knownInternalId);
-						if (knownInternalId.updateOfBody == null) {
-							upsert = upsertById(uid, knownInternalId.id, mr);
-						} else {
-							try {
-								logger.info("Update record {} to point to a different body {}", knownInternalId,
-										mr.messageBody);
-								upsert = UpsertResult.update(storeService.update(knownInternalId.id, uid, mr));
-								BodyInternalIdCache.vanishedBody(container.owner,
-										knownInternalId.updateOfBody).version = upsert.version;
-
-							} catch (ServerFault sf) {
-								logger.warn("[{}] Update of {} failed: {}", container.uid, knownInternalId.id,
-										sf.getMessage());
-								try {
-									upsert = UpsertResult
-											.create(storeService.createWithId(uid, knownInternalId.id, null, uid, mr));
-								} catch (ServerFault refault) {
-									logger.warn("byId global failure: {}", refault.getMessage());
-									upsert = upsertByUid(uid, mr);
-								}
-							}
-						}
-						BodyInternalIdCache.invalidateBody(mr.messageBody);
-					}
-				}
+				UpsertResult upsert = upsertByUid(uid, mr);
 				if (!upsert.update) {
 					crNotifs.add(CreateNotif.of(upsert.version.version, upsert.version.id, mr.imapUid));
 				} else {
@@ -554,23 +460,16 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 
 			AtomicInteger softDelete = new AtomicInteger();
 			toUpdate.forEach((Long itemId, MailboxRecord mr) -> {
-				VanishedBody vanished = BodyInternalIdCache.vanishedBody(container.owner, mr.messageBody);
-				if (vanished != null) {
-					logger.info("Using version from vanished item {} and the old imap uid", vanished);
-					expungeIndex(Arrays.asList(mr.imapUid));
-					upNotifs.add(UpdateNotif.of(vanished.version, mr));
-				} else {
-					ItemVersion upd = storeService.update(itemId, "itemId:" + itemId, mr);
-					if (mr.flags.contains(MailboxItemFlag.System.Deleted.value())) {
-						softDelete.incrementAndGet();
-					}
-
-					ItemValue<MailboxRecord> asItem = ItemValue.create("dunno", mr);
-					asItem.version = upd.version;
-					asItem.internalId = upd.id;
-					pushToIndex.add(asItem);
-					upNotifs.add(UpdateNotif.of(upd, mr));
+				ItemVersion upd = storeService.update(itemId, "itemId:" + itemId, mr);
+				if (mr.flags.contains(MailboxItemFlag.System.Deleted.value())) {
+					softDelete.incrementAndGet();
 				}
+
+				ItemValue<MailboxRecord> asItem = ItemValue.create("dunno", mr);
+				asItem.version = upd.version;
+				asItem.internalId = upd.id;
+				pushToIndex.add(asItem);
+				upNotifs.add(UpdateNotif.of(upd, mr));
 			});
 			int deletes = softDelete.get();
 			logger.info("[{}] Db CRUD op, cr: {}, upd: {}, del: {} in {}ms", mailboxUniqueId, toCreate.size(),

@@ -17,14 +17,10 @@
   */
 package net.bluemind.backend.mail.replica.service.internal;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -37,13 +33,11 @@ import net.bluemind.backend.mail.api.IItemsTransfer;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxFoldersByContainer;
 import net.bluemind.backend.mail.api.ImportMailboxItemSet;
-import net.bluemind.backend.mail.api.ImportMailboxItemSet.MailboxItemId;
 import net.bluemind.backend.mail.api.ImportMailboxItemsStatus;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
-import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
@@ -51,8 +45,6 @@ import net.bluemind.backend.mail.replica.api.MailboxReplica.Acl;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
-import net.bluemind.backend.mail.replica.service.internal.BodyInternalIdCache.ExpectedId;
-import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.Count;
@@ -290,11 +282,6 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 	public ImportMailboxItemsStatus importItems(long id, ImportMailboxItemSet mailboxItems) throws ServerFault {
 		rbac.check(Verb.Write.name());
 
-		List<MailboxItemId> expectedIds = mailboxItems.expectedIds;
-		String importOpID = UUID.randomUUID().toString();
-
-		int len = mailboxItems.ids.size();
-
 		ItemValue<MailboxFolder> destinationFolder = getCompleteById(id);
 		if (destinationFolder == null) {
 			throw new ServerFault("Cannot find destination mailboxfolder");
@@ -305,42 +292,8 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			throw new ServerFault("Cannot find source mailboxfolder");
 		}
 
-		IDbMailboxRecords sourceMailboxItemsService = context.provider().instance(IDbMailboxRecords.class,
-				sourceFolder.uid);
-
-		logger.info("[{}] Op {} to import {} item(s) from {} into {}", container.name, importOpID,
-				mailboxItems.ids.size(), sourceFolder.value.fullName, destinationFolder.value.fullName);
-
-		if (expectedIds != null && !expectedIds.isEmpty()) {
-			if (expectedIds.size() != len) {
-				throw new ServerFault("expectedIds size does not match with itemIds size", ErrorCode.INVALID_PARAMETER);
-			}
-			ListIterator<MailboxItemId> expectedIdsIterator = expectedIds.listIterator();
-
-			Lists.partition(mailboxItems.ids, 200).forEach(ids -> {
-
-				List<Long> idSlice = ids.stream().map(k -> k.id).toList();
-
-				List<ImapBinding> itemsSlice = sourceMailboxItemsService.imapBindings(idSlice);
-				if (itemsSlice.isEmpty()) {
-					return;
-				}
-
-				Map<Long, Long> imapUidItemId = new HashMap<>();
-				Map<Long, Long> imapUidExpectedId = new HashMap<>();
-
-				List<Integer> allImapUids = new ArrayList<>(itemsSlice.size());
-				itemsSlice.forEach(item -> {
-					MailboxItemId expected = expectedIdsIterator.next();
-					imapUidItemId.put(item.imapUid, item.itemId);
-					imapUidExpectedId.put(item.imapUid, expected.id);
-					allImapUids.add((int) item.imapUid);
-					BodyInternalIdCache.storeExpectedRecordId(item.bodyGuid,
-							new ExpectedId(expected.id, container.owner, null));
-					GuidExpectedIdCache.store(destinationFolder.uid + ":" + item.bodyGuid, expected.id);
-				});
-			});
-		}
+		logger.info("[{}] Import {} item(s) from {} into {}", container.name, mailboxItems.ids.size(),
+				sourceFolder.value.fullName, destinationFolder.value.fullName);
 
 		IItemsTransfer transferApi = context.provider().instance(IItemsTransfer.class, sourceFolder.uid,
 				destinationFolder.uid);
