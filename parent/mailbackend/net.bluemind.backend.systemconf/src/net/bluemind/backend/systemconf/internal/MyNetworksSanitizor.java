@@ -69,12 +69,12 @@ public class MyNetworksSanitizor implements ISystemConfigurationSanitizor {
 	}
 
 	public static Set<String> getSanitizedParts(String myNetworks) {
-		HashSet<String> parts = new HashSet<String>();
+		HashSet<String> parts = new HashSet<>();
 		for (String part : myNetworks.split(" ")) {
 			parts.addAll(Arrays.asList(part.split(",")));
 		}
 
-		HashSet<String> sanitizedParts = new HashSet<String>();
+		HashSet<String> sanitizedParts = new HashSet<>();
 		for (String part : parts) {
 			// part is: " xxx "
 			part = part.trim();
