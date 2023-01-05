@@ -27,7 +27,6 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
-
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -52,6 +51,10 @@ public interface IContainers {
 	@Path("{uid}")
 	// FIXME should not throw exception when container doesnt exists
 	public ContainerDescriptor get(@PathParam("uid") String uid) throws ServerFault;
+
+	@GET
+	@Path("_light/{uid}")
+	public BaseContainerDescriptor getLight(@PathParam("uid") String uid) throws ServerFault;
 
 	/**
 	 * Get a container as if it where requested by another user.

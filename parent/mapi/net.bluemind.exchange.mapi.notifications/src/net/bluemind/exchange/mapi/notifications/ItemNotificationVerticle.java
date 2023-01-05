@@ -28,7 +28,7 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.OwnerSubscriptionsBusAddresses;
-import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.hornetq.client.MQ;
@@ -74,7 +74,7 @@ public class ItemNotificationVerticle extends AbstractVerticle {
 				IContainers contApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 						.instance(IContainers.class);
 				String contUid = body.getString("containerUid");
-				ContainerDescriptor descriptor = contApi.get(contUid);
+				BaseContainerDescriptor descriptor = contApi.getLight(contUid);
 				mqMsg.putStringProperty("containerUid", contUid);
 				mqMsg.putStringProperty("owner", descriptor.owner);
 				mqMsg.putStringProperty("domain", descriptor.domainUid);
