@@ -764,7 +764,7 @@ public class UserServiceTests {
 		User user = defaultUser(login);
 
 		// Password is "laurent"
-		String pwHashPbkdf2 = "10000:281830a6450f14eead429958b6936ae3421c1039ab1c32a2:f1a813788f3715cdce39206d485db40bf535808f23d93409";
+		String pwHashPbkdf2 = "1000:0995277cab706c6cf49683c5c695facf7ad8723fe4bd5db2:4c6c85ab89d3e343fd2a6db33ac240adf19aa9b3751237a0";
 
 		String uid = create(user);
 		try (Connection con = JdbcTestHelper.getInstance().getDataSource().getConnection()) {
