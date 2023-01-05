@@ -96,5 +96,11 @@
             impl="net.bluemind.addressbook.service.internal.DomainAddressBookRepair">
       </repair>
    </extension>
+   <extension
+         point="net.bluemind.mailmessage.mailtip">
+      <evaluation
+            impl="net.bluemind.addressbook.service.internal.PublicCertMailTipEvaluation">
+      </evaluation>
+   </extension>
 
 </plugin>

@@ -31,6 +31,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
+import net.bluemind.domain.api.IDomains;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
@@ -39,7 +40,9 @@ public final class Sudo implements AutoCloseable {
 
 	public final SecurityContext context;
 
-	public Sudo(String uid, String domainContainerUid) throws ServerFault {
+	public Sudo(String uid, String domainUid) throws ServerFault {
+		String domainContainerUid = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomains.class).findByNameOrAliases(domainUid).uid;
 		IUser u = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class,
 				domainContainerUid);
 		ItemValue<User> theUser = u.getComplete(uid);

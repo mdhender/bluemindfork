@@ -39,6 +39,7 @@ public class VCardInfo {
 	public int memberCount;
 	public boolean photo;
 	public String source;
+	public boolean hasSecurityKey;
 
 	public static VCardInfo create(VCard card) {
 		VCardInfo info = new VCardInfo();
@@ -54,6 +55,9 @@ public class VCardInfo {
 		}
 
 		info.categories = card.explanatory.categories;
+
+		info.hasSecurityKey = card.security != null && card.security.key != null && card.security.key.value != null
+				&& !card.security.key.value.isBlank();
 
 		info.memberCount = card.organizational.member != null ? card.organizational.member.size() : -1;
 
