@@ -58,10 +58,10 @@ public class SpoolStoreFactory implements ISdsBackingStoreFactory {
 
 	private void setupFolders(ItemValue<Server> b) {
 		List<String> suffix = new LinkedList<>();
-		for (char c = 'a'; c < 'f'; c++) {
+		for (char c = 'a'; c <= 'f'; c++) {
 			suffix.add("" + c);
 		}
-		for (char c = '0'; c < '9'; c++) {
+		for (char c = '0'; c <= '9'; c++) {
 			suffix.add("" + c);
 		}
 		int len = suffix.size();
