@@ -66,7 +66,11 @@ public class EnvelopeRenderer {
 		sb.append(" ");
 
 		// Subject
-		var subject = Fields.subject(body.get().subject).getBody();
+		String subject = null;
+		String subjectRaw = body.get().subject;
+		if (!Strings.isNullOrEmpty(subjectRaw)) {
+			subject = Fields.subject(subjectRaw).getBody();
+		}
 		if (!Strings.isNullOrEmpty(subject)) {
 			sb.append("{" + subject.length() + "}\r\n").append(subject);
 		} else {
