@@ -7,6 +7,7 @@ Bundle-Vendor: www.bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.commons,
  net.bluemind.announcement.api,
- net.bluemind.core.context
+ net.bluemind.core.context,
+ net.bluemind.core.rest
 Export-Package: net.bluemind.announcement.provider
 Automatic-Module-Name: net.bluemind.announcement.provider

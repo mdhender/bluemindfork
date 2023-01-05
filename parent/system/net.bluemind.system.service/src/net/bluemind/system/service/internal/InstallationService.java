@@ -113,6 +113,7 @@ import net.bluemind.system.schemaupgrader.ComponentVersion;
 import net.bluemind.system.schemaupgrader.ComponentVersionExtensionPoint;
 import net.bluemind.system.schemaupgrader.ISchemaUpgradersProvider;
 import net.bluemind.system.service.clone.CloneSupport;
+import net.bluemind.system.service.helper.BlockingHotupgradesCheck;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.system.subscriptionprovider.SubscriptionProviders;
 import net.bluemind.systemcheck.UpgradeCheck;
@@ -534,6 +535,11 @@ public class InstallationService implements IInstallation {
 				new LoggingTaskMonitor(logger, new NullTaskMonitor(), 0), getVersion())) {
 			throw new ServerFault(
 					String.format("Unable to set upgrade version to: %s - Checks have been failed", version));
+		}
+
+		if (BlockingHotupgradesCheck.blockingHotupgrades(context.getSecurityContext()) > 0) {
+			throw new ServerFault(String
+					.format("Unable to set upgrade version to: %s - Blocking mandatory Hotupgrades found", version));
 		}
 
 		SubscriptionProviders.getSubscriptionProvider()
