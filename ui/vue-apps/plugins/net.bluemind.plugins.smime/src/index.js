@@ -15,12 +15,14 @@ import LockIcon from "./components/mail-app/LockIcon";
 import { SMIMEPrefKeys } from "./lib/constants";
 import SmimeL10N from "./l10n/";
 import SmimeStore from "./store";
+import { CHECK_IF_ASSOCIATED } from "./store/actionTypes";
 import { SMIME_AVAILABLE } from "./store/getterTypes";
 import GetMailTipsHandler from "./commands/GetMailTipsHandler";
 
 TranslationRegistry.register(SmimeL10N);
 
 store.registerModule(["mail", "smime"], SmimeStore);
+store.dispatch("mail/" + CHECK_IF_ASSOCIATED);
 
 Vue.component("LockIcon", LockIcon);
 Vue.component("PrefSmime", PrefSmime);
@@ -125,7 +127,7 @@ function prefSmimeGroups() {
                     component: {
                         name: "PrefFieldSwitch",
                         options: {
-                            setting: SMIMEPrefKeys.ENCRYPTION_PREF,
+                            setting: SMIMEPrefKeys.ENCRYPTION,
                             default: "true",
                             autosave: true,
                             label: i18n.t("smime.preferences.encrypt_field.label")
@@ -144,7 +146,7 @@ function prefSmimeGroups() {
                     component: {
                         name: "PrefFieldSwitch",
                         options: {
-                            setting: SMIMEPrefKeys.SIGNATURE_PREF,
+                            setting: SMIMEPrefKeys.SIGNATURE,
                             default: "false",
                             autosave: true,
                             label: i18n.t("smime.preferences.signature_field.label")

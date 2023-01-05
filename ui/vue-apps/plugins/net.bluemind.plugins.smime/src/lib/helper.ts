@@ -20,8 +20,8 @@ export function hasToBeEncrypted(headers: MessageBody.Header[]): boolean {
 }
 
 export function hasToBeSigned(headers: MessageBody.Header[]): boolean {
-    // TODO
-    return true;
+    const value = findHeaderValue(headers, SIGNED_HEADER_NAME);
+    return !!value && !!(parseInt(value) & CRYPTO_HEADERS.TO_DO);
 }
 
 export function isDecrypted(headers: MessageBody.Header[]): boolean {

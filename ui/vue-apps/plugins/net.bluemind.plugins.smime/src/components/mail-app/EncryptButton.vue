@@ -13,11 +13,13 @@
 <script>
 import { mapGetters } from "vuex";
 import { BmIconButton } from "@bluemind/ui-components";
-import { messageUtils } from "@bluemind/mail";
+import { draftUtils, messageUtils } from "@bluemind/mail";
+import { SMIME_AVAILABLE } from "../../store/getterTypes";
 import { isEncrypted, addHeaderValue, removeHeader } from "../../lib/helper";
-import { CRYPTO_HEADERS, ENCRYPTED_HEADER_NAME } from "../../lib/constants";
+import { CRYPTO_HEADERS, ENCRYPTED_HEADER_NAME, SIGNED_HEADER_NAME, SMIMEPrefKeys } from "../../lib/constants";
 
 const { MessageCreationModes, messageKey } = messageUtils;
+const { isNewMessage } = draftUtils;
 
 export default {
     name: "EncryptButton",
@@ -29,7 +31,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail", { ACTIVE_MESSAGE: "ACTIVE_MESSAGE" }),
+        ...mapGetters("smime", { SMIME_AVAILABLE }),
         title() {
             return this.isEncrypted
                 ? this.$t("smime.mailapp.composer.unencrypt")
@@ -42,15 +44,37 @@ export default {
     watch: {
         "$route.query.action": {
             handler(action) {
-                if (action && action !== MessageCreationModes.FORWARD_AS_EML) {
-                    const key = messageKey(...this.$route.query.message.split(":").reverse());
-                    const previous = this.$store.state.mail.conversations.messages[key];
+                if (this.SMIME_AVAILABLE) {
+                    if (this.$store.state.settings[SMIMEPrefKeys.SIGNATURE] === "true") {
+                        const headers = addHeaderValue(this.message.headers, SIGNED_HEADER_NAME, CRYPTO_HEADERS.TO_DO);
+                        this.$store.commit("mail/SET_MESSAGE_HEADERS", { messageKey: this.message.key, headers });
+                    }
+                    if (this.$store.state.settings[SMIMEPrefKeys.ENCRYPTION] === "true") {
+                        const headers = addHeaderValue(
+                            this.message.headers,
+                            ENCRYPTED_HEADER_NAME,
+                            CRYPTO_HEADERS.TO_DO
+                        );
+                        this.$store.commit("mail/SET_MESSAGE_HEADERS", { messageKey: this.message.key, headers });
+                    } else if (!isNewMessage(this.message) && this.isEncrypted) {
+                        const headers = addHeaderValue(
+                            this.message.headers,
+                            ENCRYPTED_HEADER_NAME,
+                            CRYPTO_HEADERS.TO_DO
+                        );
+                        this.$store.commit("mail/SET_MESSAGE_HEADERS", { messageKey: this.message.key, headers });
+                    } else if (action && action !== MessageCreationModes.FORWARD_AS_EML) {
+                        const key = messageKey(...this.$route.query.message.split(":").reverse());
+                        const previous = this.$store.state.mail.conversations.messages[key];
 
-                    if (previous && isEncrypted(previous.headers)) {
-                        this.$store.commit("mail/SET_MESSAGE_HEADERS", {
-                            messageKey: this.ACTIVE_MESSAGE.key,
-                            headers: [{ name: ENCRYPTED_HEADER_NAME, values: [CRYPTO_HEADERS.TO_DO] }]
-                        });
+                        if (previous && isEncrypted(previous.headers)) {
+                            const headers = addHeaderValue(
+                                this.message.headers,
+                                ENCRYPTED_HEADER_NAME,
+                                CRYPTO_HEADERS.TO_DO
+                            );
+                            this.$store.commit("mail/SET_MESSAGE_HEADERS", { messageKey: this.message.key, headers });
+                        }
                     }
                 }
             },

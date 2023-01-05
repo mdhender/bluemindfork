@@ -31,7 +31,7 @@
 import { mapGetters, mapState } from "vuex";
 import { BaseField } from "@bluemind/preferences";
 import { BmButton, BmLabelIcon } from "@bluemind/ui-components";
-import { CHECK_IF_ASSOCIATED, DISSOCIATE_CRYPTO_FILES } from "../../store/actionTypes";
+import { DISSOCIATE_CRYPTO_FILES } from "../../store/actionTypes";
 import { SMIME_AVAILABLE } from "../../store/getterTypes";
 import { IS_SW_AVAILABLE } from "../../lib/constants";
 import ImportPkcs12Modal from "./ImportPkcs12Modal";
@@ -48,9 +48,6 @@ export default {
     computed: {
         ...mapState("mail", ["hasPrivateKey", "hasPublicCert", "swError"]),
         ...mapGetters("mail", [SMIME_AVAILABLE])
-    },
-    mounted() {
-        this.$store.dispatch("mail/" + CHECK_IF_ASSOCIATED);
     },
     methods: {
         openUploadModal() {
