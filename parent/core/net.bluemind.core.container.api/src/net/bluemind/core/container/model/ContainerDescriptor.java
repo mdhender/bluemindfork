@@ -33,7 +33,6 @@ public class ContainerDescriptor extends BaseContainerDescriptor {
 	public Boolean writable;
 	public Set<Verb> verbs = Collections.emptySet();
 	public boolean offlineSync;
-	public long internalId;
 
 	public static ContainerDescriptor create(String uid, String name, String owner, String type, String domainUid,
 			boolean defaultContainer) {

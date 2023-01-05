@@ -44,8 +44,8 @@ import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
 import net.bluemind.core.container.api.IOwnerSubscriptionUids;
 import net.bluemind.core.container.api.IOwnerSubscriptions;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ContainerChangeset;
-import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemIdentifier;
@@ -336,7 +336,7 @@ public class FolderBackend extends CoreConnect {
 					String containerUid = containerSub.uid
 							.replace(String.format("sub-of-%s-to-", bs.getUser().getUid()), "");
 					if (!containerSub.value.offlineSync) {
-						ContainerDescriptor cd = containers.get(containerUid);
+						BaseContainerDescriptor cd = containers.getLight(containerUid);
 						mailboxSubscriptionDeletions(bs, ret, subscribedMailboxVersions, containerSub.internalId,
 								cd.owner);
 					} else {
@@ -385,7 +385,7 @@ public class FolderBackend extends CoreConnect {
 				String containerUid = itemIdentifier.uid.replace(String.format("sub-of-%s-to-", bs.getUser().getUid()),
 						"");
 				try {
-					ContainerDescriptor cd = containers.get(containerUid);
+					BaseContainerDescriptor cd = containers.getLight(containerUid);
 					if (cd.type.equals("mailboxacl")) {
 						if (!containerUid.equals(userMboxSubscriptionUid)) {
 							mailboxSubscriptionDeletions(bs, ret, subscribedMailboxVersions, itemIdentifier.id,

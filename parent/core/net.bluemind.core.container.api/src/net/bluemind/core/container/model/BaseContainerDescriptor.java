@@ -37,6 +37,7 @@ public class BaseContainerDescriptor {
 	public Map<String, String> settings;
 	public boolean deleted;
 	public String datalocation;
+	public long internalId;
 
 	public static BaseContainerDescriptor create(String uid, String name, String owner, String type, String domainUid,
 			boolean defaultContainer) {

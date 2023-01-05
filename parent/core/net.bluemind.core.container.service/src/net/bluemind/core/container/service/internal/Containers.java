@@ -488,6 +488,7 @@ public class Containers implements IContainers {
 		}
 
 		descriptor.readOnly = c.readOnly;
+		descriptor.internalId = c.id;
 		descriptor.datalocation = getDatalocation(dataSource);
 
 		ContainerSettingsStore settingsStore = new ContainerSettingsStore(dataSource, c);

@@ -35,7 +35,7 @@ import net.bluemind.backend.mail.api.SearchSort;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.config.Token;
 import net.bluemind.core.container.api.IContainers;
-import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.eas.backend.BackendSession;
@@ -95,7 +95,7 @@ public class BmSearchMailbox implements ISearchSource {
 		ClientSideServiceProvider prov = ClientSideServiceProvider.getProvider(is.coreUrl, Token.admin0())
 				.setOrigin("bm-eas-BmSearchMailbox");
 		IContainers cont = prov.instance(IContainers.class);
-		ContainerDescriptor asContainer = cont.get(IMailReplicaUids.mboxRecords(folder.uid));
+		BaseContainerDescriptor asContainer = cont.getLight(IMailReplicaUids.mboxRecords(folder.uid));
 		IMailboxes mboxApi = prov.instance(IMailboxes.class, asContainer.domainUid);
 		ItemValue<Mailbox> mbox = mboxApi.getComplete(asContainer.owner);
 		String subtree = IMailReplicaUids.subtreeUid(asContainer.domainUid, mbox);
