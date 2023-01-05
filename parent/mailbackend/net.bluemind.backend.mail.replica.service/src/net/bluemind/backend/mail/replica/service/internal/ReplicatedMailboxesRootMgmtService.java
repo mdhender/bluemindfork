@@ -125,8 +125,8 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 				toCreate.domainUid = domainUid;
 				contApi.create(toCreate.uid, toCreate);
 			}
-		} finally {
 			EmitReplicationEvents.mailboxRootCreated(root);
+		} finally {
 			lock.writeLock().unlock();
 		}
 	}
