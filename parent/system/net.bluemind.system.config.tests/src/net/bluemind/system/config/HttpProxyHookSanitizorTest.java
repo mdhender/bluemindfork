@@ -41,7 +41,7 @@ public class HttpProxyHookSanitizorTest {
 		HttpProxyHook proxySanitizor = new HttpProxyHook();
 
 		try {
-			proxySanitizor.sanitize(null, new HashMap<String, String>());
+			proxySanitizor.sanitize(null, new HashMap<>());
 			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
@@ -53,7 +53,7 @@ public class HttpProxyHookSanitizorTest {
 		HttpProxyHook proxySanitizor = new HttpProxyHook();
 
 		SystemConf systemConf = new SystemConf();
-		systemConf.values = new HashMap<String, String>();
+		systemConf.values = new HashMap<>();
 
 		try {
 			proxySanitizor.sanitize(systemConf, null);
@@ -72,7 +72,7 @@ public class HttpProxyHookSanitizorTest {
 		systemConf.values.put(SysConfKeys.http_proxy_enabled.name(), "false");
 		systemConf.values.put(SysConfKeys.http_proxy_port.name(), "3128");
 
-		Map<String, String> modifications = new HashMap<String, String>();
+		Map<String, String> modifications = new HashMap<>();
 
 		proxySanitizor.sanitize(systemConf, modifications);
 		assertTrue(modifications.isEmpty());
