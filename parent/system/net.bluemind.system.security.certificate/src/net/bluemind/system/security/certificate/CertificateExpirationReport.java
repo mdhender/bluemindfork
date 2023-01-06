@@ -31,6 +31,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -84,8 +85,8 @@ public class CertificateExpirationReport extends AbstractVerticle {
 
 	private void checkExpiration() {
 		try {
-			Set<String> urls = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-					.instance(IInCoreSecurityMgmt.class).getDomainExternalUrls().keySet();
+			Set<String> urls = new HashSet<>(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(IInCoreSecurityMgmt.class).getDomainExternalUrls().keySet());
 
 			Optional.ofNullable(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 					.instance(ISystemConfiguration.class).getValues().values.get(SysConfKeys.external_url.name()))
