@@ -62,7 +62,7 @@ public final class StdoutPump implements Runnable {
 	}
 
 	public void run() {
-		long time = System.currentTimeMillis();
+		long time = System.nanoTime();
 		long count = 0;
 		try {
 			Integer exit = null;

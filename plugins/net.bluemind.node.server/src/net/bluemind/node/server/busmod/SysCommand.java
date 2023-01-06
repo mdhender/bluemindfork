@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -78,14 +79,14 @@ public class SysCommand extends AbstractVerticle {
 	 * The state watcher clears command the client forgot to check
 	 */
 	private void setupStaleWatcher() {
-		vertx.setPeriodic(30000, (Long event) -> {
+		vertx.setPeriodic(TimeUnit.SECONDS.toMillis(30), (Long event) -> {
 			int count = 0;
-			long cur = System.currentTimeMillis();
+			long cur = System.nanoTime();
 			for (Entry<Long, RunningCommand> entry : active.entrySet()) {
 				RunningCommand rc = entry.getValue();
 				if (rc != null) {
 					long et = rc.getLastCheck();
-					if (et > 0 && (cur - et > 30000)) {
+					if (et > 0 && (cur - et > TimeUnit.SECONDS.toNanos(30))) {
 						logger.warn("[{}] ({}) unchecked for 30sec, dropped.", rc.getPid(), rc.cmd);
 						interrupt(entry.getKey());
 						count++;
@@ -271,7 +272,7 @@ public class SysCommand extends AbstractVerticle {
 			} else {
 				rep.put("successful", false);
 			}
-			rc.setLastCheck(System.currentTimeMillis());
+			rc.setLastCheck(System.nanoTime());
 			JsonArray out = rc.drainOutput();
 			logger.debug("Drained {} output lines.", out.size());
 			rep.put("output", out);
