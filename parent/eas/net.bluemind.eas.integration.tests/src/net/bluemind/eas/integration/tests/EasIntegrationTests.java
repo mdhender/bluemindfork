@@ -28,18 +28,21 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import net.bluemind.backend.mailapi.testhelper.MailApiTestsBase;
 import net.bluemind.eas.client.FolderSyncResponse;
 import net.bluemind.eas.client.OPClient;
 import net.bluemind.eas.config.global.GlobalConfig;
 
-public class EasIntegrationTests {
+public class EasIntegrationTests extends MailApiTestsBase {
 
 	private EasServerSetup setup;
 	private OPClient client;
 
 	@Before
 	public void before() throws Exception {
-		this.setup = EasServerSetup.get();
+		super.before();
+
+		this.setup = new EasServerSetup("toto" + System.currentTimeMillis(), domUid);
 		setup.beforeTest();
 		this.client = new OPClient(setup.loginAtDomain(), setup.password(), setup.device().identifier, "junit",
 				"junit-agent", "http://127.0.0.1:" + GlobalConfig.EAS_PORT + "/Microsoft-Server-ActiveSync");
@@ -50,6 +53,7 @@ public class EasIntegrationTests {
 	public void after() throws Exception {
 		client.destroy();
 		setup.afterTest();
+		super.after();
 	}
 
 	@Test
