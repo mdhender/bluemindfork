@@ -19,6 +19,7 @@
 package net.bluemind.core.container.persistence;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
@@ -61,6 +62,16 @@ public final class ChangelogUtils {
 	}
 
 	public static <T extends Comparable<?>, E extends ChangeLogEntry> ContainerChangeset<T> toChangeset(
+			IWeightProvider wp, long from, List<E> entries, final Function<E, T> toId, ItemFlagFilter filter) {
+		ContainerChangeset<T> ret = toChangeset0(wp, from, entries, toId, filter);
+		if (from == 0L && !ret.updated.isEmpty()) {
+			ret.created.addAll(ret.updated);
+			ret.updated = Collections.emptyList();
+		}
+		return ret;
+	}
+
+	private static <T extends Comparable<?>, E extends ChangeLogEntry> ContainerChangeset<T> toChangeset0(
 			IWeightProvider wp, long from, List<E> entries, final Function<E, T> toId, ItemFlagFilter filter) {
 
 		ArrayList<T> updated = new ArrayList<>(entries.size());
