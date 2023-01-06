@@ -126,20 +126,15 @@ public final class NCUtils {
 	 * @throws ServerFault
 	 */
 	public static void forget(final INodeClient nc, final String cmd) {
-		Runnable r = new Runnable() {
-
-			@Override
-			public void run() {
-				TaskRef taskRef;
-				try {
-					taskRef = nc.executeCommandNoOut(cmd);
-					waitFor(nc, taskRef, true);
-				} catch (ServerFault e) {
-					logger.error(e.getMessage(), e);
-				}
+		forgottenTasks.execute(() -> {
+			TaskRef taskRef;
+			try {
+				taskRef = nc.executeCommandNoOut(cmd);
+				waitFor(nc, taskRef, true);
+			} catch (ServerFault e) {
+				logger.error(e.getMessage(), e);
 			}
-		};
-		forgottenTasks.execute(r);
+		});
 	}
 
 	/**
@@ -190,7 +185,7 @@ public final class NCUtils {
 
 		if (!ts.state.succeed) {
 			for (String s : output) {
-				logger.warn("FAILED TASK " + copy.id + ": " + s);
+				logger.warn("FAILED TASK {}: {} ", copy.id, s);
 			}
 			throw new ServerFault("Task " + copy.id + " failed.");
 		}

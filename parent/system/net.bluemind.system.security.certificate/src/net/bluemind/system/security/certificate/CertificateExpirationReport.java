@@ -143,7 +143,7 @@ public class CertificateExpirationReport extends AbstractVerticle {
 
 		Template template;
 		try {
-			Configuration cfg = new Configuration();
+			Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 			cfg.setClassForTemplateLoading(this.getClass(), "/template");
 			template = cfg.getTemplate("CertificateExpired.ftl");
 		} catch (IOException e) {
