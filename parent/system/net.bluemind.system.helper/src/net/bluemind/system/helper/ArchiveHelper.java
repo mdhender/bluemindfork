@@ -93,7 +93,12 @@ public class ArchiveHelper {
 
 	public static boolean isSdsArchiveKind(SystemConf config) {
 		ArchiveKind archiveKind = ArchiveKind.fromName(config.stringValue(SysConfKeys.archive_kind.name()));
-		return archiveKind != null && archiveKind.isSdsArchive();
+		return archiveKind == null || archiveKind.isSdsArchive();
+	}
+
+	public static boolean isSdsArchiveKindCyrus(SystemConf config) {
+		ArchiveKind archiveKind = ArchiveKind.fromName(config.stringValue(SysConfKeys.archive_kind.name()));
+		return (archiveKind == null || archiveKind.equals(ArchiveKind.Cyrus));
 	}
 
 }

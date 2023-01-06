@@ -39,7 +39,6 @@ import net.bluemind.dataprotect.worker.DefaultWorker;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.node.api.INodeClient;
-import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.SystemConf;
@@ -77,7 +76,7 @@ public class MailSdsWorker extends DefaultWorker {
 				// The node is required because we want files to be owned by root
 				// even in JUnit tests
 				INodeClient nc = NodeActivator.get(toBackup.value.address());
-				NCUtils.execOrFail(nc, "mkdir -p " + outputPath);
+				nc.mkdirs(outputPath.toString());
 				try (Stream<Path> stream = Files.list(tempFolder)) {
 					stream.filter(p -> !Files.isDirectory(p)).forEach(p -> {
 						try {

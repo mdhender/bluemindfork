@@ -1,4 +1,4 @@
-cyrus.squat
-/var/lib/cyrus/proc/
-/var/lib/cyrus/lock/
-/var/lib/cyrus/socket/
+# You can pass paths you *DONT* want bluemind to backup
+# by adding a line in this file per exclude
+# 
+# Add /mnt will exclude /mnt from the rsync backup

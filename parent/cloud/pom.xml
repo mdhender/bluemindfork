@@ -17,6 +17,9 @@
 		<module>net.bluemind.sds.store.s3.tests</module>
 		<module>net.bluemind.sds.store.scalityring.tests</module>
 		<module>net.bluemind.sds.store.scalityring</module>
+		<module>net.bluemind.sds.sync.api</module>
+		<module>net.bluemind.sds.sync.service</module>
+		<module>net.bluemind.sds.sync.service.tests</module>
 		<module>net.bluemind.cli.sds</module>
 		<module>net.bluemind.kafka.container</module>
 		<module>net.bluemind.kafka.client.tests</module>

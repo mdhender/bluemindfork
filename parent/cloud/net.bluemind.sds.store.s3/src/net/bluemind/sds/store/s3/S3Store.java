@@ -39,6 +39,7 @@ import com.netflix.spectator.api.Timer;
 
 import net.bluemind.aws.s3.utils.S3ClientFactory;
 import net.bluemind.aws.s3.utils.S3Configuration;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.sds.dto.DeleteRequest;
 import net.bluemind.sds.dto.ExistRequest;
@@ -226,11 +227,10 @@ public class S3Store implements ISdsBackingStore {
 	private static final GetObjectResponse GET_NOT_FOUND = (GetObjectResponse) GetObjectResponse.builder()
 			.sdkHttpResponse(SdkHttpResponse.builder().statusCode(404).build()).build();
 
-	@Override
-	public CompletableFuture<SdsResponse> download(GetRequest req) {
+	private CompletableFuture<SdsResponse> download(GetRequest req,
+			IResponseTransformer<GetObjectResponse> responseTransformer) {
 		final long start = clock.monotonicTime();
-		ZstdResponseTransformer<GetObjectResponse> prt = new ZstdResponseTransformer<>(req.filename);
-		return client.getObject(GetObjectRequest.builder().bucket(bucket).key(req.guid).build(), prt)
+		return client.getObject(GetObjectRequest.builder().bucket(bucket).key(req.guid).build(), responseTransformer)
 				.exceptionally(t -> {
 					if (t.getCause() instanceof NoSuchKeyException) {
 						logger.error("GET failed: {} not found", req.guid);
@@ -242,7 +242,7 @@ public class S3Store implements ISdsBackingStore {
 					boolean notfound = gor != null && gor.sdkHttpResponse().statusCode() == 404;
 					getLatencyTimer.record(clock.monotonicTime() - start, TimeUnit.NANOSECONDS);
 					if (gor != null && !notfound) {
-						getSizeCounter.increment(prt.transferred());
+						getSizeCounter.increment(responseTransformer.transferred());
 						getRequestCounter.increment();
 						return SdsResponse.UNTAGGED_OK;
 					} else {
@@ -252,6 +252,16 @@ public class S3Store implements ISdsBackingStore {
 						return error;
 					}
 				});
+	}
+
+	@Override
+	public CompletableFuture<SdsResponse> download(GetRequest req) {
+		return download(req, new ZstdResponseTransformer<>(req.filename));
+	}
+
+	@Override
+	public CompletableFuture<SdsResponse> downloadRaw(GetRequest req) {
+		return download(req, new PathResponseTransformer<>(VertxPlatform.getVertx(), req.filename));
 	}
 
 	@Override
@@ -320,5 +330,4 @@ public class S3Store implements ISdsBackingStore {
 			client.close();
 		}
 	}
-
 }

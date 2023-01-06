@@ -391,18 +391,13 @@ public class DPServiceTests {
 
 		List<DataProtectGeneration> gensAfter = dp.getAvailableGenerations();
 		DataProtectGeneration gen = gensAfter.get(0);
-		boolean gotImapTag = false;
-		for (PartGeneration pg : gen.parts) {
-			if (pg.tag.equals("mail/imap")) {
-				gotImapTag = true;
-				break;
-			}
-		}
-		assertTrue(gotImapTag);
+		// test should have sds-spool backed-up
+		assertTrue("sds-spool datatype should be in the backup",
+				gen.parts.stream().anyMatch(pg -> "sds-spool".equals(pg.datatype)));
 
 		ISystemConfiguration sysApi = getService(ISystemConfiguration.class);
 		Map<String, String> values = new HashMap<>();
-		values.put(SysConfKeys.dpBackupSkipTags.name(), "mail/imap,mail/archive");
+		values.put(SysConfKeys.dataprotect_skip_datatypes.name(), "sds-spool");
 		sysApi.updateMutableValues(values);
 
 		ref = dp.saveAll();
@@ -412,14 +407,9 @@ public class DPServiceTests {
 
 		gensAfter = dp.getAvailableGenerations();
 		gen = gensAfter.get(1);
-		gotImapTag = false;
-		for (PartGeneration pg : gen.parts) {
-			if (pg.tag.equals("mail/imap")) {
-				gotImapTag = true;
-				break;
-			}
-		}
-		assertFalse(gotImapTag);
+		// test should *NOT* have sds-spool backed-up
+		assertFalse("sds-spool data-type should not have been backed-up",
+				gen.parts.stream().anyMatch(pg -> "sds-spool".equals(pg.datatype)));
 	}
 
 	/**

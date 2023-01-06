@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import io.vertx.core.eventbus.EventBus;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
@@ -38,6 +39,8 @@ import net.bluemind.filehosting.api.FileHostingItem;
 import net.bluemind.filehosting.api.FileHostingPublicLink;
 import net.bluemind.filehosting.api.IFileHosting;
 import net.bluemind.filehosting.service.export.IFileHostingService;
+import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.sds.sync.api.SdsSyncEvent;
 import net.bluemind.system.api.GlobalSettingsKeys;
 import net.bluemind.system.api.IGlobalSettings;
 
@@ -45,11 +48,13 @@ public class FileHostingService implements IFileHosting {
 	public final List<IFileHostingService> delegates;
 	private final SecurityContext context;
 	private final String domainUid;
+	private final EventBus eventbus;
 
 	public FileHostingService(SecurityContext context, String domainUid) {
 		this.context = context;
 		this.delegates = searchExtensionPoints();
 		this.domainUid = domainUid;
+		eventbus = VertxPlatform.eventBus();
 	}
 
 	protected List<IFileHostingService> searchExtensionPoints() {
@@ -93,6 +98,7 @@ public class FileHostingService implements IFileHosting {
 	@Override
 	public void store(String path, Stream document) throws ServerFault {
 		validate(path);
+		eventbus.publish(SdsSyncEvent.FHADD.busName(), path);
 		delegate(context).store(context, path, document);
 	}
 

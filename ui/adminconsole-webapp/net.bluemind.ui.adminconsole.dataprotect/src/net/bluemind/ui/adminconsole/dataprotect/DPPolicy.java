@@ -21,7 +21,9 @@ package net.bluemind.ui.adminconsole.dataprotect;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
@@ -32,6 +34,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTMLPanel;
+import com.google.gwt.user.client.ui.IntegerBox;
 
 import net.bluemind.dataprotect.api.RetentionPolicy;
 import net.bluemind.dataprotect.api.gwt.endpoint.DataProtectGwtEndpoint;
@@ -55,20 +58,21 @@ public class DPPolicy extends Composite implements IGwtScreenRoot {
 	}
 
 	private static final DPPolicyUI binder = GWT.create(DPPolicyUI.class);
-
+	final String _SDS_BACKUP_RETENTION_DAYS_DEFAULT = "90";
+	
 	public static final String TYPE = "bm.ac.DPPolicy";
 
 	@UiField
 	IntTextEdit daily;
+	
+	@UiField
+	IntTextEdit retentionDays;
 
 	@UiField
 	CrudActionBar actionBar;
 
 	@UiField
 	CheckBox backupMails;
-
-	@UiField
-	CheckBox backupHSM;
 
 	@UiField
 	CheckBox backupES;
@@ -97,19 +101,13 @@ public class DPPolicy extends Composite implements IGwtScreenRoot {
 					@Override
 					public void success(SystemConf value) {
 						Map<String, String> values = new HashMap<>();
+						Set<String> skipDataTypes = new HashSet<>(
+								value.stringList(SysConfKeys.dataprotect_skip_datatypes.name()));
 						Set<String> skipTags = new HashSet<>(value.stringList(SysConfKeys.dpBackupSkipTags.name()));
 						if (!backupMails.getValue().booleanValue()) {
-							skipTags.add("mail/imap");
-							skipTags.add("mail/archive");
-							skipTags.add("mail/cyrus_archives");
+							skipDataTypes.add("sds-spool");
 						} else {
-							skipTags.remove("mail/imap");
-							skipTags.remove("mail/archive");
-							if (!backupHSM.getValue().booleanValue()) {
-								skipTags.add("mail/cyrus_archives");
-							} else {
-								skipTags.remove("mail/cyrus_archives");
-							}
+							skipDataTypes.remove("sds-spool");
 						}
 
 						if (!backupES.getValue().booleanValue()) {
@@ -117,8 +115,11 @@ public class DPPolicy extends Composite implements IGwtScreenRoot {
 						} else {
 							skipTags.remove("bm/es");
 						}
+						
 
 						values.put(SysConfKeys.dpBackupSkipTags.name(), toString(skipTags));
+						values.put(SysConfKeys.dataprotect_skip_datatypes.name(), toString(skipDataTypes));
+						values.put(SysConfKeys.sds_backup_rentention_days.name(), retentionDays.getStringValue());
 						sysApi.updateMutableValues(values, new DefaultAsyncHandler<Void>() {
 							@Override
 							public void success(Void value) {
@@ -128,15 +129,7 @@ public class DPPolicy extends Composite implements IGwtScreenRoot {
 					}
 
 					private String toString(Set<String> skipTags) {
-						if (skipTags.isEmpty()) {
-							return "";
-						}
-						StringBuffer sb = new StringBuffer();
-						for (String tag : skipTags) {
-							sb.append(tag + ",");
-						}
-						sb.deleteCharAt(sb.length() - 1);
-						return sb.toString();
+						return skipTags.stream().collect(Collectors.joining(","));
 					}
 
 				});
@@ -147,15 +140,11 @@ public class DPPolicy extends Composite implements IGwtScreenRoot {
 	}
 
 	private void cancelClicked() {
-		Actions.get().showWithParams2("root", new HashMap<String, String>());
+		Actions.get().showWithParams2("root", new HashMap<>());
 	}
 
 	protected void onScreenShown(ScreenShowRequest ssr) {
 		backupMails.setValue(true);
-		backupHSM.setValue(false);
-		backupMails.addClickHandler(c -> {
-			backupHSM.setEnabled(backupMails.getValue().booleanValue());
-		});
 
 		DataProtectGwtEndpoint dpApi = new DataProtectGwtEndpoint(Ajax.TOKEN.getSessionId());
 		dpApi.getRetentionPolicy(new DefaultAsyncHandler<RetentionPolicy>() {
@@ -168,10 +157,10 @@ public class DPPolicy extends Composite implements IGwtScreenRoot {
 
 					@Override
 					public void success(SystemConf value) {
-						backupMails
-								.setValue(!value.stringList(SysConfKeys.dpBackupSkipTags.name()).contains("mail/imap"));
-						backupHSM.setValue(
-								!value.stringList(SysConfKeys.dpBackupSkipTags.name()).contains("mail/cyrus_archives"));
+						retentionDays.setStringValue(Optional.ofNullable(value.stringValue(SysConfKeys.sds_backup_rentention_days.name()))
+								.orElse(_SDS_BACKUP_RETENTION_DAYS_DEFAULT));
+						backupMails.setValue(
+								!value.stringList(SysConfKeys.dataprotect_skip_datatypes.name()).contains("sds-spool"));
 						backupES.setValue(!value.stringList(SysConfKeys.dpBackupSkipTags.name()).contains("bm/es"));
 
 					}

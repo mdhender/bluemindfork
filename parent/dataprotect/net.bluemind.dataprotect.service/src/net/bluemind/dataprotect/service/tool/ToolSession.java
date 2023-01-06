@@ -28,7 +28,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -100,7 +99,7 @@ public class ToolSession implements IToolSession {
 		NCUtils.execNoOut(nc, "chmod +x /usr/share/bm-node/rsync-backup.sh");
 
 		List<BackCommand> toRun = cfg.getDirs().stream().map(dir -> makeBackupCommand(nc, previous, next, dir))
-				.filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
+				.filter(Optional::isPresent).map(Optional::get).toList();
 
 		int nbProcs = Runtime.getRuntime().availableProcessors() - 1;
 		Semaphore sem = new Semaphore(Math.max(3, nbProcs));
@@ -198,16 +197,25 @@ public class ToolSession implements IToolSession {
 
 	private Optional<BackCommand> makeBackupCommand(INodeClient nc, PartGeneration previous, PartGeneration next,
 			String dir) {
-		// check if file exists
-		String command = String.format("/usr/bin/test -d %s", dir);
-		if (NCUtils.exec(nc, command).getExitCode() != 0) {
+		if (!nc.exists(dir)) {
 			logger.warn("Skipping non-existing directory {}", dir);
 			return Optional.empty();
 		}
 
 		StringBuilder cmd = new StringBuilder();
-		cmd.append(
-				"/usr/bin/rsync --exclude-from=/etc/bm-node/rsync.excludes -rltDH --delete --numeric-ids --relative --delete-excluded");
+		cmd.append("""
+				rsync \
+				--exclude-from=/etc/bm-node/rsync.excludes \
+				--exclude /var/backups/bluemind/sds-spool/spool \
+				--recursive \
+				--links \
+				--times \
+				--devices --specials \
+				--hard-links \
+				--delete \
+				--numeric-ids \
+				--relative \
+				--delete-excluded""");
 		if (previous != null) {
 			cmd.append(" --link-dest=");
 			appendDir(cmd).append(previous.id).append('/');

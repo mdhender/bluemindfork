@@ -145,24 +145,29 @@ public class SpoolBackingStore implements ISdsBackingStore {
 
 	@Override
 	public CompletableFuture<ExistResponse> exists(ExistRequest req) {
-		return locateGuid(null, req.guid).thenApply(sdsResp -> ExistResponse.from(sdsResp.succeeded()));
+		return locateGuid(null, req.guid, false).thenApply(sdsResp -> ExistResponse.from(sdsResp.succeeded()));
 	}
 
 	@Override
 	public CompletableFuture<SdsResponse> download(GetRequest req) {
-		return locateGuid(req.filename, req.guid);
+		return locateGuid(req.filename, req.guid, true);
 	}
 
-	private CompletableFuture<SdsResponse> locateGuid(String targetPath, String guid) {
+	@Override
+	public CompletableFuture<SdsResponse> downloadRaw(GetRequest req) {
+		return locateGuid(req.filename, req.guid, false);
+	}
+
+	private CompletableFuture<SdsResponse> locateGuid(String targetPath, String guid, boolean decompress) {
 		// check new live path
 		String path = livePath(guid);
-		if (locatePath(targetPath, path)) {
+		if (locatePath(targetPath, path, decompress)) {
 			return CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
 		}
 
 		// check new archive path
 		path = archivePath(guid);
-		if (locatePath(targetPath, path)) {
+		if (locatePath(targetPath, path, decompress)) {
 			return CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
 		}
 
@@ -178,22 +183,24 @@ public class SpoolBackingStore implements ISdsBackingStore {
 			IDbReplicatedMailboxes folderApi = prov.instance(IDbReplicatedMailboxes.class, cont.domainUid,
 					mbox.value.type.nsPrefix + mbox.value.name);
 			ItemValue<MailboxFolder> folder = folderApi.getComplete(uri.containerUid);
-			ItemValue<Server> server = Topology.get().datalocation(cont.datalocation);
-			CyrusPartition part = CyrusPartition.forServerAndDomain(server, cont.domainUid);
-			MailboxDescriptor desc = new MailboxDescriptor();
-			desc.type = mbox.value.type;
-			desc.mailboxName = mbox.value.name;
-			desc.utf7FolderPath = UTF7Converter.encode(folder.value.fullName);
-			// compute the fucking path...
-			path = CyrusFileSystemPathHelper.getFileSystemPath(cont.domainUid, desc, part, uri.imapUid);
-			if (onNode(targetPath, path, server)) {
-				logger.info("{} -> '{}'", guid, path);
-				CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
-			}
-			path = CyrusFileSystemPathHelper.getHSMFileSystemPath(cont.domainUid, desc, part, uri.imapUid);
-			if (onNode(targetPath, path, server)) {
-				logger.info("{} -> '{}'", guid, path);
-				CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
+			if (folder != null) { // Broken user folder ?
+				ItemValue<Server> server = Topology.get().datalocation(cont.datalocation);
+				CyrusPartition part = CyrusPartition.forServerAndDomain(server, cont.domainUid);
+				MailboxDescriptor desc = new MailboxDescriptor();
+				desc.type = mbox.value.type;
+				desc.mailboxName = mbox.value.name;
+				desc.utf7FolderPath = UTF7Converter.encode(folder.value.fullName);
+				// compute the fucking path...
+				path = CyrusFileSystemPathHelper.getFileSystemPath(cont.domainUid, desc, part, uri.imapUid);
+				if (onNode(targetPath, path, server, decompress)) {
+					logger.info("{} -> '{}'", guid, path);
+					CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
+				}
+				path = CyrusFileSystemPathHelper.getHSMFileSystemPath(cont.domainUid, desc, part, uri.imapUid);
+				if (onNode(targetPath, path, server, decompress)) {
+					logger.info("{} -> '{}'", guid, path);
+					CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
+				}
 			}
 		}
 		SdsResponse sr = new SdsResponse();
@@ -231,19 +238,20 @@ public class SpoolBackingStore implements ISdsBackingStore {
 		return CompletableFuture.completedFuture(new TierMoveResponse(successes, errors));
 	}
 
-	private boolean locatePath(String targetPath, String emlPath) {
-		return onNode(targetPath, emlPath, backend);
+	private boolean locatePath(String targetPath, String emlPath, boolean decompress) {
+		return onNode(targetPath, emlPath, backend, decompress);
 	}
 
-	private boolean onNode(String targetPath, String emlPath, ItemValue<Server> b) {
+	private boolean onNode(String targetPath, String emlPath, ItemValue<Server> b, boolean decompress) {
 		INodeClient nc = NodeActivator.get(b.value.address());
 		if (targetPath == null) {
 			return nc.exists(emlPath);
 		} else {
 			byte[] eml = nc.read(emlPath);
-			logger.info("Found {} byte(s) of mail data in {}, tgt is {}", eml.length, emlPath, targetPath);
 			if (eml.length > 0) {
-				if (emlPath.endsWith(".zst")) {
+				logger.info("Found {} byte(s) of mail data in {}, tgt is {}{}", eml.length, emlPath, targetPath,
+						(decompress ? "" : " (compressed)"));
+				if (decompress && emlPath.endsWith(".zst")) {
 					return compressedEml(targetPath, eml);
 				} else {
 					return plainEml(targetPath, eml);
@@ -268,7 +276,8 @@ public class SpoolBackingStore implements ISdsBackingStore {
 		ByteBufInputStream oio = new ByteBufInputStream(Unpooled.wrappedBuffer(eml));
 		try (ZstdInputStream in = new ZstdInputStream(oio, RecyclingBufferPool.INSTANCE);
 				OutputStream out = Files.newOutputStream(Paths.get(targetPath))) {
-			long copied = ByteStreams.copy(in, out);
+			long copied = in.transferTo(out);
+			out.flush();
 			logger.info("Wrote compressed {} byte(s) to {}", copied, targetPath);
 			return true;
 		} catch (Exception e) {

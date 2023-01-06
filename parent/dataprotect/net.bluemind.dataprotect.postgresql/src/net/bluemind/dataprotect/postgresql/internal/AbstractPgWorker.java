@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 
@@ -141,7 +140,7 @@ public abstract class AbstractPgWorker extends DefaultWorker {
 
 		String restRoot = os.tmpDirectory();
 		logger.info("Starting restore of {} into {}", dir, restRoot);
-		os.restore(part.id, ImmutableSet.of(dir), restRoot);
+		os.restore(part.id, Set.of(dir), restRoot);
 		String finalDir = restRoot + dir;
 		logger.info("Final dir is {}", finalDir);
 

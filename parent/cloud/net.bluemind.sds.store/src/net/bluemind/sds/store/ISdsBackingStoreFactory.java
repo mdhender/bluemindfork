@@ -99,6 +99,18 @@ public interface ISdsBackingStoreFactory {
 			}
 
 			@Override
+			public SdsResponse downloadRaw(GetRequest req) {
+				try {
+					return asyncStore.downloadRaw(req).get(10, TimeUnit.SECONDS);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					throw new ServerFault("download got interrupted", ErrorCode.UNKNOWN);
+				} catch (TimeoutException | ExecutionException e) {
+					throw new ServerFault("download failed or timed out", ErrorCode.TIMEOUT);
+				}
+			}
+
+			@Override
 			public SdsResponse downloads(MgetRequest req) {
 				try {
 					return asyncStore.downloads(req).get(15, TimeUnit.SECONDS);

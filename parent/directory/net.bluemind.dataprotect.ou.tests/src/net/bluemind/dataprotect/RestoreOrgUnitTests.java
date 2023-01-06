@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -35,7 +36,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import net.bluemind.core.api.fault.ServerFault;
@@ -63,6 +63,7 @@ import net.bluemind.server.api.Server;
 import net.bluemind.system.api.DomainTemplate;
 import net.bluemind.system.api.IDomainTemplate;
 import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class RestoreOrgUnitTests {
@@ -117,8 +118,8 @@ public class RestoreOrgUnitTests {
 
 		testContext = new BmTestContext(SecurityContext.SYSTEM);
 
-		testContext.provider().instance(ISystemConfiguration.class)
-				.updateMutableValues(ImmutableMap.of("db_version", "3.1.0"));
+		testContext.provider().instance(ISystemConfiguration.class).updateMutableValues(
+				Map.of("db_version", "3.1.0", SysConfKeys.dataprotect_skip_datatypes.name(), "sds,sds-spool"));
 
 	}
 
@@ -129,7 +130,7 @@ public class RestoreOrgUnitTests {
 
 	private List<String> getTagsExcept(String... except) {
 		// tag & assign host for everything
-		List<String> tags = new LinkedList<String>();
+		List<String> tags = new LinkedList<>();
 
 		IDomainTemplate dt = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDomainTemplate.class);
@@ -161,9 +162,11 @@ public class RestoreOrgUnitTests {
 			p.waitFor(10, TimeUnit.SECONDS);
 		}
 
-		Process p = Runtime.getRuntime()
-				.exec("sudo chown -R " + System.getProperty("user.name") + " /var/spool/bm-hollowed");
-		p.waitFor(10, TimeUnit.SECONDS);
+		if (!RUN_AS_ROOT) {
+			Process p = Runtime.getRuntime()
+					.exec("sudo chown -R " + System.getProperty("user.name") + " /var/spool/bm-hollowed");
+			p.waitFor(10, TimeUnit.SECONDS);
+		}
 	}
 
 	@Test

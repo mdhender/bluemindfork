@@ -27,6 +27,7 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -39,45 +40,54 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
+import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxFoldersByContainer;
 import net.bluemind.backend.mail.api.MailboxFolder;
+import net.bluemind.backend.mail.api.MessageBody;
+import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
+import net.bluemind.backend.mail.replica.api.AppendTx;
+import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
+import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
+import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
+import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
+import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.service.sds.MessageBodyObjectStore;
 import net.bluemind.common.cache.persistence.CacheBackingStore;
-import net.bluemind.config.InstallationId;
-import net.bluemind.config.Token;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
 import net.bluemind.dataprotect.api.PartGeneration;
+import net.bluemind.dataprotect.sdsspool.SdsDataProtectSpool;
 import net.bluemind.dataprotect.service.BackupPath;
+import net.bluemind.delivery.conversationreference.api.IConversationReference;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
-import net.bluemind.imap.Flag;
-import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.IMAPException;
 import net.bluemind.imap.IMAPRuntimeException;
-import net.bluemind.imap.StoreClient;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Type;
 import net.bluemind.mailbox.service.common.DefaultFolder;
 import net.bluemind.network.topology.Topology;
-import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
@@ -88,7 +98,7 @@ public class MboxRestoreService {
 	private static final Logger logger = LoggerFactory.getLogger(MboxRestoreService.class);
 
 	public enum Mode {
-		Replace, Subfolder
+		REPLACE, SUBFOLDER
 	}
 
 	private static final Set<String> defaultUserFolders = new HashSet<>(DefaultFolder.USER_FOLDERS_NAME);
@@ -128,7 +138,7 @@ public class MboxRestoreService {
 				break;
 			}
 
-			if ("mail/imap".equals(pg.tag) && mbox.value.dataLocation.equals(pg.server)) {
+			if (mbox.value.dataLocation.equals(pg.server)) {
 				serverUid = pg.server;
 				break;
 			}
@@ -219,10 +229,17 @@ public class MboxRestoreService {
 			live = ServerSideServiceProvider.getProvider(as(mbox.uid, domain.uid)).getContext();
 		}
 
-		IMailboxFolders foldersService = live.getServiceProvider().instance(IMailboxFoldersByContainer.class,
-				IMailReplicaUids.subtreeUid(domain.uid, mbox));
-		IServer srvApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IServer.class,
-				InstallationId.getIdentifier());
+		IMailboxFolders foldersService;
+		try {
+			foldersService = live.getServiceProvider().instance(IMailboxFoldersByContainer.class,
+					IMailReplicaUids.subtreeUid(domain.uid, mbox));
+		} catch (ServerFault sf) {
+			if (ErrorCode.NOT_FOUND.equals(sf.getCode())) {
+				// recreate the user before doing anything else
+			}
+			foldersService = live.getServiceProvider().instance(IMailboxFoldersByContainer.class,
+					IMailReplicaUids.subtreeUid(domain.uid, mbox));
+		}
 
 		List<PartGeneration> parts = dpg.parts;
 		PartGeneration corepart = parts.stream().filter(p -> "sds".equals(p.datatype)).findFirst().orElseThrow(() -> {
@@ -230,7 +247,6 @@ public class MboxRestoreService {
 			return new ServerFault("Unable to find backup part 'sds'");
 		});
 
-		ItemValue<Server> source = srvApi.getComplete(mbox.value.dataLocation);
 		ItemValue<Server> coreServer = Topology.get().core();
 		Path jsonpath = Paths.get(BackupPath.get(coreServer, "bm/core"), String.valueOf(corepart.id),
 				"var/backups/bluemind/sds");
@@ -257,7 +273,7 @@ public class MboxRestoreService {
 		}
 
 		// clean / remove folders before injecting backup
-		if (mode == Mode.Replace) {
+		if (mode == Mode.REPLACE) {
 			// We need to remove child firsts
 			List<ItemValue<MailboxFolder>> liveFolders = foldersService.all(); //
 			liveFolders.sort((a, b) -> Long.compare(a.value.fullName.chars().filter(ch -> ch == '/').count(),
@@ -293,14 +309,13 @@ public class MboxRestoreService {
 		List<CyrusSdsBackupFolder> folders = sdsBackupMailbox.getFolders();
 
 		// sort by hierarchy depth
-		folders.sort((a, b) -> Long.compare(a.fullNameWithoutInbox(inboxName).chars().filter(ch -> ch == '/').count(),
-				b.fullNameWithoutInbox(inboxName).chars().filter(ch -> ch == '/').count()));
+		folders.sort((a, b) -> a.fullNameWithoutInbox(inboxName).compareTo(b.fullNameWithoutInbox(inboxName)));
 
 		for (CyrusSdsBackupFolder folder : folders) {
 			MailboxFolder createdfolder = new MailboxFolder();
 			// restoredFolderName is "restored-blibla" and folder is the "source folder"
 			// (from the backup)
-			if (mode == Mode.Subfolder) {
+			if (mode == Mode.SUBFOLDER) {
 				createdfolder.name = folder.name().equals(inboxName) ? boxFsFolders.restoreFolderName : folder.name();
 				String fullName = boxFsFolders.restoreFolderName + (!folder.fullNameWithoutInbox(inboxName).isEmpty()
 						? ("/" + folder.fullNameWithoutInbox(inboxName))
@@ -310,7 +325,7 @@ public class MboxRestoreService {
 				} else {
 					createdfolder.fullName = fullName;
 				}
-			} else if (mode == Mode.Replace) {
+			} else if (mode == Mode.REPLACE) {
 				createdfolder.fullName = folder.fullName();
 				createdfolder.name = folder.name();
 			} else {
@@ -333,59 +348,69 @@ public class MboxRestoreService {
 				logger.debug("{} is a defaultFolder, so it will not be created", createdfolder);
 			}
 
-			int imapPort = Integer.parseInt(System.getProperty("imap.port", "1143"));
-			String imapHost = source.value.address();
-			// Test mode
-			if (System.getProperty("imap.local.ipaddr", "").equals(imapHost)) {
-				imapHost = "localhost";
-			}
+			// Resolve the BlueMindAPI folder
+			CyrusPartition cyrusPartition = CyrusPartition.forServerAndDomain(mbox.value.dataLocation, domain.uid);
+			IDbReplicatedMailboxes mailboxApi = live.getServiceProvider()
+					.instance(IDbByContainerReplicatedMailboxes.class, IMailReplicaUids.subtreeUid(domain.uid, mbox));
+			IDbMessageBodies bodiesApi = live.getServiceProvider().instance(IDbMessageBodies.class,
+					cyrusPartition.name);
+			IConversationReference conversationReferenceApi = live.getServiceProvider()
+					.instance(IConversationReference.class, domain.uid, mbox.uid);
+			ItemValue<MailboxFolder> resolvedFolder = foldersService.byName(createdfolder.fullName);
+			IDbMailboxRecords recordsApi = live.getServiceProvider().instance(IDbMailboxRecords.class,
+					resolvedFolder.uid);
+			restoreSdsMessageApi(live, folder, mbox, resolvedFolder, mailboxApi, bodiesApi, recordsApi,
+					conversationReferenceApi, monitor);
 
-			if (mbox.value.type == Type.mailshare) {
-				try (StoreClient sc = new StoreClient(imapHost, imapPort, "admin0", Token.admin0())) {
-					if (!sc.login()) {
-						throw new ServerFault("Error logging in as admin0");
-					}
-					restoreSdsMessages(live, mbox.value.dataLocation, sc, folder,
-							createdfolder.fullName + "@" + domain.uid, monitor);
-				}
-			} else {
-				try (Sudo sudo = new Sudo(mbox.value.name, domain.uid)) {
-
-					try (StoreClient sc = new StoreClient(imapHost, imapPort, mbox.value.name + "@" + domain.uid,
-							sudo.context.getSessionId())) {
-						if (!sc.login()) {
-							throw new ServerFault("error logging in to " + source.value.address() + ":1143 as "
-									+ mbox.value.name + "@" + domain.uid);
-						}
-						restoreSdsMessages(live, mbox.value.dataLocation, sc, folder, createdfolder.fullName, monitor);
-					}
-				}
-			}
 		}
 		monitor.end(true, "finished", "{ \"status\": \"not_implemented\" }");
 		logger.info("ending task with mon {}", monitor);
 	}
 
-	private void restoreSdsMessages(BmContext context, String datalocation, StoreClient sc, CyrusSdsBackupFolder folder,
-			String mboxFolder, IServerTaskMonitor monitor) {
-		MessageBodyObjectStore sds = new MessageBodyObjectStore(context, datalocation);
-
-		FlagsList flags = new FlagsList();
-		flags.add(Flag.BMARCHIVED);
-		flags.add(Flag.SEEN);
-		long allMessagesCount = folder.messageCount();
-		monitor.log("Restoring {} messages of folder {}", allMessagesCount, folder.fullName());
+	private void restoreSdsMessageApi(BmContext context, CyrusSdsBackupFolder backupFolder, ItemValue<Mailbox> mbox,
+			ItemValue<MailboxFolder> folder, IDbReplicatedMailboxes mailboxApi, IDbMessageBodies bodiesApi,
+			IDbMailboxRecords recordsApi, IConversationReference conversationReferenceApi, IServerTaskMonitor monitor) {
+		SystemConf sysconf = LocalSysconfCache.get();
+		MessageBodyObjectStore sds;
+		if (ArchiveHelper.isSdsArchiveKindCyrus(sysconf)) {
+			sds = new MessageBodyObjectStore(context, new SdsDataProtectSpool(), mbox.value.dataLocation);
+		} else {
+			sds = new MessageBodyObjectStore(context, mbox.value.dataLocation);
+		}
+		logger.info(
+				"DBG: mbox: {} backupFolder {} folder {} mailboxApi {} bodiesApi {} recordsApi {} conversationReferenceApi {}",
+				mbox, backupFolder, folder, mailboxApi, bodiesApi, recordsApi, conversationReferenceApi);
+		long allMessagesCount = backupFolder.messageCount();
+		monitor.log("Restoring {} messages of folder {}", allMessagesCount, backupFolder.fullName());
 		AtomicLong restorationCounter = new AtomicLong(0);
-		List<List<CyrusSdsBackupMessage>> partitioned = Lists.partition(folder.messages(), 32);
+		List<List<CyrusSdsBackupMessage>> partitioned = Lists.partition(backupFolder.messages(), 32);
 		partitioned.stream().forEach(msgList -> {
 			Path[] paths = sds.mopen(msgList.stream().map(msg -> msg.guid).toList().toArray(new String[0]));
 			int idx = 0;
 			for (Path p : paths) {
 				// msgList and paths must be in the same order, this is critical
 				CyrusSdsBackupMessage msg = msgList.get(idx++);
+				logger.info("appending {}: {}", idx, msg);
 				try (InputStream instream = Files.newInputStream(p)) {
-					int added = sc.append(mboxFolder, instream, flags, msg.date);
-					if (added <= 0) {
+					AppendTx appendTx = mailboxApi.prepareAppend(folder.internalId, 1);
+					Date bodyDeliveryDate = msg.date == null ? new Date(appendTx.internalStamp) : msg.date;
+
+					bodiesApi.createWithDeliveryDate(msg.guid, bodyDeliveryDate, VertxStream.localPath(p));
+					MessageBody messageBody = bodiesApi.getComplete(msg.guid);
+					Set<String> references = (messageBody.references != null) ? Sets.newHashSet(messageBody.references)
+							: Sets.newHashSet();
+					long conversationId = conversationReferenceApi.lookup(messageBody.messageId, references);
+					MailboxRecord rec = new MailboxRecord();
+					rec.imapUid = appendTx.imapUid;
+					rec.internalDate = bodyDeliveryDate;
+					rec.messageBody = msg.guid;
+					rec.modSeq = appendTx.modSeq;
+					rec.conversationId = conversationId;
+					rec.flags = List.of(MailboxItemFlag.System.Seen.value());
+					rec.lastUpdated = rec.internalDate;
+					ItemVersion added = recordsApi.create(appendTx.imapUid + ".", rec);
+
+					if (added.id <= 0) {
 						logger.error("Unable to inject message {}", p);
 					} else {
 						long currentCount = restorationCounter.incrementAndGet();
@@ -406,6 +431,5 @@ public class MboxRestoreService {
 				monitor.log("Restored {}/{} messages", restorationCounter.get(), allMessagesCount);
 			}
 		});
-
 	}
 }

@@ -17,4 +17,5 @@ Require-Bundle: net.bluemind.dataprotect.service,
  net.bluemind.core.rest,
  net.bluemind.server.api,
  net.bluemind.config,
- net.bluemind.node.api
+ net.bluemind.node.api,
+ slf4j.api

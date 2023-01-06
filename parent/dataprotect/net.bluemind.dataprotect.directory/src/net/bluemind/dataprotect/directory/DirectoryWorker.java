@@ -37,7 +37,6 @@ import net.bluemind.dataprotect.worker.DefaultWorker;
 import net.bluemind.directory.hollow.datamodel.producer.DirectorySerializer;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.node.api.INodeClient;
-import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
@@ -74,7 +73,7 @@ public class DirectoryWorker extends DefaultWorker {
 							.retrieveSnapshotBlob(HollowConstants.VERSION_LATEST);
 
 					String path = dir + "/" + dom.uid;
-					NCUtils.waitFor(nc, nc.executeCommandNoOut(String.format("mkdir -p %s", path)));
+					nc.mkdirs(path);
 					try {
 						File snapshot = new File(path, String.format("snapshot-%s", blob.getToVersion()));
 						nc.writeFile(snapshot.getPath(), blob.getInputStream());

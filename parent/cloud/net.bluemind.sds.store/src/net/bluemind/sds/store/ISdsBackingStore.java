@@ -38,6 +38,8 @@ public interface ISdsBackingStore {
 
 	CompletableFuture<SdsResponse> download(GetRequest req);
 
+	CompletableFuture<SdsResponse> downloadRaw(GetRequest req);
+
 	default CompletableFuture<SdsResponse> downloads(MgetRequest req) {
 		int len = req.transfers.size();
 		CompletableFuture<?>[] futures = new CompletableFuture[len];
@@ -59,5 +61,4 @@ public interface ISdsBackingStore {
 	CompletableFuture<TierMoveResponse> tierMove(TierMoveRequest tierMoveRequest);
 
 	public void close();
-
 }

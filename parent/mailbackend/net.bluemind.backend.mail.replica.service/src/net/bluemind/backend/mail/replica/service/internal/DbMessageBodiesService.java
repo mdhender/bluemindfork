@@ -39,7 +39,10 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import io.netty.buffer.ByteBufUtil;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.file.AsyncFile;
 import io.vertx.core.file.OpenOptions;
 import io.vertx.core.streams.ReadStream;
@@ -57,20 +60,25 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.rest.vertx.VertxStream.LocalPathStream;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.sds.sync.api.SdsSyncEvent;
+import net.bluemind.sds.sync.api.SdsSyncEvent.Body;
 
 public class DbMessageBodiesService implements IDbMessageBodies {
 
 	private static final Logger logger = LoggerFactory.getLogger(DbMessageBodiesService.class);
 
 	protected final MessageBodyStore bodyStore;
+
 	private final Supplier<MessageBodyObjectStore> bodyObjectStore;
 	private final Supplier<IMessageBodyTierChange> bodyTierChangeService;
+	private final EventBus eventBus;
 
 	public DbMessageBodiesService(MessageBodyStore bodyStore, Supplier<MessageBodyObjectStore> bodyObjectStore,
 			Supplier<IMessageBodyTierChange> bodyTierChangeService) {
 		this.bodyStore = bodyStore;
 		this.bodyObjectStore = bodyObjectStore;
 		this.bodyTierChangeService = bodyTierChangeService;
+		eventBus = VertxPlatform.eventBus();
 	}
 
 	private static final File TMP = new File(System.getProperty("java.io.tmpdir"));
@@ -118,6 +126,9 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 		MessageBodyObjectStore objectStore = bodyObjectStore.get();
 		try {
 			objectStore.store(uid, deliveryDate, tmpFile);
+			eventBus.publish(SdsSyncEvent.BODYADD.busName(),
+					new Body(ByteBufUtil.decodeHexDump(uid), objectStore.dataLocation()).toJson(),
+					new DeliveryOptions().setLocalOnly(true));
 			parseAndIndex(uid, deliveryDate, eml);
 		} finally {
 			tmpFile.delete(); // NOSONAR
@@ -151,6 +162,9 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
+		eventBus.publish(SdsSyncEvent.BODYDEL.busName(),
+				new Body(ByteBufUtil.decodeHexDump(uid), bodyObjectStore.get().dataLocation()).toJson(),
+				new DeliveryOptions().setLocalOnly(true));
 		BodiesCache.bodies.invalidate(uid);
 	}
 

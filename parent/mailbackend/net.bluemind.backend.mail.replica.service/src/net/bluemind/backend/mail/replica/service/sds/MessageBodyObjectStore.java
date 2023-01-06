@@ -61,13 +61,11 @@ public class MessageBodyObjectStore {
 	private final BmContext ctx;
 	private final ISdsSyncStore objectStore;
 	private boolean singleNamespaceBody;
+	private final String dataLocation;
 
 	public MessageBodyObjectStore(BmContext ctx, String datalocation) {
 		this.ctx = ctx;
-		if (logger.isDebugEnabled()) {
-			logger.debug("Object store for {}", this.ctx);
-		}
-
+		this.dataLocation = datalocation;
 		SystemConf config = LocalSysconfCache.get();
 		SdsStoreLoader loader = new SdsStoreLoader();
 		this.singleNamespaceBody = Topology.get().singleNode() || !loader.archiveKind(config).isShardedByDatalocation();
@@ -75,8 +73,14 @@ public class MessageBodyObjectStore {
 			logger.warn("[{}] Returning noop store which might be wrong", datalocation);
 			return new NoopStoreFactory().createSync(VertxPlatform.getVertx(), config, datalocation);
 		});
+	}
+
+	public MessageBodyObjectStore(BmContext ctx, ISdsSyncStore objectStore, String datalocation) {
+		this.ctx = ctx;
+		this.objectStore = objectStore;
+		this.dataLocation = datalocation;
 		if (logger.isDebugEnabled()) {
-			logger.debug("Reading with {}", objectStore);
+			logger.debug("Object store for {}: {}", this.ctx, objectStore);
 		}
 	}
 
@@ -179,5 +183,9 @@ public class MessageBodyObjectStore {
 
 	public List<String> tierMove(List<TierMove> tierMoves) {
 		return objectStore.tierMove(new TierMoveRequest(tierMoves)).moved;
+	}
+
+	public String dataLocation() {
+		return dataLocation;
 	}
 }

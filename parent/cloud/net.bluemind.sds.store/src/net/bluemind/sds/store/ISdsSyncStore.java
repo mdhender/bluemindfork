@@ -35,6 +35,8 @@ public interface ISdsSyncStore {
 
 	SdsResponse download(GetRequest req);
 
+	SdsResponse downloadRaw(GetRequest req);
+
 	SdsResponse downloads(MgetRequest req);
 
 	SdsResponse delete(DeleteRequest req);
@@ -42,4 +44,5 @@ public interface ISdsSyncStore {
 	TierMoveResponse tierMove(TierMoveRequest tierMoveRequest);
 
 	void close();
+
 }

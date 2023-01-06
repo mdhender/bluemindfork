@@ -37,7 +37,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import net.bluemind.addressbook.api.VCard.Identification.Gender;
@@ -131,8 +130,7 @@ public class RestoreUserTests {
 		testContext = new BmTestContext(SecurityContext.SYSTEM);
 
 		changUid = PopulateHelper.addUser(login, domain, Routing.internal);
-		testContext.provider().instance(ISystemConfiguration.class)
-				.updateMutableValues(ImmutableMap.of("db_version", "3.1.0"));
+		testContext.provider().instance(ISystemConfiguration.class).updateMutableValues(Map.of("db_version", "3.1.0"));
 
 		restorable = new Restorable();
 		restorable.domainUid = domain;
@@ -143,7 +141,7 @@ public class RestoreUserTests {
 
 	private List<String> getTagsExcept(String... except) {
 		// tag & assign host for everything
-		List<String> tags = new LinkedList<String>();
+		List<String> tags = new LinkedList<>();
 
 		IDomainTemplate dt = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDomainTemplate.class);
@@ -246,14 +244,14 @@ public class RestoreUserTests {
 		track(tr);
 
 		user.value.password = "newpassword";
-		testContext.provider().instance(IUser.class, domain).create("newuid", user.value);
+		testContext.provider().instance(IUser.class, domain).create(changUid, user.value);
 
 		RestoreUserTask ru = new RestoreUserTask(latestGen, restorable);
 		TestMonitor monitor = new TestMonitor();
 		ru.run(monitor);
 
 		ItemValue<User> restoredUser = testContext.provider().instance(IUser.class, domain).getComplete(changUid);
-		assertNull(restoredUser);
+		assertNotNull(restoredUser);
 
 		assertTrue("restore failed", monitor.success);
 
@@ -334,7 +332,7 @@ public class RestoreUserTests {
 	}
 
 	@Test(timeout = 120000)
-	public void testRestoreSieve() throws Exception {
+	public void testRestoreFilters() throws Exception {
 		IMailboxes mboxesService = testContext.provider().instance(IMailboxes.class, domain);
 
 		MailFilterRule rule = new MailFilterRule();

@@ -131,8 +131,8 @@ public class SaveAllTask extends BlockingServerTask implements IServerTask {
 		}
 
 		private String getIndexKey(PartGeneration partGeneration) {
-			logger.info(String.format("PartGeneration: tag:%s, srv:%s, begin:%s", partGeneration.tag,
-					partGeneration.server, partGeneration.begin));
+			logger.info("PartGeneration: tag:{}, srv:{}, begin:{}", partGeneration.tag, partGeneration.server,
+					partGeneration.begin);
 			return partGeneration.tag + "/" + partGeneration.server;
 		}
 
@@ -220,6 +220,11 @@ public class SaveAllTask extends BlockingServerTask implements IServerTask {
 		return skipTags;
 	}
 
+	private List<String> getSkipDataTypes() {
+		ISystemConfiguration sysApi = ctx.provider().instance(ISystemConfiguration.class);
+		return sysApi.getValues().stringList(SysConfKeys.dataprotect_skip_datatypes.name());
+	}
+
 	private BackupStatus doBackup(IServerTaskMonitor monitor, IDPContext dpCtx, List<ItemValue<Server>> servers,
 			List<String> skipTags) throws Exception {
 		InstallationVersion version = ctx.provider().instance(IInstallation.class).getVersion();
@@ -232,7 +237,9 @@ public class SaveAllTask extends BlockingServerTask implements IServerTask {
 		monitor.begin(servers.size(), "Starting backup on all servers");
 		try {
 			for (ItemValue<Server> server : servers) {
-				logger.info("Starting backup on server {}", server.value.address());
+				if (logger.isInfoEnabled()) {
+					logger.info("Starting backup on server {}", server.value.address());
+				}
 
 				Set<String> tags = server.value.tags.stream().filter(tag -> !skipTags.contains(tag))
 						.collect(Collectors.toSet());
@@ -263,11 +270,12 @@ public class SaveAllTask extends BlockingServerTask implements IServerTask {
 			Set<String> tags, BackupStatus backupStatus, DataProtectGeneration dpg) throws SQLException {
 		monitor.begin(2L * tags.size(), String.format("Backup tags %s", String.join(",", tags)));
 
-		for (String tag : tags) {
-			logger.info("Looking up worker for {}", tag);
+		List<String> skipDataTypes = getSkipDataTypes();
 
+		for (String tag : tags) {
 			List<IBackupWorker> workers = Workers.get().stream().filter(worker -> worker.supportsTag(tag))
-					.collect(Collectors.toList());
+					.filter(worker -> !skipDataTypes.contains(worker.getDataType())).toList();
+			logger.info("workers for {}: {}", tag, workers);
 
 			IServerTaskMonitor workerMonitor = monitor.subWork(1);
 			workerMonitor.begin(workers.size(), String.format("Backup tag %s", tag));
@@ -330,8 +338,7 @@ public class SaveAllTask extends BlockingServerTask implements IServerTask {
 		monitor.begin(servers.size(), "Check parent backup generation");
 
 		for (ItemValue<Server> server : servers) {
-			for (String tag : server.value.tags.stream().filter(tag -> !skipTags.contains(tag))
-					.collect(Collectors.toList())) {
+			for (String tag : server.value.tags.stream().filter(tag -> !skipTags.contains(tag)).toList()) {
 				PartGeneration pg = new PartGeneration();
 				pg.tag = tag;
 				pg.server = server.uid;
@@ -397,7 +404,7 @@ public class SaveAllTask extends BlockingServerTask implements IServerTask {
 	private void removeOldGenerations(IServerTaskMonitor monitor) {
 		List<DataProtectGeneration> gens = dps.getAvailableGenerations().stream() //
 				.filter(gen -> !gen.withErrors) //
-				.collect(Collectors.toList());
+				.toList();
 		RetentionPolicy rp = dps.getRetentionPolicy();
 		if (rp != null && rp.daily != null) {
 			int toRm = gens.size() - rp.daily;
@@ -510,13 +517,14 @@ public class SaveAllTask extends BlockingServerTask implements IServerTask {
 			try {
 				if (last == null) {
 					NCUtils.execNoOut(nc, "rm -rf " + backupTemp + " " + backupWork);
-					NCUtils.execNoOut(nc, "mkdir -p " + backupTemp + " " + backupWork);
+					nc.mkdirs(backupTemp);
+					nc.mkdirs(backupWork);
 					nc.writeFile(fn, new ByteArrayInputStream("YOU CAN SAFELY REMOVE THIS FILE".getBytes()));
 				}
 
 				last = server;
 
-				if (!System.getProperty("node.local.ipaddr").equals(server.value.ip)) {
+				if (!System.getProperty("node.local.ipaddr", "nope").equals(server.value.ip)) {
 					if (!allowedMountPoint(monitor, server, nc) || !sharedDataStore(monitor, server, nc, fn)) {
 						validBackupStore = false;
 					}

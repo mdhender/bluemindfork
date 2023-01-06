@@ -21,11 +21,15 @@ package net.bluemind.filehosting.service.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.util.concurrent.TimeUnit;
+
+import org.junit.Before;
 import org.junit.Test;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.filehosting.service.internal.FileHostingService;
+import net.bluemind.lib.vertx.VertxPlatform;
 
 public class FileHostingServiceMockedTests {
 	@Before

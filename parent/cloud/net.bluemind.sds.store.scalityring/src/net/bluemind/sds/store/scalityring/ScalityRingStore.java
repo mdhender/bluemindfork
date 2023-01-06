@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -37,7 +38,6 @@ import org.asynchttpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CountingInputStream;
 import com.netflix.spectator.api.Clock;
 import com.netflix.spectator.api.Counter;
@@ -169,7 +169,7 @@ public class ScalityRingStore implements ISdsBackingStore {
 		return exists(ExistRequest.of(req.guid)) //
 				.thenApply(er -> er.exists).thenCompose(existresponse -> {
 					SdsResponse sr = new SdsResponse();
-					sr.withTags(ImmutableMap.of("guid", req.guid, "skip", "true"));
+					sr.withTags(Map.of("guid", req.guid, "skip", "true"));
 					if (Boolean.TRUE.equals(existresponse)) {
 						return CompletableFuture.completedFuture(sr);
 					}
@@ -195,7 +195,7 @@ public class ScalityRingStore implements ISdsBackingStore {
 				}).exceptionally(t -> {
 					logger.error("put request failed", t);
 					SdsResponse sr = new SdsResponse();
-					sr.withTags(ImmutableMap.of("guid", req.guid));
+					sr.withTags(Map.of("guid", req.guid));
 					sr.error = new SdsError(t.getMessage());
 					putFailureRequestCounter.increment();
 					return sr;
@@ -204,6 +204,26 @@ public class ScalityRingStore implements ISdsBackingStore {
 
 	@Override
 	public CompletableFuture<SdsResponse> download(GetRequest req) {
+		Path downloadPath = Paths.get(req.filename);
+		return download(req, downloadPath, ZstdStreams.decompress(downloadPath));
+	}
+
+	@Override
+	public CompletableFuture<SdsResponse> downloadRaw(GetRequest req) {
+		Path downloadPath = Paths.get(req.filename);
+		try {
+			return download(req, downloadPath, Files.newOutputStream(downloadPath));
+		} catch (IOException e) {
+			logger.error("download local io failed", e);
+			SdsResponse sr = new SdsResponse();
+			sr.withTags(Map.of("guid", req.guid));
+			sr.error = new SdsError(e.getMessage());
+			deleteFailureRequestCounter.increment();
+			return CompletableFuture.completedFuture(sr);
+		}
+	}
+
+	public CompletableFuture<SdsResponse> download(GetRequest req, Path downloadPath, OutputStream outChannel) {
 		if (client.isClosed()) {
 			return CompletableFuture.failedFuture(new ClientAlreadyClosedException("NO: client is closed"));
 		}
@@ -211,9 +231,6 @@ public class ScalityRingStore implements ISdsBackingStore {
 		final long start = clock.monotonicTime();
 		CompletableFuture<SdsResponse> response = new CompletableFuture<>();
 		AtomicLong downloaded = new AtomicLong(0);
-
-		Path downloadPath = Paths.get(req.filename);
-		OutputStream outChannel = ZstdStreams.decompress(downloadPath);
 
 		client.prepareGet(endpoint + "/" + req.guid) //
 				.execute(new AsyncCompletionHandler<Void>() {
@@ -283,7 +300,7 @@ public class ScalityRingStore implements ISdsBackingStore {
 				}).exceptionally(t -> {
 					logger.error("delete request failed", t);
 					SdsResponse sr = new SdsResponse();
-					sr.withTags(ImmutableMap.of("guid", req.guid));
+					sr.withTags(Map.of("guid", req.guid));
 					sr.error = new SdsError(t.getMessage());
 					deleteFailureRequestCounter.increment();
 					return sr;
@@ -322,7 +339,7 @@ public class ScalityRingStore implements ISdsBackingStore {
 			getSizeCounter.increment(totalSize.longValue());
 			mgetRequestCounter.increment();
 			String sizeKb = Long.toString(totalSize.longValue() / 1024);
-			return new SdsResponse().withTags(ImmutableMap.of("batch", Integer.toString(len), "sizeKB", sizeKb));
+			return new SdsResponse().withTags(Map.of("batch", Integer.toString(len), "sizeKB", sizeKb));
 		}).exceptionally(ex -> {
 			logger.error(ex.getMessage() + " for " + req, ex);
 			SdsResponse error = new SdsResponse();

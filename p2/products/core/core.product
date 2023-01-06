@@ -185,10 +185,12 @@
       <plugin id="net.bluemind.dataprotect.directory"/>
       <plugin id="net.bluemind.dataprotect.elastic"/>
       <plugin id="net.bluemind.dataprotect.job"/>
+      <plugin id="net.bluemind.dataprotect.mailbox"/>
       <plugin id="net.bluemind.dataprotect.notes"/>
       <plugin id="net.bluemind.dataprotect.ou"/>
       <plugin id="net.bluemind.dataprotect.persistence"/>
       <plugin id="net.bluemind.dataprotect.postgresql"/>
+      <plugin id="net.bluemind.dataprotect.sdsspool"/>
       <plugin id="net.bluemind.dataprotect.service"/>
       <plugin id="net.bluemind.dataprotect.sqlschema"/>
       <plugin id="net.bluemind.dataprotect.todolist"/>
@@ -381,6 +383,8 @@
       <plugin id="net.bluemind.sds.store.loader"/>
       <plugin id="net.bluemind.sds.store.s3"/>
       <plugin id="net.bluemind.sds.store.scalityring"/>
+      <plugin id="net.bluemind.sds.sync.api"/>
+      <plugin id="net.bluemind.sds.sync.service"/>
       <plugin id="net.bluemind.sentry" fragment="true"/>
       <plugin id="net.bluemind.sentry.settings"/>
       <plugin id="net.bluemind.sentry.settings.core"/>

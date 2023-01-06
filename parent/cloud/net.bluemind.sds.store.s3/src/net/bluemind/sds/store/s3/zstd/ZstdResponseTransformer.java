@@ -42,10 +42,10 @@ import com.github.luben.zstd.RecyclingBufferPool;
 import com.github.luben.zstd.ZstdInputStream;
 
 import io.netty.util.concurrent.DefaultThreadFactory;
-import software.amazon.awssdk.core.async.AsyncResponseTransformer;
+import net.bluemind.sds.store.s3.IResponseTransformer;
 import software.amazon.awssdk.core.async.SdkPublisher;
 
-public class ZstdResponseTransformer<T> implements AsyncResponseTransformer<T, T> {
+public class ZstdResponseTransformer<T> implements IResponseTransformer<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(ZstdResponseTransformer.class);
 

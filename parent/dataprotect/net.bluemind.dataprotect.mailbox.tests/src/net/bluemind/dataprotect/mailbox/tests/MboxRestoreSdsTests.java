@@ -18,7 +18,6 @@
 package net.bluemind.dataprotect.mailbox.tests;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -33,7 +32,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -47,14 +45,15 @@ import net.bluemind.aws.s3.utils.S3Configuration;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxFoldersByContainer;
 import net.bluemind.backend.mail.api.MailboxFolder;
+import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
-import net.bluemind.config.Token;
+import net.bluemind.core.container.model.ItemFlagFilter;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.dataprotect.mailbox.MboxRestoreService;
 import net.bluemind.dataprotect.mailbox.MboxRestoreService.Mode;
 import net.bluemind.dockerclient.DockerEnv;
-import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.ListInfo;
 import net.bluemind.imap.ListResult;
@@ -81,6 +80,7 @@ public class MboxRestoreSdsTests extends AbstractRestoreTests {
 				.put(SysConfKeys.sds_s3_endpoint.name(), config.getEndpoint()) //
 				.put(SysConfKeys.sds_s3_region.name(), config.getRegion()) //
 				.put(SysConfKeys.sds_s3_bucket.name(), config.getBucket()) //
+				.put(SysConfKeys.dataprotect_skip_datatypes.name(), "sds-spool") //
 				.build();
 		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		ISystemConfiguration sysConfApi = prov.instance(ISystemConfiguration.class);
@@ -116,19 +116,16 @@ public class MboxRestoreSdsTests extends AbstractRestoreTests {
 		assertTrue(Arrays.equals(content, emlData));
 	}
 
-	@Before
-	public void backupAllBefore() throws Exception {
-		backupAll();
-	}
-
 	@Test
 	public void restoreSdsUserInSubfolder() throws Exception {
+		backupAll();
+
 		MboxRestoreService mbr = new MboxRestoreService();
 		assertNotNull(mbr);
 		makeBackupFilesReadable();
 
 		TestMonitor monitor = new TestMonitor();
-		mbr.restore(latestGen, mbox, testDomain, Mode.Subfolder, monitor);
+		mbr.restore(latestGen, mbox, testDomain, Mode.SUBFOLDER, monitor);
 		assertTrue(monitor.finished);
 
 		try (StoreClient sc = new StoreClient("localhost", 1143, latd, password)) {
@@ -155,6 +152,8 @@ public class MboxRestoreSdsTests extends AbstractRestoreTests {
 
 	@Test
 	public void restoreSdsUserReplace() throws Exception {
+		backupAll();
+
 		/* Create a new subfolder, must be deleted by the restore process */
 		IMailboxFolders foldersService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext()
 				.su("junit-" + UUID.randomUUID().toString(), userUid, domain).getServiceProvider()
@@ -166,7 +165,7 @@ public class MboxRestoreSdsTests extends AbstractRestoreTests {
 		makeBackupFilesReadable();
 
 		TestMonitor monitor = new TestMonitor();
-		mbr.restore(latestGen, mbox, testDomain, Mode.Replace, monitor);
+		mbr.restore(latestGen, mbox, testDomain, Mode.REPLACE, monitor);
 		assertTrue(monitor.finished);
 
 		try (StoreClient sc = new StoreClient("localhost", 1143, latd, password)) {
@@ -186,12 +185,14 @@ public class MboxRestoreSdsTests extends AbstractRestoreTests {
 
 	@Test
 	public void restoreSdsMailshareInSubfolder() throws Exception {
+		backupAll();
+
 		MboxRestoreService mbr = new MboxRestoreService();
 		assertNotNull(mbr);
 		makeBackupFilesReadable();
 
 		TestMonitor monitor = new TestMonitor();
-		mbr.restore(latestGen, sharedMbox, testDomain, Mode.Subfolder, monitor);
+		mbr.restore(latestGen, sharedMbox, testDomain, Mode.SUBFOLDER, monitor);
 		assertTrue(monitor.finished);
 
 		List<String> expectedSubFolders = Lists.newArrayList( //
@@ -222,6 +223,8 @@ public class MboxRestoreSdsTests extends AbstractRestoreTests {
 
 	@Test
 	public void restoreSdsMailshareReplace() throws Exception {
+		backupAll();
+
 		/* Create a new subfolder, must be deleted by the restore process */
 		IMailboxFolders foldersService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext()
 				.su("junit-" + UUID.randomUUID().toString(), userUid, domain).getServiceProvider()
@@ -233,33 +236,20 @@ public class MboxRestoreSdsTests extends AbstractRestoreTests {
 		assertNotNull(mbr);
 		makeBackupFilesReadable();
 
-		int size = 0;
-		// empty the mailbox
-		try (StoreClient sc = new StoreClient("localhost", 1143, "admin0", Token.admin0())) {
-			assertTrue(sc.login());
-			assertTrue(sc.select(mailshareLogin + "/Sent@" + domain));
-			Collection<Integer> all = sc.uidSearch(new SearchQuery());
-			size = all.size();
-			assertTrue(size > 0);
-			FlagsList fl = new FlagsList();
-			fl.add(Flag.DELETED);
-			sc.uidStore(all, fl, true);
-			sc.expunge();
-			all = sc.uidSearch(new SearchQuery());
-			assertTrue(mailshareLogin + "/Sent@" + domain + " should be empty after expunge", all.isEmpty());
-		}
+		foldersService.all().stream().forEach(mf -> System.err.println(mf));
+		ItemValue<MailboxFolder> resolvedFolder = foldersService.byName(mailshareLogin + "/Sent");
+		assertNotNull("Sent folder must be fetched", resolvedFolder);
+
+		IDbMailboxRecords recordsApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDbMailboxRecords.class, resolvedFolder.uid);
+		foldersService.emptyFolder(resolvedFolder.internalId);
 
 		TestMonitor monitor = new TestMonitor();
-		mbr.restore(latestGen, sharedMbox, testDomain, Mode.Replace, monitor);
+		mbr.restore(latestGen, sharedMbox, testDomain, Mode.REPLACE, monitor);
 		assertTrue(monitor.finished);
 
-		try (StoreClient sc = new StoreClient("localhost", 1143, "admin0", Token.admin0())) {
-			assertTrue(sc.login());
-			sc.select(mailshareLogin + "/Sent@" + domain);
-			Collection<Integer> all = sc.uidSearch(new SearchQuery());
-			assertEquals(size, all.size());
-			assertFalse(mailshareLogin + "/Sent@" + domain + "should not be empty after restore", all.isEmpty());
-		}
+		assertEquals(2, recordsApi.count(ItemFlagFilter.all()).total);
+		recordsApi.all().stream().forEach(rec -> System.err.println("record: " + rec));
 
 		try (StoreClient sc = new StoreClient("localhost", 1143, latd, password)) {
 			assertTrue(sc.login());

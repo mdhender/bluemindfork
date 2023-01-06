@@ -86,6 +86,11 @@ public class DummyBackingStore implements ISdsBackingStore {
 	}
 
 	@Override
+	public CompletableFuture<SdsResponse> downloadRaw(GetRequest get) {
+		return download(get);
+	}
+
+	@Override
 	public CompletableFuture<SdsResponse> delete(DeleteRequest del) {
 		new File(root, del.guid).delete();
 		return CompletableFuture.completedFuture(new SdsResponse());

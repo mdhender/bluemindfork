@@ -33,7 +33,11 @@
 			<f:IntTextEdit ui:field="daily"
 				titleText="{txt.retDaily}" maxLength="8" mandatory="true"
 				readOnly="false" />
+			<f:IntTextEdit ui:field="retentionDays"
+				titleText="{txt.retentionDaysTitle}" maxLength="8" mandatory="true"
+				readOnly="false" />
 		</table>
+				
 		<h:FieldSetPanel name="{txt.backup}" />
 		<table border="0">
 			<tr>
@@ -42,14 +46,6 @@
 				</td>
 				<td style="padding-left:15px">
 					<g:CheckBox ui:field="backupMails" />
-				</td>
-			</tr>
-			<tr>
-				<td style="color: #24638f; font-weight: bold">
-					<g:Label text="{txt.backupHSM}" />
-				</td>
-				<td style="padding-left:15px">
-					<g:CheckBox ui:field="backupHSM" />
 				</td>
 			</tr>
 			<tr>

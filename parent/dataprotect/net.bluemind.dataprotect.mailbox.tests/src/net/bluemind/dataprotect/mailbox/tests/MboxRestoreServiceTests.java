@@ -22,17 +22,14 @@ package net.bluemind.dataprotect.mailbox.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 
 import org.junit.Test;
 
-import net.bluemind.config.Token;
 import net.bluemind.dataprotect.mailbox.MboxRestoreService;
 import net.bluemind.dataprotect.mailbox.MboxRestoreService.Mode;
-import net.bluemind.imap.Annotation;
 import net.bluemind.imap.Envelope;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
@@ -43,19 +40,19 @@ import net.bluemind.imap.StoreClient;
 import net.bluemind.mailbox.service.common.DefaultFolder;
 
 public class MboxRestoreServiceTests extends AbstractRestoreTests {
-
 	@Test
 	public void testRestoreUserInSubfolder() throws Exception {
 		backupAll();
 
 		MboxRestoreService mbr = new MboxRestoreService();
+		makeBackupFilesReadable();
 		assertNotNull(mbr);
 
 		TestMonitor monitor = new TestMonitor();
-		mbr.restore(latestGen, mbox, testDomain, Mode.Subfolder, monitor);
+		mbr.restore(latestGen, mbox, testDomain, Mode.SUBFOLDER, monitor);
 		assertTrue(monitor.finished);
 
-		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, password)) {
+		try (StoreClient sc = new StoreClient("localhost", 1143, latd, password)) {
 			assertTrue(sc.login());
 			boolean found = false;
 			ListResult list = sc.listAll();
@@ -73,14 +70,15 @@ public class MboxRestoreServiceTests extends AbstractRestoreTests {
 		backupAll();
 
 		MboxRestoreService mbr = new MboxRestoreService();
+		makeBackupFilesReadable();
 		assertNotNull(mbr);
 
 		TestMonitor monitor = new TestMonitor();
-		mbr.restore(latestGen, sharedMbox, testDomain, Mode.Subfolder, monitor);
+		mbr.restore(latestGen, sharedMbox, testDomain, Mode.SUBFOLDER, monitor);
 		assertTrue(monitor.finished);
 
 		System.out.println("Login to IMAP as: " + latd);
-		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, password)) {
+		try (StoreClient sc = new StoreClient("localhost", 1143, latd, password)) {
 			assertTrue(sc.login());
 			boolean found = false;
 			ListResult list = sc.listAll();
@@ -99,10 +97,11 @@ public class MboxRestoreServiceTests extends AbstractRestoreTests {
 		backupAll();
 
 		MboxRestoreService mbr = new MboxRestoreService();
+		makeBackupFilesReadable();
 		assertNotNull(mbr);
 
 		// empty the mailbox
-		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, password)) {
+		try (StoreClient sc = new StoreClient("localhost", 1143, latd, password)) {
 			assertTrue(sc.login());
 			sc.select("INBOX");
 			Collection<Integer> all = sc.uidSearch(new SearchQuery());
@@ -118,10 +117,10 @@ public class MboxRestoreServiceTests extends AbstractRestoreTests {
 		}
 
 		TestMonitor monitor = new TestMonitor();
-		mbr.restore(latestGen, mbox, testDomain, Mode.Replace, monitor);
+		mbr.restore(latestGen, mbox, testDomain, Mode.REPLACE, monitor);
 		assertTrue(monitor.finished);
 
-		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, latd, password)) {
+		try (StoreClient sc = new StoreClient("localhost", 1143, latd, password)) {
 			assertTrue(sc.login());
 			sc.select("INBOX");
 			Collection<Integer> all = sc.uidSearch(new SearchQuery());
@@ -135,11 +134,6 @@ public class MboxRestoreServiceTests extends AbstractRestoreTests {
 
 			DefaultFolder.USER_FOLDERS.forEach(df -> {
 				assertTrue(String.format("Folder %s must exixts", df.name), sc.isExist(df.name));
-
-				Annotation annotation = sc.getAnnotation(df.name).get("/specialuse");
-				assertNotNull(annotation);
-				assertNull(annotation.valueShared);
-				assertTrue(df.specialuseEquals(annotation.valuePriv));
 			});
 		}
 	}
@@ -149,13 +143,17 @@ public class MboxRestoreServiceTests extends AbstractRestoreTests {
 		backupAll();
 
 		MboxRestoreService mbr = new MboxRestoreService();
+		makeBackupFilesReadable();
 		assertNotNull(mbr);
 
 		int size = 0;
+
+		String sentFolder = "Dossiers partagés/" + sharedMbox.value.name + "/Sent";
+
 		// empty the mailbox
-		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, "admin0", Token.admin0())) {
+		try (StoreClient sc = new StoreClient("localhost", 1143, latd, password)) {
 			assertTrue(sc.login());
-			assertTrue(sc.select(mailshareLogin + "/Sent@" + domain));
+			assertTrue(sc.select(sentFolder));
 			Collection<Integer> all = sc.uidSearch(new SearchQuery());
 			size = all.size();
 			assertTrue(size > 0);
@@ -164,19 +162,19 @@ public class MboxRestoreServiceTests extends AbstractRestoreTests {
 			sc.uidStore(all, fl, true);
 			sc.expunge();
 			all = sc.uidSearch(new SearchQuery());
-			assertTrue(mailshareLogin + "/Sent@" + domain + " should be empty after expunge", all.isEmpty());
+			assertTrue(sentFolder + " should be empty after expunge", all.isEmpty());
 		}
 
 		TestMonitor monitor = new TestMonitor();
-		mbr.restore(latestGen, sharedMbox, testDomain, Mode.Replace, monitor);
+		mbr.restore(latestGen, sharedMbox, testDomain, Mode.REPLACE, monitor);
 		assertTrue(monitor.finished);
 
-		try (StoreClient sc = new StoreClient(imapServer.ip, 1143, "admin0", Token.admin0())) {
+		try (StoreClient sc = new StoreClient("localhost", 1143, latd, password)) {
 			assertTrue(sc.login());
-			sc.select(mailshareLogin + "/Sent@" + domain);
+			sc.select(sentFolder);
 			Collection<Integer> all = sc.uidSearch(new SearchQuery());
 			assertEquals(size, all.size());
-			assertFalse(mailshareLogin + "/Sent@" + domain + " should not be empty after restore", all.isEmpty());
+			assertFalse(sentFolder + " should not be empty after restore", all.isEmpty());
 		}
 	}
 

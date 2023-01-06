@@ -237,6 +237,7 @@
    <bundle id="net.bluemind.dataprotect.ou" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.persistence" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.postgresql" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.dataprotect.sdsspool" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.service" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.sqlschema" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.todolist" version="4.1.0.qualifier"/>

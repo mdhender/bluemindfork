@@ -75,9 +75,7 @@ public class LoadGenerationTask extends BlockingServerTask implements IServerTas
 		GenerationContent gc = new GenerationContent();
 		gc.generationId = directory.generationId;
 		IDataProtect backupApi = ctx.provider().instance(IDataProtect.class);
-		List<String> partTags = parts.stream().map(p -> {
-			return p.tag;
-		}).collect(Collectors.toList());
+		List<String> partTags = parts.stream().map(p -> p.tag).toList();
 		gc.capabilities = backupApi.getRestoreCapabilitiesByTags(partTags);
 
 		IServiceProvider sp = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);

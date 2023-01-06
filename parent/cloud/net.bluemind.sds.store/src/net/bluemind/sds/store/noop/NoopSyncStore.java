@@ -64,6 +64,11 @@ public class NoopSyncStore implements ISdsBackingStore {
 	}
 
 	@Override
+	public CompletableFuture<SdsResponse> downloadRaw(GetRequest get) {
+		return download(get);
+	}
+
+	@Override
 	public CompletableFuture<SdsResponse> delete(DeleteRequest del) {
 		return CompletableFuture.completedFuture(new SdsResponse());
 	}

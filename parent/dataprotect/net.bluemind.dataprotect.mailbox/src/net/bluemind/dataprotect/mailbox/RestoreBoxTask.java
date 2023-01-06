@@ -69,7 +69,9 @@ public class RestoreBoxTask extends BlockingServerTask implements IServerTask {
 	 * @throws ServerFault
 	 */
 	private ItemValue<Mailbox> mbox() throws ServerFault {
-		logger.info("Should find box {}@{}", box.liveEntryUid(), box.domainUid);
+		if (logger.isInfoEnabled()) {
+			logger.info("Should find box {}@{}", box.liveEntryUid(), box.domainUid);
+		}
 		IMailboxes mboxApi = sp.instance(IMailboxes.class, box.domainUid);
 		return mboxApi.getComplete(box.liveEntryUid());
 	}

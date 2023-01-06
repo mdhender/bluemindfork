@@ -37,7 +37,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.user.service,
  net.bluemind.dataprotect.ou,
  net.bluemind.system.schemaupgrader.tests;bundle-version="4.1.0",
- slf4j.api
+ slf4j.api,
+ net.bluemind.sds.sync.service;bundle-version="4.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bluemind.dataprotect.ou.Activator

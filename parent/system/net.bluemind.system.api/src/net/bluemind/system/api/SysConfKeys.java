@@ -40,8 +40,11 @@ public enum SysConfKeys {
 	default_domain,
 
 	eas_max_heartbeat, eas_min_heartbeat, eas_sync_unknown, message_size_limit, mynetworks, sw_password, relayhost, //
-	auth_type, krb_ad_domain, krb_ad_ip, krb_domain, cas_url, cas_domain, krb_keytab, fwAdditionalIPs, dpBackupSkipTags, //
-	imap_max_child, nginx_worker_connections,
+	auth_type, krb_ad_domain, krb_ad_ip, krb_domain, cas_url, cas_domain, krb_keytab, fwAdditionalIPs, //
+	dpBackupSkipTags, //
+	imap_max_child, // CYRUS: kill
+
+	nginx_worker_connections, //
 
 	/**
 	 * exchange autodiscover for split domain with exchange
@@ -175,7 +178,12 @@ public enum SysConfKeys {
 	/**
 	 * upgrade history
 	 */
-	upgrade_history;
+	upgrade_history,
+
+	/**
+	 * dataprotect skipped datatypes (eg. sds-spool)
+	 */
+	dataprotect_skip_datatypes;
 
 	public static boolean isSysConfigKey(String key) {
 		for (SysConfKeys k : SysConfKeys.values()) {

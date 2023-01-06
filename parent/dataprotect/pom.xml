@@ -9,30 +9,31 @@
 	<artifactId>net.bluemind.dataprotect.plugins</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-		<module>net.bluemind.dataprotect.api</module>
-		<module>net.bluemind.dataprotect.sqlschema</module>
-		<module>net.bluemind.dataprotect.persistence</module>
-		<module>net.bluemind.dataprotect.persistence.tests</module>
-		<module>net.bluemind.dataprotect.service</module>
-		<module>net.bluemind.dataprotect.service.tests</module>
-		<module>net.bluemind.dataprotect.postgresql</module>
-		<module>net.bluemind.dataprotect.elastic</module>
-		<module>net.bluemind.dataprotect.job</module>
-		<module>net.bluemind.dataprotect.mailbox</module>
-		<module>net.bluemind.dataprotect.mailbox.tests</module>
-		<module>net.bluemind.dataprotect.addressbook</module>
 		<module>net.bluemind.dataprotect.addressbook.tests</module>
-		<module>net.bluemind.dataprotect.user</module>
-		<module>net.bluemind.dataprotect.user.tests</module>
-		<module>net.bluemind.dataprotect.calendar</module>
+		<module>net.bluemind.dataprotect.addressbook</module>
+		<module>net.bluemind.dataprotect.api</module>
 		<module>net.bluemind.dataprotect.calendar.tests</module>
-		<module>net.bluemind.dataprotect.todolist</module>
-		<module>net.bluemind.dataprotect.todolist.tests</module>
+		<module>net.bluemind.dataprotect.calendar</module>
 		<module>net.bluemind.dataprotect.config</module>
 		<module>net.bluemind.dataprotect.directory</module>
-		<module>net.bluemind.dataprotect.notes</module>
+		<module>net.bluemind.dataprotect.elastic</module>
+		<module>net.bluemind.dataprotect.job</module>
+		<module>net.bluemind.dataprotect.mailbox.tests</module>
+		<module>net.bluemind.dataprotect.mailbox</module>
 		<module>net.bluemind.dataprotect.notes.tests</module>
-		<module>net.bluemind.dataprotect.webappdata</module>
+		<module>net.bluemind.dataprotect.notes</module>
+		<module>net.bluemind.dataprotect.persistence.tests</module>
+		<module>net.bluemind.dataprotect.persistence</module>
+		<module>net.bluemind.dataprotect.postgresql</module>
+		<module>net.bluemind.dataprotect.sdsspool</module>
+		<module>net.bluemind.dataprotect.service.tests</module>
+		<module>net.bluemind.dataprotect.service</module>
+		<module>net.bluemind.dataprotect.sqlschema</module>
+		<module>net.bluemind.dataprotect.todolist.tests</module>
+		<module>net.bluemind.dataprotect.todolist</module>
+		<module>net.bluemind.dataprotect.user.tests</module>
+		<module>net.bluemind.dataprotect.user</module>
 		<module>net.bluemind.dataprotect.webappdata.tests</module>
+		<module>net.bluemind.dataprotect.webappdata</module>
 	</modules>
 </project>

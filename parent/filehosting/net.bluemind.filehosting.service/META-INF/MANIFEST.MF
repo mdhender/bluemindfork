@@ -30,7 +30,8 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.network.topology,
  net.bluemind.authentication.service,
  net.bluemind.config,
- net.bluemind.system.nginx
+ net.bluemind.system.nginx,
+ net.bluemind.sds.sync.api
 Export-Package: net.bluemind.filehosting.service.export,
  net.bluemind.filehosting.service.internal
 Automatic-Module-Name: net.bluemind.filehosting.service

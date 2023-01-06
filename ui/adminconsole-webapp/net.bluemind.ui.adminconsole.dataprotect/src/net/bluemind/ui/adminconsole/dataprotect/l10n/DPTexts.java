@@ -73,8 +73,6 @@ public interface DPTexts extends Messages {
 
 	String typeOU();
 
-	String backupHSM();
-
 	String backupES();
 
 	String replacemailbox();
@@ -102,5 +100,7 @@ public interface DPTexts extends Messages {
 	String replacenotes();
 
 	String replacewebappdata();
+	
+	String retentionDaysTitle();
 
 }

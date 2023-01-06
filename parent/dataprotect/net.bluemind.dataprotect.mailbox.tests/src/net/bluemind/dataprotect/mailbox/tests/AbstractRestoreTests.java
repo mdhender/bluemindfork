@@ -24,6 +24,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -141,6 +143,8 @@ public class AbstractRestoreTests {
 		latd = login + "@" + domain;
 
 		prepareLocalFilesystem();
+		setupSdsBackupFolders();
+		makeBackupFilesReadable();
 
 		JdbcTestHelper.getInstance().beforeTest();
 		ElasticsearchTestHelper.getInstance().beforeTest();
@@ -297,9 +301,6 @@ public class AbstractRestoreTests {
 		restorable.kind = RestorableKind.USER;
 
 		testSDSStore(s3config);
-
-		// Still some replication stuff ...
-		Thread.sleep(1000);
 	}
 
 	protected void waitFolderAvailable(ItemValue<Mailbox> mbox, String login, String domain, String fn, long timeout,
@@ -395,6 +396,26 @@ public class AbstractRestoreTests {
 			} catch (IOException | InterruptedException e) {
 				e.printStackTrace(System.err);
 			}
+		}
+	}
+
+	public void setupSdsBackupFolders() throws IOException {
+		List<String> suffix = new LinkedList<>();
+		for (char c = 'a'; c <= 'f'; c++) {
+			suffix.add("" + c);
+		}
+		for (char c = '0'; c <= '9'; c++) {
+			suffix.add("" + c);
+		}
+		int len = suffix.size();
+		List<String> realSuffix = new ArrayList<>(len * len * len);
+		for (int i = 0; i < suffix.size(); i++) {
+			for (int j = 0; j < suffix.size(); j++) {
+				realSuffix.add(suffix.get(i) + "/" + suffix.get(j));
+			}
+		}
+		for (String s : realSuffix) {
+			Files.createDirectories(Paths.get("/var/backups/bluemind/sds-spool/spool", s));
 		}
 	}
 

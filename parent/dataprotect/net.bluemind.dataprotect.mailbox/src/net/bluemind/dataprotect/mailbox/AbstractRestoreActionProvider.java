@@ -31,10 +31,10 @@ public abstract class AbstractRestoreActionProvider implements IRestoreActionPro
 		IServerTask toRun = null;
 		switch (op.identifier) {
 		case "replace.mailbox":
-			toRun = new RestoreBoxTask(backup, item, Mode.Replace);
+			toRun = new RestoreBoxTask(backup, item, Mode.REPLACE);
 			break;
 		case "subfolder.mailbox":
-			toRun = new RestoreBoxTask(backup, item, Mode.Subfolder);
+			toRun = new RestoreBoxTask(backup, item, Mode.SUBFOLDER);
 			break;
 		default:
 			throw new ServerFault("Unsupported op identifier: " + op.identifier);
@@ -52,7 +52,7 @@ public abstract class AbstractRestoreActionProvider implements IRestoreActionPro
 		RestoreOperation sub = new RestoreOperation();
 		sub.identifier = "subfolder.mailbox";
 		sub.kind = kind;
-		sub.requiredTag = "mail/imap";
+		replace.requiredTag = "mail/imap";
 
 		return Arrays.asList(replace, sub);
 	}
