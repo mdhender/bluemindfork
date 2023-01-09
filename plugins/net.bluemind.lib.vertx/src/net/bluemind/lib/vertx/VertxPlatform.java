@@ -38,6 +38,7 @@ import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.eventbus.EventBus;
+import net.bluemind.common.vertx.contextlogging.ContextualData;
 import net.bluemind.lib.vertx.internal.BMModule;
 import net.bluemind.lib.vertx.internal.Result;
 
@@ -76,6 +77,23 @@ public final class VertxPlatform implements BundleActivator {
 		// too!
 		vertx = Vertx.vertx(new VertxOptions().setPreferNativeTransport(true));
 		vertx.exceptionHandler(t -> logger.error("Uncaught exception: {}", t.getMessage(), t));
+
+		/* Propagation of endpoint ContextualData through the eventbus */
+		vertx.eventBus().addOutboundInterceptor(event -> {
+			String endpoint = ContextualData.get("endpoint");
+			if (endpoint != null) {
+				event.message().headers().add("log-endpoint", endpoint);
+			}
+			event.next();
+		});
+		vertx.eventBus().addInboundInterceptor(event -> {
+			String requestId = event.message().headers().get("log-endpoint");
+			if (requestId != null) {
+				ContextualData.put("endpoint", requestId);
+			}
+			event.next();
+		});
+
 		VertxPlatform.context = bundleContext;
 	}
 

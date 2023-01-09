@@ -45,6 +45,7 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.common.vertx.contextlogging.ContextualData;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -102,7 +103,6 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 		this.directExec = directExec;
 		this.filters = new RunnableExtensionLoader<IRestFilter>().loadExtensions("net.bluemind.core.rest", "filter",
 				"filter", "class");
-
 		rules = EventBusAccessRules.getInstance().getEventBusRules();
 		for (RestService service : Endpoints.getEndpoints()) {
 			for (MethodDescriptor m : service.descriptor.methods) {
@@ -120,6 +120,7 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 
 	@Override
 	public void call(final RestRequest request, AsyncHandler<RestResponse> responseHandler) {
+		ContextualData.put("endpoint", "rest");
 
 		for (IRestFilter filter : filters) {
 			responseHandler = filter.preAuthorization(request, responseHandler);

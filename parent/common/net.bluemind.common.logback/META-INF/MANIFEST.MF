@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.common.logback
+Bundle-SymbolicName: net.bluemind.common.logback
+Bundle-Version: 4.1.0.qualifier
+Automatic-Module-Name: net.bluemind.common.logback
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-Vendor: bluemind.net
+Fragment-Host: ch.qos.logback.classic
+Require-Bundle: io.vertx.core,
+ net.bluemind.common.vertx.contextlogging

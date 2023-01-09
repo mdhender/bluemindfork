@@ -34,6 +34,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageProducer;
 import io.vertx.core.net.NetSocket;
+import net.bluemind.common.vertx.contextlogging.ContextualData;
 import net.bluemind.imap.endpoint.cmd.RawImapCommand;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
@@ -66,6 +67,7 @@ public class ImapContext {
 		this.clientId = Collections.emptyMap();
 		this.sender = vertx.eventBus().sender(ns.writeHandlerID());
 		this.logConnectionId = ns.writeHandlerID().replace("__vertx.net.", "").replace("-", "");
+		ContextualData.put("endpoint", "imap");
 	}
 
 	public Vertx vertx() {

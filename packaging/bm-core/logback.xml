@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <configuration scan="true">
+	<!-- converts vertx ContextualData to Logback -->
+	<conversionRule conversionWord="vcl" converterClass="net.bluemind.common.logback.ContextLoggingConverter"/>
+
 	<property name="DEFAULT_PATTERN"
-		value="%date{ISO8601, ${net.bluemind.property.system.timezone:-GMT}} [%thread] %c{1} %p - %m%n" />
+		value="%date{ISO8601, ${net.bluemind.property.system.timezone:-GMT}} [%thread] [%vcl{endpoint:-none}] %c{1} %p - %m%n" />
+	<variable name="endpoint" value="%vcl{endpoint:-none}" scope="context"/>
 
 	<contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
 		<resetJUL>true</resetJUL>
@@ -40,10 +44,6 @@
 	<logger name="org.apache.directory.ldap.client.api.LdapNetworkConnection" level="ERROR" />
 	<logger name="com.netflix.hollow.core.read.engine.HollowBlobReader" level="WARN" />
 	<logger name="com.netflix.hollow.api.producer.AbstractHollowProducer" level="WARN" />
-	<root level="INFO">
-		<appender-ref ref="R" />
-		<appender-ref ref="Sentry" />
-	</root>
 
 	<!-- log XMPP -->
 	<appender name="XMPP"
@@ -144,7 +144,32 @@
 			<MaxFileSize>60000KB</MaxFileSize>
 		</triggeringPolicy>
 	</appender>
+		
 	<logger name="net.bluemind.core.sendmail" level="INFO" additivity="false">
 		<appender-ref ref="SendmailHandler" />
 	</logger>
+	
+	<appender name="IMAP" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<filter class="net.bluemind.common.logback.EndpointFilter">
+			<endpoint>imap</endpoint>
+		</filter>
+		<file>/var/log/bm/imap.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<maxIndex>10</maxIndex>
+			<FileNamePattern>/var/log/bm/imap.log.%i.gz</FileNamePattern>
+		</rollingPolicy>
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<MaxFileSize>50000KB</MaxFileSize>
+		</triggeringPolicy>
+		<encoder>
+			<pattern>${DEFAULT_PATTERN}</pattern>
+		</encoder>
+	</appender>
+
+	<root level="INFO">
+		<appender-ref ref="R" />
+		<appender-ref ref="Sentry" />
+		<appender-ref ref="IMAP" />
+	</root>
+
 </configuration>

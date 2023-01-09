@@ -15,7 +15,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.metrics.registry,
  com.fasterxml.jackson.core.jackson-annotations;bundle-version="2.10.1",
  com.fasterxml.jackson.core.jackson-core;bundle-version="2.10.1",
- com.fasterxml.jackson.core.jackson-databind;bundle-version="2.10.1"
+ com.fasterxml.jackson.core.jackson-databind;bundle-version="2.10.1",
+ net.bluemind.common.vertx.contextlogging;bundle-version="4.1.0";visibility:=reexport
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .

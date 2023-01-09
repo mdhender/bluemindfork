@@ -125,7 +125,9 @@
       <plugin id="net.bluemind.common.freemarker"/>
       <plugin id="net.bluemind.common.hollow"/>
       <plugin id="net.bluemind.common.io"/>
+      <plugin id="net.bluemind.common.logback" fragment="true"/>
       <plugin id="net.bluemind.common.reflect"/>
+      <plugin id="net.bluemind.common.vertx.contextlogging"/>
       <plugin id="net.bluemind.config"/>
       <plugin id="net.bluemind.content.analysis"/>
       <plugin id="net.bluemind.core.annotationvalidator"/>
