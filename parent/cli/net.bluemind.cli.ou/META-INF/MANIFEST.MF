@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.cli.ou
+Bundle-SymbolicName: net.bluemind.cli.ou;singleton:=true
+Bundle-Version: 4.1.0.qualifier
+Require-Bundle: net.bluemind.cli.cmd.api,
+ net.bluemind.directory.api
+Bundle-Vendor: bluemind.net
+Automatic-Module-Name: net.bluemind.cli.ou
+Bundle-RequiredExecutionEnvironment: JavaSE-17

@@ -109,6 +109,7 @@
    <bundle id="net.bluemind.cli.certificate" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.cli.cmd.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.cli.contact" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.cli.directory" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.cli.directory.common" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.cli.filehosting" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.cli.group" version="4.1.0.qualifier"/>
@@ -126,6 +127,7 @@
    <bundle id="net.bluemind.cli.mapi" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.cli.metrics" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.cli.node" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.cli.ou" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.cli.sds" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.cli.server" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.cli.sysconf" version="4.1.0.qualifier"/>
