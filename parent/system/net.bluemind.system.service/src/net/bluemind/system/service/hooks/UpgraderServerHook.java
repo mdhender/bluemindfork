@@ -2,6 +2,7 @@ package net.bluemind.system.service.hooks;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +16,8 @@ import net.bluemind.system.api.Database;
 import net.bluemind.system.persistence.Upgrader;
 import net.bluemind.system.persistence.Upgrader.UpgradePhase;
 import net.bluemind.system.persistence.UpgraderStore;
-import net.bluemind.system.schemaupgrader.DatedUpdater;
 import net.bluemind.system.schemaupgrader.runner.SchemaUpgrade;
+import net.bluemind.system.service.helper.UpgraderList;
 
 public class UpgraderServerHook extends DefaultServerHook {
 
@@ -28,12 +29,13 @@ public class UpgraderServerHook extends DefaultServerHook {
 			return;
 		}
 
-		List<DatedUpdater> upgraders = null;
+		Set<String> upgraders = UpgraderList.get();
 		try {
-			upgraders = SchemaUpgrade.getUpgradePath();
-		} catch (ServerFault e) {
-			logger.info("Upgraders not available. Skipping upgrader registration");
-			return;
+			List<String> schemaUpgrades = SchemaUpgrade.getUpgradePath().stream()
+					.map(u -> Upgrader.toId(u.date(), u.sequence())).toList();
+			upgraders.addAll(schemaUpgrades);
+		} catch (Exception e) {
+			// installation might have no subscription
 		}
 
 		UpgraderStore store = new UpgraderStore(context.getDataSource());
@@ -42,7 +44,7 @@ public class UpgraderServerHook extends DefaultServerHook {
 		} catch (SQLException e) {
 			throw new ServerFault("Cannot create upgrader table", e);
 		}
-		for (DatedUpdater updater : upgraders) {
+		for (String updater : upgraders) {
 			registerUpgrader(server.uid, store, updater);
 			if (tag.equals("bm/pgsql")) {
 				registerUpgrader("master", store, updater);
@@ -50,16 +52,16 @@ public class UpgraderServerHook extends DefaultServerHook {
 		}
 	}
 
-	private void registerUpgrader(String serverUid, UpgraderStore store, DatedUpdater updater) {
+	private void registerUpgrader(String serverUid, UpgraderStore store, String updater) {
 		Upgrader upgrader = new Upgrader();
 		upgrader.phase = UpgradePhase.SCHEMA_UPGRADE;
 		upgrader.server = serverUid;
 		upgrader.success = true;
-		upgrader.upgraderId = Upgrader.toId(updater.date(), updater.sequence());
+		upgrader.upgraderId = updater;
 		try {
 			for (Database db : Database.values()) {
 				upgrader.database = db;
-				if (!store.upgraderRegistered(upgrader.upgraderId, serverUid, updater.database())) {
+				if (!store.upgraderRegistered(upgrader.upgraderId, serverUid, db)) {
 					store.store(upgrader);
 				}
 			}
