@@ -1,12 +1,17 @@
 package net.bluemind.utils;
 
-import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.StringReader;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
+
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.X509TrustedCertificateBlock;
 
 import net.bluemind.core.api.fault.ServerFault;
 
@@ -26,14 +31,36 @@ public class CertificateUtils {
 	private CertificateUtils() {
 	}
 
-	public static String getCertCN(byte[] certFile) throws ServerFault {
-		CertificateFactory cf;
+	public static X509Certificate getCertificate(byte[] certFile) throws ServerFault {
 		try {
-			cf = CertificateFactory.getInstance("X.509");
-			X509Certificate ca = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certFile));
+			PEMParser parser = new PEMParser(new StringReader(new String(certFile)));
+			Object obj;
+			while ((obj = parser.readObject()) != null) {
+				if (obj instanceof X509CertificateHolder) {
+					X509CertificateHolder certHolder = (X509CertificateHolder) obj;
+					return getCertificateByHolder(certHolder);
+				} else if (obj instanceof X509TrustedCertificateBlock) {
+					X509TrustedCertificateBlock trustedBlock = (X509TrustedCertificateBlock) obj;
+					return getCertificateByHolder(trustedBlock.getCertificateHolder());
+				}
+			}
+			throw new IllegalArgumentException("no pem cert found");
+		} catch (CertificateException | IOException e) {
+			throw new ServerFault(e);
+		}
+	}
+
+	private static X509Certificate getCertificateByHolder(X509CertificateHolder certHolder)
+			throws CertificateException {
+		return new JcaX509CertificateConverter().getCertificate(certHolder);
+	}
+
+	public static String getCertCN(byte[] certFile) throws ServerFault {
+		try {
+			X509Certificate ca = getCertificate(certFile);
 			LdapName ldapDN = new LdapName(ca.getSubjectDN().getName());
 			return ldapDN.getRdn(ldapDN.size() - 1).getValue().toString();
-		} catch (CertificateException | InvalidNameException e) {
+		} catch (InvalidNameException e) {
 			throw new ServerFault(e);
 		}
 	}

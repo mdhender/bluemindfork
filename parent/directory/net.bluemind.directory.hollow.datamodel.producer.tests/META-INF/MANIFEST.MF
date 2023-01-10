@@ -27,6 +27,7 @@ Require-Bundle: org.junit,
  net.bluemind.mailshare.service;bundle-version="4.1.0",
  net.bluemind.core.task.service;bundle-version="4.1.0",
  net.bluemind.vertx.testhelper,
- net.bluemind.serialization.client
+ net.bluemind.serialization.client,
+ net.bluemind.directory.hollow.datamodel.utils
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.directory.hollow.datamodel.producer.tests

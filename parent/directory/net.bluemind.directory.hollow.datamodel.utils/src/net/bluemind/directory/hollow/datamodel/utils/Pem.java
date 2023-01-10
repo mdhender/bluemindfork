@@ -18,9 +18,7 @@
  */
 package net.bluemind.directory.hollow.datamodel.utils;
 
-import java.io.ByteArrayInputStream;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Optional;
@@ -33,6 +31,8 @@ import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.util.Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import net.bluemind.utils.CertificateUtils;
 
 public class Pem {
 
@@ -48,8 +48,7 @@ public class Pem {
 			return Optional.empty();
 		}
 		try {
-			CertificateFactory cf = CertificateFactory.getInstance("X.509");
-			Certificate x509 = cf.generateCertificate(new ByteArrayInputStream(pem.getBytes()));
+			Certificate x509 = CertificateUtils.getCertificate(pem.getBytes());
 
 			X509CertificateHolder x509CertificateHolder = new X509CertificateHolder(x509.getEncoded());
 			Store<?> certStore = new JcaCertStore(Arrays.asList(x509CertificateHolder));
@@ -69,10 +68,17 @@ public class Pem {
 		if (pem == null) {
 			return Optional.empty();
 		}
-		String base64Content = pem.replaceAll("\\s", "");
-		base64Content = base64Content.replace("-----BEGINCERTIFICATE-----", "");
-		base64Content = base64Content.replace("-----ENDCERTIFICATE-----", "");
-		return Optional.of(Base64.getDecoder().decode(base64Content.getBytes()));
+		try {
+			String base64Content = pem.replaceAll("\\s", "");
+			base64Content = base64Content.replace("-----BEGINCERTIFICATE-----", "");
+			base64Content = base64Content.replace("-----ENDCERTIFICATE-----", "");
+			base64Content = base64Content.replace("-----BEGINTRUSTEDCERTIFICATE-----", "");
+			base64Content = base64Content.replace("-----ENDTRUSTEDCERTIFICATE-----", "");
+			return Optional.of(Base64.getDecoder().decode(base64Content.getBytes()));
+		} catch (Exception e) {
+			logger.warn("Cannot transform PEM to DER", e);
+			return Optional.empty();
+		}
 	}
 
 }

@@ -392,5 +392,9 @@ public enum ErrorCode {
 	/**
 	 * 
 	 */
-	MAX_ITEM_COUNT;
+	MAX_ITEM_COUNT,
+	/**
+	 * 
+	 */
+	INVALID_PEM_CERTIFICATE;
 }
