@@ -747,7 +747,7 @@ public class MailIndexService implements IMailIndexService {
 			IndexStats stat = client.admin().indices().prepareStats(indexName).get().getIndex(indexName);
 			is.size = stat.getTotal().store.getSizeInBytes();
 			SearchResponse aggResp = client.prepareSearch(indexName)
-					.addAggregation(AggregationBuilders.terms("countByOwner").size(100).field("owner")).get();
+					.addAggregation(AggregationBuilders.terms("countByOwner").size(500).field("owner")).get();
 
 			StringTerms agg = aggResp.getAggregations().get("countByOwner");
 

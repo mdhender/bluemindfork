@@ -1,205 +1,212 @@
 [
   {
-    "index": "mailspool_269",
-    "count": 2881654,
-    "deleted": 183675,
-    "refresh_count": 26340,
-    "refresh_duration": 13333118
+    "index": "mailspool_306",
+    "count": 2864141,
+    "deleted": 5816,
+    "refresh_count": 784,
+    "refresh_duration": 450341
   },
   {
-    "index": "mailspool_268",
-    "count": 2609197,
-    "deleted": 161854,
-    "refresh_count": 20642,
-    "refresh_duration": 6197787
+    "index": "mailspool_305",
+    "count": 2871690,
+    "deleted": 6017,
+    "refresh_count": 1617,
+    "refresh_duration": 822610
+  },
+  {
+    "index": "mailspool_304",
+    "count": 2882596,
+    "deleted": 8843,
+    "refresh_count": 2286,
+    "refresh_duration": 1043243
+  },
+  {
+    "index": "mailspool_303",
+    "count": 2791419,
+    "deleted": 17918,
+    "refresh_count": 5712,
+    "refresh_duration": 2581368
+  },
+  {
+    "index": "mailspool_302",
+    "count": 2121174,
+    "deleted": 13101,
+    "refresh_count": 3547,
+    "refresh_duration": 1213528
+  },
+  {
+    "index": "mailspool_301",
+    "count": 2856817,
+    "deleted": 16992,
+    "refresh_count": 8916,
+    "refresh_duration": 3581612
+  },
+  {
+    "index": "mailspool_300",
+    "count": 3012593,
+    "deleted": 62708,
+    "refresh_count": 14541,
+    "refresh_duration": 7404753
   },
   {
     "index": "mailspool_289",
-    "count": 2062185,
-    "deleted": 16064,
-    "refresh_count": 3868,
-    "refresh_duration": 1341240
+    "count": 2086163,
+    "deleted": 21466,
+    "refresh_count": 10030,
+    "refresh_duration": 3430278
   },
   {
     "index": "mailspool_288",
-    "count": 2120832,
-    "deleted": 14661,
-    "refresh_count": 4678,
-    "refresh_duration": 999062
+    "count": 2166576,
+    "deleted": 44726,
+    "refresh_count": 10355,
+    "refresh_duration": 2167949
   },
   {
     "index": "mailspool_287",
-    "count": 2918176,
-    "deleted": 62984,
-    "refresh_count": 16075,
-    "refresh_duration": 7896550
+    "count": 2992559,
+    "deleted": 82285,
+    "refresh_count": 34456,
+    "refresh_duration": 16571253
   },
   {
     "index": "mailspool_286",
-    "count": 2817933,
-    "deleted": 49281,
-    "refresh_count": 16276,
-    "refresh_duration": 7738904
+    "count": 2896711,
+    "deleted": 21519,
+    "refresh_count": 32512,
+    "refresh_duration": 15048457
   },
   {
     "index": "mailspool_285",
-    "count": 2661323,
-    "deleted": 45756,
-    "refresh_count": 16366,
-    "refresh_duration": 4920445
+    "count": 2711336,
+    "deleted": 69510,
+    "refresh_count": 30207,
+    "refresh_duration": 8685874
   },
   {
     "index": "mailspool_284",
-    "count": 2792925,
-    "deleted": 41539,
-    "refresh_count": 17273,
-    "refresh_duration": 7449985
+    "count": 2841008,
+    "deleted": 61938,
+    "refresh_count": 31587,
+    "refresh_duration": 13682544
   },
   {
     "index": "mailspool_283",
-    "count": 2888876,
-    "deleted": 51782,
-    "refresh_count": 20472,
-    "refresh_duration": 10090532
+    "count": 2966035,
+    "deleted": 90759,
+    "refresh_count": 36845,
+    "refresh_duration": 18495658
   },
   {
     "index": "mailspool_282",
-    "count": 2297441,
-    "deleted": 19208,
-    "refresh_count": 12323,
-    "refresh_duration": 5001078
+    "count": 2374230,
+    "deleted": 54358,
+    "refresh_count": 19998,
+    "refresh_duration": 8050945
   },
   {
     "index": "mailspool_281",
-    "count": 2191147,
-    "deleted": 122790,
-    "refresh_count": 16074,
-    "refresh_duration": 5005474
+    "count": 2231810,
+    "deleted": 179456,
+    "refresh_count": 25463,
+    "refresh_duration": 8100138
   },
   {
     "index": "mailspool_280",
-    "count": 2194054,
-    "deleted": 35821,
-    "refresh_count": 12285,
-    "refresh_duration": 3951581
+    "count": 2237404,
+    "deleted": 48904,
+    "refresh_count": 20709,
+    "refresh_duration": 6686307
+  },
+  {
+    "index": "mailspool_pending",
+    "count": 5347749,
+    "deleted": 2691,
+    "refresh_count": 9517,
+    "refresh_duration": 88752
   },
   {
     "index": "mailspool_279",
-    "count": 2702802,
-    "deleted": 49955,
-    "refresh_count": 19664,
-    "refresh_duration": 8738998
+    "count": 2800528,
+    "deleted": 89173,
+    "refresh_count": 33360,
+    "refresh_duration": 14974985
   },
   {
     "index": "mailspool_278",
-    "count": 2953323,
-    "deleted": 124959,
-    "refresh_count": 28941,
-    "refresh_duration": 12770908
+    "count": 3043836,
+    "deleted": 198893,
+    "refresh_count": 47253,
+    "refresh_duration": 21386176
   },
   {
-    "index": "mailspool_277",
-    "count": 2791660,
-    "deleted": 81656,
-    "refresh_count": 21280,
-    "refresh_duration": 8956318
+    "index": "mailspool_299",
+    "count": 2842821,
+    "deleted": 40378,
+    "refresh_count": 15564,
+    "refresh_duration": 7738098
   },
   {
-    "index": "mailspool_276",
-    "count": 2800644,
-    "deleted": 82237,
-    "refresh_count": 24257,
-    "refresh_duration": 12132335
+    "index": "mailspool_298",
+    "count": 2978321,
+    "deleted": 83637,
+    "refresh_count": 17660,
+    "refresh_duration": 8590311
   },
   {
-    "index": "mailspool_275",
-    "count": 2817587,
-    "deleted": 106249,
-    "refresh_count": 22175,
-    "refresh_duration": 10194697
+    "index": "mailspool_297",
+    "count": 2660680,
+    "deleted": 29821,
+    "refresh_count": 14626,
+    "refresh_duration": 4520092
   },
   {
     "index": "mailspool_296",
-    "count": 2755858,
-    "deleted": 7253,
-    "refresh_count": 692,
-    "refresh_duration": 385868
-  },
-  {
-    "index": "mailspool_274",
-    "count": 2740128,
-    "deleted": 73326,
-    "refresh_count": 25064,
-    "refresh_duration": 10879369
+    "count": 2814831,
+    "deleted": 51721,
+    "refresh_count": 15342,
+    "refresh_duration": 7056232
   },
   {
     "index": "mailspool_295",
-    "count": 2785668,
-    "deleted": 17526,
-    "refresh_count": 2101,
-    "refresh_duration": 1081309
-  },
-  {
-    "index": "mailspool_273",
-    "count": 2137613,
-    "deleted": 37348,
-    "refresh_count": 11531,
-    "refresh_duration": 3988205
+    "count": 2860034,
+    "deleted": 45862,
+    "refresh_count": 16882,
+    "refresh_duration": 7864717
   },
   {
     "index": "mailspool_294",
-    "count": 2210707,
-    "deleted": 4018,
-    "refresh_count": 1671,
-    "refresh_duration": 714844
-  },
-  {
-    "index": "mailspool_272",
-    "count": 2799302,
-    "deleted": 103299,
-    "refresh_count": 22332,
-    "refresh_duration": 9973376
+    "count": 2246727,
+    "deleted": 24871,
+    "refresh_count": 8135,
+    "refresh_duration": 3130513
   },
   {
     "index": "mailspool_293",
-    "count": 4356996,
-    "deleted": 46335,
-    "refresh_count": 8828,
-    "refresh_duration": 5375721
-  },
-  {
-    "index": "mailspool_271",
-    "count": 2909161,
-    "deleted": 99673,
-    "refresh_count": 26736,
-    "refresh_duration": 12126687
+    "count": 4481563,
+    "deleted": 98474,
+    "refresh_count": 34408,
+    "refresh_duration": 21074769
   },
   {
     "index": "mailspool_292",
-    "count": 2379172,
-    "deleted": 11161,
-    "refresh_count": 4070,
-    "refresh_duration": 1746963
-  },
-  {
-    "index": "mailspool_270",
-    "count": 2764040,
-    "deleted": 96421,
-    "refresh_count": 25113,
-    "refresh_duration": 12444315
+    "count": 2423983,
+    "deleted": 30547,
+    "refresh_count": 13212,
+    "refresh_duration": 5462450
   },
   {
     "index": "mailspool_291",
-    "count": 2278170,
-    "deleted": 8871,
-    "refresh_count": 2969,
-    "refresh_duration": 1130369
+    "count": 2358184,
+    "deleted": 114568,
+    "refresh_count": 8274,
+    "refresh_duration": 3056427
   },
   {
     "index": "mailspool_290",
-    "count": 2187257,
-    "deleted": 84981,
-    "refresh_count": 6158,
-    "refresh_duration": 2239299
+    "count": 2226779,
+    "deleted": 136625,
+    "refresh_count": 14910,
+    "refresh_duration": 5311865
   }
 ]

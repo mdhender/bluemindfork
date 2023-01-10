@@ -3,6 +3,7 @@ package net.bluemind.lib.elasticsearch.allocations.newshard;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import net.bluemind.lib.elasticsearch.allocations.AllocationShardStats;
@@ -18,35 +19,31 @@ public class NewShardSourcesCountByRefreshDurationRatio implements AllocatorSour
 	}
 
 	@Override
-	public Map<AllocationShardStats, Integer> apply(NewShard newShard) {
-		List<AllocationShardStats> aboveTargetBoxCount = newShard.sources.stream()
-				.filter(stat -> stat.mailboxes.size() > newShard.boxCount).collect(Collectors.toList());
+	public Map<AllocationShardStats, BoxesCount> apply(NewShard newShard) {
+		List<AllocationShardStats> shardAboveTarget = newShard.sources.stream()
+				.filter(stat -> stat.docCount > newShard.docCount).collect(Collectors.toList());
 
-		long aboveThresholdBoxCount = aboveTargetBoxCount.stream()
+		long aboveThresholdDocCount = shardAboveTarget.stream()
 				.filter(stat -> refreshDurations.get(stat.indexName) >= refreshThreshold)
-				.mapToLong(stat -> stat.mailboxes.size() - newShard.boxCount) //
+				.mapToLong(stat -> stat.docCount - newShard.docCount) //
 				.sum();
 
-		AtomicInteger remainingBoxCount = new AtomicInteger(newShard.boxCount);
-		AtomicInteger remainingIndexCount = new AtomicInteger(aboveTargetBoxCount.size());
-		return aboveTargetBoxCount.stream()
+		AtomicLong remainingDocCount = new AtomicLong(newShard.docCount);
+		AtomicInteger remainingIndexCount = new AtomicInteger(shardAboveTarget.size());
+		return shardAboveTarget.stream()
 				.sorted((stat1, stat2) -> refreshDurations.get(stat2.indexName)
 						.compareTo(refreshDurations.get(stat1.indexName)))
 				.collect(Collectors.toMap(stat -> stat, stat -> {
-					int boxContributed;
-					if (refreshDurations.get(stat.indexName) >= refreshThreshold) {
-						int max = Math.max(1, Math.round(newShard.boxCount
-								* ((stat.mailboxes.size() - newShard.boxCount) / (float) aboveThresholdBoxCount)));
-						boxContributed = stat.mailboxes.size() - max < newShard.boxCount //
-								? stat.mailboxes.size() - newShard.boxCount
-								: max;
-					} else {
-						boxContributed = remainingBoxCount.get() / remainingIndexCount.get();
-					}
-					boxContributed = remainingBoxCount.get() < 0 ? 0 : Math.max(0, boxContributed);
-					remainingBoxCount.addAndGet(-boxContributed);
+					long maxdocContribution = Math.round(newShard.docCount
+							* ((stat.docCount - newShard.docCount) / (double) aboveThresholdDocCount));
+					long docContribution = (refreshDurations.get(stat.indexName) >= refreshThreshold)
+							? Math.min(stat.docCount - newShard.docCount, maxdocContribution)
+							: remainingDocCount.get() / remainingIndexCount.get();
+					docContribution = remainingDocCount.get() < 0 ? 0 : Math.max(0, docContribution);
+					BoxesCount boxesCount = boxesCount(stat, docContribution);
+					remainingDocCount.addAndGet(-docContribution);
 					remainingIndexCount.decrementAndGet();
-					return boxContributed;
+					return boxesCount;
 				}));
 	}
 

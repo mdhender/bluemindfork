@@ -7,11 +7,11 @@ import net.bluemind.lib.elasticsearch.allocations.AllocationShardStats;
 public class NewShard {
 	public final List<AllocationShardStats> sources;
 	public final String indexName;
-	public final int boxCount;
+	public final long docCount;
 
-	public NewShard(List<AllocationShardStats> sources, String indexName, int boxCount) {
+	public NewShard(List<AllocationShardStats> sources, String indexName, long docCount) {
 		this.sources = sources;
 		this.indexName = indexName;
-		this.boxCount = boxCount;
+		this.docCount = docCount;
 	}
 }

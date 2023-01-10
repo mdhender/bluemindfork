@@ -38,6 +38,8 @@ import net.bluemind.cli.utils.Tasks;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.elasticsearch.allocations.AllocationShardStats;
+import net.bluemind.lib.elasticsearch.allocations.AllocationShardStats.MailboxCount;
+import net.bluemind.lib.elasticsearch.allocations.AllocatorSourcesCountStrategy.BoxesCount;
 import net.bluemind.lib.elasticsearch.allocations.BoxAllocation;
 import net.bluemind.lib.elasticsearch.allocations.rebalance.Rebalance;
 import net.bluemind.lib.elasticsearch.allocations.rebalance.RebalanceBoxAllocator;
@@ -87,16 +89,18 @@ public class RebalanceCommand implements ICmdLet, Runnable {
 
 	@Override
 	public void run() {
-		IMailboxMgmt mboxMgmt = ctx.longRequestTimeoutAdminApi().instance(IMailboxMgmt.class, "global.virt");
-		List<ShardStats> existing = mboxMgmt.getShardsStats();
+		IMailboxMgmt globalVirtMboxMgmt = ctx.longRequestTimeoutAdminApi().instance(IMailboxMgmt.class, "global.virt");
+		List<ShardStats> existing = globalVirtMboxMgmt.getShardsStats();
 
 		CliUtils utils = new CliUtils(ctx);
 		String domUid = utils.getDomainUidByDomain(domain);
-		mboxMgmt = ctx.longRequestTimeoutAdminApi().instance(IMailboxMgmt.class, domUid);
+		IMailboxMgmt mboxMgmt = ctx.longRequestTimeoutAdminApi().instance(IMailboxMgmt.class, domUid);
 		if (strategy.equals(Strategy.size)) {
 			bySize(mboxMgmt, existing);
 		} else {
-			byRefreshDuration(strategy.name().replace("_", "-"), mboxMgmt, existing);
+			List<AllocationShardStats> statsBefore = toAllocationStats(existing);
+			Map<String, Long> refreshDurations = refreshDurations(globalVirtMboxMgmt, statsBefore);
+			byRefreshDuration(strategy.name().replace("_", "-"), mboxMgmt, statsBefore, refreshDurations);
 		}
 	}
 
@@ -148,10 +152,8 @@ public class RebalanceCommand implements ICmdLet, Runnable {
 		}
 	}
 
-	private void byRefreshDuration(String strategyName, IMailboxMgmt mboxMgmt, List<ShardStats> existing) {
-		List<AllocationShardStats> statsBefore = toAllocationStats(existing);
-		Map<String, Long> refreshDurations = refreshDurations(mboxMgmt, statsBefore);
-
+	private void byRefreshDuration(String strategyName, IMailboxMgmt mboxMgmt, List<AllocationShardStats> statsBefore,
+			Map<String, Long> refreshDurations) {
 		RebalanceConfig rebalanceConfig = new RebalanceConfig(lowRatio, highRatio, lowThreshold, highThreshold);
 		Rebalance rebalance = new RebalanceSpecificationFactory(rebalanceConfig, refreshDurations)
 				.instance(strategyName).apply(statsBefore);
@@ -159,8 +161,8 @@ public class RebalanceCommand implements ICmdLet, Runnable {
 			ctx.info("No rebalance performed given the parameters");
 		} else {
 			ctx.info("Start rebalancing");
-			Map<AllocationShardStats, Integer> sourcesCount = new RebalanceSourcesCountByRefreshDurationRatio(
-					refreshDurations).apply(rebalance);
+			Map<AllocationShardStats, BoxesCount> sourcesCount = new RebalanceSourcesCountByRefreshDurationRatio()
+					.apply(rebalance);
 			List<BoxAllocation> allocations = new RebalanceBoxAllocator().apply(rebalance, sourcesCount);
 			allocations.forEach(allocation -> {
 				AllocationShardStats sourceStat = statsBefore.stream()
@@ -174,10 +176,12 @@ public class RebalanceCommand implements ICmdLet, Runnable {
 	}
 
 	protected List<AllocationShardStats> toAllocationStats(List<ShardStats> stats) {
-		return stats.stream()
-				.map(stat -> new AllocationShardStats(stat.indexName, stat.mailboxes, stat.docCount, stat.deletedCount,
-						stat.externalRefreshCount, stat.externalRefreshDuration, stat.size))
-				.collect(Collectors.toList());
+		return stats.stream().map(stat -> {
+			List<MailboxCount> mailboxesCount = stat.topMailbox.stream()
+					.map(top -> new MailboxCount(top.mailboxUid, top.docCount)).collect(Collectors.toList());
+			return new AllocationShardStats(stat.indexName, stat.docCount, stat.deletedCount, stat.externalRefreshCount,
+					stat.externalRefreshDuration, stat.size, stat.mailboxes, mailboxesCount);
+		}).collect(Collectors.toList());
 	}
 
 	private Map<String, Long> refreshDurations(IMailboxMgmt mboxMgmt, List<AllocationShardStats> statsBefore) {

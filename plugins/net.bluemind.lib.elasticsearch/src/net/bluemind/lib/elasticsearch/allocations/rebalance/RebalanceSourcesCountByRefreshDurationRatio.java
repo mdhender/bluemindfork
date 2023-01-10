@@ -8,28 +8,24 @@ import net.bluemind.lib.elasticsearch.allocations.AllocatorSourcesCountStrategy;
 
 public class RebalanceSourcesCountByRefreshDurationRatio implements AllocatorSourcesCountStrategy<Rebalance> {
 
-	private final Map<String, Long> refreshDurations;
-
-	public RebalanceSourcesCountByRefreshDurationRatio(Map<String, Long> refreshDurations) {
-		this.refreshDurations = refreshDurations;
-	}
-
 	@Override
-	public Map<AllocationShardStats, Integer> apply(Rebalance rebalanceSpec) {
-		long availableBoxes = rebalanceSpec.targets.stream()
-				.mapToInt(target -> rebalanceSpec.averageBoxCount - target.mailboxes.size()).sum();
+	public Map<AllocationShardStats, BoxesCount> apply(Rebalance rebalanceSpec) {
+		long availableDocCount = rebalanceSpec.targets.stream()
+				.mapToLong(target -> rebalanceSpec.averageDocCount - target.docCount).sum();
+		long sourcesDocCount = rebalanceSpec.sources.stream()
+				.mapToLong(source -> source.docCount - rebalanceSpec.averageDocCount).sum();
 
-		Map<AllocationShardStats, Integer> sourcesCount = new HashMap<>();
+		Map<AllocationShardStats, BoxesCount> sourcesBoxes = new HashMap<>();
 		for (int i = 0; i < rebalanceSpec.sources.size(); i++) {
 			AllocationShardStats source = rebalanceSpec.sources.get(i);
-			long sourcesTotalRefreshDuration = rebalanceSpec.sources.subList(i, rebalanceSpec.sources.size()).stream()
-					.mapToLong(s -> refreshDurations.get(s.indexName)).sum();
-			float ratio = refreshDurations.get(source.indexName) / (float) sourcesTotalRefreshDuration;
-			int max = Math.round(availableBoxes * ratio);
-			int count = Math.min(source.mailboxes.size() - rebalanceSpec.averageBoxCount, max);
-			availableBoxes -= count;
-			sourcesCount.put(source, count);
+			float ratio = (source.docCount - rebalanceSpec.averageDocCount) / (float) sourcesDocCount;
+			long maxdDocContributed = Math.min(source.docCount - rebalanceSpec.averageDocCount,
+					Math.round(availableDocCount * ratio));
+			BoxesCount boxes = boxesCount(source, maxdDocContributed);
+			sourcesBoxes.put(source, boxes);
+			availableDocCount -= boxes.count;
+			sourcesDocCount -= (source.docCount - rebalanceSpec.averageDocCount);
 		}
-		return sourcesCount;
+		return sourcesBoxes;
 	}
 }

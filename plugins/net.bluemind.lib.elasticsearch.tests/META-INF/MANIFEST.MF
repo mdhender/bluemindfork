@@ -9,7 +9,9 @@ Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  net.bluemind.lib.elasticsearch;bundle-version="4.1.0",
  net.bluemind.mailbox.api,
- net.bluemind.lib.jackson
+ net.bluemind.lib.jackson,
+ com.google.truth,
+ com.google.guava
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.lib.elasticsearch.tests

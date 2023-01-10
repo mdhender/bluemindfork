@@ -1,7 +1,6 @@
 package net.bluemind.lib.elasticsearch.allocations.newshard;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,17 +12,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import net.bluemind.lib.elasticsearch.allocations.AllocationShardStats;
 import net.bluemind.lib.elasticsearch.allocations.AllocatorSourcesCountStrategy;
+import net.bluemind.lib.elasticsearch.allocations.AllocatorSourcesCountStrategy.BoxesCount;
 import net.bluemind.lib.elasticsearch.allocations.BoxAllocation;
-import net.bluemind.mailbox.api.SimpleShardStats;
 
 public class NewShardBoxAllocatorTest {
-
-	private static final Logger logger = LoggerFactory.getLogger(NewShardBoxAllocatorTest.class);
 
 	private int indexCount = 21;
 	private long minRefresh = 400l;
@@ -31,23 +26,27 @@ public class NewShardBoxAllocatorTest {
 
 	@Test
 	public void testOnlyOneAboveThreshold() {
+		long refreshDurationThreshold = 800l;
 		Map<String, Long> refreshDurations = refreshDurations(indexCount, i -> minRefresh + (refreshStep * i));
 		List<AllocationShardStats> existing = shardStats(indexCount);
-		int averageBoxCount = existing.get(indexCount / 2).mailboxes.size();
-		NewShard newShard = new NewShard(existing, "" + indexCount, averageBoxCount);
+		long averageDocCount = Math
+				.round(existing.stream().mapToLong(stat -> stat.docCount).sum() / (existing.size() + 1));
+		NewShard newShard = new NewShard(existing, "" + indexCount, averageDocCount);
 
-		Map<AllocationShardStats, Integer> sourcesCount = new NewShardSourcesCountByRefreshDurationRatio(
-				refreshDurations, 800l).apply(newShard);
-		List<BoxAllocation> allocations = new NewShardBoxAllocator().apply(newShard, sourcesCount);
+		Map<AllocationShardStats, BoxesCount> sourcesBoxes = new NewShardSourcesCountByRefreshDurationRatio(
+				refreshDurations, refreshDurationThreshold).apply(newShard);
+		List<BoxAllocation> allocations = new NewShardBoxAllocator().apply(newShard, sourcesBoxes);
 
-		assertEquals(averageBoxCount, allocations.size());
+		long allocatedDocCount = allocations.stream()
+				.mapToLong(allocation -> docCount(existing, allocation.sourceIndex, allocation.mbox)).sum();
+		assertThat((double) allocatedDocCount).isWithin(0.05 * averageDocCount).of(averageDocCount);
 		Set<String> allocatedMbox = allocations.stream().map(allocation -> allocation.mbox).collect(Collectors.toSet());
-		assertEquals(allocatedMbox.size(), allocations.size());
-		Set<String> sourcesIndex = sourcesCount.keySet().stream().map(source -> source.indexName)
+		assertThat(allocatedMbox.size()).isEqualTo(allocations.size());
+		Set<String> sourcesIndex = sourcesBoxes.keySet().stream().map(source -> source.indexName)
 				.collect(Collectors.toSet());
 		allocations.forEach(allocation -> {
-			assertTrue(sourcesIndex.contains(allocation.sourceIndex));
-			assertEquals(allocation.targetIndex, "" + indexCount);
+			assertThat(sourcesIndex).contains(allocation.sourceIndex);
+			assertThat(allocation.targetIndex).isEqualTo("" + indexCount);
 		});
 	}
 
@@ -56,21 +55,24 @@ public class NewShardBoxAllocatorTest {
 		long refreshDurationThreshold = 740l;
 		Map<String, Long> refreshDurations = refreshDurations(indexCount, i -> minRefresh + (refreshStep * i));
 		List<AllocationShardStats> existing = shardStats(indexCount);
-		int averageBoxCount = existing.get(indexCount / 2).mailboxes.size();
-		NewShard newShard = new NewShard(existing, "" + indexCount, averageBoxCount);
+		long averageDocCount = Math
+				.round(existing.stream().mapToLong(stat -> stat.docCount).sum() / (existing.size() + 1));
+		NewShard newShard = new NewShard(existing, "" + indexCount, averageDocCount);
 
-		Map<AllocationShardStats, Integer> sourcesCount = new NewShardSourcesCountByRefreshDurationRatio(
+		Map<AllocationShardStats, BoxesCount> sourcesBoxes = new NewShardSourcesCountByRefreshDurationRatio(
 				refreshDurations, refreshDurationThreshold).apply(newShard);
-		List<BoxAllocation> allocations = new NewShardBoxAllocator().apply(newShard, sourcesCount);
+		List<BoxAllocation> allocations = new NewShardBoxAllocator().apply(newShard, sourcesBoxes);
 
-		assertEquals(averageBoxCount, allocations.size());
+		Long allocatedDocCount = allocations.stream()
+				.mapToLong(allocation -> docCount(existing, allocation.sourceIndex, allocation.mbox)).sum();
+		assertThat((double) allocatedDocCount).isWithin(0.05 * averageDocCount).of(averageDocCount);
 		Set<String> allocatedMbox = allocations.stream().map(allocation -> allocation.mbox).collect(Collectors.toSet());
-		assertEquals(allocatedMbox.size(), allocations.size());
-		Set<String> sourcesIndex = sourcesCount.keySet().stream().map(source -> source.indexName)
+		assertThat(allocatedMbox.size()).isEqualTo(allocations.size());
+		Set<String> sourcesIndex = sourcesBoxes.keySet().stream().map(source -> source.indexName)
 				.collect(Collectors.toSet());
 		allocations.forEach(allocation -> {
-			assertTrue(sourcesIndex.contains(allocation.sourceIndex));
-			assertEquals(allocation.targetIndex, "" + indexCount);
+			assertThat(sourcesIndex).contains(allocation.sourceIndex);
+			assertThat(allocation.targetIndex).isEqualTo("" + indexCount);
 		});
 	}
 
@@ -79,26 +81,38 @@ public class NewShardBoxAllocatorTest {
 		long refreshDurationThreshold = 840l;
 		Map<String, Long> refreshDurations = refreshDurations(indexCount, i -> minRefresh + (refreshStep * i));
 		List<AllocationShardStats> existing = shardStats(indexCount);
-		int averageBoxCount = existing.get(indexCount / 2).mailboxes.size();
-		NewShard newShard = new NewShard(existing, "" + indexCount, averageBoxCount);
+		long averageDocCount = Math
+				.round(existing.stream().mapToLong(stat -> stat.docCount).sum() / (existing.size() + 1));
+		NewShard newShard = new NewShard(existing, "" + indexCount, averageDocCount);
 
 		AllocatorSourcesCountStrategy<NewShard> strategy = new NewShardSourcesCountByRefreshDurationRatio(
 				refreshDurations, refreshDurationThreshold);
-		Map<AllocationShardStats, Integer> sourcesCount = strategy.apply(newShard);
-		List<BoxAllocation> allocations = new NewShardBoxAllocator().apply(newShard, sourcesCount);
+		Map<AllocationShardStats, BoxesCount> sourcesBoxes = strategy.apply(newShard);
+		List<BoxAllocation> allocations = new NewShardBoxAllocator().apply(newShard, sourcesBoxes);
 
-		assertEquals(averageBoxCount, allocations.size());
+		Long allocatedDocCount = allocations.stream()
+				.mapToLong(allocation -> docCount(existing, allocation.sourceIndex, allocation.mbox)).sum();
+		assertThat((double) allocatedDocCount).isWithin(0.05 * averageDocCount).of(averageDocCount);
 		Set<String> allocatedMbox = allocations.stream().map(allocation -> allocation.mbox).collect(Collectors.toSet());
-		assertEquals(allocatedMbox.size(), allocations.size());
-		Set<String> sourcesIndex = sourcesCount.keySet().stream().map(source -> source.indexName)
+		assertThat(allocatedMbox.size()).isEqualTo(allocations.size());
+		Set<String> sourcesIndex = sourcesBoxes.keySet().stream().map(source -> source.indexName)
 				.collect(Collectors.toSet());
 		allocations.forEach(allocation -> {
-			assertTrue(sourcesIndex.contains(allocation.sourceIndex));
-			assertEquals(allocation.targetIndex, "" + indexCount);
+			assertThat(sourcesIndex).contains(allocation.sourceIndex);
+			assertThat(allocation.targetIndex).isEqualTo("" + indexCount);
 		});
 	}
 
-	private SimpleShardStats byName(List<SimpleShardStats> existing, String indexName) {
+	private Long docCount(List<AllocationShardStats> existing, String indexName, String mbox) {
+		return docCount(byName(existing, indexName), mbox);
+	}
+
+	private Long docCount(AllocationShardStats stat, String mbox) {
+		return stat.mailboxesCount.stream().filter(count -> count.name.equals(mbox)).map(count -> count.docCount)
+				.findFirst().get();
+	}
+
+	private AllocationShardStats byName(List<AllocationShardStats> existing, String indexName) {
 		return existing.stream().filter(stat -> stat.indexName.equals(indexName)).findAny().get();
 	}
 

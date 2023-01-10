@@ -8,12 +8,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.bluemind.lib.elasticsearch.allocations.AllocationShardStats;
 import net.bluemind.lib.elasticsearch.allocations.AllocationShardStats.MailboxCount;
+import net.bluemind.lib.elasticsearch.allocations.AllocatorSourcesCountStrategy;
 import net.bluemind.lib.elasticsearch.allocations.AllocatorSourcesCountStrategy.BoxesCount;
 
-public class RebalanceSourcesCountByRefreshDurationRatioTest {
+public class RebalanceSourcesCountByHighestRefreshFirstTest {
+
+	private static final Logger logger = LoggerFactory.getLogger(RebalanceSourcesCountByHighestRefreshFirstTest.class);
 
 	private int indexCount = 21;
 
@@ -28,20 +33,14 @@ public class RebalanceSourcesCountByRefreshDurationRatioTest {
 		assertThat((double) sourceDocCount).isWithin(0.05 * availableDocCount).of(availableDocCount);
 
 		Rebalance rebalance = new Rebalance(averageDocCount, sources, targets);
-		Map<AllocationShardStats, BoxesCount> sourcesBoxes = new RebalanceSourcesCountByRefreshDurationRatio()
-				.apply(rebalance);
+		AllocatorSourcesCountStrategy<Rebalance> strategy = new RebalanceSourcesCountByHighestRefreshFirst();
+		Map<AllocationShardStats, BoxesCount> sourcesBoxes = strategy.apply(rebalance);
 
 		long totalDocContributed = sourcesBoxes.values().stream().mapToLong(sourceBoxes -> sourceBoxes.count).sum();
 		System.out.println("doc: " + totalDocContributed + "/" + availableDocCount + "(" + sourceDocCount + ")");
 		assertThat((double) totalDocContributed).isWithin(0.05 * sourceDocCount).of(sourceDocCount);
-		sources.stream() //
-				.map(source -> {
-					assertThat(sourcesBoxes.get(source).count).isAtMost(source.docCount - averageDocCount);
-					return source;
-				}).reduce((source1, source2) -> {
-					assertThat(sourcesBoxes.get(source1).count).isAtMost(sourcesBoxes.get(source2).count);
-					return source2;
-				});
+		sources.stream().forEach(
+				source -> assertThat(sourcesBoxes.get(source).count).isAtMost(source.docCount - averageDocCount));
 	}
 
 	@Test
@@ -55,20 +54,14 @@ public class RebalanceSourcesCountByRefreshDurationRatioTest {
 		assertThat(sourceDocCount).isAtLeast(availableDocCount);
 
 		Rebalance rebalance = new Rebalance(averageDocCount, sources, targets);
-		Map<AllocationShardStats, BoxesCount> sourcesBoxes = new RebalanceSourcesCountByRefreshDurationRatio()
-				.apply(rebalance);
+		AllocatorSourcesCountStrategy<Rebalance> strategy = new RebalanceSourcesCountByHighestRefreshFirst();
+		Map<AllocationShardStats, BoxesCount> sourcesBoxes = strategy.apply(rebalance);
 
 		long totalDocContributed = sourcesBoxes.values().stream().mapToLong(sourceBoxes -> sourceBoxes.count).sum();
 		System.out.println("doc: " + totalDocContributed + "/" + availableDocCount + "(" + sourceDocCount + ")");
 		assertThat((double) totalDocContributed).isWithin(0.05 * availableDocCount).of(availableDocCount);
-		sources.stream() //
-				.map(source -> {
-					assertThat(sourcesBoxes.get(source).count).isAtMost(source.docCount - averageDocCount);
-					return source;
-				}).reduce((source1, source2) -> {
-					assertThat(sourcesBoxes.get(source1).count).isAtMost(sourcesBoxes.get(source2).count);
-					return source2;
-				});
+		sources.stream().forEach(
+				source -> assertThat(sourcesBoxes.get(source).count).isAtMost(source.docCount - averageDocCount));
 	}
 
 	@Test
@@ -82,20 +75,14 @@ public class RebalanceSourcesCountByRefreshDurationRatioTest {
 		assertThat(sourceDocCount).isAtMost(availableDocCount);
 
 		Rebalance rebalance = new Rebalance(averageDocCount, sources, targets);
-		Map<AllocationShardStats, BoxesCount> sourcesBoxes = new RebalanceSourcesCountByRefreshDurationRatio()
-				.apply(rebalance);
+		AllocatorSourcesCountStrategy<Rebalance> strategy = new RebalanceSourcesCountByHighestRefreshFirst();
+		Map<AllocationShardStats, BoxesCount> sourcesBoxes = strategy.apply(rebalance);
 
 		long totalDocContributed = sourcesBoxes.values().stream().mapToLong(sourceBoxes -> sourceBoxes.count).sum();
 		System.out.println("doc: " + totalDocContributed + "/" + availableDocCount + "(" + sourceDocCount + ")");
 		assertThat((double) totalDocContributed).isWithin(0.05 * sourceDocCount).of(sourceDocCount);
-		sources.stream() //
-				.map(source -> {
-					assertThat(sourcesBoxes.get(source).count).isAtMost(source.docCount - averageDocCount);
-					return source;
-				}).reduce((source1, source2) -> {
-					assertThat(sourcesBoxes.get(source1).count).isAtMost(sourcesBoxes.get(source2).count);
-					return source2;
-				});
+		sources.stream().forEach(
+				source -> assertThat(sourcesBoxes.get(source).count).isAtMost(source.docCount - averageDocCount));
 	}
 
 	private List<AllocationShardStats> shardStats(int indexCount, int baseMailboxCount, long baseDocCount) {

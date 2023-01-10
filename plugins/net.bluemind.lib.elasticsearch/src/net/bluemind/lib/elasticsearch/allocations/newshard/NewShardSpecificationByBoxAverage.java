@@ -10,12 +10,12 @@ public class NewShardSpecificationByBoxAverage implements AllocationSpecificatio
 	@Override
 	public NewShard apply(List<AllocationShardStats> existing) {
 		int startCount = 1;
-		int totalBoxes = 0;
+		int totalDocs = 0;
 		for (AllocationShardStats stat : existing) {
 			int idxId = Integer.parseInt(stat.indexName.substring("mailspool_".length()));
 			startCount = Math.max(startCount, idxId);
-			totalBoxes += stat.mailboxes.size();
+			totalDocs += stat.docCount;
 		}
-		return new NewShard(existing, "mailspool_" + (startCount + 1), totalBoxes / (existing.size() + 1));
+		return new NewShard(existing, "mailspool_" + (startCount + 1), totalDocs / (existing.size() + 1));
 	}
 }

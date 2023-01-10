@@ -1,7 +1,6 @@
 package net.bluemind.lib.elasticsearch.allocations.rebalance;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.lib.elasticsearch.allocations.AllocationShardStats;
+import net.bluemind.lib.elasticsearch.allocations.AllocationShardStats.MailboxCount;
 import net.bluemind.lib.elasticsearch.allocations.AllocationSpecification;
 
 public class RebalanceSpecificationByRatioTest {
@@ -43,15 +43,17 @@ public class RebalanceSpecificationByRatioTest {
 		Map<String, Long> refreshDurations = refreshDurations(indexCount, low, high, lowestSource, highestTarget,
 				i -> minRefresh + (refreshStep * i));
 
-		List<AllocationShardStats> existing = shardStats(indexCount);
+		List<AllocationShardStats> existing = shardStats(indexCount, 10, 1000l);
 		AllocationSpecification<Rebalance> rebalanceSpec = new RebalanceSpecificationByRatio(refreshDurations,
 				lowRefreshDurationRatio, highRefreshDurationRatio);
 		Rebalance rebalance = rebalanceSpec.apply(existing);
 
-		assertFalse(rebalance.sources.isEmpty());
-		assertTrue(rebalance.sources.stream().allMatch(stat -> Integer.valueOf(stat.indexName) >= lowestSource.get()));
-		assertFalse(rebalance.targets.isEmpty());
-		assertTrue(rebalance.targets.stream().allMatch(stat -> Integer.valueOf(stat.indexName) <= highestTarget.get()));
+		assertThat(rebalance.sources).isNotEmpty();
+		rebalance.sources.stream()
+				.forEach(stat -> assertThat(Integer.valueOf(stat.indexName)).isAtLeast(lowestSource.get()));
+		assertThat(rebalance.targets).isNotEmpty();
+		rebalance.targets.stream()
+				.forEach(stat -> assertThat(Integer.valueOf(stat.indexName)).isAtMost(highestTarget.get()));
 	}
 
 	@Test
@@ -64,15 +66,17 @@ public class RebalanceSpecificationByRatioTest {
 		AtomicInteger highestTarget = new AtomicInteger(-1);
 		Map<String, Long> refreshDurations = refreshDurations(indexCount, low, high, lowestSource, highestTarget,
 				i -> (i < indexCount / 2) ? minRefresh : minRefresh + (refreshStep * indexCount - 1));
-		List<AllocationShardStats> existing = shardStats(indexCount);
+		List<AllocationShardStats> existing = shardStats(indexCount, 10, 1000l);
 		AllocationSpecification<Rebalance> rebalanceSpec = new RebalanceSpecificationByRatio(refreshDurations,
 				lowRefreshDurationRatio, highRefreshDurationRatio);
 		Rebalance rebalance = rebalanceSpec.apply(existing);
 
-		assertFalse(rebalance.sources.isEmpty());
-		assertTrue(rebalance.sources.stream().allMatch(stat -> Integer.valueOf(stat.indexName) >= lowestSource.get()));
-		assertFalse(rebalance.targets.isEmpty());
-		assertTrue(rebalance.targets.stream().allMatch(stat -> Integer.valueOf(stat.indexName) <= highestTarget.get()));
+		assertThat(rebalance.sources).isNotEmpty();
+		rebalance.sources.stream()
+				.forEach(stat -> assertThat(Integer.valueOf(stat.indexName)).isAtLeast(lowestSource.get()));
+		assertThat(rebalance.targets).isNotEmpty();
+		rebalance.targets.stream()
+				.forEach(stat -> assertThat(Integer.valueOf(stat.indexName)).isAtMost(highestTarget.get()));
 	}
 
 	@Test
@@ -85,13 +89,13 @@ public class RebalanceSpecificationByRatioTest {
 		AtomicInteger highestTarget = new AtomicInteger(-1);
 		Map<String, Long> refreshDurations = refreshDurations(indexCount, low, high, lowestSource, highestTarget,
 				i -> minRefresh);
-		List<AllocationShardStats> existing = shardStats(indexCount);
+		List<AllocationShardStats> existing = shardStats(indexCount, 10, 1000l);
 		AllocationSpecification<Rebalance> rebalanceSpec = new RebalanceSpecificationByRatio(refreshDurations,
 				lowRefreshDurationRatio, highRefreshDurationRatio);
 		Rebalance rebalance = rebalanceSpec.apply(existing);
 
-		assertTrue(rebalance.sources.isEmpty());
-		assertTrue(rebalance.targets.isEmpty());
+		assertThat(rebalance.sources).isEmpty();
+		assertThat(rebalance.targets).isEmpty();
 	}
 
 	private Map<String, Long> refreshDurations(int indexCount, double low, double high, AtomicInteger lowestSource,
@@ -110,15 +114,18 @@ public class RebalanceSpecificationByRatioTest {
 		return refreshDurations;
 	}
 
-	private List<AllocationShardStats> shardStats(int indexCount) {
+	private List<AllocationShardStats> shardStats(int indexCount, int baseMailboxCount, long baseDocCount) {
 		List<AllocationShardStats> existing = new ArrayList<>();
 		for (int i = 0; i < indexCount; i++) {
 			AllocationShardStats stat = new AllocationShardStats();
 			stat.indexName = "" + i;
-			int mailboxCount = 10 + (10 * i);
+			int mailboxCount = baseMailboxCount * (i + 1);
 			stat.mailboxes = new HashSet<>();
+			stat.docCount = mailboxCount * (mailboxCount * (baseDocCount / 2) + baseDocCount);
+			stat.mailboxesCount = new ArrayList<>();
 			for (int j = 0; j < mailboxCount; j++) {
 				stat.mailboxes.add("alias_" + i + j);
+				stat.mailboxesCount.add(new MailboxCount("alias_" + i + j, baseDocCount * (j + 1)));
 			}
 			existing.add(stat);
 		}
