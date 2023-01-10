@@ -60,12 +60,10 @@ export default {
             this.autocompleteResultsTo = this.getAutocompleteResults("to");
             this.autocompleteResultsCc = this.getAutocompleteResults("cc");
             this.autocompleteResultsBcc = this.getAutocompleteResults("bcc");
-        }
-    },
-    created() {
-        this.to = RecipientAdaptor.toContacts(this.message.to);
-        this.cc = RecipientAdaptor.toContacts(this.message.cc);
-        this.bcc = RecipientAdaptor.toContacts(this.message.bcc);
+        },
+        "message.to": recipientWatcher("to"),
+        "message.cc": recipientWatcher("cc"),
+        "message.bcc": recipientWatcher("bcc")
     },
     async mounted() {
         this._data.$_EditRecipientsMixin_mode = this.isReplyOrForward
@@ -128,13 +126,24 @@ export default {
             this.debouncedSave();
         },
         validateAddress(input, contact) {
-            return contact.kind === "group" ? !!contact.dn : EmailValidator.validateAddress(input);
+            return contact?.kind === "group" ? !!contact.dn : EmailValidator.validateAddress(input);
         },
         validateDnAndAddress(input, contact) {
-            return contact.kind === "group" ? !!contact.dn : EmailValidator.validateDnAndAddress(input);
+            return contact?.kind === "group" ? !!contact.dn : EmailValidator.validateDnAndAddress(input);
         }
     }
 };
+
+function recipientWatcher(recipient) {
+    return {
+        handler: function (value) {
+            if (value) {
+                this[recipient] = RecipientAdaptor.toContacts(value);
+            }
+        },
+        immediate: true
+    };
+}
 
 /**
  * Obtain a list of recipients based on the address:
