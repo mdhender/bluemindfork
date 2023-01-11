@@ -138,14 +138,18 @@ public class MessageBodyTierChangeSysconfObserver
 			// All hotupgrades finished, nothing to worry about
 			return;
 		}
-		for (String sysconfKey : modifications.keySet()) {
-			if (parameters.contains(sysconfKey)) {
-				String errorMessage = "system configuration update of " + sysconfKey
-						+ " refused: mandatory hot upgrades in progress: " + mandatoryHotUpgradesNotFinished.stream()
-								.map(HotUpgradeTask::toString).collect(Collectors.joining(","));
-				logger.error(errorMessage);
-				throw new ServerFault(errorMessage);
+		for (var sysconfes : modifications.entrySet()) {
+			String sysconfKey = sysconfes.getKey();
+			String previousValue = previous.stringValue(sysconfKey);
+			if (!parameters.contains(sysconfKey)
+					|| (previousValue != null && previousValue.equals(sysconfes.getValue()))) {
+				continue;
 			}
+			String errorMessage = "system configuration update of " + sysconfKey
+					+ " refused: mandatory hot upgrades in progress: " + mandatoryHotUpgradesNotFinished.stream()
+							.map(HotUpgradeTask::toString).collect(Collectors.joining(","));
+			logger.error(errorMessage);
+			throw new ServerFault(errorMessage);
 		}
 	}
 }
