@@ -37,6 +37,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
 import net.bluemind.system.api.CertData.CertificateDomainEngine;
 import net.bluemind.ui.adminconsole.system.SettingsModel;
 import net.bluemind.ui.adminconsole.system.certificate.CertificateEditorComponent;
+import net.bluemind.ui.adminconsole.system.certificate.SmimeCertificateEditorComponent;
 import net.bluemind.ui.adminconsole.system.domains.DomainKeys;
 
 public class DomainCertificateEditor extends CompositeGwtWidgetElement {
@@ -45,6 +46,9 @@ public class DomainCertificateEditor extends CompositeGwtWidgetElement {
 
 	@UiField
 	CertificateEditorComponent certificateData;
+
+	@UiField
+	SmimeCertificateEditorComponent smimeData;
 
 	@UiField
 	Label domainUid;
@@ -60,6 +64,7 @@ public class DomainCertificateEditor extends CompositeGwtWidgetElement {
 		HTMLPanel panel = uiBinder.createAndBindUi(this);
 		initWidget(panel);
 		certificateData.init(false);
+		smimeData.init();
 	}
 
 	public static void registerType() {
@@ -80,6 +85,7 @@ public class DomainCertificateEditor extends CompositeGwtWidgetElement {
 		CertificateDomainEngine sslCertifEngine = certifFromSettings == null ? CertificateDomainEngine.DISABLED
 				: CertificateDomainEngine.valueOf(certifFromSettings);
 		certificateData.load(sslCertifEngine, domain.name, domain, model, externalUrl);
+		smimeData.load(domain);
 	}
 
 	@Override

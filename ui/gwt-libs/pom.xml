@@ -51,6 +51,7 @@
 		<module>net.bluemind.videoconferencing.api.gwt</module>
 		<module>net.bluemind.notes.api.gwt</module>
 		<module>net.bluemind.webappdata.api.gwt</module>
+		<module>net.bluemind.smime.cacerts.api.gwt</module>
 	</modules>
 	<build>
 		<pluginManagement>

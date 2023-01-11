@@ -13,7 +13,7 @@
    <bundle id="net.bluemind.addressbook.closure" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.domainbook" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.hook" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.hook.acl" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.addressbook.hook" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.ldap.adapter" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.ldap.api" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.ldap.api.gwt" version="5.0.0.qualifier"/>

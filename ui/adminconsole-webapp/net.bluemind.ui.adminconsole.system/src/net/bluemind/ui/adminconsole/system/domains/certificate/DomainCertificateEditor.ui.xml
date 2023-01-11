@@ -23,6 +23,10 @@
 			</tr>
 		</table>
 		<my:CertificateEditorComponent ui:field="certificateData" />
+		
+		<f:FieldSetPanel name="{d.smimeCertificate}" />
+		<my:SmimeCertificateEditorComponent ui:field="smimeData" />
+		
 	</g:HTMLPanel>
 
 </ui:UiBinder>

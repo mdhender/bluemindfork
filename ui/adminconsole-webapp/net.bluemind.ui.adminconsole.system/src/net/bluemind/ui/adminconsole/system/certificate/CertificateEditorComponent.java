@@ -162,6 +162,7 @@ public class CertificateEditorComponent extends CompositeGwtWidgetElement {
 							if (certificateValues.certificate != null && certificateValues.certificateAuthority != null
 									&& certificateValues.privateKey != null) {
 								Notification.get().reportInfo("Certificate has been imported");
+								resetFileUploadContent();
 							}
 							if (!securityContext && !(certificateValues.certificate == null
 									&& certificateValues.certificateAuthority == null
@@ -192,7 +193,11 @@ public class CertificateEditorComponent extends CompositeGwtWidgetElement {
 		setupUploadForm(certUploadForm, UploadType.CERT, certFileUpload);
 	}
 
-	private void setupUploadForm(final FormPanel uploadForm, final UploadType type, FileUpload upload) {
+	private enum UploadType {
+		KEY, CA, CERT;
+	}
+
+	void setupUploadForm(final FormPanel uploadForm, final UploadType type, FileUpload upload) {
 		uploadForm.setEncoding(FormPanel.ENCODING_MULTIPART);
 		uploadForm.setMethod(FormPanel.METHOD_POST);
 		uploadForm.setAction("utils/textfileupload");
@@ -200,7 +205,6 @@ public class CertificateEditorComponent extends CompositeGwtWidgetElement {
 
 			@Override
 			public void onSubmitComplete(SubmitCompleteEvent event) {
-				uploadForm.reset();
 				String fileData = new InlineHTML(event.getResults()).getText();
 				JavaScriptObject safeEval = JsonUtils.safeEval(fileData);
 				JSONArray fileUploadData = new JSONArray(safeEval);
@@ -218,7 +222,7 @@ public class CertificateEditorComponent extends CompositeGwtWidgetElement {
 					certData = fileUploadData.get(0).isObject().get("content").isString().stringValue();
 					break;
 				}
-
+				fileBtn.setEnabled(fileUploadFormComplete());
 			}
 		});
 		upload.addChangeHandler(new ChangeHandler() {
@@ -228,10 +232,6 @@ public class CertificateEditorComponent extends CompositeGwtWidgetElement {
 				uploadForm.submit();
 			}
 		});
-	}
-
-	private enum UploadType {
-		KEY, CA, CERT;
 	}
 
 	public void init(boolean securityContext) {
@@ -421,10 +421,13 @@ public class CertificateEditorComponent extends CompositeGwtWidgetElement {
 		certFilesPanel.setVisible(true);
 		letsEncryptPanel.setVisible(false);
 		disablePanel.setVisible(false);
-		fileBtn.setVisible(false);
 
 		if (!securityContext) {
 			fileBtn.setVisible(true);
+			fileBtn.setEnabled(fileUploadFormComplete());
+		} else {
+			fileBtn.setVisible(false);
+			fileBtn.setEnabled(fileUploadFormComplete());
 		}
 
 		setupUploadForms();
@@ -523,4 +526,14 @@ public class CertificateEditorComponent extends CompositeGwtWidgetElement {
 		}
 	}
 
+	private void resetFileUploadContent() {
+		keyUploadForm.reset();
+		caUploadForm.reset();
+		certUploadForm.reset();
+		fileBtn.setEnabled(fileUploadFormComplete());
+	}
+
+	private boolean fileUploadFormComplete() {
+		return keyFilePresent.getValue() && caFilePresent.getValue() && certFilePresent.getValue();
+	}
 }

@@ -46,7 +46,9 @@ Require-Bundle: net.bluemind.commons.ui.closure;bundle-version="5.0.0",
  com.google.jsinterop.annotations,
  net.bluemind.mailflow.api,
  net.bluemind.mailflow.api.gwt;bundle-version="5.0.0",
- net.bluemind.ui.adminconsole.directory
+ net.bluemind.ui.adminconsole.directory,
+ net.bluemind.smime.cacerts.api,
+ net.bluemind.smime.cacerts.api.gwt;visibility:=reexport
 Export-Package: net.bluemind.ui.adminconsole.system,
  net.bluemind.ui.adminconsole.system.domains,
  net.bluemind.ui.adminconsole.system.certificate,

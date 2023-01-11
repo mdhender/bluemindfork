@@ -78,7 +78,7 @@
 				<table border="0">
 					<tr>
 						<td style='width:400px'>
-							<g:Button ui:field="fileBtn" text="{c.fileBtn}" />
+							<g:Button ui:field="fileBtn" text="{c.fileBtn}" styleName="button"/>
 						</td>
 					</tr>
 				</table>
@@ -100,7 +100,7 @@
 						<g:Anchor ui:field="tos" text="{c.tosInfo}"></g:Anchor>
 					</td>
 					<td style='width:400px'>
-						<g:Button ui:field="acceptTos" text="{c.acceptTos}" />
+						<g:Button ui:field="acceptTos" text="{c.acceptTos}" styleName="button"/>
 					</td>
 				</tr>
 				<tr>
@@ -118,7 +118,7 @@
 				</tr>
 				<tr>
 					<td style='width:400px'>
-						<g:Button ui:field="generateBtn" text="{c.generateBtn}" />
+						<g:Button ui:field="generateBtn" text="{c.generateBtn}" styleName="button"/>
 					</td>
 				</tr>
 			</table>
@@ -133,7 +133,7 @@
 				</tr>
 				<tr>
 					<td style='width:400px'>
-						<g:Button ui:field="disableBtn" text="{c.disableBtn}" />
+						<g:Button ui:field="disableBtn" text="{c.disableBtn}" styleName="button"/>
 					</td>
 				</tr>
 			</table>
