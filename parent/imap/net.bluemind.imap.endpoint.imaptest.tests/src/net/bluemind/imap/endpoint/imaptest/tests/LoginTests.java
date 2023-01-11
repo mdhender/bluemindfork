@@ -19,9 +19,12 @@ package net.bluemind.imap.endpoint.imaptest.tests;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 
@@ -38,11 +41,17 @@ public class LoginTests extends MailApiTestsBase {
 				.clients(50)//
 				.onlyLoginSelectLogout()//
 				.select(0)//
+				.logout(100)//
 				.user(userUid + "@" + domUid, userUid).build();
 		List<String> output = docker.runPlan();
 		assertNotNull(output);
 		assertFalse(output.isEmpty());
 		output.forEach(System.err::print);
+		List<String> lines = Arrays.asList(output.stream().collect(Collectors.joining()).split("\n"));
+		String lastLine = lines.get(lines.size() - 1);
+		var logins = Long.valueOf(lastLine.split(" ")[0]);
+		var logouts = Long.valueOf(lastLine.split(" ")[1]);
+		assertTrue("We must have equal or more logout than logins:" + lastLine, logouts >= logins);
 	}
 
 }
