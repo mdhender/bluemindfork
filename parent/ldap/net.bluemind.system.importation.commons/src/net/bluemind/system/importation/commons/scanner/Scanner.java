@@ -651,8 +651,8 @@ public abstract class Scanner {
 			entry = Optional.ofNullable(ldapCon.lookup(userDn, "*", "+", getParameter().ldapDirectory.extIdAttribute,
 					"modifyTimestamp", "canonicalName")).orElseThrow(() -> new EntryNotFound());
 		} catch (EntryNotFound | LdapException le) {
-			logger.error("{}: {}", userDn.getName(), le.getMessage(), le);
-			importLogger.error(Messages.failedLookupEntryDn(userDn, le));
+			logger.warn("{}: {}", userDn.getName(), le.getMessage(), le);
+			importLogger.warning(Messages.failedLookupEntryDn(userDn, le));
 			return;
 		}
 
