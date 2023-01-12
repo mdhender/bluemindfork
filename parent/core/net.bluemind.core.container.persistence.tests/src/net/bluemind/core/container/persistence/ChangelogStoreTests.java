@@ -193,8 +193,8 @@ public class ChangelogStoreTests {
 
 		ContainerChangeset<String> changeset = changelogStore.changeset(0, Long.MAX_VALUE);
 		assertEquals(4, changeset.version);
-		assertEquals(0, changeset.created.size());
-		assertEquals(1, changeset.updated.size());
+		assertEquals(1, changeset.created.size());
+		assertEquals(0, changeset.updated.size());
 		assertEquals(0, changeset.deleted.size());
 
 		changeset = changelogStore.changeset(1, Long.MAX_VALUE);
@@ -267,8 +267,8 @@ public class ChangelogStoreTests {
 
 		changeset = changelogStore.changesetById(0, Long.MAX_VALUE);
 		assertEquals(4, changeset.version);
-		assertEquals(0, changeset.created.size());
-		assertEquals(1, changeset.updated.size());
+		assertEquals(1, changeset.created.size());
+		assertEquals(0, changeset.updated.size());
 		assertEquals(0, changeset.deleted.size());
 
 	}
@@ -290,30 +290,31 @@ public class ChangelogStoreTests {
 	@Test
 	public void testChangesetByIdFiltered() throws SQLException {
 		changelogStore.itemCreated(LogEntry.create(1, "test", "extId1", "author", "junit-testChangeset", 42, 0L));
-		changelogStore.itemUpdated(LogEntry.create(2, "test", "extId1", "author", "junit-testChangeset", 42, 0L));
-		changelogStore.itemUpdated(LogEntry.create(3, "test2", "extId2", "author2", "junit-testChangeset", 43, 0L));
-		changelogStore.itemDeleted(LogEntry.create(4, "test", "extId1", "author", "junit-testChangeset", 42, 0L));
+		changelogStore.itemUpdated(LogEntry.create(2, "test2", "extId2", "author2", "junit-testChangeset", 43, 0L));
+		changelogStore.itemCreated(LogEntry.create(3, "test", "extId1", "author", "junit-testChangeset", 44, 0L));
+		changelogStore.itemCreated(LogEntry.create(4, "test", "extId1", "author", "junit-testChangeset", 45, 0L));
+		changelogStore.itemUpdated(LogEntry.create(5, "test", "extId1", "author", "junit-testChangeset", 42, 0L));
+		changelogStore.itemDeleted(LogEntry.create(6, "test", "extId1", "author", "junit-testChangeset", 42, 0L));
+		changelogStore.itemUpdated(LogEntry.create(7, "test", "extId1", "author", "junit-testChangeset", 44, 0L));
 
 		ItemFlagFilter allFilter = ItemFlagFilter.all();
-		ContainerChangeset<ItemVersion> changeset = changelogStore.changesetById(0, 4, allFilter);
-		assertEquals(4, changeset.version);
-		assertEquals(0, changeset.created.size());
-		assertEquals(1, changeset.updated.size());
+		ContainerChangeset<ItemVersion> changeset = changelogStore.changesetById(0, 7, allFilter);
+		assertEquals(7, changeset.version);
+		assertEquals(3, changeset.created.size());
+		assertEquals(0, changeset.updated.size());
 		assertEquals(0, changeset.deleted.size());
-		assertEquals(43, changeset.updated.get(0).id);
+		assertTrue(changeset.created.stream().anyMatch(v -> v.id == 43l));
+		assertTrue(changeset.created.stream().anyMatch(v -> v.id == 44l));
+		assertTrue(changeset.created.stream().anyMatch(v -> v.id == 45l));
 
-		changeset = changelogStore.changesetById(1, 4, allFilter);
-		assertEquals(4, changeset.version);
-		assertEquals(0, changeset.created.size());
+		changeset = changelogStore.changesetById(1, 7, allFilter);
+		assertEquals(7, changeset.version);
+		assertEquals(2, changeset.created.size());
 		assertEquals(1, changeset.updated.size());
 		assertEquals(1, changeset.deleted.size());
-
-		changeset = changelogStore.changesetById(0, 4, allFilter);
-		assertEquals(4, changeset.version);
-		assertEquals(0, changeset.created.size());
-		assertEquals(1, changeset.updated.size());
-		assertEquals(0, changeset.deleted.size());
-
+		assertTrue(changeset.created.stream().anyMatch(v -> v.id == 44l));
+		assertTrue(changeset.created.stream().anyMatch(v -> v.id == 45l));
+		assertTrue(changeset.updated.stream().anyMatch(v -> v.id == 43l));
 	}
 
 	private void assertEntryEquals(long itemId, long version, String itemUid, String itemExtId,
