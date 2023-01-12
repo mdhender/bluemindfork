@@ -12,11 +12,19 @@
 		<relativePath>global/pom.xml</relativePath>
 	</parent>
     <modules>
-        <!-- dependency of open/parent/videoconferencing/net.bluemind.webmodules.videoconferencing.saas -->
-        <module>ui/vue-apps/webmodules/net.bluemind.webmodules.vue</module>
 		<module>parent</module>
 	</modules>
 	<profiles>
+		<profile>
+		    <id>default</id>
+		    <activation>
+		        <activeByDefault>true</activeByDefault>
+		    </activation>
+		    <modules>
+		        <!-- dependency of open/parent/videoconferencing/net.bluemind.webmodules.videoconferencing.saas -->
+		        <module>ui/vue-apps/webmodules/net.bluemind.webmodules.vue</module>
+		    </modules>
+		</profile>
 		<profile>
 			<id>full</id>
 			<modules>
