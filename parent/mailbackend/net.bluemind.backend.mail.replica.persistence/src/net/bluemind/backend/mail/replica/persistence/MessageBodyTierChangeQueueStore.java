@@ -51,6 +51,7 @@ public class MessageBodyTierChangeQueueStore extends JdbcAbstractStore {
 		insert("""
 				INSERT INTO q_message_body_tier_change (message_body_guid, change_after, tier)
 				VALUES (decode(?, 'hex'), ?, ?::enum_q_tier)
+				ON CONFLICT (message_body_guid) DO UPDATE SET change_after = EXCLUDED.change_after, tier = EXCLUDED.tier
 				""", new Object[] { messageBodyGuid, Timestamp.from(changeAfter), tier.name() });
 	}
 
