@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -407,12 +408,12 @@ public class BodyStreamProcessor {
 
 	private static void processRecipients(MessageBody mb, Message parsed) {
 		List<Recipient> output = new LinkedList<>();
+
 		addRecips(output, MessageBody.RecipientKind.Originator, parsed.getFrom());
 		addRecips(output, MessageBody.RecipientKind.Sender, parsed.getSender());
 		addRecips(output, MessageBody.RecipientKind.Primary, parsed.getTo());
 		addRecips(output, MessageBody.RecipientKind.CarbonCopy, parsed.getCc());
 		addRecips(output, MessageBody.RecipientKind.BlindCarbonCopy, parsed.getBcc());
-		logger.debug("Parsed {} recipient(s)", output.size());
 		mb.recipients = output;
 	}
 
@@ -422,8 +423,8 @@ public class BodyStreamProcessor {
 		if (mailboxes == null) {
 			return;
 		}
-		mailboxes.forEach(mailbox -> {
-			if (!">".equals(mailbox.getAddress())) {
+		List<Recipient> recipList = mailboxes.stream().map(mailbox -> {
+			if (mailbox.getAddress() != null && mailbox.getAddress().length() > 1) {
 				String dn = mailbox.getName();
 				if (dn != null && STILL_ENCODED.matcher(dn).matches()) {
 					logger.warn("Email name part is still encoded '{}'", dn);
@@ -434,10 +435,16 @@ public class BodyStreamProcessor {
 					}
 				}
 
-				Recipient recip = Recipient.create(kind, dn, mailbox.getAddress());
-				output.add(recip);
+				return Recipient.create(kind, dn, mailbox.getAddress());
+			} else {
+				return null;
 			}
-		});
+		}).filter(Objects::nonNull).toList();
+		if (kind == RecipientKind.Originator && recipList.size() > 1) {
+			recipList.stream().filter(r -> r.address.contains("@")).findAny().ifPresent(output::add);
+		} else {
+			recipList.forEach(output::add);
+		}
 	}
 
 	private static void addRecips(List<Recipient> output, RecipientKind kind, Mailbox mailbox) {

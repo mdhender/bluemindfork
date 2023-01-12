@@ -1,0 +1,440 @@
+Return-Path: <confluence.blue-mind.net@smtp.blue-mind.net>
+Received: from smtp.blue-mind.net (bm-prod.blue-mind.loc [192.168.231.2])
+	 by bm-prod with LMTPA;
+	 Tue, 08 Oct 2013 15:52:15 +0200
+X-Sieve: CMU Sieve 2.4
+Received: from 192.168.231.1 (LHLO smtp.blue-mind.net) (192.168.231.1) by
+ unknown with LMTP; 10/8/13 1:52 PM
+Received: from confluence (confluence.blue-mind.loc [192.168.231.39])
+	by smtp.blue-mind.net (Postfix) with ESMTPA id 89154810D
+	for <marie.piochon@blue-mind.net>; Tue,  8 Oct 2013 15:52:15 +0200 (CEST)
+Date: Tue, 8 Oct 2013 15:52:00 +0200 (CEST)
+From: "Pierre Carlier (Confluence)" <confluence.blue-mind.net>
+To: marie.piochon@blue-mind.net
+Message-ID: <698153463.285.1381240320129.JavaMail.confluence@confluence>
+Subject: [confluence] Documentation Administrateur > Test page
+MIME-Version: 1.0
+Content-Type: multipart/related; 
+	boundary="----=_Part_284_1229342867.1381240320008"
+Precedence: bulk
+Auto-Submitted: auto-generated
+
+------=_Part_284_1229342867.1381240320008
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3DUTF-8" /=
+>=20
+<meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scale=3D1=
+=2E0, maximum-scale=3D1=2E0" />=20
+<base href=3D"http://confluence=2Eblue-mind=2Eloc:8090" />=20
+<title>Message Title</title> =20
+<style type=3D"text/css">@media only screen and (max-device-width: 480px) =
+{=2Emobile-only {
+	width: auto !important;
+	height: auto !important;
+	overflow: visible !important;
+	line-height: normal !important;
+	font-size: inherit !important;
+	mso-hide: all;
+}
+
+=2Edesktop-only {
+	display: none !important;
+}
+
+/* iPhone 3GS fix for unwanted 20px right margin */
+body { min-width: 100% !important; padding: 0; margin: 0; }
+
+#center-content-table { max-width: none; !important; }
+#header-pattern-container { padding: 10px 10px 10px 10px !important; line-=
+height: 20px !important; }
+#header-avatar-image-container { padding-right: 8px !important; }
+#email-content-container { padding: 0 !important; }
+=2Emobile-expand { border-radius: 0 !important; border-left: 0 !important;=
+ border-right: 0 !important; padding-left: 26px !important;}
+=2Emobile-resize-text { font-size: 16px !important; line-height: 22px !imp=
+ortant; }
+#page-title-pattern-header { font-size: 20px !important; line-height: 28px=
+ !important; }
+#page-title-pattern-icon-image-container-cell { padding-top: 7px !importan=
+t; }
+#inline-user-pattern { display: block !important; }
+#inline-user-pattern-avatar { padding-top: 3px !important; }
+=2Econtextual-area-pattern { border-bottom: 1px solid #ccc !important; pad=
+ding: 15px 10px 0 10px !important;}
+=2Eusers-involved-pattern-column-table { width: 100% !important;  }
+=2Eusers-involved-pattern-avatar-table-cell { padding: 3px 5px 5px 0 !impo=
+rtant; }
+=2Eusers-involved-pattern-column-container { padding-right: 0 !important; =
+}
+=2Econtextual-excerpt-pattern, #users-involved-pattern { border: 0 !import=
+ant; }
+
+/** Aui Typography upsized for mobile **/
+#content-excerpt-pattern-container, #contextual-excerpt-pattern-text-conta=
+iner { font-size: 16px !important; line-height: 22px !important; }
+#content-excerpt-pattern-container h1, #contextual-excerpt-pattern-text-co=
+ntainer h1 { font-size: 24px !important; line-height: 28px !important; }
+#content-excerpt-pattern-container h2, #contextual-excerpt-pattern-text-co=
+ntainer h2 { font-size: 20px !important; line-height: 28px !important; }
+#content-excerpt-pattern-container h3, #contextual-excerpt-pattern-text-co=
+ntainer h3 { font-size: 18px !important; line-height: 24px !important; }
+#content-excerpt-pattern-container h4, #contextual-excerpt-pattern-text-co=
+ntainer h4 { font-size: 16px !important; line-height: 22px !important; }
+#content-excerpt-pattern-container h5, #contextual-excerpt-pattern-text-co=
+ntainer h5 { font-size: 14px !important; line-height: 20px !important; }
+#content-excerpt-pattern-container h6, #contextual-excerpt-pattern-text-co=
+ntainer h6 { font-size: 14px !important; line-height: 20px !important; }
+=2Euser-mention { line-height: 18px !important; }
+/** Aui Typography end **/
+
+/* Show appropriate footer logo on mobile, display links vertically */
+#footer-pattern { padding: 15px 10px !important; }
+#footer-pattern-logo-desktop-container { padding: 0 !important; }
+#footer-pattern-logo-desktop { width: 0 !important; height: 0 !important; =
+}
+#footer-pattern-logo-mobile {
+    padding-top: 10px !important;
+    width: 30px !important;
+    height: 27px !important;
+    display: inline !important;
+}
+#footer-pattern-links-container { line-height: 0 !important;}
+=2Efooter-pattern-links=2Emobile-resize-text,
+=2Efooter-pattern-links=2Emobile-resize-text,
+#footer-pattern-text=2Emobile-resize-text,
+#footer-pattern-links-container=2Eno-footer-links {
+    font-size: 14px !important;
+    line-height: 20px !important;
+}
+=2Efooter-link { display: block !important; }
+#footer-pattern-links-container table { display: inline-block !important; =
+float: none !important; }
+#footer-pattern-links-container, #footer-pattern-text { text-align: center=
+ !important; }
+#footer-pattern-links { padding-bottom: 5px !important; }
+
+/** Team Calendar overrides, these should be removed when notifications ar=
+e updated in Team Calendars=2E For now CSS
+    overrides are being used because the structure of the content can't ch=
+ange without rereleasing the plugin */
+=2Email-calendar-container =2Eday-header + table tr td:first-child {
+    vertical-align: top !important;
+    padding-top: 5px !important;
+}}
+@media (min-width: 900px) {#center-content-table { width: 900px; }}
+@media all {#outlook a {padding:0;} /* Force Outlook to provide a "view in=
+ browser" menu link=2E */
+/* Prevent Webkit and Windows Mobile platforms from changing default font =
+sizes=2E*/
+body{-webkit-text-size-adjust:100%; -ms-text-size-adjust:100%;}
+=2EExternalClass {width:100%;} /* Force Hotmail to display emails at full =
+width */
+#background-table {margin:0; padding:0; width:100% !important; }
+/* Needed to override highlighting on date and time links in iOS */
+=2Egrey a {color: #707070; text-decoration: none; }}
+</style>=20
+</head>
+<body>
+<table id=3D"background-table" cellpadding=3D"0" cellspacing=3D"0" width=
+=3D"100%" style=3D"border-collapse: collapse; mso-table-lspace: 0pt; mso-ta=
+ble-rspace: 0pt; color: #333; background-color: #f5f5f5">=20
+<tbody>=20
+<tr>=20
+<td id=3D"header-pattern-container" style=3D"padding: 0px; border-collapse=
+: collapse; padding: 10px 20px">=20
+<table id=3D"header-pattern" cellspacing=3D"0" cellpadding=3D"0" border=3D=
+"0" style=3D"border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rs=
+pace: 0pt; color: #333">=20
+<tbody>=20
+<tr>=20
+<td id=3D"header-avatar-image-container" valign=3D"top" style=3D"padding: =
+0px; border-collapse: collapse; vertical-align: top; width: 32px; padding-r=
+ight: 9px"><a href=3D"http://confluence=2Eblue-mind=2Eloc:8090/display/~car=
+l?src=3Demail" style=3D"color: #3b73af; text-decoration: none"><img id=3D"h=
+eader-avatar-image" class=3D"image_fix" src=3D"cid:avatar_68248d520eb185476=
+a2c421dccbdd97f" height=3D"32" width=3D"32" border=3D"0" style=3D"border-ra=
+dius: 3px; vertical-align: top" /></a></td>
+<td id=3D"header-text-container" valign=3D"middle" style=3D"padding: 0px; =
+border-collapse: collapse; vertical-align: middle; font-family: Arial, sans=
+-serif; font-size: 14px; line-height: 20px; mso-line-height-rule: exactly; =
+mso-text-raise: 1px">Pierre Carlier <strong>added 1 file</strong> to the pa=
+ge</td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!-- End Header pattern -->=20
+<tr>=20
+<td id=3D"email-content-container" style=3D"padding: 0px; border-collapse:=
+ collapse; padding: 0 20px">=20
+<table id=3D"email-content-table" cellspacing=3D"0" cellpadding=3D"0" bord=
+er=3D"0" width=3D"100%" style=3D"border-collapse: collapse; mso-table-lspac=
+e: 0pt; mso-table-rspace: 0pt; color: #333; border-spacing: 0; border-colla=
+pse: separate">=20
+<tbody>=20
+<tr>=20
+<td class=3D"email-content-rounded-top mobile-expand" style=3D"padding: 0p=
+x; border-collapse: collapse; color: #fff; padding: 0 15px 0 16px; height: =
+15px; background-color: #fff; border-left: 1px solid #ccc; border-top: 1px =
+solid #ccc; border-right: 1px solid #ccc; border-bottom: 0; border-top-righ=
+t-radius: 5px; border-top-left-radius: 5px">&nbsp;</td>=20
+</tr>=20
+<tr>=20
+<td class=3D"email-content-main mobile-expand" style=3D"padding: 0px; bord=
+er-collapse: collapse; border-left: 1px solid #ccc; border-right: 1px solid=
+ #ccc; border-top: 0; border-bottom: 0; padding: 0 15px 15px 16px; backgrou=
+nd-color: #fff">=20
+<table id=3D"page-title-pattern" cellspacing=3D"0" cellpadding=3D"0" borde=
+r=3D"0" width=3D"100%" style=3D"border-collapse: collapse; mso-table-lspace=
+: 0pt; mso-table-rspace: 0pt; color: #333">=20
+<tbody>=20
+<tr>=20
+<td id=3D"page-title-pattern-icon-image-container" valign=3D"top" style=3D=
+"padding: 0px; border-collapse: collapse; width: 16px; vertical-align: top"=
+>=20
+<table cellspacing=3D"0" cellpadding=3D"0" border=3D"0" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; color: #333=
+">=20
+<tbody>=20
+<tr>=20
+<td id=3D"page-title-pattern-icon-image-container-cell" style=3D"padding: =
+0px; border-collapse: collapse; width: 16px; padding: 9px 8px 0px 0px; mso-=
+text-raise: 5px; mso-line-height-rule: exactly"><a href=3D"http://confluenc=
+e=2Eblue-mind=2Eloc:8090/display/DA/Test+page?src=3Demail" title=3D"page ic=
+on" style=3D"vertical-align: top;; color: #3b73af; text-decoration: none"><=
+img style=3D"vertical-align: top; display: block;" src=3D"cid:page-icon" al=
+t=3D"page icon" title=3D"page icon" height=3D"16" width=3D"16" border=3D"0"=
+ /></a></td>=20
+</tr>=20
+</tbody>=20
+</table> </td>
+<td style=3D"vertical-align: top;; padding: 0px; border-collapse: collapse=
+; padding-right: 5px; font-size: 20px; line-height: 30px; mso-line-height-r=
+ule: exactly" id=3D"page-title-pattern-header-container"><span id=3D"page-t=
+itle-pattern-header" style=3D"font-family: Arial, sans-serif; padding: 0; f=
+ont-size: 20px; line-height: 30px; mso-text-raise: 2px; mso-line-height-rul=
+e: exactly; vertical-align: middle"><a href=3D"http://confluence=2Eblue-min=
+d=2Eloc:8090/display/DA/Test+page?src=3Demail" title=3D"Test page" style=3D=
+"color: #3b73af; text-decoration: none">Test page</a></span></td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<tr>=20
+<td class=3D"email-content-main mobile-expand last-row-padding" style=3D"p=
+adding: 0px; border-collapse: collapse; border-left: 1px solid #ccc; border=
+-right: 1px solid #ccc; border-top: 0; border-bottom: 0; padding: 0 15px 15=
+px 16px; background-color: #fff; padding-bottom: 10px">=20
+<table class=3D"content-added-pattern" cellspacing=3D"0" cellpadding=3D"0"=
+ border=3D"0" width=3D"100%" style=3D"border-collapse: collapse; mso-table-=
+lspace: 0pt; mso-table-rspace: 0pt; color: #333">=20
+<tbody>=20
+<tr>=20
+<td class=3D"content-added-pattern-icon-container" style=3D"padding: 0px; =
+border-collapse: collapse; width: 16px; vertical-align: top; mso-text-raise=
+: 3px">=20
+<table style=3D"border-collapse: collapse; mso-table-lspace: 0pt; mso-tabl=
+e-rspace: 0pt; color: #333">=20
+<tbody>=20
+<tr>=20
+<td class=3D"content-added-pattern-icon" style=3D"padding: 0px; border-col=
+lapse: collapse; padding: 4px 8px 0 24px; mso-text-raise: 3px"><img class=
+=3D"content-added-pattern-icon-image" src=3D"cid:image-icon" alt=3D"attachm=
+ent" title=3D"attachment" height=3D"16" width=3D"16" border=3D"0" style=3D"=
+vertical-align: top; display: block" /></td>=20
+</tr>=20
+</tbody>=20
+</table> </td>
+<td class=3D"content-added-pattern-text" style=3D"padding: 0px; border-col=
+lapse: collapse; font-family: Arial, sans-serif; font-size: 14px; line-heig=
+ht: 20px; mso-line-height-rule: exactly; mso-text-raise: 1px">=20
+<table style=3D"border-collapse: collapse; mso-table-lspace: 0pt; mso-tabl=
+e-rspace: 0pt; color: #333">=20
+<tbody>=20
+<tr>=20
+<td class=3D"content-added-pattern-text-container mobile-resize-text " sty=
+le=3D"padding: 0px; border-collapse: collapse; font-family: Arial, sans-ser=
+if; font-size: 14px; line-height: 20px; mso-line-height-rule: exactly"><spa=
+n style=3D"vertical-align: middle"><a href=3D"http://confluence=2Eblue-mind=
+=2Eloc:8090/download/attachments/852082/kakemono2-04=2Ejpg?version=3D1&amp;=
+modificationDate=3D1381240268590&amp;api=3Dv2&amp;src=3Demail" title=3D"" s=
+tyle=3D"color: #3b73af; text-decoration: none">kakemono2-04=2Ejpg</a> =E2=
+=80=A2 292 kB JPEG File</span>&nbsp;</td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<tr>=20
+<td class=3D"email-content-rounded-bottom mobile-expand" style=3D"padding:=
+ 0px; border-collapse: collapse; color: #fff; height: 5px; line-height: 5px=
+; padding: 0 15px 0 16px; background-color: #fff; border-bottom-right-radiu=
+s: 5px; border-bottom-left-radius: 5px; border-top: 0; border-left: 1px sol=
+id #ccc; border-bottom: 1px solid #ccc; border-right: 1px solid #ccc; mso-l=
+ine-height-rule: exactly">&nbsp;</td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<tr>=20
+<td id=3D"footer-pattern" style=3D"padding: 0px; border-collapse: collapse=
+; padding: 12px 20px">=20
+<table id=3D"footer-pattern-container" cellspacing=3D"0" cellpadding=3D"0"=
+ border=3D"0" width=3D"100%" style=3D"border-collapse: collapse; mso-table-=
+lspace: 0pt; mso-table-rspace: 0pt; color: #333">=20
+<tbody>=20
+<tr>=20
+<td id=3D"footer-pattern-links-container" width=3D"100%" style=3D"padding:=
+ 0px; border-collapse: collapse; color: #999; font-size: 12px; line-height:=
+ 18px; font-family: Arial, sans-serif; mso-line-height-rule: exactly; mso-t=
+ext-raise: 2px">=20
+<table align=3D"left" style=3D"border-collapse: collapse; mso-table-lspace=
+: 0pt; mso-table-rspace: 0pt; color: #333; font-size: 12px; line-height: 18=
+px; font-family: Arial, sans-serif; mso-line-height-rule: exactly; mso-text=
+-raise: 2px">=20
+<tbody>=20
+<tr>=20
+<td class=3D"footer-pattern-links mobile-resize-text" style=3D"padding: 0p=
+x; border-collapse: collapse"><a href=3D"http://confluence=2Eblue-mind=2Elo=
+c:8090/users/removepagenotification=2Eaction?pageId=3D852082&amp;src=3Demai=
+l" title=3D"" style=3D"color: #3b73af; text-decoration: none">Stop watching=
+ page</a></td>
+<td class=3D"footer-pattern-links-bull" style=3D"padding: 0px; border-coll=
+apse: collapse; padding: 0 5px; color: #999">=E2=80=A2</td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<table style=3D"border-collapse: collapse; mso-table-lspace: 0pt; mso-tabl=
+e-rspace: 0pt; color: #333; font-size: 12px; line-height: 18px; font-family=
+: Arial, sans-serif; mso-line-height-rule: exactly; mso-text-raise: 2px">=
+=20
+<tbody>=20
+<tr>=20
+<td class=3D"footer-pattern-links mobile-resize-text" style=3D"padding: 0p=
+x; border-collapse: collapse"><a href=3D"http://confluence=2Eblue-mind=2Elo=
+c:8090/users/editmyemailsettings=2Eaction?src=3Demail" title=3D"" style=3D"=
+color: #3b73af; text-decoration: none">Manage notifications</a></td>=20
+</tr>=20
+</tbody>=20
+</table> </td>
+<td id=3D"footer-pattern-logo-desktop-container" rowspan=3D"2" valign=3D"t=
+op" style=3D"padding: 0px; border-collapse: collapse; padding-left: 20px; v=
+ertical-align: top">=20
+<table style=3D"border-collapse: collapse; mso-table-lspace: 0pt; mso-tabl=
+e-rspace: 0pt; color: #333">=20
+<tbody>=20
+<tr>=20
+<td id=3D"footer-pattern-logo-desktop-padding" style=3D"padding: 0px; bord=
+er-collapse: collapse; padding-top: 3px"><img id=3D"footer-pattern-logo-des=
+ktop" src=3D"cid:footer-desktop-logo" alt=3D"Confluence logo big" title=3D"=
+Confluence logo big" width=3D"132" height=3D"20" class=3D"image_fix" /></td=
+>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<tr>=20
+<td id=3D"footer-pattern-text" class=3D"mobile-resize-text" width=3D"100%"=
+ style=3D"padding: 0px; border-collapse: collapse; color: #999; font-size: =
+12px; line-height: 18px; font-family: Arial, sans-serif; mso-line-height-ru=
+le: exactly; mso-text-raise: 2px">This message was sent by Atlassian Conflu=
+ence 5=2E2=2E5
+<!-- gte mso 9 hack to to prevent the mobile logo from displaying in Outlo=
+ok -->
+<!--[if !gte mso 9]><!--><br /> <img id=3D"footer-pattern-logo-mobile" src=
+=3D"cid:footer-mobile-logo" alt=3D"" title=3D"" width=3D"0" height=3D"0" st=
+yle=3D"display: none; mso-hide: all" />
+<!--<![endif]--></td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table>
+</body>
+</html>
+------=_Part_284_1229342867.1381240320008
+Content-Type: image/png; name=avatar_68248d520eb185476a2c421dccbdd97f.png
+Content-Transfer-Encoding: base64
+Content-ID: <avatar_68248d520eb185476a2c421dccbdd97f>
+Content-Disposition: attachment; 
+	filename=avatar_68248d520eb185476a2c421dccbdd97f.png
+
+iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAAM1BMVEUrZJv///84bqHY4u3L2ebl
+7PNgi7SVss3z9vmjvNNTga57nsFulbqwxdq9z+CIqMdGd6hCAHL/AAAAuklEQVR4XuWU6arCMBBG
+O1uWbve+/9MqIqadFr8MCAU9/wI5MPvwvXBKHBAmoTsydQqs9ES567/QC+kxlDYoFibagfOwvWBI
+mMkxA2HxwgIE8YIAgQ58WOCjwBeHhKuE+xDudHSWwtMa3YfwxkV3Onw14nfpesasm9KwkObxze9q
+rZitwFbTqZBax8r48EsbkBMl0ZbMnN0MgqErxb0ZjbXnzwkrEsxfC8g/iAjEVLGw+mMRS4I6GH6X
+G8taBR9UYYSgAAAAAElFTkSuQmCC
+
+------=_Part_284_1229342867.1381240320008
+Content-Type: image/png; name=image-icon.png
+Content-Transfer-Encoding: base64
+Content-ID: <image-icon>
+Content-Disposition: attachment; filename=image-icon.png
+
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAaVBMVEX///+1tbWzs7OwsLD///+L
+i4umpqbq6urPz8/Hx8e1tbX4+Pji4uL29vbAwMDY2Nizs7OsrKzW1tb///+IiIiHh4d0dHRycnKL
+i4uDg4OTk5ORkZFwcHB3d3d6enqHh4eFhYV8fHyZmZl3hGd5AAAAFnRSTlMAIiIi3e7u7u7u7u7u
+7u7u7u7u7u7uxh/uMQAAAHZJREFUeF6Fz8kOwjAMRVEDducyY2dsC///kTgVTStYcKQs3pW8CPzY
+k2zQDmgsMTtNBNLlpe8aQJbtg0e8yRpiiJrnUNt0VvnqExpmgwsNF1aNjvZctCnwrMOycO64BlO7
+pM+BRzNZ+3wJPHhjGAgO96+//PUGOEcMYpftLq4AAAAASUVORK5CYII=
+
+------=_Part_284_1229342867.1381240320008
+Content-Type: image/png; name=footer-mobile-logo.png
+Content-Transfer-Encoding: base64
+Content-ID: <footer-mobile-logo>
+Content-Disposition: attachment; filename=footer-mobile-logo.png
+
+iVBORw0KGgoAAAANSUhEUgAAAB4AAAAbCAMAAABcI88jAAAAMFBMVEX////MzMzMzMzMzMzMzMzM
+zMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMznz+jYAAAAEHRSTlMAESIzRFVmd4iZqrvM
+3e7/dpUBFQAAAO5JREFUeNplk1kShDAIBQGXbCTv/rcdpKBKJ/0VaDRAKRldy0F/SNEexwpglrcs
+E0CN4MYDE3UYnYg9cbvMqFldZFvUOxmeRAMYRGeUJ+LxEuI5mWR5KK6yOUNNWYkC2Vii6dPqd8wV
+njUv+nDAUYWzrelGEMNtfrOb3+3u+27S5/p2+Mz1LN6tqZbbr5uUy9OxlUve7moTzpXrwWxX3FkX
+kuLXB6sykSgA7cMznN/G6J4WGpi3+EMxcY/m5J4YFGOOSEbhIOMELFJ+uivGQcZRjKcv1qe+YDWh
+DWkLxQ91QuVPKmbNnL2Qv5rjv/kBhcsStnryTwsAAAAASUVORK5CYII=
+
+------=_Part_284_1229342867.1381240320008
+Content-Type: image/png; name=footer-desktop-logo.png
+Content-Transfer-Encoding: base64
+Content-ID: <footer-desktop-logo>
+Content-Disposition: attachment; filename=footer-desktop-logo.png
+
+iVBORw0KGgoAAAANSUhEUgAAAIQAAAAUBAMAAAC+DIjXAAAAA3NCSVQICAjb4U/gAAAAMFBMVEX/
+///MzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMznz+jYAAAAEHRS
+TlMAESIzRFVmd4iZqrvM3e7/dpUBFQAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdh
+cmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAAUdEVYdENyZWF0aW9uIFRpbWUAMy80LzEzX7ok
+UQAAAmFJREFUOI2llM9rE1EQx2d30ybVihE8qa178KwRpAhik8OCPw5mDwp6SkEQQcSAInjqCj0U
+VOI/oK0oPZqgKMIe9uhFWEEv9RJFED2UbWtst0l2v857uxs3EQ3oQCZ5b/Z93uQ7M0t0vkDC1JvC
+XZ6f0ylt2lMsXnlFf7daYGpGSXU7RIoDYL0vOgmsOp0hiCLejmN9DJtE40zAal90FmgMReyAn4FV
+EbdfQ8d2Pg7kmKehiBHAvKV6sIjqiHQ5UupFxfFfCMXQ+w8rRl581fGZ9oFvI6cr1uoC8JiOvTzp
+hubRZjBvOh3NfkbbbVNzEFZV+/pdfCHlAQJrpIlAXDeB8LCL75Rcd5AFCQtlocunGqQWGbRoJ6wi
+r/hfC9Mn2C2yUhzhunlYAWZ6iAXxSEMiWv0IUbAwQlRF5LbHri3OTPOPDeohEJpnsFbG1iX4B9yu
+UeghEOg1GMBShXGBru5Ge5cDitKQSSSINuXQKsMk+LGcEWKO12VG/BA41yfK8nZNIqiCkFIIP0KU
+fkcIM+KMGJGTG7IEoxAl/R/E5P1Zqeu/I6bqm2Po3hCIMK3FAGK/1IIoljbRQvTXPQYpLOg3naV5
+YpyoJhXpQ/gXPFkR9VxS4Kgiee0iTYc2OjxNH5obVJRjlvRFCqHJjC2XXRAjZF+I3S1aKeW4KQ6h
+oTqFrNhaS7ozhaCmRFSEjxGyOwWnS2/yozwA22yLHup02kP3UTwjtk72C7rDrxv+HMfyWdvMcBrL
+qv2cH59hAQIry+jXtPdrNHzK1Xe9+UtN6oAZAxHFELN96r1c7Fn607Fh9hMdQipLH6IvZgAAAABJ
+RU5ErkJggg==
+
+------=_Part_284_1229342867.1381240320008
+Content-Type: image/png; name=page-icon.png
+Content-Transfer-Encoding: base64
+Content-ID: <page-icon>
+Content-Disposition: attachment; filename=page-icon.png
+
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAPFBMVEX///+1tbWwsLCtra3////5
++fmLi4vZ2dnT09P8/PzPz8+rq6uhoaHR0dFycnJwcHB6enp4eHiDg4OAgIBog/vRAAAADnRSTlMA
+IiJV3e7u7u7u7u7u7rDOyYEAAABUSURBVHhepcpLDoAwCABRqkBbP9Dq/e9qLYS1ibN8GQBYWFVG
+fQWLWyFEJG0uknGmuz+CDnjYEzDqDpF8BrV+HBRHNThjyBP42qpBufmFxOIpJ3gAPTUGaYiilrsA
+AAAASUVORK5CYII=
+
+------=_Part_284_1229342867.1381240320008--
+

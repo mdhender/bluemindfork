@@ -93,6 +93,30 @@ public class BodyStreamProcessorTests {
 	}
 
 	@Test
+	public void testTwoOriginatorsFooding()
+			throws IOException, InterruptedException, ExecutionException, TimeoutException {
+		Stream stream = openResource("data/double-originator-fooding.eml");
+		MessageBodyData result = BodyStreamProcessor.processBody(stream).get(2, TimeUnit.SECONDS);
+		assertNotNull(result);
+		JsonArray asJs = new JsonArray(JsonUtils.asString(result.body.recipients));
+		System.err.println("JS: " + asJs.encodePrettily());
+		long from = result.body.recipients.stream().filter(r -> r.kind == RecipientKind.Originator).count();
+		assertEquals(1, from);
+	}
+
+	@Test
+	public void testTwoOriginatorsConfluence()
+			throws IOException, InterruptedException, ExecutionException, TimeoutException {
+		Stream stream = openResource("data/double-originator-confluence.eml");
+		MessageBodyData result = BodyStreamProcessor.processBody(stream).get(2, TimeUnit.SECONDS);
+		assertNotNull(result);
+		JsonArray asJs = new JsonArray(JsonUtils.asString(result.body.recipients));
+		System.err.println("JS: " + asJs.encodePrettily());
+		long from = result.body.recipients.stream().filter(r -> r.kind == RecipientKind.Originator).count();
+		assertEquals(1, from);
+	}
+
+	@Test
 	public void testProcessFeatwebml1562()
 			throws IOException, InterruptedException, ExecutionException, TimeoutException {
 		Stream stream = openResource("data/featwebml-1562.eml");
