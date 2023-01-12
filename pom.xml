@@ -11,7 +11,9 @@
 		<version>4.1.0-SNAPSHOT</version>
 		<relativePath>global/pom.xml</relativePath>
 	</parent>
-	<modules>
+    <modules>
+        <!-- dependency of open/parent/videoconferencing/net.bluemind.webmodules.videoconferencing.saas -->
+        <module>ui/vue-apps/webmodules/net.bluemind.webmodules.vue</module>
 		<module>parent</module>
 	</modules>
 	<profiles>
