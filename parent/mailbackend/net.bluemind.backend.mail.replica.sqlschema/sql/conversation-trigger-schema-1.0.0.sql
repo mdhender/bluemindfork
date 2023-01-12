@@ -169,10 +169,9 @@ DECLARE
     disable_conversation_triggers boolean;
 BEGIN
     SELECT INTO disable_conversation_triggers COALESCE(current_setting('bm.disable_conversation_triggers', true)::bool, false);
-    IF disable_conversation_triggers = true THEN
-        RETURN NEW;
+    IF NOT disable_conversation_triggers THEN
+        PERFORM v_conversation_by_folder_add(NEW);
     END IF;
-    PERFORM v_conversation_by_folder_add(NEW);
     RETURN NEW;
 END;
 $$;
@@ -297,10 +296,9 @@ DECLARE
     disable_conversation_triggers boolean;
 BEGIN
     SELECT INTO disable_conversation_triggers COALESCE(current_setting('bm.disable_conversation_triggers', true)::bool, false);
-    IF disable_conversation_triggers = true THEN
-        RETURN NULL;
+    IF NOT disable_conversation_triggers THEN
+        PERFORM v_conversation_by_folder_remove(OLD, NEW);
     END IF;
-    PERFORM v_conversation_by_folder_remove(OLD, NEW);
     RETURN NULL;
 END;
 $$;
@@ -327,7 +325,7 @@ DECLARE
 BEGIN
     SELECT INTO disable_conversation_triggers COALESCE(current_setting('bm.disable_conversation_triggers', true)::bool, false);
     IF disable_conversation_triggers = true THEN
-        RETURN NULL;
+        RETURN NEW;
     END IF;
 
     SELECT "date", first, size, unseen, flagged
@@ -464,11 +462,10 @@ DECLARE
     ret t_mailbox_record;
 BEGIN
     SELECT INTO disable_conversation_triggers COALESCE(current_setting('bm.disable_conversation_triggers', true)::bool, false);
-    IF disable_conversation_triggers = true THEN
-        RETURN NULL;
+    IF NOT disable_conversation_triggers THEN
+        PERFORM v_conversation_by_folder_remove(OLD, NEW);
+        PERFORM v_conversation_by_folder_add(NEW);
     END IF;
-    PERFORM v_conversation_by_folder_remove(OLD, NEW);
-    PERFORM v_conversation_by_folder_add(NEW);
     RETURN NEW;
 END;
 $$;

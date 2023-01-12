@@ -1,16 +1,16 @@
 create table IF NOT EXISTS t_message_body (
-	guid bytea primary key,
-	subject text,
-	structure jsonb,
-	headers jsonb,
-	recipients jsonb,
-	message_id text,
-	references_header text[],
-	date_header timestamp not null,
-	size integer not null,
-	preview varchar(160),
-	body_version integer not null default 0,
-	created TIMESTAMP not null default now()
+    guid bytea primary key,
+    subject text,
+    structure jsonb,
+    headers jsonb,
+    recipients jsonb,
+    message_id text,
+    references_header text[],
+    date_header timestamp not null,
+    size integer not null,
+    preview varchar(160),
+    body_version integer not null default 0,
+    created TIMESTAMP not null default now()
 );
 
 -- This index is used by MessageBodyTierChangeService (tier requeues)
@@ -30,24 +30,24 @@ CREATE TABLE IF NOT EXISTS q_message_body_tier_change (
 CREATE INDEX IF NOT EXISTS i_q_message_body_tier_change ON q_message_body_tier_change(change_after);
 
 create table IF NOT EXISTS t_mailbox_replica (
-	short_name text not null,
-	parent_uid text,
-	name text not null,
-	last_uid int8 not null,
-	highest_mod_seq int8 not null,
-	recent_uid int8 not null,
-	recent_time timestamp not null,
-	last_append_date timestamp not null,
-	pop3_last_login timestamp not null,
-	uid_validity int8 not null,
-	acls jsonb not null,
-	options varchar(32) not null,
-	sync_crc int8 not null,
-	quotaroot text,
-	xconv_mod_seq int8,
-	unique_id text not null,
-	container_id int4 not null references t_container(id) ON UPDATE CASCADE  on delete cascade,
-	item_id bigint references t_container_item(id) on delete cascade UNIQUE
+    short_name text not null,
+    parent_uid text,
+    name text not null,
+    last_uid int8 not null,
+    highest_mod_seq int8 not null,
+    recent_uid int8 not null,
+    recent_time timestamp not null,
+    last_append_date timestamp not null,
+    pop3_last_login timestamp not null,
+    uid_validity int8 not null,
+    acls jsonb not null,
+    options varchar(32) not null,
+    sync_crc int8 not null,
+    quotaroot text,
+    xconv_mod_seq int8,
+    unique_id text not null,
+    container_id int4 not null references t_container(id) ON UPDATE CASCADE  on delete cascade,
+    item_id bigint references t_container_item(id) on delete cascade UNIQUE
 );
 
 create index IF NOT EXISTS i_mailbox_replica on t_mailbox_replica (item_id);
@@ -102,9 +102,9 @@ $$;
 -- t_message_body orphan purge system
 -- see MessageBodyStore.deleteOrphanBodies()
 CREATE TABLE IF NOT EXISTS t_message_body_purge_queue (
-	message_body_guid bytea UNIQUE PRIMARY KEY not null,
-	created TIMESTAMP NOT NULL default now(),
-	removed DATE
+    message_body_guid bytea UNIQUE PRIMARY KEY not null,
+    created TIMESTAMP NOT NULL default now(),
+    removed DATE
 );
 CREATE INDEX ON t_message_body_purge_queue (created);
 CREATE INDEX ON t_message_body_purge_queue (removed);
@@ -112,36 +112,41 @@ CREATE INDEX ON t_message_body_purge_queue (removed);
 CREATE OR REPLACE FUNCTION trigger_message_record_purge() RETURNS trigger AS
 $$
 DECLARE
-	bypass boolean;
+    bypass boolean;
 BEGIN
-	SELECT INTO bypass coalesce(current_setting('bluemind.bypass_message_body_purge_queue', true)::boolean, false);
-	IF bypass = false THEN
-		IF TG_OP = 'DELETE' THEN
-			-- Find references to other t_mailbox_record
-			-- we want to add to the purge body queue unreferenced messages
-			PERFORM 1 FROM t_mailbox_record WHERE message_body_guid = OLD.message_body_guid;
-			IF NOT FOUND THEN
-				INSERT INTO t_message_body_purge_queue (message_body_guid) VALUES (OLD.message_body_guid)
-					ON CONFLICT(message_body_guid) DO NOTHING;
-			END IF;
-		ELSIF TG_OP = 'INSERT' THEN
-			-- delete from the purge queue if present
-			DELETE FROM t_message_body_purge_queue WHERE message_body_guid = NEW.message_body_guid;
-		END IF;
-	END IF;
-	RETURN NULL;
+    SELECT INTO bypass coalesce(current_setting('bluemind.bypass_message_body_purge_queue', true)::boolean, false);
+    IF bypass = false THEN
+        IF TG_OP = 'DELETE' THEN
+            -- Find references to other t_mailbox_record
+            -- we want to add to the purge body queue unreferenced messages
+            PERFORM 1 FROM t_mailbox_record WHERE message_body_guid = OLD.message_body_guid;
+            IF NOT FOUND THEN
+                INSERT INTO t_message_body_purge_queue (message_body_guid) VALUES (OLD.message_body_guid)
+                    ON CONFLICT(message_body_guid) DO NOTHING;
+            END IF;
+        ELSIF TG_OP = 'INSERT' THEN
+            -- delete from the purge queue if present
+            DELETE FROM t_message_body_purge_queue WHERE message_body_guid = NEW.message_body_guid;
+            RETURN NEW;
+        END IF;
+    ELSE
+        IF TG_OP = 'INSERT' THEN
+            RETURN NEW;
+        END IF;
+    END IF;
+    RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trigger_message_record_purge AFTER DELETE OR INSERT ON t_mailbox_record
-	FOR EACH ROW EXECUTE PROCEDURE trigger_message_record_purge();
+    FOR EACH ROW EXECUTE PROCEDURE trigger_message_record_purge();
 
 create table IF NOT EXISTS t_subtree_uid (
-	domain_uid	text not null,
-	mailbox_uid text not null,
-	mailbox_name text not null,
-	namespace text not null,
-	unique (domain_uid, mailbox_uid)
+    domain_uid  text not null,
+    mailbox_uid text not null,
+    mailbox_name text not null,
+    namespace text not null,
+    unique (domain_uid, mailbox_uid)
 );
 
 create index IF NOT EXISTS subtree_uid_idx ON t_subtree_uid (domain_uid, mailbox_name);
@@ -281,7 +286,7 @@ DECLARE
 BEGIN
     SELECT INTO disable_sort_triggers COALESCE(current_setting('bm.disable_sort_triggers', true)::bool, false);
     IF disable_sort_triggers = true THEN
-        RETURN NULL;
+        RETURN NEW;
     END IF;
     SELECT
         regexp_replace(unaccent(subject), '^([\W]*|re\s*:)+', '', 'i') AS subject,
@@ -308,7 +313,7 @@ DECLARE
 BEGIN
     SELECT INTO disable_sort_triggers COALESCE(current_setting('bm.disable_sort_triggers', true)::bool, false);
     IF disable_sort_triggers = true THEN
-        RETURN NULL;
+        RETURN NEW;
     END IF;
     IF (OLD.message_body_guid != NEW.message_body_guid) THEN
         SELECT
@@ -353,10 +358,9 @@ DECLARE
     disable_sort_triggers boolean;
 BEGIN
     SELECT INTO disable_sort_triggers COALESCE(current_setting('bm.disable_sort_triggers', true)::bool, false);
-    IF disable_sort_triggers = true THEN
-        RETURN NULL;
+    IF NOT disable_sort_triggers THEN
+        DELETE FROM s_mailbox_record WHERE container_id = OLD.container_id AND item_id = OLD.item_id;
     END IF;
-    DELETE FROM s_mailbox_record WHERE container_id = OLD.container_id AND item_id = OLD.item_id;
     RETURN NULL;
 END;
 $$;
@@ -368,10 +372,9 @@ DECLARE
     disable_sort_triggers boolean;
 BEGIN
     SELECT INTO disable_sort_triggers COALESCE(current_setting('bm.disable_sort_triggers', true)::bool, false);
-    IF disable_sort_triggers = true THEN
-        RETURN NULL;
+    IF NOT disable_sort_triggers THEN
+        TRUNCATE s_mailbox_record;
     END IF;
-    TRUNCATE s_mailbox_record;
     RETURN NULL;
 END;
 $$;
@@ -414,11 +417,11 @@ CREATE OR REPLACE TRIGGER virtual_message_record_truncate
 -- t_mailbox_record expunged purge system
 -- see MailboxRecordStore.getExpiredItems()
 CREATE TABLE IF NOT EXISTS q_mailbox_record_expunged (
-	container_id integer not null REFERENCES t_container(id) ON DELETE CASCADE,
-	subtree_id integer not null REFERENCES t_container(id) ON DELETE CASCADE,
-	item_id bigint not null REFERENCES t_container_item(id) ON DELETE CASCADE,
-	imap_uid bigint not null,
-	created TIMESTAMP NOT NULL,
+    container_id integer not null REFERENCES t_container(id) ON DELETE CASCADE,
+    subtree_id integer not null REFERENCES t_container(id) ON DELETE CASCADE,
+    item_id bigint not null REFERENCES t_container_item(id) ON DELETE CASCADE,
+    imap_uid bigint not null,
+    created TIMESTAMP NOT NULL,
     PRIMARY KEY (subtree_id, item_id)
 );
 
@@ -437,24 +440,29 @@ CREATE INDEX IF NOT EXISTS q_mailbox_record_expunged_created_idx
 CREATE OR REPLACE FUNCTION fct_mailbox_record_expunged() RETURNS trigger AS
 $$
 DECLARE
-	bypass boolean;
+    bypass boolean;
 BEGIN
-	SELECT INTO bypass coalesce(current_setting('bluemind.bypass_mailbox_record_expunged_queue', true)::boolean, false);
-	IF bypass = false THEN
+    SELECT INTO bypass coalesce(current_setting('bluemind.bypass_mailbox_record_expunged_queue', true)::boolean, false);
+    IF bypass = false THEN
         IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
             -- we want to add to the queue expunged messages
             INSERT INTO q_mailbox_record_expunged (container_id, subtree_id, item_id, imap_uid, created) 
             VALUES (NEW.container_id, NEW.subtree_id, NEW.item_id, NEW.imap_uid, NEW.last_updated)
             -- do nothing on conflict because a message can be expunge only once
             ON CONFLICT(subtree_id, item_id) DO NOTHING;
+            RETURN NEW;
         ELSIF TG_OP = 'DELETE' THEN
             -- we want to remove from the queue deleted messages
             DELETE FROM q_mailbox_record_expunged 
             WHERE subtree_id = OLD.subtree_id
             AND item_id = OLD.item_id;
-	    END IF;
-	END IF;
-	RETURN NULL;
+        END IF;
+    ELSE
+        IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
+            RETURN NEW;
+        END IF;
+    END IF;
+    RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -462,13 +470,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE TRIGGER trigger_mailbox_record_expunged_insert
     AFTER INSERT ON t_mailbox_record FOR EACH ROW
     -- WHEN new message is Expunged 
-	WHEN (((NEW.system_flags)::bit(32) & (1<<31)::bit(32)) = (1<<31)::bit(32))
+    WHEN (((NEW.system_flags)::bit(32) & (1<<31)::bit(32)) = (1<<31)::bit(32))
     EXECUTE PROCEDURE fct_mailbox_record_expunged();
 
 CREATE OR REPLACE TRIGGER trigger_mailbox_record_expunged_update
     AFTER UPDATE ON t_mailbox_record FOR EACH ROW
     -- WHEN updated message became Expunged 
-	WHEN ((((OLD.system_flags)::bit(32) & (1<<31)::bit(32)) = 0::bit(32)) 
+    WHEN ((((OLD.system_flags)::bit(32) & (1<<31)::bit(32)) = 0::bit(32)) 
     AND (((NEW.system_flags)::bit(32) & (1<<31)::bit(32)) = (1<<31)::bit(32)))
     EXECUTE PROCEDURE fct_mailbox_record_expunged();
 
