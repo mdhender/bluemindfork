@@ -20,5 +20,11 @@
             priority="1">
       </hook>
    </extension>
+   <extension
+         point="net.bluemind.domain.domainHook">
+      <hook
+            class="net.bluemind.keycloak.service.domainhook.DomainHook">
+      </hook>
+   </extension>
 
 </plugin>
