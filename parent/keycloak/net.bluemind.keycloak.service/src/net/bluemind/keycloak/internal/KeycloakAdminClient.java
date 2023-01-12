@@ -29,6 +29,7 @@ import java.time.temporal.ChronoUnit;
 
 import com.google.common.base.Strings;
 
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
@@ -36,7 +37,6 @@ import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.TagDescriptor;
 
 public abstract class KeycloakAdminClient {
-
 	protected static final String BASE_URL = "http://"
 			+ Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address() + ":8099";
 
@@ -68,13 +68,15 @@ public abstract class KeycloakAdminClient {
 			}
 			HttpRequest request = requestBuilder.build();
 			HttpClient cli = HttpClient.newHttpClient();
-
 			HttpResponse<String> resp = cli.send(request, BodyHandlers.ofString());
-
 			JsonObject ret = new JsonObject();
 			ret.put("statusCode", resp.statusCode());
 			if (!Strings.isNullOrEmpty(resp.body())) {
-				ret.put("body", new JsonObject(resp.body()));
+				try {
+					ret.put("body", new JsonObject(resp.body()));
+				} catch (Exception e) {
+					ret.put("body", new JsonArray(resp.body()));
+				}
 			}
 
 			return ret;

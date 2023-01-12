@@ -17,6 +17,9 @@
   */
 package net.bluemind.keycloak.internal;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +29,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
+import net.bluemind.keycloak.api.Realm;
 import net.bluemind.role.api.BasicRoles;
 
 public class KeycloakAdminService extends KeycloakAdminClient implements IKeycloakAdmin {
@@ -54,10 +58,10 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 		realm.put("enabled", true);
 		realm.put("loginWithEmailAllowed", true);
 
-		JsonObject ret = execute(REALMS_ADMIN_URL, "POST", realm);
-		if (ret.getInteger("statusCode") != 201) {
+		JsonObject responsqe = execute(REALMS_ADMIN_URL, "POST", realm);
+		if (responsqe.getInteger("statusCode") != 201) {
 			if (logger.isWarnEnabled()) {
-				logger.warn(ret.encodePrettily());
+				logger.warn(responsqe.encodePrettily());
 			}
 			throw new ServerFault("Failed to create realm");
 		}
@@ -68,11 +72,11 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 	public void deleteRealm(String domainId) throws ServerFault {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
 		logger.info("Delete realm {}", domainId);
-		JsonObject ret = execute(REALMS_ADMIN_URL + "/" + domainId, "DELETE");
+		JsonObject response = execute(REALMS_ADMIN_URL + "/" + domainId, "DELETE");
 
-		if (ret.getInteger("statusCode") != 204) {
+		if (response.getInteger("statusCode") != 204) {
 			if (logger.isWarnEnabled()) {
-				logger.warn(ret.encodePrettily());
+				logger.warn(response.encodePrettily());
 			}
 		}
 
@@ -93,10 +97,10 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 		redirectUris.add("*");
 		client.put("redirectUris", redirectUris);
 
-		JsonObject ret = execute(String.format(CLIENTS_URL, domainId), "POST", client);
-		if (ret.getInteger("statusCode") != 201) {
+		JsonObject response = execute(String.format(CLIENTS_URL, domainId), "POST", client);
+		if (response.getInteger("statusCode") != 201) {
 			if (logger.isWarnEnabled()) {
-				logger.warn(ret.encodePrettily());
+				logger.warn(response.encodePrettily());
 			}
 			throw new ServerFault("Failed to create client");
 		}
@@ -116,6 +120,47 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 		}
 
 		return ret.getJsonObject("body").getString("value");
+	}
+
+	@Override
+	public List<Realm> allRealms() throws ServerFault {
+		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
+
+		logger.info("Get realms");
+
+		JsonObject response = execute(REALMS_ADMIN_URL, "GET");
+		List<Realm> ret = new ArrayList<>();
+
+		JsonArray realms = response.getJsonArray("body");
+		realms.forEach(realm -> {
+			ret.add(jsonToRealm((JsonObject) realm));
+		});
+
+		return ret;
+	}
+
+	@Override
+	public Realm getRealm(String domainId) throws ServerFault {
+		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
+
+		logger.info("Get realm {}", domainId);
+
+		JsonObject response = execute(REALMS_ADMIN_URL + "/" + domainId, "GET");
+		if (response.getInteger("statusCode") == 200) {
+			return jsonToRealm(response.getJsonObject("body"));
+		}
+
+		logger.info("Realm {} not found", domainId);
+		return null;
+	}
+
+	private Realm jsonToRealm(JsonObject ret) {
+		Realm realm = new Realm();
+		realm.id = ret.getString("id");
+		realm.realm = ret.getString("realm");
+		realm.enabled = ret.getBoolean("enabled");
+		realm.loginWithEmailAllowed = ret.getBoolean("loginWithEmailAllowed");
+		return realm;
 	}
 
 }

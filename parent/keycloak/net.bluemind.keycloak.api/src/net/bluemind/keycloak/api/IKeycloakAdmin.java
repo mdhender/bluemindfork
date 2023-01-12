@@ -17,6 +17,8 @@
   */
 package net.bluemind.keycloak.api;
 
+import java.util.List;
+
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PUT;
@@ -28,6 +30,13 @@ import net.bluemind.core.api.fault.ServerFault;
 @BMApi(version = "3")
 @Path("/keycloak")
 public interface IKeycloakAdmin {
+
+	@GET
+	public List<Realm> allRealms() throws ServerFault;
+
+	@GET
+	@Path("{domainId}")
+	public Realm getRealm(@PathParam(value = "domainId") String domainId) throws ServerFault;
 
 	@PUT
 	@Path("{domainId}")
