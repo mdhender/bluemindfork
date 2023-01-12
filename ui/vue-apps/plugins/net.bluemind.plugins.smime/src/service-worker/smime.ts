@@ -8,14 +8,15 @@ import {
     ENCRYPTED_HEADER_NAME,
     MULTIPART_SIGNED_MIME,
     PKCS7_MIMES,
-    SIGNED_HEADER_NAME
+    SIGNED_HEADER_NAME,
+    SMIME_ENCRYPTION_ERROR_PREFIX
 } from "../lib/constants";
 import session from "./environnment/session";
 import { EncryptError, SmimeErrors } from "./exceptions";
 import extractSignedData from "./signedDataParser";
 import pkcs7 from "./pkcs7/";
 import { checkCertificateValidity, getMyCertificate, getMyPrivateKey, getCertificate } from "./pki/";
-import { addHeaderValue } from "../lib/helper";
+import { addHeaderValue, resetHeader } from "../lib/helper";
 
 export function isEncrypted(item: ItemValue<MailboxItem>): boolean {
     return PKCS7_MIMES.includes(item.value!.body!.structure!.mime!);
@@ -25,6 +26,7 @@ export function isSigned(item: ItemValue<MailboxItem>): boolean {
 }
 
 export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): Promise<ItemValue<MailboxItem>> {
+    item.value.body.headers = resetHeader(item.value.body.headers, ENCRYPTED_HEADER_NAME);
     //TODO: Add a cache based on body guid
     try {
         const sid = await session.sid;
@@ -81,15 +83,16 @@ export async function encrypt(item: MailboxItem, folderUid: string): Promise<Mai
             const part = { address, charset: "utf-8", encoding: "base64", mime: PKCS7_MIMES[0] };
             encryptedItem.body.structure = part;
         }
+        encryptedItem.body.headers = addHeaderValue(item.body?.headers, ENCRYPTED_HEADER_NAME, CRYPTO_HEADERS.OK);
     } catch (error) {
         const errorCode = error instanceof SmimeErrors ? error.code : CRYPTO_HEADERS.UNKNOWN;
-        encryptedItem.body.headers = addHeaderValue(encryptedItem.body.headers, ENCRYPTED_HEADER_NAME, errorCode);
-        throw error;
+        throw `[${SMIME_ENCRYPTION_ERROR_PREFIX}:${errorCode}]`;
     }
     return encryptedItem;
 }
 
 export async function verify(folderUid: string, item: ItemValue<MailboxItem>): Promise<ItemValue<MailboxItem>> {
+    item.value.body.headers = resetHeader(item.value.body.headers, SIGNED_HEADER_NAME);
     try {
         const client = new MailboxItemsClient(await session.sid, folderUid);
         const eml = await client.fetchComplete(item.value.imapUid!).then(eml => eml.text());

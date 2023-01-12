@@ -1,8 +1,8 @@
 <template>
     <bm-icon-button
-        :icon="isEncrypted ? 'lock' : 'lock-open'"
+        :icon="!hasEncryptionHeader ? 'lock-open' : hasEncryptError ? 'lock-slash' : 'lock'"
         class="encrypt-button"
-        :class="{ encrypted: isEncrypted }"
+        :class="{ selected: hasEncryptionHeader, error: hasEncryptError }"
         variant="compact"
         size="lg"
         :title="title"
@@ -15,7 +15,7 @@ import { mapGetters } from "vuex";
 import { BmIconButton } from "@bluemind/ui-components";
 import { draftUtils, messageUtils } from "@bluemind/mail";
 import { SMIME_AVAILABLE } from "../../store/getterTypes";
-import { isEncrypted, addHeaderValue, removeHeader } from "../../lib/helper";
+import { hasEncryptionHeader, addHeaderValue, removeHeader } from "../../lib/helper";
 import { CRYPTO_HEADERS, ENCRYPTED_HEADER_NAME, SIGNED_HEADER_NAME, SMIMEPrefKeys } from "../../lib/constants";
 
 const { MessageCreationModes, messageKey } = messageUtils;
@@ -33,12 +33,19 @@ export default {
     computed: {
         ...mapGetters("mail", { SMIME_AVAILABLE }),
         title() {
-            return this.isEncrypted
-                ? this.$t("smime.mailapp.composer.unencrypt")
+            return this.hasEncryptionHeader
+                ? this.$t("smime.mailapp.composer.no_encrypt")
                 : this.$t("smime.mailapp.composer.encrypt");
         },
-        isEncrypted() {
-            return isEncrypted(this.message.headers);
+        hasEncryptionHeader() {
+            return hasEncryptionHeader(this.message.headers);
+        },
+        hasEncryptError() {
+            return (
+                !this.SMIME_AVAILABLE ||
+                this.$store.state.mail.smime.cannotEncryptEmails.length > 0 ||
+                this.$store.state.mail.smime.encryptError
+            );
         }
     },
     watch: {
@@ -56,7 +63,7 @@ export default {
                             CRYPTO_HEADERS.TO_DO
                         );
                         this.$store.commit("mail/SET_MESSAGE_HEADERS", { messageKey: this.message.key, headers });
-                    } else if (!isNewMessage(this.message) && this.isEncrypted) {
+                    } else if (!isNewMessage(this.message) && this.hasEncryptionHeader) {
                         const headers = addHeaderValue(
                             this.message.headers,
                             ENCRYPTED_HEADER_NAME,
@@ -67,7 +74,7 @@ export default {
                         const key = messageKey(...this.$route.query.message.split(":").reverse());
                         const previous = this.$store.state.mail.conversations.messages[key];
 
-                        if (previous && isEncrypted(previous.headers)) {
+                        if (previous && hasEncryptionHeader(previous.headers)) {
                             const headers = addHeaderValue(
                                 this.message.headers,
                                 ENCRYPTED_HEADER_NAME,
@@ -84,7 +91,7 @@ export default {
     methods: {
         async action() {
             let headers;
-            if (this.isEncrypted) {
+            if (this.hasEncryptionHeader) {
                 headers = removeHeader(this.message.headers, ENCRYPTED_HEADER_NAME);
             } else {
                 headers = addHeaderValue(this.message.headers, ENCRYPTED_HEADER_NAME, CRYPTO_HEADERS.TO_DO);
@@ -105,8 +112,11 @@ export default {
 @import "~@bluemind/ui-components/src/css/variables.scss";
 
 .encrypt-button {
-    &.encrypted {
+    &.selected:not(.error) {
         color: $primary-fg-hi1;
+    }
+    &.error.selected {
+        color: $danger-fg-hi1;
     }
 }
 </style>

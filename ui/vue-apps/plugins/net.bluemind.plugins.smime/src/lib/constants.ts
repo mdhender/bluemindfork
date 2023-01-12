@@ -39,3 +39,4 @@ export enum SMIMEPrefKeys {
     ENCRYPTION = "encrypt_message_by_default"
 }
 export const IS_SW_AVAILABLE = !!navigator.serviceWorker?.controller;
+export const SMIME_ENCRYPTION_ERROR_PREFIX = "SMIME_ENCRYPTION_ERROR";

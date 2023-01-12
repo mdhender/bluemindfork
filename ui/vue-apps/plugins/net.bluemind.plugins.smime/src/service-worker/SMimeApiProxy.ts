@@ -50,28 +50,21 @@ export default class SMimeApiProxy extends MailboxItemsClient {
         return item;
     }
     async create(item: MailboxItem): Promise<ImapItemIdentifier> {
-        try {
-            if (item.body.headers && hasToBeSigned(item.body.headers)) {
-                item = await sign(item, this.replicatedMailboxUid);
-            }
-            if (item.body.headers && hasToBeEncrypted(item.body.headers)) {
-                item = await encrypt(item, this.replicatedMailboxUid);
-            }
-        } catch (e) {
-            logger.error(e);
+        if (item.body.headers && hasToBeSigned(item.body.headers)) {
+            item = await sign(item, this.replicatedMailboxUid);
         }
+        if (item.body.headers && hasToBeEncrypted(item.body.headers)) {
+            item = await encrypt(item, this.replicatedMailboxUid);
+        }
+
         return this.next!(item);
     }
     async updateById(id: number, item: MailboxItem): Promise<Ack> {
-        try {
-            if (item.body.headers && hasToBeSigned(item.body.headers)) {
-                item = await sign(item, this.replicatedMailboxUid);
-            }
-            if (item.body.headers && hasToBeEncrypted(item.body.headers)) {
-                item = await encrypt(item, this.replicatedMailboxUid);
-            }
-        } catch (e) {
-            logger.error(e);
+        if (item.body.headers && hasToBeSigned(item.body.headers)) {
+            item = await sign(item, this.replicatedMailboxUid);
+        }
+        if (item.body.headers && hasToBeEncrypted(item.body.headers)) {
+            item = await encrypt(item, this.replicatedMailboxUid);
         }
         return await this.next!(id, item);
     }

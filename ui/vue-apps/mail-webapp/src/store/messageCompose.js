@@ -1,7 +1,6 @@
 import { inject } from "@bluemind/inject";
 import { LOAD_MAX_MESSAGE_SIZE } from "~/actions";
 import {
-    MAX_MESSAGE_SIZE_EXCEEDED,
     RESET_COMPOSER,
     SET_CORPORATE_SIGNATURE,
     SET_PERSONAL_SIGNATURE,
@@ -19,9 +18,6 @@ import templateChooser from "./templateChooser";
 
 export default {
     mutations: {
-        [MAX_MESSAGE_SIZE_EXCEEDED]: (state, hasExceeded) => {
-            state.maxMessageSizeExceeded = hasExceeded;
-        },
         [RESET_COMPOSER]: state => {
             state.disclaimer = null;
             state.corporateSignature = null;
@@ -30,7 +26,6 @@ export default {
             state.collapsedContent = null;
             state.inlineImagesSaved = [];
             state.isSenderShown = false;
-
             state.maxMessageSizeExceeded = false;
         },
         [SET_CORPORATE_SIGNATURE]: (state, mailTip) => {
@@ -66,6 +61,9 @@ export default {
         },
         [SET_MAIL_TIPS]: (state, mailTips) => {
             state.mailTips = mailTips;
+        },
+        SET_SAVE_ERROR: (state, error) => {
+            state.maxMessageSizeExceeded = error?.data?.errorCode === "ENTITY_TOO_LARGE";
         }
     },
 

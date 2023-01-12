@@ -3,7 +3,7 @@ import { mapActions, mapState } from "vuex";
 import { ERROR, REMOVE } from "@bluemind/alert.store";
 import { draftUtils, messageUtils } from "@bluemind/mail";
 import { DEBOUNCED_SAVE_MESSAGE, REQUEST_DSN, TOGGLE_DSN_REQUEST } from "~/actions";
-import { MAX_MESSAGE_SIZE_EXCEEDED, RESET_COMPOSER, SET_MESSAGE_HEADERS } from "~/mutations";
+import { RESET_COMPOSER, SET_MESSAGE_HEADERS, SET_SAVE_ERROR } from "~/mutations";
 import { IS_SENDER_SHOWN } from "~/getters";
 import { ComposerFromMixin } from "~/mixins";
 import { Flag } from "@bluemind/email";
@@ -57,7 +57,7 @@ export default {
         }
     },
     mounted() {
-        this.$store.commit("mail/" + MAX_MESSAGE_SIZE_EXCEEDED, false);
+        this.$store.commit("mail/" + SET_SAVE_ERROR, {});
         if (this.message.from) {
             this.setIdentity({ email: this.message.from.address, displayname: this.message.from.dn });
         }

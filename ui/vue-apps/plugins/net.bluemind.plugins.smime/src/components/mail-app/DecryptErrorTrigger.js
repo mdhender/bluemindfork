@@ -1,5 +1,6 @@
 import { mapActions } from "vuex";
-import { isEncrypted, getDecryptHeader, isDecrypted } from "../../lib/helper";
+import { ENCRYPTED_HEADER_NAME } from "../../lib/constants";
+import { hasEncryptionHeader, getHeaderValue, isDecrypted } from "../../lib/helper";
 
 export default {
     props: {
@@ -17,8 +18,8 @@ export default {
     watch: {
         "message.headers": {
             handler() {
-                if (isEncrypted(this.message.headers) && !isDecrypted(this.message.headers)) {
-                    this.alert.payload = getDecryptHeader(this.message.headers);
+                if (hasEncryptionHeader(this.message.headers) && !isDecrypted(this.message.headers)) {
+                    this.alert.payload = getHeaderValue(this.message.headers, ENCRYPTED_HEADER_NAME);
                     this.ERROR({ alert: this.alert, options: this.options });
                 } else {
                     this.REMOVE(this.alert);

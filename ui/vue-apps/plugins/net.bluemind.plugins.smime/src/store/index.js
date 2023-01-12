@@ -16,7 +16,8 @@ export default {
 
         // mail-app
         displayUntrusted: [],
-        cannotEncryptEmails: []
+        cannotEncryptEmails: [],
+        encryptError: null
     },
     getters: {
         [SMIME_AVAILABLE]: state => IS_SW_AVAILABLE && state.hasPublicCert && state.hasPrivateKey
@@ -69,6 +70,15 @@ export default {
                 return cannotEncryptTip && forRecipient?.email ? forRecipient.email : [];
             });
             state.cannotEncryptEmails = cannotEncryptEmails;
+        },
+        SET_SAVE_ERROR: (state, error) => {
+            if (error && error.message) {
+                const regex = /\[SMIME_ENCRYPTION_ERROR:(.*)\]/;
+                const match = error.message.match(regex);
+                state.encryptError = match && match[1] ? parseInt(match[1]) : null;
+            } else {
+                state.encryptError = null;
+            }
         }
     }
 };

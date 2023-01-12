@@ -1,7 +1,7 @@
 <script>
 import { BmIcon } from "@bluemind/ui-components";
 import { messageUtils } from "@bluemind/mail";
-import { isEncrypted } from "../../lib/helper";
+import { hasEncryptionHeader } from "../../lib/helper";
 
 export default {
     components: { BmIcon },
@@ -16,10 +16,10 @@ export default {
         }
     },
     computed: {
-        isEncrypted() {
+        hasEncryptionHeader() {
             return !!this.conversation.messages.find(messageKey => {
                 const message = this.$store.state.mail.conversations.messages[messageKey];
-                return isEncrypted(message.headers);
+                return hasEncryptionHeader(message.headers);
             });
         }
     },
@@ -27,7 +27,7 @@ export default {
         const isUnread = messageUtils.isUnread(this.conversation);
         const icon = isUnread ? "lock-fill" : "lock";
         const className = isUnread ? "unread" : "";
-        if (this.isEncrypted) {
+        if (this.hasEncryptionHeader) {
             return h("bm-icon", {
                 props: {
                     icon

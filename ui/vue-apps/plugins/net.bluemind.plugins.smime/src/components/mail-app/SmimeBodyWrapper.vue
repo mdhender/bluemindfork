@@ -1,7 +1,7 @@
 <script>
 import { BmButton } from "@bluemind/ui-components";
 import { IS_SW_AVAILABLE, PKCS7_MIMES } from "../../lib/constants";
-import { isDecrypted, isEncrypted, isSigned, isVerified } from "../../lib/helper";
+import { isDecrypted, hasEncryptionHeader, isSigned, isVerified } from "../../lib/helper";
 import untrustedIllustration from "../../../assets/mail-app-untrusted.png";
 import undecryptedIllustration from "../../../assets/mail-app-undecrypted.png";
 
@@ -32,7 +32,7 @@ export default {
             return isSigned(this.message.headers) && !isVerified(this.message.headers);
         },
         undecrypted() {
-            return isEncrypted(this.message.headers) && !isDecrypted(this.message.headers);
+            return hasEncryptionHeader(this.message.headers) && !isDecrypted(this.message.headers);
         }
     },
     methods: {

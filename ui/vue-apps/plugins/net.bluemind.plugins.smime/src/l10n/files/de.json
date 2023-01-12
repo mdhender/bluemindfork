@@ -10,7 +10,7 @@
             },
             "composer": {
                 "encrypt": "Nachricht verschlüsseln",
-                "unencrypt": "Die Nachricht entschlüsseln",
+                "no_encrypt": "Die Nachricht nicht mehr verschlüsseln",
                 "invalid_recipient" : "Die Nachricht kann für diesen Empfänger nicht verschlüsselt werden"
             }
         },

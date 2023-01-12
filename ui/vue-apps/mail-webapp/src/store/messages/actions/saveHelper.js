@@ -8,7 +8,6 @@ const { sanitizeTextPartForCyrus } = partUtils;
 import { draftUtils, fileUtils, messageUtils, signatureUtils } from "@bluemind/mail";
 import { ADD_FLAG, DELETE_FLAG } from "~/actions";
 import {
-    MAX_MESSAGE_SIZE_EXCEEDED,
     SET_MESSAGE_DATE,
     SET_MESSAGE_HEADERS,
     SET_MESSAGE_INTERNAL_ID,
@@ -17,6 +16,7 @@ import {
     SET_SAVED_INLINE_IMAGES,
     SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES,
     SET_MESSAGE_PREVIEW,
+    SET_SAVE_ERROR,
     SET_MESSAGE_SIZE
 } from "~/mutations";
 import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
@@ -54,14 +54,12 @@ export async function save(context, draft, messageCompose, files) {
         await createEmlOnServer(context, draft, service, structure);
 
         context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.IDLE }]);
-        context.commit(MAX_MESSAGE_SIZE_EXCEEDED, false);
+        context.commit(SET_SAVE_ERROR, null);
     } catch (err) {
         // eslint-disable-next-line no-console
         console.error(err);
         context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.SAVE_ERROR }]);
-        if (err.data?.errorCode === "ENTITY_TOO_LARGE") {
-            context.commit(MAX_MESSAGE_SIZE_EXCEEDED, true);
-        }
+        context.commit(SET_SAVE_ERROR, err);
     } finally {
         tmpAddresses.slice(0, 2).forEach(address => service.removePart(address));
     }
