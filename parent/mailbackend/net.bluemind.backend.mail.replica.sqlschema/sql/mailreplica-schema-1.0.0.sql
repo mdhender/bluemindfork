@@ -290,7 +290,7 @@ BEGIN
     END IF;
     SELECT
         regexp_replace(unaccent(subject), '^([\W]*|re\s*:)+', '', 'i') AS subject,
-        jsonb_path_query(recipients, '$[*] ? (@.kind == "Originator")') ->> 'address' AS sender,
+        jsonb_path_query_first(recipients, '$[*] ? (@.kind == "Originator" && @.address like_regex "[^.]+@[^.]+\.[^.]+")') ->> 'address' AS sender,
         size
     FROM t_message_body
     INTO body
@@ -318,7 +318,7 @@ BEGIN
     IF (OLD.message_body_guid != NEW.message_body_guid) THEN
         SELECT
             regexp_replace(unaccent(subject), '^([\W]*|re\s*:)+', '', 'i') AS subject,
-            jsonb_path_query(recipients, '$[*] ? (@.kind == "Originator")') ->> 'address' AS sender,
+            jsonb_path_query_first(recipients, '$[*] ? (@.kind == "Originator" && @.address like_regex "[^.]+@[^.]+\.[^.]+")') ->> 'address' AS sender,
             size
         FROM t_message_body
         INTO body

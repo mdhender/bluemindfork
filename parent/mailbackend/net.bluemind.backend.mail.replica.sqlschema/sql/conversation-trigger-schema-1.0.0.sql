@@ -2,7 +2,7 @@ CREATE OR REPLACE VIEW view_conversation_get_message_body_data AS
     SELECT
         guid,
         regexp_replace(unaccent(subject), '^([\W]*|re\s*:)+', '', 'i') AS subject,
-        jsonb_path_query(recipients, '$[*] ? (@.kind == "Originator")') ->> 'address' AS sender,
+        jsonb_path_query_first(recipients, '$[*] ? (@.kind == "Originator" && @.address like_regex "[^.]+@[^.]+\.[^.]+")') ->> 'address' AS sender,
         size
     FROM t_message_body;
 
