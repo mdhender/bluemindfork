@@ -233,12 +233,6 @@ public class RebalanceCommand implements ICmdLet, Runnable {
 			return;
 		}
 
-		long fsAvailable = ESearchActivator.fsAvailable(targetIndexName);
-		if (boxSize > fsAvailable) {
-			ctx.warn("Space available on target index node is lower than estimated box size: {}Mb < {}Mb",
-					fsAvailable / (1024d * 1024d), boxSize / (1024d * 1024d));
-		}
-
 		try {
 			TaskRef ref = mboxMgmt.moveIndex(mailboxUid, targetIndexName, true);
 			Tasks.follow(ctx, ref, "",
