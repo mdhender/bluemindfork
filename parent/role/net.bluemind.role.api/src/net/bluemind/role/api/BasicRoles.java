@@ -290,7 +290,10 @@ public class BasicRoles {
 	 * Permission to access Roundcube webmail.
 	 */
 	public static final String ROLE_WEBMAIL = "hasWebmail";
-
+	/**
+	 * Permission to access WebApp Mail.
+	 */
+	public static final String ROLE_MAIL_WEBAPP = "hasMailWebapp";
 	/**
 	 * Permission to change user ext id.
 	 */

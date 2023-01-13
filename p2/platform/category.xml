@@ -420,7 +420,6 @@
    <bundle id="net.bluemind.lmtp.filter.imip" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.lmtp.filter.tnef" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.lmtp.testhelper" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.mailapp.role" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailbox.api" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailbox.api.closure" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.mailbox.api.gwt" version="4.1.0.qualifier"/>

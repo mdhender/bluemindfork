@@ -17,7 +17,6 @@
 		<module>forest</module>
 		<module>password-bruteforce</module>
 		<module>password-sizestrength</module>
-		<module>mailapp</module>
 		<module>ldap-export</module>
 		<module>videoconferencing-jitsi</module>
 		<module>videoconferencing-starleaf</module>

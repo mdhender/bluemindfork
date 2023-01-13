@@ -36,7 +36,8 @@ public class DefaultRoles {
 					BasicRoles.ROLE_SELF_CHANGE_MAIL_IDENTITIES, //
 					BasicRoles.ROLE_SELF_CHANGE_MAILBOX_FILTER, //
 					BasicRoles.ROLE_READ_DOMAIN_FILTER, //
-					BasicRoles.ROLE_WEBMAIL)
+					BasicRoles.ROLE_WEBMAIL, //
+					BasicRoles.ROLE_MAIL_WEBAPP)
 			.build();
 
 	/**

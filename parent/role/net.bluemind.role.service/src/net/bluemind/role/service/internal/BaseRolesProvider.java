@@ -464,6 +464,12 @@ public class BaseRolesProvider implements IRolesProvider {
 						.giveRoles(BasicRoles.ROLE_MAIL).delegable(),
 
 				RoleDescriptor
+						.create(BasicRoles.ROLE_MAIL_WEBAPP, CATEGORY_MAIL,
+								rb.getString("role.accessMailWebapp.label"), //
+								rb.getString("role.accessMailWebapp.description")) //
+						.giveRoles(BasicRoles.ROLE_MAIL).delegable(),
+
+				RoleDescriptor
 						.create(BasicRoles.ROLE_MANAGE_USER_EXTERNAL_ID, CATEGORY_ADMINISTRATION,
 								rb.getString("role.manageUserExternalId.label"),
 								rb.getString("role.manageUserExternalId.description"))
