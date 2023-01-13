@@ -17,6 +17,8 @@
   */
 package net.bluemind.keycloak.service.domainhook;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,9 +26,13 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.hook.DomainHookAdapter;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
 import net.bluemind.keycloak.api.IKeycloakUids;
+import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 
 public class DomainHook extends DomainHookAdapter {
 
@@ -36,8 +42,24 @@ public class DomainHook extends DomainHookAdapter {
 	public void onCreated(BmContext context, ItemValue<Domain> domain) throws ServerFault {
 		logger.info("Init Keycloak realm for domain {}", domain.uid);
 		IKeycloakAdmin service = context.provider().instance(IKeycloakAdmin.class);
-		service.createRealm(domain.uid);
-		service.createClient(domain.uid, IKeycloakUids.clientId(domain.uid));
+
+		String realm = domain.uid;
+		String clientId = IKeycloakUids.clientId(domain.uid);
+
+		service.createRealm(realm);
+		service.createClient(realm, clientId);
+		String secret = service.getClientSecret(realm, clientId);
+
+		IDomainSettings settingsApi = context.provider().instance(IDomainSettings.class, domain.uid);
+		Map<String, String> settings = settingsApi.get();
+		settings.put(DomainSettingsKeys.keycloak_host.name(),
+				Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address());
+		settings.put(DomainSettingsKeys.keycloak_port.name(), "8099");
+		settings.put(DomainSettingsKeys.keycloak_realm.name(), realm);
+		settings.put(DomainSettingsKeys.keycloak_client_id.name(), clientId);
+		settings.put(DomainSettingsKeys.keycloak_client_secret.name(), secret);
+		settingsApi.set(settings);
+
 	}
 
 	@Override

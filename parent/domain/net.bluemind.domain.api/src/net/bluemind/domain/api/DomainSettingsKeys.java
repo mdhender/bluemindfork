@@ -57,5 +57,10 @@ public enum DomainSettingsKeys {
 	ssl_certif_engine, //
 	@NotNull
 	nextcloudUrl, //
-	domain_composer_font_stack
+	domain_composer_font_stack, //
+	keycloak_host, //
+	keycloak_port, //
+	keycloak_realm, //
+	keycloak_client_id, //
+	keycloak_client_secret;
 }
