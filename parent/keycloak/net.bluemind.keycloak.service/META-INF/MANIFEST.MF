@@ -19,4 +19,5 @@ Require-Bundle: net.bluemind.server.hook,
  net.bluemind.core.container.service,
  net.bluemind.role.api,
  net.bluemind.network.topology,
- net.bluemind.domain.hook
+ net.bluemind.domain.hook,
+ net.bluemind.directory.service
