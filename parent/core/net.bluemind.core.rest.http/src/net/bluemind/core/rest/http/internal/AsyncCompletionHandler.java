@@ -61,8 +61,7 @@ public class AsyncCompletionHandler extends AsyncCompletionHandlerBase {
 	@Override
 	public State onBodyPartReceived(HttpResponseBodyPart content) throws Exception {
 		if (chunked) {
-			Buffer chunk = Buffer.buffer(content.getBodyPartBytes());
-			logger.debug("recieve chunk of chuncked response {}", chunk);
+			Buffer chunk = Buffer.buffer(Unpooled.wrappedBuffer(content.getBodyPartBytes()));
 			bufferedStream.write(chunk);
 			return State.CONTINUE;
 		} else {
