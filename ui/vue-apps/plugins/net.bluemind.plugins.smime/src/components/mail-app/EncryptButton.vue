@@ -31,7 +31,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("smime", { SMIME_AVAILABLE }),
+        ...mapGetters("mail", { SMIME_AVAILABLE }),
         title() {
             return this.isEncrypted
                 ? this.$t("smime.mailapp.composer.unencrypt")
