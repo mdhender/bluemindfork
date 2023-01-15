@@ -57,7 +57,7 @@ public class MailboxItemsTests extends AbstractRollingReplicationTests {
 	public static final int MAIL_COUNT = 250;
 	public static final int MARCO_POLO_CYCLES = 50;
 
-	private IMailboxItems mailApi;
+	protected IMailboxItems mailApi;
 
 	@Before
 	@Override
@@ -155,8 +155,7 @@ public class MailboxItemsTests extends AbstractRollingReplicationTests {
 		Thread.sleep(250);
 
 		ItemValue<MailboxItem> item = mailApi.getCompleteById(deletedId);
-		assertTrue("Should contain 'expunged' internal flag",
-				((MailboxRecord) item.value).internalFlags.contains(InternalFlag.expunged));
+		assertExunged(item);
 	}
 
 	@Test
@@ -173,6 +172,15 @@ public class MailboxItemsTests extends AbstractRollingReplicationTests {
 		Thread.sleep(500);
 
 		List<ItemValue<MailboxItem>> records = mailApi.multipleGetById(deletedIds);
+		assertExpunge(deletedIds, records);
+	}
+
+	protected void assertExunged(ItemValue<MailboxItem> item) {
+		assertTrue("Should contain 'expunged' internal flag",
+				((MailboxRecord) item.value).internalFlags.contains(InternalFlag.expunged));
+	}
+
+	protected void assertExpunge(List<Long> deletedIds, List<ItemValue<MailboxItem>> records) {
 		assertEquals("Should contain 'expunged' internal flag", deletedIds.size(), records.stream()
 				.filter(r -> ((MailboxRecord) r.value).internalFlags.contains(InternalFlag.expunged)).count());
 	}
