@@ -54,8 +54,10 @@ public class Result<T> implements AsyncResult<T> {
 		return new Result<>(r, null);
 	}
 
+	private static final AsyncResult<Void> voidSuccess = new Result<>(null, null);
+
 	public static AsyncResult<Void> success() {
-		return new Result<>(null, null);
+		return voidSuccess;
 	}
 
 	public static <T> AsyncResult<T> fail(Throwable cause) {

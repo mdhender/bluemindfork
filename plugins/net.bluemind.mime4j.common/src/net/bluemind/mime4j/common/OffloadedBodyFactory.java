@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
 
+import io.netty.util.internal.PlatformDependent;
 import net.bluemind.common.io.FileBackedOutputStream;
 
 public class OffloadedBodyFactory implements BodyFactory {
@@ -96,7 +97,7 @@ public class OffloadedBodyFactory implements BodyFactory {
 	 * @return
 	 */
 	public static IStreamTransfer sharedBufferTransfer() {
-		final byte[] forTransfers = new byte[8192];
+		final byte[] forTransfers = PlatformDependent.allocateUninitializedArray(8192);
 		return (from, to) -> {
 			long total = 0;
 			while (true) {
