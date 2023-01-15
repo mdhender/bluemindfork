@@ -87,18 +87,19 @@ public class SpoolBackingStore implements ISdsBackingStore {
 	private final IServiceProvider prov;
 	private final SystemConf sysconf;
 	private ItemValue<Server> backend;
+	private final INodeClient nc;
 
 	public SpoolBackingStore(@SuppressWarnings("unused") Vertx vertx, IServiceProvider prov,
 			ItemValue<Server> backend) {
 		this.prov = prov;
 		this.backend = backend;
 		this.sysconf = LocalSysconfCache.get();
+		this.nc = NodeActivator.get(backend.value.address());
 	}
 
 	@Override
 	public CompletableFuture<SdsResponse> upload(PutRequest req) {
 		String target = chooseTarget(req);
-		INodeClient nc = NodeActivator.get(backend.value.address());
 
 		ByteBuf bb = Unpooled.buffer(2 * (int) new File(req.filename).length());
 		try (InputStream input = Files.newInputStream(Paths.get(req.filename));
@@ -225,7 +226,6 @@ public class SpoolBackingStore implements ISdsBackingStore {
 				to = livePath(move.messageBodyGuid);
 			}
 
-			INodeClient nc = NodeActivator.get(backend.value.address());
 			if (nc.exists(from)) {
 				try {
 					nc.moveFile(from, to);
@@ -243,7 +243,6 @@ public class SpoolBackingStore implements ISdsBackingStore {
 	}
 
 	private boolean onNode(String targetPath, String emlPath, ItemValue<Server> b, boolean decompress) {
-		INodeClient nc = NodeActivator.get(b.value.address());
 		if (targetPath == null) {
 			return nc.exists(emlPath);
 		} else {
