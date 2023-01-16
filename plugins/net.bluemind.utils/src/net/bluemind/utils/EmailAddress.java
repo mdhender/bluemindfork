@@ -41,10 +41,9 @@ public class EmailAddress extends InternetAddress {
 		if (m.matches()) {
 			String dn = m.group(1);
 			if (!dn.startsWith("\"")) {
-				address = address.replace(dn.trim(), "\"" + dn.trim() + "\"");
+				address = address.replaceFirst(dn.trim(), "\"" + dn.trim() + "\"");
 			}
 		}
-
 		return address;
 	}
 }
