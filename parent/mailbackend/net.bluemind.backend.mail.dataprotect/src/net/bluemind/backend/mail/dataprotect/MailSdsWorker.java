@@ -19,6 +19,7 @@ package net.bluemind.backend.mail.dataprotect;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -79,8 +80,8 @@ public class MailSdsWorker extends DefaultWorker {
 				nc.mkdirs(outputPath.toString());
 				try (Stream<Path> stream = Files.list(tempFolder)) {
 					stream.filter(p -> !Files.isDirectory(p)).forEach(p -> {
-						try {
-							nc.writeFile(outputPath.resolve(p.getFileName()).toString(), Files.newInputStream(p));
+						try (InputStream instream = Files.newInputStream(p)) {
+							nc.writeFile(outputPath.resolve(p.getFileName()).toString(), instream);
 						} catch (ServerFault | IOException e) {
 							logger.error("Unable to copy {} to {}: {}", tempFolder.resolve(p.getFileName()), outputPath,
 									e.getMessage());
@@ -91,6 +92,7 @@ public class MailSdsWorker extends DefaultWorker {
 				try (Stream<Path> stream = Files.walk(tempFolder)) {
 					stream.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
 				}
+				Files.deleteIfExists(tempFolder);
 			}
 		} catch (IOException e) {
 			logger.error("Unable to create temporary directory for sds backup");
