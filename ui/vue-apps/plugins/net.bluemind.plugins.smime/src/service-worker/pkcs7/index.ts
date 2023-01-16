@@ -1,4 +1,5 @@
 import { pkcs7, pki, asn1, util } from "node-forge";
+import { binaryToArrayBuffer } from "@bluemind/arraybuffer";
 import {
     InvalidCertificateError,
     DecryptError,
@@ -8,7 +9,6 @@ import {
 } from "../exceptions";
 import { checkMessageIntegrity, checkSignatureValidity, getSignedDataEnvelope, getSigningTime } from "./verify";
 import { checkCertificateValidity, getMyCertificate, getMyPrivateKey } from "../pki/";
-import { binaryToArrayBuffer } from "@bluemind/arraybuffer";
 
 export async function decrypt(
     data: Blob,
@@ -42,9 +42,7 @@ export function encrypt(content: string, certificates: pki.Certificate[]): Blob 
         certificates.forEach(certificate => envelope.addRecipient(certificate));
         envelope.content = util.createBuffer(content);
         envelope.encrypt();
-
-        const asn1Content = envelope.toAsn1();
-        const bytes = asn1.toDer(asn1Content).getBytes();
+        const bytes = asn1.toDer(envelope.toAsn1()).getBytes();
         const buffer = binaryToArrayBuffer(bytes);
         return new Blob([buffer]);
     } catch (error) {
@@ -93,12 +91,16 @@ export async function sign(content: string) {
         });
 
         p7.sign({ detached: true }); // PKCS#7 sign in detached mode: includes the signature and certificate without the signed data
-        const bytes = asn1.toDer(p7.toAsn1()).getBytes();
-        const buffer = binaryToArrayBuffer(bytes);
-        return new Blob([buffer]);
+        const pem = pkcs7.messageToPem(p7);
+        return removePemLabel(pem);
     } catch (error) {
         throw new SignError(error);
     }
+}
+
+function removePemLabel(pem: string): string {
+    const firstNewLine = pem.indexOf("\r\n");
+    return pem.substring(firstNewLine + "\r\n".length, pem.length - "\r\n".length * 2 - "-----END PKCS7-----".length);
 }
 
 export default { decrypt, encrypt, verify, sign };

@@ -1046,10 +1046,10 @@
   dependencies:
     "@bluemind/api.commons" "^5.0.2572"
 
-"@bluemind/emailjs-mime-builder@^2.0.5-bluemind1":
-  version "2.0.5-bluemind1"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/emailjs-mime-builder/-/emailjs-mime-builder-2.0.5-bluemind1.tgz#e0975ba849208dc0aae254281a0de19e9dc597c6"
-  integrity sha512-6EvI+7KhdnM95ijCK2qmi8oG7cmq/X2FeOJfw8I6dwRx54HKuOGvEYLOG6HSeuNzd+LSQwu0usnfyCokRbUSsg==
+"@bluemind/emailjs-mime-builder@^2.0.5-bluemind2":
+  version "2.0.5-bluemind2"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/emailjs-mime-builder/-/emailjs-mime-builder-2.0.5-bluemind2.tgz#a52ba13698888fccb8b46e76a888efb23ded4f28"
+  integrity sha512-SRCffZ5N+ajOHxCSOXeh68G7Uvv5+/xhDZx+UulPZFUHZkwadzIrNIko2faZxa0NOq/p03dvC9Oojv02bkjYPg==
   dependencies:
     emailjs-addressparser "^2.0.2"
     emailjs-mime-codec "^2.0.8"

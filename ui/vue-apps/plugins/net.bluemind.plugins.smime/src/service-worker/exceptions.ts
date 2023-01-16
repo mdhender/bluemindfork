@@ -3,7 +3,7 @@ import { CRYPTO_HEADERS } from "../lib/constants";
 export abstract class SmimeErrors extends Error {
     code: number;
     constructor(message: string, code: number, error?: unknown) {
-        let fullMessage;
+        let fullMessage = message;
         if (error instanceof Error) {
             fullMessage = `${message}: ${error.message}`;
         } else if (typeof error === "string") {

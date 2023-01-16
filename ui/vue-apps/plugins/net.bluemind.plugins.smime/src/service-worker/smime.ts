@@ -16,7 +16,6 @@ import extractSignedData from "./signedDataParser";
 import pkcs7 from "./pkcs7/";
 import { checkCertificateValidity, getMyCertificate, getMyPrivateKey, getCertificate } from "./pki/";
 import { addHeaderValue } from "../lib/helper";
-import { logger } from "./environnment/logger";
 
 export function isEncrypted(item: ItemValue<MailboxItem>): boolean {
     return PKCS7_MIMES.includes(item.value!.body!.structure!.mime!);
@@ -50,15 +49,16 @@ export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): 
     } catch (error: unknown) {
         const errorCode = error instanceof SmimeErrors ? error.code : CRYPTO_HEADERS.UNKNOWN;
         item.value.body.headers = addHeaderValue(item.value.body.headers, ENCRYPTED_HEADER_NAME, errorCode);
+        throw error;
     }
     return item;
 }
 
 export async function encrypt(item: MailboxItem, folderUid: string): Promise<MailboxItem> {
     const encryptedItem = { ...item };
-    const sid = await session.sid;
-    const client = new MailboxItemsClient(sid, folderUid);
-    let mimeTree: string | undefined;
+    const client = new MailboxItemsClient(await session.sid, folderUid);
+    let mimeTree: string;
+
     try {
         const myCertificate = await getMyCertificate();
         const recipients = item.body.recipients || [];
@@ -84,6 +84,7 @@ export async function encrypt(item: MailboxItem, folderUid: string): Promise<Mai
     } catch (error) {
         const errorCode = error instanceof SmimeErrors ? error.code : CRYPTO_HEADERS.UNKNOWN;
         encryptedItem.body.headers = addHeaderValue(encryptedItem.body.headers, ENCRYPTED_HEADER_NAME, errorCode);
+        throw error;
     }
     return encryptedItem;
 }
@@ -96,9 +97,9 @@ export async function verify(folderUid: string, item: ItemValue<MailboxItem>): P
         await pkcs7.verify(pkcs7Part, toDigest);
         item.value.body.headers = addHeaderValue(item.value.body.headers, SIGNED_HEADER_NAME, CRYPTO_HEADERS.OK);
     } catch (error) {
-        logger.error(error);
         const errorCode = error instanceof SmimeErrors ? error.code : CRYPTO_HEADERS.UNKNOWN;
         item.value.body.headers = addHeaderValue(item.value.body.headers, SIGNED_HEADER_NAME, errorCode);
+        throw error;
     }
     return item;
 }
@@ -125,9 +126,9 @@ export async function sign(item: MailboxItem, folderUid: string): Promise<Mailbo
 
         item.body.structure = buildMultipartSigned(UUIDGenerator.generate(), [unsignedPart, signedPart]);
     } catch (error) {
-        logger.error(error);
         const errorCode = error instanceof SmimeErrors ? error.code : CRYPTO_HEADERS.UNKNOWN;
         item.body.headers = addHeaderValue(item.body.headers, SIGNED_HEADER_NAME, errorCode);
+        throw error;
     }
     return item;
 }
@@ -165,9 +166,9 @@ function removePreviousSignedPart(structure: MessageBody.Part): MessageBody.Part
 }
 
 function getRemoteContentFn(client: MailboxItemsClient, imapUid: number) {
-    return async (p: MessageBody.Part): Promise<Uint8Array> => {
+    return async (p: MessageBody.Part): Promise<string | Uint8Array> => {
         const data: Blob = await client.fetch(imapUid, p.address!, p.encoding, p.mime, p.charset);
-        return new Uint8Array(await data.arrayBuffer());
+        return data.text();
     };
 }
 

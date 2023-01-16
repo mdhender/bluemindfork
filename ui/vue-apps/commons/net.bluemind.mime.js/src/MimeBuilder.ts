@@ -9,12 +9,14 @@ export default class MimeBuilder {
     }
 
     async build(part: MessageBody.Part): Promise<string> {
-        return (await this.appendPart(part)).build();
+        const node = await this.appendPart(part);
+        return node.build();
     }
 
     private async appendPart(part: MessageBody.Part): Promise<Builder> {
-        const node = new Builder(this.getContentType(part));
-        if (part.mime!.startsWith("multipart/") && part.children) {
+        const isEncoded = !part.encoding; // if encoding is undefined, consider content is already encoded
+        const node = new Builder(this.getContentType(part), { isEncoded });
+        if (part.mime!.startsWith("multipart/") && part.children && part.children.length > 0) {
             for (const child of part.children) {
                 const newNode = await this.appendPart(child);
                 node.appendChild(newNode);

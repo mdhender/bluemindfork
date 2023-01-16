@@ -34,5 +34,7 @@ declare module "node-forge" {
             algorithm: asn1.OID;
             parameters?: unknown;
         };
+
+        function messageToPem(msg: PkcsSignedData | PkcsEnvelopedData, maxline?: number): string;
     }
 }
