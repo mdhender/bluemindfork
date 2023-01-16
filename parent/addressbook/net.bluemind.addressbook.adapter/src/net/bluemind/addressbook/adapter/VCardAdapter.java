@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.james.mime4j.dom.address.Mailbox;
-import org.apache.james.mime4j.field.address.AddressBuilder;
+import org.apache.james.mime4j.field.address.LenientAddressBuilder;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -202,12 +202,8 @@ public final class VCardAdapter {
 			Email mail = (Email) p;
 			String emailValue = mail.getValue();
 			if (!Regex.EMAIL.validate(emailValue)) {
-				try {
-					Mailbox mbox = AddressBuilder.DEFAULT.parseMailbox(emailValue);
-					emailValue = mbox.getAddress();
-				} catch (org.apache.james.mime4j.dom.field.ParseException e) {
-					// skip email
-				}
+				emailValue = Optional.ofNullable(LenientAddressBuilder.DEFAULT.parseMailbox(emailValue))
+						.map(Mailbox::getAddress).orElse(emailValue);
 				// if everything fail, we import email as it (because rfc
 				// authorize it)
 			}

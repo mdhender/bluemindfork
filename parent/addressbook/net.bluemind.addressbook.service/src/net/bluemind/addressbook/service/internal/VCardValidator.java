@@ -24,8 +24,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 import org.apache.james.mime4j.dom.address.Mailbox;
-import org.apache.james.mime4j.field.address.AddressBuilder;
-import org.apache.james.mime4j.field.address.ParseException;
+import org.apache.james.mime4j.field.address.LenientAddressBuilder;
 
 import com.google.common.base.Strings;
 
@@ -91,12 +90,8 @@ public class VCardValidator implements IValidator<VCard> {
 			String mail = v.value;
 			if (!EMAIL.matcher(mail).matches()) {
 				// try another email validator
-				try {
-					Mailbox address = AddressBuilder.DEFAULT.parseMailbox(mail);
-					mail = address.getAddress();
-				} catch (ParseException e1) {
-					throw new ValidationException("Email invalid: '" + mail + "'", ErrorCode.INVALID_EMAIL);
-				}
+				mail = Optional.ofNullable(LenientAddressBuilder.DEFAULT.parseMailbox(mail)).map(Mailbox::getAddress)
+						.orElse(mail);
 				if (!EMAIL.matcher(mail).matches()) {
 					throw new ValidationException("Email invalid: '" + mail + "'", ErrorCode.INVALID_EMAIL);
 				}
