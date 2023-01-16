@@ -28,7 +28,6 @@ import java.util.Optional;
 import org.apache.james.mime4j.dom.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.subethamail.smtp.helper.SimpleMessageListener;
 
 import com.google.common.io.CountingInputStream;
 import com.netflix.spectator.api.Counter;
@@ -60,13 +59,18 @@ import net.bluemind.delivery.lmtp.filters.IMessageFilter;
 import net.bluemind.delivery.lmtp.filters.LmtpFilters;
 import net.bluemind.delivery.lmtp.filters.PermissionDeniedException;
 import net.bluemind.delivery.lmtp.hooks.LmtpHooks;
+import net.bluemind.delivery.lmtp.internal.LmtpListener;
+import net.bluemind.delivery.lmtp.internal.RecipientAcceptance;
+import net.bluemind.delivery.lmtp.internal.RecipientDeliveryStatus;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.mailbox.api.MailboxQuota;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.mime4j.common.Mime4JHelper;
 
-public class LmtpMessageHandler implements SimpleMessageListener {
+public class LmtpMessageHandler implements LmtpListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(LmtpMessageHandler.class);
 	private final ApiProv prov;
@@ -86,19 +90,28 @@ public class LmtpMessageHandler implements SimpleMessageListener {
 	}
 
 	@Override
-	public boolean accept(String from, String recipient) {
+	public RecipientDeliveryStatus accept(String from, String recipient) {
 		try {
 			ResolvedBox found = lookup.lookupEmail(recipient);
 			boolean ret = found != null;
 			if (ret) {
+				if (found.mbox.value.quota != null) {
+					IMailboxes mboxApi = prov.system().instance(IMailboxes.class, found.dom.uid);
+					MailboxQuota quota = mboxApi.getMailboxQuota(found.mbox.uid);
+					if (quota.quota != null && quota.used > quota.quota) {
+						logger.warn("Quota reject from {} to {} (quota: {})", from, found.mbox.value, quota);
+						return RecipientAcceptance.TEMPORARY_REJECT.reason("over quota");
+					}
+				}
 				logger.info("Accept from {} to {}", from, found.mbox.value);
+				return RecipientAcceptance.ACCEPT.reason(null);
 			} else {
 				logger.warn("Reject from {} to {}", from, recipient);
+				return RecipientAcceptance.PERMANENT_REJECT.reason("Unknown");
 			}
-			return ret;
 		} catch (Exception e) {
-			logger.warn("Reject from {} to {} ({})", from, recipient, e);
-			return false;
+			logger.warn("Reject from {} to {} ({})", from, recipient, e.getMessage());
+			return RecipientAcceptance.TEMPORARY_REJECT.reason(e.getMessage());
 		}
 	}
 

@@ -16,6 +16,7 @@
 		<module>net.bluemind.delivery.lmtp.hooks</module>
 		<module>net.bluemind.delivery.lmtp.filter.testhelper</module>
 		<module>net.bluemind.delivery.lmtp.tests</module>
+		<module>net.bluemind.delivery.lmtp.quota.tests</module>
 		<module>net.bluemind.delivery.conversationreference.api</module>
 		<module>net.bluemind.delivery.conversationreference.sqlschema</module>
 		<module>net.bluemind.delivery.conversationreference.persistence</module>

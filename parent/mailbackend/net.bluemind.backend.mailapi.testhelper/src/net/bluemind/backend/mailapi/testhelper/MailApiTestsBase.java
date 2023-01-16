@@ -54,6 +54,7 @@ import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
+import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
 import net.bluemind.directory.hollow.datamodel.consumer.DirectorySearchFactory;
@@ -74,6 +75,7 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserSubscription;
 import net.bluemind.user.api.User;
+import net.bluemind.utils.ByteSizeUnit;
 
 public class MailApiTestsBase {
 
@@ -83,13 +85,13 @@ public class MailApiTestsBase {
 		T run(StoreClient sc) throws Exception;
 	}
 
-	private ServerSideServiceProvider serverProv;
+	protected IServiceProvider serverProv;
 
 	protected String domUid;
 	protected String alias;
 	public String userUid;
 
-	protected ServerSideServiceProvider userProvider;
+	protected IServiceProvider userProvider;
 
 	@Rule
 	public TestName testName = new TestName();
@@ -190,6 +192,7 @@ public class MailApiTestsBase {
 	@After
 	public void after() throws Exception {
 		System.err.println("===== AFTER " + testName.getMethodName() + " starts =====");
+		ElasticsearchTestHelper.getInstance().afterTest();
 		JdbcTestHelper.getInstance().afterTest();
 		if (!suspendBookSync()) {
 			cleanupHollowData();
@@ -198,8 +201,12 @@ public class MailApiTestsBase {
 	}
 
 	protected ItemValue<User> sharedUser(String loginPrefix, String domUid, String userUid) {
-		String janeUid = PopulateHelper.addUser(loginPrefix + System.currentTimeMillis(), "devenv.blue",
-				Routing.internal);
+		return sharedUser(loginPrefix, domUid, userUid, 50, ByteSizeUnit.MB);
+	}
+
+	protected ItemValue<User> sharedUser(String loginPrefix, String domUid, String userUid, Integer quota,
+			ByteSizeUnit quotaUnit) {
+		String janeUid = PopulateHelper.addUser(loginPrefix + System.currentTimeMillis(), domUid, Routing.internal);
 		assertNotNull(janeUid);
 
 		String janeAcls = IMailboxAclUids.uidForMailbox(janeUid);
@@ -210,9 +217,11 @@ public class MailApiTestsBase {
 		IUserSubscription subs = serverProv.instance(IUserSubscription.class, domUid);
 		subs.subscribe(userUid, Collections.singletonList(ContainerSubscription.create(janeAcls, true)));
 		IMailboxes mboxes = serverProv.instance(IMailboxes.class, domUid);
-		ItemValue<Mailbox> asMbox = mboxes.getComplete(janeUid);
-		asMbox.value.quota = 50000;
-		mboxes.update(janeUid, asMbox.value);
+		if (quota != null) {
+			ItemValue<Mailbox> asMbox = mboxes.getComplete(janeUid);
+			asMbox.value.quota = (int) quotaUnit.toKB(quota);
+			mboxes.update(janeUid, asMbox.value);
+		}
 		return serverProv.instance(IUser.class, domUid).getComplete(janeUid);
 	}
 

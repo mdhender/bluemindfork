@@ -43,7 +43,6 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Streams;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
-import com.google.common.io.ByteSink;
 
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.buffer.Buffer;

@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.delivery.lmtp.quota.tests
+Bundle-SymbolicName: net.bluemind.delivery.lmtp.quota.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.backend.mailapi.testhelper,
+ org.awaitility,
+ org.hamcrest;bundle-version="2.2.0",
+ net.bluemind.lmtp.testhelper,
+ net.bluemind.lib.elasticsearch
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: net.bluemind.delivery.lmtp.quota.tests
+Bundle-ActivationPolicy: lazy

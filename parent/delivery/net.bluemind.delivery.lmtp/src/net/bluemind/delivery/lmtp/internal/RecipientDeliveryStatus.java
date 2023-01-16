@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2023
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -16,20 +16,8 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.mailbox.api;
+package net.bluemind.delivery.lmtp.internal;
 
-import net.bluemind.core.api.BMApi;
+public record RecipientDeliveryStatus(RecipientAcceptance accept, String reason) {
 
-@BMApi(version = "3")
-public class MailboxQuota {
-
-	/** mail quota used in KiB */
-	public int used;
-	/** mail quota in KiB */
-	public Integer quota;
-
-	@Override
-	public String toString() {
-		return "MailboxQuota{q: " + quota + "KB, u: " + used + "KB}";
-	}
 }

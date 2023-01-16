@@ -61,7 +61,7 @@ public class LmtpClientSession {
 		responseListener = new LinkedList<>();
 		setState(ParseState.ExpectBanner);
 		this.writeSupport = new WriteSupport(sock);
-		this.recordParser = RecordParser.newDelimited("\r\n", buf -> doDelimited(buf));
+		this.recordParser = RecordParser.newDelimited("\r\n", this::doDelimited);
 		logger.debug("Created with vertx {}", this.vertx);
 	}
 
@@ -70,7 +70,7 @@ public class LmtpClientSession {
 		logger.debug("Got buf {}", curState);
 		switch (curState) {
 		case ExpectBanner:
-			logger.info("****** BANNER RECEIVED ******");
+			logger.info("****** BANNER RECEIVED '{}' ******", buf);
 			setState(ParseState.WriteCmd);
 			bannerFuture.complete(buf.toString());
 			break;
