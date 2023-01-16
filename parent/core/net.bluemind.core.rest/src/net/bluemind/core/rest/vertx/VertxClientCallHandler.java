@@ -22,8 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.Message;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.rest.base.IRestCallHandler;
@@ -33,10 +33,12 @@ import net.bluemind.core.rest.base.RestResponse;
 public class VertxClientCallHandler implements IRestCallHandler {
 
 	static final Logger logger = LoggerFactory.getLogger(VertxClientCallHandler.class);
-	private Vertx vertx;
+	private final Vertx vertx;
+	private DeliveryOptions delOps;
 
 	public VertxClientCallHandler(Vertx vertx) {
 		this.vertx = vertx;
+		this.delOps = new DeliveryOptions();
 	}
 
 	@Override
@@ -45,26 +47,21 @@ public class VertxClientCallHandler implements IRestCallHandler {
 
 		if (vrr.bodyStreamAdr != null) {
 			VertxStreamProducer.stream(vertx, vrr.bodyStreamAdr, request.bodyStream);
-
 		} else {
 			logger.debug("no body stream");
 		}
 
-		vertx.eventBus().request("bm-core", vrr, new Handler<AsyncResult<Message<VertxRestResponse>>>() {
-
-			@Override
-			public void handle(AsyncResult<Message<VertxRestResponse>> msg) {
-				if (msg.succeeded()) {
-					VertxRestResponse resp = msg.result().body();
-					if (resp.responseStreamAdr != null) {
-						responseHandler
-								.success(RestResponse.stream(new VertxStreamConsumer(vertx, resp.responseStreamAdr)));
-					} else {
-						responseHandler.success(resp.asResponse());
-					}
+		vertx.eventBus().request("bm-core", vrr, delOps, (AsyncResult<Message<VertxRestResponse>> msg) -> {
+			if (msg.succeeded()) {
+				VertxRestResponse resp = msg.result().body();
+				if (resp.responseStreamAdr != null) {
+					responseHandler
+							.success(RestResponse.stream(new VertxStreamConsumer(vertx, resp.responseStreamAdr)));
 				} else {
-					responseHandler.failure(msg.cause());
+					responseHandler.success(resp.asResponse());
 				}
+			} else {
+				responseHandler.failure(msg.cause());
 			}
 		});
 	}

@@ -31,8 +31,8 @@ import net.bluemind.core.rest.base.RestRootHandler;
 
 public class RestVertxRootHandler implements Handler<Message<VertxRestRequest>> {
 	private static final Logger logger = LoggerFactory.getLogger(RestVertxRootHandler.class);
-	private Vertx vertx;
-	private RestRootHandler rootHandler;
+	private final Vertx vertx;
+	private final RestRootHandler rootHandler;
 
 	public RestVertxRootHandler(Vertx vertx, RestRootHandler rootHandler) {
 		this.vertx = vertx;
@@ -57,7 +57,7 @@ public class RestVertxRootHandler implements Handler<Message<VertxRestRequest>> 
 		}
 		final RestRequest r = request.asRestRequest(bodyStream);
 
-		RestVertxRootHandler.this.rootHandler.call(r, new AsyncHandler<RestResponse>() {
+		rootHandler.call(r, new AsyncHandler<RestResponse>() {
 
 			@Override
 			public void success(RestResponse value) {
