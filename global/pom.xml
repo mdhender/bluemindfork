@@ -59,6 +59,36 @@
 				<gwt.optimize>0</gwt.optimize>
 			</properties>
 		</profile>
+		<profile>
+			<id>coverage</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>prepare-agent</id>
+								<goals>
+									<goal>prepare-agent</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>report</id>
+								<goals>
+									<goal>report</goal>
+								</goals>
+								<configuration>
+									<formats>
+										<format>XML</format>
+									</formats>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 	</profiles>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -72,7 +102,7 @@
 		<tycho-version>2.6.0</tycho-version>
 		<maven-source-plugin-version>3.2.1</maven-source-plugin-version>
 		<maven-clean-plugin-version>3.2.0</maven-clean-plugin-version>
-		<jacoco-maven-plugin-version>0.8.8</jacoco-maven-plugin-version>
+		<jacoco-maven-plugin-version>0.8.9-bm</jacoco-maven-plugin-version>
 		<maven-install-plugin-version>2.5.2</maven-install-plugin-version>
 		<maven-compiler-plugin-version>3.10.1</maven-compiler-plugin-version>
 		<maven-surefire-plugin-version>2.22.2</maven-surefire-plugin-version>
@@ -96,12 +126,13 @@
 		<gwt.version>2.10.0</gwt.version>
 		<gwt.memory>768</gwt.memory>
 		<maven.test.failure.ignore>true</maven.test.failure.ignore>
-		<sonar.language>java</sonar.language>
-		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-		<sonar.jacoco.excludes>**/*Test*,**/generated/**/*,**/*.tests/**/*</sonar.jacoco.excludes>
 		<l10n.list>"en", "fr"</l10n.list>
-		<bm.test.argline>-Dio.netty.noPreferDirect=true -XX:-OmitStackTraceInFastThrow --add-modules java.se --add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.management/sun.management=ALL-UNNAMED --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-opens=jdk.compiler/com.sun.tools.javac=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang.invoke=ALL-UNNAMED</bm.test.argline>
+
+		<!-- SonarQube -->
+		<bm.test.argline>${tycho.testArgLine} -Dio.netty.noPreferDirect=true -XX:-OmitStackTraceInFastThrow --add-modules java.se --add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.management/sun.management=ALL-UNNAMED --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-opens=jdk.compiler/com.sun.tools.javac=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang.invoke=ALL-UNNAMED</bm.test.argline>
+		<sonar.language>java</sonar.language>
+		<sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/sonar/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+		<sonar.surefire.reportsPath>../${project.artifactId}.test/target/surefire-reports/</sonar.surefire.reportsPath>
 	</properties>
 	<repositories>
 		<repository>
@@ -356,16 +387,10 @@
 					<artifactId>jacoco-maven-plugin</artifactId>
 					<version>${jacoco-maven-plugin-version}</version>
 					<configuration>
-						<destFile>${sonar.jacoco.reportPath}</destFile>
-						<append>true</append>
+						<excludes>
+							<exclude>net.bluemind.exchange.mapi.codec.oxprops.Pid</exclude>
+						</excludes>
 					</configuration>
-					<executions>
-						<execution>
-							<goals>
-								<goal>prepare-agent</goal>
-							</goals>
-						</execution>
-					</executions>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>

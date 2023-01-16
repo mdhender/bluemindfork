@@ -47,5 +47,11 @@
 				<module>packaging</module>
 			</modules>
 		</profile>
+		<profile>
+			<id>open-coverage</id>
+			<modules>
+				<module>sonar</module>
+			</modules>
+		</profile>
 	</profiles>
 </project>
