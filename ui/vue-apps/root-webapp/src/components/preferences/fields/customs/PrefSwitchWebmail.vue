@@ -8,18 +8,20 @@
                     <em>{{ feature }}</em>
                 </li>
             </ul>
-            <bm-read-more-button href="https://doc.bluemind.net/release/5.0/category/la-messagerie" />
+            <bm-read-more href="https://doc.bluemind.net/release/5.0/category/la-messagerie" />
         </div>
     </div>
 </template>
 
 <script>
+import { BmReadMore } from "@bluemind/ui-components";
 import { BaseField } from "@bluemind/preferences";
 import mailAppVersionSettingImageClassic from "~/../assets/setting-mail-app-version-classic.png";
 import mailAppVersionSettingImageModern from "~/../assets/setting-mail-app-version-modern.png";
 
 export default {
     name: "PrefSwitchWebmail",
+    components: { BmReadMore },
     mixins: [BaseField],
     computed: {
         image() {

@@ -1,18 +1,17 @@
 <template>
     <div v-if="!collapsed" class="pref-remote-image">
         <bm-icon icon="info-circle" />
-        <pref-read-more :href="readMore" :text="$t('preferences.mail.remote.images.explanations')" />
+        <bm-read-more :href="readMore" :text="$t('preferences.mail.remote.images.explanations')" />
     </div>
 </template>
 
 <script>
-import { BmIcon } from "@bluemind/ui-components";
+import { BmIcon, BmReadMore } from "@bluemind/ui-components";
 import { BaseField } from "@bluemind/preferences";
-import PrefReadMore from "../PrefReadMore";
 
 export default {
     name: "PrefRemoteImage",
-    components: { BmIcon, PrefReadMore },
+    components: { BmIcon, BmReadMore },
     mixins: [BaseField],
 
     data() {

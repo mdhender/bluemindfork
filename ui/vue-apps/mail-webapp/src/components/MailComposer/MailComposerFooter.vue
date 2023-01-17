@@ -21,10 +21,9 @@
 </template>
 
 <script>
-import { BmAlertArea, BmRichEditorToolbar } from "@bluemind/ui-components";
-
-import MailComposerToolbar from "./MailComposerToolbar";
 import { mapState } from "vuex";
+import { BmAlertArea, BmRichEditorToolbar } from "@bluemind/ui-components";
+import MailComposerToolbar from "./MailComposerToolbar";
 
 export default {
     name: "MailComposerFooter",

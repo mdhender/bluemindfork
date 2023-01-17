@@ -3,17 +3,16 @@
         <bm-form-checkbox v-model="filter.terminal" :value="true" :unchecked-value="false">
             {{ $t("preferences.mail.filters.modal.terminal") }}
         </bm-form-checkbox>
-        <pref-read-more :href="readMore" :text="$t('preferences.mail.filters.modal.terminal.desc')" />
+        <bm-read-more :href="readMore" :text="$t('preferences.mail.filters.modal.terminal.desc')" />
     </bm-form-group>
 </template>
 
 <script>
-import { BmFormCheckbox, BmFormGroup } from "@bluemind/ui-components";
-import PrefReadMore from "../../../PrefReadMore";
+import { BmFormCheckbox, BmFormGroup, BmReadMore } from "@bluemind/ui-components";
 
 export default {
     name: "PrefFilterRuleModalTerminal",
-    components: { BmFormCheckbox, BmFormGroup, PrefReadMore },
+    components: { BmFormCheckbox, BmFormGroup, BmReadMore },
     props: {
         filter: {
             type: Object,

@@ -6,7 +6,7 @@
                 ({{ $t("common.error.code", { code: encryptError }) }})
             </div>
             <!-- TODO: doc link -->
-            <bm-read-more-button href="" />
+            <bm-read-more href="" />
         </div>
         <bm-button class="stop-encryption" variant="text" @click="stopEncryption">
             {{ $t("smime.mailapp.composer.stop_encryption") }}
@@ -16,14 +16,14 @@
 
 <script>
 import { BmButton } from "@bluemind/ui-components";
-import { BmReadMoreButton } from "@bluemind/ui-components";
+import { BmReadMore } from "@bluemind/ui-components";
 import { CRYPTO_HEADERS, ENCRYPTED_HEADER_NAME } from "../../lib/constants";
 import { mapGetters } from "vuex";
 import { removeHeader } from "../../lib/helper";
 
 export default {
     name: "EncryptErrorAlert",
-    components: { BmButton, BmReadMoreButton },
+    components: { BmButton, BmReadMore },
     props: {
         alert: {
             type: Object,

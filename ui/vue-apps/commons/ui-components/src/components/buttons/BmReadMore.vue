@@ -1,5 +1,5 @@
 <template>
-    <div class="pref-read-more">
+    <div class="bm-read-more">
         <div v-if="text">
             {{ text }}
         </div>
@@ -12,7 +12,7 @@
 import { BmButton, BmIcon } from "@bluemind/ui-components";
 
 export default {
-    name: "PrefReadMore",
+    name: "BmReadMore",
     components: { BmButton, BmIcon },
     props: {
         href: { type: String, required: true },
@@ -24,7 +24,7 @@ export default {
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/variables";
 
-.pref-read-more {
+.bm-read-more {
     color: $neutral-fg-lo1;
     display: flex;
     flex-wrap: wrap;

@@ -3,16 +3,16 @@
         <div class="regular">
             {{ label }}
         </div>
-        <pref-read-more :href="href" />
+        <bm-read-more :href="href" />
     </div>
 </template>
 
 <script>
-import PrefReadMore from "./PrefReadMore";
+import { BmReadMore } from "@bluemind/ui-components";
 
 export default {
     name: "PrefReadMoreLabel",
-    components: { PrefReadMore },
+    components: { BmReadMore },
     props: {
         label: {
             type: String,
