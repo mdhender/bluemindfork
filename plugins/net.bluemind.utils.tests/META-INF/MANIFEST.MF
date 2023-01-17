@@ -9,3 +9,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
  com.sun.mail.jakarta.mail,
  net.bluemind.utils
+Import-Package: 
+ org.junit.jupiter.api

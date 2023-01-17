@@ -1,11 +1,12 @@
 package net.bluemind.utils.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import javax.mail.internet.AddressException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import net.bluemind.utils.EmailAddress;
 
@@ -64,21 +65,16 @@ public class EmailAddressTest {
 		assertEquals("ned@inventati.org", mboxFrom.getAddress());
 	}
 
-	@Test(expected = javax.mail.internet.AddressException.class)
-	public void testNoAddress() throws AddressException {
-		String email = "BACQ Ludovic [MIDI2I]";
-		EmailAddress mboxFrom = new EmailAddress(email);
-	}
-
-	@Test(expected = javax.mail.internet.AddressException.class)
+	@Test
 	public void testInvalidAddress() throws AddressException {
-		String email = "<Microsoft Outlook>";
-		EmailAddress mboxFrom = new EmailAddress(email);
-	}
-
-	@Test(expected = javax.mail.internet.AddressException.class)
-	public void testEmptyAddress() throws AddressException {
-		String email = "<>";
-		EmailAddress mboxFrom = new EmailAddress(email);
+		assertThrows(AddressException.class, () -> {
+			new EmailAddress("BACQ Ludovic [MIDI2I]");
+		});
+		assertThrows(AddressException.class, () -> {
+			new EmailAddress("<Microsoft Outlook>");
+		});
+		assertThrows(AddressException.class, () -> {
+			new EmailAddress("<>");
+		});
 	}
 }

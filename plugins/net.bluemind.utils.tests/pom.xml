@@ -6,8 +6,10 @@
 		<artifactId>plugins</artifactId>
 		<version>4.1.0-SNAPSHOT</version>
 	</parent>
+	
 	<artifactId>net.bluemind.utils.tests</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
+	
 	<build>
 		<plugins>
 			<plugin>

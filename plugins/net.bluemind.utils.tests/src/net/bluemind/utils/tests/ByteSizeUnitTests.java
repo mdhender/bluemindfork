@@ -17,8 +17,9 @@
   */
 package net.bluemind.utils.tests;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 import net.bluemind.utils.ByteSizeUnit;
 
@@ -36,22 +37,22 @@ public class ByteSizeUnitTests {
 
 		long result = 0L;
 		result = ByteSizeUnit.BYTES.fromBytes(C0);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.BYTES.fromKB(C0);
-		Assert.assertEquals(C1, result);
+		assertEquals(C1, result);
 
 		result = ByteSizeUnit.BYTES.fromMB(C0);
-		Assert.assertEquals(C2, result);
+		assertEquals(C2, result);
 
 		result = ByteSizeUnit.BYTES.fromGB(C0);
-		Assert.assertEquals(C3, result);
+		assertEquals(C3, result);
 
 		result = ByteSizeUnit.BYTES.fromTB(C0);
-		Assert.assertEquals(C4, result);
+		assertEquals(C4, result);
 
 		result = ByteSizeUnit.BYTES.fromPB(C0);
-		Assert.assertEquals(C5, result);
+		assertEquals(C5, result);
 	}
 
 	@Test
@@ -60,22 +61,22 @@ public class ByteSizeUnitTests {
 		long result = 0L;
 
 		result = ByteSizeUnit.BYTES.toBytes(C0);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.BYTES.toKB(C1);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.BYTES.toMB(C2);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.BYTES.toGB(C3);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.BYTES.toTB(C4);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.BYTES.toPB(C5);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 	}
 
 	@Test
@@ -83,22 +84,22 @@ public class ByteSizeUnitTests {
 
 		long result = 0L;
 		result = ByteSizeUnit.KB.fromBytes(C1);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.KB.fromKB(C0);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.KB.fromMB(C0);
-		Assert.assertEquals(C1, result);
+		assertEquals(C1, result);
 
 		result = ByteSizeUnit.KB.fromGB(C0);
-		Assert.assertEquals(C2, result);
+		assertEquals(C2, result);
 
 		result = ByteSizeUnit.KB.fromTB(C0);
-		Assert.assertEquals(C3, result);
+		assertEquals(C3, result);
 
 		result = ByteSizeUnit.KB.fromPB(C0);
-		Assert.assertEquals(C4, result);
+		assertEquals(C4, result);
 	}
 
 	@Test
@@ -107,22 +108,22 @@ public class ByteSizeUnitTests {
 		long result = 0L;
 
 		result = ByteSizeUnit.KB.toBytes(C0);
-		Assert.assertEquals(C1, result);
+		assertEquals(C1, result);
 
 		result = ByteSizeUnit.KB.toKB(C0);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.KB.toMB(C1);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.KB.toGB(C2);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.KB.toTB(C3);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.KB.toPB(C4);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 	}
 
 	@Test
@@ -130,22 +131,22 @@ public class ByteSizeUnitTests {
 
 		long result = 0L;
 		result = ByteSizeUnit.MB.fromBytes(C2);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.MB.fromKB(C1);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.MB.fromMB(C0);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.MB.fromGB(C0);
-		Assert.assertEquals(C1, result);
+		assertEquals(C1, result);
 
 		result = ByteSizeUnit.MB.fromTB(C0);
-		Assert.assertEquals(C2, result);
+		assertEquals(C2, result);
 
 		result = ByteSizeUnit.MB.fromPB(C0);
-		Assert.assertEquals(C3, result);
+		assertEquals(C3, result);
 	}
 
 	@Test
@@ -154,22 +155,22 @@ public class ByteSizeUnitTests {
 		long result = 0L;
 
 		result = ByteSizeUnit.MB.toBytes(C0);
-		Assert.assertEquals(C2, result);
+		assertEquals(C2, result);
 
 		result = ByteSizeUnit.MB.toKB(C0);
-		Assert.assertEquals(C1, result);
+		assertEquals(C1, result);
 
 		result = ByteSizeUnit.MB.toMB(C0);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.MB.toGB(C1);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.MB.toTB(C2);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.MB.toPB(C3);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 	}
 
 	@Test
@@ -177,22 +178,22 @@ public class ByteSizeUnitTests {
 
 		long result = 0L;
 		result = ByteSizeUnit.GB.fromBytes(C3);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.GB.fromKB(C2);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.GB.fromMB(C1);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.GB.fromGB(C0);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.GB.fromTB(C0);
-		Assert.assertEquals(C1, result);
+		assertEquals(C1, result);
 
 		result = ByteSizeUnit.GB.fromPB(C0);
-		Assert.assertEquals(C2, result);
+		assertEquals(C2, result);
 	}
 
 	@Test
@@ -201,22 +202,22 @@ public class ByteSizeUnitTests {
 		long result = 0L;
 
 		result = ByteSizeUnit.GB.toBytes(C0);
-		Assert.assertEquals(C3, result);
+		assertEquals(C3, result);
 
 		result = ByteSizeUnit.GB.toKB(C0);
-		Assert.assertEquals(C2, result);
+		assertEquals(C2, result);
 
 		result = ByteSizeUnit.GB.toMB(C0);
-		Assert.assertEquals(C1, result);
+		assertEquals(C1, result);
 
 		result = ByteSizeUnit.GB.toGB(C0);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.GB.toTB(C1);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.GB.toPB(C2);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 	}
 
 	@Test
@@ -224,22 +225,22 @@ public class ByteSizeUnitTests {
 
 		long result = 0L;
 		result = ByteSizeUnit.TB.fromBytes(C4);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.TB.fromKB(C3);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.TB.fromMB(C2);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.TB.fromGB(C1);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.TB.fromTB(C0);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.TB.fromPB(C0);
-		Assert.assertEquals(C1, result);
+		assertEquals(C1, result);
 	}
 
 	@Test
@@ -248,22 +249,22 @@ public class ByteSizeUnitTests {
 		long result = 0L;
 
 		result = ByteSizeUnit.TB.toBytes(C0);
-		Assert.assertEquals(C4, result);
+		assertEquals(C4, result);
 
 		result = ByteSizeUnit.TB.toKB(C0);
-		Assert.assertEquals(C3, result);
+		assertEquals(C3, result);
 
 		result = ByteSizeUnit.TB.toMB(C0);
-		Assert.assertEquals(C2, result);
+		assertEquals(C2, result);
 
 		result = ByteSizeUnit.TB.toGB(C0);
-		Assert.assertEquals(C1, result);
+		assertEquals(C1, result);
 
 		result = ByteSizeUnit.TB.toTB(C0);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.TB.toPB(C1);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 	}
 
 	@Test
@@ -271,22 +272,22 @@ public class ByteSizeUnitTests {
 
 		long result = 0L;
 		result = ByteSizeUnit.PB.fromBytes(C5);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.PB.fromKB(C4);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.PB.fromMB(C3);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.PB.fromGB(C2);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.PB.fromTB(C1);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 
 		result = ByteSizeUnit.PB.fromPB(C0);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 	}
 
 	@Test
@@ -295,22 +296,22 @@ public class ByteSizeUnitTests {
 		long result = 0L;
 
 		result = ByteSizeUnit.PB.toBytes(C0);
-		Assert.assertEquals(C5, result);
+		assertEquals(C5, result);
 
 		result = ByteSizeUnit.PB.toKB(C0);
-		Assert.assertEquals(C4, result);
+		assertEquals(C4, result);
 
 		result = ByteSizeUnit.PB.toMB(C0);
-		Assert.assertEquals(C3, result);
+		assertEquals(C3, result);
 
 		result = ByteSizeUnit.PB.toGB(C0);
-		Assert.assertEquals(C2, result);
+		assertEquals(C2, result);
 
 		result = ByteSizeUnit.PB.toTB(C0);
-		Assert.assertEquals(C1, result);
+		assertEquals(C1, result);
 
 		result = ByteSizeUnit.PB.toPB(C0);
-		Assert.assertEquals(C0, result);
+		assertEquals(C0, result);
 	}
 
 }

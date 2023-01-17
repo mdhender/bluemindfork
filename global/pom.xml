@@ -110,6 +110,7 @@
 			<url>https://forge.bluemind.net/staging/p2/dependencies/${target-platform-version}/</url>
 			<!--<url>file:///Users/tom/git/target-platform-jdk11/bm-platform/target/repository</url>-->
 			<!--<url>file:///home/melanie/Documents/DEV/repos/bluemind-all-dev-tests/bm-target-platform-jdk11/bm-platform/target/repository</url>-->
+			<!--<url>file:///home/elie/Code/bm-target-platform/bm-platform/target/repository</url>-->
 		</repository>
 		<repository>
 			<id>nexus-central</id>
@@ -311,6 +312,8 @@
 							<include>**/Test*.java</include>
 							<include>**/*Tests.java</include>
 						</includes>
+						<!-- required for junit5 tests to be discovered by tycho surefire plugins -->
+						<providerHint>junit5</providerHint>
 						<showEclipseLog>true</showEclipseLog>
 						<useUIHarness>false</useUIHarness>
 						<useUIThread>false</useUIThread>
@@ -599,6 +602,13 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${junit-version}</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- require for junit5 tests to be discovered by maven surefire plugins -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>5.9.1</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
