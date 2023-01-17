@@ -44,6 +44,7 @@
     "common.messages": "0 E-Mails | 1 E-Mail | {count} E-Mails",
     "common.message": "E-Mail",
     "common.search.error": "Suche fehlgeschlagen.",
+    "common.error.code": "Fehlercode {code}",
     "common.check.connection": "Überprüfen Sie Ihre Internetanbindung oder versuchen Sie es erneut.",
     "common.or": "oder",
     "common.cancel": "Abbrechen",

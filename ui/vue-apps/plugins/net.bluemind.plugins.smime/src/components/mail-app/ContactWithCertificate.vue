@@ -18,7 +18,7 @@ export default {
             ACTIVE_MESSAGE: "ACTIVE_MESSAGE"
         }),
         cannotEncrypt() {
-            return this.contact && this.$store.state.mail.smime.cannotEncryptEmails.includes(this.contact.address);
+            return this.contact && this.$store.state.mail.smime.missingCertificates.includes(this.contact.address);
         },
         hasToBeEncrypted() {
             return hasToBeEncrypted(this.ACTIVE_MESSAGE.headers);

@@ -7,6 +7,7 @@ import TrustedSender from "./components/mail-app/TrustedSender";
 import UntrustedSenderAlert from "./components/mail-app/UntrustedSenderAlert";
 import UntrustedSenderTrigger from "./components/mail-app/UntrustedSenderTrigger";
 import DecryptErrorAlert from "./components/mail-app/DecryptErrorAlert";
+import EncryptErrorAlert from "./components/mail-app/EncryptErrorAlert";
 import DecryptErrorTrigger from "./components/mail-app/DecryptErrorTrigger";
 import EncryptButton from "./components/mail-app/EncryptButton";
 import ContactWithCertificate from "./components/mail-app/ContactWithCertificate";
@@ -32,6 +33,7 @@ Vue.component("UntrustedSenderAlert", UntrustedSenderAlert);
 Vue.component("UntrustedSenderTrigger", UntrustedSenderTrigger);
 Vue.component("DecryptErrorTrigger", DecryptErrorTrigger);
 Vue.component("DecryptErrorAlert", DecryptErrorAlert);
+Vue.component("EncryptErrorAlert", EncryptErrorAlert);
 Vue.component("EncryptButton", EncryptButton);
 Vue.component("ContactWithCertificate", ContactWithCertificate);
 

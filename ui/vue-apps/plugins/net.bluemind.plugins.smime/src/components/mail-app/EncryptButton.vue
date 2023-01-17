@@ -11,8 +11,9 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 import { BmIconButton } from "@bluemind/ui-components";
+import { ERROR, REMOVE } from "@bluemind/alert.store";
 import { draftUtils, messageUtils } from "@bluemind/mail";
 import { SMIME_AVAILABLE } from "../../store/getterTypes";
 import { hasEncryptionHeader, addHeaderValue, removeHeader } from "../../lib/helper";
@@ -34,7 +35,7 @@ export default {
         ...mapGetters("mail", { SMIME_AVAILABLE }),
         title() {
             return this.hasEncryptionHeader
-                ? this.$t("smime.mailapp.composer.no_encrypt")
+                ? this.$t("smime.mailapp.composer.stop_encryption")
                 : this.$t("smime.mailapp.composer.encrypt");
         },
         hasEncryptionHeader() {
@@ -42,9 +43,10 @@ export default {
         },
         hasEncryptError() {
             return (
-                !this.SMIME_AVAILABLE ||
-                this.$store.state.mail.smime.cannotEncryptEmails.length > 0 ||
-                this.$store.state.mail.smime.encryptError
+                this.hasEncryptionHeader &&
+                (!this.SMIME_AVAILABLE ||
+                    this.$store.state.mail.smime.missingCertificates.length > 0 ||
+                    this.$store.state.mail.smime.encryptError)
             );
         }
     },
@@ -86,9 +88,28 @@ export default {
                 }
             },
             immediate: true
+        },
+        hasEncryptError: {
+            handler(hasError) {
+                const error = this.$store.state.mail.smime.encryptError;
+                const alert = { name: "smime.enrypt_error", uid: "SMIME_ENCRYPT_ERROR", payload: error };
+                const options = {
+                    area: "composer-footer",
+                    icon: "lock-slash",
+                    renderer: "EncryptErrorAlert",
+                    dismissible: false
+                };
+                if (hasError) {
+                    this.ERROR({ alert, options });
+                } else {
+                    this.REMOVE(alert);
+                }
+            },
+            immediate: true
         }
     },
     methods: {
+        ...mapActions("alert", { ERROR, REMOVE }),
         async action() {
             let headers;
             if (this.hasEncryptionHeader) {

@@ -18,6 +18,7 @@
         "@bluemind/mail": "^5.0.0",
         "@bluemind/mailmessage.api": "^5.0.0",
         "@bluemind/contact": "^5.0.0",
+        "@bluemind/alert.store": "^5.0.0",
         "idb": "^7.1.0",
         "node-forge": "^1.3.1",
         "workbox-routing": "^6.5.4"

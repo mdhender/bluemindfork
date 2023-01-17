@@ -44,6 +44,7 @@
     "common.messages": "0 message | 1 message | {count} messages",
     "common.message": "message",
     "common.search.error": "La recherche n'a pu aboutir.",
+    "common.error.code": "Code erreur {code}",
     "common.check.connection": "Vérifiez votre connexion internet et réessayez dans quelques instants.",
     "common.or": "ou",
     "common.cancel": "Annuler",

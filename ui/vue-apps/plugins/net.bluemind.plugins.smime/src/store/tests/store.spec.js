@@ -11,15 +11,15 @@ describe("smime store", () => {
         store = new Vuex.Store(cloneDeep(storeOptions));
     });
 
-    describe("cannotEncryptEmails", () => {
+    describe("missingCertificates", () => {
         test("empty mail tips", async () => {
-            expect(store.state.cannotEncryptEmails.length).toEqual(0);
+            expect(store.state.missingCertificates.length).toEqual(0);
             const mailTips = [];
             store.commit("SET_MAIL_TIPS", mailTips);
-            expect(store.state.cannotEncryptEmails.length).toEqual(0);
+            expect(store.state.missingCertificates.length).toEqual(0);
         });
-        test("populate cannotEncryptEmails", async () => {
-            expect(store.state.cannotEncryptEmails.length).toEqual(0);
+        test("populate missingCertificates", async () => {
+            expect(store.state.missingCertificates.length).toEqual(0);
             const mailTips = [
                 {
                     forRecipient: null,
@@ -36,7 +36,7 @@ describe("smime store", () => {
                 }
             ];
             store.commit("SET_MAIL_TIPS", mailTips);
-            expect(store.state.cannotEncryptEmails).toStrictEqual(["keytest@test.com"]);
+            expect(store.state.missingCertificates).toStrictEqual(["keytest@test.com"]);
         });
     });
 });

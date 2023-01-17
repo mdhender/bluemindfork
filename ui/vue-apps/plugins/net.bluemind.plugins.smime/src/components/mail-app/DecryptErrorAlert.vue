@@ -2,7 +2,7 @@
     <div class="decrypt-error-alert">
         {{ $t("smime.mailapp.alert.decrypt_failed") }}
         <!-- FIXME: est-ce qu'on affiche un code d'erreur à l'utilisateur ? -->
-        <span v-if="code" class="code">(Code erreur {{ code }})</span>
+        <span v-if="code" class="code"> ({{ $t("common.error.code", { code }) }})</span>
     </div>
 </template>
 

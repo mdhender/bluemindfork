@@ -16,7 +16,7 @@ export default {
 
         // mail-app
         displayUntrusted: [],
-        cannotEncryptEmails: [],
+        missingCertificates: [],
         encryptError: null
     },
     getters: {
@@ -65,11 +65,11 @@ export default {
         SET_MAIL_TIPS: (state, mailTips) => {
             const cannotEncrypt = tip =>
                 tip.mailtipType === MailTipTypes.HAS_PUBLIC_KEY_CERTIFICATE && tip.value === "false";
-            const cannotEncryptEmails = Object.values(mailTips).flatMap(({ matchingTips, forRecipient }) => {
+            const missingCertificates = Object.values(mailTips).flatMap(({ matchingTips, forRecipient }) => {
                 const cannotEncryptTip = matchingTips.some(cannotEncrypt);
                 return cannotEncryptTip && forRecipient?.email ? forRecipient.email : [];
             });
-            state.cannotEncryptEmails = cannotEncryptEmails;
+            state.missingCertificates = missingCertificates;
         },
         SET_SAVE_ERROR: (state, error) => {
             if (error && error.message) {

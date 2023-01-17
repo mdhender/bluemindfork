@@ -3,14 +3,20 @@
         "mailapp": {
             "alert": {
                 "untrusted": "Le message a été signé par son expéditeur mais la signature n'a pas pu être validée.",
-                "decrypt_failed": "Impossible d'afficher le message chiffré."
+                "decrypt_failed": "Impossible d'afficher le message chiffré.",
+                "encrypt_failed": "Erreur de chiffrement du message",
+                "recipients": {
+                    "all_invalid": "Les destinataires du message ne permettent pas le chiffrement.",
+                    "some_invalid": "Certains destinataires du message ne permettent pas le chiffrement."
+                }
+
             },
             "body_wrapper": {
                 "cant_display": "Pourquoi je ne peux pas voir ce message ?"
             },
             "composer": {
                 "encrypt": "Chiffrer le message",
-                "no_encrypt": "Ne plus chiffrer le message",
+                "stop_encryption": "Désactiver le chiffrement",
                 "invalid_recipient" : "Le message ne peut pas être chiffré pour ce destinataire"
             }
         },

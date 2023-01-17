@@ -3,6 +3,11 @@
         <transition name="slide-fade">
             <bm-rich-editor-toolbar v-if="showTextFormattingToolbar" align="right" editor="composer" />
         </transition>
+        <bm-alert-area v-if="alerts.length > 0" :alerts="alerts" class="w-100">
+            <template v-slot="slotProps">
+                <component :is="slotProps.alert.renderer" :alert="slotProps.alert" />
+            </template>
+        </bm-alert-area>
         <mail-composer-toolbar
             :message="message"
             :is-signature-inserted="isSignatureInserted"
@@ -16,13 +21,14 @@
 </template>
 
 <script>
-import { BmRichEditorToolbar } from "@bluemind/ui-components";
+import { BmAlertArea, BmRichEditorToolbar } from "@bluemind/ui-components";
 
 import MailComposerToolbar from "./MailComposerToolbar";
+import { mapState } from "vuex";
 
 export default {
     name: "MailComposerFooter",
-    components: { BmRichEditorToolbar, MailComposerToolbar },
+    components: { BmAlertArea, BmRichEditorToolbar, MailComposerToolbar },
     props: {
         message: { type: Object, required: true },
         isSignatureInserted: { type: Boolean, required: true },
@@ -30,6 +36,7 @@ export default {
         isDispositionNotificationRequested: { type: Boolean, required: true }
     },
     computed: {
+        ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "composer-footer") }),
         showTextFormattingToolbar() {
             return this.$store.state.mail.messageCompose.showFormattingToolbar;
         }
@@ -53,6 +60,11 @@ export default {
     .slide-fade-enter,
     .slide-fade-leave-to {
         transform: translateY(20px);
+    }
+    .bm-alert-area .bm-alert {
+        padding-top: $sp-3;
+        padding-bottom: $sp-3;
+        margin-bottom: 0;
     }
 }
 </style>

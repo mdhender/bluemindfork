@@ -8,9 +8,7 @@
                     <em>{{ feature }}</em>
                 </li>
             </ul>
-            <a target="_blank" href="https://doc.bluemind.net/release/5.0/category/la-messagerie">
-                {{ $t("common.read_more") }}
-            </a>
+            <bm-read-more-button href="https://doc.bluemind.net/release/5.0/category/la-messagerie" />
         </div>
     </div>
 </template>

@@ -3,14 +3,19 @@
         "mailapp": {
             "alert": {
                 "untrusted": "Message was signed by sender but signature could not be verified.",
-                "decrypt_failed": "Unable to display the encrypted message."
+                "decrypt_failed": "Unable to display the encrypted message.",
+                "encrypt_failed": "Fehler bei der Verschlüsselung der Nachricht",
+                "recipients": {
+                    "all_invalid": "Die Empfänger der Nachricht lassen keine Verschlüsselung zu.",
+                    "some_invalid": "Einige Empfänger der Nachricht lassen die Verschlüsselung nicht zu."
+                }
             },
             "body_wrapper": {
                 "cant_display": "Why I can't I see this message ?"
             },
             "composer": {
                 "encrypt": "Nachricht verschlüsseln",
-                "no_encrypt": "Die Nachricht nicht mehr verschlüsseln",
+                "stop_encryption": "Die Nachricht nicht mehr verschlüsseln",
                 "invalid_recipient" : "Die Nachricht kann für diesen Empfänger nicht verschlüsselt werden"
             }
         },
