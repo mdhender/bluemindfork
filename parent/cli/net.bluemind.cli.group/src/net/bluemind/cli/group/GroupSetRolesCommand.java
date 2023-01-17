@@ -20,7 +20,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.cli.ou;
+package net.bluemind.cli.group;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -30,22 +30,22 @@ import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
-import net.bluemind.directory.api.IOrgUnits;
+import net.bluemind.group.api.IGroup;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "set-roles", description = "Add roles for an user/group on a delegation")
-public class OuSetRolesCommand implements ICmdLet, Runnable {
+@Command(name = "set-roles", description = "Add roles of a group")
+public class GroupSetRolesCommand implements ICmdLet, Runnable {
 	public static class Reg implements ICmdLetRegistration {
 		@Override
 		public Optional<String> group() {
-			return Optional.of("ou");
+			return Optional.of("group");
 		}
 
 		@Override
 		public Class<? extends ICmdLet> commandClass() {
-			return OuSetRolesCommand.class;
+			return GroupSetRolesCommand.class;
 		}
 	}
 
@@ -54,11 +54,16 @@ public class OuSetRolesCommand implements ICmdLet, Runnable {
 	@Option(names = "--domain", required = true, description = "Target domain - must not be global.virt")
 	private String domain;
 
-	@Option(names = "--ou", required = true, description = "Target delegation UID")
-	private String ou;
+	@ArgGroup(exclusive = true, multiplicity = "1")
+	private GroupOptions groupOptions;
 
-	@Option(names = "--target", required = true, description = "Target user/group UID")
-	private String target;
+	private static class GroupOptions {
+		@Option(names = "--name", required = true, description = "Target group name")
+		private String name;
+
+		@Option(names = "--uid", required = true, description = "Target group UID")
+		private String uid;
+	}
 
 	@ArgGroup(exclusive = true, multiplicity = "1")
 	private RolesOptions rolesOptions;
@@ -77,13 +82,22 @@ public class OuSetRolesCommand implements ICmdLet, Runnable {
 			throw new CliException("Domain must not be global.virt!");
 		}
 
-		ctx.adminApi().instance(IOrgUnits.class, domain).setAdministratorRoles(ou, target, Collections.emptySet());
+		IGroup groupApi = ctx.adminApi().instance(IGroup.class, domain);
+		String groupUid = Optional.ofNullable(groupOptions.name).map(groupApi::byName).map(g -> g.uid)
+				.orElse(groupOptions.uid);
+
+		if (groupUid == null) {
+			throw new CliException(
+					"Group " + groupOptions.name != null ? groupOptions.name : groupOptions.uid + " not found!");
+		}
+
+		groupApi.setRoles(groupUid, Collections.emptySet());
 
 		if (rolesOptions.remove) {
 			return;
 		}
 
-		ctx.adminApi().instance(IOrgUnits.class, domain).setAdministratorRoles(ou, target, Set.of(rolesOptions.roles));
+		groupApi.setRoles(groupUid, Set.of(rolesOptions.roles));
 	}
 
 	@Override
