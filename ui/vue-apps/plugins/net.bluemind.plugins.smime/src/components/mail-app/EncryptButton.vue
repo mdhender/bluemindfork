@@ -1,5 +1,6 @@
 <template>
     <bm-icon-button
+        v-if="SMIME_AVAILABLE"
         :icon="!hasEncryptionHeader ? 'lock-open' : hasEncryptError ? 'lock-slash' : 'lock'"
         class="encrypt-button"
         :class="{ selected: hasEncryptionHeader, error: hasEncryptError }"

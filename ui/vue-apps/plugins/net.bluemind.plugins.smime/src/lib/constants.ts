@@ -12,8 +12,8 @@ export enum PKIEntry {
     PRIVATE_KEY = "privateKey",
     CERTIFICATE = "certificate"
 }
-export const ENCRYPTED_HEADER_NAME = "X-BM-Encrypted";
-export const SIGNED_HEADER_NAME = "X-BM-Signed";
+export const ENCRYPTED_HEADER_NAME = "X-MailApp-Encrypted";
+export const SIGNED_HEADER_NAME = "X-MailApp-Signed";
 export enum CRYPTO_HEADERS {
     TO_DO = 1,
     OK = 2,
