@@ -43,6 +43,7 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Streams;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
+import com.google.common.io.ByteSink;
 
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.buffer.Buffer;
@@ -95,6 +96,7 @@ import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.MailboxQuota;
 import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.utils.ByteSizeUnit;
 
 public class MailApiConnection implements MailboxConnection {
 
@@ -462,7 +464,7 @@ public class MailApiConnection implements MailboxConnection {
 
 		IMailboxes mboxApi = suProv.instance(IMailboxes.class, me.domainUid);
 		MailboxQuota mbxQuota = mboxApi.getMailboxQuota(selected.mailbox.owner.uid);
-		if (mbxQuota.quota != null && mbxQuota.used < (mbxQuota.used + buffer.capacity())) {
+		if (mbxQuota.quota != null && mbxQuota.quota < (mbxQuota.used + ByteSizeUnit.BYTES.toKB(buffer.capacity()))) {
 			return new AppendStatus(WriteStatus.OVERQUOTA_REJECTED, 0L);
 		}
 
