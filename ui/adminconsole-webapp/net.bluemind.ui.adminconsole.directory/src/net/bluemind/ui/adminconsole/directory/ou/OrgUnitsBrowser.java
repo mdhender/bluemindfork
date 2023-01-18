@@ -393,10 +393,16 @@ public class OrgUnitsBrowser extends Composite implements IGwtScreenRoot, OUChec
 
 		pagerResource.setVisible(resourceGrid.getRowCount() >= OrgResourceGrid.PAGE_SIZE);
 		pagerResource.setDisplay(resourceGrid);
+		if (pagerResource.getPageCount() * OrgResourceGrid.PAGE_SIZE <= pagerResource.getPageStart()) {
+			pagerResource.firstPage();
+		}
 		setResourceGridHeaderTitle();
 
 		pagerAdminResource.setVisible(adminResourceGrid.getRowCount() >= OrgResourceGrid.PAGE_SIZE);
 		pagerAdminResource.setDisplay(adminResourceGrid);
+		if (pagerAdminResource.getPageCount() * OrgResourceGrid.PAGE_SIZE <= pagerAdminResource.getPageStart()) {
+			pagerAdminResource.firstPage();
+		}
 		setAdminResourceGridHeaderTitle();
 
 		ouRolesTree.clearRoles();
