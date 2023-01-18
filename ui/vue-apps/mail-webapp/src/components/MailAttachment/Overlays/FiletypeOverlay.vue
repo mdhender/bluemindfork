@@ -31,13 +31,12 @@ export default {
 
 <style lang="scss">
 @import "@bluemind/ui-components/src/css/_fileTypeIconsColors.scss";
-@import "~@bluemind/ui-components/src/css/variables";
 
 .action-overlay {
     @each $file-type, $color in $file-type-icons-colors {
         &.#{$file-type} {
             background-color: $color;
-            color: $lowest;
+            color: $lightest;
         }
     }
     min-height: 100%;

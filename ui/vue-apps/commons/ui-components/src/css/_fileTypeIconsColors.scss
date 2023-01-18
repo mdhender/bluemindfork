@@ -1,4 +1,6 @@
-$file-type-audio: #333333;
+@import "~@bluemind/ui-components/src/css/variables";
+
+$file-type-audio: $fill-neutral-bg;
 $file-type-code: #cbb700;
 $file-type-compressed: #987769;
 $file-type-data: #0058bf;
@@ -11,7 +13,7 @@ $file-type-presentation: #fe4c00;
 $file-type-system: #9384b9;
 $file-type-unknown: #999999;
 $file-type-vcard: #8a08c8;
-$file-type-video: #333333;
+$file-type-video: $fill-neutral-bg;
 $file-type-word: #1a83ff;
 
 $file-type-icons-colors: () !default;

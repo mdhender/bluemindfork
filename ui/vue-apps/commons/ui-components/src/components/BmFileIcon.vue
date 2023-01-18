@@ -1,5 +1,7 @@
 <template>
-    <bm-icon :icon="matchingIcon" :size="size" />
+    <div class="bm-file-icon">
+        <bm-icon :icon="matchingIcon" :size="size" />
+    </div>
 </template>
 
 <script>
@@ -30,3 +32,12 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "../css/_variables.scss";
+
+.bm-file-icon {
+    display: flex;
+    background-color: $lightest;
+}
+</style>
