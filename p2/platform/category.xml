@@ -763,4 +763,5 @@
    <bundle id="ydn-db" version="4.1.0.qualifier"/>
    <bundle id="net.bluemind.backend.mailapi.testhelper"/>
    <bundle id="net.bluemind.imap.docker.imaptest"/>
+   <bundle id="net.bluemind.common.vertx.msgpack"/>
 </site>

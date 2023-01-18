@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.common.vertx.msgpack.tests
+Bundle-SymbolicName: net.bluemind.common.vertx.msgpack.tests
+Bundle-Version: 4.1.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.core.runtime,
+ net.bluemind.common.vertx.msgpack,
+ org.junit,
+ net.bluemind.utils,
+ net.bluemind.lib.vertx,
+ com.fasterxml.jackson.module.jackson-module-afterburner
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: net.bluemind.common.vertx.msgpack.tests
+Bundle-ActivationPolicy: lazy

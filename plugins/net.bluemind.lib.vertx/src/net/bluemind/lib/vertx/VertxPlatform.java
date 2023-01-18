@@ -18,6 +18,7 @@
  */
 package net.bluemind.lib.vertx;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +39,9 @@ import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.MessageCodec;
 import net.bluemind.common.vertx.contextlogging.ContextualData;
+import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.internal.BMModule;
 import net.bluemind.lib.vertx.internal.Result;
 
@@ -79,20 +82,27 @@ public final class VertxPlatform implements BundleActivator {
 		vertx.exceptionHandler(t -> logger.error("Uncaught exception: {}", t.getMessage(), t));
 
 		/* Propagation of endpoint ContextualData through the eventbus */
-		vertx.eventBus().addOutboundInterceptor(event -> {
+		EventBus eb = vertx.eventBus();
+		eb.addOutboundInterceptor(event -> {
 			String endpoint = ContextualData.get("endpoint");
 			if (endpoint != null) {
 				event.message().headers().add("log-endpoint", endpoint);
 			}
 			event.next();
 		});
-		vertx.eventBus().addInboundInterceptor(event -> {
+		eb.addInboundInterceptor(event -> {
 			String requestId = event.message().headers().get("log-endpoint");
 			if (requestId != null) {
 				ContextualData.put("endpoint", requestId);
 			}
 			event.next();
 		});
+
+		RunnableExtensionLoader<MessageCodec<?, ?>> rel = new RunnableExtensionLoader<>();
+		List<MessageCodec<?, ?>> codecs = rel.loadExtensions("net.bluemind.lib.vertx", "event_bus_codec",
+				"event_bus_codec", "impl");
+		codecs.forEach(eb::registerCodec);
+		logger.info("Registered {} codec(s) on eventbus", codecs.size());
 
 		VertxPlatform.context = bundleContext;
 	}

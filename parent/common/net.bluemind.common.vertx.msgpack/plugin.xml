@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.lib.vertx.event_bus_codec">
+      <event_bus_codec
+            impl="net.bluemind.common.vertx.msgpack.MsgPackCompliantCodec">
+      </event_bus_codec>
+   </extension>
+
+</plugin>

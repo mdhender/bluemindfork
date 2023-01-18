@@ -2,6 +2,7 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension-point id="net.bluemind.lib.vertx.verticles" name="verticles" schema="schema/net.bluemind.lib.vertx.verticles.exsd"/>
+   <extension-point id="net.bluemind.lib.vertx.event_bus_codec" name="event_bus_codec" schema="schema/net.bluemind.lib.vertx.event_bus_codec.exsd"/>
    <extension
          point="net.bluemind.lib.vertx.verticles">
       <verticle
