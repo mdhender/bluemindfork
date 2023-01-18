@@ -197,8 +197,7 @@
         $disabled-text: var(--#{$variant}-fg-disabled),
         $normal-stroke: var(--#{$variant}-fg),
         $hovered-stroke: var(--#{$variant}-fg-hi1),
-        $disabled-stroke: var(--#{$variant}-fg-disabled),
-        $normal-bg:  var(--surface),
+        $disabled-stroke: var(--#{$variant}-fg-disabled),        
         $hovered-bg: var(--#{$variant}-bg-lo1),
         $important: $important
     );

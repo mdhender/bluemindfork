@@ -23,3 +23,8 @@ export default {
     }
 };
 </script>
+<style lang="scss">
+.search-button {
+    white-space: nowrap;
+}
+</style>

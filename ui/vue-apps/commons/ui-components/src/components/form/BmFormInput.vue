@@ -297,7 +297,6 @@ $items-info: (
     $focus-icon: $focus-stroke
 ) {
     .form-control {
-        background-color: $surface-bg;
         color: $neutral-fg;
         border-color: $stroke;
         background-image: none !important;

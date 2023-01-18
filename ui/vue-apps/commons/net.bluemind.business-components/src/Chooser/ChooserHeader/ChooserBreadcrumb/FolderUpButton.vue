@@ -1,17 +1,15 @@
 <template>
-    <bm-button variant="outline" class="back-button" @click="setPath">
-        <bm-icon icon="folder-up" />
-    </bm-button>
+    <bm-button variant="outline" class="folder-up-button" icon="folder-up" @click="setPath" />
 </template>
 
 <script>
 import { mapState } from "vuex";
-import { BmButton, BmIcon } from "@bluemind/ui-components";
+import { BmButton } from "@bluemind/ui-components";
 import { SET_PATH } from "../../store/mutations";
 
 export default {
     name: "FolderUpButton",
-    components: { BmButton, BmIcon },
+    components: { BmButton },
     props: {
         disabled: {
             type: Boolean,
@@ -38,3 +36,10 @@ export default {
     }
 };
 </script>
+<style lang="scss">
+@import "~@bluemind/ui-components/src/css/variables";
+
+.folder-up-button.btn-outline {
+    background-color: $surface-bg;
+}
+</style>

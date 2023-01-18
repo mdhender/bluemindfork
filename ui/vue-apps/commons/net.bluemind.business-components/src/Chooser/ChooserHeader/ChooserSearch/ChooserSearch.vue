@@ -73,6 +73,7 @@ export default {
 
     .bm-form-input {
         width: 100%;
+        background-color: $surface-bg;
     }
 }
 </style>

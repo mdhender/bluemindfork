@@ -1,16 +1,14 @@
 <template>
-    <bm-button variant="outline" class="back-button" @click="unsetSearchMode">
-        <bm-icon icon="arrow-back" />
-    </bm-button>
+    <bm-button variant="outline" class="back-button" icon="arrow-back" @click="unsetSearchMode" />
 </template>
 
 <script>
-import { BmButton, BmIcon } from "@bluemind/ui-components";
+import { BmButton } from "@bluemind/ui-components";
 import { UNSET_SEARCH_PATTERN, UNSET_SEARCH_MODE } from "../../store/mutations";
 
 export default {
     name: "BackButton",
-    components: { BmButton, BmIcon },
+    components: { BmButton },
     methods: {
         unsetSearchMode() {
             this.$store.commit(`chooser/${UNSET_SEARCH_PATTERN}`);
@@ -20,3 +18,10 @@ export default {
     }
 };
 </script>
+<style lang="scss">
+@import "~@bluemind/ui-components/src/css/variables";
+
+.back-button.btn-outline {
+    background-color: $surface;
+}
+</style>
