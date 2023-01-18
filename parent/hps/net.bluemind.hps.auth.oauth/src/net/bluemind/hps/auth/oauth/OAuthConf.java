@@ -17,6 +17,8 @@
   */
 package net.bluemind.hps.auth.oauth;
 
-public record OAuthConf(String host, int port, String realm, String clientId, String clientSecret) {
+import io.vertx.core.json.JsonObject;
+
+public record OAuthConf(JsonObject openIdConfiguration, String clientId, String clientSecret) {
 
 }

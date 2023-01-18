@@ -17,12 +17,14 @@
   */
 package net.bluemind.hps.auth.oauth;
 
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Base64.Encoder;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -38,8 +40,10 @@ import com.google.common.hash.Hashing;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
+import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
@@ -61,10 +65,11 @@ public class OAuthProtocol implements IAuthProtocol {
 	private static final Cache<String, String> codeVerifierCache = CacheBuilder.newBuilder()
 			.expireAfterWrite(10, TimeUnit.MINUTES).build();
 	private OAuthConf oAuthConf;
-	private HttpClient httpClient;
+	private Optional<HttpClient> httpClient = Optional.empty();
+	private Vertx vertx;
 
-	public OAuthProtocol(HttpClient client, OAuthConf oAuthConf) {
-		this.httpClient = client;
+	public OAuthProtocol(Vertx vertx, OAuthConf oAuthConf) {
+		this.vertx = vertx;
 		this.oAuthConf = oAuthConf;
 	}
 
@@ -99,11 +104,12 @@ public class OAuthProtocol implements IAuthProtocol {
 			return;
 		}
 
-		String uri = String.format("/realms/%s/protocol/openid-connect/token", oAuthConf.realm());
-
 		try {
+			URL url = new URL(oAuthConf.openIdConfiguration().getString("token_endpoint"));
+
 			String redirectUri = String.format("%s://%s/login", request.scheme(), request.host());
-			httpClient.request(HttpMethod.POST, uri).onSuccess(req -> {
+			HttpClient httpClient = initHttpClient(url);
+			httpClient.request(HttpMethod.POST, url.getPath()).onSuccess(req -> {
 				String params = "grant_type=authorization_code";
 				params += "&client_id=" + oAuthConf.clientId();
 				params += "&client_secret=" + oAuthConf.clientSecret();
@@ -144,28 +150,31 @@ public class OAuthProtocol implements IAuthProtocol {
 
 	private void validateToken(HttpServerRequest request, IAuthProtocol protocol, IAuthProvider prov, ISessionStore ss,
 			List<String> forwadedFor, String token) {
-
-		String uri = String.format("/realms/%s/protocol/openid-connect/userinfo", oAuthConf.realm());
-		httpClient.request(HttpMethod.GET, uri).onSuccess(req -> {
-			req.putHeader("Authorization", "Bearer " + token);
-			req.send().onSuccess(resp -> {
-				if (resp.statusCode() >= 400) {
-					error(request, new Throwable(resp.statusMessage()));
-					return;
-				}
-				resp.bodyHandler(buf -> {
-					JsonObject response = new JsonObject(buf);
-					ExternalCreds creds = new ExternalCreds();
-					creds.setTicket(token);
-					creds.setLoginAtDomain(response.getString("email"));
-					createSession(request, protocol, prov, ss, forwadedFor, creds);
+		try {
+			URL url = new URL(oAuthConf.openIdConfiguration().getString("userinfo_endpoint"));
+			HttpClient httpClient = initHttpClient(url);
+			httpClient.request(HttpMethod.GET, url.getPath()).onSuccess(req -> {
+				req.putHeader("Authorization", "Bearer " + token);
+				req.send().onSuccess(resp -> {
+					if (resp.statusCode() >= 400) {
+						error(request, new Throwable(resp.statusMessage()));
+						return;
+					}
+					resp.bodyHandler(buf -> {
+						JsonObject response = new JsonObject(buf);
+						ExternalCreds creds = new ExternalCreds();
+						creds.setTicket(token);
+						creds.setLoginAtDomain(response.getString("email"));
+						createSession(request, protocol, prov, ss, forwadedFor, creds);
+					});
 				});
+			}).onFailure(e -> {
+				logger.error("Failed to fetch user profile", e);
+				redirect(request);
 			});
-		}).onFailure(e -> {
-			logger.error("Failed to fetch user profile", e);
-			redirect(request);
-		});
-
+		} catch (Exception e) {
+			error(request, e);
+		}
 	}
 
 	private void createSession(HttpServerRequest request, IAuthProtocol protocol, IAuthProvider prov, ISessionStore ss,
@@ -211,8 +220,7 @@ public class OAuthProtocol implements IAuthProtocol {
 	}
 
 	public void logout(HttpServerRequest req) {
-		String location = String.format("%s://%s:%d/realms/%s/protocol/openid-connect/logout",
-				oAuthConf.port() == 443 ? "https" : "http", oAuthConf.host(), oAuthConf.port(), oAuthConf.realm());
+		String location = oAuthConf.openIdConfiguration().getString("end_session_endpoint");
 		req.response().headers().add(HttpHeaders.LOCATION, location);
 		req.response().setStatusCode(302);
 		req.response().end();
@@ -224,9 +232,7 @@ public class OAuthProtocol implements IAuthProtocol {
 	}
 
 	private void redirect(HttpServerRequest req) {
-		String location = String.format("%s://%s:%d/realms/%s/protocol/openid-connect/auth",
-				oAuthConf.port() == 443 ? "https" : "http", oAuthConf.host(), oAuthConf.port(), oAuthConf.realm());
-
+		String location = oAuthConf.openIdConfiguration().getString("authorization_endpoint");
 		String state = UUID.randomUUID().toString();
 		String codeVerifier = createCodeVerifier();
 		codeVerifierCache.put(state, codeVerifier);
@@ -254,6 +260,19 @@ public class OAuthProtocol implements IAuthProtocol {
 		byte[] code = new byte[32];
 		sr.nextBytes(code);
 		return b64UrlEncoder.encodeToString(code);
+	}
+
+	private HttpClient initHttpClient(URL url) {
+
+		if (httpClient.isEmpty()) {
+			HttpClientOptions opts = new HttpClientOptions();
+			opts.setDefaultHost(url.getHost());
+			opts.setDefaultPort(url.getPort());
+			httpClient = Optional.of(vertx.createHttpClient(opts));
+		}
+
+		return httpClient.get();
+
 	}
 
 }

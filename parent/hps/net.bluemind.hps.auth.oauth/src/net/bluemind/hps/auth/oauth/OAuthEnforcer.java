@@ -18,17 +18,19 @@
 package net.bluemind.hps.auth.oauth;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Optional;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.Builder;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.proxy.http.NeedVertx;
 import net.bluemind.proxy.http.auth.api.AuthRequirements;
 import net.bluemind.proxy.http.auth.api.IAuthEnforcer;
@@ -40,7 +42,6 @@ public class OAuthEnforcer implements IAuthEnforcer, NeedVertx {
 	private OAuthConf oAuthConf;
 	private Boolean enabled;
 	private Vertx vertx;
-	private Optional<HttpClient> httpClient = Optional.empty();
 
 	public OAuthEnforcer() {
 		File ini = new File("/etc/bm/oauth.ini");
@@ -48,12 +49,34 @@ public class OAuthEnforcer implements IAuthEnforcer, NeedVertx {
 		if (enabled.booleanValue()) {
 			OAuthIni oAuthIni = new OAuthIni("/etc/bm/oauth.ini");
 			String host = oAuthIni.getProperty("host");
-			int port = Integer.parseInt(oAuthIni.getProperty("port"));
-			String realm = oAuthIni.getProperty("realm");
+			JsonObject conf = fetchOpenIdConfiguration(host);
+
 			String clientId = oAuthIni.getProperty("client-id");
 			String clientSecret = oAuthIni.getProperty("client-secret");
-			oAuthConf = new OAuthConf(host, port, realm, clientId, clientSecret);
+
+			oAuthConf = new OAuthConf(conf, clientId, clientSecret);
 		}
+	}
+
+	private JsonObject fetchOpenIdConfiguration(String host) {
+		try {
+			Builder requestBuilder = HttpRequest.newBuilder(new URI(host));
+			HttpRequest req = requestBuilder.GET().build();
+
+			HttpClient cli = HttpClient.newHttpClient();
+			HttpResponse<String> resp = cli.send(req, BodyHandlers.ofString());
+
+			if (resp.statusCode() == 200) {
+				return new JsonObject(resp.body());
+			}
+
+			logger.error("Failed to fetch openid configuration, status code {}", resp.statusCode());
+
+		} catch (Exception e) {
+			logger.error("Failed to fetch openid configuration {}", host, e);
+		}
+
+		return null;
 	}
 
 	@Override
@@ -81,25 +104,7 @@ public class OAuthEnforcer implements IAuthEnforcer, NeedVertx {
 
 	@Override
 	public IAuthProtocol getProtocol() {
-		return new OAuthProtocol(httpClient.orElseGet(this::initHttpClient), oAuthConf);
-	}
-
-	private HttpClient initHttpClient() {
-		URL url = null;
-		try {
-			url = new URL(String.format("%s://%s", oAuthConf.port() == 443 ? "https" : "http", oAuthConf.host()));
-		} catch (MalformedURLException e) {
-			logger.error("Invalid URL '{}' ?", oAuthConf.host());
-			throw new RuntimeException(e);
-		}
-
-		HttpClientOptions opts = new HttpClientOptions();
-		opts.setDefaultHost(url.getHost());
-		opts.setSsl(false);
-		opts.setDefaultPort(oAuthConf.port());
-		httpClient = Optional.of(vertx.createHttpClient(opts));
-
-		return httpClient.get();
+		return new OAuthProtocol(vertx, oAuthConf);
 	}
 
 }
