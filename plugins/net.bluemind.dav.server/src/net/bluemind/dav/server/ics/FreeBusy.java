@@ -19,14 +19,35 @@
 
 package net.bluemind.dav.server.ics;
 
-import java.util.LinkedList;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VFreebusyQuery;
+import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.dav.server.store.LoggedCore;
+import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirectory;
+import net.bluemind.icalendar.parser.ICal4jHelper;
+import net.bluemind.lib.ical4j.data.CalendarBuilder;
+import net.bluemind.lib.ical4j.util.IcalConverter;
+import net.fortuna.ical4j.data.ParserException;
+import net.fortuna.ical4j.data.UnfoldingReader;
+import net.fortuna.ical4j.model.Component;
+import net.fortuna.ical4j.model.Property;
+import net.fortuna.ical4j.model.PropertyList;
+import net.fortuna.ical4j.model.component.VFreeBusy;
+import net.fortuna.ical4j.model.property.Attendee;
 
 public class FreeBusy {
 
@@ -50,9 +71,48 @@ public class FreeBusy {
 
 	public static List<CalRequest> parseRequests(byte[] ics, LoggedCore lc) {
 		logger.info("[{}] Parse cal requests:\n{}", lc.getUser().value.login, new String(ics));
-		List<CalRequest> ret = new LinkedList<FreeBusy.CalRequest>();
 
-		return ret;
+		List<CalRequest> requests = new ArrayList<>();
+		try (Reader reader = new InputStreamReader(new ByteArrayInputStream(ics));
+				UnfoldingReader unfoldingReader = new UnfoldingReader(reader, true)) {
+
+			new CalendarBuilder().build(unfoldingReader, ((cal, component) -> {
+				if (Component.VFREEBUSY.equals(component.getName())) {
+					VFreeBusy fb = (VFreeBusy) component;
+
+					BmDateTime rangeStart = IcalConverter.convertToDateTime(fb.getStartDate(), Optional.empty(),
+							Collections.emptyMap());
+					BmDateTime rangeEnd = IcalConverter.convertToDateTime(fb.getEndDate(), Optional.empty(),
+							Collections.emptyMap());
+					VFreebusyQuery range = VFreebusyQuery.create(rangeStart, rangeEnd);
+
+					PropertyList<Property> attendess = fb.getProperties(Attendee.ATTENDEE);
+					attendess.forEach(attendeeProp -> {
+						net.fortuna.ical4j.model.property.Attendee attendee = (net.fortuna.ical4j.model.property.Attendee) attendeeProp;
+						try {
+							String mailto = attendee.getCalAddress().toURL().getPath().toLowerCase()
+									.replace(ICal4jHelper.MAIL_TO, "");
+							mailtoToCalRequest(lc, mailto, range).ifPresent(r -> requests.add(r));
+						} catch (MalformedURLException e) {
+							logger.warn("Cannot parse attendee value {}", attendee.toString(), e);
+						}
+					});
+				}
+			}));
+
+		} catch (IOException | ParserException e) {
+			logger.warn("Cannot read freebusy ICS of user {}", lc.getUser().value.login, e);
+		}
+
+		return requests;
+	}
+
+	private static Optional<CalRequest> mailtoToCalRequest(LoggedCore lc, String mailto, VFreebusyQuery range) {
+		String domain = lc.getDomain();
+		DirEntry byEmail = lc.getCore().instance(IDirectory.class, domain).getByEmail(mailto);
+		return Optional.ofNullable(byEmail).map(dirEntry -> {
+			return new CalRequest(ICalendarUids.defaultUserCalendar(byEmail.entryUid), range);
+		});
 	}
 
 }
