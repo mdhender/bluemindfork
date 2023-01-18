@@ -120,12 +120,17 @@ $mark-bg: $tertiary-bg-hi1;
 
 // Tables
 
+$table-color: $neutral-fg;
+
 $table-accent-bg: $neutral-bg-lo1;
 
 $table-border-width: 1px;
+$table-border-color: $neutral-fg-lo2;
 
-$table-head-bg: transparent;
 $table-head-color: $neutral-fg;
+
+$table-hover-bg: $neutral-bg;
+$table-hover-color: $neutral-fg-hi1;
 
 // Buttons + Forms
 
