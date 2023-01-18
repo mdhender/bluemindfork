@@ -1,6 +1,6 @@
 <script>
 import { BmButton } from "@bluemind/ui-components";
-import { IS_SW_AVAILABLE, PKCS7_MIMES } from "../../lib/constants";
+import { PKCS7_MIMES } from "../../lib/constants";
 import { isDecrypted, hasEncryptionHeader, isSigned, isVerified } from "../../lib/helper";
 import untrustedIllustration from "../../../assets/mail-app-untrusted.png";
 import undecryptedIllustration from "../../../assets/mail-app-undecrypted.png";
@@ -31,8 +31,14 @@ export default {
         untrusted() {
             return isSigned(this.message.headers) && !isVerified(this.message.headers);
         },
+        isEncrypted() {
+            return (
+                hasEncryptionHeader(this.message.headers) ||
+                this.hasEncryptedPart(this.message.inlinePartsByCapabilities)
+            );
+        },
         undecrypted() {
-            return hasEncryptionHeader(this.message.headers) && !isDecrypted(this.message.headers);
+            return this.isEncrypted && !isDecrypted(this.message.headers);
         }
     },
     methods: {
@@ -41,16 +47,13 @@ export default {
             return partsByCapabilities.some(({ parts }) => parts.some(isEncrypted));
         }
     },
+
     render(h) {
         const src = this.untrusted ? untrustedIllustration : undecryptedIllustration;
         const text = this.untrusted
             ? this.$t("common.whats_going_on")
             : this.$t("smime.mailapp.body_wrapper.cant_display");
-        if (
-            (!this.forceDisplay && this.untrusted) ||
-            this.undecrypted ||
-            (!IS_SW_AVAILABLE && this.hasEncryptedPart(this.message.inlinePartsByCapabilities))
-        ) {
+        if ((!this.forceDisplay && this.untrusted) || this.undecrypted) {
             const imgDiv = h("div", {}, [h("img", { attrs: { src } })]);
             //  FIXME doc urls: verification failure, decryption failure and missing SW
             const button = h(
