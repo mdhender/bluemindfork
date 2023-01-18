@@ -37,6 +37,7 @@ export default {
     &.active:not(.on-fill-primary) {
         &:not(.disabled),
         &:not(:disabled) {
+            color: $neutral-fg-hi1;
             background-color: $neutral-bg-hi1;
         }
 
@@ -49,6 +50,7 @@ export default {
     &.active.on-fill-primary {
         &:not(.disabled),
         &:not(:disabled) {
+            color: $fill-primary-fg-hi1;
             background-color: $fill-primary-bg-hi1;
         }
 

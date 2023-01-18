@@ -49,7 +49,7 @@
 
     --fill-primary-fg-hi1: #{$blue-400};
     --fill-primary-fg: #{$white};
-    --fill-primary-fg-lo1: #{rgba($white, 0.67)};
+    --fill-primary-fg-lo1: #{$blue-500};
     --fill-primary-fg-lo2: #{rgba($white, 0.4)};
     --fill-primary-fg-disabled: var(--fill-primary-fg-lo2);
 

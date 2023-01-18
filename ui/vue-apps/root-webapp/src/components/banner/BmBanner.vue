@@ -109,7 +109,7 @@ export default {
     }
 
     .app-title {
-        color: $secondary-fg;
+        color: $fill-primary-fg-lo1;
     }
 }
 </style>

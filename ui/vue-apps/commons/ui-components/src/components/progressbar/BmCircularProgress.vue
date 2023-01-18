@@ -44,6 +44,10 @@ export default {
 @import "../../css/_variables.scss";
 
 .bm-circular-progress {
+    text {
+        fill: $neutral-fg-hi1;
+    }
+
     .background {
         stroke: $neutral-bg;
     }

@@ -20,7 +20,7 @@
         </div>
         <div class="h-100 p-0 delete-autocomplete">
             <bm-button-close
-                class="h-100 w-100 border-left border-white text-center"
+                class="h-100 w-100"
                 size="sm"
                 :title="$t('styleguide.contact-input.autocomplete.delete')"
                 @click.stop="$emit('delete')"
@@ -110,6 +110,7 @@ export default {
     .delete-autocomplete {
         visibility: hidden;
         width: 1.25rem;
+        border-left: 1px solid $surface;
     }
     &:hover .delete-autocomplete {
         visibility: visible;

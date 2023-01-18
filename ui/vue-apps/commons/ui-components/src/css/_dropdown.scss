@@ -102,6 +102,7 @@ a.dropdown-item {
         &.hover,
         &:hover {
             color: $fill-primary-fg-hi1 !important;
+            background: none;
         }
         &.active,
         &:active {

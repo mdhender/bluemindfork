@@ -77,7 +77,7 @@ export default {
         flex-direction: column !important;
     }
     hr {
-        border-top-color: $lowest !important;
+        border-top-color: $surface !important;
         opacity: 1;
         margin-top: $sp-5;
         margin-bottom: $sp-5;

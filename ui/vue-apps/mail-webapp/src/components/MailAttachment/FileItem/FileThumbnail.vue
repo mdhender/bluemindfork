@@ -82,7 +82,7 @@ export default {
 
     .preview-file-type {
         color: $neutral-bg;
-        background-color: $lowest;
+        background-color: $surface;
     }
 
     .thumbnail-overlay {
