@@ -64,21 +64,20 @@ public class UserExportCommand extends SingleOrDomainOperation {
 		}
 	}
 
-	public String outputDir = "/tmp/bm-export";
-	public String rootDir = "/tmp/bm-export";
+	public static final String rootDir = "/tmp/bm-export";
 
 	@Override
 	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) {
-		outputDir = rootDir + "/" + UUID.randomUUID(); // BM-15290: Needed when using --match [a-c].*
+		String outputDir = rootDir + "/" + UUID.randomUUID(); // BM-15290: Needed when using --match [a-c].*
 		File dir = new File(outputDir);
 		try {
 			dir.mkdirs();
-			Arrays.asList("contact", "calendar", "task").forEach(data -> exportData(de, data));
+			Arrays.asList("contact", "calendar", "task").forEach(data -> exportData(outputDir, de, data));
 
-			createEmailSymlink(domainUid, de);
+			createEmailSymlink(outputDir, domainUid, de);
 
 			ctx.info("Creating archive file, can take a moment...");
-			File archiveFile = createArchive(de);
+			File archiveFile = createArchive(outputDir, de);
 			ctx.info("Archive file for " + de.value.email + " created as : " + archiveFile.getAbsolutePath());
 		} finally {
 			FileUtils.delete(dir);
@@ -86,7 +85,7 @@ public class UserExportCommand extends SingleOrDomainOperation {
 
 	}
 
-	private File createArchive(ItemValue<DirEntry> de) {
+	private File createArchive(String outputDir, ItemValue<DirEntry> de) {
 		File archiveFile = new File(rootDir + "/" + de.value.email + ".tgz");
 
 		try (OutputStream fOut = Files.newOutputStream(archiveFile.toPath());
@@ -128,8 +127,8 @@ public class UserExportCommand extends SingleOrDomainOperation {
 		}
 	}
 
-	private void exportData(ItemValue<DirEntry> de, String dataType) {
-		File outputDataDir = prepareTmpDir(dataType);
+	private void exportData(String outputDir, ItemValue<DirEntry> de, String dataType) {
+		File outputDataDir = prepareTmpDir(outputDir, dataType);
 		try {
 			switch (dataType) {
 			case "calendar":
@@ -159,8 +158,8 @@ public class UserExportCommand extends SingleOrDomainOperation {
 		}
 	}
 
-	private void createEmailSymlink(String domainUid, ItemValue<DirEntry> de) {
-		File outputMailDir = prepareTmpDir("mail");
+	private void createEmailSymlink(String outputDir, String domainUid, ItemValue<DirEntry> de) {
+		File outputMailDir = prepareTmpDir(outputDir, "mail");
 		Path outputDataDir = Paths.get(outputMailDir.getAbsolutePath(), "data");
 		Path outputMetaDir = Paths.get(outputMailDir.getAbsolutePath(), "meta");
 		Path outputHsmDir = Paths.get(outputMailDir.getAbsolutePath(), "hsm");
@@ -194,7 +193,7 @@ public class UserExportCommand extends SingleOrDomainOperation {
 		}
 	}
 
-	private File prepareTmpDir(String dataType) {
+	private File prepareTmpDir(String outputDir, String dataType) {
 		File dir = new File(outputDir + "/" + dataType);
 		dir.mkdir();
 		return dir;

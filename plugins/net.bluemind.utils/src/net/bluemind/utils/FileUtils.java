@@ -124,7 +124,7 @@ public class FileUtils {
 	}
 
 	public static void delete(File file) {
-		if (file.isDirectory()) {
+		if (file.isDirectory() && !Files.isSymbolicLink(file.toPath())) {
 			for (File sFile : file.listFiles()) {
 				delete(sFile);
 			}
