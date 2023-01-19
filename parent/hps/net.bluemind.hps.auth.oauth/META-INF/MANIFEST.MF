@@ -13,11 +13,11 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.rest.http;bundle-version="1.0.0",
  net.bluemind.addressbook.api;bundle-version="1.0.0",
  net.bluemind.hornetq.client,
- net.bluemind.lib.vertx,
  net.bluemind.core.rest;bundle-version="1.0.0",
  org.ini4j,
  net.bluemind.utils,
- net.bluemind.system.api
+ net.bluemind.system.api,
+ io.vertx.web
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.hps.auth.oauth
 Bundle-ActivationPolicy: lazy

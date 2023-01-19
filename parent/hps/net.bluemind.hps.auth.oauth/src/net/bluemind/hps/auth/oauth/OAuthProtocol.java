@@ -17,14 +17,19 @@
   */
 package net.bluemind.hps.auth.oauth;
 
-import java.net.URL;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.Builder;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Base64.Encoder;
+import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -40,16 +45,13 @@ import com.google.common.hash.Hashing;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
-import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpHeaders;
-import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.auth.impl.jose.JWT;
 import net.bluemind.core.api.AsyncHandler;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.proxy.http.ExternalCreds;
 import net.bluemind.proxy.http.IAuthProvider;
 import net.bluemind.proxy.http.auth.api.AuthRequirements;
@@ -65,11 +67,8 @@ public class OAuthProtocol implements IAuthProtocol {
 	private static final Cache<String, String> codeVerifierCache = CacheBuilder.newBuilder()
 			.expireAfterWrite(10, TimeUnit.MINUTES).build();
 	private OAuthConf oAuthConf;
-	private Optional<HttpClient> httpClient = Optional.empty();
-	private Vertx vertx;
 
-	public OAuthProtocol(Vertx vertx, OAuthConf oAuthConf) {
-		this.vertx = vertx;
+	public OAuthProtocol(OAuthConf oAuthConf) {
 		this.oAuthConf = oAuthConf;
 	}
 
@@ -105,41 +104,34 @@ public class OAuthProtocol implements IAuthProtocol {
 		}
 
 		try {
-			URL url = new URL(oAuthConf.openIdConfiguration().getString("token_endpoint"));
+			String endpoint = oAuthConf.openIdConfiguration().getString("token_endpoint");
+			Builder requestBuilder = HttpRequest.newBuilder(new URI(endpoint));
+			requestBuilder.header("Charset", StandardCharsets.UTF_8.name());
+			requestBuilder.header("Content-Type", "application/x-www-form-urlencoded");
+			String params = "grant_type=authorization_code";
+			params += "&client_id=" + oAuthConf.clientId();
+			params += "&client_secret=" + oAuthConf.clientSecret();
+			params += "&code=" + code;
+			params += "&code_verifier=" + codeVerifier;
+			params += "&redirect_uri=" + String.format("%s://%s/login", request.scheme(), request.host());
+			params += "&scope=openid";
+			byte[] postData = params.getBytes(StandardCharsets.UTF_8);
+			requestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(postData));
+			HttpRequest req = requestBuilder.build();
+			HttpClient cli = HttpClient.newHttpClient();
+			HttpResponse<String> resp = cli.send(req, BodyHandlers.ofString());
 
-			String redirectUri = String.format("%s://%s/login", request.scheme(), request.host());
-			HttpClient httpClient = initHttpClient(url);
-			httpClient.request(HttpMethod.POST, url.getPath()).onSuccess(req -> {
-				String params = "grant_type=authorization_code";
-				params += "&client_id=" + oAuthConf.clientId();
-				params += "&client_secret=" + oAuthConf.clientSecret();
-				params += "&code=" + code;
-				params += "&code_verifier=" + codeVerifier;
-				params += "&redirect_uri=" + redirectUri;
-				params += "&scope=openid";
+			if (resp.statusCode() >= 400) {
+				error(request, new Throwable(resp.body()));
+				return;
+			}
 
-				byte[] postData = params.getBytes(StandardCharsets.UTF_8);
-
-				req.putHeader("Content-Type", "application/x-www-form-urlencoded");
-				req.putHeader("Charset", StandardCharsets.UTF_8.name());
-				req.putHeader("Content-Length", Integer.toString(postData.length));
-
-				req.send(Buffer.buffer(postData)).onSuccess(resp -> {
-					if (resp.statusCode() >= 400) {
-						error(request, new Throwable(resp.statusMessage()));
-						return;
-					}
-					resp.bodyHandler(buf -> {
-						JsonObject response = new JsonObject(buf);
-						String token = response.getString("access_token");
-						resp.bodyHandler(body -> validateToken(request, protocol, provider, ss, forwadedFor, token));
-					});
-				}).onFailure(e -> error(request, e));
-			}).onFailure(e -> error(request, e));
+			JsonObject response = new JsonObject(resp.body());
+			String idToken = response.getString("id_token");
+			validateIdToken(request, protocol, provider, ss, forwadedFor, idToken);
 		} catch (Exception e) {
 			error(request, e);
 		}
-
 	}
 
 	private void error(HttpServerRequest req, Throwable e) {
@@ -148,33 +140,49 @@ public class OAuthProtocol implements IAuthProtocol {
 		req.response().end();
 	}
 
-	private void validateToken(HttpServerRequest request, IAuthProtocol protocol, IAuthProvider prov, ISessionStore ss,
-			List<String> forwadedFor, String token) {
-		try {
-			URL url = new URL(oAuthConf.openIdConfiguration().getString("userinfo_endpoint"));
-			HttpClient httpClient = initHttpClient(url);
-			httpClient.request(HttpMethod.GET, url.getPath()).onSuccess(req -> {
-				req.putHeader("Authorization", "Bearer " + token);
-				req.send().onSuccess(resp -> {
-					if (resp.statusCode() >= 400) {
-						error(request, new Throwable(resp.statusMessage()));
-						return;
-					}
-					resp.bodyHandler(buf -> {
-						JsonObject response = new JsonObject(buf);
-						ExternalCreds creds = new ExternalCreds();
-						creds.setTicket(token);
-						creds.setLoginAtDomain(response.getString("email"));
-						createSession(request, protocol, prov, ss, forwadedFor, creds);
-					});
-				});
-			}).onFailure(e -> {
-				logger.error("Failed to fetch user profile", e);
-				redirect(request);
-			});
-		} catch (Exception e) {
-			error(request, e);
+	private void validateIdToken(HttpServerRequest request, IAuthProtocol protocol, IAuthProvider prov,
+			ISessionStore ss, List<String> forwadedFor, String idToken) {
+		JsonObject token = JWT.parse(idToken);
+		JsonObject payload = token.getJsonObject("payload");
+
+		String issuer = payload.getString("iss");
+		if (Strings.isNullOrEmpty(issuer) || !oAuthConf.openIdConfiguration().getString("issuer").equals(issuer)) {
+			error(request, new ServerFault("Failed to validate id_token: issuer"));
+			return;
 		}
+
+		String audience = payload.getString("aud");
+		if (Strings.isNullOrEmpty(audience) || !oAuthConf.clientId().equals(audience)) {
+			error(request, new ServerFault("Failed to validate id_token: audience"));
+			return;
+		}
+
+		long now = new Date().getTime() / 1000;
+		Long iat = payload.getLong("iat");
+		if (now < iat) {
+			error(request, new ServerFault("Failed to validate id_token: expired"));
+			return;
+		}
+		Long exp = payload.getLong("exp");
+		if (now > exp) {
+			error(request, new ServerFault("Failed to validate id_token: expired"));
+			return;
+		}
+
+		String email = payload.getString("email");
+		if (Strings.isNullOrEmpty(email)) {
+			email = payload.getString("upn");
+		}
+
+		if (Strings.isNullOrEmpty(email)) {
+			error(request, new ServerFault("Failed to validate id_token: no email"));
+			return;
+		}
+
+		ExternalCreds creds = new ExternalCreds();
+		creds.setTicket(idToken);
+		creds.setLoginAtDomain(email);
+		createSession(request, protocol, prov, ss, forwadedFor, creds);
 	}
 
 	private void createSession(HttpServerRequest request, IAuthProtocol protocol, IAuthProvider prov, ISessionStore ss,
@@ -260,19 +268,6 @@ public class OAuthProtocol implements IAuthProtocol {
 		byte[] code = new byte[32];
 		sr.nextBytes(code);
 		return b64UrlEncoder.encodeToString(code);
-	}
-
-	private HttpClient initHttpClient(URL url) {
-
-		if (httpClient.isEmpty()) {
-			HttpClientOptions opts = new HttpClientOptions();
-			opts.setDefaultHost(url.getHost());
-			opts.setDefaultPort(url.getPort());
-			httpClient = Optional.of(vertx.createHttpClient(opts));
-		}
-
-		return httpClient.get();
-
 	}
 
 }

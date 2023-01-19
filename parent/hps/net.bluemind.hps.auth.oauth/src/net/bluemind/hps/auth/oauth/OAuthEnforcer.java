@@ -25,63 +25,18 @@ import java.net.http.HttpRequest.Builder;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
-import net.bluemind.proxy.http.NeedVertx;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.proxy.http.auth.api.AuthRequirements;
 import net.bluemind.proxy.http.auth.api.IAuthEnforcer;
 
-public class OAuthEnforcer implements IAuthEnforcer, NeedVertx {
-
-	private static final Logger logger = LoggerFactory.getLogger(OAuthEnforcer.class);
-
-	private OAuthConf oAuthConf;
+public class OAuthEnforcer implements IAuthEnforcer {
 	private Boolean enabled;
-	private Vertx vertx;
 
 	public OAuthEnforcer() {
 		File ini = new File("/etc/bm/oauth.ini");
 		enabled = ini.exists();
-		if (enabled.booleanValue()) {
-			OAuthIni oAuthIni = new OAuthIni("/etc/bm/oauth.ini");
-			String host = oAuthIni.getProperty("host");
-			JsonObject conf = fetchOpenIdConfiguration(host);
-
-			String clientId = oAuthIni.getProperty("client-id");
-			String clientSecret = oAuthIni.getProperty("client-secret");
-
-			oAuthConf = new OAuthConf(conf, clientId, clientSecret);
-		}
-	}
-
-	private JsonObject fetchOpenIdConfiguration(String host) {
-		try {
-			Builder requestBuilder = HttpRequest.newBuilder(new URI(host));
-			HttpRequest req = requestBuilder.GET().build();
-
-			HttpClient cli = HttpClient.newHttpClient();
-			HttpResponse<String> resp = cli.send(req, BodyHandlers.ofString());
-
-			if (resp.statusCode() == 200) {
-				return new JsonObject(resp.body());
-			}
-
-			logger.error("Failed to fetch openid configuration, status code {}", resp.statusCode());
-
-		} catch (Exception e) {
-			logger.error("Failed to fetch openid configuration {}", host, e);
-		}
-
-		return null;
-	}
-
-	@Override
-	public void setVertx(Vertx vertx) {
-		this.vertx = vertx;
 	}
 
 	@Override
@@ -104,7 +59,22 @@ public class OAuthEnforcer implements IAuthEnforcer, NeedVertx {
 
 	@Override
 	public IAuthProtocol getProtocol() {
-		return new OAuthProtocol(vertx, oAuthConf);
+		OAuthIni oAuthIni = new OAuthIni("/etc/bm/oauth.ini");
+		String host = oAuthIni.getProperty("host");
+		String clientId = oAuthIni.getProperty("client-id");
+		String clientSecret = oAuthIni.getProperty("client-secret");
+		try {
+			Builder requestBuilder = HttpRequest.newBuilder(new URI(host));
+			requestBuilder.GET().build();
+			HttpRequest request = requestBuilder.build();
+			HttpClient cli = HttpClient.newHttpClient();
+			HttpResponse<String> resp = cli.send(request, BodyHandlers.ofString());
+			JsonObject conf = new JsonObject(resp.body());
+			OAuthConf oAuthConf = new OAuthConf(conf, clientId, clientSecret);
+			return new OAuthProtocol(oAuthConf);
+		} catch (Exception e) {
+			throw new ServerFault(e.getMessage());
+		}
 	}
 
 }
