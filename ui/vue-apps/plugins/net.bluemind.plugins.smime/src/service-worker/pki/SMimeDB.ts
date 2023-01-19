@@ -23,11 +23,11 @@ class SMimeDBImpl implements SMimeDB {
     NAME = "smime";
     VERSION = 1;
     connection: Promise<IDBPDatabase<SMimeSchema>>;
-    constructor(login: string) {
-        this.connection = this.open(login);
+    constructor(userId: string) {
+        this.connection = this.open(userId);
     }
-    private async open(login: string): Promise<IDBPDatabase<SMimeSchema>> {
-        return openDB<SMimeSchema>(`${login}:${this.NAME}`, this.VERSION, {
+    private async open(userId: string): Promise<IDBPDatabase<SMimeSchema>> {
+        return openDB<SMimeSchema>(`${userId}:${this.NAME}`, this.VERSION, {
             upgrade: (db, from) => {
                 logger.log(`[@bluemind/plugin.smime][SMimeDB] Upgrading from ${from} to ${this.VERSION}`);
                 db.createObjectStore("pki");
@@ -65,7 +65,7 @@ class SMimeDBImpl implements SMimeDB {
 let implementation: SMimeDBImpl | null = null;
 async function instance(): Promise<SMimeDB> {
     if (!implementation) {
-        implementation = new SMimeDBImpl(await session.login);
+        implementation = new SMimeDBImpl(await session.userId);
     }
     return implementation;
 }
