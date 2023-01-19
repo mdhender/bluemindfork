@@ -239,11 +239,10 @@ export default {
     .darkened::before {
         position: fixed;
         content: "";
-        background: $highest;
+        background: $modal-backdrop;
         top: 0;
         bottom: 0;
         width: 100%;
-        opacity: 0.5;
         z-index: 1;
     }
 

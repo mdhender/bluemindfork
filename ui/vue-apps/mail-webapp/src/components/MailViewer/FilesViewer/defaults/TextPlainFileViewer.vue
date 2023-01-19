@@ -65,7 +65,7 @@ export default {
     .reply {
         margin-left: 1rem;
         padding-left: 1rem;
-        border-left: 2px solid $highest;
+        border-left: 2px solid $darkest;
     }
     .forwarded {
         margin-left: 1rem;

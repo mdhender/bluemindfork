@@ -121,7 +121,7 @@ export default {
 @import "~@bluemind/ui-components/src/css/variables";
 
 .preview-file-content {
-    background-color: $highest;
+    background-color: $darkest;
 
     .file-viewer-facade {
         width: 100%;
@@ -133,7 +133,7 @@ export default {
         }
         .text-html-file-viewer,
         .text-plain-file-viewer {
-            background-color: $surface-bg;
+            background-color: $surface;
             width: 80%;
             min-height: 100%;
             margin: 0 auto;

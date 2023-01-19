@@ -50,11 +50,12 @@ export default {
     .default-fallback {
         .blocked-preview {
             color: $lowest;
-            background-color: $neutral-bg;
+            background-color: $neutral-bg-hi1;
         }
         &.file-type .bm-icon {
-            background-color: $neutral-bg;
-            color: $highest;
+            background-color: $lightest;
+            color: $darkest;
+            opacity: 0.7;
         }
     }
 }
