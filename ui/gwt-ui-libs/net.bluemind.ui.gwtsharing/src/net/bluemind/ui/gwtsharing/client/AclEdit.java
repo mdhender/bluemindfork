@@ -116,7 +116,7 @@ public class AclEdit extends CommonForm implements IEntitySelectTarget {
 	}
 
 	private static final Resources res = GWT.create(Resources.class);
-	private static final AclConstants constants = GWT.create(AclConstants.class);
+	static final AclConstants aclConstants = GWT.create(AclConstants.class);
 	private static AclUiBinder uiBinder = GWT.create(AclUiBinder.class);
 	private static final CrudConstants cc = GWT.create(CrudConstants.class);
 
@@ -156,7 +156,7 @@ public class AclEdit extends CommonForm implements IEntitySelectTarget {
 		publicCombo.getElement().setId("acl-edit-public-combo");
 		publicCombo.setEnable(false);
 
-		publicCheckbox = new CheckBox(constants.aclAllowPublic());
+		publicCheckbox = new CheckBox(aclConstants.aclAllowPublic());
 		publicCheckbox.getElement().setId("acl-edit-public-checkbox");
 		publicCheckbox.setValue(false);
 
@@ -173,7 +173,7 @@ public class AclEdit extends CommonForm implements IEntitySelectTarget {
 
 		// Public address
 		pubAddress = new FlexTable();
-		Button pubButton = new Button(constants.allowPublicAddress());
+		Button pubButton = new Button(aclConstants.allowPublicAddress());
 
 		pubButton.addClickHandler(new ClickHandler() {
 
@@ -187,13 +187,13 @@ public class AclEdit extends CommonForm implements IEntitySelectTarget {
 
 		pubButton.getElement().setId("acl-edit-public-address-checkbox");
 		pubAddress.setWidget(0, 0, pubButton);
-		Label publicLabel = new Label(constants.publicAddressDesc());
+		Label publicLabel = new Label(aclConstants.publicAddressDesc());
 		pubAddress.setWidget(1, 0, publicLabel);
 		publicAddressContainer.add(pubAddress);
 
 		// Private address
 		privAddress = new FlexTable();
-		Button privButton = new Button(constants.allowPrivateAddress());
+		Button privButton = new Button(aclConstants.allowPrivateAddress());
 
 		privButton.addClickHandler(new ClickHandler() {
 
@@ -207,7 +207,7 @@ public class AclEdit extends CommonForm implements IEntitySelectTarget {
 
 		privButton.getElement().setId("acl-edit-private-address-checkbox");
 		privAddress.setWidget(0, 0, privButton);
-		Label privLabel = new Label(constants.privateAddressDesc());
+		Label privLabel = new Label(aclConstants.privateAddressDesc());
 		privAddress.setWidget(1, 0, privLabel);
 		privateAddressContainer.add(privAddress);
 
@@ -501,4 +501,8 @@ public class AclEdit extends CommonForm implements IEntitySelectTarget {
 		this.validators.add(validator);
 	}
 
+	public void disable() {
+		setEnable(false);
+		setVisible(false);
+	}
 }

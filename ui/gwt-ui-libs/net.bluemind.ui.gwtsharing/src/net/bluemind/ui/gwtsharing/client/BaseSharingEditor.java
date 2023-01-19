@@ -23,16 +23,21 @@ import java.util.Map;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.shared.GWT;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Label;
 
 import net.bluemind.core.commons.gwt.JsMapStringJsObject;
+import net.bluemind.directory.api.gwt.js.JsBaseDirEntryAccountType;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.ui.common.client.forms.acl.AclConstants;
+import net.bluemind.user.api.gwt.js.JsUser;
 
 public abstract class BaseSharingEditor extends CompositeGwtWidgetElement {
 
 	protected final AclEdit edit;
 	private final String modelId;
 	private String type;
+	private FlowPanel flowPanel;
 
 	public BaseSharingEditor(String modelId, String type) {
 		this.modelId = modelId;
@@ -41,8 +46,11 @@ public abstract class BaseSharingEditor extends CompositeGwtWidgetElement {
 
 		// FIXME mailboxacl
 		edit = new AclEdit(verbs, AbstractDirEntryOpener.defaultOpener);
-		initWidget(edit.asWidget());
 		edit.setEnable(false);
+
+		flowPanel = new FlowPanel();
+		flowPanel.add(edit.asWidget());
+		initWidget(flowPanel);
 	}
 
 	protected abstract String getContainerUid(JavaScriptObject model);
@@ -57,33 +65,45 @@ public abstract class BaseSharingEditor extends CompositeGwtWidgetElement {
 		return verbs;
 	}
 
+	private boolean isSimpleAccount(JavaScriptObject model) {
+		JsMapStringJsObject map = model.cast();
+		JsUser user = map.get("user").cast();
+		return JsBaseDirEntryAccountType.SIMPLE().value().equals(user.getAccountType().value());
+	}
+
 	@Override
 	public void saveModel(JavaScriptObject model) {
-		SharingModel sm = SharingModel.get(model, modelId);
-		if (sm != null) {
-			SharingModel.populate(model, modelId, edit.getValue());
+		if (!isSimpleAccount(model)) {
+			SharingModel sm = SharingModel.get(model, modelId);
+			if (sm != null) {
+				SharingModel.populate(model, modelId, edit.getValue());
+			}
 		}
 	}
 
 	@Override
 	public void loadModel(JavaScriptObject model) {
-
-		SharingModel sm = SharingModel.get(model, modelId);
-		if (sm != null) {
-			setVisible(true);
-			JsMapStringJsObject map = model.cast();
-			String domainUid = map.getString("domainUid");
-			edit.setDomainUid(domainUid);
-			edit.setEnable(true);
-			edit.setContainerUid(getContainerUid(model));
-			if ("calendar".equals(type)) {
-				edit.setAddressesSharing(type);
+		if (!isSimpleAccount(model)) {
+			SharingModel sm = SharingModel.get(model, modelId);
+			if (sm != null) {
+				setVisible(true);
+				JsMapStringJsObject map = model.cast();
+				String domainUid = map.getString("domainUid");
+				edit.setDomainUid(domainUid);
+				edit.setEnable(true);
+				edit.setContainerUid(getContainerUid(model));
+				if ("calendar".equals(type)) {
+					edit.setAddressesSharing(type);
+				}
+				edit.setValue(sm.getAcl());
+			} else {
+				setVisible(false);
 			}
-			edit.setValue(sm.getAcl());
 		} else {
-			setVisible(false);
+			edit.disable();
+			Label label = new Label(AclEdit.aclConstants.sharingRights());
+			flowPanel.add(label);
 		}
-
 	}
 
 }
