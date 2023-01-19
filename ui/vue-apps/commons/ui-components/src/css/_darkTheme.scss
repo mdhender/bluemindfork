@@ -1,0 +1,192 @@
+@import "_colorPalette.scss";
+
+:root {
+    // Misc colors
+
+    --surface-hi2: #{mix($white, $gray-900, 8%)};
+    --surface-hi1: #{mix($white, $gray-900, 5%)};
+    --surface: #{$gray-900};
+    --backdrop: #{$gray-800};
+    --modal-backdrop: #{rgba($gray-900, 0.75)};
+    --shadow-color: #{rgba($black, 0.75)};
+    --highest: #{$white};
+    --lowest: #{$black};
+    --lightest: #{$white};
+    --darkest: #{$black};
+
+    // Neutral variant colors
+
+    --neutral-bg-hi1: #{$gray-700};
+    --neutral-bg: #{$gray-800};
+    --neutral-bg-lo1: #{rgba($white, 0.05)};
+
+    --neutral-fg-hi1: #{rgba($white, 0.9)};
+    --neutral-fg: #{rgba($white, 0.82)};
+    --neutral-fg-lo1: #{rgba($white, 0.5)};
+    --neutral-fg-lo2: #{rgba($white, 0.3)};
+    --neutral-fg-lo3: #{rgba($white, 0.1)};
+    --neutral-fg-disabled: var(--neutral-fg-lo2);
+
+    --fill-neutral-bg-hi1: #{$gray-300};
+    --fill-neutral-bg: #{$gray-400};
+    --fill-neutral-bg-lo1: #{rgba($gray-400, 0.5)};
+    --fill-neutral-bg-disabled: var(--fill-neutral-bg-lo1);
+
+    --fill-neutral-fg-hi1: #{$black};
+    --fill-neutral-fg: #{$gray-900};
+    --fill-neutral-fg-lo1: #{rgba($gray-900, 0.7)};
+    --fill-neutral-fg-lo2: #{rgba($gray-900, 0.4)};
+    --fill-neutral-fg-disabled: var(--fill-neutral-fg-lo2);
+
+    // Primary variant colors
+
+    --primary-fg-hi1: #{$blue-400};
+    --primary-fg: #{$blue-500};
+    --primary-fg-lo1: #{rgba($blue-500, 0.5)};
+    --primary-fg-lo2: #{rgba($blue-500, 0.2)};
+    --primary-fg-disabled: var(--primary-fg-lo1);
+
+    --fill-primary-bg-hi1: #{$blue-900};
+    --fill-primary-bg: #{$blue-800};
+    --fill-primary-bg-lo1: #{rgba($blue-800, 0.5)};
+    --fill-primary-bg-disabled: var(--fill-primary-bg-lo1);
+
+    --fill-primary-fg-hi1: #{$blue-300};
+    --fill-primary-fg: #{$white};
+    --fill-primary-fg-lo1: #{$blue-500};
+    --fill-primary-fg-lo2: #{rgba($white, 0.4)};
+    --fill-primary-fg-disabled: var(--fill-primary-fg-lo2);
+
+    // Secondary variant colors
+
+    --secondary-bg-hi1: #{$blue-700};
+    --secondary-bg: #{mix($blue-700, $gray-900, 75%)};
+    --secondary-bg-lo1: #{rgba($blue-700, 0.5)};
+
+    --secondary-fg-hi1: #{$blue-400};
+    --secondary-fg: #{$blue-500};
+    --secondary-fg-lo1: #{rgba($blue-500, 0.5)};
+    --secondary-fg-lo2: #{rgba($blue-500, 0.2)};
+    --secondary-fg-disabled: var(--secondary-fg-lo1);
+
+    --fill-secondary-bg-hi1: #{$blue-450};
+    --fill-secondary-bg: #{$blue-500};
+    --fill-secondary-bg-lo1: #{rgba($blue-500, 0.5)};
+    --fill-secondary-bg-disabled: var(--fill-secondary-bg-lo1);
+
+    --fill-secondary-fg: #{rgba($black, 0.82)};
+    --fill-secondary-fg-lo1: #{rgba($black, 0.65)};
+    --fill-secondary-fg-lo2: #{rgba($black, 0.4)};
+    --fill-secondary-fg-disabled: var(--fill-secondary-fg-lo2);
+
+    // Tertiary variant colors
+
+    --tertiary-bg-hi1: #{$yellow-700};
+    --tertiary-bg: #{$yellow-800};
+    --tertiary-bg-lo1: #{rgba($yellow-800, 0.5)};
+
+    --tertiary-fg-hi1: #{$yellow-400};
+    --tertiary-fg: #{$yellow-450};
+    --tertiary-fg-lo1: #{rgba($yellow-450, 0.5)};
+    --tertiary-fg-lo2: #{rgba($yellow-450, 0.2)};
+    --tertiary-fg-disabled: var(--tertiary-fg-lo1);
+
+    --fill-tertiary-bg-hi1: #{$yellow-400};
+    --fill-tertiary-bg: #{$yellow-450};
+    --fill-tertiary-bg-lo1: #{rgba($yellow-450, 0.5)};
+    --fill-tertiary-bg-disabled: var(--fill-tertiary-bg-lo1);
+
+    --fill-tertiary-fg-hi1: #{$black};
+    --fill-tertiary-fg: #{$gray-900};
+    --fill-tertiary-fg-lo1: #{rgba($gray-900, 0.7)};
+    --fill-tertiary-fg-lo2: #{rgba($gray-900, 0.4)};
+    --fill-tertiary-fg-disabled: var(--fill-tertiary-fg-lo2);
+
+    // Danger variant colors
+
+    --danger-bg-hi1: #{$red-700};
+    --danger-bg: #{$red-800};
+    --danger-bg-lo1: #{rgba($red-800, 0.5)};
+
+    --danger-fg-hi1: #{$red-400};
+    --danger-fg: #{$red-450};
+    --danger-fg-lo1: #{rgba($red-450, 0.5)};
+    --danger-fg-lo2: #{rgba($red-450, 0.2)};
+    --danger-fg-disabled: var(--danger-fg-lo1);
+
+    --fill-danger-bg-hi1: #{$red-400};
+    --fill-danger-bg: #{$red-450};
+    --fill-danger-bg-lo1: #{rgba($red-450, 0.5)};
+    --fill-danger-bg-disabled: var(--fill-danger-bg-lo1);
+
+    --fill-danger-fg: #{rgba($black, 0.82)};
+    --fill-danger-fg-lo1: #{rgba($black, 0.65)};
+    --fill-danger-fg-lo2: #{rgba($black, 0.4)};
+    --fill-danger-fg-disabled: var(--fill-danger-fg-lo2);
+
+    // Warning variant colors
+
+    --warning-bg-hi1: #{$orange-700};
+    --warning-bg: #{$orange-800};
+    --warning-bg-lo1: #{rgba($orange-800, 0.5)};
+
+    --warning-fg-hi1: #{$orange-300};
+    --warning-fg: #{$orange-400};
+    --warning-fg-lo1: #{rgba($orange-400, 0.5)};
+    --warning-fg-lo2: #{rgba($orange-400, 0.2)};
+    --warning-fg-disabled: var(--warning-fg-lo1);
+
+    --fill-warning-bg-hi1: #{$orange-300};
+    --fill-warning-bg: #{$orange-400};
+    --fill-warning-bg-lo1: #{rgba($orange-400, 0.5)};
+    --fill-warning-bg-disabled: var(--fill-warning-bg-lo1);
+
+    --fill-warning-fg: #{$gray-900};
+    --fill-warning-fg-lo1: #{rgba($gray-900, 0.7)};
+    --fill-warning-fg-lo2: #{rgba($gray-900, 0.4)};
+    --fill-warning-fg-disabled: var(--fill-warning-fg-lo2);
+
+    // Success variant colors
+
+    --success-bg-hi1: #{$green-700};
+    --success-bg: #{$green-800};
+    --success-bg-lo1: #{rgba($green-800, 0.5)};
+
+    --success-fg-hi1: #{$green-300};
+    --success-fg: #{$green-400};
+    --success-fg-lo1: #{rgba($green-400, 0.5)};
+    --success-fg-lo2: #{rgba($green-400, 0.2)};
+    --success-fg-disabled: var(--success-fg-lo1);
+
+    --fill-success-bg-hi1: #{$green-300};
+    --fill-success-bg: #{$green-400};
+    --fill-success-bg-lo1: #{rgba($green-400, 0.5)};
+    --fill-success-bg-disabled: var(--fill-success-bg-lo1);
+
+    --fill-success-fg: #{$gray-900};
+    --fill-success-fg-lo1: #{rgba($gray-900, 0.7)};
+    --fill-success-fg-lo2: #{rgba($gray-900, 0.4)};
+    --fill-success-fg-disabled: var(--fill-success-fg-lo2);
+
+    // Info variant colors
+
+    --info-bg-hi1: #{$turquoise-700};
+    --info-bg: #{$turquoise-800};
+    --info-bg-lo1: #{rgba($turquoise-800, 0.5)};
+
+    --info-fg-hi1: #{$turquoise-300};
+    --info-fg: #{$turquoise-400};
+    --info-fg-lo1: #{rgba($turquoise-400, 0.5)};
+    --info-fg-lo2: #{rgba($turquoise-400, 0.2)};
+    --info-fg-disabled: var(--info-fg-lo1);
+
+    --fill-info-bg-hi1: #{$turquoise-300};
+    --fill-info-bg: #{$turquoise-400};
+    --fill-info-bg-lo1: #{rgba($turquoise-400, 0.5)};
+    --fill-info-bg-disabled: var(--fill-info-bg-lo1);
+
+    --fill-info-fg: #{$gray-900};
+    --fill-info-fg-lo1: #{rgba($gray-900, 0.7)};
+    --fill-info-fg-lo2: #{rgba($gray-900, 0.4)};
+    --fill-info-fg-disabled: var(--fill-info-fg-lo2);
+}
