@@ -359,6 +359,9 @@ var gBMCompose = {
             let browser = document.getElementById("bm-browser-signature");
             let preview = "data:text/html," + encodeURIComponent(aHtml);
             MailE10SUtils.loadURI(browser, preview);
+            if (bmUtils.session.sigPreviewClosed) {
+                this._showPreview(false);
+            }
         } else {
             let tempFile = Components.classes["@mozilla.org/file/directory_service;1"]
                         .getService(Components.interfaces.nsIProperties)
@@ -390,7 +393,7 @@ var gBMCompose = {
                 if (bmUtils.session.sigPreviewClosed) {
                     self._showPreview(false);
                 }
-        });
+            });
         }
     },
     _hideSignature: function() {
