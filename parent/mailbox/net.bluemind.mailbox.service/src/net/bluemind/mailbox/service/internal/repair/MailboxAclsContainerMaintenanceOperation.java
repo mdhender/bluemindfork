@@ -19,6 +19,7 @@ package net.bluemind.mailbox.service.internal.repair;
 
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.repair.ContainerRepairUtil;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.mailbox.api.IMailboxAclUids;
@@ -46,14 +47,25 @@ public class MailboxAclsContainerMaintenanceOperation extends MailboxMaintenance
 		monitor.begin(1, String.format("Check mailbox %s acls container exists", mailboxToString(domainUid)));
 		IContainers contApi = context.su().provider().instance(IContainers.class);
 		ContainerDescriptor existing = contApi.getIfPresent(IMailboxAclUids.uidForMailbox(mailbox.uid));
+
 		if (existing == null) {
 			monitor.notify("Mailbox {} acls container does not exist", mailboxToString(domainUid));
+
 			if (repair) {
 				MailboxesService.Helper.createMailboxesAclsContainer(context, domainUid, mailbox.uid, mailbox.value);
-				monitor.progress(1,
-						String.format("Mailbox %s acls container repair finished", mailboxToString(domainUid)));
 			}
 		}
+
+		ContainerRepairUtil.verifyContainerSubscription(mailbox.uid, domainUid, monitor, (container) -> {
+			if (repair) {
+				ContainerRepairUtil.subscribe(mailbox.uid, domainUid, container);
+			}
+		}, IMailboxAclUids.uidForMailbox(mailbox.uid));
+
+		if (repair) {
+			monitor.progress(1, String.format("Mailbox %s acls container repair finished", mailboxToString(domainUid)));
+		}
+
 		monitor.end();
 	}
 }
