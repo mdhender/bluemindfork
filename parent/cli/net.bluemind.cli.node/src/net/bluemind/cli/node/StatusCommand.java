@@ -159,7 +159,7 @@ public class StatusCommand extends AbstractNodeOperation {
 				Matcher match = hprof.matcher(fd.getName());
 				if (match.find()) {
 					long pid = Long.parseLong(match.group(1));
-					ExitList exitCode = NCUtils.exec(nc, "kill -0 " + pid, 1, TimeUnit.SECONDS);
+					ExitList exitCode = NCUtils.exec(nc, "ps -p " + pid, 1, TimeUnit.SECONDS);
 					if (exitCode.getExitCode() == 0) {
 						ctx.error("    * /var/log/" + fd.getName() + " exists AND pid " + pid + " is active.");
 					}
