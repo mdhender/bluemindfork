@@ -1,5 +1,5 @@
 import { mapActions } from "vuex";
-import { isSigned, isVerified } from "../../lib/helper";
+import { hasSignatureHeader, isVerified } from "../../lib/helper";
 
 export default {
     props: {
@@ -17,7 +17,7 @@ export default {
     watch: {
         "message.key": {
             handler: function () {
-                if (isSigned(this.message.headers) && !isVerified(this.message.headers)) {
+                if (hasSignatureHeader(this.message.headers) && !isVerified(this.message.headers)) {
                     this.WARNING({ alert: this.alert, options: this.options });
                 } else {
                     this.REMOVE(this.alert);

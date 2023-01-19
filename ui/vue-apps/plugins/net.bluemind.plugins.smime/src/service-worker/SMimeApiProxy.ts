@@ -1,6 +1,6 @@
 import { ImapItemIdentifier, MailboxItem, MailboxItemsClient } from "@bluemind/backend.mail.api";
 import { Ack, ItemValue } from "@bluemind/core.container.api";
-import { hasToBeEncrypted, hasToBeSigned } from "../lib/helper";
+import { removeSignatureFromStructure, hasToBeEncrypted, hasToBeSigned } from "../lib/helper";
 import { logger } from "./environnment/logger";
 import { decrypt, encrypt, isEncrypted, isSigned, sign, verify } from "./smime";
 
@@ -44,6 +44,8 @@ export default class SMimeApiProxy extends MailboxItemsClient {
             if (isEncrypted(item)) {
                 item = await decrypt(this.replicatedMailboxUid, item);
             }
+            // Filter the attachment signature for draft
+            item.value.body.structure = removeSignatureFromStructure(item.value.body.structure);
         } catch (e) {
             logger.error(e);
         }

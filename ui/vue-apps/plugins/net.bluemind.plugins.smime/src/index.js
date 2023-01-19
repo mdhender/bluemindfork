@@ -9,7 +9,7 @@ import UntrustedSenderTrigger from "./components/mail-app/UntrustedSenderTrigger
 import DecryptErrorAlert from "./components/mail-app/DecryptErrorAlert";
 import EncryptErrorAlert from "./components/mail-app/EncryptErrorAlert";
 import DecryptErrorTrigger from "./components/mail-app/DecryptErrorTrigger";
-import EncryptButton from "./components/mail-app/EncryptButton";
+import EncryptAndSignButton from "./components/mail-app/EncryptAndSignButton";
 import ContactWithCertificate from "./components/mail-app/ContactWithCertificate";
 import PrefSmime from "./components/preferences/PrefSmime";
 import LockIcon from "./components/mail-app/LockIcon";
@@ -34,7 +34,7 @@ Vue.component("UntrustedSenderTrigger", UntrustedSenderTrigger);
 Vue.component("DecryptErrorTrigger", DecryptErrorTrigger);
 Vue.component("DecryptErrorAlert", DecryptErrorAlert);
 Vue.component("EncryptErrorAlert", EncryptErrorAlert);
-Vue.component("EncryptButton", EncryptButton);
+Vue.component("EncryptAndSignButton", EncryptAndSignButton);
 Vue.component("ContactWithCertificate", ContactWithCertificate);
 
 extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
@@ -95,7 +95,7 @@ extensions.register("webapp.preferences", "net.bluemind.plugins.smime", {
 
 extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
     component: {
-        name: "EncryptButton",
+        name: "EncryptAndSignButton",
         path: "composer.footer.toolbar"
     }
 });

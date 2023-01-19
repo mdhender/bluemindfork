@@ -17,7 +17,11 @@
             "composer": {
                 "encrypt": "Chiffrer le message",
                 "stop_encryption": "Désactiver le chiffrement",
-                "invalid_recipient" : "Le message ne peut pas être chiffré pour ce destinataire"
+                "invalid_recipient" : "Le message ne peut pas être chiffré pour ce destinataire",
+                "encrypt_and_sign": "Chiffrer et signer le message",
+                "stop_encrypt_and_sign": "Désactiver le chiffrement et la signature du message",
+                "sign": "Signer le message",
+                "stop_signature": "Désactiver la signature"
             }
         },
         "preferences": {

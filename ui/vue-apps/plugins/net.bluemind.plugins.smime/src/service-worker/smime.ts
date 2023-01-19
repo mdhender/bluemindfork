@@ -8,6 +8,7 @@ import {
     ENCRYPTED_HEADER_NAME,
     MULTIPART_SIGNED_MIME,
     PKCS7_MIMES,
+    SIGNATURE_MIME,
     SIGNED_HEADER_NAME,
     SMIME_ENCRYPTION_ERROR_PREFIX
 } from "../lib/constants";
@@ -139,25 +140,25 @@ export async function sign(item: MailboxItem, folderUid: string): Promise<Mailbo
 function buildSignedPart(address: string) {
     return {
         address,
-        mime: "application/pkcs7-signature",
+        mime: SIGNATURE_MIME,
         dispositionType: DispositionType.ATTACHMENT,
         fileName: "smime.p7s",
         headers: [
-            { name: "Content-Type", values: ['application/pkcs7-signature; name="smime.p7s"'] },
+            { name: "Content-Type", values: [`${SIGNATURE_MIME}; name="smime.p7s"`] },
             { name: "Content-Transfer-Encoding", values: ["base64"] }
         ]
     };
 }
 
 function buildMultipartSigned(boundaryValue: string, children: Array<MessageBody.Part>) {
-    const contentType = `multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256; boundary="${boundaryValue}"`;
+    const contentType = `multipart/signed; protocol="${SIGNATURE_MIME}"; micalg=sha-256; boundary="${boundaryValue}"`;
     return { mime: "multipart/signed", headers: [{ name: "Content-Type", values: [contentType] }], children };
 }
 
 function removePreviousSignedPart(structure: MessageBody.Part): MessageBody.Part {
     // FIXME: use MimeType.js once this package is usable in worker
     if (structure.mime === "multipart/mixed" && structure.children) {
-        const signedPartIndex = structure.children.findIndex(part => part.mime === "application/pkcs7-signature");
+        const signedPartIndex = structure.children.findIndex(part => part.mime === SIGNATURE_MIME);
         if (signedPartIndex !== -1) {
             structure.children.splice(signedPartIndex, 1);
             if (structure.children.length === 1) {

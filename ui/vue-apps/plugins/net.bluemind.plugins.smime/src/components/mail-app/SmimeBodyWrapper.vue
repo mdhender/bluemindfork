@@ -1,7 +1,7 @@
 <script>
 import { BmButton } from "@bluemind/ui-components";
 import { PKCS7_MIMES } from "../../lib/constants";
-import { isDecrypted, hasEncryptionHeader, isSigned, isVerified } from "../../lib/helper";
+import { isDecrypted, hasEncryptionHeader, hasSignatureHeader, isVerified } from "../../lib/helper";
 import untrustedIllustration from "../../../assets/mail-app-untrusted.png";
 import undecryptedIllustration from "../../../assets/mail-app-undecrypted.png";
 
@@ -29,7 +29,7 @@ export default {
             return this.$store.state.mail.smime.displayUntrusted.includes(this.message.key);
         },
         untrusted() {
-            return isSigned(this.message.headers) && !isVerified(this.message.headers);
+            return hasSignatureHeader(this.message.headers) && !isVerified(this.message.headers);
         },
         isEncrypted() {
             return (

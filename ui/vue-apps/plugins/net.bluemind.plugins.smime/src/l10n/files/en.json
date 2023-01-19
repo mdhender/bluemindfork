@@ -15,8 +15,12 @@
             },
             "composer": {
                 "encrypt": "Encrypt the message",
-                "stop_encryption": "Do not encrypt the message any more",
-                "invalid_recipient" : "The message cannot be encrypted for this recipient"
+                "stop_encryption": "Disable the message encryption",
+                "invalid_recipient" : "The message cannot be encrypted for this recipient",
+                "encrypt_and_sign": "Encrypt and sign the message",
+                "stop_encrypt_and_sign": "Disable message encryption and signing",
+                "sign": "Sign the message",
+                "stop_signature": "Disable the message signature"
             }
         },
         "preferences": {

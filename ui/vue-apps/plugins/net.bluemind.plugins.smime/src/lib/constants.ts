@@ -1,5 +1,6 @@
 export const PKCS7_MIMES = ["application/pkcs7-mime", "application/x-pkcs7-mime"];
 export const MULTIPART_SIGNED_MIME = "multipart/signed";
+export const SIGNATURE_MIME = "application/pkcs7-signature";
 
 export const SMIME_INTERNAL_API_URL = "/service-worker-internal/smime";
 export enum PKIStatus {

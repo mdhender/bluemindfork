@@ -14,9 +14,13 @@
                 "cant_display": "Why I can't I see this message ?"
             },
             "composer": {
-                "encrypt": "Nachricht verschlüsseln",
-                "stop_encryption": "Die Nachricht nicht mehr verschlüsseln",
-                "invalid_recipient" : "Die Nachricht kann für diesen Empfänger nicht verschlüsselt werden"
+                "encrypt": "Verschlüsseln Sie die Nachricht",
+                "stop_encryption": "Disable the message encryption",
+                "invalid_recipient" : "Deaktivieren Sie die Nachrichtenverschlüsselung",
+                "encrypt_and_sign": "Verschlüsseln und Signieren der Nachricht",
+                "stop_encrypt_and_sign": "Deaktivieren der Nachrichtenverschlüsselung und -signierung",
+                "sign": "Unterschreiben Sie die Nachricht",
+                "stop_signature": "Deaktivieren Sie die Nachrichtensignatur"
             }
         },
         "preferences": {
