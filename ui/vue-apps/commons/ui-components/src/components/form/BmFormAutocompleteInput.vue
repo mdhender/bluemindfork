@@ -187,7 +187,7 @@ export default {
 
     .suggestions {
         cursor: pointer;
-        background-color: $surface;
+        background-color: $surface-hi2;
         width: 100%;
         border: 2 * $input-border-width solid $secondary-fg;
         max-height: max(33vh, #{$max-nb-suggestions * $suggestion-height});

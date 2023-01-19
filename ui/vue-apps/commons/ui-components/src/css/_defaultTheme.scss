@@ -3,12 +3,14 @@
 :root {
     // Misc colors
 
+    --surface-hi2: #{$white};
+    --surface-hi1: #{$white};
     --surface: #{$white};
     --backdrop: #{$gray-100};
-    --highest: #{$black};
-    --lowest: #{$white};
     --modal-backdrop: #{rgba($black, 0.4)};
     --shadow-color: #{rgba($black, 0.25)};
+    --highest: #{$black};
+    --lowest: #{$white};
 
     // Neutral variant colors
 

@@ -28,7 +28,7 @@ $shadow-width: 200px;
 
 .mail-folder-item-shadow {
     width: $shadow-width;
-    background-color: $surface-bg;
+    background-color: $surface;
     .mail-folder-icon {
         @include text-overflow;
     }

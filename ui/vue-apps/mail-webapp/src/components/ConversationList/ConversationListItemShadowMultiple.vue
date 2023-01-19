@@ -39,7 +39,7 @@ export default {
     position: absolute;
     height: 100%;
     width: 100%;
-    background-color: $surface-bg;
+    background-color: $surface;
     outline: 1px solid $drag-color !important;
 }
 

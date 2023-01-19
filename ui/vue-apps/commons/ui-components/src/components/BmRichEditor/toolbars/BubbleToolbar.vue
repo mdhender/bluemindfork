@@ -104,7 +104,7 @@ export default {
 .bm-rich-editor-bubble-toolbar {
     position: fixed;
     margin-bottom: $sp-3;
-    background-color: $surface;
+    background-color: $surface-hi1;
     .btn-toolbar {
         flex-wrap: nowrap;
     }

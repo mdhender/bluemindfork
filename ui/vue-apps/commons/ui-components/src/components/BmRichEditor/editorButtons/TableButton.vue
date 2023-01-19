@@ -48,7 +48,7 @@ export default {
 
 .table-button {
     .dropdown-item {
-        background-color: $surface !important;
+        background: none !important;
         height: initial;
         padding: $sp-5;
         justify-content: center;

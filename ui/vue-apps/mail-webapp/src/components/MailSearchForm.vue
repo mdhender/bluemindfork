@@ -28,7 +28,7 @@
                 <bm-icon icon="caret-down" size="xs" />
             </bm-button>
         </div>
-        <bm-collapse id="search-form" ref="searchForm" v-model="showForm" class="search-form bg-surface shadow p-5">
+        <bm-collapse id="search-form" ref="searchForm" v-model="showForm" class="search-form shadow p-5">
             <bm-form
                 class="d-flex flex-column h-100"
                 @submit.prevent="search"
@@ -306,12 +306,14 @@ export default {
     }
 
     .search-form {
+        background-color: $surface-hi1;
         position: fixed;
         top: 0;
         bottom: 0;
         right: 0;
         left: 0;
         width: auto;
+        z-index: $zindex-modal;
 
         @include from-lg {
             position: absolute;

@@ -49,6 +49,8 @@ export default {
 @import "~@bluemind/ui-components/src/css/variables";
 
 .list-group-item.conversation-list-item-loading {
+    background-color: $surface;
+
     &.conversation-list-item-compact {
         height: base-px-to-rem(44);
     }

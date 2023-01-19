@@ -20,7 +20,7 @@
 @import "defaultTheme";
 
 .bg-surface {
-    background-color: $surface-bg;
+    background-color: $surface !important;
 }
 
 .form-control {

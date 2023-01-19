@@ -74,7 +74,7 @@ export default {
 }
 
 .mail-message-starter svg.hexagon polygon {
-    fill: $surface-bg;
+    fill: $surface;
 }
 
 .mail-message-starter .flex-grow-3 {

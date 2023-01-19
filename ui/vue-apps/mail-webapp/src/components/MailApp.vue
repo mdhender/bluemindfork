@@ -206,7 +206,7 @@ export default {
         height: base-px-to-rem(46);
         background-color: $fill-primary-bg;
         @include from-lg {
-            background-color: $surface;
+            background-color: $surface-hi1;
         }
     }
     .switch-webmail label {

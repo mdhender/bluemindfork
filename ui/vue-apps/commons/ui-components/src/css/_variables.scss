@@ -298,7 +298,7 @@ $nav-divider-color: $neutral-fg-lo3;
 
 $dropdown-padding-y: 0;
 $dropdown-spacer: base-px-to-rem(8);
-$dropdown-bg: $surface;
+$dropdown-bg: $surface-hi2;
 $dropdown-border-color: transparent;
 $dropdown-divider-bg: $neutral-bg-lo1;
 $dropdown-box-shadow: $box-shadow-sm;
@@ -335,7 +335,7 @@ $card-spacer-x: 0.75rem;
 $card-border-color: transparent;
 $card-cap-bg: $fill-primary-bg;
 $card-cap-color: $fill-primary-fg;
-$card-bg: $surface;
+$card-bg: $surface-hi1;
 
 // Tooltips
 
@@ -345,12 +345,12 @@ $tooltip-bg: $fill-neutral-bg-hi1;
 
 // Popovers
 
-$popover-bg: $surface;
+$popover-bg: $surface-hi2;
 $popover-header-bg: transparent;
 $popover-border-color: transparent;
 $popover-box-shadow: $box-shadow-sm;
 
-$popover-arrow-outer-color: $surface;
+$popover-arrow-outer-color: $surface-hi2;
 
 $popover-min-width: base-px-to-rem(452);
 
@@ -362,7 +362,7 @@ $b-skeleton-background-color: $neutral-bg;
 
 $modal-title-line-height: 3.5rem;
 
-$modal-content-bg: $surface;
+$modal-content-bg: $surface-hi2;
 $modal-content-border-color: $primary-fg;
 $modal-content-border-width: 2px;
 $modal-content-box-shadow-xs: $box-shadow-sm;

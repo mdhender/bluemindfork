@@ -113,33 +113,37 @@ export default {
 
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/variables";
-#preview-modal .modal-body {
-    .content {
-        display: flex;
-        flex: 1 1 auto;
-        min-height: 0;
-        height: 80vh;
-    }
-    padding: 0;
-    .preview-message-header,
-    .collapse {
-        flex-basis: 25%;
-        max-width: 25%;
-        flex-grow: 0;
-        flex-shrink: 0;
-    }
-    .collapse {
-        overflow: auto;
-    }
-    .preview-file {
-        flex: 1 1 auto;
-        min-height: 0;
-        max-height: 100%;
-    }
-    .bottom-file-info {
-        flex: none;
-        height: base-px-to-rem(24);
-        align-items: center;
+#preview-modal .modal-content {
+    background-color: $surface;
+
+    .modal-body {
+        .content {
+            display: flex;
+            flex: 1 1 auto;
+            min-height: 0;
+            height: 80vh;
+        }
+        padding: 0;
+        .preview-message-header,
+        .collapse {
+            flex-basis: 25%;
+            max-width: 25%;
+            flex-grow: 0;
+            flex-shrink: 0;
+        }
+        .collapse {
+            overflow: auto;
+        }
+        .preview-file {
+            flex: 1 1 auto;
+            min-height: 0;
+            max-height: 100%;
+        }
+        .bottom-file-info {
+            flex: none;
+            height: base-px-to-rem(24);
+            align-items: center;
+        }
     }
     .preview-alert-area {
         width: 25%;

@@ -1,6 +1,6 @@
 <template>
     <bm-button-toolbar
-        class="bm-rich-editor-toolbar-base table-toolbar position-fixed mb-3 shadow-sm bg-surface"
+        class="bm-rich-editor-toolbar-base table-toolbar position-fixed mb-3 shadow-sm"
         :style="`top: ${position.top}px; left: ${position.left}px;`"
         @click.native="setPosition"
     >
@@ -75,6 +75,8 @@ export default {
 @import "../../../css/_variables.scss";
 
 .table-toolbar {
+    background-color: $surface-hi1;
+
     .dropdown .btn {
         padding-right: $sp-1;
         padding-left: $sp-1;

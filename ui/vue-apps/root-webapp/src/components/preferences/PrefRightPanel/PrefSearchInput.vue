@@ -30,9 +30,12 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/ui-components/src/css/mixins/responsiveness";
 @import "~@bluemind/ui-components/src/css/variables";
 
 .search-input {
-    background-color: $surface;
+    @include until-lg {
+        background-color: $surface;
+    }
 }
 </style>

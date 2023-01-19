@@ -213,7 +213,7 @@ export default {
             font-weight: $font-weight-bold;
         }
         tr > td:not(.selected) {
-            background-color: $surface-bg !important;
+            background-color: $surface-hi2 !important;
         }
         .select-column {
             text-align: right;

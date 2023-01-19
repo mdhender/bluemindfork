@@ -31,7 +31,7 @@ $shadow-width: 240px;
 
 .mail-conversation-list-item-shadow {
     width: $shadow-width;
-    background-color: $surface-bg;
+    background-color: $surface;
 }
 
 /** @see dragAndDrop/plugins/tooltip.js */
