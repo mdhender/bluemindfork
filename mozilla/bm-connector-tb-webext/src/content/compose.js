@@ -421,6 +421,102 @@ var gBMCompose = {
     }
 };
 
+var gBMSendSMIME = {
+    _logger: Components.classes["@blue-mind.net/logger;1"].getService().wrappedJSObject.getLogger("gBMSendSMIME: "),
+    _certDB: Cc["@mozilla.org/security/x509certdb;1"].getService(Ci.nsIX509CertDB),
+    init: async function() {
+        let loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"].getService(Components.interfaces.mozIJSSubScriptLoader);
+        loader.loadSubScript("chrome://bm/content/core2/client/AddressBooksClient.js");
+        loader.loadSubScript("chrome://bm/content/core2/client/AddressBookClient.js");
+    },
+    completeGenericSendMessage: async function() {
+        try {
+            if (!gSelectedTechnologyIsPGP) {
+                gMsgCompose.compFields.composeSecure.requireEncryptMessage = gSendEncrypted;
+                gMsgCompose.compFields.composeSecure.signMessage = gSendSigned;
+                await this._onSendSMIME();
+            }
+        } catch(e) {
+            this._logger.error(e);
+        }
+    },
+    _bookClients: new HashMap(),
+    _onSendSMIME: async function() {
+        if (!gMsgCompose.compFields.composeSecure.requireEncryptMessage) {
+            return;
+        }
+        let emailAddresses = this._getEmailsNoCert();
+        if (emailAddresses.length == 0) {
+            return;
+        }
+        
+        let user = {};
+        let pwd = {};
+        let srv = {};
+        if (!bmUtils.getSettings(user, pwd, srv, true)) {
+            return;
+        }
+
+        try {
+            let logged = await BMAuthService.login(srv.value, user.value, pwd.value);
+            let books = new AddressBooksClient(srv.value, logged.authKey, logged.authUser.domainUid);
+            this._bookClients.clear();
+            for (let email of emailAddresses) {
+                let certString = await this._getCertificate(books, srv.value, logged, email);
+                if (certString) {
+                    this._logger.info("import S/MIME public certificate for:" + email);
+                    this._importCertificate(certString);
+                }
+            }
+        } catch(e) {
+            this._logger.error(e);
+        }
+    },
+    _getCertificate: async function(books, srv, logged, email) {
+        try {
+            let items = await books.search({
+                query: "value.kind: 'individual' AND value.communications.emails.value:" + email
+            });
+            if (!items) return;
+            let item = items.values.find(item => item.value.email == email && item.value.hasSecurityKey);
+            if (item) {
+                let book = this._bookClients.get(item.containerUid);
+                if (!book) {
+                    book = new AddressBookClient(srv, logged.authKey, item.containerUid);
+                    this._bookClients.put(item.containerUid, book);
+                }
+                let card = await book.getComplete(item.uid);
+                if (card) {
+                    return card.value.security.key.value;
+                }
+            }
+        } catch(e) {
+            this._logger.error(e);
+        }
+        return null;
+    },
+    _importCertificate: function(certString) {
+        try {
+            let certBytes = [];
+            for (let i = 0; i < certString.length; i++) {
+                certBytes.push(certString.charCodeAt(i));
+            }
+            this._certDB.importEmailCertificate(certBytes, certBytes.length, null);
+        } catch(e) {
+            this._logger.error(e);
+        }
+    },
+    _getEmailsNoCert: function() {
+        try {
+            return Cc["@mozilla.org/messenger-smime/smimejshelper;1"]
+                .createInstance(Ci.nsISMimeJSHelper)
+                .getNoCertAddresses(gMsgCompose.compFields);
+        } catch (e) {
+            return [];
+        }
+    }
+}
+
 /* add bm autocomplete source when online and connector confed */
 function BmAddAutocomplete() {
     let inuptFields = ["toAddrInput", "ccAddrInput", "bccAddrInput", "replyAddrInput"];
@@ -456,6 +552,14 @@ function BmInitCompose() {
     window.addEventListener("compose-from-changed", function() {
         console.log("compose-from-changed");
         gBMCompose.checkSignature();
+    });
+
+    gBMSendSMIME.init();
+    bmUtils.overrideBM(window, "CompleteGenericSendMessage", function(original) {
+        return async function() {
+            await gBMSendSMIME.completeGenericSendMessage();
+            original.apply(this, arguments);
+        }
     });
 
     let obs = Components.classes["@mozilla.org/observer-service;1"]
