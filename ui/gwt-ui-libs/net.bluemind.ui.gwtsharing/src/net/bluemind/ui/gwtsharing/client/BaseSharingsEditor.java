@@ -30,7 +30,6 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 
 import net.bluemind.core.commons.gwt.GwtSerDerUtils;
@@ -41,12 +40,10 @@ import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.gwt.js.JsAccessControlEntry;
 import net.bluemind.core.container.model.acl.gwt.serder.AccessControlEntryGwtSerDer;
-import net.bluemind.directory.api.gwt.js.JsBaseDirEntryAccountType;
 import net.bluemind.gwtconsoleapp.base.editor.Ajax;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
 import net.bluemind.ui.common.client.forms.acl.AclConstants;
-import net.bluemind.user.api.gwt.js.JsUser;
 
 public class BaseSharingsEditor extends CompositeGwtWidgetElement {
 
@@ -219,68 +216,54 @@ public class BaseSharingsEditor extends CompositeGwtWidgetElement {
 		return verbs;
 	}
 
-	private boolean isSimpleAccount(JavaScriptObject model) {
-		JsMapStringJsObject map = model.cast();
-		JsUser user = map.get("user").cast();
-		return JsBaseDirEntryAccountType.SIMPLE().value().equals(user.getAccountType().value());
-	}
-
 	@Override
 	public void saveModel(JavaScriptObject model) {
-		if (!isSimpleAccount(model)) {
-			saveCurrent();
-			final SharingsModel sharingsModel = SharingsModel.get(model, modelId);
+		saveCurrent();
+		final SharingsModel sharingsModel = SharingsModel.get(model, modelId);
 
-			for (ContainerDescriptor desc : containers.values()) {
-				sharingsModel.setJsAcl(desc.uid, entries.get(desc.uid));
-			}
+		for (ContainerDescriptor desc : containers.values()) {
+			sharingsModel.setJsAcl(desc.uid, entries.get(desc.uid));
 		}
 	}
 
 	@Override
 	public void loadModel(JavaScriptObject model) {
-		if (!isSimpleAccount(model)) {
-			entries = new HashMap<>();
-			containers = new HashMap<>();
-			containersList.clear();
+		entries = new HashMap<>();
+		containers = new HashMap<>();
+		containersList.clear();
 
-			final SharingsModel sharingsModel = SharingsModel.get(model, modelId);
-			JsMapStringJsObject map = model.cast();
-			ownerUid = map.getString("userId");
-			edit.setDomainUid(map.getString("domainUid"));
+		final SharingsModel sharingsModel = SharingsModel.get(model, modelId);
+		JsMapStringJsObject map = model.cast();
 
-			ContainersGwtEndpoint e = new ContainersGwtEndpoint(Ajax.TOKEN.getSessionId());
-			e.getContainers(Arrays.asList(sharingsModel.getContainers()),
-					new DefaultAsyncHandler<List<ContainerDescriptor>>() {
+		ownerUid = map.getString("userId");
+		edit.setDomainUid(map.getString("domainUid"));
 
-						@Override
-						public void success(List<ContainerDescriptor> value) {
+		ContainersGwtEndpoint e = new ContainersGwtEndpoint(Ajax.TOKEN.getSessionId());
+		e.getContainers(Arrays.asList(sharingsModel.getContainers()),
+				new DefaultAsyncHandler<List<ContainerDescriptor>>() {
 
-							int i = 0;
-							for (ContainerDescriptor cd : value) {
-								JsArray<JsAccessControlEntry> acl = sharingsModel.getJsAcl(cd.uid);
+					@Override
+					public void success(List<ContainerDescriptor> value) {
 
-								entries.put(cd.uid, acl);
-								containersList.addItem(cd.name, cd.uid);
-								containers.put(cd.uid, cd);
-								if (cd.defaultContainer && cd.owner.equals(ownerUid)) {
-									containersList.setSelectedIndex(i);
-								}
+						int i = 0;
+						for (ContainerDescriptor cd : value) {
+							JsArray<JsAccessControlEntry> acl = sharingsModel.getJsAcl(cd.uid);
 
-								i++;
+							entries.put(cd.uid, acl);
+							containersList.addItem(cd.name, cd.uid);
+							containers.put(cd.uid, cd);
+							if (cd.defaultContainer && cd.owner.equals(ownerUid)) {
+								containersList.setSelectedIndex(i);
 							}
 
-							selectedContainerChanged();
-
+							i++;
 						}
-					});
-		} else {
-			containersList.setEnabled(false);
-			containersList.setVisible(false);
-			edit.disable();
-			Label label = new Label(AclEdit.aclConstants.sharingRights());
-			flowPanel.add(label);
-		}
+
+						selectedContainerChanged();
+
+					}
+				});
+
 	}
 
 }

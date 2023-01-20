@@ -54,12 +54,9 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.Sanitizer;
 import net.bluemind.core.validator.Validator;
-import net.bluemind.directory.api.BaseDirEntry.AccountType;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.role.api.BasicRoles;
-import net.bluemind.user.api.IUser;
-import net.bluemind.user.api.User;
 import net.bluemind.user.persistence.UserSubscriptionStore;
 
 public class ContainerManagement implements IInternalContainerManagement {
@@ -128,7 +125,9 @@ public class ContainerManagement implements IInternalContainerManagement {
 	@Override
 	public void setAccessControlList(List<AccessControlEntry> entries, boolean sendNotification) throws ServerFault {
 		checkWritable();
-		checkAccessRights();
+		if (!(container.owner.equals(securityContext.getSubject()) || rbacManager.can(Verb.Manage.name()))) {
+			throw new ServerFault("container " + container.uid + " is not manageable", ErrorCode.PERMISSION_DENIED);
+		}
 
 		// validate mailboxacl, public sharing is forbidden
 		aceValidator.validate(container, entries);
@@ -151,16 +150,6 @@ public class ContainerManagement implements IInternalContainerManagement {
 				});
 
 		eventProducer().changed(container.type, container.uid);
-	}
-
-	private void checkAccessRights() {
-		final User user = context.provider().instance(IUser.class, container.domainUid).get(container.owner);
-		if (user.accountType == AccountType.SIMPLE) {
-			throw new ServerFault("user " + user.login + " is not allowed to set ACL", ErrorCode.PERMISSION_DENIED);
-		}
-		if (!(container.owner.equals(securityContext.getSubject()) || rbacManager.can(Verb.Manage.name()))) {
-			throw new ServerFault("container " + container.uid + " is not manageable", ErrorCode.PERMISSION_DENIED);
-		}
 	}
 
 	@Override

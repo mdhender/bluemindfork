@@ -112,6 +112,4 @@ public interface AclConstants extends Messages {
 	String aclMailWrite();
 
 	String aclMailAdmin();
-
-	String sharingRights();
 }
