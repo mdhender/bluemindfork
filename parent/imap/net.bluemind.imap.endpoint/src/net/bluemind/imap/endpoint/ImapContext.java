@@ -37,9 +37,11 @@ import io.vertx.core.eventbus.MessageProducer;
 import io.vertx.core.net.NetSocket;
 import net.bluemind.common.vertx.contextlogging.ContextualData;
 import net.bluemind.imap.endpoint.cmd.RawImapCommand;
+import net.bluemind.imap.endpoint.driver.Drivers;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
 import net.bluemind.imap.endpoint.events.EventNexus;
+import net.bluemind.imap.endpoint.ratelimiter.ThroughputLimiterRegistry;
 
 public class ImapContext {
 
@@ -49,6 +51,7 @@ public class ImapContext {
 	private final Vertx vertx;
 	private final EventNexus nexus;
 	private final String logConnectionId;
+	private final ThroughputLimiterRegistry throughputLimiterRegistry;
 
 	private SessionState state;
 	private MailboxConnection mailbox;
@@ -68,6 +71,7 @@ public class ImapContext {
 		this.clientId = Collections.emptyMap();
 		this.sender = vertx.eventBus().sender(ns.writeHandlerID());
 		this.logConnectionId = ns.writeHandlerID().replace("__vertx.net.", "").replace("-", "");
+		this.throughputLimiterRegistry = ThroughputLimiterRegistry.get(Drivers.activeDriver().maxLiteralSize());
 		ContextualData.put("endpoint", "imap");
 	}
 
@@ -146,6 +150,10 @@ public class ImapContext {
 
 	public MailboxConnection mailbox() {
 		return mailbox;
+	}
+
+	public ThroughputLimiterRegistry throughputLimiterRegistry() {
+		return this.throughputLimiterRegistry;
 	}
 
 	public void selected(SelectedFolder f) {

@@ -22,4 +22,6 @@ public interface MailboxDriver {
 
 	MailboxConnection open(String ak, String sk);
 
+	int maxLiteralSize();
+
 }

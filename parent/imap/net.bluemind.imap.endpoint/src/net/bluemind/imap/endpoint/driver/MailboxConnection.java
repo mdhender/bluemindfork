@@ -27,6 +27,8 @@ import io.vertx.core.streams.WriteStream;
 
 public interface MailboxConnection {
 
+	String login();
+
 	/*
 	 * Folders operations
 	 */

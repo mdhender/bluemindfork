@@ -22,19 +22,20 @@ import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 public class EndpointConfig {
 
 	private static final Logger logger = LoggerFactory.getLogger(EndpointConfig.class);
-	private static final Config INSTANCE = loadConfig();
+	private static Config instance = loadConfig();
 
 	private EndpointConfig() {
 
 	}
 
-	private static Config loadConfig() {
+	public static Config loadConfig() {
 		Config conf = ConfigFactory.load(EndpointConfig.class.getClassLoader(), "resources/application.conf");
 		File local = new File("/etc/bm/imap.conf"); // NOSONAR
 		if (local.exists()) {
@@ -45,7 +46,13 @@ public class EndpointConfig {
 	}
 
 	public static Config get() {
-		return INSTANCE;
+		return instance;
+	}
+
+	@VisibleForTesting
+	public static void reload() {
+		ConfigFactory.invalidateCaches();
+		instance = loadConfig();
 	}
 
 }

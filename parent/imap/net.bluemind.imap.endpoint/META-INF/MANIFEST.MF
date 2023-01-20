@@ -6,6 +6,7 @@ Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: net.bluemind.imap.endpoint.ImapEndpointActivator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
+ com.bucket4j.core,
  io.vertx.core,
  net.bluemind.lib.vertx,
  slf4j.api,
@@ -15,11 +16,13 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.backend.mail.replica.api,
  net.bluemind.lib.jutf7,
  net.bluemind.hornetq.client,
- com.typesafe.config;visibility:=reexport
+ com.typesafe.config;visibility:=reexport,
+ com.github.ben-manes.caffeine
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.imap.endpoint
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.imap.endpoint,
  net.bluemind.imap.endpoint.cmd,
  net.bluemind.imap.endpoint.driver,
- net.bluemind.imap.endpoint.parsing
+ net.bluemind.imap.endpoint.parsing,
+ net.bluemind.imap.endpoint.ratelimiter

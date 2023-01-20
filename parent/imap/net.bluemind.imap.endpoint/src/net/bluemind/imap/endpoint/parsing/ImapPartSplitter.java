@@ -61,7 +61,9 @@ public class ImapPartSplitter implements Handler<Buffer> {
 		if (stopped) {
 			return;
 		}
-		split.handle(event);
+
+		ctx.throughputLimiterRegistry().get(ctx.mailbox()).limit(ctx, event.length()) //
+				.thenAccept(limiterResult -> split.handle(event));
 	}
 
 	private void splittedChunk(Buffer chunk) {

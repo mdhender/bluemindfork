@@ -31,10 +31,12 @@ import net.bluemind.config.BmIni;
 import net.bluemind.config.Token;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Shared;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.imap.endpoint.driver.MailboxDriver;
 import net.bluemind.imap.serviceprovider.SPResolver;
+import net.bluemind.system.api.SysConfKeys;
 
 public class MailApiDriver implements MailboxDriver {
 
@@ -42,6 +44,9 @@ public class MailApiDriver implements MailboxDriver {
 
 	private final IAuthentication anonAuthApi;
 	private final String coreUrl;
+	private final SharedMap<String, String> sharedMap = MQ.sharedMap(Shared.MAP_SYSCONF);
+	private final int maxLiteralSize = Integer
+			.parseInt(Optional.ofNullable(sharedMap.get(SysConfKeys.message_size_limit.name())).orElse("20000000"));
 
 	public MailApiDriver() {
 		String host = Optional.ofNullable(BmIni.value("external-url")).orElse("127.0.0.1");
@@ -68,6 +73,11 @@ public class MailApiDriver implements MailboxDriver {
 		logger.info("[{}] logged-in.", current.value.defaultEmail());
 		return new MailApiConnection(userProv, SPResolver.get().resolve(Token.admin0()), current,
 				MQ.sharedMap(Shared.MAP_SYSCONF));
+	}
+
+	@Override
+	public int maxLiteralSize() {
+		return maxLiteralSize;
 	}
 
 }

@@ -51,11 +51,18 @@ public class MockConnection implements MailboxConnection {
 	private String sk;
 	private MockModel model;
 
+	public static int maxLiteralSize = 1024 * 1024;
+
 	public MockConnection(MockModel model, String ak, String sk) {
 		this.model = model;
 		this.ak = ak;
 		this.sk = sk;
 		logger.info("Created for {}/{}", this.ak, this.sk);
+	}
+
+	@Override
+	public String login() {
+		return ak;
 	}
 
 	@Override
@@ -131,7 +138,7 @@ public class MockConnection implements MailboxConnection {
 
 	@Override
 	public int maxLiteralSize() {
-		return 1024 * 1024;
+		return maxLiteralSize;
 	}
 
 	@Override

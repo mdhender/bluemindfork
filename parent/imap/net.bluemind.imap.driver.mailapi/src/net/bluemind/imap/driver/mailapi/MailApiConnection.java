@@ -139,6 +139,11 @@ public class MailApiConnection implements MailboxConnection {
 	}
 
 	@Override
+	public String login() {
+		return me.uid + "@" + me.domainUid;
+	}
+
+	@Override
 	public String toString() {
 		return MoreObjects.toStringHelper(MailApiConnection.class).add("id", me.value.defaultEmailAddress()).toString();
 	}
