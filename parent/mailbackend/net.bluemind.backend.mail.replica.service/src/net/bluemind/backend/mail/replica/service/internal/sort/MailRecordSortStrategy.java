@@ -39,9 +39,15 @@ public abstract class MailRecordSortStrategy implements IMailRecordSortStrategy 
 	}
 
 	protected String getSortColumnList() {
-		return sortDesc.fields.stream()
-				.map(f -> f.column + " " + (f.dir == SortDescriptor.Direction.Asc ? "ASC" : "DESC"))
-				.collect(Collectors.joining(","));
+		return sortDesc.fields.stream().map(f -> {
+			var fieldquery = f.column;
+			if (f.column.equals("sender")) {
+				fieldquery = "jsonb_path_query_first(recipients, '$[*] ? (@.kind == \"Originator\" && @.address like_regex \"[^.]+@[^.]+\\.[^.]+\")') ->> 'address'";
+			} else if (f.column.equals("subject")) {
+				fieldquery = "regexp_replace(unaccent(subject), '^([\\W]*|re\\s*:)+', '', 'i')";
+			}
+			return fieldquery + " " + (f.dir == SortDescriptor.Direction.Asc ? "ASC" : "DESC");
+		}).collect(Collectors.joining(","));
 	}
 
 }

@@ -206,6 +206,10 @@ public class JdbcAbstractStore {
 		return update(query, null, Collections.emptyList(), parameters);
 	}
 
+	protected <T> int update(String query, T value, Object[] parameters) throws SQLException {
+		return update(query, value, Collections.emptyList(), parameters);
+	}
+
 	protected <T> int update(String query, T value, List<StatementValues<T>> stValues, Object[] parameters)
 			throws SQLException {
 		Connection conn = getConnection();
@@ -225,8 +229,40 @@ public class JdbcAbstractStore {
 		}
 	}
 
-	protected <T> int update(String query, T value, Object[] parameters) throws SQLException {
-		return update(query, value, Collections.emptyList(), parameters);
+	protected <T, V> V updateAndReturn(String query, T value, StatementValues<T> values, Object[] parameters,
+			Creator<V> returnCreator, EntityPopulator<V> returnPopulator) throws SQLException {
+		return updateAndReturn(query, value, Arrays.asList(values), parameters, returnCreator, returnPopulator);
+	}
+
+	protected <T, V> V updateAndReturn(String query, T value, List<StatementValues<T>> values, Object[] parameters,
+			Creator<V> returnCreator, EntityPopulator<V> returnPopulator) throws SQLException {
+		Connection conn = getConnection();
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		try {
+			st = conn.prepareStatement(query);
+			int index = 1;
+			for (StatementValues<T> stValue : values) {
+				index = stValue.setValues(conn, st, index, 0, value);
+			}
+			setStatementParameters(parameters, conn, st, index);
+			logger.debug("[{}] U: {}", datasource, st);
+			rs = st.executeQuery();
+			if (rs.next()) {
+				V v = null;
+				if (returnCreator != null) {
+					v = returnCreator.create(rs);
+				}
+				if (returnPopulator != null) {
+					returnPopulator.populate(rs, 1, v);
+				}
+				return v;
+			} else {
+				return null;
+			}
+		} finally {
+			JdbcHelper.cleanup(conn, rs, st);
+		}
 	}
 
 	protected <T> void insert(String query, T value, StatementValues<T> values) throws SQLException {
@@ -369,9 +405,7 @@ public class JdbcAbstractStore {
 			st.executeUpdate();
 		} finally {
 			JdbcHelper.cleanup(conn, null, st);
-
 		}
-
 	}
 
 	protected <T, P> P insertAndReturn(String query, T value, List<StatementValues<T>> values, Creator<P> creator,
@@ -388,19 +422,16 @@ public class JdbcAbstractStore {
 			logger.debug("[{}] I: {}", datasource, st);
 			rs = st.executeQuery();
 			if (rs.next()) {
-
 				P v = creator.create(rs);
 				if (populator != null) {
 					populator.populate(rs, 1, v);
 				}
-
 				return v;
 			} else {
 				return null;
 			}
 		} finally {
 			JdbcHelper.cleanup(conn, rs, st);
-
 		}
 	}
 

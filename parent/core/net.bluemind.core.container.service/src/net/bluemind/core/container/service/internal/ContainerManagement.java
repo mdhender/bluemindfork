@@ -262,7 +262,29 @@ public class ContainerManagement implements IInternalContainerManagement {
 		for (IContainersHook hook : cHooks) {
 			hook.onContainerSettingsChanged(context, descriptor);
 		}
+	}
 
+	/**
+	 * 
+	 * @param key   String: Look ContainerSettingsKeys
+	 * @param value
+	 * @throws ServerFault
+	 */
+
+	@Override
+	public void setSetting(String key, String value) throws ServerFault {
+		checkWritable();
+		rbacManager.check(Verb.Manage.name());
+		try {
+			containerSettingsStore.mutateSettings(Map.of(key, value));
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+		ContainerDescriptor descriptor = ContainerDescriptor.create(container.uid, container.name, container.owner,
+				container.type, container.domainUid, container.defaultContainer);
+		for (IContainersHook hook : cHooks) {
+			hook.onContainerSettingsChanged(context, descriptor);
+		}
 	}
 
 	@Override

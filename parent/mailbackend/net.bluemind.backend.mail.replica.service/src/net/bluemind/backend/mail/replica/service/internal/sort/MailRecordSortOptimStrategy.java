@@ -19,6 +19,7 @@ package net.bluemind.backend.mail.replica.service.internal.sort;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.SortDescriptor;
@@ -78,4 +79,10 @@ public class MailRecordSortOptimStrategy extends MailRecordSortStrategy {
 				&& sortDesc.filter.mustNot.stream().anyMatch(f -> f == ItemFlag.Deleted);
 	}
 
+	@Override
+	protected String getSortColumnList() {
+		return sortDesc.fields.stream()
+				.map(f -> f.column + " " + (f.dir == SortDescriptor.Direction.Asc ? "ASC" : "DESC"))
+				.collect(Collectors.joining(","));
+	}
 }

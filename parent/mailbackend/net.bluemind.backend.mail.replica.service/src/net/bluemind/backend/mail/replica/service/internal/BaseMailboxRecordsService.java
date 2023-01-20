@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import javax.sql.DataSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +43,7 @@ import net.bluemind.backend.mail.replica.service.sds.MessageBodyObjectStore;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.ContainerSettingsKeys;
 import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.api.IChangelogSupport;
 import net.bluemind.core.container.api.ICountingSupport;
@@ -55,6 +58,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.container.model.acl.Verb;
+import net.bluemind.core.container.persistence.ContainerSettingsStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.service.ChangeLogUtil;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
@@ -67,6 +71,7 @@ import net.bluemind.mailbox.api.IMailboxAclUids;
 public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSupport, ISortingSupport {
 
 	private static final Logger logger = LoggerFactory.getLogger(BaseMailboxRecordsService.class);
+	protected final DataSource savedDs;
 	protected final BmContext context;
 	protected final String mailboxUniqueId;
 	protected final ContainerStoreService<MailboxRecord> storeService;
@@ -77,9 +82,11 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 	protected final RBACManager rbac;
 	protected final Sanitizer sortDescSanitizer;
 	protected final Supplier<MessageBodyObjectStore> sdsSuppply;
+	protected final Supplier<ContainerSettingsStore> settingsStore;
 
-	public BaseMailboxRecordsService(Container cont, BmContext context, String mailboxUniqueId,
+	public BaseMailboxRecordsService(DataSource ds, Container cont, BmContext context, String mailboxUniqueId,
 			MailboxRecordStore recordStore, ContainerStoreService<MailboxRecord> storeService, ReplicasStore store) {
+		this.savedDs = ds;
 		this.container = cont;
 		this.context = context;
 		this.mailboxUniqueId = mailboxUniqueId;
@@ -90,6 +97,7 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 		this.sortDescSanitizer = new Sanitizer(context);
 		this.sdsSuppply = Suppliers
 				.memoize(() -> new MessageBodyObjectStore(context.su(), DataSourceRouter.location(context, cont.uid)));
+		this.settingsStore = Suppliers.memoize(() -> new ContainerSettingsStore(ds, container));
 		this.rbac = RBACManager.forContext(context).forContainer(IMailboxAclUids.uidForMailbox(container.owner));
 	}
 
@@ -155,11 +163,15 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 				sortDesc = new SortDescriptor();
 			}
 			sortDescSanitizer.create(sortDesc);
-			return recordStore.sortedIds(MailRecordSortStrategyFactory.get(sortDesc).queryToSort());
+			boolean fastSortEnabled = Boolean.parseBoolean(settingsStore.get().getSettings()
+					.getOrDefault(ContainerSettingsKeys.mailbox_record_fast_sort_enabled.name(), "true"));
+			if (!fastSortEnabled) {
+				logger.info("[{}] fast record sort is disabled by settings", container);
+			}
+			return recordStore.sortedIds(MailRecordSortStrategyFactory.get(fastSortEnabled, sortDesc).queryToSort());
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
-
 	}
 
 	@Override

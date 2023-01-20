@@ -69,7 +69,7 @@ public class ContainerSettingsStoreTests {
 		assertNotNull(map);
 		assertTrue(map.isEmpty());
 
-		map = new HashMap<String, String>();
+		map = new HashMap<>();
 		map.put("t1", "v1");
 		map.put("t2", "v2");
 		containerSettingsStore.setSettings(map);
@@ -79,7 +79,7 @@ public class ContainerSettingsStoreTests {
 		assertEquals("v1", map.get("t1"));
 		assertEquals("v2", map.get("t2"));
 
-		map = new HashMap<String, String>();
+		map = new HashMap<>();
 		map.put("t1", "v1test");
 		map.put("t3", "v3");
 		containerSettingsStore.setSettings(map);
@@ -94,12 +94,12 @@ public class ContainerSettingsStoreTests {
 	@Test
 	public void testMutate() throws SQLException {
 
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 		map.put("t1", "v1");
 		map.put("t2", "v2");
 		containerSettingsStore.setSettings(map);
 
-		map = new HashMap<String, String>();
+		map = new HashMap<>();
 		map.put("t2", null);
 		map.put("t3", "v3");
 		containerSettingsStore.mutateSettings(map);
@@ -108,6 +108,6 @@ public class ContainerSettingsStoreTests {
 		assertEquals("v1", map.get("t1"));
 		assertNull(map.get("t2"));
 		assertEquals("v3", map.get("t3"));
-		map = containerSettingsStore.getSettings();
+		containerSettingsStore.getSettings();
 	}
 }

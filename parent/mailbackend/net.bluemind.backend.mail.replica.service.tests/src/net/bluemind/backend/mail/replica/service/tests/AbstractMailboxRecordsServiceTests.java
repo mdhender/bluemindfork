@@ -60,7 +60,7 @@ import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public abstract class AbstractMailboxRecordsServiceTests<T> {
-
+	protected String userUid;
 	protected String mboxUniqueId;
 	protected String mboxUniqueId2;
 	protected String partition;
@@ -111,7 +111,7 @@ public abstract class AbstractMailboxRecordsServiceTests<T> {
 		partition = CyrusPartition.forServerAndDomain(pipo.ip, domainUid).name;
 		datasource = JdbcTestHelper.getInstance().getMailboxDataDataSource();
 		JdbcActivator.getInstance().addMailboxDataSource("dataloc", datasource);
-		String userUid = PopulateHelper.addUser("me", domainUid, Routing.internal);
+		userUid = PopulateHelper.addUser("me", domainUid, Routing.internal);
 		SecurityContext secCtx = new SecurityContext("sid", userUid, Collections.emptyList(), Collections.emptyList(),
 				domainUid);
 		IMailboxFolders mailboxFolderService = ServerSideServiceProvider.getProvider(secCtx)

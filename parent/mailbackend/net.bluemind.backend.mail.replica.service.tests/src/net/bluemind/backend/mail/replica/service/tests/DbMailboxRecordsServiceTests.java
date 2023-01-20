@@ -84,11 +84,11 @@ public class DbMailboxRecordsServiceTests extends AbstractMailboxRecordsServiceT
 
 	@Test
 	public void sortedIdsStrategy_date() {
-
 		ItemValue<MailboxRecord> mailRecord1 = createBodyAndRecord(1, adaptDate(5), "data/sort_1.eml");
 		ItemValue<MailboxRecord> mailRecord2 = createBodyAndRecord(2, adaptDate(10), "data/sort_2.eml");
 		ItemValue<MailboxRecord> mailRecord3 = createBodyAndRecord(3, adaptDate(12), "data/sort_3.eml");
 
+		hookBeforeSort();
 		// no sort or filter (only default applies)
 		IDbMailboxRecords records = getService(SecurityContext.SYSTEM);
 		List<Long> sortedIds = records.sortedIds(null);
@@ -127,10 +127,11 @@ public class DbMailboxRecordsServiceTests extends AbstractMailboxRecordsServiceT
 
 	@Test
 	public void sortedIdsStrategy_multi() {
-
 		ItemValue<MailboxRecord> mailRecord1 = createBodyAndRecord(1, adaptDate(5), "data/sort_1.eml");
 		ItemValue<MailboxRecord> mailRecord2 = createBodyAndRecord(2, adaptDate(10), "data/sort_2.eml");
 		ItemValue<MailboxRecord> mailRecord3 = createBodyAndRecord(3, adaptDate(12), "data/sort_3.eml");
+
+		hookBeforeSort();
 
 		IDbMailboxRecords records = getService(SecurityContext.SYSTEM);
 
@@ -166,20 +167,26 @@ public class DbMailboxRecordsServiceTests extends AbstractMailboxRecordsServiceT
 
 	@Test
 	public void sortedIdsStrategy_subject() {
-
+		// Subject: first subject
 		ItemValue<MailboxRecord> mailRecord1 = createBodyAndRecord(1, adaptDate(5), "data/sort_1.eml");
+		// Subject: second subject
 		ItemValue<MailboxRecord> mailRecord2 = createBodyAndRecord(2, adaptDate(10), "data/sort_2.eml");
+		// Subject: third subject
 		ItemValue<MailboxRecord> mailRecord3 = createBodyAndRecord(3, adaptDate(12), "data/sort_3.eml");
+		// Subject: Re: subject
+		ItemValue<MailboxRecord> mailRecord4 = createBodyAndRecord(4, adaptDate(13), "data/test_subject3.eml");
 
+		hookBeforeSort();
 		// no sort or filter (only default applies)
 		IDbMailboxRecords records = getService(SecurityContext.SYSTEM);
 		List<Long> sortedIds = records.sortedIds(null);
 
 		assertNotNull(sortedIds);
-		assertEquals(3, sortedIds.size());
+		assertEquals(4, sortedIds.size());
 		assertTrue(mailRecord1.internalId == sortedIds.get(0).longValue());
 		assertTrue(mailRecord2.internalId == sortedIds.get(1).longValue());
 		assertTrue(mailRecord3.internalId == sortedIds.get(2).longValue());
+		assertTrue(mailRecord4.internalId == sortedIds.get(3).longValue());
 
 		// sort by subject desc
 		SortDescriptor sorted = new SortDescriptor();
@@ -190,10 +197,11 @@ public class DbMailboxRecordsServiceTests extends AbstractMailboxRecordsServiceT
 		sortedIds = records.sortedIds(sorted);
 
 		assertNotNull(sortedIds);
-		assertEquals(3, sortedIds.size());
+		assertEquals(4, sortedIds.size());
 		assertTrue(mailRecord3.internalId == sortedIds.get(0).longValue());
-		assertTrue(mailRecord2.internalId == sortedIds.get(1).longValue());
-		assertTrue(mailRecord1.internalId == sortedIds.get(2).longValue());
+		assertTrue(mailRecord4.internalId == sortedIds.get(1).longValue());
+		assertTrue(mailRecord2.internalId == sortedIds.get(2).longValue());
+		assertTrue(mailRecord1.internalId == sortedIds.get(3).longValue());
 
 		// sort by subject asc
 		field.dir = Direction.Asc;
@@ -201,19 +209,20 @@ public class DbMailboxRecordsServiceTests extends AbstractMailboxRecordsServiceT
 		sortedIds = records.sortedIds(sorted);
 
 		assertNotNull(sortedIds);
-		assertEquals(3, sortedIds.size());
+		assertEquals(4, sortedIds.size());
 		assertTrue(mailRecord1.internalId == sortedIds.get(0).longValue());
 		assertTrue(mailRecord2.internalId == sortedIds.get(1).longValue());
-		assertTrue(mailRecord3.internalId == sortedIds.get(2).longValue());
+		assertTrue(mailRecord4.internalId == sortedIds.get(2).longValue());
+		assertTrue(mailRecord3.internalId == sortedIds.get(3).longValue());
 	}
 
 	@Test
 	public void sortedIdsStrategy_sender() {
-
 		ItemValue<MailboxRecord> mailRecord1 = createBodyAndRecord(1, adaptDate(5), "data/sort_1.eml");
 		ItemValue<MailboxRecord> mailRecord2 = createBodyAndRecord(2, adaptDate(10), "data/sort_2.eml");
 		ItemValue<MailboxRecord> mailRecord3 = createBodyAndRecord(3, adaptDate(12), "data/sort_3.eml");
 
+		hookBeforeSort();
 		// no sort or filter (only default applies)
 		IDbMailboxRecords records = getService(SecurityContext.SYSTEM);
 		List<Long> sortedIds = records.sortedIds(null);
@@ -252,11 +261,11 @@ public class DbMailboxRecordsServiceTests extends AbstractMailboxRecordsServiceT
 
 	@Test
 	public void sortedIdsStrategy_size() {
-
 		ItemValue<MailboxRecord> mailRecord1 = createBodyAndRecord(1, adaptDate(5), "data/sort_1.eml");
 		ItemValue<MailboxRecord> mailRecord2 = createBodyAndRecord(2, adaptDate(10), "data/sort_2.eml");
 		ItemValue<MailboxRecord> mailRecord3 = createBodyAndRecord(3, adaptDate(12), "data/sort_3.eml");
 
+		hookBeforeSort();
 		// no sort or filter (only default applies)
 		IDbMailboxRecords records = getService(SecurityContext.SYSTEM);
 		List<Long> sortedIds = records.sortedIds(null);
@@ -295,11 +304,11 @@ public class DbMailboxRecordsServiceTests extends AbstractMailboxRecordsServiceT
 
 	@Test
 	public void filterIdsStrategy_notDeleted() {
-
 		ItemValue<MailboxRecord> mailRecord1 = createBodyAndRecord(1, adaptDate(5), "data/sort_1.eml");
 		ItemValue<MailboxRecord> mailRecord2 = createBodyAndRecord(2, adaptDate(10), "data/sort_2.eml");
 		ItemValue<MailboxRecord> mailRecord3 = createBodyAndRecord(3, adaptDate(12), "data/sort_3.eml");
 
+		hookBeforeSort();
 		// no sort or filter (only default applies)
 		IDbMailboxRecords records = getService(SecurityContext.SYSTEM);
 		List<Long> sortedIds = records.sortedIds(null);
@@ -332,11 +341,11 @@ public class DbMailboxRecordsServiceTests extends AbstractMailboxRecordsServiceT
 
 	@Test
 	public void filterIdsStrategy_flagged() {
-
 		ItemValue<MailboxRecord> mailRecord1 = createBodyAndRecord(1, adaptDate(5), "data/sort_1.eml");
 		ItemValue<MailboxRecord> mailRecord2 = createBodyAndRecord(2, adaptDate(10), "data/sort_2.eml");
 		ItemValue<MailboxRecord> mailRecord3 = createBodyAndRecord(3, adaptDate(12), "data/sort_3.eml");
 
+		hookBeforeSort();
 		IDbMailboxRecords records = getService(SecurityContext.SYSTEM);
 
 		assertTrue(mailRecord1.value.flags.isEmpty());
@@ -372,11 +381,11 @@ public class DbMailboxRecordsServiceTests extends AbstractMailboxRecordsServiceT
 
 	@Test
 	public void filterIdsStrategy_unseen() {
-
 		ItemValue<MailboxRecord> mailRecord1 = createBodyAndRecord(1, adaptDate(5), "data/sort_1.eml");
 		ItemValue<MailboxRecord> mailRecord2 = createBodyAndRecord(2, adaptDate(10), "data/sort_2.eml");
 		ItemValue<MailboxRecord> mailRecord3 = createBodyAndRecord(3, adaptDate(12), "data/sort_3.eml");
 
+		hookBeforeSort();
 		IDbMailboxRecords records = getService(SecurityContext.SYSTEM);
 
 		// no sort or filter (only default applies)
@@ -411,6 +420,10 @@ public class DbMailboxRecordsServiceTests extends AbstractMailboxRecordsServiceT
 
 	protected IDbMessageBodies getBodies(SecurityContext ctx) {
 		return ServerSideServiceProvider.getProvider(ctx).instance(IDbMessageBodies.class, partition);
+	}
+
+	protected void hookBeforeSort() {
+		// Overriden in subclasses
 	}
 
 }

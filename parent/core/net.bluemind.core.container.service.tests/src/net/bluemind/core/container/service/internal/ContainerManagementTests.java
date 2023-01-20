@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -21,6 +22,7 @@ import com.google.common.collect.ImmutableSet;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.ContainerSettingsKeys;
 import net.bluemind.core.container.api.ContainerSubscription;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.model.Container;
@@ -248,7 +250,7 @@ public class ContainerManagementTests {
 		assertNotNull(descriptor.settings);
 		assertTrue(descriptor.settings.isEmpty());
 
-		HashMap<String, String> settings = new HashMap<String, String>();
+		HashMap<String, String> settings = new HashMap<>();
 		settings.put("string", "blah");
 		settings.put("color", "blue");
 
@@ -260,6 +262,57 @@ public class ContainerManagementTests {
 		assertEquals("blah", descriptor.settings.get("string"));
 		assertEquals("blue", descriptor.settings.get("color"));
 
+	}
+
+	@Test
+	public void testSetSettings() throws Exception {
+		itemStore.create(Item.create("test1", "extTest1"));
+		IContainerManagement service = service(testSecurityContext, containerId);
+
+		ContainerDescriptor descriptor = service.getDescriptor();
+		assertNotNull(descriptor.settings);
+		assertTrue(descriptor.settings.isEmpty());
+
+		Map<String, String> settings = Map.of("string", "blah",
+				ContainerSettingsKeys.mailbox_record_fast_sort_enabled.name(), "true");
+		service.setSettings(settings);
+
+		descriptor = service.getDescriptor();
+		assertNotNull(descriptor.settings);
+		assertEquals(2, descriptor.settings.size());
+		assertEquals("blah", descriptor.settings.get("string"));
+		assertEquals("true", descriptor.settings.get(ContainerSettingsKeys.mailbox_record_fast_sort_enabled.name()));
+
+		service.setSetting(ContainerSettingsKeys.mailbox_record_fast_sort_enabled.name(), "false");
+		descriptor = service.getDescriptor();
+		assertEquals(descriptor.settings.get(ContainerSettingsKeys.mailbox_record_fast_sort_enabled.name()), "false");
+	}
+
+	@Test
+	public void testMutateSetting() throws Exception {
+		itemStore.create(Item.create("test1", "extTest1"));
+		IContainerManagement service = service(testSecurityContext, containerId);
+
+		ContainerDescriptor descriptor = service.getDescriptor();
+		assertNotNull(descriptor.settings);
+		assertTrue(descriptor.settings.isEmpty());
+
+		Map<String, String> settings = Map.of("string", "blah",
+				ContainerSettingsKeys.mailbox_record_fast_sort_enabled.name(), "true");
+		service.setSettings(settings);
+
+		descriptor = service.getDescriptor();
+		assertNotNull(descriptor.settings);
+		assertEquals(2, descriptor.settings.size());
+		assertEquals("blah", descriptor.settings.get("string"));
+		assertEquals("true", descriptor.settings.get(ContainerSettingsKeys.mailbox_record_fast_sort_enabled.name()));
+
+		service.setSetting(ContainerSettingsKeys.mailbox_record_fast_sort_enabled.name(), "false");
+		descriptor = service.getDescriptor();
+		assertNotNull(descriptor.settings);
+		assertEquals(2, descriptor.settings.size());
+		assertEquals("blah", descriptor.settings.get("string"));
+		assertEquals("false", descriptor.settings.get(ContainerSettingsKeys.mailbox_record_fast_sort_enabled.name()));
 	}
 
 	@Test

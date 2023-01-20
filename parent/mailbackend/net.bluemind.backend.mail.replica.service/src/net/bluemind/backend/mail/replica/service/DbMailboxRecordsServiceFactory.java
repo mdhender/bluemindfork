@@ -40,6 +40,7 @@ public class DbMailboxRecordsServiceFactory extends AbstractMailboxRecordService
 	private static final IMailIndexService NOOP = new NoopMailIndexService();
 
 	public DbMailboxRecordsServiceFactory() {
+		// ok
 	}
 
 	@Override

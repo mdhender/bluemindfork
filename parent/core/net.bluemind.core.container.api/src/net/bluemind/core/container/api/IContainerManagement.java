@@ -27,7 +27,6 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
-
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ContainerDescriptor;
@@ -137,6 +136,17 @@ public interface IContainerManagement {
 	@PUT
 	@Path("_settings")
 	public void setSettings(Map<String, String> settings) throws ServerFault;
+
+	/**
+	 * Set a container setting, only one key at a time
+	 * 
+	 * @param key   string: look ContainerSettingsKeys
+	 * @param value
+	 * @throws ServerFault
+	 */
+	@PUT
+	@Path("_settings/{key}")
+	public void setSetting(@PathParam("key") String key, String value) throws ServerFault;
 
 	/**
 	 * Get container settings

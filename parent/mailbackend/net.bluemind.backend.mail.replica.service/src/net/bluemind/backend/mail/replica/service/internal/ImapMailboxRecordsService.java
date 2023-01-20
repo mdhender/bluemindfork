@@ -124,7 +124,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 
 	public ImapMailboxRecordsService(DataSource ds, Container cont, BmContext context, String mailboxUniqueId,
 			MailboxRecordStore recordStore, ContainerStoreService<MailboxRecord> storeService) {
-		super(cont, context, mailboxUniqueId, recordStore, storeService, new ReplicasStore(ds));
+		super(ds, cont, context, mailboxUniqueId, recordStore, storeService, new ReplicasStore(ds));
 		SubtreeLocation recordsLocation = optRecordsLocation
 				.orElseThrow(() -> new ServerFault("Missing subtree location"));
 

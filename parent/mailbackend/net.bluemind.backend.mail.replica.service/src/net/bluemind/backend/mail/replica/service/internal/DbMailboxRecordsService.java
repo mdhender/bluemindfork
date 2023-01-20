@@ -99,17 +99,14 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 
 	private final IMailIndexService indexService;
 
-	private final DataSource savedDs;
-
 	public DbMailboxRecordsService(DataSource ds, Container cont, BmContext context, String mailboxUniqueId,
 			MailboxRecordStore recordStore, ContainerStoreService<MailboxRecord> storeService,
 			IMailIndexService index) {
-		super(cont, context, mailboxUniqueId, recordStore, storeService, new ReplicasStore(ds));
+		super(ds, cont, context, mailboxUniqueId, recordStore, storeService, new ReplicasStore(ds));
 		if (ds == context.getDataSource()) {
 			throw new ServerFault("Service is invoked with directory datasource for " + cont.uid + ".");
 		}
 		this.indexService = index;
-		this.savedDs = ds;
 	}
 
 	@Override

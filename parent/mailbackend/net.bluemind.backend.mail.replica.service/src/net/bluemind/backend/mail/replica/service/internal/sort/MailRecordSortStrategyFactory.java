@@ -27,9 +27,8 @@ public abstract class MailRecordSortStrategyFactory {
 
 	protected static final Logger logger = LoggerFactory.getLogger(MailRecordSortStrategyFactory.class);
 
-	public static IMailRecordSortStrategy get(SortDescriptor sortDesc) {
-		MailboxRecordsSort mailSortEngine = getRecordsSortStrategy(sortDesc);
-
+	public static IMailRecordSortStrategy get(boolean fastSortEnabled, SortDescriptor sortDesc) {
+		MailboxRecordsSort mailSortEngine = getRecordsSortStrategy(fastSortEnabled, sortDesc);
 		switch (mailSortEngine) {
 		case OPTIMIZED:
 			return new MailRecordSortOptimStrategy(sortDesc);
@@ -41,7 +40,11 @@ public abstract class MailRecordSortStrategyFactory {
 
 	}
 
-	private static MailboxRecordsSort getRecordsSortStrategy(SortDescriptor sortDesc) {
+	private static MailboxRecordsSort getRecordsSortStrategy(boolean fastSortEnabled, SortDescriptor sortDesc) {
+		// This ia bypass for the RecordSortOptimizeUpgrader
+		if (!fastSortEnabled) {
+			return MailboxRecordsSort.DEFAULT;
+		}
 		if (sortDesc != null && (MailRecordSortOptimStrategy.isOptimizedSort(sortDesc)
 				|| MailRecordSortOptimStrategy.isOptimizedFilter(sortDesc))) {
 			return MailboxRecordsSort.OPTIMIZED;

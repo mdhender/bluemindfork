@@ -51,7 +51,7 @@ public class ContainerSettingsStore extends JdbcAbstractStore {
 		Map<String, String> value;
 	}
 
-	private static final Creator<MapHolder> mapCreator = con -> new MapHolder();
+	private static final Creator<MapHolder> mapCreator = rs -> new MapHolder();
 	@SuppressWarnings("unchecked")
 	private static final EntityPopulator<MapHolder> mapPopulator = (rs, index, map) -> {
 		map.value = (Map<String, String>) rs.getObject(index++);
@@ -89,13 +89,13 @@ public class ContainerSettingsStore extends JdbcAbstractStore {
 	}
 
 	public void setSettings(Map<String, String> settings) throws SQLException {
-		String query = "UPDATE t_container_settings set settings = ? where container_id = ?";
+		String query = "UPDATE t_container_settings SET settings = ? WHERE container_id = ?";
 		update(query, settings, statementValues, new Object[] { container.id });
 		cachedSettings.invalidate(cacheKey);
 	}
 
 	public void mutateSettings(Map<String, String> mutatedValues) throws SQLException {
-		String query = "UPDATE t_container_settings set settings = settings || ? where container_id = ?";
+		String query = "UPDATE t_container_settings SET settings = settings || ? WHERE container_id = ?";
 		update(query, mutatedValues, statementValues, new Object[] { container.id });
 		cachedSettings.invalidate(cacheKey);
 	}
