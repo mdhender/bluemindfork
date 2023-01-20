@@ -1,5 +1,7 @@
 package net.bluemind.core.backup.continuous.mgmt.service.containers.mail;
 
+import org.slf4j.event.Level;
+
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
@@ -42,8 +44,12 @@ class MessageBodySync implements ContinuousContenairization<MessageBody> {
 		String mb = mailboxRecord.value.messageBody;
 		if (mb != null) {
 			MessageBody messageBody = MessageBodyHook.fetchMessageBody(domain.uid, cont.owner, mailboxRecord.value);
-			save(domain.uid, cont.owner, messageBody.guid, messageBody, true);
-			contMon.log("sync 1 item(s) for " + MESSAGE_BODIES + "_" + mb);
+			if (messageBody != null) {
+				save(domain.uid, cont.owner, messageBody.guid, messageBody, true);
+				contMon.log("sync 1 item(s) for " + MESSAGE_BODIES + "_" + mb);
+			} else {
+				contMon.log("Failed to fetch body {} for {}", Level.WARN, mb, cont.owner);
+			}
 		}
 	}
 }
