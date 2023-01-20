@@ -28,6 +28,7 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RadioButton;
+import com.google.gwt.user.client.ui.ScrollPanel;
 
 import net.bluemind.dataprotect.api.RestoreOperation;
 import net.bluemind.ui.adminconsole.dataprotect.l10n.DPTexts;
@@ -62,11 +63,18 @@ public class DPRestoreDialog extends DialogBox {
 		Label l = new Label(DPTexts.INST.restoreDialogTitle());
 		l.setStyleName("modal-dialog-title");
 		dlp.addNorth(l, 30);
-		dlp.addNorth(content, 300);
+
+		ScrollPanel scrollPanel = new ScrollPanel();
+		content.setWidth("100%");
+		scrollPanel.add(content);
+		scrollPanel.setSize("300", "300");
+		dlp.addNorth(scrollPanel, 300);
+
 		dlp.addSouth(buttons, 30);
 
 		dlp.setHeight("300px");
 		dlp.setWidth("472px");
+
 		setWidget(dlp);
 
 		setStyleName("dialog");
