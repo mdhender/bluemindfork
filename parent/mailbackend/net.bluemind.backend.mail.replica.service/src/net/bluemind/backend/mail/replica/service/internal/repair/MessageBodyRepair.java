@@ -37,6 +37,8 @@ import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
+import net.bluemind.backend.mail.replica.indexing.IndexedMessageBody;
+import net.bluemind.backend.mail.replica.indexing.RecordIndexActivator;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -235,6 +237,10 @@ public class MessageBodyRepair implements IDirEntryRepairSupport {
 			return BodyStreamProcessor.processBody(imapMessageStream).thenAccept(bodyData -> {
 				bodyData.body.guid = messageBodyGuid;
 				bodiesService.update(bodyData.body);
+				RecordIndexActivator.getIndexer().ifPresent(service -> {
+					IndexedMessageBody indexData = IndexedMessageBody.createIndexBody(bodyData.body.guid, bodyData);
+					service.storeBody(indexData);
+				});
 			}).exceptionally(ex -> null);
 		}
 

@@ -19,6 +19,7 @@ package net.bluemind.core.backup.continuous.mgmt.service.containers.mail;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
@@ -70,9 +71,9 @@ public class RecordsSync<O> extends LoggedContainerDeltaSync<O, MailboxRecord> {
 	@Override
 	protected void preSync(IBackupStoreFactory target, IServerTaskMonitor entryMon, ItemValue<MailboxRecord> mr) {
 		MessageBodySync syncMessageBody = new MessageBodySync(target, domain, entryMon, cont);
-		syncMessageBody.storeMessageBodies(bodyStat, mr);
+		MessageBody body = syncMessageBody.storeMessageBodies(bodyStat, mr);
 
 		IndexedMessageBodySync indexedSyncMessageBody = new IndexedMessageBodySync(target, entryMon, domain, cont);
-		indexedSyncMessageBody.storeIndexedMessageBodies(entryMon, bodyStat, mr.value);
+		indexedSyncMessageBody.storeIndexedMessageBodies(bodyStat, mr.value, body);
 	}
 }

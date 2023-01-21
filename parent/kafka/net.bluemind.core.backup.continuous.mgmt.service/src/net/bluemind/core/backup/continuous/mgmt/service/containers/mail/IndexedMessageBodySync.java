@@ -6,6 +6,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 
+import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.backup.continuous.dto.IndexedMessageBodyDTO;
@@ -45,7 +46,7 @@ public class IndexedMessageBodySync implements ContinuousContenairization<Indexe
 		return target;
 	}
 
-	public void storeIndexedMessageBodies(IServerTaskMonitor entryMon, BodyStat bodyStat, MailboxRecord mailboxRecord) {
+	public void storeIndexedMessageBodies(BodyStat bodyStat, MailboxRecord mailboxRecord, MessageBody body) {
 		String messageBodyId = mailboxRecord.messageBody;
 		final Client client = ESearchActivator.getClient();
 		QueryBuilder matchSpecificFieldQuery = QueryBuilders.multiMatchQuery(messageBodyId, "_id");
@@ -59,6 +60,9 @@ public class IndexedMessageBodySync implements ContinuousContenairization<Indexe
 			if (total % 100 == 0) {
 				contMon.log("sync {} item(s) es source for {}", total, cont.owner);
 			}
+		} else if (body != null) {
+			// fallback to building from MessageBody
+
 		}
 	}
 }

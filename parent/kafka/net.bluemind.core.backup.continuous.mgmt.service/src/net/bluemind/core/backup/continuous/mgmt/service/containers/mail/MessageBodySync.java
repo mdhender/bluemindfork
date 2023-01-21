@@ -40,11 +40,11 @@ class MessageBodySync implements ContinuousContenairization<MessageBody> {
 		return target;
 	}
 
-	public void storeMessageBodies(BodyStat bodyStat, ItemValue<MailboxRecord> mailboxRecord) {
-
+	public MessageBody storeMessageBodies(BodyStat bodyStat, ItemValue<MailboxRecord> mailboxRecord) {
+		MessageBody messageBody = null;
 		String mb = mailboxRecord.value.messageBody;
 		if (mb != null) {
-			MessageBody messageBody = MessageBodyHook.fetchMessageBody(domain.uid, cont.owner, mailboxRecord.value);
+			messageBody = MessageBodyHook.fetchMessageBody(domain.uid, cont.owner, mailboxRecord.value);
 			if (messageBody != null) {
 				save(domain.uid, cont.owner, messageBody.guid, messageBody, true);
 				long total = bodyStat.body().incrementAndGet();
@@ -55,5 +55,6 @@ class MessageBodySync implements ContinuousContenairization<MessageBody> {
 				contMon.log("Failed to fetch body {} for {}", Level.WARN, mb, cont.owner);
 			}
 		}
+		return messageBody;
 	}
 }
