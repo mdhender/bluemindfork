@@ -10,6 +10,7 @@ import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.backup.continuous.dto.IndexedMessageBodyDTO;
 import net.bluemind.core.backup.continuous.events.ContinuousContenairization;
+import net.bluemind.core.backup.continuous.mgmt.service.containers.mail.RecordsSync.BodyStat;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.service.IServerTaskMonitor;
@@ -44,8 +45,7 @@ public class IndexedMessageBodySync implements ContinuousContenairization<Indexe
 		return target;
 	}
 
-	public void storeIndexedMessageBodies(IBackupStoreFactory target, IServerTaskMonitor entryMon,
-			MailboxRecord mailboxRecord) {
+	public void storeIndexedMessageBodies(IServerTaskMonitor entryMon, BodyStat bodyStat, MailboxRecord mailboxRecord) {
 		String messageBodyId = mailboxRecord.messageBody;
 		final Client client = ESearchActivator.getClient();
 		QueryBuilder matchSpecificFieldQuery = QueryBuilders.multiMatchQuery(messageBodyId, "_id");
@@ -55,7 +55,10 @@ public class IndexedMessageBodySync implements ContinuousContenairization<Indexe
 			SearchHit searchHit = r.getHits().getAt(0);
 			IndexedMessageBodyDTO indexedMessageBody = new IndexedMessageBodyDTO(searchHit.getSourceRef().array());
 			save(domain.uid, cont.owner, messageBodyId, indexedMessageBody, true);
-			contMon.log("sync 1 item(s) for " + INDEXED_MESSAGE_BODIES + "_" + messageBodyId);
+			long total = bodyStat.esSource().incrementAndGet();
+			if (total % 100 == 0) {
+				contMon.log("sync {} item(s) es source for {}", total, cont.owner);
+			}
 		}
 	}
 }

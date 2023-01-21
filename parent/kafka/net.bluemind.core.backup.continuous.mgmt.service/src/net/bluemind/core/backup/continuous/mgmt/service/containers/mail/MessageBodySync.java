@@ -7,6 +7,7 @@ import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.backup.continuous.events.ContinuousContenairization;
 import net.bluemind.core.backup.continuous.events.MessageBodyHook;
+import net.bluemind.core.backup.continuous.mgmt.service.containers.mail.RecordsSync.BodyStat;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.service.IServerTaskMonitor;
@@ -39,14 +40,17 @@ class MessageBodySync implements ContinuousContenairization<MessageBody> {
 		return target;
 	}
 
-	public void storeMessageBodies(ItemValue<MailboxRecord> mailboxRecord) {
+	public void storeMessageBodies(BodyStat bodyStat, ItemValue<MailboxRecord> mailboxRecord) {
 
 		String mb = mailboxRecord.value.messageBody;
 		if (mb != null) {
 			MessageBody messageBody = MessageBodyHook.fetchMessageBody(domain.uid, cont.owner, mailboxRecord.value);
 			if (messageBody != null) {
 				save(domain.uid, cont.owner, messageBody.guid, messageBody, true);
-				contMon.log("sync 1 item(s) for " + MESSAGE_BODIES + "_" + mb);
+				long total = bodyStat.body().incrementAndGet();
+				if (total % 100 == 0) {
+					contMon.log("sync {} body(ies) for {}", total, cont.owner);
+				}
 			} else {
 				contMon.log("Failed to fetch body {} for {}", Level.WARN, mb, cont.owner);
 			}
