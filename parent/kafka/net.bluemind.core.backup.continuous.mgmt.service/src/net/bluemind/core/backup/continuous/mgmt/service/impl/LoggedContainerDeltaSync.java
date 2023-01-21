@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.slf4j.event.Level;
+
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
@@ -87,6 +89,10 @@ public abstract class LoggedContainerDeltaSync<O, T> extends ContainerSync {
 	@Override
 	public final void sync(ContainerState state, IBackupStoreFactory target, IServerTaskMonitor contMon) {
 		ContainerChangeset<ItemVersion> cs = changelogApi.filteredChangesetById(0L, ItemFlagFilter.all());
+		if (cs == null) {
+			contMon.log("Cannot read changeset on {}", Level.WARN, state.containerUid());
+			return;
+		}
 		Stream<ItemVersion> concat = Streams.stream(Iterables.concat(cs.created, cs.updated));
 		List<ItemVersion> missing = concat.filter(iv -> !state.versions.contains(iv.version))
 				.collect(Collectors.toList());
