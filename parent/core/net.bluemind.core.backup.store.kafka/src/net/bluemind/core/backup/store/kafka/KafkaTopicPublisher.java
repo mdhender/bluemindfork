@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.MoreObjects;
 
 import net.bluemind.core.backup.continuous.store.TopicPublisher;
+import net.bluemind.utils.ByteSizeUnit;
 
 public class KafkaTopicPublisher implements TopicPublisher {
 
@@ -64,7 +65,9 @@ public class KafkaTopicPublisher implements TopicPublisher {
 		producerProps.setProperty(ProducerConfig.LINGER_MS_CONFIG, Integer.toString(250));
 		producerProps.setProperty(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, Integer.toString(1));
 		producerProps.setProperty(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
-		producerProps.setProperty(ProducerConfig.BATCH_SIZE_CONFIG, Integer.toString(256 * 1024));
+		producerProps.setProperty(ProducerConfig.BATCH_SIZE_CONFIG, Long.toString(ByteSizeUnit.KB.toBytes(512)));
+		producerProps.setProperty(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, Long.toString(ByteSizeUnit.MB.toBytes(5)));
+
 		return new KafkaProducer<>(producerProps);
 	}
 
