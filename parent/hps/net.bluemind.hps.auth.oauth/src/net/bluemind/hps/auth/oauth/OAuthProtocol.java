@@ -127,8 +127,8 @@ public class OAuthProtocol implements IAuthProtocol {
 			}
 
 			JsonObject response = new JsonObject(resp.body());
-			String idToken = response.getString("id_token");
-			validateIdToken(request, protocol, provider, ss, forwadedFor, idToken);
+			String token = response.getString("access_token");
+			validateToken(request, protocol, provider, ss, forwadedFor, token);
 		} catch (Exception e) {
 			error(request, e);
 		}
@@ -140,20 +140,18 @@ public class OAuthProtocol implements IAuthProtocol {
 		req.response().end();
 	}
 
-	private void validateIdToken(HttpServerRequest request, IAuthProtocol protocol, IAuthProvider prov,
-			ISessionStore ss, List<String> forwadedFor, String idToken) {
-		JsonObject token = JWT.parse(idToken);
+	private void validateToken(HttpServerRequest request, IAuthProtocol protocol, IAuthProvider prov, ISessionStore ss,
+			List<String> forwadedFor, String accessToken) {
+		JsonObject token = JWT.parse(accessToken);
 		JsonObject payload = token.getJsonObject("payload");
 
 		String issuer = payload.getString("iss");
-		if (Strings.isNullOrEmpty(issuer) || !oAuthConf.openIdConfiguration().getString("issuer").equals(issuer)) {
+		String accessTokenIssuer = Strings
+				.isNullOrEmpty(oAuthConf.openIdConfiguration().getString("access_token_issuer"))
+						? oAuthConf.openIdConfiguration().getString("issuer")
+						: oAuthConf.openIdConfiguration().getString("access_token_issuer");
+		if (Strings.isNullOrEmpty(issuer) || !issuer.equals(accessTokenIssuer)) {
 			error(request, new ServerFault("Failed to validate id_token: issuer"));
-			return;
-		}
-
-		String audience = payload.getString("aud");
-		if (Strings.isNullOrEmpty(audience) || !oAuthConf.clientId().equals(audience)) {
-			error(request, new ServerFault("Failed to validate id_token: audience"));
 			return;
 		}
 
@@ -171,16 +169,12 @@ public class OAuthProtocol implements IAuthProtocol {
 
 		String email = payload.getString("email");
 		if (Strings.isNullOrEmpty(email)) {
-			email = payload.getString("upn");
-		}
-
-		if (Strings.isNullOrEmpty(email)) {
 			error(request, new ServerFault("Failed to validate id_token: no email"));
 			return;
 		}
 
 		ExternalCreds creds = new ExternalCreds();
-		creds.setTicket(idToken);
+		creds.setTicket(accessToken);
 		creds.setLoginAtDomain(email);
 		createSession(request, protocol, prov, ss, forwadedFor, creds);
 	}
