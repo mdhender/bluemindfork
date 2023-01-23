@@ -11,7 +11,7 @@
         :show-expand="showExpand"
         @search="debouncedSearch"
         @update:contacts="update"
-        @expand="expandContact(contacts, $event)"
+        @expand="expandContact"
         @expandSearch="expandSearch = true"
         @autocompleteHidden="expandSearch = false"
         @delete="SET_ADDRESS_WEIGHT({ address: $event.address, weight: -1 })"
@@ -23,7 +23,7 @@
 <script>
 import debounce from "lodash/debounce";
 import { mapActions, mapMutations } from "vuex";
-import { fetchContactMembers, fetchMembersWithAddress, RecipientAdaptor, VCardInfoAdaptor } from "@bluemind/contact";
+import { fetchContactMembers, RecipientAdaptor, VCardInfoAdaptor } from "@bluemind/contact";
 import { EmailValidator } from "@bluemind/email";
 import { ContactInput } from "@bluemind/business-components";
 import { CHECK_CORPORATE_SIGNATURE } from "~/actions";
@@ -59,7 +59,7 @@ export default {
             if (this.searchResults) {
                 // remove contacts already set and remove duplicates
                 const contactsAlreadySet = this.contacts.map(({ address, dn }) => `${dn}<${address}>`);
-                const searchResultKeyFn = contact => `${contact.value.formatedName}<${contact.value.mail}>`;
+                const searchResultKeyFn = contact => `${contact.value.formatedName || ""}<${contact.value.mail || ""}>`;
                 const contacts = this.searchResults.values?.reduce((result, contact) => {
                     if (
                         !contactsAlreadySet.includes(searchResultKeyFn(contact)) &&
@@ -104,57 +104,42 @@ export default {
     methods: {
         ...mapActions("mail", { CHECK_CORPORATE_SIGNATURE }),
         ...mapMutations("mail", { SET_ADDRESS_WEIGHT, SET_MESSAGE_TO, SET_MESSAGE_CC, SET_MESSAGE_BCC }),
-        async expandContact(contacts, index) {
+        async expandContact(index) {
+            const contacts = [...this.contacts];
             const contact = contacts[index];
             contact.members = await fetchContactMembers(contactContainerUid(contact), contact.uid);
             contacts.splice(index, 1, ...contact.members);
-            this.update(contacts, true);
+            this.update(contacts);
         },
         async search(searchedRecipient) {
             this.searchResults = searchedRecipient === "" ? null : await apiAddressbooks.search(searchedRecipient, -1);
         },
-        async update(contacts, expand) {
+        async update(contacts) {
             this[`SET_MESSAGE_${this.recipientType.toUpperCase()}`]({
                 messageKey: this.message.key,
-                [this.recipientType]: expand
-                    ? await contactsToRecipients(contacts, expand)
-                    : contacts.map(c => ({
-                          dn: c.dn || "",
-                          address: c.address || "",
-                          kind: c.kind,
-                          memberCount: c.members?.length || 0,
-                          uid: c.uid,
-                          containerUid: c.urn?.split("@")[1]
-                      }))
+                [this.recipientType]: contacts.map(c => ({
+                    dn: c.dn || "",
+                    address: c.address || "",
+                    kind: c.kind,
+                    memberCount: c.members?.length || 0,
+                    uid: c.uid,
+                    containerUid: c.urn?.split("@")[1]
+                }))
             });
             this.CHECK_CORPORATE_SIGNATURE({ message: this.message });
             this.debouncedSave();
         },
         validateDnAndAddress(input, contact) {
-            return contact.kind === "group" ? !!contact.dn : EmailValidator.validateDnAndAddress(input);
+            return contact.kind === "group"
+                ? !!contact.dn
+                : contact.dn
+                ? EmailValidator.validateDnAndAddress(input)
+                : EmailValidator.validateAddress(input);
         }
     }
 };
 
-/**
- * Obtain a list of recipients based on the address:
- * - if the address has a value, return the recipient representing this contact
- * - if not, return the recipients of the members having an address value (recursively)
- */
-async function contactToRecipients(contact) {
-    if (contact.address) {
-        return [contact];
-    } else if (contact.members?.length) {
-        return await fetchMembersWithAddress(contactContainerUid(contact), contact.uid);
-    }
-    return [];
-}
-
 function contactContainerUid(contact) {
     return contact.urn?.split("@")[1];
-}
-
-async function contactsToRecipients(contacts) {
-    return (await Promise.all(contacts.map(contactToRecipients))).flatMap(r => r);
 }
 </script>

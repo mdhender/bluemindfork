@@ -67,6 +67,7 @@ export default {
             this.loading = true;
             const uid = UUIDGenerator.generate();
             const containerUid = `book:Contacts_${inject("UserSession").userId}`;
+            createName(contact);
             await inject("AddressBookPersistence", containerUid).create(uid, contact.value);
             this.loading = false;
             contact.uid = uid;
@@ -74,6 +75,16 @@ export default {
         }
     }
 };
+
+function createName(contact) {
+    if (!contact.value.identification.name && contact.value.identification.formatedName.value) {
+        const names = contact.value.identification.formatedName.value.split(/\s+/);
+        contact.value.identification.name = {
+            givenNames: names[0],
+            familyNames: names.slice(1).join(" ")
+        };
+    }
+}
 </script>
 
 <style lang="scss">

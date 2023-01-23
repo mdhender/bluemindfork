@@ -52,7 +52,7 @@ function guessName(address) {
         .join(" ");
 }
 
-function isDomainAddressBook(contactContainerUid, domain) {
+function isDirectoryAddressBook(contactContainerUid, domain) {
     return contactContainerUid === `addressbook_${domain}`;
 }
 
@@ -131,7 +131,7 @@ export {
     fetchContactMembers,
     fetchMembersWithAddress,
     isCollectAddressBook,
-    isDomainAddressBook,
+    isDirectoryAddressBook,
     isPersonalAddressBook,
     RecipientAdaptor,
     recipientStringToVCardItem,

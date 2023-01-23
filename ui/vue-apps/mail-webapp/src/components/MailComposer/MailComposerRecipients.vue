@@ -85,8 +85,8 @@ export default {
         &.expanded-search .delete-autocomplete {
             visibility: hidden;
         }
-        .bm-contact-input-autocomplete-extra {
-            width: base-px-to-rem(288);
+        .suggestions {
+            min-width: base-px-to-rem(288);
         }
     }
 }

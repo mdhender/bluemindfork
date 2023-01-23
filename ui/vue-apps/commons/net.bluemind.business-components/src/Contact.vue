@@ -54,7 +54,7 @@
                         size="sm"
                         :icon="icon"
                         :color="avatarColor"
-                        :alt="dn"
+                        :alt="dn || address"
                         :urn="contact.urn"
                     />
                 </template>
@@ -64,7 +64,7 @@
                 </span>
             </bm-chip>
         </a>
-        <resolved-contact v-if="enableCard" :recipient="recipient">
+        <resolved-contact v-if="enableCard" :resolve="showContactCard" :recipient="recipient">
             <template v-slot:default="{ resolvedContact }">
                 <div>
                     <contact-popover
@@ -135,13 +135,13 @@ export default {
     },
     computed: {
         address() {
-            return this.contact.address ? `<${this.contact.address}>` : "";
+            return this.contact.address ? (this.contact.dn ? `<${this.contact.address}>` : this.contact.address) : "";
         },
         dn() {
             if (this.invalid) {
                 return this.contact.address;
             }
-            return this.contact.dn || this.contact.address;
+            return this.contact.dn || "";
         },
         recipient() {
             return this.contact.dn

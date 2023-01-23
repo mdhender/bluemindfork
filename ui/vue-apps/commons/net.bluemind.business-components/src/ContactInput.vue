@@ -28,10 +28,12 @@
                             :contact="contact"
                             :invalid="!valid(contact)"
                             :selected="valid(contact) && contact.selected"
-                            :show-address="valid(contact) && (contact.hasBeenEdited || anyContactHasSameDn(contact))"
+                            :show-address="
+                                valid(contact) && (!contact.dn || contact.hasBeenEdited || anyContactHasSameDn(contact))
+                            "
                             :closeable="!disabled"
                             class="mw-100"
-                            popover
+                            enable-card
                             @remove="onRemove(contact)"
                             @expand="$emit('expand', index)"
                             @keydown.native.delete="onRemove(contact)"
@@ -66,6 +68,7 @@
                             @keydown.native.;.prevent="focusNext"
                             @autocompleteShown="$emit('autocompleteShown')"
                             @autocompleteHidden="$emit('autocompleteHidden')"
+                            @input="newValue => (newValue ? undefined : $refs.new.focus() && remove(contact))"
                         >
                             <template #default="{ item }">
                                 <bm-contact-input-autocomplete-item
@@ -374,9 +377,18 @@ export default {
             return { dn: "", address: value };
         },
         async afterCreate() {
-            await this.$nextTick();
             this.value = "";
             this.showAutocomplete(false);
+
+            // wait for autocompleteResults to be reset
+            let resolver;
+            const promise = new Promise(resolve => (resolver = resolve));
+            const unwatch = this.$watch(
+                () => this.autocompleteResults,
+                value => !value?.length && resolver()
+            );
+            await promise.then(unwatch);
+
             this.$refs.new?.focus();
         },
         anyContactHasSameDn(contact) {
@@ -423,7 +435,6 @@ export default {
                 this.focusNext();
             }
             this.remove(contact);
-            this.$refs.new.focus();
         },
 
         // Autocomplete methods
@@ -452,7 +463,10 @@ export default {
         hideContacts(overflownEvent) {
             const badge = this.$refs["more-items-badge"];
             if (badge) {
-                this.hiddenContactCount = badge.hideOverflownElements({ overflownEvent, elementClass: "contact" });
+                this.hiddenContactCount = badge.hideOverflownElements({
+                    overflownEvent,
+                    elementClass: "contact-and-input"
+                });
             }
         }
     }

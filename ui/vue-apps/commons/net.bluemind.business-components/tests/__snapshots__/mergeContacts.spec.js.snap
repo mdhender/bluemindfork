@@ -30,6 +30,10 @@ Object {
               "label": "TYPE",
               "value": "home",
             },
+            Object {
+              "label": "DEFAULT",
+              "value": "false",
+            },
           ],
           "value": "georges.abitbol@dev.bluemind.net",
         },
@@ -56,6 +60,10 @@ Object {
             Object {
               "label": "TYPE",
               "value": "work",
+            },
+            Object {
+              "label": "DEFAULT",
+              "value": "false",
             },
           ],
           "value": "georges.b@dev.bluemind.net",

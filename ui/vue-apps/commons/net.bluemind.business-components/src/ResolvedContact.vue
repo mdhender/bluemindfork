@@ -10,7 +10,8 @@ export default {
         recipient: { type: String, default: undefined },
         contact: { type: Object, default: undefined },
         uid: { type: String, default: undefined },
-        containerUid: { type: String, default: undefined }
+        containerUid: { type: String, default: undefined },
+        resolve: { type: Boolean, required: true }
     },
     data() {
         return { resolvedContact: null };
@@ -30,10 +31,15 @@ export default {
         },
         async containerUid() {
             await this.resolveContact();
+        },
+        resolve: {
+            handler: function (value) {
+                if (value) {
+                    this.resolveContact();
+                }
+            },
+            immediate: true
         }
-    },
-    async created() {
-        await this.resolveContact();
     },
     methods: {
         async resolveContact() {
@@ -49,7 +55,7 @@ export default {
         },
         async recipientToContact() {
             const searchToken = EmailExtractor.extractEmail(this.recipient) || EmailExtractor.extractDN(this.recipient);
-            const searchResults = await inject("AddressBooksPersistence").search(searchVCardsHelper(searchToken, -1));
+            const searchResults = await inject("AddressBooksPersistence").search(searchVCardsHelper(searchToken, 20));
             return searchResults.values?.length
                 ? searchResultsToContact(searchResults)
                 : recipientStringToVCardItem(this.recipient);

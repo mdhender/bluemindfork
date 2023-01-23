@@ -14,7 +14,7 @@
 <script>
 import { inject } from "@bluemind/inject";
 import { BmAvatar, BmIcon } from "@bluemind/ui-components";
-import { isCollectAddressBook, isDomainAddressBook, isPersonalAddressBook } from "@bluemind/contact";
+import { isDirectoryAddressBook } from "@bluemind/contact";
 
 export default {
     name: "ContactCardHeader",
@@ -36,14 +36,17 @@ export default {
     watch: {
         contact: {
             handler: async function (value) {
-                const { userId, domain } = inject("UserSession");
-                this.addressBook =
-                    value &&
-                    (isDomainAddressBook(value.containerUid, domain) ||
-                        isPersonalAddressBook(value.containerUid, userId) ||
-                        isCollectAddressBook(value.containerUid, userId))
-                        ? await inject("AddressBooksMgmtPersistence").getComplete(value.containerUid)
-                        : undefined;
+                if (value?.containerUid) {
+                    const { userId, domain } = inject("UserSession");
+                    const lightContainers = await inject("ContainersPersistence").getContainersLight([
+                        value.containerUid
+                    ]);
+                    this.addressBook =
+                        isDirectoryAddressBook(value.containerUid, domain) ||
+                        (lightContainers?.length && lightContainers[0].owner === userId)
+                            ? lightContainers[0]
+                            : undefined;
+                }
             },
             immediate: true
         }

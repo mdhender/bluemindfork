@@ -1,12 +1,15 @@
 import get from "lodash.get";
 import isEqual from "lodash.isequal";
-import { isCollectAddressBook, isDomainAddressBook, isPersonalAddressBook } from "@bluemind/contact";
+import { isCollectAddressBook, isDirectoryAddressBook, isPersonalAddressBook } from "@bluemind/contact";
 import { inject } from "@bluemind/inject";
 
 export default async function merge(contactsWithContainerUid) {
     const sortedContacts = await sortContacts(contactsWithContainerUid);
     const bestContactForIdentification = bestContact(sortedContacts, "value.identification.formatedName.value");
     const photoBinary = await photoUrl(bestContact(sortedContacts, "value.identification.photo"));
+    const defaultEmailFn = email =>
+        email.parameters.find(({ label, value }) => label === "DEFAULT" && value === "true") ? 1 : 0;
+    const sortEmailsFn = (a, b) => defaultEmailFn(b) - defaultEmailFn(a);
     return {
         value: {
             identification: {
@@ -16,7 +19,7 @@ export default async function merge(contactsWithContainerUid) {
             },
             communications: {
                 tels: mergeList(sortedContacts, "value.communications.tels"),
-                emails: mergeList(sortedContacts, "value.communications.emails", "value")
+                emails: mergeList(sortedContacts, "value.communications.emails", "value").sort(sortEmailsFn)
             },
             deliveryAddressing: mergeList(sortedContacts, "value.deliveryAddressing")
         },
@@ -50,7 +53,7 @@ async function sortContacts(contacts) {
 }
 
 function priority(containerUid, userId, domain) {
-    if (isDomainAddressBook(containerUid, domain)) {
+    if (isDirectoryAddressBook(containerUid, domain)) {
         return 3;
     }
     if (isPersonalAddressBook(containerUid, userId)) {
