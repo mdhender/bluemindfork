@@ -14,7 +14,7 @@ export async function decrypt(
     data: Blob,
     privateKey: pki.rsa.PrivateKey,
     certificate: pki.Certificate
-): Promise<string | undefined> {
+): Promise<string> {
     const buffer = await data.arrayBuffer();
     const text = asn1.fromDer(new util.ByteStringBuffer(buffer));
     const envelope = <pkcs7.Captured<pkcs7.PkcsEnvelopedData>>pkcs7.messageFromAsn1(text);
@@ -27,7 +27,10 @@ export async function decrypt(
     if (recipient) {
         try {
             envelope.decrypt(recipient, privateKey);
-            return envelope.content?.toString();
+            if (!envelope.content) {
+                throw new DecryptError("after decrypt, no content set in pkcs7 envelope");
+            }
+            return envelope.content.toString();
         } catch (error) {
             throw new DecryptError(error);
         }

@@ -6,7 +6,6 @@ import UUIDGenerator from "@bluemind/uuid";
 import {
     CRYPTO_HEADERS,
     ENCRYPTED_HEADER_NAME,
-    MULTIPART_SIGNED_MIME,
     PKCS7_MIMES,
     SIGNATURE_MIME,
     SIGNED_HEADER_NAME,
@@ -22,14 +21,19 @@ import { addHeaderValue, resetHeader } from "../lib/helper";
 import { dispatchFetch } from "@bluemind/service-worker-utils";
 import { getCacheKey } from "./smimePartCache";
 
-export function isEncrypted(item: ItemValue<MailboxItem>): boolean {
-    return PKCS7_MIMES.includes(item.value!.body!.structure!.mime!);
+export function isEncrypted(part: MessageBody.Part): boolean {
+    return PKCS7_MIMES.includes(part.mime!);
 }
-export function isSigned(item: ItemValue<MailboxItem>): boolean {
-    return item.value!.body!.structure!.mime === MULTIPART_SIGNED_MIME;
+export function isSigned(part: MessageBody.Part): boolean {
+    return part.mime === "application/pkcs7-signature" || (!!part.children && part.children.some(isSigned));
 }
 
-export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): Promise<ItemValue<MailboxItem>> {
+type DecryptResult = {
+    item: ItemValue<MailboxItem>;
+    content: string;
+};
+export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): Promise<DecryptResult> {
+    let content = "";
     item.value.body.headers = resetHeader(item.value.body.headers, ENCRYPTED_HEADER_NAME);
     //TODO: Add a cache based on body guid
     try {
@@ -41,22 +45,20 @@ export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): 
         // FIXME: use correct date instead of internalDate
         checkCertificateValidity(certificate, new Date(item.value!.body!.date!));
         const data = await client.fetch(item.value!.imapUid!, part.address!, part.encoding!, part.mime!);
-        const content = await pkcs7.decrypt(data, key, certificate);
-        if (content) {
-            const parser = await new MimeParser(part.address).parse(content);
-            const parts = parser.getParts();
-            for (const p of parts) {
-                const partContent = parser.getPartContent(p.address!);
-                await savePart(folderUid, item.value!.imapUid!, p, partContent);
-            }
-            item.value.body.structure = parser.structure as MessageBody.Part;
+        content = await pkcs7.decrypt(data, key, certificate);
+        const parser = await new MimeParser(part.address).parse(content);
+        const parts = parser.getParts();
+        for (const p of parts) {
+            const content = parser.getPartContent(p.address!);
+            savePart(folderUid, item.value.imapUid!, p, content);
         }
+        item.value.body.structure = parser.structure as MessageBody.Part;
         item.value.body.headers = addHeaderValue(item.value.body?.headers, ENCRYPTED_HEADER_NAME, CRYPTO_HEADERS.OK);
     } catch (error: unknown) {
         const errorCode = error instanceof SmimeErrors ? error.code : CRYPTO_HEADERS.UNKNOWN;
         item.value.body.headers = addHeaderValue(item.value.body.headers, ENCRYPTED_HEADER_NAME, errorCode);
     }
-    return item;
+    return { item, content };
 }
 
 export async function encrypt(item: MailboxItem, folderUid: string): Promise<MailboxItem> {
@@ -94,11 +96,14 @@ export async function encrypt(item: MailboxItem, folderUid: string): Promise<Mai
     return encryptedItem;
 }
 
-export async function verify(folderUid: string, item: ItemValue<MailboxItem>): Promise<ItemValue<MailboxItem>> {
+export async function verify(
+    folderUid: string,
+    item: ItemValue<MailboxItem>,
+    getEml: () => Promise<string>
+): Promise<ItemValue<MailboxItem>> {
     item.value.body.headers = resetHeader(item.value.body.headers, SIGNED_HEADER_NAME);
     try {
-        const client = new MailboxItemsClient(await session.sid, folderUid);
-        const eml = await client.fetchComplete(item.value.imapUid!).then(eml => eml.text());
+        const eml = await getEml();
         const { toDigest, pkcs7Part } = extractSignedData(eml);
         await pkcs7.verify(pkcs7Part, toDigest);
         item.value.body.headers = addHeaderValue(item.value.body.headers, SIGNED_HEADER_NAME, CRYPTO_HEADERS.OK);

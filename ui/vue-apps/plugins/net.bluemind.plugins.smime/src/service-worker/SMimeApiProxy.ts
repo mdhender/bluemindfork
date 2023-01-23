@@ -2,6 +2,7 @@ import { ImapItemIdentifier, MailboxItem, MailboxItemsClient } from "@bluemind/b
 import { Ack, ItemValue } from "@bluemind/core.container.api";
 import { removeSignatureFromStructure, hasToBeEncrypted, hasToBeSigned } from "../lib/helper";
 import { getCacheKey } from "./smimePartCache";
+import session from "./environnment/session";
 import { decrypt, encrypt, isEncrypted, isSigned, sign, verify } from "./smime";
 
 export default class SMimeApiProxy extends MailboxItemsClient {
@@ -12,30 +13,20 @@ export default class SMimeApiProxy extends MailboxItemsClient {
         const items: Array<ItemValue<MailboxItem>> = await this.next!();
 
         for (let i = 0; i < items.length; i++) {
-            if (isEncrypted(items[i])) {
-                items[i] = await decrypt(this.replicatedMailboxUid, items[i]);
-            }
-            if (isSigned(items[i])) {
-                items[i] = await verify(this.replicatedMailboxUid, items[i]);
-            }
+            items[i] = await decryptAndVerify(items[i], this.replicatedMailboxUid);
         }
 
         return items;
     }
     async getCompleteById(): Promise<ItemValue<MailboxItem>> {
         let item: ItemValue<MailboxItem> = await this.next!();
-        if (isEncrypted(item)) {
-            item = await decrypt(this.replicatedMailboxUid, item);
-        }
-        if (isSigned(item)) {
-            item = await verify(this.replicatedMailboxUid, item);
-        }
+        item = await decryptAndVerify(item, this.replicatedMailboxUid);
         return item;
     }
     async getForUpdate(): Promise<ItemValue<MailboxItem>> {
         let item: ItemValue<MailboxItem> = await this.next!();
-        if (isEncrypted(item)) {
-            item = await decrypt(this.replicatedMailboxUid, item);
+        if (isEncrypted(item.value.body.structure!)) {
+            ({ item } = await decrypt(this.replicatedMailboxUid, item));
         }
         // Filter the attachment signature for draft
         item.value.body.structure = removeSignatureFromStructure(item.value.body.structure);
@@ -48,7 +39,6 @@ export default class SMimeApiProxy extends MailboxItemsClient {
         if (item.body.headers && hasToBeEncrypted(item.body.headers)) {
             item = await encrypt(item, this.replicatedMailboxUid);
         }
-
         return this.next!(item);
     }
     async updateById(id: number, item: MailboxItem): Promise<Ack> {
@@ -58,7 +48,7 @@ export default class SMimeApiProxy extends MailboxItemsClient {
         if (item.body.headers && hasToBeEncrypted(item.body.headers)) {
             item = await encrypt(item, this.replicatedMailboxUid);
         }
-        return await this.next!(id, item);
+        return this.next!(id, item);
     }
     async fetch(
         imapUid: number,
@@ -76,4 +66,19 @@ export default class SMimeApiProxy extends MailboxItemsClient {
         }
         return this.next!(imapUid, address, encoding, mime, charset, filename);
     }
+}
+
+async function decryptAndVerify(item: ItemValue<MailboxItem>, folderUid: string) {
+    let adaptedItem = item;
+    const client = new MailboxItemsClient(await session.sid, folderUid);
+    let getEml = () => client.fetchComplete(item.value.imapUid!).then(blob => blob.text());
+    if (isEncrypted(item.value.body.structure!)) {
+        let decryptedContent: string;
+        ({ item: adaptedItem, content: decryptedContent } = await decrypt(folderUid, item));
+        getEml = () => Promise.resolve(decryptedContent);
+    }
+    if (isSigned(item.value.body.structure!)) {
+        adaptedItem = await verify(folderUid, item, getEml);
+    }
+    return adaptedItem;
 }
