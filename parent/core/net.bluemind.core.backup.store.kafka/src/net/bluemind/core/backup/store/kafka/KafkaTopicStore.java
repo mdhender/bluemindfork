@@ -32,6 +32,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -48,8 +49,8 @@ import org.apache.kafka.common.errors.TopicExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableMap;
 import com.netflix.spectator.api.Registry;
+import com.typesafe.config.Config;
 
 import net.bluemind.config.DataLocation;
 import net.bluemind.config.InstallationId;
@@ -58,6 +59,7 @@ import net.bluemind.core.backup.continuous.store.ITopicStore;
 import net.bluemind.core.backup.continuous.store.TopicManager;
 import net.bluemind.core.backup.continuous.store.TopicPublisher;
 import net.bluemind.core.backup.continuous.store.TopicSubscriber;
+import net.bluemind.core.backup.store.kafka.config.KafkaStoreConfig;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 
@@ -67,7 +69,8 @@ public class KafkaTopicStore implements ITopicStore, TopicManager {
 	private static final AtomicInteger cidAlloc = new AtomicInteger();
 
 	static final String COMPRESSION_TYPE = "zstd";
-	static final int PARTITION_COUNT = 64;
+	static final int PARTITION_COUNT = KafkaStoreConfig.get().getInt("kafka.topic.partitionCount");
+	static final short REPL_FACTOR = (short) KafkaStoreConfig.get().getInt("kafka.topic.replicationFactor");
 
 	private AdminClient adminClient;
 
@@ -169,11 +172,13 @@ public class KafkaTopicStore implements ITopicStore, TopicManager {
 			opts.listInternal(false);
 			Map<String, TopicListing> existing = adminClient.listTopics(opts).namesToListings().get();
 			if (!existing.containsKey(name)) {
-				NewTopic nt = new NewTopic(name, PARTITION_COUNT, (short) 1);
-				nt.configs(ImmutableMap.of(//
+				Config conf = KafkaStoreConfig.get();
+				NewTopic nt = new NewTopic(name, PARTITION_COUNT, REPL_FACTOR);
+				nt.configs(Map.of(//
 						"compression.type", COMPRESSION_TYPE, //
 						"cleanup.policy", "compact", //
-						"max.compaction.lag.ms", "120000"//
+						"max.compaction.lag.ms",
+						Long.toString(conf.getDuration("kafka.topic.maxCompactionLag", TimeUnit.MILLISECONDS))//
 				));
 				CreateTopicsOptions cto = new CreateTopicsOptions();
 

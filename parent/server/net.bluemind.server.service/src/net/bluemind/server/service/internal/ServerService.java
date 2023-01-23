@@ -309,7 +309,7 @@ public final class ServerService implements IServer {
 		}
 
 		if (!Sets.newHashSet(server.value.tags).contains(tag)) {
-			throw new ServerFault("Assignement of server without " + tag + " tag refused.");
+			throw new ServerFault("Assignment of server " + server.value + " without " + tag + " tag refused.");
 		}
 
 		boolean alreadyAssigned = false;

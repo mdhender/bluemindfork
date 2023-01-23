@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.MoreObjects;
 import com.netflix.spectator.api.Gauge;
 import com.netflix.spectator.api.Registry;
+import com.typesafe.config.Config;
 
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.vertx.core.json.JsonObject;
@@ -35,6 +37,7 @@ import net.bluemind.core.backup.continuous.api.CloneDefaults;
 import net.bluemind.core.backup.continuous.store.ITopicStore.IResumeToken;
 import net.bluemind.core.backup.continuous.store.RecordHandler;
 import net.bluemind.core.backup.continuous.store.TopicSubscriber;
+import net.bluemind.core.backup.store.kafka.config.KafkaStoreConfig;
 import net.bluemind.metrics.registry.IdFactory;
 
 public class KafkaTopicSubscriber implements TopicSubscriber {
@@ -222,16 +225,21 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 		ClassLoader savedCl = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(null);
 		Properties cp = new Properties();
+		Config conf = KafkaStoreConfig.get();
 		cp.setProperty("bootstrap.servers", bootstrapServer);
 		cp.setProperty("group.id", group);
 		cp.setProperty("client.id", clientId);
 		cp.setProperty(ConsumerConfig.METRIC_REPORTER_CLASSES_CONFIG, BluemindMetricsReporter.class.getCanonicalName());
-		cp.setProperty("enable.auto.commit", "false");
-		cp.setProperty("fetch.max.wait.ms", "100");
-		cp.setProperty("auto.offset.reset", "earliest");
-		cp.setProperty("auto.commit.interval.ms", "1000");
 		cp.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getCanonicalName());
 		cp.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getCanonicalName());
+		cp.setProperty("enable.auto.commit", "false");
+		cp.setProperty("auto.commit.interval.ms", "1000");
+		cp.setProperty("auto.offset.reset", "earliest");
+
+		cp.setProperty(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG,
+				Long.toString(conf.getDuration("kafka.consumer.fetchMaxWait", TimeUnit.MILLISECONDS)));
+		cp.setProperty(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG,
+				Long.toString(conf.getDuration("kafka.consumer.maxPollInterval", TimeUnit.MILLISECONDS)));
 		KafkaConsumer<byte[], byte[]> ret = new KafkaConsumer<>(cp);
 		Thread.currentThread().setContextClassLoader(savedCl);
 		return ret;

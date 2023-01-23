@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -13,9 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.MoreObjects;
+import com.typesafe.config.Config;
 
 import net.bluemind.core.backup.continuous.store.TopicPublisher;
-import net.bluemind.utils.ByteSizeUnit;
+import net.bluemind.core.backup.store.kafka.config.KafkaStoreConfig;
 
 public class KafkaTopicPublisher implements TopicPublisher {
 
@@ -52,9 +54,9 @@ public class KafkaTopicPublisher implements TopicPublisher {
 	}
 
 	private KafkaProducer<byte[], byte[]> createKafkaProducer() {
+		Config conf = KafkaStoreConfig.get();
 		Properties producerProps = new Properties();
 		producerProps.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
-		producerProps.setProperty(ProducerConfig.ACKS_CONFIG, "all");
 		producerProps.setProperty(ProducerConfig.METRIC_REPORTER_CLASSES_CONFIG,
 				BluemindMetricsReporter.class.getCanonicalName());
 		producerProps.setProperty(ProducerConfig.COMPRESSION_TYPE_CONFIG, KafkaTopicStore.COMPRESSION_TYPE);
@@ -62,11 +64,19 @@ public class KafkaTopicPublisher implements TopicPublisher {
 				"org.apache.kafka.common.serialization.ByteArraySerializer");
 		producerProps.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
 				"org.apache.kafka.common.serialization.ByteArraySerializer");
-		producerProps.setProperty(ProducerConfig.LINGER_MS_CONFIG, Integer.toString(250));
 		producerProps.setProperty(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, Integer.toString(1));
 		producerProps.setProperty(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true");
-		producerProps.setProperty(ProducerConfig.BATCH_SIZE_CONFIG, Long.toString(ByteSizeUnit.KB.toBytes(512)));
-		producerProps.setProperty(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, Long.toString(ByteSizeUnit.MB.toBytes(5)));
+
+		// tunables
+		producerProps.setProperty(ProducerConfig.ACKS_CONFIG, conf.getString("kafka.producer.acks"));
+		producerProps.setProperty(ProducerConfig.LINGER_MS_CONFIG,
+				Long.toString(conf.getDuration("kafka.producer.linger", TimeUnit.MILLISECONDS)));
+		producerProps.setProperty(ProducerConfig.BUFFER_MEMORY_CONFIG,
+				Long.toString(conf.getMemorySize("kafka.producer.bufferMemory").toBytes()));
+		producerProps.setProperty(ProducerConfig.BATCH_SIZE_CONFIG,
+				Long.toString(conf.getMemorySize("kafka.producer.batchSize").toBytes()));
+		producerProps.setProperty(ProducerConfig.MAX_REQUEST_SIZE_CONFIG,
+				Long.toString(conf.getMemorySize("kafka.producer.maxRecordSize").toBytes()));
 
 		return new KafkaProducer<>(producerProps);
 	}

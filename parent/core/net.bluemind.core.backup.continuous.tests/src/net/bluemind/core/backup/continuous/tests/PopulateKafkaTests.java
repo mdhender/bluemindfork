@@ -139,6 +139,8 @@ public class PopulateKafkaTests {
 
 	@Before
 	public void before() throws Exception {
+		// osx might have port 8021 in use
+		// launchctl unload -w /System/Library/LaunchDaemons/com.apple.ftp-proxy.plist
 		Deploy.verticles(false, BlueMindUnsecureNode::new).get(5, TimeUnit.SECONDS);
 		Deploy.verticles(true, SysCommand::new).get(5, TimeUnit.SECONDS);
 
