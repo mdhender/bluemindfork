@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <bundle id="net.bluemind.filehosting.filesystem.job" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.filehosting.filesystem.service" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.filehosting.filesystem.sqlschema" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.filehosting.filesystem.job" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.filehosting.filesystem.service" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.filehosting.filesystem.sqlschema" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.filehosting.sds.service"/>
 </site>

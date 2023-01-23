@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.imap.vertx
 Bundle-SymbolicName: net.bluemind.imap.vertx;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  io.vertx.core,

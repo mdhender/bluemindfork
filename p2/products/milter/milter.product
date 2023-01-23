@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="milter" uid="milter" id="net.bluemind.milter.milter" application="net.bluemind.milter.milter" version="4.1.0.qualifier" useFeatures="false" includeLaunchers="true">
+<product name="milter" uid="milter" id="net.bluemind.milter.milter" application="net.bluemind.milter.milter" version="5.0.0.qualifier" useFeatures="false" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>

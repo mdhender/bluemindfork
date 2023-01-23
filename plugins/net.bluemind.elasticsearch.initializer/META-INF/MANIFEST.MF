@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Initializer
 Bundle-SymbolicName: net.bluemind.elasticsearch.initializer;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: net.bluemind.elasticsearch.initializer.Activator
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.lib.elasticsearch;bundle-version="1.0.0",

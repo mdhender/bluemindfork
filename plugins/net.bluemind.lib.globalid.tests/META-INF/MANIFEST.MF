@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tests
 Bundle-SymbolicName: net.bluemind.lib.globalid.tests
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: net.bluemind.lib.globalid.tests.Activator
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.lib.globalid;bundle-version="1.0.0",

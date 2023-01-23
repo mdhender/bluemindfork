@@ -6,6 +6,6 @@
 	<parent>
 		<groupId>net.bluemind</groupId>
 		<artifactId>net.bluemind.vue-apps.packaging</artifactId>
-		<version>4.1.0-SNAPSHOT</version>
+		<version>5.0.0-SNAPSHOT</version>
 	</parent>
 </project>

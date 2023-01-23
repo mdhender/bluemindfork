@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.cli.directory
 Bundle-SymbolicName: net.bluemind.cli.directory;singleton:=true
 Bundle-Vendor: bluemind.net
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Export-Package: net.bluemind.cli.directory
 Require-Bundle: net.bluemind.cli.cmd.api,
  net.bluemind.role.api

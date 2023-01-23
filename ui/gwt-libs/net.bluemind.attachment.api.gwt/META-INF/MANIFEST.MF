@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tests
 Bundle-SymbolicName: net.bluemind.attachment.api.gwt;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.attachment.api;bundle-version="4.1.0",
  net.bluemind.restbus.api.gwt;bundle-version="4.1.0",

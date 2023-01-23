@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.core.serialization
 Bundle-SymbolicName: net.bluemind.core.serialization;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: .
 X-BM-Version: 4.0-alpha1

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="xivobridge" uid="xivobridge" id="net.bluemind.xivo.bridge.xivobridge" application="net.bluemind.xivo.bridge.xivobridge" version="4.1.0.qualifier" useFeatures="false" includeLaunchers="true">
+<product name="xivobridge" uid="xivobridge" id="net.bluemind.xivo.bridge.xivobridge" application="net.bluemind.xivo.bridge.xivobridge" version="5.0.0.qualifier" useFeatures="false" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>

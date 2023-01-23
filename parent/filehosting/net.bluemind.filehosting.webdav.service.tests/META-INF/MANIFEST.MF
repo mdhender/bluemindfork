@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.filehosting.webdav.service.tests
 Bundle-SymbolicName: net.bluemind.filehosting.webdav.service.tests;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: www.blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.delivery.lmtp.hooks
 Bundle-SymbolicName: net.bluemind.delivery.lmtp.hooks;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: net.bluemind
 Automatic-Module-Name: net.bluemind.delivery.lmtp.hooks
 Bundle-RequiredExecutionEnvironment: JavaSE-17

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.core.backup.continuous
 Bundle-SymbolicName: net.bluemind.core.backup.continuous;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.backup.continuous.api;bundle-version="4.1.0";visibility:=reexport,

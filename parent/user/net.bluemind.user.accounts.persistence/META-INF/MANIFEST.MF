@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.user.accounts.persistence
 Bundle-SymbolicName: net.bluemind.user.accounts.persistence;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Export-Package: net.bluemind.user.accounts.persistence
 Require-Bundle: net.bluemind.core.jdbc;bundle-version="1.0.0",
  net.bluemind.core.container.persistence;bundle-version="1.0.0",

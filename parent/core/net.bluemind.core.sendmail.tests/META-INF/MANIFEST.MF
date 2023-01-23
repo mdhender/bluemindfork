@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.core.sendmail.tests
 Bundle-SymbolicName: net.bluemind.core.sendmail.tests
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: net.bluemind.core.sendmail.tests.Activator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,

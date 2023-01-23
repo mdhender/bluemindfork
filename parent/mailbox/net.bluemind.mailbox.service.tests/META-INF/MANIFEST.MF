@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.mailbox.service.tests
 Bundle-SymbolicName: net.bluemind.mailbox.service.tests;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
  com.fasterxml.jackson.core.jackson-core;bundle-version="2.10.1";visibility:=reexport,

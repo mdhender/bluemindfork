@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.metrics.transport
 Bundle-SymbolicName: net.bluemind.metrics.transport;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  org.apache.james.apache-mime4j-dom,

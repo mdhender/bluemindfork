@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>net.bluemind</groupId>
 		<artifactId>net.bluemind.dataprotect.plugins</artifactId>
-		<version>4.1.0-SNAPSHOT</version>
+		<version>5.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>net.bluemind.dataprotect.persistence.tests</artifactId>
 	<packaging>eclipse-test-plugin</packaging>

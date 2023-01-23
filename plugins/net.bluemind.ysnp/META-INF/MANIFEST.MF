@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Ysnp
 Bundle-SymbolicName: net.bluemind.ysnp;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Require-Bundle: org.eclipse.core.runtime,
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.hornetq.client;bundle-version="1.0.0",

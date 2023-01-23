@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.dataprotect.mailbox
 Bundle-SymbolicName: net.bluemind.dataprotect.mailbox;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: net.bluemind.dataprotect.mailbox.Activator
 Require-Bundle: org.eclipse.core.runtime,
  com.fasterxml.jackson.core.jackson-core,

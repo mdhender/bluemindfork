@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Item Services
 Bundle-SymbolicName: net.bluemind.core.container.service;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Export-Package: net.bluemind.core.container.service,
  net.bluemind.core.container.service.internal
 Bundle-RequiredExecutionEnvironment: JavaSE-17

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Forest Rest Endpoint" uid="forest" id="net.bluemind.forest.cloud.launcher.forest" application="forest.cloud" version="4.1.0.qualifier" useFeatures="false" includeLaunchers="false">
+<product name="Forest Rest Endpoint" uid="forest" id="net.bluemind.forest.cloud.launcher.forest" application="forest.cloud" version="5.0.0.qualifier" useFeatures="false" includeLaunchers="false">
 
    <configIni use="default">
    </configIni>

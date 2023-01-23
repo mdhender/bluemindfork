@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.core.task.service
 Bundle-SymbolicName: net.bluemind.core.task.service;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Export-Package: net.bluemind.core.task.service,
  net.bluemind.core.task.service.internal
 Bundle-RequiredExecutionEnvironment: JavaSE-17

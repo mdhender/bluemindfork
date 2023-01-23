@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.backend.cyrus
 Bundle-SymbolicName: net.bluemind.backend.cyrus;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Export-Package: net.bluemind.backend.cyrus,
  net.bluemind.backend.cyrus.internal
 Bundle-RequiredExecutionEnvironment: JavaSE-17

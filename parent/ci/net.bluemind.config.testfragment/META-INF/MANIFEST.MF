@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.config.testfragment
 Bundle-SymbolicName: net.bluemind.config.testfragment
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Fragment-Host: net.bluemind.config;bundle-version="4.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Eclipse-PatchFragment: true

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="crp" uid="crp" id="net.bluemind.central.reverse.proxy.launcher.crp" application="net.bluemind.central.reverse.proxy.launcher.crplauncher" version="4.1.0.qualifier" useFeatures="false" includeLaunchers="true">
+<product name="crp" uid="crp" id="net.bluemind.central.reverse.proxy.launcher.crp" application="net.bluemind.central.reverse.proxy.launcher.crplauncher" version="5.0.0.qualifier" useFeatures="false" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>

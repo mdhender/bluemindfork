@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Log
 Bundle-SymbolicName: net.bluemind.osgi.log
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: net.bluemind.osgi.log.Activator
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api

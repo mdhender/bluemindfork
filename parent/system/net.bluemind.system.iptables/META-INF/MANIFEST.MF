@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.system.iptables
 Bundle-SymbolicName: net.bluemind.system.iptables;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.eclipse.core.runtime,

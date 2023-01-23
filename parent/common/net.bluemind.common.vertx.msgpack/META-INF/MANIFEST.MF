@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.common.vertx.msgpack
 Bundle-SymbolicName: net.bluemind.common.vertx.msgpack;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: com.fasterxml.jackson.core.jackson-annotations;bundle-version="2.13.4",
  com.fasterxml.jackson.core.jackson-core;bundle-version="2.13.4";visibility:=reexport,

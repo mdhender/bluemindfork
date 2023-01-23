@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.contact.application.closure
 Bundle-SymbolicName: net.bluemind.contact.application.closure;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: www.blue-mind.net
 Require-Bundle: net.bluemind.mvp.closure;bundle-version="1.0.0",
  net.bluemind.addressbook.api.closure;bundle-version="1.0.0",

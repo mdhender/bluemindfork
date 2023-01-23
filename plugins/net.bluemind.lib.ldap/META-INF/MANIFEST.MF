@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.lib.ldap
 Bundle-SymbolicName: net.bluemind.lib.ldap
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: net.bluemind.lib.ldap.Activator
 Bundle-Vendor: blue-mind.net
 Require-Bundle: org.apache.mina.core;bundle-version="2.0.7",

@@ -3,7 +3,7 @@
   <parent>
     <groupId>net.bluemind</groupId>
     <artifactId>net.bluemind.delivery.plugins</artifactId>
-    <version>4.1.0-SNAPSHOT</version>
+    <version>5.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>net.bluemind.delivery.conversationreference.persistence</artifactId>
   <packaging>eclipse-plugin</packaging>

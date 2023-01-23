@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.sds.sync.service
 Bundle-SymbolicName: net.bluemind.sds.sync.service;singleton:=true
 Bundle-Vendor: www.bluemind.net
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Require-Bundle: slf4j.api,
  net.bluemind.core.rest,
  org.eclipse.osgi,

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.imap.docker.imaptest
 Bundle-SymbolicName: net.bluemind.imap.docker.imaptest;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Export-Package: net.bluemind.imap.docker.imaptest
 Bundle-Activator: net.bluemind.imap.docker.imaptest.ImaptestActivator
 Bundle-Vendor: bluemind.net

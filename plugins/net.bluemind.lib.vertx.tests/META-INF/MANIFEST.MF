@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.lib.vertx.tests
 Bundle-SymbolicName: net.bluemind.lib.vertx.tests
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.lib.vertx;bundle-version="1.0.0",

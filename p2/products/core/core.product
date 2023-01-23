@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="bluemind.core" uid="core" id="net.bluemind.application.launcher.core" application="net.bluemind.application.launcher.coreLauncher" version="4.1.0.qualifier" useFeatures="false" includeLaunchers="true" autoIncludeRequirements="true">
+<product name="bluemind.core" uid="core" id="net.bluemind.application.launcher.core" application="net.bluemind.application.launcher.coreLauncher" version="5.0.0.qualifier" useFeatures="false" includeLaunchers="true" autoIncludeRequirements="true">
 
    <configIni use="default">
    </configIni>

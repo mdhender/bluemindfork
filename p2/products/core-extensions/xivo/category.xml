@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <bundle id="net.bluemind.xivo.client" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.xivo.common" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.xivo.core" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.xivo.system" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.xivo.client" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.xivo.common" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.xivo.core" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.xivo.system" version="5.0.0.qualifier"/>
 </site>

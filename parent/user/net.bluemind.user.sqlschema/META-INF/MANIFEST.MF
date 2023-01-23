@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.user.sqlschema
 Bundle-SymbolicName: net.bluemind.user.sqlschema;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Require-Bundle: net.bluemind.core.container.sqlschema;bundle-version="4.1.0",
  net.bluemind.mailbox.identity.sqlschema;bundle-version="1.0.0",
  net.bluemind.role.sqlschema;bundle-version="1.0.0"

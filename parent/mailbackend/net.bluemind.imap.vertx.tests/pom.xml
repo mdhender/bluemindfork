@@ -3,11 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>net.bluemind</groupId>
-		<version>4.1.0-SNAPSHOT</version>
+		<version>5.0.0-SNAPSHOT</version>
 		<artifactId>net.bluemind.mailbackend.plugins</artifactId>
 	</parent>
 	<artifactId>net.bluemind.imap.vertx.tests</artifactId>
-	<version>4.1.0-SNAPSHOT</version>
+	<version>5.0.0-SNAPSHOT</version>
 	<packaging>eclipse-test-plugin</packaging>
 	<build>
 		<plugins>

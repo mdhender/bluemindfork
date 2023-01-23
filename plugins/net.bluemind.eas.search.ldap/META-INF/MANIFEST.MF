@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.eas.search.ldap
 Bundle-SymbolicName: net.bluemind.eas.search.ldap;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: net.bluemind.eas.search.ldap.Activator
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.eas.utils;bundle-version="1.0.0",

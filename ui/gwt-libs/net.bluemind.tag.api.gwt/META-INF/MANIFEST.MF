@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tests
 Bundle-SymbolicName: net.bluemind.tag.api.gwt;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.core.container.api.gwt;bundle-version="4.1.0";visibility:=reexport,

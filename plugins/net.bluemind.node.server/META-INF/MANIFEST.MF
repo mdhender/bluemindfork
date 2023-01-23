@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.node.server
 Bundle-SymbolicName: net.bluemind.node.server;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: net.bluemind.node.server.Activator
 Bundle-Vendor: blue-mind.net
 Require-Bundle: slf4j.api,

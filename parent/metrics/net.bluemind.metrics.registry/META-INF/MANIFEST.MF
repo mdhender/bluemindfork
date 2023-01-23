@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.metrics.registry
 Bundle-SymbolicName: net.bluemind.metrics.registry;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: slf4j.api;bundle-version="1.7.5",
  org.eclipse.core.runtime,

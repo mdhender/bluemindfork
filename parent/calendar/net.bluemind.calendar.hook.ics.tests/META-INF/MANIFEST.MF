@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.calendar.hook.ics.tests
 Bundle-SymbolicName: net.bluemind.calendar.hook.ics.tests;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: blue-mind.net
 Fragment-Host: net.bluemind.calendar.hook.ics
 Bundle-RequiredExecutionEnvironment: JavaSE-17

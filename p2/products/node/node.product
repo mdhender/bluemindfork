@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="node" uid="node" id="net.bluemind.node.server.nodeserver" application="net.bluemind.node.server.nodelauncher" version="4.1.0.qualifier" useFeatures="false" includeLaunchers="true">
+<product name="node" uid="node" id="net.bluemind.node.server.nodeserver" application="net.bluemind.node.server.nodelauncher" version="5.0.0.qualifier" useFeatures="false" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>

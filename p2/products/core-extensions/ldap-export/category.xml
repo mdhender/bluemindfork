@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <bundle id="net.bluemind.system.ldap.export" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.system.ldap.export" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.ldap.directory.client"/>
    <bundle id="net.bluemind.lib.ldap"/>
 </site>

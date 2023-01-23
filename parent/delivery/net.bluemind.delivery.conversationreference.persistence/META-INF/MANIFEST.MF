@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Persistence
 Bundle-SymbolicName: net.bluemind.delivery.conversationreference.persistence
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: net.bluemind
 Automatic-Module-Name: net.bluemind.delivery.conversationservice.persistence
 Bundle-RequiredExecutionEnvironment: JavaSE-17

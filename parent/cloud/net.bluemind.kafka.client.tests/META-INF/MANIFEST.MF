@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.kafka.client.tests
 Bundle-SymbolicName: net.bluemind.kafka.client.tests
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: net.bluemind.kafka.client.tests.KafkaActivator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,

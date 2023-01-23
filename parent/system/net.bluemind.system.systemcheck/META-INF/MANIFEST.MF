@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.system.systemcheck
 Bundle-SymbolicName: net.bluemind.system.systemcheck
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Export-Package: net.bluemind.systemcheck,
  net.bluemind.systemcheck.checks,
  net.bluemind.systemcheck.collect

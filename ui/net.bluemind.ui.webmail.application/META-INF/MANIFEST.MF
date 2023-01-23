@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.ui.webmail.application
 Bundle-SymbolicName: net.bluemind.ui.webmail.application;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: www.blue-mind.net
 Closure-Bundle-Type: Application
 Closure-Inputs: net/bluemind/ui/banner/widget/UnseenMails.js

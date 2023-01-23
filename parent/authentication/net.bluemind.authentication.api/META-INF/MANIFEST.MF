@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Api
 Bundle-SymbolicName: net.bluemind.authentication.api
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Export-Package: net.bluemind.authentication.api,
  net.bluemind.authentication.api.incore
 Bundle-RequiredExecutionEnvironment: JavaSE-17

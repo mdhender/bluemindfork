@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.hornetq.client
 Bundle-SymbolicName: net.bluemind.hornetq.client;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: www.blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,

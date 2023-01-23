@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.core.container.api
 Bundle-SymbolicName: net.bluemind.core.container.api;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Export-Package: net.bluemind.core.container.api,
  net.bluemind.core.container.api.internal,
  net.bluemind.core.container.model,

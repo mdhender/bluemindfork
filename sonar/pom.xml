@@ -3,13 +3,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.bluemind</groupId>
 	<artifactId>net.bluemind.open.sonar</artifactId>
-	<version>4.1.0-SNAPSHOT</version>
+	<version>5.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<parent>
 		<groupId>net.bluemind</groupId>
 		<artifactId>net.bluemind.global</artifactId>
-		<version>4.1.0-SNAPSHOT</version>
+		<version>5.0.0-SNAPSHOT</version>
 		<relativePath>../global/pom.xml</relativePath>
 	</parent>
 

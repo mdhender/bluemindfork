@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.calendar.pdf
 Bundle-SymbolicName: net.bluemind.calendar.pdf
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: BlueMind
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.lowagie.itext,

@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>net.bluemind</groupId>
-		<version>4.1.0-SNAPSHOT</version>
+		<version>5.0.0-SNAPSHOT</version>
 		<artifactId>net.bluemind.core.plugins</artifactId>
 	</parent>
 	<artifactId>net.bluemind.core.sanitizer.tests</artifactId>

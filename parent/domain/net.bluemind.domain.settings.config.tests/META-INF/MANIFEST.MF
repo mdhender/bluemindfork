@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.domain.settings.config.tests
 Bundle-SymbolicName: net.bluemind.domain.settings.config.tests;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",

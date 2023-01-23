@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <bundle id="net.bluemind.dav.server" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.webmodule.dav" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.adapter" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.todolist.adapter" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.vertx.common" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.calendar.helper" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.system.stateobserver" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.dav.server" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.webmodule.dav" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.addressbook.adapter" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.todolist.adapter" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.vertx.common" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.calendar.helper" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.system.stateobserver" version="5.0.0.qualifier"/>
 </site>

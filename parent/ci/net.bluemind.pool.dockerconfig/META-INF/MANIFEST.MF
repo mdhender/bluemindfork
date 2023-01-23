@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Dockerconfig
 Bundle-SymbolicName: net.bluemind.pool.dockerconfig;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Fragment-Host: net.bluemind.pool
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Eclipse-PatchFragment: true

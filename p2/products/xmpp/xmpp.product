@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="xmpp" uid="xmpp" id="net.bluemind.xmpp.server.launcher.xmpp" application="net.bluemind.xmpp.server.launcher.tigase" version="4.1.0.qualifier" useFeatures="false" includeLaunchers="true">
+<product name="xmpp" uid="xmpp" id="net.bluemind.xmpp.server.launcher.xmpp" application="net.bluemind.xmpp.server.launcher.tigase" version="5.0.0.qualifier" useFeatures="false" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>

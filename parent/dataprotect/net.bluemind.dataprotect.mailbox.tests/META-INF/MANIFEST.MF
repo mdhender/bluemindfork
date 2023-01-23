@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.dataprotect.mailbox.tests
 Bundle-SymbolicName: net.bluemind.dataprotect.mailbox.tests;singleton:=true
 Bundle-Activator: net.bluemind.dataprotect.mailbox.tests.Activator
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.authentication.service,

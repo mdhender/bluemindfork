@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Context
 Bundle-SymbolicName: net.bluemind.core.commons;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Export-Package: net.bluemind.core.api,
  net.bluemind.core.api.date,
  net.bluemind.core.api.fault,

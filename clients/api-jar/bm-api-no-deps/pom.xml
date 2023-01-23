@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>net.bluemind</groupId>
 		<artifactId>net.bluemind.api-jar</artifactId>
-		<version>4.1.0-SNAPSHOT</version>
+		<version>5.0.0-SNAPSHOT</version>
 	</parent>
 	<build>
 		<plugins>
@@ -106,263 +106,263 @@
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.core.rest</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.lib.vertx</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.core.rest.http</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.core.commons</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.utils</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.common.reflect</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.slf4j</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<!-- API -->
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.addressbook.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.addressbook.ldap.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.announcement.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.attachment.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.authentication.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.authentication.mgmt.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.backend.mail.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.calendar.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.core.container.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.core.task.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.cti.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.customproperties.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.dataprotect.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.device.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.directory.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.document.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.documentfolder.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.domain.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.eas.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.exchange.mapi.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.externaluser.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.filehosting.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.group.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.icalendar.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.im.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.mailbox.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.mailbox.identity.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.mailflow.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.mailflow.common.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.mailmessage.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.mailshare.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.metrics.alerts.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.node.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.resource.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.role.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.scheduledjob.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.server.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.system.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.system.ldap.importation.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.tag.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.todolist.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.user.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.videoconferencing.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.notes.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bluemind</groupId>
 			<artifactId>net.bluemind.webappdata.api</artifactId>
-			<version>4.1.0-SNAPSHOT</version>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>
