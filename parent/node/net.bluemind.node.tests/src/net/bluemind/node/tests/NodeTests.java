@@ -28,6 +28,15 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.nio.file.attribute.UserPrincipal;
+import java.nio.file.attribute.UserPrincipalLookupService;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Iterator;
@@ -152,6 +161,37 @@ public class NodeTests {
 		String reread = new String(nc.read(file));
 		assertEquals("yeah", reread);
 		nc.deleteFile(file);
+	}
+
+	@Test
+	public void testWriteFilePermissions() throws IOException {
+		String dir = System.getProperty("java.io.tmpdir");
+		Path p = Paths.get(dir + "/" + System.currentTimeMillis() + ".junit");
+
+		Set<PosixFilePermission> notOwnerWritable = PosixFilePermissions.fromString("r--------");
+		FileAttribute<?> permissions = PosixFilePermissions.asFileAttribute(notOwnerWritable);
+		Files.createFile(p, permissions);
+		boolean RUN_AS_ROOT = System.getProperty("user.name").equals("root");
+
+		UserPrincipal userPrincipal = null;
+		if (RUN_AS_ROOT) {
+			FileSystem fileSystem = p.getFileSystem();
+			UserPrincipalLookupService service = fileSystem.getUserPrincipalLookupService();
+			userPrincipal = service.lookupPrincipalByName("nobody");
+			System.err.println("set owner: " + userPrincipal);
+			Files.setOwner(p, userPrincipal);
+		}
+
+		nc.writeFile(p.toString(), new ByteArrayInputStream("yeah".getBytes()));
+
+		if (RUN_AS_ROOT) {
+			UserPrincipal newUserPrincipal = Files.getOwner(p);
+			assertEquals(userPrincipal, newUserPrincipal);
+		}
+
+		Set<PosixFilePermission> newRights = Files.getPosixFilePermissions(p);
+		assertEquals(notOwnerWritable, newRights);
+		nc.deleteFile(p.toString());
 	}
 
 	@Test
