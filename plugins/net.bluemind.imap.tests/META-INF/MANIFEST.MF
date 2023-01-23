@@ -33,6 +33,11 @@ Require-Bundle: org.junit,
  net.bluemind.mailindex,
  net.bluemind.mailindex.schema,
  net.bluemind.delivery.conversationreference.service,
- net.bluemind.sds.store.cyrusspool
+ net.bluemind.sds.store.cyrusspool,
+ net.bluemind.mailindex.hook;bundle-version="4.1.0",
+ net.bluemind.backend.mail.replica.indexing;bundle-version="4.1.0",
+ net.bluemind.core.sessions,
+ org.awaitility,
+ org.hamcrest;bundle-version="2.2.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.imap.tests

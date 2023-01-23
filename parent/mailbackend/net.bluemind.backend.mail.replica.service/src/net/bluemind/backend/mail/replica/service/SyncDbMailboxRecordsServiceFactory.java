@@ -22,20 +22,13 @@
  */
 package net.bluemind.backend.mail.replica.service;
 
-import java.lang.Thread.UncaughtExceptionHandler;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
-import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.common.util.concurrent.MoreExecutors;
 
-import io.netty.util.concurrent.DefaultThreadFactory;
-import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
+import net.bluemind.backend.mail.replica.api.ISyncDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.indexing.IMailIndexService;
 import net.bluemind.backend.mail.replica.indexing.NoopMailIndexService;
@@ -46,35 +39,24 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.rest.BmContext;
 
-public class DbMailboxRecordsServiceFactory extends AbstractMailboxRecordServiceFactory<IDbMailboxRecords> {
-	private static final Logger logger = LoggerFactory.getLogger(DbMailboxRecordsServiceFactory.class);
+public class SyncDbMailboxRecordsServiceFactory extends AbstractMailboxRecordServiceFactory<ISyncDbMailboxRecords> {
 	private static final IMailIndexService NOOP = new NoopMailIndexService();
 
-	private final ExecutorService executorService = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS,
-			new ArrayBlockingQueue<>(2), new DefaultThreadFactory("replication-es-crud", true) {
-				private final UncaughtExceptionHandler handler = (Thread t, Throwable e) -> logger
-						.error("Es CRUD error for {}: {}", t.getName(), e.getMessage());
+	private static final ExecutorService executorService = MoreExecutors.newDirectExecutorService();
 
-				@Override
-				protected Thread newThread(Runnable r, String name) {
-					Thread t = super.newThread(r, name);
-					t.setUncaughtExceptionHandler(handler);
-					return t;
-				}
-			}, new CallerRunsPolicy());
-
-	public DbMailboxRecordsServiceFactory() {
-		// ok
+	public SyncDbMailboxRecordsServiceFactory() {
+		// OK
 	}
 
 	@Override
-	public Class<IDbMailboxRecords> factoryClass() {
-		return IDbMailboxRecords.class;
+	public Class<ISyncDbMailboxRecords> factoryClass() {
+		return ISyncDbMailboxRecords.class;
 	}
 
 	@Override
-	protected IDbMailboxRecords create(DataSource ds, Container cont, BmContext context, String mailboxUniqueId,
+	protected ISyncDbMailboxRecords create(DataSource ds, Container cont, BmContext context, String mailboxUniqueId,
 			MailboxRecordStore recordStore, ContainerStoreService<MailboxRecord> storeService) {
+
 		return new DbMailboxRecordsService(ds, cont, context, mailboxUniqueId, recordStore, storeService,
 				RecordIndexActivator.getIndexer().orElse(NOOP), executorService);
 	}

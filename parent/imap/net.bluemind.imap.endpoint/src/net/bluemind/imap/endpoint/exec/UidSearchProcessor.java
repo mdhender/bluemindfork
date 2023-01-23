@@ -40,6 +40,7 @@ public class UidSearchProcessor extends SelectedStateCommandProcessor<UidSearchC
 	@Override
 	protected void checkedOperation(UidSearchCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		Stopwatch chrono = Stopwatch.createStarted();
+
 		List<Long> imapUids = ctx.mailbox().uids(ctx.selected(), command.query());
 		if (imapUids.isEmpty()) {
 			long ms = chrono.elapsed(TimeUnit.MILLISECONDS);

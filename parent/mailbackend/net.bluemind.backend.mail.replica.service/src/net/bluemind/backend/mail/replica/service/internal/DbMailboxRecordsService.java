@@ -17,7 +17,6 @@
   */
 package net.bluemind.backend.mail.replica.service.internal;
 
-import java.lang.Thread.UncaughtExceptionHandler;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,11 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
@@ -44,7 +39,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CharMatcher;
 
-import io.netty.util.concurrent.DefaultThreadFactory;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.MailboxFolder;
@@ -56,6 +50,7 @@ import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
+import net.bluemind.backend.mail.replica.api.ISyncDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
@@ -91,22 +86,26 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.system.api.SystemState;
 import net.bluemind.system.state.StateContext;
 
-public class DbMailboxRecordsService extends BaseMailboxRecordsService implements IDbMailboxRecords {
+public class DbMailboxRecordsService extends BaseMailboxRecordsService
+		implements IDbMailboxRecords, ISyncDbMailboxRecords {
 
 	private static final Logger logger = LoggerFactory.getLogger(DbMailboxRecordsService.class);
+	private static final String TOPIC_ES_INDEXING_COUNT = "es.indexing.count";
 
 	private Optional<ItemValue<MailboxFolder>> mboxFolder = Optional.empty();
 
 	private final IMailIndexService indexService;
+	private final ExecutorService executorService;
 
 	public DbMailboxRecordsService(DataSource ds, Container cont, BmContext context, String mailboxUniqueId,
-			MailboxRecordStore recordStore, ContainerStoreService<MailboxRecord> storeService,
-			IMailIndexService index) {
+			MailboxRecordStore recordStore, ContainerStoreService<MailboxRecord> storeService, IMailIndexService index,
+			ExecutorService executorService) {
 		super(ds, cont, context, mailboxUniqueId, recordStore, storeService, new ReplicasStore(ds));
 		if (ds == context.getDataSource()) {
 			throw new ServerFault("Service is invoked with directory datasource for " + cont.uid + ".");
 		}
 		this.indexService = index;
+		this.executorService = executorService;
 	}
 
 	@Override
@@ -506,22 +505,9 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 		return Ack.create(contVersion);
 	}
 
-	private static final ExecutorService ES_CRUD_POOL = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS,
-			new ArrayBlockingQueue<>(2), new DefaultThreadFactory("replication-es-crud", true) {
-				private final UncaughtExceptionHandler handler = (Thread t, Throwable e) -> logger
-						.error("Es CRUD error for {}: {}", t.getName(), e.getMessage());
-
-				@Override
-				protected Thread newThread(Runnable r, String name) {
-					Thread t = super.newThread(r, name);
-					t.setUncaughtExceptionHandler(handler);
-					return t;
-				}
-			}, new CallerRunsPolicy());
-
 	private void updateIndex(List<ItemValue<MailboxRecord>> pushToIndex) {
 		if (!pushToIndex.isEmpty()) {
-			ES_CRUD_POOL.execute(() -> {
+			executorService.execute(() -> {
 				try {
 					long esTime = System.currentTimeMillis();
 					Optional<BulkOperation> bulkOp = Optional.of(indexService.startBulk());
@@ -533,6 +519,8 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService implement
 					logger.info("[{}] Es CRUD op, idx: {} in {}ms", mailboxUniqueId, pushToIndex.size(), esTime);
 				} catch (Exception e) {
 					logger.error("[{}] Es CRUD op failed", mailboxUniqueId, e);
+				} finally {
+					VertxPlatform.eventBus().publish(TOPIC_ES_INDEXING_COUNT, pushToIndex.size());
 				}
 			});
 		}

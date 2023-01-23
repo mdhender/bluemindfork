@@ -19,9 +19,9 @@
 package net.bluemind.imap.driver.mailapi;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,9 +30,21 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.metrics.InternalMax;
+import org.elasticsearch.search.builder.PointInTimeBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +71,7 @@ import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
+import net.bluemind.backend.mail.replica.api.ISyncDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
@@ -76,6 +89,7 @@ import net.bluemind.hornetq.client.Consumer;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Topic;
+import net.bluemind.imap.driver.mailapi.UidSearchAnalyzer.QueryBUilderResult;
 import net.bluemind.imap.endpoint.EndpointRuntimeException;
 import net.bluemind.imap.endpoint.driver.AppendStatus;
 import net.bluemind.imap.endpoint.driver.AppendStatus.WriteStatus;
@@ -91,6 +105,8 @@ import net.bluemind.imap.endpoint.driver.QuotaRoot;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
 import net.bluemind.imap.endpoint.driver.UpdateMode;
 import net.bluemind.imap.endpoint.parsing.MailboxGlob;
+import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.lib.elasticsearch.Pit;
 import net.bluemind.lib.jutf7.UTF7Converter;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxAclUids;
@@ -169,7 +185,7 @@ public class MailApiConnection implements MailboxConnection {
 			return null;
 		}
 
-		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, existing.uid);
+		IDbMailboxRecords recApi = prov.instance(ISyncDbMailboxRecords.class, existing.uid);
 		long exist = recApi.count(NOT_DELETED).total;
 		long unseen = recApi.count(UNSEEN).total;
 		CyrusPartition part = CyrusPartition.forServerAndDomain(resolved.owner.value.dataLocation, me.domainUid);
@@ -646,23 +662,56 @@ public class MailApiConnection implements MailboxConnection {
 
 	@Override
 	public List<Long> uids(SelectedFolder sel, String query) {
-		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, sel.folder.uid);
-		Set<String> filters = new HashSet<>();
-		String lq = query.toLowerCase();
-		if (lq.contains("undeleted") || lq.contains("not deleted")) {
-			filters.add("-deleted");
-		} else {
-			if (lq.contains("deleted")) {
-				filters.add("+deleted");
-			}
+		String index = "mailspool_alias_" + sel.mailbox.owner.uid;
+		int maxUid = 0;
+		Client client = ESearchActivator.getClient();
+		ESearchActivator.refreshIndex(index);
+
+		// Gets document with highest uid for keywords with sequences management
+		AggregationBuilder a = AggregationBuilders.max("uid_max").field("uid");
+		SearchResponse rMax = client.prepareSearch(index)
+				.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.termQuery("in", sel.folder.uid)))
+				.addAggregation(a).setSize(0).execute().actionGet();
+		if (rMax.getAggregations().get("uid_max") != null) {
+			InternalMax uidMax = rMax.getAggregations().get("uid_max");
+			maxUid = (int) uidMax.getValue();
 		}
-		if (lq.contains("unseen")) {
-			filters.add("-seen");
+
+		QueryBUilderResult qbr = UidSearchAnalyzer.buildQuery(query, sel.folder.uid, me.uid);
+
+		SearchRequestBuilder searchBuilder = client.prepareSearch(index).setTrackTotalHits(true);
+		searchBuilder.setQuery(qbr.bq()).setFetchSource(false).addDocValueField("uid").setSize(1000).addSort("uid",
+				SortOrder.ASC);
+
+		List<Long> uids = new ArrayList<>();
+		long totalHits = 0;
+		final long TIME_BUDGET = TimeUnit.SECONDS.toNanos(15);
+		try (Pit pit = Pit.allocateUsingTimebudget(client, index, 60, TIME_BUDGET)) {
+			do {
+				searchBuilder.setPointInTime(new PointInTimeBuilder(pit.id));
+				pit.adaptSearch(searchBuilder);
+				SearchResponse sr = searchBuilder.execute().actionGet();
+				SearchHits searchHits = sr.getHits();
+				if (totalHits == 0) {
+					totalHits = searchHits.getTotalHits().value;
+					searchBuilder.setTrackTotalHits(false);
+				}
+				if (sr.getHits() != null && sr.getHits().getHits() != null) {
+					for (SearchHit h : sr.getHits().getHits()) {
+						pit.consumeHit(h);
+						uids.add(Long.parseLong(h.getDocumentFields().get("uid").getValue().toString()));
+					}
+				}
+			} while (pit.hasNext());
+		} catch (Exception e) {
+			return new ArrayList<>();
 		}
-		String filter = filters.stream().collect(Collectors.joining(","));
-		logger.info("set: 1:*, filter: {}", filter);
-		List<Long> notDel = recApi.imapIdSet("1:*", filter);
-		return recApi.imapBindings(notDel).stream().map(ib -> ib.imapUid).sorted().toList();
+
+		// Empty uids list and seq is present -> return the greatest uid (see RFC 3501)
+		if (uids.isEmpty() && qbr.hasSequence()) {
+			return Arrays.asList(Long.valueOf(maxUid));
+		}
+		return uids;
 	}
 
 	@Override

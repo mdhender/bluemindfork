@@ -119,6 +119,9 @@
       <serviceFactory
             class="net.bluemind.backend.mail.replica.service.internal.MessageBodyTierChangeService$Factory">
       </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.backend.mail.replica.service.SyncDbMailboxRecordsServiceFactory">
+      </serviceFactory>
    </extension>
    <extension
          point="net.bluemind.core.sanitizerfactory">

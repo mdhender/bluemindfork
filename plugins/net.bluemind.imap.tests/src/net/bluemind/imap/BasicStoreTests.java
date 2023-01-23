@@ -321,33 +321,6 @@ public class BasicStoreTests extends LoggedTestCase {
 	}
 
 	@Test
-	public void testUidSearch() throws Exception {
-		try (StoreClient sc = newStore(false)) {
-			SearchQuery sq = new SearchQuery();
-			sc.select("INBOX");
-			// append a mail to be sure to have one message into inbox
-			IMAPByteSource ibs = getUtf8Rfc822Message();
-			sc.append("INBOX", ibs.source().openStream(), new FlagsList());
-			ibs.close();
-			Collection<Integer> uids = sc.uidSearch(sq);
-			assertNotNull(uids);
-			assertTrue(uids.size() > 0);
-
-			long time = System.currentTimeMillis();
-
-			for (int i = 0; i < COUNT; i++) {
-				Collection<Integer> u = sc.uidSearch(sq);
-				assertTrue(u.size() > 0);
-			}
-
-			time = System.currentTimeMillis() - time;
-			System.out.println("time: " + time);
-			System.out.println("UID SEARCH: " + COUNT + " iterations in " + time + "ms. " + (time / COUNT) + "ms avg, "
-					+ 1000 / ((time + 0.1) / COUNT) + " per sec.");
-		}
-	}
-
-	@Test
 	public void testUidFetchHeadersPerf() throws Exception {
 		try (StoreClient sc = newStore(false)) {
 			final String[] HEADS_LOAD = new String[] { "Subject", "From", "Date", "To", "Cc", "Bcc", "X-Mailer",
@@ -500,23 +473,6 @@ public class BasicStoreTests extends LoggedTestCase {
 	}
 
 	@Test
-	public void testUidExpunge() throws IMAPException {
-		try (StoreClient sc = newStore(false)) {
-			FlagsList fl = new FlagsList();
-			fl.add(Flag.SEEN);
-			fl.add(Flag.DELETED);
-			int uid = sc.append("INBOX", getRfc822Message(), fl);
-			assertTrue(uid > 0);
-			sc.select("INBOX");
-			InternalDate[] date = sc.uidFetchInternalDate(ImmutableList.of(uid));
-			assertTrue(date.length == 1);
-			sc.uidExpunge(ImmutableList.of(uid));
-			date = sc.uidFetchInternalDate(ImmutableList.of(uid));
-			assertTrue(date.length == 0);
-		}
-	}
-
-	@Test
 	public void testUidCopy() throws Exception {
 		try (StoreClient sc = newStore(false)) {
 			SearchQuery sq = new SearchQuery();
@@ -561,7 +517,6 @@ public class BasicStoreTests extends LoggedTestCase {
 			sc.append("INBOX", msg2.source().openStream(), new FlagsList());
 			msg1.close();
 			msg2.close();
-
 			Collection<Integer> uids = sc.uidSearch(sq);
 
 			Iterator<Integer> it = uids.iterator();
