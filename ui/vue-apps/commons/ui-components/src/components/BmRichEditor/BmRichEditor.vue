@@ -304,7 +304,7 @@ function getTableParentNode(node, containerNode) {
     }
 
     &.has-border {
-        border: $input-border-width solid $neutral-fg;
+        border: $input-border-width solid $neutral-fg-lo1;
     }
     &.has-border:not(.disabled) {
         &.hover,

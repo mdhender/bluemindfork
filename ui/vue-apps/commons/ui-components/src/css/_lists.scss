@@ -6,7 +6,7 @@
         @extend %regular;
     }
     border-bottom: 1px solid $neutral-fg-lo2;
-    background-color: $surface;
+    background: none;
     padding-left: $sp-5;
     padding-right: $sp-5;
     height: $input-height;

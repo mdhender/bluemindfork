@@ -354,7 +354,7 @@ $items-info: (
 
 .bm-form-input {
     &:not(.underline) {
-        @include bm-form-input-colors($neutral-fg, $neutral-fg-hi1);
+        @include bm-form-input-colors($neutral-fg-lo1, $neutral-fg-hi1);
     }
     &.underline {
         @include bm-form-input-colors($neutral-fg-lo2, $neutral-fg, $icon: $neutral-fg, $hover-icon: $neutral-fg-hi1);

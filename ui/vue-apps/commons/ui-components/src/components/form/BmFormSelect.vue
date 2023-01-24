@@ -152,6 +152,7 @@ function normalize(option) {
 </script>
 
 <style lang="scss">
+@import "../../css/mixins/_buttons.scss";
 @import "../../css/mixins/_focus.scss";
 @import "../../css/_variables.scss";
 
@@ -166,12 +167,20 @@ function normalize(option) {
         padding: $btn-padding;
         gap: 0;
         outline: none;
+
+        @include bm-button-variant(
+            $normal-text: $neutral-fg,
+            $normal-stroke: $neutral-fg-lo1,
+            $hovered-text: $neutral-fg-hi1,
+            $hovered-stroke: $neutral-fg-hi1,
+            $disabled-text: $neutral-fg-disabled
+        );
     }
 
     &.shown .btn.dropdown-toggle,
     .btn.dropdown-toggle.focus,
     .btn.dropdown-toggle:focus {
-        border: 2 * $input-border-width solid $secondary-fg;
+        border: 2 * $input-border-width solid $secondary-fg !important;
         padding: calc(#{$btn-padding} - #{$input-border-width});
         box-shadow: none !important;
     }

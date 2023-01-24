@@ -289,11 +289,16 @@ export default {
     .btn-outline.toggle-button {
         max-width: 50%;
         padding-right: $toggle-button-padding-right;
+        border-color: $neutral-fg-lo1;
         .slot-wrapper {
             display: flex;
             align-items: center;
             gap: $sp-3;
         }
+    }
+
+    &:hover .btn-outline.toggle-button {
+        border-color: $neutral-fg;
     }
 
     .bm-form-input:focus-within + .btn-outline.toggle-button {

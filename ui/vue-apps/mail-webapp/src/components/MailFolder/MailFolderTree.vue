@@ -83,8 +83,6 @@ export default {
 @import "~@bluemind/ui-components/src/css/variables";
 
 .mail-folder-tree {
-    background-color: $surface;
-
     padding-top: $sp-3;
     & > .collapse {
         padding-bottom: $sp-6;

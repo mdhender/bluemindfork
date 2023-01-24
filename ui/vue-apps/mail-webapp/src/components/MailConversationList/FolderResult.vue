@@ -22,3 +22,11 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/ui-components/src/css/variables";
+
+.folder-result {
+    background-color: $backdrop;
+}
+</style>

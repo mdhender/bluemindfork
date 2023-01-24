@@ -70,7 +70,8 @@ export default {
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/variables";
 .mail-conversation-list {
+    background-color: $surface;
     outline: none;
-    border-right: 1px solid $neutral-fg-lo1;
+    border-right: 1px solid $neutral-fg-lo2;
 }
 </style>

@@ -108,7 +108,7 @@ export default {
 <style lang="scss">
 @import "../../../css/_variables.scss";
 .full-toolbar {
-    border-color: $neutral-fg;
+    border-color: $neutral-fg-lo1;
     border-style: solid;
     border-width: 1px 0 0 0;
     &.disabled {

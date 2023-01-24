@@ -127,6 +127,7 @@ export default {
         flex: none;
         width: $input-height;
         gap: 0 !important;
+        border-color: $neutral-fg-lo1;
         .bm-icon {
             position: absolute;
             $icon-size: map-get($icon-sizes, "md");

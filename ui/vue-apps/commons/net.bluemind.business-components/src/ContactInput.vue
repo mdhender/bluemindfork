@@ -491,7 +491,7 @@ function isVisible(element) {
 @import "@bluemind/ui-components/src/css/_type.scss";
 
 .contact-input {
-    border: $input-border-width solid $neutral-fg;
+    border: $input-border-width solid $neutral-fg-lo1;
 
     &.underline {
         border-color: $neutral-fg-lo2;

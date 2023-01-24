@@ -66,7 +66,7 @@
             <section
                 v-show="showFolders"
                 :aria-label="$t('mail.application.region.folderlist')"
-                class="folders-section position-lg-static position-absolute d-lg-block px-0 col-12 col-lg-2 overlay top-0 bottom-0"
+                class="folders-section position-lg-static position-absolute d-lg-block px-0 col-12 col-lg-2 top-0 bottom-0"
             >
                 <mail-folder-sidebar />
             </section>
@@ -224,9 +224,11 @@ export default {
     }
 
     .folders-section {
-        border-right: 1px solid $neutral-fg-lo1;
+        background-color: $modal-backdrop;
         z-index: 300;
         @include from-lg {
+            background-color: $surface;
+            border-right: 1px solid $neutral-fg-lo2;
             z-index: 200;
         }
     }

@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-surface">
+    <div>
         <filtered-user-mailbox v-for="mailbox in USER_MAILBOXES" :key="mailbox.key" :mailbox="mailbox" />
         <filtered-mailshares />
         <filtered-group-mailboxes />
