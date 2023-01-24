@@ -62,6 +62,7 @@ import org.apache.james.mime4j.stream.RecursionMode;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.safety.Safelist;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -397,13 +398,11 @@ public class Mime4JHelper {
 	}
 
 	/**
+	 * @param inHtml
 	 * @param reply
-	 * @param parsedBodyHtml
-	 * @param quote
 	 * @param e
-	 * @param body
 	 */
-	public static String insertQuotePart(boolean parsedBodyHtml, String reply, Entity e) {
+	public static String insertQuotePart(boolean inHtml, String reply, Entity e) {
 		String quotePart = null;
 		TextBody tb = (TextBody) e.getBody();
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -418,59 +417,82 @@ public class Mime4JHelper {
 			logger.error(ioe.getMessage(), ioe);
 		}
 
-		if (parsedBodyHtml) {
-			if ("text/html".equals(e.getBody().getParent().getMimeType())) {
-
-				try {
-					Document doc = Jsoup.parse(reply);
-					Elements blockquotes = doc.getElementsByTag("blockquote");
-					if (!blockquotes.isEmpty()) {
-						Element blockquote = blockquotes.get(0);
-						Element fragementBody = Jsoup.parseBodyFragment(quotePart).body();
-						blockquote.prependChild(fragementBody);
-						return doc.html();
-					}
-
-					Elements bodies = doc.getElementsByTag("body");
-					if (!bodies.isEmpty()) {
-						Element body = bodies.get(0);
-						String blockquote = "<blockquote type=\"cite\" style=\"padding-left:5px; border-left:2px solid #1010ff; margin-left:5px\">"
-								+ quotePart + "</blockquote>";
-						Element fragementBody = Jsoup.parseBodyFragment(blockquote).body();
-						body.appendChild(fragementBody);
-						return doc.html();
-					}
-
-					return reply
-							+ "<blockquote type=\"cite\" style=\"padding-left:5px; border-left:2px solid #1010ff; margin-left:5px\">"
-							+ quotePart + "</blockquote>";
-
-				} catch (Exception ex) {
-					logger.error(ex.getMessage(), ex);
-					return reply
-							+ "<blockquote type=\"cite\" style=\"padding-left:5px; border-left:2px solid #1010ff; margin-left:5px\">"
-							+ quotePart + "</blockquote>";
-				}
-			} else if ("text/plain".equals(e.getBody().getParent().getMimeType())) {
-				StringBuilder sb = new StringBuilder();
-				sb.append(reply);
-				sb.append(quotePart.replaceAll("\\n", "<br/>"));
-				return sb.toString();
-			}
-		} else {
+		String replyHtml = reply;
+		String replyTxt = reply;
+		if (!inHtml) {
+			// convert reply txt into html
 			StringBuilder sb = new StringBuilder();
-			sb.append(reply);
+			String start = "<html><body><p>";
+			String end = "</p></body></html>";
+			sb.append(start);
+			sb.append(reply.replaceAll("\n", "<br/>"));
+			sb.append(end);
+			replyHtml = sb.toString();
+		} else {
+			replyTxt = htmlToText(reply);
+		}
 
-			String[] quoteLines = quotePart.split("\n");
-			for (String line : quoteLines) {
-				sb.append(">");
-				sb.append(line);
-				sb.append("\n");
+		if ("text/html".equals(e.getBody().getParent().getMimeType())) {
+			try {
+				Document doc = Jsoup.parse(replyHtml);
+				Elements blockquotes = doc.getElementsByTag("blockquote");
+				if (!blockquotes.isEmpty()) {
+					Element blockquote = blockquotes.get(0);
+					Element fragementBody = Jsoup.parseBodyFragment(quotePart).body();
+					blockquote.prependChild(fragementBody);
+					return doc.html();
+				}
+
+				Elements bodies = doc.getElementsByTag("body");
+				if (!bodies.isEmpty()) {
+					Element body = bodies.get(0);
+					String blockquote = "<blockquote type=\"cite\" style=\"padding-left:5px; border-left:2px solid #1010ff; margin-left:5px\">"
+							+ quotePart + "</blockquote>";
+					body.append(blockquote);
+					return doc.html();
+				}
+
+				return replyHtml
+						+ "<blockquote type=\"cite\" style=\"padding-left:5px; border-left:2px solid #1010ff; margin-left:5px\">"
+						+ quotePart + "</blockquote>";
+
+			} catch (Exception ex) {
+				logger.error(ex.getMessage(), ex);
+				return replyHtml
+						+ "<blockquote type=\"cite\" style=\"padding-left:5px; border-left:2px solid #1010ff; margin-left:5px\">"
+						+ quotePart + "</blockquote>";
 			}
+		} else if ("text/plain".equals(e.getBody().getParent().getMimeType())) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(replyTxt);
+			sb.append("\n");
+			sb.append(formatPlainTextBodyForReplyInclusion(quotePart));
 			return sb.toString();
 		}
 
-		return reply;
+		return inHtml ? replyHtml : replyTxt;
+	}
+
+	private static String htmlToText(String replyHtml) {
+		Document doc = Jsoup.parse(replyHtml);
+		Document.OutputSettings outputSettings = new Document.OutputSettings();
+		outputSettings.prettyPrint(false);
+		doc.outputSettings(outputSettings);
+		doc.select("br").before("\\n");
+		doc.select("p").before("\\n");
+		String str = doc.html().replaceAll("\\\\n", "\n");
+		return Jsoup.clean(str, "", Safelist.none(), outputSettings);
+	}
+
+	private static String formatPlainTextBodyForReplyInclusion(String bodyText) {
+		StringBuilder sb = new StringBuilder();
+		String[] lines = bodyText.split("\n");
+		for (String line : lines) {
+			sb.append(">");
+			sb.append(line);
+			sb.append("\n");
+		}
+		return sb.toString();
 	}
 
 }

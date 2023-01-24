@@ -5,11 +5,14 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.apache.james.mime4j.dom.Entity;
 import org.apache.james.mime4j.dom.Message;
+import org.apache.james.mime4j.dom.Multipart;
 import org.apache.james.mime4j.dom.TextBody;
 import org.junit.Before;
 
@@ -40,6 +43,8 @@ import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.rules.MailFilterRule;
 import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
 import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleKnownField;
+import net.bluemind.mime4j.common.AddressableEntity;
+import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
@@ -164,5 +169,21 @@ public class AbstractRuleEngineTests {
 		} catch (IOException ioe) {
 			return null;
 		}
+	}
+
+	protected String extractMsgBody(Message message, String type) {
+		List<Entity> parts = ((Multipart) message.getBody()).getBodyParts();
+		List<AddressableEntity> addressableParts = Mime4JHelper.expandTree(parts);
+		Map<String, List<AddressableEntity>> partsByMimeType = addressableParts.stream() //
+				.filter(part -> part.getMimeType() != null && !Mime4JHelper.isAttachment(part))
+				.collect(Collectors.groupingBy(part -> part.getMimeType()));
+
+		if ("plain".equals(type)) {
+			return extractContent(partsByMimeType.get("text/plain").get(0));
+		} else if ("html".equals(type)) {
+			return extractContent(partsByMimeType.get("text/html").get(0));
+		}
+
+		return null;
 	}
 }

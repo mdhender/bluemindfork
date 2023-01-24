@@ -139,15 +139,19 @@ public class MessageCreator {
 	private NewRelatedAndMixedParts buildNewParts(String textContent, String htmlContent,
 			OriginalContentAndParts parts) {
 		boolean isReplyInHtml = (htmlContent != null);
+		boolean isBodyInHtml = (parts.content != null) //
+				? "text/html".equals(parts.content.getBody().getParent().getMimeType()) //
+				: false;
+
 		String reply = (isReplyInHtml) ? htmlContent : textContent;
 		String replyWithContext = (parts.content() != null) //
-				? Mime4JHelper.insertQuotePart(isReplyInHtml, reply, parts.content)
+				? Mime4JHelper.insertQuotePart(isReplyInHtml, reply, parts.content) //
 				: reply;
 
 		BodyPart htmlBody = new BodyPart();
 		TextBody textBody = textBodyInUTF8(replyWithContext);
 		htmlBody.setContentTransferEncoding("base64");
-		htmlBody.setText(textBody, isReplyInHtml ? "html" : "plain");
+		htmlBody.setText(textBody, isBodyInHtml ? "html" : "plain");
 
 		List<Entity> related = new ArrayList<>();
 		List<Entity> mixed = new ArrayList<>();
