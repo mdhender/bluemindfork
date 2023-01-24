@@ -18,12 +18,13 @@
  */
 package net.bluemind.imap.endpoint.driver;
 
+import java.util.Collections;
 import java.util.List;
 
 public class ListNode {
 
 	public boolean hasChildren;
-	public List<String> specialUse;
+	public List<String> specialUse = Collections.emptyList();
 	public boolean selectable;
 	public String imapMountPoint;
 

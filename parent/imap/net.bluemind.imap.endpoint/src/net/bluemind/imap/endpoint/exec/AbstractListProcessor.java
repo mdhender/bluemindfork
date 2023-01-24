@@ -72,10 +72,16 @@ public abstract class AbstractListProcessor<T extends AbstractListCommand> exten
 		MailboxConnection con = ctx.mailbox();
 
 		long time = System.currentTimeMillis();
-		List<ListNode> folders = con.list(sc.reference(), sc.mailboxPattern());
 
 		StringBuilder sb = new StringBuilder();
-		render(folders, sb);
+		if (sc.reference().isEmpty() && sc.mailboxPattern().isEmpty()) {
+			// outlook command
+			// * XLIST (\Noselect) "/" ""
+			sb.append("* ").append(listCommand).append(" (\\Noselect) \"/\" \"\"\r\n");
+		} else {
+			List<ListNode> folders = con.list(sc.reference(), sc.mailboxPattern());
+			render(folders, sb);
+		}
 		sb.append(sc.raw().tag() + " OK Completed\r\n");
 
 		ctx.write(sb.toString());

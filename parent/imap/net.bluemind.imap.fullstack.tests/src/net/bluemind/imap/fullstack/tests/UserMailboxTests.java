@@ -125,6 +125,17 @@ public class UserMailboxTests {
 		}
 	}
 
+	@Test
+	public void outlookEmptyXlist() throws Exception {
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "john")) {
+			assertTrue(sc.login());
+			TaggedResult result = sc.tagged("""
+					XLIST "" ""
+					""");
+			assertTrue(result.isOk());
+		}
+	}
+
 	private InputStream eml() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("From: john.grubber@die-hard.net\r\n");

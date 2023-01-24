@@ -354,7 +354,7 @@ public class MailApiConnection implements MailboxConnection {
 				ln.specialUse = Collections.singletonList("\\junk");
 				break;
 			default:
-				ln.specialUse = Collections.emptyList();
+				break;
 			}
 		}
 		return ln;

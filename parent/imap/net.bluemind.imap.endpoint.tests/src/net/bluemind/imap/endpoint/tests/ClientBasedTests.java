@@ -270,6 +270,33 @@ public class ClientBasedTests {
 	}
 
 	@Test
+	public void testIdleUnselected() throws IOException {
+		try (SocketClient sockc = new SocketClient()) {
+			sockc.write("A0 LOGIN {21+}\r\ntom@f8de2c4a.internal {3+}\r\ntom\r\n");
+			sockc.waitFor("User logged");
+			sockc.clearQueue();
+			sockc.write(". IDLE\r\n");
+			sockc.waitFor(s -> s.contains("+"));
+			sockc.write("DONE\r\n");
+			sockc.waitFor("OK");
+		}
+	}
+
+	@Test
+	public void testXlistEmptyString() throws IOException {
+		try (SocketClient sockc = new SocketClient()) {
+			sockc.write("A0 LOGIN {21+}\r\ntom@f8de2c4a.internal {3+}\r\ntom\r\n");
+			sockc.waitFor("User logged");
+			sockc.clearQueue();
+			sockc.write("""
+					. XLIST "" ""\r\n
+					""");
+			sockc.waitFor(s -> s.contains("* XLIST"));
+			sockc.waitFor("OK");
+		}
+	}
+
+	@Test
 	public void testStatusQuoted() throws IOException {
 		try (SocketClient sockc = new SocketClient()) {
 			sockc.write("A0 LOGIN {21+}\r\ntom@f8de2c4a.internal {3+}\r\ntom\r\n");
