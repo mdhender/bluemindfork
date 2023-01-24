@@ -330,6 +330,26 @@ public class SieveWriterTests {
 	}
 
 	@Test
+	public void testPutScriptWithRegex() throws Exception {
+		String name = "test." + System.currentTimeMillis() + ".sieve";
+		byte[] content = Files.toByteArray(new File("data/default_test.ftl"));
+		InputStream contentStream = new ByteArrayInputStream(content);
+
+		SieveConnectionData connectionData = new SieveConnectionData("admin0", Token.admin0(),
+				new BmConfIni().get("imap-role"));
+		try (SieveClient sc = new SieveClient(connectionData)) {
+			assertTrue(sc.login());
+
+			boolean res = sc.putscript(name, contentStream);
+			assertTrue(res);
+
+			List<SieveScript> list = sc.listscripts();
+			assertTrue(list.size() > 0);
+		}
+
+	}
+
+	@Test
 	public void testPutVacation() throws Exception {
 
 		MailFilter filter = new MailFilter();

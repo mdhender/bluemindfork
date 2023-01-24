@@ -9,8 +9,8 @@ if allof (header :contains "X-BM-Discard" "${mailboxUid}") {
 
 # vacation
 <#if vacation.enabled>
-if allof (not address :contains "from" "noreply@",
-		  not address :contains "from" "no-reply@",
+if allof (not address :matches "from" "noreply*",
+		  not address :matches "from" "no-reply*",
 		  not header :contains "Precedence" ["bulk", "list"],
 		  not header :contains "X-Spam-Flag" "YES",
 		  not header :contains "X-DSPAM-Result" "Spam") {
