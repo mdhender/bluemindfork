@@ -45,6 +45,7 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
 import io.netty.buffer.ByteBuf;
+import io.vertx.core.Context;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.WriteStream;
 import net.bluemind.authentication.api.AuthUser;
@@ -90,6 +91,7 @@ import net.bluemind.imap.endpoint.driver.QuotaRoot;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
 import net.bluemind.imap.endpoint.driver.UpdateMode;
 import net.bluemind.lib.jutf7.UTF7Converter;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
@@ -140,6 +142,9 @@ public class MailApiConnection implements MailboxConnection {
 		return MoreObjects.toStringHelper(MailApiConnection.class).add("id", me.value.defaultEmailAddress()).toString();
 	}
 
+	private static final ItemFlagFilter NOT_DELETED = ItemFlagFilter.create().mustNot(ItemFlag.Deleted);
+	private static final ItemFlagFilter UNSEEN = ItemFlagFilter.create().mustNot(ItemFlag.Seen, ItemFlag.Deleted);
+
 	@Override
 	public SelectedFolder select(String fName) {
 		ImapMailbox resolved = folderResolver.resolveBox(fName);
@@ -159,8 +164,8 @@ public class MailApiConnection implements MailboxConnection {
 		}
 
 		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, existing.uid);
-		long exist = recApi.count(ItemFlagFilter.all()).total;
-		long unseen = recApi.count(ItemFlagFilter.create().mustNot(ItemFlag.Seen, ItemFlag.Deleted)).total;
+		long exist = recApi.count(NOT_DELETED).total;
+		long unseen = recApi.count(UNSEEN).total;
 		CyrusPartition part = CyrusPartition.forServerAndDomain(resolved.owner.value.dataLocation, me.domainUid);
 		return new SelectedFolder(resolved, existing, recApi, part.name, exist, unseen);
 	}
@@ -366,17 +371,19 @@ public class MailApiConnection implements MailboxConnection {
 		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
 		IDbMessageBodies bodyApi = prov.instance(IDbMessageBodies.class, selected.partition);
 		Iterator<List<Long>> slice = Lists
-				.partition(recApi.imapIdSet(idset, ""), DriverConfig.get().getInt("driver.records-mget")).iterator();
+				.partition(recApi.imapIdSet(idset, "-deleted"), DriverConfig.get().getInt("driver.records-mget"))
+				.iterator();
 		CompletableFuture<Void> ret = new CompletableFuture<>();
-
-		pushNext(recApi, bodyApi, fields, slice, Collections.emptyIterator(), ret, output);
+		Context fetchContext = VertxPlatform.getVertx().getOrCreateContext();
+		FetchedItemRenderer renderer = new FetchedItemRenderer(bodyApi, recApi, fields);
+		fetchContext
+				.runOnContext(v -> pushNext(fetchContext, renderer, slice, Collections.emptyIterator(), ret, output));
 		return ret;
 	}
 
-	private void pushNext(IDbMailboxRecords recApi, IDbMessageBodies bodyApi, List<MailPart> fields,
-			Iterator<List<Long>> idSliceIterator, Iterator<WithId<MailboxRecord>> recsIterator,
-			CompletableFuture<Void> ret, WriteStream<FetchedItem> output) {
-		FetchedItemRenderer renderer = new FetchedItemRenderer(bodyApi, recApi, fields);
+	private void pushNext(Context fetchContext, FetchedItemRenderer renderer, Iterator<List<Long>> idSliceIterator,
+			Iterator<WithId<MailboxRecord>> recsIterator, CompletableFuture<Void> ret,
+			WriteStream<FetchedItem> output) {
 		while (recsIterator.hasNext()) {
 			WithId<MailboxRecord> rec = recsIterator.next();
 			if (rec.value.internalFlags.contains(InternalFlag.expunged)) {
@@ -391,15 +398,17 @@ public class MailApiConnection implements MailboxConnection {
 			fi.properties = renderer.renderFields(rec);
 			output.write(fi);
 			if (output.writeQueueFull()) {
-				output.drainHandler(v -> pushNext(recApi, bodyApi, fields, idSliceIterator, recsIterator, ret, output));
+				output.drainHandler(v -> fetchContext.runOnContext(
+						w -> pushNext(fetchContext, renderer, idSliceIterator, recsIterator, ret, output)));
 				return;
 			}
 		}
 
 		if (idSliceIterator.hasNext()) {
 			List<Long> slice = idSliceIterator.next();
-			List<WithId<MailboxRecord>> records = recApi.slice(slice);
-			pushNext(recApi, bodyApi, fields, idSliceIterator, records.iterator(), ret, output);
+			List<WithId<MailboxRecord>> records = renderer.recApi().slice(slice);
+			fetchContext.runOnContext(
+					v -> pushNext(fetchContext, renderer, idSliceIterator, records.iterator(), ret, output));
 		} else {
 			output.end(ar -> ret.complete(null));
 		}

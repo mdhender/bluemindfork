@@ -88,6 +88,10 @@ public class FetchedItemRenderer {
 		this.bodyApi = bodyApi;
 	}
 
+	public IDbMailboxRecords recApi() {
+		return recApi;
+	}
+
 	public Map<String, ByteBuf> renderFields(WithId<MailboxRecord> rec) {
 		Map<String, ByteBuf> ret = new HashMap<>();
 
