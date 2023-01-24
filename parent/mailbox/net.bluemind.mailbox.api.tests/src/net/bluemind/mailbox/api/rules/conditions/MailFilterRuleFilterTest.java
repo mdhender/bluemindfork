@@ -21,6 +21,8 @@ public class MailFilterRuleFilterTest {
 	private static final String SUBJECT_VALUE = "Subject";
 	private static final Long SIZE_VALUE = 42l;
 	private static final List<String> TO_EMAIL_VALUES = Arrays.asList("one@bm.net", "two@bm.net");
+	private static final List<String> FROM_EMAIL_VALUES = Arrays.asList("noreplytoto@bm.net", "noreply@bm.net",
+			"no-reply@bm.net");
 	private static final String DATE_VALUE = "2022-09-19 16:26:33";
 
 	private FieldValueProvider fieldValueProvider = new FieldValueProvider() {
@@ -34,6 +36,8 @@ public class MailFilterRuleFilterTest {
 				return (T) SIZE_VALUE;
 			case TO_EMAIL:
 				return (T) TO_EMAIL_VALUES;
+			case FROM_EMAIL:
+				return (T) FROM_EMAIL_VALUES;
 			case DATE:
 				try {
 					return (T) formatter.parse(DATE_VALUE);
@@ -104,6 +108,21 @@ public class MailFilterRuleFilterTest {
 
 		filter = new MailFilterRuleFilterMatches("subject",
 				Arrays.asList(SUBJECT_VALUE.substring(0, 2), "not subject*"));
+		match = filter.match(fieldValueProvider, parameterProvider);
+		assertFalse(match);
+	}
+
+	@Test
+	public void testFromFieldMatches() {
+		var filter = new MailFilterRuleFilterMatches("from.email", "noreply*");
+		var match = filter.match(fieldValueProvider, parameterProvider);
+		assertTrue(match);
+
+		filter = new MailFilterRuleFilterMatches("from.email", "no-reply*@*");
+		match = filter.match(fieldValueProvider, parameterProvider);
+		assertTrue(match);
+
+		filter = new MailFilterRuleFilterMatches("from.email", "toto*");
 		match = filter.match(fieldValueProvider, parameterProvider);
 		assertFalse(match);
 	}

@@ -87,6 +87,7 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 
 	@Test
 	public void testMessageWithNoReplySender() throws ParseException {
+		// from noreply@bluemind.net
 		Date date = formatter.parse("2022-01-01 00:00:00");
 		var message = new MessageBuilder("Subject") //
 				.from("noreply@bluemind.net").to(emailUser1) //
@@ -99,6 +100,33 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 
 		assertNotNull(result.message());
 		assertFalse(mailer.mailSent);
+
+		// from noreplytoto@bluemind.net
+		date = formatter.parse("2022-01-01 00:00:00");
+		message = new MessageBuilder("Subject") //
+				.from("noreplytoto@bluemind.net").to(emailUser1) //
+				.date(date) //
+				.content(null, "Original message content") //
+				.build();
+
+		result = engineOn(message).apply(Arrays.asList(vacation("2021-01-01 00:00:00", "2023-01-01 00:00:01")));
+
+		assertNotNull(result.message());
+		assertFalse(mailer.mailSent);
+
+		// from no-reply@bluemind.net
+		date = formatter.parse("2022-01-01 00:00:00");
+		message = new MessageBuilder("Subject") //
+				.from("noreplytoto@bluemind.net").to(emailUser1) //
+				.date(date) //
+				.content(null, "Original message content") //
+				.build();
+
+		result = engineOn(message).apply(Arrays.asList(vacation("2021-01-01 00:00:00", "2023-01-01 00:00:01")));
+
+		assertNotNull(result.message());
+		assertFalse(mailer.mailSent);
+
 	}
 
 	@Test

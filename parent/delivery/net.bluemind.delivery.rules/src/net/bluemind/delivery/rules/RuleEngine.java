@@ -2,6 +2,7 @@ package net.bluemind.delivery.rules;
 
 import static net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition.contains;
 import static net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition.equal;
+import static net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition.matches;
 import static net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition.not;
 
 import java.io.IOException;
@@ -136,7 +137,8 @@ public class RuleEngine {
 				.filter(rule -> MailFilterRule.Type.VACATION.equals(rule.type) && rule.active) //
 				.findFirst() //
 				.ifPresent(vacation -> {
-					vacation.conditions.add(not(contains("from.email", Arrays.asList("noreply@", "no-reply@"))));
+					vacation.conditions
+							.add(not(matches(Arrays.asList("from.email"), Arrays.asList("noreply*", "no-reply*"))));
 					vacation.conditions.add(not(contains("headers.x-dspam-result", Arrays.asList("Spam"))));
 					vacation.conditions.add(not(contains("headers.x-spam-flag", Arrays.asList("YES"))));
 					vacation.conditions.add(not(contains("headers.precedence", Arrays.asList("bulk", "list"))));
