@@ -28,7 +28,6 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Base64.Encoder;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +35,9 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.Claim;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -49,9 +51,9 @@ import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.auth.impl.jose.JWT;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.openid.utils.AccessTokenValidator;
 import net.bluemind.proxy.http.ExternalCreds;
 import net.bluemind.proxy.http.IAuthProvider;
 import net.bluemind.proxy.http.auth.api.AuthRequirements;
@@ -142,40 +144,21 @@ public class OAuthProtocol implements IAuthProtocol {
 
 	private void validateToken(HttpServerRequest request, IAuthProtocol protocol, IAuthProvider prov, ISessionStore ss,
 			List<String> forwadedFor, String accessToken) {
-		JsonObject token = JWT.parse(accessToken);
-		JsonObject payload = token.getJsonObject("payload");
 
-		String issuer = payload.getString("iss");
-		String accessTokenIssuer = Strings
-				.isNullOrEmpty(oAuthConf.openIdConfiguration().getString("access_token_issuer"))
-						? oAuthConf.openIdConfiguration().getString("issuer")
-						: oAuthConf.openIdConfiguration().getString("access_token_issuer");
-		if (Strings.isNullOrEmpty(issuer) || !issuer.equals(accessTokenIssuer)) {
-			error(request, new ServerFault("Failed to validate id_token: issuer"));
-			return;
-		}
+		DecodedJWT token = JWT.decode(accessToken);
 
-		long now = new Date().getTime() / 1000;
-		Long iat = payload.getLong("iat");
-		if (now < iat) {
-			error(request, new ServerFault("Failed to validate id_token: expired"));
-			return;
-		}
-		Long exp = payload.getLong("exp");
-		if (now > exp) {
-			error(request, new ServerFault("Failed to validate id_token: expired"));
-			return;
-		}
+		AccessTokenValidator.validate(oAuthConf.openIdConfiguration(), token);
+		AccessTokenValidator.validateSignature(oAuthConf.openIdConfiguration(), token);
 
-		String email = payload.getString("email");
-		if (Strings.isNullOrEmpty(email)) {
+		Claim email = token.getClaim("email");
+		if (email.isMissing() || email.isNull()) {
 			error(request, new ServerFault("Failed to validate id_token: no email"));
 			return;
 		}
 
 		ExternalCreds creds = new ExternalCreds();
 		creds.setTicket(accessToken);
-		creds.setLoginAtDomain(email);
+		creds.setLoginAtDomain(email.asString());
 		createSession(request, protocol, prov, ss, forwadedFor, creds);
 	}
 

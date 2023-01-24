@@ -42,10 +42,10 @@
       <plugin id="io.netty"/>
       <plugin id="io.vertx.core"/>
       <plugin id="io.vertx.web"/>
+      <plugin id="jakarta.validation.jakarta.validation-api"/>
       <plugin id="jakarta.ws.rs-api"/>
       <plugin id="jakarta.xml.bind-api"/>
       <plugin id="javax.activation"/>
-      <plugin id="jakarta.validation.jakarta.validation-api"/>
       <plugin id="javax.xml"/>
       <plugin id="jcl.over.slf4j"/>
       <plugin id="jul.to.slf4j"/>
@@ -82,6 +82,7 @@
       <plugin id="net.bluemind.metrics.registry"/>
       <plugin id="net.bluemind.network.topology"/>
       <plugin id="net.bluemind.network.topology.consumer"/>
+      <plugin id="net.bluemind.openid.utils"/>
       <plugin id="net.bluemind.osgi.log"/>
       <plugin id="net.bluemind.proxy.http"/>
       <plugin id="net.bluemind.proxy.http.launcher"/>

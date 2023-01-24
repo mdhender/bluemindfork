@@ -187,7 +187,11 @@ public enum SysConfKeys {
 	/**
 	 * SRS enabled
 	 */
-	srs_disabled;
+	srs_disabled,
+
+	openid_host,
+
+	openid_port;
 
 	public static boolean isSysConfigKey(String key) {
 		for (SysConfKeys k : SysConfKeys.values()) {

@@ -12,6 +12,9 @@
       <validator
             class="net.bluemind.system.auth.HpsConfigChangeValidateHandler">
       </validator>
+      <observer
+            class="net.bluemind.system.auth.OpenIdConfigurationObserver">
+      </observer>
    </extension>
    
 </plugin>
