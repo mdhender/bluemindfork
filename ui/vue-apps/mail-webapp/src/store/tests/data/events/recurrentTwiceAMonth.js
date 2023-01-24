@@ -51,7 +51,8 @@ export default {
                 byMonthDay: [],
                 byYearDay: [],
                 byWeekNo: [],
-                byMonth: []
+                byMonth: [],
+                bySetPos: []
             },
             url: null,
             attachments: [],

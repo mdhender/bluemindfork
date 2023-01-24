@@ -97,6 +97,7 @@ create table t_calendar_vevent (
   rrule_byYearDay int[],
   rrule_byWeekNo int[],
   rrule_byMonth int[],
+  rrule_bySetPos int[],
 
   /*
    * 3.8.4.4.  Recurrence ID

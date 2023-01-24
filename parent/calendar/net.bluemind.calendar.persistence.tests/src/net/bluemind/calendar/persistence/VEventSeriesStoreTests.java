@@ -44,7 +44,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import net.bluemind.attachment.api.AttachedFile;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventCounter;
@@ -458,6 +457,7 @@ public class VEventSeriesStoreTests {
 		assertNull(rrule.byYearDay);
 		assertNull(rrule.byWeekNo);
 		assertNull(rrule.byMonth);
+		assertNull(rrule.bySetPos);
 	}
 
 	@Test
@@ -492,6 +492,8 @@ public class VEventSeriesStoreTests {
 		rrule.byWeekNo = Arrays.asList(8, 13, 42);
 
 		rrule.byMonth = Arrays.asList(8);
+
+		rrule.bySetPos = Arrays.asList(4, 7);
 
 		event.value.main.rrule = rrule;
 
@@ -556,6 +558,11 @@ public class VEventSeriesStoreTests {
 		assertNotNull(rrule.byMonth);
 		assertEquals(1, rrule.byMonth.size());
 		assertTrue(rrule.byMonth.contains(8));
+
+		assertNotNull(rrule.bySetPos);
+		assertEquals(2, rrule.bySetPos.size());
+		assertTrue(rrule.bySetPos.contains(4));
+		assertTrue(rrule.bySetPos.contains(7));
 	}
 
 	@Test

@@ -368,6 +368,9 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.parseRRule_ = function(veve
   if (vevent['rrule']['byMonth'] && !goog.array.isEmpty(vevent['rrule']['byMonth'])) {
     rrule.bymonth = vevent['rrule']['byMonth'][0] - 1;
   }
+  if (vevent['rrule']['bySetPos'] && !goog.array.isEmpty(vevent['rrule']['bySetPos'])) {
+    rrule.bysetpos = vevent['rrule']['bySetPos'][0] - 1;
+  }
   if (vevent['rrule']['until']) {
     rrule.until = this.ctx_.helper('date').create(vevent['rrule']['until'],
         this.ctx_.helper('timezone').getDefaultTimeZone());
@@ -539,8 +542,8 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.composeRRule_ = function(mo
     rrule['byYearDay'] = model.rrule.byyearday; 
   }
 
-  if (goog.isDefAndNotNull(model.rrule.byweekno)) {
-    rrule['byWeekNo'] = model.rrule.byweekno; 
+  if (goog.isDefAndNotNull(model.rrule.bysetpos)) {
+    rrule['bySetPos'] = model.rrule.bysetpos; 
   }
 
   if (model.rrule.byday && model.rrule.byday.length > 0) {
@@ -557,6 +560,10 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.composeRRule_ = function(mo
   }
   if (goog.isDefAndNotNull(model.rrule.bymonth)) {
     rrule['byMonth'] = [ model.rrule.bymonth + 1 ];
+  }
+
+  if (goog.isDefAndNotNull(model.rrule.byweekno)) {
+    rrule['byWeekNo'] = model.rrule.byweekno; 
   }
 
   if (model.rrule.until) {

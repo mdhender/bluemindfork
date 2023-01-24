@@ -49,7 +49,8 @@ public class RRuleColumns {
 			.col("rrule_byMonthDay") //
 			.col("rrule_byYearDay") //
 			.col("rrule_byWeekNo") //
-			.col("rrule_byMonth");
+			.col("rrule_byMonth") //
+			.col("rrule_bySetPos");
 
 	public static StatementValues<ICalendarElement> values() {
 		return new StatementValues<ICalendarElement>() {
@@ -75,6 +76,7 @@ public class RRuleColumns {
 					statement.setNull(index++, Types.ARRAY); // byYearDay
 					statement.setNull(index++, Types.ARRAY); // byWeekNo
 					statement.setNull(index++, Types.ARRAY); // byMonth
+					statement.setNull(index++, Types.ARRAY); // bySetPos
 				} else {
 					if (rrule.frequency != null) {
 						statement.setString(index++, rrule.frequency.name());
@@ -144,6 +146,11 @@ public class RRuleColumns {
 					} else {
 						statement.setNull(index++, Types.ARRAY);
 					}
+					if (rrule.bySetPos != null) {
+						statement.setArray(index++, conn.createArrayOf("int", rrule.bySetPos.toArray()));
+					} else {
+						statement.setNull(index++, Types.ARRAY);
+					}
 				}
 				return index;
 			}
@@ -198,9 +205,12 @@ public class RRuleColumns {
 					array = rs.getArray(index++);
 					rrule.byMonth = asIntegerList(array);
 
+					array = rs.getArray(index++);
+					rrule.bySetPos = asIntegerList(array);
+
 					value.rrule = rrule;
 				} else {
-					index += 13;
+					index += 14;
 				}
 				return index;
 			}
@@ -215,13 +225,6 @@ public class RRuleColumns {
 			return Arrays.asList(integers);
 		} else {
 			return null;
-		}
-	}
-
-	private static void asIntegerList(Array array, List<Integer> list) throws SQLException {
-		Integer[] integers = (Integer[]) array.getArray();
-		for (Integer item : integers) {
-			list.add(item);
 		}
 	}
 

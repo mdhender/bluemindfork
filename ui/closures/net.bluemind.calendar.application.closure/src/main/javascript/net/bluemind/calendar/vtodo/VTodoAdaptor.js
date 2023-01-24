@@ -225,6 +225,9 @@ net.bluemind.calendar.vtodo.VTodoAdaptor.prototype.parseRRule_ = function(vtodo)
   if (vtodo['value']['rrule']['byMonth']) {
     rrule.bymonth = vtodo['value']['rrule']['byMonth'][0] - 1;
   }
+  if (vtodo['value']['rrule']['bySetPos']) {
+    rrule.bysetpos = vtodo['value']['rrule']['bySetPos'][0] - 1;
+  }
   if (vtodo['value']['rrule']['until']) {
     rrule.until = this.ctx_.helper('date').create(vtodo['value']['rrule']['until']);
   }

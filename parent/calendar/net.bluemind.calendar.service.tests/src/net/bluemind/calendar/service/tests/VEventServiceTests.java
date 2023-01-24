@@ -157,6 +157,8 @@ public class VEventServiceTests extends AbstractCalendarTests {
 
 		rrule.byHour = Arrays.asList(2, 22);
 
+		rrule.bySetPos = Arrays.asList(4, 7);
+
 		List<VEvent.RRule.WeekDay> weekDay = new ArrayList<VEvent.RRule.WeekDay>(4);
 		weekDay.add(VEvent.RRule.WeekDay.MO);
 		weekDay.add(VEvent.RRule.WeekDay.TU);
@@ -233,7 +235,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertTrue(export.contains("RDATE;TZID=Asia/Ho_Chi_Minh;VALUE=DATE-TIME:19830213T130000,19830222T130000"));
 		assertTrue(export.contains("CATEGORIES:tag1,tag2") || export.contains("CATEGORIES:tag2,tag1"));
 		assertTrue(export.contains(
-				"RRULE:FREQ=WEEKLY;UNTIL=20221225T133000;INTERVAL=2;BYWEEKNO=8,13,42;BYYEARDAY=8,13,42,200;BYMONTHDAY=8;BYDAY=MO,TU,TH,FR;BYHOUR=2,22;BYMINUTE=1,2,3;BYSECOND=10,20"));
+				"RRULE:FREQ=WEEKLY;UNTIL=20221225T133000;INTERVAL=2;BYWEEKNO=8,13,42;BYYEARDAY=8,13,42,200;BYMONTHDAY=8;BYDAY=MO,TU,TH,FR;BYHOUR=2,22;BYMINUTE=1,2,3;BYSECOND=10,20;BYSETPOS=4,7"));
 		assertTrue(export.contains("BEGIN:VALARM"));
 		assertTrue(export.contains("TRIGGER;VALUE=DURATION:-PT10M"));
 		assertTrue(export.contains("ACTION:EMAIL"));
@@ -505,6 +507,27 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		assertTrue(vevent.categories.isEmpty());
 		assertEquals(0, vevent.sequence.intValue());
 
+	}
+
+	@Test
+	public void testImportRRuleBySetPos() throws ServerFault, IOException {
+		Stream ics = getIcsFromFile("testBySetPosImport.ics");
+
+		TaskRef taskRef = getVEventService(userSecurityContext, userCalendarContainer).importIcs(ics);
+		ImportStats stats = waitImportEnd(taskRef);
+		assertNotNull(stats);
+		assertEquals(1, stats.importedCount());
+
+		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer)
+				.getByIcsUid("95c659b1-eaf8-4145-a314-9cb4566636b1").get(0);
+
+		VEvent vevent = item.value.occurrences.get(0);
+		assertNotNull(vevent);
+
+		assertNotNull(vevent.rrule);
+		assertEquals(2, vevent.rrule.bySetPos.size());
+		assertTrue(vevent.rrule.bySetPos.contains(2));
+		assertTrue(vevent.rrule.bySetPos.contains(3));
 	}
 
 	@Test

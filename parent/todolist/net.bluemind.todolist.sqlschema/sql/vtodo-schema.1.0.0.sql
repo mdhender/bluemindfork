@@ -105,6 +105,7 @@ create table t_todolist_vtodo (
   rrule_byYearDay int[],
   rrule_byWeekNo int[],
   rrule_byMonth int[],
+  rrule_bySetPos int[],
 
   /*
    * 4.8.5.1 Exception Date/Times

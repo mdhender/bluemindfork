@@ -3,12 +3,15 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Tests
 Bundle-SymbolicName: net.bluemind.calendar.persistence.tests;singleton:=true
 Bundle-Version: 5.0.0.qualifier
-Fragment-Host: net.bluemind.calendar.persistence
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
  net.bluemind.core.context;bundle-version="1.0.0",
  net.bluemind.core.elasticsearch.testshelper;bundle-version="1.0.0",
  net.bluemind.tag.api;bundle-version="1.0.0",
- net.bluemind.calendar.api
+ net.bluemind.calendar.api,
+ net.bluemind.calendar.persistence,
+ net.bluemind.core.container.persistence,
+ slf4j.api,
+ net.bluemind.attachment.api
 Automatic-Module-Name: net.bluemind.calendar.persistence.tests

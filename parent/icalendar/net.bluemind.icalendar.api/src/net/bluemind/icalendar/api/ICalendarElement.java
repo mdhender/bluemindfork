@@ -500,6 +500,7 @@ public class ICalendarElement {
 		public List<Integer> byWeekNo;
 		// 1 to 12
 		public List<Integer> byMonth;
+		public List<Integer> bySetPos;
 
 		// TODO bysetpos ,wkst
 		@BMApi(version = "3")
@@ -617,6 +618,9 @@ public class ICalendarElement {
 			}
 			if (null != this.byYearDay) {
 				copy.byYearDay = new ArrayList<>(this.byYearDay);
+			}
+			if (null != this.bySetPos) {
+				copy.bySetPos = new ArrayList<>(this.bySetPos);
 			}
 			return copy;
 		}

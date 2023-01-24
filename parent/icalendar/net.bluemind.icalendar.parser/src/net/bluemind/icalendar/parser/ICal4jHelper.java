@@ -782,6 +782,12 @@ public class ICal4jHelper<T extends ICalendarElement> {
 					reccurringRule.byMonth.add(it.next());
 				}
 			}
+			if (recur.getSetPosList() != null) {
+				reccurringRule.bySetPos = new ArrayList<>(recur.getSetPosList().size());
+				for (Iterator<Integer> it = recur.getSetPosList().iterator(); it.hasNext();) {
+					reccurringRule.bySetPos.add(it.next());
+				}
+			}
 			return reccurringRule;
 		}
 		return null;
@@ -1179,6 +1185,14 @@ public class ICal4jHelper<T extends ICalendarElement> {
 					nl.add(value);
 				}
 				recur.monthDayList(nl);
+			}
+
+			if (iCalendarElement.rrule.bySetPos != null) {
+				NumberList nl = new NumberList();
+				for (Integer value : iCalendarElement.rrule.bySetPos) {
+					nl.add(value);
+				}
+				recur.setPosList(nl);
 			}
 
 			RRule rrule = new RRule(recur.build());

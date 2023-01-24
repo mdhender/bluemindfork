@@ -247,7 +247,8 @@ function toRRuleOptions(dtstart, rrule, untilDate) {
         bymonthday: intList_(rrule["byMonthDay"]),
         byyearday: intList_(rrule["byYearDay"]),
         byweekno: intList_(rrule["byWeekNo"]),
-        bymonth: intList_(rrule["byMonth"])
+        bymonth: intList_(rrule["byMonth"]),
+        bysetpos: intList_(rrule["bySetPos"])
     };
 }
 
