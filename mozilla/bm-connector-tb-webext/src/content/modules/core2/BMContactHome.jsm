@@ -177,6 +177,8 @@ BMContactHome.prototype.asEntry = function(/*BMContact*/ contact) {
     card.related.manager = contact.getManager();
     card.related.spouse = contact.getSpouse();
     
+    card.security = contact.getSecurity();
+
     return entry;
 }
 
@@ -299,6 +301,8 @@ BMContactHome.prototype.fillContactFromEntry = function(entry, /*BMContact*/ con
         contact.setSpouse(card.related.spouse);
     }
 
+    contact.setSecurity(card.security);
+
     return contact;
 };
 
@@ -328,9 +332,8 @@ function BMContact(/*nsIAbCard*/ aCard) {
     let props = aCard.vCardProperties;
     if (props) {
         this._card = aCard.wrappedJSObject; 
-        this._props = props.toPropertyMap();
         this._getProp = function(propName, defValue) {
-            return this._props.has(propName) ? this._props.get(propName) : defValue;
+            return this._card.getProperty(propName, defValue);
         };
         this._setProp = function(propName, value) {
             if ([null, undefined, ""].includes(value)) {
@@ -342,11 +345,8 @@ function BMContact(/*nsIAbCard*/ aCard) {
             }
             this._card._properties.set(propName, "" + value);
         };
-        this.beforeSave = function() {
-            // recalculate VCardProperties from modified properties
-            this._card._vCardProperties = VCardProperties.fromPropertyMap(this._card._properties);
-        };
-    } else {
+        this.beforeSave = function() {};
+   } else {
         this._card = aCard;
         this._getProp = function(propName, defValue) {
             return this._card.getProperty(propName, defValue);
@@ -778,4 +778,10 @@ BMContact.prototype = {
         let photoName = this._getProp("PhotoName", null);
         return photoName != null;
     },
+    getSecurity: function() {
+        return JSON.parse(this._getProp("X-BM-security", null));
+    },
+    setSecurity: function(value) {
+        this._setProp("X-BM-security", JSON.stringify(value));
+    }
 }
