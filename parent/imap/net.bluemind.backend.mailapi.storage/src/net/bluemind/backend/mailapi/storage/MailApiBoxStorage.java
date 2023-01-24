@@ -188,13 +188,16 @@ public class MailApiBoxStorage implements IMailboxesStorage {
 		var mailboxQuota = new MailboxQuota();
 		Integer maxQuota = value.value.quota;
 		IMailIndexService mailIndexService = MailIndexActivator.getService();
-		try {
-			int usedQuota = Math.toIntExact(mailIndexService.getMailboxConsumedStorage(value.uid, ByteSizeUnit.KB));
-			mailboxQuota.used = usedQuota;
-			mailboxQuota.quota = maxQuota;
-		} catch (ArithmeticException e) {
-			logger.warn(e.getMessage());
-			throw new ServerFault(e);
+		if (mailIndexService == null) {
+			logger.warn("IMailIndexService is null for {} (bm/es server is required for quotas computations)", value);
+		} else {
+			try {
+				int usedQuota = Math.toIntExact(mailIndexService.getMailboxConsumedStorage(value.uid, ByteSizeUnit.KB));
+				mailboxQuota.used = usedQuota;
+				mailboxQuota.quota = maxQuota;
+			} catch (ArithmeticException e) {
+				throw new ServerFault(e);
+			}
 		}
 		return mailboxQuota;
 	}
