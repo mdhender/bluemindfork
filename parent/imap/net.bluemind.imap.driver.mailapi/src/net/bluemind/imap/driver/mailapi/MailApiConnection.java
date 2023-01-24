@@ -430,23 +430,31 @@ public class MailApiConnection implements MailboxConnection {
 
 	@Override
 	public void idleMonitor(SelectedFolder selected, WriteStream<IdleToken> out) {
-		logger.info("idle monitoring on {}", selected.folder);
 		if (activeCons != null) {
 			activeCons.close();
 		}
-		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
-		String watchedUid = IMailReplicaUids.mboxRecords(selected.folder.uid);
-		this.activeCons = MQ.registerConsumer(Topic.MAPI_ITEM_NOTIFICATIONS, msg -> {
+		if (selected == null) {
+			// the fucking RFC allows in authenticated state
+			// https://datatracker.ietf.org/doc/html/rfc2177
+			logger.info("[{}] Outlook-idiocracy : IDLE without having a folder selected", this);
+			activeCons = null;
+		} else {
+			logger.info("idle monitoring on {}", selected.folder);
+			IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
+			String watchedUid = IMailReplicaUids.mboxRecords(selected.folder.uid);
 
-			String contUid = msg.getStringProperty("containerUid");
+			this.activeCons = MQ.registerConsumer(Topic.MAPI_ITEM_NOTIFICATIONS, msg -> {
 
-			if (watchedUid.equals(contUid)) {
-				logger.info("Stuff happenned on watched folder for {} -> {}", out, msg.toJson());
-				Count exist = recApi.count(ItemFlagFilter.create().mustNot(ItemFlag.Deleted));
-				out.write(new IdleToken("EXISTS", (int) exist.total));
+				String contUid = msg.getStringProperty("containerUid");
 
-			}
-		});
+				if (watchedUid.equals(contUid)) {
+					logger.info("Stuff happenned on watched folder for {} -> {}", out, msg.toJson());
+					Count exist = recApi.count(ItemFlagFilter.create().mustNot(ItemFlag.Deleted));
+					out.write(new IdleToken("EXISTS", (int) exist.total));
+
+				}
+			});
+		}
 	}
 
 	public void close() {

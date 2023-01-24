@@ -31,7 +31,7 @@ import net.bluemind.imap.endpoint.cmd.IdleCommand;
 import net.bluemind.imap.endpoint.driver.IdleToken;
 import net.bluemind.lib.vertx.Result;
 
-public class IdleProcessor extends SelectedStateCommandProcessor<IdleCommand> {
+public class IdleProcessor extends AuthenticatedCommandProcessor<IdleCommand> {
 
 	private static final Logger logger = LoggerFactory.getLogger(IdleProcessor.class);
 
@@ -42,7 +42,7 @@ public class IdleProcessor extends SelectedStateCommandProcessor<IdleCommand> {
 
 		IdleWriteStream output = new IdleWriteStream(ctx);
 		ctx.mailbox().idleMonitor(ctx.selected(), output);
-		logger.info("Monitoring {}", ctx.selected().folder);
+		logger.info("Monitoring {}", ctx.selected());
 		ctx.write("+ idling\r\n");
 		completed.handle(Result.success());
 	}
