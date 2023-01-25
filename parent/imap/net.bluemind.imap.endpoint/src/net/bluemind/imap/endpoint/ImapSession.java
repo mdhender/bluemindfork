@@ -43,15 +43,16 @@ public class ImapSession implements StateChangeListener {
 	private static final ByteBuf GREETING = Unpooled
 			.unreleasableBuffer(Unpooled.directBuffer().writeBytes("* OK IMAP4 ready\r\n".getBytes()));
 
-	public static ImapSession create(Vertx vertx, NetSocket ns) {
-		return new ImapSession(vertx, ns);
+	public static ImapSession create(Vertx vertx, NetSocket ns, ImapMetricsHolder metricsHolder) {
+		return new ImapSession(vertx, ns, metricsHolder);
 	}
 
 	private final ImapContext ctx;
 	private final Stopwatch startTime;
 
-	public ImapSession(Vertx vertx, NetSocket ns) {
+	public ImapSession(Vertx vertx, NetSocket ns, ImapMetricsHolder metricsHolder) {
 		EventNexus nexus = new EventNexus(ns.writeHandlerID(), vertx.eventBus());
+
 		this.ctx = new ImapContext(vertx, ns, nexus);
 		this.startTime = Stopwatch.createStarted();
 
@@ -66,7 +67,7 @@ public class ImapSession implements StateChangeListener {
 
 		ImapCommandHandler exec = new ImapCommandHandler(ctx);
 		ImapRequestParser parser = new ImapRequestParser(exec);
-		ImapPartSplitter split = new ImapPartSplitter(ctx, parser);
+		ImapPartSplitter split = new ImapPartSplitter(ctx, parser, metricsHolder);
 
 		nexus.addStateListener(this);
 

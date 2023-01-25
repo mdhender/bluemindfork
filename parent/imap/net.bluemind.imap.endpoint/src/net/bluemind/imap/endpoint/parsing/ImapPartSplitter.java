@@ -18,27 +18,25 @@
  */
 package net.bluemind.imap.endpoint.parsing;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.parsetools.RecordParser;
 import net.bluemind.imap.endpoint.EndpointConfig;
 import net.bluemind.imap.endpoint.ImapContext;
+import net.bluemind.imap.endpoint.ImapMetricsHolder;
 import net.bluemind.imap.endpoint.parsing.LiteralSize.LiteralLength;
+import net.bluemind.imap.endpoint.ratelimiter.ThroughputLimiter.LimiterResult;
 
 public class ImapPartSplitter implements Handler<Buffer> {
-
-	private static final Logger logger = LoggerFactory.getLogger(ImapPartSplitter.class);
 
 	private static final int IMAP_LITERAL_CHUNK_SIZE = (int) EndpointConfig.get().getMemorySize("imap.chunk-size")
 			.toBytes();
 
-	private ImapRequestParser parser;
-	private RecordParser split;
-	private ImapContext ctx;
+	private final ImapRequestParser parser;
+	private final RecordParser split;
+	private final ImapContext ctx;
+	private final ImapMetricsHolder metricsHolder;
 
 	private int literalBytes;
 	private State state;
@@ -48,9 +46,10 @@ public class ImapPartSplitter implements Handler<Buffer> {
 		COMMAND, LITERAL;
 	}
 
-	public ImapPartSplitter(ImapContext ctx, ImapRequestParser parser) {
+	public ImapPartSplitter(ImapContext ctx, ImapRequestParser parser, ImapMetricsHolder metricsHolder) {
 		this.parser = parser;
 		this.ctx = ctx;
+		this.metricsHolder = metricsHolder;
 		this.split = RecordParser.newDelimited("\r\n");
 		split.handler(this::splittedChunk);
 		this.state = State.COMMAND;
@@ -63,7 +62,12 @@ public class ImapPartSplitter implements Handler<Buffer> {
 		}
 
 		ctx.throughputLimiterRegistry().get(ctx.mailbox()).limit(ctx, event.length()) //
-				.thenAccept(limiterResult -> split.handle(event));
+				.thenAccept(limiterResult -> {
+					if (ctx.mailbox() != null) {
+						metricsHolder.monitorBufferStatus(ctx.mailbox().login(), limiterResult);
+					}
+					split.handle(event);
+				});
 	}
 
 	private void splittedChunk(Buffer chunk) {
@@ -82,7 +86,7 @@ public class ImapPartSplitter implements Handler<Buffer> {
 		LiteralLength lit = LiteralSize.of(buf);
 		if (lit.total() > 0) {
 			if (ctx.mailbox() != null && lit.total() > ctx.mailbox().maxLiteralSize()) {
-				logger.error("[{}] Literal size is too big ({})", ctx.mailbox(), lit.total());
+				metricsHolder.monitorBufferStatus(ctx.mailbox().login(), LimiterResult.literalOverflow(lit.total()));
 				ctx.writePromise(
 						"* ALERT too much data (" + lit.total() + " > " + ctx.mailbox().maxLiteralSize() + ")\r\n")
 						.thenAccept(v -> ctx.socket().close());

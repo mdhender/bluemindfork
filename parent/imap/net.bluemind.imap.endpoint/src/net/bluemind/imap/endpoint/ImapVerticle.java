@@ -35,6 +35,7 @@ import net.bluemind.lib.vertx.IVerticleFactory;
 public class ImapVerticle extends AbstractVerticle {
 
 	private static final Logger logger = LoggerFactory.getLogger(ImapVerticle.class);
+	private static final ImapMetricsHolder metricsHolder = ImapMetricsHolder.get();
 
 	public static class EndpointFactory implements IVerticleFactory {
 
@@ -61,7 +62,7 @@ public class ImapVerticle extends AbstractVerticle {
 		srv.exceptionHandler(t -> logger.error("ImapEndpoint failure", t));
 
 		int port = conf.getInt("imap.port");
-		srv.connectHandler(ns -> ImapSession.create(vertx, ns)).listen(port, ar -> {
+		srv.connectHandler(ns -> ImapSession.create(vertx, ns, metricsHolder)).listen(port, ar -> {
 			if (ar.failed()) {
 				logger.error("Failed to listen on port {}", port, ar.cause());
 				startPromise.fail(ar.cause());

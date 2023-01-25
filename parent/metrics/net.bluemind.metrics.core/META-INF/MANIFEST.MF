@@ -32,7 +32,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.validation,
  org.asynchttpclient.async-http-client;bundle-version="2.10.4",
  org.reactivestreams.reactive-streams;bundle-version="1.0.3",
- slf4j.api
+ slf4j.api,
+ net.bluemind.imap.endpoint
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.metrics.core
 Bundle-ActivationPolicy: lazy

@@ -3,6 +3,7 @@ package net.bluemind.imap.endpoint.ratelimiter;
 import java.util.concurrent.CompletableFuture;
 
 import net.bluemind.imap.endpoint.ImapContext;
+import net.bluemind.imap.endpoint.ImapMetricsHolder.BufferStatus;
 
 public class NoopThroughputLimiter implements ThroughputLimiter {
 
@@ -33,7 +34,7 @@ public class NoopThroughputLimiter implements ThroughputLimiter {
 
 	@Override
 	public CompletableFuture<LimiterResult> limit(ImapContext ctx, long size) {
-		return CompletableFuture.completedFuture(new LimiterResult(LimiterStatus.OK, System.currentTimeMillis()));
+		return CompletableFuture.completedFuture(new LimiterResult(BufferStatus.ALLOWED, size, 0, 0));
 	}
 
 	@Override

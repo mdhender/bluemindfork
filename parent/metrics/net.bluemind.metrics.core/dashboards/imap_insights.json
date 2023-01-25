@@ -1,0 +1,261 @@
+{
+   "templates": [],
+   "links": {
+      "self": "/chronograf/v1/dashboards/1",
+      "cells": "/chronograf/v1/dashboards/1/cells",
+      "templates": "/chronograf/v1/dashboards/1/templates"
+   },
+   "organization": "default",
+   "name": "Imap Insights",
+   "id": 4,
+   "cells": [{
+   		"i": "6ecf44e5-36ef-43f5-8ecc-62c0d08fc934",
+		"x": 0,
+		"y": 0,
+		"w": 4,
+		"h": 4,
+		"name": "Throughput limitations count per min",
+		"queries": [
+			{
+				"query": "SELECT non_negative_derivative(last(\"count\"),1m) AS \"rpm\" FROM \"telegraf\".\"autogen\".\"bm-core.imap.bufferStatusCount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), status FILL(null)",
+				"queryConfig": {
+					"database": "",
+					"measurement": "",
+					"retentionPolicy": "",
+					"fields": [],
+					"tags": {},
+					"groupBy": {
+						"time": "",
+						"tags": []
+					},
+					"areTagsAccepted": false,
+					"rawText": "SELECT non_negative_derivative(last(\"count\"),1m) AS \"rpm\" FROM \"telegraf\".\"autogen\".\"bm-core.imap.bufferStatusCount\" WHERE time > :dashboardTime: GROUP BY time(:interval:), status FILL(null)",
+					"range": null,
+					"shifts": null
+				},
+				"source": "",
+				"type": "influxql"
+			}
+		],
+		"axes": {
+			"x": {
+				"bounds": [
+					"",
+					""
+				],
+				"label": "",
+				"prefix": "",
+				"suffix": "",
+				"base": "10",
+				"scale": "linear"
+			},
+			"y": {
+				"bounds": [
+					"",
+					""
+				],
+				"label": "",
+				"prefix": "",
+				"suffix": "",
+				"base": "10",
+				"scale": "linear"
+			},
+			"y2": {
+				"bounds": [
+					"",
+					""
+				],
+				"label": "",
+				"prefix": "",
+				"suffix": "",
+				"base": "10",
+				"scale": "linear"
+			}
+		},
+		"type": "line",
+		"colors": [
+			{
+				"id": "c027c50c-4dfe-4438-b23b-8ef57b450bf6",
+				"type": "scale",
+				"hex": "#31C0F6",
+				"name": "Nineteen Eighty Four",
+				"value": "0"
+			},
+			{
+				"id": "6c9c7c90-268f-4f39-8d8d-c33e7d31b36b",
+				"type": "scale",
+				"hex": "#A500A5",
+				"name": "Nineteen Eighty Four",
+				"value": "0"
+			},
+			{
+				"id": "d5fe5ad1-e2bd-494f-a602-6e982b81a3fd",
+				"type": "scale",
+				"hex": "#FF7E27",
+				"name": "Nineteen Eighty Four",
+				"value": "0"
+			}
+		],
+		"legend": {},
+		"tableOptions": {
+			"verticalTimeAxis": true,
+			"sortBy": {
+				"internalName": "time",
+				"displayName": "",
+				"visible": true
+			},
+			"wrapping": "truncate",
+			"fixFirstColumn": true
+		},
+		"fieldOptions": [
+			{
+				"internalName": "time",
+				"displayName": "",
+				"visible": true
+			}
+		],
+		"timeFormat": "MM/DD/YYYY HH:mm:ss",
+		"decimalPlaces": {
+			"isEnforced": true,
+			"digits": 2
+		},
+		"note": "",
+		"noteVisibility": "default",
+		"links": {
+			"self": "/chronograf/v1/dashboards/14/cells/6ecf44e5-36ef-43f5-8ecc-62c0d08fc934"
+		}
+	},{
+		"i": "e864bc1a-2c25-4a8e-a8f5-6f3b1f374ea6",
+		"x": 4,
+		"y": 0,
+		"w": 4,
+		"h": 4,
+		"name": "Users with throughput over limit",
+		"queries": [
+			{
+				"query": "SELECT last(\"count\") AS \"rpm\" FROM \"telegraf\".\"autogen\".\"bm-core.imap.usersWaitingDuration\" WHERE time > :dashboardTime: GROUP BY time(:interval:), \"user\" FILL(null)",
+				"queryConfig": {
+					"database": "telegraf",
+					"measurement": "bm-core.imap.usersOverThroughputLimit",
+					"retentionPolicy": "autogen",
+					"fields": [
+						{
+							"value": "last",
+							"type": "func",
+							"alias": "rpm",
+							"args": [
+								{
+									"value": "count",
+									"type": "field",
+									"alias": ""
+								}
+							]
+						}
+					],
+					"tags": {},
+					"groupBy": {
+						"time": "auto",
+						"tags": [
+							"user"
+						]
+					},
+					"areTagsAccepted": false,
+					"fill": "null",
+					"rawText": null,
+					"range": null,
+					"shifts": null
+				},
+				"source": "",
+				"type": "influxql"
+			}
+		],
+		"axes": {
+			"x": {
+				"bounds": [
+					"",
+					""
+				],
+				"label": "",
+				"prefix": "",
+				"suffix": "",
+				"base": "10",
+				"scale": "linear"
+			},
+			"y": {
+				"bounds": [
+					"",
+					""
+				],
+				"label": "",
+				"prefix": "",
+				"suffix": "",
+				"base": "10",
+				"scale": "linear"
+			},
+			"y2": {
+				"bounds": [
+					"",
+					""
+				],
+				"label": "",
+				"prefix": "",
+				"suffix": "",
+				"base": "10",
+				"scale": "linear"
+			}
+		},
+		"type": "line",
+		"colors": [
+			{
+				"id": "402c8c0a-cfe8-4a88-aeac-3de500ab42bb",
+				"type": "scale",
+				"hex": "#31C0F6",
+				"name": "Nineteen Eighty Four",
+				"value": "0"
+			},
+			{
+				"id": "53c72291-01ab-42e9-bbd3-ad07d4b29d76",
+				"type": "scale",
+				"hex": "#A500A5",
+				"name": "Nineteen Eighty Four",
+				"value": "0"
+			},
+			{
+				"id": "b3327658-dca9-49dc-b417-67a4d468b46a",
+				"type": "scale",
+				"hex": "#FF7E27",
+				"name": "Nineteen Eighty Four",
+				"value": "0"
+			}
+		],
+		"legend": {},
+		"tableOptions": {
+			"verticalTimeAxis": true,
+			"sortBy": {
+				"internalName": "time",
+				"displayName": "",
+				"visible": true
+			},
+			"wrapping": "truncate",
+			"fixFirstColumn": true
+		},
+		"fieldOptions": [
+			{
+				"internalName": "time",
+				"displayName": "",
+				"visible": true
+			}
+		],
+		"timeFormat": "MM/DD/YYYY HH:mm:ss",
+		"decimalPlaces": {
+			"isEnforced": true,
+			"digits": 2
+		},
+		"note": "",
+		"noteVisibility": "default",
+		"links": {
+			"self": "/chronograf/v1/dashboards/15/cells/e864bc1a-2c25-4a8e-a8f5-6f3b1f374ea6"
+		}
+	}
+	]
+}

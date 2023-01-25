@@ -2,16 +2,12 @@ package net.bluemind.imap.endpoint.ratelimiter;
 
 import java.time.Duration;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
 import net.bluemind.imap.endpoint.EndpointConfig;
 
 public abstract class BucketThroughputLimiter implements ThroughputLimiter {
-	static final Logger logger = LoggerFactory.getLogger(BucketThroughputLimiter.class);
 
 	public class Bucket4jStorage implements RateLimiterStorage {
 

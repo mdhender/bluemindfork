@@ -11,13 +11,15 @@ Require-Bundle: org.eclipse.core.runtime,
  org.junit;bundle-version="4.12.0",
  net.bluemind.lib.vertx,
  net.bluemind.imap,
+ net.bluemind.slf4j,
  org.awaitility;bundle-version="4.2.0",
  org.hamcrest;bundle-version="2.1.0",
  net.bluemind.backend.mail.replica.api,
  slf4j.api,
  com.google.guava,
  com.google.truth,
- com.google.truth.extensions.truth-java8-extension
+ com.google.truth.extensions.truth-java8-extension,
+ org.mockito.mockito-all
 Import-Package: org.junit.jupiter.api,
  org.junit.jupiter.api.function
 Bundle-RequiredExecutionEnvironment: JavaSE-17

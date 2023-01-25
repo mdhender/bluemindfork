@@ -171,6 +171,9 @@
          <tick_template_provider
                impl="net.bluemind.metrics.core.tick.scripts.ElasticSearchDiskFree">
          </tick_template_provider>
+         <tick_template_provider
+               impl="net.bluemind.metrics.core.tick.scripts.ImapUserOverThroughputLimit">
+         </tick_template_provider>
    </extension>
    <extension
          point="net.bluemind.metrics.core.tickDashboardProvider">
@@ -207,6 +210,8 @@
      </tick_dashboard_provider>
      <tick_dashboard_provider
            impl="net.bluemind.metrics.core.tick.dashboards.ElasticSearchMailspoolDashboard">
+     </tick_dashboard_provider>
+     <tick_dashboard_provider impl="net.bluemind.metrics.core.tick.dashboards.ImapInsightsDashboard">
      </tick_dashboard_provider>
    </extension>
    <extension

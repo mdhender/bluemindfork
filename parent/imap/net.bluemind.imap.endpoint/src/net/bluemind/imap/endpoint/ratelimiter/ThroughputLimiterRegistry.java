@@ -46,7 +46,7 @@ public class ThroughputLimiterRegistry {
 	public ThroughputLimiter get(MailboxConnection mailbox) {
 		return Optional.ofNullable(mailbox) //
 				.map(mb -> limiters.get(mb.login(), this::create)) //
-				.orElseGet(() -> new NoopThroughputLimiter());
+				.orElseGet(NoopThroughputLimiter::new);
 	}
 
 	private static Strategy strategy() {
