@@ -8,38 +8,39 @@ describe("mailText2Html", () => {
         let mailTextContent = `Test mailto : zefze@mail.com
             Test link : https://bm.blue-mind.net/webmail/?_task=mail
             Test bold : *zefzefzef*
-            Test callto 1 : 0625486518`;
+            Test tel 1 : 0625486518`;
         const res = mailText2Html(mailTextContent, userLang);
         expect(res).toContain('<a href="mailto:zefze@mail.com" class="linkified">zefze@mail.com</a>');
         expect(res).toContain(
             '<a href="https://bm.blue-mind.net/webmail/?_task=mail" ' +
                 'class="linkified" target="_blank">https://bm.blue-mind.net/webmail/?_task=mail</a>'
         );
-        expect(res).toContain('<a href="callto:+33625486518">0625486518</a>');
+        expect(res).toContain('<a href="tel:+33625486518">0625486518</a>');
         expect(res).toContain("<strong>*zefzefzef*</strong>");
         expect(res.startsWith("<pre>")).toBe(true);
         expect(res.endsWith("</pre>")).toBe(true);
     });
 
-    test("callTo transformer", () => {
-        let mailTextContent = `Test callto 1 : 0625486518
+    test("tel transformer", () => {
+        let mailTextContent = `Test tel 1 : 0625486518, tel 2 : 0625486519
 
-            Test callto 2 : +33425786541`;
+            Test tel 3 : +33425786541`;
         const res = mailText2Html(mailTextContent, userLang);
-        expect(res).toContain('<a href="callto:+33625486518">0625486518</a>');
-        expect(res).toContain('<a href="callto:+33425786541">+33425786541</a>');
+        expect(res).toContain('<a href="tel:+33625486518">0625486518</a>');
+        expect(res).toContain('<a href="tel:+33625486519">0625486519</a>');
+        expect(res).toContain('<a href="tel:+33425786541">+33425786541</a>');
     });
 
-    test("callto transformer must not apply on a line containing HTML", () => {
+    test("tel transformer must not apply on a line containing HTML", () => {
         let mailTextContent = `
-            [CallTo should not apply] Site & call: https://bluemind.net/callme?+33425786541
-            [CallTo should apply] <a href="https://bluemind.net">https://bluemind.net</a> and call me on +33425786541 
+            [Tel should not apply] Site & call: https://bluemind.net/callme?+33425786541
+            [Tel should apply] <a href="https://bluemind.net">https://bluemind.net</a> and call me on +33425786541 
             `;
         const html = mailText2Html(mailTextContent, userLang);
         expect(html).toContain(
             ' <a href="https://bluemind.net/callme?+33425786541" class="linkified" target="_blank">https://bluemind.net/callme?+33425786541</a>'
         );
-        expect(html).toContain('<a href="callto:+33425786541">+33425786541</a>');
+        expect(html).toContain('<a href="tel:+33425786541">+33425786541</a>');
     });
 
     test("replyTransformer", () => {

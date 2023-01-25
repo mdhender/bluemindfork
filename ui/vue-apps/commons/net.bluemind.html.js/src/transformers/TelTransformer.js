@@ -1,6 +1,14 @@
 import { findPhoneNumbersInText } from "libphonenumber-js";
 import EmptyTransformer from "./EmptyTransformer";
 
+/**
+ * Transforms phone numbers to phone links.
+ *
+ * 'tel:' scheme was used in the late 1990s and documented in early 2000 with RFC 2806 (which was obsoleted by the more-thorough RFC 3966 in 2004)
+ * and continues to be improved. Supporting tel: on the iPhone was not an arbitrary decision.
+ * 'callto:' while supported by Skype, is not a standard and should be avoided unless specifically targeting Skype users.
+ */
+
 export default class {
     constructor(transformer, lang) {
         this.transformer = transformer || new EmptyTransformer();
@@ -29,30 +37,31 @@ function linkify(text, userLang) {
 
 function browseNode(node, userLang) {
     if (node.nodeName === "#text") {
-        const newNode = addCallTo(node.textContent, userLang);
+        const newNode = addPhoneLinks(node.textContent, userLang);
         node.parentNode.replaceChild(newNode, node);
     } else if (node.nodeName !== "A") {
         node.childNodes.forEach(child => browseNode(child, userLang));
     }
 }
 
-function addCallTo(text, userLang) {
+function addPhoneLinks(text, userLang) {
     let anyPhoneNumberFound = false;
 
     let lines = text.split("\n");
     lines = lines.map(line => {
         const tels = findPhoneNumbersInText(line, userLang.toUpperCase());
+        let offset = 0;
         tels.forEach(tel => {
             anyPhoneNumberFound = true;
-            const before = line.substring(0, tel.startsAt);
-            const after = line.substring(tel.endsAt, line.length);
-            const adaptedCallTo =
-                '<a href="callto:' + //
-                tel.number.number + //
-                '">' + //
-                line.substring(tel.startsAt, tel.endsAt) + //
-                "</a>";
-            line = before + adaptedCallTo + after;
+            const before = line.substring(0, tel.startsAt + offset);
+            const after = line.substring(tel.endsAt + offset, line.length + offset);
+            const link = `<a href="tel:${tel.number.number}">${line.substring(
+                tel.startsAt + offset,
+                tel.endsAt + offset
+            )}</a>`;
+            const newLine = `${before}${link}${after}`;
+            offset += newLine.length - line.length;
+            line = newLine;
         });
         return line;
     });
