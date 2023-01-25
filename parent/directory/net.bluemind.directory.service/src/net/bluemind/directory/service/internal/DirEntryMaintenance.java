@@ -39,6 +39,7 @@ import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirEntryMaintenance;
 import net.bluemind.directory.api.IDirectory;
+import net.bluemind.directory.api.IOrgUnits;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.api.RepairConfig;
 import net.bluemind.directory.service.IDirEntryRepairSupport.InternalMaintenanceOperation;
@@ -75,11 +76,21 @@ public class DirEntryMaintenance implements IDirEntryMaintenance, IInternalDirEn
 			}
 
 			// make maintenance task executable for domain admins
-			if (context.getSecurityContext().isDomainAdmin(domainUid)) {
+			if (context.getSecurityContext().isDomainAdmin(domainUid) || isOrgUnitAdmin(context, entry.orgUnitUid)) {
 				context = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
 			}
 
 			return new DirEntryMaintenance(context, domainUid, entry);
+		}
+
+		private boolean isOrgUnitAdmin(BmContext context, String orgUnitUid) {
+			if (orgUnitUid == null) {
+				return false;
+			}
+
+			IOrgUnits service = context.su().provider().instance(IOrgUnits.class,
+					context.getSecurityContext().getContainerUid());
+			return service.getAdministrators(orgUnitUid).contains(context.getSecurityContext().getSubject());
 		}
 
 	}
