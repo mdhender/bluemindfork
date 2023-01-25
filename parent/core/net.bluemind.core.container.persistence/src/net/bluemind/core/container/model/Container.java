@@ -59,6 +59,14 @@ public class Container {
 		return ret;
 	}
 
+	public BaseContainerDescriptor asDescriptor(String dataLocation) {
+		BaseContainerDescriptor bd = BaseContainerDescriptor.create(uid, name, owner, type, domainUid,
+				defaultContainer);
+		bd.internalId = id;
+		bd.datalocation = dataLocation;
+		return bd;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

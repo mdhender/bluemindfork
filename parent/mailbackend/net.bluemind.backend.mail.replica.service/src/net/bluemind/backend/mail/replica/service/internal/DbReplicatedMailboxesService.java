@@ -44,6 +44,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.hierarchy.hook.HierarchyIdsHints;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ContainerModifiableDescriptor;
@@ -90,7 +91,20 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 		if (root.ns == Namespace.deleted || root.ns == Namespace.deletedShared) {
 			replica.deleted = true;
 		}
-//		created = storeService.create(uid, replica.name, replica);
+
+		// create the records container
+		IContainers containerService = context.su().provider().instance(IContainers.class);
+		BaseContainerDescriptor contDesc = containerService.getIfPresent(recordsContainerUid);
+		if (contDesc == null) {
+			ContainerDescriptor toCreate = ContainerDescriptor.create(recordsContainerUid, replica.name,
+					container.owner, IMailReplicaUids.MAILBOX_RECORDS, domainUid, false);
+			contDesc = containerService.create(recordsContainerUid, toCreate);
+			logger.info("Records container created {}", recordsContainerUid);
+		} else {
+			logger.warn("Associated records container {} already exists", recordsContainerUid);
+		}
+		replica.uidValidity = contDesc.internalId;
+
 		Long subtreeItemId = SubtreeContainerItemIdsCache.getFolderId(container.uid, replica.fullName);
 		if (subtreeItemId == null) {
 			created = storeService.create(uid, replica.name, replica);
@@ -99,16 +113,6 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 			created = storeService.createWithId(uid, subtreeItemId, null, replica.name, replica);
 		}
 
-		// create the records container
-		IContainers containerService = context.su().provider().instance(IContainers.class);
-		if (containerService.getIfPresent(recordsContainerUid) == null) {
-			ContainerDescriptor toCreate = ContainerDescriptor.create(recordsContainerUid, replica.name,
-					container.owner, IMailReplicaUids.MAILBOX_RECORDS, domainUid, false);
-			containerService.create(recordsContainerUid, toCreate);
-			logger.info("Records container created {}", recordsContainerUid);
-		} else {
-			logger.warn("Associated records container {} already exists", recordsContainerUid);
-		}
 		ItemIdentifier iid = ItemIdentifier.of(uid, created.id, created.version);
 
 		String fn = replica.fullName;
@@ -134,6 +138,13 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 		}
 		ItemValue<MailboxReplica> previous = getCompleteReplica(uid);
 		if (previous != null) {
+			IContainers contApi = context.su().provider().instance(IContainers.class);
+			String recordsContainerUid = IMailReplicaUids.mboxRecords(uid);
+			if (r.uidValidity == 0) {
+				BaseContainerDescriptor contDesc = contApi.getLight(recordsContainerUid);
+				r.uidValidity = contDesc.internalId;
+			}
+
 			MailboxReplica replica = nameSanitizer.sanitizeNames(r);
 			ItemVersion upd = storeService.update(uid, replica.name, replica);
 
@@ -144,14 +155,12 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 
 			boolean minorChange = isMinorChange(replica, previous);
 			if (!minorChange) {
-				String recordsContainerUid = IMailReplicaUids.mboxRecords(uid);
 				SubtreeLocation sl = SubtreeLocations.locations.getIfPresent(uid);
 				if (sl != null) {
 					String oldName = sl.boxName;
 					sl.boxName = replica.fullName;
 					logger.info("Updating cached location for {} from {} to {}", uid, oldName, sl.boxName);
 				}
-				IContainers contApi = context.su().provider().instance(IContainers.class);
 				ContainerModifiableDescriptor cmd = new ContainerModifiableDescriptor();
 				cmd.deleted = replica.deleted;
 				cmd.name = replica.name;

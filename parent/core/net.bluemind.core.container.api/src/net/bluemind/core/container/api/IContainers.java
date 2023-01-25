@@ -92,7 +92,8 @@ public interface IContainers {
 	 */
 	@PUT
 	@Path("{uid}")
-	public void create(@PathParam("uid") String uid, ContainerDescriptor descriptor) throws ServerFault;
+	public BaseContainerDescriptor create(@PathParam("uid") String uid, ContainerDescriptor descriptor)
+			throws ServerFault;
 
 	/**
 	 * Delete a container

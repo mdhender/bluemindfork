@@ -100,7 +100,7 @@ public class Containers implements IContainers {
 	}
 
 	@Override
-	public void create(String uid, ContainerDescriptor descriptor) throws ServerFault {
+	public BaseContainerDescriptor create(String uid, ContainerDescriptor descriptor) throws ServerFault {
 		checkWritable();
 
 		sanitizer.create(descriptor);
@@ -153,9 +153,9 @@ public class Containers implements IContainers {
 		}
 		final String location = loc;
 		final ContainerStore cs = new ContainerStore(null, ds, securityContext);
-		JdbcAbstractStore.doOrFail(() -> cs.create(container));
+		Container reloaded = JdbcAbstractStore.doOrFail(() -> cs.create(container));
 		JdbcAbstractStore.doOrFail(() -> {
-			directoryDataStore.createOrUpdateContainerLocation(container, location);
+			directoryDataStore.createOrUpdateContainerLocation(reloaded, location);
 			return null;
 		});
 
@@ -165,6 +165,7 @@ public class Containers implements IContainers {
 				return null;
 			});
 		}
+		return reloaded.asDescriptor(location);
 	}
 
 	private static final Map<String, String> domainToPF = new ConcurrentHashMap<>();
