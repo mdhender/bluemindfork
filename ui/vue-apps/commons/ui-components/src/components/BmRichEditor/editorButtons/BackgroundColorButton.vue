@@ -21,7 +21,8 @@ import BmIconDropdown from "../../dropdown/BmIconDropdown";
 import BmFormColorPicker from "../../form/BmFormColorPicker";
 import colors from "../../../css/exports/picker.scss";
 
-const defaultColors = Object.values(colors);
+const opacityHex = "80"; // 50%
+const defaultColors = Object.values(colors).map(color => color + opacityHex);
 
 export default {
     name: "BackgroundColorButton",
@@ -39,7 +40,7 @@ export default {
     data() {
         return {
             backgroundColors: ["transparent", ...defaultColors],
-            selectedBackgroundColor: colors["yellow-light"],
+            selectedBackgroundColor: colors["yellow-light"] + opacityHex,
             pickerColor: null
         };
     },

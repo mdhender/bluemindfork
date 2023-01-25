@@ -245,6 +245,7 @@ export default {
                 new TableResize()
             ];
             const options = {
+                defaultFormat: {},
                 initialContent: this.initValue,
                 doNotAdjustEditorColor: true,
                 plugins: [...bmPlugins, ...roosterPlugins]

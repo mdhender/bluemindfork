@@ -38,7 +38,7 @@ export default {
     },
     data() {
         return {
-            textColors: defaultColors,
+            textColors: ["default", ...defaultColors],
             selectedTextColor: colors.red,
             pickerColor: null
         };
@@ -56,7 +56,7 @@ export default {
     },
     methods: {
         setTextColor() {
-            this.selectedTextColor = this.pickerColor;
+            this.selectedTextColor = this.pickerColor === "default" ? "unset" : this.pickerColor;
             setTextColor(this.editor, this.selectedTextColor);
         }
     }

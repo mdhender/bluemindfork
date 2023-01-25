@@ -9,16 +9,17 @@
         :class="{ 'color-badge-lg': size === 'lg' }"
         @click="$emit('click', value)"
     >
+        <circle v-if="!isTransparent" cx="15" cy="15" r="11" fill="var(--surface)" />
         <circle
             cx="15"
             cy="15"
             r="11"
             :class="{ selected, border: isTransparent, dashed: transparentVariant === 'dashed-border' }"
-            :fill="value"
+            :fill="isDefault ? 'var(--neutral-fg-hi1)' : value"
         />
         <line
             v-if="isTransparent && transparentVariant === 'cross-line'"
-            stroke="red"
+            stroke="var(--danger-fg)"
             stroke-width="2"
             x1="7"
             y1="7"
@@ -58,6 +59,9 @@ export default {
     computed: {
         isTransparent() {
             return this.value === "transparent";
+        },
+        isDefault() {
+            return this.value === "default";
         }
     }
 };
@@ -82,10 +86,9 @@ export default {
             stroke-width: 3px;
         }
         &.border {
-            stroke: $neutral-fg-lo3;
+            stroke: $neutral-fg-lo2;
             stroke-width: 1px;
             &.dashed {
-                stroke: $neutral-fg-lo2;
                 stroke-width: 2px;
                 stroke-dasharray: 6 4;
             }
