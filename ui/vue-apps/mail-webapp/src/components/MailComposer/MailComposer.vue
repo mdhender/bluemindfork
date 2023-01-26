@@ -32,7 +32,7 @@
             :is-reply-or-forward="!!messageCompose.collapsedContent"
         />
         <bm-form-input
-            :value="message.subject.trim()"
+            :value="subject"
             variant="underline"
             class="mx-4"
             :placeholder="$t('mail.new.subject.placeholder')"
@@ -128,14 +128,15 @@ export default {
     computed: {
         ...mapGetters("mail", { MY_TEMPLATES }),
         panelTitle() {
-            return this.message.subject.trim()
-                ? this.message.subject
-                : this.message.folderRef.key === this.MY_TEMPLATES.key
+            return this.subject || this.message.folderRef.key === this.MY_TEMPLATES.key
                 ? this.$t("mail.actions.new_template")
                 : this.$t("mail.main.new");
         },
         messagepath() {
             return MessagePathParam.build("", this.message);
+        },
+        subject() {
+            return this.message.subject?.trim() || "";
         }
     }
 };
