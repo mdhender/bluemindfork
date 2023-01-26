@@ -27,8 +27,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -66,6 +68,7 @@ public class OAuthProtocol implements IAuthProtocol {
 	private static final Logger logger = LoggerFactory.getLogger(OAuthProtocol.class);
 	private static final HashFunction sha256 = Hashing.sha256();
 	private static final Encoder b64UrlEncoder = Base64.getUrlEncoder().withoutPadding();
+	private static final Decoder b64UrlDecoder = Base64.getUrlDecoder();
 	private static final Cache<String, String> codeVerifierCache = CacheBuilder.newBuilder()
 			.expireAfterWrite(10, TimeUnit.MINUTES).build();
 	private OAuthConf oAuthConf;
@@ -99,7 +102,8 @@ public class OAuthProtocol implements IAuthProtocol {
 		String code = request.params().get("code");
 		String state = request.params().get("state");
 
-		String codeVerifier = codeVerifierCache.getIfPresent(state);
+		JsonObject jsonState = new JsonObject(new String(b64UrlDecoder.decode(state.getBytes())));
+		String codeVerifier = codeVerifierCache.getIfPresent(jsonState.getString("codeVerifierKey"));
 		if (Strings.isNullOrEmpty(codeVerifier)) {
 			error(request, new Throwable("Failed to fetch codeVerifier"));
 			return;
@@ -130,7 +134,8 @@ public class OAuthProtocol implements IAuthProtocol {
 
 			JsonObject response = new JsonObject(resp.body());
 			String token = response.getString("access_token");
-			validateToken(request, protocol, provider, ss, forwadedFor, token);
+			String redirectTo = jsonState.getString("path");
+			validateToken(request, protocol, provider, ss, forwadedFor, token, redirectTo);
 		} catch (Exception e) {
 			error(request, e);
 		}
@@ -143,8 +148,7 @@ public class OAuthProtocol implements IAuthProtocol {
 	}
 
 	private void validateToken(HttpServerRequest request, IAuthProtocol protocol, IAuthProvider prov, ISessionStore ss,
-			List<String> forwadedFor, String accessToken) {
-
+			List<String> forwadedFor, String accessToken, String redirectTo) {
 		DecodedJWT token = JWT.decode(accessToken);
 
 		AccessTokenValidator.validate(oAuthConf.openIdConfiguration(), token);
@@ -159,11 +163,11 @@ public class OAuthProtocol implements IAuthProtocol {
 		ExternalCreds creds = new ExternalCreds();
 		creds.setTicket(accessToken);
 		creds.setLoginAtDomain(email.asString());
-		createSession(request, protocol, prov, ss, forwadedFor, creds);
+		createSession(request, protocol, prov, ss, forwadedFor, creds, redirectTo);
 	}
 
 	private void createSession(HttpServerRequest request, IAuthProtocol protocol, IAuthProvider prov, ISessionStore ss,
-			List<String> forwadedFor, ExternalCreds creds) {
+			List<String> forwadedFor, ExternalCreds creds, String redirectTo) {
 		logger.info("Create session for {}", creds.getLoginAtDomain());
 		prov.sessionId(creds, forwadedFor, new AsyncHandler<String>() {
 			@Override
@@ -189,7 +193,7 @@ public class OAuthProtocol implements IAuthProtocol {
 				if (SecurityConfig.secureCookies) {
 					co.setSecure(true);
 				}
-				request.response().headers().add(HttpHeaders.LOCATION, "/");
+				request.response().headers().add(HttpHeaders.LOCATION, redirectTo);
 				request.response().setStatusCode(302);
 
 				request.response().headers().add("Set-Cookie", ServerCookieEncoder.LAX.encode(co));
@@ -218,9 +222,17 @@ public class OAuthProtocol implements IAuthProtocol {
 
 	private void redirect(HttpServerRequest req) {
 		String location = oAuthConf.openIdConfiguration().getString("authorization_endpoint");
-		String state = UUID.randomUUID().toString();
+		String key = UUID.randomUUID().toString();
+		String path = Optional.ofNullable(req.path()).orElse("/");
+
+		JsonObject jsonState = new JsonObject();
+		jsonState.put("codeVerifierKey", key);
+		jsonState.put("path", path);
+
+		String state = b64UrlEncoder.encodeToString(jsonState.encode().getBytes());
+
 		String codeVerifier = createCodeVerifier();
-		codeVerifierCache.put(state, codeVerifier);
+		codeVerifierCache.put(key, codeVerifier);
 
 		String codeChallenge = b64UrlEncoder
 				.encodeToString(sha256.hashString(codeVerifier, StandardCharsets.UTF_8).asBytes());
