@@ -52,7 +52,6 @@ export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): 
     } catch (error: unknown) {
         const errorCode = error instanceof SmimeErrors ? error.code : CRYPTO_HEADERS.UNKNOWN;
         item.value.body.headers = addHeaderValue(item.value.body.headers, ENCRYPTED_HEADER_NAME, errorCode);
-        throw error;
     }
     return item;
 }
@@ -103,7 +102,6 @@ export async function verify(folderUid: string, item: ItemValue<MailboxItem>): P
     } catch (error) {
         const errorCode = error instanceof SmimeErrors ? error.code : CRYPTO_HEADERS.UNKNOWN;
         item.value.body.headers = addHeaderValue(item.value.body.headers, SIGNED_HEADER_NAME, errorCode);
-        throw error;
     }
     return item;
 }
@@ -124,15 +122,16 @@ export async function sign(item: MailboxItem, folderUid: string): Promise<Mailbo
         if (!unsignedPart.headers) unsignedPart.headers = [];
         unsignedPart.headers.push({ name: "Content-Type", values: [contentType] });
 
-        const signedContent = await pkcs7.sign(unsignedContent);
+        const key = await getMyPrivateKey();
+        const certificate = await getMyCertificate();
+        const signedContent = await pkcs7.sign(unsignedContent, key, certificate);
         const signedPartAddress = await client.uploadPart(signedContent);
         const signedPart = buildSignedPart(signedPartAddress);
 
         item.body.structure = buildMultipartSigned(UUIDGenerator.generate(), [unsignedPart, signedPart]);
     } catch (error) {
         const errorCode = error instanceof SmimeErrors ? error.code : CRYPTO_HEADERS.UNKNOWN;
-        item.body.headers = addHeaderValue(item.body.headers, SIGNED_HEADER_NAME, errorCode);
-        throw error;
+        throw `[${SMIME_ENCRYPTION_ERROR_PREFIX}:${errorCode}]`;
     }
     return item;
 }
@@ -203,4 +202,4 @@ function constructCacheUrl(folderUid: string, imapUid: number, address: string) 
     return `/api/mail_items/${folderUid}/part/${imapUid}/${address}`;
 }
 
-export default { isEncrypted, decrypt, encrypt, verify, sign };
+export default { isEncrypted, isSigned, decrypt, encrypt, verify, sign };

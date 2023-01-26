@@ -1,4 +1,5 @@
 import fetchMock from "fetch-mock";
+import { VCardQuery } from "@bluemind/addressbook.api";
 import { PKIStatus } from "../../lib/constants";
 import {
     CertificateRecipientNotFoundError,
@@ -6,21 +7,39 @@ import {
     InvalidCertificateError,
     InvalidKeyError
 } from "../exceptions";
-import { checkCertificateValidity, getMyCertificate, getMyPrivateKey, getCertificate } from "../pki";
+import {
+    checkCertificateValidity,
+    clearMyCryptoFiles,
+    getMyCertificate,
+    getMyPrivateKey,
+    getCertificate,
+    setMyPrivateKey,
+    setMyCertificate
+} from "../pki";
 import db from "../pki/SMimeDB";
 import { readFile } from "./helpers";
+import { pki } from "node-forge";
 fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
 
 const mockCertificateTxt = readTxt("documents/certificate");
 const mockKeyTxt = readTxt("documents/privateKey");
 const mockOtherCertificateTxt = readTxt("documents/otherCertificate");
 
-const mockKey = {
-    text: jest.fn(() => Promise.resolve(mockKeyTxt))
-};
-const mockCertificate = {
-    text: jest.fn(() => Promise.resolve(mockCertificateTxt))
-};
+class MockedKeyAsBlob extends Blob {
+    text() {
+        return Promise.resolve(mockKeyTxt);
+    }
+}
+class MockedCertAsBlob extends Blob {
+    text() {
+        return Promise.resolve(mockCertificateTxt);
+    }
+}
+class MockInvalidCertAsBlob extends Blob {
+    text() {
+        return Promise.resolve("invalid");
+    }
+}
 
 jest.mock("../pki/SMimeDB");
 
@@ -46,8 +65,8 @@ const mockMultipleGet = jest.fn(uids => {
 
 jest.mock("@bluemind/addressbook.api", () => ({
     AddressBooksClient: () => ({
-        search: searchQuery => {
-            if (searchQuery.query.includes("test@mail.com")) {
+        search: (searchQuery: VCardQuery) => {
+            if (searchQuery.query!.includes("test@mail.com")) {
                 return {
                     total: 2,
                     values: [
@@ -78,18 +97,18 @@ jest.mock("@bluemind/addressbook.api", () => ({
 
 describe("pki", () => {
     beforeEach(() => {
-        db.getPKIStatus = jest.fn(() => Promise.resolve(PKIStatus.OK));
+        db.getPKIStatus = () => Promise.resolve(PKIStatus.OK);
     });
     describe("getMyCertificate", () => {
         test("get the user certificate from database if present", async () => {
-            db.getPrivateKey = jest.fn(() => Promise.resolve(mockKey));
-            db.getCertificate = jest.fn(() => Promise.resolve(mockCertificate));
+            db.getPrivateKey = () => Promise.resolve(new MockedKeyAsBlob());
+            db.getCertificate = () => Promise.resolve(new MockedCertAsBlob());
             const certificate = await getMyCertificate();
             expect(certificate).toBeTruthy();
         });
         test("raise an error if no certificate present in database", async () => {
-            db.getPrivateKey = jest.fn(() => Promise.resolve(mockKey));
-            db.getCertificate = jest.fn(() => Promise.resolve(null));
+            db.getPrivateKey = () => Promise.resolve(new MockedKeyAsBlob());
+            db.getCertificate = () => Promise.resolve(new Blob());
             try {
                 await getMyCertificate();
             } catch (error) {
@@ -97,8 +116,8 @@ describe("pki", () => {
             }
         });
         test("raise an error if the certificate is not valid", async () => {
-            db.getPrivateKey = jest.fn(() => Promise.resolve(mockKey));
-            db.getCertificate = jest.fn(() => Promise.resolve("invalid"));
+            db.getPrivateKey = () => Promise.resolve(new MockedKeyAsBlob());
+            db.getCertificate = () => Promise.resolve(new MockInvalidCertAsBlob());
             try {
                 await getMyCertificate();
             } catch (error) {
@@ -106,25 +125,25 @@ describe("pki", () => {
             }
         });
         test("raise an error if the pkiStatus is not OK", async () => {
-            db.getPKIStatus = jest.fn(() => Promise.resolve(PKIStatus.EMPTY));
+            db.getPKIStatus = () => Promise.resolve(PKIStatus.EMPTY);
             try {
                 await getMyPrivateKey();
             } catch (error) {
                 expect(error).toBeInstanceOf(InvalidKeyError);
             }
         });
-        test("raise an error if the certificate is revoked", () => {});
-        test("raise an error if the certificate is not trusted", () => {});
+        // test("raise an error if the certificate is revoked", () => {});
+        // test("raise an error if the certificate is not trusted", () => {});
     });
     describe("getMyPrivateKey", () => {
         test("get the user private key from database if present", async () => {
-            db.getPrivateKey = jest.fn(() => Promise.resolve(mockKey));
-            db.getCertificate = jest.fn(() => Promise.resolve(mockCertificate));
+            db.getPrivateKey = () => Promise.resolve(new MockedKeyAsBlob());
+            db.getCertificate = () => Promise.resolve(new MockedCertAsBlob());
             const key = await getMyPrivateKey();
             expect(key).toBeTruthy();
         });
         test("raise an error if no private key present in database", async () => {
-            db.getPrivateKey = jest.fn(() => Promise.resolve(null));
+            db.getPrivateKey = () => Promise.resolve(new Blob());
             try {
                 await getMyPrivateKey();
             } catch (error) {
@@ -132,24 +151,19 @@ describe("pki", () => {
             }
         });
         test("raise an error if the private key is not valid", async () => {
-            db.getPrivateKey = jest.fn(() => Promise.resolve("invalid"));
+            db.getPrivateKey = () => Promise.resolve(new MockInvalidCertAsBlob());
             try {
                 await getMyPrivateKey();
             } catch (error) {
                 expect(error).toBeInstanceOf(InvalidKeyError);
             }
         });
-        test("raise an error if the private key is expired", () => {
-            // No expiration date for the private key
-        });
-        test("raise an error if the private key is revoked", () => {});
-        test("raise an error if the private key is not trusted", () => {});
     });
     describe("checkCertificateValidity", () => {
         test("throw ExpiredCertificateError if certificate is expired", done => {
             const certificate = { validity: { notBefore: new Date(100), notAfter: new Date(1000) } };
             try {
-                checkCertificateValidity(certificate, new Date(3000));
+                checkCertificateValidity(<pki.Certificate>certificate, new Date(3000));
                 done.fail();
             } catch (error) {
                 expect(error).toBeInstanceOf(ExpiredCertificateError);
@@ -159,7 +173,7 @@ describe("pki", () => {
         test("dont throw anything if certificate is valid ", done => {
             const certificate = { validity: { notBefore: new Date(100), notAfter: new Date(1000) } };
             try {
-                checkCertificateValidity(certificate, new Date(500));
+                checkCertificateValidity(<pki.Certificate>certificate, new Date(500));
                 done();
             } catch (error) {
                 done.fail();
@@ -188,8 +202,37 @@ describe("pki", () => {
             }
         });
     });
+    describe("manage service-worker cache for my cert and private key", () => {
+        test("get my private key uses cache first", async () => {
+            db.getPrivateKey = jest.fn(() => Promise.resolve(new MockedKeyAsBlob()));
+            await setMyPrivateKey(new MockedKeyAsBlob());
+            await getMyPrivateKey();
+            expect(db.getPrivateKey).not.toHaveBeenCalled();
+        });
+        test("get my cert uses cache first", async () => {
+            db.getCertificate = jest.fn(() => Promise.resolve(new MockedCertAsBlob()));
+            await setMyCertificate(new MockedCertAsBlob());
+            await getMyCertificate();
+            expect(db.getCertificate).not.toHaveBeenCalled();
+        });
+        test("clear my crypto files call clearPKI and reset cache", async () => {
+            db.getCertificate = jest.fn(() => Promise.resolve(new MockedCertAsBlob()));
+            db.getPrivateKey = jest.fn(() => Promise.resolve(new MockedKeyAsBlob()));
+            await clearMyCryptoFiles();
+            try {
+                await getMyCertificate();
+            } catch {
+                expect(db.getCertificate).toHaveBeenCalledTimes(1);
+            }
+            try {
+                await getMyPrivateKey();
+            } catch {
+                expect(db.getPrivateKey).toHaveBeenCalledTimes(1);
+            }
+        });
+    });
 });
 
-function readTxt(file) {
+function readTxt(file: string) {
     return readFile(`${file}.txt`);
 }

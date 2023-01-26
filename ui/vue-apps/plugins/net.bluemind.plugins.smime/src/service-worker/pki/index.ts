@@ -92,7 +92,7 @@ export async function getMyCertificate() {
         const pkiStatus = await db.getPKIStatus();
         if (pkiStatus & PKIStatus.OK || pkiStatus & PKIStatus.CERTIFICATE_OK) {
             try {
-                const cert = await ((await db.getCertificate()) as Blob).text();
+                const cert = await (<Blob>await db.getCertificate()).text();
                 cache.CERTIFICATE = pki.certificateFromPem(cert);
             } catch (error) {
                 throw new InvalidCertificateError(error);

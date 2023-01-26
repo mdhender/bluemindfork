@@ -42,10 +42,10 @@ class SMimeDBImpl implements SMimeDB {
         return (await this.connection).get("pki", PKIEntry.PRIVATE_KEY);
     }
     async setPrivateKey(privateKey: Blob): Promise<void> {
-        (await this.connection).add("pki", privateKey, PKIEntry.PRIVATE_KEY);
+        (await this.connection).put("pki", privateKey, PKIEntry.PRIVATE_KEY);
     }
     async setCertificate(certificate: Blob): Promise<void> {
-        (await this.connection).add("pki", certificate, PKIEntry.CERTIFICATE);
+        (await this.connection).put("pki", certificate, PKIEntry.CERTIFICATE);
     }
     async getCertificate(): Promise<Blob | undefined> {
         return (await this.connection).get("pki", PKIEntry.CERTIFICATE);

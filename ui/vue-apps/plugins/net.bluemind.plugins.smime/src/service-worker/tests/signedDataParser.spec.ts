@@ -3,11 +3,11 @@ import path from "path";
 import extractSignedData from "../signedDataParser";
 
 describe("extract signed data from an eml", () => {
-    function arrayBufferToBase64(buffer) {
-        var binary = "";
-        var bytes = new Uint8Array(buffer);
-        var len = bytes.byteLength;
-        for (var i = 0; i < len; i++) {
+    function arrayBufferToBase64(buffer: ArrayBuffer) {
+        let binary = "";
+        const bytes = new Uint8Array(buffer);
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++) {
             binary += String.fromCharCode(bytes[i]);
         }
         return window.btoa(binary);
@@ -36,6 +36,6 @@ describe("extract signed data from an eml", () => {
 
 function readSignedOnlyEmls() {
     return ["corrupted.eml", "valid.eml", "invalid_signature.eml"].map(filename =>
-        fs.readFileSync(path.join(__dirname, `./data/eml/signed_only/${filename}`), "utf8", (err, data) => data)
+        fs.readFileSync(path.join(__dirname, `./data/eml/signed_only/${filename}`), "utf8")
     );
 }

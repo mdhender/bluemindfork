@@ -9,22 +9,24 @@ import {
     EncryptError,
     InvalidMessageIntegrityError,
     InvalidSignatureError,
+    SmimeErrors,
     UnmatchedCertificateError
 } from "../exceptions";
 import { readFile } from "./helpers";
 import { checkSignatureValidity, getSignedDataEnvelope, checkMessageIntegrity } from "../pkcs7/verify";
 import pkcs7 from "../pkcs7/";
 
-const blob = {
+class MockedBlob extends Blob {
     arrayBuffer() {
-        return base64ToArrayBuffer(readTxt("parts/encryptedPart"));
+        return Promise.resolve(base64ToArrayBuffer(readTxt("parts/encryptedPart")));
     }
-};
-const blobMultipleRecipients = {
+}
+
+class MultipleRecipientsMockedBlob extends Blob {
     arrayBuffer() {
-        return base64ToArrayBuffer(readTxt("parts/encryptedMultiRecipients"));
+        return Promise.resolve(base64ToArrayBuffer(readTxt("parts/encryptedMultiRecipients")));
     }
-};
+}
 
 const privatekeyTxt = readTxt("documents/privateKey");
 const otherPrivateKey = readTxt("documents/otherPrivateKey");
@@ -32,22 +34,22 @@ const certificateTxt = readTxt("documents/certificate");
 const otherCertificateTxt = readTxt("documents/otherCertificate");
 const mockKey = pki.privateKeyFromPem(privatekeyTxt);
 const mockCertificate = pki.certificateFromPem(certificateTxt);
+const mockOtherCertificate = pki.certificateFromPem(otherCertificateTxt);
 
 describe("pkcs7", () => {
     describe("decrypt", () => {
         test("decrypt pkc7 part if the right private key is given", async () => {
-            const res = await pkcs7.decrypt(blob, mockKey, mockCertificate);
+            const res = await pkcs7.decrypt(new MockedBlob(), mockKey, mockCertificate);
             expect(res).toMatchSnapshot();
         });
         test("select the right recipient if multiple recipient are present", async () => {
-            const res = await pkcs7.decrypt(blobMultipleRecipients, mockKey, mockCertificate);
+            const res = await pkcs7.decrypt(new MultipleRecipientsMockedBlob(), mockKey, mockCertificate);
             expect(res).toMatchSnapshot();
         });
 
         test("raise an error if the given certificate does not match any recipient", async () => {
-            const mockOtherCertificateTxt = pki.certificateFromPem(otherCertificateTxt);
             try {
-                await pkcs7.decrypt(blob, mockKey, mockOtherCertificateTxt);
+                await pkcs7.decrypt(new MockedBlob(), mockKey, mockOtherCertificate);
             } catch (error) {
                 expect(error).toBeInstanceOf(UnmatchedCertificateError);
             }
@@ -56,7 +58,7 @@ describe("pkcs7", () => {
         test("raise an error on decrypt failure", async () => {
             const mockKey = pki.privateKeyFromPem(otherPrivateKey);
             try {
-                await pkcs7.decrypt(blob, mockKey, mockCertificate);
+                await pkcs7.decrypt(new MockedBlob(), mockKey, mockCertificate);
             } catch (error) {
                 expect(error).toBeInstanceOf(DecryptError);
             }
@@ -64,8 +66,41 @@ describe("pkcs7", () => {
     });
 
     describe("verify", () => {
-        const { envelope: validEnvelope, toDigest } = getEnvelopeFromEml("valid.eml");
-        const invalidSignatureEnvelope = getEnvelopeFromEml("invalid_signature.eml").envelope;
+        const eml = readSignedOnly("valid.eml");
+        const { pkcs7Part: validPkcs7Part, toDigest: validToDigest } = extractSignedData(eml);
+        const validEnvelope = getSignedDataEnvelope(validPkcs7Part);
+
+        const { pkcs7Part: invalidPkcs7Part, toDigest: invalidToDigest } = extractSignedData(
+            readSignedOnly("invalid_signature.eml")
+        );
+        const invalidSignatureEnvelope = getSignedDataEnvelope(invalidPkcs7Part);
+
+        const corruptedEml = readSignedOnly("corrupted.eml");
+        const { pkcs7Part: corruptedPkcs7Part, toDigest: corruptedToDigest } = extractSignedData(corruptedEml);
+        const corruptedEnvelope = getSignedDataEnvelope(corruptedPkcs7Part);
+
+        test("verify a valid eml", async done => {
+            try {
+                await pkcs7.verify(validPkcs7Part, validToDigest);
+                done();
+            } catch {
+                done.fail("failed verify a valid signed eml.");
+            }
+        });
+
+        test("verify invalid or corrupted eml throw an exception", async done => {
+            try {
+                await pkcs7.verify(invalidPkcs7Part, invalidToDigest);
+                done.fail();
+            } catch {
+                try {
+                    await pkcs7.verify(corruptedPkcs7Part, corruptedToDigest);
+                    done.fail();
+                } catch {
+                    done();
+                }
+            }
+        });
 
         test("check if signature matches authenticate attributes", done => {
             try {
@@ -79,55 +114,58 @@ describe("pkcs7", () => {
                 done.fail();
             } catch (error) {
                 expect(error).toBeInstanceOf(InvalidSignatureError);
-                expect(error.code).toBe(CRYPTO_HEADERS.INVALID_SIGNATURE);
+                expect((<SmimeErrors>error).code).toBe(CRYPTO_HEADERS.INVALID_SIGNATURE);
                 done();
             }
         });
 
         test("check message integrity", done => {
             try {
-                checkMessageIntegrity(validEnvelope, toDigest);
+                checkMessageIntegrity(validEnvelope, validToDigest);
             } catch {
                 done.fail();
             }
 
-            const { envelope, toDigest: invalidDigest } = getEnvelopeFromEml("corrupted.eml");
             try {
-                checkMessageIntegrity(envelope, invalidDigest);
+                checkMessageIntegrity(corruptedEnvelope, corruptedToDigest);
                 done.fail();
             } catch (error) {
                 expect(error).toBeInstanceOf(InvalidMessageIntegrityError);
-                expect(error.code).toBe(CRYPTO_HEADERS.INVALID_MESSAGE_INTEGRITY);
+                expect((<SmimeErrors>error).code).toBe(CRYPTO_HEADERS.INVALID_MESSAGE_INTEGRITY);
                 done();
             }
         });
     });
     describe("encrypt", () => {
-        beforeEach(() => {});
         test("encrypt message with my own certificate", async () => {
             const result = pkcs7.encrypt("hello", [mockCertificate]);
             expect(result).toBeTruthy();
         });
         test("error in encrypt raise an error", async () => {
             try {
-                pkcs7.encrypt("hello", ["wrongCertificate"]);
+                pkcs7.encrypt("hello", [mockOtherCertificate]);
             } catch (error) {
                 expect(error).toBeInstanceOf(EncryptError);
             }
         });
     });
+    describe("sign", () => {
+        test("sign message returns a valid base64", async done => {
+            const signed = await pkcs7.sign("blabla", mockKey, mockCertificate);
+            try {
+                atob(signed);
+                done();
+            } catch {
+                done.fail("sign return is not a valid base64");
+            }
+        });
+    });
 });
 
-function readTxt(file) {
+function readTxt(file: string) {
     return readFile(`${file}.txt`);
 }
 
-function getEnvelopeFromEml(filename) {
-    const eml = readSignedOnly(filename);
-    const { pkcs7Part, toDigest } = extractSignedData(eml);
-    return { envelope: getSignedDataEnvelope(pkcs7Part), toDigest };
-}
-
-function readSignedOnly(filename) {
-    return fs.readFileSync(path.join(__dirname, `./data/eml/signed_only/${filename}`), "utf8", (err, data) => data);
+function readSignedOnly(filename: string) {
+    return fs.readFileSync(path.join(__dirname, `./data/eml/signed_only/${filename}`), "utf8");
 }

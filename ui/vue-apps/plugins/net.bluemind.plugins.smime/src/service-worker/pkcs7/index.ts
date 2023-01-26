@@ -8,7 +8,7 @@ import {
     UnmatchedCertificateError
 } from "../exceptions";
 import { checkMessageIntegrity, checkSignatureValidity, getSignedDataEnvelope, getSigningTime } from "./verify";
-import { checkCertificateValidity, getMyCertificate, getMyPrivateKey } from "../pki/";
+import { checkCertificateValidity } from "../pki/";
 
 export async function decrypt(
     data: Blob,
@@ -61,18 +61,15 @@ export async function verify(pkcs7: ArrayBuffer, toDigest: string) {
 
 // create PKCS#7 signed data with authenticatedAttributes
 // attributes include: PKCS#9 content-type, message-digest, and signing-time
-export async function sign(content: string) {
+export async function sign(content: string, myPrivateKey: pki.rsa.PrivateKey, myCert: pki.Certificate) {
     try {
         const p7 = pkcs7.createSignedData();
         p7.content = util.createBuffer(content);
 
-        const privateKey = await getMyPrivateKey();
-        const myCert = await getMyCertificate();
-
         // FIXME: add CA cert ?
         p7.addCertificate(myCert);
         p7.addSigner({
-            key: privateKey,
+            key: myPrivateKey,
             certificate: myCert,
             digestAlgorithm: pki.oids.sha256,
             authenticatedAttributes: [

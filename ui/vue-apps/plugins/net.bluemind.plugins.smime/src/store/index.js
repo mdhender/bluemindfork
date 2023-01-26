@@ -75,7 +75,11 @@ export default {
             if (error && error.message) {
                 const regex = /\[SMIME_ENCRYPTION_ERROR:(.*)\]/;
                 const match = error.message.match(regex);
-                state.encryptError = match && match[1] ? parseInt(match[1]) : null;
+                if (match && match[1] && parseInt(match[1])) {
+                    state.encryptError = parseInt(match[1]);
+                } else {
+                    state.encryptError = null;
+                }
             } else {
                 state.encryptError = null;
             }

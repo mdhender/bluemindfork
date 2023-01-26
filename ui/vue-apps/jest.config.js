@@ -16,7 +16,7 @@ const baseConfig = {
     ]
 };
 
-const testFileMatcher = "**/*.spec.js";
+const testFileMatcher = "**/*.spec.(js|ts)";
 
 module.exports = {
     projects: [
