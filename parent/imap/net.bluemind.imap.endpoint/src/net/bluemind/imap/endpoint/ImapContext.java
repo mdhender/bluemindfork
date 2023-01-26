@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.base.MoreObjects.ToStringHelper;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -182,7 +183,12 @@ public class ImapContext {
 
 	@Override
 	public String toString() {
-		return MoreObjects.toStringHelper(ImapContext.class).add("con", mailbox).toString();
+		ToStringHelper build = MoreObjects.toStringHelper(ImapContext.class).add("con", mailbox);
+		if (clientId != null && clientId.containsKey("name")) {
+			String id = clientId.get("name") + "/" + clientId.get("version");
+			build.add("id", id);
+		}
+		return build.toString();
 	}
 
 }
