@@ -382,7 +382,7 @@ public class DomainsService implements IInCoreDomains, IDomains {
 		} else {
 			d = ItemValue.create(d, d.value.copy());
 		}
-		return d;
+		return filter(d);
 	}
 
 	@Override
@@ -390,7 +390,8 @@ public class DomainsService implements IInCoreDomains, IDomains {
 		if (RBACManager.forContext(context).can(BasicRoles.ROLE_MANAGE_DOMAIN)) {
 			return store.all();
 		} else {
-			return Arrays.asList(store.get(context.getSecurityContext().getContainerUid(), null));
+			return Arrays.asList(store.get(context.getSecurityContext().getContainerUid(), null)).stream()
+					.map(this::filter).toList();
 		}
 	}
 
@@ -508,7 +509,7 @@ public class DomainsService implements IInCoreDomains, IDomains {
 		if (!domain.uid.equals(context.getSecurityContext().getContainerUid())) {
 			rbacManager.forDomain(domain.uid).check(BasicRoles.ROLE_ADMIN);
 		}
-		return domain;
+		return filter(domain);
 	}
 
 	private static List<IDomainHook> getHooks() {
@@ -551,6 +552,19 @@ public class DomainsService implements IInCoreDomains, IDomains {
 			create(item);
 		} else {
 			update(item);
+		}
+	}
+
+	private ItemValue<Domain> filter(ItemValue<Domain> domain) {
+		if (domain == null || domain == null) {
+			return domain;
+		}
+		if (rbacManager.forDomain(domain.uid).can(BasicRoles.ROLE_ADMIN)) {
+			return domain;
+		} else {
+			Domain filtered = domain.value.copy();
+			filtered.properties = Collections.emptyMap();
+			return ItemValue.create(domain.uid, filtered);
 		}
 	}
 }

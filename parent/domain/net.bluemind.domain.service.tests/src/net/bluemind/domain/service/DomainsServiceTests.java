@@ -352,14 +352,16 @@ public class DomainsServiceTests {
 	}
 
 	@Test
-	public void testCustomProperties() throws ServerFault {
+	public void testCustomProperties() throws Exception {
+		PopulateHelper.addDomain("test.lan");
+
+		Domain d = getService().get("test.lan").value;
 		IDomains domains = getService();
-		Domain d = new Domain();
-		d.name = "test.lan";
-		d.label = "label";
-		d.description = "desc";
-		d.aliases = Collections.emptySet();
-		domains.create("test.lan", d);
+
+		String user = PopulateHelper.addUser("user" + System.currentTimeMillis(), "test.lan");
+		SecurityContext userSecurityContext = new SecurityContext(user, user, Arrays.<String>asList(),
+				Collections.emptyList(), "test.lan");
+		Sessions.get().put(userSecurityContext.getSessionId(), userSecurityContext);
 
 		ItemValue<Domain> created = domains.get("test.lan");
 		assertEquals(0, created.value.properties.size());
@@ -374,6 +376,13 @@ public class DomainsServiceTests {
 		created = domains.get("test.lan");
 		assertEquals(1, created.value.properties.size());
 		assertEquals("mind", created.value.properties.get("blue"));
+
+		ItemValue<Domain> getAsNonAdminShouldFilterProperties = ServerSideServiceProvider.getProvider(userSecurityContext)
+				.instance(IDomains.class).get("test.lan");
+		assertNotNull(getAsNonAdminShouldFilterProperties);
+		assertNotNull(getAsNonAdminShouldFilterProperties.value);
+		assertEquals("test.lan", getAsNonAdminShouldFilterProperties.uid);
+		assertEquals(0, getAsNonAdminShouldFilterProperties.value.properties.size());
 	}
 
 	private Domain domain(String name) {
