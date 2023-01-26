@@ -36,6 +36,7 @@ public class Processors {
 		register(new CapabilityProcessor());
 		register(new IdProcessor());
 		register(new SelectProcessor());
+		register(new CloseProcessor());
 		register(new ExamineProcessor());
 		register(new StatusProcessor());
 		register(new MyRightsProcessor());

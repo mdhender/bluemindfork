@@ -61,7 +61,6 @@ public abstract class AbstractSelectorProcessor<T extends AbstractFolderNameComm
 		resp.append("* OK [UNSEEN " + selected.unseen + "] Ok\r\n");
 		resp.append("* OK [UIDVALIDITY " + selected.folder.value.uidValidity + "] Ok\r\n");
 		resp.append("* OK [UIDNEXT " + (selected.folder.value.lastUid + 1) + "] Ok\r\n");
-		resp.append("* OK [HIGHESTMODSEQ " + selected.folder.value.highestModSeq + "] Ok\r\n");
 		if (isAlwaysReadOnly() || selected.mailbox.readOnly) {
 			resp.append(sc.raw().tag() + " OK [READ-ONLY] Completed\r\n");
 		} else {

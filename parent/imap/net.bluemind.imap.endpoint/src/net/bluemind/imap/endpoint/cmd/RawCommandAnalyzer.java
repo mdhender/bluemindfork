@@ -35,6 +35,8 @@ public class RawCommandAnalyzer {
 				return new CreateCommand(raw);
 			} else if (cmd.equals("check")) {
 				return new NoopCommand(raw);
+			} else if (cmd.equals("close")) {
+				return new CloseCommand(raw);
 			}
 			return null;
 		case 'd':
