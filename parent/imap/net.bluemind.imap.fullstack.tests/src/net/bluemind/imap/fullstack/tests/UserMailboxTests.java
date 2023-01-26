@@ -136,6 +136,18 @@ public class UserMailboxTests {
 		}
 	}
 
+	@Test
+	public void outlookListPrefix() throws IMAPException {
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "john")) {
+			assertTrue(sc.login());
+			sc.create("Top");
+			sc.create("Top/Level");
+			sc.create("Top/Level/Folder");
+			TaggedResult results = sc.tagged("LIST \"\" \"Top/Level/*\"");
+			assertTrue(results.isOk());
+		}
+	}
+
 	private InputStream eml() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("From: john.grubber@die-hard.net\r\n");

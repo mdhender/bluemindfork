@@ -71,13 +71,14 @@ public abstract class AbstractListProcessor<T extends AbstractListCommand> exten
 	public void checkedOperation(T sc, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		MailboxConnection con = ctx.mailbox();
 
-		long time = System.currentTimeMillis();
-
 		StringBuilder sb = new StringBuilder();
 		if (sc.reference().isEmpty() && sc.mailboxPattern().isEmpty()) {
 			// outlook command
 			// * XLIST (\Noselect) "/" ""
 			sb.append("* ").append(listCommand).append(" (\\Noselect) \"/\" \"\"\r\n");
+			if (logger.isDebugEnabled()) {
+				logger.debug("[{}] outlook dump root xlist to figure out separator", ctx);
+			}
 		} else {
 			List<ListNode> folders = con.list(sc.reference(), sc.mailboxPattern());
 			render(folders, sb);
@@ -85,8 +86,6 @@ public abstract class AbstractListProcessor<T extends AbstractListCommand> exten
 		sb.append(sc.raw().tag() + " OK Completed\r\n");
 
 		ctx.write(sb.toString());
-		time = System.currentTimeMillis() - time;
-		logger.info("{} completed in {}ms.", listCommand, time);
 
 		completed.handle(Result.success());
 	}

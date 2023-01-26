@@ -22,6 +22,9 @@
   */
 package net.bluemind.imap.endpoint.exec;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import net.bluemind.imap.endpoint.ImapContext;
@@ -30,6 +33,9 @@ import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.lib.vertx.Result;
 
 public class UnsubscribeProcessor extends AuthenticatedCommandProcessor<UnsubscribeCommand> {
+
+	private static final Logger logger = LoggerFactory.getLogger(UnsubscribeProcessor.class);
+
 	@Override
 	public Class<UnsubscribeCommand> handledType() {
 		return UnsubscribeCommand.class;
@@ -39,11 +45,10 @@ public class UnsubscribeProcessor extends AuthenticatedCommandProcessor<Unsubscr
 	protected void checkedOperation(UnsubscribeCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		MailboxConnection con = ctx.mailbox();
 		boolean success = con.unsubscribe(command.folder());
-		if (success) {
-			ctx.write(command.raw().tag() + " OK subscribe completed\r\n");
-		} else {
-			ctx.write(command.raw().tag() + " NO subscribe failure\r\n");
+		if (!success) {
+			logger.warn("[{}] unsub of {} failed but we don't care", ctx);
 		}
+		ctx.write(command.raw().tag() + " OK unsubscribe completed\r\n");
 		completed.handle(Result.success());
 	}
 }

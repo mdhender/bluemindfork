@@ -79,11 +79,14 @@ public abstract class AbstractSelectorProcessor<T extends AbstractFolderNameComm
 	}
 
 	private void missingFolder(T sc, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
+
 		if (ctx.state() == SessionState.SELECTED) {
 			ctx.state(SessionState.AUTHENTICATED);
 			ctx.selected(null);
+			ctx.write("* OK [CLOSED] Ok\r\n");
 		}
-		ctx.write("* OK [CLOSED] Ok\r\n" + sc.raw().tag() + " NO Mailbox does not exist\r\n");
+		ctx.write(sc.raw().tag() + " NO Mailbox does not exist\r\n");
+
 		completed.handle(Result.success());
 	}
 }
