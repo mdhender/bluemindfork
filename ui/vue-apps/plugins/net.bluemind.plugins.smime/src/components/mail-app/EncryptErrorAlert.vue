@@ -8,7 +8,7 @@
             <!-- TODO: doc link -->
             <bm-read-more href="" />
         </div>
-        <bm-button class="stop-encryption" variant="text" @click="stopEncryption">
+        <bm-button class="stop-encryption" variant="text" @click="stopEncryption(ACTIVE_MESSAGE)">
             {{ $t("smime.mailapp.composer.stop_encryption") }}
         </bm-button>
     </div>
@@ -17,13 +17,14 @@
 <script>
 import { BmButton } from "@bluemind/ui-components";
 import { BmReadMore } from "@bluemind/ui-components";
-import { CRYPTO_HEADERS, ENCRYPTED_HEADER_NAME } from "../../lib/constants";
+import { CRYPTO_HEADERS } from "../../lib/constants";
 import { mapGetters } from "vuex";
-import { removeHeader } from "../../lib/helper";
+import EncryptSignMixin from "../../mixins/EncryptSignMixin";
 
 export default {
     name: "EncryptErrorAlert",
     components: { BmButton, BmReadMore },
+    mixins: [EncryptSignMixin],
     props: {
         alert: {
             type: Object,
@@ -56,18 +57,6 @@ export default {
                 : this.allInvalid
                 ? this.$t("smime.mailapp.alert.recipients.all_invalid")
                 : this.$t("smime.mailapp.alert.recipients.some_invalid");
-        }
-    },
-    methods: {
-        async stopEncryption() {
-            const headers = removeHeader(this.ACTIVE_MESSAGE.headers, ENCRYPTED_HEADER_NAME);
-            this.$store.commit("mail/SET_MESSAGE_HEADERS", { messageKey: this.ACTIVE_MESSAGE.key, headers });
-
-            await this.$store.dispatch(`mail/DEBOUNCED_SAVE_MESSAGE`, {
-                draft: this.ACTIVE_MESSAGE,
-                messageCompose: this.$store.state.mail.messageCompose,
-                files: this.ACTIVE_MESSAGE.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey])
-            });
         }
     }
 };

@@ -5,6 +5,7 @@
                 "untrusted": "Message was signed by sender but signature could not be verified.",
                 "decrypt_failed": "Unable to display the encrypted message",
                 "encrypt_failed": "Message encryption error",
+                "sign_failed": "Message signature error",
                 "recipients": {
                     "all_invalid": "Message recipients do not allow encryption.",
                     "some_invalid": "Some message recipients do not allow encryption."

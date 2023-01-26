@@ -16,7 +16,8 @@ import {
     ENCRYPTED_HEADER_NAME,
     PKCS7_MIMES,
     SIGNED_HEADER_NAME,
-    SMIME_ENCRYPTION_ERROR_PREFIX
+    SMIME_ENCRYPTION_ERROR_PREFIX,
+    SMIME_SIGNATURE_ERROR_PREFIX
 } from "../../lib/constants";
 import { getHeaderValue, isVerified } from "../../lib/helper";
 import { readFile } from "./helpers";
@@ -308,7 +309,7 @@ describe("smime", () => {
                 await smime.sign(item, "folderUid");
                 done.fail();
             } catch (error) {
-                expect(error).toContain(SMIME_ENCRYPTION_ERROR_PREFIX);
+                expect(error).toContain(SMIME_SIGNATURE_ERROR_PREFIX);
                 expect(error).toContain(CRYPTO_HEADERS.SIGN_FAILURE);
                 done();
             }

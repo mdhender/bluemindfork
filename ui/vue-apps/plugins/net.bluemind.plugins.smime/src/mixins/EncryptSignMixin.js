@@ -2,36 +2,30 @@ import { CRYPTO_HEADERS, ENCRYPTED_HEADER_NAME, SIGNED_HEADER_NAME } from "../li
 import { removeHeader, addHeaderValue } from "../lib/helper";
 
 export default {
-    props: {
-        message: {
-            type: Object,
-            required: true
-        }
-    },
     methods: {
-        stopSignature() {
-            const headers = removeHeader(this.message.headers, SIGNED_HEADER_NAME);
-            this.setHeadersAndSave(headers);
+        stopSignature(message) {
+            const headers = removeHeader(message.headers, SIGNED_HEADER_NAME);
+            this.setHeadersAndSave(message, headers);
         },
-        stopEncryption() {
-            const headers = removeHeader(this.message.headers, ENCRYPTED_HEADER_NAME);
-            this.setHeadersAndSave(headers);
+        stopEncryption(message) {
+            const headers = removeHeader(message.headers, ENCRYPTED_HEADER_NAME);
+            this.setHeadersAndSave(message, headers);
         },
-        startEncryption() {
-            const headers = addHeaderValue(this.message.headers, ENCRYPTED_HEADER_NAME, CRYPTO_HEADERS.TO_DO);
-            this.setHeadersAndSave(headers);
+        startEncryption(message) {
+            const headers = addHeaderValue(message.headers, ENCRYPTED_HEADER_NAME, CRYPTO_HEADERS.TO_DO);
+            this.setHeadersAndSave(message, headers);
         },
-        startSignature() {
-            const headers = addHeaderValue(this.message.headers, SIGNED_HEADER_NAME, CRYPTO_HEADERS.TO_DO);
-            this.setHeadersAndSave(headers);
+        startSignature(message) {
+            const headers = addHeaderValue(message.headers, SIGNED_HEADER_NAME, CRYPTO_HEADERS.TO_DO);
+            this.setHeadersAndSave(message, headers);
         },
-        async setHeadersAndSave(headers) {
-            this.$store.commit("mail/SET_MESSAGE_HEADERS", { messageKey: this.message.key, headers });
+        async setHeadersAndSave(message, headers) {
+            this.$store.commit("mail/SET_MESSAGE_HEADERS", { messageKey: message.key, headers });
 
             await this.$store.dispatch(`mail/DEBOUNCED_SAVE_MESSAGE`, {
-                draft: this.message,
+                draft: message,
                 messageCompose: this.$store.state.mail.messageCompose,
-                files: this.message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey])
+                files: message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey])
             });
         }
     }

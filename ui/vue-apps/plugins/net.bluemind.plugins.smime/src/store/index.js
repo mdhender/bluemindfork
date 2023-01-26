@@ -2,9 +2,16 @@ import { mailTipUtils } from "@bluemind/mail";
 import { CHECK_IF_ASSOCIATED, DISSOCIATE_CRYPTO_FILES } from "./actionTypes";
 import { SMIME_AVAILABLE } from "./getterTypes";
 import { DISPLAY_UNTRUSTED, SET_SW_ERROR, SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT } from "./mutationTypes";
-import { IS_SW_AVAILABLE, SMIME_INTERNAL_API_URL, PKIStatus } from "../lib/constants";
+import {
+    IS_SW_AVAILABLE,
+    SMIME_INTERNAL_API_URL,
+    PKIStatus,
+    SMIME_ENCRYPTION_ERROR_PREFIX,
+    SMIME_SIGNATURE_ERROR_PREFIX
+} from "../lib/constants";
 
 const { MailTipTypes } = mailTipUtils;
+const smimeRegex = new RegExp(`\\[(${SMIME_ENCRYPTION_ERROR_PREFIX}|${SMIME_SIGNATURE_ERROR_PREFIX}):(.*)\\]`);
 
 export default {
     namespaced: false,
@@ -17,7 +24,8 @@ export default {
         // mail-app
         displayUntrusted: [],
         missingCertificates: [],
-        encryptError: null
+        encryptError: null,
+        signError: null
     },
     getters: {
         [SMIME_AVAILABLE]: state => IS_SW_AVAILABLE && state.hasPublicCert && state.hasPrivateKey
@@ -72,16 +80,17 @@ export default {
             state.missingCertificates = missingCertificates;
         },
         SET_SAVE_ERROR: (state, error) => {
-            if (error && error.message) {
-                const regex = /\[SMIME_ENCRYPTION_ERROR:(.*)\]/;
-                const match = error.message.match(regex);
-                if (match && match[1] && parseInt(match[1])) {
-                    state.encryptError = parseInt(match[1]);
-                } else {
-                    state.encryptError = null;
+            state.encryptError = null;
+            state.signError = null;
+
+            if (error && error.message && smimeRegex.test(error.message)) {
+                const [errorType, errorCode] = error.message.match(smimeRegex).splice(1);
+                const code = parseInt(errorCode) ? parseInt(errorCode) : null;
+                if (errorType === SMIME_ENCRYPTION_ERROR_PREFIX) {
+                    state.encryptError = code;
+                } else if (errorType === SMIME_SIGNATURE_ERROR_PREFIX) {
+                    state.signError = code;
                 }
-            } else {
-                state.encryptError = null;
             }
         }
     }

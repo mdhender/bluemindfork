@@ -10,7 +10,8 @@ import {
     PKCS7_MIMES,
     SIGNATURE_MIME,
     SIGNED_HEADER_NAME,
-    SMIME_ENCRYPTION_ERROR_PREFIX
+    SMIME_ENCRYPTION_ERROR_PREFIX,
+    SMIME_SIGNATURE_ERROR_PREFIX
 } from "../lib/constants";
 import session from "./environnment/session";
 import { EncryptError, SmimeErrors } from "./exceptions";
@@ -88,7 +89,7 @@ export async function encrypt(item: MailboxItem, folderUid: string): Promise<Mai
         encryptedItem.body.headers = addHeaderValue(item.body?.headers, ENCRYPTED_HEADER_NAME, CRYPTO_HEADERS.OK);
     } catch (error) {
         const errorCode = error instanceof SmimeErrors ? error.code : CRYPTO_HEADERS.UNKNOWN;
-        throw `[${SMIME_ENCRYPTION_ERROR_PREFIX}:${errorCode}]`;
+        throw `[${SMIME_ENCRYPTION_ERROR_PREFIX}:${errorCode}]` + error;
     }
     return encryptedItem;
 }
@@ -133,7 +134,7 @@ export async function sign(item: MailboxItem, folderUid: string): Promise<Mailbo
         item.body.structure = buildMultipartSigned(UUIDGenerator.generate(), [unsignedPart, signedPart]);
     } catch (error) {
         const errorCode = error instanceof SmimeErrors ? error.code : CRYPTO_HEADERS.UNKNOWN;
-        throw `[${SMIME_ENCRYPTION_ERROR_PREFIX}:${errorCode}]`;
+        throw `[${SMIME_SIGNATURE_ERROR_PREFIX}:${errorCode}]` + error;
     }
     return item;
 }

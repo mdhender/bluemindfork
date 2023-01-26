@@ -9,7 +9,7 @@
         size="lg"
         :title="title"
         right
-        @click="toggle"
+        @click="toggleAll"
     >
         <bm-dropdown-item-toggle :checked="hasEncryptionHeader" @click="toggleEncryption">
             {{ $t("smime.mailapp.composer.encrypt") }}
@@ -31,8 +31,23 @@ import EncryptSignMixin from "../../mixins/EncryptSignMixin";
 import { hasEncryptionHeader, hasSignatureHeader, addHeaderValue } from "../../lib/helper";
 import { CRYPTO_HEADERS, ENCRYPTED_HEADER_NAME, SIGNED_HEADER_NAME, SMIMEPrefKeys } from "../../lib/constants";
 
-const { MessageCreationModes, messageKey } = messageUtils;
+const { MessageCreationModes, messageKey, MessageStatus } = messageUtils;
 const { isNewMessage } = draftUtils;
+
+const encryptAlert = { name: "smime.encrypt_error", uid: "SMIME_ENCRYPT_ERROR", payload: null };
+const encryptAlertOptions = {
+    area: "composer-footer",
+    icon: "lock-slash",
+    renderer: "EncryptErrorAlert",
+    dismissible: false
+};
+const signAlert = { name: "smime.sign_error", uid: "SMIME_SIGN_ERROR", payload: null };
+const signAlertOptions = {
+    area: "composer-footer",
+    icon: "lock-slash",
+    renderer: "SignErrorAlert",
+    dismissible: false
+};
 
 export default {
     name: "EncryptAndSignButton",
@@ -64,6 +79,9 @@ export default {
                     this.$store.state.mail.smime.missingCertificates.length > 0 ||
                     this.$store.state.mail.smime.encryptError)
             );
+        },
+        hasSignError() {
+            return this.hasSignatureHeader && !!this.$store.state.mail.smime.signError;
         }
     },
     watch: {
@@ -105,20 +123,35 @@ export default {
             },
             immediate: true
         },
+        "$store.state.mail.smime.missingCertificates": {
+            handler(missingCertificates) {
+                if (this.hasEncryptionHeader && missingCertificates.length > 0) {
+                    this.$store.commit("mail/SET_MESSAGES_STATUS", [
+                        { key: this.message.key, status: MessageStatus.SAVE_ERROR }
+                    ]);
+                }
+            }
+        },
         hasEncryptError: {
             handler(hasError) {
                 const error = this.$store.state.mail.smime.encryptError;
-                const alert = { name: "smime.encrypt_error", uid: "SMIME_ENCRYPT_ERROR", payload: error };
-                const options = {
-                    area: "composer-footer",
-                    icon: "lock-slash",
-                    renderer: "EncryptErrorAlert",
-                    dismissible: false
-                };
+                const alert = { ...encryptAlert, payload: error };
                 if (hasError) {
-                    this.ERROR({ alert, options });
+                    this.ERROR({ alert, options: encryptAlertOptions });
                 } else {
-                    this.REMOVE(alert);
+                    this.REMOVE(encryptAlert);
+                }
+            },
+            immediate: true
+        },
+        hasSignError: {
+            handler(hasError) {
+                const error = this.$store.state.mail.smime.signError;
+                const alert = { ...signAlert, payload: error };
+                if (hasError) {
+                    this.ERROR({ alert, options: signAlertOptions });
+                } else {
+                    this.REMOVE(signAlert);
                 }
             },
             immediate: true
@@ -126,27 +159,27 @@ export default {
     },
     methods: {
         ...mapActions("alert", { ERROR, REMOVE }),
-        async toggle() {
+        async toggleAll() {
             if (this.hasEncryptionHeader) {
-                this.stopSignature();
-                this.stopEncryption();
+                this.stopSignature(this.message);
+                this.stopEncryption(this.message);
             } else {
-                this.startSignature();
-                this.startEncryption();
+                this.startSignature(this.message);
+                this.startEncryption(this.message);
             }
         },
         toggleEncryption() {
             if (this.hasEncryptionHeader) {
-                this.stopEncryption();
+                this.stopEncryption(this.message);
             } else {
-                this.startEncryption();
+                this.startEncryption(this.message);
             }
         },
         toggleSignature() {
             if (this.hasSignatureHeader) {
-                this.stopSignature();
+                this.stopSignature(this.message);
             } else {
-                this.startSignature();
+                this.startSignature(this.message);
             }
         }
     }

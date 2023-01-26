@@ -5,6 +5,7 @@
                 "untrusted": "Le message a été signé par son expéditeur mais la signature n'a pas pu être validée.",
                 "decrypt_failed": "Impossible d'afficher le message chiffré.",
                 "encrypt_failed": "Erreur de chiffrement du message",
+                "sign_failed": "Erreur de signature du message",
                 "recipients": {
                     "all_invalid": "Les destinataires du message ne permettent pas le chiffrement.",
                     "some_invalid": "Certains destinataires du message ne permettent pas le chiffrement."

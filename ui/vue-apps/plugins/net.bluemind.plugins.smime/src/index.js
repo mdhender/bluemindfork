@@ -9,6 +9,7 @@ import UntrustedSenderTrigger from "./components/mail-app/UntrustedSenderTrigger
 import DecryptErrorAlert from "./components/mail-app/DecryptErrorAlert";
 import EncryptErrorAlert from "./components/mail-app/EncryptErrorAlert";
 import DecryptErrorTrigger from "./components/mail-app/DecryptErrorTrigger";
+import SignErrorAlert from "./components/mail-app/SignErrorAlert";
 import EncryptAndSignButton from "./components/mail-app/EncryptAndSignButton";
 import ContactWithCertificate from "./components/mail-app/ContactWithCertificate";
 import PrefSmime from "./components/preferences/PrefSmime";
@@ -36,6 +37,7 @@ Vue.component("DecryptErrorAlert", DecryptErrorAlert);
 Vue.component("EncryptErrorAlert", EncryptErrorAlert);
 Vue.component("EncryptAndSignButton", EncryptAndSignButton);
 Vue.component("ContactWithCertificate", ContactWithCertificate);
+Vue.component("SignErrorAlert", SignErrorAlert);
 
 extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
     component: {
