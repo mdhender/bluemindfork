@@ -5,10 +5,16 @@
             <div>
                 {{ $tc("common.attachments", files.length, { count: files.length }) }}
             </div>
-            <div>({{ displaySize(filesWeight) }} / {{ displaySize(maxSize) }})</div>
+            <div v-if="filesWeight">({{ displaySize(filesWeight) }} / {{ displaySize(maxSize) }})</div>
             <bm-icon v-if="isTooHeavy" icon="exclamation-circle" />
         </div>
-        <bm-progress :value="filesWeight" :max="maxSize" class="align-self-center" :variant="filesWeightColor" />
+        <bm-progress
+            v-if="filesWeight"
+            :value="filesWeight"
+            :max="maxSize"
+            class="align-self-center"
+            :variant="filesWeightColor"
+        />
     </div>
     <div v-else class="files-header">
         <bm-icon icon="paper-clip" />
