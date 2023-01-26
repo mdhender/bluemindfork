@@ -17,6 +17,8 @@
   */
 package net.bluemind.system.auth;
 
+import java.util.Optional;
+
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.openid.utils.AccessTokenValidator;
@@ -28,8 +30,8 @@ public class OpenIdConfigurationObserver implements ISystemConfigurationObserver
 
 	@Override
 	public void onUpdated(BmContext context, SystemConf previous, SystemConf conf) throws ServerFault {
-		String prev = previous.stringValue(SysConfKeys.openid_host.name());
-		String now = conf.stringValue(SysConfKeys.openid_host.name());
+		String prev = Optional.ofNullable(previous.stringValue(SysConfKeys.openid_host.name())).orElse("");
+		String now = Optional.ofNullable(conf.stringValue(SysConfKeys.openid_host.name())).orElse("");
 		if (!now.equals(prev)) {
 			AccessTokenValidator.invalidateCache();
 		}
