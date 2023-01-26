@@ -33,6 +33,7 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.MailboxConfig;
 import net.bluemind.mailbox.api.MailboxQuota;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
 
 public class FakeMailboxes implements IMailboxes {
 
@@ -177,6 +178,11 @@ public class FakeMailboxes implements IMailboxes {
 
 	@Override
 	public List<String> listUids() {
+		throw new ServerFault("not implemented");
+	}
+
+	@Override
+	public List<MailFilterRule> getMailboxRules(String mailboxUid) throws ServerFault {
 		throw new ServerFault("not implemented");
 	}
 

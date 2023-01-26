@@ -9,8 +9,8 @@ import net.bluemind.delivery.lmtp.common.DeliveryContent;
 import net.bluemind.delivery.lmtp.common.IDeliveryContext;
 import net.bluemind.delivery.lmtp.common.IDeliveryHook;
 import net.bluemind.delivery.lmtp.common.ResolvedBox;
+import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
-import net.bluemind.mailbox.service.IInCoreMailboxes;
 
 public class MailFilterRuleDeliveryHook implements IDeliveryHook {
 	private static final Logger logger = LoggerFactory.getLogger(MailFilterRuleDeliveryHook.class);
@@ -27,7 +27,7 @@ public class MailFilterRuleDeliveryHook implements IDeliveryHook {
 
 		ResolvedBox box = content.box();
 		RuleEngine engine = new RuleEngine(ctx, new Sendmail(), content, vacationCacheFactory);
-		IInCoreMailboxes mailboxesApi = provider.instance(IInCoreMailboxes.class, box.dom.uid);
+		IMailboxes mailboxesApi = provider.instance(IMailboxes.class, box.dom.uid);
 
 		MailFilter domainFilters = mailboxesApi.getDomainFilter();
 		content = engine.apply(domainFilters.rules);

@@ -22,6 +22,5 @@ Require-Bundle: slf4j.api,
  org.apache.commons.lang3,
  net.bluemind.mapdb,
  com.github.ben-manes.caffeine,
- net.bluemind.eclipse.common,
- net.bluemind.mailbox.service
+ net.bluemind.eclipse.common
 Export-Package: net.bluemind.delivery.rules

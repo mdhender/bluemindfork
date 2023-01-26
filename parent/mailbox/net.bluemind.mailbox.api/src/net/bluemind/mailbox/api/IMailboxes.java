@@ -16,6 +16,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.directory.api.IDirEntryMaintenance;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
 
 @BMApi(version = "3")
 @Path("/mailboxes/{domainUid}")
@@ -117,6 +118,10 @@ public interface IMailboxes {
 	@POST
 	@Path("{mailboxUid}/_filter")
 	public void setMailboxFilter(@PathParam("mailboxUid") String mailboxUid, MailFilter filter) throws ServerFault;
+
+	@GET
+	@Path("{mailboxUid}/_rules")
+	List<MailFilterRule> getMailboxRules(@PathParam("mailboxUid") String mailboxUid) throws ServerFault;
 
 	@GET
 	@Path("{mailboxUid}/_acls")
