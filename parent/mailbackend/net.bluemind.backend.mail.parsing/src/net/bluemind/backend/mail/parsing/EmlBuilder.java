@@ -98,7 +98,12 @@ public class EmlBuilder {
 			} else {
 				setBody(msg, body, structure);
 			}
-
+			Header partHeader = msg.getHeader();
+			try {
+				fillHeader(partHeader, mb.structure.headers, true);
+			} catch (MimeException e) {
+				logger.error(e.getMessage(), e);
+			}
 		} catch (IOException e) {
 			msg.setBody(bbf.textBody("CRAP: " + e.getMessage(), StandardCharsets.UTF_8));
 		}
