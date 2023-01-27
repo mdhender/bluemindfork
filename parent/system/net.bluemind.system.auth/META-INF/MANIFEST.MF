@@ -21,7 +21,6 @@ Require-Bundle: net.bluemind.system.hook,
  net.bluemind.hornetq.client,
  net.bluemind.network.topology,
  net.bluemind.openid.utils,
- net.bluemind.system.config,
- net.bluemind.domain.hook
+ net.bluemind.system.config
 Export-Package: net.bluemind.system.auth
 Automatic-Module-Name: net.bluemind.system.auth

@@ -76,6 +76,7 @@
 		<module>imap</module>
 		<module>smime</module>
 		<module>keycloak</module>
+		<module>openid</module>
 	</modules>
 	<build>
 		<plugins>

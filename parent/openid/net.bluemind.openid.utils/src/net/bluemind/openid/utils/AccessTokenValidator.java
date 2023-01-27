@@ -17,10 +17,20 @@
   */
 package net.bluemind.openid.utils;
 
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.Builder;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.charset.StandardCharsets;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
 import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.auth0.jwk.GuavaCachedJwkProvider;
 import com.auth0.jwk.Jwk;
@@ -34,17 +44,22 @@ import net.bluemind.core.api.fault.ServerFault;
 
 public class AccessTokenValidator {
 
+	private static final Logger logger = LoggerFactory.getLogger(AccessTokenValidator.class);
+
 	private static Optional<GuavaCachedJwkProvider> provider = Optional.empty();
 
 	private AccessTokenValidator() {
 
 	}
 
-	public static void validate(JsonObject openIdConfiguration, DecodedJWT token) throws ServerFault {
+	public static void validate(String domainUid, DecodedJWT token) throws ServerFault {
+
+		JsonObject openIdConfiguration = OpenIdServerConfiguration.get(domainUid);
 		String issuer = token.getIssuer();
-		String accessTokenIssuer = Strings.isNullOrEmpty(openIdConfiguration.getString("access_token_issuer"))
-				? openIdConfiguration.getString("issuer")
-				: openIdConfiguration.getString("access_token_issuer");
+
+		String accessTokenIssuer = Optional.ofNullable(openIdConfiguration.getString("issuer"))
+				.orElse(openIdConfiguration.getString("access_token_issuer"));
+
 		if (Strings.isNullOrEmpty(issuer) || !issuer.equals(accessTokenIssuer)) {
 			throw new ServerFault("Failed to validate token: iss");
 		}
@@ -62,7 +77,10 @@ public class AccessTokenValidator {
 
 	}
 
-	public static void validateSignature(JsonObject openIdConfiguration, DecodedJWT token) throws ServerFault {
+	public static void validateSignature(String domainUid, DecodedJWT token) throws ServerFault {
+
+		JsonObject openIdConfiguration = OpenIdServerConfiguration.get(domainUid);
+
 		try {
 
 			if (provider.isEmpty()) {
@@ -77,6 +95,37 @@ public class AccessTokenValidator {
 			throw new ServerFault(e.getMessage());
 		}
 
+	}
+
+	public static Optional<JsonObject> refreshToken(String domainUid, String refreshToken) {
+		JsonObject conf = OpenIdServerConfiguration.get(domainUid);
+		try {
+			String endpoint = conf.getString("token_endpoint");
+			Builder requestBuilder = HttpRequest.newBuilder(new URI(endpoint));
+			requestBuilder.header("Charset", StandardCharsets.UTF_8.name());
+			requestBuilder.header("Content-Type", "application/x-www-form-urlencoded");
+			String params = "grant_type=refresh_token";
+			params += "&client_id=" + conf.getString("clientId");
+			params += "&client_secret=" + conf.getString("clientSecret");
+			params += "&refresh_token=" + refreshToken;
+			byte[] postData = params.getBytes(StandardCharsets.UTF_8);
+			requestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(postData));
+			HttpRequest req = requestBuilder.build();
+			HttpClient cli = HttpClient.newHttpClient();
+			HttpResponse<String> resp = cli.send(req, BodyHandlers.ofString());
+
+			if (resp.statusCode() >= 400) {
+				logger.error("Failed to refresh token {}", resp.body());
+				return Optional.empty();
+			}
+
+			JsonObject token = new JsonObject(resp.body());
+			return Optional.of(token);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+
+		return Optional.empty();
 	}
 
 	public static void invalidateCache() {

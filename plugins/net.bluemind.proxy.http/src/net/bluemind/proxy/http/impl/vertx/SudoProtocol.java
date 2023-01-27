@@ -31,6 +31,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.proxy.http.IAuthProvider;
 import net.bluemind.proxy.http.auth.api.AuthRequirements;
@@ -77,10 +78,12 @@ public class SudoProtocol implements IAuthProtocol {
 		List<String> forwadedFor = new ArrayList<>(req.headers().getAll("X-Forwarded-For"));
 		forwadedFor.add(req.remoteAddress().host());
 
-		prov.sessionId(login, pass, privateComputer, forwadedFor, new AsyncHandler<String>() {
+		prov.sessionId(login, pass, privateComputer, forwadedFor, new AsyncHandler<JsonObject>() {
 
 			@Override
-			public void success(String sid) {
+			public void success(JsonObject json) {
+
+				String sid = json.getString("sid");
 
 				// get cookie...
 				String proxySid = ss.newSession(sid, protocol);

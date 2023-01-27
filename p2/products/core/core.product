@@ -353,6 +353,8 @@
       <plugin id="net.bluemind.notes.sqlschema"/>
       <plugin id="net.bluemind.notes.usernotes"/>
       <plugin id="net.bluemind.okhttp"/>
+      <plugin id="net.bluemind.openid.configuration"/>
+      <plugin id="net.bluemind.openid.utils"/>
       <plugin id="net.bluemind.osgi.log"/>
       <plugin id="net.bluemind.outlook.clientcheck"/>
       <plugin id="net.bluemind.pool"/>

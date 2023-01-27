@@ -55,7 +55,6 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.openid.utils.AccessTokenValidator;
 import net.bluemind.proxy.http.ExternalCreds;
 import net.bluemind.proxy.http.IAuthProvider;
 import net.bluemind.proxy.http.auth.api.AuthRequirements;
@@ -132,8 +131,7 @@ public class OAuthProtocol implements IAuthProtocol {
 				return;
 			}
 
-			JsonObject response = new JsonObject(resp.body());
-			String token = response.getString("access_token");
+			JsonObject token = new JsonObject(resp.body());
 			String redirectTo = jsonState.getString("path");
 			validateToken(request, protocol, provider, ss, forwadedFor, token, redirectTo);
 		} catch (Exception e) {
@@ -148,30 +146,28 @@ public class OAuthProtocol implements IAuthProtocol {
 	}
 
 	private void validateToken(HttpServerRequest request, IAuthProtocol protocol, IAuthProvider prov, ISessionStore ss,
-			List<String> forwadedFor, String accessToken, String redirectTo) {
-		DecodedJWT token = JWT.decode(accessToken);
+			List<String> forwadedFor, JsonObject token, String redirectTo) {
 
-		AccessTokenValidator.validate(oAuthConf.openIdConfiguration(), token);
-		AccessTokenValidator.validateSignature(oAuthConf.openIdConfiguration(), token);
+		DecodedJWT accessToken = JWT.decode(token.getString("access_token"));
 
-		Claim email = token.getClaim("email");
+		Claim email = accessToken.getClaim("email");
 		if (email.isMissing() || email.isNull()) {
 			error(request, new ServerFault("Failed to validate id_token: no email"));
 			return;
 		}
 
 		ExternalCreds creds = new ExternalCreds();
-		creds.setTicket(accessToken);
 		creds.setLoginAtDomain(email.asString());
-		createSession(request, protocol, prov, ss, forwadedFor, creds, redirectTo);
+		createSession(request, protocol, prov, ss, forwadedFor, creds, redirectTo, token);
 	}
 
 	private void createSession(HttpServerRequest request, IAuthProtocol protocol, IAuthProvider prov, ISessionStore ss,
-			List<String> forwadedFor, ExternalCreds creds, String redirectTo) {
+			List<String> forwadedFor, ExternalCreds creds, String redirectTo, JsonObject token) {
 		logger.info("Create session for {}", creds.getLoginAtDomain());
-		prov.sessionId(creds, forwadedFor, new AsyncHandler<String>() {
+		prov.sessionId(creds, forwadedFor, new AsyncHandler<JsonObject>() {
 			@Override
-			public void success(String sid) {
+			public void success(JsonObject json) {
+				String sid = json.getString("sid");
 				if (sid == null) {
 					logger.error("Error during auth, {} login not valid (not found/archived or not user)",
 							creds.getLoginAtDomain());
@@ -193,10 +189,25 @@ public class OAuthProtocol implements IAuthProtocol {
 				if (SecurityConfig.secureCookies) {
 					co.setSecure(true);
 				}
+				request.response().headers().add("Set-Cookie", ServerCookieEncoder.LAX.encode(co));
+
 				request.response().headers().add(HttpHeaders.LOCATION, redirectTo);
 				request.response().setStatusCode(302);
 
-				request.response().headers().add("Set-Cookie", ServerCookieEncoder.LAX.encode(co));
+				JsonObject cookie = new JsonObject();
+				cookie.put("access_token", token.getString("access_token"));
+				cookie.put("refresh_token", token.getString("refresh_token"));
+				cookie.put("sid", sid);
+				cookie.put("domain_uid", json.getString("domain_uid"));
+
+				Cookie openIdCookie = new DefaultCookie("OpenIdToken", cookie.encode());
+				openIdCookie.setPath("/");
+				openIdCookie.setHttpOnly(true);
+				if (SecurityConfig.secureCookies) {
+					openIdCookie.setSecure(true);
+				}
+				request.response().headers().add("Set-Cookie", ServerCookieEncoder.LAX.encode(openIdCookie));
+
 				request.response().end();
 			}
 

@@ -19,6 +19,7 @@ import org.junit.Test;
 
 import com.google.common.base.Strings;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.Email;
@@ -73,19 +74,20 @@ public class C2ProviderTests {
 		IAuthProvider provider = c2pf.get(VertxPlatform.getVertx());
 		Assert.assertNotNull(provider);
 		final BlockingQueue<String> queue = new LinkedBlockingDeque<>();
-		provider.sessionId("admin0@global.virt", "admin", true, Collections.emptyList(), new AsyncHandler<String>() {
+		provider.sessionId("admin0@global.virt", "admin", true, Collections.emptyList(),
+				new AsyncHandler<JsonObject>() {
 
-			@Override
-			public void success(String value) {
-				queue.offer(value);
-			}
+					@Override
+					public void success(JsonObject value) {
+						queue.offer(value.getString("sid"));
+					}
 
-			@Override
-			public void failure(Throwable e) {
-				e.printStackTrace();
-			}
+					@Override
+					public void failure(Throwable e) {
+						e.printStackTrace();
+					}
 
-		});
+				});
 
 		String sessionId = queue.poll(5, TimeUnit.SECONDS);
 		System.err.println("sessionid " + sessionId);
@@ -100,18 +102,19 @@ public class C2ProviderTests {
 		IAuthProvider provider = c2pf.get(VertxPlatform.getVertx());
 		Assert.assertNotNull(provider);
 		final BlockingQueue<String> queue = new LinkedBlockingDeque<>();
-		provider.sessionId("Admin0@Global.virt", "admin", true, Collections.emptyList(), new AsyncHandler<String>() {
+		provider.sessionId("Admin0@Global.virt", "admin", true, Collections.emptyList(),
+				new AsyncHandler<JsonObject>() {
 
-			@Override
-			public void success(String value) {
-				queue.offer(value);
-			}
+					@Override
+					public void success(JsonObject value) {
+						queue.offer(value.getString("sid"));
+					}
 
-			@Override
-			public void failure(Throwable e) {
-				e.printStackTrace();
-			}
-		});
+					@Override
+					public void failure(Throwable e) {
+						e.printStackTrace();
+					}
+				});
 
 		String sessionId = queue.poll(5, TimeUnit.SECONDS);
 		System.err.println("sessionid " + sessionId);
@@ -128,9 +131,9 @@ public class C2ProviderTests {
 		ExternalCreds externalCreds = new ExternalCreds();
 		externalCreds.setLoginAtDomain("invalid");
 
-		new C2Provider(null, null).sessionId(externalCreds, null, new AsyncHandler<String>() {
+		new C2Provider(null, null).sessionId(externalCreds, null, new AsyncHandler<JsonObject>() {
 			@Override
-			public void success(String value) {
+			public void success(JsonObject value) {
 				fail("Must get a failure!");
 			}
 
@@ -147,9 +150,9 @@ public class C2ProviderTests {
 		externalCreds.setLoginAtDomain(String.format("unknonwn@%s", domainUid));
 
 		new C2Provider(VertxPlatform.getVertx(), null).sessionId(externalCreds, Collections.emptyList(),
-				new AsyncHandler<String>() {
+				new AsyncHandler<JsonObject>() {
 					@Override
-					public void success(String value) {
+					public void success(JsonObject value) {
 						assertNull(value);
 					}
 
@@ -183,9 +186,9 @@ public class C2ProviderTests {
 		externalCreds.setLoginAtDomain(String.format("%s@%s", userLogin, domainUid));
 
 		new C2Provider(VertxPlatform.getVertx(), null).sessionId(externalCreds, Collections.emptyList(),
-				new AsyncHandler<String>() {
+				new AsyncHandler<JsonObject>() {
 					@Override
-					public void success(String value) {
+					public void success(JsonObject value) {
 						assertNull(value);
 					}
 
@@ -218,10 +221,11 @@ public class C2ProviderTests {
 		externalCreds.setLoginAtDomain(String.format("%s@%s", userLogin, domainUid));
 
 		new C2Provider(VertxPlatform.getVertx(), null).sessionId(externalCreds, Collections.emptyList(),
-				new AsyncHandler<String>() {
+				new AsyncHandler<JsonObject>() {
 					@Override
-					public void success(String value) {
-						assertFalse(Strings.isNullOrEmpty(value));
+					public void success(JsonObject value) {
+						assertFalse(Strings.isNullOrEmpty(value.getString("sid")));
+						assertFalse(Strings.isNullOrEmpty(value.getString("domain_uid")));
 					}
 
 					@Override
@@ -253,10 +257,11 @@ public class C2ProviderTests {
 		externalCreds.setLoginAtDomain(emailAlias);
 
 		new C2Provider(VertxPlatform.getVertx(), null).sessionId(externalCreds, Collections.emptyList(),
-				new AsyncHandler<String>() {
+				new AsyncHandler<JsonObject>() {
 					@Override
-					public void success(String value) {
-						assertFalse(Strings.isNullOrEmpty(value));
+					public void success(JsonObject value) {
+						assertFalse(Strings.isNullOrEmpty(value.getString("sid")));
+						assertFalse(Strings.isNullOrEmpty(value.getString("domain_uid")));
 					}
 
 					@Override
@@ -285,10 +290,11 @@ public class C2ProviderTests {
 		externalCreds.setLoginAtDomain(String.format("%s@%s", userLogin, domainUid));
 
 		new C2Provider(VertxPlatform.getVertx(), null).sessionId(externalCreds, Collections.emptyList(),
-				new AsyncHandler<String>() {
+				new AsyncHandler<JsonObject>() {
 					@Override
-					public void success(String value) {
-						assertFalse(Strings.isNullOrEmpty(value));
+					public void success(JsonObject value) {
+						assertFalse(Strings.isNullOrEmpty(value.getString("sid")));
+						assertFalse(Strings.isNullOrEmpty(value.getString("domain_uid")));
 					}
 
 					@Override

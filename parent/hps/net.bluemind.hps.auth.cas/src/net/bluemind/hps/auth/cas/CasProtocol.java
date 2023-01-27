@@ -49,6 +49,7 @@ import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.proxy.http.ExternalCreds;
 import net.bluemind.proxy.http.IAuthProvider;
@@ -145,9 +146,10 @@ public class CasProtocol implements IAuthProtocol {
 			ExternalCreds creds = optionalCreds.get();
 
 			logger.info("Create session for {}", creds.getLoginAtDomain());
-			prov.sessionId(creds, forwadedFor, new AsyncHandler<String>() {
+			prov.sessionId(creds, forwadedFor, new AsyncHandler<JsonObject>() {
 				@Override
-				public void success(String sid) {
+				public void success(JsonObject json) {
+					String sid = json.getString("sid");
 					if (sid == null) {
 						logger.error("Error during cas auth, {} login not valid (not found/archived or not user)",
 								creds.getLoginAtDomain());

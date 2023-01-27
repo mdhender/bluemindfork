@@ -44,6 +44,7 @@ import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.proxy.http.ExternalCreds;
 import net.bluemind.proxy.http.IAuthProvider;
@@ -111,9 +112,10 @@ public class KrbProtocol implements IAuthProtocol {
 					ret.setLoginAtDomain("tom@willow.vmw");
 				}
 
-				prov.sessionId(ret, forwadedFor, new AsyncHandler<String>() {
+				prov.sessionId(ret, forwadedFor, new AsyncHandler<JsonObject>() {
 					@Override
-					public void success(String sid) {
+					public void success(JsonObject json) {
+						String sid = json.getString("sid");
 						if (sid == null) {
 							logger.error(
 									"Error during kerberos auth, {} login not valid (not found/archived or not user)",

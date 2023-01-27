@@ -18,6 +18,8 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0";visibility:=ree
  net.bluemind.metrics.registry,
  net.bluemind.core.sessions;bundle-version="5.0.0",
  io.opentelemetry
+ com.auth0.java-jwt,
+ net.bluemind.openid.utils
 Export-Package: net.bluemind.core.rest,
  net.bluemind.core.rest.base,
  net.bluemind.core.rest.filter,

@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
@@ -36,9 +37,18 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
+
 import io.netty.handler.codec.http.QueryStringDecoder;
+import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.DefaultCookie;
+import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
+import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
+import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpHeaders;
 import net.bluemind.common.vertx.contextlogging.ContextualData;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
@@ -48,6 +58,7 @@ import net.bluemind.core.rest.model.RestService;
 import net.bluemind.core.rest.model.RestServiceApiDescriptor.MethodDescriptor;
 import net.bluemind.core.rest.utils.ErrorLogBuilder;
 import net.bluemind.core.sessions.Sessions;
+import net.bluemind.openid.utils.AccessTokenValidator;
 
 public class RestServiceMethodHandler implements IRestCallHandler {
 
@@ -56,15 +67,14 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 	private final List<String> pathParamNames;
 	private final RestServiceInvocation serviceInvocation;
 	private final Endpoint endpoint;
-
 	private final ParameterBuilder<? extends Object>[] paramBuilders;
 	private final ResponseBuilder responseBuilder;
 	private final List<IRestFilter> filters;
 	private final String name;
 	private final boolean async;
 	private static final Pattern pathParamsMatcher = Pattern.compile(Pattern.quote("{") + "(.*?)" + Pattern.quote("}"));
-
 	private static final CharSequence X_BM_API_KEY = HttpHeaders.createOptimized("X-BM-ApiKey");
+	private static final ServerCookieDecoder cookieDecoder = ServerCookieDecoder.LAX;
 
 	public RestServiceMethodHandler(Endpoint endpoint, MethodDescriptor methodDescriptor, List<String> pathParamNames,
 			ParameterBuilder<? extends Object>[] parameterBuilders, Pattern pathRegexp, ResponseBuilder responseBuilder,
@@ -129,15 +139,71 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 
 	@Override
 	public void call(RestRequest request, AsyncHandler<RestResponse> response) {
-		SecurityContext securityContext = null;
-		String key = request.headers.get(X_BM_API_KEY);
-		if (key == null || key.isEmpty()) {
-			key = request.params.get("apikey");
+		String key = null;
+		String cookieStr = Optional.ofNullable(request.headers.get("cookie")).orElse("");
+		Set<Cookie> cookies = cookieDecoder.decode(cookieStr);
+		Optional<Cookie> oidc = cookies.stream().filter(c -> "OpenIdToken".equals(c.name())).findFirst();
+		MultiMap headers = MultiMap.caseInsensitiveMultiMap();
+
+		if (oidc.isPresent()) {
+			JsonObject token = new JsonObject(oidc.get().value());
+
+			key = token.getString("sid");
+
+			DecodedJWT accessToken = JWT.decode(token.getString("access_token"));
+
+			String domainUid = token.getString("domain_uid");
+
+			try {
+				AccessTokenValidator.validateSignature(domainUid, accessToken);
+			} catch (ServerFault sf) {
+				Sessions.get().invalidate(key);
+				RestResponse resp = RestResponse
+						.invalidSession(String.format("invalid signature: %s", sf.getMessage()));
+				resp.headers.add("WWW-authenticate", "Bearer");
+				response.success(resp);
+				return;
+			}
+
+			try {
+				AccessTokenValidator.validate(domainUid, accessToken);
+			} catch (ServerFault sf) {
+				Optional<JsonObject> refreshedToken = AccessTokenValidator.refreshToken(domainUid,
+						token.getString("refresh_token"));
+
+				if (refreshedToken.isEmpty()) {
+					Sessions.get().invalidate(key);
+					RestResponse resp = RestResponse
+							.invalidSession(String.format("invalid accesstoken: %s", sf.getMessage()));
+					resp.headers.add("WWW-authenticate", "Bearer");
+					response.success(resp);
+					return;
+				}
+
+				JsonObject rt = new JsonObject(refreshedToken.get().encode());
+				JsonObject cookie = new JsonObject();
+				cookie.put("access_token", rt.getString("access_token"));
+				cookie.put("refresh_token", rt.getString("refresh_token"));
+				cookie.put("sid", key);
+				cookie.put("domain_uid", domainUid);
+
+				Cookie openIdCookie = new DefaultCookie("OpenIdToken", cookie.encode());
+				openIdCookie.setPath("/");
+				openIdCookie.setHttpOnly(true);
+				openIdCookie.setSecure(true);
+
+				headers.add("Set-Cookie", ServerCookieEncoder.LAX.encode(openIdCookie));
+
+			}
 		}
+
+		key = Optional.ofNullable(key)
+				.orElse(Optional.ofNullable(request.headers.get(X_BM_API_KEY)).orElse(request.params.get("apikey")));
 
 		logger.debug("handle request {} from {}) with key {}", request.path, request.remoteAddresses, key);
 
-		if (key == null || key.isEmpty()) {
+		SecurityContext securityContext = null;
+		if (key == null) {
 			securityContext = SecurityContext.ANONYMOUS.from(request.remoteAddresses, null);
 		} else {
 			securityContext = Sessions.sessionContext(key);
@@ -160,7 +226,7 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 		logger.debug("[{} c:{}] handling {}", securityContext.getSubject(), securityContext.getContainerUid(),
 				request.path);
 		try {
-			handle(securityContext, request, response);
+			handle(securityContext, request, response, headers);
 		} catch (Exception e) {
 			if (logger.isDebugEnabled()) {
 				logger.error("Error during restcall {}", request, e);
@@ -172,8 +238,8 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 
 	}
 
-	protected void handle(final SecurityContext securityContext, final RestRequest request,
-			final AsyncHandler<RestResponse> response) {
+	private void handle(final SecurityContext securityContext, final RestRequest request,
+			final AsyncHandler<RestResponse> response, MultiMap headers) {
 		RestInvocation invocation = buildInvocation(request);
 		invocation.invoke(endpoint, securityContext, new AsyncHandler<Object>() {
 
@@ -182,18 +248,18 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 				if (async) {
 					CompletableFuture<?> ret = (CompletableFuture<?>) value;
 					ret.thenAccept(val -> {
-						createResponse(request, response, val);
+						createResponse(request, response, val, headers);
 					}).exceptionally(e -> {
 						failure(e);
 						return null;
 					});
 				} else {
-					createResponse(request, response, value);
+					createResponse(request, response, value, headers);
 				}
 			}
 
 			private void createResponse(final RestRequest request, final AsyncHandler<RestResponse> response,
-					Object value) {
+					Object value, MultiMap headers) {
 				RestResponse responseMsg;
 				try {
 					responseMsg = responseBuilder.buildSuccess(request, value);
@@ -201,6 +267,7 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 					failure(e);
 					return;
 				}
+				responseMsg.headers.addAll(headers);
 				response.success(responseMsg);
 			}
 

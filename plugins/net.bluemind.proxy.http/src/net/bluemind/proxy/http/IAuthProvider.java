@@ -22,12 +22,13 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.AsyncHandler;
 
 public interface IAuthProvider {
 
 	void sessionId(String loginAtDomain, String password, boolean privateComputer, List<String> remoteIps,
-			AsyncHandler<String> handler);
+			AsyncHandler<JsonObject> handler);
 
 	void decorate(String sessionId, IDecorableRequest proxyReq);
 
@@ -42,7 +43,7 @@ public interface IAuthProvider {
 
 	void reload(String sessionId);
 
-	void sessionId(ExternalCreds krbCreds, List<String> remoteIps, AsyncHandler<String> handler);
+	void sessionId(ExternalCreds krbCreds, List<String> remoteIps, AsyncHandler<JsonObject> handler);
 
 	boolean inRole(String sessionId, String role);
 

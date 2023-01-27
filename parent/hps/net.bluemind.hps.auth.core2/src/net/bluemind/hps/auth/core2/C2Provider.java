@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.authentication.api.IAuthenticationPromise;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.authentication.api.LoginResponse.Status;
@@ -91,7 +92,7 @@ public class C2Provider implements IAuthProvider {
 
 	@Override
 	public void sessionId(final String loginAtDomain, final String password, boolean privateComputer,
-			List<String> remoteIps, final AsyncHandler<String> handler) {
+			List<String> remoteIps, final AsyncHandler<JsonObject> handler) {
 		VertxPromiseServiceProvider sp = getProvider(null, remoteIps);
 
 		logger.info("authenticating {}", loginAtDomain);
@@ -110,7 +111,7 @@ public class C2Provider implements IAuthProvider {
 		});
 	}
 
-	private void handlerLoginSuccess(LoginResponse lr, List<String> remoteIps, AsyncHandler<String> handler) {
+	private void handlerLoginSuccess(LoginResponse lr, List<String> remoteIps, AsyncHandler<JsonObject> handler) {
 		final SessionData sd = new SessionData(lr.authUser.value);
 
 		sd.authKey = lr.authKey;
@@ -137,11 +138,14 @@ public class C2Provider implements IAuthProvider {
 		}
 
 		sessions.getCache().put(sd.authKey, sd);
-		handler.success(sd.authKey);
+		JsonObject ret = new JsonObject();
+		ret.put("sid", sd.authKey);
+		ret.put("domain_uid", sd.domainUid);
+		handler.success(ret);
 	}
 
 	@Override
-	public void sessionId(ExternalCreds externalCreds, List<String> remoteIps, AsyncHandler<String> handler) {
+	public void sessionId(ExternalCreds externalCreds, List<String> remoteIps, AsyncHandler<JsonObject> handler) {
 		if (Strings.isNullOrEmpty(externalCreds.getLoginAtDomain())
 				|| !externalCreds.getLoginAtDomain().contains("@")) {
 			handler.failure(new ServerFault(String.format("Invalid loginAtDomain %s from external credentials",
@@ -181,7 +185,7 @@ public class C2Provider implements IAuthProvider {
 	 * @param domainName
 	 */
 	private void loginAtDomainAsEmail(IMailboxesPromise mailboxClient, List<String> remoteIps,
-			ExternalCreds externalCreds, AsyncHandler<String> handler, String domainName) {
+			ExternalCreds externalCreds, AsyncHandler<JsonObject> handler, String domainName) {
 		mailboxClient.byEmail(externalCreds.getLoginAtDomain()).whenComplete((mailbox, exception) -> {
 			if (exception != null) {
 				handler.failure(exception);
@@ -214,7 +218,7 @@ public class C2Provider implements IAuthProvider {
 	 * @param sp
 	 * @param externalCreds
 	 */
-	private void doSudo(List<String> remoteIps, AsyncHandler<String> handler, ExternalCreds externalCreds) {
+	private void doSudo(List<String> remoteIps, AsyncHandler<JsonObject> handler, ExternalCreds externalCreds) {
 		logger.info("[{}] sessionId (EXT)", externalCreds.getLoginAtDomain());
 
 		getProvider(Token.admin0(), remoteIps).instance(IAuthenticationPromise.class)

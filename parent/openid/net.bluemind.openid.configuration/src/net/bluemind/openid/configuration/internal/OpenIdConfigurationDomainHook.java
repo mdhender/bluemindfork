@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.system.auth;
+package net.bluemind.openid.configuration.internal;
 
 import java.util.Map;
 import java.util.Optional;
@@ -27,8 +27,9 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.hook.DomainHookAdapter;
 import net.bluemind.openid.utils.AccessTokenValidator;
+import net.bluemind.openid.utils.OpenIdServerConfiguration;
 
-public class OpenIdConfigurationObserver extends DomainHookAdapter {
+public class OpenIdConfigurationDomainHook extends DomainHookAdapter {
 
 	@Override
 	public void onSettingsUpdated(BmContext context, ItemValue<Domain> domain, Map<String, String> previousSettings,
@@ -37,7 +38,9 @@ public class OpenIdConfigurationObserver extends DomainHookAdapter {
 		String now = Optional.ofNullable(currentSettings.get(DomainSettingsKeys.openid_host.name())).orElse("");
 		if (!now.equals(prev)) {
 			AccessTokenValidator.invalidateCache();
+			OpenIdServerConfiguration.invalidate(domain.uid);
 		}
+
 	}
 
 }

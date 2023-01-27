@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.proxy.http.ExternalCreds;
 import net.bluemind.proxy.http.IAuthProvider;
@@ -56,8 +57,8 @@ public class NoneAuthProviderFactory implements IAuthProviderFactory, IAuthProvi
 
 	@Override
 	public void sessionId(String loginAtDomain, String password, boolean privateComputer, List<String> remoteIps,
-			AsyncHandler<String> handler) {
-		handler.success("noneSid");
+			AsyncHandler<JsonObject> handler) {
+		handler.success(new JsonObject());
 	}
 
 	@Override
@@ -81,8 +82,8 @@ public class NoneAuthProviderFactory implements IAuthProviderFactory, IAuthProvi
 	}
 
 	@Override
-	public void sessionId(ExternalCreds krbCreds, List<String> remoteIps, AsyncHandler<String> handler) {
-		handler.success("noneSid");
+	public void sessionId(ExternalCreds krbCreds, List<String> remoteIps, AsyncHandler<JsonObject> handler) {
+		handler.success(new JsonObject());
 	}
 
 	@Override

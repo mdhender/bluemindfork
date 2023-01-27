@@ -13,11 +13,5 @@
             class="net.bluemind.system.auth.HpsConfigChangeValidateHandler">
       </validator>
    </extension>
-   <extension
-         point="net.bluemind.domain.domainHook">
-      <hook
-            class="net.bluemind.system.auth.OpenIdConfigurationObserver">
-      </hook>
-   </extension>
    
 </plugin>
