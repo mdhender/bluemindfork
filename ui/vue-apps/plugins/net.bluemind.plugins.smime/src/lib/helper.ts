@@ -1,5 +1,6 @@
 import { MessageBody } from "@bluemind/backend.mail.api";
-import { CRYPTO_HEADERS, SIGNED_HEADER_NAME, ENCRYPTED_HEADER_NAME, SIGNATURE_MIME } from "./constants";
+import { MimeType } from "@bluemind/email";
+import { CRYPTO_HEADERS, SIGNED_HEADER_NAME, ENCRYPTED_HEADER_NAME } from "./constants";
 
 export function hasSignatureHeader(headers: MessageBody.Header[]): boolean {
     return headers.some(header => header.name === SIGNED_HEADER_NAME);
@@ -93,7 +94,9 @@ function matchHeaderValue(headers: MessageBody.Header[] = [], headerName: string
 export function removeSignatureFromStructure(structure: MessageBody.Part | undefined): MessageBody.Part {
     let newStructure = { ...structure };
     if (newStructure.children) {
-        const signatureIndex = newStructure.children.findIndex(({ mime }: MessageBody.Part) => mime === SIGNATURE_MIME);
+        const signatureIndex = newStructure.children.findIndex(
+            ({ mime }: MessageBody.Part) => mime === MimeType.PKCS_7_SIGNED_DATA
+        );
 
         if (signatureIndex > -1) {
             newStructure.children.splice(signatureIndex, 1);

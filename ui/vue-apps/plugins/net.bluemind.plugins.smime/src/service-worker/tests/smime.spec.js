@@ -1,3 +1,4 @@
+import { MimeType } from "@bluemind/email";
 import smime from "../smime";
 import pkcs7 from "../pkcs7";
 import pki from "../pki/";
@@ -253,7 +254,7 @@ describe("smime", () => {
             const structure = await smime.encrypt(item, "folderUid");
             expect(mockUploadPart).toHaveBeenCalled();
             expect(structure.body.structure.address).toBe("address");
-            expect(structure.body.structure.mime).toBe(PKCS7_MIMES[0]);
+            expect(structure.body.structure.mime).toBe(MimeType.PKCS_7);
         });
         test("raise an error if the message cannot be encrypted", async () => {
             pkcs7.encrypt = () => {
@@ -275,8 +276,8 @@ describe("smime", () => {
             const signedItem = await smime.sign(item, "folderUid");
 
             const multipartSigned = signedItem.body.structure;
-            expect(multipartSigned.mime).toBe("multipart/signed");
-            expect(multipartSigned.children.length).toBe(2);
+            expect(multipartSigned.mime).toBe("message/rfc822");
+            expect(multipartSigned.children.length).toBe(0);
             const cType = multipartSigned.headers.find(header => header.name.toLowerCase() === "content-type");
             expect(
                 cType.values[0].startsWith(

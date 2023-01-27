@@ -3,7 +3,7 @@ import { pki } from "node-forge";
 import path from "path";
 import { CRYPTO_HEADERS } from "../../lib/constants";
 import { base64ToArrayBuffer } from "@bluemind/arraybuffer";
-import extractSignedData from "../signedDataParser";
+import extractSignedData from "../smime/SMimeSignedDataParser";
 import {
     DecryptError,
     EncryptError,

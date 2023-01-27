@@ -10,7 +10,7 @@ import {
     InvalidCertificateError,
     CertificateRecipientNotFoundError
 } from "../exceptions";
-import db from "./SMimeDB";
+import db from "./SMimePkiDB";
 
 export async function getCertificate(email: string): Promise<pki.Certificate> {
     const sid = await session.sid;

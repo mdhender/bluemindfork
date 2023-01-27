@@ -1,31 +1,32 @@
 import { pki } from "node-forge";
-import { DispositionType, MailboxItemsClient, MailboxItem, MessageBody } from "@bluemind/backend.mail.api";
+import { MailboxItemsClient, MailboxItem, MessageBody } from "@bluemind/backend.mail.api";
+import { MimeType } from "@bluemind/email"; // FIXME: move MimeType into @bluemind/mime
 import { ItemValue } from "@bluemind/core.container.api";
 import { MimeParser, MimeBuilder } from "@bluemind/mime";
-import UUIDGenerator from "@bluemind/uuid";
 import {
     CRYPTO_HEADERS,
     ENCRYPTED_HEADER_NAME,
-    PKCS7_MIMES,
-    SIGNATURE_MIME,
     SIGNED_HEADER_NAME,
     SMIME_ENCRYPTION_ERROR_PREFIX,
     SMIME_SIGNATURE_ERROR_PREFIX
-} from "../lib/constants";
-import session from "./environnment/session";
-import { EncryptError, SmimeErrors } from "./exceptions";
-import extractSignedData from "./signedDataParser";
-import pkcs7 from "./pkcs7/";
-import { checkCertificateValidity, getMyCertificate, getMyPrivateKey, getCertificate } from "./pki/";
-import { addHeaderValue, resetHeader } from "../lib/helper";
+} from "../../lib/constants";
+import session from "../environnment/session";
 import { dispatchFetch } from "@bluemind/service-worker-utils";
-import { getCacheKey } from "./smimePartCache";
+import { getCacheKey } from "../smimePartCache";
+import { EncryptError, SmimeErrors } from "../exceptions";
+import { extractContentType, splitHeadersAndContent } from "./MimeEntityParserUtils";
+import extractSignedData from "./SMimeSignedDataParser";
+import buildSignedEml from "./SMimeSignedEmlBuilder";
+import pkcs7 from "../pkcs7";
+import { checkCertificateValidity, getMyCertificate, getMyPrivateKey, getCertificate } from "../pki";
+import { addHeaderValue, resetHeader } from "../../lib/helper";
 
 export function isEncrypted(part: MessageBody.Part): boolean {
-    return PKCS7_MIMES.includes(part.mime!);
+    return MimeType.isPkcs7(part);
 }
+
 export function isSigned(part: MessageBody.Part): boolean {
-    return part.mime === "application/pkcs7-signature" || (!!part.children && part.children.some(isSigned));
+    return part.mime === MimeType.PKCS_7_SIGNED_DATA || (!!part.children && part.children.some(isSigned));
 }
 
 type DecryptResult = {
@@ -34,17 +35,17 @@ type DecryptResult = {
 };
 export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): Promise<DecryptResult> {
     let content = "";
-    item.value.body.headers = resetHeader(item.value.body.headers, ENCRYPTED_HEADER_NAME);
-    //TODO: Add a cache based on body guid
     try {
+        //TODO: Add a cache based on body guid
+        item.value.body.headers = resetHeader(item.value.body.headers, ENCRYPTED_HEADER_NAME);
         const sid = await session.sid;
         const client = new MailboxItemsClient(sid, folderUid);
-        const part = item.value!.body!.structure!;
+        const part = item.value.body.structure!;
         const key = await getMyPrivateKey();
         const certificate = await getMyCertificate();
         // FIXME: use correct date instead of internalDate
-        checkCertificateValidity(certificate, new Date(item.value!.body!.date!));
-        const data = await client.fetch(item.value!.imapUid!, part.address!, part.encoding!, part.mime!);
+        checkCertificateValidity(certificate, new Date(item.value.body.date!));
+        const data = await client.fetch(item.value.imapUid!, part.address!, part.encoding!, part.mime!);
         content = await pkcs7.decrypt(data, key, certificate);
         const parser = await new MimeParser(part.address).parse(content);
         const parts = parser.getParts();
@@ -62,10 +63,6 @@ export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): 
 }
 
 export async function encrypt(item: MailboxItem, folderUid: string): Promise<MailboxItem> {
-    const encryptedItem = { ...item };
-    const client = new MailboxItemsClient(await session.sid, folderUid);
-    let mimeTree: string;
-
     try {
         const myCertificate = await getMyCertificate();
         const recipients = item.body.recipients || [];
@@ -75,25 +72,31 @@ export async function encrypt(item: MailboxItem, folderUid: string): Promise<Mai
         const certificates: pki.Certificate[] = await Promise.all(promises);
         certificates.push(myCertificate);
 
-        if (encryptedItem.body.structure && encryptedItem.imapUid) {
-            try {
+        const client = new MailboxItemsClient(await session.sid, folderUid);
+        let mimeTree: string;
+        try {
+            if (item.body.structure!.mime === MimeType.EML) {
+                // mail has been signed just previously, and uploaded as an eml
+                const eml = await client.fetch(item.imapUid!, item.body.structure!.address!).then(blob => blob.text());
+                const { body, headers } = splitHeadersAndContent(eml);
+                const contentType = "Content-Type: " + extractContentType(headers);
+                mimeTree = contentType + "\r\n\r\n" + body;
+            } else {
                 mimeTree = await new MimeBuilder(getRemoteContentFn(item.imapUid!, folderUid)).build(
-                    encryptedItem.body.structure
+                    item.body.structure!
                 );
-            } catch (error) {
-                throw new EncryptError(error);
             }
-            const encryptedPart = pkcs7.encrypt(mimeTree, certificates);
-            const address = await client.uploadPart(encryptedPart);
-            const part = { address, charset: "utf-8", encoding: "base64", mime: PKCS7_MIMES[0] };
-            encryptedItem.body.structure = part;
+        } catch (error) {
+            throw new EncryptError(error);
         }
-        encryptedItem.body.headers = addHeaderValue(item.body?.headers, ENCRYPTED_HEADER_NAME, CRYPTO_HEADERS.OK);
+        const encryptedPart = pkcs7.encrypt(mimeTree, certificates);
+        const address = await client.uploadPart(encryptedPart);
+        item.body.structure = { address, charset: "utf-8", encoding: "base64", mime: MimeType.PKCS_7 };
     } catch (error) {
         const errorCode = error instanceof SmimeErrors ? error.code : CRYPTO_HEADERS.UNKNOWN;
         throw `[${SMIME_ENCRYPTION_ERROR_PREFIX}:${errorCode}]` + error;
     }
-    return encryptedItem;
+    return item;
 }
 
 export async function verify(
@@ -101,8 +104,8 @@ export async function verify(
     item: ItemValue<MailboxItem>,
     getEml: () => Promise<string>
 ): Promise<ItemValue<MailboxItem>> {
-    item.value.body.headers = resetHeader(item.value.body.headers, SIGNED_HEADER_NAME);
     try {
+        item.value.body.headers = resetHeader(item.value.body.headers, SIGNED_HEADER_NAME);
         const eml = await getEml();
         const { toDigest, pkcs7Part } = extractSignedData(eml);
         await pkcs7.verify(pkcs7Part, toDigest);
@@ -118,25 +121,15 @@ export async function sign(item: MailboxItem, folderUid: string): Promise<Mailbo
     try {
         item.body.structure = removePreviousSignedPart(item.body.structure!);
         const client = new MailboxItemsClient(await session.sid, folderUid);
-
-        const unsignedContent = await new MimeBuilder(getRemoteContentFn(item.imapUid!, folderUid)).build(
+        const unsignedMimeEntity = await new MimeBuilder(getRemoteContentFn(item.imapUid!, folderUid)).build(
             item.body.structure!
         );
-        const { content: unsignedWithoutHeaders, headers } = splitHeadersAndContent(unsignedContent);
-        const contentType = extractContentType(headers);
-
-        const unsignedPartAddress = await client.uploadPart(unsignedWithoutHeaders);
-        const unsignedPart = { ...item.body.structure, address: unsignedPartAddress, children: [] };
-        if (!unsignedPart.headers) unsignedPart.headers = [];
-        unsignedPart.headers.push({ name: "Content-Type", values: [contentType] });
-
         const key = await getMyPrivateKey();
         const certificate = await getMyCertificate();
-        const signedContent = await pkcs7.sign(unsignedContent, key, certificate);
-        const signedPartAddress = await client.uploadPart(signedContent);
-        const signedPart = buildSignedPart(signedPartAddress);
-
-        item.body.structure = buildMultipartSigned(UUIDGenerator.generate(), [unsignedPart, signedPart]);
+        const signedContent = await pkcs7.sign(unsignedMimeEntity, key, certificate);
+        const eml = buildSignedEml(unsignedMimeEntity, signedContent, item);
+        const address = await client.uploadPart(eml);
+        item.body.structure = { address, mime: "message/rfc822", children: [] };
     } catch (error) {
         const errorCode = error instanceof SmimeErrors ? error.code : CRYPTO_HEADERS.UNKNOWN;
         throw `[${SMIME_SIGNATURE_ERROR_PREFIX}:${errorCode}]` + error;
@@ -144,28 +137,10 @@ export async function sign(item: MailboxItem, folderUid: string): Promise<Mailbo
     return item;
 }
 
-function buildSignedPart(address: string) {
-    return {
-        address,
-        mime: SIGNATURE_MIME,
-        dispositionType: DispositionType.ATTACHMENT,
-        fileName: "smime.p7s",
-        headers: [
-            { name: "Content-Type", values: [`${SIGNATURE_MIME}; name="smime.p7s"`] },
-            { name: "Content-Transfer-Encoding", values: ["base64"] }
-        ]
-    };
-}
-
-function buildMultipartSigned(boundaryValue: string, children: Array<MessageBody.Part>) {
-    const contentType = `multipart/signed; protocol="${SIGNATURE_MIME}"; micalg=sha-256; boundary="${boundaryValue}"`;
-    return { mime: "multipart/signed", headers: [{ name: "Content-Type", values: [contentType] }], children };
-}
-
 function removePreviousSignedPart(structure: MessageBody.Part): MessageBody.Part {
     // FIXME: use MimeType.js once this package is usable in worker
     if (structure.mime === "multipart/mixed" && structure.children) {
-        const signedPartIndex = structure.children.findIndex(part => part.mime === SIGNATURE_MIME);
+        const signedPartIndex = structure.children.findIndex(part => part.mime === MimeType.PKCS_7_SIGNED_DATA);
         if (signedPartIndex !== -1) {
             structure.children.splice(signedPartIndex, 1);
             if (structure.children.length === 1) {
@@ -184,19 +159,6 @@ function getRemoteContentFn(imapUid: number, folderUid: string) {
         const data = await dispatchFetch(new Request(apiCoreUrl));
         return new Uint8Array(await data.arrayBuffer());
     };
-}
-
-function splitHeadersAndContent(content: string): { content: string; headers: string } {
-    const lineBreak = "\r\n";
-    const separator = lineBreak + lineBreak;
-    const separatorIndex = content.indexOf(separator);
-    const headers = content.substring(0, separatorIndex).toLowerCase();
-    return { content: content.substring(separatorIndex + separator.length), headers };
-}
-
-function extractContentType(headers: string): string {
-    const match = new RegExp(/content-type:\s?((?:(?![\w-]+:).*(?:\n|$))*)/gi).exec(headers)?.input || "";
-    return match.replace("content-type: ", "");
 }
 
 //FIXME: This should be imported from a third party package

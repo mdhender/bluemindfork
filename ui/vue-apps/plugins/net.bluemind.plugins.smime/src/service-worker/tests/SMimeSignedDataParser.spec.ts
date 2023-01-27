@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { arrayBufferToBase64 } from "@bluemind/arraybuffer";
-import extractSignedData from "../signedDataParser";
+import extractSignedData from "../smime/SMimeSignedDataParser";
 
 describe("extract signed data from an eml", () => {
     test("extract valid informations", done => {

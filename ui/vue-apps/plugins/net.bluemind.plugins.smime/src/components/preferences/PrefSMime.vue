@@ -39,7 +39,7 @@ import unsetKeyIllustration from "../../../assets/setting-encryption-key-unset.p
 import setKeyIllustration from "../../../assets/setting-encryption-key-set.png";
 
 export default {
-    name: "PrefSmime",
+    name: "PrefSMime",
     components: { BmButton, BmLabelIcon, ImportPkcs12Modal },
     mixins: [BaseField],
     data() {

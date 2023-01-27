@@ -1,3 +1,5 @@
+import { MessageBody } from "@bluemind/backend.mail.api";
+
 const TEXT_PLAIN = "text/plain";
 const TEXT = "text/";
 const TEXT_HTML = "text/html";
@@ -16,8 +18,8 @@ const FONT = "font/";
 const MESSAGE = "message/";
 const MESSAGE_DELIVERY_STATUS = "message/delivery-status";
 const MESSAGE_DISPOSITION_NOTIFICATION = "message/disposition-notification";
-const MESSAGE_RFC822 = "message/rfc822";
 const TEXT_RFC822_HEADERS = "text/rfc822-headers";
+const EML = "message/rfc822";
 const PDF = "application/pdf";
 const MS_WORD = "application/msword";
 const MS_WORD_XML = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
@@ -55,11 +57,16 @@ const MP3 = "audio/mp3";
 const MOV = "video/mov";
 const MP4 = "video/mp4";
 const AVI = "image/avi";
+
+// SMIME
 const PKCS_8 = "application/pkcs8";
 const PKCS_12 = "application/x-pkcs12";
 const CRYPTO_CERT = "application/pkix-cert";
 const X509_CERT = "application/x-x509-ca-cert";
 const PEM_FILE = "application/x-pem-file";
+const PKCS_7 = "application/pkcs7-mime";
+const PKCS_7_SIGNED_DATA = "application/pkcs7-signature";
+const MULTIPART_SIGNED = "multipart/signed";
 
 const MP4_SUFFIXES = ["mp4"];
 const MOV_SUFFIXES = ["mov"];
@@ -101,24 +108,27 @@ const XHTML_SUFFIXES = ["xhtml"];
 const OPEN_DOCUMENT_TEXT_SUFFIXES = ["odt"];
 const OPEN_DOCUMENT_CALC_SUFFIXES = ["odc"];
 const OPEN_DOCUMENT_PRESENTATION_SUFFIXES = ["odp"];
-const MESSAGE_RFC822_SUFFIXES = ["eml"];
+const EML_SUFFIXES = ["eml"];
 const PKCS_12_SUFFIXES = ["p12", "pfx"];
 
 export default {
     AUDIO,
     CRYPTO_CERT,
+    EML,
     ICS,
     IMAGE,
     MESSAGE,
     MESSAGE_DELIVERY_STATUS,
     MESSAGE_DISPOSITION_NOTIFICATION,
-    MESSAGE_RFC822,
     MULTIPART_ALTERNATIVE,
     MULTIPART_MIXED,
     MULTIPART_RELATED,
     MULTIPART_REPORT,
+    MULTIPART_SIGNED,
     PDF,
     PEM_FILE,
+    PKCS_7,
+    PKCS_7_SIGNED_DATA,
     PKCS_8,
     PKCS_12,
     PKCS_12_SUFFIXES,
@@ -142,63 +152,68 @@ export default {
     isImage,
     isVideo,
     isMultipart,
+    isPkcs7,
     matchingIcon,
     previewAvailable,
     getFromFilename
 };
 
 /** Compare MIME type and subtype. */
-function equals(mimeType1, mimeType2) {
+function equals(mimeType1: string, mimeType2: string) {
     return mimeType1.toLowerCase() === mimeType2.toLowerCase();
 }
 
 /** Compare only MIME type. */
-function typeEquals(mimeType1, mimeType2) {
+function typeEquals(mimeType1: string, mimeType2: string) {
     return (
         mimeType1.substring(0, mimeType1.indexOf("/")).toLowerCase() ===
         mimeType2.substring(0, mimeType2.indexOf("/")).toLowerCase()
     );
 }
 
-function isRelated(part) {
-    return equals(part.mime, MULTIPART_RELATED);
+function isRelated(part: MessageBody.Part) {
+    return equals(part.mime!, MULTIPART_RELATED);
 }
 
-function isAlternative(part) {
-    return equals(part.mime, MULTIPART_ALTERNATIVE);
+function isAlternative(part: MessageBody.Part) {
+    return equals(part.mime!, MULTIPART_ALTERNATIVE);
 }
 
-function isMixed(part) {
-    return equals(part.mime, MULTIPART_MIXED);
+function isMixed(part: MessageBody.Part) {
+    return equals(part.mime!, MULTIPART_MIXED);
 }
 
-function isText(part) {
-    return equals(part.mime, TEXT_PLAIN);
+function isText(part: MessageBody.Part) {
+    return equals(part.mime!, TEXT_PLAIN);
 }
 
-function isHtml(part) {
-    return equals(part.mime, TEXT_HTML);
+function isHtml(part: MessageBody.Part) {
+    return equals(part.mime!, TEXT_HTML);
 }
 
-function isCalendar(part) {
-    return equals(part.mime, TEXT_CALENDAR);
+function isCalendar(part: MessageBody.Part) {
+    return equals(part.mime!, TEXT_CALENDAR);
 }
 
-function isAudio(part) {
-    return part.mime.startsWith(AUDIO);
+function isAudio(part: MessageBody.Part) {
+    return part.mime!.startsWith(AUDIO);
 }
-function isImage(part) {
-    return part.mime.startsWith(IMAGE);
+function isImage(part: MessageBody.Part) {
+    return part.mime!.startsWith(IMAGE);
 }
-function isVideo(part) {
-    return part.mime.startsWith(VIDEO);
-}
-
-function isMultipart(part) {
-    return part.mime.startsWith(MULTIPART);
+function isVideo(part: MessageBody.Part) {
+    return part.mime!.startsWith(VIDEO);
 }
 
-function matchingIcon(mimeType) {
+function isMultipart(part: MessageBody.Part) {
+    return part.mime!.startsWith(MULTIPART);
+}
+
+function isPkcs7(part: MessageBody.Part) {
+    return [PKCS_7, "application/x-pkcs7-mime"].includes(part.mime!);
+}
+
+function matchingIcon(mimeType: string) {
     if (mimeType.startsWith(IMAGE)) {
         return "file-type-image";
     } else if (mimeType.startsWith(AUDIO)) {
@@ -254,15 +269,18 @@ function matchingIcon(mimeType) {
         return "file-type-ics";
     } else if (equals(mimeType, VCARD)) {
         return "file-type-vcard";
-    } else if (equals(mimeType, MESSAGE_RFC822)) {
+    } else if (equals(mimeType, EML)) {
         return "file-type-message";
     } else {
         return "file-type-unknown";
     }
 }
 
-function getFromFilename(name) {
-    const suffix = name.split(".").pop().toLowerCase();
+function getFromFilename(name: string) {
+    const suffix = name.split(".").pop()?.toLowerCase();
+    if (!suffix) {
+        return "";
+    }
     if (MP4_SUFFIXES.includes(suffix)) {
         return MP4;
     } else if (MOV_SUFFIXES.includes(suffix)) {
@@ -343,8 +361,8 @@ function getFromFilename(name) {
         return OPEN_DOCUMENT_CALC;
     } else if (OPEN_DOCUMENT_PRESENTATION_SUFFIXES.includes(suffix)) {
         return OPEN_DOCUMENT_PRESENTATION;
-    } else if (MESSAGE_RFC822_SUFFIXES.includes(suffix)) {
-        return MESSAGE_RFC822;
+    } else if (EML_SUFFIXES.includes(suffix)) {
+        return EML;
     } else if (PKCS_12_SUFFIXES.includes(suffix)) {
         return PKCS_12;
     } else {
@@ -355,6 +373,6 @@ function getFromFilename(name) {
     At the moment, preview is available only for images.
     Svg preview has been removed since we use webserver URL instead of blob to make preview, it seems browsers dont accept to display SVG in this case
  */
-function previewAvailable(mimeType) {
+function previewAvailable(mimeType: string) {
     return mimeType.startsWith(IMAGE) && !equals(mimeType, SVG);
 }

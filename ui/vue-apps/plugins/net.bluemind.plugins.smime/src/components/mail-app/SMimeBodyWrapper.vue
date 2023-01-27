@@ -1,12 +1,12 @@
 <script>
+import { MimeType } from "@bluemind/email";
 import { BmButton } from "@bluemind/ui-components";
-import { PKCS7_MIMES } from "../../lib/constants";
 import { isDecrypted, hasEncryptionHeader, hasSignatureHeader, isVerified } from "../../lib/helper";
 import untrustedIllustration from "../../../assets/mail-app-untrusted.png";
 import undecryptedIllustration from "../../../assets/mail-app-undecrypted.png";
 
 export default {
-    name: "SmimeBodyWrapper",
+    name: "SMimeBodyWrapper",
     components: { BmButton },
     props: {
         message: {
@@ -43,8 +43,7 @@ export default {
     },
     methods: {
         hasEncryptedPart(partsByCapabilities) {
-            const isEncrypted = ({ mime }) => PKCS7_MIMES.includes(mime);
-            return partsByCapabilities.some(({ parts }) => parts.some(isEncrypted));
+            return partsByCapabilities.some(({ parts }) => parts.some(MimeType.isPkcs7));
         }
     },
 

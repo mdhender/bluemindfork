@@ -10,7 +10,7 @@ interface SMimeSchema extends DBSchema {
     };
 }
 
-interface SMimeDB {
+interface SMimePkiDB {
     clearPKI(): Promise<void>;
     getPrivateKey(): Promise<Blob | undefined>;
     setPrivateKey(privateKey: Blob): Promise<void>;
@@ -19,7 +19,7 @@ interface SMimeDB {
     getPKIStatus(): Promise<PKIStatus>;
 }
 
-class SMimeDBImpl implements SMimeDB {
+class SMimePkiDBImpl implements SMimePkiDB {
     NAME = "smime";
     VERSION = 1;
     connection: Promise<IDBPDatabase<SMimeSchema>>;
@@ -62,14 +62,14 @@ class SMimeDBImpl implements SMimeDB {
     }
 }
 
-let implementation: SMimeDBImpl | null = null;
-async function instance(): Promise<SMimeDB> {
+let implementation: SMimePkiDBImpl | null = null;
+async function instance(): Promise<SMimePkiDB> {
     if (!implementation) {
-        implementation = new SMimeDBImpl(await session.userId);
+        implementation = new SMimePkiDBImpl(await session.userId);
     }
     return implementation;
 }
-const db: SMimeDB = {
+const db: SMimePkiDB = {
     clearPKI: () => instance().then(db => db.clearPKI()),
     getPrivateKey: () => instance().then(db => db.getPrivateKey()),
     setPrivateKey: privateKey => instance().then(db => db.setPrivateKey(privateKey)),

@@ -16,7 +16,7 @@ import {
     setMyPrivateKey,
     setMyCertificate
 } from "../pki";
-import db from "../pki/SMimeDB";
+import db from "../pki/SMimePkiDB";
 import { readFile } from "./helpers";
 import { pki } from "node-forge";
 fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
@@ -41,7 +41,7 @@ class MockInvalidCertAsBlob extends Blob {
     }
 }
 
-jest.mock("../pki/SMimeDB");
+jest.mock("../pki/SMimePkiDB");
 
 const mockMultipleGet = jest.fn(uids => {
     if (uids.includes("2DF7A15F-12FD-4864-8279-12ADC6C08BAF")) {
