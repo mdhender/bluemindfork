@@ -90,6 +90,7 @@ import net.bluemind.imap.endpoint.driver.NamespaceInfos;
 import net.bluemind.imap.endpoint.driver.QuotaRoot;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
 import net.bluemind.imap.endpoint.driver.UpdateMode;
+import net.bluemind.imap.endpoint.parsing.MailboxGlob;
 import net.bluemind.lib.jutf7.UTF7Converter;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxAclUids;
@@ -284,14 +285,11 @@ public class MailApiConnection implements MailboxConnection {
 	@Override
 	public List<ListNode> list(String reference, String mailboxPattern) {
 		List<NamespacedFolder> withShares = fullHierarchyLoad();
-
-		if (mailboxPattern.equals("%")) {
-			withShares = withShares.stream().filter(nf -> nf.folder().value.parentUid == null).toList();
-		} else if (!(mailboxPattern.contains("%") || mailboxPattern.contains("*"))) {
-			Predicate<NamespacedFolder> filter = matcher(mailboxPattern);
-			withShares = withShares.stream().filter(filter).toList();
-		}
-		// TODO glob support for titi/%/% or titi/* is missing and returns everything
+		int before = withShares.size();
+		Predicate<NamespacedFolder> filter = matcher(mailboxPattern);
+		withShares = withShares.stream().filter(filter).toList();
+		int after = withShares.size();
+		logger.debug("List filtered by '{}' {} folders -> {} folder(s)", mailboxPattern, before, after);
 
 		return withShares.stream().sorted(Replicas::compareNamespaced).map(this::asListNode).toList();
 	}
@@ -335,8 +333,9 @@ public class MailApiConnection implements MailboxConnection {
 			sanitized = "INBOX";
 		}
 		final String san = UTF7Converter.decode(sanitized);
+		Predicate<String> globPred = MailboxGlob.matcher(san);
 
-		return nf -> nf.fullNameWithMountpoint().contains(san);
+		return nf -> globPred.test(nf.fullNameWithMountpoint());
 	}
 
 	private ListNode asListNode(NamespacedFolder f) {

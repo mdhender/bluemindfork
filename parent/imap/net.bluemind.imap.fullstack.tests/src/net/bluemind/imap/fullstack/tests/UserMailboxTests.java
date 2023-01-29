@@ -145,6 +145,16 @@ public class UserMailboxTests {
 			sc.create("Top/Level/Folder");
 			TaggedResult results = sc.tagged("LIST \"\" \"Top/Level/*\"");
 			assertTrue(results.isOk());
+
+			results = sc.tagged("LIST \"\" \"Top/%/%\"");
+			assertTrue(results.isOk());
+
+			results = sc.tagged("LIST \"\" \"[ur.anus]/%/%\"");
+			assertTrue(results.isOk());
+
+			results = sc.tagged("LIST \"\" \"%\"");
+			assertTrue(results.isOk());
+
 		}
 	}
 
