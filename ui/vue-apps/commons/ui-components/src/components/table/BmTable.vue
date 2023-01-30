@@ -3,8 +3,21 @@
         v-bind="[$attrs, $props]"
         class="bm-table"
         :class="{ 'fixed-row-height': fixedRowHeight }"
+        :sort-by.sync="curSortBy"
+        :sort-desc.sync="curSortDesc"
         v-on="$listeners"
     >
+        <template v-for="field in fields" v-slot:[`head(${field.key})`]="data">
+            <bm-sort-control
+                v-if="data.field.sortable"
+                :key="field.key"
+                in-table
+                :value="curSortBy === data.field.key ? (curSortDesc ? 'desc' : 'asc') : null"
+                @click="sortControlClicked(data.field.key)"
+            >
+                {{ data.label }}
+            </bm-sort-control>
+        </template>
         <template v-for="(index, name) in $scopedSlots" v-slot:[name]="data">
             <slot :name="name" v-bind="data" />
         </template>
@@ -15,12 +28,14 @@
         </template>
     </b-table>
 </template>
+
 <script>
+import BmSortControl from "../BmSortControl";
 import { BTable, BTr, BTd } from "bootstrap-vue";
 
 export default {
     name: "BmTable",
-    components: { BTable, BTr, BTd },
+    components: { BmSortControl, BTable, BTr, BTd },
     extends: BTable,
     props: {
         hover: {
@@ -48,6 +63,12 @@ export default {
             default: true
         }
     },
+    data() {
+        return {
+            curSortBy: this.sortBy,
+            curSortDesc: this.sortDesc
+        };
+    },
     computed: {
         filler() {
             const size = this.perPage - (this.items.length % this.perPage);
@@ -61,6 +82,16 @@ export default {
                 };
             }
             return false;
+        }
+    },
+    methods: {
+        sortControlClicked(field) {
+            if (this.curSortBy === field) {
+                this.curSortDesc = !this.curSortDesc;
+            } else {
+                this.curSortBy = field;
+                this.curSortDesc = false;
+            }
         }
     }
 };

@@ -52,6 +52,7 @@ import { bmCaretDown } from "../icons/bmCaretDown";
 import { bmCaretFirst } from "../icons/bmCaretFirst";
 import { bmCaretLast } from "../icons/bmCaretLast";
 import { bmCaretRight } from "../icons/bmCaretRight";
+import { bmCaretUp } from "../icons/bmCaretUp";
 import { bmCheck } from "../icons/bmCheck";
 import { bmCheckCircle } from "../icons/bmCheckCircle";
 import { bmCheckStamp } from "../icons/bmCheckStamp";
@@ -250,6 +251,7 @@ function initIcons() {
     library.add(bmCaretFirst);
     library.add(bmCaretLast);
     library.add(bmCaretRight);
+    library.add(bmCaretUp);
     library.add(bmCheck);
     library.add(bmCheckCircle);
     library.add(bmCheckStamp);

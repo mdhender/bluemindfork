@@ -23,15 +23,9 @@
             :title="$t(`mail.list.sort.fields.${sort.field}.${sort.order}`)"
         >
             <template #button-content>
-                <span class="text-overflow pr-3">{{ $t(`mail.list.sort.fields.${sort.field}.label`) }}</span>
-                <div class="h-100" :class="sort.order">
-                    <bm-icon
-                        :stacked="[
-                            { icon: 'caret-down', flip: 'vertical', transform: 'up-0.01', class: 'up' },
-                            { icon: 'caret-down', transform: 'down-0.3', class: 'down' }
-                        ]"
-                    />
-                </div>
+                <bm-sort-control :value="sort.order">
+                    {{ $t(`mail.list.sort.fields.${sort.field}.label`) }}
+                </bm-sort-control>
             </template>
             <bm-dropdown-header id="sort-header-label">
                 {{ $t("mail.list.sort.title") }}
@@ -58,7 +52,7 @@ import {
     BmDropdownDivider,
     BmDropdownHeader,
     BmDropdownItemButton,
-    BmIcon
+    BmSortControl
 } from "@bluemind/ui-components";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import { UNSELECT_ALL_CONVERSATIONS, SET_CONVERSATION_LIST_SORT, SET_SELECTION } from "~/mutations";
@@ -75,7 +69,7 @@ export default {
         BmDropdownDivider,
         BmDropdownHeader,
         BmDropdownItemButton,
-        BmIcon
+        BmSortControl
     },
     data() {
         return {
@@ -153,40 +147,5 @@ export default {
     margin-left: calc(#{$not-seen-border-width} + #{$conversation-list-item-padding-left + $check-offset});
     margin-right: $sp-3;
     top: base-px-to-rem(7);
-}
-
-.mail-conversation-list-header .dropdown-toggle {
-    color: $primary-fg !important;
-    outline-offset: 1px;
-
-    &:hover {
-        color: $primary-fg-hi1 !important;
-    }
-
-    .asc,
-    .desc {
-        .bm-icon {
-            $size: map-get($icon-sizes, "xs");
-            width: $size !important;
-            height: $size !important;
-        }
-    }
-
-    .asc .bm-icon {
-        &.up {
-            color: $primary-fg-hi1;
-        }
-        &.down {
-            color: $primary-fg-lo1;
-        }
-    }
-    .desc .bm-icon {
-        &.up {
-            color: $primary-fg-lo1;
-        }
-        &.down {
-            color: $primary-fg-hi1;
-        }
-    }
 }
 </style>
