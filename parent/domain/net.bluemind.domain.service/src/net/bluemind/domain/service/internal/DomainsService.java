@@ -548,10 +548,21 @@ public class DomainsService implements IInCoreDomains, IDomains {
 
 	@Override
 	public void restore(ItemValue<Domain> item, boolean isCreate) {
-		if (isCreate) {
-			create(item);
+		ItemValue<Domain> maybeExist = store.get(item.internalId, null);
+		if (maybeExist != null && !maybeExist.uid.equals(item.uid)) {
+			logger.warn("A domain with itemId {} exists but is not the expected object (db: {}, restore {})",
+					item.internalId, maybeExist, item);
+			if (isCreate) {
+				create(item.uid, item.value);
+			} else {
+				update(item.uid, item.value);
+			}
 		} else {
-			update(item);
+			if (isCreate) {
+				create(item);
+			} else {
+				update(item);
+			}
 		}
 	}
 

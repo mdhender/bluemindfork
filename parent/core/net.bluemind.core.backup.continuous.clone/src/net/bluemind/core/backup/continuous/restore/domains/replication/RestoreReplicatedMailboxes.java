@@ -18,6 +18,7 @@ import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreDomainType;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
+import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.utils.JsonUtils;
@@ -81,6 +82,12 @@ public class RestoreReplicatedMailboxes implements RestoreDomainType {
 
 	private void filterCreateOrUpdate(RecordKey key, String payload, IDbReplicatedMailboxes api) {
 		VersionnedItem<MailboxReplica> item = reader().read(payload);
+
+		if (item.flags.contains(ItemFlag.Deleted)) {
+			log.skip(type(), key, payload);
+			return;
+		}
+
 		boolean exists = api.getComplete(item.uid) != null;
 		ItemValue<MailboxReplica> itemValue = map(item);
 		MailboxReplica mailboxReplica = itemValue.value;

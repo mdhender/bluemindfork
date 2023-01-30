@@ -66,17 +66,21 @@ public class RestoreDomains {
 	public Map<String, ItemValue<Domain>> restore(IServerTaskMonitor monitor, List<DataElement> domains) {
 		Map<String, ItemValue<Domain>> domainsToHandle = new HashMap<>();
 		domains.forEach(domainElement -> {
-			String payload = new String(domainElement.payload);
-			switch (domainElement.key.valueClass) {
-			case "net.bluemind.domain.api.Domain":
-				restoreDomain(monitor, domainsToHandle, payload);
-				break;
-			case "net.bluemind.domain.api.DomainSettings":
-				restoreDomainSettings(payload);
-				break;
-			default:
-				System.err.println("Unhandled " + domainElement.key.valueClass);
-				break;
+			try {
+				String payload = new String(domainElement.payload);
+				switch (domainElement.key.valueClass) {
+				case "net.bluemind.domain.api.Domain":
+					restoreDomain(monitor, domainsToHandle, payload);
+					break;
+				case "net.bluemind.domain.api.DomainSettings":
+					restoreDomainSettings(payload);
+					break;
+				default:
+					logger.warn("Unhandled {}", domainElement.key.valueClass);
+					break;
+				}
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
 			}
 		});
 		monitor.progress(1, "Dealt with " + domainsToHandle.size() + " domain(s)");

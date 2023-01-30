@@ -131,14 +131,13 @@ public class RestoreMailboxRecords implements RestoreDomainType {
 	}
 
 	private void create(IRestoreItemCrudSupport<MailboxRecord> api, RecordKey key, VersionnedItem<MailboxRecord> item) {
+		ItemValue<MailboxRecord> toRestore = map(item, true);
 		try {
-			ItemValue<MailboxRecord> toRestore = map(item, true);
 			api.restore(toRestore, true);
 		} catch (ServerFault sf) {
 			if (sf.getCode() == ErrorCode.ALREADY_EXISTS) {
-				log.failureIgnored(type(), key, "Item already exists and can't be created, trying to delete."
-						+ "This is probably due to an asynchronous item creation. This should be handled on the API side.");
-				createOrUpdate(api, key, item);
+				log.failureIgnored(type(), key, "Item already exists and can't be created, trying to update.");
+				api.restore(item, false);
 			}
 		}
 	}

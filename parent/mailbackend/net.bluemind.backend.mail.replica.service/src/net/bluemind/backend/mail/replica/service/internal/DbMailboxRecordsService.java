@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -68,14 +67,12 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemIdentifier;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
-import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -149,9 +146,9 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 		return Ack.create(create0(mail.imapUid + ".", id, mail).version);
 	}
 
-	private ItemVersion create0(String uid, Long internalId, MailboxRecord mail) {
+	private ItemVersion create0(String uid, Long internalId, MailboxRecord m) {
 		SubtreeLocation recordsLocation = locationOrFault();
-
+		MailboxRecord mail = fixRecordFlags(m);
 		ItemVersion version = null;
 		version = storeService.createWithId(uid, internalId, null, uid, mail);
 
@@ -229,8 +226,9 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 	}
 
 	@Override
-	public void update(String uid, MailboxRecord mail) {
+	public void update(String uid, MailboxRecord m) {
 		SubtreeLocation recordsLocation = locationOrFault();
+		MailboxRecord mail = fixRecordFlags(m);
 		ItemVersion upd = storeService.update(uid, uid, mail);
 		EmitReplicationEvents.recordUpdated(mailboxUniqueId, upd, mail);
 
@@ -239,8 +237,9 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 	}
 
 	@Override
-	public Ack updateById(long id, MailboxRecord mail) {
+	public Ack updateById(long id, MailboxRecord m) {
 		SubtreeLocation recordsLocation = locationOrFault();
+		MailboxRecord mail = fixRecordFlags(m);
 		ItemVersion upd = storeService.update(id, Long.toString(mail.imapUid), mail);
 		EmitReplicationEvents.recordUpdated(mailboxUniqueId, upd, mail);
 
@@ -337,14 +336,18 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 		int len = toFix.size();
 		ArrayList<MailboxRecord> ret = new ArrayList<>(len);
 		for (MailboxRecord mr : toFix) {
-			ArrayList<MailboxItemFlag> mif = new ArrayList<>(mr.flags.size());
-			for (MailboxItemFlag f : mr.flags) {
-				mif.add(f.value == 0 ? WellKnownFlags.resolve(f.toString()) : f);
-			}
-			mr.flags = mif;
-			ret.add(mr);
+			ret.add(fixRecordFlags(mr));
 		}
 		return ret;
+	}
+
+	private MailboxRecord fixRecordFlags(MailboxRecord mr) {
+		ArrayList<MailboxItemFlag> mif = new ArrayList<>(mr.flags.size());
+		for (MailboxItemFlag f : mr.flags) {
+			mif.add(f.value == 0 ? WellKnownFlags.resolve(f.toString()) : f);
+		}
+		mr.flags = mif;
+		return mr;
 	}
 
 	@Override
@@ -353,44 +356,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 			return Ack.create(getVersion());
 		}
 
-		if (processClonedRefs(recs)) {
-			return Ack.create(getVersion());
-		} else if (StateContext.getState() == SystemState.CORE_STATE_CLONING) {
-			logger.warn("[{}] unknown ids in MailboxRecordItemCache {}", mailboxUniqueId,
-					MailboxRecordItemCache.stats());
-			return Ack.create(getVersion());
-		}
-
 		return updatesImpl(recs);
-	}
-
-	private boolean processClonedRefs(List<MailboxRecord> recs) {
-		List<ItemValue<MailboxRecord>> knownRecs = recs.stream()
-				.map(r -> new MailboxRecordItemCache.RecordRef(mailboxUniqueId, r.imapUid, r.messageBody))
-				.map(MailboxRecordItemCache::getAndInvalidate).filter(Optional::isPresent).map(Optional::get)
-				.collect(Collectors.toList());
-		if (knownRecs.isEmpty()) {
-			logger.debug("Db CRUD (refs) skipped: no cached RecordRef for {} records", recs.size());
-			return false;
-		}
-		return storeService.doOrFail(() -> {
-			ItemStore it = new ItemStore(savedDs, container, SecurityContext.SYSTEM);
-			LongAdder upd = new LongAdder();
-			LongAdder create = new LongAdder();
-			for (ItemValue<MailboxRecord> toClone : knownRecs) {
-				Item inDb = it.getById(toClone.internalId);
-				if (inDb != null) {
-					storeService.update(toClone.item(), toClone.displayName, toClone.value);
-					upd.increment();
-				} else {
-					storeService.create(toClone.item(), toClone.value);
-					create.increment();
-				}
-			}
-			logger.info("Db CRUD (refs) cr: {}, up: {}", create.sum(), upd.sum());
-			return true;
-		});
-
 	}
 
 	private boolean newMailNotificationCandidate(SubtreeLocation loc, ItemValue<MailboxRecord> rec) {
@@ -667,9 +633,9 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 	@Override
 	public void restore(ItemValue<MailboxRecord> item, boolean isCreate) {
 		if (isCreate) {
-			create(item.uid, item.value);
+			createById(item.internalId, item.value);
 		} else {
-			update(item.uid, item.value);
+			updateById(item.internalId, item.value);
 		}
 	}
 
