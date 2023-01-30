@@ -125,7 +125,7 @@ async function fetchAndConsolidateExternalAccounts(externalSystems) {
 
 .pref-ext-account-creation {
     .pref-ext-account-creation-button {
-        background-color: $blue-100;
+        background-color: rgba($blue-500, 0.16);
         &:focus {
             outline: 1px $neutral-fg dashed;
         }

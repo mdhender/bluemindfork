@@ -72,8 +72,8 @@ export default {
 @import "~@bluemind/ui-components/src/css/variables";
 
 .pref-download {
-    div {
-        background-color: $blue-100;
+    & > div {
+        background-color: rgba($blue-500, 0.16);
     }
     .icon svg {
         width: 60px;
