@@ -132,7 +132,7 @@ public class CalendarAutocompleteServiceTests {
 		assertNotNull(container);
 
 		AclStore aclStore = new AclStore(new BmTestContext(SecurityContext.SYSTEM),
-				DataSourceRouter.get(new BmTestContext(SecurityContext.SYSTEM), container.uid));
+				JdbcTestHelper.getInstance().getMailboxDataDataSource());
 		aclStore.store(container, Arrays.asList(AccessControlEntry.create(defaultSecurityContext.getSubject(), verb)));
 
 		return container;
@@ -161,9 +161,11 @@ public class CalendarAutocompleteServiceTests {
 		Container cal = cs.get(ICalendarUids.defaultUserCalendar(uid));
 		assertNotNull("user default calendar not found ", cal);
 
-		AclStore aclStore = new AclStore(new BmTestContext(SecurityContext.SYSTEM),
-				DataSourceRouter.get(new BmTestContext(SecurityContext.SYSTEM), cal.uid));
-		aclStore.store(cal, Arrays.asList(AccessControlEntry.create(defaultSecurityContext.getSubject(), verb)));
+		if (verb != null) {
+			AclStore aclStore = new AclStore(new BmTestContext(SecurityContext.SYSTEM),
+					DataSourceRouter.get(new BmTestContext(SecurityContext.SYSTEM), cal.uid));
+			aclStore.store(cal, Arrays.asList(AccessControlEntry.create(defaultSecurityContext.getSubject(), verb)));
+		}
 	}
 
 	protected String createTestExternalUser(String name, String email) {
@@ -294,6 +296,17 @@ public class CalendarAutocompleteServiceTests {
 		List<CalendarLookupResponse> res = service.calendarLookup("perso", Verb.Read);
 		assertEquals(1, res.size());
 		assertEquals(uid, res.get(0).uid);
+
+		for (int i = 0; i < 15; i++) {
+			createTestUser("pattern" + i, "pattern" + i, "pattern" + i, null);
+		}
+
+		createTestContainer(UUID.randomUUID().toString(), "patternDomainCal", Verb.Read, false);
+
+		res = service.calendarLookup("pattern", Verb.Read);
+		assertEquals(1, res.size());
+		res = service.calendarLookup("patternD", Verb.Read);
+		assertEquals(1, res.size());
 	}
 
 	@Test

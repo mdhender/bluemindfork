@@ -181,10 +181,13 @@ public class CalendarAutocompleteService implements ICalendarAutocomplete {
 			ContainerQuery cq = new ContainerQuery();
 			cq.type = ICalendarUids.TYPE;
 			cq.name = pattern;
-			cq.size = LIMIT - ret.size();
+
 			List<BaseContainerDescriptor> calendars = containers.allLight(cq);
 
 			for (BaseContainerDescriptor cd : calendars) {
+				if (ret.size() > LIMIT) {
+					break;
+				}
 				if (!cd.defaultContainer) {
 					ret.add(CalendarLookupResponse.calendar(cd.uid, cd.name, null, cd.owner));
 				}
