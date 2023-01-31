@@ -18,6 +18,7 @@
 package net.bluemind.core.backup.store.kafka.config;
 
 import java.io.File;
+import java.util.function.BiConsumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,33 @@ public class KafkaStoreConfig {
 
 	private static final Logger logger = LoggerFactory.getLogger(KafkaStoreConfig.class);
 	private static final Config INSTANCE = loadConfig();
+
+	public enum PoisonPillStrategy {
+
+		/**
+		 * 
+		 */
+		LOG((v, t) -> {
+		}),
+
+		/**
+		 * 
+		 */
+		ABORT((v, t) -> {
+			logger.error("PoisonPill is {}", v);
+			System.exit(1);
+		});
+
+		private BiConsumer<byte[], Throwable> handler;
+
+		private PoisonPillStrategy(BiConsumer<byte[], Throwable> h) {
+			this.handler = h;
+		}
+
+		public void apply(byte[] value, Throwable t) {
+			handler.accept(value, t);
+		}
+	}
 
 	private KafkaStoreConfig() {
 

@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
@@ -38,6 +39,7 @@ import net.bluemind.core.backup.continuous.store.ITopicStore.IResumeToken;
 import net.bluemind.core.backup.continuous.store.RecordHandler;
 import net.bluemind.core.backup.continuous.store.TopicSubscriber;
 import net.bluemind.core.backup.store.kafka.config.KafkaStoreConfig;
+import net.bluemind.core.backup.store.kafka.config.KafkaStoreConfig.PoisonPillStrategy;
 import net.bluemind.metrics.registry.IdFactory;
 
 public class KafkaTopicSubscriber implements TopicSubscriber {
@@ -178,25 +180,29 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 
 	private void processRecords(RecordHandler handler, AtomicLong processed,
 			ConsumerRecords<byte[], byte[]> someRecords) {
-		someRecords.partitions().forEach(part -> someRecords.records(part).forEach(rec -> {
-			try {
-				handler.accept(rec.key(), rec.value(), rec.partition(), rec.offset());
-				processed.incrementAndGet();
-			} catch (Exception e) {
-				logger.error("[part {} - offset {}] handler {} failed, SHOULD exit(1)...", rec.partition(),
-						rec.offset(), handler, e);
+
+		for (TopicPartition part : someRecords.partitions()) {
+			for (ConsumerRecord<byte[], byte[]> rec : someRecords.records(part)) {
+				try {
+					handler.accept(rec.key(), rec.value(), rec.partition(), rec.offset());
+					processed.incrementAndGet();
+				} catch (Exception e) {
+					PoisonPillStrategy strat = KafkaStoreConfig.get().getEnum(PoisonPillStrategy.class,
+							"kafka.consumer.poisonPillStrategy");
+					logger.error("[part {} - offset {}] handler {} failed, strategy is {}", rec.partition(),
+							rec.offset(), handler, strat, e);
+					strat.apply(rec.value(), e);
+				}
 			}
-		}));
+		}
 	}
 
 	private void reportLag(String gid, String cid, KafkaConsumer<byte[], byte[]> consumer) {
 		Gauge gauge = reg.gauge(idFactory.name("lag", "groupAndClient", gid + "-" + cid));
 		LongAdder sum = new LongAdder();
 		consumer.assignment().forEach(tp -> consumer.currentLag(tp).ifPresent(lag -> {
-			if (lag > 0) {
-				if (logger.isDebugEnabled()) {
-					logger.debug("**** LAG part {} => {}", tp.partition(), lag);
-				}
+			if (lag > 0 && logger.isDebugEnabled()) {
+				logger.debug("**** LAG part {} => {}", tp.partition(), lag);
 			}
 			sum.add(lag);
 		}));
