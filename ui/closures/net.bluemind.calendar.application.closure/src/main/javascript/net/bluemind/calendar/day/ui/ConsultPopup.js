@@ -87,13 +87,15 @@ net.bluemind.calendar.day.ui.ConsultPopup.prototype.eraseElement_ = function() {
   goog.base(this, 'eraseElement_');
 }
 
+
 /** @override */
 net.bluemind.calendar.day.ui.ConsultPopup.prototype.drawElement_ = function() {
   this.getChild('others').exitDocument();
   goog.base(this, 'drawElement_');
   this.getChild('others').render(goog.dom.getElement('eb-btn-event-consult-screen').parentElement);
   var model = this.getModel();
-  this.getChild('others').getMenu().getChild('duplicate-occurrence').setVisible(model.states.repeat || model.states.exception)
+  this.getChild('others').getMenu().getChild('duplicate-occurrence').setVisible(model.states.repeat || model.states.exception);
+  // goog.dom.getElement('eb-buttons').style.display = model.states.private_ ? 'none' : 'block';
 }
 
 net.bluemind.calendar.day.ui.ConsultPopup.prototype.showDetails_ = function(e) {

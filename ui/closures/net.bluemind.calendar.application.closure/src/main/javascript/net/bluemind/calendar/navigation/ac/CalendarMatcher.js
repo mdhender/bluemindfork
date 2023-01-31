@@ -96,7 +96,7 @@ net.bluemind.calendar.navigation.ac.CalendarMatcher.prototype.requestMatchingRow
     return;
   }
 
-  return this.client_.calendarLookup(token, 'Read').then(function(resp) {
+  return this.client_.calendarLookup(token, 'Freebusy').then(function(resp) {
     var mapped = goog.array.map(resp, function(cal) {
       var dir = new net.bluemind.directory.api.DirectoryClient(this.ctx.rpc, '', this.ctx.user['domainUid']);
       if (cal['ownerUid'] != null) {

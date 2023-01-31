@@ -114,15 +114,13 @@ net.bluemind.calendar.list.ListPresenter.prototype.setup = function() {
 
   return this.ctx.service('calendarsMgmt').list('calendar').then(function(cals) {
     data.calendars = goog.array.map(cals, this.calendarToMV_, this);
-    data.visibleUids = goog.array.map(goog.array.filter(data.calendars, function(calendar) {
+    data.visible = goog.array.filter(data.calendars, function(calendar) {
       return calendar.states.visible;
-    }), function(calendar) {
-      return calendar.uid
     });
-    return this.ctx.service('calendars').getLocalChangeSet(data.visibleUids);
+    return this.ctx.service('calendars').getLocalChangeSet(data.visible);
   }, null, this).then(function(changes) {
     data.changes = changes;
-    return this.ctx.service('calendars').getSeries(range, data.visibleUids);
+    return this.ctx.service('calendars').getSeries(range, data.visible);
   }, null, this).then(function(series) {
     var ocsHelper = new net.bluemind.rrule.OccurrencesHelper();
     data.vevents = goog.array.flatten(goog.array.map(series, function(vseries) {

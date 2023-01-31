@@ -30,7 +30,8 @@ goog.require("goog.structs.Map");
 goog.require("goog.array");
 goog.require("net.bluemind.container.service.ContainersService");
 goog.require("net.bluemind.container.service.ContainersService.EventType");
-goog.require("net.bluemind.core.container.api.ContainerManagementClient");
+goog.require("net.bluemind.core.container.api.ContainersClient");
+goog.require("net.bluemind.directory.api.DirectoryClient");
 goog.require("net.bluemind.mvp.helper.ServiceHelper");
 
 /**
@@ -86,18 +87,25 @@ net.bluemind.calendar.CalendarsMgmt.prototype.isLocal = function() {
  * @param {Array.<Object>} calendars Calendars to add
  * @return {goog.Promise}
  */
-net.bluemind.calendar.CalendarsMgmt.prototype.setCalendars = function(calendars) {
-  var uids = goog.array.map(calendars, function(c) {
-    return c['uid'];
+net.bluemind.calendar.CalendarsMgmt.prototype.setCalendars = function(calendars, opt_refresh) {
+  var uids = goog.array.map(calendars, function(calendar) {
+    return calendar['uid'];
   });
+  var storedCalendars = [];
   return this.ctx.service('auth').set('calendar.calendars', uids).then(function() {
     return this.ctx.service('folders').getFolders('calendar');
   }, null, this).then(function(syncedCalendars) {
     this.cache_.remove('displayed-calendars');
-    syncedCalendars = goog.array.filter(syncedCalendars || [], function(calendar) {
-      return !goog.array.contains(uids, calendar['uid']);
+    var unsyncedCalendar = goog.array.filter(calendars || [], function(calendar) {
+      return !goog.array.find(syncedCalendars, function(synced) {synced['uid'] == calendar['uid']});
     });
-    var storedCalendars = goog.array.concat(calendars, syncedCalendars);
+    goog.array.extend(storedCalendars, syncedCalendars);
+    if (opt_refresh && unsyncedCalendar.length > 0 && this.ctx.online) {
+      return this.refreshCalendars_(unsyncedCalendar);
+    } 
+    return unsyncedCalendar;
+  }, null, this).then(function(unsyncedCalendars) {
+    goog.array.extend(storedCalendars, unsyncedCalendars);
     return this.handleByState({
       'local,remote' : this.setCalendarsLocal_, //
       'local' : this.setCalendarsLocal_, //
@@ -105,6 +113,64 @@ net.bluemind.calendar.CalendarsMgmt.prototype.setCalendars = function(calendars)
     }, [ storedCalendars ]);
   }, null, this);
 
+}
+
+/** 
+ * @private
+ */
+net.bluemind.calendar.CalendarsMgmt.prototype.refreshCalendars_ = function(calendars) {
+  var uids = goog.array.map(calendars, function(calendar) {
+    return calendar['uid'];
+  });
+
+  return this.ctx.service('folders').getFoldersRemote(null, uids).then(function(folders) {
+    var freebusy = [];
+    goog.array.forEach(folders, function(folder) {
+      if(!this.isReadable_(folder) && this.isDefaultCalendar_(folder)) {
+        freebusy.push(folder['uid'].replace(/^calendar:Default/, "freebusy"));
+      } 
+    }, this);
+    if (freebusy.length > 0) {
+      return this.filterWithFreebusy_(folders, freebusy);
+    } else {
+      return goog.array.filter(folders, function(folder) { return this.isReadable_(folder)}, this);
+    }
+  }, function() {
+    return calendars;
+  }, this);
+}
+
+/**
+ * @private
+ */
+net.bluemind.calendar.CalendarsMgmt.prototype.filterWithFreebusy_ = function(folders, uids) {
+  var client = new net.bluemind.core.container.api.ContainersClient(this.ctx.rpc, '');
+  return client.getContainers(uids).then(function(freebusy) {
+    var readableFreebusy = [];
+    goog.array.forEach(freebusy, function(fb) {
+      if (this.isReadable_(fb)) {
+        readableFreebusy.push(fb['uid'].replace(/^freebusy/, "calendar:Default"));
+      }
+    }, this)
+    return goog.array.filter(folders, function(folder) {
+      return this.isReadable_(folder) || goog.array.contains(readableFreebusy, folder['uid']);
+    }, this)
+  }, null, this);
+}
+
+/**
+ * @private
+ */
+net.bluemind.calendar.CalendarsMgmt.prototype.isReadable_ = function(container) {
+  return goog.array.some(container['verbs'], function (verb) {
+    return goog.array.contains(["Read", "Write", "All"], verb);
+  });
+}
+/**
+ * @private
+ */
+net.bluemind.calendar.CalendarsMgmt.prototype.isDefaultCalendar_ = function(container) {
+  return /^calendar:Default/.test(container['uid'])
 }
 
 /**

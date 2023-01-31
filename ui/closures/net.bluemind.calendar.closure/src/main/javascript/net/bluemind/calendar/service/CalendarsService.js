@@ -28,7 +28,11 @@ goog.require("goog.events.EventTarget");
 goog.require("net.bluemind.container.service.ContainersService");
 goog.require("net.bluemind.container.service.ContainersService.EventType");
 goog.require("net.bluemind.core.container.api.ContainerManagementClient");
+goog.require("net.bluemind.calendar.api.CalendarsClient");
+goog.require("net.bluemind.calendar.api.VFreebusyClient");
+goog.require("net.bluemind.core.container.api.ContainerManagementClient");
 goog.require("net.bluemind.mvp.helper.ServiceHelper");
+goog.require("net.bluemind.mvp.UID");
 
 /**
  * Service provdier object for Calendars
@@ -288,13 +292,49 @@ net.bluemind.calendar.service.CalendarsService.prototype.splitLocalRemote = func
  * @return {goog.Promise<Array<Object>>} Vevents object matching request
  */
 net.bluemind.calendar.service.CalendarsService.prototype.getSeries = function(range, containers) {
+    var freebusy = [];
+    var calendars = [];
+    goog.array.forEach(containers, function(container) {
+      if (this.isReadable_(container)) {
+        calendars.push(container.uid);
+      } else if (this.haveFreebusy_(container)) {
+        freebusy.push(container.uid);
+      }
+    }, this);
+    return goog.Promise.all(
+        [this.getCalendarSeries_(range, calendars), this.getFreebusySeries_(range, freebusy)]
+      ).then(function(results) {
+        return goog.array.flatten(results);
+      });
+};
+
+/**
+ * @param {goog.event.Event} e
+ * @private
+ */
+net.bluemind.calendar.service.CalendarsService.prototype.isReadable_ = function(container) {
+  return goog.array.some(container.verbs, function (verb) {
+    return goog.array.contains(["Read", "Write", "All"], verb);
+  });
+}
+
+/**
+ * @param {goog.event.Event} e
+ * @private
+ */
+net.bluemind.calendar.service.CalendarsService.prototype.haveFreebusy_ = function(container) {
+  return /^calendar:Default/.test(container.uid);
+}
+
+net.bluemind.calendar.service.CalendarsService.prototype.getCalendarSeries_ = function(range, containers) {
+
   return this.splitLocalRemote(containers).then( function( remoteAndLocal) {
     if (containers.length == 0) {
       return goog.Promise.resolve([]);
     } else if( remoteAndLocal.local.length == 0) {
-      return this.getSeriesRemote(range,containers);
+      return this.getSeriesRemote(range, remoteAndLocal.remote);
     } else if( remoteAndLocal.remote.length == 0) {
-      return this.getSeriesLocal(range,containers);
+      return this.getSeriesLocal(range, remoteAndLocal.local);
     } else {
       return goog.Promise.all([this.getSeriesLocal(range, remoteAndLocal.local), this.getSeriesRemote(range, remoteAndLocal.remote)]).then(function(resArr) {
         return goog.array.flatten(resArr);
@@ -302,6 +342,85 @@ net.bluemind.calendar.service.CalendarsService.prototype.getSeries = function(ra
     }
   }, null, this);
 };
+
+net.bluemind.calendar.service.CalendarsService.prototype.getFreebusySeries_ = function(range, containers) {
+  return goog.Promise.all(goog.array.map(containers, function(container) {
+    return this.getFreebusy_(range, container);
+  }, this)).then(function(result) {
+    var series = [];
+    goog.array.forEach(result, function(freebusy) {
+      if (freebusy) {
+        goog.array.forEach(freebusy['slots'], function(slot) {
+        if  (slot['type'] !== "FREE") {
+            series.push(this.freebusySlotToSeries_(slot, freebusy.container))
+          }
+        }, this);
+      }
+    }, this);
+    return series;
+  }, null, this)
+};
+
+net.bluemind.calendar.service.CalendarsService.prototype.getFreebusy_ = function(range, container) {  
+  var uid = container.replace(/^calendar:Default/, "freebusy");
+  var client = new net.bluemind.calendar.api.VFreebusyClient(this.ctx.rpc, '', uid);
+  return client.get({
+    'dtstart' : new net.bluemind.date.DateHelper().toBMDateTime(range.getStartDate()),
+    'dtend' : new net.bluemind.date.DateHelper().toBMDateTime(range.getEndDate()),
+    'excludedEvents': [],
+    'withOOFSlots': false
+  }).then(function(freebusy) {
+    freebusy.container = container;
+    return freebusy;
+  }, function (failure) {
+    console.log(failure);
+    return null;
+  });
+};
+
+net.bluemind.calendar.service.CalendarsService.prototype.freebusySlotToSeries_ = function(slot, container) {  
+  var uid = net.bluemind.mvp.UID.generate();
+  /** @meaning calendar.freebusy.busy */
+  var MSG_BUSY = goog.getMsg('Busy');
+    /** @meaning calendar.freebusy.busyunavailable */
+  var MSG_BUSYUNAVAILABLE = goog.getMsg('Not available');
+    /** @meaning calendar.freebusy.busytentative */
+  var MSG_BUSYTENTATIVE = goog.getMsg('Tentative');
+  var summary = {
+    "BUSY": MSG_BUSY,
+    "BUSYUNAVAILABLE": MSG_BUSYUNAVAILABLE,
+    "BUSYTENTATIVE": MSG_BUSYTENTATIVE
+  }
+  return {
+    "containerUid": container,
+    "container": container,
+    "displayName": slot['summary'] ||summary[slot['type']],
+    "uid": uid,
+    "value": {
+      "main": {
+        "summary":  slot['summary'] ||summary[slot['type']],
+        "classification": "FreeBusy",
+        "priority": 5,
+        "attendees": [],
+        "organizer": null,
+        "categories": [],
+        "exdate": null,
+        "rdate": null,
+        "rrule": null,
+        "sequence": 0,
+        "dtend": slot['dtend'],
+        "dtstart": slot['dtstart'],
+        "transparency": "Opaque"
+      },
+      "acceptCounters": true,
+      "counters": [],
+      "icsUid": uid,
+      "occurrences":[],
+      "properties":{},
+      "status": slot['type'] === "BUSYTENTATIVE" ? "Tentative": "Confirmed"
+    }
+  }
+}
 
 /**
  * Return all vevent inside a range
@@ -384,7 +503,9 @@ net.bluemind.calendar.service.CalendarsService.prototype.getLocalChangeSet = fun
   }).then(function(changes) {
     if (opt_containers) {
       return goog.array.filter(changes, function(changes) {
-        return goog.array.contains(opt_containers, changes['container']);
+        return goog.array.some(opt_containers, function(container) {
+          container.uid == changes['container']
+        });
       })
     } 
     return changes;

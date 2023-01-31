@@ -168,7 +168,6 @@ goog.inherits(net.bluemind.calendar.CalendarApplication, net.bluemind.mvp.Applic
 
 /** @override */
 net.bluemind.calendar.CalendarApplication.prototype.bootstrap = function(ctx) {
-
   return goog.base(this, 'bootstrap', ctx).then(function() {
     return ctx.service('auth').get('calendar.calendars');
   }, null, this).then(function(uids) {
@@ -190,7 +189,7 @@ net.bluemind.calendar.CalendarApplication.prototype.bootstrap = function(ctx) {
     goog.log.info(this.logger, 'initializing folders...');
     return this.initializeFolders_(ctx);
   }, this).then(function(calendars) {
-    return ctx.service('calendarsMgmt').setCalendars(calendars);
+    return ctx.service('calendarsMgmt').setCalendars(calendars, true);
   }).then(function() {
     return ctx.service('calendarviews').getView("default");
   }).then(function(view) {

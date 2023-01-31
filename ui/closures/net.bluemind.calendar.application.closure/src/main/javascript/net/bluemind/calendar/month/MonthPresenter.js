@@ -160,7 +160,9 @@ net.bluemind.calendar.month.MonthPresenter.prototype.setup = function() {
     return this.ctx.service('calendars').getLocalChangeSet(data.visibleUids);
   }, null, this).then(function(changes) {
     data.changes = changes;
-    return this.ctx.service('calendars').getSeries(range, data.visibleUids);
+    return this.ctx.service('calendars').getSeries(range, goog.array.filter(data.calendars, function(calendar) {
+      return calendar.states.visible;
+    }));
   }, null, this).then(function(series) {
     var ocsHelper = new net.bluemind.rrule.OccurrencesHelper();
 

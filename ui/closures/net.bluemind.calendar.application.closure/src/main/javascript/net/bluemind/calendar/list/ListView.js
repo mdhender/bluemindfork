@@ -187,8 +187,16 @@ net.bluemind.calendar.list.ListView.prototype.drawEvent = function(event, parent
     detail += ', ' + event.location;
   }
 
-  var evtDetail = dom.createDom('a', {}, detail);
+  if (event.states.private_ && !event.states.updatable) {
+    var evtDetail = dom.createDom('span', {}, detail);
+  } else {
+    var evtDetail = dom.createDom('a', {}, detail);
+    var fn = goog.partial(this.handleClick_, event);
+    this.getHandler().listen(evtDetail, goog.events.EventType.CLICK, fn);
+    goog.dom.classlist.add(evtDetail, goog.getCssName('detail'));
+  }
   dom.appendChild(tdDetail, evtDetail);
+  
 
   if (event.states.meeting) {
     var meeting = dom.createDom('span', [ goog.getCssName('fa'), goog.getCssName('fa-users') ]);
@@ -218,9 +226,7 @@ net.bluemind.calendar.list.ListView.prototype.drawEvent = function(event, parent
     goog.dom.classlist.add(tag, goog.getCssName('tag-mark'));
     dom.appendChild(tdDetail, tag);
   });
-  var fn = goog.partial(this.handleClick_, event);
-  this.getHandler().listen(evtDetail, goog.events.EventType.CLICK, fn);
-  goog.dom.classlist.add(evtDetail, goog.getCssName('detail'));
+
 
   if (dom.getElement('day' + event.date.getDayOfYear())) {
     var el = dom.getElement('day' + event.date.getDayOfYear());
