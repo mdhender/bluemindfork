@@ -86,6 +86,12 @@ public class SubtreeSync<O> extends LoggedContainerDeltaSync<O, MailboxReplica> 
 					IMailReplicaUids.mboxRecords(freshUniqueId));
 			item.uid = freshUniqueId;
 		}
+		if (item.value.parentUid != null) {
+			String mappedParent = ContainerUidsMapping.alias(IMailReplicaUids.mboxRecords(item.value.parentUid));
+			if (mappedParent != null) {
+				item.value.parentUid = IMailReplicaUids.uniqueId(mappedParent);
+			}
+		}
 		return item;
 	}
 
