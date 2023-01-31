@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.openid.utils
 Bundle-SymbolicName: net.bluemind.openid.utils;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Export-Package: net.bluemind.openid.utils
 Require-Bundle: io.vertx.core;visibility:=reexport,
  com.google.guava,
