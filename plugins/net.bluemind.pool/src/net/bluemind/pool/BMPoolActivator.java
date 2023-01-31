@@ -175,6 +175,11 @@ public class BMPoolActivator extends Plugin {
 				config.addDataSourceProperty("ApplicationName", "BlueMind");
 				config.addDataSourceProperty("reWriteBatchedInserts", "true");
 				config.setConnectionTestQuery(cf.getKeepAliveQuery());
+				// LC: if we do server side prepared statement,
+				// on servers with a "big" t_directory_entry, the query
+				// to check if an email exists becomes suuuper slow, because
+				// postgresql uses a generic plan, which is not suitable for us
+				config.addDataSourceProperty("prepareThreshold", "0");
 				if (schema != null) {
 					config.setSchema(schema);
 					config.setConnectionInitSql("CREATE SCHEMA IF NOT EXISTS " + schema);
