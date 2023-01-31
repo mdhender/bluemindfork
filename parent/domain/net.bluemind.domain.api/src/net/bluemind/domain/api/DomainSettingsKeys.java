@@ -58,6 +58,7 @@ public enum DomainSettingsKeys {
 	@NotNull
 	nextcloudUrl, //
 	domain_composer_font_stack, //
+	openid_host, //
 	openid_realm, //
 	openid_client_id, //
 	openid_client_secret;

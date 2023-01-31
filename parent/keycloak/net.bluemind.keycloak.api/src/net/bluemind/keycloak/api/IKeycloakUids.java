@@ -22,6 +22,10 @@ import net.bluemind.core.api.BMApi;
 @BMApi(version = "3")
 public interface IKeycloakUids {
 
+	public static String defaultHost(String host, String realmId) {
+		return String.format("http://%s:8099/realms/%s/.well-known/openid-configuration", host, realmId);
+	}
+
 	public static String clientId(String realmId) {
 		return realmId + "-cli";
 	}

@@ -17,21 +17,24 @@
   */
 package net.bluemind.system.auth;
 
+import java.util.Map;
 import java.util.Optional;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.hook.DomainHookAdapter;
 import net.bluemind.openid.utils.AccessTokenValidator;
-import net.bluemind.system.api.SysConfKeys;
-import net.bluemind.system.api.SystemConf;
-import net.bluemind.system.hook.ISystemConfigurationObserver;
 
-public class OpenIdConfigurationObserver implements ISystemConfigurationObserver {
+public class OpenIdConfigurationObserver extends DomainHookAdapter {
 
 	@Override
-	public void onUpdated(BmContext context, SystemConf previous, SystemConf conf) throws ServerFault {
-		String prev = Optional.ofNullable(previous.stringValue(SysConfKeys.openid_host.name())).orElse("");
-		String now = Optional.ofNullable(conf.stringValue(SysConfKeys.openid_host.name())).orElse("");
+	public void onSettingsUpdated(BmContext context, ItemValue<Domain> domain, Map<String, String> previousSettings,
+			Map<String, String> currentSettings) throws ServerFault {
+		String prev = Optional.ofNullable(previousSettings.get(DomainSettingsKeys.openid_host.name())).orElse("");
+		String now = Optional.ofNullable(currentSettings.get(DomainSettingsKeys.openid_host.name())).orElse("");
 		if (!now.equals(prev)) {
 			AccessTokenValidator.invalidateCache();
 		}

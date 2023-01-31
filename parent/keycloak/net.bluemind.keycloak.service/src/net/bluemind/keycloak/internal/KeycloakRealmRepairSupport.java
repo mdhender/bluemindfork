@@ -36,6 +36,8 @@ import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
 import net.bluemind.keycloak.api.IKeycloakUids;
+import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 
 public class KeycloakRealmRepairSupport implements IDirEntryRepairSupport {
 	private static final Logger logger = LoggerFactory.getLogger(KeycloakRealmRepairSupport.class);
@@ -97,6 +99,8 @@ public class KeycloakRealmRepairSupport implements IDirEntryRepairSupport {
 				IDomainSettings settingsApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 						.instance(IDomainSettings.class, domainUid);
 				Map<String, String> settings = settingsApi.get();
+				settings.put(DomainSettingsKeys.openid_host.name(), IKeycloakUids
+						.defaultHost(Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address(), realm));
 				settings.put(DomainSettingsKeys.openid_realm.name(), realm);
 				settings.put(DomainSettingsKeys.openid_client_id.name(), clientId);
 				settings.put(DomainSettingsKeys.openid_client_secret.name(), secret);
