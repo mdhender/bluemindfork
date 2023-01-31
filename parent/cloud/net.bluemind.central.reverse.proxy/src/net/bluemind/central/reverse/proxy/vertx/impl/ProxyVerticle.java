@@ -29,6 +29,7 @@ import static net.bluemind.central.reverse.proxy.common.config.CrpConfig.Proxy.T
 import static net.bluemind.central.reverse.proxy.common.config.CrpConfig.Proxy.TCP_NO_DELAY;
 import static net.bluemind.central.reverse.proxy.common.config.CrpConfig.Proxy.Ssl.ACTIVE;
 import static net.bluemind.central.reverse.proxy.common.config.CrpConfig.Proxy.Ssl.ENGINE;
+import static net.bluemind.central.reverse.proxy.common.config.CrpConfig.Proxy.Ssl.TRUST_ALL;
 import static net.bluemind.central.reverse.proxy.common.config.CrpConfig.Proxy.Ssl.USE_ALPN;
 import static net.bluemind.central.reverse.proxy.common.config.CrpConfig.Proxy.Ssl.VERIFY_HOST;
 import static net.bluemind.central.reverse.proxy.common.config.CrpConfig.Proxy.Ssl.Engine.OPEN_SSL;
@@ -117,6 +118,7 @@ public class ProxyVerticle extends AbstractVerticle {
 				.setSsl(config.getBoolean(ACTIVE)) //
 				.setUseAlpn(config.getBoolean(USE_ALPN)) //
 				.setSslEngineOptions(sslEngineOptions) //
+				.setTrustAll(config.getBoolean(TRUST_ALL)) //
 				.setVerifyHost(config.getBoolean(VERIFY_HOST));
 	}
 

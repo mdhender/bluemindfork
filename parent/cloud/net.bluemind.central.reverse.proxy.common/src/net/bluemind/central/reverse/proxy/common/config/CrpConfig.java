@@ -69,6 +69,7 @@ public class CrpConfig {
 			public static final String ENGINE = "bm.crp.proxy.ssl.engine";
 			public static final String USE_ALPN = "bm.crp.proxy.ssl.use-alpn";
 			public static final String VERIFY_HOST = "bm.crp.proxy.ssl.verify-host";
+			public static final String TRUST_ALL = "bm.crp.proxy.ssl.trust-all";
 		}
 	}
 
