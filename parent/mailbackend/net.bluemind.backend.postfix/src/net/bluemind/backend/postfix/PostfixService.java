@@ -110,11 +110,7 @@ public class PostfixService {
 		mainCf.setRelayHost(smtp.value.address());
 		mainCf.write();
 
-		RelayPassword relayPwd = new RelayPassword(serverService, server.uid);
-		relayPwd.setRelayHost(smtp.value.address());
-		relayPwd.setHostname(getHostname(smtp.value));
-		relayPwd.write();
-		relayPwd.enable();
+		new RelayPassword(serverService, server, smtp.value.address()).write();
 
 		// Needed to ensure that /etc/aliases.db exist
 		CommandStatus st = serverService.submitAndWait(server.uid, "/usr/bin/newaliases");
