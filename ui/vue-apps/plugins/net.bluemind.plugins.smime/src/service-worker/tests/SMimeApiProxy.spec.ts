@@ -19,7 +19,7 @@ describe("SMimeApiProxy", () => {
 
         test("decrypt encrypted messages", async () => {
             smime.isEncrypted = () => true;
-            smime.decrypt = jest.fn(() => Promise.resolve(decryptedItem));
+            smime.decrypt = jest.fn(() => Promise.resolve({ item: decryptedItem, content: "" }));
 
             smimeApiProxy.next = () => Promise.resolve(<never>[encryptedItem]);
             await smimeApiProxy.multipleGetById();
@@ -68,7 +68,7 @@ describe("SMimeApiProxy", () => {
         });
         test("decrypt encrypted message", async () => {
             smime.isEncrypted = () => true;
-            smime.decrypt = jest.fn(() => Promise.resolve(decryptedItem));
+            smime.decrypt = jest.fn(() => Promise.resolve({ item: decryptedItem, content: "" }));
 
             smimeApiProxy.next = () => Promise.resolve(<never>encryptedItem);
             await smimeApiProxy.getForUpdate();

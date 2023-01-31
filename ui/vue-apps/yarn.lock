@@ -3791,7 +3791,7 @@ electron-to-chromium@^1.4.284:
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/electron-to-chromium/-/electron-to-chromium-1.4.294.tgz#ad80317b85f0859a9454680fbc1c726fefa7e6fd"
   integrity sha512-PuHZB3jEN7D8WPPjLmBQAsqQz8tWHlkkB4n0E2OYw8RwVdmBYV0Wn+rUFH8JqYyIRb4HQhhedgxlZL163wqLrQ==
 
-emailjs-addressparser@^2.0.2:
+emailjs-addressparser@^2.0.1, emailjs-addressparser@^2.0.2:
   version "2.0.3"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/emailjs-addressparser/-/emailjs-addressparser-2.0.3.tgz#b9c1cbaf70da13622075944ce757f3be5451fb99"
   integrity sha512-GjahNdp1fRsWBGxmwC4o7XEoEf7QsdsVrbZFoeulEKNp49NrIUZcZfGMKCPDv5kExiuJLulq/7tJY+ei6BRitA==
@@ -3809,6 +3809,15 @@ emailjs-mime-codec@^2.0.8:
     emailjs-base64 "^1.1.4"
     ramda "^0.26.1"
     text-encoding "^0.7.0"
+
+emailjs-mime-parser@^2.0.7:
+  version "2.0.7"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/emailjs-mime-parser/-/emailjs-mime-parser-2.0.7.tgz#b9641a5564aeef1bd9ff4f7c51ab09b0cd7524d7"
+  integrity sha512-rOrRtAzq0OVLrxbTkRLyrtoY/YQldPgIzAk6lcD3LfXR0Gw3+PzsN2rO1QENY+cIQD94vYr2t2Ri0Zxlc9aeew==
+  dependencies:
+    emailjs-addressparser "^2.0.1"
+    emailjs-mime-codec "^2.0.8"
+    ramda "^0.26.1"
 
 emailjs-mime-types@^2.1.0:
   version "2.1.0"

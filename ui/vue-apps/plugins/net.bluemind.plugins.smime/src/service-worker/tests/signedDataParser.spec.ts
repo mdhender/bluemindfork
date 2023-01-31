@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { arrayBufferToBase64 } from "@bluemind/arraybuffer";
-import extractSignedData, { extractBoundary } from "../signedDataParser";
+import extractSignedData from "../signedDataParser";
 
 describe("extract signed data from an eml", () => {
     test("extract valid informations", done => {
@@ -22,41 +22,6 @@ describe("extract signed data from an eml", () => {
             expect(toDigest.endsWith("\r\n\r\n")).toBe(true);
             done();
         });
-    });
-});
-
-describe("extract multipart/signed boundary value from an eml", () => {
-    test("standard boundary", () => {
-        const eml = `MIME-Version: 1.0
-        Content-Type: multipart/signed; protocol="application/pkcs7-signature"; 
-            micalg=sha-256; boundary="ms020109040004000402080205"
-        X-Anything: 1667475017557
-        
-        --ms020109040004000402080205
-        Content-Type: multipart/alternative; boundary="another-boundary"
-
-        ...
-
-        --ms020109040004000402080205--
-        `;
-        const boundaryValue = extractBoundary(eml);
-        expect(boundaryValue).toBe("--ms020109040004000402080205");
-    });
-
-    test("boundary without any quote", () => {
-        const eml = `MIME-Version: 1.0
-        Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256; boundary=no-quote-for-this-boundary
-        X-Anything: 1667475017557
-        
-        --no-quote-for-this-boundary
-        Content-Type: multipart/alternative; boundary="another-boundary"
-
-        ...
-        
-        --no-quote-for-this-boundary--
-        `;
-        const boundaryValue = extractBoundary(eml);
-        expect(boundaryValue).toBe("--no-quote-for-this-boundary");
     });
 });
 
