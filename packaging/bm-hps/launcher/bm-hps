@@ -25,7 +25,7 @@ curdir=`dirname $0`
 pidfile=$1
 
 # vertx defaults are 2*cpu for eventloops & 20 for workers
-export BM_JVM_CUSTOM_OPTS="-Dvertx.pool.eventloop.size=4 -Dvertx.pool.worker.size=8"
+export BM_JVM_CUSTOM_OPTS="-Dvertx.pool.eventloop.size=4 -Dvertx.pool.worker.size=8 -XX:InitiatingHeapOccupancyPercent=30 -Dio.netty.allocator.maxOrder=8"
 export DEFAULT_MEM=64
 source ${curdir}/equinox-systemd.sh ${product}
 
