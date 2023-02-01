@@ -63,7 +63,9 @@ export default {
                 ) {
                     this.$store.dispatch("alert/" + INFO, corporateSignatureGotInserted);
                     editorRef.removeContent(PERSONAL_SIGNATURE_SELECTOR(personalSignature.id));
-                    editorRef.removeContent(PERSONAL_SIGNATURE_SELECTOR(old.id));
+                    if (old) {
+                        editorRef.removeContent(PERSONAL_SIGNATURE_SELECTOR(old.id));
+                    }
                 }
                 if (old && editorRef.hasContent(PERSONAL_SIGNATURE_SELECTOR(old.id))) {
                     editorRef.removeContent(PERSONAL_SIGNATURE_SELECTOR(old.id));
