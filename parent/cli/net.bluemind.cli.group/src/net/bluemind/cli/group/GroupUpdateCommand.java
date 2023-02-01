@@ -36,11 +36,12 @@ import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
 import net.bluemind.group.api.Member.Type;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "update", description = "update users")
+@Command(name = "update", description = "update groups")
 public class GroupUpdateCommand implements ICmdLet, Runnable {
 
 	public static class Reg implements ICmdLetRegistration {
@@ -72,6 +73,18 @@ public class GroupUpdateCommand implements ICmdLet, Runnable {
 	@Option(names = "--description", description = "update group description")
 	public String description;
 
+	@ArgGroup(exclusive = true, multiplicity = "0..1")
+	public HideOpts hideOpts;
+
+	public static class HideOpts {
+		@Option(names = "--hide-members", description = "hide members")
+		public boolean hideMembers = false;
+
+		@Option(names = "--show-members", description = "set members as visible")
+		public boolean showMembers = false;
+
+	}
+
 	protected CliContext ctx;
 	protected CliUtils cliUtils;
 
@@ -98,6 +111,17 @@ public class GroupUpdateCommand implements ICmdLet, Runnable {
 			if (extId != null) {
 				groupApi.setExtId(group.uid, extId.trim().isEmpty() ? null : extId);
 			}
+
+			if (hideOpts != null) {
+				if (hideOpts.hideMembers) {
+					group.value.hiddenMembers = true;
+					groupApi.update(group.uid, group.value);
+				} else if (hideOpts.showMembers) {
+					group.value.hiddenMembers = false;
+					groupApi.update(group.uid, group.value);
+				}
+			}
+
 			if (description != null) {
 				group.value.description = description;
 				groupApi.update(group.uid, group.value);
