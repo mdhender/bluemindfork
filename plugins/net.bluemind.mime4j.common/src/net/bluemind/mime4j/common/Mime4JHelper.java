@@ -425,7 +425,7 @@ public class Mime4JHelper {
 			String start = "<html><body><p>";
 			String end = "</p></body></html>";
 			sb.append(start);
-			sb.append(reply.replaceAll("\n", "<br/>"));
+			sb.append(reply.replace("\n", "<br/>"));
 			sb.append(end);
 			replyHtml = sb.toString();
 		} else {

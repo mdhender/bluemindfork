@@ -44,9 +44,10 @@ public class UnsubscribeProcessor extends AuthenticatedCommandProcessor<Unsubscr
 	@Override
 	protected void checkedOperation(UnsubscribeCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		MailboxConnection con = ctx.mailbox();
-		boolean success = con.unsubscribe(command.folder());
+		String f = command.folder();
+		boolean success = con.unsubscribe(f);
 		if (!success) {
-			logger.warn("[{}] unsub of {} failed but we don't care", ctx);
+			logger.warn("[{}] unsub of {} failed but we don't care", ctx, f);
 		}
 		ctx.write(command.raw().tag() + " OK unsubscribe completed\r\n");
 		completed.handle(Result.success());
