@@ -173,7 +173,7 @@ function bm_equinox_run_server_appid() {
          -jar "${equinox_jar}" \
          -clean \
          -configuration "${PRODUCT_DIR}/configuration" \
-         -application $appid_to_run $@
+         -application $appid_to_run "$@"
 }
 
 function bm_equinox_get_jar() {
