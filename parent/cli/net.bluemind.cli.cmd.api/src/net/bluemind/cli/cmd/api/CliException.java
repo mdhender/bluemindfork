@@ -22,6 +22,9 @@
  */
 package net.bluemind.cli.cmd.api;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @SuppressWarnings("serial")
 public class CliException extends RuntimeException {
 
@@ -31,13 +34,22 @@ public class CliException extends RuntimeException {
 
 	public CliException(String message) {
 		super(message);
+		LoggerFactory.getLogger(
+				StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass().getTypeName())
+				.error(message);
 	}
 
 	public CliException(String message, Throwable t) {
 		super(message, t);
+		LoggerFactory.getLogger(
+				StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass().getTypeName())
+				.error(message + ":{}", t.getMessage());
 	}
 
 	public CliException(Throwable e) {
 		super(e);
+		LoggerFactory.getLogger(
+				StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass().getTypeName())
+				.error(e.getMessage());
 	}
 }

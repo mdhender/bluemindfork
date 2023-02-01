@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.fusesource.jansi.Ansi;
+import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 
 import com.google.common.base.Suppliers;
@@ -101,6 +102,9 @@ public class CliContext {
 	 * @param msg
 	 */
 	public synchronized void error(String msg) {
+		LoggerFactory.getLogger(
+				StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass().getTypeName())
+				.error(msg);
 		System.err.println(ansi().fgRed().a(msg).reset()); // NOSONAR
 		System.err.flush(); // NOSONAR
 	}
@@ -115,6 +119,9 @@ public class CliContext {
 	 * @param msg
 	 */
 	public synchronized void warn(String msg) {
+		LoggerFactory.getLogger(
+				StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass().getTypeName())
+				.warn(msg);
 		System.err.println(ansi().fgYellow().a(msg).reset()); // NOSONAR
 		System.err.flush(); // NOSONAR
 	}
@@ -124,6 +131,9 @@ public class CliContext {
 	}
 
 	public synchronized void info(String msg) {
+		LoggerFactory.getLogger(
+				StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass().getTypeName())
+				.info(msg);
 		System.out.println(msg); // NOSONAR
 		System.out.flush(); // NOSONAR
 	}
