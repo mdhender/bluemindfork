@@ -100,6 +100,15 @@ export default {
             }
         }
     },
+    watch: {
+        "$store.state.settings.theme": {
+            handler(value, old) {
+                document.body.classList.remove(old);
+                document.body.classList.add(value);
+            },
+            immediate: true
+        }
+    },
     async created() {
         const link = document.createElement("link");
         link.href = favicon;

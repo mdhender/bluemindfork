@@ -3,6 +3,10 @@ import { AvailableLanguages } from "@bluemind/i18n";
 import Roles from "@bluemind/roles";
 import NotificationManager from "../../../NotificationManager";
 
+import themeSystem from "../../../../assets/theme-system.png";
+import themeLight from "../../../../assets/theme-light.png";
+import themeDark from "../../../../assets/theme-dark.png";
+
 export default function (i18n) {
     return {
         id: "my_account",
@@ -89,6 +93,40 @@ function main(i18n) {
                                 choices: availableDefaultApps,
                                 setting: "default_app",
                                 needLogout: true
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                id: "theme",
+                name: i18n.t("preferences.general.theme"),
+                fields: [
+                    {
+                        id: "field",
+                        component: {
+                            name: "PrefFieldChoice",
+                            options: {
+                                setting: "theme",
+                                autosave: true,
+                                choices: [
+                                    {
+                                        name: i18n.t("preferences.general.theme.system"),
+                                        value: "system",
+                                        img: themeSystem
+                                    },
+                                    {
+                                        name: i18n.t("preferences.general.theme.light"),
+                                        value: "light",
+                                        img: themeLight
+                                    },
+                                    {
+                                        name: i18n.t("preferences.general.theme.dark"),
+                                        value: "dark",
+                                        img: themeDark
+                                    }
+                                ],
+                                default: "system"
                             }
                         }
                     }

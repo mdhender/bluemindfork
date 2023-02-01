@@ -1,6 +1,17 @@
 @import "_colorPalette.scss";
 
-:root {
+@mixin dark-theme-selector {
+    body.dark {
+        @content;
+    }
+    @media (prefers-color-scheme: dark) {
+        body.system {
+            @content;
+        }
+    }
+}
+
+@include dark-theme-selector {
     // Misc colors
 
     --surface-hi2: #{mix($white, $gray-900, 8%)};
