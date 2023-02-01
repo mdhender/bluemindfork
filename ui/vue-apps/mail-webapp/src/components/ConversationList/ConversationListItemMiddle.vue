@@ -1,7 +1,7 @@
 <template>
     <div class="conversation-list-item-middle regular text-truncate">
         <div class="from-or-to-row">
-            <div :title="fromOrTo" class="from-or-to text-truncate">
+            <div :title="fromOrToTitle" class="from-or-to text-truncate">
                 <bm-extension id="webapp.mail" path="list.conversation.prefix" :conversation="conversation" />
                 <span v-if="isDraft" class="text-danger font-weight-normal">
                     [<span class="font-italic">{{ $t("common.folder.draft") }}</span
@@ -61,11 +61,11 @@ import { Flag } from "@bluemind/email";
 import { folderUtils } from "@bluemind/mail";
 import MailFolderIcon from "../MailFolderIcon";
 import {
+    CONVERSATION_IS_SELECTED,
+    CONVERSATION_LIST_IS_SEARCH_MODE,
     CONVERSATIONS_ACTIVATED,
     MY_DRAFTS,
-    MY_SENT,
-    CONVERSATION_LIST_IS_SEARCH_MODE,
-    CONVERSATION_IS_SELECTED
+    MY_SENT
 } from "~/getters";
 
 const { isDraftFolder } = folderUtils;
@@ -141,7 +141,7 @@ export default {
         folder() {
             return this.folders[this.conversation.folderRef.key];
         },
-        fromOrTo() {
+        fromOrToContacts() {
             const folder = this.conversation.folderRef.key;
             const isSentOrDraftBox = [this.MY_DRAFTS.key, this.MY_SENT.key].includes(folder);
             if (isSentOrDraftBox) {
@@ -152,10 +152,18 @@ export default {
                     : this.conversation.bcc?.length
                     ? this.conversation.bcc
                     : [];
-                return recipients.map(to => (to.dn ? to.dn : to.address)).join(", ");
+                return recipients;
             } else {
-                return this.conversation.from.dn ? this.conversation.from.dn : this.conversation.from.address;
+                return this.conversation.senders;
             }
+        },
+        fromOrTo() {
+            return this.fromOrToContacts
+                .map(({ dn, address }) => (dn ? (this.fromOrToContacts.length > 1 ? dn.split(/\s+/)[0] : dn) : address))
+                .join(", ");
+        },
+        fromOrToTitle() {
+            return this.fromOrToContacts.map(({ dn, address }) => dn || address).join(", ");
         },
         displayedSubject() {
             const subject = this.conversation.subject;

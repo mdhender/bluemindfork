@@ -196,7 +196,16 @@ const getters = {
             remoteRef: conversation.remoteRef,
             folderRef: conversation.folderRef,
             ...reducedMetadata(conversation.folderRef.key, messages),
-            messages: messages.map(m => m.key)
+            messages: messages.map(m => m.key),
+            senders: messages
+                .reverse()
+                .reduce(
+                    (results, message) =>
+                        !message.from?.address || results.some(({ address }) => address === message.from.address)
+                            ? results
+                            : [...results, message.from],
+                    []
+                )
         };
     },
     [CURRENT_CONVERSATION_METADATA]: (state, getters) => getters.CONVERSATION_METADATA(state.currentConversation)
