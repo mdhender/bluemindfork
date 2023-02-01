@@ -90,6 +90,8 @@ import net.bluemind.role.api.DefaultRoles;
 import net.bluemind.role.api.IRoles;
 import net.bluemind.role.api.RoleDescriptor;
 import net.bluemind.role.service.IInternalRoles;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.user.api.ChangePassword;
 import net.bluemind.user.api.IPasswordUpdater;
 import net.bluemind.user.api.IUser;
@@ -631,6 +633,10 @@ public class UserService implements IInCoreUser, IUser {
 
 	@Override
 	public ValidationResult validate(String[] usersUids) throws ServerFault {
+		if (StateContext.getState() == SystemState.CORE_STATE_CLONING) {
+			return new ValidationResult(true, usersUids);
+		}
+
 		boolean valid = storeService.allValid(usersUids);
 		if (valid) {
 			return new ValidationResult(valid, usersUids);

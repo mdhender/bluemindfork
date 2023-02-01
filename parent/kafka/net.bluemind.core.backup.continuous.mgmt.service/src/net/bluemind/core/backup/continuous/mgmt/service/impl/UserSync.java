@@ -33,26 +33,33 @@ import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.ICalendarViewUids;
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
+import net.bluemind.core.backup.continuous.dto.GroupMembership;
 import net.bluemind.core.backup.continuous.events.ContinuousContenairization;
 import net.bluemind.core.backup.continuous.mgmt.api.BackupSyncOptions;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
 import net.bluemind.core.container.api.IRestoreDirEntryWithMailboxSupport;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
+import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.deferredaction.api.IDeferredActionContainerUids;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.service.DirEntryAndValue;
+import net.bluemind.domain.api.IDomainUids;
 import net.bluemind.exchange.mapi.api.IMapiFoldersMgmt;
 import net.bluemind.exchange.mapi.api.IMapiMailbox;
 import net.bluemind.exchange.mapi.api.MapiFolder;
 import net.bluemind.exchange.mapi.api.MapiFolderContainer;
 import net.bluemind.exchange.mapi.api.MapiReplica;
+import net.bluemind.group.api.Group;
+import net.bluemind.group.api.IGroupMember;
+import net.bluemind.group.api.Member;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.notes.api.INoteUids;
 import net.bluemind.todolist.api.ITodoUids;
+import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.User;
 import net.bluemind.user.api.UserSettings;
@@ -131,6 +138,8 @@ public class UserSync extends DirEntryWithMailboxSync<User> {
 		entryMon.begin(10 * nodes.size() + 3.0, "process " + nodes.size() + " container(s)");
 		ItemValue<DirEntryAndValue<User>> stored = super.syncEntry(ivDir, entryMon.subWork(1), target, cont, scope);
 
+		storeMemberships(target, stored);
+
 		if (scope == Scope.Content) {
 			processSettings(ivDir, target, cont);
 
@@ -139,6 +148,28 @@ public class UserSync extends DirEntryWithMailboxSync<User> {
 			processContainers(entryMon, target, nodes, stored);
 		}
 		return stored;
+	}
+
+	private void storeMemberships(IBackupStoreFactory target, ItemValue<DirEntryAndValue<User>> stored) {
+		IGroupMember memberOfApi = ctx.provider().instance(IUser.class, domainUid());
+		List<ItemValue<Group>> groups = memberOfApi.memberOf(stored.uid);
+		MembershipHook hook = new MembershipHook(target);
+		Member asMember = Member.user(stored.uid);
+		for (ItemValue<Group> g : groups) {
+
+			GroupMembership gm = hook.createGroupMembership(g.value, asMember, true);
+			hook.save(domainUid(), ContainerUidsMapping.alias(asMember.uid), remapGroup(g), gm);
+		}
+	}
+
+	private Item remapGroup(ItemValue<Group> g) {
+		Item it = g.item();
+		if (g.value.name.equals("user")) {
+			it.uid = IDomainUids.userGroup(domainUid());
+		} else if (g.value.name.equals("admin")) {
+			it.uid = IDomainUids.adminGroup(domainUid());
+		}
+		return it;
 	}
 
 	private void processMapiArtifacts(ItemValue<DirEntry> ivDir, IBackupStoreFactory target,

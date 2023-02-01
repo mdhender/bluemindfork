@@ -68,10 +68,14 @@ import net.bluemind.group.service.IInCoreGroup;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.service.IInCoreMailboxes;
+import net.bluemind.network.topology.IServiceTopology;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.role.api.IRoles;
 import net.bluemind.role.api.RoleDescriptor;
 import net.bluemind.server.api.IServer;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.user.service.IInCoreUser;
 
 public class GroupService implements IGroup, IInCoreGroup {
@@ -330,6 +334,10 @@ public class GroupService implements IGroup, IInCoreGroup {
 		if (!alreadyPresent.isEmpty()) {
 			logger.error("Group uid: {}: members ({}) are already in group", uid, alreadyPresent);
 			if (members.size() == alreadyPresent.size()) {
+				if (StateContext.getState() == SystemState.CORE_STATE_CLONING) {
+					logger.warn("{} member(s) are already in the group", uid);
+					return;
+				}
 				throw new ServerFault("Group uid: " + uid + " all users are already in the group.",
 						ErrorCode.INVALID_PARAMETER);
 			}
@@ -582,6 +590,10 @@ public class GroupService implements IGroup, IInCoreGroup {
 
 	@Override
 	public ValidationResult validate(String[] groupUids) throws ServerFault {
+		if (StateContext.getState() == SystemState.CORE_STATE_CLONING) {
+			return new ValidationResult(true, groupUids);
+		}
+
 		boolean valid = storeService.allValid(groupUids);
 		if (valid) {
 			return new ValidationResult(valid, groupUids);
@@ -607,6 +619,12 @@ public class GroupService implements IGroup, IInCoreGroup {
 
 	@Override
 	public void restore(ItemValue<Group> item, boolean isCreate) {
+		if (item.value.dataLocation == null) {
+			IServiceTopology topo = Topology.get();
+			if (topo.all("mail/imap").size() == 1) {
+				item.value.dataLocation = Topology.get().any("mail/imap").uid;
+			}
+		}
 		if (isCreate) {
 			createWithItem(item, true);
 		} else {

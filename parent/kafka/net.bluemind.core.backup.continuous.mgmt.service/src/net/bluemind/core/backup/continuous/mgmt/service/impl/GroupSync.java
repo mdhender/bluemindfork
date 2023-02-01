@@ -17,11 +17,13 @@
  */
 package net.bluemind.core.backup.continuous.mgmt.service.impl;
 
+import java.util.List;
+
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.backup.continuous.dto.GroupMembership;
-import net.bluemind.core.backup.continuous.events.ContinuousContenairization;
 import net.bluemind.core.backup.continuous.mgmt.api.BackupSyncOptions;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
+import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
@@ -30,60 +32,49 @@ import net.bluemind.directory.service.DirEntryAndValue;
 import net.bluemind.domain.api.IDomainUids;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
+import net.bluemind.group.api.IGroupMember;
 import net.bluemind.group.api.Member;
 import net.bluemind.group.service.IInCoreGroup;
 
 public class GroupSync extends DirEntryWithMailboxSync<Group> {
 
-	private static class MembershipHook implements ContinuousContenairization<GroupMembership> {
-
-		private final IBackupStoreFactory target;
-
-		public MembershipHook(IBackupStoreFactory target) {
-			this.target = target;
-		}
-
-		@Override
-		public IBackupStoreFactory targetStore() {
-			return target;
-		}
-
-		@Override
-		public String type() {
-			return "memberships";
-		}
-
-		private GroupMembership createGroupMembership(Group group, Member member, boolean added) {
-			GroupMembership gm = new GroupMembership();
-			gm.member = member;
-			gm.added = added;
-			gm.group = group;
-			return gm;
-		}
-
-	}
-
 	public GroupSync(BmContext ctx, BackupSyncOptions opts, IInCoreGroup getApi, DomainApis domainApis) {
 		super(ctx, opts, getApi, domainApis);
-	}
-
-	private void saveMemberships(IServerTaskMonitor entryMon, IBackupStoreFactory target, String domain,
-			ItemValue<DirEntryAndValue<Group>> entryAndValue) {
-		IGroup grpApi = (IGroup) getApi;
-		MembershipHook hook = new MembershipHook(target);
-		grpApi.getMembers(entryAndValue.uid).forEach(m -> {
-			ItemValue<DirEntryAndValue<Group>> updated = remap(entryMon, entryAndValue);
-			GroupMembership gm = hook.createGroupMembership(updated.value.value, m, true);
-			hook.save(domain, ContainerUidsMapping.alias(m.uid), updated.item(), gm);
-		});
 	}
 
 	@Override
 	public ItemValue<DirEntryAndValue<Group>> syncEntry(ItemValue<DirEntry> ivDir, IServerTaskMonitor entryMon,
 			IBackupStoreFactory target, BaseContainerDescriptor cont, Scope scope) {
 		ItemValue<DirEntryAndValue<Group>> stored = super.syncEntry(ivDir, entryMon, target, cont, scope);
-		saveMemberships(entryMon, target, domainApis.domain.uid, stored);
+		storeMemberships(target, stored);
 		return stored;
+	}
+
+	/**
+	 * Store the memberships if this group is part of another group
+	 * 
+	 * @param target
+	 * @param stored
+	 */
+	private void storeMemberships(IBackupStoreFactory target, ItemValue<DirEntryAndValue<Group>> stored) {
+		IGroupMember memberOfApi = ctx.provider().instance(IGroup.class, domainUid());
+		List<ItemValue<Group>> groups = memberOfApi.memberOf(stored.uid);
+		MembershipHook hook = new MembershipHook(target);
+		Member asMember = Member.group(stored.uid);
+		for (ItemValue<Group> g : groups) {
+			GroupMembership gm = hook.createGroupMembership(g.value, asMember, true);
+			hook.save(domainUid(), ContainerUidsMapping.alias(asMember.uid), remapGroup(g), gm);
+		}
+	}
+
+	private Item remapGroup(ItemValue<Group> g) {
+		Item it = g.item();
+		if (g.value.name.equals("user")) {
+			it.uid = IDomainUids.userGroup(domainUid());
+		} else if (g.value.name.equals("admin")) {
+			it.uid = IDomainUids.adminGroup(domainUid());
+		}
+		return it;
 	}
 
 	@Override

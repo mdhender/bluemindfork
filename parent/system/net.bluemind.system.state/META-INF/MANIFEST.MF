@@ -7,7 +7,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: net.bluemind.system.state
 Require-Bundle: net.bluemind.lib.vertx,
  net.bluemind.hornetq.client,
- net.bluemind.system.api,
+ net.bluemind.system.api;visibility:=reexport,
  slf4j.api,
  net.bluemind.core.rest,
  net.bluemind.config,

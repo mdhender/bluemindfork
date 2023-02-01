@@ -50,6 +50,8 @@ import net.bluemind.group.persistence.GroupStore;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.persistence.MailboxStore;
 import net.bluemind.role.api.BasicRoles;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
 public class ExternalUserService implements IInCoreExternalUser {
 
@@ -162,6 +164,10 @@ public class ExternalUserService implements IInCoreExternalUser {
 
 	@Override
 	public ValidationResult validate(String[] externalUserUids) throws ServerFault {
+		if (StateContext.getState() == SystemState.CORE_STATE_CLONING) {
+			return new ValidationResult(true, externalUserUids);
+		}
+
 		boolean valid = storeService.allValid(externalUserUids);
 		if (valid) {
 			return new ValidationResult(valid, externalUserUids);

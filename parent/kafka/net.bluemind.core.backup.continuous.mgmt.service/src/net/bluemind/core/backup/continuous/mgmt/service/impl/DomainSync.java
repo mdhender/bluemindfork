@@ -32,10 +32,8 @@ import com.google.common.collect.Streams;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
-import net.bluemind.addressbook.api.VCard;
 import net.bluemind.core.backup.continuous.ILiveStream;
 import net.bluemind.core.backup.continuous.RecordKey.Operation;
-import net.bluemind.core.backup.continuous.api.IBackupStore;
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.backup.continuous.mgmt.api.BackupSyncOptions;
 import net.bluemind.core.backup.continuous.mgmt.service.impl.DirEntryWithMailboxSync.Scope;
@@ -48,10 +46,8 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
-import net.bluemind.directory.service.DirEntryAndValue;
 import net.bluemind.directory.service.IInCoreDirectory;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.externaluser.api.ExternalUser;
 import net.bluemind.externaluser.api.IExternalUser;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.service.IInCoreGroup;
@@ -136,6 +132,7 @@ public class DomainSync {
 		DirEntryWithMailboxSync<Mailshare> msSync = new MailshareSync(ctx, opts, domKafkaState, msApi, domApi);
 		DirEntryWithMailboxSync<Group> grpSync = new GroupSync(ctx, opts, grpApi, domApi);
 		DirEntryWithMailboxSync<ResourceDescriptor> resSync = new ResourceSync(ctx, opts, rsApi, domApi);
+		ExternalUserSync extSync = new ExternalUserSync(euApi, domApi);
 
 		mon.begin(missingItemVersions.size(), "Processing " + missingItemVersions.size() + " directory entries");
 
@@ -177,12 +174,7 @@ public class DomainSync {
 					grpSync.syncEntry(ivDir, entryMon, target, dirContainer, scope);
 					break;
 				case EXTERNALUSER:
-					ItemValue<ExternalUser> fullEu = euApi.getComplete(ivDir.uid);
-					ItemValue<VCard> vcardEu = dirApi.getVCard(ivDir.uid);
-					ItemValue<DirEntryAndValue<ExternalUser>> deEu = ItemValue.create(ivDir,
-							new DirEntryAndValue<ExternalUser>(ivDir.value, fullEu.value, vcardEu.value, null));
-					IBackupStore<DirEntryAndValue<ExternalUser>> topicEu = target.forContainer(dirContainer);
-					topicEu.store(deEu);
+					extSync.syncEntry(ivDir, entryMon, target, dirContainer, scope);
 					break;
 				case ADDRESSBOOK:
 				case CALENDAR:
