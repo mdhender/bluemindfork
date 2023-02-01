@@ -1,13 +1,13 @@
 BMCYRUS="5.0.0-bluemind353"
 BMSDS="5.0.0-353"
 
-BMES="7.17.7-bluemind104"
+BMES="7.17.9-bluemind105"
 
-KAFKA="3.3.1-bluemind23"
-MINIO="2022.11.08-bluemind23"
-WEED="3.34-bluemind23"
+KAFKA="3.4.0-bluemind25"
+MINIO="2023.01.31-bluemind25"
+WEED="3.42-bluemind25"
 
-BMJDK="17.0.5+8-bluemind16"
+BMJDK="17.0.6+10-bluemind17"
 BMSNZIP="1.0.4-bluemind4"
 BMNGINX="1.20.1-bluemind104"
 BMPHP="5.6.40-bluemind107"
@@ -18,6 +18,15 @@ TELEGRAF="1.17.0.bm2~c5f8e83d"
 KAPACITOR="1.5.7.bm1~f52824ca-0"
 CHRONOGRAF="1.8.9.1.bm1~d5bd22de3"
 INFLUXDB="1.8.3.bm1~247d383a3"
+
+# OpenTelemetry
+TELEMETRY="1.22.1-bm5"
+GRAFANA_PHLARE="0.1.2-bm5"
+GRAFANA="9.3.6"
+GRAFANA_MIMIR="2.6.0"
+GRAFANA_TEMPO="2.0.0"
+GRAFANA_AGENT="0.31.0"
+GRAFANA_STACK="${TELEMETRY}"
 
 # PostgreSQL
 # Use EXTDEPS-getlastpg.sh if you need to modify (requires python3 + requests for RHEL)
@@ -188,6 +197,15 @@ BMKAFKADEB="bm-kafka=${KAFKA}"
 BMMINIODEB="bm-sds-storage-s3-minio=${MINIO}"
 BMWEEDDEB="bm-sds-storage-s3-seaweedfs=${WEED}"
 
+# OpenTelemetry
+BM_TELEMETRY_DEB="bm-opentelemetry-agent=${TELEMETRY}"
+BM_GRAFANA_STACK_DEB="bm-grafana-stack=${GRAFANA_STACK}"
+GRAFANA_DEB="grafana=${GRAFANA}"
+GRAFANA_TEMPO_DEB="tempo=${GRAFANA_TEMPO}"
+GRAFANA_AGENT_DEB="grafana-agent=${GRAFANA_AGENT}"
+GRAFANA_MIMIR_DEB="mimir=${GRAFANA_MIMIR}"
+GRAFANA_PHLARE_DEV="grafana-phlare=${GRAFANA_PHLARE}"
+
 # SNZIP
 BMSNZIPDEB="bm-maintenance-snzip=${BMSNZIP}"
 BMSNZIPRPM="bm-maintenance-snzip=${BMSNZIP}"
@@ -278,6 +296,13 @@ DEB="${BMCYRUSDEB} \
 		${BMTICKDEB} \
 		${BMJDKDEB} \
 		${BMKAFKADEB} \
+		${BM_TELEMETRY_DEB} \
+		${BM_GRAFANA_STACK_DEB} \
+		${GRAFANA_PHLARE_DEV} \
+		${GRAFANA_DEB} \
+		${GRAFANA_MIMIR_DEB} \
+		${GRAFANA_TEMPO_DEB} \
+		${GRAFANA_AGENT_DEB} \
 		${BMMINIODEB} \
 		${BMWEEDDEB} \
 		${BMSNZIPDEB} \

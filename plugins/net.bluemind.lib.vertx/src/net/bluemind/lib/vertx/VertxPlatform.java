@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
 
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.OpenTelemetry;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Handler;
@@ -40,6 +42,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageCodec;
+import io.vertx.tracing.opentelemetry.OpenTelemetryOptions;
 import net.bluemind.common.vertx.contextlogging.ContextualData;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.internal.BMModule;
@@ -51,6 +54,7 @@ public final class VertxPlatform implements BundleActivator {
 
 	private static CompletableFuture<Void> future;
 	private static String deploymentId;
+	private static OpenTelemetry openTelemetry;
 
 	private static Vertx vertx;
 	private static final Logger logger = LoggerFactory.getLogger(VertxPlatform.class);
@@ -76,9 +80,13 @@ public final class VertxPlatform implements BundleActivator {
 		}
 		logger.info("Starting vertx platform");
 
+		String productName = System.getProperty("net.bluemind.property.product", "jvm");
+		openTelemetry = GlobalOpenTelemetry.get();
+
 		// LC: Don't disable setPreferNativeTransport as it will disable unix sockets
 		// too!
-		vertx = Vertx.vertx(new VertxOptions().setPreferNativeTransport(true));
+		vertx = Vertx.vertx(new VertxOptions().setPreferNativeTransport(true)
+				.setTracingOptions(new OpenTelemetryOptions(openTelemetry)));
 		vertx.exceptionHandler(t -> logger.error("Uncaught exception: {}", t.getMessage(), t));
 
 		/* Propagation of endpoint ContextualData through the eventbus */
@@ -186,6 +194,10 @@ public final class VertxPlatform implements BundleActivator {
 
 	public static EventBus eventBus() {
 		return vertx.eventBus();
+	}
+
+	public static OpenTelemetry openTelemetry() {
+		return openTelemetry;
 	}
 
 	/*

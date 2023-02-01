@@ -63,10 +63,10 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<bm-plugins-version>1.0.555</bm-plugins-version>
+		<bm-plugins-version>1.0.596</bm-plugins-version>
 		<bm.metrics.agent>1.30.10</bm.metrics.agent>
 		<docker.devenv.tag>5.0.1821</docker.devenv.tag>
-		<target-platform-version>jdk17-80</target-platform-version>
+		<target-platform-version>jdk17-82</target-platform-version>
 
 		<!-- Not to be modified usually -->
 		<tycho-version>2.6.0</tycho-version>

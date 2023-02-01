@@ -6,6 +6,6 @@ Standards-Version: 3.9.1
 
 Package: bm-tika
 Architecture: amd64
-Depends: bm-jdk (= 17.0.5+8-bluemind16)
+Depends: bm-jdk (= 17.0.6+10-bluemind17)
 Description: BlueMind tika-based text extractor
  BlueMind tika based text extractor

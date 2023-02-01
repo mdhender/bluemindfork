@@ -34,6 +34,10 @@ import com.netflix.spectator.api.Counter;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.Timer;
 
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Scope;
+import io.opentelemetry.semconv.trace.attributes.SemanticAttributes;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
@@ -64,6 +68,7 @@ import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.BMExecutor;
 import net.bluemind.lib.vertx.BMExecutor.BMTask;
 import net.bluemind.lib.vertx.BMExecutor.BMTaskMonitor;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 
@@ -121,21 +126,29 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 	@Override
 	public void call(final RestRequest request, AsyncHandler<RestResponse> responseHandler) {
 		ContextualData.put("endpoint", "rest");
-
-		for (IRestFilter filter : filters) {
-			responseHandler = filter.preAuthorization(request, responseHandler);
-			if (responseHandler == null) {
-				return;
+		Tracer tracer = VertxPlatform.openTelemetry().getTracer("rest");
+		Span parentSpan = tracer.spanBuilder(request.path).startSpan();
+		try (Scope scope = parentSpan.makeCurrent()) {
+			final Span span = Span.current();
+			span.setAttribute(SemanticAttributes.HTTP_METHOD, request.method.name());
+			span.setAttribute(SemanticAttributes.HTTP_CLIENT_IP, request.remoteAddresses.stream().findFirst().get());
+			for (IRestFilter filter : filters) {
+				responseHandler = filter.preAuthorization(request, responseHandler);
+				if (responseHandler == null) {
+					return;
+				}
 			}
+			doCall(request, responseHandler);
+		} finally {
+			parentSpan.end();
 		}
-
-		doCall(request, responseHandler);
 	}
 
 	private void doCall(RestRequest request, AsyncHandler<RestResponse> rh) {
 		final long start = metrics.registry.clock().monotonicTime();
 		TreePathNode rootNode = pathsByMethod.get(request.method);
 		final TreePathLeaf leaf = rootNode.leaf(request.path);
+
 		if (leaf == null) {
 			rh.failure(new ServerFault("no service registered on path " + request.path, ErrorCode.NOT_FOUND));
 			return;
@@ -146,6 +159,8 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 
 			@Override
 			public void success(RestResponse value) {
+				Span span = Span.current();
+				span.setAttribute(SemanticAttributes.HTTP_STATUS_CODE, value.statusCode);
 				rh.success(value);
 				long elapsed = metrics.registry.clock().monotonicTime() - start;
 				vertx.executeBlocking(prom -> {
@@ -162,6 +177,8 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 
 			@Override
 			public void failure(Throwable e) {
+				Span span = Span.current();
+				span.setAttribute(SemanticAttributes.HTTP_STATUS_CODE, 500);
 				metrics.countFail.increment();
 			}
 
