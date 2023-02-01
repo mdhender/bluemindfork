@@ -133,13 +133,11 @@ public class MailspoolStats {
 		BoolQueryBuilder query = QueryBuilders.boolQuery()
 				.mustNot(JoinQueryBuilders.hasParentQuery("body", QueryBuilders.matchAllQuery(), false))
 				.mustNot(QueryBuilders.termQuery("body_msg_link", "body"));
-		TermsAggregationBuilder agg = AggregationBuilders.terms("in").field("in").minDocCount(0);
 
 		try {
 			SearchResponse response = client.prepareSearch(alias) //
 					.setSize(0) //
 					.setTrackTotalHits(true).setQuery(query) //
-					.addAggregation(agg) //
 					.execute().get();
 
 			return response.getHits().getTotalHits().value;

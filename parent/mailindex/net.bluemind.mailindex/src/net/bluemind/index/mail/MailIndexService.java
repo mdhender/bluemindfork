@@ -450,7 +450,10 @@ public class MailIndexService implements IMailIndexService {
 
 	@Override
 	public List<MailSummary> fetchSummary(ItemValue<Mailbox> box, ItemValue<MailboxFolder> f, IDSet set) {
-		QueryBuilder query = QueryBuilders.boolQuery().must(asFilter(f.uid)).filter(asFilter(set));
+		QueryBuilder query = QueryBuilders.boolQuery() //
+				.must(JoinQueryBuilders.hasParentQuery("body", QueryBuilders.matchAllQuery(), false)) //
+				.must(asFilter(f.uid)) //
+				.filter(asFilter(set));
 		query = QueryBuilders.constantScoreQuery(query);
 		return fetchSummary(query, box.uid);
 	}
