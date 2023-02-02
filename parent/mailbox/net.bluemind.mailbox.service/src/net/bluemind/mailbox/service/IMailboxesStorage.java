@@ -48,7 +48,18 @@ public interface IMailboxesStorage {
 	void update(BmContext context, String domainUid, ItemValue<Mailbox> previousValue, ItemValue<Mailbox> value)
 			throws ServerFault;
 
-	boolean mailboxRequiresCreationInCyrus(BmContext context, String domainUid, Mailbox previous, Mailbox current);
+	/**
+	 * return true to pre-allocate itemIds for default folders.
+	 * 
+	 * This is used for continuous backup/restore
+	 * 
+	 * @param context
+	 * @param domainUid
+	 * @param previous
+	 * @param current
+	 * @return
+	 */
+	boolean mailboxRequiresIdsReservations(BmContext context, String domainUid, Mailbox previous, Mailbox current);
 
 	void create(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault;
 

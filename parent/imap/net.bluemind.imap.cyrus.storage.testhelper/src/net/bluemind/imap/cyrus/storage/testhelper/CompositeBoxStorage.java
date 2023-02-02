@@ -147,9 +147,9 @@ public class CompositeBoxStorage implements IMailboxesStorage {
 	}
 
 	@Override
-	public boolean mailboxRequiresCreationInCyrus(BmContext context, String domainUid, Mailbox previous,
+	public boolean mailboxRequiresIdsReservations(BmContext context, String domainUid, Mailbox previous,
 			Mailbox current) {
-		return cyrus.mailboxRequiresCreationInCyrus(context, domainUid, previous, current);
+		return cyrus.mailboxRequiresIdsReservations(context, domainUid, previous, current);
 	}
 
 }

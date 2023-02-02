@@ -91,6 +91,11 @@ public class MailshareSync extends DirEntryWithMailboxSync<Mailshare> {
 		}
 		ContainerMetadataBackup cmBack = new ContainerMetadataBackup(target);
 		for (String type : TYPE_ORDER) {
+			if (opts.skipTypes.contains(type)) {
+				entryMon.subWork(10).end(true, "Skipped type " + type + " as asked by user", "OK");
+				continue;
+			}
+
 			for (ItemValue<ContainerHierarchyNode> node : Optional.ofNullable(mmap.get(type))
 					.orElseGet(Collections::emptyList)) {
 				ContainerState state = kafkaState.containerState(node.value.containerUid);

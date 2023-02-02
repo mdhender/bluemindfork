@@ -19,7 +19,13 @@ package net.bluemind.core.backup.continuous.mgmt.service.impl;
 
 import java.util.stream.Collectors;
 
+import org.slf4j.event.Level;
+
 import net.bluemind.addressbook.api.VCard;
+import net.bluemind.backend.mail.api.MailboxFolder;
+import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
+import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
+import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.backup.continuous.api.IBackupStore;
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
@@ -33,6 +39,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.ReservedIds;
 import net.bluemind.directory.service.DirEntryAndValue;
 import net.bluemind.mailbox.api.Mailbox;
 
@@ -67,12 +74,43 @@ public class DirEntryWithMailboxSync<T> {
 		preSync(target, domainUid(), entryAndValue);
 		if (scope == Scope.Entry) {
 			IBackupStore<DirEntryAndValue<T>> topicUser = target.forContainer(cont);
-			topicUser.store(remap(entryMon, entryAndValue));
+			ReservedIds reserved = reserveBoxes(entryMon, mboxUser);
+			topicUser.store(remap(entryMon, entryAndValue), reserved);
 		}
 
 		entryMon.end(true, "processed", "OK");
 
 		return entryAndValue;
+	}
+
+	private ReservedIds reserveBoxes(IServerTaskMonitor mon, ItemValue<Mailbox> mboxUser) {
+		ReservedIds reserved = new ReservedIds();
+		String subtree = IMailReplicaUids.subtreeUid(domainApis.domain.uid, mboxUser);
+		IDbReplicatedMailboxes boxes = ctx.provider().instance(IDbByContainerReplicatedMailboxes.class, subtree);
+		if (mboxUser.value.type.sharedNs) {
+			String rn = mboxUser.value.name;
+			allocBox(mon, reserved, subtree, boxes, rn);
+			allocBox(mon, reserved, subtree, boxes, rn + "/Sent");
+			allocBox(mon, reserved, subtree, boxes, rn + "/Trash");
+		} else {
+			allocBox(mon, reserved, subtree, boxes, "INBOX");
+			allocBox(mon, reserved, subtree, boxes, "Outbox");
+			allocBox(mon, reserved, subtree, boxes, "Sent");
+			allocBox(mon, reserved, subtree, boxes, "Drafts");
+			allocBox(mon, reserved, subtree, boxes, "Junk");
+			allocBox(mon, reserved, subtree, boxes, "Trash");
+		}
+		return reserved;
+	}
+
+	private void allocBox(IServerTaskMonitor mon, ReservedIds reserved, String subtree, IDbReplicatedMailboxes boxes,
+			String rn) {
+		ItemValue<MailboxFolder> box = boxes.byName(rn);
+		if (box != null) {
+			reserved.add(subtree + ":" + rn, box.internalId);
+		} else {
+			mon.log("[{}] IDRES Missing {}", Level.WARN, subtree, rn);
+		}
 	}
 
 	protected void aclsAndSettings(IServerTaskMonitor entryMon, ItemValue<DirEntryAndValue<T>> stored,

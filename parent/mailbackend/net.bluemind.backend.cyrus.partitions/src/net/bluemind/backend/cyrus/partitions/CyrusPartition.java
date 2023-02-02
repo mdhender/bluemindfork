@@ -19,7 +19,9 @@ package net.bluemind.backend.cyrus.partitions;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.base.MoreObjects;
 
@@ -55,12 +57,17 @@ public class CyrusPartition {
 				.toString();
 	}
 
+	private static record PartKey(String dataloc, String dom) {
+	}
+
+	private static final Map<PartKey, CyrusPartition> parts = new ConcurrentHashMap<>();
+
 	public static CyrusPartition forServerAndDomain(String serverUid, String domainUid) {
-		return new CyrusPartition(serverUid, domainUid);
+		return parts.computeIfAbsent(new PartKey(serverUid, domainUid), pk -> new CyrusPartition(serverUid, domainUid));
 	}
 
 	public static CyrusPartition forServerAndDomain(ItemValue<Server> server, String domainUid) {
-		return new CyrusPartition(server.uid, domainUid);
+		return forServerAndDomain(server.uid, domainUid);
 	}
 
 	public static CyrusPartition forName(String name) {

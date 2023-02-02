@@ -10,6 +10,7 @@ import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
+import net.bluemind.backend.mail.replica.utils.SubtreeContainerItemIdsCache;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.backup.continuous.RecordKey;
@@ -96,6 +97,7 @@ public class RestoreReplicatedMailboxes implements RestoreDomainType {
 			log.update(type(), key);
 			api.update(item.uid, mailboxReplica);
 		} else {
+			SubtreeContainerItemIdsCache.putFolderId(item.uid, item.internalId);
 			log.create(type(), key);
 			api.create(item.uid, mailboxReplica);
 		}

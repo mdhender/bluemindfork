@@ -282,13 +282,13 @@ public class MailApiBoxStorage implements IMailboxesStorage {
 	public void move(String domainUid, ItemValue<Mailbox> mailbox, ItemValue<Server> sourceServer,
 			ItemValue<Server> dstServer) {
 		// OK
-
+		logger.warn("MOVE will not be performed for {}", mailbox);
 	}
 
 	@Override
-	public boolean mailboxRequiresCreationInCyrus(BmContext context, String domainUid, Mailbox previous,
+	public boolean mailboxRequiresIdsReservations(BmContext context, String domainUid, Mailbox previous,
 			Mailbox current) {
-		return false;
+		return true;
 	}
 
 }

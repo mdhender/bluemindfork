@@ -730,7 +730,8 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 
 	private ReservedIds reserveDefaultFolderIds(String uid, Mailbox previous, Mailbox current) {
 		if (current.dataLocation == null
-				|| !mailboxStorage().mailboxRequiresCreationInCyrus(context, domainUid, previous, current)) {
+				|| !mailboxStorage().mailboxRequiresIdsReservations(context, domainUid, previous, current)) {
+			logger.warn("IDRES {} Mailbox {} does not require ids reservations for folders.", uid, current);
 			return null;
 		}
 
@@ -752,6 +753,7 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 		default:
 			reservedIds = null;
 		}
+		logger.info("IDRES returning reservations {}", reservedIds);
 		return reservedIds;
 	}
 
@@ -763,6 +765,7 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 		for (String folderName : defaultFolderNames) {
 			String folderKey = SubtreeContainerItemIdsCache.key(subtreeUid, folderName);
 			long cachedId = SubtreeContainerItemIdsCache.putFolderIdIfMissing(folderKey, id);
+			logger.info("IDRES [{}] pre-alloc {} {}", subtreeUid, folderKey, cachedId);
 			reservedIds.add(folderKey, cachedId);
 			id++;
 		}

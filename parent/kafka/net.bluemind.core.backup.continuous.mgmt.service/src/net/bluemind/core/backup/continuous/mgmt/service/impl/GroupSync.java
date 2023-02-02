@@ -82,18 +82,25 @@ public class GroupSync extends DirEntryWithMailboxSync<Group> {
 			ItemValue<DirEntryAndValue<Group>> orig) {
 		ItemValue<DirEntryAndValue<Group>> ret = orig;
 		if (orig.value.value.name.equals("user")) {
-			ret = ItemValue.create(orig, orig.value);
-			ret.uid = IDomainUids.userGroup(domainUid());
-			ContainerUidsMapping.map(entryMon, orig.value.entry.entryUid, orig.uid);
-			entryMon.log("Remap user group " + orig.value.entry.entryUid + " to " + orig.uid);
-			orig.value.entry.entryUid = orig.uid;
+			String freshUid = IDomainUids.userGroup(domainUid());
+			ret = remapUid(entryMon, orig, freshUid);
 		} else if (orig.value.value.name.equals("admin")) {
-			ret = ItemValue.create(orig, orig.value);
-			ret.uid = IDomainUids.adminGroup(domainUid());
-			entryMon.log("Remap admin group " + orig.value.entry.entryUid + " to " + orig.uid);
-			ContainerUidsMapping.map(entryMon, orig.value.entry.entryUid, orig.uid);
-			orig.value.entry.entryUid = orig.uid;
+			String freshUid = IDomainUids.adminGroup(domainUid());
+			ret = remapUid(entryMon, orig, freshUid);
 		}
+		return ret;
+	}
+
+	private ItemValue<DirEntryAndValue<Group>> remapUid(IServerTaskMonitor entryMon,
+			ItemValue<DirEntryAndValue<Group>> orig, String freshUid) {
+		ItemValue<DirEntryAndValue<Group>> ret;
+		ret = ItemValue.create(orig, orig.value);
+		ret.uid = freshUid;
+		ContainerUidsMapping.map(entryMon, orig.value.entry.entryUid, ret.uid);
+		entryMon.log("Remap group " + orig.value.entry.entryUid + " to " + ret.uid);
+		ret.value.entry.entryUid = ret.uid;
+		ret.value.entry.path = domainUid() + "/groups/" + freshUid;
+		ret.value.vcard.source = "bm://" + ret.value.entry.path;
 		return ret;
 	}
 }

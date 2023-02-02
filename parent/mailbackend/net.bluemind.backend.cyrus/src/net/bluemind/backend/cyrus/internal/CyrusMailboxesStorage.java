@@ -265,7 +265,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 	}
 
 	@Override
-	public boolean mailboxRequiresCreationInCyrus(BmContext context, String domainUid, Mailbox previous,
+	public boolean mailboxRequiresIdsReservations(BmContext context, String domainUid, Mailbox previous,
 			Mailbox current) {
 		return previous == null //
 				// switch from not managed by Blue Mind to something managed: it is a
@@ -293,7 +293,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 		Mailbox prev = previousValue.value;
 		Mailbox cur = value.value;
 
-		if (mailboxRequiresCreationInCyrus(context, domainUid, prev, cur)) {
+		if (mailboxRequiresIdsReservations(context, domainUid, prev, cur)) {
 			logger.debug("mailbox updated but not yet created in cyrus: {} ", value.uid);
 			create(context, domainUid, value);
 			return;
