@@ -37,9 +37,7 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 	private static final Logger logger = LoggerFactory.getLogger(KeycloakAdminService.class);
 
 	private static final String REALMS_ADMIN_URL = BASE_URL + "/admin/realms";
-	private static final String REALMS_URL = REALMS_ADMIN_URL + "/%s";
-	private static final String CLIENTS_URL = REALMS_URL + "/clients";
-	private static final String CLIENTS_CREDS_URL = CLIENTS_URL + "/%s/client-secret";
+
 	private RBACManager rbacManager;
 
 	public KeycloakAdminService(BmContext context) {
@@ -58,10 +56,10 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 		realm.put("enabled", true);
 		realm.put("loginWithEmailAllowed", true);
 
-		JsonObject responsqe = execute(REALMS_ADMIN_URL, "POST", realm);
-		if (responsqe.getInteger("statusCode") != 201) {
+		JsonObject reseponse = execute(REALMS_ADMIN_URL, "POST", realm);
+		if (reseponse.getInteger("statusCode") != 201) {
 			if (logger.isWarnEnabled()) {
-				logger.warn(responsqe.encodePrettily());
+				logger.warn(reseponse.encodePrettily());
 			}
 			throw new ServerFault("Failed to create realm");
 		}
@@ -80,46 +78,6 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 			}
 		}
 
-	}
-
-	@Override
-	public void createClient(String domainId, String clientId) throws ServerFault {
-		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
-
-		logger.info("Realm {}: Create client {}", domainId, clientId);
-
-		JsonObject client = new JsonObject();
-		client.put("id", clientId);
-		client.put("clientId", clientId);
-		client.put("enabled", true);
-
-		JsonArray redirectUris = new JsonArray();
-		redirectUris.add("*");
-		client.put("redirectUris", redirectUris);
-
-		JsonObject response = execute(String.format(CLIENTS_URL, domainId), "POST", client);
-		if (response.getInteger("statusCode") != 201) {
-			if (logger.isWarnEnabled()) {
-				logger.warn(response.encodePrettily());
-			}
-			throw new ServerFault("Failed to create client");
-		}
-
-	}
-
-	@Override
-	public String getClientSecret(String domainId, String clientId) throws ServerFault {
-		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
-		logger.info("Realm {}: Get client secret {}", domainId, clientId);
-		JsonObject ret = execute(String.format(CLIENTS_CREDS_URL, domainId, clientId), "GET");
-		if (ret.getInteger("statusCode") != 200) {
-			if (logger.isWarnEnabled()) {
-				logger.warn(ret.encodePrettily());
-			}
-			throw new ServerFault("Failed to get client secret");
-		}
-
-		return ret.getJsonObject("body").getString("value");
 	}
 
 	@Override

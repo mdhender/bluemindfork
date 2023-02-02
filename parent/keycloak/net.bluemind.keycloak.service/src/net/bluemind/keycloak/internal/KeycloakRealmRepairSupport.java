@@ -35,6 +35,7 @@ import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
+import net.bluemind.keycloak.api.IKeycloakClientAdmin;
 import net.bluemind.keycloak.api.IKeycloakUids;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.TagDescriptor;
@@ -85,16 +86,20 @@ public class KeycloakRealmRepairSupport implements IDirEntryRepairSupport {
 
 		@Override
 		public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
-			IKeycloakAdmin service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+			IKeycloakAdmin keycloakAdminService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 					.instance(IKeycloakAdmin.class);
-			if (service.getRealm(domainUid) == null) {
+			if (keycloakAdminService.getRealm(domainUid) == null) {
 				logger.info("Repair keycloack configuration for domain {}", domainUid);
 				String realm = domainUid;
 				String clientId = IKeycloakUids.clientId(domainUid);
 
-				service.createRealm(realm);
-				service.createClient(realm, clientId);
-				String secret = service.getClientSecret(realm, clientId);
+				keycloakAdminService.createRealm(realm);
+
+				IKeycloakClientAdmin keycloakClientService = ServerSideServiceProvider
+						.getProvider(SecurityContext.SYSTEM).instance(IKeycloakClientAdmin.class, domainUid);
+
+				keycloakClientService.create(clientId);
+				String secret = keycloakClientService.getSecret(clientId);
 
 				IDomainSettings settingsApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 						.instance(IDomainSettings.class, domainUid);

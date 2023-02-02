@@ -40,7 +40,13 @@ public abstract class KeycloakAdminClient {
 	protected static final String BASE_URL = "http://"
 			+ Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address() + ":8099";
 
-	private static final String MASTER_TOKEN_URL = BASE_URL + "/realms/master/protocol/openid-connect/token";
+	protected static final String MASTER_TOKEN_URL = BASE_URL + "/realms/master/protocol/openid-connect/token";
+	protected static final String REALMS_ADMIN_URL = BASE_URL + "/admin/realms";
+	protected static final String REALMS_URL = REALMS_ADMIN_URL + "/%s";
+	protected static final String CLIENTS_URL = REALMS_URL + "/clients";
+	protected static final String CLIENTS_CREDS_URL = CLIENTS_URL + "/%s/client-secret";
+	protected static final String COMPONENTS_URL = REALMS_ADMIN_URL + "/%s/components";
+
 	private static final int TIMEOUT = 5000;
 
 	public KeycloakAdminClient() {

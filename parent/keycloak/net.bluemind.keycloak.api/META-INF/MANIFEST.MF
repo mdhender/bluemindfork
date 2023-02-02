@@ -4,7 +4,8 @@ Bundle-Name: net.bluemind.keycloak.api
 Bundle-SymbolicName: net.bluemind.keycloak.api
 Bundle-Version: 5.0.0.qualifier
 Export-Package: net.bluemind.keycloak.api
-Require-Bundle: net.bluemind.core.commons
+Require-Bundle: net.bluemind.core.commons,
+ io.vertx.core
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.keycloak.api
 Eclipse-RegisterBuddy: net.bluemind.core.rest

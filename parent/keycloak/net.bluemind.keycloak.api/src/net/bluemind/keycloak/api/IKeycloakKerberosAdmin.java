@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
-  * Copyright © Blue Mind SAS, 2012-2022
+  * Copyright © Blue Mind SAS, 2012-2023
   *
   * This file is part of BlueMind. BlueMind is a messaging and collaborative
   * solution.
@@ -17,33 +17,16 @@
   */
 package net.bluemind.keycloak.api;
 
-import java.util.List;
-
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 
 @BMApi(version = "3")
-@Path("/keycloak")
-public interface IKeycloakAdmin {
-
-	@GET
-	public List<Realm> allRealms() throws ServerFault;
-
-	@GET
-	@Path("{domainId}")
-	public Realm getRealm(@PathParam(value = "domainId") String domainId) throws ServerFault;
+@Path("/keycloak_kerberos/{domainId}")
+public interface IKeycloakKerberosAdmin {
 
 	@PUT
-	@Path("{domainId}")
-	public void createRealm(@PathParam(value = "domainId") String domainId) throws ServerFault;
-
-	@DELETE
-	@Path("{domainId}")
-	public void deleteRealm(@PathParam(value = "domainId") String domainId) throws ServerFault;
+	public void create(KerberosComponent component) throws ServerFault;
 
 }
