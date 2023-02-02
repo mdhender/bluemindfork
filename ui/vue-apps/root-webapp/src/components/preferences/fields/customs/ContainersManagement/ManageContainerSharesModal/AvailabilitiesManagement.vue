@@ -1,5 +1,5 @@
 <template>
-    <bm-spinner v-if="isLoading" :size="2" class="d-flex justify-content-center" />
+    <bm-spinner v-if="isLoading" class="d-flex justify-content-center" />
     <div v-else class="availabilities-advanced-management ml-4 mb-5">
         {{ $t("preferences.calendar.my_calendars.add_calendar_to_my_availability") }}
         <bm-form-autocomplete-input

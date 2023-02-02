@@ -1,11 +1,6 @@
 <template>
     <div class="preferences position-absolute w-100 h-100 overlay d-flex z-index-500" @click="unlockOrClose">
-        <bm-spinner
-            v-if="!loaded"
-            class="flex-fill align-self-center text-center"
-            :size="2.5"
-            @click="lockClose = true"
-        />
+        <bm-spinner v-if="!loaded" class="flex-fill align-self-center text-center" @click="lockClose = true" />
         <bm-container
             v-else
             fluid

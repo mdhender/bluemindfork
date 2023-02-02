@@ -210,8 +210,8 @@ export default {
         size: {
             type: String,
             default: "md",
-            validator: function validator(value) {
-                return ["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl"].indexOf(value) > -1;
+            validator: function (value) {
+                return ["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl", "5xl"].includes(value);
             }
         },
         stacked: { type: Array, default: undefined },

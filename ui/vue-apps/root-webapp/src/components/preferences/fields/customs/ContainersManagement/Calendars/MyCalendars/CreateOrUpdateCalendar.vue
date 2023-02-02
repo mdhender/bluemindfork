@@ -25,7 +25,7 @@
                 required
                 @input="onIcsUrlChange"
             />
-            <bm-spinner v-if="checkUrlStatus === 'LOADING'" :size="0.2" />
+            <bm-spinner v-if="checkUrlStatus === 'LOADING'" size="xl" thick />
         </bm-form-group>
         <bm-form-group :label="$t('common.color')" label-for="calendar-color">
             <!-- FIXME: required is an unknown prop for BmFormColorPicker ? -->

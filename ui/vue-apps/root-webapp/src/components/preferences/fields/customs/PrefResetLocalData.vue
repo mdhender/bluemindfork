@@ -5,7 +5,8 @@
             {{ text }}
         </bm-button>
         <template v-else-if="status === 'LOADING'">
-            <bm-spinner class="d-inline" :size="0.3" /> {{ $t("preferences.advanced.reinit_local_data.in_progress") }}
+            <bm-spinner class="d-inline" size="xl" thick />
+            {{ $t("preferences.advanced.reinit_local_data.in_progress") }}
         </template>
         <bm-label-icon v-else-if="status === 'SUCCESS'" class="text-success" icon="check-circle">
             {{ $t("preferences.advanced.reinit_local_data.success") }}

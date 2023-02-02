@@ -1,5 +1,5 @@
 <template>
-    <bm-spinner v-if="isLoading" :size="2" class="d-flex justify-content-center" />
+    <bm-spinner v-if="isLoading" class="d-flex justify-content-center" />
     <div v-else class="share-management">
         <div class="mb-1">{{ $t("common.share_with") }}</div>
         <bm-form-autocomplete-input

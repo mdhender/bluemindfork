@@ -69,7 +69,7 @@
                     {{ $t("common.test") }}
                 </bm-button>
             </bm-form-group>
-            <bm-spinner v-if="testStatus === TestStatus.IN_PROGRESS" :size="0.15" />
+            <bm-spinner v-if="testStatus === TestStatus.IN_PROGRESS" :size="md" thick />
             <bm-label-icon
                 v-else-if="testStatus !== TestStatus.IDLE"
                 :icon="testAccountResultIcon"

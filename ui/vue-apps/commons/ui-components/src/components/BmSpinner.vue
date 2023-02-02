@@ -2,7 +2,7 @@
     <div class="bm-spinner">
         <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="10em"
+            :class="`spinner-${size}`"
             xmlns:xlink="http://www.w3.org/1999/xlink"
             viewBox="0 0 250 250"
             class="d-none"
@@ -32,7 +32,7 @@
                 />
             </defs>
         </svg>
-        <svg :width="width" viewBox="0 0 250 250">
+        <svg :class="`spinner-${size}`" viewBox="0 0 250 250">
             <use xlink:href="#a" fill-opacity="0" stroke="#00AAEB" class="v4" />
             <use xlink:href="#a" fill-opacity="0" stroke="#0A2A86" class="v3" />
         </svg>
@@ -43,7 +43,13 @@
 export default {
     name: "BmSpinner",
     props: {
-        size: { type: Number, default: 1 },
+        size: {
+            type: String,
+            default: "5xl",
+            validator: function (value) {
+                return ["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl", "5xl"].includes(value);
+            }
+        },
         thick: { type: Boolean, default: false }
     },
     computed: {
@@ -57,34 +63,45 @@ export default {
 };
 </script>
 
-<style scoped>
-.v3 {
-    stroke-dasharray: 200 610;
-    stroke-dashoffset: 1015;
-    animation: draw 2s ease-in-out infinite -1s;
-}
+<style lang="scss">
+@import "../css/_variables.scss";
 
-.v4 {
-    stroke-dasharray: 350 610;
-    stroke-dashoffset: 1310;
-    animation: draw2 2s cubic-bezier(0.42, 0, 1, 0.31) infinite -1s;
-}
-
-@keyframes draw2 {
-    60% {
-        stroke-dashoffset: 350;
-    }
-    to {
-        stroke-dashoffset: 350;
+@each $name, $value in $icon-sizes {
+    .bm-spinner > .spinner-#{$name} {
+        width: $value;
+        height: $value;
     }
 }
 
-@keyframes draw {
-    80% {
-        stroke-dashoffset: 210;
+.bm-spinner {
+    .v3 {
+        stroke-dasharray: 200 610;
+        stroke-dashoffset: 1015;
+        animation: draw 2s ease-in-out infinite -1s;
     }
-    to {
-        stroke-dashoffset: 205;
+
+    .v4 {
+        stroke-dasharray: 350 610;
+        stroke-dashoffset: 1310;
+        animation: draw2 2s cubic-bezier(0.42, 0, 1, 0.31) infinite -1s;
+    }
+
+    @keyframes draw2 {
+        60% {
+            stroke-dashoffset: 350;
+        }
+        to {
+            stroke-dashoffset: 350;
+        }
+    }
+
+    @keyframes draw {
+        80% {
+            stroke-dashoffset: 210;
+        }
+        to {
+            stroke-dashoffset: 205;
+        }
     }
 }
 </style>

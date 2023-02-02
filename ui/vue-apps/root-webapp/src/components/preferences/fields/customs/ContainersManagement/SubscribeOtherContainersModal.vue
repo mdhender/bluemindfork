@@ -11,7 +11,7 @@
         :ok-disabled="allReadableContainers.length > 0 && selected.length === 0"
         @ok="subscribe"
     >
-        <bm-spinner v-if="loadingStatus === 'LOADING'" :size="2" class="d-flex justify-content-center" />
+        <bm-spinner v-if="loadingStatus === 'LOADING'" class="d-flex justify-content-center" />
         <template v-else>
             <div class="selected-containers">
                 <div v-for="container in selected" :key="container.uid" class="d-inline-block">

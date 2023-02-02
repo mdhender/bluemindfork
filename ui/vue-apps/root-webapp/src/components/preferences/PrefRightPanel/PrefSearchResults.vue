@@ -1,5 +1,5 @@
 <template>
-    <bm-spinner v-if="isLoading" :size="2" class="m-auto" />
+    <bm-spinner v-if="isLoading" class="m-auto" />
     <div v-else-if="results.length === 0" class="pref-search-results pref-empty-search-results">
         <div
             class="ml-6"
