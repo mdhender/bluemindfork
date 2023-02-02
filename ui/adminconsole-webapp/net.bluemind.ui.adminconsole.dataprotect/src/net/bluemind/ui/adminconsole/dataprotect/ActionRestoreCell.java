@@ -20,6 +20,7 @@ package net.bluemind.ui.adminconsole.dataprotect;
 
 import static com.google.gwt.dom.client.BrowserEvents.CLICK;
 
+import java.util.Comparator;
 import java.util.List;
 
 import com.google.gwt.cell.client.AbstractCell;
@@ -52,9 +53,8 @@ public class ActionRestoreCell<T> extends AbstractCell<List<ActionHandler<T>>> {
 
 			DPRestoreDialog dialog = new DPRestoreDialog();
 
-			for (ActionHandler<T> s : value) {
-				dialog.addRestorableOperation(s.getRestoreOp(), s.getCommand());
-			}
+			value.stream().sorted(Comparator.comparing(ActionHandler::getName))
+					.forEach(s -> dialog.addRestorableOperation(s.getRestoreOp(), s.getCommand()));
 
 			dialog.center();
 		}

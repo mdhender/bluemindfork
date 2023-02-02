@@ -62,13 +62,13 @@ public class DPRestoreDialog extends DialogBox {
 		DockLayoutPanel dlp = new DockLayoutPanel(Unit.PX);
 		Label l = new Label(DPTexts.INST.restoreDialogTitle());
 		l.setStyleName("modal-dialog-title");
-		dlp.addNorth(l, 30);
+		dlp.addNorth(l, 40);
 
 		ScrollPanel scrollPanel = new ScrollPanel();
-		content.setWidth("100%");
+		content.setHeight("220px");
 		scrollPanel.add(content);
-		scrollPanel.setSize("300", "300");
-		dlp.addNorth(scrollPanel, 300);
+		scrollPanel.setHeight("220px");
+		dlp.addNorth(scrollPanel, 220);
 
 		dlp.addSouth(buttons, 30);
 
