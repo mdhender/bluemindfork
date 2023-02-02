@@ -197,7 +197,7 @@
         $disabled-text: var(--#{$variant}-fg-disabled),
         $normal-stroke: var(--#{$variant}-fg),
         $hovered-stroke: var(--#{$variant}-fg-hi1),
-        $disabled-stroke: var(--#{$variant}-fg-disabled),        
+        $disabled-stroke: var(--#{$variant}-fg-disabled),
         $hovered-bg: var(--#{$variant}-bg-lo1),
         $important: $important
     );
@@ -242,10 +242,13 @@
 
 @mixin set-button-icon-sizes($button-selector, $sizes-map) {
     @each $button-size, $icon-size in $sizes-map {
-        #{$button-selector}.btn-#{$button-size} .bm-icon {
-            $icon-size-value: map-get($icon-sizes, $icon-size);
-            width: $icon-size-value;
-            height: $icon-size-value;
+        #{$button-selector}.btn-#{$button-size} {
+            .bm-icon,
+            .bm-spinner > .spinner {
+                $icon-size-value: map-get($icon-sizes, $icon-size);
+                width: $icon-size-value;
+                height: $icon-size-value;
+            }
         }
     }
 }

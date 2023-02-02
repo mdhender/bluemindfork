@@ -75,7 +75,6 @@ export { default as BmNavbarToggle } from "./components/navbar/BmNavbarToggle";
 export { default as BmNavItem } from "./components/nav/BmNavItem";
 export { default as BmNavItemDropdown } from "./components/nav/BmNavItemDropdown";
 export { default as BmNotice } from "./components/BmNotice";
-export { default as BmOverlay } from "./components/BmOverlay";
 export { default as BmPagination } from "./components/BmPagination";
 export { default as BmPopover } from "./components/BmPopover";
 export { default as BmProgress } from "./components/progressbar/BmProgress";

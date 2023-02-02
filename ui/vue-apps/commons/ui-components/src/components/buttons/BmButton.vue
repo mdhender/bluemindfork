@@ -1,21 +1,10 @@
 <template>
     <b-button class="bm-button" v-bind="[$attrs, $props]" :disabled="disabled || loading" v-on="$listeners">
-        <bm-overlay v-if="hasIcon" :show="hasIcon && loading" variant="transparent" class="bm-button-icon">
-            <div :class="{ loading: 'invisible' }">
-                <slot name="icon">
-                    <bm-icon v-if="icon" :icon="icon" />
-                </slot>
-            </div>
-            <template #overlay>
-                <bm-spinner :size="0.12" thick />
-            </template>
-        </bm-overlay>
-        <bm-overlay :show="!hasIcon && loading" :opacity="0" class="bm-button-content">
-            <span class="slot-wrapper"><slot /></span>
-            <template #overlay>
-                <bm-spinner :size="0.12" thick />
-            </template>
-        </bm-overlay>
+        <bm-spinner v-if="loading" thick />
+        <slot v-else name="icon">
+            <bm-icon v-if="icon" :icon="icon" />
+        </slot>
+        <span class="slot-wrapper"><slot /></span>
     </b-button>
 </template>
 
@@ -23,11 +12,10 @@
 import { BButton } from "bootstrap-vue";
 import BmIcon from "../BmIcon";
 import BmSpinner from "../BmSpinner";
-import BmOverlay from "../BmOverlay";
 
 export default {
     name: "BmButton",
-    components: { BButton, BmIcon, BmSpinner, BmOverlay },
+    components: { BButton, BmIcon, BmSpinner },
     props: {
         // those props are only passed to BButton, they are set here to not be recognized as an attribute
         ...BButton.options.props,
