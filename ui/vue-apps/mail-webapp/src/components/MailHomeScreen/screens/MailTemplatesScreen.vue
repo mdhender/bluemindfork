@@ -1,17 +1,18 @@
 <template>
-    <chain-of-responsibility :is-responsible="activeFolder === MY_INBOX.key">
-        <section class="mail-home-screen mail-inbox-screen" aria-labelledby="text-1 text-2">
-            <div class="starter-text-and-actions">
+    <chain-of-responsibility :is-responsible="activeFolder === MY_TEMPLATES.key">
+        <section class="mail-home-screen mail-templates-screen" aria-labelledby="text-1 text-2 text-3">
+            <div class="starter-text-and-actions compact">
                 <div class="starter-text">
-                    <h1 id="text-1">{{ $t("mail.message.starter") }}</h1>
-                    <div id="text-2">{{ $t("common.or") }}</div>
+                    <h1 id="text-1">{{ $t("mail.message.starter.templates") }}</h1>
+                    <div id="text-2">{{ $t("mail.message.starter.templates.details") }}</div>
+                    <div id="text-3">{{ $t("common.or") }}</div>
                 </div>
-                <new-message full />
+                <new-message template full />
                 <div class="starter-links">
                     <div class="starter-link">
-                        <bm-icon icon="documents" />
-                        <bm-button :to="{ name: 'v:mail:home', params: { folder: MY_TEMPLATES.path } }" variant="link">
-                            {{ $t("mail.message.starter.display.templates") }}
+                        <bm-icon icon="inbox" />
+                        <bm-button :to="{ name: 'v:mail:home', params: { folder: MY_INBOX.path } }" variant="link">
+                            {{ $t("mail.message.starter.display.inbox") }}
                         </bm-button>
                     </div>
                     <div class="starter-link">
@@ -22,7 +23,7 @@
                     </div>
                 </div>
             </div>
-            <bm-illustration value="inbox-filled" size="lg" over-background />
+            <bm-illustration value="templates" size="lg" over-background />
         </section>
     </chain-of-responsibility>
 </template>
@@ -36,7 +37,7 @@ import NewMessage from "~/components/NewMessage";
 import ChainOfResponsibility from "../ChainOfResponsibility";
 
 export default {
-    name: "MailInboxScreen",
+    name: "MailTemplatesScreen",
     components: { ChainOfResponsibility, BmButton, BmIcon, BmIllustration, NewMessage },
     computed: {
         ...mapState("mail", ["activeFolder"]),

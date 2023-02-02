@@ -28,12 +28,14 @@
             >
                 {{ $t("mail.folder.mark_as_read") }}
             </bm-dropdown-item-button>
-            <bm-dropdown-item-button v-if="isTrash" icon="broom" @click="emptyTrash">
-                {{ $t("mail.actions.empty_trash.label") }}
-            </bm-dropdown-item-button>
-            <bm-dropdown-item-button v-else icon="broom" @click="emptyFolder">
-                {{ $t("mail.actions.empty_folder.label") }}
-            </bm-dropdown-item-button>
+            <empty-folder-action v-slot="action" :folder="folder">
+                <bm-dropdown-item-button v-if="isTrash" icon="broom" @click="action.execute">
+                    {{ $t("mail.actions.empty_trash.label") }}
+                </bm-dropdown-item-button>
+                <bm-dropdown-item-button v-else icon="broom" @click="action.execute">
+                    {{ $t("mail.actions.empty_folder.label") }}
+                </bm-dropdown-item-button>
+            </empty-folder-action>
         </bm-icon-dropdown>
         <choose-folder-modal
             ref="move-modal"
@@ -56,6 +58,7 @@ import { IS_DESCENDANT, FOLDER_BY_PATH, FOLDER_HAS_CHILDREN, MAILBOX_TRASH } fro
 import { CREATE_FOLDER, EMPTY_FOLDER, MARK_FOLDER_AS_READ, MOVE_FOLDER, REMOVE_FOLDER } from "~/actions";
 import { MailRoutesMixin } from "~/mixins";
 import ChooseFolderModal from "../ChooseFolderModal";
+import EmptyFolderAction from "./EmptyFolderAction";
 
 const {
     createRoot,
@@ -72,7 +75,8 @@ export default {
     components: {
         BmIconDropdown,
         BmDropdownItemButton,
-        ChooseFolderModal
+        ChooseFolderModal,
+        EmptyFolderAction
     },
     mixins: [MailRoutesMixin],
     props: {
@@ -127,26 +131,6 @@ export default {
                         mailbox: this.mailbox
                     });
                 }
-            }
-        },
-        async emptyFolder() {
-            const confirm = await this.confirm(
-                this.$t("mail.actions.empty_folder.modal.title"),
-                this.$t("mail.actions.empty_folder.modal.content", { name: this.folder.name })
-            );
-            if (confirm) {
-                this.EMPTY_FOLDER({ folder: this.folder, mailbox: this.mailbox });
-                this.$router.navigate(this.folderRoute(this.folder));
-            }
-        },
-        async emptyTrash() {
-            const confirm = await this.confirm(
-                this.$t("mail.actions.empty_trash.modal.title"),
-                this.$t(`mail.actions.empty_trash.modal.content.${this.hasChildren ? "with" : "without"}_subfolder`)
-            );
-            if (confirm) {
-                this.EMPTY_FOLDER({ folder: this.folder, mailbox: this.mailbox, deep: true });
-                this.$router.navigate(this.folderRoute(this.folder));
             }
         },
         async moveFolder(destinationFolder) {

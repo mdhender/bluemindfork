@@ -42,6 +42,7 @@ import {
     MAILSHARE_ROOT_FOLDERS,
     MY_DRAFTS,
     MY_INBOX,
+    MY_JUNK,
     MY_MAILBOX_FOLDERS,
     MY_MAILBOX_ROOT_FOLDERS,
     MY_MAILBOX,
@@ -165,6 +166,7 @@ export const getters = {
     [MAILSHARE_ROOT_FOLDERS]: (state, getters) =>
         getters[MAILSHARE_KEYS].flatMap(key => getters[MAILBOX_ROOT_FOLDERS]({ key })),
     [MY_INBOX]: (state, getters) => mailboxGetterFor(INBOX)(state, getters)(getters[MY_MAILBOX]),
+    [MY_JUNK]: (state, getters) => mailboxGetterFor(JUNK)(state, getters)(getters[MY_MAILBOX]),
     [MY_OUTBOX]: (state, getters) => mailboxGetterFor(OUTBOX)(state, getters)(getters[MY_MAILBOX]),
     [MY_DRAFTS]: (state, getters) => mailboxGetterFor(DRAFTS)(state, getters)(getters[MY_MAILBOX]),
     [MY_SENT]: (state, getters) => mailboxGetterFor(SENT)(state, getters)(getters[MY_MAILBOX]),

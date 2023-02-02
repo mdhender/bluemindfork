@@ -20,8 +20,7 @@
                     icon="burger-menu"
                     @click.stop="showFolders = !showFolders"
                 />
-                <new-message v-if="activeFolder !== MY_TEMPLATES.key" />
-                <new-template v-else />
+                <new-message :template="activeFolder === MY_TEMPLATES.key" />
             </bm-col>
             <bm-col
                 cols="8"
@@ -78,7 +77,11 @@
                 </div>
             </multipane>
         </bm-row>
-        <new-message mobile :class="hideListInResponsiveMode ? 'd-none' : 'd-block'" />
+        <new-message
+            mobile
+            :template="activeFolder === MY_TEMPLATES.key"
+            :class="hideListInResponsiveMode ? 'd-none' : 'd-block'"
+        />
     </main>
 </template>
 
@@ -109,7 +112,6 @@ import MailSearchForm from "./MailSearchForm";
 import MailStore from "../store/";
 import MessagesOptionsForMobile from "./MessagesOptionsForMobile";
 import NewMessage from "./NewMessage";
-import NewTemplate from "./NewTemplate";
 
 import MailAppMixin from "./MailApp/MailAppMixin";
 export default {
@@ -128,8 +130,7 @@ export default {
         MessagesOptionsForMobile,
         Multipane,
         MultipaneResizer,
-        NewMessage,
-        NewTemplate
+        NewMessage
     },
     mixins: [MailAppMixin, UnreadCountScheduler],
     data() {

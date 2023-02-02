@@ -346,14 +346,22 @@
     "mail.list.unread.none": "Keine ungelesenen E-Mails.",
     "mail.mailbox.quota.used": "{usedQuotaPercentage} % des Speicherplatzes in Gebrauch",
     "mail.main.new": "Neue E-Mail",
+    "mail.main.new_full": "Neue E-Mail schreiben",
     "mail.main.switch.webmail": "Neuer Webmailer testen",
     "mail.message.select.all.folder": "Alle E-Mails auswählen",
     "mail.message.select.all.search": "Alle Suchergebnisse ausgewählten",
     "mail.message.selected": "{count} E-Mails ausgewählt",
-    "mail.message.starter.display.drafts": "Jeder Entwurf",
-    "mail.message.starter.display": "Anzeige",
-    "mail.message.starter.write": "schreiben",
     "mail.message.starter": "Element auswählen",
+    "mail.message.starter.display.drafts": "Entwürfe sehen",
+    "mail.message.starter.display.inbox": "Zum Posteingang zurückgehen",
+    "mail.message.starter.display.outbox": "Nachrichten im Wartestatus vor dem Absenden sehen",
+    "mail.message.starter.display.sent": "Gesendet Nachrichten sehen",
+    "mail.message.starter.display.templates": "Vorlagen sehen",
+    "mail.message.starter.draft.details": "Dieser Ordner enthält Nachrichten, die Sie angefangen haben zu verfassen, aber noch nicht gesendet haben.",
+    "mail.message.starter.outbox.details": "Dieser Ordner enthält die Nachrichten, die aus technischen Gründen (Verbindung, Serverstatus) noch nicht Ihrem Mailserver erreicht haben.",
+    "mail.message.starter.sent.details": "Dieser Ordner enthält die Nachrichten, die Ihren Mailserver erreicht haben, um an ihre Empfänger gesendet zu werden.",
+    "mail.message.starter.templates": "Vorlage auswählen",
+    "mail.message.starter.templates.details": "um es für ein neue Nachricht zu verwenden oder es zu ändern",
     "mail.messages.multiple.drag_shadow": "Die ausgewählte Konversation | {count} ausgewählte Konversationen",
     "mail.new.attachments.drop.zone": "Platzieren Sie eine Datei als Anhang | Dateien als Anhang platzieren",
     "mail.new.attachments.eml.drop.zone": "Nachricht als Anlage löschen | Nachrichten als Anhänge löschen",
@@ -426,6 +434,7 @@
                 }
             },
             "new_template": "Neue Vorlage",
+            "new_template_full": "Neue Vorlage erstellen",
             "print": {
                 "title": "Die letzte Nachricht der Konversation ausdrucken \"{subject}\""
             }

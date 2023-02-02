@@ -346,14 +346,22 @@
     "mail.list.unread.none": "No unread messages.",
     "mail.mailbox.quota.used": "{usedQuotaPercentage} % storage used",
     "mail.main.new": "New message",
+    "mail.main.new_full": "Write a new message",
     "mail.main.switch.webmail": "Try the new webmail",
     "mail.message.select.all.folder": "Select all messages from",
     "mail.message.select.all.search": "Select all messages from search",
     "mail.message.selected": "{count} messages selected",
-    "mail.message.starter.display.drafts": "Every draft",
-    "mail.message.starter.display": "display",
-    "mail.message.starter.write": "write a",
     "mail.message.starter": "Select an item",
+    "mail.message.starter.display.drafts": "View drafts",
+    "mail.message.starter.display.inbox": "Go back to inbox",
+    "mail.message.starter.display.outbox": "View messages waiting to be sent",
+    "mail.message.starter.display.sent": "View sent messages",
+    "mail.message.starter.display.templates": "View templates",
+    "mail.message.starter.draft.details": "This folder contains messages you have started composing and have not yet sent.",
+    "mail.message.starter.outbox.details": "This folder contains the messages that have not yet reached your mail server for technical reasons (connection, server state).",
+    "mail.message.starter.sent.details": "This folder contains the messages that have reached your mail server to be sent to their recipients.",
+    "mail.message.starter.templates": "Choose a template",
+    "mail.message.starter.templates.details": "to use it for a new message or modify it",
     "mail.messages.multiple.drag_shadow": "The selected thread | {count} selected threads",
     "mail.new.attachments.drop.zone": "Drop your file as attachment | Drop your files as attachments",
     "mail.new.attachments.eml.drop.zone": "Drop your message as an attachment | Drop your messages as attachments",
@@ -426,6 +434,7 @@
                 }
             },
             "new_template": "New template",
+            "new_template_full": "Create a new template",
             "print": {
                 "title": "Print the last message of the conversation \"{subject}\""
             }

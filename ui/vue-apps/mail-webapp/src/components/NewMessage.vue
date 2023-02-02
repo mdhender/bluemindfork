@@ -3,7 +3,7 @@
         <bm-floating-action-button
             v-if="mobile"
             class="new-message d-lg-none"
-            icon="plus"
+            :icon="icon"
             :title="action.label()"
             @click="openComposer"
         />
@@ -11,19 +11,20 @@
             v-else
             variant="fill-accent"
             class="new-message text-nowrap d-none d-lg-inline-flex"
-            :size="size"
+            :size="full ? 'lg' : 'md'"
             :title="action.label()"
-            :icon="action.icon('plus')"
+            :icon="action.icon(icon)"
             @click="action.execute(openComposer)"
         >
-            {{ $t("mail.main.new") }}
+            {{ label }}
         </bm-button>
     </mail-open-in-popup-with-shift>
 </template>
+
 <script>
 import { BmButton, BmFloatingActionButton } from "@bluemind/ui-components";
 import { mapGetters } from "vuex";
-import { MY_DRAFTS } from "~/getters";
+import { MY_DRAFTS, MY_TEMPLATES } from "~/getters";
 import { MailRoutesMixin } from "~/mixins";
 import MailOpenInPopupWithShift from "./MailOpenInPopupWithShift";
 
@@ -38,21 +39,31 @@ export default {
     props: {
         mobile: {
             type: Boolean,
-            required: false,
             default: false
         },
-        size: {
-            type: String,
-            default: "md",
-            validator: function (value) {
-                return ["md", "lg"].includes(value);
-            }
+        template: {
+            type: Boolean,
+            default: false
+        },
+        full: {
+            type: Boolean,
+            default: false
         }
     },
     computed: {
-        ...mapGetters("mail", { MY_DRAFTS }),
+        ...mapGetters("mail", { MY_DRAFTS, MY_TEMPLATES }),
         messagepath() {
-            return this.draftPath(this.MY_DRAFTS);
+            return this.draftPath(this.template ? this.MY_TEMPLATES : this.MY_DRAFTS);
+        },
+        icon() {
+            return this.template ? "plus-document" : "plus";
+        },
+        label() {
+            if (this.template) {
+                return this.$t(this.full ? "mail.actions.new_template_full" : "mail.actions.new_template");
+            } else {
+                return this.$t(this.full ? "mail.main.new_full" : "mail.main.new");
+            }
         }
     },
     methods: {
@@ -62,6 +73,7 @@ export default {
     }
 };
 </script>
+
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/variables";
 
