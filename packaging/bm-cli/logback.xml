@@ -7,20 +7,6 @@
 	<contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
 		<resetJUL>true</resetJUL>
 	</contextListener>
-  
-	<!-- Sentry send exceptions -->
-	<appender name="Sentry" class="io.sentry.logback.SentryAppender">
-		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>ERROR</level>
-		</filter>
-	</appender>
-
-  <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
-    <target>System.err</target>
-    <encoder>
-      <pattern>%m%n</pattern>
-    </encoder>
-  </appender>
 
   <appender name="R"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -29,28 +15,13 @@
 		<encoder>
 			<pattern>${DEFAULT_PATTERN}</pattern>
 		</encoder>
-		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<maxIndex>20</maxIndex>
-			<FileNamePattern>/var/log/bm-cli/cli.log.%i.gz</FileNamePattern>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>/var/log/bm-cli/cli.log.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+			<maxFileSize>60000KB</maxFileSize>
+			<maxHistory>10</maxHistory>
 		</rollingPolicy>
-		<triggeringPolicy
-			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-			<MaxFileSize>60000KB</MaxFileSize>
-		</triggeringPolicy>
 	</appender>
 
-  <logger name="org.apache.directory.shared" level="ERROR">
-    <appender-ref ref="Console"/>
-  </logger>
-  <logger name="org.apache.directory.ldap.client.api" level="WARN">
-    <appender-ref ref="Console"/>
-  </logger>
-  <logger name="org.apache.commons" level="ERROR">
-    <appender-ref ref="Console"/>
-  </logger>
-  <root level="WARN">
-    <appender-ref ref="Console"/>
-  </root>
   <root level="INFO">
 		<appender-ref ref="R" />
 	</root>
