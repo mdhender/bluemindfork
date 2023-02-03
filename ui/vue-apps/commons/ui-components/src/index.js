@@ -58,6 +58,7 @@ export { default as BmIcon } from "./components/BmIcon";
 export { default as BmIconButton } from "./components/buttons/BmIconButton";
 export { default as BmIconButtonCopy } from "./components/buttons/BmIconButtonCopy";
 export { default as BmIconDropdown } from "./components/dropdown/BmIconDropdown";
+export { default as BmIllustration } from "./components/BmIllustration";
 export { default as BmInfiniteScroll } from "./components/BmInfiniteScroll";
 export { default as BmLabelIcon } from "./components/BmLabelIcon/BmLabelIcon";
 export { default as BmListGroup } from "./components/lists/BmListGroup";
