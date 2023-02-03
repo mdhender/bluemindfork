@@ -427,10 +427,12 @@ async function emptyFolder({ commit, state }, { folder, mailbox, deep }) {
 
 function removeMessages({ conversationByKey }, messages) {
     messages.forEach(message => {
-        const conversation = conversationByKey[message.conversationRef.key];
-        const index = conversation?.messages.indexOf(message.key);
-        if (index >= 0) {
-            conversation.messages.splice(index, 1);
+        if (message.conversationRef?.key) {
+            const conversation = conversationByKey[message.conversationRef.key];
+            const index = conversation?.messages.indexOf(message.key);
+            if (index >= 0) {
+                conversation.messages.splice(index, 1);
+            }
         }
     });
 }
