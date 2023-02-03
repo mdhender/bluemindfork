@@ -108,43 +108,32 @@ public class OrgResourceGrid extends CommonOrgResourceGrid {
 	}
 
 	public void loadResourceGridContent(boolean hasSelectedItems, SimplePager pager) {
-		if (!hasSelectedItems) {
-			returnEmptyTable(constants.emptyResourceTable());
-			return;
-		}
 
 		AsyncDataProvider<ItemValue<DirEntry>> provider = new AsyncDataProvider<ItemValue<DirEntry>>() {
-
 			@Override
 			protected void onRangeChanged(HasData<ItemValue<DirEntry>> display) {
+				if (!hasSelectedItems) {
+					returnEmptyTable(constants.emptyResourceTable());
+				} else {
+					DirEntryQuery dq = createDirEntryQuery();
+					doFind(dq, new DefaultAsyncHandler<ListResult<ItemValue<DirEntry>>>() {
+						@Override
+						public void success(ListResult<ItemValue<DirEntry>> result) {
+							if (result != null && !result.values.isEmpty()) {
+								int start = display.getVisibleRange().getStart();
+								if (start > result.values.size()) {
+									start = 0;
+									pager.firstPage();
+								}
+								updateRowCount(result.values.size(), true);
+								updateRowData(start, result.values);
 
-				DirEntryQuery dq = createDirEntryQuery();
-				doFind(dq, new DefaultAsyncHandler<ListResult<ItemValue<DirEntry>>>() {
-					@Override
-					public void success(ListResult<ItemValue<DirEntry>> result) {
-						if (result.values.isEmpty()) {
-							if (unitListMngt.getSelectedItems().size() > 1) {
-								returnEmptyTable(constants.massNotFoundResourceTable(
-										String.valueOf(unitListMngt.getSelectedItems().size())));
-							} else {
-								returnEmptyTable(constants
-										.notFoundResourceTable(unitListMngt.getSelectedItems().get(0).getName()));
+								setValues(result.values);
+								OrgUnitListMgmt.CHECK_EVENT_BUS.fireEvent(new OUCheckBoxEvent(true));
 							}
-							return;
 						}
-
-						int start = display.getVisibleRange().getStart();
-						if (start > result.values.size()) {
-							start = 0;
-							pager.firstPage();
-						}
-						updateRowCount(result.values.size(), true);
-						updateRowData(start, result.values);
-
-						setValues(result.values);
-						OrgUnitListMgmt.CHECK_EVENT_BUS.fireEvent(new OUCheckBoxEvent(unitListMngt.hasSelectedItems()));
-					}
-				});
+					});
+				}
 			}
 		};
 		provider.addDataDisplay(this);

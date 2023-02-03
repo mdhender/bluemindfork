@@ -391,18 +391,13 @@ public class OrgUnitsBrowser extends Composite implements IGwtScreenRoot, OUChec
 		deleteButton.setEnabled(hasManageRole() && checkedItemEvent.selectedItems);
 		editButton.setEnabled(hasManageRole() && checkedItemEvent.selectedItems && getItemToEdit().isPresent());
 
-		pagerResource.setVisible(resourceGrid.getRowCount() >= OrgResourceGrid.PAGE_SIZE);
+		pagerResource
+				.setVisible(checkedItemEvent.selectedItems && resourceGrid.getRowCount() >= OrgResourceGrid.PAGE_SIZE);
 		pagerResource.setDisplay(resourceGrid);
-		if (pagerResource.getPageCount() * OrgResourceGrid.PAGE_SIZE <= pagerResource.getPageStart()) {
-			pagerResource.firstPage();
-		}
 		setResourceGridHeaderTitle();
 
 		pagerAdminResource.setVisible(adminResourceGrid.getRowCount() >= OrgResourceGrid.PAGE_SIZE);
 		pagerAdminResource.setDisplay(adminResourceGrid);
-		if (pagerAdminResource.getPageCount() * OrgResourceGrid.PAGE_SIZE <= pagerAdminResource.getPageStart()) {
-			pagerAdminResource.firstPage();
-		}
 		setAdminResourceGridHeaderTitle();
 
 		ouRolesTree.clearRoles();
@@ -410,6 +405,7 @@ public class OrgUnitsBrowser extends Composite implements IGwtScreenRoot, OUChec
 
 	@Override
 	public void onOuResourcesLoad(OUResourcesEvent resourcesEvent) {
+		pagerResource.firstPage();
 		if (tabContainer.getSelectedIndex() == 0) {
 			resourceGrid.loadResourceGridContent(resourcesEvent.selectedItems, pagerResource);
 		} else if (tabContainer.getSelectedIndex() == 1) {

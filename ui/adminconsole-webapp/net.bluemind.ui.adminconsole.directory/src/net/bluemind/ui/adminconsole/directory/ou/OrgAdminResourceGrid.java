@@ -84,27 +84,28 @@ public class OrgAdminResourceGrid extends CommonOrgResourceGrid {
 				administratorsCf.thenAccept(admin -> {
 					if (admin.isEmpty()) {
 						returnEmptyTable(constants.emptyRoleAdminTable(focusedItem.getName()));
-						return;
-					}
+					} else {
+						DirEntryQuery dq = createDirEntryQuery(new ArrayList<>(admin));
+						doFind(dq, new DefaultAsyncHandler<ListResult<ItemValue<DirEntry>>>() {
+							@Override
+							public void success(ListResult<ItemValue<DirEntry>> result) {
+								if (result != null && !result.values.isEmpty()) {
+									int start = display.getVisibleRange().getStart();
+									if (start > result.values.size()) {
+										start = 0;
+										pager.firstPage();
+									}
+									updateRowCount(result.values.size(), true);
+									updateRowData(start, result.values);
 
-					DirEntryQuery dq = createDirEntryQuery(new ArrayList<>(admin));
-					doFind(dq, new DefaultAsyncHandler<ListResult<ItemValue<DirEntry>>>() {
-						@Override
-						public void success(ListResult<ItemValue<DirEntry>> result) {
-							int start = display.getVisibleRange().getStart();
-							if (start > result.values.size()) {
-								start = 0;
-								pager.firstPage();
+									setValues(result.values);
+									OrgUnitListMgmt.CHECK_EVENT_BUS
+											.fireEvent(new OUCheckBoxEvent(unitListMngt.hasSelectedItems()));
+								}
 							}
-							updateRowCount(result.values.size(), true);
-							updateRowData(start, result.values);
+						});
 
-							setValues(result.values);
-
-							OrgUnitListMgmt.CHECK_EVENT_BUS
-									.fireEvent(new OUCheckBoxEvent(unitListMngt.hasSelectedItems()));
-						}
-					});
+					}
 
 				});
 			}

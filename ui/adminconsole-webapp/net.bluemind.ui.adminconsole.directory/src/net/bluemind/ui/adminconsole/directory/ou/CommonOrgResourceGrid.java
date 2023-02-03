@@ -18,6 +18,7 @@
 package net.bluemind.ui.adminconsole.directory.ou;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -243,13 +244,22 @@ public class CommonOrgResourceGrid extends DataGrid<ItemValue<DirEntry>> impleme
 
 	protected void returnEmptyTable(String label) {
 		setEmptyTableWidget(new Label(label));
-		setValues(new ArrayList<>());
-		OrgUnitListMgmt.CHECK_EVENT_BUS.fireEvent(new OUCheckBoxEvent(unitListMngt.hasSelectedItems()));
+		setValues(Collections.emptyList());
+		OrgUnitListMgmt.CHECK_EVENT_BUS.fireEvent(new OUCheckBoxEvent(false));
 	}
 
 	protected void doFind(DirEntryQuery dq, DefaultAsyncHandler<ListResult<ItemValue<DirEntry>>> asyncHandler) {
 		IDirectoryPromise dir = new DirectoryGwtEndpoint(Ajax.TOKEN.getSessionId(),
 				DomainsHolder.get().getSelectedDomain().uid).promiseApi();
+
+		if (dq.orgUnitIds.isEmpty()) {
+			ListResult<ItemValue<DirEntry>> res = new ListResult<>();
+			CompletableFuture.completedFuture(res).thenAccept(asyncHandler::success).exceptionally(t -> {
+				asyncHandler.failure(t);
+				return null;
+			});
+			return;
+		}
 
 		CompletableFuture<ListResult<ItemValue<DirEntry>>> dirSearch = dir.search(dq);
 		dirSearch.thenAccept(dirRet -> {
