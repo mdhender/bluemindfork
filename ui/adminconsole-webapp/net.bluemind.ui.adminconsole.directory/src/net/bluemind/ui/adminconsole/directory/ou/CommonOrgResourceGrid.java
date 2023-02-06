@@ -254,10 +254,7 @@ public class CommonOrgResourceGrid extends DataGrid<ItemValue<DirEntry>> impleme
 
 		if (dq.orgUnitIds != null && dq.orgUnitIds.isEmpty()) {
 			ListResult<ItemValue<DirEntry>> res = new ListResult<>();
-			CompletableFuture.completedFuture(res).thenAccept(asyncHandler::success).exceptionally(t -> {
-				asyncHandler.failure(t);
-				return null;
-			});
+			CompletableFuture.completedFuture(res).thenAccept(asyncHandler::success);
 			return;
 		}
 
