@@ -1,13 +1,12 @@
 <template>
     <mail-conversation-panel v-if="ONE_CONVERSATION_SELECTED" />
     <mail-multiple-selection-actions v-else-if="SEVERAL_CONVERSATIONS_SELECTED" />
-    <mail-message-starter v-else />
+    <mail-home-screen v-else />
 </template>
-
 <script>
-import MailMessageStarter from "./MailMessageStarter";
-import MailMultipleSelectionActions from "./MailMultipleSelectionActions";
 import { mapGetters, mapMutations } from "vuex";
+
+import MailMultipleSelectionActions from "./MailMultipleSelectionActions";
 import {
     CONVERSATION_METADATA,
     MY_MAILBOX,
@@ -22,12 +21,13 @@ import {
     UNSET_CURRENT_CONVERSATION
 } from "~/mutations";
 import MailConversationPanel from "./MailThread/MailConversationPanel";
+import MailHomeScreen from "./MailHomeScreen";
 
 export default {
-    name: "MailDefaultRightPanel",
+    name: "MailRouteHome",
     components: {
         MailConversationPanel,
-        MailMessageStarter,
+        MailHomeScreen,
         MailMultipleSelectionActions
     },
     data() {

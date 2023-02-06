@@ -15,10 +15,10 @@ export default {
     },
     render: function (h) {
         if (this.extension) {
-            return h(this.extension.name, { attrs: this.$attrs }, [
+            return h(this.extension.name, { attrs: { ...this.$attrs } }, [
                 h("bm-extension-decorator", {
                     props: { extensions: this.extensions.slice(1) },
-                    attrs: this.$attrs,
+                    attrs: { ...this.$attrs },
                     scopedSlots: { default: this.$scopedSlots.default }
                 })
             ]);

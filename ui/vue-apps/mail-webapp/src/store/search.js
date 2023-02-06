@@ -16,7 +16,7 @@ const mutations = {
 };
 
 const getters = {
-    [CONVERSATION_LIST_IS_SEARCH_MODE]: ({ pattern }) => pattern && pattern.trim().length > 0
+    [CONVERSATION_LIST_IS_SEARCH_MODE]: ({ pattern }) => !!pattern && pattern.trim().length > 0
 };
 
 export default { state, mutations, getters };

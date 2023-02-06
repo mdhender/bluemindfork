@@ -1,4 +1,4 @@
-import MailDefaultRightPanel from "~/components/MailDefaultRightPanel";
+import MailRouteHome from "~/components/MailRouteHome";
 import MailApp from "~/components/MailApp";
 import MailRouteMessage from "~/components/MailRouteMessage";
 import MailRouteConversation from "~/components/MailRouteConversation";
@@ -18,6 +18,6 @@ export default {
             path: ".t/:conversationpath",
             component: MailRouteConversation
         },
-        { name: "mail:home", path: "", component: MailDefaultRightPanel }
+        { name: "mail:home", path: "", component: MailRouteHome }
     ]
 };
