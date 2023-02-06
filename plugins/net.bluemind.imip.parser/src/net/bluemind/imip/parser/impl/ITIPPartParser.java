@@ -161,8 +161,8 @@ public class ITIPPartParser {
 					orga = icalVTodo.getOrganizer();
 					seq = icalVTodo.getSequence();
 					VTodo calElement = new VTodo();
-					new ICal4jHelper<VTodo>().parseIcs(calElement, part, globalTZ, tzMapping, Optional.empty(),
-							Collections.emptyList());
+					calElement.uid = new ICal4jHelper<VTodo>().parseIcs(calElement, part, globalTZ, tzMapping,
+							Optional.empty(), Collections.emptyList()).uid;
 
 					// DUE
 					calElement.due = IcalConverter.convertToDateTime(icalVTodo.getDue(), globalTZ, tzMapping);

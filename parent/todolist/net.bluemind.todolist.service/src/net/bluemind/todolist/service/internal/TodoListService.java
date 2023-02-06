@@ -90,7 +90,7 @@ public class TodoListService implements ITodoList {
 
 		eventProducer = new TodoListEventProducer(container, bmContext.getSecurityContext(), VertxPlatform.eventBus());
 
-		sanitizer = new VTodoSanitizer();
+		sanitizer = new VTodoSanitizer(bmContext, container);
 
 		validator = new VTodoValidator();
 		context = bmContext.getSecurityContext();
@@ -112,22 +112,30 @@ public class TodoListService implements ITodoList {
 		create(item, todo);
 	}
 
-	private void create(Item item, VTodo todo) {
+	private Ack create(Item item, VTodo todo) {
 		rbacManager.check(Verb.Write.name());
-		doCreate(item, todo);
+		Ack ack = doCreate(item, todo);
 		eventProducer.vtodoCreated(item.uid, todo);
 		eventProducer.changed();
 		indexStore.refresh();
+		return ack;
 	}
 
-	private void doCreate(Item item, VTodo todo) throws ServerFault {
+	private Ack doCreate(Item item, VTodo todo) throws ServerFault {
 		sanitizer.sanitize(todo);
 		extSanitizer.create(todo);
 		validator.validate(todo);
 		extValidator.create(todo);
 		item.displayName = todo.summary;
+		if (todo.uid != null) {
+			List<ItemValue<VTodo>> existing = getByIcsUid(todo.uid);
+			if (existing != null && !existing.isEmpty()) {
+				return Ack.create(existing.get(0).version);
+			}
+		}
 		ItemVersion iv = storeService.create(item, todo);
 		indexStore.create(Item.create(item.uid, iv.id), todo);
+		return Ack.create(iv.version);
 	}
 
 	private void doCreateOrUpdate(String uid, VTodo todo) throws ServerFault {
@@ -148,32 +156,31 @@ public class TodoListService implements ITodoList {
 	@Override
 	public void update(String uid, VTodo todo) throws ServerFault {
 		Item item = Item.create(uid, null);
-		update(item, todo);
+		doUpdate(item, todo);
 	}
 
-	private void update(Item item, VTodo todo) throws ServerFault {
+	private ItemVersion doUpdate(Item item, VTodo todo) throws ServerFault {
 		rbacManager.check(Verb.Write.name());
-		ItemValue<VTodo> previous = doUpdate(item, todo);
-		eventProducer.vtodoUpdated(item.uid, previous.value, todo);
-		eventProducer.changed();
-		indexStore.refresh();
-	}
-
-	private ItemValue<VTodo> doUpdate(Item item, VTodo todo) throws ServerFault {
-		ItemValue<VTodo> previousItemValue = storeService.get(item.uid, null);
+		ItemValue<VTodo> previousItemValue = item.uid == null ? storeService.get(item.id, null)
+				: storeService.get(item.uid, null);
 		if (previousItemValue == null || previousItemValue.value == null) {
 			throw new ServerFault("VTodo uid:" + item.uid + " doesn't exist !", ErrorCode.NOT_FOUND);
 		}
+		item.uid = previousItemValue.uid;
 
-		sanitizer.sanitize(todo);
+		sanitizer.sanitize(previousItemValue, todo);
 		extSanitizer.update(previousItemValue.value, todo);
 
 		validator.validate(todo);
 		extValidator.update(previousItemValue.value, todo);
 
-		storeService.update(item, todo.summary, todo);
+		ItemVersion version = storeService.update(item, todo.summary, todo);
 		indexStore.update(Item.create(item.uid, previousItemValue.internalId), todo);
-		return previousItemValue;
+
+		eventProducer.vtodoUpdated(item.uid, previousItemValue.value, todo);
+		eventProducer.changed();
+		indexStore.refresh();
+		return version;
 	}
 
 	private void doUpdateOrCreate(String uid, VTodo todo) throws ServerFault {
@@ -418,14 +425,14 @@ public class TodoListService implements ITodoList {
 
 	@Override
 	public Ack updateById(long id, VTodo value) {
-		ItemVersion upd = storeService.update(id, value.summary, value);
-		return Ack.create(upd.version);
+		Item item = Item.create(null, id);
+		return Ack.create(doUpdate(item, value).version);
 	}
 
 	@Override
 	public Ack createById(long id, VTodo value) {
-		ItemVersion version = storeService.createWithId("todo-by-id-" + id, id, value.uid, value.summary, value);
-		return Ack.create(version.version);
+		Item item = Item.create("todo-by-id:" + id, id);
+		return create(item, value);
 	}
 
 	@Override
@@ -480,8 +487,14 @@ public class TodoListService implements ITodoList {
 		if (isCreate) {
 			create(todoItem.item(), todoItem.value);
 		} else {
-			update(todoItem.item(), todoItem.value);
+			doUpdate(todoItem.item(), todoItem.value);
 		}
+	}
+
+	@Override
+	public List<ItemValue<VTodo>> getByIcsUid(String uid) throws ServerFault {
+		rbacManager.check(Verb.Read.name());
+		return storeService.getByIcsUid(uid);
 	}
 
 }

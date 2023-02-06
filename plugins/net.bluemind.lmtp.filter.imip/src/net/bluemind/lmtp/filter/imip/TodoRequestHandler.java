@@ -64,6 +64,7 @@ public class TodoRequestHandler extends AbstractLmtpHandler implements IIMIPHand
 						bmSeq, imipSeq);
 
 				if (imipSeq >= bmSeq) {
+					imip.iCalendarElements.get(0).attendees = vtodo.value.attendees;
 					update(user, vtodo.uid, imip, imip.iCalendarElements.get(0));
 				} else {
 					logger.warn("[{}] IMIP seq ({}) is lower or equal to bm seq ({}), doing nothing.", imip.messageId,
@@ -74,7 +75,7 @@ public class TodoRequestHandler extends AbstractLmtpHandler implements IIMIPHand
 				create(service, user, imip, imip.iCalendarElements.get(0));
 			}
 
-			return IMIPResponse.createNeedResponse(imip.uid, imip.iCalendarElements.get(0));
+			return IMIPResponse.createTodoResponse(imip.uid, imip.iCalendarElements.get(0), "request");
 
 		} catch (Exception e) {
 			throw e;

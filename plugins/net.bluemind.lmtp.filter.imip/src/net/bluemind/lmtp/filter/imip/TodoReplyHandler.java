@@ -26,6 +26,8 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.delivery.lmtp.common.LmtpAddress;
 import net.bluemind.delivery.lmtp.common.ResolvedBox;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.icalendar.api.ICalendarElement;
+import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.todolist.api.ITodoList;
@@ -48,7 +50,8 @@ public class TodoReplyHandler extends ReplyHandler implements IIMIPHandler {
 	public IMIPResponse handle(IMIPInfos imip, ResolvedBox recipient, ItemValue<Domain> domain,
 			ItemValue<Mailbox> recipientMailbox) throws ServerFault {
 
-		List<VEvent.Attendee> atts = imip.iCalendarElements.get(0).attendees;
+		ICalendarElement imipTodo = imip.iCalendarElements.get(0);
+		List<VEvent.Attendee> atts = imipTodo.attendees;
 
 		if (!super.validate(imip, atts)) {
 			return new IMIPResponse();
@@ -56,19 +59,21 @@ public class TodoReplyHandler extends ReplyHandler implements IIMIPHandler {
 
 		try {
 			VEvent.Attendee attendee = atts.get(0);
-
+			String type = attendee.partStatus == ParticipationStatus.Accepted ? "accept" : "decline";
 			ITodoList todoService = getTodoListService(getUserFromUid(recipient.getDomainPart(), recipientMailbox.uid));
-			ItemValue<VTodo> todo = todoService.getComplete(imip.uid);
+			ItemValue<VTodo> todo = todoService.getByIcsUid(imip.uid).get(0);
 			for (VTodo.Attendee a : todo.value.attendees) {
 				if (a.mailto.equals(attendee.mailto)) {
 					a.partStatus = attendee.partStatus;
 				}
 			}
+
 			todoService.update(todo.uid, todo.value);
+
+			return IMIPResponse.createTodoResponse(imip.uid, imip.iCalendarElements.get(0), type);
 
 		} catch (Exception e) {
 			throw e;
 		}
-		return new IMIPResponse();
 	}
 }

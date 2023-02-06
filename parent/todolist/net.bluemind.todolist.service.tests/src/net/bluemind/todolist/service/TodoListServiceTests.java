@@ -1147,6 +1147,19 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
+	public void testGetByIcsUid() {
+		VTodo todo = defaultVTodo();
+		todo.dtstart = null;
+		String uid = UUID.randomUUID().toString();
+
+		getService(defaultSecurityContext).create(uid, todo);
+
+		List<ItemValue<VTodo>> todos = getService(defaultSecurityContext).getByIcsUid(todo.uid);
+		assertEquals(1, todos.size());
+		assertEquals(todo.uid, todos.get(0).uid);
+	}
+
+	@Test
 	public void testMultipleGet() throws ServerFault {
 		VTodo todo = defaultVTodo();
 		String uid = UUID.randomUUID().toString();

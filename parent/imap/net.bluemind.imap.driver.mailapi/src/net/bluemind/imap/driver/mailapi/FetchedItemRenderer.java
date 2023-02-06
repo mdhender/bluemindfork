@@ -79,8 +79,8 @@ public class FetchedItemRenderer {
 	private final List<MailPart> fields;
 	private final IDbMessageBodies bodyApi;
 	private static final Set<String> DEFAULT_HEADERS = Sets.newHashSet("From", "To", "Cc", "Subject", "Message-ID",
-			"X-Bm-Event", "X-BM-ResourceBooking", "X-BM-Event-Countered", "X-BM-Event-Canceled", "X-BM-FOLDERSHARING",
-			"X-ASTERISK-CALLERID");
+			"X-Bm-Event", "X-Bm-Todo", "X-BM-ResourceBooking", "X-BM-Event-Countered", "X-BM-Event-Canceled",
+			"X-BM-FOLDERSHARING", "X-ASTERISK-CALLERID");
 
 	public FetchedItemRenderer(IDbMessageBodies bodyApi, IDbMailboxRecords recApi, List<MailPart> fields) {
 		this.recApi = recApi;

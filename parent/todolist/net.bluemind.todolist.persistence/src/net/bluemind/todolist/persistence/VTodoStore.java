@@ -161,4 +161,9 @@ public class VTodoStore extends AbstractItemValueStore<VTodo> {
 		return field.dir == Direction.Asc ? "ASC" : "DESC";
 	}
 
+	public List<String> findByIcsUid(String uid) throws SQLException {
+		return select("SELECT item.uid FROM t_container_item item, t_todolist_vtodo todo" //
+				+ " WHERE item.id = todo.item_id AND item.container_id = ? AND lower(todo.uid) = ?", //
+				rs -> rs.getString(1), Collections.emptyList(), new Object[] { container.id, uid.toLowerCase() });
+	}
 }

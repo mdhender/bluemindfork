@@ -41,8 +41,8 @@ public final class UIDFetchSummaryCommand extends Command<Collection<Summary>> {
 
 	static {
 		String[] headers = { "DATE", "FROM", "TO", "CC", "SUBJECT", "CONTENT-TYPE", "REPLY-TO", "LIST-POST",
-				"DISPOSITION-NOTIFICATION-TO", "X-PRIORITY", "X-BM-EVENT",
-				"X-BM-RESOURCEBOOKING", "X-BM-FOLDERSHARING", "X-ASTERISK-CALLERID", "X-BM-EVENT-COUNTERED" };
+				"DISPOSITION-NOTIFICATION-TO", "X-PRIORITY", "X-BM-EVENT", "X-BM-TODO", "X-BM-RESOURCEBOOKING",
+				"X-BM-FOLDERSHARING", "X-ASTERISK-CALLERID", "X-BM-EVENT-COUNTERED" };
 		StringBuilder sb = new StringBuilder(1024);
 		sb.append("BODY.PEEK[HEADER.FIELDS (");
 		for (int i = 0; i < headers.length; i++) {

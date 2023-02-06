@@ -112,4 +112,11 @@ public class VTodoContainerStoreService extends ContainerStoreService<VTodo> {
 		}
 	}
 
+	public List<ItemValue<VTodo>> getByIcsUid(String uid) {
+		return doOrFail(() -> {
+			List<String> uids = ((VTodoStore) getItemValueStore()).findByIcsUid(uid);
+			return getMultiple(uids);
+		});
+	}
+
 }

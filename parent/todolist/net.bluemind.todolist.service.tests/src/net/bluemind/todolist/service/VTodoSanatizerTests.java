@@ -28,7 +28,7 @@ import net.bluemind.todolist.service.internal.VTodoSanitizer;
 
 public class VTodoSanatizerTests {
 
-	private VTodoSanitizer sanitizer = new VTodoSanitizer();
+	private VTodoSanitizer sanitizer = new VTodoSanitizer(null, null);
 
 	@Test
 	public void testSanitize() {

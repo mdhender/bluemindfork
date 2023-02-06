@@ -18,6 +18,8 @@
  */
 package net.bluemind.lmtp.filter.imip;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +34,7 @@ import net.bluemind.todolist.api.ITodoList;
 import net.bluemind.todolist.api.VTodo;
 
 /**
- * Handles cancellations of meetings
+ * Handles cancellations of todos
  * 
  * @author tom
  * 
@@ -54,14 +56,14 @@ public class TodoCancelHandler extends CancelHandler implements IIMIPHandler {
 		}
 
 		try {
-			logger.info("[{}] Deleting BM VTodo with id {}", imip.messageId, imip.uid);
+			logger.info("[{}] Deleting BM VTodo with ics uid {}", imip.messageId, imip.uid);
 			ITodoList todoService = getTodoListService(getUserFromUid(recipient.getDomainPart(), recipientMailbox.uid));
-			ItemValue<VTodo> res = todoService.getComplete(imip.uid);
+			List<ItemValue<VTodo>> res = todoService.getByIcsUid(imip.uid);
 
-			if (res == null) {
-				logger.debug("[{}] BM VTodo with id {}, doesnt exists", imip.messageId, imip.uid);
+			if (res == null || res.isEmpty()) {
+				logger.debug("[{}] BM VTodo with ics uid {}, doesnt exists", imip.messageId, imip.uid);
 			} else {
-				todoService.delete(imip.uid);
+				res.forEach(todo -> todoService.delete(todo.uid));
 			}
 			return new IMIPResponse();
 		} catch (Exception e) {

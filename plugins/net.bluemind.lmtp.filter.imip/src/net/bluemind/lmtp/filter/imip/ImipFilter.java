@@ -203,7 +203,7 @@ public class ImipFilter extends AbstractLmtpHandler implements IMessageFilter {
 	}
 
 	private static class HeaderList {
-		private List<String> exclusiveKeys = Arrays.asList("X-BM-EVENT");
+		private List<String> exclusiveKeys = Arrays.asList("X-BM-EVENT", "X-BM-TODO");
 		private List<Field> headers = new ArrayList<>();
 
 		public void add(Field f) {

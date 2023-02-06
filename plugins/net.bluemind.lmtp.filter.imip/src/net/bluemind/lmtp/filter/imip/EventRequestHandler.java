@@ -164,7 +164,7 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 				changes.delete == null ? 0 : changes.delete.size(), calUid);
 
 		VEvent event = series.main == null ? series.occurrences.get(0) : series.main;
-		return IMIPResponse.createNeedResponse(imip.uid, event, needResponse(domain, recipientMailbox, event));
+		return IMIPResponse.createEventResponse(imip.uid, event, needResponse(domain, recipientMailbox, event));
 	}
 
 	private void setDefaultAlarm(ItemValue<Domain> domain, String uid, VEventSeries series) {

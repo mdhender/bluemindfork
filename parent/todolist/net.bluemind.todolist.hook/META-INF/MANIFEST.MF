@@ -10,7 +10,16 @@ Require-Bundle: net.bluemind.lib.vertx,
  net.bluemind.todolist.api,
  net.bluemind.core.rest,
  net.bluemind.core.context,
- net.bluemind.core.container.persistence
+ net.bluemind.core.container.persistence,
+ net.bluemind.directory.api,
+ net.bluemind.common.freemarker,
+ org.mnode.ical4j,
+ org.apache.james.apache-mime4j-dom,
+ net.bluemind.core.sendmail,
+ net.bluemind.user.api,
+ slf4j.api,
+ net.bluemind.todolist.adapter,
+ org.apache.james.apache-mime4j-core
 Export-Package: net.bluemind.todolist.hook,
  net.bluemind.todolist.hook.internal
 Eclipse-RegisterBuddy: net.bluemind.lib.vertx

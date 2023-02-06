@@ -27,7 +27,6 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
-
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
@@ -197,5 +196,15 @@ public interface ITodoList extends IChangelogSupport, ICountingSupport, ICrudByI
 	@GET
 	@Path("_all")
 	List<String> allUids() throws ServerFault;
+
+	/**
+	 * Returns all {@link VTodo} matching the given ICS unique identifier.
+	 * 
+	 * @param uid the ICS unique identifier
+	 * @return the list of matching {@link VTodo}
+	 */
+	@GET
+	@Path("_icsuid/{uid}")
+	List<ItemValue<VTodo>> getByIcsUid(@PathParam(value = "uid") String uid) throws ServerFault;
 
 }
