@@ -2,12 +2,6 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="net.bluemind.lib.vertx.verticles">
-      <verticle
-            impl="net.bluemind.openid.configuration.OpenIdConfigurationVerticleFactory">
-      </verticle>
-   </extension>
-   <extension
          point="net.bluemind.domain.domainHook">
       <hook
             class="net.bluemind.openid.configuration.internal.OpenIdConfigurationDomainHook">

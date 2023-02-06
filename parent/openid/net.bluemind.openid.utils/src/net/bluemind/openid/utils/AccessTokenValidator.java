@@ -27,6 +27,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -41,6 +42,8 @@ import com.google.common.base.Strings;
 
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.Shared;
 
 public class AccessTokenValidator {
 
@@ -53,13 +56,12 @@ public class AccessTokenValidator {
 	}
 
 	public static void validate(String domainUid, DecodedJWT token) throws ServerFault {
+		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
+				.get(domainUid);
 
-		JsonObject openIdConfiguration = OpenIdServerConfiguration.get(domainUid);
 		String issuer = token.getIssuer();
 
-		String accessTokenIssuer = Optional.ofNullable(openIdConfiguration.getString("issuer"))
-				.orElse(openIdConfiguration.getString("access_token_issuer"));
-
+		String accessTokenIssuer = domainSettings.get("openid_issuer");
 		if (Strings.isNullOrEmpty(issuer) || !issuer.equals(accessTokenIssuer)) {
 			throw new ServerFault("Failed to validate token: iss");
 		}
@@ -78,14 +80,14 @@ public class AccessTokenValidator {
 	}
 
 	public static void validateSignature(String domainUid, DecodedJWT token) throws ServerFault {
-
-		JsonObject openIdConfiguration = OpenIdServerConfiguration.get(domainUid);
+		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
+				.get(domainUid);
 
 		try {
 
 			if (provider.isEmpty()) {
-				provider = Optional.of(new GuavaCachedJwkProvider(
-						new UrlJwkProvider(new URL(openIdConfiguration.getString("jwks_uri")))));
+				provider = Optional.of(
+						new GuavaCachedJwkProvider(new UrlJwkProvider(new URL(domainSettings.get("openid_jwks_uri")))));
 			}
 
 			Jwk jwk = provider.get().get(token.getKeyId());
@@ -98,15 +100,17 @@ public class AccessTokenValidator {
 	}
 
 	public static Optional<JsonObject> refreshToken(String domainUid, String refreshToken) {
-		JsonObject conf = OpenIdServerConfiguration.get(domainUid);
+		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
+				.get(domainUid);
+
 		try {
-			String endpoint = conf.getString("token_endpoint");
+			String endpoint = domainSettings.get("openid_token_endpoint");
 			Builder requestBuilder = HttpRequest.newBuilder(new URI(endpoint));
 			requestBuilder.header("Charset", StandardCharsets.UTF_8.name());
 			requestBuilder.header("Content-Type", "application/x-www-form-urlencoded");
 			String params = "grant_type=refresh_token";
-			params += "&client_id=" + conf.getString("clientId");
-			params += "&client_secret=" + conf.getString("clientSecret");
+			params += "&client_id=" + domainSettings.get("openid_client_id");
+			params += "&client_secret=" + domainSettings.get("openid_client_secret");
 			params += "&refresh_token=" + refreshToken;
 			byte[] postData = params.getBytes(StandardCharsets.UTF_8);
 			requestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(postData));

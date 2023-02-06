@@ -27,7 +27,6 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.hook.DomainHookAdapter;
 import net.bluemind.openid.utils.AccessTokenValidator;
-import net.bluemind.openid.utils.OpenIdServerConfiguration;
 
 public class OpenIdConfigurationDomainHook extends DomainHookAdapter {
 
@@ -38,7 +37,6 @@ public class OpenIdConfigurationDomainHook extends DomainHookAdapter {
 		String now = Optional.ofNullable(currentSettings.get(DomainSettingsKeys.openid_host.name())).orElse("");
 		if (!now.equals(prev)) {
 			AccessTokenValidator.invalidateCache();
-			OpenIdServerConfiguration.invalidate(domain.uid);
 		}
 
 	}

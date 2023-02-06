@@ -3,11 +3,10 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.openid.configuration
 Bundle-SymbolicName: net.bluemind.openid.configuration;singleton:=true
 Bundle-Version: 5.0.0.qualifier
-Require-Bundle: net.bluemind.lib.vertx,
- net.bluemind.hornetq.client,
+Require-Bundle: net.bluemind.hornetq.client,
  net.bluemind.domain.api,
  net.bluemind.core.rest,
- net.bluemind.openid.utils;bundle-version="5.0.0",
+ net.bluemind.openid.utils,
  net.bluemind.domain.hook,
  slf4j.api
 Bundle-Vendor: www.bluemind.net

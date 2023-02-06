@@ -15,23 +15,26 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.openid.configuration;
+package net.bluemind.webmodule.authentication.internal;
 
-import io.vertx.core.Verticle;
-import net.bluemind.lib.vertx.IUniqueVerticleFactory;
-import net.bluemind.lib.vertx.IVerticleFactory;
-import net.bluemind.openid.configuration.internal.OpenIdConfigurationVerticle;
+import java.util.Optional;
 
-public class OpenIdConfigurationVerticleFactory implements IVerticleFactory, IUniqueVerticleFactory {
+import com.github.benmanes.caffeine.cache.Caffeine;
 
-	@Override
-	public boolean isWorker() {
-		return true;
+import net.bluemind.common.cache.persistence.CacheBackingStore;
+
+public class SessionsCache {
+
+	private static final CacheBackingStore<SessionData> sessions = new CacheBackingStore<>(
+			Caffeine.newBuilder().recordStats(), "/var/cache/bm-hps/core2", SessionData::toJson, SessionData::fromJson,
+			Optional.empty());
+
+	private SessionsCache() {
+
 	}
 
-	@Override
-	public Verticle newInstance() {
-		return new OpenIdConfigurationVerticle();
+	public static CacheBackingStore<SessionData> get() {
+		return sessions;
 	}
 
 }

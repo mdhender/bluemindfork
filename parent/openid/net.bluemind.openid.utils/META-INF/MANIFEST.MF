@@ -10,7 +10,8 @@ Require-Bundle: io.vertx.core;visibility:=reexport,
  com.auth0.java-jwt,
  com.auth0.jwks-rsa,
  slf4j.api,
- net.bluemind.lib.vertx
+ net.bluemind.lib.vertx,
+ net.bluemind.hornetq.client
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.openid.utils
 Bundle-RequiredExecutionEnvironment: JavaSE-17
