@@ -235,8 +235,6 @@ nginxConfiguration /etc/bm-eas/bm-upstream-eas.conf /usr/share/bm-client-access/
 
 nginxConfiguration /etc/bm-mapi/bm-upstream-mapi.conf /usr/share/bm-client-access/conf/bm-mapi/bm-upstream-mapi.conf
 
-nginxConfiguration /etc/bm-hps/bm-upstream-hps.conf /usr/share/bm-client-access/conf/bm-hps/bm-upstream-hps.conf
-
 nginxConfiguration /etc/bm-webserver/bm-upstream-webserver.conf /usr/share/bm-client-access/conf/bm-webserver/bm-upstream-webserver.conf
 
 nginxConfiguration /etc/bm-core/bm-core-nginx.conf /usr/share/bm-client-access/conf/bm-core/bm-core-nginx.conf
