@@ -54,6 +54,9 @@ public class DomainHook extends DomainHookAdapter {
 
 	@Override
 	public void onCreated(BmContext context, ItemValue<Domain> domain) throws ServerFault {
+		if ("global.virt".equals(domain.uid)) {
+			return;
+		}
 		logger.info("Init Keycloak realm for domain {}", domain.uid);
 		IKeycloakAdmin keycloakAdminService = context.provider().instance(IKeycloakAdmin.class);
 
@@ -140,6 +143,9 @@ public class DomainHook extends DomainHookAdapter {
 
 	@Override
 	public void onDeleted(BmContext context, ItemValue<Domain> domain) throws ServerFault {
+		if ("global.virt".equals(domain.uid)) {
+			return;
+		}
 		logger.info("Delete Keycloak realm for domain {}", domain.uid);
 		IKeycloakAdmin service = context.provider().instance(IKeycloakAdmin.class);
 		service.deleteRealm(domain.uid);
