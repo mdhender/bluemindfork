@@ -61,15 +61,6 @@ public class OrgAdminResourceGrid extends CommonOrgResourceGrid {
 	}
 
 	private void loadRoleGridContent(SimplePager pager) {
-		boolean tooManyItems = unitListMngt.getSelectedEnabledItems().size() > 1;
-		if (tooManyItems) {
-			returnEmptyTable(constants.massRoleOuSelection());
-			return;
-		}
-		if (!unitListMngt.hasSelectedItems()) {
-			returnEmptyTable(constants.emptyRoleTable());
-			return;
-		}
 
 		AsyncDataProvider<ItemValue<DirEntry>> provider = new AsyncDataProvider<ItemValue<DirEntry>>() {
 
@@ -78,36 +69,43 @@ public class OrgAdminResourceGrid extends CommonOrgResourceGrid {
 
 			@Override
 			protected void onRangeChanged(HasData<ItemValue<DirEntry>> display) {
-				OrgUnitItem focusedItem = unitListMngt.focusedItem;
-				CompletableFuture<Set<String>> administratorsCf = dir.getAdministrators(focusedItem.getUid());
+				if (unitListMngt.getSelectedEnabledItems().size() > 1) {
+					returnEmptyTable(constants.massRoleOuSelection());
+				} else if (!unitListMngt.hasSelectedItems() || unitListMngt.focusedItem == null) {
+					returnEmptyTable(constants.emptyRoleTable());
+				} else {
+					OrgUnitItem focusedItem = unitListMngt.focusedItem;
+					CompletableFuture<Set<String>> administratorsCf = dir.getAdministrators(focusedItem.getUid());
 
-				administratorsCf.thenAccept(admin -> {
-					if (admin.isEmpty()) {
-						returnEmptyTable(constants.emptyRoleAdminTable(focusedItem.getName()));
-					} else {
-						DirEntryQuery dq = createDirEntryQuery(new ArrayList<>(admin));
-						doFind(dq, new DefaultAsyncHandler<ListResult<ItemValue<DirEntry>>>() {
-							@Override
-							public void success(ListResult<ItemValue<DirEntry>> result) {
-								if (result != null && !result.values.isEmpty()) {
-									int start = display.getVisibleRange().getStart();
-									if (start > result.values.size()) {
-										start = 0;
-										pager.firstPage();
+					administratorsCf.thenAccept(admin -> {
+						if (admin.isEmpty()) {
+							returnEmptyTable(constants.emptyRoleAdminTable(focusedItem.getName()));
+						} else {
+							DirEntryQuery dq = createDirEntryQuery(new ArrayList<>(admin));
+							doFind(dq, new DefaultAsyncHandler<ListResult<ItemValue<DirEntry>>>() {
+								@Override
+								public void success(ListResult<ItemValue<DirEntry>> result) {
+									if (result != null && !result.values.isEmpty()) {
+										int start = display.getVisibleRange().getStart();
+										if (start > result.values.size()) {
+											start = 0;
+											pager.firstPage();
+										}
+										updateRowCount(result.values.size(), true);
+										updateRowData(start, result.values);
+
+										setValues(result.values);
+										OrgUnitListMgmt.CHECK_EVENT_BUS
+												.fireEvent(new OUCheckBoxEvent(unitListMngt.hasSelectedItems()));
 									}
-									updateRowCount(result.values.size(), true);
-									updateRowData(start, result.values);
-
-									setValues(result.values);
-									OrgUnitListMgmt.CHECK_EVENT_BUS
-											.fireEvent(new OUCheckBoxEvent(unitListMngt.hasSelectedItems()));
 								}
-							}
-						});
+							});
 
-					}
+						}
 
-				});
+					});
+				}
+
 			}
 		};
 		provider.addDataDisplay(this);

@@ -72,7 +72,7 @@ public class OrgUnitsAdminRolesTree extends Composite {
 
 	public OrgUnitsAdminRolesTree() {
 		rolesPanel = new ScrollPanel();
-		rolesPanel.setHeight("350px");
+		rolesPanel.setHeight("250px");
 		initWidget(rolesPanel);
 	}
 

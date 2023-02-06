@@ -245,14 +245,14 @@ public class CommonOrgResourceGrid extends DataGrid<ItemValue<DirEntry>> impleme
 	protected void returnEmptyTable(String label) {
 		setEmptyTableWidget(new Label(label));
 		setValues(Collections.emptyList());
-		OrgUnitListMgmt.CHECK_EVENT_BUS.fireEvent(new OUCheckBoxEvent(false));
+		OrgUnitListMgmt.CHECK_EVENT_BUS.fireEvent(new OUCheckBoxEvent(unitListMngt.hasSelectedItems()));
 	}
 
 	protected void doFind(DirEntryQuery dq, DefaultAsyncHandler<ListResult<ItemValue<DirEntry>>> asyncHandler) {
 		IDirectoryPromise dir = new DirectoryGwtEndpoint(Ajax.TOKEN.getSessionId(),
 				DomainsHolder.get().getSelectedDomain().uid).promiseApi();
 
-		if (dq.orgUnitIds.isEmpty()) {
+		if (dq.orgUnitIds != null && dq.orgUnitIds.isEmpty()) {
 			ListResult<ItemValue<DirEntry>> res = new ListResult<>();
 			CompletableFuture.completedFuture(res).thenAccept(asyncHandler::success).exceptionally(t -> {
 				asyncHandler.failure(t);

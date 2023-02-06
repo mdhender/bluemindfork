@@ -162,7 +162,10 @@ public class OrgUnitTreeGrid extends Grid implements IGwtWidgetElement {
 						item.createCheckBox();
 						OrgUnitCheckBox cb = (OrgUnitCheckBox) item.getWidget();
 						cb.addValueChangeHandler(event -> {
-							unitListMngt.focusedItem = event.getValue().booleanValue() ? cb.getItem() : null;
+							unitListMngt.focusedItem = event.getValue().booleanValue() ? cb.getItem()
+									: (unitListMngt.getSelectedItems().size() == 1
+											? unitListMngt.getSelectedItems().get(0)
+											: null);
 							cb.getItem().toogleHierarchy(event.getValue());
 							allOrgUnits
 									.setValue(unitListMngt.getSelectedItems().size() == unitListMngt.getItems().size());

@@ -405,10 +405,11 @@ public class OrgUnitsBrowser extends Composite implements IGwtScreenRoot, OUChec
 
 	@Override
 	public void onOuResourcesLoad(OUResourcesEvent resourcesEvent) {
-		pagerResource.firstPage();
 		if (tabContainer.getSelectedIndex() == 0) {
+			pagerResource.firstPage();
 			resourceGrid.loadResourceGridContent(resourcesEvent.selectedItems, pagerResource);
 		} else if (tabContainer.getSelectedIndex() == 1) {
+			pagerAdminResource.firstPage();
 			adminResourceGrid.reload(pagerAdminResource);
 		}
 	}
