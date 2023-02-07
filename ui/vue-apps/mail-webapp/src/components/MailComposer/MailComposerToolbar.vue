@@ -165,6 +165,9 @@ export default {
         isSaving() {
             return this.message.status === MessageStatus.SAVING;
         },
+        isInvalid() {
+            return this.message.status === MessageStatus.INVALID;
+        },
         errorOccuredOnSave() {
             return this.message.status === MessageStatus.SAVE_ERROR;
         },
@@ -205,6 +208,7 @@ export default {
         disableSend() {
             return (
                 this.errorOccuredOnSave ||
+                this.isInvalid ||
                 this.isSending ||
                 !this.hasRecipient ||
                 this.anyRecipientInError ||

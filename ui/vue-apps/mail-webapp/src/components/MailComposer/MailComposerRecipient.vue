@@ -9,6 +9,7 @@
         :autocomplete-results="expandSearch ? autocompleteExpandedResults : autocompleteResults"
         :validate-address-fn="validateDnAndAddress"
         :show-expand="showExpand"
+        extension="mail.composer.recipients"
         @search="debouncedSearch"
         @update:contacts="update"
         @expand="expandContact"
@@ -40,7 +41,6 @@ export default {
     name: "MailComposerRecipient",
     components: { MailContactCardSlots },
     mixins: [ComposerActionsMixin, GetMailTipsCommand],
-    // mixins: [ComposerActionsMixin],
     props: {
         message: { type: Object, required: true },
         recipientType: { type: String, required: true, validator: value => ["to", "cc", "bcc"].includes(value) }

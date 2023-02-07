@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { DISPLAY_UNTRUSTED } from "../../store/mutationTypes";
+import { DISPLAY_UNTRUSTED } from "../../../store/mutationTypes";
 import { BmButton } from "@bluemind/ui-components";
 
 export default {

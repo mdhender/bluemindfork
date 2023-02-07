@@ -80,6 +80,7 @@ export class EncryptError extends SmimeErrors {
         super("An error occured on encryption", CRYPTO_HEADERS.ENCRYPT_FAILURE, error);
     }
 }
+
 export class CertificateRecipientNotFoundError extends SmimeErrors {
     constructor(error?: unknown) {
         super("Certificate not found", CRYPTO_HEADERS.CERTIFICATE_RECIPIENT_NOT_FOUND, error);
@@ -94,5 +95,10 @@ export class InvalidCertificateRecipientError extends SmimeErrors {
 export class SignError extends SmimeErrors {
     constructor(error?: unknown) {
         super("An error occured when signing", CRYPTO_HEADERS.SIGN_FAILURE, error);
+    }
+}
+export class InvalidOriginatorError extends SmimeErrors {
+    constructor(error?: unknown) {
+        super("The originator has to be the user default address", CRYPTO_HEADERS.INVALID_ORIGINATOR, error);
     }
 }

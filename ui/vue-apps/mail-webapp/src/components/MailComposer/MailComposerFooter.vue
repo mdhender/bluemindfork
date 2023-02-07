@@ -1,13 +1,13 @@
 <template>
     <div class="mail-composer-footer">
-        <transition name="slide-fade">
-            <bm-rich-editor-toolbar v-if="showTextFormattingToolbar" align="right" editor="composer" />
-        </transition>
         <bm-alert-area v-if="alerts.length > 0" :alerts="alerts" class="w-100">
             <template v-slot="slotProps">
                 <component :is="slotProps.alert.renderer" :alert="slotProps.alert" />
             </template>
         </bm-alert-area>
+        <transition name="slide-fade">
+            <bm-rich-editor-toolbar v-if="showTextFormattingToolbar" align="right" editor="composer" />
+        </transition>
         <mail-composer-toolbar
             :message="message"
             :is-signature-inserted="isSignatureInserted"

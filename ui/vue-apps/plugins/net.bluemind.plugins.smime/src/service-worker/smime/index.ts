@@ -13,7 +13,7 @@ import {
 import session from "../environnment/session";
 import { dispatchFetch } from "@bluemind/service-worker-utils";
 import { getCacheKey } from "../smimePartCache";
-import { EncryptError, SmimeErrors } from "../exceptions";
+import { SmimeErrors } from "../exceptions";
 import { extractContentType, splitHeadersAndContent } from "./MimeEntityParserUtils";
 import extractSignedData from "./SMimeSignedDataParser";
 import buildSignedEml from "./SMimeSignedEmlBuilder";
@@ -74,20 +74,14 @@ export async function encrypt(item: MailboxItem, folderUid: string): Promise<Mai
 
         const client = new MailboxItemsClient(await session.sid, folderUid);
         let mimeTree: string;
-        try {
-            if (item.body.structure!.mime === MimeType.EML) {
-                // mail has been signed just previously, and uploaded as an eml
-                const eml = await client.fetch(item.imapUid!, item.body.structure!.address!).then(blob => blob.text());
-                const { body, headers } = splitHeadersAndContent(eml);
-                const contentType = "Content-Type: " + extractContentType(headers);
-                mimeTree = contentType + "\r\n\r\n" + body;
-            } else {
-                mimeTree = await new MimeBuilder(getRemoteContentFn(item.imapUid!, folderUid)).build(
-                    item.body.structure!
-                );
-            }
-        } catch (error) {
-            throw new EncryptError(error);
+        if (item.body.structure!.mime === MimeType.EML) {
+            // mail has been signed just previously, and uploaded as an eml
+            const eml = await client.fetch(item.imapUid!, item.body.structure!.address!).then(blob => blob.text());
+            const { body, headers } = splitHeadersAndContent(eml);
+            const contentType = "Content-Type: " + extractContentType(headers);
+            mimeTree = contentType + "\r\n\r\n" + body;
+        } else {
+            mimeTree = await new MimeBuilder(getRemoteContentFn(item.imapUid!, folderUid)).build(item.body.structure!);
         }
         const encryptedPart = pkcs7.encrypt(mimeTree, certificates);
         const address = await client.uploadPart(encryptedPart);

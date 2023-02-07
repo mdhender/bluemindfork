@@ -1,6 +1,6 @@
 import { mapActions } from "vuex";
-import { ENCRYPTED_HEADER_NAME } from "../../lib/constants";
-import { hasEncryptionHeader, getHeaderValue, isDecrypted } from "../../lib/helper";
+import { ENCRYPTED_HEADER_NAME } from "../../../lib/constants";
+import { hasEncryptionHeader, getHeaderValue, isDecrypted } from "../../../lib/helper";
 
 export default {
     props: {

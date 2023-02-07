@@ -22,6 +22,7 @@ import {
 import { getHeaderValue, isVerified } from "../../lib/helper";
 import { readFile } from "./helpers";
 
+jest.mock("../environnment/session", () => ({ sid: 1, defaultEmail: "math@devenv.blue" }));
 jest.mock("../pki/", () => jest.fn);
 jest.mock("@bluemind/mime", () => {
     return {

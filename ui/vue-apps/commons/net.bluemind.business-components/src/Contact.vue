@@ -17,7 +17,7 @@ import { BmExtension } from "@bluemind/extensions.vue";
 import ContactInternal from "./ContactInternal";
 
 export default {
-    name: "BmContact",
+    name: "Contact",
     components: { ContactInternal, BmExtension },
     props: {
         extension: {

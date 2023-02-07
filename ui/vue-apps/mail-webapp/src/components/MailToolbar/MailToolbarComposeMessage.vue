@@ -4,7 +4,7 @@
             v-if="isDraft"
             :aria-label="$t('mail.actions.send.aria')"
             :title="$t('mail.actions.send.aria')"
-            :disabled="errorOccuredOnSave || isSending || !hasRecipient || anyAttachmentInError"
+            :disabled="errorOccuredOnSave || isSending || !hasRecipient || anyAttachmentInError || isInvalid"
             icon="send"
             :label="$tc('mail.actions.send')"
             @click="send()"
@@ -36,7 +36,7 @@
         <mail-toolbar-responsive-dropdown
             :aria-label="saveActionTitle"
             :title="saveActionTitle"
-            :disabled="isSaving || isSending || anyAttachmentInError"
+            :disabled="isSaving || isSending || anyAttachmentInError || isInvalid"
             :icon="isDraft ? 'save' : 'plus-document'"
             :label="$t('common.save')"
             split
@@ -126,6 +126,9 @@ export default {
         },
         errorOccuredOnSave() {
             return this.message.status === MessageStatus.SAVE_ERROR;
+        },
+        isInvalid() {
+            return this.message.status === MessageStatus.INVALID;
         },
         saveActionTitle() {
             if (this.isDraft) {

@@ -107,7 +107,7 @@ import ContactPopover from "./ContactPopover";
 import ResolvedContact from "./ResolvedContact";
 
 export default {
-    name: "Contact",
+    name: "ContactInternal",
     components: { BmAvatar, BmIconButton, BmChip, ContactModal, ContactPopover, ResolvedContact },
     props: {
         // only applicable outside a contact chip, i.e. with transparent or no-text prop set to true
@@ -128,6 +128,8 @@ export default {
             }
         },
         invalid: { type: Boolean, default: false },
+        invalidIcon: { type: String, default: "exclamation" },
+        invalidTooltip: { type: Boolean, default: () => this.$t("styleguide.contact-input.invalid") },
         noAvatar: { type: Boolean, default: false },
         noText: { type: Boolean, default: false },
         enableCard: { type: Boolean, default: false },
@@ -155,7 +157,7 @@ export default {
                 : this.contact.address;
         },
         icon() {
-            return this.invalid ? "exclamation" : null;
+            return this.invalid ? this.invalidIcon : null;
         },
         avatarColor() {
             return this.invalid ? "var(--fill-danger-bg)" : null;
@@ -172,7 +174,7 @@ export default {
         },
         tooltip() {
             if (this.invalid) {
-                return this.$t("styleguide.contact-input.invalid");
+                return this.invalidTooltip;
             }
             const tips = [];
             if (this.contact.address) {

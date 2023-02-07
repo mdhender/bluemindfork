@@ -9,7 +9,9 @@
                 "recipients": {
                     "all_invalid": "Message recipients do not allow encryption.",
                     "some_invalid": "Some message recipients do not allow encryption."
-                }
+                },
+                "invalid_identity": "The selected identity does not allow to sign or encrypt the message."
+
             },
             "body_wrapper": {
                 "cant_display": "Why I can't I see this message ?"
@@ -17,6 +19,7 @@
             "composer": {
                 "encrypt": "Encrypt the message",
                 "stop_encryption": "Disable the message encryption",
+                "stop_encryption_and_signature": "Disable signature and encryption",
                 "invalid_recipient" : "The message cannot be encrypted for this recipient",
                 "encrypt_and_sign": "Encrypt and sign the message",
                 "stop_encrypt_and_sign": "Disable message encryption and signing",

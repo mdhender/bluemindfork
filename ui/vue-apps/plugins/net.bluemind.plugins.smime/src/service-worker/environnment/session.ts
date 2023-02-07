@@ -15,7 +15,7 @@ interface SessionInfo {
 export interface Session {
     login: Promise<string>;
     // accountType: Promise<string>;
-    // defaultEmail: Promise<string>;
+    defaultEmail: Promise<string>;
     sid: Promise<string>;
     userId: Promise<string>;
     // hasIM: Promise<string>;
@@ -46,6 +46,9 @@ const session: Session = {
     },
     get domain() {
         return instance().then(({ domain }) => domain);
+    },
+    get defaultEmail() {
+        return instance().then(({ defaultEmail }) => defaultEmail);
     },
     clear() {
         infos = undefined;

@@ -1,29 +1,21 @@
 <template>
-    <div class="encrypt-error-alert">
-        <div class="text">
-            <div>{{ text }}</div>
-            <div v-if="!missingCertificates && encryptError">
-                ({{ $t("common.error.code", { code: encryptError }) }})
-            </div>
-            <!-- TODO: doc link -->
-            <bm-read-more href="" />
-        </div>
+    <composer-alert class="encrypt-error-alert" :code="encryptError" :text="text" doc="">
         <bm-button class="stop-encryption" variant="text" @click="stopEncryption(ACTIVE_MESSAGE)">
             {{ $t("smime.mailapp.composer.stop_encryption") }}
         </bm-button>
-    </div>
+    </composer-alert>
 </template>
 
 <script>
 import { BmButton } from "@bluemind/ui-components";
-import { BmReadMore } from "@bluemind/ui-components";
-import { CRYPTO_HEADERS } from "../../lib/constants";
+import { CRYPTO_HEADERS } from "../../../lib/constants";
 import { mapGetters } from "vuex";
-import EncryptSignMixin from "../../mixins/EncryptSignMixin";
+import EncryptSignMixin from "../../../mixins/EncryptSignMixin";
+import ComposerAlert from "./ComposerAlert";
 
 export default {
     name: "EncryptErrorAlert",
-    components: { BmButton, BmReadMore },
+    components: { BmButton, ComposerAlert },
     mixins: [EncryptSignMixin],
     props: {
         alert: {
@@ -61,20 +53,3 @@ export default {
     }
 };
 </script>
-
-<style lang="scss">
-@import "~@bluemind/ui-components/src/css/type";
-
-.encrypt-error-alert {
-    line-height: $line-height-medium;
-    .stop-encryption {
-        gap: 0;
-        padding: 0;
-    }
-    .text {
-        display: flex;
-        align-items: center;
-        gap: $sp-4;
-    }
-}
-</style>

@@ -9,7 +9,9 @@
                 "recipients": {
                     "all_invalid": "Die Empfänger der Nachricht lassen keine Verschlüsselung zu.",
                     "some_invalid": "Einige Empfänger der Nachricht lassen die Verschlüsselung nicht zu."
-                }
+                },
+                "invalid_identity": "Die ausgewählte Identität erlaubt es nicht, die Nachricht zu signieren oder zu verschlüsseln."
+
             },
             "body_wrapper": {
                 "cant_display": "Why I can't I see this message ?"
@@ -17,6 +19,7 @@
             "composer": {
                 "encrypt": "Verschlüsseln Sie die Nachricht",
                 "stop_encryption": "Disable the message encryption",
+                "stop_encryption_and_signature": "Signatur und Verschlüsselung deaktivieren",
                 "invalid_recipient" : "Deaktivieren Sie die Nachrichtenverschlüsselung",
                 "encrypt_and_sign": "Verschlüsseln und Signieren der Nachricht",
                 "stop_encrypt_and_sign": "Deaktivieren der Nachrichtenverschlüsselung und -signierung",

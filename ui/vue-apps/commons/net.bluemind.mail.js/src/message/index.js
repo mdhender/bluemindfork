@@ -90,7 +90,8 @@ export const MessageStatus = {
     SAVING: "SAVING",
     SAVE_ERROR: "SAVE_ERROR",
     SENDING: "SENDING",
-    SENT: "SENT"
+    SENT: "SENT",
+    INVALID: "INVALID"
 };
 
 export const MessageCreationModes = {

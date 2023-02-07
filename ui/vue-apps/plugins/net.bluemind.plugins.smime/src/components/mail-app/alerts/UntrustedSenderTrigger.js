@@ -1,5 +1,5 @@
 import { mapActions } from "vuex";
-import { hasSignatureHeader, isVerified } from "../../lib/helper";
+import { hasSignatureHeader, isVerified } from "../../../lib/helper";
 
 export default {
     props: {

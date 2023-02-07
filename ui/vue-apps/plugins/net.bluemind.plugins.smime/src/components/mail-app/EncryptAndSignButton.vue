@@ -2,9 +2,9 @@
     <bm-icon-dropdown
         v-if="SMIME_AVAILABLE"
         split
-        :icon="!hasEncryptionHeader ? 'lock-open' : hasEncryptError ? 'lock-slash' : 'lock'"
+        :icon="!hasEncryptionHeader ? 'lock-open' : hasEncryptError || hasInvalidIndentity ? 'lock-slash' : 'lock'"
         class="encrypt-and-sign-button"
-        :class="{ selected: hasEncryptionHeader, 'has-error': hasEncryptError }"
+        :class="{ selected: hasEncryptionHeader, 'has-error': hasEncryptError || hasInvalidIndentity }"
         variant="compact"
         size="lg"
         :title="title"
@@ -34,20 +34,27 @@ import { CRYPTO_HEADERS, ENCRYPTED_HEADER_NAME, SIGNED_HEADER_NAME, SMIMEPrefKey
 const { MessageCreationModes, messageKey, MessageStatus } = messageUtils;
 const { isNewMessage } = draftUtils;
 
-const encryptAlert = { name: "smime.encrypt_error", uid: "SMIME_ENCRYPT_ERROR", payload: null };
+const alert = { name: "smime", uid: "SMIME", payload: null };
+const alertOptions = {
+    area: "composer-footer",
+    icon: "lock-slash",
+    dismissible: false
+};
 const encryptAlertOptions = {
-    area: "composer-footer",
-    icon: "lock-slash",
-    renderer: "EncryptErrorAlert",
-    dismissible: false
+    ...alertOptions,
+    renderer: "EncryptErrorAlert"
 };
-const signAlert = { name: "smime.sign_error", uid: "SMIME_SIGN_ERROR", payload: null };
 const signAlertOptions = {
-    area: "composer-footer",
-    icon: "lock-slash",
-    renderer: "SignErrorAlert",
-    dismissible: false
+    ...alertOptions,
+    renderer: "SignErrorAlert"
 };
+
+const identityAlertOptions = {
+    ...alertOptions,
+    renderer: "InvalidIdentityAlert"
+};
+
+const alerts = {};
 
 export default {
     name: "EncryptAndSignButton",
@@ -61,6 +68,7 @@ export default {
     },
     computed: {
         ...mapGetters("mail", { SMIME_AVAILABLE }),
+        ...mapGetters("root-app", { DEFAULT_IDENTITY: "DEFAULT_IDENTITY" }),
         title() {
             return this.hasEncryptionHeader
                 ? this.$t("smime.mailapp.composer.stop_encrypt_and_sign")
@@ -82,6 +90,18 @@ export default {
         },
         hasSignError() {
             return this.hasSignatureHeader && !!this.$store.state.mail.smime.signError;
+        },
+        hasInvalidIndentity() {
+            return (
+                (this.hasEncryptionHeader || this.hasSignatureHeader) &&
+                this.message.from.address !== this.DEFAULT_IDENTITY.email
+            );
+        },
+        isInvalid() {
+            return (
+                (this.hasEncryptionHeader || this.hasSignatureHeader) &&
+                (this.hasInvalidIndentity || this.$store.state.mail.smime.missingCertificates.length > 0)
+            );
         }
     },
     watch: {
@@ -123,36 +143,35 @@ export default {
             },
             immediate: true
         },
-        "$store.state.mail.smime.missingCertificates": {
-            handler(missingCertificates) {
-                if (this.hasEncryptionHeader && missingCertificates.length > 0) {
-                    this.$store.commit("mail/SET_MESSAGES_STATUS", [
-                        { key: this.message.key, status: MessageStatus.SAVE_ERROR }
-                    ]);
-                }
-            }
-        },
         hasEncryptError: {
             handler(hasError) {
+                const priority = 2;
                 const error = this.$store.state.mail.smime.encryptError;
-                const alert = { ...encryptAlert, payload: error };
-                if (hasError) {
-                    this.ERROR({ alert, options: encryptAlertOptions });
-                } else {
-                    this.REMOVE(encryptAlert);
-                }
+                const newAlert = { ...alert, payload: error };
+                this.handleError(hasError, newAlert, encryptAlertOptions, priority);
             },
             immediate: true
         },
         hasSignError: {
             handler(hasError) {
+                const priority = 1;
                 const error = this.$store.state.mail.smime.signError;
-                const alert = { ...signAlert, payload: error };
-                if (hasError) {
-                    this.ERROR({ alert, options: signAlertOptions });
-                } else {
-                    this.REMOVE(signAlert);
-                }
+                const newAlert = { ...alert, payload: error };
+                this.handleError(hasError, newAlert, signAlertOptions, priority);
+            },
+            immediate: true
+        },
+        hasInvalidIndentity: {
+            handler(isInvalid) {
+                const priority = 3;
+                this.handleError(isInvalid, alert, identityAlertOptions, priority);
+            },
+            immediate: true
+        },
+        isInvalid: {
+            handler(isInvalid) {
+                const status = isInvalid ? MessageStatus.INVALID : MessageStatus.IDLE;
+                this.$store.commit("mail/SET_MESSAGES_STATUS", [{ key: this.message.key, status }]);
             },
             immediate: true
         }
@@ -180,6 +199,23 @@ export default {
                 this.stopSignature(this.message);
             } else {
                 this.startSignature(this.message);
+            }
+        },
+        handleError(condition, alert, options, priority) {
+            if (condition) {
+                alerts[priority] = { alert, options };
+            } else {
+                delete alerts[priority];
+            }
+            this.displayAlertByPriority();
+        },
+        displayAlertByPriority() {
+            const priorities = Object.keys(alerts);
+            if (priorities.length === 0) {
+                this.REMOVE(alert);
+            } else {
+                const max = Math.max(...priorities);
+                this.ERROR(alerts[max]);
             }
         }
     }

@@ -9,7 +9,8 @@
                 "recipients": {
                     "all_invalid": "Les destinataires du message ne permettent pas le chiffrement.",
                     "some_invalid": "Certains destinataires du message ne permettent pas le chiffrement."
-                }
+                },
+                "invalid_identity": "L’identité sélectionnée ne permet pas de signer ou chiffrer le message."
 
             },
             "body_wrapper": {
@@ -18,6 +19,7 @@
             "composer": {
                 "encrypt": "Chiffrer le message",
                 "stop_encryption": "Désactiver le chiffrement",
+                "stop_encryption_and_signature": "Désactiver la signature et le chiffrement",
                 "invalid_recipient" : "Le message ne peut pas être chiffré pour ce destinataire",
                 "encrypt_and_sign": "Chiffrer et signer le message",
                 "stop_encrypt_and_sign": "Désactiver le chiffrement et la signature du message",

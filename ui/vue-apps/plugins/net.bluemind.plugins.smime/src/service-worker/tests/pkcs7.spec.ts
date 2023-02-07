@@ -1,12 +1,11 @@
 import fs from "fs";
-import { pki } from "node-forge";
+import forge from "node-forge";
 import path from "path";
 import { CRYPTO_HEADERS } from "../../lib/constants";
 import { base64ToArrayBuffer } from "@bluemind/arraybuffer";
 import extractSignedData from "../smime/SMimeSignedDataParser";
 import {
     DecryptError,
-    EncryptError,
     InvalidMessageIntegrityError,
     InvalidSignatureError,
     SmimeErrors,
@@ -16,6 +15,7 @@ import { readFile } from "./helpers";
 import { checkSignatureValidity, getSignedDataEnvelope, checkMessageIntegrity } from "../pkcs7/verify";
 import pkcs7 from "../pkcs7/";
 
+jest.mock("node-forge", () => jest.requireActual("node-forge"));
 class MockedBlob extends Blob {
     arrayBuffer() {
         return Promise.resolve(base64ToArrayBuffer(readTxt("parts/encryptedPart")));
@@ -32,9 +32,9 @@ const privatekeyTxt = readTxt("documents/privateKey");
 const otherPrivateKey = readTxt("documents/otherPrivateKey");
 const certificateTxt = readTxt("documents/certificate");
 const otherCertificateTxt = readTxt("documents/otherCertificate");
-const mockKey = pki.privateKeyFromPem(privatekeyTxt);
-const mockCertificate = pki.certificateFromPem(certificateTxt);
-const mockOtherCertificate = pki.certificateFromPem(otherCertificateTxt);
+const mockKey = forge.pki.privateKeyFromPem(privatekeyTxt);
+const mockCertificate = forge.pki.certificateFromPem(certificateTxt);
+const mockOtherCertificate = forge.pki.certificateFromPem(otherCertificateTxt);
 
 describe("pkcs7", () => {
     describe("decrypt", () => {
@@ -56,7 +56,7 @@ describe("pkcs7", () => {
         });
 
         test("raise an error on decrypt failure", async () => {
-            const mockKey = pki.privateKeyFromPem(otherPrivateKey);
+            const mockKey = forge.pki.privateKeyFromPem(otherPrivateKey);
             try {
                 await pkcs7.decrypt(new MockedBlob(), mockKey, mockCertificate);
             } catch (error) {
@@ -137,15 +137,18 @@ describe("pkcs7", () => {
         });
     });
     describe("encrypt", () => {
-        test("encrypt message with my own certificate", async () => {
+        test("encrypt message with my own certificate", () => {
             const result = pkcs7.encrypt("hello", [mockCertificate]);
             expect(result).toBeTruthy();
         });
-        test("error in encrypt raise an error", async () => {
+        test("error in encrypt raise an error", done => {
+            forge.pkcs7.createEnvelopedData = () => {
+                throw new Error();
+            };
             try {
-                pkcs7.encrypt("hello", [mockOtherCertificate]);
+                pkcs7.encrypt("hello", [mockCertificate]);
             } catch (error) {
-                expect(error).toBeInstanceOf(EncryptError);
+                done();
             }
         });
     });

@@ -4,12 +4,13 @@ import i18n, { TranslationRegistry } from "@bluemind/i18n";
 import store from "@bluemind/store";
 import SMimeBodyWrapper from "./components/mail-app/SMimeBodyWrapper";
 import TrustedSender from "./components/mail-app/TrustedSender";
-import UntrustedSenderAlert from "./components/mail-app/UntrustedSenderAlert";
-import UntrustedSenderTrigger from "./components/mail-app/UntrustedSenderTrigger";
-import DecryptErrorAlert from "./components/mail-app/DecryptErrorAlert";
-import EncryptErrorAlert from "./components/mail-app/EncryptErrorAlert";
-import DecryptErrorTrigger from "./components/mail-app/DecryptErrorTrigger";
-import SignErrorAlert from "./components/mail-app/SignErrorAlert";
+import UntrustedSenderAlert from "./components/mail-app/alerts/UntrustedSenderAlert";
+import UntrustedSenderTrigger from "./components/mail-app/alerts/UntrustedSenderTrigger";
+import DecryptErrorAlert from "./components/mail-app/alerts/DecryptErrorAlert";
+import EncryptErrorAlert from "./components/mail-app/alerts/EncryptErrorAlert";
+import InvalidIdentityAlert from "./components/mail-app/alerts/InvalidIdentityAlert";
+import DecryptErrorTrigger from "./components/mail-app/alerts/DecryptErrorTrigger";
+import SignErrorAlert from "./components/mail-app/alerts/SignErrorAlert";
 import EncryptAndSignButton from "./components/mail-app/EncryptAndSignButton";
 import ContactWithCertificate from "./components/mail-app/ContactWithCertificate";
 import PrefSMime from "./components/preferences/PrefSMime";
@@ -38,6 +39,7 @@ Vue.component("EncryptErrorAlert", EncryptErrorAlert);
 Vue.component("EncryptAndSignButton", EncryptAndSignButton);
 Vue.component("ContactWithCertificate", ContactWithCertificate);
 Vue.component("SignErrorAlert", SignErrorAlert);
+Vue.component("InvalidIdentityAlert", InvalidIdentityAlert);
 
 extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
     component: {
