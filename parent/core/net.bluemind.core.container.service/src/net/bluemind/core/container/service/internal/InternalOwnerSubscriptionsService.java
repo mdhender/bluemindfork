@@ -27,7 +27,6 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerSubscriptionModel;
 import net.bluemind.core.container.api.internal.IInternalOwnerSubscriptions;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -90,11 +89,6 @@ public class InternalOwnerSubscriptionsService implements IInternalOwnerSubscrip
 	@Override
 	public ItemChangelog itemChangelog(String itemUid, Long since) throws ServerFault {
 		return storeService.changelog(itemUid, since, Long.MAX_VALUE);
-	}
-
-	@Override
-	public ContainerChangelog containerChangelog(Long since) throws ServerFault {
-		return storeService.changelog(since, Long.MAX_VALUE);
 	}
 
 	@Override

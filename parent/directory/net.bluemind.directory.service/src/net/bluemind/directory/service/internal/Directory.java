@@ -39,7 +39,6 @@ import net.bluemind.core.api.Regex;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
@@ -145,11 +144,6 @@ public class Directory {
 		DirEntryHandler handler = DirEntryHandlers.byKind(dir.value.kind);
 
 		return handler.entryDeleted(context, domainUid, dir.value.entryUid);
-	}
-
-	public ContainerChangelog changelog(Long since) throws ServerFault {
-		checkReadAccess();
-		return itemStore.changelog(since, Long.MAX_VALUE);
 	}
 
 	public ContainerChangeset<String> changeset(Long since) throws ServerFault {

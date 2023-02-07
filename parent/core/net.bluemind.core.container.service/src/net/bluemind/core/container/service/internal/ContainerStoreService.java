@@ -47,7 +47,6 @@ import net.bluemind.core.backup.continuous.api.Providers;
 import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.IdQuery;
 import net.bluemind.core.container.model.Item;
@@ -155,13 +154,6 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		if (!hasChangeLog) {
 			throw new ServerFault("no changelog for this container");
 		}
-	}
-
-	@Override
-	public ContainerChangelog changelog(Long from, long to) {
-		assertChangeLog();
-		final Long since = null == from ? 0L : from;
-		return doOrFail(() -> changelogStore.changelog(since, to));
 	}
 
 	public Count count(ItemFlagFilter filter) {

@@ -31,7 +31,6 @@ import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -75,12 +74,6 @@ public class NoopDbReplicatedMailboxesService implements IDbReplicatedMailboxes,
 	@Override
 	public ContainerChangeset<ItemVersion> filteredChangesetById(Long since, ItemFlagFilter filter) {
 		logger.info("NOOP filteredChangesetById on deleted mailbox {}@{}", mailboxRoot.name, domainUid);
-		return null;
-	}
-
-	@Override
-	public ContainerChangelog containerChangelog(Long since) {
-		logger.info("NOOP containerChangelog on deleted mailbox {}@{}", mailboxRoot.name, domainUid);
 		return null;
 	}
 

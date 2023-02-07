@@ -111,7 +111,7 @@ public enum SysConfKeys {
 	/**
 	 * 
 	 */
-	subscription_contacts, cyrus_expunged_retention_time,
+	subscription_contacts, cyrus_expunged_retention_time, changeset_cleanup_retention_time,
 
 	/**
 	 * HPS max session per users

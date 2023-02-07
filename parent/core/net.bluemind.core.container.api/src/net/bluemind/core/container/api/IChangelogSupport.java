@@ -23,7 +23,6 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
-
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
@@ -45,18 +44,6 @@ public interface IChangelogSupport {
 	@GET
 	@Path("{uid}/_itemchangelog")
 	public ItemChangelog itemChangelog(@PathParam("uid") String itemUid, Long since) throws ServerFault;
-
-	/**
-	 * 
-	 * 
-	 * 
-	 * @param since
-	 * @return if successful, return a {@link ContainerChangelog}
-	 * @throws ServerFault
-	 */
-	@GET
-	@Path("_changelog")
-	public ContainerChangelog containerChangelog(Long since) throws ServerFault;
 
 	/**
 	 * @param since

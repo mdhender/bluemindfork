@@ -28,12 +28,10 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
-
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.api.TaskRef;
@@ -114,17 +112,6 @@ public interface IDirectory {
 	@DELETE
 	@Path("_byentryuid/{entryUid}")
 	public TaskRef deleteByEntryUid(@PathParam(value = "entryUid") String entryUid) throws ServerFault;
-
-	/**
-	 * Get the domain's {@link ContainerChangelog}
-	 * 
-	 * @param since timestamp of the first change we want to retrieve
-	 * @return {@link ContainerChangelog}
-	 * @throws ServerFault common error object
-	 */
-	@GET
-	@Path("_changelog")
-	public ContainerChangelog changelog(@QueryParam("since") Long since) throws ServerFault;
 
 	/**
 	 * Get the domain's {@link ContainerChangeset}

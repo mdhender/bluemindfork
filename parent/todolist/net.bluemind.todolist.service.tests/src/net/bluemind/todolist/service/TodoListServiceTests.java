@@ -447,12 +447,34 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		getService(defaultSecurityContext).update("test2", defaultVTodo());
 
 		ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
-		assertEquals(3, itemChangeLog.entries.size());
+		assertEquals(2, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
-		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
-		assertEquals(ChangeLogEntry.Type.Deleted, itemChangeLog.entries.get(2).type);
+		assertEquals(ChangeLogEntry.Type.Deleted, itemChangeLog.entries.get(1).type);
+		assertEquals("unknown", itemChangeLog.entries.get(0).origin);
+		assertEquals("unknown", itemChangeLog.entries.get(1).origin);
+		assertEquals("unknown", itemChangeLog.entries.get(0).author);
+		assertEquals("unknown", itemChangeLog.entries.get(1).author);
 
 		itemChangeLog = getService(defaultSecurityContext).itemChangelog("test2", 0L);
+		assertEquals(2, itemChangeLog.entries.size());
+		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
+		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
+		assertEquals("unknown", itemChangeLog.entries.get(0).origin);
+		assertEquals("unknown", itemChangeLog.entries.get(1).origin);
+		assertEquals("unknown", itemChangeLog.entries.get(0).author);
+		assertEquals("unknown", itemChangeLog.entries.get(1).author);
+
+	}
+
+	@Test
+	public void testItemChangelogSeveralUpdates() throws ServerFault {
+
+		getService(defaultSecurityContext).create("test1", defaultVTodo());
+		getService(defaultSecurityContext).update("test1", defaultVTodo());
+		getService(defaultSecurityContext).update("test1", defaultVTodo());
+		getService(defaultSecurityContext).update("test1", defaultVTodo());
+
+		ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
 		assertEquals(2, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
 		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);

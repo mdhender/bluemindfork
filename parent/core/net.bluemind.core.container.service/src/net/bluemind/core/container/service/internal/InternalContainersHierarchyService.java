@@ -28,7 +28,6 @@ import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
 import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchy;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemChangelog;
@@ -104,12 +103,6 @@ public class InternalContainersHierarchyService implements IInternalContainersFl
 	public ItemChangelog itemChangelog(String itemUid, Long since) throws ServerFault {
 		rbacManager.check(Verb.Read.name());
 		return storeService.changelog(itemUid, since, Long.MAX_VALUE);
-	}
-
-	@Override
-	public ContainerChangelog containerChangelog(Long since) throws ServerFault {
-		rbacManager.check(Verb.Read.name());
-		return storeService.changelog(since, Long.MAX_VALUE);
 	}
 
 	@Override

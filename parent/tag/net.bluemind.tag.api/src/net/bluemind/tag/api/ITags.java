@@ -27,12 +27,10 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
-
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IDataShardSupport;
 import net.bluemind.core.container.api.IRestoreItemCrudSupport;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
 import net.bluemind.core.container.model.ItemValue;
@@ -124,18 +122,6 @@ public interface ITags extends IDataShardSupport, IRestoreItemCrudSupport<Tag> {
 	@PUT
 	@Path("_mupdates")
 	public ContainerUpdatesResult updates(TagChanges changes);
-
-	/**
-	 * Get all the changes that occurred on the container starting at the given
-	 * version.
-	 * 
-	 * @param since version of first changes to retrieve
-	 * @return {@link ContainerChangelog}
-	 * @throws ServerFault If anything goes wrong
-	 */
-	@GET
-	@Path("_changelog")
-	public ContainerChangelog changelog(@QueryParam("since") Long since);
 
 	/**
 	 * {@link ContainerChangeset} of the container starting at given version.

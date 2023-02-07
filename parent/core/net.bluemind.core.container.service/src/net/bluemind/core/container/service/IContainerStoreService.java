@@ -25,7 +25,6 @@ import javax.sql.DataSource;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.IdQuery;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemChangelog;
@@ -34,8 +33,6 @@ import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.container.persistence.IItemValueStore;
 
 public interface IContainerStoreService<T> {
-
-	public ContainerChangelog changelog(Long from, long to);
 
 	public ItemChangelog changelog(String itemUid, Long from, long to);
 

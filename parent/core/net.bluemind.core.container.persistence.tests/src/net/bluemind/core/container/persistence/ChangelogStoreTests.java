@@ -25,8 +25,6 @@ import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Before;
@@ -34,15 +32,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableSet;
-
 import net.bluemind.core.container.model.ChangeLogEntry;
 import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.Item;
-import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemVersion;
@@ -112,76 +106,6 @@ public class ChangelogStoreTests {
 			logger.error(e1.getMessage(), e1);
 			fail(e1.getMessage());
 		}
-	}
-
-	@Test
-	public void testAllItemsDeleted() throws Exception {
-		itemStore.create(Item.create("t1", "ext1"));
-		itemStore.create(Item.create("t2", "ext2"));
-		itemStore.create(Item.create("t3", "ext3"));
-		itemStore.create(Item.create("t4", "ext4"));
-		itemStore.create(Item.create("t5", "ext5"));
-		ContainerChangeset<String> c = changelogStore.changeset(0, Long.MAX_VALUE);
-		long lastVersion = c.version;
-		try {
-			changelogStore.allItemsDeleted("toto", "titi");
-		} catch (SQLException e1) {
-			logger.error(e1.getMessage(), e1);
-			fail(e1.getMessage());
-		}
-		ContainerChangelog changelog = changelogStore.changelog(c.version, Long.MAX_VALUE);
-
-		List<Long> versions = changelog.entries.stream().map(e -> e.version).sorted().distinct()
-				.collect(Collectors.toList());
-		// each entry have different version
-		assertEquals(5, versions.size());
-		// version is > to last known version
-		assertTrue(versions.stream().allMatch(v -> v > lastVersion));
-		assertTrue(changelog.entries.stream().allMatch(e -> e.type == ChangeLogEntry.Type.Deleted));
-		assertTrue(changelog.entries.stream().allMatch(e -> e.origin.equals("titi")));
-		assertTrue(changelog.entries.stream().allMatch(e -> e.author.equals("toto")));
-		assertEquals(changelog.entries.stream().map(e -> e.itemUid).collect(Collectors.toSet()),
-				ImmutableSet.of("t1", "t2", "t3", "t4", "t5"));
-	}
-
-	@Test
-	public void testChangelog() throws SQLException {
-		changelogStore.itemCreated(LogEntry.create(1, "test", "extId1", "author", "junit-testChangelog", 42, 0L));
-		changelogStore.itemUpdated(LogEntry.create(2, "test2", "extId2", "author2", "junit-testChangelog2", 43, 0L));
-		changelogStore.itemDeleted(LogEntry.create(3, "test", "extId1", "author", "junit-testChangelog", 42, 0L));
-
-		ContainerChangelog changelog = changelogStore.changelog(0, 3);
-		assertEquals(3, changelog.entries.size());
-
-		assertEntryEquals(42, 1, "test", "extId1", ChangeLogEntry.Type.Created, "author", "junit-testChangelog",
-				changelog.entries.get(0));
-		assertEntryEquals(43, 2, "test2", "extId2", ChangeLogEntry.Type.Updated, "author2", "junit-testChangelog2",
-				changelog.entries.get(1));
-		assertEntryEquals(3, "test", ChangeLogEntry.Type.Deleted, "author", changelog.entries.get(2));
-
-	}
-
-	@Test
-	public void testItemChangelog() throws SQLException {
-		changelogStore.itemCreated(LogEntry.create(1, "test", "extId1", "author", "junit-testChangelog", 42, 0L));
-		changelogStore.itemUpdated(LogEntry.create(2, "test2", "extId2", "author2", "junit-testChangelog2", 43, 0L));
-		changelogStore.itemDeleted(LogEntry.create(3, "test", "extId1", "author", "junit-testChangelog", 42, 0L));
-
-		ContainerChangelog changelog = changelogStore.changelog(0, 3);
-		assertEquals(3, changelog.entries.size());
-
-		ItemChangelog itemChangelog = changelogStore.itemChangelog("test", 0, Long.MAX_VALUE);
-		assertEquals(2, itemChangelog.entries.size());
-
-		assertEntryEquals(42, 1, "test", "extId1", ChangeLogEntry.Type.Created, "author", "junit-testChangelog",
-				itemChangelog.entries.get(0));
-		assertEntryEquals(3, "test", ChangeLogEntry.Type.Deleted, "author", itemChangelog.entries.get(1));
-
-		itemChangelog = changelogStore.itemChangelog("test2", 0, Long.MAX_VALUE);
-		assertEquals(1, itemChangelog.entries.size());
-
-		assertEntryEquals(43, 2, "test2", "extId2", ChangeLogEntry.Type.Updated, "author2", "junit-testChangelog2",
-				itemChangelog.entries.get(0));
 	}
 
 	@Test
@@ -315,6 +239,53 @@ public class ChangelogStoreTests {
 		assertTrue(changeset.created.stream().anyMatch(v -> v.id == 44l));
 		assertTrue(changeset.created.stream().anyMatch(v -> v.id == 45l));
 		assertTrue(changeset.updated.stream().anyMatch(v -> v.id == 43l));
+	}
+
+	@Test
+	public void testDuplicatedKeyOnCreate() throws SQLException {
+		changelogStore.itemCreated(LogEntry.create(10792, "ED36D298-DEB5-4376-85E2-538FFAE77FD1", "extId1", "author",
+				"junit-testChangeset", 10792, 0L));
+		changelogStore.itemCreated(LogEntry.create(10792, "ED36D298-DEB5-4376-85E2-538FFAE77FD1", "extId1", "author",
+				"junit-testChangeset", 10793, 54646546L));
+
+		ItemFlagFilter allFilter = ItemFlagFilter.all();
+		ContainerChangeset<ItemVersion> changeset = changelogStore.changesetById(0, 7, allFilter);
+		assertEquals(10792, changeset.version);
+		assertEquals(1, changeset.created.size());
+		assertEquals(0, changeset.updated.size());
+		assertEquals(0, changeset.deleted.size());
+		assertTrue(changeset.created.stream().anyMatch(v -> v.id == 10792));
+	}
+
+	@Test
+	public void testDuplicatedKeyOnUpdate() throws SQLException {
+		changelogStore.itemCreated(LogEntry.create(10792, "ED36D298-DEB5-4376-85E2-538FFAE77FD1", "extId1", "author",
+				"junit-testChangeset", 10792, 0L));
+		changelogStore.itemUpdated(LogEntry.create(10792, "ED36D298-DEB5-4376-85E2-538FFAE77FD1", "extId1", "author",
+				"junit-testChangeset", 10793, 54646546L));
+
+		ItemFlagFilter allFilter = ItemFlagFilter.all();
+		ContainerChangeset<ItemVersion> changeset = changelogStore.changesetById(0, 7, allFilter);
+		assertEquals(10792, changeset.version);
+		assertEquals(1, changeset.created.size());
+		assertEquals(0, changeset.updated.size());
+		assertEquals(0, changeset.deleted.size());
+		assertTrue(changeset.created.stream().anyMatch(v -> v.id == 10792));
+	}
+
+	@Test
+	public void testDuplicatedKeyOnDelete() throws SQLException {
+		changelogStore.itemCreated(LogEntry.create(10792, "ED36D298-DEB5-4376-85E2-538FFAE77FD1", "extId1", "author",
+				"junit-testChangeset", 10792, 0L));
+		changelogStore.itemDeleted(LogEntry.create(10792, "ED36D298-DEB5-4376-85E2-538FFAE77FD1", "extId1", "author",
+				"junit-testChangeset", 10793, 54646546L));
+
+		ItemFlagFilter allFilter = ItemFlagFilter.all();
+		ContainerChangeset<ItemVersion> changeset = changelogStore.changesetById(0, 7, allFilter);
+		assertEquals(10792, changeset.version);
+		assertEquals(1, changeset.created.size());
+		assertEquals(0, changeset.updated.size());
+		assertEquals(0, changeset.deleted.size());
 	}
 
 	private void assertEntryEquals(long itemId, long version, String itemUid, String itemExtId,

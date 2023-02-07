@@ -44,24 +44,6 @@ CREATE INDEX idx_container_item_uid ON t_container_item(uid);
 CREATE INDEX IF NOT EXISTS t_container_item_unseen_notdeleted_idx on t_container_item(container_id) WHERE (((flags)::bit(32) & '00000000000000000000000000000011'::bit(32)) = '00000000000000000000000000000000'::bit(32));
 CREATE INDEX IF NOT EXISTS t_container_item_container_id_id_idx ON t_container_item(container_id, id);
 
-
-CREATE TABLE t_container_changelog (
-  version int4 NOT NULL,
-  container_id int4 references t_container(id),
-  item_uid TEXT NOT NULL, /* soft reference t_container_item(uid) */
-  item_external_id TEXT, /* soft reference t_container_id(external_id) */
-  type smallint NOT NULL, /* 0 = create, 1 = update, 3 = delete */
-  author TEXT NOT NULL,
-  date timestamp NOT NULL,
-  origin TEXT,
-  item_id bigint NOT NULL, /* soft reference t_container_item(id) */
-  weight_seed int8 default 0,
-  PRIMARY KEY(version, container_id, item_uid)
-);
-
-CREATE INDEX tcc_container_id_fkey ON t_container_changelog(container_id);
-CREATE INDEX t_container_changelog_container_id_item_id_version_idx ON t_container_changelog(container_id, item_id, version);
-
 CREATE TABLE t_container_acl (
   container_id int4 references t_container(id),
   subject TEXT NOT NULL,
@@ -92,52 +74,91 @@ CREATE TABLE t_container_location (
   PRIMARY KEY(container_uid)
 );
 
-/** Changeset */
+/** Changeset ng */
 
-CREATE TABLE t_container_changeset (LIKE t_container_changelog) PARTITION  BY HASH (container_id);
-CREATE UNIQUE INDEX ON t_container_changeset (item_id, version, container_id);
+CREATE TABLE t_changeset (
+  type smallint NOT NULL, /* 0 = create, 1 = update, 2 = delete */
+  version int4 NOT NULL,
+  container_id int4 references t_container(id) ON DELETE CASCADE,
+  item_id bigint NOT NULL, /* soft reference t_container_item(id) */
+  weight_seed int8 default 0,
+  date timestamp NOT NULL,
+  item_uid TEXT NOT NULL, /* soft reference t_container_item(uid) */
+  PRIMARY KEY(container_id, version, item_uid)
+) PARTITION  BY HASH (container_id);
 
-ALTER TABLE t_container_changeset ALTER COLUMN item_id SET NOT NULL;
-
-CREATE INDEX idx_container_changeset_container_id ON t_container_changeset(container_id);
+CREATE INDEX IF NOT EXISTS t_changeset_container_id_idx ON t_changeset(container_id);
+CREATE UNIQUE INDEX t_changeset_container_id_item_id_version_idx ON  t_changeset(container_id, item_id, version);
+CREATE UNIQUE INDEX t_changeset_container_id_item_id_type_idx ON t_changeset (container_id, item_id, type);
 
 DO LANGUAGE plpgsql
 $$
 DECLARE
   partition TEXT;
-  idx TEXT;
   partition_count INTEGER;
 BEGIN
   SELECT INTO partition_count COALESCE(current_setting('bm.changeset_partitions', true)::integer, 256);
 
   FOR partition_key IN 0..(partition_count-1)
   LOOP
-    partition := 't_container_changeset_' || partition_key;
-    idx := partition || '_item_id_version_idx';
-    RAISE NOTICE 'CREATING CHANGESET PARTITION %...', partition;
-    EXECUTE 'CREATE TABLE ' || partition || ' PARTITION OF t_container_changeset FOR VALUES WITH (MODULUS '|| partition_count || ', REMAINDER ' || partition_key || ');';
-    EXECUTE 'CREATE INDEX ' || idx || ' ON ' || partition || '(item_id, version);';
+    partition := 't_changeset_' || partition_key;
+    RAISE NOTICE 'CREATING CHANGESET NG PARTITION %...', partition;
+    EXECUTE 'CREATE TABLE ' || partition || ' PARTITION OF t_changeset FOR VALUES WITH (MODULUS '|| partition_count || ', REMAINDER ' || partition_key || ');';
   END LOOP;
 END;
 $$;
 
-/** Changeset: data trigger */
+CREATE TABLE IF NOT EXISTS q_changeset_cleanup(
+  container_id int4 references t_container(id) ON DELETE CASCADE,
+  item_id bigint NOT NULL, /* soft reference t_container_item(id) */
+  date timestamp NOT NULL,
+  PRIMARY KEY(container_id, item_id)
+);
 
-CREATE OR REPLACE FUNCTION changeset_insert() RETURNS TRIGGER
-  LANGUAGE plpgsql                                    
+CREATE INDEX IF NOT EXISTS q_changeset_cleanup_container_date_idx ON q_changeset_cleanup (date);
+
+CREATE OR REPLACE FUNCTION changeset_delete() RETURNS TRIGGER
+    LANGUAGE plpgsql
 AS $$
-BEGIN
-    DELETE FROM t_container_changeset WHERE item_id = NEW.item_id AND container_id = NEW.container_id;
-    INSERT INTO t_container_changeset (version, container_id, item_uid, item_external_id, type, author, date, origin, item_id, weight_seed)
-    (SELECT version, container_id, item_uid, item_external_id, type, author, date, origin, item_id, weight_seed FROM t_container_changelog where item_id = NEW.item_id AND container_id = NEW.container_id ORDER BY version DESC limit 1) 
-    UNION 
-    (SELECT version, container_id, item_uid, item_external_id, type, author, date, origin, item_id, weight_seed FROM t_container_changelog where item_id = NEW.item_id AND container_id = NEW.container_id ORDER BY version  limit 1) ON CONFLICT DO NOTHING;
-    return NEW;
-  end;
+	BEGIN
+		DELETE FROM t_changeset WHERE container_id=NEW.container_id AND item_id=NEW.item_id AND type =1;
+		INSERT INTO q_changeset_cleanup(container_id, item_id, date) VALUES(NEW.container_id, NEW.item_id, NEW.date);
+		return NEW;
+	END;
 $$;
 
-CREATE TRIGGER changelog_insert AFTER INSERT  ON t_container_changelog FOR EACH ROW EXECUTE PROCEDURE changeset_insert();
-CREATE TRIGGER changelog_update AFTER UPDATE ON t_container_changelog FOR EACH ROW WHEN (OLD.item_id IS DISTINCT FROM NEW.item_id) EXECUTE PROCEDURE changeset_insert();
+CREATE OR REPLACE FUNCTION q_changeset_cleanup_delete() RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS $$
+	BEGIN
+		DELETE FROM t_changeset WHERE container_id=OLD.container_id AND item_id=OLD.item_id ;
+		return NEW;
+	END;
+$$;
+
+CREATE OR REPLACE TRIGGER changeset_insert AFTER INSERT ON t_changeset FOR EACH ROW WHEN (NEW.type = 2) EXECUTE PROCEDURE changeset_delete();
+CREATE OR REPLACE TRIGGER changeset_cleanup AFTER DELETE ON q_changeset_cleanup FOR EACH ROW EXECUTE PROCEDURE q_changeset_cleanup_delete();
+
+CREATE OR REPLACE PROCEDURE proc_insert_t_changeset(
+     IN p_version bigint,
+     IN p_container_id bigint,
+     IN p_item_uid TEXT,
+     IN p_type smallint,
+     IN p_item_id bigint,
+     IN p_weight_seed bigint
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO t_changeset(version, container_id, item_uid, type, date, item_id, weight_seed)
+    VALUES(p_version, p_container_id, p_item_uid, p_type,  now(), p_item_id, p_weight_seed)
+    ON CONFLICT(container_id, item_id, type) DO UPDATE SET version = EXCLUDED.version, date = EXCLUDED.date;
+EXCEPTION
+-- same container_id, item_id, type, version -> do nothing
+    WHEN unique_violation THEN
+        NULL;
+END;
+$$;
 
 /* Method to book a range of id */
 CREATE OR REPLACE FUNCTION locked_multi_nextval(

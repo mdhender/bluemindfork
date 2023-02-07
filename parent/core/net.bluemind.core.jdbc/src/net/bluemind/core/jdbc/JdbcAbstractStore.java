@@ -122,6 +122,26 @@ public class JdbcAbstractStore {
 		return ret;
 	}
 
+	protected <T> void execute(String query, Object[] parameters) throws SQLException {
+		Connection conn = getConnection();
+		PreparedStatement st = null;
+		try {
+			st = conn.prepareCall(query);
+			setStatementParameters(parameters, conn, st);
+			logger.debug("[{}] S: {}", datasource, st);
+			long time = System.currentTimeMillis();
+			st.executeUpdate();
+			long elapsedTime = System.currentTimeMillis() - time;
+			if (elapsedTime > 300) {
+				logger.warn("S: {} took {}ms", st, elapsedTime);
+			} else {
+				logger.trace("S: {} took {}ms", st, elapsedTime);
+			}
+		} finally {
+			JdbcHelper.cleanup(conn, null, st);
+		}
+	}
+
 	protected <T> T unique(String query, Creator<T> creator, EntityPopulator<T> populator, Object param)
 			throws SQLException {
 		Connection conn = getConnection();

@@ -31,7 +31,6 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -120,12 +119,6 @@ public class MapiFolderService implements IMapiFolder {
 	public ItemChangelog itemChangelog(String itemUid, Long since) throws ServerFault {
 		rbacManager.check(Verb.Read.name());
 		return storeService.changelog(itemUid, since, Long.MAX_VALUE);
-	}
-
-	@Override
-	public ContainerChangelog containerChangelog(Long since) throws ServerFault {
-		rbacManager.check(Verb.Read.name());
-		return storeService.changelog(since, Long.MAX_VALUE);
 	}
 
 	@Override

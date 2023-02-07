@@ -55,7 +55,6 @@ import net.bluemind.core.api.fault.ValidationException;
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerSyncStatus;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
@@ -388,12 +387,6 @@ public class AddressBookService implements IInCoreAddressBook {
 		storeService.deletePhoto(uid);
 		storeService.deleteIcon(uid);
 		storeService.delete(uid);
-	}
-
-	@Override
-	public ContainerChangelog containerChangelog(Long since) {
-		rbacManager.check(Verb.Read.name());
-		return storeService.changelog(since, Long.MAX_VALUE);
 	}
 
 	@Override

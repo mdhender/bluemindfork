@@ -26,7 +26,6 @@ import net.bluemind.addressbook.api.VCard;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
@@ -84,11 +83,6 @@ public class DirectoryService implements IDirectory {
 	@Override
 	public TaskRef deleteByEntryUid(String entryUid) throws ServerFault {
 		return directory.deleteByEntryUid(entryUid);
-	}
-
-	@Override
-	public ContainerChangelog changelog(Long since) throws ServerFault {
-		return directory.changelog(since);
 	}
 
 	@Override

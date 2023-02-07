@@ -28,7 +28,6 @@ import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.Count;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
 import net.bluemind.core.container.model.ItemChangelog;
@@ -51,12 +50,6 @@ public class CalendarAuditProxy implements IInternalCalendar {
 	public ItemChangelog itemChangelog(String itemUid, Long since) throws ServerFault {
 		return auditor.action("itemChangelog").readOnly().actionItemUid(itemUid).addActionMetadata("since", since)
 				.audit(() -> calendar.itemChangelog(itemUid, since));
-	}
-
-	@Override
-	public ContainerChangelog containerChangelog(Long since) throws ServerFault {
-		return auditor.action("containerChangelog").readOnly().addActionMetadata("since", since)
-				.audit(() -> calendar.containerChangelog(since));
 	}
 
 	@Override

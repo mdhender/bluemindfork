@@ -71,6 +71,9 @@
       <serviceFactory
             class="net.bluemind.core.container.service.OfflineMgmtFactory">
       </serviceFactory>
+      <serviceFactory
+            class="net.bluemind.core.container.service.ChangesetCleanupServiceFactory">
+      </serviceFactory>
    </extension>
    <extension
          point="net.bluemind.core.container.sharding.sharded">

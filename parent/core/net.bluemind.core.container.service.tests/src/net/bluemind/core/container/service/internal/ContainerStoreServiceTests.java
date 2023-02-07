@@ -36,9 +36,7 @@ import com.google.common.collect.Lists;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Count;
-import net.bluemind.core.container.model.ChangeLogEntry;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -113,13 +111,6 @@ public class ContainerStoreServiceTests {
 
 		int origContainerSize = css.all().size();
 		long origContainerVersion = css.getVersion();
-		ChangelogStore changelogStore = new ChangelogStore(pool, container);
-		ContainerChangelog origChangelog = changelogStore.changelog(0, Long.MAX_VALUE);
-		int origChangelogEntries = origChangelog.entries.size();
-
-		long test1Version = css.get("test", null).version;
-		long test2Version = css.get("test2", null).version;
-		long test4Version = css.get("test4", null).version;
 
 		DataSource targetDs = JdbcActivator.getInstance().getMailboxDataSource(dbHost);
 
@@ -143,9 +134,12 @@ public class ContainerStoreServiceTests {
 		assertEquals(origContainerSize, targetContainerStoreService.getItemStore().all().size());
 		assertEquals(3L, targetContainerStoreService.getVersion());
 
-		ContainerChangelog changes = changelogStore.changelog(origContainerVersion,
+		ChangelogStore changelogStore = new ChangelogStore(pool, container);
+		ContainerChangeset<String> changes = changelogStore.changeset(origContainerVersion,
 				targetContainerStoreService.getVersion());
-		assertTrue(changes.entries.isEmpty());
+		assertTrue(changes.created.isEmpty());
+		assertTrue(changes.deleted.isEmpty());
+		assertTrue(changes.updated.isEmpty());
 
 		changelogStore = new ChangelogStore(targetDs, targetContainer);
 
@@ -165,14 +159,15 @@ public class ContainerStoreServiceTests {
 		// new item creation is ok
 		targetContainerStoreService.create("new", "new", d);
 		assertEquals(newContainerVersion + 1, targetContainerStoreService.getVersion());
-		changes = changelogStore.changelog(newContainerVersion, targetContainerStoreService.getVersion());
-		assertEquals(1, changes.entries.size());
-		assertEquals("new", changes.entries.get(0).itemUid);
-		assertEquals(ChangeLogEntry.Type.Created, changes.entries.get(0).type);
+		changes = changelogStore.changeset(newContainerVersion, targetContainerStoreService.getVersion());
+		assertEquals(1, changes.created.size());
+		assertEquals("new", changes.created.get(0));
 
 		// current container is empty
 		assertTrue(css.allUids().isEmpty());
-		assertTrue(css.changelog(0L, Long.MAX_VALUE).entries.isEmpty());
+		assertTrue(css.changeset(0L, Long.MAX_VALUE).created.isEmpty());
+		assertTrue(css.changeset(0L, Long.MAX_VALUE).deleted.isEmpty());
+		assertTrue(css.changeset(0L, Long.MAX_VALUE).updated.isEmpty());
 
 	}
 

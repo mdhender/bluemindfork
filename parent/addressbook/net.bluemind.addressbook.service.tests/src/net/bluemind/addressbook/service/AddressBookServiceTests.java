@@ -54,7 +54,6 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ChangeLogEntry;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
 import net.bluemind.core.container.model.Item;
@@ -748,26 +747,6 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testChangelog() throws ServerFault {
-
-		getService(defaultSecurityContext).create("test1", defaultVCard());
-		getService(defaultSecurityContext).create("test2", defaultVCard());
-		getService(defaultSecurityContext).delete("test1");
-		getService(defaultSecurityContext).update("test2", defaultVCard());
-
-		// begin tests
-		ContainerChangelog log = getService(defaultSecurityContext).containerChangelog(null);
-
-		assertEquals(4, log.entries.size());
-
-		for (ChangeLogEntry entry : log.entries) {
-			System.out.println(entry.version);
-		}
-		log = getService(defaultSecurityContext).containerChangelog(log.entries.get(0).version);
-		assertEquals(3, log.entries.size());
-	}
-
-	@Test
 	public void testChangeset() throws ServerFault {
 
 		getService(defaultSecurityContext).create("test1", defaultVCard());
@@ -805,12 +784,35 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 		getService(defaultSecurityContext).update("test2", defaultVCard());
 
 		ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
-		assertEquals(3, itemChangeLog.entries.size());
+		assertEquals(2, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
-		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
-		assertEquals(ChangeLogEntry.Type.Deleted, itemChangeLog.entries.get(2).type);
+		assertEquals(ChangeLogEntry.Type.Deleted, itemChangeLog.entries.get(1).type);
+		assertEquals("unknown", itemChangeLog.entries.get(0).author);
+		assertEquals("unknown", itemChangeLog.entries.get(1).author);
+		assertEquals("unknown", itemChangeLog.entries.get(0).origin);
+		assertEquals("unknown", itemChangeLog.entries.get(1).origin);
 
 		itemChangeLog = getService(defaultSecurityContext).itemChangelog("test2", 0L);
+		assertEquals(2, itemChangeLog.entries.size());
+		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
+		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
+		assertEquals("unknown", itemChangeLog.entries.get(0).author);
+		assertEquals("unknown", itemChangeLog.entries.get(1).author);
+		assertEquals("unknown", itemChangeLog.entries.get(0).origin);
+		assertEquals("unknown", itemChangeLog.entries.get(1).origin);
+
+	}
+
+	@Test
+	public void testItemChangelogSeveralUpdates() throws ServerFault {
+
+		getService(defaultSecurityContext).create("test1", defaultVCard());
+		getService(defaultSecurityContext).update("test1", defaultVCard());
+		getService(defaultSecurityContext).update("test1", defaultVCard());
+		getService(defaultSecurityContext).update("test1", defaultVCard());
+		getService(defaultSecurityContext).update("test1", defaultVCard());
+
+		ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
 		assertEquals(2, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
 		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);

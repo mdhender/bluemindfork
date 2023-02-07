@@ -49,7 +49,6 @@ import net.bluemind.core.container.api.IChangelogSupport;
 import net.bluemind.core.container.api.ICountingSupport;
 import net.bluemind.core.container.api.ISortingSupport;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.IdQuery;
 import net.bluemind.core.container.model.ItemChangelog;
@@ -112,12 +111,6 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 	public ItemChangelog itemChangelog(String itemUid, Long since) {
 		rbac.check(Verb.Read.name());
 		return ChangeLogUtil.getItemChangeLog(itemUid, since, context, storeService, container.domainUid);
-	}
-
-	@Override
-	public ContainerChangelog containerChangelog(Long since) {
-		rbac.check(Verb.Read.name());
-		return storeService.changelog(since, Long.MAX_VALUE);
 	}
 
 	@Override

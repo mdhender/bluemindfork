@@ -39,7 +39,6 @@ import net.bluemind.backend.mail.replica.service.names.INameSanitizer;
 import net.bluemind.backend.mail.replica.service.names.NameSanitizers;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -183,13 +182,6 @@ public class BaseReplicatedMailboxesService implements IBaseMailboxFolders {
 		rbac.check(Verb.Read.name());
 
 		return ChangeLogUtil.getItemChangeLog(itemUid, since, context, storeService, container.domainUid);
-	}
-
-	@Override
-	public ContainerChangelog containerChangelog(Long since) throws ServerFault {
-		rbac.check(Verb.Read.name());
-
-		return storeService.changelog(since, Long.MAX_VALUE);
 	}
 
 	@Override

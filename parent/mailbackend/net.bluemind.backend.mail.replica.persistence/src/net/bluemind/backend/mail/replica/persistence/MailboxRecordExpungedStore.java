@@ -82,7 +82,7 @@ public class MailboxRecordExpungedStore extends JdbcAbstractStore {
 
 	private static final String CREATE_QUERY = "INSERT INTO q_mailbox_record_expunged ( "
 			+ MailboxRecordExpungedColumns.COLUMNS.names() + ") VALUES ("
-			+ MailboxRecordExpungedColumns.COLUMNS.values() + " ON CONFLICT DO NOTHUING";
+			+ MailboxRecordExpungedColumns.COLUMNS.values() + " ON CONFLICT DO NOTHING";
 
 	public void store(MailboxRecordExpunged value) throws SQLException {
 		if (folderContainer == null || subtreeContainer == null) {

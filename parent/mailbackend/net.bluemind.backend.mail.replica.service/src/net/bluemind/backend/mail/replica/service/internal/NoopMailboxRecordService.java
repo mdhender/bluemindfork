@@ -33,7 +33,6 @@ import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.Count;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -49,12 +48,6 @@ public class NoopMailboxRecordService implements IDbMailboxRecords {
 	@Override
 	public ItemChangelog itemChangelog(String itemUid, Long since) throws ServerFault {
 		logger.info("NOOP operation IDbMailboxRecords#itemChangelog");
-		return null;
-	}
-
-	@Override
-	public ContainerChangelog containerChangelog(Long since) throws ServerFault {
-		logger.info("NOOP operation IDbMailboxRecords#containerChangelog");
 		return null;
 	}
 

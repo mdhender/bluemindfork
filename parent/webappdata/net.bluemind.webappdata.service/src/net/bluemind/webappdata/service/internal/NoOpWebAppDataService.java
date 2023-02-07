@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -23,12 +22,6 @@ public class NoOpWebAppDataService implements IWebAppData {
 	@Override
 	public ItemChangelog itemChangelog(String itemUid, Long since) throws ServerFault {
 		logger.info("NOOP operation IWebAppData#itemChangelog");
-		return null;
-	}
-
-	@Override
-	public ContainerChangelog containerChangelog(Long since) throws ServerFault {
-		logger.info("NOOP operation IWebAppData#containerChangelog");
 		return null;
 	}
 

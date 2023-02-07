@@ -40,7 +40,6 @@ import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ChangeLogEntry;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemChangelog;
@@ -430,26 +429,6 @@ public class NoteServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testChangelog() throws ServerFault {
-
-		getServiceNote(defaultSecurityContext, container.uid).create("test1", defaultVNote());
-		getServiceNote(defaultSecurityContext, container.uid).create("test2", defaultVNote());
-		getServiceNote(defaultSecurityContext, container.uid).delete("test1");
-		getServiceNote(defaultSecurityContext, container.uid).update("test2", defaultVNote());
-
-		// begin tests
-		ContainerChangelog log = getServiceNote(defaultSecurityContext, container.uid).containerChangelog(null);
-
-		assertEquals(4, log.entries.size());
-
-		for (ChangeLogEntry entry : log.entries) {
-			System.out.println(entry.version);
-		}
-		log = getServiceNote(defaultSecurityContext, container.uid).containerChangelog(log.entries.get(0).version);
-		assertEquals(3, log.entries.size());
-	}
-
-	@Test
 	public void testChangeset() throws ServerFault {
 
 		getServiceNote(defaultSecurityContext, container.uid).create("test1", defaultVNote());
@@ -507,12 +486,27 @@ public class NoteServiceTests extends AbstractServiceTests {
 		getServiceNote(defaultSecurityContext, container.uid).update("test2", defaultVNote());
 
 		ItemChangelog itemChangeLog = getServiceNote(defaultSecurityContext, container.uid).itemChangelog("test1", 0L);
-		assertEquals(3, itemChangeLog.entries.size());
+		assertEquals(2, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
-		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
-		assertEquals(ChangeLogEntry.Type.Deleted, itemChangeLog.entries.get(2).type);
+		assertEquals(ChangeLogEntry.Type.Deleted, itemChangeLog.entries.get(1).type);
 
 		itemChangeLog = getServiceNote(defaultSecurityContext, container.uid).itemChangelog("test2", 0L);
+		assertEquals(2, itemChangeLog.entries.size());
+		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
+		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
+
+	}
+
+	@Test
+	public void testItemChangelogSeveralUpdates() throws ServerFault {
+
+		getServiceNote(defaultSecurityContext, container.uid).create("test1", defaultVNote());
+		getServiceNote(defaultSecurityContext, container.uid).update("test1", defaultVNote());
+		getServiceNote(defaultSecurityContext, container.uid).update("test1", defaultVNote());
+		getServiceNote(defaultSecurityContext, container.uid).update("test1", defaultVNote());
+		getServiceNote(defaultSecurityContext, container.uid).update("test1", defaultVNote());
+
+		ItemChangelog itemChangeLog = getServiceNote(defaultSecurityContext, container.uid).itemChangelog("test1", 0L);
 		assertEquals(2, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
 		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);

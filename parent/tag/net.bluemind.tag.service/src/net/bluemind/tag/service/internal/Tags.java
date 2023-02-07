@@ -32,7 +32,6 @@ import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
 import net.bluemind.core.container.model.Item;
@@ -237,15 +236,6 @@ public class Tags implements ITags {
 
 		ret.version = storeService.getVersion();
 		return ret;
-	}
-
-	@Override
-	public ContainerChangelog changelog(Long since) throws ServerFault {
-		checkRead();
-		if (since == null) {
-			since = 0L;
-		}
-		return storeService.changelog(since, Long.MAX_VALUE);
 	}
 
 	@Override

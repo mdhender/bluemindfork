@@ -128,7 +128,7 @@ public class Repack implements IMaintenanceScript {
 						+ DEFAULT_CHANGESET_PARTITION_COUNT + ") -1 AS partition_count;\")\n");
 				sb.append("for i in $(seq 0 ${partitionCount}); do\n");
 				sb.append("  pg_repack --wait-timeout " + TimeUnit.HOURS.toSeconds(4) + " -d " + dbName
-						+ " -t \"t_container_changeset_${i}\"\n");
+						+ " -t \"t_changeset_${i}\"\n");
 				sb.append("done\n");
 
 				// Conversation reference
@@ -142,6 +142,11 @@ public class Repack implements IMaintenanceScript {
 
 				// q_message_body_tier_change
 				for (String tableName : Arrays.asList("q_message_body_tier_change")) {
+					sb.append("pg_repack --wait-timeout " + TimeUnit.HOURS.toSeconds(4) + " -d " + dbName + " -t \""
+							+ tableName + "\"\n");
+				}
+				// q_changeset_cleanup
+				for (String tableName : Arrays.asList("q_changeset_cleanup")) {
 					sb.append("pg_repack --wait-timeout " + TimeUnit.HOURS.toSeconds(4) + " -d " + dbName + " -t \""
 							+ tableName + "\"\n");
 				}
