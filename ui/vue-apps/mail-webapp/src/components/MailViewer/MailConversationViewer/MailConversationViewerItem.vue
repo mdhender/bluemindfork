@@ -11,7 +11,7 @@
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" />
                 <div class="flex-fill spacer" />
             </div>
-            <div class="d-flex min-height conversation-viewer-row click-to-collapse-zone flex-nowrap" @click="collapse">
+            <div class="d-flex min-height conversation-viewer-row click-to-collapse-zone flex-nowrap">
                 <div class="avatar-wrapper vertical-line" :class="{ first: index === 0, last: index === maxIndex }">
                     <mail-contact-card-slots
                         :component="Contact"
@@ -82,12 +82,13 @@ export default {
         collapse(event) {
             if (this.isMessageExpanded && !this.message.composing) {
                 this.$emit("collapse");
-                event.stopPropagation(); // needed to prevent expand event to be called then
+                event.stopPropagation();
             }
         },
-        expand() {
+        expand(event) {
             if (!this.isMessageExpanded) {
                 this.$emit("expand");
+                event.stopPropagation();
             }
         },
         toggle(event) {

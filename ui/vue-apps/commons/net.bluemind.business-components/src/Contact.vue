@@ -1,5 +1,5 @@
 <template>
-    <div class="contact flex-fill">
+    <div class="contact">
         <a
             :id="uniqueId"
             class="btn btn-link text-truncate"

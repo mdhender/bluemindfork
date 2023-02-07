@@ -3,8 +3,9 @@
         <bm-extension id="webapp.mail" path="viewer.header" :message="message" />
         <template slot="head">
             <div class="conversation-viewer-message-head d-flex flex-fill justify-content-between align-items-start">
-                <div class="d-flex align-self-center overflow-hidden no-wrap">
+                <div class="d-flex align-self-center overflow-hidden no-wrap flex-fill">
                     <mail-contact-card-slots
+                        class="text-truncate"
                         :component="Contact"
                         :contact="message.from"
                         no-avatar
@@ -15,9 +16,11 @@
                     />
                     <mail-folder-icon
                         v-if="folder.key !== conversation.folderRef.key"
+                        class="flex-fill"
                         variant="caption"
                         :mailbox="mailboxes[folder.mailboxRef.key]"
                         :folder="folder"
+                        @click.native.stop="$emit('collapse')"
                     />
                 </div>
                 <div class="d-lg-none d-flex align-items-center h-100 text-nowrap">
@@ -40,7 +43,9 @@
                     :class="{ 'pr-3': !isMessageExpanded }"
                 >
                     <mail-conversation-viewer-flags class="pr-2" :message="message" />
-                    <div class="align-items-end pr-5">{{ $d(message.date, "full_date_time_short") }}</div>
+                    <div class="align-items-end pr-5" @click.stop="$emit('collapse')">
+                        {{ $d(message.date, "full_date_time_short") }}
+                    </div>
                     <mail-viewer-toolbar
                         v-if="isMessageExpanded && conversation"
                         class="flex-nowrap align-items-start"
