@@ -612,6 +612,7 @@
    <bundle id="net.bluemind.tag.sqlschema" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.task.application.closure" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.tests.defaultdata" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.tests.extensions" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.tika.client" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.tika.server" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.todolist.adapter" version="5.0.0.qualifier"/>

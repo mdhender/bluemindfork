@@ -38,6 +38,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,8 +53,9 @@ import net.bluemind.imap.endpoint.ratelimiter.ThroughputLimiterRegistry.Strategy
 import net.bluemind.imap.endpoint.tests.driver.MockConnection;
 import net.bluemind.imap.endpoint.tests.driver.MockMailboxDriver;
 import net.bluemind.imap.endpoint.tests.driver.MockModel;
-import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.tests.extensions.WithVertxExtension;
 
+@ExtendWith(WithVertxExtension.class)
 public class AppendCommandRateLimitTests {
 	private static final Logger logger = LoggerFactory.getLogger(AppendCommandRateLimitTests.class);
 
@@ -78,8 +80,6 @@ public class AppendCommandRateLimitTests {
 
 	@BeforeEach
 	public void beforeEach() throws Exception {
-		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
-
 		this.port = EndpointConfig.get().getInt("imap.port");
 		this.mdl = MockModel.INSTANCE;
 		this.mdl.registerFolder(UUID.randomUUID(), "INBOX");

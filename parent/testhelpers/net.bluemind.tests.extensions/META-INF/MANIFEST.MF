@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.tests.extensions
+Bundle-SymbolicName: net.bluemind.tests.extensions
+Bundle-Version: 5.0.0.qualifier
+Bundle-Vendor: blue-mind.net
+Require-Bundle: slf4j.api,
+ org.eclipse.osgi,
+ junit-jupiter-api,
+ net.bluemind.core.jdbc.testshelper,
+ net.bluemind.lib.vertx,
+ net.bluemind.core.elasticsearch.testshelper
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.tests.extensions
+Automatic-Module-Name: net.bluemind.tests.extensions
