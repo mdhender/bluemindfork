@@ -19,16 +19,12 @@ package net.bluemind.openid.utils;
 
 import java.net.URI;
 import java.net.URL;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.Builder;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,10 +36,19 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.common.base.Strings;
 
+import io.vertx.core.MultiMap;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpClientRequest;
+import io.vertx.core.http.HttpClientResponse;
+import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Shared;
+import net.bluemind.lib.vertx.VertxPlatform;
 
 public class AccessTokenValidator {
 
@@ -99,41 +104,73 @@ public class AccessTokenValidator {
 
 	}
 
-	public static Optional<JsonObject> refreshToken(String domainUid, String refreshToken) {
+	public static CompletableFuture<Optional<JsonObject>> refreshToken(String domainUid, String refreshToken) {
 		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
 				.get(domainUid);
 
+		CompletableFuture<Optional<JsonObject>> future = new CompletableFuture<>();
+
 		try {
 			String endpoint = domainSettings.get("openid_token_endpoint");
-			Builder requestBuilder = HttpRequest.newBuilder(new URI(endpoint));
-			requestBuilder.header("Charset", StandardCharsets.UTF_8.name());
-			requestBuilder.header("Content-Type", "application/x-www-form-urlencoded");
-			String params = "grant_type=refresh_token";
-			params += "&client_id=" + domainSettings.get("openid_client_id");
-			params += "&client_secret=" + domainSettings.get("openid_client_secret");
-			params += "&refresh_token=" + refreshToken;
-			byte[] postData = params.getBytes(StandardCharsets.UTF_8);
-			requestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(postData));
-			HttpRequest req = requestBuilder.build();
-			HttpClient cli = HttpClient.newHttpClient();
-			HttpResponse<String> resp = cli.send(req, BodyHandlers.ofString());
 
-			if (resp.statusCode() >= 400) {
-				logger.error("Failed to refresh token {}", resp.body());
-				return Optional.empty();
-			}
+			URI uri = new URI(endpoint);
+			HttpClient client = initHttpClient(uri);
 
-			JsonObject token = new JsonObject(resp.body());
-			return Optional.of(token);
+			client.request(HttpMethod.POST, uri.getPath(), reqHandler -> {
+				if (reqHandler.succeeded()) {
+					HttpClientRequest r = reqHandler.result();
+					r.response(respHandler -> {
+						if (respHandler.succeeded()) {
+							HttpClientResponse resp = respHandler.result();
+							resp.body(body -> {
+								JsonObject token = new JsonObject(new String(body.result().getBytes()));
+								future.complete(Optional.of(token));
+							});
+						} else {
+							future.complete(Optional.empty());
+							logger.error(reqHandler.cause().getMessage(), reqHandler.cause());
+						}
+					});
+
+					MultiMap headers = r.headers();
+					headers.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
+					headers.add(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
+					String params = "grant_type=refresh_token";
+					params += "&client_id=" + domainSettings.get("openid_client_id");
+					params += "&client_secret=" + domainSettings.get("openid_client_secret");
+					params += "&refresh_token=" + refreshToken;
+					byte[] postData = params.getBytes(StandardCharsets.UTF_8);
+					headers.add(HttpHeaders.CONTENT_LENGTH, Integer.toString(postData.length));
+					r.write(Buffer.buffer(postData));
+					r.end();
+				} else {
+					future.complete(Optional.empty());
+					logger.error(reqHandler.cause().getMessage(), reqHandler.cause());
+				}
+			});
+
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 
-		return Optional.empty();
+		return future;
 	}
 
 	public static void invalidateCache() {
 		provider = Optional.empty();
+	}
+
+	private static HttpClient initHttpClient(URI uri) {
+		HttpClientOptions opts = new HttpClientOptions();
+		opts.setDefaultHost(uri.getHost());
+		opts.setSsl(uri.getScheme().equalsIgnoreCase("https"));
+		opts.setDefaultPort(
+				uri.getPort() != -1 ? uri.getPort() : (uri.getScheme().equalsIgnoreCase("https") ? 443 : 80));
+		if (opts.isSsl()) {
+			opts.setTrustAll(true);
+			opts.setVerifyHost(false);
+		}
+		return VertxPlatform.getVertx().createHttpClient(opts);
 	}
 
 }

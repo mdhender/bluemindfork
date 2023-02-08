@@ -31,6 +31,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -157,26 +158,25 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 			try {
 				AccessTokenValidator.validateSignature(domainUid, accessToken);
 			} catch (ServerFault sf) {
-				Sessions.get().invalidate(key);
-				RestResponse resp = RestResponse
-						.invalidSession(String.format("invalid signature: %s", sf.getMessage()));
-				resp.headers.add("WWW-authenticate", "Bearer");
-				response.success(resp);
+				error(response, key, sf);
 				return;
 			}
 
 			try {
 				AccessTokenValidator.validate(domainUid, accessToken);
 			} catch (ServerFault sf) {
-				Optional<JsonObject> refreshedToken = AccessTokenValidator.refreshToken(domainUid,
+				CompletableFuture<Optional<JsonObject>> future = AccessTokenValidator.refreshToken(domainUid,
 						token.getString("refresh_token"));
+				Optional<JsonObject> refreshedToken;
+				try {
+					refreshedToken = future.get(10, TimeUnit.SECONDS);
+				} catch (Exception e) {
+					error(response, key, e);
+					return;
+				}
 
 				if (refreshedToken.isEmpty()) {
-					Sessions.get().invalidate(key);
-					RestResponse resp = RestResponse
-							.invalidSession(String.format("invalid accesstoken: %s", sf.getMessage()));
-					resp.headers.add("WWW-authenticate", "Bearer");
-					response.success(resp);
+					error(response, key, sf);
 					return;
 				}
 
@@ -236,6 +236,13 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 			response.success(responseBuilder.buildFailure(request, e));
 		}
 
+	}
+
+	private void error(AsyncHandler<RestResponse> response, String key, Exception e) {
+		Sessions.get().invalidate(key);
+		RestResponse resp = RestResponse.invalidSession(String.format("invalid accesstoken: %s", e.getMessage()));
+		resp.headers.add("WWW-authenticate", "Bearer");
+		response.success(resp);
 	}
 
 	private void handle(final SecurityContext securityContext, final RestRequest request,
