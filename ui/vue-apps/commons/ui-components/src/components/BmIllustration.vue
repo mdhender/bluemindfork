@@ -1,10 +1,10 @@
 <template>
+    <!-- eslint-disable vue/no-v-html -->
     <div
-        ref="root"
         role="img"
         class="bm-illustration"
         :class="{ [`illustration-${size}`]: true, 'illustration-over-background': overBackground }"
-        :title="alt"
+        v-html="svgData"
     />
 </template>
 
@@ -12,11 +12,7 @@
 export default {
     name: "BmIllustration",
     props: {
-        src: {
-            type: String,
-            required: true
-        },
-        alt: {
+        value: {
             type: String,
             required: true
         },
@@ -32,18 +28,9 @@ export default {
             default: false
         }
     },
-    watch: {
-        src: {
-            handler: function (src) {
-                fetch(src)
-                    .then(r => {
-                        return r.text();
-                    })
-                    .then(text => {
-                        this.$refs.root.innerHTML = text;
-                    });
-            },
-            immediate: true
+    computed: {
+        svgData() {
+            return require(`../illustrations/${this.value}.svg`);
         }
     }
 };
@@ -65,29 +52,44 @@ export default {
         }
     }
 
-    &.illustration-xs > svg {
-        width: 100px;
-        height: 100px;
+    &.illustration-xs {
+        &,
+        & > svg {
+            width: 100px;
+            height: 100px;
+        }
     }
 
-    &.illustration-sm > svg {
-        width: 210px;
-        height: 180px;
+    &.illustration-sm {
+        &,
+        & > svg {
+            width: 210px;
+            height: 180px;
+        }
     }
 
-    &.illustration-md > svg {
-        width: 350px;
-        height: 300px;
+    &.illustration-md {
+        &,
+        & > svg {
+            width: 350px;
+            height: 300px;
+        }
     }
 
-    &.illustration-lg > svg {
-        width: 525px;
-        height: 450px;
+    &.illustration-lg {
+        &,
+        & > svg {
+            width: 525px;
+            height: 450px;
+        }
     }
 
-    &.illustration-xl > svg {
-        width: 700px;
-        height: 600px;
+    &.illustration-xl {
+        &,
+        & > svg {
+            width: 700px;
+            height: 600px;
+        }
     }
 }
 </style>
