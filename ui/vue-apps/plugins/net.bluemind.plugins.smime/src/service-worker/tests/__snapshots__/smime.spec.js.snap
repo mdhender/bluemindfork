@@ -2,9 +2,9 @@
 
 exports[`smime decrypt add decrypted parts content to part cache 1`] = `
 Object {
-  "/api/mail_items/uid/part/99/1.1.1": MockResponse {},
-  "/api/mail_items/uid/part/99/1.1.2.1": MockResponse {},
-  "/api/mail_items/uid/part/99/1.1.2.2": MockResponse {},
-  "/api/mail_items/uid/part/99/1.2": MockResponse {},
+  "/part/uid/99/1.1.1": MockResponse {},
+  "/part/uid/99/1.1.2.1": MockResponse {},
+  "/part/uid/99/1.1.2.2": MockResponse {},
+  "/part/uid/99/1.2": MockResponse {},
 }
 `;

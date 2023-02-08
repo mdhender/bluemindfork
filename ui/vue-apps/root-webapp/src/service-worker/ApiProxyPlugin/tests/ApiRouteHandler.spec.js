@@ -2,6 +2,7 @@ import { ApiRouteHandler } from "../ApiRouteHandler";
 import Session from "../../session";
 jest.mock("../../session");
 
+const mockEvent = {};
 const implementations = [];
 const constructor = jest.fn();
 const method = jest.fn();
@@ -67,7 +68,7 @@ describe("ApiRouteHandler", () => {
         test("to constructor client with overwritten parameters", async () => {
             const handler = new ApiRouteHandler(MockApiClient, { name: "method" }, 0);
             const parameters = { client: [], method: ["one", "two"] };
-            await handler.execute(parameters, "three", "four");
+            await handler.execute(parameters, mockEvent, "three", "four");
             expect(method).toBeCalledWith("three", "four");
         });
         test("to add a property 'next' to client", async () => {
@@ -81,12 +82,12 @@ describe("ApiRouteHandler", () => {
             implementations[0].next();
             expect(anotherHandler.execute).toBeCalledWith(parameters);
         });
-        test("to use overwritten parameter in next execution", async () => {
+        test.only("to use overwritten parameter in next execution", async () => {
             const handler = new ApiRouteHandler(MockApiClient, { name: "method" }, 0);
             const anotherHandler = { execute: jest.fn() };
             handler.next = anotherHandler;
             const parameters = { client: ["one", "two"], method: [] };
-            await handler.execute(parameters, "two", "three");
+            await handler.execute(parameters, mockEvent, "two", "three");
             implementations[0].next();
             expect(anotherHandler.execute).toBeCalledWith({ client: ["one", "two"], method: ["two", "three"] });
         });

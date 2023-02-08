@@ -48,8 +48,8 @@ let mockCache = {};
 global.caches = {
     open: () => {
         return Promise.resolve({
-            put: (url, response) => {
-                mockCache[url] = response;
+            put: (request, response) => {
+                mockCache[request.url] = response;
             }
         });
     }

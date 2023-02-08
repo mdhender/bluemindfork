@@ -63,7 +63,7 @@ describe("EndPoint", () => {
         });
         test("to generate regExp from client metadata", () => {
             const endpoint = new EndPoint(metadatas.methods[0], metadatas);
-            expect(endpoint.regExp).toEqual(/\/api\/service\/([^_/][^/]*)(\?.*)?$/);
+            expect(endpoint.regExp).toEqual(/\/api\/service\/([^_/][^/?]*)(\?.*)?$/);
         });
         test("to generate regExp with multiple params", () => {
             const endpoint = new EndPoint(metadatas.methods[0], {
@@ -72,7 +72,7 @@ describe("EndPoint", () => {
                     value: "/service/{param}"
                 }
             });
-            expect(endpoint.regExp).toEqual(/\/api\/service\/([^_/][^/]*)\/([^_/][^/]*)(\?.*)?$/);
+            expect(endpoint.regExp).toEqual(/\/api\/service\/([^_/][^/?]*)\/([^_/][^/?]*)(\?.*)?$/);
         });
     });
     describe("priority", () => {

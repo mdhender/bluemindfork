@@ -29,7 +29,6 @@ export class ApiRouteHandler {
         parameters = overwrite.length > 0 ? { ...parameters, method: overwrite } : parameters;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const client: any = new this.client(await session.sid, ...parameters.client);
-        client.event = event;
         if (this.next) {
             client.next = this.next.execute.bind(this.next, parameters, event);
         } else {
