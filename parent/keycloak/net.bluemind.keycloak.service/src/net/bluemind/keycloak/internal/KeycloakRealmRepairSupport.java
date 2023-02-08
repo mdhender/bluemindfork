@@ -17,13 +17,20 @@
   */
 package net.bluemind.keycloak.internal;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -39,6 +46,7 @@ import net.bluemind.keycloak.api.IKeycloakAdmin;
 import net.bluemind.keycloak.api.IKeycloakBluemindProviderAdmin;
 import net.bluemind.keycloak.api.IKeycloakClientAdmin;
 import net.bluemind.keycloak.api.IKeycloakUids;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.config.Token;
@@ -114,18 +122,65 @@ public class KeycloakRealmRepairSupport implements IDirEntryRepairSupport {
 				keycloakClientService.create(clientId);
 				String secret = keycloakClientService.getSecret(clientId);
 
-				IDomainSettings settingsApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-						.instance(IDomainSettings.class, domainUid);
-				Map<String, String> settings = settingsApi.get();
-				settings.put(DomainSettingsKeys.openid_host.name(), IKeycloakUids
-						.defaultHost(Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address(), realm));
-				settings.put(DomainSettingsKeys.openid_realm.name(), realm);
-				settings.put(DomainSettingsKeys.openid_client_id.name(), clientId);
-				settings.put(DomainSettingsKeys.openid_client_secret.name(), secret);
-				settingsApi.set(settings);
+				String opendIdHost = IKeycloakUids
+						.defaultHost(Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address(), realm);
+
+				URI uri;
+				try {
+					uri = new URI(opendIdHost);
+				} catch (URISyntaxException e) {
+					logger.error(e.getMessage(), e);
+					monitor.end(false, e.getMessage(), "[]");
+					return;
+				}
+
+				HttpClient client = initHttpClient(uri);
+				client.request(HttpMethod.GET, uri.getPath())
+						.onSuccess(req -> req.send().onSuccess(res -> res.bodyHandler(body -> {
+							JsonObject conf = new JsonObject(new String(body.getBytes()));
+
+							IDomainSettings settingsApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+									.instance(IDomainSettings.class, domainUid);
+							Map<String, String> settings = settingsApi.get();
+							settings.put(DomainSettingsKeys.openid_host.name(), opendIdHost);
+							settings.put(DomainSettingsKeys.openid_realm.name(), realm);
+							settings.put(DomainSettingsKeys.openid_client_id.name(), clientId);
+							settings.put(DomainSettingsKeys.openid_client_secret.name(), secret);
+
+							settings.put(DomainSettingsKeys.openid_authorization_endpoint.name(),
+									conf.getString("authorization_endpoint"));
+
+							settings.put(DomainSettingsKeys.openid_token_endpoint.name(),
+									conf.getString("token_endpoint"));
+
+							settings.put(DomainSettingsKeys.openid_jwks_uri.name(), conf.getString("jwks_uri"));
+
+							String accessTokenIssuer = Optional.ofNullable(conf.getString("issuer"))
+									.orElse(conf.getString("access_token_issuer"));
+							settings.put(DomainSettingsKeys.openid_issuer.name(), accessTokenIssuer);
+
+							settings.put(DomainSettingsKeys.openid_end_session_endpoint.name(),
+									conf.getString("end_session_endpoint"));
+
+							settingsApi.set(settings);
+						}))).onFailure(t -> logger.error(t.getMessage(), t));
 			} else {
 				logger.info("Keycloack configuration: nothing to repair for domain {}", domainUid);
 			}
+
+		}
+
+		private HttpClient initHttpClient(URI uri) {
+			HttpClientOptions opts = new HttpClientOptions();
+			opts.setDefaultHost(uri.getHost());
+			opts.setSsl(uri.getScheme().equalsIgnoreCase("https"));
+			opts.setDefaultPort(
+					uri.getPort() != -1 ? uri.getPort() : (uri.getScheme().equalsIgnoreCase("https") ? 443 : 80));
+			if (opts.isSsl()) {
+				opts.setTrustAll(true);
+				opts.setVerifyHost(false);
+			}
+			return VertxPlatform.getVertx().createHttpClient(opts);
 		}
 
 	}
