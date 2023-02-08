@@ -17,9 +17,13 @@
   */
 package net.bluemind.keycloak.internal;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
@@ -54,11 +58,11 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 		redirectUris.add("*");
 		client.put("redirectUris", redirectUris);
 
-		JsonObject response = execute(String.format(CLIENTS_URL, domainId), "POST", client);
-		if (response.getInteger("statusCode") != 201) {
-			if (logger.isWarnEnabled()) {
-				logger.warn(response.encodePrettily());
-			}
+		CompletableFuture<JsonObject> response = execute(String.format(CLIENTS_URL, domainId), HttpMethod.POST, client);
+
+		try {
+			response.get(TIMEOUT, TimeUnit.SECONDS);
+		} catch (Exception e) {
 			throw new ServerFault("Failed to create client");
 		}
 
@@ -68,15 +72,18 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 	public String getSecret(String clientId) throws ServerFault {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
 		logger.info("Realm {}: Get client secret {}", domainId, clientId);
-		JsonObject ret = execute(String.format(CLIENTS_CREDS_URL, domainId, clientId), "GET");
-		if (ret.getInteger("statusCode") != 200) {
-			if (logger.isWarnEnabled()) {
-				logger.warn(ret.encodePrettily());
-			}
+		CompletableFuture<JsonObject> response = execute(String.format(CLIENTS_CREDS_URL, domainId, clientId),
+				HttpMethod.GET);
+
+		JsonObject json;
+		try {
+			json = response.get(TIMEOUT, TimeUnit.SECONDS);
+		} catch (Exception e) {
 			throw new ServerFault("Failed to get client secret");
 		}
+		logger.info(json.encodePrettily());
 
-		return ret.getJsonObject("body").getString("value");
+		return json.getString("value");
 
 	}
 

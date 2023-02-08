@@ -18,25 +18,29 @@
 package net.bluemind.keycloak.internal;
 
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.Builder;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
+import java.util.concurrent.CompletableFuture;
 
-import com.google.common.base.Strings;
-
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpClientRequest;
+import io.vertx.core.http.HttpClientResponse;
+import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.TagDescriptor;
 
 public abstract class KeycloakAdminClient {
+
 	protected static final String BASE_URL = "http://"
 			+ Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address() + ":8099";
 
@@ -47,72 +51,118 @@ public abstract class KeycloakAdminClient {
 	protected static final String CLIENTS_CREDS_URL = CLIENTS_URL + "/%s/client-secret";
 	protected static final String COMPONENTS_URL = REALMS_ADMIN_URL + "/%s/components";
 
-	private static final int TIMEOUT = 5000;
+	protected static final int TIMEOUT = 5000;
 
 	public KeycloakAdminClient() {
+
 	}
 
-	protected JsonObject execute(String spec, String method) {
+	protected CompletableFuture<JsonObject> execute(String spec, HttpMethod method) {
 		return execute(spec, method, null);
 	}
 
-	protected JsonObject execute(String spec, String method, JsonObject body) {
+	protected CompletableFuture<JsonObject> execute(String spec, HttpMethod method, JsonObject body) {
+		CompletableFuture<JsonObject> future = new CompletableFuture<>();
+		getToken().thenAccept(token -> {
+			try {
+				URI uri = new URI(spec);
+				HttpClient client = initHttpClient(uri);
+				client.request(method, uri.getPath(), reqHandler -> {
+					if (reqHandler.succeeded()) {
+						HttpClientRequest r = reqHandler.result();
+						r.response(responseHandler(future));
+						MultiMap headers = r.headers();
+						headers.add(HttpHeaders.AUTHORIZATION,
+								String.format("bearer %s", token.getString("access_token")));
+						headers.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
+						headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
+						if (body != null) {
+							byte[] data = body.toString().getBytes();
+							headers.add(HttpHeaders.CONTENT_LENGTH, Integer.toString(data.length));
+							r.write(Buffer.buffer(data));
+						}
+						r.end();
+					}
+				});
+			} catch (Exception e) {
+				future.completeExceptionally(e);
+			}
+		});
+		return future;
+	}
+
+	private CompletableFuture<JsonObject> getToken() {
+		CompletableFuture<JsonObject> future = new CompletableFuture<>();
+
 		try {
-
-			Builder requestBuilder = HttpRequest.newBuilder(new URI(spec));
-			requestBuilder.timeout(Duration.of(TIMEOUT, ChronoUnit.MILLIS));
-
-			requestBuilder.header("Authorization", "bearer " + getToken());
-			requestBuilder.header("Charset", StandardCharsets.UTF_8.name());
-			requestBuilder.header("Content-Type", "application/json");
-
-			if (body != null) {
-				byte[] data = body.toString().getBytes();
-				requestBuilder.method(method, HttpRequest.BodyPublishers.ofByteArray(data));
-			} else {
-				requestBuilder.method(method, HttpRequest.BodyPublishers.noBody());
-			}
-			HttpRequest request = requestBuilder.build();
-			HttpClient cli = HttpClient.newHttpClient();
-			HttpResponse<String> resp = cli.send(request, BodyHandlers.ofString());
-			JsonObject ret = new JsonObject();
-			ret.put("statusCode", resp.statusCode());
-			if (!Strings.isNullOrEmpty(resp.body())) {
-				try {
-					ret.put("body", new JsonObject(resp.body()));
-				} catch (Exception e) {
-					ret.put("body", new JsonArray(resp.body()));
+			URI uri = new URI(MASTER_TOKEN_URL);
+			HttpClient client = initHttpClient(uri);
+			client.request(HttpMethod.POST, uri.getPath(), reqHandler -> {
+				if (reqHandler.succeeded()) {
+					HttpClientRequest r = reqHandler.result();
+					r.response(responseHandler(future));
+					MultiMap headers = r.headers();
+					headers.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
+					headers.add(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
+					String params = "grant_type=password&client_id=admin-cli&username=admin&password=" + Token.admin0();
+					byte[] postData = params.getBytes(StandardCharsets.UTF_8);
+					headers.add(HttpHeaders.CONTENT_LENGTH, Integer.toString(postData.length));
+					r.write(Buffer.buffer(postData));
+					r.end();
+				} else {
+					future.completeExceptionally(reqHandler.cause());
 				}
-			}
 
-			return ret;
+			});
+
 		} catch (Exception e) {
-			throw new ServerFault(e.getMessage());
+			future.completeExceptionally(e);
 		}
+		return future;
+	}
+
+	private Handler<AsyncResult<HttpClientResponse>> responseHandler(CompletableFuture<JsonObject> future) {
+		return respHandler -> {
+			if (respHandler.succeeded()) {
+				HttpClientResponse resp = respHandler.result();
+				if (resp.statusCode() > 400) {
+					future.complete(null);
+					throw new ServerFault(resp.statusMessage());
+				}
+
+				resp.body(body -> {
+					if (body.result().length() > 0) {
+						try {
+							future.complete(new JsonObject(body.result()));
+						} catch (Exception e) {
+
+							JsonObject json = new JsonObject();
+							json.put("results", new JsonArray(body.result()));
+							future.complete(json);
+						}
+
+					} else {
+						future.complete(null);
+					}
+				});
+			} else {
+				future.completeExceptionally(respHandler.cause());
+			}
+		};
 
 	}
 
-	private String getToken() {
-		String parameters = "grant_type=password&client_id=admin-cli&username=admin&password=" + Token.admin0();
-		byte[] postData = parameters.getBytes(StandardCharsets.UTF_8);
-
-		try {
-			Builder requestBuilder = HttpRequest.newBuilder(new URI(MASTER_TOKEN_URL));
-			requestBuilder.timeout(Duration.of(TIMEOUT, ChronoUnit.MILLIS));
-
-			requestBuilder.header("Charset", StandardCharsets.UTF_8.name());
-			requestBuilder.header("Content-Type", "application/x-www-form-urlencoded");
-
-			requestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(postData));
-			HttpRequest request = requestBuilder.build();
-			HttpClient cli = HttpClient.newHttpClient();
-
-			HttpResponse<String> resp = cli.send(request, BodyHandlers.ofString());
-
-			return new JsonObject(resp.body()).getString("access_token");
-		} catch (Exception e) {
-			throw new ServerFault(e.getMessage());
+	private static HttpClient initHttpClient(URI uri) {
+		HttpClientOptions opts = new HttpClientOptions();
+		opts.setDefaultHost(uri.getHost());
+		opts.setSsl(uri.getScheme().equalsIgnoreCase("https"));
+		opts.setDefaultPort(
+				uri.getPort() != -1 ? uri.getPort() : (uri.getScheme().equalsIgnoreCase("https") ? 443 : 80));
+		if (opts.isSsl()) {
+			opts.setTrustAll(true);
+			opts.setVerifyHost(false);
 		}
+		return VertxPlatform.getVertx().createHttpClient(opts);
 	}
 
 }

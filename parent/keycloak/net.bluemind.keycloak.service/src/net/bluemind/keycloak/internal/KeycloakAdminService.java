@@ -19,10 +19,13 @@ package net.bluemind.keycloak.internal;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
@@ -56,11 +59,11 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 		realm.put("enabled", true);
 		realm.put("loginWithEmailAllowed", true);
 
-		JsonObject reseponse = execute(REALMS_ADMIN_URL, "POST", realm);
-		if (reseponse.getInteger("statusCode") != 201) {
-			if (logger.isWarnEnabled()) {
-				logger.warn(reseponse.encodePrettily());
-			}
+		CompletableFuture<JsonObject> response = execute(REALMS_ADMIN_URL, HttpMethod.POST, realm);
+
+		try {
+			response.get(TIMEOUT, TimeUnit.SECONDS);
+		} catch (Exception e) {
 			throw new ServerFault("Failed to create realm");
 		}
 
@@ -70,14 +73,12 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 	public void deleteRealm(String domainId) throws ServerFault {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
 		logger.info("Delete realm {}", domainId);
-		JsonObject response = execute(REALMS_ADMIN_URL + "/" + domainId, "DELETE");
-
-		if (response.getInteger("statusCode") != 204) {
-			if (logger.isWarnEnabled()) {
-				logger.warn(response.encodePrettily());
-			}
+		CompletableFuture<JsonObject> response = execute(REALMS_ADMIN_URL + "/" + domainId, HttpMethod.DELETE);
+		try {
+			response.get(TIMEOUT, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			throw new ServerFault("Failed to delete realm");
 		}
-
 	}
 
 	@Override
@@ -86,14 +87,18 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 
 		logger.info("Get realms");
 
-		JsonObject response = execute(REALMS_ADMIN_URL, "GET");
+		CompletableFuture<JsonObject> response = execute(REALMS_ADMIN_URL, HttpMethod.GET);
+
+		JsonObject json;
+		try {
+			json = response.get(TIMEOUT, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			throw new ServerFault("Failed fetch realms");
+		}
+
 		List<Realm> ret = new ArrayList<>();
-
-		JsonArray realms = response.getJsonArray("body");
-		realms.forEach(realm -> {
-			ret.add(jsonToRealm((JsonObject) realm));
-		});
-
+		JsonArray results = json.getJsonArray("results");
+		results.forEach(realm -> ret.add(jsonToRealm((JsonObject) realm)));
 		return ret;
 	}
 
@@ -103,16 +108,23 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 
 		logger.info("Get realm {}", domainId);
 
-		JsonObject response = execute(REALMS_ADMIN_URL + "/" + domainId, "GET");
-		if (response.getInteger("statusCode") == 200) {
-			return jsonToRealm(response.getJsonObject("body"));
+		CompletableFuture<JsonObject> response = execute(REALMS_ADMIN_URL + "/" + domainId, HttpMethod.GET);
+
+		JsonObject json;
+		try {
+			json = response.get(TIMEOUT, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			throw new ServerFault("Failed to get realm");
 		}
 
-		logger.info("Realm {} not found", domainId);
-		return null;
+		return jsonToRealm(json);
 	}
 
 	private Realm jsonToRealm(JsonObject ret) {
+		if (ret == null) {
+			return null;
+		}
+
 		Realm realm = new Realm();
 		realm.id = ret.getString("id");
 		realm.realm = ret.getString("realm");

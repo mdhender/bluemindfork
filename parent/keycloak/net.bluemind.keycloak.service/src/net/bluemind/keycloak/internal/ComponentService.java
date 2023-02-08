@@ -17,9 +17,13 @@
   */
 package net.bluemind.keycloak.internal;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.service.internal.RBACManager;
@@ -39,14 +43,13 @@ public abstract class ComponentService extends KeycloakAdminClient {
 	}
 
 	protected void createComponent(Component component) {
-
 		logger.info("Create component {}", component);
 
-		JsonObject response = execute(String.format(COMPONENTS_URL, domainId), "POST", component.toJson());
-		if (response.getInteger("statusCode") != 201) {
-			if (logger.isWarnEnabled()) {
-				logger.warn(response.encodePrettily());
-			}
+		CompletableFuture<JsonObject> response = execute(String.format(COMPONENTS_URL, domainId), HttpMethod.POST,
+				component.toJson());
+		try {
+			response.get(TIMEOUT, TimeUnit.SECONDS);
+		} catch (Exception e) {
 			throw new ServerFault("Failed to create component " + component);
 		}
 
