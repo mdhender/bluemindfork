@@ -64,6 +64,9 @@ public final class ClusterClient extends ClusterNode {
 		NearCacheConfig nc = new NearCacheConfig(Shared.MAP_SYSCONF).setInvalidateOnChange(true);
 		cfg.getNearCacheConfigMap().put(Shared.MAP_SYSCONF, nc);
 
+		NearCacheConfig domainSettingsNC = new NearCacheConfig(Shared.MAP_DOMAIN_SETTINGS).setInvalidateOnChange(true);
+		cfg.getNearCacheConfigMap().put(Shared.MAP_DOMAIN_SETTINGS, domainSettingsNC);
+
 		return HazelcastClient.newHazelcastClient(cfg);
 	}
 

@@ -84,6 +84,9 @@
       <verticle
             impl="net.bluemind.system.service.internal.SharedSystemConfigurationVerticle$Init">
       </verticle>
+      <verticle
+            impl="net.bluemind.system.service.internal.SharedDomainSettingsVerticle$Init">
+      </verticle>
    </extension>
    <extension
          point="net.bluemind.server.hook.serverhook">
@@ -105,6 +108,9 @@
          point="net.bluemind.domain.domainHook">
       <hook
             class="net.bluemind.system.service.internal.DeleteDomainHook">
+      </hook>
+      <hook
+            class="net.bluemind.system.service.internal.SharedDomainSettingsVerticle$SharedDomainSettingsDomainHook">
       </hook>
    </extension>
 </plugin>
