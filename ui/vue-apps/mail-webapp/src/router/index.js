@@ -1,3 +1,3 @@
-import { VirtualRoutes, MailRoute, PopupRoute } from "./routes";
+import { VirtualRoutes, MailRoute, MailtoRoute, PopupRoute } from "./routes";
 
-export default [{ path: "/index.html", redirect: "/mail/" }, PopupRoute, MailRoute, ...VirtualRoutes];
+export default [{ path: "/index.html", redirect: "/mail/" }, PopupRoute, MailtoRoute, MailRoute, ...VirtualRoutes];

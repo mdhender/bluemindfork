@@ -10,7 +10,7 @@ export default {
     children: [
         {
             name: "mail:message",
-            path: ".m/:messagepath",
+            path: ".m/:messagepath?",
             component: MailRouteMessage
         },
         {

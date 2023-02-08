@@ -128,9 +128,12 @@ export default {
     computed: {
         ...mapGetters("mail", { MY_TEMPLATES }),
         panelTitle() {
-            return this.subject || this.message.folderRef.key === this.MY_TEMPLATES.key
-                ? this.$t("mail.actions.new_template")
-                : this.$t("mail.main.new");
+            return (
+                this.subject ||
+                (this.message.folderRef.key === this.MY_TEMPLATES.key
+                    ? this.$t("mail.actions.new_template")
+                    : this.$t("mail.main.new"))
+            );
         },
         messagepath() {
             return MessagePathParam.build("", this.message);

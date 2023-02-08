@@ -146,13 +146,16 @@ export default {
         },
 
         // case of a new message
-        async initNewMessage(folder, to = []) {
+        async initNewMessage(folder, { to = [], cc = [], bcc = [], subject, body }) {
             const message = createEmpty(folder);
             message.to = to;
+            message.cc = cc;
+            message.bcc = bcc;
+            message.subject = subject;
             this.$_ComposerInitMixin_ADD_MESSAGES({ messages: [message] });
             const identity = this.getIdentityForNewMessage();
             await this.setFrom(identity, message);
-            this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(BmRichEditor.constants.NEW_LINE);
+            this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(body || BmRichEditor.constants.NEW_LINE);
             this.$_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT(null);
             this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
             return message;

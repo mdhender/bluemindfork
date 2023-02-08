@@ -8,7 +8,7 @@ import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { draftUtils, loadingStatusUtils, messageUtils } from "@bluemind/mail";
 
 import MessagePathParam from "~/router/MessagePathParam";
-import { ACTIVE_MESSAGE, MY_MAILBOX, SELECTION_IS_EMPTY } from "~/getters";
+import { ACTIVE_MESSAGE, MY_DRAFTS, MY_MAILBOX, SELECTION_IS_EMPTY } from "~/getters";
 import {
     RESET_PARTS_DATA,
     SET_ACTIVE_MESSAGE,
@@ -33,7 +33,7 @@ export default {
     computed: {
         ...mapState("mail", ["activeFolder", "folders"]),
         ...mapState("root-app", ["identities"]),
-        ...mapGetters("mail", { ACTIVE_MESSAGE, MY_MAILBOX, SELECTION_IS_EMPTY })
+        ...mapGetters("mail", { ACTIVE_MESSAGE, MY_DRAFTS, MY_MAILBOX, SELECTION_IS_EMPTY })
     },
     watch: {
         "$route.params.messagepath": {
@@ -60,16 +60,20 @@ export default {
                     let assertIdentities = identitiesCount => identitiesCount > 0;
                     await this.$waitFor(() => this.identities.length, assertIdentities);
                     let message;
-                    const folder = this.folders[folderKey];
-                    const { action, message: related, to } = this.$route.query || {};
-                    if (isNewMessage({ remoteRef: { internalId } })) {
+                    let folder = this.folders[folderKey] || this.MY_DRAFTS;
+                    let { action, message: related, to, cc, bcc, subject, body } = this.$route.query || {};
+                    if (isNewMessage({ remoteRef: { internalId } }) || to) {
                         if (action && related) {
                             message = await this.initRelatedMessage(folder, action, MessagePathParam.parse(related));
                         } else {
-                            message = await this.initNewMessage(
-                                folder,
-                                to?.split(",").map(address => ({ address }))
-                            );
+                            const recipientFn = recipient => recipient?.split(/\s*,\s*/).map(address => ({ address }));
+                            message = await this.initNewMessage(folder, {
+                                to: recipientFn(to),
+                                cc: recipientFn(cc),
+                                bcc: recipientFn(bcc),
+                                subject,
+                                body
+                            });
                         }
                     } else {
                         message = await this.FETCH_MESSAGE_IF_NOT_LOADED({ internalId, folder });
