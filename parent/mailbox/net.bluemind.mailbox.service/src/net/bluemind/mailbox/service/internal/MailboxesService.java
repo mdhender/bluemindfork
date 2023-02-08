@@ -347,7 +347,7 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 			throw new ServerFault("Mailbox " + mailboxUid + " not found", ErrorCode.NOT_FOUND);
 		}
 
-		MailFilter previous = storeService.getFilter(mailboxUid);
+		MailFilter previous = getMailboxFilter(mailboxUid);
 		objectSanitizer.update(previous, filter);
 		objectValidator.update(previous, filter);
 		MailFilterForwardRoleValidator specificMailFilterValidator = new MailFilterForwardRoleValidator(context, domain,

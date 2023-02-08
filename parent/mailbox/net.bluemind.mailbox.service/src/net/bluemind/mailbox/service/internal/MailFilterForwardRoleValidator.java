@@ -19,10 +19,11 @@
 package net.bluemind.mailbox.service.internal;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
@@ -40,7 +41,7 @@ import net.bluemind.mailbox.api.rules.MailFilterRule;
 import net.bluemind.role.api.BasicRoles;
 
 public class MailFilterForwardRoleValidator implements IValidator<MailFilter> {
-
+	private static final Logger logger = LoggerFactory.getLogger(MailFilterForwardRoleValidator.class);
 	private ItemValue<Domain> domain;
 	private BmContext context;
 	private String mailboxUid;
@@ -65,13 +66,10 @@ public class MailFilterForwardRoleValidator implements IValidator<MailFilter> {
 	}
 
 	private void validateForwarding(Forwarding old, Forwarding forwarding) {
-
 		if (forwarding.enabled) {
-
-			Set<String> diff = new HashSet<>(forwarding.emails);
-
-			if (old != null && old.emails != null) {
-				diff.removeAll(old.emails);
+			if (forwarding.equals(old)) {
+				// Don't check if not updated
+				return;
 			}
 
 			boolean external = hasExternal(forwarding.emails);

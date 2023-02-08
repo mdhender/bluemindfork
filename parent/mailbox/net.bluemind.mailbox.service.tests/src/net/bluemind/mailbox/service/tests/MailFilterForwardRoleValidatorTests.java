@@ -76,27 +76,74 @@ public class MailFilterForwardRoleValidatorTests {
 	}
 
 	@Test
-	public void testValidateForward() {
+	public void testCreateValidateForward() {
 		MailFilter filter = new MailFilter();
 		filter.forwarding = new MailFilter.Forwarding();
 
 		filter.forwarding.enabled = true;
 		filter.forwarding.emails = new HashSet<>(Arrays.asList("checkthat@gmail.com"));
-		checkOk(SecurityContext.SYSTEM, filter);
-		checkOk(userContextWithForwarding, filter);
+		checkCreateOk(SecurityContext.SYSTEM, filter);
+		checkCreateOk(userContextWithForwarding, filter);
 
 		// not right to enable forwarding
-		checkFail(userContextWithoutForwarding, filter, ErrorCode.FORBIDDEN);
-		checkFail(userContextWithoutForwarding, filter, ErrorCode.FORBIDDEN);
+		checkCreateFail(userContextWithoutForwarding, filter, ErrorCode.FORBIDDEN);
+		checkCreateFail(userContextWithoutForwarding, filter, ErrorCode.FORBIDDEN);
 
 		filter.forwarding.emails = new HashSet<>(Arrays.asList("test@dom.lan"));
-		checkOk(userContextWithoutForwarding, filter);
+		checkCreateOk(userContextWithoutForwarding, filter);
 
 		filter.forwarding.emails = new HashSet<>(Arrays.asList("user@dom.lan"));
-		checkFail(userContextWithForwarding, filter, ErrorCode.FORBIDDEN);
+		checkCreateFail(userContextWithForwarding, filter, ErrorCode.FORBIDDEN);
 
 		filter.forwarding.emails = new HashSet<>(Arrays.asList("toto@dom.lan"));
-		checkOk(userContextWithForwarding, filter);
+		checkCreateOk(userContextWithForwarding, filter);
+	}
+
+	@Test
+	public void testUpdateValidateForward() {
+		checkUpdateOk(SecurityContext.SYSTEM, getMailFilter(), getMailFilter());
+		checkUpdateOk(userContextWithForwarding, getMailFilter(), getMailFilter());
+		checkUpdateOk(userContextWithoutForwarding, getMailFilter(), getMailFilter());
+
+		MailFilter filter = getMailFilter();
+		filter.forwarding.enabled = false;
+		checkUpdateOk(SecurityContext.SYSTEM, getMailFilter(), filter);
+		checkUpdateOk(SecurityContext.SYSTEM, filter, getMailFilter());
+		checkUpdateOk(userContextWithForwarding, getMailFilter(), filter);
+		checkUpdateOk(userContextWithForwarding, filter, getMailFilter());
+		checkUpdateOk(userContextWithoutForwarding, getMailFilter(), filter);
+		checkUpdateFail(userContextWithoutForwarding, filter, getMailFilter(), ErrorCode.FORBIDDEN);
+
+		filter = getMailFilter();
+		filter.forwarding.localCopy = false;
+		checkUpdateOk(SecurityContext.SYSTEM, getMailFilter(), filter);
+		checkUpdateOk(SecurityContext.SYSTEM, filter, getMailFilter());
+		checkUpdateOk(userContextWithForwarding, getMailFilter(), filter);
+		checkUpdateOk(userContextWithForwarding, filter, getMailFilter());
+		checkUpdateFail(userContextWithoutForwarding, getMailFilter(), filter, ErrorCode.FORBIDDEN);
+		checkUpdateFail(userContextWithoutForwarding, filter, getMailFilter(), ErrorCode.FORBIDDEN);
+
+		filter = getMailFilter();
+		filter.forwarding.emails = new HashSet<>(Arrays.asList("another@gmail.com"));
+		checkUpdateOk(SecurityContext.SYSTEM, getMailFilter(), filter);
+		checkUpdateOk(SecurityContext.SYSTEM, filter, getMailFilter());
+		checkUpdateOk(userContextWithForwarding, getMailFilter(), filter);
+		checkUpdateOk(userContextWithForwarding, filter, getMailFilter());
+		checkUpdateFail(userContextWithoutForwarding, getMailFilter(), filter, ErrorCode.FORBIDDEN);
+		checkUpdateFail(userContextWithoutForwarding, getMailFilter(), filter, ErrorCode.FORBIDDEN);
+	}
+
+	/**
+	 * @return {@code MailFilter} enabled to an external email, with local copy
+	 */
+	private MailFilter getMailFilter() {
+		MailFilter filter = new MailFilter();
+		filter.forwarding = new MailFilter.Forwarding();
+		filter.forwarding.enabled = true;
+		filter.forwarding.localCopy = true;
+		filter.forwarding.emails = new HashSet<>(Arrays.asList("checkthat@gmail.com"));
+
+		return filter;
 	}
 
 	@Test
@@ -106,28 +153,28 @@ public class MailFilterForwardRoleValidatorTests {
 		MailFilterRule rule = new MailFilterRule();
 		rule.addRedirect(Arrays.asList("test@gmail.com"), false);
 		filter.rules = Arrays.asList(rule);
-		checkOk(SecurityContext.SYSTEM, filter);
-		checkOk(userContextWithForwarding, filter);
+		checkCreateOk(SecurityContext.SYSTEM, filter);
+		checkCreateOk(userContextWithForwarding, filter);
 		// not right to enable forwarding
-		checkFail(userContextWithoutForwarding, filter, ErrorCode.FORBIDDEN);
+		checkCreateFail(userContextWithoutForwarding, filter, ErrorCode.FORBIDDEN);
 
 		rule = new MailFilterRule();
 		rule.addRedirect(Arrays.asList("test@dom.lan"), false);
 		filter.rules = Arrays.asList(rule);
-		checkOk(userContextWithoutForwarding, filter);
+		checkCreateOk(userContextWithoutForwarding, filter);
 
 		rule = new MailFilterRule();
 		rule.addTransfer(Arrays.asList("user@dom.lan"), false, false);
 		filter.rules = Arrays.asList(rule);
-		checkFail(userContextWithForwarding, filter, ErrorCode.FORBIDDEN);
+		checkCreateFail(userContextWithForwarding, filter, ErrorCode.FORBIDDEN);
 
 		rule = new MailFilterRule();
 		rule.addTransfer(Arrays.asList("toto@dom.lan"), false, false);
 		filter.rules = Arrays.asList(rule);
-		checkOk(userContextWithForwarding, filter);
+		checkCreateOk(userContextWithForwarding, filter);
 	}
 
-	private void checkOk(SecurityContext sc, MailFilter filter) {
+	private void checkCreateOk(SecurityContext sc, MailFilter filter) {
 		try {
 			MailFilterForwardRoleValidator validator = createValidator(sc, mailboxUid);
 			validator.create(filter);
@@ -137,10 +184,30 @@ public class MailFilterForwardRoleValidatorTests {
 		}
 	}
 
-	private void checkFail(SecurityContext sc, MailFilter filter, ErrorCode expectErrorCode) {
+	private void checkUpdateOk(SecurityContext sc, MailFilter old, MailFilter filter) {
+		try {
+			MailFilterForwardRoleValidator validator = createValidator(sc, mailboxUid);
+			validator.update(old, filter);
+		} catch (ServerFault e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+	}
+
+	private void checkCreateFail(SecurityContext sc, MailFilter filter, ErrorCode expectErrorCode) {
 		try {
 			MailFilterForwardRoleValidator validator = createValidator(sc, mailboxUid);
 			validator.create(filter);
+			fail("except throw exception with error code " + expectErrorCode);
+		} catch (ServerFault e) {
+			assertEquals(expectErrorCode, e.getCode());
+		}
+	}
+
+	private void checkUpdateFail(SecurityContext sc, MailFilter old, MailFilter filter, ErrorCode expectErrorCode) {
+		try {
+			MailFilterForwardRoleValidator validator = createValidator(sc, mailboxUid);
+			validator.update(old, filter);
 			fail("except throw exception with error code " + expectErrorCode);
 		} catch (ServerFault e) {
 			assertEquals(expectErrorCode, e.getCode());
