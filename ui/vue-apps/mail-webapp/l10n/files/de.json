@@ -268,6 +268,7 @@
     "mail.content.file-type-unknown": "Unbekannt",
     "mail.content.file-type-video": "Video",
     "mail.content.file-type-word": "Dokument",
+    "mail.content.file-type-certificate": "Zertifikat",
     "mail.content.open-new-tab": "'{name}' in einem neuen Tab öffnen",
     "mail.content.print": "{fileType} '{name}' drucken.",
     "mail.content.reply_all.aria": "Allen Empfängern antworten",

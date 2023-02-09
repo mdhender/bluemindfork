@@ -271,6 +271,8 @@ function matchingIcon(mimeType: string) {
         return "file-type-vcard";
     } else if (equals(mimeType, EML)) {
         return "file-type-message";
+    } else if (equals(mimeType, X509_CERT) || equals(mimeType, CRYPTO_CERT)) {
+        return "file-type-certificate";
     } else {
         return "file-type-unknown";
     }

@@ -11,6 +11,7 @@ $file-type-message: #cbb700;
 $file-type-pdf: #dc2800;
 $file-type-presentation: #fe4c00;
 $file-type-system: #9384b9;
+$file-type-certificate: #97bb6a;
 $file-type-unknown: #999999;
 $file-type-vcard: #8a08c8;
 $file-type-video: $fill-neutral-bg;
@@ -32,6 +33,7 @@ $file-type-icons-colors: map-merge(
         "file-type-presentation": $file-type-presentation,
         "file-type-system": $file-type-system,
         "file-type-unknown": $file-type-unknown,
+        "file-type-certificate": $file-type-certificate,
         "file-type-vcard": $file-type-vcard,
         "file-type-video": $file-type-video,
         "file-type-word": $file-type-word

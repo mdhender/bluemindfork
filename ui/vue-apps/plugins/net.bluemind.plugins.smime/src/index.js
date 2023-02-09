@@ -13,6 +13,7 @@ import DecryptErrorTrigger from "./components/mail-app/alerts/DecryptErrorTrigge
 import SignErrorAlert from "./components/mail-app/alerts/SignErrorAlert";
 import EncryptAndSignButton from "./components/mail-app/EncryptAndSignButton";
 import ContactWithCertificate from "./components/mail-app/ContactWithCertificate";
+import Pkcs7FileItem from "./components/mail-app/Pkcs7FileItem";
 import PrefSMime from "./components/preferences/PrefSMime";
 import LockIcon from "./components/mail-app/LockIcon";
 import { SMIMEPrefKeys } from "./lib/constants";
@@ -40,6 +41,7 @@ Vue.component("EncryptAndSignButton", EncryptAndSignButton);
 Vue.component("ContactWithCertificate", ContactWithCertificate);
 Vue.component("SignErrorAlert", SignErrorAlert);
 Vue.component("InvalidIdentityAlert", InvalidIdentityAlert);
+Vue.component("Pkcs7FileItem", Pkcs7FileItem);
 
 extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
     component: {
@@ -108,6 +110,14 @@ extensions.register("webapp", "net.bluemind.webmodules.smime", {
     component: {
         name: "ContactWithCertificate",
         path: "contact.chip.mail.composer.recipients"
+    }
+});
+
+extensions.register("webapp.mail", "file-item", {
+    component: {
+        name: "Pkcs7FileItem",
+        path: "message.file",
+        priority: 2
     }
 });
 
