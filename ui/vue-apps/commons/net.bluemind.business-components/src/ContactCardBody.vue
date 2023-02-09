@@ -6,7 +6,7 @@
                 <li v-for="email in emails" :key="email.address" class="d-flex">
                     <slot name="email" :email="email.address">
                         <strong class="d-flex flex-fill">
-                            <strong>{{ email.address }}</strong>
+                            {{ email.address }}
                         </strong>
                     </slot>
                     <bm-icon-button-copy :text="email.address" size="sm" class="ml-4" />

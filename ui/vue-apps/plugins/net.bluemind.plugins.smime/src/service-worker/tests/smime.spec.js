@@ -15,7 +15,6 @@ import {
 import {
     CRYPTO_HEADERS,
     ENCRYPTED_HEADER_NAME,
-    PKCS7_MIMES,
     SIGNED_HEADER_NAME,
     SMIME_ENCRYPTION_ERROR_PREFIX,
     SMIME_SIGNATURE_ERROR_PREFIX
@@ -34,11 +33,9 @@ jest.mock("@bluemind/mime", () => {
 });
 
 const mockUploadPart = jest.fn(() => Promise.resolve("address"));
-const mockSignedEml = readEml("eml/signed_only/valid");
 jest.mock("@bluemind/backend.mail.api", () => ({
     ...jest.requireActual("@bluemind/backend.mail.api"),
     MailboxItemsClient: () => ({
-        fetchComplete: () => Promise.resolve({ text: () => mockSignedEml }),
         fetch: () => Promise.resolve("data"),
         uploadPart: mockUploadPart
     })
@@ -55,16 +52,16 @@ global.caches = {
         });
     }
 };
-global.fetch = jest.fn(() =>
+jest.mock("../environnment/session", () =>
     Promise.resolve({
         json: () =>
             Promise.resolve({
                 login: "mathilde.michau@blue-mind.net",
                 sid: "58a1ee1b-0c30-492c-a83f-4396f0a24730"
-            }),
-        ok: () => true
+            })
     })
 );
+
 class MockRequest {
     constructor(url) {
         this.url = url;
@@ -164,7 +161,7 @@ describe("smime", () => {
 
     describe("isEncrypted", () => {
         test("return true if the message main part is crypted", () => {
-            const isEncrypted = smime.isEncrypted(mainEncrypted);
+            const isEncrypted = smime.isEncrypted(mainEncrypted.value.body.structure);
             expect(isEncrypted).toBe(true);
         });
         test("return true if a subpart of the message is crypted", () => {});
@@ -180,10 +177,8 @@ describe("smime", () => {
             mockCache = {};
         });
         test("adapt message body structure when the main part is encrypted", async () => {
-            const structure = await smime.decrypt("uid", mainEncrypted);
-            expect(structure.value.body.structure).toEqual(
-                expect.objectContaining({ mime: "text/plain", address: "1" })
-            );
+            const { item } = await smime.decrypt("uid", mainEncrypted);
+            expect(item.value.body.structure).toEqual(expect.objectContaining({ mime: "text/plain", address: "1" }));
         });
         test("add decrypted parts content to part cache", async () => {
             const mockEmlMultipleParts = readEml("eml/unencrypted");
@@ -209,39 +204,39 @@ describe("smime", () => {
                     imapUid: 99
                 }
             };
-            const item = await smime.decrypt("uid", old);
+            const { item } = await smime.decrypt("uid", old);
             expect(getCryptoHeaderCode(item) & CRYPTO_HEADERS.EXPIRED_CERTIFICATE).toBeTruthy();
         });
         test("add a header if the message is crypted", async () => {
-            const item = await smime.decrypt("uid", mainEncrypted);
+            const { item } = await smime.decrypt("uid", mainEncrypted);
             expect(getCryptoHeaderCode(item)).toBeTruthy();
         });
         test("add a header if the message is correcty decrypted", async () => {
-            const item = await smime.decrypt("uid", mainEncrypted);
+            const { item } = await smime.decrypt("uid", mainEncrypted);
             expect(getCryptoHeaderCode(item) & CRYPTO_HEADERS.OK).toBeTruthy();
         });
         test("add a header if the message cannot be decrypted because private key or certificate are expired", async () => {
             pkcs7.decrypt = () => Promise.reject(new ExpiredCertificateError());
 
-            const item = await smime.decrypt("uid", mainEncrypted);
+            const { item } = await smime.decrypt("uid", mainEncrypted);
             expect(getCryptoHeaderCode(item) & CRYPTO_HEADERS.EXPIRED_CERTIFICATE).toBeTruthy();
         });
         test("add a header if the message cannot be decrypted because private key or certificate are revoked", async () => {
             pkcs7.decrypt = () => Promise.reject(new RevokedCertificateError());
 
-            const item = await smime.decrypt("uid", mainEncrypted);
+            const { item } = await smime.decrypt("uid", mainEncrypted);
             expect(getCryptoHeaderCode(item) & CRYPTO_HEADERS.REVOKED_CERTIFICATE).toBeTruthy();
         });
         test("add a header if the message cannot be decrypted because private key or certificate are not trusted", async () => {
             pkcs7.decrypt = () => Promise.reject(new UntrustedCertificateError());
 
-            const item = await smime.decrypt("uid", mainEncrypted);
+            const { item } = await smime.decrypt("uid", mainEncrypted);
             expect(getCryptoHeaderCode(item) & CRYPTO_HEADERS.UNTRUSTED_CERTIFICATE).toBeTruthy();
         });
         test("add a header if the given certificate does not match any recipient", async () => {
             pkcs7.decrypt = () => Promise.reject(new UnmatchedCertificateError());
 
-            const item = await smime.decrypt("uid", mainEncrypted);
+            const { item } = await smime.decrypt("uid", mainEncrypted);
             expect(getCryptoHeaderCode(item) & CRYPTO_HEADERS.UNMATCHED_CERTIFICATE).toBeTruthy();
         });
     });
@@ -271,36 +266,12 @@ describe("smime", () => {
         beforeEach(() => {
             pkcs7.sign = jest.fn(() => Promise.resolve("b64"));
         });
-        test("adapt body structure and upload both unsigned and signed parts", async () => {
-            const oldRootPart = item.body.structure;
+        test("adapt body structure and upload full eml", async () => {
             const signedItem = await smime.sign(item, "folderUid");
-
             const multipartSigned = signedItem.body.structure;
             expect(multipartSigned.mime).toBe("message/rfc822");
             expect(multipartSigned.children.length).toBe(0);
-            const cType = multipartSigned.headers.find(header => header.name.toLowerCase() === "content-type");
-            expect(
-                cType.values[0].startsWith(
-                    'multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256; boundary='
-                )
-            ).toBe(true);
-
-            const signedPart = multipartSigned.children[1];
-            expect(signedPart.mime).toBe("application/pkcs7-signature");
-            expect(signedPart.fileName).toBe("smime.p7s");
-            const contentType = signedPart.headers.find(header => header.name.toLowerCase() === "content-type");
-            expect(contentType).toBeDefined();
-            expect(contentType.values[0]).toBe('application/pkcs7-signature; name="smime.p7s"');
-            const transferEncoding = signedPart.headers.find(
-                header => header.name.toLowerCase() === "content-transfer-encoding"
-            );
-            expect(transferEncoding).toBeDefined();
-            expect(transferEncoding.values[0]).toBe("base64");
-
-            const unsignedPart = multipartSigned.children[0];
-            expect(unsignedPart.mime).toBe(oldRootPart.mime);
-
-            expect(mockUploadPart).toHaveBeenCalledTimes(2);
+            expect(mockUploadPart).toHaveBeenCalledTimes(1);
         });
         test("raise an error if the message cannot be signed", async done => {
             try {
@@ -317,12 +288,13 @@ describe("smime", () => {
         });
     });
     describe("verify", () => {
+        const getEml = () => readEml("eml/signed_only/valid");
         beforeEach(() => {
             pkcs7.verify = () => Promise.resolve();
         });
         test("add a OK header if item is successfuly verified", async () => {
             const itemValue = { value: item };
-            const verified = await smime.verify("folderUid", itemValue);
+            const verified = await smime.verify("folderUid", itemValue, getEml);
             expect(isVerified(verified.value.body.headers)).toBe(true);
         });
         test("add a KO header if item cant be verified", async () => {
@@ -330,7 +302,7 @@ describe("smime", () => {
                 throw new InvalidSignatureError();
             };
             const itemValue = { value: item };
-            const verified = await smime.verify("folderUid", itemValue);
+            const verified = await smime.verify("folderUid", itemValue, getEml);
             expect(isVerified(verified.value.body.headers)).toBe(false);
             const headerValue = getHeaderValue(item.body.headers, SIGNED_HEADER_NAME);
             expect(Boolean(headerValue & CRYPTO_HEADERS.INVALID_SIGNATURE)).toBe(true);

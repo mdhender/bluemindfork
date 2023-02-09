@@ -134,11 +134,12 @@ describe("EndPoint", () => {
             endpoint.chain(MockApiClient, 0);
             const request = new Request({ url: `https://domain.tld/${endpoint.url}` });
             endpoint.parse = jest.fn().mockReturnValue(Promise.resolve("Parameters"));
-            await endpoint.handle({ request, params: [] });
+            const event = {};
+            await endpoint.handle({ request, params: [], event });
 
             expect(endpoint.handler.execute).toBeCalledTimes(1);
             expect(endpoint.parse).toBeCalledWith(request, []);
-            expect(endpoint.handler.execute).toBeCalledWith("Parameters");
+            expect(endpoint.handler.execute).toBeCalledWith("Parameters", event);
         });
         test("to call reply with handler execute result ", async () => {
             const endpoint = new EndPoint(metadatas.methods[0], metadatas);

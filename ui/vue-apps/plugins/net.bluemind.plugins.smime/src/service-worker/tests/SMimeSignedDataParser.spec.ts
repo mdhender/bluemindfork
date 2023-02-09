@@ -18,8 +18,8 @@ describe("extract signed data from an eml", () => {
                 done.fail();
             }
             expect(toDigest.startsWith("Content-")).toBe(true); // headers must be digested
-            expect(toDigest.endsWith("\r\n\r\n\r\n")).toBe(false); // trailing CRLF is removed
-            expect(toDigest.endsWith("\r\n\r\n")).toBe(true);
+            expect(toDigest.endsWith("\n\n\n")).toBe(false); // trailing CRLF is removed
+            expect(toDigest.endsWith("\n\n")).toBe(true);
             done();
         });
     });

@@ -1,12 +1,12 @@
 import Builder from "@bluemind/emailjs-mime-builder";
-import { MailboxItem, MessageBody } from "@bluemind/backend.mail.api";
+import { MessageBody } from "@bluemind/backend.mail.api";
 import { MimeType } from "@bluemind/email";
 import { extractContentType, splitHeadersAndContent } from "./MimeEntityParserUtils";
 
-export default function (unsignedPart: string, signedContent: string, mailboxItem: MailboxItem) {
+export default function (unsignedPart: string, signedContent: string, messageBody: MessageBody) {
     const rootContentType = `${MimeType.MULTIPART_SIGNED}; protocol="${MimeType.PKCS_7_SIGNED_DATA}"; micalg=sha-256;`;
     const rootNode = new Builder(rootContentType);
-    setRootHeaders(rootNode, mailboxItem);
+    setRootHeaders(rootNode, messageBody);
 
     const { body: unsignedContent, headers: unsignedHeaders } = splitHeadersAndContent(unsignedPart);
     const contentType = extractContentType(unsignedHeaders);
@@ -17,43 +17,38 @@ export default function (unsignedPart: string, signedContent: string, mailboxIte
     const signedNode = new Builder(`${MimeType.PKCS_7_SIGNED_DATA}; name="smime.p7s"`, { isEncoded: true });
     signedNode.setHeader("Content-Transfer-Encoding", "base64");
     signedNode.setHeader("Content-Disposition", 'attachment; filename="smime.p7s"');
-    signedNode.setHeader("Content-Description", "Signature cryptographique S/MIME");
     signedNode.setContent(signedContent);
     rootNode.appendChild(signedNode);
 
     return rootNode.build();
 }
 
-function setRootHeaders(rootNode: Builder, item: MailboxItem) {
-    const date = item.body.date ? new Date(item.body.date) : new Date();
+function setRootHeaders(rootNode: Builder, body: MessageBody) {
+    const date = body.date ? new Date(body.date) : new Date();
     rootNode.setHeader("Date", date.toUTCString().replace(/GMT/, "+0000"));
     rootNode.setHeader("MIME-Version", "MIME-Version: 1.0");
-    rootNode.setHeader("Subject", item.body.subject || "");
+    rootNode.setHeader("Subject", body.subject || "");
 
-    item.body.headers?.forEach(header => {
+    body.headers?.forEach(header => {
         rootNode.setHeader(header.name!, header.values!.join(","));
     });
 
-    const from = item.body.recipients!.find(recipient => recipient.kind === MessageBody.RecipientKind.Originator);
+    const from = body.recipients!.find(recipient => recipient.kind === MessageBody.RecipientKind.Originator);
     if (from) {
         rootNode.setHeader("From", formatAddress(from));
     }
 
-    const toRecipients = item.body.recipients!.filter(
-        recipient => recipient.kind === MessageBody.RecipientKind.Primary
-    );
+    const toRecipients = body.recipients!.filter(recipient => recipient.kind === MessageBody.RecipientKind.Primary);
     if (toRecipients.length > 0) {
         rootNode.setHeader("To", toRecipients.map(formatAddress).join(", "));
     }
 
-    const ccRecipients = item.body.recipients!.filter(
-        recipient => recipient.kind === MessageBody.RecipientKind.CarbonCopy
-    );
+    const ccRecipients = body.recipients!.filter(recipient => recipient.kind === MessageBody.RecipientKind.CarbonCopy);
     if (ccRecipients.length > 0) {
         rootNode.setHeader("Cc", ccRecipients.map(formatAddress).join(", "));
     }
 
-    const bccRecipients = item.body.recipients!.filter(
+    const bccRecipients = body.recipients!.filter(
         recipient => recipient.kind === MessageBody.RecipientKind.BlindCarbonCopy
     );
     if (bccRecipients.length > 0) {

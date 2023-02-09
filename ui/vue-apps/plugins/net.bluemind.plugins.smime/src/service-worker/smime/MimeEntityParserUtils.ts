@@ -9,6 +9,5 @@ export function splitHeadersAndContent(content: string): { body: string; headers
 
 export function extractContentType(headers: string): string {
     const match = new RegExp(/content-type:\s?((?:(?![\w-]+:).*(?:\r\n|$))*)/gi).exec(headers);
-    console.log(match);
     return match && match[1] ? match[1] : "";
 }

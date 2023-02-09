@@ -76,20 +76,23 @@ describe("ApiRouteHandler", () => {
             const anotherHandler = { execute: jest.fn() };
             handler.next = anotherHandler;
             const parameters = { client: ["one", "two"], method: [] };
-            await handler.execute(parameters);
+            await handler.execute(parameters, mockEvent);
             expect(implementations[0].next).toBeDefined();
             expect(anotherHandler.execute).not.toBeCalled();
             implementations[0].next();
-            expect(anotherHandler.execute).toBeCalledWith(parameters);
+            expect(anotherHandler.execute).toBeCalledWith(parameters, mockEvent);
         });
-        test.only("to use overwritten parameter in next execution", async () => {
+        test("to use overwritten parameter in next execution", async () => {
             const handler = new ApiRouteHandler(MockApiClient, { name: "method" }, 0);
             const anotherHandler = { execute: jest.fn() };
             handler.next = anotherHandler;
             const parameters = { client: ["one", "two"], method: [] };
             await handler.execute(parameters, mockEvent, "two", "three");
             implementations[0].next();
-            expect(anotherHandler.execute).toBeCalledWith({ client: ["one", "two"], method: ["two", "three"] });
+            expect(anotherHandler.execute).toBeCalledWith(
+                { client: ["one", "two"], method: ["two", "three"] },
+                mockEvent
+            );
         });
         test("to set next with a fallback on root client api", async () => {
             const ExtendedMockApiClient = class extends MockApiClient {

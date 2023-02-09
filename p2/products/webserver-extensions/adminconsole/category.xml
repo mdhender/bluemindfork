@@ -89,6 +89,6 @@
    <bundle id="net.bluemind.ui.extensions.gwt"/>
    <bundle id="com.google.gwt.user"/>
    <bundle id="net.bluemind.gwt-completablefuture"/>
-   <bundle id="net.bluemind.smime.cacerts.api" version="4.1.0.qualifier"/>
-   <bundle id="net.bluemind.smime.cacerts.api.gwt" version="4.1.0.qualifier"/>
+   <bundle id="net.bluemind.smime.cacerts.api" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.smime.cacerts.api.gwt" version="5.0.0.qualifier"/>
 </site>

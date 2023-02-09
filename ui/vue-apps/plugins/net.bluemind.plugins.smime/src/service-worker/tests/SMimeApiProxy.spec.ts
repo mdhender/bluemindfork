@@ -4,6 +4,16 @@ import SMimeApiProxy from "../SMimeApiProxy";
 
 jest.mock("../smime", () => jest.fn);
 
+jest.mock("../environnment/session", () =>
+    Promise.resolve({
+        json: () =>
+            Promise.resolve({
+                login: "mathilde.michau@blue-mind.net",
+                sid: "58a1ee1b-0c30-492c-a83f-4396f0a24730"
+            })
+    })
+);
+
 describe("SMimeApiProxy", () => {
     const smimeApiProxy = new SMimeApiProxy("apiKey", "folderUid");
     beforeEach(() => {

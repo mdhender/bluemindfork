@@ -71,7 +71,7 @@ extensions.register("webapp.mail", "net.bluemind.plugins.smime.encryption", {
 extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
     component: {
         path: "viewer.body",
-        name: "SmimeBodyWrapper"
+        name: "SMimeBodyWrapper"
     }
 });
 extensions.register("webapp", "net.bluemind.plugins.smime", {
@@ -117,7 +117,7 @@ function prefSmimeGroups() {
             fields: [
                 {
                     id: "field",
-                    component: { name: "PrefSmime" }
+                    component: { name: "PrefSMime" }
                 }
             ]
         },

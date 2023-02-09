@@ -32,6 +32,11 @@ module.exports = {
                 loader: "babel-loader"
             },
             {
+                test: /\.ts$/,
+                use: ["babel-loader", "ts-loader"],
+                exclude: [/node_modules/, /target/]
+            },
+            {
                 enforce: "pre",
                 test: /\.(js|vue)$/,
                 loader: "eslint-loader",
@@ -43,7 +48,7 @@ module.exports = {
         vue: "Vue"
     },
     resolve: {
-        extensions: ["*", ".js", ".vue", ".json", ".css", ".scss"]
+        extensions: ["*", ".js", ".vue", ".json", ".css", ".scss", ".ts"]
     },
     devtool: "source-map",
     entry: "./index.js",

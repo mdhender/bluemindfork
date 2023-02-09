@@ -13,7 +13,7 @@
    <bundle id="net.bluemind.addressbook.closure" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.domainbook" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.hook" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.addressbook.hook" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.addressbook.hook.acl" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.ldap.adapter" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.ldap.api" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.addressbook.ldap.api.gwt" version="5.0.0.qualifier"/>
@@ -97,6 +97,7 @@
    <bundle id="net.bluemind.cli.certificate" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.cmd.api" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.contact" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.cli.directory" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.directory.common" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.filehosting" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.group" version="5.0.0.qualifier"/>
@@ -230,6 +231,7 @@
    <bundle id="net.bluemind.dataprotect.ou" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.persistence" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.postgresql" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.dataprotect.sdsspool" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.service" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.sqlschema" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.todolist" version="5.0.0.qualifier"/>
@@ -398,7 +400,6 @@
    <bundle id="net.bluemind.lmtp.filter.imip" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.lmtp.filter.tnef" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.lmtp.testhelper" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.mailapp.role" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.mailbox.api" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.mailbox.api.closure" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.mailbox.api.gwt" version="5.0.0.qualifier"/>
@@ -594,6 +595,7 @@
    <bundle id="net.bluemind.tag.sqlschema" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.task.application.closure" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.tests.defaultdata" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.tests.extensions" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.tika.client" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.tika.server" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.todolist.adapter" version="5.0.0.qualifier"/>

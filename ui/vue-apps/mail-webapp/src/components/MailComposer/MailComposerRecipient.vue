@@ -27,7 +27,7 @@ import { fetchContactMembers, RecipientAdaptor, VCardInfoAdaptor } from "@bluemi
 import { EmailValidator } from "@bluemind/email";
 import { ContactInput } from "@bluemind/business-components";
 import { mailTipUtils } from "@bluemind/mail";
-import { GetMailTips } from "~/commands";
+import { GetMailTipsCommand } from "~/commands";
 import apiAddressbooks from "~/store/api/apiAddressbooks";
 import { SET_ADDRESS_WEIGHT, SET_MESSAGE_BCC, SET_MESSAGE_CC, SET_MESSAGE_TO } from "~/mutations";
 import { ADDRESS_AUTOCOMPLETE } from "~/getters";
@@ -39,7 +39,8 @@ const { getMailTipContext } = mailTipUtils;
 export default {
     name: "MailComposerRecipient",
     components: { MailContactCardSlots },
-    mixins: [ComposerActionsMixin, GetMailTips],
+    mixins: [ComposerActionsMixin, GetMailTipsCommand],
+    // mixins: [ComposerActionsMixin],
     props: {
         message: { type: Object, required: true },
         recipientType: { type: String, required: true, validator: value => ["to", "cc", "bcc"].includes(value) }
@@ -137,10 +138,10 @@ export default {
                 : contact.dn
                 ? EmailValidator.validateDnAndAddress(input)
                 : EmailValidator.validateAddress(input);
+        },
+        async getMailTips() {
+            await this.$execute("get-mail-tips", { context: getMailTipContext(this.message) });
         }
-    },
-    async getMailTips() {
-        await this.$execute("get-mail-tips", { context: getMailTipContext(this.message) });
     }
 };
 

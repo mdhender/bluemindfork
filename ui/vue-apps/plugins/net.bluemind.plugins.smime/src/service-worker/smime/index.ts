@@ -127,7 +127,7 @@ export async function sign(item: MailboxItem, folderUid: string): Promise<Mailbo
         const key = await getMyPrivateKey();
         const certificate = await getMyCertificate();
         const signedContent = await pkcs7.sign(unsignedMimeEntity, key, certificate);
-        const eml = buildSignedEml(unsignedMimeEntity, signedContent, item);
+        const eml = buildSignedEml(unsignedMimeEntity, signedContent, item.body);
         const address = await client.uploadPart(eml);
         item.body.structure = { address, mime: "message/rfc822", children: [] };
     } catch (error) {
