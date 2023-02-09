@@ -21,5 +21,6 @@
 		<module>net.bluemind.webmodule.openidhandler</module>
 		<module>net.bluemind.webmodule.dav</module>
 		<module>net.bluemind.webmodule.authentication</module>
+		<module>net.bluemind.webmodule.maintenance</module>
 	</modules>
 </project>
