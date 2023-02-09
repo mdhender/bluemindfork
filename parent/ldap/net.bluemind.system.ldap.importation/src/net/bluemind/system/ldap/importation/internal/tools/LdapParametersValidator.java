@@ -43,7 +43,6 @@ public class LdapParametersValidator {
 			return;
 		}
 
-		checkLdapEnabled(current.get(LdapProperties.import_ldap_enabled.name()));
 		checkLdapHostname(current.get(LdapProperties.import_ldap_hostname.name()), locale);
 		checkLdapProtocol(current.get(LdapProperties.import_ldap_protocol.name()), locale);
 		checkLdapAllCertificate(current.get(LdapProperties.import_ldap_accept_certificate.name()));
@@ -51,22 +50,6 @@ public class LdapParametersValidator {
 		checkLdapBaseDn(current.get(LdapProperties.import_ldap_base_dn.name()), locale);
 		checkLdapUserFilter(current.get(LdapProperties.import_ldap_user_filter.name()), locale);
 		checkLdapGroupFilter(current.get(LdapProperties.import_ldap_group_filter.name()), locale);
-	}
-
-	/**
-	 * @param enabled
-	 * @throws ServerFault
-	 */
-	private static void checkLdapEnabled(String enabled) throws ServerFault {
-		if (enabled == null) {
-			return;
-		}
-
-		if (enabled.equalsIgnoreCase("true") || enabled.equalsIgnoreCase("false")) {
-			return;
-		}
-
-		throw new ServerFault("Enabled value must be null, true or false", ErrorCode.INVALID_PARAMETER);
 	}
 
 	/**
@@ -115,6 +98,22 @@ public class LdapParametersValidator {
 
 		if (ldapHostname.trim().isEmpty()) {
 			throw new ServerFault(Messages.get(locale).invalidHostname(), ErrorCode.INVALID_PARAMETER);
+		}
+
+		long sepCount = ldapHostname.chars().filter(ch -> ch == ':').count();
+		if (sepCount > 1) {
+			throw new ServerFault(Messages.get(locale).invalidHostname(), ErrorCode.INVALID_PARAMETER);
+		}
+
+		if (sepCount == 1) {
+			try {
+				Integer port = Integer.valueOf(ldapHostname.split(":")[1]);
+				if (port <= 0 || port > 65535) {
+					throw new ServerFault(Messages.get(locale).invalidPort(), ErrorCode.INVALID_PARAMETER);
+				}
+			} catch (NumberFormatException nfe) {
+				throw new ServerFault(Messages.get(locale).invalidPort(), ErrorCode.INVALID_PARAMETER);
+			}
 		}
 	}
 

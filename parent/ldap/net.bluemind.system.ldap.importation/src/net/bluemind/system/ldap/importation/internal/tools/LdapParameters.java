@@ -68,18 +68,21 @@ public class LdapParameters extends Parameters {
 
 		String splitDomainRelayHostname = domainSettings.get(DomainSettingsKeys.mail_routing_relay.name());
 
-		Host host = null;
-		if (domain.properties.containsKey(LdapProperties.import_ldap_hostname.name())
-				&& !Strings.isNullOrEmpty(domain.properties.get(LdapProperties.import_ldap_hostname.name()))) {
-			host = Host.build(domain.properties.get(LdapProperties.import_ldap_hostname.name()), 389, 0, 0);
-		}
-
 		LdapProtocol protocol = LdapProtocol.PLAIN;
 		try {
 			protocol = LdapProtocol.getProtocol(domain.properties.get(LdapProperties.import_ldap_protocol.name()));
 		} catch (IllegalArgumentException | NullPointerException i) {
 			logger.error("Invalid protocol '{}', use: {}",
 					domain.properties.get(LdapProperties.import_ldap_protocol.name()), LdapProtocol.PLAIN.toString());
+		}
+
+		Host host = null;
+		if (domain.properties.containsKey(LdapProperties.import_ldap_hostname.name())
+				&& !Strings.isNullOrEmpty(domain.properties.get(LdapProperties.import_ldap_hostname.name()))) {
+			host = Host.build(getHostname(domain.properties.get(LdapProperties.import_ldap_hostname.name())),
+					getPort(domain.properties.get(LdapProperties.import_ldap_hostname.name()),
+							protocol == LdapProtocol.SSL ? 636 : 389),
+					0, 0);
 		}
 
 		return new LdapParameters(true,
@@ -95,10 +98,42 @@ public class LdapParameters extends Parameters {
 				Optional.ofNullable(domain.properties.get(LdapProperties.import_ldap_lastupdate.name())));
 	}
 
-	public static LdapParameters build(String hostname, String protocol, String allCertificate, String baseDn,
+	private static String getHostname(String ldapHostname) {
+		if (ldapHostname.contains(":")) {
+			return ldapHostname.split(":")[0];
+		}
+
+		return ldapHostname;
+	}
+
+	private static int getPort(String ldapHostname, int defaultPort) {
+		if (!ldapHostname.contains(":")) {
+			return defaultPort;
+		}
+
+		long sepCount = ldapHostname.chars().filter(ch -> ch == ':').count();
+		if (sepCount > 1) {
+			return defaultPort;
+		}
+
+		if (sepCount == 1) {
+			try {
+				Integer port = Integer.valueOf(ldapHostname.split(":")[1]);
+				if (port > 0 && port <= 65535) {
+					return port;
+				}
+			} catch (NumberFormatException nfe) {
+			}
+		}
+
+		return defaultPort;
+	}
+
+	public static LdapParameters build(String hostname, LdapProtocol protocol, String allCertificate, String baseDn,
 			String loginDn, String password) throws InvalidDnServerFault {
-		LdapServer server = new LdapServer(Host.build(hostname, 389, 0, 0), loginDn, password,
-				LdapProtocol.getProtocol(protocol), Boolean.valueOf(allCertificate));
+		LdapServer server = new LdapServer(
+				Host.build(getHostname(hostname), getPort(hostname, protocol == LdapProtocol.SSL ? 636 : 389), 0, 0),
+				loginDn, password, protocol, Boolean.valueOf(allCertificate));
 		Directory directory = Directory.build(baseDn, null, null, null);
 		SplitDomain sd = new SplitDomain(false, null);
 

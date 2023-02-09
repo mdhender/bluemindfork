@@ -150,4 +150,84 @@ public class LdapParametersTest {
 		assertEquals(LdapProtocol.TLS,
 				LdapParameters.build(domain, Collections.<String, String>emptyMap()).ldapServer.protocol);
 	}
+
+	@Test
+	public void hostnameInvalidPort() {
+		Domain domain = new Domain();
+		domain.properties.put(LdapProperties.import_ldap_enabled.name(), Boolean.TRUE.toString());
+
+		domain.properties.put(LdapProperties.import_ldap_hostname.name(), "hostname:inv:alid");
+		LdapParameters ldap = LdapParameters.build(domain, Collections.<String, String>emptyMap());
+		assertEquals("hostname", ldap.ldapServer.getLdapHost().get(0).hostname);
+		assertEquals(389, ldap.ldapServer.getLdapHost().get(0).port);
+
+		domain.properties.put(LdapProperties.import_ldap_hostname.name(), "hostname:-3");
+		ldap = LdapParameters.build(domain, Collections.<String, String>emptyMap());
+		assertEquals("hostname", ldap.ldapServer.getLdapHost().get(0).hostname);
+		assertEquals(389, ldap.ldapServer.getLdapHost().get(0).port);
+
+		domain.properties.put(LdapProperties.import_ldap_hostname.name(), "hostname:65536");
+		ldap = LdapParameters.build(domain, Collections.<String, String>emptyMap());
+		assertEquals("hostname", ldap.ldapServer.getLdapHost().get(0).hostname);
+		assertEquals(389, ldap.ldapServer.getLdapHost().get(0).port);
+
+		// TLS
+		domain.properties.put(LdapProperties.import_ldap_protocol.name(), "TLS");
+
+		domain.properties.put(LdapProperties.import_ldap_hostname.name(), "hostname:inv:alid");
+		ldap = LdapParameters.build(domain, Collections.<String, String>emptyMap());
+		assertEquals("hostname", ldap.ldapServer.getLdapHost().get(0).hostname);
+		assertEquals(389, ldap.ldapServer.getLdapHost().get(0).port);
+
+		domain.properties.put(LdapProperties.import_ldap_hostname.name(), "hostname:-3");
+		ldap = LdapParameters.build(domain, Collections.<String, String>emptyMap());
+		assertEquals("hostname", ldap.ldapServer.getLdapHost().get(0).hostname);
+		assertEquals(389, ldap.ldapServer.getLdapHost().get(0).port);
+
+		domain.properties.put(LdapProperties.import_ldap_hostname.name(), "hostname:65536");
+		ldap = LdapParameters.build(domain, Collections.<String, String>emptyMap());
+		assertEquals("hostname", ldap.ldapServer.getLdapHost().get(0).hostname);
+		assertEquals(389, ldap.ldapServer.getLdapHost().get(0).port);
+
+		// SSL
+		domain.properties.put(LdapProperties.import_ldap_protocol.name(), "SSL");
+
+		domain.properties.put(LdapProperties.import_ldap_hostname.name(), "hostname:inv:alid");
+		ldap = LdapParameters.build(domain, Collections.<String, String>emptyMap());
+		assertEquals("hostname", ldap.ldapServer.getLdapHost().get(0).hostname);
+		assertEquals(636, ldap.ldapServer.getLdapHost().get(0).port);
+
+		domain.properties.put(LdapProperties.import_ldap_hostname.name(), "hostname:-3");
+		ldap = LdapParameters.build(domain, Collections.<String, String>emptyMap());
+		assertEquals("hostname", ldap.ldapServer.getLdapHost().get(0).hostname);
+		assertEquals(636, ldap.ldapServer.getLdapHost().get(0).port);
+
+		domain.properties.put(LdapProperties.import_ldap_hostname.name(), "hostname:65536");
+		ldap = LdapParameters.build(domain, Collections.<String, String>emptyMap());
+		assertEquals("hostname", ldap.ldapServer.getLdapHost().get(0).hostname);
+		assertEquals(636, ldap.ldapServer.getLdapHost().get(0).port);
+	}
+
+	@Test
+	public void hostnameValidPort() {
+		Domain domain = new Domain();
+		domain.properties.put(LdapProperties.import_ldap_enabled.name(), Boolean.TRUE.toString());
+		domain.properties.put(LdapProperties.import_ldap_hostname.name(), "hostname:1000");
+
+		LdapParameters ldap = LdapParameters.build(domain, Collections.<String, String>emptyMap());
+		assertEquals("hostname", ldap.ldapServer.getLdapHost().get(0).hostname);
+		assertEquals(1000, ldap.ldapServer.getLdapHost().get(0).port);
+
+		// TLS
+		domain.properties.put(LdapProperties.import_ldap_protocol.name(), "TLS");
+		ldap = LdapParameters.build(domain, Collections.<String, String>emptyMap());
+		assertEquals("hostname", ldap.ldapServer.getLdapHost().get(0).hostname);
+		assertEquals(1000, ldap.ldapServer.getLdapHost().get(0).port);
+
+		// SSL
+		domain.properties.put(LdapProperties.import_ldap_protocol.name(), "SSL");
+		ldap = LdapParameters.build(domain, Collections.<String, String>emptyMap());
+		assertEquals("hostname", ldap.ldapServer.getLdapHost().get(0).hostname);
+		assertEquals(1000, ldap.ldapServer.getLdapHost().get(0).port);
+	}
 }

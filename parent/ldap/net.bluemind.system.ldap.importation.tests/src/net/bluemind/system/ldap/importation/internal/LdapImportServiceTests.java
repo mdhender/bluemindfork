@@ -129,6 +129,9 @@ public class LdapImportServiceTests {
 		getService(domainAdmin).testParameters(ldapDockerHostname, "plain", "false", "dc=local", "uid=admin,dc=local",
 				"admin", "(objectClass=inetOrgPerson)", "(objectClass=inetOrgPerson)");
 
+		getService(admin0).testParameters(ldapDockerHostname + ":389", "plain", "false", "dc=local",
+				"uid=admin,dc=local", "admin", "(objectClass=inetOrgPerson)", "(objectClass=inetOrgPerson)");
+
 		try {
 			getService(domainUser).testParameters(ldapDockerHostname, "plain", "false", "dc=local",
 					"uid=admin,dc=local", "admin", "(objectClass=inetOrgPerson)", "(objectClass=inetOrgPerson)");
@@ -277,7 +280,7 @@ public class LdapImportServiceTests {
 				"admin", "(objectClass=inetOrgPerson)", "(objectClass=inetOrgPerson)");
 
 		try {
-			getService(admin0).testParameters("invalid:hostname", null, "false", "dc=local", "uid=admin,dc=local",
+			getService(admin0).testParameters("invalid-hostname", null, "false", "dc=local", "uid=admin,dc=local",
 					"admin", "(objectClass=inetOrgPerson)", "(objectClass=inetOrgPerson)");
 			fail("Test must thrown an exception");
 		} catch (ServerFault e) {
@@ -309,6 +312,41 @@ public class LdapImportServiceTests {
 			fail("Test must thrown an exception");
 		} catch (ServerFault e) {
 			assertEquals("Invalid hostname", e.getMessage());
+		}
+
+		try {
+			getService(admin0).testParameters("invalid:host:name", "plain", "false", "dc=local", "uid=admin,dc=local",
+					"admin", "(objectClass=inetOrgPerson)", "(objectClass=inetOrgPerson)");
+			fail("Test must thrown an exception");
+		} catch (ServerFault e) {
+			assertEquals("Invalid hostname", e.getMessage());
+		}
+	}
+
+	@Test
+	public void invalidPort() throws ServerFault {
+		try {
+			getService(admin0).testParameters("hostname:invalid", "plain", "false", "dc=local", "uid=admin,dc=local",
+					"admin", "(objectClass=inetOrgPerson)", "(objectClass=inetOrgPerson)");
+			fail("Test must thrown an exception");
+		} catch (ServerFault e) {
+			assertEquals("Invalid port", e.getMessage());
+		}
+
+		try {
+			getService(admin0).testParameters("hostname:-3", "plain", "false", "dc=local", "uid=admin,dc=local",
+					"admin", "(objectClass=inetOrgPerson)", "(objectClass=inetOrgPerson)");
+			fail("Test must thrown an exception");
+		} catch (ServerFault e) {
+			assertEquals("Invalid port", e.getMessage());
+		}
+
+		try {
+			getService(admin0).testParameters("hostname:65536", "plain", "false", "dc=local", "uid=admin,dc=local",
+					"admin", "(objectClass=inetOrgPerson)", "(objectClass=inetOrgPerson)");
+			fail("Test must thrown an exception");
+		} catch (ServerFault e) {
+			assertEquals("Invalid port", e.getMessage());
 		}
 	}
 

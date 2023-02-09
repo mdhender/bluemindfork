@@ -61,6 +61,10 @@ public class Messages {
 		return bundle.getString("invalidHostname");
 	}
 
+	public String invalidPort() {
+		return bundle.getString("invalidPort");
+	}
+
 	public String invalidUserFilter() {
 		return bundle.getString("invalidUserFilter");
 	}

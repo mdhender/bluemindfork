@@ -182,24 +182,19 @@ public class LdapHelper {
 	private static LdapConnectionConfig getLdapConnectionConfig(Parameters ldapParameters) {
 		LdapConnectionConfig config = new LdapConnectionConfig();
 		config.setLdapHost(ldapParameters.ldapServer.getLdapHost().get(0).hostname);
+		config.setLdapPort(ldapParameters.ldapServer.getLdapHost().get(0).port);
 		config.setTimeout(LDAP_TIMEOUT);
 
 		switch (ldapParameters.ldapServer.protocol) {
 		case TLS:
-			config.setLdapPort(389);
-
 			config.setUseTls(true);
 			config.setUseSsl(false);
 			break;
 		case SSL:
-			config.setLdapPort(636);
-
 			config.setUseTls(false);
 			config.setUseSsl(true);
 			break;
 		default:
-			config.setLdapPort(389);
-
 			config.setUseTls(false);
 			config.setUseSsl(false);
 			break;

@@ -29,6 +29,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
+import net.bluemind.lib.ldap.LdapProtocol;
 import net.bluemind.scheduledjob.api.IJob;
 import net.bluemind.system.ldap.importation.api.ILdapImport;
 import net.bluemind.system.ldap.importation.api.LdapConstants;
@@ -61,8 +62,8 @@ public class LdapImportService implements ILdapImport {
 		LdapParametersValidator.checkLdapUserFilter(userFilter, userLocale);
 		LdapParametersValidator.checkLdapGroupFilter(groupFilter, userLocale);
 
-		LdapParameters importLdapParameters = LdapParameters.build(hostname, protocol, allCertificate,
-				baseDn, loginDn, password);
+		LdapParameters importLdapParameters = LdapParameters.build(hostname, LdapProtocol.getProtocol(protocol),
+				allCertificate, baseDn, loginDn, password);
 
 		LdapHelper.checkLDAPParameters(importLdapParameters);
 	}
