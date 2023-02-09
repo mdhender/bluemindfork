@@ -97,7 +97,9 @@ public class RestoreReplicatedMailboxes implements RestoreDomainType {
 			log.update(type(), key);
 			api.update(item.uid, mailboxReplica);
 		} else {
-			SubtreeContainerItemIdsCache.putFolderId(item.uid, item.internalId);
+			String fKey = key.uid + ":" + mailboxReplica.fullName;
+			SubtreeContainerItemIdsCache.putFolderId(fKey, item.internalId);
+			log.monitor().log("IDREG {} -> {}", fKey, item.internalId);
 			log.create(type(), key);
 			api.create(item.uid, mailboxReplica);
 		}

@@ -138,13 +138,15 @@ public class InstallFromBackupTask extends BlockingServerTask implements IServer
 		public final Map<String, ItemValue<Domain>> domains;
 		public final SystemConf sysconf;
 		public final String token;
+		public final RestoreContainerItemIdSeq restoreSeq;
 
 		public ClonedOrphans(Map<String, PromotingServer> topology, Map<String, ItemValue<Domain>> domains,
-				SystemConf sysconf, String coreTok) {
+				SystemConf sysconf, String coreTok, RestoreContainerItemIdSeq restoreSeq) {
 			this.topology = topology;
 			this.domains = domains;
 			this.sysconf = sysconf;
 			this.token = coreTok;
+			this.restoreSeq = restoreSeq;
 		}
 
 	}
@@ -161,9 +163,8 @@ public class InstallFromBackupTask extends BlockingServerTask implements IServer
 				orphansByType.getOrDefault("installation", new ArrayList<>()));
 		Map<String, PromotingServer> topology = new RestoreTopology(target, topologyMapping).restore(monitor,
 				orphansByType.getOrDefault("installation", new ArrayList<>()));
-
-		new RestoreContainerItemIdSeq(topology.values()).restore(monitor,
-				orphansByType.getOrDefault("container_item_id_seq", new ArrayList<>()));
+		RestoreContainerItemIdSeq restoreSeq = new RestoreContainerItemIdSeq(topology.values());
+		restoreSeq.restore(monitor, orphansByType.getOrDefault("container_item_id_seq", new ArrayList<>()));
 
 		Map<String, ItemValue<Domain>> domains = new RestoreDomains(target, topology.values()).restore(monitor,
 				orphansByType.getOrDefault("domains", new ArrayList<>()));
@@ -176,12 +177,12 @@ public class InstallFromBackupTask extends BlockingServerTask implements IServer
 		recordProcessed(monitor, cloneState, orphansStream, orphansStreamIndex);
 		orphansByType.clear();
 		monitor.end(true, "Orphans cloned", null);
-		return new ClonedOrphans(topology, domains, sysconf, coreTok);
+		return new ClonedOrphans(topology, domains, sysconf, coreTok, restoreSeq);
 	}
 
 	private void cloneContainerItemIdSeq(IServerTaskMonitor monitor, ILiveStream orphansStream, ClonedOrphans orphans,
 			CloneState cloneState) {
-		RestoreContainerItemIdSeq idSeq = new RestoreContainerItemIdSeq(orphans.topology.values());
+		RestoreContainerItemIdSeq idSeq = orphans.restoreSeq;
 		ExecutorService orphanTrackerPool = Executors
 				.newSingleThreadExecutor(new DefaultThreadFactory("orphan-tracker"));
 		CompletableFuture<IResumeToken> orphanTrack = CompletableFuture.supplyAsync(() -> {
