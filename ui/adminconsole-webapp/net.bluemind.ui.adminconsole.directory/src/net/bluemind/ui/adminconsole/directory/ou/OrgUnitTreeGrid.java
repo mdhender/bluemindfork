@@ -39,6 +39,7 @@ import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Tree;
+import com.google.gwt.user.client.ui.TreeItem;
 
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.container.model.ItemValue;
@@ -158,19 +159,7 @@ public class OrgUnitTreeGrid extends Grid implements IGwtWidgetElement {
 					allOrgUnits.setVisible(!result.isEmpty());
 					result.forEach(ouTree::addItem);
 					ouTree.treeItemIterator().forEachRemaining(i -> {
-						OrgUnitItem item = (OrgUnitItem) i;
-						item.createCheckBox();
-						OrgUnitCheckBox cb = (OrgUnitCheckBox) item.getWidget();
-						cb.addValueChangeHandler(event -> {
-							unitListMngt.focusedItem = event.getValue().booleanValue() ? cb.getItem()
-									: (unitListMngt.getSelectedItems().size() == 1
-											? unitListMngt.getSelectedItems().get(0)
-											: null);
-							cb.getItem().toogleHierarchy(event.getValue());
-							allOrgUnits
-									.setValue(unitListMngt.getSelectedItems().size() == unitListMngt.getItems().size());
-							reloadResources(unitListMngt.hasSelectedItems());
-						});
+						initOrgUnitItem(i);
 					});
 				}) //
 				.thenRun(this::loadItemIds) //
@@ -238,15 +227,7 @@ public class OrgUnitTreeGrid extends Grid implements IGwtWidgetElement {
 		ouTree.removeItems();
 		createOrgUnitTreeList.forEach(ouTree::addItem);
 		ouTree.treeItemIterator().forEachRemaining(i -> {
-			OrgUnitItem item = (OrgUnitItem) i;
-			item.createCheckBox();
-			OrgUnitCheckBox cb = (OrgUnitCheckBox) item.getWidget();
-			cb.addValueChangeHandler(event -> {
-				cb.getItem().toogleHierarchy(event.getValue());
-				allOrgUnits.setValue(unitListMngt.getSelectedItems().size() == unitListMngt.getItems().size());
-				reloadResources(unitListMngt.hasSelectedItems());
-			});
-
+			OrgUnitItem item = initOrgUnitItem(i);
 			keepPreviousState(copy, item, action == TreeAction.UPDATE || action == TreeAction.CREATE);
 			if (action == TreeAction.CREATE) {
 				openParentStateForNewChild(pathListToUpdate, item);
@@ -254,6 +235,22 @@ public class OrgUnitTreeGrid extends Grid implements IGwtWidgetElement {
 		});
 		copy.clear();
 		loadItemIds();
+	}
+
+	private OrgUnitItem initOrgUnitItem(TreeItem i) {
+		OrgUnitItem item = (OrgUnitItem) i;
+		item.createCheckBox();
+		OrgUnitCheckBox cb = (OrgUnitCheckBox) item.getWidget();
+		cb.addValueChangeHandler(event -> {
+			unitListMngt.focusedItem = event.getValue().booleanValue() ? cb.getItem() //
+					: (unitListMngt.getSelectedItems().size() == 1 //
+							? unitListMngt.getSelectedItems().get(0) //
+							: null);
+			cb.getItem().toogleHierarchy(event.getValue());
+			allOrgUnits.setValue(unitListMngt.getSelectedItems().size() == unitListMngt.getItems().size());
+			reloadResources(unitListMngt.hasSelectedItems());
+		});
+		return item;
 	}
 
 	private void loopOnParent(OrgUnitPath child, OrgUnitPath onepath) {

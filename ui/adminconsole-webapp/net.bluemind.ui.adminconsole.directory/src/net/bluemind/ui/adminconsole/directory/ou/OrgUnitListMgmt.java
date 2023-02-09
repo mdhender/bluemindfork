@@ -81,6 +81,10 @@ public class OrgUnitListMgmt {
 		return getItems().stream().anyMatch(i -> ((OrgUnitCheckBox) i.getWidget()).getValue());
 	}
 
+	public String getFirstSelectedItemName() {
+		return getSelectedItems().get(0).getName();
+	}
+
 	static DialogBox createDialog(final OUCreateEditDialog ied) {
 		SizeHint sh = ied.getSizeHint();
 		final DialogBox os = new DialogBox();

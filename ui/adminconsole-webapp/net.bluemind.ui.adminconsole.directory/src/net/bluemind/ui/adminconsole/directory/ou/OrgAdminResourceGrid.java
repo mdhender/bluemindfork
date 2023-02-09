@@ -24,6 +24,7 @@ import java.util.concurrent.CompletableFuture;
 
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.user.cellview.client.SimplePager;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.HasData;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -37,6 +38,7 @@ import net.bluemind.directory.api.IOrgUnitsPromise;
 import net.bluemind.directory.api.gwt.endpoint.OrgUnitsGwtEndpoint;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
 import net.bluemind.ui.adminconsole.base.DomainsHolder;
+import net.bluemind.ui.adminconsole.directory.ou.OrgUnitListMgmt.TreeAction;
 import net.bluemind.ui.adminconsole.directory.ou.event.OUCheckBoxEvent;
 import net.bluemind.ui.adminconsole.directory.ou.event.OURoleDetailEvent;
 import net.bluemind.ui.adminconsole.directory.ou.model.OrgUnitItem;
@@ -71,7 +73,7 @@ public class OrgAdminResourceGrid extends CommonOrgResourceGrid {
 			protected void onRangeChanged(HasData<ItemValue<DirEntry>> display) {
 				if (unitListMngt.getSelectedEnabledItems().size() > 1) {
 					returnEmptyTable(constants.massRoleOuSelection());
-				} else if (!unitListMngt.hasSelectedItems() || unitListMngt.focusedItem == null) {
+				} else if (!unitListMngt.hasSelectedItems()) {
 					returnEmptyTable(constants.emptyRoleTable());
 				} else {
 					OrgUnitItem focusedItem = unitListMngt.focusedItem;
@@ -97,6 +99,9 @@ public class OrgAdminResourceGrid extends CommonOrgResourceGrid {
 										setValues(result.values);
 										OrgUnitListMgmt.CHECK_EVENT_BUS
 												.fireEvent(new OUCheckBoxEvent(unitListMngt.hasSelectedItems()));
+									} else {
+										returnEmptyTable(constants
+												.emptyRoleAdminTable(unitListMngt.getFirstSelectedItemName()));
 									}
 								}
 							});
@@ -116,6 +121,15 @@ public class OrgAdminResourceGrid extends CommonOrgResourceGrid {
 		dq.entries = adminUids;
 		dq.kindsFilter = java.util.Arrays.asList(Kind.USER, Kind.GROUP);
 		return dq;
+	}
+
+	void updateEmptyMsg(TreeAction action) {
+		if (action == TreeAction.UPDATE) {
+			setEmptyTableWidget(
+					new Label(constants.emptyRoleAdminTable(unitListMngt.getFirstSelectedItemName())));
+		} else if (action == TreeAction.DELETE) {
+			setEmptyTableWidget(new Label(constants.emptyRoleTable()));
+		}
 	}
 
 }

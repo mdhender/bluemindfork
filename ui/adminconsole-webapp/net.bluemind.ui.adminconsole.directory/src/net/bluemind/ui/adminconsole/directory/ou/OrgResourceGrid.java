@@ -28,6 +28,7 @@ import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.AsyncDataProvider;
 import com.google.gwt.view.client.HasData;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -40,6 +41,7 @@ import net.bluemind.directory.api.DirEntryQuery;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
 import net.bluemind.ui.adminconsole.base.DomainsHolder;
 import net.bluemind.ui.adminconsole.base.orgunit.OUUtils;
+import net.bluemind.ui.adminconsole.directory.ou.OrgUnitListMgmt.TreeAction;
 import net.bluemind.ui.adminconsole.directory.ou.event.OUCheckBoxEvent;
 import net.bluemind.ui.adminconsole.directory.ou.event.OUDirEntryEditEvent;
 import net.bluemind.ui.adminconsole.directory.ou.model.OrgUnitItem;
@@ -130,6 +132,12 @@ public class OrgResourceGrid extends CommonOrgResourceGrid {
 
 								setValues(result.values);
 								OrgUnitListMgmt.CHECK_EVENT_BUS.fireEvent(new OUCheckBoxEvent(true));
+							} else {
+								returnEmptyTable(unitListMngt.getSelectedItems().size() > 1 ? //
+										constants.massNotFoundResourceTable(
+												String.valueOf(unitListMngt.getSelectedItems().size())) //
+										: constants.notFoundResourceTable(
+												unitListMngt.getFirstSelectedItemName()));
 							}
 						}
 					});
@@ -209,4 +217,12 @@ public class OrgResourceGrid extends CommonOrgResourceGrid {
 		return dq;
 	}
 
+	void updateEmptyMsg(TreeAction action) {
+		if (action == TreeAction.UPDATE) {
+			setEmptyTableWidget(
+					new Label(constants.notFoundResourceTable(unitListMngt.getFirstSelectedItemName())));
+		} else if (action == TreeAction.DELETE) {
+			setEmptyTableWidget(new Label(constants.emptyResourceTable()));
+		}
+	}
 }

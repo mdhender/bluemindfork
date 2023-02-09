@@ -325,6 +325,8 @@ public class OrgUnitsBrowser extends Composite implements IGwtScreenRoot, OUChec
 		unitGrid.allOrgUnits.setValue(false);
 		deleteButton.setEnabled(hasManageRole() && unitListMngt.hasSelectedItems());
 		editButton.setEnabled(hasManageRole() && unitListMngt.hasSelectedItems() && getItemToEdit().isPresent());
+		resourceGrid.updateEmptyMsg(action);
+		adminResourceGrid.updateEmptyMsg(action);
 	}
 
 	protected void onScreenShown() {
@@ -381,7 +383,7 @@ public class OrgUnitsBrowser extends Composite implements IGwtScreenRoot, OUChec
 		String rolesTxt = null;
 		int nbRolesFound = adminResourceGrid.getValues().size();
 		if (nbRolesFound > 0 && unitListMngt.getSelectedItems().size() == 1) {
-			rolesTxt = getTexts().roleOuSelection(unitListMngt.getSelectedItems().get(0).getName());
+			rolesTxt = getTexts().roleOuSelection(unitListMngt.getFirstSelectedItemName());
 		}
 		adminResourceDesc.setText(rolesTxt);
 	}
