@@ -49,6 +49,7 @@ import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Shared;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.webmodule.authentication.internal.SecurityConfig;
 import net.bluemind.webmodule.authentication.internal.SessionData;
 import net.bluemind.webmodule.authentication.internal.SessionsCache;
 import net.bluemind.webmodule.server.IWebFilter;
@@ -220,6 +221,8 @@ public class AuthenticationFilter implements IWebFilter {
 
 			});
 		}
+
+		addCspHeader(request);
 	}
 
 	private void addIfPresent(HttpServerResponse proxyReq, String value, String fallback, String headerKey) {
@@ -235,6 +238,29 @@ public class AuthenticationFilter implements IWebFilter {
 		} else {
 			return false;
 		}
+	}
+
+	private void addCspHeader(HttpServerRequest event) {
+
+		if (!SecurityConfig.cspHeader) {
+			return;
+		}
+
+//		if (!fl.cspEnabled()) {
+//			logger.debug("{}: CSP disabled", event.path());
+//			return;
+//		}
+		event.response().putHeader("Content-Security-Policy",
+				"connect-src 'self' ws: wss: https: blob:; default-src 'self' ws: wss: blob: 'unsafe-inline' 'unsafe-eval'; img-src * data: blob: ");
+
+		event.response().putHeader("Feature-Policy",
+				"accelerometer 'none'; ambient-light-sensor 'none'; autoplay 'self'; battery 'none';"
+						+ " camera 'none'; display-capture 'none'; document-domain 'none'; encrypted-media 'none';"
+						+ " execution-while-not-rendered 'self'; execution-while-out-of-viewport 'self';"
+						+ " fullscreen 'self'; geolocation 'none'; gyroscope 'none'; layout-animations 'none'; layout-animations 'none';"
+						+ " layout-animations 'none'; legacy-image-formats 'none'; magnetometer 'none'; microphone 'none';"
+						+ " midi 'none'; navigation-override 'none'; oversized-images 'none'; payment 'none'; picture-in-picture 'none';"
+						+ " publickey-credentials 'none'; sync-xhr 'none'; usb 'none'; vr 'none'; wake-lock 'none'; xr-spatial-tracking 'none'; ");
 	}
 
 }

@@ -53,6 +53,7 @@ import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Shared;
 import net.bluemind.webmodule.authentication.internal.ExternalCreds;
+import net.bluemind.webmodule.authentication.internal.SecurityConfig;
 import net.bluemind.webmodule.server.NeedVertx;
 
 public class CodeVerifierHandler implements Handler<HttpServerRequest>, NeedVertx {
@@ -187,7 +188,9 @@ public class CodeVerifierHandler implements Handler<HttpServerRequest>, NeedVert
 				Cookie openIdCookie = new DefaultCookie("OpenIdToken", cookie.encode());
 				openIdCookie.setPath("/");
 				openIdCookie.setHttpOnly(true);
-				openIdCookie.setSecure(true);
+				if (SecurityConfig.secureCookies) {
+					openIdCookie.setSecure(true);
+				}
 				request.response().headers().add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(openIdCookie));
 
 				headers.add(HttpHeaders.LOCATION, redirectTo);
