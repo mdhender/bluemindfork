@@ -2,10 +2,12 @@ package net.bluemind.core.backup.continuous.restore.domains.replication;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import io.vertx.core.json.JsonObject;
+import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
@@ -89,11 +91,39 @@ public class RestoreReplicatedMailboxes implements RestoreDomainType {
 			return;
 		}
 
-		boolean exists = api.getComplete(item.uid) != null;
+		ItemValue<MailboxFolder> existingByUid = api.getComplete(item.uid);
+		ItemValue<MailboxReplica> existingById = api.getCompleteById(item.internalId);
+		// inconsistent
+		if ((existingByUid == null && existingById != null) || (existingByUid != null && existingById == null)) {
+			log.monitor().log("inconsistency detected for uid {}, itemId {} while db has byUid: {}, byId: {}",
+					Level.ERROR, item.uid, item.internalId, existingByUid, existingById);
+
+			if (existingByUid != null && existingByUid.internalId != item.internalId) {
+				api.delete(item.uid);
+				log.monitor().log("deleted in-db {} which had wrong itemId", Level.WARN, item.uid);
+				existingByUid = null;
+			} else {
+				throw new ServerFault("inconsistent identifiers for " + item);
+			}
+		}
+
+		boolean exists = existingById != null && existingByUid != null;
+
 		ItemValue<MailboxReplica> itemValue = map(item);
 		MailboxReplica mailboxReplica = itemValue.value;
 
 		if (exists) {
+			if (existingByUid.internalId != item.internalId) {
+				log.monitor().log("existingById.internalId {} <> kafka.internalId {}", Level.ERROR,
+						existingByUid.internalId, item.internalId);
+				throw new ServerFault("inconsistent itemId for " + item);
+			}
+			if (!existingById.uid.equals(item.uid)) {
+				log.monitor().log("existingById.uid {} <> kafka.uid {}", Level.ERROR, existingByUid.internalId,
+						item.internalId);
+				throw new ServerFault("inconsistent uid for " + item);
+			}
+
 			log.update(type(), key);
 			api.update(item.uid, mailboxReplica);
 		} else {
