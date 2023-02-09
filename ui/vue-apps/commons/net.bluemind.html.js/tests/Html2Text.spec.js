@@ -14,6 +14,6 @@ describe("Html2Text", () => {
             html2text(`<a href="mailto:contact@cmsday.fr" 
             style="font-size: 12px; text-decoration: none; color: #FFF; text-decoration: underline;" 
             onclick="return rcmail.command('plugin.composenewwindow','contact@cmsday.fr',this)">contact@cmsday.fr</a>`)
-        ).toEqual("contact@cmsday.fr [mailto:contact@cmsday.fr]");
+        ).toEqual("contact@cmsday.fr");
     });
 });

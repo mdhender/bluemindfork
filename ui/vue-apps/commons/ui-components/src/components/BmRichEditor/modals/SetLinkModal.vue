@@ -63,7 +63,7 @@ export default {
             this.$refs["set-link-modal"].hide();
         },
         setLink() {
-            if (!this.url.startsWith("http://") && !this.url.startsWith("https://")) {
+            if (!/^\w+:/i.test(this.url)) {
                 this.url = "http://" + this.url;
             }
             if (this.text.trim() === "") {

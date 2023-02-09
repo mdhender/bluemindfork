@@ -35,8 +35,8 @@ const ADDITIONAL_ALLOWED_ATTRIBUTES_FOR_ANY_TAG = [
     "data-bm-signature"
 ];
 
-const ALLOWED_LINK_PROTOCOLS = ["http", "https"];
-const LINK_REGEX = new RegExp(`^(${ALLOWED_LINK_PROTOCOLS.join("|")})://(.*)`, "i");
+const ALLOWED_LINK_PROTOCOLS = ["http", "https", "mailto"];
+const LINK_REGEX = new RegExp(`^(${ALLOWED_LINK_PROTOCOLS.join("|")}):(.*)`, "i");
 
 export default function (html, avoidStyleInvading) {
     if (avoidStyleInvading) {
@@ -100,14 +100,14 @@ function customSafeAttrValue(tag, name, value) {
         const linkInfo = value.match(LINK_REGEX);
         const protocol = linkInfo[1];
         const path = linkInfo[2];
-        value = `${protocol.toLowerCase()}://${path}`;
+        value = `${protocol.toLowerCase()}:${path}`;
     }
 
     return xss.safeAttrValue(tag, name, value);
 }
 
 function hasAllowedProtocol(url) {
-    return ALLOWED_LINK_PROTOCOLS.map(p => new RegExp("^" + p + "://", "i").test(url)).reduce((a, b) => a || b);
+    return ALLOWED_LINK_PROTOCOLS.map(p => new RegExp(`${p}:`, "i").test(url)).reduce((a, b) => a || b);
 }
 
 /**

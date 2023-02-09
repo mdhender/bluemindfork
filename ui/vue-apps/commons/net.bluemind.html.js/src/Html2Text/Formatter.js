@@ -106,9 +106,8 @@ function a(node, context, options) {
     // Always get the anchor text
     let content = visitChildren(node, context, options);
     let href = node.href;
-    if (!options.noHref && href && !startsWith(node.href, "tel:")) {
+    if (!options.noHref && href && !/^(tel|mailto):/i.test(href)) {
         // Get the href, if present
-        href.replace(/^mailto:/, "");
         if (href) {
             if (context.base && href.indexOf("/") === 0) {
                 href = options.linkHrefBaseUrl + href;
