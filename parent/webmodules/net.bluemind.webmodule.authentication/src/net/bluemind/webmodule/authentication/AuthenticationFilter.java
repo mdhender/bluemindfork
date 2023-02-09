@@ -47,6 +47,7 @@ import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.core.api.BMVersion;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Shared;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.webmodule.authentication.internal.SecurityConfig;
@@ -77,26 +78,12 @@ public class AuthenticationFilter implements IWebFilter {
 
 	@Override
 	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
-
-		// FIXME
-		// FIXME
-		// FIXME
-		String domainUid = "2ce85e20.internal";
-
 		if (request.path().startsWith("/login/") && !request.path().equals("/login/index.html")) {
 			return CompletableFuture.completedFuture(request);
 		}
 
 		if (request.path().endsWith("/bluemind_sso_logout")) {
-			Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
-					.get(domainUid);
-
-			request.response().headers().add(HttpHeaders.LOCATION,
-					domainSettings.get(DomainSettingsKeys.openid_end_session_endpoint.name()));
-			request.response().setStatusCode(302);
-			request.response().end();
-
-			return CompletableFuture.completedFuture(null);
+			return logout(request);
 		}
 
 		if (request.path().equals("/auth/verify")) {
@@ -112,41 +99,77 @@ public class AuthenticationFilter implements IWebFilter {
 			String sessionId = token.getString("sid");
 			decorate(request, sessionId);
 			return CompletableFuture.completedFuture(request);
-		} else {
+		}
 
-			Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
-					.get(domainUid);
-
-			String key = UUID.randomUUID().toString();
-			String path = Optional.ofNullable(request.path()).orElse("/");
-
-			JsonObject jsonState = new JsonObject();
-			jsonState.put("codeVerifierKey", key);
-			jsonState.put("path", path);
-			jsonState.put("domain_uid", domainUid);
-
-			String state = b64UrlEncoder.encodeToString(jsonState.encode().getBytes());
-
-			String codeVerifier = createCodeVerifier();
-			AuthenticationFilter.put(key, codeVerifier);
-
-			String codeChallenge = b64UrlEncoder
-					.encodeToString(sha256.hashString(codeVerifier, StandardCharsets.UTF_8).asBytes());
-
-			String location = domainSettings.get(DomainSettingsKeys.openid_authorization_endpoint.name());
-			location += "?client_id=" + domainSettings.get(DomainSettingsKeys.openid_client_id.name());
-			location += "&redirect_uri=" + String.format("%s://%s/auth/verify", request.scheme(), request.host());
-			location += "&code_challenge=" + codeChallenge;
-			location += "&state=" + state;
-			location += "&code_challenge_method=S256";
-			location += "&response_type=code";
-			location += "&scope=openid";
-
-			request.response().headers().add(HttpHeaders.LOCATION, location);
+		Optional<String> domainUid = getDomainUid(request);
+		if (domainUid.isEmpty()) {
+			request.response().headers().add(HttpHeaders.LOCATION, "/login/native");
 			request.response().setStatusCode(301);
 			request.response().end();
 			return CompletableFuture.completedFuture(null);
 		}
+
+		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
+				.get(domainUid.get());
+
+		String key = UUID.randomUUID().toString();
+		String path = Optional.ofNullable(request.path()).orElse("/");
+
+		JsonObject jsonState = new JsonObject();
+		jsonState.put("codeVerifierKey", key);
+		jsonState.put("path", path);
+		jsonState.put("domain_uid", domainUid.get());
+
+		String state = b64UrlEncoder.encodeToString(jsonState.encode().getBytes());
+
+		String codeVerifier = createCodeVerifier();
+		AuthenticationFilter.put(key, codeVerifier);
+
+		String codeChallenge = b64UrlEncoder
+				.encodeToString(sha256.hashString(codeVerifier, StandardCharsets.UTF_8).asBytes());
+
+		String location = domainSettings.get(DomainSettingsKeys.openid_authorization_endpoint.name());
+		location += "?client_id=" + domainSettings.get(DomainSettingsKeys.openid_client_id.name());
+		location += "&redirect_uri=" + String.format("%s://%s/auth/verify", request.scheme(), request.host());
+		location += "&code_challenge=" + codeChallenge;
+		location += "&state=" + state;
+		location += "&code_challenge_method=S256";
+		location += "&response_type=code";
+		location += "&scope=openid";
+
+		request.response().headers().add(HttpHeaders.LOCATION, location);
+		request.response().setStatusCode(301);
+		request.response().end();
+		return CompletableFuture.completedFuture(null);
+
+	}
+
+	private CompletableFuture<HttpServerRequest> logout(HttpServerRequest request) {
+		Optional<String> domainUid = getDomainUid(request);
+		if (domainUid.isEmpty()) {
+			return CompletableFuture.completedFuture(request);
+		}
+
+		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
+				.get(domainUid.get());
+
+		request.response().headers().add(HttpHeaders.LOCATION,
+				domainSettings.get(DomainSettingsKeys.openid_end_session_endpoint.name()));
+		request.response().setStatusCode(302);
+		request.response().end();
+
+		return CompletableFuture.completedFuture(null);
+	}
+
+	private Optional<String> getDomainUid(HttpServerRequest request) {
+		SharedMap<String, Map<String, String>> all = MQ
+				.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS);
+
+		return all.keys().stream().filter(domainUid -> {
+			Map<String, String> values = all.get(domainUid);
+			String extUrl = values.get(DomainSettingsKeys.external_url.name());
+			return request.host().equals(extUrl);
+		}).findFirst();
 	}
 
 	private String createCodeVerifier() {
