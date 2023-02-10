@@ -1419,6 +1419,7 @@ ul.bm-ui-form-inline li {
 
 .bm-ui-form-fieldset-attendees-container input {
   margin:0;
+  width: 100%;
 }
 
 label.bm-ui-form-append, label.bm-ui-form-prepend {
