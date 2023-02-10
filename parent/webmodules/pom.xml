@@ -20,7 +20,7 @@
 		<module>net.bluemind.webmodule.filehostinghandler</module>
 		<module>net.bluemind.webmodule.openidhandler</module>
 		<module>net.bluemind.webmodule.dav</module>
-		<module>net.bluemind.webmodule.authentication</module>
-		<module>net.bluemind.webmodule.maintenance</module>
+		<module>net.bluemind.webmodule.authenticationfilter</module>
+		<module>net.bluemind.webmodule.maintenancefilter</module>
 	</modules>
 </project>
