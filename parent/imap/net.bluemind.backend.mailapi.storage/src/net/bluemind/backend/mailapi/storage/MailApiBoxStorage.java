@@ -158,8 +158,7 @@ public class MailApiBoxStorage implements IMailboxesStorage {
 		for (String f : Iterables.concat(Collections.singleton(n),
 				DefaultFolder.MAILSHARE_FOLDERS_NAME.stream().map(f -> n + "/" + f).collect(Collectors.toList()))) {
 			MailboxReplica repl = folder(boxItem, f);
-			String fn = f.equals(boxItem.value.name) ? "" : repl.name;
-			String uid = CyrusUniqueIds.forMailbox(domainUid, boxItem, fn).toString();
+			String uid = CyrusUniqueIds.forMailbox(domainUid, boxItem, repl.name).toString();
 			if (foldersApi.getComplete(uid) != null) {
 				foldersApi.update(uid, repl);
 			} else {

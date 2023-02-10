@@ -47,7 +47,9 @@ public class CyrusUniqueIds {
 		if (!mbox.value.type.sharedNs) {
 			toDerive = "user." + mbox.uid + "@" + domainUid + "#" + folderName;
 		} else {
-			toDerive = mbox.uid + "@" + domainUid + (folderName.isEmpty() ? "" : "#" + folderName);
+			String fn = folderName.equals(mbox.value.name) ? ""
+					: folderName.replaceAll("^" + mbox.value.name + "/", "");
+			toDerive = mbox.uid + "@" + domainUid + (folderName.isEmpty() ? "" : "#" + fn);
 		}
 		byte[] hashBytes = Hashing.murmur3_128().hashBytes(toDerive.getBytes()).asBytes();
 		ByteBuf twoLongs = Unpooled.wrappedBuffer(hashBytes);
