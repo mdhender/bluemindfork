@@ -53,8 +53,8 @@ import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Shared;
 import net.bluemind.webmodule.authenticationfilter.internal.ExternalCreds;
-import net.bluemind.webmodule.authenticationfilter.internal.SecurityConfig;
 import net.bluemind.webmodule.server.NeedVertx;
+import net.bluemind.webmodule.server.SecurityConfig;
 
 public class CodeVerifierHandler implements Handler<HttpServerRequest>, NeedVertx {
 

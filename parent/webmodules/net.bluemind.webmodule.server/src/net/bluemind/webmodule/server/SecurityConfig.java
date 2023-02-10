@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.webmodule.authenticationfilter.internal;
+package net.bluemind.webmodule.server;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;

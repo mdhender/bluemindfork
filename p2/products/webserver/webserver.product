@@ -162,6 +162,7 @@
       <plugin id="net.bluemind.webapp.root.js"/>
       <plugin id="net.bluemind.webmodule"/>
       <plugin id="net.bluemind.webmodule.authenticationfilter"/>
+      <plugin id="net.bluemind.webmodule.cspfilter"/>
       <plugin id="net.bluemind.webmodule.epfilter"/>
       <plugin id="net.bluemind.webmodule.gwtserver"/>
       <plugin id="net.bluemind.webmodule.inputfilter"/>
