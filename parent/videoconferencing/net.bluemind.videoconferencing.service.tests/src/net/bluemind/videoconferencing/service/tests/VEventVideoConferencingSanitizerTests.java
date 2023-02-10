@@ -333,6 +333,17 @@ public class VEventVideoConferencingSanitizerTests extends AbstractVideoConferen
 		assertEquals(defaultVEvent().main.description, updatedNoVideoconference.main.description);
 	}
 
+	@Test
+	public void testCreateUnknownResource() {
+		VEventSeries event = defaultVEvent();
+		VEvent.Attendee resource = VEvent.Attendee.create(VEvent.CUType.Resource, "", VEvent.Role.OptionalParticipant,
+				VEvent.ParticipationStatus.Accepted, true, "", "", "", "osef", null, null, null,
+				"unknown@" + domainUid);
+		event.main.attendees.add(resource);
+
+		sanitizer.create(event); // should not fail
+	}
+
 	protected VEventSeries defaultVEvent() {
 		VEventSeries series = new VEventSeries();
 		VEvent event = new VEvent();

@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
@@ -99,6 +101,9 @@ public class VEventVideoConferencingSanitizer implements ISanitizer<VEventSeries
 	}
 
 	private Optional<ItemValue<ResourceDescriptor>> getResource(Attendee a, IResources service) {
+		if (Strings.isNullOrEmpty(a.dir)) {
+			return Optional.empty();
+		}
 		String uid = a.dir.substring(a.dir.lastIndexOf("/") + 1);
 		ResourceDescriptor res = service.get(uid);
 		if (res != null) {

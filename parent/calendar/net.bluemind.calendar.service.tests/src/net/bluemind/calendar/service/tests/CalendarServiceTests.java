@@ -1964,6 +1964,24 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		assertEquals(updated.value.main.conference, created.value.main.conference);
 	}
 
+	@Test
+	public void testCreateUnknownResource() throws ServerFault {
+		ICalendar service = getCalendarService(userSecurityContext, userCalendarContainer);
+
+		VEventSeries event = defaultVEvent();
+		VEvent.Attendee resource = VEvent.Attendee.create(VEvent.CUType.Resource, "", VEvent.Role.OptionalParticipant,
+				VEvent.ParticipationStatus.Accepted, true, "", "", "", "osef", null, null, null,
+				"unknown@" + domainUid);
+		event.main.attendees.add(resource);
+
+		String uid = "testEventUrl_" + System.nanoTime();
+		service.create(uid, event, sendNotifications);
+
+		ItemValue<VEventSeries> created = service.getComplete(uid);
+		assertNotNull(created);
+		assertEquals(2, created.value.main.attendees.size());
+	}
+
 	private ItemValue<VEventSeries> defaultVEventItem(long id) throws ParseException {
 		Item item = new Item();
 		item.id = id;
