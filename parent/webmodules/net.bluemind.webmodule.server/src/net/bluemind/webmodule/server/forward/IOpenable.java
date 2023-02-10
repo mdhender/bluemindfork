@@ -16,19 +16,13 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.webmodule.server;
+package net.bluemind.webmodule.server.forward;
 
-import java.util.concurrent.CompletableFuture;
+import java.io.IOException;
+import java.io.InputStream;
 
-import io.vertx.core.http.HttpServerRequest;
+public interface IOpenable {
 
-public interface IWebFilter {
+	InputStream open() throws IOException;
 
-	/**
-	 * 
-	 * @param request
-	 * @param conf
-	 * @return null if the filter want to completly handle the request
-	 */
-	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request, WebserverConfiguration conf);
 }

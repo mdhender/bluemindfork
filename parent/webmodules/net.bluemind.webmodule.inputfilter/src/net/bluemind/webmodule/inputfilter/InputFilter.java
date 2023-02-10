@@ -32,13 +32,14 @@ import com.google.common.io.Resources;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.webmodule.server.IWebFilter;
+import net.bluemind.webmodule.server.WebserverConfiguration;
 
 public class InputFilter implements IWebFilter {
 
 	private static final Logger logger = LoggerFactory.getLogger(InputFilter.class);
 
 	@Override
-	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request, WebserverConfiguration conf) {
 		String path = request.path();
 		if (path.startsWith("/input/")) {
 			String b = path.substring("/input/".length());

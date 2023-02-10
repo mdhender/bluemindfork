@@ -28,6 +28,7 @@ Eclipse-RegisterBuddy: net.bluemind.lib.vertx
 Export-Package: net.bluemind.webmodule.server,
  net.bluemind.webmodule.server.export,
  net.bluemind.webmodule.server.filters,
+ net.bluemind.webmodule.server.forward,
  net.bluemind.webmodule.server.handlers
 Bundle-Activator: net.bluemind.webmodule.server.WebModuleServerActivator
 Automatic-Module-Name: net.bluemind.webmodule.server

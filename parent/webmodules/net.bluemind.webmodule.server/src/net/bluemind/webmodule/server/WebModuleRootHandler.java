@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +40,12 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 
 	private final List<WebModule> modules;
 	private final List<IWebFilter> filters;
+	private final Supplier<WebserverConfiguration> conf;
 
 	private final Vertx vertx;
 
-	private WebModuleRootHandler(Vertx vertx, List<WebModule> roots, List<IWebFilter> filters) {
+	private WebModuleRootHandler(Vertx vertx, List<WebModule> roots, List<IWebFilter> filters,
+			Supplier<WebserverConfiguration> conf) {
 		this.vertx = vertx;
 		this.modulesRouter = new RouteMatcher(vertx);
 		logger.debug("modules {}, filters {}", roots.size(), filters.size());
@@ -54,6 +57,8 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 		for (WebModule module : modules) {
 			modulesRouter.allWithRegEx(module.root + ".*", moduleHandler(module));
 		}
+
+		this.conf = conf;
 
 	}
 
@@ -119,7 +124,7 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 				if (req == null) {
 					return CompletableFuture.completedFuture(null);
 				}
-				return filter.filter(req);
+				return filter.filter(req, conf.get());
 			}).exceptionally(e -> {
 				onError(request, e);
 				return null;
@@ -176,6 +181,8 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 			}
 		}
 
-		return new WebModuleRootHandler(vertx, roots, filters);
+		Supplier<WebserverConfiguration> conf = WebModuleServerActivator.getConf();
+
+		return new WebModuleRootHandler(vertx, roots, filters, conf);
 	}
 }

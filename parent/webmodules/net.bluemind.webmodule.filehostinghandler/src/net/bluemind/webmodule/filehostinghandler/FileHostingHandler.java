@@ -42,13 +42,14 @@ import net.bluemind.filehosting.api.Metadata;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.webmodule.server.IWebFilter;
 import net.bluemind.webmodule.server.NeedVertx;
+import net.bluemind.webmodule.server.WebserverConfiguration;
 
 public class FileHostingHandler implements IWebFilter, NeedVertx {
 	Logger logger = LoggerFactory.getLogger(FileHostingHandler.class);
 	private HttpClientProvider clientProvider;
 
 	@Override
-	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request, WebserverConfiguration conf) {
 		final HttpServerResponse resp = request.response();
 
 		String path = request.path();

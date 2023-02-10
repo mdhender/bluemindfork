@@ -42,6 +42,7 @@ import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.webmodule.server.IWebFilter;
 import net.bluemind.webmodule.server.NeedVertx;
+import net.bluemind.webmodule.server.WebserverConfiguration;
 
 public class PublishCalendarFilter implements IWebFilter, NeedVertx {
 
@@ -60,7 +61,7 @@ public class PublishCalendarFilter implements IWebFilter, NeedVertx {
 	};
 
 	@Override
-	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request, WebserverConfiguration conf) {
 		String path = request.path();
 		if (!path.startsWith("/cal/calendar/publish")) {
 			return CompletableFuture.completedFuture(request);

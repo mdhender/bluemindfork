@@ -18,22 +18,35 @@
  */
 package net.bluemind.webmodule.server;
 
-import jakarta.activation.MimetypesFileTypeMap;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
+import com.google.common.base.Suppliers;
+
+import jakarta.activation.MimetypesFileTypeMap;
+import net.bluemind.webmodule.server.forward.ConfigBuilder;
+
 public class WebModuleServerActivator implements BundleActivator {
 
+	private static BundleContext context;
+
+	public static BundleContext getContext() {
+		return context;
+	}
+
 	private static List<WebModuleBuilder> modules;
+	private static Supplier<WebserverConfiguration> conf;
 
 	public static MimetypesFileTypeMap mimeTypes;
 
 	@Override
 	public void start(BundleContext context) throws Exception {
+		WebModuleServerActivator.context = context;
 		WebModuleResolver resolver = new WebModuleResolver();
 		modules = resolver.loadExtensions();
 		resolver.logModules(modules);
@@ -43,6 +56,8 @@ public class WebModuleServerActivator implements BundleActivator {
 			mimeTypes = new MimetypesFileTypeMap(in);
 		}
 		new WebServerFilters().loadExtensions();
+
+		conf = Suppliers.memoize(ConfigBuilder::build);
 	}
 
 	@Override
@@ -57,4 +72,9 @@ public class WebModuleServerActivator implements BundleActivator {
 	public static List<IWebFilter> getFilters() {
 		return new WebServerFilters().loadExtensions();
 	}
+
+	public static Supplier<WebserverConfiguration> getConf() {
+		return conf;
+	}
+
 }

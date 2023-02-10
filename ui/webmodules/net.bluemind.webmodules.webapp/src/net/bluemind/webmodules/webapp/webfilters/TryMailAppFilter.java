@@ -37,6 +37,7 @@ import net.bluemind.network.topology.Topology;
 import net.bluemind.user.api.IUserSettingsAsync;
 import net.bluemind.webmodule.server.IWebFilter;
 import net.bluemind.webmodule.server.NeedVertx;
+import net.bluemind.webmodule.server.WebserverConfiguration;
 import net.bluemind.webmodule.server.handlers.TemporaryRedirectHandler;
 
 public class TryMailAppFilter implements IWebFilter, NeedVertx {
@@ -54,7 +55,7 @@ public class TryMailAppFilter implements IWebFilter, NeedVertx {
 	};
 
 	@Override
-	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request, WebserverConfiguration conf) {
 		CompletableFuture<HttpServerRequest> completableFuture = new CompletableFuture<>();
 
 		if (matchFilter(request)) {
@@ -94,7 +95,7 @@ public class TryMailAppFilter implements IWebFilter, NeedVertx {
 		} else {
 			completableFuture.complete(request);
 		}
-		
+
 		return completableFuture;
 	}
 
@@ -106,7 +107,6 @@ public class TryMailAppFilter implements IWebFilter, NeedVertx {
 	public void setVertx(Vertx vertx) {
 		this.clientProvider = new HttpClientProvider(vertx);
 	}
-	
 
 	private void redirectToWebmail(HttpServerRequest request) {
 		String userUid = request.headers().get("BMUserId");

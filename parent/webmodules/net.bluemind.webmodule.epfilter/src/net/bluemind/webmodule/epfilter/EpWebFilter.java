@@ -26,11 +26,12 @@ import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.webmodule.server.IWebFilter;
 import net.bluemind.webmodule.server.PreEncodedObject;
 import net.bluemind.webmodule.server.WebExtensionsResolver;
+import net.bluemind.webmodule.server.WebserverConfiguration;
 
 public final class EpWebFilter implements IWebFilter {
 
 	@Override
-	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request, WebserverConfiguration conf) {
 		String path = request.path();
 		if (path.endsWith("uiextension")) {
 			String lang = request.headers().get("BMLang");

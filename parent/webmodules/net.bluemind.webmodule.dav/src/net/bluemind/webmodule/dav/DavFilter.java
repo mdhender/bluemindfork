@@ -28,6 +28,7 @@ import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.dav.server.DavRouter;
 import net.bluemind.webmodule.server.IWebFilter;
 import net.bluemind.webmodule.server.NeedVertx;
+import net.bluemind.webmodule.server.WebserverConfiguration;
 
 public class DavFilter implements IWebFilter, NeedVertx {
 
@@ -39,7 +40,7 @@ public class DavFilter implements IWebFilter, NeedVertx {
 	}
 
 	@Override
-	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request, WebserverConfiguration conf) {
 		String path = request.path();
 
 		if (path.equals(DavRouter.CAL_REDIR) || path.equals(DavRouter.CARD_REDIR) || path.startsWith("/dav")) {

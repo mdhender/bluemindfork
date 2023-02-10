@@ -27,13 +27,14 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.webmodule.maintenancefilter.internal.CoreState;
 import net.bluemind.webmodule.server.IWebFilter;
+import net.bluemind.webmodule.server.WebserverConfiguration;
 
 public class MaintenanceFilter implements IWebFilter {
 
 	private static final Logger logger = LoggerFactory.getLogger(MaintenanceFilter.class);
 
 	@Override
-	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request, WebserverConfiguration conf) {
 
 		if (CoreState.notInstalled() || CoreState.needUpgrade()) {
 			return setupWizard(request);

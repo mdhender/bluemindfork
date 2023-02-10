@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<forwards>
+	<forward path="/cal" auth="true" role="hasCalendar">
+		<whitelist>
+			<wl uri="/favicon.ico" />
+			<wl uri="/cal/images/logo-bluemind.png" />
+		</whitelist>
+	</forward>
+</forwards>

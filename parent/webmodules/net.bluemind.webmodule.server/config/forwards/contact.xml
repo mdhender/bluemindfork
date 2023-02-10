@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<forwards>
+	<forward path="/contact" auth="true" role="hasMail">
+		<whitelist>
+			<wl uri="/favicon.ico" />
+		</whitelist>
+	</forward>
+</forwards>

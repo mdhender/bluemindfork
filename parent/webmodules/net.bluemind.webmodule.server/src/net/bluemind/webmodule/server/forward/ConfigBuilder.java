@@ -16,19 +16,32 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.webmodule.server;
+package net.bluemind.webmodule.server.forward;
 
-import java.util.concurrent.CompletableFuture;
+import java.io.File;
 
-import io.vertx.core.http.HttpServerRequest;
+import net.bluemind.webmodule.server.WebserverConfiguration;
 
-public interface IWebFilter {
+public final class ConfigBuilder {
+	private ConfigBuilder() {
+	}
 
-	/**
-	 * 
-	 * @param request
-	 * @param conf
-	 * @return null if the filter want to completly handle the request
-	 */
-	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request, WebserverConfiguration conf);
+	public static WebserverConfiguration build() {
+		WebserverConfiguration conf = new WebserverConfiguration();
+
+		File co = new File("/etc/bm-hps/bm_sso.xml");
+		IConfigLoader cl = null;
+		if (co.exists()) {
+			cl = new FSConfigLoader();
+		} else {
+			cl = new InBundleConfigLoader();
+		}
+		cl.load(conf);
+
+		IConfigLoader ecl = new ExtensionConfigLoader();
+		ecl.load(conf);
+
+		return conf;
+	}
+
 }

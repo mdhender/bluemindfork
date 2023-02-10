@@ -38,6 +38,7 @@ import net.bluemind.webmodule.server.NeedWebModules;
 import net.bluemind.webmodule.server.PreEncodedObject;
 import net.bluemind.webmodule.server.WebModule;
 import net.bluemind.webmodule.server.js.JsEntry;
+import net.bluemind.webmodule.server.WebserverConfiguration;
 
 public class WebModuleResourcesFilter implements IWebFilter, NeedWebModules {
 	private Map<String, WebModule> modules;
@@ -46,7 +47,7 @@ public class WebModuleResourcesFilter implements IWebFilter, NeedWebModules {
 	private static final Map<String, PreEncodedObject> resCache = new ConcurrentHashMap<>();
 
 	@Override
-	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request, WebserverConfiguration conf) {
 		String path = request.path();
 		if (!path.endsWith("module-webresources")) {
 			return CompletableFuture.completedFuture(request);

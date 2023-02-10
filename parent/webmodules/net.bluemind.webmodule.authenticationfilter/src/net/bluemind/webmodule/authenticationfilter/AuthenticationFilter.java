@@ -53,6 +53,7 @@ import net.bluemind.network.topology.Topology;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionData;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionsCache;
 import net.bluemind.webmodule.server.IWebFilter;
+import net.bluemind.webmodule.server.WebserverConfiguration;
 
 public class AuthenticationFilter implements IWebFilter {
 
@@ -76,7 +77,8 @@ public class AuthenticationFilter implements IWebFilter {
 	}
 
 	@Override
-	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request, WebserverConfiguration conf) {
+
 		if (request.path().startsWith("/login/") && !request.path().equals("/login/index.html")) {
 			return CompletableFuture.completedFuture(request);
 		}

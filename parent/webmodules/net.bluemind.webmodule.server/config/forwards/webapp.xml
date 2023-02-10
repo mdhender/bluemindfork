@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<forwards>
+	<forward path="/webapp" auth="true">
+		<whitelist>
+			<wl uri="js/net.bluemind.webapp.mail.js.map" />
+			<wl uri="js/net.bluemind.webapp.root.js.map" />
+		</whitelist>
+	</forward>
+</forwards>

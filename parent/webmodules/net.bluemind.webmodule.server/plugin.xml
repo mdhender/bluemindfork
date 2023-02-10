@@ -2,6 +2,7 @@
 <?eclipse version="3.4"?>
 <plugin>
       <extension-point id="net.bluemind.webmodule.server" name="webModuleServerExtensionPoint" schema="schema/net.bluemind.webmodule.server.exsd"/>
+      <extension-point id="net.bluemind.proxy.http.forward" name="forward" schema="schema/net.bluemind.proxy.http.forward.exsd"/>
       <extension point="net.bluemind.webmodule.server">
             <web-filter class="net.bluemind.webmodule.server.filters.WebModuleResourcesFilter">
             </web-filter>

@@ -22,11 +22,12 @@ import java.util.concurrent.CompletableFuture;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.webmodule.server.IWebFilter;
 import net.bluemind.webmodule.server.SecurityConfig;
+import net.bluemind.webmodule.server.WebserverConfiguration;
 
 public class CSPFilter implements IWebFilter {
 
 	@Override
-	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request, WebserverConfiguration conf) {
 
 		if (!SecurityConfig.cspHeader) {
 			return CompletableFuture.completedFuture(request);

@@ -39,12 +39,13 @@ import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.core.api.BMVersion;
 import net.bluemind.sentry.settings.ClientAccess;
 import net.bluemind.webmodule.server.IWebFilter;
+import net.bluemind.webmodule.server.WebserverConfiguration;
 
 public class WebModuleSessionInfosFilter implements IWebFilter {
 	private static final Logger logger = LoggerFactory.getLogger(WebModuleSessionInfosFilter.class);
 
 	@Override
-	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request, WebserverConfiguration conf) {
 		if (isSessionInfos(request)) {
 			return sessionInfos(request);
 		}

@@ -16,19 +16,10 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.webmodule.server;
+package net.bluemind.webmodule.server.forward;
 
-import java.util.concurrent.CompletableFuture;
+import net.bluemind.webmodule.server.WebserverConfiguration;
 
-import io.vertx.core.http.HttpServerRequest;
-
-public interface IWebFilter {
-
-	/**
-	 * 
-	 * @param request
-	 * @param conf
-	 * @return null if the filter want to completly handle the request
-	 */
-	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request, WebserverConfiguration conf);
+public interface IConfigLoader {
+	public void load(WebserverConfiguration conf);
 }
