@@ -70,6 +70,7 @@ function onRemoteFileChoosed(aFiles) {
                         return;
                     }
                     let dlUrl = provider.urlForFile(file);
+                    let expire = provider._expireForUrls[dlUrl];
                     let upload = {
                         path: file.path,
                         url: dlUrl,
@@ -78,9 +79,7 @@ function onRemoteFileChoosed(aFiles) {
                         serviceName: provider.serviceName,
                         serviceIcon: provider.iconClass,
                         serviceUrl: provider.serviceUrl,
-                        downloadExpiryDate: {
-                            timestamp: provider._expireForUrls[dlUrl]
-                        },
+                        downloadExpiryDate: expire ? { timestamp: expire } : null,
                     }
                     attachToCloudRepeat(upload, provider);
                 }

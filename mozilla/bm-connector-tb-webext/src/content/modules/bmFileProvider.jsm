@@ -132,6 +132,7 @@ bmFileProvider.prototype = {
                             throw cr;
                         }
                         let dlUrl =  self._urlsForFiles[aFile.path];
+                        let expire = self._expireForUrls[dlUrl];
                         let upload = {
                             url: dlUrl, //Next values are for TB 99+
                             name: aFile.leafName,
@@ -139,9 +140,7 @@ bmFileProvider.prototype = {
                             serviceName: self.serviceName,
                             serviceIcon: self.iconClass,
                             serviceUrl: self.serviceURL,
-                            downloadExpiryDate: {
-                                timestamp: self._expireForUrls[dlUrl]
-                            },
+                            downloadExpiryDate: expire ? { timestamp: expire } : null,
                         }
                         resolve(upload);
                     }
