@@ -54,6 +54,7 @@ import net.bluemind.webmodule.authenticationfilter.internal.SessionData;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionsCache;
 import net.bluemind.webmodule.server.IWebFilter;
 import net.bluemind.webmodule.server.WebserverConfiguration;
+import net.bluemind.webmodule.server.forward.ForwardedLocation;
 
 public class AuthenticationFilter implements IWebFilter {
 
@@ -79,16 +80,15 @@ public class AuthenticationFilter implements IWebFilter {
 	@Override
 	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request, WebserverConfiguration conf) {
 
-		if (request.path().startsWith("/login/") && !request.path().equals("/login/index.html")) {
+		if (!needAuthentication(request, conf)) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("No auth needed for {}", request.path());
+			}
 			return CompletableFuture.completedFuture(request);
 		}
 
 		if (request.path().endsWith("/bluemind_sso_logout")) {
 			return logout(request);
-		}
-
-		if (request.path().equals("/auth/verify")) {
-			return CompletableFuture.completedFuture(request);
 		}
 
 		String cookieStr = Optional.ofNullable(request.headers().get("cookie")).orElse("");
@@ -143,6 +143,31 @@ public class AuthenticationFilter implements IWebFilter {
 		request.response().end();
 		return CompletableFuture.completedFuture(null);
 
+	}
+
+	private boolean needAuthentication(HttpServerRequest request, WebserverConfiguration conf) {
+
+		if (request.path().startsWith("/login/") && !request.path().equals("/login/index.html")) {
+			return false;
+		}
+
+		if (request.path().equals("/auth/verify")) {
+			return false;
+		}
+
+		Optional<ForwardedLocation> forwardedLocation = conf.getForwardedLocations().stream()
+				.filter(fl -> request.path().startsWith(fl.getPathPrefix())).findFirst();
+
+		if (forwardedLocation.isPresent()) {
+			ForwardedLocation fl = forwardedLocation.get();
+			if (!fl.needAuth()) {
+				return false;
+			}
+
+			return !fl.isWhitelisted(request.path());
+		}
+
+		return true;
 	}
 
 	private CompletableFuture<HttpServerRequest> logout(HttpServerRequest request) {
