@@ -351,7 +351,8 @@ net.bluemind.calendar.navigation.NavigationPresenter.prototype.showView_ = funct
       return validFolders;
     });
   }, this).then(function(folders) {
-    this.ctx.service('calendarsMgmt').setCalendars(folders);
+    return this.ctx.service('calendarsMgmt').setCalendars(folders);
+  }, null, this).then(function() {
     if (this.ctx.online) {
       var viewType = lview['value']['type'];
       if (viewType == 'DAY') {
