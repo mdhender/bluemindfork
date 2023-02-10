@@ -94,7 +94,8 @@ public class ResourceTypeStore extends JdbcAbstractStore {
 					new Object[] { identifier, container.id });
 
 			String pQuery = " INSERT INTO t_resource_type_prop (" + ResourceTypeColumns.propCols.names()
-					+ ", type_id, resource_container_id) VALUES (" + ResourceTypeColumns.propCols.values() + ", ?, ? )";
+					+ ", type_id, resource_container_id) VALUES (" + ResourceTypeColumns.propCols.values()
+					+ ", ?, ? ) ON CONFLICT DO NOTHING";
 			batchInsert(pQuery, descriptor.properties, ResourceTypeColumns.propStatementValues(identifier, container));
 			return null;
 		});
