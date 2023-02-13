@@ -1,10 +1,15 @@
 package net.bluemind.core.backup.continuous.restore.domains;
 
+import java.util.Optional;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.dto.ContainerMetadata;
+import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IInternalContainerManagement;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
+import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.utils.JsonUtils;
@@ -32,8 +37,19 @@ public class RestoreContainerMetadata implements RestoreDomainType {
 	public void restore(RecordKey key, String payload) {
 		ItemValue<ContainerMetadata> item = mrReader.read(payload);
 		ContainerMetadata metadata = item.value;
+
+		IContainers contApi = target.instance(IContainers.class);
+		Optional<ContainerDescriptor> maybeHere = Optional.ofNullable(contApi.getIfPresent(metadata.contDesc.uid));
+		if (!maybeHere.isPresent()) {
+			BaseContainerDescriptor cd = metadata.contDesc;
+			ContainerDescriptor fullCd = ContainerDescriptor.create(cd.uid, cd.name, cd.owner, cd.type, cd.domainUid,
+					cd.defaultContainer, metadata.settings);
+			contApi.create(cd.uid, fullCd);
+			log.create(cd.type, key);
+		}
+
 		IInternalContainerManagement mgmtApi = target.instance(IInternalContainerManagement.class,
-				metadata.containerUid);
+				metadata.contDesc.uid);
 		log.set(type(), metadata.type.name(), key);
 		switch (metadata.type) {
 		case ACL:

@@ -33,6 +33,7 @@ import net.bluemind.core.backup.continuous.dto.ContainerMetadata;
 import net.bluemind.core.backup.continuous.mgmt.api.BackupSyncOptions;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.IContainerManagement;
+import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IRestoreDirEntryWithMailboxSupport;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
@@ -118,13 +119,15 @@ public class DirEntryWithMailboxSync<T> {
 		try {
 			IContainerManagement mgmt = ctx.provider().instance(IContainerManagement.class, node.value.containerUid);
 			String uidAlias = ContainerUidsMapping.alias(node.value.containerUid);
-			ContainerMetadata aclMeta = ContainerMetadata.forAcls(uidAlias,
-					mgmt.getAccessControlList().stream().map(ace -> {
-						ace.subject = ContainerUidsMapping.alias(ace.subject);
-						return ace;
-					}).collect(Collectors.toList()));
+			IContainers contApi = ctx.provider().instance(IContainers.class);
+			BaseContainerDescriptor bd = contApi.getLight(node.value.containerUid);
+			bd.uid = uidAlias;
+			ContainerMetadata aclMeta = ContainerMetadata.forAcls(bd, mgmt.getAccessControlList().stream().map(ace -> {
+				ace.subject = ContainerUidsMapping.alias(ace.subject);
+				return ace;
+			}).collect(Collectors.toList()));
 			cmBack.save(domainUid(), stored.uid, uidAlias, aclMeta, true);
-			ContainerMetadata setMeta = ContainerMetadata.forSettings(uidAlias, mgmt.getSettings());
+			ContainerMetadata setMeta = ContainerMetadata.forSettings(bd, mgmt.getSettings());
 			cmBack.save(domainUid(), stored.uid, uidAlias, setMeta, true);
 		} catch (ServerFault sf) {
 			entryMon.log("WARN error processing " + node.value + ": " + sf.getMessage());

@@ -20,6 +20,7 @@ package net.bluemind.core.backup.continuous.dto;
 import java.util.List;
 import java.util.Map;
 
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 
 public class ContainerMetadata {
@@ -28,27 +29,27 @@ public class ContainerMetadata {
 		ACL, SETTING;
 	}
 
-	public String containerUid;
-
 	public MetaType type;
+
+	public BaseContainerDescriptor contDesc;
 
 	public List<AccessControlEntry> acls;
 
 	public Map<String, String> settings;
 
-	public static ContainerMetadata forAcls(String containerUid, List<AccessControlEntry> acls) {
+	public static ContainerMetadata forAcls(BaseContainerDescriptor bcd, List<AccessControlEntry> acls) {
 		ContainerMetadata metadata = new ContainerMetadata();
 		metadata.type = MetaType.ACL;
-		metadata.containerUid = containerUid;
 		metadata.acls = acls;
+		metadata.contDesc = bcd;
 		return metadata;
 	}
 
-	public static ContainerMetadata forSettings(String containerUid, Map<String, String> settings) {
+	public static ContainerMetadata forSettings(BaseContainerDescriptor bcd, Map<String, String> settings) {
 		ContainerMetadata metadata = new ContainerMetadata();
 		metadata.type = MetaType.SETTING;
-		metadata.containerUid = containerUid;
 		metadata.settings = settings;
+		metadata.contDesc = bcd;
 		return metadata;
 	}
 
