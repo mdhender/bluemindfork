@@ -32,6 +32,10 @@ public class JsonHttpHelper implements AutoCloseable {
 		client.preparePut(url).setBody(content.encode().getBytes()).execute().get(10, TimeUnit.SECONDS);
 	}
 
+	public void delete(String url) throws Exception {
+		client.prepareDelete(url).execute().get(10, TimeUnit.SECONDS);
+	}
+
 	public void close() {
 		try {
 			client.close();

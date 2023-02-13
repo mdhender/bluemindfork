@@ -96,6 +96,22 @@ public class ChronografClient implements AutoCloseable {
 		}
 	}
 
+	public void deleteDashboard(String dashboardName) {
+		try {
+			List<DashInfos> existingDashboards = getExistingDashboards();
+			for (DashInfos i : existingDashboards) {
+				if (i.name.equals(dashboardName)) {
+					String request = apiEndpoint + "/dashboards/" + i.id;
+					jsonHelper.delete(request);
+					logger.info("Chronograf dashboard {} removed", i.name);
+					return;
+				}
+			}
+		} catch (Exception e) {
+			logger.warn("Error while removing chronograf dashboard {}", dashboardName, e);
+		}
+	}
+
 	@Override
 	public void close() {
 		jsonHelper.close();

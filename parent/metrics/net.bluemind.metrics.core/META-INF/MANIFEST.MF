@@ -37,4 +37,4 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.metrics.core
 Bundle-ActivationPolicy: lazy
-Export-Package: net.bluemind.metrics.core.service
+Export-Package: net.bluemind.metrics.core.service, net.bluemind.metrics.core.tick.client

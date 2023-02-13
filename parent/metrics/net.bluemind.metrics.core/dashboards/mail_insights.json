@@ -1,13 +1,5 @@
 {
-   "templates": [],
-   "links": {
-      "self": "/chronograf/v1/dashboards/1",
-      "cells": "/chronograf/v1/dashboards/1/cells",
-      "templates": "/chronograf/v1/dashboards/1/templates"
-   },
-   "organization": "default",
-   "name": "Mail Insights",
-   "id": 4,
+   "id": "1",
    "cells": [
       {
          "i": "adce79cd-c666-425f-bfbf-7f0e8790b8ff",
@@ -724,123 +716,6 @@
          }
       },
       {
-         "i": "eca67784-42c4-499e-b9d1-daa2ba9f0125",
-         "x": 0,
-         "y": 7,
-         "w": 6,
-         "h": 3,
-         "name": "LMTP Cpu usage ms/min",
-         "queries": [
-            {
-               "query": "SELECT non_negative_difference(last(\"count\"))/1000000 AS \"cpu_ms\" FROM \"telegraf\".\"autogen\".\"bm-lmtpd.jvm.processCpuTime\" WHERE time > :dashboardTime: GROUP BY time(1m) FILL(null)",
-               "queryConfig": {
-                  "database": "",
-                  "measurement": "",
-                  "retentionPolicy": "",
-                  "fields": [],
-                  "tags": {},
-                  "groupBy": {
-                     "time": "",
-                     "tags": []
-                  },
-                  "areTagsAccepted": false,
-                  "rawText": "SELECT non_negative_difference(last(\"count\"))/1000000 AS \"cpu_ms\" FROM \"telegraf\".\"autogen\".\"bm-lmtpd.jvm.processCpuTime\" WHERE time > :dashboardTime: GROUP BY time(1m) FILL(null)",
-                  "range": null,
-                  "shifts": null
-               },
-               "source": "/chronograf/v1/sources/0",
-               "type": "influxql"
-            }
-         ],
-         "axes": {
-            "x": {
-               "bounds": [
-                  "",
-                  ""
-               ],
-               "label": "",
-               "prefix": "",
-               "suffix": "",
-               "base": "10",
-               "scale": "linear"
-            },
-            "y": {
-               "bounds": [
-                  "",
-                  ""
-               ],
-               "label": "ms",
-               "prefix": "",
-               "suffix": "",
-               "base": "10",
-               "scale": "linear"
-            },
-            "y2": {
-               "bounds": [
-                  "",
-                  ""
-               ],
-               "label": "",
-               "prefix": "",
-               "suffix": "",
-               "base": "10",
-               "scale": "linear"
-            }
-         },
-         "type": "line",
-         "colors": [
-            {
-               "id": "9bca5dc6-6507-4012-9717-2a7ca663e535",
-               "type": "scale",
-               "hex": "#31C0F6",
-               "name": "Nineteen Eighty Four",
-               "value": "0"
-            },
-            {
-               "id": "b48849e6-94e4-4a3b-9e19-b48427426b63",
-               "type": "scale",
-               "hex": "#A500A5",
-               "name": "Nineteen Eighty Four",
-               "value": "0"
-            },
-            {
-               "id": "8571eec4-750c-4fce-85a2-2ad4eb0fd416",
-               "type": "scale",
-               "hex": "#FF7E27",
-               "name": "Nineteen Eighty Four",
-               "value": "0"
-            }
-         ],
-         "legend": {},
-         "tableOptions": {
-            "verticalTimeAxis": true,
-            "sortBy": {
-               "internalName": "time",
-               "displayName": "",
-               "visible": true
-            },
-            "wrapping": "truncate",
-            "fixFirstColumn": true
-         },
-         "fieldOptions": [
-            {
-               "internalName": "time",
-               "displayName": "",
-               "visible": true
-            }
-         ],
-         "timeFormat": "MM/DD/YYYY HH:mm:ss",
-         "decimalPlaces": {
-            "isEnforced": false,
-            "digits": 3
-         },
-         "note": "",
-         "noteVisibility": "default",
-         "links": {
-            "self": "/chronograf/v1/dashboards/1/cells/eca67784-42c4-499e-b9d1-daa2ba9f0125"
-         }
-      },
-      {
          "i": "23320f63-f504-4e14-91db-b36bc2ad529b",
          "x": 8,
          "y": 4,
@@ -1225,5 +1100,13 @@
             "self": "/chronograf/v1/dashboards/1/cells/b0a6bcbe-3bfd-493c-9b5a-8d361e33ffd0"
          }
       }
-   ]
+   ],
+   "templates": [],
+   "name": "Mail Insights",
+   "organization": "default",
+   "links": {
+      "self": "/chronograf/v1/dashboards/1",
+      "cells": "/chronograf/v1/dashboards/1/cells",
+      "templates": "/chronograf/v1/dashboards/1/templates"
+   }
 }
