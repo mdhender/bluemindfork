@@ -229,7 +229,7 @@ export default function (i18n) {
                         id: "default_app",
                         name: i18n.t("preferences.mail.mailto_links"),
                         visible: { name: "RoleCondition", args: [Roles.HAS_MAIL_WEBAPP] },
-                        fields: [{ id: "default_app_action", component: { name: "PrefDefaultMailApp" } }]
+                        fields: [{ id: "default_app_action", component: { name: "PrefMailtoLinks" } }]
                     }
                 ]
             },

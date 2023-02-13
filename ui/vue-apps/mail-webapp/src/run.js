@@ -26,6 +26,8 @@ registerAPIClients();
 store.registerModule("mail", MailStore);
 router.addRoutes(mailRoutes);
 
+registerMailtoHandler();
+
 // FIXME allow to use MailViewerContent in MessageFileViewer (avoid to import it due to circular dependency issue)
 Vue.component("MailViewerContent", MailViewerContent);
 
@@ -78,3 +80,10 @@ async function showNotification(message) {
         });
     }
 })();
+
+function registerMailtoHandler() {
+    // Firefox based browsers registering popup has no "block" option, they will spam the user indefinitely
+    if (window.navigator.registerProtocolHandler && !/firefox/i.test(navigator.userAgent)) {
+        window.navigator.registerProtocolHandler("mailto", "/webapp/mail/%s", "Mailto Handler");
+    }
+}
