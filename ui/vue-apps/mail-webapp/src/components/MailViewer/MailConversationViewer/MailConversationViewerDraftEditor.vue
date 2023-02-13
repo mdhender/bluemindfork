@@ -56,8 +56,23 @@
             </template>
             <div class="d-flex conversation-viewer-row flex-nowrap">
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
-                <div class="flex-fill">
+                <div class="w-100">
+                    <bm-dropzone
+                        v-show="showConversationDropzone"
+                        class="my-2"
+                        :accept="['conversation']"
+                        :value="message"
+                        @dropactivate="showConversationDropzone = true"
+                        @dropdeactivate="showConversationDropzone = false"
+                    >
+                        <div
+                            class="bm-dropzone-show-dropzone justify-content-center align-items-center d-flex flex-column"
+                        >
+                            <mail-composer-attach-zone :text="$tc('mail.new.attachments.eml.drop.zone')" />
+                        </div>
+                    </bm-dropzone>
                     <mail-composer-attachments
+                        v-if="!showConversationDropzone"
                         class="my-4"
                         :dragged-files-count="draggedFilesCount"
                         :message="message"
@@ -69,12 +84,22 @@
         </template>
 
         <template slot="content">
-            <div class="flex-fill">
-                <mail-composer-content
-                    ref="content"
-                    :message="message"
-                    :is-signature-inserted.sync="isSignatureInserted"
-                />
+            <div v-show="!showConversationDropzone" class="w-100">
+                <bm-file-drop-zone
+                    class="my-2"
+                    :should-activate-fn="shouldActivate"
+                    @files-count="draggedFilesCount = $event"
+                    @drop-files="$execute('add-attachments', { files: $event, message, maxSize })"
+                >
+                    <template #dropZone>
+                        <mail-composer-attach-zone :text="$tc('mail.new.attachments.drop.zone', draggedFilesCount)" />
+                    </template>
+                    <mail-composer-content
+                        ref="content"
+                        :message="message"
+                        :is-signature-inserted.sync="isSignatureInserted"
+                    />
+                </bm-file-drop-zone>
             </div>
         </template>
         <template slot="bottom">
@@ -94,12 +119,19 @@
 
 <script>
 import { mapMutations, mapState } from "vuex";
-import { BmButton, BmIconButton } from "@bluemind/ui-components";
+import { BmButton, BmDropzone, BmFileDropZone, BmIconButton } from "@bluemind/ui-components";
 import { messageUtils } from "@bluemind/mail";
-import { ComposerActionsMixin, ComposerInitMixin, ComposerMixin, EditRecipientsMixin } from "~/mixins";
+import {
+    ComposerActionsMixin,
+    ComposerInitMixin,
+    ComposerMixin,
+    EditRecipientsMixin,
+    FileDropzoneMixin
+} from "~/mixins";
 import { AddAttachmentsCommand } from "~/commands";
 import { REMOVE_MESSAGES, SET_MESSAGE_COMPOSING } from "~/mutations";
 import MailComposerAttachments from "../../MailComposer/MailComposerAttachments";
+import MailComposerAttachZone from "../../MailComposer/MailComposerAttachZone";
 import MailComposerContent from "../../MailComposer/MailComposerContent";
 import MailComposerFooter from "../../MailComposer/MailComposerFooter";
 import MailComposerRecipient from "../../MailComposer/MailComposerRecipient";
@@ -116,8 +148,11 @@ export default {
     name: "MailConversationViewerDraftEditor",
     components: {
         BmButton,
+        BmDropzone,
+        BmFileDropZone,
         BmIconButton,
         MailComposerAttachments,
+        MailComposerAttachZone,
         MailComposerContent,
         MailComposerFooter,
         MailComposerRecipient,
@@ -132,8 +167,12 @@ export default {
         ComposerInitMixin,
         ComposerMixin,
         EditRecipientsMixin,
+        FileDropzoneMixin,
         MailConversationViewerItemMixin
     ],
+    data() {
+        return { showConversationDropzone: false };
+    },
     computed: {
         ...mapState("mail", ["folders"]),
         route() {
