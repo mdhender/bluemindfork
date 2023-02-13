@@ -2,20 +2,22 @@ import Vue from "vue";
 import { extensions } from "@bluemind/extensions";
 import i18n, { TranslationRegistry } from "@bluemind/i18n";
 import store from "@bluemind/store";
+import AddCertificateAlert from "./components/mail-app/alerts/AddCertificateAlert";
+import CertificateViewer from "./components/mail-app/CertificateViewer";
+import ContactWithCertificate from "./components/mail-app/ContactWithCertificate";
+import DecryptErrorAlert from "./components/mail-app/alerts/DecryptErrorAlert";
+import DecryptErrorTrigger from "./components/mail-app/alerts/DecryptErrorTrigger";
+import EncryptAndSignButton from "./components/mail-app/EncryptAndSignButton";
+import EncryptErrorAlert from "./components/mail-app/alerts/EncryptErrorAlert";
+import InvalidIdentityAlert from "./components/mail-app/alerts/InvalidIdentityAlert";
+import LockIcon from "./components/mail-app/LockIcon";
+import CertificateFileItem from "./components/mail-app/CertificateFileItem";
+import PrefSMime from "./components/preferences/PrefSMime";
+import SignErrorAlert from "./components/mail-app/alerts/SignErrorAlert";
 import SMimeBodyWrapper from "./components/mail-app/SMimeBodyWrapper";
 import TrustedSender from "./components/mail-app/TrustedSender";
 import UntrustedSenderAlert from "./components/mail-app/alerts/UntrustedSenderAlert";
 import UntrustedSenderTrigger from "./components/mail-app/alerts/UntrustedSenderTrigger";
-import DecryptErrorAlert from "./components/mail-app/alerts/DecryptErrorAlert";
-import EncryptErrorAlert from "./components/mail-app/alerts/EncryptErrorAlert";
-import InvalidIdentityAlert from "./components/mail-app/alerts/InvalidIdentityAlert";
-import DecryptErrorTrigger from "./components/mail-app/alerts/DecryptErrorTrigger";
-import SignErrorAlert from "./components/mail-app/alerts/SignErrorAlert";
-import EncryptAndSignButton from "./components/mail-app/EncryptAndSignButton";
-import ContactWithCertificate from "./components/mail-app/ContactWithCertificate";
-import Pkcs7FileItem from "./components/mail-app/Pkcs7FileItem";
-import PrefSMime from "./components/preferences/PrefSMime";
-import LockIcon from "./components/mail-app/LockIcon";
 import { SMIMEPrefKeys } from "./lib/constants";
 import SmimeL10N from "./l10n/";
 import SmimeStore from "./store";
@@ -28,20 +30,22 @@ TranslationRegistry.register(SmimeL10N);
 store.registerModule(["mail", "smime"], SmimeStore);
 store.dispatch("mail/" + CHECK_IF_ASSOCIATED);
 
+Vue.component("AddCertificateAlert", AddCertificateAlert);
+Vue.component("CertificateViewer", CertificateViewer);
+Vue.component("ContactWithCertificate", ContactWithCertificate);
+Vue.component("DecryptErrorAlert", DecryptErrorAlert);
+Vue.component("DecryptErrorTrigger", DecryptErrorTrigger);
+Vue.component("EncryptAndSignButton", EncryptAndSignButton);
+Vue.component("EncryptErrorAlert", EncryptErrorAlert);
+Vue.component("InvalidIdentityAlert", InvalidIdentityAlert);
 Vue.component("LockIcon", LockIcon);
+Vue.component("CertificateFileItem", CertificateFileItem);
 Vue.component("PrefSMime", PrefSMime);
+Vue.component("SignErrorAlert", SignErrorAlert);
 Vue.component("SMimeBodyWrapper", SMimeBodyWrapper);
 Vue.component("TrustedSender", TrustedSender);
 Vue.component("UntrustedSenderAlert", UntrustedSenderAlert);
 Vue.component("UntrustedSenderTrigger", UntrustedSenderTrigger);
-Vue.component("DecryptErrorTrigger", DecryptErrorTrigger);
-Vue.component("DecryptErrorAlert", DecryptErrorAlert);
-Vue.component("EncryptErrorAlert", EncryptErrorAlert);
-Vue.component("EncryptAndSignButton", EncryptAndSignButton);
-Vue.component("ContactWithCertificate", ContactWithCertificate);
-Vue.component("SignErrorAlert", SignErrorAlert);
-Vue.component("InvalidIdentityAlert", InvalidIdentityAlert);
-Vue.component("Pkcs7FileItem", Pkcs7FileItem);
 
 extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
     component: {
@@ -115,9 +119,17 @@ extensions.register("webapp", "net.bluemind.webmodules.smime", {
 
 extensions.register("webapp.mail", "file-item", {
     component: {
-        name: "Pkcs7FileItem",
+        name: "CertificateFileItem",
         path: "message.file",
         priority: 2
+    }
+});
+
+extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
+    component: {
+        name: "CertificateViewer",
+        path: "file.preview",
+        priority: 10
     }
 });
 

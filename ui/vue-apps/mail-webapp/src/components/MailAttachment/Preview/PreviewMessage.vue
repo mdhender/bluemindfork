@@ -67,8 +67,8 @@ export default {
             SET_PREVIEW_MESSAGE_KEY,
             SET_PREVIEW_FILE_KEY
         }),
-        openPreview(file, message) {
-            this.$refs.toolbar[0].openPreview(file, message);
+        openPreview(file) {
+            this.$refs.toolbar[0].openPreview(file);
         },
         download(file) {
             this.$refs.toolbar[0].download(file);
@@ -76,7 +76,7 @@ export default {
         previewOrDownload(file) {
             if (!isUploading(file)) {
                 if (isAllowedToPreview(file)) {
-                    this.openPreview(file, this.message);
+                    this.openPreview(file);
                 } else {
                     this.download(file);
                 }

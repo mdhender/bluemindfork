@@ -10,11 +10,14 @@
                     "all_invalid": "Message recipients do not allow encryption.",
                     "some_invalid": "Some message recipients do not allow encryption."
                 },
-                "invalid_identity": "The selected identity does not allow to sign or encrypt the message."
-
+                "invalid_identity": "The selected identity does not allow to sign or encrypt the message.",
+                "certificate": "This file contains a certificate for {name}"
             },
             "body_wrapper": {
                 "cant_display": "Why I can't I see this message ?"
+            },
+            "viewer": {
+                "import_certificate": "Import the certificate"
             },
             "composer": {
                 "encrypt": "Encrypt the message",

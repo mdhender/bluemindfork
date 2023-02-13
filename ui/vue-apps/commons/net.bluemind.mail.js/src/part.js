@@ -58,7 +58,10 @@ export const VIEWER_CAPABILITIES = [
     MimeType.MESSAGE,
     MimeType.PDF,
     MimeType.TEXT,
-    MimeType.VIDEO
+    MimeType.VIDEO,
+    MimeType.X509_CERT,
+    MimeType.CRYPTO_CERT,
+    MimeType.PEM_FILE
 ];
 
 export function sanitizeTextPartForCyrus(text) {

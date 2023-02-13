@@ -1,35 +1,34 @@
 <template>
     <div class="preview-file-content">
-        <bm-alert-area v-if="hasBlockedRemoteContent && !isLarge && isViewable(file)" :alerts="alerts" @remove="REMOVE">
+        <bm-alert-area v-if="alerts.length > 0" :alerts="alerts" :file="file" class="shadow" @remove="REMOVE">
             <template v-slot="slotProps">
                 <component :is="slotProps.alert.renderer" :alert="slotProps.alert" />
             </template>
         </bm-alert-area>
-        <file-viewer-facade
-            v-if="isAllowedToPreview && !hasBlockedRemoteContent && src"
-            class="scroller-y"
-            :message="message"
-            :file="{ ...file, url: src }"
-        />
-        <bm-extension v-else id="webapp.mail" type="decorator" path="file.preview.fallback" :file="file">
-            <preview-file-content-fallback :file="file" />
+        <bm-extension id="webapp.mail" type="chain-of-responsibility" path="file.preview" :file="file">
+            <file-viewer-facade
+                v-if="isAllowedToPreview && !hasBlockedRemoteContent && src"
+                class="scroller-y"
+                :message="message"
+                :file="{ ...file, url: src }"
+            />
+            <preview-file-content-fallback v-else :file="file" />
         </bm-extension>
     </div>
 </template>
 
 <script>
+import { MimeType } from "@bluemind/email";
 import { mapActions, mapState } from "vuex";
 import { BmExtension } from "@bluemind/extensions.vue";
 import { BmAlertArea, BmIcon } from "@bluemind/ui-components";
-import { partUtils, fileUtils } from "@bluemind/mail";
+import { fileUtils } from "@bluemind/mail";
 import { REMOVE } from "@bluemind/alert.store";
-import { MimeType } from "@bluemind/email";
 
 import { PreviewMixin } from "~/mixins";
 import FileViewerFacade from "../../MailViewer/FilesViewer/FileViewerFacade";
 import PreviewFileContentFallback from "./PreviewFileContentFallback/PreviewFileContentFallback";
 
-const { isViewable } = partUtils;
 const { FileStatus } = fileUtils;
 
 export default {
@@ -112,8 +111,7 @@ export default {
             if (url && url.startsWith("blob")) {
                 URL.revokeObjectURL(url);
             }
-        },
-        isViewable
+        }
     }
 };
 </script>
@@ -147,8 +145,10 @@ export default {
         height: 100%;
     }
     .bm-alert-area {
-        position: absolute;
         width: 100%;
+        .alert {
+            margin-bottom: 0;
+        }
     }
 }
 </style>

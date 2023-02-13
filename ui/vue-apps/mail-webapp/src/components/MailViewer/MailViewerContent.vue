@@ -1,11 +1,15 @@
 <template>
     <div class="mail-viewer-content">
         <div class="title">{{ subject }}</div>
-        <div class="sender-and-date">
-            <mail-viewer-from :message="message" />
-            <div class="date">{{ $d(message.date, "full_date_time_short") }}</div>
+        <div class="sender-and-recipients">
+            <div class="sender">
+                <mail-viewer-from :message="message" />
+                <div class="date">
+                    {{ $d(message.date, "full_date_time_short") }}
+                </div>
+            </div>
+            <mail-viewer-recipients v-if="hasRecipients" :message="message" />
         </div>
-        <mail-viewer-recipients v-if="hasRecipients" :message="message" />
         <bm-extension id="webapp.mail" path="viewer.body" type="chain-of-responsibility" :message="message">
             <body-viewer class="flex-fill" :message="message" @remote-content="from => $emit('remote-content', from)">
                 <template v-slot:attachments-block="scope">
@@ -64,7 +68,7 @@ export default {
         word-break: break-word;
     }
 
-    .sender-and-date {
+    .sender {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -82,9 +86,12 @@ export default {
     }
 
     .mail-viewer-recipients {
-        margin-bottom: $sp-5;
         margin-top: $sp-2;
         padding-left: $avatar-width + $single-mail-avatar-main-gap;
+    }
+
+    .sender-and-recipients {
+        margin-bottom: $sp-5;
     }
 }
 </style>

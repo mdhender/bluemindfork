@@ -2,6 +2,7 @@ import fs from "fs";
 import forge from "node-forge";
 import path from "path";
 import { CRYPTO_HEADERS } from "../../lib/constants";
+import { getSignedDataEnvelope } from "../../lib/envelope";
 import { base64ToArrayBuffer } from "@bluemind/arraybuffer";
 import extractSignedData from "../smime/SMimeSignedDataParser";
 import {
@@ -12,7 +13,7 @@ import {
     UnmatchedCertificateError
 } from "../exceptions";
 import { readFile } from "./helpers";
-import { checkSignatureValidity, getSignedDataEnvelope, checkMessageIntegrity } from "../pkcs7/verify";
+import { checkSignatureValidity, checkMessageIntegrity } from "../pkcs7/verify";
 import pkcs7 from "../pkcs7/";
 
 jest.mock("node-forge", () => jest.requireActual("node-forge"));

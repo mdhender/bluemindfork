@@ -133,8 +133,7 @@ export default {
         }
         .preview-file {
             flex: 1 1 auto;
-            min-height: 0;
-            max-height: 100%;
+            overflow-y: auto;
         }
         .bottom-file-info {
             flex: none;

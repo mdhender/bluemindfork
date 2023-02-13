@@ -10,11 +10,14 @@
                     "all_invalid": "Die Empfänger der Nachricht lassen keine Verschlüsselung zu.",
                     "some_invalid": "Einige Empfänger der Nachricht lassen die Verschlüsselung nicht zu."
                 },
-                "invalid_identity": "Die ausgewählte Identität erlaubt es nicht, die Nachricht zu signieren oder zu verschlüsseln."
-
+                "invalid_identity": "Die ausgewählte Identität erlaubt es nicht, die Nachricht zu signieren oder zu verschlüsseln.",
+                "certificate": "Diese Datei enthält ein Zertifikat für {name}"
             },
             "body_wrapper": {
                 "cant_display": "Why I can't I see this message ?"
+            },
+            "viewer": {
+                "import_certificate": "Zertifikat importieren"
             },
             "composer": {
                 "encrypt": "Verschlüsseln Sie die Nachricht",

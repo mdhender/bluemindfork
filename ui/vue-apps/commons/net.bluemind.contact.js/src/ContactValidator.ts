@@ -1,7 +1,8 @@
+import { Contact } from "@bluemind/contact";
 import { EmailValidator } from "@bluemind/email";
 
 export default {
-    validateContact(contact) {
+    validateContact(contact: Contact): boolean {
         return contact.address
             ? EmailValidator.validateAddress(contact.address)
             : contact.kind === "group"

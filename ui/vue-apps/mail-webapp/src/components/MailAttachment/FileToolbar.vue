@@ -68,7 +68,7 @@ export default {
             this.$bvModal.show("preview-modal");
         },
         download(file) {
-            this.$refs[`download-button-${file.key}`].clickButton();
+            this.$refs[`download-button-${file.key}`].download();
         },
         removeAttachment({ key }) {
             const attachment = this.message.attachments.find(attachment => attachment.fileKey === key);

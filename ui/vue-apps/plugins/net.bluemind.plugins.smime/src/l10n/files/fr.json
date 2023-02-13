@@ -10,11 +10,15 @@
                     "all_invalid": "Les destinataires du message ne permettent pas le chiffrement.",
                     "some_invalid": "Certains destinataires du message ne permettent pas le chiffrement."
                 },
-                "invalid_identity": "L’identité sélectionnée ne permet pas de signer ou chiffrer le message."
+                "invalid_identity": "L’identité sélectionnée ne permet pas de signer ou chiffrer le message.",
+                "certificate": "Ce fichier contient un certificat pour {name}"
 
             },
             "body_wrapper": {
                 "cant_display": "Pourquoi je ne peux pas voir ce message ?"
+            },
+            "viewer": {
+                "import_certificate": "Importer le certificat"
             },
             "composer": {
                 "encrypt": "Chiffrer le message",

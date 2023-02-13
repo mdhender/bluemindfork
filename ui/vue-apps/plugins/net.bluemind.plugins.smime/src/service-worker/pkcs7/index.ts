@@ -7,8 +7,9 @@ import {
     SignError,
     UnmatchedCertificateError
 } from "../exceptions";
-import { checkMessageIntegrity, checkSignatureValidity, getSignedDataEnvelope, getSigningTime } from "./verify";
+import { checkMessageIntegrity, checkSignatureValidity, getSigningTime } from "./verify";
 import { checkCertificateValidity } from "../pki/";
+import { getSignedDataEnvelope } from "../../lib/envelope";
 
 export async function decrypt(
     data: Blob,

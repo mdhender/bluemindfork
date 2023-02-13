@@ -88,8 +88,8 @@ export default {
             const matchFunction = f => f.type.match(new RegExp(regex, "i"));
             return files.length > 0 && files.every(matchFunction);
         },
-        openPreview(file, message) {
-            this.$refs.toolbar.openPreview(file, message);
+        openPreview(file) {
+            this.$refs.toolbar.openPreview(file);
         },
         download(file) {
             this.$refs.toolbar.download(file);
@@ -97,7 +97,7 @@ export default {
         previewOrDownload(file) {
             if (!isUploading(file)) {
                 if (isAllowedToPreview(file)) {
-                    this.openPreview(file, this.message);
+                    this.openPreview(file);
                 } else {
                     this.download(file);
                 }

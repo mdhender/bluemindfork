@@ -1,11 +1,3 @@
-<template>
-    <div v-if="isFhExpiredFile" class="preview-invalid">
-        <div><bm-icon icon="cloud-exclamation" size="4xl" /></div>
-        <span class="text"> {{ $t("mail.preview.nopreview.invalid") }}</span>
-    </div>
-    <div v-else><slot /></div>
-</template>
-
 <script>
 import { mapGetters } from "vuex";
 import { BmIcon } from "@bluemind/ui-components";
@@ -15,6 +7,10 @@ export default {
     name: "PreviewInvalid",
     components: { BmIcon },
     props: {
+        next: {
+            type: Function,
+            required: true
+        },
         file: {
             type: Object,
             required: true
@@ -26,6 +22,14 @@ export default {
             const file = this.GET_FH_FILE(this.file);
             return file && file.expirationDate < Date.now();
         }
+    },
+    render(h) {
+        if (this.isFhExpiredFile) {
+            const icon = h("div", [h("bm-icon", { props: { icon: "cloud-exclamation", size: "4xl" } })]);
+            const text = h("span", { class: "text" }, this.$t("mail.preview.nopreview.invalid"));
+            return h("div", [icon, text]);
+        }
+        return this.next();
     }
 };
 </script>

@@ -75,7 +75,7 @@ extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting.drive", 
 extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
     component: {
         name: "preview-invalid",
-        path: "file.preview.fallback"
+        path: "file.preview"
     }
 });
 extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting.drive", {

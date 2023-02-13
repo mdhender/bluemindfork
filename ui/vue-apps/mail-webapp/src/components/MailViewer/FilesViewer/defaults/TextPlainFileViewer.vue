@@ -6,7 +6,7 @@
 
 <script>
 import { mapActions } from "vuex";
-import { mailText2Html } from "@bluemind/email";
+import { mailText2Html, MimeType } from "@bluemind/email";
 import MailViewerContentLoading from "../../MailViewerContentLoading";
 import FileViewerMixin from "../FileViewerMixin";
 import { FETCH_PART_DATA } from "~/actions";
@@ -15,7 +15,14 @@ export default {
     name: "TextPlainFileViewer",
     components: { MailViewerContentLoading },
     mixins: [FileViewerMixin],
-    $capabilities: ["text/*", "message/disposition-notification", "message/delivery-status"],
+    $capabilities: [
+        MimeType.X509_CERT,
+        MimeType.CRYPTO_CERT,
+        MimeType.PEM_FILE,
+        MimeType.MESSAGE_DISPOSITION_NOTIFICATION,
+        MimeType.MESSAGE_DELIVERY_STATUS,
+        "text/*"
+    ],
     data() {
         return {
             content: ""

@@ -85,6 +85,7 @@ const AttachmentAdaptor = {
             progress,
             status: part.status,
             url,
+            extra: {},
             ...part
         };
         return file;

@@ -39,7 +39,7 @@ export default {
 .mail-viewer-from {
     display: flex;
     align-items: center;
-    .bm-contact {
+    .contact {
         margin-right: $sp-3;
     }
 }

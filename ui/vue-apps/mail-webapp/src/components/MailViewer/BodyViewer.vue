@@ -125,8 +125,8 @@ export default {
         download(file) {
             this.$refs.toolbar.download(file);
         },
-        openPreview(file, message) {
-            this.$refs.toolbar.openPreview(file, message);
+        openPreview(file) {
+            this.$refs.toolbar.openPreview(file);
         },
         triggerRemoteContent() {
             this.$emit("remote-content", this.message);
@@ -134,7 +134,7 @@ export default {
         previewOrDownload(file) {
             if (!isUploading(file)) {
                 if (isAllowedToPreview(file)) {
-                    this.openPreview(file, this.message);
+                    this.openPreview(file);
                 } else {
                     this.download(file);
                 }
