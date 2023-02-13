@@ -17,6 +17,7 @@
  */
 package net.bluemind.core.backup.continuous.mgmt.service.impl;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.slf4j.event.Level;
@@ -147,6 +148,38 @@ public class DirEntryWithMailboxSync<T> {
 			@SuppressWarnings("unused") String domain,
 			@SuppressWarnings("unused") ItemValue<DirEntryAndValue<T>> entryAndValue) {
 		// override to create related objects first
+	}
+
+	private static record NodeWithFullname(String fullName, ItemValue<ContainerHierarchyNode> node) {
+
+	}
+
+	/**
+	 * Make smaller containerId come first in topic
+	 * 
+	 * @param type
+	 * @param mailbox
+	 * @param entry
+	 * 
+	 * @param nodes
+	 * @return
+	 */
+	protected List<ItemValue<ContainerHierarchyNode>> containerIdSort(String type, DirEntry entry,
+			List<ItemValue<ContainerHierarchyNode>> nodes) {
+
+		if (IMailReplicaUids.MAILBOX_RECORDS.equals(type)) {
+			String subtree = IMailReplicaUids.subtreeUid(domainApis.domain.uid, entry);
+			IDbReplicatedMailboxes tree = ctx.provider().instance(IDbByContainerReplicatedMailboxes.class, subtree);
+
+			return nodes.stream().map(ivn -> {
+				ItemValue<MailboxFolder> mrFull = tree.getComplete(IMailReplicaUids.uniqueId(ivn.value.containerUid));
+				return new NodeWithFullname(mrFull.value.fullName, ivn);
+			}).sorted((nd1, nd2) -> nd1.fullName().compareTo(nd2.fullName())).map(NodeWithFullname::node).toList();
+
+		}
+
+		return nodes;
+
 	}
 
 }

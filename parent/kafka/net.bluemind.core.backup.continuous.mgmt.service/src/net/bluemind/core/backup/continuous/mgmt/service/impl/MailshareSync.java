@@ -96,8 +96,8 @@ public class MailshareSync extends DirEntryWithMailboxSync<Mailshare> {
 				continue;
 			}
 
-			for (ItemValue<ContainerHierarchyNode> node : Optional.ofNullable(mmap.get(type))
-					.orElseGet(Collections::emptyList)) {
+			for (ItemValue<ContainerHierarchyNode> node : containerIdSort(type, stored.value.entry,
+					Optional.ofNullable(mmap.get(type)).orElseGet(Collections::emptyList))) {
 				ContainerState state = kafkaState.containerState(node.value.containerUid);
 				ContainerSync syncSupport = ContainerSyncRegistry.forNode(ctx, node, stored, domainApis.domain);
 				syncSupport.sync(state, target, entryMon.subWork(10));

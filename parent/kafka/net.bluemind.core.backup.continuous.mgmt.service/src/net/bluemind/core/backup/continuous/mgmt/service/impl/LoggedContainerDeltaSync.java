@@ -94,8 +94,8 @@ public abstract class LoggedContainerDeltaSync<O, T> extends ContainerSync {
 			return;
 		}
 		Stream<ItemVersion> concat = Streams.stream(Iterables.concat(cs.created, cs.updated));
-		List<ItemVersion> missing = concat.filter(iv -> !state.versions.contains(iv.version))
-				.collect(Collectors.toList());
+		List<ItemVersion> missing = concat.filter(iv -> !state.versions.contains(iv.version)).toList();
+		missing = sortItems(contMon, missing);
 		contMon.begin(missing.size(), "sync " + missing.size() + " item(s) for " + state.containerUid());
 		long time = System.currentTimeMillis();
 		IBackupStore<T> sink = createTargetStore(target);
@@ -111,6 +111,10 @@ public abstract class LoggedContainerDeltaSync<O, T> extends ContainerSync {
 		time = System.currentTimeMillis() - time;
 		contMon.end(true, state.containerUid() + " done in " + time + "ms.", null);
 
+	}
+
+	protected List<ItemVersion> sortItems(IServerTaskMonitor contMon, List<ItemVersion> toSync) {
+		return toSync;
 	}
 
 	protected IBackupStore<T> createTargetStore(IBackupStoreFactory target) {
