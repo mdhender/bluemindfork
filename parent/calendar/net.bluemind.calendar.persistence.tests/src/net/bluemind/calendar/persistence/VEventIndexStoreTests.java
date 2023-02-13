@@ -490,6 +490,28 @@ public class VEventIndexStoreTests {
 		assertEquals(event.uid, res.values.get(0));
 	}
 
+	@Test
+	public void testSearchRRule_daily() throws SQLException {
+		ItemValue<VEventSeries> event = defaultVEvent();
+		event.value.main.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2002, 2, 13, 0, 0, 0, 0, ZoneId.of("UTC")),
+				Precision.Date);
+
+		VEvent.RRule rrule = new VEvent.RRule();
+		rrule.frequency = VEvent.RRule.Frequency.DAILY;
+		rrule.until = BmDateTimeWrapper.create(ZonedDateTime.of(2002, 2, 15, 0, 0, 0, 0, ZoneId.of("UTC")),
+				Precision.Date);
+
+		event.value.main.rrule = rrule;
+
+		indexStore.create(Item.create(event.uid, System.nanoTime()), event.value);
+		indexStore.refresh();
+
+		ZonedDateTime dateMin = ZonedDateTime.of(2002, 2, 15, 0, 0, 0, 0, ZoneId.of("UTC"));
+		VEventQuery query = VEventQuery.create(BmDateTimeWrapper.create(dateMin, Precision.Date), null);
+		ListResult<String> res = indexStore.search(query);
+		assertEquals(1, res.values.size());
+	}
+
 	private ItemValue<VEventSeries> defaultVEvent() {
 		VEventSeries series = new VEventSeries();
 		VEvent event = new VEvent();

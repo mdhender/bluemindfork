@@ -158,8 +158,8 @@ public class VEventIndexStore {
 			BmDateTime until = (query.dateMin != null) ? query.dateMin : query.dateMax;
 			ExistsQueryBuilder isRecurring = QueryBuilders.existsQuery("value.rrule");
 			QueryBuilder noEndDate = Queries.missing("value.rrule.until.iso8601");
-			QueryBuilder recurEndMatch = fieldGreaterThan("value.rrule.until.iso8601", "value.rrule.until.timezone",
-					until);
+			QueryBuilder recurEndMatch = fieldGreaterOrEqualAt("value.rrule.until.iso8601",
+					"value.rrule.until.timezone", until);
 			QueryBuilder inRangeWhenReccuring = Queries.and(isRecurring, Queries.or(noEndDate, recurEndMatch));
 
 			// build the global date range filter
