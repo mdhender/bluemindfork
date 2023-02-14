@@ -108,6 +108,7 @@ export const MessageHeader = {
     IN_REPLY_TO: "In-Reply-To",
     REFERENCES: "References",
     DELIVERED_TO: "Delivered-To",
+    DISPOSITION_NOTIFICATION_TO: "Disposition-Notification-To",
 
     X_LOOP: "X-Loop",
     X_ORIGINAL_TO: "X-Original-To",

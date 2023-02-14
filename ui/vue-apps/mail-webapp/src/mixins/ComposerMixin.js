@@ -1,6 +1,9 @@
+import cloneDeep from "lodash.clonedeep";
 import { mapActions, mapState } from "vuex";
 import { ERROR, REMOVE } from "@bluemind/alert.store";
-import { MAX_MESSAGE_SIZE_EXCEEDED, RESET_COMPOSER } from "~/mutations";
+import { messageUtils } from "@bluemind/mail";
+import { DEBOUNCED_SAVE_MESSAGE } from "~/actions";
+import { MAX_MESSAGE_SIZE_EXCEEDED, RESET_COMPOSER, SET_MESSAGE_HEADERS } from "~/mutations";
 import { IS_SENDER_SHOWN } from "~/getters";
 import { ComposerFromMixin } from "~/mixins";
 
@@ -18,12 +21,15 @@ export default {
     },
     mixins: [ComposerFromMixin],
     data() {
-        return { isSignatureInserted: false, draggedFilesCount: -1 };
+        return { draggedFilesCount: -1, isSignatureInserted: false };
     },
     computed: {
         ...mapState("mail", ["messageCompose"]),
         isSenderShown() {
             return this.$store.getters["mail/" + IS_SENDER_SHOWN](this.$store.state.settings);
+        },
+        isDispositionNotificationRequested() {
+            return this.findDispositionNotificationHeaderIndex(this.message.headers) >= 0;
         }
     },
     watch: {
@@ -49,8 +55,25 @@ export default {
     },
     methods: {
         ...mapActions("alert", { ERROR, REMOVE }),
-        async toggleSignature() {
+        toggleSignature() {
             this.$refs.content.toggleSignature();
+        },
+        toggleDispositionNotification() {
+            const headers = [...this.message.headers];
+            if (this.isDispositionNotificationRequested) {
+                headers.splice(this.findDispositionNotificationHeaderIndex(headers), 1);
+            } else {
+                headers.push({
+                    name: messageUtils.MessageHeader.DISPOSITION_NOTIFICATION_TO,
+                    values: [this.message.from.address]
+                });
+            }
+            this.$store.commit(`mail/${SET_MESSAGE_HEADERS}`, { messageKey: this.message.key, headers });
+            this.$store.dispatch(`mail/${DEBOUNCED_SAVE_MESSAGE}`, {
+                draft: this.message,
+                messageCompose: cloneDeep(this.$store.state.mail.messageCompose),
+                files: this.message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey])
+            });
         },
         async checkAndRepairFrom() {
             const matchingIdentity = this.$store.state["root-app"].identities.find(
@@ -62,6 +85,13 @@ export default {
                 const defaultIdentity = this.$store.getters["root-app/DEFAULT_IDENTITY"];
                 await this.setFrom(defaultIdentity, this.message);
             }
+        },
+        findDispositionNotificationHeaderIndex(headers) {
+            return headers.findIndex(
+                header =>
+                    new RegExp(messageUtils.MessageHeader.DISPOSITION_NOTIFICATION_TO, "i").test(header.name) &&
+                    header.values?.filter(Boolean)?.length
+            );
         }
     }
 };

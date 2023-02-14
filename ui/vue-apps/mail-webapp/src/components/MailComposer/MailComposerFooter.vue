@@ -6,7 +6,9 @@
         <mail-composer-toolbar
             :message="message"
             :is-signature-inserted="isSignatureInserted"
+            :is-disposition-notification-requested.sync="isDispositionNotificationRequested"
             @toggle-signature="$emit('toggle-signature')"
+            @toggle-disposition-notification="$emit('toggle-disposition-notification')"
         />
     </div>
 </template>
@@ -20,14 +22,9 @@ export default {
     name: "MailComposerFooter",
     components: { BmRichEditorToolbar, MailComposerToolbar },
     props: {
-        message: {
-            type: Object,
-            required: true
-        },
-        isSignatureInserted: {
-            type: Boolean,
-            required: true
-        }
+        message: { type: Object, required: true },
+        isSignatureInserted: { type: Boolean, required: true },
+        isDispositionNotificationRequested: { type: Boolean, required: true }
     },
     computed: {
         showTextFormattingToolbar() {

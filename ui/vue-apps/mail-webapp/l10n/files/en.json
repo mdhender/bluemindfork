@@ -477,6 +477,7 @@
                 }
             },
             "toolbar": {
+                "disposition_notification": "Request reading confirmation",
                 "insert_signature": "Insert my signature",
                 "use_template": "Use a template"
             },

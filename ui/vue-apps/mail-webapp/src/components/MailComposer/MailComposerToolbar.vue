@@ -86,6 +86,12 @@
                 <bm-dropdown-item :disabled="isSenderShown" @click="showSender">
                     {{ $t("mail.actions.show_sender") }}
                 </bm-dropdown-item>
+                <bm-dropdown-item-toggle
+                    :checked="isDispositionNotificationRequested"
+                    @click="$emit('toggle-disposition-notification')"
+                >
+                    {{ $t("mail.compose.toolbar.disposition_notification") }}
+                </bm-dropdown-item-toggle>
             </bm-icon-dropdown>
         </div>
     </div>
@@ -133,14 +139,9 @@ export default {
     },
     mixins: [AddAttachmentsCommand, ComposerActionsMixin, FormattedDateMixin],
     props: {
-        message: {
-            type: Object,
-            required: true
-        },
-        isSignatureInserted: {
-            type: Boolean,
-            required: true
-        }
+        message: { type: Object, required: true },
+        isSignatureInserted: { type: Boolean, required: true },
+        isDispositionNotificationRequested: { type: Boolean, required: true }
     },
     computed: {
         ...mapGetters("mail", { IS_SENDER_SHOWN }),

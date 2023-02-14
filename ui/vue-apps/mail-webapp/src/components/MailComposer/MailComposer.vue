@@ -82,7 +82,9 @@
         <mail-composer-footer
             :message="message"
             :is-signature-inserted="isSignatureInserted"
+            :is-disposition-notification-requested.sync="isDispositionNotificationRequested"
             @toggle-signature="toggleSignature"
+            @toggle-disposition-notification="toggleDispositionNotification"
         />
     </bm-form>
 </template>
