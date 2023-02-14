@@ -129,7 +129,12 @@ export default {
         },
         invalid: { type: Boolean, default: false },
         invalidIcon: { type: String, default: "exclamation" },
-        invalidTooltip: { type: Boolean, default: () => this.$t("styleguide.contact-input.invalid") },
+        invalidTooltip: {
+            type: String,
+            default: function () {
+                return this.$t("styleguide.contact-input.invalid");
+            }
+        },
         noAvatar: { type: Boolean, default: false },
         noText: { type: Boolean, default: false },
         enableCard: { type: Boolean, default: false },
