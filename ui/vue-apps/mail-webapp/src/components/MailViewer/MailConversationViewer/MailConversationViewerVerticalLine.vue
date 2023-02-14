@@ -3,7 +3,7 @@
         class="vertical-line"
         :class="{
             'vertical-line-after-avatar': afterAvatar,
-            'vertical-line-transparent': afterAvatar ? index === maxIndex : index === 0
+            invisible: afterAvatar ? index === maxIndex : index === 0
         }"
     />
 </template>

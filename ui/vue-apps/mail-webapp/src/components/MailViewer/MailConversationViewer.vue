@@ -319,9 +319,6 @@ export default {
     .last-before-draft .vertical-line.vertical-line-after-avatar {
         background-image: repeating-linear-gradient($neutral-fg, $neutral-fg 2px, $neutral-bg 2px, $neutral-bg 6px);
     }
-    .vertical-line-transparent {
-        background-image: linear-gradient($neutral-bg, $neutral-bg) !important;
-    }
     .col-1 {
         flex: unset;
         width: unset;

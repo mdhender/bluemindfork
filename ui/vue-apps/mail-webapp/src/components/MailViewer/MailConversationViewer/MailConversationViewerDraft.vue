@@ -29,7 +29,7 @@
             <div class="d-flex d-lg-none conversation-viewer-row">
                 <div
                     class="vertical-line vertical-line-after-avatar"
-                    :class="{ 'vertical-line-transparent': index === conversation.messages.length - 1 }"
+                    :class="{ invisible: index === conversation.messages.length - 1 }"
                 />
                 <div class="draft-save-date pb-4">{{ formattedDraftSaveDate }}</div>
             </div>
