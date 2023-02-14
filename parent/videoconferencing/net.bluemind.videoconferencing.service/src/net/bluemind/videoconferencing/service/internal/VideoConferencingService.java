@@ -182,6 +182,9 @@ public class VideoConferencingService implements IVideoConferencing {
 	}
 
 	private Optional<ItemValue<ResourceDescriptor>> getResource(Attendee a, IResources service) {
+		if (Strings.isNullOrEmpty(a.dir)) {
+			return Optional.empty();
+		}
 		String uid = a.dir.substring(a.dir.lastIndexOf("/") + 1);
 		ResourceDescriptor res = service.get(uid);
 		if (res != null) {
