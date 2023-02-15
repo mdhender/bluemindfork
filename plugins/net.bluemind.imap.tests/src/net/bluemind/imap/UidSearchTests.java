@@ -179,6 +179,32 @@ public class UidSearchTests {
 		}
 	}
 
+	@Test
+	public void testBadKeyword() throws IMAPException, InterruptedException, IOException {
+		try (StoreClient sc = newStore(false)) {
+			SearchQuery sq = new SearchQuery();
+			sq.setRawCommand("SEEN FLAGGED TOTO");
+			sq.setUnseenOnly(true);
+			sc.select("INBOX");
+			setupBoxContent(5, 10, 12, 10);
+			Collection<Integer> uids = sc.uidSearch(sq);
+			assertEquals(0, uids.size());
+		}
+	}
+
+	@Test
+	public void testGetMalformedSequence() throws IMAPException, InterruptedException, IOException {
+		try (StoreClient sc = newStore(false)) {
+			SearchQuery sq = new SearchQuery();
+			sq.setRawCommand("99:*$");
+			sq.setUnseenOnly(true);
+			sc.select("INBOX");
+			setupBoxContent(5, 10, 12, 10);
+			Collection<Integer> uids = sc.uidSearch(sq);
+			assertEquals(0, uids.size());
+		}
+	}
+
 	// NOT UNSEEN means SEEN messages
 	@Test
 	public void testGetNotUnSeen() throws IMAPException, InterruptedException, IOException {

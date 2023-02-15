@@ -73,7 +73,7 @@ public class UidSearchAnalyzer {
 		map.put("TO", new TextAnalyzer());
 	}
 
-	public static QueryBUilderResult buildQuery(String query, String folderUid, String meUid) {
+	public static QueryBUilderResult buildQuery(String query, String folderUid, String meUid) throws Exception {
 		query = query + " END";
 		int maxUid = 0;
 		boolean hasSequence = false;
@@ -136,6 +136,9 @@ public class UidSearchAnalyzer {
 				} else {
 					analyzedQuery = analyzer.analyse(qbShould, subQuery, positiveKeyword, isCertain, maxUid);
 				}
+				if (analyzedQuery == null) {
+					throw new Exception("Invalid Search criteria");
+				}
 				len = analyzedQuery.length();
 			} else {
 				if (UidSearchAnalyzer.hasSequence(subQuery)) {
@@ -146,10 +149,13 @@ public class UidSearchAnalyzer {
 					} else {
 						analyzedQuery = analyzer.analyse(qbShould, subQuery, positiveKeyword, isCertain, maxUid);
 					}
+					if (analyzedQuery == null) {
+						throw new Exception("Invalid Search criteria");
+					}
 					len = analyzedQuery.length();
 					hasSequence = true;
 				} else {
-					len = keyword.length() + 1;
+					throw new Exception("Invalid Search criteria");
 				}
 			}
 			if (!isCertain) {
@@ -209,7 +215,7 @@ public class UidSearchAnalyzer {
 				}
 				return matcher.group(0);
 			}
-			return "";
+			return null;
 		}
 
 	}
@@ -244,7 +250,7 @@ public class UidSearchAnalyzer {
 				}
 				return matcher.group();
 			}
-			return "";
+			return null;
 		}
 
 	}
@@ -279,7 +285,7 @@ public class UidSearchAnalyzer {
 				}
 				return matcher.group(0);
 			}
-			return "";
+			return null;
 		}
 
 	}
@@ -314,7 +320,7 @@ public class UidSearchAnalyzer {
 				}
 				return matcher.group(0);
 			}
-			return "";
+			return null;
 		}
 
 	}
@@ -349,7 +355,7 @@ public class UidSearchAnalyzer {
 				}
 				return matcher.group(0);
 			}
-			return "";
+			return null;
 		}
 
 	}
@@ -388,7 +394,7 @@ public class UidSearchAnalyzer {
 				}
 				return matcher.group(0);
 			}
-			return "";
+			return null;
 		}
 
 	}
@@ -426,7 +432,7 @@ public class UidSearchAnalyzer {
 				}
 				return matcher.group(0);
 			}
-			return "";
+			return null;
 		}
 
 	}
@@ -470,7 +476,7 @@ public class UidSearchAnalyzer {
 				}
 				return matcher.group(0);
 			}
-			return "";
+			return null;
 		}
 
 	}
@@ -514,7 +520,7 @@ public class UidSearchAnalyzer {
 				}
 				return matcher.group(0);
 			}
-			return "";
+			return null;
 		}
 
 	}
@@ -550,7 +556,7 @@ public class UidSearchAnalyzer {
 				}
 				return matcher.group(0);
 			}
-			return "";
+			return null;
 		}
 
 	}
@@ -612,7 +618,7 @@ public class UidSearchAnalyzer {
 				}
 				return matcher.group(0);
 			}
-			return "";
+			return null;
 		}
 
 	}
@@ -655,7 +661,7 @@ public class UidSearchAnalyzer {
 				}
 				return matcher.group(0);
 			}
-			return "";
+			return null;
 		}
 
 	}
@@ -719,7 +725,7 @@ public class UidSearchAnalyzer {
 				}
 				return matcher.group(0);
 			}
-			return "";
+			return null;
 		}
 
 	}

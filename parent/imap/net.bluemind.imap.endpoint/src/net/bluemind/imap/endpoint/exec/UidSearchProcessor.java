@@ -42,6 +42,11 @@ public class UidSearchProcessor extends SelectedStateCommandProcessor<UidSearchC
 		Stopwatch chrono = Stopwatch.createStarted();
 
 		List<Long> imapUids = ctx.mailbox().uids(ctx.selected(), command.query());
+		if (imapUids == null) {
+			ctx.write("BAD Invalid Search criteria\r\n");
+			completed.handle(Result.success());
+			return;
+		}
 		if (imapUids.isEmpty()) {
 			long ms = chrono.elapsed(TimeUnit.MILLISECONDS);
 			ctx.write("* SEARCH\r\n" + command.raw().tag() + " OK Completed (took " + ms + "ms)\r\n");

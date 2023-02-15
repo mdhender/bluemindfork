@@ -676,40 +676,43 @@ public class MailApiConnection implements MailboxConnection {
 			InternalMax uidMax = rMax.getAggregations().get("uid_max");
 			maxUid = (int) uidMax.getValue();
 		}
-
-		QueryBUilderResult qbr = UidSearchAnalyzer.buildQuery(query, sel.folder.uid, me.uid);
-
-		SearchRequestBuilder searchBuilder = client.prepareSearch(index).setTrackTotalHits(true);
-		searchBuilder.setQuery(qbr.bq()).setFetchSource(false).addDocValueField("uid").setSize(1000).addSort("uid",
-				SortOrder.ASC);
-
 		List<Long> uids = new ArrayList<>();
-		long totalHits = 0;
-		final long TIME_BUDGET = TimeUnit.SECONDS.toNanos(15);
-		try (Pit pit = Pit.allocateUsingTimebudget(client, index, 60, TIME_BUDGET)) {
-			do {
-				searchBuilder.setPointInTime(new PointInTimeBuilder(pit.id));
-				pit.adaptSearch(searchBuilder);
-				SearchResponse sr = searchBuilder.execute().actionGet();
-				SearchHits searchHits = sr.getHits();
-				if (totalHits == 0) {
-					totalHits = searchHits.getTotalHits().value;
-					searchBuilder.setTrackTotalHits(false);
-				}
-				if (sr.getHits() != null && sr.getHits().getHits() != null) {
-					for (SearchHit h : sr.getHits().getHits()) {
-						pit.consumeHit(h);
-						uids.add(Long.parseLong(h.getDocumentFields().get("uid").getValue().toString()));
-					}
-				}
-			} while (pit.hasNext());
-		} catch (Exception e) {
-			return new ArrayList<>();
-		}
+		try {
+			QueryBUilderResult qbr = UidSearchAnalyzer.buildQuery(query, sel.folder.uid, me.uid);
 
-		// Empty uids list and seq is present -> return the greatest uid (see RFC 3501)
-		if (uids.isEmpty() && qbr.hasSequence()) {
-			return Arrays.asList(Long.valueOf(maxUid));
+			SearchRequestBuilder searchBuilder = client.prepareSearch(index).setTrackTotalHits(true);
+			searchBuilder.setQuery(qbr.bq()).setFetchSource(false).addDocValueField("uid").setSize(1000).addSort("uid",
+					SortOrder.ASC);
+
+			long totalHits = 0;
+			final long TIME_BUDGET = TimeUnit.SECONDS.toNanos(15);
+			try (Pit pit = Pit.allocateUsingTimebudget(client, index, 60, TIME_BUDGET)) {
+				do {
+					searchBuilder.setPointInTime(new PointInTimeBuilder(pit.id));
+					pit.adaptSearch(searchBuilder);
+					SearchResponse sr = searchBuilder.execute().actionGet();
+					SearchHits searchHits = sr.getHits();
+					if (totalHits == 0) {
+						totalHits = searchHits.getTotalHits().value;
+						searchBuilder.setTrackTotalHits(false);
+					}
+					if (sr.getHits() != null && sr.getHits().getHits() != null) {
+						for (SearchHit h : sr.getHits().getHits()) {
+							pit.consumeHit(h);
+							uids.add(Long.parseLong(h.getDocumentFields().get("uid").getValue().toString()));
+						}
+					}
+				} while (pit.hasNext());
+			} catch (Exception e) {
+				return new ArrayList<>();
+			}
+
+			// Empty uids list and seq is present -> return the greatest uid (see RFC 3501)
+			if (uids.isEmpty() && qbr.hasSequence()) {
+				return Arrays.asList(Long.valueOf(maxUid));
+			}
+		} catch (Exception e) {
+			return null;
 		}
 		return uids;
 	}
