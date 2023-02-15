@@ -1,5 +1,5 @@
 import { html2text, sanitizeHtml } from "@bluemind/html-utils";
-import { InlineImageHelper, PartsBuilder } from "@bluemind/email";
+import { Flag, InlineImageHelper, PartsBuilder } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
 import random from "lodash.random";
 import { partUtils } from "@bluemind/mail";
@@ -7,6 +7,7 @@ import { partUtils } from "@bluemind/mail";
 const { sanitizeTextPartForCyrus } = partUtils;
 
 import { draftUtils, fileUtils, messageUtils, signatureUtils } from "@bluemind/mail";
+import { ADD_FLAG, DELETE_FLAG } from "~/actions";
 import {
     MAX_MESSAGE_SIZE_EXCEEDED,
     SET_MESSAGE_DATE,
@@ -50,6 +51,7 @@ export async function save(context, draft, messageCompose, files) {
         const structure = createDraftStructure(tmpAddresses[0], tmpAddresses[1], files, inlineImages);
 
         await expandGroups(draft);
+        await manageDispositionNotification(context, draft);
         await createEmlOnServer(context, draft, service, structure);
 
         context.commit(SET_MESSAGES_STATUS, [{ key: draft.key, status: MessageStatus.IDLE }]);
@@ -218,4 +220,17 @@ async function expandGroupRecipients(recipients) {
         })
     );
     return expanded;
+}
+
+async function manageDispositionNotification(context, draft) {
+    const index = draft.headers.findIndex(
+        header =>
+            new RegExp(MessageHeader.DISPOSITION_NOTIFICATION_TO, "i").test(header.name) &&
+            header.values?.filter(Boolean)?.length
+    );
+    if (index >= 0) {
+        await context.dispatch(ADD_FLAG, { messages: [draft], flag: Flag.MDN_SENT });
+    } else {
+        await context.dispatch(DELETE_FLAG, { messages: [draft], flag: Flag.MDN_SENT });
+    }
 }
