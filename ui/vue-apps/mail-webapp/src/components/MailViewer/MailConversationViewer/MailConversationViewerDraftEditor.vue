@@ -12,7 +12,12 @@
                     v-if="isSenderShown"
                     label-class="font-weight-bold text-neutral"
                     :message="message"
-                    @update="identity => setFrom(identity, message)"
+                    @update="
+                        identity => {
+                            setFrom(identity, message);
+                            debouncedSave();
+                        }
+                    "
                     @check-and-repair="checkAndRepairFrom"
                 />
                 <div class="to-contact-input">

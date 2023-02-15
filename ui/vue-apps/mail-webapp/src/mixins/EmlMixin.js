@@ -9,7 +9,7 @@ export default {
             const text = await blob.text();
             const w = window.open();
             w.document.write(`<html lang="en"><header/><body><pre>${escape(text)}</pre></body></html>`);
-            w.document.title = messageUtils.createEmlName(message);
+            w.document.title = messageUtils.createEmlName(message, this.$t("mail.viewer.no.subject"));
         },
         async downloadEml(message) {
             const blob = await apiMessages.fetchComplete(message);

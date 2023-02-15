@@ -18,10 +18,11 @@ import {
     SET_DRAFT_EDITOR_CONTENT,
     SET_MESSAGE_BCC,
     SET_MESSAGE_CC,
-    SET_MESSAGES_LOADING_STATUS,
+    SET_MESSAGE_HEADERS,
     SET_MESSAGE_SUBJECT,
     SET_MESSAGE_TMP_ADDRESSES,
     SET_MESSAGE_TO,
+    SET_MESSAGES_LOADING_STATUS,
     SET_SAVED_INLINE_IMAGES
 } from "~/mutations";
 import apiMessages from "~/store/api/apiMessages";
@@ -40,7 +41,7 @@ const {
 } = draftUtils;
 const { getPartsFromCapabilities } = partUtils;
 const { AttachmentAdaptor } = attachmentUtils;
-const { MessageCreationModes } = messageUtils;
+const { MessageCreationModes, MessageHeader } = messageUtils;
 
 /**
  * Manage different cases of composer initialization
@@ -235,6 +236,7 @@ export default {
             this.mergeSubject(message, related);
             await this.mergeBody(message, related);
             await this.mergeAttachments(message, related);
+            this.mergeHeaders(message, related);
             this.$router.navigate({ name: "v:mail:message", params: { message: message } });
             return message;
         },
@@ -333,6 +335,18 @@ export default {
             rcpts.push(...message.bcc);
             recipients = message.bcc.concat(bcc.filter(bcc => rcpts.every(rcpt => bcc.address !== rcpt.address)));
             this.$store.commit(`mail/${SET_MESSAGE_BCC}`, { messageKey: message.key, bcc: recipients });
+        },
+
+        mergeHeaders(message, related) {
+            const headers = [...message.headers];
+            const MERGEABLE_HEADERS = [MessageHeader.DISPOSITION_NOTIFICATION_TO];
+            MERGEABLE_HEADERS.forEach(headerName => {
+                const mergeableHeader = related.headers.find(header => header.name === headerName);
+                if (mergeableHeader && !headers.some(header => header.name === headerName)) {
+                    headers.push(mergeableHeader);
+                }
+            });
+            this.$store.commit(`mail/${SET_MESSAGE_HEADERS}`, { messageKey: message.key, headers });
         }
     }
 };

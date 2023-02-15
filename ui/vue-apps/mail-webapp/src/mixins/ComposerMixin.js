@@ -29,7 +29,7 @@ export default {
             return this.$store.getters["mail/" + IS_SENDER_SHOWN](this.$store.state.settings);
         },
         isDispositionNotificationRequested() {
-            return this.findDispositionNotificationHeaderIndex(this.message.headers) >= 0;
+            return messageUtils.findDispositionNotificationHeaderIndex(this.message.headers) >= 0;
         }
     },
     watch: {
@@ -39,6 +39,16 @@ export default {
                     this.ERROR(maxMessageSizeExceededAlert);
                 } else {
                     this.REMOVE(maxMessageSizeExceededAlert.alert);
+                }
+            },
+            immediate: true
+        },
+        "message.from": {
+            handler: function (value) {
+                if (this.isDispositionNotificationRequested) {
+                    const headers = [...this.message.headers];
+                    messageUtils.setDispositionNotificationHeader(headers, value);
+                    this.$store.commit("mail/" + SET_MESSAGE_HEADERS, { messageKey: this.message.key, headers });
                 }
             },
             immediate: true
@@ -61,12 +71,9 @@ export default {
         toggleDispositionNotification() {
             const headers = [...this.message.headers];
             if (this.isDispositionNotificationRequested) {
-                headers.splice(this.findDispositionNotificationHeaderIndex(headers), 1);
+                messageUtils.removeDispositionNotificationHeader(headers);
             } else {
-                headers.push({
-                    name: messageUtils.MessageHeader.DISPOSITION_NOTIFICATION_TO,
-                    values: [this.message.from.address]
-                });
+                messageUtils.setDispositionNotificationHeader(headers, this.message.from);
             }
             this.$store.commit(`mail/${SET_MESSAGE_HEADERS}`, { messageKey: this.message.key, headers });
             this.$store.dispatch(`mail/${DEBOUNCED_SAVE_MESSAGE}`, {
@@ -85,13 +92,6 @@ export default {
                 const defaultIdentity = this.$store.getters["root-app/DEFAULT_IDENTITY"];
                 await this.setFrom(defaultIdentity, this.message);
             }
-        },
-        findDispositionNotificationHeaderIndex(headers) {
-            return headers.findIndex(
-                header =>
-                    new RegExp(messageUtils.MessageHeader.DISPOSITION_NOTIFICATION_TO, "i").test(header.name) &&
-                    header.values?.filter(Boolean)?.length
-            );
         }
     }
 };

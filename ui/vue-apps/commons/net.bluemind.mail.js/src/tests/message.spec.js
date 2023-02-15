@@ -1,5 +1,13 @@
 import shuffle from "lodash.shuffle";
-import { createEmlName, createOnlyMetadata, isForward, MessageHeader } from "../message";
+import {
+    createEmlName,
+    createOnlyMetadata,
+    findDispositionNotificationHeaderIndex,
+    isForward,
+    MessageHeader,
+    removeDispositionNotificationHeader,
+    setDispositionNotificationHeader
+} from "../message";
 
 jest.mock("postal-mime", () => ({ TextEncoder: jest.fn() }));
 
@@ -27,6 +35,10 @@ describe("Message model", () => {
             { name: MessageHeader.X_ORIGINAL_TO }
         ];
         const bmHeader = { name: MessageHeader.X_BM_DRAFT_INFO, values: ['{"type": "FORWARD"}'] };
+        const dispositionNotificationHeader = {
+            name: MessageHeader.DISPOSITION_NOTIFICATION_TO,
+            values: ["send.notice@to.me"]
+        };
 
         test("Headers", () => {
             headers.forEach(header => {
@@ -69,6 +81,21 @@ describe("Message model", () => {
             expect(createEmlName({ subject: "ThisIsANotSoLongButAlreadyTooLongMessageSubject" }, "ah")).toBe(
                 "ThisIsANotSoLongButAlreadyT.eml"
             );
+        });
+        test("Disposition notification header", () => {
+            const shuffledHeaders = shuffle([...randomHeaders, dispositionNotificationHeader]);
+            let index = findDispositionNotificationHeaderIndex(shuffledHeaders);
+            expect(index >= 0).toBeTruthy();
+            expect(shuffledHeaders[index].values).toEqual(["send.notice@to.me"]);
+
+            setDispositionNotificationHeader(shuffledHeaders, { address: "another@add.ress" });
+            index = findDispositionNotificationHeaderIndex(shuffledHeaders);
+            expect(index >= 0).toBeTruthy();
+            expect(shuffledHeaders[index].values).toEqual(["another@add.ress"]);
+
+            removeDispositionNotificationHeader(shuffledHeaders);
+            index = findDispositionNotificationHeaderIndex(shuffledHeaders);
+            expect(index >= 0).toBeFalsy();
         });
     });
 });

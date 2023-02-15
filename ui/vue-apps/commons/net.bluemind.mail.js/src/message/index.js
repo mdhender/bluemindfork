@@ -214,8 +214,7 @@ export function createEmlName(message, fallBackName) {
     const extension = ".eml";
     const illegalChars = "#<>$+%!`&*'|{}?\"=/\\:@";
     const illegalCharsRegex = new RegExp(`[${escapeRegExp(illegalChars)}\\s]+`, "g");
-    let subject = message.subject || fallBackName;
-    subject = subject.trim();
+    let subject = message.subject?.trim() || fallBackName;
     const replacementChar = "-";
     subject = subject.replaceAll(illegalCharsRegex, replacementChar);
     if (subject.length > maxChars - extension.length) {
@@ -224,12 +223,40 @@ export function createEmlName(message, fallBackName) {
     return `${subject}${extension}`;
 }
 
+export function findDispositionNotificationHeaderIndex(headers) {
+    return headers.findIndex(
+        header =>
+            new RegExp(MessageHeader.DISPOSITION_NOTIFICATION_TO, "i").test(header.name) &&
+            header.values?.filter(Boolean)?.length
+    );
+}
+
+export function setDispositionNotificationHeader(headers, from) {
+    const index = findDispositionNotificationHeaderIndex(headers);
+    let header;
+    if (index >= 0) {
+        header = headers[index];
+    } else {
+        header = { name: MessageHeader.DISPOSITION_NOTIFICATION_TO };
+        headers.push(header);
+    }
+    header.values = [from.address];
+}
+
+export function removeDispositionNotificationHeader(headers) {
+    const index = findDispositionNotificationHeaderIndex(headers);
+    if (index) {
+        headers.splice(index, 1);
+    }
+}
+
 export default {
     create,
     createEmlName,
     createOnlyMetadata,
     createWithMetadata,
     extractHeaderValues,
+    findDispositionNotificationHeaderIndex,
     isFlagged,
     isForward,
     isReply,
@@ -248,5 +275,7 @@ export default {
     MessageQuoteYahooClass,
     MessageReplyAttributeSeparator,
     MessageStatus,
-    partialCopy
+    partialCopy,
+    removeDispositionNotificationHeader,
+    setDispositionNotificationHeader
 };

@@ -22,7 +22,12 @@
             class="mx-4"
             label-class="ml-3 bold"
             :message="message"
-            @update="identity => setFrom(identity, message)"
+            @update="
+                identity => {
+                    setFrom(identity, message);
+                    debouncedSave();
+                }
+            "
             @check-and-repair="checkAndRepairFrom"
         />
         <mail-composer-recipients
