@@ -27,11 +27,17 @@
       <endpoint
             api="net.bluemind.smime.cacerts.api.ISmimeCacertUids" inline="true">
       </endpoint>
+      <endpoint
+            api="net.bluemind.smime.cacerts.api.ISmimeCRL">
+      </endpoint>
    </extension>
    <extension
          point="net.bluemind.core.rest.serviceFactory">
       <serviceFactory
             class="net.bluemind.smime.cacerts.service.SmimeCACertServiceFactory">
+      </serviceFactory>
+            <serviceFactory
+            class="net.bluemind.smime.cacerts.service.SmimeCRLServiceFactory">
       </serviceFactory>
    </extension>
    <extension

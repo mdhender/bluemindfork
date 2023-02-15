@@ -44,6 +44,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.smime.cacerts.api.ISmimeCACert;
+import net.bluemind.smime.cacerts.api.ISmimeCRL;
 import net.bluemind.smime.cacerts.api.SmimeCacert;
 
 public class SmimeCacertServiceTests extends AbstractServiceTests {
@@ -474,5 +475,10 @@ public class SmimeCacertServiceTests extends AbstractServiceTests {
 		item.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		item.version = 17;
 		return ItemValue.create(item, defaultSmimeCacert());
+	}
+
+	@Override
+	protected ISmimeCRL getServiceCrl(SecurityContext context, String containerUid) throws ServerFault {
+		return null;
 	}
 }
