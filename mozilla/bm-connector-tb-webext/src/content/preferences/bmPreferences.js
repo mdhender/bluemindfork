@@ -106,7 +106,11 @@ var gBMPreferences = {
         let checkbox = document.getElementById("bm-checkbox-debug");
         if (checkbox) {
             let debug = bmUtils.getBoolPref("extensions.bm.log.debug", false);
-            checkbox.setAttribute("checked", "" + debug);
+            if (debug) {
+                checkbox.setAttribute("checked", "true");
+            } else {
+                checkbox.removeAttribute("checked");
+            }
         }
     },
     saveBmPrefs: function() {
