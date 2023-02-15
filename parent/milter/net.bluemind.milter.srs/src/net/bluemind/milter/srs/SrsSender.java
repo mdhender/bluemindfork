@@ -21,8 +21,6 @@ package net.bluemind.milter.srs;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
 
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.stream.Field;
@@ -32,8 +30,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
 
 import net.bluemind.config.InstallationId;
-import net.bluemind.hornetq.client.MQ;
-import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.milter.MilterHeaders;
 import net.bluemind.milter.action.DomainAliasCache;
 import net.bluemind.milter.action.MilterPreAction;
@@ -41,7 +37,6 @@ import net.bluemind.milter.action.MilterPreActionsFactory;
 import net.bluemind.milter.action.UpdatedMailMessage;
 import net.bluemind.milter.srs.tools.SrsHash;
 import net.bluemind.milter.srs.tools.SrsUtils;
-import net.bluemind.system.api.SysConfKeys;
 
 public class SrsSender implements MilterPreAction {
 	private static final Logger logger = LoggerFactory.getLogger(SrsSender.class);
@@ -61,7 +56,6 @@ public class SrsSender implements MilterPreAction {
 	}
 
 	private final SrsHash srsHash;
-	private final Supplier<String> defaultDomain;
 
 	/**
 	 * Use only for JUnits
@@ -76,21 +70,10 @@ public class SrsSender implements MilterPreAction {
 
 	private SrsSender(SrsHash srsHash) {
 		this.srsHash = srsHash;
-
-		AtomicReference<SharedMap<String, String>> sysconf = new AtomicReference<>();
-		MQ.init().thenAccept(v -> sysconf.set(MQ.sharedMap("system.configuration")));
-
-		defaultDomain = () -> Optional.ofNullable(sysconf.get())
-				.map(sm -> sm.get(SysConfKeys.default_domain.name()) != null
-						&& !sm.get(SysConfKeys.default_domain.name()).isEmpty()
-								? sm.get(SysConfKeys.default_domain.name())
-								: null)
-				.orElse(null);
 	}
 
 	private SrsSender(SrsHash srsHash, String defaultDomain) {
 		this.srsHash = srsHash;
-		this.defaultDomain = () -> defaultDomain;
 	}
 
 	@Override
@@ -100,6 +83,10 @@ public class SrsSender implements MilterPreAction {
 
 	@Override
 	public boolean execute(UpdatedMailMessage modifiedMail) {
+		if (SysconfHelper.srsDisabled.get()) {
+			return false;
+		}
+
 		Collection<String> mailFrom = modifiedMail.properties.get("{mail_addr}");
 		if (mailFrom == null) {
 			logger.warn("No mail from value: {}", modifiedMail.properties.get("{mail_addr}"));
@@ -165,7 +152,7 @@ public class SrsSender implements MilterPreAction {
 		return Optional.ofNullable(modifiedMail.properties.get("{auth_authen}"))
 				.map(authAuthens -> authAuthens.stream().filter(Objects::nonNull).findFirst().orElse(null))
 				.map(login -> SrsUtils.getDomainFromEmail(login).map(this::getDomainAlias)
-						.orElseGet(() -> getDomainAlias(defaultDomain.get())));
+						.orElseGet(() -> getDomainAlias(SysconfHelper.defaultDomain.get())));
 	}
 
 	private Optional<String> senderSrsDomainFromHeader(UpdatedMailMessage modifiedMail) {

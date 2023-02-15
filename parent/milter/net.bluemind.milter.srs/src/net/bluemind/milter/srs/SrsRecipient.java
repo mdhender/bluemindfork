@@ -57,6 +57,10 @@ public class SrsRecipient implements RecipientCanonical {
 
 	@Override
 	public Optional<String> execute(String email) {
+		if (SysconfHelper.srsDisabled.get()) {
+			return Optional.empty();
+		}
+
 		return Optional.ofNullable(email).filter(this::isFromLocalDomain).map(this::recipientRewrite)
 				.orElseGet(Optional::empty);
 	}

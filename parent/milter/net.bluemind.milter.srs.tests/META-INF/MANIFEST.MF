@@ -13,4 +13,5 @@ Require-Bundle: net.bluemind.milter.srs,
  net.bluemind.domain.api,
  org.apache.james.apache-mime4j-dom,
  net.bluemind.config,
- org.apache.james.apache-mime4j-core
+ org.apache.james.apache-mime4j-core,
+ net.bluemind.system.api

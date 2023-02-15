@@ -16,6 +16,8 @@ Require-Bundle: com.google.guava,
  org.apache.james.apache-mime4j-dom,
  org.apache.james.apache-mime4j-core,
  net.bluemind.core.container.api,
- net.bluemind.domain.api
+ net.bluemind.domain.api,
+ org.eclipse.osgi,
+ net.bluemind.system.hook;visibility:=reexport
 Export-Package: net.bluemind.milter.srs,
  net.bluemind.milter.srs.tools

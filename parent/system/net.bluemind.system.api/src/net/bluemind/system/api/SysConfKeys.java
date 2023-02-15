@@ -183,7 +183,12 @@ public enum SysConfKeys {
 	/**
 	 * dataprotect skipped datatypes (eg. sds-spool)
 	 */
-	dataprotect_skip_datatypes;
+	dataprotect_skip_datatypes,
+
+	/**
+	 * SRS enabled
+	 */
+	srs_disabled;
 
 	public static boolean isSysConfigKey(String key) {
 		for (SysConfKeys k : SysConfKeys.values()) {
