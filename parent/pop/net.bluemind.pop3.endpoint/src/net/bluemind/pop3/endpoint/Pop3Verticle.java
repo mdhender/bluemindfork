@@ -52,7 +52,7 @@ public class Pop3Verticle extends AbstractVerticle {
 
 		int port = conf.getInt("pop3.port");
 
-		logger.info("pop3 started");
+		logger.info("pop3 starting on port {}", port);
 		vertx.createNetServer().connectHandler(socket -> {
 			Pop3Session session = new Pop3Session(vertx, socket);
 			session.start();
@@ -61,7 +61,7 @@ public class Pop3Verticle extends AbstractVerticle {
 				logger.error("Problem", ar.cause());
 				startPromise.fail(ar.cause());
 			} else {
-				logger.info("{} listening", ar.result());
+				logger.info("{} listening on port {}", ar.result(), port);
 				startPromise.complete();
 			}
 		});
