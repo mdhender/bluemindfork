@@ -148,7 +148,7 @@ public class RuleEngine {
 	}
 
 	private List<MailFilterRule> matchingRules(List<MailFilterRule> rules) {
-		return rules.stream() //
+		List<MailFilterRule> filtered = rules.stream() //
 				.filter(rule -> {
 					boolean match = rule.active && rule.trigger == Trigger.IN
 							&& rule.match(fieldValueProvider, parameterValueProvider);
@@ -157,6 +157,8 @@ public class RuleEngine {
 					}
 					return match;
 				}).toList();
+		logger.info("[rules] {} matching out of {} rule(s)", filtered.size(), rules.size());
+		return filtered;
 	}
 
 	private DeliveryContent applyRulesActions(List<MailFilterRule> rules) {
