@@ -18,9 +18,10 @@
 package net.bluemind.delivery.lmtp.internal;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.subethamail.smtp.TooMuchDataException;
+
+import io.netty.buffer.ByteBuf;
 
 public interface LmtpListener {
 
@@ -39,16 +40,15 @@ public interface LmtpListener {
 	 * When message data arrives, this method will be called for every recipient
 	 * this listener accepted.
 	 *
-	 * @param from      is the envelope sender in rfc822 form
-	 * @param recipient will be an accepted recipient in rfc822 form
-	 * @param data      will be the smtp data stream, stripped of any extra '.'
-	 *                  chars. The data stream is only valid for the duration of
-	 *                  this call.
+	 * @param from       is the envelope sender in rfc822 form
+	 * @param recipient  will be an accepted recipient in rfc822 form
+	 * @param byteBuffer will be the smtp data stream. The data stream is only valid
+	 *                   for the duration of this call.
 	 *
 	 * @throws TooMuchDataException if the listener can't handle that much data. An
 	 *                              error will be reported to the client.
 	 * @throws IOException          if there is an IO error reading the input data.
 	 */
-	public void deliver(String from, String recipient, InputStream data) throws IOException;
+	public void deliver(String from, String recipient, ByteBuf byteBuffer) throws IOException;
 
 }

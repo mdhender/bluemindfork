@@ -71,6 +71,7 @@ X-ALTOSPAM-STATUT: senderok mailok serverok spfok dkimok
 X-ALTOSPAM-HOST: k11.altospam.com
 X-Bm-Milter-Handled: d891dff8-afe9-48f5-b212-a48e8ecc236b
 X-Bm-Transport-Timestamp: 1610533484213
+X-Bm-Parsing-Options: encoded-parts
 
 --000000000000f4986305b8c58ba9
 Content-Type: multipart/alternative; boundary="000000000000f4986105b8c58ba7"

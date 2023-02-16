@@ -48,6 +48,7 @@ import net.bluemind.delivery.conversationreference.persistence.ConversationRefer
 import net.bluemind.delivery.lmtp.ApiProv;
 import net.bluemind.delivery.lmtp.LmtpMessageHandler;
 import net.bluemind.delivery.lmtp.MailboxLookup;
+import net.bluemind.delivery.lmtp.MmapRewindStream;
 import net.bluemind.delivery.lmtp.common.ResolvedBox;
 import net.bluemind.delivery.lmtp.dedup.DuplicateDeliveryDb;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -130,7 +131,9 @@ public class LmtpMessageHandlerTests {
 	public void testSavedMailHasRightConversationId() throws Exception {
 		ApiProv prov = k -> context.getServiceProvider();
 		LmtpMessageHandler messageHandler = new LmtpMessageHandler(prov, dedup);
-		messageHandler.deliver(emailUser1, emailUser2, eml("emls/test_mail.eml"));
+		MmapRewindStream stream = new MmapRewindStream(eml("emls/test_mail.eml"), Integer.MAX_VALUE);
+
+		messageHandler.deliver(emailUser1, emailUser2, stream.byteBuffer());
 
 		ResolvedBox tgtBox = lookup.lookupEmail(emailUser2);
 		Assert.assertNotNull(tgtBox);
@@ -151,7 +154,9 @@ public class LmtpMessageHandlerTests {
 	public void testSavedMailEmptyReferences() throws Exception {
 		ApiProv prov = k -> context.getServiceProvider();
 		LmtpMessageHandler messageHandler = new LmtpMessageHandler(prov, dedup);
-		messageHandler.deliver(emailUser1, emailUser2, eml("emls/test_mail_empty_references.eml"));
+		MmapRewindStream stream = new MmapRewindStream(eml("emls/test_mail_empty_references.eml"), Integer.MAX_VALUE);
+
+		messageHandler.deliver(emailUser1, emailUser2, stream.byteBuffer());
 
 		ResolvedBox tgtBox = lookup.lookupEmail(emailUser2);
 		Assert.assertNotNull(tgtBox);
@@ -177,7 +182,9 @@ public class LmtpMessageHandlerTests {
 	public void testSavedMailNoReferences() throws Exception {
 		ApiProv prov = k -> context.getServiceProvider();
 		LmtpMessageHandler messageHandler = new LmtpMessageHandler(prov, dedup);
-		messageHandler.deliver(emailUser1, emailUser2, eml("emls/test_mail_no_references.eml"));
+		MmapRewindStream stream = new MmapRewindStream(eml("emls/test_mail_no_references.eml"), Integer.MAX_VALUE);
+
+		messageHandler.deliver(emailUser1, emailUser2, stream.byteBuffer());
 
 		ResolvedBox tgtBox = lookup.lookupEmail(emailUser2);
 		Assert.assertNotNull(tgtBox);
@@ -204,16 +211,29 @@ public class LmtpMessageHandlerTests {
 		ApiProv prov = k -> context.getServiceProvider();
 		long before = dedup.dedupCount();
 		LmtpMessageHandler messageHandler = new LmtpMessageHandler(prov, dedup);
-		messageHandler.deliver(emailUser1, emailUser2, eml("emls/test_dedup.eml"));
+		MmapRewindStream stream = new MmapRewindStream(eml("emls/test_dedup.eml"), Integer.MAX_VALUE);
+		messageHandler.deliver(emailUser1, emailUser2, stream.byteBuffer());
 		long afterFirst = dedup.dedupCount();
 		assertEquals(before, afterFirst);
 
+		stream = new MmapRewindStream(eml("emls/test_dedup.eml"), Integer.MAX_VALUE);
 		for (int i = 0; i < 10; i++) {
-			messageHandler.deliver(emailUser1, emailUser2, eml("emls/test_dedup.eml"));
+			messageHandler.deliver(emailUser1, emailUser2, stream.byteBufRewinded());
 			long duplicate = dedup.dedupCount();
 			System.err.println("duplicates: " + duplicate);
 		}
 		assertEquals(afterFirst + 10, dedup.dedupCount());
+	}
+
+	@Test
+	public void testEncodedMessage() throws Exception {
+		ApiProv prov = k -> context.getServiceProvider();
+		long before = dedup.dedupCount();
+		LmtpMessageHandler messageHandler = new LmtpMessageHandler(prov, dedup);
+		MmapRewindStream stream = new MmapRewindStream(eml("emls/test_smime.eml"), Integer.MAX_VALUE);
+		messageHandler.deliver(emailUser1, emailUser2, stream.byteBuffer());
+		long afterFirst = dedup.dedupCount();
+		assertEquals(before, afterFirst);
 	}
 
 	protected IServiceProvider systemServiceProvider() {

@@ -47,6 +47,7 @@ import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.imip.parser.ITIPMethod;
 import net.bluemind.imip.parser.impl.IMIPParserHelper.CalendarComponentList;
 import net.bluemind.lib.ical4j.util.IcalConverter;
+import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.todolist.api.VTodo;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Property;
@@ -70,20 +71,7 @@ public class ITIPPartParser {
 	public IMIPInfos parse(Entity e) throws IOException, ParserException, ServerFault {
 
 		TextBody body = (TextBody) e.getBody();
-		// X-MICROSOFT-DISALLOW-COUNTER
-		parseAcceptCounters(body.getInputStream()).ifPresent(disallowCounters -> {
-			imip.properties.put("X-MICROSOFT-DISALLOW-COUNTER", Boolean.toString(disallowCounters));
-		});
-
-		Reader reader = null;
-		if ("us-ascii".equalsIgnoreCase(body.getMimeCharset())) {
-			// outlook does not set the charset on its ICS parts
-			// and if it is really us-ascii we don't care as utf-8 == ascii for
-			// ascii chars
-			reader = new InputStreamReader(body.getInputStream(), "utf-8");
-		} else {
-			reader = body.getReader();
-		}
+		Reader reader = Mime4JHelper.decodeBodyPartReader(body, imip.properties);
 
 		CalendarComponentList fromICS = IMIPParserHelper.fromICS(reader);
 		List<CalendarComponent> calendarComponents = fromICS.components;
@@ -211,7 +199,7 @@ public class ITIPPartParser {
 		return imip;
 	}
 
-	private Optional<Boolean> parseAcceptCounters(InputStream in) throws IOException {
+	private static Optional<Boolean> parseAcceptCounters(InputStream in) throws IOException {
 		try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
 			Optional<String> property = bufferedReader.lines()
 					.filter(line -> line.startsWith("X-MICROSOFT-DISALLOW-COUNTER")).findFirst();

@@ -36,8 +36,11 @@ import org.apache.james.mime4j.message.BodyPart;
 import org.apache.james.mime4j.message.HeaderImpl;
 import org.apache.james.mime4j.message.MessageImpl;
 import org.apache.james.mime4j.stream.RawField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Mail {
+
 	public Mailbox from;
 	public Mailbox sender;
 	public Mailbox to;

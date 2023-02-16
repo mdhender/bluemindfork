@@ -139,6 +139,7 @@ X-MIMETrack: Serialize by Router on Domino/Mairie-Saint-Ouen(Release 8.5|Decembe
 Subject: =?ISO-8859-1?Q?Invitation_=3A_test_agenda_BM_=2814_Ao=FBt_11=3A00_CEDT=29?=
 Content-Type: multipart/mixed; boundary="=_mixed 354EFA3054F1F02FC1257A56003AB3AD_="
 X-ALTOSPAM: h17.altospam.com
+X-Bm-Parsing-Options: encoded-parts
 
 Message en plusieurs parties au format MIME
 --=_mixed 354EFA3054F1F02FC1257A56003AB3AD_=

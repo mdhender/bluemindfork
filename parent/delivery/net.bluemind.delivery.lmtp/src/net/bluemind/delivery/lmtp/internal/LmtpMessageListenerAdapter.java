@@ -20,46 +20,29 @@ package net.bluemind.delivery.lmtp.internal;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.subethamail.smtp.MessageContext;
 import org.subethamail.smtp.MessageHandler;
 import org.subethamail.smtp.MessageHandlerFactory;
 import org.subethamail.smtp.RejectException;
-import org.subethamail.smtp.io.DeferredFileOutputStream;
 
-import net.bluemind.utils.ByteSizeUnit;
+import net.bluemind.delivery.lmtp.MmapRewindStream;
+import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 
 public class LmtpMessageListenerAdapter implements MessageHandlerFactory {
 
-	/**
-	 * 5 megs by default. The server will buffer incoming messages to disk when they
-	 * hit this limit in the DATA received.
-	 */
-	private static int DEFAULT_DATA_DEFERRED_SIZE = (int) ByteSizeUnit.MB.toBytes(5);
-
 	private final LmtpListener delegate;
-	private final int dataDeferredSize;
+	private static final int DEFAULT_MESSAGE_SIZE_LIMIT = 10 * 1024 * 1024; // 10485760L
 
 	/**
 	 * Initializes this factory with a single listener.
 	 *
-	 * Default data deferred size is 5 megs.
+	 * @param listener {@link LmtpListener}
 	 */
 	public LmtpMessageListenerAdapter(LmtpListener listener) {
-		this(listener, DEFAULT_DATA_DEFERRED_SIZE);
-	}
-
-	/**
-	 * Initializes this factory with the listeners.
-	 * 
-	 * @param dataDeferredSize The server will buffer incoming messages to disk when
-	 *                         they hit this limit in the DATA received.
-	 */
-	public LmtpMessageListenerAdapter(LmtpListener listener, int dataDeferredSize) {
 		this.delegate = listener;
-		this.dataDeferredSize = dataDeferredSize;
 	}
 
 	public MessageHandler create(MessageContext ctx) {
@@ -119,33 +102,20 @@ public class LmtpMessageListenerAdapter implements MessageHandlerFactory {
 		}
 
 		public List<RecipientDeliveryStatus> lmtpData(InputStream data) throws IOException {
-			if (this.deliveries.size() == 1) {
-				Delivery delivery = this.deliveries.get(0);
-				try {
-					delivery.getListener().deliver(this.from, delivery.getRecipient(), data);
-					return Collections.singletonList(RecipientAcceptance.ACCEPT.reason(null));
-				} catch (Exception e) {
-					return Collections.singletonList(RecipientAcceptance.TEMPORARY_REJECT.reason(e.getMessage()));
-				}
-			} else {
-				List<RecipientDeliveryStatus> result = new ArrayList<>(deliveries.size());
-				try (DeferredFileOutputStream dfos = new DeferredFileOutputStream(dataDeferredSize)) {
-					int value;
-					while ((value = data.read()) >= 0) {
-						dfos.write(value);
-					}
+			Integer messageMaxSize = LocalSysconfCache.get().integerValue(SysConfKeys.message_size_limit.name());
+			MmapRewindStream stream = new MmapRewindStream(data,
+					messageMaxSize == null ? DEFAULT_MESSAGE_SIZE_LIMIT : messageMaxSize);
 
-					for (Delivery delivery : deliveries) {
-						try {
-							delivery.getListener().deliver(this.from, delivery.getRecipient(), dfos.getInputStream());
-							result.add(RecipientAcceptance.ACCEPT.reason(null));
-						} catch (Exception e) {
-							result.add(RecipientAcceptance.TEMPORARY_REJECT.reason(e.getMessage()));
-						}
-					}
+			List<RecipientDeliveryStatus> result = new ArrayList<>(deliveries.size());
+			for (Delivery delivery : deliveries) {
+				try {
+					delivery.getListener().deliver(this.from, delivery.getRecipient(), stream.byteBufRewinded());
+					result.add(RecipientAcceptance.ACCEPT.reason(null));
+				} catch (Exception e) {
+					result.add(RecipientAcceptance.TEMPORARY_REJECT.reason(e.getMessage()));
 				}
-				return result;
 			}
+			return result;
 		}
 
 		public void done() {

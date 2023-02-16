@@ -18,28 +18,34 @@
  */
 package net.bluemind.mime4j.common;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel.MapMode;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.james.mime4j.codec.DecodeMonitor;
 import org.apache.james.mime4j.dom.BinaryBody;
 import org.apache.james.mime4j.dom.Body;
 import org.apache.james.mime4j.dom.Entity;
+import org.apache.james.mime4j.dom.Header;
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.MessageServiceFactory;
 import org.apache.james.mime4j.dom.MessageWriter;
@@ -47,6 +53,7 @@ import org.apache.james.mime4j.dom.Multipart;
 import org.apache.james.mime4j.dom.TextBody;
 import org.apache.james.mime4j.dom.address.Mailbox;
 import org.apache.james.mime4j.field.LenientFieldParser;
+import org.apache.james.mime4j.field.MimeVersionFieldLenientImpl;
 import org.apache.james.mime4j.message.BasicBodyFactory;
 import org.apache.james.mime4j.message.BodyFactory;
 import org.apache.james.mime4j.message.BodyPart;
@@ -56,8 +63,10 @@ import org.apache.james.mime4j.message.MessageImpl;
 import org.apache.james.mime4j.parser.ContentHandler;
 import org.apache.james.mime4j.parser.MimeStreamParser;
 import org.apache.james.mime4j.stream.BodyDescriptorBuilder;
+import org.apache.james.mime4j.stream.Field;
 import org.apache.james.mime4j.stream.MimeConfig;
 import org.apache.james.mime4j.stream.MimeTokenStream;
+import org.apache.james.mime4j.stream.RawField;
 import org.apache.james.mime4j.stream.RecursionMode;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -94,6 +103,10 @@ public class Mime4JHelper {
 	public static final String TEXT_PLAIN = "text/plain";
 	public static final String TEXT_CALENDAR = "text/calendar";
 	public static final String TEXT_HTML = "text/html";
+	public static final String APP_PKCS7_SIGNATURE = "application/pkcs7-signature";
+
+	private static final String X_BM_PARSING_OPTIONS = "X-Bm-Parsing-Options";
+	private static final String ENCODED_PARTS = "encoded-parts";
 
 	private static final Logger logger = LoggerFactory.getLogger(Mime4JHelper.class);
 
@@ -197,7 +210,13 @@ public class Mime4JHelper {
 
 	public static void serialize(Message toDump, OutputStream out, boolean encodeParts) {
 		try {
-			MessageWriter writer = writer(encodeParts);
+			MessageWriter writer;
+			if (hasEncodedHeader(toDump.getHeader())) {
+				toDump.getHeader().removeFields(X_BM_PARSING_OPTIONS);
+				writer = writer(false);
+			} else {
+				writer = writer(encodeParts);
+			}
 			writer.writeMessage(toDump, out);
 		} catch (Exception e) {
 			logger.error("Message serialization failed: " + e.getMessage(), e);
@@ -228,6 +247,10 @@ public class Mime4JHelper {
 		return parse(new ByteArrayInputStream(messageData));
 	}
 
+	public static Message parse(byte[] messageData, boolean decodeEncoding) {
+		return parse(new ByteArrayInputStream(messageData), decodeEncoding);
+	}
+
 	public static Message parse(InputStream in, boolean decodeEncoding) {
 		return parse(in, new OffloadedBodyFactory(), decodeEncoding);
 	}
@@ -245,6 +268,18 @@ public class Mime4JHelper {
 		return parse(in, message, new DefaultEntityBuilder(message, bf), decodeEncoding);
 	}
 
+	public static boolean hasEncodedHeader(Header header) {
+		Optional<Field> parsingOptionsHeader = getParsingOptionsHeader(header);
+		return parsingOptionsHeader.isPresent() && parsingOptionsHeader.get().getBody().contains(ENCODED_PARTS);
+	}
+
+	public static Optional<Field> getParsingOptionsHeader(Header header) {
+		if (header != null) {
+			return Optional.ofNullable(header.getField(X_BM_PARSING_OPTIONS));
+		}
+		return Optional.empty();
+	}
+
 	private static Message parse(InputStream in, MessageImpl message, ContentHandler ch, boolean decodeEncoding) {
 		MimeStreamParser parser = parser(decodeEncoding);
 		parser.setContentHandler(ch);
@@ -253,7 +288,29 @@ public class Mime4JHelper {
 		} catch (Exception e) {
 			logger.error("error rewriting the email", e);
 		}
+
+		if (!decodeEncoding) {
+			addParsingOptionsValue(message, ENCODED_PARTS);
+		}
+
 		return message;
+	}
+
+	private static void addParsingOptionsValue(MessageImpl message, String value) {
+		Optional<Field> parsingOptionsHeader = getParsingOptionsHeader(message.getHeader());
+		Set<String> bodyValues = new HashSet<>();
+
+		parsingOptionsHeader.ifPresent(p -> {
+			bodyValues
+					.addAll(Splitter.on(';').omitEmptyStrings().splitToStream(p.getBody()).collect(Collectors.toSet()));
+			message.getHeader().removeFields(X_BM_PARSING_OPTIONS);
+		});
+
+		bodyValues.add(value);
+		RawField parsingHeaderField = new RawField(X_BM_PARSING_OPTIONS,
+				bodyValues.stream().collect(Collectors.joining(";")));
+		message.getHeader()
+				.addField(MimeVersionFieldLenientImpl.PARSER.parse(parsingHeaderField, DecodeMonitor.SILENT));
 	}
 
 	public static MimeStreamParser parser() {
@@ -305,6 +362,39 @@ public class Mime4JHelper {
 		ks.input = FBOSInput.from(fbos);
 		ks.size = (int) fbos.asByteSource().size();
 		return ks;
+	}
+
+	private static Optional<Boolean> parseAcceptCounters(ByteArrayOutputStream bos) throws IOException {
+		try (BufferedReader bufferedReader = new BufferedReader(
+				new InputStreamReader(new ByteArrayInputStream(bos.toByteArray())))) {
+			Optional<String> property = bufferedReader.lines()
+					.filter(line -> line.startsWith("X-MICROSOFT-DISALLOW-COUNTER")).findFirst();
+			return property.map(p -> {
+				return Boolean.parseBoolean(p.substring(p.indexOf(":") + 1).trim());
+			});
+		}
+	}
+
+	public static InputStreamReader decodeBodyPartReader(TextBody body, Map<String, String> properties)
+			throws IOException {
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		body.getInputStream().transferTo(outputStream);
+
+		boolean utf8 = "us-ascii".equalsIgnoreCase(body.getMimeCharset());
+		if (properties != null) {
+			// X-MICROSOFT-DISALLOW-COUNTER
+			parseAcceptCounters(outputStream).ifPresent(disallowCounters -> {
+				properties.put("X-MICROSOFT-DISALLOW-COUNTER", Boolean.toString(disallowCounters));
+			});
+		}
+
+		InputStream bodyStream = new ByteArrayInputStream(outputStream.toByteArray());
+
+		if (utf8) {
+			return new InputStreamReader(bodyStream, StandardCharsets.UTF_8);
+		} else {
+			return new InputStreamReader(bodyStream);
+		}
 	}
 
 	public static record HashedBuffer(MappedByteBuffer buffer, String sha1, String messageId, Set<String> refs) {

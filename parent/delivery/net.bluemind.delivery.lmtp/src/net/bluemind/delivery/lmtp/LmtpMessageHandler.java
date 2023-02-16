@@ -18,7 +18,6 @@
 package net.bluemind.delivery.lmtp;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -30,11 +29,11 @@ import org.apache.james.mime4j.stream.RawField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.CountingInputStream;
 import com.netflix.spectator.api.Counter;
 import com.netflix.spectator.api.Registry;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -117,11 +116,11 @@ public class LmtpMessageHandler implements LmtpListener {
 	}
 
 	@Override
-	public void deliver(String from, String recipient, InputStream data) throws IOException {
+	public void deliver(String from, String recipient, ByteBuf byteBuffer) throws IOException {
 		ResolvedBox tgtBox = lookup.lookupEmail(recipient);
 		String subtree = IMailReplicaUids.subtreeUid(tgtBox.dom.uid, tgtBox.mbox);
 
-		FreezableDeliveryContent freezedContent = preDelivery(from, tgtBox, subtree, data);
+		FreezableDeliveryContent freezedContent = preDelivery(from, tgtBox, subtree, byteBuffer);
 		if (freezedContent.isEmpty()) {
 			return;
 		}
@@ -133,7 +132,7 @@ public class LmtpMessageHandler implements LmtpListener {
 		}
 	}
 
-	private FreezableDeliveryContent preDelivery(String from, ResolvedBox tgtBox, String subtree, InputStream data)
+	private FreezableDeliveryContent preDelivery(String from, ResolvedBox tgtBox, String subtree, ByteBuf data)
 			throws IOException {
 		IDbReplicatedMailboxes treeApi = prov.system().instance(IDbByContainerReplicatedMailboxes.class, subtree);
 		ItemValue<MailboxReplica> rootFolder = treeApi
@@ -195,11 +194,24 @@ public class LmtpMessageHandler implements LmtpListener {
 
 	}
 
-	private FreezableDeliveryContent applyFilters(String from, DeliveryContent content, InputStream data)
+	private static boolean isSignedMessage(Message message) {
+		return message.getMimeType().contains(Mime4JHelper.M_SIGNED)
+				|| message.getMimeType().contains(Mime4JHelper.APP_PKCS7_SIGNATURE);
+	}
+
+	private FreezableDeliveryContent applyFilters(String from, DeliveryContent content, ByteBuf data)
 			throws IOException {
 		List<IMessageFilter> filters = LmtpFilters.get();
-		CountingInputStream countedInput = new CountingInputStream(data);
-		Message messageToFilter = Mime4JHelper.parse(countedInput);
+		ByteBufInputStream byteArr = new ByteBufInputStream(data, false);
+		int len = data.readableBytes();
+		Message messageToFilter = Mime4JHelper.parse(byteArr);
+
+		if (isSignedMessage(messageToFilter)) {
+			data = data.duplicate().readerIndex(0);
+			byteArr = new ByteBufInputStream(data, false);
+			messageToFilter = Mime4JHelper.parse(byteArr, false);
+		}
+
 		try {
 			LmtpEnvelope le = new LmtpEnvelope(from, Collections.singletonList(content.box()));
 			for (IMessageFilter f : filters) {
@@ -213,7 +225,7 @@ public class LmtpMessageHandler implements LmtpListener {
 			// ensure each shard gets a slightly different message body
 			messageToFilter.getHeader().addField(new RawField("X-Bm-Lmtp-Location", content.box().entry.dataLocation));
 
-			return FreezableDeliveryContent.create(content.withMessage(messageToFilter), countedInput.getCount());
+			return FreezableDeliveryContent.create(content.withMessage(messageToFilter), len);
 		} catch (PermissionDeniedException pde) {
 			// this used to set a X-Bm-Discard here & drop from sieve
 			// we can just return

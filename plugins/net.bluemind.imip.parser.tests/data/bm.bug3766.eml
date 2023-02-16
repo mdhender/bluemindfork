@@ -38,6 +38,7 @@ Content-Type: multipart/mixed;
  boundary="-=Part.17.b01fe845585761bb.13ca49e7fe4.9a0a90e571faae1d=-"
 Message-Id: <20130204095156.7631D1CE140@bm-prod.blue-mind.loc>
 X-BM-Event: f25c32c7e698d7d8c3d3a25809653f68bdbe6173
+X-Bm-Parsing-Options: encoded-parts
 
 ---=Part.17.b01fe845585761bb.13ca49e7fe4.9a0a90e571faae1d=-
 MIME-Version: 1.0

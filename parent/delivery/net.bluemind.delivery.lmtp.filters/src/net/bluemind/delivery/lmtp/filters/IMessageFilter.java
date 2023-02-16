@@ -36,7 +36,8 @@ public interface IMessageFilter {
 	 * 
 	 * 
 	 * @param env
-	 * @param message the message to filter
+	 * @param message          the message to filter
+	 * @param withEncodedParts the flag for signed messages
 	 * @return a filtered message. Might be the same as the given one. Return null
 	 *         if you want to leave the message untouched.
 	 * @throws FilterException

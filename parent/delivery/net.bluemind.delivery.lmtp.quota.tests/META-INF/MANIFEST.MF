@@ -9,7 +9,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.awaitility,
  org.hamcrest;bundle-version="2.2.0",
  net.bluemind.lmtp.testhelper,
- net.bluemind.lib.elasticsearch
+ net.bluemind.lib.elasticsearch,
+ slf4j.api
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.delivery.lmtp.quota.tests
 Bundle-ActivationPolicy: lazy

@@ -50,6 +50,7 @@ import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.delivery.lmtp.ApiProv;
 import net.bluemind.delivery.lmtp.LmtpMessageHandler;
+import net.bluemind.delivery.lmtp.MmapRewindStream;
 import net.bluemind.delivery.lmtp.dedup.DuplicateDeliveryDb;
 import net.bluemind.dockerclient.DockerEnv;
 import net.bluemind.kafka.container.ZkKafkaContainer;
@@ -177,9 +178,14 @@ public class MailMessageBodyHookTests {
 	public void testMailMessageBodyHook() throws Exception {
 		ApiProv prov = k -> context.getServiceProvider();
 		LmtpMessageHandler messageHandler = new LmtpMessageHandler(prov, dedup);
-		messageHandler.deliver(emailUser1, emailUser2, eml("emls/test_mail_empty_references.eml"));
-		messageHandler.deliver(emailUser1, emailUser1, eml("emls/test_mail_empty_references1.eml"));
-		messageHandler.deliver(emailUser2, emailUser1, eml("emls/test_mail_empty_references2.eml"));
+		MmapRewindStream stream = new MmapRewindStream(eml("emls/test_mail_empty_references.eml"), Integer.MAX_VALUE);
+		messageHandler.deliver(emailUser1, emailUser2, stream.byteBuffer());
+
+		stream = new MmapRewindStream(eml("emls/test_mail_empty_references1.eml"), Integer.MAX_VALUE);
+		messageHandler.deliver(emailUser1, emailUser1, stream.byteBuffer());
+
+		stream = new MmapRewindStream(eml("emls/test_mail_empty_references2.eml"), Integer.MAX_VALUE);
+		messageHandler.deliver(emailUser2, emailUser1, stream.byteBuffer());
 
 		IBackupReader reader = DefaultBackupStore.reader();
 		assertNotNull("reader must not be null", reader);
@@ -224,7 +230,8 @@ public class MailMessageBodyHookTests {
 	public void testMailMessageBodyLESSourceHook() throws Exception {
 		ApiProv prov = k -> context.getServiceProvider();
 		LmtpMessageHandler messageHandler = new LmtpMessageHandler(prov, dedup);
-		messageHandler.deliver(emailUser1, emailUser2, eml("emls/test_mail_empty_references.eml"));
+		MmapRewindStream stream = new MmapRewindStream(eml("emls/test_mail_empty_references.eml"), Integer.MAX_VALUE);
+		messageHandler.deliver(emailUser1, emailUser2, stream.byteBuffer());
 
 		IBackupReader reader = DefaultBackupStore.reader();
 		assertNotNull("reader must not be null", reader);

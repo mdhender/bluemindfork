@@ -43,12 +43,9 @@ import net.bluemind.imip.parser.IIMIPParser;
 import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.imip.parser.IMIPInfos.Cid;
 import net.bluemind.imip.parser.ITIPMethod;
+import net.bluemind.mime4j.common.Mime4JHelper;
 
 public class IMIPParserImpl implements IIMIPParser {
-
-	public static final String TEXT_CALENDAR = "text/calendar";
-	public static final String M_ALTERNATIVE = "multipart/alternative";
-
 	private static final Logger logger = LoggerFactory.getLogger(IMIPParserImpl.class);
 
 	@Override
@@ -74,8 +71,8 @@ public class IMIPParserImpl implements IIMIPParser {
 
 		for (Entity e : parts) {
 			String mime = e.getMimeType();
-			if (TEXT_CALENDAR.equals(mime)) {
-				logger.info("[" + mid + "] Found " + TEXT_CALENDAR + " part.");
+			if (Mime4JHelper.TEXT_CALENDAR.equals(mime)) {
+				logger.info("[" + mid + "] Found " + Mime4JHelper.TEXT_CALENDAR + " part.");
 				Header h = e.getHeader();
 				ContentTypeField ctField = (ContentTypeField) h.getField("content-type");
 				String mparam = ctField.getParameter("method");
@@ -90,8 +87,10 @@ public class IMIPParserImpl implements IIMIPParser {
 				IMIPInfos imip = new IMIPInfos();
 				imip.method = method;
 				imip.messageId = mid;
+
 				IMIPInfos parseiTIP = parseiTIP(imip, e);
 				parseiTIP.cid = extractedCidReferencedParts(parts, method);
+
 				return parseiTIP;
 			}
 		}

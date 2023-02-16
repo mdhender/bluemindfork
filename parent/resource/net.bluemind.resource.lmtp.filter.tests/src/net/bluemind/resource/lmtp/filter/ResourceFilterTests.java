@@ -282,6 +282,18 @@ public class ResourceFilterTests {
 	}
 
 	@Test
+	public void mailWithIMIPInfos_signed() throws Exception {
+		Message m = parseData("mailWithImip-signed.eml");
+
+		FakeSendmail mailer = new FakeSendmail();
+
+		Message m2 = new ResourceFilter(mailer).filter(null, m);
+		assertNull(m2);
+
+		assertFalse(mailer.mailSent);
+	}
+
+	@Test
 	public void recipientNotAResource() throws Exception {
 		Message m = parseData("mailWithoutImip.eml");
 		m.setTo((Address) null);

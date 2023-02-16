@@ -131,6 +131,7 @@ X-MS-Exchange-CrossTenant-id: 4cd23f0c-c521-459e-9efc-cfe000f856ac
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
 X-MS-Exchange-CrossTenant-userprincipalname: Z6t71ecby/BBwOKoOtrRw2+mFLaB4fUKhCVloDl1Z4uvXKB4vMDyEnhxnbN+eSa/87DNfAZltgPANVkk89YKLKKduD1YpE4XtzoPRjdYu7RyOzYlVD8D5PspyAGSlDIr
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: PAYP264MB1217
+X-Bm-Parsing-Options: encoded-parts
 
 --_000_PAZP264MB148037A03F3C2C0B9EA1C5A2837A9PAZP264MB1480FRAP_
 Content-Type: text/plain; charset="iso-8859-1"

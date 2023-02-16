@@ -13,7 +13,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.common.io;bundle-version="5.0.0",
  org.apache.xerces;bundle-version="2.9.0",
  org.jsoup,
- io.netty
+ io.netty,
+ com.sun.mail.jakarta.mail
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.mime4j.common

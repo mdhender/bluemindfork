@@ -83,6 +83,7 @@ public class TnefFilter implements IMessageFilter {
 	private Message withEndpoint(String endpoint, LmtpEnvelope env, Message message) {
 		if (message.isMultipart()) {
 			Multipart mp = (Multipart) message.getBody();
+
 			List<AddressableEntity> tree = Mime4JHelper.expandTree(mp.getBodyParts());
 			Optional<AddressableEntity> winmailDat = tree.stream()
 					.filter(ae -> "application/ms-tnef".equalsIgnoreCase(ae.getMimeType())

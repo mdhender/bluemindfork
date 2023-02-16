@@ -158,7 +158,6 @@ public class FetchedItemRenderer {
 	private ByteBuf bodyPeek(IDbMailboxRecords recApi, Supplier<MessageBody> body, MailPart f,
 			WithId<MailboxRecord> rec) {
 		String section = f.section == null ? "" : f.section;
-
 		if (section.equalsIgnoreCase("header.fields")) {
 			return headers(body, f.options != null ? f.options : DEFAULT_HEADERS, rec);
 		} else if (section.equalsIgnoreCase("header")) {

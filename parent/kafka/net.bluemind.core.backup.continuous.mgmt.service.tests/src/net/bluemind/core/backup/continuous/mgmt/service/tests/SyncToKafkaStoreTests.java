@@ -71,6 +71,7 @@ import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.delivery.lmtp.ApiProv;
 import net.bluemind.delivery.lmtp.LmtpMessageHandler;
+import net.bluemind.delivery.lmtp.MmapRewindStream;
 import net.bluemind.delivery.lmtp.dedup.DuplicateDeliveryDb;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
@@ -188,7 +189,8 @@ public class SyncToKafkaStoreTests {
 			String eml = sb.toString();
 			InputStream targetStream = new ByteArrayInputStream(eml.getBytes());
 			try {
-				messageHandler.deliver(from, to, targetStream);
+				MmapRewindStream stream = new MmapRewindStream(targetStream, Integer.MAX_VALUE);
+				messageHandler.deliver(from, to, stream.byteBuffer());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

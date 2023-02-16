@@ -19,7 +19,6 @@
 package net.bluemind.imip.parser;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.List;
@@ -43,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableMap;
 
 import net.bluemind.imip.parser.impl.IMIPParserHelper;
+import net.bluemind.mime4j.common.Mime4JHelper;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.component.CalendarComponent;
@@ -95,8 +95,7 @@ public class PureICSRewriter {
 		MultipartImpl alter = new MultipartImpl("alternative");
 
 		TextBody calB = (TextBody) m.getBody();
-		InputStream in = calB.getInputStream();
-		InputStreamReader reader = new InputStreamReader(in);
+		InputStreamReader reader = Mime4JHelper.decodeBodyPartReader(calB, null);
 		List<CalendarComponent> edv = IMIPParserHelper.fromICS(reader).components;
 
 		BodyPart htmlPart = new BodyPart();
