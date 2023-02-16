@@ -22,6 +22,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
@@ -31,9 +32,13 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.hook.DomainHookAdapter;
+import net.bluemind.keycloak.api.BluemindProviderComponent;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
+import net.bluemind.keycloak.api.IKeycloakBluemindProviderAdmin;
 import net.bluemind.keycloak.api.IKeycloakClientAdmin;
 import net.bluemind.keycloak.api.IKeycloakUids;
+import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 
 public class DomainHook extends DomainHookAdapter {
 
@@ -48,6 +53,15 @@ public class DomainHook extends DomainHookAdapter {
 		String clientId = IKeycloakUids.clientId(domain.uid);
 
 		keycloakAdminService.createRealm(realm);
+		
+		IKeycloakBluemindProviderAdmin keycloakBluemindProviderService = ServerSideServiceProvider
+				.getProvider(SecurityContext.SYSTEM).instance(IKeycloakBluemindProviderAdmin.class, domain.uid);
+		BluemindProviderComponent bpComponent = new BluemindProviderComponent();
+		bpComponent.setParentId(realm);
+		bpComponent.setName(realm + "-bmprovider");
+		bpComponent.setBmUrl("https://" + Topology.get().any(TagDescriptor.bm_core.getTag()).value.address()); //ou pas... à vérifier
+		bpComponent.setBmCoreToken(Token.admin0());
+		keycloakBluemindProviderService.create(bpComponent);
 
 		IKeycloakClientAdmin keycloakRealmAdminService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IKeycloakClientAdmin.class, domain.uid);

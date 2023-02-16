@@ -34,11 +34,14 @@ import net.bluemind.directory.service.IDirEntryRepairSupport;
 import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
+import net.bluemind.keycloak.api.BluemindProviderComponent;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
+import net.bluemind.keycloak.api.IKeycloakBluemindProviderAdmin;
 import net.bluemind.keycloak.api.IKeycloakClientAdmin;
 import net.bluemind.keycloak.api.IKeycloakUids;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.TagDescriptor;
+import net.bluemind.config.Token;
 
 public class KeycloakRealmRepairSupport implements IDirEntryRepairSupport {
 	private static final Logger logger = LoggerFactory.getLogger(KeycloakRealmRepairSupport.class);
@@ -94,6 +97,16 @@ public class KeycloakRealmRepairSupport implements IDirEntryRepairSupport {
 				String clientId = IKeycloakUids.clientId(domainUid);
 
 				keycloakAdminService.createRealm(realm);
+				
+				IKeycloakBluemindProviderAdmin keycloakBluemindProviderService = ServerSideServiceProvider
+						.getProvider(SecurityContext.SYSTEM).instance(IKeycloakBluemindProviderAdmin.class, domainUid);
+				BluemindProviderComponent bpComponent = new BluemindProviderComponent();
+				bpComponent.setParentId(realm);
+				bpComponent.setName(realm + "-bmprovider");
+				bpComponent.setBmUrl("https://" + Topology.get().any(TagDescriptor.bm_core.getTag()).value.address()); //ou pas... à vérifier
+				bpComponent.setBmCoreToken(Token.admin0());
+				keycloakBluemindProviderService.create(bpComponent);
+				
 
 				IKeycloakClientAdmin keycloakClientService = ServerSideServiceProvider
 						.getProvider(SecurityContext.SYSTEM).instance(IKeycloakClientAdmin.class, domainUid);

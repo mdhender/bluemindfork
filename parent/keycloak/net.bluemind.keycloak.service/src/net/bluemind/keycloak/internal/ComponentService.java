@@ -42,7 +42,7 @@ public abstract class ComponentService extends KeycloakAdminClient {
 
 		logger.info("Create component {}", component);
 
-		JsonObject response = execute(String.format(COMPONENTS_URL, domainId, domainId), "POST", component.toJson());
+		JsonObject response = execute(String.format(COMPONENTS_URL, domainId), "POST", component.toJson());
 		if (response.getInteger("statusCode") != 201) {
 			if (logger.isWarnEnabled()) {
 				logger.warn(response.encodePrettily());
