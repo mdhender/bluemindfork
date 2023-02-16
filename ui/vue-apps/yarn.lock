@@ -992,7 +992,7 @@
   resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/api.commons/-/api.commons-5.0.2572.tgz#82c12ccdea3e4174083269c34a92c1bfdd46c7b0"
   integrity sha512-qgtkK26be6lI/N3oz5fFEnp1Mtwlfls88aSMs2Wycvl0qviHoK7X7AcGYTAtOX3jEz6TEyGOLVzONZKwMfp1OQ==
 
-"@bluemind/api.commons@^5.0.3591":
+"@bluemind/api.commons@^5.0.2914", "@bluemind/api.commons@^5.0.3591":
   version "5.0.3591"
   resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/api.commons/-/api.commons-5.0.3591.tgz#dc986a9a160eb5ceab641c66fa503fd8156ffe97"
   integrity sha512-N0eTif3GzBHfN9mo4mwQzqjvLnZE7FjyPcyHqTuVx0RGQN/Lm/yD+B7cUKFff/8fdKR/0xBaGtCO7kdmgOjoqQ==
@@ -1077,6 +1077,13 @@
   integrity sha512-kmlfK/zc+0hpcebZr7WbH/OLbnrsAPjYbeHuVUntZRcrm68AdrSnvunc0GWDTnWt9fkr15bZ+aJFMZgUzUxqEg==
   dependencies:
     "@bluemind/api.commons" "^5.0.2572"
+
+"@bluemind/smime.cacerts.api@^5.0.0":
+  version "5.0.2914"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/smime.cacerts.api/-/smime.cacerts.api-5.0.2914.tgz#b502f5541531724f2e1144341e856934bf7f56b6"
+  integrity sha512-CIz0PvnJu9j3SrStIPcsNyV0tJ7WtwQz/MmOh6JkCbR7qUJf8VLTfeVRyAmatYQWRBSKu+nFINmQYmIjdJaK0g==
+  dependencies:
+    "@bluemind/api.commons" "^5.0.2914"
 
 "@bluemind/system.api@^5.0.0":
   version "5.0.2572"

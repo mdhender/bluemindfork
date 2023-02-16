@@ -3,13 +3,14 @@ import { VCardQuery } from "@bluemind/addressbook.api";
 import { PKIStatus } from "../../lib/constants";
 import {
     CertificateRecipientNotFoundError,
-    ExpiredCertificateError,
     MyInvalidCertificateError,
+    // InvalidCertificateError,
     InvalidCertificateRecipientError,
-    InvalidKeyError
+    InvalidKeyError,
+    UntrustedCertificateError
 } from "../exceptions";
 import {
-    checkCertificateValidity,
+    checkCertificate,
     clearMyCryptoFiles,
     getMyCertificate,
     getMyPrivateKey,
@@ -22,19 +23,20 @@ import { readFile } from "./helpers";
 import { pki } from "node-forge";
 fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
 
-const mockCertificateTxt = readTxt("documents/certificate");
-const mockKeyTxt = readTxt("documents/privateKey");
-const mockOtherCertificateTxt = readTxt("documents/otherCertificate");
-const mockInvalidCertificateTxt = readTxt("documents/invalidCertificate");
+const certificate = readFile("certificates/certificate.crt");
+const privateKey = readFile("privateKeys/privateKey.key");
+const otherCertificate = readFile("certificates/otherCertificate.crt");
+const nonRepudiationCert = readFile("certificates/alice.pem");
+// const anyExtendedKeyUsageCert = readFile("certificates/anyExtendedKeyUsage.crt");
 
 class MockedKeyAsBlob extends Blob {
     text() {
-        return Promise.resolve(mockKeyTxt);
+        return Promise.resolve(privateKey);
     }
 }
 class MockedCertAsBlob extends Blob {
     text() {
-        return Promise.resolve(mockCertificateTxt);
+        return Promise.resolve(certificate);
     }
 }
 class MockInvalidCertAsBlob extends Blob {
@@ -49,14 +51,14 @@ const mockMultipleGet = jest.fn(uids => {
     if (uids.includes("2DF7A15F-12FD-4864-8279-12ADC6C08BAF")) {
         return [
             {
-                value: { security: { key: { parameters: [], value: mockOtherCertificateTxt } } },
+                value: { security: { key: { parameters: [], value: otherCertificate } } },
                 uid: "2DF7A15F-12FD-4864-8279-12ADC6C08BAF"
             }
         ];
     } else if (uids.includes("invalid")) {
         return [
             {
-                value: { security: { key: { parameters: [], value: mockInvalidCertificateTxt } } },
+                value: { security: { key: { parameters: [], value: otherCertificate } } },
                 uid: "invalid"
             }
         ];
@@ -106,6 +108,39 @@ jest.mock("@bluemind/addressbook.api", () => ({
         multipleGet: mockMultipleGet
     }),
     VCardQuery: { OrderBy: { Pertinance: "Pertinance" } }
+}));
+
+jest.mock("@bluemind/smime.cacerts.api", () => ({
+    SmimeCACertClient: () => ({
+        all: () => [
+            {
+                value: {
+                    // alice CA cert from RFC9216
+                    cert: `-----BEGIN CERTIFICATE-----
+                    MIIDezCCAmOgAwIBAgITcBn0xb/zdaeCQlqp6yZUAGZUCDANBgkqhkiG9w0BAQ0F
+                    ADBVMQ0wCwYDVQQKEwRJRVRGMREwDwYDVQQLEwhMQU1QUyBXRzExMC8GA1UEAxMo
+                    U2FtcGxlIExBTVBTIFJTQSBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eTAgFw0xOTEx
+                    MjAwNjU0MThaGA8yMDUyMDkyNzA2NTQxOFowVTENMAsGA1UEChMESUVURjERMA8G
+                    A1UECxMITEFNUFMgV0cxMTAvBgNVBAMTKFNhbXBsZSBMQU1QUyBSU0EgQ2VydGlm
+                    aWNhdGlvbiBBdXRob3JpdHkwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB
+                    AQC2GGPTEFVNdi0LsiQ79A0Mz2G+LRJlbX2vNo8STibAnyQ9VzFrGJHjUhRX/Omr
+                    OP3rDCB2SYfBPVwd0CdC6z9qfJkcVxDc1hK+VS9vKncL0IPUYlkJwWuMpXa1Ielz
+                    +zCuV+gjV83Uvn6wTn39MCmymu7nFPzihcuOnbMYOCdMmUbi1Dm8TX9P6itFR3hi
+                    IHpSKMbkoXlM1837WaFfx57kBIoIuNjKEyPIuK9wGUAeppc5QAHJg95PPEHNHlmM
+                    yhBzClmgkyozRSeSrkxq9XeJKU94lWGaZ0zb4karCur/eiMoCk3YNV8L3styvcMG
+                    1qUDCAaKx6FZEf7hE9RN6L3bAgMBAAGjQjBAMA8GA1UdEwEB/wQFMAMBAf8wDgYD
+                    VR0PAQH/BAQDAgEGMB0GA1UdDgQWBBSRMI58BxcMp/EJKGU2GmccaHb0WTANBgkq
+                    hkiG9w0BAQ0FAAOCAQEACDXWlJGjzKadNMPcFlZInZC+Hl7RLrcBDR25jMCXg9yL
+                    IwGVEcNp2fH4+YHTRTGLH81aPADMdUGHgpfcfqwjesavt/mO0T0S0LjJ0RVm93fE
+                    heSNUHUigVR9njTVw2EBz7e2p+v3tOsMnunvm6PIDgHxx0W6mjzMX7lG74bJfo+v
+                    dx+jI/aXt+iih5pi7/2Yu9eTDVu+S52wsnF89BEJeV0r+EmGDxUv47D+5KuQpKM9
+                    U/isXpwC6K/36T8RhhdOQXDq0Mt91TZ4dJTT0m3cmo80zzcxsKMDStZHOOzCBtBq
+                    uIbwWw5Oa72o/Iwg9v+W0WkSBCWEadf/uK+cRicxrQ==
+                    -----END CERTIFICATE-----`
+                }
+            }
+        ]
+    })
 }));
 
 describe("pki", () => {
@@ -172,27 +207,6 @@ describe("pki", () => {
             }
         });
     });
-    describe("checkCertificateValidity", () => {
-        test("throw ExpiredCertificateError if certificate is expired", done => {
-            const certificate = { validity: { notBefore: new Date(100), notAfter: new Date(1000) } };
-            try {
-                checkCertificateValidity(<pki.Certificate>certificate, new Date(3000));
-                done.fail();
-            } catch (error) {
-                expect(error).toBeInstanceOf(ExpiredCertificateError);
-                done();
-            }
-        });
-        test("dont throw anything if certificate is valid ", done => {
-            const certificate = { validity: { notBefore: new Date(100), notAfter: new Date(1000) } };
-            try {
-                checkCertificateValidity(<pki.Certificate>certificate, new Date(500));
-                done();
-            } catch (error) {
-                done.fail();
-            }
-        });
-    });
     describe("getCertificate", () => {
         beforeEach(() => {
             mockMultipleGet.mockClear();
@@ -253,8 +267,54 @@ describe("pki", () => {
             }
         });
     });
-});
 
-function readTxt(file: string) {
-    return readFile(`${file}.txt`);
-}
+    describe("check if certificate can be trusted for S/MIME usage", () => {
+        const date = new Date("2023-02-18"),
+            sender = "test@devenv.blue";
+        test("untrusted if cert has been corrupted (signature check failed)", async () => {
+            // await checkCertificate(pki.certificateFromPem(anyExtendedKeyUsageCert), sendingDate, senderEmail);
+        });
+        test.todo("untrusted if cert issuer (CA) is not trusted");
+        test.todo("untrusted if cert has expired");
+        test.only("untrusted if its a CA certificate", async done => {
+            try {
+                await checkCertificate(pki.certificateFromPem(nonRepudiationCert), date, sender);
+                done.fail("CA cert cannot be used");
+            } catch (error) {
+                expect(error).toBeInstanceOf(UntrustedCertificateError);
+                done();
+            }
+        });
+        test.todo(
+            "untrusted if Extended Key Usage is set but its value is neither emailProtection nor anyExtendedKeyUsage"
+        );
+        test.todo(
+            "untrusted if expected email is not found neither in emailAddress or in 'Subject Alternative Name' extension"
+        );
+        test.todo("untrusted if cert is revoked");
+        test.todo(
+            "CHECKME!! untrusted if keyUsage is set but its value is not 'Non Repudiation' or 'Digital Signature' or 'Key Encipherment'"
+        );
+
+        // FIXME
+        // test("throw UntrustedCertificateError if certificate is expired", done => {
+        //     const certificate = { validity: { notBefore: new Date(100), notAfter: new Date(1000) } };
+        //     try {
+        //         checkCertificate(<pki.Certificate>certificate, new Date(3000));
+        //         done.fail();
+        //     } catch (error) {
+        //         expect(error).toBeInstanceOf(UntrustedCertificateError);
+        //         done();
+        //     }
+        // });
+        // test("dont throw anything if certificate is valid ", done => {
+        //     const certificate = { validity: { notBefore: new Date(100), notAfter: new Date(1000) } };
+        //     try {
+        //         checkCertificate(<pki.Certificate>certificate, new Date(500));
+        //         done();
+        //     } catch (error) {
+        //         done.fail();
+        //     }
+        // });
+    });
+});

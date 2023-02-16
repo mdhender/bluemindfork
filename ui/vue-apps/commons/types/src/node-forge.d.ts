@@ -37,4 +37,17 @@ declare module "node-forge" {
 
         function messageToPem(msg: PkcsSignedData | PkcsEnvelopedData, maxline?: number): string;
     }
+    namespace pki {
+        export type ForgePkiCertificateError = { message: string; error: string };
+
+        export type BasicConstraintsExtension = { cA: boolean };
+        const anyExtendedKeyUsageOid = "2.5.29.37.0";
+        export type ExtendedKeyUsageExtension = { [anyExtendedKeyUsageOid]: boolean; emailProtection: boolean };
+        export type SubjectAltNameExtension = { altNames: { type: number; value: string }[] };
+        interface Certificate {
+            getExtension(
+                options: string | { name: string } | { id: number }
+            ): BasicConstraintsExtension | ExtendedKeyUsageExtension | SubjectAltNameExtension | undefined;
+        }
+    }
 }

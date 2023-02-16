@@ -1,17 +1,20 @@
 import { pki } from "node-forge";
 import { AddressBooksClient, AddressBookClient, VCardInfo } from "@bluemind/addressbook.api";
 import { searchVCardsHelper } from "@bluemind/contact";
-import { ItemContainerValue } from "@bluemind/core.container.api";
+import { ItemContainerValue, ItemValue } from "@bluemind/core.container.api";
+import { SmimeCacert, SmimeCACertClient } from "@bluemind/smime.cacerts.api";
+import { checkBasicConstraints, checkExtendedKeyUsage, checkRecipientEmail, checkRevoked } from "./cert";
 import { PKIStatus } from "../../lib/constants";
+import { logger } from "../environnment/logger";
 import session from "../environnment/session";
 import {
-    ExpiredCertificateError,
-    InvalidKeyError,
-    MyInvalidCertificateError,
     CertificateRecipientNotFoundError,
     InvalidCertificateRecipientError,
+    InvalidKeyError,
     KeyNotFoundError,
-    MyCertificateNotFoundError
+    MyCertificateNotFoundError,
+    MyInvalidCertificateError,
+    UntrustedCertificateError
 } from "../exceptions";
 import db from "./SMimePkiDB";
 
@@ -42,13 +45,57 @@ export async function getCertificate(email: string): Promise<pki.Certificate> {
     }
 }
 
-export function checkCertificateValidity(certificate: pki.Certificate, sendingDate: Date) {
-    // TODO ? check if certificate is not revoked
-    // TODO ? check chain of certificate (see pki.verifyCertificateChain)
-    const isExpired = certificate.validity.notBefore > sendingDate || certificate.validity.notAfter < sendingDate;
-    if (isExpired) {
-        throw new ExpiredCertificateError();
+export async function checkCertificate(certificate: pki.Certificate, date = new Date(), recipientEmail?: string) {
+    const caCerts = await getCaCerts();
+    if (caCerts.length === 0) {
+        throw "could not find any trusted CA certificates";
     }
+    const caStore = pki.createCaStore(caCerts.map(item => item.value.cert));
+    try {
+        pki.verifyCertificateChain(caStore, [certificate], { validityCheckDate: date });
+        checkBasicConstraints(certificate);
+        checkExtendedKeyUsage(certificate);
+        if (recipientEmail) {
+            checkRecipientEmail(certificate, recipientEmail);
+        }
+        await checkRevoked(certificate.serialNumber);
+    } catch (err: unknown) {
+        logger.error(err);
+        let errorMsg;
+        if (typeof err === "string") {
+            errorMsg = err;
+        } else if ((<pki.ForgePkiCertificateError>err).error?.startsWith("forge.pki.")) {
+            errorMsg = (<pki.ForgePkiCertificateError>err).error;
+        }
+        throw new UntrustedCertificateError(errorMsg);
+    }
+}
+
+//TODO
+// export function canCertificateBeUsedForSign() {
+// type KeyUsageExtension = {};
+//      call checkCertificate then check keyUsage:
+//          if keyUsage is defined, check it has nonRepudiation OR digitalSignature set
+// const keyUsage = certificate.getExtension("keyUsage");
+//     if (keyUsage && (<BasicConstraintsExtension>keyUsage).cA === true) {
+//         throw "CA certificate cannot be used to sign or encrypt S/MIME message";
+//     }
+// }
+// export function canCertificateBeUsedForEncrypt()
+//      call checkCertificate then check keyUsage:
+//          if keyUsage is defined, check it has
+// }
+
+// FIXME: sync them ? todo via https://forge.bluemind.net/jira/browse/FEATWEBML-2107
+let caCerts: ItemValue<SmimeCacert>[];
+async function getCaCerts(): Promise<ItemValue<SmimeCacert>[]> {
+    if (!caCerts) {
+        const domain = await session.domain;
+        const sid = await session.sid;
+        const client = new SmimeCACertClient(sid, "smime_cacerts:domain_" + domain);
+        caCerts = await client.all();
+    }
+    return caCerts;
 }
 
 interface Cache {

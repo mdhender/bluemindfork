@@ -1,5 +1,6 @@
 import { pkcs7, pki, asn1, util } from "node-forge";
 import { binaryToArrayBuffer } from "@bluemind/arraybuffer";
+import { MessageBody } from "@bluemind/backend.mail.api";
 import {
     DecryptError,
     EncryptError,
@@ -8,7 +9,7 @@ import {
     UnmatchedCertificateError
 } from "../exceptions";
 import { checkMessageIntegrity, checkSignatureValidity, getSigningTime } from "./verify";
-import { checkCertificateValidity } from "../pki/";
+import { checkCertificate } from "../pki/";
 import { getSignedDataEnvelope } from "../../lib/envelope";
 
 export async function decrypt(
@@ -25,18 +26,17 @@ export async function decrypt(
     } catch (error) {
         throw new InvalidCertificateRecipientError(error);
     }
-    if (recipient) {
-        try {
-            envelope.decrypt(recipient, privateKey);
-            if (!envelope.content) {
-                throw new DecryptError("after decrypt, no content set in pkcs7 envelope");
-            }
-            return envelope.content.toString();
-        } catch (error) {
-            throw new DecryptError(error);
-        }
-    } else {
+    if (!recipient) {
         throw new UnmatchedCertificateError();
+    }
+    try {
+        envelope.decrypt(recipient, privateKey);
+        if (!envelope.content) {
+            throw "after decrypt, no content set in pkcs7 envelope";
+        }
+        return envelope.content.toString();
+    } catch (error) {
+        throw new DecryptError(error);
     }
 }
 
@@ -54,11 +54,12 @@ export function encrypt(content: string, certificates: pki.Certificate[]): Blob 
     }
 }
 
-export async function verify(pkcs7: ArrayBuffer, toDigest: string) {
+export async function verify(pkcs7: ArrayBuffer, toDigest: string, body: MessageBody) {
     const envelope = getSignedDataEnvelope(pkcs7);
     const signingTime = getSigningTime(envelope);
     const certificate = envelope.certificates[0];
-    checkCertificateValidity(certificate, signingTime);
+    const sender = body.recipients!.find((recipient: any) => recipient.kind === "Originator")!.address!;
+    await checkCertificate(certificate, signingTime, sender);
     checkSignatureValidity(envelope, certificate);
     checkMessageIntegrity(envelope, toDigest);
 }

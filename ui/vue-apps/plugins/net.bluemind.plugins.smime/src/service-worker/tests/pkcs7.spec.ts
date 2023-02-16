@@ -15,24 +15,25 @@ import {
 import { readFile } from "./helpers";
 import { checkSignatureValidity, checkMessageIntegrity } from "../pkcs7/verify";
 import pkcs7 from "../pkcs7/";
+import { MessageBody } from "@bluemind/backend.mail.api";
 
 jest.mock("node-forge", () => jest.requireActual("node-forge"));
 class MockedBlob extends Blob {
     arrayBuffer() {
-        return Promise.resolve(base64ToArrayBuffer(readTxt("parts/encryptedPart")));
+        return Promise.resolve(base64ToArrayBuffer(readFile("parts/encryptedPart.txt")));
     }
 }
 
 class MultipleRecipientsMockedBlob extends Blob {
     arrayBuffer() {
-        return Promise.resolve(base64ToArrayBuffer(readTxt("parts/encryptedMultiRecipients")));
+        return Promise.resolve(base64ToArrayBuffer(readFile("parts/encryptedMultiRecipients.txt")));
     }
 }
 
-const privatekeyTxt = readTxt("documents/privateKey");
-const otherPrivateKey = readTxt("documents/otherPrivateKey");
-const certificateTxt = readTxt("documents/certificate");
-const otherCertificateTxt = readTxt("documents/otherCertificate");
+const privatekeyTxt = readFile("privateKeys/privateKey.key");
+const otherPrivateKey = readFile("privateKeys/otherPrivateKey.key");
+const certificateTxt = readFile("certificates/certificate.crt");
+const otherCertificateTxt = readFile("certificates/otherCertificate.crt");
 const mockKey = forge.pki.privateKeyFromPem(privatekeyTxt);
 const mockCertificate = forge.pki.certificateFromPem(certificateTxt);
 const mockOtherCertificate = forge.pki.certificateFromPem(otherCertificateTxt);
@@ -67,6 +68,10 @@ describe("pkcs7", () => {
     });
 
     describe("verify", () => {
+        const body = {
+            date: new Date("2023-02-20").getTime(),
+            recipients: [{ kind: MessageBody.RecipientKind.Originator, address: "test@devenv.blue" }]
+        };
         const eml = readSignedOnly("valid.eml");
         const { pkcs7Part: validPkcs7Part, toDigest: validToDigest } = extractSignedData(eml);
         const validEnvelope = getSignedDataEnvelope(validPkcs7Part);
@@ -82,7 +87,7 @@ describe("pkcs7", () => {
 
         test("verify a valid eml", async done => {
             try {
-                await pkcs7.verify(validPkcs7Part, validToDigest);
+                await pkcs7.verify(validPkcs7Part, validToDigest, body);
                 done();
             } catch {
                 done.fail("failed verify a valid signed eml.");
@@ -91,11 +96,11 @@ describe("pkcs7", () => {
 
         test("verify invalid or corrupted eml throw an exception", async done => {
             try {
-                await pkcs7.verify(invalidPkcs7Part, invalidToDigest);
+                await pkcs7.verify(invalidPkcs7Part, invalidToDigest, body);
                 done.fail();
             } catch {
                 try {
-                    await pkcs7.verify(corruptedPkcs7Part, corruptedToDigest);
+                    await pkcs7.verify(corruptedPkcs7Part, corruptedToDigest, body);
                     done.fail();
                 } catch {
                     done();
@@ -165,10 +170,6 @@ describe("pkcs7", () => {
         });
     });
 });
-
-function readTxt(file: string) {
-    return readFile(`${file}.txt`);
-}
 
 function readSignedOnly(filename: string) {
     return fs.readFileSync(path.join(__dirname, `./data/eml/signed_only/${filename}`), "utf8");

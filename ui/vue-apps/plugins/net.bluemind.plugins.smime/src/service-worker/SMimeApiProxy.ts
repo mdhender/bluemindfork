@@ -78,7 +78,7 @@ async function decryptAndVerify(item: ItemValue<MailboxItem>, folderUid: string)
         getEml = () => Promise.resolve(decryptedContent);
     }
     if (isSigned(item.value.body.structure!)) {
-        adaptedItem = await verify(folderUid, item, getEml);
+        adaptedItem = await verify(item, getEml);
     }
     return adaptedItem;
 }

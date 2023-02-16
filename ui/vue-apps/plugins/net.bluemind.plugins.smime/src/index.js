@@ -71,7 +71,7 @@ extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
     }
 });
 
-extensions.register("webapp.mail", "net.bluemind.plugins.smime.encryption", {
+extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
     component: {
         path: "viewer.header",
         name: "DecryptErrorTrigger"

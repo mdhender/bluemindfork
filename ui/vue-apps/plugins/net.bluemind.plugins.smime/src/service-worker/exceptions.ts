@@ -53,17 +53,6 @@ export class InvalidPkcs7EnvelopeError extends SmimeErrors {
     }
 }
 
-export class RevokedCertificateError extends SmimeErrors {
-    constructor(error?: unknown) {
-        super("Revoked certificate", CRYPTO_HEADERS.REVOKED_CERTIFICATE, error);
-    }
-}
-export class ExpiredCertificateError extends SmimeErrors {
-    constructor(error?: unknown) {
-        super("Expired certificate ", CRYPTO_HEADERS.EXPIRED_CERTIFICATE, error);
-    }
-}
-
 export class UnsupportedAlgorithmError extends SmimeErrors {
     constructor(algorithm: string) {
         super("Algorithm " + algorithm + " is not supported", CRYPTO_HEADERS.UNSUPPORTED_ALGORITHM);
@@ -105,10 +94,5 @@ export class InvalidCertificateRecipientError extends SmimeErrors {
 export class SignError extends SmimeErrors {
     constructor(error?: unknown) {
         super("An error occured when signing", CRYPTO_HEADERS.SIGN_FAILURE, error);
-    }
-}
-export class InvalidOriginatorError extends SmimeErrors {
-    constructor(error?: unknown) {
-        super("The originator has to be the user default address", CRYPTO_HEADERS.INVALID_ORIGINATOR, error);
     }
 }

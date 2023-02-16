@@ -19,10 +19,12 @@
 package net.bluemind.smime.cacerts.api;
 
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.Required;
 
 @BMApi(version = "3")
 public class SmimeCacert {
 
+	@Required
 	public String cert;
 
 	public static SmimeCacert create(String cert) {
