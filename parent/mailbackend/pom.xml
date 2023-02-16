@@ -12,8 +12,6 @@
 		<module>net.bluemind.backend.cyrus.partitions</module>
 		<module>net.bluemind.backend.cyrus.partitions.tests</module>
 		<module>net.bluemind.backend.cyrus</module>
-		<module>net.bluemind.backend.cyrus.bmgroups</module>
-		<module>net.bluemind.backend.cyrus.bmgroups.tests</module>
 		<module>net.bluemind.backend.cyrus.mailboxesdb</module>
 		<module>net.bluemind.backend.cyrus.mailboxesdb.tests</module>
 		<module>net.bluemind.backend.cyrus.tests</module>
