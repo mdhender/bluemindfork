@@ -88,7 +88,7 @@ function deleteOverdue(deferredaction, dateHelperCreate) {
 
 function createNext(deferredaction, dateHelperCreate, item) {
     if (isrecurrent(item)) {
-        var nextItem = getNextDeferredAction(prevItem, dateHelperCreate);
+        var nextItem = getNextDeferredAction(item, dateHelperCreate);
         deferredaction.getItem(nextItem["uid"]).then(function(item) {
             if (!item) {
                 return deferredaction.createItem(nextItem);
@@ -208,8 +208,9 @@ function getNextExecutionTime(prevItem, dateHelperCreate) {
     return nextExecutionDate.getTime() + trigger;
 }
 
+
 function isrecurrent(item) {
-    return Boolean(item["value"]["configuration"]["rrule"]);
+    return item["value"]["configuration"]["rrule"];
 }
 
 /**
