@@ -6,7 +6,7 @@
     >
         <template v-if="CONVERSATION_IS_LOADED(CURRENT_CONVERSATION_METADATA)">
             <mail-thread v-if="conversationSize > 1" />
-            <mail-message v-else-if="conversationSize == 1" />
+            <mail-message v-else-if="conversationSize == 1" class="h-100" />
         </template>
         <mail-viewer-loading v-else />
     </article>
@@ -36,7 +36,8 @@ export default {
 
 <style lang="scss">
 .mail-conversation-panel {
-    min-height: 100%;
+    height: 100%;
+    min-height: max-content;
     .overflow-x-hidden {
         overflow-x: hidden;
     }

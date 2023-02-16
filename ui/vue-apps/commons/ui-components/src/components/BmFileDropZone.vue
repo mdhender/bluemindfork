@@ -10,7 +10,7 @@
         <div
             v-show="showDropzone"
             ref="dropZone"
-            class="flex-grow-1 align-items-center justify-content-center flex-column bm-dropzone-active-content"
+            class="flex-grow-1 align-items-center py-5 flex-column bm-dropzone-active-content"
             :class="{ 'd-flex': showDropzone }"
         >
             <slot name="dropZone" />
