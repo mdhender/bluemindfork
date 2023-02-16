@@ -36,6 +36,7 @@ import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirectory;
 import net.bluemind.directory.api.IOrgUnits;
 import net.bluemind.directory.api.OrgUnit;
 import net.bluemind.directory.service.DirEntryHandler;
@@ -124,8 +125,14 @@ public class RestoreDirectories implements RestoreDomainType {
 		} else if ("net.bluemind.user.api.UserSettings".equals(key.valueClass)) {
 			log.set(type(), "UserSettings", key);
 			ItemValue<UserSettings> settings = userSettingsReader.read(payload);
-			IUserSettings setApi = target.instance(IUserSettings.class, key.uid);
-			setApi.set(settings.uid, settings.value.values);
+			IDirectory dirApi = target.instance(IDirectory.class, key.uid);
+			DirEntry user = dirApi.findByEntryUid(settings.uid);
+			if (user != null) {
+				IUserSettings setApi = target.instance(IUserSettings.class, key.uid);
+				setApi.set(settings.uid, settings.value.values);
+			} else {
+				log.skip("UserSettings", key, payload);
+			}
 			return;
 		}
 

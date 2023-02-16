@@ -37,6 +37,7 @@ import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IRestoreDirEntryWithMailboxSupport;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
+import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
@@ -88,19 +89,25 @@ public class DirEntryWithMailboxSync<T> {
 	private ReservedIds reserveBoxes(IServerTaskMonitor mon, ItemValue<Mailbox> mboxUser) {
 		ReservedIds reserved = new ReservedIds();
 		String subtree = IMailReplicaUids.subtreeUid(domainApis.domain.uid, mboxUser);
-		IDbReplicatedMailboxes boxes = ctx.provider().instance(IDbByContainerReplicatedMailboxes.class, subtree);
-		if (mboxUser.value.type.sharedNs) {
-			String rn = mboxUser.value.name;
-			allocBox(mon, reserved, subtree, boxes, rn);
-			allocBox(mon, reserved, subtree, boxes, rn + "/Sent");
-			allocBox(mon, reserved, subtree, boxes, rn + "/Trash");
+		IContainers contApi = ctx.provider().instance(IContainers.class);
+		ContainerDescriptor existing = contApi.getIfPresent(subtree);
+		if (existing == null) {
+			mon.log("Subtree is missing for {}", Level.WARN, mboxUser);
 		} else {
-			allocBox(mon, reserved, subtree, boxes, "INBOX");
-			allocBox(mon, reserved, subtree, boxes, "Outbox");
-			allocBox(mon, reserved, subtree, boxes, "Sent");
-			allocBox(mon, reserved, subtree, boxes, "Drafts");
-			allocBox(mon, reserved, subtree, boxes, "Junk");
-			allocBox(mon, reserved, subtree, boxes, "Trash");
+			IDbReplicatedMailboxes boxes = ctx.provider().instance(IDbByContainerReplicatedMailboxes.class, subtree);
+			if (mboxUser.value.type.sharedNs) {
+				String rn = mboxUser.value.name;
+				allocBox(mon, reserved, subtree, boxes, rn);
+				allocBox(mon, reserved, subtree, boxes, rn + "/Sent");
+				allocBox(mon, reserved, subtree, boxes, rn + "/Trash");
+			} else {
+				allocBox(mon, reserved, subtree, boxes, "INBOX");
+				allocBox(mon, reserved, subtree, boxes, "Outbox");
+				allocBox(mon, reserved, subtree, boxes, "Sent");
+				allocBox(mon, reserved, subtree, boxes, "Drafts");
+				allocBox(mon, reserved, subtree, boxes, "Junk");
+				allocBox(mon, reserved, subtree, boxes, "Trash");
+			}
 		}
 		return reserved;
 	}
