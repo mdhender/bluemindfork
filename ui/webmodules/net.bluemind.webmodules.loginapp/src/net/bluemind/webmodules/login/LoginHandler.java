@@ -22,10 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,15 +40,12 @@ import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.ITaggedServiceProvider;
 import net.bluemind.core.rest.http.VertxServiceProvider;
-import net.bluemind.hornetq.client.MQ;
-import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.system.api.IInstallationAsync;
 import net.bluemind.system.api.InstallationVersion;
-import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.webmodule.server.CSRFTokenManager;
 import net.bluemind.webmodule.server.NeedVertx;
 import net.bluemind.webmodule.server.handlers.AbstractIndexHandler;
-import net.bluemind.webmodules.login.services.ReadDomainsSettingService;
 
 public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 
@@ -63,37 +57,19 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 		cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 		cfg.setClassForTemplateLoading(LoginHandler.class, "/templates");
 		cfg.setTagSyntax(Configuration.AUTO_DETECT_TAG_SYNTAX);
-
 	}
 
 	private Vertx vertx;
 	private HttpClientProvider clientProvider;
-
 	private InstallationVersion version;
 
-	private Supplier<Optional<String>> defaultDomain;
-
 	public LoginHandler() {
-
-		AtomicReference<SharedMap<String, String>> sysconf = new AtomicReference<>();
-		MQ.init().thenAccept(v -> sysconf.set(MQ.sharedMap("system.configuration")));
-
-		defaultDomain = () -> Optional.ofNullable(sysconf.get())
-				.map(sm -> Optional.ofNullable(sm.get(SysConfKeys.default_domain.name()) != null
-						&& !sm.get(SysConfKeys.default_domain.name()).isEmpty()
-								? sm.get(SysConfKeys.default_domain.name())
-								: null))
-				.orElse(Optional.empty());
+		logger.info("LOGIN HANDLER");
 	}
 
 	@Override
 	protected String getTemplateName() {
 		return "login.xml";
-	}
-
-	private Optional<String> getDefaultDomain(String requestHostUrl) {
-		return Optional.ofNullable(ReadDomainsSettingService.getInstance().getDefaultDomain(requestHostUrl)
-				.orElseGet(() -> defaultDomain.get().orElse(null)));
 	}
 
 	@Override
@@ -167,7 +143,6 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 			model.put("buildVersion", BMVersion.getVersion());
 		}
 
-		getDefaultDomain(request.host().split(":")[0]).ifPresent(dd -> model.put("defaultDomain", dd));
 		model.put("msg", new MessageResolverMethod(resourceBundle, new Locale(getLang(request))));
 		logger.debug("display login page with model {}", model);
 	}

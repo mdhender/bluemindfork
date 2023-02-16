@@ -6,6 +6,7 @@
       <web-module-provider
             module="*">
          <blacklist path="/visio"/>
+         <blacklist path="/login"/>
          <web-resource
                bundle="net.bluemind.restclient.closure">
          </web-resource>

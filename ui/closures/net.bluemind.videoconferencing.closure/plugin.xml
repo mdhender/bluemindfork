@@ -7,6 +7,7 @@
             module="*">
          <blacklist path="/visio"/>
          <blacklist path="/webapp"/>
+         <blacklist path="/login"/>
          <web-resource
                bundle="net.bluemind.videoconferencing.closure">
          </web-resource>

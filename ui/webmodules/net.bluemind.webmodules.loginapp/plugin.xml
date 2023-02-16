@@ -15,24 +15,8 @@
          <handler
                class="net.bluemind.webmodules.login.LoginHandler"
                path="native"></handler>
-         <handler
-               class="net.bluemind.webmodules.login.UpdatePasswordHandler"
-               path="updatepassword.html">
-         </handler>
          
       </web-module>
    </extension>
    
-   <extension
-         point="net.bluemind.proxy.http.authenforcer">
-      <enforcer
-            impl="net.bluemind.webmodules.login.hps.AuthEnforcer" priority="1">
-      </enforcer>
-   </extension>
-      <extension
-         point="net.bluemind.lib.vertx.verticles">
-      <verticle
-            impl="net.bluemind.webmodules.login.verticle.LoginHandlerVerticleFactory">
-      </verticle>
-   </extension>
 </plugin>

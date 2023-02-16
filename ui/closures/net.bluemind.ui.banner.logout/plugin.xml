@@ -7,6 +7,7 @@
             module="*">
          <blacklist path="/visio"/>
          <blacklist path="/webapp"/>
+         <blacklist path="/login"/>
          <js
                path="js/compile/net.bluemind.ui.banner.logout.js">
          </js>

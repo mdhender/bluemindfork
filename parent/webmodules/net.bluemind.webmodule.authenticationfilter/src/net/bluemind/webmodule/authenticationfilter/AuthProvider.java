@@ -36,6 +36,7 @@ import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.authentication.api.LoginResponse.Status;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.AsyncHandler;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.core.rest.http.ILocator;
@@ -46,6 +47,7 @@ import net.bluemind.hornetq.client.Shared;
 import net.bluemind.mailbox.api.IMailboxesPromise;
 import net.bluemind.mailbox.api.Mailbox.Type;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.webmodule.authenticationfilter.internal.ExternalCreds;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionData;
@@ -105,6 +107,28 @@ public class AuthProvider {
 					}
 
 					loginAtDomainAsEmail(mailboxClient, remoteIps, externalCreds, handler, domainName);
+				});
+	}
+
+	public void sessionId(final String loginAtDomain, final String password, List<String> remoteIps,
+			final AsyncHandler<JsonObject> handler) {
+		VertxPromiseServiceProvider sp = getProvider(null, remoteIps);
+
+		logger.info("authenticating {}", loginAtDomain);
+		IAuthenticationPromise auth = sp.instance(TagDescriptor.bm_core.getTag(), IAuthenticationPromise.class);
+		auth.loginWithParams(loginAtDomain.toLowerCase(), password, "bm-webserver-authfilter", true)
+				.exceptionally(e -> {
+					logger.error("error during authentication of {}", loginAtDomain, e);
+					handler.failure(new ServerFault("error login: No server assigned or server not avalaible"));
+					return null;
+				}).thenAccept(lr -> {
+					logger.info("Authenticated {}, response: {}", loginAtDomain, lr.status);
+					if (lr.status == Status.Ok || lr.status == Status.Expired) {
+						handlerLoginSuccess(lr, remoteIps, handler);
+					} else {
+						handler.failure(
+								new ServerFault("error during login " + lr.message, ErrorCode.INVALID_PASSWORD));
+					}
 				});
 	}
 

@@ -41,7 +41,6 @@ import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.core.api.BMVersion;
@@ -79,7 +78,6 @@ public class AuthenticationFilter implements IWebFilter {
 
 	@Override
 	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request, WebserverConfiguration conf) {
-
 		if (!needAuthentication(request, conf)) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("No auth needed for {}", request.path());
@@ -94,10 +92,16 @@ public class AuthenticationFilter implements IWebFilter {
 		String cookieStr = Optional.ofNullable(request.headers().get("cookie")).orElse("");
 		Set<Cookie> cookies = cookieDecoder.decode(cookieStr);
 		Optional<Cookie> oidc = cookies.stream().filter(c -> "OpenIdToken".equals(c.name())).findFirst();
-
 		if (oidc.isPresent()) {
 			JsonObject token = new JsonObject(oidc.get().value());
 			String sessionId = token.getString("sid");
+			decorate(request, sessionId);
+			return CompletableFuture.completedFuture(request);
+		}
+
+		Optional<Cookie> bmSid = cookies.stream().filter(c -> "BMSID".equals(c.name())).findFirst();
+		if (bmSid.isPresent()) {
+			String sessionId = bmSid.get().value();
 			decorate(request, sessionId);
 			return CompletableFuture.completedFuture(request);
 		}
@@ -151,7 +155,7 @@ public class AuthenticationFilter implements IWebFilter {
 			return false;
 		}
 
-		if (request.path().equals("/auth/verify")) {
+		if (request.path().equals("/auth/verify") || request.path().equals("/auth/form")) {
 			return false;
 		}
 
@@ -219,7 +223,7 @@ public class AuthenticationFilter implements IWebFilter {
 		}
 
 		headers.add("BMSessionId", sd.authKey);
-		headers.add("BMUserId", "" + sd.getUserUid());
+		headers.add("BMUserId", sd.getUserUid());
 		headers.add("BMUserLogin", sd.login);
 		headers.add("BMAccountType", sd.accountType);
 		headers.add("BMUserLATD", sd.loginAtDomain);
@@ -233,9 +237,9 @@ public class AuthenticationFilter implements IWebFilter {
 
 		headers.add("BMUserDomainId", sd.domainUid);
 
-		addIfPresent(request.response(), sd.givenNames, "BMUserFirstName");
-		addIfPresent(request.response(), sd.familyNames, "BMUserLastName");
-		addIfPresent(request.response(), sd.formatedName, sd.login, "BMUserFormatedName");
+		addIfPresent(headers, sd.givenNames, "BMUserFirstName");
+		addIfPresent(headers, sd.familyNames, "BMUserLastName");
+		addIfPresent(headers, sd.formatedName, sd.login, "BMUserFormatedName");
 
 		headers.add("BMRoles", sd.rolesAsString);
 
@@ -272,15 +276,15 @@ public class AuthenticationFilter implements IWebFilter {
 		}
 	}
 
-	private void addIfPresent(HttpServerResponse proxyReq, String value, String fallback, String headerKey) {
-		if (!addIfPresent(proxyReq, value, headerKey)) {
-			addIfPresent(proxyReq, fallback, headerKey);
+	private void addIfPresent(MultiMap headers, String value, String fallback, String headerKey) {
+		if (!addIfPresent(headers, value, headerKey)) {
+			addIfPresent(headers, fallback, headerKey);
 		}
 	}
 
-	private boolean addIfPresent(HttpServerResponse proxyReq, String value, String headerKey) {
+	private boolean addIfPresent(MultiMap headers, String value, String headerKey) {
 		if (value != null) {
-			proxyReq.headers().add(headerKey, java.util.Base64.getEncoder().encodeToString(value.getBytes()));
+			headers.add(headerKey, java.util.Base64.getEncoder().encodeToString(value.getBytes()));
 			return true;
 		} else {
 			return false;

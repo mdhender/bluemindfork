@@ -39,7 +39,7 @@ public class MessageResolverMethod implements TemplateMethodModelEx {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public Object exec(List arguments) throws TemplateModelException {
-		if (arguments.size() < 1) {
+		if (arguments.isEmpty()) {
 			throw new TemplateModelException("Wrong number of arguments");
 		}
 		String code = arguments.get(0).toString();

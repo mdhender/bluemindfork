@@ -15,6 +15,10 @@
                class="net.bluemind.webmodule.authenticationfilter.CodeVerifierHandler"
                path="verify">
          </handler>
+         <handler
+               class="net.bluemind.webmodule.authenticationfilter.FormHandler"
+               path="form">
+         </handler>
       </web-module>
    </extension>
    <extension

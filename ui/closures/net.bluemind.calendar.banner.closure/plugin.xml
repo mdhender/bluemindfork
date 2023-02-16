@@ -14,6 +14,7 @@
             module="*">
          <blacklist path="/visio"/>
          <blacklist path="/webapp"/>
+         <blacklist path="/login"/>
          <js
                path="js/compile/net.bluemind.calendar.banner.closure.js">
          </js>

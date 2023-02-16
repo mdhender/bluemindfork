@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.webmodules.login;
+package net.bluemind.webmodule.server;
 
 import java.util.Set;
 import java.util.UUID;
@@ -29,7 +29,6 @@ import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.vertx.core.http.HttpServerRequest;
-import net.bluemind.proxy.http.auth.api.SecurityConfig;
 
 public class CSRFTokenManager {
 
@@ -39,9 +38,9 @@ public class CSRFTokenManager {
 
 	public String initRequest(HttpServerRequest request) {
 		String sessionId = UUID.randomUUID().toString();
-		Cookie co = new DefaultCookie("HPSSESSION", sessionId);
+		Cookie co = new DefaultCookie("BMSESSION", sessionId);
 		co.setPath("/");
-		if (SecurityConfig.secureCookies) {
+		if (net.bluemind.webmodule.server.SecurityConfig.secureCookies) {
 			co.setSecure(true);
 		}
 		co.setHttpOnly(true);
@@ -74,7 +73,7 @@ public class CSRFTokenManager {
 		if (cookString != null) {
 			Set<Cookie> cookies = ServerCookieDecoder.LAX.decode(cookString);
 			for (Cookie c : cookies) {
-				if ("HPSSESSION".equals(c.name())) {
+				if ("BMSESSION".equals(c.name())) {
 					sessionId = c.value();
 					break;
 				}

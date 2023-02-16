@@ -7,6 +7,7 @@
             module="*">
          <blacklist path="/visio"/>
          <blacklist path="/webapp"/>
+         <blacklist path="/login"/>
          <handler
                class="net.bluemind.webmodule.uploadhandler.internal.TemporaryUploadHandler"
                path="tmpfileupload">
