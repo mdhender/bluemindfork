@@ -35,7 +35,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.fasterxml.jackson.core.jackson-databind,
  net.bluemind.delivery.lmtp,
  net.bluemind.backend.mailapi.storage;bundle-version="4.1.0",
- net.bluemind.core.tests.testshelper
+ net.bluemind.core.tests.testshelper,
+ net.bluemind.core.backup.continuous.dto
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.core.backup.continuous.mgmt.service.tests
 Bundle-ActivationPolicy: lazy
