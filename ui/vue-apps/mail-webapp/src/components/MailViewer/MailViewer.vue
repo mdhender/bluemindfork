@@ -22,6 +22,7 @@ import { REMOVE, WARNING } from "@bluemind/alert.store";
 
 import { MARK_MESSAGE_AS_READ } from "~/actions";
 import { CONVERSATION_LIST_UNREAD_FILTER_ENABLED } from "~/getters";
+import { DispositionNotificationMixin } from "~/mixins";
 import { SET_BLOCK_REMOTE_IMAGES } from "~/mutations";
 import apiAddressbooks from "~/store/api/apiAddressbooks";
 import MailViewerToolbar from "./MailViewerToolbar";
@@ -34,6 +35,7 @@ export default {
         MailViewerToolbar,
         MailViewerContent
     },
+    mixins: [DispositionNotificationMixin],
     props: {
         message: {
             type: Object,
@@ -76,12 +78,16 @@ export default {
                 ) {
                     this.MARK_MESSAGE_AS_READ([this.message]);
                 }
+
+                this.hideDispositionNotificationAlert();
+                this.showDispositionNotificationAlert([this.message]);
             },
             immediate: true
         }
     },
     destroyed() {
         this.REMOVE(this.alert.alert);
+        this.hideDispositionNotificationAlert();
     },
     methods: {
         ...mapActions("mail", { MARK_MESSAGE_AS_READ }),

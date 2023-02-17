@@ -240,12 +240,12 @@ export function setDispositionNotificationHeader(headers, from) {
         header = { name: MessageHeader.DISPOSITION_NOTIFICATION_TO };
         headers.push(header);
     }
-    header.values = [from.address];
+    header.values = [from.dn ? `${from.dn} <${from.address}>` : from.address];
 }
 
 export function removeDispositionNotificationHeader(headers) {
     const index = findDispositionNotificationHeaderIndex(headers);
-    if (index) {
+    if (index >= 0) {
         headers.splice(index, 1);
     }
 }

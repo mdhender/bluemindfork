@@ -61,6 +61,7 @@ import {
     CURRENT_MAILBOX,
     MY_DRAFTS
 } from "~/getters";
+import { DispositionNotificationMixin } from "~/mixins";
 import { SET_BLOCK_REMOTE_IMAGES, SET_MESSAGE_COMPOSING } from "~/mutations";
 import { MARK_CONVERSATIONS_AS_READ } from "~/actions";
 import { Flag } from "@bluemind/email";
@@ -77,6 +78,7 @@ export default {
         MailConversationViewerHiddenItems,
         TemplateChooser
     },
+    mixins: [DispositionNotificationMixin],
     props: {
         conversation: {
             type: Object,
@@ -149,6 +151,7 @@ export default {
     destroyed() {
         this.resetComposingStatuses();
         this.REMOVE(this.alert.alert);
+        this.hideDispositionNotificationAlert();
     },
     methods: {
         ...mapMutations("mail", { SET_BLOCK_REMOTE_IMAGES, SET_MESSAGE_COMPOSING }),
@@ -160,6 +163,8 @@ export default {
             this.SET_BLOCK_REMOTE_IMAGES(!this.trustRemoteContent);
             this.collapseAll();
             this.markAsRead();
+            this.hideDispositionNotificationAlert();
+            this.showDispositionNotificationAlert(this.conversationMessages);
         },
         markAsRead() {
             if (

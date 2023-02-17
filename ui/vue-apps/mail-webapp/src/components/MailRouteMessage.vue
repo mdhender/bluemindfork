@@ -81,6 +81,7 @@ export default {
                             this.SET_MESSAGE_COMPOSING({ messageKey: message.key, composing: true });
                         }
                     }
+
                     if (message) {
                         this.SET_ACTIVE_MESSAGE(message);
                     }

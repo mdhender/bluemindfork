@@ -30,6 +30,7 @@ export default {
         ...mapState("mail", ["activeFolder", "folders"]),
         ...mapGetters("mail", { CONVERSATION_MESSAGE_BY_KEY, MY_MAILBOX, SELECTION_IS_EMPTY })
     },
+
     watch: {
         "$route.params.conversationpath": {
             async handler(conversationPath) {

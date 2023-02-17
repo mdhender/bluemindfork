@@ -147,6 +147,9 @@
         }
     },
     "alert.mail.attach_eml.fetch.error": "Fehler beim Abrufen der Nachricht im EML-Format. Kann nicht angefügt werden.",
+    "alert.mail.disposition_notification.info": "{sender} bittet um eine Lesebestätigung.",
+    "alert.mail.disposition_notification.info.action": "Lesebestätigung senden?",
+    "alert.mail.disposition_notification.info.pref": "Meine Einstellungen ändern",
     "alert.mail.forward_eml.fetch.error": "Fehler beim Abrufen der Nachricht im EML-Format. Kann nicht weitergeleitet werden.",
     "alert.mail.message.draft.attach.error": "Fehler beim Anhängen. Bitte erneut versuchen.",
     "mail.actions.add_contact": "Kontakt hinzufügen",
