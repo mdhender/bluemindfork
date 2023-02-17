@@ -47,6 +47,14 @@ public class RestoreMembership implements RestoreDomainType {
 
 		IInCoreGroup groupApi = target.instance(IInCoreGroup.class, domain.uid);
 		ItemValue<Group> existingGroup = groupApi.getComplete(ms.uid);
+
+		// fix user / admin group with our old uid
+		ItemValue<Group> existingByName = groupApi.byName(ms.value.group.name);
+		if (existingByName != null && existingGroup == null) {
+			existingGroup = existingByName;
+			ms.uid = existingByName.uid;
+		}
+
 		if (existingGroup == null || existingGroup.internalId != ms.internalId) {
 			// If the existing group has been created during domain creation, it will not
 			// have the right id: we delete it here.

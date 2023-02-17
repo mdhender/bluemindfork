@@ -122,7 +122,7 @@ public interface IMailReplicaUids {
 				+ de.entryUid;
 	}
 
-	private static String subtreePrefix(String domainUid) {
+	public static String subtreePrefix(String domainUid) {
 		return SUBTREE_PREFIX + domainUid.replace('.', '_') + "!";
 	}
 }
