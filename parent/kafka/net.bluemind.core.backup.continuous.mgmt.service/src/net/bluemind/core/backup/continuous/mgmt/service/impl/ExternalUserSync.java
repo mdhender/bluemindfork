@@ -25,12 +25,10 @@ import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.backup.continuous.dto.GroupMembership;
 import net.bluemind.core.backup.continuous.mgmt.service.impl.DirEntryWithMailboxSync.Scope;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
-import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.service.DirEntryAndValue;
-import net.bluemind.domain.api.IDomainUids;
 import net.bluemind.externaluser.api.ExternalUser;
 import net.bluemind.externaluser.api.IExternalUser;
 import net.bluemind.group.api.Group;
@@ -72,7 +70,7 @@ public class ExternalUserSync {
 		for (ItemValue<Group> g : groups) {
 
 			GroupMembership gm = hook.createGroupMembership(g.value, asMember, true);
-			hook.save(domainUid(), ContainerUidsMapping.alias(asMember.uid), remapGroup(g), gm);
+			hook.save(domainUid(), asMember.uid, g.item(), gm);
 		}
 	}
 
@@ -80,13 +78,4 @@ public class ExternalUserSync {
 		return domainApis.domain.uid;
 	}
 
-	private Item remapGroup(ItemValue<Group> g) {
-		Item it = g.item();
-		if (g.value.name.equals("user")) {
-			it.uid = IDomainUids.userGroup(domainUid());
-		} else if (g.value.name.equals("admin")) {
-			it.uid = IDomainUids.adminGroup(domainUid());
-		}
-		return it;
-	}
 }

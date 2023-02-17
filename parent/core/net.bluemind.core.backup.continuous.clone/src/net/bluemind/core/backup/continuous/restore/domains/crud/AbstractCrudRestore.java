@@ -8,6 +8,7 @@ import net.bluemind.core.backup.continuous.RecordKey.Operation;
 import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreDomainType;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
+import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
 import net.bluemind.core.container.api.IRestoreSupport;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
@@ -17,10 +18,12 @@ public abstract class AbstractCrudRestore<T, U, V extends IRestoreSupport<U>> im
 
 	protected final RestoreLogger log;
 	protected final ItemValue<Domain> domain;
+	protected final RestoreState state;
 
-	protected AbstractCrudRestore(RestoreLogger log, ItemValue<Domain> domain) {
+	protected AbstractCrudRestore(RestoreLogger log, ItemValue<Domain> domain, RestoreState state) {
 		this.log = log;
 		this.domain = domain;
+		this.state = state;
 	}
 
 	protected abstract ValueReader<VersionnedItem<T>> reader();
@@ -38,7 +41,7 @@ public abstract class AbstractCrudRestore<T, U, V extends IRestoreSupport<U>> im
 	}
 
 	protected void filterCreateOrUpdate(RecordKey key, String payload, V api) {
-		VersionnedItem<T> item = reader().read(payload);
+		VersionnedItem<T> item = fixup(reader().read(payload));
 		if (filter(key, item)) {
 			log.filter(type(), key);
 			return;
@@ -63,6 +66,10 @@ public abstract class AbstractCrudRestore<T, U, V extends IRestoreSupport<U>> im
 
 	protected boolean exists(V api, RecordKey key, VersionnedItem<T> item) {
 		return api.get(item.uid) != null;
+	}
+
+	protected VersionnedItem<T> fixup(VersionnedItem<T> item) {
+		return item;
 	}
 
 	protected abstract ItemValue<U> map(VersionnedItem<T> item, boolean isCreate);

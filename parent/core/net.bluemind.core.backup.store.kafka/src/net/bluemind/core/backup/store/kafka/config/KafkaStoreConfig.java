@@ -18,6 +18,7 @@
 package net.bluemind.core.backup.store.kafka.config;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.function.BiConsumer;
 
 import org.slf4j.Logger;
@@ -43,7 +44,9 @@ public class KafkaStoreConfig {
 		 * 
 		 */
 		ABORT((v, t) -> {
-			logger.error("PoisonPill is {}", v);
+			if (logger.isErrorEnabled()) {
+				logger.error("PoisonPill is {}", Arrays.toString(v));
+			}
 			System.exit(1);
 		});
 

@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import io.vertx.core.Handler;
 import net.bluemind.core.backup.continuous.DataElement;
+import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.restore.ISeppukuAckListener;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreCalendarView;
 import net.bluemind.core.backup.continuous.restore.domains.crud.RestoreDeferredAction;
@@ -39,9 +40,11 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 	private final RestoreLogger log;
 	private final Map<String, RestoreDomainType> restoresByType;
 	private final Set<String> skip;
+	private final RestoreState state;
 
 	public DomainRestorationHandler(IServerTaskMonitor monitor, Set<String> skip, ItemValue<Domain> domain,
 			IServiceProvider target, ISeppukuAckListener byeAck, RestoreState state) {
+		this.state = state;
 		this.log = new RestoreLogger(monitor);
 		this.skip = skip;
 		this.restoresByType = Arrays.asList(//
@@ -52,31 +55,33 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 				new RestoreReplicatedMailboxes(log, domain, state, target), //
 				new RestoreMapiArtifacts(log, domain, target), //
 				new RestoreFlatHierarchy(log, domain, target), //
-				new RestoreVCard(log, domain, target), //
-				new RestoreVEventSeries(log, domain, target), //
-				new RestoreDeferredAction(log, domain, target), //
-				new RestoreVTodo(log, domain, target), //
-				new RestoreVNote(log, domain, target), //
-				new RestoreMembership(log, domain, target), //
-				new RestoreRoles(log, domain, target), //
+				new RestoreVCard(log, domain, target, state), //
+				new RestoreVEventSeries(log, domain, target, state), //
+				new RestoreDeferredAction(log, domain, target, state), //
+				new RestoreVTodo(log, domain, target, state), //
+				new RestoreVNote(log, domain, target, state), //
+				new RestoreMembership(log, domain, target, state), //
+				new RestoreRoles(log, domain, target, state), //
 				new RestoreOrgUnitAdminRoles(log, domain, target), //
-				new RestoreResourceType(log, domain, target), //
+				new RestoreResourceType(log, domain, target, state), //
 				new RestoreMailFilter(log, domain, target), //
-				new RestoreContainerMetadata(log, target), //
-				new RestoreOwnerSubscriptions(log, domain, target), //
-				new RestoreTags(log, domain, target), //
-				new RestoreDevice(log, domain, target), //
-				new RestoreMailflow(log, domain, target), //
-				new RestoreUserAccounts(log, domain, target), //
-				new RestoreMailboxIdentity(log, domain, target), //
-				new RestoreUserMailIdentities(log, domain, target), //
-				new RestoreWebAppData(log, domain, target), //
-				new RestoreCalendarView(log, domain, target)) // //
+				new RestoreContainerMetadata(log, target, state), //
+				new RestoreOwnerSubscriptions(log, domain, target, state), //
+				new RestoreTags(log, domain, target, state), //
+				new RestoreDevice(log, domain, target, state), //
+				new RestoreMailflow(log, domain, target, state), //
+				new RestoreUserAccounts(log, domain, target, state), //
+				new RestoreMailboxIdentity(log, domain, target, state), //
+				new RestoreUserMailIdentities(log, domain, target, state), //
+				new RestoreWebAppData(log, domain, target, state), //
+				new RestoreCalendarView(log, domain, target, state)) // //
 				.stream().collect(Collectors.toMap(RestoreDomainType::type, Function.identity()));
 	}
 
 	@Override
 	public void handle(DataElement event) {
+		fixupKey(event.key);
+
 		RestoreDomainType restore = restoresByType.get(event.key.type);
 		String payload = new String(event.payload);
 		if (restore != null && !skip.contains(event.key.type)) {
@@ -90,6 +95,11 @@ public class DomainRestorationHandler implements Handler<DataElement> {
 		} else {
 			log.skip(event.key.type, event.key, payload);
 		}
+	}
+
+	private void fixupKey(RecordKey key) {
+		String container = key.uid;
+		key.uid = state.uidAlias(container);
 	}
 
 }

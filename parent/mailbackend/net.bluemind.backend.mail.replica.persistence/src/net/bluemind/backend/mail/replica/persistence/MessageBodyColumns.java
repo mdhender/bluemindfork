@@ -84,7 +84,7 @@ public class MessageBodyColumns {
 			value.preview = rs.getString(index++);
 			value.bodyVersion = rs.getInt(index++);
 			value.created = rs.getTimestamp(index++);
-			value.smartAttach = value.structure.hasRealAttachments();
+			value.smartAttach = value.structure != null && value.structure.hasRealAttachments();
 			return index;
 		};
 	}

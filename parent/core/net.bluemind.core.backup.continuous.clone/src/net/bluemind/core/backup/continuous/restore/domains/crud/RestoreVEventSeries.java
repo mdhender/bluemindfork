@@ -30,6 +30,7 @@ import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
+import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
@@ -45,8 +46,9 @@ public class RestoreVEventSeries extends CrudItemRestore<VEventSeries> {
 
 	Set<String> validatedCalendars = ConcurrentHashMap.newKeySet();
 
-	public RestoreVEventSeries(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
-		super(log, domain);
+	public RestoreVEventSeries(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target,
+			RestoreState state) {
+		super(log, domain, state);
 		this.target = target;
 	}
 

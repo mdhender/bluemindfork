@@ -28,6 +28,7 @@ import net.bluemind.calendar.api.internal.IInCoreCalendarView;
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
+import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
 import net.bluemind.core.container.api.IRestoreItemCrudSupport;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
@@ -44,8 +45,9 @@ public class RestoreCalendarView extends CrudItemRestore<CalendarView> {
 
 	Set<String> validatedBooks = ConcurrentHashMap.newKeySet();
 
-	public RestoreCalendarView(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
-		super(log, domain);
+	public RestoreCalendarView(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target,
+			RestoreState state) {
+		super(log, domain, state);
 		this.target = target;
 	}
 

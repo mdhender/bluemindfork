@@ -1,5 +1,8 @@
 package net.bluemind.core.backup.continuous.restore.domains.replication;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
@@ -18,6 +21,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.RecordKey.Operation;
 import net.bluemind.core.backup.continuous.dto.VersionnedItem;
+import net.bluemind.core.backup.continuous.restore.IDtoPreProcessor;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreDomainType;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
@@ -38,6 +42,7 @@ public class RestoreReplicatedMailboxes implements RestoreDomainType {
 	private final IServiceProvider target;
 	protected final RestoreLogger log;
 	protected final ItemValue<Domain> domain;
+	private final List<IDtoPreProcessor<MailboxReplica>> preProcs;
 
 	public RestoreReplicatedMailboxes(RestoreLogger log, ItemValue<Domain> domain, RestoreState state,
 			IServiceProvider target) {
@@ -46,6 +51,8 @@ public class RestoreReplicatedMailboxes implements RestoreDomainType {
 		this.state = state;
 		this.target = target;
 		logger.debug("init with state {}", this.state);
+
+		this.preProcs = Arrays.asList(new ReplicatedMailboxUidFixup(state, domain));
 	}
 
 	public String type() {
@@ -91,6 +98,10 @@ public class RestoreReplicatedMailboxes implements RestoreDomainType {
 			return;
 		}
 
+		for (IDtoPreProcessor<MailboxReplica> preProc : preProcs) {
+			item = preProc.fixup(log, target, key, item);
+		}
+
 		ItemValue<MailboxFolder> existingByUid = api.getComplete(item.uid);
 		ItemValue<MailboxReplica> existingById = api.getCompleteById(item.internalId);
 		// inconsistent
@@ -109,8 +120,10 @@ public class RestoreReplicatedMailboxes implements RestoreDomainType {
 
 		boolean exists = existingById != null && existingByUid != null;
 
-		ItemValue<MailboxReplica> itemValue = map(item);
-		MailboxReplica mailboxReplica = itemValue.value;
+		MailboxReplica mailboxReplica = item.value;
+
+//		System.err.println(Thread.currentThread().getName() + " postFixup "
+//				+ new JsonObject(JsonUtils.asString(mailboxReplica)).encodePrettily());
 
 		if (exists) {
 			if (existingByUid.internalId != item.internalId) {
@@ -129,14 +142,9 @@ public class RestoreReplicatedMailboxes implements RestoreDomainType {
 		} else {
 			String fKey = key.uid + ":" + mailboxReplica.fullName;
 			SubtreeContainerItemIdsCache.putFolderId(fKey, item.internalId);
-			log.monitor().log("IDREG {} -> {}", fKey, item.internalId);
 			log.create(type(), key);
 			api.create(item.uid, mailboxReplica);
 		}
-	}
-
-	protected ItemValue<MailboxReplica> map(VersionnedItem<MailboxReplica> item) {
-		return item;
 	}
 
 }

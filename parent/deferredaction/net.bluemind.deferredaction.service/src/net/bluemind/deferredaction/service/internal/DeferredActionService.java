@@ -25,6 +25,7 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerChangelog;
@@ -43,6 +44,8 @@ import net.bluemind.core.validator.Validator;
 import net.bluemind.deferredaction.api.DeferredAction;
 import net.bluemind.deferredaction.api.IInternalDeferredAction;
 import net.bluemind.deferredaction.persistence.DeferredActionStore;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
 public class DeferredActionService implements IInternalDeferredAction {
 	private final Container container;
@@ -82,7 +85,14 @@ public class DeferredActionService implements IInternalDeferredAction {
 		sanitizer.create(deferredAction);
 		validator.create(deferredAction);
 
-		storeService.create(deferredActionItem.item(), deferredAction);
+		try {
+			storeService.create(deferredActionItem.item(), deferredAction);
+		} catch (ServerFault sf) {
+			if (StateContext.getState() == SystemState.CORE_STATE_CLONING && sf.getCode() == ErrorCode.ALREADY_EXISTS) {
+				storeService.update(deferredActionItem.item(), deferredActionItem.displayName, deferredAction);
+			}
+		}
+
 	}
 
 	@Override

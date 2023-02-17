@@ -23,12 +23,9 @@ import java.util.Set;
 
 import org.slf4j.event.Level;
 
-import net.bluemind.backend.cyrus.partitions.CyrusUniqueIds;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
-import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.backup.continuous.mgmt.service.impl.ContainerSync;
-import net.bluemind.core.backup.continuous.mgmt.service.impl.ContainerUidsMapping;
 import net.bluemind.core.backup.continuous.mgmt.service.impl.LoggedContainerDeltaSync;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.IContainers;
@@ -97,24 +94,6 @@ public class SubtreeSync<O> extends LoggedContainerDeltaSync<O, MailboxReplica> 
 			}
 			return validKey;
 		}).sorted((sn1, sn2) -> sn1.sortKey().compareTo(sn2.sortKey())).map(sn -> sn.iv).toList();
-	}
-
-	@Override
-	protected ItemValue<MailboxReplica> remap(IServerTaskMonitor contMon, ItemValue<MailboxReplica> item) {
-		if (defaultFolders.contains(item.value.fullName)) {
-			String freshUniqueId = CyrusUniqueIds
-					.forMailbox(domain.uid, ItemValue.create(owner, owner.value.mailbox), item.value.name).toString();
-			ContainerUidsMapping.map(contMon, IMailReplicaUids.mboxRecords(item.uid),
-					IMailReplicaUids.mboxRecords(freshUniqueId));
-			item.uid = freshUniqueId;
-		}
-		if (item.value.parentUid != null) {
-			String mappedParent = ContainerUidsMapping.alias(IMailReplicaUids.mboxRecords(item.value.parentUid));
-			if (mappedParent != null) {
-				item.value.parentUid = IMailReplicaUids.uniqueId(mappedParent);
-			}
-		}
-		return item;
 	}
 
 }

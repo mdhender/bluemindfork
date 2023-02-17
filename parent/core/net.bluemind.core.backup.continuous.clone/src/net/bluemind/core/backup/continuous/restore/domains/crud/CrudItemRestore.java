@@ -5,14 +5,15 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
+import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
 import net.bluemind.core.container.api.IRestoreItemCrudSupport;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 
 public abstract class CrudItemRestore<T> extends AbstractCrudRestore<T, T, IRestoreItemCrudSupport<T>> {
 
-	protected CrudItemRestore(RestoreLogger log, ItemValue<Domain> domain) {
-		super(log, domain);
+	protected CrudItemRestore(RestoreLogger log, ItemValue<Domain> domain, RestoreState state) {
+		super(log, domain, state);
 	}
 
 	@Override

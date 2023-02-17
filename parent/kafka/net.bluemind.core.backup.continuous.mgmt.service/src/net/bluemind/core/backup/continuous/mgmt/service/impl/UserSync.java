@@ -40,14 +40,12 @@ import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
 import net.bluemind.core.container.api.IRestoreDirEntryWithMailboxSupport;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
-import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.deferredaction.api.IDeferredActionContainerUids;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.service.DirEntryAndValue;
-import net.bluemind.domain.api.IDomainUids;
 import net.bluemind.exchange.mapi.api.IMapiFoldersMgmt;
 import net.bluemind.exchange.mapi.api.IMapiMailbox;
 import net.bluemind.exchange.mapi.api.MapiFolder;
@@ -158,18 +156,8 @@ public class UserSync extends DirEntryWithMailboxSync<User> {
 		for (ItemValue<Group> g : groups) {
 
 			GroupMembership gm = hook.createGroupMembership(g.value, asMember, true);
-			hook.save(domainUid(), ContainerUidsMapping.alias(asMember.uid), remapGroup(g), gm);
+			hook.save(domainUid(), asMember.uid, g.item(), gm);
 		}
-	}
-
-	private Item remapGroup(ItemValue<Group> g) {
-		Item it = g.item();
-		if (g.value.name.equals("user")) {
-			it.uid = IDomainUids.userGroup(domainUid());
-		} else if (g.value.name.equals("admin")) {
-			it.uid = IDomainUids.adminGroup(domainUid());
-		}
-		return it;
 	}
 
 	private void processMapiArtifacts(ItemValue<DirEntry> ivDir, IBackupStoreFactory target,

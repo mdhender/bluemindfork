@@ -17,6 +17,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.AddressBookDescriptor;
 import net.bluemind.addressbook.api.IAddressBooksMgmt;
+import net.bluemind.addressbook.api.VCard;
 import net.bluemind.calendar.api.CalendarDescriptor;
 import net.bluemind.calendar.api.ICalendarsMgmt;
 import net.bluemind.core.backup.continuous.RecordKey;
@@ -41,6 +42,7 @@ import net.bluemind.directory.api.OrgUnit;
 import net.bluemind.directory.service.DirEntryHandler;
 import net.bluemind.directory.service.DirEntryHandlers;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.IDomainUids;
 import net.bluemind.externaluser.api.ExternalUser;
 import net.bluemind.externaluser.api.IExternalUser;
 import net.bluemind.group.api.Group;
@@ -94,14 +96,14 @@ public class RestoreDirectories implements RestoreDomainType {
 		this.byeAck = byeAck;
 		this.state = state;
 		this.domainDirEntryRestore = new DomainDirEntryRestore(log, domain);
-		this.domainCalendarRestore = new DomainCalendarCrudRestore(log, domain);
-		this.domainAddressBookRestore = new DomainAddressBookCrudRestore(log, domain);
-		this.externalUserRestore = new ExternalUserCrudRestore(log, domain);
-		this.resourceRestore = new ResourceCrudRestore(log, domain, target);
-		this.mailshareRestore = new MailshareCrudRestore(log, domain, target);
-		this.groupRestore = new GroupCrudRestore(log, domain, target);
-		this.userRestore = new UserCrudRestore(log, domain, target);
-		this.orgUnitRestore = new OrgUnitCrudRestore(log, domain);
+		this.domainCalendarRestore = new DomainCalendarCrudRestore(log, domain, state);
+		this.domainAddressBookRestore = new DomainAddressBookCrudRestore(log, domain, state);
+		this.externalUserRestore = new ExternalUserCrudRestore(log, domain, state);
+		this.resourceRestore = new ResourceCrudRestore(log, domain, target, state);
+		this.mailshareRestore = new MailshareCrudRestore(log, domain, target, state);
+		this.groupRestore = new GroupCrudRestore(log, domain, target, state);
+		this.userRestore = new UserCrudRestore(log, domain, target, state);
+		this.orgUnitRestore = new OrgUnitCrudRestore(log, domain, state);
 	}
 
 	@Override
@@ -223,8 +225,8 @@ public class RestoreDirectories implements RestoreDomainType {
 				.reader(new TypeReference<VersionnedItem<DirEntry>>() {
 				});
 
-		private DomainAddressBookCrudRestore(RestoreLogger log, ItemValue<Domain> domain) {
-			super(log, domain);
+		private DomainAddressBookCrudRestore(RestoreLogger log, ItemValue<Domain> domain, RestoreState state) {
+			super(log, domain, state);
 		}
 
 		@Override
@@ -290,8 +292,8 @@ public class RestoreDirectories implements RestoreDomainType {
 				.reader(new TypeReference<VersionnedItem<DirEntry>>() {
 				});
 
-		private DomainCalendarCrudRestore(RestoreLogger log, ItemValue<Domain> domain) {
-			super(log, domain);
+		private DomainCalendarCrudRestore(RestoreLogger log, ItemValue<Domain> domain, RestoreState state) {
+			super(log, domain, state);
 		}
 
 		@Override
@@ -354,8 +356,8 @@ public class RestoreDirectories implements RestoreDomainType {
 				.reader(new TypeReference<VersionnedItem<FullDirEntry<ExternalUser>>>() {
 				});
 
-		private ExternalUserCrudRestore(RestoreLogger log, ItemValue<Domain> domain) {
-			super(log, domain);
+		private ExternalUserCrudRestore(RestoreLogger log, ItemValue<Domain> domain, RestoreState state) {
+			super(log, domain, state);
 		}
 
 		@Override
@@ -380,8 +382,9 @@ public class RestoreDirectories implements RestoreDomainType {
 				.reader(new TypeReference<VersionnedItem<FullDirEntry<ResourceDescriptor>>>() {
 				});
 
-		private ResourceCrudRestore(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
-			super(log, domain, target);
+		private ResourceCrudRestore(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target,
+				RestoreState state) {
+			super(log, domain, target, state);
 		}
 
 		@Override
@@ -435,8 +438,9 @@ public class RestoreDirectories implements RestoreDomainType {
 				.reader(new TypeReference<VersionnedItem<FullDirEntry<Mailshare>>>() {
 				});
 
-		private MailshareCrudRestore(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
-			super(log, domain, target);
+		private MailshareCrudRestore(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target,
+				RestoreState state) {
+			super(log, domain, target, state);
 		}
 
 		@Override
@@ -474,13 +478,33 @@ public class RestoreDirectories implements RestoreDomainType {
 				.reader(new TypeReference<VersionnedItem<FullDirEntry<Group>>>() {
 				});
 
-		private GroupCrudRestore(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
-			super(log, domain, target);
+		private GroupCrudRestore(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target,
+				RestoreState state) {
+			super(log, domain, target, state);
 		}
 
 		@Override
 		public String type() {
 			return GROUP.name();
+		}
+
+		@Override
+		protected VersionnedItem<FullDirEntry<Group>> fixup(VersionnedItem<FullDirEntry<Group>> item) {
+			fixupIfNamed("user", IDomainUids.userGroup(domain.uid), item);
+			fixupIfNamed("admin", IDomainUids.adminGroup(domain.uid), item);
+			return item;
+		}
+
+		private void fixupIfNamed(String expectedName, String expectedUid, VersionnedItem<FullDirEntry<Group>> item) {
+			if (item.value.value.name.equals(expectedName) && !item.uid.equals(expectedUid)) {
+				state.mapUid(item.uid, expectedUid);
+				item.uid = expectedUid;
+				DirEntry de = item.value.entry;
+				de.entryUid = item.uid;
+				de.path = domain.uid + "/groups/" + item.uid;
+				VCard card = item.value.vcard;
+				card.source = "bm://" + de.path;
+			}
 		}
 
 		@Override
@@ -500,8 +524,9 @@ public class RestoreDirectories implements RestoreDomainType {
 				.reader(new TypeReference<VersionnedItem<FullDirEntry<User>>>() {
 				});
 
-		private UserCrudRestore(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
-			super(log, domain, target);
+		private UserCrudRestore(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target,
+				RestoreState state) {
+			super(log, domain, target, state);
 		}
 
 		@Override
@@ -534,8 +559,8 @@ public class RestoreDirectories implements RestoreDomainType {
 				.reader(new TypeReference<VersionnedItem<FullDirEntry<OrgUnit>>>() {
 				});
 
-		private OrgUnitCrudRestore(RestoreLogger log, ItemValue<Domain> domain) {
-			super(log, domain);
+		private OrgUnitCrudRestore(RestoreLogger log, ItemValue<Domain> domain, RestoreState state) {
+			super(log, domain, state);
 		}
 
 		@Override

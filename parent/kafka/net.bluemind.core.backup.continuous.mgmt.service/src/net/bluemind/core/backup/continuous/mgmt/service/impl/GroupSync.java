@@ -23,13 +23,11 @@ import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.backup.continuous.dto.GroupMembership;
 import net.bluemind.core.backup.continuous.mgmt.api.BackupSyncOptions;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
-import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.service.DirEntryAndValue;
-import net.bluemind.domain.api.IDomainUids;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.IGroupMember;
@@ -63,44 +61,8 @@ public class GroupSync extends DirEntryWithMailboxSync<Group> {
 		Member asMember = Member.group(stored.uid);
 		for (ItemValue<Group> g : groups) {
 			GroupMembership gm = hook.createGroupMembership(g.value, asMember, true);
-			hook.save(domainUid(), ContainerUidsMapping.alias(asMember.uid), remapGroup(g), gm);
+			hook.save(domainUid(), asMember.uid, g.item(), gm);
 		}
 	}
 
-	private Item remapGroup(ItemValue<Group> g) {
-		Item it = g.item();
-		if (g.value.name.equals("user")) {
-			it.uid = IDomainUids.userGroup(domainUid());
-		} else if (g.value.name.equals("admin")) {
-			it.uid = IDomainUids.adminGroup(domainUid());
-		}
-		return it;
-	}
-
-	@Override
-	protected ItemValue<DirEntryAndValue<Group>> remap(@SuppressWarnings("unused") IServerTaskMonitor entryMon,
-			ItemValue<DirEntryAndValue<Group>> orig) {
-		ItemValue<DirEntryAndValue<Group>> ret = orig;
-		if (orig.value.value.name.equals("user")) {
-			String freshUid = IDomainUids.userGroup(domainUid());
-			ret = remapUid(entryMon, orig, freshUid);
-		} else if (orig.value.value.name.equals("admin")) {
-			String freshUid = IDomainUids.adminGroup(domainUid());
-			ret = remapUid(entryMon, orig, freshUid);
-		}
-		return ret;
-	}
-
-	private ItemValue<DirEntryAndValue<Group>> remapUid(IServerTaskMonitor entryMon,
-			ItemValue<DirEntryAndValue<Group>> orig, String freshUid) {
-		ItemValue<DirEntryAndValue<Group>> ret;
-		ret = ItemValue.create(orig, orig.value);
-		ret.uid = freshUid;
-		ContainerUidsMapping.map(entryMon, orig.value.entry.entryUid, ret.uid);
-		entryMon.log("Remap group " + orig.value.entry.entryUid + " to " + ret.uid);
-		ret.value.entry.entryUid = ret.uid;
-		ret.value.entry.path = domainUid() + "/groups/" + freshUid;
-		ret.value.vcard.source = "bm://" + ret.value.entry.path;
-		return ret;
-	}
 }

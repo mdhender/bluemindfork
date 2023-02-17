@@ -4,8 +4,8 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
@@ -15,13 +15,8 @@ import org.mapdb.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.backend.cyrus.partitions.CyrusPartition;
-import net.bluemind.backend.mail.replica.api.MailboxReplica;
-import net.bluemind.core.backup.continuous.restore.mbox.UidDatalocMapping;
-import net.bluemind.core.backup.continuous.restore.mbox.UidDatalocMapping.Replica;
 import net.bluemind.core.backup.continuous.restore.orphans.RestoreTopology.PromotingServer;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.domain.api.Domain;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.server.api.Server;
 
@@ -30,30 +25,29 @@ public class RestoreState implements Closeable {
 
 	private final Map<String, PromotingServer> serverByDatalocation;
 	private Map<String, ItemValue<Mailbox>> mboxesByUid;
+	private Map<String, String> globalUidsMapStoreToDb;
 	private final DB handlesBackingStore;
 	private final HTreeMap<String, Integer> bodies;
-	private final UidDatalocMapping locationMapping;
 
 	public RestoreState(String domainUid, Map<String, PromotingServer> topology) {
 		this.serverByDatalocation = topology;
-		this.locationMapping = new UidDatalocMapping();
-		this.mboxesByUid = new HashMap<>();
+		this.mboxesByUid = new ConcurrentHashMap<>();
+		this.globalUidsMapStoreToDb = new ConcurrentHashMap<>();
 		this.handlesBackingStore = buildDb(domainUid);
 		this.bodies = handlesBackingStore.hashMap("bodies-" + domainUid).keySerializer(Serializer.STRING_ASCII)
 				.valueSerializer(Serializer.INTEGER).createOrOpen();
 	}
 
+	public void mapUid(String storeUid, String targetUid) {
+		globalUidsMapStoreToDb.put(storeUid, targetUid);
+	}
+
+	public String uidAlias(String storeUid) {
+		return globalUidsMapStoreToDb.getOrDefault(storeUid, storeUid);
+	}
+
 	public ItemValue<Server> getServer(String dataLocation) {
 		return serverByDatalocation.get(dataLocation).clone;
-	}
-
-	public Replica storeReplica(ItemValue<Domain> domain, ItemValue<Mailbox> mbox, ItemValue<MailboxReplica> replica,
-			CyrusPartition partition) {
-		return locationMapping.put(replica, mbox, domain, partition);
-	}
-
-	public Replica getReplica(String uniqueId) {
-		return locationMapping.get(uniqueId);
 	}
 
 	public void storeMailbox(String userUid, ItemValue<Mailbox> mailbox) {

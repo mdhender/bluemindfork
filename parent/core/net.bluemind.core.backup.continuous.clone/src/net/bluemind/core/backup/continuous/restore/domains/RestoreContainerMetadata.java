@@ -1,31 +1,36 @@
 package net.bluemind.core.backup.continuous.restore.domains;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.dto.ContainerMetadata;
+import net.bluemind.core.backup.continuous.dto.VersionnedItem;
+import net.bluemind.core.backup.continuous.restore.IDtoPreProcessor;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IInternalContainerManagement;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ContainerDescriptor;
-import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
 
 public class RestoreContainerMetadata implements RestoreDomainType {
 
-	private static final ValueReader<ItemValue<ContainerMetadata>> mrReader = JsonUtils
-			.reader(new TypeReference<ItemValue<ContainerMetadata>>() {
+	private static final ValueReader<VersionnedItem<ContainerMetadata>> mrReader = JsonUtils
+			.reader(new TypeReference<VersionnedItem<ContainerMetadata>>() {
 			});
 	private final RestoreLogger log;
 	private final IServiceProvider target;
+	private final List<IDtoPreProcessor<ContainerMetadata>> preProcs;
 
-	public RestoreContainerMetadata(RestoreLogger log, IServiceProvider target) {
+	public RestoreContainerMetadata(RestoreLogger log, IServiceProvider target, RestoreState state) {
 		this.log = log;
 		this.target = target;
+		this.preProcs = Arrays.asList(new ContainerMetadataUidFixup(state));
 	}
 
 	@Override
@@ -35,7 +40,12 @@ public class RestoreContainerMetadata implements RestoreDomainType {
 
 	@Override
 	public void restore(RecordKey key, String payload) {
-		ItemValue<ContainerMetadata> item = mrReader.read(payload);
+		VersionnedItem<ContainerMetadata> item = mrReader.read(payload);
+
+		for (IDtoPreProcessor<ContainerMetadata> preProc : preProcs) {
+			item = preProc.fixup(log, target, key, item);
+		}
+
 		ContainerMetadata metadata = item.value;
 
 		IContainers contApi = target.instance(IContainers.class);

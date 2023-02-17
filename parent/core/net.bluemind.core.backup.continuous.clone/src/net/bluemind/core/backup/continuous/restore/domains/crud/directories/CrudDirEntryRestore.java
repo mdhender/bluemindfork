@@ -6,6 +6,7 @@ import net.bluemind.backend.mail.replica.utils.SubtreeContainerItemIdsCache;
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
+import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
 import net.bluemind.core.backup.continuous.restore.domains.crud.AbstractCrudRestore;
 import net.bluemind.core.container.api.IRestoreDirEntryWithMailboxSupport;
 import net.bluemind.core.container.api.IRestoreItemCrudSupport;
@@ -19,8 +20,8 @@ import net.bluemind.domain.api.Domain;
 public abstract class CrudDirEntryRestore<T, V extends IRestoreSupport<T>>
 		extends AbstractCrudRestore<FullDirEntry<T>, T, V> {
 
-	protected CrudDirEntryRestore(RestoreLogger log, ItemValue<Domain> domain) {
-		super(log, domain);
+	protected CrudDirEntryRestore(RestoreLogger log, ItemValue<Domain> domain, RestoreState state) {
+		super(log, domain, state);
 	}
 
 	@Override
@@ -49,13 +50,14 @@ public abstract class CrudDirEntryRestore<T, V extends IRestoreSupport<T>>
 
 	@Override
 	protected ItemValue<T> map(VersionnedItem<FullDirEntry<T>> item, boolean isCreate) {
-		return ItemValue.create(item.item(), item.value.value);
+		VersionnedItem<FullDirEntry<T>> fixedUp = fixup(item);
+		return ItemValue.create(fixedUp.item(), fixedUp.value.value);
 	}
 
 	public abstract static class WithoutMailbox<T> extends CrudDirEntryRestore<T, IRestoreItemCrudSupport<T>> {
 
-		protected WithoutMailbox(RestoreLogger log, ItemValue<Domain> domain) {
-			super(log, domain);
+		protected WithoutMailbox(RestoreLogger log, ItemValue<Domain> domain, RestoreState state) {
+			super(log, domain, state);
 		}
 
 		@Override
@@ -80,8 +82,9 @@ public abstract class CrudDirEntryRestore<T, V extends IRestoreSupport<T>>
 
 		private final IServiceProvider target;
 
-		protected WithMailbox(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
-			super(log, domain);
+		protected WithMailbox(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target,
+				RestoreState state) {
+			super(log, domain, state);
 			this.target = target;
 		}
 

@@ -18,7 +18,6 @@
 package net.bluemind.core.backup.continuous.mgmt.service.impl;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.slf4j.event.Level;
 
@@ -126,17 +125,13 @@ public class DirEntryWithMailboxSync<T> {
 			ContainerMetadataBackup cmBack, ItemValue<ContainerHierarchyNode> node) {
 		try {
 			IContainerManagement mgmt = ctx.provider().instance(IContainerManagement.class, node.value.containerUid);
-			String uidAlias = ContainerUidsMapping.alias(node.value.containerUid);
+			String contUid = node.value.containerUid;
 			IContainers contApi = ctx.provider().instance(IContainers.class);
-			BaseContainerDescriptor bd = contApi.getLight(node.value.containerUid);
-			bd.uid = uidAlias;
-			ContainerMetadata aclMeta = ContainerMetadata.forAcls(bd, mgmt.getAccessControlList().stream().map(ace -> {
-				ace.subject = ContainerUidsMapping.alias(ace.subject);
-				return ace;
-			}).collect(Collectors.toList()));
-			cmBack.save(domainUid(), stored.uid, uidAlias, aclMeta, true);
+			BaseContainerDescriptor bd = contApi.getLight(contUid);
+			ContainerMetadata aclMeta = ContainerMetadata.forAcls(bd, mgmt.getAccessControlList());
+			cmBack.save(domainUid(), stored.uid, contUid, aclMeta, true);
 			ContainerMetadata setMeta = ContainerMetadata.forSettings(bd, mgmt.getSettings());
-			cmBack.save(domainUid(), stored.uid, uidAlias, setMeta, true);
+			cmBack.save(domainUid(), stored.uid, contUid, setMeta, true);
 		} catch (ServerFault sf) {
 			entryMon.log("WARN error processing " + node.value + ": " + sf.getMessage());
 		}

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
+import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
 import net.bluemind.core.container.api.ContainerSubscriptionModel;
 import net.bluemind.core.container.api.IOwnerSubscriptionUids;
 import net.bluemind.core.container.api.IRestoreItemCrudSupport;
@@ -25,8 +26,9 @@ public class RestoreOwnerSubscriptions extends CrudItemRestore<ContainerSubscrip
 	private final IServiceProvider target;
 	private final IInternalUserSubscription subscriptionApi;
 
-	public RestoreOwnerSubscriptions(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
-		super(log, domain);
+	public RestoreOwnerSubscriptions(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target,
+			RestoreState state) {
+		super(log, domain, state);
 		this.target = target;
 		this.subscriptionApi = target.instance(IInternalUserSubscription.class, domain.uid);
 	}
@@ -70,7 +72,7 @@ public class RestoreOwnerSubscriptions extends CrudItemRestore<ContainerSubscrip
 	}
 
 	private ContainerDescriptor subscribedContainer(ContainerSubscriptionModel ownerSubscription) {
-		return ContainerDescriptor.create(ownerSubscription.containerUid, ownerSubscription.name,
+		return ContainerDescriptor.create(state.uidAlias(ownerSubscription.containerUid), ownerSubscription.name,
 				ownerSubscription.owner, ownerSubscription.containerType, domain.uid,
 				ownerSubscription.defaultContainer);
 	}

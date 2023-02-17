@@ -25,11 +25,13 @@ public class RestoreRoles implements RestoreDomainType {
 	private final RestoreLogger log;
 	private final ItemValue<Domain> domain;
 	private final IServiceProvider target;
+	private RestoreState state;
 
-	public RestoreRoles(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
+	public RestoreRoles(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target, RestoreState state) {
 		this.log = log;
 		this.domain = domain;
 		this.target = target;
+		this.state = state;
 	}
 
 	@Override
@@ -40,6 +42,7 @@ public class RestoreRoles implements RestoreDomainType {
 	@Override
 	public void restore(RecordKey key, String payload) {
 		ItemValue<DirEntryRole> itemValue = rolesReader.read(payload);
+		itemValue.uid = state.uidAlias(itemValue.uid);
 		DirEntryRole roleEvent = itemValue.value;
 		switch (roleEvent.kind) {
 		case DOMAIN:

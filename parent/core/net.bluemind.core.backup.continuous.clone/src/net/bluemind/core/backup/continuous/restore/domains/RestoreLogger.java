@@ -2,6 +2,7 @@ package net.bluemind.core.backup.continuous.restore.domains;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.event.Level;
 import org.slf4j.helpers.MessageFormatter;
@@ -14,16 +15,23 @@ import net.bluemind.core.task.service.IServerTaskMonitor;
 public class RestoreLogger {
 
 	public enum Operation {
-		CREATE, UPDATE, SET, DELETE, DELETE_BY_PRODUCT, CREATE_PARENT, DELETE_PARENT, DELETE_CHILD, APPLY_MAILBOX,
-		FILTER, SKIP, SEPPUKU
+		CREATE, UPDATE, SET, DELETE, DELETE_BY_PRODUCT,
+
+		CREATE_PARENT, DELETE_PARENT, DELETE_CHILD, FILTER, SKIP, SEPPUKU
 	}
 
 	private final IServerTaskMonitor monitor;
 	private final Map<String, RateLimiter> limitByType;
+	private final AtomicLong opCounter;
 
 	public RestoreLogger(IServerTaskMonitor monitor) {
+		this(new AtomicLong(), monitor);
+	}
+
+	private RestoreLogger(AtomicLong opCnt, IServerTaskMonitor monitor) {
 		this.monitor = monitor;
 		this.limitByType = new ConcurrentHashMap<>();
+		this.opCounter = opCnt;
 	}
 
 	public IServerTaskMonitor monitor() {
@@ -31,7 +39,7 @@ public class RestoreLogger {
 	}
 
 	public RestoreLogger subWork(double work) {
-		return new RestoreLogger(monitor.subWork(work));
+		return new RestoreLogger(opCounter, monitor.subWork(work));
 	}
 
 	public void create(String type, RecordKey key) {
@@ -82,10 +90,6 @@ public class RestoreLogger {
 		monitor.log("op:" + Operation.DELETE_PARENT + ", type:" + type + ",  key:" + key + ", uid: " + uid);
 	}
 
-	public void applyMailbox(String type, RecordKey key) {
-		log(Operation.APPLY_MAILBOX, type, null, key, Level.INFO);
-	}
-
 	public void filter(String type, RecordKey key) {
 		filter(type, null, key);
 	}
@@ -99,8 +103,12 @@ public class RestoreLogger {
 	}
 
 	public void skip(String type, String kind, RecordKey key, String payload) {
+		long opCnt = opCounter.incrementAndGet();
 		String t = (kind == null) ? type : type + "." + kind;
-		monitor.log("op:skip, type:" + t + ",  key:" + key + ", payload:" + payload, Level.WARN);
+		RateLimiter limit = limitByType.computeIfAbsent(t, k -> RateLimiter.create(1.0 / 2));
+		if (limit.tryAcquire()) {
+			monitor.log(opCnt + " op:skip, type:" + t + ",  key:" + key + ", payload:" + payload, Level.WARN);
+		}
 	}
 
 	public void failure(String type, RecordKey key, String payload, Throwable t) {
@@ -121,10 +129,11 @@ public class RestoreLogger {
 	}
 
 	private void log(Operation op, String type, String kind, RecordKey key, Level level) {
+		long opCnt = opCounter.incrementAndGet();
 		String t = (kind == null) ? type : type + "." + kind;
 		RateLimiter limit = limitByType.computeIfAbsent(t, k -> RateLimiter.create(1.0 / 2));
 		if (limit.tryAcquire()) {
-			monitor.log("op:" + op + ", type:" + t + ",  key:" + key, level);
+			monitor.log(opCnt + " op:" + op + ", type:" + t + ",  key:" + key, level);
 		}
 	}
 }

@@ -19,4 +19,5 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.user.api,
  net.bluemind.core.container.service,
  net.bluemind.user.hook,
- net.bluemind.domain.hook
+ net.bluemind.domain.hook,
+ net.bluemind.system.state

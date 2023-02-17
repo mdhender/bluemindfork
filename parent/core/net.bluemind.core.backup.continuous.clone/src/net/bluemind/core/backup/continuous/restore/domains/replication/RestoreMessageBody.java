@@ -22,7 +22,6 @@ import net.bluemind.server.api.Server;
 public class RestoreMessageBody extends CrudRestore<MessageBody> {
 
 	private final IServiceProvider target;
-	private final RestoreState state;
 
 	private static final ValueReader<VersionnedItem<MessageBody>> reader = JsonUtils
 			.reader(new TypeReference<VersionnedItem<MessageBody>>() {
@@ -30,9 +29,8 @@ public class RestoreMessageBody extends CrudRestore<MessageBody> {
 
 	public RestoreMessageBody(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target,
 			RestoreState state) {
-		super(log, domain);
+		super(log, domain, state);
 		this.target = target;
-		this.state = state;
 	}
 
 	@Override

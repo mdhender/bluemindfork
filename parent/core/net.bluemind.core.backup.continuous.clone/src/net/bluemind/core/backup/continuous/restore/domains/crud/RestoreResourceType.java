@@ -8,6 +8,7 @@ import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.CloneException;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
+import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
 import net.bluemind.core.container.api.IRestoreCrudSupport;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
@@ -28,8 +29,9 @@ public class RestoreResourceType extends CrudRestore<ResourceTypeDescriptor> {
 
 	private final IServiceProvider target;
 
-	public RestoreResourceType(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
-		super(log, domain);
+	public RestoreResourceType(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target,
+			RestoreState state) {
+		super(log, domain, state);
 		this.target = target;
 	}
 

@@ -104,7 +104,7 @@ public abstract class LoggedContainerDeltaSync<O, T> extends ContainerSync {
 					.multipleGetById(chunk.stream().map(iv -> iv.id).collect(Collectors.toList()));
 			for (ItemValue<T> item : loadedItems) {
 				preSync(target, contMon, item);
-				sink.store(remap(contMon, item));
+				sink.store(item);
 				contMon.progress(1, null);
 			}
 		}
@@ -118,8 +118,8 @@ public abstract class LoggedContainerDeltaSync<O, T> extends ContainerSync {
 	}
 
 	protected IBackupStore<T> createTargetStore(IBackupStoreFactory target) {
-		BaseContainerDescriptor copy = BaseContainerDescriptor.create(ContainerUidsMapping.alias(cont.uid), cont.name,
-				cont.owner, cont.type, cont.domainUid, cont.defaultContainer);
+		BaseContainerDescriptor copy = BaseContainerDescriptor.create(cont.uid, cont.name, cont.owner, cont.type,
+				cont.domainUid, cont.defaultContainer);
 		return target.forContainer(copy);
 	}
 

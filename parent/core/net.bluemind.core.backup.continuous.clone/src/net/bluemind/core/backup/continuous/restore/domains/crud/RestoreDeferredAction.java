@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
+import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.utils.JsonUtils;
@@ -21,8 +22,9 @@ public class RestoreDeferredAction extends CrudItemRestore<DeferredAction> {
 			});
 	private final IServiceProvider target;
 
-	public RestoreDeferredAction(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
-		super(log, domain);
+	public RestoreDeferredAction(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target,
+			RestoreState state) {
+		super(log, domain, state);
 		this.target = target;
 	}
 

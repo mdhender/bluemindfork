@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.dto.GroupMembership;
+import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
@@ -22,18 +23,20 @@ import net.bluemind.group.service.IInCoreGroup;
 public class RestoreMembership implements RestoreDomainType {
 	private static final Logger logger = LoggerFactory.getLogger(RestoreMembership.class);
 
-	private final ValueReader<ItemValue<GroupMembership>> membersReader = JsonUtils
-			.reader(new TypeReference<ItemValue<GroupMembership>>() {
+	private final ValueReader<VersionnedItem<GroupMembership>> membersReader = JsonUtils
+			.reader(new TypeReference<VersionnedItem<GroupMembership>>() {
 			});
 
 	private final RestoreLogger log;
-	private ItemValue<Domain> domain;
+	private final ItemValue<Domain> domain;
 	private final IServiceProvider target;
+	private final RestoreState state;
 
-	public RestoreMembership(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target) {
+	public RestoreMembership(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target, RestoreState state) {
 		this.log = log;
 		this.domain = domain;
 		this.target = target;
+		this.state = state;
 	}
 
 	@Override
@@ -43,7 +46,8 @@ public class RestoreMembership implements RestoreDomainType {
 
 	@Override
 	public void restore(RecordKey key, String payload) {
-		ItemValue<GroupMembership> ms = membersReader.read(payload);
+		VersionnedItem<GroupMembership> ms = membersReader.read(payload);
+		ms.uid = state.uidAlias(ms.uid);
 
 		IInCoreGroup groupApi = target.instance(IInCoreGroup.class, domain.uid);
 		ItemValue<Group> existingGroup = groupApi.getComplete(ms.uid);
@@ -51,6 +55,7 @@ public class RestoreMembership implements RestoreDomainType {
 		// fix user / admin group with our old uid
 		ItemValue<Group> existingByName = groupApi.byName(ms.value.group.name);
 		if (existingByName != null && existingGroup == null) {
+			state.mapUid(ms.uid, existingByName.uid);
 			existingGroup = existingByName;
 			ms.uid = existingByName.uid;
 		}
