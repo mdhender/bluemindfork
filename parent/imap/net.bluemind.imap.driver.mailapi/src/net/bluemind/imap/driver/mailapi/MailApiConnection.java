@@ -114,7 +114,6 @@ import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.MailboxQuota;
 import net.bluemind.system.api.SysConfKeys;
-import net.bluemind.utils.ByteSizeUnit;
 
 public class MailApiConnection implements MailboxConnection {
 
@@ -500,7 +499,7 @@ public class MailApiConnection implements MailboxConnection {
 
 		IMailboxes mboxApi = suProv.instance(IMailboxes.class, me.domainUid);
 		MailboxQuota mbxQuota = mboxApi.getMailboxQuota(selected.mailbox.owner.uid);
-		if (mbxQuota.quota != null && mbxQuota.quota < (mbxQuota.used + ByteSizeUnit.BYTES.toKB(buffer.capacity()))) {
+		if (mbxQuota.quota != null && mbxQuota.quota < mbxQuota.used) {
 			return new AppendStatus(WriteStatus.OVERQUOTA_REJECTED, 0L);
 		}
 
