@@ -36,13 +36,15 @@ class bm_detachment extends filesystem_attachments {
     
     $this->register_action('plugin.bm_detachment.add_link', array($this, 'addLinkAttachment'));
     $this->add_hook('template_object_composeattachmentform', array($this, 'uploadform'));
+    $this->add_hook('startup', array($this, 'startup'));
+  }
 
+  public function startup() {
     if ($this->rcmail->task == 'mail' && $this->rcmail->action == 'compose') {
       $this->setConfiguration();
       $this->add_texts('localization', true);
       $this->include_script('bm_detachment.js');
     }
-
   }
 
   public function setConfiguration() {

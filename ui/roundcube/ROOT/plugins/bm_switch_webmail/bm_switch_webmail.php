@@ -48,7 +48,13 @@ class bm_switch_webmail extends rcube_plugin {
   }
 
   function redirectToMailApp() {
-    header("Location: /webapp/mail/");
+    if ($this->rcmail->task == 'mail' && $this->rcmail->action == 'compose') {
+      $to = get_input_value('_to', RCUBE_INPUT_GET);
+      $to = preg_replace('/^mailto:/i', 'mailto:', $to);
+    } 
+    header("Location: /webapp/mail/$to");
+    exit(0);
+    
   }
 
   function click() {
