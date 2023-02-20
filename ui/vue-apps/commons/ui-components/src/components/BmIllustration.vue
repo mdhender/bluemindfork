@@ -40,6 +40,14 @@ export default {
 @import "../css/variables";
 
 .bm-illustration {
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    & > svg {
+        flex: none;
+    }
+
     #fg {
         fill: $neutral-fg-hi1;
     }
