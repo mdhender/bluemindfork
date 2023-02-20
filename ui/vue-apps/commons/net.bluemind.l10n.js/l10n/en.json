@@ -36,6 +36,7 @@
     "common.date": "Date",
     "common.done": "Done",
     "common.search": "Search",
+    "common.search.leave": "Leave search",
     "common.search.no_result": "No results match the search.",
     "common.searchAdvanced": "Advanced search",
     "common.searching": "Searching...",

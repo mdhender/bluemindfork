@@ -36,6 +36,7 @@
     "common.date": "Date",
     "common.done": "Terminé",
     "common.search": "Recherche",
+    "common.search.leave": "Quitter la recherche",
     "common.search.no_result": "Aucun résultat ne correspond à la recherche.",
     "common.searchAdvanced": "Recherche avancée",
     "common.searching": "Recherche en cours...",

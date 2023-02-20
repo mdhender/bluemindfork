@@ -2,10 +2,13 @@
     <div class="empty-search-result">
         <div>
             <p>
-                <!-- need to be refactored with i18n component interpolation -->
-                {{ $t("mail.list.search.no_result") }}<br />
-                <span class="search-pattern">"{{ pattern }}"</span><br />
-                {{ $t("mail.list.search.no_result.found") }}
+                <i18n path="mail.list.search.no_result">
+                    <template #pattern>
+                        <br />
+                        <span class="search-pattern">"{{ pattern }}"</span>
+                        <br />
+                    </template>
+                </i18n>
             </p>
             <p>{{ $t("common.search.try_otherwise") }}</p>
             <slot name="actions" />
