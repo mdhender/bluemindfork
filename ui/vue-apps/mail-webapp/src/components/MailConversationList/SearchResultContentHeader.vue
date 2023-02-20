@@ -1,6 +1,6 @@
 <template>
     <bm-list-group>
-        <bm-list-group-item class="pl-4">
+        <bm-list-group-item class="bg-surface pl-4">
             {{ $t("common.search") }} :
             {{ $tc("common.messages", CONVERSATION_LIST_COUNT, { CONVERSATION_LIST_COUNT }) }}
         </bm-list-group-item>
