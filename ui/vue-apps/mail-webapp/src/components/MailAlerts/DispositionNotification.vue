@@ -20,7 +20,7 @@
         </div>
         <div class="d-flex align-items-center justify-content-around">
             <bm-button variant="text" class="mx-4">{{ $t("common.send") }}</bm-button>
-            <bm-button variant="text" class="mx-4">{{ $t("common.ignore") }}</bm-button>
+            <bm-button variant="text" class="mx-4" @click="ignore">{{ $t("common.ignore") }}</bm-button>
             <bm-icon-button
                 class="d-lg-none"
                 icon="preferences"
@@ -34,9 +34,10 @@
     </div>
 </template>
 <script>
-import { AlertMixin } from "@bluemind/alert.store";
-import { EmailExtractor } from "@bluemind/email";
+import { AlertMixin, REMOVE } from "@bluemind/alert.store";
+import { EmailExtractor, Flag } from "@bluemind/email";
 import { BmButton, BmIconButton } from "@bluemind/ui-components";
+import { ADD_FLAG } from "~/actions";
 
 export default {
     name: "DispositionNotification",
@@ -44,6 +45,12 @@ export default {
     mixins: [AlertMixin],
     data() {
         return { EmailExtractor, prefPath: "#preferences-mail-main" };
+    },
+    methods: {
+        ignore() {
+            this.$store.dispatch(`mail/${ADD_FLAG}`, { messages: [this.payload.message], flag: Flag.MDN_SENT });
+            this.$store.dispatch(`alert/${REMOVE}`, this.alert);
+        }
     }
 };
 </script>
