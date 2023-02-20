@@ -18,10 +18,30 @@
  */
 package net.bluemind.calendar.api;
 
+import java.util.Objects;
+
 import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
 public class CalendarLookupResponse {
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(type, uid);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CalendarLookupResponse other = (CalendarLookupResponse) obj;
+		return type == other.type && Objects.equals(uid, other.uid);
+	}
+
 
 	public String uid;
 	public String name;

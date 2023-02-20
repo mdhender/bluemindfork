@@ -20,6 +20,7 @@ package net.bluemind.calendar.service.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -40,6 +41,7 @@ import net.bluemind.addressbook.domainbook.IDomainAddressBook;
 import net.bluemind.calendar.api.CalendarLookupResponse;
 import net.bluemind.calendar.api.ICalendarAutocomplete;
 import net.bluemind.calendar.api.ICalendarUids;
+import net.bluemind.calendar.api.IFreebusyUids;
 import net.bluemind.calendar.service.internal.CalendarAutocompleteService;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
@@ -161,10 +163,26 @@ public class CalendarAutocompleteServiceTests {
 		Container cal = cs.get(ICalendarUids.defaultUserCalendar(uid));
 		assertNotNull("user default calendar not found ", cal);
 
-		if (verb != null) {
-			AclStore aclStore = new AclStore(new BmTestContext(SecurityContext.SYSTEM),
+		AclStore aclStore;
+		if (verb != null && !verb.equals(Verb.Freebusy)) {
+			aclStore = new AclStore(new BmTestContext(SecurityContext.SYSTEM),
 					DataSourceRouter.get(new BmTestContext(SecurityContext.SYSTEM), cal.uid));
 			aclStore.store(cal, Arrays.asList(AccessControlEntry.create(defaultSecurityContext.getSubject(), verb)));
+		}
+
+		// Freebusy
+		cs = new ContainerStore(new BmTestContext(adminSecurityContext), DataSourceRouter
+				.get(new BmTestContext(adminSecurityContext), IFreebusyUids.getFreebusyContainerUid(uid)),
+				adminSecurityContext);
+		Container freebusy = cs.get(IFreebusyUids.getFreebusyContainerUid(uid));
+		assertNotNull("user default freebusy not found ", freebusy);
+		aclStore = new AclStore(new BmTestContext(SecurityContext.SYSTEM),
+				DataSourceRouter.get(new BmTestContext(SecurityContext.SYSTEM), freebusy.uid));
+		aclStore.deleteAll(freebusy);
+		if (verb != null && verb.can(Verb.Freebusy)) {
+			aclStore.store(freebusy,
+					Arrays.asList(AccessControlEntry.create(defaultSecurityContext.getSubject(), Verb.Read)));
+
 		}
 	}
 
@@ -228,6 +246,7 @@ public class CalendarAutocompleteServiceTests {
 		ICalendarAutocomplete service = getService(adminSecurityContext);
 		String uid1 = UUID.randomUUID().toString();
 		createTestUser(uid1, "David", "Phan", Verb.Read);
+
 		List<CalendarLookupResponse> res = service.calendarLookup("david", Verb.Read);
 		assertEquals(0, res.size());
 	}
@@ -310,6 +329,29 @@ public class CalendarAutocompleteServiceTests {
 	}
 
 	@Test
+	public void freebusyCalendarLookup() throws Exception {
+		ICalendarAutocomplete service = getService(defaultSecurityContext);
+		List<CalendarLookupResponse> res = service.calendarLookup("david", Verb.Freebusy);
+		assertEquals(0, res.size());
+
+		String uid1 = UUID.randomUUID().toString();
+		createTestUser(uid1, "David", "Phan", Verb.Freebusy);
+		String uid2 = UUID.randomUUID().toString();
+		createTestUser(uid2, "David", "Fan", Verb.Read);
+		res = service.calendarLookup("david", Verb.Read);
+		assertEquals(1, res.size());
+		assertEquals(ICalendarUids.defaultUserCalendar(uid2), res.get(0).uid);
+		res = service.calendarLookup("david", Verb.Freebusy);
+		assertEquals(2, res.size());
+
+		assertTrue("When using autoc-complete with freebusy verbs, calendar with read permissions does not match",
+				res.stream().anyMatch(c -> c.uid.equals(ICalendarUids.defaultUserCalendar(uid1))));
+		assertTrue("When using autoc-complete with freebusy verbs, calendar with freebusy permissions does not matc",
+				res.stream().anyMatch(c -> c.uid.equals(ICalendarUids.defaultUserCalendar(uid2))));
+
+	}
+
+	@Test
 	public void calendarGroupLookup() throws Exception {
 		ICalendarAutocomplete service = getService(defaultSecurityContext);
 		List<CalendarLookupResponse> res = service.calendarLookup("david", Verb.Read);
@@ -318,6 +360,7 @@ public class CalendarAutocompleteServiceTests {
 		createTestUser("u1", "david", "phan", Verb.All);
 
 		createTestUser("u2", "John", "Bang", Verb.Read);
+
 		createTestUser("u3", "daivd", "Gilmour", Verb.Invitation);
 
 		createTestUser("u4", "Ma", "Cache", Verb.Read);
@@ -330,7 +373,9 @@ public class CalendarAutocompleteServiceTests {
 
 		createTestUser("u6", "Ma", "rrouchka", Verb.Read);
 
-		createTestGroup("g4", "David sub goup", "u6");
+		createTestUser("u7", "Free", "Busy", Verb.Freebusy);
+
+		createTestGroup("g4", "David sub goup", "u6", "u7");
 
 		createTestGroup("g1", "David Gilmour all band", Member.user("u1"), Member.user("u2"), Member.user("u3"),
 				Member.group("g2"), Member.group("g3"), Member.group("g4"));
@@ -344,8 +389,9 @@ public class CalendarAutocompleteServiceTests {
 		assertEquals("g1", att1.uid);
 		assertEquals(ICalendarUids.defaultUserCalendar("u1"), att2.uid);
 
-		// u1 + u2 + g4.u6 (u3 is not Readable, g2 and g3 are hidden)
-		assertEquals(3, service.calendarGroupLookup(att1.uid).size());
+		// u1 + u2 + g4.u6 + g4.u7(u3 is not Readable, g2 and g3 are hidden)
+		res = service.calendarGroupLookup(att1.uid);
+		assertEquals(4, res.size());
 	}
 
 	@Test

@@ -18,14 +18,16 @@
  */
 package net.bluemind.calendar.service.internal;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,15 +39,21 @@ import net.bluemind.calendar.api.CalendarLookupResponse;
 import net.bluemind.calendar.api.CalendarLookupResponse.Type;
 import net.bluemind.calendar.api.ICalendarAutocomplete;
 import net.bluemind.calendar.api.ICalendarUids;
+import net.bluemind.calendar.api.IFreebusyUids;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerQuery;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.Verb;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
+import net.bluemind.core.container.service.internal.ContainerPermission;
+import net.bluemind.core.container.service.internal.ContainerPermissionResolver;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
@@ -74,25 +82,27 @@ public class CalendarAutocompleteService implements ICalendarAutocomplete {
 		List<ItemValue<VCard>> members = getGroupMembers(groupUid);
 		// Get all users default calendars.
 		IContainers containers = context.provider().instance(IContainers.class);
-		List<ContainerDescriptor> calendars = containers.getContainers(
-				members.stream().map(m -> ICalendarUids.defaultUserCalendar(m.uid)).collect(Collectors.toList()));
+        List<String> calendarUids = members.stream().flatMap(
+				m -> Stream.of(ICalendarUids.defaultUserCalendar(m.uid), IFreebusyUids.getFreebusyContainerUid(m.uid)))
+				.collect(Collectors.toList());
+		List<ContainerDescriptor> calendars = containers.getContainers(calendarUids);
 		// Only select calendar with read right, and then convert to
 		// CalendarLookupResponse.
 		// To convert the calendar we match the user vcard with the calendar and
 		// build a
 		// CalendarLookupResponse with the VCard infos.
 		return calendars.stream().filter(c -> c.verbs.stream().anyMatch(v -> v.can(Verb.Read)))
-				.map(c -> calendarToCalendarLookupResponse(c, members)).collect(Collectors.toList());
+				.map(c -> calendarToCalendarLookupResponse(c, members)).distinct().collect(Collectors.toList());
 
 	}
 
 	private CalendarLookupResponse calendarToCalendarLookupResponse(ContainerDescriptor c,
 			List<ItemValue<VCard>> members) {
-		Optional<ItemValue<VCard>> member = members.stream()
-				.filter(m -> ICalendarUids.defaultUserCalendar(m.uid).equals(c.uid)).findFirst();
+		Optional<ItemValue<VCard>> member = members.stream().filter(m -> m.uid.equals(c.owner)).findFirst();
 		if (member.isPresent()) {
-			return CalendarLookupResponse.calendar(c.uid, member.get().value.identification.formatedName.value,
-					member.get().value.defaultMail(), member.get().uid);
+			return CalendarLookupResponse.calendar(ICalendarUids.defaultUserCalendar(member.get().uid),
+					member.get().value.identification.formatedName.value, member.get().value.defaultMail(),
+					member.get().uid);
 		} else {
 			throw new ServerFault("Container " + c.uid + " is not present");
 		}
@@ -125,21 +135,6 @@ public class CalendarAutocompleteService implements ICalendarAutocomplete {
 		IDirectory dir = context.provider().instance(IDirectory.class, context.getSecurityContext().getContainerUid());
 		IGroup groups = context.su().provider().instance(IGroup.class, context.getSecurityContext().getContainerUid());
 
-		IContainers ic = context.provider().instance(IContainers.class);
-		ContainerQuery q = new ContainerQuery();
-		q.type = ICalendarUids.TYPE;
-		q.verb = new ArrayList<>();
-		q.verb.add(verb);
-		for (Verb v : Verb.values()) {
-			if (!verb.can(v)) {
-				q.verb.add(v);
-			}
-		}
-		List<BaseContainerDescriptor> matchingContainers = ic.allLight(q);
-		logger.debug("matchingContainers: {}", matchingContainers);
-		Map<String, BaseContainerDescriptor> containerMap = matchingContainers.stream().filter(c -> c.defaultContainer)
-				.collect(Collectors.toMap(c -> c.owner, c -> c));
-
 		DirEntryQuery dq = DirEntryQuery.filterNameOrEmail(pattern);
 		dq.kindsFilter = Arrays.asList(DirEntry.Kind.USER, DirEntry.Kind.GROUP, DirEntry.Kind.CALENDAR,
 				DirEntry.Kind.RESOURCE);
@@ -150,19 +145,20 @@ public class CalendarAutocompleteService implements ICalendarAutocomplete {
 			if (ret.size() > LIMIT) {
 				break;
 			}
-			String groupUid = entry.value.entryUid;
+			String entryUid = entry.value.entryUid;
 			if (entry.value.kind == Kind.USER || entry.value.kind == Kind.CALENDAR
 					|| entry.value.kind == Kind.RESOURCE) {
-				if (containerMap.containsKey(groupUid)) {
-					BaseContainerDescriptor c = containerMap.get(groupUid);
-					ret.add(CalendarLookupResponse.calendar(c.uid, c.name, entry.value.email, groupUid));
+				if (canAccessDefaultCalendar(entry.value, verb)) {
+					String calendarUid = getDirEntryCalendarUid(entry.value);
+					ret.add(CalendarLookupResponse.calendar(calendarUid, entry.value.displayName, entry.value.email,
+							entryUid));
 				}
 			} else if (entry.value.kind == Kind.GROUP) {
-				int userCount = groups.getExpandedUserMembers(groupUid).size();
-				ItemValue<Group> group = groups.getComplete(groupUid);
+				int userCount = groups.getExpandedUserMembers(entryUid).size();
+				ItemValue<Group> group = groups.getComplete(entryUid);
 				if (!group.value.hiddenMembers && userCount > 0) {
 					CalendarLookupResponse r = new CalendarLookupResponse();
-					r.uid = groupUid;
+					r.uid = entryUid;
 					r.name = entry.value.displayName;
 					r.type = Type.group;
 					r.memberCount = userCount;
@@ -210,4 +206,43 @@ public class CalendarAutocompleteService implements ICalendarAutocomplete {
 		return ret;
 	}
 
+	private boolean haveFreebusy(DirEntry entry) {
+		return entry.kind == Kind.USER || entry.kind == Kind.RESOURCE;
+	}
+
+	private boolean canAccessDefaultCalendar(DirEntry entry, Verb verb) {
+		if (Verb.Freebusy.can(verb) && haveFreebusy(entry)) {
+			return canAccessContainer(IFreebusyUids.getFreebusyContainerUid(entry.entryUid), Verb.Read);
+		}
+		String calendarUid = getDirEntryCalendarUid(entry);
+		return canAccessContainer(calendarUid, verb);
+	}
+
+	private boolean canAccessContainer(String uid, Verb verb) {
+		// Manual ACL resolution :
+		// We don't want the ACL implicit in some roles to be taken into account.
+		try {
+			Container container = new ContainerStore(context, DataSourceRouter.get(context, uid),
+					context.getSecurityContext()).get(uid);
+			ContainerPermissionResolver resolver = new ContainerPermissionResolver(context, container);
+			Set<Verb> verbs = resolver.resolve().stream().filter(p -> p instanceof ContainerPermission)
+					.map(p -> Verb.valueOf(p.asRole())).collect(Collectors.toSet());
+			return verbs.stream().anyMatch(v -> v.can(verb));
+		} catch (SQLException e) {
+			return false;
+		}
+	}
+
+	private String getDirEntryCalendarUid(DirEntry entry) {
+		switch (entry.kind) {
+		case USER:
+			return ICalendarUids.defaultUserCalendar(entry.entryUid);
+		case CALENDAR:
+			return entry.entryUid;
+		case RESOURCE:
+			return ICalendarUids.resourceCalendar(entry.entryUid);
+		default:
+			return null;
+		}
+	}
 }
