@@ -13,7 +13,7 @@ import {
 import session from "../environnment/session";
 import { dispatchFetch } from "@bluemind/service-worker-utils";
 import { getCacheKey } from "../smimePartCache";
-import { SmimeErrors } from "../exceptions";
+import { InvalidOriginatorError, SmimeErrors } from "../exceptions";
 import { extractContentType, splitHeadersAndContent } from "./MimeEntityParserUtils";
 import extractSignedData from "./SMimeSignedDataParser";
 import buildSignedEml from "./SMimeSignedEmlBuilder";
@@ -64,6 +64,9 @@ export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): 
 
 export async function encrypt(item: MailboxItem, folderUid: string): Promise<MailboxItem> {
     try {
+        if (!(await isDefaultOriginator(item.body.recipients!))) {
+            throw new InvalidOriginatorError();
+        }
         const myCertificate = await getMyCertificate();
         const recipients = item.body.recipients || [];
         const promises: Promise<pki.Certificate>[] = recipients.flatMap(({ kind, address }) => {
@@ -113,7 +116,11 @@ export async function verify(
 
 export async function sign(item: MailboxItem, folderUid: string): Promise<MailboxItem> {
     try {
+        if (!(await isDefaultOriginator(item.body.recipients!))) {
+            throw new InvalidOriginatorError();
+        }
         item.body.structure = removePreviousSignedPart(item.body.structure!);
+
         const client = new MailboxItemsClient(await session.sid, folderUid);
         const unsignedMimeEntity = await new MimeBuilder(getRemoteContentFn(item.imapUid!, folderUid)).build(
             item.body.structure!
@@ -164,6 +171,14 @@ async function savePart(folderUid: string, imapUid: number, part: MessageBody.Pa
         const key = getCacheKey(folderUid, imapUid, address);
         cache.put(new Request(key), new Response(content));
     }
+}
+
+async function isDefaultOriginator(recipients: MessageBody.Recipient[] = []): Promise<boolean> {
+    const originator = recipients?.find(
+        ({ kind }: MessageBody.Recipient) => kind === MessageBody.RecipientKind.Originator
+    );
+    const defaultEMail = await session.defaultEmail;
+    return defaultEMail === originator?.address;
 }
 
 export default { isEncrypted, isSigned, decrypt, encrypt, verify, sign };

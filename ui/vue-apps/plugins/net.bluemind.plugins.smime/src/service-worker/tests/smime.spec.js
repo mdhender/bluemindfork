@@ -1,3 +1,4 @@
+import fetchMock from "fetch-mock";
 import { MimeType } from "@bluemind/email";
 import smime from "../smime";
 import pkcs7 from "../pkcs7";
@@ -22,7 +23,12 @@ import {
 import { getHeaderValue, isVerified } from "../../lib/helper";
 import { readFile } from "./helpers";
 
-jest.mock("../environnment/session", () => ({ sid: 1, defaultEmail: "math@devenv.blue" }));
+fetchMock.mock("/session-infos", {
+    login: "mathilde.michau@blue-mind.net",
+    sid: "58a1ee1b-0c30-492c-a83f-4396f0a24730",
+    defaultEmail: "math@devenv.blue"
+});
+
 jest.mock("../pki/", () => jest.fn);
 jest.mock("@bluemind/mime", () => {
     return {
@@ -53,15 +59,6 @@ global.caches = {
         });
     }
 };
-jest.mock("../environnment/session", () =>
-    Promise.resolve({
-        json: () =>
-            Promise.resolve({
-                login: "mathilde.michau@blue-mind.net",
-                sid: "58a1ee1b-0c30-492c-a83f-4396f0a24730"
-            })
-    })
-);
 
 class MockRequest {
     constructor(url) {
@@ -75,6 +72,13 @@ global.Response = MockResponse;
 const mainEncrypted = {
     value: {
         body: {
+            recipients: [
+                {
+                    kind: "Originator",
+                    dn: "math",
+                    address: "math@devenv.blue"
+                }
+            ],
             structure: {
                 address: "1",
                 mime: "application/pkcs7-mime"
@@ -89,6 +93,13 @@ const mainEncrypted = {
 const unencrypted = {
     value: {
         body: {
+            recipients: [
+                {
+                    kind: "Originator",
+                    dn: "math",
+                    address: "math@devenv.blue"
+                }
+            ],
             structure: {
                 mime: "multipart/alternative",
                 address: "TEXT",
@@ -192,19 +203,9 @@ describe("smime", () => {
             pki.checkCertificateValidity = () => {
                 throw new ExpiredCertificateError();
             };
-            const old = {
-                value: {
-                    body: {
-                        structure: {
-                            address: "1",
-                            mime: "application/pkcs7-mime"
-                        },
-                        headers: [],
-                        date: 1000
-                    },
-                    imapUid: 99
-                }
-            };
+            const old = { ...mainEncrypted };
+            old.value.body.date = 1000;
+
             const { item } = await smime.decrypt("uid", old);
             expect(getCryptoHeaderCode(item) & CRYPTO_HEADERS.EXPIRED_CERTIFICATE).toBeTruthy();
         });
@@ -262,6 +263,18 @@ describe("smime", () => {
                 expect(error).toContain(SMIME_ENCRYPTION_ERROR_PREFIX);
             }
         });
+        test("raise an error it is not the default originator address", async done => {
+            try {
+                const wrongOriginator = { ...item };
+                wrongOriginator.body.recipients[1].address = "wrong";
+
+                await smime.encrypt(wrongOriginator, "folderUid");
+                done.fail();
+            } catch (error) {
+                expect(error).toContain(CRYPTO_HEADERS.INVALID_ORIGINATOR);
+                done();
+            }
+        });
     });
     describe("sign", () => {
         beforeEach(() => {
@@ -284,6 +297,17 @@ describe("smime", () => {
             } catch (error) {
                 expect(error).toContain(SMIME_SIGNATURE_ERROR_PREFIX);
                 expect(error).toContain(CRYPTO_HEADERS.SIGN_FAILURE);
+                done();
+            }
+        });
+        test("raise an error it is not the default originator address", async done => {
+            try {
+                const wrongOriginator = { ...item };
+                wrongOriginator.body.recipients[1].address = "wrong";
+                await smime.sign(wrongOriginator, "folderUid");
+                done.fail();
+            } catch (error) {
+                expect(error).toContain(CRYPTO_HEADERS.INVALID_ORIGINATOR);
                 done();
             }
         });
