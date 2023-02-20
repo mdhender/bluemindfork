@@ -18,8 +18,8 @@
 import { mapGetters, mapState } from "vuex";
 import { MY_TEMPLATES } from "~/getters";
 import ConversationList from "~/components/ConversationList/ConversationList";
+import EmptySearchResult from "../EmptySearchResult";
 import TemplatesListSpinner from "./TemplatesListSpinner";
-import EmptySearchResult from "./EmptySearchResult";
 import EmptyTemplatesFolder from "./EmptyTemplatesFolder";
 
 export default {
