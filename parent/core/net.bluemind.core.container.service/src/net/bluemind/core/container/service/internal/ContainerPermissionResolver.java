@@ -76,7 +76,7 @@ public class ContainerPermissionResolver {
 					&& container.domainUid.equals(context.getSecurityContext().getContainerUid()))
 					&& (context.getSecurityContext().getSubject().equals(entry.subject)
 							|| context.getSecurityContext().getMemberOf().contains(entry.subject)
-							|| context.getSecurityContext().getContainerUid().contains(entry.subject))) {
+							|| context.getSecurityContext().getContainerUid().equals(entry.subject))) {
 
 				perms.add(ContainerPermission.asPerm(entry.verb));
 				continue;
