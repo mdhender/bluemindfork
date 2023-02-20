@@ -37,7 +37,9 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
 import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
+import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
@@ -52,6 +54,7 @@ import net.bluemind.network.topology.Topology;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionData;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionsCache;
 import net.bluemind.webmodule.server.IWebFilter;
+import net.bluemind.webmodule.server.SecurityConfig;
 import net.bluemind.webmodule.server.WebserverConfiguration;
 import net.bluemind.webmodule.server.forward.ForwardedLocation;
 
@@ -63,6 +66,8 @@ public class AuthenticationFilter implements IWebFilter {
 	private static final Cache<String, String> codeVerifierCache = CacheBuilder.newBuilder()
 			.expireAfterWrite(10, TimeUnit.MINUTES).build();
 	private static final ServerCookieDecoder cookieDecoder = ServerCookieDecoder.LAX;
+	private static final String OPENID_COOKIE = "OpenIdToken";
+	private static final String BMSID_COOKIE = "BMSID";
 
 	public AuthenticationFilter() {
 		logger.info("AuthenticationFilter filter created.");
@@ -89,20 +94,9 @@ public class AuthenticationFilter implements IWebFilter {
 			return logout(request);
 		}
 
-		String cookieStr = Optional.ofNullable(request.headers().get("cookie")).orElse("");
-		Set<Cookie> cookies = cookieDecoder.decode(cookieStr);
-		Optional<Cookie> oidc = cookies.stream().filter(c -> "OpenIdToken".equals(c.name())).findFirst();
-		if (oidc.isPresent()) {
-			JsonObject token = new JsonObject(oidc.get().value());
-			String sessionId = token.getString("sid");
-			decorate(request, sessionId);
-			return CompletableFuture.completedFuture(request);
-		}
-
-		Optional<Cookie> bmSid = cookies.stream().filter(c -> "BMSID".equals(c.name())).findFirst();
-		if (bmSid.isPresent()) {
-			String sessionId = bmSid.get().value();
-			decorate(request, sessionId);
+		Optional<String> sessionId = sessionId(request);
+		if (sessionId.isPresent()) {
+			decorate(request, sessionId.get());
 			return CompletableFuture.completedFuture(request);
 		}
 
@@ -174,21 +168,71 @@ public class AuthenticationFilter implements IWebFilter {
 		return true;
 	}
 
-	private CompletableFuture<HttpServerRequest> logout(HttpServerRequest request) {
-		Optional<String> domainUid = getDomainUid(request);
-		if (domainUid.isEmpty()) {
-			return CompletableFuture.completedFuture(request);
+	public Optional<String> sessionId(HttpServerRequest request) {
+		String cookieStr = Optional.ofNullable(request.headers().get("cookie")).orElse("");
+		Set<Cookie> cookies = cookieDecoder.decode(cookieStr);
+		Optional<Cookie> oidc = cookies.stream().filter(c -> OPENID_COOKIE.equals(c.name())).findFirst();
+		if (oidc.isPresent()) {
+			JsonObject token = new JsonObject(oidc.get().value());
+			return Optional.of(token.getString("sid"));
 		}
 
-		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
-				.get(domainUid.get());
+		Optional<Cookie> bmSid = cookies.stream().filter(c -> BMSID_COOKIE.equals(c.name())).findFirst();
+		if (bmSid.isPresent()) {
+			return Optional.of(bmSid.get().value());
+		}
 
-		request.response().headers().add(HttpHeaders.LOCATION,
-				domainSettings.get(DomainSettingsKeys.openid_end_session_endpoint.name()));
+		return Optional.empty();
+	}
+
+	private CompletableFuture<HttpServerRequest> logout(HttpServerRequest request) {
+		Optional<String> sessionId = sessionId(request);
+		if (sessionId.isPresent()) {
+			SessionData sd = SessionsCache.get().getIfPresent(sessionId.get());
+			if (sd != null) {
+				SessionsCache.get().invalidate(sessionId.get());
+			}
+		}
+
+		purgeSessionCookie(request.response().headers());
+
+		Optional<String> domainUid = getDomainUid(request);
+		if (domainUid.isEmpty()) {
+			request.response().headers().add(HttpHeaders.LOCATION, "/");
+		} else {
+			Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
+					.get(domainUid.get());
+			request.response().headers().add(HttpHeaders.LOCATION,
+					domainSettings.get(DomainSettingsKeys.openid_end_session_endpoint.name()));
+		}
+
 		request.response().setStatusCode(302);
 		request.response().end();
 
 		return CompletableFuture.completedFuture(null);
+
+	}
+
+	public static void purgeSessionCookie(MultiMap headers) {
+
+		Cookie bmSid = new DefaultCookie(BMSID_COOKIE, "delete");
+		bmSid.setPath("/");
+		bmSid.setMaxAge(0);
+		bmSid.setHttpOnly(true);
+		if (SecurityConfig.secureCookies) {
+			bmSid.setSecure(true);
+		}
+		headers.add("Set-Cookie", ServerCookieEncoder.LAX.encode(bmSid));
+
+		Cookie openId = new DefaultCookie(OPENID_COOKIE, "delete");
+		openId.setPath("/");
+		openId.setMaxAge(0);
+		openId.setHttpOnly(true);
+		if (SecurityConfig.secureCookies) {
+			openId.setSecure(true);
+		}
+		headers.add("Set-Cookie", ServerCookieEncoder.LAX.encode(openId));
+
 	}
 
 	private Optional<String> getDomainUid(HttpServerRequest request) {
