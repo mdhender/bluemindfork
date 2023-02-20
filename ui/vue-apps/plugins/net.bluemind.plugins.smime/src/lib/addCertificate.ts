@@ -3,7 +3,7 @@ import { AddressBookClient, VCard } from "@bluemind/addressbook.api";
 import { VCardAdaptor, searchVCardsHelper } from "@bluemind/contact";
 import session from "../service-worker/environnment/session";
 
-export default async function (pem: string, dn: string, email: string) {
+export default async function (pem: string, dn: string, email: string): Promise<void> {
     const sid = await session.sid;
     const userId = await session.userId;
     const personalAddressBookUid = `book:Contacts_${userId}`;
@@ -18,8 +18,7 @@ export default async function (pem: string, dn: string, email: string) {
     const vCard = VCardAdaptor.toVCard(contact);
     const existingContact = await client.search(searchVCardsHelper(email));
     if (existingContact.values.length === 0) {
-        client.create(contact.uid, vCard);
-    } else {
-        client.update(existingContact.values[0].uid, vCard);
+        return client.create(contact.uid, vCard);
     }
+    return client.update(existingContact.values[0].uid, vCard);
 }

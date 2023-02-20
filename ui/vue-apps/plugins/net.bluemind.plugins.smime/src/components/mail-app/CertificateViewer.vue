@@ -70,5 +70,6 @@ export default {
     display: flex;
     margin: 0 $sp-8;
     padding: $sp-6;
+    min-height: 100%;
 }
 </style>

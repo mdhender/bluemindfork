@@ -18,7 +18,11 @@
                 "cant_display": "Pourquoi je ne peux pas voir ce message ?"
             },
             "viewer": {
-                "import_certificate": "Importer le certificat"
+                "import_certificate": {
+                    "action":  "Importer le certificat",
+                    "success": "Le certificat a bien été importé.",
+                    "error": "Le certificat n'a pas pu être importé."
+                }
             },
             "composer": {
                 "encrypt": "Chiffrer le message",

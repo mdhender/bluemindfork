@@ -17,7 +17,11 @@
                 "cant_display": "Why I can't I see this message ?"
             },
             "viewer": {
-                "import_certificate": "Zertifikat importieren"
+                "import_certificate": {
+                    "action":  "Zertifikat importieren",
+                    "success": "Das Zertifikat wurde erfolgreich importiert.",
+                    "error": "Das Zertifikat konnte nicht importiert werden."
+                }
             },
             "composer": {
                 "encrypt": "Verschlüsseln Sie die Nachricht",

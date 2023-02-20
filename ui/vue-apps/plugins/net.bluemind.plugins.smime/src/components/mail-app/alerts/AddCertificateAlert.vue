@@ -8,33 +8,59 @@
             </i18n>
             <span class="email font-weight-light">&lt;{{ payload.ownerEmail }}&gt;</span>
         </div>
-        <bm-button variant="text" icon="verified-new" @click="importCertificate">
-            {{ $t("smime.mailapp.viewer.import_certificate") }}
+        <bm-label-icon
+            v-if="done"
+            class="feedback high"
+            icon-size="sm"
+            :icon="success ? 'check' : 'exclamation-circle'"
+        >
+            {{ $t(`smime.mailapp.viewer.import_certificate.${success ? "success" : "error"}`) }}
+        </bm-label-icon>
+        <bm-button v-else variant="text" size="sm" icon="verified-new" :loading="loading" @click="importCertificate">
+            {{ $t("smime.mailapp.viewer.import_certificate.action") }}
         </bm-button>
     </div>
 </template>
 
 <script>
-import { BmButton } from "@bluemind/ui-components";
+import { BmLabelIcon, BmButton } from "@bluemind/ui-components";
 import addCertificate from "../../../lib/addCertificate";
 
 export default {
     name: "AddCertificateAlert",
-    components: { BmButton },
+    components: { BmLabelIcon, BmButton },
     props: {
         alert: {
             type: Object,
             required: true
         }
     },
+    data() {
+        return {
+            success: false,
+            loading: false,
+            error: false
+        };
+    },
     computed: {
         payload() {
             return this.alert.payload;
+        },
+        done() {
+            return this.success || this.error;
         }
     },
     methods: {
-        importCertificate() {
-            addCertificate(this.payload.pem, this.payload.ownerName, this.payload.ownerEmail);
+        async importCertificate() {
+            try {
+                this.loading = true;
+                await addCertificate(this.payload.pem, this.payload.ownerName, this.payload.ownerEmail);
+                this.success = true;
+                this.loading = false;
+            } catch {
+                this.error = true;
+                this.loading = false;
+            }
         }
     }
 };
@@ -50,6 +76,9 @@ export default {
     }
     .email {
         font-weight: $font-weight-light;
+        color: $neutral-fg;
+    }
+    .feedback {
         color: $neutral-fg;
     }
 }

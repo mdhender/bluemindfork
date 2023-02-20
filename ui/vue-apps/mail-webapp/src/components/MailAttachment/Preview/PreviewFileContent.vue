@@ -141,9 +141,6 @@ export default {
             padding: $sp-4;
         }
     }
-    .bm-extension {
-        height: 100%;
-    }
     .bm-alert-area {
         width: 100%;
         .alert {

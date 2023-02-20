@@ -7,6 +7,7 @@
         size="fluid"
         hide-footer
         hide-header
+        :scrollable="false"
     >
         <global-events @keydown.left="previous" @keydown.up="previous" @keydown.down="next" @keydown.right="next" />
 
