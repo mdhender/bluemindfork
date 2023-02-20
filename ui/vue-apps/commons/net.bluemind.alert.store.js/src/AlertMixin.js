@@ -25,8 +25,9 @@ export default {
     }
 };
 
-function lastErrorReason(error) {
-    if (error) {
-        return error.toString()?.match(/(?:.(?<!Exception:))+$/i)[0];
-    }
+export function lastErrorReason(error) {
+    return error
+        ?.toString()
+        .replace(/.*(?:Exception|Fault|Error):\s*/, "")
+        .trim();
 }
