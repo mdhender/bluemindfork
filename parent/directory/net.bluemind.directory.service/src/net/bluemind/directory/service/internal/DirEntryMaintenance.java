@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider.IServerSideServiceFactory;
 import net.bluemind.core.task.api.TaskRef;
@@ -45,6 +47,7 @@ import net.bluemind.directory.api.RepairConfig;
 import net.bluemind.directory.service.IDirEntryRepairSupport.InternalMaintenanceOperation;
 import net.bluemind.directory.service.IInternalDirEntryMaintenance;
 import net.bluemind.directory.service.RepairTaskMonitor;
+import net.bluemind.group.api.IGroup;
 
 public class DirEntryMaintenance implements IDirEntryMaintenance, IInternalDirEntryMaintenance {
 	private static final Logger logger = LoggerFactory.getLogger(DirEntryMaintenance.class);
@@ -76,21 +79,37 @@ public class DirEntryMaintenance implements IDirEntryMaintenance, IInternalDirEn
 			}
 
 			// make maintenance task executable for domain admins
-			if (context.getSecurityContext().isDomainAdmin(domainUid) || isOrgUnitAdmin(context, entry.orgUnitUid)) {
+			if (context.getSecurityContext().isDomainAdmin(domainUid)
+					|| isOrgUnitAdmin(context, entry.orgUnitUid, domainUid)) {
 				context = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext();
 			}
 
 			return new DirEntryMaintenance(context, domainUid, entry);
 		}
 
-		private boolean isOrgUnitAdmin(BmContext context, String orgUnitUid) {
+		private boolean isOrgUnitAdmin(BmContext context, String orgUnitUid, String domainUid) {
 			if (orgUnitUid == null) {
 				return false;
 			}
 
-			IOrgUnits service = context.su().provider().instance(IOrgUnits.class,
-					context.getSecurityContext().getContainerUid());
-			return service.getAdministrators(orgUnitUid).contains(context.getSecurityContext().getSubject());
+			IServiceProvider provider = context.su().provider();
+			IOrgUnits service = provider.instance(IOrgUnits.class, context.getSecurityContext().getContainerUid());
+			IDirectory dir = provider.instance(IDirectory.class, domainUid);
+			return service.getAdministrators(orgUnitUid).stream().flatMap(uid -> {
+				DirEntry entry = dir.findByEntryUid(uid);
+				if (entry == null) {
+					return Stream.empty();
+				}
+				switch (entry.kind) {
+				case USER:
+					return Stream.of(uid);
+				case GROUP:
+					IGroup groupService = provider.instance(IGroup.class, domainUid);
+					return groupService.getExpandedMembers(uid).stream().map(m -> m.uid);
+				default:
+					return Stream.empty();
+				}
+			}).anyMatch(uid -> uid.equals(context.getSecurityContext().getSubject()));
 		}
 
 	}
