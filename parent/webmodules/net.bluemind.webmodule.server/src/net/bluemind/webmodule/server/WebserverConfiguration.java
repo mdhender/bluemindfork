@@ -23,6 +23,8 @@ import net.bluemind.webmodule.server.forward.ForwardedLocation;
 
 public class WebserverConfiguration {
 
+	public static final String BM_SSO_XML = "/etc/bm-webserver/bm_sso.xml";
+
 	private Collection<ForwardedLocation> forwardedLocations;
 
 	public Collection<ForwardedLocation> getForwardedLocations() {

@@ -129,7 +129,8 @@ public class AuthenticationFilter implements IWebFilter {
 
 		String location = domainSettings.get(DomainSettingsKeys.openid_authorization_endpoint.name());
 		location += "?client_id=" + domainSettings.get(DomainSettingsKeys.openid_client_id.name());
-		location += "&redirect_uri=" + String.format("%s://%s/auth/verify", request.scheme(), request.host());
+
+		location += "&redirect_uri=" + request.scheme() + "://" + request.host() + "/auth/verify";
 		location += "&code_challenge=" + codeChallenge;
 		location += "&state=" + state;
 		location += "&code_challenge_method=S256";
@@ -188,10 +189,7 @@ public class AuthenticationFilter implements IWebFilter {
 	private CompletableFuture<HttpServerRequest> logout(HttpServerRequest request) {
 		Optional<String> sessionId = sessionId(request);
 		if (sessionId.isPresent()) {
-			SessionData sd = SessionsCache.get().getIfPresent(sessionId.get());
-			if (sd != null) {
-				SessionsCache.get().invalidate(sessionId.get());
-			}
+			SessionsCache.get().invalidate(sessionId.get());
 		}
 
 		purgeSessionCookie(request.response().headers());

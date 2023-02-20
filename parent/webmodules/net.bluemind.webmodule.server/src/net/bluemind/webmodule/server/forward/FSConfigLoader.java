@@ -27,9 +27,11 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.bluemind.webmodule.server.WebserverConfiguration;
+
 /**
- * Loads HPS configuration from the filesystem. This might be usefull if you
- * wan't to use HPS a standard reverse proxy and not only for Blue Mind apps.
+ * Loads configuration from the filesystem. This might be usefull if you wan't
+ * to use a standard reverse proxy and not only for Blue Mind apps.
  * 
  * @author tom
  * 
@@ -38,7 +40,7 @@ public class FSConfigLoader extends AbstractXMLConfigLoader {
 
 	@Override
 	protected InputStream openBmSsoXml() throws IOException {
-		return new FileInputStream("/etc/bm-hps/bm_sso.xml");
+		return new FileInputStream(WebserverConfiguration.BM_SSO_XML);
 	}
 
 	@Override

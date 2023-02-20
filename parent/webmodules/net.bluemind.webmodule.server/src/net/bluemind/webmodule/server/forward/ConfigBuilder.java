@@ -23,13 +23,14 @@ import java.io.File;
 import net.bluemind.webmodule.server.WebserverConfiguration;
 
 public final class ConfigBuilder {
+
 	private ConfigBuilder() {
 	}
 
 	public static WebserverConfiguration build() {
 		WebserverConfiguration conf = new WebserverConfiguration();
 
-		File co = new File("/etc/bm-hps/bm_sso.xml");
+		File co = new File(WebserverConfiguration.BM_SSO_XML);
 		IConfigLoader cl = null;
 		if (co.exists()) {
 			cl = new FSConfigLoader();

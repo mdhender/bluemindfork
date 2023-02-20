@@ -221,7 +221,7 @@ public class StaticFileHandler implements Handler<HttpServerRequest> {
 	}
 
 	private void addMimetype(HttpServerRequest req, String file) {
-		String mt = WebModuleServerActivator.mimeTypes.getContentType(file);
+		String mt = WebModuleServerActivator.getMimeTypes().getContentType(file);
 		if (mt != null) {
 			req.response().headers().add("Content-Type", mt);
 		}

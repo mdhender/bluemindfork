@@ -120,7 +120,7 @@ public class CodeVerifierHandler implements Handler<HttpServerRequest>, NeedVert
 								+ domainSettings.get(DomainSettingsKeys.openid_client_secret.name());
 						params += "&code=" + code;
 						params += "&code_verifier=" + codeVerifier;
-						params += "&redirect_uri=" + String.format("%s://%s/auth/verify", event.scheme(), event.host());
+						params += "&redirect_uri=" + event.scheme() + "://" + event.host() + "/auth/verify";
 						params += "&scope=openid";
 						byte[] postData = params.getBytes(StandardCharsets.UTF_8);
 						headers.add(HttpHeaders.CONTENT_LENGTH, Integer.toString(postData.length));
@@ -173,7 +173,7 @@ public class CodeVerifierHandler implements Handler<HttpServerRequest>, NeedVert
 					logger.error("Error during auth, {} login not valid (not found/archived or not user)",
 							creds.getLoginAtDomain());
 					headers.add(HttpHeaders.LOCATION,
-							String.format("/errors-pages/deniedAccess.html?login=%s", creds.getLoginAtDomain()));
+							"/errors-pages/deniedAccess.html?login=" + creds.getLoginAtDomain());
 					request.response().setStatusCode(302);
 					request.response().end();
 					return;

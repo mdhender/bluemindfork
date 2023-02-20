@@ -114,7 +114,7 @@ public class FormHandler implements Handler<HttpServerRequest>, NeedVertx {
 				String sid = json.getString("sid");
 				if (sid == null) {
 					logger.error("Error during auth, {} login not valid (not found/archived or not user)", login);
-					headers.add(HttpHeaders.LOCATION, String.format("/errors-pages/deniedAccess.html?login=%s", login));
+					headers.add(HttpHeaders.LOCATION, "/errors-pages/deniedAccess.html?login=" + login);
 					request.response().setStatusCode(302);
 					request.response().end();
 					return;
@@ -198,7 +198,7 @@ public class FormHandler implements Handler<HttpServerRequest>, NeedVertx {
 		}
 
 		resp.headers().add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(privacyCo));
-		resp.headers().add(HttpHeaders.LOCATION, String.format("%s://%s/login/native%s", req.scheme(), req.host(), q));
+		resp.headers().add(HttpHeaders.LOCATION, req.scheme() + "://" + req.host() + "/login/native" + q);
 		resp.setStatusCode(302);
 		resp.end();
 	}

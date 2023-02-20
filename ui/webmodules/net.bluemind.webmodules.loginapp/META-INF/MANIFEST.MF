@@ -19,7 +19,6 @@ Require-Bundle: net.bluemind.webmodule.server;bundle-version="1.0.0",
  net.bluemind.metrics.registry,
  font-awesome;bundle-version="1.0.0",
  net.bluemind.hornetq.client,
- net.bluemind.network.topology,
- net.bluemind.proxy.http;bundle-version="5.0.0"
+ net.bluemind.network.topology
 Bundle-Localization: OSGI-INF/l10n/bundle
 Automatic-Module-Name: net.bluemind.webmodules.loginapp

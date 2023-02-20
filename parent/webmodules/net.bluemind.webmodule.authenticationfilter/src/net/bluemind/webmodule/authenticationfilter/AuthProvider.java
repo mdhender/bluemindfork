@@ -83,8 +83,8 @@ public class AuthProvider {
 	public void sessionId(ExternalCreds externalCreds, List<String> remoteIps, AsyncHandler<JsonObject> handler) {
 		if (Strings.isNullOrEmpty(externalCreds.getLoginAtDomain())
 				|| !externalCreds.getLoginAtDomain().contains("@")) {
-			handler.failure(new ServerFault(String.format("Invalid loginAtDomain %s from external credentials",
-					externalCreds.getLoginAtDomain())));
+			handler.failure(new ServerFault(
+					"Invalid loginAtDomain " + externalCreds.getLoginAtDomain() + " from external credentials"));
 			return;
 		}
 
@@ -138,8 +138,8 @@ public class AuthProvider {
 		getProvider(Token.admin0(), remoteIps).instance(IAuthenticationPromise.class)
 				.suWithParams(externalCreds.getLoginAtDomain(), true).exceptionally(t -> null).thenAccept(lr -> {
 					if (lr == null) {
-						handler.failure(new ServerFault(
-								String.format("Error during sudo for user %s", externalCreds.getLoginAtDomain())));
+						handler.failure(
+								new ServerFault("Error during sudo for user " + externalCreds.getLoginAtDomain()));
 						return;
 					}
 
@@ -164,7 +164,7 @@ public class AuthProvider {
 				return;
 			}
 
-			String realLoginAtdomain = String.format("%s@%s", mailbox.value.name, domainName);
+			String realLoginAtdomain = mailbox.value.name + "@" + domainName;
 
 			logger.info("Try sudo with login {} (Submitted login {})", realLoginAtdomain,
 					externalCreds.getLoginAtDomain());

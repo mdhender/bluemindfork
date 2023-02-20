@@ -26,8 +26,8 @@ import net.bluemind.common.cache.persistence.CacheBackingStore;
 public class SessionsCache {
 
 	private static final CacheBackingStore<SessionData> sessions = new CacheBackingStore<>(
-			Caffeine.newBuilder().recordStats(), "/var/cache/bm-hps/core2", SessionData::toJson, SessionData::fromJson,
-			Optional.empty());
+			Caffeine.newBuilder().recordStats(), "/var/cache/bm-sessions/core2", SessionData::toJson,
+			SessionData::fromJson, Optional.empty());
 
 	private SessionsCache() {
 

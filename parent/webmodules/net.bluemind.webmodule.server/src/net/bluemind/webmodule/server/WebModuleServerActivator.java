@@ -42,7 +42,7 @@ public class WebModuleServerActivator implements BundleActivator {
 	private static List<WebModuleBuilder> modules;
 	private static Supplier<WebserverConfiguration> conf;
 
-	public static MimetypesFileTypeMap mimeTypes;
+	private static MimetypesFileTypeMap mimeTypes;
 
 	@Override
 	public void start(BundleContext context) throws Exception {
@@ -75,6 +75,10 @@ public class WebModuleServerActivator implements BundleActivator {
 
 	public static Supplier<WebserverConfiguration> getConf() {
 		return conf;
+	}
+
+	public static MimetypesFileTypeMap getMimeTypes() {
+		return mimeTypes;
 	}
 
 }
