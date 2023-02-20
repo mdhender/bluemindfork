@@ -271,7 +271,7 @@
     "mail.conversations.selected": "{count} conversations selected",
     "mail.conversation.show.middle.messages": "Show {count} messages",
     "mail.draft.not.sent": "This message has not been sent",
-    "mail.empty": "is empty",
+    "mail.empty": "is empty.",
     "mail.error.email.address.invalid": "Invalid email address.",
     "mail.folder.access.limited": "Limited access",
     "mail.folder.create_subfolder": "Create a subfolder",

@@ -97,7 +97,7 @@
     "common.folder.sent": "Messages envoyés",
     "common.folder.trash": "Corbeille",
     "common.folder.templates": "Modèles",
-    "common.folder.empty": "Le dossier {folder} est vide",
+    "common.folder.empty": "Le dossier {folder} est vide.",
     "common.application.bootstrap.error": "Erreur lors de l'initialisation de l'application...",
     "common.application.bootstrap.error.solution": "Veuillez réessayer dans quelques instants ou contacter votre administrateur.",
     "common.preference": "Préférences",

@@ -270,7 +270,7 @@
     "mail.conversations.selected": "{count} conversations sélectionnées",
     "mail.conversation.show.middle.messages": "Afficher les {count} messages",
     "mail.draft.not.sent": "Ce message n'a pas été envoyé",
-    "mail.empty": "est vide",
+    "mail.empty": "est vide.",
     "mail.error.email.address.invalid": "Adresse de courriel invalide.",
     "mail.folder.access.limited": "Droits restreints",
     "mail.folder.create_subfolder": "Créer un sous-dossier",

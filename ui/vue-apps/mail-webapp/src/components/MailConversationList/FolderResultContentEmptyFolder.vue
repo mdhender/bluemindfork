@@ -1,28 +1,20 @@
 <template>
-    <mail-conversation-list-empty v-if="currentFolder" :image="emptyFolderIllustration" class="content-empty-folder">
+    <div v-if="currentFolder" class="folder-result-content-empty-folder">
         {{ $t("mail.folder") }}
-        <mail-folder-icon :mailbox="CURRENT_MAILBOX" :folder="currentFolder" class="font-weight-bold px-3" />
+        <mail-folder-icon :mailbox="CURRENT_MAILBOX" :folder="currentFolder" class="font-weight-bold" />
         {{ $t("mail.empty") }}
-    </mail-conversation-list-empty>
+    </div>
 </template>
 
 <script>
 import { mapGetters, mapState } from "vuex";
-import emptyFolderIllustration from "../../../assets/empty-folder.png";
 import MailFolderIcon from "../MailFolderIcon";
-import MailConversationListEmpty from "./MailConversationListEmpty";
 import { CURRENT_MAILBOX } from "~/getters";
 
 export default {
     name: "FolderResultContentEmptyFolder",
     components: {
-        MailFolderIcon,
-        MailConversationListEmpty
-    },
-    data() {
-        return {
-            emptyFolderIllustration
-        };
+        MailFolderIcon
     },
     computed: {
         ...mapState("mail", ["folders", "activeFolder"]),
@@ -35,17 +27,13 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/mixins";
+@import "~@bluemind/ui-components/src/css/_variables.scss";
 
-.content-empty-folder {
-    & > div {
-        white-space: nowrap;
-    }
-    .mail-folder-icon {
-        min-width: 0;
-        div {
-            @include text-overflow;
-        }
-    }
+.folder-result-content-empty-folder {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 base-px-to-rem(5);
+    padding: $sp-8 $sp-5;
+    justify-content: center;
 }
 </style>

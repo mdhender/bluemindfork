@@ -97,7 +97,7 @@
     "common.folder.sent": "Gesendete Nachrichten",
     "common.folder.templates": "Vorlagen",
     "common.folder.trash": "Papierkorb",
-    "common.folder.empty": "Der Ordner {folder} ist leer",
+    "common.folder.empty": "Der Ordner {folder} ist leer.",
     "common.application.bootstrap.error": "Fehler beim Starten den Anwendung...",
     "common.application.bootstrap.error.solution": "Bitte versuchen Sie es erneut oder kontaktieren Sie Ihren Administrator.",
     "common.preference": "Einstellungen",

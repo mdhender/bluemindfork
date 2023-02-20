@@ -271,7 +271,7 @@
     "mail.conversations.selected": "{count} Konversationen ausgewählt",
     "mail.conversation.show.middle.messages": "Zeige alle {count} Beiträge",
     "mail.draft.not.sent": "Diese Nachricht wurde nicht gesendet",
-    "mail.empty": "hat keinen Inhalt",
+    "mail.empty": "hat keinen Inhalt.",
     "mail.error.email.address.invalid": "Ungültige E-Mailadresse.",
     "mail.folder.access.limited": "Beschränkter Zugriff",
     "mail.folder.create_subfolder": "Unterordner erstellen",
