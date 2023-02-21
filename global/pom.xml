@@ -35,7 +35,7 @@
 
 		<!-- webui frontend -->
 		<frontend-maven-plugin.version>1.11.2</frontend-maven-plugin.version>
-		<frontend-nodejs.version>v16.14.1</frontend-nodejs.version>
+		<frontend-nodejs.version>v18.19.1</frontend-nodejs.version>
 		<frontend-yarn.version>v1.22.17</frontend-yarn.version>
 
 		<gwt.version>2.10.0</gwt.version>

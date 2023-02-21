@@ -64,17 +64,53 @@ public class OpenIdAuthCodeHandler implements IWebFilter, NeedVertx {
 				@Override
 				public void success(AccessTokenInfo info) {
 					resp.headers().set("Content-Type", "text/html");
-					resp.setStatusCode(200).end(
-							"<html><body><script type='text/javascript'>window.opener.bmOpenIdAuthicationCallback.resolve();window.close();</script>Authentication OK, You can close this window</body></html>");
+					String html = """
+							<html>
+								<head>
+									<script src='https://appsforoffice.microsoft.com/lib/1/hosted/office.js' type='text/javascript'></script>
+								</head>
+								<body>
+									<script type='text/javascript'>
+										if (window.opener) {
+											window.opener.bmOpenIdAuthicationCallback.resolve();
+											window.close();
+										} else {
+											Office.onReady(() => {
+												Office.context.ui.messageParent('OK');
+											});
+										}
+									</script>
+									Authentication OK, You can close this window
+								</body>
+							</html>
+							""";
+					resp.setStatusCode(200).end(html);
 				}
 
 				@Override
 				public void failure(Throwable e) {
-
 					resp.headers().set("Content-Type", "text/html");
-					resp.setStatusCode(500).end(
-							"<html><body><script type='text/javascript'>window.opener.bmOpenIdAuthicationCallback.reject();window.close();</script>Authentication failed, You can close this window</body></html>");
-
+					String html = """
+							<html>
+								<head>
+									<script src='https://appsforoffice.microsoft.com/lib/1/hosted/office.js' type='text/javascript'></script>
+								</head>
+								<body>
+									<script type='text/javascript'>
+										if (window.opener) {
+											window.opener.bmOpenIdAuthicationCallback.reject();
+											window.close();
+										} else {
+											Office.onReady(() => {
+												Office.context.ui.messageParent('FAILED');
+											});
+										}
+									</script>
+									Authentication failed, You can close this window
+								</body>
+							</html>
+							""";
+					resp.setStatusCode(500).end(html);
 				}
 			});
 
