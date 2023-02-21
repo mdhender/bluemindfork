@@ -30,6 +30,7 @@ import net.bluemind.dataprotect.api.GenerationContent;
 import net.bluemind.dataprotect.api.RestoreDefinition;
 import net.bluemind.dataprotect.api.RestoreOperation;
 import net.bluemind.dataprotect.api.gwt.serder.GenerationContentGwtSerDer;
+import net.bluemind.gwtconsoleapp.base.notification.Notification;
 import net.bluemind.ui.adminconsole.base.Actions;
 import net.bluemind.ui.adminconsole.dataprotect.l10n.DPTexts;
 import net.bluemind.ui.adminconsole.progress.ui.ProgressScreen;
@@ -87,7 +88,7 @@ public class RestoreActionHandler extends ActionHandler<ClientRestorable> {
 
 				@Override
 				public void failure(Throwable e) {
-					GWT.log(e.getMessage(), e);
+					Notification.get().reportError(e.getMessage());
 				}
 			});
 		};
