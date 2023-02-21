@@ -18,6 +18,7 @@ import SMimeBodyWrapper from "./components/mail-app/SMimeBodyWrapper";
 import TrustedSender from "./components/mail-app/TrustedSender";
 import UntrustedSenderAlert from "./components/mail-app/alerts/UntrustedSenderAlert";
 import UntrustedSenderTrigger from "./components/mail-app/alerts/UntrustedSenderTrigger";
+import AddCertificateButton from "./components/mail-app/AddCertificateButton";
 import { SMIMEPrefKeys } from "./lib/constants";
 import SmimeL10N from "./l10n/";
 import SmimeStore from "./store";
@@ -46,6 +47,7 @@ Vue.component("SMimeBodyWrapper", SMimeBodyWrapper);
 Vue.component("TrustedSender", TrustedSender);
 Vue.component("UntrustedSenderAlert", UntrustedSenderAlert);
 Vue.component("UntrustedSenderTrigger", UntrustedSenderTrigger);
+Vue.component("AddCertificateButton", AddCertificateButton);
 
 extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
     component: {
@@ -130,6 +132,20 @@ extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
         name: "CertificateViewer",
         path: "file.preview",
         priority: 10
+    }
+});
+
+extensions.register("webapp", "net.bluemind.plugins.smime", {
+    component: {
+        name: "AddCertificateButton",
+        path: "file.actions"
+    }
+});
+
+extensions.register("webapp", "net.bluemind.plugins.smime", {
+    component: {
+        name: "AddCertificateButton",
+        path: "file.preview.actions"
     }
 });
 

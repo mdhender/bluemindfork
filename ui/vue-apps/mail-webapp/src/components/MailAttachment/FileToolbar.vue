@@ -7,6 +7,7 @@
             @preview="openPreview(file)"
         />
         <download-button v-if="hasButton(ActionButtons.DOWNLOAD)" :ref="`download-button-${file.key}`" :file="file" />
+        <bm-extension id="webapp" type="list" path="file.actions" :file="file" class="d-flex align-items-center" />
         <other-button v-if="hasButton(ActionButtons.OTHER)" :file="file" :message="message" />
         <template v-if="hasButton(ActionButtons.REMOVE)">
             <remove-button @remove="removeAttachment(file)" />
@@ -20,6 +21,7 @@ import { BmButtonToolbar } from "@bluemind/ui-components";
 import { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_FILE_KEY } from "~/mutations";
 import { RemoveAttachmentCommand } from "~/commands";
 import { fileUtils, partUtils } from "@bluemind/mail";
+import { BmExtension } from "@bluemind/extensions.vue";
 import PreviewButton from "./ActionButtons/PreviewButton";
 import DownloadButton from "./ActionButtons/DownloadButton";
 import OtherButton from "./ActionButtons/OtherButton";
@@ -32,9 +34,10 @@ export default {
     name: "FileToolbar",
     components: {
         BmButtonToolbar,
-        PreviewButton,
+        BmExtension,
         DownloadButton,
         OtherButton,
+        PreviewButton,
         RemoveButton
     },
     mixins: [RemoveAttachmentCommand],

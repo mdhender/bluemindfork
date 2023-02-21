@@ -8,7 +8,7 @@
         :file="file"
     >
         <preview-file-header :file="context.file" class="d-none d-lg-flex" />
-        <bm-button-toolbar>
+        <bm-button-toolbar class="d-flex align-items-center">
             <bm-icon-button
                 :disabled="filesCount <= 1"
                 tab-index="0"
@@ -22,6 +22,7 @@
                 icon="chevron-right"
                 @click="$emit('next')"
             />
+            <bm-extension id="webapp" path="file.preview.actions" :file="context.file" icon-size="lg" />
             <bm-icon-button
                 :disabled="!isPreviewable(context.file)"
                 :title="

@@ -65,11 +65,15 @@ export default {
 
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/variables";
+@import "@bluemind/ui-components/src/css/mixins/_responsiveness.scss";
 
 .certificate-viewer {
     display: flex;
-    margin: 0 $sp-8;
+    margin: 0 $sp-2;
     padding: $sp-6;
     min-height: 100%;
+    @include from-lg {
+        margin: 0 $sp-8;
+    }
 }
 </style>

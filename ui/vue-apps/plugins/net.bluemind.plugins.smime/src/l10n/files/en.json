@@ -18,7 +18,8 @@
             },
             "viewer": {
                 "import_certificate": {
-                    "action":  "Import the certificate",
+                    "action_short":  "Import the certificate",
+                    "action": "Import the certificate for {email} into My Contacts",
                     "success": "The certificate has been successfully imported.",
                     "error": "The certificate could not be imported."
                 }

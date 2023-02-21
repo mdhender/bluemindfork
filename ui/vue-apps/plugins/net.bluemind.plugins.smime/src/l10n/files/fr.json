@@ -19,7 +19,8 @@
             },
             "viewer": {
                 "import_certificate": {
-                    "action":  "Importer le certificat",
+                    "action_short":  "Importer le certificat",
+                    "action": "Importer le certificat de {email} dans Mes contacts",
                     "success": "Le certificat a bien été importé.",
                     "error": "Le certificat n'a pas pu être importé."
                 }
