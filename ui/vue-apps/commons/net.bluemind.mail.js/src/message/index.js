@@ -2,11 +2,13 @@ import cloneDeep from "lodash.clonedeep";
 import escapeRegExp from "lodash.escaperegexp";
 import merge from "lodash.merge";
 import pick from "lodash.pick";
+import random from "lodash.random";
+
+import { Flag } from "@bluemind/email";
 
 import { LoadingStatus } from "../loading-status";
 import EmlParser from "./EmlParser";
 import MessageAdaptor from "./MessageAdaptor";
-import { Flag } from "@bluemind/email";
 
 export function createOnlyMetadata({ internalId, folder: { key, uid }, conversationRef, date }) {
     return {
@@ -250,6 +252,17 @@ export function removeDispositionNotificationHeader(headers) {
     }
 }
 
+export function generateMessageIDHeader(address) {
+    const encodedDate = new Date().getTime().toString(36);
+    const encodedRandomNumber = random(Math.pow(2, 64) - 1).toString(36);
+    const domain = address.substring(address.indexOf("@") + 1);
+    const value = "<" + encodedDate + "." + encodedRandomNumber + "@" + domain + ">";
+    return {
+        name: MessageHeader.MESSAGE_ID,
+        values: [value]
+    };
+}
+
 export default {
     create,
     createEmlName,
@@ -257,6 +270,7 @@ export default {
     createWithMetadata,
     extractHeaderValues,
     findDispositionNotificationHeaderIndex,
+    generateMessageIDHeader,
     isFlagged,
     isForward,
     isReply,

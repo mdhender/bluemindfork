@@ -1,7 +1,6 @@
 import { html2text, sanitizeHtml } from "@bluemind/html-utils";
 import { Flag, InlineImageHelper, PartsBuilder } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
-import random from "lodash.random";
 import { partUtils } from "@bluemind/mail";
 
 const { sanitizeTextPartForCyrus } = partUtils;
@@ -27,7 +26,7 @@ import { DISCLAIMER_SELECTOR } from "@bluemind/mail/src/signature";
 
 const { isNewMessage } = draftUtils;
 const { FileStatus } = fileUtils;
-const { MessageAdaptor, MessageHeader, MessageStatus } = messageUtils;
+const { MessageAdaptor, MessageHeader, MessageStatus, generateMessageIDHeader } = messageUtils;
 const { CORPORATE_SIGNATURE_PLACEHOLDER, CORPORATE_SIGNATURE_SELECTOR } = signatureUtils;
 
 export function isReadyToBeSaved(draft, files) {
@@ -99,7 +98,7 @@ async function createEmlOnServer(context, draft, service, structure) {
     const { saveDate, headers } = forceMailRewriteOnServer(draft);
 
     if (!headers.find(h => h.name.toUpperCase() === MessageHeader.MESSAGE_ID.toUpperCase())) {
-        headers.push(generateMessageIDHeader(draft));
+        headers.push(generateMessageIDHeader(draft.from.address));
     }
 
     context.commit(SET_MESSAGE_HEADERS, { messageKey: draft.key, headers });
@@ -121,17 +120,6 @@ async function createEmlOnServer(context, draft, service, structure) {
         key: draft.key,
         inlinePartsByCapabilities: adapted.inlinePartsByCapabilities
     });
-}
-
-function generateMessageIDHeader(draft) {
-    const encodedDate = new Date().getTime().toString(36);
-    const encodedRandomNumber = random(Math.pow(2, 64) - 1).toString(36);
-    const domain = draft.from.address.substring(draft.from.address.indexOf("@") + 1);
-    const value = "<" + encodedDate + "." + encodedRandomNumber + "@" + domain + ">";
-    return {
-        name: MessageHeader.MESSAGE_ID,
-        values: [value]
-    };
 }
 
 function removeCorporateSignatureContent(content, { corporateSignature, disclaimer }) {

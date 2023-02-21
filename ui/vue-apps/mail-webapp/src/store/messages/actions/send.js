@@ -9,7 +9,7 @@ import { REMOVE_MESSAGES, SET_MESSAGES_STATUS } from "~/mutations";
 
 const { MessageAdaptor, MessageStatus, MessageHeader, MessageCreationModes } = messageUtils;
 
-/** Send the last draft: move it to the Outbox then flush. */
+/** Send draft: save it, move it to the Outbox then flush. */
 export default async function (context, { draft, myMailboxKey, outbox, myDraftsFolder, messageCompose, files }) {
     draft = context.state[draft.key];
 

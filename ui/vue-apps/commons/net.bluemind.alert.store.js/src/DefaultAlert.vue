@@ -1,5 +1,7 @@
 <template functional>
-    <span>{{ parent.$tc($options.i18n(props.alert), $options.count(props), props.options) }}</span>
+    <span>{{
+        parent.$tc($options.i18n(props.alert), $options.count(props), $options.params(props.options, props.alert))
+    }}</span>
 </template>
 
 <script>
@@ -30,6 +32,11 @@ export default {
         } else {
             return 1;
         }
+    },
+    params(options, alert) {
+        const p = {};
+        Object.assign(p, options, alert.payload);
+        return p;
     }
 };
 </script>

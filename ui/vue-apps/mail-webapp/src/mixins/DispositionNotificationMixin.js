@@ -1,6 +1,7 @@
 import { INFO, REMOVE } from "@bluemind/alert.store";
-import { Flag } from "@bluemind/email";
-import { messageUtils } from "@bluemind/mail";
+import { EmailExtractor, Flag } from "@bluemind/email";
+import { draftUtils, messageUtils } from "@bluemind/mail";
+import { CURRENT_MAILBOX, MY_OUTBOX } from "~/getters";
 
 export default {
     data() {
@@ -11,6 +12,8 @@ export default {
     },
     methods: {
         showDispositionNotificationAlert(messages) {
+            const outbox = this.$store.getters[`mail/${MY_OUTBOX}`];
+            const from = this.computeFrom();
             messages.forEach(message => {
                 if (message.headers?.length) {
                     const index = messageUtils.findDispositionNotificationHeaderIndex(message.headers);
@@ -19,7 +22,19 @@ export default {
                         header.values.forEach(to => {
                             const uid = dispositionNotificationAlertUid(message, to);
                             this.$store.dispatch(`alert/${INFO}`, {
-                                alert: { uid, payload: { to, message } },
+                                alert: {
+                                    name: "mail.mdn_request",
+                                    uid,
+                                    payload: {
+                                        to: {
+                                            dn: EmailExtractor.extractDN(to),
+                                            address: EmailExtractor.extractEmail(to)
+                                        },
+                                        from,
+                                        message,
+                                        outbox
+                                    }
+                                },
                                 options: {
                                     area: "right-panel",
                                     renderer: "DispositionNotification",
@@ -32,12 +47,23 @@ export default {
                 }
             });
         },
-
         hideDispositionNotificationAlert() {
             let uid;
             while ((uid = this.dispositionNotificationAlerts.pop())) {
                 this.$store.dispatch(`alert/${REMOVE}`, { uid });
             }
+        },
+        computeFrom() {
+            const defaultIdentity = this.$store.getters["root-app/DEFAULT_IDENTITY"];
+            const identity =
+                this.$store.state.settings.auto_select_from === "replies_and_new_messages"
+                    ? draftUtils.findIdentityFromMailbox(
+                          this.$store.getters["mail/" + CURRENT_MAILBOX],
+                          this.$store.state["root-app"].identities,
+                          defaultIdentity
+                      )
+                    : defaultIdentity;
+            return { dn: identity.displayname, address: identity.email };
         }
     }
 };

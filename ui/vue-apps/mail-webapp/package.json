@@ -27,6 +27,7 @@
         "@bluemind/router": "^4.1.0",
         "@bluemind/sentry": "^4.1.0",
         "@bluemind/store": "^4.1.0",
+        "@bluemind/task": "^4.1.0",
         "@bluemind/user.api": "^4.1.52881",
         "@bluemind/uuid": "^4.1.0",
         "@bluemind/vue-multipane": "^0.10.1",

@@ -13,7 +13,7 @@ import FileViewerMixin from "../FileViewerMixin";
 export default {
     name: "MessageFileViewer",
     mixins: [FileViewerMixin],
-    $capabilities: ["message/*"],
+    $capabilities: ["message/rfc822"],
     data() {
         return { previewMessage: null };
     },

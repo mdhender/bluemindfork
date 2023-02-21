@@ -25,7 +25,7 @@ describe("attachment model", () => {
 
         part = { mime: "application/octet-stream", fileName: "test.eml" };
         attachment = create(part, status);
-        expect(attachment.mime).toBe("message/");
+        expect(attachment.mime).toBe("message/rfc822");
 
         part = { mime: "message/rfc822", fileName: "" };
         attachment = create(part, status);

@@ -6,7 +6,9 @@ export default {
     createHtmlPart,
     createInlineImageParts,
     createMixedPart,
+    createMultipartReport,
     createRelatedPart,
+    createReportPart,
     createTextPart
 };
 
@@ -64,4 +66,21 @@ function createInlineImageParts(structure, inlineImages) {
         structure.children[1] = createRelatedPart(childrenOfRelatedPart);
     }
     return structure;
+}
+
+function createReportPart(address, fileName) {
+    return {
+        mime: MimeType.MESSAGE_DISPOSITION_NOTIFICATION,
+        address,
+        encoding: "7bit",
+        fileName,
+        dispositionType: "ATTACHMENT"
+    };
+}
+
+function createMultipartReport(textPart, reportPart) {
+    return {
+        mime: MimeType.MULTIPART_REPORT,
+        children: [textPart, reportPart]
+    };
 }

@@ -3,6 +3,7 @@ const TEXT = "text/";
 const TEXT_HTML = "text/html";
 const TEXT_CALENDAR = "text/calendar";
 const MULTIPART_RELATED = "multipart/related";
+const MULTIPART_REPORT = "multipart/report";
 const MULTIPART_ALTERNATIVE = "multipart/alternative";
 const MULTIPART_MIXED = "multipart/mixed";
 const MULTIPART = "multipart/";
@@ -14,6 +15,8 @@ const AUDIO = "audio/";
 const VIDEO = "video/";
 const FONT = "font/";
 const MESSAGE = "message/";
+const MESSAGE_DISPOSITION_NOTIFICATION = "message/disposition-notification";
+const MESSAGE_RFC822 = "message/rfc822";
 const PDF = "application/pdf";
 const MS_WORD = "application/msword";
 const MS_WORD_XML = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
@@ -92,16 +95,18 @@ const XHTML_SUFFIXES = ["xhtml"];
 const OPEN_DOCUMENT_TEXT_SUFFIXES = ["odt"];
 const OPEN_DOCUMENT_CALC_SUFFIXES = ["odc"];
 const OPEN_DOCUMENT_PRESENTATION_SUFFIXES = ["odp"];
-const MESSAGE_SUFFIXES = ["eml"];
+const MESSAGE_RFC822_SUFFIXES = ["eml"];
 
 export default {
     AUDIO,
     ICS,
     IMAGE,
     MESSAGE,
+    MESSAGE_DISPOSITION_NOTIFICATION,
     MULTIPART_ALTERNATIVE,
     MULTIPART_MIXED,
     MULTIPART_RELATED,
+    MULTIPART_REPORT,
     PDF,
     TEXT_CALENDAR,
     TEXT_HTML,
@@ -200,7 +205,8 @@ function matchingIcon(mimeType) {
         equals(mimeType, XML) ||
         equals(mimeType, JSON) ||
         equals(mimeType, CSV) ||
-        equals(mimeType, TEXT_PLAIN)
+        equals(mimeType, TEXT_PLAIN) ||
+        equals(mimeType, MESSAGE_DISPOSITION_NOTIFICATION)
     ) {
         return "file-type-data";
     } else if (equals(mimeType, MS_EXCEL) || equals(mimeType, MS_EXCEL_XML) || equals(mimeType, OPEN_DOCUMENT_CALC)) {
@@ -230,7 +236,7 @@ function matchingIcon(mimeType) {
         return "file-type-ics";
     } else if (equals(mimeType, VCARD)) {
         return "file-type-vcard";
-    } else if (mimeType.startsWith(MESSAGE)) {
+    } else if (equals(mimeType, MESSAGE_RFC822)) {
         return "file-type-message";
     } else {
         return "file-type-unknown";
@@ -319,8 +325,8 @@ function getFromFilename(name) {
         return OPEN_DOCUMENT_CALC;
     } else if (OPEN_DOCUMENT_PRESENTATION_SUFFIXES.includes(suffix)) {
         return OPEN_DOCUMENT_PRESENTATION;
-    } else if (MESSAGE_SUFFIXES.includes(suffix)) {
-        return MESSAGE;
+    } else if (MESSAGE_RFC822_SUFFIXES.includes(suffix)) {
+        return MESSAGE_RFC822;
     } else {
         return "";
     }
