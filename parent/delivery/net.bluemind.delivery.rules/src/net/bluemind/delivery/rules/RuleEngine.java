@@ -339,6 +339,12 @@ public class RuleEngine {
 		String from = originalContent.from();
 		logger.info("[rules] redirecting to {} (keep copy:{}) [{}]", stringify(mailboxes), redirect.keepCopy,
 				nextContent);
+
+		String redirectFor = originalBox().entry.entryUid + "@" + originalBox().dom.uid;
+		RawField raw = new RawField("X-BM-redirect-for", redirectFor);
+		UnstructuredField parsed = UnstructuredFieldImpl.PARSER.parse(raw, DecodeMonitor.SILENT);
+		originalMessage().getHeader().addField(parsed);
+
 		mailer.send(SendmailCredentials.asAdmin0(), from, originalBox().dom.uid, to, originalMessage());
 		return (redirect.keepCopy) ? nextContent : nextContent.withoutMessage();
 	}
