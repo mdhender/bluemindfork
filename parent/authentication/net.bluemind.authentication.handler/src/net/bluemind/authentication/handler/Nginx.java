@@ -48,7 +48,6 @@ import net.bluemind.domain.api.IDomains;
 import net.bluemind.lib.vertx.utils.PasswordDecoder;
 import net.bluemind.network.topology.IServiceTopology;
 import net.bluemind.network.topology.Topology;
-import net.bluemind.network.topology.TopologyException;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.user.api.IUser;
@@ -209,9 +208,7 @@ public final class Nginx implements Handler<HttpServerRequest>, NeedVertxExecuto
 			if (topology.singleNode()) {
 				backendSrv = topology.core().value.address();
 			} else {
-				backendSrv = topology.nodes().stream().filter(iv -> iv.uid.equals(user.value.dataLocation))
-						.map(iv -> iv.value.address()).findFirst()
-						.orElseThrow(() -> new TopologyException("uid " + user.value.dataLocation + " missing"));
+				backendSrv = topology.any("bm/core").value.address();
 			}
 
 			long time = System.currentTimeMillis() - qp.time;

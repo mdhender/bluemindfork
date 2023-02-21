@@ -64,6 +64,7 @@ public class NginxTests {
 	private String[] userAlias;
 	private String userLatd;
 	private Server pipo;
+	private String coreAddress;
 
 	@Before
 	public void before() throws Exception {
@@ -90,8 +91,9 @@ public class NginxTests {
 		domain = initDomain(domainUid, pipo);
 
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
-		Topology.get();
+		this.coreAddress = Topology.get().core().value.address();
 		System.err.println("---------------- setup ends ---------------");
+
 	}
 
 	@After
@@ -128,7 +130,7 @@ public class NginxTests {
 
 		assertEquals(200, response.getStatusCode());
 		assertEquals("OK", response.getHeader("Auth-Status"));
-		assertEquals(PopulateHelper.FAKE_CYRUS_IP, response.getHeader("Auth-Server"));
+		assertEquals(coreAddress, response.getHeader("Auth-Server"));
 		assertEquals("1143", response.getHeader("Auth-Port"));
 		assertFalse(response.getHeaders().contains("Auth-User"));
 	}
@@ -140,7 +142,7 @@ public class NginxTests {
 
 			assertEquals(200, response.getStatusCode());
 			assertEquals("OK", response.getHeader("Auth-Status"));
-			assertEquals(PopulateHelper.FAKE_CYRUS_IP, response.getHeader("Auth-Server"));
+			assertEquals(coreAddress, response.getHeader("Auth-Server"));
 			assertEquals("1143", response.getHeader("Auth-Port"));
 			assertTrue(response.getHeaders().contains("Auth-User"));
 		}
@@ -152,7 +154,7 @@ public class NginxTests {
 
 		assertEquals(200, response.getStatusCode());
 		assertEquals("OK", response.getHeader("Auth-Status"));
-		assertEquals(PopulateHelper.FAKE_CYRUS_IP, response.getHeader("Auth-Server"));
+		assertEquals(coreAddress, response.getHeader("Auth-Server"));
 		assertEquals("1110", response.getHeader("Auth-Port"));
 		assertFalse(response.getHeaders().contains("Auth-User"));
 	}
@@ -164,7 +166,7 @@ public class NginxTests {
 
 			assertEquals(200, response.getStatusCode());
 			assertEquals("OK", response.getHeader("Auth-Status"));
-			assertEquals(PopulateHelper.FAKE_CYRUS_IP, response.getHeader("Auth-Server"));
+			assertEquals(coreAddress, response.getHeader("Auth-Server"));
 			assertEquals("1110", response.getHeader("Auth-Port"));
 			assertEquals(userLatd, response.getHeader("Auth-User"));
 		}
@@ -199,7 +201,7 @@ public class NginxTests {
 
 		assertEquals(200, response.getStatusCode());
 		assertEquals("OK", response.getHeader("Auth-Status"));
-		assertEquals(PopulateHelper.FAKE_CYRUS_IP, response.getHeader("Auth-Server"));
+		assertEquals(coreAddress, response.getHeader("Auth-Server"));
 		assertEquals("1143", response.getHeader("Auth-Port"));
 		assertEquals(String.format("%s@%s", user.login, domain.value.name), response.getHeaders().get("Auth-User"));
 	}
