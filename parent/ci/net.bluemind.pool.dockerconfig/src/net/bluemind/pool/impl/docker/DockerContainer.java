@@ -26,6 +26,8 @@ public enum DockerContainer {
 
 	PROXY("bluemind/proxy", "proxy"),
 
+	KEYCLOAK("bluemind/keycloak", "keycloak"),
+
 	SCALITYRING("bluemind/scalityring", "scalityring");
 
 	private final String name;
