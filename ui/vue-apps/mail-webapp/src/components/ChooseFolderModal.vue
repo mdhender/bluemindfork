@@ -36,7 +36,7 @@
                         @focusExtra="$refs['extra'].focus()"
                     >
                         <template #default="{ item }">
-                            <div class="d-flex align-items-center">
+                            <div class="d-flex flex-fill align-items-center">
                                 <mail-folder-icon no-text :mailbox="allMailboxes[item.mailboxRef.key]" :folder="item" />
                                 <span class="pl-2 flex-fill"> {{ translatePath(item.path) }}</span>
                                 <mail-mailbox-icon :mailbox="allMailboxes[item.mailboxRef.key]" />
@@ -171,7 +171,7 @@ export default {
 
 <style lang="scss">
 .choose-folder-modal-body {
-    overflow: visible;
+    overflow: visible !important;
     .bm-form-autocomplete-input .suggestions {
         overflow: unset !important;
     }
