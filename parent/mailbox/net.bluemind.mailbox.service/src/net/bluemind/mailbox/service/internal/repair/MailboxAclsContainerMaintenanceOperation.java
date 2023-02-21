@@ -20,7 +20,11 @@ package net.bluemind.mailbox.service.internal.repair;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.repair.ContainerRepairUtil;
+import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
+import net.bluemind.directory.api.IDirectory;
 import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.service.internal.MailboxesService;
@@ -56,11 +60,14 @@ public class MailboxAclsContainerMaintenanceOperation extends MailboxMaintenance
 			}
 		}
 
-		ContainerRepairUtil.verifyContainerSubscription(mailbox.uid, domainUid, monitor, (container) -> {
-			if (repair) {
-				ContainerRepairUtil.subscribe(mailbox.uid, domainUid, container);
-			}
-		}, IMailboxAclUids.uidForMailbox(mailbox.uid));
+		if (ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDirectory.class, domainUid)
+				.findByEntryUid(mailbox.uid).kind == Kind.USER) {
+			ContainerRepairUtil.verifyContainerSubscription(mailbox.uid, domainUid, monitor, (container) -> {
+				if (repair) {
+					ContainerRepairUtil.subscribe(mailbox.uid, domainUid, container);
+				}
+			}, IMailboxAclUids.uidForMailbox(mailbox.uid));
+		}
 
 		if (repair) {
 			monitor.progress(1, String.format("Mailbox %s acls container repair finished", mailboxToString(domainUid)));
