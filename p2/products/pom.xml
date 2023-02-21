@@ -10,8 +10,6 @@
 	</parent>
 	<modules>
 		<module>core</module>
-		<module>hps</module>
-		<module>hps-extensions</module>
 		<module>milter</module>
 		<module>node</module>
 		<module>pimp</module>

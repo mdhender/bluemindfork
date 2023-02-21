@@ -362,9 +362,6 @@
    <bundle id="net.bluemind.gwtconsoleapp.base" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.history.ui.closure" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.hornetq.client" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.hps.auth.cas" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.hps.auth.core2" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.hps.auth.krb" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.i18n.labels" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.icalendar.api" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.icalendar.api.gwt" version="5.0.0.qualifier"/>
@@ -483,8 +480,6 @@
    <bundle id="net.bluemind.pool.dockerconfig" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.pop3.driver" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.pop3.endpoint" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.proxy.http" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.proxy.http.launcher" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.proxy.support" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.resource.api" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.resource.api.closure" version="5.0.0.qualifier"/>
@@ -549,7 +544,6 @@
    <bundle id="net.bluemind.system.api" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.system.api.gwt" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.system.api.php" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.system.auth" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.system.config" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.systemd.notify" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.system.domaintemplate" version="5.0.0.qualifier"/>

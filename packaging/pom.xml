@@ -12,7 +12,6 @@
 		<module>bm-metrics-agent</module>
 		<module>bm-core</module>
 		<module>bm-eas</module>
-		<module>bm-hps</module>
 		<module>bm-milter</module>
 		<module>bm-node</module>
 		<module>bm-pimp</module>
@@ -53,8 +52,6 @@
 		<module>bm-plugin-core-cti-xivo</module>
 		<module>bm-plugin-core-cti-wazo</module>
 		<module>bm-plugin-core-filehosting-filesystem</module>
-		<module>bm-plugin-hps-kerberos</module>
-		<module>bm-plugin-hps-cas</module>
 		<module>python-bm-client</module>
 		<module>bm-plugin-core-password-bruteforce</module>
 		<module>bm-plugin-core-password-sizestrength</module>

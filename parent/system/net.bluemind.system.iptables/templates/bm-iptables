@@ -44,7 +44,6 @@ xmpp="5280 5290"
 pg="5432"
 hazelcast="5701 5702:5715"
 node="8022"
-hps="8079"
 webserver="8080"
 eas="8082"
 core="2501 8090"
@@ -69,7 +68,6 @@ bmPorts="${r"${cyrus}"} \
 	 ${r"${pg}"} \
 	 ${r"${hazelcast}"} \
 	 ${r"${node}"} \
-	 ${r"${hps}"} \
 	 ${r"${webserver}"} \
 	 ${r"${eas}"} \
 	 ${r"${core}"} \

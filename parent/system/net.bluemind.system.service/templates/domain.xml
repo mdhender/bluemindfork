@@ -59,10 +59,6 @@
 				<desc lang="fr">Serveur Central</desc>
 				<desc lang="en">Core Server</desc>
 			</tag>
-			<tag value="bm/hps" multival="true" mandatory="true" autoAssign="true">
-				<desc lang="fr">Serveur SSO</desc>
-				<desc lang="en">SSO proxy</desc>
-			</tag>
 			<tag value="bm/ac" multival="false" mandatory="true" autoAssign="true">
 				<desc lang="fr">Console d'administration</desc>
 				<desc lang="en">Administration console</desc>

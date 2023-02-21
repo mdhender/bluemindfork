@@ -37,7 +37,6 @@
 		<module>externaluser</module>
 		<module>filehosting</module>
 		<module>group</module>
-		<module>hps</module>
 		<module>icalendar</module>
 		<module>ldap</module>
 		<module>mailbackend</module>

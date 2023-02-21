@@ -177,21 +177,6 @@ def restoreBmNode(backup_path, p_ids):
     )
 
 
-def restoreBmHps(backup_path):
-    execCmd(
-        LOG_FILE,
-        [
-            "rsync",
-            "-avH",
-            "--delete",
-            backup_path + "/var/backups/bluemind/work/conf/etc/bm-hps/",
-            "/etc/bm-hps/",
-        ],
-        None,
-        "Restoring BlueMind HPS configuration",
-    )
-
-
 def restorePostfixConfig(backup_path):
     execCmd(
         LOG_FILE,
@@ -276,7 +261,6 @@ def restoreBmCore(bmCoreTagBackupPath, p_ids):
     bmcore_core_path = bmCoreTagBackupPath + "/bm/core/"
     bm_core_path = get_path_with_id(bmcore_core_path, p_ids)
 
-    restoreBmHps(bm_conf_path)
     restorePostfixConfig(bm_conf_path)
     restoreBmHollow(bm_core_path)
     restoreCertificate()

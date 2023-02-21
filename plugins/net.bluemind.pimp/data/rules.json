@@ -50,13 +50,6 @@
 		"optional": true
 	},
 	{
-		"product":"bm-hps",
-		"defaultHeap":64,
-		"defaultDirect":64,
-		"sparePercent":2,
-		"cpusBoost":4
-	},
-	{
 		"product":"bm-xivobridge",
 		"defaultHeap":128,
 		"defaultDirect":128,
