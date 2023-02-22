@@ -8,6 +8,7 @@ import {
     SET_TEMPLATES_LIST
 } from "~/mutations";
 import apiMessages from "./api/apiMessages";
+import { SortField, SortOrder } from "./conversationList";
 import { FolderAdaptor } from "./folders/helpers/FolderAdaptor";
 
 const { createConversationStub } = conversationUtils;
@@ -54,14 +55,20 @@ export default {
 
 async function search(pattern, folder) {
     const ref = FolderAdaptor.toRef(folder);
-    const searchResults = (await apiMessages.search({ pattern, folder: ref }, undefined, folder)).slice(0, 100);
+    const searchResults = (
+        await apiMessages.search(
+            { pattern, folder: ref },
+            undefined,
+            { field: SortField.SUBJECT, order: SortOrder.ASC },
+            folder
+        )
+    ).slice(0, 100);
     return searchResults.map(({ id, folderRef }) => createConversationStub(id, folderRef));
 }
 
 async function list(folder) {
-    const sortedIds = (await apiMessages.sortedIds(undefined, { field: "subject", order: "asc" }, folder)).slice(
-        0,
-        100
-    );
+    const sortedIds = (
+        await apiMessages.sortedIds(undefined, { field: SortField.SUBJECT, order: SortOrder.ASC }, folder)
+    ).slice(0, 100);
     return sortedIds.map(id => createConversationStub(id, FolderAdaptor.toRef(folder)));
 }
