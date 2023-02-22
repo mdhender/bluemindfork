@@ -43,7 +43,8 @@ public class KafkaTopicPublisher implements TopicPublisher {
 
 		producer.send(rec, (RecordMetadata metadata, Exception exception) -> {
 			if (exception != null) {
-				logger.warn(exception.getMessage());
+				logger.warn("Could not store {}byte(s) of data. Key: {}, ({})", data == null ? 0 : data.length,
+						new String(key), exception.getMessage());
 				comp.completeExceptionally(exception);
 			} else {
 				logger.debug("[{}] stored part: {}, meta: {}", physicalTopic, partition, metadata);
