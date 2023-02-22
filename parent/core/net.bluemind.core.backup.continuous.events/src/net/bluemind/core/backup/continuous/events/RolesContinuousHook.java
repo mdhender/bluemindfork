@@ -1,6 +1,8 @@
 package net.bluemind.core.backup.continuous.events;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.backup.continuous.DefaultBackupStore;
+import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.backup.continuous.dto.DirEntryRole;
 import net.bluemind.core.backup.continuous.dto.OrgUnitAdminRole;
 import net.bluemind.core.container.model.ItemValue;
@@ -17,14 +19,35 @@ public class RolesContinuousHook implements IRoleHook {
 	private final DirEntryRoleContinuousBackup dirEntryRoleBackup = new DirEntryRoleContinuousBackup();
 	private final OrgUnitRoleContinuousBackup orgUnitRoleBackup = new OrgUnitRoleContinuousBackup();
 
-	private class DirEntryRoleContinuousBackup implements ContinuousContenairization<DirEntryRole> {
+	public static class DirEntryRoleContinuousBackup implements ContinuousContenairization<DirEntryRole> {
+
+		private IBackupStoreFactory target;
+
+		public DirEntryRoleContinuousBackup(IBackupStoreFactory target) {
+			this.target = target;
+		}
+
+		public DirEntryRoleContinuousBackup() {
+			this(DefaultBackupStore.store());
+		}
+
+		@Override
+		public IBackupStoreFactory targetStore() {
+			return target;
+		}
+
 		@Override
 		public String type() {
 			return "role";
 		}
+
+		public void onRolesSet(RoleEvent event) {
+			DirEntryRole role = new DirEntryRole(event.kind, event.roles);
+			save(event.domainUid, event.uid, event.uid, role, true);
+		}
 	}
 
-	private class OrgUnitRoleContinuousBackup implements ContinuousContenairization<OrgUnitAdminRole> {
+	public static class OrgUnitRoleContinuousBackup implements ContinuousContenairization<OrgUnitAdminRole> {
 		@Override
 		public String type() {
 			return "ou-roles";
@@ -33,8 +56,7 @@ public class RolesContinuousHook implements IRoleHook {
 
 	@Override
 	public void onRolesSet(RoleEvent event) throws ServerFault {
-		DirEntryRole role = new DirEntryRole(event.kind, event.roles);
-		dirEntryRoleBackup.save(event.domainUid, event.uid, event.uid, role, true);
+		dirEntryRoleBackup.onRolesSet(event);
 	}
 
 	@Override

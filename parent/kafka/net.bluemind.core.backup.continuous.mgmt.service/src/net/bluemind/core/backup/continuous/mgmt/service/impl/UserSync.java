@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.ListMultimap;
@@ -35,6 +36,7 @@ import net.bluemind.calendar.api.ICalendarViewUids;
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.backup.continuous.dto.GroupMembership;
 import net.bluemind.core.backup.continuous.events.ContinuousContenairization;
+import net.bluemind.core.backup.continuous.events.RolesContinuousHook.DirEntryRoleContinuousBackup;
 import net.bluemind.core.backup.continuous.mgmt.api.BackupSyncOptions;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.IContainersFlatHierarchy;
@@ -56,11 +58,13 @@ import net.bluemind.group.api.IGroupMember;
 import net.bluemind.group.api.Member;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.notes.api.INoteUids;
+import net.bluemind.role.hook.RoleEvent;
 import net.bluemind.todolist.api.ITodoUids;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.User;
 import net.bluemind.user.api.UserSettings;
+import net.bluemind.user.service.IInCoreUser;
 
 public class UserSync extends DirEntryWithMailboxSync<User> {
 
@@ -126,6 +130,16 @@ public class UserSync extends DirEntryWithMailboxSync<User> {
 	}
 
 	@Override
+	protected ItemValue<DirEntryAndValue<User>> remap(IServerTaskMonitor entryMon,
+			ItemValue<DirEntryAndValue<User>> orig) {
+
+		IInCoreUser inCore = ctx.provider().instance(IInCoreUser.class, domainUid());
+		ItemValue<User> fullWithPasswordHash = inCore.getFull(orig.uid);
+		orig.value.value = fullWithPasswordHash.value;
+		return orig;
+	}
+
+	@Override
 	public ItemValue<DirEntryAndValue<User>> syncEntry(ItemValue<DirEntry> ivDir, IServerTaskMonitor entryMon,
 			IBackupStoreFactory target, BaseContainerDescriptor cont, Scope scope) {
 
@@ -137,6 +151,7 @@ public class UserSync extends DirEntryWithMailboxSync<User> {
 		ItemValue<DirEntryAndValue<User>> stored = super.syncEntry(ivDir, entryMon.subWork(1), target, cont, scope);
 
 		storeMemberships(target, stored);
+		pushRoles(ivDir, target, stored);
 
 		if (scope == Scope.Content) {
 			processSettings(ivDir, target, cont);
@@ -146,6 +161,15 @@ public class UserSync extends DirEntryWithMailboxSync<User> {
 			processContainers(entryMon, target, nodes, stored);
 		}
 		return stored;
+	}
+
+	private void pushRoles(ItemValue<DirEntry> ivDir, IBackupStoreFactory target,
+			ItemValue<DirEntryAndValue<User>> fixed) {
+		IUser roleApi = ctx.provider().instance(IUser.class, domainUid());
+		Set<String> roles = roleApi.getRoles(fixed.uid);
+		DirEntryRoleContinuousBackup rolesBackup = new DirEntryRoleContinuousBackup(target);
+		RoleEvent re = new RoleEvent(domainApis.domain.uid, fixed.uid, ivDir.value.kind, roles);
+		rolesBackup.onRolesSet(re);
 	}
 
 	private void storeMemberships(IBackupStoreFactory target, ItemValue<DirEntryAndValue<User>> stored) {

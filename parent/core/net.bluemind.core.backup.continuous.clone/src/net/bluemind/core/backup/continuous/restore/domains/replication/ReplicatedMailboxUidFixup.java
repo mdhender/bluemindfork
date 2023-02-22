@@ -94,7 +94,6 @@ public class ReplicatedMailboxUidFixup implements IDtoPreProcessor<MailboxReplic
 			return v;
 		}
 
-		log.monitor().log("FIXUP ReplicatedMailbox {} -> {}", v.uid, rightUniqueId);
 		uniqueIdMapOldNew.put(v.uid, rightUniqueId);
 		v.uid = rightUniqueId;
 
@@ -106,8 +105,6 @@ public class ReplicatedMailboxUidFixup implements IDtoPreProcessor<MailboxReplic
 
 	private void fixupParent(RestoreLogger log, VersionnedItem<MailboxReplica> v) {
 		if (v.value.parentUid != null && uniqueIdMapOldNew.containsKey(v.value.parentUid)) {
-			log.monitor().log("FIXUP parent ReplicatedMailbox {} -> {}", v.value.parentUid,
-					uniqueIdMapOldNew.get(v.value.parentUid));
 			v.value.parentUid = uniqueIdMapOldNew.get(v.value.parentUid);
 		}
 	}

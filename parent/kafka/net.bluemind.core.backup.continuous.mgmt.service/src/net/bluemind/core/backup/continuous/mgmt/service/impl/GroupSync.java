@@ -18,9 +18,11 @@
 package net.bluemind.core.backup.continuous.mgmt.service.impl;
 
 import java.util.List;
+import java.util.Set;
 
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.backup.continuous.dto.GroupMembership;
+import net.bluemind.core.backup.continuous.events.RolesContinuousHook.DirEntryRoleContinuousBackup;
 import net.bluemind.core.backup.continuous.mgmt.api.BackupSyncOptions;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
@@ -33,6 +35,7 @@ import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.IGroupMember;
 import net.bluemind.group.api.Member;
 import net.bluemind.group.service.IInCoreGroup;
+import net.bluemind.role.hook.RoleEvent;
 
 public class GroupSync extends DirEntryWithMailboxSync<Group> {
 
@@ -45,7 +48,17 @@ public class GroupSync extends DirEntryWithMailboxSync<Group> {
 			IBackupStoreFactory target, BaseContainerDescriptor cont, Scope scope) {
 		ItemValue<DirEntryAndValue<Group>> stored = super.syncEntry(ivDir, entryMon, target, cont, scope);
 		storeMemberships(target, stored);
+		pushRoles(ivDir, target, stored);
 		return stored;
+	}
+
+	private void pushRoles(ItemValue<DirEntry> ivDir, IBackupStoreFactory target,
+			ItemValue<DirEntryAndValue<Group>> fixed) {
+		IGroup roleApi = ctx.provider().instance(IGroup.class, domainUid());
+		Set<String> roles = roleApi.getRoles(fixed.uid);
+		DirEntryRoleContinuousBackup rolesBackup = new DirEntryRoleContinuousBackup(target);
+		RoleEvent re = new RoleEvent(domainApis.domain.uid, fixed.uid, ivDir.value.kind, roles);
+		rolesBackup.onRolesSet(re);
 	}
 
 	/**

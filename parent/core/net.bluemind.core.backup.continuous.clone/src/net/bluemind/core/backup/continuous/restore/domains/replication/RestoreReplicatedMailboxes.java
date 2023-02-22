@@ -122,9 +122,6 @@ public class RestoreReplicatedMailboxes implements RestoreDomainType {
 
 		MailboxReplica mailboxReplica = item.value;
 
-//		System.err.println(Thread.currentThread().getName() + " postFixup "
-//				+ new JsonObject(JsonUtils.asString(mailboxReplica)).encodePrettily());
-
 		if (exists) {
 			if (existingByUid.internalId != item.internalId) {
 				log.monitor().log("existingById.internalId {} <> kafka.internalId {}", Level.ERROR,

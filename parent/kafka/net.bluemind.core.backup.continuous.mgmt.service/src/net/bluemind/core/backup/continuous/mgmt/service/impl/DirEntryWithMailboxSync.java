@@ -67,7 +67,6 @@ public class DirEntryWithMailboxSync<T> {
 	public ItemValue<DirEntryAndValue<T>> syncEntry(ItemValue<DirEntry> ivDir, IServerTaskMonitor entryMon,
 			IBackupStoreFactory target, BaseContainerDescriptor cont, Scope scope) {
 		entryMon.begin(1, null);
-		System.err.println("*** SYNC " + scope + " " + ivDir.uid);
 		T value = getApi.get(ivDir.uid);
 		ItemValue<VCard> vcardUser = domainApis.dirApi.getVCard(ivDir.uid);
 		ItemValue<Mailbox> mboxUser = domainApis.mailboxesApi.getComplete(ivDir.uid);
@@ -77,7 +76,8 @@ public class DirEntryWithMailboxSync<T> {
 		if (scope == Scope.Entry) {
 			IBackupStore<DirEntryAndValue<T>> topicUser = target.forContainer(cont);
 			ReservedIds reserved = reserveBoxes(entryMon, mboxUser);
-			topicUser.store(remap(entryMon, entryAndValue), reserved);
+			ItemValue<DirEntryAndValue<T>> fixed = remap(entryMon, entryAndValue);
+			topicUser.store(fixed, reserved);
 		}
 
 		entryMon.end(true, "processed", "OK");

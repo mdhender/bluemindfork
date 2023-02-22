@@ -32,17 +32,21 @@ import net.bluemind.core.backup.continuous.mgmt.service.containers.calendar.Cale
 import net.bluemind.core.backup.continuous.mgmt.service.containers.calendar.CalendarViewSync;
 import net.bluemind.core.backup.continuous.mgmt.service.containers.mail.RecordsSync;
 import net.bluemind.core.backup.continuous.mgmt.service.containers.mail.SubtreeSync;
+import net.bluemind.core.backup.continuous.mgmt.service.containers.misc.DevicesSync;
 import net.bluemind.core.backup.continuous.mgmt.service.containers.misc.NoteSync;
 import net.bluemind.core.backup.continuous.mgmt.service.containers.misc.TodoSync;
+import net.bluemind.core.backup.continuous.mgmt.service.containers.misc.WebappDataSync;
 import net.bluemind.core.backup.continuous.mgmt.service.impl.ContainerSync.Factory;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.device.api.IDeviceUids;
 import net.bluemind.directory.service.DirEntryAndValue;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.notes.api.INoteUids;
 import net.bluemind.todolist.api.ITodoUids;
+import net.bluemind.webappdata.api.IWebAppDataUids;
 
 public class ContainerSyncRegistry {
 
@@ -64,6 +68,8 @@ public class ContainerSyncRegistry {
 		registry.put(ITodoUids.TYPE, new TodoSync.SyncFactory());
 		registry.put(INoteUids.TYPE, new NoteSync.SyncFactory());
 		registry.put(IAddressBookUids.TYPE, new BookSync.SyncFactory());
+		registry.put(IDeviceUids.TYPE, new DevicesSync.SyncFactory());
+		registry.put(IWebAppDataUids.TYPE, new WebappDataSync.SyncFactory());
 
 		return registry;
 	}
