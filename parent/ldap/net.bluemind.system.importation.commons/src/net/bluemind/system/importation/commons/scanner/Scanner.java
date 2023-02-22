@@ -63,6 +63,7 @@ import net.bluemind.system.importation.commons.Parameters;
 import net.bluemind.system.importation.commons.UuidMapper;
 import net.bluemind.system.importation.commons.enhancer.GroupMembershipData;
 import net.bluemind.system.importation.commons.enhancer.IScannerEnhancer;
+import net.bluemind.system.importation.commons.exceptions.DirectoryConnectionFailed;
 import net.bluemind.system.importation.commons.managers.GroupManager;
 import net.bluemind.system.importation.commons.managers.UserManager;
 import net.bluemind.system.importation.i18n.Messages;
@@ -149,6 +150,9 @@ public abstract class Scanner {
 
 			logger.info("Doing after import operations from {}", getKind());
 			afterImport();
+		} catch (DirectoryConnectionFailed dcf) {
+			logger.error(dcf.getMessage(), dcf);
+			importLogger.error(Messages.directoriesConnectionFailed());
 		} catch (ServerFault sf) {
 			importLogger.reportException(sf);
 			throw sf;

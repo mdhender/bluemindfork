@@ -53,8 +53,10 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.lib.ldap.LdapConProxy;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.system.importation.commons.Parameters;
+import net.bluemind.system.importation.commons.exceptions.DirectoryConnectionFailed;
 import net.bluemind.system.importation.commons.managers.UserManager;
 import net.bluemind.system.importation.commons.scanner.IImportLogger;
+import net.bluemind.system.importation.commons.scanner.ImportLogger;
 import net.bluemind.system.importation.i18n.Messages;
 import net.bluemind.system.ldap.importation.metrics.MetricsHolder;
 import net.bluemind.system.ldap.importation.search.LdapUserSearchFilter;
@@ -82,24 +84,20 @@ public class LdapHelper {
 		} catch (ServerFault sf) {
 			throw sf;
 		} catch (Exception e) {
-			throw new ServerFault("LDAP connection failed.");
+			throw new ServerFault(e.getMessage());
 		}
 	}
 
 	private static void checkBaseDn(Dn baseDn, LdapConnection ldapCon) throws Exception {
 		SearchRequestImpl searchRequest = new SearchRequestImpl();
-		searchRequest.setScope(SearchScope.ONELEVEL);
-		if (baseDn == null || baseDn.getName().length() == 0) {
-			searchRequest.setBase(new Dn());
-		} else {
-			searchRequest.setBase(baseDn);
-		}
+		searchRequest.setScope(SearchScope.OBJECT);
+		searchRequest.setBase(baseDn);
 		searchRequest.setFilter("(objectclass=*)");
 		SearchCursor result = ldapCon.search(searchRequest);
 
 		try {
 			if (!result.next()) {
-				throw new ServerFault("Base DN not found, check existence or set server default search base");
+				throw new ServerFault("Base DN not found, check import parameter or set server default search base");
 			}
 		} finally {
 			result.close();
@@ -149,7 +147,12 @@ public class LdapHelper {
 		}
 	}
 
-	public static LdapConProxy connectLdap(Parameters ldapParameters) throws ServerFault {
+	public static LdapConProxy connectLdap(Parameters ldapParameters) {
+		return connectLdap(ldapParameters, Optional.empty());
+	}
+
+	public static LdapConProxy connectLdap(Parameters ldapParameters, Optional<ImportLogger> importLogger)
+			throws ServerFault {
 		LdapConProxy ldapCon = null;
 		try {
 			ldapCon = getLdapCon(ldapParameters);
@@ -161,14 +164,24 @@ public class LdapHelper {
 
 			BindResponse response = ldapCon.bind(bindRequest);
 			if (ResultCodeEnum.SUCCESS != response.getLdapResult().getResultCode() || !ldapCon.isAuthenticated()) {
-				throw new ServerFault("LDAP connection failed: " + response.getLdapResult().getResultCode());
+				importLogger.ifPresent(il -> il.withoutStatus()
+						.error(Messages.serverConnectionFail(ldapParameters.ldapServer.getLdapHost().get(0).hostname,
+								ldapParameters.ldapServer.getLdapHost().get(0).port,
+								response.getLdapResult().getResultCode() + " "
+										+ response.getLdapResult().getDiagnosticMessage())));
+				throw new DirectoryConnectionFailed(
+						"Fail to connect to server: " + ldapParameters.ldapServer.getLdapHost().get(0).hostname + ":"
+								+ ldapParameters.ldapServer.getLdapHost().get(0).port + " - "
+								+ response.getLdapResult().getResultCode() + " "
+								+ response.getLdapResult().getDiagnosticMessage());
 			}
-		} catch (ServerFault sf) {
-			logger.error("Fail to connect to LDAP server: " + ldapParameters.toString(), sf);
-			throw sf;
 		} catch (LdapException e) {
-			logger.error("Fail to connect to LDAP server: " + ldapParameters.toString(), e);
-			throw new ServerFault(e.getMessage(), e);
+			importLogger.ifPresent(il -> il.withoutStatus()
+					.error(Messages.serverConnectionFail(ldapParameters.ldapServer.getLdapHost().get(0).hostname,
+							ldapParameters.ldapServer.getLdapHost().get(0).port, e.getMessage())));
+			throw new DirectoryConnectionFailed(
+					"Fail to connect to server: " + ldapParameters.ldapServer.getLdapHost().get(0).hostname + ":"
+							+ ldapParameters.ldapServer.getLdapHost().get(0).port + " - " + e.getMessage());
 		}
 
 		return ldapCon;

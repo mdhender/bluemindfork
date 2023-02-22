@@ -193,7 +193,7 @@ public class LdapImportServiceTests {
 					"invalid", "(objectClass=inetOrgPerson)", "(objectClass=inetOrgPerson)");
 			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
-			assertTrue(sf.getMessage().startsWith("LDAP connection failed: "));
+			assertTrue(sf.getMessage().startsWith("Fail to connect to server: "));
 		}
 	}
 
@@ -204,7 +204,7 @@ public class LdapImportServiceTests {
 					null, "(objectClass=inetOrgPerson)", "(objectClass=inetOrgPerson)");
 			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
-			assertTrue(sf.getMessage().startsWith("LDAP connection failed: "));
+			assertTrue(sf.getMessage().startsWith("Fail to connect to server: "));
 		}
 	}
 
@@ -225,7 +225,7 @@ public class LdapImportServiceTests {
 			getService(admin0).testParameters(ldapDockerHostname, "plain", "false", "dc=local", null, "admin",
 					"(objectClass=inetOrgPerson)", "(objectClass=inetOrgPerson)");
 		} catch (ServerFault sf) {
-			assertTrue(sf.getMessage().startsWith("LDAP connection failed: "));
+			assertTrue(sf.getMessage().startsWith("Fail to connect to server: "));
 		}
 	}
 
@@ -260,7 +260,8 @@ public class LdapImportServiceTests {
 			getService(admin0).testParameters(ldapDockerHostname, "plain", "false", "dc=invalid", "uid=admin,dc=local",
 					"admin", "(objectClass=inetOrgPerson)", "(objectClass=inetOrgPerson)");
 		} catch (ServerFault sf) {
-			assertEquals("Base DN not found, check existence or set server default search base", sf.getMessage());
+			assertEquals("Base DN not found, check import parameter or set server default search base",
+					sf.getMessage());
 		}
 	}
 
@@ -269,6 +270,7 @@ public class LdapImportServiceTests {
 		try {
 			getService(admin0).testParameters("invalid", "plain", "false", "dc=local", "uid=admin,dc=local", "admin",
 					"(objectClass=inetOrgPerson)", "(objectClass=inetOrgPerson)");
+			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
 			assertTrue(sf.getMessage().contains("Cannot connect to the server"));
 		}

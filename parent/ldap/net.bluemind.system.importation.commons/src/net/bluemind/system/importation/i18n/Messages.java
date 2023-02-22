@@ -20,6 +20,7 @@ package net.bluemind.system.importation.i18n;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -314,6 +315,26 @@ public class Messages {
 				"Fail to manage user DN: " + entry.getDn().getName() + " groups membership, error: " + e.getMessage());
 		messages.put("fr", "Impossible de gérer appartenance aux groupes de l'utilisateur DN: "
 				+ entry.getDn().getName() + ", erreur: " + e.getMessage());
+		return messages;
+	}
+
+	public static Map<String, String> serverConnectionFail(String hostname, int port, String message) {
+		Map<String, String> messages = new HashMap<String, String>(2);
+		messages.put("en", "Unable to connect to server: " + hostname + ", port: " + port + " - " + message);
+		messages.put("fr", "Impossible de se connecter au serveur: " + hostname + ", port: " + port + " - " + message);
+		return messages;
+	}
+
+	public static Map<String, String> directoriesConnectionFailed() {
+		return directoriesConnectionFailed(Optional.empty());
+	}
+
+	public static Map<String, String> directoriesConnectionFailed(Optional<Exception> failure) {
+		Map<String, String> messages = new HashMap<String, String>(2);
+		messages.put("en",
+				"Unable to connect to any of the directories" + failure.map(e -> ": " + e.getMessage()).orElse(""));
+		messages.put("fr",
+				"Impossible de se connecter aux annuaires" + failure.map(e -> ": " + e.getMessage()).orElse(""));
 		return messages;
 	}
 }

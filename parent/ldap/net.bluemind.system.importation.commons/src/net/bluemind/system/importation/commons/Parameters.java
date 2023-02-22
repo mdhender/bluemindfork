@@ -201,7 +201,7 @@ public class Parameters {
 		public static Directory build(String baseDn, String userFilter, String groupFilter, String extIdAttribute)
 				throws InvalidDnServerFault {
 			try {
-				return new Directory(new Dn(baseDn), userFilter == null ? "" : userFilter,
+				return new Directory(baseDn == null ? new Dn() : new Dn(baseDn), userFilter == null ? "" : userFilter,
 						groupFilter == null ? "" : groupFilter, extIdAttribute);
 			} catch (LdapInvalidDnException e) {
 				throw new InvalidDnServerFault(e);

@@ -140,7 +140,7 @@ public abstract class LdapScanner extends Scanner {
 
 	@Override
 	protected LdapConProxy getConnection() {
-		return LdapHelper.connectLdap(ldapParameters);
+		return LdapHelper.connectLdap(ldapParameters, Optional.ofNullable(importLogger));
 	}
 
 	@Override

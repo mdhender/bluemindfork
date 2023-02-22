@@ -105,8 +105,8 @@ public class ImportLdapJob implements IScheduledJob {
 		ImportLogger importLogger = new ImportLogger(Optional.ofNullable(sched), Optional.ofNullable(rid),
 				Optional.of(new RepportStatus()));
 
-		Scanner ldapScanner = LdapScannerFactory.getLdapScanner(importLogger, ldapParameters, domain);
-		ldapScanner.scan();
+		Optional<Scanner> ldapScanner = LdapScannerFactory.getLdapScanner(importLogger, ldapParameters, domain);
+		ldapScanner.ifPresent(ls -> ls.scan());
 
 		updateLastUpdateDomainDate(domain, importLogger.repportStatus.get().getJobStatus(), startDate);
 		sched.finish(rid, importLogger.repportStatus.get().getJobStatus());

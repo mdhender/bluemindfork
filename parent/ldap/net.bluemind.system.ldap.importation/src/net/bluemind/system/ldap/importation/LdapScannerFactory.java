@@ -18,16 +18,25 @@
  */
 package net.bluemind.system.ldap.importation;
 
+import java.io.IOException;
 import java.util.Optional;
+
+import org.apache.directory.api.ldap.model.cursor.CursorException;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.lib.ldap.GroupMemberAttribute;
 import net.bluemind.lib.ldap.LdapConProxy;
+import net.bluemind.system.importation.commons.exceptions.DirectoryConnectionFailed;
 import net.bluemind.system.importation.commons.scanner.ImportLogger;
 import net.bluemind.system.importation.commons.scanner.Scanner;
+import net.bluemind.system.importation.i18n.Messages;
 import net.bluemind.system.importation.search.PagedSearchResult;
+import net.bluemind.system.importation.search.PagedSearchResult.LdapSearchException;
 import net.bluemind.system.importation.search.SearchCursorBuilder;
 import net.bluemind.system.ldap.importation.internal.scanner.MemberLdapScanner;
 import net.bluemind.system.ldap.importation.internal.scanner.MemberOfLdapScanner;
@@ -39,20 +48,33 @@ import net.bluemind.system.ldap.importation.search.LdapGroupSearchFilter;
 import net.bluemind.system.ldap.importation.search.LdapUserSearchFilter;
 
 public class LdapScannerFactory {
-	public static Scanner getLdapScanner(ImportLogger importLogger, LdapParameters ldapParameters,
-			ItemValue<Domain> domain) throws ServerFault {
-		if (isLdapContainMemberOf(ldapParameters)) {
-			return new MemberOfLdapScanner(importLogger, ldapParameters, domain);
-		}
+	private static final Logger logger = LoggerFactory.getLogger(LdapScannerFactory.class);
 
-		if (isLdapContainMember(ldapParameters)) {
-			return new MemberLdapScanner(importLogger, ldapParameters, domain);
-		}
+	public static Optional<Scanner> getLdapScanner(ImportLogger importLogger, LdapParameters ldapParameters,
+			ItemValue<Domain> domain) {
+		try {
+			if (isLdapContainMemberOf(ldapParameters)) {
+				return Optional.of(new MemberOfLdapScanner(importLogger, ldapParameters, domain));
+			}
 
-		return new MemberUidLdapScanner(importLogger, ldapParameters, domain);
+			if (isLdapContainMember(ldapParameters)) {
+				return Optional.of(new MemberLdapScanner(importLogger, ldapParameters, domain));
+			}
+
+			return Optional.of(new MemberUidLdapScanner(importLogger, ldapParameters, domain));
+		} catch (DirectoryConnectionFailed | IOException | LdapException | CursorException
+				| LdapSearchException failure) {
+			logger.error(failure.getMessage());
+			importLogger.error(Messages.directoriesConnectionFailed(Optional.of(failure)));
+			return Optional.empty();
+		} catch (Exception e) {
+			importLogger.reportException(e);
+			throw new ServerFault(e);
+		}
 	}
 
-	private static boolean isLdapContainMember(LdapParameters ldapParameters) throws ServerFault {
+	private static boolean isLdapContainMember(LdapParameters ldapParameters)
+			throws IOException, LdapException, CursorException, LdapSearchException {
 		try (LdapConProxy ldapCon = LdapHelper.connectLdap(ldapParameters)) {
 			try (PagedSearchResult cursor = SearchCursorBuilder.withConnection(ldapCon, ldapParameters)
 					.withSearchFilter("(&"
@@ -61,12 +83,11 @@ public class LdapScannerFactory {
 					.withAttributes(GroupMemberAttribute.member.name()).withSizeLimit(5).execute()) {
 				return cursor.next();
 			}
-		} catch (Exception e) {
-			throw new ServerFault(e);
 		}
 	}
 
-	private static boolean isLdapContainMemberOf(LdapParameters ldapParameters) throws ServerFault {
+	private static boolean isLdapContainMemberOf(LdapParameters ldapParameters)
+			throws IOException, LdapException, CursorException, LdapSearchException {
 		try (LdapConProxy ldapCon = LdapHelper.connectLdap(ldapParameters)) {
 			try (PagedSearchResult cursor = SearchCursorBuilder.withConnection(ldapCon, ldapParameters)
 					.withSearchFilter("(&"
@@ -75,8 +96,6 @@ public class LdapScannerFactory {
 					.withAttributes(UserManagerImpl.LDAP_MEMBER_OF).withSizeLimit(5).execute()) {
 				return cursor.next();
 			}
-		} catch (Exception e) {
-			throw new ServerFault(e);
 		}
 	}
 }
