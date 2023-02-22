@@ -23,7 +23,7 @@
                     <bm-form-autocomplete-input
                         ref="autocomplete-input"
                         v-model.trim="pattern"
-                        variant="outline-neutral"
+                        variant="outline"
                         :items="itemsOrDefaults()"
                         :state="inputState"
                         icon="search"
