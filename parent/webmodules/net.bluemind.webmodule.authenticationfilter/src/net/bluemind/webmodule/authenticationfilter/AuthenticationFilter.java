@@ -57,6 +57,7 @@ import net.bluemind.webmodule.server.IWebFilter;
 import net.bluemind.webmodule.server.SecurityConfig;
 import net.bluemind.webmodule.server.WebserverConfiguration;
 import net.bluemind.webmodule.server.forward.ForwardedLocation;
+import net.bluemind.webmodule.server.forward.ForwardedLocation.ResolvedLoc;
 
 public class AuthenticationFilter implements IWebFilter {
 
@@ -83,7 +84,27 @@ public class AuthenticationFilter implements IWebFilter {
 
 	@Override
 	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request, WebserverConfiguration conf) {
-		if (!needAuthentication(request, conf)) {
+
+		Optional<ForwardedLocation> forwardedLocation = conf.getForwardedLocations().stream()
+				.filter(fl -> request.path().startsWith(fl.getPathPrefix())).findFirst();
+
+		if (forwardedLocation.isPresent()) {
+			Optional<ResolvedLoc> resolved = forwardedLocation.get().resolve();
+			if (resolved.isPresent()) {
+				Optional<String> sessionId = sessionId(request);
+				if (sessionId.isPresent()) {
+					decorate(request, sessionId.get());
+				} else {
+					request.response().setStatusCode(302);
+					request.response().headers().add(HttpHeaders.LOCATION, "/bluemind_sso_logout");
+					request.response().end();
+					return CompletableFuture.completedFuture(null);
+				}
+				return CompletableFuture.completedFuture(request);
+			}
+		}
+
+		if (!needAuthentication(request, forwardedLocation)) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("No auth needed for {}", request.path());
 			}
@@ -144,7 +165,7 @@ public class AuthenticationFilter implements IWebFilter {
 
 	}
 
-	private boolean needAuthentication(HttpServerRequest request, WebserverConfiguration conf) {
+	private boolean needAuthentication(HttpServerRequest request, Optional<ForwardedLocation> forwardedLocation) {
 
 		if (request.path().startsWith("/login/") && !request.path().equals("/login/index.html")) {
 			return false;
@@ -153,9 +174,6 @@ public class AuthenticationFilter implements IWebFilter {
 		if (request.path().equals("/auth/verify") || request.path().equals("/auth/form")) {
 			return false;
 		}
-
-		Optional<ForwardedLocation> forwardedLocation = conf.getForwardedLocations().stream()
-				.filter(fl -> request.path().startsWith(fl.getPathPrefix())).findFirst();
 
 		if (forwardedLocation.isPresent()) {
 			ForwardedLocation fl = forwardedLocation.get();
@@ -220,7 +238,7 @@ public class AuthenticationFilter implements IWebFilter {
 		if (SecurityConfig.secureCookies) {
 			bmSid.setSecure(true);
 		}
-		headers.add("Set-Cookie", ServerCookieEncoder.LAX.encode(bmSid));
+		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(bmSid));
 
 		Cookie openId = new DefaultCookie(OPENID_COOKIE, "delete");
 		openId.setPath("/");
@@ -229,7 +247,7 @@ public class AuthenticationFilter implements IWebFilter {
 		if (SecurityConfig.secureCookies) {
 			openId.setSecure(true);
 		}
-		headers.add("Set-Cookie", ServerCookieEncoder.LAX.encode(openId));
+		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(openId));
 
 	}
 

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <forwards>
-	<forward path="/webmail" auth="true" role="hasMail">
+	<forward path="/webmail" auth="true"
+		target="locator://bm/webmail:81/webmail" role="hasMail">
 		<whitelist>
 			<wl uri="/skins/bluemind/images/favicon.ico" />
 		</whitelist>

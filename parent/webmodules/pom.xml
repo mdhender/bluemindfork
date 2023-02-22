@@ -23,5 +23,6 @@
 		<module>net.bluemind.webmodule.authenticationfilter</module>
 		<module>net.bluemind.webmodule.maintenancefilter</module>
 		<module>net.bluemind.webmodule.cspfilter</module>
+		<module>net.bluemind.webmodule.forwardfilter</module>
 	</modules>
 </project>

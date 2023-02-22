@@ -164,6 +164,7 @@
       <plugin id="net.bluemind.webmodule.authenticationfilter"/>
       <plugin id="net.bluemind.webmodule.cspfilter"/>
       <plugin id="net.bluemind.webmodule.epfilter"/>
+      <plugin id="net.bluemind.webmodule.forwardfilter"/>
       <plugin id="net.bluemind.webmodule.gwtserver"/>
       <plugin id="net.bluemind.webmodule.inputfilter"/>
       <plugin id="net.bluemind.webmodule.openidhandler"/>

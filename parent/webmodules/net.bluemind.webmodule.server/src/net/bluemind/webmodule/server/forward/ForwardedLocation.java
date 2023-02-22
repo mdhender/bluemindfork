@@ -18,12 +18,17 @@
 package net.bluemind.webmodule.server.forward;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
+
+import net.bluemind.network.topology.Topology;
 
 public class ForwardedLocation {
 	private static final Logger logger = LoggerFactory.getLogger(ForwardedLocation.class);
@@ -34,8 +39,9 @@ public class ForwardedLocation {
 	private final ArrayList<Pattern> regexWhiteList;
 	private final String role;
 	private boolean cspEnabled;
+	private final String targetUrl;
 
-	public ForwardedLocation(String pathPrefix, String auth, String role, String authenticator) {
+	public ForwardedLocation(String pathPrefix, String target, String auth, String role) {
 		if (pathPrefix == null) {
 			throw new NullPointerException("pathPrefix cannot be null");
 		}
@@ -49,6 +55,7 @@ public class ForwardedLocation {
 		this.whitelist = new ConcurrentHashMap<>();
 		this.regexWhiteList = new ArrayList<>();
 		this.cspEnabled = true;
+		this.targetUrl = target;
 	}
 
 	public String getPathPrefix() {
@@ -97,6 +104,35 @@ public class ForwardedLocation {
 
 	public boolean needAuth() {
 		return auth;
+	}
+
+	public static class ResolvedLoc {
+		public ResolvedLoc(String host, int port) {
+			this.host = host;
+			this.port = port;
+		}
+
+		public String host;
+		public int port;
+	}
+
+	public Optional<ResolvedLoc> resolve() {
+		if (Strings.isNullOrEmpty(targetUrl)) {
+			return Optional.empty();
+		}
+		String tgtUrl = targetUrl;
+		if (tgtUrl.startsWith("locator://")) {
+			int portIndex = tgtUrl.lastIndexOf(':');
+			String tag = tgtUrl.substring("locator://".length(), portIndex);
+			String host = Topology.get().anyIfPresent(tag).map(s -> s.value.address()).orElse("127.0.0.1");
+			int port = Integer.parseInt(tgtUrl.substring(portIndex + 1, tgtUrl.indexOf('/', portIndex)));
+			return Optional.of(new ResolvedLoc(host, port));
+		} else {
+			int portIndex = tgtUrl.lastIndexOf(':');
+			String host = tgtUrl.substring("http://".length(), portIndex);
+			int port = Integer.parseInt(tgtUrl.substring(portIndex + 1, tgtUrl.indexOf('/', portIndex)));
+			return Optional.of(new ResolvedLoc(host, port));
+		}
 	}
 
 }

@@ -59,7 +59,6 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 		}
 
 		this.conf = conf;
-
 	}
 
 	private Handler<HttpServerRequest> moduleHandler(final WebModule module) {
@@ -163,19 +162,19 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 		List<IWebFilter> filters = WebModuleServerActivator.getFilters();
 
 		for (IWebFilter filter : filters) {
-			if (filter instanceof NeedVertx) {
-				((NeedVertx) filter).setVertx(vertx);
+			if (filter instanceof NeedVertx f) {
+				f.setVertx(vertx);
 			}
 
-			if (filter instanceof NeedWebModules) {
-				((NeedWebModules) filter).setModules(roots);
+			if (filter instanceof NeedWebModules f) {
+				f.setModules(roots);
 			}
 		}
 
 		for (WebModule m : roots) {
 			for (Handler<HttpServerRequest> handler : m.handlers.values()) {
-				if (handler instanceof NeedVertx) {
-					((NeedVertx) handler).setVertx(vertx);
+				if (handler instanceof NeedVertx f) {
+					f.setVertx(vertx);
 				}
 
 			}

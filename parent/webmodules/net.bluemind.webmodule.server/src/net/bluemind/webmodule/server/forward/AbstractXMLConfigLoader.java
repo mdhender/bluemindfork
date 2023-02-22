@@ -74,8 +74,8 @@ public abstract class AbstractXMLConfigLoader implements IConfigLoader {
 			NodeList nl = r.getElementsByTagName("forward");
 			for (int i = 0; i < nl.getLength(); i++) {
 				Element f = (Element) nl.item(i);
-				ForwardedLocation fl = new ForwardedLocation(f.getAttribute("path"), f.getAttribute("auth"),
-						f.getAttribute("role"), f.getAttribute("authenticator"));
+				ForwardedLocation fl = new ForwardedLocation(f.getAttribute("path"), f.getAttribute("target"),
+						f.getAttribute("auth"), f.getAttribute("role"));
 				fwCol.add(fl);
 				String cspDisabled = f.getAttribute("csp_disabled");
 				if (cspDisabled != null && !cspDisabled.isEmpty()) {
