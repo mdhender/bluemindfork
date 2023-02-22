@@ -36,6 +36,7 @@ import java.util.stream.IntStream;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.ConstantScoreQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.join.query.JoinQueryBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -161,6 +162,7 @@ public class BoxIndexing {
 
 		logger.info("Folder {}:{} containers {} created elements", f.uid, f.value.name, created.size());
 		if (created.isEmpty()) {
+			deleteRemainingOrphans(mailbox.uid, f.uid);
 			return;
 		}
 		monitor.begin(created.size(), "Syncing " + created.size() + " message(s) in " + f.value.name);
@@ -293,6 +295,16 @@ public class BoxIndexing {
 	protected interface IndexAction {
 		public void run(ItemValue<Mailbox> mailbox, ItemValue<MailboxFolder> folder, IServerTaskMonitor monitor)
 				throws ServerFault;
+	}
+
+	private void deleteRemainingOrphans(String mailboxUid, String folderUid) {
+		BoolQueryBuilder query = QueryBuilders.boolQuery() //
+				.must(QueryBuilders.termQuery("in", folderUid))
+				.mustNot(JoinQueryBuilders.hasParentQuery("body", QueryBuilders.matchAllQuery(), false))
+				.mustNot(QueryBuilders.termQuery("body_msg_link", "body"));
+
+		ConstantScoreQueryBuilder constantScoreQuery = QueryBuilders.constantScoreQuery(query);
+		ESearchActivator.deleteByQuery("mailspool_alias_" + mailboxUid, constantScoreQuery);
 	}
 
 	@Override

@@ -49,6 +49,9 @@ import net.bluemind.lib.elasticsearch.MailspoolStats;
 import net.bluemind.lib.elasticsearch.MailspoolStats.FolderCount;
 import net.bluemind.lib.elasticsearch.MailspoolStats.FolderCount.SampleStrategy;
 import net.bluemind.mailbox.api.IMailboxMgmt;
+import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.api.Mailbox.Routing;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -84,6 +87,9 @@ public class MailboxEsCoherency extends SingleOrDomainOperation {
 	@Option(names = "--run-consolidate", description = "Run a 'consolidateIndex' command on mailbox with inconsistencies.")
 	public boolean runConsolidate = false;
 
+	@Option(names = "--include-archived", description = "Include archived mailbox in the check (not fixed by run consolidate).")
+	public boolean includeArchived = false;
+
 	@Option(names = "--include-deleted", description = "Include message flag as deleted in the check.")
 	public boolean includeDeleted = false;
 
@@ -108,6 +114,14 @@ public class MailboxEsCoherency extends SingleOrDomainOperation {
 		String displayName = (de.value.email != null && !de.value.email.isEmpty())
 				? (de.value.email + " (" + de.uid + ")")
 				: de.uid;
+		ItemValue<Mailbox> mailboxItem = ctx.adminApi().instance(IMailboxes.class, domainUid).getComplete(de.uid);
+		if (!includeArchived && (mailboxItem.value.routing != Routing.internal || mailboxItem.value.archived)) {
+			if (!outputEmailOnly && !outputCondensed) {
+				ctx.info("[{}]: skipping mailbox [routing={}, archived={}]", displayName, mailboxItem.value.routing,
+						mailboxItem.value.archived);
+			}
+			return;
+		}
 
 		String subtree = IMailReplicaUids.subtreeUid(domainUid, de.value);
 		IDbByContainerReplicatedMailboxes replicatedMailboxesApi = ctx.adminApi()
@@ -117,7 +131,7 @@ public class MailboxEsCoherency extends SingleOrDomainOperation {
 
 		MailspoolStats stats = ESearchActivator.mailspoolStats();
 		long missingParentCount = stats.missingParentCount(de.uid);
-		Report report = new Report(missingParentCount);
+		Report report = new Report(missingParentCount, mailboxItem.value.archived);
 
 		SampleStrategy strategy = SampleStrategy.valueOfCaseInsensitive(sampleStrategy).orElse(SampleStrategy.BIGGEST);
 		FolderCount.Parameters parameters = new FolderCount.Parameters(all, strategy, sampleSize, includeEsEmpty,
@@ -142,15 +156,18 @@ public class MailboxEsCoherency extends SingleOrDomainOperation {
 
 	private void report(Report report, String displayName, Map<String, ItemValue<MailboxFolder>> mailboxesByUid) {
 		if (!report.hasIncoherency() && !outputEmailOnly && !outputCondensed) {
-			ctx.info("[{}]: ES mailspool index is up to date", displayName);
+			ctx.info("[{}]: ES mailspool index is up to date [archived={}]", displayName, report.isArchived);
 		} else if (report.hasIncoherency()) {
 			if (outputEmailOnly) {
 				ctx.info("[{}]", displayName);
 			} else if (outputCondensed) {
-				ctx.info("[{}]: parent={} incoherency={} dbMissing={} esMissing={}", displayName,
+				ctx.info("[{}]: parent={} incoherency={} dbMissing={} esMissing={} isArchived={}", displayName,
 						report.missingParentCount, report.divergent().size(), report.missingInDb().size(),
-						report.missingInEs().size());
+						report.missingInEs().size(), report.isArchived);
 			} else {
+				if (report.isArchived) {
+					ctx.warn("[{}] - mailbox is archived", displayName);
+				}
 				if (report.missingParentCount > 0) {
 					ctx.warn("[{}] - missing parent count: {}", displayName, report.missingParentCount());
 				}
@@ -224,10 +241,12 @@ public class MailboxEsCoherency extends SingleOrDomainOperation {
 	private class Report {
 
 		private final long missingParentCount;
+		private final boolean isArchived;
 		private final List<FolderIncoherency> incoherencies = new ArrayList<>();
 
-		public Report(long missingParentCount) {
+		public Report(long missingParentCount, boolean isArchived) {
 			this.missingParentCount = missingParentCount;
+			this.isArchived = isArchived;
 		}
 
 		public long missingParentCount() {
