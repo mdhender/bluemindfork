@@ -230,8 +230,13 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 		SubtreeLocation recordsLocation = locationOrFault();
 		MailboxRecord mail = fixRecordFlags(m);
 		ItemVersion upd = storeService.update(uid, uid, mail);
-		EmitReplicationEvents.recordUpdated(mailboxUniqueId, upd, mail);
 
+		ItemValue<MailboxRecord> asItem = ItemValue.create(uid, m);
+		asItem.internalId = upd.id;
+		asItem.version = upd.version;
+		updateIndex(Collections.singletonList(asItem));
+
+		EmitReplicationEvents.recordUpdated(mailboxUniqueId, upd, mail);
 		EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, upd.version,
 				new long[] { upd.id });
 	}
@@ -241,8 +246,13 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 		SubtreeLocation recordsLocation = locationOrFault();
 		MailboxRecord mail = fixRecordFlags(m);
 		ItemVersion upd = storeService.update(id, Long.toString(mail.imapUid), mail);
-		EmitReplicationEvents.recordUpdated(mailboxUniqueId, upd, mail);
 
+		ItemValue<MailboxRecord> asItem = ItemValue.create(Long.toString(mail.imapUid), m);
+		asItem.internalId = upd.id;
+		asItem.version = upd.version;
+		updateIndex(Collections.singletonList(asItem));
+
+		EmitReplicationEvents.recordUpdated(mailboxUniqueId, upd, mail);
 		EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, upd.version,
 				new long[] { upd.id });
 		return Ack.create(upd.version);
@@ -251,8 +261,11 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 	@Override
 	public void delete(String uid) {
 		SubtreeLocation recordsLocation = locationOrFault();
-
+		ItemValue<MailboxRecord> prev = storeService.get(uid, null);
 		ItemVersion iv = storeService.delete(uid);
+		if (prev != null) {
+			expungeIndex(Collections.singletonList(prev.value.imapUid));
+		}
 		EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, iv.version,
 				new long[] { iv.id });
 	}
