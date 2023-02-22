@@ -233,8 +233,11 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 		String uid = "test_" + System.nanoTime();
 		String uid2 = "test_2" + System.nanoTime();
 		String uid3 = "test_2" + System.nanoTime();
+		vevent.icsUid = "ICS" + uid;
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid, vevent, sendNotifications);
+		vevent.icsUid = "ICS" + uid2;
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid2, vevent, sendNotifications);
+		vevent.icsUid = "ICS" + uid3;
 		getCalendarService(userSecurityContext, userCalendarContainer).create(uid3, vevent, sendNotifications);
 
 		ZonedDateTime dtstart = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, defaultTz);
@@ -242,7 +245,7 @@ public class VFreebusyServiceTests extends AbstractCalendarTests {
 
 		VFreebusyQuery query = VFreebusyQuery.create(BmDateTimeHelper.time(dtstart, false),
 				BmDateTimeHelper.time(dtend, false));
-		query.excludedEvents = Arrays.asList(uid2);
+		query.excludedEvents = Arrays.asList(uid, "ICS" + uid2);
 		VFreebusy freebusy = getVFreebusyService(userSecurityContext, userFreebusyContainer).get(query);
 
 		assertNotNull(freebusy);

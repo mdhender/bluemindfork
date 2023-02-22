@@ -776,7 +776,7 @@ net.bluemind.calendar.vevent.ui.Freebusy.prototype.gotoDate = function(date, opt
   this.updateGrid();
   var promises = [];
   goog.array.forEach(this.attendees_.getValues(), function(attendee) {
-    var promise = this.freebusyRequest(attendee, this.range, true).then(function(slots) {
+    var promise = this.freebusyRequest(attendee, this.range).then(function(slots) {
       this.setFreeBusy_(attendee, slots);
     }, function (){
       this.setFreeBusy_(attendee);
@@ -905,7 +905,7 @@ net.bluemind.calendar.vevent.ui.Freebusy.prototype.addAttendee_ = function(a) {
   }
   this.loveIE_();
 
-  this.freebusyRequest(a, this.range, true).then(function(slots) {
+  this.freebusyRequest(a, this.range).then(function(slots) {
     this.setFreeBusy_(a, slots);
     this.updateBusySlots();
   }, function (){

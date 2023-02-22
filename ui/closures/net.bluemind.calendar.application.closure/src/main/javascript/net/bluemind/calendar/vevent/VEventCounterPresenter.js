@@ -82,6 +82,7 @@ net.bluemind.calendar.vevent.VEventCounterPresenter.prototype.setup = function()
     this.actions_.setCalendars(data.calendars);
     return this.loadItem_(data.container)
   }, null, this).then(function(vseries) {
+    data.icsUid = vseries['value']['icsUid'];
     return this.loadModelView_(vseries, data.container);
   }, null, this).then(function(mv) {
     data.model = mv;
@@ -103,7 +104,8 @@ net.bluemind.calendar.vevent.VEventCounterPresenter.prototype.loadView_ = functi
   this.view_.eventAttendees_ = eventAttendees;
   this.view_.eventDtStart_ = eventDtStart;
   this.view_.eventDtEnd_ = eventDtEnd;
-  this.view_.getChild('freebusy').freebusyRequest = goog.bind(this.freeBusyRequest, this)
+  const excluded = data.icsUid ? [data.icsUid]: []
+  this.view_.getChild('freebusy').freebusyRequest = goog.bind(this.freeBusyRequest, this, excluded)
   var e = net.bluemind.calendar.vevent.EventType.SEND;
   this.handler.listen(this.view_, e, this.send_);
   e = net.bluemind.calendar.vevent.EventType.CANCEL;
@@ -135,9 +137,8 @@ net.bluemind.calendar.vevent.VEventCounterPresenter.prototype.loadView_ = functi
  * @param {Object} attendee
  * @param {goog.date.Range} range
  */
-net.bluemind.calendar.vevent.VEventCounterPresenter.prototype.freeBusyRequest = function(attendee, range, opt_excludeThisEvent) {
+net.bluemind.calendar.vevent.VEventCounterPresenter.prototype.freeBusyRequest = function(exclusion, attendee, range) {
   var promise;
-  var exclusions = opt_excludeThisEvent && this.ctx.params.get('uid') != null ? [ this.ctx.params.get('uid') ] : [];
 
   var isKnownByBM = attendee['dir'] != null && goog.string.startsWith(attendee['dir'], 'bm://'); 
   var dirEntryKind = isKnownByBM ? attendee['dir'].substring('bm://'.length).split("/")[1] : null;

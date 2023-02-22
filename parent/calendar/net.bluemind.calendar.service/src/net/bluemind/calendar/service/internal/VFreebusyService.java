@@ -65,7 +65,10 @@ import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.Classification;
+import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
+import net.bluemind.icalendar.api.ICalendarElement.Status;
 import net.bluemind.user.api.IUserSettings;
 
 public class VFreebusyService implements IVFreebusy {
@@ -145,24 +148,17 @@ public class VFreebusyService implements IVFreebusy {
 				RBACManager forUser = RBACManager.forContext(context).forContainer(calendar);
 				ListResult<ItemValue<VEventSeries>> list = context.su().provider().instance(ICalendar.class, calendar)
 						.search(calQuery);
-				list.values.forEach(v -> {
-					values.addAll(OccurrenceHelper.list(v, query.dtstart, query.dtend).stream().map(evt -> {
-						return ItemValue.create(v.uid, evt);
-					}).map(event -> {
-						return filter(forUser, event);
-					}).collect(Collectors.toList()));
-				});
+				values.addAll(list.values.stream().filter(series -> !query.excludedEvents.contains(series.value.icsUid))
+						.flatMap(series -> OccurrenceHelper.list(series, query.dtstart, query.dtend).stream()
+								.map(event -> ItemValue.create(series.uid, event)))
+						.map(event -> filter(forUser, event)).collect(Collectors.toList()));
+
 			} catch (ServerFault e) {
 				logger.error(e.getMessage(), e);
 			}
 		}
-		if (null == query.excludedEvents || query.excludedEvents.isEmpty()) {
-			return values;
-		} else {
-			return values.stream().filter(event -> {
-				return !query.excludedEvents.contains(event.uid);
-			}).collect(Collectors.toList());
-		}
+
+		return values;
 
 	}
 
@@ -171,12 +167,38 @@ public class VFreebusyService implements IVFreebusy {
 			return null;
 		}
 		if (!rbac.can(Verb.Read.name())) {
+			Status status = getStatusForAttendee(iv.value);
 			iv.value = iv.value.filtered();
 			iv.value.summary = "";
+			iv.value.status = status;
 		} else if (iv.value.classification != Classification.Public && !rbac.can(Verb.All.name())) {
+			Status status = getStatusForAttendee(iv.value);
 			iv.value = iv.value.filtered();
+			iv.value.status = status;
 		}
 		return iv;
+	}
+
+	private Status getStatusForAttendee(VEvent event) {
+		String owner = IFreebusyUids.extractUserUid(container.uid);
+		for (Attendee a : event.attendees) {
+			if (a.dir != null && a.dir.endsWith("/" + owner)) {
+				return getStatusForPartStatus(a.partStatus);
+			}
+		}
+		return event.status;
+	}
+
+	private Status getStatusForPartStatus(ParticipationStatus partStatus) {
+		switch (partStatus) {
+		case Declined:
+			return Status.Cancelled;
+		case NeedsAction:
+		case Tentative:
+			return Status.Tentative;
+		default:
+			return Status.Confirmed;
+		}
 	}
 
 	private void addCalendarIfPresent(Set<String> calendars, String... calendarNames) {

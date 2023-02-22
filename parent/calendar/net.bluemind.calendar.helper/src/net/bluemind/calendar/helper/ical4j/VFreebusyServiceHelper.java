@@ -132,7 +132,7 @@ public class VFreebusyServiceHelper {
 		for (Attendee a : event.attendees) {
 			if (a.dir != null && a.dir.endsWith("/" + freebusyOwner)) {
 				if (a.cutype == CUType.Resource || a.cutype == CUType.Room) {
-					return getTypeForAttendee(a);
+					return getTypeForAttendee(event, a);
 				}
 				break;
 			}
@@ -143,22 +143,55 @@ public class VFreebusyServiceHelper {
 	private static Type getTypeForOpaque(VEvent event, String freebusyOwner) {
 		for (Attendee a : event.attendees) {
 			if (a.dir != null && a.dir.endsWith("/" + freebusyOwner)) {
-				return getTypeForAttendee(a);
+				return getTypeForAttendee(event, a);
 			}
 		}
-		return Type.BUSY;
+		return getTypeForStatus(event);
 	}
 
-	private static Type getTypeForAttendee(Attendee a) {
-		switch (a.partStatus) {
-		case Declined:
-			return Type.FREE;
+	private static Type getTypeForStatus(VEvent event) {
+		Type value;
+		switch (event.status) {
+		case Cancelled:
+			value = Type.FREE;
+			break;
 		case NeedsAction:
 		case Tentative:
-			return Type.BUSYTENTATIVE;
+			value = Type.BUSYTENTATIVE;
+			break;
+		case Confirmed:
 		default:
-			return Type.BUSY;
+			value = Type.BUSY;
+			break;
 		}
+		return value;
+	}
+
+	private static Type getTypeForAttendee(VEvent event, Attendee a) {
+		Type type;
+		switch (a.partStatus) {
+		case Declined:
+			type = Type.FREE;
+			break;
+		case NeedsAction:
+		case Tentative:
+			type = Type.BUSYTENTATIVE;
+			break;
+		default:
+			type = Type.BUSY;
+			break;
+		}
+		return mergeTypes(getTypeForStatus(event), type);
+	}
+
+	private static Type mergeTypes(Type event, Type attendee) {
+		if (event == Type.FREE || attendee == Type.FREE) {
+			return Type.FREE;
+		}
+		if (event == Type.BUSYTENTATIVE || attendee == Type.BUSYTENTATIVE) {
+			return Type.BUSYTENTATIVE;
+		}
+		return Type.BUSY;
 	}
 
 	private static FreeBusy convertToIcal4jVFreebusy(Slot slot) {

@@ -44,7 +44,7 @@ net.bluemind.calendar.vevent.VEventSeriesAdaptor.prototype.toModelView = functio
   var model = {};
   model.old = value;
   model.type = 'vevent';
-
+  model.icsUid = vseries['value']['icsUid'];
   model.uid = vseries['uid'];
   model.calendar = vseries['container'];
   model.counters = vseries['value']['counters'] ? vseries['value']['counters'] : [];
