@@ -116,7 +116,7 @@ net.bluemind.calendar.vevent.VEventPresenter.prototype.setup = function() {
  */
 net.bluemind.calendar.vevent.VEventPresenter.prototype.loadView_ = function(data) {
   if (data.model.states.updatable) {
-    const excluded = data.icsUid ? [data.icsUid]: []
+    var excluded = data.icsUid ? [data.icsUid]: []
     this.view_ = new net.bluemind.calendar.vevent.ui.Form(this.ctx);
     this.view_.getChild('freebusy').freebusyRequest = goog.bind(this.freeBusyRequest, this, excluded)
     this.view_.getChild('counters').freebusyRequest = goog.bind(this.freeBusyRequest, this, excluded)

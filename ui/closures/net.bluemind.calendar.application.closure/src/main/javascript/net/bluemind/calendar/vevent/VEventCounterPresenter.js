@@ -104,7 +104,7 @@ net.bluemind.calendar.vevent.VEventCounterPresenter.prototype.loadView_ = functi
   this.view_.eventAttendees_ = eventAttendees;
   this.view_.eventDtStart_ = eventDtStart;
   this.view_.eventDtEnd_ = eventDtEnd;
-  const excluded = data.icsUid ? [data.icsUid]: []
+  var excluded = data.icsUid ? [data.icsUid]: []
   this.view_.getChild('freebusy').freebusyRequest = goog.bind(this.freeBusyRequest, this, excluded)
   var e = net.bluemind.calendar.vevent.EventType.SEND;
   this.handler.listen(this.view_, e, this.send_);
