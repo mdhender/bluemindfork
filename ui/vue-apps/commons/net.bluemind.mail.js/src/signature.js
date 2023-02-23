@@ -58,11 +58,17 @@ function removeTextSignature(raw, content) {
     return raw.replace(regexp, "");
 }
 
+let RENDERLESS = false;
+
+function setRenderless(b) {
+    RENDERLESS = b;
+}
+
 function isSignatureLineEmpty(node) {
     // no text or no images
     return (
         !node ||
-        (!node.innerText?.trim() &&
+        (!(RENDERLESS ? node.textContent : node.innerText)?.trim() &&
             (node.nodeType !== Node.ELEMENT_NODE ||
                 (!node.querySelector("img[src]:not([src=''])") &&
                     !node.style.getPropertyValue("background-image") &&
@@ -73,26 +79,31 @@ function isSignatureLineEmpty(node) {
 /** Remove leading and trailing empty lines. */
 function trimSignature(signature) {
     if (signature?.length) {
-        const body = new DOMParser().parseFromString(signature, "text/html")?.body;
-        const lines = body && Array.from(body.childNodes);
+        let root = new DOMParser().parseFromString(signature, "text/html")?.body;
+
+        while (root.childElementCount === 1 && root.children[0].hasChildNodes()) {
+            root = root.children[0];
+        }
+
+        const lines = root && Array.from(root.childNodes);
         if (lines) {
             for (const line of lines) {
                 if (isSignatureLineEmpty(line)) {
-                    body.removeChild(line);
+                    root.removeChild(line);
                 } else {
                     break;
                 }
             }
-            if (body.hasChildNodes()) {
+            if (root.hasChildNodes()) {
                 for (const line of lines.reverse()) {
                     if (isSignatureLineEmpty(line)) {
-                        body.removeChild(line);
+                        root.removeChild(line);
                     } else {
                         break;
                     }
                 }
             }
-            return body.innerHTML;
+            return root.innerHTML;
         }
         return signature;
     }
@@ -103,9 +114,11 @@ export default {
     CORPORATE_SIGNATURE_SELECTOR,
     isCorporateSignature,
     isDisclaimer,
+    isSignatureLineEmpty,
     PERSONAL_SIGNATURE_SELECTOR,
     removeSignature,
     removeSignatureAttr,
+    setRenderless,
     trimSignature,
     wrapCorporateSignature,
     wrapPersonalSignature
