@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.AnsiConsole;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 
@@ -134,8 +135,9 @@ public class CliContext {
 		LoggerFactory.getLogger(
 				StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass().getTypeName())
 				.info(msg);
-		System.out.println(msg); // NOSONAR
-		System.out.flush(); // NOSONAR
+		System.out.flush();// NOSONAR
+		AnsiConsole.sysOut().println(msg);
+		AnsiConsole.sysOut().flush();
 	}
 
 	public synchronized void info(String msg, Object... args) {
