@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.backend.mail.api.IMailboxFolders;
+import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.IMailboxRecordExpunged;
@@ -45,6 +46,7 @@ import net.bluemind.backend.mail.replica.api.MailboxRecordExpunged;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -65,13 +67,12 @@ public class MailboxRecordExpungeTests extends AbstractRollingReplicationTests {
 
 	private static final String MARCO = "marco";
 	private static Logger logger = LoggerFactory.getLogger(MailboxRecordExpungeTests.class);
-	public static final int MAIL_COUNT = 250;
 
 	private IMailboxRecordExpunged expungeApi;
-	private ItemValue<MailboxFolder> marco;
 
 	private Container recordsContainer;
 	private Container subtreeContainer;
+	private Long mailItemId;
 
 	@Before
 	@Override
@@ -97,26 +98,18 @@ public class MailboxRecordExpungeTests extends AbstractRollingReplicationTests {
 		});
 
 		IMailboxFolders foldersApi = getFoldersApi();
-		marco = foldersApi.byName(MARCO);
-		int retry = 100;
-		while ((marco == null) && retry-- > 0) {
-			Thread.sleep(200);
-			marco = foldersApi.byName(MARCO);
-		}
-		this.expungeApi = getExpungeApi(marco);
+		ItemValue<MailboxFolder> marco = foldersApi.byName(MARCO);
+		IMailboxItems recApi = recApi(marco.uid);
+		ContainerChangeset<Long> changes = recApi.changesetById(0L);
+		assertEquals(1, changes.created.size());
+		this.mailItemId = changes.created.get(0);
 
-		imapAsUser(sc -> {
-			// start at index 1 since we have already created one mail before
-			for (int i = 1; i < MAIL_COUNT; i++) {
-				sc.append(MARCO, testEml(), new FlagsList());
-			}
-			return null;
-		});
+		this.expungeApi = getExpungeApi(marco);
 
 		setContainers(marco.uid);
 	}
 
-	private void insertExpungedMessage(Long id) throws SQLException {
+	private void insertExpungedMessage(long id) throws SQLException {
 		try (Connection con = JdbcTestHelper.getInstance().getMailboxDataDataSource().getConnection();
 				PreparedStatement stm = con
 						.prepareStatement("INSERT INTO q_mailbox_record_expunged VALUES(?,?,?,?,now())")) {
@@ -160,22 +153,22 @@ public class MailboxRecordExpungeTests extends AbstractRollingReplicationTests {
 
 	@Test
 	public void testFetch() throws SQLException {
-		insertExpungedMessage(1L);
+		insertExpungedMessage(mailItemId);
 		List<MailboxRecordExpunged> fetch = expungeApi.fetch();
 		assertEquals(1, fetch.size());
 	}
 
 	@Test
 	public void testCount() throws SQLException {
-		insertExpungedMessage(1L);
+		insertExpungedMessage(mailItemId);
 		Count count = expungeApi.count(ItemFlagFilter.all());
 		assertEquals(1, count.total);
 	}
 
 	@Test
 	public void testDelete() throws SQLException {
-		insertExpungedMessage(1L);
-		expungeApi.delete(1L);
+		insertExpungedMessage(mailItemId);
+		expungeApi.delete(mailItemId);
 		Count count = expungeApi.count(ItemFlagFilter.all());
 		assertEquals(0, count.total);
 	}
@@ -194,6 +187,10 @@ public class MailboxRecordExpungeTests extends AbstractRollingReplicationTests {
 
 	private IMailboxFolders getFoldersApi() {
 		return provider().instance(IMailboxFolders.class, partition, mboxRoot);
+	}
+
+	private IMailboxItems recApi(String folderUid) {
+		return provider().instance(IMailboxItems.class, folderUid);
 	}
 
 	private IMailboxRecordExpunged getExpungeApi(ItemValue<MailboxFolder> mailContainer) {
