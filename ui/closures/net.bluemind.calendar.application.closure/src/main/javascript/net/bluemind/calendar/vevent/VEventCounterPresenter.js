@@ -137,7 +137,7 @@ net.bluemind.calendar.vevent.VEventCounterPresenter.prototype.loadView_ = functi
  * @param {Object} attendee
  * @param {goog.date.Range} range
  */
-net.bluemind.calendar.vevent.VEventCounterPresenter.prototype.freeBusyRequest = function(exclusion, attendee, range) {
+net.bluemind.calendar.vevent.VEventCounterPresenter.prototype.freeBusyRequest = function(exclusions, attendee, range) {
   var promise;
 
   var isKnownByBM = attendee['dir'] != null && goog.string.startsWith(attendee['dir'], 'bm://'); 

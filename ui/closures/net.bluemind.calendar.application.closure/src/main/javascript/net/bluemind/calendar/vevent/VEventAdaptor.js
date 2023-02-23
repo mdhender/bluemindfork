@@ -675,17 +675,33 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.isModified = function(remot
  */
 net.bluemind.calendar.vevent.VEventAdaptor.prototype.contentHasBeenModified = function(remote, modified) {
   var isModified = remote == null;
-  isModified = isModified || remote['location'] != modified.location;
-  isModified = isModified || remote['summary'] != modified.summary;
-  isModified = isModified || remote['description'] != modified.description;
+  isModified = isModified || this.isStringModified_(remote['location'], modified.location);
+  isModified = isModified || this.isStringModified_(remote['summary'], modified.summary);
+  isModified = isModified || this.isDescriptionModified_(remote['description'], modified.description);
   isModified = isModified || remote['classification'] != modified.class;
   isModified = isModified || remote['priority'] != modified.priority;
-  isModified = isModified || remote['url'] != modified.url;
+  isModified = isModified || this.isStringModified_(remote['url'], modified.url);
   isModified = isModified || this.organiserHasBeeModified(remote, modified);
   isModified = isModified || this.dateHasBeenModified(remote, modified);
   isModified = isModified || this.attachmentsHasBeenModified(remote, modified);
   isModified = isModified || this.exdatesHasBeenModified(remote, modified);
   return isModified;
+}
+
+/*
+ * @private
+ */
+net.bluemind.calendar.vevent.VEventAdaptor.prototype.isStringModified_ = function(remote, local) {
+  return (remote || "").trim().toLowerCase() != (local || "").trim().toLowerCase();
+}
+
+/*
+ * @private
+ */
+net.bluemind.calendar.vevent.VEventAdaptor.prototype.isDescriptionModified_ = function(remote, local) {
+  var old = goog.dom.getTextContent(goog.dom.htmlToDocumentFragment(remote || ""));
+  var value = goog.dom.getTextContent(goog.dom.htmlToDocumentFragment(local || ""));
+  return old.replace(/\s/g,"").toLowerCase() != value.replace(/\s/g,"").toLowerCase();
 }
 
 /**
