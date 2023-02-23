@@ -42,27 +42,36 @@ export default {
         display: none;
     }
 
+    flex: 1;
+    &:before,
+    &:after {
+        content: "";
+        flex: 1;
+    }
+
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    height: max-content;
-    min-height: 100%;
+    height: 100%;
     width: 100%;
     padding: $sp-6 0 $sp-5 $scroll-width;
 
     .starter-text-and-actions {
+        flex: 0 1 base-px-to-rem(312);
+
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: $sp-7;
+        justify-content: space-between;
 
-        .starter-text {
+        .starter-main {
+            flex: 3;
+            min-height: max-content;
+
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: space-between;
             text-align: center;
-            gap: $sp-7;
-            margin-bottom: $sp-3;
 
             @extend %regular-high;
 
@@ -70,42 +79,43 @@ export default {
                 margin: 0;
             }
 
+            .bm-button {
+                margin-top: $sp-4;
+            }
+
             .description {
+                flex: 1;
+
                 width: 60%;
                 min-width: base-px-to-rem(240);
                 color: $neutral-fg;
+                display: flex;
+                align-items: center;
             }
         }
 
-        &.compact .starter-text {
-            gap: $sp-5;
-            margin-bottom: 0;
-        }
+        .starter-links {
+            flex: 1;
 
-        .description {
-            width: 60%;
-            min-width: base-px-to-rem(240);
-            min-height: base-px-to-rem(100);
             display: flex;
-            align-items: center;
-            color: $neutral-fg;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: $sp-3 $sp-7;
+            margin: $sp-6 0 $sp-5 0;
+            align-items: flex-end;
+
+            .starter-link {
+                display: flex;
+                gap: $sp-4;
+                .bm-icon {
+                    color: $neutral-fg;
+                }
+            }
         }
     }
 
-    .starter-links {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: $sp-5 $sp-7;
-        margin: $sp-5 0;
-
-        .starter-link {
-            display: flex;
-            gap: $sp-4;
-            .bm-icon {
-                color: $neutral-fg;
-            }
-        }
+    .bm-illustration {
+        flex: none;
     }
 }
 </style>

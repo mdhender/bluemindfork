@@ -2,7 +2,7 @@
     <chain-of-responsibility :is-responsible="activeFolder === MY_SENT.key">
         <section class="mail-home-screen mail-sent-screen" aria-labelledby="text-2">
             <div class="starter-text-and-actions">
-                <div class="starter-text">
+                <div class="starter-main">
                     <h1 id="text-1">{{ $t("mail.message.starter") }}</h1>
                     <div id="text-2" class="description">{{ $t("mail.message.starter.sent.details") }}</div>
                 </div>

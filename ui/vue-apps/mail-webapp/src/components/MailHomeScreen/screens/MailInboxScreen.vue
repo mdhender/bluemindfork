@@ -2,11 +2,11 @@
     <chain-of-responsibility :is-responsible="activeFolder === MY_INBOX.key">
         <section class="mail-home-screen mail-inbox-screen" aria-labelledby="text-1 text-2">
             <div class="starter-text-and-actions">
-                <div class="starter-text">
+                <div class="starter-main">
                     <h1 id="text-1">{{ $t("mail.message.starter") }}</h1>
                     <div id="text-2">{{ $t("common.or") }}</div>
+                    <new-message full />
                 </div>
-                <new-message full />
                 <div class="starter-links">
                     <div class="starter-link">
                         <bm-icon icon="documents" />

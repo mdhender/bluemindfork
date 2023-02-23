@@ -2,12 +2,13 @@
     <chain-of-responsibility :is-responsible="CONVERSATION_LIST_IS_SEARCH_MODE">
         <section class="mail-home-screen mail-search-screen" aria-labelledby="text-1">
             <div class="starter-text-and-actions">
-                <div class="starter-text">
+                <div class="starter-main">
                     <h1 id="text-1">{{ mainText }}</h1>
+                    <bm-button variant="text" size="sm" icon="cross" @click="leaveSearch">
+                        {{ $t("common.search.leave") }}
+                    </bm-button>
                 </div>
-                <bm-button variant="text" size="sm" icon="cross" @click="leaveSearch">
-                    {{ $t("common.search.leave") }}
-                </bm-button>
+                <div class="starter-links"></div>
             </div>
             <bm-illustration :value="illustration" size="lg" over-background />
         </section>
@@ -61,17 +62,6 @@ export default {
 @import "~@bluemind/ui-components/src/css/variables";
 
 .mail-home-screen.mail-search-screen {
-    padding-bottom: $sp-7;
-    gap: $sp-7;
-
-    .starter-text-and-actions {
-        gap: $sp-6;
-
-        .starter-text {
-            margin-bottom: 0;
-        }
-    }
-
     .bm-illustration {
         position: relative;
         overflow: hidden;

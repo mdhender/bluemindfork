@@ -2,15 +2,15 @@
     <chain-of-responsibility :is-responsible="activeFolder === MY_JUNK.key">
         <section class="mail-home-screen mail-junk-screen" aria-labelledby="text-1 text-2">
             <div class="starter-text-and-actions">
-                <div class="starter-text">
+                <div class="starter-main">
                     <h1 id="text-1">{{ $t("mail.message.starter") }}</h1>
                     <div id="text-2">{{ $t("common.or") }}</div>
+                    <empty-folder-action v-slot="action">
+                        <bm-button variant="fill-danger" size="lg" icon="broom" @click="action.execute">
+                            {{ $t("mail.actions.empty_folder.label") }}
+                        </bm-button>
+                    </empty-folder-action>
                 </div>
-                <empty-folder-action v-slot="action">
-                    <bm-button variant="fill-danger" size="lg" icon="broom" @click="action.execute">
-                        {{ $t("mail.actions.empty_folder.label") }}
-                    </bm-button>
-                </empty-folder-action>
                 <div class="starter-links">
                     <div class="starter-link">
                         <bm-icon icon="inbox" />

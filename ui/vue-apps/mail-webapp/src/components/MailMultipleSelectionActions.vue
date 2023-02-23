@@ -7,12 +7,13 @@
         </bm-alert-area>
         <section class="mail-home-screen" aria-labelledby="text-1">
             <div class="starter-text-and-actions">
-                <div class="starter-text">
+                <div class="starter-main">
                     <h1 id="text-1">{{ mainText }}</h1>
+                    <bm-button variant="text" size="sm" icon="cross" @click="cancelSelection">
+                        {{ $t("common.cancel.selection") }}
+                    </bm-button>
                 </div>
-                <bm-button variant="text" size="sm" icon="cross" @click="cancelSelection">
-                    {{ $t("common.cancel.selection") }}
-                </bm-button>
+                <div class="starter-links"></div>
             </div>
             <div class="illustration-and-actions">
                 <div class="actions">
@@ -209,48 +210,35 @@ export default {
     display: flex;
     flex-direction: column;
 
-    .mail-home-screen {
-        min-height: unset;
-        flex: 1 0 max-content;
-        padding-bottom: $sp-7;
+    .mail-home-screen .illustration-and-actions {
+        align-self: flex-start;
+        margin: 0 auto;
+
+        display: flex;
         gap: $sp-7;
 
-        .starter-text-and-actions {
-            gap: $sp-6;
+        .actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: $sp-2;
+            padding-top: base-px-to-rem(44);
+            padding-left: $sp-6;
 
-            .starter-text {
-                margin-bottom: 0;
+            .mark-as-flagged-button .fa-flag-fill {
+                color: $warning-fg;
             }
         }
 
-        .illustration-and-actions {
-            display: flex;
-            gap: $sp-7;
-            margin: 0 auto;
+        .bm-illustration {
+            position: relative;
+            width: 334px;
+            height: 310px;
 
-            .actions {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                gap: $sp-2;
-                padding-top: base-px-to-rem(44);
-                padding-left: $sp-6;
-
-                .mark-as-flagged-button .fa-flag-fill {
-                    color: $warning-fg;
-                }
-            }
-
-            .bm-illustration {
-                position: relative;
-                width: 334px;
-                height: 310px;
-
-                & > svg {
-                    position: absolute;
-                    left: -96px;
-                    top: -62px;
-                }
+            & > svg {
+                position: absolute;
+                left: -96px;
+                top: -62px;
             }
         }
     }

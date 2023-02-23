@@ -1,13 +1,13 @@
 <template>
     <chain-of-responsibility :is-responsible="activeFolder === MY_TEMPLATES.key">
         <section class="mail-home-screen mail-templates-screen" aria-labelledby="text-1 text-2 text-3">
-            <div class="starter-text-and-actions compact">
-                <div class="starter-text">
+            <div class="starter-text-and-actions">
+                <div class="starter-main">
                     <h1 id="text-1">{{ $t("mail.message.starter.templates") }}</h1>
                     <div id="text-2">{{ $t("mail.message.starter.templates.details") }}</div>
                     <div id="text-3">{{ $t("common.or") }}</div>
+                    <new-message template full />
                 </div>
-                <new-message template full />
                 <div class="starter-links">
                     <div class="starter-link">
                         <bm-icon icon="inbox" />
