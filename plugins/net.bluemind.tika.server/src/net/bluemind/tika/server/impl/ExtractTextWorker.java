@@ -105,7 +105,7 @@ public final class ExtractTextWorker extends AbstractVerticle {
 	}
 
 	private String tikaExtract(String path) throws IOException, SAXException, TikaException {
-		final int limit = 20 * 1024 * 1024;
+		final int limit = 512 * 1024;
 		final StringBuilder bodyTxt = new StringBuilder(1024 * 1024);
 		ContentHandler saxCh = new DefaultHandler() {
 
