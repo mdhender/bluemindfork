@@ -88,8 +88,12 @@ export default {
         return {
             show: false,
 
-            accept: [MimeType.PKCS_12, ...MimeType.PKCS_12_SUFFIXES.map(suffix => "." + suffix)].join(","),
-            allowedFileType: MimeType.PKCS_12,
+            accept: [
+                MimeType.PKCS_12,
+                MimeType.X_PKCS_12,
+                ...MimeType.PKCS_12_SUFFIXES.map(suffix => "." + suffix)
+            ].join(","),
+            allowedFileTypes: [MimeType.PKCS_12, MimeType.X_PKCS_12],
             importError: "",
             invalidFile: false,
             file: undefined,
@@ -115,7 +119,7 @@ export default {
         },
         dropFile(files) {
             const file = files[0];
-            this.invalidFile = file && file.type !== this.allowedFileType;
+            this.invalidFile = file && !this.allowedFileTypes.includes(file.type);
             if (file && !this.invalidFile) {
                 this.file = file;
             }
@@ -185,7 +189,7 @@ export default {
         shouldActivate(event) {
             const files = event.dataTransfer.items;
             if (files.length > 0) {
-                return files[0].type === this.allowedFileType;
+                return this.allowedFileTypes.includes(files[0].type);
             }
             return false;
         }

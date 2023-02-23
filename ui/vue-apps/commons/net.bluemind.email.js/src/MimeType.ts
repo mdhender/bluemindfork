@@ -60,11 +60,13 @@ const AVI = "image/avi";
 
 // SMIME
 const PKCS_8 = "application/pkcs8";
-const PKCS_12 = "application/x-pkcs12";
+const PKCS_12 = "application/pkcs12";
+const X_PKCS_12 = "application/x-pkcs12";
 const CRYPTO_CERT = "application/pkix-cert";
 const X509_CERT = "application/x-x509-ca-cert";
 const PEM_FILE = "application/x-pem-file";
 const PKCS_7 = "application/pkcs7-mime";
+const X_PKCS_7 = "application/x-pkcs7-mime";
 const PKCS_7_SIGNED_DATA = "application/pkcs7-signature";
 const MULTIPART_SIGNED = "multipart/signed";
 
@@ -139,6 +141,8 @@ export default {
     TEXT_RFC822_HEADERS,
     VCARD,
     VIDEO,
+    X_PKCS_7,
+    X_PKCS_12,
     X509_CERT,
     equals,
     typeEquals,
@@ -210,7 +214,7 @@ function isMultipart(part: MessageBody.Part) {
 }
 
 function isPkcs7(part: MessageBody.Part) {
-    return [PKCS_7, "application/x-pkcs7-mime"].includes(part.mime!);
+    return [PKCS_7, X_PKCS_7].includes(part.mime!);
 }
 
 function matchingIcon(mimeType: string) {
