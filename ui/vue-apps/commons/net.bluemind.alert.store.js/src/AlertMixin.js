@@ -28,6 +28,6 @@ export default {
 export function lastErrorReason(error) {
     return error
         ?.toString()
-        .replace(/.*(?:Exception|Fault|Error):\s*/, "")
+        .replace(/.*(?:Exception|Fault|Error):\s*/g, "")
         .trim();
 }
