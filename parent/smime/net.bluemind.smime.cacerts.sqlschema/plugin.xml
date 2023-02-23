@@ -11,5 +11,16 @@
          </compose>
       </schema>
    </extension>
+   
+   <extension
+         point="net.bluemind.core.jdbc.schema">
+      <schema
+            name="smime-revocation-schema"
+            resource="sql/smime-revocation-schema.1.0.0.sql">
+         <compose
+               id="item-store">
+         </compose>
+      </schema>
+   </extension>
 
 </plugin>

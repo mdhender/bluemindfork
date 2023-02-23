@@ -24,8 +24,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.sql.SQLException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
@@ -49,20 +47,22 @@ import net.bluemind.smime.cacerts.api.SmimeCacert;
 
 public class SmimeCacertServiceTests extends AbstractServiceTests {
 
+	private static final String CA_FILE_PATH = "data/trust-ca.crt.cer";
+
 	@Test
-	public void testCreate() throws ServerFault, SQLException {
-		SmimeCacert cert = defaultSmimeCacert();
+	public void testCreate() throws Exception {
+		SmimeCacert cert = defaultSmimeCacert(CA_FILE_PATH);
 		String uid = "test_" + System.nanoTime();
 
 		// test anonymous
 		try {
-			getService(SecurityContext.ANONYMOUS, container.uid).create(uid, cert);
+			getServiceCacert(SecurityContext.ANONYMOUS, container.uid).create(uid, cert);
 			fail();
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
 
-		ISmimeCACert serviceCert = getService(defaultSecurityContext, container.uid);
+		ISmimeCACert serviceCert = getServiceCacert(defaultSecurityContext, container.uid);
 		try {
 			serviceCert.create(uid, cert);
 		} catch (ServerFault e) {
@@ -89,7 +89,7 @@ public class SmimeCacertServiceTests extends AbstractServiceTests {
 
 		ItemValue<SmimeCacert> cacertItem = defaultSmimeItem(42);
 
-		getService(defaultSecurityContext, container.uid).restore(cacertItem, true);
+		getServiceCacert(defaultSecurityContext, container.uid).restore(cacertItem, true);
 
 		Item createdItem = itemStore.get(cacertItem.uid);
 		assertNotNull(createdItem);
@@ -98,13 +98,13 @@ public class SmimeCacertServiceTests extends AbstractServiceTests {
 		assertEquals(cacertItem.externalId, createdItem.externalId);
 		assertEquals(cacertItem.created, createdItem.created);
 
-		SmimeCacert cert = getService(defaultSecurityContext, container.uid).get(createdItem.uid);
+		SmimeCacert cert = getServiceCacert(defaultSecurityContext, container.uid).get(createdItem.uid);
 		assertNotNull(cert);
 		assertNotNull(cert.cert);
 
 		// test anonymous
 		try {
-			getService(SecurityContext.ANONYMOUS, container.uid).restore(cacertItem, true);
+			getServiceCacert(SecurityContext.ANONYMOUS, container.uid).restore(cacertItem, true);
 			fail();
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
@@ -114,157 +114,156 @@ public class SmimeCacertServiceTests extends AbstractServiceTests {
 		try {
 			cacertItem = defaultSmimeItem(43);
 			cacertItem.value.cert = "New Cert Content";
-			getService(defaultSecurityContext, container.uid).restore(cacertItem, false);
+			getServiceCacert(defaultSecurityContext, container.uid).restore(cacertItem, false);
 			fail();
 		} catch (ServerFault e) {
 		}
 	}
 
 	@Test
-	public void testUpdate() throws ServerFault {
-		SmimeCacert cert = defaultSmimeCacert();
+	public void testUpdate() throws Exception {
+		SmimeCacert cert = defaultSmimeCacert(CA_FILE_PATH);
 		String uid = "test_" + System.nanoTime();
-		getService(defaultSecurityContext, container.uid).create(uid, cert);
+		getServiceCacert(defaultSecurityContext, container.uid).create(uid, cert);
 
 		// test anonymous
 		try {
-			getService(SecurityContext.ANONYMOUS, container.uid).update(uid, cert);
+			getServiceCacert(SecurityContext.ANONYMOUS, container.uid).update(uid, cert);
 			fail();
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
 
-		getService(defaultSecurityContext, container.uid).update(uid, cert);
+		getServiceCacert(defaultSecurityContext, container.uid).update(uid, cert);
 	}
 
 	@Test
-	public void testDelete() throws ServerFault {
+	public void testDelete() throws Exception {
 
-		SmimeCacert cert = defaultSmimeCacert();
+		SmimeCacert cert = defaultSmimeCacert(CA_FILE_PATH);
 
 		String uid = "test_" + System.nanoTime();
-		getService(defaultSecurityContext, container.uid).create(uid, cert);
+		getServiceCacert(defaultSecurityContext, container.uid).create(uid, cert);
 
 		// test anonymous
 		try {
-			getService(SecurityContext.ANONYMOUS, container.uid).delete(uid);
+			getServiceCacert(SecurityContext.ANONYMOUS, container.uid).delete(uid);
 			fail();
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
 
-		getService(defaultSecurityContext, container.uid).delete(uid);
+		getServiceCacert(defaultSecurityContext, container.uid).delete(uid);
 
-		ItemValue<SmimeCacert> certItem = getService(defaultSecurityContext, container.uid).getComplete(uid);
-		assertNull(certItem);
-
+		ItemValue<SmimeCacert> cacert = getServiceCacert(defaultSecurityContext, container.uid).getComplete(uid);
+		assertNull(cacert);
 	}
 
 	@Test
-	public void testReset() throws ServerFault {
+	public void testReset() throws Exception {
 
-		List<ItemValue<SmimeCacert>> certItems = getService(defaultSecurityContext, container.uid).all();
+		List<ItemValue<SmimeCacert>> certItems = getServiceCacert(defaultSecurityContext, container.uid).all();
 		assertNotNull(certItems);
 		assertEquals(0, certItems.size());
 
-		SmimeCacert cert = defaultSmimeCacert();
+		SmimeCacert cert = defaultSmimeCacert(CA_FILE_PATH);
 		String uid = "cert-one";
-		getService(defaultSecurityContext, container.uid).create(uid, cert);
-		cert = defaultSmimeCacert();
+		getServiceCacert(defaultSecurityContext, container.uid).create(uid, cert);
+		cert = defaultSmimeCacert(CA_FILE_PATH);
 		uid = "cert-two";
-		getService(defaultSecurityContext, container.uid).create(uid, cert);
-		cert = defaultSmimeCacert();
+		getServiceCacert(defaultSecurityContext, container.uid).create(uid, cert);
+		cert = defaultSmimeCacert(CA_FILE_PATH);
 		uid = "cert-three";
-		getService(defaultSecurityContext, container.uid).create(uid, cert);
+		getServiceCacert(defaultSecurityContext, container.uid).create(uid, cert);
 		// test anonymous
 		try {
-			getService(SecurityContext.ANONYMOUS, container.uid).reset();
+			getServiceCacert(SecurityContext.ANONYMOUS, container.uid).reset();
 			fail();
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
 
-		getService(defaultSecurityContext, container.uid).reset();
+		getServiceCacert(defaultSecurityContext, container.uid).reset();
 
-		certItems = getService(defaultSecurityContext, container.uid).all();
+		certItems = getServiceCacert(defaultSecurityContext, container.uid).all();
 		assertNotNull(certItems);
 		assertEquals(0, certItems.size());
 	}
 
 	@Test
-	public void testGetComplete() throws ServerFault {
-		SmimeCacert cert = defaultSmimeCacert();
+	public void testGetComplete() throws Exception {
+		SmimeCacert cert = defaultSmimeCacert(CA_FILE_PATH);
 		String uid = "test_" + System.nanoTime();
-		getService(defaultSecurityContext, container.uid).create(uid, cert);
+		getServiceCacert(defaultSecurityContext, container.uid).create(uid, cert);
 
 		// test anonymous
 		try {
-			getService(SecurityContext.ANONYMOUS, container.uid).getComplete(uid);
+			getServiceCacert(SecurityContext.ANONYMOUS, container.uid).getComplete(uid);
 			fail();
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
 
-		ItemValue<SmimeCacert> certItem = getService(defaultSecurityContext, container.uid).getComplete(uid);
+		ItemValue<SmimeCacert> certItem = getServiceCacert(defaultSecurityContext, container.uid).getComplete(uid);
 		assertNotNull(certItem);
-
 		assertEquals(uid, certItem.uid);
-		certItem = getService(defaultSecurityContext, container.uid).getComplete("nonExistant");
+
+		certItem = getServiceCacert(defaultSecurityContext, container.uid).getComplete("nonExistant");
 		assertNull(certItem);
 	}
 
 	@Test
-	public void testAll() throws ServerFault {
+	public void testAll() throws Exception {
 
-		List<ItemValue<SmimeCacert>> certItems = getService(defaultSecurityContext, container.uid).all();
+		List<ItemValue<SmimeCacert>> certItems = getServiceCacert(defaultSecurityContext, container.uid).all();
 		assertNotNull(certItems);
 		assertEquals(0, certItems.size());
 
-		SmimeCacert cert = defaultSmimeCacert();
+		SmimeCacert cert = defaultSmimeCacert(CA_FILE_PATH);
 		String uid = "cert-one";
-		getService(defaultSecurityContext, container.uid).create(uid, cert);
-		cert = defaultSmimeCacert();
+		getServiceCacert(defaultSecurityContext, container.uid).create(uid, cert);
+		cert = defaultSmimeCacert(CA_FILE_PATH);
 		uid = "cert-two";
-		getService(defaultSecurityContext, container.uid).create(uid, cert);
-		cert = defaultSmimeCacert();
+		getServiceCacert(defaultSecurityContext, container.uid).create(uid, cert);
+		cert = defaultSmimeCacert(CA_FILE_PATH);
 		uid = "cert-three";
-		getService(defaultSecurityContext, container.uid).create(uid, cert);
+		getServiceCacert(defaultSecurityContext, container.uid).create(uid, cert);
 		// test anonymous
 		try {
-			getService(SecurityContext.ANONYMOUS, container.uid).all();
+			getServiceCacert(SecurityContext.ANONYMOUS, container.uid).all();
 			fail();
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
 
-		certItems = getService(defaultSecurityContext, container.uid).all();
+		certItems = getServiceCacert(defaultSecurityContext, container.uid).all();
 		assertNotNull(certItems);
 
 		assertEquals(3, certItems.size());
 	}
 
 	@Test
-	public void testMultipleGet() throws ServerFault {
-		SmimeCacert cert = defaultSmimeCacert();
+	public void testMultipleGet() throws Exception {
+		SmimeCacert cert = defaultSmimeCacert(CA_FILE_PATH);
 		String uid = UUID.randomUUID().toString();
-		getService(defaultSecurityContext, container.uid).create(uid, cert);
+		getServiceCacert(defaultSecurityContext, container.uid).create(uid, cert);
 
-		cert = defaultSmimeCacert();
+		cert = defaultSmimeCacert(CA_FILE_PATH);
 		String uid2 = UUID.randomUUID().toString();
-		getService(defaultSecurityContext, container.uid).create(uid2, cert);
+		getServiceCacert(defaultSecurityContext, container.uid).create(uid2, cert);
 
-		List<ItemValue<SmimeCacert>> items = getService(defaultSecurityContext, container.uid)
+		List<ItemValue<SmimeCacert>> items = getServiceCacert(defaultSecurityContext, container.uid)
 				.multipleGet(Arrays.asList(uid, uid2));
 		assertNotNull(items);
 		assertEquals(2, items.size());
 
-		items = getService(defaultSecurityContext, container.uid).multipleGet(Arrays.asList("nonExistant"));
+		items = getServiceCacert(defaultSecurityContext, container.uid).multipleGet(Arrays.asList("nonExistant"));
 
 		assertNotNull(items);
 		assertEquals(0, items.size());
 
 		try {
-			getService(SecurityContext.ANONYMOUS, container.uid).multipleGet(Arrays.asList(uid, uid2));
+			getServiceCacert(SecurityContext.ANONYMOUS, container.uid).multipleGet(Arrays.asList(uid, uid2));
 			fail();
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
@@ -272,64 +271,65 @@ public class SmimeCacertServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testMultipleGetById() throws ServerFault {
-		SmimeCacert cert = defaultSmimeCacert();
+	public void testMultipleGetById() throws Exception {
+		SmimeCacert cert = defaultSmimeCacert(CA_FILE_PATH);
 		String uid = UUID.randomUUID().toString();
-		getService(defaultSecurityContext, container.uid).create(uid, cert);
+		getServiceCacert(defaultSecurityContext, container.uid).create(uid, cert);
 
-		cert = defaultSmimeCacert();
+		cert = defaultSmimeCacert(CA_FILE_PATH);
 		String uid2 = UUID.randomUUID().toString();
-		getService(defaultSecurityContext, container.uid).create(uid2, cert);
+		getServiceCacert(defaultSecurityContext, container.uid).create(uid2, cert);
 
-		List<ItemValue<SmimeCacert>> items = getService(defaultSecurityContext, container.uid)
+		List<ItemValue<SmimeCacert>> items = getServiceCacert(defaultSecurityContext, container.uid)
 				.multipleGet(Arrays.asList(uid, uid2));
 		assertNotNull(items);
 		assertEquals(2, items.size());
 
 		try {
-			getService(SecurityContext.ANONYMOUS, container.uid)
+			getServiceCacert(SecurityContext.ANONYMOUS, container.uid)
 					.multipleGetById(Arrays.asList(items.get(0).internalId, items.get(1).internalId));
 			fail();
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
 
-		items = getService(defaultSecurityContext, container.uid)
+		items = getServiceCacert(defaultSecurityContext, container.uid)
 				.multipleGetById(Arrays.asList(items.get(0).internalId, items.get(1).internalId));
 		assertNotNull(items);
 		assertEquals(2, items.size());
 
-		items = getService(defaultSecurityContext, container.uid).multipleGetById(Arrays.asList(9876543L, 34567L));
+		items = getServiceCacert(defaultSecurityContext, container.uid)
+				.multipleGetById(Arrays.asList(9876543L, 34567L));
 		assertNotNull(items);
 		assertEquals(0, items.size());
 
 	}
 
 	@Test
-	public void testAllUids() throws ServerFault {
+	public void testAllUids() throws Exception {
 
-		List<ItemValue<SmimeCacert>> certItems = getService(defaultSecurityContext, container.uid).all();
+		List<ItemValue<SmimeCacert>> certItems = getServiceCacert(defaultSecurityContext, container.uid).all();
 		assertNotNull(certItems);
 		assertEquals(0, certItems.size());
 
-		SmimeCacert cert = defaultSmimeCacert();
+		SmimeCacert cert = defaultSmimeCacert(CA_FILE_PATH);
 		String uid = "cert-one";
-		getService(defaultSecurityContext, container.uid).create(uid, cert);
-		cert = defaultSmimeCacert();
+		getServiceCacert(defaultSecurityContext, container.uid).create(uid, cert);
+		cert = defaultSmimeCacert(CA_FILE_PATH);
 		uid = "cert-two";
-		getService(defaultSecurityContext, container.uid).create(uid, cert);
-		cert = defaultSmimeCacert();
+		getServiceCacert(defaultSecurityContext, container.uid).create(uid, cert);
+		cert = defaultSmimeCacert(CA_FILE_PATH);
 		uid = "cert-three";
-		getService(defaultSecurityContext, container.uid).create(uid, cert);
+		getServiceCacert(defaultSecurityContext, container.uid).create(uid, cert);
 		// test anonymous
 		try {
-			getService(SecurityContext.ANONYMOUS, container.uid).allUids();
+			getServiceCacert(SecurityContext.ANONYMOUS, container.uid).allUids();
 			fail();
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
 
-		List<String> uids = getService(defaultSecurityContext, container.uid).allUids();
+		List<String> uids = getServiceCacert(defaultSecurityContext, container.uid).allUids();
 		assertNotNull(uids);
 		assertEquals(3, uids.size());
 		assertTrue(uids.contains("cert-one"));
@@ -343,50 +343,50 @@ public class SmimeCacertServiceTests extends AbstractServiceTests {
 		String uid = "test_" + System.nanoTime();
 
 		try {
-			getService(defaultSecurityContext, container.uid).create(uid, cert);
+			getServiceCacert(defaultSecurityContext, container.uid).create(uid, cert);
 			fail();
 		} catch (ServerFault e) {
 		}
 	}
 
 	@Test
-	public void testChangelog() throws ServerFault {
+	public void testChangelog() throws Exception {
 
-		getService(defaultSecurityContext, container.uid).create("test1", defaultSmimeCacert());
-		getService(defaultSecurityContext, container.uid).create("test2", defaultSmimeCacert());
-		getService(defaultSecurityContext, container.uid).delete("test1");
-		getService(defaultSecurityContext, container.uid).update("test2", defaultSmimeCacert());
+		getServiceCacert(defaultSecurityContext, container.uid).create("test1", defaultSmimeCacert(CA_FILE_PATH));
+		getServiceCacert(defaultSecurityContext, container.uid).create("test2", defaultSmimeCacert(CA_FILE_PATH));
+		getServiceCacert(defaultSecurityContext, container.uid).delete("test1");
+		getServiceCacert(defaultSecurityContext, container.uid).update("test2", defaultSmimeCacert(CA_FILE_PATH));
 
 		// begin tests
-		ContainerChangelog log = getService(defaultSecurityContext, container.uid).containerChangelog(null);
+		ContainerChangelog log = getServiceCacert(defaultSecurityContext, container.uid).containerChangelog(null);
 
 		assertEquals(4, log.entries.size());
 
 		for (ChangeLogEntry entry : log.entries) {
 			System.out.println(entry.version);
 		}
-		log = getService(defaultSecurityContext, container.uid).containerChangelog(log.entries.get(0).version);
+		log = getServiceCacert(defaultSecurityContext, container.uid).containerChangelog(log.entries.get(0).version);
 		assertEquals(3, log.entries.size());
 	}
 
 	@Test
-	public void testChangeset() throws ServerFault {
+	public void testChangeset() throws Exception {
 
-		getService(defaultSecurityContext, container.uid).create("test1", defaultSmimeCacert());
-		getService(defaultSecurityContext, container.uid).create("test2", defaultSmimeCacert());
-		getService(defaultSecurityContext, container.uid).delete("test1");
-		getService(defaultSecurityContext, container.uid).update("test2", defaultSmimeCacert());
+		getServiceCacert(defaultSecurityContext, container.uid).create("test1", defaultSmimeCacert(CA_FILE_PATH));
+		getServiceCacert(defaultSecurityContext, container.uid).create("test2", defaultSmimeCacert(CA_FILE_PATH));
+		getServiceCacert(defaultSecurityContext, container.uid).delete("test1");
+		getServiceCacert(defaultSecurityContext, container.uid).update("test2", defaultSmimeCacert(CA_FILE_PATH));
 
 		// begin tests
-		ContainerChangeset<String> changeset = getService(defaultSecurityContext, container.uid).changeset(null);
+		ContainerChangeset<String> changeset = getServiceCacert(defaultSecurityContext, container.uid).changeset(null);
 
 		assertEquals(1, changeset.created.size());
 		assertEquals("test2", changeset.created.get(0));
 
 		assertEquals(0, changeset.deleted.size());
 
-		getService(defaultSecurityContext, container.uid).delete("test2");
-		changeset = getService(defaultSecurityContext, container.uid).changeset(changeset.version);
+		getServiceCacert(defaultSecurityContext, container.uid).delete("test2");
+		changeset = getServiceCacert(defaultSecurityContext, container.uid).changeset(changeset.version);
 
 		assertEquals(0, changeset.created.size());
 		assertEquals(0, changeset.updated.size());
@@ -395,21 +395,22 @@ public class SmimeCacertServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testChangesetById() throws ServerFault {
+	public void testChangesetById() throws Exception {
 
-		getService(defaultSecurityContext, container.uid).create("test1", defaultSmimeCacert());
-		getService(defaultSecurityContext, container.uid).create("test2", defaultSmimeCacert());
-		getService(defaultSecurityContext, container.uid).delete("test1");
-		getService(defaultSecurityContext, container.uid).update("test2", defaultSmimeCacert());
+		getServiceCacert(defaultSecurityContext, container.uid).create("test1", defaultSmimeCacert(CA_FILE_PATH));
+		getServiceCacert(defaultSecurityContext, container.uid).create("test2", defaultSmimeCacert(CA_FILE_PATH));
+		getServiceCacert(defaultSecurityContext, container.uid).delete("test1");
+		getServiceCacert(defaultSecurityContext, container.uid).update("test2", defaultSmimeCacert(CA_FILE_PATH));
 
 		// begin tests
-		ContainerChangeset<Long> changeset = getService(defaultSecurityContext, container.uid).changesetById(null);
+		ContainerChangeset<Long> changeset = getServiceCacert(defaultSecurityContext, container.uid)
+				.changesetById(null);
 		assertEquals(1, changeset.created.size());
 		Long id = changeset.created.get(0);
 		assertEquals(0, changeset.deleted.size());
 
-		getService(defaultSecurityContext, container.uid).delete("test2");
-		changeset = getService(defaultSecurityContext, container.uid).changesetById(changeset.version);
+		getServiceCacert(defaultSecurityContext, container.uid).delete("test2");
+		changeset = getServiceCacert(defaultSecurityContext, container.uid).changesetById(changeset.version);
 
 		assertEquals(0, changeset.created.size());
 		assertEquals(0, changeset.updated.size());
@@ -418,21 +419,22 @@ public class SmimeCacertServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testItemChangelog() throws ServerFault {
+	public void testItemChangelog() throws Exception {
 
-		getService(defaultSecurityContext, container.uid).create("test1", defaultSmimeCacert());
-		getService(defaultSecurityContext, container.uid).update("test1", defaultSmimeCacert());
-		getService(defaultSecurityContext, container.uid).create("test2", defaultSmimeCacert());
-		getService(defaultSecurityContext, container.uid).delete("test1");
-		getService(defaultSecurityContext, container.uid).update("test2", defaultSmimeCacert());
+		getServiceCacert(defaultSecurityContext, container.uid).create("test1", defaultSmimeCacert(CA_FILE_PATH));
+		getServiceCacert(defaultSecurityContext, container.uid).update("test1", defaultSmimeCacert(CA_FILE_PATH));
+		getServiceCacert(defaultSecurityContext, container.uid).create("test2", defaultSmimeCacert(CA_FILE_PATH));
+		getServiceCacert(defaultSecurityContext, container.uid).delete("test1");
+		getServiceCacert(defaultSecurityContext, container.uid).update("test2", defaultSmimeCacert(CA_FILE_PATH));
 
-		ItemChangelog itemChangeLog = getService(defaultSecurityContext, container.uid).itemChangelog("test1", 0L);
+		ItemChangelog itemChangeLog = getServiceCacert(defaultSecurityContext, container.uid).itemChangelog("test1",
+				0L);
 		assertEquals(3, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
 		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
 		assertEquals(ChangeLogEntry.Type.Deleted, itemChangeLog.entries.get(2).type);
 
-		itemChangeLog = getService(defaultSecurityContext, container.uid).itemChangelog("test2", 0L);
+		itemChangeLog = getServiceCacert(defaultSecurityContext, container.uid).itemChangelog("test2", 0L);
 		assertEquals(2, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
 		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
@@ -442,7 +444,7 @@ public class SmimeCacertServiceTests extends AbstractServiceTests {
 	@Test
 	public void testDeleteUnknownEvent() throws ServerFault {
 		try {
-			getService(defaultSecurityContext, container.uid).delete(UUID.randomUUID().toString());
+			getServiceCacert(defaultSecurityContext, container.uid).delete(UUID.randomUUID().toString());
 			fail();
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.NOT_FOUND, sf.getCode());
@@ -450,10 +452,10 @@ public class SmimeCacertServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testUpdateUnknownEvent() throws ServerFault {
+	public void testUpdateUnknownEvent() throws Exception {
 		try {
-			getService(defaultSecurityContext, container.uid).update(UUID.randomUUID().toString(),
-					defaultSmimeCacert());
+			getServiceCacert(defaultSecurityContext, container.uid).update(UUID.randomUUID().toString(),
+					defaultSmimeCacert(CA_FILE_PATH));
 			fail();
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.NOT_FOUND, sf.getCode());
@@ -461,11 +463,11 @@ public class SmimeCacertServiceTests extends AbstractServiceTests {
 	}
 
 	@Override
-	protected ISmimeCACert getService(SecurityContext context, String containerUid) throws ServerFault {
+	protected ISmimeCACert getServiceCacert(SecurityContext context, String containerUid) throws ServerFault {
 		return ServerSideServiceProvider.getProvider(context).instance(ISmimeCACert.class, containerUid);
 	}
 
-	private ItemValue<SmimeCacert> defaultSmimeItem(long id) throws ParseException {
+	private ItemValue<SmimeCacert> defaultSmimeItem(long id) throws Exception {
 		Item item = new Item();
 		item.id = id;
 		item.uid = "test_" + System.nanoTime();
@@ -474,11 +476,11 @@ public class SmimeCacertServiceTests extends AbstractServiceTests {
 		item.created = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:44:21");
 		item.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		item.version = 17;
-		return ItemValue.create(item, defaultSmimeCacert());
+		return ItemValue.create(item, defaultSmimeCacert("data/trust-ca.crt.cer"));
 	}
 
 	@Override
-	protected ISmimeRevocation getServiceCrl(SecurityContext context, String containerUid) throws ServerFault {
+	protected ISmimeRevocation getServiceRevocation(SecurityContext context, String containerUid) throws ServerFault {
 		return null;
 	}
 }

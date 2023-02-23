@@ -17,7 +17,6 @@
   */
 package net.bluemind.cli.certificate.smime;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -39,7 +38,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.IExitCodeGenerator;
 import picocli.CommandLine.Option;
 
-@Command(name = "add-smime", description = "Add S/MIME certificate for a domain")
+@Command(name = "add-smime", description = "Add S/MIME certificate for a domain, and fetch revoked certificates")
 public class SmimeCommandAdd implements ICmdLet, Runnable, IExitCodeGenerator {
 
 	private int exitCode = 0;
@@ -76,8 +75,8 @@ public class SmimeCommandAdd implements ICmdLet, Runnable, IExitCodeGenerator {
 		}
 
 		try {
-			ItemValue<Domain> domainItem = cliUtils.getDomain(domain)
-					.orElseThrow(() -> new CliException(String.format("Domain '%s' not found", domain)));
+			ItemValue<Domain> domainItem = cliUtils.getNotGlobalDomain(domain);
+
 			ISmimeCACert smimeApi = ctx.adminApi().instance(ISmimeCACert.class,
 					ISmimeCacertUids.domainCreatedCerts(domainItem.uid));
 
@@ -86,14 +85,17 @@ public class SmimeCommandAdd implements ICmdLet, Runnable, IExitCodeGenerator {
 				throw new CliException("Certificate Authority file must be valid.");
 			}
 
-			Ack create = smimeApi.create(UUID.randomUUID().toString(), SmimeCacert.create(caContent));
+			String itemUid = UUID.randomUUID().toString();
+			Ack create = smimeApi.create(itemUid, SmimeCacert.create(caContent));
 			if (create.version <= 0) {
 				throw new CliException("S/MIME certificate not created for domain '" + domainItem.value.defaultAlias
 						+ "' (" + domainItem.displayName + ")");
 			}
+
 			ctx.info("S/MIME certificate added for domain '{}' ({}).", domainItem.value.defaultAlias,
 					domainItem.displayName);
-		} catch (IOException e) {
+
+		} catch (Exception e) {
 			throw new CliException(e);
 		}
 	}

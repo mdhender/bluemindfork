@@ -39,6 +39,9 @@
             <serviceFactory
             class="net.bluemind.smime.cacerts.service.SmimeRevocationServiceFactory">
       </serviceFactory>
+            <serviceFactory
+            class="net.bluemind.smime.cacerts.service.internal.InCoreSmimeRevocation$Factory">
+      </serviceFactory>
    </extension>
    <extension
          point="net.bluemind.core.container.repair">
@@ -46,4 +49,10 @@
             impl="net.bluemind.smime.cacerts.service.internal.DomainSmimeCacertsRepair">
       </repair>
    </extension>
+   <extension
+        point="net.bluemind.scheduledjob.scheduler.job">
+     <scheduledjob_provider
+            implementation="net.bluemind.smime.cacerts.service.SmimeRevocationJob">
+     </scheduledjob_provider>
+  </extension>
 </plugin>

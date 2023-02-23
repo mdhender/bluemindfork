@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Map;
@@ -59,12 +60,13 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.smime.cacerts.api.ISmimeCACert;
-import net.bluemind.smime.cacerts.api.ISmimeRevocation;
 import net.bluemind.smime.cacerts.api.ISmimeCacertUids;
+import net.bluemind.smime.cacerts.api.ISmimeRevocation;
 import net.bluemind.smime.cacerts.api.SmimeCacert;
 import net.bluemind.smime.cacerts.persistence.SmimeCacertStore;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public abstract class AbstractServiceTests {
@@ -86,8 +88,6 @@ public abstract class AbstractServiceTests {
 
 	ContainerStoreService<SmimeCacert> smimeContainerStoreService;
 
-	private byte[] caData;
-
 	ISystemConfiguration systemConfiguration;
 	private static final String GLOBAL_EXTERNAL_URL = "my.test.external.url";
 
@@ -105,7 +105,8 @@ public abstract class AbstractServiceTests {
 		owner = PopulateHelper.addUser("test", domainUid);
 
 		defaultSecurityContext = new SecurityContext("testUser", "test", Arrays.<String>asList(),
-				Arrays.asList(BasicRoles.ROLE_MANAGE_DOMAIN_SMIME), domainUid);
+				Arrays.asList(BasicRoles.ROLE_MANAGE_DOMAIN_SMIME, BasicRoles.ROLE_MANAGE_SYSTEM_CONF), domainUid);
+
 		defaultContext = new BmTestContext(defaultSecurityContext);
 
 		Sessions.get().put(defaultSecurityContext.getSessionId(), defaultSecurityContext);
@@ -122,15 +123,16 @@ public abstract class AbstractServiceTests {
 		smimeContainerStoreService = new ContainerStoreService<>(dataDataSource, defaultSecurityContext, container,
 				new SmimeCacertStore(dataDataSource, container));
 
-		caData = Files.toByteArray(new File("data/cacert.pem"));
-
+		StateContext.setState("core.stopped");
+		StateContext.setState("core.started");
+		StateContext.setState("core.started");
 	}
 
 	protected Container createTestContainer() throws SQLException {
 		ContainerStore containerHome = new ContainerStore(defaultContext, dataDataSource, defaultSecurityContext);
 
-		String containerId = "test_" + System.nanoTime();
-		Container container = Container.create(containerId, ISmimeCacertUids.TYPE, "test", owner, domainUid);
+		String containerUid = ISmimeCacertUids.domainCreatedCerts(domainUid);
+		Container container = Container.create(containerUid, ISmimeCacertUids.TYPE, "test", owner, domainUid);
 		container = containerHome.create(container);
 		assertNotNull(container);
 
@@ -153,7 +155,7 @@ public abstract class AbstractServiceTests {
 
 			new ChangelogStore(dataDataSource, container)
 					.itemCreated(ChangelogStore.LogEntry.create(uid, item.externalId, "test", "junit", item.id, 0));
-			getService(defaultSecurityContext, container.uid).create(item.uid, cert);
+			getServiceCacert(defaultSecurityContext, container.uid).create(item.uid, cert);
 			return ItemValue.create(item, smimeStore.get(item));
 
 		} catch (SQLException e) {
@@ -164,18 +166,19 @@ public abstract class AbstractServiceTests {
 
 	}
 
-	protected abstract ISmimeCACert getService(SecurityContext context, String containerUid) throws ServerFault;
+	protected abstract ISmimeCACert getServiceCacert(SecurityContext context, String containerUid) throws ServerFault;
 
-	protected abstract ISmimeRevocation getServiceCrl(SecurityContext context, String domainUid) throws ServerFault;
+	protected abstract ISmimeRevocation getServiceRevocation(SecurityContext context, String domainUid)
+			throws ServerFault;
 
-	protected SmimeCacert defaultSmimeCacert() {
+	public static SmimeCacert defaultSmimeCacert(String filepath) throws IOException {
 		SmimeCacert cert = new SmimeCacert();
-		cert.cert = getCertData();
+		cert.cert = getCertData(filepath);
 		return cert;
 	}
 
-	protected String getCertData() {
-		return new String(caData);
+	public static String getCertData(String filepath) throws IOException {
+		return new String(Files.toByteArray(new File(filepath)));
 	}
 
 	protected void setGlobalExternalUrl() {

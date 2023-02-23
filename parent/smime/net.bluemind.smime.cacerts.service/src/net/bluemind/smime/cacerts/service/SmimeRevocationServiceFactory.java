@@ -18,14 +18,41 @@
  */
 package net.bluemind.smime.cacerts.service;
 
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
+
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.persistence.ContainerStore;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.smime.cacerts.api.ISmimeCacertUids;
 import net.bluemind.smime.cacerts.api.ISmimeRevocation;
 import net.bluemind.smime.cacerts.service.internal.SmimeRevocationService;
 
-public class SmimeRevocationServiceFactory implements ServerSideServiceProvider.IServerSideServiceFactory<ISmimeRevocation> {
+public class SmimeRevocationServiceFactory
+		implements ServerSideServiceProvider.IServerSideServiceFactory<ISmimeRevocation> {
+
+	private ISmimeRevocation getService(BmContext context, String domainUid) throws ServerFault {
+
+		String containerUid = ISmimeCacertUids.domainCreatedCerts(domainUid);
+		DataSource ds = DataSourceRouter.get(context, containerUid);
+		ContainerStore containerStore = new ContainerStore(context, ds, context.getSecurityContext());
+		Container container = null;
+		try {
+			container = containerStore.get(containerUid);
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
+		}
+		if (container == null) {
+			throw new ServerFault("container " + containerUid + " not found", ErrorCode.NOT_FOUND);
+		}
+		return new SmimeRevocationService(context, ds, container);
+	}
 
 	@Override
 	public Class<ISmimeRevocation> factoryClass() {
@@ -38,7 +65,7 @@ public class SmimeRevocationServiceFactory implements ServerSideServiceProvider.
 			throw new ServerFault("wrong number of instance parameters");
 		}
 		RBACManager.forContext(context).checkNotAnoynmous();
-		return new SmimeRevocationService(context, params[0]);
+		return getService(context, params[0]);
 	}
 
 }

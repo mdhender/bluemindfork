@@ -21,8 +21,14 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.config,
  net.bluemind.core.task.service,
  net.bluemind.role.api,
- net.bluemind.core.container.repair
+ net.bluemind.core.container.repair,
+ org.bouncycastle.bcprov,
+ org.bouncycastle.bcpkix,
+ net.bluemind.system.service,
+ net.bluemind.scheduledjob.service,
+ net.bluemind.scheduledjob.scheduler
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: net.bluemind.smime.cacerts.service,
- net.bluemind.smime.cacerts.service.internal
+ net.bluemind.smime.cacerts.service.internal,
+ net.bluemind.smime.cacerts.utils
 Automatic-Module-Name: net.bluemind.smime.cacerts.service

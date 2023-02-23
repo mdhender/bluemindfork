@@ -2,20 +2,34 @@ package net.bluemind.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
+import java.security.cert.CRL;
+import java.security.cert.CRLException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
+import org.bouncycastle.asn1.DERIA5String;
 import org.bouncycastle.asn1.cms.ContentInfo;
+import org.bouncycastle.asn1.x509.CRLDistPoint;
+import org.bouncycastle.asn1.x509.DistributionPoint;
+import org.bouncycastle.asn1.x509.DistributionPointName;
+import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.X509TrustedCertificateBlock;
 
@@ -139,5 +153,40 @@ public class CertificateUtils {
 		}
 
 		return Optional.empty();
+	}
+
+	public static CRL generateX509Crl(InputStream in) throws CRLException, CertificateException {
+		return CertificateFactory.getInstance("X.509").generateCRL(in);
+
+	}
+
+	public static List<String> getCrlDistributionPoints(X509Certificate cert) throws IOException {
+		byte[] crlDistributionPoint = cert.getExtensionValue(Extension.cRLDistributionPoints.getId());
+		if (crlDistributionPoint == null) {
+			return Collections.emptyList();
+		}
+
+		CRLDistPoint distPoint = CRLDistPoint
+				.getInstance(JcaX509ExtensionUtils.parseExtensionValue(crlDistributionPoint));
+
+		List<String> urls = new ArrayList<String>();
+		for (DistributionPoint dp : distPoint.getDistributionPoints()) {
+			DistributionPointName dpn = dp.getDistributionPoint();
+			// Look for URIs in fullName
+			if (dpn != null) {
+				if (dpn.getType() == DistributionPointName.FULL_NAME) {
+					GeneralName[] genNames = GeneralNames.getInstance(dpn.getName()).getNames();
+					// Look for an URI
+					for (int j = 0; j < genNames.length; j++) {
+						if (genNames[j].getTagNo() == GeneralName.uniformResourceIdentifier) {
+							String url = DERIA5String.getInstance(genNames[j].getName()).getString();
+							urls.add(url);
+						}
+					}
+				}
+			}
+		}
+
+		return urls;
 	}
 }

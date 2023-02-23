@@ -17,8 +17,6 @@
   */
 package net.bluemind.smime.cacerts.api;
 
-import java.util.Date;
-
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.Required;
 
@@ -31,25 +29,19 @@ public class RevocationResult {
 	}
 
 	@Required
-	public String serialNumber;
-	public Date date;
-	public String reason;
+	public SmimeRevocation revocation;
 	@Required
 	public RevocationStatus status = RevocationStatus.NOT_REVOKED;
 
 	/**
 	 * Create a revoked RevocationResult
 	 * 
-	 * @param serialNumber the serialNumber revoked
-	 * @param date         the revocation date
-	 * @param reason       the revocation reason
+	 * @param revocation the certificate client revoked
 	 * @return RevocationResult
 	 */
-	public static RevocationResult revoked(String serialNumber, Date date, String reason) {
+	public static RevocationResult revoked(SmimeRevocation revocation) {
 		RevocationResult revokedResult = new RevocationResult();
-		revokedResult.serialNumber = serialNumber;
-		revokedResult.date = date;
-		revokedResult.reason = reason;
+		revokedResult.revocation = revocation;
 		revokedResult.status = RevocationStatus.REVOKED;
 		return revokedResult;
 	}
@@ -57,13 +49,15 @@ public class RevocationResult {
 	/**
 	 * Create a NOT revoked RevocationResult
 	 * 
-	 * @param serialNumber the serialNumber not revoked
+	 * @param revocation the certificate client not revoked
 	 * 
 	 * @return RevocationResult
 	 */
-	public static RevocationResult notRevoked(String serialNumber) {
-		RevocationResult revocation = new RevocationResult();
-		revocation.serialNumber = serialNumber;
-		return revocation;
+	public static RevocationResult notRevoked(SmimeRevocation revocation) {
+		RevocationResult revokedResult = new RevocationResult();
+		revokedResult.revocation = revocation;
+		revokedResult.status = RevocationStatus.NOT_REVOKED;
+		return revokedResult;
 	}
+
 }

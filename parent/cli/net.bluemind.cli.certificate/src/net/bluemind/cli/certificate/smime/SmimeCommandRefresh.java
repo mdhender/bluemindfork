@@ -26,14 +26,13 @@ import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.smime.cacerts.api.ISmimeCACert;
-import net.bluemind.smime.cacerts.api.ISmimeCacertUids;
+import net.bluemind.smime.cacerts.api.ISmimeRevocation;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.IExitCodeGenerator;
 import picocli.CommandLine.Option;
 
-@Command(name = "rm-smime", description = "Remove S/MIME certificate for a domain")
-public class SmimeCommandRemove implements ICmdLet, Runnable, IExitCodeGenerator {
+@Command(name = "update-smime", description = "Refresh S/MIME certificates revoked clients for a domain")
+public class SmimeCommandRefresh implements ICmdLet, Runnable, IExitCodeGenerator {
 
 	private int exitCode = 0;
 
@@ -46,7 +45,7 @@ public class SmimeCommandRemove implements ICmdLet, Runnable, IExitCodeGenerator
 
 		@Override
 		public Class<? extends ICmdLet> commandClass() {
-			return SmimeCommandRemove.class;
+			return SmimeCommandRefresh.class;
 		}
 	}
 
@@ -59,7 +58,7 @@ public class SmimeCommandRemove implements ICmdLet, Runnable, IExitCodeGenerator
 	@Option(required = false, names = { "--uid" }, description = "S/MIME certificate item uid")
 	public String uid;
 
-	@Option(required = false, names = { "--all" }, description = "Remove all domain S/MIME certificates")
+	@Option(required = false, names = { "--all" }, description = "Refresh all domain S/MIME certificates revocations")
 	public boolean all = false;
 
 	@Override
@@ -71,19 +70,22 @@ public class SmimeCommandRemove implements ICmdLet, Runnable, IExitCodeGenerator
 			throw new CliException("Certificate id is missing");
 		}
 
-		ItemValue<Domain> domainItem = cliUtils.getNotGlobalDomain(domain);
+		try {
+			ItemValue<Domain> domainItem = cliUtils.getNotGlobalDomain(domain);
 
-		ISmimeCACert secApi = ctx.adminApi().instance(ISmimeCACert.class,
-				ISmimeCacertUids.domainCreatedCerts(domainItem.uid));
+			ISmimeRevocation revocationApi = ctx.adminApi().instance(ISmimeRevocation.class, domainItem.uid);
+			if (uid != null) {
+				revocationApi.refreshRevocations(uid);
+				ctx.info("S/MIME certificate '{}' revoked clients updated from domain '{}' ({}).", uid,
+						domainItem.value.defaultAlias, domainItem.displayName);
+			} else {
+				revocationApi.refreshDomainRevocations();
+				ctx.info("All S/MIME certificates revoked clients updated from domain '{}' ({}).",
+						domainItem.value.defaultAlias, domainItem.displayName);
+			}
 
-		if (uid != null) {
-			secApi.delete(uid);
-			ctx.info("S/MIME certificate removed from domain '{}' ({}).", domainItem.value.defaultAlias,
-					domainItem.displayName);
-		} else {
-			secApi.reset();
-			ctx.info("All S/MIME certificates removed from domain '{}' ({}).", domainItem.value.defaultAlias,
-					domainItem.displayName);
+		} catch (Exception e) {
+			throw new CliException(e);
 		}
 	}
 

@@ -48,6 +48,7 @@ import net.bluemind.smime.cacerts.api.ISmimeCACert;
 import net.bluemind.smime.cacerts.api.ISmimeCacertUids;
 import net.bluemind.smime.cacerts.api.SmimeCacert;
 import net.bluemind.smime.cacerts.persistence.SmimeCacertStore;
+import net.bluemind.smime.cacerts.service.IInCoreSmimeRevocation;
 
 public class SmimeCACertService implements ISmimeCACert {
 
@@ -61,7 +62,7 @@ public class SmimeCACertService implements ISmimeCACert {
 	private Container container;
 	private RBACManager rbacManager;
 
-	public SmimeCACertService(DataSource pool, Container container, BmContext bmContext) {
+	public SmimeCACertService(BmContext bmContext, DataSource pool, Container container) {
 		this.bmContext = bmContext;
 		this.container = container;
 
@@ -164,6 +165,16 @@ public class SmimeCACertService implements ISmimeCACert {
 	@Override
 	public Ack create(String uid, SmimeCacert cert) {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN_SMIME);
+		Ack ack = createSmimeCacert(uid, cert);
+		if (ack.version > 0) {
+			ItemValue<SmimeCacert> itemValue = getComplete(uid);
+			bmContext.provider().instance(IInCoreSmimeRevocation.class, container.domainUid)
+					.fetchRevocations(itemValue);
+		}
+		return ack;
+	}
+
+	private Ack createSmimeCacert(String uid, SmimeCacert cert) {
 		sanitizer.create(cert);
 		extSanitizer.create(cert);
 		validator.create(cert);
@@ -202,9 +213,17 @@ public class SmimeCACertService implements ISmimeCACert {
 	}
 
 	@Override
-	public ItemValue<SmimeCacert> getComplete(String uid) {
+	public ItemValue<SmimeCacert> getComplete(String uid) throws ServerFault {
 		rbacManager.check(Verb.Read.name());
-		return storeService.get(uid, null);
+		return getFull(uid);
+	}
+
+	public ItemValue<SmimeCacert> getFull(String uid) throws ServerFault {
+		ItemValue<SmimeCacert> itemValue = storeService.get(uid, null);
+		if (itemValue == null || itemValue.value == null) {
+			return null;
+		}
+		return itemValue;
 	}
 
 	@Override

@@ -17,10 +17,14 @@
   */
 package net.bluemind.smime.cacerts.persistence;
 
+import java.util.Date;
+
 import org.junit.After;
 
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.smime.cacerts.api.SmimeCacert;
+import net.bluemind.smime.cacerts.api.SmimeRevocation;
 
 public class AbstractStoreTests {
 
@@ -34,4 +38,18 @@ public class AbstractStoreTests {
 		certif.cert = "SmimeCacert " + System.currentTimeMillis();
 		return certif;
 	}
+
+	protected SmimeRevocation defaultSmimeRevocation(ItemValue<SmimeCacert> cacert, String sn, Date date) {
+		SmimeRevocation crl = new SmimeRevocation();
+		crl.serialNumber = sn;
+		crl.revocationDate = date;
+		crl.revocationReason = "nothing to say";
+		crl.url = "url.to.crl" + System.currentTimeMillis();
+		crl.issuer = "issuer" + cacert.uid;
+		crl.lastUpdate = date;
+		crl.nextUpdate = date;
+		crl.cacertItemUid = cacert.uid;
+		return crl;
+	}
+
 }

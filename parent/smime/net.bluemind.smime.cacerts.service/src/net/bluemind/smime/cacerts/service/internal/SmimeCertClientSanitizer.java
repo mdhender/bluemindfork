@@ -22,37 +22,41 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.ISanitizer;
 import net.bluemind.core.sanitizer.ISanitizerFactory;
-import net.bluemind.smime.cacerts.api.SmimeCacert;
+import net.bluemind.smime.cacerts.api.SmimeCertClient;
 
-public class SmimeCacertSanitizer implements ISanitizer<SmimeCacert> {
+public class SmimeCertClientSanitizer implements ISanitizer<SmimeCertClient> {
 
-	public static class Factory implements ISanitizerFactory<SmimeCacert> {
+	public static class Factory implements ISanitizerFactory<SmimeCertClient> {
 
 		@Override
-		public Class<SmimeCacert> support() {
-			return SmimeCacert.class;
+		public Class<SmimeCertClient> support() {
+			return SmimeCertClient.class;
 		}
 
 		@Override
-		public ISanitizer<SmimeCacert> create(BmContext context, Container container) {
-			return new SmimeCacertSanitizer();
+		public ISanitizer<SmimeCertClient> create(BmContext context, Container container) {
+			return new SmimeCertClientSanitizer();
 		}
 
 	}
 
-	private void sanitize(SmimeCacert cert) {
+	private void sanitize(SmimeCertClient cert) {
 		if (cert == null) {
 			return;
+		}
+
+		if (cert.serialNumber != null) {
+			cert.serialNumber = cert.serialNumber.toUpperCase();
 		}
 	}
 
 	@Override
-	public void create(SmimeCacert obj) {
+	public void create(SmimeCertClient obj) {
 		sanitize(obj);
 	}
 
 	@Override
-	public void update(SmimeCacert current, SmimeCacert obj) {
+	public void update(SmimeCertClient current, SmimeCertClient obj) {
 		sanitize(obj);
 	}
 

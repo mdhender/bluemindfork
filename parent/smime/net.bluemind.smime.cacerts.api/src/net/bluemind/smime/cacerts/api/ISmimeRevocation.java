@@ -22,9 +22,12 @@ import java.util.List;
 import java.util.Set;
 
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ItemValue;
 
 /**
  * 
@@ -39,12 +42,43 @@ public interface ISmimeRevocation {
 	/**
 	 * Check if a certificate serialNumber list is revoked
 	 * 
-	 * @param serialNumber the certificate serial number list
+	 * @param clients the client certificates {@link SmimeCertClient}
 	 * @return {@link RevocationResult} lists
 	 * @throws ServerFault common error object
 	 */
 	@POST
-	@Path("is_revoked")
-	public Set<RevocationResult> isRevoked(List<String> serialNumber) throws ServerFault;
+	@Path("revoked_clients")
+	public Set<RevocationResult> areRevoked(List<SmimeCertClient> clients) throws ServerFault;
+
+	/**
+	 * Refresh revocated certificates
+	 * 
+	 * @throws ServerFault
+	 */
+	@PUT
+	@Path("refresh_domain")
+	public void refreshDomainRevocations() throws ServerFault;
+
+	/**
+	 * Refresh revocated certificates
+	 * 
+	 * @param cacertUid {@link SmimeCacert} uid
+	 * 
+	 * @throws ServerFault
+	 */
+	@PUT
+	@Path("refresh/{uid}")
+	public void refreshRevocations(@PathParam("uid") String cacertUid) throws ServerFault;
+
+	/**
+	 * Get {@link SmimeRevocation} for a S/MIME CA certificate
+	 * 
+	 * @param cacert the S/MIME CA certificate {@link SmimeCacert}
+	 * @return {@link SmimeRevocation} lists
+	 * @throws ServerFault common error object
+	 */
+	@POST
+	@Path("fetch")
+	public List<SmimeRevocation> fetch(ItemValue<SmimeCacert> cacert) throws ServerFault;
 
 }

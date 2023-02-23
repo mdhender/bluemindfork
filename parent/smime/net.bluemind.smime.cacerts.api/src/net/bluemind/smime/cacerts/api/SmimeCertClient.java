@@ -16,19 +16,29 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.smime.cacerts.service;
+package net.bluemind.smime.cacerts.api;
 
-import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.context.SecurityContext;
-import net.bluemind.core.rest.http.ClientSideServiceProvider;
-import net.bluemind.smime.cacerts.api.ISmimeRevocation;
+import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.Required;
 
-public class SmimeRevocationServiceHttpTests extends SmimeRevocationServiceTests {
+@BMApi(version = "3")
+public class SmimeCertClient {
+
+	@Required
+	public String serialNumber;
+	@Required
+	public String issuer;
+
+	public static SmimeCertClient create(String serialNumber, String issuer) {
+		SmimeCertClient revocation = new SmimeCertClient();
+		revocation.serialNumber = serialNumber;
+		revocation.issuer = issuer;
+		return revocation;
+	}
 
 	@Override
-	protected ISmimeRevocation getServiceRevocation(SecurityContext context, String domainUid) throws ServerFault {
-		return ClientSideServiceProvider.getProvider("http://localhost:8090", context.getSessionId())
-				.instance(ISmimeRevocation.class, domainUid);
+	public String toString() {
+		return "SmimeCertClient [serialNumber=" + serialNumber + ", issuer=" + issuer + "]";
 	}
 
 }

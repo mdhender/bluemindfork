@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.github.freva.asciitable.AsciiTable;
@@ -67,32 +68,40 @@ public class CliUtils {
 				.orElseThrow(() -> new CliException("Invalid or unknown domain : " + domainString));
 	}
 
-	public Optional<ItemValue<Domain>> getDomain(String domainString) {
+	public Optional<ItemValue<Domain>> getDomain(String domainString, Predicate<Domain> filter) {
 		String domainName = domainString;
 		if (domainName != null && domainName.contains("@")) {
 			domainName = domainString.split("@")[1];
 		}
 		IDomains domainService = cliContext.adminApi().instance(IDomains.class);
 		ItemValue<Domain> domain = domainService.findByNameOrAliases(domainName);
-		if (domain == null) {
-			cliContext.error("Domain " + domainString + " not found");
-		}
-		return Optional.ofNullable(domain);
+
+		return filter.test(domain.value) ? Optional.ofNullable(domain) : Optional.empty();
+	}
+
+	public Optional<ItemValue<Domain>> getDomain(String domainString) {
+		return getDomain(domainString, f -> true);
+	}
+
+	public ItemValue<Domain> getNotGlobalDomain(String domainString) {
+		ItemValue<Domain> domain = getDomain(domainString, d -> d != null && !d.global)
+				.orElseThrow(() -> new CliException("Domain 'global.virt' is not allowed"));
+
+		return domain;
 	}
 
 	public Optional<String> getDomainUidByDomainIfPresent(String domainString) {
 		if ("global.virt".equals(domainString)) {
 			return Optional.of(domainString);
 		}
-		IDomains domainService = cliContext.adminApi().instance(IDomains.class);
-		ItemValue<Domain> domain = domainService.findByNameOrAliases(domainString);
-		return Optional.ofNullable(domain).map(d -> d.uid);
+		Optional<ItemValue<Domain>> domain = getDomain(domainString);
+		return domain.map(d -> d.uid);
 	}
 
 	public List<String> getDomainUids() {
 		IDomains domainService = cliContext.adminApi().instance(IDomains.class);
-		return domainService.all().stream().map(domain -> domain.uid)
-				.filter(domainUid -> !domainUid.equals("global.virt")).collect(Collectors.toList());
+		return domainService.all().stream().filter(domain -> !domain.value.global).map(domain -> domain.uid)
+				.collect(Collectors.toList());
 	}
 
 	public String getUserUidByEmail(String email) {

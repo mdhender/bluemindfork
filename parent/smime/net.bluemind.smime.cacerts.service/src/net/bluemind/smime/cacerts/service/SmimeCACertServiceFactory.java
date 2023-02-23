@@ -51,8 +51,7 @@ public class SmimeCACertServiceFactory implements ServerSideServiceProvider.ISer
 		if (container == null) {
 			throw new ServerFault("container " + containerId + " not found", ErrorCode.NOT_FOUND);
 		}
-
-		return new SmimeCACertService(ds, container, context);
+		return new SmimeCACertService(context, ds, container);
 	}
 
 	@Override

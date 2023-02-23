@@ -21,5 +21,8 @@ Require-Bundle: org.junit,
  net.bluemind.core.rest.http,
  net.bluemind.core.rest.http.vertx;bundle-version="1.0.0",
  slf4j.api,
- net.bluemind.role.api
+ net.bluemind.role.api,
+ net.bluemind.scheduledjob.api,
+ net.bluemind.scheduledjob.service,
+ net.bluemind.system.state
 Automatic-Module-Name: net.bluemind.smime.cacerts.service.tests

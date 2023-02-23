@@ -19,8 +19,13 @@ package net.bluemind.cli.certificate.smime;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import com.google.common.base.Strings;
 
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.CliException;
@@ -31,7 +36,9 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.smime.cacerts.api.ISmimeCACert;
 import net.bluemind.smime.cacerts.api.ISmimeCacertUids;
+import net.bluemind.smime.cacerts.api.ISmimeRevocation;
 import net.bluemind.smime.cacerts.api.SmimeCacert;
+import net.bluemind.smime.cacerts.api.SmimeRevocation;
 import net.bluemind.utils.CertificateUtils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.IExitCodeGenerator;
@@ -61,40 +68,91 @@ public class SmimeCommandList implements ICmdLet, Runnable, IExitCodeGenerator {
 	@Option(required = true, names = { "--domain" }, description = "The domain, 'global.virt' invalid")
 	public String domain;
 
+    @Option(required = false, names = { "--revocations" }, description = "The revoked certificates, default false")
+	public boolean revocations = false;
+
+	@Option(required = false, names = { "--uid" }, description = "The S/MIME CA certificate uid, default all")
+	public String uid;
+
 	@Override
 	public void run() {
 		if (domain == null || domain.isEmpty()) {
 			throw new CliException("Domain is missing.");
 		}
 
-		ItemValue<Domain> domainItem = cliUtils.getDomain(domain)
-				.orElseThrow(() -> new CliException(String.format("Domain '%s' not found", domain)));
+		ItemValue<Domain> domainItem = cliUtils.getNotGlobalDomain(domain);
+
 		ISmimeCACert smimeApi = ctx.adminApi().instance(ISmimeCACert.class,
 				ISmimeCacertUids.domainCreatedCerts(domainItem.uid));
 
-		List<ItemValue<SmimeCacert>> all = smimeApi.all();
-		if (all.isEmpty()) {
-			ctx.info("There is no S/MIME certificate for domain '{}' ({}).", domainItem.value.defaultAlias,
+		List<ItemValue<SmimeCacert>> all = null;
+		if (Strings.isNullOrEmpty(uid)) {
+			all = smimeApi.all();
+			if (all.isEmpty()) {
+				ctx.info("There is no S/MIME certificate for domain '{}' ({}).", domainItem.value.defaultAlias,
+						domainItem.displayName);
+				return;
+			}
+			ctx.info("S/MIME Certificates for domain '{}' ({}).", domainItem.value.defaultAlias,
 					domainItem.displayName);
-			return;
+		} else {
+			ItemValue<SmimeCacert> complete = smimeApi.getComplete(uid);
+			if (complete == null) {
+				ctx.info("There is no S/MIME certificate for domain '{}' ({}) with uid '{}'.",
+						domainItem.value.defaultAlias, domainItem.displayName, uid);
+				return;
+			}
+			all = Arrays.asList(complete);
+			ctx.info("S/MIME Certificate for domain '{}' ({}) with uid '{}'.", domainItem.value.defaultAlias,
+					domainItem.displayName, uid);
 		}
-		ctx.info("S/MIME Certificates for domain '{}' ({}).", domainItem.value.defaultAlias, domainItem.displayName);
-		display(all);
+
+		ISmimeRevocation revocationApi = ctx.adminApi().instance(ISmimeRevocation.class, domainItem.uid);
+		all.forEach(ca -> {
+			if (revocations) {
+				List<SmimeRevocation> revocations = revocationApi.fetch(ca);
+				display(ca, revocations);
+			} else {
+				display(ca);
+			}
+		});
+
 	}
 
-	private void display(List<ItemValue<SmimeCacert>> certList) {
-		// { "UID", "Principal Issuer", "Principal Subject" };
-		for (ItemValue<SmimeCacert> item : certList) {
-			X509Certificate cert = getCertificate(item);
-			String[][] asTable = new String[3][2];
-			asTable[0][0] = "UID";
-			asTable[0][1] = item.uid;
-			asTable[1][0] = "Principal Issuer";
-			asTable[1][1] = cert.getIssuerX500Principal().getName();
-			asTable[2][0] = "Principal Subject";
-			asTable[2][1] = cert.getSubjectX500Principal().getName();
+	private void display(ItemValue<SmimeCacert> ca, List<SmimeRevocation> revocations) {
+		display(ca);
+		if (revocations.isEmpty()) {
+			return;
+		}
+
+		ctx.info("With {} revoked certificates:", revocations.size());
+		for (SmimeRevocation revocation : revocations) {
+			String[][] asTable = new String[4][2];
+			asTable[0][0] = "Serial Number";
+			asTable[0][1] = revocation.serialNumber;
+			asTable[1][0] = "Issuer";
+			asTable[1][1] = revocation.issuer;
+			asTable[2][0] = "Revocation date";
+			String formattedDate = DateTimeFormatter.ISO_LOCAL_DATE
+					.format(revocation.revocationDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+			asTable[2][1] = formattedDate;
+			asTable[3][0] = "Revocation Reason";
+			asTable[3][1] = revocation.revocationReason;
 			ctx.info(cliUtils.getAsciiTable(null, asTable));
 		}
+	}
+
+	private void display(ItemValue<SmimeCacert> ca) {
+		// { "UID", "Principal Issuer", "Principal Subject" };
+		X509Certificate cert = getCertificate(ca);
+		String[][] asTable = new String[3][2];
+		asTable[0][0] = "UID";
+		asTable[0][1] = ca.uid;
+		asTable[1][0] = "Principal Issuer";
+		asTable[1][1] = cert.getIssuerX500Principal().getName();
+		asTable[2][0] = "Principal Subject";
+		asTable[2][1] = cert.getSubjectX500Principal().getName();
+		ctx.info(cliUtils.getAsciiTable(null, asTable));
 	}
 
 	private X509Certificate getCertificate(ItemValue<SmimeCacert> i) {

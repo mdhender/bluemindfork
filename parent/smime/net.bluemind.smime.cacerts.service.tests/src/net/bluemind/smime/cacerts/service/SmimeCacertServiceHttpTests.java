@@ -26,7 +26,7 @@ import net.bluemind.smime.cacerts.api.ISmimeCACert;
 public class SmimeCacertServiceHttpTests extends SmimeCacertServiceTests {
 
 	@Override
-	protected ISmimeCACert getService(SecurityContext context, String containerUid) throws ServerFault {
+	protected ISmimeCACert getServiceCacert(SecurityContext context, String containerUid) throws ServerFault {
 		return ClientSideServiceProvider.getProvider("http://localhost:8090", context.getSessionId())
 				.instance(ISmimeCACert.class, containerUid);
 	}

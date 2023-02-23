@@ -23,5 +23,9 @@
             impl="net.bluemind.cli.certificate.smime.SmimeCommandList$Reg"
             priority="120">
       </registration>
+      <registration
+            impl="net.bluemind.cli.certificate.smime.SmimeCommandRefresh$Reg"
+            priority="125">
+      </registration>
    </extension>
 </plugin>
