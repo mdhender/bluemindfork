@@ -45,6 +45,7 @@ import org.apache.kafka.clients.admin.ListTopicsOptions;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.admin.TopicListing;
 import org.apache.kafka.common.Uuid;
+import org.apache.kafka.common.config.TopicConfig;
 import org.apache.kafka.common.errors.TopicExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -175,9 +176,11 @@ public class KafkaTopicStore implements ITopicStore, TopicManager {
 				Config conf = KafkaStoreConfig.get();
 				NewTopic nt = new NewTopic(name, PARTITION_COUNT, REPL_FACTOR);
 				nt.configs(Map.of(//
-						"compression.type", COMPRESSION_TYPE, //
-						"cleanup.policy", "compact", //
-						"max.compaction.lag.ms",
+						TopicConfig.MAX_MESSAGE_BYTES_CONFIG,
+						Long.toString((long) (conf.getMemorySize("kafka.producer.maxRecordSize").toBytes() * 1.05)), //
+						TopicConfig.COMPRESSION_TYPE_CONFIG, COMPRESSION_TYPE, //
+						TopicConfig.CLEANUP_POLICY_CONFIG, "compact", //
+						TopicConfig.MAX_COMPACTION_LAG_MS_CONFIG,
 						Long.toString(conf.getDuration("kafka.topic.maxCompactionLag", TimeUnit.MILLISECONDS))//
 				));
 				CreateTopicsOptions cto = new CreateTopicsOptions();
