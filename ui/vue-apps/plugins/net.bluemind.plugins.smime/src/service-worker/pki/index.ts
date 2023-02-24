@@ -8,7 +8,8 @@ import {
     ExpiredCertificateError,
     InvalidKeyError,
     InvalidCertificateError,
-    CertificateRecipientNotFoundError
+    CertificateRecipientNotFoundError,
+    InvalidCertificateRecipientError
 } from "../exceptions";
 import db from "./SMimePkiDB";
 
@@ -35,7 +36,7 @@ export async function getCertificate(email: string): Promise<pki.Certificate> {
     try {
         return pki.certificateFromPem(pem);
     } catch (error) {
-        throw new InvalidCertificateError(error);
+        throw new InvalidCertificateRecipientError(error);
     }
 }
 

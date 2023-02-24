@@ -5,6 +5,7 @@ import {
     CertificateRecipientNotFoundError,
     ExpiredCertificateError,
     InvalidCertificateError,
+    InvalidCertificateRecipientError,
     InvalidKeyError
 } from "../exceptions";
 import {
@@ -24,6 +25,7 @@ fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
 const mockCertificateTxt = readTxt("documents/certificate");
 const mockKeyTxt = readTxt("documents/privateKey");
 const mockOtherCertificateTxt = readTxt("documents/otherCertificate");
+const mockInvalidCertificateTxt = readTxt("documents/invalidCertificate");
 
 class MockedKeyAsBlob extends Blob {
     text() {
@@ -47,15 +49,15 @@ const mockMultipleGet = jest.fn(uids => {
     if (uids.includes("2DF7A15F-12FD-4864-8279-12ADC6C08BAF")) {
         return [
             {
-                value: {
-                    security: {
-                        key: {
-                            parameters: [],
-                            value: mockOtherCertificateTxt
-                        }
-                    }
-                },
+                value: { security: { key: { parameters: [], value: mockOtherCertificateTxt } } },
                 uid: "2DF7A15F-12FD-4864-8279-12ADC6C08BAF"
+            }
+        ];
+    } else if (uids.includes("invalid")) {
+        return [
+            {
+                value: { security: { key: { parameters: [], value: mockInvalidCertificateTxt } } },
+                uid: "invalid"
             }
         ];
     } else {
@@ -79,6 +81,17 @@ jest.mock("@bluemind/addressbook.api", () => ({
                             containerUid: "addressbook_f8de2c4a.internal",
                             value: { mail: "deux@devenv.blue" },
                             uid: "2DF7A15F-12FD-4864-8279-12ADC6C08BAF"
+                        }
+                    ]
+                };
+            } else if (searchQuery.query!.includes("invalid@mail.com")) {
+                return {
+                    total: 1,
+                    values: [
+                        {
+                            containerUid: "addressbook_invalid.internal",
+                            value: { mail: "invalid@devenv.blue" },
+                            uid: "invalid"
                         }
                     ]
                 };
@@ -198,6 +211,15 @@ describe("pki", () => {
                 done.fail();
             } catch (error) {
                 expect(error).toBeInstanceOf(CertificateRecipientNotFoundError);
+                done();
+            }
+        });
+        test("raise an error if the recipient certificate in invalid", async done => {
+            try {
+                await getCertificate("invalid@mail.com");
+                done.fail();
+            } catch (error) {
+                expect(error).toBeInstanceOf(InvalidCertificateRecipientError);
                 done();
             }
         });
