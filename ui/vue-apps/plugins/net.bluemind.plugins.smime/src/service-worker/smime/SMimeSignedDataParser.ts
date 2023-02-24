@@ -1,10 +1,10 @@
 import parse from "emailjs-mime-parser";
+import { MimeType } from "@bluemind/email";
 
 export default function (eml: string): { toDigest: string; pkcs7Part: ArrayBuffer } {
     const rootNode = parse(eml);
-    // FIXME: use MimeType
-    if (rootNode.contentType.value !== "multipart/signed") {
-        throw "SignedMimeParser expects root part to be a multipart/signed";
+    if (rootNode.contentType.value !== MimeType.MULTIPART_SIGNED) {
+        throw "SignedMimeParser expects root part to be a " + MimeType.MULTIPART_SIGNED;
     }
     const toDigest = rootNode.childNodes[0].raw;
     const pkcs7Part = rootNode.childNodes[1].content;

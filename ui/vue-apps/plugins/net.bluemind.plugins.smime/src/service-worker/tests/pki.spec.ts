@@ -4,7 +4,7 @@ import { PKIStatus } from "../../lib/constants";
 import {
     CertificateRecipientNotFoundError,
     ExpiredCertificateError,
-    InvalidCertificateError,
+    MyInvalidCertificateError,
     InvalidCertificateRecipientError,
     InvalidKeyError
 } from "../exceptions";
@@ -125,7 +125,7 @@ describe("pki", () => {
             try {
                 await getMyCertificate();
             } catch (error) {
-                expect(error).toBeInstanceOf(InvalidCertificateError);
+                expect(error).toBeInstanceOf(MyInvalidCertificateError);
             }
         });
         test("raise an error if the certificate is not valid", async () => {
@@ -134,7 +134,7 @@ describe("pki", () => {
             try {
                 await getMyCertificate();
             } catch (error) {
-                expect(error).toBeInstanceOf(InvalidCertificateError);
+                expect(error).toBeInstanceOf(MyInvalidCertificateError);
             }
         });
         test("raise an error if the pkiStatus is not OK", async () => {

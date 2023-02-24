@@ -1,13 +1,16 @@
 <script>
 import { MimeType } from "@bluemind/email";
 import { BmButton } from "@bluemind/ui-components";
-import { isDecrypted, hasEncryptionHeader, hasSignatureHeader, isVerified } from "../../lib/helper";
+import { isDecrypted, getHeaderValue, hasEncryptionHeader, hasSignatureHeader, isVerified } from "../../lib/helper";
+import { ENCRYPTED_HEADER_NAME, SIGNED_HEADER_NAME } from "../../lib/constants";
+import DocLinkMixin from "../../mixins/DocLinkMixin";
 import untrustedIllustration from "../../../assets/mail-app-untrusted.png";
 import undecryptedIllustration from "../../../assets/mail-app-undecrypted.png";
 
 export default {
     name: "SMimeBodyWrapper",
     components: { BmButton },
+    mixins: [DocLinkMixin],
     props: {
         message: {
             type: Object,
@@ -46,7 +49,6 @@ export default {
             return partsByCapabilities.some(({ parts }) => parts.some(MimeType.isPkcs7));
         }
     },
-
     render(h) {
         const src = this.untrusted ? untrustedIllustration : undecryptedIllustration;
         const text = this.untrusted
@@ -54,10 +56,11 @@ export default {
             : this.$t("smime.mailapp.body_wrapper.cant_display");
         if ((!this.forceDisplay && this.untrusted) || this.undecrypted) {
             const imgDiv = h("div", {}, [h("img", { attrs: { src } })]);
-            //  FIXME doc urls: verification failure, decryption failure and missing SW
+            const headerName = this.untrusted ? SIGNED_HEADER_NAME : ENCRYPTED_HEADER_NAME;
+            const href = this.getBodyWrapperLink(getHeaderValue(this.message.headers, headerName), headerName);
             const button = h(
                 "bm-button",
-                { props: { variant: "link" }, class: "mt-6", attrs: { target: "_blank" } },
+                { props: { variant: "link" }, class: "mt-6", attrs: { href, target: "_blank" } },
                 text
             );
             const children = [imgDiv, button];
