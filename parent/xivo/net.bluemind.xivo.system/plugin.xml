@@ -5,7 +5,7 @@
          point="net.bluemind.system.external_systems">
       <system
             impl="net.bluemind.cti.xivo.system.XivoSystem"
-            priority="100">
+            priority="103">
       </system>
    </extension>
 

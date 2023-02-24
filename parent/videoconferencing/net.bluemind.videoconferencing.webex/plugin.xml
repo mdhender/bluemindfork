@@ -10,7 +10,8 @@
    <extension
          point="net.bluemind.system.external_systems">
       <system
-            impl="net.bluemind.videoconferencing.webex.WebexSystem">
+            impl="net.bluemind.videoconferencing.webex.WebexSystem" 
+            priority="102">
       </system>
    </extension>
 

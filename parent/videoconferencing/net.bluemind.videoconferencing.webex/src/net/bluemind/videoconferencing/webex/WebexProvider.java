@@ -45,6 +45,8 @@ public class WebexProvider extends TemplateBasedVideoConferencingProvider implem
 
 	public static final String ID = "videoconferencing-webex";
 
+	public static final String PROVIDER_NAME = "Webex";
+
 	@Override
 	public String id() {
 		return ID;
@@ -52,7 +54,7 @@ public class WebexProvider extends TemplateBasedVideoConferencingProvider implem
 
 	@Override
 	public String name() {
-		return "Webex";
+		return PROVIDER_NAME;
 	}
 
 	@Override

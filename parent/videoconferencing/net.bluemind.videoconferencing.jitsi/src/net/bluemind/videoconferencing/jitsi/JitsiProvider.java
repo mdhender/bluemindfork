@@ -29,14 +29,18 @@ import net.bluemind.videoconferencing.service.template.TemplateBasedVideoConfere
 
 public class JitsiProvider extends TemplateBasedVideoConferencingProvider implements IVideoConferencingProvider {
 
+	public static final String ID = "videoconferencing-jitsi";
+
+	public static final String PROVIDER_NAME = "Jitsi";
+
 	@Override
 	public String id() {
-		return "videoconferencing-jitsi";
+		return ID;
 	}
 
 	@Override
 	public String name() {
-		return "Jitsi";
+		return PROVIDER_NAME;
 	}
 
 	@Override

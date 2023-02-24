@@ -45,14 +45,18 @@ import net.bluemind.videoconferencing.service.template.TemplateBasedVideoConfere
 
 public class BlueMindProvider extends TemplateBasedVideoConferencingProvider implements IVideoConferencingProvider {
 
+	public static final String ID = "videoconferencing-bluemind";
+
+	public static final String PROVIDER_NAME = "BlueMind.Video";
+
 	@Override
 	public String id() {
-		return "videoconferencing-bluemind";
+		return ID;
 	}
 
 	@Override
 	public String name() {
-		return "BlueMind.Video";
+		return PROVIDER_NAME;
 	}
 
 	@Override

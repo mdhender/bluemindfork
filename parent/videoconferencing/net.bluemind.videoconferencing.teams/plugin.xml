@@ -10,7 +10,7 @@
          point="net.bluemind.system.external_systems">
       <system
             impl="net.bluemind.videoconferencing.teams.TeamsExternalSystem"
-            priority="1">
+            priority="101">
       </system>
    </extension>
 

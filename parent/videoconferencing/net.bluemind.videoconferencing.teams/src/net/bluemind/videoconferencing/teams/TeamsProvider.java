@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -38,7 +39,6 @@ import com.microsoft.graph.models.OnlineMeeting;
 import com.microsoft.graph.models.User;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.OnlineMeetingCollectionRequest;
-import com.microsoft.graph.requests.OnlineMeetingRequest;
 
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.api.fault.ServerFault;
@@ -58,17 +58,18 @@ import net.bluemind.videoconferencing.api.VideoConference;
 import okhttp3.Request;
 
 public class TeamsProvider implements IVideoConferencingProvider {
-
 	/**
 	 * Teams joinInformation content: data:text/html,ENCODED_HTML_CONTENT
 	 */
 	private static Pattern DATA_URI = Pattern.compile("(?s)data:([^,]*?),(.*)$");
 
+	public static final String ID = "videoconferencing-teams";
+
 	public static final String PROVIDER_NAME = "Teams";
 
 	@Override
 	public String id() {
-		return "videoconferencing-teams";
+		return ID;
 	}
 
 	@Override
@@ -121,9 +122,7 @@ public class TeamsProvider implements IVideoConferencingProvider {
 			throw ServerFault.notFound("Teams user not found: " + externalAccount.login);
 		}
 
-		String confId = vevent.conferenceId;
-		OnlineMeeting meeting;
-		if (Strings.isNullOrEmpty(confId)) {
+		if (Strings.isNullOrEmpty(vevent.conferenceId)) {
 			OnlineMeeting onlineMeeting = new OnlineMeeting();
 			onlineMeeting.subject = vevent.summary;
 			LobbyBypassSettings lobbyBypass = new LobbyBypassSettings();
@@ -133,14 +132,23 @@ public class TeamsProvider implements IVideoConferencingProvider {
 
 			OnlineMeetingCollectionRequest req = graphClient.users(me.id).onlineMeetings().buildRequest();
 			req.addHeader("Accept-Language", context.getSecurityContext().getLang());
-			meeting = req.post(onlineMeeting);
-		} else {
-			OnlineMeetingRequest req = graphClient.users(me.id).onlineMeetings(confId).buildRequest();
-			req.addHeader("Accept-Language", context.getSecurityContext().getLang());
-			meeting = req.get();
-		}
+			OnlineMeeting meeting = req.post(onlineMeeting);
+			String desc = extractDesc(meeting);
 
-		String desc = meeting.joinInformation.content;
+			if (vevent.conferenceConfiguration == null) {
+				vevent.conferenceConfiguration = new HashMap<>();
+			}
+			vevent.conferenceConfiguration.put("templates", desc);
+			return new VideoConference(meeting.id, meeting.joinWebUrl, desc);
+		} else {
+			return new VideoConference(vevent.conferenceId, vevent.conference,
+					vevent.conferenceConfiguration.get("templates"));
+		}
+	}
+
+	private String extractDesc(OnlineMeeting meeting) {
+		String desc;
+		desc = meeting.joinInformation.content;
 		Matcher dataUriMatcher = DATA_URI.matcher(desc);
 		if (dataUriMatcher.find()) {
 			String raw = dataUriMatcher.group(2);
@@ -150,8 +158,7 @@ public class TeamsProvider implements IVideoConferencingProvider {
 				// will not happen
 			}
 		}
-
-		return new VideoConference(meeting.id, meeting.joinWebUrl, desc);
+		return desc;
 	}
 
 	@Override

@@ -28,7 +28,7 @@ import net.bluemind.user.api.UserAccount;
 public class TeamsExternalSystem extends RegisteredExternalSystem {
 
 	public TeamsExternalSystem() {
-		super(TeamsProvider.PROVIDER_NAME, "Video Conferencing, Meetings, Calling", AuthKind.NONE);
+		super(TeamsProvider.ID, "Video Conferencing, Meetings, Calling", AuthKind.NONE);
 	}
 
 	@Override

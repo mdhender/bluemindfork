@@ -48,14 +48,18 @@ public class StarLeafProvider implements IVideoConferencingProvider {
 
 	private static final VideoConferencingTemplateHelper templateHelper = new VideoConferencingTemplateHelper();
 
+	public static final String ID = "videoconferencing-starleaf";
+
+	public static final String PROVIDER_NAME = "StarLeaf";
+
 	@Override
 	public String id() {
-		return "videoconferencing-starleaf";
+		return ID;
 	}
 
 	@Override
 	public String name() {
-		return "StarLeaf";
+		return PROVIDER_NAME;
 	}
 
 	@Override

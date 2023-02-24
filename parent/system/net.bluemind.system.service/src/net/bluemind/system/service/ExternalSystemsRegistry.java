@@ -82,6 +82,9 @@ public class ExternalSystemsRegistry {
 	}
 
 	private static ExternalSystem toExternalSystem(RegisteredExternalSystem system) {
+		if (system == null) {
+			return null;
+		}
 		return new ExternalSystem(system.identifier, system.description, system.authKind, system.properties);
 	}
 

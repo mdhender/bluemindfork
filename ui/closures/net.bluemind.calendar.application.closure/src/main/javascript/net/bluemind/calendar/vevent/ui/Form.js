@@ -1874,6 +1874,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencingAddFu
     }
     this.getModel().conference = res['conference'];
     this.getModel().conferenceId = res['conferenceId'];
+    this.getModel().conferenceConfiguration = res['conferenceConfiguration'];
     var desc = res.description.trim();
     var idx =  desc.indexOf("<videoconferencingtemplate");
     var len = desc.length;
@@ -1900,6 +1901,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencingRemov
       this.getModel().conference = null;
       this.getModel().conferenceId = null;
       this.getModel().conferenceDescription = '';
+      this.getModel().conferenceConfiguration = null;
       this.editor_.setValue(res.description);
 
       // remove all videoconf resources from meeting

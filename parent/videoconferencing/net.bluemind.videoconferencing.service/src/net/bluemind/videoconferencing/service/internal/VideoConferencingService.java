@@ -124,8 +124,18 @@ public class VideoConferencingService implements IVideoConferencing {
 			vevent.description = "";
 		}
 
-		if (!templateHelper.containsTemplate(vevent.description, resource.uid)) {
-			vevent.description = templateHelper.addTemplate(vevent.description, conferenceInfo.description);
+		if (vevent.conferenceConfiguration == null) {
+			vevent.conferenceConfiguration = new HashMap<>();
+		}
+
+		if (!Strings.isNullOrEmpty(conferenceInfo.description)) {
+			if (!templateHelper.containsTemplate(vevent.description, resource.uid)) {
+				vevent.description = templateHelper.addTemplate(vevent.description, conferenceInfo.description);
+			}
+
+			if (Strings.isNullOrEmpty(vevent.conferenceConfiguration.get("templates"))) {
+				vevent.conferenceConfiguration.put("templates", conferenceInfo.description);
+			}
 		}
 
 		return vevent;
