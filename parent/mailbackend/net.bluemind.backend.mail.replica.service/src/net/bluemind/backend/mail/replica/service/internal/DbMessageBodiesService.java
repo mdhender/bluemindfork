@@ -48,22 +48,24 @@ import io.vertx.core.file.OpenOptions;
 import io.vertx.core.streams.ReadStream;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.parsing.BodyStreamProcessor;
-import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
+import net.bluemind.backend.mail.parsing.BodyStreamProcessor.MessageBodyData;
 import net.bluemind.backend.mail.replica.api.IMessageBodyTierChange;
 import net.bluemind.backend.mail.replica.indexing.IndexedMessageBody;
 import net.bluemind.backend.mail.replica.indexing.RecordIndexActivator;
 import net.bluemind.backend.mail.replica.persistence.MessageBodyStore;
+import net.bluemind.backend.mail.replica.service.IInternalDbMessageBodies;
 import net.bluemind.backend.mail.replica.service.sds.MessageBodyObjectStore;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.rest.vertx.VertxStream.LocalPathStream;
+import net.bluemind.index.mail.IndexableMessageBodyCache;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.sds.sync.api.SdsSyncEvent;
 import net.bluemind.sds.sync.api.SdsSyncEvent.Body;
 
-public class DbMessageBodiesService implements IDbMessageBodies {
+public class DbMessageBodiesService implements IInternalDbMessageBodies {
 
 	private static final Logger logger = LoggerFactory.getLogger(DbMessageBodiesService.class);
 
@@ -146,13 +148,17 @@ public class DbMessageBodiesService implements IDbMessageBodies {
 				logger.debug("Got body '{}'", body.subject);
 				body.guid = uid;
 				body.created = deliveryDate == null ? new Date() : deliveryDate;
-				update(body);
-				RecordIndexActivator.getIndexer().ifPresent(service -> {
-					IndexedMessageBody indexData = IndexedMessageBody.createIndexBody(body.guid, bodyData);
-					service.storeBody(indexData);
-				});
+				updateAndIndex(bodyData);
 			}
 		}).orTimeout(10, TimeUnit.SECONDS).join();
+	}
+
+	@Override
+	public void updateAndIndex(MessageBodyData bodyData) {
+		IndexedMessageBody indexData = IndexedMessageBody.createIndexBody(bodyData.body.guid, bodyData);
+		IndexableMessageBodyCache.bodies.put(indexData.uid, indexData);
+		update(bodyData.body);
+		RecordIndexActivator.getIndexer().ifPresent(service -> service.storeBody(indexData));
 	}
 
 	@Override

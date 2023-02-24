@@ -64,8 +64,6 @@ import org.elasticsearch.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.netflix.spectator.api.Registry;
@@ -124,13 +122,6 @@ public class MailIndexService implements IMailIndexService {
 	private static final String INDEX_PENDING_READ_ALIAS = "mailspool_pending_read_alias";
 	private static final String INDEX_PENDING_WRITE_ALIAS = "mailspool_pending_write_alias";
 
-	/**
-	 * We keep the document around as mailspool_pending is not refreshed after a
-	 * body is written, so we're not guaranteed to get it back.
-	 */
-	private static final Cache<String, Map<String, Object>> bodyCache = Caffeine.newBuilder()
-			.expireAfterWrite(5, TimeUnit.SECONDS).maximumSize(128).build();
-
 	private Registry metricRegistry;
 	private IdFactory idFactory;
 
@@ -148,7 +139,21 @@ public class MailIndexService implements IMailIndexService {
 	@Override
 	public Map<String, Object> storeBody(IndexedMessageBody body) {
 		logger.debug("Saving body {} to pending index", body);
+		Map<String, Object> content = bodyToDocument(body);
 		Client client = getIndexClient();
+		client.prepareIndex(INDEX_PENDING_WRITE_ALIAS, PENDING_TYPE).setId(body.uid).setSource(content).get();
+		return content;
+	}
+
+	@Override
+	public void storeBodyAsByte(String uid, byte[] body) {
+		logger.debug("Saving body to pending index");
+		Client client = getIndexClient();
+		client.prepareIndex(INDEX_PENDING_WRITE_ALIAS, PENDING_TYPE).setId(uid).setSource(body, XContentType.JSON)
+				.get();
+	}
+
+	private Map<String, Object> bodyToDocument(IndexedMessageBody body) {
 		Map<String, Object> content = new HashMap<>();
 		content.put("content", body.content);
 		content.put("messageId", body.messageId.toString());
@@ -158,17 +163,7 @@ public class MailIndexService implements IMailIndexService {
 		content.put("subject_kw", body.subject.toString());
 		content.put("headers", body.headers());
 		content.putAll(body.data);
-		client.prepareIndex(INDEX_PENDING_WRITE_ALIAS, PENDING_TYPE).setId(body.uid).setSource(content).get();
-		bodyCache.put(body.uid, content);
 		return content;
-	}
-
-	public void storeBodyAsByte(String uid, byte[] body) {
-		logger.debug("Saving body to pending index");
-		Client client = getIndexClient();
-		client.prepareIndex(INDEX_PENDING_WRITE_ALIAS, PENDING_TYPE).setId(uid).setSource(body, XContentType.JSON)
-				.get();
-
 	}
 
 	private List<String> filterMailspoolIndexNames(GetIndexResponse indexResponse) {
@@ -250,8 +245,8 @@ public class MailIndexService implements IMailIndexService {
 		Client client = getIndexClient();
 		String userAlias = getIndexAliasName(user);
 		Set<String> is = MessageFlagsHelper.asFlags(mail.flags);
-		Map<String, Object> parentDoc = Optional.ofNullable(bodyCache.getIfPresent(parentUid))
-				.<Map<String, Object>>map(HashMap::new).orElseGet(() -> {
+		Map<String, Object> parentDoc = Optional.ofNullable(IndexableMessageBodyCache.bodies.getIfPresent(parentUid))
+				.map(this::bodyToDocument).orElseGet(() -> {
 					GetResponse response = client.prepareGet(INDEX_PENDING_READ_ALIAS, PENDING_TYPE, parentUid).get();
 					if (response.isSourceEmpty()) {
 						try {

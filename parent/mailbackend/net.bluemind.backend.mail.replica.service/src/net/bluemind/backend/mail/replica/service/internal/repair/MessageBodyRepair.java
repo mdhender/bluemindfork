@@ -33,12 +33,10 @@ import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.parsing.BodyStreamProcessor;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
-import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.ImapBinding;
-import net.bluemind.backend.mail.replica.indexing.IndexedMessageBody;
-import net.bluemind.backend.mail.replica.indexing.RecordIndexActivator;
+import net.bluemind.backend.mail.replica.service.IInternalDbMessageBodies;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -188,8 +186,8 @@ public class MessageBodyRepair implements IDirEntryRepairSupport {
 					}
 					final IDbMailboxRecords mailboxRecordService = ServerSideServiceProvider.getProvider(ctx)
 							.instance(IDbMailboxRecords.class, mailboxFolder.uid);
-					final IDbMessageBodies bodiesService = ServerSideServiceProvider.getProvider(bmContext)
-							.instance(IDbMessageBodies.class, cyrusPartition.name);
+					final IInternalDbMessageBodies bodiesService = ServerSideServiceProvider.getProvider(bmContext)
+							.instance(IInternalDbMessageBodies.class, cyrusPartition.name);
 					final List<CompletableFuture<Void>> completableFutures = new ArrayList<>();
 					int ok = 0;
 					int ko = 0;
@@ -232,15 +230,11 @@ public class MessageBodyRepair implements IDirEntryRepairSupport {
 		 * Prepare a future task for parsing the IMAP message using
 		 * {@link BodyStreamProcessor} and update {@link MessageBody} in DB.
 		 */
-		private CompletableFuture<Void> createBodyProcessorTask(final IDbMessageBodies bodiesService,
+		private CompletableFuture<Void> createBodyProcessorTask(final IInternalDbMessageBodies bodiesService,
 				final Stream imapMessageStream, final String messageBodyGuid) {
 			return BodyStreamProcessor.processBody(imapMessageStream).thenAccept(bodyData -> {
 				bodyData.body.guid = messageBodyGuid;
-				bodiesService.update(bodyData.body);
-				RecordIndexActivator.getIndexer().ifPresent(service -> {
-					IndexedMessageBody indexData = IndexedMessageBody.createIndexBody(bodyData.body.guid, bodyData);
-					service.storeBody(indexData);
-				});
+				bodiesService.updateAndIndex(bodyData);
 			}).exceptionally(ex -> null);
 		}
 

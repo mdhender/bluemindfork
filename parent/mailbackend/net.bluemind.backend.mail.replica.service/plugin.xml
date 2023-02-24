@@ -90,6 +90,9 @@
             class="net.bluemind.backend.mail.replica.service.DbMessageBodiesServiceFactory">
       </serviceFactory>
       <serviceFactory
+            class="net.bluemind.backend.mail.replica.service.InternalDbMessageBodiesServiceFactory">
+      </serviceFactory>
+      <serviceFactory
             class="net.bluemind.backend.mail.replica.service.DbMailboxRecordsServiceFactory">
       </serviceFactory>
       <serviceFactory

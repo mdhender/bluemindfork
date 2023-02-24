@@ -23,19 +23,18 @@
 package net.bluemind.backend.mail.replica.service;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
-import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.core.rest.BmContext;
 
-public class DbMessageBodiesServiceFactory extends AbstractDbMessageBodiesServiceFactory<IDbMessageBodies> {
+public class InternalDbMessageBodiesServiceFactory
+		extends AbstractDbMessageBodiesServiceFactory<IInternalDbMessageBodies> {
 
 	@Override
-	public Class<IDbMessageBodies> factoryClass() {
-		return IDbMessageBodies.class;
+	public Class<IInternalDbMessageBodies> factoryClass() {
+		return IInternalDbMessageBodies.class;
 	}
 
 	@Override
-	protected IDbMessageBodies getService(BmContext context, CyrusPartition partition) {
+	protected IInternalDbMessageBodies getService(BmContext context, CyrusPartition partition) {
 		return getDbMessageBodiesService(context, partition);
 	}
-
 }
