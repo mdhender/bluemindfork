@@ -1,5 +1,9 @@
 <template>
-    <composer-alert class="invalid-identity-alert" :text="$t('smime.mailapp.alert.invalid_identity')" doc="">
+    <composer-alert
+        class="invalid-identity-alert"
+        :text="$t('smime.mailapp.alert.invalid_identity')"
+        :doc="emailAddressesDontMatchLink"
+    >
         <bm-button variant="text" @click="stopEncryptionAndSignature()">
             {{ $t("smime.mailapp.composer.stop_encryption_and_signature") }}
         </bm-button>
@@ -9,13 +13,14 @@
 <script>
 import { mapGetters } from "vuex";
 import { BmButton } from "@bluemind/ui-components";
+import DocLinkMixin from "../../../mixins/DocLinkMixin";
 import EncryptSignMixin from "../../../mixins/EncryptSignMixin";
 import ComposerAlert from "./ComposerAlert";
 
 export default {
     name: "InvalidIdentityAlert",
     components: { BmButton, ComposerAlert },
-    mixins: [EncryptSignMixin],
+    mixins: [DocLinkMixin, EncryptSignMixin],
     props: {
         alert: {
             type: Object,

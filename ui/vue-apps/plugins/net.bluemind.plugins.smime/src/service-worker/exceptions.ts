@@ -21,7 +21,17 @@ export class InvalidKeyError extends SmimeErrors {
 }
 export class MyInvalidCertificateError extends SmimeErrors {
     constructor(error?: unknown) {
-        super("Invalid certificate", CRYPTO_HEADERS.MY_INVALID_CERTIFICATE, error);
+        super("My certificate is invalid", CRYPTO_HEADERS.MY_INVALID_CERTIFICATE, error);
+    }
+}
+export class KeyNotFoundError extends SmimeErrors {
+    constructor(error?: unknown) {
+        super("Private key not found", CRYPTO_HEADERS.KEY_NOT_FOUND, error);
+    }
+}
+export class MyCertificateNotFoundError extends SmimeErrors {
+    constructor(error?: unknown) {
+        super("Cant find my certificate", CRYPTO_HEADERS.MY_CERTIFICATE_NOT_FOUND, error);
     }
 }
 

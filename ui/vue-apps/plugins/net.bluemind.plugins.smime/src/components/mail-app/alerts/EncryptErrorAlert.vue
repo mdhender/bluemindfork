@@ -1,10 +1,5 @@
 <template>
-    <composer-alert
-        class="encrypt-error-alert"
-        :code="encryptError"
-        :text="text"
-        :doc="getEncryptErrorLink(encryptError, missingCertificates)"
-    >
+    <composer-alert class="encrypt-error-alert" :code="encryptError" :text="text" :doc="doc">
         <bm-button class="stop-encryption" variant="text" @click="stopEncryption(ACTIVE_MESSAGE)">
             {{ $t("smime.mailapp.composer.stop_encryption") }}
         </bm-button>
@@ -55,6 +50,9 @@ export default {
                 : this.allInvalid
                 ? this.$t("smime.mailapp.alert.recipients.all_invalid")
                 : this.$t("smime.mailapp.alert.recipients.some_invalid");
+        },
+        doc() {
+            return this.missingCertificates ? this.missingCertificateLink : this.getEncryptErrorLink(this.encryptError);
         }
     }
 };

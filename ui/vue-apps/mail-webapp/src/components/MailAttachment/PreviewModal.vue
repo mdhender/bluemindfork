@@ -8,6 +8,7 @@
         hide-footer
         hide-header
         :scrollable="false"
+        @hidden="RESET_PREVIEW"
     >
         <global-events @keydown.left="previous" @keydown.up="previous" @keydown.down="next" @keydown.right="next" />
 
@@ -40,7 +41,7 @@ import { mapActions, mapMutations, mapState } from "vuex";
 import { BmAlertArea, BmCollapse, BmModal } from "@bluemind/ui-components";
 import { REMOVE } from "@bluemind/alert.store";
 
-import { SET_PREVIEW_FILE_KEY } from "~/mutations";
+import { RESET_PREVIEW, SET_PREVIEW_FILE_KEY } from "~/mutations";
 import PreviewFile from "./Preview/PreviewFile";
 import PreviewMessage from "./Preview/PreviewMessage";
 import PreviewHeader from "./Preview/PreviewHeader";
@@ -94,7 +95,7 @@ export default {
     },
     methods: {
         ...mapActions("alert", { REMOVE }),
-        ...mapMutations("mail", { SET_PREVIEW_FILE_KEY }),
+        ...mapMutations("mail", { RESET_PREVIEW, SET_PREVIEW_FILE_KEY }),
         next() {
             this.selectPreview(this.fileIndex, index => index + 1);
         },

@@ -28,6 +28,9 @@ export default {
         };
     },
     computed: {
+        isPreview() {
+            return this.$store.state.mail.preview.messageKey !== null;
+        },
         forceDisplay() {
             return this.$store.state.mail.smime.displayUntrusted.includes(this.message.key);
         },
@@ -57,7 +60,9 @@ export default {
         if ((!this.forceDisplay && this.untrusted) || this.undecrypted) {
             const imgDiv = h("div", {}, [h("img", { attrs: { src } })]);
             const headerName = this.untrusted ? SIGNED_HEADER_NAME : ENCRYPTED_HEADER_NAME;
-            const href = this.getBodyWrapperLink(getHeaderValue(this.message.headers, headerName), headerName);
+            const href = this.isPreview
+                ? this.noSmimeOnPreviewLink
+                : this.getBodyWrapperLink(getHeaderValue(this.message.headers, headerName), headerName);
             const button = h(
                 "bm-button",
                 { props: { variant: "link" }, class: "mt-6", attrs: { href, target: "_blank" } },

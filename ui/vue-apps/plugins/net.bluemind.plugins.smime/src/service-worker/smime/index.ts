@@ -44,7 +44,7 @@ export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): 
         const key = await getMyPrivateKey();
         const certificate = await getMyCertificate();
         // FIXME: use correct date instead of internalDate
-        // checkCertificateValidity(certificate, new Date(item.value.body.date!));
+        checkCertificateValidity(certificate, new Date(item.value.body.date!));
         const data = await client.fetch(item.value.imapUid!, part.address!, part.encoding!, part.mime!);
         content = await pkcs7.decrypt(data, key, certificate);
         const parser = await new MimeParser(part.address).parse(content);
@@ -139,8 +139,7 @@ export async function sign(item: MailboxItem, folderUid: string): Promise<Mailbo
 }
 
 function removePreviousSignedPart(structure: MessageBody.Part): MessageBody.Part {
-    // FIXME: use MimeType.js once this package is usable in worker
-    if (structure.mime === "multipart/mixed" && structure.children) {
+    if (structure.mime === MimeType.MULTIPART_MIXED && structure.children) {
         const signedPartIndex = structure.children.findIndex(part => part.mime === MimeType.PKCS_7_SIGNED_DATA);
         if (signedPartIndex !== -1) {
             structure.children.splice(signedPartIndex, 1);

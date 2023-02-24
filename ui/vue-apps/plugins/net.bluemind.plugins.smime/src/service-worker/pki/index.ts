@@ -9,7 +9,9 @@ import {
     InvalidKeyError,
     MyInvalidCertificateError,
     CertificateRecipientNotFoundError,
-    InvalidCertificateRecipientError
+    InvalidCertificateRecipientError,
+    KeyNotFoundError,
+    MyCertificateNotFoundError
 } from "../exceptions";
 import db from "./SMimePkiDB";
 
@@ -77,7 +79,7 @@ export async function getMyPrivateKey(): Promise<pki.rsa.PrivateKey> {
                 throw new InvalidKeyError(error);
             }
         } else {
-            throw new InvalidKeyError();
+            throw new KeyNotFoundError();
         }
     }
     return <pki.rsa.PrivateKey>cache.PRIVATE_KEY;
@@ -99,7 +101,7 @@ export async function getMyCertificate() {
                 throw new MyInvalidCertificateError(error);
             }
         } else {
-            throw new MyInvalidCertificateError();
+            throw new MyCertificateNotFoundError();
         }
     }
     return <pki.Certificate>cache.CERTIFICATE;

@@ -4,42 +4,51 @@ const base =
     "https://doc.bluemind.net/release/5.0/guide_de_l_administrateur/resolution_de_problemes/resolution_des_problemes_smime";
 
 export default {
+    data() {
+        return {
+            emailAddressesDontMatchLink: base + "#email-addresses-dont-match",
+            missingCertificateLink: base + "#missing-other-user-certificate",
+            noSmimeOnPreviewLink: base + "#cant-decrypt-or-verify-in-preview"
+        };
+    },
     methods: {
-        getEncryptErrorLink(errorCode, missingCertificates = false) {
-            if (missingCertificates) {
-                return base + "#missing-other-user-certificate";
-            }
-            const link = getErrorCode(errorCode);
-            return link || base;
+        getEncryptErrorLink(errorCode) {
+            const anchor = getDocAnchor(errorCode);
+            return anchor ? base + anchor : base;
         },
         getBodyWrapperLink(errorCode, headerName) {
-            const link = getErrorCode(errorCode);
             const fallback = headerName === ENCRYPTED_HEADER_NAME ? "#decrypt-failure" : "#verify-failure";
-            return link || base + fallback;
+            const anchor = getDocAnchor(errorCode);
+            return base + anchor || base + fallback;
         }
     }
 };
 
-function getErrorCode(errorCode) {
-    console.log(errorCode);
+function getDocAnchor(errorCode) {
     switch (errorCode) {
+        case CRYPTO_HEADERS.KEY_NOT_FOUND:
+        case CRYPTO_HEADERS.MY_CERTIFICATE_NOT_FOUND:
+            return "#my-key-or-certificate-is-missing";
         case CRYPTO_HEADERS.MY_INVALID_CERTIFICATE:
-            return base + "#my-invalid-certificate";
+            return "#my-invalid-certificate";
         case CRYPTO_HEADERS.CERTIFICATE_RECIPIENT_NOT_FOUND:
-            return base + "#missing-other-user-certificate";
+            return "#missing-other-user-certificate";
         case CRYPTO_HEADERS.INVALID_CERTIFICATE_RECIPIENT:
-            return base + "#invalid-other-user-certificate";
+            return "#invalid-other-user-certificate";
         case CRYPTO_HEADERS.ENCRYPT_FAILURE:
-            return base + "#encrypt-failure";
+            return "#encrypt-failure";
         case CRYPTO_HEADERS.DECRYPT_FAILURE:
-            return base + "#decrypt-failure";
+            return "#decrypt-failure";
         case CRYPTO_HEADERS.UNMATCHED_CERTIFICATE:
-            return base + "#decrypt-failure-unmatched-certificate";
+            return "#decrypt-failure-unmatched-certificate";
         case CRYPTO_HEADERS.INVALID_MESSAGE_INTEGRITY:
-            return base + "#verify-failure-corrupted-message";
+            return "#verify-failure-corrupted-message";
         case CRYPTO_HEADERS.INVALID_SIGNATURE:
-            return base + "#verify-failure-invalid-signature";
+            return "#verify-failure-invalid-signature";
         case CRYPTO_HEADERS.INVALID_PKCS7_ENVELOPE:
-            return base + "#verify-failure";
+        case CRYPTO_HEADERS.UNSUPPORTED_ALGORITHM:
+            return "#verify-failure";
+        case CRYPTO_HEADERS.SIGN_FAILURE:
+            return "#sign-failure";
     }
 }
