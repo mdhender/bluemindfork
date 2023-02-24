@@ -19,9 +19,9 @@ export class InvalidKeyError extends SmimeErrors {
         super("Invalid private key", CRYPTO_HEADERS.INVALID_KEY, error);
     }
 }
-export class InvalidCertificateError extends SmimeErrors {
+export class MyInvalidCertificateError extends SmimeErrors {
     constructor(error?: unknown) {
-        super("Invalid certificate", CRYPTO_HEADERS.INVALID_CERTIFICATE, error);
+        super("Invalid certificate", CRYPTO_HEADERS.MY_INVALID_CERTIFICATE, error);
     }
 }
 

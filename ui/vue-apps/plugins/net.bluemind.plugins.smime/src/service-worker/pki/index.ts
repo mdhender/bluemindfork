@@ -7,7 +7,7 @@ import session from "../environnment/session";
 import {
     ExpiredCertificateError,
     InvalidKeyError,
-    InvalidCertificateError,
+    MyInvalidCertificateError,
     CertificateRecipientNotFoundError,
     InvalidCertificateRecipientError
 } from "../exceptions";
@@ -96,10 +96,10 @@ export async function getMyCertificate() {
                 const cert = await (<Blob>await db.getCertificate()).text();
                 cache.CERTIFICATE = pki.certificateFromPem(cert);
             } catch (error) {
-                throw new InvalidCertificateError(error);
+                throw new MyInvalidCertificateError(error);
             }
         } else {
-            throw new InvalidCertificateError();
+            throw new MyInvalidCertificateError();
         }
     }
     return <pki.Certificate>cache.CERTIFICATE;

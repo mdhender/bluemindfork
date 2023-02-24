@@ -1,5 +1,5 @@
 <template>
-    <composer-alert class="encrypt-error-alert" :code="encryptError" :text="text" doc="">
+    <composer-alert class="encrypt-error-alert" :code="encryptError" :text="text" :doc="docLink">
         <bm-button class="stop-encryption" variant="text" @click="stopEncryption(ACTIVE_MESSAGE)">
             {{ $t("smime.mailapp.composer.stop_encryption") }}
         </bm-button>
@@ -49,6 +49,24 @@ export default {
                 : this.allInvalid
                 ? this.$t("smime.mailapp.alert.recipients.all_invalid")
                 : this.$t("smime.mailapp.alert.recipients.some_invalid");
+        },
+        docLink() {
+            const base =
+                "https://doc.bluemind.net/release/5.0/guide_de_l_administrateur/resolution_de_problemes/resolution_des_problemes_smime";
+            if (this.missingCertificates) {
+                return base + "#missing-other-user-certificate";
+            }
+            switch (this.encryptError) {
+                case CRYPTO_HEADERS.MY_INVALID_CERTIFICATE:
+                    return base + "#my-invalid-certificate";
+                case CRYPTO_HEADERS.CERTIFICATE_RECIPIENT_NOT_FOUND:
+                    return base + "#missing-other-user-certificate";
+                case CRYPTO_HEADERS.INVALID_CERTIFICATE_RECIPIENT:
+                    return base + "#invalid-other-user-certificate";
+                case CRYPTO_HEADERS.ENCRYPT_FAILURE:
+                    return base + "#encrypt-failure";
+            }
+            return base;
         }
     }
 };

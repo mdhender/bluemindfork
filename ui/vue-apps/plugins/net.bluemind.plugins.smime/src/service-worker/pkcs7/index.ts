@@ -3,7 +3,7 @@ import { binaryToArrayBuffer } from "@bluemind/arraybuffer";
 import {
     DecryptError,
     EncryptError,
-    InvalidCertificateError,
+    InvalidCertificateRecipientError,
     SignError,
     UnmatchedCertificateError
 } from "../exceptions";
@@ -23,7 +23,7 @@ export async function decrypt(
     try {
         recipient = envelope.findRecipient(certificate);
     } catch (error) {
-        throw new InvalidCertificateError(error);
+        throw new InvalidCertificateRecipientError(error);
     }
     if (recipient) {
         try {
