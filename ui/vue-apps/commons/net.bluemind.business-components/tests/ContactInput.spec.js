@@ -2,7 +2,7 @@ import { mount } from "@vue/test-utils";
 import inject from "@bluemind/inject";
 
 inject.register({ provide: "UserSession", factory: () => ({ roles: "" }) });
-jest.mock("../../../src/css/exports/avatar.scss", () => ({
+jest.mock("@bluemind/ui-components/src/css/exports/avatar.scss", () => ({
     1: "#007bff",
     2: "#6610f2",
     3: "#6f42c1",
@@ -17,7 +17,9 @@ jest.mock("../../../src/css/exports/avatar.scss", () => ({
     12: "#6c757d",
     13: "#343a40"
 }));
+
 jest.mock("@bluemind/ui-components/src/css/exports/colors.scss", () => ({}));
+jest.mock("@bluemind/ui-components/src/mixins/MakeUniq", () => ({ methods: { makeUniq: () => "new11" } }));
 
 import ContactInput from "../src/ContactInput";
 import exampleContacts from "@bluemind/ui-components/tests/data/contacts";

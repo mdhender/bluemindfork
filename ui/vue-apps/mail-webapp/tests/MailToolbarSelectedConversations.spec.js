@@ -4,7 +4,11 @@ import { createWrapper } from "./testUtils";
 jest.mock("@bluemind/ui-components/src/css/exports/avatar.scss", () => ({ 1: "#007bff" }));
 jest.mock("~/store/api/apiConversations");
 jest.mock("@bluemind/i18n", () => {
-    return { t: () => "" };
+    return {
+        t: () => "",
+        TranslationHelper: { loadTranslations: () => {} },
+        TranslationRegistry: { register: () => {} }
+    };
 });
 
 describe("MailToolbarSelectedConversations", () => {
