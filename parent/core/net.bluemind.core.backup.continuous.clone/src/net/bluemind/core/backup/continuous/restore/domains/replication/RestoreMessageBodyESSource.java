@@ -36,11 +36,14 @@ public class RestoreMessageBodyESSource implements RestoreDomainType {
 
 	private void create(RecordKey key, String payload) {
 		VersionnedItem<IndexedMessageBodyDTO> item = reader().read(payload);
-		RecordIndexActivator.getIndexer().ifPresent(service -> {
+		RecordIndexActivator.getIndexer().ifPresentOrElse(service -> {
 			if (item.value.data != null) {
 				service.storeBodyAsByte(item.uid, item.value.data);
 				log.create(type(), key);
 			}
+		}, () -> {
+			log.skip(type(), key, "ES source with " + item.value.data.length + " byte(s)");
+			throw new RuntimeException("Record index activator is needed for clean forks");
 		});
 	}
 
