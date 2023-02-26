@@ -44,6 +44,8 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
 public abstract class AbstractMailboxRecordServiceFactory<T>
 		implements ServerSideServiceProvider.IServerSideServiceFactory<T> {
@@ -107,6 +109,9 @@ public abstract class AbstractMailboxRecordServiceFactory<T>
 
 	@SuppressWarnings("unchecked")
 	protected T createNoopService() {
+		if (StateContext.getState() == SystemState.CORE_STATE_CLONING) {
+			throw new ServerFault("NOOP service is not a good thing while cloning.");
+		}
 		return (T) new NoopMailboxRecordService();
 	}
 

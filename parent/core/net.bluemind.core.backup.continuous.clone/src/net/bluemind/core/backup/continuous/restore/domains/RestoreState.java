@@ -39,6 +39,7 @@ public class RestoreState implements Closeable {
 	}
 
 	public void mapUid(String storeUid, String targetUid) {
+		logger.info("Alias {} kafkaUid to become {}", storeUid, targetUid);
 		globalUidsMapStoreToDb.put(storeUid, targetUid);
 	}
 
