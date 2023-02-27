@@ -36,24 +36,31 @@ public class RouteMatcher implements Handler<HttpServerRequest> {
 		this.router = Router.router(vx);
 	}
 
+	private static HttpServerRequest unwrapVertxWeb(HttpServerRequest req) {
+		// we known the request is not paused and is an
+		// io.vertx.ext.web.impl.HttpServerRequestWrapper
+		// the pause method has a side effect that unwraps the delegate :)
+		return req.pause().resume();
+	}
+
 	public void regex(HttpMethod m, String re, Handler<HttpServerRequest> h) {
-		router.routeWithRegex(m, re).handler(rc -> h.handle(rc.request()));
+		router.routeWithRegex(m, re).handler(rc -> h.handle(unwrapVertxWeb(rc.request())));
 	}
 
 	public void regex(String re, Handler<HttpServerRequest> h) {
-		router.routeWithRegex(re).handler(rc -> h.handle(rc.request()));
+		router.routeWithRegex(re).handler(rc -> h.handle(unwrapVertxWeb(rc.request())));
 	}
 
 	public void post(String path, Handler<HttpServerRequest> h) {
-		router.post(path).handler(rc -> h.handle(rc.request()));
+		router.post(path).handler(rc -> h.handle(unwrapVertxWeb(rc.request()).pause().resume()));
 	}
 
 	public void get(String path, Handler<HttpServerRequest> h) {
-		router.get(path).handler(rc -> h.handle(rc.request()));
+		router.get(path).handler(rc -> h.handle(unwrapVertxWeb(rc.request())));
 	}
 
 	public void allWithRegEx(String regex, Handler<HttpServerRequest> h) {
-		router.routeWithRegex(regex).handler(rc -> h.handle(rc.request()));
+		router.routeWithRegex(regex).handler(rc -> h.handle(unwrapVertxWeb(rc.request())));
 	}
 
 	@Override
@@ -62,7 +69,7 @@ public class RouteMatcher implements Handler<HttpServerRequest> {
 	}
 
 	public void noMatch(Handler<HttpServerRequest> h) {
-		router.route().order(Integer.MAX_VALUE).handler(rc -> h.handle(rc.request()));
+		router.route().order(Integer.MAX_VALUE).handler(rc -> h.handle(unwrapVertxWeb(rc.request())));
 	}
 
 	public SockJSHandler websocket(String prefix, SockJSHandlerOptions hOpts, Handler<SockJSSocket> sock) {
@@ -72,19 +79,19 @@ public class RouteMatcher implements Handler<HttpServerRequest> {
 	}
 
 	public void delete(String path, Handler<HttpServerRequest> handler) {
-		router.delete(path).handler(rc -> handler.handle(rc.request()));
+		router.delete(path).handler(rc -> handler.handle(unwrapVertxWeb(rc.request())));
 	}
 
 	public void put(String path, Handler<HttpServerRequest> handler) {
-		router.put(path).handler(rc -> handler.handle(rc.request()));
+		router.put(path).handler(rc -> handler.handle(unwrapVertxWeb(rc.request())));
 	}
 
 	public void head(String path, Handler<HttpServerRequest> handler) {
-		router.head(path).handler(rc -> handler.handle(rc.request()));
+		router.head(path).handler(rc -> handler.handle(unwrapVertxWeb(rc.request())));
 	}
 
 	public void options(String path, Handler<HttpServerRequest> handler) {
-		router.options(path).handler(rc -> handler.handle(rc.request()));
+		router.options(path).handler(rc -> handler.handle(unwrapVertxWeb(rc.request())));
 	}
 
 }

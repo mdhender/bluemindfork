@@ -66,10 +66,8 @@ public final class Requests {
 	 * @param tag
 	 * @param value
 	 */
-	public static void tag(HttpServerRequest r, String tag, String value) {
-		HttpServerRequest sr = Unwrapper.unwrap(r);
-		if (sr instanceof WrappedRequest) {
-			WrappedRequest wr = (WrappedRequest) sr;
+	public static void tag(HttpServerRequest sr, String tag, String value) {
+		if (sr instanceof WrappedRequest wr) {
 			wr.putLogAttribute(tag, value);
 		} else {
 			logger.warn("Not a wrapped request {}", sr, new Throwable("call loc"));
@@ -80,10 +78,8 @@ public final class Requests {
 		tag(sr, "async", "true");
 	}
 
-	public static String tag(HttpServerRequest r, String tag) {
-		HttpServerRequest sr = Unwrapper.unwrap(r);
-		if (sr instanceof WrappedRequest) {
-			WrappedRequest wr = (WrappedRequest) sr;
+	public static String tag(HttpServerRequest sr, String tag) {
+		if (sr instanceof WrappedRequest wr) {
 			return wr.logAttribute(tag);
 		} else {
 			logger.warn("Not a wrapped request {}", sr, new Throwable("call loc"));
