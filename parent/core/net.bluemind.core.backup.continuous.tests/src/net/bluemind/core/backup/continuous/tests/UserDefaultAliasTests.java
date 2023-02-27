@@ -25,22 +25,16 @@ import static org.junit.Assert.assertNotNull;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.vertx.core.Vertx;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.addressbook.api.VCard.Kind;
-import net.bluemind.backend.cyrus.replication.observers.IReplicationObserver;
-import net.bluemind.backend.cyrus.replication.observers.IReplicationObserverProvider;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
@@ -75,31 +69,6 @@ public class UserDefaultAliasTests {
 	private String routingUid;
 	private ItemValue<Server> backend;
 	private String alias;
-
-	public static class ApplyWatch implements IReplicationObserverProvider, IReplicationObserver {
-
-		public static final Map<String, AtomicLong> counts = new ConcurrentHashMap<>();
-
-		@Override
-		public IReplicationObserver create(Vertx vertx) {
-			return this;
-		}
-
-		@Override
-		public void onApplyMessages(int total) {
-		}
-
-		public static long count(String mboxUniqueId) {
-			return counts.computeIfAbsent(mboxUniqueId, k -> new AtomicLong()).get();
-		}
-
-		@Override
-		public void onApplyMailbox(String mboxUniqueId, long lastUid) {
-			AtomicLong adder = counts.computeIfAbsent(mboxUniqueId, k -> new AtomicLong());
-			adder.incrementAndGet();
-		}
-
-	}
 
 	@Before
 	public void before() throws Exception {
