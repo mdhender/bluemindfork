@@ -149,6 +149,7 @@ public class MailIndexService implements IMailIndexService {
 	public void storeBodyAsByte(String uid, byte[] body) {
 		logger.info("Restore {} to pending index", uid);
 		Client client = getIndexClient();
+		IndexableMessageBodyCache.sourceHolder.put(uid, () -> body);
 		client.prepareIndex(INDEX_PENDING_WRITE_ALIAS, PENDING_TYPE).setId(uid).setSource(body, XContentType.JSON)
 				.get();
 	}

@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
+import net.bluemind.backend.mail.replica.indexing.IElasticSourceHolder;
 import net.bluemind.backend.mail.replica.indexing.IndexedMessageBody;
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.caches.registry.ICacheRegistration;
@@ -36,10 +37,14 @@ public class IndexableMessageBodyCache {
 	public static final Cache<String, IndexedMessageBody> bodies = Caffeine.newBuilder().recordStats().maximumSize(256)
 			.expireAfterWrite(10, TimeUnit.SECONDS).build();
 
+	public static final Cache<String, IElasticSourceHolder> sourceHolder = Caffeine.newBuilder().recordStats()
+			.maximumSize(256).expireAfterWrite(10, TimeUnit.SECONDS).build();
+
 	public static class CacheRegistration implements ICacheRegistration {
 		@Override
 		public void registerCaches(CacheRegistry cr) {
 			cr.register(IndexableMessageBodyCache.class, bodies);
+			cr.register(IElasticSourceHolder.class, sourceHolder);
 		}
 	}
 }

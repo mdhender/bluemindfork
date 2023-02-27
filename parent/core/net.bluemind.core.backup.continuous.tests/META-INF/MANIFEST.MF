@@ -57,7 +57,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.todolist.service,
  net.bluemind.node.server,
  net.bluemind.vertx.testhelper,
- net.bluemind.backend.cyrus.partitions
+ net.bluemind.backend.cyrus.partitions,
+ net.bluemind.backend.mailapi.testhelper,
+ net.bluemind.core.backup.continuous.events;bundle-version="5.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.core.backup.continuous.tests
 Bundle-ActivationPolicy: lazy

@@ -46,7 +46,7 @@ import net.bluemind.backend.mail.parsing.Keyword;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.utils.JsonUtils;
 
-public class IndexedMessageBody {
+public class IndexedMessageBody implements IElasticSourceHolder {
 
 	public final String content;
 	public final Map<String, Object> data;

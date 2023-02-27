@@ -18,6 +18,7 @@
  */
 package net.bluemind.imap;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +33,7 @@ public final class FlagsList extends HashSet<Flag> {
 	private int uid;
 	private static final Splitter tagsSplitter = Splitter.on(' ');
 
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
@@ -60,6 +62,12 @@ public final class FlagsList extends HashSet<Flag> {
 	public static FlagsList of(List<String> flags) {
 		FlagsList ret = new FlagsList();
 		flags.stream().map(s -> Flag.from(s.toLowerCase())).filter(Objects::nonNull).forEach(ret::add);
+		return ret;
+	}
+
+	public static FlagsList of(Flag... f) {
+		FlagsList ret = new FlagsList();
+		ret.addAll(Arrays.asList(f));
 		return ret;
 	}
 

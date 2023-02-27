@@ -157,6 +157,7 @@ public class DbMessageBodiesService implements IInternalDbMessageBodies {
 	public void updateAndIndex(MessageBodyData bodyData) {
 		IndexedMessageBody indexData = IndexedMessageBody.createIndexBody(bodyData.body.guid, bodyData);
 		IndexableMessageBodyCache.bodies.put(indexData.uid, indexData);
+		IndexableMessageBodyCache.sourceHolder.put(indexData.uid, indexData);
 		update(bodyData.body);
 		RecordIndexActivator.getIndexer().ifPresent(service -> service.storeBody(indexData));
 	}
