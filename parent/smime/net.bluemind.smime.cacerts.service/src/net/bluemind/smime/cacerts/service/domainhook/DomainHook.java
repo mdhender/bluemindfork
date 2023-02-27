@@ -18,10 +18,15 @@
  */
 package net.bluemind.smime.cacerts.service.domainhook;
 
+import java.util.Arrays;
+
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.model.acl.AccessControlEntry;
+import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.hook.DomainHookAdapter;
@@ -33,7 +38,7 @@ public class DomainHook extends DomainHookAdapter {
 	public void onCreated(BmContext context, ItemValue<Domain> domain) throws ServerFault {
 		String containerUid = ISmimeCacertUids.domainCreatedCerts(domain.uid);
 
-		IContainers containerService = context.su().getServiceProvider().instance(IContainers.class);
+		IContainers containerService = context.su().provider().instance(IContainers.class);
 		ContainerDescriptor descriptor = new ContainerDescriptor();
 		descriptor.type = ISmimeCacertUids.TYPE;
 		descriptor.uid = containerUid;
@@ -44,6 +49,13 @@ public class DomainHook extends DomainHookAdapter {
 		descriptor.readOnly = false;
 		descriptor.domainUid = domain.uid;
 		containerService.create(containerUid, descriptor);
+
+		addDomainReadAccess(context, containerUid, domain.uid);
+	}
+
+	private void addDomainReadAccess(BmContext context, String containerUid, String domainUid) {
+		context.su().provider().instance(IContainerManagement.class, containerUid)
+				.setAccessControlList(Arrays.asList(AccessControlEntry.create(domainUid, Verb.Read)));
 	}
 
 	@Override

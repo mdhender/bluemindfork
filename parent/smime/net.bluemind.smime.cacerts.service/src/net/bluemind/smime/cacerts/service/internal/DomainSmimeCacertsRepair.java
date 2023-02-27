@@ -18,10 +18,14 @@
  */
 package net.bluemind.smime.cacerts.service.internal;
 
+import java.util.Arrays;
 import java.util.function.Consumer;
 
+import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.acl.AccessControlEntry;
+import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.repair.ContainerRepairOp;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
@@ -49,13 +53,19 @@ public class DomainSmimeCacertsRepair implements ContainerRepairOp {
 			descriptor.uid = uid;
 			descriptor.owner = domainUid;
 			descriptor.name = uid;
-			// domain smimecacerts check
 			descriptor.defaultContainer = true;
 			descriptor.offlineSync = false;
 			descriptor.readOnly = false;
 			descriptor.domainUid = domainUid;
 			containerService.create(uid, descriptor);
+
+			addDomainReadAccess(context, uid, domainUid);
 		});
+	}
+
+	private void addDomainReadAccess(BmContext context, String containerUid, String domainUid) {
+		context.provider().instance(IContainerManagement.class, containerUid)
+				.setAccessControlList(Arrays.asList(AccessControlEntry.create(domainUid, Verb.Read)));
 	}
 
 	private void verifyDomainSmimeCacerts(BmContext context, RepairTaskMonitor monitor, String domainUid,
