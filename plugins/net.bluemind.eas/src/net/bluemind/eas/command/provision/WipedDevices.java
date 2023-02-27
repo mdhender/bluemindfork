@@ -30,6 +30,10 @@ public final class WipedDevices {
 	private static final Logger logger = LoggerFactory.getLogger(WipedDevices.class);
 	private static final ConcurrentHashSet<String> wipedDevicesIdentifiers = new ConcurrentHashSet<>();
 
+	private WipedDevices() {
+
+	}
+
 	/**
 	 * Called from EasActivator
 	 */
@@ -42,17 +46,17 @@ public final class WipedDevices {
 		if (devId == null) {
 			return false;
 		} else {
-			return wipedDevicesIdentifiers.contains(query.deviceIdentifier());
+			return wipedDevicesIdentifiers.contains(devId);
 		}
 	}
 
-	public static void wipe(String id) {
-		logger.info("WIPE notification for device {}", id);
-		wipedDevicesIdentifiers.add(id);
+	public static void wipe(String identifier) {
+		logger.info("WIPE notification for device {}", identifier);
+		wipedDevicesIdentifiers.add(identifier);
 	}
 
-	public static void unwipe(String id) {
-		logger.info("Un-WIPE notification for device {}", id);
-		wipedDevicesIdentifiers.remove(id);
+	public static void unwipe(String identifier) {
+		logger.info("Un-WIPE notification for device {}", identifier);
+		wipedDevicesIdentifiers.remove(identifier);
 	}
 }

@@ -45,7 +45,8 @@ public enum NamespaceMapping {
 	ItemOperations("ItemOperations", "ItemOperations"), //
 	ResolveRecipients("ResolveRecipients", "ResolveRecipients"), //
 	Search("Search", "Search"), //
-	Tasks("Tasks", "Tasks");
+	Tasks("Tasks", "Tasks"), //
+	Options("Options", "AirSync");
 
 	private final String root;
 	private final String ns;

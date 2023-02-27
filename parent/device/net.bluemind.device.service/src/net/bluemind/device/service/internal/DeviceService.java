@@ -130,7 +130,7 @@ public class DeviceService implements IDevice {
 
 		update(uid, item.value);
 
-		eventProducer.wipe(uid);
+		eventProducer.wipe(item.value.identifier);
 
 	}
 
@@ -145,7 +145,7 @@ public class DeviceService implements IDevice {
 
 		update(uid, item.value);
 
-		eventProducer.unwipe(uid);
+		eventProducer.unwipe(item.value.identifier);
 
 	}
 

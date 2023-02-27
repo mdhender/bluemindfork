@@ -87,4 +87,11 @@ public final class AuthenticatedEASQuery {
 		return policyKey;
 	}
 
+	@Override
+	public String toString() {
+		return "AuthenticatedEASQuery [op=" + op + ", deviceIdentifier=" + deviceIdentifier + ", deviceType="
+				+ deviceType + ", command=" + command + ", protocolVersion=" + protocolVersion + ", policyKey="
+				+ policyKey + ", req=" + req + ", login=" + login + ", sid=" + sid + "]";
+	}
+
 }
