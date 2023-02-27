@@ -25,17 +25,15 @@ public class RestoreState implements Closeable {
 
 	private final Map<String, PromotingServer> serverByDatalocation;
 	private Map<String, ItemValue<Mailbox>> mboxesByUid;
-	private Map<String, String> globalUidsMapStoreToDb;
 	private final DB handlesBackingStore;
-	private final HTreeMap<String, Integer> bodies;
+	private final HTreeMap<String, String> globalUidsMapStoreToDb;
 
 	public RestoreState(String domainUid, Map<String, PromotingServer> topology) {
 		this.serverByDatalocation = topology;
 		this.mboxesByUid = new ConcurrentHashMap<>();
-		this.globalUidsMapStoreToDb = new ConcurrentHashMap<>();
 		this.handlesBackingStore = buildDb(domainUid);
-		this.bodies = handlesBackingStore.hashMap("bodies-" + domainUid).keySerializer(Serializer.STRING_ASCII)
-				.valueSerializer(Serializer.INTEGER).createOrOpen();
+		this.globalUidsMapStoreToDb = handlesBackingStore.hashMap("aliases-" + domainUid)
+				.keySerializer(Serializer.STRING_ASCII).valueSerializer(Serializer.STRING_ASCII).createOrOpen();
 	}
 
 	public void mapUid(String storeUid, String targetUid) {
@@ -57,18 +55,6 @@ public class RestoreState implements Closeable {
 
 	public ItemValue<Mailbox> getMailbox(String userUid) {
 		return mboxesByUid.get(userUid);
-	}
-
-	public boolean containsBody(String guid) {
-		return bodies.containsKey(guid);
-	}
-
-	public void storeBodySize(String guid, int size) {
-		bodies.put(guid, size);
-	}
-
-	public int getBodySize(String guid) {
-		return bodies.get(guid);
 	}
 
 	private DB buildDb(String domainUid) {
