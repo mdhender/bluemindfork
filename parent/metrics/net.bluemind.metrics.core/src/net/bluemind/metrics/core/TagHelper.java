@@ -34,6 +34,11 @@ public class TagHelper {
 		}
 	}
 
+	public static boolean isCgroupV2(String serverIp) {
+		INodeClient nodeClient = NodeActivator.get(serverIp);
+		return nodeClient.exists("/sys/fs/cgroup/system.slice");
+	}
+
 	public static void deleteRemote(String serverIp, String file) {
 		INodeClient nodeClient = NodeActivator.get(serverIp);
 		NCUtils.execNoOut(nodeClient, "rm -f " + file, 30, TimeUnit.SECONDS);

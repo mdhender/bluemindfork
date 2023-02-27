@@ -22,7 +22,11 @@ public class PhpfpmTagHandler extends TickInputConfigurator {
 			return;
 		}
 		try {
-			TagHelper.jarToFS(getClass(), "/configs/bm-phpfpm.conf", "/etc/telegraf/telegraf.d/bm-phpfpm.conf",
+			String inputConfigFileName = "bm-phpfpm.cgroupv1.conf";
+			if (TagHelper.isCgroupV2(itemValue.value.ip)) {
+				inputConfigFileName = "bm-phpfpm.cgroupv2.conf";
+			}
+			TagHelper.jarToFS(getClass(), "/configs/" + inputConfigFileName, "/etc/telegraf/telegraf.d/bm-phpfpm.conf",
 					itemValue, context.provider().instance(IServer.class, InstallationId.getIdentifier()));
 		} catch (IOException e) {
 			logger.error("Error copying file : {}", e.toString());
