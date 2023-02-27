@@ -72,5 +72,5 @@ function getPartsContent(vm, file) {
 
 async function getContent({ url }) {
     const content = await fetch(url);
-    return await content.blob();
+    return content.blob();
 }

@@ -16,7 +16,7 @@ export default {
             if (isDetached(this.file)) {
                 return {
                     ...this.file,
-                    ...this.GET_FH_FILE(this.file, this.file)
+                    ...this.GET_FH_FILE(this.file)
                 };
             }
             return this.file;

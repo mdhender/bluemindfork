@@ -5,35 +5,44 @@
                 <component :is="slotProps.alert.renderer" :alert="slotProps.alert" />
             </template>
         </bm-alert-area>
-        <bm-extension id="webapp.mail" type="chain-of-responsibility" path="file.preview" :file="file">
+        <bm-extension id="webapp.mail" type="chain-of-responsibility" path="file.preview" :file="{ ...file, url: src }">
             <file-viewer-facade
-                v-if="isAllowedToPreview && !hasBlockedRemoteContent && src"
+                v-if="isAllowedToPreview"
                 class="scroller-y"
                 :message="message"
                 :file="{ ...file, url: src }"
             />
-            <preview-file-content-fallback v-else :file="file" />
+            <no-preview v-else-if="!src" icon="spam" :text="$t('mail.preview.nopreview')" />
+            <no-preview v-else :icon="matchingIcon" class="file-type" :text="$t('mail.preview.nopreview.type')" />
         </bm-extension>
     </div>
 </template>
 
 <script>
 import { MimeType } from "@bluemind/email";
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapMutations, mapState } from "vuex";
+import { WARNING } from "@bluemind/alert.store";
+import apiAddressbooks from "~/store/api/apiAddressbooks";
+import { SET_BLOCK_REMOTE_IMAGES } from "~/mutations";
 import { BmExtension } from "@bluemind/extensions.vue";
 import { BmAlertArea, BmIcon } from "@bluemind/ui-components";
 import { fileUtils } from "@bluemind/mail";
 import { REMOVE } from "@bluemind/alert.store";
-
 import { PreviewMixin } from "~/mixins";
 import FileViewerFacade from "../../MailViewer/FilesViewer/FileViewerFacade";
-import PreviewFileContentFallback from "./PreviewFileContentFallback/PreviewFileContentFallback";
+import NoPreview from "./Fallback/NoPreview";
 
 const { FileStatus } = fileUtils;
 
 export default {
     name: "PreviewFileContent",
-    components: { BmAlertArea, BmExtension, BmIcon, FileViewerFacade, PreviewFileContentFallback },
+    components: {
+        BmAlertArea,
+        BmExtension,
+        BmIcon,
+        FileViewerFacade,
+        NoPreview
+    },
     mixins: [PreviewMixin],
     props: {
         message: {
@@ -63,10 +72,7 @@ export default {
     watch: {
         "file.url": {
             async handler() {
-                if (this.hasRemoteContent) {
-                    this.$emit("remote-content");
-                }
-                this.src = await this.getSrc(this.file);
+                this.src = await this.getFileUrl();
             },
             immediate: true
         },
@@ -75,7 +81,7 @@ export default {
         },
         blockedRemoteContent: {
             async handler() {
-                this.src = await this.getSrc(this.file);
+                this.src = await this.getFileUrl();
             },
             immediate: true
         }
@@ -84,7 +90,25 @@ export default {
         this.revokeObjectURL(this.src);
     },
     methods: {
-        ...mapActions("alert", { REMOVE }),
+        ...mapActions("alert", { REMOVE, WARNING }),
+        ...mapMutations("mail", {
+            SET_BLOCK_REMOTE_IMAGES
+        }),
+        getFileUrl() {
+            if (this.hasBlockedRemoteContent) {
+                this.setBlockRemote();
+            }
+            if (
+                this.file.url &&
+                !this.hasBlockedRemoteContent &&
+                this.hasRemoteContent &&
+                !(MimeType.isImage(this.file) && this.file.status !== FileStatus.INVALID)
+            ) {
+                return this.getBlobUrl(this.file.url);
+            } else {
+                return this.file.url;
+            }
+        },
         async getBlobUrl(url) {
             try {
                 const res = await fetch(url);
@@ -97,19 +121,20 @@ export default {
                 return null;
             }
         },
-        async getSrc(file) {
-            const url = file.url;
-            if (!url || this.hasBlockedRemoteContent || !this.isAllowedToPreview) {
-                return null;
-            } else {
-                return this.hasRemoteContent && !(MimeType.isImage(file) && file.status !== FileStatus.INVALID)
-                    ? this.getBlobUrl(url)
-                    : url;
-            }
-        },
         revokeObjectURL(url) {
             if (url && url.startsWith("blob")) {
                 URL.revokeObjectURL(url);
+            }
+        },
+
+        async setBlockRemote() {
+            if (this.$store.state.mail.consultPanel.remoteImages.mustBeBlocked) {
+                const { total } = await apiAddressbooks.search(this.message.from.address);
+                if (total === 0) {
+                    this.WARNING(this.alert);
+                } else {
+                    this.SET_BLOCK_REMOTE_IMAGES(false);
+                }
             }
         }
     }
@@ -145,6 +170,16 @@ export default {
         width: 100%;
         .alert {
             margin-bottom: 0;
+        }
+    }
+    .no-preview {
+        .blocked-preview {
+            color: $lowest;
+            background-color: $neutral-bg;
+        }
+        &.file-type .bm-icon {
+            background-color: $neutral-bg;
+            color: $highest;
         }
     }
 }

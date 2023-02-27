@@ -27,25 +27,10 @@ export default {
         if (this.isFhExpiredFile) {
             const icon = h("div", [h("bm-icon", { props: { icon: "cloud-exclamation", size: "4xl" } })]);
             const text = h("span", { class: "text" }, this.$t("mail.preview.nopreview.invalid"));
-            return h("div", [icon, text]);
+            return h("div", { class: "no-preview" }, [icon, text]);
         }
         return this.next();
     }
 };
 </script>
 
-<style lang="scss">
-@import "~@bluemind/ui-components/src/css/variables";
-
-.preview-invalid {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    color: $fill-neutral-fg-lo1;
-
-    .text {
-        color: $fill-neutral-fg;
-    }
-}
-</style>

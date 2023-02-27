@@ -57,12 +57,12 @@ export default class SMimeApiProxy extends MailboxItemsClient {
         mime: string,
         charset: string,
         filename: string
-    ): Promise<Blob> {
+    ): Promise<any> {
         const smimeCache = await caches.open("smime-part-cache");
         const key = getCacheKey(this.replicatedMailboxUid, imapUid, address);
         const cache = await smimeCache.match(key);
         if (cache) {
-            return cache.blob();
+            return cache;
         }
         return this.next!(imapUid, address, encoding, mime, charset, filename);
     }

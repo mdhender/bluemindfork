@@ -1,29 +1,24 @@
 <script>
 export default {
     name: "BmExtensionDecorator",
+    functional: true,
     props: {
         extensions: {
             type: Array,
             default: () => []
         }
     },
-
-    computed: {
-        extension() {
-            return this.extensions[0];
-        }
-    },
-    render: function (h) {
-        if (this.extension) {
-            return h(this.extension.name, { attrs: { ...this.$attrs } }, [
+    render: function (h, { props, data, scopedSlots }) {
+        if (props.extensions[0]) {
+            return h(props.extensions[0].name, { attrs: data.attrs }, [
                 h("bm-extension-decorator", {
-                    props: { extensions: this.extensions.slice(1) },
-                    attrs: { ...this.$attrs },
-                    scopedSlots: { default: this.$scopedSlots.default }
+                    props: { extensions: props.extensions[0].slice(1) },
+                    attrs: data.attrs,
+                    scopedSlots: { ...scopedSlots }
                 })
             ]);
         } else {
-            return this.$scopedSlots.default();
+            return scopedSlots.default();
         }
     }
 };

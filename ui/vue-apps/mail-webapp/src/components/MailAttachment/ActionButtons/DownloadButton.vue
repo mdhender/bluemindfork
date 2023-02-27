@@ -46,8 +46,8 @@ export default {
         async download() {
             const res = await fetch(this.file.url);
             const blob = await res.blob();
-            const href = this.href ? this.href : URL.createObjectURL(blob);
-            const link = createDownloadLink(href, this.file.name);
+            this.href = this.href ? this.href : URL.createObjectURL(blob);
+            const link = createDownloadLink(this.href, this.file.name);
             link.click();
         }
     }

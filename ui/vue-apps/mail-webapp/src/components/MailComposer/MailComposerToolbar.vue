@@ -42,7 +42,7 @@
                 <bm-icon icon="exclamation-circle" />{{ saveMessage }}
             </div>
             <div v-else class="save-message">{{ saveMessage }}</div>
-            <bm-extension id="webapp.mail" path="composer.footer.toolbar" :message="message" />
+            <bm-extension id="webapp.mail" path="composer.footer.toolbar" :message="message" class="d-flex" />
             <bm-icon-button
                 v-if="!userPrefTextOnly"
                 variant="compact"
