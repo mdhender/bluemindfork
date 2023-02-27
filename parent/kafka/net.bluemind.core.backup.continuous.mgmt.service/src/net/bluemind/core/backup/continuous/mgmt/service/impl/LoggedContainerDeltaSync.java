@@ -86,11 +86,19 @@ public abstract class LoggedContainerDeltaSync<O, T> extends ContainerSync {
 	 */
 	protected abstract ReadApis<T> initReadApi();
 
+	protected boolean skipContainer() {
+		return false;
+	}
+
 	@Override
 	public final void sync(ContainerState state, IBackupStoreFactory target, IServerTaskMonitor contMon) {
 		ContainerChangeset<ItemVersion> cs = changelogApi.filteredChangesetById(0L, ItemFlagFilter.all());
 		if (cs == null) {
 			contMon.log("Cannot read changeset on {}", Level.WARN, state.containerUid());
+			return;
+		}
+		if (skipContainer()) {
+			contMon.log("Skip {}", cont.uid);
 			return;
 		}
 		Stream<ItemVersion> concat = Streams.stream(Iterables.concat(cs.created, cs.updated));

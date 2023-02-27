@@ -19,7 +19,9 @@ package net.bluemind.core.backup.continuous.mgmt.service.containers.mail;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MessageBody;
+import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
@@ -29,6 +31,7 @@ import net.bluemind.core.backup.continuous.mgmt.service.impl.LoggedContainerDelt
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
@@ -66,6 +69,16 @@ public class RecordsSync<O> extends LoggedContainerDeltaSync<O, MailboxRecord> {
 		IDbMailboxRecords recsApi = ctx.provider().instance(IDbMailboxRecords.class,
 				IMailReplicaUids.getUniqueId(node.value.containerUid));
 		return new ReadApis<>(recsApi, recsApi);
+	}
+
+	@Override
+	protected boolean skipContainer() {
+		String subtree = IMailReplicaUids.subtreeUid(domain.uid, owner.value.entry);
+		IDbByContainerReplicatedMailboxes parentFolders = ctx.provider()
+				.instance(IDbByContainerReplicatedMailboxes.class, subtree);
+		ItemValue<MailboxFolder> folderItem = parentFolders
+				.getComplete(IMailReplicaUids.getUniqueId(node.value.containerUid));
+		return folderItem.flags.contains(ItemFlag.Deleted);
 	}
 
 	@Override

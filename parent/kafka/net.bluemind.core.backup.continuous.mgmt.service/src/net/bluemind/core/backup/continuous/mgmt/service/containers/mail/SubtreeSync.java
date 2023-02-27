@@ -17,9 +17,7 @@
  */
 package net.bluemind.core.backup.continuous.mgmt.service.containers.mail;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.slf4j.event.Level;
 
@@ -36,27 +34,12 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.service.DirEntryAndValue;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.mailbox.service.common.DefaultFolder;
 
 public class SubtreeSync<O> extends LoggedContainerDeltaSync<O, MailboxReplica> {
-
-	private Set<String> defaultFolders;
 
 	public SubtreeSync(BmContext ctx, ContainerDescriptor container, ItemValue<ContainerHierarchyNode> node,
 			ItemValue<DirEntryAndValue<O>> owner, ItemValue<Domain> domain) {
 		super(ctx, container, node, owner, domain);
-		defaultFolders = new HashSet<>();
-		if (owner.value.mailbox.type.sharedNs) {
-			defaultFolders.add(owner.value.mailbox.name);
-			for (String child : DefaultFolder.MAILSHARE_FOLDERS_NAME) {
-				defaultFolders.add(owner.value.mailbox.name + "/" + child);
-			}
-		} else {
-			defaultFolders.add("INBOX");
-			for (String child : DefaultFolder.USER_FOLDERS_NAME) {
-				defaultFolders.add(child);
-			}
-		}
 	}
 
 	public static class SyncFactory implements ContainerSync.Factory {
