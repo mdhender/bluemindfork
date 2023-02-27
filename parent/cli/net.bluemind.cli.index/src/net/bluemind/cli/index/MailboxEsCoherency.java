@@ -18,6 +18,7 @@
 package net.bluemind.cli.index;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -111,9 +112,7 @@ public class MailboxEsCoherency extends SingleOrDomainOperation {
 			return;
 		}
 
-		String displayName = (de.value.email != null && !de.value.email.isEmpty())
-				? (de.value.email + " (" + de.uid + ")")
-				: de.uid;
+		String displayName = displayName(de);
 		ItemValue<Mailbox> mailboxItem = ctx.adminApi().instance(IMailboxes.class, domainUid).getComplete(de.uid);
 		if (!includeArchived && (mailboxItem.value.routing != Routing.internal || mailboxItem.value.archived)) {
 			if (!outputEmailOnly && !outputCondensed) {
@@ -123,15 +122,37 @@ public class MailboxEsCoherency extends SingleOrDomainOperation {
 			return;
 		}
 
+		MailspoolStats stats = ESearchActivator.mailspoolStats();
+		boolean aliasExists = stats.exists(de.uid);
+		Report report = (!aliasExists) //
+				? new Report(true, mailboxItem.value.archived)
+				: reportAlias(stats, domainUid, de, mailboxItem);
+
+		report(report, displayName(de));
+
+		if (report.hasIncoherency() && runConsolidate) {
+			IMailboxMgmt imboxesMgmt = ctx.adminApi().instance(IMailboxMgmt.class, domainUid);
+			TaskRef ref = imboxesMgmt.consolidateMailbox(de.uid);
+			Tasks.follow(ctx, ref, ">" + displayName,
+					String.format("Failed to consolidate mailbox index of entry %s", de));
+		}
+	}
+
+	private String displayName(ItemValue<DirEntry> de) {
+		return (de.value.email != null && !de.value.email.isEmpty()) ? (de.value.email + " (" + de.uid + ")") : de.uid;
+	}
+
+	private Report reportAlias(MailspoolStats stats, String domainUid, ItemValue<DirEntry> de,
+			ItemValue<Mailbox> mailboxItem) {
+		long missingParentCount = stats.missingParentCount(de.uid);
+
 		String subtree = IMailReplicaUids.subtreeUid(domainUid, de.value);
 		IDbByContainerReplicatedMailboxes replicatedMailboxesApi = ctx.adminApi()
 				.instance(IDbByContainerReplicatedMailboxes.class, subtree);
 		Map<String, ItemValue<MailboxFolder>> mailboxesByUid = replicatedMailboxesApi.all().stream()
 				.collect(Collectors.toMap(iv -> iv.uid, iv -> iv));
 
-		MailspoolStats stats = ESearchActivator.mailspoolStats();
-		long missingParentCount = stats.missingParentCount(de.uid);
-		Report report = new Report(missingParentCount, mailboxItem.value.archived);
+		Report report = new Report(missingParentCount, mailboxItem.value.archived, mailboxesByUid);
 
 		SampleStrategy strategy = SampleStrategy.valueOfCaseInsensitive(sampleStrategy).orElse(SampleStrategy.BIGGEST);
 		FolderCount.Parameters parameters = new FolderCount.Parameters(all, strategy, sampleSize, includeEsEmpty,
@@ -144,36 +165,32 @@ public class MailboxEsCoherency extends SingleOrDomainOperation {
 					}
 				});
 
-		report(report, displayName, mailboxesByUid);
-
-		if (report.hasIncoherency() && runConsolidate) {
-			IMailboxMgmt imboxesMgmt = ctx.adminApi().instance(IMailboxMgmt.class, domainUid);
-			TaskRef ref = imboxesMgmt.consolidateMailbox(de.uid);
-			Tasks.follow(ctx, ref, ">" + displayName,
-					String.format("Failed to consolidate mailbox index of entry %s", de));
-		}
+		return report;
 	}
 
-	private void report(Report report, String displayName, Map<String, ItemValue<MailboxFolder>> mailboxesByUid) {
+	private void report(Report report, String displayName) {
 		if (!report.hasIncoherency() && !outputEmailOnly && !outputCondensed) {
 			ctx.info("[{}]: ES mailspool index is up to date [archived={}]", displayName, report.isArchived);
 		} else if (report.hasIncoherency()) {
 			if (outputEmailOnly) {
 				ctx.info("[{}]", displayName);
 			} else if (outputCondensed) {
-				ctx.info("[{}]: parent={} incoherency={} dbMissing={} esMissing={} isArchived={}", displayName,
-						report.missingParentCount, report.divergent().size(), report.missingInDb().size(),
-						report.missingInEs().size(), report.isArchived);
+				ctx.info("[{}]: parent={} incoherency={} dbMissing={} esMissing={} missingAlias={} isArchived={}",
+						displayName, report.missingParentCount, report.divergent().size(), report.missingInDb().size(),
+						report.missingInEs().size(), report.missingAlias, report.isArchived);
 			} else {
 				if (report.isArchived) {
 					ctx.warn("[{}] - mailbox is archived", displayName);
+				}
+				if (report.missingAlias) {
+					ctx.warn("[{}] - mailbox alias is missing in ES", displayName);
 				}
 				if (report.missingParentCount > 0) {
 					ctx.warn("[{}] - missing parent count: {}", displayName, report.missingParentCount());
 				}
 				report.divergent().forEach(incoherency -> {
 					ctx.warn("[{}] - {} ({}): es={}, db={}", displayName, incoherency.uid(),
-							mailboxesByUid.get(incoherency.uid()).value.fullName, incoherency.esCount(),
+							report.mailboxesByUid().get(incoherency.uid()).value.fullName, incoherency.esCount(),
 							incoherency.dbCount());
 				});
 				report.missingInDb().forEach(incoherency -> {
@@ -181,7 +198,7 @@ public class MailboxEsCoherency extends SingleOrDomainOperation {
 				});
 				report.missingInEs().forEach(incoherency -> {
 					ctx.warn("[{}] - {} ({}): es=not found, db={}", incoherency.uid(),
-							mailboxesByUid.get(incoherency.uid()).value.fullName, incoherency.dbCount());
+							report.mailboxesByUid().get(incoherency.uid()).value.fullName, incoherency.dbCount());
 				});
 			}
 		}
@@ -240,21 +257,41 @@ public class MailboxEsCoherency extends SingleOrDomainOperation {
 
 	private class Report {
 
+		private final boolean missingAlias;
 		private final long missingParentCount;
 		private final boolean isArchived;
 		private final List<FolderIncoherency> incoherencies = new ArrayList<>();
+		private final Map<String, ItemValue<MailboxFolder>> mailboxesByUid;
 
-		public Report(long missingParentCount, boolean isArchived) {
+		public Report(boolean missingAlias, boolean isArchived) {
+			this.missingAlias = missingAlias;
+			this.missingParentCount = 0;
+			this.isArchived = isArchived;
+			this.mailboxesByUid = new HashMap<>();
+		}
+
+		public Report(long missingParentCount, boolean isArchived,
+				Map<String, ItemValue<MailboxFolder>> mailboxesByUid) {
+			this.missingAlias = false;
 			this.missingParentCount = missingParentCount;
 			this.isArchived = isArchived;
+			this.mailboxesByUid = mailboxesByUid;
+		}
+
+		public boolean missingAlias() {
+			return missingAlias;
 		}
 
 		public long missingParentCount() {
 			return missingParentCount;
 		}
 
+		public Map<String, ItemValue<MailboxFolder>> mailboxesByUid() {
+			return mailboxesByUid;
+		}
+
 		public boolean hasIncoherency() {
-			return missingParentCount > 0 || incoherencies.size() > 0;
+			return missingAlias || missingParentCount > 0 || incoherencies.size() > 0;
 		}
 
 		public List<FolderIncoherency> missingInEs() {

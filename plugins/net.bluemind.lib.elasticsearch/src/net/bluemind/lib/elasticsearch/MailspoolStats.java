@@ -36,6 +36,10 @@ public class MailspoolStats {
 		this.client = client;
 	}
 
+	public boolean exists(String mailboxUid) {
+		return client.admin().indices().prepareAliasesExist(getMailboxAlias(mailboxUid)).get().exists();
+	}
+
 	public static record FolderCount(String folderUid, long count) {
 
 		public enum SampleStrategy {
