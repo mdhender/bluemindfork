@@ -94,11 +94,12 @@ public class ReplicatedMailboxUidFixup implements IDtoPreProcessor<MailboxReplic
 			return v;
 		}
 
-		uniqueIdMapOldNew.put(v.uid, rightUniqueId);
+		String wrongUid = v.uid;
+		uniqueIdMapOldNew.put(wrongUid, rightUniqueId);
 		v.uid = rightUniqueId;
 
 		fixupParent(log, v);
-		state.mapUid(IMailReplicaUids.mboxRecords(v.uid), IMailReplicaUids.mboxRecords(rightUniqueId));
+		state.mapUid(IMailReplicaUids.mboxRecords(wrongUid), IMailReplicaUids.mboxRecords(rightUniqueId));
 
 		return v;
 	}
