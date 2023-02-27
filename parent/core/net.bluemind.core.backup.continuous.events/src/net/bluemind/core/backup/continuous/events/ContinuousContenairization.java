@@ -1,11 +1,14 @@
 package net.bluemind.core.backup.continuous.events;
 
 import java.util.Date;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.hash.Hashing;
+import com.google.common.util.concurrent.RateLimiter;
 
 import net.bluemind.core.backup.continuous.DefaultBackupStore;
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
@@ -16,6 +19,8 @@ import net.bluemind.core.container.model.ItemValue;
 public interface ContinuousContenairization<T> {
 
 	static final Logger logger = LoggerFactory.getLogger(ContinuousContenairization.class);
+
+	static final Map<String, RateLimiter> byTypeLimit = new ConcurrentHashMap<>();
 
 	String type();
 
@@ -47,11 +52,13 @@ public interface ContinuousContenairization<T> {
 	}
 
 	default void log(String operation, ContainerDescriptor metaDesc, ItemValue<T> iv, Throwable ex) {
+		String t = type();
+		RateLimiter lim = byTypeLimit.computeIfAbsent(t, k -> RateLimiter.create(1.0 / 2));
 		if (ex != null) {
-			logger.error("{}:fails type:{} domainUid:{} ownerUid:{} itemUid:{}", operation, type(), metaDesc.domainUid,
+			logger.error("{}:fails type:{} domainUid:{} ownerUid:{} itemUid:{}", operation, t, metaDesc.domainUid,
 					metaDesc.owner, iv.uid, ex);
-		} else {
-			logger.info("{}:succeed type:{} domainUid:{} ownerUid:{} itemUid:{}", operation, type(), metaDesc.domainUid,
+		} else if (lim.tryAcquire()) {
+			logger.info("{}:succeed type:{} domainUid:{} ownerUid:{} itemUid:{}", operation, t, metaDesc.domainUid,
 					metaDesc.owner, iv.uid);
 		}
 	}
