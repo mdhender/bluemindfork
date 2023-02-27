@@ -49,7 +49,7 @@ public class TikaClient implements ContentAnalyzer {
 			time = System.currentTimeMillis() - time;
 			logger.info("Tika parsed in {} ms.", time);
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			logger.warn("Tika failed to extract attachment text ({})", e.getMessage());
 		}
 		ret.complete(Optional.ofNullable(extracted));
 		return ret;
