@@ -20,7 +20,9 @@ import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreDomainType;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
+import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IRestoreItemCrudSupport;
+import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.utils.JsonUtils;
@@ -41,6 +43,7 @@ public class RestoreMailboxRecords implements RestoreDomainType {
 	private final IServiceProvider provider;
 	private final ItemValue<Domain> domain;
 	private final RestoreLogger log;
+	private final IContainers contApi;
 
 	public RestoreMailboxRecords(RestoreLogger log, RestoreState state, ItemValue<Domain> domain,
 			IServiceProvider provider) {
@@ -48,9 +51,17 @@ public class RestoreMailboxRecords implements RestoreDomainType {
 		this.provider = provider;
 		this.domain = domain;
 		this.log = log;
+		contApi = provider.instance(IContainers.class);
+		logger.debug("preparing for records restore in {}", domain);
 	}
 
 	public void restore(RecordKey key, String payload) {
+		ContainerDescriptor existing = contApi.getIfPresent(key.uid);
+		if (existing == null) {
+			log.skip(type(), key, payload);
+			return;
+		}
+
 		IRestoreItemCrudSupport<MailboxRecord> api = api(key);
 		if (Operation.isDelete(key)) {
 			delete(key, payload, api);
