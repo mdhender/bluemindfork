@@ -147,7 +147,7 @@ public class MailIndexService implements IMailIndexService {
 
 	@Override
 	public void storeBodyAsByte(String uid, byte[] body) {
-		logger.debug("Saving body to pending index");
+		logger.info("Restore {} to pending index", uid);
 		Client client = getIndexClient();
 		client.prepareIndex(INDEX_PENDING_WRITE_ALIAS, PENDING_TYPE).setId(uid).setSource(body, XContentType.JSON)
 				.get();
