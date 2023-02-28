@@ -112,6 +112,10 @@ public abstract class LoggedContainerDeltaSync<O, T> extends ContainerSync {
 					.multipleGetById(chunk.stream().map(iv -> iv.id).collect(Collectors.toList()));
 			for (ItemValue<T> item : loadedItems) {
 				preSync(target, contMon, item);
+				// we want the clone-init items as CREATE OPS
+				if (item.updated != null) {
+					item.updated = item.created;
+				}
 				sink.store(item);
 				contMon.progress(1, null);
 			}
