@@ -112,6 +112,12 @@ public class BmConfIni extends IniFile {
 		if (proxy != null) {
 			overrideMap.put(DockerContainer.PROXY.getHostProperty(), proxy);
 		}
+		
+		String keycloakHost = DockerEnv.getIp(DockerContainer.KEYCLOAK.getName());
+		if (keycloakHost != null) {
+			overrideMap.put(DockerContainer.KEYCLOAK.getHostProperty(), keycloakHost);
+			topo.add(tagged(keycloakHost, TagDescriptor.bm_keycloak.getTag()));
+		}
 
 		if (BmConfIniExtraSettings.settings != null && !BmConfIniExtraSettings.settings.isEmpty()) {
 			overrideMap.putAll(BmConfIniExtraSettings.settings);

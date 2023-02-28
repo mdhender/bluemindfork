@@ -53,6 +53,7 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 		client.put("id", clientId);
 		client.put("clientId", clientId);
 		client.put("enabled", true);
+		client.put("directAccessGrantsEnabled", true);
 
 		JsonArray redirectUris = new JsonArray();
 		redirectUris.add("*");
