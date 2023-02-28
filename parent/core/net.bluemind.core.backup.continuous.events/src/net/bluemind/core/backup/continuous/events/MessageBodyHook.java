@@ -14,7 +14,7 @@ import net.bluemind.backend.mail.replica.hook.IMessageBodyHook;
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.directory.api.IDirectory;
 
 public class MessageBodyHook implements IMessageBodyHook, ContinuousContenairization<MessageBody> {
 
@@ -51,9 +51,9 @@ public class MessageBodyHook implements IMessageBodyHook, ContinuousContenairiza
 
 	private static MessageBody slowFetchMessageBody(String domainUid, String ownerId, MailboxRecord mailboxRecord) {
 		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-		IMailboxes mailboxesApi = prov.instance(IMailboxes.class, domainUid);
-		var mailbox = mailboxesApi.getComplete(ownerId);
-		String partition = CyrusPartition.forServerAndDomain(mailbox.value.dataLocation, domainUid).name;
+		IDirectory directoryApi = prov.instance(IDirectory.class, domainUid);
+		var mailbox = directoryApi.findByEntryUid(ownerId);
+		String partition = CyrusPartition.forServerAndDomain(mailbox.dataLocation, domainUid).name;
 
 		IDbMessageBodies apiMessageBodies = prov.instance(IDbMessageBodies.class, partition);
 		return apiMessageBodies.getComplete(mailboxRecord.messageBody);
