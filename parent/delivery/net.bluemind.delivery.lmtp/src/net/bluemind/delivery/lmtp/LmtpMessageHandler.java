@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.james.mime4j.dom.Message;
+import org.apache.james.mime4j.stream.RawField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -208,6 +209,10 @@ public class LmtpMessageHandler implements LmtpListener {
 					messageToFilter = updatedMessage;
 				}
 			}
+
+			// ensure each shard gets a slightly different message body
+			messageToFilter.getHeader().addField(new RawField("X-Bm-Lmtp-Location", content.box().entry.dataLocation));
+
 			return FreezableDeliveryContent.create(content.withMessage(messageToFilter), countedInput.getCount());
 		} catch (PermissionDeniedException pde) {
 			// this used to set a X-Bm-Discard here & drop from sieve
