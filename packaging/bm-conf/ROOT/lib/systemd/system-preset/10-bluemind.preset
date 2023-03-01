@@ -2,6 +2,7 @@ enable bm-core.service
 enable bm-eas.service
 enable bm-mapi.service
 enable bm-elasticsearch.service
+enable bm-keycloak.service
 enable bm-milter.service
 enable bm-nginx.service
 enable bm-node.service
