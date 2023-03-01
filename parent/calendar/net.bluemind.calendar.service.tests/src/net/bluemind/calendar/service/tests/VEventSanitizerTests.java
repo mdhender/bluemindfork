@@ -418,6 +418,11 @@ public class VEventSanitizerTests {
 		new VEventSanitizer(test1Context, user1DefaultCalendar).sanitize(vevent, true);
 		assertEquals("fake_/email.com", attendee.commonName);
 		assertNull(attendee.mailto);
+
+		attendee.mailto = "CAPITALS@CAPITALS.CA";
+		vevent.attendees = Arrays.asList(attendee);
+		new VEventSanitizer(test1Context, user1DefaultCalendar).sanitize(vevent, true);
+		assertEquals("CAPITALS@CAPITALS.CA", attendee.mailto);
 	}
 
 	@Test

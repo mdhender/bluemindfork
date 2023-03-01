@@ -29,14 +29,13 @@ public class SendmailHelper {
 
 	private static final Logger logger = LoggerFactory.getLogger(SendmailHelper.class);
 
-	public static Mailbox formatAddress(String displayName, String em) {
-		String email = em != null ? em : "no-reply@blue-mind.net";
+	public static Mailbox formatAddress(String displayName, String email) {
 		try {
 			return AddressBuilder.DEFAULT
 					.parseMailbox((displayName != null ? EncoderUtil.encodeAddressDisplayName(displayName) : "") + " <"
-							+ email + ">");
+							+ email.toLowerCase() + ">");
 		} catch (ParseException e) {
-			logger.error("addr parse exception for dn: " + displayName + " e: " + email + " (" + e.getMessage() + ")");
+			logger.error("addr parse exception for dn: {}, email:{}", displayName, email, e);
 			return null;
 		}
 	}
