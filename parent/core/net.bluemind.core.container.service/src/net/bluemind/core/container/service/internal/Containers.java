@@ -596,15 +596,23 @@ public class Containers implements IContainers {
 	@Override
 	public BaseContainerDescriptor getLight(String uid) throws ServerFault {
 		RBACManager.forContext(context).checkNotAnoynmous();
-		// FIXME we should check that, at least container.domainUid ==
-		// user.domainUid
-		// or domain admin
-
 		DataSource dataSource = DataSourceRouter.get(context, uid);
 		ContainerStore containerStore = new ContainerStore(context, dataSource, securityContext);
 		Container c = doOrFail(() -> containerStore.get(uid));
 		if (c == null) {
 			throw ServerFault.notFound("Container '" + uid + "' not found");
+		}
+		return asDescriptorLight(c, securityContext, null);
+	}
+
+	@Override
+	public BaseContainerDescriptor getLightIfPresent(String uid) throws ServerFault {
+		RBACManager.forContext(context).checkNotAnoynmous();
+		DataSource dataSource = DataSourceRouter.get(context, uid);
+		ContainerStore containerStore = new ContainerStore(context, dataSource, securityContext);
+		Container c = doOrFail(() -> containerStore.get(uid));
+		if (c == null) {
+			return null;
 		}
 		return asDescriptorLight(c, securityContext, null);
 	}
@@ -625,8 +633,7 @@ public class Containers implements IContainers {
 		if (c == null) {
 			return null;
 		} else {
-			ContainerDescriptor descriptor = asDescriptor(c, securityContext);
-			return descriptor;
+			return asDescriptor(c, securityContext);
 		}
 	}
 

@@ -22,7 +22,7 @@ import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IRestoreItemCrudSupport;
-import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.utils.JsonUtils;
@@ -56,7 +56,7 @@ public class RestoreMailboxRecords implements RestoreDomainType {
 	}
 
 	public void restore(RecordKey key, String payload) {
-		ContainerDescriptor existing = contApi.getIfPresent(key.uid);
+		BaseContainerDescriptor existing = contApi.getLightIfPresent(key.uid);
 		if (existing == null) {
 			log.skip(type(), key, payload);
 			return;

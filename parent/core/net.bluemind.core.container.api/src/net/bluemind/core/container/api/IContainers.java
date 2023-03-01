@@ -56,6 +56,10 @@ public interface IContainers {
 	@Path("_light/{uid}")
 	public BaseContainerDescriptor getLight(@PathParam("uid") String uid) throws ServerFault;
 
+	@GET
+	@Path("_ifPresentLight/{uid}")
+	public BaseContainerDescriptor getLightIfPresent(@PathParam("uid") String uid) throws ServerFault;
+
 	/**
 	 * Get a container as if it where requested by another user.
 	 * 
