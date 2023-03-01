@@ -49,6 +49,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Shared;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.openid.api.OpenIdProperties;
 
 public class AccessTokenValidator {
 
@@ -61,12 +62,12 @@ public class AccessTokenValidator {
 	}
 
 	public static void validate(String domainUid, DecodedJWT token) throws ServerFault {
-		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
+		Map<String, String> domainProperties = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
 				.get(domainUid);
 
 		String issuer = token.getIssuer();
 
-		String accessTokenIssuer = domainSettings.get("openid_issuer");
+		String accessTokenIssuer = domainProperties.get(OpenIdProperties.OPENID_ISSUER.name());
 		if (Strings.isNullOrEmpty(issuer) || !issuer.equals(accessTokenIssuer)) {
 			throw new ServerFault("Failed to validate token: iss");
 		}
@@ -85,14 +86,14 @@ public class AccessTokenValidator {
 	}
 
 	public static void validateSignature(String domainUid, DecodedJWT token) throws ServerFault {
-		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
+		Map<String, String> domainProperties = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
 				.get(domainUid);
 
 		try {
 
 			if (provider.isEmpty()) {
-				provider = Optional.of(
-						new GuavaCachedJwkProvider(new UrlJwkProvider(new URL(domainSettings.get("openid_jwks_uri")))));
+				provider = Optional.of(new GuavaCachedJwkProvider(
+						new UrlJwkProvider(new URL(domainProperties.get(OpenIdProperties.OPENID_JWKS_URI.name())))));
 			}
 
 			Jwk jwk = provider.get().get(token.getKeyId());
@@ -105,13 +106,13 @@ public class AccessTokenValidator {
 	}
 
 	public static CompletableFuture<Optional<JsonObject>> refreshToken(String domainUid, String refreshToken) {
-		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
+		Map<String, String> domainProperties = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
 				.get(domainUid);
 
 		CompletableFuture<Optional<JsonObject>> future = new CompletableFuture<>();
 
 		try {
-			String endpoint = domainSettings.get("openid_token_endpoint");
+			String endpoint = domainProperties.get(OpenIdProperties.OPENID_TOKEN_ENDPOINT.name());
 
 			URI uri = new URI(endpoint);
 			HttpClient client = initHttpClient(uri);
@@ -136,8 +137,8 @@ public class AccessTokenValidator {
 					headers.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
 					headers.add(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
 					String params = "grant_type=refresh_token";
-					params += "&client_id=" + domainSettings.get("openid_client_id");
-					params += "&client_secret=" + domainSettings.get("openid_client_secret");
+					params += "&client_id=" + domainProperties.get(OpenIdProperties.OPENID_CLIENT_ID.name());
+					params += "&client_secret=" + domainProperties.get(OpenIdProperties.OPENID_CLIENT_SECRET.name());
 					params += "&refresh_token=" + refreshToken;
 					byte[] postData = params.getBytes(StandardCharsets.UTF_8);
 					headers.add(HttpHeaders.CONTENT_LENGTH, Integer.toString(postData.length));

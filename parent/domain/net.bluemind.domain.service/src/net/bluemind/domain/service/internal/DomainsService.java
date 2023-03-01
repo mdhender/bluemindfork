@@ -547,7 +547,7 @@ public class DomainsService implements IInCoreDomains, IDomains {
 	}
 
 	private ItemValue<Domain> filter(ItemValue<Domain> domain) {
-		if (domain == null) {
+		if (domain == null || domain.value == null) {
 			return domain;
 		}
 		if (rbacManager.forDomain(domain.uid).can(BasicRoles.ROLE_ADMIN)) {

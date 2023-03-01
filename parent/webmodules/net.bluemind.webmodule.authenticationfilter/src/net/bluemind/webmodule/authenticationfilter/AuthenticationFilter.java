@@ -51,6 +51,7 @@ import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Shared;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.openid.api.OpenIdProperties;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionData;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionsCache;
 import net.bluemind.webmodule.server.IWebFilter;
@@ -129,7 +130,7 @@ public class AuthenticationFilter implements IWebFilter {
 			return CompletableFuture.completedFuture(null);
 		}
 
-		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
+		Map<String, String> domainProperties = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
 				.get(domainUid.get());
 
 		String key = UUID.randomUUID().toString();
@@ -148,8 +149,8 @@ public class AuthenticationFilter implements IWebFilter {
 		String codeChallenge = b64UrlEncoder
 				.encodeToString(sha256.hashString(codeVerifier, StandardCharsets.UTF_8).asBytes());
 
-		String location = domainSettings.get(DomainSettingsKeys.openid_authorization_endpoint.name());
-		location += "?client_id=" + domainSettings.get(DomainSettingsKeys.openid_client_id.name());
+		String location = domainProperties.get(OpenIdProperties.OPENID_AUTHORISATION_ENDPOINT.name());
+		location += "?client_id=" + domainProperties.get(OpenIdProperties.OPENID_CLIENT_ID.name());
 
 		location += "&redirect_uri=" + request.scheme() + "://" + request.host() + "/auth/verify";
 		location += "&code_challenge=" + codeChallenge;
@@ -219,7 +220,7 @@ public class AuthenticationFilter implements IWebFilter {
 			Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
 					.get(domainUid.get());
 			request.response().headers().add(HttpHeaders.LOCATION,
-					domainSettings.get(DomainSettingsKeys.openid_end_session_endpoint.name()));
+					domainSettings.get(OpenIdProperties.OPENID_END_SESSION_ENDPOINT.name()));
 		}
 
 		request.response().setStatusCode(302);

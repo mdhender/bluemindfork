@@ -49,9 +49,9 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.AsyncHandler;
-import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Shared;
+import net.bluemind.openid.api.OpenIdProperties;
 import net.bluemind.webmodule.authenticationfilter.internal.ExternalCreds;
 import net.bluemind.webmodule.server.NeedVertx;
 import net.bluemind.webmodule.server.SecurityConfig;
@@ -91,7 +91,7 @@ public class CodeVerifierHandler implements Handler<HttpServerRequest>, NeedVert
 					.get(domainUid);
 
 			try {
-				String endpoint = domainSettings.get(DomainSettingsKeys.openid_token_endpoint.name());
+				String endpoint = domainSettings.get(OpenIdProperties.OPENID_TOKEN_ENDPOINT.name());
 				URI uri = new URI(endpoint);
 				HttpClient client = initHttpClient(uri);
 
@@ -115,9 +115,8 @@ public class CodeVerifierHandler implements Handler<HttpServerRequest>, NeedVert
 						headers.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
 						headers.add(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
 						String params = "grant_type=authorization_code";
-						params += "&client_id=" + domainSettings.get(DomainSettingsKeys.openid_client_id.name());
-						params += "&client_secret="
-								+ domainSettings.get(DomainSettingsKeys.openid_client_secret.name());
+						params += "&client_id=" + domainSettings.get(OpenIdProperties.OPENID_CLIENT_ID.name());
+						params += "&client_secret=" + domainSettings.get(OpenIdProperties.OPENID_CLIENT_SECRET.name());
 						params += "&code=" + code;
 						params += "&code_verifier=" + codeVerifier;
 						params += "&redirect_uri=" + event.scheme() + "://" + event.host() + "/auth/verify";

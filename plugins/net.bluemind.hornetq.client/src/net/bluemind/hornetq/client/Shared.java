@@ -28,7 +28,7 @@ public class Shared {
 	public static final String MAP_SYSCONF = "system.configuration";
 
 	/**
-	 * Shared map<String,String> holding domain settings values
+	 * Shared map<String,String> holding domain settings and properties values
 	 */
 	public static final String MAP_DOMAIN_SETTINGS = "domain.settings";
 
