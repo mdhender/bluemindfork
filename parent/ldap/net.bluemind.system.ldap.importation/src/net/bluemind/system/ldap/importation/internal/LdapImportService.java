@@ -34,9 +34,9 @@ import net.bluemind.scheduledjob.api.IJob;
 import net.bluemind.system.ldap.importation.api.ILdapImport;
 import net.bluemind.system.ldap.importation.api.LdapConstants;
 import net.bluemind.system.ldap.importation.api.LdapProperties;
-import net.bluemind.system.ldap.importation.internal.tools.LdapHelper;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParameters;
 import net.bluemind.system.ldap.importation.internal.tools.LdapParametersValidator;
+import net.bluemind.system.ldap.importation.internal.tools.LdapTester;
 
 public class LdapImportService implements ILdapImport {
 	private BmContext context;
@@ -62,10 +62,8 @@ public class LdapImportService implements ILdapImport {
 		LdapParametersValidator.checkLdapUserFilter(userFilter, userLocale);
 		LdapParametersValidator.checkLdapGroupFilter(groupFilter, userLocale);
 
-		LdapParameters importLdapParameters = LdapParameters.build(hostname, LdapProtocol.getProtocol(protocol),
-				allCertificate, baseDn, loginDn, password);
-
-		LdapHelper.checkLDAPParameters(importLdapParameters);
+		new LdapTester(LdapParameters.build(hostname, LdapProtocol.getProtocol(protocol), allCertificate, baseDn,
+				loginDn, password)).testDirectoryParameters();
 	}
 
 	@Override

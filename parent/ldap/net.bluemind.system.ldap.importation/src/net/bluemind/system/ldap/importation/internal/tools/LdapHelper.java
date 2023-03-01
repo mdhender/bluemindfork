@@ -25,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.directory.api.ldap.codec.api.ConfigurableBinaryAttributeDetector;
 import org.apache.directory.api.ldap.codec.api.DefaultConfigurableBinaryAttributeDetector;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
-import org.apache.directory.api.ldap.model.cursor.SearchCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
@@ -34,16 +33,12 @@ import org.apache.directory.api.ldap.model.message.BindRequest;
 import org.apache.directory.api.ldap.model.message.BindRequestImpl;
 import org.apache.directory.api.ldap.model.message.BindResponse;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
-import org.apache.directory.api.ldap.model.message.SearchRequestImpl;
 import org.apache.directory.api.ldap.model.message.SearchScope;
-import org.apache.directory.api.ldap.model.name.Dn;
-import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.NoVerificationTrustManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Strings;
 import com.netflix.spectator.api.Timer;
 
 import net.bluemind.core.api.fault.ErrorCode;
@@ -70,38 +65,6 @@ public class LdapHelper {
 	private static final long LDAP_TIMEOUT = 10000;
 
 	private LdapHelper() {
-	}
-
-	public static void checkLDAPParameters(LdapParameters ldapParameters) throws ServerFault {
-		if (ldapParameters.ldapServer.getLdapHost() == null || ldapParameters.ldapServer.getLdapHost().size() != 1
-				|| Strings.isNullOrEmpty(ldapParameters.ldapServer.getLdapHost().get(0).hostname)) {
-			throw new ServerFault("Undefined LDAP server hostname !");
-		}
-
-		try (LdapConProxy ldapCon = connectLdap(ldapParameters)) {
-			// Check if base DN is found
-			checkBaseDn(ldapParameters.ldapDirectory.baseDn, ldapCon);
-		} catch (ServerFault sf) {
-			throw sf;
-		} catch (Exception e) {
-			throw new ServerFault(e.getMessage());
-		}
-	}
-
-	private static void checkBaseDn(Dn baseDn, LdapConnection ldapCon) throws Exception {
-		SearchRequestImpl searchRequest = new SearchRequestImpl();
-		searchRequest.setScope(SearchScope.OBJECT);
-		searchRequest.setBase(baseDn);
-		searchRequest.setFilter("(objectclass=*)");
-		SearchCursor result = ldapCon.search(searchRequest);
-
-		try {
-			if (!result.next()) {
-				throw new ServerFault("Base DN not found, check import parameter or set server default search base");
-			}
-		} finally {
-			result.close();
-		}
 	}
 
 	public static Optional<UserManager> getLdapUser(LdapParameters ldapParameters, ItemValue<Domain> domain,

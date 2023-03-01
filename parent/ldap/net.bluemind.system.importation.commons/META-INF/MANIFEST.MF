@@ -31,6 +31,7 @@ Export-Package: net.bluemind.system.importation.commons,
  net.bluemind.system.importation.commons.managers,
  net.bluemind.system.importation.commons.pool,
  net.bluemind.system.importation.commons.scanner,
+ net.bluemind.system.importation.commons.tools,
  net.bluemind.system.importation.i18n,
  net.bluemind.system.importation.search,
  net.bluemind.system.importation.tools

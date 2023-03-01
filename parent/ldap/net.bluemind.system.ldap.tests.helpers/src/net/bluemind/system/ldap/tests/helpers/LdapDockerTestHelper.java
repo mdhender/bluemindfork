@@ -65,15 +65,42 @@ public class LdapDockerTestHelper {
 				"/resources/" + classObject.getSimpleName() + "/" + testName.getMethodName() + ".ldif");
 	}
 
-	public static void initLdapTree(Class<? extends Object> classObject, String resourceName)
-			throws LdapInvalidDnException, LdapException, DeleteTreeException, IOException {
-		LdapNetworkConnection ldapCon = getLdapCon();
+	/**
+	 * Init only Root DN
+	 * 
+	 * @throws LdapInvalidDnException
+	 * @throws LdapException
+	 * @throws IOException
+	 * @throws DeleteTreeException
+	 */
+	public static void initLdapTree() throws LdapInvalidDnException, LdapException, IOException, DeleteTreeException {
+		initLdapTree(getLdapCon());
+	}
 
+	private static void initLdapTree(LdapNetworkConnection ldapCon)
+			throws LdapInvalidDnException, LdapException, IOException, DeleteTreeException {
 		if (ldapCon.exists(new Dn(LDAP_ROOT_DN))) {
 			deleteTree(ldapCon, LDAP_ROOT_DN);
 		}
 
 		createLdapEntry(ldapCon, new LdapDockerTestHelper().getClass().getResourceAsStream("/resources/local.ldif"));
+	}
+
+	/**
+	 * Init Root DN + resourceName LDIF content
+	 * 
+	 * @param classObject
+	 * @param resourceName
+	 * @throws LdapInvalidDnException
+	 * @throws LdapException
+	 * @throws DeleteTreeException
+	 * @throws IOException
+	 */
+	public static void initLdapTree(Class<? extends Object> classObject, String resourceName)
+			throws LdapInvalidDnException, LdapException, DeleteTreeException, IOException {
+		LdapNetworkConnection ldapCon = getLdapCon();
+
+		initLdapTree(ldapCon);
 
 		InputStream ldifIS = classObject.getResourceAsStream(resourceName);
 		if (ldifIS == null) {

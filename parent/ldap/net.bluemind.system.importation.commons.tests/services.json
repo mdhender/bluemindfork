@@ -2,7 +2,7 @@
 	{ 
  		"name":"bluemind/ldap"
 	},
-        { 
-                "name":"bluemind/postgres-tests"
-        }
+    { 
+            "name":"bluemind/postgres-tests"
+    }
 ]
