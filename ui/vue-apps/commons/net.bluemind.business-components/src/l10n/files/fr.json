@@ -1,19 +1,19 @@
 {
-	"chooser": {
-            "attach": {
-                "as_attachments": "Joindre en tant que pièce jointe | Joindre en tant que pièces jointes",
-                "as_links":  "Joindre en tant que lien partagé | Joindre en tant que liens partagés"
-            },
-            "insert_as": "insérer en tant que",
-            "link": "Lien Drive",
-            "search": {
-                "no_results": "Aucun nom de fichier contenant \"{pattern}\" n'a été trouvé"
-            },
-            "too_heavy": {
-                "attachment": "La sélection est trop volumineuse pour être insérée en tant que pièce jointe",
-                "link": "La sélection est trop volumineuse pour être insérée en tant que lien partagé"
-            },
-            "many_files": "De nombreux fichiers sont sélectionnés"
+    "chooser": {
+        "attach": {
+            "as_attachments": "Joindre en tant que pièce jointe | Joindre en tant que pièces jointes",
+            "as_links": "Joindre en tant que lien partagé | Joindre en tant que liens partagés"
+        },
+        "insert_as": "insérer en tant que",
+        "link": "Lien Drive",
+        "search": {
+            "no_results": "Aucun nom de fichier contenant \"{pattern}\" n'a été trouvé."
+        },
+        "too_heavy": {
+            "attachment": "La sélection est trop volumineuse pour être insérée en tant que pièce jointe",
+            "link": "La sélection est trop volumineuse pour être insérée en tant que lien partagé"
+        },
+        "many_files": "De nombreux fichiers sont sélectionnés"
     },
     "contact.address_book": "Dans le carnet d'adresses \"{name}\"",
     "contact.card.phone_call": "Appeler le numéro {number}",
@@ -24,5 +24,4 @@
     "contact.info.type.home": "personnel",
     "contact.info.type.voice": "société",
     "contact.info.type.work": "société"
-    
 }

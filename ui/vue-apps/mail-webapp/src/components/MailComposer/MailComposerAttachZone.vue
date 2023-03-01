@@ -1,16 +1,16 @@
 <template>
     <div class="mail-composer-attach-zone d-flex flex-column justify-content-center align-items-center">
         <h3 class="p-2">{{ text }}</h3>
-        <bm-icon icon="arrow-up" size="xl" />
+        <bm-illustration value="drag-n-drop" size="lg" over-background />
     </div>
 </template>
 
 <script>
-import { BmIcon } from "@bluemind/ui-components";
+import { BmIllustration } from "@bluemind/ui-components";
 
 export default {
     name: "MailComposerAttachZone",
-    components: { BmIcon },
+    components: { BmIllustration },
     props: {
         text: {
             type: String,
@@ -21,10 +21,12 @@ export default {
 </script>
 
 <style lang="scss">
-$image-height: 181px;
-
 .mail-composer-attach-zone {
-    min-height: $image-height;
-    background: url("~@bluemind/ui-components/src/assets/attachment.png") no-repeat center center;
+    & > .bm-illustration {
+        position: absolute;
+    }
+    h3 {
+        z-index: 1;
+    }
 }
 </style>

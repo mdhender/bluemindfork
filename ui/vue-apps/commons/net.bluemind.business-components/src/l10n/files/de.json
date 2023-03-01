@@ -1,21 +1,21 @@
 {
-	"chooser": {
-		"attach": {
-			"as_attachments": "Als Anhang anhängen | Als Anhänge anfügen",
-			"as_links":  "Als gemeinsamen Link anhängen | Als gemeinsame Links anhängen"
-		},
-		"insert_as": "einfügen als",
-		"link": "Drive-Link",
-		"search": {
-			"no_results": "Es wurden keine Dateinamen mit \"{pattern}\" gefunden"
-		},
-		"too_heavy": {
-			"attachment": "Die Auswahl ist zu groß, um als Anhang eingefügt zu werden",
-			"link": "Die Auswahl ist zu groß, um als gemeinsamer Link eingefügt zu werden"
-		},
-		"many_files": "Viele Dateien werden ausgewählt"
-	},
-	"contact.address_book": "Im Adressbuch \"{name}\"",
+    "chooser": {
+        "attach": {
+            "as_attachments": "Als Anhang anhängen | Als Anhänge anfügen",
+            "as_links": "Als gemeinsamen Link anhängen | Als gemeinsame Links anhängen"
+        },
+        "insert_as": "einfügen als",
+        "link": "Drive-Link",
+        "search": {
+            "no_results": "Es wurden keine Dateinamen mit \"{pattern}\" gefunden."
+        },
+        "too_heavy": {
+            "attachment": "Die Auswahl ist zu groß, um als Anhang eingefügt zu werden",
+            "link": "Die Auswahl ist zu groß, um als gemeinsamer Link eingefügt zu werden"
+        },
+        "many_files": "Viele Dateien werden ausgewählt"
+    },
+    "contact.address_book": "Im Adressbuch \"{name}\"",
     "contact.card.phone_call": "die Nummer {number} anrufen",
     "contact.card.show_contact": "Kontakt anzeigen",
     "contact.card.show_contact.tooltip": "Öffnen Sie die Kontaktanwendung auf einer neuen Registerkarte",

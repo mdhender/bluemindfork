@@ -1,10 +1,7 @@
 <template>
     <bm-spinner v-if="isLoading" class="m-auto" />
     <div v-else-if="results.length === 0" class="pref-search-results pref-empty-search-results">
-        <div
-            class="ml-6"
-            :style="'background: url(' + emptyResultsIllustration + ') no-repeat left top; height: 177px;'"
-        />
+        <bm-illustration value="spider" size="md" />
         <p>
             <i18n :path="'preferences.search.no_result'" tag="span">
                 <template #pattern>
@@ -42,16 +39,15 @@
 </template>
 
 <script>
-import emptyResultsIllustration from "../../../../assets/setting-empty-search-results.png";
 import PrefGroup from "../PrefGroup";
 import PrefSectionIcon from "../PrefSectionIcon";
 import RightPanelAlerts from "../mixins/RightPanelAlerts";
-import { BmButton, BmButtonExpand, BmSpinner } from "@bluemind/ui-components";
+import { BmButton, BmButtonExpand, BmIllustration, BmSpinner } from "@bluemind/ui-components";
 import { mapGetters } from "vuex";
 
 export default {
     name: "PrefSearchResults",
-    components: { BmButton, BmButtonExpand, BmSpinner, PrefGroup, PrefSectionIcon },
+    components: { BmButton, BmButtonExpand, BmIllustration, BmSpinner, PrefGroup, PrefSectionIcon },
     mixins: [RightPanelAlerts],
     props: {
         isLoading: {
@@ -64,7 +60,7 @@ export default {
         }
     },
     data() {
-        return { emptyResultsIllustration, expandedGroups: [] };
+        return { expandedGroups: [] };
     },
     computed: {
         ...mapGetters("preferences", ["GET_SECTION", "SEARCH_PATTERN"]),
@@ -143,6 +139,15 @@ function parseNodeAndHighlight(node, search) {
 
 .pref-search-results {
     &.pref-empty-search-results {
+        display: flex;
+        flex-direction: column;
+        gap: $sp-6;
+
+        @include until-lg {
+            align-items: center;
+        }
+
+        padding-top: $sp-7;
         padding-left: $prefs-padding-left;
         @include from-lg {
             padding-left: $prefs-padding-left-lg;

@@ -1,10 +1,10 @@
 <template>
-    <div class="too-large-box d-flex justify-content-around align-items-center">
-        <img :src="tooLargellustration" alt="" class="ml-2 mr-1" />
-
+    <div class="too-large-box">
+        <bm-illustration value="oversize-file" size="sm" />
+        <div class="spacer"></div>
         <div class="d-flex align-items-start">
-            <bm-icon icon="exclamation-circle-fill" class="text-danger ml-4" size="lg" />
-            <div class="ml-2">
+            <bm-icon icon="exclamation-circle-fill" class="text-danger" size="lg" />
+            <div class="ml-4">
                 <i18n path="common.threshold.hit" class="text-danger">
                     <template v-slot:hit>
                         <slot />
@@ -24,11 +24,11 @@
 <script>
 import { computeUnit } from "@bluemind/file-utils";
 import BmIcon from "../BmIcon";
-import tooLargellustration from "./too-large.png";
+import BmIllustration from "../BmIllustration";
 
 export default {
     name: "BmTooLargeBox",
-    components: { BmIcon },
+    components: { BmIcon, BmIllustration },
     props: {
         attachmentsCount: {
             type: Number,
@@ -39,9 +39,6 @@ export default {
             required: true
         }
     },
-    data: function () {
-        return { tooLargellustration };
-    },
     computed: {
         displayedSize() {
             return computeUnit(this.sizeLimit, this.$i18n);
@@ -49,3 +46,31 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "../../css/_variables";
+
+.too-large-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    & > .spacer {
+        flex: 0 2 $sp-7;
+        min-width: $sp-3;
+    }
+
+    .bm-illustration {
+        flex: none;
+        width: 120px;
+        height: 130px;
+        position: relative;
+
+        & > svg {
+            position: absolute;
+            left: -50px;
+            top: -28px;
+        }
+    }
+}
+</style>
