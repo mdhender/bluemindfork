@@ -39,4 +39,9 @@ public class CalendarView {
 		DAY, WEEK, MONTH, LIST
 	}
 
+	@Override
+	public String toString() {
+		return "CalendarView{" + label + ", " + type + ", def " + isDefault + ", " + calendars + "}";
+	}
+
 }

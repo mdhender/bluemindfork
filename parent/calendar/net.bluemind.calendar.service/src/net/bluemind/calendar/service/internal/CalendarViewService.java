@@ -84,7 +84,7 @@ public class CalendarViewService implements IInCoreCalendarView, IUserCalendarVi
 		CalendarView view = item.value;
 		sanitizer.sanitize(view);
 
-		logger.info("Create view {}", view.label);
+		logger.info("Create view {}", view);
 		storeService.create(item.item(), item.value);
 	}
 
@@ -280,9 +280,17 @@ public class CalendarViewService implements IInCoreCalendarView, IUserCalendarVi
 	@Override
 	public void restore(ItemValue<CalendarView> item, boolean isCreate) {
 		if (isCreate) {
-			create(item);
+			ItemValue<CalendarView> existing = getComplete(item.uid);
+			if (existing != null) {
+				update(item);
+			} else {
+				create(item);
+			}
 		} else {
 			update(item);
+		}
+		if (item.value.isDefault) {
+			setDefault(item.uid);
 		}
 
 	}

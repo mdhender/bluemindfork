@@ -20,9 +20,16 @@ package net.bluemind.calendar.api.internal;
 
 import net.bluemind.calendar.api.CalendarView;
 import net.bluemind.calendar.api.ICalendarView;
+import net.bluemind.calendar.api.ICalendarViewUids;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IRestoreItemCrudSupport;
 
+/**
+ * Service factory requires one parameter created by
+ * {@link ICalendarViewUids#userCalendarView(String)}
+ *
+ */
+@SuppressWarnings("deprecation")
 public interface IInCoreCalendarView extends ICalendarView, IRestoreItemCrudSupport<CalendarView> {
 
 	void delete(String uid, boolean force) throws ServerFault;
