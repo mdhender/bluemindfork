@@ -72,6 +72,7 @@ function updateDependencies() {
         updatePomFile ${file} bm-elasticsearch 1:${BMES}
         updatePomFile ${file} bm-php ${BMPHP}
         updatePomFile ${file} bm-keycloak ${BMKEYCLOAK}
+        updatePomFile ${file} bm-keycloak-plugin-provider-bluemind ${BMKEYCLOAKBMPROVIDER}
 
     fi
 
@@ -91,6 +92,7 @@ function updateDependencies() {
         updateControlFile ${file} bm-elasticsearch 1:${BMES}
         updateControlFile ${file} bm-php ${BMPHP}
         updateControlFile ${file} bm-keycloak ${BMKEYCLOAK}
+        updateControlFile ${file} bm-keycloak-plugin-provider-bluemind ${BMKEYCLOAKBMPROVIDER}
     fi
 
     for file in redhat/*.spec; do
@@ -111,6 +113,7 @@ function updateDependencies() {
         updateSpecFile ${file} bm-elasticsearch 1:${BMES}
         updateSpecFile ${file} bm-php ${BMPHP}
         updateSpecFile ${file} bm-keycloak ${BMKEYCLOAK}
+        updateSpecFile ${file} bm-keycloak-plugin-provider-bluemind ${BMKEYCLOAKBMPROVIDER}
     done
 }
 
