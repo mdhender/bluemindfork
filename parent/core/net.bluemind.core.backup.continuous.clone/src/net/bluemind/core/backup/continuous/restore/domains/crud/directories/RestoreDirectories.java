@@ -11,6 +11,7 @@ import static net.bluemind.directory.api.BaseDirEntry.Kind.RESOURCE;
 import static net.bluemind.directory.api.BaseDirEntry.Kind.USER;
 
 import java.util.Collections;
+import java.util.UUID;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -542,6 +543,12 @@ public class RestoreDirectories implements RestoreDomainType {
 		@Override
 		protected IUser api(ItemValue<Domain> domain, RecordKey key) {
 			return target.instance(IUser.class, domain.uid);
+		}
+
+		@Override
+		protected VersionnedItem<FullDirEntry<User>> fixup(VersionnedItem<FullDirEntry<User>> item) {
+			item.value.value.mailboxCopyGuid = UUID.randomUUID().toString();
+			return item;
 		}
 
 		@Override
