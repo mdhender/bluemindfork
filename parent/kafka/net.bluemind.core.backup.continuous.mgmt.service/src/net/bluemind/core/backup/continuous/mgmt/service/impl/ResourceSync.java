@@ -17,10 +17,6 @@
  */
 package net.bluemind.core.backup.continuous.mgmt.service.impl;
 
-import java.util.Set;
-
-import com.google.common.collect.Sets;
-
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.backup.continuous.events.ContinuousContenairization;
 import net.bluemind.core.backup.continuous.mgmt.api.BackupSyncOptions;
@@ -33,8 +29,6 @@ import net.bluemind.resource.api.type.IResourceTypes;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor;
 
 public class ResourceSync extends DirEntryWithMailboxSync<ResourceDescriptor> {
-
-	private Set<String> createdResourceTypes = Sets.newHashSet("default");
 
 	private static class ResTypeHook implements ContinuousContenairization<ResourceTypeDescriptor> {
 
@@ -65,11 +59,12 @@ public class ResourceSync extends DirEntryWithMailboxSync<ResourceDescriptor> {
 	protected void preSync(IBackupStoreFactory target, String domain,
 			ItemValue<DirEntryAndValue<ResourceDescriptor>> entryAndValue) {
 		ResourceDescriptor res = entryAndValue.value.value;
-		if (!createdResourceTypes.contains(res.typeIdentifier)) {
-			IResourceTypes rtApi = ctx.provider().instance(IResourceTypes.class, domain);
-			ResourceTypeDescriptor type = rtApi.get(res.typeIdentifier);
-			new ResTypeHook(target).save(domain, domain, res.typeIdentifier, type, true);
-		}
+
+		IResourceTypes rtApi = ctx.provider().instance(IResourceTypes.class, domain);
+		ResourceTypeDescriptor type = rtApi.get(res.typeIdentifier);
+		// set the owner to the resource using it so it ends up in the partition before
+		// the resource
+		new ResTypeHook(target).save(domain, entryAndValue.uid, res.typeIdentifier, type, true);
 	}
 
 }
