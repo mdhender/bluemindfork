@@ -44,6 +44,7 @@ import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.ReservedIds;
 import net.bluemind.directory.service.DirEntryAndValue;
 import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.mailbox.service.common.DefaultFolder;
 
 public class DirEntryWithMailboxSync<T> {
 
@@ -97,15 +98,14 @@ public class DirEntryWithMailboxSync<T> {
 			if (mboxUser.value.type.sharedNs) {
 				String rn = mboxUser.value.name;
 				allocBox(mon, reserved, subtree, boxes, rn);
-				allocBox(mon, reserved, subtree, boxes, rn + "/Sent");
-				allocBox(mon, reserved, subtree, boxes, rn + "/Trash");
+				for (String defFolder : DefaultFolder.MAILSHARE_FOLDERS_NAME) {
+					allocBox(mon, reserved, subtree, boxes, rn + "/" + defFolder);
+				}
 			} else {
 				allocBox(mon, reserved, subtree, boxes, "INBOX");
-				allocBox(mon, reserved, subtree, boxes, "Outbox");
-				allocBox(mon, reserved, subtree, boxes, "Sent");
-				allocBox(mon, reserved, subtree, boxes, "Drafts");
-				allocBox(mon, reserved, subtree, boxes, "Junk");
-				allocBox(mon, reserved, subtree, boxes, "Trash");
+				for (String defFolder : DefaultFolder.USER_FOLDERS_NAME) {
+					allocBox(mon, reserved, subtree, boxes, defFolder);
+				}
 			}
 		}
 		return reserved;
