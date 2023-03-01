@@ -22,7 +22,7 @@
                     </div>
                 </div>
             </div>
-            <bm-illustration value="inbox-filled" size="lg" over-background />
+            <bm-illustration value="inbox" size="lg" over-background />
         </section>
     </chain-of-responsibility>
 </template>

@@ -5,7 +5,7 @@
             <mail-folder-icon :folder="MY_TEMPLATES" class="font-weight-bold" />
             {{ $t("mail.empty") }}
         </div>
-        <bm-illustration value="folder-empty" size="md" over-background />
+        <bm-illustration value="empty-folder" size="md" over-background />
     </div>
 </template>
 

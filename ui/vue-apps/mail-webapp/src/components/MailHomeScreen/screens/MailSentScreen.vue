@@ -21,7 +21,7 @@
                     </div>
                 </div>
             </div>
-            <bm-illustration value="sent-filled" size="lg" over-background />
+            <bm-illustration value="sent" size="lg" over-background />
         </section>
     </chain-of-responsibility>
 </template>
