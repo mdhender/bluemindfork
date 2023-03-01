@@ -1,8 +1,6 @@
 <template>
     <bm-extension id="webapp" type="decorator" path="mail.route.home">
-        <section>
-            <h1>Fallback</h1>
-        </section>
+        <section></section>
     </bm-extension>
 </template>
 <script>
@@ -42,7 +40,6 @@ export default {
         display: none;
     }
 
-    flex: 1;
     &:before,
     &:after {
         content: "";
@@ -55,8 +52,10 @@ export default {
     width: 100%;
     padding: $sp-6 0 $sp-5 $scroll-width;
 
+    $text-and-actions-base-height: base-px-to-rem(260);
+
     .starter-text-and-actions {
-        flex: 0 1 base-px-to-rem(312);
+        flex: 0 1 $text-and-actions-base-height;
 
         display: flex;
         flex-direction: column;
@@ -116,6 +115,31 @@ export default {
 
     .bm-illustration {
         flex: none;
+    }
+
+    &.minimalist {
+        $space-saved-over-illustration: 50px;
+        $space-saved-under-illustration: 100px;
+        $space-saved: $space-saved-over-illustration + $space-saved-under-illustration;
+
+        .starter-text-and-actions {
+            flex: 0 1 calc(#{$text-and-actions-base-height} - #{$space-saved});
+        }
+
+        .bm-illustration {
+            flex: 0 1 $illustration-height-lg + $space-saved;
+            min-height: $illustration-height-lg;
+            flex-direction: column;
+
+            &:before {
+                flex: 0 1 $space-saved-over-illustration;
+                content: "";
+            }
+            &:after {
+                flex: 0 1 $space-saved-under-illustration;
+                content: "";
+            }
+        }
     }
 }
 </style>

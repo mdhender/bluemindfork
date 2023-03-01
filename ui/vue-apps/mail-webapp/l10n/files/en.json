@@ -361,6 +361,7 @@
     "mail.message.starter.draft.details": "This folder contains messages you have started composing and have not yet sent.",
     "mail.message.starter.outbox.details": "This folder contains the messages that have not yet reached your mail server for technical reasons (connection, server state).",
     "mail.message.starter.sent.details": "This folder contains the messages that have reached your mail server to be sent to their recipients.",
+    "mail.message.starter.shared.info": "You are in a shared folder.",
     "mail.message.starter.templates": "Choose a template",
     "mail.message.starter.templates.details": "to use it for a new message or modify it",
     "mail.messages.multiple.drag_shadow": "The selected thread | {count} selected threads",

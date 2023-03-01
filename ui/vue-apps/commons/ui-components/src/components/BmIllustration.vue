@@ -63,40 +63,40 @@ export default {
     &.illustration-xs {
         &,
         & > svg {
-            width: 100px;
-            height: 100px;
+            width: $illustration-width-xs;
+            height: $illustration-height-xs;
         }
     }
 
     &.illustration-sm {
         &,
         & > svg {
-            width: 210px;
-            height: 180px;
+            width: $illustration-width-sm;
+            height: $illustration-height-sm;
         }
     }
 
     &.illustration-md {
         &,
         & > svg {
-            width: 350px;
-            height: 300px;
+            width: $illustration-width;
+            height: $illustration-height;
         }
     }
 
     &.illustration-lg {
         &,
         & > svg {
-            width: 525px;
-            height: 450px;
+            width: $illustration-width-lg;
+            height: $illustration-height-lg;
         }
     }
 
     &.illustration-xl {
         &,
         & > svg {
-            width: 700px;
-            height: 600px;
+            width: $illustration-width-xl;
+            height: $illustration-height-xl;
         }
     }
 }

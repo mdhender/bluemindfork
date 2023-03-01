@@ -360,6 +360,7 @@
     "mail.message.starter.draft.details": "Ce dossier contient des messages que vous avez commencé à composer et que vous n'avez pas encore envoyés.",
     "mail.message.starter.outbox.details": "Ce dossier contient les messages qui ne sont pas encore parvenus à votre serveur de messagerie pour des raisons techniques (connexion, état des serveurs).",
     "mail.message.starter.sent.details": "Ce dossier contient les messages qui sont parvenus à votre serveur de messagerie pour être envoyés à leurs destinataires.",
+    "mail.message.starter.shared.info": "Vous êtes dans un dossier partagé.",
     "mail.message.starter.templates": "Choisir un modèle",
     "mail.message.starter.templates.details": "afin de l'utiliser pour un nouveau message ou le modifier",
     "mail.messages.multiple.drag_shadow": "La conversation séléctionnée | {count} conversations séléctionnées",

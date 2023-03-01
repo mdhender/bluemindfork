@@ -361,6 +361,7 @@
     "mail.message.starter.draft.details": "Dieser Ordner enthält Nachrichten, die Sie angefangen haben zu verfassen, aber noch nicht gesendet haben.",
     "mail.message.starter.outbox.details": "Dieser Ordner enthält die Nachrichten, die aus technischen Gründen (Verbindung, Serverstatus) noch nicht Ihrem Mailserver erreicht haben.",
     "mail.message.starter.sent.details": "Dieser Ordner enthält die Nachrichten, die Ihren Mailserver erreicht haben, um an ihre Empfänger gesendet zu werden.",
+    "mail.message.starter.shared.info": "Sie befinden sich in einem geteilten Ordner.",
     "mail.message.starter.templates": "Vorlage auswählen",
     "mail.message.starter.templates.details": "um es für ein neue Nachricht zu verwenden oder es zu ändern",
     "mail.messages.multiple.drag_shadow": "Die ausgewählte Konversation | {count} ausgewählte Konversationen",
