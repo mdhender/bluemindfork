@@ -55,7 +55,12 @@ public class RestoreFlatHierarchy implements RestoreDomainType {
 		IInternalContainersFlatHierarchy intApi = target.instance(IInternalContainersFlatHierarchy.class, domain.uid,
 				key.owner);
 		ItemValue<ContainerHierarchyNode> existing = intApi.getComplete(item.uid);
-		if (existing != null && existing.internalId != item.internalId) {
+
+		if (key.operation.equals("DELETE")) {
+			if (existing != null) {
+				log.delete(type(), key);
+			}
+		} else if (existing != null && existing.internalId != item.internalId) {
 			log.delete(type(), key);
 			intApi.delete(item.uid);
 			log.create(type(), key);
