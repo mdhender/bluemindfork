@@ -69,6 +69,7 @@ import net.bluemind.user.service.IInCoreUser;
 public class UserSync extends DirEntryWithMailboxSync<User> {
 
 	private static final List<String> TYPE_ORDER = Lists.newArrayList(//
+			IMailboxAclUids.TYPE, //
 			IMailReplicaUids.REPLICATED_MBOXES, //
 			IMailReplicaUids.MAILBOX_RECORDS, //
 			ICalendarUids.TYPE, //
@@ -80,7 +81,6 @@ public class UserSync extends DirEntryWithMailboxSync<User> {
 
 	private static final List<String> SKIPPED_TYPES = Lists.newArrayList(//
 			MapiFolderContainer.TYPE, //
-			IMailboxAclUids.TYPE, //
 			IDeferredActionContainerUids.TYPE//
 	);
 
@@ -233,7 +233,9 @@ public class UserSync extends DirEntryWithMailboxSync<User> {
 					Optional.ofNullable(mmap.get(type)).orElseGet(Collections::emptyList))) {
 				ContainerState state = kafkaState.containerState(node.value.containerUid);
 				ContainerSync syncSupport = ContainerSyncRegistry.forNode(ctx, node, stored, domainApis.domain);
-				syncSupport.sync(state, target, entryMon.subWork(10));
+				if (syncSupport != null) {
+					syncSupport.sync(state, target, entryMon.subWork(10));
+				}
 
 				aclsAndSettings(entryMon, stored, cmBack, node);
 			}

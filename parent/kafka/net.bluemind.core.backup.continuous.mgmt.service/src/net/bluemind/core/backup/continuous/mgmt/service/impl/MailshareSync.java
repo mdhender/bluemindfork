@@ -40,11 +40,13 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.service.DirEntryAndValue;
+import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailshare.api.Mailshare;
 
 public class MailshareSync extends DirEntryWithMailboxSync<Mailshare> {
 
 	private static final List<String> TYPE_ORDER = Lists.newArrayList(//
+			IMailboxAclUids.TYPE, //
 			IMailReplicaUids.REPLICATED_MBOXES, //
 			IMailReplicaUids.MAILBOX_RECORDS //
 	);
@@ -100,7 +102,9 @@ public class MailshareSync extends DirEntryWithMailboxSync<Mailshare> {
 					Optional.ofNullable(mmap.get(type)).orElseGet(Collections::emptyList))) {
 				ContainerState state = kafkaState.containerState(node.value.containerUid);
 				ContainerSync syncSupport = ContainerSyncRegistry.forNode(ctx, node, stored, domainApis.domain);
-				syncSupport.sync(state, target, entryMon.subWork(10));
+				if (syncSupport != null) {
+					syncSupport.sync(state, target, entryMon.subWork(10));
+				}
 
 				aclsAndSettings(entryMon, stored, cmBack, node);
 			}
