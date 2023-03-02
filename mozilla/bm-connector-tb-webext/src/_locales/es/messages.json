@@ -1,1 +1,149 @@
-{}
+{
+    "extensionName": {
+        "message": "Conector BlueMind"
+    },
+    "extensionDescription": {
+        "message": "Conector BlueMind"
+    },
+    "bm.preferences.server.label": {
+        "message": "Servidor BlueMind (ejemplo: https://myserver.com)"
+    },
+    "bm.preferences.settings.button.label": {
+        "message": "Ajustes...."
+    },
+    "bm.preferences.settings.settings.label": {
+        "message": "Configure sus preferencias de BlueMind"
+    },
+    "extensions.bm.ab.readonly.card": {
+        "message": "No se pudo crear la tarjeta de contacto. Libreta de direcciones de solo lectura."
+    },
+    "extensions.bm.ab.syncDirectory.message": {
+        "message": "¿Desea sincronizar la libreta de direcciones del directorio? Advertencia: puede provocar retrasos y bloqueos de Thunderbird si su organización tiene muchos usuarios y listas de distribuciones."
+    },
+    "bm.preferences.reset.button.label": {
+        "message": "Reiniciar"
+    },
+    "bm.preferences.reset.button.tooltiptext": {
+        "message": "Elimina todos los datos de BlueMind de Thunderbird."
+    },
+    "bm.preferences.server.address.label": {
+        "message": "Dirección :"
+    },
+    "bm.preferences.server.button.label": {
+        "message": "Conexión..."
+    },
+    "bm.button.open.preferences.label": {
+        "message": "Configuración del conector BlueMind"
+    },
+    "bm.button.open.settings.tooltiptext": {
+        "message": "Abra la configuración de BlueMind en una nueva pestaña."
+    },
+    "bm.button.open.todolist.label": {
+        "message": "Tareas"
+    },
+    "bm.button.open.todolist.tooltiptext": {
+        "message": "Abra BlueMind Tasks en una nueva pestaña."
+    },
+    "bm.button.sync.label": {
+        "message": "Sincronizar"
+    },
+    "bm.card.alert.local": {
+        "message": "Este es un miembro de la lista de contacto de solo lectura:"
+    },
+    "bm.compose.attach.link": {
+        "message": "Desde el alojamiento de archivos BlueMind"
+    },
+    "bm.icsbandal.accept": {
+        "message": "Sí"
+    },
+    "bm.icsbandal.decline": {
+        "message": "No"
+    },
+    "bm.icsbandal.description": {
+        "message": "Reunión"
+    },
+    "bm.icsbandal.tentative": {
+        "message": "Quizás"
+    },
+    "bm.icsbandal.title": {
+        "message": "Título"
+    },
+    "bm.icsbandal.when": {
+        "message": "Cuándo"
+    },
+    "bm.icsbandal.where": {
+        "message": "Localización"
+    },
+    "bm.preferences.im.add.label": {
+        "message": "Cuenta de mensajería instantánea BlueMind"
+    },
+    "bm.preferences.im.button.add.label": {
+        "message": "Configurar ..."
+    },
+    "bm.preferences.im.label": {
+        "message": "Mensajería instantánea"
+    },
+    "bm.preferences.import.button.label": {
+        "message": "Importar..."
+    },
+    "bm.preferences.log.label": {
+        "message": "Inicio sesión"
+    },
+    "bm.preferences.log.pref.label": {
+        "message": "Habilitar el registro de depuración"
+    },
+    "bm.preferences.settings.label": {
+        "message": "Configuración de BlueMind"
+    },
+    "bm.preferences.showlog.button.label": {
+        "message": "Mostrar registro..."
+    },
+    "bm.preferences.showlog.button.tooltiptext": {
+        "message": "Mostrar archivo de registro de extensión."
+    },
+    "bm.preferences.tab.label": {
+        "message": "BlueMind"
+    },
+    "bm.remotechooser.title": {
+        "message": "BlueMind: Selector de archivos"
+    },
+    "bm.signature.disclamer": {
+        "message": "Se agregará una firma corporativa a su mensaje"
+    },
+    "bm.signature.hide": {
+        "message": "Ocultar vista previa"
+    },
+    "extensions.bm.ab.readonly.list": {
+        "message": "No se pudo crear la lista. Libreta de direcciones de solo lectura."
+    },
+    "extensions.bm.ab.syncDirectory.ask": {
+        "message": "No me pregunte de nuevo."
+    },
+    "extensions.bm.abname.ownedby": {
+        "message": "Propiedad de"
+    },
+    "extensions.bm.authprompt.message": {
+        "message": "Ingrese el nombre de usuario y la contraseña para"
+    },
+    "extensions.bm.button.archive.label": {
+        "message": "Archivo del servidor"
+    },
+    "extensions.bm.button.archive.tooltiptext": {
+        "message": "Archivar en BlueMind"
+    },
+    "extensions.bm.button.unarchive.label": {
+        "message": "Desarchivar"
+    },
+    "extensions.bm.button.unarchive.tooltiptext": {
+        "message": "Desarchivar de BlueMind"
+    },
+    "bm.button.sync.tooltiptext": {
+        "message": "Sincronice las libretas de direcciones de BlueMind."
+    },
+    "bm.preferences.contact.label": {
+        "message": "Contactos BlueMind"
+    },
+    "bm.preferences.import.button.tooltiptext": {
+        "message": "Importar contactos en BlueMind."
+    }
+}

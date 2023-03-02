@@ -1,1 +1,97 @@
-{}
+{
+    "alert": {
+        "mail": {
+            "create_folder": {
+                "loading": "Se está creando la carpeta \"{nombre}\" ...",
+                "success": "Carpeta {nombre} creado!"
+            },
+            "remove_messages": {
+                "loading": "\"{asunto}\" se eliminará de forma permanente ... | {count} mensajes se eliminarán de forma permanente ...",
+                "success": "\"{asunto}\" se ha eliminado de forma permanente. | {count} mensajes se han eliminado correctamente de forma permanente ...",
+                "error": "Error al eliminar \"{asunto}\". No se pudieron eliminar los mensajes seleccionados."
+            },
+            "move_messages_to_trash": {
+                "success": {
+                    "single": "\"{asunto}\" se ha movido a {carpeta}.",
+                    "plural": "{count} mensajes se han movido correctamente a {carpeta}."
+                },
+                "loading": {
+                    "single": "\"{asunto}\" se está moviendo a {carpeta} ...",
+                    "plural": "Moviendo {count} mensajes a {carpeta} ..."
+                },
+                "error": {
+                    "single": "No se pudo mover \"{asunto}\" a {carpeta}.",
+                    "plural": "No se pudieron mover los mensajes seleccionados en {carpeta}."
+                }
+            },
+            "mark_message_as_read": {
+                "loading": "Marcando el {recuento} seleccionado como leído ...",
+                "success": "{Count} mensajes marcados correctamente como leídos.",
+                "error": "No se pudieron marcar los mensajes seleccionados como leídos."
+            },
+            "mark_messages_as_unflagged": {
+                "loading": "Eliminando la marca de {count} mensajes ...",
+                "success": "La bandera se eliminó correctamente de {count} mensajes.",
+                "error": "No se pudo eliminar la bandera de los mensajes seleccionados."
+            },
+            "mark_messages_as_unread": {
+                "loading": "Marcando {count} mensajes como no leídos ...",
+                "success": "{Count} mensajes marcados correctamente como no leídos.",
+                "error": "No se pudieron marcar los mensajes seleccionados como no leídos."
+            },
+            "move_messages": {
+                "loading": {
+                    "single": "\"{asunto}\" se está moviendo en {carpeta} ...",
+                    "plural": "Moviendo {count} mensajes en {carpeta} ..."
+                },
+                "success": {
+                    "single": "\"{asunto}\" se ha movido correctamente a {carpeta}.",
+                    "plural": "{count} mensajes se han movido correctamente a {carpeta}."
+                },
+                "error": {
+                    "single": "No se pudo mover \"{asunto}\" en {carpeta}.",
+                    "plural": "No se pudieron mover los mensajes seleccionados en {carpeta}."
+                }
+            },
+            "read_only_folder": {
+                "info": "Mensaje de solo lectura. Es posible que algunas acciones (como Mover o Eliminar) no estén disponibles."
+            },
+            "rename_folder": {
+                "loading": "Se cambiará el nombre de la carpeta {previousName} a {name} ...",
+                "success": "Carpeta {previousName} renombrada a {name}!",
+                "error": "No se pudo cambiar el nombre de la carpeta \"{previousName}\" a \"{name}\"."
+            },
+            "remove_folder": {
+                "loading": "Se está eliminando la carpeta \"{nombre}\" ...",
+                "success": "Carpeta {nombre} eliminado!",
+                "error": "¡No se pudo eliminar la carpeta \"{nombre}\"!"
+            },
+            "send_message": {
+                "loading": "Enviando \"{subject}\" en curso ...",
+                "error": "\"{asunto}\" no se ha enviado: {motivo}",
+                "success": "\"{subject}\" enviado con éxito!"
+            },
+            "video_conference": {
+                "info": "Únase a la videoconferencia."
+            },
+            "mark_folder_as_read": {
+                "loading": "La carpeta {nombre} se está marcando como leída ...",
+                "success": "¡La carpeta {nombre} ha sido marcada como leída!",
+                "error": "No se pudo marcar la carpeta {nombre} como leído!"
+            },
+            "mark_messages_as_flagged": {
+                "loading": "Se están marcando {count} mensajes ...",
+                "error": "No se pudieron marcar los mensajes seleccionados.",
+                "success": "{Count} mensajes marcados con éxito."
+            },
+            "event_not_found": {
+                "warning": "Este mensaje hace referencia a un evento que no existe"
+            }
+        }
+    },
+    "alert.mail.message.draft.attach.error": "Error de adjunto. Intentar otra vez.",
+    "mail.actions.attach.aria": "Adjuntar un archivo",
+    "mail.actions.attach": "Adjuntar",
+    "mail.actions.create.folder": "Crear una nueva carpeta",
+    "mail.actions.folder.invalid.already_exist": "Este nombre de carpeta ya está en uso"
+}

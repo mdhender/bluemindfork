@@ -1,1 +1,12 @@
-{}
+{
+    "banner.label": "Banner",
+    "banner.main.brand": "Volver a la página de inicio de la aplicación",
+    "banner.main.apps": "Aplicaciones Bluemind",
+    "banner.menu.logout": "Cerrar sesión",
+    "banner.menu.preferences.aria": "Acceder a la configuración de la cuenta",
+    "banner.reach.all_apps": "Acceso a todas las aplicaciones de BlueMind",
+    "banner.about": "Acerca de",
+    "banner.about.version": "{brand} ({técnico})",
+    "banner.about.version.brand": "Versión {0}",
+    "banner.help": "Acceso a la ayuda de Bluemind"
+}
