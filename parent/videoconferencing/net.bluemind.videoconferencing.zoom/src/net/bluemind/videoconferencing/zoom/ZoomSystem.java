@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2023
+ * Copyright © Blue Mind SAS, 2012-2022
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.videoconferencing.webex;
+package net.bluemind.videoconferencing.zoom;
 
 import java.io.IOException;
 import java.util.Map;
@@ -25,19 +25,19 @@ import com.google.common.io.ByteStreams;
 
 import net.bluemind.system.service.RegisteredExternalSystem;
 
-public class WebexSystem extends RegisteredExternalSystem {
+public class ZoomSystem extends RegisteredExternalSystem {
 
-	private static final String openIdScope = "spark:kms meeting:schedules_read meeting:participants_read meeting:preferences_read meeting:participants_write meeting:schedules_write";
+	private static final String openIdScope = "meeting:write";
 
-	public WebexSystem() {
-		super(WebexProvider.ID, "WEBEX Video Conferencing", AuthKind.OPEN_ID_PKCE, Map.of("scope", openIdScope));
+	public ZoomSystem() {
+		super(ZoomProvider.ID, "Zoom Video Conferencing", AuthKind.OPEN_ID_PKCE, Map.of("scope", openIdScope));
 	}
 
 	@Override
 	public byte[] getLogo() {
 		try {
 			return ByteStreams
-					.toByteArray(WebexProvider.class.getClassLoader().getResourceAsStream("resources/logo.png"));
+					.toByteArray(ZoomProvider.class.getClassLoader().getResourceAsStream("resources/logo.png"));
 		} catch (IOException e) {
 			return new byte[0];
 		}

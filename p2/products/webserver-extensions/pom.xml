@@ -28,6 +28,7 @@
 		<module>dav</module>
 		<module>adminconsole-videoconferencing-jitsi</module>
 		<module>adminconsole-videoconferencing-webex</module>
+		<module>adminconsole-videoconferencing-zoom</module>
 		<module>adminconsole-videoconferencing-bluemind</module>
 		<module>adminconsole-videoconferencing-teams</module>
 	</modules>

@@ -7,3 +7,9 @@ Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.videoconferencing.utils
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: net.bluemind.videoconferencing.utils
+Require-Bundle: io.vertx.core,
+ net.bluemind.core.commons,
+ slf4j.api,
+ net.bluemind.core.rest,
+ net.bluemind.system.api,
+ com.google.guava;bundle-version="31.1.0"

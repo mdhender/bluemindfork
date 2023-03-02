@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: net.bluemind.videoconferencing.webex
-Bundle-SymbolicName: net.bluemind.videoconferencing.webex;singleton:=true
+Bundle-Name: net.bluemind.videoconferencing.zoom
+Bundle-SymbolicName: net.bluemind.videoconferencing.zoom;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: www.bluemind.net
-Automatic-Module-Name: net.bluemind.videoconferencing.webex
+Automatic-Module-Name: net.bluemind.videoconferencing.zoom
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.videoconferencing.api,
  com.google.guava,
@@ -20,11 +20,6 @@ Require-Bundle: net.bluemind.videoconferencing.api,
  net.bluemind.system.service,
  net.bluemind.icalendar.parser,
  slf4j.api,
- net.bluemind.calendar.helper,
- org.apache.james.apache-mime4j-dom,
- net.bluemind.core.sendmail;bundle-version="5.0.0",
- net.bluemind.domain.api,
- org.mnode.ical4j,
- net.bluemind.calendar.hook,
  net.bluemind.authentication.api,
- net.bluemind.videoconferencing.utils
+ net.bluemind.videoconferencing.utils,
+ net.bluemind.icalendar.api

@@ -68,9 +68,11 @@ public class OpenIdAuthCodeHandler implements IWebFilter, NeedVertx {
 
 				@Override
 				public void failure(Throwable e) {
+					
 					resp.headers().set("Content-Type", "text/html");
 					resp.setStatusCode(500).end(
 							"<html><body><script type='text/javascript'>window.opener.bmOpenIdAuthicationCallback.reject();window.close();</script>Authentication failed, You can close this window</body></html>");
+
 				}
 			});
 
