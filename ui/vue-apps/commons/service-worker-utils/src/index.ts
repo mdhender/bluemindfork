@@ -23,3 +23,27 @@ export function dispatchFetch(request: Request): Promise<Response> {
         self.dispatchEvent(fetchEvent);
     });
 }
+
+export function fetchRequest(
+    sid: string,
+    folderUid: string,
+    imapUid: number,
+    address: string,
+    encoding: string,
+    mime: string,
+    charset: string,
+    filename?: string
+): Request {
+    const filenameParam = filename ? "&filename=" + filename : "";
+    const encodedMime = encodeURIComponent(mime!);
+    const apiCoreUrl = `/api/mail_items/${folderUid}/part/${imapUid}/${address}?encoding=${encoding}&mime=${encodedMime}&charset=${charset}${filenameParam}`;
+    const fetchParams: RequestInit = {
+        headers: {
+            "x-bm-apikey": sid
+        },
+        mode: "cors",
+        credentials: "include",
+        method: "GET"
+    };
+    return new Request(apiCoreUrl, fetchParams);
+}

@@ -11,7 +11,7 @@ import {
     SMIME_SIGNATURE_ERROR_PREFIX
 } from "../../lib/constants";
 import session from "../environnment/session";
-import { dispatchFetch } from "@bluemind/service-worker-utils";
+import { fetchRequest, dispatchFetch } from "@bluemind/service-worker-utils";
 import { getCacheKey } from "../smimePartCache";
 import { SmimeErrors } from "../exceptions";
 import { extractContentType, splitHeadersAndContent } from "./MimeEntityParserUtils";
@@ -39,18 +39,23 @@ export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): 
         //TODO: Add a cache based on body guid
         item.value.body.headers = resetHeader(item.value.body.headers, ENCRYPTED_HEADER_NAME);
         const sid = await session.sid;
-        const client = new MailboxItemsClient(sid, folderUid);
-        const part = item.value.body.structure!;
+        const { imapUid } = item.value;
+        const { address, mime, encoding, charset, fileName } = item.value.body.structure!;
         const key = await getMyPrivateKey();
         const certificate = await getMyCertificate();
+
         await checkCertificate(certificate, new Date(item.value.body.date!));
-        const data = await client.fetch(item.value.imapUid!, part.address!, part.encoding!, part.mime!);
+        const request = fetchRequest(sid, folderUid, imapUid!, address!, encoding!, mime!, charset!, fileName);
+        const response = await dispatchFetch(request);
+        const data = await response.blob();
+
         content = await pkcs7.decrypt(data, key, certificate);
-        const parser = await new MimeParser(part.address).parse(content);
+        const parser = await new MimeParser(address).parse(content);
         const parts = parser.getParts();
+
         for (const p of parts) {
-            const content = parser.getPartContent(p.address!);
-            savePart(folderUid, item.value.imapUid!, p, content);
+            const partContent = parser.getPartContent(p.address!);
+            savePart(folderUid, item.value.imapUid!, p, partContent);
         }
         item.value.body.structure = parser.structure as MessageBody.Part;
         item.value.body.headers = addHeaderValue(item.value.body?.headers, ENCRYPTED_HEADER_NAME, CRYPTO_HEADERS.OK);
@@ -145,10 +150,9 @@ function removePreviousSignedPart(structure: MessageBody.Part): MessageBody.Part
 
 function getRemoteContentFn(imapUid: number, folderUid: string) {
     return async (p: MessageBody.Part): Promise<string | Uint8Array> => {
-        const filenameParam = p.fileName ? "&filename=" + p.fileName : "";
-        const encodedMime = encodeURIComponent(p.mime!);
-        const apiCoreUrl = `/api/mail_items/${folderUid}/part/${imapUid}/${p.address}?encoding=${p.encoding}&mime=${encodedMime}&charset=${p.charset}${filenameParam}`;
-        const data = await dispatchFetch(new Request(apiCoreUrl));
+        const sid = await session.sid;
+        const request = fetchRequest(sid, folderUid, imapUid, p.address!, p.encoding!, p.mime!, p.charset!, p.fileName);
+        const data = await dispatchFetch(request);
         return new Uint8Array(await data.arrayBuffer());
     };
 }

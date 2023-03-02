@@ -1,5 +1,5 @@
 import { registerRoute } from "workbox-routing";
-import { dispatchFetch } from "@bluemind/service-worker-utils";
+import { dispatchFetch, fetchRequest } from "@bluemind/service-worker-utils";
 import Session from "../session";
 
 const WEBSERVER_HANDLER_BASE_URL = "/webapp/part/url/";
@@ -21,16 +21,6 @@ async function webserverUrlHandler({ request }) {
 
 async function buildCoreRequestFromWebserverHandlerUrl(params) {
     const { sid } = await Session.infos();
-    const filenameParam = params.filename ? "&filename=" + params.filename : "";
-    const encodedMime = encodeURIComponent(params.mime);
-    const apiCoreUrl = `/api/mail_items/${params.folderUid}/part/${params.imapUid}/${params.address}?encoding=${params.encoding}&mime=${encodedMime}&charset=${params.charset}${filenameParam}`;
-    const fetchParams = {
-        headers: {
-            "x-bm-apikey": sid
-        },
-        mode: "cors",
-        credentials: "include",
-        method: "GET"
-    };
-    return new Request(apiCoreUrl, fetchParams);
+    const { folderUid, imapUid, address, encoding, mime, charset, filename } = params;
+    return fetchRequest(sid, folderUid, imapUid, address, encoding, mime, charset, filename);
 }
