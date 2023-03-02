@@ -1,0 +1,40 @@
+MIME-Version: 1.0
+Date: Mon, 27 Feb 2023 17:03:29 +0000
+Subject: =?ISO-8859-1?Q?Accus=E9_de_r=E9ception_(lu):_MMMMM?=
+Message-ID: <len2jwu1.2f4w2gnfay5ts@devenv.dev.bluemind.net>
+References: <len2jg1k.28bfb1w3qb5s0@devenv.dev.bluemind.net>
+X-Bm-Draft-Refresh-Date: 1677517409017
+From: Georges Abitbol <gabitbol@devenv.dev.bluemind.net>
+To: =?ISO-8859-1?Q?Jos=E9_Jos=E9?= <jose@devenv.dev.bluemind.net>
+Content-Type: multipart/report;
+ report-type=disposition-notification;
+ boundary="-=Part.4.eacbd77583b27a21.18693d44b09.640b5d1647779e16=-"
+
+---=Part.4.eacbd77583b27a21.18693d44b09.640b5d1647779e16=-
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+Ceci est un accus=C3=A9 de r=C3=A9ception pour votre message
+
+	=C3=80: Georges Abitbol <gabitbol@devenv=2Edev=2Ebluemind=2Enet>
+	Sujet: MMMMM
+	Date: 27/02/2023 18:03:12
+
+Note : Cet accus=C3=A9 de r=C3=A9ception indique seulement que le message =
+a =C3=A9t=C3=A9
+affich=C3=A9 sur l'ordinateur du destinataire=2E Il n'y a aucune garantie =
+que le
+destinataire a lu ou compris le contenu du message=2E
+
+---=Part.4.eacbd77583b27a21.18693d44b09.640b5d1647779e16=-
+Content-Type: message/disposition-notification
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename=MDN.txt
+
+Reporting-UA: BlueMind Mail App
+Original-Recipient: José José <jose@devenv.dev.bluemind.net>
+Final-Recipient: rfc822; jose@devenv.dev.bluemind.net
+Original-Message-ID: <len2jg1k.28bfb1w3qb5s0@devenv.dev.bluemind.net>
+Disposition: manual-action/MDN-sent-manually; displayed
+
+---=Part.4.eacbd77583b27a21.18693d44b09.640b5d1647779e16=---

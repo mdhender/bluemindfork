@@ -166,18 +166,33 @@ public class OutboxService implements IOutbox {
 				String fromMail = msg.getFrom().iterator().next().getAddress();
 				MailboxList rcptTo = allRecipients(msg);
 				send(ctx.user.value.login, forSend, fromMail, rcptTo, msg);
-				ret.flushResult = moveToSent(item, ctx.sentFolder, ctx.outboxFolder);
+				boolean moveToSent = !isMDN(item.value);
+				ret.flushResult = moveToSent ? moveToSent(item, ctx.sentFolder, ctx.outboxFolder)
+						: Optional.ofNullable(buildFlushResult(item.internalId, ctx.outboxFolder.uid, item.internalId,
+								ctx.outboxFolder.uid));
 				ret.collectedRecipients = rcptTo.stream()
 						.map(rcpt -> new RecipientInfo(rcpt.getAddress(), rcpt.getName(), rcpt.getLocalPart()))
 						.collect(Collectors.toSet());
 				ctx.monitor.progress(1,
-						"FLUSHING OUTBOX - mail " + msg.getMessageId() + " sent and moved in Sent folder.");
+						String.format(
+								"FLUSHING OUTBOX - mail %s sent" + (moveToSent ? "and moved in Sent folder." : "."),
+								msg.getMessageId()));
 			} catch (Exception e) {
 				logger.warn("ItemId {}: ", item.internalId, e);
 				throw new ServerFault(e);
 			}
 			return ret;
 		});
+	}
+
+	/**
+	 * @return <code>true</code> if <code>mailboxItem</code> is a Message
+	 *         Disposition Notification (rfc8098)
+	 */
+	private boolean isMDN(MailboxItem mailboxItem) {
+		return "multipart/report".equalsIgnoreCase(mailboxItem.body.structure.mime)
+				&& mailboxItem.body.structure.children.stream()
+						.anyMatch(child -> child.mime.contains("/disposition-notification"));
 	}
 
 	private void addRecipientsToCollectedContacts(String uid, Set<RecipientInfo> collectedRecipients) {
@@ -262,11 +277,16 @@ public class OutboxService implements IOutbox {
 		if (targetItems == null || targetItems.isEmpty()) {
 			return null;
 		}
+		return buildFlushResult(item.internalId, sourceUid, targetItems.get(0).id, targetUid);
+	}
+
+	private FlushResult buildFlushResult(long sourceInternalId, String sourceFolderUid, long targetInternalId,
+			String targetFolderUid) {
 		FlushResult flushResult = new FlushResult();
-		flushResult.setSourceInternalId(item.internalId);
-		flushResult.setSourceFolderUid(sourceUid);
-		flushResult.setDestinationInternalId(targetItems.get(0).id);
-		flushResult.setDestinationFolderUid(targetUid);
+		flushResult.setSourceInternalId(sourceInternalId);
+		flushResult.setSourceFolderUid(sourceFolderUid);
+		flushResult.setDestinationInternalId(targetInternalId);
+		flushResult.setDestinationFolderUid(targetFolderUid);
 		return flushResult;
 	}
 

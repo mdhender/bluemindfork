@@ -379,4 +379,15 @@ public class OutboxServiceTests extends AbstractRollingReplicationTests {
 
 	}
 
+	@Test
+	public void testFlushOutboxDoesNotCopyMDNToSent()
+			throws IOException, InterruptedException, ExecutionException, TimeoutException {
+		addMailToFolder(testEml("mdn.eml"), outboxUid);
+		assertEquals(1L, outboxMailboxItemsService.count(ItemFlagFilter.all()).total);
+		CompletableFuture<Void> applyMailboxCompletetion = new ExpectCommand().onNextApplyMailbox(outboxUid);
+		TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), outboxService.flush());
+		applyMailboxCompletetion.get(5, TimeUnit.SECONDS);
+		assertEquals(0L, sent_mailboxItemsService.count(ItemFlagFilter.all()).total);
+	}
+
 }
