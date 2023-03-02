@@ -1852,42 +1852,66 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onVideoConferencingSelect_ = func
           }
         }, null);
       }
-      this.addOrRemoveVideoConferencing_(ret, value ? 'add' : 'remove');
+      this.addOrRemoveVideoConferencing_(ret, resourceUid, value ? 'add' : 'remove');
     }, null, this);
 }
 
-net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencing_ = function (attendee, mode) {
-
+net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencingAddFunc_ = function (attendee, resourceUid){
   var adaptor = new net.bluemind.calendar.vevent.VEventSeriesAdaptor(this.ctx);
-  if (mode == "add") {
-    this.getModel().attendees.push(attendee);
-    this.getModel().states.meeting = this.getModel().attendees.length > 1;
-    var vseries = adaptor.fromVEventModelView(this.getModel());
-    var occ = null;
-    if (vseries.value['main']) {
-      occ = vseries.value['main'];
-    } else {
-      occ = vseries.value['occurrences'][0];
-    }    
-    this.ctx.service('videoConferencing').add(occ).then(function(res) {
-      if (res['conferenceId'] == null) {
-        this.showConferenceError_();
-        return;
-      }
-      this.getModel().conference = res['conference'];
-      this.getModel().conferenceId = res['conferenceId'];
-      var desc = res.description.trim();
-      var idx =  desc.indexOf("<videoconferencingtemplate");
-      var len = desc.length;
-      this.getModel().description = desc.substring(0, idx) || '';
-      this.getModel().conferenceDescription = desc.substring(idx, len);
-      this.editor_.setValue(this.getModel().description);
-      this.showConferenceData_();
-    }, function(e) {
-      console.error(e);
+  this.getModel().attendees.push(attendee);
+  this.getModel().states.meeting = this.getModel().attendees.length > 1;
+  var vseries = adaptor.fromVEventModelView(this.getModel());
+  var occ = null;
+  if (vseries.value['main']) {
+    occ = vseries.value['main'];
+  } else {
+    occ = vseries.value['occurrences'][0];
+  }    
+  this.ctx.service('videoConferencing').add(occ).then(function(res) {
+    if (res['conferenceId'] == null) {
       this.showConferenceError_();
-    }, this);
+      return;
+    }
+    this.getModel().conference = res['conference'];
+    this.getModel().conferenceId = res['conferenceId'];
+    var desc = res.description.trim();
+    var idx =  desc.indexOf("<videoconferencingtemplate");
+    var len = desc.length;
+    this.getModel().description = desc.substring(0, idx) || '';
+    this.getModel().conferenceDescription = desc.substring(idx, len);
+    this.editor_.setValue(this.getModel().description);
+    this.showConferenceData_();
+  }, function(e) {
+    console.error(e);
+    this.showConferenceError_();
+  }, this);
+};
+
+net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencing_ = function (attendee, resourceUid, mode) {
+  if (mode == "add") {
+    this.ctx.service('videoConferencing').auth(resourceUid).then(function (authRet) {
+      if (authRet.status == 'TOKEN_NOT_VALID'){
+        // init openid connect
+        var w = window.open(authRet.url, "", "popup=true,width=550,height=550,top=200,left=200");
+        var callback = {};
+        goog.global['bmOpenIdAuthicationCallback'] = callback;
+        var promise = new goog.Promise(function (resolve, reject) {
+          callback.resolve = resolve;
+          callback.reject = reject;
+          w.addEventListener('onclose', reject);
+        });
+        promise.then(function() {
+          this.addOrRemoveVideoConferencingAddFunc_(attendee, resourceUid);
+        }, function() {
+		  this.showConferenceForm_();
+        }, this);
+        return;
+      } else {
+        this.addOrRemoveVideoConferencingAddFunc_(attendee, resourceUid);
+      }
+    }, null, this);
   } else if (mode == "remove") {
+  	var adaptor = new net.bluemind.calendar.vevent.VEventSeriesAdaptor(this.ctx);
     var vseries = adaptor.fromVEventModelView(this.getModel());
     var occ = null;
     if (vseries.value['main']) {

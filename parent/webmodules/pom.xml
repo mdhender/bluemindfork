@@ -18,6 +18,7 @@
 		<module>net.bluemind.webmodule.epfilter</module>
 		<module>net.bluemind.webmodule.uploadhandler</module>
 		<module>net.bluemind.webmodule.filehostinghandler</module>
+		<module>net.bluemind.webmodule.openidhandler</module>
 		<module>net.bluemind.webmodule.dav</module>
 	</modules>
 </project>

@@ -79,4 +79,23 @@
             impl="net.bluemind.authentication.service.internal.AuthContextCache$CacheRegistration">
       </reg>
    </extension>
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.authentication.service.OpenIdContextCache$Registration">
+      </reg>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.apiEndpoint">
+      <endpoint
+            api="net.bluemind.authentication.api.IUserAccessToken"
+            inline="false">
+      </endpoint>
+   </extension>
+   <extension
+         point="net.bluemind.core.rest.serviceFactory">
+      <serviceFactory
+            class="net.bluemind.authentication.service.UserAccessTokenServiceFactory">
+      </serviceFactory>
+   </extension>
 </plugin>

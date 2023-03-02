@@ -19,6 +19,7 @@
 package net.bluemind.ui.settings.client.myaccount.external;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ import net.bluemind.gwtconsoleapp.base.editor.ModelHandler;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtModelHandler;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtModelHandler;
+import net.bluemind.system.api.ExternalSystem.AuthKind;
 import net.bluemind.system.api.IExternalSystemPromise;
 import net.bluemind.system.api.gwt.endpoint.ExternalSystemGwtEndpoint;
 import net.bluemind.system.api.gwt.js.JsExternalSystem;
@@ -69,14 +71,16 @@ public class ExternalAccountModelHandler implements IGwtModelHandler {
 				Ajax.TOKEN.getContainerUid(), Ajax.TOKEN.getSubject()).promiseApi();
 
 		List<CompletableFuture<CompleteExternalSystem>> systems = new ArrayList<>();
-		CompletableFuture<Void> call = service.getExternalSystems().thenAccept(list -> {
-			list.forEach(extSystem -> {
-				systems.add(service.getLogo(extSystem.identifier).thenApply(logo -> {
-					String icon = getIcon(extSystem.identifier, logo);
-					return new CompleteExternalSystem(extSystem, icon);
-				}));
-			});
-		});
+		CompletableFuture<Void> call = service
+				.getExternalSystemsByAuthKind(EnumSet.of(AuthKind.API_KEY, AuthKind.SIMPLE_CREDENTIALS))
+				.thenAccept(list -> {
+					list.forEach(extSystem -> {
+						systems.add(service.getLogo(extSystem.identifier).thenApply(logo -> {
+							String icon = getIcon(extSystem.identifier, logo);
+							return new CompleteExternalSystem(extSystem, icon);
+						}));
+					});
+				});
 
 		call.thenAccept((v -> {
 			CompletableFuture<List<UserAccountInfo>> accounts = accountService.getAll();

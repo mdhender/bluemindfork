@@ -19,14 +19,15 @@
 package net.bluemind.system.api;
 
 import java.util.List;
+import java.util.Set;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
-
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.system.api.ExternalSystem.AuthKind;
 import net.bluemind.user.api.UserAccount;
 
 @BMApi(version = "3")
@@ -35,6 +36,10 @@ public interface IExternalSystem {
 
 	@GET
 	public List<ExternalSystem> getExternalSystems() throws ServerFault;
+
+	@POST
+	@Path("_by_authkind")
+	public List<ExternalSystem> getExternalSystemsByAuthKind(Set<AuthKind> authKinds) throws ServerFault;
 
 	@GET
 	@Path("{systemIdentifier}")

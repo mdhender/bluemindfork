@@ -39,7 +39,11 @@ Require-Bundle: net.bluemind.authentication.api;bundle-version="1.0.0";visibilit
  org.apache.james.apache-mime4j-core,
  net.bluemind.system.state,
  net.bluemind.common.hollow,
- com.github.ben-manes.caffeine
+ com.github.ben-manes.caffeine,
+ net.bluemind.domain.service,
+ net.bluemind.system.sysconf.helper,
+ net.bluemind.system.service,
+ org.apache.commons.codec;bundle-version="1.14.0"
 Export-Package: net.bluemind.authentication.service
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.authentication.service

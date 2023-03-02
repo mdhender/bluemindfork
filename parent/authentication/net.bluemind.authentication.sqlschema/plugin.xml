@@ -12,4 +12,14 @@
       </schema>
    </extension>
 
+	<extension
+         point="net.bluemind.core.jdbc.schema">
+      <schema
+            name="refresh-token-schema"
+            resource="sql/refresh-token-schema.1.0.0.sql">
+         <compose
+               id="user-schema">
+         </compose>
+      </schema>
+   </extension>
 </plugin>

@@ -302,4 +302,16 @@ public interface DomainConstants extends Messages {
 	String otherUrls();
 
 	String otherUrlsHelp();
+
+	String openIdRegistrations();
+
+	String systemIdentifier();
+
+	String endpoint();
+
+	String applicationId();
+
+	String applicationSecret();
+
+	String tokenEndpoint();
 }

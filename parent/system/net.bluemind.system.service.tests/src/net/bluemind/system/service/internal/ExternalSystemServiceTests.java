@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.util.EnumSet;
 import java.util.List;
 
 import org.junit.Before;
@@ -43,7 +44,6 @@ public class ExternalSystemServiceTests {
 	public void setup() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
 		service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IExternalSystem.class);
@@ -68,6 +68,21 @@ public class ExternalSystemServiceTests {
 		assertNull(service.getLogo(externalSystem.identifier));
 
 		ExternalSystem externalSystem2 = service.getExternalSystem("TestSystem2");
+
+		assertEquals("TestSystem2", externalSystem2.identifier);
+		assertEquals("System 2", externalSystem2.description);
+		assertEquals(AuthKind.API_KEY, externalSystem2.authKind);
+		assertNotNull(service.getLogo(externalSystem2.identifier));
+
+	}
+
+	@Test
+	public void testGettingExternalSystemFilterByAuthKind() {
+		List<ExternalSystem> externalSystems = service.getExternalSystemsByAuthKind(EnumSet.of(AuthKind.API_KEY));
+
+		assertEquals(1, externalSystems.size());
+
+		ExternalSystem externalSystem2 = externalSystems.get(0);
 
 		assertEquals("TestSystem2", externalSystem2.identifier);
 		assertEquals("System 2", externalSystem2.description);

@@ -627,6 +627,7 @@
    <bundle id="net.bluemind.ui.adminconsole.videoconferencing.bluemind" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.ui.adminconsole.videoconferencing.jitsi" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.ui.adminconsole.videoconferencing.starleaf" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.ui.adminconsole.videoconferencing.webex" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.ui.adminconsole.videoconferencing.teams" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.ui.banner" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.ui.banner.cti" version="5.0.0.qualifier"/>
@@ -694,6 +695,7 @@
    <bundle id="net.bluemind.videoconferencing.saas.service" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.videoconferencing.service" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.videoconferencing.starleaf" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.videoconferencing.webex" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.videoconferencing.teams" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.videoconferencing.utils" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.webappdata.api" version="5.0.0.qualifier"/>
@@ -746,4 +748,5 @@
    <bundle id="net.bluemind.backend.mailapi.testhelper"/>
    <bundle id="net.bluemind.imap.docker.imaptest"/>
    <bundle id="net.bluemind.common.vertx.msgpack"/>
+   <bundle id="net.bluemind.webmodule.openidhandler"/>
 </site>

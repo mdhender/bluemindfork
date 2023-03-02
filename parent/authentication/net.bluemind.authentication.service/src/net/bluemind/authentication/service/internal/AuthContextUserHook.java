@@ -20,6 +20,7 @@ package net.bluemind.authentication.service.internal;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.bluemind.authentication.persistence.UserRefreshTokenStore;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -47,6 +48,7 @@ public class AuthContextUserHook extends DefaultUserHook {
 	@Override
 	public void onUserDeleted(BmContext context, String domainUid, ItemValue<User> deleted) throws ServerFault {
 		AuthContextCache.getCache().invalidateAll(cacheKeys(context, domainUid, deleted));
+		new UserRefreshTokenStore(context.getDataSource(), deleted.uid).deleteAll();
 	}
 
 	private Set<String> cacheKeys(BmContext context, String domainUid, ItemValue<User> u) {

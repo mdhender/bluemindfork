@@ -27,6 +27,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.resource.api.ResourceDescriptor;
+import net.bluemind.system.api.ExternalSystem.AuthKind;
 
 public interface IVideoConferencingProvider {
 
@@ -45,4 +46,7 @@ public interface IVideoConferencingProvider {
 		return Collections.emptySet();
 	}
 
+	public default AuthKind getAuthKind() {
+		return AuthKind.NONE;
+	}
 }

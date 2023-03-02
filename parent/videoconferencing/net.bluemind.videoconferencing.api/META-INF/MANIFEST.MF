@@ -9,6 +9,7 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.resource.api,
  net.bluemind.core.container.api,
  net.bluemind.core.rest,
- net.bluemind.calendar.api
+ net.bluemind.calendar.api,
+ net.bluemind.system.api
 Export-Package: net.bluemind.videoconferencing.api
 Eclipse-RegisterBuddy: net.bluemind.core.rest

@@ -18,6 +18,8 @@
  */
 package net.bluemind.system.service;
 
+import java.util.Map;
+
 import net.bluemind.system.api.ConnectionTestStatus;
 import net.bluemind.system.api.ExternalSystem;
 import net.bluemind.user.api.UserAccount;
@@ -26,6 +28,11 @@ public abstract class RegisteredExternalSystem extends ExternalSystem {
 
 	public RegisteredExternalSystem(String identifier, String description, AuthKind authKind) {
 		super(identifier, description, authKind);
+	}
+
+	public RegisteredExternalSystem(String identifier, String description, AuthKind authKind,
+			Map<String, String> properties) {
+		super(identifier, description, authKind, properties);
 	}
 
 	public abstract byte[] getLogo();

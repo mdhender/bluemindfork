@@ -1098,6 +1098,14 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		}
 	}
 
+	public static String toRRuleString(net.bluemind.icalendar.api.ICalendarElement.RRule rrule) {
+		PropertyList<Property> properties = new PropertyList<>();
+		ICalendarElement iCalendarElement = new net.bluemind.calendar.api.VEvent();
+		iCalendarElement.rrule = rrule;
+		parseICalendarElementRRule(properties, iCalendarElement);
+		return properties.get(0).getValue();
+	}
+
 	private static void parseICalendarElementRRule(PropertyList<Property> properties,
 			ICalendarElement iCalendarElement) {
 		if (iCalendarElement.rrule != null) {

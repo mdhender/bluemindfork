@@ -46,6 +46,7 @@ import net.bluemind.ui.adminconsole.system.domains.edit.instantmessaging.EditDom
 import net.bluemind.ui.adminconsole.system.domains.edit.instantmessaging.ImModelHandler;
 import net.bluemind.ui.adminconsole.system.domains.edit.mailflow.EditMailflowRulesEditor;
 import net.bluemind.ui.adminconsole.system.domains.edit.mailsystem.EditDomainMailsystemEditor;
+import net.bluemind.ui.adminconsole.system.domains.openid.EditOpenIdRegistrationsEditor;
 import net.bluemind.ui.adminconsole.system.hosts.HostsScreen;
 import net.bluemind.ui.adminconsole.system.hosts.create.QCreateHostModelHandler;
 import net.bluemind.ui.adminconsole.system.hosts.create.QCreateHostScreen;
@@ -124,6 +125,7 @@ public class SystemPlugin {
 		DomainAssignmentsModelHandler.registerType();
 		ImModelHandler.registerType();
 		DomainCertificateEditor.registerType();
+		EditOpenIdRegistrationsEditor.registerType();
 
 		// Subscription
 		SubscriptionModelHandler.registerType();

@@ -18,6 +18,9 @@
  */
 package net.bluemind.system.api;
 
+import java.util.Collections;
+import java.util.Map;
+
 import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
@@ -29,19 +32,26 @@ public class ExternalSystem {
 
 	public AuthKind authKind;
 
+	public Map<String, String> properties;
+
 	public ExternalSystem() {
 
 	}
 
 	public ExternalSystem(String identifier, String description, AuthKind authKind) {
+		this(identifier, description, authKind, Collections.emptyMap());
+	}
+
+	public ExternalSystem(String identifier, String description, AuthKind authKind, Map<String, String> properties) {
 		this.identifier = identifier;
 		this.description = description;
 		this.authKind = authKind;
+		this.properties = properties;
 	}
 
 	@BMApi(version = "3")
 	public static enum AuthKind {
-		NONE, SIMPLE_CREDENTIALS, API_KEY
+		NONE, SIMPLE_CREDENTIALS, API_KEY, OPEN_ID_PKCE
 	}
 
 }

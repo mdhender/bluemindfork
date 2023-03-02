@@ -26,6 +26,7 @@
 		<module>net.bluemind.ui.adminconsole.videoconferencing</module>
 		<module>net.bluemind.ui.adminconsole.videoconferencing.jitsi</module>
 		<module>net.bluemind.ui.adminconsole.videoconferencing.starleaf</module>
+		<module>net.bluemind.ui.adminconsole.videoconferencing.webex</module>
 		<module>net.bluemind.ui.adminconsole.videoconferencing.bluemind</module>
 		<module>net.bluemind.ui.adminconsole.videoconferencing.teams</module>
 	</modules>

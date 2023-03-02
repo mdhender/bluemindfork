@@ -19,11 +19,13 @@
 package net.bluemind.system.service.internal;
 
 import java.util.List;
+import java.util.Set;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.system.api.ConnectionTestStatus;
 import net.bluemind.system.api.ExternalSystem;
+import net.bluemind.system.api.ExternalSystem.AuthKind;
 import net.bluemind.system.api.IExternalSystem;
 import net.bluemind.system.service.ExternalSystemsRegistry;
 import net.bluemind.user.api.UserAccount;
@@ -39,6 +41,12 @@ public class ExternalSystemService implements IExternalSystem {
 	@Override
 	public List<ExternalSystem> getExternalSystems() throws ServerFault {
 		return ExternalSystemsRegistry.getExternalSystems();
+	}
+
+	@Override
+	public List<ExternalSystem> getExternalSystemsByAuthKind(Set<AuthKind> authKinds) throws ServerFault {
+		return ExternalSystemsRegistry.getExternalSystems().stream()
+				.filter(system -> authKinds.contains(system.authKind)).toList();
 	}
 
 	@Override

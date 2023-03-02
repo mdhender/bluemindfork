@@ -82,7 +82,7 @@ public class ExternalSystemsRegistry {
 	}
 
 	private static ExternalSystem toExternalSystem(RegisteredExternalSystem system) {
-		return new ExternalSystem(system.identifier, system.description, system.authKind);
+		return new ExternalSystem(system.identifier, system.description, system.authKind, system.properties);
 	}
 
 	private static RegisteredExternalSystem getSystem(String systemIdentifier) {

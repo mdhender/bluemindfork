@@ -114,6 +114,7 @@ public class BmContextImpl implements BmContext {
 				securityContext.getMemberOf(), r, securityContext.getRolesByOrgUnits(),
 				securityContext.getContainerUid(), securityContext.getLang(), securityContext.getOrigin(),
 				securityContext.isInteractive());
+		securityContext.setUserAccessTokens(securityContext.getUserAccessTokens());
 		return new BmContextImpl(sc, dataSource, mailboxDataSource);
 	}
 

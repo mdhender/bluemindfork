@@ -21,7 +21,6 @@ import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
-
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.api.BMApi;
 

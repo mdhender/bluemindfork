@@ -17,5 +17,6 @@ Require-Bundle: com.google.gwt.user;resolution:=optional,
  net.bluemind.resource.api.gwt;bundle-version="4.1.0";visibility:=reexport,
  net.bluemind.videoconferencing.api.gwt;bundle-version="4.1.0";visibility:=reexport
 Bundle-Vendor: blue-mind.net
-Export-Package: net.bluemind.ui.adminconsole.videoconferencing.bluemind
+Export-Package: net.bluemind.ui.adminconsole.videoconferencing.bluemind,
+ net.bluemind.ui.adminconsole.videoconferencing.bluemind.l10n
 Web-Resources: web-resources
