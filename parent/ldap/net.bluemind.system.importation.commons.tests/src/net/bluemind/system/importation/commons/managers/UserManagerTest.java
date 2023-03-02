@@ -26,10 +26,13 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import org.apache.directory.api.ldap.model.entry.DefaultEntry;
+import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueException;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.junit.Test;
@@ -50,7 +53,15 @@ import net.bluemind.user.api.User;
 public class UserManagerTest {
 	private class UserManagerTestImpl extends UserManager {
 		public UserManagerTestImpl(ItemValue<Domain> domain) {
-			super(domain, null);
+			super(domain, new DefaultEntry());
+			user = ItemValue.create("" + System.nanoTime(), new User());
+			user.value.login = "login-" + System.nanoTime();
+			user.value.routing = Routing.internal;
+			user.value.contactInfos = new VCard();
+		}
+
+		public UserManagerTestImpl(ItemValue<Domain> domain, Entry entry) {
+			super(domain, entry);
 			user = ItemValue.create("" + System.nanoTime(), new User());
 			user.value.login = "login-" + System.nanoTime();
 			user.value.routing = Routing.internal;
@@ -480,5 +491,99 @@ public class UserManagerTest {
 		mf.forwarding.enabled = true;
 		mf.forwarding.emails.add("test@domain.tld");
 		assertEquals(umt.getUpdatedMailFilter().get(), mf);
+	}
+
+	@Test
+	public void certificate_pem() {
+		String certificate = "MIIFwzCCA6ugAwIBAgIUVTSFATfec/mVyk95Yu8jhQJjEhcwDQYJKoZIhvcNAQELBQAwcTELMAkG" //
+				+ "A1UEBhMCRlIxDzANBgNVBAgMBkZyYW5jZTERMA8GA1UEBwwIVG91bG91c2UxETAPBgNVBAoMCEJs" //
+				+ "dWVNaW5kMQ8wDQYDVQQLDAZKVW5pdHMxGjAYBgNVBAMMEWxkYXBhZC5pbXBvcnQudGxkMB4XDTIz" //
+				+ "MDMwMzE1MjMxOFoXDTI0MDMwMjE1MjMxOFowcTELMAkGA1UEBhMCRlIxDzANBgNVBAgMBkZyYW5j" //
+				+ "ZTERMA8GA1UEBwwIVG91bG91c2UxETAPBgNVBAoMCEJsdWVNaW5kMQ8wDQYDVQQLDAZKVW5pdHMx" //
+				+ "GjAYBgNVBAMMEWxkYXBhZC5pbXBvcnQudGxkMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKC" //
+				+ "AgEA3SqvSmLU+mnqo11RAYExZ2hT61pJ0vBjGSJ+gIOVgve2Vw8QHWgWs3C/ff8kGiD6F3c/+qzk" //
+				+ "Upd65ZcOBMwcnPwDk2rGRbchVCrTwjePyGhWxoC7Mi/RlpRTkc1Q84v0vZ3KthzsCXIMSgRDRnZ4" //
+				+ "cmwuj90EN+7tb0BS5HRBdeG921OeIK02DJaO3uqRfC9mnR8Urd1hwqy0nLP7AMOOSE5264+slXPe" //
+				+ "yeQg5uTwQFkAV2vZCsjEKS7id82UCQc2BWp+6sMlCZAFXmU1ue2rzohKbAMmfqQZLX5/rTVY4p4U" //
+				+ "O+KA8RKaekURt0s7iqOJ/7ANILwdmKEYxNBWuXOLJ8rINl7AI61IOY2tX79jGHacZ/h8dkn14RC9" //
+				+ "DKn2w1l8iFQc5tl76MDqaq4KFp6jz6BHCbCfcpziMZGFCK9dcvL+QEflck7iAOd1Gcnj5Az19AxN" //
+				+ "a4lL+5VXMOblV6SHz2WyxxlxD9RDa9Opr44rpPUOPsfumS5JbTk4YbwIszi2wFioN+s8EcO/lAh6" //
+				+ "ysOTcotdxMg3Bp1VBPkpf4UFJpY6rIdSyHhRt/ymVDx7ohQhfJ1sfSqbNGWVCI+Mk5c4zBXMjPRl" //
+				+ "05J9jUuz+JOrMVfaAy71ZF6sZKiQLmeo3w4WEnxX6hDtBhbURjTP2AEdqfN1Y8rlvffWmumFKJyL" //
+				+ "nGcCAwEAAaNTMFEwHQYDVR0OBBYEFBicOubB3xEds8WI8DPLrSwxm4P+MB8GA1UdIwQYMBaAFBic" //
+				+ "OubB3xEds8WI8DPLrSwxm4P+MA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggIBAAN6" //
+				+ "mJtKIW2vaRlh9Fwa6g2XIi81YjGO7jti2jotaXFuh0lkxs/IEMfQd+WRjjoHRJmWV30t5abW8weM" //
+				+ "FaxUDHAzA9SL5zjlKl5D99F7wC4gy82yOLnhQ1jP5m7XrqbFEQT/AukLnrbawG1kgwVsp+w7Jqdz" //
+				+ "PnWDBmd36mmUF5ebIF6dtgvN2L7PFtYVKr/SEa55D4Gdo8i0Jle5/EmYX0IuxLyUmJiUhX03Lexi" //
+				+ "uAix96TFWLl3lhFgA3VdtPVqebHibuGHojnLh59d851TM4CB/EuLBgw1/ZM2Gx3ipccuxSZQeHUH" //
+				+ "Wq6FiGmCukw7k5S+XOGVZN5cddhV2b04IKDDIMR18uMuUAa0nLOKouDG+0ml/5dmI/tjtYPlF5jT" //
+				+ "LQ8hG7bT3LIoXtnyXG1H7hca6YvhOtrlXxShJRp3/CKin/lzrorcp1u1nEwukSFbJJeTVbJ/pU4f" //
+				+ "ZNkfJrFfdVuthCb4TgrpYMXkHmdivWMxdoE0HwQTYxXoDjqSVYLuFxnjBNw1JTrQn7ak62d9AKkR" //
+				+ "LC7/kw2WCrFoUptC7/kT50htFOCEcXBVGar9YeV1M8LWDLmOQMSjSBO2RYKmGKZHZ5XVvEcFQTyv" //
+				+ "WdOlQ32UB2v/lXHXgdayjcszlR/N8xJTZ6ylMgeLA5Jpz8dvGPdk+T0HJiN/zC5jBP8u0qBy";
+
+		Entry entry = new DefaultEntry();
+		entry.put("usercertificate;binary", Base64.getDecoder().decode(certificate));
+
+		User user = new User();
+
+		UserManagerTestImpl umt = new UserManagerTestImpl(getDomain(), entry);
+		umt.update(ItemValue.create(Item.create("test", null), user), new MailFilter());
+
+		assertEquals(1, user.contactInfos.security.key.parameters.size());
+		assertEquals("TYPE", user.contactInfos.security.key.parameters.get(0).label);
+		assertEquals("pem", user.contactInfos.security.key.parameters.get(0).value);
+		assertEquals("-----BEGIN CERTIFICATE-----" + certificate + "-----END CERTIFICATE-----",
+				user.contactInfos.security.key.value.replace("\n", ""));
+	}
+
+	@Test
+	public void certificate_pkcs7() {
+		String pkcs7 = "MIIF8gYJKoZIhvcNAQcCoIIF4zCCBd8CAQExADALBgkqhkiG9w0BBwGgggXHMIIF" //
+				+ "wzCCA6ugAwIBAgIUVTSFATfec/mVyk95Yu8jhQJjEhcwDQYJKoZIhvcNAQELBQAw" //
+				+ "cTELMAkGA1UEBhMCRlIxDzANBgNVBAgMBkZyYW5jZTERMA8GA1UEBwwIVG91bG91" //
+				+ "c2UxETAPBgNVBAoMCEJsdWVNaW5kMQ8wDQYDVQQLDAZKVW5pdHMxGjAYBgNVBAMM" //
+				+ "EWxkYXBhZC5pbXBvcnQudGxkMB4XDTIzMDMwMzE1MjMxOFoXDTI0MDMwMjE1MjMx" //
+				+ "OFowcTELMAkGA1UEBhMCRlIxDzANBgNVBAgMBkZyYW5jZTERMA8GA1UEBwwIVG91" //
+				+ "bG91c2UxETAPBgNVBAoMCEJsdWVNaW5kMQ8wDQYDVQQLDAZKVW5pdHMxGjAYBgNV" //
+				+ "BAMMEWxkYXBhZC5pbXBvcnQudGxkMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIIC" //
+				+ "CgKCAgEA3SqvSmLU+mnqo11RAYExZ2hT61pJ0vBjGSJ+gIOVgve2Vw8QHWgWs3C/" //
+				+ "ff8kGiD6F3c/+qzkUpd65ZcOBMwcnPwDk2rGRbchVCrTwjePyGhWxoC7Mi/RlpRT" //
+				+ "kc1Q84v0vZ3KthzsCXIMSgRDRnZ4cmwuj90EN+7tb0BS5HRBdeG921OeIK02DJaO" //
+				+ "3uqRfC9mnR8Urd1hwqy0nLP7AMOOSE5264+slXPeyeQg5uTwQFkAV2vZCsjEKS7i" //
+				+ "d82UCQc2BWp+6sMlCZAFXmU1ue2rzohKbAMmfqQZLX5/rTVY4p4UO+KA8RKaekUR" //
+				+ "t0s7iqOJ/7ANILwdmKEYxNBWuXOLJ8rINl7AI61IOY2tX79jGHacZ/h8dkn14RC9" //
+				+ "DKn2w1l8iFQc5tl76MDqaq4KFp6jz6BHCbCfcpziMZGFCK9dcvL+QEflck7iAOd1" //
+				+ "Gcnj5Az19AxNa4lL+5VXMOblV6SHz2WyxxlxD9RDa9Opr44rpPUOPsfumS5JbTk4" //
+				+ "YbwIszi2wFioN+s8EcO/lAh6ysOTcotdxMg3Bp1VBPkpf4UFJpY6rIdSyHhRt/ym" //
+				+ "VDx7ohQhfJ1sfSqbNGWVCI+Mk5c4zBXMjPRl05J9jUuz+JOrMVfaAy71ZF6sZKiQ" //
+				+ "Lmeo3w4WEnxX6hDtBhbURjTP2AEdqfN1Y8rlvffWmumFKJyLnGcCAwEAAaNTMFEw" //
+				+ "HQYDVR0OBBYEFBicOubB3xEds8WI8DPLrSwxm4P+MB8GA1UdIwQYMBaAFBicOubB" //
+				+ "3xEds8WI8DPLrSwxm4P+MA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQAD" //
+				+ "ggIBAAN6mJtKIW2vaRlh9Fwa6g2XIi81YjGO7jti2jotaXFuh0lkxs/IEMfQd+WR" //
+				+ "jjoHRJmWV30t5abW8weMFaxUDHAzA9SL5zjlKl5D99F7wC4gy82yOLnhQ1jP5m7X" //
+				+ "rqbFEQT/AukLnrbawG1kgwVsp+w7JqdzPnWDBmd36mmUF5ebIF6dtgvN2L7PFtYV" //
+				+ "Kr/SEa55D4Gdo8i0Jle5/EmYX0IuxLyUmJiUhX03LexiuAix96TFWLl3lhFgA3Vd" //
+				+ "tPVqebHibuGHojnLh59d851TM4CB/EuLBgw1/ZM2Gx3ipccuxSZQeHUHWq6FiGmC" //
+				+ "ukw7k5S+XOGVZN5cddhV2b04IKDDIMR18uMuUAa0nLOKouDG+0ml/5dmI/tjtYPl" //
+				+ "F5jTLQ8hG7bT3LIoXtnyXG1H7hca6YvhOtrlXxShJRp3/CKin/lzrorcp1u1nEwu" //
+				+ "kSFbJJeTVbJ/pU4fZNkfJrFfdVuthCb4TgrpYMXkHmdivWMxdoE0HwQTYxXoDjqS" //
+				+ "VYLuFxnjBNw1JTrQn7ak62d9AKkRLC7/kw2WCrFoUptC7/kT50htFOCEcXBVGar9" //
+				+ "YeV1M8LWDLmOQMSjSBO2RYKmGKZHZ5XVvEcFQTyvWdOlQ32UB2v/lXHXgdayjcsz" //
+				+ "lR/N8xJTZ6ylMgeLA5Jpz8dvGPdk+T0HJiN/zC5jBP8u0qByMQA=";
+
+		Entry entry = new DefaultEntry();
+		entry.put("usersmimecertificate", Base64.getDecoder().decode(pkcs7));
+
+		User user = new User();
+
+		UserManagerTestImpl umt = new UserManagerTestImpl(getDomain(), entry);
+		umt.update(ItemValue.create(Item.create("test", null), user), new MailFilter());
+
+		assertEquals(1, user.contactInfos.security.key.parameters.size());
+		assertEquals("TYPE", user.contactInfos.security.key.parameters.get(0).label);
+		assertEquals("pkcs7", user.contactInfos.security.key.parameters.get(0).value);
+		assertEquals("-----BEGIN PKCS7-----" + pkcs7 + "-----END PKCS7-----",
+				user.contactInfos.security.key.value.replace("\n", ""));
 	}
 }

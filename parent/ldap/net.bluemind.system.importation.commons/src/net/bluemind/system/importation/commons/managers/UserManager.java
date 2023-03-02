@@ -20,6 +20,7 @@ package net.bluemind.system.importation.commons.managers;
 
 import java.text.Normalizer;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -37,6 +38,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.addressbook.api.VCard;
+import net.bluemind.addressbook.api.VCard.Parameter;
+import net.bluemind.addressbook.api.VCard.Security.Key;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Item;
@@ -63,6 +66,16 @@ public abstract class UserManager extends EntityManager {
 
 	private static final Pattern LOGIN_CHAR_TO_REMOVE = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 	private static final Pattern LOGIN_CHAR_TO_REPLACE = Pattern.compile("[^a-z0-9-._]");
+
+	// https://hkalina.github.io/2016/10/09/ldapkeystore/
+	// https://microsoft.public.adsi.general.narkive.com/aApp1ObC/save-retrieve-certificate-in-active-directory
+	private static final String BEGIN_CERT = "-----BEGIN CERTIFICATE-----";
+	private static final String END_CERT = "-----END CERTIFICATE-----";
+	private static final String BEGIN_PKCS7 = "-----BEGIN PKCS7-----";
+	private static final String END_PKCS7 = "-----END PKCS7-----";
+
+	private static final String CERTIFICATE_PKCS7 = "userSMIMECertificate";
+	private static final String CERTIFICATE_DER = "usercertificate";
 
 	public boolean create = true;
 	public final Entry entry;
@@ -132,6 +145,7 @@ public abstract class UserManager extends EntityManager {
 			manageArchived();
 
 			manageContactInfos();
+			manageCertificates();
 
 			setMailRouting();
 			manageEmails(getEmails());
@@ -158,6 +172,25 @@ public abstract class UserManager extends EntityManager {
 		} catch (LdapInvalidAttributeValueException e) {
 			throw new ServerFault(e);
 		}
+	}
+
+	private void manageCertificates() {
+		user.value.contactInfos.security.key = Optional.ofNullable(getAttributeBytesValue(entry, CERTIFICATE_PKCS7))
+				.map(bin -> new StringBuilder().append(BEGIN_PKCS7).append("\n")
+						.append(new String(Base64.getMimeEncoder(64, "\n".getBytes()).encode(bin))).append("\n")
+						.append(END_PKCS7).toString())
+				.map(pkcs7 -> Key.create(pkcs7, Arrays.asList(Parameter.create("TYPE", "pkcs7"))))
+				.orElseGet(this::fromDerAttribute);
+	}
+
+	private Key fromDerAttribute() {
+		return Optional
+				.ofNullable(entry.containsAttribute(CERTIFICATE_DER) ? getAttributeBytesValue(entry, CERTIFICATE_DER)
+						: getAttributeBytesValue(entry, CERTIFICATE_DER + ";binary"))
+				.map(der -> new StringBuilder().append(BEGIN_CERT).append("\n")
+						.append(new String(Base64.getMimeEncoder(64, "\n".getBytes()).encode(der))).append("\n")
+						.append(END_CERT).toString())
+				.map(pem -> Key.create(pem, Arrays.asList(Parameter.create("TYPE", "pem")))).orElse(new Key());
 	}
 
 	private void setLogin(IImportLogger importLogger) throws LdapInvalidAttributeValueException {

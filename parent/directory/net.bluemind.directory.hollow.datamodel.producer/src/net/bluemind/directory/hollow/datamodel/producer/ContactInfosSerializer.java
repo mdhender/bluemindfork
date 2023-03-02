@@ -7,6 +7,7 @@ import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.hollow.datamodel.producer.Value.ByteArrayValue;
 import net.bluemind.directory.hollow.datamodel.producer.Value.StringValue;
 import net.bluemind.directory.hollow.datamodel.utils.Pem;
+import net.bluemind.utils.CertificateUtils;
 
 public abstract class ContactInfosSerializer extends DirEntrySerializer {
 
@@ -68,8 +69,12 @@ public abstract class ContactInfosSerializer extends DirEntrySerializer {
 		case AssistantTelephoneNumber:
 			return Value.NULL;
 		case UserX509Certificate:
-			return new Pem(contactInfos().security.key.value).toPcks7()
-					.map(pcks7 -> (Value) (new ByteArrayValue(pcks7))).orElse(Value.NULL);
+			return contactInfos().security.key.parameters.stream()
+					.filter(parameter -> "TYPE".equalsIgnoreCase(parameter.label) && "pkcs7".equalsIgnoreCase(parameter.value)).findFirst()
+					.map(parameter -> CertificateUtils.getPkcs7DerFormat(contactInfos().security.key.value)
+							.map(pkcs7 -> (Value) (new ByteArrayValue(pkcs7))).orElse(Value.NULL))
+					.orElseGet(() -> new Pem(contactInfos().security.key.value).toPcks7()
+							.map(pcks7 -> (Value) (new ByteArrayValue(pcks7))).orElse(Value.NULL));
 		case AddressBookX509Certificate:
 			return new Pem(contactInfos().security.key.value).toDer().map(der -> (Value) (new ByteArrayValue(der)))
 					.orElse(Value.NULL);

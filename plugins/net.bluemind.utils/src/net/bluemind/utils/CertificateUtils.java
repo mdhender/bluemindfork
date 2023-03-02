@@ -8,10 +8,12 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
+import java.util.Optional;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
+import org.bouncycastle.asn1.cms.ContentInfo;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.openssl.PEMParser;
@@ -117,5 +119,19 @@ public class CertificateUtils {
 	public static Collection<? extends Certificate> generateX509Certificates(byte[] certFile)
 			throws CertificateException {
 		return CertificateFactory.getInstance(X509).generateCertificates(new ByteArrayInputStream(certFile));
+	}
+
+	public static Optional<byte[]> getPkcs7DerFormat(String pkcs7) {
+		try {
+			Object obj;
+			while ((obj = new PEMParser(new StringReader(pkcs7)).readObject()) != null) {
+				if (obj instanceof ContentInfo) {
+					return Optional.ofNullable(((ContentInfo) obj).getEncoded());
+				}
+			}
+		} catch (IOException e) {
+		}
+
+		return Optional.empty();
 	}
 }

@@ -94,6 +94,21 @@ public abstract class EntityManager {
 		return attributeValue;
 	}
 
+	protected byte[] getAttributeBytesValue(Entry entry, String attributeName) {
+		Attribute attribute = entry.get(attributeName);
+		if (attribute == null) {
+			return null;
+		}
+
+		byte[] attributeValue = null;
+		Iterator<Value> iterator = attribute.iterator();
+		if (iterator.hasNext()) {
+			attributeValue = iterator.next().getBytes();
+		}
+
+		return attributeValue;
+	}
+
 	protected boolean isLocalEmail(String mail) {
 		String emailDomain = "";
 		if (mail.contains("@")) {
