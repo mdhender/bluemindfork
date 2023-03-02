@@ -57,33 +57,36 @@ public class SharedDomainSettingsVerticle extends AbstractVerticle {
 		}
 	}
 
-	public class SharedDomainSettingsDomainHook extends DomainHookAdapter {
+	public static class SharedDomainSettingsDomainHook extends DomainHookAdapter {
 
 		@Override
 		public void onUpdated(BmContext context, ItemValue<Domain> previousValue, ItemValue<Domain> domain)
 				throws ServerFault {
-			String oldHost = Optional.ofNullable(previousValue.value.properties.get(OpenIdProperties.OPENID_HOST.name()))
+			String oldHost = Optional
+					.ofNullable(previousValue.value.properties.get(OpenIdProperties.OPENID_HOST.name())).orElse("");
+			String newHost = Optional.ofNullable(domain.value.properties.get(OpenIdProperties.OPENID_HOST.name()))
 					.orElse("");
-			String newHost = Optional.ofNullable(domain.value.properties.get(OpenIdProperties.OPENID_HOST.name())).orElse("");
 
 			String oldClient = Optional
-					.ofNullable(previousValue.value.properties.get(OpenIdProperties.OPENID_CLIENT_ID.name())).orElse("");
-			String newClient = Optional.ofNullable(domain.value.properties.get(OpenIdProperties.OPENID_CLIENT_ID.name()))
+					.ofNullable(previousValue.value.properties.get(OpenIdProperties.OPENID_CLIENT_ID.name()))
 					.orElse("");
+			String newClient = Optional
+					.ofNullable(domain.value.properties.get(OpenIdProperties.OPENID_CLIENT_ID.name())).orElse("");
 
 			String oldSecret = Optional
-					.ofNullable(previousValue.value.properties.get(OpenIdProperties.OPENID_CLIENT_SECRET.name())).orElse("");
-			String newSecret = Optional.ofNullable(domain.value.properties.get(OpenIdProperties.OPENID_CLIENT_SECRET.name()))
+					.ofNullable(previousValue.value.properties.get(OpenIdProperties.OPENID_CLIENT_SECRET.name()))
 					.orElse("");
+			String newSecret = Optional
+					.ofNullable(domain.value.properties.get(OpenIdProperties.OPENID_CLIENT_SECRET.name())).orElse("");
 
-			String oldRealm = Optional.ofNullable(previousValue.value.properties.get(OpenIdProperties.OPENID_REALM.name()))
-					.orElse("");
+			String oldRealm = Optional
+					.ofNullable(previousValue.value.properties.get(OpenIdProperties.OPENID_REALM.name())).orElse("");
 			String newRealm = Optional.ofNullable(domain.value.properties.get(OpenIdProperties.OPENID_REALM.name()))
 					.orElse("");
 
 			if (!oldHost.equals(newHost) || !oldClient.equals(newClient) || !oldSecret.equals(newSecret)
 					|| !oldRealm.equals(newRealm)) {
-				putDomainSettingsAndProperties(domain);
+				SharedDomainSettingsVerticle.putDomainSettingsAndProperties(domain);
 			}
 		}
 	}
@@ -96,7 +99,7 @@ public class SharedDomainSettingsVerticle extends AbstractVerticle {
 			IServiceProvider sysprov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 			IDomains domApi = sysprov.instance(IDomains.class);
 			domApi.all().stream().filter(d -> !"global.virt".equals(d.uid)).forEach(dom -> {
-				putDomainSettingsAndProperties(dom);
+				SharedDomainSettingsVerticle.putDomainSettingsAndProperties(dom);
 				logger.info("SharedDomainPropertiesVerticle pre-load domain properties for {}", dom.uid);
 			});
 		}).exceptionally(t -> {
@@ -105,7 +108,7 @@ public class SharedDomainSettingsVerticle extends AbstractVerticle {
 		});
 	}
 
-	private void putDomainSettingsAndProperties(ItemValue<Domain> domain) {
+	public static void putDomainSettingsAndProperties(ItemValue<Domain> domain) {
 
 		Map<String, String> infos = new HashMap<>();
 		infos.putAll(domain.value.properties);
