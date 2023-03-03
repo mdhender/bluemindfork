@@ -36,7 +36,9 @@ public class MaintenanceFilter implements IWebFilter {
 	@Override
 	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request, WebserverConfiguration conf) {
 
-		if (CoreState.notInstalled() || CoreState.needUpgrade()) {
+		if (request.path().startsWith("/setup/")) {
+			return CompletableFuture.completedFuture(request);
+		} else if (CoreState.notInstalled() || CoreState.needUpgrade()) {
 			return setupWizard(request);
 		} else if (CoreState.notRunning()) {
 			return error(request);
