@@ -47,11 +47,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 
 import io.netty.util.AsciiString;
-import net.bluemind.central.reverse.proxy.model.common.mapper.RecordKey;
 import net.bluemind.config.Token;
 import net.bluemind.core.backup.continuous.DefaultBackupStore;
 import net.bluemind.core.backup.continuous.ILiveBackupStreams;
 import net.bluemind.core.backup.continuous.ILiveStream;
+import net.bluemind.core.backup.continuous.RecordKey;
 import net.bluemind.core.backup.continuous.leader.DefaultLeader;
 import net.bluemind.core.backup.continuous.mgmt.api.BackupSyncOptions;
 import net.bluemind.core.backup.continuous.mgmt.api.IContinuousBackupMgmt;
@@ -78,7 +78,6 @@ import net.bluemind.group.api.Member;
 import net.bluemind.kafka.container.ZkKafkaContainer;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
@@ -118,8 +117,6 @@ public class SyncToKafkaStoreTests {
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
 
 		VertxPlatform.spawnBlocking(10, TimeUnit.SECONDS);
-
-		BmConfIni ini = new BmConfIni();
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
@@ -209,7 +206,7 @@ public class SyncToKafkaStoreTests {
 	@Test
 	public void testTaskRef() {
 		ObjectMapper objectMapper = new ObjectMapper();
-		ObjectReader objectReader = objectMapper.readerFor(RecordKey.class);
+		ObjectReader objectReader = objectMapper.readerFor(net.bluemind.core.backup.continuous.RecordKey.class);
 		List<RecordKey> recordKeys = new ArrayList<>();
 		ClientSideServiceProvider csp = ClientSideServiceProvider.getProvider("http://127.0.0.1:8090", Token.admin0());
 		IContinuousBackupMgmt contApi = csp.instance(IContinuousBackupMgmt.class);

@@ -17,6 +17,7 @@
  */
 package net.bluemind.core.backup.continuous.events;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +43,9 @@ public class ContainersContinuousHook implements IContainersHook, IAclHook {
 
 	@Override
 	public void onContainerCreated(BmContext ctx, ContainerDescriptor cd) throws ServerFault {
-		// ok
+		ContainerMetadata cm = ContainerMetadata.forAclsAndSettings(cd, Collections.emptyList(),
+				Collections.emptyMap());
+		metadataBackup.save(cd.domainUid, cd.owner, cd.uid, cm, true);
 	}
 
 	@Override
@@ -69,16 +72,20 @@ public class ContainersContinuousHook implements IContainersHook, IAclHook {
 
 	@Override
 	public void onContainerSettingsChanged(BmContext ctx, ContainerDescriptor cd) throws ServerFault {
-		Map<String, String> settings = ctx.su().provider().instance(IContainerManagement.class, cd.uid).getSettings();
-		ContainerMetadata cm = ContainerMetadata.forSettings(cd, settings);
-		metadataBackup.save(cd.domainUid, cd.owner, cd.uid, cm, true);
+		IContainerManagement cmApi = ctx.su().provider().instance(IContainerManagement.class, cd.uid);
+		Map<String, String> settings = cmApi.getSettings();
+		List<AccessControlEntry> curAcls = cmApi.getAccessControlList();
+		ContainerMetadata cm = ContainerMetadata.forAclsAndSettings(cd, curAcls, settings);
+		metadataBackup.save(cd.domainUid, cd.owner, cd.uid, cm, false);
 	}
 
 	@Override
-	public void onAclChanged(BmContext context, ContainerDescriptor cd, List<AccessControlEntry> previous,
+	public void onAclChanged(BmContext ctx, ContainerDescriptor cd, List<AccessControlEntry> previous,
 			List<AccessControlEntry> current) {
-		ContainerMetadata cm = ContainerMetadata.forAcls(cd, current);
-		metadataBackup.save(cd.domainUid, cd.owner, cd.uid, cm, true);
+		IContainerManagement cmApi = ctx.su().provider().instance(IContainerManagement.class, cd.uid);
+		Map<String, String> settings = cmApi.getSettings();
+		ContainerMetadata cm = ContainerMetadata.forAclsAndSettings(cd, current, settings);
+		metadataBackup.save(cd.domainUid, cd.owner, cd.uid, cm, false);
 	}
 
 }

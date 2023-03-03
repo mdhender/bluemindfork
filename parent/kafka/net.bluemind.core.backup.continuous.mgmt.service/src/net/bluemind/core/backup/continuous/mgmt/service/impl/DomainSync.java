@@ -130,8 +130,8 @@ public class DomainSync {
 
 		DirEntryWithMailboxSync<User> userSync = new UserSync(ctx, opts, domKafkaState, userApi, domApi);
 		DirEntryWithMailboxSync<Mailshare> msSync = new MailshareSync(ctx, opts, domKafkaState, msApi, domApi);
-		DirEntryWithMailboxSync<Group> grpSync = new GroupSync(ctx, opts, grpApi, domApi);
-		DirEntryWithMailboxSync<ResourceDescriptor> resSync = new ResourceSync(ctx, opts, rsApi, domApi);
+		DirEntryWithMailboxSync<Group> grpSync = new GroupSync(ctx, opts, grpApi, domApi, domKafkaState);
+		DirEntryWithMailboxSync<ResourceDescriptor> resSync = new ResourceSync(ctx, opts, rsApi, domApi, domKafkaState);
 		ExternalUserSync extSync = new ExternalUserSync(euApi, domApi);
 
 		mon.begin(missingItemVersions.size(), "Processing " + missingItemVersions.size() + " directory entries");

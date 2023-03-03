@@ -24,11 +24,8 @@ import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.backup.continuous.dto.GroupMembership;
 import net.bluemind.core.backup.continuous.events.RolesContinuousHook.DirEntryRoleContinuousBackup;
 import net.bluemind.core.backup.continuous.mgmt.api.BackupSyncOptions;
-import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.task.service.IServerTaskMonitor;
-import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.service.DirEntryAndValue;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.IGroup;
@@ -39,25 +36,22 @@ import net.bluemind.role.hook.RoleEvent;
 
 public class GroupSync extends DirEntryWithMailboxSync<Group> {
 
-	public GroupSync(BmContext ctx, BackupSyncOptions opts, IInCoreGroup getApi, DomainApis domainApis) {
-		super(ctx, opts, getApi, domainApis);
+	public GroupSync(BmContext ctx, BackupSyncOptions opts, IInCoreGroup getApi, DomainApis domainApis,
+			DomainKafkaState kaf) {
+		super(ctx, opts, getApi, domainApis, kaf);
 	}
 
 	@Override
-	public ItemValue<DirEntryAndValue<Group>> syncEntry(ItemValue<DirEntry> ivDir, IServerTaskMonitor entryMon,
-			IBackupStoreFactory target, BaseContainerDescriptor cont, Scope scope) {
-		ItemValue<DirEntryAndValue<Group>> stored = super.syncEntry(ivDir, entryMon, target, cont, scope);
+	protected void entrySync(IBackupStoreFactory target, ItemValue<DirEntryAndValue<Group>> stored) {
 		storeMemberships(target, stored);
-		pushRoles(ivDir, target, stored);
-		return stored;
+		pushRoles(target, stored);
 	}
 
-	private void pushRoles(ItemValue<DirEntry> ivDir, IBackupStoreFactory target,
-			ItemValue<DirEntryAndValue<Group>> fixed) {
+	private void pushRoles(IBackupStoreFactory target, ItemValue<DirEntryAndValue<Group>> fixed) {
 		IGroup roleApi = ctx.provider().instance(IGroup.class, domainUid());
 		Set<String> roles = roleApi.getRoles(fixed.uid);
 		DirEntryRoleContinuousBackup rolesBackup = new DirEntryRoleContinuousBackup(target);
-		RoleEvent re = new RoleEvent(domainApis.domain.uid, fixed.uid, ivDir.value.kind, roles);
+		RoleEvent re = new RoleEvent(domainApis.domain.uid, fixed.uid, fixed.value.entry.kind, roles);
 		rolesBackup.onRolesSet(re);
 	}
 

@@ -34,7 +34,6 @@ import net.bluemind.core.container.api.IChangelogSupport;
 import net.bluemind.core.container.api.IReadByIdSupport;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ContainerChangeset;
-import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
@@ -62,7 +61,7 @@ public abstract class LoggedContainerDeltaSync<O, T> extends ContainerSync {
 		}
 	}
 
-	protected LoggedContainerDeltaSync(BmContext ctx, ContainerDescriptor container,
+	protected LoggedContainerDeltaSync(BmContext ctx, BaseContainerDescriptor container,
 			ItemValue<ContainerHierarchyNode> node, ItemValue<DirEntryAndValue<O>> owner, ItemValue<Domain> domain) {
 		super(container);
 		this.owner = owner;
@@ -123,6 +122,10 @@ public abstract class LoggedContainerDeltaSync<O, T> extends ContainerSync {
 		time = System.currentTimeMillis() - time;
 		contMon.end(true, state.containerUid() + " done in " + time + "ms.", null);
 
+	}
+
+	protected void preSyncContainer(IBackupStoreFactory target, IServerTaskMonitor mon) {
+		// eg. for calendar settings
 	}
 
 	protected List<ItemVersion> sortItems(IServerTaskMonitor contMon, List<ItemVersion> toSync) {
