@@ -81,7 +81,7 @@ export default {
         ];
         const fetchSettingsPromise = this.FETCH_ALL_SETTINGS(this);
         if (inject("UserSession").roles.includes(Roles.SELF_CHANGE_MAILBOX_FILTER)) {
-            fetchSettingsPromise.then(() => this.FETCH_MAILBOX_FILTER(this.lang));
+            fetchSettingsPromise = fetchSettingsPromise.then(() => this.FETCH_MAILBOX_FILTER(this.lang));
         }
         promises.push(fetchSettingsPromise);
         await Promise.all(promises);
