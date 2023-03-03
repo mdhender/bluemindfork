@@ -17,21 +17,12 @@
   */
 package net.bluemind.keycloak.internal;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.HttpClientOptions;
-import io.vertx.core.http.HttpMethod;
-import io.vertx.core.json.JsonObject;
-import net.bluemind.config.Token;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -43,15 +34,8 @@ import net.bluemind.directory.service.IDirEntryRepairSupport;
 import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
-import net.bluemind.keycloak.api.BluemindProviderComponent;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
-import net.bluemind.keycloak.api.IKeycloakBluemindProviderAdmin;
-import net.bluemind.keycloak.api.IKeycloakClientAdmin;
-import net.bluemind.keycloak.api.IKeycloakUids;
-import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.network.topology.Topology;
-import net.bluemind.openid.api.OpenIdProperties;
-import net.bluemind.server.api.TagDescriptor;
+import net.bluemind.keycloak.utils.KeycloakHelper;
 
 public class KeycloakRealmRepairSupport implements IDirEntryRepairSupport {
 	private static final Logger logger = LoggerFactory.getLogger(KeycloakRealmRepairSupport.class);
@@ -103,88 +87,15 @@ public class KeycloakRealmRepairSupport implements IDirEntryRepairSupport {
 					.instance(IKeycloakAdmin.class);
 			if (keycloakAdminService.getRealm(domainUid) == null) {
 				logger.info("Repair keycloack configuration for domain {}", domainUid);
-				String realm = domainUid;
-				String clientId = IKeycloakUids.clientId(domainUid);
 
-				keycloakAdminService.createRealm(realm);
-
-				IKeycloakBluemindProviderAdmin keycloakBluemindProviderService = ServerSideServiceProvider
-						.getProvider(SecurityContext.SYSTEM).instance(IKeycloakBluemindProviderAdmin.class, domainUid);
-				BluemindProviderComponent bpComponent = new BluemindProviderComponent();
-				bpComponent.setParentId(realm);
-				bpComponent.setName(realm + "-bmprovider");
-				bpComponent.setBmUrl("https://" + Topology.get().any(TagDescriptor.bm_core.getTag()).value.address()); // ou
-																														// pas...
-																														// à
-																														// vérifier
-				bpComponent.setBmCoreToken(Token.admin0());
-				keycloakBluemindProviderService.create(bpComponent);
-
-				IKeycloakClientAdmin keycloakClientService = ServerSideServiceProvider
-						.getProvider(SecurityContext.SYSTEM).instance(IKeycloakClientAdmin.class, domainUid);
-
-				keycloakClientService.create(clientId);
-				String secret = keycloakClientService.getSecret(clientId);
-
-				String opendIdHost = IKeycloakUids
-						.defaultHost(Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address(), realm);
-
-				URI uri;
-				try {
-					uri = new URI(opendIdHost);
-				} catch (URISyntaxException e) {
-					logger.error(e.getMessage(), e);
-					monitor.end(false, e.getMessage(), "[]");
-					return;
-				}
-
-				HttpClient client = initHttpClient(uri);
-				client.request(HttpMethod.GET, uri.getPath())
-						.onSuccess(req -> req.send().onSuccess(res -> res.bodyHandler(body -> {
-
-							IDomains domainService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-									.instance(IDomains.class);
-							ItemValue<Domain> domain = domainService.get(domainUid);
-
-							JsonObject conf = new JsonObject(new String(body.getBytes()));
-							if (domain.value.properties == null) {
-								domain.value.properties = new HashMap<>();
-							}
-							domain.value.properties.put(OpenIdProperties.OPENID_HOST.name(), opendIdHost);
-							domain.value.properties.put(OpenIdProperties.OPENID_REALM.name(), domain.uid);
-							domain.value.properties.put(OpenIdProperties.OPENID_CLIENT_ID.name(),
-									IKeycloakUids.clientId(domain.uid));
-							domain.value.properties.put(OpenIdProperties.OPENID_CLIENT_SECRET.name(), secret);
-							domain.value.properties.put(OpenIdProperties.OPENID_AUTHORISATION_ENDPOINT.name(),
-									conf.getString("authorization_endpoint"));
-							domain.value.properties.put(OpenIdProperties.OPENID_TOKEN_ENDPOINT.name(),
-									conf.getString("token_endpoint"));
-							domain.value.properties.put(OpenIdProperties.OPENID_JWKS_URI.name(), conf.getString("jwks_uri"));
-							String accessTokenIssuer = Optional.ofNullable(conf.getString("issuer"))
-									.orElse(conf.getString("access_token_issuer"));
-							domain.value.properties.put(OpenIdProperties.OPENID_ISSUER.name(), accessTokenIssuer);
-							domain.value.properties.put(OpenIdProperties.OPENID_END_SESSION_ENDPOINT.name(),
-									conf.getString("end_session_endpoint"));
-
-							domainService.update(domain.uid, domain.value);
-						}))).onFailure(t -> logger.error(t.getMessage(), t));
+				IDomains domainService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+						.instance(IDomains.class);
+				ItemValue<Domain> domain = domainService.get(domainUid);
+				KeycloakHelper.initForDomain(domain);
 			} else {
 				logger.info("Keycloack configuration: nothing to repair for domain {}", domainUid);
 			}
 
-		}
-
-		private HttpClient initHttpClient(URI uri) {
-			HttpClientOptions opts = new HttpClientOptions();
-			opts.setDefaultHost(uri.getHost());
-			opts.setSsl(uri.getScheme().equalsIgnoreCase("https"));
-			opts.setDefaultPort(
-					uri.getPort() != -1 ? uri.getPort() : (uri.getScheme().equalsIgnoreCase("https") ? 443 : 80));
-			if (opts.isSsl()) {
-				opts.setTrustAll(true);
-				opts.setVerifyHost(false);
-			}
-			return VertxPlatform.getVertx().createHttpClient(opts);
 		}
 
 	}

@@ -10,7 +10,6 @@ Automatic-Module-Name: net.bluemind.keycloak.service
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.server.hook,
  net.bluemind.node.client,
- net.bluemind.core.rest,
  net.bluemind.node.api,
  slf4j.api,
  net.bluemind.keycloak.api,
@@ -21,4 +20,5 @@ Require-Bundle: net.bluemind.server.hook,
  net.bluemind.network.topology,
  net.bluemind.domain.hook,
  net.bluemind.directory.service,
- net.bluemind.openid.api
+ net.bluemind.openid.api,
+ net.bluemind.keycloak.utils
