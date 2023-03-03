@@ -35,7 +35,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.delivery.lmtp,
  net.bluemind.backend.mailapi.storage;bundle-version="4.1.0",
  net.bluemind.core.tests.testshelper,
- net.bluemind.core.backup.continuous.dto
+ net.bluemind.core.backup.continuous.dto,
+ net.bluemind.core.container.subscriptions.hook;bundle-version="5.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.core.backup.continuous.mgmt.service.tests
 Bundle-ActivationPolicy: lazy

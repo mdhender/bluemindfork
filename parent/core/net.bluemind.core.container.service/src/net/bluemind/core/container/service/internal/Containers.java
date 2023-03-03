@@ -48,6 +48,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerQuery;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
+import net.bluemind.core.container.hooks.ContainersHooks;
 import net.bluemind.core.container.hooks.IContainersHook;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
@@ -71,7 +72,6 @@ import net.bluemind.core.validator.Validator;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
-import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.i18n.labels.I18nLabels;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.user.persistence.UserSubscriptionStore;
@@ -84,13 +84,8 @@ public class Containers implements IContainers {
 	private final BmContext context;
 	private Validator validator;
 
-	private static final List<IContainersHook> cHooks = loadContainerHooks();
+	private static final List<IContainersHook> cHooks = ContainersHooks.get();
 	private static final Logger logger = LoggerFactory.getLogger(Containers.class);
-
-	private static List<IContainersHook> loadContainerHooks() {
-		RunnableExtensionLoader<IContainersHook> rel = new RunnableExtensionLoader<>();
-		return rel.loadExtensions("net.bluemind.core.container.hooks", "container", "hook", "impl");
-	}
 
 	public Containers(BmContext context) {
 		this.securityContext = context.getSecurityContext();

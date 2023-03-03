@@ -32,6 +32,7 @@ import net.bluemind.core.backup.continuous.events.ContinuousContenairization;
 import net.bluemind.core.backup.continuous.events.RolesContinuousHook.DirEntryRoleContinuousBackup;
 import net.bluemind.core.backup.continuous.mgmt.api.BackupSyncOptions;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
+import net.bluemind.core.container.api.IOwnerSubscriptionUids;
 import net.bluemind.core.container.api.IRestoreDirEntryWithMailboxSupport;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
@@ -58,6 +59,7 @@ import net.bluemind.user.api.IUserSettings;
 import net.bluemind.user.api.User;
 import net.bluemind.user.api.UserSettings;
 import net.bluemind.user.service.IInCoreUser;
+import net.bluemind.webappdata.api.IWebAppDataUids;
 
 public class UserSync extends DirEntryWithMailboxSync<User> {
 
@@ -70,8 +72,9 @@ public class UserSync extends DirEntryWithMailboxSync<User> {
 			ITodoUids.TYPE, //
 			INoteUids.TYPE, //
 			IAddressBookUids.TYPE, //
-			IDeviceUids.TYPE //
-
+			IDeviceUids.TYPE, //
+			IWebAppDataUids.TYPE, //
+			IOwnerSubscriptionUids.TYPE//
 	);
 
 	private static final List<String> SKIPPED_TYPES = Lists.newArrayList(//

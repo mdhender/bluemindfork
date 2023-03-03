@@ -32,6 +32,7 @@ import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IOwnerSubscriptionUids;
 import net.bluemind.core.container.api.internal.IInternalOwnerSubscriptions;
 import net.bluemind.core.container.api.internal.IInternalOwnerSubscriptionsMgmt;
+import net.bluemind.core.container.hooks.ContainersHooks;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.persistence.ContainerStore;
@@ -88,7 +89,11 @@ public class InternalOwnerSubscriptionsMgmtService implements IInternalOwnerSubs
 			// this is a 'transaction' involving 2 databases...
 			Container existing = shardContStore.get(subsUid);
 			if (existing == null) {
-				shardContStore.create(subsCont);
+				Container created = shardContStore.create(subsCont);
+				ContainerDescriptor cd = ContainerDescriptor.create(created.uid, created.name, created.owner,
+						created.type, created.domainUid, true);
+				cd.datalocation = entry.dataLocation;
+				ContainersHooks.get().forEach(ch -> ch.onContainerCreated(context, cd));
 			} else {
 				logger.warn("container {} already exist", subsUid);
 			}

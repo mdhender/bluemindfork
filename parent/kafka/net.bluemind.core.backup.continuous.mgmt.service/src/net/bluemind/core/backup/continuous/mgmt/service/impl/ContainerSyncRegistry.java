@@ -34,11 +34,13 @@ import net.bluemind.core.backup.continuous.mgmt.service.containers.mail.RecordsS
 import net.bluemind.core.backup.continuous.mgmt.service.containers.mail.SubtreeSync;
 import net.bluemind.core.backup.continuous.mgmt.service.containers.misc.DevicesSync;
 import net.bluemind.core.backup.continuous.mgmt.service.containers.misc.NoteSync;
+import net.bluemind.core.backup.continuous.mgmt.service.containers.misc.OwnerSubscriptionSync;
 import net.bluemind.core.backup.continuous.mgmt.service.containers.misc.TodoSync;
 import net.bluemind.core.backup.continuous.mgmt.service.containers.misc.WebappDataSync;
 import net.bluemind.core.backup.continuous.mgmt.service.impl.ContainerSync.Factory;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.IContainers;
+import net.bluemind.core.container.api.IOwnerSubscriptionUids;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.device.api.IDeviceUids;
@@ -70,6 +72,7 @@ public class ContainerSyncRegistry {
 		registry.put(IAddressBookUids.TYPE, new BookSync.SyncFactory());
 		registry.put(IDeviceUids.TYPE, new DevicesSync.SyncFactory());
 		registry.put(IWebAppDataUids.TYPE, new WebappDataSync.SyncFactory());
+		registry.put(IOwnerSubscriptionUids.TYPE, new OwnerSubscriptionSync.SyncFactory());
 
 		return registry;
 	}

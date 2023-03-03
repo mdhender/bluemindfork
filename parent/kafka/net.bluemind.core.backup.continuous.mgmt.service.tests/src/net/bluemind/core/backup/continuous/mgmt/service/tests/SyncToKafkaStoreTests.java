@@ -146,6 +146,8 @@ public class SyncToKafkaStoreTests {
 		assertNotNull(johnUid);
 		System.err.println("Add " + user1 + " returned.");
 
+		IServiceProvider suProv = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+
 		defaultSecurityContext = BmTestContext
 				.contextWithSession("testUser", user1, domainUid, SecurityContext.ROLE_SYSTEM).getSecurityContext();
 		BmTestContext context = new BmTestContext(defaultSecurityContext);
@@ -153,8 +155,7 @@ public class SyncToKafkaStoreTests {
 		String grpUid = PopulateHelper.addGroup(domainUid, "brotherhood", "confrérie",
 				Collections.singletonList(Member.user(johnUid)));
 
-		IGroup groupApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IGroup.class,
-				domainUid);
+		IGroup groupApi = suProv.instance(IGroup.class, domainUid);
 		ItemValue<Group> brotherhood = groupApi.getComplete(grpUid);
 		System.err.println("group is " + brotherhood);
 
