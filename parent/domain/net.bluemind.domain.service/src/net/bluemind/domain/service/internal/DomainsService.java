@@ -25,7 +25,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +33,6 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
 import jakarta.ws.rs.PathParam;
-import net.bluemind.addressbook.api.VCard;
-import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.core.api.ParametersValidator;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -74,13 +71,10 @@ import net.bluemind.hornetq.client.OOPMessage;
 import net.bluemind.hornetq.client.Topic;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
-import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.persistence.MailboxStore;
 import net.bluemind.resource.api.type.IResourceTypes;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.system.api.CertData.CertificateDomainEngine;
-import net.bluemind.user.api.IUser;
-import net.bluemind.user.api.User;
 
 public class DomainsService implements IInCoreDomains, IDomains {
 	private static final Logger logger = LoggerFactory.getLogger(DomainsService.class);
@@ -153,20 +147,6 @@ public class DomainsService implements IInCoreDomains, IDomains {
 		Map<String, String> settings = settingsApi.get();
 		settings.put(DomainSettingsKeys.ssl_certif_engine.name(), CertificateDomainEngine.DISABLED.name());
 		settingsApi.set(settings);
-
-		// BMHIDDENSYSADMIN
-		User u = new User();
-		u.login = "bmhiddensysadmin";
-		u.password = UUID.randomUUID().toString();
-		u.routing = Routing.none;
-		u.hidden = true;
-		u.system = true;
-		VCard card = new VCard();
-		card.identification.name = Name.create("System", null, null, null, null, null);
-		u.contactInfos = card;
-
-		logger.info("Create user bmhiddensysadmin for domain {}", uid);
-		context.su().provider().instance(IUser.class, uid).create(u.login, u);
 
 		logger.info("Create user group and admin group for domain {}", uid);
 		IGroup groups = context.su().provider().instance(IGroup.class, uid);
