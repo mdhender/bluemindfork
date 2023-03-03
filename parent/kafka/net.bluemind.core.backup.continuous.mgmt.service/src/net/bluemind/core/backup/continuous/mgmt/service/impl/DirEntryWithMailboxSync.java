@@ -38,6 +38,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.backup.continuous.api.IBackupStore;
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.backup.continuous.dto.ContainerMetadata;
+import net.bluemind.core.backup.continuous.events.MailFilterContinuousHook;
 import net.bluemind.core.backup.continuous.mgmt.api.BackupSyncOptions;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.IContainerManagement;
@@ -52,6 +53,7 @@ import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.ReservedIds;
 import net.bluemind.directory.service.DirEntryAndValue;
+import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.service.common.DefaultFolder;
 
@@ -91,6 +93,8 @@ public class DirEntryWithMailboxSync<T> {
 			ItemValue<DirEntryAndValue<T>> fixed = remap(entryMon, entryAndValue);
 			topicUser.store(fixed, reserved);
 
+			processFilters(target, fixed, mboxUser);
+
 			entrySync(target, fixed);
 		}
 
@@ -107,6 +111,15 @@ public class DirEntryWithMailboxSync<T> {
 		entryMon.end(true, "processed", "OK");
 
 		return entryAndValue;
+	}
+
+	private void processFilters(IBackupStoreFactory target, ItemValue<DirEntryAndValue<T>> fixed,
+			ItemValue<Mailbox> mboxUser) {
+		MailFilter filter = domainApis.mailboxesApi.getMailboxFilter(fixed.uid);
+		if (filter != null) {
+			MailFilterContinuousHook mfh = new MailFilterContinuousHook(target);
+			mfh.onMailFilterChanged(ctx, domainUid(), mboxUser, filter);
+		}
 	}
 
 	protected void entrySync(IBackupStoreFactory target, ItemValue<DirEntryAndValue<T>> fixed) {
