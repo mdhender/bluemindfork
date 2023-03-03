@@ -1,5 +1,5 @@
 import GetInlinePartsVisitor from "../message/GetInlinePartsVisitor";
-import TreeWalker from "../message/TreeWalker";
+import TreeWalker from "@bluemind/mime-tree-walker";
 
 describe("GetInlinePartsVisitor", () => {
     /**

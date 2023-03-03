@@ -1,0 +1,11 @@
+{
+    "name": "@bluemind/mime-tree-walker",
+    "version": "5.0.0",
+    "description": "BlueMind package to walk through a mime tree",
+    "license": "AGPL-3.0-only",
+    "author": "Blue Mind SAS",
+    "main": "src/index.ts",
+    "devDependencies": {
+        "@bluemind/backend.mail.api": "^5.0.0"
+    }
+}

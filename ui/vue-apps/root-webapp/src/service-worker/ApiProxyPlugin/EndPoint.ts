@@ -82,7 +82,9 @@ export class EndPoint {
         } else {
             const produce =
                 this.metadatas.produce ||
-                (isStream(this.metadatas.outParam) ? "application/octet-stream" : "application/json");
+                (isStream(this.metadatas.outParam)
+                    ? (result as Blob).type || "application/octet-stream"
+                    : "application/json");
             const value = isStream(this.metadatas.outParam) ? (result as Blob) : JSON.stringify(result);
             return new Response(value, {
                 status: 200,

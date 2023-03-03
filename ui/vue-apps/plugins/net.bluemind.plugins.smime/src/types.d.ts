@@ -4,6 +4,6 @@ export type CheckOptions = {
     smimeUsage?: SMIME_CERT_USAGE;
 };
 export type DecryptResult = {
-    item: ItemValue<MailboxItem>;
+    body: MessageBody;
     content: string;
 };

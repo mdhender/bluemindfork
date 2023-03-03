@@ -11,6 +11,7 @@
         "@bluemind/email":"^5.0.0",
         "@bluemind/html-utils":"^5.0.0",
         "@bluemind/test-utils":"^5.0.0",
+        "@bluemind/mime-tree-walker":"^5.0.0",
         "lodash.clonedeep": "^4.5.0",
         "lodash.shuffle": "^4.2.0",
         "lodash.pick": "^4.4.0"

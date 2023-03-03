@@ -20,7 +20,7 @@ interface SMimePkiDB {
 }
 
 class SMimePkiDBImpl implements SMimePkiDB {
-    NAME = "smime";
+    NAME = "smime:pki";
     VERSION = 1;
     connection: Promise<IDBPDatabase<SMimeSchema>>;
     constructor(userId: string) {

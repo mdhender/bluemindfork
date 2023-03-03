@@ -1,11 +1,11 @@
 import merge from "lodash.merge";
 
 import { MessageBody } from "@bluemind/backend.mail.api";
+import TreeWalker from "@bluemind/mime-tree-walker";
 
 import GetAttachmentPartsVisitor from "./GetAttachmentPartsVisitor";
 import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
 import GetReportPartsVisitor from "./GetReportPartsVisitor";
-import TreeWalker from "./TreeWalker";
 import { createWithMetadata, MessageHeader, MessageStatus } from "./index";
 import { LoadingStatus } from "../loading-status";
 

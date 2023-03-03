@@ -2,27 +2,27 @@ import { MessageBody } from "@bluemind/backend.mail.api";
 import { MimeType } from "@bluemind/email";
 import { CRYPTO_HEADERS, SIGNED_HEADER_NAME, ENCRYPTED_HEADER_NAME } from "./constants";
 
-export function hasSignatureHeader(headers: MessageBody.Header[]): boolean {
+export function hasSignatureHeader(headers: MessageBody.Header[] = []): boolean {
     return headers.some(header => header.name === SIGNED_HEADER_NAME);
 }
 
-export function isVerified(headers: MessageBody.Header[]): boolean {
+export function isVerified(headers: MessageBody.Header[] = []): boolean {
     return matchSignedHeaderValue(headers, CRYPTO_HEADERS.OK);
 }
 
-export function hasEncryptionHeader(headers: MessageBody.Header[]): boolean {
+export function hasEncryptionHeader(headers: MessageBody.Header[] = []): boolean {
     return headers.some(header => header.name === ENCRYPTED_HEADER_NAME);
 }
 
-export function hasToBeEncrypted(headers: MessageBody.Header[]): boolean {
+export function hasToBeEncrypted(headers: MessageBody.Header[] = []): boolean {
     return matchEncryptedHeaderValue(headers, CRYPTO_HEADERS.TO_DO);
 }
 
-export function hasToBeSigned(headers: MessageBody.Header[]): boolean {
+export function hasToBeSigned(headers: MessageBody.Header[] = []): boolean {
     return matchSignedHeaderValue(headers, CRYPTO_HEADERS.TO_DO);
 }
 
-export function isDecrypted(headers: MessageBody.Header[]): boolean {
+export function isDecrypted(headers: MessageBody.Header[] = []): boolean {
     return matchEncryptedHeaderValue(headers, CRYPTO_HEADERS.OK);
 }
 
