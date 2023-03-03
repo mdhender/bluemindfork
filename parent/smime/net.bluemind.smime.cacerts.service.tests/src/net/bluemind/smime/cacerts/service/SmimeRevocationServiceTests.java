@@ -22,6 +22,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Test;
 
 import net.bluemind.core.api.fault.ErrorCode;
@@ -29,24 +32,24 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.smime.cacerts.api.ISmimeCACert;
-import net.bluemind.smime.cacerts.api.ISmimeCRL;
+import net.bluemind.smime.cacerts.api.ISmimeRevocation;
 import net.bluemind.smime.cacerts.api.RevocationResult;
 
-public class SmimeCRLServiceTests extends AbstractServiceTests {
+public class SmimeRevocationServiceTests extends AbstractServiceTests {
 
 	@Test
 	public void test_isRevoked() {
-		String serialNumber = "1";
+		final List<String> snList = Arrays.asList("1");
 		// test anonymous
 		try {
-			getServiceCrl(SecurityContext.ANONYMOUS, domainUid).isRevoked(serialNumber);
+			getServiceCrl(SecurityContext.ANONYMOUS, domainUid).isRevoked(snList);
 			fail();
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
 
 		try {
-			RevocationResult revoked = getServiceCrl(defaultSecurityContext, domainUid).isRevoked(serialNumber);
+			List<RevocationResult> revoked = getServiceCrl(defaultSecurityContext, domainUid).isRevoked(snList);
 			assertNull(revoked);
 		} catch (ServerFault e) {
 			fail(e.getMessage());
@@ -54,8 +57,8 @@ public class SmimeCRLServiceTests extends AbstractServiceTests {
 	}
 
 	@Override
-	protected ISmimeCRL getServiceCrl(SecurityContext context, String domainUid) throws ServerFault {
-		return ServerSideServiceProvider.getProvider(context).instance(ISmimeCRL.class, domainUid);
+	protected ISmimeRevocation getServiceCrl(SecurityContext context, String domainUid) throws ServerFault {
+		return ServerSideServiceProvider.getProvider(context).instance(ISmimeRevocation.class, domainUid);
 	}
 
 	@Override

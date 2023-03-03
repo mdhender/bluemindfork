@@ -59,7 +59,7 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.smime.cacerts.api.ISmimeCACert;
-import net.bluemind.smime.cacerts.api.ISmimeCRL;
+import net.bluemind.smime.cacerts.api.ISmimeRevocation;
 import net.bluemind.smime.cacerts.api.ISmimeCacertUids;
 import net.bluemind.smime.cacerts.api.SmimeCacert;
 import net.bluemind.smime.cacerts.persistence.SmimeCacertStore;
@@ -166,7 +166,7 @@ public abstract class AbstractServiceTests {
 
 	protected abstract ISmimeCACert getService(SecurityContext context, String containerUid) throws ServerFault;
 
-	protected abstract ISmimeCRL getServiceCrl(SecurityContext context, String domainUid) throws ServerFault;
+	protected abstract ISmimeRevocation getServiceCrl(SecurityContext context, String domainUid) throws ServerFault;
 
 	protected SmimeCacert defaultSmimeCacert() {
 		SmimeCacert cert = new SmimeCacert();

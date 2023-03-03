@@ -16,29 +16,32 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.smime.cacerts.service;
+package net.bluemind.smime.cacerts.service.internal;
+
+import java.util.List;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.smime.cacerts.api.ISmimeCRL;
-import net.bluemind.smime.cacerts.service.internal.SmimeCRLService;
+import net.bluemind.smime.cacerts.api.ISmimeRevocation;
+import net.bluemind.smime.cacerts.api.RevocationResult;
 
-public class SmimeCRLServiceFactory implements ServerSideServiceProvider.IServerSideServiceFactory<ISmimeCRL> {
+public class SmimeRevocationService implements ISmimeRevocation {
 
-	@Override
-	public Class<ISmimeCRL> factoryClass() {
-		return ISmimeCRL.class;
+	private BmContext bmContext;
+	private RBACManager rbacManager;
+	private final String domainUid;
+
+	public SmimeRevocationService(BmContext bmContext, String domainUid) {
+		this.bmContext = bmContext;
+		this.domainUid = domainUid;
+		rbacManager = RBACManager.forContext(bmContext).forDomain(domainUid);
 	}
 
 	@Override
-	public ISmimeCRL instance(BmContext context, String... params) throws ServerFault {
-		if (params == null || params.length < 1) {
-			throw new ServerFault("wrong number of instance parameters");
-		}
-		RBACManager.forContext(context).checkNotAnoynmous();
-		return new SmimeCRLService(context, params[0]);
+	public List<RevocationResult> isRevoked(List<String> serialNumber) throws ServerFault {
+		// TODO implement
+        return serialNumber.stream().map(RevocationResult::notRevoked).toList();
 	}
 
 }

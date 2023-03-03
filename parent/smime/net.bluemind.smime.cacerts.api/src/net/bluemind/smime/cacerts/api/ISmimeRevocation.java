@@ -18,6 +18,8 @@
  */
 package net.bluemind.smime.cacerts.api;
 
+import java.util.List;
+
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
@@ -26,23 +28,23 @@ import net.bluemind.core.api.fault.ServerFault;
 
 /**
  * 
- * ISmimeCRL API Used to verify end-user certificate is not revoked by
- * authorities
+ * ISmimeRevocation API <br/>
+ * Used to verify end-user certificate is not revoked by authorities
  * 
  */
 @BMApi(version = "3")
-@Path("/smime_crl/{domainUid}")
-public interface ISmimeCRL {
+@Path("/smime_revocation/{domainUid}")
+public interface ISmimeRevocation {
 
 	/**
-	 * Check if a certificate serialNumber is revoked
+	 * Check if a certificate serialNumber list is revoked
 	 * 
-	 * @param serialNumber the certificate serial number
-	 * @return {@link RevocationResult}
+	 * @param serialNumber the certificate serial number list
+	 * @return {@link RevocationResult} lists
 	 * @throws ServerFault common error object
 	 */
 	@GET
 	@Path("is_revoked")
-	public RevocationResult isRevoked(@QueryParam("serial") String serialNumber) throws ServerFault;
+	public List<RevocationResult> isRevoked(@QueryParam("serial") List<String> serialNumber) throws ServerFault;
 
 }

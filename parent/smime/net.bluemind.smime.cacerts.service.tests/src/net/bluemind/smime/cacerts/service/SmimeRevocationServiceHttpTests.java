@@ -21,14 +21,14 @@ package net.bluemind.smime.cacerts.service;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
-import net.bluemind.smime.cacerts.api.ISmimeCRL;
+import net.bluemind.smime.cacerts.api.ISmimeRevocation;
 
-public class SmimeCRLServiceHttpTests extends SmimeCRLServiceTests {
+public class SmimeRevocationServiceHttpTests extends SmimeRevocationServiceTests {
 
 	@Override
-	protected ISmimeCRL getServiceCrl(SecurityContext context, String domainUid) throws ServerFault {
+	protected ISmimeRevocation getServiceCrl(SecurityContext context, String domainUid) throws ServerFault {
 		return ClientSideServiceProvider.getProvider("http://localhost:8090", context.getSessionId())
-				.instance(ISmimeCRL.class, domainUid);
+				.instance(ISmimeRevocation.class, domainUid);
 	}
 
 }

@@ -44,7 +44,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.smime.cacerts.api.ISmimeCACert;
-import net.bluemind.smime.cacerts.api.ISmimeCRL;
+import net.bluemind.smime.cacerts.api.ISmimeRevocation;
 import net.bluemind.smime.cacerts.api.SmimeCacert;
 
 public class SmimeCacertServiceTests extends AbstractServiceTests {
@@ -478,7 +478,7 @@ public class SmimeCacertServiceTests extends AbstractServiceTests {
 	}
 
 	@Override
-	protected ISmimeCRL getServiceCrl(SecurityContext context, String containerUid) throws ServerFault {
+	protected ISmimeRevocation getServiceCrl(SecurityContext context, String containerUid) throws ServerFault {
 		return null;
 	}
 }

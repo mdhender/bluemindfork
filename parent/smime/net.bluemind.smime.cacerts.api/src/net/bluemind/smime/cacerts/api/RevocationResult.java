@@ -30,20 +30,24 @@ public class RevocationResult {
 		REVOKED, NOT_REVOKED
 	}
 
-    public Date date;
-    public String reason;
+	@Required
+	public String serialNumber;
+	public Date date;
+	public String reason;
 	@Required
 	public RevocationStatus status = RevocationStatus.NOT_REVOKED;
 
 	/**
 	 * Create a revoked RevocationResult
 	 * 
-	 * @param date   the revocation date
-	 * @param reason the revocation reason
+	 * @param serialNumber the serialNumber revoked
+	 * @param date         the revocation date
+	 * @param reason       the revocation reason
 	 * @return RevocationResult
 	 */
-	public static RevocationResult revoked(Date date, String reason) {
+	public static RevocationResult revoked(String serialNumber, Date date, String reason) {
 		RevocationResult revokedResult = new RevocationResult();
+		revokedResult.serialNumber = serialNumber;
 		revokedResult.date = date;
 		revokedResult.reason = reason;
 		revokedResult.status = RevocationStatus.REVOKED;
@@ -53,9 +57,11 @@ public class RevocationResult {
 	/**
 	 * Create a NOT revoked RevocationResult
 	 * 
+	 * @param serialNumber the serialNumber not revoked
+	 * 
 	 * @return RevocationResult
 	 */
-	public static RevocationResult notRevoked() {
+	public static RevocationResult notRevoked(String serialNumber) {
 		return new RevocationResult();
 	}
 }

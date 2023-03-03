@@ -37,7 +37,7 @@
             class="net.bluemind.smime.cacerts.service.SmimeCACertServiceFactory">
       </serviceFactory>
             <serviceFactory
-            class="net.bluemind.smime.cacerts.service.SmimeCRLServiceFactory">
+            class="net.bluemind.smime.cacerts.service.SmimeRevocationServiceFactory">
       </serviceFactory>
    </extension>
    <extension
