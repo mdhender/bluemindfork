@@ -17,9 +17,13 @@
   */
 package net.bluemind.keycloak.api;
 
+import java.util.List;
+
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
@@ -32,6 +36,17 @@ public interface IKeycloakClientAdmin {
 	public void create(@QueryParam(value = "clientId") String clientId) throws ServerFault;
 
 	@GET
-	public String getSecret(@QueryParam(value = "clientId") String clientId) throws ServerFault;
+	@Path("{clientId}/secret")
+	public String getSecret(@PathParam(value = "clientId") String clientId) throws ServerFault;
 
+	@GET
+	public List<OidcClient> allOidcClients() throws ServerFault;
+	
+	@GET
+	@Path("{clientId}")
+	public OidcClient getOidcClient(@PathParam(value = "clientId") String clientId) throws ServerFault;
+	
+	@DELETE
+	@Path("{clientId}")
+	public void deleteOidcClient(@PathParam(value = "clientId") String clientId) throws ServerFault;
 }

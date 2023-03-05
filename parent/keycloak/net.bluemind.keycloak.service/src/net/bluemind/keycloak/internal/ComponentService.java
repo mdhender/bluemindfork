@@ -17,6 +17,8 @@
   */
 package net.bluemind.keycloak.internal;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -24,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.service.internal.RBACManager;
@@ -31,11 +34,25 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.keycloak.api.Component;
 
 public abstract class ComponentService extends KeycloakAdminClient {
-
 	private static final Logger logger = LoggerFactory.getLogger(KeycloakKerberosAdminService.class);
+	public static final String PROVIDER_TYPE = "org.keycloak.storage.UserStorageProvider";
 
 	protected RBACManager rbacManager;
-	private String domainId;
+	protected String domainId;
+	
+	public enum ComponentProvider {
+		BLUEMIND("Bluemind"),
+		KERBEROS("kerberos");
+		
+		private String providerId;
+		
+		ComponentProvider(String providerId) {
+			this.providerId = providerId;
+		}
+		public String getProviderId() {
+	        return providerId;
+	    }
+	}
 
 	protected ComponentService(BmContext context, String domainId) {
 		this.rbacManager = new RBACManager(context);
@@ -52,6 +69,70 @@ public abstract class ComponentService extends KeycloakAdminClient {
 		} catch (Exception e) {
 			throw new ServerFault("Failed to create component " + component);
 		}
+	}
+	
+	protected List<JsonObject> allComponents(ComponentProvider provider) {		
+		CompletableFuture<JsonObject> response = execute(String.format(COMPONENTS_URL, domainId) + "?type=" + PROVIDER_TYPE, HttpMethod.GET);
+		JsonObject json;
+		try {
+			json = response.get(TIMEOUT, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			throw new ServerFault("Failed to get components for realm " + domainId, e);
+		}
+		
+		List<JsonObject> ret = new ArrayList<>();
+		JsonArray results = json.getJsonArray("results");
+		results.forEach(cmp -> {
+			if (provider.getProviderId().equals(((JsonObject) cmp).getString("providerId"))) {
+				ret.add(((JsonObject) cmp));
+			}
+		});
+		
+		return ret;
+	}
 
+	protected JsonObject getComponent(ComponentProvider provider, String componentName) {
+		CompletableFuture<JsonObject> response = execute(String.format(COMPONENTS_URL, domainId) + "?type=" + PROVIDER_TYPE, HttpMethod.GET);
+		JsonObject json;
+		try {
+			json = response.get(TIMEOUT, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			throw new ServerFault("Failed to get components for realm " + domainId, e);
+		}
+		
+		JsonObject ret = null;
+		JsonArray results = json.getJsonArray("results");
+		if (results != null) {
+			for (int i=0 ; i < results.size() ; i++) {
+				if ( componentName.equals(results.getJsonObject(i).getString("name")) 
+					 && provider.getProviderId().equals(results.getJsonObject(i).getString("providerId"))) {
+					ret = results.getJsonObject(i);
+				}
+			}
+		}
+		
+		return ret;
+	}
+	
+	protected void deleteComponent(ComponentProvider provider, String componentName) {
+		String cmpId = null;
+		try {
+			JsonObject cmp = getComponent(provider, componentName);
+			if (cmp != null) {
+				cmpId = cmp.getString("id");
+			}
+		} catch (Throwable t) {
+			logger.error("Failed to get component (to delete it) : " + t.getClass().getName() + " : " + t.getMessage(), t);
+		}
+		if (cmpId == null) {
+			throw new ServerFault("Failed to get component " + componentName + " (to delete it)");
+		}
+		
+		CompletableFuture<JsonObject> response = execute(String.format(COMPONENTS_URL, domainId) + "/" + cmpId, HttpMethod.DELETE);
+		try {
+			response.get(TIMEOUT, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			throw new ServerFault("Failed to delete component " + componentName + " from realm " + domainId, e);
+		}
 	}
 }

@@ -17,8 +17,13 @@
   */
 package net.bluemind.keycloak.api;
 
+import java.util.List;
+
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 
@@ -27,4 +32,17 @@ import net.bluemind.core.api.fault.ServerFault;
 public interface IKeycloakBluemindProviderAdmin {
 	@PUT
 	public void create(BluemindProviderComponent component) throws ServerFault;
+	
+	@GET
+	public List<BluemindProviderComponent> allBluemindProviders() throws ServerFault;
+		// Caution : when reading bluemind provider components from Keycloak, the bmCoreToken attribute is (intentionally) obfuscated
+	
+	@GET
+	@Path("{componentName}")
+	public BluemindProviderComponent getBluemindProvider(@PathParam(value = "componentName") String componentName) throws ServerFault;
+		// Caution : when reading bluemind provider components from Keycloak, the bmCoreToken attribute is (intentionally) obfuscated  
+	
+	@DELETE
+	@Path("{componentName}")
+	public void deleteBluemindProvider(@PathParam(value = "componentName") String componentName) throws ServerFault;
 }

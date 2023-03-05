@@ -17,13 +17,22 @@
   */
 package net.bluemind.keycloak.internal;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.keycloak.api.BluemindProviderComponent;
+import net.bluemind.keycloak.api.BluemindProviderComponent.CachePolicy;
 import net.bluemind.keycloak.api.IKeycloakBluemindProviderAdmin;
 import net.bluemind.role.api.BasicRoles;
 
 public class KeycloakBluemindProviderAdminService extends ComponentService implements IKeycloakBluemindProviderAdmin {
+	private static final Logger logger = LoggerFactory.getLogger(KeycloakBluemindProviderAdminService.class);
 
 	public KeycloakBluemindProviderAdminService(BmContext context, String domainId) {
 		super(context, domainId);
@@ -35,4 +44,62 @@ public class KeycloakBluemindProviderAdminService extends ComponentService imple
 		createComponent(component);
 	}
 
+	@Override
+	public List<BluemindProviderComponent> allBluemindProviders() throws ServerFault {
+		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
+		logger.info("Realm {}: Get all Bluemind providers", domainId);
+		
+		List<BluemindProviderComponent> ret = new ArrayList<>();
+		allComponents(ComponentProvider.BLUEMIND).forEach(cmp -> ret.add(jsonToBluemindProviderComponent(cmp)));
+		return ret;
+	}
+
+	@Override
+	public BluemindProviderComponent getBluemindProvider(String componentName) throws ServerFault {
+		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
+		logger.info("Realm {}: Get Bluemind provider {}", domainId, componentName);
+		
+		return jsonToBluemindProviderComponent(getComponent(ComponentProvider.BLUEMIND, componentName));
+	}
+
+	@Override
+	public void deleteBluemindProvider(String componentName) throws ServerFault {
+		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
+		logger.info("Realm {}: Delete bluemind provider {}", domainId, componentName);
+		
+		deleteComponent(ComponentProvider.BLUEMIND, componentName);
+	}
+	
+
+	BluemindProviderComponent jsonToBluemindProviderComponent(JsonObject ret) {
+		if (ret == null) {
+			return null;
+		}
+
+		BluemindProviderComponent bp = new BluemindProviderComponent();
+		bp.setId(ret.getString("id"));
+		bp.setParentId(ret.getString("parentId"));
+		bp.setName(ret.getString("name"));
+		
+		if (ret.getJsonObject("config").getJsonArray("bmDomain") != null) {
+			bp.setBmDomain(ret.getJsonObject("config").getJsonArray("bmDomain").getString(0));
+		}
+		if (ret.getJsonObject("config").getJsonArray("bmUrl") != null) {
+			bp.setBmUrl(ret.getJsonObject("config").getJsonArray("bmUrl").getString(0));
+		}
+		if (ret.getJsonObject("config").getJsonArray("bmCoreToken") != null) {
+			bp.setBmCoreToken(ret.getJsonObject("config").getJsonArray("bmCoreToken").getString(0));
+		}
+		
+		if (ret.getJsonObject("config").getJsonArray("enabled") != null) {
+			bp.setEnabled(Boolean.valueOf(ret.getJsonObject("config").getJsonArray("enabled").getString(0)));
+		}
+		
+		if (ret.getJsonObject("config").getJsonArray("cachePolicy") != null) {
+			bp.setCachePolicy(CachePolicy.valueOf(ret.getJsonObject("config").getJsonArray("cachePolicy").getString(0)));
+		}
+		
+		return bp;
+	}
+	
 }

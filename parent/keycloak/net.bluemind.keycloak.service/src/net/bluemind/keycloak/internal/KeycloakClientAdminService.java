@@ -17,6 +17,11 @@
   */
 package net.bluemind.keycloak.internal;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -30,11 +35,12 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.keycloak.api.IKeycloakClientAdmin;
+import net.bluemind.keycloak.api.OidcClient;
 import net.bluemind.role.api.BasicRoles;
 
 public class KeycloakClientAdminService extends KeycloakAdminClient implements IKeycloakClientAdmin {
-
 	private static final Logger logger = LoggerFactory.getLogger(KeycloakClientAdminService.class);
+	
 	private RBACManager rbacManager;
 	private String domainId;
 
@@ -82,10 +88,107 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 		} catch (Exception e) {
 			throw new ServerFault("Failed to get client secret");
 		}
-		logger.info(json.encodePrettily());
 
 		return json.getString("value");
 
+	}
+
+	@Override
+	public List<OidcClient> allOidcClients() throws ServerFault {
+		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
+		
+		logger.info("Realm {}: Get OIDC clients", domainId);
+		
+		CompletableFuture<JsonObject> response = execute(String.format(CLIENTS_URL, domainId), HttpMethod.GET);
+		JsonObject json;
+		try {
+			json = response.get(TIMEOUT, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			logger.error("EXCeptkion " + e.getClass().getName() + " : " + e.getMessage(), e);
+			throw new ServerFault("Failed to fetch clients for realm " + domainId);
+		}
+		
+		List<OidcClient> ret = new ArrayList<>();
+		JsonArray results = json.getJsonArray("results");
+		results.forEach(cli -> {
+			if (cli != null && "openid-connect".equals(((JsonObject) cli).getString("protocol") )) {
+				ret.add(jsonToOidcClient(((JsonObject) cli)));
+			}
+		});
+		return ret;
+	}
+
+	@Override
+	public OidcClient getOidcClient(String clientId) throws ServerFault {
+		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
+		
+		logger.info("Realm {}: Get client {}", domainId, clientId);
+		String spec = String.format(CLIENTS_URL, domainId);
+		try {
+			spec += "?clientId=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8.toString());
+		} catch (UnsupportedEncodingException e) {
+			logger.error("UnsupportedEncodingException : " + StandardCharsets.UTF_8.toString());
+			throw new ServerFault(e);
+		}
+		CompletableFuture<JsonObject> response = execute(spec, HttpMethod.GET);
+		JsonObject json;
+		try {
+			json = response.get(TIMEOUT, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			logger.error("EXCeptkion " + e.getClass().getName() + " : " + e.getMessage(), e);
+			throw new ServerFault("Failed to fetch client " + clientId + " in realm " + domainId);
+		}
+		JsonArray results = json.getJsonArray("results");
+		if (results == null || results.size() == 0 || !"openid-connect".equals(json.getJsonArray("results").getJsonObject(0).getString("protocol"))) {
+			return null;
+		}
+		return jsonToOidcClient(json.getJsonArray("results").getJsonObject(0));
+	}
+
+	@Override
+	public void deleteOidcClient(String clientId) throws ServerFault {
+		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
+		
+		logger.info("Realm {}: Delete client {}", domainId, clientId);
+		
+		OidcClient oc = null;
+		try {
+			oc = getOidcClient(clientId);
+		} catch (Throwable t) {
+			logger.error("Couldn't get client " + clientId + " in realm " + domainId + " to delete it", t);
+			throw new ServerFault(t);
+		}
+		if (oc == null) {
+			throw new ServerFault("Couldn't get client " + clientId + " in realm " + domainId + " to delete it");
+		}
+		
+		CompletableFuture<JsonObject> response = execute(String.format(CLIENTS_URL, domainId) + "/" + oc.id, HttpMethod.DELETE);
+		try {
+			response.get(TIMEOUT, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			throw new ServerFault("Failed to delete client");
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private OidcClient jsonToOidcClient(JsonObject ret) {
+		if (ret == null) {
+			return null;
+		}
+
+		OidcClient cli = new OidcClient();
+		cli.id = ret.getString("id");
+		cli.clientId = ret.getString("clientId");
+		cli.publicClient = ret.getBoolean("publicClient");
+		cli.secret = ret.getString("secret");
+		cli.standardFlowEnabled = ret.getBoolean("standardFlowEnabled");
+		cli.directAccessGrantsEnabled = ret.getBoolean("directAccessGrantsEnabled");
+		cli.serviceAccountsEnabled = ret.getBoolean("serviceAccountsEnabled");
+		cli.rootUrl = ret.getString("rootUrl");
+		cli.redirectUris = ret.getJsonArray("redirectUris").getList();
+		cli.webOrigins = ret.getJsonArray("webOrigins").getList();
+
+		return cli;
 	}
 
 }

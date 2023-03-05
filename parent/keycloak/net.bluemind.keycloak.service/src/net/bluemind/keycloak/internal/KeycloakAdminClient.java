@@ -67,7 +67,7 @@ public abstract class KeycloakAdminClient {
 			try {
 				URI uri = new URI(spec);
 				HttpClient client = initHttpClient(uri);
-				client.request(method, uri.getPath(), reqHandler -> {
+				client.request(method, uri.getPath() + (uri.getQuery() != null ? "?" + uri.getQuery() : "" ), reqHandler -> {
 					if (reqHandler.succeeded()) {
 						HttpClientRequest r = reqHandler.result();
 						r.response(responseHandler(future));

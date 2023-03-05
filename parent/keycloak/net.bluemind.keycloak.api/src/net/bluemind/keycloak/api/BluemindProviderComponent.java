@@ -26,20 +26,34 @@ import net.bluemind.core.api.BMApi;
 public class BluemindProviderComponent extends Component {
 	private String providerId;
 	private String providerType;
+	private String id;
 	private String parentId;
 	private String name;
 	
 	private String bmDomain;
 	private String bmUrl;
 	private String bmCoreToken;
-	
+	private Boolean enabled = Boolean.TRUE;
+	private CachePolicy cachePolicy = CachePolicy.DEFAULT;
+
+	@BMApi(version = "3")
+	public enum CachePolicy {
+		DEFAULT, EVICT_DAILY, EVICT_WEEKLY, MAX_LIFESPAN, NO_CACHE;
+	}
 	
 	public BluemindProviderComponent() {
 		providerId = "Bluemind";
 		providerType = "org.keycloak.storage.UserStorageProvider";
 	}
 	
-	
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
 	public String getParentId() {
 		return parentId;
 	}
@@ -71,14 +85,6 @@ public class BluemindProviderComponent extends Component {
 	public void setBmUrl(String bmUrl) {
 		this.bmUrl = bmUrl;
 	}
-
-	public String getProviderId() {
-		return providerId;
-	}
-
-	public String getProviderType() {
-		return providerType;
-	}
 	
 	public String getBmCoreToken() {
 		return bmCoreToken;
@@ -87,10 +93,27 @@ public class BluemindProviderComponent extends Component {
 	public void setBmCoreToken(String bmCoreToken) {
 		this.bmCoreToken = bmCoreToken;
 	}
+	
+	public Boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(Boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	public CachePolicy getCachePolicy() {
+		return cachePolicy;
+	}
+
+	public void setCachePolicy(CachePolicy cachePolicy) {
+		this.cachePolicy = cachePolicy;
+	}
 
 	@Override
 	public JsonObject toJson() {
 		JsonObject component = new JsonObject();
+		component.put("id", id);
 		component.put("providerId", providerId);
 		component.put("providerType", providerType);
 		component.put("parentId", parentId);
@@ -98,8 +121,10 @@ public class BluemindProviderComponent extends Component {
 
 		JsonObject config = new JsonObject();
 		if (bmDomain != null) config.put("bmDomain", Arrays.asList(bmDomain));
-		config.put("bmUrl", Arrays.asList(bmUrl));
-		config.put("bmCoreToken", Arrays.asList(bmCoreToken));
+		if (bmUrl != null) config.put("bmUrl", Arrays.asList(bmUrl));
+		if (bmCoreToken != null) config.put("bmCoreToken", Arrays.asList(bmCoreToken));
+		config.put("enabled", Arrays.asList(enabled.toString()));
+		if (cachePolicy != null) config.put("cachePolicy", Arrays.asList(cachePolicy.name()));
 
 		component.put("config", config);
 
@@ -108,7 +133,8 @@ public class BluemindProviderComponent extends Component {
 	
 	@Override
 	public String toString() {
-		return "BluemindProviderComponent [parentId=" + parentId + ", name=" + name
+		return "BluemindProviderComponent [id=" + id + ", parentId=" + parentId + ", name=" + getName()
+				+ ", enabled=" + enabled + ", cachePolicy=" + cachePolicy
 				+ ", bmDomain=" + bmDomain + ", bmUrl=" + bmUrl 
 				+ ", bmCoreToken=" + (bmCoreToken == null ? "--empty--" : "--secret--") + "]";
 	}

@@ -24,9 +24,9 @@ import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
 public class KerberosComponent extends Component {
-
 	private String providerId;
 	private String providerType;
+	private String id;
 	private String parentId;
 	private String name;
 
@@ -47,6 +47,14 @@ public class KerberosComponent extends Component {
 	public KerberosComponent() {
 		providerId = "kerberos";
 		providerType = "org.keycloak.storage.UserStorageProvider";
+	}
+	
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public String getParentId() {
@@ -132,6 +140,7 @@ public class KerberosComponent extends Component {
 	@Override
 	public JsonObject toJson() {
 		JsonObject component = new JsonObject();
+		component.put("id", id);
 		component.put("providerId", providerId);
 		component.put("providerType", providerType);
 		component.put("parentId", parentId);

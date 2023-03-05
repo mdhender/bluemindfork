@@ -1,5 +1,7 @@
 package net.bluemind.keycloak.service.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -38,6 +40,7 @@ import net.bluemind.keycloak.api.IKeycloakUids;
 import net.bluemind.keycloak.api.KerberosComponent;
 import net.bluemind.keycloak.api.Realm;
 import net.bluemind.keycloak.api.KerberosComponent.CachePolicy;
+import net.bluemind.keycloak.api.OidcClient;
 import net.bluemind.pool.impl.BmConfIni;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -119,25 +122,72 @@ public class KeycloakServiceTests extends AbstractServiceTests {
 		
 		keycloakClientAdminService.create(oidcClientName);
 		assertNotNull("Unable to get oidc client secret", keycloakClientAdminService.getSecret(oidcClientName));
+		
+		List<OidcClient> lstClients = keycloakClientAdminService.allOidcClients();
+		boolean foundClient = false;
+		for (int i=0 ; i < lstClients.size() ; i++) {
+			if (oidcClientName.equals(lstClients.get(i).clientId)) {
+				foundClient = true;
+			}
+		}
+		assertTrue("Did not find OIDC client", foundClient);
+		
+		OidcClient cli = keycloakClientAdminService.getOidcClient(oidcClientName);
+		assertNotNull("Unable to get OIDC client", cli);
+		assertEquals("Incorrect clientId value in OIDC Client", oidcClientName, cli.clientId);
+		assertFalse("Incorrect publicClient value in OIDC Client", cli.publicClient);
+		
+		keycloakClientAdminService.deleteOidcClient(oidcClientName);
+		cli = null;
+		try {
+			cli = keycloakClientAdminService.getOidcClient(oidcClientName);
+		} catch (Throwable t) {
+		}
+		assertNull("Unable to delete OIDC client", cli);
 	}
 	
 	@Test
 	public void _050_bluemindProvider() {
 		assertNotNull("keycloakBluemindProviderService not correctly instantiated", keycloakBluemindProviderService);
 		
+		String bmProvName = testRealmName + "-bmprovider";
 		BluemindProviderComponent bpComponent = new BluemindProviderComponent();
 		bpComponent.setParentId(testRealmName);
-		bpComponent.setName(testRealmName + "-bmprovider");
-		bpComponent.setBmUrl("http://" + getMyIpAddress() + ":8090"); //peut-etre ou peut-etre pas
+		bpComponent.setName(bmProvName);
+		bpComponent.setBmUrl("http://" + getMyIpAddress() + ":8090");
 		bpComponent.setBmCoreToken(securityContext.getSessionId());
 		
 		keycloakBluemindProviderService.create(bpComponent);
+		
+		List<BluemindProviderComponent> lstBmProviders = keycloakBluemindProviderService.allBluemindProviders();
+		boolean foundBmProvider = false;
+		for (int i=0 ; i < lstBmProviders.size() ; i++) {
+			if (bmProvName.equals(lstBmProviders.get(i).getName())) {
+				foundBmProvider = true;
+			}
+		}
+		assertTrue("Did not find Bluemind provider", foundBmProvider);
+		
+		BluemindProviderComponent bp = keycloakBluemindProviderService.getBluemindProvider(bmProvName);
+		assertNotNull("Unable to get bluemind provider component", bp);
+		assertEquals("Incorrect name value in bluemind provider", bmProvName, bp.getName());
+		assertEquals("Incorrect bmUrl value in bluemind provider", "http://" + getMyIpAddress() + ":8090", bp.getBmUrl());
+		assertTrue("Incorrect enabled value in bluemind provider", bp.isEnabled());
+		
+		keycloakBluemindProviderService.deleteBluemindProvider(bmProvName);
+		bp = null;
+		try {
+			bp = keycloakBluemindProviderService.getBluemindProvider(bmProvName);
+		} catch (Throwable t) {
+		}
+		assertNull("Unable to delete bluemind provider", bp);
 	}
 
 	@Test
 	public void _060_kerberosProvider() {
 		assertNotNull("keycloakKerberosService not correctly instantiated", keycloakKerberosService);
 		
+		String krbProvName = testRealmName + "-kerberos";
 		KerberosComponent kerb = new KerberosComponent();
 		kerb.setKerberosRealm("TEST-DOMAIN.LOCAL");
 		kerb.setServerPrincipal("HTTP/keycloak.test-domain.local@TEST-DOMAIN.LOCAL");
@@ -145,10 +195,33 @@ public class KeycloakServiceTests extends AbstractServiceTests {
 		kerb.setEnabled(true);
 		kerb.setDebug(true);
 		kerb.setCachePolicy(CachePolicy.DEFAULT);
-		kerb.setName(testRealmName + "-kerberos");
+		kerb.setName(krbProvName);
 		kerb.setParentId(testRealmName);
 
 		keycloakKerberosService.create(kerb);
+		
+		List<KerberosComponent> lstKrbProviders = keycloakKerberosService.allKerberosProviders();
+		boolean foundKrbProvider = false;
+		for (int i=0 ; i < lstKrbProviders.size() ; i++) {
+			if (krbProvName.equals(lstKrbProviders.get(i).getName())) {
+				foundKrbProvider = true;
+			}
+		}
+		assertTrue("Did not find Kerberos provider", foundKrbProvider);
+		
+		KerberosComponent krb = keycloakKerberosService.getKerberosProvider(krbProvName);
+		assertNotNull("Unable to get kerberos provider component", krb);
+		assertEquals("Incorrect name value in kerberos provider", krbProvName, krb.getName());
+		assertEquals("Incorrect server principal value in kerberos provider", "HTTP/keycloak.test-domain.local@TEST-DOMAIN.LOCAL", krb.getServerPrincipal());
+		assertTrue("Incorrect enabled value in kerberos provider", krb.isEnabled());
+		
+		keycloakKerberosService.deleteKerberosProvider(krbProvName);
+		krb = null;
+		try {
+			krb = keycloakKerberosService.getKerberosProvider(krbProvName);
+		} catch (Throwable t) {
+		}
+		assertNull("Unable to delete kerberos provider", krb);
 	}
 	
 	@Test
