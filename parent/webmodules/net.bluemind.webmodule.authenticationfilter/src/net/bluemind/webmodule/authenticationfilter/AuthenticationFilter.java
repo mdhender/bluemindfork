@@ -52,6 +52,7 @@ import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Shared;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.openid.api.OpenIdProperties;
+import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionData;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionsCache;
 import net.bluemind.webmodule.server.IWebFilter;
@@ -133,8 +134,19 @@ public class AuthenticationFilter implements IWebFilter {
 			return CompletableFuture.completedFuture(null);
 		}
 
+		if (isCasEnabled()) {
+			redirectToCasServer(request);
+		} else {
+			redirectToOpenIdServer(request, domainUid.get());
+		}
+
+		return CompletableFuture.completedFuture(null);
+
+	}
+
+	private void redirectToOpenIdServer(HttpServerRequest request, String domainUid) {
 		Map<String, String> domainProperties = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
-				.get(domainUid.get());
+				.get(domainUid);
 
 		String key = UUID.randomUUID().toString();
 		String path = Optional.ofNullable(request.path()).orElse("/");
@@ -142,7 +154,7 @@ public class AuthenticationFilter implements IWebFilter {
 		JsonObject jsonState = new JsonObject();
 		jsonState.put("codeVerifierKey", key);
 		jsonState.put("path", path);
-		jsonState.put("domain_uid", domainUid.get());
+		jsonState.put("domain_uid", domainUid);
 
 		String state = b64UrlEncoder.encodeToString(jsonState.encode().getBytes());
 
@@ -165,8 +177,22 @@ public class AuthenticationFilter implements IWebFilter {
 		request.response().headers().add(HttpHeaders.LOCATION, location);
 		request.response().setStatusCode(301);
 		request.response().end();
-		return CompletableFuture.completedFuture(null);
+	}
 
+	private void redirectToCasServer(HttpServerRequest request) {
+		SharedMap<String, String> sysconf = MQ.sharedMap(Shared.MAP_SYSCONF);
+		String casURL = sysconf.get(SysConfKeys.cas_url.name());
+		String location = casURL + "login?service=";
+		location += request.scheme() + "://" + request.host() + "/auth/cas";
+		request.response().headers().add(HttpHeaders.LOCATION, location);
+		request.response().setStatusCode(301);
+		request.response().end();
+	}
+
+	private boolean isCasEnabled() {
+		SharedMap<String, String> sysconf = MQ.sharedMap(Shared.MAP_SYSCONF);
+		String authType = sysconf.get(SysConfKeys.auth_type.name());
+		return "cas".equalsIgnoreCase(authType);
 	}
 
 	private boolean needAuthentication(HttpServerRequest request, Optional<ForwardedLocation> forwardedLocation) {

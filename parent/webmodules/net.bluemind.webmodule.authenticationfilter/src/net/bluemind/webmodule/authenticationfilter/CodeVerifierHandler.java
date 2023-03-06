@@ -33,41 +33,25 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.common.base.Strings;
 
-import io.netty.handler.codec.http.cookie.Cookie;
-import io.netty.handler.codec.http.cookie.DefaultCookie;
-import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
-import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
-import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Shared;
 import net.bluemind.openid.api.OpenIdProperties;
 import net.bluemind.webmodule.authenticationfilter.internal.ExternalCreds;
-import net.bluemind.webmodule.server.NeedVertx;
-import net.bluemind.webmodule.server.SecurityConfig;
 
-public class CodeVerifierHandler implements Handler<HttpServerRequest>, NeedVertx {
+public class CodeVerifierHandler extends AbstractAuthHandler implements Handler<HttpServerRequest> {
 
 	private static final Logger logger = LoggerFactory.getLogger(CodeVerifierHandler.class);
 	private static final Decoder b64UrlDecoder = Base64.getUrlDecoder();
-
-	private Vertx vertx;
-
-	@Override
-	public void setVertx(Vertx vertx) {
-		this.vertx = vertx;
-
-	}
 
 	@Override
 	public void handle(HttpServerRequest event) {
@@ -156,73 +140,6 @@ public class CodeVerifierHandler implements Handler<HttpServerRequest>, NeedVert
 		creds.setLoginAtDomain(email.asString());
 		createSession(request, prov, forwadedFor, creds, redirectTo, token);
 
-	}
-
-	private void createSession(HttpServerRequest request, AuthProvider prov, List<String> forwadedFor,
-			ExternalCreds creds, String redirectTo, JsonObject token) {
-		logger.info("Create session for {}", creds.getLoginAtDomain());
-		prov.sessionId(creds, forwadedFor, new AsyncHandler<JsonObject>() {
-			@Override
-			public void success(JsonObject json) {
-
-				MultiMap headers = request.response().headers();
-
-				String sid = json.getString("sid");
-				if (sid == null) {
-					logger.error("Error during auth, {} login not valid (not found/archived or not user)",
-							creds.getLoginAtDomain());
-					headers.add(HttpHeaders.LOCATION,
-							"/errors-pages/deniedAccess.html?login=" + creds.getLoginAtDomain());
-					request.response().setStatusCode(302);
-					request.response().end();
-					return;
-				}
-
-				JsonObject cookie = new JsonObject();
-				cookie.put("access_token", token.getString("access_token"));
-				cookie.put("refresh_token", token.getString("refresh_token"));
-				cookie.put("sid", sid);
-				cookie.put("domain_uid", json.getString("domain_uid"));
-
-				Cookie openIdCookie = new DefaultCookie("OpenIdToken", cookie.encode());
-				openIdCookie.setPath("/");
-				openIdCookie.setHttpOnly(true);
-				if (SecurityConfig.secureCookies) {
-					openIdCookie.setSecure(true);
-				}
-				request.response().headers().add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(openIdCookie));
-
-				headers.add(HttpHeaders.LOCATION, redirectTo);
-				request.response().setStatusCode(302);
-
-				request.response().end();
-			}
-
-			@Override
-			public void failure(Throwable e) {
-				error(request, e);
-			}
-
-		});
-	}
-
-	private void error(HttpServerRequest req, Throwable e) {
-		logger.error(e.getMessage(), e);
-		req.response().setStatusCode(500);
-		req.response().end();
-	}
-
-	private HttpClient initHttpClient(URI uri) {
-		HttpClientOptions opts = new HttpClientOptions();
-		opts.setDefaultHost(uri.getHost());
-		opts.setSsl(uri.getScheme().equalsIgnoreCase("https"));
-		opts.setDefaultPort(
-				uri.getPort() != -1 ? uri.getPort() : (uri.getScheme().equalsIgnoreCase("https") ? 443 : 80));
-		if (opts.isSsl()) {
-			opts.setTrustAll(true);
-			opts.setVerifyHost(false);
-		}
-		return vertx.createHttpClient(opts);
 	}
 
 }
