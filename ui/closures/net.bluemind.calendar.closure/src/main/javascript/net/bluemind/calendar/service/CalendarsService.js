@@ -281,7 +281,7 @@ net.bluemind.calendar.service.CalendarsService.prototype.splitLocalRemote = func
       return { remote : rc, local : lc};
     });
   } else {
-    return goog.Promise.resolve({ remote : rc, local : []});
+    return goog.Promise.resolve({ remote : containers, local : []});
   }
 }
 /**
@@ -319,27 +319,26 @@ net.bluemind.calendar.service.CalendarsService.prototype.isReadable_ = function(
 }
 
 /**
- * @param {goog.event.Event} e
  * @private
  */
 net.bluemind.calendar.service.CalendarsService.prototype.haveFreebusy_ = function(container) {
-  return /^calendar:Default/.test(container.uid);
+  return container.states.defaultCalendar ; //&& ["users", "ressources"].includes(container.dir.split('/')[3]);
 }
+/**
+ * @private
+ */
+net.bluemind.calendar.service.CalendarsService.prototype.toFreebusyUid_ = function(uid) {
+  return uid.replace(/^calendar(:Default)?/, "freebusy");
+}
+
+
 
 net.bluemind.calendar.service.CalendarsService.prototype.getCalendarSeries_ = function(range, containers) {
 
   return this.splitLocalRemote(containers).then( function( remoteAndLocal) {
-    if (containers.length == 0) {
-      return goog.Promise.resolve([]);
-    } else if( remoteAndLocal.local.length == 0) {
-      return this.getSeriesRemote(range, remoteAndLocal.remote);
-    } else if( remoteAndLocal.remote.length == 0) {
-      return this.getSeriesLocal(range, remoteAndLocal.local);
-    } else {
-      return goog.Promise.all([this.getSeriesLocal(range, remoteAndLocal.local), this.getSeriesRemote(range, remoteAndLocal.remote)]).then(function(resArr) {
+      return goog.Promise.all([this.getSeriesLocal(range, remoteAndLocal.local), this.getSeriesRemote(range, remoteAndLocal.remote)])
+  }, null, this).then(function(resArr) {
         return goog.array.flatten(resArr);
-      }); 
-    }
   }, null, this);
 };
 
@@ -362,7 +361,7 @@ net.bluemind.calendar.service.CalendarsService.prototype.getFreebusySeries_ = fu
 };
 
 net.bluemind.calendar.service.CalendarsService.prototype.getFreebusy_ = function(range, container) {  
-  var uid = container.replace(/^calendar:Default/, "freebusy");
+  var uid = this.toFreebusyUid_(container);
   var client = new net.bluemind.calendar.api.VFreebusyClient(this.ctx.rpc, '', uid);
   return client.get({
     'dtstart' : new net.bluemind.date.DateHelper().toBMDateTime(range.getStartDate()),
@@ -410,14 +409,14 @@ net.bluemind.calendar.service.CalendarsService.prototype.freebusySlotToSeries_ =
         "sequence": 0,
         "dtend": slot['dtend'],
         "dtstart": slot['dtstart'],
+        "status": slot['type'] === "BUSYTENTATIVE" ? "Tentative": "Confirmed",
         "transparency": "Opaque"
       },
       "acceptCounters": true,
       "counters": [],
       "icsUid": uid,
       "occurrences":[],
-      "properties":{},
-      "status": slot['type'] === "BUSYTENTATIVE" ? "Tentative": "Confirmed"
+      "properties":{}
     }
   }
 }
@@ -430,6 +429,9 @@ net.bluemind.calendar.service.CalendarsService.prototype.freebusySlotToSeries_ =
  * @return {goog.Promise}
  */
 net.bluemind.calendar.service.CalendarsService.prototype.getSeriesLocal = function(range, opt_containers) {
+  if (opt_containers.length == 0) {
+    return goog.Promise.resolve([]);
+  }
   var query = [], helper = this.ctx.helper("date"), tz = this.ctx.helper("timezone").getDefaultTimeZone();
   var start = range.getStartDate().clone(), end = range.getEndDate().clone();
   var isoStart = range.getStartDate().toIsoString(), isoEnd = range.getEndDate().toIsoString();
@@ -465,6 +467,9 @@ net.bluemind.calendar.service.CalendarsService.prototype.getSeriesLocal = functi
  * @return {goog.Promise}
  */
 net.bluemind.calendar.service.CalendarsService.prototype.getSeriesRemote = function(range, opt_containers) {
+  if (opt_containers.length == 0) {
+    return goog.Promise.resolve([]);
+  }
   var client = new net.bluemind.calendar.api.CalendarsClient(this.ctx.rpc, '');
 
   var query = {

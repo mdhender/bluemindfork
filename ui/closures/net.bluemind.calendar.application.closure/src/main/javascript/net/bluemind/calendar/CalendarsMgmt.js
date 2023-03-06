@@ -91,13 +91,14 @@ net.bluemind.calendar.CalendarsMgmt.prototype.setCalendars = function(calendars,
   var uids = goog.array.map(calendars, function(calendar) {
     return calendar['uid'];
   });
+  goog.array.removeDuplicates(uids);
   var storedCalendars = [];
   return this.ctx.service('auth').set('calendar.calendars', uids).then(function() {
     return this.ctx.service('folders').getFolders('calendar');
   }, null, this).then(function(syncedCalendars) {
     this.cache_.remove('displayed-calendars');
     var unsyncedCalendar = goog.array.filter(calendars || [], function(calendar) {
-      return !goog.array.find(syncedCalendars, function(synced) {synced['uid'] == calendar['uid']});
+      return goog.array.every(syncedCalendars, function(synced) {return synced['uid'] != calendar['uid']});
     });
     goog.array.extend(storedCalendars, syncedCalendars);
     if (opt_refresh && unsyncedCalendar.length > 0 && this.ctx.online) {
@@ -126,8 +127,8 @@ net.bluemind.calendar.CalendarsMgmt.prototype.refreshCalendars_ = function(calen
   return this.ctx.service('folders').getFoldersRemote(null, uids).then(function(folders) {
     var freebusy = [];
     goog.array.forEach(folders, function(folder) {
-      if(!this.isReadable_(folder) && this.isDefaultCalendar_(folder)) {
-        freebusy.push(folder['uid'].replace(/^calendar:Default/, "freebusy"));
+      if(!this.isReadable_(folder) && this.haveFreebusy_(folder)) {
+        freebusy.push(this.toFreebusyUid_(folder['uid']));
       } 
     }, this);
     if (freebusy.length > 0) {
@@ -149,11 +150,11 @@ net.bluemind.calendar.CalendarsMgmt.prototype.filterWithFreebusy_ = function(fol
     var readableFreebusy = [];
     goog.array.forEach(freebusy, function(fb) {
       if (this.isReadable_(fb)) {
-        readableFreebusy.push(fb['uid'].replace(/^freebusy/, "calendar:Default"));
+        readableFreebusy.push(this.toRawUid_(fb['uid']));
       }
     }, this)
     return goog.array.filter(folders, function(folder) {
-      return this.isReadable_(folder) || goog.array.contains(readableFreebusy, folder['uid']);
+      return this.isReadable_(folder) || goog.array.contains(readableFreebusy, this.toRawUid_(folder['uid']));
     }, this)
   }, null, this);
 }
@@ -166,13 +167,25 @@ net.bluemind.calendar.CalendarsMgmt.prototype.isReadable_ = function(container) 
     return goog.array.contains(["Read", "Write", "All"], verb);
   });
 }
+
 /**
  * @private
  */
-net.bluemind.calendar.CalendarsMgmt.prototype.isDefaultCalendar_ = function(container) {
-  return /^calendar:Default/.test(container['uid'])
+net.bluemind.calendar.CalendarsMgmt.prototype.haveFreebusy_ = function(container) {
+  return container['defaultContainer'] ; //&& ["users", "ressources"].includes(container.dir.split('/')[3]);
 }
-
+/**
+ * @private
+ */
+net.bluemind.calendar.CalendarsMgmt.prototype.toFreebusyUid_ = function(uid) {
+  return uid.replace(/^calendar(:Default)?/, "freebusy");
+}
+/**
+ * @private
+ */
+net.bluemind.calendar.CalendarsMgmt.prototype.toRawUid_ = function(uid) {
+  return uid.replace(/^(calendar:(Default:)?)|(freebusy:)/, "");
+}
 /**
  * Set the calendars used by the calendar application
  * 
