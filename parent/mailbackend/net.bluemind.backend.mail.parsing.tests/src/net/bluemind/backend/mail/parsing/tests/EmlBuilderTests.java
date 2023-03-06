@@ -43,6 +43,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 
 import net.bluemind.backend.mail.api.DispositionType;
+import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Header;
 import net.bluemind.backend.mail.api.MessageBody.Part;
@@ -142,6 +143,29 @@ public class EmlBuilderTests {
 		} catch (Exception e) {
 			return -1l;
 		}
+	}
+
+	@Test
+	public void createMultipartReport() throws IOException {
+		Part textPart = Part.create(null, "text/plain", genPart("Text part".getBytes()));
+		textPart.encoding = "quoted-printable";
+		textPart.charset = "utf-8";
+		Part reportPart = Part.create(null, "message/disposition-notification", genPart("Report part".getBytes()));
+		reportPart.encoding = "7bit";
+		reportPart.dispositionType = DispositionType.ATTACHMENT;
+		reportPart.fileName = "MDN.txt";
+		Part root = Part.create(null, "multipart/report", null);
+		root.children.add(textPart);
+		root.children.add(reportPart);
+		MessageBody messageBody = new MessageBody();
+		messageBody.subject = "Subject_" + System.currentTimeMillis();
+		messageBody.structure = root;
+		MailboxItem mailboxItem = new MailboxItem();
+		mailboxItem.body = messageBody;
+		Message message = EmlBuilder.of(messageBody, sid);
+		assertNotNull(message);
+		assertTrue(message.getHeader().getField("Content-Type").getBody()
+				.contains("report-type=disposition-notification"));
 	}
 
 	public enum TextStyle {

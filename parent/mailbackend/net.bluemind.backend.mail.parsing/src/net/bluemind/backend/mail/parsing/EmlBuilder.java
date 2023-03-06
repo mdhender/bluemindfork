@@ -51,6 +51,7 @@ import org.apache.james.mime4j.message.BasicBodyFactory;
 import org.apache.james.mime4j.message.BodyPart;
 import org.apache.james.mime4j.message.MessageImpl;
 import org.apache.james.mime4j.message.MultipartImpl;
+import org.apache.james.mime4j.util.MimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +91,10 @@ public class EmlBuilder {
 		try {
 			Body body = createBody(bbf, mb.structure, sid);
 			if (body instanceof MultipartImpl mpImpl) {
-				msg.setMultipart(mpImpl);
+				Map<String, String> parameters = new HashMap<String, String>();
+				parameters.put("boundary", MimeUtil.createUniqueBoundary());
+				handleMultipartReport(mb, parameters);
+				msg.setBody(body, mb.structure.mime, parameters);
 			} else {
 				setBody(msg, body, structure);
 			}
@@ -100,6 +104,21 @@ public class EmlBuilder {
 		}
 
 		return msg;
+	}
+
+	/**
+	 * In case of a "multipart/report" mime type, set the required "Content-Type"
+	 * header parameter "report-type".
+	 * 
+	 * @see https://www.rfc-editor.org/rfc/rfc6522#section-3
+	 */
+	private static void handleMultipartReport(MessageBody messageBody, Map<String, String> parameters) {
+		if ("multipart/report".equalsIgnoreCase(messageBody.structure.mime)
+				&& messageBody.structure.children.size() >= 2) {
+			String[] secondChildMime = messageBody.structure.children.get(1).mime.split("/");
+			String secondChildSubType = secondChildMime.length > 1 ? secondChildMime[1] : "";
+			parameters.put("report-type", secondChildSubType);
+		}
 	}
 
 	private static void setRecipients(MessageImpl msg, List<Recipient> recipients) {
