@@ -46,6 +46,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
+import net.bluemind.directory.api.IOrgUnits;
 import net.bluemind.directory.service.IInCoreDirectory;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.externaluser.api.IExternalUser;
@@ -125,6 +126,7 @@ public class DomainSync {
 		IResources rsApi = ctx.provider().instance(IResources.class, domain.uid);
 		IInCoreGroup grpApi = ctx.provider().instance(IInCoreGroup.class, domain.uid);
 		IMailboxes mboxApi = ctx.provider().instance(IMailboxes.class, domain.uid);
+		IOrgUnits ouApi = ctx.provider().instance(IOrgUnits.class, domain.uid);
 
 		DomainApis domApi = new DomainApis(domain, mboxApi, dirApi);
 
@@ -133,6 +135,7 @@ public class DomainSync {
 		DirEntryWithMailboxSync<Group> grpSync = new GroupSync(ctx, opts, grpApi, domApi, domKafkaState);
 		DirEntryWithMailboxSync<ResourceDescriptor> resSync = new ResourceSync(ctx, opts, rsApi, domApi, domKafkaState);
 		ExternalUserSync extSync = new ExternalUserSync(euApi, domApi);
+		OrgUnitSync ouSync = new OrgUnitSync(ouApi);
 
 		mon.begin(missingItemVersions.size(), "Processing " + missingItemVersions.size() + " directory entries");
 
@@ -176,9 +179,10 @@ public class DomainSync {
 				case EXTERNALUSER:
 					extSync.syncEntry(ivDir, entryMon, target, dirContainer, scope);
 					break;
-				case ADDRESSBOOK:
-				case CALENDAR:
 				case ORG_UNIT:
+					ouSync.syncEntry(ivDir, entryMon, target, dirContainer, scope);
+					break;
+				case ADDRESSBOOK, CALENDAR:
 					entryMon.progress(1, "WARN skip kind " + ivDir.value.kind);
 					break;
 				default:

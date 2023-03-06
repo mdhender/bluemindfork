@@ -15,13 +15,19 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.TaskUtils;
+import net.bluemind.directory.api.IOrgUnits;
+import net.bluemind.directory.api.OrgUnit;
 import net.bluemind.domain.api.Domain;
 
 public abstract class CrudDirEntryRestore<T, V extends IRestoreSupport<T>>
 		extends AbstractCrudRestore<FullDirEntry<T>, T, V> {
 
-	protected CrudDirEntryRestore(RestoreLogger log, ItemValue<Domain> domain, RestoreState state) {
+	protected final IServiceProvider target;
+
+	protected CrudDirEntryRestore(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target,
+			RestoreState state) {
 		super(log, domain, state);
+		this.target = target;
 	}
 
 	@Override
@@ -32,7 +38,24 @@ public abstract class CrudDirEntryRestore<T, V extends IRestoreSupport<T>>
 	@Override
 	protected void create(V api, RecordKey key, VersionnedItem<FullDirEntry<T>> item) {
 		registrerCyrusDependencies(item);
+		ensureOrgUnitExists(item.value);
 		super.create(api, key, item);
+	}
+
+	protected void ensureOrgUnitUidExists(String ouUid) {
+		if (ouUid != null) {
+			IOrgUnits ouApi = target.instance(IOrgUnits.class, domain.uid);
+			if (ouApi.get(ouUid) == null) {
+				OrgUnit placeholder = new OrgUnit();
+				placeholder.name = "placeholder of " + ouUid;
+				log.monitor().log("Placeholder OrgUnit {}", ouUid);
+				ouApi.create(ouUid, placeholder);
+			}
+		}
+	}
+
+	protected void ensureOrgUnitExists(FullDirEntry<T> fde) {
+		ensureOrgUnitUidExists(fde.entry.orgUnitUid);
 	}
 
 	@Override
@@ -56,8 +79,9 @@ public abstract class CrudDirEntryRestore<T, V extends IRestoreSupport<T>>
 
 	public abstract static class WithoutMailbox<T> extends CrudDirEntryRestore<T, IRestoreItemCrudSupport<T>> {
 
-		protected WithoutMailbox(RestoreLogger log, ItemValue<Domain> domain, RestoreState state) {
-			super(log, domain, state);
+		protected WithoutMailbox(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target,
+				RestoreState state) {
+			super(log, domain, target, state);
 		}
 
 		@Override
@@ -80,12 +104,9 @@ public abstract class CrudDirEntryRestore<T, V extends IRestoreSupport<T>>
 
 	public abstract static class WithMailbox<T> extends CrudDirEntryRestore<T, IRestoreDirEntryWithMailboxSupport<T>> {
 
-		private final IServiceProvider target;
-
 		protected WithMailbox(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target,
 				RestoreState state) {
-			super(log, domain, state);
-			this.target = target;
+			super(log, domain, target, state);
 		}
 
 		@Override

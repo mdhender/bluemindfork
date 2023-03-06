@@ -30,6 +30,7 @@ import net.bluemind.core.backup.continuous.restore.domains.RestoreLogger;
 import net.bluemind.core.backup.continuous.restore.domains.RestoreState;
 import net.bluemind.core.backup.continuous.restore.domains.crud.AbstractCrudRestore;
 import net.bluemind.core.container.api.IRestoreDirEntryWithMailboxSupport;
+import net.bluemind.core.container.api.IRestoreItemCrudSupport;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
@@ -99,12 +100,12 @@ public class RestoreDirectories implements RestoreDomainType {
 		this.domainDirEntryRestore = new DomainDirEntryRestore(log, domain);
 		this.domainCalendarRestore = new DomainCalendarCrudRestore(log, domain, state);
 		this.domainAddressBookRestore = new DomainAddressBookCrudRestore(log, domain, state);
-		this.externalUserRestore = new ExternalUserCrudRestore(log, domain, state);
+		this.externalUserRestore = new ExternalUserCrudRestore(log, domain, target, state);
 		this.resourceRestore = new ResourceCrudRestore(log, domain, target, state);
 		this.mailshareRestore = new MailshareCrudRestore(log, domain, target, state);
 		this.groupRestore = new GroupCrudRestore(log, domain, target, state);
 		this.userRestore = new UserCrudRestore(log, domain, target, state);
-		this.orgUnitRestore = new OrgUnitCrudRestore(log, domain, state);
+		this.orgUnitRestore = new OrgUnitCrudRestore(log, domain, target, state);
 	}
 
 	@Override
@@ -357,8 +358,9 @@ public class RestoreDirectories implements RestoreDomainType {
 				.reader(new TypeReference<VersionnedItem<FullDirEntry<ExternalUser>>>() {
 				});
 
-		private ExternalUserCrudRestore(RestoreLogger log, ItemValue<Domain> domain, RestoreState state) {
-			super(log, domain, state);
+		private ExternalUserCrudRestore(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target,
+				RestoreState state) {
+			super(log, domain, target, state);
 		}
 
 		@Override
@@ -566,8 +568,9 @@ public class RestoreDirectories implements RestoreDomainType {
 				.reader(new TypeReference<VersionnedItem<FullDirEntry<OrgUnit>>>() {
 				});
 
-		private OrgUnitCrudRestore(RestoreLogger log, ItemValue<Domain> domain, RestoreState state) {
-			super(log, domain, state);
+		private OrgUnitCrudRestore(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target,
+				RestoreState state) {
+			super(log, domain, target, state);
 		}
 
 		@Override
@@ -581,8 +584,22 @@ public class RestoreDirectories implements RestoreDomainType {
 		}
 
 		@Override
+		protected void ensureOrgUnitExists(FullDirEntry<OrgUnit> fde) {
+			super.ensureOrgUnitExists(fde);
+			super.ensureOrgUnitUidExists(fde.value.parentUid);
+		}
+
+		@Override
 		protected IOrgUnits api(ItemValue<Domain> domain, RecordKey key) {
 			return target.instance(IOrgUnits.class, domain.uid);
 		}
+
+		@Override
+		protected boolean exists(IRestoreItemCrudSupport<OrgUnit> api, RecordKey key,
+				VersionnedItem<FullDirEntry<OrgUnit>> item) {
+			ItemValue<OrgUnit> previous = api.getComplete(item.uid);
+			return previous != null;
+		}
 	}
+
 }
