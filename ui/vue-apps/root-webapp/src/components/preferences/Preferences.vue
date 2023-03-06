@@ -79,7 +79,7 @@ export default {
             this.FETCH_USER_PASSWORD_LAST_CHANGE(),
             this.FETCH_SUBSCRIPTIONS().then(subscriptions => this.FETCH_CONTAINERS(subscriptions)) // FETCH_CONTAINERS action need subscriptions to be loaded
         ];
-        const fetchSettingsPromise = this.FETCH_ALL_SETTINGS(this);
+        let fetchSettingsPromise = this.FETCH_ALL_SETTINGS(this);
         if (inject("UserSession").roles.includes(Roles.SELF_CHANGE_MAILBOX_FILTER)) {
             fetchSettingsPromise = fetchSettingsPromise.then(() => this.FETCH_MAILBOX_FILTER(this.lang));
         }

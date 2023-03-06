@@ -8,10 +8,10 @@
     "module": "src/index.js",
     "scripts": {},
     "dependencies": {
-        "@bluemind/global":"^5.0.0"
+        "@bluemind/global": "^5.0.0"
     },
     "peerDependencies": {
-        "vue": "^2.6.14",
+        "vue": "^2.7.0",
         "vuex": "^3.6.2"
     }
 }
