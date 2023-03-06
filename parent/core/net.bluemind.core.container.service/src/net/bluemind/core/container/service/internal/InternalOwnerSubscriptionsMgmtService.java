@@ -93,7 +93,7 @@ public class InternalOwnerSubscriptionsMgmtService implements IInternalOwnerSubs
 				ContainerDescriptor cd = ContainerDescriptor.create(created.uid, created.name, created.owner,
 						created.type, created.domainUid, true);
 				cd.datalocation = entry.dataLocation;
-				ContainersHooks.get().forEach(ch -> ch.onContainerCreated(context, cd));
+				ContainersHooks.get().forEach(ch -> ch.onContainerCreated(context.su(), cd));
 			} else {
 				logger.warn("container {} already exist", subsUid);
 			}

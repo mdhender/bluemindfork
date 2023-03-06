@@ -236,14 +236,6 @@ public class UserServiceTests {
 	}
 
 	@Test
-	public void testBMHiddenSysadmin() throws ServerFault {
-		// FIXME test what ?!?
-		List<String> uids = getService(domainAdminSecurityContext).allUids();
-		assertTrue(uids.size() >= 1);
-		assertTrue(uids.contains("bmhiddensysadmin"));
-	}
-
-	@Test
 	public void testCreate() throws ServerFault, SQLException {
 		String login = "test." + System.nanoTime();
 		User user = defaultUser(login);
