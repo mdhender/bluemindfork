@@ -17,7 +17,7 @@
                 </template>
                 <span v-if="!noText" :class="textClass" class="contact-main-part">
                     <span :class="{ 'font-weight-bold': boldDn }">{{ dn }}</span>
-                    {{ showAddress ? ` ${address}` : "" }}
+                    {{ showAddress || !dn ? ` ${address}` : "" }}
                 </span>
             </div>
             <bm-chip
@@ -60,7 +60,7 @@
                 </template>
                 <span :class="textClass">
                     <span :class="{ 'font-weight-bold': boldDn }">{{ dn }}</span>
-                    {{ showAddress ? ` ${address}` : "" }}
+                    {{ showAddress || !dn ? ` ${address}` : "" }}
                 </span>
             </bm-chip>
         </a>
