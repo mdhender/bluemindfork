@@ -4,8 +4,7 @@ import {
     InvalidPkcs7EnvelopeError,
     InvalidSignatureError,
     UnsupportedAlgorithmError
-} from "../exceptions";
-
+} from "../../lib/exceptions";
 
 export function getSigningTime(envelope: pkcs7.Captured<pkcs7.PkcsSignedData>) {
     const parent = getParent(envelope.rawCapture.authenticatedAttributesAsn1, pki.oids["signingTime"]);

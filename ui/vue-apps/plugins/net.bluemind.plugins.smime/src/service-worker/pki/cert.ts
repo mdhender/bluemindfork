@@ -1,6 +1,7 @@
 import { pki } from "node-forge";
 import { RevocationResult, SmimeCRLClient } from "@bluemind/smime.cacerts.api";
 import session from "../environnment/session";
+import { UntrustedCertificateEmailNotFoundError } from "../../lib/exceptions";
 
 export async function checkRevoked(serialNumber: string) {
     const revoked = await new SmimeCRLClient(await session.sid, await session.domain).isRevoked(serialNumber);
@@ -38,6 +39,6 @@ export function checkRecipientEmail(certificate: pki.Certificate, recipientEmail
     const subjectEmailAddressMatch =
         certificate.subject.getField({ name: "emailAddress" })?.value.toLowerCase() === recipientEmail.toLowerCase();
     if (!subjectAltNameMatch && !subjectEmailAddressMatch) {
-        throw `expected email ${recipientEmail} and certificate one don't match`;
+        throw new UntrustedCertificateEmailNotFoundError(recipientEmail);
     }
 }

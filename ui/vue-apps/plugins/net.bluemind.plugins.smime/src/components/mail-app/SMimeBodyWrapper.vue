@@ -62,7 +62,7 @@ export default {
             const headerName = this.untrusted ? SIGNED_HEADER_NAME : ENCRYPTED_HEADER_NAME;
             const href = this.isPreview
                 ? this.noSmimeOnPreviewLink
-                : this.getBodyWrapperLink(getHeaderValue(this.message.headers, headerName), headerName);
+                : this.linkFromCodeOrHeader(getHeaderValue(this.message.headers, headerName), headerName);
             const button = h(
                 "bm-button",
                 { props: { variant: "link" }, class: "mt-6", attrs: { href, target: "_blank" } },

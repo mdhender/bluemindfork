@@ -1,13 +1,7 @@
 import { pkcs7, pki, asn1, util } from "node-forge";
 import { binaryToArrayBuffer } from "@bluemind/arraybuffer";
 import { MessageBody } from "@bluemind/backend.mail.api";
-import {
-    DecryptError,
-    EncryptError,
-    InvalidCertificateRecipientError,
-    SignError,
-    UnmatchedCertificateError
-} from "../exceptions";
+import { DecryptError, EncryptError, SignError, UnmatchedCertificateError } from "../../lib/exceptions";
 import { checkMessageIntegrity, checkSignatureValidity, getSigningTime } from "./verify";
 import { checkCertificate } from "../pki/";
 import { getSignedDataEnvelope } from "../../lib/envelope";
@@ -20,12 +14,7 @@ export async function decrypt(
     const buffer = await data.arrayBuffer();
     const text = asn1.fromDer(new util.ByteStringBuffer(buffer));
     const envelope = <pkcs7.Captured<pkcs7.PkcsEnvelopedData>>pkcs7.messageFromAsn1(text);
-    let recipient;
-    try {
-        recipient = envelope.findRecipient(certificate);
-    } catch (error) {
-        throw new InvalidCertificateRecipientError(error);
-    }
+    const recipient = envelope.findRecipient(certificate);
     if (!recipient) {
         throw new UnmatchedCertificateError();
     }

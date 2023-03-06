@@ -13,7 +13,7 @@ import {
 import session from "../environnment/session";
 import { fetchRequest, dispatchFetch } from "@bluemind/service-worker-utils";
 import { getCacheKey } from "../smimePartCache";
-import { SmimeErrors } from "../exceptions";
+import { SmimeErrors } from "../../lib/exceptions";
 import { extractContentType, splitHeadersAndContent } from "./MimeEntityParserUtils";
 import extractSignedData from "./SMimeSignedDataParser";
 import buildSignedEml from "./SMimeSignedEmlBuilder";

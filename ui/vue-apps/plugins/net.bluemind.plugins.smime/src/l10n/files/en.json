@@ -18,8 +18,8 @@
             },
             "viewer": {
                 "import_certificate": {
-                    "action_short":  "Import the certificate",
-                    "action": "Import the certificate for {email} into My Contacts",
+                    "action_short": "Import the certificate",
+                    "action": "Import the certificate for {email} into My Contacts.",
                     "success": "The certificate has been successfully imported.",
                     "error": "The certificate could not be imported."
                 }
@@ -28,7 +28,7 @@
                 "encrypt": "Encrypt the message",
                 "stop_encryption": "Disable the message encryption",
                 "stop_encryption_and_signature": "Disable signature and encryption",
-                "invalid_recipient" : "The message cannot be encrypted for this recipient",
+                "invalid_recipient": "The message cannot be encrypted for this recipient",
                 "encrypt_and_sign": "Encrypt and sign the message",
                 "stop_encrypt_and_sign": "Disable message encryption and signing",
                 "sign": "Sign the message",
@@ -41,11 +41,12 @@
                 "cert_and_key_associated": "Your private key and public certificate have been associated.",
                 "cert_or_key_dissociated": "You do not have any public certificate or private key associated.",
                 "modal": {
+                    "email_not_found": "Your certificate must identify your default email address \"{email}\".",
                     "no_cert_found": "No certificate has been found.",
                     "no_private_key_found": "No private key has been found.",
                     "supported_formats": "Supported format: PKCS#12",
                     "title": "Import my private key and my public certificate",
-                    "unlock_pkcs12": "Enter password to unlock PKCS#12 file",
+                    "unlock_pkcs12": "Enter password to unlock PKCS#12 file:",
                     "unsupported_file": "This file format is not supported."
                 }
             },

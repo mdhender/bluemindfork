@@ -18,8 +18,8 @@
             },
             "viewer": {
                 "import_certificate": {
-                    "action_short":  "Zertifikat importieren",
-                    "action": "Zertifikat für {email} in Meine Kontakte importieren",
+                    "action_short": "Zertifikat importieren",
+                    "action": "Zertifikat für {email} in Meine Kontakte importieren.",
                     "success": "Das Zertifikat wurde erfolgreich importiert.",
                     "error": "Das Zertifikat konnte nicht importiert werden."
                 }
@@ -28,7 +28,7 @@
                 "encrypt": "Verschlüsseln Sie die Nachricht",
                 "stop_encryption": "Disable the message encryption",
                 "stop_encryption_and_signature": "Signatur und Verschlüsselung deaktivieren",
-                "invalid_recipient" : "Deaktivieren Sie die Nachrichtenverschlüsselung",
+                "invalid_recipient": "Deaktivieren Sie die Nachrichtenverschlüsselung",
                 "encrypt_and_sign": "Verschlüsseln und Signieren der Nachricht",
                 "stop_encrypt_and_sign": "Deaktivieren der Nachrichtenverschlüsselung und -signierung",
                 "sign": "Unterschreiben Sie die Nachricht",
@@ -41,11 +41,12 @@
                 "cert_and_key_associated": "Your private key and public certificate have been associated.",
                 "cert_or_key_dissociated": "You do not have any public certificate or private key associated.",
                 "modal": {
+                    "email_not_found": "Ihr Zertifikat muss Ihrer Standard-E-Mail-Adresse \"{email}\" entsprechen.",
                     "no_cert_found": "No certificate has been found",
                     "no_private_key_found": "No private key has been found",
                     "supported_formats": "Supported format: PKCS#12",
                     "title": "Import my private key and my public certificate",
-                    "unlock_pkcs12": "Enter password to unlock PKCS#12 file",
+                    "unlock_pkcs12": "Enter password to unlock PKCS#12 file:",
                     "unsupported_file": "This file format is not supported."
                 }
             },

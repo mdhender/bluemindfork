@@ -3,18 +3,21 @@
         v-model="show"
         centered
         :title="$t('smime.preferences.import_field.modal.title')"
-        :ok-disabled="!file || !!importError"
+        :ok-disabled="!file || !!importErrorMsg"
         @ok.prevent="importPkcs12"
     >
         <bm-label-icon v-if="!file" class="mb-3" icon="info-circle">
             {{ $t("smime.preferences.import_field.modal.supported_formats") }}
         </bm-label-icon>
-        <bm-label-icon v-if="invalidFile" class="text-danger mb-3" icon="exclamation-circle-fill">
+        <bm-label-icon v-if="unsupportedFile" class="text-danger mb-3" icon="exclamation-circle-fill">
             {{ $t("smime.preferences.import_field.modal.unsupported_file") }}
         </bm-label-icon>
         <bm-form class="mt-4">
             <template v-if="file">
-                <bm-label-icon class="text-success" icon="check-circle">{{ file.name }}</bm-label-icon>
+                <bm-label-icon v-if="importErrorMsg" class="text-error" icon="exclamation-circle-fill">{{
+                    file.name
+                }}</bm-label-icon>
+                <bm-label-icon v-else class="text-success" icon="check-circle">{{ file.name }}</bm-label-icon>
                 <bm-form-group
                     class="mt-6"
                     label-for="password"
@@ -49,9 +52,10 @@
                     </div>
                 </template>
             </bm-file-drop-zone>
-            <bm-label-icon v-if="importError" class="text-danger" icon="exclamation-circle">
-                {{ importError }}
+            <bm-label-icon v-if="importErrorMsg" class="text-danger" icon="exclamation-circle">
+                {{ importErrorMsg }}
             </bm-label-icon>
+            <bm-read-more v-if="readMoreLink" :href="readMoreLink" class="pl-6" />
             <input
                 ref="fileChooserRef"
                 :accept="accept"
@@ -69,6 +73,7 @@
 import { asn1, pkcs12, pki, util } from "node-forge";
 import { mapMutations } from "vuex";
 import { MimeType } from "@bluemind/email";
+import { inject } from "@bluemind/inject";
 import {
     BmButton,
     BmFileDropZone,
@@ -76,14 +81,18 @@ import {
     BmFormGroup,
     BmFormInput,
     BmLabelIcon,
-    BmModal
+    BmModal,
+    BmReadMore
 } from "@bluemind/ui-components";
 import { SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT } from "../../store/mutationTypes";
-import { SMIME_INTERNAL_API_URL, PKIEntry } from "../../lib/constants";
+import { SMIME_INTERNAL_API_URL, PKIEntry, smimeErrorMsgRegex, CRYPTO_HEADERS } from "../../lib/constants";
+import DocLinkMixin from "../../mixins/DocLinkMixin";
+import { InvalidCertificateError, InvalidKeyError } from "../../lib/exceptions";
 
 export default {
     name: "ImportPkcs12Modal",
-    components: { BmButton, BmFileDropZone, BmForm, BmFormGroup, BmFormInput, BmModal, BmLabelIcon },
+    components: { BmButton, BmFileDropZone, BmForm, BmFormGroup, BmFormInput, BmModal, BmLabelIcon, BmReadMore },
+    mixins: [DocLinkMixin],
     data() {
         return {
             show: false,
@@ -94,8 +103,9 @@ export default {
                 ...MimeType.PKCS_12_SUFFIXES.map(suffix => "." + suffix)
             ].join(","),
             allowedFileTypes: [MimeType.PKCS_12, MimeType.X_PKCS_12],
-            importError: "",
-            invalidFile: false,
+            importErrorMsg: "",
+            readMoreLink: "",
+            unsupportedFile: false,
             file: undefined,
 
             password: "",
@@ -107,8 +117,9 @@ export default {
         ...mapMutations("mail", { SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT }),
         open() {
             this.file = undefined;
-            this.invalidFile = false;
-            this.importError = "";
+            this.unsupportedFile = false;
+            this.importErrorMsg = "";
+            this.readMoreLink = "";
             this.isPasswordValid = true;
             this.password = "";
             this.showPassword = false;
@@ -119,8 +130,8 @@ export default {
         },
         dropFile(files) {
             const file = files[0];
-            this.invalidFile = file && !this.allowedFileTypes.includes(file.type);
-            if (file && !this.invalidFile) {
+            this.unsupportedFile = file && !this.allowedFileTypes.includes(file.type);
+            if (file && !this.unsupportedFile) {
                 this.file = file;
             }
         },
@@ -131,24 +142,19 @@ export default {
 
             const pemCert = this.extractCert(p12);
             const pemPrivateKey = this.extractPrivateKey(p12);
-            if (pemCert && pemPrivateKey) {
-                await this.upload(pemCert, pemPrivateKey);
-                this.$emit("ok");
-                this.show = false;
-            }
+            await this.upload(pemCert, pemPrivateKey);
         },
         decryptPkcs12(p12Asn1) {
             let p12;
             try {
                 p12 = pkcs12.pkcs12FromAsn1(p12Asn1, this.password); // decrypt p12
             } catch (error) {
-                console.error(error);
                 if (error.message.includes("Invalid password")) {
                     this.isPasswordValid = false;
                 } else {
-                    this.importError = error.message;
+                    this.importErrorMsg = error.message;
                 }
-                return;
+                throw error;
             }
             this.isPasswordValid = true;
             return p12;
@@ -156,33 +162,73 @@ export default {
         extractCert(p12) {
             const certBags = p12.getBags({ bagType: pki.oids.certBag });
             if (certBags[pki.oids.certBag].length === 0) {
-                this.importError = this.$t("smime.preferences.import_field.modal.no_cert_found");
-                return;
+                this.importErrorMsg = this.$t("smime.preferences.import_field.modal.no_cert_found");
+                throw "no cert found in PKCS12";
             }
             const cert = certBags[pki.oids.certBag][0].cert;
-            return pki.certificateToPem(cert);
+            try {
+                return pki.certificateToPem(cert);
+            } catch {
+                const error = new InvalidCertificateError();
+                this.importErrorMsg = error.message;
+                this.readMoreLink = this.linkFromCode(error.code);
+                throw error;
+            }
         },
         extractPrivateKey(p12) {
             const keyBags = p12.getBags({ bagType: pki.oids.pkcs8ShroudedKeyBag });
             if (keyBags[pki.oids.pkcs8ShroudedKeyBag].length === 0) {
-                this.importError = this.$t("smime.preferences.import_field.modal.no_private_key_found");
-                return;
+                this.importErrorMsg = this.$t("smime.preferences.import_field.modal.no_private_key_found");
+                throw "no key found in PKCS12";
             }
             const privateKey = keyBags[pki.oids.pkcs8ShroudedKeyBag][0].key;
-            return pki.privateKeyToPem(privateKey);
+            try {
+                return pki.privateKeyToPem(privateKey);
+            } catch {
+                const error = new InvalidKeyError();
+                this.importErrorMsg = error.message;
+                this.readMoreLink = this.linkFromCode(error.code);
+                throw error;
+            }
         },
         async upload(pemCert, pemPrivateKey) {
-            let url = `${SMIME_INTERNAL_API_URL}/${PKIEntry.CERTIFICATE}`;
-            const options = {
+            await this.uploadCert(pemCert);
+            await this.uploadPrivateKey(pemPrivateKey);
+            this.$emit("ok");
+            this.show = false;
+        },
+        async uploadCert(pemCert) {
+            const email = inject("UserSession").defaultEmail;
+            const url = `${SMIME_INTERNAL_API_URL}/${PKIEntry.CERTIFICATE}?email=${email}`;
+            const response = await fetch(url, {
                 method: "PUT",
                 headers: { "Content-Type": MimeType.PEM_FILE },
                 body: pemCert
-            };
-            await fetch(url, options);
+            });
+            if (!response.ok) {
+                const errorMsg = await response.text();
+                if (smimeErrorMsgRegex.test(errorMsg)) {
+                    const matches = errorMsg.match(smimeErrorMsgRegex);
+                    const code = parseInt(matches[2]);
+                    this.importErrorMsg =
+                        code & CRYPTO_HEADERS.UNTRUSTED_CERTIFICATE_EMAIL_NOT_FOUND
+                            ? this.$t("smime.preferences.import_field.modal.email_not_found", { email })
+                            : errorMsg.replace(matches[0], "");
+                    this.readMoreLink = this.linkFromCode(code);
+                } else {
+                    this.importErrorMsg = errorMsg;
+                }
+                throw "uploading cert failed";
+            }
             this.SET_HAS_PUBLIC_CERT(true);
-
-            url = `${SMIME_INTERNAL_API_URL}/${PKIEntry.PRIVATE_KEY}`;
-            options.body = pemPrivateKey;
+        },
+        async uploadPrivateKey(pemPrivateKey) {
+            const url = `${SMIME_INTERNAL_API_URL}/${PKIEntry.PRIVATE_KEY}`;
+            const options = {
+                method: "PUT",
+                headers: { "Content-Type": MimeType.PEM_FILE },
+                body: pemPrivateKey
+            };
             await fetch(url, options);
             this.SET_HAS_PRIVATE_KEY(true);
         },

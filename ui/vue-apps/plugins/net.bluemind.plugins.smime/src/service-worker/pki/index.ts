@@ -5,17 +5,15 @@ import { ItemContainerValue, ItemValue } from "@bluemind/core.container.api";
 import { SmimeCacert, SmimeCACertClient } from "@bluemind/smime.cacerts.api";
 import { checkBasicConstraints, checkExtendedKeyUsage, checkRecipientEmail, checkRevoked } from "./cert";
 import { PKIStatus } from "../../lib/constants";
-import { logger } from "../environnment/logger";
 import session from "../environnment/session";
 import {
     CertificateRecipientNotFoundError,
-    InvalidCertificateRecipientError,
+    InvalidCertificateError,
     InvalidKeyError,
     KeyNotFoundError,
     MyCertificateNotFoundError,
-    MyInvalidCertificateError,
     UntrustedCertificateError
-} from "../exceptions";
+} from "../../lib/exceptions";
 import db from "./SMimePkiDB";
 
 export async function getCertificate(email: string): Promise<pki.Certificate> {
@@ -41,17 +39,17 @@ export async function getCertificate(email: string): Promise<pki.Certificate> {
     try {
         return pki.certificateFromPem(pem);
     } catch (error) {
-        throw new InvalidCertificateRecipientError(error);
+        throw new InvalidCertificateError(error);
     }
 }
 
 export async function checkCertificate(certificate: pki.Certificate, date = new Date(), recipientEmail?: string) {
-    const caCerts = await getCaCerts();
-    if (caCerts.length === 0) {
-        throw "could not find any trusted CA certificates";
-    }
-    const caStore = pki.createCaStore(caCerts.map(item => item.value.cert));
     try {
+        const caCerts = await getCaCerts();
+        if (caCerts.length === 0) {
+            throw "could not find any trusted CA certificates";
+        }
+        const caStore = pki.createCaStore(caCerts.map(item => item.value.cert));
         pki.verifyCertificateChain(caStore, [certificate], { validityCheckDate: date });
         checkBasicConstraints(certificate);
         checkExtendedKeyUsage(certificate);
@@ -59,15 +57,13 @@ export async function checkCertificate(certificate: pki.Certificate, date = new 
             checkRecipientEmail(certificate, recipientEmail);
         }
         await checkRevoked(certificate.serialNumber);
-    } catch (err: unknown) {
-        logger.error(err);
-        let errorMsg;
-        if (typeof err === "string") {
-            errorMsg = err;
-        } else if ((<pki.ForgePkiCertificateError>err).error?.startsWith("forge.pki.")) {
-            errorMsg = (<pki.ForgePkiCertificateError>err).error;
+    } catch (error: unknown) {
+        if (typeof error === "string") {
+            throw new UntrustedCertificateError(error);
+        } else if ((<pki.ForgePkiCertificateError>error).error?.startsWith("forge.pki.")) {
+            throw new UntrustedCertificateError((<pki.ForgePkiCertificateError>error).error);
         }
-        throw new UntrustedCertificateError(errorMsg);
+        throw error;
     }
 }
 
@@ -145,7 +141,7 @@ export async function getMyCertificate() {
                 const cert = await (<Blob>await db.getCertificate()).text();
                 cache.CERTIFICATE = pki.certificateFromPem(cert);
             } catch (error) {
-                throw new MyInvalidCertificateError(error);
+                throw new InvalidCertificateError(error);
             }
         } else {
             throw new MyCertificateNotFoundError();

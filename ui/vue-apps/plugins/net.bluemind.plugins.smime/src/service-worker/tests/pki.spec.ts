@@ -3,12 +3,10 @@ import { VCardQuery } from "@bluemind/addressbook.api";
 import { PKIStatus } from "../../lib/constants";
 import {
     CertificateRecipientNotFoundError,
-    MyInvalidCertificateError,
-    // InvalidCertificateError,
-    InvalidCertificateRecipientError,
+    InvalidCertificateError,
     InvalidKeyError,
     UntrustedCertificateError
-} from "../exceptions";
+} from "../../lib/exceptions";
 import {
     checkCertificate,
     clearMyCryptoFiles,
@@ -160,7 +158,7 @@ describe("pki", () => {
             try {
                 await getMyCertificate();
             } catch (error) {
-                expect(error).toBeInstanceOf(MyInvalidCertificateError);
+                expect(error).toBeInstanceOf(InvalidCertificateError);
             }
         });
         test("raise an error if the certificate is not valid", async () => {
@@ -169,7 +167,7 @@ describe("pki", () => {
             try {
                 await getMyCertificate();
             } catch (error) {
-                expect(error).toBeInstanceOf(MyInvalidCertificateError);
+                expect(error).toBeInstanceOf(InvalidCertificateError);
             }
         });
         test("raise an error if the pkiStatus is not OK", async () => {
@@ -233,7 +231,7 @@ describe("pki", () => {
                 await getCertificate("invalid@mail.com");
                 done.fail();
             } catch (error) {
-                expect(error).toBeInstanceOf(InvalidCertificateRecipientError);
+                expect(error).toBeInstanceOf(InvalidCertificateError);
                 done();
             }
         });

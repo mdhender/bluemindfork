@@ -4,14 +4,14 @@ import { SMIME_AVAILABLE } from "./getterTypes";
 import { DISPLAY_UNTRUSTED, SET_SW_ERROR, SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT } from "./mutationTypes";
 import {
     IS_SW_AVAILABLE,
-    SMIME_INTERNAL_API_URL,
     PKIStatus,
+    smimeErrorMsgRegex,
     SMIME_ENCRYPTION_ERROR_PREFIX,
+    SMIME_INTERNAL_API_URL,
     SMIME_SIGNATURE_ERROR_PREFIX
 } from "../lib/constants";
 
 const { MailTipTypes } = mailTipUtils;
-const smimeRegex = new RegExp(`\\[(${SMIME_ENCRYPTION_ERROR_PREFIX}|${SMIME_SIGNATURE_ERROR_PREFIX}):(.*)\\]`);
 
 export default {
     namespaced: false,
@@ -83,8 +83,8 @@ export default {
             state.encryptError = null;
             state.signError = null;
 
-            if (error && error.message && smimeRegex.test(error.message)) {
-                const [errorType, errorCode] = error.message.match(smimeRegex).splice(1);
+            if (error && error.message && smimeErrorMsgRegex.test(error.message)) {
+                const [errorType, errorCode] = error.message.match(smimeErrorMsgRegex).splice(1);
                 const code = parseInt(errorCode) ? parseInt(errorCode) : null;
                 if (errorType === SMIME_ENCRYPTION_ERROR_PREFIX) {
                     state.encryptError = code;

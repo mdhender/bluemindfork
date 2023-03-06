@@ -11,7 +11,7 @@ import {
     InvalidSignatureError,
     SmimeErrors,
     UnmatchedCertificateError
-} from "../exceptions";
+} from "../../lib/exceptions";
 import { readFile } from "./helpers";
 import { checkSignatureValidity, checkMessageIntegrity } from "../pkcs7/verify";
 import pkcs7 from "../pkcs7/";

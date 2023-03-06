@@ -1,8 +1,9 @@
+import { pki } from "node-forge";
 import { registerRoute } from "workbox-routing";
 import { extensions } from "@bluemind/extensions";
-import { clearMyCryptoFiles, getMyStatus, setMyCertificate, setMyPrivateKey } from "./pki";
+import { checkCertificate, clearMyCryptoFiles, getMyStatus, setMyCertificate, setMyPrivateKey } from "./pki";
 import SMimeApiProxy from "./SMimeApiProxy";
-import { PKIEntry, SMIME_INTERNAL_API_URL } from "../lib/constants";
+import { PKIEntry, SMIME_INTERNAL_API_URL, SMIME_UNTRUSTED_CERTIFICATE_ERROR_PREFIX } from "../lib/constants";
 
 extensions.register("serviceworker.handlers", "smime-plugin", {
     "api-handler": { class: SMimeApiProxy, priority: 256 }
@@ -11,7 +12,10 @@ extensions.register("serviceworker.handlers", "smime-plugin", {
 registerRoute(SMIME_INTERNAL_API_URL, hasCryptoFilesHandler, "GET");
 registerRoute(SMIME_INTERNAL_API_URL, deleteCryptoFilesHandler, "DELETE");
 registerRoute(`${SMIME_INTERNAL_API_URL}/${PKIEntry.PRIVATE_KEY}`, setPrivateKey, "PUT");
-registerRoute(`${SMIME_INTERNAL_API_URL}/${PKIEntry.CERTIFICATE}`, setCertificate, "PUT");
+const setCertificateMatcher = ({ url }) => {
+    return url.pathname === `${SMIME_INTERNAL_API_URL}/${PKIEntry.CERTIFICATE}`;
+};
+registerRoute(setCertificateMatcher, setCertificate, "PUT");
 
 async function hasCryptoFilesHandler() {
     return new Response(await getMyStatus());
@@ -29,7 +33,15 @@ async function setPrivateKey({ request }) {
 }
 
 async function setCertificate({ request }) {
+    const expectedEmail = new URL(request.url).searchParams.get("email");
     const blob = await request.blob();
+    const cert = await blob.text();
+    try {
+        await checkCertificate(pki.certificateFromPem(cert), new Date(), expectedEmail);
+    } catch (error) {
+        const errorMessage = `[${SMIME_UNTRUSTED_CERTIFICATE_ERROR_PREFIX}:${error.code}]` + error.message;
+        return new Response(errorMessage, { status: 500 });
+    }
     await setMyCertificate(blob);
     return new Response();
 }

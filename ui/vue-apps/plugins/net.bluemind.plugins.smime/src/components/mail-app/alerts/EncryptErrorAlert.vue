@@ -52,7 +52,7 @@ export default {
                 : this.$t("smime.mailapp.alert.recipients.some_invalid");
         },
         doc() {
-            return this.missingCertificates ? this.missingCertificateLink : this.getEncryptErrorLink(this.encryptError);
+            return this.missingCertificates ? this.missingCertificateLink : this.linkFromCode(this.encryptError);
         }
     }
 };

@@ -1,4 +1,4 @@
-import { CRYPTO_HEADERS } from "../lib/constants";
+import { CRYPTO_HEADERS } from "./constants";
 
 export abstract class SmimeErrors extends Error {
     code: number;
@@ -19,11 +19,7 @@ export class InvalidKeyError extends SmimeErrors {
         super("Invalid private key", CRYPTO_HEADERS.INVALID_KEY, error);
     }
 }
-export class MyInvalidCertificateError extends SmimeErrors {
-    constructor(error?: unknown) {
-        super("My certificate is invalid", CRYPTO_HEADERS.MY_INVALID_CERTIFICATE, error);
-    }
-}
+
 export class KeyNotFoundError extends SmimeErrors {
     constructor(error?: unknown) {
         super("Private key not found", CRYPTO_HEADERS.KEY_NOT_FOUND, error);
@@ -61,9 +57,19 @@ export class UnsupportedAlgorithmError extends SmimeErrors {
 
 export class UntrustedCertificateError extends SmimeErrors {
     constructor(error?: unknown) {
-        super("Untrusted certificate", CRYPTO_HEADERS.UNTRUSTED_CERTIFICATE, error);
+        super("Untrusted certificate: ", CRYPTO_HEADERS.UNTRUSTED_CERTIFICATE, error);
     }
 }
+
+export class UntrustedCertificateEmailNotFoundError extends SmimeErrors {
+    constructor(expectedEmail: string) {
+        super(
+            `Untrusted certificate: expected email "${expectedEmail}" not found in certificate`,
+            CRYPTO_HEADERS.UNTRUSTED_CERTIFICATE_EMAIL_NOT_FOUND
+        );
+    }
+}
+
 export class UnmatchedCertificateError extends SmimeErrors {
     constructor(error?: unknown) {
         super("The certificate does not match any of the recipients", CRYPTO_HEADERS.UNMATCHED_CERTIFICATE, error);
@@ -86,9 +92,9 @@ export class CertificateRecipientNotFoundError extends SmimeErrors {
     }
 }
 
-export class InvalidCertificateRecipientError extends SmimeErrors {
+export class InvalidCertificateError extends SmimeErrors {
     constructor(error?: unknown) {
-        super("Invalid certificate", CRYPTO_HEADERS.INVALID_CERTIFICATE_RECIPIENT, error);
+        super("Invalid x509 certificate", CRYPTO_HEADERS.INVALID_CERTIFICATE, error);
     }
 }
 export class SignError extends SmimeErrors {

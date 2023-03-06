@@ -24,24 +24,28 @@
         </template>
         <import-pkcs12-modal ref="import-modal" @ok="needReload" />
     </div>
-    <div v-else>{{ $t("smime.preferences.service_worker.undefined") }}</div>
+    <div v-else>
+        {{ $t("smime.preferences.service_worker.undefined") }}
+        <bm-read-more :href="incompatibleBrowserLink" />
+    </div>
 </template>
 
 <script>
 import { mapGetters, mapState } from "vuex";
 import { BaseField } from "@bluemind/preferences";
-import { BmButton, BmLabelIcon } from "@bluemind/ui-components";
+import { BmButton, BmLabelIcon, BmReadMore } from "@bluemind/ui-components";
 import { DISSOCIATE_CRYPTO_FILES } from "../../store/actionTypes";
 import { SMIME_AVAILABLE } from "../../store/getterTypes";
 import { IS_SW_AVAILABLE } from "../../lib/constants";
 import ImportPkcs12Modal from "./ImportPkcs12Modal";
 import unsetKeyIllustration from "../../../assets/setting-encryption-key-unset.png";
 import setKeyIllustration from "../../../assets/setting-encryption-key-set.png";
+import DocLinkMixin from "../../mixins/DocLinkMixin";
 
 export default {
     name: "PrefSMime",
-    components: { BmButton, BmLabelIcon, ImportPkcs12Modal },
-    mixins: [BaseField],
+    components: { BmButton, BmLabelIcon, BmReadMore, ImportPkcs12Modal },
+    mixins: [BaseField, DocLinkMixin],
     data() {
         return { IS_SW_AVAILABLE, setKeyIllustration, unsetKeyIllustration };
     },

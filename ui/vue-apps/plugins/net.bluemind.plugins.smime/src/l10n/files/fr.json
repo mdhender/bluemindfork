@@ -12,15 +12,14 @@
                 },
                 "invalid_identity": "L’identité sélectionnée ne permet pas de signer ou chiffrer le message.",
                 "certificate": "Ce fichier contient un certificat pour {name}"
-
             },
             "body_wrapper": {
                 "cant_display": "Pourquoi je ne peux pas voir ce message ?"
             },
             "viewer": {
                 "import_certificate": {
-                    "action_short":  "Importer le certificat",
-                    "action": "Importer le certificat de {email} dans Mes contacts",
+                    "action_short": "Importer le certificat",
+                    "action": "Importer le certificat de {email} dans Mes contacts.",
                     "success": "Le certificat a bien été importé.",
                     "error": "Le certificat n'a pas pu être importé."
                 }
@@ -29,7 +28,7 @@
                 "encrypt": "Chiffrer le message",
                 "stop_encryption": "Désactiver le chiffrement",
                 "stop_encryption_and_signature": "Désactiver la signature et le chiffrement",
-                "invalid_recipient" : "Le message ne peut pas être chiffré pour ce destinataire",
+                "invalid_recipient": "Le message ne peut pas être chiffré pour ce destinataire",
                 "encrypt_and_sign": "Chiffrer et signer le message",
                 "stop_encrypt_and_sign": "Désactiver le chiffrement et la signature du message",
                 "sign": "Signer le message",
@@ -42,11 +41,12 @@
                 "cert_and_key_associated": "Votre clé privée et votre certificat public ont bien été associés.",
                 "cert_or_key_dissociated": "Vous n'avez pas de clé privée ou de certificat public associés.",
                 "modal": {
+                    "email_not_found": "Votre certificat doit identifier votre adresse email par défaut \"{email}\".",
                     "no_cert_found": "Aucun certificat n'a été trouvé.",
                     "no_private_key_found": "Aucune clé privée n'a été trouvée.",
                     "supported_formats": "Format supporté : PKCS#12",
                     "title": "Importer ma clé privée et mon certificat public",
-                    "unlock_pkcs12": "Saisissez le mot de passe pour déverrouiller le fichier PKCS#12",
+                    "unlock_pkcs12": "Saisissez le mot de passe pour déverrouiller le fichier PKCS#12 :",
                     "unsupported_file": "Ce format de fichier n'est pas supporté."
                 }
             },
