@@ -103,8 +103,7 @@ export function renderLinksComponent(vm, props) {
 
 export async function renderTooLargeFilesModal(vm, files, sizeLimit) {
     const content = vm.$createElement(BmTooLargeBox, {
-        props: { sizeLimit, attachmentsCount: files.length },
-        scopedSlots: { default: () => vm.$tc("filehosting.threshold.some_hit") }
+        props: { sizeLimit, attachmentsCount: files.length, i18nPath: "filehosting.threshold.some_hit" }
     });
 
     const props = {

@@ -5,10 +5,7 @@
         <div class="d-flex align-items-start">
             <bm-icon icon="exclamation-circle-fill" class="text-danger" size="lg" />
             <div class="ml-4">
-                <i18n path="common.threshold.hit" class="text-danger">
-                    <template v-slot:hit>
-                        <slot />
-                    </template>
+                <i18n :path="i18nPath" class="text-danger">
                     <template v-slot:size>
                         <strong class="font-weight-bold">{{ displayedSize }}</strong>
                     </template>
@@ -37,6 +34,10 @@ export default {
         sizeLimit: {
             type: Number,
             required: true
+        },
+        i18nPath: {
+            type: String,
+            default: "mail.actions.attach.max_size"
         }
     },
     computed: {

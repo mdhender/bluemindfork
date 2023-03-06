@@ -45,8 +45,7 @@ export default {
 
 async function renderTooLargeFilesModal(vm, files, sizeLimit) {
     const content = vm.$createElement(BmTooLargeBox, {
-        props: { sizeLimit, attachmentsCount: files.length },
-        scopedSlots: { default: () => vm.$t("mail.actions.attach.max_size") }
+        props: { sizeLimit, attachmentsCount: files.length }
     });
 
     const props = {
