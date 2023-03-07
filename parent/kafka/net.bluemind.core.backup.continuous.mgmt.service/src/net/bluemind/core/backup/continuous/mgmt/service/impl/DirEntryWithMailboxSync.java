@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.event.Level;
@@ -39,6 +40,7 @@ import net.bluemind.core.backup.continuous.api.IBackupStore;
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.backup.continuous.dto.ContainerMetadata;
 import net.bluemind.core.backup.continuous.events.MailFilterContinuousHook;
+import net.bluemind.core.backup.continuous.events.RolesContinuousHook.OrgUnitRoleContinuousBackup;
 import net.bluemind.core.backup.continuous.mgmt.api.BackupSyncOptions;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.IContainerManagement;
@@ -51,11 +53,14 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IOrgUnits;
+import net.bluemind.directory.api.OrgUnitPath;
 import net.bluemind.directory.api.ReservedIds;
 import net.bluemind.directory.service.DirEntryAndValue;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.service.common.DefaultFolder;
+import net.bluemind.role.hook.AdminRoleEvent;
 
 public class DirEntryWithMailboxSync<T> {
 
@@ -95,6 +100,8 @@ public class DirEntryWithMailboxSync<T> {
 
 			processFilters(target, fixed, mboxUser);
 
+			administeredOrgUnits(ivDir, target);
+
 			entrySync(target, fixed);
 		}
 
@@ -111,6 +118,19 @@ public class DirEntryWithMailboxSync<T> {
 		entryMon.end(true, "processed", "OK");
 
 		return entryAndValue;
+	}
+
+	private void administeredOrgUnits(ItemValue<DirEntry> ivDir, IBackupStoreFactory target) {
+		// do I admin an OU
+		OrgUnitRoleContinuousBackup ouAdminBackup = new OrgUnitRoleContinuousBackup(target);
+		IOrgUnits ouApi = ctx.provider().instance(IOrgUnits.class, domainApis.domain.uid);
+		List<OrgUnitPath> administeredOUs = ouApi.listByAdministrator(ivDir.uid, Collections.emptyList());
+		for (OrgUnitPath oup : administeredOUs) {
+			Set<String> roles = ouApi.getAdministratorRoles(oup.uid, ivDir.uid, Collections.emptyList());
+			AdminRoleEvent are = new AdminRoleEvent(domainApis.domain.uid, oup.uid, ivDir.uid, ivDir.value.kind,
+					roles);
+			ouAdminBackup.onAdminRolesSet(are);
+		}
 	}
 
 	private void processFilters(IBackupStoreFactory target, ItemValue<DirEntryAndValue<T>> fixed,

@@ -21,7 +21,7 @@ public class RolesContinuousHook implements IRoleHook {
 
 	public static class DirEntryRoleContinuousBackup implements ContinuousContenairization<DirEntryRole> {
 
-		private IBackupStoreFactory target;
+		private final IBackupStoreFactory target;
 
 		public DirEntryRoleContinuousBackup(IBackupStoreFactory target) {
 			this.target = target;
@@ -48,10 +48,34 @@ public class RolesContinuousHook implements IRoleHook {
 	}
 
 	public static class OrgUnitRoleContinuousBackup implements ContinuousContenairization<OrgUnitAdminRole> {
+		private final IBackupStoreFactory target;
+
+		public OrgUnitRoleContinuousBackup() {
+			this(DefaultBackupStore.store());
+		}
+
+		public OrgUnitRoleContinuousBackup(IBackupStoreFactory store) {
+			this.target = store;
+		}
+
+		@Override
+		public IBackupStoreFactory targetStore() {
+			return target;
+		}
+
 		@Override
 		public String type() {
 			return "ou-roles";
 		}
+
+		public void onAdminRolesSet(AdminRoleEvent event) throws ServerFault {
+			ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+			IOrgUnits orgUnitApi = prov.instance(IOrgUnits.class, event.domainUid);
+			ItemValue<OrgUnit> orgUnitItem = orgUnitApi.getComplete(event.uid);
+			OrgUnitAdminRole role = new OrgUnitAdminRole(event.kind, event.roles, event.dirUid, orgUnitItem.value);
+			save(event.domainUid, event.dirUid, orgUnitItem.item(), role);
+		}
+
 	}
 
 	@Override
@@ -61,11 +85,7 @@ public class RolesContinuousHook implements IRoleHook {
 
 	@Override
 	public void onAdministratorRolesSet(AdminRoleEvent event) throws ServerFault {
-		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-		IOrgUnits orgUnitApi = prov.instance(IOrgUnits.class, event.domainUid);
-		ItemValue<OrgUnit> orgUnitItem = orgUnitApi.getComplete(event.uid);
-		OrgUnitAdminRole role = new OrgUnitAdminRole(event.kind, event.roles, event.dirUid, orgUnitItem.value);
-		orgUnitRoleBackup.save(event.domainUid, event.dirUid, orgUnitItem.item(), role);
+		orgUnitRoleBackup.onAdminRolesSet(event);
 	}
 
 }

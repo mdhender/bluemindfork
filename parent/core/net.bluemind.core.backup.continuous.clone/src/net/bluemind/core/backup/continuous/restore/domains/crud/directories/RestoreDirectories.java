@@ -76,7 +76,6 @@ public class RestoreDirectories implements RestoreDomainType {
 
 	private final RestoreLogger log;
 	private final IServiceProvider target;
-	private final RestoreState state;
 
 	private final ISeppukuAckListener byeAck;
 
@@ -96,7 +95,6 @@ public class RestoreDirectories implements RestoreDomainType {
 		this.log = log;
 		this.target = target;
 		this.byeAck = byeAck;
-		this.state = state;
 		this.domainDirEntryRestore = new DomainDirEntryRestore(log, domain);
 		this.domainCalendarRestore = new DomainCalendarCrudRestore(log, domain, state);
 		this.domainAddressBookRestore = new DomainAddressBookCrudRestore(log, domain, state);
@@ -138,6 +136,10 @@ public class RestoreDirectories implements RestoreDomainType {
 	}
 
 	private void processEntry(RestoreLogger log, RecordKey key, String payload) {
+		if ("DELETE".equals(key.operation)) {
+			processDeletion(key);
+			return;
+		}
 
 		JsonObject parsed = new JsonObject(payload);
 		Kind kind;
@@ -179,6 +181,11 @@ public class RestoreDirectories implements RestoreDomainType {
 		default:
 			log.skip(type(), kind.name(), key, payload);
 		}
+	}
+
+	private void processDeletion(RecordKey key) {
+		// TODO delete the thing
+		log.skip(key.type, key, "DELETION");
 	}
 
 	private class DomainDirEntryRestore implements RestoreDomainType {
