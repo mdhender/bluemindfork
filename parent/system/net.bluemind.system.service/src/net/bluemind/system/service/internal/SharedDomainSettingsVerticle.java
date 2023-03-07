@@ -19,7 +19,6 @@ package net.bluemind.system.service.internal;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +40,6 @@ import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Shared;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
-import net.bluemind.openid.api.OpenIdProperties;
 
 public class SharedDomainSettingsVerticle extends AbstractVerticle {
 
@@ -62,33 +60,21 @@ public class SharedDomainSettingsVerticle extends AbstractVerticle {
 		@Override
 		public void onUpdated(BmContext context, ItemValue<Domain> previousValue, ItemValue<Domain> domain)
 				throws ServerFault {
-			String oldHost = Optional
-					.ofNullable(previousValue.value.properties.get(OpenIdProperties.OPENID_HOST.name())).orElse("");
-			String newHost = Optional.ofNullable(domain.value.properties.get(OpenIdProperties.OPENID_HOST.name()))
-					.orElse("");
-
-			String oldClient = Optional
-					.ofNullable(previousValue.value.properties.get(OpenIdProperties.OPENID_CLIENT_ID.name()))
-					.orElse("");
-			String newClient = Optional
-					.ofNullable(domain.value.properties.get(OpenIdProperties.OPENID_CLIENT_ID.name())).orElse("");
-
-			String oldSecret = Optional
-					.ofNullable(previousValue.value.properties.get(OpenIdProperties.OPENID_CLIENT_SECRET.name()))
-					.orElse("");
-			String newSecret = Optional
-					.ofNullable(domain.value.properties.get(OpenIdProperties.OPENID_CLIENT_SECRET.name())).orElse("");
-
-			String oldRealm = Optional
-					.ofNullable(previousValue.value.properties.get(OpenIdProperties.OPENID_REALM.name())).orElse("");
-			String newRealm = Optional.ofNullable(domain.value.properties.get(OpenIdProperties.OPENID_REALM.name()))
-					.orElse("");
-
-			if (!oldHost.equals(newHost) || !oldClient.equals(newClient) || !oldSecret.equals(newSecret)
-					|| !oldRealm.equals(newRealm)) {
-				SharedDomainSettingsVerticle.putDomainSettingsAndProperties(domain);
+			if ("global.virt".equals(domain.uid)) {
+				return;
 			}
+			SharedDomainSettingsVerticle.putDomainSettingsAndProperties(domain);
 		}
+
+		@Override
+		public void onSettingsUpdated(BmContext context, ItemValue<Domain> domain, Map<String, String> previousSettings,
+				Map<String, String> currentSettings) throws ServerFault {
+			if ("global.virt".equals(domain.uid)) {
+				return;
+			}
+			SharedDomainSettingsVerticle.putDomainSettingsAndProperties(domain);
+		}
+
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(SharedDomainSettingsVerticle.class);
