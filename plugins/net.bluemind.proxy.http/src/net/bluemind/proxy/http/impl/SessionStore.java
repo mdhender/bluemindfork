@@ -70,9 +70,9 @@ public class SessionStore implements ISessionStore {
 	private Optional<List<IAuthEnforcer>> authEnforcers = Optional.empty();
 
 	private final CacheBackingStore<String> cookieSids = new CacheBackingStore<>(Caffeine.newBuilder(),
-			"/var/cache/bm-hps/cookies", this::cookieToJson, this::cookieFromJson, Optional.empty());
+			"/var/cache/bm-hps/cookies", this::cookieToJson, this::cookieFromJson);
 	private final CacheBackingStore<SidData> sidSidData = new CacheBackingStore<>(Caffeine.newBuilder(),
-			"/var/cache/bm-hps/sids", this::sidDataToJson, this::sidDataFromJson, Optional.empty());
+			"/var/cache/bm-hps/sids", this::sidDataToJson, this::sidDataFromJson);
 
 	private static final Logger logger = LoggerFactory.getLogger(SessionStore.class);
 

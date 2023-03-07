@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Tests
 Bundle-SymbolicName: net.bluemind.directory.service.tests;singleton:=true
 Bundle-Version: 5.0.0.qualifier
-Fragment-Host: net.bluemind.directory.service
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
@@ -19,5 +18,6 @@ Require-Bundle: org.junit,
  net.bluemind.addressbook.service;bundle-version="4.1.0",
  net.bluemind.todolist.service;bundle-version="4.1.0",
  net.bluemind.notes.service;bundle-version="4.1.0",
- net.bluemind.externaluser.service;bundle-version="4.1.0"
+ net.bluemind.externaluser.service;bundle-version="4.1.0",
+ net.bluemind.core.annotationvalidator;bundle-version="5.0.0"
 Automatic-Module-Name: net.bluemind.directory.service.tests

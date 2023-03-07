@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,13 +39,13 @@ public class CacheBackingStore<V> {
 	private final Cache<String, V> cache;
 
 	public CacheBackingStore(Caffeine<Object, Object> cache, String storePath, Function<V, JsonObject> toJson,
-			Function<JsonObject, V> fromJson, Optional<Predicate<V>> ignore) {
+			Function<JsonObject, V> fromJson) {
 		Objects.requireNonNull(toJson);
 		Objects.requireNonNull(fromJson);
 
 		if (init(storePath)) {
 			logger.debug("Cache persistence is enabled");
-			writerLoader = Optional.of(new CacheEntryWriterLoader<V>(storePath, toJson, fromJson, ignore));
+			writerLoader = Optional.of(new CacheEntryWriterLoader<V>(storePath, toJson, fromJson));
 		} else {
 			writerLoader = Optional.empty();
 		}

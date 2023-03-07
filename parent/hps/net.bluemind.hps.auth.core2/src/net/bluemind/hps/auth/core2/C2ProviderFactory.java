@@ -18,7 +18,6 @@
  */
 package net.bluemind.hps.auth.core2;
 
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -113,7 +112,7 @@ public class C2ProviderFactory implements IAuthProviderFactory {
 
 	private static CacheBackingStore<SessionData> sessions() {
 		CacheBackingStore<SessionData> cachePersistence = new CacheBackingStore<>(Caffeine.newBuilder().recordStats(),
-				"/var/cache/bm-hps/core2", SessionData::toJson, SessionData::fromJson, Optional.empty());
+				"/var/cache/bm-hps/core2", SessionData::toJson, SessionData::fromJson);
 
 		Registry reg = MetricsRegistry.get();
 		IdFactory idf = new IdFactory("activeSessions", reg, C2ProviderFactory.class);

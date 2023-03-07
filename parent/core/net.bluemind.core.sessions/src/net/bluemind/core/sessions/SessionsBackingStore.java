@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -56,7 +55,7 @@ public class SessionsBackingStore {
 				});
 
 		return new CacheBackingStore<>(cache, "/var/cache/bm-core/sessions", sessionBackingStore::toJson,
-				sessionBackingStore::fromJson, Optional.of(sessionBackingStore::ignore));
+				sessionBackingStore::fromJson);
 	}
 
 	private JsonObject toJson(SecurityContext sc) {
@@ -100,12 +99,6 @@ public class SessionsBackingStore {
 
 	private List<String> jsonArrayToList(JsonArray json) {
 		return json == null ? null : json.stream().map(e -> String.class.cast(e)).collect(Collectors.toList());
-	}
-
-	private boolean ignore(SecurityContext sc) {
-		// Don't cache bmhiddensysadmin sudo token as lots of them are not logged out -
-		// no need to keep this sessions alive on restart
-		return sc.getSubject().equals("bmhiddensysadmin") && sc.getOrigin().equals("sudo");
 	}
 
 	private void notifySessionRemovalListeners(String sessionId, SecurityContext securityContext) {

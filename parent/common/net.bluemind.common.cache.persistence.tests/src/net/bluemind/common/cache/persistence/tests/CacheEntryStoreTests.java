@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.After;
@@ -62,13 +61,13 @@ public class CacheEntryStoreTests {
 	@Test
 	public void persistenceDisabled() {
 		try {
-			new CacheBackingStore<String>(Caffeine.newBuilder(), storePath, null, null, null);
+			new CacheBackingStore<String>(Caffeine.newBuilder(), storePath, null, null);
 			fail("Test must thrown an exception");
 		} catch (NullPointerException npe) {
 		}
 
 		try {
-			new CacheBackingStore<String>(Caffeine.newBuilder(), storePath, this::toJson, null, null);
+			new CacheBackingStore<String>(Caffeine.newBuilder(), storePath, this::toJson, null);
 			fail("Test must thrown an exception");
 		} catch (NullPointerException npe) {
 		}
@@ -76,7 +75,7 @@ public class CacheEntryStoreTests {
 
 	@Test
 	public void persistenceEnabled() throws IOException {
-		CacheBackingStore<String> sp = getTestCacheBuilder(true);
+		CacheBackingStore<String> sp = getTestCacheBuilder();
 		sp.getIfPresent("key1");
 		assertTrue(new File(storePath).exists());
 
@@ -85,7 +84,7 @@ public class CacheEntryStoreTests {
 
 		assertFalse(new File(storePath).exists());
 
-		sp = getTestCacheBuilder(false);
+		sp = getTestCacheBuilder();
 		sp.getIfPresent("key1");
 		assertTrue(new File(storePath).exists());
 	}
@@ -118,16 +117,7 @@ public class CacheEntryStoreTests {
 		return json.getString("v");
 	}
 
-	private Boolean ignore(String value) {
-		return "toIgnore".equals(value);
-	}
-
 	private CacheBackingStore<String> getTestCacheBuilder() {
-		return getTestCacheBuilder(true);
-	}
-
-	private CacheBackingStore<String> getTestCacheBuilder(boolean ignore) {
-		return new CacheBackingStore<String>(Caffeine.newBuilder(), storePath, this::toJson, this::fromJson,
-				ignore ? Optional.of(this::ignore) : Optional.empty());
+		return new CacheBackingStore<String>(Caffeine.newBuilder(), storePath, this::toJson, this::fromJson);
 	}
 }

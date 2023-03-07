@@ -26,7 +26,6 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,21 +44,15 @@ public class CacheEntryWriterLoader<V> implements CacheWriter<String, V> {
 	private final String storePath;
 	private final Function<V, JsonObject> toJson;
 	private final Function<JsonObject, V> fromJson;
-	private final Optional<Predicate<V>> ignore;
 
-	public CacheEntryWriterLoader(String storePath, Function<V, JsonObject> toJson, Function<JsonObject, V> fromJson,
-			Optional<Predicate<V>> ignore) {
+	public CacheEntryWriterLoader(String storePath, Function<V, JsonObject> toJson, Function<JsonObject, V> fromJson) {
 		this.storePath = storePath;
 		this.toJson = toJson;
 		this.fromJson = fromJson;
-		this.ignore = ignore;
 	}
 
 	@Override
 	public void write(String key, V value) {
-		if (ignore.map(f -> f.test(value)).orElse(Boolean.FALSE)) {
-			return;
-		}
 
 		JsonObject jsonObject = null;
 

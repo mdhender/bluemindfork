@@ -120,18 +120,16 @@ public class DirectoryTests {
 		for (DirEntry entry : entries) {
 			System.err.println(entry.path);
 		}
-		// should find domain path and addressbook path , bmhiddensysadmin and
+		// should find domain path and addressbook path and
 		// two group
-		assertEquals(5, entries.size());
+		assertEquals(4, entries.size());
 		assertEquals(domainUid, entries.get(0).path);
 		assertEquals(domainUid + "/addressbooks/addressbook_" + domainUid, entries.get(1).path);
-		assertEquals(domainUid + "/users/bmhiddensysadmin", entries.get(2).path);
 
 		entries = dir.getEntries(domainUid);
 		// self (domainUid path) is not in result
-		assertEquals(4, entries.size());
+		assertEquals(3, entries.size());
 		assertEquals(domainUid + "/addressbooks/addressbook_" + domainUid, entries.get(0).path);
-		assertEquals(domainUid + "/users/bmhiddensysadmin", entries.get(1).path);
 	}
 
 	@Test
@@ -141,7 +139,8 @@ public class DirectoryTests {
 		List<DirEntry> entries = dir.getEntries(domainUid);
 		int dirEntrySize = entries.size();
 
-		ContainerStore cs = new ContainerStore(null, JdbcActivator.getInstance().getDataSource(), SecurityContext.SYSTEM);
+		ContainerStore cs = new ContainerStore(null, JdbcActivator.getInstance().getDataSource(),
+				SecurityContext.SYSTEM);
 
 		assertNotNull(cs.get("addressbook_" + domainUid));
 
@@ -152,7 +151,6 @@ public class DirectoryTests {
 
 		entries = dir.getEntries(domainUid);
 		assertEquals(dirEntrySize - 1, entries.size());
-		assertEquals(domainUid + "/users/bmhiddensysadmin", entries.get(0).path);
 	}
 
 	@Test

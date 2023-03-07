@@ -23,13 +23,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.Set;
-import java.util.UUID;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 import net.bluemind.addressbook.api.VCard;
-import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
@@ -43,7 +41,6 @@ import net.bluemind.directory.service.IDirEntryRepairSupport;
 import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.domain.api.IDomainUids;
 import net.bluemind.mailbox.api.Mailbox;
-import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.system.api.ICacheMgmt;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
@@ -68,7 +65,6 @@ public class SystemUserRepair implements IDirEntryRepairSupport {
 
 	private static class SystemUserMaintenance extends InternalMaintenanceOperation {
 
-		private static final String bmhiddensysadmin = "bmhiddensysadmin";
 		private static final String admin0 = "admin0_global.virt";
 
 		private final BmContext context;
@@ -80,8 +76,6 @@ public class SystemUserRepair implements IDirEntryRepairSupport {
 
 		@Override
 		public void check(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
-			checkSystemUser(domainUid, bmhiddensysadmin, () -> {
-			}, monitor);
 
 			if (domainUid.equals("global.virt")) {
 				checkSystemUser(domainUid, admin0, () -> {
@@ -96,7 +90,6 @@ public class SystemUserRepair implements IDirEntryRepairSupport {
 
 		@Override
 		public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
-			checkSystemUser(domainUid, bmhiddensysadmin, () -> createBmHiddenSysadmin(domainUid), monitor);
 
 			if (domainUid.equals("global.virt")) {
 				checkAdmin0(domainUid, monitor);
@@ -156,19 +149,6 @@ public class SystemUserRepair implements IDirEntryRepairSupport {
 			if (!exists) {
 				op.run();
 			}
-		}
-
-		private void createBmHiddenSysadmin(String domainUid) {
-			User user = new User();
-			user.login = bmhiddensysadmin;
-			user.password = UUID.randomUUID().toString();
-			user.routing = Routing.none;
-			user.hidden = true;
-			user.system = true;
-			VCard card = new VCard();
-			card.identification.name = Name.create("System", null, null, null, null, null);
-			user.contactInfos = card;
-			context.su().provider().instance(IUser.class, domainUid).create(bmhiddensysadmin, user);
 		}
 
 		private void createAdmin0() {
