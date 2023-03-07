@@ -128,10 +128,10 @@ public class DbMessageBodiesService implements IInternalDbMessageBodies {
 		MessageBodyObjectStore objectStore = bodyObjectStore.get();
 		try {
 			objectStore.store(uid, deliveryDate, tmpFile);
+			parseAndIndex(uid, deliveryDate, eml);
 			eventBus.publish(SdsSyncEvent.BODYADD.busName(),
 					new Body(ByteBufUtil.decodeHexDump(uid), objectStore.dataLocation()).toJson(),
 					new DeliveryOptions().setLocalOnly(true));
-			parseAndIndex(uid, deliveryDate, eml);
 		} finally {
 			tmpFile.delete(); // NOSONAR
 		}
@@ -158,8 +158,8 @@ public class DbMessageBodiesService implements IInternalDbMessageBodies {
 		IndexedMessageBody indexData = IndexedMessageBody.createIndexBody(bodyData.body.guid, bodyData);
 		IndexableMessageBodyCache.bodies.put(indexData.uid, indexData);
 		IndexableMessageBodyCache.sourceHolder.put(indexData.uid, indexData);
-		update(bodyData.body);
 		RecordIndexActivator.getIndexer().ifPresent(service -> service.storeBody(indexData));
+		update(bodyData.body);
 	}
 
 	@Override

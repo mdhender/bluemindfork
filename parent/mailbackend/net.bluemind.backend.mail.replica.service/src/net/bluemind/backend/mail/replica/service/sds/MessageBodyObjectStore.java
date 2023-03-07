@@ -167,9 +167,7 @@ public class MessageBodyObjectStore {
 	}
 
 	public void delete(List<String> guids) {
-		guids.stream().forEach(guid -> {
-			objectStore.delete(DeleteRequest.of(guid));
-		});
+		guids.stream().forEach(guid -> objectStore.delete(DeleteRequest.of(guid)));
 	}
 
 	public void store(String uid, Date deliveryDate, File tmpFile) {
