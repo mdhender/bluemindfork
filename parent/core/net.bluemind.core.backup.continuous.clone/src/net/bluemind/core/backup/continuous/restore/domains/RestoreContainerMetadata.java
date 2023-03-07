@@ -61,7 +61,11 @@ public class RestoreContainerMetadata implements RestoreDomainType {
 		IInternalContainerManagement mgmtApi = target.instance(IInternalContainerManagement.class,
 				metadata.contDesc.uid);
 		log.set(type(), key);
-		mgmtApi.setAccessControlList(metadata.acls, false);
-		mgmtApi.setSettings(metadata.settings);
+		if (metadata.acls != null) {
+			mgmtApi.setAccessControlList(metadata.acls, false);
+		}
+		if (metadata.settings != null) {
+			mgmtApi.setSettings(metadata.settings);
+		}
 	}
 }
