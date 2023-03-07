@@ -535,5 +535,9 @@
         }
     },
     "mail.save.date": "am {date} gespeichert",
-    "mail.save.date.time": "um {time} gespeichert"
+    "mail.save.date.time": "um {time} gespeichert",
+    "template.eml.mdn.html.notice": "Hinweis: Diese Lesebestätigung zeigt nur an, dass die Nachricht auf dem Computer des Empfängers angezeigt wurde. Es gibt keine Garantie, dass der Empfänger den Inhalt der Nachricht gelesen hat.",
+    "template.eml.mdn.html.quoted": "{to}{subject}{date}",
+    "template.eml.mdn.html": "Dies ist eine Lesebestätigung für Ihre Nachricht{quoted}{notice}",
+    "template.eml.mdn.subject": "Lesebestätigung \"{subject}\""
 }

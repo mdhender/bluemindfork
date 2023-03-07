@@ -533,6 +533,10 @@
             "purge": "Maj + Suppr"
         }
     },
+    "mail.save.date.time": "enregistré à {time}",
     "mail.save.date": "enregistré le {date}",
-    "mail.save.date.time": "enregistré à {time}"
+    "template.eml.mdn.html.notice": "Note : Cette confirmation de lecture indique seulement que le message a été affiché sur l'ordinateur du destinataire. Il n'y a aucune garantie que le destinataire ait lu le contenu du message.",
+    "template.eml.mdn.html.quoted": "{to}{subject}{date}",
+    "template.eml.mdn.html": "Ceci est une confirmation de lecture pour votre message{quoted}{notice}",
+    "template.eml.mdn.subject": "Confirmation de lecture \"{subject}\""
 }

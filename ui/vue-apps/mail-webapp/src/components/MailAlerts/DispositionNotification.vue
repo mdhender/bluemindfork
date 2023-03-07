@@ -36,7 +36,9 @@ import { AlertMixin, ERROR, REMOVE, SUCCESS } from "@bluemind/alert.store";
 import { Flag } from "@bluemind/email";
 import { BmButton, BmIconButton } from "@bluemind/ui-components";
 import { ADD_FLAG } from "~/actions";
-import sendMDN from "../../utils/sendMDN";
+import sendTemplate from "~/utils/eml-templates/sendTemplate";
+import MDNTemplate from "~/utils/eml-templates/templates/MDNTemplate";
+import { messageUtils } from "@bluemind/mail";
 
 export default {
     name: "DispositionNotification",
@@ -57,12 +59,27 @@ export default {
                 payload: { recipient: this.payload.to.dn || this.payload.to.address }
             };
             try {
-                await sendMDN(
-                    this.payload.from,
-                    this.payload.to,
-                    this.payload.message,
-                    this.payload.outbox.remoteRef.uid
-                );
+                await sendTemplate({
+                    template: MDNTemplate,
+                    parameters: {
+                        subject: this.payload.message.subject,
+                        date: this.payload.message.date.toLocaleString(),
+                        from: this.payload.from.dn
+                            ? this.payload.from.dn + " <" + this.payload.from.address + ">"
+                            : this.payload.from.address,
+                        to: this.payload.to.dn
+                            ? this.payload.to.dn + " <" + this.payload.to.address + ">"
+                            : this.payload.to.address,
+                        toAddress: this.payload.to.address,
+                        messageId: this.payload.message.messageId
+                    },
+                    from: this.payload.from,
+                    to: this.payload.to,
+                    outboxUid: this.payload.outbox.remoteRef.uid,
+                    additionalHeaders: [
+                        { name: messageUtils.MessageHeader.REFERENCES, values: [this.payload.message.messageId] }
+                    ]
+                });
                 await this.ignore();
                 this.$store.dispatch(`alert/${SUCCESS}`, { alert });
             } catch (e) {
