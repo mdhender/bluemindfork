@@ -82,7 +82,7 @@ public class CalendarAutocompleteService implements ICalendarAutocomplete {
 		List<ItemValue<VCard>> members = getGroupMembers(groupUid);
 		// Get all users default calendars.
 		IContainers containers = context.provider().instance(IContainers.class);
-        List<String> calendarUids = members.stream().flatMap(
+		List<String> calendarUids = members.stream().flatMap(
 				m -> Stream.of(ICalendarUids.defaultUserCalendar(m.uid), IFreebusyUids.getFreebusyContainerUid(m.uid)))
 				.collect(Collectors.toList());
 		List<ContainerDescriptor> calendars = containers.getContainers(calendarUids);
@@ -211,11 +211,15 @@ public class CalendarAutocompleteService implements ICalendarAutocomplete {
 	}
 
 	private boolean canAccessDefaultCalendar(DirEntry entry, Verb verb) {
+		boolean access = false;
 		if (Verb.Freebusy.can(verb) && haveFreebusy(entry)) {
-			return canAccessContainer(IFreebusyUids.getFreebusyContainerUid(entry.entryUid), Verb.Read);
+			access = canAccessContainer(IFreebusyUids.getFreebusyContainerUid(entry.entryUid), Verb.Read);
 		}
-		String calendarUid = getDirEntryCalendarUid(entry);
-		return canAccessContainer(calendarUid, verb);
+		if (!access) {
+			String calendarUid = getDirEntryCalendarUid(entry);
+			access = canAccessContainer(calendarUid, verb);
+		}
+		return access;
 	}
 
 	private boolean canAccessContainer(String uid, Verb verb) {

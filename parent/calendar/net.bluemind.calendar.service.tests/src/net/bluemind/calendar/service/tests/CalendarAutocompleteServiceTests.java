@@ -352,6 +352,25 @@ public class CalendarAutocompleteServiceTests {
 	}
 
 	@Test
+	public void readOnlyCalendarLookup() throws Exception {
+		String uid = UUID.randomUUID().toString();
+		createTestUser(uid, "David", "Phan", null);
+		ContainerStore cs = new ContainerStore(new BmTestContext(adminSecurityContext),
+				DataSourceRouter.get(new BmTestContext(adminSecurityContext), ICalendarUids.defaultUserCalendar(uid)),
+				adminSecurityContext);
+		Container cal = cs.get(ICalendarUids.defaultUserCalendar(uid));
+		AclStore aclStore = new AclStore(new BmTestContext(SecurityContext.SYSTEM),
+				DataSourceRouter.get(new BmTestContext(SecurityContext.SYSTEM), cal.uid));
+		aclStore.store(cal, Arrays.asList(AccessControlEntry.create(defaultSecurityContext.getSubject(), Verb.Read)));
+		ICalendarAutocomplete service = getService(defaultSecurityContext);
+
+		List<CalendarLookupResponse> res = service.calendarLookup("david", Verb.Read);
+		assertEquals(1, res.size());
+		res = service.calendarLookup("david", Verb.Freebusy);
+		assertEquals(1, res.size());
+	}
+
+	@Test
 	public void calendarGroupLookup() throws Exception {
 		ICalendarAutocomplete service = getService(defaultSecurityContext);
 		List<CalendarLookupResponse> res = service.calendarLookup("david", Verb.Read);
