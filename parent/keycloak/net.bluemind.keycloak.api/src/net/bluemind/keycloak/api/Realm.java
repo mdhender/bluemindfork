@@ -17,6 +17,8 @@
   */
 package net.bluemind.keycloak.api;
 
+import java.util.List;
+
 import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
@@ -26,5 +28,8 @@ public class Realm {
 	public String realm;
 	public boolean enabled;
 	public boolean loginWithEmailAllowed;
+	public boolean internationalizationEnabled;
+	public String defaultLocale;
+	public List<String> supportedLocales;
 
 }

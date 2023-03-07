@@ -18,6 +18,7 @@
 package net.bluemind.keycloak.internal;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -25,12 +26,16 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
 import net.bluemind.keycloak.api.Realm;
 import net.bluemind.role.api.BasicRoles;
@@ -42,9 +47,11 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 	private static final String REALMS_ADMIN_URL = BASE_URL + "/admin/realms";
 
 	private RBACManager rbacManager;
+	private BmContext context;
 
 	public KeycloakAdminService(BmContext context) {
 		rbacManager = new RBACManager(context);
+		this.context = context;
 	}
 
 	@Override
@@ -58,6 +65,12 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 		realm.put("realm", domainId);
 		realm.put("enabled", true);
 		realm.put("loginWithEmailAllowed", true);
+		realm.put("loginTheme", "bluemind"); // provide by bm-keycloak
+		realm.put("internationalizationEnabled", true);
+		IDomainSettings domainSettingsService = context.provider().instance(IDomainSettings.class, domainId);
+		String lang = domainSettingsService.get().get(DomainSettingsKeys.lang.name());
+		realm.put("defaultLocale", Strings.isNullOrEmpty(lang) ? "en" : lang);
+		realm.put("supportedLocales", new JsonArray(Arrays.asList("en", "fr", "de")));
 
 		CompletableFuture<JsonObject> response = execute(REALMS_ADMIN_URL, HttpMethod.POST, realm);
 
@@ -130,6 +143,14 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 		realm.realm = ret.getString("realm");
 		realm.enabled = ret.getBoolean("enabled");
 		realm.loginWithEmailAllowed = ret.getBoolean("loginWithEmailAllowed");
+		realm.internationalizationEnabled = ret.getBoolean("internationalizationEnabled");
+		realm.defaultLocale = ret.getString("defaultLocale");
+		JsonArray locales = ret.getJsonArray("supportedLocales");
+		List<String> supportedLocales = new ArrayList<>(locales.size());
+		for (int i = 0; i < locales.size(); i++) {
+			supportedLocales.add(locales.getString(i));
+		}
+		realm.supportedLocales = supportedLocales;
 		return realm;
 	}
 
