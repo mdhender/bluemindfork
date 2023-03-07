@@ -167,7 +167,7 @@ public class AuthenticationFilter implements IWebFilter {
 		String location = domainProperties.get(OpenIdProperties.OPENID_AUTHORISATION_ENDPOINT.name());
 		location += "?client_id=" + domainProperties.get(OpenIdProperties.OPENID_CLIENT_ID.name());
 
-		location += "&redirect_uri=" + request.scheme() + "://" + request.host() + "/auth/verify";
+		location += "&redirect_uri=" + request.scheme() + "://" + request.host() + "/auth/openid";
 		location += "&code_challenge=" + codeChallenge;
 		location += "&state=" + state;
 		location += "&code_challenge_method=S256";

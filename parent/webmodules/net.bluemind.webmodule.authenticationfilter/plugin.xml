@@ -12,8 +12,8 @@
       <web-module
             root="/auth">
          <handler
-               class="net.bluemind.webmodule.authenticationfilter.CodeVerifierHandler"
-               path="verify">
+               class="net.bluemind.webmodule.authenticationfilter.OpenIdHandler"
+               path="openid">
          </handler>
          <handler
                class="net.bluemind.webmodule.authenticationfilter.FormHandler"

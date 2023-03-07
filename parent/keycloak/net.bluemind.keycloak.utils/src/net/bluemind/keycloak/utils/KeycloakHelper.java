@@ -53,6 +53,10 @@ public class KeycloakHelper {
 
 	private static final Logger logger = LoggerFactory.getLogger(KeycloakHelper.class);
 
+	private KeycloakHelper() {
+
+	}
+
 	public static void initForDomain(ItemValue<Domain> domain) {
 		logger.info("Init Keycloak realm for domain {}", domain.uid);
 

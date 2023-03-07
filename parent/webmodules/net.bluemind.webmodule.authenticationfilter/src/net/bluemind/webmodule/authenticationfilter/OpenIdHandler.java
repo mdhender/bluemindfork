@@ -48,9 +48,9 @@ import net.bluemind.hornetq.client.Shared;
 import net.bluemind.openid.api.OpenIdProperties;
 import net.bluemind.webmodule.authenticationfilter.internal.ExternalCreds;
 
-public class CodeVerifierHandler extends AbstractAuthHandler implements Handler<HttpServerRequest> {
+public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpServerRequest> {
 
-	private static final Logger logger = LoggerFactory.getLogger(CodeVerifierHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(OpenIdHandler.class);
 	private static final Decoder b64UrlDecoder = Base64.getUrlDecoder();
 
 	@Override
@@ -103,7 +103,7 @@ public class CodeVerifierHandler extends AbstractAuthHandler implements Handler<
 						params += "&client_secret=" + domainSettings.get(OpenIdProperties.OPENID_CLIENT_SECRET.name());
 						params += "&code=" + code;
 						params += "&code_verifier=" + codeVerifier;
-						params += "&redirect_uri=" + event.scheme() + "://" + event.host() + "/auth/verify";
+						params += "&redirect_uri=" + event.scheme() + "://" + event.host() + "/auth/openid";
 						params += "&scope=openid";
 						byte[] postData = params.getBytes(StandardCharsets.UTF_8);
 						headers.add(HttpHeaders.CONTENT_LENGTH, Integer.toString(postData.length));
