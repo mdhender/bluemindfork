@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <forwards>
-	<forward path="/templates" auth="false" />
+	<forward path="/auth" auth="false" />
 </forwards>

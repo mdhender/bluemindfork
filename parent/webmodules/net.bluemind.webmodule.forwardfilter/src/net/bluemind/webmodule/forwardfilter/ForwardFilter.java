@@ -63,7 +63,11 @@ public class ForwardFilter implements IWebFilter, NeedVertx {
 				.filter(fl -> request.path().startsWith(fl.getPathPrefix())).findFirst();
 
 		if (forwardedLocation.isPresent()) {
-			Optional<ResolvedLoc> resolved = forwardedLocation.get().resolve();
+			ForwardedLocation fl = forwardedLocation.get();
+			if (fl.isWhitelisted(request.uri())) {
+				return CompletableFuture.completedFuture(request);
+			}
+			Optional<ResolvedLoc> resolved = fl.resolve();
 			if (resolved.isPresent()) {
 				return proxify(request, resolved.get());
 			}
@@ -74,6 +78,7 @@ public class ForwardFilter implements IWebFilter, NeedVertx {
 
 	private CompletableFuture<HttpServerRequest> proxify(HttpServerRequest req, ResolvedLoc resolved) {
 		final HttpServerResponse resp = req.response();
+		// Don't read the request now, wait for the upstream request
 		req.pause();
 
 		if (logger.isDebugEnabled()) {
@@ -87,16 +92,7 @@ public class ForwardFilter implements IWebFilter, NeedVertx {
 		reqOpts.setMethod(req.method());
 
 		httpClient(vertx).request(reqOpts).onSuccess(upstreamReq -> proxyRequestHandler(req, resp, upstreamReq))
-				.onFailure(event -> {
-					if (resp.ended()) {
-						logger.warn("{} Skipping response ({})", req.uri(), event.getMessage());
-						return;
-					}
-					logger.error("{} {} error: {}", req.method(), req.uri(), event.getMessage(), event);
-					String message = Strings.isNullOrEmpty(event.getMessage()) ? "Internal Server Error"
-							: event.getMessage();
-					resp.setStatusCode(500).setStatusMessage(message).end();
-				});
+				.onFailure(exception -> proxyRequestHandlerFailure(req, resp, exception));
 
 		return CompletableFuture.completedFuture(null);
 	}
@@ -114,6 +110,12 @@ public class ForwardFilter implements IWebFilter, NeedVertx {
 			MultiMap upstreamHeaders = upstreamResp.headers();
 			addAndSecureUpstreamHeaders(clientResp, upstreamHeaders);
 			clientResp.setStatusCode(upstreamResp.statusCode());
+
+			if (upstreamResp.statusCode() >= 400) {
+				logger.error("Failed to proxify {} to {}: HTTP {}", req.absoluteURI(), upstreamReq.absoluteURI(),
+						upstreamResp.statusCode());
+			}
+
 			upstreamResp.handler((Buffer data) -> {
 				writtenToClient.addAndGet(data.length());
 				clientResp.write(data);
@@ -153,7 +155,22 @@ public class ForwardFilter implements IWebFilter, NeedVertx {
 		req.resume();
 	}
 
-	protected void addAndSecureUpstreamHeaders(HttpServerResponse clientResp, MultiMap upstreamHeaders) {
+	private void proxyRequestHandlerFailure(HttpServerRequest req, final HttpServerResponse resp, Throwable exception) {
+		if (resp.ended()) {
+			if (logger.isWarnEnabled()) {
+				logger.warn("{} Skipping response ({})", req.uri(), exception.getMessage());
+			}
+			return;
+		}
+		if (logger.isErrorEnabled()) {
+			logger.error("{} {} error: {}", req.method(), req.uri(), exception.getMessage(), exception);
+		}
+		String message = Strings.isNullOrEmpty(exception.getMessage()) ? "Internal Server Error"
+				: exception.getMessage();
+		resp.setStatusCode(500).setStatusMessage(message).end();
+	}
+
+	private void addAndSecureUpstreamHeaders(HttpServerResponse clientResp, MultiMap upstreamHeaders) {
 		upstreamHeaders.iterator().forEachRemaining(h -> {
 			if (!"Set-Cookie".equals(h.getKey())) {
 				clientResp.headers().add(h.getKey(), h.getValue());

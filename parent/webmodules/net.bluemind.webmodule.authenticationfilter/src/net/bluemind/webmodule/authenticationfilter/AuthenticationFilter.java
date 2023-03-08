@@ -89,6 +89,13 @@ public class AuthenticationFilter implements IWebFilter {
 		Optional<ForwardedLocation> forwardedLocation = conf.getForwardedLocations().stream()
 				.filter(fl -> request.path().startsWith(fl.getPathPrefix())).findFirst();
 
+		if (!needAuthentication(request, forwardedLocation)) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("[{}] No auth needed", request.path());
+			}
+			return CompletableFuture.completedFuture(request);
+		}
+
 		if (forwardedLocation.isPresent()) {
 			Optional<ResolvedLoc> resolved = forwardedLocation.get().resolve();
 			if (resolved.isPresent()) {
@@ -105,13 +112,6 @@ public class AuthenticationFilter implements IWebFilter {
 			}
 		}
 
-		if (!needAuthentication(request, forwardedLocation)) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("No auth needed for {}", request.path());
-			}
-			return CompletableFuture.completedFuture(request);
-		}
-
 		if (request.path().endsWith("/bluemind_sso_logout")) {
 			return logout(request);
 		}
@@ -124,6 +124,9 @@ public class AuthenticationFilter implements IWebFilter {
 
 		Optional<String> domainUid = getDomainUid(request);
 		if (domainUid.isEmpty()) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("[{}] Redirect to /login/native. headers {}", request.path(), request.headers());
+			}
 			request.response().headers().add(HttpHeaders.LOCATION, "/login/native");
 			request.response().setStatusCode(301);
 			request.response().end();
@@ -167,28 +170,19 @@ public class AuthenticationFilter implements IWebFilter {
 	}
 
 	private boolean needAuthentication(HttpServerRequest request, Optional<ForwardedLocation> forwardedLocation) {
-
-		if (request.path().startsWith("/login/") && !request.path().equals("/login/index.html")) {
-			return false;
-		}
-
-		if (request.path().equals("/auth/verify") || request.path().equals("/auth/form")) {
-			return false;
-		}
-
 		if (forwardedLocation.isPresent()) {
 			ForwardedLocation fl = forwardedLocation.get();
+			if (fl.isWhitelisted(request.uri())) {
+				return false;
+			}
 			if (!fl.needAuth()) {
 				return false;
 			}
-
-			return !fl.isWhitelisted(request.path());
 		}
-
 		return true;
 	}
 
-	public Optional<String> sessionId(HttpServerRequest request) {
+	private Optional<String> sessionId(HttpServerRequest request) {
 		String cookieStr = Optional.ofNullable(request.headers().get("cookie")).orElse("");
 		Set<Cookie> cookies = cookieDecoder.decode(cookieStr);
 		Optional<Cookie> oidc = cookies.stream().filter(c -> OPENID_COOKIE.equals(c.name())).findFirst();
