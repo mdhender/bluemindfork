@@ -34,8 +34,10 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.imap.vertx.ImapResponseStatus.Status;
 import net.bluemind.imap.vertx.VXStoreClient;
 import net.bluemind.imap.vertx.cmd.AppendResponse;
+import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxes;
+import net.bluemind.mailbox.api.MailboxQuota;
 
 public class OverquotaAppendTests extends WithMailboxTests {
 
@@ -52,17 +54,23 @@ public class OverquotaAppendTests extends WithMailboxTests {
 		return baseEml.toString();
 	}
 
+	private IMailboxes api;
+	private String uid;
+
 	@Before
 	public void before() throws Exception {
 		super.before();
-		IMailboxes api = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IMailboxes.class,
-				domain);
+		this.api = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IMailboxes.class, domain);
 		var mbx = api.byName(localPart);
+		this.uid = mbx.uid;
 		assertNotNull(mbx);
 		mbx.value.quota = 1;
 		api.update(mbx.uid, mbx.value);
 		mbx = api.byName(localPart);
 		assertEquals(1, (int) mbx.value.quota);
+		ESearchActivator.refreshIndex("mailspool_alias_" + mbx.uid);
+		MailboxQuota quota = api.getMailboxQuota(mbx.uid);
+		System.err.println("quota: " + quota);
 
 	}
 
@@ -72,6 +80,13 @@ public class OverquotaAppendTests extends WithMailboxTests {
 
 		sc.login().thenCompose(login -> {
 			assertEquals(Status.Ok, login.status);
+			FakeStream stream = new FakeStream(VertxPlatform.getVertx(), eml);
+			return sc.append("INBOX", new Date(), Arrays.asList("\\Seen"), eml.length, stream);
+		}).thenCompose(append -> {
+			assertEquals(Status.Ok, append.status);
+			ESearchActivator.refreshIndex("mailspool_alias_" + uid);
+			MailboxQuota quota = api.getMailboxQuota(uid);
+			System.err.println("quota after append: " + quota);
 			FakeStream stream = new FakeStream(VertxPlatform.getVertx(), eml);
 			return sc.append("INBOX", new Date(), Arrays.asList("\\Seen"), eml.length, stream);
 		}).thenCompose(append -> {
