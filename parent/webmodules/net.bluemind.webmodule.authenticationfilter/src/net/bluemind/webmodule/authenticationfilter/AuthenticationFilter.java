@@ -47,13 +47,17 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.core.api.BMVersion;
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomains;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
+import net.bluemind.keycloak.utils.AuthTypes;
+import net.bluemind.keycloak.utils.DomainAuthProperties;
 import net.bluemind.hornetq.client.Shared;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.openid.api.OpenIdProperties;
-import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionData;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionsCache;
 import net.bluemind.webmodule.server.IWebFilter;
@@ -87,7 +91,6 @@ public class AuthenticationFilter implements IWebFilter {
 
 	@Override
 	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request, WebserverConfiguration conf) {
-
 		Optional<ForwardedLocation> forwardedLocation = conf.getForwardedLocations().stream()
 				.filter(fl -> request.path().startsWith(fl.getPathPrefix())).findFirst();
 
@@ -135,8 +138,8 @@ public class AuthenticationFilter implements IWebFilter {
 			return CompletableFuture.completedFuture(null);
 		}
 
-		if (isCasEnabled()) {
-			redirectToCasServer(request);
+		if (isCasEnabled(domainUid.get())) {
+			redirectToCasServer(request, domainUid.get());
 		} else {
 			redirectToOpenIdServer(request, domainUid.get());
 		}
@@ -179,9 +182,9 @@ public class AuthenticationFilter implements IWebFilter {
 		request.response().end();
 	}
 
-	private void redirectToCasServer(HttpServerRequest request) {
-		SharedMap<String, String> sysconf = MQ.sharedMap(Shared.MAP_SYSCONF);
-		String casURL = sysconf.get(SysConfKeys.cas_url.name());
+	private void redirectToCasServer(HttpServerRequest request, String domainUid) {
+		String casURL = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class)
+				.get(domainUid).value.properties.get(DomainAuthProperties.cas_url.name());
 		String location = casURL + "login?service=";
 		location += request.scheme() + "://" + request.host() + "/auth/cas";
 		request.response().headers().add(HttpHeaders.LOCATION, location);
@@ -189,10 +192,10 @@ public class AuthenticationFilter implements IWebFilter {
 		request.response().end();
 	}
 
-	private boolean isCasEnabled() {
-		SharedMap<String, String> sysconf = MQ.sharedMap(Shared.MAP_SYSCONF);
-		String authType = sysconf.get(SysConfKeys.auth_type.name());
-		return "cas".equalsIgnoreCase(authType);
+	private boolean isCasEnabled(String domainUid) {
+		String auth_type = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class)
+				.get(domainUid).value.properties.get(DomainAuthProperties.auth_type.name());
+		return AuthTypes.CAS.name().equals(auth_type);
 	}
 
 	private boolean needAuthentication(HttpServerRequest request, Optional<ForwardedLocation> forwardedLocation) {

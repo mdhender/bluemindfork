@@ -122,7 +122,7 @@ public abstract class ComponentService extends KeycloakAdminClient {
 				cmpId = cmp.getString("id");
 			}
 		} catch (Throwable t) {
-			logger.error("Failed to get component (to delete it) : " + t.getClass().getName() + " : " + t.getMessage(), t);
+			throw new ServerFault("Failed to get component " + componentName + " (to delete it)", t);
 		}
 		if (cmpId == null) {
 			throw new ServerFault("Failed to get component " + componentName + " (to delete it)");

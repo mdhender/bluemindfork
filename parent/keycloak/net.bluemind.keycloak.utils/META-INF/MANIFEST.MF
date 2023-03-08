@@ -13,7 +13,9 @@ Require-Bundle: net.bluemind.keycloak.api,
  net.bluemind.config,
  net.bluemind.network.topology,
  net.bluemind.hornetq.client,
- net.bluemind.system.api
+ net.bluemind.system.api,
+ net.bluemind.node.client,
+ net.bluemind.node.api
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.keycloak.utils
 Bundle-RequiredExecutionEnvironment: JavaSE-17

@@ -1,0 +1,165 @@
+/* BEGIN LICENSE
+  * Copyright © Blue Mind SAS, 2012-2023
+  *
+  * This file is part of BlueMind. BlueMind is a messaging and collaborative
+  * solution.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of either the GNU Affero General Public License as
+  * published by the Free Software Foundation (version 3 of the License).
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  *
+  * See LICENSE.txt
+  * END LICENSE
+  */
+package net.bluemind.keycloak.utils;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Base64;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.vertx.core.json.JsonObject;
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.IDomains;
+import net.bluemind.keycloak.api.IKeycloakKerberosAdmin;
+import net.bluemind.keycloak.api.KerberosComponent;
+import net.bluemind.keycloak.api.KerberosComponent.CachePolicy;
+import net.bluemind.network.topology.Topology;
+import net.bluemind.node.api.INodeClient;
+import net.bluemind.node.api.NCUtils;
+import net.bluemind.node.api.NodeActivator;
+import net.bluemind.server.api.TagDescriptor;
+
+public class KerberosConfigHelper {
+	private static final Logger logger = LoggerFactory.getLogger(KerberosConfigHelper.class);
+	private static final String lastConfLocation = "/etc/bm-keycloak/krbconf.json";
+	private static final String krb5ConfPath = "/etc/krb5.conf";
+	
+	public static void updateKeycloakKerberosConf(String domainUid) {
+		logger.info("Domain {} created/updated : updating kerberos conf (if needed)", domainUid);
+		
+		IDomains domainsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
+		ItemValue<Domain> domain = domainsService.get(domainUid);
+		if (domain.value.properties == null || domain.value.properties.get(DomainAuthProperties.auth_type.name()) == null) {
+			logger.warn("skipping kerberos conf update for domain " + domainUid + " (no domain properties)");
+			return;
+		}
+
+		IKeycloakKerberosAdmin kerberosService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IKeycloakKerberosAdmin.class, domainUid);
+		try {
+			kerberosService.deleteKerberosProvider(domainUid + "-kerberos");
+		} catch (Throwable t) {
+			logger.error("Error deleting Keycloak Kerberos provider : " + t.getClass().getName() + " : " + t.getMessage(), t);
+		}
+		
+		if (AuthTypes.KERBEROS.name().equals(domain.value.properties.get(DomainAuthProperties.auth_type.name()))) {
+			String krb_ad_domain = domain.value.properties.get(DomainAuthProperties.krb_ad_domain.name());
+			String krb_keytab = domain.value.properties.get(DomainAuthProperties.krb_keytab.name());
+			
+			String serverPrincipal = "HTTP/bluemind." + domain.uid + "@" + krb_ad_domain;
+			
+			String keytabPath = "/etc/bm-keycloak/" + domain.uid + ".keytab";
+			String kcServerAddr = Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address();
+			INodeClient nodeClient = NodeActivator.get(kcServerAddr);
+			nodeClient.writeFile(keytabPath, new ByteArrayInputStream(Base64.getDecoder().decode(krb_keytab)));
+
+			KerberosComponent kerb = new KerberosComponent();
+			kerb.setKerberosRealm(krb_ad_domain);
+			kerb.setServerPrincipal(serverPrincipal);
+			kerb.setKeyTab(keytabPath);
+			kerb.setEnabled(true);
+			kerb.setDebug(true);
+			kerb.setCachePolicy(CachePolicy.DEFAULT);
+			kerb.setName(domainUid + "-kerberos");
+			kerb.setParentId(domainUid);
+
+			kerberosService.create(kerb);
+		}
+		KerberosConfigHelper.updateKrb5Conf();
+	}
+	
+	public static void updateKrb5Conf() {
+		JsonObject currentConf = getConf();
+		JsonObject previousConf = null;
+		try {
+			previousConf = new JsonObject(Files.readString(Paths.get(lastConfLocation)));
+		} catch (IOException e) {
+		}
+		
+		if (!currentConf.equals(previousConf)) {
+			String kcServerAddr = Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address();
+			INodeClient nodeClient = NodeActivator.get(kcServerAddr);
+			
+			nodeClient.writeFile(krb5ConfPath, new ByteArrayInputStream(krb5Conf(currentConf).getBytes(Charset.forName("UTF-8"))));
+			nodeClient.writeFile(lastConfLocation, new ByteArrayInputStream(currentConf.encode().getBytes(Charset.forName("UTF-8"))));
+			
+			nodeClient.listFiles("/etc/bm-keycloak/", "keytab").forEach(file -> nodeClient.deleteFile(file.getPath()));			
+			currentConf.fieldNames().forEach(domainUid -> {
+				nodeClient.writeFile("/etc/bm-keycloak/" + domainUid + ".keytab", 
+						new ByteArrayInputStream(currentConf.getJsonObject(domainUid).getString(DomainAuthProperties.krb_keytab.name()).getBytes(Charset.forName("UTF-8"))));
+			});
+			
+			NCUtils.execNoOut(nodeClient, "systemctl restart bm-keycloak.service");
+			logger.info("Keycloak restarted on server {}", kcServerAddr);
+		} else {
+			logger.info("Kerberos config did not change. No need to update /etc/krb5.conf.");
+		}
+	}
+	
+	public static void removeKrb5Conf(String domainUid) {
+		String kcServerAddr = Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address();
+		INodeClient nodeClient = NodeActivator.get(kcServerAddr);
+		NCUtils.execNoOut(nodeClient, "rm -f /etc/bm-keycloak/" + domainUid + ".keytab");
+		
+		updateKrb5Conf();
+	}
+	
+	private static String krb5Conf(JsonObject jsonConf) {
+		StringBuffer buf = new StringBuffer();
+		
+		buf.append("# This file is generated by Bluemind (and may be overwritten anytime).\n");
+		buf.append("# Consider setting up your configuration in Bluemind, instead of editing this.\n");
+		buf.append("#\n");
+		buf.append("[libdefaults]\n");
+		buf.append("     allow_weak_crypto = true\n");
+		buf.append("\n");
+		buf.append("[realms]\n");
+	
+		jsonConf.fieldNames().forEach(domainUid -> {
+			JsonObject domConf = jsonConf.getJsonObject(domainUid);
+			buf.append("#    Bluemind domain: " + domainUid + "\n");
+			buf.append("     " + domConf.getString(DomainAuthProperties.krb_ad_domain.name()) + " = {\n");
+			buf.append("          kdc = " + domConf.getString(DomainAuthProperties.krb_ad_ip.name()) + "\n");
+			buf.append("     }\n\n");
+		});
+		
+		return buf.toString();
+	}
+	
+	private static JsonObject getConf() {
+		JsonObject conf = new JsonObject();
+		
+		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class).all().forEach(domain -> {
+			if ( AuthTypes.KERBEROS.name().equals(domain.value.properties.get(DomainAuthProperties.auth_type.name())) ) {
+				conf.put(domain.uid, new JsonObject()
+					.put(DomainAuthProperties.krb_ad_domain.name(), domain.value.properties.get(DomainAuthProperties.krb_ad_domain.name()))
+					.put(DomainAuthProperties.krb_ad_ip.name(), domain.value.properties.get(DomainAuthProperties.krb_ad_ip.name()))
+					.put(DomainAuthProperties.krb_keytab.name(), domain.value.properties.get(DomainAuthProperties.krb_keytab.name())) );
+			}
+		});
+		
+		return conf;
+	}
+}

@@ -17,8 +17,10 @@
   */
 package net.bluemind.keycloak.utils;
 
+import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -42,9 +44,14 @@ import net.bluemind.keycloak.api.BluemindProviderComponent;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
 import net.bluemind.keycloak.api.IKeycloakBluemindProviderAdmin;
 import net.bluemind.keycloak.api.IKeycloakClientAdmin;
+import net.bluemind.keycloak.api.IKeycloakKerberosAdmin;
 import net.bluemind.keycloak.api.IKeycloakUids;
+import net.bluemind.keycloak.api.KerberosComponent;
+import net.bluemind.keycloak.api.KerberosComponent.CachePolicy;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.node.api.INodeClient;
+import net.bluemind.node.api.NodeActivator;
 import net.bluemind.openid.api.OpenIdProperties;
 import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.SysConfKeys;
@@ -82,6 +89,66 @@ public class KeycloakHelper {
 		bpComponent.setBmCoreToken(Token.admin0());
 		keycloakBluemindProviderService.create(bpComponent);
 
+		String authType = AuthTypes.INTERNAL.name();
+		String krbAdDomain = null;
+		String krbAdIp = null;
+		String krbKeytab = null;
+		String casUrl = null;
+		if (domain.value.properties != null && domain.value.properties.get(DomainAuthProperties.auth_type.name()) != null) {
+			authType = domain.value.properties.get(DomainAuthProperties.auth_type.name());
+			if (AuthTypes.KERBEROS.name().equals(authType)) {
+				krbAdDomain = domain.value.properties.get(DomainAuthProperties.krb_ad_domain.name());
+				krbAdIp = domain.value.properties.get(DomainAuthProperties.krb_ad_ip.name());
+				krbKeytab = domain.value.properties.get(DomainAuthProperties.krb_keytab.name());
+			}
+			if (AuthTypes.CAS.name().equals(authType)) {
+				casUrl = domain.value.properties.get(DomainAuthProperties.cas_url.name());
+			}
+		} else {
+			if (realm.equals(smap.get(SysConfKeys.krb_domain.name()))) {
+				authType = smap.get(SysConfKeys.auth_type.name());
+				if (AuthTypes.KERBEROS.name().equals(authType)) {
+					krbAdDomain = smap.get(SysConfKeys.krb_ad_domain.name());
+					krbAdIp = smap.get(SysConfKeys.krb_ad_ip.name());
+					krbKeytab = smap.get(SysConfKeys.krb_keytab.name());
+				}
+				if (AuthTypes.CAS.name().equals(authType)) {
+					casUrl = smap.get(SysConfKeys.cas_url.name());
+				}
+			} else {
+				authType = AuthTypes.INTERNAL.name();
+			}
+		}
+		
+		String auth_type = authType;
+		String krb_ad_domain = krbAdDomain;
+		String krb_ad_ip = krbAdIp;
+		String krb_keytab = krbKeytab;
+		String cas_url = casUrl;
+		if ( AuthTypes.KERBEROS.name().equals(auth_type) ) {
+
+			// This is a naming convention. Must be documented so AD admin can generate the keytab accordingly !
+			String serverPrincipal = "HTTP/bluemind." + domain.uid + "@" + krb_ad_domain;
+
+			String keytabPath = "/etc/bm-keycloak/" + domain.uid + ".keytab";
+			String kcServerAddr = Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address();
+			INodeClient nodeClient = NodeActivator.get(kcServerAddr);
+			nodeClient.writeFile(keytabPath, new ByteArrayInputStream(Base64.getDecoder().decode(krb_keytab)));
+
+			KerberosComponent kerb = new KerberosComponent();
+			kerb.setKerberosRealm(krb_ad_domain);
+			kerb.setServerPrincipal(serverPrincipal);
+			kerb.setKeyTab(keytabPath);
+			kerb.setEnabled(true);
+			kerb.setDebug(true);
+			kerb.setCachePolicy(CachePolicy.DEFAULT);
+			kerb.setName(realm + "-kerberos");
+			kerb.setParentId(realm);
+
+			provider.instance(IKeycloakKerberosAdmin.class, realm).create(kerb);
+		}
+		KerberosConfigHelper.updateKrb5Conf();
+
 		IKeycloakClientAdmin keycloakRealmAdminService = provider.instance(IKeycloakClientAdmin.class, domain.uid);
 		keycloakRealmAdminService.create(clientId);
 		String secret = keycloakRealmAdminService.getSecret(clientId);
@@ -107,12 +174,7 @@ public class KeycloakHelper {
 					domain.value.properties.put(OpenIdProperties.OPENID_REALM.name(), realm);
 					domain.value.properties.put(OpenIdProperties.OPENID_CLIENT_ID.name(), clientId);
 					domain.value.properties.put(OpenIdProperties.OPENID_CLIENT_SECRET.name(), secret);
-
 					domain.value.properties.put(OpenIdProperties.OPENID_HOST.name(), opendIdHost);
-					domain.value.properties.put(OpenIdProperties.OPENID_REALM.name(), domain.uid);
-					domain.value.properties.put(OpenIdProperties.OPENID_CLIENT_ID.name(),
-							IKeycloakUids.clientId(domain.uid));
-					domain.value.properties.put(OpenIdProperties.OPENID_CLIENT_SECRET.name(), secret);
 					domain.value.properties.put(OpenIdProperties.OPENID_AUTHORISATION_ENDPOINT.name(),
 							conf.getString("authorization_endpoint"));
 					domain.value.properties.put(OpenIdProperties.OPENID_TOKEN_ENDPOINT.name(),
@@ -123,6 +185,16 @@ public class KeycloakHelper {
 					domain.value.properties.put(OpenIdProperties.OPENID_ISSUER.name(), accessTokenIssuer);
 					domain.value.properties.put(OpenIdProperties.OPENID_END_SESSION_ENDPOINT.name(),
 							conf.getString("end_session_endpoint"));
+
+					domain.value.properties.put(DomainAuthProperties.auth_type.name(), auth_type);
+					if (AuthTypes.KERBEROS.name().equals(auth_type)) {
+						domain.value.properties.put(DomainAuthProperties.krb_ad_domain.name(), krb_ad_domain);
+						domain.value.properties.put(DomainAuthProperties.krb_ad_ip.name(), krb_ad_ip);
+						domain.value.properties.put(DomainAuthProperties.krb_keytab.name(), krb_keytab);
+					}
+					if (AuthTypes.CAS.name().equals(auth_type)) {
+						domain.value.properties.put(DomainAuthProperties.cas_url.name(), cas_url);
+					}
 
 					provider.instance(IDomains.class).update(domain.uid, domain.value);
 

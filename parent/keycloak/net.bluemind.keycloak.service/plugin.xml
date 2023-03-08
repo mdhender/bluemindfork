@@ -50,5 +50,11 @@
             factory="net.bluemind.keycloak.internal.KeycloakRealmRepairSupport$Factory">
       </repairSupport>
    </extension>
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.keycloak.verticle.KeycloakKerberosVerticleFactory">
+      </verticle>
+   </extension>
 
 </plugin>
