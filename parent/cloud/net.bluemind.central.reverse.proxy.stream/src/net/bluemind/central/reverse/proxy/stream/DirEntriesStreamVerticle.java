@@ -60,6 +60,8 @@ public class DirEntriesStreamVerticle extends AbstractVerticle {
 	public void start(Promise<Void> p) {
 		this.adminClient = KafkaAdminClient.create(bootstrapServers);
 
+		// TODO filter topics from forest
+
 		logger.info("[stream] Starting");
 		adminClient.listTopics() //
 				.map(topicNames -> new InstallationTopics(topicNames, config.getString(NAME_SUFFIX))) //

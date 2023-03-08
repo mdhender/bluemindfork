@@ -10,7 +10,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.api,
  net.bluemind.domain.api,
  net.bluemind.network.topology,
- net.bluemind.core.rest.http
+ net.bluemind.core.rest.http,
+ net.bluemind.core.backup.continuous.mgmt.api,
+ net.bluemind.cli.utils
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.forest.instance.cli
 Bundle-ActivationPolicy: lazy

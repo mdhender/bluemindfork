@@ -34,30 +34,30 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.CharMatcher;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.task.service.IServerTaskMonitor;
 
 public class ZookeeperJoiner implements AutoCloseable {
 
 	private static final Logger logger = LoggerFactory.getLogger(ZookeeperJoiner.class);
 
 	private final String forestId;
+	private final String installationId;
 	private final CuratorFramework curator;
 
-	private static final CharMatcher FOREST_ID_RULE = CharMatcher.inRange('a', 'z').or(CharMatcher.anyOf(".-_"));
+	private String zkBoot;
 
-	public ZookeeperJoiner(String forestId) {
+	private static final CharMatcher FOREST_ID_RULE = CharMatcher.inRange('a', 'z').or(CharMatcher.inRange('0', '9'))
+			.or(CharMatcher.anyOf(".-_"));
+
+	public ZookeeperJoiner(String forestId, String installationId) {
 		if (!FOREST_ID_RULE.matchesAllOf(forestId)) {
 			throw new ServerFault("'" + forestId + "' is invalid, only a-z.-_ are allowed.");
 		}
 		this.forestId = forestId;
-		String zkBoot = zkBootstrap();
+		this.installationId = installationId;
+		this.zkBoot = zkBootstrap();
 		RetryPolicy rt = new BoundedExponentialBackoffRetry(100, 10000, 15);
 		this.curator = CuratorFrameworkFactory.newClient(zkBoot, rt);
-		try {
-			curator.blockUntilConnected(5, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			throw new ServerFault("Could not connect to zookeeper " + zkBoot + " in 5sec.");
-		}
 	}
 
 	@Override
@@ -65,11 +65,26 @@ public class ZookeeperJoiner implements AutoCloseable {
 		curator.close();
 	}
 
-	public void join(String installationId) {
+	public void join(IServerTaskMonitor monitor) {
+		try {
+			monitor.begin(2, "Join process starting");
+			curator.start();
+			curator.blockUntilConnected(30, TimeUnit.SECONDS);
+			monitor.progress(1, "ZooKeeper connection established.");
+			joinImpl(monitor);
+			monitor.end(true, forestId + " joined by " + installationId, "ok");
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			monitor.end(false, e.getMessage(), "failed");
+		}
+	}
+
+	private void joinImpl(IServerTaskMonitor monitor) {
 		try {
 			String shortInst = installationId.replaceAll("^bluemind-", "");
-			curator.createContainers("bluemind.net/" + forestId);
-			curator.create().creatingParentsIfNeeded().forPath("bluemind.net/" + forestId + "/" + shortInst);
+			String path = "/bluemind.net/v5/" + forestId + "/" + shortInst;
+			curator.create().creatingParentsIfNeeded().forPath(path);
+			monitor.log("{} created.", path);
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}

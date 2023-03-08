@@ -48,9 +48,10 @@ public interface IContinuousBackupMgmt {
 	 * ignored by CRP.
 	 * 
 	 * @param forestId
+	 * @return
 	 */
 	@Path("{forestId}/_join")
 	@POST
-	void join(@PathParam("forestId") String forestId);
+	TaskRef join(@PathParam("forestId") String forestId);
 
 }

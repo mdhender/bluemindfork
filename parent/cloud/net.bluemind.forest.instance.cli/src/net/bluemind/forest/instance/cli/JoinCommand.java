@@ -22,10 +22,14 @@ import java.util.Optional;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
+import net.bluemind.cli.utils.Tasks;
+import net.bluemind.config.InstallationId;
+import net.bluemind.core.backup.continuous.mgmt.api.IContinuousBackupMgmt;
+import net.bluemind.core.task.api.TaskRef;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "join", description = "Join bluemind instance to forest servers")
+@Command(name = "join", description = "Register bluemind installation as a forest member")
 public class JoinCommand implements ICmdLet, Runnable {
 
 	public static class Reg implements ICmdLetRegistration {
@@ -44,13 +48,16 @@ public class JoinCommand implements ICmdLet, Runnable {
 
 	private CliContext ctx;
 
-	@Parameters(description = "forest id (sub-directory in zookeeper)")
-	public String forest;
+	@Parameters(description = "forest id (sub-directory in zookeeper), default is ${DEFAULT-VALUE}", defaultValue = "default-forest")
+	public String forest = "default-forest";
 
 	@Override
 	public void run() {
-		ctx.info("Should join " + forest);
+		ctx.info("Joining installation '" + InstallationId.getIdentifier() + "' to '" + forest + "'...");
 
+		IContinuousBackupMgmt mgmtApi = ctx.adminApi().instance(IContinuousBackupMgmt.class);
+		TaskRef ref = mgmtApi.join(forest);
+		Tasks.followStream(ctx, "join-" + forest, ref).join();
 	}
 
 	@Override

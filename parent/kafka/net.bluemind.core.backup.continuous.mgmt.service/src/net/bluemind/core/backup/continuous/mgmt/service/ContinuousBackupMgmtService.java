@@ -99,10 +99,21 @@ public class ContinuousBackupMgmtService implements IContinuousBackupMgmt {
 	}
 
 	@Override
-	public void join(String forestId) {
-		try (ZookeeperJoiner joiner = new ZookeeperJoiner(forestId)) {
-			joiner.join(InstallationId.getIdentifier());
-		}
+	public TaskRef join(String forestId) {
+		logger.info("Trying to register {} as a member of forest {} in zookeeper", InstallationId.getIdentifier(),
+				forestId);
+
+		return context.provider().instance(ITasksManager.class).run(new BlockingServerTask() {
+
+			@Override
+			protected void run(IServerTaskMonitor monitor) throws Exception {
+				try (ZookeeperJoiner joiner = new ZookeeperJoiner(forestId, InstallationId.getIdentifier())) {
+					joiner.join(monitor);
+				}
+
+			}
+		});
+
 	}
 
 }
