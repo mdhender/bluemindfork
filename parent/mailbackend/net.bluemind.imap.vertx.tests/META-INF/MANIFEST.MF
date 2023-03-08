@@ -28,7 +28,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.delivery.conversationreference.service,
  net.bluemind.delivery.conversationreference.sqlschema,
  net.bluemind.mailindex,
- net.bluemind.mailindex.schema
+ net.bluemind.mailindex.schema,
+ net.bluemind.sds.store.cyrusspool;bundle-version="5.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: bluemind.net
 Automatic-Module-Name: net.bluemind.imap.vertx.tests

@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 
 import com.google.common.collect.Lists;
 
@@ -42,6 +43,20 @@ import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public abstract class WithMailboxTests {
+
+	@BeforeClass
+	public static void beforeClass() {
+		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + "," + PopulateHelper.FAKE_CYRUS_IP_2);
+		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + "," + PopulateHelper.FAKE_CYRUS_IP_2);
+		System.setProperty("ahcnode.fail.https.ok", "true");
+	}
+
+	@BeforeClass
+	public static void afterClass() {
+		System.clearProperty("node.local.ipaddr");
+		System.clearProperty("imap.local.ipaddr");
+		System.clearProperty("ahcnode.fail.https.ok");
+	}
 
 	protected String mailbox;
 	protected String domain;

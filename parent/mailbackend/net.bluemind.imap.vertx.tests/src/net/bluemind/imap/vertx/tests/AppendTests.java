@@ -122,7 +122,7 @@ public class AppendTests extends WithMailboxTests {
 			return sc.fetch(theUid.get(), "1", sink, Decoder.NONE);
 		}).thenCompose(fetched -> {
 			System.out.println("fetch finished, got " + sink.length() + " byte(s)");
-			assertTrue(sink.ended());
+			assertTrue("sink.ended", sink.ended());
 			ReadStream<Buffer> rs = sc.fetch(theUid.get(), "1", Decoder.NONE);
 			CompletableFuture<Long> ref = new CompletableFuture<>();
 			LongAdder sum = new LongAdder();
