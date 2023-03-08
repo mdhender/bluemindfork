@@ -19,16 +19,15 @@ package net.bluemind.imap.endpoint.exec;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.cmd.NoopCommand;
-import net.bluemind.lib.vertx.Result;
 
 public class NoopProcessor implements CommandProcessor<NoopCommand> {
 
 	@Override
 	public void operation(NoopCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
-		ctx.write(command.raw().tag() + " OK Completed\r\n");
-		completed.handle(Result.success());
+		ctx.write(Buffer.buffer(command.raw().tag() + " OK Completed\r\n"), completed);
 	}
 
 	@Override

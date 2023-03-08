@@ -29,10 +29,13 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.MessageProducer;
 import io.vertx.core.net.NetSocket;
 import net.bluemind.common.vertx.contextlogging.ContextualData;
@@ -63,13 +66,60 @@ public class ImapContext {
 
 	private String idlingTag;
 
+	public static class ContextProducer implements MessageProducer<Buffer> {
+
+		private Context ctx;
+		private NetSocket ns;
+
+		public ContextProducer(Vertx vx, NetSocket ns) {
+			this.ctx = vx.getOrCreateContext();
+			this.ns = ns;
+		}
+
+		@Override
+		public MessageProducer<Buffer> deliveryOptions(DeliveryOptions options) {
+			return this;
+		}
+
+		@Override
+		public String address() {
+			return "yeah";
+		}
+
+		@Override
+		public void write(Buffer body, Handler<AsyncResult<Void>> handler) {
+			ctx.runOnContext(v -> ns.write(body, handler));
+		}
+
+		@Override
+		public Future<Void> write(Buffer body) {
+			Promise<Void> prom = Promise.promise();
+			ctx.runOnContext(v -> {
+				Future<Void> future = ns.write(body);
+				future.onSuccess(prom::complete).onFailure(prom::fail);
+			});
+			return prom.future();
+		}
+
+		@Override
+		public Future<Void> close() {
+			return ns.close();
+		}
+
+		@Override
+		public void close(Handler<AsyncResult<Void>> handler) {
+			ns.close(handler);
+		}
+
+	}
+
 	public ImapContext(Vertx vertx, NetSocket ns, EventNexus nexus) {
 		this.vertx = vertx;
 		this.ns = ns;
 		this.nexus = nexus;
 		this.state = SessionState.NOT_AUTHENTICATED;
 		this.clientId = Collections.emptyMap();
-		this.sender = vertx.eventBus().sender(ns.writeHandlerID());
+		this.sender = new ContextProducer(vertx, ns);
 		this.logConnectionId = ns.writeHandlerID().replace("__vertx.net.", "").replace("-", "");
 		this.throughputLimiterRegistry = ThroughputLimiterRegistry.get(Drivers.activeDriver().maxLiteralSize());
 		ContextualData.put("endpoint", "imap");
@@ -111,11 +161,15 @@ public class ImapContext {
 	 * @return
 	 */
 	public Future<Void> write(Buffer b) {
+		logRespBuffer(b);
+		return sender.write(b);
+	}
+
+	private void logRespBuffer(Buffer b) {
 		if (logger.isInfoEnabled()) {
 			logger.info("[{}] S: {}", logConnectionId,
 					truncate(b.toString(StandardCharsets.US_ASCII)).replaceAll("\r\n$", ""));
 		}
-		return sender.write(b);
 	}
 
 	private String truncate(String string) {
@@ -126,7 +180,12 @@ public class ImapContext {
 	}
 
 	public void write(Buffer b, Handler<AsyncResult<Void>> v) {
-		sender.write(b, v);
+		sender.write(b, ar -> {
+			if (ar.succeeded()) {
+				logRespBuffer(b);
+			}
+			v.handle(ar);
+		});
 	}
 
 	public CompletableFuture<Void> writePromise(String resp) {
