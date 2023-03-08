@@ -33,6 +33,7 @@ import net.bluemind.core.backup.continuous.ILiveStream;
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
 import net.bluemind.core.backup.continuous.mgmt.api.BackupSyncOptions;
 import net.bluemind.core.backup.continuous.mgmt.api.IContinuousBackupMgmt;
+import net.bluemind.core.backup.continuous.mgmt.service.forest.ZookeeperJoiner;
 import net.bluemind.core.backup.continuous.mgmt.service.impl.DomainSync;
 import net.bluemind.core.backup.continuous.mgmt.service.impl.OrphansSync;
 import net.bluemind.core.container.model.ItemValue;
@@ -95,6 +96,13 @@ public class ContinuousBackupMgmtService implements IContinuousBackupMgmt {
 			}
 		}
 		mon.end(true, "kafka 'sync' topic(s) are ready.", "OK");
+	}
+
+	@Override
+	public void join(String forestId) {
+		try (ZookeeperJoiner joiner = new ZookeeperJoiner(forestId)) {
+			joiner.join(InstallationId.getIdentifier());
+		}
 	}
 
 }

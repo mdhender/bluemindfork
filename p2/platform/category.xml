@@ -354,13 +354,7 @@
    <bundle id="net.bluemind.filehosting.ui.closure" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.filehosting.webdav.service" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.folder.closure" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.forest.cloud.api" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.forest.cloud.hazelcast" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.forest.cloud.launcher" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.forest.cloud.service" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.forest.instance.api" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.forest.instance.cli" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.forest.instance.service" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.globalsettings.persistence" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.globalsettings.sqlschema" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.group.api" version="5.0.0.qualifier"/>

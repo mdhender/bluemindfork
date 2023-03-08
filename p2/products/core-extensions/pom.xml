@@ -14,7 +14,6 @@
 		<module>xivo</module>
 		<module>wazo</module>
 		<module>filehosting-filesystem</module>
-		<module>forest</module>
 		<module>password-bruteforce</module>
 		<module>password-sizestrength</module>
 		<module>ldap-export</module>

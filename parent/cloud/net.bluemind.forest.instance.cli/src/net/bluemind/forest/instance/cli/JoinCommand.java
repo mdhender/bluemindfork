@@ -18,27 +18,11 @@
 package net.bluemind.forest.instance.cli;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
-import net.bluemind.config.BmIni;
-import net.bluemind.config.InstallationId;
-import net.bluemind.config.Token;
-import net.bluemind.core.api.VersionInfo;
-import net.bluemind.core.rest.http.ClientSideServiceProvider;
-import net.bluemind.domain.api.IDomains;
-import net.bluemind.forest.cloud.api.ForestTopology;
-import net.bluemind.forest.cloud.api.IForestJoin;
-import net.bluemind.forest.cloud.api.Instance;
-import net.bluemind.forest.cloud.api.Instance.Node;
-import net.bluemind.forest.cloud.api.Instance.Partition;
-import net.bluemind.forest.cloud.api.Instance.Version;
-import net.bluemind.network.topology.Topology;
-import net.bluemind.system.api.IInstallation;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "join", description = "Join bluemind instance to forest servers")
@@ -60,40 +44,13 @@ public class JoinCommand implements ICmdLet, Runnable {
 
 	private CliContext ctx;
 
-	@Parameters(description = "Address of one forest node")
-	public String address;
-
-	@Option(names = "--alias", description = "The forest 'shared' alias", required = true)
-	public String alias;
+	@Parameters(description = "forest id (sub-directory in zookeeper)")
+	public String forest;
 
 	@Override
 	public void run() {
-		ctx.info("Should join " + address + " with alias " + alias);
+		ctx.info("Should join " + forest);
 
-		ClientSideServiceProvider forestClient = ClientSideServiceProvider.getProvider("http://" + address + ":8089",
-				null);
-		IForestJoin joinApi = forestClient.instance(IForestJoin.class, alias);
-		Instance instanceDesc = getInstance();
-		ForestTopology topology = joinApi.handshake(instanceDesc);
-		ctx.info("Received " + topology);
-	}
-
-	private Instance getInstance() {
-		Instance ret = new Instance();
-		ret.externalUrl = BmIni.value("external-url");
-		ret.coreToken = Token.admin0();
-		ret.installationId = InstallationId.getIdentifier();
-		VersionInfo iv = VersionInfo.checkAndCreate(
-				ctx.adminApi().instance(IInstallation.class, ret.installationId).getVersion().softwareVersion);
-		ret.version = Version.create(Integer.parseInt(iv.major), Integer.parseInt(iv.minor),
-				Integer.parseInt(iv.release));
-
-		ret.aliases = ctx.adminApi().instance(IDomains.class).all().stream().filter(d -> !d.uid.equals("global.virt"))
-				.map(d -> Partition.create(d.uid, d.value.aliases.toArray(new String[0]))).collect(Collectors.toList());
-		ret.topology = Topology.get().nodes().stream()
-				.map(n -> Node.create(n.uid, n.value.address(), n.value.tags.toArray(new String[0])))
-				.collect(Collectors.toList());
-		return ret;
 	}
 
 	@Override

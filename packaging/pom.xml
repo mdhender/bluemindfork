@@ -32,12 +32,10 @@
 		<module>bm-webmail</module>
 		<module>bm-client-access</module>
 		<module>bm-conf</module>
-		<module>bm-forest-node</module>
 		<module>bm-full</module>
 		<module>bm-checks</module>
 		<module>bm-ldap-role</module>
 		<module>bm-mailbox-role</module>
-		<module>bm-forest-node-role</module>
 		<module>bm-edge-role</module>
 		<module>bm-tick-full</module>
 		<module>bm-tick-node</module>
@@ -57,7 +55,6 @@
 		<module>bm-plugin-core-cti-xivo</module>
 		<module>bm-plugin-core-cti-wazo</module>
 		<module>bm-plugin-core-filehosting-filesystem</module>
-		<module>bm-plugin-core-forest</module>
 		<module>bm-plugin-hps-kerberos</module>
 		<module>bm-plugin-hps-cas</module>
 		<module>python-bm-client</module>

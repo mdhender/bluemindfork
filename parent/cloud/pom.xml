@@ -25,15 +25,7 @@
 		<module>net.bluemind.kafka.client.tests</module>
 		<module>net.bluemind.kafka.configuration</module>
 		<module>net.bluemind.kafka.configuration.fs</module>
-		<module>net.bluemind.forest.cloud.api</module>
-		<module>net.bluemind.forest.cloud.hazelcast</module>
-		<module>net.bluemind.forest.cloud.hazelcast.tests</module>
-		<module>net.bluemind.forest.instance.api</module>
 		<module>net.bluemind.forest.instance.cli</module>
-		<module>net.bluemind.forest.cloud.service</module>
-		<module>net.bluemind.forest.instance.service</module>
-		<module>net.bluemind.forest.join.tests</module>
-		<module>net.bluemind.forest.cloud.launcher</module>
 		<module>net.bluemind.central.reverse.proxy</module>
 		<module>net.bluemind.central.reverse.proxy.common</module>
 		<module>net.bluemind.central.reverse.proxy.tests</module>

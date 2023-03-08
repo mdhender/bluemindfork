@@ -6,7 +6,6 @@ Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.cli.cmd.api,
- net.bluemind.forest.cloud.api,
  net.bluemind.config,
  net.bluemind.system.api,
  net.bluemind.domain.api,

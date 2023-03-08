@@ -20,7 +20,7 @@ package net.bluemind.core.backup.continuous.mgmt.api;
 
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-
+import jakarta.ws.rs.PathParam;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.task.api.TaskRef;
 
@@ -28,8 +28,29 @@ import net.bluemind.core.task.api.TaskRef;
 @Path("/continuous/mgmt")
 public interface IContinuousBackupMgmt {
 
+	/**
+	 * 
+	 * This is the main 'clone-init' task which pushes all data to a kafka topic.
+	 * 
+	 * @param options
+	 * @return
+	 */
 	@Path("_sync")
 	@POST
 	TaskRef syncWithStore(BackupSyncOptions options);
+
+	/**
+	 * Registers this instance installation id inside zookeeper (as a file
+	 * bluemind.net/forest/${forestId}/${installationId}). CRP will only considers
+	 * the kafka topics of registered installations.
+	 * 
+	 * When an instance is forked, it gets a new installationId which will be
+	 * ignored by CRP.
+	 * 
+	 * @param forestId
+	 */
+	@Path("{forestId}/_join")
+	@POST
+	void join(@PathParam("forestId") String forestId);
 
 }
