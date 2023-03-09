@@ -88,6 +88,8 @@ public class CrpConfig {
 
 		}
 
+		public static final String ENFORCE_FOREST = "bm.crp.stream.enforce-forest";
+		public static final String FOREST_ID = "bm.crp.stream.forest-id";
 		public static final String APPLICATION_ID = "bm.crp.stream.application-id";
 		public static final String NUMBER_OF_THREADS = "bm.crp.stream.number-of-threads";
 	}

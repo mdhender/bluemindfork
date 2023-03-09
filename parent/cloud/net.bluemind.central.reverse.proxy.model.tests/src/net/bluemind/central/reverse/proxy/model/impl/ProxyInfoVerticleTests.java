@@ -59,6 +59,7 @@ public class ProxyInfoVerticleTests {
 		this.bootstrapServers = ip + ":9093";
 		System.setProperty("bm.kafka.bootstrap.servers", bootstrapServers);
 		System.setProperty("bm.zk.servers", ip + ":2181");
+		System.setProperty(CrpConfig.Stream.ENFORCE_FOREST, "false");
 	}
 
 	@After
@@ -80,15 +81,22 @@ public class ProxyInfoVerticleTests {
 		AsyncTestContext.asyncTest(context -> {
 			createTopics(orphansTopic, domainTopic).onSuccess(v -> {
 				ProxyInfoStorage storage = spy(ProxyInfoStorage.create());
+				System.err.println("proxy storage: " + storage);
 				ProxyInfoVerticle modelVerticle = createModelVerticle(vertx, storage);
+				System.err.println("modelVerticle: " + modelVerticle);
 				DirEntriesStreamVerticle streamVerticle = createStreamVerticle();
 				vertx.deployVerticle(streamVerticle, new DeploymentOptions().setWorker(true), ar -> {
+					assertTrue(ar.succeeded());
+					System.err.println("stream deployed.");
 					vertx.deployVerticle(modelVerticle, new DeploymentOptions().setWorker(true), ar2 -> {
+						assertTrue(ar2.succeeded());
+						System.err.println("model deployed");
 						Producer<byte[], byte[]> producer = createProducer(vertx, bootstrapServers);
 						producer.send(createDomain());
 						sendToKafka(producer, numberOfRecords);
 						context.sleep(1, TimeUnit.SECONDS);
 						sendToKafka(producer, numberOfRecords);
+						System.err.println("kafka send phase is over.");
 
 						context.assertions(() -> {
 							ArgumentCaptor<String> dataLocation = ArgumentCaptor.forClass(String.class);

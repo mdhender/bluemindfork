@@ -48,7 +48,7 @@ public class ProxyInfoVerticle extends AbstractVerticle {
 	private MessageConsumer<JsonObject> vertxConsumer;
 	private List<KafkaConsumerClient<byte[], byte[]>> kafkaConsumers = new ArrayList<>();
 
-	ProxyInfoVerticle(Config config, ProxyInfoStore store, RecordHandler<byte[], byte[]> recordHandler) {
+	public ProxyInfoVerticle(Config config, ProxyInfoStore store, RecordHandler<byte[], byte[]> recordHandler) {
 		this.config = config;
 		this.bootstrapServers = config.getString(BOOTSTRAP_SERVERS);
 		this.store = store;

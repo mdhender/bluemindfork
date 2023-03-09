@@ -15,7 +15,10 @@ import static org.apache.kafka.common.utils.Utils.murmur2;
 import static org.apache.kafka.common.utils.Utils.toPositive;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.kafka.clients.admin.CreateTopicsOptions;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -29,13 +32,13 @@ import org.apache.kafka.streams.kstream.Produced;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.central.reverse.proxy.common.config.CrpConfig;
 import net.bluemind.central.reverse.proxy.model.common.kafka.InstallationTopics;
 import net.bluemind.central.reverse.proxy.model.common.kafka.KafkaAdminClient;
 import net.bluemind.central.reverse.proxy.model.common.mapper.RecordKeyMapper;
@@ -54,23 +57,38 @@ public class DirEntriesStreamVerticle extends AbstractVerticle {
 		this.config = config;
 		this.bootstrapServers = config.getString(BOOTSTRAP_SERVERS);
 		this.keyMapper = keyMapper;
+
 	}
 
 	@Override
 	public void start(Promise<Void> p) {
 		this.adminClient = KafkaAdminClient.create(bootstrapServers);
 
-		// TODO filter topics from forest
-
 		logger.info("[stream] Starting");
-		adminClient.listTopics() //
-				.map(topicNames -> new InstallationTopics(topicNames, config.getString(NAME_SUFFIX))) //
-				.compose(this::ensureStreamOutputTopicExists) //
-				.map(this::streamDirEntries) //
-				.map(this::publishTopics) //
-				.onSuccess(v -> logger.info("[stream] Started")) //
-				.onFailure(t -> logger.error("[stream] Failed to setup dir entries stream", t));
+		try (ForestInstancesLoader loader = new ForestInstancesLoader(config)) {
+			Set<String> whiteList = loader.whiteListedInstances().stream().map(s -> s.replace("-", ""))
+					.collect(Collectors.toSet());
+			adminClient.listTopics() //
+					.map(fullSet -> onlyWhiteListed(whiteList, fullSet, config))//
+					.map(topicNames -> new InstallationTopics(topicNames, config.getString(NAME_SUFFIX))) //
+					.compose(this::ensureStreamOutputTopicExists) //
+					.map(this::streamDirEntries) //
+					.map(this::publishTopics) //
+					.onSuccess(v -> logger.info("[stream] Started")) //
+					.onFailure(t -> logger.error("[stream] Failed to setup dir entries stream", t));
+		}
 		p.complete();
+	}
+
+	private Set<String> onlyWhiteListed(Set<String> white, Set<String> topics, Config config) {
+		String crpSuffix = config.getString(NAME_SUFFIX);
+		if (config.getBoolean(CrpConfig.Stream.ENFORCE_FOREST)) {
+			return topics.stream().filter(tp -> tp.endsWith(crpSuffix) || white.stream().anyMatch(tp::startsWith))
+					.collect(Collectors.toSet());
+		} else {
+			return topics;
+		}
+
 	}
 
 	private Future<InstallationTopics> ensureStreamOutputTopicExists(InstallationTopics topics) {
@@ -79,7 +97,7 @@ public class DirEntriesStreamVerticle extends AbstractVerticle {
 		}
 		NewTopic newTopic = new NewTopic(topics.crpTopicName, config.getInt(PARTITION_COUNT),
 				config.getNumber(REPLICATION_FACTOR).shortValue());
-		newTopic.configs(ImmutableMap.of(//
+		newTopic.configs(Map.of(//
 				"compression.type", config.getString(COMPRESSION_TYPE), //
 				"cleanup.policy", config.getString(CLEANUP_POLICY), //
 				"max.compaction.lag.ms", config.getString(MAX_COMPACTION_LAG_MS)//
