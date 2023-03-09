@@ -74,12 +74,22 @@ public class OrgUnitStore extends AbstractItemValueStore<OrgUnit> {
 	}
 
 	public static final String UPDATE_QUERY = //
-			"UPDATE t_directory_ou SET (name) = ROW( ? ) "//
+			"UPDATE t_directory_ou SET name = ?, parent_item_id = ? "//
 					+ " WHERE item_id = ? ";
 
 	@Override
 	public void update(Item item, OrgUnit value) throws SQLException {
-		update(UPDATE_QUERY, new Object[] { value.name, item.id });
+		Long parentId = null;
+		if (value.parentUid != null) {
+			Item parent = itemStore.get(value.parentUid);
+			if (parent == null) {
+				throw new ServerFault("parent " + value.parentUid + " not found", ErrorCode.NOT_FOUND);
+			} else {
+				parentId = parent.id;
+			}
+		}
+
+		update(UPDATE_QUERY, new Object[] { value.name, parentId, item.id });
 	}
 
 	@Override

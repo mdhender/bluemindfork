@@ -49,6 +49,8 @@ import net.bluemind.directory.service.DirEventProducer;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.role.api.BasicRoles;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.system.state.StateContext;
 
 public class OrgUnits implements IOrgUnits {
 
@@ -132,9 +134,8 @@ public class OrgUnits implements IOrgUnits {
 		sanitizer.update(previous.value, value);
 		validator.update(previous.value, value);
 
-		if (!StringUtils.equals(previous.value.parentUid, value.parentUid))
-
-		{
+		if (!StringUtils.equals(previous.value.parentUid, value.parentUid)
+				&& StateContext.getState() != SystemState.CORE_STATE_CLONING) {
 			throw new ServerFault("Parent change is not allowed", ErrorCode.INVALID_PARAMETER);
 		}
 		storeService.update(orgUnitItem);
