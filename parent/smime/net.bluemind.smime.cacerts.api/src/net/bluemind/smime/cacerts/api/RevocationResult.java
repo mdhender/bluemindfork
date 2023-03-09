@@ -62,6 +62,8 @@ public class RevocationResult {
 	 * @return RevocationResult
 	 */
 	public static RevocationResult notRevoked(String serialNumber) {
-		return new RevocationResult();
+		RevocationResult revocation = new RevocationResult();
+		revocation.serialNumber = serialNumber;
+		return revocation;
 	}
 }

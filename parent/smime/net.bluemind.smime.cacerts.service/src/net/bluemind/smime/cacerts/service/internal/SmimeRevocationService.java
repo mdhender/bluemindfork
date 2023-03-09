@@ -19,6 +19,8 @@
 package net.bluemind.smime.cacerts.service.internal;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.service.internal.RBACManager;
@@ -39,9 +41,9 @@ public class SmimeRevocationService implements ISmimeRevocation {
 	}
 
 	@Override
-	public List<RevocationResult> isRevoked(List<String> serialNumber) throws ServerFault {
+	public Set<RevocationResult> isRevoked(List<String> serialNumber) throws ServerFault {
 		// TODO implement
-        return serialNumber.stream().map(RevocationResult::notRevoked).toList();
+		return serialNumber.stream().map(RevocationResult::notRevoked).collect(Collectors.toSet());
 	}
 
 }

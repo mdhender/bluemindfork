@@ -19,10 +19,10 @@
 package net.bluemind.smime.cacerts.api;
 
 import java.util.List;
+import java.util.Set;
 
-import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.QueryParam;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 
@@ -43,8 +43,8 @@ public interface ISmimeRevocation {
 	 * @return {@link RevocationResult} lists
 	 * @throws ServerFault common error object
 	 */
-	@GET
+	@POST
 	@Path("is_revoked")
-	public List<RevocationResult> isRevoked(@QueryParam("serial") List<String> serialNumber) throws ServerFault;
+	public Set<RevocationResult> isRevoked(List<String> serialNumber) throws ServerFault;
 
 }

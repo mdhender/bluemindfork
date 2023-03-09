@@ -31,4 +31,9 @@ public class SmimeCacertServiceHttpTests extends SmimeCacertServiceTests {
 				.instance(ISmimeCACert.class, containerUid);
 	}
 
+	@Override
+	public void testRestoreCreate() throws Exception {
+		// no restore endpoint available over http
+	}
+
 }

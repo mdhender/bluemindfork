@@ -38,7 +38,7 @@ import net.bluemind.core.container.model.ItemValue;
  * verify end-user certificate and check if one can be trusted.
  * 
  */
-@BMApi(version = "3")
+@BMApi(version = "3", genericType = SmimeCacert.class)
 @Path("/smime_cacerts/{containerUid}")
 public interface ISmimeCACert extends IChangelogSupport, ICrudSupport<SmimeCacert>, IReadByIdSupport<SmimeCacert>,
 		IRestoreItemCrudSupport<SmimeCacert> {

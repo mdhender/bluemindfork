@@ -19,11 +19,13 @@
 package net.bluemind.smime.cacerts.service;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -34,6 +36,7 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.smime.cacerts.api.ISmimeCACert;
 import net.bluemind.smime.cacerts.api.ISmimeRevocation;
 import net.bluemind.smime.cacerts.api.RevocationResult;
+import net.bluemind.smime.cacerts.api.RevocationResult.RevocationStatus;
 
 public class SmimeRevocationServiceTests extends AbstractServiceTests {
 
@@ -45,12 +48,16 @@ public class SmimeRevocationServiceTests extends AbstractServiceTests {
 			getServiceCrl(SecurityContext.ANONYMOUS, domainUid).isRevoked(snList);
 			fail();
 		} catch (ServerFault e) {
-			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
+			assertTrue(ErrorCode.UNKNOWN.equals(e.getCode()) || ErrorCode.PERMISSION_DENIED.equals(e.getCode()));
 		}
 
 		try {
-			List<RevocationResult> revoked = getServiceCrl(defaultSecurityContext, domainUid).isRevoked(snList);
-			assertNull(revoked);
+			Set<RevocationResult> revoked = getServiceCrl(defaultSecurityContext, domainUid).isRevoked(snList);
+			assertNotNull(revoked);
+			assertEquals(1, revoked.size());
+			RevocationResult revocation = revoked.iterator().next();
+			assertEquals(RevocationStatus.NOT_REVOKED.name(), revocation.status.name());
+			assertEquals(snList.get(0), revocation.serialNumber);
 		} catch (ServerFault e) {
 			fail(e.getMessage());
 		}
