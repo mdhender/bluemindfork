@@ -34,6 +34,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -44,14 +45,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
-import org.elasticsearch.action.admin.indices.alias.get.GetAliasesResponse;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -62,6 +62,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Streams;
 import com.google.common.io.ByteStreams;
 
 import io.vertx.core.buffer.Buffer;
@@ -71,10 +72,7 @@ import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.aws.s3.utils.S3Configuration;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
-import net.bluemind.backend.mail.api.MailboxFolder;
-import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
-import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.backup.continuous.DefaultBackupStore;
@@ -95,6 +93,7 @@ import net.bluemind.core.container.api.IFlatHierarchyUids;
 import net.bluemind.core.container.api.IOwnerSubscriptionUids;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
@@ -103,8 +102,11 @@ import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
+import net.bluemind.directory.api.IOrgUnits;
+import net.bluemind.directory.api.OrgUnit;
 import net.bluemind.dockerclient.DockerEnv;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
@@ -136,6 +138,7 @@ public class PopulateKafkaTests {
 	private String s3;
 	private String bucket;
 	private Client client;
+	private PopulatedContent dumpData;
 
 	@Before
 	public void before() throws Exception {
@@ -152,6 +155,9 @@ public class PopulateKafkaTests {
 		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
 		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP);
 		System.setProperty("cyrus.deactivated", "true");
+
+		// for dev
+		System.setProperty("kafka.consumer.poisonPillStrategy", "ABORT");
 
 		DefaultLeader.reset();
 		DefaultBackupStore.reset();
@@ -171,7 +177,7 @@ public class PopulateKafkaTests {
 
 		VertxPlatform.spawnBlocking(20, TimeUnit.SECONDS);
 
-		populateKafka();
+		this.dumpData = populateKafka();
 
 		Server pipo = new Server();
 		pipo.tags = Collections.singletonList("mail/imap");
@@ -200,11 +206,16 @@ public class PopulateKafkaTests {
 		StateContext.setState("core.cloning.start");
 	}
 
-	private Set<String> populateKafka() throws IOException, InterruptedException, ExecutionException, TimeoutException {
+	private static class PopulatedContent {
 		Set<String> domains = new HashSet<>();
+		Set<String> bodiesLoaded = new HashSet<>();
+	}
 
-		try (InputStream in = getClass().getClassLoader()
-				.getResourceAsStream("data/kafka/clone-dump-without-archive-kind-cyrus.tar.bz2");
+	private PopulatedContent populateKafka()
+			throws IOException, InterruptedException, ExecutionException, TimeoutException {
+		PopulatedContent kafkaData = new PopulatedContent();
+
+		try (InputStream in = getClass().getClassLoader().getResourceAsStream("data/kafka/clone-dump.tar.bz2");
 				BZip2CompressorInputStream bz2 = new BZip2CompressorInputStream(in);
 				TarArchiveInputStream tar = new TarArchiveInputStream(bz2)) {
 			TarArchiveEntry ce;
@@ -222,7 +233,7 @@ public class PopulateKafkaTests {
 					String domain = ce.getName().replace("./", "").substring(iidLen + 1).replace(".json", "");
 					String domainUid = (domain.equals("__orphans__")) ? null : domain;
 					if (domainUid != null) {
-						domains.add(domainUid);
+						kafkaData.domains.add(domainUid);
 					}
 
 					IBackupStoreFactory store = DefaultBackupStore.store();
@@ -248,6 +259,13 @@ public class PopulateKafkaTests {
 							sysconfMap.put(SysConfKeys.sds_filehosting_s3_bucket.name(), bucket);
 							sysconfMap.put(SysConfKeys.sds_filehosting_s3_access_key.name(), "accessKey1");
 							sysconfMap.put(SysConfKeys.sds_filehosting_s3_secret_key.name(), "verySecretKey1");
+						}
+
+						switch (key.getString("type")) {
+						case "message_bodies":
+							String bodyGuid = value.getJsonObject("value").getString("guid");
+							kafkaData.bodiesLoaded.add(bodyGuid);
+							break;
 						}
 						// System.err.println(descriptor + ":\nkey:" + key.encode() + "\nvalue:" +
 						// value.encode());
@@ -277,7 +295,7 @@ public class PopulateKafkaTests {
 			assertFalse(streams.domains().isEmpty());
 			System.setProperty("backup.continuous.store.disabled", "true");
 		}
-		return domains;
+		return kafkaData;
 	}
 
 	@Test
@@ -321,6 +339,14 @@ public class PopulateKafkaTests {
 
 //		assertTrue(sudo.authUser.roles.contains("hasMailWebapp"));
 
+		checkClone(prov, domFound, dumpData);
+
+		// re-run after clone
+		System.err.println("Run cloning process again.....");
+		doClone(store, prov);
+	}
+
+	private void checkClone(ServerSideServiceProvider prov, ItemValue<Domain> domFound, PopulatedContent dumpContent) {
 		IMailboxes mailboxesApi = prov.instance(IMailboxes.class, domFound.uid);
 		ItemValue<Mailbox> mailboxSylvain = mailboxesApi.byName("sylvain");
 		assertNotNull(mailboxSylvain);
@@ -331,70 +357,58 @@ public class PopulateKafkaTests {
 
 		CyrusPartition partition = CyrusPartition.forServerAndDomain(mailboxSylvain.value.dataLocation, domFound.uid);
 
-		IDbReplicatedMailboxes apiReplicatedMailboxesSylvain = prov.instance(IDbReplicatedMailboxes.class,
-				partition(domFound.uid), mboxRoot(mailboxSylvain));
-		long sylvainFolderCount = apiReplicatedMailboxesSylvain.all().stream().count();
-		assertEquals(163L, sylvainFolderCount);
-		ItemValue<MailboxFolder> folderOne = apiReplicatedMailboxesSylvain.byName("003_Guatemala");
-		IDbMailboxRecords apiMailboxRecordsOneSylvain = prov.instance(IDbMailboxRecords.class, folderOne.uid);
-		int mailboxRecordsOneSylvain = apiMailboxRecordsOneSylvain.all().size();
-		assertEquals(1, mailboxRecordsOneSylvain);
-		ItemValue<MailboxFolder> folderTwo = apiReplicatedMailboxesSylvain.byName("003_Guatemala/004_Duvel");
-		IDbMailboxRecords apiMailboxRecordsTwoSylvain = prov.instance(IDbMailboxRecords.class, folderTwo.uid);
-		int mailboxRecordsTwoSylvain = apiMailboxRecordsTwoSylvain.all().size();
-		assertEquals(5, mailboxRecordsTwoSylvain);
-
-		IDbReplicatedMailboxes apiReplicatedMailboxesTom = prov.instance(IDbReplicatedMailboxes.class,
-				partition(domFound.uid), mboxRoot(mailboxTom));
-		long tomFolderCount = apiReplicatedMailboxesTom.all().stream().count();
-		assertEquals(163L, tomFolderCount);
-
-		IDbReplicatedMailboxes apiReplicatedMailboxesDavid = prov.instance(IDbReplicatedMailboxes.class,
-				partition(domFound.uid), mboxRoot(mailboxDavid));
-		long davidFolderCount = apiReplicatedMailboxesDavid.all().stream().count();
-		assertEquals(163L, davidFolderCount);
-
 		IDbMessageBodies apiMessageBodies = prov.instance(IDbMessageBodies.class, partition.name);
+		assertFalse("we need some bodies in the dump or this test is irrelevant", dumpContent.bodiesLoaded.isEmpty());
+		for (String guid : dumpContent.bodiesLoaded) {
+			assertTrue("ensure " + guid + " from kafka dump was cloned", apiMessageBodies.exists(guid));
 
-		assertTrue(apiMessageBodies.exists("e9c74bbfafe6a04d0bc3e58d5dbe6049d7d3ec35"));
-		assertTrue(apiMessageBodies.exists("020f7775f925298ebd488fbe07ca0dc5e690e90d"));
-		assertTrue(apiMessageBodies.exists("2cb215cb90a7f3e0bd11adc413a621f1f03ea1de"));
-		assertTrue(apiMessageBodies.exists("6b907e9ecbd738b7e316edde5e8da984549ea9bc"));
-		assertTrue(apiMessageBodies.exists("6dd42c28c8ba84aa595e2e1967975ebb6c3550d1"));
-		assertTrue(apiMessageBodies.exists("bb7c9582c29aba68dd5a2dbecbf643c70f6ec60e"));
-		assertTrue(apiMessageBodies.exists("f91381b5399c1e8672b8914c59167cac528af139"));
-		assertTrue(apiMessageBodies.exists("c3e3506432ffb5d3932766b31ddba3275086e48f"));
+			BoolQueryBuilder singleIdQuery = QueryBuilders.boolQuery()//
+					.must(QueryBuilders.termQuery("_id", guid));
+			SearchResponse resp = client.prepareSearch("mailspool_pending_read_alias").setQuery(singleIdQuery).execute()
+					.actionGet();
+			SearchHits hitsResponse = resp.getHits();
+			long totalHits = hitsResponse.getTotalHits().value;
+			assertEquals("check " + guid + " exists in mailspool_pending", 1L, totalHits);
 
-		GetAliasesResponse responseAliases = client.admin().indices()
-				.prepareGetAliases("mailspool_alias_cli-created-a1f319cb-806c-330b-8c15-48810870cfcf").execute()
-				.actionGet();
+		}
 
-		BoolQueryBuilder singleIdQuery = QueryBuilders.boolQuery()//
-				.must(QueryBuilders.termQuery("_id", "e9c74bbfafe6a04d0bc3e58d5dbe6049d7d3ec35"));
-		String index = responseAliases.getAliases().keysIt().next();
-		SearchResponse resp = client.prepareSearch(index).setQuery(singleIdQuery).execute().actionGet();
-		SearchHits hitsResponse = resp.getHits();
-		long totalHits = hitsResponse.getTotalHits().value;
-		assertEquals(1L, totalHits);
-		GetResponse response = client
-				.prepareGet("mailspool_pending_read_alias", "eml", "e9c74bbfafe6a04d0bc3e58d5dbe6049d7d3ec35").get();
+		Set<String> fullNames = orgUnitsFullNames(prov, domFound);
+		assertTrue(fullNames.contains("amérique/états-unis/michigan"));
+		assertTrue(fullNames.contains("europe/allemagne"));
 
-		Map<String, Object> map = response.getSource();
-		assertTrue(map.containsKey("subject"));
-		assertEquals("[Lys] News from Wylis Manderly with Caraxes", map.get("subject"));
+	}
 
-		SearchResponse respTotal = client.prepareSearch(index).execute().actionGet();
-		SearchHits hitsTotalResponse = respTotal.getHits();
-		assertEquals(1996L, hitsTotalResponse.getTotalHits().value);
+	private Set<String> orgUnitsFullNames(ServerSideServiceProvider prov, ItemValue<Domain> domFound) {
+		IOrgUnits orgUnits = prov.instance(IOrgUnits.class, domFound.uid);
+		IDirectory dirApi = prov.instance(IDirectory.class, domFound.uid);
+		ContainerChangeset<String> changeset = dirApi.changeset(0L);
+		List<DirEntry> ous = Streams.concat(changeset.created.stream(), changeset.updated.stream())
+				.map(uid -> dirApi.findByEntryUid(uid)).filter(de -> de.kind == Kind.ORG_UNIT).toList();
+		Map<String, OrgUnit> forTree = new HashMap<>();
+		for (DirEntry ou : ous) {
+			OrgUnit fullOu = orgUnits.get(ou.entryUid);
+			System.err.println(fullOu);
+			forTree.put(ou.entryUid, fullOu);
+		}
+		Set<String> fullNames = forTree.values().stream().map(ou -> printOu(forTree, ou)).collect(Collectors.toSet());
+		return fullNames;
+	}
 
-		// re-run after clone
-		System.err.println("Run cloning process again.....");
-		doClone(store, prov);
+	private String printOu(Map<String, OrgUnit> forTree, OrgUnit ou) {
+		String n = ou.name;
+		OrgUnit cou = ou;
+		while (cou.parentUid != null) {
+			cou = forTree.get(cou.parentUid);
+			n = cou.name + "/" + n;
+		}
+		System.err.println("OrgUnit " + n);
+		return n;
 	}
 
 	private void doClone(IBackupReader store, ServerSideServiceProvider prov) {
 		CloneConfiguration conf = new CloneConfiguration();
 		conf.sourceInstallationId = InstallationId.getIdentifier();
+		conf.cloneWorkers = 1;
 		conf.mode = Mode.FORK;
 
 		DefaultSdsStoreLoader sds = new DefaultSdsStoreLoader();

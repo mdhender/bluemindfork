@@ -46,7 +46,8 @@ Require-Bundle: net.bluemind.core.rest,
  net.bluemind.user.api,
  net.bluemind.user.hook,
  org.apache.commons.lang3,
- slf4j.api
+ slf4j.api,
+ net.bluemind.system.state
 Export-Package: net.bluemind.directory.service,
  net.bluemind.directory.service.internal
 Bundle-Activator: net.bluemind.directory.service.DirectoryActivator
