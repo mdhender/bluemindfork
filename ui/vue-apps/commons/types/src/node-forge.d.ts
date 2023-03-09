@@ -7,10 +7,6 @@ declare module "node-forge" {
     namespace pkcs7 {
         const asn1: Asn1;
         interface PkcsEnvelopedData {
-            // content?: string | util.ByteBuffer | undefined;
-            // addRecipient(certificate: pki.Certificate): void;
-            // encrypt(): void;
-            // toAsn1(): asn1.Asn1;
             findRecipient(cert: pki.Certificate): RecipientInfo | null;
             decrypt(recipient: RecipientInfo, privKey: pki.PrivateKey): void;
         }
@@ -40,10 +36,18 @@ declare module "node-forge" {
     namespace pki {
         export type ForgePkiCertificateError = { message: string; error: string };
 
-        export type BasicConstraintsExtension = { cA: boolean };
+        // x509v3 extensions
         const anyExtendedKeyUsageOid = "2.5.29.37.0";
         export type ExtendedKeyUsageExtension = { [anyExtendedKeyUsageOid]: boolean; emailProtection: boolean };
+
+        export type BasicConstraintsExtension = { cA: boolean };
         export type SubjectAltNameExtension = { altNames: { type: number; value: string }[] };
+        export type KeyUsageExtension = {
+            digitalSignature: boolean;
+            keyEncipherment: boolean;
+            nonRepudiation: boolean;
+        };
+
         interface Certificate {
             getExtension(
                 options: string | { name: string } | { id: number }

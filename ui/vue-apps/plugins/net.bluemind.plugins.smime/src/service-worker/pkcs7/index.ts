@@ -5,12 +5,9 @@ import { DecryptError, EncryptError, SignError, UnmatchedCertificateError } from
 import { checkMessageIntegrity, checkSignatureValidity, getSigningTime } from "./verify";
 import { checkCertificate } from "../pki/";
 import { getSignedDataEnvelope } from "../../lib/envelope";
+import { SMIME_CERT_USAGE } from "../../lib/constants";
 
-export async function decrypt(
-    data: Blob,
-    privateKey: pki.rsa.PrivateKey,
-    certificate: pki.Certificate
-): Promise<string> {
+export async function decrypt(data: Blob, key: pki.rsa.PrivateKey, certificate: pki.Certificate): Promise<string> {
     const buffer = await data.arrayBuffer();
     const text = asn1.fromDer(new util.ByteStringBuffer(buffer));
     const envelope = <pkcs7.Captured<pkcs7.PkcsEnvelopedData>>pkcs7.messageFromAsn1(text);
@@ -19,7 +16,7 @@ export async function decrypt(
         throw new UnmatchedCertificateError();
     }
     try {
-        envelope.decrypt(recipient, privateKey);
+        envelope.decrypt(recipient, key);
         if (!envelope.content) {
             throw "after decrypt, no content set in pkcs7 envelope";
         }
@@ -48,7 +45,11 @@ export async function verify(pkcs7: ArrayBuffer, toDigest: string, body: Message
     const signingTime = getSigningTime(envelope);
     const certificate = envelope.certificates[0];
     const sender = body.recipients!.find((recipient: any) => recipient.kind === "Originator")!.address!;
-    await checkCertificate(certificate, signingTime, sender);
+    await checkCertificate(certificate, {
+        date: signingTime,
+        expectedAddress: sender,
+        smimeUsage: SMIME_CERT_USAGE.SIGN
+    });
     checkSignatureValidity(envelope, certificate);
     checkMessageIntegrity(envelope, toDigest);
 }
@@ -59,8 +60,6 @@ export async function sign(content: string, myPrivateKey: pki.rsa.PrivateKey, my
     try {
         const p7 = pkcs7.createSignedData();
         p7.content = util.createBuffer(content);
-
-        // FIXME: add CA cert ?
         p7.addCertificate(myCert);
         p7.addSigner({
             key: myPrivateKey,

@@ -3,7 +3,13 @@ import { AddressBooksClient, AddressBookClient, VCardInfo } from "@bluemind/addr
 import { searchVCardsHelper } from "@bluemind/contact";
 import { ItemContainerValue, ItemValue } from "@bluemind/core.container.api";
 import { SmimeCacert, SmimeCACertClient } from "@bluemind/smime.cacerts.api";
-import { checkBasicConstraints, checkExtendedKeyUsage, checkRecipientEmail, checkRevoked } from "./cert";
+import {
+    checkBasicConstraints,
+    checkExtendedKeyUsage,
+    checkRecipientEmail,
+    checkRevoked,
+    checkSmimeUsage
+} from "./cert";
 import { PKIStatus } from "../../lib/constants";
 import session from "../environnment/session";
 import {
@@ -14,6 +20,7 @@ import {
     MyCertificateNotFoundError,
     UntrustedCertificateError
 } from "../../lib/exceptions";
+import { CheckOptions } from "../../types";
 import db from "./SMimePkiDB";
 
 export async function getCertificate(email: string): Promise<pki.Certificate> {
@@ -43,18 +50,21 @@ export async function getCertificate(email: string): Promise<pki.Certificate> {
     }
 }
 
-export async function checkCertificate(certificate: pki.Certificate, date = new Date(), recipientEmail?: string) {
+export async function checkCertificate(certificate: pki.Certificate, options?: CheckOptions) {
     try {
         const caCerts = await getCaCerts();
         if (caCerts.length === 0) {
             throw "could not find any trusted CA certificates";
         }
         const caStore = pki.createCaStore(caCerts.map(item => item.value.cert));
-        pki.verifyCertificateChain(caStore, [certificate], { validityCheckDate: date });
+        pki.verifyCertificateChain(caStore, [certificate], { validityCheckDate: options?.date || new Date() });
         checkBasicConstraints(certificate);
         checkExtendedKeyUsage(certificate);
-        if (recipientEmail) {
-            checkRecipientEmail(certificate, recipientEmail);
+        if (options?.expectedAddress) {
+            checkRecipientEmail(certificate, options.expectedAddress);
+        }
+        if (options?.smimeUsage) {
+            checkSmimeUsage(certificate, options.smimeUsage);
         }
         await checkRevoked(certificate.serialNumber);
     } catch (error: unknown) {
@@ -66,21 +76,6 @@ export async function checkCertificate(certificate: pki.Certificate, date = new 
         throw error;
     }
 }
-
-//TODO
-// export function canCertificateBeUsedForSign() {
-// type KeyUsageExtension = {};
-//      call checkCertificate then check keyUsage:
-//          if keyUsage is defined, check it has nonRepudiation OR digitalSignature set
-// const keyUsage = certificate.getExtension("keyUsage");
-//     if (keyUsage && (<BasicConstraintsExtension>keyUsage).cA === true) {
-//         throw "CA certificate cannot be used to sign or encrypt S/MIME message";
-//     }
-// }
-// export function canCertificateBeUsedForEncrypt()
-//      call checkCertificate then check keyUsage:
-//          if keyUsage is defined, check it has
-// }
 
 // FIXME: sync them ? todo via https://forge.bluemind.net/jira/browse/FEATWEBML-2107
 let caCerts: ItemValue<SmimeCacert>[];

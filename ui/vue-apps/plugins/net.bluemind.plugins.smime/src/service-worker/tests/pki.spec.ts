@@ -276,7 +276,7 @@ describe("pki", () => {
         test.todo("untrusted if cert has expired");
         test.only("untrusted if its a CA certificate", async done => {
             try {
-                await checkCertificate(pki.certificateFromPem(nonRepudiationCert), date, sender);
+                await checkCertificate(pki.certificateFromPem(nonRepudiationCert), { date, expectedAddress: sender });
                 done.fail("CA cert cannot be used");
             } catch (error) {
                 expect(error).toBeInstanceOf(UntrustedCertificateError);

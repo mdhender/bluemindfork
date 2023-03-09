@@ -1,6 +1,7 @@
 import { pki } from "node-forge";
 import { RevocationResult, SmimeRevocationClient } from "@bluemind/smime.cacerts.api";
 import session from "../environnment/session";
+import { SMIME_CERT_USAGE } from "../../lib/constants";
 import { UntrustedCertificateEmailNotFoundError } from "../../lib/exceptions";
 
 export async function checkRevoked(serialNumber: string) {
@@ -17,8 +18,8 @@ export async function checkRevoked(serialNumber: string) {
 }
 
 export function checkBasicConstraints(certificate: pki.Certificate) {
-    const basicConstraints = certificate.getExtension("basicConstraints");
-    if (basicConstraints && (<pki.BasicConstraintsExtension>basicConstraints).cA === true) {
+    const basicConstraints = <pki.BasicConstraintsExtension>certificate.getExtension("basicConstraints");
+    if (basicConstraints && basicConstraints.cA === true) {
         throw "CA certificate cannot be used to sign or encrypt S/MIME message";
     }
 }
@@ -43,5 +44,15 @@ export function checkRecipientEmail(certificate: pki.Certificate, recipientEmail
         certificate.subject.getField({ name: "emailAddress" })?.value.toLowerCase() === recipientEmail.toLowerCase();
     if (!subjectAltNameMatch && !subjectEmailAddressMatch) {
         throw new UntrustedCertificateEmailNotFoundError(recipientEmail);
+    }
+}
+
+export function checkSmimeUsage(certificate: pki.Certificate, smimeUsage: SMIME_CERT_USAGE) {
+    const keyUsage = <pki.KeyUsageExtension>certificate.getExtension("keyUsage");
+    if (smimeUsage === SMIME_CERT_USAGE.SIGN && keyUsage && !keyUsage.nonRepudiation && !keyUsage.digitalSignature) {
+        throw "this certificate can't be used to verify or sign message, keyUsage does not allow it (neither digitalSignature or nonRepudiation are set).";
+    }
+    if (smimeUsage === SMIME_CERT_USAGE.ENCRYPT && keyUsage && !keyUsage.keyEncipherment) {
+        throw "this certificate can't be used to encrypt message, keyUsage does not allow it (keyEncipherment is not set).";
     }
 }

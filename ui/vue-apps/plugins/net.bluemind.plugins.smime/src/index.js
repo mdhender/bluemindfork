@@ -112,7 +112,7 @@ extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
     }
 });
 
-extensions.register("webapp", "net.bluemind.webmodules.smime", {
+extensions.register("webapp", "net.bluemind.plugins.smime", {
     component: {
         name: "ContactWithCertificate",
         path: "contact.chip.mail.composer.recipients"

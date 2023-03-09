@@ -1,4 +1,3 @@
-import { pki } from "node-forge";
 import { MailboxItemsClient, MailboxItem, MessageBody } from "@bluemind/backend.mail.api";
 import { MimeType } from "@bluemind/email"; // FIXME: move MimeType into @bluemind/mime
 import { ItemValue } from "@bluemind/core.container.api";
@@ -7,6 +6,7 @@ import {
     CRYPTO_HEADERS,
     ENCRYPTED_HEADER_NAME,
     SIGNED_HEADER_NAME,
+    SMIME_CERT_USAGE,
     SMIME_ENCRYPTION_ERROR_PREFIX,
     SMIME_SIGNATURE_ERROR_PREFIX
 } from "../../lib/constants";
@@ -20,6 +20,7 @@ import buildSignedEml from "./SMimeSignedEmlBuilder";
 import pkcs7 from "../pkcs7";
 import { checkCertificate, getMyCertificate, getMyPrivateKey, getCertificate } from "../pki";
 import { addHeaderValue, resetHeader } from "../../lib/helper";
+import { DecryptResult } from "../../types";
 
 export function isEncrypted(part: MessageBody.Part): boolean {
     return MimeType.isPkcs7(part);
@@ -29,10 +30,6 @@ export function isSigned(part: MessageBody.Part): boolean {
     return part.mime === MimeType.PKCS_7_SIGNED_DATA || (!!part.children && part.children.some(isSigned));
 }
 
-type DecryptResult = {
-    item: ItemValue<MailboxItem>;
-    content: string;
-};
 export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): Promise<DecryptResult> {
     let content = "";
     try {
@@ -44,7 +41,7 @@ export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): 
         const key = await getMyPrivateKey();
         const certificate = await getMyCertificate();
 
-        await checkCertificate(certificate, new Date(item.value.body.date!));
+        await checkCertificate(certificate, { date: new Date(item.value.body.date!) });
         const request = fetchRequest(sid, folderUid, imapUid!, address!, encoding!, mime!, charset!, fileName);
         const response = await dispatchFetch(request);
         const data = await response.blob();
@@ -68,13 +65,22 @@ export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): 
 
 export async function encrypt(item: MailboxItem, folderUid: string): Promise<MailboxItem> {
     try {
-        const myCertificate = await getMyCertificate();
         const recipients = item.body.recipients || [];
-        const promises: Promise<pki.Certificate>[] = recipients.flatMap(({ kind, address }) => {
-            return address && kind !== MessageBody.RecipientKind.Originator ? getCertificate(address) : [];
+        const promises = recipients.map(async ({ address, dn, kind }) => {
+            if (!address) {
+                throw "recipient " + dn + " has no address set";
+            }
+            const smimeUsage = SMIME_CERT_USAGE.ENCRYPT;
+            if (kind === MessageBody.RecipientKind.Originator) {
+                const myCertificate = await getMyCertificate();
+                await checkCertificate(myCertificate, { expectedAddress: address, smimeUsage });
+                return myCertificate;
+            }
+            const certificate = await getCertificate(address);
+            await checkCertificate(certificate, { smimeUsage });
+            return certificate;
         });
-        const certificates: pki.Certificate[] = await Promise.all(promises);
-        certificates.push(myCertificate);
+        const certificates = await Promise.all(promises);
 
         const client = new MailboxItemsClient(await session.sid, folderUid);
         let mimeTree: string;
@@ -124,6 +130,7 @@ export async function sign(item: MailboxItem, folderUid: string): Promise<Mailbo
         );
         const key = await getMyPrivateKey();
         const certificate = await getMyCertificate();
+        await checkCertificate(certificate, { smimeUsage: SMIME_CERT_USAGE.SIGN });
         const signedContent = await pkcs7.sign(unsignedMimeEntity, key, certificate);
         const eml = buildSignedEml(unsignedMimeEntity, signedContent, item.body);
         const address = await client.uploadPart(eml);

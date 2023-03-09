@@ -37,31 +37,31 @@ function anchorFromHeaderName(headerName: string) {
 
 function getDocAnchor(errorCode: CRYPTO_HEADERS) {
     switch (errorCode) {
-        case CRYPTO_HEADERS.KEY_NOT_FOUND:
-        case CRYPTO_HEADERS.MY_CERTIFICATE_NOT_FOUND:
+        case errorCode & CRYPTO_HEADERS.KEY_NOT_FOUND:
+        case errorCode & CRYPTO_HEADERS.MY_CERTIFICATE_NOT_FOUND:
             return "#my-key-or-certificate-is-missing";
-        case CRYPTO_HEADERS.UNTRUSTED_CERTIFICATE:
+        case errorCode & CRYPTO_HEADERS.UNTRUSTED_CERTIFICATE:
             return "#untrusted-certificate";
-        case CRYPTO_HEADERS.UNTRUSTED_CERTIFICATE_EMAIL_NOT_FOUND:
+        case errorCode & CRYPTO_HEADERS.UNTRUSTED_CERTIFICATE_EMAIL_NOT_FOUND:
             return "#untrusted-certificate-email-not-found";
-        case CRYPTO_HEADERS.INVALID_CERTIFICATE:
+        case errorCode & CRYPTO_HEADERS.INVALID_CERTIFICATE:
             return "#invalid-certificate";
-        case CRYPTO_HEADERS.CERTIFICATE_RECIPIENT_NOT_FOUND:
+        case errorCode & CRYPTO_HEADERS.CERTIFICATE_RECIPIENT_NOT_FOUND:
             return "#missing-other-user-certificate";
-        case CRYPTO_HEADERS.ENCRYPT_FAILURE:
-            return "#encrypt-failure";
-        case CRYPTO_HEADERS.DECRYPT_FAILURE:
-            return "#decrypt-failure";
-        case CRYPTO_HEADERS.UNMATCHED_CERTIFICATE:
+        case errorCode & CRYPTO_HEADERS.UNMATCHED_CERTIFICATE:
             return "#decrypt-failure-unmatched-certificate";
-        case CRYPTO_HEADERS.INVALID_MESSAGE_INTEGRITY:
+        case errorCode & CRYPTO_HEADERS.INVALID_MESSAGE_INTEGRITY:
             return "#verify-failure-corrupted-message";
-        case CRYPTO_HEADERS.INVALID_SIGNATURE:
+        case errorCode & CRYPTO_HEADERS.INVALID_SIGNATURE:
             return "#verify-failure-invalid-signature";
-        case CRYPTO_HEADERS.INVALID_PKCS7_ENVELOPE:
-        case CRYPTO_HEADERS.UNSUPPORTED_ALGORITHM:
+        case errorCode & CRYPTO_HEADERS.ENCRYPT_FAILURE:
+            return "#encrypt-failure";
+        case errorCode & CRYPTO_HEADERS.DECRYPT_FAILURE:
+            return "#decrypt-failure";
+        case errorCode & CRYPTO_HEADERS.INVALID_PKCS7_ENVELOPE:
+        case errorCode & CRYPTO_HEADERS.UNSUPPORTED_ALGORITHM:
             return "#verify-failure";
-        case CRYPTO_HEADERS.SIGN_FAILURE:
+        case errorCode & CRYPTO_HEADERS.SIGN_FAILURE:
             return "#sign-failure";
     }
 }
