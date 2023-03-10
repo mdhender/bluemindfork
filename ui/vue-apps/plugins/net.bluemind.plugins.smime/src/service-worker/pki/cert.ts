@@ -1,10 +1,13 @@
 import { pki } from "node-forge";
-import { RevocationResult, SmimeCRLClient } from "@bluemind/smime.cacerts.api";
+import { RevocationResult, SmimeRevocationClient } from "@bluemind/smime.cacerts.api";
 import session from "../environnment/session";
 import { UntrustedCertificateEmailNotFoundError } from "../../lib/exceptions";
 
 export async function checkRevoked(serialNumber: string) {
-    const revoked = await new SmimeCRLClient(await session.sid, await session.domain).isRevoked(serialNumber);
+    const revokedList = await new SmimeRevocationClient(await session.sid, await session.domain).isRevoked([
+        serialNumber
+    ]);
+    const revoked = revokedList[0];
     if (revoked.status === RevocationResult.RevocationStatus.REVOKED) {
         if (revoked.reason?.toLowerCase() === "certificatehold") {
             // no cache for those one
