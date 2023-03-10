@@ -383,13 +383,13 @@ BMContact.prototype = {
         return this._getProp("LastName", null);
     },
     setLastName: function(value) {
-        this._card.lastName = value;
+        this._setProp("LastName", value);
     },
     getFirstName: function() {
         return this._getProp("FirstName", null);
     },
     setFirstName: function(value) {
-        this._card.firstName = value;
+        this._setProp("FirstName", value);
     },
     getDisplayName: function() {
         return this._getProp("DisplayName", null);
