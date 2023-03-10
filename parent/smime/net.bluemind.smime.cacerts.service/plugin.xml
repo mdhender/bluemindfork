@@ -28,7 +28,7 @@
             api="net.bluemind.smime.cacerts.api.ISmimeCacertUids" inline="true">
       </endpoint>
       <endpoint
-            api="net.bluemind.smime.cacerts.api.ISmimeCRL">
+            api="net.bluemind.smime.cacerts.api.ISmimeRevocation">
       </endpoint>
    </extension>
    <extension
