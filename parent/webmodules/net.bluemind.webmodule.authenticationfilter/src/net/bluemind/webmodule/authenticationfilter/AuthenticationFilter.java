@@ -17,6 +17,7 @@
   */
 package net.bluemind.webmodule.authenticationfilter;
 
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -165,11 +166,10 @@ public class AuthenticationFilter implements IWebFilter {
 				.encodeToString(sha256.hashString(codeVerifier, StandardCharsets.UTF_8).asBytes());
 
 		String location = domainProperties.get(OpenIdProperties.OPENID_AUTHORISATION_ENDPOINT.name());
-		location += "?client_id=" + domainProperties.get(OpenIdProperties.OPENID_CLIENT_ID.name());
-
-		location += "&redirect_uri=" + request.scheme() + "://" + request.host() + "/auth/openid";
-		location += "&code_challenge=" + codeChallenge;
-		location += "&state=" + state;
+		location += "?client_id=" + encode(domainProperties.get(OpenIdProperties.OPENID_CLIENT_ID.name()));
+		location += "&redirect_uri=" + encode(request.scheme() + "://" + request.host() + "/auth/openid");
+		location += "&code_challenge=" + encode(codeChallenge);
+		location += "&state=" + encode(state);
 		location += "&code_challenge_method=S256";
 		location += "&response_type=code";
 		location += "&scope=openid";
@@ -370,6 +370,10 @@ public class AuthenticationFilter implements IWebFilter {
 		} else {
 			return false;
 		}
+	}
+
+	private String encode(String s) {
+		return URLEncoder.encode(s, StandardCharsets.UTF_8);
 	}
 
 }

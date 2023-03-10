@@ -18,6 +18,7 @@
 package net.bluemind.webmodule.authenticationfilter;
 
 import java.net.URI;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -99,12 +100,14 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 						headers.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
 						headers.add(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
 						String params = "grant_type=authorization_code";
-						params += "&client_id=" + domainSettings.get(OpenIdProperties.OPENID_CLIENT_ID.name());
-						params += "&client_secret=" + domainSettings.get(OpenIdProperties.OPENID_CLIENT_SECRET.name());
-						params += "&code=" + code;
-						params += "&code_verifier=" + codeVerifier;
-						params += "&redirect_uri=" + event.scheme() + "://" + event.host() + "/auth/openid";
+						params += "&client_id=" + encode(domainSettings.get(OpenIdProperties.OPENID_CLIENT_ID.name()));
+						params += "&client_secret="
+								+ encode(domainSettings.get(OpenIdProperties.OPENID_CLIENT_SECRET.name()));
+						params += "&code=" + encode(code);
+						params += "&code_verifier=" + encode(codeVerifier);
+						params += "&redirect_uri=" + encode(event.scheme() + "://" + event.host() + "/auth/openid");
 						params += "&scope=openid";
+
 						byte[] postData = params.getBytes(StandardCharsets.UTF_8);
 						headers.add(HttpHeaders.CONTENT_LENGTH, Integer.toString(postData.length));
 						r.write(Buffer.buffer(postData));
@@ -122,6 +125,10 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 		}
 
 		event.response().end();
+	}
+
+	private String encode(String s) {
+		return URLEncoder.encode(s, StandardCharsets.UTF_8);
 	}
 
 	private void validateToken(HttpServerRequest request, List<String> forwadedFor, JsonObject token,
