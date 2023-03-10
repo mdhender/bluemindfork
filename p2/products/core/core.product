@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="bluemind.core" uid="core" id="net.bluemind.application.launcher.core" application="net.bluemind.application.launcher.coreLauncher" version="5.0.0.qualifier" useFeatures="false" includeLaunchers="true" autoIncludeRequirements="true">
+<product name="bluemind.core" uid="core" id="net.bluemind.application.launcher.core" application="net.bluemind.application.launcher.coreLauncher" version="5.0.0.qualifier" useFeatures="false" includeLaunchers="true" autoIncludeRequirements="false">
 
    <configIni use="default">
    </configIni>
@@ -51,6 +51,7 @@
       <plugin id="com.typesafe.netty.reactive-streams"/>
       <plugin id="com.zaxxer.HikariCP"/>
       <plugin id="io.netty"/>
+      <plugin id="io.opentelemetry"/>
       <plugin id="io.vertx.core"/>
       <plugin id="io.vertx.web"/>
       <plugin id="jakarta.activation-api"/>
@@ -98,6 +99,7 @@
       <plugin id="net.bluemind.backend.mail.dataprotect"/>
       <plugin id="net.bluemind.backend.mail.parsing"/>
       <plugin id="net.bluemind.backend.mail.replica.api"/>
+      <plugin id="net.bluemind.backend.mail.replica.hook"/>
       <plugin id="net.bluemind.backend.mail.replica.indexing"/>
       <plugin id="net.bluemind.backend.mail.replica.persistence"/>
       <plugin id="net.bluemind.backend.mail.replica.service"/>
@@ -280,12 +282,10 @@
       <plugin id="net.bluemind.im.persistence"/>
       <plugin id="net.bluemind.im.service"/>
       <plugin id="net.bluemind.im.sqlschema"/>
-      <plugin id="net.bluemind.imap"/>
       <plugin id="net.bluemind.imap.driver.mailapi"/>
       <plugin id="net.bluemind.imap.endpoint"/>
       <plugin id="net.bluemind.imap.serviceprovider"/>
       <plugin id="net.bluemind.imap.serviceprovider.incore"/>
-      <plugin id="net.bluemind.imap.vertx"/>
       <plugin id="net.bluemind.jdbc.driver.pgsql" fragment="true"/>
       <plugin id="net.bluemind.jdbc.pgsql.provider"/>
       <plugin id="net.bluemind.kafka.client"/>
@@ -354,6 +354,7 @@
       <plugin id="net.bluemind.notes.service"/>
       <plugin id="net.bluemind.notes.sqlschema"/>
       <plugin id="net.bluemind.notes.usernotes"/>
+      <plugin id="net.bluemind.okhttp"/>
       <plugin id="net.bluemind.osgi.log"/>
       <plugin id="net.bluemind.outlook.clientcheck"/>
       <plugin id="net.bluemind.pool"/>
@@ -501,7 +502,6 @@
       <plugin id="org.apache.james.apache-mime4j-core"/>
       <plugin id="org.apache.james.apache-mime4j-dom"/>
       <plugin id="org.apache.james.apache-mime4j-storage"/>
-      <plugin id="org.apache.mina.core"/>
       <plugin id="org.apache.pdfbox"/>
       <plugin id="org.apache.pdfbox.fontbox"/>
       <plugin id="org.apache.pdfbox.jempbox"/>

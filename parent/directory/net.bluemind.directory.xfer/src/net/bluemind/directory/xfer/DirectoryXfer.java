@@ -55,7 +55,6 @@ import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.ICalendarsMgmt;
-import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.caches.registry.CacheRegistry;
@@ -90,8 +89,6 @@ import net.bluemind.exchange.mapi.api.IMapiFolder;
 import net.bluemind.exchange.mapi.api.IMapiFolderAssociatedInformation;
 import net.bluemind.exchange.mapi.api.MapiFAIContainer;
 import net.bluemind.exchange.mapi.api.MapiFolderContainer;
-import net.bluemind.imap.CreateMailboxResult;
-import net.bluemind.imap.StoreClient;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxMgmt;
 import net.bluemind.mailbox.api.IMailboxes;
@@ -475,26 +472,26 @@ public class DirectoryXfer implements AutoCloseable {
 //				logger.info("Successfully removed mailbox {} on {}", boxName, targetServerUid);
 //			}
 
-			try (StoreClient sc = new StoreClient(targetServer.value.address(), 1143, "admin0", Token.admin0())) {
-				if (!sc.login()) {
-					throw new ServerFault("error during boxExist on [" + boxName + "]: " + "Login as admin0 failed");
-				}
-				if (sc.isExist(boxName)) {
-					CreateMailboxResult result = sc.deleteMailboxHierarchy(boxName);
-					logger.info("MAILBOX delete: {} for '{}'", result.isOk() ? "OK" : result.getMessage(), boxName);
-					if (!result.isOk()) {
-						if (!sc.select(boxName)) {
-							return;
-						}
-						logger.error("deleteMailbox failed for mbox '{}', server said: {}", boxName,
-								result.getMessage());
-						throw new ServerFault(
-								"deleteMailbox failed for '" + boxName + "'. server msg: " + result.getMessage());
-					} else {
-						logger.info("Successfully removed mailbox {} on {}", boxName, targetServerUid);
-					}
-				}
-			}
+//			try (StoreClient sc = new StoreClient(targetServer.value.address(), 1143, "admin0", Token.admin0())) {
+//				if (!sc.login()) {
+//					throw new ServerFault("error during boxExist on [" + boxName + "]: " + "Login as admin0 failed");
+//				}
+//				if (sc.isExist(boxName)) {
+//					CreateMailboxResult result = sc.deleteMailboxHierarchy(boxName);
+//					logger.info("MAILBOX delete: {} for '{}'", result.isOk() ? "OK" : result.getMessage(), boxName);
+//					if (!result.isOk()) {
+//						if (!sc.select(boxName)) {
+//							return;
+//						}
+//						logger.error("deleteMailbox failed for mbox '{}', server said: {}", boxName,
+//								result.getMessage());
+//						throw new ServerFault(
+//								"deleteMailbox failed for '" + boxName + "'. server msg: " + result.getMessage());
+//					} else {
+//						logger.info("Successfully removed mailbox {} on {}", boxName, targetServerUid);
+//					}
+//				}
+//			}
 		} catch (Exception e) {
 			logger.error("Unable to enumerate / remove mailbox {} on {}: {}", mailbox, targetServerUid, e);
 		}

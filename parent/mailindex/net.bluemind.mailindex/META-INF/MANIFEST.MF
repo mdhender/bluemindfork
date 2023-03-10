@@ -7,7 +7,6 @@ Bundle-Vendor: blue-mind.net
 Bundle-Activator: net.bluemind.index.MailIndexActivator
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
- net.bluemind.imap;bundle-version="1.0.0",
  net.bluemind.mime4j.common;bundle-version="1.0.0",
  net.bluemind.lib.elasticsearch;bundle-version="1.0.0",
  net.bluemind.user.api;bundle-version="1.0.0",

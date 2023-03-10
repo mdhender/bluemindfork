@@ -102,7 +102,6 @@ import net.bluemind.core.rest.vertx.BufferReadStream;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.delivery.conversationreference.api.IConversationReference;
-import net.bluemind.imap.vertx.stream.EmptyStream;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.mime4j.common.Mime4JHelper.HashedBuffer;

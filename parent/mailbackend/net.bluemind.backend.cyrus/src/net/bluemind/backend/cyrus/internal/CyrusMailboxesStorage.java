@@ -88,7 +88,6 @@ import net.bluemind.mailbox.service.IMailboxesStorage;
 import net.bluemind.mailbox.service.common.DefaultFolder;
 import net.bluemind.mailbox.service.common.DefaultFolder.Status;
 import net.bluemind.mailbox.service.hook.IMailboxEventConsumer;
-import net.bluemind.mailbox.service.internal.DbAclToCyrusAcl;
 import net.bluemind.node.api.ExitList;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
@@ -1025,7 +1024,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 				.getComplete(mailbox.value.dataLocation);
 
 		List<MailFolder> ret = new ArrayList<>();
-		Map<String, Acl> cyrusAcl = new DbAclToCyrusAcl(domainUid, acls, mailbox).get();
+        Map<String, Acl> cyrusAcl = Collections.emptyMap();
 
 		try (StoreClient sc = new StoreClient(server.value.ip, 1143, "admin0", Token.admin0())) {
 			if (!sc.login()) {

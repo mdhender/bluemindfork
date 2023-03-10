@@ -82,8 +82,6 @@ import net.bluemind.directory.api.IDirectory;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member;
-import net.bluemind.imap.IMAPException;
-import net.bluemind.imap.IMAPRuntimeException;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Type;
 import net.bluemind.mailbox.service.common.DefaultFolder;
@@ -420,7 +418,7 @@ public class MboxRestoreService {
 					}
 				} catch (IOException e) {
 					logger.error("unable to open downloaded message {}", p, e);
-				} catch (IMAPRuntimeException e) {
+				} catch (Exception e) {
 					logger.error("imap append error: {}", e.getMessage());
 				} finally {
 					try {

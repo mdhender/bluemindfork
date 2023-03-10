@@ -22,10 +22,8 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.QueryParam;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.MailboxReplicaRootUpdate;
 import net.bluemind.core.api.BMApi;
-import net.bluemind.core.task.api.TaskRef;
 
 @BMApi(version = "3", internal = true)
 @Path("/replicated_mailboxes_roots/{partition}")
@@ -49,10 +47,6 @@ public interface IReplicatedMailboxesRootMgmt {
 	@POST
 	@Path("_update")
 	void update(MailboxReplicaRootUpdate rename);
-
-	@POST
-	@Path("_resync/{mailboxUid}")
-	TaskRef resync(@PathParam(value = "mailboxUid") String mailboxUid, @QueryParam(value = "setFlag") Boolean setFlag);
 
 	@DELETE
 	@Path("_delete/{namespace}/{mailboxName}")

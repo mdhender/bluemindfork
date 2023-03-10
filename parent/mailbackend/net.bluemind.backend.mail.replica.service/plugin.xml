@@ -185,12 +185,6 @@
       </repairSupport>
    </extension>
    <extension
-         point="net.bluemind.directory.repairSupport">
-      <repairSupport
-            factory="net.bluemind.backend.mail.replica.service.internal.repair.DefaultPartitionRepair$RepairFactory">
-      </repairSupport>
-   </extension>
-   <extension
          point="net.bluemind.lib.vertx.verticles">
       <verticle
             impl="net.bluemind.backend.mail.replica.service.internal.ReplicatedDataExpirationTimerFactory">
@@ -204,23 +198,11 @@
       		impl="net.bluemind.backend.mail.replica.service.internal.MessageBodyTierChangeTimer$Factory" />
    </extension>
    <extension
-         point="net.bluemind.directory.repairSupport">
-      <repairSupport
-            factory="net.bluemind.backend.mail.replica.service.internal.repair.ReplicationDeletedMailboxRepair$ReplicationDeletedMailboxRepairFactory">
-      </repairSupport>
-   </extension>
-   <extension
 		 point="net.bluemind.core.rest.eventBusAccessRule">
       <access-rule
             class="net.bluemind.backend.mail.replica.service.MailboxRecordEventBusAccessRule">
       </access-rule>
   </extension>
-   <extension
-         point="net.bluemind.directory.repairSupport">
-      <repairSupport
-            factory="net.bluemind.backend.mail.replica.service.internal.repair.RenamedInboxRepair$RepairFactory">
-      </repairSupport>
-   </extension>
    <extension
          point="net.bluemind.core.caches.registry.registration">
       <reg

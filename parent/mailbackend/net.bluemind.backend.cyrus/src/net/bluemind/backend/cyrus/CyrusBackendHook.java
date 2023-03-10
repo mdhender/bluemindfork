@@ -19,6 +19,7 @@
 
 package net.bluemind.backend.cyrus;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +39,6 @@ import net.bluemind.imap.Acl;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
-import net.bluemind.mailbox.service.internal.DbAclToCyrusAcl;
 
 public class CyrusBackendHook implements IAclHook {
 
@@ -58,7 +58,8 @@ public class CyrusBackendHook implements IAclHook {
 		try {
 			ItemValue<Mailbox> box = sp.instance(IMailboxes.class, container.domainUid).getComplete(container.owner);
 
-			Map<String, Acl> acls = new DbAclToCyrusAcl(container.domainUid, current, box).get();
+			Map<String, Acl> acls = Collections.emptyMap();// new DbAclToCyrusAcl(container.domainUid, current,
+															// box).get();
 			MailboxOps.setAcls(box, container.domainUid, acls);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

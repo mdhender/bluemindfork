@@ -66,7 +66,6 @@
       <plugin id="net.bluemind.aws.s3.utils"/>
       <plugin id="net.bluemind.backend.cyrus.index"/>
       <plugin id="net.bluemind.backend.cyrus.partitions"/>
-      <plugin id="net.bluemind.backend.cyrus.replication.client"/>
       <plugin id="net.bluemind.backend.mail.api"/>
       <plugin id="net.bluemind.backend.mail.replica.api"/>
       <plugin id="net.bluemind.calendar.api"/>
