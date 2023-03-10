@@ -119,6 +119,10 @@ public abstract class AbstractRollingReplicationTests extends MailApiTestsBase {
 		return EmlTemplates.withRandomMessageId(file);
 	}
 
+	protected InputStream testEml(String template, String from) {
+		return EmlTemplates.withFrom(template, from);
+	}
+
 	protected ItemValue<MailboxItem> addDraft(ItemValue<MailboxFolder> inbox) throws IOException, InterruptedException {
 		return addDraft(inbox, userUid);
 	}

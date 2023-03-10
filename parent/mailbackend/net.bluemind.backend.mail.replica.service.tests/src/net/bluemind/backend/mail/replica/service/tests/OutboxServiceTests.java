@@ -7,6 +7,8 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -15,6 +17,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
 import org.junit.Before;
@@ -39,7 +42,11 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.TaskUtils;
+import net.bluemind.core.task.service.TaskUtils.ExtendedTaskStatus;
+import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
+import net.bluemind.imap.IMAPException;
+import net.bluemind.imap.StoreClient;
 import net.bluemind.imap.mime.MimeTree;
 
 public class OutboxServiceTests extends AbstractRollingReplicationTests {
@@ -391,6 +398,28 @@ public class OutboxServiceTests extends AbstractRollingReplicationTests {
 				sent_mailboxItemsService.count(ItemFlagFilter.all()).total);
 		assertEquals("MDN should be removed from Outbox", 0L,
 				outboxMailboxItemsService.count(ItemFlagFilter.create().mustNot(ItemFlag.Deleted)).total);
+	}
+
+	@Test
+	public void testFlushOutboxWithMessageRequestingDSN()
+			throws UnknownHostException, IMAPException, InterruptedException, ExecutionException, TimeoutException {
+		String address = String.format("%s@%s", userUid, domainUid);
+		try (StoreClient sc = new StoreClient(Inet4Address.getLocalHost().getHostAddress(), 1143, address, userUid)) {
+			sc.login();
+			FlagsList flaglist = new FlagsList();
+			flaglist.add(Flag.BMDSN);
+			int added = sc.append("Outbox", testEml("dynamic_from.ftl", address), flaglist);
+			AtomicInteger addUid = new AtomicInteger();
+			addUid.set(added);
+		}
+
+		CompletableFuture<Void> applyMailboxCompletetion = new ExpectCommand().onNextApplyMailbox(outboxUid);
+		ExtendedTaskStatus taskStatus = TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM),
+				outboxService.flush());
+		applyMailboxCompletetion.get(5, TimeUnit.SECONDS);
+		assertEquals(1L, sent_mailboxItemsService.count(ItemFlagFilter.all()).total);
+		assertTrue(String.format("Expected to find '\"requestedDSNds\": 1' in '%s'", taskStatus.result),
+				taskStatus.result.contains("\"requestedDSNs\": 1"));
 	}
 
 }

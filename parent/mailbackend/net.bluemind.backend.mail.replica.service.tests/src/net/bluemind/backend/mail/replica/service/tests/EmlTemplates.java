@@ -68,4 +68,18 @@ public class EmlTemplates {
 
 	}
 
+	public static InputStream withFrom(String tplName, String from) {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.US_ASCII);
+		try {
+			Template tpl = fmCfg.getTemplate(tplName, "US-ASCII");
+			tpl.process(ImmutableMap.of("from", from), writer);
+			writer.close();
+			return new ByteArrayInputStream(out.toByteArray());
+		} catch (Exception e) {
+			throw new EmlException(e);
+		}
+
+	}
+
 }

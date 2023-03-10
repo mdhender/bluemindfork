@@ -72,6 +72,12 @@ public class FakeSendmail implements ISendmail {
 	@Override
 	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
 			InputStream in) {
+		return send(creds, fromEmail, userDomain, rcptTo, in, false);
+	}
+
+	@Override
+	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
+			InputStream inStream, boolean requestDSN) {
 		mailSent = true;
 
 		TestMail tm = new TestMail();
@@ -82,7 +88,10 @@ public class FakeSendmail implements ISendmail {
 
 		tm.message = null;
 		messages.add(tm);
-		return SendmailResponse.success();
-
+		SendmailResponse sendmailResponse = SendmailResponse.success();
+		if (requestDSN) {
+			sendmailResponse.requestDSN();
+		}
+		return sendmailResponse;
 	}
 }

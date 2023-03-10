@@ -140,11 +140,13 @@ public class OutboxService implements IOutbox {
 					.collect(Collectors.toList());
 			Set<RecipientInfo> collectedRecipients = promises.stream().map(this::safeGet) //
 					.flatMap(ret -> ret.collectedRecipients.stream()).collect(Collectors.toSet());
+			int requestedDSNs = promises.stream().map(this::safeGet).map(fi -> fi.requestedDSN ? 1 : 0).reduce(0,
+					(a, b) -> a + b);
 
 			addRecipientsToCollectedContacts(user.uid, collectedRecipients);
 			logger.info("[{}] flushed {}", context.getSecurityContext().getSubject(), mailCount);
-			monitor.end(true, "FLUSHING OUTBOX finished successfully",
-					String.format("{\"result\": %s}", JsonUtils.asString(flushResults)));
+			monitor.end(true, "FLUSHING OUTBOX finished successfully", String.format(
+					"{\"result\": %s, \"requestedDSNs\": %d}", JsonUtils.asString(flushResults), requestedDSNs));
 		}).exceptionally(e -> {
 			monitor.end(false, "FLUSHING OUTBOX - finished in error", "{\"result\": \"" + e + "\"}");
 			logger.error("FLUSHING OUTBOX - finished in error", e);
@@ -165,7 +167,9 @@ public class OutboxService implements IOutbox {
 				}
 				String fromMail = msg.getFrom().iterator().next().getAddress();
 				MailboxList rcptTo = allRecipients(msg);
-				send(ctx.user.value.login, forSend, fromMail, rcptTo, msg);
+				SendmailResponse sendmailResponse = send(ctx.user.value.login, forSend, fromMail, rcptTo, msg,
+						requestDSN(item.value));
+				ret.requestedDSN = sendmailResponse.getRequestedDSNs() > 0;
 				boolean moveToSent = !isMDN(item.value);
 				ret.flushResult = moveToSent ? moveToSent(item, ctx.sentFolder, ctx.outboxFolder)
 						: Optional.ofNullable(remove(item, ctx.outboxFolder));
@@ -174,8 +178,9 @@ public class OutboxService implements IOutbox {
 						.collect(Collectors.toSet());
 				ctx.monitor.progress(1,
 						String.format(
-								"FLUSHING OUTBOX - mail %s sent" + (moveToSent ? "and moved in Sent folder." : "."),
-								msg.getMessageId()));
+								"FLUSHING OUTBOX - mail %s sent"
+										+ (moveToSent ? "and moved in Sent folder." : ". Requested DSN: %b"),
+								msg.getMessageId(), ret.requestedDSN));
 			} catch (Exception e) {
 				logger.warn("ItemId {}: ", item.internalId, e);
 				throw new ServerFault(e);
@@ -192,6 +197,14 @@ public class OutboxService implements IOutbox {
 		return "multipart/report".equalsIgnoreCase(mailboxItem.body.structure.mime)
 				&& mailboxItem.body.structure.children.stream()
 						.anyMatch(child -> child.mime.contains("/disposition-notification"));
+	}
+
+	/**
+	 * @return <code>true</code> if a Delivery Status Notification is requested for
+	 *         <code>mailboxItem</code> (rfc1891)
+	 */
+	private boolean requestDSN(MailboxItem mailboxItem) {
+		return mailboxItem.flags.stream().anyMatch(itemFlag -> "BmDSN".equalsIgnoreCase(itemFlag.flag));
 	}
 
 	private void addRecipientsToCollectedContacts(String uid, Set<RecipientInfo> collectedRecipients) {
@@ -234,16 +247,19 @@ public class OutboxService implements IOutbox {
 		}
 	}
 
-	private void send(String login, InputStream forSend, String fromMail, MailboxList rcptTo, Message relatedMsg) {
+	private SendmailResponse send(String login, InputStream forSend, String fromMail, MailboxList rcptTo,
+			Message relatedMsg, boolean requestDSN) {
 		SendmailCredentials creds = SendmailCredentials.as(String.format("%s@%s", login, domainUid),
 				context.getSecurityContext().getSessionId());
-		SendmailResponse sendmailResponse = mailer.send(creds, fromMail, domainUid, rcptTo, forSend);
+		SendmailResponse sendmailResponse = mailer.send(creds, fromMail, domainUid, rcptTo, forSend, requestDSN);
 
 		if (!sendmailResponse.getFailedRecipients().isEmpty()) {
 			sendNonDeliveryReport(sendmailResponse.getFailedRecipients(), creds, fromMail, relatedMsg);
 		} else if (!sendmailResponse.isOk()) {
 			throw new ServerFault(sendmailResponse.toString());
 		}
+
+		return sendmailResponse;
 	}
 
 	/**
@@ -460,6 +476,7 @@ public class OutboxService implements IOutbox {
 	}
 
 	static class FlushInfo {
+		public boolean requestedDSN;
 		Optional<FlushResult> flushResult;
 		Set<RecipientInfo> collectedRecipients;
 	}

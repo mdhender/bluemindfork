@@ -59,6 +59,7 @@ public class SendmailResponse {
 	public final int code;
 	public final String message;
 	private List<FailedRecipient> failedRecipients;
+	private int requestedDSNs;
 
 	public static SendmailResponse success() {
 		return new SendmailResponse(250);
@@ -94,9 +95,10 @@ public class SendmailResponse {
 		this(resp.getCode(), resp.getMessage());
 	}
 
-	public SendmailResponse(SMTPResponse data, List<FailedRecipient> failedRecipients) {
+	public SendmailResponse(SMTPResponse data, List<FailedRecipient> failedRecipients, int requestedDSNs) {
 		this(data);
 		this.failedRecipients = failedRecipients;
+		this.requestedDSNs = requestedDSNs;
 	}
 
 	public boolean isError() {
@@ -112,6 +114,14 @@ public class SendmailResponse {
 		return failedRecipients;
 	}
 
+	public int getRequestedDSNs() {
+		return requestedDSNs;
+	}
+
+	public void requestDSN() {
+		requestedDSNs++;
+	}
+
 	@Override
 	public String toString() {
 		String res = String.format("%d: %s", code, message);
@@ -121,6 +131,7 @@ public class SendmailResponse {
 				res = res + "\r\n" + failedRecipients.get(i);
 			}
 		}
+		res += String.format("\r\n Requested DSN: %d", requestedDSNs);
 		return res;
 	}
 }

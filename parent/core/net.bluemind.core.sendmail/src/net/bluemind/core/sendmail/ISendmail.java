@@ -78,4 +78,12 @@ public interface ISendmail {
 	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
 			InputStream inStream);
 
+	/**
+	 * @param requestDSN if <code>true</code>, request the sending of a report to
+	 *                   <code>fromEmail</code> upon successful delivery of the
+	 *                   message (Delivery Status Notification, rfc3461)
+	 */
+	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
+			InputStream inStream, boolean requestDSN);
+
 }

@@ -229,7 +229,17 @@ class MockedSendmail implements ISendmail {
 	@Override
 	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
 			InputStream inStream) {
+		return send(creds, fromEmail, userDomain, rcptTo, inStream, false);
+	}
+
+	@Override
+	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
+			InputStream inStream, boolean requestDSN) {
 		wasCalled();
-		return SendmailResponse.success();
+		SendmailResponse sendmailResponse = SendmailResponse.success();
+		if (requestDSN) {
+			sendmailResponse.requestDSN();
+		}
+		return sendmailResponse;
 	}
 }

@@ -128,4 +128,18 @@ public class SendmailTests {
 		System.err.println("Average Send time is " + average + "ms.");
 	}
 
+	@Test
+	public void sendMessageWithDSNRequest() throws IOException {
+		Sendmail s = new Sendmail();
+		try (InputStream eml = SendmailTests.class.getClassLoader().getResourceAsStream("data/simple_text_html.eml")) {
+			assertNotNull(eml);
+			SendmailCredentials creds = SendmailCredentials.as("username", "password");
+			MailboxList recips = new MailboxList(Arrays.asList(new Mailbox("recipient", "bluemind.net")), true);
+			boolean requestDSN = true;
+			SendmailResponse resp = s.send(creds, "username@bluemind.net", "bluemind.net", recips, eml, requestDSN);
+			assertEquals(250, resp.code());
+			assertEquals(1, resp.getRequestedDSNs());
+		}
+	}
+
 }

@@ -134,6 +134,12 @@ public class Sendmail implements ISendmail {
 	@Override
 	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
 			InputStream inStream) {
+		return send(creds, fromEmail, userDomain, rcptTo, inStream, false);
+	}
+
+	@Override
+	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
+			InputStream inStream, boolean requestDSN) {
 		if (rcptTo == null) {
 			throw new ServerFault("null To: field in message");
 		}
@@ -154,14 +160,20 @@ public class Sendmail implements ISendmail {
 			smtp.auth("PLAIN", creds.loginAtDomain, creds.authKey.toCharArray());
 			smtp.mail(new Address(fromEmail));
 
+			int requestedDSNs = 0;
 			for (Mailbox to : rcptTo) {
 				try {
-					smtp.rcpt(new Address(to.getAddress()));
+					if (requestDSN) {
+						smtp.rcptWithDeliveryReport(new Address(to.getAddress()));
+						requestedDSNs++;
+					} else {
+						smtp.rcpt(new Address(to.getAddress()));
+					}
 				} catch (SMTPException e) {
 					failedRecipients.add(new FailedRecipient(to.getAddress(), e.getMessage()));
 				}
 			}
-			sendmailResponse = new SendmailResponse(smtp.data(inStream), failedRecipients);
+			sendmailResponse = new SendmailResponse(smtp.data(inStream), failedRecipients, requestedDSNs);
 			smtp.quit();
 
 			logger.info("Email sent {}", getLog(creds, fromEmail, rcptTo, sendmailResponse, Optional.empty()));
@@ -181,4 +193,5 @@ public class Sendmail implements ISendmail {
 				String.join(",", rcptTo.stream().map(rcpt -> rcpt.getAddress()).collect(Collectors.toList())),
 				sendmailResponse != null ? sendmailResponse.toString() : exceptionMessage.orElse("Fail"));
 	}
+
 }

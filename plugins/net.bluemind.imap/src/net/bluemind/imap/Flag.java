@@ -19,7 +19,7 @@
 package net.bluemind.imap;
 
 public enum Flag {
-	SEEN, DRAFT, DELETED, FLAGGED, ANSWERED, BMARCHIVED, FORWARDED;
+	SEEN, DRAFT, DELETED, FLAGGED, ANSWERED, BMARCHIVED, FORWARDED, BMDSN;
 
 	public String toString() {
 		switch (this) {
@@ -37,6 +37,8 @@ public enum Flag {
 			return "$Forwarded";
 		case BMARCHIVED:
 			return "Bmarchived";
+		case BMDSN:
+			return "BmDSN";
 		default:
 			return "";
 		}
