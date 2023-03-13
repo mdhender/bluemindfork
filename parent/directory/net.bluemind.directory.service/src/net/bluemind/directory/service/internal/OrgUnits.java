@@ -26,6 +26,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -54,6 +56,7 @@ import net.bluemind.system.state.StateContext;
 
 public class OrgUnits implements IOrgUnits {
 
+	private static final Logger logger = LoggerFactory.getLogger(OrgUnits.class);
 	private OrgUnitContainerStoreService storeService;
 	private RBACManager rbacManager;
 	private Validator validator;
@@ -106,7 +109,7 @@ public class OrgUnits implements IOrgUnits {
 
 		sanitizer.create(value);
 		validator.create(value);
-
+		logger.info("OU create {} {}, parent {}", uid, value.name, value.parentUid);
 		storeService.create(orgUnitItem);
 		dirEventProducer.changed(uid, storeService.getVersion());
 
@@ -138,6 +141,7 @@ public class OrgUnits implements IOrgUnits {
 				&& StateContext.getState() != SystemState.CORE_STATE_CLONING) {
 			throw new ServerFault("Parent change is not allowed", ErrorCode.INVALID_PARAMETER);
 		}
+		logger.info("OU update {} {}, parent {} -> {}", uid, value.name, previous.value.parentUid, value.parentUid);
 		storeService.update(orgUnitItem);
 		dirEventProducer.changed(uid, storeService.getVersion());
 	}
@@ -291,7 +295,12 @@ public class OrgUnits implements IOrgUnits {
 	@Override
 	public void restore(ItemValue<OrgUnit> item, boolean isCreate) {
 		if (isCreate) {
-			createWithItem(item);
+			ItemValue<OrgUnit> existing = getComplete(item.uid);
+			if (existing == null) {
+				createWithItem(item);
+			} else {
+				updateWithItem(item);
+			}
 		} else {
 			updateWithItem(item);
 		}
