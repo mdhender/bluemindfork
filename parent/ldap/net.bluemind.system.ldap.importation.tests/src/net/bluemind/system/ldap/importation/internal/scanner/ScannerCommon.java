@@ -804,8 +804,8 @@ public abstract class ScannerCommon {
 		Security userSecurity = coreService.createdUsers.entrySet().iterator().next()
 				.getValue().value.contactInfos.security;
 		assertEquals(1, userSecurity.key.parameters.size());
-		assertEquals("TYPE", userSecurity.key.parameters.get(0).label);
-		assertEquals("pem", userSecurity.key.parameters.get(0).value);
+		assertEquals("MEDIATYPE", userSecurity.key.parameters.get(0).label);
+		assertEquals("application/x-pem-file", userSecurity.key.parameters.get(0).value);
 
 		String certificate = "MIIFwzCCA6ugAwIBAgIUVTSFATfec/mVyk95Yu8jhQJjEhcwDQYJKoZIhvcNAQELBQAwcTELMAkG" //
 				+ "A1UEBhMCRlIxDzANBgNVBAgMBkZyYW5jZTERMA8GA1UEBwwIVG91bG91c2UxETAPBgNVBAoMCEJs" //
@@ -848,8 +848,8 @@ public abstract class ScannerCommon {
 		Security userSecurity = coreService.createdUsers.entrySet().iterator().next()
 				.getValue().value.contactInfos.security;
 		assertEquals(1, userSecurity.key.parameters.size());
-		assertEquals("TYPE", userSecurity.key.parameters.get(0).label);
-		assertEquals("pkcs7", userSecurity.key.parameters.get(0).value);
+		assertEquals("MEDIATYPE", userSecurity.key.parameters.get(0).label);
+		assertEquals("application/pkcs7-mime", userSecurity.key.parameters.get(0).value);
 
 		String pkcs7 = "MIIF8gYJKoZIhvcNAQcCoIIF4zCCBd8CAQExADALBgkqhkiG9w0BBwGgggXHMIIF" //
 				+ "wzCCA6ugAwIBAgIUVTSFATfec/mVyk95Yu8jhQJjEhcwDQYJKoZIhvcNAQELBQAw" //

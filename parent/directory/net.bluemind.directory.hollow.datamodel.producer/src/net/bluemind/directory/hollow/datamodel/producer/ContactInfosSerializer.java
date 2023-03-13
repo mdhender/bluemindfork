@@ -70,8 +70,10 @@ public abstract class ContactInfosSerializer extends DirEntrySerializer {
 			return Value.NULL;
 		case UserX509Certificate:
 			return contactInfos().security.key.parameters.stream()
-					.filter(parameter -> "TYPE".equalsIgnoreCase(parameter.label) && "pkcs7".equalsIgnoreCase(parameter.value)).findFirst()
-					.map(parameter -> CertificateUtils.getPkcs7DerFormat(contactInfos().security.key.value)
+					.filter(parameter -> "MEDIATYPE".equalsIgnoreCase(parameter.label)
+							&& "application/pkcs7-mime".equalsIgnoreCase(parameter.value))
+					.findFirst()
+					.map(parameter -> CertificateUtils.pkcs7PemToDer(contactInfos().security.key.value)
 							.map(pkcs7 -> (Value) (new ByteArrayValue(pkcs7))).orElse(Value.NULL))
 					.orElseGet(() -> new Pem(contactInfos().security.key.value).toPcks7()
 							.map(pcks7 -> (Value) (new ByteArrayValue(pcks7))).orElse(Value.NULL));

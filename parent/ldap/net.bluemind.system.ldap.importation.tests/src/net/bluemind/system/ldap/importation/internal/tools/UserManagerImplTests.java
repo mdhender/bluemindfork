@@ -864,8 +864,9 @@ public class UserManagerImplTests {
 		assertEquals(JobExitStatus.SUCCESS, importLogger.repportStatus.get().getJobStatus());
 
 		assertEquals(1, userManager.user.value.contactInfos.security.key.parameters.size());
-		assertEquals("TYPE", userManager.user.value.contactInfos.security.key.parameters.get(0).label);
-		assertEquals("pkcs7", userManager.user.value.contactInfos.security.key.parameters.get(0).value);
+		assertEquals("MEDIATYPE", userManager.user.value.contactInfos.security.key.parameters.get(0).label);
+		assertEquals("application/pkcs7-mime",
+				userManager.user.value.contactInfos.security.key.parameters.get(0).value);
 
 		String pkcs7 = "MIIF8gYJKoZIhvcNAQcCoIIF4zCCBd8CAQExADALBgkqhkiG9w0BBwGgggXHMIIF" //
 				+ "wzCCA6ugAwIBAgIUVTSFATfec/mVyk95Yu8jhQJjEhcwDQYJKoZIhvcNAQELBQAw" //
@@ -918,8 +919,9 @@ public class UserManagerImplTests {
 		assertEquals(JobExitStatus.SUCCESS, importLogger.repportStatus.get().getJobStatus());
 
 		assertEquals(1, userManager.user.value.contactInfos.security.key.parameters.size());
-		assertEquals("TYPE", userManager.user.value.contactInfos.security.key.parameters.get(0).label);
-		assertEquals("pem", userManager.user.value.contactInfos.security.key.parameters.get(0).value);
+		assertEquals("MEDIATYPE", userManager.user.value.contactInfos.security.key.parameters.get(0).label);
+		assertEquals("application/x-pem-file",
+				userManager.user.value.contactInfos.security.key.parameters.get(0).value);
 
 		String certificate = "MIIFwzCCA6ugAwIBAgIUVTSFATfec/mVyk95Yu8jhQJjEhcwDQYJKoZIhvcNAQELBQAwcTELMAkG" //
 				+ "A1UEBhMCRlIxDzANBgNVBAgMBkZyYW5jZTERMA8GA1UEBwwIVG91bG91c2UxETAPBgNVBAoMCEJs" //

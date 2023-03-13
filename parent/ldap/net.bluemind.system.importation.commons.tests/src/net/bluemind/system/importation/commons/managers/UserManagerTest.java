@@ -531,8 +531,8 @@ public class UserManagerTest {
 		umt.update(ItemValue.create(Item.create("test", null), user), new MailFilter());
 
 		assertEquals(1, user.contactInfos.security.key.parameters.size());
-		assertEquals("TYPE", user.contactInfos.security.key.parameters.get(0).label);
-		assertEquals("pem", user.contactInfos.security.key.parameters.get(0).value);
+		assertEquals("MEDIATYPE", user.contactInfos.security.key.parameters.get(0).label);
+		assertEquals("application/x-pem-file", user.contactInfos.security.key.parameters.get(0).value);
 		assertEquals("-----BEGIN CERTIFICATE-----" + certificate + "-----END CERTIFICATE-----",
 				user.contactInfos.security.key.value.replace("\n", ""));
 	}
@@ -581,8 +581,8 @@ public class UserManagerTest {
 		umt.update(ItemValue.create(Item.create("test", null), user), new MailFilter());
 
 		assertEquals(1, user.contactInfos.security.key.parameters.size());
-		assertEquals("TYPE", user.contactInfos.security.key.parameters.get(0).label);
-		assertEquals("pkcs7", user.contactInfos.security.key.parameters.get(0).value);
+		assertEquals("MEDIATYPE", user.contactInfos.security.key.parameters.get(0).label);
+		assertEquals("application/pkcs7-mime", user.contactInfos.security.key.parameters.get(0).value);
 		assertEquals("-----BEGIN PKCS7-----" + pkcs7 + "-----END PKCS7-----",
 				user.contactInfos.security.key.value.replace("\n", ""));
 	}

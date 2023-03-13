@@ -43,7 +43,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.directory.hollow.datamodel.producer.DirEntrySerializer.Property;
 import net.bluemind.user.api.User;
 
-public class userSanitizerTest {
+public class UserSanitizerTest {
 	@Test
 	public void userCertificatePem() throws IOException {
 		String certificate = "-----BEGIN CERTIFICATE-----\n" //
@@ -82,8 +82,8 @@ public class userSanitizerTest {
 
 		User user = new User();
 		user.contactInfos = new VCard();
-		user.contactInfos.security = Security
-				.create(Key.create(certificate, Arrays.asList(Parameter.create("TYPE", "pem"))));
+		user.contactInfos.security = Security.create(
+				Key.create(certificate, Arrays.asList(Parameter.create("MEDIATYPE", "application/x-pem-file"))));
 
 		Value property = new UserSerializer(ItemValue.create(Item.create(UUID.randomUUID().toString(), 0), user), null,
 				null).get(Property.UserX509Certificate);
@@ -134,7 +134,7 @@ public class userSanitizerTest {
 		User user = new User();
 		user.contactInfos = new VCard();
 		user.contactInfos.security = Security
-				.create(Key.create(pkcs7, Arrays.asList(Parameter.create("TYPE", "pkcs7"))));
+				.create(Key.create(pkcs7, Arrays.asList(Parameter.create("MEDIATYPE", "application/pkcs7-mime"))));
 
 		Value property = new UserSerializer(ItemValue.create(Item.create(UUID.randomUUID().toString(), 0), user), null,
 				null).get(Property.UserX509Certificate);

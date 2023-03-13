@@ -121,7 +121,13 @@ public class CertificateUtils {
 		return CertificateFactory.getInstance(X509).generateCertificates(new ByteArrayInputStream(certFile));
 	}
 
-	public static Optional<byte[]> getPkcs7DerFormat(String pkcs7) {
+	/**
+	 * Convert PKCS7 PEM to DER
+	 * 
+	 * @param pkcs7
+	 * @return PKCS7 DER or empty optional if invalid
+	 */
+	public static Optional<byte[]> pkcs7PemToDer(String pkcs7) {
 		try {
 			Object obj;
 			while ((obj = new PEMParser(new StringReader(pkcs7)).readObject()) != null) {

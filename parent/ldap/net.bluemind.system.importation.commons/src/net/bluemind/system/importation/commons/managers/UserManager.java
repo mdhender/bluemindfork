@@ -179,7 +179,7 @@ public abstract class UserManager extends EntityManager {
 				.map(bin -> new StringBuilder().append(BEGIN_PKCS7).append("\n")
 						.append(new String(Base64.getMimeEncoder(64, "\n".getBytes()).encode(bin))).append("\n")
 						.append(END_PKCS7).toString())
-				.map(pkcs7 -> Key.create(pkcs7, Arrays.asList(Parameter.create("TYPE", "pkcs7"))))
+				.map(pkcs7 -> Key.create(pkcs7, Arrays.asList(Parameter.create("MEDIATYPE", "application/pkcs7-mime"))))
 				.orElseGet(this::fromDerAttribute);
 	}
 
@@ -190,7 +190,8 @@ public abstract class UserManager extends EntityManager {
 				.map(der -> new StringBuilder().append(BEGIN_CERT).append("\n")
 						.append(new String(Base64.getMimeEncoder(64, "\n".getBytes()).encode(der))).append("\n")
 						.append(END_CERT).toString())
-				.map(pem -> Key.create(pem, Arrays.asList(Parameter.create("TYPE", "pem")))).orElse(new Key());
+				.map(pem -> Key.create(pem, Arrays.asList(Parameter.create("MEDIATYPE", "application/x-pem-file"))))
+				.orElse(new Key());
 	}
 
 	private void setLogin(IImportLogger importLogger) throws LdapInvalidAttributeValueException {
