@@ -174,8 +174,19 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 	}
 
 	private boolean roleCheck(String role, LoginResponse lr) {
-		return role == null || lr.authUser.roles.contains(SecurityContext.ROLE_SYSTEM)
-				|| lr.authUser.roles.contains(role);
+		return role == null || lr.authUser.roles.contains(SecurityContext.ROLE_SYSTEM) || checkUserRole(role, lr);
+	}
+
+	private boolean checkUserRole(String role, LoginResponse lr) {
+		if (!lr.authUser.roles.contains(role)) {
+			if (logger.isWarnEnabled()) {
+				logger.warn("User {} does not have role {}", lr.authUser.value.defaultEmailAddress(), role);
+			}
+			return false;
+		}
+
+		return true;
+
 	}
 
 	private static final CharSequence WWW_AUTHENTICATE = HttpHeaders.createOptimized("WWW-Authenticate");
