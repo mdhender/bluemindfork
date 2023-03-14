@@ -11,10 +11,8 @@
 	<modules>
 		<module>net.bluemind.backend.cyrus.partitions</module>
 		<module>net.bluemind.backend.cyrus.partitions.tests</module>
-		<module>net.bluemind.backend.cyrus</module>
 		<module>net.bluemind.backend.cyrus.mailboxesdb</module>
 		<module>net.bluemind.backend.cyrus.mailboxesdb.tests</module>
-		<module>net.bluemind.backend.cyrus.tests</module>
 		<module>net.bluemind.backend.cyrus.index</module>
 		<module>net.bluemind.backend.cyrus.index.tests</module>
 		<module>net.bluemind.lmtp.filter.tnef</module>
@@ -42,17 +40,5 @@
 		<module>net.bluemind.backend.mail.parsing.tests</module>
 		<module>net.bluemind.backend.mail.replica.service.tests</module>
 		<module>net.bluemind.backend.mail.replica.sqlschema</module>
-		<module>net.bluemind.backend.cyrus.replication.testhelper</module>
-		<module>net.bluemind.backend.cyrus.replication.protocol</module>
-		<module>net.bluemind.backend.cyrus.replication.observers</module>
-		<module>net.bluemind.backend.cyrus.replication.client</module>
-		<module>net.bluemind.backend.cyrus.replication.server</module>
-		<module>net.bluemind.backend.cyrus.replication.storage.core</module>
-		<module>net.bluemind.backend.cyrus.replication.storage.mock</module>
-		<module>net.bluemind.backend.cyrus.syncclient.mgmt</module>
-		<module>net.bluemind.backend.cyrus.replication.server.tests</module>
-		<module>net.bluemind.backend.cyrus.replication.link</module>
-		<module>net.bluemind.backend.cyrus.integrity.check</module>
-		<module>net.bluemind.backend.cyrus.integrity.check.tests</module>
 	</modules>
 </project>

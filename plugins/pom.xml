@@ -49,7 +49,6 @@
 		<module>net.bluemind.imap.translate</module>
 		<module>net.bluemind.imap</module>
 		<module>net.bluemind.imap.tests</module>
-		<module>net.bluemind.imap.cyrus.tests</module>
 		<module>net.bluemind.imip.parser.tests</module>
 		<module>net.bluemind.imip.parser</module>
 		<module>net.bluemind.jdbc.driver.pgsql</module>

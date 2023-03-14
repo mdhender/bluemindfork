@@ -47,20 +47,9 @@
    <bundle id="net.bluemind.authentication.service" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.authentication.sqlschema" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.aws.s3.utils" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.backend.cyrus.index" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.integrity.check" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.backend.cyrus.mailboxesdb" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.backend.cyrus.partitions" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.replication.client" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.replication.link" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.replication.observers" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.replication.protocol" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.replication.server" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.replication.storage.core" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.replication.storage.mock" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.replication.testhelper" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.backend.cyrus.syncclient.mgmt" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.backend.mail.api" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.backend.mail.api.gwt" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.backend.mail.api.php" version="5.0.0.qualifier"/>
@@ -379,7 +368,6 @@
    <bundle id="net.bluemind.icalendar.persistence" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.icalendar.sqlschema" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.imap" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.imap.cyrus.storage.testhelper" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.imap.driver.mailapi" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.imap.endpoint" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.im.api" version="5.0.0.qualifier"/>
