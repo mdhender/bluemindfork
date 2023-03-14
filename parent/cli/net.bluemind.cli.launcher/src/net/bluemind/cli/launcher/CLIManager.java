@@ -75,7 +75,6 @@ public class CLIManager {
 
 	public CLIManager(Version v) {
 		CliContext ctx = CliContext.get();
-
 		mainCommand = new CommandLine(new ParentCommand());
 		CommandSpec spec = mainCommand.getCommandSpec();
 		spec.version(v.toString());
@@ -121,7 +120,6 @@ public class CLIManager {
 				System.err.println("Unable to register subcommand: " + e); // NOSONAR
 			}
 		});
-
 	}
 
 	public int processArgs(String... args) {

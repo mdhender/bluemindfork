@@ -30,6 +30,7 @@ import java.net.SocketException;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -39,6 +40,9 @@ import com.google.common.net.InetAddresses;
 
 public class NetworkHelper {
 	private static final Logger logger = LoggerFactory.getLogger(NetworkHelper.class);
+
+	private NetworkHelper() {
+	}
 
 	public static String getMyIpAddress() {
 		return fromHostnameCmd().orElseGet(NetworkHelper::fromNetworkInterface);
@@ -82,7 +86,7 @@ public class NetworkHelper {
 
 		try {
 			CmdOutput ips = SystemHelper.cmdWithEnv(hostnameCmd + " -i", (Map<String, String>) null);
-			Optional<String> found = ips.getOutput().stream().filter(ip -> ip != null)
+			Optional<String> found = ips.getOutput().stream().filter(Objects::nonNull)
 					.filter(NetworkHelper::isIpAddress).filter(ip -> !ip.startsWith("127")).findFirst();
 
 			found.ifPresent(ip -> logger.info("Found IP {} from hostname command", ip));
