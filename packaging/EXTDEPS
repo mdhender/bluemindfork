@@ -3,7 +3,7 @@ BMSDS="5.0.0-353"
 
 BMES="7.17.9-bluemind105"
 
-KAFKA="3.4.0-bluemind25"
+KAFKA="3.4.0-bluemind27"
 MINIO="2023.01.31-bluemind25"
 WEED="3.42-bluemind25"
 

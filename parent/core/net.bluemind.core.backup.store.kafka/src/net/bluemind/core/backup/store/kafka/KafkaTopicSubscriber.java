@@ -246,6 +246,9 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 				Long.toString(conf.getDuration("kafka.consumer.fetchMaxWait", TimeUnit.MILLISECONDS)));
 		cp.setProperty(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG,
 				Long.toString(conf.getDuration("kafka.consumer.maxPollInterval", TimeUnit.MILLISECONDS)));
+		if (conf.hasPath("kafka.consumer.clientRack")) {
+			cp.setProperty(ConsumerConfig.CLIENT_RACK_CONFIG, conf.getString("kafka.consumer.clientRack"));
+		}
 		KafkaConsumer<byte[], byte[]> ret = new KafkaConsumer<>(cp);
 		Thread.currentThread().setContextClassLoader(savedCl);
 		return ret;
