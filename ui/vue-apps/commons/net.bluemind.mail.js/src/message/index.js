@@ -193,6 +193,14 @@ export function isForward(message) {
     return shouldBeForward;
 }
 
+export function isReply(message) {
+    return message.headers?.some(header =>
+        [MessageHeader.IN_REPLY_TO.toUpperCase(), MessageHeader.REFERENCES.toUpperCase()].includes(
+            header.name.toUpperCase()
+        )
+    );
+}
+
 /**
  * Create a portable name for the EML file of the given message.
  * @see  https://www.mtu.edu/umc/services/websites/writing/characters-avoid/
@@ -223,6 +231,7 @@ export default {
     extractHeaderValues,
     isFlagged,
     isForward,
+    isReply,
     isUnread,
     EmlParser,
     MessageAdaptor,

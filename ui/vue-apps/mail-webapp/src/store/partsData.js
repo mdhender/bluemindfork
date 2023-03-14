@@ -81,40 +81,39 @@ export default {
             );
         },
 
-        async [COMPUTE_QUOTE_NODES](store, { message, conversationMessages }) {
-            const {
-                commit,
-                dispatch,
-                state: { partsByMessageKey }
-            } = store;
+        async [COMPUTE_QUOTE_NODES](
+            { commit, dispatch, state: { partsByMessageKey } },
+            { message, conversationMessages }
+        ) {
+            if (messageUtils.isReply(message)) {
+                const messageParts = partsByMessageKey[message.key];
+                if (messageParts) {
+                    let quoteNodesByPartAddress = QuoteHelper.findQuoteNodes(messageParts, message);
 
-            const messageParts = partsByMessageKey[message.key];
-
-            if (messageParts) {
-                // find quote using reply/forward separator
-                let quoteNodesByPartAddress = QuoteHelper.findQuoteNodesUsingSeparator(messageParts);
-
-                const atLeastOneQuoteNotFound = Object.values(quoteNodesByPartAddress).some(qn => qn === "NOT_FOUND");
-                if (atLeastOneQuoteNotFound) {
-                    // find quote using text comparison with related message
-                    quoteNodesByPartAddress = await findQuoteNodesUsingTextComparison(
-                        dispatch,
-                        partsByMessageKey,
-                        message,
-                        conversationMessages,
-                        messageParts,
-                        quoteNodesByPartAddress
+                    const atLeastOneQuoteNotFound = Object.values(quoteNodesByPartAddress).some(
+                        qn => qn === QuoteHelper.NOT_FOUND
                     );
-                }
-
-                // clean-up
-                Object.keys(quoteNodesByPartAddress).forEach(partAddress => {
-                    if (quoteNodesByPartAddress[partAddress] === "NOT_FOUND") {
-                        delete quoteNodesByPartAddress[partAddress];
+                    if (atLeastOneQuoteNotFound) {
+                        // find quote using text comparison with related message
+                        quoteNodesByPartAddress = await findQuoteNodesUsingTextComparison(
+                            dispatch,
+                            partsByMessageKey,
+                            message,
+                            conversationMessages,
+                            messageParts,
+                            quoteNodesByPartAddress
+                        );
                     }
-                });
 
-                commit(SET_QUOTE_NODES, { messageKey: message.key, quoteNodesByPartAddress });
+                    // clean-up
+                    Object.keys(quoteNodesByPartAddress).forEach(partAddress => {
+                        if (quoteNodesByPartAddress[partAddress] === QuoteHelper.NOT_FOUND) {
+                            delete quoteNodesByPartAddress[partAddress];
+                        }
+                    });
+
+                    commit(SET_QUOTE_NODES, { messageKey: message.key, quoteNodesByPartAddress });
+                }
             }
         }
     },
@@ -181,7 +180,7 @@ async function findQuoteNodesUsingTextComparison(
 
             if (relatedParts) {
                 Object.keys(messageParts)
-                    .filter(partKey => quoteNodesByPartAddress[partKey] === "NOT_FOUND")
+                    .filter(partKey => quoteNodesByPartAddress[partKey] === QuoteHelper.NOT_FOUND)
                     .forEach(partKey => {
                         const messagePart = messageParts[partKey];
                         let quoteNodes;
