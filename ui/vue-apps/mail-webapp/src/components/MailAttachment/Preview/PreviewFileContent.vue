@@ -5,13 +5,8 @@
                 <component :is="slotProps.alert.renderer" :alert="slotProps.alert" />
             </template>
         </bm-alert-area>
-        <bm-extension id="webapp.mail" type="chain-of-responsibility" path="file.preview" :file="{ ...file, url: src }">
-            <file-viewer-facade
-                v-if="isAllowedToPreview"
-                class="scroller-y"
-                :message="message"
-                :file="{ ...file, url: src }"
-            />
+        <bm-extension id="webapp.mail" type="chain-of-responsibility" path="file.preview" :file="file_">
+            <file-viewer-facade v-if="isAllowedToPreview" class="scroller-y" :message="message" :file="file_" />
             <no-preview v-else-if="!src" icon="spam" :text="$t('mail.preview.nopreview')" />
             <no-preview v-else :icon="matchingIcon" class="file-type" :text="$t('mail.preview.nopreview.type')" />
         </bm-extension>
@@ -67,6 +62,9 @@ export default {
         ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "preview-right-panel") }),
         matchingIcon() {
             return MimeType.matchingIcon(this.file.mime);
+        },
+        file_() {
+            return { ...this.file, url: this.src };
         }
     },
     watch: {
