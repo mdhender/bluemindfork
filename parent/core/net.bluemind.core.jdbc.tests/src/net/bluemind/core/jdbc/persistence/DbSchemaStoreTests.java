@@ -31,7 +31,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.sql.DataSource;
 
@@ -43,7 +42,6 @@ import org.osgi.framework.Bundle;
 
 import com.google.common.io.ByteStreams;
 
-import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.jdbc.JdbcException;
 import net.bluemind.core.jdbc.JdbcHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
@@ -124,55 +122,5 @@ public class DbSchemaStoreTests {
 		schemaStore.createSchema(sampleDescriptor);
 		version = schemaStore.getSchemaVersion(sampleDescriptor.getName());
 		assertEquals(sampleDescriptor.getVersion(), version);
-	}
-
-	@Test
-	public void testDeadlock() throws InterruptedException, SQLException {
-		AtomicInteger errors = new AtomicInteger(0);
-
-		try (Connection con = ds.getConnection(); Statement stmt = con.createStatement()) {
-			stmt.execute("CREATE TABLE deadlocktest (id int, v text)");
-			stmt.execute("INSERT INTO deadlocktest values (1, 'w1')");
-			stmt.execute("INSERT INTO deadlocktest values (2, 'w2')");
-		}
-
-		Thread t1 = new Thread(() -> {
-			try (Connection con = ds.getConnection(); Statement st = con.createStatement()) {
-				con.setAutoCommit(false);
-				JdbcAbstractStore.retryOnDeadlock(con, () -> {
-					st.execute("UPDATE deadlocktest set v='w1' where id=1");
-					st.execute("select pg_sleep(1)");
-					st.execute("UPDATE deadlocktest set v='w2' where id=2");
-					st.execute("select pg_sleep(2)");
-					return null;
-				});
-			} catch (SQLException e) {
-				errors.addAndGet(1);
-				e.printStackTrace();
-			}
-		});
-
-		Thread t2 = new Thread(() -> {
-			try (Connection con = ds.getConnection(); Statement st = con.createStatement()) {
-				con.setAutoCommit(false);
-				JdbcAbstractStore.retryOnDeadlock(con, () -> {
-					st.execute("UPDATE deadlocktest set v='w2' where id=2");
-					st.execute("select pg_sleep(1)");
-					st.execute("UPDATE deadlocktest set v='w1' where id=1");
-					st.execute("select pg_sleep(2)");
-					return null;
-				});
-
-			} catch (SQLException e) {
-				errors.addAndGet(1);
-				e.printStackTrace();
-			}
-		});
-		t1.start();
-		t2.start();
-		t1.join();
-		t2.join();
-
-		assertEquals(0, errors.get());
 	}
 }

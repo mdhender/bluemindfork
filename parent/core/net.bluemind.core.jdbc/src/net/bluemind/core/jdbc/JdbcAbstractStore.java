@@ -23,7 +23,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Savepoint;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,24 +32,15 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.postgresql.util.PSQLException;
-import org.postgresql.util.PSQLState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
 
 public class JdbcAbstractStore {
-	@SuppressWarnings("serial")
-	public static class RetryDeadlockException extends Exception {
-		public RetryDeadlockException(String message) {
-			super(message);
-		}
-	}
 
 	protected static final Logger logger = LoggerFactory.getLogger(JdbcAbstractStore.class);
 	private static final String BYTEA = "bytea";
-	private static final int MAX_RETRY_DEADLOCK = 5;
 
 	protected final DataSource datasource;
 
@@ -96,7 +86,7 @@ public class JdbcAbstractStore {
 			setStatementParameters(parameters, conn, st);
 			logger.debug("[{}] S: {}", datasource, st);
 			long time = System.currentTimeMillis();
-			rs = retryOnDeadlock(conn, st::executeQuery);
+			rs = st.executeQuery();
 			long elapsedTime = System.currentTimeMillis() - time;
 			if (elapsedTime > 300) {
 				logger.warn("S: {} took {}ms", st, elapsedTime);
@@ -133,7 +123,7 @@ public class JdbcAbstractStore {
 			setStatementParameters(new Object[] { param }, conn, st);
 			logger.debug("[{}] S: {}", datasource, st);
 			long time = System.currentTimeMillis();
-			rs = retryOnDeadlock(conn, st::executeQuery);
+			rs = st.executeQuery();
 			long elapsedTime = System.currentTimeMillis() - time;
 			if (elapsedTime > 300) {
 				logger.warn("S: {} took {}ms", st, elapsedTime);
@@ -232,7 +222,7 @@ public class JdbcAbstractStore {
 			}
 			setStatementParameters(parameters, conn, st, index);
 			logger.debug("[{}] U: {}", datasource, st);
-			return retryOnDeadlock(conn, st::executeUpdate);
+			return st.executeUpdate();
 		} finally {
 			JdbcHelper.cleanup(conn, null, st);
 
@@ -257,7 +247,7 @@ public class JdbcAbstractStore {
 			}
 			setStatementParameters(parameters, conn, st, index);
 			logger.debug("[{}] U: {}", datasource, st);
-			rs = retryOnDeadlock(conn, st::executeQuery);
+			rs = st.executeQuery();
 			if (rs.next()) {
 				V v = null;
 				if (returnCreator != null) {
@@ -286,7 +276,7 @@ public class JdbcAbstractStore {
 			st = conn.prepareStatement(query);
 			setStatementParameters(parameters, conn, st);
 			logger.debug("[{}] D: {}", datasource, st);
-			return retryOnDeadlock(conn, st::executeUpdate);
+			return st.executeUpdate();
 		} finally {
 			JdbcHelper.cleanup(conn, null, st);
 		}
@@ -306,7 +296,7 @@ public class JdbcAbstractStore {
 		try {
 			st = conn.prepareStatement(query);
 			setStatementParameters(parameters, conn, st);
-			rs = retryOnDeadlock(conn, st::executeQuery);
+			rs = st.executeQuery();
 			while (rs.next()) {
 				int index = 1;
 				T v = creator.create(rs);
@@ -342,7 +332,8 @@ public class JdbcAbstractStore {
 				row++;
 			}
 			logger.debug("[{}] batch I: {}", datasource, st);
-			retryOnDeadlock(conn, st::executeBatch);
+			st.executeBatch();
+
 		} catch (BatchUpdateException bue) {
 			throw bue.getNextException();
 		} finally {
@@ -366,7 +357,7 @@ public class JdbcAbstractStore {
 					index = stValue.setValues(conn, st, index, row, v);
 				}
 				logger.debug("[{}] batch I: {}", datasource, st);
-				try (ResultSet rs = retryOnDeadlock(conn, st::executeQuery)) {
+				try (ResultSet rs = st.executeQuery()) {
 					while (rs.next()) {
 						P returningv = creator.create(rs);
 						if (populator != null) {
@@ -394,7 +385,7 @@ public class JdbcAbstractStore {
 				index = stValue.setValues(conn, st, index, 0, value);
 			}
 			logger.debug("[{}] I: {}", datasource, st);
-			retryOnDeadlock(conn, st::executeUpdate);
+			st.executeUpdate();
 		} finally {
 			JdbcHelper.cleanup(conn, null, st);
 
@@ -411,7 +402,7 @@ public class JdbcAbstractStore {
 			index = stValue.setValues(conn, st, index, 0, value);
 			setStatementParameters(parameters, conn, st, index);
 			logger.debug("[{}] I: {}", datasource, st);
-			retryOnDeadlock(conn, st::executeUpdate);
+			st.executeUpdate();
 		} finally {
 			JdbcHelper.cleanup(conn, null, st);
 		}
@@ -429,7 +420,7 @@ public class JdbcAbstractStore {
 				index = stValue.setValues(conn, st, index, 0, value);
 			}
 			logger.debug("[{}] I: {}", datasource, st);
-			rs = retryOnDeadlock(conn, st::executeQuery);
+			rs = st.executeQuery();
 			if (rs.next()) {
 				P v = creator.create(rs);
 				if (populator != null) {
@@ -451,10 +442,10 @@ public class JdbcAbstractStore {
 	}
 
 	private int insertImpl(String query, Object[] parameters, Connection conn) throws SQLException {
-		try (final PreparedStatement st = conn.prepareStatement(query)) {
+		try (PreparedStatement st = conn.prepareStatement(query)) {
 			setStatementParameters(parameters, conn, st);
 			logger.debug("[{}] I: {}", datasource, st);
-			return retryOnDeadlock(conn, st::executeUpdate);
+			return st.executeUpdate();
 		}
 	}
 
@@ -471,10 +462,11 @@ public class JdbcAbstractStore {
 
 	public int lastInsertId(Connection con) throws SQLException {
 		int ret = 0;
+		Statement st = null;
 		ResultSet rs = null;
-		final Statement st = con.createStatement();
 		try {
-			rs = retryOnDeadlock(con, () -> st.executeQuery("SELECT lastval()"));
+			st = con.createStatement();
+			rs = st.executeQuery("SELECT lastval()");
 			if (rs.next()) {
 				ret = rs.getInt(1);
 			}
@@ -503,32 +495,6 @@ public class JdbcAbstractStore {
 		} catch (Exception e) {
 			logger.warn("error applying {} ", action, e);
 			return null;
-		}
-	}
-
-	public static <R> R retryOnDeadlock(Connection con, SqlOperation<R> op) throws SQLException {
-		SQLException lastException = null;
-		Savepoint rollbackto = con.setSavepoint();
-		for (int i = 0; i < MAX_RETRY_DEADLOCK; i++) {
-			try {
-				return op.execute();
-			} catch (PSQLException e) {
-				con.rollback(rollbackto);
-				lastException = e;
-				if (PSQLState.DEADLOCK_DETECTED.getState().equals(e.getSQLState())) {
-					logger.info("deadlock detected: retry {}/{}", i + 1, MAX_RETRY_DEADLOCK);
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException ie) {
-						Thread.currentThread().interrupt();
-					}
-				}
-			}
-		}
-		if (lastException != null) {
-			throw lastException;
-		} else {
-			throw new SQLException("retryOnDeadlock failed, without any exception");
 		}
 	}
 
