@@ -49,8 +49,7 @@ const { MessageCreationModes, MessageHeader } = messageUtils;
 export default {
     data() {
         return {
-            userPrefTextOnly: false, // FIXME: https://forge.bluemind.net/jira/browse/FEATWEBML-88
-            dispositionNotificationAlerts: []
+            userPrefTextOnly: false // FIXME: https://forge.bluemind.net/jira/browse/FEATWEBML-88
         };
     },
     mixins: [AddAttachmentsCommand, ComposerFromMixin],

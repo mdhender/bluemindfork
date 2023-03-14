@@ -536,7 +536,7 @@
     },
     "mail.save.date": "saved on {date}",
     "mail.save.date.time": "saved at {time}",
-    "template.eml.mdn.html.notice": "Note: This read confirmation only indicates that the message has been displayed on the recipient's computer. There is no guarantee that the recipient has read the contents of the message.",
+    "template.eml.mdn.html.notice": "Note: This read confirmation only indicates the message has been displayed on the recipient's computer. There is no guarantee that the recipient has read the message content.",
     "template.eml.mdn.html.quoted": "{to}{subject}{date}",
     "template.eml.mdn.html": "This is a read confirmation for your message{quoted}{notice}",
     "template.eml.mdn.subject": "Reading confirmation \"{subject}\""
