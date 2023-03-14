@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import net.bluemind.backend.cyrus.internal.CyrusMailboxesStorage;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
@@ -73,7 +74,9 @@ public class CyrusSysConfObserver implements ISystemConfigurationObserver {
 			if ((!equals(prevArchiveKind, currentArchiveKind)) || (!equals(prevHsmDays, currentHsmDays))
 					|| (!equals(prevHsmThreshold, currentHsmThreshold)) || (!equals(prevRetention, currentRetention))) {
 				for (ItemValue<Server> server : backends) {
-					MailboxesStorageFactory.getMailStorage().rewriteCyrusConfiguration(server.uid, true);
+					if (MailboxesStorageFactory.getMailStorage() instanceof CyrusMailboxesStorage cms) {
+						cms.rewriteCyrusConfiguration(server.uid, true);
+					}
 				}
 			}
 		}

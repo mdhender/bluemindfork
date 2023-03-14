@@ -146,10 +146,4 @@ public class CompositeBoxStorage implements IMailboxesStorage {
 		throw new UnsupportedOperationException("checkAndRepairSharedSeen");
 	}
 
-	@Override
-	public boolean mailboxRequiresIdsReservations(BmContext context, String domainUid, Mailbox previous,
-			Mailbox current) {
-		return cyrus.mailboxRequiresIdsReservations(context, domainUid, previous, current);
-	}
-
 }

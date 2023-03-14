@@ -68,12 +68,6 @@ public class MailApiBoxStorage implements IMailboxesStorage {
 	}
 
 	@Override
-	public void rewriteCyrusConfiguration(String serverUid, boolean reload) {
-		// OK
-		logger.info("cyrus is not here, rewriteCyrusConfiguration({}) does nothing", serverUid);
-	}
-
-	@Override
 	public void delete(BmContext context, String domainUid, ItemValue<Mailbox> boxItem) throws ServerFault {
 		CyrusPartition partition = CyrusPartition.forServerAndDomain(boxItem.value.dataLocation, domainUid);
 		IReplicatedMailboxesRootMgmt rootMgmtApi = context.provider().instance(IReplicatedMailboxesRootMgmt.class,
@@ -282,12 +276,6 @@ public class MailApiBoxStorage implements IMailboxesStorage {
 			ItemValue<Server> dstServer) {
 		// OK
 		logger.warn("MOVE will not be performed for {}", mailbox);
-	}
-
-	@Override
-	public boolean mailboxRequiresIdsReservations(BmContext context, String domainUid, Mailbox previous,
-			Mailbox current) {
-		return true;
 	}
 
 }

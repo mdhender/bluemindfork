@@ -48,19 +48,6 @@ public interface IMailboxesStorage {
 	void update(BmContext context, String domainUid, ItemValue<Mailbox> previousValue, ItemValue<Mailbox> value)
 			throws ServerFault;
 
-	/**
-	 * return true to pre-allocate itemIds for default folders.
-	 * 
-	 * This is used for continuous backup/restore
-	 * 
-	 * @param context
-	 * @param domainUid
-	 * @param previous
-	 * @param current
-	 * @return
-	 */
-	boolean mailboxRequiresIdsReservations(BmContext context, String domainUid, Mailbox previous, Mailbox current);
-
 	void create(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault;
 
 	MailboxQuota getQuota(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault;
@@ -164,7 +151,5 @@ public interface IMailboxesStorage {
 
 	void move(String domainUid, ItemValue<Mailbox> mailbox, ItemValue<Server> sourceServer,
 			ItemValue<Server> dstServer);
-
-	void rewriteCyrusConfiguration(String serverUid, boolean reload);
 
 }

@@ -263,14 +263,13 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 		return ret;
 	}
 
-	@Override
-	public boolean mailboxRequiresIdsReservations(BmContext context, String domainUid, Mailbox previous,
+	private boolean mailboxRequiresIdsReservations(BmContext context, String domainUid, Mailbox previous,
 			Mailbox current) {
 		return previous == null //
 				// switch from not managed by Blue Mind to something managed: it is a
-				// create from cyrus pov
+				// create from storage pov
 				|| newlyManaged(previous, current) //
-				// Ensure managed mailbox exist in cyrus
+				// Ensure managed mailbox exist in storage
 				|| managedButNotCreated(context, domainUid, previous, current);
 	}
 
@@ -1024,7 +1023,7 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 				.getComplete(mailbox.value.dataLocation);
 
 		List<MailFolder> ret = new ArrayList<>();
-        Map<String, Acl> cyrusAcl = Collections.emptyMap();
+		Map<String, Acl> cyrusAcl = Collections.emptyMap();
 
 		try (StoreClient sc = new StoreClient(server.value.ip, 1143, "admin0", Token.admin0())) {
 			if (!sc.login()) {
@@ -1140,7 +1139,6 @@ public class CyrusMailboxesStorage implements IMailboxesStorage {
 		}
 	}
 
-	@Override
 	public void rewriteCyrusConfiguration(String serverUid, boolean reload) {
 		SystemConf sysConf = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(ISystemConfiguration.class).getValues();

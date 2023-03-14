@@ -729,8 +729,7 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	}
 
 	private ReservedIds reserveDefaultFolderIds(String uid, Mailbox previous, Mailbox current) {
-		if (current.dataLocation == null
-				|| !mailboxStorage().mailboxRequiresIdsReservations(context, domainUid, previous, current)) {
+		if (current.dataLocation == null || !mailboxRequiresIdsReservations(context, domainUid, previous, current)) {
 			logger.warn("IDRES {} Mailbox {} does not require ids reservations for folders.", uid, current);
 			return null;
 		}
@@ -755,6 +754,25 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 		}
 		logger.info("IDRES returning reservations {}", reservedIds);
 		return reservedIds;
+	}
+
+	private boolean mailboxRequiresIdsReservations(BmContext context, String domainUid, Mailbox previous,
+			Mailbox current) {
+		return previous == null //
+				// switch from not managed by BlueMind to something managed: it is a
+				// create from storage pov
+				|| newlyManaged(previous, current) //
+				// Ensure managed mailbox exist in storage
+				|| managedButNotCreated(context, domainUid, previous, current);
+	}
+
+	private boolean newlyManaged(Mailbox previous, Mailbox current) {
+		return !previous.routing.managed() && current.routing.managed();
+	}
+
+	private boolean managedButNotCreated(BmContext context, String domainUid, Mailbox previous, Mailbox current) {
+		return !previous.equals(current) && previous.name.equals(current.name) && current.routing.managed()
+				&& !mailboxStorage().mailboxExist(context, domainUid, ItemValue.create("", current));
 	}
 
 	private ReservedIds doReserveDefaultFolderIds(IOfflineMgmt offlineMgmtApi, String uid, String subtreeUid,

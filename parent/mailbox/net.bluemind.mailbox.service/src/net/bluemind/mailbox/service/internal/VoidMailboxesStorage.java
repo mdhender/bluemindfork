@@ -53,13 +53,6 @@ public class VoidMailboxesStorage implements IMailboxesStorage {
 	}
 
 	@Override
-	public boolean mailboxRequiresIdsReservations(BmContext context, String domainUid, Mailbox previous,
-			Mailbox current) {
-		logger.warn("VOID MAILSTORAGE mailboxUpdateRequiresCreationInCyrus {}:{}", domainUid, current);
-		return false;
-	}
-
-	@Override
 	public void create(BmContext context, String domainUid, ItemValue<Mailbox> value) throws ServerFault {
 		logger.warn("VOID MAILSTORAGE create {}:{}", domainUid, value.uid);
 	}
@@ -146,11 +139,6 @@ public class VoidMailboxesStorage implements IMailboxesStorage {
 	public void move(String domainUid, ItemValue<Mailbox> mailbox, ItemValue<Server> sourceServer,
 			ItemValue<Server> dstServer) {
 		logger.warn("VOID MAILSTORAGE move");
-	}
-
-	@Override
-	public void rewriteCyrusConfiguration(String serverUid, boolean reload) {
-		logger.warn("VOID MAILSTORAGE rewriteCyrusConfiguration");
 	}
 
 }
