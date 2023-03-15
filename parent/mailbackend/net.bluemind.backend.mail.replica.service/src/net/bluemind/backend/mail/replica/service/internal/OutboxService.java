@@ -168,8 +168,7 @@ public class OutboxService implements IOutbox {
 				send(ctx.user.value.login, forSend, fromMail, rcptTo, msg);
 				boolean moveToSent = !isMDN(item.value);
 				ret.flushResult = moveToSent ? moveToSent(item, ctx.sentFolder, ctx.outboxFolder)
-						: Optional.ofNullable(buildFlushResult(item.internalId, ctx.outboxFolder.uid, item.internalId,
-								ctx.outboxFolder.uid));
+						: Optional.ofNullable(remove(item, ctx.outboxFolder));
 				ret.collectedRecipients = rcptTo.stream()
 						.map(rcpt -> new RecipientInfo(rcpt.getAddress(), rcpt.getName(), rcpt.getLocalPart()))
 						.collect(Collectors.toSet());
@@ -278,6 +277,12 @@ public class OutboxService implements IOutbox {
 			return null;
 		}
 		return buildFlushResult(item.internalId, sourceUid, targetItems.get(0).id, targetUid);
+	}
+
+	private FlushResult remove(ItemValue<MailboxItem> item, ItemValue<MailboxFolder> outboxFolder) {
+		IMailboxItems mailboxItemsService = serviceProvider.instance(IMailboxItems.class, outboxFolder.uid);
+		mailboxItemsService.deleteById(item.internalId);
+		return buildFlushResult(item.internalId, outboxFolder.uid, item.internalId, outboxFolder.uid);
 	}
 
 	private FlushResult buildFlushResult(long sourceInternalId, String sourceFolderUid, long targetInternalId,

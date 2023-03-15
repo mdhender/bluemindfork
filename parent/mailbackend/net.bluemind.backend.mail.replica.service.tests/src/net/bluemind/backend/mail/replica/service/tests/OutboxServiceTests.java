@@ -387,7 +387,10 @@ public class OutboxServiceTests extends AbstractRollingReplicationTests {
 		CompletableFuture<Void> applyMailboxCompletetion = new ExpectCommand().onNextApplyMailbox(outboxUid);
 		TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), outboxService.flush());
 		applyMailboxCompletetion.get(5, TimeUnit.SECONDS);
-		assertEquals(0L, sent_mailboxItemsService.count(ItemFlagFilter.all()).total);
+		assertEquals("MDN should not be copied to Sent", 0L,
+				sent_mailboxItemsService.count(ItemFlagFilter.all()).total);
+		assertEquals("MDN should be removed from Outbox", 0L,
+				outboxMailboxItemsService.count(ItemFlagFilter.create().mustNot(ItemFlag.Deleted)).total);
 	}
 
 }
