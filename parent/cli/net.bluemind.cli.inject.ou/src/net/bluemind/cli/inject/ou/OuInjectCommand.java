@@ -23,11 +23,6 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import com.github.javafaker.Beer;
-import com.github.javafaker.Country;
-import com.github.javafaker.Faker;
-import com.github.javafaker.Pokemon;
-import com.github.javafaker.Superhero;
 import com.google.common.base.Strings;
 
 import net.bluemind.cli.cmd.api.CliContext;
@@ -47,6 +42,11 @@ import net.bluemind.group.api.IGroup;
 import net.bluemind.group.api.Member.Type;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
+import net.datafaker.Faker;
+import net.datafaker.providers.base.Country;
+import net.datafaker.providers.base.Superhero;
+import net.datafaker.providers.entertainment.Pokemon;
+import net.datafaker.providers.food.Beer;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -119,10 +119,11 @@ public class OuInjectCommand implements ICmdLet, Runnable {
 		List<String> parentUids = new ArrayList<>();
 		List<String> previousParentUids = new ArrayList<>();
 
-		Beer beers = Faker.instance().beer();
-		Pokemon pokemons = Faker.instance().pokemon();
-		Superhero heros = Faker.instance().superhero();
-		Country countries = Faker.instance().country();
+		Faker faker = new Faker();
+		Beer beers = faker.beer();
+		Pokemon pokemons = faker.pokemon();
+		Superhero heros = faker.superhero();
+		Country countries = faker.country();
 
 		try {
 			boolean root = true;

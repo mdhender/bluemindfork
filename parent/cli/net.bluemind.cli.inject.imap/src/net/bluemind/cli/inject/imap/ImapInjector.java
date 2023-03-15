@@ -23,9 +23,6 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadLocalRandom;
 
-import com.github.javafaker.Beer;
-import com.github.javafaker.Country;
-import com.github.javafaker.Faker;
 import com.google.common.base.Strings;
 
 import net.bluemind.cli.inject.common.GOTMessageProducer;
@@ -38,6 +35,9 @@ import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.Server;
+import net.datafaker.Faker;
+import net.datafaker.providers.base.Country;
+import net.datafaker.providers.food.Beer;
 
 public class ImapInjector extends MailExchangeInjector {
 
@@ -72,8 +72,8 @@ public class ImapInjector extends MailExchangeInjector {
 			boolean ret = sc.login();
 			if (ret && folders > 0) {
 				try {
-					Country country = Faker.instance().country();
-					Beer beer = Faker.instance().beer();
+					Country country = new Faker().country();
+					Beer beer = new Faker().beer();
 					int lvl1 = folders;
 					int lvl2 = folders;
 					for (int i = 0; i < lvl1; i++) {

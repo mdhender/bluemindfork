@@ -25,8 +25,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
-import com.github.javafaker.Faker;
-
 import io.netty.util.internal.ThreadLocalRandom;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Communications.Tel;
@@ -48,6 +46,9 @@ import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.server.api.IServer;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
+import net.datafaker.Faker;
+import net.datafaker.providers.base.PhoneNumber;
+import net.datafaker.providers.entertainment.GameOfThrones;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -82,9 +83,9 @@ public class UserQuickCreateCommand implements ICmdLet, Runnable {
 
 	private CliContext ctx;
 
-	private static final com.github.javafaker.Name nameFaker = Faker.instance().name();
-	private static final com.github.javafaker.PhoneNumber phoneFaker = Faker.instance().phoneNumber();
-	private static final com.github.javafaker.GameOfThrones gotFaker = Faker.instance().gameOfThrones();
+	private static final net.datafaker.providers.base.Name nameFaker = new Faker().name();
+	private static final PhoneNumber phoneFaker = new Faker().phoneNumber();
+	private static final GameOfThrones gotFaker = new Faker().gameOfThrones();
 
 	@Override
 	public Runnable forContext(CliContext ctx) {

@@ -10,7 +10,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.cli.utils,
  net.bluemind.utils,
  net.bluemind.domain.api,
- com.github.javafaker
+ net.datafaker;bundle-version="1.8.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.cli.inject.ou
 Bundle-ActivationPolicy: lazy

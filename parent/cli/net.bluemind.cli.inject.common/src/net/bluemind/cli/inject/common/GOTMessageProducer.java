@@ -20,12 +20,12 @@ package net.bluemind.cli.inject.common;
 
 import java.util.UUID;
 
-import com.github.javafaker.Faker;
-import com.github.javafaker.GameOfThrones;
+import net.datafaker.Faker;
+import net.datafaker.providers.entertainment.GameOfThrones;
 
 public class GOTMessageProducer implements IMessageProducer {
 
-	private static final GameOfThrones gotFaker = Faker.instance().gameOfThrones();
+	private static final GameOfThrones gotFaker = new Faker().gameOfThrones();
 	private final int loops;
 
 	public GOTMessageProducer() {

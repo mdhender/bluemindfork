@@ -23,7 +23,6 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.group.api,
  net.bluemind.hornetq.client,
  net.bluemind.network.topology,
- com.github.javafaker,
  net.bluemind.addressbook.api,
  net.bluemind.cti.api,
  net.bluemind.domain.api

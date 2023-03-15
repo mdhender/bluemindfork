@@ -35,7 +35,6 @@
       <plugin id="com.fasterxml.jackson.module.jackson-module-afterburner"/>
       <plugin id="com.github.ben-manes.caffeine"/>
       <plugin id="com.github.freva.ascii-table"/>
-      <plugin id="com.github.javafaker"/>
       <plugin id="com.github.luben.zstd"/>
       <plugin id="com.github.mifmif.generex"/>
       <plugin id="com.google.guava"/>
@@ -177,6 +176,7 @@
       <plugin id="net.bluemind.user.api"/>
       <plugin id="net.bluemind.utils"/>
       <plugin id="net.bluemind.videoconferencing.api"/>
+      <plugin id="net.datafaker"/>
       <plugin id="org.apache.commons.codec"/>
       <plugin id="org.apache.commons.compress"/>
       <plugin id="org.apache.commons.lang3"/>

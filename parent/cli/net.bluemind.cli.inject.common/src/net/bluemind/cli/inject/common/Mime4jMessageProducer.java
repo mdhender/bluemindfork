@@ -38,16 +38,16 @@ import org.apache.james.mime4j.message.MultipartImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.javafaker.Faker;
-import com.github.javafaker.GameOfThrones;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 
 import net.bluemind.mime4j.common.Mime4JHelper;
+import net.datafaker.Faker;
+import net.datafaker.providers.entertainment.GameOfThrones;
 
 public class Mime4jMessageProducer implements IMessageProducer {
 
-	private static final GameOfThrones gotFaker = Faker.instance().gameOfThrones();
+	private static final GameOfThrones gotFaker = new Faker().gameOfThrones();
 	private static final Logger logger = LoggerFactory.getLogger(Mime4jMessageProducer.class);
 
 	private final byte[] data800k;
