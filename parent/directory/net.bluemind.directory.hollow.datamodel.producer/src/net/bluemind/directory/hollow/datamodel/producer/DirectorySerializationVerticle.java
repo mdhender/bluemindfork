@@ -18,8 +18,12 @@
  */
 package net.bluemind.directory.hollow.datamodel.producer;
 
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.typesafe.config.Config;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
@@ -109,8 +113,10 @@ public class DirectorySerializationVerticle extends AbstractVerticle {
 				logger.warn("Missing serializer for domain {}", dom);
 			}
 		};
+		Config conf = HollowConfig.get();
+		int throttleMs = (int) conf.getDuration("hollow.dir.throttle", TimeUnit.MILLISECONDS);
 		ThrottleMessages<JsonObject> tm = new ThrottleMessages<>(msg -> msg.body().getString(DOMAIN_FIELD),
-				dirChangeHandler, vertx, 5000);
+				dirChangeHandler, vertx, throttleMs);
 		vertx.eventBus().consumer("dir.changed", tm);
 	}
 
