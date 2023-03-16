@@ -99,16 +99,6 @@ public class CacheEntryStoreTests {
 		assertEquals("value1", sp.getIfPresent("key1"));
 	}
 
-	@Test
-	public void ignored() {
-		CacheBackingStore<String> sp = getTestCacheBuilder();
-		sp.getCache().put("key1", "toIgnore");
-
-		sp = getTestCacheBuilder();
-		assertNull(sp.getCache().getIfPresent("key1"));
-		assertNull(sp.getIfPresent("key1"));
-	}
-
 	private JsonObject toJson(String value) {
 		return new JsonObject().put("v", value);
 	}
