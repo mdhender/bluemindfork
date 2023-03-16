@@ -94,7 +94,7 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 
 		// create the records container
 		IContainers containerService = context.su().provider().instance(IContainers.class);
-		BaseContainerDescriptor contDesc = containerService.getIfPresent(recordsContainerUid);
+		BaseContainerDescriptor contDesc = containerService.getLightIfPresent(recordsContainerUid);
 		if (contDesc == null) {
 			ContainerDescriptor toCreate = ContainerDescriptor.create(recordsContainerUid, replica.name,
 					container.owner, IMailReplicaUids.MAILBOX_RECORDS, domainUid, false);

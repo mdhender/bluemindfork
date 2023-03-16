@@ -54,6 +54,7 @@ import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IFlatHierarchyUids;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ContainerModifiableDescriptor;
@@ -286,9 +287,9 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 	}
 
 	private static class ReplicatedMailboxesContainers {
-		final Optional<ContainerDescriptor> rootContainer;
+		final Optional<BaseContainerDescriptor> rootContainer;
 
-		public ReplicatedMailboxesContainers(ContainerDescriptor rootContainer) {
+		public ReplicatedMailboxesContainers(BaseContainerDescriptor rootContainer) {
 			this.rootContainer = Optional.ofNullable(rootContainer);
 		}
 
@@ -297,7 +298,7 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 		}
 
 		static ReplicatedMailboxesContainers getContainers(String rootUid, IContainers contApi) {
-			return new ReplicatedMailboxesContainers(contApi.getIfPresent(rootUid));
+			return new ReplicatedMailboxesContainers(contApi.getLightIfPresent(rootUid));
 		}
 	}
 
