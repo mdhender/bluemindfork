@@ -72,7 +72,6 @@
                 />
                 <mail-composer-content
                     ref="content"
-                    class="m-4"
                     :message="message"
                     :is-signature-inserted.sync="isSignatureInserted"
                 />

@@ -17,6 +17,7 @@
 
 <script>
 import { setTextColor } from "roosterjs-editor-api";
+
 import BmIconDropdown from "../../dropdown/BmIconDropdown";
 import BmFormColorPicker from "../../form/BmFormColorPicker";
 import colors from "../../../css/exports/picker.scss";
@@ -38,7 +39,7 @@ export default {
     },
     data() {
         return {
-            textColors: ["default", ...defaultColors],
+            textColors: defaultColors,
             selectedTextColor: colors.red,
             pickerColor: null
         };
@@ -56,8 +57,11 @@ export default {
     },
     methods: {
         setTextColor() {
-            this.selectedTextColor = this.pickerColor === "default" ? "unset" : this.pickerColor;
-            setTextColor(this.editor, this.selectedTextColor);
+            this.selectedTextColor = this.pickerColor;
+            setTextColor(this.editor, {
+                lightModeColor: this.selectedTextColor,
+                darkModeColor: this.editor.core.lifecycle.getDarkColor(this.selectedTextColor)
+            });
         }
     }
 };

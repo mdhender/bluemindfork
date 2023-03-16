@@ -15,7 +15,7 @@
             cy="15"
             r="11"
             :class="{ selected, border: isTransparent, dashed: transparentVariant === 'dashed-border' }"
-            :fill="isDefault ? 'var(--neutral-fg-hi1)' : value"
+            :fill="value"
         />
         <line
             v-if="isTransparent && transparentVariant === 'cross-line'"
@@ -59,9 +59,6 @@ export default {
     computed: {
         isTransparent() {
             return this.value === "transparent";
-        },
-        isDefault() {
-            return this.value === "default";
         }
     }
 };

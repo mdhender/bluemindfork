@@ -2,7 +2,7 @@
     <div
         ref="rich-editor"
         class="bm-rich-editor d-flex flex-column"
-        :class="{ 'has-border': hasBorder, disabled, 'has-focus': hasFocus }"
+        :class="{ 'has-border': hasBorder, disabled, 'has-focus': hasFocus, 'dark-mode': darkMode }"
         @input="onChange"
         @contentchanged="onChange"
         @focusin="hasFocus = true"
@@ -63,6 +63,8 @@ import Default from "./bmPlugins/Default";
 import NonEditable, { NON_EDITABLE_CONTENT_DROP_ID } from "./bmPlugins/NonEditable";
 
 import BmRichEditorRegistry from "./BmRichEditorRegistry";
+import themeColorLvalue from "../../js/theming/themeColorLvalue";
+import { getDarkColor } from "roosterjs-color-utils";
 
 export default {
     name: "BmRichEditor",
@@ -92,6 +94,14 @@ export default {
         adaptOutput: {
             type: Function,
             default: () => {}
+        },
+        darkMode: {
+            type: Boolean,
+            default: false
+        },
+        bgColorName: {
+            type: String,
+            default: "surface"
         }
     },
     data() {
@@ -116,6 +126,10 @@ export default {
         name(newVal, oldVal) {
             BmRichEditorRegistry.unregister(oldVal);
             BmRichEditorRegistry.register(newVal, this);
+        },
+        async darkMode(value) {
+            await this.$nextTick(); // make sure theme variables have been set
+            this.editor.setDarkModeState(value);
         }
     },
     created() {
@@ -244,10 +258,18 @@ export default {
                 new HyperLink(),
                 new TableResize()
             ];
+
+            const lvalue = themeColorLvalue(this.bgColorName);
             const options = {
-                defaultFormat: {},
+                defaultFormat: {
+                    backgroundColors: {
+                        lightModeColor: "#ffffff",
+                        darkModeColor: `var(--${this.bgColorName})`
+                    }
+                },
                 initialContent: this.initValue,
-                doNotAdjustEditorColor: true,
+                inDarkMode: this.darkMode,
+                getDarkColor: color => getDarkColor(color, lvalue),
                 plugins: [...bmPlugins, ...roosterPlugins]
             };
             this.editor = new Editor(this.container, options);
@@ -293,11 +315,23 @@ function getTableParentNode(node, containerNode) {
 .bm-rich-editor {
     .roosterjs-container {
         outline: none;
+        background-color: #ffffff !important;
+    }
+    &.dark-mode .roosterjs-container {
+        background: none !important;
     }
 
-    $padding: $sp-5;
-    &.has-border .main-area {
-        padding: $padding;
+    .main-area {
+        display: flex;
+        flex-direction: column;
+    }
+    .roosterjs-container {
+        flex: 1;
+        padding: $sp-4;
+    }
+    $padding-with-border: $sp-5;
+    &.has-border .roosterjs-container {
+        padding: $padding-with-border;
     }
 
     .bm-rich-editor-toolbar-base {
@@ -317,9 +351,9 @@ function getTableParentNode(node, containerNode) {
         }
         &.has-focus {
             border: 2 * $input-border-width solid $secondary-fg;
-            .main-area {
-                padding: calc(#{$padding} - #{$input-border-width});
-                padding-bottom: $padding;
+            .roosterjs-container {
+                padding: calc(#{$padding-with-border} - #{$input-border-width});
+                padding-bottom: $padding-with-border;
             }
             .full-toolbar {
                 border-top: 2 * $input-border-width solid $secondary-fg;
@@ -336,8 +370,8 @@ function getTableParentNode(node, containerNode) {
         }
     }
 
+    min-height: base-px-to-rem(200);
     .roosterjs-container {
-        min-height: 10rem;
         img {
             vertical-align: unset; // reset bootstrap property set in reboot.scss
         }

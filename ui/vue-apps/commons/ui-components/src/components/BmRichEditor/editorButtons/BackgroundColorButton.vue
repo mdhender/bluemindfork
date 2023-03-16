@@ -17,12 +17,12 @@
 
 <script>
 import { setBackgroundColor } from "roosterjs-editor-api";
+
 import BmIconDropdown from "../../dropdown/BmIconDropdown";
 import BmFormColorPicker from "../../form/BmFormColorPicker";
 import colors from "../../../css/exports/picker.scss";
 
-const opacityHex = "80"; // 50%
-const defaultColors = Object.values(colors).map(color => color + opacityHex);
+const defaultColors = Object.values(colors);
 
 export default {
     name: "BackgroundColorButton",
@@ -40,7 +40,7 @@ export default {
     data() {
         return {
             backgroundColors: ["transparent", ...defaultColors],
-            selectedBackgroundColor: colors["yellow-light"] + opacityHex,
+            selectedBackgroundColor: colors["yellow-light"],
             pickerColor: null
         };
     },
@@ -58,7 +58,12 @@ export default {
     methods: {
         setBackgroundColor() {
             this.selectedBackgroundColor = this.pickerColor;
-            setBackgroundColor(this.editor, this.selectedBackgroundColor);
+            const actualBackgroundColor =
+                this.selectedBackgroundColor === "transparent" ? "#ffffff" : this.selectedBackgroundColor;
+            setBackgroundColor(this.editor, {
+                lightModeColor: actualBackgroundColor,
+                darkModeColor: this.editor.core.lifecycle.getDarkColor(actualBackgroundColor)
+            });
         }
     }
 };
