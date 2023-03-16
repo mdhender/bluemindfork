@@ -360,7 +360,7 @@ function quoteContent(userPrefTextOnly, content) {
         );
     } else {
         return (
-            `<blockquote style="margin-left: 1rem; padding-left: 1rem; border-left: 2px solid black;">` +
+            `<blockquote style="margin-left: 1rem; padding-left: 1rem; border-left: 2px solid var(--neutral-fg-lo1);">` +
             content +
             "</blockquote>"
         );

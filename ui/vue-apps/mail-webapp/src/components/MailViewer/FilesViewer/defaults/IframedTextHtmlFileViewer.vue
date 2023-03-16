@@ -1,20 +1,22 @@
 <template>
     <text-html-file-viewer v-slot="content" v-bind="$props">
-        <i-frame class="border-0">
+        <i-frame :key="IS_COMPUTED_THEME_DARK" class="border-0">
             <template v-slot:head>
                 <base target="_blank" />
                 <link type="text/css" rel="stylesheet" href="css/montserrat/index.css" />
             </template>
             <template v-slot:style>
-                {{ content.styles }}
+                {{ IS_COMPUTED_THEME_DARK ? darkifyCss(content.styles, themeColorLvalue("surface")) : content.styles }}
                 {{ IFRAME_STYLE }}
             </template>
             <!-- eslint-disable-next-line vue/no-v-html -->
-            <main v-html="content.html"></main>
+            <main v-bm-darkify="{ enabled: IS_COMPUTED_THEME_DARK }" v-html="content.html"></main>
         </i-frame>
     </text-html-file-viewer>
 </template>
 <script>
+import { mapGetters } from "vuex";
+import { BmDarkify, darkifyCss, themeColorLvalue } from "@bluemind/ui-components";
 import IFrame from "../../../IFrame";
 import FileViewerMixin from "../FileViewerMixin";
 import TextHtmlFileViewer from "./../TextHtmlFileViewer";
@@ -22,23 +24,31 @@ import TextHtmlFileViewer from "./../TextHtmlFileViewer";
 export default {
     name: "IframedTextHtmlFileViewer",
     components: { TextHtmlFileViewer, IFrame },
+    directives: { BmDarkify },
     mixins: [FileViewerMixin],
     $capabilities: ["text/html"],
     props: { collapse: { type: Boolean, default: true } },
     data() {
         return { IFRAME_STYLE };
+    },
+    computed: {
+        ...mapGetters("settings", ["IS_COMPUTED_THEME_DARK"])
+    },
+    methods: {
+        darkifyCss,
+        themeColorLvalue
     }
 };
 const IFRAME_STYLE = `
 		html {
             height: auto !important;
         }
-        
+
         body {
             font-family: "Montserrat", sans-serif;
             font-size: 0.875rem;
             font-weight: 400;
-            color: #1f1f1f;
+            color: var(--neutral-fg-hi1);
             margin: 0;
             overflow-wrap: break-word !important;
             height: auto !important;

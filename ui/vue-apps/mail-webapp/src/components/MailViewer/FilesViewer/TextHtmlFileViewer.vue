@@ -139,23 +139,23 @@ const BM_STYLE = `
             min-height: 50px;
             min-width: 55px;
             display: inline-block;
-            border: solid 1px #727272 !important;
+            border: solid 1px var(--neutral-fg-lo1) !important;
             vertical-align: top;
         }
         .blocked-background { 
             background-image: url(${brokenImageIcon}); 
             background-position: 7px 7px; 
             background-repeat: no-repeat; 
-            border: solid 1px #727272 !important; 
+            border: solid 1px var(--neutral-fg-lo1) !important; 
         }
         img.blocked-image:before {
             content: attr(alt);
-            color: #2F2F2F;
+            color: var(--neutral-fg-hi1);
             display: block;
             position: absolute;
             width: 100%;
             height: 100%;
-            background: #fff;
+            background: var(--surface);
             background-image: url(${brokenImageIcon});
             background-repeat: no-repeat;
             background-position: 7px 7px;
@@ -172,7 +172,7 @@ const BM_STYLE = `
         }
 
         a img.blocked-image:before {
-            color: #00AAEB !important;
+            color: var(--secondary-fg) !important;
             text-decoration-line: underline;
         }
 

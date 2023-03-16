@@ -40,6 +40,19 @@ const actions = {
     }
 };
 
+const getters = {
+    IS_COMPUTED_THEME_DARK: state => {
+        switch (state.theme) {
+            case "light":
+                return false;
+            case "dark":
+                return true;
+            default:
+                return window.matchMedia("(prefers-color-scheme: dark)").matches;
+        }
+    }
+};
+
 const mutations = {
     SET_SETTING: (state, { setting, value }) => {
         Vue.set(state, setting, value);
@@ -54,6 +67,7 @@ const mutations = {
 export default {
     namespaced: true,
     actions,
+    getters,
     mutations,
     state
 };

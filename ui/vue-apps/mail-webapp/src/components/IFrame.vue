@@ -1,5 +1,7 @@
 <script>
 import Vue from "vue";
+import defaultThemeCss from "!css-loader!sass-loader!@bluemind/ui-components/src/css/_defaultTheme";
+import darkThemeCss from "!css-loader!sass-loader!@bluemind/ui-components/src/css/_darkTheme";
 
 export default {
     name: "IFrame",
@@ -12,19 +14,27 @@ export default {
     data() {
         return {
             body: new Vue({
-                data: { content: null },
+                data: { content: null, theme: null },
                 render(h) {
-                    return h("body", [this.content]);
+                    return h("body", { class: this.theme }, [this.content]);
                 }
             }),
             head: new Vue({
-                data: { content: null, style: null },
+                data: { content: null, style: null, colorVariables: null },
                 render(h) {
-                    return h("head", [this.content, h("style", this.style)]);
+                    return h("head", [this.content, h("style", this.colorVariables), h("style", this.style)]);
                 }
             }),
             resize: null
         };
+    },
+    watch: {
+        "$store.state.settings.theme": {
+            handler(value) {
+                this.body.theme = value;
+            },
+            immediate: true
+        }
     },
     destroyed() {
         this.resize?.disconnect();
@@ -54,6 +64,7 @@ export default {
             this.body.content = Object.freeze(this.$slots.default);
             this.head.content = Object.freeze(this.$slots.head);
             this.head.style = Object.freeze(this.$slots.style);
+            this.head.colorVariables = defaultThemeCss[0][1] + "\n" + darkThemeCss[0][1];
             this.head.$mount(doc.head);
             this.body.$mount(doc.body);
 
