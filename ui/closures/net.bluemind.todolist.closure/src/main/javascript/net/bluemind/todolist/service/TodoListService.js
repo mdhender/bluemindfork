@@ -85,7 +85,18 @@ net.bluemind.todolist.service.TodoListService.prototype.getItems = function(uid,
 }
 
 net.bluemind.todolist.service.TodoListService.prototype.getItemsLocal = function(uid, opt_offset) {
-  return this.cs_.getItems(uid, opt_offset);
+  var items = [];
+  var cs = this.cs_;
+  var getItems = function(offset) {
+    return cs.getItems(uid, offset).then(function(results) {
+      goog.array.extend(items, results);
+      if (results.length >= 200) {
+        return getItems(offset + results.length);
+      }
+      return items;
+    });
+  }
+  return getItems(opt_offset || 0);
 };
 
 net.bluemind.todolist.service.TodoListService.prototype.getItemsRemote = function(uid, opt_offset) {
