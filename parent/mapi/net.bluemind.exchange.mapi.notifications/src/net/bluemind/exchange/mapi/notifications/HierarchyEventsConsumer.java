@@ -69,6 +69,11 @@ public class HierarchyEventsConsumer extends AbstractVerticle {
 				(Message<JsonObject> msg) -> vertx.executeBlocking(prom -> {
 					JsonObject flatNotification = msg.body();
 					String owner = flatNotification.getString("owner");
+
+					if (FreshOwnerListener.isFreshOwner(owner)) {
+						return;
+					}
+
 					long version = flatNotification.getLong("version");
 					String domain = flatNotification.getString("domain");
 
@@ -90,6 +95,10 @@ public class HierarchyEventsConsumer extends AbstractVerticle {
 					}
 
 					String owner = flatNotification.getString("owner");
+					if (FreshOwnerListener.isFreshOwner(owner)) {
+						return;
+					}
+
 					String domain = flatNotification.getString("domain");
 
 					if (owner.equals(PublicFolders.mailboxGuid(domain))) {

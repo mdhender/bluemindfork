@@ -55,4 +55,10 @@
             impl="net.bluemind.exchange.mapi.notifications.FlatHierarchyAclHook">
       </acl_hook>
    </extension>
+   <extension
+         point="net.bluemind.user.hook.userhook">
+      <hook
+            impl="net.bluemind.exchange.mapi.notifications.FreshOwnerListener">
+      </hook>
+   </extension>
 </plugin>

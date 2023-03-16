@@ -59,6 +59,10 @@ public class DelegationEventsConsumer implements IAclHook {
 	}
 
 	private void triggerRefresh(ContainerDescriptor container) {
+		if (FreshOwnerListener.isFreshOwner(container.owner)) {
+			return;
+		}
+
 		JsonObject js = new JsonObject();
 		js.put("domain", container.domainUid).put("owner", container.owner);
 		js.put("containerUid", container.uid).put("type", container.type);

@@ -26,7 +26,10 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.exchange.publicfolders.common,
  net.bluemind.notes.hook,
  net.bluemind.system.state,
- net.bluemind.system.api
+ net.bluemind.system.api,
+ net.bluemind.user.hook,
+ com.github.ben-manes.caffeine,
+ net.bluemind.user.api
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.exchange.mapi.notifications
