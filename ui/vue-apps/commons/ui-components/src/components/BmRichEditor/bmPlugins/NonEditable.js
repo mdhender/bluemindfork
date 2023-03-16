@@ -1,3 +1,4 @@
+import { ContentPosition } from "roosterjs-editor-types";
 import { findNodeWithText } from "../mixins/InsertContentMixin";
 
 export const NON_EDITABLE_CONTENT_DROP_ID = "moving-non-editable-content";
@@ -14,7 +15,7 @@ export default class {
             if (textNode) {
                 textNode.replaceWith(this.vm.$data.nonEditableContent);
             } else {
-                this.vm.$data.container.appendChild(this.vm.$data.nonEditableContent);
+                this.vm.$data.editor.insertNode(this.vm.$data.nonEditableContent, { position: ContentPosition.End });
             }
             this.vm.onChange();
         }

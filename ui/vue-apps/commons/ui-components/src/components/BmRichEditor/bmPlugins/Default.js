@@ -1,3 +1,5 @@
+import { ContentPosition } from "roosterjs-editor-types";
+
 export default class {
     constructor(vm) {
         this.vm = vm;
@@ -5,7 +7,7 @@ export default class {
 
     insertContent(node, options) {
         if (!options.editable) {
-            this.vm.$data.container.appendChild(node);
+            this.vm.$data.editor.insertNode(node, { position: ContentPosition.End });
             if (options.triggerOnChange !== false) {
                 this.vm.onChange();
             }
