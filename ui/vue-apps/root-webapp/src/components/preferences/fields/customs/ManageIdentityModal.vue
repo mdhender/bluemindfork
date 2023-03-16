@@ -80,6 +80,8 @@
                 <bm-rich-editor
                     ref="rich-editor"
                     :init-value="identity.signature"
+                    :dark-mode="IS_COMPUTED_THEME_DARK"
+                    bg-color-name="surface-hi2"
                     show-toolbar
                     has-border
                     class="mt-1"
@@ -183,6 +185,7 @@ export default {
     computed: {
         ...mapState("root-app", ["identities"]),
         ...mapGetters("root-app", ["DEFAULT_IDENTITY"]),
+        ...mapGetters("settings", ["IS_COMPUTED_THEME_DARK"]),
         availableAddresses() {
             return this.possibleIdentities.map(identity => identity.email);
         },

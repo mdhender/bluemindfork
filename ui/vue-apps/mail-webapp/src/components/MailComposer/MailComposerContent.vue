@@ -19,6 +19,7 @@
             :init-value="messageCompose.editorContent"
             :show-toolbar="false"
             :adapt-output="setCidDataAttr"
+            :dark-mode="IS_COMPUTED_THEME_DARK"
             class="flex-grow-1"
             name="composer"
             @input="updateEditorContent"
@@ -43,7 +44,7 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 
 import { createCid, CID_DATA_ATTRIBUTE } from "@bluemind/email";
 import { BmFileDropZone, BmIcon, BmIconButton, BmRichEditor } from "@bluemind/ui-components";
@@ -77,6 +78,7 @@ export default {
     },
     computed: {
         ...mapState("mail", ["messageCompose"]),
+        ...mapGetters("settings", ["IS_COMPUTED_THEME_DARK"]),
         corporateSignature() {
             return this.messageCompose.corporateSignature;
         },

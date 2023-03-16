@@ -22,6 +22,7 @@
                 <bm-rich-editor
                     ref="message"
                     :init-value="textHtml"
+                    :dark-mode="IS_COMPUTED_THEME_DARK"
                     show-toolbar
                     has-border
                     :disabled="!value.enabled"
@@ -61,6 +62,7 @@
 import { BmFormCheckbox, BmFormGroup, BmFormInput, BmRichEditor } from "@bluemind/ui-components";
 import PrefAutomaticReplyOptionalDate from "./PrefAutomaticReplyOptionalDate.vue";
 import CentralizedSaving from "../../mixins/CentralizedSaving";
+import { mapGetters } from "vuex";
 
 export default {
     name: "PrefAutomaticReply",
@@ -73,6 +75,7 @@ export default {
     },
     mixins: [CentralizedSaving],
     computed: {
+        ...mapGetters("settings", ["IS_COMPUTED_THEME_DARK"]),
         userLang() {
             return this.$store.state.settings.lang;
         },
