@@ -20,11 +20,11 @@
         "lodash.iteratee": "^4.7.0",
         "lodash.sortedindexby": "^4.6.0",
         "lodash.throttle": "^4.1.1",
-        "roosterjs-editor-api": "^8.22.0",
-        "roosterjs-editor-core": "^8.22.0",
-        "roosterjs-editor-dom": "^8.22.0",
-        "roosterjs-editor-plugins": "^8.22.0",
-        "roosterjs-editor-types": "^8.22.0",
+        "roosterjs-editor-api": "^8.43.0",
+        "roosterjs-editor-core": "^8.43.0",
+        "roosterjs-editor-dom": "^8.43.0",
+        "roosterjs-editor-plugins": "^8.43.0",
+        "roosterjs-editor-types": "^8.43.0",
         "vue-global-events": "^1.1.2"
     }
 }
