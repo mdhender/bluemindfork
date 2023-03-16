@@ -58,13 +58,13 @@ describe("mapExtensions function", () => {
         expect(data["my-key"].length).toBe(3);
         expect(data["my-key"][0]).toMatchInlineSnapshot(`
             Object {
-              "$id": "one",
+              "$bundle": "one",
               "$loaded": Object {
                 "status": true,
               },
               "attribute": "AttributeValue-1",
               "child": Object {
-                "$id": "one",
+                "$bundle": "one",
                 "$loaded": Object {
                   "status": true,
                 },
@@ -88,13 +88,13 @@ describe("mapExtensions function", () => {
         expect(data.key.length).toBe(3);
         expect(data.key[0]).toMatchInlineSnapshot(`
             Object {
-              "$id": "one",
+              "$bundle": "one",
               "$loaded": Object {
                 "status": true,
               },
               "attribute": "AttributeValue-1",
               "child": Object {
-                "$id": "one",
+                "$bundle": "one",
                 "$loaded": Object {
                   "status": true,
                 },

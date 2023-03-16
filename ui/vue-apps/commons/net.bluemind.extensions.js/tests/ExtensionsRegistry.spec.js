@@ -61,16 +61,16 @@ describe("mapExtensions function", () => {
         expect(BmExtensions.extensions.has("dummy.extension")).toBeTruthy();
         const dummy = BmExtensions.extensions.get("dummy.extension");
         expect(dummy.length).toBe(3);
-        expect(dummy[0].$id).toEqual("one");
+        expect(dummy[0].$bundle).toEqual("one");
         expect(dummy[0]["my-key"]).toMatchInlineSnapshot(`
             Object {
-              "$id": "one",
+              "$bundle": "one",
               "$loaded": Object {
                 "status": true,
               },
               "attribute": "AttributeValue-1",
               "child": Object {
-                "$id": "one",
+                "$bundle": "one",
                 "$loaded": Object {
                   "status": true,
                 },
@@ -80,7 +80,7 @@ describe("mapExtensions function", () => {
         `);
         expect(dummy[1]["my-key"].child.toString()).toEqual("BodyValue-2");
         expect(dummy[2]["my-other-key"]).toBeDefined();
-        expect(dummy[2]["my-other-key"].$id).toEqual("three");
+        expect(dummy[2]["my-other-key"].$bundle).toEqual("three");
         expect(BmExtensions.extensions.has("dummy.extension2")).toBeFalsy();
     });
     test("to add new extension when using register ", () => {
@@ -133,8 +133,8 @@ describe("mapExtensions function", () => {
         BmExtensions.load(extensions);
         const values = BmExtensions.get("dummy.extension", "my-key");
         expect(values.length).toBe(3);
-        expect(values[0].$id).toEqual("two");
-        expect(values[2].$id).toEqual("three");
+        expect(values[0].$bundle).toEqual("two");
+        expect(values[2].$bundle).toEqual("three");
     });
     test("Synced extension are always loaded", () => {
         BmExtensions.load(extensions);
@@ -154,11 +154,13 @@ describe("mapExtensions function", () => {
         expect(BmExtensions.isLoaded(values[0])).toBeFalsy();
         expect(BmExtensions.isLoaded(values[1])).toBeFalsy();
         resolved["one"]();
-        expect(BmExtensions.isLoaded(values.find(({ $id }) => $id === "one"))).toBeTruthy();
-        expect(BmExtensions.isLoaded(values.find(({ $id }) => $id !== "one"))).toBeFalsy();
+        expect(BmExtensions.isLoaded(values.find(({ $bundle }) => $bundle === "one"))).toBeTruthy();
+        expect(BmExtensions.isLoaded(values.find(({ $bundle }) => $bundle !== "one"))).toBeFalsy();
         expect(
-            BmExtensions.isLoaded(BmExtensions.get("dummy.extension").find(({ $id }) => $id === "one"))
+            BmExtensions.isLoaded(BmExtensions.get("dummy.extension").find(({ $bundle }) => $bundle === "one"))
         ).toBeTruthy();
-        expect(BmExtensions.isLoaded(BmExtensions.get("dummy.extension").find(({ $id }) => $id !== "one"))).toBeFalsy();
+        expect(
+            BmExtensions.isLoaded(BmExtensions.get("dummy.extension").find(({ $bundle }) => $bundle !== "one"))
+        ).toBeFalsy();
     });
 });

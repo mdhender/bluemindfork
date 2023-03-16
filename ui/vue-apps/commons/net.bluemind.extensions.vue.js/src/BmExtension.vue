@@ -43,7 +43,6 @@ export default {
     render(h) {
         const extensions = this.loaded;
         const options = {
-            class: ["bm-extension", "bm-extension-" + this.path.replace(/\./g, "-")],
             props: {
                 extensions
             },
@@ -90,9 +89,3 @@ export const Cache = {
     }
 };
 </script>
-
-<style>
-.bm-extension:empty {
-    display: none;
-}
-</style>

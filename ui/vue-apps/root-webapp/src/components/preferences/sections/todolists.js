@@ -3,7 +3,7 @@ import { mapExtensions } from "@bluemind/extensions";
 
 export default function (i18n) {
     const tasks = mapExtensions("net.bluemind.webapp", ["application"]).application?.find(
-        ({ $id }) => $id === "net.bluemind.webmodules.todolist"
+        ({ $bundle }) => $bundle === "net.bluemind.webmodules.todolist"
     );
     return {
         id: "tasks",

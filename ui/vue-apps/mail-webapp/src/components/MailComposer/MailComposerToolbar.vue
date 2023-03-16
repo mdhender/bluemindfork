@@ -277,9 +277,5 @@ export default {
             align-items: center;
         }
     }
-
-    .bm-extension-composer-footer-toolbar {
-        display: flex;
-    }
 }
 </style>

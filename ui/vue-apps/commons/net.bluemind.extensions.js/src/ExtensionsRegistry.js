@@ -19,8 +19,8 @@ class ExtensionsRegistry {
             );
         }
     }
-    register(point, origin, extension) {
-        this.extensions.add(point, normalizeExtension(extension, origin));
+    register(point, bundle, extension) {
+        this.extensions.add(point, normalizeExtension(extension, bundle));
     }
     get(point, property) {
         const extensions = this.extensions.get(point);
@@ -39,12 +39,12 @@ class ExtensionsRegistry {
         this.extensions = new ExtensionsMap();
     }
 }
-function normalizeExtension(value, id) {
+function normalizeExtension(value, bundle) {
     const isAsync = Boolean(self.bundleResolve);
     const $loaded = { status: isAsync ? LoadingStatus.LOADING : LoadingStatus.LOADED };
-    const extension = normalizeElement(value, { $id: id, $loaded });
+    const extension = normalizeElement(value, { $bundle: bundle, $loaded });
     if (isAsync) {
-        self.bundleResolve(id, () => ($loaded.status = LoadingStatus.LOADED));
+        self.bundleResolve(bundle, () => ($loaded.status = LoadingStatus.LOADED));
     }
     return extension;
 }

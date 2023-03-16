@@ -10,7 +10,7 @@
     >
         <div class="banner-apps-title mb-4 mx-5">{{ $t("banner.main.apps") }}</div>
         <bm-row class="bm-apps">
-            <bm-col v-for="app in applications.filter(({ hidden }) => !hidden)" :key="app.$id" cols="6">
+            <bm-col v-for="app in applications.filter(({ hidden }) => !hidden)" :key="app.$bundle" cols="6">
                 <a v-if="app.external" :href="app.path">
                     <div class="bm-app">
                         <bm-app-icon :icon-app="app.icon" />

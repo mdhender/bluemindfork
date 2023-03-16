@@ -32,7 +32,7 @@ export default {
             const applications = mapExtensions("net.bluemind.webapp", { apps: "application" }).apps.filter(({ role }) =>
                 session.roles.includes(role)
             );
-            return applications.find(a => a.$id === "net.bluemind.webmodules.contact" && a.$loaded.status);
+            return applications.find(a => a.$bundle === "net.bluemind.webmodules.contact" && a.$loaded.status);
         }
     }
 };

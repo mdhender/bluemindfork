@@ -86,52 +86,53 @@ export default {
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/variables";
 
-.file-item .container {
-    position: relative;
+.file-item {
+    .container {
+        position: relative;
 
-    background-color: $surface;
-    outline: $input-border-width solid $neutral-fg-lo3;
-    outline-offset: -$input-border-width;
+        background-color: $surface;
+        outline: $input-border-width solid $neutral-fg-lo3;
+        outline-offset: -$input-border-width;
 
-    display: flex;
-    flex-direction: column;
-    padding: $sp-3 $sp-4;
-    gap: $sp-3;
+        display: flex;
+        flex-direction: column;
+        padding: $sp-3 $sp-4;
+        gap: $sp-3;
 
-    &:hover {
-        background-color: $neutral-bg;
-        outline-color: $neutral-fg-lo2;
+        &:hover {
+            background-color: $neutral-bg;
+            outline-color: $neutral-fg-lo2;
+        }
+
+        &:focus {
+            outline: $input-border-width dashed $neutral-fg;
+        }
+
+        &.cursor-pointer {
+            cursor: pointer;
+        }
+
+        .progress {
+            position: absolute;
+            top: 0;
+            margin-left: -0.5rem;
+            margin-right: -0.5rem;
+            height: 0.125rem;
+            width: 100%;
+            background-color: transparent;
+        }
+
+        .muted {
+            opacity: 0.5;
+        }
+
+        .remove-button {
+            margin-left: $sp-2;
+        }
     }
-
-    &:focus {
-        outline: $input-border-width dashed $neutral-fg;
+    &.active .container {
+        outline: 2 * $input-border-width solid $secondary-fg;
+        outline-offset: -2 * $input-border-width;
     }
-
-    &.cursor-pointer {
-        cursor: pointer;
-    }
-
-    .progress {
-        position: absolute;
-        top: 0;
-        margin-left: -0.5rem;
-        margin-right: -0.5rem;
-        height: 0.125rem;
-        width: 100%;
-        background-color: transparent;
-    }
-
-    .muted {
-        opacity: 0.5;
-    }
-
-    .remove-button {
-        margin-left: $sp-2;
-    }
-}
-
-.bm-extension.active.file-item .container {
-    outline: 2 * $input-border-width solid $secondary-fg;
-    outline-offset: -2 * $input-border-width;
 }
 </style>

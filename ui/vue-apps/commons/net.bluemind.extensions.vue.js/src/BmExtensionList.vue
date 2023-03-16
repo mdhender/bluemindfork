@@ -6,15 +6,15 @@
             </template>
         </template>
         <template v-else-if="props.decorator">
-            <component :is="props.decorator" v-for="extension in props.extensions" :key="extension.$id">
+            <component :is="props.decorator" v-for="(extension, idx) in props.extensions" :key="idx">
                 <component :is="extension.name" :key="extension.$id" v-bind="data.attrs" />
             </component>
         </template>
         <template v-else>
             <component
                 :is="extension.name"
-                v-for="extension in props.extensions"
-                :key="extension.$id"
+                v-for="(extension, idx) in props.extensions"
+                :key="idx"
                 v-bind="data.attrs"
             />
         </template>

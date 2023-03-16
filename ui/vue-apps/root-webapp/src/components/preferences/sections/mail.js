@@ -12,7 +12,7 @@ import PrefSoonAvailable from "../PrefEntryName/PrefSoonAvailable";
 
 export default function (i18n) {
     const mail = mapExtensions("net.bluemind.webapp", ["application"]).application?.find(
-        ({ $id }) => $id === "net.bluemind.webapp.mail.js"
+        ({ $bundle }) => $bundle === "net.bluemind.webapp.mail.js"
     );
     return {
         id: "mail",

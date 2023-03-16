@@ -2,7 +2,12 @@
     <div class="conversation-list-item-middle regular text-truncate">
         <div class="from-or-to-row">
             <div :title="fromOrToTitle" class="from-or-to text-truncate">
-                <bm-extension id="webapp.mail" path="list.conversation.prefix" :conversation="conversation" />
+                <bm-extension
+                    id="webapp.mail"
+                    path="list.conversation.prefix"
+                    :conversation="conversation"
+                    class="list-conversation-prefix"
+                />
                 <span v-if="isDraft" class="text-danger font-weight-normal">
                     [<span class="font-italic">{{ $t("common.folder.draft") }}</span
                     >]
@@ -294,7 +299,7 @@ export default {
         position: absolute;
         right: $sp-3;
     }
-    .bm-extension-list-conversation-prefix {
+    .list-conversation-prefix {
         display: inline;
     }
 }
