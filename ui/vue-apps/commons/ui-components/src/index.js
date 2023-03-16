@@ -25,6 +25,7 @@ export { default as BmContactInputAutocompleteExtra } from "./components/form/Bm
 export { default as BmContactInputAutocompleteItem } from "./components/form/BmContactInputAutocompleteItem";
 export { default as BmContainer } from "./components/layout/BmContainer";
 export { default as BmCounterBadge } from "./components/BmCounterBadge";
+export { default as BmDarkify } from "./directives/BmDarkify";
 export { default as BmDraggable } from "./components/BmDraggable";
 export { default as BmDropdown } from "./components/dropdown/BmDropdown";
 export { default as BmDropdownAutocomplete } from "./components/dropdown/BmDropdownAutocomplete";
@@ -100,5 +101,7 @@ export { default as BmTreeNode } from "./components/BmTree/BmTreeNode";
 export { default as BrowsableContainer } from "./mixins/BrowsableContainer";
 export { default as MakeUniq } from "./mixins/MakeUniq";
 export { default as OverflownElements } from "./directives/OverflownElements";
+export { default as themeColorLvalue } from "./js/theming/themeColorLvalue";
+export * from "./js/theming/darkify";
 
 export * as css from "./css/bluemind.scss";
