@@ -43,7 +43,7 @@ export default class Session {
 
     get userAtDomain(): string {
         const { userId, domain } = this.infos;
-        return `user.${userId}@${domain.replace(".", "_")}`;
+        return `user.${userId}@${domain.replace(/\./g, "_")}`;
     }
 
     static async instance(): Promise<Session> {

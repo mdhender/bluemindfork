@@ -29,7 +29,7 @@ export default function () {
         provide: "MailConversationActionsPersistence",
         factory: (mailboxUid, folderUid) => {
             const userSession = inject("UserSession");
-            const conversationContainerId = "subtree_" + userSession.domain.replace(".", "_") + "!" + mailboxUid;
+            const conversationContainerId = "subtree_" + userSession.domain.replaceAll(".", "_") + "!" + mailboxUid;
             return new MailConversationActionsClientProxy(userSession.sid, conversationContainerId, folderUid);
         }
     });
@@ -38,7 +38,7 @@ export default function () {
         provide: "MailConversationPersistence",
         factory: mailboxUid => {
             const userSession = inject("UserSession");
-            const conversationContainerId = "subtree_" + userSession.domain.replace(".", "_") + "!" + mailboxUid;
+            const conversationContainerId = "subtree_" + userSession.domain.replaceAll(".", "_") + "!" + mailboxUid;
             return new MailConversationClient(userSession.sid, conversationContainerId);
         }
     });

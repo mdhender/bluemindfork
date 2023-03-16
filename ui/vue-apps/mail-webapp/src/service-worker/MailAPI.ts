@@ -81,7 +81,7 @@ class MailItemAPI extends ChangelogAPI<Uid, MailItem> {
 
 class MailFolderAPI extends ChangelogAPI<MailboxRoot, MailFolder> {
     endpoint(method: string, { mailboxRoot, domain }: MailboxRoot) {
-        return `/api/mail_folders/${domain.replace(".", "_")}/${mailboxRoot}/${method}`;
+        return `/api/mail_folders/${domain.replace(/\./g, "_")}/${mailboxRoot}/${method}`;
     }
 }
 

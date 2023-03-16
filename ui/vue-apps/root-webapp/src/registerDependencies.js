@@ -143,7 +143,7 @@ export default function (userSession) {
     injector.register({
         provide: "MailboxFoldersPersistence",
         factory: mailboxUid => {
-            return new MailboxFoldersClientProxy(userSession.sid, userSession.domain.replace(".", "_"), mailboxUid);
+            return new MailboxFoldersClientProxy(userSession.sid, userSession.domain.replaceAll(".", "_"), mailboxUid);
         }
     });
 

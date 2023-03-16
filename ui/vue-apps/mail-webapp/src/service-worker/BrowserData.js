@@ -37,7 +37,7 @@ async function listDatabases(userSession) {
         // remove catch once Firefox will support indexedDB.databases()
         // https://developer.mozilla.org/en-US/docs/Web/API/IDBFactory/databases#browser_compatibility
         // https://bugzilla.mozilla.org/show_bug.cgi?id=934640
-        const newWebmailDbName = `user.${userSession.userId}@${userSession.domain.replace(".", "_")}:webapp/mail`;
+        const newWebmailDbName = `user.${userSession.userId}@${userSession.domain.replaceAll(".", "_")}:webapp/mail`;
         return [
             "capabilities",
             "context",
