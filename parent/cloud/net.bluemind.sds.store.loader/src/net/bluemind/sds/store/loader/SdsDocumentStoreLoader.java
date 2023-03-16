@@ -49,11 +49,11 @@ public class SdsDocumentStoreLoader {
 				}
 			}).build();
 
-	private final List<ISdsBackingStoreFactory> stores;
+	private static final List<ISdsBackingStoreFactory> stores = loadStores();
 
-	public SdsDocumentStoreLoader() {
+	private static List<ISdsBackingStoreFactory> loadStores() {
 		RunnableExtensionLoader<ISdsBackingStoreFactory> rel = new RunnableExtensionLoader<>();
-		this.stores = rel.loadExtensions("net.bluemind.sds", "store", "store", "factory");
+		return rel.loadExtensions("net.bluemind.sds", "store", "store", "factory");
 	}
 
 	protected ISdsSyncStore createSync(ISdsBackingStoreFactory factory, Vertx vertx, SystemConf sysconf,
