@@ -5,8 +5,8 @@
                 <slot v-bind="extension" />
             </template>
         </template>
-        <template v-else-if="decorator">
-            <component :is="decorator" v-for="extension in props.extensions" :key="extension.$id">
+        <template v-else-if="props.decorator">
+            <component :is="props.decorator" v-for="extension in props.extensions" :key="extension.$id">
                 <component :is="extension.name" :key="extension.$id" v-bind="data.attrs" />
             </component>
         </template>

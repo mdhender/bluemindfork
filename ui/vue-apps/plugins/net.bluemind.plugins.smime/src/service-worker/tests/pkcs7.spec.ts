@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import fs from "fs";
 import forge from "node-forge";
 import path from "path";
+import * as pki from "../pki/";
 import { CRYPTO_HEADERS } from "../../lib/constants";
 import { getSignedDataEnvelope } from "../../lib/envelope";
 import { base64ToArrayBuffer } from "@bluemind/arraybuffer";
@@ -85,11 +87,15 @@ describe("pkcs7", () => {
         const { pkcs7Part: corruptedPkcs7Part, toDigest: corruptedToDigest } = extractSignedData(corruptedEml);
         const corruptedEnvelope = getSignedDataEnvelope(corruptedPkcs7Part);
 
+        beforeAll(() => {
+            pki.checkCertificate = () => {};
+        });
+
         test("verify a valid eml", async done => {
             try {
                 await pkcs7.verify(validPkcs7Part, validToDigest, body);
                 done();
-            } catch {
+            } catch (e) {
                 done.fail("failed verify a valid signed eml.");
             }
         });

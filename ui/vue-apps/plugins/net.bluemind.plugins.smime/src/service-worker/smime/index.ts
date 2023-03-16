@@ -40,7 +40,6 @@ export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): 
         const { address, mime, encoding, charset, fileName } = item.value.body.structure!;
         const key = await getMyPrivateKey();
         const certificate = await getMyCertificate();
-
         await checkCertificate(certificate, { date: new Date(item.value.body.date!) });
         const request = fetchRequest(sid, folderUid, imapUid!, address!, encoding!, mime!, charset!, fileName);
         const response = await dispatchFetch(request);

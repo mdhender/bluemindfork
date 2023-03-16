@@ -34,7 +34,7 @@ describe("BmExtensionRenderless with extensions", () => {
             scopedSlots: {
                 default: `<span>Hello {{ props.color }} </span>`
             },
-            components: { ExtensionOne }
+            components: { BmExtensionRenderless, ExtensionOne }
         });
         expect(wrapper.text()).toBe("Hello blue light");
     });
@@ -55,7 +55,7 @@ describe("BmExtensionRenderless with extensions", () => {
             scopedSlots: {
                 default: `<span>Hello {{ props.color }} </span>`
             },
-            components: { ExtensionTwo }
+            components: { BmExtensionRenderless, ExtensionTwo }
         });
         expect(wrapper.text()).toBe("Hello yellow");
     });
@@ -85,7 +85,7 @@ describe("BmExtensionRenderless with extensions", () => {
             scopedSlots: {
                 default: `<span>Hello {{ props.color }} </span>`
             },
-            components: { ExtensionTwo, ExtensionOne }
+            components: { BmExtensionRenderless, ExtensionTwo, ExtensionOne }
         });
         expect(wrapper.text()).toBe("Hello light yellow");
     });
@@ -115,7 +115,7 @@ describe("BmExtensionRenderless with extensions", () => {
             scopedSlots: {
                 default: `<span>Hello {{ props.color }} </span>`
             },
-            components: { ExtensionTwo, ExtensionOne }
+            components: { BmExtensionRenderless, ExtensionTwo, ExtensionOne }
         });
         expect(wrapper.text()).toBe("Hello yellow");
     });
@@ -145,7 +145,7 @@ describe("BmExtensionRenderless with extensions", () => {
             scopedSlots: {
                 default: `<span>Hello {{ props.color }} {{ props.shape }}</span>`
             },
-            components: { ExtensionTwo, ExtensionOne }
+            components: { BmExtensionRenderless, ExtensionTwo, ExtensionOne }
         });
         expect(wrapper.text()).toBe("Hello yellow circle");
     });

@@ -29,7 +29,7 @@ describe("BmExtensionDecorator with extensions", () => {
             propsData: {
                 extensions: [{ name: "extension-one", path: "dummy-path" }]
             },
-            components: { ExtensionOne },
+            components: { BmExtensionDecorator, ExtensionOne },
             slots: {
                 default: html
             }
@@ -62,7 +62,7 @@ describe("BmExtensionDecorator with extensions", () => {
                     { name: "extension-three", path: "dummy-path" }
                 ]
             },
-            components: { ExtensionOne, ExtensionTwo, ExtensionThree },
+            components: { BmExtensionDecorator, ExtensionOne, ExtensionTwo, ExtensionThree },
             slots: {
                 default: html
             }
@@ -86,7 +86,7 @@ describe("BmExtensionDecorator with extensions", () => {
             propsData: {
                 extensions: [{ name: "extension-one", path: "dummy-path" }]
             },
-            components: { ExtensionOne },
+            components: { BmExtensionDecorator, ExtensionOne },
             slots: {
                 default: html
             }

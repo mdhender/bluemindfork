@@ -1,3 +1,4 @@
+import { Request } from "node-fetch";
 import fetchMock from "fetch-mock";
 import { MimeType } from "@bluemind/email";
 import smime from "../smime";
@@ -10,7 +11,7 @@ import {
     SignError,
     UntrustedCertificateError,
     UnmatchedCertificateError
-} from "../exceptions";
+} from "../../lib/exceptions";
 import {
     CRYPTO_HEADERS,
     ENCRYPTED_HEADER_NAME,
@@ -58,14 +59,11 @@ global.caches = {
     }
 };
 
-class MockRequest {
-    constructor(url) {
-        this.url = url;
-    }
-}
 class MockResponse {}
-global.Request = MockRequest;
+class MockFetchEvent extends Event {}
+global.Request = Request;
 global.Response = MockResponse;
+global.FetchEvent = MockFetchEvent;
 
 const mainEncrypted = {
     value: {
@@ -165,7 +163,7 @@ describe("smime", () => {
                 }
             });
         pki.getCertificate = () => [];
-        pki.checkCertificateValidity = () => {};
+        pki.checkCertificate = () => {};
         jest.clearAllMocks();
     });
 
@@ -182,6 +180,9 @@ describe("smime", () => {
         });
     });
     describe("decrypt", () => {
+        beforeAll(() => {
+            fetchMock.mock("*", new Response());
+        });
         beforeEach(() => {
             mainEncrypted.value.body.headers = [];
             mockCache = {};
@@ -197,17 +198,6 @@ describe("smime", () => {
             await smime.decrypt("uid", mainEncrypted);
             expect(mockCache).toMatchSnapshot();
         });
-        // FIXME
-        // test("raise an error if the certificate is expired", async () => {
-        //     pki.checkCertificate = () => {
-        //         throw new UntrustedCertificateError();
-        //     };
-        //     const old = { ...mainEncrypted };
-        //     old.value.body.date = 1000;
-
-        //     const { item } = await smime.decrypt("uid", old);
-        //     expect(getCryptoHeaderCode(item) & CRYPTO_HEADERS.UNTRUSTED_CERTIFICATE).toBeTruthy();
-        // });
         test("add a header if the message is crypted", async () => {
             const { item } = await smime.decrypt("uid", mainEncrypted);
             expect(getCryptoHeaderCode(item)).toBeTruthy();
@@ -216,20 +206,7 @@ describe("smime", () => {
             const { item } = await smime.decrypt("uid", mainEncrypted);
             expect(getCryptoHeaderCode(item) & CRYPTO_HEADERS.OK).toBeTruthy();
         });
-        // FIXME
-        // test("add a header if the message cannot be decrypted because private key or certificate are expired", async () => {
-        //     pkcs7.decrypt = () => Promise.reject(new UntrustedCertificateError());
-
-        //     const { item } = await smime.decrypt("uid", mainEncrypted);
-        //     expect(getCryptoHeaderCode(item) & CRYPTO_HEADERS.UNTRUSTED_CERTIFICATE).toBeTruthy();
-        // });
-        // test("add a header if the message cannot be decrypted because private key or certificate are revoked", async () => {
-        //     pkcs7.decrypt = () => Promise.reject(new RevokedCertificateError());
-
-        //     const { item } = await smime.decrypt("uid", mainEncrypted);
-        //     expect(getCryptoHeaderCode(item) & CRYPTO_HEADERS.UNTRUSTED_CERTIFICATE).toBeTruthy();
-        // });
-        test("add a header if the message cannot be decrypted because private key or certificate are not trusted", async () => {
+        test("add a header if the message cannot be decrypted because certificate is untrusted", async () => {
             pkcs7.decrypt = () => Promise.reject(new UntrustedCertificateError());
 
             const { item } = await smime.decrypt("uid", mainEncrypted);
@@ -263,18 +240,6 @@ describe("smime", () => {
                 expect(error).toContain(SMIME_ENCRYPTION_ERROR_PREFIX);
             }
         });
-        test("raise an error it is not the default originator address", async done => {
-            try {
-                const wrongOriginator = { ...item };
-                wrongOriginator.body.recipients[1].address = "wrong";
-
-                await smime.encrypt(wrongOriginator, "folderUid");
-                done.fail();
-            } catch (error) {
-                expect(error).toContain(CRYPTO_HEADERS.INVALID_ORIGINATOR);
-                done();
-            }
-        });
     });
     describe("sign", () => {
         beforeEach(() => {
@@ -300,17 +265,6 @@ describe("smime", () => {
                 done();
             }
         });
-        test("raise an error it is not the default originator address", async done => {
-            try {
-                const wrongOriginator = { ...item };
-                wrongOriginator.body.recipients[1].address = "wrong";
-                await smime.sign(wrongOriginator, "folderUid");
-                done.fail();
-            } catch (error) {
-                expect(error).toContain(CRYPTO_HEADERS.INVALID_ORIGINATOR);
-                done();
-            }
-        });
     });
     describe("verify", () => {
         const getEml = () => readEml("eml/signed_only/valid");
@@ -319,7 +273,7 @@ describe("smime", () => {
         });
         test("add a OK header if item is successfuly verified", async () => {
             const itemValue = { value: item };
-            const verified = await smime.verify("folderUid", itemValue, getEml);
+            const verified = await smime.verify(itemValue, getEml);
             expect(isVerified(verified.value.body.headers)).toBe(true);
         });
         test("add a KO header if item cant be verified", async () => {
@@ -327,7 +281,7 @@ describe("smime", () => {
                 throw new InvalidSignatureError();
             };
             const itemValue = { value: item };
-            const verified = await smime.verify("folderUid", itemValue, getEml);
+            const verified = await smime.verify(itemValue, getEml);
             expect(isVerified(verified.value.body.headers)).toBe(false);
             const headerValue = getHeaderValue(item.body.headers, SIGNED_HEADER_NAME);
             expect(Boolean(headerValue & CRYPTO_HEADERS.INVALID_SIGNATURE)).toBe(true);

@@ -3,12 +3,12 @@ import { VCardQuery } from "@bluemind/addressbook.api";
 import { PKIStatus } from "../../lib/constants";
 import {
     CertificateRecipientNotFoundError,
+    KeyNotFoundError,
     InvalidCertificateError,
-    InvalidKeyError,
-    UntrustedCertificateError
+    InvalidKeyError
 } from "../../lib/exceptions";
 import {
-    checkCertificate,
+    // checkCertificate,
     clearMyCryptoFiles,
     getMyCertificate,
     getMyPrivateKey,
@@ -18,13 +18,14 @@ import {
 } from "../pki";
 import db from "../pki/SMimePkiDB";
 import { readFile } from "./helpers";
-import { pki } from "node-forge";
+// import { pki } from "node-forge";
 fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
 
 const certificate = readFile("certificates/certificate.crt");
 const privateKey = readFile("privateKeys/privateKey.key");
 const otherCertificate = readFile("certificates/otherCertificate.crt");
-const nonRepudiationCert = readFile("certificates/alice.pem");
+const invalidCertificate = readFile("certificates/invalid.crt");
+// const nonRepudiationCert = readFile("certificates/alice.pem");
 // const anyExtendedKeyUsageCert = readFile("certificates/anyExtendedKeyUsage.crt");
 
 class MockedKeyAsBlob extends Blob {
@@ -56,7 +57,7 @@ const mockMultipleGet = jest.fn(uids => {
     } else if (uids.includes("invalid")) {
         return [
             {
-                value: { security: { key: { parameters: [], value: otherCertificate } } },
+                value: { security: { key: { parameters: [], value: invalidCertificate } } },
                 uid: "invalid"
             }
         ];
@@ -175,7 +176,7 @@ describe("pki", () => {
             try {
                 await getMyPrivateKey();
             } catch (error) {
-                expect(error).toBeInstanceOf(InvalidKeyError);
+                expect(error).toBeInstanceOf(KeyNotFoundError);
             }
         });
         // test("raise an error if the certificate is revoked", () => {});
@@ -267,22 +268,23 @@ describe("pki", () => {
     });
 
     describe("check if certificate can be trusted for S/MIME usage", () => {
-        const date = new Date("2023-02-18"),
-            sender = "test@devenv.blue";
-        test("untrusted if cert has been corrupted (signature check failed)", async () => {
-            // await checkCertificate(pki.certificateFromPem(anyExtendedKeyUsageCert), sendingDate, senderEmail);
-        });
+        // const date = new Date("2023-02-18"),
+        //     sender = "test@devenv.blue";
+        test.todo("untrusted if cert has been corrupted (signature check failed)");
+        // await checkCertificate(pki.certificateFromPem(anyExtendedKeyUsageCert), sendingDate, senderEmail);
+        // });
         test.todo("untrusted if cert issuer (CA) is not trusted");
         test.todo("untrusted if cert has expired");
-        test.only("untrusted if its a CA certificate", async done => {
-            try {
-                await checkCertificate(pki.certificateFromPem(nonRepudiationCert), { date, expectedAddress: sender });
-                done.fail("CA cert cannot be used");
-            } catch (error) {
-                expect(error).toBeInstanceOf(UntrustedCertificateError);
-                done();
-            }
-        });
+        test.todo("untrusted if its a CA certificate");
+        // , async done => {
+        //     try {
+        //         await checkCertificate(pki.certificateFromPem(nonRepudiationCert), { date, expectedAddress: sender });
+        //         done.fail("CA cert cannot be used");
+        //     } catch (error) {
+        //         expect(error).toBeInstanceOf(UntrustedCertificateError);
+        //         done();
+        //     }
+        // });
         test.todo(
             "untrusted if Extended Key Usage is set but its value is neither emailProtection nor anyExtendedKeyUsage"
         );

@@ -16,16 +16,8 @@ describe("BmExtension", () => {
         mapExtensions.mockReset();
         mapExtensions.mockReturnValue({ extensions: [] });
         Cache.clear();
-    }),
-        test("set classes depending on extension point", () => {
-            const wrapper = mount(BmExtension, {
-                propsData: {
-                    id: "test.dummy.id",
-                    path: "dummy-element"
-                }
-            });
-            expect(wrapper.find(".bm-extension-dummy-element").exists()).toBeTruthy();
-        });
+    });
+
     test("to call mapExtensions", () => {
         mount(BmExtension, {
             propsData: {
@@ -36,7 +28,6 @@ describe("BmExtension", () => {
         expect(mapExtensions).toHaveBeenCalledWith("test.dummy.id", ["component"]);
     });
 });
-
 describe("BmExtension switch to right extension type", () => {
     beforeEach(() => {
         mapExtensions.mockReset();

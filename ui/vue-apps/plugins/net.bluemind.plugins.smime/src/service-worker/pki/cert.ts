@@ -32,18 +32,18 @@ export function checkExtendedKeyUsage(certificate: pki.Certificate) {
     }
 }
 
-export function checkRecipientEmail(certificate: pki.Certificate, recipientEmail: string) {
+export function checkRecipientEmail(certificate: pki.Certificate, expectedEmail: string) {
     const subjectAltName = <pki.SubjectAltNameExtension>certificate.getExtension("subjectAltName");
 
     const subjectAltNameMatch =
         subjectAltName &&
         subjectAltName.altNames.find(
-            altName => altName.type === 1 && altName.value.toLowerCase() === recipientEmail.toLowerCase()
+            altName => altName.type === 1 && altName.value.toLowerCase() === expectedEmail.toLowerCase()
         );
     const subjectEmailAddressMatch =
-        certificate.subject.getField({ name: "emailAddress" })?.value.toLowerCase() === recipientEmail.toLowerCase();
+        certificate.subject.getField({ name: "emailAddress" })?.value.toLowerCase() === expectedEmail.toLowerCase();
     if (!subjectAltNameMatch && !subjectEmailAddressMatch) {
-        throw new UntrustedCertificateEmailNotFoundError(recipientEmail);
+        throw new UntrustedCertificateEmailNotFoundError(expectedEmail);
     }
 }
 

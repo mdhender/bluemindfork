@@ -17,8 +17,9 @@ export default {
         }
     },
     render: function (h, { props, data, scopedSlots }) {
-        if (props.extensions[0]) {
-            return h(props.extensions[0].name, {
+        const extension = props.extensions[0];
+        if (extension) {
+            return h(extension.name, {
                 attrs: { ...data.attrs },
                 scopedSlots: {
                     default: attrs =>

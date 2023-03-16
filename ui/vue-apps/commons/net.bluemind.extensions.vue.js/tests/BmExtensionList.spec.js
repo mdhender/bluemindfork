@@ -83,7 +83,7 @@ describe("BmExtensionList", () => {
     });
     test("To use default slot to decorate component", () => {
         let wrapper = mount(BmExtensionList, {
-            stubs: { DummyComponent },
+            stubs: { DummyComponent, DecoratorComponent },
             propsData: {
                 id: "test.dummy.id",
                 path: "dummy-element",
