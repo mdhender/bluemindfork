@@ -29,18 +29,22 @@ import javax.sql.DataSource;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
+import net.bluemind.backend.mail.replica.service.internal.DbMailboxRecordsAuditLogMapper;
 import net.bluemind.backend.mail.replica.service.internal.RecordsItemFlagProvider;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.persistence.IWeightProvider;
+import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.container.service.internal.ContainerStoreService.IWeightSeedProvider;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
+import net.bluemind.index.mail.MailIndexService;
 
 public abstract class AbstractMailboxRecordServiceFactory<T>
 		implements ServerSideServiceProvider.IServerSideServiceFactory<T> {
@@ -84,10 +88,23 @@ public abstract class AbstractMailboxRecordServiceFactory<T>
 			}
 			MailboxRecordStore recordStore = new MailboxRecordStore(ds, recordsContainer, subtreeContainer);
 
+			MailIndexService mailIndexService = new MailIndexService();
+
+			BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(recordsContainer.uid,
+					recordsContainer.name, recordsContainer.owner, recordsContainer.type, recordsContainer.domainUid,
+					recordsContainer.defaultContainer);
+			descriptor.internalId = recordsContainer.id;
+
+			DbMailboxRecordsAuditLogMapper mapper = new DbMailboxRecordsAuditLogMapper(descriptor, mailIndexService);
+			AuditLogService<MailboxRecord> logService = new AuditLogService<>(context.getSecurityContext(), descriptor,
+					mapper);
+
 			ContainerStoreService<MailboxRecord> storeService = new HookMailboxRecordStoreService(ds,
 					context.getSecurityContext(), recordsContainer, recordStore, flagsProvider, recordSeedProvider,
-					toWeight);
+					toWeight, logService);
+
 			storeService = disableChangelogIfSystem(context, owner, storeService);
+
 			return create(ds, recordsContainer, context, mailboxUniqueId, recordStore, storeService);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);

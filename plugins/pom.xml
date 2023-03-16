@@ -76,6 +76,8 @@
 		<module>net.bluemind.node.server</module>
 		<module>net.bluemind.osgi.log</module>
 		<module>net.bluemind.pimp</module>
+		<module>net.bluemind.lib.elasticsearch.datastreams</module>
+		<module>net.bluemind.core.auditlogs.schema</module>
 		<module>net.bluemind.pool.tests</module>
 		<module>net.bluemind.pool</module>
 		<module>net.bluemind.sentry</module>

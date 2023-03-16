@@ -1,11 +1,3 @@
-package net.bluemind.core.jdbc;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Supplier;
-
-import com.google.common.base.Suppliers;
-
 /* BEGIN LICENSE
  * Copyright © Blue Mind SAS, 2012-2016
  *
@@ -24,6 +16,15 @@ import com.google.common.base.Suppliers;
  * See LICENSE.txt
  * END LICENSE
  */
+
+package net.bluemind.core.jdbc;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
+
+import com.google.common.base.Suppliers;
+
 public final class Columns {
 
 	public List<Column> cols;

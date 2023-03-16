@@ -181,7 +181,7 @@ public class BaseReplicatedMailboxesService implements IBaseMailboxFolders {
 	public ItemChangelog itemChangelog(String itemUid, Long since) throws ServerFault {
 		rbac.check(Verb.Read.name());
 
-		return ChangeLogUtil.getItemChangeLog(itemUid, since, context, storeService, container.domainUid);
+		return ChangeLogUtil.getItemChangeLog(itemUid, since, context, container);
 	}
 
 	@Override

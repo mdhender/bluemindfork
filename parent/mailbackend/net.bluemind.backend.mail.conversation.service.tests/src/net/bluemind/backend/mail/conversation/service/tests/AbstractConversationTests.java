@@ -39,6 +39,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
+import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 
 import io.vertx.core.buffer.Buffer;
@@ -62,6 +63,7 @@ import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.SortDescriptor;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.IServiceProvider;
@@ -101,17 +103,22 @@ public class AbstractConversationTests {
 	@Before
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
+		ElasticsearchTestHelper.getInstance().beforeTest();
 
 		Server pipo = new Server();
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 		pipo.tags = Collections.singletonList("mail/imap");
+
+		Server esServer = new Server();
+		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
+		esServer.tags = Lists.newArrayList("bm/es");
 
 		VertxPlatform.spawnBlocking(25, TimeUnit.SECONDS);
 		partition = CyrusPartition.forServerAndDomain(pipo.ip, domainUid).name;
 		datasource = JdbcTestHelper.getInstance().getMailboxDataDataSource();
 		JdbcActivator.getInstance().addMailboxDataSource("dataloc", datasource);
 
-		PopulateHelper.initGlobalVirt(pipo);
+		PopulateHelper.initGlobalVirt(pipo, esServer);
 		PopulateHelper.addDomain(domainUid, Routing.internal);
 
 		user1Uid = PopulateHelper.addUser("u1-" + System.currentTimeMillis(), domainUid, Routing.internal);

@@ -27,14 +27,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.addressbook.api.IAddressBookUids;
+import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.persistence.VCardIndexStore;
 import net.bluemind.addressbook.persistence.VCardStore;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemUri;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
+import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -93,10 +96,17 @@ public class TagEventConsumer implements ITagEventConsumer {
 				continue;
 			}
 
+			BaseContainerDescriptor containerDescriptor = BaseContainerDescriptor.create(currentContainer.uid,
+					currentContainer.name, currentContainer.owner, currentContainer.type, currentContainer.domainUid,
+					currentContainer.defaultContainer);
+			containerDescriptor.internalId = currentContainer.id;
+			AuditLogService<VCard> logService = new AuditLogService<>(context.getSecurityContext(),
+					containerDescriptor);
 			VCardContainerStoreService vcardContainerStore = new VCardContainerStoreService(context, dsCards,
 					SecurityContext.SYSTEM, currentContainer, new VCardStore(dsCards, currentContainer),
 					new VCardIndexStore(ESearchActivator.getClient(), currentContainer,
-							DataSourceRouter.location(context, currentContainer.uid)));
+							DataSourceRouter.location(context, currentContainer.uid)),
+					logService);
 
 			try {
 				vcardContainerStore.touch(itemUri.itemUid);

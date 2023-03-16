@@ -248,6 +248,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 	public Ack updateById(long id, MailboxRecord m) {
 		SubtreeLocation recordsLocation = locationOrFault();
 		MailboxRecord mail = fixRecordFlags(m);
+
 		ItemVersion upd = storeService.update(id, Long.toString(mail.imapUid), mail);
 
 		ItemValue<MailboxRecord> asItem = ItemValue.create(Long.toString(mail.imapUid), m);

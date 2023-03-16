@@ -37,6 +37,7 @@ import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 
 import net.bluemind.core.api.fault.ServerFault;
@@ -51,6 +52,7 @@ import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.BmContext;
@@ -59,6 +61,7 @@ import net.bluemind.core.sessions.Sessions;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.role.api.BasicRoles;
+import net.bluemind.server.api.Server;
 import net.bluemind.smime.cacerts.api.ISmimeCACert;
 import net.bluemind.smime.cacerts.api.ISmimeCacertUids;
 import net.bluemind.smime.cacerts.api.ISmimeRevocation;
@@ -93,9 +96,13 @@ public abstract class AbstractServiceTests {
 
 	@Before
 	public void before() throws Exception {
+		ElasticsearchTestHelper.getInstance().beforeTest();
+		Server esServer = new Server();
+		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
+		esServer.tags = Lists.newArrayList("bm/es");
 		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 		JdbcTestHelper.getInstance().beforeTest();
-		PopulateHelper.initGlobalVirt();
+		PopulateHelper.initGlobalVirt(esServer);
 
 		domainUid = "bm.lan";
 		datalocation = PopulateHelper.FAKE_CYRUS_IP;
@@ -146,6 +153,7 @@ public abstract class AbstractServiceTests {
 	@After
 	public void after() throws Exception {
 		JdbcTestHelper.getInstance().afterTest();
+		ElasticsearchTestHelper.getInstance().afterTest();
 	}
 
 	protected ItemValue<SmimeCacert> createAndGet(String uid, SmimeCacert cert) {

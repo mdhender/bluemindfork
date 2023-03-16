@@ -449,7 +449,7 @@ public final class ESearchActivator implements BundleActivator {
 		}
 	}
 
-	private static void waitForElasticsearchHosts() {
+	public static void waitForElasticsearchHosts() {
 		Collection<String> hosts = hosts(ES_TAG);
 		if (hosts != null) {
 			for (String host : hosts) {

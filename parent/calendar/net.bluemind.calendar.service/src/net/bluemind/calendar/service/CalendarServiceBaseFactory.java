@@ -23,16 +23,22 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import net.bluemind.calendar.api.ICalendarUids;
+import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.api.internal.IInternalCalendar;
 import net.bluemind.calendar.auditlog.CalendarAuditProxy;
 import net.bluemind.calendar.auditlog.CalendarAuditor;
+import net.bluemind.calendar.persistence.VEventSeriesStore;
+import net.bluemind.calendar.service.internal.CalendarAuditLogMapper;
 import net.bluemind.calendar.service.internal.CalendarService;
+import net.bluemind.calendar.service.internal.VEventContainerStoreService;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlog.IAuditManager;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
+import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 
@@ -61,8 +67,21 @@ public class CalendarServiceBaseFactory {
 			throw new ServerFault("wrong datasource container.uid " + container.uid);
 		}
 
+		VEventSeriesStore veventStore = new VEventSeriesStore(ds, container);
+
+		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
+				container.owner, container.type, container.domainUid, container.defaultContainer);
+		descriptor.internalId = container.id;
+		CalendarAuditLogMapper mapper = new CalendarAuditLogMapper();
+		AuditLogService<VEventSeries> calendarLogService = new AuditLogService<>(context.getSecurityContext(),
+				descriptor, mapper);
+
+		VEventContainerStoreService storeService = new VEventContainerStoreService(context, ds,
+				context.getSecurityContext(), container, veventStore, calendarLogService);
+
 		CalendarAuditor auditor = CalendarAuditor.auditor(IAuditManager.instance(), context, container);
-		CalendarService service = new CalendarService(ds, ESearchActivator.getClient(), container, context, auditor);
+		CalendarService service = new CalendarService(ds, ESearchActivator.getClient(), container, context, auditor,
+				storeService);
 
 		return new CalendarAuditProxy(auditor, service);
 	}

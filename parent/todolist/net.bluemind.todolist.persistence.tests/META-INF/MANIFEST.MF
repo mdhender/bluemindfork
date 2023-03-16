@@ -9,5 +9,6 @@ Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
  net.bluemind.core.context;bundle-version="1.0.0",
  net.bluemind.core.elasticsearch.testshelper;bundle-version="1.0.0",
- net.bluemind.tag.api;bundle-version="1.0.0"
+ net.bluemind.tag.api;bundle-version="1.0.0",
+ net.bluemind.tests.defaultdata
 Automatic-Module-Name: net.bluemind.todolist.persistence.tests

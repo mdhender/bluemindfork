@@ -83,7 +83,7 @@ public class SmimeCACertService implements ISmimeCACert {
 	@Override
 	public ItemChangelog itemChangelog(String itemUid, Long since) throws ServerFault {
 		rbacManager.check(Verb.Read.name());
-		return ChangeLogUtil.getItemChangeLog(itemUid, since, bmContext, storeService, container.domainUid);
+		return ChangeLogUtil.getItemChangeLog(itemUid, since, bmContext, container);
 	}
 
 	@Override

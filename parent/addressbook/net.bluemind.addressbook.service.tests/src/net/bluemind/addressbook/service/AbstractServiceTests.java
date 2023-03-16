@@ -46,6 +46,7 @@ import net.bluemind.addressbook.persistence.VCardStore;
 import net.bluemind.addressbook.service.internal.VCardContainerStoreService;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerSubscription;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
@@ -55,6 +56,7 @@ import net.bluemind.core.container.persistence.AclStore;
 import net.bluemind.core.container.persistence.ChangelogStore;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ItemStore;
+import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
@@ -150,9 +152,15 @@ public abstract class AbstractServiceTests {
 		esearchClient = ElasticsearchTestHelper.getInstance().getClient();
 
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
+
+		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
+				container.owner, container.type, container.domainUid, container.defaultContainer);
+		descriptor.internalId = container.id;
+		AuditLogService<VCard> logService = new AuditLogService<>(context.getSecurityContext(), descriptor);
+
 		cardStoreService = new VCardContainerStoreService(context, dataDataSource, SecurityContext.SYSTEM, container,
 				new VCardStore(dataDataSource, container),
-				new VCardIndexStore(ElasticsearchTestHelper.getInstance().getClient(), container, null));
+				new VCardIndexStore(ElasticsearchTestHelper.getInstance().getClient(), container, null), logService);
 	}
 
 	private void initTags(String userUid) throws SQLException, ServerFault {

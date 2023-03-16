@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.core.auditlogs.schema
+Bundle-SymbolicName: net.bluemind.core.auditlogs.schema;singleton:=true
+Bundle-Version: 5.0.0.qualifier
+Require-Bundle: net.bluemind.lib.elasticsearch.datastreams
+Bundle-Vendor: net.bluemind
+Automatic-Module-Name: net.bluemind.core.auditlogs.schema
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-17

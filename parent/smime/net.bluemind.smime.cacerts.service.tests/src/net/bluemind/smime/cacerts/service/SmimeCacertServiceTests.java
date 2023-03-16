@@ -40,6 +40,7 @@ import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.smime.cacerts.api.ISmimeCACert;
 import net.bluemind.smime.cacerts.api.ISmimeRevocation;
 import net.bluemind.smime.cacerts.api.SmimeCacert;
@@ -405,12 +406,14 @@ public class SmimeCacertServiceTests extends AbstractServiceTests {
 		getServiceCacert(defaultSecurityContext, container.uid).create("test2", defaultSmimeCacert(CA_FILE_PATH));
 		getServiceCacert(defaultSecurityContext, container.uid).delete("test1");
 		getServiceCacert(defaultSecurityContext, container.uid).update("test2", defaultSmimeCacert(CA_FILE_PATH));
+		ESearchActivator.refreshIndex("audit_log");
 
 		ItemChangelog itemChangeLog = getServiceCacert(defaultSecurityContext, container.uid).itemChangelog("test1",
 				0L);
-		assertEquals(2, itemChangeLog.entries.size());
+		assertEquals(3, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
-		assertEquals(ChangeLogEntry.Type.Deleted, itemChangeLog.entries.get(1).type);
+		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
+		assertEquals(ChangeLogEntry.Type.Deleted, itemChangeLog.entries.get(2).type);
 
 		itemChangeLog = getServiceCacert(defaultSecurityContext, container.uid).itemChangelog("test2", 0L);
 		assertEquals(2, itemChangeLog.entries.size());

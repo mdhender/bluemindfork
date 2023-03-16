@@ -36,6 +36,7 @@ import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.persistence.IItemValueStore;
+import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -52,15 +53,18 @@ public class VCardContainerStoreService extends ContainerStoreService<VCard> {
 	private VCardIndexStore indexStore;
 
 	public VCardContainerStoreService(BmContext context, DataSource dataSource, SecurityContext securityContext,
-			Container container) {
+			Container container, AuditLogService<VCard> logService) {
 		this(context, dataSource, securityContext, container, new VCardStore(dataSource, container),
 				new VCardIndexStore(ESearchActivator.getClient(), container,
-						DataSourceRouter.location(context, container.uid)));
+						DataSourceRouter.location(context, container.uid)),
+				logService);
 	}
 
 	public VCardContainerStoreService(BmContext context, DataSource dataSource, SecurityContext securityContext,
-			Container container, IItemValueStore<VCard> itemValueStore, VCardIndexStore indexStore) {
-		super(dataSource, securityContext, container, itemValueStore, card -> ItemFlag.SEEN, c -> 0L, s -> s);
+			Container container, IItemValueStore<VCard> itemValueStore, VCardIndexStore indexStore,
+			AuditLogService<VCard> logService) {
+		super(dataSource, securityContext, container, itemValueStore, card -> ItemFlag.SEEN, c -> 0L, s -> s,
+				logService);
 		tagRefService = context.su().provider().instance(IInCoreTagRef.class, container.uid);
 		documentStore = DocumentStorage.store;
 		this.indexStore = indexStore;

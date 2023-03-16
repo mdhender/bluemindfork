@@ -48,6 +48,7 @@ import net.bluemind.core.container.persistence.ChangelogStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.tests.vertx.VertxEventChecker;
+import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.notes.api.INote;
 import net.bluemind.notes.api.INoteIndexMgmt;
 import net.bluemind.notes.api.INotes;
@@ -484,11 +485,13 @@ public class NoteServiceTests extends AbstractServiceTests {
 		getServiceNote(defaultSecurityContext, container.uid).create("test2", defaultVNote());
 		getServiceNote(defaultSecurityContext, container.uid).delete("test1");
 		getServiceNote(defaultSecurityContext, container.uid).update("test2", defaultVNote());
+		ESearchActivator.refreshIndex("audit_log");
 
 		ItemChangelog itemChangeLog = getServiceNote(defaultSecurityContext, container.uid).itemChangelog("test1", 0L);
-		assertEquals(2, itemChangeLog.entries.size());
+		assertEquals(3, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
-		assertEquals(ChangeLogEntry.Type.Deleted, itemChangeLog.entries.get(1).type);
+		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
+		assertEquals(ChangeLogEntry.Type.Deleted, itemChangeLog.entries.get(2).type);
 
 		itemChangeLog = getServiceNote(defaultSecurityContext, container.uid).itemChangelog("test2", 0L);
 		assertEquals(2, itemChangeLog.entries.size());
@@ -505,11 +508,15 @@ public class NoteServiceTests extends AbstractServiceTests {
 		getServiceNote(defaultSecurityContext, container.uid).update("test1", defaultVNote());
 		getServiceNote(defaultSecurityContext, container.uid).update("test1", defaultVNote());
 		getServiceNote(defaultSecurityContext, container.uid).update("test1", defaultVNote());
+		ESearchActivator.refreshIndex("audit_log");
 
 		ItemChangelog itemChangeLog = getServiceNote(defaultSecurityContext, container.uid).itemChangelog("test1", 0L);
-		assertEquals(2, itemChangeLog.entries.size());
+		assertEquals(5, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
 		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
+		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(2).type);
+		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(3).type);
+		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(4).type);
 
 	}
 

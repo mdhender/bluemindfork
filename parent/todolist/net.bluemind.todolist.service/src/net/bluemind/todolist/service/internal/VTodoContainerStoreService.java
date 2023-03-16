@@ -32,6 +32,7 @@ import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.IItemValueStore;
+import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -46,15 +47,15 @@ public class VTodoContainerStoreService extends ContainerStoreService<VTodo> {
 	private IInCoreTagRef tagRefService;
 
 	public VTodoContainerStoreService(BmContext context, DataSource dataSource, SecurityContext securityContext,
-			Container container, IItemValueStore<VTodo> itemValueStore) {
+			Container container, IItemValueStore<VTodo> itemValueStore, AuditLogService<VTodo> logService) {
 		super(dataSource, securityContext, container, itemValueStore, todo -> ItemFlag.SEEN, VTodoWeight.seedProvider(),
-				VTodoWeight.weigthProvider());
+				VTodoWeight.weigthProvider(), logService);
 		this.tagRefService = context.su().provider().instance(IInCoreTagRef.class, container.uid);
 	}
 
 	public VTodoContainerStoreService(BmContext context, DataSource dataSource, SecurityContext securityContext,
 			Container container) {
-		this(context, dataSource, securityContext, container, new VTodoStore(dataSource, container));
+		this(context, dataSource, securityContext, container, new VTodoStore(dataSource, container), null);
 	}
 
 	@Override

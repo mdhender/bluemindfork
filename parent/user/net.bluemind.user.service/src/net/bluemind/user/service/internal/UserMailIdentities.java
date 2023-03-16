@@ -95,9 +95,9 @@ public class UserMailIdentities implements IUserMailIdentities, IInternalUserMai
 		if (userMailIdentity != null) {
 			throw new ServerFault(String.format("Identity id %s of user %s already exists", id, userUid));
 		}
-
 		hooks.forEach(hook -> hook.beforeCreate(context, domainUid, id, identity));
 		storeService.createIdentity(userUid, id, identity);
+
 		hooks.forEach(hook -> hook.onIdentityCreated(context, domainUid, userUid, id, identity));
 	}
 

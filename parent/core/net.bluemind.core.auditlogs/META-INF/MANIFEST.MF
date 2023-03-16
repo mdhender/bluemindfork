@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.core.auditlogs
+Bundle-SymbolicName: net.bluemind.core.auditlogs;singleton:=true
+Bundle-Version: 5.0.0.qualifier
+Export-Package: net.bluemind.core.auditlogs,
+ net.bluemind.core.auditlogs.api
+Bundle-Vendor: net.bluemind
+Automatic-Module-Name: net.bluemind.core.auditlogs
+Bundle-ClassPath: schema/,
+ .
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: com.fasterxml.jackson.core.jackson-annotations,
+ net.bluemind.core.container.persistence,
+ slf4j.api,
+ com.fasterxml.jackson.core.jackson-databind,
+ net.bluemind.directory.api

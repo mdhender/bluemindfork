@@ -25,13 +25,19 @@ import javax.sql.DataSource;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.IVCardService;
+import net.bluemind.addressbook.api.VCard;
+import net.bluemind.addressbook.persistence.VCardIndexStore;
+import net.bluemind.addressbook.persistence.VCardStore;
 import net.bluemind.addressbook.service.internal.AddressBookService;
+import net.bluemind.addressbook.service.internal.VCardContainerStoreService;
 import net.bluemind.addressbook.service.internal.VCardService;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
+import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -70,7 +76,19 @@ public class VCardServiceFactory implements ServerSideServiceProvider.IServerSid
 		if (esClient == null) {
 			throw new ServerFault("elasticsearch was not found for contact indexing");
 		}
-		AddressBookService service = new AddressBookService(ds, esClient, container, context);
+
+		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
+				container.owner, container.type, container.domainUid, container.defaultContainer);
+		descriptor.internalId = container.id;
+		AuditLogService<VCard> logService = new AuditLogService<>(context.getSecurityContext(), descriptor);
+
+		VCardStore vcardStore = new VCardStore(ds, container);
+		VCardIndexStore indexStore = new VCardIndexStore(esClient, container,
+				DataSourceRouter.location(context, container.uid));
+		VCardContainerStoreService storeService = new VCardContainerStoreService(context, ds,
+				context.getSecurityContext(), container, vcardStore, indexStore, logService);
+
+		AddressBookService service = new AddressBookService(ds, esClient, container, context, vcardStore, storeService);
 		return new VCardService(context, service, container);
 	}
 

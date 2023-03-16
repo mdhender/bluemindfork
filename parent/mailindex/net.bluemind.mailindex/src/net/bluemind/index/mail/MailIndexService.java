@@ -295,6 +295,14 @@ public class MailIndexService implements IMailIndexService {
 	}
 
 	@Override
+	public Map<String, Object> fetchBody(String mailboxUniqueId, MailboxRecord value) {
+		ElasticsearchClient esClient = getIndexClient();
+		String uid = value.messageBody;
+		return Optional.ofNullable(IndexableMessageBodyCache.bodies.getIfPresent(uid)).map(this::bodyToDocument)
+				.orElseGet(() -> loadParentDoc(esClient, mailboxUniqueId, value));
+	}
+
+	@Override
 	public List<BulkOp> storeMessage(String mailboxUniqueId, ItemValue<MailboxRecord> item, String user, boolean bulk) {
 		ElasticsearchClient esClient = getIndexClient();
 		List<BulkOp> bulkOperation = new ArrayList<>();
@@ -306,7 +314,7 @@ public class MailIndexService implements IMailIndexService {
 
 		Map<String, Object> parentDoc = Optional //
 				.ofNullable(IndexableMessageBodyCache.bodies.getIfPresent(parentUid)).map(this::bodyToDocument) //
-				.orElseGet(() -> loadParentDoc(esClient, mailboxUniqueId, item));
+				.orElseGet(() -> loadParentDoc(esClient, mailboxUniqueId, item.value));
 
 		if (parentDoc.isEmpty()) {
 			logger.info("Skipping indexation of {}:{}", mailboxUniqueId, parentUid);
@@ -389,9 +397,8 @@ public class MailIndexService implements IMailIndexService {
 	}
 
 	private Map<String, Object> loadParentDoc(ElasticsearchClient esClient, String mailboxUniqueId,
-			ItemValue<MailboxRecord> item) {
-		MailboxRecord mail = item.value;
-		String parentUid = mail.messageBody;
+			MailboxRecord value) {
+		String parentUid = value.messageBody;
 		GetResponse<ObjectNode> response = null;
 		try {
 			response = esClient.get(i -> i //
@@ -401,9 +408,9 @@ public class MailIndexService implements IMailIndexService {
 		}
 		if (response == null || !response.found()) {
 			try {
-				logger.warn("Pending index misses parent {} for imapUid {} in mailbox {}", parentUid,
-						item.value.imapUid, mailboxUniqueId);
-				return reloadFromDb(parentUid, mailboxUniqueId, mail);
+				logger.warn("Pending index misses parent {} for imapUid {} in mailbox {}", parentUid, value.imapUid,
+						mailboxUniqueId);
+				return reloadFromDb(parentUid, mailboxUniqueId, value);
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 				return Collections.emptyMap();

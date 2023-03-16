@@ -29,6 +29,7 @@ import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.IItemValueStore;
+import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -42,14 +43,14 @@ public class VNoteContainerStoreService extends ContainerStoreService<VNote> {
 	private IInCoreTagRef tagRefService;
 
 	public VNoteContainerStoreService(BmContext context, DataSource dataSource, SecurityContext securityContext,
-			Container container, IItemValueStore<VNote> itemValueStore) {
-		super(dataSource, securityContext, container, itemValueStore);
+			Container container, IItemValueStore<VNote> itemValueStore, AuditLogService<VNote> logService) {
+		super(dataSource, securityContext, container, itemValueStore, logService);
 		this.tagRefService = context.su().provider().instance(IInCoreTagRef.class, container.uid);
 	}
 
 	public VNoteContainerStoreService(BmContext context, DataSource dataSource, SecurityContext securityContext,
 			Container container) {
-		this(context, dataSource, securityContext, container, new VNoteStore(dataSource, container));
+		this(context, dataSource, securityContext, container, new VNoteStore(dataSource, container), null);
 	}
 
 	@Override

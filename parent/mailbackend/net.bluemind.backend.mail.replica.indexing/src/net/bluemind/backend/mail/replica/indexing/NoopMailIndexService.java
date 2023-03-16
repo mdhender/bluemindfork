@@ -147,4 +147,10 @@ public class NoopMailIndexService implements IMailIndexService {
 		logger.debug("NOOP");
 	}
 
+	@Override
+	public Map<String, Object> fetchBody(String mailboxUniqueId, MailboxRecord value) {
+		logger.debug("NOOP");
+		return null;
+	}
+
 }

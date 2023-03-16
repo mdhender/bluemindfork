@@ -78,13 +78,12 @@ public class TodoListService implements ITodoList {
 	private VTodoStore vtodoStore;
 
 	public TodoListService(DataSource pool, ElasticsearchClient esClient, Container container,
-			BmContext bmContext) {
+			BmContext bmContext, VTodoContainerStoreService storeService) {
 		this.bmContext = bmContext;
 		this.container = container;
 		this.vtodoStore = new VTodoStore(pool, container);
 
-		storeService = new VTodoContainerStoreService(bmContext, pool, bmContext.getSecurityContext(), container,
-				vtodoStore);
+		this.storeService = storeService;
 
 		indexStore = new VTodoIndexStore(esClient, container, DataSourceRouter.location(bmContext, container.uid));
 
@@ -285,7 +284,7 @@ public class TodoListService implements ITodoList {
 	@Override
 	public ItemChangelog itemChangelog(String itemUid, Long since) throws ServerFault {
 		rbacManager.check(Verb.Read.name());
-		return ChangeLogUtil.getItemChangeLog(itemUid, since, bmContext, storeService, container.domainUid);
+		return ChangeLogUtil.getItemChangeLog(itemUid, since, bmContext, container);
 	}
 
 	@Override

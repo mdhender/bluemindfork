@@ -80,13 +80,13 @@ public class NoteService implements INote {
 	private RBACManager rbacManager;
 	private VNoteStore vnoteStore;
 
-	public NoteService(DataSource pool, ElasticsearchClient esearchClient, Container container, BmContext bmContext) {
+	public NoteService(DataSource pool, ElasticsearchClient esearchClient, Container container, BmContext bmContext,
+			VNoteStore noteStore, VNoteContainerStoreService noteContainerService) {
 		this.bmContext = bmContext;
 		this.container = container;
-		this.vnoteStore = new VNoteStore(pool, container);
+		this.vnoteStore = noteStore;
 
-		storeService = new VNoteContainerStoreService(bmContext, pool, bmContext.getSecurityContext(), container,
-				vnoteStore);
+		storeService = noteContainerService;
 
 		indexStore = new VNoteIndexStore(esearchClient, container, DataSourceRouter.location(bmContext, container.uid));
 
@@ -250,7 +250,7 @@ public class NoteService implements INote {
 	@Override
 	public ItemChangelog itemChangelog(String itemUid, Long since) throws ServerFault {
 		rbacManager.check(Verb.Read.name());
-		return ChangeLogUtil.getItemChangeLog(itemUid, since, bmContext, storeService, container.domainUid);
+		return ChangeLogUtil.getItemChangeLog(itemUid, since, bmContext, container);
 	}
 
 	@Override

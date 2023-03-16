@@ -55,6 +55,7 @@ import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.api.IRestoreCrudSupport;
 import net.bluemind.core.container.hierarchy.hook.HierarchyIdsHints;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerDescriptor;
@@ -63,6 +64,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ContainerSyncStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
+import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -147,8 +149,12 @@ public class AddressBooksMgmt
 		VCardIndexStore indexStore = new VCardIndexStore(ESearchActivator.getClient(), container,
 				DataSourceRouter.location(context, container.uid));
 
+		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
+				container.owner, container.type, container.domainUid, container.defaultContainer);
+		descriptor.internalId = container.id;
+		AuditLogService<VCard> logService = new AuditLogService<>(context.getSecurityContext(), descriptor);
 		VCardContainerStoreService storeService = new VCardContainerStoreService(context, ds,
-				context.getSecurityContext(), container, new VCardStore(ds, container), indexStore);
+				context.getSecurityContext(), container, new VCardStore(ds, container), indexStore, logService);
 
 		logger.info("reindexing addressbook {}", container.uid);
 		// reinit container index
@@ -237,9 +243,15 @@ public class AddressBooksMgmt
 					ErrorCode.FORBIDDEN);
 		}
 
+		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
+				container.owner, container.type, container.domainUid, container.defaultContainer);
+		descriptor.internalId = container.id;
+		AuditLogService<VCard> logService = new AuditLogService<>(context.getSecurityContext(), descriptor);
 		VCardContainerStoreService storeService = new VCardContainerStoreService(context, ds,
-				context.getSecurityContext(), container, new VCardStore(ds, container), new VCardIndexStore(
-						ESearchActivator.getClient(), container, DataSourceRouter.location(context, container.uid)));
+				context.getSecurityContext(), container, new VCardStore(ds, container),
+				new VCardIndexStore(ESearchActivator.getClient(), container,
+						DataSourceRouter.location(context, container.uid)),
+				logService);
 
 		ContainerChangeset<String> changeset = storeService.changeset(since, Long.MAX_VALUE);
 
@@ -309,9 +321,15 @@ public class AddressBooksMgmt
 					ErrorCode.FORBIDDEN);
 		}
 
+		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
+				container.owner, container.type, container.domainUid, container.defaultContainer);
+		descriptor.internalId = container.id;
+		AuditLogService<VCard> logService = new AuditLogService<>(context.getSecurityContext(), descriptor);
 		final VCardContainerStoreService storeService = new VCardContainerStoreService(context, ds,
-				context.getSecurityContext(), container, new VCardStore(ds, container), new VCardIndexStore(
-						ESearchActivator.getClient(), container, DataSourceRouter.location(context, container.uid)));
+				context.getSecurityContext(), container, new VCardStore(ds, container),
+				new VCardIndexStore(ESearchActivator.getClient(), container,
+						DataSourceRouter.location(context, container.uid)),
+				logService);
 
 		if (resetBeforeRestore) {
 			storeService.deleteAll();
@@ -380,9 +398,15 @@ public class AddressBooksMgmt
 			throw ServerFault.sqlFault(e);
 		}
 
+		BaseContainerDescriptor containerDescriptor = BaseContainerDescriptor.create(container.uid, container.name,
+				container.owner, container.type, container.domainUid, container.defaultContainer);
+		containerDescriptor.internalId = container.id;
+		AuditLogService<VCard> logService = new AuditLogService<>(context.getSecurityContext(), containerDescriptor);
 		VCardContainerStoreService storeService = new VCardContainerStoreService(context, ds,
-				context.getSecurityContext(), container, new VCardStore(ds, container), new VCardIndexStore(
-						ESearchActivator.getClient(), container, DataSourceRouter.location(context, container.uid)));
+				context.getSecurityContext(), container, new VCardStore(ds, container),
+				new VCardIndexStore(ESearchActivator.getClient(), container,
+						DataSourceRouter.location(context, container.uid)),
+				logService);
 
 		storeService.prepareContainerDelete();
 		context.su().provider().instance(IContainers.class).delete(uid);

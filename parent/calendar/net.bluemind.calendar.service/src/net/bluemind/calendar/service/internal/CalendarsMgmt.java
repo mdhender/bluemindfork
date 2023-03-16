@@ -37,7 +37,6 @@ import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.ICalendarsMgmt;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.persistence.VEventIndexStore;
-import net.bluemind.calendar.persistence.VEventSeriesStore;
 import net.bluemind.calendar.service.IInCoreCalendarsMgmt;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ErrorCode;
@@ -169,7 +168,7 @@ public class CalendarsMgmt implements ICalendarsMgmt, IInCoreCalendarsMgmt {
 
 	private void reindex(Container container, DataSource ds, IServerTaskMonitor monitor) throws ServerFault {
 		VEventContainerStoreService storeService = new VEventContainerStoreService(context, ds,
-				context.getSecurityContext(), container, new VEventSeriesStore(ds, container));
+				context.getSecurityContext(), container);
 
 		VEventIndexStore indexStore = new VEventIndexStore(ESearchActivator.getClient(), container,
 				DataSourceRouter.location(context, container.uid));
@@ -345,7 +344,7 @@ public class CalendarsMgmt implements ICalendarsMgmt, IInCoreCalendarsMgmt {
 		}
 
 		VEventContainerStoreService storeService = new VEventContainerStoreService(context, ds,
-				context.getSecurityContext(), container, new VEventSeriesStore(ds, container));
+				context.getSecurityContext(), container);
 		VEventIndexStore indexStore = new VEventIndexStore(ESearchActivator.getClient(), container,
 				DataSourceRouter.location(context, container.uid));
 

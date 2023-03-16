@@ -24,13 +24,19 @@ import javax.sql.DataSource;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import net.bluemind.addressbook.api.IAddressBookUids;
+import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.domainbook.DomainAddressBook;
+import net.bluemind.addressbook.persistence.VCardIndexStore;
+import net.bluemind.addressbook.persistence.VCardStore;
 import net.bluemind.addressbook.service.internal.AddressBookService;
+import net.bluemind.addressbook.service.internal.VCardContainerStoreService;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
+import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
@@ -70,8 +76,20 @@ public class InCoreAddressBookFactory
 		if (esClient == null) {
 			throw new ServerFault("elasticsearch was not found for contact indexing");
 		}
-		AddressBookService service = new AddressBookService(ds, esClient, container, context);
-		return service;
+
+		VCardStore vcardStore = new VCardStore(ds, container);
+		VCardIndexStore indexStore = new VCardIndexStore(esClient, container,
+				DataSourceRouter.location(context, container.uid));
+
+		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
+				container.owner, container.type, container.domainUid, container.defaultContainer);
+		descriptor.internalId = container.id;
+
+		AuditLogService<VCard> logService = new AuditLogService<>(context.getSecurityContext(), descriptor);
+
+		VCardContainerStoreService storeService = new VCardContainerStoreService(context, ds,
+				context.getSecurityContext(), container, vcardStore, indexStore, logService);
+		return new AddressBookService(ds, esClient, container, context, vcardStore, storeService);
 	}
 
 	@Override

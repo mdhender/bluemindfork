@@ -21,19 +21,26 @@ package net.bluemind.core.container.service;
 import java.util.stream.Collectors;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.internal.IChangeLogService;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
+import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemChangelog;
-import net.bluemind.core.container.service.internal.ContainerStoreService;
+import net.bluemind.core.container.service.internal.ChangeLogService;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 
 public class ChangeLogUtil {
 
-	public static ItemChangelog getItemChangeLog(String itemUid, Long since, BmContext bmContext,
-			ContainerStoreService<?> storeService, String domainUid) throws ServerFault {
-		IDirectory directoryService = bmContext.provider().instance(IDirectory.class, domainUid);
+	public static ItemChangelog getItemChangeLog(String itemUid, Long since, BmContext bmContext, Container container)
+			throws ServerFault {
+		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
+				container.owner, container.type, container.domainUid, container.defaultContainer);
+		descriptor.internalId = container.id;
+		IChangeLogService changeLogService = new ChangeLogService(descriptor);
+		IDirectory directoryService = bmContext.provider().instance(IDirectory.class, container.domainUid);
 
-		ItemChangelog changelog = storeService.changelog(itemUid, since, Long.MAX_VALUE);
+		ItemChangelog changelog = changeLogService.itemChangelog(itemUid, since);
 		changelog.entries = changelog.entries.stream().map((entry) -> {
 			try {
 				DirEntry dirEntry = directoryService.findByEntryUid(entry.author);

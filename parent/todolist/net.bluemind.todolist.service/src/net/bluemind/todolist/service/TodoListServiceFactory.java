@@ -25,14 +25,19 @@ import javax.sql.DataSource;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
+import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.todolist.api.ITodoList;
+import net.bluemind.todolist.api.VTodo;
+import net.bluemind.todolist.persistence.VTodoStore;
 import net.bluemind.todolist.service.internal.TodoListService;
+import net.bluemind.todolist.service.internal.VTodoContainerStoreService;
 
 public class TodoListServiceFactory implements ServerSideServiceProvider.IServerSideServiceFactory<ITodoList> {
 
@@ -64,9 +69,18 @@ public class TodoListServiceFactory implements ServerSideServiceProvider.IServer
 
 		if (esClient == null) {
 			throw new ServerFault("elasticsearch was not found for todo indexing");
+
 		}
-		TodoListService service = new TodoListService(ds, esClient, container, context);
-		return service;
+		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
+				container.owner, container.type, container.domainUid, container.defaultContainer);
+		descriptor.internalId = container.id;
+		AuditLogService<VTodo> logService = new AuditLogService<>(context.getSecurityContext(), descriptor);
+
+		VTodoStore vtodoStore = new VTodoStore(ds, container);
+		VTodoContainerStoreService storeService = new VTodoContainerStoreService(context, ds,
+				context.getSecurityContext(), container, vtodoStore, logService);
+
+		return new TodoListService(ds, esClient, container, context, storeService);
 	}
 
 	@Override

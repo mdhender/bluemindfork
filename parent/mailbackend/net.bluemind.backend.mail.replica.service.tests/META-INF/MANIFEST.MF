@@ -65,7 +65,9 @@ Require-Bundle: org.junit,
  net.bluemind.sds.store.cyrusspool;bundle-version="5.0.0",
  com.typesafe.config,
  net.bluemind.backend.mailapi.testhelper;bundle-version="5.0.0",
- com.fasterxml.jackson.core.jackson-databind
+ net.bluemind.core.auditlogs.schema,
+ com.fasterxml.jackson.core.jackson-databind,
+ net.bluemind.core.auditlogs
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.backend.mail.replica.service.tests

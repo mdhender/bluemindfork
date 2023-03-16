@@ -46,11 +46,15 @@ import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.auditlog.CalendarAuditor;
+import net.bluemind.calendar.persistence.VEventSeriesStore;
+import net.bluemind.calendar.service.internal.CalendarAuditLogMapper;
 import net.bluemind.calendar.service.internal.CalendarService;
+import net.bluemind.calendar.service.internal.VEventContainerStoreService;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.auditlog.IAuditManager;
 import net.bluemind.core.container.api.IContainerManagement;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
@@ -58,6 +62,7 @@ import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.AclStore;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
+import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
@@ -235,8 +240,20 @@ public class CalendarHookServiceTests {
 	protected ICalendar getCalendarService(SecurityContext context, Container container) throws ServerFault {
 		BmContext ctx = new BmTestContext(context);
 		DataSource ds = DataSourceRouter.get(ctx, container.uid);
+		VEventSeriesStore veventStore = new VEventSeriesStore(ds, container);
+
+		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
+				container.owner, container.type, container.domainUid, container.defaultContainer);
+		descriptor.internalId = container.id;
+
+		CalendarAuditLogMapper mapper = new CalendarAuditLogMapper();
+		AuditLogService<VEventSeries> calendarLogService = new AuditLogService<>(context, descriptor, mapper);
+
+		VEventContainerStoreService storeService = new VEventContainerStoreService(ctx, ds, context, container,
+				veventStore, calendarLogService);
+
 		return new CalendarService(ds, esClient, container, ctx,
-				CalendarAuditor.auditor(IAuditManager.instance(), ctx, container));
+				CalendarAuditor.auditor(IAuditManager.instance(), ctx, container), storeService);
 	}
 
 	protected IVideoConferencingSaas getVideoConfSaasService() throws ServerFault {

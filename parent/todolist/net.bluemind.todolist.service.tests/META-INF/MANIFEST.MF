@@ -27,5 +27,6 @@ Require-Bundle: org.junit,
  net.bluemind.todolist.hook,
  net.bluemind.user.persistence,
  org.mnode.ical4j,
- net.bluemind.lib.ical4j
+ net.bluemind.lib.ical4j,
+ net.bluemind.core.auditlogs.schema
 Automatic-Module-Name: net.bluemind.todolist.service.tests

@@ -27,11 +27,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemUri;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
+import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -41,6 +43,7 @@ import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.persistence.TagReferencesStore;
 import net.bluemind.tag.service.ITagEventConsumer;
 import net.bluemind.todolist.api.ITodoUids;
+import net.bluemind.todolist.api.VTodo;
 import net.bluemind.todolist.persistence.VTodoStore;
 
 public class TagEventConsumer implements ITagEventConsumer {
@@ -88,8 +91,13 @@ public class TagEventConsumer implements ITagEventConsumer {
 				continue;
 			}
 
+			BaseContainerDescriptor containerDescriptor = BaseContainerDescriptor.create(currentContainer.uid,
+					currentContainer.name, currentContainer.owner, currentContainer.type, currentContainer.domainUid,
+					currentContainer.defaultContainer);
+			containerDescriptor.internalId = currentContainer.id;
+			AuditLogService<VTodo> logService = new AuditLogService<>(context.getSecurityContext(), containerDescriptor);
 			VTodoContainerStoreService vtodoContainerStore = new VTodoContainerStoreService(context, dsTodos,
-					SecurityContext.SYSTEM, currentContainer, new VTodoStore(dsTodos, currentContainer));
+					SecurityContext.SYSTEM, currentContainer, new VTodoStore(dsTodos, currentContainer), logService);
 
 			try {
 				vtodoContainerStore.touch(itemUri.itemUid);

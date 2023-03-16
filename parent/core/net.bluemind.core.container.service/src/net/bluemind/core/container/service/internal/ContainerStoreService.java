@@ -46,8 +46,10 @@ import net.bluemind.core.backup.continuous.api.IBackupStore;
 import net.bluemind.core.backup.continuous.api.Providers;
 import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
+import net.bluemind.core.container.model.ChangeLogEntry.Type;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerChangeset;
+import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.IdQuery;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemChangelog;
@@ -90,6 +92,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	private final IWeightProvider weightProvider;
 	private final Supplier<ContainerChangeEventProducer> containerChangeEventProducer;
 	private final Supplier<IBackupStore<T>> backupStream;
+	private AuditLogService<T> auditLogService;
 	private final DataSource pool;
 
 	public final ReservedIds.ConsumerHandler doNothingOnIdsReservation = callback -> callback.accept(null);
@@ -107,8 +110,26 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	private static final Collection<ItemFlag> UNFLAGGED = EnumSet.noneOf(ItemFlag.class);
 
 	public ContainerStoreService(DataSource pool, SecurityContext securityContext, Container container,
+			IItemValueStore<T> itemValueStore, AuditLogService<T> logService) {
+		this(pool, securityContext, container, itemValueStore, v -> UNFLAGGED, v -> 0L, seed -> seed, logService);
+	}
+
+	public ContainerStoreService(DataSource pool, SecurityContext securityContext, Container container,
+			IItemValueStore<T> itemValueStore) {
+		this(pool, securityContext, container, itemValueStore, v -> UNFLAGGED, v -> 0L, seed -> seed,
+				new AuditLogService<>(securityContext, container.asDescriptor(null)));
+	}
+
+	public ContainerStoreService(DataSource pool, SecurityContext securityContext, Container container,
 			IItemValueStore<T> itemValueStore, IItemFlagsProvider<T> fProv, IWeightSeedProvider<T> wsProv,
 			IWeightProvider wProv) {
+		this(pool, securityContext, container, itemValueStore, fProv, v -> 0L, seed -> seed,
+				new AuditLogService<>(securityContext, container.asDescriptor(null)));
+	}
+
+	public ContainerStoreService(DataSource pool, SecurityContext securityContext, Container container,
+			IItemValueStore<T> itemValueStore, IItemFlagsProvider<T> fProv, IWeightSeedProvider<T> wsProv,
+			IWeightProvider wProv, AuditLogService<T> logService) {
 		this.container = container;
 		this.securityContext = securityContext;
 		this.origin = securityContext.getOrigin();
@@ -119,8 +140,12 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 		this.flagsProvider = fProv;
 		this.weightSeedProvider = wsProv;
 		this.weightProvider = wProv;
+		this.auditLogService = logService;
+
 		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
 				container.owner, container.type, container.domainUid, container.defaultContainer);
+		descriptor.internalId = container.id;
+
 		this.backupStream = Suppliers.memoize(() -> {
 			IBackupStore<T> store = Providers.get().forContainer(descriptor);
 			if (logger.isDebugEnabled()) {
@@ -137,11 +162,6 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 	public ContainerStoreService<T> withoutChangelog() {
 		hasChangeLog = false;
 		return this;
-	}
-
-	public ContainerStoreService(DataSource pool, SecurityContext securityContext, Container container,
-			IItemValueStore<T> itemValueStore) {
-		this(pool, securityContext, container, itemValueStore, v -> UNFLAGGED, v -> 0L, seed -> seed);
 	}
 
 	@Override
@@ -345,8 +365,9 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 			ItemValue<T> iv = ItemValue.create(created, value);
 			beforeCreationInBackupStore(iv);
-			handler.acceptConsumer(reservedIds -> backupStream.get().store(iv, reservedIds));
 
+			handler.acceptConsumer(reservedIds -> backupStream.get().store(iv, reservedIds));
+			auditLogService.log(created, null, value, Type.Created);
 			return created.itemVersion();
 		});
 	}
@@ -426,6 +447,8 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				changelogStore.itemUpdated(LogEntry.create(updated.version, updated.uid, updated.externalId,
 						securityContext.getSubject(), origin, updated.id, weightSeedProvider.weightSeed(value)));
 			}
+
+			T oldValue = doOrFail(() -> itemValueStore.get(updated));
 			updateValue(updated, value);
 			if (hasChangeLog) {
 				containerChangeEventProducer.get().produceEvent();
@@ -433,7 +456,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 			handler.acceptConsumer(
 					reservedIds -> backupStream.get().store(ItemValue.create(updated, value), reservedIds));
-
+			auditLogService.log(updated, oldValue, value, Type.Updated);
 			return updated.itemVersion();
 		});
 	}
@@ -501,7 +524,11 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 				containerChangeEventProducer.get().produceEvent();
 			}
 			itemStore.delete(item);
+			ContainerDescriptor cd = ContainerDescriptor.create(container.uid, container.name, container.owner,
+					container.type, container.domainUid, false);
+			cd.internalId = container.id;
 			backupStream.get().delete(itemValue);
+			auditLogService.log(itemValue.item(), null, itemValue.value, Type.Deleted);
 			return item.itemVersion();
 		});
 	}
@@ -525,6 +552,9 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			}
 			itemStore.delete(item);
 
+			ContainerDescriptor cd = ContainerDescriptor.create(container.uid, container.name, container.owner,
+					container.type, container.domainUid, false);
+			cd.internalId = container.id;
 			backupStream.get().delete(itemValue);
 
 			return item.itemVersion();

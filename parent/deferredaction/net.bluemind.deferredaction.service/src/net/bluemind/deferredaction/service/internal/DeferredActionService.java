@@ -157,7 +157,7 @@ public class DeferredActionService implements IInternalDeferredAction {
 	public ItemChangelog itemChangelog(String itemUid, Long since) throws ServerFault {
 		RBACManager.forContext(context).forContainer(container).check(Verb.Read.name());
 
-		return ChangeLogUtil.getItemChangeLog(itemUid, since, context, storeService, container.domainUid);
+		return ChangeLogUtil.getItemChangeLog(itemUid, since, context, container);
 	}
 
 	@Override

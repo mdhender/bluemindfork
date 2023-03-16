@@ -77,7 +77,7 @@ public class PublishCalendarService implements IPublishCalendar {
 		BmContext admin = context.su();
 
 		veventStore = new VEventSeriesStore(ds, container);
-		storeService = new VEventContainerStoreService(context, ds, admin.getSecurityContext(), container, veventStore);
+		storeService = new VEventContainerStoreService(context, ds, admin.getSecurityContext(), container);
 		this.container = container;
 
 		this.context = context;

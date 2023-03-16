@@ -53,6 +53,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.api.fault.ValidationException;
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.Count;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ContainerSyncStatus;
@@ -102,23 +103,24 @@ public class AddressBookService implements IInCoreAddressBook {
 	private final VCardStore vcardStore;
 
 	public AddressBookService(DataSource dataSource, ElasticsearchClient esClient, Container container,
-			BmContext context) {
+			BmContext context, VCardStore vCardStore, VCardContainerStoreService storeService) {
 		this.context = context;
 		this.securityContext = context.getSecurityContext();
 		this.container = container;
-
-		this.vcardStore = new VCardStore(dataSource, container);
+		this.storeService = storeService;
+		this.vcardStore = vCardStore;
 		this.eventProducer = new AddressBookEventProducer(container, securityContext, VertxPlatform.eventBus());
 
-		this.indexStore = new VCardIndexStore(esClient, container,
-				DataSourceRouter.location(context, container.uid));
-		this.storeService = new VCardContainerStoreService(context, dataSource, securityContext, container, vcardStore,
-				indexStore);
+		this.indexStore = new VCardIndexStore(esClient, container, DataSourceRouter.location(context, container.uid));
 
 		extSanitizer = new Sanitizer(context);
 		extValidator = new Validator(context);
 
 		rbacManager = RBACManager.forContext(context).forContainer(container);
+
+		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
+				container.owner, container.type, container.domainUid, container.defaultContainer);
+		descriptor.internalId = container.id;
 	}
 
 	@Override
@@ -394,7 +396,7 @@ public class AddressBookService implements IInCoreAddressBook {
 	@Override
 	public ItemChangelog itemChangelog(String itemUid, Long since) {
 		rbacManager.check(Verb.Read.name());
-		return ChangeLogUtil.getItemChangeLog(itemUid, since, context, storeService, container.domainUid);
+		return ChangeLogUtil.getItemChangeLog(itemUid, since, context, container);
 	}
 
 	@Override

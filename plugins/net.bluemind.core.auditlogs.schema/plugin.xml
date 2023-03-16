@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.bluemind.lib.elasticsearch.indextemplates">
+      <schema
+            datastream_name="audit_log"
+            name="auditlogs_template"
+            resource="auditlog_index_template.json"
+            rewritable="false">
+      </schema>
+   </extension>
+
+</plugin>

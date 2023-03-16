@@ -60,6 +60,7 @@ import net.bluemind.core.tests.vertx.VertxEventChecker;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm.Action;
+import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.tag.api.ITags;
 import net.bluemind.tag.api.TagRef;
 import net.bluemind.tag.persistence.ItemTagRef;
@@ -445,24 +446,28 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		getService(defaultSecurityContext).create("test2", defaultVTodo());
 		getService(defaultSecurityContext).delete("test1");
 		getService(defaultSecurityContext).update("test2", defaultVTodo());
+		ESearchActivator.refreshIndex("audit_log");
 
 		ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
-		assertEquals(2, itemChangeLog.entries.size());
+		assertEquals(3, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
-		assertEquals(ChangeLogEntry.Type.Deleted, itemChangeLog.entries.get(1).type);
-		assertEquals("unknown", itemChangeLog.entries.get(0).origin);
-		assertEquals("unknown", itemChangeLog.entries.get(1).origin);
-		assertEquals("unknown", itemChangeLog.entries.get(0).author);
-		assertEquals("unknown", itemChangeLog.entries.get(1).author);
+		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
+		assertEquals(ChangeLogEntry.Type.Deleted, itemChangeLog.entries.get(2).type);
+		assertEquals("unknown-origin", itemChangeLog.entries.get(0).origin);
+		assertEquals("unknown-origin", itemChangeLog.entries.get(1).origin);
+		assertEquals("unknown-origin", itemChangeLog.entries.get(2).origin);
+		assertEquals("test", itemChangeLog.entries.get(0).author);
+		assertEquals("test", itemChangeLog.entries.get(1).author);
+		assertEquals("test", itemChangeLog.entries.get(2).author);
 
 		itemChangeLog = getService(defaultSecurityContext).itemChangelog("test2", 0L);
 		assertEquals(2, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
 		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
-		assertEquals("unknown", itemChangeLog.entries.get(0).origin);
-		assertEquals("unknown", itemChangeLog.entries.get(1).origin);
-		assertEquals("unknown", itemChangeLog.entries.get(0).author);
-		assertEquals("unknown", itemChangeLog.entries.get(1).author);
+		assertEquals("unknown-origin", itemChangeLog.entries.get(0).origin);
+		assertEquals("unknown-origin", itemChangeLog.entries.get(1).origin);
+		assertEquals("test", itemChangeLog.entries.get(0).author);
+		assertEquals("test", itemChangeLog.entries.get(1).author);
 
 	}
 
@@ -473,11 +478,13 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		getService(defaultSecurityContext).update("test1", defaultVTodo());
 		getService(defaultSecurityContext).update("test1", defaultVTodo());
 		getService(defaultSecurityContext).update("test1", defaultVTodo());
-
+		ESearchActivator.refreshIndex("audit_log");
 		ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
-		assertEquals(2, itemChangeLog.entries.size());
+		assertEquals(4, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
 		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
+		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(2).type);
+		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(3).type);
 
 	}
 

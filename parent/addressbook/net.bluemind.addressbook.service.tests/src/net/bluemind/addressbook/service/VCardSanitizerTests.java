@@ -39,13 +39,18 @@ import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
 import net.bluemind.addressbook.api.VCard.Kind;
 import net.bluemind.addressbook.api.VCard.Organizational.Member;
 import net.bluemind.addressbook.api.VCard.Parameter;
+import net.bluemind.addressbook.persistence.VCardIndexStore;
 import net.bluemind.addressbook.persistence.VCardStore;
 import net.bluemind.addressbook.service.internal.AddressBookService;
+import net.bluemind.addressbook.service.internal.VCardContainerStoreService;
 import net.bluemind.addressbook.service.internal.VCardSanitizer;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
+import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.persistence.ItemStore;
+import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.tests.BmTestContext;
@@ -305,6 +310,20 @@ public class VCardSanitizerTests extends AbstractServiceTests {
 	}
 
 	protected IAddressBook getService(SecurityContext context) {
-		return new AddressBookService(dataDataSource, esearchClient, container, new BmTestContext(context));
+		BmTestContext bmTestContext = new BmTestContext(context);
+
+		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
+				container.owner, container.type, container.domainUid, container.defaultContainer);
+		descriptor.internalId = container.id;
+		AuditLogService<VCard> logService = new AuditLogService<>(context, descriptor);
+
+		VCardStore vcardStore = new VCardStore(dataDataSource, container);
+		VCardIndexStore indexStore = new VCardIndexStore(esearchClient, container,
+				DataSourceRouter.location(bmTestContext, container.uid));
+		VCardContainerStoreService storeService = new VCardContainerStoreService(bmTestContext, dataDataSource, context,
+				container, vcardStore, indexStore, logService);
+
+		return new AddressBookService(dataDataSource, esearchClient, container, bmTestContext, vcardStore,
+				storeService);
 	}
 }

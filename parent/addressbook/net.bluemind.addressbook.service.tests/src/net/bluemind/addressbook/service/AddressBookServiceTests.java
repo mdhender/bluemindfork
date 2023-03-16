@@ -73,6 +73,7 @@ import net.bluemind.core.rest.LocalJsonObject;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.core.tests.vertx.VertxEventChecker;
+import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.tag.api.ITags;
 import net.bluemind.tag.api.TagRef;
 import net.bluemind.tag.persistence.ItemTagRef;
@@ -785,24 +786,28 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 		getService(defaultSecurityContext).create("test2", defaultVCard());
 		getService(defaultSecurityContext).delete("test1");
 		getService(defaultSecurityContext).update("test2", defaultVCard());
+		ESearchActivator.refreshIndex("audit_log");
 
 		ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
-		assertEquals(2, itemChangeLog.entries.size());
+		assertEquals(3, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
-		assertEquals(ChangeLogEntry.Type.Deleted, itemChangeLog.entries.get(1).type);
-		assertEquals("unknown", itemChangeLog.entries.get(0).author);
-		assertEquals("unknown", itemChangeLog.entries.get(1).author);
-		assertEquals("unknown", itemChangeLog.entries.get(0).origin);
-		assertEquals("unknown", itemChangeLog.entries.get(1).origin);
+		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
+		assertEquals(ChangeLogEntry.Type.Deleted, itemChangeLog.entries.get(2).type);
+		assertEquals("test", itemChangeLog.entries.get(0).author);
+		assertEquals("test", itemChangeLog.entries.get(1).author);
+		assertEquals("test", itemChangeLog.entries.get(2).author);
+		assertEquals("unknown-origin", itemChangeLog.entries.get(0).origin);
+		assertEquals("unknown-origin", itemChangeLog.entries.get(1).origin);
+		assertEquals("unknown-origin", itemChangeLog.entries.get(2).origin);
 
 		itemChangeLog = getService(defaultSecurityContext).itemChangelog("test2", 0L);
 		assertEquals(2, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
 		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
-		assertEquals("unknown", itemChangeLog.entries.get(0).author);
-		assertEquals("unknown", itemChangeLog.entries.get(1).author);
-		assertEquals("unknown", itemChangeLog.entries.get(0).origin);
-		assertEquals("unknown", itemChangeLog.entries.get(1).origin);
+		assertEquals("test", itemChangeLog.entries.get(0).author);
+		assertEquals("test", itemChangeLog.entries.get(1).author);
+		assertEquals("unknown-origin", itemChangeLog.entries.get(0).origin);
+		assertEquals("unknown-origin", itemChangeLog.entries.get(1).origin);
 
 	}
 
@@ -814,11 +819,15 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 		getService(defaultSecurityContext).update("test1", defaultVCard());
 		getService(defaultSecurityContext).update("test1", defaultVCard());
 		getService(defaultSecurityContext).update("test1", defaultVCard());
+		ESearchActivator.refreshIndex("audit_log");
 
 		ItemChangelog itemChangeLog = getService(defaultSecurityContext).itemChangelog("test1", 0L);
-		assertEquals(2, itemChangeLog.entries.size());
+		assertEquals(5, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
 		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
+		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(2).type);
+		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(3).type);
+		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(4).type);
 
 	}
 

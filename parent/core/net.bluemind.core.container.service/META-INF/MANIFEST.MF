@@ -33,5 +33,8 @@ Require-Bundle: net.bluemind.core.container.persistence;bundle-version="1.0.0",
  net.bluemind.system.api,
  net.bluemind.core.backup.continuous.api;bundle-version="1.0.0";visibility:=reexport,
  net.bluemind.user.api,
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ net.bluemind.core.auditlogs.client.loader,
+ net.bluemind.core.auditlogs;visibility:=reexport
 Automatic-Module-Name: net.bluemind.core.container.service
+Bundle-ClassPath: .

@@ -8,7 +8,7 @@ Require-Bundle: org.junit,
  net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
  net.bluemind.core.context;bundle-version="1.0.0",
  net.bluemind.calendar.service;bundle-version="5.0.0",
- net.bluemind.core.elasticsearch.testshelper;bundle-version="1.0.0",
+ net.bluemind.core.elasticsearch.testshelper,
  net.bluemind.server.service;bundle-version="1.0.0",
  net.bluemind.server.api;bundle-version="1.0.0",
  net.bluemind.tag.api,
@@ -64,5 +64,6 @@ Require-Bundle: org.junit,
  net.bluemind.resource.api,
  net.bluemind.resource.helper,
  net.bluemind.core.rest.http,
- net.bluemind.common.task
+ net.bluemind.common.task,
+ net.bluemind.core.auditlogs.schema;bundle-version="5.0.0"
 Automatic-Module-Name: net.bluemind.calendar.service.tests

@@ -110,7 +110,7 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 	@Override
 	public ItemChangelog itemChangelog(String itemUid, Long since) {
 		rbac.check(Verb.Read.name());
-		return ChangeLogUtil.getItemChangeLog(itemUid, since, context, storeService, container.domainUid);
+		return ChangeLogUtil.getItemChangeLog(itemUid, since, context, container);
 	}
 
 	@Override

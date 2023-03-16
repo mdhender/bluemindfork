@@ -91,6 +91,8 @@ public interface IMailIndexService {
 		storeMessage(mailboxUniqueId, mail, user, false);
 	}
 
+	public Map<String, Object> fetchBody(String mailboxUniqueId, MailboxRecord value);
+
 	void expunge(ItemValue<Mailbox> box, ItemValue<MailboxFolder> folder, IDSet set);
 
 	void deleteBodyEntries(List<String> bodyIds);

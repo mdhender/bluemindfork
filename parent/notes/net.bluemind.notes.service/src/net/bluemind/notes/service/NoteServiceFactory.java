@@ -25,13 +25,17 @@ import javax.sql.DataSource;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
+import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.notes.api.INote;
+import net.bluemind.notes.api.VNote;
+import net.bluemind.notes.persistence.VNoteStore;
 import net.bluemind.notes.service.internal.NoteService;
 
 public class NoteServiceFactory implements ServerSideServiceProvider.IServerSideServiceFactory<INote> {
@@ -63,7 +67,16 @@ public class NoteServiceFactory implements ServerSideServiceProvider.IServerSide
 		if (esClient == null) {
 			throw new ServerFault("elasticsearch was not found for note indexing");
 		}
-		return new NoteService(ds, esClient, container, context);
+		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
+				container.owner, container.type, container.domainUid, container.defaultContainer);
+		descriptor.internalId = container.id;
+
+		AuditLogService<VNote> logService = new AuditLogService<>(context.getSecurityContext(), descriptor);
+
+		VNoteStore vnoteStore = new VNoteStore(ds, container);
+		VNoteContainerStoreService storeService = new VNoteContainerStoreService(context, ds,
+				context.getSecurityContext(), container, vnoteStore, logService);
+		return new NoteService(ds, esClient, container, context, vnoteStore, storeService);
 	}
 
 	@Override

@@ -27,16 +27,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemUri;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.DataSourceRouter;
+import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.notes.api.INoteUids;
+import net.bluemind.notes.api.VNote;
 import net.bluemind.notes.persistence.VNoteStore;
 import net.bluemind.notes.service.VNoteContainerStoreService;
 import net.bluemind.tag.api.ITags;
@@ -89,8 +92,15 @@ public class TagEventConsumer implements ITagEventConsumer {
 				continue;
 			}
 
+			BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(currentContainer.uid,
+					currentContainer.name, currentContainer.owner, currentContainer.type, currentContainer.domainUid,
+					currentContainer.defaultContainer);
+			descriptor.internalId = currentContainer.id;
+
+			AuditLogService<VNote> logService = new AuditLogService<>(context.getSecurityContext(), descriptor);
+
 			VNoteContainerStoreService vnoteContainerStore = new VNoteContainerStoreService(context, dsNote,
-					SecurityContext.SYSTEM, currentContainer, new VNoteStore(dsNote, currentContainer));
+					SecurityContext.SYSTEM, currentContainer, new VNoteStore(dsNote, currentContainer), logService);
 
 			try {
 				vnoteContainerStore.touch(itemUri.itemUid);

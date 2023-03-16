@@ -39,6 +39,7 @@ import com.google.common.collect.Lists;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
@@ -46,6 +47,7 @@ import net.bluemind.core.container.persistence.AclStore;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
+import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
@@ -140,8 +142,14 @@ public abstract class AbstractServiceTests {
 
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
+		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
+				container.owner, container.type, container.domainUid, container.defaultContainer);
+		descriptor.internalId = container.id;
+
+		AuditLogService<VNote> logService = new AuditLogService<>(defaultContext.getSecurityContext(), descriptor);
+
 		vnoteStoreService = new VNoteContainerStoreService(defaultContext, JdbcTestHelper.getInstance().getDataSource(),
-				SecurityContext.SYSTEM, container, vnoteStore);
+				SecurityContext.SYSTEM, container, vnoteStore, logService);
 
 	}
 
@@ -199,6 +207,7 @@ public abstract class AbstractServiceTests {
 	@After
 	public void after() throws Exception {
 		JdbcTestHelper.getInstance().afterTest();
+		ElasticsearchTestHelper.getInstance().afterTest();
 	}
 
 	protected abstract INote getServiceNote(SecurityContext context, String containerUid) throws ServerFault;

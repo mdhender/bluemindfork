@@ -669,7 +669,7 @@ public class ResourceCalendarHookTests {
 		Container container = containerService.get(ICalendarUids.resourceCalendar("r1"));
 		IItemValueStore<VEventSeries> veventStore = new VEventSeriesStore(ds, container);
 		VEventContainerStoreService storeService = new VEventContainerStoreService(context, ds, SecurityContext.SYSTEM,
-				container, veventStore);
+				container);
 
 		storeService.createWithId(itemUid, null, event.icsUid, event.main.summary, event);
 		return container;

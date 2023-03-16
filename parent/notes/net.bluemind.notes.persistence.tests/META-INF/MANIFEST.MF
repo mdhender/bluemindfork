@@ -11,5 +11,6 @@ Require-Bundle: org.junit,
  net.bluemind.notes.api,
  net.bluemind.notes.persistence,
  net.bluemind.core.container.persistence,
- slf4j.api
+ slf4j.api,
+ net.bluemind.core.auditlogs.schema
 Automatic-Module-Name: net.bluemind.notes.persistence.tests

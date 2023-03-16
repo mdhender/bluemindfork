@@ -118,15 +118,14 @@ public class CalendarService implements IInternalCalendar {
 	private CalendarAuditor auditor;
 
 	public CalendarService(DataSource pool, ElasticsearchClient esClient, Container container, BmContext context,
-			CalendarAuditor auditor) throws ServerFault {
+			CalendarAuditor auditor, VEventContainerStoreService storeService) throws ServerFault {
 		this.container = container;
 		this.context = context;
 		this.auditor = auditor;
+		this.storeService = storeService;
 		sanitizer = Suppliers.memoize(() -> new VEventSanitizer(context, container));
 
 		veventStore = new VEventSeriesStore(pool, container);
-		storeService = new VEventContainerStoreService(context, pool, context.getSecurityContext(), container,
-				veventStore);
 
 		indexStore = new VEventIndexStore(esClient, container, DataSourceRouter.location(context, container.uid));
 
@@ -430,7 +429,7 @@ public class CalendarService implements IInternalCalendar {
 	@Override
 	public ItemChangelog itemChangelog(String itemUid, Long since) throws ServerFault {
 		rbacManager.check(Verb.Read.name());
-		return ChangeLogUtil.getItemChangeLog(itemUid, since, context, storeService, container.domainUid);
+		return ChangeLogUtil.getItemChangeLog(itemUid, since, context, container);
 	}
 
 	@Override

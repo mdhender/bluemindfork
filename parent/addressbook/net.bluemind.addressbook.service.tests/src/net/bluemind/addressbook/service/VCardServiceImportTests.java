@@ -55,7 +55,9 @@ import net.bluemind.addressbook.service.internal.AddressBookService;
 import net.bluemind.addressbook.service.internal.VCardContainerStoreService;
 import net.bluemind.addressbook.service.internal.VCardService;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.container.service.internal.AuditLogService;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.lib.ical4j.vcard.Builder;
@@ -912,6 +914,11 @@ public class VCardServiceImportTests extends AbstractServiceTests {
 	}
 
 	private VCardContainerStoreService getVCardStore() {
-		return new VCardContainerStoreService(context, dataDataSource, SecurityContext.SYSTEM, container);
+		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
+				container.owner, container.type, container.domainUid, container.defaultContainer);
+		descriptor.internalId = container.id;
+		AuditLogService<VCard> logService = new AuditLogService<>(context.getSecurityContext(), descriptor);
+
+		return new VCardContainerStoreService(context, dataDataSource, SecurityContext.SYSTEM, container, logService);
 	}
 }

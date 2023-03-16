@@ -86,6 +86,7 @@ import net.bluemind.domain.api.IDomains;
 import net.bluemind.domain.service.DomainsContainerIdentifier;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.lib.elasticsearch.datastreams.DataStreamActivator;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.node.api.INodeClient;
@@ -563,6 +564,7 @@ public class InstallationService implements IInstallation {
 
 		ESearchActivator.clearClientCache();
 		ESearchActivator.resetIndexes();
+		DataStreamActivator.resetDataStreams();
 	}
 
 	@Override
