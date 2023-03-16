@@ -1,15 +1,18 @@
 <template>
-    <div v-if="currentFolder" class="folder-result-content-empty-folder">
-        {{ $t("mail.folder") }}
-        <mail-folder-icon :mailbox="CURRENT_MAILBOX" :folder="currentFolder" class="font-weight-bold" />
-        {{ $t("mail.empty") }}
-    </div>
+    <i18n v-if="currentFolder" class="folder-result-content-empty-folder" :path="i18nPath">
+        <template #folder>
+            <mail-folder-icon :mailbox="CURRENT_MAILBOX" :folder="currentFolder" class="bold" />
+        </template>
+        <template #nbSubfolders>
+            {{ nbSubfolders }}
+        </template>
+    </i18n>
 </template>
 
 <script>
 import { mapGetters, mapState } from "vuex";
 import MailFolderIcon from "../MailFolderIcon";
-import { CURRENT_MAILBOX } from "~/getters";
+import { CURRENT_MAILBOX, FOLDER_GET_CHILDREN } from "~/getters";
 
 export default {
     name: "FolderResultContentEmptyFolder",
@@ -18,9 +21,22 @@ export default {
     },
     computed: {
         ...mapState("mail", ["folders", "activeFolder"]),
-        ...mapGetters("mail", { CURRENT_MAILBOX }),
+        ...mapGetters("mail", { CURRENT_MAILBOX, FOLDER_GET_CHILDREN }),
+        i18nPath() {
+            switch (this.nbSubfolders) {
+                case 0:
+                    return "common.folder.empty";
+                case 1:
+                    return "common.folder.subfolder";
+                default:
+                    return "common.folder.subfolders";
+            }
+        },
         currentFolder() {
             return this.folders[this.activeFolder];
+        },
+        nbSubfolders() {
+            return this.FOLDER_GET_CHILDREN(this.currentFolder).length;
         }
     }
 };

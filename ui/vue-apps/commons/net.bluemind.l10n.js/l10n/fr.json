@@ -98,6 +98,8 @@
     "common.folder.sent": "Messages envoyés",
     "common.folder.trash": "Corbeille",
     "common.folder.templates": "Modèles",
+    "common.folder.subfolder": "Le dossier {folder} contient 1 sous-dossier.",
+    "common.folder.subfolders": "Le dossier {folder} contient {nbSubfolders} sous-dossiers.",
     "common.folder.empty": "Le dossier {folder} est vide.",
     "common.application.bootstrap.error": "Erreur lors de l'initialisation de l'application...",
     "common.application.bootstrap.error.solution": "Veuillez réessayer dans quelques instants ou contacter votre administrateur.",

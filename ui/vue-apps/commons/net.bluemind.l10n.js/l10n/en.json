@@ -98,6 +98,8 @@
     "common.folder.sent": "Sent messages",
     "common.folder.templates": "Templates",
     "common.folder.trash": "Trash",
+    "common.folder.subfolder": "Folder {folder} contains 1 subfolder",
+    "common.folder.subfolders": "Folder {folder} contains {nbSubfolders} subfolders.",
     "common.folder.empty": "Folder {folder} is empty.",
     "common.application.bootstrap.error": "Error when bootstraping application...",
     "common.application.bootstrap.error.solution": "Please retry in a few moments or contact your administrator.",
