@@ -1893,17 +1893,34 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencing_ = f
       if (authRet.status == 'TOKEN_NOT_VALID'){
         // init openid connect
         var w = window.open(authRet.url, "", "popup=true,width=550,height=550,top=200,left=200");
-        var callback = {};
-        goog.global['bmOpenIdAuthicationCallback'] = callback;
+        var WindowCloseObserver = {
+          observe: function (win, callback) {
+            if (win.closed) {
+                
+                callback();
+            } else {
+               this.timer = setTimeout(this.observe.bind(this, win, callback), 100) 
+            }
+        },
+          cancel: function() {
+          if (this.timer) {
+              clearTimeout(this.timer);
+          }
+        }
+      }
+        var auth = {};
+        goog.global['bmOpenIdAuthicationCallback'] = auth;
         var promise = new goog.Promise(function (resolve, reject) {
-          callback.resolve = resolve;
-          callback.reject = reject;
-          w.addEventListener('onclose', reject);
+          auth.resolve = resolve;
+          auth.reject = reject;
+          WindowCloseObserver.observe(w, auth.reject);
         });
         promise.then(function() {
+          WindowCloseObserver.cancel();
           this.addOrRemoveVideoConferencingAddFunc_(attendee, resourceUid);
         }, function() {
-		  this.showConferenceForm_();
+          WindowCloseObserver.cancel();
+		      this.showConferenceForm_();
         }, this);
         return;
       } else {
