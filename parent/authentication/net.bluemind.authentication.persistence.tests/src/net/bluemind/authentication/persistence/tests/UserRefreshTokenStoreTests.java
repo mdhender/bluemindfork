@@ -22,6 +22,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
@@ -85,7 +87,8 @@ public class UserRefreshTokenStoreTests {
 	@Test
 	public void testExpirationDeletesEntry() throws ServerFault {
 		RefreshToken token = token("system1");
-		token.expiryTime = new Date(2020, 5, 5);
+		long d = LocalDateTime.now().minusYears(1).toInstant(ZoneOffset.UTC).toEpochMilli();
+		token.expiryTime = new Date(d);
 		store1.add(token);
 
 		RefreshToken fetched = store1.get(token.systemIdentifier);
