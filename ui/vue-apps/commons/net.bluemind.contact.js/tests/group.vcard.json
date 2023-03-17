@@ -1,0 +1,114 @@
+{
+    "value": {
+        "kind": "group",
+        "source": null,
+        "identification": {
+            "formatedName": {
+                "parameters": [],
+                "value": "MaListeDeDiff"
+            },
+            "name": {
+                "parameters": [],
+                "value": null,
+                "familyNames": null,
+                "givenNames": null,
+                "additionalNames": null,
+                "prefixes": null,
+                "suffixes": null
+            },
+            "nickname": {
+                "parameters": [],
+                "value": null
+            },
+            "photo": false,
+            "photoBinary": null,
+            "birthday": null,
+            "anniversary": null,
+            "gender": {
+                "parameters": [],
+                "value": null,
+                "text": null
+            }
+        },
+        "deliveryAddressing": [],
+        "communications": {
+            "tels": [],
+            "emails": [],
+            "impps": [],
+            "langs": []
+        },
+        "organizational": {
+            "title": null,
+            "role": null,
+            "org": {
+                "company": null,
+                "division": null,
+                "department": null
+            },
+            "member": [
+                {
+                    "commonName": "Georges Abitbol",
+                    "mailto": "gabitbol@devenv.dev.bluemind.net",
+                    "containerUid": "addressbook_75a0d5b3.internal",
+                    "itemUid": "E8952F1C-9731-44D5-A1F5-401C8A54F4FC"
+                },
+                {
+                    "commonName": "Titi",
+                    "mailto": "titi@yiyi.bn",
+                    "containerUid": "book:CollectedContacts_E8952F1C-9731-44D5-A1F5-401C8A54F4FC",
+                    "itemUid": "715d3d8c-706d-4b57-b2e9-ce5958c408fb"
+                },
+                {
+                    "commonName": "No Item Uid",
+                    "mailto": "no.item@uid.net",
+                    "containerUid": "book:CollectedContacts_----2F1C-9731-44D5-A1F5-401C8A54F4FC",
+                    "itemUid": null
+                },
+                {
+                    "commonName": "No Container Uid",
+                    "mailto": "no.container@uid.net",
+                    "containerUid": null,
+                    "itemUid": "----3d8c-706d-4b57-b2e9-ce5958c408fb"
+                },
+                {
+                    "commonName": "No Container Nor Item Uid",
+                    "mailto": "no.container.nor.item@uid.net",
+                    "containerUid": null,
+                    "itemUid": null
+                },
+                {
+                    "commonName": "Request error",
+                    "mailto": "no.container.nor.item@uid.net",
+                    "containerUid": null,
+                    "itemUid": "request-error-uid"
+                }
+            ]
+        },
+        "explanatory": {
+            "urls": [],
+            "categories": [],
+            "note": null
+        },
+        "security": {
+            "key": {
+                "parameters": [],
+                "value": null
+            }
+        },
+        "related": {
+            "spouse": null,
+            "manager": null,
+            "assistant": null
+        }
+    },
+    "uid": "63fdc0fa-d186-44ba-a7d4-26edd958da25",
+    "internalId": 269,
+    "version": 1,
+    "displayName": "MaListeDeDiff",
+    "externalId": null,
+    "createdBy": "E8952F1C-9731-44D5-A1F5-401C8A54F4FC",
+    "updatedBy": "E8952F1C-9731-44D5-A1F5-401C8A54F4FC",
+    "created": 1675263423548,
+    "updated": 1675263423548,
+    "flags": []
+}

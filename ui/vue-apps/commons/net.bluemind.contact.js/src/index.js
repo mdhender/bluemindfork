@@ -81,7 +81,7 @@ async function fetchMembersWithAddress(contactContainerUid, contactUid) {
                                 memberCount: m.memberCount || 0,
                                 kind: m.kind || VCardKind.individual
                             }
-                          : await fetchMembersWithAddress(m.containerUid, m.itemUid)
+                          : await fetchMembersWithAddress(m.containerUid || contactContainerUid, m.itemUid)
                   )
               )
           ).flatMap(r => r)
@@ -92,20 +92,40 @@ async function fetchMembersWithAddress(contactContainerUid, contactUid) {
 async function fetchContactMembers(containerUid, contactUid) {
     const vCard = await fetchContact(containerUid, contactUid);
     const members = vCard?.value.organizational?.member;
-    const res = members?.length
-        ? (await fetchContacts(members.map(m => ({ containerUid: m.containerUid, uid: m.itemUid })))).map(
-              vcardLike => ({
-                  ...VCardAdaptor.toContact(vcardLike),
-                  uid: vcardLike.uid,
-                  urn: `${vcardLike.uid}@${vcardLike.containerUid}`
-              })
-          )
-        : [];
-    return res;
+    if (!members?.length) {
+        return [];
+    }
+    const vCardLikeList = await fetchContacts(
+        members.map(m => ({ containerUid: m.containerUid || containerUid, uid: m.itemUid }))
+    );
+
+    const fetchedVCards = vCardLikeList.map(vcardLike => ({
+        ...VCardAdaptor.toContact(vcardLike),
+        uid: vcardLike.uid,
+        urn: `${vcardLike.uid}@${vcardLike.containerUid}`
+    }));
+
+    const missingVCards = members
+        .filter(
+            m =>
+                !vCardLikeList.some(
+                    vCardLike =>
+                        vCardLike.containerUid === (m.containerUid || containerUid) && vCardLike.uid === m.itemUid
+                )
+        )
+        .map(m => ({ kind: VCardKind.individual, dn: m.commonName, address: m.mailto }));
+
+    return [...fetchedVCards, ...missingVCards];
 }
 
 function fetchContact(containerUid, uid) {
-    return inject("AddressBookPersistence", containerUid).getComplete(uid);
+    if (uid) {
+        try {
+            return inject("AddressBookPersistence", containerUid).getComplete(uid);
+        } catch {
+            return null;
+        }
+    }
 }
 
 async function fetchContacts(ids) {
@@ -113,16 +133,22 @@ async function fetchContacts(ids) {
         if (!res[containerUid]) {
             res[containerUid] = [];
         }
-        res[containerUid].push(uid);
+        if (uid) {
+            res[containerUid].push(uid);
+        }
         return res;
     }, {});
 
-    const promises = Object.keys(groupedByContainer).map(async containerUid =>
-        (
-            await inject("AddressBookPersistence", containerUid).multipleGet(groupedByContainer[containerUid])
-        ).map(res => ({ ...res, containerUid }))
-    );
-    return (await Promise.all(promises)).flatMap(r => r);
+    try {
+        const promises = Object.keys(groupedByContainer).map(async containerUid =>
+            (await inject("AddressBookPersistence", containerUid).multipleGet(groupedByContainer[containerUid]))
+                .map(res => (res.uid ? { ...res, containerUid } : undefined))
+                .filter(Boolean)
+        );
+        return (await Promise.all(promises)).flatMap(r => r);
+    } catch {
+        return [];
+    }
 }
 
 export {
