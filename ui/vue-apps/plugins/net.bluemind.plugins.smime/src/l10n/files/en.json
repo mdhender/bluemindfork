@@ -1,27 +1,32 @@
 {
+    "alert": {
+        "smime": {
+            "add_certificate": {
+                "loading": "The certificate is being imported...",
+                "success": "The certificate was successfully imported.",
+                "error": "The certificate could not be imported."
+            },
+            "untrusted": "Message was signed by sender but signature could not be verified.",
+            "decrypt_failed": "Unable to display the encrypted message",
+            "encrypt_failed": "Message encryption error",
+            "sign_failed": "Message signature error",
+            "recipients": {
+                "all_invalid": "Message recipients do not allow encryption.",
+                "some_invalid": "Some message recipients do not allow encryption."
+            },
+            "invalid_identity": "The selected identity does not allow to sign or encrypt the message.",
+            "certificate": "This file contains a certificate for {name}"
+        }
+    },
     "smime": {
         "mailapp": {
-            "alert": {
-                "untrusted": "Message was signed by sender but signature could not be verified.",
-                "decrypt_failed": "Unable to display the encrypted message",
-                "encrypt_failed": "Message encryption error",
-                "sign_failed": "Message signature error",
-                "recipients": {
-                    "all_invalid": "Message recipients do not allow encryption.",
-                    "some_invalid": "Some message recipients do not allow encryption."
-                },
-                "invalid_identity": "The selected identity does not allow to sign or encrypt the message.",
-                "certificate": "This file contains a certificate for {name}"
-            },
             "body_wrapper": {
                 "cant_display": "Why I can't I see this message ?"
             },
             "viewer": {
-                "import_certificate": {
+                "add_certificate": {
                     "action_short": "Import the certificate",
-                    "action": "Import the certificate for {email} into My Contacts.",
-                    "success": "The certificate has been successfully imported.",
-                    "error": "The certificate could not be imported."
+                    "action": "Import the certificate for {email} into My Contacts."
                 }
             },
             "composer": {

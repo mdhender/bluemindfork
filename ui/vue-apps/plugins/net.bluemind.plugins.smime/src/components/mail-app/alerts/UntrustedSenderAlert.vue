@@ -1,6 +1,6 @@
 <template>
     <div class="untrusted-sender-alert">
-        {{ $t("smime.mailapp.alert.untrusted") }}
+        {{ $t("alert.smime.untrusted") }}
         <bm-button v-if="!isAlreadyDisplayed" variant="link" class="ml-4" @click="displayMessage">
             {{ $t("common.display_anyway") }}
         </bm-button>

@@ -142,13 +142,6 @@ extensions.register("webapp", "net.bluemind.plugins.smime", {
     }
 });
 
-extensions.register("webapp", "net.bluemind.plugins.smime", {
-    component: {
-        name: "AddCertificateButton",
-        path: "file.preview.actions"
-    }
-});
-
 function prefSmimeGroups() {
     return [
         {

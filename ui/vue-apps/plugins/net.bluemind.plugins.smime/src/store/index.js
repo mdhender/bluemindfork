@@ -1,6 +1,7 @@
 import { mailTipUtils } from "@bluemind/mail";
-import { CHECK_IF_ASSOCIATED, DISSOCIATE_CRYPTO_FILES } from "./actionTypes";
+import { ADD_CERTIFICATE, CHECK_IF_ASSOCIATED, DISSOCIATE_CRYPTO_FILES } from "./actionTypes";
 import { SMIME_AVAILABLE } from "./getterTypes";
+import addCertificate from "../lib/addCertificate";
 import { DISPLAY_UNTRUSTED, SET_SW_ERROR, SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT } from "./mutationTypes";
 import {
     IS_SW_AVAILABLE,
@@ -10,6 +11,7 @@ import {
     SMIME_INTERNAL_API_URL,
     SMIME_SIGNATURE_ERROR_PREFIX
 } from "../lib/constants";
+import { withAlert } from "./withAlertSmime";
 
 const { MailTipTypes } = mailTipUtils;
 
@@ -53,6 +55,11 @@ export default {
             } catch {
                 commit(SET_SW_ERROR, true);
             }
+        },
+        [ADD_CERTIFICATE](store, { pem, dn, email }) {
+            const add = (_, { pem, dn, email }) => addCertificate(pem, dn, email);
+            const execute = withAlert(add, ADD_CERTIFICATE);
+            return execute(store, { pem, dn, email });
         }
     },
     mutations: {

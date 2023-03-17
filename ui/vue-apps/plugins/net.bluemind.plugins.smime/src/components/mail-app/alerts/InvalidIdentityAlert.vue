@@ -1,7 +1,7 @@
 <template>
     <composer-alert
         class="invalid-identity-alert"
-        :text="$t('smime.mailapp.alert.invalid_identity')"
+        :text="$t('alert.smime.invalid_identity')"
         :doc="emailAddressesDontMatchLink"
     >
         <bm-button variant="text" @click="stopEncryptionAndSignature()">

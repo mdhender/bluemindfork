@@ -1,7 +1,7 @@
 <template>
     <div v-if="payload.ownerEmail && payload.pem" class="add-certificate-alert">
         <div>
-            <i18n path="smime.mailapp.alert.certificate">
+            <i18n path="alert.smime.certificate">
                 <template #name>
                     <span class="name">{{ payload.ownerName }}</span>
                 </template>
@@ -14,10 +14,10 @@
             icon-size="sm"
             :icon="success ? 'check' : 'exclamation-circle'"
         >
-            {{ $t(`smime.mailapp.viewer.import_certificate.${success ? "success" : "error"}`) }}
+            {{ $t(`alert.smime.add_certificate.${success ? "success" : "error"}`) }}
         </bm-label-icon>
         <bm-button v-else variant="text" size="sm" icon="verified-new" :loading="loading" @click="importCertificate">
-            {{ $t("smime.mailapp.viewer.import_certificate.action_short") }}
+            {{ $t("smime.mailapp.viewer.add_certificate.action_short") }}
         </bm-button>
     </div>
 </template>

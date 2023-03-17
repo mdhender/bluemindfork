@@ -23,23 +23,23 @@ export default {
     },
     actions: {
         [LOADING]: async ({ dispatch }, { alert, options: opt_options }) => {
-            let options = { ...DEFAULT_LOADING_OPTIONS, ...(opt_options || {}) };
+            const options = { ...DEFAULT_LOADING_OPTIONS, ...(opt_options || {}) };
             await dispatch(ADD, { alert: { ...alert, type: AlertTypes.LOADING }, options });
         },
         [INFO]: async ({ dispatch }, { alert, options: opt_options }) => {
-            let options = { ...DEFAULT_INFO_OPTIONS, ...(opt_options || {}) };
+            const options = { ...DEFAULT_INFO_OPTIONS, ...(opt_options || {}) };
             await dispatch(ADD, { alert: { ...alert, type: AlertTypes.INFO }, options });
         },
         [SUCCESS]: async ({ dispatch }, { alert, options: opt_options }) => {
-            let options = { ...DEFAULT_SUCCESS_OPTIONS, ...(opt_options || {}) };
+            const options = { ...DEFAULT_SUCCESS_OPTIONS, ...(opt_options || {}) };
             await dispatch(ADD, { alert: { ...alert, type: AlertTypes.SUCCESS }, options });
         },
         [WARNING]: async ({ dispatch }, { alert, options: opt_options }) => {
-            let options = { ...DEFAULT_WARNING_OPTIONS, ...(opt_options || {}) };
+            const options = { ...DEFAULT_WARNING_OPTIONS, ...(opt_options || {}) };
             await dispatch(ADD, { alert: { ...alert, type: AlertTypes.WARNING }, options });
         },
         [ERROR]: async ({ dispatch }, { alert, options: opt_options }) => {
-            let options = { ...DEFAULT_ERROR_OPTIONS, ...(opt_options || {}) };
+            const options = { ...DEFAULT_ERROR_OPTIONS, ...(opt_options || {}) };
             await dispatch(ADD, { alert: { ...alert, type: AlertTypes.ERROR }, options });
         },
         [ADD]: async ({ commit }, { alert: payload, options }) => {
@@ -59,14 +59,14 @@ export default {
             }
         },
         [REMOVE]: async ({ commit }, payload) => {
-            let alerts = Array.isArray(payload) ? payload : [payload];
+            const alerts = Array.isArray(payload) ? payload : [payload];
             alerts.forEach(({ uid }) => {
                 clearDelay({ uid });
                 commit(REMOVE, uid);
             });
         },
         [CLEAR]: async ({ state, dispatch }, filter) => {
-            let alerts = filter === undefined ? state : state.filter(({ area }) => area === filter);
+            const alerts = filter === undefined ? state : state.filter(({ area }) => area === filter);
             dispatch(REMOVE, alerts);
         }
     }

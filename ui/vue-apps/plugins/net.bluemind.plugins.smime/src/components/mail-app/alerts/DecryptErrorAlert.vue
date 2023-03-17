@@ -1,6 +1,6 @@
 <template>
     <div class="decrypt-error-alert">
-        {{ $t("smime.mailapp.alert.decrypt_failed") }}
+        {{ $t("alert.smime.decrypt_failed") }}
         <span v-if="code" class="code"> ({{ $t("common.error.code", { code }) }})</span>
     </div>
 </template>

@@ -1,27 +1,32 @@
 {
+    "alert": {
+        "smime": {
+            "add_certificate": {
+                "loading": "Le certificat est en cours d'import...",
+                "success": "Le certificat a bien été importé.",
+                "error": "Le certificat n'a pas pu être importé."
+            },
+            "untrusted": "Le message a été signé par son expéditeur mais la signature n'a pas pu être validée.",
+            "decrypt_failed": "Impossible d'afficher le message chiffré.",
+            "encrypt_failed": "Erreur de chiffrement du message",
+            "sign_failed": "Erreur de signature du message",
+            "recipients": {
+                "all_invalid": "Les destinataires du message ne permettent pas le chiffrement.",
+                "some_invalid": "Certains destinataires du message ne permettent pas le chiffrement."
+            },
+            "invalid_identity": "L’identité sélectionnée ne permet pas de signer ou chiffrer le message.",
+            "certificate": "Ce fichier contient un certificat pour {name}"
+        }
+    },
     "smime": {
         "mailapp": {
-            "alert": {
-                "untrusted": "Le message a été signé par son expéditeur mais la signature n'a pas pu être validée.",
-                "decrypt_failed": "Impossible d'afficher le message chiffré.",
-                "encrypt_failed": "Erreur de chiffrement du message",
-                "sign_failed": "Erreur de signature du message",
-                "recipients": {
-                    "all_invalid": "Les destinataires du message ne permettent pas le chiffrement.",
-                    "some_invalid": "Certains destinataires du message ne permettent pas le chiffrement."
-                },
-                "invalid_identity": "L’identité sélectionnée ne permet pas de signer ou chiffrer le message.",
-                "certificate": "Ce fichier contient un certificat pour {name}"
-            },
             "body_wrapper": {
                 "cant_display": "Pourquoi je ne peux pas voir ce message ?"
             },
             "viewer": {
-                "import_certificate": {
+                "add_certificate": {
                     "action_short": "Importer le certificat",
-                    "action": "Importer le certificat de {email} dans Mes contacts.",
-                    "success": "Le certificat a bien été importé.",
-                    "error": "Le certificat n'a pas pu être importé."
+                    "action": "Importer le certificat de {email} dans Mes contacts."
                 }
             },
             "composer": {

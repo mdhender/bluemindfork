@@ -46,10 +46,10 @@ export default {
         },
         text() {
             return !this.missingCertificates
-                ? this.$t("smime.mailapp.alert.encrypt_failed")
+                ? this.$t("alert.smime.encrypt_failed")
                 : this.allInvalid
-                ? this.$t("smime.mailapp.alert.recipients.all_invalid")
-                : this.$t("smime.mailapp.alert.recipients.some_invalid");
+                ? this.$t("alert.smime.recipients.all_invalid")
+                : this.$t("alert.smime.recipients.some_invalid");
         },
         doc() {
             return this.missingCertificates ? this.missingCertificateLink : this.linkFromCode(this.encryptError);

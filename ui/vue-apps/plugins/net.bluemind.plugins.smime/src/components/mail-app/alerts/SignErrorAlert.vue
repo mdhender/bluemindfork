@@ -1,5 +1,5 @@
 <template>
-    <composer-alert class="sign-error-alert" :code="signError" :text="$t('smime.mailapp.alert.sign_failed')" doc="">
+    <composer-alert class="sign-error-alert" :code="signError" :text="$t('alert.smime.sign_failed')" doc="">
         <bm-button class="stop-signature" variant="text" @click="stopSignature(ACTIVE_MESSAGE)">
             {{ $t("smime.mailapp.composer.stop_signature") }}
         </bm-button>

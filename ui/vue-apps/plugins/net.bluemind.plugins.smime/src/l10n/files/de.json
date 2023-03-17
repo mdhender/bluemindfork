@@ -1,27 +1,32 @@
 {
+    "alert": {
+        "smime": {
+            "add_certificate": {
+                "loading": "Das Zertifikat wird gerade importiert...",
+                "success": "Das Zertifikat wurde erfolgreich importiert.",
+                "error": "Das Zertifikat konnte nicht importiert werden."
+            },
+            "untrusted": "Message was signed by sender but signature could not be verified.",
+            "decrypt_failed": "Unable to display the encrypted message.",
+            "encrypt_failed": "Fehler bei der Verschlüsselung der Nachricht",
+            "sign_failed": "Fehler bei der Signatur der Nachricht",
+            "recipients": {
+                "all_invalid": "Die Empfänger der Nachricht lassen keine Verschlüsselung zu.",
+                "some_invalid": "Einige Empfänger der Nachricht lassen die Verschlüsselung nicht zu."
+            },
+            "invalid_identity": "Die ausgewählte Identität erlaubt es nicht, die Nachricht zu signieren oder zu verschlüsseln.",
+            "certificate": "Diese Datei enthält ein Zertifikat für {name}"
+        }
+    },
     "smime": {
         "mailapp": {
-            "alert": {
-                "untrusted": "Message was signed by sender but signature could not be verified.",
-                "decrypt_failed": "Unable to display the encrypted message.",
-                "encrypt_failed": "Fehler bei der Verschlüsselung der Nachricht",
-                "sign_failed": "Fehler bei der Signatur der Nachricht",
-                "recipients": {
-                    "all_invalid": "Die Empfänger der Nachricht lassen keine Verschlüsselung zu.",
-                    "some_invalid": "Einige Empfänger der Nachricht lassen die Verschlüsselung nicht zu."
-                },
-                "invalid_identity": "Die ausgewählte Identität erlaubt es nicht, die Nachricht zu signieren oder zu verschlüsseln.",
-                "certificate": "Diese Datei enthält ein Zertifikat für {name}"
-            },
             "body_wrapper": {
                 "cant_display": "Why I can't I see this message ?"
             },
             "viewer": {
-                "import_certificate": {
+                "add_certificate": {
                     "action_short": "Zertifikat importieren",
-                    "action": "Zertifikat für {email} in Meine Kontakte importieren.",
-                    "success": "Das Zertifikat wurde erfolgreich importiert.",
-                    "error": "Das Zertifikat konnte nicht importiert werden."
+                    "action": "Zertifikat für {email} in Meine Kontakte importieren."
                 }
             },
             "composer": {
