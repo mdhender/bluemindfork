@@ -33,9 +33,10 @@ import {
     MOVE_MESSAGES,
     REMOVE_ATTACHMENT,
     REMOVE_MESSAGES,
-    SAVE_MESSAGE,
+    TOGGLE_DSN_REQUEST,
     SAVE_AS_DRAFT,
     SAVE_AS_TEMPLATE,
+    SAVE_MESSAGE,
     SEND_MESSAGE
 } from "~/actions";
 
@@ -45,6 +46,8 @@ const markAsUnread = ({ dispatch }, messages) => dispatch(DELETE_FLAG, { message
 const markAsRead = ({ dispatch }, messages) => dispatch(ADD_FLAG, { messages, flag: Flag.SEEN });
 const markAsFlagged = ({ dispatch }, messages) => dispatch(ADD_FLAG, { messages, flag: Flag.FLAGGED });
 const markAsUnflagged = ({ dispatch }, messages) => dispatch(DELETE_FLAG, { messages, flag: Flag.FLAGGED });
+const toggleDSNRequest = ({ dispatch }, message) =>
+    dispatch(message.flags.includes(Flag.BM_DSN) ? DELETE_FLAG : ADD_FLAG, { messages: [message], flag: Flag.BM_DSN });
 const saveAs = (context, { message, messageCompose, files }) =>
     saveAsap(context, { draft: message, messageCompose, files });
 export default {
@@ -67,6 +70,7 @@ export default {
     [MOVE_MESSAGES]: withAlert(moveMessages, MOVE_MESSAGES, "MoveMessages"),
     [REMOVE_ATTACHMENT]: removeAttachment,
     [REMOVE_MESSAGES]: withAlert(removeMessages, REMOVE_MESSAGES, "RemoveMessages"),
+    [TOGGLE_DSN_REQUEST]: toggleDSNRequest,
     [SAVE_MESSAGE]: saveAsap,
     [SAVE_AS_TEMPLATE]: withAlert(saveAs, SAVE_AS_TEMPLATE, "SaveMessageAs"),
     [SAVE_AS_DRAFT]: withAlert(saveAs, SAVE_AS_DRAFT, "SaveMessageAs"),

@@ -482,6 +482,7 @@
                 }
             },
             "toolbar": {
+                "delivery_status": "Empfangsbestätigung anfordern",
                 "disposition_notification": "Lesebestätigung anfordern",
                 "insert_signature": "Meine Signatur einfügen",
                 "use_template": "Vorlage verwenden"

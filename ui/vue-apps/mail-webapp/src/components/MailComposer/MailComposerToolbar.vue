@@ -86,6 +86,9 @@
                 <bm-dropdown-item :disabled="isSenderShown" @click="showSender">
                     {{ $t("mail.actions.show_sender") }}
                 </bm-dropdown-item>
+                <bm-dropdown-item-toggle :checked="isDeliveryStatusRequested" @click="$emit('toggle-delivery-status')">
+                    {{ $t("mail.compose.toolbar.delivery_status") }}
+                </bm-dropdown-item-toggle>
                 <bm-dropdown-item-toggle
                     :checked="isDispositionNotificationRequested"
                     @click="$emit('toggle-disposition-notification')"
@@ -141,6 +144,7 @@ export default {
     props: {
         message: { type: Object, required: true },
         isSignatureInserted: { type: Boolean, required: true },
+        isDeliveryStatusRequested: { type: Boolean, required: true },
         isDispositionNotificationRequested: { type: Boolean, required: true }
     },
     computed: {

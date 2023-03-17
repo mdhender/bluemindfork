@@ -481,6 +481,7 @@
                 }
             },
             "toolbar": {
+                "delivery_status": "Demander un accusé de réception",
                 "disposition_notification": "Demander une confirmation de lecture",
                 "insert_signature": "Insérer ma signature",
                 "use_template": "Utiliser un modèle"

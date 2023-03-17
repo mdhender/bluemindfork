@@ -4,5 +4,6 @@ export default {
     FLAGGED: "\\Flagged",
     FORWARDED: "$Forwarded",
     SEEN: "\\Seen",
-    MDN_SENT: "$MDNSent"
+    MDN_SENT: "$MDNSent",
+    BM_DSN: "BmDSN"
 };

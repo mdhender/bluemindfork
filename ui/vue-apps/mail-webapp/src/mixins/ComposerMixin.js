@@ -2,10 +2,11 @@ import cloneDeep from "lodash.clonedeep";
 import { mapActions, mapState } from "vuex";
 import { ERROR, REMOVE } from "@bluemind/alert.store";
 import { messageUtils } from "@bluemind/mail";
-import { DEBOUNCED_SAVE_MESSAGE } from "~/actions";
+import { DEBOUNCED_SAVE_MESSAGE, TOGGLE_DSN_REQUEST } from "~/actions";
 import { MAX_MESSAGE_SIZE_EXCEEDED, RESET_COMPOSER, SET_MESSAGE_HEADERS } from "~/mutations";
 import { IS_SENDER_SHOWN } from "~/getters";
 import { ComposerFromMixin } from "~/mixins";
+import { Flag } from "@bluemind/email";
 
 const maxMessageSizeExceededAlert = {
     alert: { name: "mail.DRAFT_EXCEEDS_MAX_MESSAGE_SIZE", uid: "DRAFT_EXCEEDS_MAX_MESSAGE_SIZE" },
@@ -27,6 +28,9 @@ export default {
         ...mapState("mail", ["messageCompose"]),
         isSenderShown() {
             return this.$store.getters["mail/" + IS_SENDER_SHOWN](this.$store.state.settings);
+        },
+        isDeliveryStatusRequested() {
+            return this.message.flags.includes(Flag.BM_DSN);
         },
         isDispositionNotificationRequested() {
             return messageUtils.findDispositionNotificationHeaderIndex(this.message.headers) >= 0;
@@ -67,6 +71,14 @@ export default {
         ...mapActions("alert", { ERROR, REMOVE }),
         toggleSignature() {
             this.$refs.content.toggleSignature();
+        },
+        toggleDeliveryStatus() {
+            this.$store.dispatch(`mail/${TOGGLE_DSN_REQUEST}`, this.message);
+            this.$store.dispatch(`mail/${DEBOUNCED_SAVE_MESSAGE}`, {
+                draft: this.message,
+                messageCompose: cloneDeep(this.$store.state.mail.messageCompose),
+                files: this.message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey])
+            });
         },
         toggleDispositionNotification() {
             const headers = [...this.message.headers];

@@ -482,7 +482,8 @@
                 }
             },
             "toolbar": {
-                "disposition_notification": "Request reading confirmation",
+                "delivery_status": "Request a delivery receipt",
+                "disposition_notification": "Request a read confirmation",
                 "insert_signature": "Insert my signature",
                 "use_template": "Use a template"
             },

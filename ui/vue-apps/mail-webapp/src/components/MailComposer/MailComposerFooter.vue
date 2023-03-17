@@ -6,8 +6,10 @@
         <mail-composer-toolbar
             :message="message"
             :is-signature-inserted="isSignatureInserted"
+            :is-delivery-status-requested.sync="isDeliveryStatusRequested"
             :is-disposition-notification-requested.sync="isDispositionNotificationRequested"
             @toggle-signature="$emit('toggle-signature')"
+            @toggle-delivery-status="$emit('toggle-delivery-status')"
             @toggle-disposition-notification="$emit('toggle-disposition-notification')"
         />
     </div>
@@ -24,6 +26,7 @@ export default {
     props: {
         message: { type: Object, required: true },
         isSignatureInserted: { type: Boolean, required: true },
+        isDeliveryStatusRequested: { type: Boolean, required: true },
         isDispositionNotificationRequested: { type: Boolean, required: true }
     },
     computed: {

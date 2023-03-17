@@ -114,8 +114,10 @@
                         class="col"
                         :message="message"
                         :is-signature-inserted="isSignatureInserted"
+                        :is-delivery-status-requested.sync="isDeliveryStatusRequested"
                         :is-disposition-notification-requested.sync="isDispositionNotificationRequested"
                         @toggle-signature="toggleSignature"
+                        @toggle-delivery-status="toggleDeliveryStatus"
                         @toggle-disposition-notification="toggleDispositionNotification"
                     />
                 </div>
