@@ -37,13 +37,14 @@ import net.bluemind.core.rest.http.VertxServiceProvider;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.webmodule.server.IWebFilter;
 import net.bluemind.webmodule.server.NeedVertx;
+import net.bluemind.webmodule.server.WebserverConfiguration;
 
 public class OpenIdAuthCodeHandler implements IWebFilter, NeedVertx {
 	Logger logger = LoggerFactory.getLogger(OpenIdAuthCodeHandler.class);
 	private HttpClientProvider clientProvider;
 
 	@Override
-	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request, WebserverConfiguration conf) {
 		final HttpServerResponse resp = request.response();
 
 		String path = request.path();
