@@ -18,18 +18,17 @@
  */
 package net.bluemind.videoconferencing.webex.client;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
-import java.net.Proxy;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.net.ProxySelector;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublisher;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -78,75 +77,47 @@ public class WebexConferenceClient {
 		execute(url, HttpMethod.DELETE, null);
 	}
 
-	private HttpURLConnection connect(String url) throws MalformedURLException, IOException {
+	private ProxySelector proxy() throws MalformedURLException, IOException {
 		Map<String, String> sysConfMap = su.provider().instance(ISystemConfiguration.class).getValues().values;
 		String proxyEnabled = sysConfMap.get(SysConfKeys.http_proxy_enabled.name());
 		if (proxyEnabled == null || proxyEnabled.trim().isEmpty() || !proxyEnabled.equals("true")) {
-			return (HttpURLConnection) new URL(url).openConnection();
+			return ProxySelector.getDefault();
 		} else {
-			Proxy proxy = new Proxy(Proxy.Type.HTTP,
-					new InetSocketAddress(sysConfMap.get(SysConfKeys.http_proxy_hostname.name()),
-							Integer.valueOf(sysConfMap.get(SysConfKeys.http_proxy_port.name()))));
-			return (HttpURLConnection) new URL(url).openConnection(proxy);
+			String host = sysConfMap.get(SysConfKeys.http_proxy_hostname.name());
+			int port = Integer.valueOf(sysConfMap.get(SysConfKeys.http_proxy_port.name()));
+			return ProxySelector.of(new InetSocketAddress(host, port));
 		}
 
 	}
 
 	protected JsonObject execute(String spec, HttpMethod method, String body) {
-		HttpURLConnection conn = null;
 		try {
-			conn = connect(spec);
-			conn.setRequestMethod(method.name());
-			conn.setRequestProperty("Authorization", "Bearer " + bearerToken);
-			conn.setRequestProperty("Accept", "application/json");
-			conn.setRequestProperty("Content-Type", "application/json; utf-8");
-			conn.setConnectTimeout(TIMEOUT);
-			conn.setReadTimeout(TIMEOUT);
+			HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).proxy(proxy())
+					.connectTimeout(Duration.ofSeconds(20)).build();
+			BodyPublisher payload = body != null ? HttpRequest.BodyPublishers.ofString(body) : BodyPublishers.noBody();
+			HttpRequest httpRequest = HttpRequest.newBuilder() //
+					.method(method.name(), payload) //
+					.header("Authorization", "Bearer " + bearerToken) //
+					.header("Accept", "application/json") //
+					.header("Content-Type", "application/json; utf-8") //
+					.uri(new URI(spec)) //
+					.build();
 
-			if (body != null) {
-				conn.setDoOutput(true);
-				byte[] data = body.getBytes();
-				try (OutputStream os = conn.getOutputStream()) {
-					os.write(data, 0, data.length);
-				}
+			HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+			int code = httpResponse.statusCode();
+			if (code >= 400) {
+				throw new ServerFault(httpResponse.body());
 			}
 
-			conn.disconnect();
-
-			int responseCode = conn.getResponseCode();
-			if (responseCode >= 400) {
-				String response = getResponse(conn.getErrorStream());
-				throw new ServerFault(response);
+			String retBody = httpResponse.body();
+			if (Strings.isNullOrEmpty(retBody)) {
+				return new JsonObject();
 			}
-
-			String response = getResponse(conn.getInputStream());
-
-			if (!Strings.isNullOrEmpty(response)) {
-				return new JsonObject(response);
-			}
-
-			return new JsonObject();
-
+			return new JsonObject(retBody);
 		} catch (Exception e) {
 			logger.warn("Exception while calling {}:{}", spec, method.name(), e);
 			throw new ServerFault(e.getMessage());
-		} finally {
-			if (conn != null) {
-				conn.disconnect();
-			}
 		}
-
-	}
-
-	private String getResponse(InputStream is) throws IOException, UnsupportedEncodingException {
-		StringBuilder response = new StringBuilder();
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8.name()))) {
-			String responseLine = null;
-			while ((responseLine = br.readLine()) != null) {
-				response.append(responseLine.trim());
-			}
-		}
-		return response.toString();
 	}
 
 }
