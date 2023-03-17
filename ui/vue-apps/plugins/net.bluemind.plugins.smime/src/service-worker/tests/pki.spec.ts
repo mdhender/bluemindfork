@@ -1,14 +1,19 @@
 import fetchMock from "fetch-mock";
+import { pki } from "node-forge";
 import { VCardQuery } from "@bluemind/addressbook.api";
-import { PKIStatus } from "../../lib/constants";
+import { RevocationResult } from "@bluemind/smime.cacerts.api";
+import { PKIStatus, SMIME_CERT_USAGE } from "../../lib/constants";
 import {
     CertificateRecipientNotFoundError,
     KeyNotFoundError,
     InvalidCertificateError,
-    InvalidKeyError
+    InvalidKeyError,
+    UntrustedCertificateError,
+    UntrustedCertificateEmailNotFoundError
 } from "../../lib/exceptions";
+import { getCaCerts } from "../pki/cert";
 import {
-    // checkCertificate,
+    checkCertificate,
     clearMyCryptoFiles,
     getMyCertificate,
     getMyPrivateKey,
@@ -18,15 +23,21 @@ import {
 } from "../pki";
 import db from "../pki/SMimePkiDB";
 import { readFile } from "./helpers";
-// import { pki } from "node-forge";
+
 fetchMock.mock("/session-infos", { userId: "baz", domain: "foo.bar" });
 
-const certificate = readFile("certificates/certificate.crt");
 const privateKey = readFile("privateKeys/privateKey.key");
+
+const aliceCA = readFile("certificates/aliceCA.crt"); // alice CA cert from RFC9216
+const basicCA = readFile("certificates/basicCA.crt"); // alice CA cert from RFC9216
+
+const aliceCert = readFile("certificates/alice.crt"); // alice cert from RFC9216
+const basicCert = readFile("certificates/basicCert.crt");
+const expiredCert = readFile("certificates/expiredSSL.crt");
+const corruptedCert = readFile("certificates/corruptedSignature.crt");
 const otherCertificate = readFile("certificates/otherCertificate.crt");
 const invalidCertificate = readFile("certificates/invalid.crt");
-// const nonRepudiationCert = readFile("certificates/alice.pem");
-// const anyExtendedKeyUsageCert = readFile("certificates/anyExtendedKeyUsage.crt");
+const anyExtendedKeyUsageCert = readFile("certificates/anyExtendedKeyUsage.crt"); // self-signed
 
 class MockedKeyAsBlob extends Blob {
     text() {
@@ -35,7 +46,7 @@ class MockedKeyAsBlob extends Blob {
 }
 class MockedCertAsBlob extends Blob {
     text() {
-        return Promise.resolve(certificate);
+        return Promise.resolve(aliceCert);
     }
 }
 class MockInvalidCertAsBlob extends Blob {
@@ -45,6 +56,12 @@ class MockInvalidCertAsBlob extends Blob {
 }
 
 jest.mock("../pki/SMimePkiDB");
+jest.mock("../pki/cert", () => {
+    return {
+        ...jest.requireActual("../pki/cert"),
+        getCaCerts: jest.fn()
+    };
+});
 
 const mockMultipleGet = jest.fn(uids => {
     if (uids.includes("2DF7A15F-12FD-4864-8279-12ADC6C08BAF")) {
@@ -109,39 +126,6 @@ jest.mock("@bluemind/addressbook.api", () => ({
     VCardQuery: { OrderBy: { Pertinance: "Pertinance" } }
 }));
 
-jest.mock("@bluemind/smime.cacerts.api", () => ({
-    SmimeCACertClient: () => ({
-        all: () => [
-            {
-                value: {
-                    // alice CA cert from RFC9216
-                    cert: `-----BEGIN CERTIFICATE-----
-                    MIIDezCCAmOgAwIBAgITcBn0xb/zdaeCQlqp6yZUAGZUCDANBgkqhkiG9w0BAQ0F
-                    ADBVMQ0wCwYDVQQKEwRJRVRGMREwDwYDVQQLEwhMQU1QUyBXRzExMC8GA1UEAxMo
-                    U2FtcGxlIExBTVBTIFJTQSBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eTAgFw0xOTEx
-                    MjAwNjU0MThaGA8yMDUyMDkyNzA2NTQxOFowVTENMAsGA1UEChMESUVURjERMA8G
-                    A1UECxMITEFNUFMgV0cxMTAvBgNVBAMTKFNhbXBsZSBMQU1QUyBSU0EgQ2VydGlm
-                    aWNhdGlvbiBBdXRob3JpdHkwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB
-                    AQC2GGPTEFVNdi0LsiQ79A0Mz2G+LRJlbX2vNo8STibAnyQ9VzFrGJHjUhRX/Omr
-                    OP3rDCB2SYfBPVwd0CdC6z9qfJkcVxDc1hK+VS9vKncL0IPUYlkJwWuMpXa1Ielz
-                    +zCuV+gjV83Uvn6wTn39MCmymu7nFPzihcuOnbMYOCdMmUbi1Dm8TX9P6itFR3hi
-                    IHpSKMbkoXlM1837WaFfx57kBIoIuNjKEyPIuK9wGUAeppc5QAHJg95PPEHNHlmM
-                    yhBzClmgkyozRSeSrkxq9XeJKU94lWGaZ0zb4karCur/eiMoCk3YNV8L3styvcMG
-                    1qUDCAaKx6FZEf7hE9RN6L3bAgMBAAGjQjBAMA8GA1UdEwEB/wQFMAMBAf8wDgYD
-                    VR0PAQH/BAQDAgEGMB0GA1UdDgQWBBSRMI58BxcMp/EJKGU2GmccaHb0WTANBgkq
-                    hkiG9w0BAQ0FAAOCAQEACDXWlJGjzKadNMPcFlZInZC+Hl7RLrcBDR25jMCXg9yL
-                    IwGVEcNp2fH4+YHTRTGLH81aPADMdUGHgpfcfqwjesavt/mO0T0S0LjJ0RVm93fE
-                    heSNUHUigVR9njTVw2EBz7e2p+v3tOsMnunvm6PIDgHxx0W6mjzMX7lG74bJfo+v
-                    dx+jI/aXt+iih5pi7/2Yu9eTDVu+S52wsnF89BEJeV0r+EmGDxUv47D+5KuQpKM9
-                    U/isXpwC6K/36T8RhhdOQXDq0Mt91TZ4dJTT0m3cmo80zzcxsKMDStZHOOzCBtBq
-                    uIbwWw5Oa72o/Iwg9v+W0WkSBCWEadf/uK+cRicxrQ==
-                    -----END CERTIFICATE-----`
-                }
-            }
-        ]
-    })
-}));
-
 describe("pki", () => {
     beforeEach(() => {
         db.getPKIStatus = () => Promise.resolve(PKIStatus.OK);
@@ -179,8 +163,6 @@ describe("pki", () => {
                 expect(error).toBeInstanceOf(KeyNotFoundError);
             }
         });
-        // test("raise an error if the certificate is revoked", () => {});
-        // test("raise an error if the certificate is not trusted", () => {});
     });
     describe("getMyPrivateKey", () => {
         test("get the user private key from database if present", async () => {
@@ -268,53 +250,148 @@ describe("pki", () => {
     });
 
     describe("check if certificate can be trusted for S/MIME usage", () => {
-        // const date = new Date("2023-02-18"),
-        //     sender = "test@devenv.blue";
-        test.todo("untrusted if cert has been corrupted (signature check failed)");
-        // await checkCertificate(pki.certificateFromPem(anyExtendedKeyUsageCert), sendingDate, senderEmail);
-        // });
-        test.todo("untrusted if cert issuer (CA) is not trusted");
-        test.todo("untrusted if cert has expired");
-        test.todo("untrusted if its a CA certificate");
-        // , async done => {
-        //     try {
-        //         await checkCertificate(pki.certificateFromPem(nonRepudiationCert), { date, expectedAddress: sender });
-        //         done.fail("CA cert cannot be used");
-        //     } catch (error) {
-        //         expect(error).toBeInstanceOf(UntrustedCertificateError);
-        //         done();
-        //     }
-        // });
-        test.todo(
-            "untrusted if Extended Key Usage is set but its value is neither emailProtection nor anyExtendedKeyUsage"
-        );
-        test.todo(
-            "untrusted if expected email is not found neither in emailAddress or in 'Subject Alternative Name' extension"
-        );
-        test.todo("untrusted if cert is revoked");
-        test.todo(
-            "CHECKME!! untrusted if keyUsage is set but its value is not 'Non Repudiation' or 'Digital Signature' or 'Key Encipherment'"
-        );
+        const aliceCertificate = pki.certificateFromPem(aliceCert);
+        fetchMock.config.overwriteRoutes = true;
 
-        // FIXME
-        // test("throw UntrustedCertificateError if certificate is expired", done => {
-        //     const certificate = { validity: { notBefore: new Date(100), notAfter: new Date(1000) } };
-        //     try {
-        //         checkCertificate(<pki.Certificate>certificate, new Date(3000));
-        //         done.fail();
-        //     } catch (error) {
-        //         expect(error).toBeInstanceOf(UntrustedCertificateError);
-        //         done();
-        //     }
-        // });
-        // test("dont throw anything if certificate is valid ", done => {
-        //     const certificate = { validity: { notBefore: new Date(100), notAfter: new Date(1000) } };
-        //     try {
-        //         checkCertificate(<pki.Certificate>certificate, new Date(500));
-        //         done();
-        //     } catch (error) {
-        //         done.fail();
-        //     }
-        // });
+        beforeEach(() => {
+            (<jest.Mock>getCaCerts).mockResolvedValue([
+                { value: { cert: aliceCA } },
+                { value: { cert: basicCA } },
+                { value: { cert: anyExtendedKeyUsageCert } }
+            ]);
+            fetchMock.mock("end:/api/smime_revocation/foo.bar/is_revoked", [
+                { status: RevocationResult.RevocationStatus.NOT_REVOKED }
+            ]);
+        });
+
+        test("untrusted if date is not within certificate validity period", async done => {
+            try {
+                await checkCertificate(aliceCertificate, { date: new Date("2019-11-01") });
+                done.fail("certificate was not valid before 20 Nov. 2019");
+            } catch (e) {
+                expect(e instanceof UntrustedCertificateError).toBe(true);
+                expect((<UntrustedCertificateError>e).message.includes("forge.pki.CertificateExpired")).toBe(true);
+                done();
+            }
+        });
+
+        test("untrusted if cert has expired", async done => {
+            try {
+                await checkCertificate(pki.certificateFromPem(expiredCert));
+                done.fail("expired certificate must not be trusted");
+            } catch (e) {
+                expect(e instanceof UntrustedCertificateError).toBe(true);
+                expect((<UntrustedCertificateError>e).message.includes("forge.pki.CertificateExpired")).toBe(true);
+                done();
+            }
+        });
+
+        test("untrusted if cert has been corrupted (invalid signature)", async done => {
+            try {
+                await checkCertificate(pki.certificateFromPem(corruptedCert));
+                done.fail("certificate with an invalid signature must not be trusted");
+            } catch (e) {
+                expect(e instanceof UntrustedCertificateError).toBe(true);
+                expect((<UntrustedCertificateError>e).message.includes("forge.pki.BadCertificate")).toBe(true);
+                done();
+            }
+        });
+
+        test("untrusted if no CA cert set", async done => {
+            (<jest.Mock>getCaCerts).mockResolvedValue([]);
+            try {
+                await checkCertificate(aliceCertificate);
+                done.fail("no CA cert defined, cannot trust any end-user certificate");
+            } catch (e) {
+                expect(getCaCerts).toHaveBeenCalled();
+                expect(e instanceof UntrustedCertificateError).toBe(true);
+                done();
+            }
+        });
+
+        test("untrusted if CA issuer is not trusted", async done => {
+            try {
+                await checkCertificate(pki.certificateFromPem(otherCertificate));
+                done.fail("certificate issuer (its CA) is not trusted");
+            } catch (e) {
+                expect(e instanceof UntrustedCertificateError).toBe(true);
+                expect((<UntrustedCertificateError>e).message.includes("forge.pki.UnknownCertificateAuthority")).toBe(
+                    true
+                );
+                done();
+            }
+        });
+        test("cant use a CA certificate", async done => {
+            try {
+                await checkCertificate(pki.certificateFromPem(aliceCA));
+                done.fail("you should not use CA cert for S/MIME");
+            } catch (e) {
+                expect(e instanceof UntrustedCertificateError).toBe(true);
+                done();
+            }
+        });
+        test("cant use certificate because of its 'extendedKeyUsage' (if set, its value should be either emailProtection or anyExtendedKeyUsage)", async done => {
+            try {
+                // await checkCertificate(pki.certificateFromPem(aliceCert));
+                await checkCertificate(aliceCertificate); // emailProtection set
+                await checkCertificate(pki.certificateFromPem(anyExtendedKeyUsageCert));
+                await checkCertificate(pki.certificateFromPem(basicCert));
+                done();
+            } catch (e) {
+                done.fail("those certificates have no extendedKeyUsage issue to be used for S/MIME");
+            }
+        });
+        test("untrusted if expected email is not found neither in emailAddress or in 'Subject Alternative Name' extension", async done => {
+            try {
+                await checkCertificate(aliceCertificate, { expectedAddress: "alice@smime.example" });
+            } catch {
+                done.fail("alice@smime.example is set in certificate");
+            }
+            const expectedAddress = "notfound@mail.com";
+            try {
+                await checkCertificate(aliceCertificate, { expectedAddress });
+                done.fail("email found in certificate should match expected one");
+            } catch (e) {
+                expect(e instanceof UntrustedCertificateEmailNotFoundError).toBe(true);
+                expect((<UntrustedCertificateEmailNotFoundError>e).message.includes(expectedAddress));
+                done();
+            }
+        });
+
+        test("untrusted if keyUsage does not match expected usage", async done => {
+            try {
+                await checkCertificate(aliceCertificate, { smimeUsage: SMIME_CERT_USAGE.SIGN });
+                await checkCertificate(aliceCertificate, { smimeUsage: SMIME_CERT_USAGE.ENCRYPT });
+                done.fail("this certificate cannot be used for encryption");
+            } catch (e) {
+                done();
+            }
+        });
+
+        test("untrusted if cert is revoked", async done => {
+            fetchMock.mock("end:/api/smime_revocation/foo.bar/is_revoked", [
+                { status: RevocationResult.RevocationStatus.REVOKED, date: new Date().getTime() }
+            ]);
+            try {
+                await checkCertificate(aliceCertificate);
+                done.fail("revoked certificate must not be trusted");
+            } catch (e) {
+                expect(e instanceof UntrustedCertificateError).toBe(true);
+                done();
+            }
+        });
+
+        test("cert is trusted if date checked is before revokation", async done => {
+            const revokedDate = new Date("2023-02-01");
+            fetchMock.mock("end:/api/smime_revocation/foo.bar/is_revoked", [
+                { status: RevocationResult.RevocationStatus.REVOKED, date: revokedDate.getTime() }
+            ]);
+            try {
+                await checkCertificate(aliceCertificate, { date: new Date("2023-01-01") });
+                done();
+            } catch (e) {
+                done.fail("certificate is revoked but checked date was before revokation happened");
+            }
+        });
     });
 });

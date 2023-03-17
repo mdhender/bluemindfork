@@ -1,14 +1,14 @@
 import { pki } from "node-forge";
 import { AddressBooksClient, AddressBookClient, VCardInfo } from "@bluemind/addressbook.api";
 import { searchVCardsHelper } from "@bluemind/contact";
-import { ItemContainerValue, ItemValue } from "@bluemind/core.container.api";
-import { SmimeCacert, SmimeCACertClient } from "@bluemind/smime.cacerts.api";
+import { ItemContainerValue } from "@bluemind/core.container.api";
 import {
     checkBasicConstraints,
     checkExtendedKeyUsage,
     checkRecipientEmail,
     checkRevoked,
-    checkSmimeUsage
+    checkSmimeUsage,
+    getCaCerts
 } from "./cert";
 import { PKIStatus } from "../../lib/constants";
 import session from "../environnment/session";
@@ -66,7 +66,7 @@ export async function checkCertificate(certificate: pki.Certificate, options?: C
         if (options?.smimeUsage) {
             checkSmimeUsage(certificate, options.smimeUsage);
         }
-        await checkRevoked(certificate.serialNumber);
+        await checkRevoked(certificate.serialNumber, options?.date);
     } catch (error: unknown) {
         if (typeof error === "string") {
             throw new UntrustedCertificateError(error);
@@ -75,18 +75,6 @@ export async function checkCertificate(certificate: pki.Certificate, options?: C
         }
         throw error;
     }
-}
-
-// FIXME: sync them ? todo via https://forge.bluemind.net/jira/browse/FEATWEBML-2107
-let caCerts: ItemValue<SmimeCacert>[];
-async function getCaCerts(): Promise<ItemValue<SmimeCacert>[]> {
-    if (!caCerts) {
-        const domain = await session.domain;
-        const sid = await session.sid;
-        const client = new SmimeCACertClient(sid, "smime_cacerts:domain_" + domain);
-        caCerts = await client.all();
-    }
-    return caCerts;
 }
 
 interface Cache {

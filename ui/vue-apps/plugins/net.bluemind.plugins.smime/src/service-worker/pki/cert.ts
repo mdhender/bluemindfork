@@ -1,15 +1,16 @@
 import { pki } from "node-forge";
-import { RevocationResult, SmimeRevocationClient } from "@bluemind/smime.cacerts.api";
+import { ItemValue } from "@bluemind/core.container.api";
+import { RevocationResult, SmimeCacert, SmimeCACertClient, SmimeRevocationClient } from "@bluemind/smime.cacerts.api";
 import session from "../environnment/session";
 import { SMIME_CERT_USAGE } from "../../lib/constants";
 import { UntrustedCertificateEmailNotFoundError } from "../../lib/exceptions";
 
-export async function checkRevoked(serialNumber: string) {
+export async function checkRevoked(serialNumber: string, date?: Date) {
     const revokedList = await new SmimeRevocationClient(await session.sid, await session.domain).isRevoked([
         serialNumber
     ]);
     const revoked = revokedList[0];
-    if (revoked.status === RevocationResult.RevocationStatus.REVOKED) {
+    if (revoked.status === RevocationResult.RevocationStatus.REVOKED && (!date || date.getTime() > revoked.date!)) {
         if (revoked.reason?.toLowerCase() === "certificatehold") {
             // no cache for those one
         }
@@ -55,4 +56,16 @@ export function checkSmimeUsage(certificate: pki.Certificate, smimeUsage: SMIME_
     if (smimeUsage === SMIME_CERT_USAGE.ENCRYPT && keyUsage && !keyUsage.keyEncipherment) {
         throw "this certificate can't be used to encrypt message, keyUsage does not allow it (keyEncipherment is not set).";
     }
+}
+
+let caCerts: ItemValue<SmimeCacert>[];
+// FIXME: sync them ? todo via https://forge.bluemind.net/jira/browse/FEATWEBML-2107
+export async function getCaCerts(): Promise<ItemValue<SmimeCacert>[]> {
+    if (!caCerts) {
+        const domain = await session.domain;
+        const sid = await session.sid;
+        const client = new SmimeCACertClient(sid, "smime_cacerts:domain_" + domain);
+        caCerts = await client.all();
+    }
+    return caCerts;
 }
