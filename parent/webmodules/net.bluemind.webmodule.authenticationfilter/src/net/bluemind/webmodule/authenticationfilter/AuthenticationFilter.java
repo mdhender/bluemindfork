@@ -47,15 +47,12 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.core.api.BMVersion;
-import net.bluemind.core.context.SecurityContext;
-import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.DomainSettingsKeys;
-import net.bluemind.domain.api.IDomains;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
+import net.bluemind.hornetq.client.Shared;
 import net.bluemind.keycloak.utils.AuthTypes;
 import net.bluemind.keycloak.utils.DomainAuthProperties;
-import net.bluemind.hornetq.client.Shared;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.openid.api.OpenIdProperties;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionData;
@@ -183,8 +180,9 @@ public class AuthenticationFilter implements IWebFilter {
 	}
 
 	private void redirectToCasServer(HttpServerRequest request, String domainUid) {
-		String casURL = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class)
-				.get(domainUid).value.properties.get(DomainAuthProperties.cas_url.name());
+		Map<String, String> domainProperties = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
+				.get(domainUid);
+		String casURL = domainProperties.get(DomainAuthProperties.cas_url.name());
 		String location = casURL + "login?service=";
 		location += request.scheme() + "://" + request.host() + "/auth/cas";
 		request.response().headers().add(HttpHeaders.LOCATION, location);
@@ -193,9 +191,10 @@ public class AuthenticationFilter implements IWebFilter {
 	}
 
 	private boolean isCasEnabled(String domainUid) {
-		String auth_type = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class)
-				.get(domainUid).value.properties.get(DomainAuthProperties.auth_type.name());
-		return AuthTypes.CAS.name().equals(auth_type);
+		Map<String, String> domainProperties = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
+				.get(domainUid);
+		String authType = domainProperties.get(DomainAuthProperties.auth_type.name());
+		return AuthTypes.CAS.name().equals(authType);
 	}
 
 	private boolean needAuthentication(HttpServerRequest request, Optional<ForwardedLocation> forwardedLocation) {
