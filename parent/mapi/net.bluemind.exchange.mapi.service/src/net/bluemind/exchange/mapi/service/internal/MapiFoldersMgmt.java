@@ -88,8 +88,11 @@ public class MapiFoldersMgmt implements IMapiFoldersMgmt {
 			String hierUid = ContainerHierarchyNode.uidFor(mf.containerUid, MapiFolderContainer.TYPE, domain);
 			HierarchyIdsHints.putHint(hierUid, mf.expectedId);
 		}
-		logger.info("Create {} matching folder {}...", fais, mf);
-		contApi.create(mf.containerUid, fais);
+		BaseContainerDescriptor exist = contApi.getLightIfPresent(mf.containerUid);
+		if (exist == null) {
+			logger.info("Create {} matching folder {}...", fais, mf);
+			contApi.create(mf.containerUid, fais);
+		}
 		IContainerManagement aclApi = context.provider().instance(IContainerManagement.class, mf.containerUid);
 		aclApi.setAccessControlList(Arrays.asList(AccessControlEntry.create(domain, Verb.Write)));
 		logger.info("Created container {}", mf.containerUid);
