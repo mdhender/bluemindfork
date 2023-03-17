@@ -258,8 +258,8 @@ public class OrgUnits implements IOrgUnits {
 		List<ManageableOrgUnit> ret = new ArrayList<>();
 		for (Map.Entry<String, Set<String>> ouEntry : context.getSecurityContext().getRolesByOrgUnits().entrySet()) {
 			Set<Permission> perms = rbacManager.forOrgUnit(ouEntry.getKey()).resolve();
-			Set<Kind> kinds = perms.stream().filter((perm) -> perm instanceof DirEntryPermission)
-					.map((perm) -> ((DirEntryPermission) perm).getKind()).collect(Collectors.toSet());
+			Set<Kind> kinds = perms.stream().filter(DirEntryPermission.class::isInstance)
+					.map(perm -> ((DirEntryPermission) perm).getKind()).collect(Collectors.toSet());
 			for (Kind kind : mkinds) {
 				if (kinds.contains(kind)) {
 					ret.add(new ManageableOrgUnit(ouEntry.getKey(), kinds));
@@ -297,7 +297,13 @@ public class OrgUnits implements IOrgUnits {
 		if (isCreate) {
 			ItemValue<OrgUnit> existing = getComplete(item.uid);
 			if (existing == null) {
-				createWithItem(item);
+				try {
+					createWithItem(item);
+				} catch (ServerFault sf) {
+					if (sf.getCode() != ErrorCode.ALREADY_EXISTS) {
+						throw sf;
+					}
+				}
 			} else {
 				updateWithItem(item);
 			}
