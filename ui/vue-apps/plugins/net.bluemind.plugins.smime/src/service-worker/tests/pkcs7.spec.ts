@@ -2,7 +2,6 @@
 import fs from "fs";
 import forge from "node-forge";
 import path from "path";
-import * as pki from "../pki/";
 import { CRYPTO_HEADERS } from "../../lib/constants";
 import { getSignedDataEnvelope } from "../../lib/envelope";
 import { base64ToArrayBuffer } from "@bluemind/arraybuffer";
@@ -31,6 +30,11 @@ class MultipleRecipientsMockedBlob extends Blob {
         return Promise.resolve(base64ToArrayBuffer(readFile("parts/encryptedMultiRecipients.txt")));
     }
 }
+
+jest.mock("../pki/", () => ({
+    ...jest.requireActual("../pki/"),
+    checkCertificate: () => {}
+}));
 
 const privatekeyTxt = readFile("privateKeys/privateKey.key");
 const otherPrivateKey = readFile("privateKeys/otherPrivateKey.key");
@@ -86,10 +90,6 @@ describe("pkcs7", () => {
         const corruptedEml = readSignedOnly("corrupted.eml");
         const { pkcs7Part: corruptedPkcs7Part, toDigest: corruptedToDigest } = extractSignedData(corruptedEml);
         const corruptedEnvelope = getSignedDataEnvelope(corruptedPkcs7Part);
-
-        beforeAll(() => {
-            pki.checkCertificate = () => {};
-        });
 
         test("verify a valid eml", async done => {
             try {

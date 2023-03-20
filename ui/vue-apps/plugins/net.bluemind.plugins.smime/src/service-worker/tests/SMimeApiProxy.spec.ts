@@ -1,8 +1,16 @@
 import { CRYPTO_HEADERS, ENCRYPTED_HEADER_NAME, SIGNED_HEADER_NAME } from "../../lib/constants";
 import smime from "../smime";
 import SMimeApiProxy from "../SMimeApiProxy";
+import db from "../smime/cache/SMimeBodyDB";
+import { MailboxItem } from "@bluemind/backend.mail.api";
+import { ItemValue } from "@bluemind/core.container.api";
+import decryptAndVerify from "../decryptAndVerify";
 
-jest.mock("../smime", () => jest.fn);
+jest.mock("../smime", () => ({
+    ...jest.requireActual("../smime"),
+    isEncrypted: () => true,
+    isSigned: () => true
+}));
 
 jest.mock("../environnment/session", () =>
     Promise.resolve({
@@ -14,34 +22,53 @@ jest.mock("../environnment/session", () =>
     })
 );
 
+jest.mock("../decryptAndVerify", () => {
+    const actual = jest.requireActual("../decryptAndVerify");
+    return {
+        __esModule: true,
+        default: jest.fn(actual.default)
+    };
+});
+
 describe("SMimeApiProxy", () => {
     const smimeApiProxy = new SMimeApiProxy("apiKey", "folderUid");
+
     beforeEach(() => {
-        smime.isEncrypted = () => false;
-        smime.isSigned = () => false;
+        db.setBody = async () => undefined;
+        db.setGuid = async () => undefined;
+        db.getBody = async () => undefined;
+        db.deleteBody = async () => undefined;
+        db.invalidate = async () => undefined;
+
         jest.clearAllMocks();
     });
 
     describe("catch multipleGetById & getCompleteById requests", () => {
         beforeEach(() => {
             smimeApiProxy.next = () => Promise.resolve(<never>[encryptedItem]);
+            signedItem = getSignedItem();
+        });
+
+        test("call decrypt and verify", async () => {
+            smimeApiProxy.next = () => Promise.resolve(<never>[encryptedItem]);
+            await smimeApiProxy.multipleGetById();
+            smimeApiProxy.next = () => Promise.resolve(<never>[encryptedItem]);
+            await smimeApiProxy.getCompleteById();
+            expect(decryptAndVerify).toHaveBeenCalledTimes(2);
         });
 
         test("decrypt encrypted messages", async () => {
-            smime.isEncrypted = () => true;
-            smime.decrypt = jest.fn(() => Promise.resolve({ item: decryptedItem, content: "" }));
-
+            smime.decrypt = jest.fn(() => Promise.resolve({ body: decryptedBody, content: "" }));
             smimeApiProxy.next = () => Promise.resolve(<never>[encryptedItem]);
             await smimeApiProxy.multipleGetById();
             smimeApiProxy.next = () => Promise.resolve(<never>encryptedItem);
             await smimeApiProxy.getCompleteById();
-
             expect(smime.decrypt).toHaveBeenCalledTimes(2);
         });
 
         test("verify signed messages", async () => {
             smime.isSigned = () => true;
-            smime.verify = jest.fn(() => Promise.resolve(item));
+            smime.verify = jest.fn(() => Promise.resolve(decryptedBody));
 
             smimeApiProxy.next = () => Promise.resolve(<never>[signedItem]);
             await smimeApiProxy.multipleGetById();
@@ -51,6 +78,7 @@ describe("SMimeApiProxy", () => {
             expect(smime.verify).toHaveBeenCalledTimes(2);
         });
         test("do nothing if messages are not encrypted or signed", async () => {
+            smime.verify = jest.fn(() => Promise.resolve(decryptedBody));
             smime.isSigned = () => false;
             smime.isEncrypted = () => false;
 
@@ -78,7 +106,7 @@ describe("SMimeApiProxy", () => {
         });
         test("decrypt encrypted message", async () => {
             smime.isEncrypted = () => true;
-            smime.decrypt = jest.fn(() => Promise.resolve({ item: decryptedItem, content: "" }));
+            smime.decrypt = jest.fn(() => Promise.resolve({ body: decryptedBody, content: "" }));
 
             smimeApiProxy.next = () => Promise.resolve(<never>encryptedItem);
             await smimeApiProxy.getForUpdate();
@@ -95,12 +123,15 @@ describe("SMimeApiProxy", () => {
         });
         test("remove 'application/pkcs7-signature' part (must be hidden in MailComposer)", async () => {
             smimeApiProxy.next = () => Promise.resolve(<never>signedItem);
-            const unsignedMimeType = signedItem.value.body.structure.children[0].mime;
+            const unsignedMimeType = signedItem.value.body.structure!.children![0].mime;
             const readyForUpdate = await smimeApiProxy.getForUpdate();
             expect(readyForUpdate.value.body.structure!.mime).toBe(unsignedMimeType);
         });
     });
     describe("catch create & updateById requests", () => {
+        beforeEach(() => {
+            signedItem = getSignedItem();
+        });
         test("sign message if requested", async () => {
             smime.sign = jest.fn(() => Promise.resolve(signedItem.value));
             await smimeApiProxy.create(itemToBeSigned);
@@ -108,7 +139,7 @@ describe("SMimeApiProxy", () => {
             expect(smime.sign).toHaveBeenCalledTimes(2);
         });
         test("encrypt message if requested", async () => {
-            smime.encrypt = jest.fn(() => Promise.resolve(encryptedItem.value));
+            smime.encrypt = jest.fn(() => <Promise<MailboxItem>>Promise.resolve(encryptedItem.value));
             await smimeApiProxy.create(itemToBeEncrypted);
             await smimeApiProxy.updateById(123, itemToBeEncrypted);
             expect(smime.encrypt).toHaveBeenCalledTimes(2);
@@ -161,34 +192,23 @@ const item = {
     }
 };
 
+const encryptedBody = {
+    headers: [
+        { name: ENCRYPTED_HEADER_NAME, values: [CRYPTO_HEADERS.TO_DO.toString()] },
+        { name: SIGNED_HEADER_NAME, values: [CRYPTO_HEADERS.TO_DO.toString()] }
+    ],
+    structure: { mime: "application/pkcs7-mime" }
+};
+
 const encryptedItem = {
     value: {
-        body: {
-            headers: [],
-            structure: { mime: "application/pkcs7-mime" }
-        }
+        body: encryptedBody
     }
 };
 
-const signedItem = {
-    value: {
-        body: {
-            headers: [],
-            structure: {
-                mime: "multipart/signed",
-                children: [{ mime: "multipart/alternative" }, { mime: "application/pkcs7-signature" }]
-            }
-        }
-    }
-};
-
-const decryptedItem = {
-    value: {
-        body: {
-            headers: [],
-            structure: { mime: "multipart/alternative" }
-        }
-    }
+const decryptedBody = {
+    headers: [],
+    structure: { mime: "multipart/alternative" }
 };
 
 const itemToBeSigned = {
@@ -214,3 +234,15 @@ const itemToBeSignedAndEncrypted = {
         structure: { mime: "multipart/alternative" }
     }
 };
+let signedItem: ItemValue<MailboxItem>;
+const getSignedItem = () => ({
+    value: {
+        body: {
+            headers: [],
+            structure: {
+                mime: "multipart/signed",
+                children: [{ mime: "multipart/alternative" }, { mime: "application/pkcs7-signature" }]
+            }
+        }
+    }
+});

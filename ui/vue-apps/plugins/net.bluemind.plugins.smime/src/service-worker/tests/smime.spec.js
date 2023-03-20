@@ -47,6 +47,10 @@ jest.mock("@bluemind/backend.mail.api", () => ({
     })
 }));
 jest.mock("../pkcs7", () => jest.fn);
+jest.mock("../smime/cache/SMimePartCache", () => ({
+    ...jest.requireActual("../smime/cache/SMimePartCache"),
+    getGuid: () => Promise.resolve("99")
+}));
 
 let mockCache = {};
 global.caches = {
@@ -188,8 +192,8 @@ describe("smime", () => {
             mockCache = {};
         });
         test("adapt message body structure when the main part is encrypted", async () => {
-            const { item } = await smime.decrypt("uid", mainEncrypted);
-            expect(item.value.body.structure).toEqual(expect.objectContaining({ mime: "text/plain", address: "1" }));
+            const { body } = await smime.decrypt("uid", mainEncrypted);
+            expect(body.structure).toEqual(expect.objectContaining({ mime: "text/plain", address: "1" }));
         });
         test("add decrypted parts content to part cache", async () => {
             const mockEmlMultipleParts = readEml("eml/unencrypted");
@@ -199,24 +203,24 @@ describe("smime", () => {
             expect(mockCache).toMatchSnapshot();
         });
         test("add a header if the message is crypted", async () => {
-            const { item } = await smime.decrypt("uid", mainEncrypted);
-            expect(getCryptoHeaderCode(item)).toBeTruthy();
+            const { body } = await smime.decrypt("uid", mainEncrypted);
+            expect(getCryptoHeaderCode(body)).toBeTruthy();
         });
         test("add a header if the message is correcty decrypted", async () => {
-            const { item } = await smime.decrypt("uid", mainEncrypted);
-            expect(getCryptoHeaderCode(item) & CRYPTO_HEADERS.OK).toBeTruthy();
+            const { body } = await smime.decrypt("uid", mainEncrypted);
+            expect(getCryptoHeaderCode(body) & CRYPTO_HEADERS.OK).toBeTruthy();
         });
         test("add a header if the message cannot be decrypted because certificate is untrusted", async () => {
             pkcs7.decrypt = () => Promise.reject(new UntrustedCertificateError());
 
-            const { item } = await smime.decrypt("uid", mainEncrypted);
-            expect(getCryptoHeaderCode(item) & CRYPTO_HEADERS.UNTRUSTED_CERTIFICATE).toBeTruthy();
+            const { body } = await smime.decrypt("uid", mainEncrypted);
+            expect(getCryptoHeaderCode(body) & CRYPTO_HEADERS.UNTRUSTED_CERTIFICATE).toBeTruthy();
         });
         test("add a header if the given certificate does not match any recipient", async () => {
             pkcs7.decrypt = () => Promise.reject(new UnmatchedCertificateError());
 
-            const { item } = await smime.decrypt("uid", mainEncrypted);
-            expect(getCryptoHeaderCode(item) & CRYPTO_HEADERS.UNMATCHED_CERTIFICATE).toBeTruthy();
+            const { body } = await smime.decrypt("uid", mainEncrypted);
+            expect(getCryptoHeaderCode(body) & CRYPTO_HEADERS.UNMATCHED_CERTIFICATE).toBeTruthy();
         });
     });
     describe("encrypt", () => {
@@ -274,7 +278,7 @@ describe("smime", () => {
         test("add a OK header if item is successfuly verified", async () => {
             const itemValue = { value: item };
             const verified = await smime.verify(itemValue, getEml);
-            expect(isVerified(verified.value.body.headers)).toBe(true);
+            expect(isVerified(verified.headers)).toBe(true);
         });
         test("add a KO header if item cant be verified", async () => {
             pkcs7.verify = () => {
@@ -282,7 +286,7 @@ describe("smime", () => {
             };
             const itemValue = { value: item };
             const verified = await smime.verify(itemValue, getEml);
-            expect(isVerified(verified.value.body.headers)).toBe(false);
+            expect(isVerified(verified.headers)).toBe(false);
             const headerValue = getHeaderValue(item.body.headers, SIGNED_HEADER_NAME);
             expect(Boolean(headerValue & CRYPTO_HEADERS.INVALID_SIGNATURE)).toBe(true);
         });
@@ -293,7 +297,7 @@ function readEml(file) {
     return readFile(`${file}.eml`);
 }
 
-function getCryptoHeaderCode(item) {
-    const code = item.value.body.headers.find(h => h.name === ENCRYPTED_HEADER_NAME).values[0];
+function getCryptoHeaderCode(body) {
+    const code = body.headers.find(h => h.name === ENCRYPTED_HEADER_NAME).values[0];
     return parseInt(code);
 }

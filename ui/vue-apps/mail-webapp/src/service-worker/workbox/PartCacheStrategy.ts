@@ -1,4 +1,4 @@
-import { CacheKeyWillBeUsedCallbackParam, HandlerWillRespondCallbackParam } from "workbox-core";
+import { CacheKeyWillBeUsedCallbackParam } from "workbox-core";
 import { CacheFirst } from "workbox-strategies";
 
 class PartPlugin {

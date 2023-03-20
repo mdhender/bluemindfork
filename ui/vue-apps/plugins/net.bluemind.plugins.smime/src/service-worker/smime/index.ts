@@ -21,8 +21,6 @@ import pkcs7 from "../pkcs7";
 import { checkCertificate, getMyCertificate, getMyPrivateKey, getCertificate } from "../pki";
 import { DecryptResult } from "../../types";
 import { addHeaderValue, resetHeader } from "../../lib/helper";
-import { setReference, getBody, invalidate } from "./cache/BodyCache";
-import { logger } from "../environnment/logger";
 
 export function isEncrypted(part: MessageBody.Part): boolean {
     return MimeType.isPkcs7(part);
@@ -50,10 +48,14 @@ export async function decrypt(folderUid: string, item: ItemValue<MailboxItem>): 
         const parser = await new MimeParser(address).parse(content);
         const parts = parser.getParts();
 
+        const savePartsPromises = [];
         for (const p of parts) {
             const partContent = parser.getPartContent(p.address!);
-            savePart(folderUid, imapUid!, p, partContent);
+            const promise = savePart(folderUid, imapUid!, p, partContent);
+            savePartsPromises.push(promise);
         }
+        await Promise.all(savePartsPromises);
+
         body.structure = parser.structure as MessageBody.Part;
         body.headers = addHeaderValue(body?.headers, ENCRYPTED_HEADER_NAME, CRYPTO_HEADERS.OK);
     } catch (error: unknown) {
@@ -140,39 +142,6 @@ export async function sign(item: MailboxItem, folderUid: string): Promise<Mailbo
     return item;
 }
 
-export async function decryptAndVerify(items: ItemValue<MailboxItem>[], folderUid: string) {
-    for (let i = 0; i < items.length; i++) {
-        try {
-            if (isSMime(items[i].value.body.structure!)) {
-                await setReference(folderUid, items[i].value.imapUid!, items[i].value.body!.guid!);
-                items[i].value.body = await getBody(items[i].value.body.guid!, () =>
-                    decryptAndVerifyImpl(items[i], folderUid)
-                );
-            }
-        } catch (error) {
-            logger.error(error);
-        }
-    }
-    invalidate();
-    return items;
-}
-
-async function decryptAndVerifyImpl(item: ItemValue<MailboxItem>, folderUid: string): Promise<MessageBody> {
-    let body = item.value.body;
-
-    const client = new MailboxItemsClient(await session.sid, folderUid);
-    let getEml = () => client.fetchComplete(item.value.imapUid!).then(blob => blob.text());
-    if (isEncrypted(body.structure!)) {
-        let decryptedContent: string;
-        ({ body, content: decryptedContent } = await decrypt(folderUid, item));
-        getEml = () => Promise.resolve(decryptedContent);
-    }
-    if (isSigned(body.structure!)) {
-        body = await verify(item, getEml);
-    }
-    return body;
-}
-
 function removePreviousSignedPart(structure: MessageBody.Part): MessageBody.Part {
     if (structure.mime === MimeType.MULTIPART_MIXED && structure.children) {
         const signedPartIndex = structure.children.findIndex(part => part.mime === MimeType.PKCS_7_SIGNED_DATA);
@@ -195,7 +164,12 @@ function getRemoteContentFn(imapUid: number, folderUid: string) {
     };
 }
 
-async function savePart(folderUid: string, imapUid: number, part: MessageBody.Part, content: ArrayBuffer | undefined) {
+async function savePart(
+    folderUid: string,
+    imapUid: number,
+    part: MessageBody.Part,
+    content: ArrayBuffer | undefined
+): Promise<void> {
     const cache: Cache = await caches.open("smime-part-cache");
     const { address } = part;
     const guid = await getGuid(folderUid, imapUid);
@@ -204,10 +178,6 @@ async function savePart(folderUid: string, imapUid: number, part: MessageBody.Pa
         const key = await getCacheKey(address, guid, folderUid);
         cache.put(new Request(key), new Response(content));
     }
-}
-
-function isSMime(item: MessageBody.Part) {
-    return isEncrypted(item) || isSigned(item);
 }
 
 export default { isEncrypted, isSigned, decrypt, encrypt, verify, sign };
