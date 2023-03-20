@@ -19,7 +19,6 @@ export async function getBody(guid: string, mappingFunction: () => Promise<Messa
     }
     if (!isPartCacheValid) {
         body = await mappingFunction();
-        await db.deleteBody(guid);
         if (isSuccess(body)) {
             await db.setBody(guid, body);
         }
