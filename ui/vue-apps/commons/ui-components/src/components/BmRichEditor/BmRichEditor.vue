@@ -63,7 +63,7 @@ import Default from "./bmPlugins/Default";
 import NonEditable, { NON_EDITABLE_CONTENT_DROP_ID } from "./bmPlugins/NonEditable";
 
 import BmRichEditorRegistry from "./BmRichEditorRegistry";
-import themeColorLvalue from "../../js/theming/themeColorLvalue";
+import darkifyingBaseLvalue from "../../js/theming/darkifyingBaseLvalue";
 import { getDarkColor } from "roosterjs-color-utils";
 
 export default {
@@ -98,10 +98,6 @@ export default {
         darkMode: {
             type: Boolean,
             default: false
-        },
-        bgColorName: {
-            type: String,
-            default: "surface"
         }
     },
     data() {
@@ -259,17 +255,16 @@ export default {
                 new TableResize()
             ];
 
-            const lvalue = themeColorLvalue(this.bgColorName);
             const options = {
                 defaultFormat: {
                     backgroundColors: {
                         lightModeColor: "#ffffff",
-                        darkModeColor: `var(--${this.bgColorName})`
+                        darkModeColor: "var(--darkified-content-bg)"
                     }
                 },
                 initialContent: this.initValue,
                 inDarkMode: this.darkMode,
-                getDarkColor: color => getDarkColor(color, lvalue),
+                getDarkColor: color => getDarkColor(color, darkifyingBaseLvalue()),
                 plugins: [...bmPlugins, ...roosterPlugins]
             };
             this.editor = new Editor(this.container, options);
@@ -318,7 +313,7 @@ function getTableParentNode(node, containerNode) {
         background-color: #ffffff !important;
     }
     &.dark-mode .roosterjs-container {
-        background: none !important;
+        background-color: var(--darkified-content-bg) !important;
     }
 
     .main-area {
@@ -365,8 +360,8 @@ function getTableParentNode(node, containerNode) {
     &.disabled {
         background-color: $input-disabled-bg;
         border-color: $neutral-fg-disabled;
-        .roosterjs-container > * {
-            color: $neutral-fg-lo1;
+        .roosterjs-container {
+            opacity: 0.5;
         }
     }
 

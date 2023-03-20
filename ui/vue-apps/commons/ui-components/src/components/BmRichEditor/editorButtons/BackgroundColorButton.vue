@@ -17,6 +17,8 @@
 
 <script>
 import { setBackgroundColor } from "roosterjs-editor-api";
+import { getDarkColor } from "roosterjs-color-utils";
+import darkifyingBaseLvalue from "../../../js/theming/darkifyingBaseLvalue";
 
 import BmIconDropdown from "../../dropdown/BmIconDropdown";
 import BmFormColorPicker from "../../form/BmFormColorPicker";
@@ -62,7 +64,7 @@ export default {
                 this.selectedBackgroundColor === "transparent" ? "#ffffff" : this.selectedBackgroundColor;
             setBackgroundColor(this.editor, {
                 lightModeColor: actualBackgroundColor,
-                darkModeColor: this.editor.core.lifecycle.getDarkColor(actualBackgroundColor)
+                darkModeColor: getDarkColor(actualBackgroundColor, darkifyingBaseLvalue())
             });
         }
     }

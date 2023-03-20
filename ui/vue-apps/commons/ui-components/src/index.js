@@ -101,7 +101,7 @@ export { default as BmTreeNode } from "./components/BmTree/BmTreeNode";
 export { default as BrowsableContainer } from "./mixins/BrowsableContainer";
 export { default as MakeUniq } from "./mixins/MakeUniq";
 export { default as OverflownElements } from "./directives/OverflownElements";
-export { default as themeColorLvalue } from "./js/theming/themeColorLvalue";
+export { default as darkifyingBaseLvalue } from "./js/theming/darkifyingBaseLvalue";
 export * from "./js/theming/darkify";
 
 export * as css from "./css/bluemind.scss";

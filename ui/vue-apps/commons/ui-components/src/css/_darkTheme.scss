@@ -11,6 +11,10 @@
     }
 }
 
+body {
+    --darkified-content-bg: #{$gray-900};
+}
+
 @include dark-theme-selector {
     // Misc colors
 

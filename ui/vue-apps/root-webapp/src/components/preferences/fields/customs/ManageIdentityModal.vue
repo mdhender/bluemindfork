@@ -81,7 +81,6 @@
                     ref="rich-editor"
                     :init-value="identity.signature"
                     :dark-mode="IS_COMPUTED_THEME_DARK"
-                    bg-color-name="surface-hi2"
                     show-toolbar
                     has-border
                     class="mt-1"

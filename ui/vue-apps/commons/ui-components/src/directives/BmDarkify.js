@@ -1,24 +1,17 @@
 import { darkifyHtml } from "../js/theming/darkify";
-import themeColorLvalue from "../js/theming/themeColorLvalue";
+import darkifyingBaseLvalue from "../js/theming/darkifyingBaseLvalue";
 
 function enabled(binding) {
-    if (binding.value.enabled === undefined) {
+    if (binding.value === undefined) {
         return true; // default value
     }
-    return binding.value.enabled;
-}
-
-function bgColorName(binding) {
-    if (binding.value.bgColorName === undefined) {
-        return "surface"; // default value
-    }
-    return binding.value.bgColorName;
+    return binding.value;
 }
 
 export default {
     bind(el, binding) {
         if (enabled(binding)) {
-            darkifyHtml(el, themeColorLvalue(bgColorName(binding)));
+            darkifyHtml(el, darkifyingBaseLvalue());
         }
     }
 };

@@ -17,6 +17,8 @@
 
 <script>
 import { setTextColor } from "roosterjs-editor-api";
+import { getDarkColor } from "roosterjs-color-utils";
+import darkifyingBaseLvalue from "../../../js/theming/darkifyingBaseLvalue";
 
 import BmIconDropdown from "../../dropdown/BmIconDropdown";
 import BmFormColorPicker from "../../form/BmFormColorPicker";
@@ -60,7 +62,7 @@ export default {
             this.selectedTextColor = this.pickerColor;
             setTextColor(this.editor, {
                 lightModeColor: this.selectedTextColor,
-                darkModeColor: this.editor.core.lifecycle.getDarkColor(this.selectedTextColor)
+                darkModeColor: getDarkColor(this.selectedTextColor, darkifyingBaseLvalue())
             });
         }
     }

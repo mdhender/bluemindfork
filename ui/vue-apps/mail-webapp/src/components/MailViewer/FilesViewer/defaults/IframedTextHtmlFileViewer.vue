@@ -6,17 +6,17 @@
                 <link type="text/css" rel="stylesheet" href="css/montserrat/index.css" />
             </template>
             <template v-slot:style>
-                {{ IS_COMPUTED_THEME_DARK ? darkifyCss(content.styles, themeColorLvalue("surface")) : content.styles }}
+                {{ IS_COMPUTED_THEME_DARK ? darkifyCss(content.styles, darkifyingBaseLvalue()) : content.styles }}
                 {{ IFRAME_STYLE }}
             </template>
             <!-- eslint-disable-next-line vue/no-v-html -->
-            <main v-bm-darkify="{ enabled: IS_COMPUTED_THEME_DARK }" v-html="content.html"></main>
+            <main v-bm-darkify="IS_COMPUTED_THEME_DARK" v-html="content.html"></main>
         </i-frame>
     </text-html-file-viewer>
 </template>
 <script>
 import { mapGetters } from "vuex";
-import { BmDarkify, darkifyCss, themeColorLvalue } from "@bluemind/ui-components";
+import { BmDarkify, darkifyCss, darkifyingBaseLvalue } from "@bluemind/ui-components";
 import IFrame from "../../../IFrame";
 import FileViewerMixin from "../FileViewerMixin";
 import TextHtmlFileViewer from "./../TextHtmlFileViewer";
@@ -36,7 +36,7 @@ export default {
     },
     methods: {
         darkifyCss,
-        themeColorLvalue
+        darkifyingBaseLvalue
     }
 };
 const IFRAME_STYLE = `
