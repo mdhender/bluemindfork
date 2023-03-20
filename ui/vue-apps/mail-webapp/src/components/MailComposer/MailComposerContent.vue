@@ -38,7 +38,7 @@
                 :title="contentIsReadOnly"
                 v-html="corporateSignature.html"
             />
-            <div v-if="disclaimer" class="cursor-not-allowed" :title="contentIsReadOnly" v-html="disclaimer.html" />
+            <div v-if="disclaimer" class="cursor-not-allowed m-4" :title="contentIsReadOnly" v-html="disclaimer.html" />
         </bm-rich-editor>
     </bm-file-drop-zone>
 </template>
