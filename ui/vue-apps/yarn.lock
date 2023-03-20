@@ -8389,42 +8389,42 @@ roosterjs-color-utils@^1.1.0:
   dependencies:
     color "^3.0.0"
 
-roosterjs-editor-api@^8.43.0:
-  version "8.43.0"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/roosterjs-editor-api/-/roosterjs-editor-api-8.43.0.tgz#7e3198944ff0186e78278989a0bc97b166777872"
-  integrity sha512-5I+9wPijoVa0KmOLuxvt1NIrBmmw43l+3d19Tt/DeOmoZgyL5vNyTXxtoCA/yeFVwllXOpDiVNud39FVtMUz2Q==
+roosterjs-editor-api@^8.44.0, roosterjs-editor-api@^8.44.1:
+  version "8.44.1"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/roosterjs-editor-api/-/roosterjs-editor-api-8.44.1.tgz#fa6f5480adc4269e295696c28a7c63a5cd8d4772"
+  integrity sha512-nuWACH2CeynU+5h93gLCCbKnjLvNVFarOqKeovU50Neq6Cm63SPkSxUodTYZAFVd1tYfEHejE/VXfS2UzH9RZA==
   dependencies:
-    roosterjs-editor-dom "^8.43.0"
-    roosterjs-editor-types "^8.43.0"
+    roosterjs-editor-dom "^8.44.1"
+    roosterjs-editor-types "^8.44.1"
 
-roosterjs-editor-core@^8.43.0:
-  version "8.43.0"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/roosterjs-editor-core/-/roosterjs-editor-core-8.43.0.tgz#329980ecfcbcc11ac6aa00007711b84742a8f237"
-  integrity sha512-yuwiRUxQR+RYj/JaSrKhEWtwup28NQcDdzCWYACjMG9yhuamWLlPTr6eRrctieqinfPmf6oetlqQSdKdNbbFzg==
+roosterjs-editor-core@^8.44.0:
+  version "8.44.1"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/roosterjs-editor-core/-/roosterjs-editor-core-8.44.1.tgz#b97694b21aa1869536eadd4158469d2cdb4c7e3d"
+  integrity sha512-VgwdChXcYnB4IOLbUSVQfLAHjp80Y/p+jvLeMNUWJ11i9j3O8LRRROFNwQicrkBFRUCywK0+tZmC93vCex+tqw==
   dependencies:
-    roosterjs-editor-dom "^8.43.0"
-    roosterjs-editor-types "^8.43.0"
+    roosterjs-editor-dom "^8.44.1"
+    roosterjs-editor-types "^8.44.1"
 
-roosterjs-editor-dom@^8.43.0:
-  version "8.43.0"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/roosterjs-editor-dom/-/roosterjs-editor-dom-8.43.0.tgz#47480af647a7c3b85f46ccb161532415dcb1c0ff"
-  integrity sha512-gu2zml1agPOvZuZZ90upyGmYyP09y2W5RCxrpJBtKmpubPaMMXDiifQmrr44YbucWFa3ql8N3/ShGLwSSp0vIQ==
+roosterjs-editor-dom@^8.44.0, roosterjs-editor-dom@^8.44.1:
+  version "8.44.1"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/roosterjs-editor-dom/-/roosterjs-editor-dom-8.44.1.tgz#503af2ad871915392be314c89fdf170d90b68e2a"
+  integrity sha512-hlFZ/RvN7sDS33gpKtDZeKZfabrJAH70kKjh5IAnz3+Hdx1zhOZLRYxToDbr13l8bghb5anFShLvUg9HVXAY4Q==
   dependencies:
-    roosterjs-editor-types "^8.43.0"
+    roosterjs-editor-types "^8.44.1"
 
-roosterjs-editor-plugins@^8.43.0:
-  version "8.43.0"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/roosterjs-editor-plugins/-/roosterjs-editor-plugins-8.43.0.tgz#cc4e8a134c5cb57208c8fb37a7251fa1477ca378"
-  integrity sha512-QChkt9DTRv0/O8U9JGI4A4bNiFDBfgJ9ZcjZJ5a9CE5aMBUAzEVgs2lYUqwtcJqcbDlKRV+hXcNOQwgGHkre1g==
+roosterjs-editor-plugins@^8.44.0:
+  version "8.44.1"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/roosterjs-editor-plugins/-/roosterjs-editor-plugins-8.44.1.tgz#f8439f070571d0203cb19650591e1b76948a272b"
+  integrity sha512-7+9IMebyj4rXihmBPb9tpcebw14d/sV+xGUgsj4ZpKCNxeCD1Fj6Ol36PROUUn7FfAFXq+jTMDd3GoJ3BvU7uw==
   dependencies:
-    roosterjs-editor-api "^8.43.0"
-    roosterjs-editor-dom "^8.43.0"
-    roosterjs-editor-types "^8.43.0"
+    roosterjs-editor-api "^8.44.1"
+    roosterjs-editor-dom "^8.44.1"
+    roosterjs-editor-types "^8.44.1"
 
-roosterjs-editor-types@^8.43.0:
-  version "8.43.0"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/roosterjs-editor-types/-/roosterjs-editor-types-8.43.0.tgz#06243b97e30179a5a4556197487b65ce16a9baed"
-  integrity sha512-yUQwjKG/R23fwCV1jSz0bDpjfefJOawjWcg7FNaekvXri9d+x1J6TG18Pa9bWKLVp4bS3SxYaVCredREq4dr7A==
+roosterjs-editor-types@^8.44.0, roosterjs-editor-types@^8.44.1:
+  version "8.44.1"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/roosterjs-editor-types/-/roosterjs-editor-types-8.44.1.tgz#f518a222df0287ab49c74006f248ef0a322ac22a"
+  integrity sha512-uCw6q3KPBWs1xOO4fzXu68KCY/mMG/yfYPd92DqNVu6U+H2fwtarenJ6bJThz+54JRZldMwyfujbdHQFlD6ILQ==
 
 rsvp@^3.3.3:
   version "3.6.2"

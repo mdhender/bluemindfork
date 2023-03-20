@@ -3,29 +3,37 @@ export function removeSignature(content, userPrefTextOnly, signature) {
 }
 
 export function removeSignatureAttr(content) {
-    const removeRegex = new RegExp("<" + SIGNATURE_WRAPPER_TAG + " " + PERSONAL_SIGNATURE_ATTR + '=\\".*?\\">');
-    return content.replace(removeRegex, "<" + SIGNATURE_WRAPPER_TAG + ">");
+    const removeRegex = new RegExp("<" + WRAPPER_TAG + " " + PERSONAL_SIGNATURE_ATTR + '=\\".*?\\">');
+    return content.replace(removeRegex, "<" + WRAPPER_TAG + ">");
 }
 
-const SIGNATURE_WRAPPER_TAG = "div";
+const WRAPPER_TAG = "div";
 const PERSONAL_SIGNATURE_ATTR = "data-bm-signature"; // must match same attr defined in sanitizeHtml
 const CORPORATE_SIGNATURE_CLASSNAME = "bm-corporate-signature";
+const DISCLAIMER_CLASSNAME = "bm-disclaimer";
 
-export const PERSONAL_SIGNATURE_SELECTOR = id =>
-    SIGNATURE_WRAPPER_TAG + "[" + PERSONAL_SIGNATURE_ATTR + '="' + id + '"]';
+export const PERSONAL_SIGNATURE_SELECTOR = id => WRAPPER_TAG + "[" + PERSONAL_SIGNATURE_ATTR + '="' + id + '"]';
 export const CORPORATE_SIGNATURE_PLACEHOLDER = "--X-BM-SIGNATURE--";
-export const CORPORATE_SIGNATURE_SELECTOR = SIGNATURE_WRAPPER_TAG + '[class="' + CORPORATE_SIGNATURE_CLASSNAME + '"]';
+export const CORPORATE_SIGNATURE_SELECTOR = WRAPPER_TAG + '[class~="' + CORPORATE_SIGNATURE_CLASSNAME + '"]';
+export const DISCLAIMER_SELECTOR = WRAPPER_TAG + '[class~="' + DISCLAIMER_CLASSNAME + '"]';
 
 export function wrapPersonalSignature({ html, id }) {
-    const wrapper = document.createElement(SIGNATURE_WRAPPER_TAG);
+    const wrapper = document.createElement(WRAPPER_TAG);
     wrapper.setAttribute(PERSONAL_SIGNATURE_ATTR, id);
     wrapper.innerHTML = html;
     return wrapper;
 }
 
 export function wrapCorporateSignature(html) {
-    const wrapper = document.createElement(SIGNATURE_WRAPPER_TAG);
+    const wrapper = document.createElement(WRAPPER_TAG);
     wrapper.setAttribute("class", CORPORATE_SIGNATURE_CLASSNAME);
+    wrapper.innerHTML = html;
+    return wrapper;
+}
+
+export function wrapDisclaimer(html) {
+    const wrapper = document.createElement(WRAPPER_TAG);
+    wrapper.setAttribute("class", DISCLAIMER_CLASSNAME);
     wrapper.innerHTML = html;
     return wrapper;
 }
@@ -46,7 +54,7 @@ export function isCorporateSignature(mailTip) {
 
 function removeHtmlSignature(raw) {
     const removeSignatureRegex = new RegExp(
-        "<" + SIGNATURE_WRAPPER_TAG + " " + PERSONAL_SIGNATURE_ATTR + '=\\".*?\\">.*?</' + SIGNATURE_WRAPPER_TAG + ">"
+        "<" + WRAPPER_TAG + " " + PERSONAL_SIGNATURE_ATTR + '=\\".*?\\">.*?</' + WRAPPER_TAG + ">"
     );
     return raw.replace(removeSignatureRegex, "");
 }
@@ -112,6 +120,7 @@ function trimSignature(signature) {
 export default {
     CORPORATE_SIGNATURE_PLACEHOLDER,
     CORPORATE_SIGNATURE_SELECTOR,
+    DISCLAIMER_SELECTOR,
     isCorporateSignature,
     isDisclaimer,
     isSignatureLineEmpty,
@@ -121,5 +130,6 @@ export default {
     setRenderless,
     trimSignature,
     wrapCorporateSignature,
+    wrapDisclaimer,
     wrapPersonalSignature
 };

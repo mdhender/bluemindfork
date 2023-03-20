@@ -44,7 +44,7 @@ export default {
             state.personalSignature = signature;
         },
         [SET_DISCLAIMER]: (state, mailTip) => {
-            if (!state.disclaimer || state.disclaimer.uid !== mailTip.uid) {
+            if (!mailTip || !state.disclaimer || state.disclaimer.uid !== mailTip.uid) {
                 state.disclaimer = mailTip;
             }
         },

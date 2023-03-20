@@ -6,8 +6,8 @@ export default class {
     }
 
     insertContent(node, options) {
-        if (!options.editable) {
-            this.vm.$data.editor.insertNode(node, { position: ContentPosition.End });
+        if (options.editable && !options.movable) {
+            this.vm.$data.editor.insertNode(node, { position: ContentPosition.DomEnd });
             if (options.triggerOnChange !== false) {
                 this.vm.onChange();
             }

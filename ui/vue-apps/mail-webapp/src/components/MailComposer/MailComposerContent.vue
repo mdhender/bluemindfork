@@ -31,14 +31,6 @@
                 icon="3dots"
                 @click="expandContent"
             />
-            <!-- eslint-disable vue/no-v-html -->
-            <div
-                v-if="corporateSignature && !corporateSignature.usePlaceholder"
-                class="cursor-not-allowed"
-                :title="contentIsReadOnly"
-                v-html="corporateSignature.html"
-            />
-            <div v-if="disclaimer" class="cursor-not-allowed m-4" :title="contentIsReadOnly" v-html="disclaimer.html" />
         </bm-rich-editor>
     </bm-file-drop-zone>
 </template>
@@ -78,16 +70,7 @@ export default {
     },
     computed: {
         ...mapState("mail", ["messageCompose"]),
-        ...mapGetters("settings", ["IS_COMPUTED_THEME_DARK"]),
-        corporateSignature() {
-            return this.messageCompose.corporateSignature;
-        },
-        disclaimer() {
-            return this.messageCompose.disclaimer;
-        },
-        contentIsReadOnly() {
-            return this.$t("mail.compose.corporate_signature.read_only");
-        }
+        ...mapGetters("settings", ["IS_COMPUTED_THEME_DARK"])
     },
     watch: {
         "message.key": {

@@ -1,10 +1,11 @@
 export default {
     data() {
-        return { nonEditableContent: null };
+        return { movableContent: null };
     },
     methods: {
-        insertContent(content, options = { triggerOnChange: true }) {
+        insertContent(content, options = {}) {
             if (content) {
+                sanitizeOptions(options);
                 this.plugins.forEach(plugin => {
                     plugin.insertContent(content, options);
                 });
@@ -72,5 +73,14 @@ export function findNodeWithText(node, text) {
                 return textNode;
             }
         }
+    }
+}
+
+function sanitizeOptions(options) {
+    if (options.editable === undefined) {
+        options.editable = true;
+    }
+    if (options.triggerOnChange === undefined) {
+        options.triggerOnChange = true;
     }
 }

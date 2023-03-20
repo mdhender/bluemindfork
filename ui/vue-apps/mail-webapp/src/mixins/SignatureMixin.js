@@ -8,8 +8,10 @@ const { isNewMessage } = draftUtils;
 const {
     CORPORATE_SIGNATURE_PLACEHOLDER,
     CORPORATE_SIGNATURE_SELECTOR,
+    DISCLAIMER_SELECTOR,
     PERSONAL_SIGNATURE_SELECTOR,
     wrapCorporateSignature,
+    wrapDisclaimer,
     wrapPersonalSignature
 } = signatureUtils;
 const corporateSignatureGotInserted = {
@@ -38,6 +40,7 @@ export default {
         ...mapState("mail", {
             personalSignature: state => state.messageCompose.personalSignature,
             $_SignatureMixin_corporateSignature: state => state.messageCompose.corporateSignature,
+            $_SignatureMixin_disclaimer: state => state.messageCompose.disclaimer,
             $_SignatureMixin_editorContent: state => state.messageCompose.editorContent,
             $_SignatureMixin_insertSignaturePref() {
                 return this.$store.state.settings.insert_signature;
@@ -88,15 +91,21 @@ export default {
         $_SignatureMixin_corporateSignature: {
             async handler(corpSign, old) {
                 const editorRef = await this.getEditorRef();
-                if (old?.usePlaceholder) {
-                    editorRef.removeContent(CORPORATE_SIGNATURE_SELECTOR, { editable: true });
+                if (old) {
+                    const options = old.usePlaceholder
+                        ? { movable: CORPORATE_SIGNATURE_PLACEHOLDER }
+                        : { editable: false };
+                    editorRef.removeContent(CORPORATE_SIGNATURE_SELECTOR, options);
                 }
-                if (corpSign?.usePlaceholder) {
-                    const options = {
-                        editable: true,
-                        placeholder: CORPORATE_SIGNATURE_PLACEHOLDER,
-                        tooltip: this.$t("mail.compose.corporate_signature.use_placeholder")
-                    };
+                if (corpSign) {
+                    const options = {};
+                    if (corpSign.usePlaceholder) {
+                        options.movable = CORPORATE_SIGNATURE_PLACEHOLDER;
+                        options.tooltip = this.$t("mail.compose.corporate_signature.use_placeholder");
+                    } else {
+                        options.editable = false;
+                        options.tooltip = this.$t("mail.compose.corporate_signature.read_only");
+                    }
                     editorRef.insertContent(wrapCorporateSignature(corpSign.html), options);
                     this.$store.commit(`mail/${SET_DRAFT_EDITOR_CONTENT}`, editorRef.getContent());
                 }
@@ -122,6 +131,21 @@ export default {
                 }
                 this.$_SignatureMixin_onPersonalSignatureChange();
                 this.$_SignatureMixin_removePlaceholder();
+            },
+            immediate: true
+        },
+        $_SignatureMixin_disclaimer: {
+            async handler(disclaimer) {
+                const editorRef = await this.getEditorRef();
+                if (disclaimer) {
+                    const options = {
+                        editable: false,
+                        tooltip: this.$t("mail.compose.corporate_signature.read_only")
+                    };
+                    editorRef.insertContent(wrapDisclaimer(disclaimer.html), options);
+                } else {
+                    editorRef.removeContent(DISCLAIMER_SELECTOR, { editable: false });
+                }
             },
             immediate: true
         }

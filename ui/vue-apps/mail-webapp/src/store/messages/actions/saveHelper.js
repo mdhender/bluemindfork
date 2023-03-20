@@ -22,6 +22,7 @@ import {
 import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
 import { VCardKind } from "@bluemind/addressbook.api";
 import { fetchMembersWithAddress } from "@bluemind/contact";
+import { DISCLAIMER_SELECTOR } from "@bluemind/mail/src/signature";
 
 const { isNewMessage } = draftUtils;
 const { FileStatus } = fileUtils;
@@ -69,7 +70,7 @@ async function prepareDraft(context, service, draft, messageCompose) {
     let wholeContent = messageCompose.collapsedContent
         ? messageCompose.editorContent + messageCompose.collapsedContent
         : messageCompose.editorContent;
-    wholeContent = insertCorporateSignaturePlaceholder(wholeContent, messageCompose.corporateSignature);
+    wholeContent = removeCorporateSignatureContent(wholeContent, messageCompose);
     wholeContent = sanitizeHtml(wholeContent, true);
 
     const insertionResult = InlineImageHelper.insertCid(wholeContent, messageCompose.inlineImagesSaved);
@@ -131,16 +132,31 @@ function generateMessageIDHeader(draft) {
     };
 }
 
-function insertCorporateSignaturePlaceholder(content, corpSign) {
-    if (corpSign?.usePlaceholder) {
-        const htlmDoc = new DOMParser().parseFromString(content, "text/html");
-        const element = htlmDoc.querySelector(CORPORATE_SIGNATURE_SELECTOR);
-        if (element) {
-            element.replaceWith(CORPORATE_SIGNATURE_PLACEHOLDER);
-            return htlmDoc.body.innerHTML;
+function removeCorporateSignatureContent(content, { corporateSignature, disclaimer }) {
+    let html = content;
+    if (corporateSignature || disclaimer) {
+        const htlmDoc = new DOMParser().parseFromString(html, "text/html");
+        if (corporateSignature) {
+            const element = htlmDoc.querySelector(CORPORATE_SIGNATURE_SELECTOR);
+            if (element) {
+                if (corporateSignature.usePlaceholder) {
+                    element.replaceWith(CORPORATE_SIGNATURE_PLACEHOLDER);
+                    html = htlmDoc.body.innerHTML;
+                } else {
+                    element.remove();
+                    html = htlmDoc.body.innerHTML;
+                }
+            }
+        }
+        if (disclaimer) {
+            const element = htlmDoc.querySelector(DISCLAIMER_SELECTOR);
+            if (element) {
+                element.remove();
+                html = htlmDoc.body.innerHTML;
+            }
         }
     }
-    return content;
+    return html;
 }
 
 function uploadParts(service, textPlain, textHtml, newContentByCid) {

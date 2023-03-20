@@ -60,7 +60,9 @@ import SetLinkModal from "./modals/SetLinkModal";
 import FullToolbar from "./toolbars/FullToolbar";
 import InsertContentMixin from "./mixins/InsertContentMixin";
 import Default from "./bmPlugins/Default";
-import NonEditable, { NON_EDITABLE_CONTENT_DROP_ID } from "./bmPlugins/NonEditable";
+import Movable from "./bmPlugins/Movable";
+import NonEditable from "./bmPlugins/NonEditable";
+import { MOVABLE_CONTENT_DROP_ID } from "./bmPlugins/adaptNode";
 
 import BmRichEditorRegistry from "./BmRichEditorRegistry";
 import darkifyingBaseLvalue from "../../js/theming/darkifyingBaseLvalue";
@@ -111,7 +113,7 @@ export default {
             tableToolbar: { show: false, table: null },
             internalDrag: false,
             linkModal: { show: false, url: "", text: "" },
-            plugins: [new Default(this), new NonEditable(this)],
+            plugins: [new Default(this), new Movable(this), new NonEditable(this)],
             isReady: false
         };
     },
@@ -123,9 +125,10 @@ export default {
             BmRichEditorRegistry.unregister(oldVal);
             BmRichEditorRegistry.register(newVal, this);
         },
-        async darkMode(value) {
-            await this.$nextTick(); // make sure theme variables have been set
-            this.editor.setDarkModeState(value);
+        darkMode() {
+            const content = this.editor.getContent();
+            this.editor.dispose();
+            this.initializeEditor(content);
         }
     },
     created() {
@@ -171,13 +174,13 @@ export default {
                     insertImage(this.editor, file);
                 }
             } else if (
-                event.dataTransfer.getData(NON_EDITABLE_CONTENT_DROP_ID) &&
-                !this.nonEditableContent.contains(event.target)
+                event.dataTransfer.getData(MOVABLE_CONTENT_DROP_ID) &&
+                !this.movableContent.contains(event.target)
             ) {
                 if (event.target.nodeName === "DIV") {
-                    event.target.appendChild(this.nonEditableContent);
+                    event.target.appendChild(this.movableContent);
                 } else {
-                    event.target.after(this.nonEditableContent);
+                    event.target.after(this.movableContent);
                 }
             }
         },
@@ -185,7 +188,7 @@ export default {
             if (this.internalDrag) {
                 event.stopPropagation(); // dont inform parent if it's an internal drag
             }
-            if (event.dataTransfer.types.length === 1 && event.dataTransfer.types[0] === NON_EDITABLE_CONTENT_DROP_ID) {
+            if (event.dataTransfer.types.length === 1 && event.dataTransfer.types[0] === MOVABLE_CONTENT_DROP_ID) {
                 event.preventDefault(); // necessary for the drop event to be triggered
             }
         },
@@ -244,7 +247,7 @@ export default {
             this.tableToolbar.show = false;
             this.onSelection();
         },
-        initializeEditor() {
+        initializeEditor(content = this.initValue) {
             const bmPlugins = [new BmEditorEventListener(this.$refs["rich-editor"])];
             const roosterPlugins = [
                 new ImageEdit({ preserveRatio: true, borderColor: "var(--secondary-fg)" }),
@@ -262,7 +265,7 @@ export default {
                         darkModeColor: "var(--darkified-content-bg)"
                     }
                 },
-                initialContent: this.initValue,
+                initialContent: content,
                 inDarkMode: this.darkMode,
                 getDarkColor: color => getDarkColor(color, darkifyingBaseLvalue()),
                 plugins: [...bmPlugins, ...roosterPlugins]
@@ -290,7 +293,7 @@ export default {
             this.container.setAttribute("contenteditable", !value);
         }
     },
-    constants: { NEW_LINE: `<div><br/></div>`, NON_EDITABLE_CONTENT_DROP_ID }
+    constants: { NEW_LINE: `<div><br/></div>` }
 };
 
 function getTableParentNode(node, containerNode) {

@@ -136,10 +136,6 @@ a.nav-link:focus {
     min-width: 0;
 }
 
-.cursor-not-allowed {
-    cursor: not-allowed;
-}
-
 @each $breakpoint in map-keys($grid-breakpoints) {
     @include media-breakpoint-up($breakpoint) {
         $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
