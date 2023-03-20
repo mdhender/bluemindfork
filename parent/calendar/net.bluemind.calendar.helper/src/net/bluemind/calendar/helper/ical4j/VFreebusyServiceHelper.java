@@ -150,19 +150,21 @@ public class VFreebusyServiceHelper {
 	}
 
 	private static Type getTypeForStatus(VEvent event) {
-		Type value;
-		switch (event.status) {
-		case Cancelled:
-			value = Type.FREE;
-			break;
-		case NeedsAction:
-		case Tentative:
-			value = Type.BUSYTENTATIVE;
-			break;
-		case Confirmed:
-		default:
-			value = Type.BUSY;
-			break;
+		Type value = Type.BUSY;
+		if (event.status != null) {
+			switch (event.status) {
+			case Cancelled:
+				value = Type.FREE;
+				break;
+			case NeedsAction:
+			case Tentative:
+				value = Type.BUSYTENTATIVE;
+				break;
+			case Confirmed:
+			default:
+				value = Type.BUSY;
+				break;
+			}
 		}
 		return value;
 	}
