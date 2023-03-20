@@ -18,9 +18,13 @@
 package net.bluemind.videoconferencing.webex;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
@@ -44,6 +48,7 @@ import net.bluemind.videoconferencing.webex.dto.WebexInivitee;
 public class WebexProvider extends TemplateBasedVideoConferencingProvider implements IVideoConferencingProvider {
 
 	public static final String ID = "videoconferencing-webex";
+	private static final Logger logger = LoggerFactory.getLogger(WebexProvider.class);
 
 	public static final String PROVIDER_NAME = "Webex";
 
@@ -100,7 +105,14 @@ public class WebexProvider extends TemplateBasedVideoConferencingProvider implem
 		}
 
 		resourceSettings.put("url", dialInfo.weblink);
-		return super.getConferenceInfo(context, resourceSettings, resource, vevent);
+
+		Map<String, String> webexProps = new HashMap<>();
+		webexProps.put("siteUrl", dialInfo.siteUrl);
+		webexProps.put("sipAddress", dialInfo.sipAddress);
+		webexProps.put("telephonyAccessCode", dialInfo.telephonyAccessCode);
+		webexProps.put("telephonyCallInNumbers", dialInfo.telephonyCallInNumbers);
+
+		return super.getConferenceInfo(context, resourceSettings, resource, vevent, webexProps);
 	}
 
 	@Override

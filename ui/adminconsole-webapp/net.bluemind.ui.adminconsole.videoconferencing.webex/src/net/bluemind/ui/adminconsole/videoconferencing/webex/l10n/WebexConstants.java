@@ -29,4 +29,13 @@ public interface WebexConstants extends ConstantsWithLookup {
 
 	String deleteBtn();
 
+	String icsMail();
+
+	String templateInfoVarSiteUrl();
+
+	String templateInfoVarSipAddress();
+
+	String templateInfoVarTelephonyAccessCode();
+
+	String templateInfoVarTelephonyCallInNumbers();
 }

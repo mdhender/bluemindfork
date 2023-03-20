@@ -36,6 +36,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.TextBox;
 
 import net.bluemind.core.commons.gwt.JsMapStringJsObject;
 import net.bluemind.core.commons.gwt.JsMapStringString;
@@ -67,6 +68,7 @@ public class WebexEditor extends CompositeGwtWidgetElement {
 	private static final String PROVIDER_TYPE = "videoconferencing-webex";
 
 	private static final String SETTINGS_TEMPLATES = "templates";
+	private static final String WEBEX_ICS_MAIL = "webex-ics-mail";
 
 	private static final List<String> SUPPORTED_LANGUAGES = Arrays
 			.asList(new String[] { "fr", "en", "de", "es", "pt", "it", "hu", "nl", "pl", "ru", "sk", "uk", "zh" });
@@ -81,6 +83,9 @@ public class WebexEditor extends CompositeGwtWidgetElement {
 
 	@UiField
 	ListBox templateLanguagesComboBox;
+
+	@UiField
+	TextBox webexIcsUrl;
 
 	@UiField
 	Button deleteBtn;
@@ -175,7 +180,10 @@ public class WebexEditor extends CompositeGwtWidgetElement {
 									templatesByLanguage = aa.asMap();
 									templateEditor.setText(templatesByLanguage.get(SUPPORTED_LANGUAGES.get(0)));
 								}
-
+								String icsMail = settings.get(WEBEX_ICS_MAIL);
+								if (icsMail != null) {
+									webexIcsUrl.setValue(icsMail);
+								}
 							});
 						}
 					});
@@ -218,6 +226,10 @@ public class WebexEditor extends CompositeGwtWidgetElement {
 		storeCurrentTemplate();
 		String templates = JsonUtils.stringify(JsMapStringString.create(templatesByLanguage));
 		settings.put(SETTINGS_TEMPLATES, templates);
+
+		if (webexIcsUrl.getValue() != null) {
+			settings.put(WEBEX_ICS_MAIL, webexIcsUrl.getValue());
+		}
 
 		containerMgmt.setSettings(settings);
 	}

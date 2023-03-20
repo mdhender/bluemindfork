@@ -17,6 +17,7 @@
   */
 package net.bluemind.videoconferencing.service.template;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -42,6 +43,11 @@ public abstract class TemplateBasedVideoConferencingProvider {
 
 	public VideoConference getConferenceInfo(BmContext context, Map<String, String> resourceSettings,
 			ItemValue<ResourceDescriptor> resource, VEvent vevent) {
+		return getConferenceInfo(context, resourceSettings, resource, vevent, new HashMap<>());
+	}
+
+	public VideoConference getConferenceInfo(BmContext context, Map<String, String> resourceSettings,
+			ItemValue<ResourceDescriptor> resource, VEvent vevent, Map<String, String> props) {
 
 		String conference = vevent.conference;
 		String conferenceId = vevent.conferenceId;
@@ -59,7 +65,7 @@ public abstract class TemplateBasedVideoConferencingProvider {
 			}
 			conference = baseUrl + conferenceId;
 		}
-		String description = templateHelper.processTemplate(context, resource, vevent, conference);
+		String description = templateHelper.processTemplate(context, resource, vevent, conference, props);
 
 		return new VideoConference(conferenceId, conference, description);
 	}

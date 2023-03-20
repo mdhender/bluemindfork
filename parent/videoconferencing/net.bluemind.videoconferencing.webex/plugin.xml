@@ -14,5 +14,12 @@
             priority="102">
       </system>
    </extension>
+   <extension
+         point="net.bluemind.calendar.hook">
+      <hook
+            impl="net.bluemind.videoconferencing.webex.WebexResourceCalendarHook"
+            priority="1">
+      </hook>
+   </extension>
 
 </plugin>

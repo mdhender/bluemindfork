@@ -18,22 +18,50 @@
  */
 package net.bluemind.videoconferencing.webex.dto;
 
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 public class WebexDialInfo {
 
 	public final String confId;
 	public final String weblink;
+	public final String siteUrl;
+	public final String sipAddress;
+	public final String telephonyAccessCode;
+	public final String telephonyCallInNumbers;
 
-	public WebexDialInfo(String confId, String weblink) {
+	public WebexDialInfo(String confId, String weblink, String siteUrl, String sipAddress, String telephonyAccessCode,
+			String telephonyCallInNumbers) {
 		this.confId = confId;
 		this.weblink = weblink;
+		this.siteUrl = siteUrl;
+		this.sipAddress = sipAddress;
+		this.telephonyAccessCode = telephonyAccessCode;
+		this.telephonyCallInNumbers = telephonyCallInNumbers;
 	}
 
 	public static WebexDialInfo fromJson(JsonObject response) {
 		String confId = response.getString("id");
 		String webLink = response.getString("webLink");
-		return new WebexDialInfo(confId, webLink);
+		String siteUrl = response.getString("siteUrl");
+		String sipAddress = response.getString("sipAddress");
+		String telephonyAccessCode = "";
+		if (response.containsKey("telephonyAccessCode")) {
+			telephonyAccessCode = response.getString("telephonyAccessCode");
+		}
+		String telephonyCallInNumbers = "";
+		if (response.containsKey("telephony")) {
+			JsonObject telephony = response.getJsonObject("telephony");
+			if (telephony.containsKey("callInNumbers")) {
+				JsonArray numbers = telephony.getJsonArray("callInNumbers");
+				String[] numString = new String[numbers.size()];
+				for (int i = 0; i < numbers.size(); i++) {
+					numString[i] = numbers.getJsonObject(i).getString("callInNumber");
+				}
+				telephonyCallInNumbers = String.join(",", numString);
+			}
+		}
+		return new WebexDialInfo(confId, webLink, siteUrl, sipAddress, telephonyAccessCode, telephonyCallInNumbers);
 	}
 
 }

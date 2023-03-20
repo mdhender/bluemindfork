@@ -56,14 +56,34 @@
 								</ui:msg>
 							</li>
 							<li style="width:32.7rem;">
-								<ui:msg key="templateInfoVar3">
-									$﹛URL﹜: the conference url.
-								</ui:msg>
+							 	<ui:msg key="templateInfoVar3">
+							 		$ ﹛URL} the conference url
+							 	</ui:msg>
+							</li>
+							<li style="width:32.7rem;">
+								<g:Label text="{c.templateInfoVarSiteUrl}" />
+							</li>
+							<li style="width:32.7rem;">
+								<g:Label text="{c.templateInfoVarSipAddress}" />
+							</li>
+							<li style="width:32.7rem;">
+								<g:Label text="{c.templateInfoVarTelephonyAccessCode}" />
+							</li>
+							<li style="width:32.7rem;">
+								<g:Label text="{c.templateInfoVarTelephonyCallInNumbers}" />
 							</li>
 						</ul>
 					</p>
 					<g:ListBox ui:field="templateLanguagesComboBox" />
 					<e:Editor ui:field="templateEditor" width="100%" />
+				</td>
+			</tr>
+			<tr>
+				<td class="label">
+					<g:Label text="{c.icsMail}" />
+				</td>
+				<td>
+					<g:TextBox width="450px" ui:field="webexIcsUrl" />
 				</td>
 			</tr>
 			<tr>

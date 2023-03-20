@@ -19,4 +19,10 @@ Require-Bundle: net.bluemind.videoconferencing.api,
  net.bluemind.system.api,
  net.bluemind.system.service,
  net.bluemind.icalendar.parser,
- slf4j.api
+ slf4j.api,
+ net.bluemind.calendar.helper,
+ org.apache.james.apache-mime4j-dom,
+ net.bluemind.core.sendmail;bundle-version="5.0.0",
+ net.bluemind.domain.api,
+ org.mnode.ical4j,
+ net.bluemind.calendar.hook
