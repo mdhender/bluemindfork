@@ -27,14 +27,17 @@
 		<encoder>
 			<pattern>${DEFAULT_PATTERN}</pattern>
 		</encoder>
-		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<maxIndex>20</maxIndex>
-			<FileNamePattern>/var/log/bm/core.log.%i.gz</FileNamePattern>
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>/var/log/bm/core.log.%d{yyyy-MM-dd}.%i.gz
+			</fileNamePattern>
+
+			<!-- keep 60 days of history capped at 1.2GB total size -->
+			<maxHistory>60</maxHistory>
+			<MaxFileSize>60MB</MaxFileSize>
+			<totalSizeCap>1200MB</totalSizeCap>
 		</rollingPolicy>
-		<triggeringPolicy
-			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-			<MaxFileSize>60000KB</MaxFileSize>
-		</triggeringPolicy>
 	</appender>
 
 	<logger name="org.apache.kafka.clients" level="WARN" />
