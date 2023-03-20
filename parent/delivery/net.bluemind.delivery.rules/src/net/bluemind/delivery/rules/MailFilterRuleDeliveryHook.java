@@ -1,5 +1,7 @@
 package net.bluemind.delivery.rules;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +13,7 @@ import net.bluemind.delivery.lmtp.common.IDeliveryHook;
 import net.bluemind.delivery.lmtp.common.ResolvedBox;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
+import net.bluemind.mailbox.api.rules.MailFilterRule;
 
 public class MailFilterRuleDeliveryHook implements IDeliveryHook {
 	private static final Logger logger = LoggerFactory.getLogger(MailFilterRuleDeliveryHook.class);
@@ -36,7 +39,8 @@ public class MailFilterRuleDeliveryHook implements IDeliveryHook {
 			return content;
 		}
 
-		content = engine.apply(mailboxesApi.getMailboxRules(box.mbox.uid));
+		List<MailFilterRule> rules = MailFilterRule.sort(mailboxesApi.getMailboxRules(box.mbox.uid));
+		content = engine.apply(rules);
 
 		return content;
 	}

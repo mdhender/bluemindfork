@@ -37,7 +37,17 @@ public class MailFilterRule {
 
 	@BMApi(version = "3")
 	public enum Type {
-		GENERIC, FORWARD, VACATION
+		GENERIC(3), FORWARD(2), VACATION(1);
+		
+		private int executionOrder;
+		
+		Type(int order) {
+			this.executionOrder = order;
+		}
+		
+		public int executionOrder() {
+			return executionOrder;
+		}
 	}
 
 	@BMApi(version = "3")
@@ -300,6 +310,13 @@ public class MailFilterRule {
 		rule.actions = new ArrayList<>(toCopy.actions);
 		rule.stop = toCopy.stop;
 		return rule;
+	}
+	
+	public static List<MailFilterRule> sort(List<MailFilterRule> rules) {
+		 return rules.stream().sorted((r1, r2) -> {
+			int typeComparison = Integer.compare(r1.type.executionOrder, r2.type.executionOrder);
+			return (typeComparison == 0) ? Integer.compare(rules.indexOf(r1), rules.indexOf(r2)) : typeComparison;
+		}).toList();
 	}
 
 	@Override
