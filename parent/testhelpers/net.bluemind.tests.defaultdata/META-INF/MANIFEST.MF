@@ -32,7 +32,7 @@ Require-Bundle: net.bluemind.core.container.persistence,
  net.bluemind.group.service;bundle-version="1.0.0",
  net.bluemind.core.caches.testhelper,
  net.bluemind.externaluser.api,
- net.bluemind.externaluser.service;bundle-version="4.1.0",
+ net.bluemind.externaluser.service;bundle-version="5.0.0",
  net.bluemind.network.topology,
  org.apache.commons.lang3
 Bundle-RequiredExecutionEnvironment: JavaSE-17

@@ -6,8 +6,8 @@ Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: BlueMind
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.calendar.api;bundle-version="1.0.0",
- net.bluemind.core.auditlog;bundle-version="4.1.0",
- net.bluemind.core.container.api;bundle-version="4.1.0",
+ net.bluemind.core.auditlog;bundle-version="5.0.0",
+ net.bluemind.core.container.api;bundle-version="5.0.0",
  net.bluemind.core.rest,
  net.bluemind.core.container.persistence,
  net.bluemind.core.task.service

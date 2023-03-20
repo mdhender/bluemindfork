@@ -4,11 +4,11 @@ Bundle-Name: net.bluemind.mailflow.common.api.gwt
 Bundle-SymbolicName: net.bluemind.mailflow.common.api.gwt;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:=reexport,
- net.bluemind.core.container.api.gwt;bundle-version="4.1.0";visibility:=reexport,
+Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="5.0.0";visibility:=reexport,
+ net.bluemind.core.container.api.gwt;bundle-version="5.0.0";visibility:=reexport,
  com.google.gwt.user;resolution:=optional,
- net.bluemind.restbus.api.gwt;bundle-version="4.1.0";visibility:=reexport,
- net.bluemind.mailflow.common.api;bundle-version="4.1.0";visibility:=reexport
+ net.bluemind.restbus.api.gwt;bundle-version="5.0.0";visibility:=reexport,
+ net.bluemind.mailflow.common.api;bundle-version="5.0.0";visibility:=reexport
 Export-Package: net.bluemind.mailflow.common.api.gwt.js,
  net.bluemind.mailflow.common.api.gwt.serder,
  net.bluemind.mailflow.common

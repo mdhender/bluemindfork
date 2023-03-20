@@ -5,8 +5,8 @@ Bundle-SymbolicName: net.bluemind.imap.endpoint.imaptest.tests
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.backend.mailapi.testhelper;bundle-version="4.1.0",
- net.bluemind.imap.docker.imaptest;bundle-version="4.1.0",
+ net.bluemind.backend.mailapi.testhelper;bundle-version="5.0.0",
+ net.bluemind.imap.docker.imaptest;bundle-version="5.0.0",
  org.junit,
  com.google.guava,
  net.bluemind.testcontainers,

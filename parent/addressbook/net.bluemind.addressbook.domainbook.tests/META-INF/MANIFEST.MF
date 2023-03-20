@@ -14,8 +14,8 @@ Require-Bundle: org.junit,
  org.apache.commons.lang3,
  net.bluemind.user.service,
  net.bluemind.core.container.persistence,
- net.bluemind.directory.service;bundle-version="4.1.0",
- net.bluemind.core.container.service;bundle-version="4.1.0",
+ net.bluemind.directory.service;bundle-version="5.0.0",
+ net.bluemind.core.container.service;bundle-version="5.0.0",
  net.bluemind.group.api,
  net.bluemind.group.service
 Automatic-Module-Name: net.bluemind.addressbook.domainbook.tests

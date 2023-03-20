@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.mailflow.persistence;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: www.bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: net.bluemind.core.jdbc;bundle-version="4.1.0",
+Require-Bundle: net.bluemind.core.jdbc;bundle-version="5.0.0",
  net.bluemind.mailflow.api,
  net.bluemind.core.commons
 Export-Package: net.bluemind.mailflow.persistence

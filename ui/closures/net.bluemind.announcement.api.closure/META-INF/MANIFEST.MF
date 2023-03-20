@@ -5,8 +5,8 @@ Bundle-SymbolicName: net.bluemind.announcement.api.closure
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: www.bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: relief;bundle-version="4.1.0",
- net.bluemind.announcement.api;bundle-version="4.1.0"
+Require-Bundle: relief;bundle-version="5.0.0",
+ net.bluemind.announcement.api;bundle-version="5.0.0"
 Bundle-ClassPath: js.jar,
  .
 Automatic-Module-Name: net.bluemind.announcement.api.closure

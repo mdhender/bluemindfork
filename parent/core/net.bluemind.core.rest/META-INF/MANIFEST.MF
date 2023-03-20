@@ -16,7 +16,7 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0";visibility:=ree
  net.bluemind.eclipse.common,
  net.bluemind.core.rest.common,
  net.bluemind.metrics.registry,
- net.bluemind.core.sessions;bundle-version="4.1.0",
+ net.bluemind.core.sessions;bundle-version="5.0.0",
  io.opentelemetry
 Export-Package: net.bluemind.core.rest,
  net.bluemind.core.rest.base,

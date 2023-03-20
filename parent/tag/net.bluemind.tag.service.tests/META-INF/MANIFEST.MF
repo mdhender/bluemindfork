@@ -10,6 +10,6 @@ Require-Bundle: org.junit,
  net.bluemind.core.context;bundle-version="1.0.0",
  net.bluemind.core.tests.testshelper;bundle-version="1.0.0",
  net.bluemind.core.sessions,
- net.bluemind.directory.service;bundle-version="4.1.0",
+ net.bluemind.directory.service;bundle-version="5.0.0",
  net.bluemind.tests.defaultdata
 Automatic-Module-Name: net.bluemind.tag.service.tests

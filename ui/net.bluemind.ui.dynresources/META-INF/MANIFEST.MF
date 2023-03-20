@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.ui.dynresources;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: www.bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: net.bluemind.webmodule;bundle-version="4.1.0",
+Require-Bundle: net.bluemind.webmodule;bundle-version="5.0.0",
  net.bluemind.webmodule.server,
  io.vertx.core,
  slf4j.api,
@@ -15,7 +15,7 @@ Require-Bundle: net.bluemind.webmodule;bundle-version="4.1.0",
  net.bluemind.system.api,
  net.bluemind.hornetq.client,
  net.bluemind.config,
- net.bluemind.system.stateobserver;bundle-version="4.1.0",
+ net.bluemind.system.stateobserver;bundle-version="5.0.0",
  net.bluemind.network.topology
 Bundle-ClassPath: .
 Bundle-ActivationPolicy: lazy

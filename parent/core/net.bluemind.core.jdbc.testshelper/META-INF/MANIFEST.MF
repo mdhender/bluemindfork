@@ -7,7 +7,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.pool;bundle-version="1.0.0",
  slf4j.api,
  net.bluemind.core.jdbc;bundle-version="1.0.0",
- net.bluemind.core.caches.testhelper;bundle-version="4.1.0",
+ net.bluemind.core.caches.testhelper;bundle-version="5.0.0",
  jul.to.slf4j,
  net.bluemind.core.caches.registry,
  com.github.ben-manes.caffeine

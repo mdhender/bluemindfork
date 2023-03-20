@@ -8,5 +8,5 @@ Closure-Bundle-Type: Library
 Require-Bundle: relief;bundle-version="1.0.0",
  net.bluemind.container.closure;bundle-version="1.0.0",
  net.bluemind.commons.closure;bundle-version="1.0.0",
- net.bluemind.videoconferencing.api;bundle-version="4.1.0"
+ net.bluemind.videoconferencing.api;bundle-version="5.0.0"
 Bundle-ClassPath: js.jar

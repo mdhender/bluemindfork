@@ -4,10 +4,10 @@ Bundle-Name: net.bluemind.system.ldap.importation.api.gwt
 Bundle-SymbolicName: net.bluemind.system.ldap.importation.api.gwt;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0",
+Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="5.0.0",
  com.google.gwt.user;resolution:=optional,
- net.bluemind.system.ldap.importation.api;bundle-version="4.1.0";visibility:=reexport,
- net.bluemind.restbus.api.gwt;bundle-version="4.1.0";visibility:=reexport
+ net.bluemind.system.ldap.importation.api;bundle-version="5.0.0";visibility:=reexport,
+ net.bluemind.restbus.api.gwt;bundle-version="5.0.0";visibility:=reexport
 Export-Package: net.bluemind.system.ldap.importation.api.gwt.endpoint
 Bundle-Vendor: blue-mind.net
 Automatic-Module-Name: net.bluemind.system.ldap.importation.api.gwt

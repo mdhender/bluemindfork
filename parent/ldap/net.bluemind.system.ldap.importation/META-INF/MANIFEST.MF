@@ -29,7 +29,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.task.service,
  net.bluemind.eclipse.common,
  net.bluemind.metrics.registry,
- net.bluemind.scheduledjob.service;bundle-version="4.1.0"
+ net.bluemind.scheduledjob.service;bundle-version="5.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: blue-mind.net

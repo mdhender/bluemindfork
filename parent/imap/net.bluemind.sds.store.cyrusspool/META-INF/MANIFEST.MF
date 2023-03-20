@@ -7,7 +7,7 @@ Bundle-Activator: net.bluemind.sds.store.cyrusspool.CyrusStoreActivator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api;bundle-version="1.7.32",
- net.bluemind.sds.store;bundle-version="4.1.0",
+ net.bluemind.sds.store;bundle-version="5.0.0",
  io.vertx.core,
  net.bluemind.system.api,
  net.bluemind.core.rest,

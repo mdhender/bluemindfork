@@ -2,12 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.lib.elasticsearch.tests
 Bundle-SymbolicName: net.bluemind.lib.elasticsearch.tests;singleton:=true
-Bundle-Version: 4.1.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
  org.junit,
  slf4j.api,
- net.bluemind.lib.elasticsearch;bundle-version="4.1.0",
+ net.bluemind.lib.elasticsearch;bundle-version="5.0.0",
  net.bluemind.mailbox.api,
  net.bluemind.lib.jackson,
  com.google.truth,

@@ -6,8 +6,8 @@ Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.hornetq.client,
- net.bluemind.core.container.api;bundle-version="4.1.0",
- net.bluemind.server.api;bundle-version="4.1.0",
+ net.bluemind.core.container.api;bundle-version="5.0.0",
+ net.bluemind.server.api;bundle-version="5.0.0",
  slf4j.api,
  net.bluemind.network.topology,
  net.bluemind.lib.vertx

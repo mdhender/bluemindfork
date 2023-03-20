@@ -7,7 +7,7 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api;bundle-version="1.7.5",
  net.bluemind.core.container.hooks,
- net.bluemind.core.container.api;bundle-version="4.1.0",
+ net.bluemind.core.container.api;bundle-version="5.0.0",
  net.bluemind.core.rest,
  net.bluemind.directory.api,
  com.google.guava,

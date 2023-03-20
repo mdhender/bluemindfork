@@ -4,12 +4,12 @@ Bundle-Name: net.bluemind.videoconferencing.api.gwt
 Bundle-SymbolicName: net.bluemind.videoconferencing.api.gwt;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="4.1.0",
- net.bluemind.videoconferencing.api;bundle-version="4.1.0";visibility:=reexport,
- net.bluemind.core.container.api.gwt;bundle-version="4.1.0";visibility:=reexport,
+Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="5.0.0",
+ net.bluemind.videoconferencing.api;bundle-version="5.0.0";visibility:=reexport,
+ net.bluemind.core.container.api.gwt;bundle-version="5.0.0";visibility:=reexport,
  com.google.gwt.user;resolution:=optional,
- net.bluemind.resource.api.gwt;bundle-version="4.1.0";visibility:=reexport,
- net.bluemind.calendar.api.gwt;bundle-version="4.1.0";visibility:=reexport
+ net.bluemind.resource.api.gwt;bundle-version="5.0.0";visibility:=reexport,
+ net.bluemind.calendar.api.gwt;bundle-version="5.0.0";visibility:=reexport
 Export-Package: net.bluemind.videoconferencing.api.gwt.endpoint,
  net.bluemind.videoconferencing.api.gwt.js,
  net.bluemind.videoconferencing.api.gwt.serder

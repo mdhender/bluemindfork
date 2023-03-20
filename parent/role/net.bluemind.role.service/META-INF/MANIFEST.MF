@@ -17,7 +17,7 @@ Require-Bundle: net.bluemind.core.commons,
  org.eclipse.core.runtime;bundle-version="3.11.1",
  slf4j.api,
  net.bluemind.directory.api,
- net.bluemind.core.container.service;bundle-version="4.1.0",
+ net.bluemind.core.container.service;bundle-version="5.0.0",
  net.bluemind.core.container.api
 Export-Package: net.bluemind.role.service
 Bundle-ActivationPolicy: lazy

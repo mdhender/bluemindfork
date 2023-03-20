@@ -6,7 +6,7 @@ Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: net.bluemind.exchange.mapi.persistence.tests.Activator
 Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.core.jdbc.testshelper;bundle-version="4.1.0",
+ net.bluemind.core.jdbc.testshelper;bundle-version="5.0.0",
  org.junit,
  net.bluemind.core.context,
  net.bluemind.core.container.persistence,

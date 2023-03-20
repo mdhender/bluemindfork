@@ -8,12 +8,12 @@ Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
  net.bluemind.announcement.api,
  net.bluemind.core.rest,
- net.bluemind.core.commons;bundle-version="4.1.0",
+ net.bluemind.core.commons;bundle-version="5.0.0",
  net.bluemind.core.rest.http,
  net.bluemind.core.jdbc.testshelper,
  com.google.guava;bundle-version="19.0.0",
- net.bluemind.announcement.service;bundle-version="4.1.0",
- net.bluemind.core.rest.http.vertx;bundle-version="4.1.0",
- net.bluemind.announcement.provider;bundle-version="4.1.0",
+ net.bluemind.announcement.service;bundle-version="5.0.0",
+ net.bluemind.core.rest.http.vertx;bundle-version="5.0.0",
+ net.bluemind.announcement.provider;bundle-version="5.0.0",
  org.eclipse.osgi
 Automatic-Module-Name: net.bluemind.announcement.service.tests

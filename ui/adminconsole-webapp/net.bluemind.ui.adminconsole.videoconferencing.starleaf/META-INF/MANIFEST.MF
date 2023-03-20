@@ -11,11 +11,11 @@ Require-Bundle: com.google.gwt.user;resolution:=optional,
  net.bluemind.gwtconsoleapp.base,
  net.bluemind.ui.gwtcommon.forms;visibility:=reexport,
  net.bluemind.ui.gwtcommon.editor;visibility:=reexport,
- net.bluemind.webmodule;bundle-version="4.1.0",
+ net.bluemind.webmodule;bundle-version="5.0.0",
  net.bluemind.ui.adminconsole.base,
  net.bluemind.ui.editor.standalone.closure;visibility:=reexport,
  net.bluemind.ui.adminconsole.directory,
- net.bluemind.resource.api.gwt;bundle-version="4.1.0";visibility:=reexport,
- net.bluemind.videoconferencing.api.gwt;bundle-version="4.1.0";visibility:=reexport
+ net.bluemind.resource.api.gwt;bundle-version="5.0.0";visibility:=reexport,
+ net.bluemind.videoconferencing.api.gwt;bundle-version="5.0.0";visibility:=reexport
 Export-Package: net.bluemind.ui.adminconsole.videoconferencing.starleaf
 Web-Resources: web-resources

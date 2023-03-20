@@ -18,6 +18,6 @@ Require-Bundle: net.bluemind.core.commons,
  net.bluemind.deferredaction.persistence,
  net.bluemind.core.container.persistence,
  net.bluemind.core.jdbc.testshelper,
- net.bluemind.calendar.service;bundle-version="4.1.0",
- net.bluemind.domain.service;bundle-version="4.1.0",
- net.bluemind.core.task.service;bundle-version="4.1.0"
+ net.bluemind.calendar.service;bundle-version="5.0.0",
+ net.bluemind.domain.service;bundle-version="5.0.0",
+ net.bluemind.core.task.service;bundle-version="5.0.0"

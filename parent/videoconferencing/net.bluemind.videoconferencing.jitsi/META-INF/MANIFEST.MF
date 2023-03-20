@@ -7,7 +7,7 @@ Automatic-Module-Name: net.bluemind.videoconferencing.jitsi
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.rest,
  net.bluemind.resource.api,
- net.bluemind.videoconferencing.api;bundle-version="4.1.0",
+ net.bluemind.videoconferencing.api;bundle-version="5.0.0",
  com.google.guava,
  net.bluemind.videoconferencing.service,
  net.bluemind.core.container.persistence,

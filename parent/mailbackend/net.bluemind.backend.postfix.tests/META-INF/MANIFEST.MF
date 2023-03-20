@@ -26,7 +26,7 @@ Require-Bundle: org.junit,
  net.bluemind.core.task.api,
  net.bluemind.mailbox.persistence,
  net.bluemind.domain.service,
- net.bluemind.mailbox.service;bundle-version="4.1.0",
+ net.bluemind.mailbox.service;bundle-version="5.0.0",
  net.bluemind.core.caches.registry,
  net.bluemind.domain.api,
  net.bluemind.mailbox.api,
@@ -39,7 +39,7 @@ Require-Bundle: org.junit,
  net.bluemind.calendar.service,
  net.bluemind.group.service,
  net.bluemind.user.service,
- net.bluemind.externaluser.service;bundle-version="4.1.0",
+ net.bluemind.externaluser.service;bundle-version="5.0.0",
  net.bluemind.externaluser.api
 Fragment-Host: net.bluemind.backend.postfix
 Automatic-Module-Name: net.bluemind.backend.postfix.tests

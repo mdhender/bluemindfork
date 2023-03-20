@@ -8,6 +8,6 @@ Closure-Bundle-Type: Library
 Bundle-ClassPath: css.jar,
  js.jar,
  .
-Require-Bundle: net.bluemind.filehosting.api.closure;bundle-version="4.1.0",
- net.bluemind.commons.ui.closure;bundle-version="4.1.0"
+Require-Bundle: net.bluemind.filehosting.api.closure;bundle-version="5.0.0",
+ net.bluemind.commons.ui.closure;bundle-version="5.0.0"
 Automatic-Module-Name: net.bluemind.filehosting.ui.closure

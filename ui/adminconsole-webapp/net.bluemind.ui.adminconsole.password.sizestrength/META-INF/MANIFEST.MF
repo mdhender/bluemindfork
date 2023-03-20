@@ -8,10 +8,10 @@ Web-Resources: web-resources
 Automatic-Module-Name: net.bluemind.ui.adminconsole.password.sizestrength
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
-Require-Bundle: net.bluemind.ui.adminconsole.base;bundle-version="4.1.0";visibility:=reexport,
+Require-Bundle: net.bluemind.ui.adminconsole.base;bundle-version="5.0.0";visibility:=reexport,
  net.bluemind.gwtconsoleapp.base;visibility:=reexport,
  com.google.gwt.user;resolution:=optional,
- net.bluemind.webmodule;bundle-version="4.1.0",
+ net.bluemind.webmodule;bundle-version="5.0.0",
  net.bluemind.ui.adminconsole.system;visibility:=reexport,
- net.bluemind.custom.password.sizestrength.api.gwt;bundle-version="4.1.0";visibility:=reexport
+ net.bluemind.custom.password.sizestrength.api.gwt;bundle-version="5.0.0";visibility:=reexport
 Export-Package: net.bluemind.ui.adminconsole.password.sizestrength

@@ -8,7 +8,7 @@ Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.dataprotect.service,
  net.bluemind.core.commons,
- net.bluemind.dataprotect.api;bundle-version="4.1.0",
+ net.bluemind.dataprotect.api;bundle-version="5.0.0",
  com.google.guava,
  net.bluemind.core.container.persistence,
  net.bluemind.node.api

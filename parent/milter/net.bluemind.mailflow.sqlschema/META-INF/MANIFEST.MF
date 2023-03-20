@@ -7,7 +7,7 @@ Bundle-Vendor: www.bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.core.container.sqlschema,
  net.bluemind.core.sqlschema,
- net.bluemind.domain.sqlschema;bundle-version="4.1.0"
+ net.bluemind.domain.sqlschema;bundle-version="5.0.0"
 Automatic-Module-Name: net.bluemind.mailflow.sqlschema
 
 

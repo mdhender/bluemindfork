@@ -4,6 +4,6 @@ Bundle-Name: Persistance SQL Schema
 Bundle-SymbolicName: net.bluemind.directory.sqlschema;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Require-Bundle: net.bluemind.core.sqlschema;bundle-version="1.0.0",
- net.bluemind.core.container.sqlschema;bundle-version="4.1.0"
+ net.bluemind.core.container.sqlschema;bundle-version="5.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.directory.sqlschema

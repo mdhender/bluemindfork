@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.ui.resources;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: www.bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: net.bluemind.webmodule;bundle-version="4.1.0"
+Require-Bundle: net.bluemind.webmodule;bundle-version="5.0.0"
 Bundle-ClassPath: .
 Web-Resources: web-resources
 Bundle-ActivationPolicy: lazy

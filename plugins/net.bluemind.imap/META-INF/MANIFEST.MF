@@ -10,7 +10,7 @@ Require-Bundle: net.bluemind.utils;bundle-version="1.0.0",
  org.apache.mina.core;bundle-version="2.0.7",
  net.bluemind.lib.jutf7,
  com.sun.mail.jakarta.mail,
- net.bluemind.common.io;bundle-version="4.1.0"
+ net.bluemind.common.io;bundle-version="5.0.0"
 Export-Package: net.bluemind.imap,
  net.bluemind.imap.command,
  net.bluemind.imap.command.parser,

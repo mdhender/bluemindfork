@@ -10,5 +10,5 @@ Require-Bundle: net.bluemind.core.jdbc,
  net.bluemind.core.commons,
  slf4j.api,
  net.bluemind.core.container.persistence,
- net.bluemind.delivery.conversationreference.sqlschema;bundle-version="4.1.0"
+ net.bluemind.delivery.conversationreference.sqlschema;bundle-version="5.0.0"
 Export-Package: net.bluemind.delivery.conversationreference.persistence

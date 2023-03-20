@@ -23,5 +23,5 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava,
  net.bluemind.lmtp.filter.imip,
  net.bluemind.network.topology,
- net.bluemind.delivery.lmtp.filters;bundle-version="4.1.0"
+ net.bluemind.delivery.lmtp.filters;bundle-version="5.0.0"
 Automatic-Module-Name: net.bluemind.resource.lmtp.filter

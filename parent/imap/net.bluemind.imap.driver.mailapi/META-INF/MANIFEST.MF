@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.imap.driver.mailapi;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.imap.endpoint;bundle-version="4.1.0",
+ net.bluemind.imap.endpoint;bundle-version="5.0.0",
  slf4j.api,
  net.bluemind.core.rest.http,
  net.bluemind.authentication.api,

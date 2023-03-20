@@ -6,8 +6,8 @@ Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  com.bucket4j.core,
- net.bluemind.core.jdbc.testshelper;bundle-version="4.1.0",
- net.bluemind.imap.endpoint;bundle-version="4.1.0",
+ net.bluemind.core.jdbc.testshelper;bundle-version="5.0.0",
+ net.bluemind.imap.endpoint;bundle-version="5.0.0",
  org.junit;bundle-version="4.12.0",
  net.bluemind.lib.vertx,
  net.bluemind.imap,

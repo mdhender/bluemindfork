@@ -42,6 +42,6 @@ Require-Bundle: org.junit,
  net.bluemind.core.tests.testshelper,
  net.bluemind.document.persistence.fs,
  net.bluemind.core.sendmail.testhelper,
- net.bluemind.videoconferencing.service;bundle-version="4.1.0",
- net.bluemind.resource.service;bundle-version="4.1.0"
+ net.bluemind.videoconferencing.service;bundle-version="5.0.0",
+ net.bluemind.resource.service;bundle-version="5.0.0"
 Automatic-Module-Name: net.bluemind.calendar.hook.ics.tests

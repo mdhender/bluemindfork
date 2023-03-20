@@ -20,7 +20,7 @@ Require-Bundle: org.junit,
  net.bluemind.tests.defaultdata,
  net.bluemind.core.elasticsearch.testshelper,
  net.bluemind.core.tests.testshelper,
- net.bluemind.server.service;bundle-version="4.1.0",
+ net.bluemind.server.service;bundle-version="5.0.0",
  net.bluemind.role.api,
  net.bluemind.server.persistence
 Automatic-Module-Name: net.bluemind.server.service.tests

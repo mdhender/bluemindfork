@@ -6,5 +6,5 @@ Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: www.bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Web-Resources: web-resources
-Require-Bundle: net.bluemind.webmodule;bundle-version="4.1.0"
+Require-Bundle: net.bluemind.webmodule;bundle-version="5.0.0"
 Automatic-Module-Name: net.bluemind.webmodules.fonts

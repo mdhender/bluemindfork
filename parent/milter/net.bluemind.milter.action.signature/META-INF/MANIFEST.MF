@@ -7,12 +7,12 @@ Bundle-Vendor: www.bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.milter,
  org.apache.james.apache-mime4j-dom,
- net.bluemind.mime4j.common;bundle-version="4.1.0",
+ net.bluemind.mime4j.common;bundle-version="5.0.0",
  slf4j.api,
  net.bluemind.jilter,
  net.bluemind.domain.api,
  net.bluemind.core.caches.registry,
- net.bluemind.core.commons;bundle-version="4.1.0",
+ net.bluemind.core.commons;bundle-version="5.0.0",
  net.bluemind.core.rest.http,
  net.bluemind.config,
  com.google.guava,
@@ -23,7 +23,7 @@ Require-Bundle: net.bluemind.milter,
  net.bluemind.directory.api,
  net.bluemind.addressbook.api,
  net.bluemind.hornetq.client,
- net.bluemind.signature.commons;bundle-version="4.1.0",
+ net.bluemind.signature.commons;bundle-version="5.0.0",
  net.bluemind.network.topology,
  com.github.ben-manes.caffeine
 Export-Package: net.bluemind.milter.action.signature

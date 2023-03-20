@@ -20,7 +20,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.addressbook.domainbook;bundle-version="1.0.0",
  net.bluemind.core.rest.http.vertx;bundle-version="1.0.0",
  net.bluemind.pool,
- net.bluemind.network.topology.producer;bundle-version="4.1.0",
+ net.bluemind.network.topology.producer;bundle-version="5.0.0",
  net.bluemind.network.topology,
  com.github.jnr.uber;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy

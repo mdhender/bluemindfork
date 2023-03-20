@@ -22,7 +22,7 @@ Require-Bundle: net.bluemind.mvp.closure;bundle-version="1.0.0",
  net.bluemind.cti.api.closure;bundle-version="1.0.0",
  font-awesome;bundle-version="1.0.0",
  net.bluemind.todolist.ui.closure;bundle-version="1.0.0",
- net.bluemind.history.ui.closure;bundle-version="4.1.0"
+ net.bluemind.history.ui.closure;bundle-version="5.0.0"
 Web-Resources: web-resources
 Bundle-ClassPath: css.jar, js.jar, .
 Automatic-Module-Name: net.bluemind.task.application.closure

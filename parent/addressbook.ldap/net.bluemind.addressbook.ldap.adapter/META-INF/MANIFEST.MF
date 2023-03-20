@@ -7,7 +7,7 @@ Bundle-Vendor: www.bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.addressbook.api,
  com.google.guava,
- net.bluemind.lib.ldap;bundle-version="4.1.0",
+ net.bluemind.lib.ldap;bundle-version="5.0.0",
  slf4j.api,
  net.bluemind.addressbook.ldap.api,
  org.eclipse.osgi,

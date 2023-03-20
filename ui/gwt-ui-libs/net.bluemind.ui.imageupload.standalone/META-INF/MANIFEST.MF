@@ -6,6 +6,6 @@ Bundle-Version: 5.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Web-Resources: web-resources
 Require-Bundle: com.google.gwt.user;resolution:=optional,
- net.bluemind.ui.imageupload;bundle-version="4.1.0"
+ net.bluemind.ui.imageupload;bundle-version="5.0.0"
 Automatic-Module-Name: net.bluemind.ui.imageupload.standalone
 

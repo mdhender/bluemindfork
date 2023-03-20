@@ -35,7 +35,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.network.topology,
  net.bluemind.group.api,
  net.bluemind.system.helper,
- net.bluemind.backend.mail.dataprotect;bundle-version="4.1.0",
+ net.bluemind.backend.mail.dataprotect;bundle-version="5.0.0",
  net.bluemind.dataprotect.sdsspool,
  net.bluemind.sds.store,
  net.bluemind.delivery.conversationreference.api

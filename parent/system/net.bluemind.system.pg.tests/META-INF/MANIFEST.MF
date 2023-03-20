@@ -11,7 +11,7 @@ Require-Bundle: org.junit,
  net.bluemind.core.node.testshelper,
  net.bluemind.server.api,
  com.google.guava,
- net.bluemind.core.container.api;bundle-version="4.1.0",
+ net.bluemind.core.container.api;bundle-version="5.0.0",
  net.bluemind.node.api,
  net.bluemind.pool
 Automatic-Module-Name: net.bluemind.system.pg.tests

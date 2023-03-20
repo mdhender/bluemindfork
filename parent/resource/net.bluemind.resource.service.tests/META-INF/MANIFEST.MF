@@ -19,7 +19,7 @@ Require-Bundle: org.junit,
  net.bluemind.document.persistence.fs;bundle-version="1.0.0",
  com.google.guava;bundle-version="19.0.0",
  net.bluemind.core.elasticsearch.testshelper,
- net.bluemind.calendar.service;bundle-version="4.1.0",
+ net.bluemind.calendar.service;bundle-version="5.0.0",
  net.bluemind.user.service,
  net.bluemind.calendar.persistence,
  net.bluemind.user.persistence

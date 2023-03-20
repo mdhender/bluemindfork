@@ -8,7 +8,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.milter,
  org.apache.james.apache-mime4j-dom,
  org.apache.james.apache-mime4j-core,
- net.bluemind.core.container.api;bundle-version="4.1.0",
+ net.bluemind.core.container.api;bundle-version="5.0.0",
  net.bluemind.domain.api,
  net.bluemind.metrics.registry,
  slf4j.api

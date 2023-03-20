@@ -5,25 +5,25 @@ Bundle-SymbolicName: net.bluemind.ui.adminconsole.monitoring;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Web-Resources: web-resources
-Require-Bundle: net.bluemind.commons.ui.closure;bundle-version="4.1.0",
- net.bluemind.webmodule;bundle-version="4.1.0",
- net.bluemind.ui.banner.standalone.closure;bundle-version="4.1.0",
- net.bluemind.webmodule.server;bundle-version="4.1.0",
+Require-Bundle: net.bluemind.commons.ui.closure;bundle-version="5.0.0",
+ net.bluemind.webmodule;bundle-version="5.0.0",
+ net.bluemind.ui.banner.standalone.closure;bundle-version="5.0.0",
+ net.bluemind.webmodule.server;bundle-version="5.0.0",
  org.freemarker.freemarker;bundle-version="2.3.20",
- net.bluemind.lib.vertx;bundle-version="4.1.0",
- net.bluemind.system.api.gwt;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.lib.vertx;bundle-version="5.0.0",
+ net.bluemind.system.api.gwt;bundle-version="5.0.0";visibility:=reexport,
  net.bluemind.core.commons,
- net.bluemind.ui.gwtcommon.icons;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.ui.gwtcommon.icons;bundle-version="5.0.0";visibility:=reexport,
  net.bluemind.core.context,
- net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:=reexport,
- net.bluemind.ui.extensions.gwt;bundle-version="4.1.0";visibility:=reexport,
- net.bluemind.ui.gwtcommon.forms;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.core.commons.gwt;bundle-version="5.0.0";visibility:=reexport,
+ net.bluemind.ui.extensions.gwt;bundle-version="5.0.0";visibility:=reexport,
+ net.bluemind.ui.gwtcommon.forms;bundle-version="5.0.0";visibility:=reexport,
  net.bluemind.domain.api.gwt;visibility:=reexport,
- net.bluemind.ui.adminconsole.base;bundle-version="4.1.0";visibility:=reexport,
- net.bluemind.gwtconsoleapp.base;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.ui.adminconsole.base;bundle-version="5.0.0";visibility:=reexport,
+ net.bluemind.gwtconsoleapp.base;bundle-version="5.0.0";visibility:=reexport,
  com.google.gwt.user;resolution:=optional,
  com.google.jsinterop.annotations;bundle-version="1.0.1",
- net.bluemind.metrics.alerts.api.gwt;bundle-version="4.1.0"
+ net.bluemind.metrics.alerts.api.gwt;bundle-version="5.0.0"
 Export-Package: net.bluemind.ui.adminconsole.monitoring
 Automatic-Module-Name: net.bluemind.ui.adminconsole.monitoring
 

@@ -5,8 +5,8 @@ Bundle-SymbolicName: net.bluemind.exchange.mapi.notifications;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.addressbook.api;bundle-version="4.1.0",
- net.bluemind.lib.vertx;bundle-version="4.1.0",
+ net.bluemind.addressbook.api;bundle-version="5.0.0",
+ net.bluemind.lib.vertx;bundle-version="5.0.0",
  slf4j.api;bundle-version="1.7.5",
  net.bluemind.calendar.hook,
  net.bluemind.core.container.persistence,

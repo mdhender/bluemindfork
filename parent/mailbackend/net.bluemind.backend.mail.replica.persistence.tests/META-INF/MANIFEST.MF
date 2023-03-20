@@ -16,9 +16,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.backend.mail.replica.utils,
  net.bluemind.tests.defaultdata,
  net.bluemind.system.state,
- net.bluemind.backend.mailapi.storage;bundle-version="4.1.0",
- net.bluemind.backend.mail.replica.service;bundle-version="4.1.0",
- net.bluemind.authentication.service;bundle-version="4.1.0",
+ net.bluemind.backend.mailapi.storage;bundle-version="5.0.0",
+ net.bluemind.backend.mail.replica.service;bundle-version="5.0.0",
+ net.bluemind.authentication.service;bundle-version="5.0.0",
  net.bluemind.backend.cyrus.partitions
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy

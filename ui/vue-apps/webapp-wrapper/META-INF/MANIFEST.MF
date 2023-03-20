@@ -12,8 +12,8 @@ Require-Bundle: net.bluemind.webmodules.webapp,
  org.eclipse.osgi,
  net.bluemind.role.api,
  net.bluemind.core.rest.http,
- net.bluemind.network.topology;bundle-version="4.1.0",
- net.bluemind.user.api;bundle-version="4.1.0"
+ net.bluemind.network.topology;bundle-version="5.0.0",
+ net.bluemind.user.api;bundle-version="5.0.0"
 Web-Resources: web-resources
 Web-Dependencies: net.bluemind.webmodules.vue,
  net.bluemind.webmodules.styleguide

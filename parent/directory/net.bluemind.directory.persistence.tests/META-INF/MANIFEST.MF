@@ -12,6 +12,6 @@ Require-Bundle: org.junit,
  net.bluemind.mailbox.api,
  net.bluemind.user.persistence,
  net.bluemind.user.api,
- net.bluemind.tests.defaultdata;bundle-version="4.1.0",
+ net.bluemind.tests.defaultdata;bundle-version="5.0.0",
  net.bluemind.domain.persistence
 Automatic-Module-Name: net.bluemind.directory.persistence.tests

@@ -4,6 +4,6 @@ Bundle-Name: ItemStore
 Bundle-SymbolicName: net.bluemind.core.container.sqlschema;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Require-Bundle: net.bluemind.core.sqlschema;bundle-version="1.0.0";visibility:=reexport,
- net.bluemind.system.schemaupgrader;bundle-version="4.1.0"
+ net.bluemind.system.schemaupgrader;bundle-version="5.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.core.container.sqlschema

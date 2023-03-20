@@ -7,7 +7,7 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  slf4j.api,
  com.google.guava,
- net.bluemind.core.commons;bundle-version="4.1.0",
+ net.bluemind.core.commons;bundle-version="5.0.0",
  net.bluemind.backend.mail.api,
  net.bluemind.config,
  net.bluemind.backend.mail.replica.api;visibility:=reexport,
@@ -17,7 +17,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.jsoup,
  org.apache.james.apache-mime4j-dom;bundle-version="0.7.3";visibility:=reexport,
  org.apache.james.apache-mime4j-core;bundle-version="0.7.3";visibility:=reexport,
- net.bluemind.mime4j.common;bundle-version="4.1.0",
+ net.bluemind.mime4j.common;bundle-version="5.0.0",
  com.sun.mail.jakarta.mail,
  net.bluemind.eclipse.common
 Bundle-RequiredExecutionEnvironment: JavaSE-17

@@ -8,7 +8,7 @@ Closure-Bundle-Type: Library
 Require-Bundle: ydn-base;bundle-version="1.0.0",
  ydn-db;bundle-version="1.0.0",
  relief;bundle-version="1.0.0",
- net.bluemind.restclient.api.closure;bundle-version="4.1.0"
+ net.bluemind.restclient.api.closure;bundle-version="5.0.0"
 Bundle-ClassPath: lang.jar, css.jar, js.jar,
  .
 Automatic-Module-Name: net.bluemind.commons.closure

@@ -8,5 +8,5 @@ Closure-Bundle-Type: Library
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Web-Resources: web-resources
 Bundle-ClassPath: .
-Require-Bundle: net.bluemind.webmodule;bundle-version="4.1.0"
+Require-Bundle: net.bluemind.webmodule;bundle-version="5.0.0"
 Automatic-Module-Name: font-awesome

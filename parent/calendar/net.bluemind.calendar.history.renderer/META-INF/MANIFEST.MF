@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.calendar.history.renderer;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.core.container.service;bundle-version="4.1.0",
+ net.bluemind.core.container.service;bundle-version="5.0.0",
  net.bluemind.core.container.persistence
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.calendar.history.renderer

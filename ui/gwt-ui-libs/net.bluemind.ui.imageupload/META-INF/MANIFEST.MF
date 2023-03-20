@@ -6,8 +6,8 @@ Bundle-Version: 5.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.google.gwt.user;resolution:=optional,
  com.googlecode.gwt-cropper.gwt-crop;bundle-version="0.5.5";visibility:=reexport,
- net.bluemind.ui.gwtcommon.forms;bundle-version="4.1.0";visibility:=reexport,
- net.bluemind.core.commons.gwt;bundle-version="4.1.0";visibility:=reexport,
- net.bluemind.gwtconsoleapp.base;bundle-version="4.1.0";visibility:=reexport
+ net.bluemind.ui.gwtcommon.forms;bundle-version="5.0.0";visibility:=reexport,
+ net.bluemind.core.commons.gwt;bundle-version="5.0.0";visibility:=reexport,
+ net.bluemind.gwtconsoleapp.base;bundle-version="5.0.0";visibility:=reexport
 Export-Package: net.bluemind.ui.imageupload, net.bluemind.ui.imageupload.client
 Automatic-Module-Name: net.bluemind.ui.imageupload

@@ -7,7 +7,7 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  org.junit,
  net.bluemind.lib.vertx,
- net.bluemind.node.metrics.aggregator;bundle-version="4.1.0",
+ net.bluemind.node.metrics.aggregator;bundle-version="5.0.0",
  net.bluemind.vertx.testhelper,
  com.google.guava,
  org.asynchttpclient.async-http-client

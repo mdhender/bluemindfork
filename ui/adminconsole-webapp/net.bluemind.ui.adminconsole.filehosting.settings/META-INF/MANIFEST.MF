@@ -6,14 +6,14 @@ Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: blue-mind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Web-Resources: web-resources
-Require-Bundle: net.bluemind.ui.adminconsole.base;bundle-version="4.1.0";visibility:=reexport,
+Require-Bundle: net.bluemind.ui.adminconsole.base;bundle-version="5.0.0";visibility:=reexport,
  net.bluemind.gwtconsoleapp.base;visibility:=reexport,
  com.google.gwt.user;resolution:=optional,
  net.bluemind.core.commons.gwt;visibility:=reexport,
  net.bluemind.ui.adminconsole.system;visibility:=reexport,
  net.bluemind.domain.api.gwt;visibility:=reexport,
- net.bluemind.webmodule;bundle-version="4.1.0",
- net.bluemind.filehosting.api.gwt;bundle-version="4.1.0";visibility:=reexport,
+ net.bluemind.webmodule;bundle-version="5.0.0",
+ net.bluemind.filehosting.api.gwt;bundle-version="5.0.0";visibility:=reexport,
  net.bluemind.system.api.gwt;visibility:=reexport,
  net.bluemind.ui.gwtcommon.forms;visibility:=reexport
 Export-Package: net.bluemind.ui.adminconsole.filehosting.settings

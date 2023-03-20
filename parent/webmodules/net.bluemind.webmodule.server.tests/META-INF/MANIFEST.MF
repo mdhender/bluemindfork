@@ -4,7 +4,7 @@ Bundle-Name: net.bluemind.webmodule.server.tests
 Bundle-SymbolicName: net.bluemind.webmodule.server.tests;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.webmodule.server;bundle-version="4.1.0",
+ net.bluemind.webmodule.server;bundle-version="5.0.0",
  io.vertx.core;bundle-version="2.1.6",
  com.google.guava,
  net.bluemind.lib.vertx,

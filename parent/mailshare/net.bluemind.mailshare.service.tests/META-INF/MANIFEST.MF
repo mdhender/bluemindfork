@@ -17,5 +17,5 @@ Require-Bundle: org.junit,
  net.bluemind.domain.api;bundle-version="1.0.0",
  net.bluemind.core.elasticsearch.testshelper,
  net.bluemind.mailbox.identity.api,
- net.bluemind.mailbox.identity.service;bundle-version="4.1.0"
+ net.bluemind.mailbox.identity.service;bundle-version="5.0.0"
 Automatic-Module-Name: net.bluemind.mailshare.service.tests

@@ -26,7 +26,7 @@ Require-Bundle: net.bluemind.core.commons;bundle-version="1.0.0",
  net.bluemind.dockerclient,
  net.bluemind.system.api,
  net.bluemind.authentication.api,
- net.bluemind.authentication.service;bundle-version="4.1.0",
+ net.bluemind.authentication.service;bundle-version="5.0.0",
  net.bluemind.pool,
  net.bluemind.filehosting.api,
  org.apache.commons.lang3

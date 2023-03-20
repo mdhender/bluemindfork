@@ -9,8 +9,8 @@ Require-Bundle: net.bluemind.mailflow.api,
  slf4j.api,
  net.bluemind.core.rest,
  net.bluemind.eclipse.common,
- net.bluemind.mailflow.common.api;bundle-version="4.1.0",
- net.bluemind.core.container.api;bundle-version="4.1.0",
- net.bluemind.domain.api;bundle-version="4.1.0"
+ net.bluemind.mailflow.common.api;bundle-version="5.0.0",
+ net.bluemind.core.container.api;bundle-version="5.0.0",
+ net.bluemind.domain.api;bundle-version="5.0.0"
 Export-Package: net.bluemind.mailflow.rbe
 Automatic-Module-Name: net.bluemind.mailflow.rbe

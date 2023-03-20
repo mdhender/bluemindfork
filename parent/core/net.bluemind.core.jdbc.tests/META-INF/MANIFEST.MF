@@ -6,5 +6,5 @@ Bundle-Version: 5.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit;bundle-version="3.8.2",
  net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
- net.bluemind.core.jdbc;bundle-version="4.1.0"
+ net.bluemind.core.jdbc;bundle-version="5.0.0"
 Automatic-Module-Name: net.bluemind.core.jdbc.tests
