@@ -1887,48 +1887,8 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencingAddFu
   }, this);
 };
 
-net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencing_ = function (attendee, resourceUid, mode) {
-  if (mode == "add") {
-    this.ctx.service('videoConferencing').auth(resourceUid).then(function (authRet) {
-      if (authRet.status == 'TOKEN_NOT_VALID'){
-        // init openid connect
-        var w = window.open(authRet.url, "", "popup=true,width=550,height=550,top=200,left=200");
-        var WindowCloseObserver = {
-          observe: function (win, callback) {
-            if (win.closed) {
-                
-                callback();
-            } else {
-               this.timer = setTimeout(this.observe.bind(this, win, callback), 100) 
-            }
-        },
-          cancel: function() {
-          if (this.timer) {
-              clearTimeout(this.timer);
-          }
-        }
-      }
-        var auth = {};
-        goog.global['bmOpenIdAuthicationCallback'] = auth;
-        var promise = new goog.Promise(function (resolve, reject) {
-          auth.resolve = resolve;
-          auth.reject = reject;
-          WindowCloseObserver.observe(w, auth.reject);
-        });
-        promise.then(function() {
-          WindowCloseObserver.cancel();
-          this.addOrRemoveVideoConferencingAddFunc_(attendee, resourceUid);
-        }, function() {
-          WindowCloseObserver.cancel();
-		      this.showConferenceForm_();
-        }, this);
-        return;
-      } else {
-        this.addOrRemoveVideoConferencingAddFunc_(attendee, resourceUid);
-      }
-    }, null, this);
-  } else if (mode == "remove") {
-  	var adaptor = new net.bluemind.calendar.vevent.VEventSeriesAdaptor(this.ctx);
+net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencingRemoveFunc_ = function (attendee, resourceUid){
+  var adaptor = new net.bluemind.calendar.vevent.VEventSeriesAdaptor(this.ctx);
     var vseries = adaptor.fromVEventModelView(this.getModel());
     var occ = null;
     if (vseries.value['main']) {
@@ -1961,8 +1921,55 @@ net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencing_ = f
       this.getModel().states.meeting = this.getModel().attendees.length !== 0;
       this.showConferenceForm_();
     }, null, this);
-  }
-};
+}
+
+net.bluemind.calendar.vevent.ui.Form.prototype.addOrRemoveVideoConferencing_ = function (attendee, resourceUid, mode) {
+  this.ctx.service('videoConferencing').auth(resourceUid).then(function (authRet) {
+      if (authRet.status == 'TOKEN_NOT_VALID'){
+        // init openid connect
+        var w = window.open(authRet.url, "", "popup=true,width=550,height=550,top=200,left=200");
+        var WindowCloseObserver = {
+          observe: function (win, callback) {
+            if (win.closed) {
+                callback();
+            } else {
+               this.timer = setTimeout(this.observe.bind(this, win, callback), 100) 
+            }
+        },
+          cancel: function() {
+          if (this.timer) {
+              clearTimeout(this.timer);
+          }
+        }
+      }
+        var auth = {};
+        goog.global['bmOpenIdAuthicationCallback'] = auth;
+        var promise = new goog.Promise(function (resolve, reject) {
+          auth.resolve = resolve;
+          auth.reject = reject;
+          WindowCloseObserver.observe(w, auth.reject);
+        });
+        promise.then(function() {
+          WindowCloseObserver.cancel();
+          if (mode == "add") {
+            this.addOrRemoveVideoConferencingAddFunc_(attendee, resourceUid);
+          } else if (mode == "remove") {
+            this.addOrRemoveVideoConferencingRemoveFunc_(attendee, resourceUid);
+          }
+        }, function() {
+          WindowCloseObserver.cancel();
+		      this.showConferenceForm_();
+        }, this);
+        return;
+      } else {
+        if (mode == "add") {
+            this.addOrRemoveVideoConferencingAddFunc_(attendee, resourceUid);
+          } else if (mode == "remove") {
+            this.addOrRemoveVideoConferencingRemoveFunc_(attendee, resourceUid);
+          }
+      }
+    }, null, this); 
+}
 
 net.bluemind.calendar.vevent.ui.Form.prototype.showConferenceError_ = function() {
   /** @meaning calendar.form.error.videoconferencing */
