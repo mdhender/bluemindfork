@@ -68,7 +68,7 @@ public class LiveStream implements ILiveStream {
 			if (de.key.id == 0) {
 				// silent skip
 			} else if (de.payload == null) {
-				logger.warn("null payload for {} in {}:{}", de.key.id, keyBytes, valueBytes);
+				logger.debug("null payload for {} (item will be compacted)", de.key.id);
 			} else {
 				handler.handle(de);
 			}

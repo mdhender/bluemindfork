@@ -35,32 +35,15 @@ import org.junit.Test;
 import io.netty.buffer.ByteBufUtil;
 import io.vertx.core.Handler;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
-import net.bluemind.backend.mailapi.testhelper.MailApiTestsBase;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.backup.continuous.DataElement;
 import net.bluemind.core.backup.continuous.DefaultBackupStore;
 import net.bluemind.core.backup.continuous.ILiveStream;
-import net.bluemind.core.backup.continuous.leader.DefaultLeader;
 import net.bluemind.core.backup.continuous.store.ITopicStore.IResumeToken;
 import net.bluemind.imap.Flag;
 import net.bluemind.imap.FlagsList;
-import net.bluemind.kafka.container.ZkKafkaContainer;
 
-public class MailApiWithKafkaStoreTests extends MailApiTestsBase {
-
-	private ZkKafkaContainer kafka;
-
-	@Override
-	public void before() throws Exception {
-		kafka = new ZkKafkaContainer();
-		kafka.start();
-		String ip = kafka.inspectAddress();
-		System.setProperty("bm.kafka.bootstrap.servers", ip + ":9093");
-		System.setProperty("bm.zk.servers", ip + ":2181");
-		DefaultLeader.reset();
-
-		super.before();
-	}
+public class MailApiWithKafkaStoreTests extends MailApiWithKafkaBaseTests {
 
 	private String rand() {
 		byte[] tgt = new byte[4];
@@ -121,13 +104,6 @@ public class MailApiWithKafkaStoreTests extends MailApiTestsBase {
 		System.err.println("rt: " + rt);
 		int esSources = th.byType.get(esType).get();
 		assertEquals(1, esSources);
-	}
-
-	@Override
-	public void after() throws Exception {
-		kafka.stop();
-
-		super.after();
 	}
 
 }

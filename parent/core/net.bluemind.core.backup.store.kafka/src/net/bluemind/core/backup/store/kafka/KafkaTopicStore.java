@@ -175,13 +175,15 @@ public class KafkaTopicStore implements ITopicStore, TopicManager {
 			if (!existing.containsKey(name)) {
 				Config conf = KafkaStoreConfig.get();
 				NewTopic nt = new NewTopic(name, PARTITION_COUNT, REPL_FACTOR);
+				long compactionLagMs = conf.getDuration("kafka.topic.maxCompactionLag", TimeUnit.MILLISECONDS);
+				long segmentMs = conf.getDuration("kafka.topic.maxSegmentDuration", TimeUnit.MILLISECONDS);
 				nt.configs(Map.of(//
 						TopicConfig.MAX_MESSAGE_BYTES_CONFIG,
 						Long.toString((long) (conf.getMemorySize("kafka.producer.maxRecordSize").toBytes() * 1.05)), //
 						TopicConfig.COMPRESSION_TYPE_CONFIG, COMPRESSION_TYPE, //
 						TopicConfig.CLEANUP_POLICY_CONFIG, "compact", //
-						TopicConfig.MAX_COMPACTION_LAG_MS_CONFIG,
-						Long.toString(conf.getDuration("kafka.topic.maxCompactionLag", TimeUnit.MILLISECONDS))//
+						TopicConfig.MAX_COMPACTION_LAG_MS_CONFIG, Long.toString(compactionLagMs), //
+						TopicConfig.SEGMENT_MS_CONFIG, Long.toString(segmentMs)//
 				));
 				CreateTopicsOptions cto = new CreateTopicsOptions();
 

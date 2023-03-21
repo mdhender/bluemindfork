@@ -56,7 +56,9 @@ public class ContainersContinuousHook implements IContainersHook, IAclHook {
 
 	@Override
 	public void onContainerDeleted(BmContext ctx, ContainerDescriptor cd) throws ServerFault {
-		// ok
+		ContainerMetadata cm = ContainerMetadata.forAclsAndSettings(cd, Collections.emptyList(),
+				Collections.emptyMap());
+		metadataBackup.delete(cd.domainUid, cd.owner, cd.uid, cm);
 	}
 
 	@Override
