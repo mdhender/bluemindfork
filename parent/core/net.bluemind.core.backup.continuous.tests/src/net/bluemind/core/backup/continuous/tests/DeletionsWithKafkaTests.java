@@ -66,8 +66,8 @@ public class DeletionsWithKafkaTests extends MailApiWithKafkaBaseTests {
 		ILiveStream domStream = reRead.domains().stream().filter(ls -> ls.domainUid().equals(domUid)).findAny()
 				.orElseThrow();
 
-		LongAdder ownedKeys = checkOwnedContent(fresh.uid, domStream);
-		assertTrue(ownedKeys.sum() > 0);
+		int ownedKeys = checkOwnedContent(fresh.uid, domStream);
+		assertTrue(ownedKeys > 0);
 
 		IUser userApi = serverProv.instance(IUser.class, domUid);
 		TaskRef tr = userApi.delete(fresh.uid);
@@ -78,11 +78,13 @@ public class DeletionsWithKafkaTests extends MailApiWithKafkaBaseTests {
 
 		triggerKafkaCompaction(fresh.uid);
 
-		LongAdder postDelKeys = checkOwnedContent(fresh.uid, domStream);
-		System.err.println("postDel " + postDelKeys.sum());
+		int postDelKeys = checkOwnedContent(fresh.uid, domStream);
+		System.err.println("postDel " + postDelKeys + " (was " + ownedKeys + " before deletion)");
+		assertTrue(postDelKeys < ownedKeys);
+
 	}
 
-	private LongAdder checkOwnedContent(String ownerUid, ILiveStream domStream) {
+	private int checkOwnedContent(String ownerUid, ILiveStream domStream) {
 		LongAdder ownedKeys = new LongAdder();
 		Set<String> distinctKeys = new LinkedHashSet<>();
 		IResumeToken token = domStream.subscribe(de -> {
@@ -106,12 +108,11 @@ public class DeletionsWithKafkaTests extends MailApiWithKafkaBaseTests {
 			System.err.println("        Distinct " + s);
 		}
 
-		return ownedKeys;
+		return distinctKeys.size();
 	}
 
 	private void triggerKafkaCompaction(String owner) throws InterruptedException {
-		System.err.println("Sleeping until segment.ms occurs");
-		Thread.sleep(6000);
+		System.err.println("Sleeping with fresh writes until compaction occurs...");
 
 		// write something for segment roll-over
 		BaseContainerDescriptor bcd = BaseContainerDescriptor.create("fake_" + owner, "nom-bidon", "type-bidon", owner,
@@ -125,7 +126,7 @@ public class DeletionsWithKafkaTests extends MailApiWithKafkaBaseTests {
 			ItemValue<Foo> pill = ItemValue.create("fake" + System.currentTimeMillis() + "." + i, new Foo());
 			pill.value.bar = pill.uid;
 			tgt.delete(pill).orTimeout(10, TimeUnit.SECONDS).join();
-			Thread.sleep(1000);
+			Thread.sleep(2000);
 			System.err.println(".... try to compact ....");
 		}
 		System.err.println("Compaction should have occurred.");

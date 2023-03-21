@@ -41,13 +41,11 @@ import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesRootMgmt;
-import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.MailboxReplicaRootUpdate;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
 import net.bluemind.backend.mail.replica.api.utils.Subtree;
-import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
 import net.bluemind.backend.mail.replica.service.internal.hooks.DeletedDataMementos;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
@@ -239,22 +237,19 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 		Set<String> cacheCleanups = new HashSet<>();
 
 		for (Container cont : recordsContainers) {
-			cacheCleanups.add(IMailReplicaUids.getUniqueId(cont.uid));
+			String folderUid = IMailReplicaUids.getUniqueId(cont.uid);
+			cacheCleanups.add(folderUid);
 			IMailboxes mailboxesApi = context.su().provider().instance(IMailboxes.class, cont.domainUid);
 			ItemValue<Mailbox> mailbox = mailboxesApi.getComplete(cont.owner);
 			if (mailbox == null) {
 				throw ServerFault.notFound("mailbox of " + cont.owner + " not found");
 			}
 			String subtreeContainerUid = IMailReplicaUids.subtreeUid(cont.domainUid, mailbox);
+			IDbByContainerReplicatedMailboxes foldersApi = prov.instance(IDbByContainerReplicatedMailboxes.class,
+					subtreeContainerUid);
 			try {
-				Container subtreeContainer = contStore.get(subtreeContainerUid);
-				MailboxRecordStore store = new MailboxRecordStore(ds, cont, subtreeContainer);
-				ContainerStoreService<MailboxRecord> storeService = new ContainerStoreService<>(ds,
-						context.getSecurityContext(), cont, store);
-				logger.info("remove mailbox_records container {}", cont.uid);
-				storeService.prepareContainerDelete();
-				containersApi.delete(cont.uid);
-			} catch (SQLException e) {
+				foldersApi.delete(folderUid);
+			} catch (Exception e) {
 				logger.error("Unable to reset mailbox_records {}: {}", cont.uid, e.getMessage(), e);
 			}
 		}
