@@ -316,7 +316,7 @@ public class MailFilterRule {
 		 return rules.stream().sorted((r1, r2) -> {
 			int typeComparison = Integer.compare(r1.type.executionOrder, r2.type.executionOrder);
 			return (typeComparison == 0) ? Integer.compare(rules.indexOf(r1), rules.indexOf(r2)) : typeComparison;
-		}).toList();
+		}).collect(Collectors.toList());
 	}
 
 	@Override
