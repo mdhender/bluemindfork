@@ -124,21 +124,12 @@ public class AuthenticationFilter implements IWebFilter {
 			return CompletableFuture.completedFuture(request);
 		}
 
-		Optional<String> domainUid = getDomainUid(request);
-		if (domainUid.isEmpty()) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("[{}] Redirect to /login/native. headers {}", request.path(), request.headers());
-			}
-			request.response().headers().add(HttpHeaders.LOCATION, "/login/native");
-			request.response().setStatusCode(301);
-			request.response().end();
-			return CompletableFuture.completedFuture(null);
-		}
+		String domainUid = getDomainUid(request);
 
-		if (isCasEnabled(domainUid.get())) {
-			redirectToCasServer(request, domainUid.get());
+		if (isCasEnabled(domainUid)) {
+			redirectToCasServer(request, domainUid);
 		} else {
-			redirectToOpenIdServer(request, domainUid.get());
+			redirectToOpenIdServer(request, domainUid);
 		}
 
 		return CompletableFuture.completedFuture(null);
@@ -235,15 +226,11 @@ public class AuthenticationFilter implements IWebFilter {
 
 		purgeSessionCookie(request.response().headers());
 
-		Optional<String> domainUid = getDomainUid(request);
-		if (domainUid.isEmpty()) {
-			request.response().headers().add(HttpHeaders.LOCATION, "/");
-		} else {
-			Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
-					.get(domainUid.get());
-			request.response().headers().add(HttpHeaders.LOCATION,
-					domainSettings.get(OpenIdProperties.OPENID_END_SESSION_ENDPOINT.name()));
-		}
+		String domainUid = getDomainUid(request);
+		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
+				.get(domainUid);
+		request.response().headers().add(HttpHeaders.LOCATION,
+				domainSettings.get(OpenIdProperties.OPENID_END_SESSION_ENDPOINT.name()));
 
 		request.response().setStatusCode(302);
 		request.response().end();
@@ -274,7 +261,7 @@ public class AuthenticationFilter implements IWebFilter {
 
 	}
 
-	private Optional<String> getDomainUid(HttpServerRequest request) {
+	private String getDomainUid(HttpServerRequest request) {
 		SharedMap<String, Map<String, String>> all = MQ
 				.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS);
 
@@ -282,7 +269,7 @@ public class AuthenticationFilter implements IWebFilter {
 			Map<String, String> values = all.get(domainUid);
 			String extUrl = values.get(DomainSettingsKeys.external_url.name());
 			return request.host().equals(extUrl);
-		}).findFirst();
+		}).findFirst().orElse("global.virt");
 	}
 
 	private String createCodeVerifier() {

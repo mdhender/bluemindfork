@@ -239,6 +239,7 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 	}
 
 	private void error(AsyncHandler<RestResponse> response, String key, Exception e) {
+		logger.error(e.getMessage(), e);
 		Sessions.get().invalidate(key);
 		RestResponse resp = RestResponse.invalidSession(String.format("invalid accesstoken: %s", e.getMessage()));
 		resp.headers.add("WWW-authenticate", "Bearer");

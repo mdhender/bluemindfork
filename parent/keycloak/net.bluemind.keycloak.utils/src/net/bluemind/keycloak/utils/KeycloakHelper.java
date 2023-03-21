@@ -32,6 +32,7 @@ import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.config.Token;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -94,7 +95,8 @@ public class KeycloakHelper {
 		String krbAdIp = null;
 		String krbKeytab = null;
 		String casUrl = null;
-		if (domain.value.properties != null && domain.value.properties.get(DomainAuthProperties.auth_type.name()) != null) {
+		if (domain.value.properties != null
+				&& domain.value.properties.get(DomainAuthProperties.auth_type.name()) != null) {
 			authType = domain.value.properties.get(DomainAuthProperties.auth_type.name());
 			if (AuthTypes.KERBEROS.name().equals(authType)) {
 				krbAdDomain = domain.value.properties.get(DomainAuthProperties.krb_ad_domain.name());
@@ -119,15 +121,16 @@ public class KeycloakHelper {
 				authType = AuthTypes.INTERNAL.name();
 			}
 		}
-		
+
 		String auth_type = authType;
 		String krb_ad_domain = krbAdDomain;
 		String krb_ad_ip = krbAdIp;
 		String krb_keytab = krbKeytab;
 		String cas_url = casUrl;
-		if ( AuthTypes.KERBEROS.name().equals(auth_type) ) {
+		if (AuthTypes.KERBEROS.name().equals(auth_type)) {
 
-			// This is a naming convention. Must be documented so AD admin can generate the keytab accordingly !
+			// This is a naming convention. Must be documented so AD admin can generate the
+			// keytab accordingly !
 			String serverPrincipal = "HTTP/bluemind." + domain.uid + "@" + krb_ad_domain;
 
 			String keytabPath = "/etc/bm-keycloak/" + domain.uid + ".keytab";
@@ -213,6 +216,17 @@ public class KeycloakHelper {
 			opts.setVerifyHost(false);
 		}
 		return VertxPlatform.getVertx().createHttpClient(opts);
+	}
+
+	public static void initForDomain(String domainId) {
+		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+
+		ItemValue<Domain> domain = provider.instance(IDomains.class).get(domainId);
+		if (domain == null || domain.value == null) {
+			throw ServerFault.notFound("Domain " + domainId + " not found");
+		}
+
+		initForDomain(domain);
 	}
 
 }

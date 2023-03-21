@@ -40,7 +40,6 @@ import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -105,13 +104,12 @@ public class FormHandler implements Handler<HttpServerRequest>, NeedVertx {
 		List<String> forwadedFor = new ArrayList<>(request.headers().getAll("X-Forwarded-For"));
 		forwadedFor.add(request.remoteAddress().host());
 
-		prov.sessionId(login, pass, forwadedFor, new AsyncHandler<JsonObject>() {
+		prov.sessionId(login, pass, forwadedFor, new AsyncHandler<String>() {
 
 			@Override
-			public void success(JsonObject json) {
+			public void success(String sid) {
 				MultiMap headers = request.response().headers();
 
-				String sid = json.getString("sid");
 				if (sid == null) {
 					logger.error("Error during auth, {} login not valid (not found/archived or not user)", login);
 					headers.add(HttpHeaders.LOCATION, "/errors-pages/deniedAccess.html?login=" + login);

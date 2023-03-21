@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
 
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
 import net.bluemind.authentication.api.IAuthenticationPromise;
 import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.authentication.api.LoginResponse.Status;
@@ -80,7 +79,7 @@ public class AuthProvider {
 
 	}
 
-	public void sessionId(ExternalCreds externalCreds, List<String> remoteIps, AsyncHandler<JsonObject> handler) {
+	public void sessionId(ExternalCreds externalCreds, List<String> remoteIps, AsyncHandler<String> handler) {
 		if (Strings.isNullOrEmpty(externalCreds.getLoginAtDomain())
 				|| !externalCreds.getLoginAtDomain().contains("@")) {
 			handler.failure(new ServerFault(
@@ -111,7 +110,7 @@ public class AuthProvider {
 	}
 
 	public void sessionId(final String loginAtDomain, final String password, List<String> remoteIps,
-			final AsyncHandler<JsonObject> handler) {
+			final AsyncHandler<String> handler) {
 		VertxPromiseServiceProvider sp = getProvider(null, remoteIps);
 
 		logger.info("authenticating {}", loginAtDomain);
@@ -132,7 +131,7 @@ public class AuthProvider {
 				});
 	}
 
-	private void doSudo(List<String> remoteIps, AsyncHandler<JsonObject> handler, ExternalCreds externalCreds) {
+	private void doSudo(List<String> remoteIps, AsyncHandler<String> handler, ExternalCreds externalCreds) {
 		logger.info("[{}] sessionId (EXT)", externalCreds.getLoginAtDomain());
 
 		getProvider(Token.admin0(), remoteIps).instance(IAuthenticationPromise.class)
@@ -152,7 +151,7 @@ public class AuthProvider {
 	}
 
 	private void loginAtDomainAsEmail(IMailboxesPromise mailboxClient, List<String> remoteIps,
-			ExternalCreds externalCreds, AsyncHandler<JsonObject> handler, String domainName) {
+			ExternalCreds externalCreds, AsyncHandler<String> handler, String domainName) {
 		mailboxClient.byEmail(externalCreds.getLoginAtDomain()).whenComplete((mailbox, exception) -> {
 			if (exception != null) {
 				handler.failure(exception);
@@ -173,7 +172,7 @@ public class AuthProvider {
 		});
 	}
 
-	private void handlerLoginSuccess(LoginResponse lr, List<String> remoteIps, AsyncHandler<JsonObject> handler) {
+	private void handlerLoginSuccess(LoginResponse lr, List<String> remoteIps, AsyncHandler<String> handler) {
 		final SessionData sd = new SessionData(lr.authUser.value);
 
 		sd.authKey = lr.authKey;
@@ -200,11 +199,7 @@ public class AuthProvider {
 		}
 
 		SessionsCache.get().getCache().put(sd.authKey, sd);
-
-		JsonObject ret = new JsonObject();
-		ret.put("sid", sd.authKey);
-		ret.put("domain_uid", sd.domainUid);
-		handler.success(ret);
+		handler.success(sd.authKey);
 	}
 
 	public CompletableFuture<Void> logout(String sessionId) {

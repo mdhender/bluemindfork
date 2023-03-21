@@ -89,7 +89,7 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 								resp.body(body -> {
 									JsonObject token = new JsonObject(new String(body.result().getBytes()));
 									String redirectTo = jsonState.getString("path");
-									validateToken(event, forwadedFor, token, redirectTo);
+									validateToken(event, forwadedFor, token, redirectTo, domainUid);
 								});
 							} else {
 								error(event, respHandler.cause());
@@ -131,8 +131,8 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 		return URLEncoder.encode(s, StandardCharsets.UTF_8);
 	}
 
-	private void validateToken(HttpServerRequest request, List<String> forwadedFor, JsonObject token,
-			String redirectTo) {
+	private void validateToken(HttpServerRequest request, List<String> forwadedFor, JsonObject token, String redirectTo,
+			String domainUid) {
 		DecodedJWT accessToken = JWT.decode(token.getString("access_token"));
 
 		Claim email = accessToken.getClaim("email");
@@ -145,7 +145,7 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 
 		ExternalCreds creds = new ExternalCreds();
 		creds.setLoginAtDomain(email.asString());
-		createSession(request, prov, forwadedFor, creds, redirectTo, token);
+		createSession(request, prov, forwadedFor, creds, redirectTo, domainUid, token);
 
 	}
 

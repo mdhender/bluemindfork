@@ -51,20 +51,24 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 	}
 
 	protected void createSession(HttpServerRequest request, AuthProvider prov, List<String> forwadedFor,
-			ExternalCreds creds, String redirectTo) {
-		createSession(request, prov, forwadedFor, creds, redirectTo, null);
+			ExternalCreds creds, String redirectTo, String domainUid) {
+		createSession(request, prov, forwadedFor, creds, redirectTo, domainUid, null);
 	}
 
 	protected void createSession(HttpServerRequest request, AuthProvider prov, List<String> forwadedFor,
-			ExternalCreds creds, String redirectTo, JsonObject token) {
+			ExternalCreds creds, String redirectTo) {
+		createSession(request, prov, forwadedFor, creds, redirectTo, null, null);
+	}
+
+	protected void createSession(HttpServerRequest request, AuthProvider prov, List<String> forwadedFor,
+			ExternalCreds creds, String redirectTo, String domainUid, JsonObject token) {
 		logger.info("Create session for {}", creds.getLoginAtDomain());
-		prov.sessionId(creds, forwadedFor, new AsyncHandler<JsonObject>() {
+		prov.sessionId(creds, forwadedFor, new AsyncHandler<String>() {
 			@Override
-			public void success(JsonObject json) {
+			public void success(String sid) {
 
 				MultiMap headers = request.response().headers();
 
-				String sid = json.getString("sid");
 				if (sid == null) {
 					logger.error("Error during auth, {} login not valid (not found/archived or not user)",
 							creds.getLoginAtDomain());
@@ -80,7 +84,7 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 					cookie.put("access_token", token.getString("access_token"));
 					cookie.put("refresh_token", token.getString("refresh_token"));
 					cookie.put("sid", sid);
-					cookie.put("domain_uid", json.getString("domain_uid"));
+					cookie.put("domain_uid", domainUid);
 
 					Cookie openIdCookie = new DefaultCookie("OpenIdToken", cookie.encode());
 					openIdCookie.setPath("/");

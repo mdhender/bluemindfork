@@ -38,6 +38,7 @@ import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
 import net.bluemind.keycloak.api.Realm;
+import net.bluemind.keycloak.utils.KeycloakHelper;
 import net.bluemind.role.api.BasicRoles;
 
 public class KeycloakAdminService extends KeycloakAdminClient implements IKeycloakAdmin {
@@ -152,6 +153,11 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 		}
 		realm.supportedLocales = supportedLocales;
 		return realm;
+	}
+
+	@Override
+	public void initForDomain(String domainId) throws ServerFault {
+		KeycloakHelper.initForDomain(domainId);
 	}
 
 }

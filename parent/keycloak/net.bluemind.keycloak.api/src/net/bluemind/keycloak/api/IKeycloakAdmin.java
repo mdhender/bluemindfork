@@ -21,6 +21,7 @@ import java.util.List;
 
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -45,5 +46,9 @@ public interface IKeycloakAdmin {
 	@DELETE
 	@Path("{domainId}")
 	public void deleteRealm(@PathParam(value = "domainId") String domainId) throws ServerFault;
+
+	@POST
+	@Path("{domainId}")
+	public void initForDomain(@PathParam(value = "domainId") String domainId) throws ServerFault;
 
 }

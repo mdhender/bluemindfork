@@ -60,18 +60,12 @@ public class SharedDomainSettingsVerticle extends AbstractVerticle {
 		@Override
 		public void onUpdated(BmContext context, ItemValue<Domain> previousValue, ItemValue<Domain> domain)
 				throws ServerFault {
-			if ("global.virt".equals(domain.uid)) {
-				return;
-			}
 			SharedDomainSettingsVerticle.putDomainSettingsAndProperties(domain);
 		}
 
 		@Override
 		public void onSettingsUpdated(BmContext context, ItemValue<Domain> domain, Map<String, String> previousSettings,
 				Map<String, String> currentSettings) throws ServerFault {
-			if ("global.virt".equals(domain.uid)) {
-				return;
-			}
 			SharedDomainSettingsVerticle.putDomainSettingsAndProperties(domain);
 		}
 
@@ -84,7 +78,7 @@ public class SharedDomainSettingsVerticle extends AbstractVerticle {
 		MQ.init().thenAccept(v -> {
 			IServiceProvider sysprov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 			IDomains domApi = sysprov.instance(IDomains.class);
-			domApi.all().stream().filter(d -> !"global.virt".equals(d.uid)).forEach(dom -> {
+			domApi.all().stream().forEach(dom -> {
 				SharedDomainSettingsVerticle.putDomainSettingsAndProperties(dom);
 				logger.info("SharedDomainPropertiesVerticle pre-load domain properties for {}", dom.uid);
 			});

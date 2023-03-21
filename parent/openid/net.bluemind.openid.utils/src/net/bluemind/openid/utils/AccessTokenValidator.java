@@ -22,6 +22,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -55,7 +56,7 @@ public class AccessTokenValidator {
 
 	private static final Logger logger = LoggerFactory.getLogger(AccessTokenValidator.class);
 
-	private static Optional<GuavaCachedJwkProvider> provider = Optional.empty();
+	private static Map<String, GuavaCachedJwkProvider> provider = new HashMap<>();
 
 	private AccessTokenValidator() {
 
@@ -91,12 +92,12 @@ public class AccessTokenValidator {
 
 		try {
 
-			if (provider.isEmpty()) {
-				provider = Optional.of(new GuavaCachedJwkProvider(
+			if (!provider.containsKey(domainUid)) {
+				provider.put(domainUid, new GuavaCachedJwkProvider(
 						new UrlJwkProvider(new URL(domainProperties.get(OpenIdProperties.OPENID_JWKS_URI.name())))));
 			}
 
-			Jwk jwk = provider.get().get(token.getKeyId());
+			Jwk jwk = provider.get(domainUid).get(token.getKeyId());
 			Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
 			algorithm.verify(token);
 		} catch (Exception e) {
@@ -158,7 +159,7 @@ public class AccessTokenValidator {
 	}
 
 	public static void invalidateCache() {
-		provider = Optional.empty();
+		provider.clear();
 	}
 
 	private static HttpClient initHttpClient(URI uri) {
