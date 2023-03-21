@@ -164,7 +164,7 @@ export default {
             this.collapseAll();
             this.markAsRead();
             this.hideDispositionNotificationAlert();
-            this.showDispositionNotificationAlert(this.conversationMessages);
+            this.handleDispositionNotification(this.conversationMessages);
         },
         markAsRead() {
             if (

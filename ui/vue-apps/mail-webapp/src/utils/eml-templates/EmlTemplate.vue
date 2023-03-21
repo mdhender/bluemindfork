@@ -1,7 +1,5 @@
 <script>
 import Vue from "vue";
-import VueI18n from "vue-i18n";
-Vue.use(VueI18n);
 import { inject } from "@bluemind/inject";
 import Part from "./Part";
 

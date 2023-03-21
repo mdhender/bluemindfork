@@ -43,7 +43,8 @@ describe("Store session", () => {
             mail_thread: "false",
             trust_every_remote_content: "false",
             always_ask_delivery_receipt: "false",
-            always_ask_read_receipt: "false"
+            always_ask_read_receipt: "false",
+            answer_read_confirmation: "ask"
         });
     });
 

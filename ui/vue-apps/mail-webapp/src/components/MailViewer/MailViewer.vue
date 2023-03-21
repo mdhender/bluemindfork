@@ -80,7 +80,7 @@ export default {
                 }
 
                 this.hideDispositionNotificationAlert();
-                this.showDispositionNotificationAlert([this.message]);
+                this.handleDispositionNotification([this.message]);
             },
             immediate: true
         }
