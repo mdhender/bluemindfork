@@ -66,7 +66,7 @@ export async function checkCertificate(certificate: pki.Certificate, options?: C
         if (options?.smimeUsage) {
             checkSmimeUsage(certificate, options.smimeUsage);
         }
-        await checkRevoked(certificate.serialNumber, options?.date);
+        await checkRevoked(certificate, options?.date);
     } catch (error: unknown) {
         if (typeof error === "string") {
             throw new UntrustedCertificateError(error);

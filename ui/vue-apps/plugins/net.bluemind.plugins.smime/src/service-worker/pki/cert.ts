@@ -1,21 +1,50 @@
 import { pki } from "node-forge";
 import { ItemValue } from "@bluemind/core.container.api";
 import { RevocationResult, SmimeCacert, SmimeCACertClient, SmimeRevocationClient } from "@bluemind/smime.cacerts.api";
+import db from "./SMimePkiDB";
 import session from "../environnment/session";
 import { SMIME_CERT_USAGE } from "../../lib/constants";
 import { UntrustedCertificateEmailNotFoundError } from "../../lib/exceptions";
 
-export async function checkRevoked(serialNumber: string, date?: Date) {
-    const revokedList = await new SmimeRevocationClient(await session.sid, await session.domain).isRevoked([
-        serialNumber
-    ]);
-    const revoked = revokedList[0];
-    if (revoked.status === RevocationResult.RevocationStatus.REVOKED && (!date || date.getTime() > revoked.date!)) {
-        if (revoked.reason?.toLowerCase() === "certificatehold") {
-            // no cache for those one
-        }
+export async function checkRevoked(certificate: pki.Certificate, date?: Date) {
+    const revocation = await getRevocation(certificate);
+    if (
+        revocation.status === RevocationResult.RevocationStatus.REVOKED &&
+        (!date || date.getTime() > revocation.date!)
+    ) {
         throw "Revoked certificate";
     }
+}
+
+async function getRevocation(certificate: pki.Certificate): Promise<RevocationResult> {
+    const cached = await db.getRevocation(certificate.serialNumber, certificate.issuer.hash);
+    if (cached && cached.cacheValidity > new Date()) {
+        return cached;
+    }
+    // once API is changed, use https://www.npmjs.com/package/rfc2253 to format issuer at RFC2253 format
+    const revocationList = await new SmimeRevocationClient(await session.sid, await session.domain).isRevoked([
+        certificate.serialNumber
+    ]);
+    const revocation = revocationList[0];
+    const cacheValidity = getRevocationCacheValidity(revocation);
+    await db.setRevocation({ ...revocation, cacheValidity }, certificate.issuer.hash);
+    return revocation;
+}
+
+// exported only for tests
+export function getRevocationCacheValidity(revocation: RevocationResult): Date {
+    if (revocation.status === RevocationResult.RevocationStatus.REVOKED) {
+        if (revocation.reason && revocation.reason.toLowerCase() === "certificatehold") {
+            const expiration = new Date();
+            expiration.setDate(expiration.getDate() + 1);
+            return expiration;
+        }
+        const MAX_TIMESTAMP = 8640000000000000;
+        return new Date(MAX_TIMESTAMP);
+    }
+    const expiration = new Date();
+    expiration.setDate(expiration.getDate() + 7);
+    return expiration;
 }
 
 export function checkBasicConstraints(certificate: pki.Certificate) {

@@ -113,7 +113,7 @@ async function fetchContactMembers(containerUid, contactUid) {
                         vCardLike.containerUid === (m.containerUid || containerUid) && vCardLike.uid === m.itemUid
                 )
         )
-        .map(m => ({ kind: VCardKind.individual, dn: m.commonName, address: m.mailto }));
+        .map(m => ({ kind: VCard.Kind.individual, dn: m.commonName, address: m.mailto }));
 
     return [...fetchedVCards, ...missingVCards];
 }

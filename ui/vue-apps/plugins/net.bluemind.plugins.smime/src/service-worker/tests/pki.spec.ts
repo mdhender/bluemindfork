@@ -251,7 +251,6 @@ describe("pki", () => {
 
     describe("check if certificate can be trusted for S/MIME usage", () => {
         const aliceCertificate = pki.certificateFromPem(aliceCert);
-        fetchMock.config.overwriteRoutes = true;
 
         beforeEach(() => {
             (<jest.Mock>getCaCerts).mockResolvedValue([
@@ -259,9 +258,11 @@ describe("pki", () => {
                 { value: { cert: basicCA } },
                 { value: { cert: anyExtendedKeyUsageCert } }
             ]);
-            fetchMock.mock("end:/api/smime_revocation/foo.bar/is_revoked", [
-                { status: RevocationResult.RevocationStatus.NOT_REVOKED }
-            ]);
+            fetchMock.mock(
+                "end:/api/smime_revocation/foo.bar/is_revoked",
+                [{ status: RevocationResult.RevocationStatus.NOT_REVOKED }],
+                { overwriteRoutes: true }
+            );
         });
 
         test("untrusted if date is not within certificate validity period", async done => {
@@ -332,7 +333,6 @@ describe("pki", () => {
         });
         test("cant use certificate because of its 'extendedKeyUsage' (if set, its value should be either emailProtection or anyExtendedKeyUsage)", async done => {
             try {
-                // await checkCertificate(pki.certificateFromPem(aliceCert));
                 await checkCertificate(aliceCertificate); // emailProtection set
                 await checkCertificate(pki.certificateFromPem(anyExtendedKeyUsageCert));
                 await checkCertificate(pki.certificateFromPem(basicCert));
@@ -369,9 +369,11 @@ describe("pki", () => {
         });
 
         test("untrusted if cert is revoked", async done => {
-            fetchMock.mock("end:/api/smime_revocation/foo.bar/is_revoked", [
-                { status: RevocationResult.RevocationStatus.REVOKED, date: new Date().getTime() }
-            ]);
+            fetchMock.mock(
+                "end:/api/smime_revocation/foo.bar/is_revoked",
+                [{ status: RevocationResult.RevocationStatus.REVOKED, date: new Date().getTime() }],
+                { overwriteRoutes: true }
+            );
             try {
                 await checkCertificate(aliceCertificate);
                 done.fail("revoked certificate must not be trusted");
@@ -383,9 +385,11 @@ describe("pki", () => {
 
         test("cert is trusted if date checked is before revokation", async done => {
             const revokedDate = new Date("2023-02-01");
-            fetchMock.mock("end:/api/smime_revocation/foo.bar/is_revoked", [
-                { status: RevocationResult.RevocationStatus.REVOKED, date: revokedDate.getTime() }
-            ]);
+            fetchMock.mock(
+                "end:/api/smime_revocation/foo.bar/is_revoked",
+                [{ status: RevocationResult.RevocationStatus.REVOKED, date: revokedDate.getTime() }],
+                { overwriteRoutes: true }
+            );
             try {
                 await checkCertificate(aliceCertificate, { date: new Date("2023-01-01") });
                 done();
