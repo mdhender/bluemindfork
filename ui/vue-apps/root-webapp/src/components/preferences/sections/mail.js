@@ -37,6 +37,7 @@ export default function (i18n) {
                                 component: {
                                     name: "PrefFieldChoice",
                                     options: {
+                                        imageMode: true,
                                         setting: "mail_thread",
                                         needReload: true,
                                         choices: [
@@ -65,6 +66,7 @@ export default function (i18n) {
                                 component: {
                                     name: "PrefFieldChoice",
                                     options: {
+                                        imageMode: true,
                                         setting: "mail_message_list_style",
                                         autosave: true,
                                         choices: [
@@ -135,6 +137,93 @@ export default function (i18n) {
                                         setting: "logout_purge",
                                         autosave: true,
                                         label: i18n.t("preferences.mail.logout.empty.trash")
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        id: "read_and_delivery_receipts",
+                        name: i18n.t("preferences.mail.receipts"),
+                        fields: [
+                            {
+                                id: "info",
+                                component: {
+                                    name: "PrefFieldInfo",
+                                    options: {
+                                        lines: [
+                                            i18n.t("preferences.mail.receipts.info.delivery"),
+                                            i18n.t("preferences.mail.receipts.info.read")
+                                        ],
+                                        readMoreLink: "path/to/doc.html"
+                                    }
+                                }
+                            },
+                            {
+                                id: "ask",
+                                component: {
+                                    name: "PrefFieldLabel",
+                                    options: {
+                                        label: i18n.t("preferences.mail.receipts.ask")
+                                    }
+                                }
+                            },
+                            {
+                                id: "ask_check_group",
+                                component: {
+                                    name: "PrefFieldCheckGroup",
+                                    options: {
+                                        checks: [
+                                            {
+                                                id: "ask_delivery",
+                                                label: i18n.t("preferences.mail.receipts.ask.delivery"),
+                                                setting: "always_ask_delivery_receipt",
+                                                autosave: true
+                                            },
+                                            {
+                                                id: "ask_read",
+                                                label: i18n.t("preferences.mail.receipts.ask.read"),
+                                                setting: "always_ask_read_receipt",
+                                                autosave: true
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                id: "answer_read_confirmation",
+                                component: {
+                                    name: "PrefFieldLabel",
+                                    options: {
+                                        label: i18n.t("preferences.mail.receipts.answer_read_confirmation")
+                                    }
+                                }
+                            },
+                            {
+                                id: "answer_read_confirmation_choice",
+                                component: {
+                                    name: "PrefFieldChoice",
+                                    options: {
+                                        setting: "answer_read_confirmation",
+                                        autosave: true,
+                                        choices: [
+                                            {
+                                                name: i18n.t(
+                                                    "preferences.mail.receipts.answer_read_confirmation.never"
+                                                ),
+                                                value: "never"
+                                            },
+                                            {
+                                                name: i18n.t("preferences.mail.receipts.answer_read_confirmation.ask"),
+                                                value: "ask"
+                                            },
+                                            {
+                                                name: i18n.t(
+                                                    "preferences.mail.receipts.answer_read_confirmation.always"
+                                                ),
+                                                value: "always"
+                                            }
+                                        ]
                                     }
                                 }
                             }

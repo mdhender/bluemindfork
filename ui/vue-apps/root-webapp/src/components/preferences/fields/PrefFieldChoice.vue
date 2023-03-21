@@ -1,14 +1,18 @@
 <template>
-    <bm-form-radio-group v-model="value" class="pref-field-choice d-flex flex-wrap py-5">
+    <bm-form-radio-group
+        v-model="value"
+        class="pref-field-choice d-flex flex-wrap py-5"
+        :class="{ 'image-mode': imageMode, 'flex-column': !imageMode }"
+    >
         <bm-form-radio v-for="choice in choices" :key="choice.value" :value="choice.value" :aria-label="choice.name">
-            <template #img>
+            <template v-if="imageMode" #img>
                 <template v-if="!collapsed">
                     <img v-if="choice.img" :src="choice.img" alt="null" />
                     <!-- eslint-disable-next-line vue/no-v-html -->
                     <div v-if="choice.svg" v-html="choice.svg" />
                 </template>
             </template>
-            {{ choice.name }}
+            <span class="text-neutral">{{ choice.name }}</span>
         </bm-form-radio>
     </bm-form-radio-group>
 </template>
@@ -22,10 +26,8 @@ export default {
     components: { BmFormRadio, BmFormRadioGroup },
     mixins: [OneSettingField],
     props: {
-        choices: {
-            type: Array,
-            required: true
-        }
+        choices: { type: Array, required: true },
+        imageMode: { type: Boolean, default: false }
     }
 };
 </script>
@@ -36,8 +38,10 @@ export default {
 
 .pref-field-choice {
     gap: $sp-5;
-    @include from-lg {
-        gap: $sp-8;
+    &.image-mode {
+        @include from-lg {
+            gap: $sp-8;
+        }
     }
 }
 </style>

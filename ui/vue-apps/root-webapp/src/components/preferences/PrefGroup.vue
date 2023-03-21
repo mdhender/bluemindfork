@@ -21,9 +21,12 @@
 
 <script>
 import PrefFieldCheck from "./fields/PrefFieldCheck";
+import PrefFieldCheckGroup from "./fields/PrefFieldCheckGroup";
 import PrefFieldChoice from "./fields/PrefFieldChoice";
 import PrefFieldComboBox from "./fields/PrefFieldComboBox";
+import PrefFieldInfo from "./fields/PrefFieldInfo";
 import PrefFieldInput from "./fields/PrefFieldInput";
+import PrefFieldLabel from "./fields/PrefFieldLabel";
 import PrefFieldSelect from "./fields/PrefFieldSelect";
 import PrefFieldSwitch from "./fields/PrefFieldSwitch";
 
@@ -82,9 +85,12 @@ export default {
         PrefExtAccountCreation,
         PrefExtAccountList,
         PrefFieldCheck,
+        PrefFieldCheckGroup,
         PrefFieldChoice,
         PrefFieldComboBox,
+        PrefFieldInfo,
         PrefFieldInput,
+        PrefFieldLabel,
         PrefFieldSelect,
         PrefFieldSwitch,
         PrefIMSetPhonePresence,

@@ -4,25 +4,19 @@
             {{ text }}
         </div>
         <bm-button variant="link" :href="href" target="_blank">
-            {{ $t("common.read_more") }}
+            <bm-icon icon="popup" class="mr-3" />{{ $t("common.read_more") }}
         </bm-button>
     </div>
 </template>
 <script>
-import { BmButton } from "@bluemind/ui-components";
+import { BmButton, BmIcon } from "@bluemind/ui-components";
 
 export default {
     name: "PrefReadMore",
-    components: { BmButton },
+    components: { BmButton, BmIcon },
     props: {
-        href: {
-            type: String,
-            required: true
-        },
-        text: {
-            type: String,
-            default: null
-        }
+        href: { type: String, required: true },
+        text: { type: String, default: null }
     }
 };
 </script>
