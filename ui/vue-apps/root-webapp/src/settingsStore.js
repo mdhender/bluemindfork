@@ -9,7 +9,9 @@ const newWebmailDefaultSettings = {
     logout_purge: "false",
     mail_message_list_style: "normal",
     mail_thread: "false",
-    trust_every_remote_content: "false"
+    trust_every_remote_content: "false",
+    always_ask_delivery_receipt: "false",
+    always_ask_read_receipt: "false"
 };
 
 const otherDefaultSettings = {

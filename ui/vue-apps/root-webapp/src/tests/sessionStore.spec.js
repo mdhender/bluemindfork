@@ -41,7 +41,9 @@ describe("Store session", () => {
             mySetting: "MY_SETTING",
             mail_message_list_style: "compact",
             mail_thread: "false",
-            trust_every_remote_content: "false"
+            trust_every_remote_content: "false",
+            always_ask_delivery_receipt: "false",
+            always_ask_read_receipt: "false"
         });
     });
 
