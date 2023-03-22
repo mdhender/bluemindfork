@@ -104,4 +104,12 @@ public interface IServerTaskMonitor {
 	default void log(String format, Level level, Object... params) {
 		log(MessageFormatter.arrayFormat(format, params).getMessage(), level);
 	}
+
+	default void warn(String format, Object... params) {
+		log(MessageFormatter.arrayFormat(format, params).getMessage(), Level.WARN);
+	}
+
+	default void error(String format, Object... params) {
+		log(MessageFormatter.arrayFormat(format, params).getMessage(), Level.ERROR);
+	}
 }

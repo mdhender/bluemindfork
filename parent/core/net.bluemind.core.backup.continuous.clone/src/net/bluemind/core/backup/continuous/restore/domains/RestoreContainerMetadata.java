@@ -6,7 +6,9 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.backup.continuous.RecordKey;
+import net.bluemind.core.backup.continuous.RecordKey.Operation;
 import net.bluemind.core.backup.continuous.dto.ContainerMetadata;
 import net.bluemind.core.backup.continuous.dto.VersionnedItem;
 import net.bluemind.core.backup.continuous.restore.IDtoPreProcessor;
@@ -26,10 +28,12 @@ public class RestoreContainerMetadata implements RestoreDomainType {
 	private final RestoreLogger log;
 	private final IServiceProvider target;
 	private final List<IDtoPreProcessor<ContainerMetadata>> preProcs;
+	private final RestoreState state;
 
 	public RestoreContainerMetadata(RestoreLogger log, IServiceProvider target, RestoreState state) {
 		this.log = log;
 		this.target = target;
+		this.state = state;
 		this.preProcs = Arrays.asList(new ContainerMetadataUidFixup(state));
 	}
 
@@ -40,6 +44,23 @@ public class RestoreContainerMetadata implements RestoreDomainType {
 
 	@Override
 	public void restore(RecordKey key, String payload) {
+		IContainers contApi = target.instance(IContainers.class);
+
+		if (Operation.isDelete(key)) {
+			String cid = new JsonObject(payload).getString("uid");
+			cid = state.uidAlias(cid);
+			BaseContainerDescriptor exist = contApi.getLightIfPresent(cid);
+			if (exist != null) {
+				try {
+					log.delete(type(), key);
+					contApi.delete(cid);
+				} catch (Exception e) {
+					log.monitor().warn("Failed to delete {}", e.getMessage());
+				}
+			}
+			return;
+		}
+
 		VersionnedItem<ContainerMetadata> item = mrReader.read(payload);
 
 		for (IDtoPreProcessor<ContainerMetadata> preProc : preProcs) {
@@ -48,7 +69,6 @@ public class RestoreContainerMetadata implements RestoreDomainType {
 
 		ContainerMetadata metadata = item.value;
 
-		IContainers contApi = target.instance(IContainers.class);
 		Optional<ContainerDescriptor> maybeHere = Optional.ofNullable(contApi.getIfPresent(metadata.contDesc.uid));
 		if (!maybeHere.isPresent()) {
 			BaseContainerDescriptor cd = metadata.contDesc;

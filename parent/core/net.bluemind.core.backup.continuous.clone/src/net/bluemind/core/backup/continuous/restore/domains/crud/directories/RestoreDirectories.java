@@ -39,6 +39,7 @@ import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirectory;
 import net.bluemind.directory.api.IOrgUnits;
 import net.bluemind.directory.api.OrgUnit;
 import net.bluemind.directory.service.DirEntryHandler;
@@ -137,7 +138,7 @@ public class RestoreDirectories implements RestoreDomainType {
 
 	private void processEntry(RestoreLogger log, RecordKey key, String payload) {
 		if ("DELETE".equals(key.operation)) {
-			processDeletion(key);
+			processDeletion(key, new JsonObject(payload).getString("uid"));
 			return;
 		}
 
@@ -183,9 +184,40 @@ public class RestoreDirectories implements RestoreDomainType {
 		}
 	}
 
-	private void processDeletion(RecordKey key) {
-		// TODO delete the thing
-		log.skip(key.type, key, "DELETION");
+	private void processDeletion(RecordKey key, String entryUid) {
+		IDirectory dirApi = target.instance(IDirectory.class, key.uid);
+		DirEntry current = dirApi.findByEntryUid(entryUid);
+		if (current != null) {
+			switch (current.kind) {
+			case USER:
+				userRestore.delete(userRestore.api(), key, entryUid);
+				break;
+			case MAILSHARE:
+				mailshareRestore.delete(mailshareRestore.api(), key, entryUid);
+				break;
+			case ADDRESSBOOK:
+				domainAddressBookRestore.delete(domainAddressBookRestore.api(), key, entryUid);
+				break;
+			case CALENDAR:
+				domainCalendarRestore.delete(domainCalendarRestore.api(), key, entryUid);
+				break;
+			case EXTERNALUSER:
+				externalUserRestore.delete(externalUserRestore.api(), key, entryUid);
+				break;
+			case GROUP:
+				groupRestore.delete(groupRestore.api(), key, entryUid);
+				break;
+			case ORG_UNIT:
+				orgUnitRestore.delete(orgUnitRestore.api(), key, entryUid);
+				break;
+			case RESOURCE:
+				resourceRestore.delete(resourceRestore.api(), key, entryUid);
+				break;
+			default:
+				break;
+			}
+		}
+
 	}
 
 	private class DomainDirEntryRestore implements RestoreDomainType {
@@ -384,6 +416,10 @@ public class RestoreDirectories implements RestoreDomainType {
 		protected IExternalUser api(ItemValue<Domain> domain, RecordKey key) {
 			return target.instance(IExternalUser.class, domain.uid);
 		}
+
+		protected IExternalUser api() {
+			return target.instance(IExternalUser.class, domain.uid);
+		}
 	}
 
 	private class ResourceCrudRestore extends CrudDirEntryRestore.WithMailbox<ResourceDescriptor> {
@@ -409,6 +445,10 @@ public class RestoreDirectories implements RestoreDomainType {
 
 		@Override
 		protected IResources api(ItemValue<Domain> domain, RecordKey key) {
+			return target.instance(IResources.class, domain.uid);
+		}
+
+		protected IResources api() {
 			return target.instance(IResources.class, domain.uid);
 		}
 
@@ -465,6 +505,10 @@ public class RestoreDirectories implements RestoreDomainType {
 
 		@Override
 		protected IMailshare api(ItemValue<Domain> domain, RecordKey key) {
+			return target.instance(IMailshare.class, domain.uid);
+		}
+
+		protected IMailshare api() {
 			return target.instance(IMailshare.class, domain.uid);
 		}
 
@@ -526,6 +570,10 @@ public class RestoreDirectories implements RestoreDomainType {
 		protected IInCoreGroup api(ItemValue<Domain> domain, RecordKey key) {
 			return target.instance(IInCoreGroup.class, domain.uid);
 		}
+
+		protected IInCoreGroup api() {
+			return target.instance(IInCoreGroup.class, domain.uid);
+		}
 	}
 
 	private class UserCrudRestore extends CrudDirEntryRestore.WithMailbox<User> {
@@ -551,6 +599,10 @@ public class RestoreDirectories implements RestoreDomainType {
 
 		@Override
 		protected IUser api(ItemValue<Domain> domain, RecordKey key) {
+			return target.instance(IUser.class, domain.uid);
+		}
+
+		protected IUser api() {
 			return target.instance(IUser.class, domain.uid);
 		}
 
@@ -598,6 +650,10 @@ public class RestoreDirectories implements RestoreDomainType {
 
 		@Override
 		protected IOrgUnits api(ItemValue<Domain> domain, RecordKey key) {
+			return target.instance(IOrgUnits.class, domain.uid);
+		}
+
+		protected IOrgUnits api() {
 			return target.instance(IOrgUnits.class, domain.uid);
 		}
 
