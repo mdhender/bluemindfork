@@ -178,6 +178,7 @@ public class KafkaTopicStore implements ITopicStore, TopicManager {
 				long compactionLagMs = conf.getDuration("kafka.topic.maxCompactionLag", TimeUnit.MILLISECONDS);
 				long segmentMs = conf.getDuration("kafka.topic.maxSegmentDuration", TimeUnit.MILLISECONDS);
 				nt.configs(Map.of(//
+						TopicConfig.MIN_IN_SYNC_REPLICAS_CONFIG, Integer.toString(conf.getInt("kafka.topic.minIsr")), //
 						TopicConfig.MAX_MESSAGE_BYTES_CONFIG,
 						Long.toString((long) (conf.getMemorySize("kafka.producer.maxRecordSize").toBytes() * 1.05)), //
 						TopicConfig.COMPRESSION_TYPE_CONFIG, COMPRESSION_TYPE, //
