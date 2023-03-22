@@ -68,6 +68,7 @@ import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailshare.api.IMailshare;
 import net.bluemind.mailshare.api.Mailshare;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.state.RunningState;
 import net.bluemind.system.state.StateContext;
@@ -175,7 +176,7 @@ public class MailApiTestsBase {
 		this.serverProv = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 
 		if (setupUserAndProvider()) {
-			this.userUid = PopulateHelper.addUser("john", domUid, Routing.internal);
+			this.userUid = PopulateHelper.addUser("john", domUid, Routing.internal, BasicRoles.ROLE_OUTLOOK);
 			assertNotNull(userUid);
 
 			SecurityContext userSec = new SecurityContext("sid", userUid, Collections.emptyList(),
@@ -206,7 +207,8 @@ public class MailApiTestsBase {
 
 	protected ItemValue<User> sharedUser(String loginPrefix, String domUid, String userUid, Integer quota,
 			ByteSizeUnit quotaUnit) {
-		String janeUid = PopulateHelper.addUser(loginPrefix + System.currentTimeMillis(), domUid, Routing.internal);
+		String janeUid = PopulateHelper.addUser(loginPrefix + System.currentTimeMillis(), domUid, Routing.internal,
+				BasicRoles.ROLE_OUTLOOK);
 		assertNotNull(janeUid);
 
 		String janeAcls = IMailboxAclUids.uidForMailbox(janeUid);
