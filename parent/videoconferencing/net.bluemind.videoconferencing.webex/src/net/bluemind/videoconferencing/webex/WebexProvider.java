@@ -117,8 +117,12 @@ public class WebexProvider extends TemplateBasedVideoConferencingProvider implem
 
 	@Override
 	public void deleteConference(BmContext context, Map<String, String> resourceSettings, String conferenceId) {
-		WebexConferenceClient webexConferenceClient = new WebexConferenceClient(context);
-		webexConferenceClient.delete(conferenceId);
+		try {
+			WebexConferenceClient webexConferenceClient = new WebexConferenceClient(context);
+			webexConferenceClient.delete(conferenceId);
+		} catch (Exception e) {
+			logger.warn("Can't delete webex conference {}", conferenceId, e);
+		}
 	}
 
 	@Override

@@ -1821,7 +1821,7 @@ net.bluemind.calendar.vevent.ui.Form.prototype.onVideoConferencingSelect_ = func
 
   var resourceUid = this.getChild('bm-ui-form-videoconferencing-select').getValue();
   if (resourceUid == -1) {
-    this.addOrRemoveVideoConferencing_(null, 'remove');
+    this.addOrRemoveVideoConferencingRemoveFunc_(null, null);
     return;
   }
   this.ctx
