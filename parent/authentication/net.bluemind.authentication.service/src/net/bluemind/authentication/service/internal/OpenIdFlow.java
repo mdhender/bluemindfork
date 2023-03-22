@@ -234,7 +234,6 @@ public class OpenIdFlow {
 			if (entry.getValue().getSubject().equals(userUid)) {
 				logger.info("Associating OpenId access token to user session {}", userUid);
 				entry.getValue().setUserAccessToken(systemIdentifier, token);
-				break;
 			}
 		}
 	}

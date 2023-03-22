@@ -50,7 +50,6 @@ public class WebexConferenceClient {
 
 	private final String bearerToken;
 	private final BmContext su;
-	private static final int TIMEOUT = 10000;
 	private static final String apiEndpoint = "https://webexapis.com/v1/";
 	private static final String meetingsPath = "meetings";
 	private static final Logger logger = LoggerFactory.getLogger(WebexConferenceClient.class);
