@@ -8,6 +8,7 @@ module.exports = {
         "^~/actions$": "<rootDir>/src/store/types/actions",
         "^~/getters$": "<rootDir>/src/store/types/getters",
         "^~/mutations$": "<rootDir>/src/store/types/mutations",
+        "^!css-loader!sass-loader!(.*)$": "$1.scss",
         "~(.*)$": "<rootDir>/src$1"
     }
 };
