@@ -109,8 +109,9 @@ public class WebexProvider extends TemplateBasedVideoConferencingProvider implem
 		Map<String, String> webexProps = new HashMap<>();
 		webexProps.put("siteUrl", dialInfo.siteUrl);
 		webexProps.put("sipAddress", dialInfo.sipAddress);
-		webexProps.put("telephonyAccessCode", dialInfo.telephonyAccessCode);
-		webexProps.put("telephonyCallInNumbers", dialInfo.telephonyCallInNumbers);
+		webexProps.put("meetingNumber", dialInfo.meetingNumber);
+		webexProps.put("password", dialInfo.password);
+		webexProps.put("phoneAndVideoSystemPassword", dialInfo.phoneAndVideoSystemPassword);
 
 		return super.getConferenceInfo(context, resourceSettings, resource, vevent, webexProps);
 	}

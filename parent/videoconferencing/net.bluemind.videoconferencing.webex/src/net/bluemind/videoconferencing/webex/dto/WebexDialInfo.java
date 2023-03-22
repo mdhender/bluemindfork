@@ -18,7 +18,6 @@
  */
 package net.bluemind.videoconferencing.webex.dto;
 
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 public class WebexDialInfo {
@@ -27,17 +26,19 @@ public class WebexDialInfo {
 	public final String weblink;
 	public final String siteUrl;
 	public final String sipAddress;
-	public final String telephonyAccessCode;
-	public final String telephonyCallInNumbers;
+	public final String meetingNumber;
+	public final String password;
+	public final String phoneAndVideoSystemPassword;
 
-	public WebexDialInfo(String confId, String weblink, String siteUrl, String sipAddress, String telephonyAccessCode,
-			String telephonyCallInNumbers) {
+	public WebexDialInfo(String confId, String weblink, String siteUrl, String sipAddress, String meetingNumber,
+			String password, String phoneAndVideoSystemPassword) {
 		this.confId = confId;
 		this.weblink = weblink;
 		this.siteUrl = siteUrl;
 		this.sipAddress = sipAddress;
-		this.telephonyAccessCode = telephonyAccessCode;
-		this.telephonyCallInNumbers = telephonyCallInNumbers;
+		this.meetingNumber = meetingNumber;
+		this.password = password;
+		this.phoneAndVideoSystemPassword = phoneAndVideoSystemPassword;
 	}
 
 	public static WebexDialInfo fromJson(JsonObject response) {
@@ -45,23 +46,12 @@ public class WebexDialInfo {
 		String webLink = response.getString("webLink");
 		String siteUrl = response.getString("siteUrl");
 		String sipAddress = response.getString("sipAddress");
-		String telephonyAccessCode = "";
-		if (response.containsKey("telephonyAccessCode")) {
-			telephonyAccessCode = response.getString("telephonyAccessCode");
-		}
-		String telephonyCallInNumbers = "";
-		if (response.containsKey("telephony")) {
-			JsonObject telephony = response.getJsonObject("telephony");
-			if (telephony.containsKey("callInNumbers")) {
-				JsonArray numbers = telephony.getJsonArray("callInNumbers");
-				String[] numString = new String[numbers.size()];
-				for (int i = 0; i < numbers.size(); i++) {
-					numString[i] = numbers.getJsonObject(i).getString("callInNumber");
-				}
-				telephonyCallInNumbers = String.join(",", numString);
-			}
-		}
-		return new WebexDialInfo(confId, webLink, siteUrl, sipAddress, telephonyAccessCode, telephonyCallInNumbers);
+		String meetingNumber = response.getString("meetingNumber");
+		String password = response.getString("password");
+		String phoneAndVideoSystemPassword = response.getString("phoneAndVideoSystemPassword");
+
+		return new WebexDialInfo(confId, webLink, siteUrl, sipAddress, meetingNumber, password,
+				phoneAndVideoSystemPassword);
 	}
 
 }

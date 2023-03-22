@@ -67,10 +67,13 @@
 								<g:Label text="{c.templateInfoVarSipAddress}" />
 							</li>
 							<li style="width:32.7rem;">
-								<g:Label text="{c.templateInfoVarTelephonyAccessCode}" />
+								<g:Label text="{c.templateInfoVarMeetingNumber}" />
 							</li>
 							<li style="width:32.7rem;">
-								<g:Label text="{c.templateInfoVarTelephonyCallInNumbers}" />
+								<g:Label text="{c.templateInfoVarPhoneAndVideoSystemPassword}" />
+							</li>
+							<li style="width:32.7rem;">
+								<g:Label text="{c.templateInfoVarPassword}" />
 							</li>
 						</ul>
 					</p>

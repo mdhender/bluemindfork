@@ -35,7 +35,9 @@ public interface WebexConstants extends ConstantsWithLookup {
 
 	String templateInfoVarSipAddress();
 
-	String templateInfoVarTelephonyAccessCode();
+	String templateInfoVarMeetingNumber();
 
-	String templateInfoVarTelephonyCallInNumbers();
+	String templateInfoVarPhoneAndVideoSystemPassword();
+
+	String templateInfoVarPassword();
 }
