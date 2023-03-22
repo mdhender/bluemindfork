@@ -123,7 +123,7 @@ public class MockConnection implements MailboxConnection {
 
 	@Override
 	public AppendStatus append(String folder, List<String> flags, Date deliveryDate, ByteBuf buffer) {
-		return new AppendStatus(WriteStatus.WRITTEN, 42L);
+		return new AppendStatus(WriteStatus.WRITTEN, 42L, 42L);
 	}
 
 	@Override

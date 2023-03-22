@@ -494,13 +494,13 @@ public class MailApiConnection implements MailboxConnection {
 		SelectedFolder selected = select(folder);
 
 		if (selected == null) {
-			return new AppendStatus(WriteStatus.EXCEPTIONNALY_REJECTED, 0L);
+			return new AppendStatus(WriteStatus.EXCEPTIONNALY_REJECTED, 0L, 0L);
 		}
 
 		IMailboxes mboxApi = suProv.instance(IMailboxes.class, me.domainUid);
 		MailboxQuota mbxQuota = mboxApi.getMailboxQuota(selected.mailbox.owner.uid);
 		if (mbxQuota.quota != null && mbxQuota.quota < mbxQuota.used) {
-			return new AppendStatus(WriteStatus.OVERQUOTA_REJECTED, 0L);
+			return new AppendStatus(WriteStatus.OVERQUOTA_REJECTED, 0L, 0L);
 		}
 
 		AppendTx appendTx = selected.mailbox.foldersApi.prepareAppend(selected.folder.internalId, 1);
@@ -530,7 +530,7 @@ public class MailApiConnection implements MailboxConnection {
 		rec.lastUpdated = rec.internalDate;
 
 		selected.recApi.create(appendTx.imapUid + ".", rec);
-		return new AppendStatus(WriteStatus.WRITTEN, appendTx.imapUid);
+		return new AppendStatus(WriteStatus.WRITTEN, selected.folder.value.uidValidity, appendTx.imapUid);
 	}
 
 	private List<MailboxItemFlag> flags(List<String> flags) {
