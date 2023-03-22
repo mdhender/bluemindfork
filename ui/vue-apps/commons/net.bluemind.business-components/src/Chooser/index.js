@@ -2,4 +2,6 @@ import store from "@bluemind/store";
 import { chooserStore } from "./store/store";
 export { default as Chooser } from "./Chooser";
 
-store.registerModule("chooser", chooserStore);
+if (!store.hasModule("chooser")) {
+    store.registerModule("chooser", chooserStore);
+}
