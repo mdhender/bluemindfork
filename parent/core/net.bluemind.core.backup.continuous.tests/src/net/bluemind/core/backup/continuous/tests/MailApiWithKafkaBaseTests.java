@@ -18,7 +18,13 @@
  */
 package net.bluemind.core.backup.continuous.tests;
 
+import java.util.Collection;
+
 import net.bluemind.backend.mailapi.testhelper.MailApiTestsBase;
+import net.bluemind.core.backup.continuous.DefaultBackupStore;
+import net.bluemind.core.backup.continuous.IBackupManager;
+import net.bluemind.core.backup.continuous.IBackupReader;
+import net.bluemind.core.backup.continuous.ILiveStream;
 import net.bluemind.core.backup.continuous.leader.DefaultLeader;
 import net.bluemind.kafka.container.ZkKafkaContainer;
 
@@ -40,10 +46,30 @@ public abstract class MailApiWithKafkaBaseTests extends MailApiTestsBase {
 
 	@Override
 	public void after() throws Exception {
+		dropTopics();
+
+		DefaultLeader.leader().releaseLeadership();
+		System.clearProperty("bm.kafka.bootstrap.servers");
+		System.clearProperty("bm.zk.servers");
+		DefaultLeader.reset();
+
 		kafka.stop();
 		kafka.close();
 
 		super.after();
+	}
+
+	private void dropTopics() {
+		IBackupReader reader = DefaultBackupStore.reader();
+		IBackupManager manager = DefaultBackupStore.manager();
+		Collection<String> insts = reader.installations();
+		for (String iid : insts) {
+			for (ILiveStream stream : reader.forInstallation(iid).listAvailable()) {
+				System.err.println("delete " + stream);
+				manager.delete(stream);
+			}
+		}
+		System.err.println("finished publisher reset part.");
 	}
 
 }

@@ -76,6 +76,7 @@ import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.backup.continuous.DefaultBackupStore;
+import net.bluemind.core.backup.continuous.IBackupManager;
 import net.bluemind.core.backup.continuous.IBackupReader;
 import net.bluemind.core.backup.continuous.ILiveBackupStreams;
 import net.bluemind.core.backup.continuous.ILiveStream;
@@ -455,10 +456,26 @@ public class PopulateKafkaTests {
 		}
 	}
 
+	private void dropTopics() {
+		IBackupReader reader = DefaultBackupStore.reader();
+		IBackupManager manager = DefaultBackupStore.manager();
+		Collection<String> insts = reader.installations();
+		for (String iid : insts) {
+			for (ILiveStream stream : reader.forInstallation(iid).listAvailable()) {
+				System.err.println("delete " + stream);
+				manager.delete(stream);
+			}
+		}
+		System.err.println("finished publisher reset part.");
+	}
+
 	@After
 	public void after() throws Exception {
 		try {
 			StateContext.setState("core.cloning.end");
+
+			dropTopics();
+
 			DefaultLeader.leader().releaseLeadership();
 			System.clearProperty("bm.kafka.bootstrap.servers");
 			System.clearProperty("bm.zk.servers");

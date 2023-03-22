@@ -20,7 +20,6 @@ package net.bluemind.core.backup.continuous.tests;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,8 +27,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import net.bluemind.addressbook.api.VCard;
@@ -39,93 +36,43 @@ import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.core.api.Email;
-import net.bluemind.core.backup.continuous.DefaultBackupStore;
-import net.bluemind.core.backup.continuous.leader.DefaultLeader;
 import net.bluemind.core.container.api.IOfflineMgmt;
 import net.bluemind.core.container.api.IdRange;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
-import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
-import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.api.BaseDirEntry.AccountType;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
-import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.network.topology.Topology;
-import net.bluemind.server.api.Server;
-import net.bluemind.system.state.RunningState;
-import net.bluemind.system.state.StateContext;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
-public class UserDefaultAliasTests {
+public class UserDefaultAliasTests extends MailApiWithKafkaBaseTests {
 
-	private String domainUid;
 	private String routingUid;
-	private ItemValue<Server> backend;
-	private String alias;
-
-	@Before
-	public void before() throws Exception {
-		try {
-			beforeImpl();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
-	}
-
-	public void beforeImpl() throws Exception {
-		DefaultLeader.reset();
-		DefaultBackupStore.reset();
-
-		JdbcTestHelper.getInstance().beforeTest();
-
-		Server imapServer = new Server();
-		imapServer.tags = Collections.singletonList("mail/imap");
-		imapServer.ip = PopulateHelper.FAKE_CYRUS_IP;
-
-		Server esServer = Server.tagged(ElasticsearchTestHelper.getInstance().getHost(), "bm/es");
-		assertNotNull(esServer.ip);
-
-		System.err.println("populate global virt...");
-		StateContext.setInternalState(new RunningState());
-		PopulateHelper.initGlobalVirt(imapServer, esServer);
-		ElasticsearchTestHelper.getInstance().beforeTest();
-		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.none);
-
-		VertxPlatform.spawnBlocking(20, TimeUnit.SECONDS);
-		this.domainUid = "dom" + System.currentTimeMillis() + ".lan";
-		this.alias = domainUid.replace("dom", "alias");
-
-		PopulateHelper.addDomain(domainUid, Routing.none, alias);
-
-		await().atMost(20, TimeUnit.SECONDS).until(() -> Topology.getIfAvailable().isPresent());
-		this.backend = Topology.get().any("mail/imap");
-
-		this.routingUid = PopulateHelper.addUser("routing", domainUid);
-		await().atMost(20, TimeUnit.SECONDS).until(() -> userInbox(routingUid).isPresent());
-
-	}
 
 	private Optional<ItemValue<MailboxReplica>> userInbox(String uid) {
 		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		IDbByContainerReplicatedMailboxes foldersApi = prov.instance(IDbByContainerReplicatedMailboxes.class,
-				IMailReplicaUids.subtreeUid(domainUid, Mailbox.Type.user, uid));
+				IMailReplicaUids.subtreeUid(domUid, Mailbox.Type.user, uid));
 		return Optional.ofNullable(foldersApi.byReplicaName("INBOX"));
 	}
 
 	@Test
 	public void defaultEmailOnAlias() throws Exception {
+
+		this.routingUid = PopulateHelper.addUser("routing", domUid);
+		await().atMost(20, TimeUnit.SECONDS).until(() -> userInbox(routingUid).isPresent());
+
 		User user = new User();
 		user.login = "dingo";
 		user.password = "dingo";
-		user.dataLocation = backend.uid;
+		user.dataLocation = Topology.get().any("mail/imap").uid;
 		user.routing = Routing.internal;
 		user.accountType = AccountType.FULL;
 		VCard card = new VCard();
@@ -133,14 +80,14 @@ public class UserDefaultAliasTests {
 		card.identification.name = Name.create("wick", "john", null, null, null, null);
 		user.contactInfos = card;
 
-		List<Email> emails = Arrays.asList(Email.create("dingo@" + domainUid, false, false),
+		List<Email> emails = Arrays.asList(Email.create("dingo@" + domUid, false, false),
 				Email.create("john@" + alias, true, false));
 		Collections.reverse(emails);
 		user.emails = emails;
 
 		ServerSideServiceProvider prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-		IUser userApi = prov.instance(IUser.class, domainUid);
-		IOfflineMgmt alloc = prov.instance(IOfflineMgmt.class, domainUid, routingUid);
+		IUser userApi = prov.instance(IUser.class, domUid);
+		IOfflineMgmt alloc = prov.instance(IOfflineMgmt.class, domUid, routingUid);
 		IdRange fresh = alloc.allocateOfflineIds(1);
 		ItemValue<User> asItem = ItemValue.create("dingo_uid", user);
 		asItem.internalId = fresh.globalCounter;
@@ -155,19 +102,14 @@ public class UserDefaultAliasTests {
 		System.err.println("email: " + fetched.value.defaultEmailAddress());
 		assertEquals("john@" + alias, fetched.value.defaultEmailAddress());
 		assertEquals(fresh.globalCounter, fetched.internalId);
-		IMailboxes mboxApi = prov.instance(IMailboxes.class, domainUid);
+		IMailboxes mboxApi = prov.instance(IMailboxes.class, domUid);
 		ItemValue<Mailbox> mbox = mboxApi.getComplete("dingo_uid");
 		System.err.println("mbox: " + mbox.value + " e: " + mbox.value.defaultEmail());
 
-		IDirectory dirApi = prov.instance(IDirectory.class, domainUid);
+		IDirectory dirApi = prov.instance(IDirectory.class, domUid);
 		DirEntry dirEntry = dirApi.findByEntryUid("dingo_uid");
 		System.err.println("de: " + dirEntry);
 
-	}
-
-	@After
-	public void after() throws Exception {
-		JdbcTestHelper.getInstance().afterTest();
 	}
 
 }
