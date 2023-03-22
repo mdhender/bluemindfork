@@ -73,7 +73,9 @@ export default {
 
                     const blob = await service.fetch(imapUid, part.address, part.encoding, part.mime, part.charset);
                     const converted =
-                        MimeType.isHtml(part) || MimeType.isText(part)
+                        MimeType.isHtml(part) ||
+                        MimeType.isText(part) ||
+                        MimeType.MESSAGE_DISPOSITION_NOTIFICATION === part.mime
                             ? await convertAsText(blob, part)
                             : await convertToBase64(blob);
                     commit(SET_PART_DATA, { messageKey, data: converted, address: part.address });

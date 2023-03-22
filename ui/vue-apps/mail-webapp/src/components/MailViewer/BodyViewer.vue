@@ -1,5 +1,6 @@
 <template>
     <div class="body-viewer">
+        <message-top-frame :message="message" />
         <slot name="attachments-block" :files="files" :message="message">
             <files-block
                 :files="files"
@@ -39,12 +40,13 @@ import { COMPUTE_QUOTE_NODES, FETCH_PART_DATA } from "~/actions";
 import { CONVERSATION_MESSAGE_BY_KEY } from "~/getters";
 import { SET_PREVIEW_FILE_KEY, SET_PREVIEW_MESSAGE_KEY } from "~/mutations";
 
-import MailInlinesBlock from "./MailInlinesBlock";
 import EventViewer from "./EventViewer";
 import FilesBlock from "../MailAttachment/FilesBlock";
-import PreviewOverlay from "../MailAttachment/Overlays/PreviewOverlay";
-import FiletypeOverlay from "../MailAttachment/Overlays/FiletypeOverlay";
 import FileToolbar from "../MailAttachment/FileToolbar";
+import FiletypeOverlay from "../MailAttachment/Overlays/FiletypeOverlay";
+import MailInlinesBlock from "./MailInlinesBlock";
+import PreviewOverlay from "../MailAttachment/Overlays/PreviewOverlay";
+import MessageTopFrame from "./MessageTopFrame";
 
 const { create: createAttachment } = attachmentUtils;
 const { FileStatus, isUploading, isAllowedToPreview, ActionButtons } = fileUtils;
@@ -55,10 +57,11 @@ export default {
     components: {
         EventViewer,
         FilesBlock,
+        FileToolbar,
+        FiletypeOverlay,
         MailInlinesBlock,
         PreviewOverlay,
-        FiletypeOverlay,
-        FileToolbar
+        MessageTopFrame
     },
     props: {
         message: {

@@ -74,7 +74,8 @@ export function create() {
         },
 
         attachments: [],
-        inlinePartsByCapabilities: []
+        inlinePartsByCapabilities: [],
+        reports: []
     };
     return merge(createOnlyMetadata({ folder: {} }), emptyData);
 }
