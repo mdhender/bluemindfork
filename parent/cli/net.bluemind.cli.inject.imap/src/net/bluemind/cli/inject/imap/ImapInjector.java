@@ -104,7 +104,8 @@ public class ImapInjector extends MailExchangeInjector {
 			return ret;
 		}
 
-		public void exchange(TargetMailbox from, byte[] emlContent) {
+		@Override
+		public void exchange(TargetMailbox from, byte[] emlContent, long cycle) {
 			try {
 				lock.acquire();
 			} catch (InterruptedException e1) {

@@ -52,7 +52,7 @@ public class SmtpInjector extends MailExchangeInjector {
 			}
 		}
 
-		public void exchange(TargetMailbox from, byte[] emlContent) {
+		public void exchange(TargetMailbox from, byte[] emlContent, long cycle) {
 			try {
 				lock.acquire();
 			} catch (InterruptedException e1) {

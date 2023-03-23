@@ -29,5 +29,6 @@ public abstract class TargetMailbox {
 
 	public abstract boolean prepare();
 
-	public abstract void exchange(TargetMailbox from, byte[] emlContent);
+	public abstract void exchange(TargetMailbox from, byte[] emlContent, long cycle);
+
 }

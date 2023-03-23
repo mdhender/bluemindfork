@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.util.concurrent.RateLimiter;
 
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.DomainNames;
@@ -52,6 +53,9 @@ public abstract class AbstractMailInjectCommand implements ICmdLet, Runnable {
 	@Option(names = "--workers", description = "number of workers for simultaneous operations")
 	public int workers = 4;
 
+	@Option(names = "--rpm", description = "operation per minute limit")
+	public Integer requestPerMinute;
+
 	private CliContext ctx;
 
 	@Override
@@ -66,9 +70,10 @@ public abstract class AbstractMailInjectCommand implements ICmdLet, Runnable {
 			IMessageProducer prod = Optional.ofNullable(prods.get(producer)).orElseGet(GOTMessageProducer::new);
 			ctx.info("Producer " + prod + " selected.");
 			MailExchangeInjector inject = createInjector(ctx, domUid, prod);
+			RateLimiter rpm = RateLimiter.create(requestPerMinute == null ? Double.MAX_VALUE : requestPerMinute / 60.0);
 			long time = System.currentTimeMillis();
 			ctx.info("Starting injection of " + cycles + " message(s) using " + prod);
-			inject.runCycle(cycles, workers);
+			inject.runCycle(rpm, cycles, workers);
 			ctx.info("Injection of " + cycles + " message(s) finished in " + (System.currentTimeMillis() - time)
 					+ "ms.");
 		} catch (Exception e) {

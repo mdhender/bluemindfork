@@ -26,10 +26,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.util.concurrent.RateLimiter;
 
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.authentication.api.LoginResponse;
@@ -83,23 +87,32 @@ public class MailExchangeInjector {
 		}).filter(Objects::nonNull).collect(Collectors.toCollection(ArrayList::new));
 
 		this.domain = domainUid;
-		for (TargetMailbox tm : userEmails) {
+
+		userEmails.stream().parallel().forEach(tm -> {
 			boolean login = tm.prepare();
 			logger.info("Logged-in {} => {}", tm.email, login);
-		}
+		});
+
 		logger.info("Created with {} target mailbox(es)", userEmails.size());
 	}
 
-	public void runCycle(int msg) {
-		runCycle(msg, 4);
+	public void runCycle(RateLimiter rpm, int msg) {
+		runCycle(rpm, msg, 4);
 	}
 
-	public void runCycle(int msg, int workers) {
+	public void runCycle(RateLimiter rpm, int msg, int workers) {
 		ExecutorService pool = Executors.newFixedThreadPool(workers);
 		CompletableFuture<?>[] proms = new CompletableFuture<?>[msg];
+		AtomicLong cycle = new AtomicLong();
+		AtomicInteger promSlot = new AtomicInteger();
 
-		for (int i = 0; i < msg; i++) {
-			proms[i] = CompletableFuture.supplyAsync(this::oneMsg, pool);
+		while (promSlot.get() < msg) {
+			rpm.acquire();
+			final long cycleLoc = cycle.incrementAndGet();
+			proms[promSlot.getAndIncrement()] = CompletableFuture.supplyAsync(() -> {
+				sendRandom(cycleLoc);
+				return null;
+			}, pool);
 		}
 		CompletableFuture<Void> globalProm = CompletableFuture.allOf(proms);
 		logger.info("{} Waiting for completion of {} task(s)...", domain, proms.length);
@@ -111,21 +124,12 @@ public class MailExchangeInjector {
 		// override to implement post injection
 	}
 
-	private Object oneMsg() {
-		try {
-			sendRandom();
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
-		return null;
-	}
-
-	private void sendRandom() {
+	private void sendRandom(long cycle) {
 		Random rd = ThreadLocalRandom.current();
 		TargetMailbox from = userEmails.get(rd.nextInt(userEmails.size()));
 		TargetMailbox to = userEmails.get(rd.nextInt(userEmails.size()));
 		byte[] emlContent = producer.createEml(from, to);
-		to.exchange(from, emlContent);
+		to.exchange(from, emlContent, cycle);
 	}
 
 }

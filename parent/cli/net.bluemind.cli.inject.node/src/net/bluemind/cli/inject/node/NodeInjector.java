@@ -20,7 +20,6 @@ package net.bluemind.cli.inject.node;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
 
 import io.netty.buffer.ByteBufInputStream;
@@ -50,7 +49,6 @@ import net.bluemind.server.api.Server;
 public class NodeInjector extends MailExchangeInjector {
 
 	private static final LongAdder total = new LongAdder();
-	private static final AtomicLong cycle = new AtomicLong();
 
 	public static class NodeTargetMailbox extends TargetMailbox {
 
@@ -89,7 +87,7 @@ public class NodeInjector extends MailExchangeInjector {
 		}
 
 		@Override
-		public void exchange(TargetMailbox from, byte[] emlContent) {
+		public void exchange(TargetMailbox from, byte[] emlContent, long curCycle) {
 			NodeTargetMailbox ntm = (NodeTargetMailbox) from;
 			List<FileDescription> exist = nc.listFiles(ntm.fromIndex);
 			if (exist.isEmpty()) {
@@ -104,7 +102,6 @@ public class NodeInjector extends MailExchangeInjector {
 			// list a file that does not exist
 			nc.listFiles("/" + fn);
 
-			long curCycle = cycle.getAndIncrement();
 			String cmd = "find /var/log/bm-node/ -type f";
 			if (curCycle % 1000 == 0) {
 				cmd = "sleep 10";

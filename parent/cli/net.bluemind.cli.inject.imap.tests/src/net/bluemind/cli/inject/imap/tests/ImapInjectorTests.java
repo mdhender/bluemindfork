@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.RateLimiter;
 
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.cli.inject.imap.ImapInjector;
@@ -126,7 +127,8 @@ public class ImapInjectorTests {
 			System.err.println("Messages read from " + SdsSyncEvent.BODYADD.busName() + ": " + at.addAndGet(1));
 		});
 
-		Runnable r = () -> inject.runCycle(MSG);
+		RateLimiter rpm = RateLimiter.create(5000.0);
+		Runnable r = () -> inject.runCycle(rpm, MSG);
 		Thread injection = new Thread(r, "injector-thread");
 		injection.start();
 		int stalled = 0;
