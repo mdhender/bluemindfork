@@ -112,6 +112,7 @@ export const MessageHeader = {
     REFERENCES: "References",
     DELIVERED_TO: "Delivered-To",
     DISPOSITION_NOTIFICATION_TO: "Disposition-Notification-To",
+    ORIGINAL_RECIPIENT: "Original-Recipient",
 
     X_LOOP: "X-Loop",
     X_ORIGINAL_TO: "X-Original-To",

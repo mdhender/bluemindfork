@@ -47,11 +47,11 @@
         </part>
         <part mime="message/disposition-notification" encoding="7bit" file-name="MDN.txt" disposition-type="ATTACHMENT">
             <pre>
-Reporting-UA: BlueMind Mail App\nOriginal-Recipient: {{ parameters.to }}
+Reporting-UA: BlueMind Mail App
+<template v-if="parameters.originalRecipient">Original-Recipient: {{ parameters.originalRecipient }}</template>
 Final-Recipient: rfc822; {{ parameters.toAddress }}
 Original-Message-ID: {{ parameters.messageId }}
-Disposition: manual-action/MDN-sent-manually; displayed</pre
-            >
+Disposition: manual-action/MDN-sent-manually; displayed</pre>
         </part>
     </part>
 </template>

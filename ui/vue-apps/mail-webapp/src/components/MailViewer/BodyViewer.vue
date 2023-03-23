@@ -1,6 +1,6 @@
 <template>
     <div class="body-viewer">
-        <message-top-frame :message="message" />
+        <mail-top-frame :message="message" />
         <slot name="attachments-block" :files="files" :message="message">
             <files-block
                 :files="files"
@@ -46,7 +46,7 @@ import FileToolbar from "../MailAttachment/FileToolbar";
 import FiletypeOverlay from "../MailAttachment/Overlays/FiletypeOverlay";
 import MailInlinesBlock from "./MailInlinesBlock";
 import PreviewOverlay from "../MailAttachment/Overlays/PreviewOverlay";
-import MessageTopFrame from "./MessageTopFrame";
+import MailTopFrame from "./MailTopFrame/MailTopFrame.vue";
 
 const { create: createAttachment } = attachmentUtils;
 const { FileStatus, isUploading, isAllowedToPreview, ActionButtons } = fileUtils;
@@ -61,7 +61,7 @@ export default {
         FiletypeOverlay,
         MailInlinesBlock,
         PreviewOverlay,
-        MessageTopFrame
+        MailTopFrame
     },
     props: {
         message: {

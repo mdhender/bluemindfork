@@ -34,11 +34,13 @@
 <script>
 import { AlertMixin, ERROR, REMOVE, SUCCESS } from "@bluemind/alert.store";
 import { Flag } from "@bluemind/email";
+import { messageUtils } from "@bluemind/mail";
 import { BmButton, BmIconButton } from "@bluemind/ui-components";
 import { ADD_FLAG } from "~/actions";
 import sendTemplate from "~/utils/eml-templates/sendTemplate";
 import MDNTemplate from "~/utils/eml-templates/templates/MDNTemplate";
-import { messageUtils } from "@bluemind/mail";
+
+const { MessageHeader, extractHeaderValues } = messageUtils;
 
 export default {
     name: "DispositionNotification",
@@ -59,6 +61,10 @@ export default {
                 payload: { recipient: this.payload.to.dn || this.payload.to.address }
             };
             try {
+                const originalRecipientHeaderValues = extractHeaderValues(
+                    this.payload.message,
+                    MessageHeader.ORIGINAL_RECIPIENT
+                );
                 await sendTemplate({
                     template: MDNTemplate,
                     parameters: {
@@ -67,11 +73,11 @@ export default {
                         from: this.payload.from.dn
                             ? this.payload.from.dn + " <" + this.payload.from.address + ">"
                             : this.payload.from.address,
-                        to: this.payload.to.dn
-                            ? this.payload.to.dn + " <" + this.payload.to.address + ">"
-                            : this.payload.to.address,
                         toAddress: this.payload.to.address,
-                        messageId: this.payload.message.messageId
+                        messageId: this.payload.message.messageId,
+                        originalRecipient: originalRecipientHeaderValues?.length
+                            ? originalRecipientHeaderValues[0]
+                            : undefined
                     },
                     from: this.payload.from,
                     to: this.payload.to,

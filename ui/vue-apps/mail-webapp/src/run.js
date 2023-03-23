@@ -9,17 +9,21 @@ import * as ThreadAlertComponents from "./components/MailThread/Alerts";
 import MailApp from "./components/MailApp";
 import mailRoutes from "./router";
 import registerAPIClients from "./registerApiClients";
-import DecoratedFileItem from "./components/MailAttachment/DecoratedFileItem.vue";
+import DecoratedFileItem from "./components/MailAttachment/DecoratedFileItem";
 import MailViewerContent from "./components/MailViewer/MailViewerContent";
 
 Vue.component("decorated-file-item", DecoratedFileItem);
 extensions.register("webapp.mail", "file-item", {
-    component: {
-        name: "decorated-file-item",
-        path: "message.file",
-        priority: 0
-    }
+    component: { name: "decorated-file-item", path: "message.file", priority: 0 }
 });
+
+// TODO remove:
+const MyTestFrame = { render: h => h("div", "----------------[ My test frame ]---------------") };
+Vue.component("my-test-frame", MyTestFrame);
+extensions.register("webapp", "mail-app", {
+    component: { name: "my-test-frame", path: "mail.topframe", priority: -1 }
+});
+
 registerAPIClients();
 router.addRoutes(mailRoutes);
 
