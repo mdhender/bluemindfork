@@ -1,13 +1,46 @@
 <template>
     <chain-of-responsibility :is-responsible="isMDN">
-        <div v-if="isMDN" class="message-disposition-notification-top-frame">
-            <!-- TODO change UI -->
-            Message Disposition Notification report:<br />
-            &emsp;Reporting-UA: {{ report.reportingUA }} <br />
-            &emsp;Original-Recipient: {{ report.originalRecipient }} <br />
-            &emsp;Final-Recipient: {{ report.finalRecipient }} <br />
-            &emsp;Original-Message-ID: {{ report.originalMessageId }} <br />
-            &emsp;Disposition: {{ report.disposition }} <br />
+        <div v-if="isMDN" class="message-disposition-notification-top-frame d-flex flex-column p-5">
+            <div class="d-flex flex-row align-items-center">
+                <img :src="mdnImage" class="mr-5" />
+                <div class="flex-fill">
+                    <p class="mb-3">
+                        <i18n
+                            :path="
+                                originalMessage ? 'mail.topframe.mdn.summary' : 'mail.topframe.mdn.summary.no_subject'
+                            "
+                            class="text-break"
+                        >
+                            <template v-if="originalMessage" #subject>
+                                <router-link to="path/to/message">{{ originalMessage.subject }}</router-link>
+                            </template>
+                            <template #sender>
+                                <span v-if="message.from.dn" class="font-weight-bold">{{ message.from.dn }}</span>
+                                <span v-if="message.from.dn && message.from.address">&nbsp;&lt;</span
+                                ><span v-if="message.from.address" :class="{ 'font-weight-bold': !message.from.dn }">{{
+                                    message.from.address
+                                }}</span
+                                ><span v-if="message.from.dn && message.from.address">&gt;</span>
+                            </template>
+                        </i18n>
+                    </p>
+                    <div class="medium mb-3">
+                        <template v-if="originalMessage">
+                            <span>
+                                {{ $t("mail.topframe.mdn.send_date", { date: originalMessage.date.toLocaleString() }) }}
+                            </span>
+                            <br />
+                        </template>
+                        <span>{{ $t("mail.topframe.mdn.opened_date", { date: message.date.toLocaleString() }) }}</span>
+                    </div>
+                    <span class="d-none d-lg-block">
+                        <em class="text-neutral">{{ $t("mail.topframe.mdn.notice") }}</em>
+                    </span>
+                </div>
+            </div>
+            <span class="d-lg-none flex-fill">
+                <em class="text-neutral">{{ $t("mail.topframe.mdn.notice") }}</em>
+            </span>
         </div>
     </chain-of-responsibility>
 </template>
@@ -16,13 +49,18 @@
 import { MimeType } from "@bluemind/email";
 import { FETCH_PART_DATA } from "~/actions";
 import ChainOfResponsibility from "../ChainOfResponsibility";
+import mdnImage from "./mdn.png";
 
 export default {
     name: "MessageDispositionNotificationTopFrame",
     components: { ChainOfResponsibility },
     props: { message: { type: Object, required: true } },
     data() {
-        return { firstReport: undefined };
+        return {
+            mdnImage,
+            firstReport: undefined,
+            originalMessage: { subject: "Bla bla sujet", date: new Date("1970") }
+        };
     },
     priority: 0,
     computed: {
@@ -73,3 +111,11 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/ui-components/src/css/variables";
+
+.message-disposition-notification-top-frame {
+    background-color: $neutral-bg-lo1;
+}
+</style>
