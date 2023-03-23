@@ -13,7 +13,7 @@ export default async function addFhAttachment({ commit, dispatch }, { file, mess
     commit("ADD_ATTACHMENT", { messageKey: message.key, attachment: adaptedAttachment });
     commit("SET_MESSAGE_HAS_ATTACHMENT", { key: message.key, hasAttachment: true });
 
-    const address = await dispatch(ADD_FH_FILE, { message, file: adaptedFile, content: file, shareFn });
+    const { address } = await dispatch(ADD_FH_FILE, { message, file: adaptedFile, content: file, shareFn });
 
     commit("SET_ATTACHMENT_ADDRESS", {
         messageKey: message.key,
