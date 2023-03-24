@@ -38,8 +38,10 @@ import com.google.common.base.Strings;
 
 import io.netty.handler.codec.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.authentication.api.incore.IInCoreUserAccessToken;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.videoconferencing.webex.WebexProvider;
@@ -55,7 +57,9 @@ public class WebexConferenceClient {
 	private static final Logger logger = LoggerFactory.getLogger(WebexConferenceClient.class);
 
 	public WebexConferenceClient(BmContext context) {
-		this.bearerToken = context.getSecurityContext().getUserAccessToken(WebexProvider.ID).get().token;
+		this.bearerToken = ServerSideServiceProvider.getProvider(context).instance(IInCoreUserAccessToken.class).get(
+				context.getSecurityContext().getContainerUid(), context.getSecurityContext().getSubject(),
+				WebexProvider.ID).token;
 		this.su = context.su();
 	}
 

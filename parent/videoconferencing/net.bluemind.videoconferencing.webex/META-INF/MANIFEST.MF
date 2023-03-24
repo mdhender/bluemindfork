@@ -25,4 +25,5 @@ Require-Bundle: net.bluemind.videoconferencing.api,
  net.bluemind.core.sendmail;bundle-version="5.0.0",
  net.bluemind.domain.api,
  org.mnode.ical4j,
- net.bluemind.calendar.hook
+ net.bluemind.calendar.hook,
+ net.bluemind.authentication.api

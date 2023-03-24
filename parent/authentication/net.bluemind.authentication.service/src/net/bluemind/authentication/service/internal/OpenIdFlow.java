@@ -34,7 +34,6 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 
 import javax.net.ssl.HostnameVerifier;
@@ -54,10 +53,8 @@ import net.bluemind.authentication.api.RefreshToken;
 import net.bluemind.authentication.persistence.UserRefreshTokenStore;
 import net.bluemind.authentication.service.OpenIdContext;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.context.UserAccessToken;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.core.sessions.Sessions;
 import net.bluemind.domain.service.internal.IInCoreDomainSettings;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
@@ -81,7 +78,8 @@ public class OpenIdFlow {
 				.orElseThrow(() -> new ServerFault("External URL missing"));
 	}
 
-	public AccessTokenInfo refreshOpenIdToken(String userUid, RefreshToken refreshToken) throws OpenIdException {
+	public AccessTokenInfo refreshOpenIdToken(String domainUid, String userUid, RefreshToken refreshToken)
+			throws OpenIdException {
 		String applicationIdKey = refreshToken.systemIdentifier + "_appid";
 		String applicationSecretKey = refreshToken.systemIdentifier + "_secret";
 		String tokenEndpointKey = refreshToken.systemIdentifier + "_tokenendpoint";
@@ -102,7 +100,7 @@ public class OpenIdFlow {
 		JsonObject jwtToken = postCall(tokenEndpoint, params);
 
 		if (jwtToken.containsKey("access_token")) {
-			storeAccessToken(userUid, refreshToken.systemIdentifier, jwtToken);
+			storeAccessToken(domainUid, userUid, refreshToken.systemIdentifier, jwtToken);
 			AccessTokenInfo info = new AccessTokenInfo();
 			info.status = TokenStatus.TOKEN_OK;
 			return info;
@@ -113,12 +111,11 @@ public class OpenIdFlow {
 		}
 	}
 
-	public void storeAccessToken(String userUid, String systemIdentifier, JsonObject jwtToken) {
+	public UserAccessToken createAccessToken(String userUid, String systemIdentifier, JsonObject jwtToken) {
 		String accessToken = jwtToken.getString("access_token");
 		long expiration = jwtToken.getInteger("expires_in");
 		long expirationDate = new Date().getTime() + (expiration * 1000);
-		UserAccessToken token = new UserAccessToken(accessToken, new Date(expirationDate));
-		storeAccessTokenInUserSession(userUid, systemIdentifier, token);
+		return new UserAccessToken(accessToken, new Date(expirationDate));
 	}
 
 	public void storeRefreshToken(OpenIdContext openIdContext, String refreshToken) {
@@ -229,13 +226,9 @@ public class OpenIdFlow {
 		return result.toString();
 	}
 
-	protected void storeAccessTokenInUserSession(String userUid, String systemIdentifier, UserAccessToken token) {
-		for (Entry<String, SecurityContext> entry : Sessions.get().asMap().entrySet()) {
-			if (entry.getValue().getSubject().equals(userUid)) {
-				logger.info("Associating OpenId access token to user session {}", userUid);
-				entry.getValue().setUserAccessToken(systemIdentifier, token);
-			}
-		}
+	public void storeAccessToken(String domainUid, String userUid, String systemIdentifier, JsonObject jwtToken) {
+		UserAccessTokenCache.get(context).put(domainUid, userUid, systemIdentifier,
+				createAccessToken(userUid, systemIdentifier, jwtToken));
 	}
 
 }

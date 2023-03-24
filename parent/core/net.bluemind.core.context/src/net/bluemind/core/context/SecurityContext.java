@@ -21,8 +21,6 @@ package net.bluemind.core.context;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +49,6 @@ public class SecurityContext {
 	private final String lang;
 	private final String origin;
 	private final Map<String, Set<String>> orgUnitsRoles;
-	private Map<String, UserAccessToken> userAccessTokens = new HashMap<>();
 	private List<String> remoteAddresses = Collections.emptyList();
 	private final boolean interactive;
 	private String ownerSubject;
@@ -181,7 +178,6 @@ public class SecurityContext {
 		SecurityContext ret = new SecurityContext(sessionId, subject, memberOf, roles, orgUnitsRoles, domainUid, lang,
 				bestOrigin(origin, headerOrigin), interactive, ownerSubject);
 		ret.remoteAddresses = remoteAddresses;
-		ret.userAccessTokens = userAccessTokens;
 		return ret;
 	}
 
@@ -214,29 +210,6 @@ public class SecurityContext {
 
 	public void withRolesOnOrgUnit(String ouUid, Set<String> roles) {
 		orgUnitsRoles.put(ouUid, roles);
-	}
-
-	public Optional<UserAccessToken> getUserAccessToken(String systemIdentifier) {
-		return Optional.ofNullable(userAccessTokens.get(systemIdentifier)).map(token -> {
-			if (token.expiryTime.after(new Date())) {
-				return token;
-			} else {
-				userAccessTokens.remove(systemIdentifier);
-				return null;
-			}
-		});
-	}
-
-	public void setUserAccessToken(String systemIdentifier, UserAccessToken token) {
-		userAccessTokens.put(systemIdentifier, token);
-	}
-
-	public Map<String, UserAccessToken> getUserAccessTokens() {
-		return userAccessTokens;
-	}
-
-	public void setUserAccessTokens(Map<String, UserAccessToken> userAccessTokens) {
-		this.userAccessTokens = userAccessTokens;
 	}
 
 }

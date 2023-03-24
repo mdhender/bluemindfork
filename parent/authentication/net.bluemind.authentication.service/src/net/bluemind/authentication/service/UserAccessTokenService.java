@@ -18,21 +18,20 @@
  */
 package net.bluemind.authentication.service;
 
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.json.JsonObject;
 import net.bluemind.authentication.api.AccessTokenInfo;
 import net.bluemind.authentication.api.AccessTokenInfo.TokenStatus;
-import net.bluemind.authentication.api.IUserAccessToken;
 import net.bluemind.authentication.api.RefreshToken;
+import net.bluemind.authentication.api.incore.IInCoreUserAccessToken;
 import net.bluemind.authentication.persistence.UserRefreshTokenStore;
 import net.bluemind.authentication.service.internal.IOpenIdAuthFlow;
 import net.bluemind.authentication.service.internal.OpenIdAuthFlowFactory;
 import net.bluemind.authentication.service.internal.OpenIdException;
 import net.bluemind.authentication.service.internal.OpenIdFlow;
+import net.bluemind.authentication.service.internal.UserAccessTokenCache;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.service.internal.RBACManager;
@@ -41,7 +40,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.system.api.ExternalSystem;
 import net.bluemind.system.api.IExternalSystem;
 
-public class UserAccessTokenService implements IUserAccessToken {
+public class UserAccessTokenService implements IInCoreUserAccessToken {
 
 	private final BmContext context;
 	private final UserRefreshTokenStore store;
@@ -66,16 +65,19 @@ public class UserAccessTokenService implements IUserAccessToken {
 			return AccessTokenInfo.noTokenNeeded();
 		}
 
-		Optional<UserAccessToken> userAccessToken = context.getSecurityContext().getUserAccessToken(externalSystem);
-		if (!userAccessToken.isEmpty()) {
+		UserAccessToken userAccessToken = UserAccessTokenCache.get(context).getIfPresent(
+				context.getSecurityContext().getContainerUid(), context.getSecurityContext().getSubject(),
+				externalSystem);
+		if (userAccessToken != null) {
 			return AccessTokenInfo.tokenValid();
 		}
 
 		RefreshToken refreshToken = store.get(externalSystem);
 		if (refreshToken != null) {
 			try {
-				AccessTokenInfo refreshOpenIdToken = new OpenIdFlow(context)
-						.refreshOpenIdToken(context.getSecurityContext().getSubject(), refreshToken);
+				AccessTokenInfo refreshOpenIdToken = new OpenIdFlow(context).refreshOpenIdToken(
+						context.getSecurityContext().getContainerUid(), context.getSecurityContext().getSubject(),
+						refreshToken);
 				if (refreshOpenIdToken.status == TokenStatus.TOKEN_OK) {
 					return refreshOpenIdToken;
 				}
@@ -116,10 +118,15 @@ public class UserAccessTokenService implements IUserAccessToken {
 
 		String refreshToken = jwtToken.containsKey("refresh_token") ? jwtToken.getString("refresh_token") : null;
 
-		flow.storeAccessToken(openIdContext.userUid, openIdContext.systemIdentifier, jwtToken);
+		flow.storeAccessToken(openIdContext.domain, openIdContext.userUid, openIdContext.systemIdentifier, jwtToken);
 		flow.storeRefreshToken(openIdContext, refreshToken);
 
 		return AccessTokenInfo.tokenValid();
+	}
+
+	@Override
+	public UserAccessToken get(String domain, String user, String systemIdentifier) {
+		return UserAccessTokenCache.get(context).getIfPresent(domain, user, systemIdentifier);
 	}
 
 }

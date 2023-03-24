@@ -29,7 +29,7 @@ public interface IOpenIdAuthFlow {
 
 	public JsonObject getAccessTokenByCode(String code, OpenIdContext openIdContext);
 
-	public void storeAccessToken(String userUid, String systemIdentifier, JsonObject jwtToken);
+	public void storeAccessToken(String domainUid, String userUid, String systemIdentifier, JsonObject jwtToken);
 
 	public void storeRefreshToken(OpenIdContext openIdContext, String refreshToken);
 
