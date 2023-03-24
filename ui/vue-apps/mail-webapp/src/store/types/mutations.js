@@ -12,15 +12,16 @@ export const SET_QUOTE_NODES = "SET_QUOTE_NODES";
 
 // mailboxes
 export const ADD_MAILBOXES = "ADD_MAILBOXES";
+export const RESET_MAILBOXES = "RESET_MAILBOXES";
 
 // folders
 export const ADD_FOLDER = "ADD_FOLDER";
 export const REMOVE_FOLDER = "REMOVE_FOLDER";
+export const RESET_FOLDERS = "RESET_FOLDERS";
 export const SET_ACTIVE_FOLDER = "SET_ACTIVE_FOLDER";
 export const SET_UNREAD_COUNT = "SET_UNREAD_COUNT";
 export const UPDATE_FOLDER = "UPDATE_FOLDER";
 export const UPDATE_PATHS = "UPDATE_PATHS";
-
 // message
 export const ADD_ATTACHMENT = "ADD_ATTACHMENT";
 export const ADD_FLAG = "ADD_FLAG";

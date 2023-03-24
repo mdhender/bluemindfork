@@ -146,5 +146,8 @@ export default {
                 return this.$waitFor(() => this.MAILBOXES_ARE_LOADED && this.MAILBOX_BY_NAME(name), assert);
             }
         }
+    },
+    destroyed() {
+        this.RESET_CONVERSATIONS();
     }
 };

@@ -14,6 +14,7 @@ import VueBus from "@bluemind/vue-bus";
 import { extend } from "@bluemind/vuex-router";
 import VueSockjsPlugin from "@bluemind/vue-sockjs";
 
+import routes from "./routes";
 import registerDependencies from "./registerDependencies";
 import PreferencesStore from "./preferences/store";
 import RootAppStore from "./rootAppStore";
@@ -37,6 +38,7 @@ async function initWebApp() {
     const i18n = initI18N(userSession);
     Vue.component("DefaultAlert", DefaultAlert);
     adaptLegacyNotificationSystem();
+    router.addRoutes(routes);
     new Vue({
         el: "#app",
         i18n,

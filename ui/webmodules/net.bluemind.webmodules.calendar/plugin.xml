@@ -21,7 +21,6 @@
                   </handler>
             </web-module>
       </extension>
-
       <extension point="net.bluemind.ui.commons.banner">
             <banner-entry cssIcon="fa fa-lg fa-calendar" description="%banner-entry.description" name="%banner-entry.name" offline="true" priority="98" role="hasCalendar" root="/cal/">
             </banner-entry>
@@ -29,9 +28,9 @@
       <extension point="net.bluemind.webmodule.server">
             <web-filter class="net.bluemind.webmodules.calendar.filters.PublishCalendarFilter">
             </web-filter>
-      </extension>
+      </extension>      
       <extension point="webapp.banner">
-            <application description="%banner-entry.description" href="/cal/" name="%banner-entry.name" priority="64" shortcut="true" role="hasCalendar" help="https://doc.bluemind.net/release/5.0/category/lagenda">
+	      <application description="%banner-entry.description" href="/webapp/calendar/" name="%banner-entry.name" priority="64" shortcut="true" role="hasCalendar" help="https://doc.bluemind.net/release/5.0/category/lagenda">
                   <icon>
                         <svg>
                         <![CDATA[
@@ -47,5 +46,7 @@
                   </icon>
             </application>
       </extension>
-
+      <extension point="webapp">
+	    <external-application href="/cal/" name="calendar" route="/calendar/" />
+      </extension>
 </plugin>

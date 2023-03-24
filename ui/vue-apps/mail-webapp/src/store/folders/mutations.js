@@ -5,6 +5,7 @@ import {
     ADD_FOLDER,
     DELETE_FLAG,
     REMOVE_FOLDER,
+    RESET_FOLDERS,
     SET_UNREAD_COUNT,
     UPDATE_FOLDER,
     UPDATE_PATHS
@@ -42,6 +43,11 @@ export default {
     [DELETE_FLAG]: (state, { messages, flag }) => {
         if (flag === Flag.SEEN) {
             messages.forEach(({ folderRef: { key } }) => state[key] && state[key].unread++);
+        }
+    },
+    [RESET_FOLDERS]: state => {
+        for (const key in state) {
+            Vue.delete(state, key);
         }
     }
 };

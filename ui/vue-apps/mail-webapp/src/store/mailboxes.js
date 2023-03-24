@@ -15,7 +15,7 @@ import {
     MAILBOXES,
     USER_MAILBOXES
 } from "~/getters";
-import { ADD_MAILBOXES, ADD_FOLDER } from "~/mutations";
+import { ADD_MAILBOXES, ADD_FOLDER, RESET_FOLDERS, RESET_MAILBOXES } from "~/mutations";
 import { FETCH_MAILBOXES } from "~/actions";
 import { DEFAULT_FOLDERS } from "./folders/helpers/DefaultFolders";
 
@@ -66,6 +66,14 @@ export default {
         //Hook
         [ADD_FOLDER]: (state, folder) => {
             state[folder.mailboxRef.key].loading = LoadingStatus.LOADED;
+        },
+        [RESET_MAILBOXES]: state => {
+            for (const key in state) {
+                if (key !== "key" && key !== "folders") {
+                    Vue.delete(state, key);
+                }
+            }
+            state.keys = [];
         }
     },
     actions: {
@@ -99,17 +107,23 @@ export default {
                 defaults: {}
             },
             mutations: {
-                ADD_MAILBOXES(state, mailboxes) {
+                [ADD_MAILBOXES]: (state, mailboxes) => {
                     mailboxes.forEach(mailbox => {
                         if (!state.defaults[mailbox.key]) {
                             Vue.set(state.defaults, mailbox.key, {});
                         }
                     });
                 },
-                ADD_FOLDER(state, folder) {
+                [ADD_FOLDER]: (state, folder) => {
                     if (folder.default && DEFAULT_FOLDERS.includes(folder.imapName)) {
                         Vue.set(state.defaults[folder.mailboxRef.key], folder.imapName, folder.key);
                     }
+                },
+                [RESET_MAILBOXES]: state => {
+                    state.defaults = {};
+                },
+                [RESET_FOLDERS]: state => {
+                    state.defaults = {};
                 }
             }
         }

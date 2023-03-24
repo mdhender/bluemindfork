@@ -38,10 +38,10 @@ goog.inherits(net.bluemind.mvp.banner.BannerHandler, net.bluemind.mvp.handler.Pr
 
 /** @override */
 net.bluemind.mvp.banner.BannerHandler.prototype.createPresenter = function(ctx) {
-  var header = goog.dom.getElement('header');
   
   var hideBandal = goog.string.contains(goog.userAgent.getUserAgentString(), 'Thunderbird')
-  || goog.string.contains(goog.userAgent.getUserAgentString(), 'Icedove') || !header || header.getAttribute('data-banner') == "false";
+  || goog.string.contains(goog.userAgent.getUserAgentString(), 'Icedove')
+  || window.self != window.top ;
   
   if (!hideBandal) {
     return new net.bluemind.mvp.banner.BannerPresenter(ctx);

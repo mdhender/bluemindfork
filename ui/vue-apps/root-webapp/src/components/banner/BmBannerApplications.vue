@@ -65,38 +65,36 @@ export default {
         color: $fill-primary-fg;
     }
 
-    .bm-app {
-        cursor: pointer;
-
-        &:hover,
-        &.router-link-active {
-            color: $fill-primary-fg-hi1;
-            font-weight: $font-weight-bold;
-        }
-    }
-
     .arrow {
         left: 17px !important;
     }
 
     .bm-apps {
         width: 22rem;
+        .bm-app {
+            cursor: pointer;
+            color: $fill-primary-fg;
+
+            &:hover,
+            &.router-link-active {
+                color: $fill-primary-fg-hi1;
+                font-weight: $font-weight-bold;
+            }
+        }
+
         a {
             color: $fill-primary-fg;
+            all: unset;
+            &:hover {
+                all: unset;
+            }
+            &:visited {
+                color: $fill-primary-fg;
+            }
             &:focus {
                 outline: 1px dotted $fill-primary-fg-hi1;
                 color: $fill-primary-fg-hi1;
             }
-        }
-    }
-
-    a {
-        all: unset;
-        &:hover {
-            all: unset;
-        }
-        &:visited {
-            color: $fill-primary-fg;
         }
     }
 
