@@ -66,7 +66,7 @@ export default {
         results.forEach(({ itemId, containerUid }) => {
             const resultKey = `${itemId}@${containerUid}`;
             if (!resultKeys.has(resultKey)) {
-                const folderRef = FolderAdaptor.toRef(extractFolderUid(containerUid));
+                const folderRef = FolderAdaptor.toRef(FolderAdaptor.extractFolderUid(containerUid));
                 filteredResults.push({ id: itemId, folderRef });
                 resultKeys.add(resultKey);
             }
@@ -133,10 +133,6 @@ function toSearchSort(sort) {
             break;
     }
     return searchSort;
-}
-
-function extractFolderUid(containerUid) {
-    return containerUid.replace("mbox_records_", "");
 }
 
 function toSortDescriptor(filter, sort) {

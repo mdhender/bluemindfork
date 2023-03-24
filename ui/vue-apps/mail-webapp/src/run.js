@@ -17,13 +17,6 @@ extensions.register("webapp.mail", "file-item", {
     component: { name: "decorated-file-item", path: "message.file", priority: 0 }
 });
 
-// TODO remove:
-const MyTestFrame = { render: h => h("div", "----------------[ My test frame ]---------------") };
-Vue.component("my-test-frame", MyTestFrame);
-extensions.register("webapp", "mail-app", {
-    component: { name: "my-test-frame", path: "mail.topframe", priority: -1 }
-});
-
 registerAPIClients();
 router.addRoutes(mailRoutes);
 
