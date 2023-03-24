@@ -5,6 +5,8 @@
             <web-module index="index.html" root="/cal">
                   <handler class="net.bluemind.webmodules.calendar.handlers.CalendarHandler" path="index.html">
                   </handler>
+                  <handler class="net.bluemind.webmodules.calendar.handlers.CalendarHandler" path="iframe.html">
+                  </handler>
                   <handler class="net.bluemind.webmodules.calendar.handlers.CalendarJspHandler" path="Calendar.jsp">
                   </handler>
                   <handler class="net.bluemind.webmodules.calendar.handlers.CalendarOfflineHandler" path="index-offline.html">
@@ -28,7 +30,7 @@
       <extension point="net.bluemind.webmodule.server">
             <web-filter class="net.bluemind.webmodules.calendar.filters.PublishCalendarFilter">
             </web-filter>
-      </extension>      
+      </extension>
       <extension point="webapp.banner">
 	      <application description="%banner-entry.description" href="/webapp/calendar/" name="%banner-entry.name" priority="64" shortcut="true" role="hasCalendar" help="https://doc.bluemind.net/release/5.0/category/lagenda">
                   <icon>
@@ -47,6 +49,6 @@
             </application>
       </extension>
       <extension point="webapp">
-	    <external-application href="/cal/" name="calendar" route="/calendar/" />
+	    <external-application href="/cal/iframe.html" name="calendar" route="/calendar/" />
       </extension>
 </plugin>

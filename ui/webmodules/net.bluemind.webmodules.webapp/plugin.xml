@@ -32,6 +32,9 @@
       <web-filter
             class="net.bluemind.webmodules.webapp.webfilters.TryMailAppFilter">
       </web-filter>
+      <web-filter
+            class="net.bluemind.webmodules.webapp.webfilters.legacy.LegacyAppRedirectFilter">
+      </web-filter>      
    </extension>
 
     <extension

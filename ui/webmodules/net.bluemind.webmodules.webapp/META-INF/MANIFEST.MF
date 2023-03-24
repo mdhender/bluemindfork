@@ -18,6 +18,7 @@ Require-Bundle: net.bluemind.webmodule,
  net.bluemind.network.topology,
  net.bluemind.backend.mail.api,
  com.google.guava,
- com.github.ben-manes.caffeine
+ com.github.ben-manes.caffeine,
+ org.eclipse.core.runtime
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.webmodules.webapp
