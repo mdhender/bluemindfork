@@ -1,5 +1,13 @@
 <template>
-    <bm-modal id="preview-modal" ref="modal" class="preview-modal" centered size="fluid" hide-footer hide-header>
+    <bm-modal
+        id="preview-modal"
+        ref="modal"
+        class="preview-modal position-relative"
+        centered
+        size="fluid"
+        hide-footer
+        hide-header
+    >
         <global-events @keydown.left="previous" @keydown.up="previous" @keydown.down="next" @keydown.right="next" />
 
         <preview-header
@@ -18,12 +26,18 @@
             <preview-file :message="message" :file="file" />
         </div>
         <preview-file-header :file="file" class="d-lg-none d-flex bottom-file-info" />
+        <bm-alert-area class="preview-alert-area" :alerts="alerts" @remove="REMOVE">
+            <template v-slot="context">
+                <component :is="context.alert.renderer" :alert="context.alert" />
+            </template>
+        </bm-alert-area>
     </bm-modal>
 </template>
 
 <script>
-import { mapMutations } from "vuex";
-import { BmCollapse, BmModal } from "@bluemind/ui-components";
+import { mapActions, mapMutations, mapState } from "vuex";
+import { BmAlertArea, BmCollapse, BmModal } from "@bluemind/ui-components";
+import { REMOVE } from "@bluemind/alert.store";
 
 import { SET_PREVIEW_FILE_KEY } from "~/mutations";
 import PreviewFile from "./Preview/PreviewFile";
@@ -35,6 +49,7 @@ import PreviewFileHeader from "./Preview/PreviewFileHeader";
 export default {
     name: "PreviewModal",
     components: {
+        BmAlertArea,
         BmCollapse,
         BmModal,
         PreviewFile,
@@ -47,6 +62,7 @@ export default {
         return { expanded: true };
     },
     computed: {
+        ...mapState({ alerts: state => state.alert.filter(({ area }) => !area) }),
         message() {
             const message = this.$store.state.mail.conversations.messages[this.$store.state.mail.preview.messageKey];
 
@@ -76,6 +92,7 @@ export default {
         }
     },
     methods: {
+        ...mapActions("alert", { REMOVE }),
         ...mapMutations("mail", { SET_PREVIEW_FILE_KEY }),
         next() {
             this.selectPreview(this.fileIndex, index => index + 1);
@@ -123,6 +140,14 @@ export default {
         flex: none;
         height: base-px-to-rem(24);
         align-items: center;
+    }
+    .preview-alert-area {
+        width: 25%;
+        display: inline-flex;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        margin-bottom: 0;
     }
 }
 </style>
