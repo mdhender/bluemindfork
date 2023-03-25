@@ -2,27 +2,32 @@ import { extensions } from "@bluemind/extensions";
 
 import registerApiRoute, { apiRoutes } from "./workbox/registerApiRoute";
 import registerSessionInfoRoute from "./workbox/registerSessionInfoRoute";
-import registerPartRoute from "./workbox/registerPartRoute";
+import redirectWebserverPartHandler from "./workbox/redirectWebserverPartHandler";
 
 import { syncMailbox, syncMailFolders, syncMailFolder } from "./sync";
 import Session from "./session";
 import { logger } from "./logger";
 import BrowserData from "./BrowserData";
-import { MailItemDB } from "./workbox/MailItemDB";
-import { PartApiProxy } from "./workbox/PartApiProxy";
+import MailItemDB from "./workbox/MailItemDB";
+import MailItemCache from "./workbox/MailItemCache";
 
-extensions.register("serviceworker.handlers", "mail-webapp", { "api-handler": { class: MailItemDB, priority: 128 } });
-extensions.register("serviceworker.handlers", "mail-webapp", { "api-handler": { class: PartApiProxy, priority: 64 } });
+extensions.register("serviceworker.handlers", "net.bluemind.webapp.mail.js", {
+    "api-handler": { class: MailItemDB, priority: 128 }
+});
+extensions.register("serviceworker.handlers", "net.bluemind.webapp.mail.js", {
+    "api-handler": { class: MailItemCache, priority: 64 }
+});
 
 registerSessionInfoRoute();
-registerPartRoute();
+redirectWebserverPartHandler();
 registerApiRoute(apiRoutes);
 
+// TODO: something like
+// --> extensions.register("serviceworker.messageListener", "net.bluemind.webapp.mail.js", { type: "INIT", callback: firstSynchronisation, priority: 1 } });
 self.addEventListener("message", async ({ data }) => {
     switch (data.type) {
         case "INIT":
             await firstSynchronisation();
-
             break;
         case "SYNCHRONIZE":
             if (data.body.isHierarchy) {

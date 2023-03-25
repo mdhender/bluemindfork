@@ -2,7 +2,7 @@ import { MailboxItemsClient } from "@bluemind/backend.mail.api";
 import Session from "../session";
 import { syncMailFolder } from "../sync";
 
-export class MailItemDB extends MailboxItemsClient {
+export default class extends MailboxItemsClient {
     async count(filter) {
         try {
             const db = await Session.db();
