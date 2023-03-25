@@ -1,5 +1,6 @@
-import { MailboxItem, MailboxItemsClient, MessageBody } from "@bluemind/backend.mail.api";
+import { MailboxItem, MessageBody } from "@bluemind/backend.mail.api";
 import { ItemValue } from "@bluemind/core.container.api";
+import { fetchCompleteRequest, dispatchFetch } from "@bluemind/service-worker-utils";
 import { logger } from "./environnment/logger";
 import session from "./environnment/session";
 import { decrypt, isEncrypted, isSigned, verify } from "./smime";
@@ -24,9 +25,11 @@ export default async function decryptAndVerify(items: ItemValue<MailboxItem>[], 
 
 async function decryptAndVerifyImpl(item: ItemValue<MailboxItem>, folderUid: string): Promise<MessageBody> {
     let body = item.value.body;
-
-    const client = new MailboxItemsClient(await session.sid, folderUid);
-    let getEml = () => client.fetchComplete(item.value.imapUid!).then(blob => blob.text());
+    let getEml = async () => {
+        const request = fetchCompleteRequest(await session.sid, folderUid, item.value.imapUid!);
+        const response = await dispatchFetch(request);
+        return response.text();
+    };
     if (isEncrypted(body.structure!)) {
         let decryptedContent: string;
         ({ body, content: decryptedContent } = await decrypt(folderUid, item));

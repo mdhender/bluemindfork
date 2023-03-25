@@ -20,6 +20,8 @@ extensions.register("serviceworker.handlers", "net.bluemind.webapp.mail.js", {
 
 registerSessionInfoRoute();
 redirectWebserverPartHandler();
+
+// TODO: refactor them as a "serviceworker.handlers" extension
 registerApiRoute(apiRoutes);
 
 // TODO: something like

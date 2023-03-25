@@ -47,3 +47,14 @@ export function fetchRequest(
     };
     return new Request(apiCoreUrl, fetchParams);
 }
+
+export function fetchCompleteRequest(sid: string, folderUid: string, imapUid: number): Request {
+    const apiCoreUrl = `/api/mail_items/${folderUid}/eml/${imapUid}`;
+    const params: RequestInit = {
+        headers: { "x-bm-apikey": sid },
+        mode: "cors",
+        credentials: "include",
+        method: "GET"
+    };
+    return new Request(apiCoreUrl, params);
+}
