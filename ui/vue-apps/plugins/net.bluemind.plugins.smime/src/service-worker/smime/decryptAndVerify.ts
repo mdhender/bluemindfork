@@ -1,12 +1,14 @@
 import { MailboxItem, MessageBody } from "@bluemind/backend.mail.api";
 import { ItemValue } from "@bluemind/core.container.api";
 import { fetchCompleteRequest, dispatchFetch } from "@bluemind/service-worker-utils";
-import { logger } from "./environnment/logger";
-import session from "./environnment/session";
-import { decrypt, isEncrypted, isSigned, verify } from "./smime";
-import { invalidate, getBody, setReference } from "./smime/cache/BodyCache";
+import { logger } from "../environnment/logger";
+import { isEncrypted, isSigned } from "../../lib/helper";
+import { invalidate, getBody, setReference } from "./cache/BodyCache";
+import decrypt from "./decrypt";
+import session from "../environnment/session";
+import verify from "./verify";
 
-export default async function decryptAndVerify(items: ItemValue<MailboxItem>[], folderUid: string) {
+export default async function (items: ItemValue<MailboxItem>[], folderUid: string) {
     for (let i = 0; i < items.length; i++) {
         try {
             if (isSMime(items[i].value.body.structure!)) {
@@ -23,7 +25,8 @@ export default async function decryptAndVerify(items: ItemValue<MailboxItem>[], 
     return items;
 }
 
-async function decryptAndVerifyImpl(item: ItemValue<MailboxItem>, folderUid: string): Promise<MessageBody> {
+// exported just for testing purpose
+export async function decryptAndVerifyImpl(item: ItemValue<MailboxItem>, folderUid: string): Promise<MessageBody> {
     let body = item.value.body;
     let getEml = async () => {
         const request = fetchCompleteRequest(await session.sid, folderUid, item.value.imapUid!);

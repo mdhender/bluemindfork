@@ -1,9 +1,11 @@
 import { ImapItemIdentifier, MailboxItem, MailboxItemsClient } from "@bluemind/backend.mail.api";
 import { Ack, ItemValue } from "@bluemind/core.container.api";
-import { removeSignatureFromStructure, hasToBeEncrypted, hasToBeSigned } from "../lib/helper";
+import { hasToBeEncrypted, hasToBeSigned, isEncrypted, removeSignatureFromStructure } from "../lib/helper";
+import decryptAndVerify from "./smime/decryptAndVerify";
 import { getCacheKey, getGuid } from "./smime/cache/SMimePartCache";
-import { decrypt, encrypt, isEncrypted, sign } from "./smime";
-import decryptAndVerify from "./decryptAndVerify";
+import decrypt from "./smime/decrypt";
+import encrypt from "./smime/encrypt";
+import sign from "./smime/sign";
 
 export default class SMimeApiProxy extends MailboxItemsClient {
     next?: (...args: Array<unknown>) => Promise<never>;

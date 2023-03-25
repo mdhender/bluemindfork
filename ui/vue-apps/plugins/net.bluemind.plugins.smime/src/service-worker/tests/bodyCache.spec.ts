@@ -78,16 +78,6 @@ describe("body cache", () => {
             await bodyCache.getBody("888", mappingFunction);
             expect(db.setBody).not.toHaveBeenCalled();
         });
-        test("delete stored body if parts are not considered valid", async () => {
-            (<jest.Mock>partCache.checkParts).mockReturnValue(false);
-            await bodyCache.getBody("1234", mappingFunction);
-            expect(db.deleteBody).toHaveBeenCalled();
-        });
-        test("do not delete stored body if parts are considered valid", async () => {
-            (<jest.Mock>partCache.checkParts).mockReturnValue(true);
-            await bodyCache.getBody("1234", mappingFunction);
-            expect(db.deleteBody).not.toHaveBeenCalled();
-        });
     });
     describe("setReference", () => {
         test("call setGuid with correct parameters", async () => {

@@ -1,6 +1,5 @@
 import { MessageBody } from "@bluemind/backend.mail.api";
-// import {splitHeadersAndContent } from "./MimeEntityParserUtils";
-import signedBuilder from "../smime/SMimeSignedEmlBuilder";
+import signedBuilder from "../smime/helpers/SMimeSignedEmlBuilder";
 
 const unsigned =
     "MIME-Version: 1.0\r\n" +

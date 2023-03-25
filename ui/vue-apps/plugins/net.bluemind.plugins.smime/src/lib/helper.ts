@@ -35,6 +35,14 @@ export function getHeaderValue(headers: MessageBody.Header[] = [], headerName: s
     return null;
 }
 
+export function isEncrypted(part: MessageBody.Part): boolean {
+    return MimeType.isPkcs7(part);
+}
+
+export function isSigned(part: MessageBody.Part): boolean {
+    return part.mime === MimeType.PKCS_7_SIGNED_DATA || (!!part.children && part.children.some(isSigned));
+}
+
 export function addHeaderValue(
     headers: MessageBody.Header[] = [],
     headerName: string,

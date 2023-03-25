@@ -1,12 +1,14 @@
 import { CacheFirst } from "workbox-strategies";
 import { MailboxItemsClient } from "@bluemind/backend.mail.api";
-import partStrategy from "./PartCacheStrategy";
+import fetchStrategy from "./PartCacheStrategy";
+
+const fetchCompleteStrategy = new CacheFirst({ cacheName: "eml-cache" });
 
 export default class extends MailboxItemsClient {
     event?: FetchEvent;
 
     async fetch(): Promise<Blob> {
-        const response = await partStrategy.handle({
+        const response = await fetchStrategy.handle({
             event: this.event as ExtendableEvent,
             request: this.event!.request
         });
@@ -14,8 +16,7 @@ export default class extends MailboxItemsClient {
     }
 
     async fetchComplete(): Promise<Blob> {
-        const strategy = new CacheFirst({ cacheName: "eml-cache" });
-        const response = await strategy.handle({
+        const response = await fetchCompleteStrategy.handle({
             event: this.event as ExtendableEvent,
             request: this.event!.request
         });

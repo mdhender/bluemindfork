@@ -2,7 +2,7 @@ import { extensions } from "@bluemind/extensions";
 
 import registerApiRoute, { apiRoutes } from "./workbox/registerApiRoute";
 import registerSessionInfoRoute from "./workbox/registerSessionInfoRoute";
-import redirectWebserverPartHandler from "./workbox/redirectWebserverPartHandler";
+import registerPartRoute from "./workbox/registerPartRoute";
 
 import { syncMailbox, syncMailFolders, syncMailFolder } from "./sync";
 import Session from "./session";
@@ -15,17 +15,15 @@ extensions.register("serviceworker.handlers", "net.bluemind.webapp.mail.js", {
     "api-handler": { class: MailItemDB, priority: 128 }
 });
 extensions.register("serviceworker.handlers", "net.bluemind.webapp.mail.js", {
-    "api-handler": { class: MailItemCache, priority: 64 }
+    "api-handler": { class: MailItemCache, priority: 128 }
 });
 
 registerSessionInfoRoute();
-redirectWebserverPartHandler();
+registerPartRoute();
 
 // TODO: refactor them as a "serviceworker.handlers" extension
 registerApiRoute(apiRoutes);
 
-// TODO: something like
-// --> extensions.register("serviceworker.messageListener", "net.bluemind.webapp.mail.js", { type: "INIT", callback: firstSynchronisation, priority: 1 } });
 self.addEventListener("message", async ({ data }) => {
     switch (data.type) {
         case "INIT":

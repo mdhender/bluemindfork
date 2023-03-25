@@ -5,7 +5,7 @@ import path from "path";
 import { CRYPTO_HEADERS } from "../../lib/constants";
 import { getSignedDataEnvelope } from "../../lib/envelope";
 import { base64ToArrayBuffer } from "@bluemind/arraybuffer";
-import extractSignedData from "../smime/SMimeSignedDataParser";
+import extractSignedData from "../smime/helpers/SMimeSignedDataParser";
 import {
     DecryptError,
     InvalidMessageIntegrityError,
