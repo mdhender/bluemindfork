@@ -1,7 +1,7 @@
 import Vue from "vue";
 import { Verb } from "@bluemind/core.container.api";
 import { inject } from "@bluemind/inject";
-import { mailboxUtils, loadingStatusUtils } from "@bluemind/mail";
+import { mailboxUtils, loadingStatusUtils, folderUtils } from "@bluemind/mail";
 import { MailboxAdaptor } from "./helpers/MailboxAdaptor";
 import {
     GROUP_MAILBOXES,
@@ -17,8 +17,7 @@ import {
 } from "~/getters";
 import { ADD_MAILBOXES, ADD_FOLDER, RESET_FOLDERS, RESET_MAILBOXES } from "~/mutations";
 import { FETCH_MAILBOXES } from "~/actions";
-import { DEFAULT_FOLDERS } from "./folders/helpers/DefaultFolders";
-
+const { DEFAULT_FOLDERS } = folderUtils;
 const { LoadingStatus } = loadingStatusUtils;
 const { MailboxType } = mailboxUtils;
 
@@ -114,8 +113,8 @@ export default {
                         }
                     });
                 },
-                [ADD_FOLDER]: (state, folder) => {
-                    if (folder.default && DEFAULT_FOLDERS.includes(folder.imapName)) {
+                [ADD_FOLDER](state, folder) {
+                    if (folder.default && Object.values(DEFAULT_FOLDERS).includes(folder.imapName)) {
                         Vue.set(state.defaults[folder.mailboxRef.key], folder.imapName, folder.key);
                     }
                 },

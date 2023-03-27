@@ -15,8 +15,8 @@
 
 <script>
 import { BmLabelIcon, BmIcon } from "@bluemind/ui-components";
-import { DEFAULT_FOLDER_NAMES } from "~/store/folders/helpers/DefaultFolders";
-import { mailboxUtils } from "@bluemind/mail";
+import { mailboxUtils, folderUtils } from "@bluemind/mail";
+const { folderIcon } = folderUtils;
 
 const { MailboxType } = mailboxUtils;
 
@@ -49,27 +49,7 @@ export default {
     },
     computed: {
         icon() {
-            const modifier = MailboxType.isShared(this.mailbox?.type) ? "-shared" : "";
-            switch (this.folder.imapName) {
-                case DEFAULT_FOLDER_NAMES.INBOX:
-                    return "inbox";
-                case DEFAULT_FOLDER_NAMES.DRAFTS:
-                    return "pencil" + modifier;
-                case DEFAULT_FOLDER_NAMES.TRASH:
-                    return "trash" + modifier;
-                case DEFAULT_FOLDER_NAMES.JUNK:
-                    return "forbidden";
-                case DEFAULT_FOLDER_NAMES.OUTBOX:
-                    return "clock";
-                case DEFAULT_FOLDER_NAMES.SENT:
-                    return "paper-plane" + modifier;
-                case DEFAULT_FOLDER_NAMES.TEMPLATES:
-                    return "documents";
-                case DEFAULT_FOLDER_NAMES.ROOT:
-                    return "user";
-                default:
-                    return "folder" + modifier;
-            }
+            return folderIcon(this.folder.imapName, this.mailbox?.type);
         },
         ariaLabel() {
             switch (this.mailbox?.type) {

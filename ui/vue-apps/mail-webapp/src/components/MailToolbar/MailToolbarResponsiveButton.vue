@@ -1,19 +1,30 @@
 <template>
     <div class="mail-toolbar-responsive-button mail-toolbar-item">
         <bm-icon-button
-            class="d-inline-flex d-lg-none"
-            variant="compact-on-fill-primary"
+            v-if="compact"
+            class="d-inline-flex"
+            variant="compact"
             size="lg"
             v-bind="[$attrs, $props]"
             :title="title ? title : label"
             v-on="$listeners"
         />
-        <bm-captioned-icon-button
-            class="d-none d-lg-inline-flex"
-            v-bind="[$attrs, $props]"
-            :caption="label"
-            v-on="$listeners"
-        />
+        <template v-else>
+            <bm-icon-button
+                class="d-inline-flex d-lg-none"
+                variant="compact-on-fill-primary"
+                size="lg"
+                v-bind="[$attrs, $props]"
+                :title="title ? title : label"
+                v-on="$listeners"
+            />
+            <bm-captioned-icon-button
+                class="d-none d-lg-inline-flex"
+                v-bind="[$attrs, $props]"
+                :caption="label"
+                v-on="$listeners"
+            />
+        </template>
     </div>
 </template>
 
@@ -35,6 +46,10 @@ export default {
         title: {
             type: String,
             default: null
+        },
+        compact: {
+            type: Boolean,
+            default: false
         }
     }
 };

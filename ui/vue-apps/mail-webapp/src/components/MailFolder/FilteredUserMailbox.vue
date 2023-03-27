@@ -1,8 +1,5 @@
 <template>
-    <list-collapse v-if="!isEmpty" :name="mailbox.name">
-        <template v-slot:avatar>
-            <mail-mailbox-icon :mailbox="mailbox" class="folder-tree-avatar" />
-        </template>
+    <list-collapse v-if="!isEmpty" :name="mailbox.name" :mailbox="mailbox">
         <div class="d-flex flex-column">
             <filtered-item v-for="folder in folders" :key="folder.key" :folder="folder" class="flex-fill" />
         </div>
@@ -18,14 +15,13 @@ import { mapActions, mapGetters } from "vuex";
 import { BmButton } from "@bluemind/ui-components";
 import { SHOW_MORE_FOR_USERS } from "~/actions";
 import { FILTERED_USER_RESULTS } from "~/getters";
-import MailMailboxIcon from "../MailMailboxIcon";
 import FilteredItem from "./FilteredItem";
 import ListCollapse from "./ListCollapse";
 import { DEFAULT_LIMIT } from "../../store/folderList";
 
 export default {
     name: "FilteredUserMailbox",
-    components: { BmButton, FilteredItem, ListCollapse, MailMailboxIcon },
+    components: { BmButton, FilteredItem, ListCollapse },
     props: {
         mailbox: {
             type: Object,

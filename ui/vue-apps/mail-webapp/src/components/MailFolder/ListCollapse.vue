@@ -9,10 +9,7 @@
             :icon="isExpanded ? 'chevron' : 'chevron-right'"
             @click.stop="isExpanded = !isExpanded"
         >
-            <div class="folder-tree-header">
-                <slot name="avatar" />
-                <div class="folder-tree-name">{{ name }}</div>
-            </div>
+            <folder-tree-header :name="name" :mailbox="mailbox" />
         </bm-button>
         <bm-collapse :id="`collapse-${name}`" v-model="isExpanded">
             <slot />
@@ -21,16 +18,22 @@
 </template>
 <script>
 import { BmButton, BmCollapse } from "@bluemind/ui-components";
+import FolderTreeHeader from "./FolderTreeHeader";
 
 export default {
     name: "FilteredMailbox",
     components: {
         BmButton,
-        BmCollapse
+        BmCollapse,
+        FolderTreeHeader
     },
     props: {
         name: {
             type: String,
+            required: true
+        },
+        mailbox: {
+            type: Object,
             required: true
         }
     },

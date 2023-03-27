@@ -25,6 +25,7 @@
                 </slot>
             </div>
         </template>
+        <slot name="header" />
         <bm-dropdown-item
             v-for="(item, index) in options_"
             :key="index"

@@ -6,9 +6,8 @@
         @toggle-tree="toggleTree"
     >
         <template v-slot:title>
-            <bm-dropzone :accept="['folder']" :states="{ active: false }" :value="root" class="folder-tree-header">
-                <mail-mailbox-icon :mailbox="mailbox" class="folder-tree-avatar" />
-                <div class="folder-tree-name">{{ mailbox.name }}</div>
+            <bm-dropzone :accept="['folder']" :states="{ active: false }" :value="root">
+                <folder-tree-header :mailbox="mailbox" />
             </bm-dropzone>
         </template>
         <template v-slot:footer>
@@ -33,14 +32,14 @@ import { FolderTreeMixin } from "~/mixins";
 import MailFolderTree from "./MailFolderTree";
 import FolderListLoading from "./FolderListLoading";
 import MailFolderInput from "../MailFolderInput";
-import MailMailboxIcon from "../MailMailboxIcon";
+import FolderTreeHeader from "./FolderTreeHeader";
 
 const { createRoot } = folderUtils;
 const { LoadingStatus } = loadingStatusUtils;
 
 export default {
     name: "UserFolders",
-    components: { MailMailboxIcon, MailFolderInput, MailFolderTree, FolderListLoading, BmDropzone },
+    components: { MailFolderInput, MailFolderTree, FolderListLoading, BmDropzone, FolderTreeHeader },
     mixins: [FolderTreeMixin],
     props: {
         mailbox: {

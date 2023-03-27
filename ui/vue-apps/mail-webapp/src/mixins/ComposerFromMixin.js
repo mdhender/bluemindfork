@@ -1,10 +1,10 @@
 import { inject } from "@bluemind/inject";
-import { draftUtils, messageUtils } from "@bluemind/mail";
+import { draftUtils, messageUtils, folderUtils } from "@bluemind/mail";
 import { SET_MESSAGE_FROM, SET_MESSAGE_HEADERS, SET_PERSONAL_SIGNATURE } from "~/mutations";
 import { CURRENT_MAILBOX, MAILBOX_SENT } from "~/getters";
-import { DEFAULT_FOLDER_NAMES } from "~/store/folders/helpers/DefaultFolders";
 import { MailboxAdaptor } from "../store/helpers/MailboxAdaptor";
 
+const { DEFAULT_FOLDERS } = folderUtils;
 const { computeIdentityForReplyOrForward, findIdentityFromMailbox } = draftUtils;
 const { MessageHeader } = messageUtils;
 
@@ -22,7 +22,7 @@ export default {
             });
             const fullIdentity = this.setIdentity(identity);
             const rawIdentity = await inject("UserMailIdentitiesPersistence").get(fullIdentity.id);
-            if (rawIdentity.sentFolder !== DEFAULT_FOLDER_NAMES.SENT) {
+            if (rawIdentity.sentFolder !== DEFAULT_FOLDERS.SENT) {
                 const mailboxes = this.$store.state.mail.mailboxes;
                 let mailbox = mailboxes[`user.${rawIdentity.mailboxUid}`] || mailboxes[rawIdentity.mailboxUid];
                 let sentFolderUid;

@@ -79,19 +79,19 @@ export default {
     methods: {
         icon(folderPath) {
             switch (folderPath) {
-                case DEFAULT_FOLDER_NAMES.INBOX:
+                case DEFAULT_FOLDERS.INBOX:
                     return "inbox";
-                case DEFAULT_FOLDER_NAMES.DRAFTS:
+                case DEFAULT_FOLDERS.DRAFTS:
                     return "pencil";
-                case DEFAULT_FOLDER_NAMES.TRASH:
+                case DEFAULT_FOLDERS.TRASH:
                     return "trash";
-                case DEFAULT_FOLDER_NAMES.JUNK:
+                case DEFAULT_FOLDERS.JUNK:
                     return "forbidden";
-                case DEFAULT_FOLDER_NAMES.OUTBOX:
+                case DEFAULT_FOLDERS.OUTBOX:
                     return "clock";
-                case DEFAULT_FOLDER_NAMES.SENT:
+                case DEFAULT_FOLDERS.SENT:
                     return "paper-plane";
-                case DEFAULT_FOLDER_NAMES.TEMPLATES:
+                case DEFAULT_FOLDERS.TEMPLATES:
                     return "documents";
                 default:
                     return "folder";
@@ -106,7 +106,7 @@ export default {
     }
 };
 
-const DEFAULT_FOLDER_NAMES = {
+const DEFAULT_FOLDERS = {
     INBOX: "INBOX",
     SENT: "Sent",
     DRAFTS: "Drafts",
@@ -119,30 +119,29 @@ const DEFAULT_FOLDER_NAMES = {
 function sort(raw) {
     const result = [];
 
-    result.push(userFolder(DEFAULT_FOLDER_NAMES.INBOX));
-    result.push(userFolder(DEFAULT_FOLDER_NAMES.TRASH));
-    result.push(userFolder(DEFAULT_FOLDER_NAMES.JUNK));
+    result.push(userFolder(DEFAULT_FOLDERS.INBOX));
+    result.push(userFolder(DEFAULT_FOLDERS.TRASH));
+    result.push(userFolder(DEFAULT_FOLDERS.JUNK));
 
     let customFolders = raw
         .map(
             r =>
-                !Object.values(DEFAULT_FOLDER_NAMES).includes(r.value.fullName) &&
-                userFolder(r.value.fullName, r.internalId)
+                !Object.values(DEFAULT_FOLDERS).includes(r.value.fullName) && userFolder(r.value.fullName, r.internalId)
         )
         .filter(Boolean);
     customFolders = customFolders.sort((a, b) => a.text.localeCompare(b.text));
     result.push.apply(result, customFolders);
 
-    result.push(userFolder(DEFAULT_FOLDER_NAMES.TEMPLATES));
-    result.push(userFolder(DEFAULT_FOLDER_NAMES.DRAFTS));
-    result.push(userFolder(DEFAULT_FOLDER_NAMES.SENT));
-    result.push(userFolder(DEFAULT_FOLDER_NAMES.OUTBOX));
+    result.push(userFolder(DEFAULT_FOLDERS.TEMPLATES));
+    result.push(userFolder(DEFAULT_FOLDERS.DRAFTS));
+    result.push(userFolder(DEFAULT_FOLDERS.SENT));
+    result.push(userFolder(DEFAULT_FOLDERS.OUTBOX));
 
     return result;
 }
 
 function userFolder(folder, id) {
-    const text = Object.values(DEFAULT_FOLDER_NAMES).includes(folder)
+    const text = Object.values(DEFAULT_FOLDERS).includes(folder)
         ? i18n.t(`common.folder.${folder.toLowerCase()}`)
         : folder;
     return { text, value: { subtree: "user", id: id ? id : null, folder } };

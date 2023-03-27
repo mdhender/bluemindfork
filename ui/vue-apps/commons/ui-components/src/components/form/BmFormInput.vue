@@ -132,6 +132,7 @@ export default {
             this.focus();
         },
         focus() {
+            this.$emit("focus");
             this.$refs["input"].focus();
         },
         setSelectionRange(start, end) {

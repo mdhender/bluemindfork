@@ -3,9 +3,11 @@
         <section
             :aria-label="$t('mail.application.region.messagelist')"
             class="mail-conversation-list d-flex flex-column h-100"
+            :class="{ hidden: hiddenList }"
         >
             <mail-conversation-list-header id="mail-conversation-list-header" />
-            <search-result v-if="CONVERSATION_LIST_IS_SEARCH_MODE" class="flex-fill" />
+            <search-input-mobile v-if="searchModeMobile" class="d-lg-none" @focus="hideList" @blur="showList" />
+            <search-result v-if="CONVERSATION_LIST_IS_FILTERED" class="flex-fill" />
             <folder-result v-else class="flex-fill" />
         </section>
     </div>
@@ -19,27 +21,37 @@ import FolderResult from "./FolderResult";
 import {
     CONVERSATIONS_ACTIVATED,
     CONVERSATION_MESSAGE_BY_KEY,
-    CONVERSATION_LIST_IS_SEARCH_MODE,
+    CONVERSATION_LIST_IS_FILTERED,
     CONVERSATION_LIST_KEYS
 } from "~/getters";
 import { FETCH_CONVERSATIONS, FETCH_MESSAGE_METADATA, REFRESH_CONVERSATION_LIST_KEYS } from "~/actions";
 import { PUSHED_FOLDER_CHANGES } from "../VueBusEventTypes";
+import SearchInputMobile from "./SearchInputMobile";
 
 export default {
     name: "MailConversationList",
     components: {
         MailConversationListHeader,
         SearchResult,
-        FolderResult
+        FolderResult,
+        SearchInputMobile
+    },
+    data() {
+        return {
+            hiddenList: false
+        };
     },
     computed: {
         ...mapGetters("mail", {
             CONVERSATION_MESSAGE_BY_KEY,
-            CONVERSATION_LIST_IS_SEARCH_MODE,
+            CONVERSATION_LIST_IS_FILTERED,
             CONVERSATION_LIST_KEYS
         }),
         ...mapState("mail", ["activeFolder", "folders"]),
-        ...mapState("mail", { conversationByKey: state => state.conversations.conversationByKey }),
+        ...mapState("mail", {
+            conversationByKey: state => state.conversations.conversationByKey,
+            searchModeMobile: ({ conversationList }) => conversationList.search.searchModeMobile
+        }),
         folder() {
             return this.folders[this.activeFolder];
         },
@@ -49,11 +61,17 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail", { FETCH_CONVERSATIONS, FETCH_MESSAGE_METADATA, REFRESH_CONVERSATION_LIST_KEYS })
+        ...mapActions("mail", { FETCH_CONVERSATIONS, FETCH_MESSAGE_METADATA, REFRESH_CONVERSATION_LIST_KEYS }),
+        hideList() {
+            this.hiddenList = true;
+        },
+        showList() {
+            this.hiddenList = false;
+        }
     },
     bus: {
         [PUSHED_FOLDER_CHANGES]: async function (folderUid) {
-            if (!this.CONVERSATION_LIST_IS_SEARCH_MODE && this.folders[this.activeFolder].remoteRef.uid === folderUid) {
+            if (!this.CONVERSATION_LIST_IS_FILTERED && this.folders[this.activeFolder].remoteRef.uid === folderUid) {
                 const conversationsActivated = this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`];
                 await this.REFRESH_CONVERSATION_LIST_KEYS({ folder: this.folder, conversationsActivated });
 
@@ -72,5 +90,13 @@ export default {
 .mail-conversation-list {
     background-color: $surface;
     outline: none;
+    border-right: 1px solid $neutral-fg-lo2;
+
+    &.hidden {
+        .search-result,
+        .folder-result {
+            display: none;
+        }
+    }
 }
 </style>

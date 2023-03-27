@@ -19,7 +19,7 @@ import { INFO, REMOVE } from "@bluemind/alert.store";
 import { BmAlertArea } from "@bluemind/ui-components";
 
 import { SET_ACTIVE_FOLDER, SET_BLOCK_REMOTE_IMAGES, SET_MESSAGE_COMPOSING } from "~/mutations";
-import { ACTIVE_MESSAGE, CONVERSATION_LIST_IS_SEARCH_MODE, MY_DRAFTS } from "~/getters";
+import { ACTIVE_MESSAGE, CONVERSATION_LIST_IS_FILTERED, MY_DRAFTS } from "~/getters";
 import MailComposer from "../MailComposer";
 import MailComposerLoading from "../MailComposer/MailComposerLoading";
 import MailViewer from "../MailViewer";
@@ -42,7 +42,7 @@ export default {
     computed: {
         ...mapState("mail", { folders: "folders", messages: state => state.conversations.messages }),
         ...mapGetters("root-app", ["DEFAULT_IDENTITY"]),
-        ...mapGetters("mail", { ACTIVE_MESSAGE, CONVERSATION_LIST_IS_SEARCH_MODE, MY_DRAFTS }),
+        ...mapGetters("mail", { ACTIVE_MESSAGE, CONVERSATION_LIST_IS_FILTERED, MY_DRAFTS }),
         ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "right-panel") }),
         folder() {
             return this.ACTIVE_MESSAGE && this.folders[this.ACTIVE_MESSAGE.folderRef.key];
@@ -79,7 +79,7 @@ export default {
                         if (this.MY_DRAFTS && folderKey === this.MY_DRAFTS.key) {
                             this.SET_MESSAGE_COMPOSING({ messageKey: this.ACTIVE_MESSAGE.key, composing: true });
                         }
-                        if (this.CONVERSATION_LIST_IS_SEARCH_MODE) {
+                        if (this.CONVERSATION_LIST_IS_FILTERED) {
                             this.SET_ACTIVE_FOLDER(this.folders[folderKey]);
                         }
                     }

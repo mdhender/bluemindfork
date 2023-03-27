@@ -1,9 +1,10 @@
 <template>
     <div class="mail-toolbar-responsive-dropdown mail-toolbar-item">
         <bm-icon-dropdown
+            v-if="compact"
             ref="icon-dropdown"
-            class="d-inline-flex d-lg-none"
-            variant="compact-on-fill-primary"
+            class="d-inline-flex"
+            variant="compact"
             size="lg"
             v-bind="[$attrs, $props]"
             :title="title ? title : label"
@@ -11,15 +12,28 @@
         >
             <slot />
         </bm-icon-dropdown>
-        <bm-captioned-icon-dropdown
-            ref="captioned-icon-dropdown"
-            class="d-none d-lg-inline-flex"
-            v-bind="[$attrs, $props]"
-            :caption="label"
-            v-on="$listeners"
-        >
-            <slot />
-        </bm-captioned-icon-dropdown>
+        <template v-else>
+            <bm-icon-dropdown
+                ref="icon-dropdown"
+                class="d-inline-flex d-lg-none"
+                variant="compact-on-fill-primary"
+                size="lg"
+                v-bind="[$attrs, $props]"
+                :title="title ? title : label"
+                v-on="$listeners"
+            >
+                <slot />
+            </bm-icon-dropdown>
+            <bm-captioned-icon-dropdown
+                ref="captioned-icon-dropdown"
+                class="d-none d-lg-inline-flex"
+                v-bind="[$attrs, $props]"
+                :caption="label"
+                v-on="$listeners"
+            >
+                <slot />
+            </bm-captioned-icon-dropdown>
+        </template>
     </div>
 </template>
 
@@ -41,6 +55,10 @@ export default {
         title: {
             type: String,
             default: null
+        },
+        compact: {
+            type: Boolean,
+            default: false
         }
     },
     methods: {

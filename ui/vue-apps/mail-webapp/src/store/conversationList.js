@@ -117,7 +117,7 @@ const actions = {
         }
     },
     async [REFRESH_CONVERSATION_LIST_KEYS]({ commit, state, getters }, { folder, conversationsActivated }) {
-        const conversations = getters.CONVERSATION_LIST_IS_SEARCH_MODE
+        const conversations = getters.CONVERSATION_LIST_IS_FILTERED
             ? await search(state, folder)
             : await list(state, folder, conversationsActivated);
         commit(SET_CONVERSATION_LIST, { conversations });

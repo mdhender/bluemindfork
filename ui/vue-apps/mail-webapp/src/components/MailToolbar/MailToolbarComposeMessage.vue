@@ -7,6 +7,7 @@
             :disabled="errorOccuredOnSave || isSending || !hasRecipient || anyAttachmentInError || isInvalid"
             icon="send"
             :label="$tc('mail.actions.send')"
+            :compact="compact"
             @click="send()"
         />
         <mail-toolbar-responsive-button
@@ -15,6 +16,7 @@
             :title="$t('mail.actions.end_template_edition.aria')"
             icon="arrow-back"
             :label="$tc('mail.actions.end_template_edition.label')"
+            :compact="compact"
             @click="endEdition"
         />
         <mail-toolbar-responsive-button
@@ -23,6 +25,7 @@
             :disabled="isSending"
             icon="paper-clip"
             :label="$tc('mail.actions.attach')"
+            :compact="compact"
             @click="openFilePicker()"
         />
         <input
@@ -41,6 +44,7 @@
             :label="$t('common.save')"
             split
             right
+            :compact="compact"
             @click="saveAsap"
         >
             <bm-dropdown-item icon="save" @click="saveAsDraft">{{ $t("mail.actions.save_draft") }}</bm-dropdown-item>
@@ -54,6 +58,7 @@
             :disabled="isSaving || isSending"
             icon="trash"
             :label="$tc('mail.actions.remove')"
+            :compact="compact"
             @click="deleteDraft"
         />
         <mail-toolbar-responsive-dropdown
@@ -64,6 +69,7 @@
             :label="$t('mail.toolbar.more')"
             no-caret
             class="other-viewer-actions"
+            :compact="compact"
         >
             <bm-dropdown-item :disabled="isSenderShown" @click="showSender">
                 {{ $tc("mail.actions.show_sender", 1) }}
@@ -105,6 +111,10 @@ export default {
         message: {
             type: Object,
             required: true
+        },
+        compact: {
+            type: Boolean,
+            default: false
         }
     },
     computed: {
@@ -156,3 +166,13 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/ui-components/src/css/variables";
+
+.mail-toolbar-compose-message.compact {
+    gap: $sp-5;
+    padding-left: $sp-5;
+    padding-right: $sp-5;
+}
+</style>

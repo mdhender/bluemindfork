@@ -7,24 +7,21 @@
         @toggle-tree="toggleTree"
     >
         <template v-slot:title>
-            <div class="folder-tree-header">
-                <mail-mailbox-icon :mailbox="GROUP_MAILBOXES[0]" class="folder-tree-avatar" />
-                <div class="folder-tree-name">{{ $t("mail.folders.groups") }}</div>
-            </div>
+            <folder-tree-header :mailbox="GROUP_MAILBOXES[0]" :name="$t('mail.folders.groups')" />
         </template>
     </mail-folder-tree>
 </template>
 <script>
 import { mapGetters } from "vuex";
-import FolderListLoading from "./FolderListLoading";
-import MailFolderTree from "./MailFolderTree";
-import MailMailboxIcon from "../MailMailboxIcon";
 import { MAILBOXES_ARE_LOADED, GROUP_MAILBOX_ROOT_FOLDERS, GROUP_MAILBOXES } from "~/getters";
 import { FolderTreeMixin } from "~/mixins";
+import FolderListLoading from "./FolderListLoading";
+import MailFolderTree from "./MailFolderTree";
+import FolderTreeHeader from "./FolderTreeHeader";
 
 export default {
     name: "GroupFolders",
-    components: { MailMailboxIcon, MailFolderTree, FolderListLoading },
+    components: { MailFolderTree, FolderListLoading, FolderTreeHeader },
     mixins: [FolderTreeMixin],
     data() {
         return { treeKey: "mailshares-tree" };

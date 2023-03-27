@@ -1,26 +1,21 @@
 <template>
     <bm-button-toolbar key-nav class="mail-toolbar flex-nowrap h-100">
-        <bm-icon-button
-            variant="compact-on-fill-primary"
-            size="lg"
-            class="d-lg-none mr-auto"
-            icon="arrow-back"
-            @click="back()"
-        />
         <mail-toolbar-compose-message
             v-if="MESSAGE_IS_LOADED(ACTIVE_MESSAGE) && ACTIVE_MESSAGE.composing"
             :message="ACTIVE_MESSAGE"
+            :compact="compact"
         />
         <mail-toolbar-selected-conversations
             v-else-if="currentConversationIsLoaded || SEVERAL_CONVERSATIONS_SELECTED"
+            :compact="compact"
         />
     </bm-button-toolbar>
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapState } from "vuex";
+import { mapGetters, mapState } from "vuex";
 
-import { BmIconButton, BmButtonToolbar } from "@bluemind/ui-components";
+import { BmButtonToolbar } from "@bluemind/ui-components";
 
 import MailToolbarComposeMessage from "./MailToolbarComposeMessage";
 import MailToolbarSelectedConversations from "./MailToolbarSelectedConversations";
@@ -32,15 +27,19 @@ import {
     SELECTION_IS_EMPTY,
     SEVERAL_CONVERSATIONS_SELECTED
 } from "~/getters";
-import { UNSELECT_ALL_CONVERSATIONS, UNSET_CURRENT_CONVERSATION } from "~/mutations";
 
 export default {
     name: "MailToolbar",
     components: {
-        BmIconButton,
         BmButtonToolbar,
         MailToolbarComposeMessage,
         MailToolbarSelectedConversations
+    },
+    props: {
+        compact: {
+            type: Boolean,
+            default: false
+        }
     },
     computed: {
         ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
@@ -57,17 +56,6 @@ export default {
                 return this.CONVERSATION_IS_LOADED(this.CURRENT_CONVERSATION_METADATA);
             }
             return false;
-        }
-    },
-    methods: {
-        ...mapMutations("mail", { UNSELECT_ALL_CONVERSATIONS, UNSET_CURRENT_CONVERSATION }),
-        back() {
-            if (this.SELECTION_IS_EMPTY) {
-                this.UNSET_CURRENT_CONVERSATION();
-            } else {
-                this.UNSELECT_ALL_CONVERSATIONS();
-            }
-            this.$router.navigate("v:mail:home");
         }
     }
 };

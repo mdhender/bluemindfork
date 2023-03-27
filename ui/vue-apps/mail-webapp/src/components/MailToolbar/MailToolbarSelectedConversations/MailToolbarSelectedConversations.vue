@@ -1,11 +1,12 @@
 <template>
-    <div class="mail-toolbar-selected-conversations">
+    <div class="mail-toolbar-selected-conversations" :class="{ compact }">
         <template v-if="ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE">
             <mail-toolbar-responsive-button
                 v-show="isTemplate"
                 :title="$t('mail.actions.edit_from_template.aria', { subject })"
                 icon="plus-enveloppe"
                 :label="$t('mail.actions.edit_from_template')"
+                :compact="compact"
                 @click="editFromTemplate"
             />
             <mail-toolbar-responsive-button
@@ -13,6 +14,7 @@
                 :title="markAsReadAriaText()"
                 icon="read"
                 :label="markAsReadText"
+                :compact="compact"
                 @click="markAsRead()"
             />
             <mail-toolbar-responsive-button
@@ -20,13 +22,15 @@
                 :title="markAsUnreadAriaText()"
                 icon="unread"
                 :label="markAsUnreadText"
+                :compact="compact"
                 @click="markAsUnread()"
             />
-            <mail-toolbar-selected-conversations-move-action />
+            <mail-toolbar-selected-conversations-move-action :compact="compact" />
             <mail-toolbar-responsive-button
                 :title="removeAriaText()"
                 icon="trash"
                 :label="removeText"
+                :compact="compact"
                 @click.exact="moveToTrash()"
                 @click.shift.exact="remove()"
             />
@@ -35,6 +39,7 @@
                 :title="markAsFlaggedAriaText()"
                 icon="flag-outline"
                 :label="$t('mail.state.flagging')"
+                :compact="compact"
                 @click="markAsFlagged()"
             />
             <mail-toolbar-responsive-button
@@ -43,9 +48,10 @@
                 icon="flag-fill"
                 class="mark-as-unflagged-btn"
                 :label="$t('mail.state.flagging')"
+                :compact="compact"
                 @click="markAsUnflagged()"
             />
-            <mail-toolbar-selected-conversations-other-actions />
+            <mail-toolbar-selected-conversations-other-actions :compact="compact" />
         </template>
     </div>
 </template>
@@ -75,6 +81,12 @@ export default {
         MailToolbarSelectedConversationsOtherActions
     },
     mixins: [ActionTextMixin, FlagMixin, SelectionMixin, RemoveMixin, MailRoutesMixin],
+    props: {
+        compact: {
+            type: Boolean,
+            default: false
+        }
+    },
     computed: {
         ...mapState("mail", { messages: state => state.conversations.messages }),
         ...mapGetters("mail", {
@@ -115,6 +127,11 @@ export default {
 .mail-toolbar-selected-conversations {
     display: flex;
     flex-direction: row;
+    &.compact {
+        gap: $sp-5;
+        padding-left: $sp-5;
+        padding-right: $sp-5;
+    }
 
     .mark-as-unflagged-btn {
         .bm-captioned-icon-button,

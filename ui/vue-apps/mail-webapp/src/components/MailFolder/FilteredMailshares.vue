@@ -1,8 +1,5 @@
 <template>
-    <list-collapse v-if="hasResult" :name="$t('common.mailshares')">
-        <template v-slot:avatar>
-            <mail-mailbox-icon :mailbox="MAILSHARES[0]" class="folder-tree-avatar" />
-        </template>
+    <list-collapse v-if="hasResult" :name="$t('common.mailshares')" :mailbox="MAILSHARES[0]">
         <div class="d-flex flex-column">
             <filtered-item v-for="folder in folders" :key="folder.key" :folder="folder" class="flex-fill" />
         </div>
@@ -18,14 +15,13 @@ import { mapActions, mapGetters } from "vuex";
 import { BmButton } from "@bluemind/ui-components";
 import { SHOW_MORE_FOR_MAILSHARES } from "~/actions";
 import { FILTERED_MAILSHARE_RESULTS, MAILSHARES } from "~/getters";
-import MailMailboxIcon from "../MailMailboxIcon";
 import FilteredItem from "./FilteredItem";
 import ListCollapse from "./ListCollapse";
 import { DEFAULT_LIMIT } from "../../store/folderList";
 
 export default {
     name: "FilteredMailshares",
-    components: { BmButton, FilteredItem, ListCollapse, MailMailboxIcon },
+    components: { BmButton, FilteredItem, ListCollapse },
     data() {
         return { showMoreResultsButton: true };
     },

@@ -48,16 +48,34 @@ export const DEFAULT_FOLDERS = {
     TEMPLATES: "Templates",
     OUTBOX: "Outbox"
 };
-const DEFAULT_FOLDER_NAMES = {
-    INBOX: "INBOX",
-    SENT: "Sent",
-    DRAFTS: "Drafts",
-    TRASH: "Trash",
-    JUNK: "Junk",
-    TEMPLATES: "Templates",
-    OUTBOX: "Outbox",
+export const DEFAULT_FOLDERS_WITH_ROOT = {
+    ...DEFAULT_FOLDERS,
     ROOT: null
 };
+
+export function folderIcon(imapName, mailboxType) {
+    const modifier = MailboxType.isShared(mailboxType) ? "-shared" : "";
+    switch (imapName) {
+        case DEFAULT_FOLDERS_WITH_ROOT.INBOX:
+            return "inbox";
+        case DEFAULT_FOLDERS_WITH_ROOT.DRAFTS:
+            return "pencil" + modifier;
+        case DEFAULT_FOLDERS_WITH_ROOT.TRASH:
+            return "trash" + modifier;
+        case DEFAULT_FOLDERS_WITH_ROOT.JUNK:
+            return "forbidden";
+        case DEFAULT_FOLDERS_WITH_ROOT.OUTBOX:
+            return "clock";
+        case DEFAULT_FOLDERS_WITH_ROOT.SENT:
+            return "paper-plane" + modifier;
+        case DEFAULT_FOLDERS_WITH_ROOT.TEMPLATES:
+            return "documents";
+        case DEFAULT_FOLDERS_WITH_ROOT.ROOT:
+            return "user";
+        default:
+            return "folder" + modifier;
+    }
+}
 
 const DEFAULT_FOLDER_AS_ARRAY = Object.values(DEFAULT_FOLDERS);
 
@@ -249,12 +267,12 @@ export function match(folder, pattern) {
 export function createRoot(mailbox) {
     const root = create(null, "", null, mailbox);
     root.name = mailbox.name;
-    root.imapName = DEFAULT_FOLDER_NAMES.ROOT;
+    root.imapName = DEFAULT_FOLDERS_WITH_ROOT.ROOT;
     return root;
 }
 
 export function isRoot(folder) {
-    return !folder.parent && folder.key === null && folder.imapName === DEFAULT_FOLDER_NAMES.ROOT;
+    return !folder.parent && folder.key === null && folder.imapName === DEFAULT_FOLDERS_WITH_ROOT.ROOT;
 }
 
 export function isDescendantPath(path, parentPath) {
@@ -280,7 +298,9 @@ export default {
     create,
     createRoot,
     DEFAULT_FOLDERS,
+    DEFAULT_FOLDERS_WITH_ROOT,
     folderExists,
+    folderIcon,
     generateKey,
     getFolder,
     getInvalidCharacter,

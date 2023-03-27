@@ -3,7 +3,6 @@ import { loadingStatusUtils, folderUtils } from "@bluemind/mail";
 
 import { Cache } from "~/utils/cache";
 
-import { DEFAULT_FOLDER_NAMES } from "./folders/helpers/DefaultFolders";
 import {
     ACTIVE_MESSAGE,
     ALL_CONVERSATIONS_ARE_SELECTED,
@@ -57,7 +56,7 @@ import {
 } from "~/getters";
 import { IS_POPUP, SET_ACTIVE_FOLDER, SET_MAIL_THREAD_SETTING, RESET_ACTIVE_FOLDER } from "~/mutations";
 
-const { create, match } = folderUtils;
+const { create, match, DEFAULT_FOLDERS } = folderUtils;
 const { LoadingStatus } = loadingStatusUtils;
 
 export const state = {
@@ -90,7 +89,7 @@ export const mutations = {
     }
 };
 
-const { INBOX, OUTBOX, DRAFTS, JUNK, SENT, TRASH, TEMPLATES } = DEFAULT_FOLDER_NAMES;
+const { INBOX, OUTBOX, DRAFTS, JUNK, SENT, TRASH, TEMPLATES } = DEFAULT_FOLDERS;
 
 const UNKNOWN = 0;
 const ALL = 2;
@@ -105,10 +104,10 @@ export const getters = {
     [ALL_SELECTED_CONVERSATIONS_ARE_WRITABLE]: (state, { CURRENT_MAILBOX }) => CURRENT_MAILBOX.writable,
     [ALL_CONVERSATIONS_ARE_SELECTED]: (state, { SELECTION_KEYS, CONVERSATION_LIST_ALL_KEYS }) =>
         SELECTION_KEYS.length > 0 && SELECTION_KEYS.length === CONVERSATION_LIST_ALL_KEYS.length,
-    [CONVERSATIONS_ACTIVATED]: (state, { CONVERSATION_LIST_IS_SEARCH_MODE }) =>
+    [CONVERSATIONS_ACTIVATED]: (state, { CONVERSATION_LIST_IS_FILTERED }) =>
         state.mailThreadSetting === "true" &&
         state.folders[state.activeFolder].allowConversations &&
-        !CONVERSATION_LIST_IS_SEARCH_MODE,
+        !CONVERSATION_LIST_IS_FILTERED,
     [FILTERED_USER_RESULTS]: ({ folderList }, getters) => {
         const results = {};
         if (getters[FOLDER_LIST_IS_FILTERED] && !getters[FOLDER_LIST_IS_LOADING]) {

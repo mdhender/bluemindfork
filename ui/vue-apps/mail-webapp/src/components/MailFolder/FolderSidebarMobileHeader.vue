@@ -1,5 +1,5 @@
 <template>
-    <div class="folder-sidebar-mobile-header d-lg-none d-flex pb-2 px-2 pt-5">
+    <div class="folder-sidebar-mobile-header d-lg-none d-flex py-3 px-4">
         <div class="flex-fill d-flex align-items-center">
             <bm-avatar :alt="displayname" />
             <div class="text-truncate pl-5 pr-2">

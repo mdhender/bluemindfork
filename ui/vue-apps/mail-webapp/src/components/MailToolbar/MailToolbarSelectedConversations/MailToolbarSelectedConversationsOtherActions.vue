@@ -8,6 +8,7 @@
         :label="$tc('mail.toolbar.more')"
         no-caret
         right
+        :compact="compact"
     >
         <mail-open-in-popup-with-shift v-if="!isTemplate && isSingleMessage" v-slot="action" :href="editAsNew">
             <bm-dropdown-item :icon="action.icon('pencil')" @click="action.execute(() => $router.push(editAsNew))">
@@ -121,6 +122,12 @@ export default {
         ReplyAndForwardRoutesMixin,
         SelectionMixin
     ],
+    props: {
+        compact: {
+            type: Boolean,
+            default: false
+        }
+    },
     computed: {
         ...mapGetters("mail", { CURRENT_CONVERSATION_METADATA, MY_DRAFTS, MY_TEMPLATES }),
         ...mapState("mail", { messages: state => state.conversations.messages }),

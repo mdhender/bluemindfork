@@ -14,7 +14,7 @@
                 </span>
                 {{ fromOrTo }}
             </div>
-            <div v-if="CONVERSATION_LIST_IS_SEARCH_MODE" class="d-flex slide">
+            <div v-if="CONVERSATION_LIST_IS_FILTERED" class="d-flex slide">
                 <mail-folder-icon variant="caption" :mailbox="mailboxes[folder.mailboxRef.key]" :folder="folder">
                     {{ folder.name }}
                 </mail-folder-icon>
@@ -68,7 +68,7 @@ import { folderUtils, mailboxUtils } from "@bluemind/mail";
 import MailFolderIcon from "../MailFolderIcon";
 import {
     CONVERSATION_IS_SELECTED,
-    CONVERSATION_LIST_IS_SEARCH_MODE,
+    CONVERSATION_LIST_IS_FILTERED,
     CONVERSATIONS_ACTIVATED,
     MY_DRAFTS,
     MY_SENT
@@ -117,7 +117,7 @@ export default {
         ...mapGetters("mail", {
             MY_DRAFTS,
             MY_SENT,
-            CONVERSATION_LIST_IS_SEARCH_MODE,
+            CONVERSATION_LIST_IS_FILTERED,
             CONVERSATION_IS_SELECTED
         }),
         ...mapState("mail", ["activeFolder", "folders", "mailboxes"]),

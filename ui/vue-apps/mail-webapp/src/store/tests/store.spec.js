@@ -2,7 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import cloneDeep from "lodash.clonedeep";
 import { Flag } from "@bluemind/email";
-import { loadingStatusUtils, mailboxUtils } from "@bluemind/mail";
+import { loadingStatusUtils, mailboxUtils, folderUtils } from "@bluemind/mail";
 import storeData from "..";
 
 import {
@@ -36,7 +36,7 @@ import {
     NEXT_CONVERSATION,
     SELECTION
 } from "~/getters";
-import { DEFAULT_FOLDER_NAMES as NAMES } from "../folders/helpers/DefaultFolders";
+const { DEFAULT_FOLDERS: NAMES } = folderUtils;
 import injector from "@bluemind/inject";
 import { SET_FOLDER_FILTER_LOADED, SET_FOLDER_FILTER_LOADING, SET_ACTIVE_FOLDER } from "~/mutations";
 

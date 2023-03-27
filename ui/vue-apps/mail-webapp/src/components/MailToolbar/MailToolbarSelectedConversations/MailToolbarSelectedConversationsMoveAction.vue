@@ -7,6 +7,7 @@
         :label="moveText"
         :title="moveAriaText()"
         :aria-label="moveAriaText()"
+        :compact="compact"
         @shown="openMoveAutocomplete"
         @hide="resetPattern"
     >
@@ -112,6 +113,12 @@ export default {
         MailMailboxIcon
     },
     mixins: [ActionTextMixin, FilterFolderMixin, MoveMixin, SelectionMixin],
+    props: {
+        compact: {
+            type: Boolean,
+            default: false
+        }
+    },
     computed: {
         ...mapState("mail", ["folders", "mailboxes"]),
         ...mapGetters("mail", { MY_MAILBOX, FOLDERS_BY_PATH, MY_TRASH, MY_INBOX }),

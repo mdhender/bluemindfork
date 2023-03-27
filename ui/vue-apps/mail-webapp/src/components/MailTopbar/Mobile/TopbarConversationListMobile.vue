@@ -1,0 +1,118 @@
+<template>
+    <div class="topbar-conversation-list-mobile" :class="{ darkened }">
+        <div class="main w-100">
+            <bm-dropdown
+                v-if="CURRENT_MAILBOX"
+                variant="text-on-fill-primary"
+                class="folder-menu-mobile"
+                size="lg"
+                @show.prevent="$emit('showFolders')"
+            >
+                <template #button-content>
+                    <bm-avatar :alt="userSession.formatedName" />
+                    <bm-label-icon v-if="MY_MAILBOX === CURRENT_MAILBOX" :icon="folderIcon" class="ml-5">
+                        {{ currentFolder.name }}
+                    </bm-label-icon>
+                    <template v-else>
+                        <mail-mailbox-icon class="ml-5" :mailbox="CURRENT_MAILBOX" />
+                        <span class="ml-3">{{ currentFolder.name }}</span>
+                    </template>
+                </template>
+            </bm-dropdown>
+            <div class="d-flex align-items-center toolbar">
+                <mail-search-form @showSearch="SET_SEARCH_MODE_MOBILE(true)" />
+                <div class="options-for-mobile">
+                    <messages-options-for-mobile @shown="darkened = true" @hidden="darkened = false" />
+                </div>
+            </div>
+        </div>
+
+        <new-message class="new-mobile" :template="activeFolder === MY_TEMPLATES.key" mobile />
+    </div>
+</template>
+
+<script>
+import { mapGetters, mapMutations, mapState } from "vuex";
+import { inject } from "@bluemind/inject";
+import { folderUtils } from "@bluemind/mail";
+import { BmAvatar, BmDropdown, BmLabelIcon } from "@bluemind/ui-components";
+import { CURRENT_MAILBOX, MY_MAILBOX, MY_TEMPLATES } from "~/getters";
+import { SET_SEARCH_MODE_MOBILE } from "~/mutations";
+import MailMailboxIcon from "../../MailMailboxIcon";
+import MailSearchForm from "../../MailSearch/MailSearchForm";
+import MessagesOptionsForMobile from "../../MessagesOptionsForMobile";
+import NewMessage from "../../NewMessage";
+const { folderIcon } = folderUtils;
+
+export default {
+    components: {
+        BmAvatar,
+        BmDropdown,
+        BmLabelIcon,
+        MailMailboxIcon,
+        MessagesOptionsForMobile,
+        NewMessage,
+        MailSearchForm
+    },
+    data() {
+        return {
+            userSession: inject("UserSession"),
+            darkened: false
+        };
+    },
+    computed: {
+        ...mapState("mail", {
+            currentConversation: ({ conversations }) => conversations.currentConversation,
+            activeFolder: "activeFolder",
+            folders: "folders",
+            conversations: "conversations"
+        }),
+        ...mapGetters("mail", {
+            CURRENT_MAILBOX,
+            MY_MAILBOX,
+            MY_TEMPLATES
+        }),
+        currentFolder() {
+            return this.folders[this.activeFolder];
+        },
+        folderIcon() {
+            return folderIcon(this.currentFolder.imapName, this.CURRENT_MAILBOX.type);
+        }
+    },
+    methods: {
+        ...mapMutations("mail", { SET_SEARCH_MODE_MOBILE })
+    }
+};
+</script>
+
+<style lang="scss">
+@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/_type";
+.topbar-conversation-list-mobile {
+    .main {
+        display: flex;
+        justify-content: space-between;
+        .dropdown-toggle {
+            padding: $sp-4 base-px-to-rem(6) !important;
+        }
+        .toolbar {
+            gap: $sp-4;
+        }
+        .mail-mailbox-icon {
+            margin-left: base-px-to-rem(14);
+        }
+    }
+
+    &.darkened::before {
+        position: fixed;
+        content: "";
+        background: $modal-backdrop;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+        opacity: 0.5;
+        z-index: 1;
+    }
+}
+</style>
