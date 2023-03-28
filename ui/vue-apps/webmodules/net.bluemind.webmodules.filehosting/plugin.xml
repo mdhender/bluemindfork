@@ -3,16 +3,10 @@
 <plugin>
    <extension
          point="net.bluemind.webmodule">
-      <web-module-provider
-            module="/webapp">
-         <web-resource
-               bundle="net.bluemind.webmodules.filehosting"
-               preload="false">
-         </web-resource>
-         <js
-               async-loading="false"
-               path="js/net.bluemind.filehosting.js"
-               translation="false">
+      <web-module-provider module="/webapp">
+         <web-resource bundle="net.bluemind.webmodules.filehosting" preload="false" />
+         <js async-loading="false" path="js/net.bluemind.filehosting.js" translation="false">
+            <dependency path="js/net.bluemind.webapp.mail.js" />
          </js>
       </web-module-provider>
    </extension>

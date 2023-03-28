@@ -4,13 +4,17 @@
    <extension-point id="webapp.mail" name="mail" schema="schema/webapp.mail.exsd"/>
    <extension point="net.bluemind.webmodule">
       <web-module-provider module="/webapp">
-         <web-resource bundle="net.bluemind.webapp.mail.js">
-         </web-resource>
-         <js async-loading="false" path="js/net.bluemind.webapp.mail.js"></js>
+         <web-resource bundle="net.bluemind.webapp.mail.js" />
+         <js async-loading="false" path="js/net.bluemind.webapp.mail.js">
+            <dependency path="js/vue.js" />
+            <dependency path="js/vuex.js" />
+            <dependency path="js/vue-router.js" />
+            <dependency path="js/ui-components.js" />         
+         </js>
       </web-module-provider>
    </extension>
-   <extension point="webapp.banner">
-      <application description="%banner-entry.description" href="/webapp/mail/" name="%banner-entry.name" priority="512" role="hasMail" shortcut="true" help="https://doc.bluemind.net/release/5.0/category/la-messagerie">
+   <extension point="net.bluemind.webapp">
+      <application href="/webapp/mail/" name="%banner-entry.name" priority="512" role="hasMail" shortcut="true" help="https://doc.bluemind.net/release/5.0/category/la-messagerie">
          <icon>
             <svg>
                <![CDATA[ 
@@ -22,6 +26,7 @@
                ]]>
             </svg>
          </icon>
+	 <description>%banner-entry.description</description>
       </application>
    </extension>
 

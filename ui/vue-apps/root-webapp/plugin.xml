@@ -3,10 +3,20 @@
 <plugin>
       <extension point="net.bluemind.webmodule">
             <web-module-provider module="/webapp">
-                  <web-resource bundle="net.bluemind.webapp.root.js">
-                  </web-resource>
+                  <web-resource bundle="net.bluemind.webapp.root.js" />
                   <js async-loading="false" translation="false" path="js/net.bluemind.webapp.root.js">
+                        <dependency path="js/vue.js" />
+                        <dependency path="js/vuex.js" />
+                        <dependency path="js/vue-router.js" />
+                        <dependency path="js/ui-components.js" />
                   </js>
+                  <web-resource bundle="net.bluemind.webmodules.styleguide" />
+                  <js path="js/ui-components.js" />
+                  <web-resource bundle="net.bluemind.webmodules.vue" />
+                  <js path="js/vue-router.js" />
+                  <js path="js/vuex.js" />
+                  <js path="js/vue.js" />
+
             </web-module-provider>
       </extension>
 </plugin>

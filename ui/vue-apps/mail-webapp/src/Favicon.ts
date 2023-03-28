@@ -86,7 +86,7 @@ export default class Favicon {
                 this.ready();
             };
             this.baseImage.setAttribute("src", lastIcon.getAttribute("href") || "");
-        } else {
+        } else if (lastIcon.hasAttribute("src")) {
             this.canvas.height = this.baseImage.height = 32;
             this.canvas.width = this.baseImage.width = 32;
             this.context = this.canvas.getContext("2d") as CanvasRenderingContext2D;

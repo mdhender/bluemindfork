@@ -1,23 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension
-         point="net.bluemind.webmodule">
-      <web-module-provider
-            module="*">
-         <js
-               async-loading="true"
-               path="net.bluemind.ui.push/net.bluemind.ui.push.nocache.js">
-         </js>
-         <js
-               async-loading="false"
-               path="static/net.bluemind.ui.banner.im.js">
-         </js>
-         <web-resource
-               bundle="net.bluemind.ui.push">
-         </web-resource>
+   <extension point="net.bluemind.webmodule">
+      <web-module-provider  module="*">
+         <js async-loading="true" path="net.bluemind.ui.push/net.bluemind.ui.push.nocache.js" />
+         <web-resource bundle="net.bluemind.ui.push" />
       </web-module-provider>
    </extension>
+   <extension point="net.bluemind.webmodule">
+      <web-module-provider  module="/webapp,/visio">
+         <js async-loading="false" path="static/net.bluemind.ui.banner.im.js" >
+            <dependency path="js/vue.js" />
+         </js>
+      </web-module-provider>
+   </extension>   
    <extension
          point="net.bluemind.ui.commons.banner.widget">
       <widget-entry

@@ -11,4 +11,3 @@ Require-Bundle: io.vertx.core,
  com.google.guava,
  net.bluemind.webmodule;bundle-version="5.0.0"
 Automatic-Module-Name: net.bluemind.webmodules.styleguide
-Web-Dependencies: net.bluemind.webmodules.vue

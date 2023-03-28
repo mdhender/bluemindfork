@@ -25,9 +25,12 @@ goog.require('net.bluemind.cti.api.ComputerTelephonyIntegrationClient');
 goog.require('relief.rpc.RPCService');
 goog.require('relief.cache.Cache');
 
-function CTIWidgetCreator() {
-
-  var el = goog.soy.renderAsElement(net.bluemin.ui.banner.template.widget);
+function CTIWidgetCreator(element) {
+  if (element) {
+    var el = element;
+  } else {
+    var el = goog.soy.renderAsElement(net.bluemin.ui.banner.template.widget);
+  }
   return initializeDialer(el);
 }
 

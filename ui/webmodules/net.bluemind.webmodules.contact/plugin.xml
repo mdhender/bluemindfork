@@ -26,8 +26,8 @@
             <banner-entry cssIcon="fa fa-lg fa-user" description="%banner-entry.description" name="%banner-entry.name" offline="true" priority="99" role="hasMail" root="/contact/">
             </banner-entry>
       </extension>
-      <extension point="webapp.banner">
-	      <application description="%banner-entry.description" href="/webapp/contacts/" name="%banner-entry.name" priority="128" role="hasMail" help="https://doc.bluemind.net/release/5.0/category/les-contacts" shortcut="true">
+      <extension point="net.bluemind.webapp">
+	      <application href="/webapp/contacts/" name="%banner-entry.name" priority="128" role="hasMail" help="https://doc.bluemind.net/release/5.0/category/les-contacts" shortcut="true">
                   <icon>
                         <svg>
                               <![CDATA[
@@ -41,10 +41,8 @@
                               ]]>
                         </svg>
                   </icon>
-            </application>
+                  <description>%banner-entry.description</description> 
+          		  <embed src="/contact/iframe.html" />
+            </application>      
       </extension>
-      <extension point="net.bluemind.webapp">
-          <external-application href="/contact/iframe.html" name="contacts" route="/contacts/" />
-      </extension>
-
 </plugin>

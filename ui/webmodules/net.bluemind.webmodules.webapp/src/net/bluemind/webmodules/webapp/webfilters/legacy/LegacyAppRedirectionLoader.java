@@ -19,27 +19,29 @@ class LegacyAppRedirectionLoader {
 
 	public Map<String, String> load() {
 		loadWebmodulesIndexes();
-		return forEachExtensions("net.bluemind.webapp", "external-application")
-				.filter(element -> isOldApplication(element))
+		return forEachExtensions("net.bluemind.webapp", "application").filter(element -> isOldApplication(element))
 				.collect(Collectors.toMap(element -> getOldApplicationIndex(element),
-						element -> "/webapp" + element.getAttribute("route")));
+						element -> element.getAttribute("href")));
 	}
 
 	private boolean isOldApplication(IConfigurationElement element) {
-		String href = element.getAttribute("href");
-		String base = href.substring(0, href.lastIndexOf("/"));
-		if (webmoduleIndexes.containsKey(base)) {
-			logger.info("External app {} with base {} is {} legacy app", href, base,
-					base + "/" + webmoduleIndexes.get(base));
-			return !href.equals(base + "/" + webmoduleIndexes.get(base));
+		IConfigurationElement[] children = element.getChildren("embed");
+		if (children.length > 0) {
+			String src = children[0].getAttribute("src");
+			String base = src.substring(0, src.lastIndexOf("/"));
+			if (webmoduleIndexes.containsKey(base)) {
+				logger.info("External app {} with base {} is {} legacy app", src, base,
+						base + "/" + webmoduleIndexes.get(base));
+				return !src.equals(base + "/" + webmoduleIndexes.get(base));
+			}
+			logger.info("External app {} is not a legacy App");
 		}
-		logger.info("External app {} is not a legacy App");
 		return false;
 	}
 
 	private String getOldApplicationIndex(IConfigurationElement element) {
-		String href = element.getAttribute("href");
-		String base = href.substring(0, href.lastIndexOf("/"));
+		String src = element.getChildren("embed")[0].getAttribute("src");
+		String base = src.substring(0, src.lastIndexOf("/"));
 		return base + "/" + webmoduleIndexes.get(base);
 	}
 

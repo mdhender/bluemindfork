@@ -2,7 +2,7 @@ import Roles from "@bluemind/roles";
 import { mapExtensions } from "@bluemind/extensions";
 
 export default function (i18n) {
-    const contact = mapExtensions("webapp.banner", ["application"]).application?.find(
+    const contact = mapExtensions("net.bluemind.webapp", ["application"]).application?.find(
         ({ $id }) => $id === "net.bluemind.webmodules.contact"
     );
     return {

@@ -32,7 +32,7 @@
                 />
             </defs>
         </svg>
-        <svg :class="`spinner-${size}`" class="spinner d-block" viewBox="0 0 250 250">
+        <svg :class="`spinner-${size}`" class="spinner d-inline-block" viewBox="0 0 250 250">
             <use xlink:href="#a" fill-opacity="0" stroke="#00AAEB" class="v4" />
             <use xlink:href="#a" fill-opacity="0" stroke="#0A2A86" class="v3" />
         </svg>
@@ -53,9 +53,6 @@ export default {
         thick: { type: Boolean, default: false }
     },
     computed: {
-        width() {
-            return 10 * this.size + "em";
-        },
         strokeWidth() {
             return this.thick ? 20 : 10;
         }

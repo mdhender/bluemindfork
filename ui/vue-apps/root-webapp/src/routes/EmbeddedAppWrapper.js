@@ -1,4 +1,4 @@
-export default function OldAppWrapper(name, url) {
+export default function EmbeddedAppWrapper(name, url) {
     return {
         extends: WrapperComponent,
         name,
@@ -6,7 +6,7 @@ export default function OldAppWrapper(name, url) {
     };
 }
 const WrapperComponent = {
-    name: "OldAppWrapper",
+    name: "EmbeddedAppWrapper",
     render(h) {
         return h("iframe", { attrs: { src: this.url }, staticClass: "flex-fill border-0 bg-surface" });
     }

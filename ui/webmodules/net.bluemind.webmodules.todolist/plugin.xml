@@ -23,8 +23,8 @@
             <banner-entry cssIcon="fa fa-lg fa-calendar-check-o" description="%banner-entry.description" name="%banner-entry.name" offline="true" priority="97" role="hasCalendar" root="/task/">
             </banner-entry>
       </extension>
-      <extension point="webapp.banner">
-	      <application description="%banner-entry.description" href="/webapp/tasks/" name="%banner-entry.name" priority="32" role="hasCalendar" help="https://doc.bluemind.net/release/5.0/category/les-t%C3%A2ches">
+      <extension point="net.bluemind.webapp">
+	      <application href="/webapp/tasks/" name="%banner-entry.name" priority="32" role="hasCalendar" help="https://doc.bluemind.net/release/5.0/category/les-t%C3%A2ches">
                   <icon>
                         <svg>
                               <![CDATA[
@@ -38,9 +38,8 @@
                               ]]>
                         </svg>
                   </icon>
-            </application>
-      </extension>
-      <extension point="net.bluemind.webapp">
-         <external-application href="/task/iframe.html" name="tasks" route="/tasks/" />
+                  <description>%banner-entry.description</description>
+            	  <embed src="/task/iframe.html" />
+            </application>      
       </extension>
 </plugin>

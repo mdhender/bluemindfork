@@ -15,13 +15,13 @@
       </banner-entry>
    </extension>
    <extension
-         point="webapp.banner">
+         point="net.bluemind.webapp">
       <application
-            description="%tick.description"
-	    href="/tick/"
+            href="/tick/"
             name="%tick.label"
             priority="8"
-            role="bmMonitoring">
+            role="bmMonitoring"
+            target="_blank">
          <icon>
             <svg> 
                <![CDATA[ 
@@ -35,6 +35,7 @@
                ]]>
             </svg>
         </icon>
+        <description>%tick.description</description>
       </application>
    </extension>
 

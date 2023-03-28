@@ -31,8 +31,8 @@
             <web-filter class="net.bluemind.webmodules.calendar.filters.PublishCalendarFilter">
             </web-filter>
       </extension>
-      <extension point="webapp.banner">
-	      <application description="%banner-entry.description" href="/webapp/calendar/" name="%banner-entry.name" priority="64" shortcut="true" role="hasCalendar" help="https://doc.bluemind.net/release/5.0/category/lagenda">
+      <extension point="net.bluemind.webapp">
+	      <application href="/webapp/calendar/" name="%banner-entry.name" priority="64" shortcut="true" role="hasCalendar" help="https://doc.bluemind.net/release/5.0/category/lagenda">
                   <icon>
                         <svg>
                         <![CDATA[
@@ -46,9 +46,8 @@
                         ]]>
                         </svg>
                   </icon>
-            </application>
-      </extension>
-      <extension point="net.bluemind.webapp">
-	    <external-application href="/cal/iframe.html" name="calendar" route="/calendar/" />
+                  <description>%banner-entry.description</description>
+                  <embed src="/cal/iframe.html" />
+            </application>	    
       </extension>
 </plugin>

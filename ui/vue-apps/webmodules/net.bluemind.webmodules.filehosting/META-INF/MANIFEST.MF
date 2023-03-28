@@ -7,7 +7,4 @@ Automatic-Module-Name: net.bluemind.webmodules.filehosting
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.webmodule.server
 Web-Resources: web-resources
-Web-Dependencies: net.bluemind.webmodules.vue,
- net.bluemind.webapp.mail.js,
- net.bluemind.webmodules.styleguide
 

@@ -2,7 +2,7 @@
     <div class="main-app d-flex flex-column h-100">
         <global-events target="self" @resize="appHeight" @dragover.prevent />
         <system-alert-area v-if="systemAlerts.length > 0" :system-alerts="systemAlerts" @remove="systemAlerts = []" />
-        <bm-banner v-if="showBanner" :applications="applications" :user="user" />
+        <bm-banner v-if="showBanner" :applications="applications" :user="user" :current-application="current" />
         <preferences v-if="showPreferences" :applications="applications" />
         <about v-if="showAbout" :version="software.version" />
         <div
@@ -12,7 +12,7 @@
             {{ $t("common.application.bootstrap.error") }}<br />
             {{ $t("common.application.bootstrap.error.solution") }}
         </div>
-        <router-view v-else :class="showPreferences ? 'd-none' : 'd-flex'" />
+        <router-view v-else :class="showPreferences ? 'd-none d-lg-flex' : 'd-flex'" />
         <bm-alert-area class="main-alert-area" :alerts="alerts" :floating="true" @remove="REMOVE">
             <template v-slot="context">
                 <component :is="context.alert.renderer" :alert="context.alert" />
@@ -31,11 +31,11 @@ import { inject } from "@bluemind/inject";
 import { BmAlertArea } from "@bluemind/ui-components";
 
 import About from "./About";
+import BaseUri from "../routes/BaseUriRegExp";
 import BmBanner from "./banner/BmBanner";
 import Preferences from "./preferences/Preferences";
 import SystemAlertArea from "./SystemAlertArea";
-
-const BASE_URI = new RegExp("^" + new URL(document.baseURI).pathname.replace(/\/[^/]*$/, ""));
+import favicon from "../../assets/favicon.png";
 
 export default {
     components: {
@@ -52,12 +52,15 @@ export default {
         const session = inject("UserSession");
 
         return {
-            applications: mapExtensions("webapp.banner", { apps: "application" })
-                .apps.filter(({ role }) => session.roles.includes(role))
+            applications: mapExtensions("net.bluemind.webapp", { apps: "application" })
+                .apps
+		//Deprecated end-point
+		.concat(mapExtensions("webapp.banner", { apps: "application" }).apps)
+		.filter(({ role }) => session.roles.includes(role))
                 .map(application => ({
                     ...application,
-                    path: BASE_URI.test(application.href) ? application.href.replace(BASE_URI, "") : application.href,
-                    external: !BASE_URI.test(application.href)
+                    path: BaseUri.test(application.href) ? application.href.replace(BaseUri, "") : application.href,
+                    external: !BaseUri.test(application.href)
                 })),
             user: session.userId
                 ? {
@@ -85,9 +88,25 @@ export default {
         ...mapState("preferences", ["showPreferences"]),
         showAbout() {
             return this.$route.hash && this.$route.hash === "#about";
+        },
+        current() {
+            return this.applications.find(application => this.$route.path.startsWith(application.path));
+        }
+    },
+    watch: {
+        current: {
+            immediate: true,
+            handler() {
+                document.title = `${this.current?.name} ${this.$t("common.product")}`.trim();
+            }
         }
     },
     async created() {
+        const link = document.createElement("link");
+        link.href = favicon;
+        link.rel = "icon";
+        document.getElementsByTagName("head")[0].appendChild(link);
+
         this.appHeight();
         if (inject("UserSession").userId) {
             this.FETCH_MY_MAILBOX_QUOTA();

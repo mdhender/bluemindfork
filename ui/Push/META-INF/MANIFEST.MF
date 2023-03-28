@@ -12,5 +12,4 @@ Require-Bundle: net.bluemind.webmodule,
  net.bluemind.core.commons.gwt,
  net.bluemind.core.commons
 Web-Resources: web-resources
-Web-Dependencies: net.bluemind.webmodules.vue
 Automatic-Module-Name: net.bluemind.ui.push

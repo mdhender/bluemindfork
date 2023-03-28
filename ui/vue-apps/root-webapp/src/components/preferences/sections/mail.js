@@ -11,7 +11,7 @@ import { mapExtensions } from "@bluemind/extensions";
 import PrefSoonAvailable from "../PrefEntryName/PrefSoonAvailable";
 
 export default function (i18n) {
-    const mail = mapExtensions("webapp.banner", ["application"]).application?.find(
+    const mail = mapExtensions("net.bluemind.webapp", ["application"]).application?.find(
         ({ $id }) => $id === "net.bluemind.webapp.mail.js"
     );
     return {

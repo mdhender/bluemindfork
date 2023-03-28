@@ -51,6 +51,11 @@
    </element>
 
    <element name="application">
+      <annotation>
+         <appinfo>
+            <meta.element deprecated="true"/>
+         </appinfo>
+      </annotation>
       <complexType>
          <sequence>
             <element ref="icon"/>

@@ -16,6 +16,7 @@ import {
     CONVERSATION_LIST_UNREAD_FILTER_ENABLED
 } from "~/getters";
 import {
+    RESET_CONVERSATIONS,
     REMOVE_CONVERSATIONS,
     RESET_CONVERSATION_LIST_PAGE,
     SET_CONVERSATION_LIST_FILTER,
@@ -70,6 +71,10 @@ const state = {
 };
 
 const mutations = {
+    [RESET_CONVERSATIONS]: state => {
+        state._removed = [];
+        state._keys = [];
+    },
     [RESET_CONVERSATION_LIST_PAGE]: state => {
         state.currentPage = 0;
     },

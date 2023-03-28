@@ -2,7 +2,7 @@ import Roles from "@bluemind/roles";
 import { mapExtensions } from "@bluemind/extensions";
 
 export default function (i18n) {
-    const tasks = mapExtensions("webapp.banner", ["application"]).application?.find(
+    const tasks = mapExtensions("net.bluemind.webapp", ["application"]).application?.find(
         ({ $id }) => $id === "net.bluemind.webmodules.todolist"
     );
     return {

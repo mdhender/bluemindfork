@@ -1,25 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension
-         point="net.bluemind.webmodule">
-      <web-module-provider
-          module="*">
-         <js
-               path="js/vue-router.js">
-         </js>
-         <js
-               path="js/vuex.js">
-         </js>
-         <js
-               path="js/vue.js">
-         </js>
-         <web-resource
-               bundle="net.bluemind.webmodules.vue">
-         </web-resource>
-         <handler
-               class="net.bluemind.webmodules.vue.VueHandler"
-               path="js/vue.js"></handler>
+   <extension point="net.bluemind.webmodule">
+      <web-module-provider module="*">
+         <handler class="net.bluemind.webmodules.vue.VueHandler" path="js/vue.js" />
       </web-module-provider>
    </extension>
 </plugin>

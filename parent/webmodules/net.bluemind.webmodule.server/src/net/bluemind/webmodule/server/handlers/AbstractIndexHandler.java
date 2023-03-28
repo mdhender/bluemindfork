@@ -46,10 +46,10 @@ import net.bluemind.common.freemarker.EquinoxTemplateLoader;
 import net.bluemind.core.api.BMVersion;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
-import net.bluemind.webmodule.server.JsEntry;
 import net.bluemind.webmodule.server.PreEncodedObject;
 import net.bluemind.webmodule.server.WebExtensionsResolver;
 import net.bluemind.webmodule.server.WebModule;
+import net.bluemind.webmodule.server.js.JsEntry;
 
 public abstract class AbstractIndexHandler implements IWebModuleConsumer, Handler<HttpServerRequest> {
 

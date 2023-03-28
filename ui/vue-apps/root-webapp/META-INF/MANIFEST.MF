@@ -7,6 +7,4 @@ Bundle-Vendor: www.bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.webmodule
 Web-Resources: web-resources
-Web-Dependencies: net.bluemind.webmodules.vue,
- net.bluemind.webmodules.styleguide
 Automatic-Module-Name: net.bluemind.webapp.root.js

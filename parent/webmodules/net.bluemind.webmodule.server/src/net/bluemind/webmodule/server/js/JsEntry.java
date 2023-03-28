@@ -16,11 +16,11 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.webmodule.server;
+package net.bluemind.webmodule.server.js;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,6 @@ public class JsEntry {
 	private boolean translation;
 	private String bundle;
 	private Map<String, String> translations;
-	private List<String> dependencies = Collections.emptyList();
 
 	public JsEntry(String path, boolean lifecycle, boolean translation) {
 		this.path = path;
@@ -49,14 +48,10 @@ public class JsEntry {
 		return path;
 	}
 	
-	public List<String> getDependencies() {
-		return dependencies;
+	public Set<JsDependency> getDependencies() {
+		return JsDependencyRegistry.getInstance().get(this);
 	}
-	
-	public void setDependencies(List<String> dependencies) {
-		this.dependencies = dependencies;
-	}
-	
+
 	public void setTranslations(Map<String, String> translations) {
 		this.translations = translations;
 	}
@@ -89,4 +84,25 @@ public class JsEntry {
 		}
 	}
 
+
+	public void addDependency(JsDependency dependency) {
+		JsDependencyRegistry.getInstance().add(this, dependency);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(path);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		JsEntry other = (JsEntry) obj;
+		return Objects.equals(path, other.path);
+	}
 }

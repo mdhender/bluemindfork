@@ -10,14 +10,14 @@
     >
         <div class="banner-apps-title mb-4 mx-5">{{ $t("banner.main.apps") }}</div>
         <bm-row class="bm-apps">
-            <bm-col v-for="app in applications" :key="app.$id" cols="6">
+            <bm-col v-for="app in applications.filter(({ hidden }) => !hidden)" :key="app.$id" cols="6">
                 <a v-if="app.external" :href="app.path">
-                    <div class="pl-5 my-4 bm-app">
+                    <div class="bm-app">
                         <bm-app-icon :icon-app="app.icon" />
                         <span class="pl-4 text-uppercase align-middle">{{ app.name }}</span>
                     </div>
                 </a>
-                <router-link v-else :to="app.path" tag="div" class="pl-5 my-4 bm-app" @click.native="closePopover">
+                <router-link v-else :to="app.path" tag="div" class="bm-app" @click.native="closePopover">
                     <bm-app-icon :icon-app="app.icon" />
                     <span class="pl-4 text-uppercase align-middle">{{ app.name }}</span>
                 </router-link>
@@ -72,6 +72,9 @@ export default {
     .bm-apps {
         width: 22rem;
         .bm-app {
+            padding-left: $sp-5;
+            margin-top: $sp-4;
+            margin-bottom: $sp-4;
             cursor: pointer;
             color: $fill-primary-fg;
 

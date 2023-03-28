@@ -1,5 +1,5 @@
 <template>
-    <main class="flex-fill d-lg-flex flex-column mail-app">
+    <main class="flex-fill flex-column mail-app">
         <bm-extension id="webapp.mail" path="app.header" />
         <global-events @click="showFolders = false" />
         <section
@@ -111,7 +111,6 @@ import NewMessage from "./NewMessage";
 import NewTemplate from "./NewTemplate";
 
 import MailAppMixin from "./MailApp/MailAppMixin";
-
 export default {
     name: "MailApp",
     components: {
@@ -169,10 +168,8 @@ export default {
         }
     },
     created() {
-        FaviconHelper.setFavicon();
-        const documentTitle = this.$t("mail.application.title") + this.$t("common.product");
-        document.title = documentTitle;
-        FaviconHelper.handleUnreadNotifInFavicon(this.userSession, documentTitle);
+        FaviconHelper.initFavicon(this.userSession, document.title);
+        // FaviconHelper.setFavicon(i++);
     },
     methods: {
         onPanelResize(pane, container, size) {

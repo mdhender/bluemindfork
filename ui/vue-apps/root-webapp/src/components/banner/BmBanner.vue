@@ -14,10 +14,10 @@
         </bm-navbar-brand>
         <bm-banner-shortcuts :applications="defaultApps" />
         <div class="app-title text-center flex-grow-1 font-weight-bold text-uppercase">
-            <span v-if="selectedApp">{{ selectedApp.name }}</span>
+            <span v-if="currentApplication">{{ currentApplication.name }}</span>
         </div>
         <bm-extension id="webapp.banner" path="widget" class="d-flex align-items-center" />
-        <bm-banner-help v-if="selectedApp && selectedApp.help" :url="selectedApp.help" />
+        <bm-banner-help v-if="currentApplication && currentApplication.help" :url="currentApplication.help" />
         <bm-banner-menu :user="user" />
     </bm-navbar>
 </template>
@@ -52,14 +52,15 @@ export default {
         user: {
             required: true,
             type: Object
+        },
+        currentApplication: {
+            type: Object,
+            default: null
         }
     },
     computed: {
-        selectedApp() {
-            return this.applications.find(application => this.$route.path.startsWith(application.path));
-        },
         logoLink() {
-            return this.selectedApp ? this.selectedApp.path : "/";
+            return this.currentApplication ? this.currentApplication.path : "/";
         },
         defaultApps() {
             return this.applications.filter(({ shortcut }) => shortcut);

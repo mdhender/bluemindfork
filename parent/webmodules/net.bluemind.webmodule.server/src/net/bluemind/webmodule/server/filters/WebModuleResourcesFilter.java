@@ -34,10 +34,10 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.webmodule.server.IWebFilter;
-import net.bluemind.webmodule.server.JsEntry;
 import net.bluemind.webmodule.server.NeedWebModules;
 import net.bluemind.webmodule.server.PreEncodedObject;
 import net.bluemind.webmodule.server.WebModule;
+import net.bluemind.webmodule.server.js.JsEntry;
 
 public class WebModuleResourcesFilter implements IWebFilter, NeedWebModules {
 	private Map<String, WebModule> modules;

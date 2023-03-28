@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
@@ -38,6 +37,9 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.webmodule.server.handlers.IWebModuleConsumer;
+import net.bluemind.webmodule.server.js.BundleDependency;
+import net.bluemind.webmodule.server.js.JsDependency;
+import net.bluemind.webmodule.server.js.JsEntry;
 
 public class WebModuleBuilder {
 
@@ -96,7 +98,8 @@ public class WebModuleBuilder {
 		ret.resources = this.resources;
 		ret.root = root;
 		ret.rootFile = rootFile;
-		ret.js = orderedJs();
+
+		ret.js = new OrderedJsListBuilder(js).getJsList();
 
 		for (Entry<String, HandlerFactory<HttpServerRequest>> handlerEntry : this.handlers.entrySet()) {
 			Handler<HttpServerRequest> handler = handlerEntry.getValue().create(vertx);
@@ -111,63 +114,72 @@ public class WebModuleBuilder {
 		return ret;
 	}
 
-	private List<JsEntry> orderedJs() {
+	private class OrderedJsListBuilder {
+		private Set<String> resolved;
+		private List<String> unresolved;
+		private List<JsEntry> files;
 
-		Set<String> resolved = new LinkedHashSet<>();
-		List<String> unresolved = new ArrayList<>();
-		for (JsEntry j : js) {
-			resolve(j, resolved, unresolved);
+		public OrderedJsListBuilder(List<JsEntry> js) {
+			resolved = new LinkedHashSet<>();
+			unresolved = new ArrayList<>();
+			this.files = js;
 		}
 
-		List<JsEntry> ret = new ArrayList<>();
-		for (String resolvedBundle : resolved) {
-			ret.add(getEntryByPath(resolvedBundle));
+		public List<JsEntry> getJsList() {
+			for (JsEntry file : files) {
+				resolve(file);
+			}
+			List<JsEntry> list = new ArrayList<>();
+			for (String resolvedBundle : resolved) {
+				logger.info("Inject {} JS file", resolvedBundle);
+
+				list.add(getEntryByPath(resolvedBundle));
+			}
+
+			return list;
+		}
+		
+		private void resolve(JsEntry js) {
+			unresolved.add(js.path);
+			for (JsDependency dependency : js.getDependencies()) {
+				resolveDependency(dependency, js);
+			}
+
+			if (js.getBundle() != null) {
+				resolved.add(js.path);
+			} else {
+				logger.warn("js {} has no bundle", js.path);
+			}
 		}
 
-		return ret;
-	}
-
-	private void resolve(JsEntry j, Set<String> resolved, List<String> unresolved) {
-		unresolved.add(j.path);
-		for (String depBundle : j.getDependencies()) {
+		private void resolveDependency(JsDependency dependency, JsEntry js) {
 			// should resolve every jsEntry of depBundle
-			logger.debug("resolve dependency {} for {}", depBundle, j.getBundle());
-
-			for (JsEntry entry : getEntriesByBundle(depBundle, j)) {
+			List<JsEntry> entries = dependency.getEntries(dependency, files);
+			if (entries.isEmpty()) {
+				throw new RuntimeException(
+						"dependency " + dependency + " not found for JsEntry " + js.path + " (" + js.getBundle() + ")");
+			}
+			for (JsEntry entry : entries) {
 				if (!resolved.contains(entry.path)) {
 					if (unresolved.contains(entry.path)) {
-						throw new RuntimeException("circular dependency " + j.getBundle() + " -> " + depBundle);
+						throw new RuntimeException("circular dependency " + js.getBundle() + " -> " + dependency);
 					}
-					resolve(entry, resolved, unresolved);
+					resolve(entry);
 				}
 			}
 		}
 
-		if (j.getBundle() != null) {
-			resolved.add(j.path);
-		} else {
-			logger.warn("js {} has no bundle", j.path);
-		}
-	}
-
-	private List<JsEntry> getEntriesByBundle(String bundle, JsEntry j) {
-		List<JsEntry> result = js.stream().filter(entry -> bundle.equals(entry.getBundle()))
-				.collect(Collectors.toList());
-		if (!result.isEmpty()) {
-			return result;
-		}
-		throw new RuntimeException(
-				"dependency " + bundle + " not found for JsEntry " + j.path + " (" + j.getBundle() + ")");
-	}
-
-	private JsEntry getEntryByPath(String path) {
-		for (JsEntry j : js) {
-			if (j.path != null && j.path.equals(path)) {
-				return j;
+		private JsEntry getEntryByPath(String path) {
+			for (JsEntry j : files) {
+				if (j.path != null && j.path.equals(path)) {
+					return j;
+				}
 			}
+			throw new RuntimeException("dependency " + path + " not found");
 		}
-		throw new RuntimeException("dependency " + path + " not found");
 	}
+
+
 
 	private WebResource findResourceBundle(String path) {
 		for (WebResource r : this.resources) {
@@ -177,7 +189,7 @@ public class WebModuleBuilder {
 		}
 		return null;
 	}
-
+	
 	public void resolveJsBundles() {
 		// resolve js
 		for (JsEntry j : this.js) {
@@ -189,7 +201,8 @@ public class WebModuleBuilder {
 				String value = bundle.getHeaders().get("Web-Dependencies");
 				if (value != null) {
 					logger.debug("bundle {} depencies {}", j.getBundle(), value);
-					j.setDependencies(Arrays.asList(value.split(",")));
+					Arrays.asList(value.split(","))
+							.forEach(dependency -> j.addDependency(new BundleDependency(dependency)));
 				}
 				if (j.hasTranslation()) {
 					loadTranslations(j, webResourceBundle);

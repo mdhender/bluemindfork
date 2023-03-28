@@ -1,10 +1,10 @@
-import faviconIco from "../assets/favicon.png";
 /** @see https://github.com/vector-im/element-web */
 import Favicon from "./Favicon";
 import WebsocketClient from "@bluemind/sockjs";
 
-const LocalStorageKeys = { FAVICON_UNREAD: "bmFaviconUnread", FOCUSED: "bmFocused" };
+let favicon;
 
+const LocalStorageKeys = { FAVICON_UNREAD: "bmFaviconUnread", FOCUSED: "bmFocused" };
 function handleUnreadNotifInFavicon(userSession, documentTitle) {
     // listen to some events in order to store the window focus state
     addEventListeners(["focus", "pageshow"], () => {
@@ -36,15 +36,20 @@ function handleUnreadNotifInFavicon(userSession, documentTitle) {
     });
 }
 
+function initFavicon(userSession, documentTitle) {
+    if (!favicon) {
+        favicon = new Favicon();
+        handleUnreadNotifInFavicon(userSession, documentTitle);
+    } else {
+        favicon = new Favicon();
+    }
+}
+
 function setFavicon(unread = 0) {
     if (unread === 0) {
-        const link = document.querySelector("link[rel*='icon']") || document.createElement("link");
-        link.type = "image/x-icon";
-        link.rel = "shortcut icon";
-        link.href = faviconIco;
-        document.getElementsByTagName("head")[0].appendChild(link);
+        favicon.badge(0);
     } else {
-        new Favicon().badge(unreadDisplay(unread), {
+        favicon.badge(unreadDisplay(unread), {
             bgColor: "#df4355",
             isUp: true,
             fontWeight: "normal"
@@ -65,5 +70,5 @@ function addEventListeners(events, callback) {
     events.forEach(event => window.addEventListener(event, callback));
 }
 
-export const FaviconHelper = { handleUnreadNotifInFavicon, setFavicon };
+export const FaviconHelper = { handleUnreadNotifInFavicon, setFavicon, initFavicon };
 export default FaviconHelper;

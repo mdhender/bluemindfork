@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.StringJoiner;
 
 import org.eclipse.core.runtime.CoreException;
@@ -41,6 +42,8 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.webmodule.server.handlers.StaticFileHandler;
+import net.bluemind.webmodule.server.js.JsEntry;
+import net.bluemind.webmodule.server.js.ScriptDependency;
 
 public class WebModuleResolver {
 
@@ -75,9 +78,12 @@ public class WebModuleResolver {
 				}
 
 				String moduleId = e.getAttribute("module");
-				logger.debug("webmoduleprovider {} for {}", ie.getNamespaceIdentifier(), moduleId);
+				logger.debug("webmoduleprovider {} for {}", ie.getNamespaceIdentifier(),
+						Optional.ofNullable(moduleId).orElse("declaration only"));
 
-				if ("*".equals(moduleId)) {
+				if (moduleId == null || moduleId.isBlank()) {
+					declare(e);
+				} else if ("*".equals(moduleId)) {
 					for (WebModuleBuilder module : modules.values()) {
 						boolean blacklisted = false;
 						for (IConfigurationElement wle : e.getChildren("blacklist")) {
@@ -154,6 +160,11 @@ public class WebModuleResolver {
 				module.css.size(), module.handlers.size());
 	}
 
+	private void declare(IConfigurationElement e) {
+		logger.debug("Declare javascript dependencies");
+		loadJs(e);
+	}
+
 	private List<String> loadCss(IConfigurationElement e) {
 		List<String> ret = new ArrayList<>();
 		for (IConfigurationElement cssElement : e.getChildren("css")) {
@@ -176,7 +187,11 @@ public class WebModuleResolver {
 			if (jsElement.getAttribute("translation") != null) {
 				translation = Boolean.parseBoolean(jsElement.getAttribute("translation"));
 			}
-			ret.add(new JsEntry(path, lifecycle, translation));
+			JsEntry js = new JsEntry(path, lifecycle, translation);
+			for (IConfigurationElement jsDependency : jsElement.getChildren("dependency")) {
+				js.addDependency(new ScriptDependency(jsDependency.getAttribute("path")));
+			}
+			ret.add(js);
 		}
 		return ret;
 	}

@@ -3,14 +3,23 @@ import { UNREAD_FOLDER_COUNT } from "~/actions";
 
 const LIMIT = 5;
 const INTERVAL = 60 * 1 * 1000;
-
+let id;
+function clear() {
+    if (id) {
+        window.clearInterval(id);
+    }
+}
 export default {
     created() {
-        const id = window.setInterval(() => {
+        clear();
+        id = window.setInterval(() => {
             if (!fetchPendingUnreadCounts(this.$store)) {
-                window.clearInterval(id);
+                clear();
             }
         }, INTERVAL);
+    },
+    destroyed() {
+        clear();
     }
 };
 

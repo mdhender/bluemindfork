@@ -40,7 +40,7 @@ export default class NotificationManager {
         //TODO: The whole think should be provider by an extension.
         if (userSession.roles.includes(BmRoles.HAS_MAIL)) {
             await this.requestPermissionIfNeeded();
-            const mailAppExtension = window.bmExtensions_["webapp.banner"].find(
+            const mailAppExtension = window.bmExtensions_["net.bluemind.webapp"].find(
                 ({ bundle }) => bundle === "net.bluemind.webapp.mail.js"
             );
             if (!mailAppExtension) {

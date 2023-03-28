@@ -11,19 +11,19 @@
    <extension point="webapp.banner">
       <component name="BmCTIWidget" path="widget"></component>
    </extension>
-   <extension
-         point="net.bluemind.webmodule">
-      <web-module-provider
-            module="*">
-         <web-resource
-               bundle="net.bluemind.ui.banner.cti">
-         </web-resource>
-         <js path="js/compile/net.bluemind.ui.banner.cti.js">
-         </js>
-         <css
-               path="css/net.bluemind.ui.banner.cti.css">
-         </css>  
-         </web-module-provider>
+   <extension  point="net.bluemind.webmodule">
+      <web-module-provider module="*">
+         <web-resource bundle="net.bluemind.ui.banner.cti" />
+         <js path="js/compile/net.bluemind.ui.banner.cti.js" />
+         <css path="css/net.bluemind.ui.banner.cti.css" />  
+      </web-module-provider>
    </extension>
-
+   <extension  point="net.bluemind.webmodule">
+      <web-module-provider module="/webapp,/visio">
+         <js path="static/net.bluemind.ui.banner.cti.vue.js">
+            <dependency path="js/vue.js" />
+            <dependency path="js/compile/net.bluemind.ui.banner.cti.js" />
+         </js>
+      </web-module-provider>
+   </extension>
 </plugin>

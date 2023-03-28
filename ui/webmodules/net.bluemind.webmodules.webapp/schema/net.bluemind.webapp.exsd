@@ -22,7 +22,7 @@
          <choice minOccurs="1" maxOccurs="unbounded">
             <element ref="command"/>
             <element ref="component"/>
-            <element ref="external-application"/>
+            <element ref="application"/>
          </choice>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -51,7 +51,94 @@
       </complexType>
    </element>
 
-   <element name="external-application">
+   <element name="application">
+      <complexType>
+         <sequence>
+            <element ref="icon"/>
+            <element ref="embed" minOccurs="0" maxOccurs="1"/>
+            <element ref="description" minOccurs="0" maxOccurs="1"/>
+         </sequence>
+         <attribute name="name" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="href" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="priority" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="role" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="help" type="string">
+            <annotation>
+               <documentation>
+                  Documentation URL.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="shortcut" type="boolean">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="hidden" type="boolean">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="target" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="icon">
+      <complexType>
+         <choice>
+            <element ref="url"/>
+            <element ref="svg"/>
+         </choice>
+      </complexType>
+   </element>
+
+   <element name="embed">
+      <complexType>
+         <attribute name="src" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="url">
       <complexType>
          <attribute name="href" type="string" use="required">
             <annotation>
@@ -60,21 +147,18 @@
                </documentation>
             </annotation>
          </attribute>
-         <attribute name="route" type="string" use="required">
-            <annotation>
-               <documentation>
-                  
-               </documentation>
-            </annotation>
-         </attribute>
-         <attribute name="name" type="string">
-            <annotation>
-               <documentation>
-                  
-               </documentation>
-            </annotation>
-         </attribute>
       </complexType>
+   </element>
+
+   <element name="svg" type="string">
+   </element>
+
+   <element name="description" type="string">
+      <annotation>
+         <appinfo>
+            <meta.element translatable="true"/>
+         </appinfo>
+      </annotation>
    </element>
 
    <annotation>

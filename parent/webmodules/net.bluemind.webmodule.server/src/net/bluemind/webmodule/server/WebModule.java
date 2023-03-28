@@ -25,6 +25,7 @@ import java.util.Map;
 
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
+import net.bluemind.webmodule.server.js.JsEntry;
 
 public class WebModule {
 

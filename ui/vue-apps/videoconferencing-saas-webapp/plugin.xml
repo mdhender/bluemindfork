@@ -3,38 +3,38 @@
 <plugin>
       <extension point="net.bluemind.webmodule">
             <web-module-provider module="/visio">
-                  <web-resource bundle="net.bluemind.videoconferencing.saas.js">
-                  </web-resource>
+                  <web-resource bundle="net.bluemind.videoconferencing.saas.js" />
                   <js async-loading="false" translation="false" path="js/net.bluemind.videoconferencing.saas.js">
+                      <dependency path="js/vue.js" />
+                      <dependency path="js/vue-router.js" />
                   </js>
+                  <web-resource bundle="net.bluemind.webapp.root.js" />
+                  <js async-loading="false" translation="false" path="js/net.bluemind.webapp.root.js" />
+                  <web-resource bundle="net.bluemind.webmodules.styleguide" />
+                  <js path="js/ui-components.js" />
+                  <web-resource bundle="net.bluemind.webmodules.vue" />
+                  <js path="js/vue-router.js" />
+                  <js path="js/vuex.js" />
+                  <js path="js/vue.js" />
             </web-module-provider>
-            <web-module-provider module="/visio">
-                  <web-resource bundle="net.bluemind.webapp.root.js">
-                  </web-resource>
-                  <js async-loading="false" translation="false" path="js/net.bluemind.webapp.root.js">
-                  </js>
-            </web-module-provider>
-            <web-module-provider module="*">
-                  <blacklist path="/webmail" />
-                  <web-resource bundle="net.bluemind.videoconferencing.saas.js">
-                  </web-resource>
+            <web-module-provider module="/webapp">
+                  <web-resource bundle="net.bluemind.videoconferencing.saas.js" />
                   <js async-loading="false" translation="false" path="js/net.bluemind.videoconferencing.widget.js">
+                      <dependency path="js/vue.js" />
+                      <dependency path="js/ui-components.js" />
                   </js>
             </web-module-provider>
             <web-module-provider module="*">
                   <blacklist path="/webapp" />
                   <web-resource bundle="net.bluemind.videoconferencing.saas.js">
                   </web-resource>             
-                  <js async-loading="false" translation="false" path="static/net.bluemind.ui.banner.videoconferencing.js">
-                  </js>
+                  <js async-loading="false" translation="false" path="static/net.bluemind.ui.banner.videoconferencing.js" />
             </web-module-provider>
       </extension>
       <extension point="webapp.banner">
             <component name="BmVideoWidget" path="widget"></component>
       </extension>
-   <extension
-         point="net.bluemind.ui.commons.banner.widget">
-      <widget-entry creator="VideoWidgetCreator">
-      </widget-entry>
-   </extension>
+      <extension point="net.bluemind.ui.commons.banner.widget">
+            <widget-entry creator="VideoWidgetCreator" />
+      </extension>
 </plugin>
