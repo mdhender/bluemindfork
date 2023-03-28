@@ -96,6 +96,7 @@ public class KerberosConfigHelper {
 		try {
 			previousConf = new JsonObject(Files.readString(Paths.get(lastConfLocation)));
 		} catch (IOException e) {
+			previousConf = new JsonObject();
 		}
 		
 		if (!currentConf.equals(previousConf)) {
