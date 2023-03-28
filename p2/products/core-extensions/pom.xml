@@ -18,7 +18,6 @@
 		<module>password-sizestrength</module>
 		<module>ldap-export</module>
 		<module>videoconferencing-jitsi</module>
-		<module>videoconferencing-starleaf</module>
 		<module>videoconferencing-webex</module>
 		<module>videoconferencing-bluemind</module>
 		<module>videoconferencing-teams</module>

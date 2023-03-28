@@ -61,4 +61,12 @@ Section: oldlibs
 Description: transitional package
  This is a transitional package. It can safely be removed.
 
+Package: bm-plugin-core-videoconferencing-starleaf
+Depends: bm-core, ${misc:Depends}
+Architecture: all
+Priority: extra
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed. 
+
  

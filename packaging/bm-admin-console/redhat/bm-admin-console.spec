@@ -8,8 +8,8 @@ URL:                http://www.bluemind.net/
 ExcludeArch:        s390 s390x
 Requires(post):     systemd systemd-sysv
 Requires:           bm-webserver = %{version}-%{release}
-Conflicts:          bm-plugin-admin-console-monitoring
-Obsoletes:          bm-plugin-admin-console-monitoring
+Conflicts:          bm-plugin-admin-console-monitoring, bm-plugin-admin-console-videoconferencing-starleaf
+Obsoletes:          bm-plugin-admin-console-monitoring, bm-plugin-admin-console-videoconferencing-starleaf
 
 %description
 Admin Console web interface
