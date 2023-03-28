@@ -170,7 +170,6 @@
       <plugin id="net.bluemind.webmodules.videoconferencing.saas"/>
       <plugin id="net.bluemind.webmodules.vue"/>
       <plugin id="net.bluemind.webmodules.webapp"/>
-      <plugin id="net.bluemind.webmodules.webapp.wrapper"/>
       <plugin id="net.java.dev.jna"/>
       <plugin id="org.apache.commons.codec"/>
       <plugin id="org.apache.commons.lang3"/>

@@ -17,7 +17,10 @@
                class="net.bluemind.core.docs.DocsIndexHandler"
                path="index.html">
          </handler>
-         
+         <handler
+               class="net.bluemind.core.docs.DocsIndexHandler"
+               path="iframe.html">
+         </handler>         
       </web-module>
    </extension>
    <extension
@@ -50,8 +53,8 @@
    <extension
          point="webapp.banner">
       <application
-            description="Api Docs"
-            href="/docs/"
+            description="Api Documentation"
+	    href="/webapp/doc/"
             name="Api Docs"
             priority="4"
             role="apiDocs">   
@@ -70,4 +73,7 @@
         </icon>  
       </application>
    </extension>
+      <extension point="net.bluemind.webapp">
+          <external-application href="/docs/iframe.html" name="documentation" route="/doc/" />
+      </extension>   
 </plugin>

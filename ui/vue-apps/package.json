@@ -6,7 +6,6 @@
             "mail-webapp",
             "root-webapp",
             "videoconferencing-saas-webapp",
-            "webapp-wrapper",
             "webmodules/net.bluemind.webmodules.filehosting",
             "webmodules/net.bluemind.webmodules.styleguide"
         ],

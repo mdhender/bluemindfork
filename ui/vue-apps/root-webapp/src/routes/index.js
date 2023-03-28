@@ -2,7 +2,7 @@ import OldAppWrapper from "./OldAppWrapper";
 import { extensions } from "@bluemind/extensions";
 import camelCase from "lodash.camelcase";
 
-const applications = extensions.get("webapp", "external-application") || [];
+const applications = extensions.get("net.bluemind.webapp", "external-application") || [];
 
 export default applications.map(toRoute);
 

@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.webmodules.calendar.handlers;
+package net.bluemind.webmodules.todolist.handlers;
 
 import java.util.Locale;
 import java.util.Map;
@@ -25,11 +25,11 @@ import java.util.ResourceBundle;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.webmodule.server.handlers.AbstractIndexHandler;
 
-public class TodolistOfflineHandler extends AbstractIndexHandler {
+public class TodolistHandler extends AbstractIndexHandler {
 
 	@Override
 	protected String getTemplateName() {
-		return "TodolistOffline.ftl";
+		return "Todolist.ftl";
 	}
 
 	@Override

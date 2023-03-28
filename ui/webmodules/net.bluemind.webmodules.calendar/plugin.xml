@@ -48,7 +48,7 @@
                   </icon>
             </application>
       </extension>
-      <extension point="webapp">
+      <extension point="net.bluemind.webapp">
 	    <external-application href="/cal/iframe.html" name="calendar" route="/calendar/" />
       </extension>
 </plugin>

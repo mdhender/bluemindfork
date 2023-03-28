@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.webmodules.calendar.handlers;
+package net.bluemind.webmodules.todolist.handlers;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;

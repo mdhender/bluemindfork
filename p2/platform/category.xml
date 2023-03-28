@@ -726,7 +726,6 @@
    <bundle id="net.bluemind.webmodules.videoconferencing.saas" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.webmodules.vue" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.webmodules.webapp" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.webmodules.webapp.wrapper" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.webmodules.webmail" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.webmodule.uploadhandler" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.xivo.bridge" version="5.0.0.qualifier"/>

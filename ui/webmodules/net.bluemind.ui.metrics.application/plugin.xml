@@ -18,7 +18,7 @@
          point="webapp.banner">
       <application
             description="%tick.description"
-            href="/tick/"
+	    href="/tick/"
             name="%tick.label"
             priority="8"
             role="bmMonitoring">

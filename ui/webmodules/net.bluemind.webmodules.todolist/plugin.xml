@@ -3,13 +3,15 @@
 <plugin>
       <extension point="net.bluemind.webmodule">
             <web-module index="index.html" root="/task">
-                  <handler class="net.bluemind.webmodules.calendar.handlers.TodolistHandler" path="index.html">
+                  <handler class="net.bluemind.webmodules.todolist.handlers.TodolistHandler" path="index.html">
                   </handler>
-                  <handler class="net.bluemind.webmodules.calendar.handlers.TodolistOfflineHandler" path="index-offline.html">
+                  <handler class="net.bluemind.webmodules.todolist.handlers.TodolistHandler" path="iframe.html">
+                  </handler>                  
+                  <handler class="net.bluemind.webmodules.todolist.handlers.TodolistOfflineHandler" path="index-offline.html">
                   </handler>
-                  <handler class="net.bluemind.webmodules.calendar.handlers.ImportVTodoHandler" path="import-vtodo">
+                  <handler class="net.bluemind.webmodules.todolist.handlers.ImportVTodoHandler" path="import-vtodo">
                   </handler>
-                  <handler class="net.bluemind.webmodules.calendar.handlers.ExportVTodoHandler" path="export-vtodo">
+                  <handler class="net.bluemind.webmodules.todolist.handlers.ExportVTodoHandler" path="export-vtodo">
                   </handler>
                   <handler class="net.bluemind.webmodule.server.handlers.LogHandler" path="log">
                   </handler>
@@ -17,13 +19,12 @@
                   </web-resource>
             </web-module>
       </extension>
-
       <extension point="net.bluemind.ui.commons.banner">
             <banner-entry cssIcon="fa fa-lg fa-calendar-check-o" description="%banner-entry.description" name="%banner-entry.name" offline="true" priority="97" role="hasCalendar" root="/task/">
             </banner-entry>
       </extension>
       <extension point="webapp.banner">
-            <application description="%banner-entry.description" href="/task/" name="%banner-entry.name" priority="32" role="hasCalendar" help="https://doc.bluemind.net/release/5.0/category/les-t%C3%A2ches">
+	      <application description="%banner-entry.description" href="/webapp/tasks/" name="%banner-entry.name" priority="32" role="hasCalendar" help="https://doc.bluemind.net/release/5.0/category/les-t%C3%A2ches">
                   <icon>
                         <svg>
                               <![CDATA[
@@ -39,5 +40,7 @@
                   </icon>
             </application>
       </extension>
-
+      <extension point="net.bluemind.webapp">
+         <external-application href="/task/iframe.html" name="tasks" route="/tasks/" />
+      </extension>
 </plugin>

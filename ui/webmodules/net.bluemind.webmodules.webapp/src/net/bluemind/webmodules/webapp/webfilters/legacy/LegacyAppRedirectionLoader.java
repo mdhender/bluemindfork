@@ -15,11 +15,11 @@ import org.slf4j.LoggerFactory;
 class LegacyAppRedirectionLoader {
 	private static final Logger logger = LoggerFactory.getLogger(LegacyAppRedirectionLoader.class);
 
-    private final Map<String, String> webmoduleIndexes;
+	private Map<String, String> webmoduleIndexes;
 
 	public Map<String, String> load() {
-		webmoduleIndexes = loadWebmodulesIndexes();
-		return forEachExtensions("webapp", "external-application")
+		loadWebmodulesIndexes();
+		return forEachExtensions("net.bluemind.webapp", "external-application")
 				.filter(element -> isOldApplication(element))
 				.collect(Collectors.toMap(element -> getOldApplicationIndex(element),
 						element -> "/webapp" + element.getAttribute("route")));
@@ -29,7 +29,8 @@ class LegacyAppRedirectionLoader {
 		String href = element.getAttribute("href");
 		String base = href.substring(0, href.lastIndexOf("/"));
 		if (webmoduleIndexes.containsKey(base)) {
-			logger.info("External app {} with base {} is {} legacy app",  href, base, base + "/" + webmoduleIndexes.get(base));
+			logger.info("External app {} with base {} is {} legacy app", href, base,
+					base + "/" + webmoduleIndexes.get(base));
 			return !href.equals(base + "/" + webmoduleIndexes.get(base));
 		}
 		logger.info("External app {} is not a legacy App");
@@ -42,8 +43,8 @@ class LegacyAppRedirectionLoader {
 		return base + "/" + webmoduleIndexes.get(base);
 	}
 
-	private Map<String, String> loadWebmodulesIndexes() {
-		return forEachExtensions("net.bluemind.webmodule", "web-module")
+	private void loadWebmodulesIndexes() {
+		webmoduleIndexes = forEachExtensions("net.bluemind.webmodule", "web-module")
 				.collect(Collectors.toMap(element -> element.getAttribute("root"),
 						element -> Optional.ofNullable(element.getAttribute("index")).orElse("index.html")));
 	}
@@ -51,7 +52,7 @@ class LegacyAppRedirectionLoader {
 	private Stream<IConfigurationElement> forEachExtensions(String pointName, String elementName) {
 		IExtensionPoint point = Platform.getExtensionRegistry().getExtensionPoint(pointName);
 		if (point == null) {
-			logger.error("point point not found.");
+			logger.error("point {} not found.", pointName);
 			return Stream.empty();
 		}
 		return Arrays.stream(point.getExtensions())

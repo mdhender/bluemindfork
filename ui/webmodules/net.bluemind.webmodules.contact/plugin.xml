@@ -5,6 +5,8 @@
             <web-module index="index.html" root="/contact">
                   <handler class="net.bluemind.webmodules.contact.handlers.ContactHandler" path="index.html">
                   </handler>
+                  <handler class="net.bluemind.webmodules.contact.handlers.ContactHandler" path="iframe.html">
+                  </handler>
                   <handler class="net.bluemind.webmodules.contact.handlers.ContactJspHandler" path="Contact.jsp">
                   </handler>
                   <handler class="net.bluemind.webmodules.contact.handlers.ContactOfflineHandler" path="index-offline.html">
@@ -19,13 +21,13 @@
                   </web-resource>
             </web-module>
       </extension>
-
+   
       <extension point="net.bluemind.ui.commons.banner">
             <banner-entry cssIcon="fa fa-lg fa-user" description="%banner-entry.description" name="%banner-entry.name" offline="true" priority="99" role="hasMail" root="/contact/">
             </banner-entry>
       </extension>
       <extension point="webapp.banner">
-            <application description="%banner-entry.description" href="/contact/" name="%banner-entry.name" priority="128" role="hasMail" help="https://doc.bluemind.net/release/5.0/category/les-contacts" shortcut="true">
+	      <application description="%banner-entry.description" href="/webapp/contacts/" name="%banner-entry.name" priority="128" role="hasMail" help="https://doc.bluemind.net/release/5.0/category/les-contacts" shortcut="true">
                   <icon>
                         <svg>
                               <![CDATA[
@@ -40,6 +42,9 @@
                         </svg>
                   </icon>
             </application>
+      </extension>
+      <extension point="net.bluemind.webapp">
+          <external-application href="/contact/iframe.html" name="contacts" route="/contacts/" />
       </extension>
 
 </plugin>

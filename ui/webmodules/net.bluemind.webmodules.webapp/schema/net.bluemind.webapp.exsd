@@ -3,7 +3,7 @@
 <schema targetNamespace="net.bluemind.webmodules.webapp" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="net.bluemind.webmodules.webapp" id="webapp" name="webapp"/>
+         <meta.schema plugin="net.bluemind.webmodules.webapp" id="net.bluemind.webapp" name="webapp"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]
@@ -20,8 +20,8 @@
       </annotation>
       <complexType>
          <choice minOccurs="1" maxOccurs="unbounded">
-            <element ref="component"/>
             <element ref="command"/>
+            <element ref="component"/>
             <element ref="external-application"/>
          </choice>
          <attribute name="point" type="string" use="required">
@@ -67,7 +67,7 @@
                </documentation>
             </annotation>
          </attribute>
-         <attribute name="name" type="string" use="required">
+         <attribute name="name" type="string">
             <annotation>
                <documentation>
                   
