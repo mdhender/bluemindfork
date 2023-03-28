@@ -29,7 +29,7 @@ public class DropinsActivator implements BundleActivator {
 	public static final String BUNDLE_INFOS_LOCATION = "configuration/org.eclipse.equinox.simpleconfigurator/bundles.info";
 
 	@Override
-	public void start(BundleContext bundleContext) throws Exception {
+	public synchronized void start(BundleContext bundleContext) throws Exception {
 		String productVersion = bundleContext.getBundle().getVersion().toString();
 		String productName = System.getProperty("net.bluemind.property.product");
 		Path productPath = Path.of("/usr/share", productName);

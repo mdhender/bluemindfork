@@ -1,11 +1,12 @@
 package net.bluemind.startup.dropins;
 
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -42,7 +43,7 @@ public class BundlesInfoRewriter {
 		}
 	}
 
-	public static void rewriteBundlesInfo(Path bundlesInfoPath, Repository extensions, Repository dropins)
+	public static synchronized void rewriteBundlesInfo(Path bundlesInfoPath, Repository extensions, Repository dropins)
 			throws IOException {
 		Path originalBundlesInfoPath = bundlesInfoPath.getParent().resolve("bundles.info.installed");
 		if (!Files.exists(originalBundlesInfoPath)) {
@@ -51,12 +52,12 @@ public class BundlesInfoRewriter {
 
 		try {
 			Path tmpBundlesInfoPath = Files.createTempFile("bundles.info", ".tmp");
-			try (FileWriter fw = new FileWriter(tmpBundlesInfoPath.toFile());
+			try (OutputStream out = Files.newOutputStream(tmpBundlesInfoPath, StandardOpenOption.CREATE,
+					StandardOpenOption.SYNC, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
 					Stream<String> lines = Files.lines(originalBundlesInfoPath)) {
-				boolean failed = rewritePlugins(fw, lines, extensions, dropins) //
-						|| writeJar(fw, extensions, extension -> !dropins.contains(extension)) //
-						|| writeJar(fw, dropins, dropin -> true);
-
+				boolean failed = rewritePlugins(out, lines, extensions, dropins) //
+						|| writeJar(out, extensions, extension -> !dropins.contains(extension)) //
+						|| writeJar(out, dropins, dropin -> true);
 				if (!failed) {
 					Files.move(tmpBundlesInfoPath, bundlesInfoPath, StandardCopyOption.REPLACE_EXISTING);
 				} else {
@@ -68,7 +69,7 @@ public class BundlesInfoRewriter {
 		}
 	}
 
-	private static boolean rewritePlugins(FileWriter fw, Stream<String> bundlesInfolines, Repository extensions,
+	private static boolean rewritePlugins(OutputStream fw, Stream<String> bundlesInfolines, Repository extensions,
 			Repository dropins) {
 		return bundlesInfolines //
 				.filter(line -> line.length() != 0 && !line.startsWith("#")) //
@@ -91,7 +92,7 @@ public class BundlesInfoRewriter {
 				.orElse(bundleInfo);
 	}
 
-	private static boolean writeJar(FileWriter fw, Repository repo, Predicate<Jar> keep) {
+	private static boolean writeJar(OutputStream fw, Repository repo, Predicate<Jar> keep) {
 		return repo.stream() //
 				.filter(keep::test) //
 				.map(BundleInfo::fromJar) //
@@ -99,11 +100,13 @@ public class BundlesInfoRewriter {
 				.anyMatch(Boolean.FALSE::equals);
 	}
 
-	private static boolean writeBundleInfoLine(BundleInfo bundleInfo, FileWriter fw) {
+	private static boolean writeBundleInfoLine(BundleInfo bundleInfo, OutputStream fw) {
 		try {
-			fw.write(bundleInfo.toString() + "\n");
+			String l = bundleInfo.toString() + "\n";
+			fw.write(l.getBytes());
 			return true;
 		} catch (IOException e) {
+			e.printStackTrace();
 			return false;
 		}
 	}
