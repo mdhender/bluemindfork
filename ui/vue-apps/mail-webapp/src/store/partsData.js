@@ -75,7 +75,8 @@ export default {
                     const converted =
                         MimeType.isHtml(part) ||
                         MimeType.isText(part) ||
-                        MimeType.MESSAGE_DISPOSITION_NOTIFICATION === part.mime
+                        MimeType.MESSAGE_DISPOSITION_NOTIFICATION === part.mime ||
+                        MimeType.MESSAGE_DELIVERY_STATUS === part.mime
                             ? await convertAsText(blob, part)
                             : await convertToBase64(blob);
                     commit(SET_PART_DATA, { messageKey, data: converted, address: part.address });

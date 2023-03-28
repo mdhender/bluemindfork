@@ -11,6 +11,13 @@ export default function (timeformat) {
             hour: "2-digit",
             minute: "2-digit"
         },
+        short_date_time: {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        },
         relative_date: {
             weekday: "short",
             day: "2-digit",

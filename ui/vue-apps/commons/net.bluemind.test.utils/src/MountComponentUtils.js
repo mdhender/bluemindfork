@@ -16,10 +16,14 @@ export default {
             mocks: {
                 $i18n: {
                     t: () => {},
-                    tc: () => {}
+                    tc: () => {},
+                    te: () => {},
+                    d: () => {}
                 },
                 $t: () => {},
-                $tc: () => {}
+                $tc: () => {},
+                $te: () => {},
+                $d: () => {}
             }
         };
         return mount(component, defaultMountingOptions);

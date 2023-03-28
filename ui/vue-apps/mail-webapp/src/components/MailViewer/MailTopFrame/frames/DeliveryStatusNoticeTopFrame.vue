@@ -1,0 +1,183 @@
+<template>
+    <chain-of-responsibility :is-responsible="isDSN">
+        <div class="delivery-status-notice-top-frame d-flex flex-column p-5">
+            <div class="d-flex flex-row align-items-center">
+                <img :src="success ? dsnImage : dsnFailedImage" class="align-self-center mr-5" />
+                <div class="flex-fill">
+                    <p class="mb-3">
+                        <i18n :path="summaryI18nPath">
+                            <template v-if="originalMessage" #subject>
+                                <template v-if="originalMessage.remoteRef">
+                                    <router-link :to="link">{{
+                                        originalMessage.subject || $t("mail.viewer.no.subject")
+                                    }}</router-link>
+                                </template>
+                                <template v-else>{{ originalMessage.subject }}</template>
+                            </template>
+                            <template #recipient>
+                                <span
+                                    v-for="(recipient, index) in recipients"
+                                    :key="index"
+                                    class="font-weight-bold text-break-all"
+                                    >{{
+                                        recipients.length > 1 && index !== recipients.length - 1
+                                            ? `${recipient}, `
+                                            : recipient
+                                    }}</span
+                                >
+                            </template>
+                        </i18n>
+                    </p>
+                    <div class="medium mb-3">
+                        <template v-if="originalMessage">
+                            <span>
+                                {{
+                                    $t("mail.topframe.report.send_date", {
+                                        date: $d(originalMessage.date, "short_date_time")
+                                    })
+                                }}
+                            </span>
+                            <br />
+                        </template>
+                        <span v-if="success">{{
+                            $t("mail.topframe.dsn.delivery_date", { dates: deliveryDates.join(", ") })
+                        }}</span>
+                    </div>
+                    <span v-if="!success" class="d-none d-lg-block text-neutral regular-medium">
+                        {{ $t("mail.topframe.dsn.failed.notice") }}
+                    </span>
+                </div>
+            </div>
+            <span v-if="!success" class="d-lg-none flex-fill text-neutral regular-medium">
+                {{ $t("mail.topframe.dsn.failed.notice") }}
+            </span>
+        </div>
+    </chain-of-responsibility>
+</template>
+
+<script>
+import { MimeType } from "@bluemind/email";
+import { messageUtils } from "@bluemind/mail";
+import { FETCH_PART_DATA } from "~/actions";
+import ChainOfResponsibility from "../ChainOfResponsibility";
+import dsnImage from "./dsn.png";
+import dsnFailedImage from "./dsn-failed.png";
+import ReportTopFrameMixin from "./ReportTopFrameMixin";
+
+export default {
+    name: "DeliveryStatusNoticeTopFrame",
+    components: { ChainOfResponsibility },
+    mixins: [ReportTopFrameMixin],
+    props: { message: { type: Object, default: undefined } },
+    data() {
+        return {
+            deliveryDates: undefined,
+            dsnFailedImage,
+            dsnImage,
+            firstReport: undefined,
+            isDSN: false,
+            originalMessage: undefined,
+            recipients: undefined,
+            success: undefined
+        };
+    },
+    priority: 0,
+    computed: {
+        summaryI18nPath() {
+            return this.success
+                ? this.originalMessage
+                    ? "mail.topframe.dsn.summary"
+                    : "mail.topframe.dsn.summary.no_subject"
+                : this.originalMessage
+                ? "mail.topframe.dsn.failed.summary"
+                : "mail.topframe.dsn.failed.summary.no_subject";
+        }
+    },
+    watch: {
+        "message.reports": {
+            handler: async function (reportParts) {
+                if (reportParts?.length) {
+                    this.firstReport = reportParts[0];
+                    this.isDSN = this.firstReport?.mime === MimeType.MESSAGE_DELIVERY_STATUS;
+                    if (this.isDSN) {
+                        await this.$store.dispatch(`mail/${FETCH_PART_DATA}`, {
+                            messageKey: this.message.key,
+                            folderUid: this.message.folderRef.uid,
+                            imapUid: this.message.remoteRef.imapUid,
+                            parts: [reportParts[0]]
+                        });
+                        const reportData = this.$store.state.mail.partsData.partsByMessageKey[this.message.key][
+                            this.firstReport.address
+                        ];
+                        const report = parseReportData(reportData);
+                        this.recipients = Object.keys(report);
+                        this.deliveryDates = Object.values(report)
+                            .map(subReport => {
+                                const dateStr = subReport.arrivalDate || subReport.lastAttemptDate || this.message.date;
+                                return dateStr ? this.$d(new Date(dateStr), "short_date_time") : undefined;
+                            })
+                            .filter(Boolean);
+
+                        this.success = report[Object.keys(report)[0]].success;
+                        this.originalMessage = await this.findOriginalMessage();
+                    }
+                }
+            },
+            immediate: true
+        }
+    },
+    methods: {
+        async findOriginalMessage() {
+            const file = this.message.attachments
+                .map(a => this.$store.state.mail.files[a.fileKey])
+                .find(f => f.mime === MimeType.MESSAGE_RFC822 || f.mime === MimeType.TEXT_RFC822_HEADERS);
+            if (file) {
+                const fetched = await fetch(file.url);
+                const blob = await fetched.blob();
+                const { body } = await messageUtils.EmlParser.parseEml(blob);
+                return this.findMessage(body.messageId) || body;
+            }
+        }
+    }
+};
+/** @see rfc3464 */
+function parseReportData(reportData) {
+    const regex = /Final-Recipient\s*:/gi;
+    let previousIndex = -1;
+    let match;
+    const report = {};
+    while ((match = regex.exec(reportData))) {
+        const index = match.index;
+        if (previousIndex > -1 && index > previousIndex) {
+            const subReport = parseReportData_(reportData.substring(previousIndex, index));
+            report[subReport.finalRecipient] = subReport;
+        }
+        previousIndex = index;
+    }
+    const subReport = parseReportData_(reportData.substring(previousIndex));
+    report[subReport.finalRecipient] = subReport;
+    return report;
+}
+function parseReportData_(reportData) {
+    const finalRecipientMatches = reportData.match(/Final-Recipient\s*:\s*(?:rfc822;\s)?(.*)/i);
+    const finalRecipient = finalRecipientMatches?.length > 1 ? finalRecipientMatches[1] : undefined;
+    const arrivalDateMatches = reportData.match(/Arrival-Date\s*:\s*(.*)/i);
+    const arrivalDate = arrivalDateMatches?.length > 1 ? arrivalDateMatches[1] : undefined;
+    const lastAttemptDateMatches = reportData.match(/Last-Attempt-Date\s*:\s*(.*)/i);
+    const lastAttemptDate = lastAttemptDateMatches?.length > 1 ? lastAttemptDateMatches[1] : undefined;
+    const actionMatches = reportData.match(/Action\s*:\s*(.*)/i);
+    const action = actionMatches?.length > 1 ? actionMatches[1] : undefined;
+    const success = ["delivered", "expanded"].includes(action);
+    return { arrivalDate, lastAttemptDate, finalRecipient, success };
+}
+</script>
+
+<style lang="scss">
+@import "~@bluemind/ui-components/src/css/_type";
+@import "~@bluemind/ui-components/src/css/variables";
+
+.delivery-status-notice-top-frame {
+    background-color: $neutral-bg-lo1;
+    @extend %regular;
+}
+</style>

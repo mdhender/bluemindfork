@@ -15,8 +15,10 @@ const AUDIO = "audio/";
 const VIDEO = "video/";
 const FONT = "font/";
 const MESSAGE = "message/";
+const MESSAGE_DELIVERY_STATUS = "message/delivery-status";
 const MESSAGE_DISPOSITION_NOTIFICATION = "message/disposition-notification";
 const MESSAGE_RFC822 = "message/rfc822";
+const TEXT_RFC822_HEADERS = "text/rfc822-headers";
 const PDF = "application/pdf";
 const MS_WORD = "application/msword";
 const MS_WORD_XML = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
@@ -102,7 +104,9 @@ export default {
     ICS,
     IMAGE,
     MESSAGE,
+    MESSAGE_DELIVERY_STATUS,
     MESSAGE_DISPOSITION_NOTIFICATION,
+    MESSAGE_RFC822,
     MULTIPART_ALTERNATIVE,
     MULTIPART_MIXED,
     MULTIPART_RELATED,
@@ -111,6 +115,7 @@ export default {
     TEXT_CALENDAR,
     TEXT_HTML,
     TEXT_PLAIN,
+    TEXT_RFC822_HEADERS,
     TEXT,
     VCARD,
     VIDEO,
@@ -206,7 +211,9 @@ function matchingIcon(mimeType) {
         equals(mimeType, JSON) ||
         equals(mimeType, CSV) ||
         equals(mimeType, TEXT_PLAIN) ||
-        equals(mimeType, MESSAGE_DISPOSITION_NOTIFICATION)
+        equals(mimeType, MESSAGE_DISPOSITION_NOTIFICATION) ||
+        equals(mimeType, MESSAGE_DELIVERY_STATUS) ||
+        equals(mimeType, TEXT_RFC822_HEADERS)
     ) {
         return "file-type-data";
     } else if (equals(mimeType, MS_EXCEL) || equals(mimeType, MS_EXCEL_XML) || equals(mimeType, OPEN_DOCUMENT_CALC)) {

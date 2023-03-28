@@ -142,9 +142,13 @@ export function createWrapper(component, overrides, propsData = {}) {
         mocks: {
             $t: () => "",
             $tc: () => "",
+            $te: () => false,
+            $d: () => "",
             $i18n: {
                 t: () => "",
-                tc: () => ""
+                tc: () => "",
+                te: () => false,
+                d: () => ""
             }
         }
     };

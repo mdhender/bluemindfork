@@ -21,9 +21,6 @@ loader.keys().forEach(file => {
 export default {
     name: "MailTopFrame",
     components: { BmExtension },
-    props: { message: { type: Object, required: true } },
-    render() {
-        return this.$scopedSlots.default({ message: this.message });
-    }
+    props: { message: { type: Object, required: true } }
 };
 </script>

@@ -43,22 +43,24 @@ function build(body, message) {
     body.smartAttach = message.attachments.some(({ disposition }) => disposition === "attachment");
     const rootPart = buildStructure(message);
     const partsData = {};
-    const visit = part => {
-        if (part.content) {
-            partsData[part.address] = part.content;
-            delete part.content;
-        }
-        part.children?.forEach(visit);
-    };
-    visit(rootPart);
-    body.structure = rootPart;
+    if (rootPart) {
+        const visit = part => {
+            if (part.content) {
+                partsData[part.address] = part.content;
+                delete part.content;
+            }
+            part.children?.forEach(visit);
+        };
+        visit(rootPart);
+        body.structure = rootPart;
+    }
 
     if (message.text) {
         body.preview = message.text;
     } else if (message.html) {
         body.preview = message.html.replaceAll(/<[^>]*>/g, "");
     }
-    body.preview = body.preview.replaceAll("\n", "").replaceAll("\n", "").substring(0, 120).trim();
+    body.preview = body.preview?.replaceAll("\n", "").replaceAll("\n", "").substring(0, 120).trim();
 
     const from = { kind: RecipientKind.Originator, dn: message.from.name, address: message.from.address };
     const toArray = message.to?.map(to => ({ kind: RecipientKind.Primary, dn: to.name, address: to.address })) || [];
