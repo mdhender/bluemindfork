@@ -108,6 +108,7 @@
    <bundle id="net.bluemind.cli.inject.imap" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.inject.node" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.inject.ou" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.cli.inject.calendar" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.job" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.journaling" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.launcher" version="5.0.0.qualifier"/>
