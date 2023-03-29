@@ -299,6 +299,11 @@ public class BasicRoles {
 	 */
 	public static final String ROLE_MAIL_WEBAPP = "hasMailWebapp";
 	/**
+     * Permission to use S/MIME.
+	 */
+	public static final String ROLE_CAN_USE_SMIME = "canUseSmime";
+
+	/**
 	 * Permission to change user ext id.
 	 */
 	public static final String ROLE_MANAGE_USER_EXTERNAL_ID = "manageUserExternalId";

@@ -472,10 +472,13 @@ public class BaseRolesProvider implements IRolesProvider {
 						.giveRoles(BasicRoles.ROLE_MAIL).delegable(),
 
 				RoleDescriptor
-						.create(BasicRoles.ROLE_MAIL_WEBAPP, CATEGORY_MAIL,
-								rb.getString("role.accessMailWebapp.label"), //
+						.create(BasicRoles.ROLE_MAIL_WEBAPP, CATEGORY_MAIL, rb.getString("role.accessMailWebapp.label"), //
 								rb.getString("role.accessMailWebapp.description")) //
 						.giveRoles(BasicRoles.ROLE_MAIL).delegable(),
+
+				RoleDescriptor.create(BasicRoles.ROLE_CAN_USE_SMIME, CATEGORY_MAIL,
+						rb.getString("role.canUseSmime.label"), rb.getString("role.canUseSmime.description"))
+						.delegable(), //
 
 				RoleDescriptor
 						.create(BasicRoles.ROLE_MANAGE_USER_EXTERNAL_ID, CATEGORY_ADMINISTRATION,
