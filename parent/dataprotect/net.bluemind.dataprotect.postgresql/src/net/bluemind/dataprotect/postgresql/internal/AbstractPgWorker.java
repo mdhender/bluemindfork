@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -93,7 +94,7 @@ public abstract class AbstractPgWorker extends DefaultWorker {
 		nc.writeFile(dir + "/dump.sh", new ByteArrayInputStream(s.getBytes()));
 		try {
 			NCUtils.execNoOut(nc, "chmod +x " + dir + "/dump.sh");
-			ExitList el = NCUtils.exec(nc, dir + "/dump.sh");
+			ExitList el = NCUtils.exec(nc, dir + "/dump.sh", 12, TimeUnit.HOURS);
 
 			for (String log : el) {
 				if (!StringUtils.isBlank(log)) {
