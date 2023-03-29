@@ -2,9 +2,9 @@
     <bm-icon-dropdown
         v-if="SMIME_AVAILABLE"
         split
-        :icon="!hasEncryptionHeader ? 'lock-open' : hasEncryptError || hasInvalidIndentity ? 'lock-slash' : 'lock'"
+        :icon="!hasEncryptionHeader ? 'lock-open' : hasEncryptError || hasInvalidIdentity ? 'lock-slash' : 'lock'"
         class="encrypt-and-sign-button"
-        :class="{ selected: hasEncryptionHeader, 'has-error': hasEncryptError || hasInvalidIndentity }"
+        :class="{ selected: hasEncryptionHeader, 'has-error': hasEncryptError || hasInvalidIdentity }"
         variant="compact"
         size="lg"
         :title="title"
@@ -25,6 +25,7 @@
 import { mapActions, mapGetters } from "vuex";
 import { BmDropdownItemToggle, BmIconDropdown } from "@bluemind/ui-components";
 import { ERROR, REMOVE } from "@bluemind/alert.store";
+import { inject } from "@bluemind/inject";
 import { draftUtils, messageUtils } from "@bluemind/mail";
 import { SMIME_AVAILABLE } from "../../store/getterTypes";
 import EncryptSignMixin from "../../mixins/EncryptSignMixin";
@@ -68,7 +69,6 @@ export default {
     },
     computed: {
         ...mapGetters("mail", { SMIME_AVAILABLE }),
-        ...mapGetters("root-app", { DEFAULT_IDENTITY: "DEFAULT_IDENTITY" }),
         title() {
             return this.hasEncryptionHeader
                 ? this.$t("smime.mailapp.composer.stop_encrypt_and_sign")
@@ -91,17 +91,20 @@ export default {
         hasSignError() {
             return this.hasSignatureHeader && !!this.$store.state.mail.smime.signError;
         },
-        hasInvalidIndentity() {
+        hasInvalidIdentity() {
             return (
                 (this.hasEncryptionHeader || this.hasSignatureHeader) &&
-                this.message.from.address !== this.DEFAULT_IDENTITY.email
+                this.message.from.address !== inject("UserSession").defaultEmail
+            );
+        },
+        haveMissingCertificates() {
+            return (
+                (this.hasEncryptionHeader || this.hasSignatureHeader) &&
+                this.$store.state.mail.smime.missingCertificates.length > 0
             );
         },
         isInvalid() {
-            return (
-                (this.hasEncryptionHeader || this.hasSignatureHeader) &&
-                (this.hasInvalidIndentity || this.$store.state.mail.smime.missingCertificates.length > 0)
-            );
+            return this.hasInvalidIdentity || this.haveMissingCertificates;
         }
     },
     watch: {
@@ -161,7 +164,7 @@ export default {
             },
             immediate: true
         },
-        hasInvalidIndentity: {
+        hasInvalidIdentity: {
             handler(isInvalid) {
                 const priority = 3;
                 this.handleError(isInvalid, alert, identityAlertOptions, priority);

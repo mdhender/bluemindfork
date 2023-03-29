@@ -178,8 +178,6 @@ describe("smime", () => {
         test("return true if the message main part is crypted", () => {
             expect(isEncrypted(mainEncrypted.value.body.structure)).toBe(true);
         });
-        test.todo("return true if a subpart of the message is crypted");
-        test.todo("return true if multiple subpart of the message is crypted");
         test("return false if there is not crypted subpart", () => {
             expect(isEncrypted(unencrypted)).toBe(false);
         });
