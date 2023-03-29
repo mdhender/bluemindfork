@@ -135,25 +135,20 @@ public class LdapPoolWrapper {
 	private LdapConnectionConfig getLdapConnectionConfig(Parameters ldapParameters, Host ldapHost) {
 		LdapConnectionConfig config = new LdapConnectionConfig();
 		config.setLdapHost(ldapHost.hostname);
+		config.setLdapPort(ldapHost.port);
 		config.setTimeout(LDAP_TIMEOUT);
 
 		switch (ldapParameters.ldapServer.protocol) {
 		case TLS:
 		case TLSPLAIN:
-			config.setLdapPort(389);
-
 			config.setUseTls(true);
 			config.setUseSsl(false);
 			break;
 		case SSL:
-			config.setLdapPort(636);
-
 			config.setUseTls(false);
 			config.setUseSsl(true);
 			break;
 		default:
-			config.setLdapPort(389);
-
 			config.setUseTls(false);
 			config.setUseSsl(false);
 			break;

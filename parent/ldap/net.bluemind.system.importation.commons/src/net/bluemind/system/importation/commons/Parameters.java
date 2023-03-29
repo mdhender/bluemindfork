@@ -397,8 +397,9 @@ public class Parameters {
 	@Override
 	public String toString() {
 		return String.format(
-				"LdapParameters [hostname=%s, protocol=%s, allCertificate=%b, loginDn=%s, lastupdate=%s, relayMailboxGroup=%s, baseDn=%s, userFilter=%s, groupFilter=%s, extId=%s, splitRelayEnabled=%s]",
-				ldapServer.host.isPresent() ? ldapServer.host.get().hostname : "undef", ldapServer.protocol,
+				"LdapParameters [hostname=%s:%s, protocol=%s, allCertificate=%b, loginDn=%s, lastupdate=%s, relayMailboxGroup=%s, baseDn=%s, userFilter=%s, groupFilter=%s, extId=%s, splitRelayEnabled=%s]",
+				ldapServer.host.isPresent() ? ldapServer.host.get().hostname : "undef",
+				ldapServer.host.isPresent() ? ldapServer.host.get().port : "undef", ldapServer.protocol,
 				ldapServer.acceptAllCertificates, ldapServer.login, lastUpdate, splitDomain.relayMailboxGroup,
 				ldapDirectory.baseDn, ldapDirectory.userFilter, ldapDirectory.groupFilter, ldapDirectory.extIdAttribute,
 				splitDomain.splitRelayEnabled);
