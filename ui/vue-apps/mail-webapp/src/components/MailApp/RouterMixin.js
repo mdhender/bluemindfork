@@ -14,6 +14,7 @@ import {
     RESET_CONVERSATIONS,
     SET_ACTIVE_FOLDER,
     SET_CONVERSATION_LIST_FILTER,
+    SET_MAIL_THREAD_SETTING,
     SET_ROUTE_FILTER,
     SET_ROUTE_FOLDER,
     SET_ROUTE_MAILBOX,
@@ -40,6 +41,7 @@ export default {
             MY_MAILBOX
         }),
         ...mapState("mail", ["activeFolder", "folders", "route", "conversationList"]),
+        ...mapState("settings", ["mail_thread"]),
         $_RouterMixin_query() {
             const query = MessageQueryParam.parse(this.$route.params.messagequery);
             return {
@@ -87,7 +89,7 @@ export default {
             immediate: true,
             deep: true,
             async handler() {
-                await this.$_RouterMixin_isReady(this.route.mailbox);
+                await this.$_RouterMixin_ready(this.route.mailbox);
                 try {
                     const folder = this.$_RouterMixin_resolveFolder();
                     this.SET_CONVERSATION_LIST_FILTER(this.route.filter);
@@ -140,7 +142,20 @@ export default {
             }
             return this.MY_INBOX;
         },
-        $_RouterMixin_isReady(name) {
+        $_RouterMixin_ready(name) {
+            const promises = [];
+            promises.push(this.$_RouterMixin_waitAndSetThreadSetting());
+            promises.push(this.$_RouterMixin__waitForMailboxes(name));
+            return Promise.all(promises);
+        },
+        async $_RouterMixin_waitAndSetThreadSetting() {
+            await this.$waitFor(
+                () => this.mail_thread,
+                mailThreadSetting => mailThreadSetting !== undefined
+            );
+            this.$store.commit(`mail/${SET_MAIL_THREAD_SETTING}`, this.mail_thread);
+        },
+        async $_RouterMixin__waitForMailboxes(name) {
             let assert = mailbox => mailbox && mailbox.loading === LoadingStatus.LOADED;
             if (!name) {
                 return this.$waitFor(MY_MAILBOX, assert);
