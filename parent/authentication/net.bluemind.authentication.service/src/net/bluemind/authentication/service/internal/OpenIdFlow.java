@@ -34,7 +34,6 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -58,8 +57,6 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.domain.service.internal.IInCoreDomainSettings;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
-import net.bluemind.system.api.SystemConf;
-import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 
 public class OpenIdFlow {
 
@@ -68,14 +65,6 @@ public class OpenIdFlow {
 
 	public OpenIdFlow(BmContext context) {
 		this.context = context;
-	}
-
-	protected String getExternalUrl(IInCoreDomainSettings settings) {
-		SystemConf sysconf = LocalSysconfCache.get();
-		return Optional
-				.ofNullable(
-						settings.getExternalUrl().orElseGet(() -> sysconf.values.get(SysConfKeys.external_url.name())))
-				.orElseThrow(() -> new ServerFault("External URL missing"));
 	}
 
 	public AccessTokenInfo refreshOpenIdToken(String domainUid, String userUid, RefreshToken refreshToken)

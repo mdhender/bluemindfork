@@ -52,7 +52,7 @@ public class UserAccessTokenService implements IInCoreUserAccessToken {
 	}
 
 	@Override
-	public AccessTokenInfo getTokenInfo(String externalSystem) {
+	public AccessTokenInfo getTokenInfo(String externalSystem, String baseUrl) {
 		RBACManager.forContext(context).checkNotAnoynmous();
 
 		if (externalSystem == null) {
@@ -86,7 +86,8 @@ public class UserAccessTokenService implements IInCoreUserAccessToken {
 			}
 
 		}
-		return OpenIdAuthFlowFactory.getFlow(context, extSystem.authKind).initalizeOpenIdAuthentication(extSystem);
+		return OpenIdAuthFlowFactory.getFlow(context, extSystem.authKind).initalizeOpenIdAuthentication(extSystem,
+				baseUrl);
 
 	}
 

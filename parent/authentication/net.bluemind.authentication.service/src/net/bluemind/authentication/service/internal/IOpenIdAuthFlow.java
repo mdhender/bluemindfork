@@ -25,7 +25,7 @@ import net.bluemind.system.api.ExternalSystem;
 
 public interface IOpenIdAuthFlow {
 
-	public AccessTokenInfo initalizeOpenIdAuthentication(ExternalSystem extSystem);
+	public AccessTokenInfo initalizeOpenIdAuthentication(ExternalSystem extSystem, String baseUrl);
 
 	public JsonObject getAccessTokenByCode(String code, OpenIdContext openIdContext);
 

@@ -29,7 +29,8 @@ public interface IUserAccessToken {
 
 	@GET
 	@Path("_info")
-	public AccessTokenInfo getTokenInfo(@QueryParam("external_system") String externalSystem);
+	public AccessTokenInfo getTokenInfo(@QueryParam("external_system") String externalSystem,
+			@QueryParam("baseUrl") String baseUrl);
 
 	@GET
 	@Path("_auth")

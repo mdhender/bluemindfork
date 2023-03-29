@@ -72,7 +72,8 @@ net.bluemind.videoconferencing.service.VideoConferencingService.prototype.auth =
         }, this);
         var system = systemProp.value;
         var client = new net.bluemind.authentication.api.UserAccessTokenClient(this.ctx_.rpc, '');
-        return client.getTokenInfo(system);
+        var baseUrl = window.location.origin;
+        return client.getTokenInfo(system, baseUrl);
     }, null, this);
     
 };

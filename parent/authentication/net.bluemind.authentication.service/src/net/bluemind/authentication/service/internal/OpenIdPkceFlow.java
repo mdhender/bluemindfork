@@ -42,7 +42,7 @@ public class OpenIdPkceFlow extends OpenIdFlow implements IOpenIdAuthFlow {
 		super(context);
 	}
 
-	public AccessTokenInfo initalizeOpenIdAuthentication(ExternalSystem system) {
+	public AccessTokenInfo initalizeOpenIdAuthentication(ExternalSystem system, String baseUrl) {
 		String endpointKey = system.identifier + "_endpoint";
 		String applicationIdKey = system.identifier + "_appid";
 		String applicationSecretKey = system.identifier + "_secret";
@@ -57,8 +57,7 @@ public class OpenIdPkceFlow extends OpenIdFlow implements IOpenIdAuthFlow {
 
 		String externalAuthEndPointUrl = settings.get(endpointKey);
 		String applicationId = settings.get(applicationIdKey);
-		String internalRedirectUrl = "https://" + getExternalUrl(settingsService) + "/bm-openid/auth/"
-				+ system.identifier;
+		String internalRedirectUrl = baseUrl + "/bm-openid/auth/" + system.identifier;
 		String state = contextId;
 		String codeChallenge = hash(secret);
 		String codeChallengeMethod = "S256";
