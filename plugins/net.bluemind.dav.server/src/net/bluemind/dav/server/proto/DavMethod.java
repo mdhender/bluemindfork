@@ -18,6 +18,7 @@
  */
 package net.bluemind.dav.server.proto;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -26,10 +27,12 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.rest.LocalJsonObject;
+import net.bluemind.dav.server.DavActivator;
 import net.bluemind.dav.server.routing.ErrorHandler;
 import net.bluemind.dav.server.store.DavResource;
 import net.bluemind.dav.server.store.LoggedCore;
@@ -52,6 +55,13 @@ public final class DavMethod<Q, R> {
 	}
 
 	public void davMethod(final LoggedCore lc, DavResource res, final HttpServerRequest r) {
+		Optional<String> debugAuthString = getDebugAuthString(r);
+		debugAuthString.ifPresent(login -> {
+			r.body().onComplete(buf -> {
+				logger.info("Login: {}: BODY : {}", login, buf.result().toString());
+			});
+		});
+
 		r.exceptionHandler(new ErrorHandler(lc, r));
 		protocol.parse(r, res, new Handler<Q>() {
 			public void handle(Q parsed) {
@@ -77,9 +87,19 @@ public final class DavMethod<Q, R> {
 					public void handle(AsyncResult<Message<JsonObject>> event) {
 						HttpServerResponse httpResp = r.response();
 						if (event.failed()) {
+							debugAuthString.ifPresent(login -> {
+								logger.info("Login: {}: response failed : {}", login, event.cause().getMessage());
+							});
 							httpResp.setStatusCode(500).setStatusMessage("" + event.cause().getMessage()).end();
 							return;
 						}
+						debugAuthString.ifPresent(login -> {
+							if (event.result().body() != null) {
+								logger.info("Login: {}: response : {}", login, event.result().body().encodePrettily());
+							} else {
+								logger.info("Login: {}: response : {}", login, "empty response");
+							}
+						});
 						long end = System.nanoTime();
 						long totalMs = TimeUnit.NANOSECONDS.toMillis(end - start);
 						logger.info("{} in {}ms.", busAddress, totalMs);
@@ -100,6 +120,23 @@ public final class DavMethod<Q, R> {
 				});
 			}
 		});
+	}
+
+	private Optional<String> getDebugAuthString(final HttpServerRequest r) {
+		if (!DavActivator.devMode) {
+			return Optional.empty();
+		}
+		String auth = r.headers().get(HttpHeaders.AUTHORIZATION);
+		String authValue = "unknown";
+		if (auth != null) {
+			try {
+				String sub = auth.replace("Basic", "").trim();
+				authValue = new String(java.util.Base64.getDecoder().decode(sub.getBytes())).split(":")[0];
+			} catch (Exception e) {
+				authValue = new String(auth.getBytes());
+			}
+		}
+		return Optional.of(authValue);
 	}
 
 	private JsonObject asJson(LoggedCore lc, Q query) {
