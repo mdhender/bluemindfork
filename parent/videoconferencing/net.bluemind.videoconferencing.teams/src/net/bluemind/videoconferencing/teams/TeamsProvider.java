@@ -55,6 +55,7 @@ import net.bluemind.user.api.IInternalUserExternalAccount;
 import net.bluemind.user.api.UserAccount;
 import net.bluemind.videoconferencing.api.IVideoConferencingProvider;
 import net.bluemind.videoconferencing.api.VideoConference;
+import net.bluemind.videoconferencing.service.template.VideoConferencingTemplateHelper;
 import okhttp3.Request;
 
 public class TeamsProvider implements IVideoConferencingProvider {
@@ -134,6 +135,7 @@ public class TeamsProvider implements IVideoConferencingProvider {
 			req.addHeader("Accept-Language", context.getSecurityContext().getLang());
 			OnlineMeeting meeting = req.post(onlineMeeting);
 			String desc = extractDesc(meeting);
+			desc = new VideoConferencingTemplateHelper().addTag(desc, resource.uid);
 
 			if (vevent.conferenceConfiguration == null) {
 				vevent.conferenceConfiguration = new HashMap<>();
