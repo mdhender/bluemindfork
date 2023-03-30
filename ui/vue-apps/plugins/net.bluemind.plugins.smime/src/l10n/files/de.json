@@ -45,6 +45,10 @@
                 "title": "S/MIME encryption",
                 "cert_and_key_associated": "Your private key and public certificate have been associated.",
                 "cert_or_key_dissociated": "You do not have any public certificate or private key associated.",
+                "dissociate_warning": {
+                    "content": "All associated data will be removed from the browser. Some encrypted messages will no longer be readable.",
+                    "title": "Dissociate my certificate and my private key"
+                },
                 "modal": {
                     "email_not_found": "Ihr Zertifikat muss Ihrer Standard-E-Mail-Adresse \"{email}\" entsprechen.",
                     "no_cert_found": "No certificate has been found",

@@ -45,6 +45,10 @@
                 "title": "Chiffrement S/MIME",
                 "cert_and_key_associated": "Votre clé privée et votre certificat public ont bien été associés.",
                 "cert_or_key_dissociated": "Vous n'avez pas de clé privée ou de certificat public associés.",
+                "dissociate_warning": {
+                    "content": "Toutes les données associées seront supprimées du navigateur. Certains messages chiffrés ne seront plus lisibles.",
+                    "title": "Dissocier mon certificat et ma clé privée"
+                },
                 "modal": {
                     "email_not_found": "Votre certificat doit identifier votre adresse email par défaut \"{email}\".",
                     "no_cert_found": "Aucun certificat n'a été trouvé.",

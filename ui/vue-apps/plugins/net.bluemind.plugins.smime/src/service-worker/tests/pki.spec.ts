@@ -14,7 +14,7 @@ import {
 import { getCaCerts } from "../pki/cert";
 import {
     checkCertificate,
-    clearMyCryptoFiles,
+    clear,
     getMyCertificate,
     getMyPrivateKey,
     getCertificate,
@@ -235,7 +235,7 @@ describe("pki", () => {
         test("clear my crypto files call clearPKI and reset cache", async () => {
             db.getCertificate = jest.fn(() => Promise.resolve(new MockedCertAsBlob()));
             db.getPrivateKey = jest.fn(() => Promise.resolve(new MockedKeyAsBlob()));
-            await clearMyCryptoFiles();
+            await clear();
             try {
                 await getMyCertificate();
             } catch {

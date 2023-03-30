@@ -10,7 +10,7 @@
                     <bm-label-icon icon="check-circle" :inline="false">
                         {{ $t("smime.preferences.import_field.cert_and_key_associated") }}
                     </bm-label-icon>
-                    <bm-button variant="text" class="mt-5 ml-6" @click="dissociate">
+                    <bm-button variant="outline-danger" class="mt-5 ml-6" @click="dissociate">
                         {{ $t("common.dissociate") }}
                     </bm-button>
                 </template>
@@ -22,7 +22,7 @@
                 </template>
             </div>
         </template>
-        <import-pkcs12-modal ref="import-modal" @ok="needReload" />
+        <import-pkcs12-modal ref="import-modal" @ok="NEED_RELOAD()" />
     </div>
     <div v-else>
         {{ $t("smime.preferences.service_worker.undefined") }}
@@ -58,11 +58,23 @@ export default {
             this.$refs["import-modal"].open();
         },
         async dissociate() {
-            await this.$store.dispatch("mail/" + DISSOCIATE_CRYPTO_FILES);
-            this.NEED_RELOAD();
-        },
-        needReload() {
-            this.NEED_RELOAD();
+            const confirm = await this.$bvModal.msgBoxConfirm(
+                this.$t(`smime.preferences.import_field.dissociate_warning.content`),
+                {
+                    title: this.$t(`smime.preferences.import_field.dissociate_warning.title`),
+                    okTitle: this.$t("common.dissociate"),
+                    cancelTitle: this.$t("common.cancel"),
+                    okVariant: "fill-danger",
+                    cancelVariant: "text",
+                    centered: true,
+                    hideHeaderClose: false,
+                    autoFocusButton: "cancel"
+                }
+            );
+            if (confirm) {
+                await this.$store.dispatch("mail/" + DISSOCIATE_CRYPTO_FILES);
+                this.NEED_RELOAD();
+            }
         }
     }
 };

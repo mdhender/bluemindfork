@@ -7,7 +7,7 @@ jest.mock("../environnment/session", () => ({ userId: "my-user-id" }));
 describe("SMimePkiDB", () => {
     beforeEach(async () => {
         global.indexedDB = new FDBFactory();
-        await SMimePkiDB.clearPKI();
+        await SMimePkiDB.clearMyCertAndKey();
     });
 
     describe("clearPKI", () => {
@@ -16,7 +16,7 @@ describe("SMimePkiDB", () => {
             const privKey = await SMimePkiDB.getPrivateKey();
             expect(privKey).toBe("heya");
 
-            await SMimePkiDB.clearPKI();
+            await SMimePkiDB.clearMyCertAndKey();
             const status = await SMimePkiDB.getPKIStatus();
             expect(status).toBe(PKIStatus.EMPTY);
         });

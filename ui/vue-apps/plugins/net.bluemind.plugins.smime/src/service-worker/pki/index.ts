@@ -89,10 +89,11 @@ const cache: Cache = {
 export async function getMyStatus() {
     return await db.getPKIStatus();
 }
-export async function clearMyCryptoFiles() {
-    await db.clearPKI();
+export async function clear() {
+    await db.clearMyCertAndKey();
     cache.CERTIFICATE = null;
     cache.PRIVATE_KEY = null;
+    await db.clearRevocations();
 }
 export async function getMyPrivateKey(): Promise<pki.rsa.PrivateKey> {
     if (!cache.PRIVATE_KEY) {

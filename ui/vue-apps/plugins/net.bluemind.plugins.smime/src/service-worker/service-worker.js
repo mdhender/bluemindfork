@@ -2,7 +2,8 @@ import { pki } from "node-forge";
 import { registerRoute } from "workbox-routing";
 import { extensions } from "@bluemind/extensions";
 import BmRoles from "@bluemind/roles";
-import { checkCertificate, clearMyCryptoFiles, getMyStatus, setMyCertificate, setMyPrivateKey } from "./pki";
+import { checkCertificate, clear as clearPki, getMyStatus, setMyCertificate, setMyPrivateKey } from "./pki";
+import bodyDB from "./smime/cache/SMimeBodyDB";
 import SMimeApiProxy from "./SMimeApiProxy";
 import { PKIEntry, SMIME_INTERNAL_API_URL, SMIME_UNTRUSTED_CERTIFICATE_ERROR_PREFIX } from "../lib/constants";
 
@@ -11,7 +12,7 @@ extensions.register("serviceworker.handlers", "smime-plugin", {
 });
 
 registerRoute(SMIME_INTERNAL_API_URL, hasCryptoFilesHandler, "GET");
-registerRoute(SMIME_INTERNAL_API_URL, deleteCryptoFilesHandler, "DELETE");
+registerRoute(SMIME_INTERNAL_API_URL, clearPkiAndCache, "DELETE");
 registerRoute(`${SMIME_INTERNAL_API_URL}/${PKIEntry.PRIVATE_KEY}`, setPrivateKey, "PUT");
 const setCertificateMatcher = ({ url }) => {
     return url.pathname === `${SMIME_INTERNAL_API_URL}/${PKIEntry.CERTIFICATE}`;
@@ -22,8 +23,11 @@ async function hasCryptoFilesHandler() {
     return new Response(await getMyStatus());
 }
 
-async function deleteCryptoFilesHandler() {
-    await clearMyCryptoFiles();
+async function clearPkiAndCache() {
+    await clearPki();
+    await bodyDB.clearBody();
+    await bodyDB.clearGuid();
+    await caches.delete("smime-part-cache");
     return new Response();
 }
 

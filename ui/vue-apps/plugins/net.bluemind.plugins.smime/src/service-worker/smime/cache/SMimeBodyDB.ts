@@ -19,9 +19,11 @@ interface SMimeSchema extends DBSchema {
 interface SMimeBodyDB {
     setGuid(folderUid: string, imapUid: number, guid: string): Promise<void>;
     getGuid(folderUid: string, imapUid: number): Promise<string | undefined>;
+    clearGuid(): Promise<void>;
     setBody(guid: string, itemBody: MessageBody): Promise<void>;
     getBody(guid: string): Promise<MessageBody | undefined>;
     deleteBody(guid: string): Promise<void>;
+    clearBody(): Promise<void>;
     invalidate(timestamp?: number): Promise<void>;
 }
 
@@ -47,6 +49,9 @@ class SMimeBodyDBImpl implements SMimeBodyDB {
         const value = await (await this.connection).get("guid", [folderUid, imapUid]);
         return value?.guid;
     }
+    async clearGuid() {
+        return (await this.connection).clear("guid");
+    }
     async setBody(guid: string, itemBody: MessageBody): Promise<void> {
         (await this.connection).put("body", itemBody, guid);
     }
@@ -55,6 +60,9 @@ class SMimeBodyDBImpl implements SMimeBodyDB {
     }
     async deleteBody(guid: string): Promise<void> {
         return (await this.connection).delete("body", guid);
+    }
+    async clearBody() {
+        return (await this.connection).clear("body");
     }
     async invalidate(timestamp: number): Promise<void> {
         const connection = await this.connection;
@@ -80,9 +88,11 @@ async function instance(): Promise<SMimeBodyDB> {
 const db: SMimeBodyDB = {
     setGuid: (folderUid, imapUid, guid) => instance().then(db => db.setGuid(folderUid, imapUid, guid)),
     getGuid: (folderUid, imapUid) => instance().then(db => db.getGuid(folderUid, imapUid)),
+    clearGuid: () => instance().then(db => db.clearGuid()),
     setBody: (guid, body) => instance().then(db => db.setBody(guid, body)),
     getBody: guid => instance().then(db => db.getBody(guid)),
     deleteBody: guid => instance().then(db => db.deleteBody(guid)),
+    clearBody: () => instance().then(db => db.clearBody()),
     invalidate: timestamp => instance().then(db => db.invalidate(timestamp))
 };
 

@@ -20,7 +20,7 @@ interface SMimePkiSchema extends DBSchema {
 }
 
 interface SMimePkiDB {
-    clearPKI(): Promise<void>;
+    clearMyCertAndKey(): Promise<void>;
     getPrivateKey(): Promise<Blob | undefined>;
     setPrivateKey(privateKey: Blob): Promise<void>;
     setCertificate(certificate: Blob): Promise<void>;
@@ -28,6 +28,7 @@ interface SMimePkiDB {
     getPKIStatus(): Promise<PKIStatus>;
     getRevocation(serialNumber: string, issuerHash: string): Promise<RevocationSchema | undefined>;
     setRevocation(revocation: RevocationSchema, issuerHash: string): Promise<void>;
+    clearRevocations(): Promise<void>;
 }
 
 class SMimePkiDBImpl implements SMimePkiDB {
@@ -47,7 +48,7 @@ class SMimePkiDBImpl implements SMimePkiDB {
         });
     }
 
-    async clearPKI(): Promise<void> {
+    async clearMyCertAndKey(): Promise<void> {
         return (await this.connection).clear("my_key_and_cert");
     }
     async getPrivateKey(): Promise<Blob | undefined> {
@@ -78,6 +79,9 @@ class SMimePkiDBImpl implements SMimePkiDB {
     async setRevocation(revocation: RevocationSchema, issuerHash: string): Promise<void> {
         (await this.connection).put("revocations", revocation, issuerHash + "-" + revocation.serialNumber);
     }
+    async clearRevocations(): Promise<void> {
+        return (await this.connection).clear("revocations");
+    }
 }
 
 let implementation: SMimePkiDBImpl | null = null;
@@ -88,14 +92,15 @@ async function instance(): Promise<SMimePkiDB> {
     return implementation;
 }
 const db: SMimePkiDB = {
-    clearPKI: () => instance().then(db => db.clearPKI()),
+    clearMyCertAndKey: () => instance().then(db => db.clearMyCertAndKey()),
     getPrivateKey: () => instance().then(db => db.getPrivateKey()),
     setPrivateKey: privateKey => instance().then(db => db.setPrivateKey(privateKey)),
     setCertificate: certificate => instance().then(db => db.setCertificate(certificate)),
     getCertificate: () => instance().then(db => db.getCertificate()),
     getPKIStatus: () => instance().then(db => db.getPKIStatus()),
     getRevocation: (serialNumber, issuerHash) => instance().then(db => db.getRevocation(serialNumber, issuerHash)),
-    setRevocation: (revocation, issuerHash) => instance().then(db => db.setRevocation(revocation, issuerHash))
+    setRevocation: (revocation, issuerHash) => instance().then(db => db.setRevocation(revocation, issuerHash)),
+    clearRevocations: () => instance().then(db => db.clearRevocations())
 };
 
 export default db;
