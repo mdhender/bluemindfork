@@ -136,6 +136,7 @@
       <plugin id="net.bluemind.hornetq.client"/>
       <plugin id="net.bluemind.icalendar.api"/>
       <plugin id="net.bluemind.imap"/>
+      <plugin id="net.bluemind.keycloak.api"/>
       <plugin id="net.bluemind.lib.elasticsearch"/>
       <plugin id="net.bluemind.lib.ical4j"/>
       <plugin id="net.bluemind.lib.jackson"/>
