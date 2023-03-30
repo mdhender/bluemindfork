@@ -18,6 +18,7 @@
  */
 package net.bluemind.dav.server.proto.report.caldav;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -116,17 +117,21 @@ public class CalendarQueryExecutor implements IReportExecutor {
 		MultiStatusBuilder msb = new MultiStatusBuilder();
 		if (cmr.getEvents() != null) {
 			logger.info("Got {} distinct VEvent UIDs", cmr.getEvents().size());
-			for (ItemValue<VEventSeries> serie : cmr.getEvents()) {
-				String icsPath = cmr.getHref() + serie.uid + ".ics";
+			for (ItemValue<VEventSeries> series : cmr.getEvents()) {
+				String icsPath = cmr.getHref() + series.uid + ".ics";
 				Element propElem = msb.newResponse(icsPath, 200);
 				for (QName prop : cmr.getProps()) {
 					Element pe = DOMUtils.createElement(propElem, prop.getPrefix() + ":" + prop.getLocalPart());
 					switch (prop.getLocalPart()) {
 					case "getetag":
-						pe.setTextContent(SyncTokens.getEtag(icsPath, serie.version));
+						pe.setTextContent(SyncTokens.getEtag(icsPath, series.version));
 						break;
 					case "getcontenttype":
 						pe.setTextContent("text/calendar;charset=utf-8");
+						break;
+					case "calendar-data":
+						String ics = VEventServiceHelper.convertToIcs(Arrays.asList(series)).replaceAll("\r", "");
+						pe.setTextContent(ics);
 						break;
 					}
 				}
