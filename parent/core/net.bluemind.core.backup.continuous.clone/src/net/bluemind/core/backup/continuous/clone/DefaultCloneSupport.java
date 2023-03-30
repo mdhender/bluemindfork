@@ -48,4 +48,9 @@ public class DefaultCloneSupport implements CloneSupport {
 		return DefaultBackupStore.store().leadership();
 	}
 
+	@Override
+	public void resume() {
+		DefaultBackupStore.store().resume();
+	}
+
 }

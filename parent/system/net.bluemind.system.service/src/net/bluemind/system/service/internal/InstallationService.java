@@ -192,6 +192,7 @@ public class InstallationService implements IInstallation {
 		logger.info("Elected as leader with {} (leader: {})", leadership, leadership.isLeader());
 
 		// write topo with backup store enabled
+		cloneSupport().resume();
 		IServer srvApi = context.provider().instance(IServer.class, InstallationId.getIdentifier());
 		List<ItemValue<Server>> all = srvApi.allComplete();
 		logger.info("Write my topology ({} server(s)) in backup store to step-up", all.size());

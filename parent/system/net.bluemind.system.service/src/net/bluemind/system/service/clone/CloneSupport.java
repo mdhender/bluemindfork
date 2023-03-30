@@ -31,4 +31,6 @@ public interface CloneSupport {
 
 	InstallationWriteLeader leadership();
 
+	void resume();
+
 }
