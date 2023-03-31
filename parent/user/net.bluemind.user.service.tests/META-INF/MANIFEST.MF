@@ -46,5 +46,7 @@ Require-Bundle: org.junit,
  net.bluemind.imap.serviceprovider.incore;bundle-version="5.0.0",
  net.bluemind.backend.mail.replica.service;bundle-version="5.0.0",
  net.bluemind.addressbook.service;bundle-version="5.0.0",
- net.bluemind.testcontainers
+ net.bluemind.testcontainers,
+ net.bluemind.calendar.api,
+ net.bluemind.tag.hooks
 Automatic-Module-Name: net.bluemind.user.service.tests

@@ -65,6 +65,7 @@ import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.addressbook.domainbook.DomainAddressBook;
+import net.bluemind.calendar.api.ICalendarViewUids;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.ListResult;
@@ -106,6 +107,7 @@ import net.bluemind.group.api.Group;
 import net.bluemind.group.persistence.GroupStore;
 import net.bluemind.group.service.internal.ContainerGroupStoreService;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox.Routing;
@@ -114,6 +116,7 @@ import net.bluemind.role.api.DefaultRoles;
 import net.bluemind.role.service.IInternalRoles;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.ChangePassword;
 import net.bluemind.user.api.IUser;
@@ -145,6 +148,10 @@ public class UserServiceTests {
 	private SecurityContext userSecurityContext;
 	private ContainerUserStoreService userStoreService;
 	private ItemValue<Domain> domain;
+
+	private String datalocation;
+	private DataSource dataDataSource;
+	private DataSource systemDataSource;
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -203,9 +210,11 @@ public class UserServiceTests {
 		PopulateHelper.addOrgUnit(domainUid, "tlse", "Toulouse", "fr");
 		PopulateHelper.addOrgUnit(domainUid, "prs", "Paris", "fr");
 
-		DataSource datasource = JdbcTestHelper.getInstance().getMailboxDataDataSource();
-		assertNotNull(datasource);
-		ServerSideServiceProvider.mailboxDataSource.put("bm-master", datasource);
+		datalocation = PopulateHelper.FAKE_CYRUS_IP;
+		dataDataSource = JdbcActivator.getInstance().getMailboxDataSource(datalocation);
+		systemDataSource = JdbcTestHelper.getInstance().getDataSource();
+		assertNotNull(dataDataSource);
+		ServerSideServiceProvider.mailboxDataSource.put("bm-master", dataDataSource);
 
 		userContainer = containerHome.get(domainUid);
 		assertNotNull(userContainer);
@@ -213,12 +222,11 @@ public class UserServiceTests {
 		serverService = ServerSideServiceProvider.getProvider(domainAdminSecurityContext).instance(IServer.class,
 				InstallationId.getIdentifier());
 
-		dataLocation = serverService.getComplete(PopulateHelper.FAKE_CYRUS_IP);
+		dataLocation = serverService.getComplete(datalocation);
 		System.err.println("srv: " + dataLocation.value.fqdn + ", uid: " + dataLocation.uid);
 
-		userStore = new UserStore(JdbcActivator.getInstance().getDataSource(), containerHome.get(domainUid));
-		userItemStore = new ItemStore(JdbcActivator.getInstance().getDataSource(), containerHome.get(domainUid),
-				domainAdminSecurityContext);
+		userStore = new UserStore(systemDataSource, containerHome.get(domainUid));
+		userItemStore = new ItemStore(systemDataSource, containerHome.get(domainUid), domainAdminSecurityContext);
 
 		testContext = new BmTestContext(SecurityContext.SYSTEM);
 
@@ -578,6 +586,33 @@ public class UserServiceTests {
 
 		// Check password from store
 		assertEquals(passwordUpdated, itemValue.value.passwordLastChange);
+	}
+
+	@Test
+	public void testUpdateUserNameCheckContainers() throws ServerFault, SQLException {
+		User user = defaultUser("test." + System.nanoTime());
+		String uid = create(user);
+		assertNotNull(uid);
+
+		String loginOnUpdate = "update" + System.currentTimeMillis();
+		user.login = loginOnUpdate;
+		getService(domainAdminSecurityContext).update(uid, user);
+
+		User updatedUser = getService(domainAdminSecurityContext).get(uid);
+		assertEquals(loginOnUpdate, updatedUser.login);
+
+		ContainerDescriptor cd = testContext.provider().instance(IContainers.class)
+				.get(IMailboxAclUids.uidForMailbox(uid));
+		assertNotNull(cd.name);
+		assertEquals(user.login, cd.name);
+
+		cd = testContext.provider().instance(IContainers.class).get(ICalendarViewUids.userCalendarView(uid));
+		assertNotNull(cd.name);
+		assertEquals(loginOnUpdate, cd.name);
+
+		cd = testContext.provider().instance(IContainers.class).get(ITagUids.defaultUserTags(uid));
+		assertNotNull(cd.name);
+		assertEquals(loginOnUpdate, cd.name);
 	}
 
 	@Test

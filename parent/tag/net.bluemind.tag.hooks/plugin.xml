@@ -19,5 +19,4 @@
             impl="net.bluemind.tag.hooks.UserTagRepair">
       </repair>
    </extension>
-
 </plugin>

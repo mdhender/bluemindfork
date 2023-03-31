@@ -157,7 +157,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 
 		logger.debug("Created {}", uid);
 		for (IGroupHook gh : groupsHooks) {
-			gh.onGroupCreated(new GroupMessage(iv(uid, group), securityContext, groupContainer));
+			gh.onGroupCreated(new GroupMessage(iv(uid, group), context, groupContainer));
 		}
 
 		dirEventProducer.changed(uid, storeService.getVersion());
@@ -208,8 +208,8 @@ public class GroupService implements IGroup, IInCoreGroup {
 				reservedIdsConsumer -> mailboxes.updated(uid, previousMailbox, currentMailbox, reservedIdsConsumer));
 
 		for (IGroupHook gh : groupsHooks) {
-			gh.onGroupUpdated(new GroupMessage(iv(uid, previous), securityContext, groupContainer),
-					new GroupMessage(iv(uid, group), securityContext, groupContainer));
+			gh.onGroupUpdated(new GroupMessage(iv(uid, previous), context, groupContainer),
+					new GroupMessage(iv(uid, group), context, groupContainer));
 		}
 		dirEventProducer.changed(uid, storeService.getVersion());
 	}
@@ -293,7 +293,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 
 			dirEventProducer.deleted(uid, storeService.getVersion());
 			for (IGroupHook gh : groupsHooks) {
-				gh.onGroupDeleted(new GroupMessage(iv(uid, previous), securityContext, groupContainer));
+				gh.onGroupDeleted(new GroupMessage(iv(uid, previous), context, groupContainer));
 			}
 
 			monitor.end(true, "Group deleted", JsonUtils.asString(""));
@@ -347,7 +347,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 		storeService.addMembers(uid, members);
 
 		for (IGroupHook gh : groupsHooks) {
-			gh.onAddMembers(new GroupMessage(group, securityContext, groupContainer, members));
+			gh.onAddMembers(new GroupMessage(group, context, groupContainer, members));
 		}
 
 		dirEventProducer.changed(uid, storeService.getVersion());
@@ -488,7 +488,7 @@ public class GroupService implements IGroup, IInCoreGroup {
 
 		storeService.removeMembers(uid, members);
 		for (IGroupHook uh : groupsHooks) {
-			uh.onRemoveMembers(new GroupMessage(group, securityContext, groupContainer, members));
+			uh.onRemoveMembers(new GroupMessage(group, context, groupContainer, members));
 		}
 		dirEventProducer.changed(uid, storeService.getVersion());
 	}

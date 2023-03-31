@@ -28,6 +28,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.ContainerModifiableDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
@@ -40,7 +41,7 @@ import net.bluemind.user.api.User;
 import net.bluemind.user.hook.DefaultUserHook;
 
 /**
- * Create/Delete tags container on user creation/suppression
+ * Create/Update/Delete tags container on user creation/change/suppression
  *
  */
 public class UserTagHook extends DefaultUserHook {
@@ -71,6 +72,16 @@ public class UserTagHook extends DefaultUserHook {
 			} catch (ServerFault e) {
 				logger.error(e.getMessage(), e);
 			}
+		}
+	}
+
+	@Override
+	public void onUserUpdated(BmContext context, String domainUid, ItemValue<User> previous, ItemValue<User> current)
+			throws ServerFault {
+		if (!previous.value.login.equals(current.value.login)) {
+			ContainerModifiableDescriptor cmd = new ContainerModifiableDescriptor();
+			cmd.name = current.value.login;
+			context.su().provider().instance(IContainers.class).update(ITagUids.defaultUserTags(current.uid), cmd);
 		}
 	}
 

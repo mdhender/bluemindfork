@@ -23,20 +23,20 @@ import java.util.List;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.BmContext;
 import net.bluemind.group.api.Group;
 import net.bluemind.group.api.Member;
 
 public final class GroupMessage {
 
-	public SecurityContext securityContext;
+	public BmContext context;
 	public ContainerDescriptor container;
 	public ItemValue<Group> group;
 	public List<Member> members;
 
-	public GroupMessage(ItemValue<Group> group, SecurityContext sc, Container c) {
+	public GroupMessage(ItemValue<Group> group, BmContext context, Container c) {
 		this.group = group;
-		this.securityContext = sc;
+		this.context = context;
 		this.container = descriptor(c);
 		this.members = null;
 	}
@@ -45,9 +45,9 @@ public final class GroupMessage {
 		return ContainerDescriptor.create(c.uid, c.name, c.owner, c.type, c.domainUid, c.defaultContainer);
 	}
 
-	public GroupMessage(ItemValue<Group> group, SecurityContext sc, Container c, List<Member> members) {
+	public GroupMessage(ItemValue<Group> group, BmContext context, Container c, List<Member> members) {
 		this.group = group;
-		this.securityContext = sc;
+		this.context = context;
 		this.container = descriptor(c);
 		this.members = members;
 	}

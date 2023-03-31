@@ -52,7 +52,9 @@ import net.bluemind.addressbook.domainbook.verticle.DomainBookVerticle;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.Container;
+import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
@@ -83,6 +85,7 @@ import net.bluemind.group.persistence.GroupStore;
 import net.bluemind.group.service.IInCoreGroup;
 import net.bluemind.group.service.internal.ContainerGroupStoreService;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.Server;
@@ -689,6 +692,26 @@ public class GroupServiceTests {
 		dirVCard = testContext.provider().instance(IDirectory.class, domainUid).getVCard(uid);
 		assertNotNull(dirVCard);
 		assertEquals(3, dirVCard.value.organizational.member.size());
+	}
+
+	@Test
+	public void testUpdateGroupNameCheckMailboxaclName() throws ServerFault, InterruptedException, SQLException {
+		String uid = UUID.randomUUID().toString();
+		Group group = defaultGroup();
+		group.hiddenMembers = true;
+		getGroupService(adminSecurityContext).create(uid, group);
+
+		String nameOnUpdate = "checkthat" + System.nanoTime();
+		group.name = nameOnUpdate;
+		getGroupService(adminSecurityContext).update(uid, group);
+
+		Group updatedGroup = getGroupService(adminSecurityContext).get(uid);
+		assertEquals(nameOnUpdate, updatedGroup.name);
+
+		ContainerDescriptor cd = testContext.provider().instance(IContainers.class)
+				.get(IMailboxAclUids.uidForMailbox(uid));
+		assertNotNull(cd.name);
+		assertEquals(nameOnUpdate, cd.name);
 	}
 
 	@Test
