@@ -92,7 +92,7 @@ public class MeetingResponseProtocol implements IEasProtocol<MeetingResponseRequ
 				dataClass = ItemDataType.getValue(node.containerType);
 
 				ItemChangeReference ic = new ItemChangeReference(dataClass);
-				ic.setServerId(CollectionItem.of(request.requestId));
+				ic.setServerId(CollectionItem.of(sanitizeRequestId(request.requestId)));
 
 				final MeetingResponseResponse.Result r = new MeetingResponseResponse.Result();
 				final ItemChangeReference itemRef = ic;
@@ -164,12 +164,24 @@ public class MeetingResponseProtocol implements IEasProtocol<MeetingResponseRequ
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 				MeetingResponseResponse.Result r = new MeetingResponseResponse.Result();
+				r.requestId = request.requestId;
 				r.status = Status.ServerError;
 				response.results.add(r);
 				subRequestProcessed(toProcess, responseHandler, response);
 			}
 
 		}
+	}
+
+	private String sanitizeRequestId(String requestId) {
+		// iOS sometimes sends
+		// collectionId:itemId&lt;!ExceptionDate!&gt;20010101T000000Z as requestId
+		// collectionId:itemId is expected
+		if (requestId.contains("&lt;!ExceptionDate!&gt;")) {
+			requestId = requestId.substring(0, requestId.indexOf("&lt;!ExceptionDate!&gt;"));
+		}
+		return requestId;
+
 	}
 
 	private void subRequestProcessed(AtomicInteger toProcess, Handler<MeetingResponseResponse> responseHandler,
