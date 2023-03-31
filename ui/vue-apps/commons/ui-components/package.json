@@ -20,6 +20,7 @@
         "lodash.iteratee": "^4.7.0",
         "lodash.sortedindexby": "^4.6.0",
         "lodash.throttle": "^4.1.1",
+        "roosterjs-color-utils": "^1.1.0",
         "roosterjs-editor-api": "^8.44.0",
         "roosterjs-editor-core": "^8.44.0",
         "roosterjs-editor-dom": "^8.44.0",

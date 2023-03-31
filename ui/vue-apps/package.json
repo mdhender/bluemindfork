@@ -76,8 +76,5 @@
         "> 0.25%",
         "not dead",
         "not ie <= 8"
-    ],
-    "dependencies": {
-        "roosterjs-color-utils": "^1.1.0"
-    }
+    ]
 }
