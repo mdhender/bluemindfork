@@ -9,10 +9,6 @@ import PreviewTooLarge from "./components/MailAttachment/Preview/Fallback/Previe
 const { MailTipTypes } = mailTipUtils;
 
 export default function () {
-    Vue.component("decorated-file-item", DecoratedFileItem);
-    Vue.component("PreviewBlockedRemoteContent", PreviewBlockedRemoteContent);
-    Vue.component("PreviewTooLarge", PreviewTooLarge);
-
     extensions.register("webapp", "signature", {
         command: {
             name: "get-mail-tips",
@@ -23,15 +19,17 @@ export default function () {
         }
     });
 
-    extensions.register("webapp.mail", "file-item", {
+    Vue.component("DecoratedFileItem", DecoratedFileItem);
+    extensions.register("webapp.mail", "net.bluemind.webapp.mail.js", {
         component: {
-            name: "decorated-file-item",
+            name: "DecoratedFileItem",
             path: "message.file",
             priority: 0
         }
     });
 
-    extensions.register("webapp.mail", "mail-app", {
+    Vue.component("PreviewBlockedRemoteContent", PreviewBlockedRemoteContent);
+    extensions.register("webapp.mail", "net.bluemind.webapp.mail.js", {
         component: {
             name: "PreviewBlockedRemoteContent",
             path: "file.preview",
@@ -39,7 +37,8 @@ export default function () {
         }
     });
 
-    extensions.register("webapp.mail", "mail-app", {
+    Vue.component("PreviewTooLarge", PreviewTooLarge);
+    extensions.register("webapp.mail", "net.bluemind.webapp.mail.js", {
         component: {
             name: "PreviewTooLarge",
             path: "file.preview",

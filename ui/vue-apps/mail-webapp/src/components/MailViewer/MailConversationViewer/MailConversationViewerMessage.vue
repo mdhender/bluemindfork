@@ -57,7 +57,7 @@
         </template>
         <template slot="content">
             <div v-if="!isMessageExpanded" class="d-flex flex-fill align-items-center pb-2 pr-6">
-                <mail-icon class="mr-3" :message="message" />
+                <message-icon class="mr-3" :message="message" />
                 <div class="text-truncate">{{ message.preview }}</div>
             </div>
             <div v-else class="d-flex flex-fill pb-2 pr-6">
@@ -86,7 +86,7 @@ import BodyViewer from "../BodyViewer";
 import { MESSAGE_IS_LOADED } from "~/getters";
 import MailFolderIcon from "../../MailFolderIcon";
 import MailContactCardSlots from "../../MailContactCardSlots";
-import MailIcon from "../../MailIcon";
+import MessageIcon from "../../MessageIcon/MessageIcon";
 
 export default {
     name: "MailConversationViewerMessage",
@@ -100,7 +100,7 @@ export default {
         MailViewerContentLoading,
         MailViewerToolbar,
         MailViewerToolbarForMobile,
-        MailIcon
+        MessageIcon
     },
     mixins: [MailConversationViewerItemMixin],
     data() {

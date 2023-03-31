@@ -173,10 +173,10 @@ export default {
                             { min: 1000000 }
                         ];
                         const currentSizeRanges = [];
-                        conversations.forEach(({ key, binarySize }) => {
-                            if (binarySize) {
+                        conversations.forEach(({ key, size }) => {
+                            if (size) {
                                 const sizeRange = allSizeRanges.find(
-                                    ({ min, max }) => (!min || min <= binarySize) && (!max || max >= binarySize)
+                                    ({ min, max }) => (!min || min <= size) && (!max || max >= size)
                                 );
                                 if (sizeRange && !currentSizeRanges.includes(sizeRange)) {
                                     const pluralizationCount = sizeRange.min ? (sizeRange.max ? 1 : 2) : 0;

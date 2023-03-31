@@ -17,6 +17,7 @@
             :is-selected="isSelected"
             :multiple="multiple"
             :selection-mode="selectionMode"
+            :message-list-style="messageListStyle"
             @check="$emit('check')"
         />
         <conversation-list-item-middle
@@ -114,6 +115,14 @@ export default {
     &.conversation-list-item-compact {
         padding-top: base-px-to-rem(4);
         padding-bottom: base-px-to-rem(3);
+    }
+
+    &.conversation-list-item-normal .conversation-list-item-left {
+        gap: base-px-to-rem(1);
+
+        .avatar-or-check-wrapper {
+            height: base-px-to-rem(24);
+        }
     }
 
     &.warning-custom:not(.active) {

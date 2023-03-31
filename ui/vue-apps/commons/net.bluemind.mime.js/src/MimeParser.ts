@@ -6,11 +6,11 @@ type OptionalPart = MessageBody.Part | undefined;
 
 export default class {
     protected message: PostalMime.Message | undefined;
-    private address?: string;
+    private address: string;
     private partsContent: Map<MessageBody.Part, ArrayBuffer>;
     structure: MessageBody.Part | undefined;
 
-    constructor(address?: string) {
+    constructor(address = "1") {
         this.address = address;
         this.partsContent = new Map();
     }
@@ -30,11 +30,7 @@ export default class {
         );
         const content = this.alternative([textPart, htmlPart]);
         const structure = this.mixed([content, ...mixedParts.map(part => this.attachment(part))]);
-        if (structure) {
-            this.structure = structure;
-        } else {
-            this.structure = this.text(" ");
-        }
+        this.structure = structure ? structure : this.text(" ");
         return this;
     }
 
@@ -54,7 +50,7 @@ export default class {
     }
     private html(content?: string): OptionalPart {
         if (content && content.length > 0) {
-            const part = inline(content, "text/html", this.address || "1");
+            const part = inline(content, "text/html", this.address);
             this.partsContent.set(part, new TextEncoder().encode(content).buffer);
             return part;
         }

@@ -67,8 +67,8 @@ Vue.component("LockIcon", LockIcon);
 extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
     component: {
         name: "LockIcon",
-        path: "list.conversation.icon",
-        priority: 10,
+        path: "message.icon",
+        priority: 50,
         role: BmRoles.CAN_USE_SMIME
     }
 });

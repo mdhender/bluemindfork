@@ -6,7 +6,7 @@ import { hasEncryptionHeader } from "../../lib/helper";
 export default {
     components: { BmIcon },
     props: {
-        conversation: {
+        message: {
             type: Object,
             required: true
         },
@@ -17,21 +17,16 @@ export default {
     },
     computed: {
         hasEncryptionHeader() {
-            return !!this.conversation.messages.find(messageKey => {
-                const message = this.$store.state.mail.conversations.messages[messageKey];
-                return hasEncryptionHeader(message.headers);
-            });
+            return hasEncryptionHeader(this.message.headers);
         }
     },
     render(h) {
-        const isUnread = messageUtils.isUnread(this.conversation);
-        const icon = isUnread ? "lock-fill" : "lock";
-        const className = isUnread ? "unread" : "";
         if (this.hasEncryptionHeader) {
+            const isUnread = messageUtils.isUnread(this.message);
+            const icon = isUnread ? "lock-fill" : "lock";
+            const className = isUnread ? "unread" : "";
             return h("bm-icon", {
-                props: {
-                    icon
-                },
+                props: { icon },
                 class: ["smime-lock-icon", className]
             });
         } else {
@@ -43,7 +38,7 @@ export default {
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/variables.scss";
 
-.unread {
+.smime-lock-icon.unread {
     color: $primary-fg-hi1;
 }
 </style>

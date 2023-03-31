@@ -1,6 +1,6 @@
 import { MailboxItem, MessageBody } from "@bluemind/backend.mail.api";
 import { ItemValue } from "@bluemind/core.container.api";
-import { MimeParser } from "@bluemind/mime";
+import { EmlParser } from "@bluemind/mime";
 import { fetchRequest, dispatchFetch } from "@bluemind/service-worker-utils";
 import { CRYPTO_HEADERS, ENCRYPTED_HEADER_NAME } from "../../lib/constants";
 import { SmimeErrors } from "../../lib/exceptions";
@@ -26,7 +26,7 @@ export default async function (folderUid: string, item: ItemValue<MailboxItem>):
         const response = await dispatchFetch(request);
         const data = await response.blob();
         content = await pkcs7.decrypt(data, key, certificate);
-        const parser = await new MimeParser(address).parse(content);
+        const parser = await new EmlParser().parse(content);
         const parts = parser.getParts();
 
         const savePartsPromises = [];
@@ -37,7 +37,8 @@ export default async function (folderUid: string, item: ItemValue<MailboxItem>):
         }
         await Promise.all(savePartsPromises);
 
-        body.structure = parser.structure as MessageBody.Part;
+        body.preview = parser.body.preview;
+        body.structure = parser.body.structure as MessageBody.Part;
         body.headers = addHeaderValue(body?.headers, ENCRYPTED_HEADER_NAME, CRYPTO_HEADERS.OK);
     } catch (error: unknown) {
         const errorCode = error instanceof SmimeErrors ? error.code : CRYPTO_HEADERS.UNKNOWN;

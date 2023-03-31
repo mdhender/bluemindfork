@@ -51,8 +51,9 @@ import apiFolders from "./api/apiFolders";
 import { FolderAdaptor } from "./folders/helpers/FolderAdaptor";
 
 const { getLastGeneratedNewMessageKey } = draftUtils;
-const { createOnlyMetadata, isFlagged, isUnread, messageKey } = messageUtils;
+const { createOnlyMetadata, messageKey } = messageUtils;
 const {
+    buildConversationMetadata,
     createConversationStub,
     firstMessageInConversationFolder,
     messagesInConversationFolder,
@@ -186,72 +187,10 @@ const getters = {
             return conversation;
         }
         const messages = getters.CONVERSATION_MESSAGE_BY_KEY(key);
-        return {
-            subject: messages[0]?.subject,
-            from: messages[0]?.from,
-            to: messages[0]?.to,
-            cc: messages[0]?.cc,
-            bcc: messages[0]?.bcc,
-            key,
-            size: messages.length,
-            remoteRef: conversation.remoteRef,
-            folderRef: conversation.folderRef,
-            ...reducedMetadata(conversation.folderRef.key, messages),
-            messages: messages.map(m => m.key),
-            senders: messages
-                .reverse()
-                .reduce(
-                    (results, message) =>
-                        !message.from?.address || results.some(({ address }) => address === message.from.address)
-                            ? results
-                            : [...results, message.from],
-                    []
-                )
-        };
+        return buildConversationMetadata(key, conversation, messages);
     },
     [CURRENT_CONVERSATION_METADATA]: (state, getters) => getters.CONVERSATION_METADATA(state.currentConversation)
 };
-
-function reducedMetadata(folderKey, messages) {
-    let unreadCount = 0,
-        flags = messages.length > 0 ? new Set([Flag.SEEN]) : new Set(),
-        loading = messages.length > 0 ? LoadingStatus.LOADING : LoadingStatus.ERROR,
-        hasAttachment = false,
-        hasICS = false,
-        preview,
-        date = -1,
-        binarySize = 0;
-    messages.forEach(m => {
-        if (m.folderRef.key === folderKey) {
-            if (isUnread(m)) {
-                unreadCount++;
-                flags.delete(Flag.SEEN);
-            }
-            if (isFlagged(m)) {
-                flags.add(Flag.FLAGGED);
-            }
-            binarySize = m.size > binarySize ? m.size : binarySize;
-        }
-
-        m.flags?.forEach(flag => [Flag.ANSWERED, Flag.FORWARDED].includes(flag) && flags.add(flag));
-
-        if (m.composing || (m.loading === LoadingStatus.LOADED && m.folderRef.key === folderKey)) {
-            loading = LoadingStatus.LOADED;
-        }
-        if (m.hasAttachment) {
-            hasAttachment = true;
-        }
-        if (m.hasICS) {
-            hasICS = true;
-        }
-        if (m.folderRef.key === folderKey && m.date > date) {
-            preview = m.preview;
-            date = m.date;
-        }
-    });
-
-    return { unreadCount, flags: Array.from(flags), loading, hasAttachment, hasICS, preview, date, binarySize };
-}
 
 export default {
     actions,

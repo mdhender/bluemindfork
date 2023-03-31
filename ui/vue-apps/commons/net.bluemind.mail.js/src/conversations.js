@@ -1,4 +1,5 @@
-import { MessageCreationModes, messageKey } from "./message";
+import { Flag } from "@bluemind/email";
+import { isFlagged, isUnread, MessageCreationModes, messageKey } from "./message";
 import { LoadingStatus } from "./loading-status";
 import { draftInfoHeader } from "./draft";
 import { isDraftFolder } from "./folder";
@@ -92,7 +93,102 @@ export function idToUid(value) {
     return bigIntValue.toString(16);
 }
 
+function buildConversationMetadata(key, conversation, messages) {
+    const messageMetadata = mergeMessagesMetadata(conversation.folderRef.key, messages);
+    return {
+        ...messageMetadata,
+        key,
+        remoteRef: conversation.remoteRef,
+        folderRef: conversation.folderRef,
+        messages: messages.map(m => m.key),
+        senders: messages
+            .reverse()
+            .reduce(
+                (results, message) =>
+                    !message.from?.address || results.some(({ address }) => address === message.from.address)
+                        ? results
+                        : [...results, message.from],
+                []
+            )
+    };
+}
+
+function mergeMessagesMetadata(folderKey, messages) {
+    let subject = messages[0]?.subject,
+        from = messages[0]?.from,
+        to = messages[0]?.to,
+        cc = messages[0]?.cc,
+        bcc = messages[0]?.bcc,
+        unreadCount = 0,
+        flags = messages.length > 0 ? new Set([Flag.SEEN]) : new Set(),
+        loading = messages.length > 0 ? LoadingStatus.LOADING : LoadingStatus.ERROR,
+        hasAttachment = false,
+        hasICS = false,
+        preview,
+        date = -1,
+        size = 0,
+        headers = [];
+    messages.forEach(m => {
+        if (m.folderRef.key === folderKey) {
+            if (isUnread(m)) {
+                unreadCount++;
+                flags.delete(Flag.SEEN);
+            }
+            if (isFlagged(m)) {
+                flags.add(Flag.FLAGGED);
+            }
+            size = m.size > size ? m.size : size;
+        }
+
+        m.flags?.forEach(flag => [Flag.ANSWERED, Flag.FORWARDED].includes(flag) && flags.add(flag));
+
+        if (m.composing || (m.loading === LoadingStatus.LOADED && m.folderRef.key === folderKey)) {
+            loading = LoadingStatus.LOADED;
+        }
+        if (m.hasAttachment) {
+            hasAttachment = true;
+        }
+        if (m.hasICS) {
+            hasICS = true;
+        }
+        if (m.folderRef.key === folderKey && m.date > date) {
+            preview = m.preview;
+            date = m.date;
+        }
+        if (m.headers) {
+            m.headers.forEach(header => {
+                if (!isHeaderBlacklisted(header)) {
+                    headers.push(header);
+                }
+            });
+        }
+    });
+
+    return {
+        subject,
+        from,
+        to,
+        cc,
+        bcc,
+        unreadCount,
+        flags: Array.from(flags),
+        loading,
+        hasAttachment,
+        hasICS,
+        preview,
+        date,
+        size,
+        headers
+    };
+}
+
+function isHeaderBlacklisted({ name }) {
+    const lowered = name.toLowerCase();
+    return lowered.startsWith("x-bm-") || name === "references" || name === "in-reply-to";
+}
+
 export default {
+    buildConversationMetadata,
     conversationMustBeRemoved,
     createConversationStub,
     firstMessageFolderKey,

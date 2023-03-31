@@ -1,5 +1,5 @@
 <template>
-    <div class="conversation-list-item-left" :class="{ full: isMessageListStyleFull }">
+    <div class="conversation-list-item-left">
         <div class="avatar-or-check-wrapper">
             <bm-avatar
                 size="sm"
@@ -16,22 +16,19 @@
                 @keyup.native.space.stop
             />
         </div>
-
-        <template v-if="!isConversation && isMessageListStyleFull">
-            <bm-icon v-if="conversation.hasAttachment" class="mail-icon" icon="paper-clip" />
-            <bm-icon v-if="conversation.hasICS" class="mail-icon" icon="calendar" />
-        </template>
-        <template v-else-if="!isConversation || isMessageListStyleFull">
-            <mail-icon :message="conversation" />
-        </template>
+        <message-icon
+            v-if="!isConversation || isMessageListStyleFull"
+            :message="conversation"
+            :class="{ 'pt-3': isMessageListStyleFull }"
+        />
     </div>
 </template>
 
 <script>
-import { BmAvatar, BmCheck, BmIcon } from "@bluemind/ui-components";
+import { BmAvatar, BmCheck } from "@bluemind/ui-components";
 import { mapGetters, mapState } from "vuex";
 import { CONVERSATIONS_ACTIVATED, MY_DRAFTS, MY_SENT } from "~/getters";
-import MailIcon from "../MailIcon";
+import MessageIcon from "../MessageIcon/MessageIcon";
 import { SELECTION_MODE } from "./ConversationList";
 
 export default {
@@ -39,8 +36,7 @@ export default {
     components: {
         BmAvatar,
         BmCheck,
-        BmIcon,
-        MailIcon
+        MessageIcon
     },
     props: {
         conversation: {
@@ -53,6 +49,10 @@ export default {
         },
         isSelected: {
             type: Boolean,
+            required: true
+        },
+        messageListStyle: {
+            type: String,
             required: true
         },
         multiple: {
@@ -70,9 +70,6 @@ export default {
     computed: {
         ...mapState("mail", ["activeFolder", "folders"]),
         ...mapGetters("mail", { MY_DRAFTS, MY_SENT }),
-        isMessageListStyleFull() {
-            return this.$store.state.settings.mail_message_list_style === "full";
-        },
         fromOrTo() {
             const conversationFolder = this.conversation.folderRef.key;
             const isSentOrDraftBox = [this.MY_DRAFTS.key, this.MY_SENT.key].includes(conversationFolder);
@@ -87,6 +84,9 @@ export default {
             return (
                 this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`] && this.conversation && this.conversationSize > 1
             );
+        },
+        isMessageListStyleFull() {
+            return this.messageListStyle === "full";
         }
     }
 };
@@ -100,13 +100,6 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
-
-    .mail-icon {
-        color: $neutral-fg;
-    }
-}
-
-.conversation-list-item-left {
     gap: 0;
 
     .avatar-or-check-wrapper {
@@ -121,14 +114,6 @@ export default {
             top: base-px-to-rem(2);
             left: base-px-to-rem(4);
         }
-    }
-}
-
-.conversation-list-item-normal .conversation-list-item-left {
-    gap: base-px-to-rem(1);
-
-    .avatar-or-check-wrapper {
-        height: base-px-to-rem(24);
     }
 }
 </style>

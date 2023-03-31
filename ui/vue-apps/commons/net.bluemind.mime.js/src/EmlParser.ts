@@ -4,9 +4,9 @@ import MimeParser from "./MimeParser";
 
 export default class extends MimeParser {
     body: MessageBody;
-    constructor(body: MessageBody) {
+    constructor() {
         super();
-        this.body = body;
+        this.body = {};
     }
     async parse(raw: string | ArrayBuffer): Promise<this> {
         await super.parse(raw);
