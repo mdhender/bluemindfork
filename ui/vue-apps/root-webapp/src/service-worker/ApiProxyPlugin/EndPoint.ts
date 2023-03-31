@@ -35,8 +35,8 @@ export class EndPoint {
         return new RegExpRoute(this.regExp, this.handle.bind(this), this.metadatas.verb);
     }
 
-    chain(client: ApiEndPointClass, priority: number) {
-        this.handler = new ApiRouteHandler(client, this.metadatas, priority).chain(this.handler);
+    chain(client: ApiEndPointClass, priority: number, role?: string) {
+        this.handler = new ApiRouteHandler(client, this.metadatas, priority, role).chain(this.handler);
     }
     async handle({ request, params, event }: RouteHandlerCallbackOptions): Promise<Response> {
         if (this.handler) {

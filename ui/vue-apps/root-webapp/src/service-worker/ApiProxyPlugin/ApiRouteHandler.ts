@@ -7,10 +7,13 @@ export class ApiRouteHandler {
     next: ApiRouteHandler | null;
     priority: number;
     metadatas: EndPointMetadata.MethodMetadata;
-    constructor(client: ApiEndPointClass, metadatas: EndPointMetadata.MethodMetadata, priority: number) {
+    role: string | undefined;
+
+    constructor(client: ApiEndPointClass, metadatas: EndPointMetadata.MethodMetadata, priority: number, role?: string) {
         this.client = client;
         this.metadatas = metadatas;
         this.priority = priority;
+        this.role = role;
         this.next = null;
     }
     chain(handler: ApiRouteHandler | null): ApiRouteHandler {
@@ -27,17 +30,31 @@ export class ApiRouteHandler {
         ...overwrite: Array<unknown>
     ): Promise<unknown> {
         parameters = overwrite.length > 0 ? { ...parameters, method: overwrite } : parameters;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const client: any = new this.client(await session.sid, ...parameters.client);
-        client.event = event;
+        const next = await this.#generateNext(parameters, event, ...overwrite);
+        if (await this.#hasRole()) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const client: any = new this.client(await session.sid, ...parameters.client);
+            client.event = event;
+            client.next = next;
+            return client[this.metadatas.name](...parameters.method);
+        } else {
+            return next();
+        }
+    }
+
+    async #generateNext(parameters: ExecutionParameters, event: ExtendableEvent, ...overwrite: Array<unknown>) {
         if (this.next) {
-            client.next = this.next.execute.bind(this.next, parameters, event);
+            return this.next.execute.bind(this.next, parameters, event);
         } else {
             const next: any = RootApiClientFactory.create(this.client, await session.sid, ...parameters.client);
             const args = overwrite.length > 0 ? overwrite : parameters.method;
-            client.next = next[this.metadatas.name].bind(next, ...args);
+            return next[this.metadatas.name].bind(next, ...args);
         }
-        return await client[this.metadatas.name](...parameters.method);
+    }
+
+    async #hasRole() {
+        const userRoles = await session.roles;
+        return !this.role || userRoles.includes(this.role);
     }
 }
 

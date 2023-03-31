@@ -14,7 +14,7 @@ self.importScripts(...scripts.map(({ path }) => path));
 
 //Api Client proxyfication
 const handlers = extensions.get("serviceworker.handlers", "api-handler");
-handlers.forEach(handler => ApiRouteRegistry.register(handler.class, handler.priority));
+handlers.forEach(handler => ApiRouteRegistry.register(handler.class, handler.priority, handler.role));
 ApiRouteRegistry.routes().forEach(route => registerRoute(route));
 
 //Synchronisation mechanism should be handle here :

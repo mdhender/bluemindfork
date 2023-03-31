@@ -5,13 +5,13 @@ import { ApiEndPointClass } from "./types";
 
 type ApiRouteRegistry = {
     endpoints: Map<string, EndPoint>;
-    register(ProxyClass: ApiEndPointClass, priority: number): void;
+    register(ProxyClass: ApiEndPointClass, priority: number, role?: string): void;
     routes(): Array<Route>;
 };
 
 export const ApiRouteRegistry: ApiRouteRegistry = {
     endpoints: new Map(),
-    register(proxyClass: ApiEndPointClass, priority: number) {
+    register(proxyClass: ApiEndPointClass, priority: number, role?: string) {
         const proxy = new proxyClass("fake-sid");
         const methods = getProxifiedMethods(proxy);
         methods.forEach(method => {
@@ -19,7 +19,7 @@ export const ApiRouteRegistry: ApiRouteRegistry = {
             if (!this.endpoints.has(key)) {
                 this.endpoints.set(key, new EndPoint(method, proxy.getMetadata()));
             }
-            this.endpoints.get(key)?.chain(proxyClass, priority);
+            this.endpoints.get(key)?.chain(proxyClass, priority, role);
         });
     },
     routes() {

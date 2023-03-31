@@ -1,12 +1,13 @@
 import { pki } from "node-forge";
 import { registerRoute } from "workbox-routing";
 import { extensions } from "@bluemind/extensions";
+import BmRoles from "@bluemind/roles";
 import { checkCertificate, clearMyCryptoFiles, getMyStatus, setMyCertificate, setMyPrivateKey } from "./pki";
 import SMimeApiProxy from "./SMimeApiProxy";
 import { PKIEntry, SMIME_INTERNAL_API_URL, SMIME_UNTRUSTED_CERTIFICATE_ERROR_PREFIX } from "../lib/constants";
 
 extensions.register("serviceworker.handlers", "smime-plugin", {
-    "api-handler": { class: SMimeApiProxy, priority: 256 }
+    "api-handler": { class: SMimeApiProxy, priority: 256, role: BmRoles.CAN_USE_SMIME }
 });
 
 registerRoute(SMIME_INTERNAL_API_URL, hasCryptoFilesHandler, "GET");

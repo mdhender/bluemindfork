@@ -21,7 +21,7 @@ export interface Session {
     // hasIM: Promise<string>;
     // lang: Promise<string>;
     // domain: Promise<string>;
-    // roles: string;
+    roles: Promise<string[]>;
     // formatedName: Promise<string>;
     // bmVersion: Promise<string>;
     // bmBrandVersion: Promise<string>;
@@ -37,6 +37,9 @@ async function instance(): Promise<SessionInfo> {
 const session: Session = {
     get sid() {
         return instance().then(({ sid }) => sid);
+    },
+    get roles() {
+        return instance().then(({ roles }) => roles.split(","));
     },
     clear() {
         infos = undefined;
