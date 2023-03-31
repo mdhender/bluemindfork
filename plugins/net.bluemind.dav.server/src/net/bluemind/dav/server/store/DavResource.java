@@ -27,8 +27,6 @@ import javax.xml.namespace.QName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.dav.server.DavActivator;
-
 public abstract class DavResource {
 
 	private static final Logger logger = LoggerFactory.getLogger(DavResource.class);
@@ -82,9 +80,6 @@ public abstract class DavResource {
 				}
 			} catch (IllegalStateException ise) {
 				logger.error("[" + resType + "] " + ise.getMessage() + " in '" + path + "'", ise);
-				if (DavActivator.devMode) {
-					System.exit(1);
-				}
 			}
 		}
 		return entryUid;

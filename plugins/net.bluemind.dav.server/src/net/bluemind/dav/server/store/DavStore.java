@@ -44,6 +44,7 @@ import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.dav.server.DavActivator;
 import net.bluemind.dav.server.proto.Depth;
 import net.bluemind.dav.server.proto.IPropertyValue;
+import net.bluemind.dav.server.proto.props.FallbackProp;
 import net.bluemind.dav.server.proto.props.IPropertyFactory;
 import net.bluemind.dav.server.proto.props.appleical.Autoprovisioned;
 import net.bluemind.dav.server.proto.props.appleical.CalendarColor;
@@ -52,6 +53,7 @@ import net.bluemind.dav.server.proto.props.appleical.LanguageCode;
 import net.bluemind.dav.server.proto.props.appleical.LocationCode;
 import net.bluemind.dav.server.proto.props.appleical.RefreshRate;
 import net.bluemind.dav.server.proto.props.caldav.CalendarAlarm;
+import net.bluemind.dav.server.proto.props.caldav.CalendarData;
 import net.bluemind.dav.server.proto.props.caldav.CalendarDescription;
 import net.bluemind.dav.server.proto.props.caldav.CalendarFreeBusySet;
 import net.bluemind.dav.server.proto.props.caldav.CalendarHomeSet;
@@ -149,6 +151,7 @@ public final class DavStore {
 
 		// caldav
 		reg(CalendarDescription.factory());
+		reg(CalendarData.factory());
 		reg(CalendarFreeBusySet.factory());
 		reg(CalendarHomeSet.factory());
 		reg(CalendarTimezone.factory());
@@ -225,17 +228,13 @@ public final class DavStore {
 
 	public IPropertyValue getValue(QName prop, DavResource dr) {
 		IPropertyFactory facto = factories.get(prop);
-		if (facto == null) {
-			RuntimeException rte = new RuntimeException("Unknown property " + prop);
-			if (DavActivator.devMode) {
-				logger.error(rte.getMessage(), rte);
-				System.exit(1);
-			} else {
-				throw rte;
-			}
-		}
 		if (dr.hasProperty(prop)) {
-			IPropertyValue pv = facto.create();
+			IPropertyValue pv = null;
+			if (facto != null) {
+				pv = facto.create();
+			} else {
+				pv = new FallbackProp(prop);
+			}
 			try {
 				pv.fetch(lc, dr);
 			} catch (Exception e) {
@@ -253,7 +252,6 @@ public final class DavStore {
 			RuntimeException rte = new RuntimeException("Unknown property " + prop);
 			if (DavActivator.devMode) {
 				logger.error(rte.getMessage(), rte);
-				System.exit(1);
 			} else {
 				throw rte;
 			}
@@ -275,7 +273,6 @@ public final class DavStore {
 			RuntimeException rte = new RuntimeException("Unknown property " + prop.getQName());
 			if (DavActivator.devMode) {
 				logger.error(rte.getMessage(), rte);
-				System.exit(1);
 			} else {
 				throw rte;
 			}
@@ -315,9 +312,6 @@ public final class DavStore {
 		}
 		if (ret == null) {
 			logger.error("Dav resource at '{}' unknown", path);
-			if (DavActivator.devMode) {
-				System.exit(1);
-			}
 		} else {
 			logger.info("[{}] {}", ret.getResType(), path);
 		}
@@ -391,8 +385,7 @@ public final class DavStore {
 
 	/**
 	 * @param ret
-	 * @param path
-	 *                 the vevents container path
+	 * @param path the vevents container path
 	 */
 	private void addEvents(List<DavResource> ret, DavResource dr) {
 		ContainerDescriptor cd = lc.vStuffContainer(dr);

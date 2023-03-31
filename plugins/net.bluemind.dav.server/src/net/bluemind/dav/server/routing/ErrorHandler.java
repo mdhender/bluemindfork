@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
-import net.bluemind.dav.server.DavActivator;
 import net.bluemind.dav.server.store.LoggedCore;
 
 public class ErrorHandler implements Handler<Throwable> {
@@ -41,9 +40,6 @@ public class ErrorHandler implements Handler<Throwable> {
 	public void handle(Throwable event) {
 		logger.error(event.getMessage(), event);
 		r.response().setStatusCode(403).end();
-		if (DavActivator.devMode) {
-			System.exit(1);
-		}
 	}
 
 }
