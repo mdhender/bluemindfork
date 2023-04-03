@@ -2,7 +2,6 @@ import sortedIndexBy from "lodash.sortedindexby";
 
 import Vue from "vue";
 
-import { inject } from "@bluemind/inject";
 import { Flag } from "@bluemind/email";
 import { conversationUtils, loadingStatusUtils, messageUtils, draftUtils } from "@bluemind/mail";
 
@@ -293,7 +292,7 @@ async function fetchConversationIfNotLoaded({ commit, state }, { uid, folder, co
     if (!state.conversationByKey[key]) {
         let refs;
         if (conversationsActivated) {
-            refs = (await inject("MailConversationPersistence", folder.mailboxRef.uid).getComplete(uid)).messageRefs;
+            refs = (await apiConversations.get(folder.mailboxRef, uid)).messageRefs;
         } else {
             uid = Number(uid);
             refs = [{ itemId: uid, folderUid: folder.remoteRef.uid }];

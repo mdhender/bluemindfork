@@ -3,6 +3,9 @@ import { inject } from "@bluemind/inject";
 import { ConversationListFilter, SortOrder } from "../conversationList";
 
 export default {
+    get(mailboxRef, uid) {
+        return conversationApi(mailboxRef.uid).get(uid);
+    },
     multipleGet(conversations, mailboxRef) {
         return conversationApi(mailboxRef.uid).multipleGet(conversations.map(({ remoteRef: { uid } }) => uid));
     },
