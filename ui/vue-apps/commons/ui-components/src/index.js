@@ -25,7 +25,6 @@ export { default as BmContactInputAutocompleteExtra } from "./components/form/Bm
 export { default as BmContactInputAutocompleteItem } from "./components/form/BmContactInputAutocompleteItem";
 export { default as BmContainer } from "./components/layout/BmContainer";
 export { default as BmCounterBadge } from "./components/BmCounterBadge";
-export { default as BmDarkify } from "./directives/BmDarkify";
 export { default as BmDraggable } from "./components/BmDraggable";
 export { default as BmDropdown } from "./components/dropdown/BmDropdown";
 export { default as BmDropdownAutocomplete } from "./components/dropdown/BmDropdownAutocomplete";

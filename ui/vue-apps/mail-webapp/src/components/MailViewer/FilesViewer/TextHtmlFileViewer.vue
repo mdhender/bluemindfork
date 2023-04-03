@@ -18,11 +18,11 @@
 
 <script>
 import partition from "lodash.partition";
-import { mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 import linkifyHtml from "linkifyjs/html";
 import { MimeType, InlineImageHelper } from "@bluemind/email";
 import { sanitizeHtml, blockRemoteImages } from "@bluemind/html-utils";
-import { BmIconButton } from "@bluemind/ui-components";
+import { BmIconButton, darkifyCss, darkifyHtml, darkifyingBaseLvalue } from "@bluemind/ui-components";
 import { messageUtils, partUtils } from "@bluemind/mail";
 
 import brokenImageIcon from "~/../assets/brokenImageIcon.png";
@@ -46,6 +46,8 @@ export default {
         return { collapse_: this.collapse && !isForward(this.message) };
     },
     computed: {
+        ...mapGetters("settings", ["IS_COMPUTED_THEME_DARK"]),
+
         quoteNodes() {
             return this.$store.getters[`mail/${QUOTE_NODES}`](this.message.key, this.file.address);
         },
@@ -56,8 +58,14 @@ export default {
             return this.$store.state.mail.partsData.partsByMessageKey[this.message.key]?.[this.file.address];
         },
         contentAsNode() {
-            const node = new DOMParser().parseFromString(this.content, "text/html");
-            return this.isCollapseActive ? QuoteHelper.removeQuotes(node, this.quoteNodes) : node;
+            let node = new DOMParser().parseFromString(this.content, "text/html");
+            if (this.isCollapseActive) {
+                node = QuoteHelper.removeQuotes(node, this.quoteNodes);
+            }
+            if (this.IS_COMPUTED_THEME_DARK) {
+                darkifyHtml(node.body, darkifyingBaseLvalue());
+            }
+            return node;
         },
         htmlWithImages() {
             const images = getPartsFromCapabilities(this.message, VIEWER_CAPABILITIES).filter(
@@ -88,7 +96,11 @@ export default {
             return html;
         },
         styles() {
-            return extractStyleNotInBody(this.contentAsNode) + BM_STYLE;
+            let extractedStyle = extractStyleNotInBody(this.contentAsNode);
+            if (this.IS_COMPUTED_THEME_DARK) {
+                extractedStyle = darkifyCss(extractedStyle, darkifyingBaseLvalue());
+            }
+            return extractedStyle + BM_STYLE;
         },
         isCollapseActive() {
             return this.collapse_ && this.quoteNodes;

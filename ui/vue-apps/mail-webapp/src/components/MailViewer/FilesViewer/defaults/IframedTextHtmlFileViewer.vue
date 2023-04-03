@@ -1,22 +1,20 @@
 <template>
     <text-html-file-viewer v-slot="content" v-bind="$props">
-        <i-frame :key="IS_COMPUTED_THEME_DARK" class="border-0">
+        <i-frame class="border-0">
             <template v-slot:head>
                 <base target="_blank" />
                 <link type="text/css" rel="stylesheet" href="css/montserrat/index.css" />
             </template>
             <template v-slot:style>
-                {{ IS_COMPUTED_THEME_DARK ? darkifyCss(content.styles, darkifyingBaseLvalue()) : content.styles }}
+                {{ content.styles }}
                 {{ IFRAME_STYLE }}
             </template>
             <!-- eslint-disable-next-line vue/no-v-html -->
-            <main v-bm-darkify="IS_COMPUTED_THEME_DARK" v-html="content.html"></main>
+            <main v-html="content.html"></main>
         </i-frame>
     </text-html-file-viewer>
 </template>
 <script>
-import { mapGetters } from "vuex";
-import { BmDarkify, darkifyCss, darkifyingBaseLvalue } from "@bluemind/ui-components";
 import IFrame from "../../../IFrame";
 import FileViewerMixin from "../FileViewerMixin";
 import TextHtmlFileViewer from "./../TextHtmlFileViewer";
@@ -24,19 +22,11 @@ import TextHtmlFileViewer from "./../TextHtmlFileViewer";
 export default {
     name: "IframedTextHtmlFileViewer",
     components: { TextHtmlFileViewer, IFrame },
-    directives: { BmDarkify },
     mixins: [FileViewerMixin],
     $capabilities: ["text/html"],
     props: { collapse: { type: Boolean, default: true } },
     data() {
         return { IFRAME_STYLE };
-    },
-    computed: {
-        ...mapGetters("settings", ["IS_COMPUTED_THEME_DARK"])
-    },
-    methods: {
-        darkifyCss,
-        darkifyingBaseLvalue
     }
 };
 const IFRAME_STYLE = `
