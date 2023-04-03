@@ -35,6 +35,7 @@ import net.bluemind.directory.hollow.datamodel.consumer.DirectorySearchFactory;
 import net.bluemind.directory.hollow.datamodel.consumer.ListOfEmail;
 import net.bluemind.directory.hollow.datamodel.consumer.SerializedDirectorySearch;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "directory", description = "List items in hollow directory")
@@ -58,6 +59,9 @@ public class DirectoryDumpCommand implements ICmdLet, Runnable {
 	@Parameters(paramLabel = "<domain>", description = "the domain (uid or alias)", completionCandidates = DomainNames.class)
 	public String domain;
 
+	@Option(names = { "--uid" }, required = false, description = "A record uid")
+	public String uid;
+
 	@Override
 	public void run() {
 		CliUtils cli = new CliUtils(ctx);
@@ -67,6 +71,17 @@ public class DirectoryDumpCommand implements ICmdLet, Runnable {
 			return domain;
 		});
 		SerializedDirectorySearch hollow = DirectorySearchFactory.get(domUid);
+
+		if (!Strings.isNullOrEmpty(uid)) {
+			Optional<AddressBookRecord> entry = hollow.byUid(uid);
+			if (entry.isEmpty()) {
+				ctx.info("Record not found");
+			} else {
+				ctx.info(stringify(entry.get()));
+			}
+			return;
+		}
+
 		String version = hollow.root().map(r -> Integer.toString(r.getSequence())).orElse("UNKNOWN");
 		Collection<AddressBookRecord> bookItems = hollow.all();
 		ctx.info("Hollow directory of '" + domUid + "' has " + bookItems.size() + " item(s) with directory version "
