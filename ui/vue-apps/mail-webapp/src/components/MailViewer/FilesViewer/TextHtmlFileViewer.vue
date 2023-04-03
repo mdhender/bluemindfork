@@ -41,7 +41,10 @@ export default {
     name: "TextHtmlFileViewer",
     components: { BmIconButton, MailViewerContentLoading, InlineStyle },
     mixins: [FileViewerMixin],
-    props: { collapse: { type: Boolean, default: true } },
+    props: {
+        collapse: { type: Boolean, default: true },
+        noDarkify: { type: Boolean, default: false }
+    },
     data() {
         return { collapse_: this.collapse && !isForward(this.message) };
     },
@@ -62,7 +65,7 @@ export default {
             if (this.isCollapseActive) {
                 node = QuoteHelper.removeQuotes(node, this.quoteNodes);
             }
-            if (this.IS_COMPUTED_THEME_DARK) {
+            if (!this.noDarkify && this.IS_COMPUTED_THEME_DARK) {
                 darkifyHtml(node.body, darkifyingBaseLvalue());
             }
             return node;
@@ -97,7 +100,7 @@ export default {
         },
         styles() {
             let extractedStyle = extractStyleNotInBody(this.contentAsNode);
-            if (this.IS_COMPUTED_THEME_DARK) {
+            if (!this.noDarkify && this.IS_COMPUTED_THEME_DARK) {
                 extractedStyle = darkifyCss(extractedStyle, darkifyingBaseLvalue());
             }
             return extractedStyle + BM_STYLE;
