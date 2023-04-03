@@ -25,15 +25,28 @@ import net.bluemind.core.api.BMApi;
 @BMApi(version = "3")
 public class JobQuery {
 
+	public String jobId;
 	public Set<JobExitStatus> statuses;
 	public String domain;
 
 	public JobQuery() {
 	}
 
-	public static JobQuery forDomainUid(String domUid) {
+	public static JobQuery withDomainUid(String domUid) {
 		JobQuery jq = new JobQuery();
 		jq.domain = domUid;
+		return jq;
+	}
+
+	public static JobQuery withId(String jobId) {
+		JobQuery jq = new JobQuery();
+		jq.jobId = jobId;
+		return jq;
+	}
+
+	public static JobQuery withIdAndDomainUid(String id, String domUid) {
+		JobQuery jq = withDomainUid(domUid);
+		jq.jobId = id;
 		return jq;
 	}
 }

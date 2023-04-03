@@ -66,6 +66,7 @@ import net.bluemind.scheduledjob.api.JobExecutionQuery;
 import net.bluemind.scheduledjob.api.JobExitStatus;
 import net.bluemind.scheduledjob.api.JobKind;
 import net.bluemind.scheduledjob.api.JobPlanification;
+import net.bluemind.scheduledjob.api.JobQuery;
 import net.bluemind.scheduledjob.api.PlanKind;
 import net.bluemind.scheduledjob.api.gwt.endpoint.JobGwtEndpoint;
 import net.bluemind.ui.admin.client.forms.TextEdit;
@@ -228,6 +229,8 @@ public class EditJob extends Composite implements IStatusFilterListener, IDomain
 		jeq.from = 0;
 		jeq.size = 20;
 
+		JobQuery jq = JobQuery.withIdAndDomainUid(jobId, domain);
+
 		jobApi.searchExecution(jeq, new AsyncHandler<ListResult<JobExecution>>() {
 			@Override
 			public void failure(Throwable e) {
@@ -235,12 +238,14 @@ public class EditJob extends Composite implements IStatusFilterListener, IDomain
 
 			@Override
 			public void success(final ListResult<JobExecution> execs) {
-				jobApi.getJobFromId(jobId, new AsyncHandler<Job>() {
+
+				jobApi.searchJob(jq, new AsyncHandler<ListResult<Job>>() {
 
 					@Override
-					public void success(Job value) {
-						GWT.log("*** Found job with " + value.domainPlanification.size() + " plans.");
-						updateUi(value, execs);
+					public void success(ListResult<Job> value) {
+						Job j = value.values.get(0);
+						GWT.log("*** Found job with " + j.domainPlanification.size() + " plans.");
+						updateUi(j, execs);
 
 						if (activeTab != null) {
 							tabPanel.selectTab(activeTab);

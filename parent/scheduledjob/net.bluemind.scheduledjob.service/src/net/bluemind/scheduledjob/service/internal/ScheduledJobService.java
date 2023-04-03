@@ -92,6 +92,10 @@ public class ScheduledJobService implements IInCoreJob {
 				continue;
 			}
 
+			if (query.domain != null && query.jobId != null && !bj.getJobId().equals(query.jobId)) {
+				continue;
+			}
+
 			values.add(convertJob(bj));
 		}
 		store.loadStatusesAndPlans(context, query, values);

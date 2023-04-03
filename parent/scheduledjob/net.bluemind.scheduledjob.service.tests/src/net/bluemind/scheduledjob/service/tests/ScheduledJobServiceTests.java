@@ -27,7 +27,6 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +45,6 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.scheduledjob.api.IInCoreJob;
 import net.bluemind.scheduledjob.api.Job;
-import net.bluemind.scheduledjob.api.JobDomainStatus;
 import net.bluemind.scheduledjob.api.JobExecution;
 import net.bluemind.scheduledjob.api.JobExecutionQuery;
 import net.bluemind.scheduledjob.api.JobExitStatus;
@@ -84,11 +82,19 @@ public class ScheduledJobServiceTests {
 
 		SecurityContext admin = new SecurityContext("testUser", "test", Arrays.<String>asList(),
 				Arrays.<String>asList(SecurityContext.ROLE_ADMIN), "bm.lan");
+		SecurityContext admin1 = new SecurityContext("testUser1", "test1", Arrays.<String>asList(),
+				Arrays.<String>asList(SecurityContext.ROLE_ADMIN), "bm1.lan");
+		SecurityContext admin2 = new SecurityContext("testUser2", "test2", Arrays.<String>asList(),
+				Arrays.<String>asList(SecurityContext.ROLE_ADMIN), "bm2.lan");
 
 		PopulateHelper.initGlobalVirt();
 
 		PopulateHelper.createTestDomain("bm.lan");
 		PopulateHelper.domainAdmin("bm.lan", admin.getSubject());
+		PopulateHelper.createTestDomain("bm1.lan");
+		PopulateHelper.domainAdmin("bm1.lan", admin1.getSubject());
+		PopulateHelper.createTestDomain("bm2.lan");
+		PopulateHelper.domainAdmin("bm2.lan", admin2.getSubject());
 
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
@@ -438,76 +444,155 @@ public class ScheduledJobServiceTests {
 	}
 
 	@Test
-	public void testFindJobsAdmin0() throws ServerFault {
-		// ensure one execution
+	public void testSearchJobs_withDomainAndId() throws ServerFault {
 		serviceAdmin0.start(DOMAIN_JOB, "bm.lan");
-		waitFor(DOMAIN_JOB);
+		waitFor(DOMAIN_JOB, "bm.lan");
+		serviceAdmin0.start(DOMAIN_JOB, "bm1.lan");
+		waitFor(DOMAIN_JOB, "bm1.lan");
+		serviceAdmin0.start(DOMAIN_JOB, "bm2.lan");
+		waitFor(DOMAIN_JOB, "bm2.lan");
 
-		ListResult<Job> ret = serviceAdmin0.searchJob(new JobQuery());
+		JobQuery jq = JobQuery.withIdAndDomainUid(DOMAIN_JOB, "bm.lan");
+		ListResult<Job> ret = serviceAdmin0.searchJob(jq);
 		assertNotNull(ret);
+		assertEquals(1, ret.total);
+		Job j = ret.values.get(0);
+		j.kind = JobKind.MULTIDOMAIN;
+		j.sendReport = true;
+		j.recipients = "r0@bm.lan";
+		serviceAdmin0.update(j);
 
-		// at least DOMAIN_JOB
-		long count = ret.total;
-		assertTrue(count >= 1);
-		assertFalse(ret.values.isEmpty());
-		for (Job j : ret.values) {
-			assertNotNull("job id must not be null", j.id);
-			System.out.println("job: " + j.id);
-		}
-
-		JobQuery jq = new JobQuery();
-		jq.domain = "bm.lan";
-
+		jq = JobQuery.withIdAndDomainUid(DOMAIN_JOB, "bm1.lan");
 		ret = serviceAdmin0.searchJob(jq);
+		assertNotNull(ret);
+		assertEquals(1, ret.total);
+		j = ret.values.get(0);
+		j.kind = JobKind.MULTIDOMAIN;
+		j.sendReport = true;
+		j.recipients = "r1@bm.lan";
+		serviceAdmin0.update(j);
 
-		long newCount = ret.total;
-		assertTrue("must find less jobs when querying from only one domain", newCount < count);
+		jq = JobQuery.withIdAndDomainUid(DOMAIN_JOB, "bm2.lan");
+		ret = serviceAdmin0.searchJob(jq);
+		assertNotNull(ret);
+		assertEquals(1, ret.total);
+		j = ret.values.get(0);
+		j.kind = JobKind.MULTIDOMAIN;
+		j.sendReport = true;
+		j.recipients = "r2@bm.lan";
+		serviceAdmin0.update(j);
 
-		System.err.println("bm.lan jobs: " + newCount);
+		// domain bm.lan
+		jq = JobQuery.withIdAndDomainUid(DOMAIN_JOB, "bm.lan");
+		ret = serviceAdmin0.searchJob(jq);
+		assertNotNull(ret);
+		assertEquals(1, ret.total);
+		j = ret.values.get(0);
+		assertNotNull("job id must not be null", j.id);
+		assertNotNull("job kind must not be null", j.kind);
+		assertTrue("job send report must not be true", j.sendReport);
+		assertEquals(JobKind.MULTIDOMAIN, j.kind);
+		assertEquals("r0@bm.lan", j.recipients);
+		System.out.println("Found job " + j.id + " desc: " + j.description + " recipients: " + j.recipients);
 
-		JobExitStatus lastStatus = null;
-		Job lastJob = null;
-		for (Job j : ret.values) {
-			assertNotNull("job id must not be null", j.id);
-			assertEquals(JobKind.MULTIDOMAIN, j.kind);
+		// domain bm1.lan
+		jq = JobQuery.withIdAndDomainUid(DOMAIN_JOB, "bm1.lan");
+		ret = serviceAdmin0.searchJob(jq);
+		assertNotNull(ret);
+		assertEquals(1, ret.total);
+		j = ret.values.get(0);
+		assertNotNull("job id must not be null", j.id);
+		assertNotNull("job kind must not be null", j.kind);
+		assertTrue("job send report must not be true", j.sendReport);
+		assertEquals(JobKind.MULTIDOMAIN, j.kind);
+		assertEquals("r1@bm.lan", j.recipients);
+		System.out.println("Found job " + j.id + " desc: " + j.description + " recipients: " + j.recipients);
 
-			boolean found = false;
-			JobDomainStatus last = null;
-			for (JobDomainStatus jds : j.domainStatus) {
-				if (jds.domain.equals("bm.lan")) {
-					found = true;
-					last = jds;
-				}
-			}
+		// domain bm2.lan
+		jq = JobQuery.withIdAndDomainUid(DOMAIN_JOB, "bm2.lan");
+		ret = serviceAdmin0.searchJob(jq);
+		assertNotNull(ret);
+		assertEquals(1, ret.total);
+		j = ret.values.get(0);
+		assertNotNull("job id must not be null", j.id);
+		assertNotNull("job kind must not be null", j.kind);
+		assertTrue("job send report must not be true", j.sendReport);
+		assertEquals(JobKind.MULTIDOMAIN, j.kind);
+		assertEquals("r2@bm.lan", j.recipients);
+		System.out.println("Found job " + j.id + " desc: " + j.description + " recipients: " + j.recipients);
+	}
 
-			if (!found) {
-				System.out.println("     null last status: " + j.id);
-			} else {
-				lastJob = j;
-				lastStatus = last.status;
-			}
-		}
-		assertNotNull(lastStatus);
+	@Test
+	public void testFindJobsAdmin0() throws ServerFault {
+		serviceAdmin0.start(DOMAIN_JOB, "bm.lan");
+		waitFor(DOMAIN_JOB, "bm.lan");
+		serviceAdmin0.start(DOMAIN_JOB, "bm1.lan");
+		waitFor(DOMAIN_JOB, "bm1.lan");
+		serviceAdmin0.start(DOMAIN_JOB, "bm2.lan");
+		waitFor(DOMAIN_JOB, "bm2.lan");
 
-		HashSet<JobExitStatus> statuses = new HashSet<JobExitStatus>();
-		statuses.add(lastStatus);
-		jq.statuses = statuses;
+		JobQuery jq = JobQuery.withIdAndDomainUid(DOMAIN_JOB, "bm.lan");
+		ListResult<Job> ret = serviceAdmin0.searchJob(jq);
+		assertNotNull(ret);
+		assertEquals(1, ret.total);
+		Job j = ret.values.get(0);
+		j.kind = JobKind.MULTIDOMAIN;
+		j.sendReport = true;
+		j.recipients = "r0@bm.lan";
+		serviceAdmin0.update(j);
 
-		ListResult<Job> oneStatus = serviceAdmin0.searchJob(jq);
-		assertNotNull(oneStatus);
+		jq = JobQuery.withIdAndDomainUid(DOMAIN_JOB, "bm1.lan");
+		ret = serviceAdmin0.searchJob(jq);
+		assertNotNull(ret);
+		assertEquals(1, ret.total);
+		j = ret.values.get(0);
+		j.kind = JobKind.MULTIDOMAIN;
+		j.sendReport = true;
+		j.recipients = "r1@bm.lan";
+		serviceAdmin0.update(j);
 
-		boolean found = false;
-		for (Job j : oneStatus.values) {
-			assertNotNull(j.domainStatus);
+		jq = JobQuery.withIdAndDomainUid(DOMAIN_JOB, "bm2.lan");
+		ret = serviceAdmin0.searchJob(jq);
+		assertNotNull(ret);
+		assertEquals(1, ret.total);
+		j = ret.values.get(0);
+		j.kind = JobKind.MULTIDOMAIN;
+		j.sendReport = true;
+		j.recipients = "r2@bm.lan";
+		serviceAdmin0.update(j);
 
-			if (j.id.equals(lastJob.id)) {
-				found = true;
-			}
-			for (JobDomainStatus bes : j.domainStatus) {
-				assertEquals(lastStatus, bes.status);
-			}
-		}
-		assertTrue(found);
+		// domain bm.lan
+		jq = JobQuery.withIdAndDomainUid(DOMAIN_JOB, "bm.lan");
+		ret = serviceAdmin0.searchJob(jq);
+		j = ret.values.get(0);
+		assertNotNull("job id must not be null", j.id);
+		assertNotNull("job kind must not be null", j.kind);
+		assertTrue(j.sendReport);
+		assertEquals(JobKind.MULTIDOMAIN, j.kind);
+		assertEquals("r0@bm.lan", j.recipients);
+		System.out.println("Found job " + j.id + " desc: " + j.description + " recipients: " + j.recipients);
+
+		// domain bm1.lan
+		jq = JobQuery.withIdAndDomainUid(DOMAIN_JOB, "bm1.lan");
+		ret = serviceAdmin0.searchJob(jq);
+		j = ret.values.get(0);
+		assertNotNull("job id must not be null", j.id);
+		assertNotNull("job kind must not be null", j.kind);
+		assertTrue(j.sendReport);
+		assertEquals(JobKind.MULTIDOMAIN, j.kind);
+		assertEquals("r1@bm.lan", j.recipients);
+		System.out.println("Found job " + j.id + " desc: " + j.description + " recipients: " + j.recipients);
+
+		// domain bm2.lan
+		jq = JobQuery.withIdAndDomainUid(DOMAIN_JOB, "bm2.lan");
+		ret = serviceAdmin0.searchJob(jq);
+		j = ret.values.get(0);
+		assertNotNull("job id must not be null", j.id);
+		assertNotNull("job kind must not be null", j.kind);
+		assertTrue(j.sendReport);
+		assertEquals(JobKind.MULTIDOMAIN, j.kind);
+		assertEquals("r2@bm.lan", j.recipients);
+		System.out.println("Found job " + j.id + " desc: " + j.description + " recipients: " + j.recipients);
 	}
 
 	@Test
@@ -605,6 +690,24 @@ public class ScheduledJobServiceTests {
 		JobExecutionQuery query = new JobExecutionQuery();
 		query.active = true;
 		query.jobId = jobId;
+		do {
+			try {
+				Thread.sleep(1000);
+				waitCount++;
+			} catch (InterruptedException e) {
+			}
+		} while (!serviceAdmin0.searchExecution(query).values.isEmpty() && waitCount < 70);
+		if (waitCount >= 70) {
+			throw new ServerFault("too long to execute");
+		}
+	}
+
+	private void waitFor(String jobId, String domain) throws ServerFault {
+		int waitCount = 0;
+		JobExecutionQuery query = new JobExecutionQuery();
+		query.active = true;
+		query.jobId = jobId;
+		query.domain = domain;
 		do {
 			try {
 				Thread.sleep(1000);

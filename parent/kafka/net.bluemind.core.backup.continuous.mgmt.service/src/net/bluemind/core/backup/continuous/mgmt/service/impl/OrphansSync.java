@@ -102,9 +102,9 @@ public class OrphansSync {
 	private void saveJobPlans(IBackupStoreFactory store, List<ItemValue<Domain>> domains) {
 		IJob jobApi = context.provider().instance(IJob.class);
 		Set<String> jids = new HashSet<>();
-		domains.stream().flatMap(d -> jobApi.searchJob(JobQuery.forDomainUid(d.uid)).values.stream()).map(j -> j.id)
+		domains.stream().flatMap(d -> jobApi.searchJob(JobQuery.withDomainUid(d.uid)).values.stream()).map(j -> j.id)
 				.forEach(jids::add);
-		jobApi.searchJob(JobQuery.forDomainUid(null)).values.stream().map(j -> j.id).forEach(jids::add);
+		jobApi.searchJob(JobQuery.withDomainUid(null)).values.stream().map(j -> j.id).forEach(jids::add);
 		JobPlanContinuousHook.JobContainerAdapter jca = new JobContainerAdapter(store);
 		for (String jobId : jids) {
 			Job job = jobApi.getJobFromId(jobId);

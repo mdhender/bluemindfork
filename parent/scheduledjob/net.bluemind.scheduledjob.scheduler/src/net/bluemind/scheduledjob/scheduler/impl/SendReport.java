@@ -35,6 +35,7 @@ import org.apache.james.mime4j.util.MimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -45,6 +46,7 @@ import net.bluemind.core.sendmail.SendmailHelper;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.scheduledjob.api.IJob;
 import net.bluemind.scheduledjob.api.Job;
+import net.bluemind.scheduledjob.api.JobQuery;
 import net.bluemind.scheduledjob.api.LogEntry;
 import net.bluemind.scheduledjob.api.LogLevel;
 import net.bluemind.system.api.ISystemConfiguration;
@@ -75,14 +77,19 @@ public class SendReport implements Runnable {
 	@Override
 	public void run() {
 		try {
-			Job job = service.getJobFromId(rid.jid);
+			ListResult<Job> jobs = service.searchJob(JobQuery.withIdAndDomainUid(rid.jid, rid.domainUid));
+			if (jobs.total != 1) {
+				throw new ServerFault(String.format("%s jobs found with id %s on domain %s",
+						jobs != null ? jobs.total : String.valueOf(0), String.valueOf(rid.jid), rid.domainUid));
+			}
+			Job job = jobs.values.get(0);
 			if (job != null && job.sendReport && !job.recipients.isEmpty()) {
 				String domainUid = rid.domainUid;
 
 				String from = "no-reply@"
 						+ getDomainDefaultAlias(domainUid).orElseGet(() -> getExternalUrl().orElse(domainUid));
 
-				logger.info("Sending report using sender address {}", from);
+				logger.info("Sending report using sender address {}, and recipient address {}", from, job.recipients);
 				Message m = getMessage(rid, job, from);
 				mailer.send(SendmailCredentials.asAdmin0(), from, domainUid, m);
 			}
