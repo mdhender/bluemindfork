@@ -28,7 +28,7 @@ export default {
 
 .pref-field-info {
     color: $neutral-fg-lo1;
-    margin-bottom: base-px-to-rem(14) !important;
+    margin-bottom: $sp-5 + $sp-3;
     p {
         line-height: base-px-to-rem(16);
         margin-bottom: 0;
