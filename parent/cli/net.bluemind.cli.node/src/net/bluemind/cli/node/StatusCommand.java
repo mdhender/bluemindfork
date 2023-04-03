@@ -119,27 +119,9 @@ public class StatusCommand extends AbstractNodeOperation {
 		INodeClient nc = NodeActivator.get(srv.value.address());
 		checkHprofs(nc);
 		checkIfBackupIsRunning(nc);
-		if (srv.value.tags.contains("mail/imap")) {
-			checkStickyReplicationLogs(nc);
-		}
 
 		for (IStatusProvider sp : providers) {
 			sp.report(ctx, srv, nc);
-		}
-	}
-
-	private void checkStickyReplicationLogs(INodeClient nc) {
-		ExitList logsSize = NCUtils.exec(nc, "du -s /var/lib/cyrus/sync/core", 10, TimeUnit.SECONDS);
-		// 52 /var/lib/cyrus/sync/core
-		Pattern sizeKB = Pattern.compile("^([0-9]+).*$");
-		for (String l : logsSize) {
-			Matcher m = sizeKB.matcher(l);
-			if (m.find()) {
-				int kb = Integer.parseInt(m.group(1));
-				if (kb > 32) {
-					ctx.warn("  * " + kb + "KB of replication logs are sitting in /var/lib/cyrus/sync/core/");
-				}
-			}
 		}
 	}
 
