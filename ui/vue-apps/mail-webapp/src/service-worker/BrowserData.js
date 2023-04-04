@@ -50,7 +50,9 @@ async function listDatabases(userSession) {
             "todolist",
             "auth",
             "deferredaction",
-            newWebmailDbName
+            newWebmailDbName,
+            userSession.userId + ":smime:body",
+            userSession.userId + ":smime:pki"
         ];
     }
 }
@@ -78,7 +80,7 @@ async function deleteCache(name) {
 }
 
 async function deleteDatabase(name) {
-    logger.log(`[SW][BrowserData] Start deleting databe ${name}.`);
+    logger.log(`[SW][BrowserData] Start deleting database ${name}.`);
     await deleteDB(name);
     logger.log(`[SW][BrowserData] Database ${name} deleted.`);
 }

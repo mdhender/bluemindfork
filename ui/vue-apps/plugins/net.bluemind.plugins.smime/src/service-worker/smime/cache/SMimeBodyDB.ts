@@ -39,6 +39,10 @@ class SMimeBodyDBImpl implements SMimeBodyDB {
             upgrade: db => {
                 db.createObjectStore("guid").createIndex("by_creation_time", "creation_time");
                 db.createObjectStore("body");
+            },
+            blocking: async () => {
+                (await this.connection).close();
+                this.connection = this.open(userId);
             }
         });
     }

@@ -44,6 +44,10 @@ class SMimePkiDBImpl implements SMimePkiDB {
                 logger.log(`[@bluemind/plugin.smime][SMimePkiDB] Upgrading from ${from} to ${this.VERSION}`);
                 db.createObjectStore("my_key_and_cert");
                 db.createObjectStore("revocations");
+            },
+            blocking: async () => {
+                (await this.connection).close();
+                this.connection = this.open(userId);
             }
         });
     }
