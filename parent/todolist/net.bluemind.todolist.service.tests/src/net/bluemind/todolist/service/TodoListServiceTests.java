@@ -840,10 +840,10 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		todo.due = BmDateTimeWrapper.create(ZonedDateTime.of(2010, 2, 4, 18, 0, 0, 0, tz), Precision.DateTime);
 
 		// Every _1st_ thurday
-		VTodo.RRule rrule = new VTodo.RRule();
-		rrule.frequency = VTodo.RRule.Frequency.MONTHLY;
-		List<VTodo.RRule.WeekDay> weekDay = new ArrayList<VTodo.RRule.WeekDay>(1);
-		weekDay.add(new VTodo.RRule.WeekDay("TH", 1));
+		ICalendarElement.RRule rrule = new VTodo.RRule();
+		rrule.frequency = ICalendarElement.RRule.Frequency.MONTHLY;
+		List<ICalendarElement.RRule.WeekDay> weekDay = new ArrayList<>(1);
+		weekDay.add(new ICalendarElement.RRule.WeekDay("TH", 1));
 		rrule.byDay = weekDay;
 		rrule.interval = 1;
 		todo.rrule = rrule;
@@ -860,7 +860,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		ListResult<ItemValue<VTodo>> res = service.search(query);
 		assertEquals(12, res.values.size());
 
-		List<ZonedDateTime> found = new ArrayList<ZonedDateTime>(12);
+		List<ZonedDateTime> found = new ArrayList<>(12);
 		for (ItemValue<VTodo> item : res.values) {
 			assertEquals(uid, item.uid);
 			found.add(new BmDateTimeWrapper(item.value.dtstart).toDateTime());
@@ -881,9 +881,9 @@ public class TodoListServiceTests extends AbstractServiceTests {
 
 		// Every _LAST_ monday
 		rrule = new VTodo.RRule();
-		rrule.frequency = VTodo.RRule.Frequency.MONTHLY;
-		weekDay = new ArrayList<VTodo.RRule.WeekDay>(1);
-		weekDay.add(new VTodo.RRule.WeekDay("MO", -1));
+		rrule.frequency = ICalendarElement.RRule.Frequency.MONTHLY;
+		weekDay = new ArrayList<>(1);
+		weekDay.add(new ICalendarElement.RRule.WeekDay("MO", -1));
 		rrule.byDay = weekDay;
 		rrule.interval = 1;
 		todo.rrule = rrule;
@@ -900,7 +900,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		res = service.search(query);
 		assertEquals(23, res.values.size());
 
-		found = new ArrayList<ZonedDateTime>(23);
+		found = new ArrayList<>(23);
 		for (ItemValue<VTodo> item : res.values) {
 			found.add(new BmDateTimeWrapper(item.value.dtstart).toDateTime());
 		}

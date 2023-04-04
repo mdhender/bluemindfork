@@ -87,10 +87,8 @@ public class PostfixMapUpdater {
 		}
 
 		List<ServerMaps> serversMaps = new ArrayList<>();
-		servers.forEach(server -> {
-			ServerMaps.init(servers, server, domainInfoByUid, mapRows)
-					.ifPresent(serverMaps -> serversMaps.add(serverMaps));
-		});
+		servers.forEach(
+				server -> ServerMaps.init(servers, server, domainInfoByUid, mapRows).ifPresent(serversMaps::add));
 
 		return serversMaps;
 	}

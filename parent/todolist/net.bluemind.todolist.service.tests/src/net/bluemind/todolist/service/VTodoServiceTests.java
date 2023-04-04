@@ -339,8 +339,7 @@ public class VTodoServiceTests extends AbstractServiceTests {
 		assertEquals(1, vtodo.getProperties(Property.EXDATE).size());
 
 		BmDateTime exported = null;
-		for (@SuppressWarnings("unchecked")
-		Iterator<Property> it = vtodo.getProperties(Property.EXDATE).iterator(); it.hasNext();) {
+		for (Iterator<Property> it = vtodo.getProperties(Property.EXDATE).iterator(); it.hasNext();) {
 			ExDate exDate = (ExDate) it.next();
 			DateList dateList = exDate.getDates();
 			for (Object o : dateList) {
@@ -368,8 +367,7 @@ public class VTodoServiceTests extends AbstractServiceTests {
 		assertEquals(1, vtodo.getProperties(Property.RDATE).size());
 
 		BmDateTime exported = null;
-		for (@SuppressWarnings("unchecked")
-		Iterator<Property> it = vtodo.getProperties(Property.RDATE).iterator(); it.hasNext();) {
+		for (Iterator<Property> it = vtodo.getProperties(Property.RDATE).iterator(); it.hasNext();) {
 			RDate rDate = (RDate) it.next();
 			DateList dateList = rDate.getDates();
 			for (Object o : dateList) {
@@ -646,7 +644,7 @@ public class VTodoServiceTests extends AbstractServiceTests {
 	}
 
 	private Calendar export(VTodo... todos) throws ServerFault, IOException, ParserException {
-		LinkedList<String> uids = new LinkedList<String>();
+		LinkedList<String> uids = new LinkedList<>();
 
 		for (VTodo todo : todos) {
 			String uid = "junit-" + System.nanoTime();
@@ -662,9 +660,7 @@ public class VTodoServiceTests extends AbstractServiceTests {
 		assertNotNull(ics);
 		CalendarBuilder builder = new CalendarBuilder();
 		UnfoldingReader ur = new UnfoldingReader(new StringReader(ics), true);
-		Calendar todolist = builder.build(ur);
-
-		return todolist;
+		return builder.build(ur);
 	}
 
 }

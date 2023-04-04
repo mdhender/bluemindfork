@@ -84,7 +84,7 @@ public class TodoListsServiceTests {
 		ContainerStore dirContainerStore = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
 				securityContext);
 
-		aclStore = new AclStore(JdbcTestHelper.getInstance().getMailboxDataDataSource());
+		aclStore = new AclStore(null, JdbcTestHelper.getInstance().getMailboxDataDataSource());
 
 		Server esServer = new Server();
 		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
