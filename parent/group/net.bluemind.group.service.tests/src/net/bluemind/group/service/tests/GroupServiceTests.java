@@ -192,7 +192,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testCreateGroupAsAdmin() throws ServerFault, InterruptedException, SQLException {
+	public void testCreateGroupAsAdmin() throws ServerFault {
 		String uid = UUID.randomUUID().toString();
 		Group group = defaultGroup();
 		getGroupService(adminSecurityContext).create(uid, group);
@@ -205,7 +205,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testCreateGroupCheckVCard() throws ServerFault, InterruptedException, SQLException {
+	public void testCreateGroupCheckVCard() throws ServerFault {
 		String uid = UUID.randomUUID().toString();
 		Group group = defaultGroup();
 
@@ -223,7 +223,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testCreateGroupNullName() throws ServerFault, InterruptedException, SQLException {
+	public void testCreateGroupNullName() throws ServerFault {
 		String uid = UUID.randomUUID().toString();
 		Group group = defaultGroup();
 		group.name = null;
@@ -236,7 +236,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testCreateGroupEmptyName() throws ServerFault, InterruptedException, SQLException {
+	public void testCreateGroupEmptyName() throws ServerFault {
 		String uid = UUID.randomUUID().toString();
 		Group group = defaultGroup();
 		group.name = "   ";
@@ -249,7 +249,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testUpdateGroupNullName() throws ServerFault, InterruptedException, SQLException {
+	public void testUpdateGroupNullName() throws ServerFault {
 		String uid = UUID.randomUUID().toString();
 		Group group = defaultGroup();
 		getGroupService(adminSecurityContext).create(uid, group);
@@ -263,7 +263,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testUpdateGroupEmptyName() throws ServerFault, InterruptedException, SQLException {
+	public void testUpdateGroupEmptyName() throws ServerFault {
 		String uid = UUID.randomUUID().toString();
 		Group group = defaultGroup();
 		getGroupService(adminSecurityContext).create(uid, group);
@@ -277,7 +277,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testCreateNullUid() throws ServerFault, InterruptedException, SQLException {
+	public void testCreateNullUid() throws ServerFault {
 		Group group = defaultGroup();
 		try {
 			getGroupService(adminSecurityContext).create(null, group);
@@ -288,7 +288,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testCreateEmptyUid() throws ServerFault, InterruptedException, SQLException {
+	public void testCreateEmptyUid() throws ServerFault {
 		Group group = defaultGroup();
 		try {
 			getGroupService(adminSecurityContext).create("", group);
@@ -299,7 +299,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testCreateEmptyExtId() throws ServerFault, InterruptedException, SQLException {
+	public void testCreateEmptyExtId() throws ServerFault {
 		Group group = defaultGroup();
 		try {
 			getGroupService(adminSecurityContext).createWithExtId(UUID.randomUUID().toString(), "", group);
@@ -310,7 +310,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testCreateNullGroup() throws ServerFault, InterruptedException, SQLException {
+	public void testCreateNullGroup() throws ServerFault {
 		try {
 			getGroupService(adminSecurityContext).create(UUID.randomUUID().toString(), null);
 			fail("Test must thrown an exception");
@@ -320,7 +320,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testUpdateNullUid() throws ServerFault, InterruptedException, SQLException {
+	public void testUpdateNullUid() throws ServerFault {
 		Group group = defaultGroup();
 		try {
 			getGroupService(adminSecurityContext).update(null, group);
@@ -331,7 +331,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testUpdateEmptyUid() throws ServerFault, InterruptedException, SQLException {
+	public void testUpdateEmptyUid() throws ServerFault {
 		Group group = defaultGroup();
 		try {
 			getGroupService(adminSecurityContext).update("", group);
@@ -342,7 +342,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testUpdateNullGroup() throws ServerFault, InterruptedException, SQLException {
+	public void testUpdateNullGroup() throws ServerFault {
 		try {
 			getGroupService(adminSecurityContext).update(UUID.randomUUID().toString(), null);
 			fail("Test must thrown an exception");
@@ -352,7 +352,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testGetCompleteNullUid() throws ServerFault, InterruptedException, SQLException {
+	public void testGetCompleteNullUid() throws ServerFault {
 		try {
 			getGroupService(adminSecurityContext).getComplete(null);
 			fail("Test must thrown an exception");
@@ -362,7 +362,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testGetCompleteEmptyUid() throws ServerFault, InterruptedException, SQLException {
+	public void testGetCompleteEmptyUid() throws ServerFault {
 		try {
 			getGroupService(adminSecurityContext).getComplete("");
 			fail("Test must thrown an exception");
@@ -372,7 +372,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testDeleteNullUid() throws ServerFault, InterruptedException, SQLException {
+	public void testDeleteNullUid() throws ServerFault {
 		try {
 			getGroupService(adminSecurityContext).delete(null);
 		} catch (ServerFault sf) {
@@ -381,7 +381,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testDeleteEmptyUid() throws ServerFault, InterruptedException, SQLException {
+	public void testDeleteEmptyUid() throws ServerFault {
 		try {
 			getGroupService(adminSecurityContext).delete("");
 		} catch (ServerFault sf) {
@@ -390,7 +390,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testGetByExtIdNullUid() throws ServerFault, InterruptedException, SQLException {
+	public void testGetByExtIdNullUid() throws ServerFault {
 		try {
 			getGroupService(adminSecurityContext).getByExtId(null);
 			fail("Test must thrown an exception");
@@ -400,7 +400,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testGetByExtIdEmptyUid() throws ServerFault, InterruptedException, SQLException {
+	public void testGetByExtIdEmptyUid() throws ServerFault {
 		try {
 			getGroupService(adminSecurityContext).getByExtId("");
 			fail("Test must thrown an exception");
@@ -410,9 +410,9 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testAddMemberNullUid() throws ServerFault, InterruptedException, SQLException {
+	public void testAddMemberNullUid() throws ServerFault {
 		try {
-			getGroupService(adminSecurityContext).add(null, new ArrayList<Member>());
+			getGroupService(adminSecurityContext).add(null, new ArrayList<>());
 			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
@@ -420,9 +420,9 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testAddMemberEmptyUid() throws ServerFault, InterruptedException, SQLException {
+	public void testAddMemberEmptyUid() throws ServerFault {
 		try {
-			getGroupService(adminSecurityContext).add("", new ArrayList<Member>());
+			getGroupService(adminSecurityContext).add("", new ArrayList<>());
 			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
@@ -442,7 +442,7 @@ public class GroupServiceTests {
 	@Test
 	public void testAddMemberInexistantGroup() throws ServerFault {
 		try {
-			getGroupService(adminSecurityContext).add(UUID.randomUUID().toString(), new ArrayList<Member>());
+			getGroupService(adminSecurityContext).add(UUID.randomUUID().toString(), new ArrayList<>());
 			fail("Testmust thrown an exception");
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.NOT_FOUND, sf.getCode());
@@ -450,7 +450,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testGetMembersNullUid() throws ServerFault, InterruptedException, SQLException {
+	public void testGetMembersNullUid() throws ServerFault {
 		try {
 			getGroupService(adminSecurityContext).getMembers(null);
 			fail("Test must thrown an exception");
@@ -460,7 +460,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testGetMembersEmptyUid() throws ServerFault, InterruptedException, SQLException {
+	public void testGetMembersEmptyUid() throws ServerFault {
 		try {
 			getGroupService(adminSecurityContext).getMembers("");
 			fail("Test must thrown an exception");
@@ -480,7 +480,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testGetExpandedUsersMembersNullUid() throws ServerFault, InterruptedException, SQLException {
+	public void testGetExpandedUsersMembersNullUid() throws ServerFault {
 		try {
 			getGroupService(adminSecurityContext).getExpandedMembers(null);
 			fail("Test must thrown an exception");
@@ -490,7 +490,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testGetExpandedUsersMembersEmptyUid() throws ServerFault, InterruptedException, SQLException {
+	public void testGetExpandedUsersMembersEmptyUid() throws ServerFault {
 		try {
 			getGroupService(adminSecurityContext).getExpandedMembers("");
 			fail("Test must thrown an exception");
@@ -510,9 +510,9 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testRemoveMembersNullUid() throws ServerFault, InterruptedException, SQLException {
+	public void testRemoveMembersNullUid() throws ServerFault {
 		try {
-			getGroupService(adminSecurityContext).remove(null, new ArrayList<Member>());
+			getGroupService(adminSecurityContext).remove(null, new ArrayList<>());
 			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
@@ -520,9 +520,9 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testRemoveMembersEmptyUid() throws ServerFault, InterruptedException, SQLException {
+	public void testRemoveMembersEmptyUid() throws ServerFault {
 		try {
-			getGroupService(adminSecurityContext).remove("", new ArrayList<Member>());
+			getGroupService(adminSecurityContext).remove("", new ArrayList<>());
 			fail("Test must thrown an exception");
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.INVALID_PARAMETER, sf.getCode());
@@ -563,7 +563,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testCreateGroupWithExtId() throws ServerFault, InterruptedException, SQLException {
+	public void testCreateGroupWithExtId() throws ServerFault {
 		String uid = UUID.randomUUID().toString();
 		Group group = defaultGroup();
 		String externalId = "external-" + group.name;
@@ -607,7 +607,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testCreateGroupAsUser() throws ServerFault, InterruptedException, SQLException {
+	public void testCreateGroupAsUser() throws ServerFault {
 		Group group = defaultGroup();
 		String uid = UUID.randomUUID().toString();
 
@@ -639,7 +639,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testRestoreUpdate() throws ServerFault, InterruptedException, SQLException, ParseException {
+	public void testRestoreUpdate() throws ServerFault, ParseException {
 		Group group = defaultGroup("testUpdateGroupAsAdmin");
 		String uid = UUID.randomUUID().toString();
 		ItemValue<Group> groupItem = ItemValue.create(uid, group);
@@ -667,7 +667,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testUpdateGroupCheckVCard() throws ServerFault, InterruptedException, SQLException {
+	public void testUpdateGroupCheckVCard() throws ServerFault, SQLException {
 		String uid = UUID.randomUUID().toString();
 		Group group = defaultGroup();
 		group.hiddenMembers = true;
@@ -695,7 +695,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testUpdateGroupNameCheckMailboxaclName() throws ServerFault, InterruptedException, SQLException {
+	public void testUpdateGroupNameCheckMailboxaclName() throws ServerFault {
 		String uid = UUID.randomUUID().toString();
 		Group group = defaultGroup();
 		group.hiddenMembers = true;
@@ -715,7 +715,7 @@ public class GroupServiceTests {
 	}
 
 	@Test
-	public void testUpdateGroupAsUser() throws ServerFault, InterruptedException, SQLException {
+	public void testUpdateGroupAsUser() throws ServerFault, SQLException {
 		ItemValue<Group> group = createGroup();
 
 		group.value = defaultGroup();

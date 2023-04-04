@@ -128,7 +128,7 @@ public class UserSettingsServiceTests {
 	}
 
 	@Test
-	public void testCreate() throws ServerFault, InterruptedException, SQLException {
+	public void testCreate() throws ServerFault {
 		Map<String, String> us = getSettingsService(user1SecurityContext).get(user1);
 		assertNotNull(us);
 		assertTrue(us.size() > 0);
@@ -137,8 +137,8 @@ public class UserSettingsServiceTests {
 	}
 
 	@Test
-	public void testDomainSettings() throws ServerFault, InterruptedException, SQLException {
-		HashMap<String, String> domainSettings = new HashMap<String, String>();
+	public void testDomainSettings() throws ServerFault {
+		HashMap<String, String> domainSettings = new HashMap<>();
 		domainSettings.put("lang", "en");
 		domainSettingsApi.set(domainSettings);
 
@@ -150,8 +150,8 @@ public class UserSettingsServiceTests {
 	}
 
 	@Test
-	public void testUserSettings() throws ServerFault, InterruptedException, SQLException {
-		HashMap<String, String> userSettings = new HashMap<String, String>();
+	public void testUserSettings() throws ServerFault {
+		HashMap<String, String> userSettings = new HashMap<>();
 		userSettings.put("lang", "en");
 
 		getSettingsService(user1SecurityContext).set(user1, userSettings);
@@ -165,13 +165,13 @@ public class UserSettingsServiceTests {
 	}
 
 	@Test
-	public void testUserDomainSettings() throws ServerFault, InterruptedException, SQLException {
-		HashMap<String, String> domainSettings = new HashMap<String, String>();
+	public void testUserDomainSettings() throws ServerFault {
+		HashMap<String, String> domainSettings = new HashMap<>();
 		domainSettings.put("lang", "en");
 		domainSettings.put("work_hours_end", "15");
 		domainSettingsApi.set(domainSettings);
 
-		HashMap<String, String> userSettings = new HashMap<String, String>();
+		HashMap<String, String> userSettings = new HashMap<>();
 		userSettings.put("lang", "en");
 
 		getSettingsService(user1SecurityContext).set(user1, userSettings);
@@ -185,8 +185,8 @@ public class UserSettingsServiceTests {
 	}
 
 	@Test
-	public void testUserDomainSettingsMustFail() throws ServerFault, InterruptedException, SQLException {
-		HashMap<String, String> domainSettings = new HashMap<String, String>();
+	public void testUserDomainSettingsMustFail() throws ServerFault {
+		HashMap<String, String> domainSettings = new HashMap<>();
 		domainSettings.put("lang", "uk");
 		domainSettings.put("work_hours_end", "15");
 		ServerFault thrown = assertThrows(ServerFault.class, () -> domainSettingsApi.set(domainSettings));
@@ -194,7 +194,7 @@ public class UserSettingsServiceTests {
 	}
 
 	@Test
-	public void testU1GetU2Settings() throws ServerFault, InterruptedException, SQLException {
+	public void testU1GetU2Settings() throws ServerFault {
 		try {
 			getSettingsService(user1SecurityContext).get(user2);
 			fail("U1 must not access U2 settings !");
@@ -204,9 +204,9 @@ public class UserSettingsServiceTests {
 	}
 
 	@Test
-	public void user1SetUser2Settings() throws ServerFault, InterruptedException, SQLException {
+	public void user1SetUser2Settings() throws ServerFault {
 		try {
-			HashMap<String, String> userSettings = new HashMap<String, String>();
+			HashMap<String, String> userSettings = new HashMap<>();
 			userSettings.put("lang", "en");
 
 			getSettingsService(user1SecurityContext).set(user2, userSettings);
@@ -217,7 +217,7 @@ public class UserSettingsServiceTests {
 	}
 
 	@Test
-	public void adminGetUserSettings() throws ServerFault, InterruptedException, SQLException {
+	public void adminGetUserSettings() throws ServerFault {
 		Map<String, String> us = getSettingsService(adminSecurityContext).get(user1);
 		assertNotNull(us);
 		assertTrue(us.size() > 0);
@@ -226,8 +226,8 @@ public class UserSettingsServiceTests {
 	}
 
 	@Test
-	public void adminSetUserSettings() throws ServerFault, InterruptedException, SQLException {
-		HashMap<String, String> userSettings = new HashMap<String, String>();
+	public void adminSetUserSettings() throws ServerFault {
+		HashMap<String, String> userSettings = new HashMap<>();
 		userSettings.put("lang", "en");
 
 		getSettingsService(adminSecurityContext).set(user1, userSettings);
@@ -241,12 +241,12 @@ public class UserSettingsServiceTests {
 	}
 
 	@Test
-	public void domainSettingsDontDescendToUserSettings() throws ServerFault, InterruptedException, SQLException {
+	public void domainSettingsDontDescendToUserSettings() throws ServerFault, SQLException {
 		HashMap<String, String> userSettings = new HashMap<>();
 		userSettings.put("lang", "en");
 		userSettings.put("work_hours_end", "12");
 
-		HashMap<String, String> duplicatedSettings = new HashMap<String, String>();
+		HashMap<String, String> duplicatedSettings = new HashMap<>();
 		duplicatedSettings.put("key1", "value1");
 		duplicatedSettings.put("key2", "value2");
 
