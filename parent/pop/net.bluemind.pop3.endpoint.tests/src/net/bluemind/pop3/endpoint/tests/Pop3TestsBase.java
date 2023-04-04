@@ -243,9 +243,9 @@ public class Pop3TestsBase {
 		Thread t = new Thread(() -> {
 			try {
 				InputStream in = sock.getInputStream();
-				byte[] buf = new byte[16];
+				byte[] buf = new byte[8192];
 				while (true) {
-					int read = in.read(buf, 0, 16);
+					int read = in.read(buf, 0, 8192);
 					if (read == -1) {
 						break;
 					}

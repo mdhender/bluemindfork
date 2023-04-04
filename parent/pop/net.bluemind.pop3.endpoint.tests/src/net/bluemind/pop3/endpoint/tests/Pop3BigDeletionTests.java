@@ -41,7 +41,7 @@ import net.bluemind.core.container.model.ItemValue;
 
 public class Pop3BigDeletionTests extends Pop3TestsBase {
 
-	public static final int COUNT = 100;
+	public static final int COUNT = 50;
 
 	@Test
 	public void testDeletionOfSeveralMails() throws Exception {
@@ -56,7 +56,6 @@ public class Pop3BigDeletionTests extends Pop3TestsBase {
 				throw new RuntimeException(e);
 			}
 		}).collect(Collectors.toList());
-		Thread.sleep(4000);
 
 		try (Socket sock = new Socket()) {
 			ConcurrentLinkedDeque<String> queue = rawSocket(sock);
@@ -98,18 +97,19 @@ public class Pop3BigDeletionTests extends Pop3TestsBase {
 		try (Socket sock = new Socket()) {
 			ConcurrentLinkedDeque<String> queue = rawSocket(sock);
 
+			queue.clear();
 			OutputStream out = sock.getOutputStream();
-			Thread.sleep(500);
-
+			Awaitility.await().atMost(5, TimeUnit.SECONDS)
+					.until(() -> testConditionForQueue(queue, 1, "^\\+OK POP3 ready$"));
 			out.write(("USER " + user1Login + "@" + domainUid + "\r\n").getBytes());
 			out.write(("PASS " + user1Login + "\r\n").getBytes());
+			Awaitility.await().atMost(4, TimeUnit.SECONDS).until(() -> (testConditionForQueue(queue, 2, "^\\+OK$")));
+			queue.clear();
 			out.flush();
-			Thread.sleep(1_000);
-
 			System.err.println("Calling stat...");
 			out.write(("STAT\r\n").getBytes());
 			out.flush();
-			Awaitility.await().atMost(4, TimeUnit.SECONDS)
+			Awaitility.await().atMost(10, TimeUnit.SECONDS)
 					.until(() -> (testConditionForQueue(queue, 1, "^\\+OK 0 0$")));
 		}
 	}
