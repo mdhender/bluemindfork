@@ -887,6 +887,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 		rrule.byDay = weekDay;
 		rrule.interval = 1;
 		todo.rrule = rrule;
+		todo.uid = UUID.randomUUID().toString();
 
 		Set<net.bluemind.core.api.date.BmDateTime> exdate = new HashSet<>(1);
 		exdate.add(BmDateTimeWrapper.create(ZonedDateTime.of(2011, 2, 28, 17, 0, 0, 0, tz), Precision.DateTime));
