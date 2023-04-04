@@ -48,7 +48,7 @@ public enum TagDescriptor {
 		return tag;
 	}
 
-	public static TagDescriptor fromName(String name) {
+	public static TagDescriptor fromTag(String tag) {
 		for (TagDescriptor t : TagDescriptor.values()) {
 			if (t.tag.equals(name)) {
 				return t;
