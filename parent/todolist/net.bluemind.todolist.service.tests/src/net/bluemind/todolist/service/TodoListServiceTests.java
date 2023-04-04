@@ -1156,7 +1156,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 
 		List<ItemValue<VTodo>> todos = getService(defaultSecurityContext).getByIcsUid(todo.uid);
 		assertEquals(1, todos.size());
-		assertEquals(todo.uid, todos.get(0).uid);
+		assertEquals(todo.uid, todos.get(0).value.uid);
 	}
 
 	@Test
