@@ -39,4 +39,9 @@ public class GroupServiceHttpTests extends GroupServiceTests {
 	public void testRestoreUpdate() {
 		// no restore endpoint available over http
 	}
+
+	@Override
+	public void testUpdateGroupNameCheckMailboxaclName() {
+		// no restore endpoint available over http
+	}
 }

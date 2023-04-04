@@ -41,4 +41,9 @@ public class UserServiceHttpTests extends UserServiceTests {
 		// no restore endpoint available over http
 	}
 
+	@Override
+	public void testUpdateUserNameCheckContainers() {
+		// no restore endpoint available over http
+	}
+
 }
