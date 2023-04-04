@@ -51,7 +51,7 @@ public class SrsSender implements MilterPreAction {
 				logger.warn("SRS action is disabled");
 			}
 
-			return srsHash.map(srshash -> new SrsSender(srshash)).orElse(null);
+			return srsHash.map(SrsSender::new).orElse(null);
 		}
 	}
 
@@ -63,16 +63,11 @@ public class SrsSender implements MilterPreAction {
 	 * @param defaultDomain
 	 * @return
 	 */
-	public static SrsSender build(String defaultDomain) {
-		return SrsHash.build(InstallationId.getIdentifier()).map(srsHash -> new SrsSender(srsHash, defaultDomain))
-				.orElse(null);
+	public static SrsSender build() {
+		return SrsHash.build(InstallationId.getIdentifier()).map(srsHash -> new SrsSender(srsHash)).orElse(null);
 	}
 
 	private SrsSender(SrsHash srsHash) {
-		this.srsHash = srsHash;
-	}
-
-	private SrsSender(SrsHash srsHash, String defaultDomain) {
 		this.srsHash = srsHash;
 	}
 

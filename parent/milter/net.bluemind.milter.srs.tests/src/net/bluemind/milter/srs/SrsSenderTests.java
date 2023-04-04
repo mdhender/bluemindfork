@@ -36,10 +36,12 @@ import org.junit.Test;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.hornetq.client.MQ;
 import net.bluemind.milter.MilterHeaders;
 import net.bluemind.milter.action.DomainAliasCache;
 import net.bluemind.milter.action.MilterPreAction;
 import net.bluemind.milter.action.UpdatedMailMessage;
+import net.bluemind.system.api.SysConfKeys;
 
 public class SrsSenderTests {
 	public static class DomainAliasCacheFiller extends DomainAliasCache {
@@ -142,23 +144,27 @@ public class SrsSenderTests {
 		assertFalse(updateMailMessage.envelopSender.isPresent());
 
 		// Auth with no domain, default domain, null header
+		MQ.sharedMap("system.configuration").put(SysConfKeys.default_domain.name(), "default-domain.tld");
 		updateMailMessage.envelopSender = Optional.empty();
 		updateMailMessage.properties.put("{auth_authen}", Arrays.asList("login"));
-		assertTrue(SrsSender.build("default-domain.tld").execute(updateMailMessage));
+		assertTrue(SrsSender.build().execute(updateMailMessage));
 		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.startsWith("SRS0=")).orElse(false));
 		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.endsWith("@default-domain.tld")).orElse(false));
 
 		// Auth with no domain, default domain id domainUid, null header
 		updateMailMessage.envelopSender = Optional.empty();
 		updateMailMessage.properties.put("{auth_authen}", Arrays.asList("login"));
-		assertTrue(SrsSender.build(domainUid).execute(updateMailMessage));
+		MQ.sharedMap("system.configuration").put(SysConfKeys.default_domain.name(), domainUid);
+		assertTrue(SrsSender.build().execute(updateMailMessage));
 		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.startsWith("SRS0=")).orElse(false));
 		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.endsWith("@domain.tld")).orElse(false));
 
 		// Auth with domain, default domain, null header
 		updateMailMessage.envelopSender = Optional.empty();
 		updateMailMessage.properties.put("{auth_authen}", Arrays.asList("login@domain.tld"));
-		assertTrue(SrsSender.build("default-domain.tld").execute(updateMailMessage));
+
+		MQ.sharedMap("system.configuration").put(SysConfKeys.default_domain.name(), "default-domain.tld");
+		assertTrue(SrsSender.build().execute(updateMailMessage));
 		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.startsWith("SRS0=")).orElse(false));
 		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.endsWith("@domain.tld")).orElse(false));
 
@@ -170,7 +176,7 @@ public class SrsSenderTests {
 		// Auth with domain UID, default domain, null header
 		updateMailMessage.envelopSender = Optional.empty();
 		updateMailMessage.properties.put("{auth_authen}", Arrays.asList("login@" + domainUid));
-		assertTrue(SrsSender.build("default-domain.tld").execute(updateMailMessage));
+		assertTrue(SrsSender.build().execute(updateMailMessage));
 		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.startsWith("SRS0=")).orElse(false));
 		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.endsWith("@domain.tld")).orElse(false));
 
@@ -181,14 +187,14 @@ public class SrsSenderTests {
 		// Auth with domain, default domain, header
 		updateMailMessage.envelopSender = Optional.empty();
 		updateMailMessage.properties.put("{auth_authen}", Arrays.asList("login@domain.tld"));
-		assertTrue(SrsSender.build("default-domain.tld").execute(updateMailMessage));
+		assertTrue(SrsSender.build().execute(updateMailMessage));
 		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.startsWith("SRS0=")).orElse(false));
 		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.endsWith("@domain.tld")).orElse(false));
 
 		// Auth with domain UID, default domain, header
 		updateMailMessage.envelopSender = Optional.empty();
 		updateMailMessage.properties.put("{auth_authen}", Arrays.asList("login@" + domainUid));
-		assertTrue(SrsSender.build("default-domain.tld").execute(updateMailMessage));
+		assertTrue(SrsSender.build().execute(updateMailMessage));
 		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.startsWith("SRS0=")).orElse(false));
 		assertTrue(updateMailMessage.envelopSender.map(sender -> sender.endsWith("@domain.tld")).orElse(false));
 	}
