@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
+import net.bluemind.authentication.api.incore.IInCoreAuthentication;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxFoldersByContainer;
@@ -220,8 +220,12 @@ public class MboxRestoreService {
 								+ "\" }");
 				throw new ServerFault("Unable to find a user with write permissions on mailshare " + mbox.value.name);
 			}
-			live = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).getContext()
-					.su("sds-restore-" + UUID.randomUUID().toString(), entryUid, domain.uid);
+			ServerSideServiceProvider suProv = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+			IInCoreAuthentication intAuthApi = suProv.instance(IInCoreAuthentication.class);
+			SecurityContext delegateCtx = intAuthApi.buildContext("sds-restore-" + UUID.randomUUID().toString(),
+					"sds-restore", domain.uid, entryUid);
+			Sessions.get().put(delegateCtx.getSessionId(), delegateCtx);
+			live = ServerSideServiceProvider.getProvider(delegateCtx).getContext();
 		} else {
 			defaultFolders = new HashSet<>(defaultUserFolders);
 			live = ServerSideServiceProvider.getProvider(as(mbox.uid, domain.uid)).getContext();
