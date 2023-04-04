@@ -50,7 +50,7 @@ public enum TagDescriptor {
 
 	public static TagDescriptor fromTag(String tag) {
 		for (TagDescriptor t : TagDescriptor.values()) {
-			if (t.tag.equals(name)) {
+			if (t.tag.equals(tag)) {
 				return t;
 			}
 		}
