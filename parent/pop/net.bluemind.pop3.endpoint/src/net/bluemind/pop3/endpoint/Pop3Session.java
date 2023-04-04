@@ -95,7 +95,9 @@ public class Pop3Session {
 	}
 
 	private void onChunk(Pop3Context ctx, Buffer chunk) {
-		logger.debug("{} - C: {}", ctx.getLogin(), chunk);
+		if (logger.isDebugEnabled()) {
+			logger.debug("{} - C: {}", ctx.getLogin(), chunk);
+		}
 
 		String cmd = chunk.toString(StandardCharsets.US_ASCII);
 

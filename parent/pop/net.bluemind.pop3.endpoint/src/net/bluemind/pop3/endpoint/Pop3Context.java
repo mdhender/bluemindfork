@@ -46,7 +46,6 @@ public class Pop3Context {
 	}
 
 	private NetSocket socket;
-	private Vertx vertx;
 	private MessageProducer<Buffer> sender;
 
 	private MailboxConnection con;
@@ -55,23 +54,28 @@ public class Pop3Context {
 	public ConcurrentMap<Integer, Long> mailsToDelete = new ConcurrentHashMap<>();
 
 	public Pop3Context(Vertx vertx, NetSocket socket) {
-		this.vertx = vertx;
 		this.socket = socket;
 		this.sender = vertx.eventBus().sender(socket.writeHandlerID());
 	}
 
 	public CompletableFuture<Void> write(String s) {
-		logger.debug("S: {}", s.replaceAll("\r\n$", ""));
+		if (logger.isDebugEnabled()) {
+			logger.debug("S: {}", s.replaceAll("\r\n$", ""));
+		}
 		return sender.write(Buffer.buffer(s)).toCompletionStage().toCompletableFuture();
 	}
 
 	public CompletableFuture<Void> write(ByteBuf bb) {
-		logger.debug("S: {} bytes", bb.readableBytes());
+		if (logger.isDebugEnabled()) {
+			logger.debug("S: {} bytes", bb.readableBytes());
+		}
 		return sender.write(Buffer.buffer(bb)).toCompletionStage().toCompletableFuture();
 	}
 
 	public Future<Void> writeFuture(String s) {
-		logger.debug("S: {}", s.replaceAll("\r\n$", ""));
+		if (logger.isDebugEnabled()) {
+			logger.debug("S: {}", s.replaceAll("\r\n$", ""));
+		}
 		return sender.write(Buffer.buffer(s));
 	}
 
