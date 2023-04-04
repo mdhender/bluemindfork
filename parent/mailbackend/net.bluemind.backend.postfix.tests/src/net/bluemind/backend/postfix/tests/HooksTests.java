@@ -17,7 +17,7 @@
  * END LICENSE
  */
 
-package net.bluemind.backend.postfix;
+package net.bluemind.backend.postfix.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -43,6 +43,7 @@ import org.junit.Before;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import net.bluemind.backend.postfix.Activator;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;

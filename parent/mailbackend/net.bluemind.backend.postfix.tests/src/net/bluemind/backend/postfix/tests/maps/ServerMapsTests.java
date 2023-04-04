@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.backend.postfix.maps;
+package net.bluemind.backend.postfix.tests.maps;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

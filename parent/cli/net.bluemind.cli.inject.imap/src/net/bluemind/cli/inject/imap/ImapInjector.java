@@ -18,6 +18,7 @@
 package net.bluemind.cli.inject.imap;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -35,6 +36,7 @@ import net.bluemind.imap.FlagsList;
 import net.bluemind.imap.StoreClient;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 import net.datafaker.Faker;
 import net.datafaker.providers.base.Country;
 import net.datafaker.providers.food.Beer;
@@ -50,7 +52,8 @@ public class ImapInjector extends MailExchangeInjector {
 
 		public ImapTargetMailbox(String email, String sid, int folders) {
 			super(email, sid);
-			this.sc = new StoreClient(Topology.get().any("mail/imap").value.address(), 1143, email, sid);
+			this.sc = new StoreClient(Topology.get().any(TagDescriptor.bm_core.getTag()).value.address(), 1143, email,
+					sid);
 			this.lock = new Semaphore(1);
 			this.target = new ArrayList<>(1 + folders * folders);
 			this.target.add("INBOX");
@@ -108,9 +111,8 @@ public class ImapInjector extends MailExchangeInjector {
 				Thread.currentThread().interrupt();
 				return;
 			}
-			try {
-				int added = sc.append(target.get(ThreadLocalRandom.current().nextInt(bound)),
-						new ByteArrayInputStream(emlContent), new FlagsList());
+			try (InputStream in = new ByteArrayInputStream(emlContent)) {
+				int added = sc.append(target.get(ThreadLocalRandom.current().nextInt(bound)), in, new FlagsList());
 				logger.debug("Added {} to {}", added, email);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);

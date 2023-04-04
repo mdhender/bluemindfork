@@ -50,6 +50,7 @@ import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.Assignment;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 
 public class ServerMaps {
 	private final ItemValue<Server> server;
@@ -137,16 +138,15 @@ public class ServerMaps {
 
 		Map<String, ItemValue<Server>> edgeNextHopByDomainUid = new HashMap<>();
 		for (Assignment edgeAssignment : edgeAssignments) {
-			if (serverAssignments.stream()
-					.filter(a -> (a.domainUid.equals(edgeAssignment.domainUid) && a.tag.equals(SmtpRoles.SMTP.tag())))
-					.findFirst().isPresent()) {
+			if (serverAssignments.stream().anyMatch(
+					a -> (a.domainUid.equals(edgeAssignment.domainUid) && a.tag.equals(SmtpRoles.SMTP.tag())))) {
 				// Ignore EDGE tag if server is also tagged as SMTP for
 				// the same domain
 				continue;
 			}
 
 			List<String> edgeNextHopServersUids = iserver.byAssignment(edgeAssignment.domainUid, SmtpRoles.SMTP.tag());
-			if (edgeNextHopServersUids.size() == 0) {
+			if (edgeNextHopServersUids.isEmpty()) {
 				throw new InvalidParameterException("Unable to find host tagued as " + SmtpRoles.SMTP.tag()
 						+ " for domain uid: " + edgeAssignment.domainUid);
 			}
@@ -208,7 +208,7 @@ public class ServerMaps {
 		}
 
 		public String getContent() {
-			Configuration cfg = new Configuration();
+			Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 			cfg.setClassForTemplateLoading(getClass(), "/templates");
 			Template template;
 			try {
@@ -232,8 +232,8 @@ public class ServerMaps {
 		}
 	}
 
-	public static enum SmtpRoles {
-		SMTP("mail/smtp"), EDGE("mail/smtp-edge");
+	public enum SmtpRoles {
+		SMTP(TagDescriptor.mail_smtp.getTag()), EDGE(TagDescriptor.mail_smtp_edge.getTag());
 
 		private final String tag;
 
@@ -264,5 +264,5 @@ public class ServerMaps {
 
 			return tags;
 		}
-	};
+	}
 }

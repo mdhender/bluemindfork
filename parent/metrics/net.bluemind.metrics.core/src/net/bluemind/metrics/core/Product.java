@@ -5,50 +5,55 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
+import net.bluemind.server.api.TagDescriptor;
+
 public enum Product {
 	// JVM
 	CORE("bm-core", Family.JVM,
 			new String[] { "/var/spool/bm-hsm/", "/var/spool/bm-filehosting/, /var/backups/bluemind" }, false,
-			"bm/core"),
+			TagDescriptor.bm_core.getTag()),
 
-	EAS("bm-eas", Family.JVM, new String[0], false, "bm/core"),
+	EAS("bm-eas", Family.JVM, new String[0], false, TagDescriptor.bm_core.getTag()),
 
-	MAPI("bm-mapi", Family.JVM, new String[] { "/var/spool/bm-mapi" }, false, "bm/core"),
+	MAPI("bm-mapi", Family.JVM, new String[] { "/var/spool/bm-mapi" }, false, TagDescriptor.bm_core.getTag()),
 
-	ES("bm-elasticsearch", Family.JVM, new String[] { "/var/spool/bm-elasticsearch" }, false, "bm/es"),
+	ES("bm-elasticsearch", Family.JVM, new String[] { "/var/spool/bm-elasticsearch" }, false,
+			TagDescriptor.bm_es.getTag()),
 
-	HPS("bm-hps", Family.JVM, new String[0], true, "bm/hps"),
+	HPS("bm-hps", Family.JVM, new String[0], true, TagDescriptor.bm_hps.getTag()),
 
-	MILTER("bm-milter", Family.JVM, new String[0], false, "mail/smtp", "mail/smtp-edge"),
+	MILTER("bm-milter", Family.JVM, new String[0], false, TagDescriptor.mail_smtp.getTag(),
+			TagDescriptor.mail_smtp_edge.getTag()),
 
 	// As node is on all servers, it doesn't have its tag, don't forget when you
 	// get
 	// products by tag
 	NODE("bm-node", Family.JVM, new String[] { "/tmp", "/var/log", "/" }, false),
 
-	TIKA("bm-tika", Family.JVM, new String[0], false, "bm/core"),
+	TIKA("bm-tika", Family.JVM, new String[0], false, TagDescriptor.bm_core.getTag()),
 
-	WEBSERV("bm-webserver", Family.JVM, new String[0], false, "bm/cal", "bm/ac", "bm/settings", "bm/redirector",
-			"bm/webmail"),
+	WEBSERV("bm-webserver", Family.JVM, new String[0], false, TagDescriptor.bm_calendar.getTag(),
+			TagDescriptor.bm_ac.getTag(), TagDescriptor.bm_settings.getTag(), TagDescriptor.bm_redirector.getTag(),
+			TagDescriptor.bm_webmail.getTag()),
 
-	XMPP("bm-xmpp", Family.JVM, new String[0], false, "bm/xmpp"),
+	XMPP("bm-xmpp", Family.JVM, new String[0], false, TagDescriptor.bm_xmpp.getTag()),
 
-	YSNP("bm-ysnp", Family.JVM, new String[0], true, "mail/imap", "mail/smtp", "mail/smtp-edge"),
+	YSNP("bm-ysnp", Family.JVM, new String[0], true, TagDescriptor.mail_smtp.getTag(),
+			TagDescriptor.mail_smtp_edge.getTag()),
 
 	// SYSTEM
-	POSTFIX("postfix", Family.SYSTEM, new String[] { "/var/spool/postfix/" }, false, "mail/smtp", "mail/smtp-edge"),
+	POSTFIX("postfix", Family.SYSTEM, new String[] { "/var/spool/postfix/" }, false, TagDescriptor.mail_smtp.getTag(),
+			TagDescriptor.mail_smtp_edge.getTag()),
 
-	NGINX("bm-nginx", Family.SYSTEM, new String[0], false, "bm/nginx", "bm/nginx-edge"),
+	NGINX("bm-nginx", Family.SYSTEM, new String[0], false, TagDescriptor.bm_nginx.getTag(),
+			TagDescriptor.bm_nginx_edge.getTag()),
 
-	MEMCACHED("memcached", Family.SYSTEM, new String[0], false, "bm/webmail"),
+	MEMCACHED("memcached", Family.SYSTEM, new String[0], false, TagDescriptor.bm_webmail.getTag()),
 
-	CYRUS("cyrus", Family.SYSTEM, new String[] { "/var/spool/cyrus/data/", "/var/lib/cyrus/", "var/spool/sieve/" },
-			false, "mail/imap"),
+	POSTGRESQL("postgresql", Family.SYSTEM, new String[] { "/var/lib/postgresql/" }, false,
+			TagDescriptor.bm_pgsql.getTag(), TagDescriptor.bm_pgsql_data.getTag());
 
-	POSTGRESQL("postgresql", Family.SYSTEM, new String[] { "/var/lib/postgresql/" }, false, "bm/pgsql",
-			"bm/pgsql-data");
-
-	public static enum Family {
+	public enum Family {
 		JVM, SYSTEM
 	}
 

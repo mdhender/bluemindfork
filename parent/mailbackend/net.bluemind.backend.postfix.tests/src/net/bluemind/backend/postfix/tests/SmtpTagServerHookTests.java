@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.backend.postfix;
+package net.bluemind.backend.postfix.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -38,6 +38,7 @@ import com.google.common.base.Strings;
 
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.backend.postfix.SmtpTagServerHook;
 import net.bluemind.backend.postfix.internal.PostfixPaths;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.fault.ErrorCode;

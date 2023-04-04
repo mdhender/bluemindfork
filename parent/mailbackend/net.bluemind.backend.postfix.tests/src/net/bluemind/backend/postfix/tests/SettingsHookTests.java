@@ -17,7 +17,7 @@
  * END LICENSE
  */
 
-package net.bluemind.backend.postfix;
+package net.bluemind.backend.postfix.tests;
 
 import static org.junit.Assert.assertEquals;
 

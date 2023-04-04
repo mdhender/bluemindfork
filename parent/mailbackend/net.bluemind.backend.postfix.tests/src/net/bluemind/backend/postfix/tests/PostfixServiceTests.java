@@ -1,4 +1,4 @@
-package net.bluemind.backend.postfix;
+package net.bluemind.backend.postfix.tests;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.vertx.core.json.JsonObject;
+import net.bluemind.backend.postfix.PostfixService;
 import net.bluemind.core.tests.vertx.VertxEventChecker;
 import net.bluemind.lib.vertx.VertxPlatform;
 

@@ -32,6 +32,10 @@ Require-Bundle: slf4j.api,
  net.bluemind.tag.api,
  net.bluemind.pool,
  net.bluemind.mailbox.service
-Export-Package: net.bluemind.backend.postfix
+Export-Package: net.bluemind.backend.postfix,
+ net.bluemind.backend.postfix.internal,
+ net.bluemind.backend.postfix.internal.cf,
+ net.bluemind.backend.postfix.internal.maps,
+ net.bluemind.backend.postfix.internal.maps.generators
 Bundle-Activator: net.bluemind.backend.postfix.Activator
 Automatic-Module-Name: net.bluemind.backend.postfix

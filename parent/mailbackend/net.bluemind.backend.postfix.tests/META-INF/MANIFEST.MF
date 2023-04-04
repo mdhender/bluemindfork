@@ -40,6 +40,13 @@ Require-Bundle: org.junit,
  net.bluemind.group.service,
  net.bluemind.user.service,
  net.bluemind.externaluser.service;bundle-version="5.0.0",
- net.bluemind.externaluser.api
-Fragment-Host: net.bluemind.backend.postfix
+ net.bluemind.externaluser.api,
+ net.bluemind.backend.postfix,
+ net.bluemind.group.hook,
+ net.bluemind.domain.hook,
+ net.bluemind.mailbox.hook,
+ net.bluemind.system.api,
+ net.bluemind.node.api,
+ net.bluemind.config,
+ net.bluemind.server.hook
 Automatic-Module-Name: net.bluemind.backend.postfix.tests

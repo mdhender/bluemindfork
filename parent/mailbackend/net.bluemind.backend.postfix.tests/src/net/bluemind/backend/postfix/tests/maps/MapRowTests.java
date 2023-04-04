@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.backend.postfix.maps;
+package net.bluemind.backend.postfix.tests.maps;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -239,7 +239,7 @@ public class MapRowTests {
 		MapRow mapRow = mapRows.iterator().next();
 		assertEquals(Mailbox.Type.user, mapRow.type);
 		assertEquals(Mailbox.Routing.internal, mapRow.routing);
-		assertEquals(dataLocation.value.address(), mapRow.dataLocation);
+		assertEquals("127.0.0.1", mapRow.dataLocation);
 
 		assertEquals(3, mapRow.emails.size());
 		assertTrue(mapRow.emails.contains(user.login + "@" + domain.value.name));
@@ -338,7 +338,7 @@ public class MapRowTests {
 		MapRow mapRow = mapRows.iterator().next();
 		assertEquals(Mailbox.Type.mailshare, mapRow.type);
 		assertEquals(Mailbox.Routing.internal, mapRow.routing);
-		assertEquals(dataLocation.value.address(), mapRow.dataLocation);
+		assertEquals("127.0.0.1", mapRow.dataLocation);
 
 		assertEquals(3, mapRow.emails.size());
 		assertTrue(mapRow.emails.contains(mailshare.name + "@" + domain.value.name));
@@ -457,7 +457,7 @@ public class MapRowTests {
 		MapRow mapRow = mapRows.iterator().next();
 		assertEquals(Mailbox.Type.resource, mapRow.type);
 		assertEquals(Mailbox.Routing.internal, mapRow.routing);
-		assertEquals(dataLocation.value.address(), mapRow.dataLocation);
+		assertEquals("127.0.0.1", mapRow.dataLocation);
 
 		assertEquals(1, mapRow.emails.size());
 		assertTrue(mapRow.emails.contains(resource.label + "@" + domain.value.name));
@@ -539,7 +539,7 @@ public class MapRowTests {
 		MapRow mapRow = mapRows.iterator().next();
 		assertEquals(Mailbox.Type.group, mapRow.type);
 		assertEquals(Mailbox.Routing.internal, mapRow.routing);
-		assertEquals(dataLocation.value.address(), mapRow.dataLocation);
+		assertEquals("127.0.0.1", mapRow.dataLocation);
 
 		assertEquals(1, mapRow.emails.size());
 		assertTrue(mapRow.emails.contains(group.name + "@" + domain.value.name));
@@ -711,7 +711,7 @@ public class MapRowTests {
 		mapRow = iterator.next();
 		assertEquals(Mailbox.Type.group, mapRow.type);
 		assertEquals(Mailbox.Routing.internal, mapRow.routing);
-		assertEquals(dataLocation.value.address(), mapRow.dataLocation);
+		assertEquals("127.0.0.1", mapRow.dataLocation);
 		assertEquals(1, mapRow.emails.size());
 		assertTrue(mapRow.emails.contains(group.name + "@" + domain.value.name));
 
@@ -765,7 +765,7 @@ public class MapRowTests {
 		mapRow = iterator.next();
 		assertEquals(Mailbox.Type.group, mapRow.type);
 		assertEquals(Mailbox.Routing.internal, mapRow.routing);
-		assertEquals(dataLocation.value.address(), mapRow.dataLocation);
+		assertEquals("127.0.0.1", mapRow.dataLocation);
 
 		assertEquals(1, mapRow.emails.size());
 		assertTrue(mapRow.emails.contains(group.name + "@" + domain.value.name));
@@ -815,7 +815,7 @@ public class MapRowTests {
 
 			assertEquals(Mailbox.Type.group, mapRow.type);
 			assertEquals(Mailbox.Routing.internal, mapRow.routing);
-			assertEquals(dataLocation.value.address(), mapRow.dataLocation);
+			assertEquals("127.0.0.1", mapRow.dataLocation);
 
 			assertEquals(2, mapRow.emails.size());
 			assertTrue(mapRow.emails.contains(group.name + "@" + domain.value.name));
@@ -875,7 +875,7 @@ public class MapRowTests {
 
 			assertEquals(Mailbox.Type.group, mapRow.type);
 			assertEquals(Mailbox.Routing.internal, mapRow.routing);
-			assertEquals(dataLocation.value.address(), mapRow.dataLocation);
+			assertEquals("127.0.0.1", mapRow.dataLocation);
 
 			assertEquals(2, mapRow.emails.size());
 			assertTrue(mapRow.emails.contains(group.name + "@" + domain.value.name));
@@ -1090,7 +1090,7 @@ public class MapRowTests {
 		MapRow mapRow = mapRows.iterator().next();
 		assertEquals(Mailbox.Type.group, mapRow.type);
 		assertEquals(Mailbox.Routing.internal, mapRow.routing);
-		assertEquals(dataLocation.value.address(), mapRow.dataLocation);
+		assertEquals("127.0.0.1", mapRow.dataLocation);
 
 		assertEquals(1, mapRow.emails.size());
 		assertTrue(mapRow.emails.contains(g1.name + "@" + domain.value.name));
@@ -1133,7 +1133,7 @@ public class MapRowTests {
 		MapRow mapRow = mapRows.iterator().next();
 		assertEquals(Mailbox.Type.group, mapRow.type);
 		assertEquals(Mailbox.Routing.internal, mapRow.routing);
-		assertEquals(dataLocation.value.address(), mapRow.dataLocation);
+		assertEquals("127.0.0.1", mapRow.dataLocation);
 
 		assertEquals(1, mapRow.emails.size());
 		assertTrue(mapRow.emails.contains(g1.name + "@" + domain.value.name));
@@ -1178,7 +1178,7 @@ public class MapRowTests {
 		for (MapRow mapRow : mapRows) {
 			assertEquals(Mailbox.Type.group, mapRow.type);
 			assertEquals(Mailbox.Routing.internal, mapRow.routing);
-			assertEquals(dataLocation.value.address(), mapRow.dataLocation);
+			assertEquals("127.0.0.1", mapRow.dataLocation);
 
 			assertEquals(1, mapRow.emails.size());
 			if (mapRow.emails.contains(g1.name + "@" + domain.value.name)) {
@@ -1269,7 +1269,7 @@ public class MapRowTests {
 
 				assertEquals(Mailbox.Type.user, mapRow.type);
 				assertEquals(Mailbox.Routing.internal, mapRow.routing);
-				assertEquals(dataLocation.value.address(), mapRow.dataLocation);
+				assertEquals("127.0.0.1", mapRow.dataLocation);
 
 				assertEquals(1, mapRow.emails.size());
 
@@ -1280,7 +1280,7 @@ public class MapRowTests {
 
 				assertEquals(Mailbox.Type.user, mapRow.type);
 				assertEquals(Mailbox.Routing.internal, mapRow.routing);
-				assertEquals(dataLocation.value.address(), mapRow.dataLocation);
+				assertEquals("127.0.0.1", mapRow.dataLocation);
 
 				assertEquals(1, mapRow.emails.size());
 
@@ -1350,7 +1350,7 @@ public class MapRowTests {
 		MapRow mapRow = mapRows.iterator().next();
 		assertEquals(Mailbox.Type.group, mapRow.type);
 		assertEquals(Mailbox.Routing.internal, mapRow.routing);
-		assertEquals(dataLocation.value.address(), mapRow.dataLocation);
+		assertEquals("127.0.0.1", mapRow.dataLocation);
 
 		assertEquals(1, mapRow.emails.size());
 		assertTrue(mapRow.emails.contains(group.name + "@" + domain.value.name));

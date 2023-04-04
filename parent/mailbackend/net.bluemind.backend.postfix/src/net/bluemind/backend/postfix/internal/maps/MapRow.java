@@ -48,6 +48,7 @@ import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.mailbox.api.Mailbox.Type;
 import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
 
 public class MapRow {
 	private static final Logger logger = LoggerFactory.getLogger(MapRow.class);
@@ -199,7 +200,7 @@ public class MapRow {
 
 		if (!domainInfoByUid.containsKey(domainUid)) {
 			if (!IDomainUids.GLOBAL_VIRT.equals(domainUid)) {
-				logger.error(String.format("Unknown domain '%s' for item ID %d", domainUid, itemId));
+				logger.error("Unknown domain '{}' for item ID {}", domainUid, itemId);
 			}
 
 			return Optional.empty();
@@ -210,16 +211,16 @@ public class MapRow {
 		String dataLocationIp = null;
 		if (routing == Routing.internal) {
 			if (dataLocationUid == null) {
-				logger.warn(String.format("datalocation is null for item ID %d, domain '%s'", itemId, domainUid));
+				logger.warn("datalocation is null for item ID {}, domain '{}'", itemId, domainUid);
 				return Optional.empty();
 			}
 
-			Optional<ItemValue<Server>> server = servers.stream().filter(s -> dataLocationUid.equals(s.uid))
-					.findFirst();
+			Optional<ItemValue<Server>> server = servers.stream()
+					.filter(ivs -> ivs.value.tags.contains(TagDescriptor.bm_core.getTag())).findFirst();
 			if (!server.isPresent()) {
-				throw new InvalidParameterException("Server uid: " + dataLocationUid + " not found!");
+				throw new InvalidParameterException(
+						"Server with tag " + TagDescriptor.bm_core.getTag() + " not found.");
 			}
-
 			dataLocationIp = server.get().value.address();
 		} else if (routing == Routing.external) {
 			dataLocationIp = DomainSettingsHelper.getSlaveRelayHost(domainInfo.domainSettings);

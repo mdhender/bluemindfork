@@ -291,9 +291,9 @@ public class C2Provider implements IAuthProvider {
 			proxyReq.addHeader("BMPartition", CyrusPartition.forServerAndDomain(sd.dataLocation, sd.domainUid).name);
 			Topology.getIfAvailable().ifPresent(topo -> {
 				// prevent roundcube from trying locator calls
-				proxyReq.addHeader("bmTopoCore", topo.any("bm/core").value.address());
-				proxyReq.addHeader("bmTopoEs", topo.any("bm/es").value.address());
-				proxyReq.addHeader("bmTopoImap", topo.datalocation(sd.dataLocation).value.address());
+				proxyReq.addHeader("bmTopoCore", topo.any(TagDescriptor.bm_core.getTag()).value.address());
+				proxyReq.addHeader("bmTopoEs", topo.any(TagDescriptor.bm_es.getTag()).value.address());
+				proxyReq.addHeader("bmTopoImap", topo.any(TagDescriptor.bm_core.getTag()).value.address());
 				topo.anyIfPresent("cti/frontend")
 						.ifPresent(cti -> proxyReq.addHeader("bmTopoCti", cti.value.address()));
 

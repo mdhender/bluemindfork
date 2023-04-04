@@ -17,7 +17,7 @@
  * END LICENSE
  */
 
-package net.bluemind.backend.postfix;
+package net.bluemind.backend.postfix.tests;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -33,6 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.vertx.core.json.JsonObject;
+import net.bluemind.backend.postfix.DomainHook;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.tests.BmTestContext;
@@ -43,7 +44,7 @@ import net.bluemind.lib.vertx.VertxPlatform;
 
 public class DomainHookTests {
 	@Before
-	public void before() throws Exception {
+	public void before() {
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 	}
 

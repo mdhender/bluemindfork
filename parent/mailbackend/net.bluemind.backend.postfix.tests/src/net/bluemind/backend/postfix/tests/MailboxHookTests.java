@@ -17,7 +17,7 @@
  * END LICENSE
  */
 
-package net.bluemind.backend.postfix;
+package net.bluemind.backend.postfix.tests;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.vertx.core.json.JsonObject;
+import net.bluemind.backend.postfix.MailboxHook;
 import net.bluemind.core.api.Email;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.tests.vertx.VertxEventChecker;
