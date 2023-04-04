@@ -5,6 +5,7 @@ module.exports = {
     projects: [
         "<rootDir>/mail-webapp/jest.config.js",
         "<rootDir>/root-webapp/jest.config.js",
+        "<rootDir>/commons/mbox",
         "<rootDir>/commons/net.bluemind.alert.store.js",
         "<rootDir>/commons/net.bluemind.business-components",
         "<rootDir>/commons/net.bluemind.contact.js",

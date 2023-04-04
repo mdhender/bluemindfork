@@ -131,6 +131,10 @@ a.nav-link:focus {
     @include text-overflow;
 }
 
+.text-break-all {
+    word-break: break-all !important;
+}
+
 .flex-fill {
     min-height: 0;
     min-width: 0;

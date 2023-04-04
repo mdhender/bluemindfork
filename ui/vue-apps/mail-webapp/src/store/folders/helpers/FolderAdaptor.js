@@ -55,13 +55,4 @@ function toRef(payload) {
     }
 }
 
-export function extractFolderUid(containerUid) {
-    return containerUid.replace("mbox_records_", "");
-}
-
-export const FolderAdaptor = {
-    extractFolderUid,
-    fromMailboxFolder,
-    toMailboxFolder,
-    toRef
-};
+export const FolderAdaptor = { fromMailboxFolder, toMailboxFolder, toRef };

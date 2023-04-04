@@ -24,6 +24,7 @@
         "@bluemind/l10n": "^4.1.0",
         "@bluemind/mail": "^4.1.0",
         "@bluemind/mailmessage.api": "^4.1.0",
+        "@bluemind/mbox": "^4.1.0",
         "@bluemind/router": "^4.1.0",
         "@bluemind/sentry": "^4.1.0",
         "@bluemind/store": "^4.1.0",

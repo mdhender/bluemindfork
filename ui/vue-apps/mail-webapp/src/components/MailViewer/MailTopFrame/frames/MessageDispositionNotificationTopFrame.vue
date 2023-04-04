@@ -9,7 +9,7 @@
                             :path="
                                 originalMessage ? 'mail.topframe.mdn.summary' : 'mail.topframe.mdn.summary.no_subject'
                             "
-                            class="text-break"
+                            class="text-break-all"
                         >
                             <template v-if="originalMessage" #subject>
                                 <router-link :to="link">{{ originalMessage.subject }}</router-link>
@@ -34,12 +34,12 @@
                         <span>{{ $t("mail.topframe.mdn.opened_date", { date: message.date.toLocaleString() }) }}</span>
                     </div>
                     <span class="d-none d-lg-block">
-                        <em class="text-neutral">{{ $t("mail.topframe.mdn.notice") }}</em>
+                        <em class="text-neutral caption-italic">{{ $t("mail.topframe.mdn.notice") }}</em>
                     </span>
                 </div>
             </div>
             <span class="d-lg-none flex-fill">
-                <em class="text-neutral">{{ $t("mail.topframe.mdn.notice") }}</em>
+                <em class="text-neutral caption-italic">{{ $t("mail.topframe.mdn.notice") }}</em>
             </span>
         </div>
     </chain-of-responsibility>
@@ -48,6 +48,7 @@
 <script>
 import { MimeType } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
+import { extractFolderUid } from "@bluemind/mbox";
 import { conversationUtils } from "@bluemind/mail";
 import { FETCH_PART_DATA } from "~/actions";
 import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
@@ -137,7 +138,7 @@ export default {
                           from: fromOrToFn(result.from),
                           to: fromOrToFn(result.to),
                           remoteRef: { internalId: result.itemId, imapUid: result.imapUid },
-                          folderRef: FolderAdaptor.toRef(FolderAdaptor.extractFolderUid(result.containerUid))
+                          folderRef: FolderAdaptor.toRef(extractFolderUid(result.containerUid))
                       }
                     : undefined;
             }
@@ -148,9 +149,11 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/ui-components/src/css/_type";
 @import "~@bluemind/ui-components/src/css/variables";
 
 .message-disposition-notification-top-frame {
     background-color: $neutral-bg-lo1;
+    @extend %regular;
 }
 </style>
