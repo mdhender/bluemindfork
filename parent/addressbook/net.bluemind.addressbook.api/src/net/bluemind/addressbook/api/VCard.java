@@ -562,11 +562,11 @@ public class VCard {
 	public static class Security {
 
 		/**
-		 * To specify a public key or authentication certificate associated with the
+		 * To specify public keys or authentication certificates associated with the
 		 * object that the vCard represents
 		 */
 		@Required
-		public Key key = new Key();
+		public List<Key> keys = new ArrayList<>();
 
 		@BMApi(version = "3")
 		public static class Key extends BasicAttribute {
@@ -578,9 +578,9 @@ public class VCard {
 			}
 		}
 
-		public static Security create(Key key) {
+		public static Security create(List<Key> keys) {
 			Security security = new Security();
-			security.key = key;
+			security.keys = keys;
 			return security;
 		}
 

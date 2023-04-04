@@ -426,10 +426,10 @@ public class VCardStoreTests {
 	public void testStoreAndRetrieveWithKey() throws SQLException {
 		VCard card = defaultVCard();
 		List<Parameter> parameters = Arrays.asList(new Parameter[] { Parameter.create("data", "smime") });
-		card.security.key = Key.create("MIICajCCAdOgAwIBAgICBE", parameters);
+		card.security.keys = Arrays.asList(Key.create("MIICajCCAdOgAwIBAgICBE", parameters));
 
 		VCard result = createAndGet(card);
-		Key key = result.security.key;
+		Key key = result.security.keys.get(0);
 		assertEquals("MIICajCCAdOgAwIBAgICBE", key.value);
 		assertEquals("smime", key.getParameterValue("data"));
 	}

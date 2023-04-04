@@ -18,29 +18,36 @@
  */
 package net.bluemind.addressbook.persistence;
 
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import net.bluemind.addressbook.api.VCard;
-import net.bluemind.addressbook.api.VCard.Parameter;
-import net.bluemind.addressbook.api.VCard.Security.Key;
 import net.bluemind.core.jdbc.Columns;
 
 public class SecurityColumns {
 	public static final Columns COLUMNS = Columns.create() //
-			.col("pem") //
-			.col("pem_parameters");
+			.col("certs") //
+			.col("cert_parameters");
 
 	public static VCardStore.StatementValues<VCard> values() {
 		return (Connection conn, PreparedStatement statement, int index, int currentRow, VCard value) -> {
 
 			VCard.Security security = value.security;
 
-			statement.setString(index++, security.key.value);
+			String[] certs = new String[security.keys.size()];
+			String[] certParameters = new String[security.keys.size()];
 
-			statement.setString(index++, ParametersColumns.parametersAsString(security.key.parameters));
+			for (int i = 0; i < security.keys.size(); i++) {
+				certs[i] = security.keys.get(i).value;
+				certParameters[i] = ParametersColumns.parametersAsString(security.keys.get(i).parameters);
+			}
+			statement.setArray(index++, conn.createArrayOf("text", certs));
+			statement.setArray(index++, conn.createArrayOf("text", certParameters));
 
 			return index;
 		};
@@ -49,13 +56,27 @@ public class SecurityColumns {
 	public static VCardStore.EntityPopulator<VCard> populator() {
 		return (ResultSet rs, int index, VCard value) -> {
 
-			String keyValue = rs.getString(index++);
-			List<Parameter> keyParameters = ParametersColumns.stringAsParameters(rs.getString(index++));
-			Key key = Key.create(keyValue, keyParameters);
+			String[] certs = arrayOfString(rs.getArray(index++));
+			String[] certParameters = arrayOfString(rs.getArray(index++));
 
-			value.security = VCard.Security.create(key);
+			List<VCard.Security.Key> keys = new ArrayList<>(certs.length);
+			for (int i = 0; i < certs.length; i++) {
+				keys.add(VCard.Security.Key.create(certs[i], ParametersColumns.stringAsParameters(certParameters[i])));
+			}
+
+			value.security = VCard.Security.create(keys);
 			return index;
 		};
+	}
+
+	protected static String[] arrayOfString(Array array) throws SQLException {
+		String[] ret = null;
+		if (array != null) {
+			ret = (String[]) array.getArray();
+		} else {
+			ret = new String[0];
+		}
+		return ret;
 	}
 
 }

@@ -71,6 +71,7 @@ import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.directory.hollow.datamodel.AddressBookRecord;
+import net.bluemind.directory.hollow.datamodel.Cert;
 import net.bluemind.directory.hollow.datamodel.DataLocation;
 import net.bluemind.directory.hollow.datamodel.OfflineAddressBook;
 import net.bluemind.directory.hollow.datamodel.consumer.DirectoryVersionReader;
@@ -276,6 +277,7 @@ public class DirectorySerializer implements DataSerializer {
 		return optRec;
 	}
 
+	@SuppressWarnings("unchecked")
 	private AddressBookRecord prepareRecord(ItemValue<Domain> domain, ItemValue<DirEntry> entry, ItemValue<Mailbox> box,
 			Map<String, DataLocation> datalocationCache, String installationId, AddressBookRecord rec,
 			DirEntrySerializer serializer) {
@@ -332,9 +334,11 @@ public class DirectorySerializer implements DataSerializer {
 		rec.primaryFaxNumber = serializer.get(DirEntrySerializer.Property.PrimaryFaxNumber).toString();
 		rec.assistantTelephoneNumber = serializer.get(DirEntrySerializer.Property.AssistantTelephoneNumber).toString();
 		rec.userCertificate = null;
-		rec.addressBookX509Certificate = serializer.get(DirEntrySerializer.Property.AddressBookX509Certificate)
-				.toByteArray();
-		rec.userX509Certificate = serializer.get(DirEntrySerializer.Property.UserX509Certificate).toByteArray();
+		List<byte[]> certs = (List<byte[]>) serializer.get(DirEntrySerializer.Property.AddressBookX509Certificate)
+				.toList();
+		rec.addressBookX509Certificate = certs.stream().map(val -> new Cert(val)).toList();
+		List<byte[]> certsDer = (List<byte[]>) serializer.get(DirEntrySerializer.Property.UserX509Certificate).toList();
+		rec.userX509Certificate = certsDer.stream().map(val -> new Cert(val)).toList();
 		rec.thumbnail = serializer.get(DirEntrySerializer.Property.ThumbnailPhoto).toByteArray();
 		rec.hidden = serializer.get(DirEntrySerializer.Property.Hidden).toBoolean();
 		rec.anr = new AnrTokens().compute(rec);

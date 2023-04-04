@@ -33,7 +33,7 @@ import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Communications.Email;
 import net.bluemind.addressbook.api.VCard.Kind;
 import net.bluemind.addressbook.api.VCard.Organizational.Member;
-import net.bluemind.addressbook.api.VCard.Security;
+import net.bluemind.addressbook.api.VCard.Security.Key;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.api.fault.ValidationException;
@@ -98,8 +98,10 @@ public class VCardValidator implements IValidator<VCard> {
 			}
 		}
 
-		if (card.security != null && card.security.key != null && !Strings.isNullOrEmpty(card.security.key.value)) {
-			validatePEMCertificate(card.security);
+		if (card.security != null && card.security.keys != null) {
+			for (Key cert : card.security.keys) {
+				validatePEMCertificate(cert);
+			}
 		}
 
 		containerUid.ifPresent(container -> validateMembers(card, container));
@@ -108,9 +110,9 @@ public class VCardValidator implements IValidator<VCard> {
 		// FIXME : sanitze contact should be in plugin that "collect" contacts
 	}
 
-	private void validatePEMCertificate(Security security) {
+	private void validatePEMCertificate(Key cert) {
 		try {
-			CertificateUtils.getCertificate(security.key.value.getBytes());
+			CertificateUtils.getCertificate(cert.value.getBytes());
 		} catch (Exception e) {
 			throw new ValidationException("Invalid X509 PEM certificate", ErrorCode.INVALID_PEM_CERTIFICATE);
 		}

@@ -96,9 +96,9 @@ public interface AddressBookRecordDelegate extends HollowObjectDelegate {
 
     public int getUserCertificateOrdinal(int ordinal);
 
-    public byte[] getAddressBookX509Certificate(int ordinal);
+    public int getAddressBookX509CertificateOrdinal(int ordinal);
 
-    public byte[] getUserX509Certificate(int ordinal);
+    public int getUserX509CertificateOrdinal(int ordinal);
 
     public byte[] getThumbnail(int ordinal);
 

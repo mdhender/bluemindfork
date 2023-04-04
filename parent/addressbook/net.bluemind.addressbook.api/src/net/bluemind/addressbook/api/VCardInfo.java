@@ -56,8 +56,7 @@ public class VCardInfo {
 
 		info.categories = card.explanatory.categories;
 
-		info.hasSecurityKey = card.security != null && card.security.key != null && card.security.key.value != null
-				&& card.security.key.value.trim().length() > 0;
+		info.hasSecurityKey = card.security != null && card.security.keys != null && !card.security.keys.isEmpty();
 
 		info.memberCount = card.organizational.member != null ? card.organizational.member.size() : -1;
 

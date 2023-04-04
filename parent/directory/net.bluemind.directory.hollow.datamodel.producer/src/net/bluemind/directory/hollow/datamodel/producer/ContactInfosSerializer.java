@@ -5,6 +5,7 @@ import net.bluemind.addressbook.api.VCard.Communications.Tel;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.hollow.datamodel.producer.Value.ByteArrayValue;
+import net.bluemind.directory.hollow.datamodel.producer.Value.ListValue;
 import net.bluemind.directory.hollow.datamodel.producer.Value.StringValue;
 import net.bluemind.directory.hollow.datamodel.utils.Pem;
 import net.bluemind.utils.CertificateUtils;
@@ -69,20 +70,26 @@ public abstract class ContactInfosSerializer extends DirEntrySerializer {
 		case AssistantTelephoneNumber:
 			return Value.NULL;
 		case UserX509Certificate:
-			return contactInfos().security.key.parameters.stream()
-					.filter(parameter -> "MEDIATYPE".equalsIgnoreCase(parameter.label)
-							&& "application/pkcs7-mime".equalsIgnoreCase(parameter.value))
-					.findFirst()
-					.map(parameter -> CertificateUtils.pkcs7PemToDer(contactInfos().security.key.value)
-							.map(pkcs7 -> (Value) (new ByteArrayValue(pkcs7))).orElse(Value.NULL))
-					.orElseGet(() -> new Pem(contactInfos().security.key.value).toPcks7()
-							.map(pcks7 -> (Value) (new ByteArrayValue(pcks7))).orElse(Value.NULL));
+			return new ListValue(contactInfos().security.keys.stream()
+					.filter(key -> key.parameters.stream()
+							.anyMatch(parameter -> "MEDIATYPE".equalsIgnoreCase(parameter.label)
+									&& "application/pkcs7-mime".equalsIgnoreCase(parameter.value))) //
+					.map(this::certToValue) //
+					.filter(v -> v != Value.NULL) //
+					.toList());
 		case AddressBookX509Certificate:
-			return new Pem(contactInfos().security.key.value).toDer().map(der -> (Value) (new ByteArrayValue(der)))
-					.orElse(Value.NULL);
+			return new ListValue(contactInfos().security.keys.stream().map(key -> new Pem(key.value).toDer() //
+					.map(der -> (Value) (new ByteArrayValue(der))).orElse(Value.NULL)).filter(v -> v != Value.NULL) //
+					.toList());
 		default:
 			return super.get(property);
 		}
+	}
+
+	private Value certToValue(VCard.Security.Key key) {
+		return CertificateUtils.pkcs7PemToDer(key.value).map(pkcs7 -> (Value) (new ByteArrayValue(pkcs7)))
+				.orElseGet(() -> new Pem(key.value).toPcks7().map(pcks7 -> (Value) (new ByteArrayValue(pcks7)))
+						.orElse(Value.NULL));
 	}
 
 	private String getPhoneNumber(String type, String classifier) {

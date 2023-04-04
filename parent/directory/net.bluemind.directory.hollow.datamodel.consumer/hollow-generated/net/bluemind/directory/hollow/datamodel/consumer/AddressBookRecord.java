@@ -285,12 +285,18 @@ public class AddressBookRecord extends HollowObject {
         return  api().getHString(refOrdinal);
     }
 
-    public byte[] getAddressBookX509Certificate() {
-        return delegate().getAddressBookX509Certificate(ordinal);
+    public ListOfCert getAddressBookX509Certificate() {
+        int refOrdinal = delegate().getAddressBookX509CertificateOrdinal(ordinal);
+        if(refOrdinal == -1)
+            return null;
+        return  api().getListOfCert(refOrdinal);
     }
 
-    public byte[] getUserX509Certificate() {
-        return delegate().getUserX509Certificate(ordinal);
+    public ListOfCert getUserX509Certificate() {
+        int refOrdinal = delegate().getUserX509CertificateOrdinal(ordinal);
+        if(refOrdinal == -1)
+            return null;
+        return  api().getListOfCert(refOrdinal);
     }
 
     public byte[] getThumbnail() {

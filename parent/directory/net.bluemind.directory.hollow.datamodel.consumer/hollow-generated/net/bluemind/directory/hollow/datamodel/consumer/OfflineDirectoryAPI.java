@@ -32,8 +32,10 @@ public class OfflineDirectoryAPI extends HollowAPI  {
     private final HollowObjectCreationSampler objectCreationSampler;
 
     private final AnrTokenTypeAPI anrTokenTypeAPI;
+    private final CertTypeAPI certTypeAPI;
     private final DateTypeAPI dateTypeAPI;
     private final ListOfAnrTokenTypeAPI listOfAnrTokenTypeAPI;
+    private final ListOfCertTypeAPI listOfCertTypeAPI;
     private final StringTypeAPI stringTypeAPI;
     private final DataLocationTypeAPI dataLocationTypeAPI;
     private final ListOfStringTypeAPI listOfStringTypeAPI;
@@ -44,8 +46,10 @@ public class OfflineDirectoryAPI extends HollowAPI  {
     private final OfflineAddressBookTypeAPI offlineAddressBookTypeAPI;
 
     private final HollowObjectProvider anrTokenProvider;
+    private final HollowObjectProvider certProvider;
     private final HollowObjectProvider dateProvider;
     private final HollowObjectProvider listOfAnrTokenProvider;
+    private final HollowObjectProvider listOfCertProvider;
     private final HollowObjectProvider stringProvider;
     private final HollowObjectProvider dataLocationProvider;
     private final HollowObjectProvider listOfStringProvider;
@@ -72,7 +76,7 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         HollowTypeDataAccess typeDataAccess;
         HollowFactory factory;
 
-        objectCreationSampler = new HollowObjectCreationSampler("AnrToken","Date","ListOfAnrToken","String","DataLocation","ListOfString","Email","ListOfEmail","AddressBookRecord","SetOfString","OfflineAddressBook");
+        objectCreationSampler = new HollowObjectCreationSampler("AnrToken","Cert","Date","ListOfAnrToken","ListOfCert","String","DataLocation","ListOfString","Email","ListOfEmail","AddressBookRecord","SetOfString","OfflineAddressBook");
 
         typeDataAccess = dataAccess.getTypeDataAccess("AnrToken");
         if(typeDataAccess != null) {
@@ -91,6 +95,25 @@ public class OfflineDirectoryAPI extends HollowAPI  {
             anrTokenProvider = new HollowObjectCacheProvider(typeDataAccess, anrTokenTypeAPI, factory, previousCacheProvider);
         } else {
             anrTokenProvider = new HollowObjectFactoryProvider(typeDataAccess, anrTokenTypeAPI, factory);
+        }
+
+        typeDataAccess = dataAccess.getTypeDataAccess("Cert");
+        if(typeDataAccess != null) {
+            certTypeAPI = new CertTypeAPI(this, (HollowObjectTypeDataAccess)typeDataAccess);
+        } else {
+            certTypeAPI = new CertTypeAPI(this, new HollowObjectMissingDataAccess(dataAccess, "Cert"));
+        }
+        addTypeAPI(certTypeAPI);
+        factory = factoryOverrides.get("Cert");
+        if(factory == null)
+            factory = new CertHollowFactory();
+        if(cachedTypes.contains("Cert")) {
+            HollowObjectCacheProvider previousCacheProvider = null;
+            if(previousCycleAPI != null && (previousCycleAPI.certProvider instanceof HollowObjectCacheProvider))
+                previousCacheProvider = (HollowObjectCacheProvider) previousCycleAPI.certProvider;
+            certProvider = new HollowObjectCacheProvider(typeDataAccess, certTypeAPI, factory, previousCacheProvider);
+        } else {
+            certProvider = new HollowObjectFactoryProvider(typeDataAccess, certTypeAPI, factory);
         }
 
         typeDataAccess = dataAccess.getTypeDataAccess("Date");
@@ -129,6 +152,25 @@ public class OfflineDirectoryAPI extends HollowAPI  {
             listOfAnrTokenProvider = new HollowObjectCacheProvider(typeDataAccess, listOfAnrTokenTypeAPI, factory, previousCacheProvider);
         } else {
             listOfAnrTokenProvider = new HollowObjectFactoryProvider(typeDataAccess, listOfAnrTokenTypeAPI, factory);
+        }
+
+        typeDataAccess = dataAccess.getTypeDataAccess("ListOfCert");
+        if(typeDataAccess != null) {
+            listOfCertTypeAPI = new ListOfCertTypeAPI(this, (HollowListTypeDataAccess)typeDataAccess);
+        } else {
+            listOfCertTypeAPI = new ListOfCertTypeAPI(this, new HollowListMissingDataAccess(dataAccess, "ListOfCert"));
+        }
+        addTypeAPI(listOfCertTypeAPI);
+        factory = factoryOverrides.get("ListOfCert");
+        if(factory == null)
+            factory = new ListOfCertHollowFactory();
+        if(cachedTypes.contains("ListOfCert")) {
+            HollowObjectCacheProvider previousCacheProvider = null;
+            if(previousCycleAPI != null && (previousCycleAPI.listOfCertProvider instanceof HollowObjectCacheProvider))
+                previousCacheProvider = (HollowObjectCacheProvider) previousCycleAPI.listOfCertProvider;
+            listOfCertProvider = new HollowObjectCacheProvider(typeDataAccess, listOfCertTypeAPI, factory, previousCacheProvider);
+        } else {
+            listOfCertProvider = new HollowObjectFactoryProvider(typeDataAccess, listOfCertTypeAPI, factory);
         }
 
         typeDataAccess = dataAccess.getTypeDataAccess("String");
@@ -288,10 +330,14 @@ public class OfflineDirectoryAPI extends HollowAPI  {
     public void detachCaches() {
         if(anrTokenProvider instanceof HollowObjectCacheProvider)
             ((HollowObjectCacheProvider)anrTokenProvider).detach();
+        if(certProvider instanceof HollowObjectCacheProvider)
+            ((HollowObjectCacheProvider)certProvider).detach();
         if(dateProvider instanceof HollowObjectCacheProvider)
             ((HollowObjectCacheProvider)dateProvider).detach();
         if(listOfAnrTokenProvider instanceof HollowObjectCacheProvider)
             ((HollowObjectCacheProvider)listOfAnrTokenProvider).detach();
+        if(listOfCertProvider instanceof HollowObjectCacheProvider)
+            ((HollowObjectCacheProvider)listOfCertProvider).detach();
         if(stringProvider instanceof HollowObjectCacheProvider)
             ((HollowObjectCacheProvider)stringProvider).detach();
         if(dataLocationProvider instanceof HollowObjectCacheProvider)
@@ -313,11 +359,17 @@ public class OfflineDirectoryAPI extends HollowAPI  {
     public AnrTokenTypeAPI getAnrTokenTypeAPI() {
         return anrTokenTypeAPI;
     }
+    public CertTypeAPI getCertTypeAPI() {
+        return certTypeAPI;
+    }
     public DateTypeAPI getDateTypeAPI() {
         return dateTypeAPI;
     }
     public ListOfAnrTokenTypeAPI getListOfAnrTokenTypeAPI() {
         return listOfAnrTokenTypeAPI;
+    }
+    public ListOfCertTypeAPI getListOfCertTypeAPI() {
+        return listOfCertTypeAPI;
     }
     public StringTypeAPI getStringTypeAPI() {
         return stringTypeAPI;
@@ -355,6 +407,18 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         objectCreationSampler.recordCreation(0);
         return (AnrToken)anrTokenProvider.getHollowObject(ordinal);
     }
+    public Collection<Cert> getAllCert() {
+        HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("Cert"), "type not loaded or does not exist in dataset; type=Cert");
+        return new AllHollowRecordCollection<Cert>(tda.getTypeState()) {
+            protected Cert getForOrdinal(int ordinal) {
+                return getCert(ordinal);
+            }
+        };
+    }
+    public Cert getCert(int ordinal) {
+        objectCreationSampler.recordCreation(1);
+        return (Cert)certProvider.getHollowObject(ordinal);
+    }
     public Collection<Date> getAllDate() {
         HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("Date"), "type not loaded or does not exist in dataset; type=Date");
         return new AllHollowRecordCollection<Date>(tda.getTypeState()) {
@@ -364,7 +428,7 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         };
     }
     public Date getDate(int ordinal) {
-        objectCreationSampler.recordCreation(1);
+        objectCreationSampler.recordCreation(2);
         return (Date)dateProvider.getHollowObject(ordinal);
     }
     public Collection<ListOfAnrToken> getAllListOfAnrToken() {
@@ -376,8 +440,20 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         };
     }
     public ListOfAnrToken getListOfAnrToken(int ordinal) {
-        objectCreationSampler.recordCreation(2);
+        objectCreationSampler.recordCreation(3);
         return (ListOfAnrToken)listOfAnrTokenProvider.getHollowObject(ordinal);
+    }
+    public Collection<ListOfCert> getAllListOfCert() {
+        HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("ListOfCert"), "type not loaded or does not exist in dataset; type=ListOfCert");
+        return new AllHollowRecordCollection<ListOfCert>(tda.getTypeState()) {
+            protected ListOfCert getForOrdinal(int ordinal) {
+                return getListOfCert(ordinal);
+            }
+        };
+    }
+    public ListOfCert getListOfCert(int ordinal) {
+        objectCreationSampler.recordCreation(4);
+        return (ListOfCert)listOfCertProvider.getHollowObject(ordinal);
     }
     public Collection<HString> getAllHString() {
         HollowTypeDataAccess tda = Objects.requireNonNull(getDataAccess().getTypeDataAccess("String"), "type not loaded or does not exist in dataset; type=String");
@@ -388,7 +464,7 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         };
     }
     public HString getHString(int ordinal) {
-        objectCreationSampler.recordCreation(3);
+        objectCreationSampler.recordCreation(5);
         return (HString)stringProvider.getHollowObject(ordinal);
     }
     public Collection<DataLocation> getAllDataLocation() {
@@ -400,7 +476,7 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         };
     }
     public DataLocation getDataLocation(int ordinal) {
-        objectCreationSampler.recordCreation(4);
+        objectCreationSampler.recordCreation(6);
         return (DataLocation)dataLocationProvider.getHollowObject(ordinal);
     }
     public Collection<ListOfString> getAllListOfString() {
@@ -412,7 +488,7 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         };
     }
     public ListOfString getListOfString(int ordinal) {
-        objectCreationSampler.recordCreation(5);
+        objectCreationSampler.recordCreation(7);
         return (ListOfString)listOfStringProvider.getHollowObject(ordinal);
     }
     public Collection<Email> getAllEmail() {
@@ -424,7 +500,7 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         };
     }
     public Email getEmail(int ordinal) {
-        objectCreationSampler.recordCreation(6);
+        objectCreationSampler.recordCreation(8);
         return (Email)emailProvider.getHollowObject(ordinal);
     }
     public Collection<ListOfEmail> getAllListOfEmail() {
@@ -436,7 +512,7 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         };
     }
     public ListOfEmail getListOfEmail(int ordinal) {
-        objectCreationSampler.recordCreation(7);
+        objectCreationSampler.recordCreation(9);
         return (ListOfEmail)listOfEmailProvider.getHollowObject(ordinal);
     }
     public Collection<AddressBookRecord> getAllAddressBookRecord() {
@@ -448,7 +524,7 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         };
     }
     public AddressBookRecord getAddressBookRecord(int ordinal) {
-        objectCreationSampler.recordCreation(8);
+        objectCreationSampler.recordCreation(10);
         return (AddressBookRecord)addressBookRecordProvider.getHollowObject(ordinal);
     }
     public Collection<SetOfString> getAllSetOfString() {
@@ -460,7 +536,7 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         };
     }
     public SetOfString getSetOfString(int ordinal) {
-        objectCreationSampler.recordCreation(9);
+        objectCreationSampler.recordCreation(11);
         return (SetOfString)setOfStringProvider.getHollowObject(ordinal);
     }
     public Collection<OfflineAddressBook> getAllOfflineAddressBook() {
@@ -472,7 +548,7 @@ public class OfflineDirectoryAPI extends HollowAPI  {
         };
     }
     public OfflineAddressBook getOfflineAddressBook(int ordinal) {
-        objectCreationSampler.recordCreation(10);
+        objectCreationSampler.recordCreation(12);
         return (OfflineAddressBook)offlineAddressBookProvider.getHollowObject(ordinal);
     }
     public void setSamplingDirector(HollowSamplingDirector director) {

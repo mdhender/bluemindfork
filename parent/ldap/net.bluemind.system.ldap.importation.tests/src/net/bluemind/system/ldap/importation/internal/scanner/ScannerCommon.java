@@ -803,9 +803,9 @@ public abstract class ScannerCommon {
 		assertEquals(1, coreService.createdUsers.size());
 		Security userSecurity = coreService.createdUsers.entrySet().iterator().next()
 				.getValue().value.contactInfos.security;
-		assertEquals(1, userSecurity.key.parameters.size());
-		assertEquals("MEDIATYPE", userSecurity.key.parameters.get(0).label);
-		assertEquals("application/x-pem-file", userSecurity.key.parameters.get(0).value);
+		assertEquals(1, userSecurity.keys.get(0).parameters.size());
+		assertEquals("MEDIATYPE", userSecurity.keys.get(0).parameters.get(0).label);
+		assertEquals("application/x-pem-file", userSecurity.keys.get(0).parameters.get(0).value);
 
 		String certificate = "MIIFwzCCA6ugAwIBAgIUVTSFATfec/mVyk95Yu8jhQJjEhcwDQYJKoZIhvcNAQELBQAwcTELMAkG" //
 				+ "A1UEBhMCRlIxDzANBgNVBAgMBkZyYW5jZTERMA8GA1UEBwwIVG91bG91c2UxETAPBgNVBAoMCEJs" //
@@ -834,7 +834,7 @@ public abstract class ScannerCommon {
 				+ "LC7/kw2WCrFoUptC7/kT50htFOCEcXBVGar9YeV1M8LWDLmOQMSjSBO2RYKmGKZHZ5XVvEcFQTyv" //
 				+ "WdOlQ32UB2v/lXHXgdayjcszlR/N8xJTZ6ylMgeLA5Jpz8dvGPdk+T0HJiN/zC5jBP8u0qBy";
 		assertEquals("-----BEGIN CERTIFICATE-----" + certificate + "-----END CERTIFICATE-----",
-				userSecurity.key.value.replace("\n", ""));
+				userSecurity.keys.get(0).value.replace("\n", ""));
 	}
 
 	@Test
@@ -847,9 +847,9 @@ public abstract class ScannerCommon {
 		assertEquals(1, coreService.createdUsers.size());
 		Security userSecurity = coreService.createdUsers.entrySet().iterator().next()
 				.getValue().value.contactInfos.security;
-		assertEquals(1, userSecurity.key.parameters.size());
-		assertEquals("MEDIATYPE", userSecurity.key.parameters.get(0).label);
-		assertEquals("application/pkcs7-mime", userSecurity.key.parameters.get(0).value);
+		assertEquals(1, userSecurity.keys.get(0).parameters.size());
+		assertEquals("MEDIATYPE", userSecurity.keys.get(0).parameters.get(0).label);
+		assertEquals("application/pkcs7-mime", userSecurity.keys.get(0).parameters.get(0).value);
 
 		String pkcs7 = "MIIF8gYJKoZIhvcNAQcCoIIF4zCCBd8CAQExADALBgkqhkiG9w0BBwGgggXHMIIF" //
 				+ "wzCCA6ugAwIBAgIUVTSFATfec/mVyk95Yu8jhQJjEhcwDQYJKoZIhvcNAQELBQAw" //
@@ -883,7 +883,8 @@ public abstract class ScannerCommon {
 				+ "VYLuFxnjBNw1JTrQn7ak62d9AKkRLC7/kw2WCrFoUptC7/kT50htFOCEcXBVGar9" //
 				+ "YeV1M8LWDLmOQMSjSBO2RYKmGKZHZ5XVvEcFQTyvWdOlQ32UB2v/lXHXgdayjcsz" //
 				+ "lR/N8xJTZ6ylMgeLA5Jpz8dvGPdk+T0HJiN/zC5jBP8u0qByMQA=";
-		assertEquals("-----BEGIN PKCS7-----" + pkcs7 + "-----END PKCS7-----", userSecurity.key.value.replace("\n", ""));
+		assertEquals("-----BEGIN PKCS7-----" + pkcs7 + "-----END PKCS7-----",
+				userSecurity.keys.get(0).value.replace("\n", ""));
 	}
 
 	private static String getDateInGeneralizedTimeFormat(Date date) {

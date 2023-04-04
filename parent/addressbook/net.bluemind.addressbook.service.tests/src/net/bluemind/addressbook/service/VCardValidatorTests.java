@@ -29,7 +29,7 @@ public class VCardValidatorTests {
 		card.identification.formatedName = VCard.Identification.FormatedName.create("default",
 				Arrays.<VCard.Parameter>asList());
 
-		card.security.key = Key.create("invalid", Collections.emptyList());
+		card.security.keys = Arrays.asList(Key.create("invalid", Collections.emptyList()));
 
 		try {
 			new VCardValidator(null).validate(card, Optional.empty());
@@ -52,7 +52,7 @@ public class VCardValidatorTests {
 				+ "BQADQQA/ugzBrjjK9jcWnDVfGHlk3icNRq0oV7Ri32z/+HQX67aRfgZu7KWdI+Ju\n"
 				+ "Wm7DCfrPNGVwFWUQOmsPue9rZBgO\n" + "-----END CERTIFICATE-----";
 
-		card.security.key = Key.create(pem, Collections.emptyList());
+		card.security.keys = Arrays.asList(Key.create(pem, Collections.emptyList()));
 
 		new VCardValidator(null).validate(card, Optional.empty());
 	}

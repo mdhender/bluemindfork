@@ -193,12 +193,12 @@ public class AddressBookRecordDelegateLookupImpl extends HollowObjectAbstractDel
         return typeAPI.getUserCertificateOrdinal(ordinal);
     }
 
-    public byte[] getAddressBookX509Certificate(int ordinal) {
-        return typeAPI.getAddressBookX509Certificate(ordinal);
+    public int getAddressBookX509CertificateOrdinal(int ordinal) {
+        return typeAPI.getAddressBookX509CertificateOrdinal(ordinal);
     }
 
-    public byte[] getUserX509Certificate(int ordinal) {
-        return typeAPI.getUserX509Certificate(ordinal);
+    public int getUserX509CertificateOrdinal(int ordinal) {
+        return typeAPI.getUserX509CertificateOrdinal(ordinal);
     }
 
     public byte[] getThumbnail(int ordinal) {

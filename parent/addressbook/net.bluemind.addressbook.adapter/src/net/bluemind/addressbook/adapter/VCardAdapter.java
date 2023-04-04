@@ -265,9 +265,10 @@ public final class VCardAdapter {
 		}
 		retCard.explanatory.urls = urls;
 
-		Property key = card.getProperty(Id.KEY);
-		if (key != null) {
-			retCard.security.key = VCard.Security.Key.create(key.getValue(), fromVCard(key.getParameters()));
+		List<Property> keys = card.getProperties(Id.KEY);
+		retCard.security.keys = new ArrayList<>();
+		for (Property key : keys) {
+			retCard.security.keys.add(VCard.Security.Key.create(key.getValue(), fromVCard(key.getParameters())));
 		}
 
 		Note noteProp = (Note) card.getProperty(Id.NOTE);
@@ -502,9 +503,9 @@ public final class VCardAdapter {
 
 		}
 
-		if (vcard.security.key != null && vcard.security.key.value != null && !vcard.security.key.value.isBlank()) {
+		for (VCard.Security.Key key : vcard.security.keys) {
 			try {
-				properties.add(new Key(toVCard(vcard.security.key.parameters), vcard.security.key.value));
+				properties.add(new Key(toVCard(key.parameters), key.value));
 			} catch (URISyntaxException | DecoderException e) {
 				LOGGER.warn(e.getMessage());
 			}

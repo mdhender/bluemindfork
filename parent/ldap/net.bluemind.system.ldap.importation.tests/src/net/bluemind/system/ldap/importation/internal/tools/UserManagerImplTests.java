@@ -863,10 +863,10 @@ public class UserManagerImplTests {
 		userManager.update(importLogger, null, null);
 		assertEquals(JobExitStatus.SUCCESS, importLogger.repportStatus.get().getJobStatus());
 
-		assertEquals(1, userManager.user.value.contactInfos.security.key.parameters.size());
-		assertEquals("MEDIATYPE", userManager.user.value.contactInfos.security.key.parameters.get(0).label);
+		assertEquals(1, userManager.user.value.contactInfos.security.keys.get(0).parameters.size());
+		assertEquals("MEDIATYPE", userManager.user.value.contactInfos.security.keys.get(0).parameters.get(0).label);
 		assertEquals("application/pkcs7-mime",
-				userManager.user.value.contactInfos.security.key.parameters.get(0).value);
+				userManager.user.value.contactInfos.security.keys.get(0).parameters.get(0).value);
 
 		String pkcs7 = "MIIF8gYJKoZIhvcNAQcCoIIF4zCCBd8CAQExADALBgkqhkiG9w0BBwGgggXHMIIF" //
 				+ "wzCCA6ugAwIBAgIUVTSFATfec/mVyk95Yu8jhQJjEhcwDQYJKoZIhvcNAQELBQAw" //
@@ -901,7 +901,7 @@ public class UserManagerImplTests {
 				+ "YeV1M8LWDLmOQMSjSBO2RYKmGKZHZ5XVvEcFQTyvWdOlQ32UB2v/lXHXgdayjcsz" //
 				+ "lR/N8xJTZ6ylMgeLA5Jpz8dvGPdk+T0HJiN/zC5jBP8u0qByMQA=";
 		assertEquals("-----BEGIN PKCS7-----" + pkcs7 + "-----END PKCS7-----",
-				userManager.user.value.contactInfos.security.key.value.replace("\n", ""));
+				userManager.user.value.contactInfos.security.keys.get(0).value.replace("\n", ""));
 	}
 
 	@Test
@@ -918,10 +918,10 @@ public class UserManagerImplTests {
 		userManager.update(importLogger, null, null);
 		assertEquals(JobExitStatus.SUCCESS, importLogger.repportStatus.get().getJobStatus());
 
-		assertEquals(1, userManager.user.value.contactInfos.security.key.parameters.size());
-		assertEquals("MEDIATYPE", userManager.user.value.contactInfos.security.key.parameters.get(0).label);
+		assertEquals(1, userManager.user.value.contactInfos.security.keys.get(0).parameters.size());
+		assertEquals("MEDIATYPE", userManager.user.value.contactInfos.security.keys.get(0).parameters.get(0).label);
 		assertEquals("application/x-pem-file",
-				userManager.user.value.contactInfos.security.key.parameters.get(0).value);
+				userManager.user.value.contactInfos.security.keys.get(0).parameters.get(0).value);
 
 		String certificate = "MIIFwzCCA6ugAwIBAgIUVTSFATfec/mVyk95Yu8jhQJjEhcwDQYJKoZIhvcNAQELBQAwcTELMAkG" //
 				+ "A1UEBhMCRlIxDzANBgNVBAgMBkZyYW5jZTERMA8GA1UEBwwIVG91bG91c2UxETAPBgNVBAoMCEJs" //
@@ -950,6 +950,6 @@ public class UserManagerImplTests {
 				+ "LC7/kw2WCrFoUptC7/kT50htFOCEcXBVGar9YeV1M8LWDLmOQMSjSBO2RYKmGKZHZ5XVvEcFQTyv" //
 				+ "WdOlQ32UB2v/lXHXgdayjcszlR/N8xJTZ6ylMgeLA5Jpz8dvGPdk+T0HJiN/zC5jBP8u0qBy";
 		assertEquals("-----BEGIN CERTIFICATE-----" + certificate + "-----END CERTIFICATE-----",
-				userManager.user.value.contactInfos.security.key.value.replace("\n", ""));
+				userManager.user.value.contactInfos.security.keys.get(0).value.replace("\n", ""));
 	}
 }

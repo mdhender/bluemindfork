@@ -466,23 +466,25 @@ public class AddressBookRecordTypeAPI extends HollowObjectTypeAPI {
         return getAPI().getStringTypeAPI();
     }
 
-    public byte[] getAddressBookX509Certificate(int ordinal) {
+    public int getAddressBookX509CertificateOrdinal(int ordinal) {
         if(fieldIndex[38] == -1)
-            return missingDataHandler().handleBytes("AddressBookRecord", ordinal, "addressBookX509Certificate");
-        boxedFieldAccessSampler.recordFieldAccess(fieldIndex[38]);
-        return getTypeDataAccess().readBytes(ordinal, fieldIndex[38]);
+            return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "addressBookX509Certificate");
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[38]);
     }
 
+    public ListOfCertTypeAPI getAddressBookX509CertificateTypeAPI() {
+        return getAPI().getListOfCertTypeAPI();
+    }
 
-
-    public byte[] getUserX509Certificate(int ordinal) {
+    public int getUserX509CertificateOrdinal(int ordinal) {
         if(fieldIndex[39] == -1)
-            return missingDataHandler().handleBytes("AddressBookRecord", ordinal, "userX509Certificate");
-        boxedFieldAccessSampler.recordFieldAccess(fieldIndex[39]);
-        return getTypeDataAccess().readBytes(ordinal, fieldIndex[39]);
+            return missingDataHandler().handleReferencedOrdinal("AddressBookRecord", ordinal, "userX509Certificate");
+        return getTypeDataAccess().readOrdinal(ordinal, fieldIndex[39]);
     }
 
-
+    public ListOfCertTypeAPI getUserX509CertificateTypeAPI() {
+        return getAPI().getListOfCertTypeAPI();
+    }
 
     public byte[] getThumbnail(int ordinal) {
         if(fieldIndex[40] == -1)

@@ -82,8 +82,8 @@ public class UserSanitizerTest {
 
 		User user = new User();
 		user.contactInfos = new VCard();
-		user.contactInfos.security = Security.create(
-				Key.create(certificate, Arrays.asList(Parameter.create("MEDIATYPE", "application/x-pem-file"))));
+		user.contactInfos.security = Security.create(Arrays.asList(
+				Key.create(certificate, Arrays.asList(Parameter.create("MEDIATYPE", "application/x-pem-file")))));
 
 		Value property = new UserSerializer(ItemValue.create(Item.create(UUID.randomUUID().toString(), 0), user), null,
 				null).get(Property.UserX509Certificate);
@@ -133,8 +133,8 @@ public class UserSanitizerTest {
 
 		User user = new User();
 		user.contactInfos = new VCard();
-		user.contactInfos.security = Security
-				.create(Key.create(pkcs7, Arrays.asList(Parameter.create("MEDIATYPE", "application/pkcs7-mime"))));
+		user.contactInfos.security = Security.create(Arrays
+				.asList(Key.create(pkcs7, Arrays.asList(Parameter.create("MEDIATYPE", "application/pkcs7-mime")))));
 
 		Value property = new UserSerializer(ItemValue.create(Item.create(UUID.randomUUID().toString(), 0), user), null,
 				null).get(Property.UserX509Certificate);

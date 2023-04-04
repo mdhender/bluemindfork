@@ -175,12 +175,14 @@ public abstract class UserManager extends EntityManager {
 	}
 
 	private void manageCertificates() {
-		user.value.contactInfos.security.key = Optional.ofNullable(getAttributeBytesValue(entry, CERTIFICATE_PKCS7))
-				.map(bin -> new StringBuilder().append(BEGIN_PKCS7).append("\n")
-						.append(new String(Base64.getMimeEncoder(64, "\n".getBytes()).encode(bin))).append("\n")
-						.append(END_PKCS7).toString())
-				.map(pkcs7 -> Key.create(pkcs7, Arrays.asList(Parameter.create("MEDIATYPE", "application/pkcs7-mime"))))
-				.orElseGet(this::fromDerAttribute);
+		user.value.contactInfos.security.keys = Arrays
+				.asList(Optional.ofNullable(getAttributeBytesValue(entry, CERTIFICATE_PKCS7))
+						.map(bin -> new StringBuilder().append(BEGIN_PKCS7).append("\n")
+								.append(new String(Base64.getMimeEncoder(64, "\n".getBytes()).encode(bin))).append("\n")
+								.append(END_PKCS7).toString())
+						.map(pkcs7 -> Key.create(pkcs7,
+								Arrays.asList(Parameter.create("MEDIATYPE", "application/pkcs7-mime"))))
+						.orElseGet(this::fromDerAttribute));
 	}
 
 	private Key fromDerAttribute() {

@@ -47,8 +47,8 @@ public class AddressBookRecordDelegateCachedImpl extends HollowObjectAbstractDel
     private final int primaryFaxNumberOrdinal;
     private final int assistantTelephoneNumberOrdinal;
     private final int userCertificateOrdinal;
-    private final byte[] addressBookX509Certificate;
-    private final byte[] userX509Certificate;
+    private final int addressBookX509CertificateOrdinal;
+    private final int userX509CertificateOrdinal;
     private final byte[] thumbnail;
     private final Boolean hidden;
     private final int anrOrdinal;
@@ -93,8 +93,8 @@ public class AddressBookRecordDelegateCachedImpl extends HollowObjectAbstractDel
         this.primaryFaxNumberOrdinal = typeAPI.getPrimaryFaxNumberOrdinal(ordinal);
         this.assistantTelephoneNumberOrdinal = typeAPI.getAssistantTelephoneNumberOrdinal(ordinal);
         this.userCertificateOrdinal = typeAPI.getUserCertificateOrdinal(ordinal);
-        this.addressBookX509Certificate = typeAPI.getAddressBookX509Certificate(ordinal);
-        this.userX509Certificate = typeAPI.getUserX509Certificate(ordinal);
+        this.addressBookX509CertificateOrdinal = typeAPI.getAddressBookX509CertificateOrdinal(ordinal);
+        this.userX509CertificateOrdinal = typeAPI.getUserX509CertificateOrdinal(ordinal);
         this.thumbnail = typeAPI.getThumbnail(ordinal);
         this.hidden = typeAPI.getHiddenBoxed(ordinal);
         this.anrOrdinal = typeAPI.getAnrOrdinal(ordinal);
@@ -295,12 +295,12 @@ public class AddressBookRecordDelegateCachedImpl extends HollowObjectAbstractDel
         return userCertificateOrdinal;
     }
 
-    public byte[] getAddressBookX509Certificate(int ordinal) {
-        return (byte[]) addressBookX509Certificate;
+    public int getAddressBookX509CertificateOrdinal(int ordinal) {
+        return addressBookX509CertificateOrdinal;
     }
 
-    public byte[] getUserX509Certificate(int ordinal) {
-        return (byte[]) userX509Certificate;
+    public int getUserX509CertificateOrdinal(int ordinal) {
+        return userX509CertificateOrdinal;
     }
 
     public byte[] getThumbnail(int ordinal) {

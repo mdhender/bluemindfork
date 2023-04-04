@@ -180,11 +180,11 @@ public class AddressBookRecord {
 	/**
 	 * PidTagAddressBookX509Certificate
 	 */
-	public byte[] addressBookX509Certificate;
+	public List<Cert> addressBookX509Certificate;
 	/**
 	 * PidTagUserX509Certificate
 	 */
-	public byte[] userX509Certificate;
+	public List<Cert> userX509Certificate;
 	/**
 	 * PidTagThumbnailPhoto
 	 */

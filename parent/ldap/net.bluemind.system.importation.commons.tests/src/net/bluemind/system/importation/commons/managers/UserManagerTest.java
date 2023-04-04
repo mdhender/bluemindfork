@@ -530,11 +530,11 @@ public class UserManagerTest {
 		UserManagerTestImpl umt = new UserManagerTestImpl(getDomain(), entry);
 		umt.update(ItemValue.create(Item.create("test", null), user), new MailFilter());
 
-		assertEquals(1, user.contactInfos.security.key.parameters.size());
-		assertEquals("MEDIATYPE", user.contactInfos.security.key.parameters.get(0).label);
-		assertEquals("application/x-pem-file", user.contactInfos.security.key.parameters.get(0).value);
+		assertEquals(1, user.contactInfos.security.keys.get(0).parameters.size());
+		assertEquals("MEDIATYPE", user.contactInfos.security.keys.get(0).parameters.get(0).label);
+		assertEquals("application/x-pem-file", user.contactInfos.security.keys.get(0).parameters.get(0).value);
 		assertEquals("-----BEGIN CERTIFICATE-----" + certificate + "-----END CERTIFICATE-----",
-				user.contactInfos.security.key.value.replace("\n", ""));
+				user.contactInfos.security.keys.get(0).value.replace("\n", ""));
 	}
 
 	@Test
@@ -580,10 +580,10 @@ public class UserManagerTest {
 		UserManagerTestImpl umt = new UserManagerTestImpl(getDomain(), entry);
 		umt.update(ItemValue.create(Item.create("test", null), user), new MailFilter());
 
-		assertEquals(1, user.contactInfos.security.key.parameters.size());
-		assertEquals("MEDIATYPE", user.contactInfos.security.key.parameters.get(0).label);
-		assertEquals("application/pkcs7-mime", user.contactInfos.security.key.parameters.get(0).value);
+		assertEquals(1, user.contactInfos.security.keys.get(0).parameters.size());
+		assertEquals("MEDIATYPE", user.contactInfos.security.keys.get(0).parameters.get(0).label);
+		assertEquals("application/pkcs7-mime", user.contactInfos.security.keys.get(0).parameters.get(0).value);
 		assertEquals("-----BEGIN PKCS7-----" + pkcs7 + "-----END PKCS7-----",
-				user.contactInfos.security.key.value.replace("\n", ""));
+				user.contactInfos.security.keys.get(0).value.replace("\n", ""));
 	}
 }

@@ -137,8 +137,8 @@ create table t_addressbook_vcard (
     /*
      * 6.8.  Security Properties
      */
-   pem text,
-   pem_parameters text,
+   certs text[],
+   cert_parameters text[],
 
    item_id bigint references t_container_item(id) on delete cascade
 );

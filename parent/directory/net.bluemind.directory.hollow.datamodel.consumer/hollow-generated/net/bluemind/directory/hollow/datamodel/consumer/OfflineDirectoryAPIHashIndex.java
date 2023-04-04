@@ -42,6 +42,17 @@ public class OfflineDirectoryAPIHashIndex extends AbstractHollowHashIndex<Offlin
         };
     }
 
+    public Iterable<Cert> findCertMatches(Object... keys) {
+        HollowHashIndexResult matches = idx.findMatches(keys);
+        if(matches == null) return Collections.emptySet();
+
+        return new AbstractHollowOrdinalIterable<Cert>(matches.iterator()) {
+            public Cert getData(int ordinal) {
+                return api.getCert(ordinal);
+            }
+        };
+    }
+
     public Iterable<Date> findDateMatches(Object... keys) {
         HollowHashIndexResult matches = idx.findMatches(keys);
         if(matches == null) return Collections.emptySet();
@@ -60,6 +71,17 @@ public class OfflineDirectoryAPIHashIndex extends AbstractHollowHashIndex<Offlin
         return new AbstractHollowOrdinalIterable<ListOfAnrToken>(matches.iterator()) {
             public ListOfAnrToken getData(int ordinal) {
                 return api.getListOfAnrToken(ordinal);
+            }
+        };
+    }
+
+    public Iterable<ListOfCert> findListOfCertMatches(Object... keys) {
+        HollowHashIndexResult matches = idx.findMatches(keys);
+        if(matches == null) return Collections.emptySet();
+
+        return new AbstractHollowOrdinalIterable<ListOfCert>(matches.iterator()) {
+            public ListOfCert getData(int ordinal) {
+                return api.getListOfCert(ordinal);
             }
         };
     }
