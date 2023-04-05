@@ -111,7 +111,8 @@ public class LdapExportServiceTests extends LdapExportTests {
 		assertNotEquals(0, results.userExported.size());
 		assertTrue(results.userExported.contains(userUid));
 
-		assertNotEquals(0, results.userNotExported.size());
+		// was bmsysadmin in BlueMind 4.x
+		assertEquals(0, results.userNotExported.size());
 
 		assertNotEquals(0, results.groupExported.size());
 		assertTrue(results.groupExported.contains(groupUid));
