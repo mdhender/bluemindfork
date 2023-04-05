@@ -64,6 +64,10 @@ public final class NoopStore implements IBackupStoreFactory {
 		public boolean isLeader() {
 			return true;
 		}
+
+		@Override
+		public void applyForLeadership() {
+		}
 	};
 
 	@Override

@@ -17,8 +17,10 @@
  */
 package net.bluemind.core.backup.continuous.leader;
 
+import java.io.File;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.bluemind.core.backup.continuous.api.CloneDefaults;
 import net.bluemind.core.backup.continuous.api.InstallationWriteLeader;
 
 public class DefaultLeader {
@@ -30,7 +32,7 @@ public class DefaultLeader {
 	private static final ConcurrentHashMap<String, InstallationWriteLeader> cached = new ConcurrentHashMap<>();
 
 	public static InstallationWriteLeader leader() {
-		return cached.computeIfAbsent("ZK", k -> new ZkWriteLeader());
+		return cached.computeIfAbsent("ZK", k -> new ZkWriteLeader(!new File(CloneDefaults.MARKER_FILE_PATH).exists()));
 	}
 
 	public static void reset() {

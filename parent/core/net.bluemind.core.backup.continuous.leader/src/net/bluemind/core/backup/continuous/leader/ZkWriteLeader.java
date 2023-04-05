@@ -50,11 +50,11 @@ public class ZkWriteLeader implements InstallationWriteLeader {
 	private final CompletableFuture<Void> electionResult;
 	private final String path;
 
-	public ZkWriteLeader() {
-		this(zkBootstrap());
+	public ZkWriteLeader(boolean applyForLeadership) {
+		this(zkBootstrap(), applyForLeadership);
 	}
 
-	private ZkWriteLeader(String zkBootstrap) {
+	private ZkWriteLeader(String zkBootstrap, boolean applyForLeadership) {
 		RetryPolicy rt = new BoundedExponentialBackoffRetry(100, 10000, 15);
 		this.curator = CuratorFrameworkFactory.newClient(zkBootstrap, rt);
 		this.electionResult = new CompletableFuture<>();
@@ -69,23 +69,36 @@ public class ZkWriteLeader implements InstallationWriteLeader {
 			return;
 		}
 		this.latch = new LeaderLatch(curator, path, participantId());
+		latch.addListener(new LeaderLatchListener() {
+
+			@Override
+			public void notLeader() {
+				logger.info("[{}] DEMOTED {}", path, latch);
+				VertxPlatform.eventBus().publish("backup.write.leadership", Boolean.FALSE);
+				electionResult.complete(null);
+			}
+
+			@Override
+			public void isLeader() {
+				logger.info("[{}] PROMOTED to leader {}", path, latch);
+				VertxPlatform.eventBus().publish("backup.write.leadership", Boolean.TRUE);
+				electionResult.complete(null);
+			}
+		});
+		if (applyForLeadership) {
+			logger.info("Apply for {} leadership as required.", path);
+			applyForLeadership();
+		}
+	}
+
+	@Override
+	public void applyForLeadership() {
+		if (latch.getState() == State.STARTED) {
+			logger.info("[{}] latch {} already started.", path, latch);
+			return;
+		}
+
 		try {
-			latch.addListener(new LeaderLatchListener() {
-
-				@Override
-				public void notLeader() {
-					logger.info("[{}] DEMOTED {}", path, latch);
-					VertxPlatform.eventBus().publish("backup.write.leadership", Boolean.FALSE);
-					electionResult.complete(null);
-				}
-
-				@Override
-				public void isLeader() {
-					logger.info("[{}] PROMOTED to leader {}", path, latch);
-					VertxPlatform.eventBus().publish("backup.write.leadership", Boolean.TRUE);
-					electionResult.complete(null);
-				}
-			});
 			latch.start();
 			electionResult.get(20, TimeUnit.SECONDS);
 			logger.info("[{}] latch {} started, leader => {}, participants: {}", path, latch, isLeader(),

@@ -81,6 +81,11 @@ public class DefaultBackupStore {
 			public boolean isLeader() {
 				return true;
 			}
+
+			@Override
+			public void applyForLeadership() {
+				// ok
+			}
 		});
 	}
 

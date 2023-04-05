@@ -19,7 +19,9 @@ package net.bluemind.core.backup.continuous.api;
 
 public interface InstallationWriteLeader {
 
-	public boolean isLeader();
+	boolean isLeader();
 
-	public void releaseLeadership();
+	void applyForLeadership();
+	
+	void releaseLeadership();
 }

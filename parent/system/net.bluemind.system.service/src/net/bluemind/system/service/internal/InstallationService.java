@@ -180,6 +180,7 @@ public class InstallationService implements IInstallation {
 		boolean del = new File(CloneDefaults.MARKER_FILE_PATH).delete();
 		logger.info("continuous clone marker deletion: {}", del);
 		InstallationWriteLeader leadership = cloneSupport().leadership();
+		leadership.applyForLeadership();
 		int retry = 0;
 		while (!leadership.isLeader() && ++retry < 20) {
 			logger.info("Waiting for election as leader with {} (retry {})", leadership, retry);
