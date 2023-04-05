@@ -41,6 +41,7 @@ public class SecurityContext {
 
 	public static final String TOKEN_FAKE_DOMAIN = "token-fake-domain";
 
+	private final long created;
 	private final String sessionId;
 	private final String subject;
 	private final List<String> memberOf;
@@ -86,6 +87,14 @@ public class SecurityContext {
 	public SecurityContext(String sessionId, String subject, List<String> memberOf, List<String> roles,
 			Map<String, Set<String>> rolesByOrgUnit, String domainUid, String lang, String origin, boolean interactive,
 			String ownerSubject) {
+		this(System.currentTimeMillis(), sessionId, subject, memberOf, roles, rolesByOrgUnit, domainUid, lang, origin,
+				interactive, null);
+	}
+
+	public SecurityContext(long created, String sessionId, String subject, List<String> memberOf, List<String> roles,
+			Map<String, Set<String>> rolesByOrgUnit, String domainUid, String lang, String origin, boolean interactive,
+			String ownerSubject) {
+		this.created = created;
 		this.sessionId = sessionId;
 		this.subject = subject;
 		this.memberOf = Collections.unmodifiableList(memberOf);
@@ -104,6 +113,10 @@ public class SecurityContext {
 
 	public void setOwnerPrincipal(String s) {
 		this.ownerSubject = s;
+	}
+
+	public long getCreated() {
+		return created;
 	}
 
 	public String getSessionId() {
@@ -175,8 +188,8 @@ public class SecurityContext {
 	}
 
 	public SecurityContext from(List<String> remoteAddresses, String headerOrigin) {
-		SecurityContext ret = new SecurityContext(sessionId, subject, memberOf, roles, orgUnitsRoles, domainUid, lang,
-				bestOrigin(origin, headerOrigin), interactive, ownerSubject);
+		SecurityContext ret = new SecurityContext(created, sessionId, subject, memberOf, roles, orgUnitsRoles,
+				domainUid, lang, bestOrigin(origin, headerOrigin), interactive, ownerSubject);
 		ret.remoteAddresses = remoteAddresses;
 		return ret;
 	}

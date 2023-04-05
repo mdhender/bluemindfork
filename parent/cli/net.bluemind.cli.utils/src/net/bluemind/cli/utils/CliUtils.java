@@ -6,6 +6,9 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,6 +31,8 @@ import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
 
 public class CliUtils {
+	public String localTz = Optional.ofNullable(System.getProperty("net.bluemind.property.system.timezone"))
+			.orElse("UTC");
 
 	CliContext cliContext;
 
@@ -198,4 +203,15 @@ public class CliUtils {
 		return AsciiTable.getTable(headers, table);
 	}
 
+	/**
+	 * Convert milliseconds since Unix Epoch to human readable form
+	 * 
+	 * @param Milliseconds since Unix Epoch
+	 * @return human readable date, using yyyy-MM-dd HH:mm:ss format and local
+	 *         timezone
+	 */
+	public String epochToLocalDate(long epoch) {
+		return Instant.ofEpochMilli(epoch).atZone(ZoneId.of(localTz))
+				.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+	}
 }

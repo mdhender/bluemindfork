@@ -18,10 +18,13 @@
  */
 package net.bluemind.authentication.mgmt.api;
 
-import jakarta.ws.rs.POST;
+import java.util.List;
+
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
-
+import jakarta.ws.rs.QueryParam;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 
@@ -40,7 +43,11 @@ public interface ISessionsMgmt {
 	 * @param latd login at domain
 	 * @throws ServerFault
 	 */
-	@POST
-	@Path("{latd}/logout")
-	public void logoutUser(@PathParam("latd") String latd);
+	@DELETE
+	@Path("{uid}/logout")
+	public void logoutUser(@PathParam("uid") String uid);
+
+	@GET
+	@Path("list")
+    public List<SessionEntry> list(@QueryParam("domain") String domainUid);
 }

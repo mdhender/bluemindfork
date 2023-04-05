@@ -43,6 +43,8 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class SessionsMgmtTests {
 
+	private String adminBmLanUid;
+
 	@Before
 	public void setup() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
@@ -54,7 +56,7 @@ public class SessionsMgmtTests {
 		PopulateHelper.addDomainAdmin("admin0", "global.virt", Routing.none);
 
 		PopulateHelper.createTestDomain("bm.lan");
-		PopulateHelper.addDomainAdmin("admin", "bm.lan", Routing.none);
+		adminBmLanUid = PopulateHelper.addDomainAdmin("admin", "bm.lan", Routing.none);
 		PopulateHelper.addUser("toto", "bm.lan", Routing.none);
 		PopulateHelper.addUser("simple", "bm.lan", Routing.none);
 
@@ -100,7 +102,7 @@ public class SessionsMgmtTests {
 		assertEquals(Status.Ok, authentication.login("admin0@global.virt", response3.authKey, "junit").status);
 
 		try {
-			getSessionsMgmtService(null).logoutUser("admin@bm.lan");
+			getSessionsMgmtService(null).logoutUser(adminBmLanUid);
 			fail("Test must throw an exception");
 		} catch (ServerFault sf) {
 			sf.printStackTrace();
@@ -110,7 +112,7 @@ public class SessionsMgmtTests {
 		try {
 			ISessionsMgmt sessionsMgmt = getSessionsMgmtService(
 					authentication.login("toto@bm.lan", "toto", "junit").authKey);
-			sessionsMgmt.logoutUser("admin@bm.lan");
+			sessionsMgmt.logoutUser(adminBmLanUid);
 			fail("Test must throw an exception");
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, sf.getCode());
@@ -120,7 +122,7 @@ public class SessionsMgmtTests {
 		try {
 			ISessionsMgmt sessionsMgmt = getSessionsMgmtService(
 					authentication.login("admin@bm.lan", "admin", "junit").authKey);
-			sessionsMgmt.logoutUser("admin@bm.lan");
+			sessionsMgmt.logoutUser(adminBmLanUid);
 			fail("Test must throw an exception");
 		} catch (ServerFault sf) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, sf.getCode());
@@ -129,7 +131,7 @@ public class SessionsMgmtTests {
 
 		ISessionsMgmt sessionsMgmt = getSessionsMgmtService(
 				authentication.login("admin0@global.virt", "admin", "junit").authKey);
-		sessionsMgmt.logoutUser("admin@bm.lan");
+		sessionsMgmt.logoutUser(adminBmLanUid);
 		assertEquals(Status.Bad, authentication.login("admin@bm.lan", response1.authKey, "junit").status);
 		assertEquals(Status.Bad, authentication.login("admin@bm.lan", response2.authKey, "junit").status);
 		assertEquals(Status.Ok, authentication.login("admin0@global.virt", response3.authKey, "junit").status);

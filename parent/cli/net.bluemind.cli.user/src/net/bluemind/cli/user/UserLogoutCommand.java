@@ -26,11 +26,11 @@ import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.api.Regex;
-import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.user.api.IUser;
-import net.bluemind.user.api.User;
+import net.bluemind.directory.api.BaseDirEntry.Kind;
+import net.bluemind.directory.api.IDirectory;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Option;
 
 @Command(name = "logout", description = "close all user sessions")
 public class UserLogoutCommand implements ICmdLet, Runnable {
@@ -52,10 +52,15 @@ public class UserLogoutCommand implements ICmdLet, Runnable {
 	private CliContext ctx;
 	protected CliUtils cliUtils;
 
-	@Parameters(paramLabel = "<email>", description = "email address")
-	public String email;
+	@ArgGroup(exclusive = true, multiplicity = "1")
+	private Scope scope;
 
-	public UserLogoutCommand() {
+	private static class Scope {
+		@Option(names = "--uid", required = false, description = "User UID to logout")
+		private String userUid;
+
+		@Option(names = "--email", required = false, description = "User email to logout")
+		private String userEmail;
 	}
 
 	@Override
@@ -66,19 +71,26 @@ public class UserLogoutCommand implements ICmdLet, Runnable {
 	}
 
 	public void run() {
+		Optional.ofNullable(scope.userUid)
+				.ifPresent(uid -> ctx.adminApi().instance(ISessionsMgmt.class).logoutUser(uid));
+
+		Optional.ofNullable(scope.userEmail).map(this::emailToUid)
+				.ifPresent(uid -> ctx.adminApi().instance(ISessionsMgmt.class).logoutUser(uid));
+	}
+
+	private String emailToUid(String email) {
 		if (!Regex.EMAIL.validate(email)) {
-			throw new CliException(String.format("Invalid email : %", email));
+			throw new CliException(String.format("Invalid email : %s", email));
 		}
 
-		String domainUid = cliUtils.getDomainUidByEmail(email);
-		IUser userApi = ctx.adminApi().instance(IUser.class, domainUid);
-		ItemValue<User> user = userApi.byEmail(email);
-		if (user == null) {
+		Optional<String> userUid = Optional.ofNullable(
+				ctx.adminApi().instance(IDirectory.class, cliUtils.getDomainUidByEmail(email)).getByEmail(email))
+				.filter(de -> de.kind == Kind.USER).map(de -> de.entryUid);
+
+		if (userUid.isEmpty()) {
 			throw new CliException(String.format("User %s not found", email));
 		}
 
-		ISessionsMgmt sessionApi = ctx.adminApi().instance(ISessionsMgmt.class);
-		sessionApi.logoutUser(user.value.login + '@' + domainUid);
+		return userUid.orElse(null);
 	}
-
 }

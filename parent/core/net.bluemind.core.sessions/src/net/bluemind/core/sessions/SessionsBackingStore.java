@@ -61,7 +61,7 @@ public class SessionsBackingStore {
 	private JsonObject toJson(SecurityContext sc) {
 		JsonObject jsonObject = new JsonObject();
 
-		jsonObject.put("created", System.currentTimeMillis());
+		jsonObject.put("created", sc.getCreated());
 		jsonObject.put("sessionId", sc.getSessionId());
 		jsonObject.put("subject", sc.getSubject());
 		jsonObject.put("domainUid", sc.getContainerUid());
@@ -80,7 +80,8 @@ public class SessionsBackingStore {
 	}
 
 	private SecurityContext fromJson(JsonObject jsonObject) {
-		SecurityContext sc = new SecurityContext(jsonObject.getString("sessionId"), //
+		SecurityContext sc = new SecurityContext(jsonObject.getLong("created"), //
+				jsonObject.getString("sessionId"), //
 				jsonObject.getString("subject"), //
 				jsonArrayToList(jsonObject.getJsonArray("memberOf")), //
 				jsonArrayToList(jsonObject.getJsonArray("roles")), //

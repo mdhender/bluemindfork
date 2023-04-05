@@ -39,6 +39,10 @@
             impl="net.bluemind.cli.user.externalaccount.ExternalAccountImportCommand$Reg"
             priority="130">
       </registration>
+      <registration
+            impl="net.bluemind.cli.user.UserSessionsCommand$Reg"
+            priority="91">
+      </registration>
    </extension>
 
 </plugin>
