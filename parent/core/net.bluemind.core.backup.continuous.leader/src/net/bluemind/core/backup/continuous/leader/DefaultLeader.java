@@ -36,7 +36,10 @@ public class DefaultLeader {
 	}
 
 	public static void reset() {
-		cached.clear();
+		InstallationWriteLeader cur = cached.remove("ZK");
+		if (cur != null) {
+			cur.close();
+		}
 	}
 
 }

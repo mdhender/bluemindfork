@@ -17,11 +17,17 @@
  */
 package net.bluemind.core.backup.continuous.api;
 
-public interface InstallationWriteLeader {
+import java.io.Closeable;
+
+public interface InstallationWriteLeader extends Closeable {
 
 	boolean isLeader();
 
 	void applyForLeadership();
-	
+
 	void releaseLeadership();
+
+	default void close() {
+
+	}
 }

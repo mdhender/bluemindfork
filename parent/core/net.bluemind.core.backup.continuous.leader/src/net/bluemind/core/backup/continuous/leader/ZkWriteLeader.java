@@ -148,6 +148,12 @@ public class ZkWriteLeader implements InstallationWriteLeader {
 		}
 	}
 
+	@Override
+	public void close() {
+		releaseLeadership();
+		curator.close();
+	}
+
 	private static String zkBootstrap() {
 		String zkBootstrap = System.getProperty("bm.zk.servers");
 		if (zkBootstrap == null) {
