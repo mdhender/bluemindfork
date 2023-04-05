@@ -32,6 +32,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -50,6 +51,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Streams;
@@ -130,6 +132,8 @@ public class MailApiConnection implements MailboxConnection {
 	private final String userRootPrefix;
 
 	private final FolderResolver folderResolver;
+	private static final Supplier<Client> esClient = Suppliers.memoize(ESearchActivator::getClient);
+	private static final long MAXIMUM_SEARCH_TIME = TimeUnit.SECONDS.toNanos(15);
 
 	private Consumer activeCons;
 
@@ -663,9 +667,10 @@ public class MailApiConnection implements MailboxConnection {
 	public List<Long> uids(SelectedFolder sel, String query) {
 		String index = "mailspool_alias_" + sel.mailbox.owner.uid;
 		int maxUid = 0;
-		Client client = ESearchActivator.getClient();
+		// Really ?!
 		ESearchActivator.refreshIndex(index);
 
+		Client client = esClient.get();
 		// Gets document with highest uid for keywords with sequences management
 		AggregationBuilder a = AggregationBuilders.max("uid_max").field("uid");
 		SearchResponse rMax = client.prepareSearch(index)
@@ -684,8 +689,7 @@ public class MailApiConnection implements MailboxConnection {
 					SortOrder.ASC);
 
 			long totalHits = 0;
-			final long TIME_BUDGET = TimeUnit.SECONDS.toNanos(15);
-			try (Pit pit = Pit.allocateUsingTimebudget(client, index, 60, TIME_BUDGET)) {
+			try (Pit pit = Pit.allocateUsingTimebudget(client, index, 60, MAXIMUM_SEARCH_TIME)) {
 				do {
 					searchBuilder.setPointInTime(new PointInTimeBuilder(pit.id));
 					pit.adaptSearch(searchBuilder);
@@ -703,7 +707,8 @@ public class MailApiConnection implements MailboxConnection {
 					}
 				} while (pit.hasNext());
 			} catch (Exception e) {
-				return new ArrayList<>();
+				logger.error("[{}] unknown error: {}", this, e.getMessage(), e);
+				return null;
 			}
 
 			// Empty uids list and seq is present -> return the greatest uid (see RFC 3501)
@@ -711,6 +716,7 @@ public class MailApiConnection implements MailboxConnection {
 				return Arrays.asList(Long.valueOf(maxUid));
 			}
 		} catch (Exception e) {
+			logger.error("[{}] unknown error: {}", this, e.getMessage(), e);
 			return null;
 		}
 		return uids;
@@ -727,7 +733,6 @@ public class MailApiConnection implements MailboxConnection {
 			logger.warn("[{}] folder {} does not exists.", this, fName);
 			return false;
 		} else {
-			// TODO Auto-generated method stub
 			return true;
 		}
 	}

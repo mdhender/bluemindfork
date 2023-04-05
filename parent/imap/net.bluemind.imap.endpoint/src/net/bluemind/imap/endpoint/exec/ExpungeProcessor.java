@@ -24,6 +24,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Verify;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import net.bluemind.imap.endpoint.ImapContext;
@@ -46,7 +48,8 @@ public class ExpungeProcessor extends SelectedStateCommandProcessor<ExpungeComma
 	protected void checkedOperation(ExpungeCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
 		MailboxConnection mailbox = ctx.mailbox();
 		SelectedFolder folder = ctx.selected();
-		List<Long> uids = mailbox.uids(folder, "+deleted");
+		List<Long> uids = mailbox.uids(folder, "DELETED NOT KEYWORD EXPUNGED");
+		Verify.verifyNotNull(uids);
 		mailbox.updateFlags(folder, uids, UpdateMode.Add, Collections.singletonList("\\Expunged"));
 		uids.stream().sorted(Collections.reverseOrder()).forEach(uid -> ctx.write("* " + uid + " EXPUNGE\r\n"));
 		ctx.write(command.raw().tag() + " OK Completed\r\n");

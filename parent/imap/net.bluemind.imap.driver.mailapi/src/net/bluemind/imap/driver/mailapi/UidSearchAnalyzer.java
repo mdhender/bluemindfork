@@ -37,10 +37,19 @@ public class UidSearchAnalyzer {
 	private static final String DATE_FORMAT = "d-MMM-yyyy";
 	private static final String PARENT_TYPE = "body";
 
+	private static final Pattern RE_ALL = Pattern.compile("all ", Pattern.CASE_INSENSITIVE);
+	private static final Pattern RE_SEQUENCE = Pattern.compile("(?:uid )?([\\d\\*:,]+)", Pattern.CASE_INSENSITIVE);
+
 	public Map<String, IUidSearchMatcher> map = new HashMap<>();
 
-	public UidSearchAnalyzer() {
+	@SuppressWarnings("serial")
+	public static class UidSearchException extends Exception {
+		public UidSearchException(String message) {
+			super(message);
+		}
+	}
 
+	public UidSearchAnalyzer() {
 		map.put("ALL", null);
 		map.put("ANSWERED", new FlagAnalyzer());
 		map.put("DELETED", new FlagAnalyzer());
@@ -137,7 +146,7 @@ public class UidSearchAnalyzer {
 					analyzedQuery = analyzer.analyse(qbShould, subQuery, positiveKeyword, isCertain, maxUid);
 				}
 				if (analyzedQuery == null) {
-					throw new Exception("Invalid Search criteria");
+					throw new UidSearchException("Invalid Search criteria");
 				}
 				len = analyzedQuery.length();
 			} else {
@@ -150,12 +159,14 @@ public class UidSearchAnalyzer {
 						analyzedQuery = analyzer.analyse(qbShould, subQuery, positiveKeyword, isCertain, maxUid);
 					}
 					if (analyzedQuery == null) {
-						throw new Exception("Invalid Search criteria");
+						throw new UidSearchException("Invalid Search criteria (qb: " + qb + " qbShould: " + qbShould
+								+ " subquery: " + subQuery + ")");
 					}
 					len = analyzedQuery.length();
 					hasSequence = true;
 				} else {
-					throw new Exception("Invalid Search criteria");
+					throw new UidSearchException("Invalid Search criteria (subQuery: " + subQuery + " query: " + query
+							+ " keyword: " + keyword + ")");
 				}
 			}
 			if (!isCertain) {
@@ -179,19 +190,19 @@ public class UidSearchAnalyzer {
 	}
 
 	public static boolean hasSequence(String query) {
-		Matcher matcher = Pattern.compile("(?:uid )?([\\d\\*:,]+)", Pattern.CASE_INSENSITIVE).matcher(query);
+		Matcher matcher = RE_SEQUENCE.matcher(query);
 		return matcher.find();
 	}
 
 	public static boolean hasAll(String query) {
-		Matcher matcher = Pattern.compile("all ", Pattern.CASE_INSENSITIVE).matcher(query);
+		Matcher matcher = RE_ALL.matcher(query);
 		return matcher.find();
 	}
 
 	// Not NOT, positive flag term
 	class FlagAnalyzer extends UidSearchPatternBasedMatcher {
-
-		public static final String PATTERN = "(answered|deleted|draft|flagged|seen) ";
+		public static final Pattern PATTERN = Pattern.compile("(answered|deleted|draft|flagged|seen) ",
+				Pattern.CASE_INSENSITIVE);
 
 		protected FlagAnalyzer() {
 			super(PATTERN);
@@ -222,7 +233,8 @@ public class UidSearchAnalyzer {
 
 	// Not NOT, negative flag term
 	class UnFlagAnalyzer extends UidSearchPatternBasedMatcher {
-		public static final String PATTERN = "un(answered|deleted|draft|flagged) ";
+		private static final Pattern PATTERN = Pattern.compile("un(answered|deleted|draft|flagged) ",
+				Pattern.CASE_INSENSITIVE);
 
 		protected UnFlagAnalyzer() {
 			super(PATTERN);
@@ -230,8 +242,7 @@ public class UidSearchAnalyzer {
 
 		@Override
 		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
-			Pattern pattern = Pattern.compile(PATTERN, Pattern.CASE_INSENSITIVE);
-			Matcher matcher = pattern.matcher(query);
+			Matcher matcher = compiledRE.matcher(query);
 
 			if (matcher.find()) {
 				String gr = matcher.group(1);
@@ -257,7 +268,7 @@ public class UidSearchAnalyzer {
 
 	// Not NOT, unseen term
 	class UnseenAnalyzer extends UidSearchPatternBasedMatcher {
-		public static final String PATTERN = "(unseen) ";
+		private static final Pattern PATTERN = Pattern.compile("(unseen) ", Pattern.CASE_INSENSITIVE);
 
 		protected UnseenAnalyzer() {
 			super(PATTERN);
@@ -265,8 +276,7 @@ public class UidSearchAnalyzer {
 
 		@Override
 		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
-			Pattern pattern = Pattern.compile(PATTERN, Pattern.CASE_INSENSITIVE);
-			Matcher matcher = pattern.matcher(query);
+			Matcher matcher = compiledRE.matcher(query);
 
 			if (matcher.find()) {
 				String gr = matcher.group(1);
@@ -291,7 +301,7 @@ public class UidSearchAnalyzer {
 	}
 
 	class KeywordAnalyzer extends UidSearchPatternBasedMatcher {
-		public static final String PATTERN = "keyword (\\S+) ";
+		private static final Pattern PATTERN = Pattern.compile("keyword (\\S+) ", Pattern.CASE_INSENSITIVE);
 
 		protected KeywordAnalyzer() {
 			super(PATTERN);
@@ -299,8 +309,7 @@ public class UidSearchAnalyzer {
 
 		@Override
 		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
-			Pattern pattern = Pattern.compile(PATTERN, Pattern.CASE_INSENSITIVE);
-			Matcher matcher = pattern.matcher(query);
+			Matcher matcher = compiledRE.matcher(query);
 
 			if (matcher.find()) {
 				String flag = matcher.group(1);
@@ -326,7 +335,7 @@ public class UidSearchAnalyzer {
 	}
 
 	class UnKeywordAnalyzer extends UidSearchPatternBasedMatcher {
-		public static final String PATTERN = "unkeyword (\\S+) ";
+		private static final Pattern PATTERN = Pattern.compile("unkeyword (\\S+) ", Pattern.CASE_INSENSITIVE);
 
 		protected UnKeywordAnalyzer() {
 			super(PATTERN);
@@ -334,8 +343,7 @@ public class UidSearchAnalyzer {
 
 		@Override
 		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
-			Pattern pattern = Pattern.compile(PATTERN, Pattern.CASE_INSENSITIVE);
-			Matcher matcher = pattern.matcher(query);
+			Matcher matcher = compiledRE.matcher(query);
 
 			if (matcher.find()) {
 				String flag = matcher.group(1);
@@ -362,7 +370,7 @@ public class UidSearchAnalyzer {
 
 	// larger than
 	class LargerAnalyzer extends UidSearchPatternBasedMatcher {
-		public static final String PATTERN = "larger (\\d+) ";
+		private static final Pattern PATTERN = Pattern.compile("larger (\\d+) ", Pattern.CASE_INSENSITIVE);
 
 		protected LargerAnalyzer() {
 			super(PATTERN);
@@ -370,8 +378,7 @@ public class UidSearchAnalyzer {
 
 		@Override
 		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
-			Pattern pattern = Pattern.compile(PATTERN, Pattern.CASE_INSENSITIVE);
-			Matcher matcher = pattern.matcher(query);
+			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String size = matcher.group(1);
 
@@ -401,7 +408,7 @@ public class UidSearchAnalyzer {
 
 	// Smaller
 	class SmallerAnalyzer extends UidSearchPatternBasedMatcher {
-		public static final String PATTERN = "smaller (\\d+) ";
+		private static final Pattern PATTERN = Pattern.compile("smaller (\\d+) ", Pattern.CASE_INSENSITIVE);
 
 		protected SmallerAnalyzer() {
 			super(PATTERN);
@@ -409,8 +416,7 @@ public class UidSearchAnalyzer {
 
 		@Override
 		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
-			Pattern pattern = Pattern.compile(PATTERN, Pattern.CASE_INSENSITIVE);
-			Matcher matcher = pattern.matcher(query);
+			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String size = matcher.group(1);
 				if (!positive) {
@@ -439,7 +445,7 @@ public class UidSearchAnalyzer {
 
 	// Greater than -> rangeQuery(field).gt(dt.iso8601)
 	class GreaterDateAnalyzer extends UidSearchPatternBasedMatcher {
-		public static final String PATTERN = "(?:sentsince|since) (\\S+) ";
+		private static final Pattern PATTERN = Pattern.compile("(?:sentsince|since) (\\S+) ", Pattern.CASE_INSENSITIVE);
 
 		protected GreaterDateAnalyzer() {
 			super(PATTERN);
@@ -447,8 +453,7 @@ public class UidSearchAnalyzer {
 
 		@Override
 		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
-			Pattern pattern = Pattern.compile(PATTERN, Pattern.CASE_INSENSITIVE);
-			Matcher matcher = pattern.matcher(query);
+			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String dateString = matcher.group(1);
 				try {
@@ -483,7 +488,8 @@ public class UidSearchAnalyzer {
 
 	// Before
 	class SmallerDateAnalyzer extends UidSearchPatternBasedMatcher {
-		public static final String PATTERN = "(?:sentbefore|before) (\\S+) ";
+		private static final Pattern PATTERN = Pattern.compile("(?:sentbefore|before) (\\S+) ",
+				Pattern.CASE_INSENSITIVE);
 
 		protected SmallerDateAnalyzer() {
 			super(PATTERN);
@@ -491,8 +497,7 @@ public class UidSearchAnalyzer {
 
 		@Override
 		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
-			Pattern pattern = Pattern.compile(PATTERN, Pattern.CASE_INSENSITIVE);
-			Matcher matcher = pattern.matcher(query);
+			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String dateString = matcher.group(1);
 				try {
@@ -526,7 +531,7 @@ public class UidSearchAnalyzer {
 	}
 
 	class EqualsDateAnalyzer extends UidSearchPatternBasedMatcher {
-		public static final String PATTERN = "(?:senton|on) (\\S+) ";
+		private static final Pattern PATTERN = Pattern.compile("(?:senton|on) (\\S+) ", Pattern.CASE_INSENSITIVE);
 
 		protected EqualsDateAnalyzer() {
 			super(PATTERN);
@@ -534,8 +539,7 @@ public class UidSearchAnalyzer {
 
 		@Override
 		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
-			Pattern pattern = Pattern.compile(PATTERN, Pattern.CASE_INSENSITIVE);
-			Matcher matcher = pattern.matcher(query);
+			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String dateString = matcher.group(1);
 
@@ -563,7 +567,7 @@ public class UidSearchAnalyzer {
 
 	// Header
 	class HeaderAnalyzer extends UidSearchPatternBasedMatcher {
-		public static final String PATTERN = "header (\\S+) \"([^\"]*)\" ";
+		private static final Pattern PATTERN = Pattern.compile("header (\\S+) \"([^\"]*)\" ", Pattern.CASE_INSENSITIVE);
 
 		protected HeaderAnalyzer() {
 			super(PATTERN);
@@ -571,8 +575,7 @@ public class UidSearchAnalyzer {
 
 		@Override
 		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
-			Pattern pattern = Pattern.compile(PATTERN, Pattern.CASE_INSENSITIVE);
-			Matcher matcher = pattern.matcher(query);
+			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String field = matcher.group(1).toLowerCase();
 				// Checks no ':' in header field name (according to RFC 822)
@@ -624,7 +627,8 @@ public class UidSearchAnalyzer {
 	}
 
 	class TextAnalyzer extends UidSearchPatternBasedMatcher {
-		public static final String PATTERN = "(?<!not_)(to|from|cc|bcc|body|subject|text) \"([^\"]*)\" ";
+		private static final Pattern PATTERN = Pattern
+				.compile("(?<!not_)(to|from|cc|bcc|body|subject|text) \"([^\"]*)\" ", Pattern.CASE_INSENSITIVE);
 
 		protected TextAnalyzer() {
 			super(PATTERN);
@@ -632,8 +636,7 @@ public class UidSearchAnalyzer {
 
 		@Override
 		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
-			Pattern pattern = Pattern.compile(PATTERN, Pattern.CASE_INSENSITIVE);
-			Matcher matcher = pattern.matcher(query);
+			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String key = matcher.group(1).toLowerCase();
 				String value = matcher.group(2);
@@ -667,7 +670,7 @@ public class UidSearchAnalyzer {
 	}
 
 	class SequenceAnalyzer extends UidSearchPatternBasedMatcher {
-		public static final String PATTERN = "(?:uid )?([\\d\\*:,]+) ";
+		private static final Pattern PATTERN = Pattern.compile("(?:uid )?([\\d\\*:,]+) ", Pattern.CASE_INSENSITIVE);
 
 		protected SequenceAnalyzer() {
 			super(PATTERN);
@@ -675,11 +678,9 @@ public class UidSearchAnalyzer {
 
 		@Override
 		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
-
 			Set<Long> set = new HashSet<>();
 			long lowerBond = 0L;
-			Pattern pattern = Pattern.compile(PATTERN, Pattern.CASE_INSENSITIVE);
-			Matcher matcher = pattern.matcher(query);
+			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String sequence = matcher.group(1);
 				List<String> listSeq = Arrays.asList(sequence.split(","));
