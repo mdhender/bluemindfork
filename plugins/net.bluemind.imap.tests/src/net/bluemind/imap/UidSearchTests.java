@@ -148,7 +148,7 @@ public class UidSearchTests {
 			sc.select("INBOX");
 			setupBoxContent(5, 10, 12, 10);
 			Collection<Integer> uids = sc.uidSearch(sq);
-			assertEquals(37, uids.size());
+			assertEquals(32, uids.size());
 		}
 	}
 
@@ -160,9 +160,9 @@ public class UidSearchTests {
 			sc.select("INBOX");
 			setupBoxContent(5, 10, 12, 10);
 			Collection<Integer> uids = sc.uidSearch(sq);
-			assertEquals(27, uids.size());
-			assertTrue(uids.contains(1));
+			assertEquals(22, uids.size());
 			assertTrue(uids.contains(16));
+			assertTrue(uids.contains(37));
 		}
 	}
 
@@ -172,10 +172,11 @@ public class UidSearchTests {
 			SearchQuery sq = new SearchQuery();
 			sq.setUnseenOnly(true);
 			sc.select("INBOX");
-			setupBoxContent(5, 10, 12, 10);
+			setupBoxContent(5, 10, 12, 8);
 			Collection<Integer> uids = sc.uidSearch(sq);
-			assertEquals(27, uids.size());
+			assertEquals(12 + 8, uids.size());
 			assertTrue(uids.contains(16));
+			assertTrue(uids.contains(35));
 		}
 	}
 
@@ -189,6 +190,21 @@ public class UidSearchTests {
 			setupBoxContent(5, 10, 12, 10);
 			Collection<Integer> uids = sc.uidSearch(sq);
 			assertEquals(0, uids.size());
+		}
+	}
+
+	@Test
+	public void testAllUnseenUndeleted() throws IMAPException, InterruptedException, IOException {
+		try (StoreClient sc = newStore(false)) {
+			SearchQuery sq = new SearchQuery();
+			sq.setRawCommand("ALL UNSEEN UNDELETED");
+			sq.setUnseenOnly(true);
+			sc.select("INBOX");
+			setupBoxContent(5, 10, 12, 10);
+			Collection<Integer> uids = sc.uidSearch(sq);
+			assertEquals(22, uids.size());
+			assertTrue(uids.contains(16));
+			assertTrue(uids.contains(37));
 		}
 	}
 
@@ -240,9 +256,9 @@ public class UidSearchTests {
 			sc.select("INBOX");
 			setupBoxContent(5, 10, 12, 10);
 			Collection<Integer> uids = sc.uidSearch(sq);
-			assertEquals(25, uids.size());
-			assertTrue(uids.contains(5));
-			assertTrue(uids.contains(1));
+			assertEquals(20, uids.size());
+			assertTrue(uids.contains(6));
+			assertTrue(uids.contains(37));
 		}
 	}
 
@@ -254,9 +270,11 @@ public class UidSearchTests {
 			sc.select("INBOX");
 			setupBoxContent(5, 10, 12, 10);
 			Collection<Integer> uids = sc.uidSearch(sq);
-			assertEquals(25, uids.size());
-			assertTrue(uids.contains(1));
-			assertTrue(uids.contains(4));
+			assertEquals(20, uids.size());
+			assertTrue(uids.contains(6));
+			assertTrue(uids.contains(15));
+			assertTrue(uids.contains(28));
+			assertTrue(uids.contains(37));
 		}
 	}
 
@@ -295,9 +313,9 @@ public class UidSearchTests {
 			sc.select("INBOX");
 			setupBoxContent(5, 10, 12, 10);
 			Collection<Integer> uids = sc.uidSearch(sq);
-			assertEquals(27, uids.size());
-			assertTrue(uids.contains(1));
-			assertTrue(uids.contains(4));
+			assertEquals(22, uids.size());
+			assertTrue(uids.contains(6));
+			assertTrue(uids.contains(10));
 		}
 	}
 
@@ -309,9 +327,9 @@ public class UidSearchTests {
 			sc.select("INBOX");
 			setupBoxContent(5, 10, 12, 10);
 			Collection<Integer> uids = sc.uidSearch(sq);
-			assertEquals(27, uids.size());
-			assertTrue(uids.contains(1));
-			assertTrue(uids.contains(2));
+			assertEquals(22, uids.size());
+			assertTrue(uids.contains(6));
+			assertTrue(uids.contains(11));
 		}
 	}
 
@@ -992,9 +1010,16 @@ public class UidSearchTests {
 			sc.select("INBOX");
 			setupBoxContent(5, 10, 12, 10);
 			Collection<Integer> uids = sc.uidSearch(sq);
-			assertEquals(22, uids.size());
+			assertEquals(18, uids.size());
+			assertFalse(uids.contains(1));
 			assertFalse(uids.contains(2));
-			assertFalse(uids.contains(15));
+			assertFalse(uids.contains(3));
+			assertFalse(uids.contains(4));
+			assertFalse(uids.contains(5));
+			assertFalse(uids.contains(10));
+			assertFalse(uids.contains(11));
+			assertFalse(uids.contains(19));
+			assertTrue(uids.contains(20));
 		}
 	}
 
@@ -1006,8 +1031,7 @@ public class UidSearchTests {
 			sc.select("INBOX");
 			setupBoxContent(5, 10, 12, 10);
 			Collection<Integer> uids = sc.uidSearch(sq);
-			assertEquals(3, uids.size());
-			assertTrue(uids.contains(2));
+			assertEquals(2, uids.size());
 			assertTrue(uids.contains(6));
 			assertTrue(uids.contains(7));
 		}
@@ -1021,11 +1045,12 @@ public class UidSearchTests {
 			sc.select("INBOX");
 			setupBoxContent(5, 10, 12, 10);
 			Collection<Integer> uids = sc.uidSearch(sq);
-			assertEquals(7, uids.size());
-			assertTrue(uids.contains(4));
-			assertTrue(uids.contains(5));
+			assertEquals(5, uids.size());
+			assertFalse(uids.contains(4));
+			assertFalse(uids.contains(5));
 			assertTrue(uids.contains(6));
 			assertTrue(uids.contains(7));
+			assertFalse(uids.contains(8));
 			assertTrue(uids.contains(35));
 			assertTrue(uids.contains(36));
 			assertTrue(uids.contains(37));
@@ -1066,8 +1091,8 @@ public class UidSearchTests {
 			sc.select("INBOX");
 			setupBoxContent(5, 10, 12, 10);
 			Collection<Integer> uids = sc.uidSearch(sq);
-			assertEquals(6, uids.size());
-			assertTrue(uids.contains(5));
+			assertEquals(5, uids.size());
+			assertTrue(uids.contains(6));
 			assertTrue(uids.contains(10));
 		}
 	}
@@ -1078,7 +1103,7 @@ public class UidSearchTests {
 			SearchQuery sq = new SearchQuery();
 			sq.setUidSeq("10:5");
 			sc.select("INBOX");
-			setupBoxContent(5, 10, 12, 10);
+			setupBoxContent(4, 10, 12, 10);
 			Collection<Integer> uids = sc.uidSearch(sq);
 			assertEquals(6, uids.size());
 			assertTrue(uids.contains(5));
@@ -1221,7 +1246,6 @@ public class UidSearchTests {
 			SearchQuery sq = new SearchQuery();
 			sq.setUnkeyword("titi");
 			Collection<Integer> uids = sc.uidSearch(sq);
-			System.err.println(uids);
 		}
 	}
 
@@ -1325,7 +1349,7 @@ public class UidSearchTests {
 		try (StoreClient sc = newStore(false)) {
 			IntStream.range(0, deleted).forEach((i) -> {
 				try {
-					sc.append("INBOX", ibs.source().openStream(), new FlagsList());
+					sc.append("INBOX", ibs.source().openStream(), FlagsList.of(Arrays.asList(Flag.DELETED.toString())));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

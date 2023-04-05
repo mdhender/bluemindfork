@@ -106,10 +106,6 @@ public class UidSearchAnalyzer {
 
 		String subQuery = query;
 
-		// Keyword ALL is present -> retrieve all uids
-		if (UidSearchAnalyzer.hasAll(query)) {
-			subQuery = "END";
-		}
 		// false when NOT keyword is present
 		boolean positiveKeyword = true;
 		// true when OR keyword is present
@@ -166,6 +162,8 @@ public class UidSearchAnalyzer {
 					}
 					len = analyzedQuery.length();
 					hasSequence = true;
+				} else if (UidSearchAnalyzer.hasAll(subQuery)) {
+					len = 4;
 				} else {
 					throw new UidSearchException("Invalid Search criteria (subQuery: " + subQuery + " query: " + query
 							+ " keyword: " + keyword + ")");
