@@ -3,24 +3,33 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Tests
 Bundle-SymbolicName: net.bluemind.resource.service.tests;singleton:=true
 Bundle-Version: 5.0.0.qualifier
-Fragment-Host: net.bluemind.resource.service
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit,
- net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
- net.bluemind.core.context;bundle-version="1.0.0",
+ net.bluemind.core.jdbc.testshelper,
+ net.bluemind.core.context,
  net.bluemind.core.sessions,
- net.bluemind.core.rest.http.vertx;bundle-version="1.0.0",
+ net.bluemind.core.container.api,
+ net.bluemind.core.container.service,
+ net.bluemind.core.rest.http.vertx,
  net.bluemind.tests.defaultdata,
  net.bluemind.core.commons,
  net.bluemind.server.api,
- net.bluemind.domain.api;bundle-version="1.0.0",
+ net.bluemind.domain.api,
+ net.bluemind.domain.hook,
  net.bluemind.core.tests.testshelper,
  net.bluemind.core.rest.http,
- net.bluemind.document.persistence.fs;bundle-version="1.0.0",
- com.google.guava;bundle-version="19.0.0",
+ net.bluemind.document.storage,
+ net.bluemind.document.persistence.fs,
+ com.google.guava,
  net.bluemind.core.elasticsearch.testshelper,
- net.bluemind.calendar.service;bundle-version="5.0.0",
- net.bluemind.user.service,
+ net.bluemind.resource.api,
+ net.bluemind.resource.service,
+ net.bluemind.resource.persistence,
+ net.bluemind.calendar.api,
+ net.bluemind.calendar.service,
  net.bluemind.calendar.persistence,
- net.bluemind.user.persistence
+ net.bluemind.calendar.hook,
+ net.bluemind.user.persistence,
+ net.bluemind.user.service,
+ net.bluemind.mailbox.service
 Automatic-Module-Name: net.bluemind.resource.service.tests

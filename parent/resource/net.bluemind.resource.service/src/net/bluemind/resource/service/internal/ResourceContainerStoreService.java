@@ -69,9 +69,7 @@ public class ResourceContainerStoreService extends DirValueStoreService<Resource
 	}
 
 	public List<String> findByType(String typeUid) {
-		return doOrFail(() -> {
-			return resourceStore.findByType(typeUid);
-		});
+		return doOrFail(() -> resourceStore.findByType(typeUid));
 	}
 
 }

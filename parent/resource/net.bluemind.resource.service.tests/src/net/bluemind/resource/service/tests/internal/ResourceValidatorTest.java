@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.resource.service.internal;
+package net.bluemind.resource.service.tests.internal;
 
 import static org.junit.Assert.fail;
 
@@ -31,6 +31,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor.Property.Type;
+import net.bluemind.resource.service.internal.ResourceValidator;
 
 public class ResourceValidatorTest {
 
@@ -42,7 +43,7 @@ public class ResourceValidatorTest {
 		validateNotFail(rd);
 
 		rd = defaultDescriptor();
-		rd.properties = Arrays.<ResourceDescriptor.PropertyValue> asList();
+		rd.properties = Arrays.<ResourceDescriptor.PropertyValue>asList();
 		validateNotFail(rd);
 	}
 

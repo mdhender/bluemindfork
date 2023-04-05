@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.resource.service.internal;
+package net.bluemind.resource.service.tests.internal;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -40,6 +40,7 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.resource.api.type.IResourceTypeUids;
+import net.bluemind.resource.service.internal.ResourcesContainerDomainHook;
 import net.bluemind.server.api.Server;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 

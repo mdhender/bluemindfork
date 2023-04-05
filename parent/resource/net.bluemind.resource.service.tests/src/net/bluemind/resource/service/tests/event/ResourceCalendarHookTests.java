@@ -16,7 +16,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.resource.service.event;
+package net.bluemind.resource.service.tests.event;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -46,12 +46,12 @@ import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.calendar.api.CalendarSettingsData;
 import net.bluemind.calendar.api.CalendarSettingsData.Day;
-import net.bluemind.calendar.hook.VEventMessage;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarSettings;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.calendar.hook.VEventMessage;
 import net.bluemind.calendar.persistence.VEventSeriesStore;
 import net.bluemind.calendar.service.internal.VEventContainerStoreService;
 import net.bluemind.core.api.Email;
@@ -87,6 +87,7 @@ import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.resource.api.IResources;
 import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.resource.api.ResourceReservationMode;
+import net.bluemind.resource.service.event.ResourceCalendarHook;
 import net.bluemind.server.api.Server;
 import net.bluemind.tag.api.TagRef;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -582,8 +583,8 @@ public class ResourceCalendarHookTests {
 	private ItemValue<User> createTestUSer(String login) throws ServerFault, SQLException {
 		ItemValue<User> user = defaultUser(login, login);
 		userStoreService.create(user.uid, login, user.value);
-		SecurityContext securityContext = new SecurityContext(login, login, new ArrayList<String>(),
-				new ArrayList<String>(), domainUid);
+		SecurityContext securityContext = new SecurityContext(login, login, new ArrayList<>(), new ArrayList<>(),
+				domainUid);
 		createTestContainer(securityContext, ICalendarUids.TYPE, user.value.login,
 				ICalendarUids.TYPE + ":Default:" + user.uid, user.uid);
 		Sessions.get().put(login, securityContext);

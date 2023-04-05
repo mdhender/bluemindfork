@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.resource.service.internal;
+package net.bluemind.resource.service.tests.internal;
 
 import static org.junit.Assert.fail;
 
@@ -25,6 +25,7 @@ import org.junit.Test;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor;
 import net.bluemind.resource.api.type.ResourceTypeDescriptor.Property.Type;
+import net.bluemind.resource.service.internal.ResourceTypesValidator;
 
 public class ResourceTypeValidatorTests {
 

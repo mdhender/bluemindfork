@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.resource.service;
+package net.bluemind.resource.service.tests;
 
 import static org.junit.Assert.assertEquals;
 

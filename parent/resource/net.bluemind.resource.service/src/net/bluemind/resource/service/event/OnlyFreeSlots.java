@@ -36,19 +36,15 @@ import net.bluemind.resource.service.event.BookingStrategyFactory.RecurringEvent
 import net.bluemind.resource.service.event.BookingStrategyFactory.TentativeEventException;
 
 /**
- * @author mehdi
- * All slot must be free
+ * @author mehdi All slot must be free
  */
 public class OnlyFreeSlots implements BookingStrategy {
 
 	@Override
 	public boolean isBusy(ItemValue<ResourceDescriptor> resource, VEvent vEvent) {
 		String cal = IFreebusyUids.getFreebusyContainerUid(resource.uid);
-		IVFreebusy fb = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IVFreebusy.class,
-				cal);
-		VFreebusyQuery q = new VFreebusyQuery();
-		q.dtstart = vEvent.dtstart;
-		q.dtend = vEvent.dtend;
+		IVFreebusy fb = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IVFreebusy.class, cal);
+		VFreebusyQuery q = VFreebusyQuery.create(vEvent.dtstart, vEvent.dtend);
 
 		if (vEvent.rrule != null) {
 			throw new RecurringEventException();
