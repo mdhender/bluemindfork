@@ -17,6 +17,7 @@
   */
 package net.bluemind.calendar.hook;
 
+import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.ICalendarViewUids;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainers;
@@ -35,6 +36,8 @@ public class CalendarHookUser extends DefaultUserHook {
 			ContainerModifiableDescriptor cmd = new ContainerModifiableDescriptor();
 			cmd.name = current.value.login;
 			context.su().provider().instance(IContainers.class).update(ICalendarViewUids.userCalendarView(current.uid),
+					cmd);
+			context.su().provider().instance(IContainers.class).update(ICalendarUids.defaultUserCalendar(current.uid),
 					cmd);
 		}
 	}

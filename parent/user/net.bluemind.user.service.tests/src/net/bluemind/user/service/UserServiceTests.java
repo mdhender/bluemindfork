@@ -65,6 +65,7 @@ import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
 import net.bluemind.addressbook.domainbook.DomainAddressBook;
+import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.ICalendarViewUids;
 import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.Email;
@@ -611,6 +612,10 @@ public class UserServiceTests {
 		assertEquals(loginOnUpdate, cd.name);
 
 		cd = testContext.provider().instance(IContainers.class).get(ITagUids.defaultUserTags(uid));
+		assertNotNull(cd.name);
+		assertEquals(loginOnUpdate, cd.name);
+
+		cd = testContext.provider().instance(IContainers.class).get(ICalendarUids.defaultUserCalendar(uid));
 		assertNotNull(cd.name);
 		assertEquals(loginOnUpdate, cd.name);
 	}
