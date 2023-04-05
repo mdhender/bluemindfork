@@ -1198,7 +1198,6 @@ public class ImipFilterVEventTests {
 		assertNull(evt);
 
 		handler.handle(imip, recipient, domain, resourceMailbox);
-
 		evt = resourceCalendar.getComplete(event.uid);
 
 		assertNotNull(evt);
@@ -1211,6 +1210,8 @@ public class ImipFilterVEventTests {
 				"external@ext-domain.lan");
 		event.value.attendees.add(org);
 		imip.iCalendarElements = Arrays.asList(event.value);
+		Thread.sleep(500);
+		CalendarTestAsyncHook.reset();
 
 		imip.method = ITIPMethod.REPLY;
 		IIMIPHandler replyHandler = new EventReplyHandler(recipient, null);

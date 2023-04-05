@@ -38,6 +38,8 @@ public class CalendarTestAsyncHook implements ICalendarHook {
 	}
 
 	public static void reset() {
+		receivedMessage = null;
+		action = null;
 		latch = new CountDownLatch(1);
 	}
 

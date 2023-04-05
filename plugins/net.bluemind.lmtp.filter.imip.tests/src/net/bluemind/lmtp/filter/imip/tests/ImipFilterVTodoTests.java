@@ -54,6 +54,7 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.delivery.lmtp.common.ResolvedBox;
 import net.bluemind.delivery.lmtp.filter.testhelper.EnvelopeBuilder;
+import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.Status;
 import net.bluemind.imip.parser.IMIPInfos;
@@ -179,9 +180,9 @@ public class ImipFilterVTodoTests {
 				attendees.add(a);
 			}
 		}
-		attendees.add(VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
-				VEvent.ParticipationStatus.NeedsAction, true, "", "", "", resource.value.label, "", "", null,
-				resource.value.emails.iterator().next().address));
+		attendees.add(ICalendarElement.Attendee.create(ICalendarElement.CUType.Individual, "",
+				ICalendarElement.Role.Chair, ICalendarElement.ParticipationStatus.NeedsAction, true, "", "", "",
+				resource.value.label, "", "", null, resource.value.emails.iterator().next().address));
 		event.value.attendees = attendees;
 
 		imip.iCalendarElements = Arrays.asList(event.value);
@@ -254,12 +255,11 @@ public class ImipFilterVTodoTests {
 		handler.handle(imip, recipient, null, adminMailbox);
 
 		ElasticsearchTestHelper.getInstance().refresh("todo");
-		todo = adminTodolist.getComplete(event.uid);
 
-		List<VTodo.Attendee> attendees = new ArrayList<>(1);
-		VTodo.Attendee org = VTodo.Attendee.create(VTodo.CUType.Individual, "", VTodo.Role.Chair,
-				VTodo.ParticipationStatus.Declined, true, "", "", "", "external", "", "", null,
-				"external@ext-domain.lan");
+		List<ICalendarElement.Attendee> attendees = new ArrayList<>(1);
+		ICalendarElement.Attendee org = ICalendarElement.Attendee.create(ICalendarElement.CUType.Individual, "",
+				ICalendarElement.Role.Chair, ICalendarElement.ParticipationStatus.Declined, true, "", "", "",
+				"external", "", "", null, "external@ext-domain.lan");
 		attendees.add(org);
 		imip.attendees(attendees);
 
@@ -273,7 +273,7 @@ public class ImipFilterVTodoTests {
 		assertEquals(2, todo.value.attendees.size());
 
 		boolean found = false;
-		for (VTodo.Attendee attendee : todo.value.attendees) {
+		for (ICalendarElement.Attendee attendee : todo.value.attendees) {
 			if (attendee.mailto.equals("external@ext-domain.lan")) {
 				assertEquals(VTodo.ParticipationStatus.Declined, attendee.partStatus);
 				found = true;

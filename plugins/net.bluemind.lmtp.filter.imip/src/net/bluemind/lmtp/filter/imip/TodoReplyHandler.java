@@ -20,7 +20,6 @@ package net.bluemind.lmtp.filter.imip;
 
 import java.util.List;
 
-import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.delivery.lmtp.common.LmtpAddress;
@@ -49,31 +48,24 @@ public class TodoReplyHandler extends ReplyHandler implements IIMIPHandler {
 	@Override
 	public IMIPResponse handle(IMIPInfos imip, ResolvedBox recipient, ItemValue<Domain> domain,
 			ItemValue<Mailbox> recipientMailbox) throws ServerFault {
-
 		ICalendarElement imipTodo = imip.iCalendarElements.get(0);
-		List<VEvent.Attendee> atts = imipTodo.attendees;
+		List<ICalendarElement.Attendee> atts = imipTodo.attendees;
 
 		if (!super.validate(imip, atts)) {
 			return new IMIPResponse();
 		}
 
-		try {
-			VEvent.Attendee attendee = atts.get(0);
-			String type = attendee.partStatus == ParticipationStatus.Accepted ? "accept" : "decline";
-			ITodoList todoService = getTodoListService(getUserFromUid(recipient.getDomainPart(), recipientMailbox.uid));
-			ItemValue<VTodo> todo = todoService.getByIcsUid(imip.uid).get(0);
-			for (VTodo.Attendee a : todo.value.attendees) {
-				if (a.mailto.equals(attendee.mailto)) {
-					a.partStatus = attendee.partStatus;
-				}
+		ICalendarElement.Attendee attendee = atts.get(0);
+		String type = attendee.partStatus == ParticipationStatus.Accepted ? "accept" : "decline";
+		ITodoList todoService = getTodoListService(getUserFromUid(recipient.getDomainPart(), recipientMailbox.uid));
+		ItemValue<VTodo> todo = todoService.getByIcsUid(imip.uid).get(0);
+		for (ICalendarElement.Attendee a : todo.value.attendees) {
+			if (a.mailto.equals(attendee.mailto)) {
+				a.partStatus = attendee.partStatus;
 			}
-
-			todoService.update(todo.uid, todo.value);
-
-			return IMIPResponse.createTodoResponse(imip.uid, imip.iCalendarElements.get(0), type);
-
-		} catch (Exception e) {
-			throw e;
 		}
+
+		todoService.update(todo.uid, todo.value);
+		return IMIPResponse.createTodoResponse(imip.uid, imip.iCalendarElements.get(0), type);
 	}
 }

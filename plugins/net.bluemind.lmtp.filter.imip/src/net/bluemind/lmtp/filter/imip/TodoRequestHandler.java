@@ -101,6 +101,9 @@ public class TodoRequestHandler extends AbstractLmtpHandler implements IIMIPHand
 		}
 
 		VTodo todo = (VTodo) element;
+		if (todo.uid == null) {
+			todo.uid = imip.uid;
+		}
 
 		todoService.create(imip.uid, todo);
 		logger.info("[{}] VTodo {} created", imip.messageId, todo.summary);
