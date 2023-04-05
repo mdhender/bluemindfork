@@ -40,7 +40,40 @@ public class UidSearchAnalyzer {
 	private static final Pattern RE_ALL = Pattern.compile("all ", Pattern.CASE_INSENSITIVE);
 	private static final Pattern RE_SEQUENCE = Pattern.compile("(?:uid )?([\\d\\*:,]+)", Pattern.CASE_INSENSITIVE);
 
-	public Map<String, IUidSearchMatcher> map = new HashMap<>();
+	private static Map<String, IUidSearchMatcher> analyzers;
+	static {
+		analyzers = new HashMap<>();
+		analyzers.put("ALL", null);
+		analyzers.put("ANSWERED", new FlagAnalyzer());
+		analyzers.put("DELETED", new FlagAnalyzer());
+		analyzers.put("FLAGGED", new FlagAnalyzer());
+		analyzers.put("DRAFT", new FlagAnalyzer());
+		analyzers.put("SEEN", new FlagAnalyzer());
+		analyzers.put("UNANSWERED", new UnFlagAnalyzer());
+		analyzers.put("UNDELETED", new UnFlagAnalyzer());
+		analyzers.put("UNFLAGGED", new UnFlagAnalyzer());
+		analyzers.put("UNDRAFT", new UnFlagAnalyzer());
+		analyzers.put("UNSEEN", new UnseenAnalyzer());
+		analyzers.put("BEFORE", new SmallerDateAnalyzer());
+		analyzers.put("ON", new EqualsDateAnalyzer());
+		analyzers.put("SINCE", new GreaterDateAnalyzer());
+		analyzers.put("SENTBEFORE", new SmallerDateAnalyzer());
+		analyzers.put("SENTON", new EqualsDateAnalyzer());
+		analyzers.put("SENTSINCE", new GreaterDateAnalyzer());
+		analyzers.put("SMALLER", new SmallerAnalyzer());
+		analyzers.put("LARGER", new LargerAnalyzer());
+		analyzers.put("HEADER", new HeaderAnalyzer());
+		analyzers.put("KEYWORD", new KeywordAnalyzer());
+		analyzers.put("UNKEYWORD", new UnKeywordAnalyzer());
+		analyzers.put("UID", new SequenceAnalyzer());
+		analyzers.put("BCC", new TextAnalyzer());
+		analyzers.put("BODY", new TextAnalyzer());
+		analyzers.put("CC", new TextAnalyzer());
+		analyzers.put("FROM", new TextAnalyzer());
+		analyzers.put("SUBJECT", new TextAnalyzer());
+		analyzers.put("TEXT", new TextAnalyzer());
+		analyzers.put("TO", new TextAnalyzer());
+	}
 
 	@SuppressWarnings("serial")
 	public static class UidSearchException extends Exception {
@@ -49,40 +82,11 @@ public class UidSearchAnalyzer {
 		}
 	}
 
-	public UidSearchAnalyzer() {
-		map.put("ALL", null);
-		map.put("ANSWERED", new FlagAnalyzer());
-		map.put("DELETED", new FlagAnalyzer());
-		map.put("FLAGGED", new FlagAnalyzer());
-		map.put("DRAFT", new FlagAnalyzer());
-		map.put("SEEN", new FlagAnalyzer());
-		map.put("UNANSWERED", new UnFlagAnalyzer());
-		map.put("UNDELETED", new UnFlagAnalyzer());
-		map.put("UNFLAGGED", new UnFlagAnalyzer());
-		map.put("UNDRAFT", new UnFlagAnalyzer());
-		map.put("UNSEEN", new UnseenAnalyzer());
-		map.put("BEFORE", new SmallerDateAnalyzer());
-		map.put("ON", new EqualsDateAnalyzer());
-		map.put("SINCE", new GreaterDateAnalyzer());
-		map.put("SENTBEFORE", new SmallerDateAnalyzer());
-		map.put("SENTON", new EqualsDateAnalyzer());
-		map.put("SENTSINCE", new GreaterDateAnalyzer());
-		map.put("SMALLER", new SmallerAnalyzer());
-		map.put("LARGER", new LargerAnalyzer());
-		map.put("HEADER", new HeaderAnalyzer());
-		map.put("KEYWORD", new KeywordAnalyzer());
-		map.put("UNKEYWORD", new UnKeywordAnalyzer());
-		map.put("UID", new SequenceAnalyzer());
-		map.put("BCC", new TextAnalyzer());
-		map.put("BODY", new TextAnalyzer());
-		map.put("CC", new TextAnalyzer());
-		map.put("FROM", new TextAnalyzer());
-		map.put("SUBJECT", new TextAnalyzer());
-		map.put("TEXT", new TextAnalyzer());
-		map.put("TO", new TextAnalyzer());
+	private UidSearchAnalyzer() {
 	}
 
-	public static QueryBUilderResult buildQuery(String query, String folderUid, String meUid) throws Exception {
+	public static QueryBUilderResult buildQuery(String query, String folderUid, String meUid)
+			throws UidSearchException {
 		query = query + " END";
 		int maxUid = 0;
 		boolean hasSequence = false;
@@ -90,8 +94,6 @@ public class UidSearchAnalyzer {
 		Client client = ESearchActivator.getClient();
 
 		qb.must(QueryBuilders.termQuery("in", folderUid));
-
-		UidSearchAnalyzer uidSearchAnalyzer = new UidSearchAnalyzer();
 
 		// Gets document with highest uid for keywords with sequences management
 		AggregationBuilder a = AggregationBuilders.max("uid_max").field("uid");
@@ -137,7 +139,7 @@ public class UidSearchAnalyzer {
 				subQuery = subQuery.substring(len);
 				continue;
 			}
-			IUidSearchMatcher analyzer = uidSearchAnalyzer.map.get(keyword);
+			IUidSearchMatcher analyzer = UidSearchAnalyzer.analyzers.get(keyword);
 			if (analyzer != null) {
 				String analyzedQuery = null;
 				if (isCertain) {
@@ -151,7 +153,7 @@ public class UidSearchAnalyzer {
 				len = analyzedQuery.length();
 			} else {
 				if (UidSearchAnalyzer.hasSequence(subQuery)) {
-					analyzer = uidSearchAnalyzer.map.get("UID");
+					analyzer = UidSearchAnalyzer.analyzers.get("UID");
 					String analyzedQuery = null;
 					if (isCertain) {
 						analyzedQuery = analyzer.analyse(qb, subQuery, positiveKeyword, isCertain, maxUid);
@@ -190,21 +192,19 @@ public class UidSearchAnalyzer {
 	}
 
 	public static boolean hasSequence(String query) {
-		Matcher matcher = RE_SEQUENCE.matcher(query);
-		return matcher.find();
+		return RE_SEQUENCE.matcher(query).find();
 	}
 
 	public static boolean hasAll(String query) {
-		Matcher matcher = RE_ALL.matcher(query);
-		return matcher.find();
+		return RE_ALL.matcher(query).find();
 	}
 
 	// Not NOT, positive flag term
-	class FlagAnalyzer extends UidSearchPatternBasedMatcher {
-		public static final Pattern PATTERN = Pattern.compile("(answered|deleted|draft|flagged|seen) ",
+	public static class FlagAnalyzer extends UidSearchPatternBasedMatcher {
+		private static final Pattern PATTERN = Pattern.compile("(answered|deleted|draft|flagged|seen) ",
 				Pattern.CASE_INSENSITIVE);
 
-		protected FlagAnalyzer() {
+		public FlagAnalyzer() {
 			super(PATTERN);
 		}
 
@@ -232,7 +232,7 @@ public class UidSearchAnalyzer {
 	}
 
 	// Not NOT, negative flag term
-	class UnFlagAnalyzer extends UidSearchPatternBasedMatcher {
+	public static class UnFlagAnalyzer extends UidSearchPatternBasedMatcher {
 		private static final Pattern PATTERN = Pattern.compile("un(answered|deleted|draft|flagged) ",
 				Pattern.CASE_INSENSITIVE);
 
@@ -267,7 +267,7 @@ public class UidSearchAnalyzer {
 	}
 
 	// Not NOT, unseen term
-	class UnseenAnalyzer extends UidSearchPatternBasedMatcher {
+	public static class UnseenAnalyzer extends UidSearchPatternBasedMatcher {
 		private static final Pattern PATTERN = Pattern.compile("(unseen) ", Pattern.CASE_INSENSITIVE);
 
 		protected UnseenAnalyzer() {
@@ -300,7 +300,7 @@ public class UidSearchAnalyzer {
 
 	}
 
-	class KeywordAnalyzer extends UidSearchPatternBasedMatcher {
+	public static class KeywordAnalyzer extends UidSearchPatternBasedMatcher {
 		private static final Pattern PATTERN = Pattern.compile("keyword (\\S+) ", Pattern.CASE_INSENSITIVE);
 
 		protected KeywordAnalyzer() {
@@ -334,7 +334,7 @@ public class UidSearchAnalyzer {
 
 	}
 
-	class UnKeywordAnalyzer extends UidSearchPatternBasedMatcher {
+	public static class UnKeywordAnalyzer extends UidSearchPatternBasedMatcher {
 		private static final Pattern PATTERN = Pattern.compile("unkeyword (\\S+) ", Pattern.CASE_INSENSITIVE);
 
 		protected UnKeywordAnalyzer() {
@@ -369,7 +369,7 @@ public class UidSearchAnalyzer {
 	}
 
 	// larger than
-	class LargerAnalyzer extends UidSearchPatternBasedMatcher {
+	public static class LargerAnalyzer extends UidSearchPatternBasedMatcher {
 		private static final Pattern PATTERN = Pattern.compile("larger (\\d+) ", Pattern.CASE_INSENSITIVE);
 
 		protected LargerAnalyzer() {
@@ -407,7 +407,7 @@ public class UidSearchAnalyzer {
 	}
 
 	// Smaller
-	class SmallerAnalyzer extends UidSearchPatternBasedMatcher {
+	public static class SmallerAnalyzer extends UidSearchPatternBasedMatcher {
 		private static final Pattern PATTERN = Pattern.compile("smaller (\\d+) ", Pattern.CASE_INSENSITIVE);
 
 		protected SmallerAnalyzer() {
@@ -444,7 +444,7 @@ public class UidSearchAnalyzer {
 	}
 
 	// Greater than -> rangeQuery(field).gt(dt.iso8601)
-	class GreaterDateAnalyzer extends UidSearchPatternBasedMatcher {
+	public static class GreaterDateAnalyzer extends UidSearchPatternBasedMatcher {
 		private static final Pattern PATTERN = Pattern.compile("(?:sentsince|since) (\\S+) ", Pattern.CASE_INSENSITIVE);
 
 		protected GreaterDateAnalyzer() {
@@ -487,7 +487,7 @@ public class UidSearchAnalyzer {
 	}
 
 	// Before
-	class SmallerDateAnalyzer extends UidSearchPatternBasedMatcher {
+	public static class SmallerDateAnalyzer extends UidSearchPatternBasedMatcher {
 		private static final Pattern PATTERN = Pattern.compile("(?:sentbefore|before) (\\S+) ",
 				Pattern.CASE_INSENSITIVE);
 
@@ -515,13 +515,13 @@ public class UidSearchAnalyzer {
 					}
 					if (certain) {
 						logger.info("termQuery must '{}' lt '{}'", INTERNAL_DATE, dateString);
-						qb.must(QueryBuilders.rangeQuery("internalDate").lt(date.getTime()));
+						qb.must(QueryBuilders.rangeQuery(INTERNAL_DATE).lt(date.getTime()));
 					} else {
 						logger.info("termQuery should '{}' lt '{}'", INTERNAL_DATE, dateString);
 						qb.should(QueryBuilders.rangeQuery(INTERNAL_DATE).lt(date.getTime()));
 					}
 				} catch (ParseException e) {
-					logger.error(e.getMessage());
+					logger.error("date parsing error: {}", e.getMessage());
 				}
 				return matcher.group(0);
 			}
@@ -530,7 +530,7 @@ public class UidSearchAnalyzer {
 
 	}
 
-	class EqualsDateAnalyzer extends UidSearchPatternBasedMatcher {
+	public static class EqualsDateAnalyzer extends UidSearchPatternBasedMatcher {
 		private static final Pattern PATTERN = Pattern.compile("(?:senton|on) (\\S+) ", Pattern.CASE_INSENSITIVE);
 
 		protected EqualsDateAnalyzer() {
@@ -566,7 +566,7 @@ public class UidSearchAnalyzer {
 	}
 
 	// Header
-	class HeaderAnalyzer extends UidSearchPatternBasedMatcher {
+	public static class HeaderAnalyzer extends UidSearchPatternBasedMatcher {
 		private static final Pattern PATTERN = Pattern.compile("header (\\S+) \"([^\"]*)\" ", Pattern.CASE_INSENSITIVE);
 
 		protected HeaderAnalyzer() {
@@ -626,7 +626,7 @@ public class UidSearchAnalyzer {
 
 	}
 
-	class TextAnalyzer extends UidSearchPatternBasedMatcher {
+	public static class TextAnalyzer extends UidSearchPatternBasedMatcher {
 		private static final Pattern PATTERN = Pattern
 				.compile("(?<!not_)(to|from|cc|bcc|body|subject|text) \"([^\"]*)\" ", Pattern.CASE_INSENSITIVE);
 
@@ -640,25 +640,25 @@ public class UidSearchAnalyzer {
 			if (matcher.find()) {
 				String key = matcher.group(1).toLowerCase();
 				String value = matcher.group(2);
-				if (key.equals("body") | key.equals("text")) {
+				if (key.equals("body") || key.equals("text")) {
 					key = "content";
 				}
 				Map<String, Float> fields = new HashMap<>();
 				fields.put(key, 1.0F);
 
 				if (!positive) {
-					logger.info("matchPhrase must not '{}'={}'", key, value);
+					logger.info("matchPhrase must not '{}'='{}'", key, value);
 					qb.mustNot(JoinQueryBuilders.hasParentQuery(PARENT_TYPE, QueryBuilders.matchPhraseQuery(key, value),
 							false));
 					return matcher.group(0);
 				}
 
 				if (certain) {
-					logger.info("matchPhrase must '{}':{}'", key, value);
+					logger.info("matchPhrase must '{}':'{}'", key, value);
 					qb.must(JoinQueryBuilders.hasParentQuery(PARENT_TYPE, QueryBuilders.matchPhraseQuery(key, value),
 							false));
 				} else {
-					logger.info("matchPhrase should '{}':{}'", key, value);
+					logger.info("matchPhrase should '{}':'{}'", key, value);
 					qb.should(JoinQueryBuilders.hasParentQuery(PARENT_TYPE, QueryBuilders.matchPhraseQuery(key, value),
 							false));
 				}
@@ -669,7 +669,7 @@ public class UidSearchAnalyzer {
 
 	}
 
-	class SequenceAnalyzer extends UidSearchPatternBasedMatcher {
+	public static class SequenceAnalyzer extends UidSearchPatternBasedMatcher {
 		private static final Pattern PATTERN = Pattern.compile("(?:uid )?([\\d\\*:,]+) ", Pattern.CASE_INSENSITIVE);
 
 		protected SequenceAnalyzer() {
