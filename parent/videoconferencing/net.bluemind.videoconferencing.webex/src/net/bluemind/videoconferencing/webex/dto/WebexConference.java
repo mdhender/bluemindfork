@@ -32,16 +32,16 @@ public class WebexConference {
 	public final String start;
 	public final String end;
 	public final String timezone;
-	public final Optional<String> reccurrence;
+	public final Optional<String> recurrence;
 	public final List<WebexInivitee> invitees;
 
-	public WebexConference(String title, String start, String end, String timezone, Optional<String> reccurrence,
+	public WebexConference(String title, String start, String end, String timezone, Optional<String> recurrence,
 			List<WebexInivitee> invitees) {
 		this.title = title;
 		this.start = start;
 		this.end = end;
 		this.timezone = timezone;
-		this.reccurrence = reccurrence;
+		this.recurrence = recurrence;
 		this.invitees = invitees;
 	}
 
@@ -52,13 +52,13 @@ public class WebexConference {
 		json.put("start", start);
 		json.put("end", end);
 		json.put("timezone", timezone);
-		reccurrence.ifPresent(rec -> json.put("reccurrence", rec));
+		recurrence.ifPresent(rec -> json.put("recurrence", rec));
 		if (!invitees.isEmpty()) {
 			JsonArray inviteesArray = new JsonArray();
 			for (WebexInivitee invitee : invitees) {
 				inviteesArray.add(invitee.toJson());
 			}
-			json.put("invitess", inviteesArray);
+			json.put("invitees", inviteesArray);
 		}
 		json.put("sendEmail", false);
 		return json.encode();
