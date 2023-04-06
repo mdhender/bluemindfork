@@ -131,7 +131,8 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 		try (Scope scope = parentSpan.makeCurrent()) {
 			final Span span = Span.current();
 			span.setAttribute(SemanticAttributes.HTTP_METHOD, request.method.name());
-			span.setAttribute(SemanticAttributes.HTTP_CLIENT_IP, request.remoteAddresses.stream().findFirst().get());
+			span.setAttribute(SemanticAttributes.HTTP_CLIENT_IP,
+					request.remoteAddresses.stream().findFirst().orElse("127.127.127.127"));
 			for (IRestFilter filter : filters) {
 				responseHandler = filter.preAuthorization(request, responseHandler);
 				if (responseHandler == null) {

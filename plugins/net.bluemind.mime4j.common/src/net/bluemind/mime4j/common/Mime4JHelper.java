@@ -486,11 +486,12 @@ public class Mime4JHelper {
 
 	private static String formatPlainTextBodyForReplyInclusion(String bodyText) {
 		StringBuilder sb = new StringBuilder();
-		String[] lines = bodyText.split("\n");
-		for (String line : lines) {
-			sb.append(">");
-			sb.append(line);
-			sb.append("\n");
+		if (bodyText != null) {
+			for (String line : bodyText.split("\n")) {
+				sb.append(">");
+				sb.append(line);
+				sb.append("\n");
+			}
 		}
 		return sb.toString();
 	}
