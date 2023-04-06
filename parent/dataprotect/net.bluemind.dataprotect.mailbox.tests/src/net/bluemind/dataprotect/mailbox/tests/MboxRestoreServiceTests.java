@@ -104,14 +104,15 @@ public class MboxRestoreServiceTests extends AbstractRestoreTests {
 		try (StoreClient sc = new StoreClient("localhost", 1143, latd, password)) {
 			assertTrue(sc.login());
 			sc.select("INBOX");
-			Collection<Integer> all = sc.uidSearch(new SearchQuery());
+			SearchQuery q = new SearchQuery();
+			q.setUndeleted(true);
+			Collection<Integer> all = sc.uidSearch(q);
 			FlagsList fl = new FlagsList();
 			fl.add(Flag.DELETED);
 			sc.uidStore(all, fl, true);
 			sc.expunge();
-			all = sc.uidSearch(new SearchQuery());
+			all = sc.uidSearch(q);
 			assertTrue("INBOX should be empty after expunge", all.isEmpty());
-
 			sc.deleteMailbox(subFolderWithSpace);
 			sc.deleteMailbox(subFolder);
 		}
