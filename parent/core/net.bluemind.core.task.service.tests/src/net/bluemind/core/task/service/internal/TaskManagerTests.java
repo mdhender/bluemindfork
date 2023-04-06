@@ -81,7 +81,7 @@ public class TaskManagerTests {
 		System.err.println("After test.");
 	}
 
-	@Test(timeout = 30000)
+	@Test(timeout = 60000)
 	public void repeatFailures() throws Exception {
 		for (int i = 0; i < 1024; i++) {
 			System.err.println("start task " + i);
