@@ -41,5 +41,6 @@
 		<module>net.bluemind.cli.journaling</module>
 		<module>net.bluemind.cli.inject.ou</module>
 		<module>net.bluemind.cli.ou</module>
+		<module>net.bluemind.cli.oauth</module>
 	</modules>
 </project>
