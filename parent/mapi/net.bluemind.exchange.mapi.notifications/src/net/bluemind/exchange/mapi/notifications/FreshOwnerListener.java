@@ -51,6 +51,6 @@ public class FreshOwnerListener extends DefaultUserHook {
 	public void beforeCreate(net.bluemind.core.rest.BmContext context, String domainUid, String uid, User user)
 			throws net.bluemind.core.api.fault.ServerFault {
 		FRESH_OWNERS.put(uid, CONST_VALUE);
-	};
+	}
 
 }
