@@ -4,6 +4,7 @@ import { SMIME_AVAILABLE } from "./getterTypes";
 import addCertificate from "../lib/addCertificate";
 import {
     DISPLAY_UNTRUSTED,
+    RESET_MISSING_CERTIFICATES,
     SET_SW_AVAILABLE,
     SET_SW_ERROR,
     SET_HAS_PRIVATE_KEY,
@@ -70,8 +71,8 @@ export default {
         }
     },
     mutations: {
-        [DISPLAY_UNTRUSTED]: (state, messageKey) => {
-            state.displayUntrusted.push(messageKey);
+        [DISPLAY_UNTRUSTED]: (state, messageKeys) => {
+            state.displayUntrusted.push(...messageKeys);
         },
         [SET_SW_AVAILABLE]: (state, isAvailable) => {
             state.isServiceWorkerAvailable = isAvailable;
@@ -84,6 +85,9 @@ export default {
         },
         [SET_HAS_PUBLIC_CERT]: (state, hasPublicCert) => {
             state.hasPublicCert = hasPublicCert;
+        },
+        [RESET_MISSING_CERTIFICATES]: state => {
+            state.missingCertificates = [];
         },
 
         // Listeners

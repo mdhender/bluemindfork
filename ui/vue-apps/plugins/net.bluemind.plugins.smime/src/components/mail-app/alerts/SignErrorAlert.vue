@@ -1,13 +1,12 @@
 <template>
     <composer-alert class="sign-error-alert" :code="signError" :text="$t('alert.smime.sign_failed')" doc="">
-        <bm-button class="stop-signature" variant="text" @click="stopSignature(ACTIVE_MESSAGE)">
+        <bm-button class="stop-signature" variant="text" @click="stopSignature(message)">
             {{ $t("smime.mailapp.composer.stop_signature") }}
         </bm-button>
     </composer-alert>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
 import { BmButton } from "@bluemind/ui-components";
 import ComposerAlert from "./ComposerAlert";
 import EncryptSignMixin from "../../../mixins/EncryptSignMixin";
@@ -23,7 +22,9 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail", { ACTIVE_MESSAGE: "ACTIVE_MESSAGE" }),
+        message() {
+            return this.alert.payload;
+        },
         signError() {
             return this.$store.state.mail.smime.signError;
         }

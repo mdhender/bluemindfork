@@ -211,7 +211,7 @@ export default {
             );
         },
         async $_SignatureMixin_refreshSignature() {
-            await this.$execute("get-mail-tips", { context: getMailTipContext(this.message) });
+            await this.$execute("get-mail-tips", { context: getMailTipContext(this.message), message: this.message });
         },
         async $_SignatureMixin_removePlaceholder() {
             if (this.$_SignatureMixin_checkCorporateSignatureDone) {

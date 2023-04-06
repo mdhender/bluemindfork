@@ -1,15 +1,16 @@
 <template>
     <div class="untrusted-sender-alert">
-        {{ $t("alert.smime.untrusted") }}
-        <bm-button v-if="!isAlreadyDisplayed" variant="link" class="ml-4" @click="displayMessage">
+        {{ $tc("alert.smime.untrusted", untrustedMessageKeys.length) }}
+        <bm-button v-if="!areAlreadyDisplayed" variant="link" class="ml-4" @click="displayMessages">
             {{ $t("common.display_anyway") }}
         </bm-button>
     </div>
 </template>
 
 <script>
-import { DISPLAY_UNTRUSTED } from "../../../store/mutationTypes";
 import { BmButton } from "@bluemind/ui-components";
+import { hasSignatureHeader, isVerified } from "../../../lib/helper";
+import { DISPLAY_UNTRUSTED } from "../../../store/mutationTypes";
 
 export default {
     name: "UntrustedSenderAlert",
@@ -21,16 +22,26 @@ export default {
         }
     },
     computed: {
-        messageKey() {
-            return this.alert.payload;
+        untrustedMessageKeys() {
+            const conv = this.$store.getters["mail/CURRENT_CONVERSATION_METADATA"];
+            const draftsFolderKey = this.$store.getters["mail/MY_DRAFTS"].key;
+            const messageKeys = this.$store.getters["mail/CONVERSATION_MESSAGE_BY_KEY"](conv.key)
+                .filter(
+                    message =>
+                        message.folderRef.key !== draftsFolderKey &&
+                        hasSignatureHeader(message.headers) &&
+                        !isVerified(message.headers)
+                )
+                .map(({ key }) => key);
+            return messageKeys;
         },
-        isAlreadyDisplayed() {
-            return this.$store.state.mail.smime.displayUntrusted.indexOf(this.messageKey) !== -1;
+        areAlreadyDisplayed() {
+            return this.untrustedMessageKeys.every(key => this.$store.state.mail.smime.displayUntrusted.includes(key));
         }
     },
     methods: {
-        displayMessage() {
-            this.$store.commit("mail/" + DISPLAY_UNTRUSTED, this.messageKey);
+        displayMessages() {
+            this.$store.commit("mail/" + DISPLAY_UNTRUSTED, this.untrustedMessageKeys);
         }
     }
 };

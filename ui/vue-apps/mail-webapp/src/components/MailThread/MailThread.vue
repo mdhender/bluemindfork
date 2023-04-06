@@ -1,6 +1,6 @@
 <template>
     <div class="mail-thread d-flex flex-column">
-        <bm-alert-area class="position-sticky sticky-top" :alerts="alerts" @remove="REMOVE">
+        <bm-alert-area class="thread-alert-area sticky-top" :alerts="alerts" @remove="REMOVE">
             <template v-slot="context">
                 <component :is="context.alert.renderer" :alert="context.alert" />
             </template>
@@ -59,6 +59,9 @@ export default {
 @import "~@bluemind/ui-components/src/css/variables";
 
 .mail-thread {
+    .thread-alert-area {
+        z-index: $zindex-sticky + 1; // stay above composer footer
+    }
     .mail-composer ~ .mail-viewer {
         display: none !important;
         @include from-lg {

@@ -3,6 +3,7 @@
         <mail-contact-card-slots
             :component="Contact"
             :contact="message.from"
+            :no-avatar="noAvatar"
             avatar-size="md"
             show-address
             transparent
@@ -25,6 +26,10 @@ export default {
         message: {
             type: Object,
             required: true
+        },
+        noAvatar: {
+            type: Boolean,
+            default: false
         }
     },
     data() {

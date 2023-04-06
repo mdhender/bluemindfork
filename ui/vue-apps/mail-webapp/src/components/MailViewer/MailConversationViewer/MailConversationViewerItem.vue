@@ -4,14 +4,14 @@
             class="mail-conversation-viewer-item-body"
             :class="{ 'last-before-draft': isLastBeforeDraft }"
             tabindex="0"
-            @click.prevent="expand"
+            @click="expand"
             @keypress.enter="toggle"
         >
             <div v-if="index !== 0" class="d-flex conversation-viewer-row flex-nowrap">
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" />
                 <div class="flex-fill spacer" />
             </div>
-            <div class="d-flex min-height conversation-viewer-row click-to-collapse-zone flex-nowrap">
+            <div class="d-flex conversation-viewer-row click-to-collapse-zone flex-nowrap">
                 <div class="avatar-wrapper vertical-line" :class="{ first: index === 0, last: index === maxIndex }">
                     <mail-contact-card-slots
                         :component="Contact"
@@ -123,9 +123,6 @@ export default {
     .mail-viewer-toolbar .btn {
         padding-top: 0;
         padding-bottom: 0;
-    }
-    .row.min-height {
-        min-height: 2.5em;
     }
     .mail-conversation-viewer-item-body:focus {
         outline-offset: -0.375em;

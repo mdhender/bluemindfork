@@ -6,7 +6,7 @@
                 "success": "The certificate was successfully imported.",
                 "error": "The certificate could not be imported."
             },
-            "untrusted": "Message was signed by sender but signature could not be verified.",
+            "untrusted": "Signed message could not be verified. | Some signed messages could not be verified.",
             "decrypt_failed": "Unable to display the encrypted message",
             "encrypt_failed": "Message encryption error",
             "sign_failed": "Message signature error",
@@ -24,6 +24,8 @@
                 "cant_display": "Why I can't see this message?"
             },
             "viewer": {
+                "trusted_sender": "This message includes a valid digital signature.",
+                "untrusted_sender": "Message digital signature is invalid.",
                 "add_certificate": {
                     "action_short": "Import the certificate",
                     "action": "Import the certificate for {email} into My Contacts."

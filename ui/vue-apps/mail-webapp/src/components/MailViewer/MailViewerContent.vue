@@ -10,33 +10,25 @@
             </div>
             <mail-viewer-recipients v-if="hasRecipients" :message="message" />
         </div>
-        <bm-extension id="webapp.mail" path="viewer.body" type="chain-of-responsibility" :message="message">
-            <body-viewer class="flex-fill" :message="message" @remote-content="from => $emit('remote-content', from)">
-                <template v-slot:attachments-block="scope">
-                    <slot name="attachments-block" v-bind="scope" />
-                </template>
-                <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
-                    <slot :name="slot" v-bind="scope" />
-                </template>
-            </body-viewer>
-        </bm-extension>
+        <body-viewer class="flex-fill" :message="message" @remote-content="from => $emit('remote-content', from)">
+            <template v-slot:attachments-block="scope">
+                <slot name="attachments-block" v-bind="scope" />
+            </template>
+            <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+                <slot :name="slot" v-bind="scope" />
+            </template>
+        </body-viewer>
     </div>
 </template>
 
 <script>
-import { BmExtension } from "@bluemind/extensions.vue";
 import BodyViewer from "./BodyViewer";
 import MailViewerFrom from "./MailViewerFrom";
 import MailViewerRecipients from "./MailViewerRecipients";
 
 export default {
     name: "MailViewerContent",
-    components: {
-        BmExtension,
-        BodyViewer,
-        MailViewerFrom,
-        MailViewerRecipients
-    },
+    components: { BodyViewer, MailViewerFrom, MailViewerRecipients },
     props: {
         message: {
             type: Object,

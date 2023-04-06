@@ -6,7 +6,7 @@
                 "success": "Das Zertifikat wurde erfolgreich importiert.",
                 "error": "Das Zertifikat konnte nicht importiert werden."
             },
-            "untrusted": "Die E-Mail wurde vom Absender signiert, die Signatur konnte jedoch nicht verifiziert werden.",
+            "untrusted": "Die signierte E-Mail konnte nicht verifiziert werden. | Manche signierte E-Mails konnten nicht verifiziert werden.",
             "decrypt_failed": "Verschlüsselte E-Mail kann nicht angezeigt werden.",
             "encrypt_failed": "Fehler bei der Verschlüsselung der Nachricht",
             "sign_failed": "Fehler bei der Signatur der Nachricht",
@@ -24,6 +24,8 @@
                 "cant_display": "Warum kann ich diese E-Mail nicht einsehen?"
             },
             "viewer": {
+                "trusted_sender": "Diese E-Mail enthält eine valide, digitale Signatur.",
+                "untrusted_sender": "Die digitale Signatur der E-Mail ist nicht valide.",
                 "add_certificate": {
                     "action_short": "Zertifikat importieren",
                     "action": "Zertifikat für {email} in Meine Kontakte importieren."

@@ -1,10 +1,15 @@
 <template>
-    <bm-icon v-if="isVerified(message.headers)" icon="check-stamp" class="trusted-sender" />
+    <bm-icon
+        v-if="hasSignatureHeader"
+        :icon="isVerified ? 'check-stamp' : 'exclamation-sample'"
+        :title="tooltip"
+        class="is-sender-trusted"
+    />
 </template>
 
 <script>
 import { BmIcon } from "@bluemind/ui-components";
-import { isVerified } from "../../lib/helper";
+import { hasSignatureHeader, isVerified } from "../../lib/helper";
 
 export default {
     name: "TrustedSender",
@@ -15,15 +20,24 @@ export default {
             required: true
         }
     },
-    data() {
-        return { isVerified };
+    computed: {
+        hasSignatureHeader() {
+            return hasSignatureHeader(this.message.headers);
+        },
+        isVerified() {
+            return isVerified(this.message.headers);
+        },
+        tooltip() {
+            const suffix = this.isVerified ? "trusted_sender" : "untrusted_sender";
+            return this.$t("smime.mailapp.viewer." + suffix);
+        }
     }
 };
 </script>
 
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/variables.scss";
-.trusted-sender.fa-check-stamp {
+.is-sender-trusted.fa-check-stamp {
     color: $primary-fg;
 }
 </style>

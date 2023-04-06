@@ -11,7 +11,6 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
 import { BmButton } from "@bluemind/ui-components";
 import DocLinkMixin from "../../../mixins/DocLinkMixin";
 import EncryptSignMixin from "../../../mixins/EncryptSignMixin";
@@ -28,12 +27,14 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail", { ACTIVE_MESSAGE: "ACTIVE_MESSAGE" })
+        message() {
+            return this.alert.payload;
+        }
     },
     methods: {
         stopEncryptionAndSignature() {
-            this.stopSignature(this.ACTIVE_MESSAGE);
-            this.stopEncryption(this.ACTIVE_MESSAGE);
+            this.stopSignature(this.message);
+            this.stopEncryption(this.message);
         }
     }
 };

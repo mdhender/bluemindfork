@@ -99,7 +99,6 @@ export default {
     computed: {
         ...mapGetters("mail", { CONVERSATION_LIST_UNREAD_FILTER_ENABLED, CONVERSATION_MESSAGE_BY_KEY, MY_DRAFTS }),
         ...mapState("mail", ["folders"]),
-        ...mapState("mail", { messages: ({ conversations }) => conversations.messages }),
         trustRemoteContent() {
             return this.$store.state.settings.trust_every_remote_content !== "false";
         },
@@ -199,11 +198,7 @@ export default {
         },
         isHiddenCandidate(index) {
             return (
-                !this.showHiddenMessages[index] &&
-                index !== 0 &&
-                !this.isTrailingDraft(index) && // TODO remove useless
-                !this.expandedMessages[index] &&
-                !this.isDraft(index)
+                !this.showHiddenMessages[index] && index !== 0 && !this.expandedMessages[index] && !this.isDraft(index)
             );
         },
         isUnread(index) {

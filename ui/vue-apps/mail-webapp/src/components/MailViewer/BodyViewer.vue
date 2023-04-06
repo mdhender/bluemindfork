@@ -1,38 +1,41 @@
 <template>
-    <div class="body-viewer">
-        <mail-top-frame :message="message" />
-        <slot name="attachments-block" :files="files" :message="message">
-            <files-block
-                :files="files"
-                :message="message"
-                @click-item="previewOrDownload"
-                @remote-content="triggerRemoteContent"
-            >
-                <template v-slot:actions="{ file }">
-                    <file-toolbar ref="toolbar" :buttons="actionButtons" :file="file" :message="message" />
+    <bm-extension id="webapp.mail" path="viewer.body" type="chain-of-responsibility" :message="message">
+        <div class="body-viewer">
+            <mail-top-frame :message="message" />
+            <slot name="attachments-block" :files="files" :message="message">
+                <files-block
+                    :files="files"
+                    :message="message"
+                    @click-item="previewOrDownload"
+                    @remote-content="triggerRemoteContent"
+                >
+                    <template v-slot:actions="{ file }">
+                        <file-toolbar ref="toolbar" :buttons="actionButtons" :file="file" :message="message" />
+                    </template>
+                    <template #overlay="slotProps">
+                        <preview-overlay v-if="slotProps.hasPreview" />
+                        <filetype-overlay v-else :file="slotProps.file" />
+                    </template>
+                </files-block>
+            </slot>
+            <event-viewer v-if="message.hasICS && currentEvent" :parts="inlines" :message="message">
+                <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+                    <slot :name="slot" v-bind="scope" />
                 </template>
-                <template #overlay="slotProps">
-                    <preview-overlay v-if="slotProps.hasPreview" />
-                    <filetype-overlay v-else :file="slotProps.file" />
+            </event-viewer>
+            <mail-inlines-block v-else :message="message" :parts="inlines">
+                <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+                    <slot :name="slot" v-bind="scope" />
                 </template>
-            </files-block>
-        </slot>
-        <event-viewer v-if="message.hasICS && currentEvent" :parts="inlines" :message="message">
-            <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
-                <slot :name="slot" v-bind="scope" />
-            </template>
-        </event-viewer>
-        <mail-inlines-block v-else :message="message" :parts="inlines">
-            <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
-                <slot :name="slot" v-bind="scope" />
-            </template>
-        </mail-inlines-block>
-    </div>
+            </mail-inlines-block>
+        </div>
+    </bm-extension>
 </template>
 
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { MimeType, InlineImageHelper } from "@bluemind/email";
+import { BmExtension } from "@bluemind/extensions.vue";
 import { hasRemoteImages } from "@bluemind/html-utils";
 import { attachmentUtils, fileUtils, partUtils } from "@bluemind/mail";
 
@@ -55,6 +58,7 @@ const { VIEWER_CAPABILITIES, getPartsFromCapabilities, isViewable } = partUtils;
 export default {
     name: "BodyViewer",
     components: {
+        BmExtension,
         EventViewer,
         FilesBlock,
         FileToolbar,

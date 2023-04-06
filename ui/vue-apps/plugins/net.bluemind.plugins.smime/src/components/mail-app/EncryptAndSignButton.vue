@@ -26,14 +26,16 @@ import { mapActions, mapGetters } from "vuex";
 import { BmDropdownItemToggle, BmIconDropdown } from "@bluemind/ui-components";
 import { ERROR, REMOVE } from "@bluemind/alert.store";
 import { inject } from "@bluemind/inject";
-import { draftUtils, messageUtils } from "@bluemind/mail";
+import { draftUtils, mailTipUtils, messageUtils } from "@bluemind/mail";
 import { SMIME_AVAILABLE } from "../../store/getterTypes";
+import { RESET_MISSING_CERTIFICATES } from "../../store/mutationTypes";
 import EncryptSignMixin from "../../mixins/EncryptSignMixin";
 import { hasEncryptionHeader, hasSignatureHeader, addHeaderValue } from "../../lib/helper";
 import { CRYPTO_HEADERS, ENCRYPTED_HEADER_NAME, SIGNED_HEADER_NAME, SMIMEPrefKeys } from "../../lib/constants";
 
 const { MessageCreationModes, messageKey, MessageStatus } = messageUtils;
 const { isNewMessage } = draftUtils;
+const { getMailTipContext } = mailTipUtils;
 
 const alert = { name: "smime", uid: "SMIME", payload: null };
 const alertOptions = {
@@ -149,8 +151,7 @@ export default {
         hasEncryptError: {
             handler(hasError) {
                 const priority = 2;
-                const error = this.$store.state.mail.smime.encryptError;
-                const newAlert = { ...alert, payload: error };
+                const newAlert = { ...alert, payload: this.message };
                 this.handleError(hasError, newAlert, encryptAlertOptions, priority);
             },
             immediate: true
@@ -158,8 +159,7 @@ export default {
         hasSignError: {
             handler(hasError) {
                 const priority = 1;
-                const error = this.$store.state.mail.smime.signError;
-                const newAlert = { ...alert, payload: error };
+                const newAlert = { ...alert, payload: this.message };
                 this.handleError(hasError, newAlert, signAlertOptions, priority);
             },
             immediate: true
@@ -167,7 +167,8 @@ export default {
         hasInvalidIdentity: {
             handler(isInvalid) {
                 const priority = 3;
-                this.handleError(isInvalid, alert, identityAlertOptions, priority);
+                const newAlert = { ...alert, payload: this.message };
+                this.handleError(isInvalid, newAlert, identityAlertOptions, priority);
             },
             immediate: true
         },
@@ -177,6 +178,16 @@ export default {
                 this.$store.commit("mail/SET_MESSAGES_STATUS", [{ key: this.message.key, status }]);
             },
             immediate: true
+        },
+        async hasEncryptionHeader() {
+            if (this.hasEncryptionHeader) {
+                await this.$execute("get-mail-tips", {
+                    context: getMailTipContext(this.message),
+                    message: this.message
+                });
+            } else {
+                this.$store.commit("mail/" + RESET_MISSING_CERTIFICATES);
+            }
         }
     },
     methods: {

@@ -1,19 +1,10 @@
 <template>
     <mail-conversation-viewer-item class="mail-conversation-viewer-message" v-bind="$props" v-on="$listeners">
-        <bm-extension id="webapp.mail" path="viewer.header" :message="message" />
         <template slot="head">
+            <bm-extension id="webapp.mail" path="viewer.header" :message="message" />
             <div class="conversation-viewer-message-head d-flex flex-fill justify-content-between align-items-start">
                 <div class="d-flex align-self-center overflow-hidden no-wrap flex-fill">
-                    <mail-contact-card-slots
-                        class="text-truncate"
-                        :component="Contact"
-                        :contact="message.from"
-                        no-avatar
-                        transparent
-                        show-address
-                        bold-dn
-                        enable-card
-                    />
+                    <mail-viewer-from class="text-truncate" :message="message" no-avatar />
                     <mail-folder-icon
                         v-if="folder.key !== conversation.folderRef.key"
                         class="flex-fill"
@@ -77,7 +68,8 @@ import { mapGetters, mapState } from "vuex";
 import { Contact } from "@bluemind/business-components";
 import { BmExtension } from "@bluemind/extensions.vue";
 import MailConversationViewerItem from "./MailConversationViewerItem";
-import MailViewerContentLoading from "../../MailViewer/MailViewerContentLoading";
+import MailViewerContentLoading from "../MailViewerContentLoading";
+import MailViewerFrom from "../MailViewerFrom";
 import MailViewerToolbar from "../MailViewerToolbar";
 import MailViewerToolbarForMobile from "../MailViewerToolbarForMobile";
 import MailConversationViewerFlags from "./MailConversationViewerFlags";
@@ -85,7 +77,6 @@ import MailConversationViewerItemMixin from "./MailConversationViewerItemMixin";
 import BodyViewer from "../BodyViewer";
 import { MESSAGE_IS_LOADED } from "~/getters";
 import MailFolderIcon from "../../MailFolderIcon";
-import MailContactCardSlots from "../../MailContactCardSlots";
 import MessageIcon from "../../MessageIcon/MessageIcon";
 
 export default {
@@ -93,11 +84,11 @@ export default {
     components: {
         BmExtension,
         BodyViewer,
-        MailContactCardSlots,
         MailConversationViewerFlags,
         MailConversationViewerItem,
         MailFolderIcon,
         MailViewerContentLoading,
+        MailViewerFrom,
         MailViewerToolbar,
         MailViewerToolbarForMobile,
         MessageIcon

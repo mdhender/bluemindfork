@@ -4,6 +4,7 @@ import { ERROR, REMOVE } from "@bluemind/alert.store";
 import { draftUtils, messageUtils } from "@bluemind/mail";
 import { DEBOUNCED_SAVE_MESSAGE, REQUEST_DSN, TOGGLE_DSN_REQUEST } from "~/actions";
 import { RESET_COMPOSER, SET_MESSAGE_HEADERS, SET_SAVE_ERROR } from "~/mutations";
+import { GetMailTipsCommand } from "~/commands";
 import { IS_SENDER_SHOWN } from "~/getters";
 import { ComposerFromMixin } from "~/mixins";
 import { Flag } from "@bluemind/email";
@@ -20,7 +21,7 @@ export default {
             required: true
         }
     },
-    mixins: [ComposerFromMixin],
+    mixins: [ComposerFromMixin, GetMailTipsCommand],
     data() {
         return { draggedFilesCount: -1, isSignatureInserted: false };
     },

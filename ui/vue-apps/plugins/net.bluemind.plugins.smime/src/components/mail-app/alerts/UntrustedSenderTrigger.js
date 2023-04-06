@@ -10,13 +10,13 @@ export default {
     },
     data() {
         return {
-            alert: { name: "smime.untrusted_sender", uid: "SMIME_UNTRUSTED_SENDER", payload: this.message.key },
+            alert: { name: "smime.untrusted_sender", uid: "SMIME_UNTRUSTED_SENDER" },
             options: { area: "right-panel", icon: "lock", renderer: "UntrustedSenderAlert" }
         };
     },
     watch: {
         "message.key": {
-            handler: function () {
+            handler() {
                 if (hasSignatureHeader(this.message.headers) && !isVerified(this.message.headers)) {
                     this.WARNING({ alert: this.alert, options: this.options });
                 } else {

@@ -38,7 +38,7 @@ export function mergePartsForTextarea(partsToMerge, parts) {
 export function mergePartsForRichEditor(partsToMerge, parts, userLang) {
     let result = "";
     for (const part of partsToMerge) {
-        const partContent = parts[part.address];
+        const partContent = parts ? parts[part.address] : "";
         if (MimeType.equals(part.mime, MimeType.TEXT_HTML)) {
             result += partContent;
         } else if (MimeType.equals(part.mime, MimeType.TEXT_PLAIN)) {

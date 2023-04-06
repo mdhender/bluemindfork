@@ -14,6 +14,7 @@
         </i-frame>
     </text-html-file-viewer>
 </template>
+
 <script>
 import IFrame from "../../../IFrame";
 import FileViewerMixin from "../FileViewerMixin";

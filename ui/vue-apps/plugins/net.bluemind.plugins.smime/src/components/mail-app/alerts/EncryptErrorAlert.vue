@@ -1,6 +1,6 @@
 <template>
     <composer-alert class="encrypt-error-alert" :code="encryptError" :text="text" :doc="doc">
-        <bm-button class="stop-encryption" variant="text" @click="stopEncryption(ACTIVE_MESSAGE)">
+        <bm-button class="stop-encryption" variant="text" @click="stopEncryption(message)">
             {{ $t("smime.mailapp.composer.stop_encryption") }}
         </bm-button>
     </composer-alert>
@@ -9,7 +9,6 @@
 <script>
 import { BmButton } from "@bluemind/ui-components";
 import { CRYPTO_HEADERS } from "../../../lib/constants";
-import { mapGetters } from "vuex";
 import EncryptSignMixin from "../../../mixins/EncryptSignMixin";
 import DocLinkMixin from "../../../mixins/DocLinkMixin";
 import ComposerAlert from "./ComposerAlert";
@@ -25,7 +24,9 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail", { ACTIVE_MESSAGE: "ACTIVE_MESSAGE" }),
+        message() {
+            return this.alert.payload;
+        },
         missingCertificates() {
             return (
                 this.$store.state.mail.smime.missingCertificates.length > 0 ||
@@ -33,7 +34,7 @@ export default {
             );
         },
         recipientsCount() {
-            return this.ACTIVE_MESSAGE.to.length + this.ACTIVE_MESSAGE.bcc.length + this.ACTIVE_MESSAGE.cc.length;
+            return this.message.to.length + this.message.bcc.length + this.message.cc.length;
         },
         allInvalid() {
             return (

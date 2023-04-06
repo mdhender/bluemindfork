@@ -20,6 +20,12 @@
                     "
                     @check-and-repair="checkAndRepairFrom"
                 />
+                <mail-conversation-viewer-vertical-line
+                    v-if="isSenderShown"
+                    :index="index"
+                    :max-index="maxIndex"
+                    after-avatar
+                />
                 <div class="to-contact-input">
                     <mail-composer-recipient :message="message" recipient-type="to" />
                     <mail-open-in-popup-with-shift v-slot="action" :href="route" :next="consult">

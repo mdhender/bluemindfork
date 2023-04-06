@@ -6,7 +6,7 @@
                 "success": "Le certificat a bien été importé.",
                 "error": "Le certificat n'a pas pu être importé."
             },
-            "untrusted": "Le message a été signé par son expéditeur mais la signature n'a pas pu être validée.",
+            "untrusted": "Le message signé n'a pas pu être validé. | Certains messages signés n'ont pas pu être validés.",
             "decrypt_failed": "Impossible d'afficher le message chiffré.",
             "encrypt_failed": "Erreur de chiffrement du message",
             "sign_failed": "Erreur de signature du message",
@@ -24,6 +24,8 @@
                 "cant_display": "Pourquoi je ne peux pas voir ce message ?"
             },
             "viewer": {
+                "trusted_sender": "Ce message inclut une signature numérique valide.",
+                "untrusted_sender": "La signature numérique de ce message est invalide.",
                 "add_certificate": {
                     "action_short": "Importer le certificat",
                     "action": "Importer le certificat de {email} dans Mes contacts."
