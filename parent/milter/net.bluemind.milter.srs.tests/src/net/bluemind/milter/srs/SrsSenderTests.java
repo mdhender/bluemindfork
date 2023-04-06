@@ -120,6 +120,9 @@ public class SrsSenderTests {
 
 	@Test
 	public void execute_nonLocalSender_nonLocalRcpt() {
+		// Ensure no default domain
+		MQ.sharedMap("system.configuration").put(SysConfKeys.default_domain.name(), null);
+
 		UpdatedMailMessage updateMailMessage = new UpdatedMailMessage(new HashMap<>(), new MessageImpl());
 		updateMailMessage.properties.put("{mail_addr}", Arrays.asList("sender@ext-domain.tld"));
 		updateMailMessage.properties.put("{rcpt_addr}", Arrays.asList("rcpt@ext-domain.tld", "rcpt@domain.tld"));
