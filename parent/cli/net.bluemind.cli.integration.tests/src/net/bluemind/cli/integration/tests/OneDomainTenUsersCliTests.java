@@ -83,8 +83,10 @@ public class OneDomainTenUsersCliTests {
 		String output = testHelper.outputAndReset();
 		assertNotNull(output);
 		int jsonArrayStart = output.indexOf("[ {");
+		int jsonArrayStop = output.indexOf("} ]\n");
 		assertTrue(jsonArrayStart >= 0);
-		String justJson = output.substring(jsonArrayStart);
+		String justJson = output.substring(jsonArrayStart, jsonArrayStop + 3);
+		System.err.println(justJson);
 		JsonArray reparsedStats = new JsonArray(justJson);
 		assertTrue(reparsedStats.size() > 0);
 	}
