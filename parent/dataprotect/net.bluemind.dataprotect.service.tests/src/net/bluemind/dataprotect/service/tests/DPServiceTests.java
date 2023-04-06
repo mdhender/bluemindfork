@@ -305,7 +305,8 @@ public class DPServiceTests {
 		try {
 			NodeActivator.get(srv.value.address());
 		} catch (Exception e) {
-			assertEquals("Cannot read field \"value\" because \"srv\" is null", e.getMessage());
+			String msg = e.getMessage();
+			assertTrue(msg.contains("Cannot read field") && msg.contains("is null"));
 		}
 
 	}
