@@ -26,11 +26,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Context;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.MessageProducer;
 import io.vertx.core.net.NetSocket;
+import net.bluemind.common.vertx.contextlogging.ContextualData;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 
 public class Pop3Context {
@@ -53,9 +59,57 @@ public class Pop3Context {
 	public ConcurrentMap<Integer, MailItemData> mapMailsForSession = new ConcurrentHashMap<>();
 	public ConcurrentMap<Integer, Long> mailsToDelete = new ConcurrentHashMap<>();
 
+	public static class ContextProducer implements MessageProducer<Buffer> {
+
+		private Context ctx;
+		private NetSocket ns;
+
+		public ContextProducer(Vertx vx, NetSocket ns) {
+			this.ctx = vx.getOrCreateContext();
+			this.ns = ns;
+		}
+
+		@Override
+		public MessageProducer<Buffer> deliveryOptions(DeliveryOptions options) {
+			return this;
+		}
+
+		@Override
+		public String address() {
+			return "yeah";
+		}
+
+		@Override
+		public void write(Buffer body, Handler<AsyncResult<Void>> handler) {
+			ctx.runOnContext(v -> ns.write(body, handler));
+		}
+
+		@Override
+		public Future<Void> write(Buffer body) {
+			Promise<Void> prom = Promise.promise();
+			ctx.runOnContext(v -> {
+				Future<Void> future = ns.write(body);
+				future.onSuccess(prom::complete).onFailure(prom::fail);
+			});
+			return prom.future();
+		}
+
+		@Override
+		public Future<Void> close() {
+			return ns.close();
+		}
+
+		@Override
+		public void close(Handler<AsyncResult<Void>> handler) {
+			ns.close(handler);
+		}
+
+	}
+
 	public Pop3Context(Vertx vertx, NetSocket socket) {
 		this.socket = socket;
-		this.sender = vertx.eventBus().sender(socket.writeHandlerID());
+		this.sender = new ContextProducer(vertx, socket);
+		ContextualData.put("endpoint", "pop3");
 	}
 
 	public CompletableFuture<Void> write(String s) {

@@ -82,11 +82,12 @@ public class Pop3Tests extends Pop3TestsBase {
 			IDbMailboxRecords recApi = provider().instance(IDbMailboxRecords.class, inbox.uid);
 			Count countBeforeDeletion = recApi.count(ItemFlagFilter.create().mustNot(ItemFlag.Deleted));
 
+			queue.clear();
 			Assert.assertEquals(countBeforeDeletion.total, createdMails.size());
 			out.write(("QUIT\r\n").getBytes());
 			out.flush();
+			Awaitility.await().atMost(4, TimeUnit.SECONDS).until(() -> (testConditionForQueue(queue, 1, "^\\+OK$")));
 
-			Thread.sleep(1000);
 			Count countAfterDeletion = recApi.count(ItemFlagFilter.create().mustNot(ItemFlag.Deleted));
 			Assert.assertEquals(countAfterDeletion.total, createdMails.size() - 1);
 			queue.clear();

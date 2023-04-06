@@ -86,6 +86,7 @@ public class Pop3BigDeletionTests extends Pop3TestsBase {
 				}
 			}
 
+			queue.clear();
 			System.err.println("Send pop quit.");
 			out.write(("QUIT\r\n").getBytes());
 			out.flush();

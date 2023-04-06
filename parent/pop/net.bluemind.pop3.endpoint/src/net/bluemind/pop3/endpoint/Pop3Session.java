@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,7 +124,7 @@ public class Pop3Session {
 			ctx.mapMailsForSession = new ConcurrentHashMap<>();
 			if (!ctx.mailsToDelete.isEmpty()) {
 				logger.info("[{}] Deleting {} messages before QUIT", ctx.getLogin(), ctx.mailsToDelete.size());
-				return ctx.connection().delete(ctx, ctx.mailsToDelete.values().stream().collect(Collectors.toList()))
+				return ctx.connection().delete(ctx, ctx.mailsToDelete.values().stream().toList())
 						.thenCompose(result -> ctx.write("+OK" + CRLF)).thenAccept(v -> ctx.close());
 			} else {
 				return ctx.write("+OK" + CRLF).thenAccept(v -> ctx.close());
