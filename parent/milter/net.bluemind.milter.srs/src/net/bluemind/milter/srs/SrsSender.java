@@ -145,7 +145,8 @@ public class SrsSender implements MilterPreAction {
 		}
 
 		return Optional.ofNullable(modifiedMail.properties.get("{auth_authen}"))
-				.map(authAuthens -> authAuthens.stream().filter(Objects::nonNull).findFirst().orElse(null))
+				.map(authAuthens -> authAuthens.stream().map(Strings::emptyToNull).filter(Objects::nonNull)
+						.findFirst().orElse(null))
 				.map(login -> SrsUtils.getDomainFromEmail(login).map(this::getDomainAlias)
 						.orElseGet(() -> getDomainAlias(SysconfHelper.defaultDomain.get())));
 	}
