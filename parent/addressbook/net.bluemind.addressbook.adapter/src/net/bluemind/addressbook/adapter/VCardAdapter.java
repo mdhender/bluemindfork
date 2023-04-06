@@ -629,7 +629,7 @@ public final class VCardAdapter {
 		List<net.fortuna.ical4j.vcard.Parameter> ret = new ArrayList<>(parameters.size());
 		List<String> vcardParameters = Arrays.asList(net.fortuna.ical4j.vcard.Parameter.Id.values()).stream()
 				.map(id -> id.getPname()).toList();
-		parameters.stream().filter(p -> vcardParameters.contains(p.label)).forEach(p -> {
+		parameters.stream().filter(p -> p.label != null && vcardParameters.contains(p.label)).forEach(p -> {
 			ParameterFactory<?> paramFactory = parameterFactoryRegistry.getFactory(p.label);
 			if (paramFactory != null) {
 				ret.add(paramFactory.createParameter(p.label, p.value));
