@@ -569,14 +569,14 @@ public class MailApiConnection implements MailboxConnection {
 
 	@Override
 	public void updateFlags(SelectedFolder selected, String idset, UpdateMode mode, List<String> flags) {
-		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
+		IDbMailboxRecords recApi = prov.instance(ISyncDbMailboxRecords.class, selected.folder.uid);
 		List<Long> toUpdate = recApi.imapIdSet(idset, "");
 		updateFlags(selected, toUpdate, mode, flags);
 	}
 
 	@Override
 	public void updateFlags(SelectedFolder selected, List<Long> toUpdate, UpdateMode mode, List<String> flags) {
-		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
+		IDbMailboxRecords recApi = prov.instance(ISyncDbMailboxRecords.class, selected.folder.uid);
 		for (List<Long> slice : Lists.partition(toUpdate, DriverConfig.get().getInt("driver.records-mget"))) {
 			List<MailboxRecord> recs = recApi.slice(slice).stream().map(iv -> iv.value).collect(Collectors.toList()); // NOSONAR
 			for (MailboxRecord item : recs) {
@@ -708,7 +708,7 @@ public class MailApiConnection implements MailboxConnection {
 				} while (pit.hasNext());
 			} catch (Exception e) {
 				logger.error("[{}] unknown error: {}", this, e.getMessage(), e);
-				return null;
+				return null; // NOSONAR: null is used for error detection
 			}
 
 			// Empty uids list and seq is present -> return the greatest uid (see RFC 3501)
@@ -717,7 +717,7 @@ public class MailApiConnection implements MailboxConnection {
 			}
 		} catch (Exception e) {
 			logger.error("[{}] unknown error: {}", this, e.getMessage(), e);
-			return null;
+			return null; // NOSONAR: null is used for error detection
 		}
 		return uids;
 	}

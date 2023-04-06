@@ -55,7 +55,7 @@ public class UIDStoreCommand extends Command<Boolean> {
 		String cmd = "UID STORE " + uidSet + " " + (set ? "+" : "-") + "flags.silent " + fl.toString();
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("cmd: " + cmd);
+			logger.debug("cmd: {}", cmd);
 		}
 
 		return new CommandArgument(cmd, null);
