@@ -25,7 +25,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.TextBody;
 import org.apache.james.mime4j.dom.address.Mailbox;
@@ -79,8 +79,8 @@ public class SendReport implements Runnable {
 		try {
 			ListResult<Job> jobs = service.searchJob(JobQuery.withIdAndDomainUid(rid.jid, rid.domainUid));
 			if (jobs.total != 1) {
-				throw new ServerFault(String.format("%s jobs found with id %s on domain %s",
-						jobs != null ? jobs.total : String.valueOf(0), String.valueOf(rid.jid), rid.domainUid));
+				throw new ServerFault(String.format("%s jobs found with id %s on domain %s", String.valueOf(jobs.total),
+						rid.jid, rid.domainUid));
 			}
 			Job job = jobs.values.get(0);
 			if (job != null && job.sendReport && !job.recipients.isEmpty()) {
