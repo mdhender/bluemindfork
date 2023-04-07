@@ -6,7 +6,7 @@ Standards-Version: 3.9.1
 
 Package: bm-tick-full
 Architecture: amd64
-Depends: bm-node (= ${binary:Version}), bm-tick-node (= ${binary:Version}), bm-chronograf (= 1.8.9.1.bm1~d5bd22de3), bm-kapacitor (= 1.5.7.bm1~f52824ca-0), bm-influxdb (= 1.8.3.bm1~247d383a3)
+Depends: bm-node (= ${binary:Version}), bm-tick-node (= ${binary:Version}), bm-chronograf (= 1.10.1.bm3~34148c7f5), bm-kapacitor (= 1.6.5.bm3~7eb3e20a-0), bm-influxdb (= 1.8.10.bm3~247d383a3)
 Description: BlueMind TICK stack
  Installs TICK monitoring stack for BlueMind
 
