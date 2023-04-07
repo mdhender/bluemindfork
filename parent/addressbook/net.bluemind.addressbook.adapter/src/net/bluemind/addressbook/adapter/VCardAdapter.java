@@ -332,13 +332,13 @@ public final class VCardAdapter {
 			return null;
 		}
 
-		AddressbookOwner calOwner = owner.get();
+		AddressbookOwner abOwner = owner.get();
 
-		Optional<String> containerUid = calOwner.kind != BaseDirEntry.Kind.ADDRESSBOOK
-				&& calOwner.kind != BaseDirEntry.Kind.RESOURCE ? Optional.of(ITagUids.defaultUserTags(calOwner.userUid))
+		Optional<String> containerUid = abOwner.kind != BaseDirEntry.Kind.ADDRESSBOOK
+				&& abOwner.kind != BaseDirEntry.Kind.RESOURCE ? Optional.of(ITagUids.defaultTags(abOwner.userUid))
 						: Optional.empty();
 		Optional<ITags> service = containerUid.map(uid -> {
-			try (Sudo asUser = new Sudo(calOwner.userUid, calOwner.domainUid)) {
+			try (Sudo asUser = new Sudo(abOwner.userUid, abOwner.domainUid)) {
 				return ServerSideServiceProvider.getProvider(asUser.context).instance(ITags.class, uid);
 			}
 		});

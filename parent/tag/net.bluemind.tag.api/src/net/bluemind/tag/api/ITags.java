@@ -105,7 +105,7 @@ public interface ITags extends IDataShardSupport, IRestoreItemCrudSupport<Tag> {
 
 	/**
 	 * Find all {@link Tag}s. Domain tags are not returned when this method is
-	 * invoked on {@link ITagUids#defaultUserTags(String)}.
+	 * invoked on {@link ITagUids#defaultTags(String)}.
 	 * 
 	 * @return list of {@link Tag}s
 	 * @throws ServerFault If anything goes wrong

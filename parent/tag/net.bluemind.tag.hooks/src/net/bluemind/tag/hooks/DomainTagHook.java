@@ -46,7 +46,7 @@ public class DomainTagHook extends DomainHookAdapter {
 				IContainers containers = context.su().provider().instance(IContainers.class);
 
 				ContainerDescriptor descriptor = new ContainerDescriptor();
-				String containerUid = getTagsContainerUid(created);
+				String containerUid = ITagUids.defaultTags(created.uid);
 				descriptor.uid = containerUid;
 				descriptor.name = "tags of domain " + created.displayName;
 				descriptor.type = ITagUids.TYPE;
@@ -72,17 +72,13 @@ public class DomainTagHook extends DomainHookAdapter {
 	public void onBeforeDelete(BmContext context, ItemValue<Domain> domain) throws ServerFault {
 		if (!domain.value.global) {
 			try {
-				String containerUid = getTagsContainerUid(domain);
+				String containerUid = ITagUids.defaultTags(domain.uid);
 				IContainers cm = context.su().provider().instance(IContainers.class);
 				cm.delete(containerUid);
 			} catch (ServerFault e) {
 				logger.error(e.getMessage(), e);
 			}
 		}
-	}
-
-	private String getTagsContainerUid(ItemValue<Domain> domain) {
-		return "tags_" + domain.uid;
 	}
 
 }

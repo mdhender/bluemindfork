@@ -81,7 +81,7 @@ public class UserTagHook extends DefaultUserHook {
 		if (!previous.value.login.equals(current.value.login)) {
 			ContainerModifiableDescriptor cmd = new ContainerModifiableDescriptor();
 			cmd.name = current.value.login;
-			context.su().provider().instance(IContainers.class).update(ITagUids.defaultUserTags(current.uid), cmd);
+			context.su().provider().instance(IContainers.class).update(ITagUids.defaultTags(current.uid), cmd);
 		}
 	}
 
@@ -110,7 +110,7 @@ public class UserTagHook extends DefaultUserHook {
 	}
 
 	private String getTagsContainerUid(ItemValue<User> user) {
-		return ITagUids.defaultUserTags(user.uid);
+		return ITagUids.defaultTags(user.uid);
 	}
 
 }

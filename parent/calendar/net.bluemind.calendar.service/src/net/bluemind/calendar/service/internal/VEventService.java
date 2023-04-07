@@ -101,14 +101,14 @@ public class VEventService implements IVEvent {
 		if (calOwnerType != Kind.CALENDAR && calOwnerType != Kind.RESOURCE) {
 			// owner tags
 			allTags.addAll(getTagsService().all().stream()
-					.map(tag -> TagRef.create(ITagUids.defaultUserTags(container.owner), tag))
+					.map(tag -> TagRef.create(ITagUids.defaultTags(container.owner), tag))
 					.collect(Collectors.toList()));
 		}
 
 		// domain tags
-		ITags service = context.provider().instance(ITags.class, ITagUids.defaultUserTags(container.domainUid));
+		ITags service = context.provider().instance(ITags.class, ITagUids.defaultTags(container.domainUid));
 		allTags.addAll(
-				service.all().stream().map(tag -> TagRef.create(ITagUids.defaultUserTags(container.domainUid), tag))
+				service.all().stream().map(tag -> TagRef.create(ITagUids.defaultTags(container.domainUid), tag))
 						.collect(Collectors.toList()));
 
 		MultipleCalendarICSImport multipleCalendarICSImport = new MultipleCalendarICSImport(calendarService, ics,
@@ -120,11 +120,11 @@ public class VEventService implements IVEvent {
 
 	private ITags getTagsService() {
 		if (container.owner.equals(context.getSecurityContext().getSubject())) {
-			return context.getServiceProvider().instance(ITags.class, ITagUids.defaultUserTags(container.owner));
+			return context.getServiceProvider().instance(ITags.class, ITagUids.defaultTags(container.owner));
 		} else {
 			try (Sudo asUser = new Sudo(container.owner, container.domainUid)) {
 				return ServerSideServiceProvider.getProvider(asUser.context).instance(ITags.class,
-						ITagUids.defaultUserTags(container.owner));
+						ITagUids.defaultTags(container.owner));
 			}
 		}
 	}

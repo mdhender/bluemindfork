@@ -445,7 +445,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		CalendarOwner calOwner = owner.get();
 
 		Optional<String> containerUid = calOwner.kind != Kind.CALENDAR && calOwner.kind != Kind.RESOURCE
-				? Optional.of(ITagUids.defaultUserTags(calOwner.userUid))
+				? Optional.of(ITagUids.defaultTags(calOwner.userUid))
 				: Optional.empty();
 		Optional<ITags> service = containerUid.map(uid -> {
 			try (Sudo asUser = new Sudo(calOwner.userUid, calOwner.domainUid)) {

@@ -152,8 +152,8 @@ public class BookMultiputProtocol implements IDavProtocol<BookMultiputQuery, Boo
 	}
 
 	private List<TagRef> getAllTags(LoggedCore lc) {
-		return lc.getCore().instance(ITags.class, ITagUids.defaultUserTags(lc.getUser().uid)).all().stream()
-				.map(tag -> TagRef.create(ITagUids.defaultUserTags(lc.getUser().uid), tag))
+		return lc.getCore().instance(ITags.class, ITagUids.defaultTags(lc.getUser().uid)).all().stream()
+				.map(tag -> TagRef.create(ITagUids.defaultTags(lc.getUser().uid), tag))
 				.collect(Collectors.toList());
 	}
 

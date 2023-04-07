@@ -21,7 +21,6 @@ package net.bluemind.tag.api;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
-
 import net.bluemind.core.api.BMApi;
 
 /**
@@ -41,17 +40,16 @@ public interface ITagUids {
 	/**
 	 * Returns the default user tag UID
 	 * 
-	 * @param userUid
-	 *                the {@link net.bluemind.user.api.User} UID
+	 * @param userUid the {@link net.bluemind.user.api.User} UID
 	 * @return default user tag UID
 	 */
 	@GET
 	@Path("{uid}/_default_tags")
 	public default String getDefaultUserTags(@PathParam("uid") String userUid) {
-		return defaultUserTags(userUid);
+		return defaultTags(userUid);
 	}
 
-	public static String defaultUserTags(String uid) {
+	public static String defaultTags(String uid) {
 		return TYPE + "_" + uid;
 	}
 }

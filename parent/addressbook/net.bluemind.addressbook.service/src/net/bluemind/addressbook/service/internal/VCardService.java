@@ -192,11 +192,11 @@ public class VCardService implements IVCardService {
 
 		String seed = "" + System.currentTimeMillis();
 		for (net.fortuna.ical4j.vcard.VCard card : cards) {
-			BaseDirEntry.Kind calOwnerType = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+			BaseDirEntry.Kind abOwnerType = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 					.instance(IDirectory.class, container.domainUid).findByEntryUid(container.owner).kind;
 
 			bmCards.add(VCardAdapter.adaptCard(card, s -> UUID.nameUUIDFromBytes(seed.concat(s).getBytes()).toString(),
-					Optional.of(new AddressbookOwner(container.domainUid, container.owner, calOwnerType)),
+					Optional.of(new AddressbookOwner(container.domainUid, container.owner, abOwnerType)),
 					getAllTags()));
 		}
 		monitor.progress(1, "Parsed " + bmCards.size() + " cards ");
@@ -209,20 +209,20 @@ public class VCardService implements IVCardService {
 	private List<TagRef> getAllTags() {
 		List<TagRef> allTags = new ArrayList<>();
 
-		BaseDirEntry.Kind calOwnerType = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+		BaseDirEntry.Kind abOwnerType = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDirectory.class, container.domainUid).findByEntryUid(container.owner).kind;
 
-		if (calOwnerType != Kind.CALENDAR && calOwnerType != Kind.RESOURCE) {
+		if (abOwnerType != Kind.ADDRESSBOOK && abOwnerType != Kind.RESOURCE) {
 			// owner tags
 			allTags.addAll(getTagsService().all().stream()
-					.map(tag -> TagRef.create(ITagUids.defaultUserTags(container.owner), tag))
+					.map(tag -> TagRef.create(ITagUids.defaultTags(container.owner), tag))
 					.collect(Collectors.toList()));
 		}
 
 		// domain tags
-		ITags service = context.su().provider().instance(ITags.class, ITagUids.defaultUserTags(container.domainUid));
+		ITags service = context.su().provider().instance(ITags.class, ITagUids.defaultTags(container.domainUid));
 		allTags.addAll(
-				service.all().stream().map(tag -> TagRef.create(ITagUids.defaultUserTags(container.domainUid), tag))
+				service.all().stream().map(tag -> TagRef.create(ITagUids.defaultTags(container.domainUid), tag))
 						.collect(Collectors.toList()));
 
 		return allTags;
@@ -230,11 +230,11 @@ public class VCardService implements IVCardService {
 
 	private ITags getTagsService() {
 		if (container.owner.equals(context.getSecurityContext().getSubject())) {
-			return context.getServiceProvider().instance(ITags.class, ITagUids.defaultUserTags(container.owner));
+			return context.getServiceProvider().instance(ITags.class, ITagUids.defaultTags(container.owner));
 		} else {
 			try (Sudo asUser = new Sudo(container.owner, container.domainUid)) {
 				return ServerSideServiceProvider.getProvider(asUser.context).instance(ITags.class,
-						ITagUids.defaultUserTags(container.owner));
+						ITagUids.defaultTags(container.owner));
 			}
 		}
 	}

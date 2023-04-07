@@ -426,16 +426,16 @@ public class CalendarContainerSync implements ISyncableContainer {
 
 		if (calOwnerType != Kind.CALENDAR) {
 			// owner tags
-			ITags service = context.provider().instance(ITags.class, ITagUids.defaultUserTags(container.owner));
+			ITags service = context.provider().instance(ITags.class, ITagUids.defaultTags(container.owner));
 			allTags.addAll(
-					service.all().stream().map(tag -> TagRef.create(ITagUids.defaultUserTags(container.owner), tag))
+					service.all().stream().map(tag -> TagRef.create(ITagUids.defaultTags(container.owner), tag))
 							.collect(Collectors.toList()));
 		}
 
 		// domain tags
-		ITags service = context.provider().instance(ITags.class, ITagUids.defaultUserTags(container.domainUid));
+		ITags service = context.provider().instance(ITags.class, ITagUids.defaultTags(container.domainUid));
 		allTags.addAll(
-				service.all().stream().map(tag -> TagRef.create(ITagUids.defaultUserTags(container.domainUid), tag))
+				service.all().stream().map(tag -> TagRef.create(ITagUids.defaultTags(container.domainUid), tag))
 						.collect(Collectors.toList()));
 
 		return context.provider().instance(ITasksManager.class)

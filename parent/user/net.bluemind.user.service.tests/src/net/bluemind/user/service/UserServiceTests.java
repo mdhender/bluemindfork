@@ -611,7 +611,7 @@ public class UserServiceTests {
 		assertNotNull(cd.name);
 		assertEquals(loginOnUpdate, cd.name);
 
-		cd = testContext.provider().instance(IContainers.class).get(ITagUids.defaultUserTags(uid));
+		cd = testContext.provider().instance(IContainers.class).get(ITagUids.defaultTags(uid));
 		assertNotNull(cd.name);
 		assertEquals(loginOnUpdate, cd.name);
 
