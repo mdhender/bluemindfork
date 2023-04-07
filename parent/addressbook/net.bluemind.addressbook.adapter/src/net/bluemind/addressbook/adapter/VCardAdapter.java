@@ -502,7 +502,7 @@ public final class VCardAdapter {
 
 		}
 
-		if (vcard.security.key != null && vcard.security.key.value != null) {
+		if (vcard.security.key != null && vcard.security.key.value != null && !vcard.security.key.value.isBlank()) {
 			try {
 				properties.add(new Key(toVCard(vcard.security.key.parameters), vcard.security.key.value));
 			} catch (URISyntaxException | DecoderException e) {

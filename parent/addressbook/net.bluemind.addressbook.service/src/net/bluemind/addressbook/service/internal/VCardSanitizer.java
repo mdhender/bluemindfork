@@ -38,6 +38,7 @@ import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
 import net.bluemind.addressbook.api.VCard.Kind;
 import net.bluemind.addressbook.api.VCard.Organizational.Member;
 import net.bluemind.addressbook.api.VCard.Parameter;
+import net.bluemind.addressbook.api.VCard.Security.Key;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
@@ -78,8 +79,15 @@ public class VCardSanitizer implements ISanitizer<VCard> {
 		sanitizeCnAndMailto(card);
 		sanitizeParameterValues(card);
 		sanitizeEmails(card);
+		sanitizePemCertificates(card);
 		sanitizeMembers(card, containerUid);
 		tagsSanitizer.sanitize(card.explanatory.categories);
+	}
+
+	private void sanitizePemCertificates(VCard card) {
+		if (card.security.key != null && card.security.key.value != null && card.security.key.value.isBlank()) {
+			card.security.key = new Key();
+		}
 	}
 
 	private void sanitizeMembers(VCard card, Optional<String> containerUid) {

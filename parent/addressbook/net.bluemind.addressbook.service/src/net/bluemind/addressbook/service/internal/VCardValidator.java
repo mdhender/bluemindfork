@@ -98,7 +98,7 @@ public class VCardValidator implements IValidator<VCard> {
 			}
 		}
 
-		if (card.security != null && card.security.key != null && card.security.key.value != null) {
+		if (card.security != null && card.security.key != null && !Strings.isNullOrEmpty(card.security.key.value)) {
 			validatePEMCertificate(card.security);
 		}
 
