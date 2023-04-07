@@ -30,6 +30,7 @@ import org.apache.james.mime4j.dom.Header;
 import org.apache.james.mime4j.message.HeaderImpl;
 import org.apache.james.mime4j.message.MessageImpl;
 import org.apache.james.mime4j.stream.RawField;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -59,6 +60,15 @@ public class SrsSenderTests {
 		Domain domain = getDomain(domainUid, false);
 
 		fillDomainCache(domainUid, domain);
+
+		// Ensure no default domain
+		MQ.sharedMap("system.configuration").put(SysConfKeys.default_domain.name(), null);
+	}
+
+	@After
+	public void after() {
+		// Ensure no default domain
+		MQ.sharedMap("system.configuration").put(SysConfKeys.default_domain.name(), null);
 	}
 
 	private void fillDomainCache(String domainUid, Domain domain) {
@@ -120,9 +130,6 @@ public class SrsSenderTests {
 
 	@Test
 	public void execute_nonLocalSender_nonLocalRcpt() {
-		// Ensure no default domain
-		MQ.sharedMap("system.configuration").put(SysConfKeys.default_domain.name(), null);
-
 		UpdatedMailMessage updateMailMessage = new UpdatedMailMessage(new HashMap<>(), new MessageImpl());
 		updateMailMessage.properties.put("{mail_addr}", Arrays.asList("sender@ext-domain.tld"));
 		updateMailMessage.properties.put("{rcpt_addr}", Arrays.asList("rcpt@ext-domain.tld", "rcpt@domain.tld"));
