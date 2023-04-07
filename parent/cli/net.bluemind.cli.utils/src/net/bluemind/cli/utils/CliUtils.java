@@ -76,7 +76,7 @@ public class CliUtils {
 		IDomains domainService = cliContext.adminApi().instance(IDomains.class);
 		ItemValue<Domain> domain = domainService.findByNameOrAliases(domainName);
 
-		return filter.test(domain.value) ? Optional.ofNullable(domain) : Optional.empty();
+		return Optional.ofNullable(domain).filter(d -> d != null && filter.test(d.value));
 	}
 
 	public Optional<ItemValue<Domain>> getDomain(String domainString) {
@@ -85,8 +85,7 @@ public class CliUtils {
 
 	public ItemValue<Domain> getNotGlobalDomain(String domainString) {
 		ItemValue<Domain> domain = getDomain(domainString, d -> d != null && !d.global)
-				.orElseThrow(() -> new CliException("Domain 'global.virt' is not allowed"));
-
+				.orElseThrow(() -> new CliException("Domain not found or 'global.virt' not allowed"));
 		return domain;
 	}
 

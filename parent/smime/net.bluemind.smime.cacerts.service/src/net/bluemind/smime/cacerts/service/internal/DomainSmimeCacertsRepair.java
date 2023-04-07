@@ -21,6 +21,9 @@ package net.bluemind.smime.cacerts.service.internal;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
@@ -34,6 +37,8 @@ import net.bluemind.directory.service.RepairTaskMonitor;
 import net.bluemind.smime.cacerts.api.ISmimeCacertUids;
 
 public class DomainSmimeCacertsRepair implements ContainerRepairOp {
+
+	private static final Logger logger = LoggerFactory.getLogger(DomainSmimeCacertsRepair.class);
 
 	@Override
 	public void check(BmContext context, String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
@@ -70,11 +75,11 @@ public class DomainSmimeCacertsRepair implements ContainerRepairOp {
 
 	private void verifyDomainSmimeCacerts(BmContext context, RepairTaskMonitor monitor, String domainUid,
 			Consumer<String> repairOp) {
-
 		IContainers containerService = context.getServiceProvider().instance(IContainers.class);
 
 		String uid = ISmimeCacertUids.domainCreatedCerts(domainUid);
 		if (containerService.getIfPresent(uid) == null) {
+			logger.info("Domain smimecacerts {} is missing associated container", uid);
 			monitor.notify("Domain smimecacerts {} is missing associated container", uid);
 			repairOp.accept(uid);
 		}

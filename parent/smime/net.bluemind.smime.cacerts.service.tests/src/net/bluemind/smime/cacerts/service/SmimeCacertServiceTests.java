@@ -408,10 +408,9 @@ public class SmimeCacertServiceTests extends AbstractServiceTests {
 
 		ItemChangelog itemChangeLog = getServiceCacert(defaultSecurityContext, container.uid).itemChangelog("test1",
 				0L);
-		assertEquals(3, itemChangeLog.entries.size());
+		assertEquals(2, itemChangeLog.entries.size());
 		assertEquals(ChangeLogEntry.Type.Created, itemChangeLog.entries.get(0).type);
-		assertEquals(ChangeLogEntry.Type.Updated, itemChangeLog.entries.get(1).type);
-		assertEquals(ChangeLogEntry.Type.Deleted, itemChangeLog.entries.get(2).type);
+		assertEquals(ChangeLogEntry.Type.Deleted, itemChangeLog.entries.get(1).type);
 
 		itemChangeLog = getServiceCacert(defaultSecurityContext, container.uid).itemChangelog("test2", 0L);
 		assertEquals(2, itemChangeLog.entries.size());

@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.security.cert.CRLException;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509CRL;
 import java.security.cert.X509CRLEntry;
 import java.security.cert.X509Certificate;
@@ -33,9 +34,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.security.auth.x500.X500Principal;
 
+import org.bouncycastle.asn1.x500.RDN;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +88,20 @@ public class CrlReader {
 		this.systemHelper = new SecurityCertificateHelper(context);
 		this.caCert = caCert;
 		this.cacertUid = cacertUid;
-		this.issuer = this.caCert.getIssuerX500Principal().getName(X500Principal.RFC2253);
+		this.issuer = issuerWithOids();
+	}
+
+	private String issuerWithOids() {
+		try {
+			X500Name x500name = new JcaX509CertificateHolder(caCert).getIssuer();
+			RDN[] rdNs = x500name.getRDNs();
+			return Arrays.asList(rdNs).stream()
+					.map(r -> r.getFirst().getType().toString().concat("=").concat(r.getFirst().getValue().toString()))
+					.collect(Collectors.joining(","));
+		} catch (CertificateEncodingException e) {
+            logger.warn("Error occured trying to read CA issuer : {}", e.getMessage());
+		}
+		return caCert.getIssuerX500Principal().getName(X500Principal.RFC1779);
 	}
 
 	public void read(InputStream crlStream) {
