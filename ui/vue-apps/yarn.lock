@@ -1079,11 +1079,11 @@
     "@bluemind/api.commons" "^5.0.2572"
 
 "@bluemind/smime.cacerts.api@^5.0.0":
-  version "5.0.3041"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/smime.cacerts.api/-/smime.cacerts.api-5.0.3041.tgz#bc1537b9b162dc8baeecabbc552f3fde56282658"
-  integrity sha512-LGxolsAaHxJOfj8MsTFZn7mgx22XfYOmN63rNgV1REYwuyMBgirSY5eWAKcN+bOtxOOsFgLUO46S9wxqDkEARQ==
+  version "5.0.3473"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/smime.cacerts.api/-/smime.cacerts.api-5.0.3473.tgz#1ec5b32d50ceffd2e3a8db5aceb0a10c7e4e9827"
+  integrity sha512-jgRfpNVXCdaLhCRG3t6W+lSs9tL2fCDIna8xyDuj3pt/+dchkHxcAFayYp4kdx8/UHsuZ2JUoAHN/XFHrjAQkw==
   dependencies:
-    "@bluemind/api.commons" "^5.0.3041"
+    "@bluemind/api.commons" "^5.0.3473"
 
 "@bluemind/system.api@^5.0.0":
   version "5.0.2572"

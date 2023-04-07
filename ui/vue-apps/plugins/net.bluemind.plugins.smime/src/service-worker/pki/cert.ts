@@ -7,10 +7,10 @@ import { SMIME_CERT_USAGE } from "../../lib/constants";
 import { UntrustedCertificateEmailNotFoundError } from "../../lib/exceptions";
 
 export async function checkRevoked(certificate: pki.Certificate, date?: Date) {
-    const revocation = await getRevocation(certificate);
+    const revocationResult = await getRevocation(certificate);
     if (
-        revocation.status === RevocationResult.RevocationStatus.REVOKED &&
-        (!date || date.getTime() > revocation.date!)
+        revocationResult.status === RevocationResult.RevocationStatus.REVOKED &&
+        (!date || date.getTime() > revocationResult.revocation.revocationDate!)
     ) {
         throw "Revoked certificate";
     }
@@ -21,20 +21,29 @@ async function getRevocation(certificate: pki.Certificate): Promise<RevocationRe
     if (cached && cached.cacheValidity > new Date()) {
         return cached;
     }
-    // once API is changed, use https://www.npmjs.com/package/rfc2253 to format issuer at RFC2253 format
-    const revocationList = await new SmimeRevocationClient(await session.sid, await session.domain).isRevoked([
-        certificate.serialNumber
+    const revocationList = await new SmimeRevocationClient(await session.sid, await session.domain).areRevoked([
+        {
+            serialNumber: certificate.serialNumber,
+            issuer: formatToRFC2253(certificate.issuer)
+        }
     ]);
-    const revocation = revocationList[0];
-    const cacheValidity = getRevocationCacheValidity(revocation);
-    await db.setRevocation({ ...revocation, cacheValidity }, certificate.issuer.hash);
-    return revocation;
+    const revocationResult = revocationList[0];
+    const cacheValidity = getRevocationCacheValidity(revocationResult);
+    await db.setRevocation({ ...revocationResult, cacheValidity }, certificate.issuer.hash);
+    return revocationResult;
+}
+
+function formatToRFC2253(issuer: pki.Certificate["issuer"]): string {
+    return Object.values(issuer.attributes)
+        .map(attr => attr.type + "=" + attr.value)
+        .join(",");
 }
 
 // exported only for tests
-export function getRevocationCacheValidity(revocation: RevocationResult): Date {
-    if (revocation.status === RevocationResult.RevocationStatus.REVOKED) {
-        if (revocation.reason && revocation.reason.toLowerCase() === "certificatehold") {
+export function getRevocationCacheValidity(revocationResult: RevocationResult): Date {
+    if (revocationResult.status === RevocationResult.RevocationStatus.REVOKED) {
+        const reason = revocationResult.revocation.revocationReason;
+        if (reason && reason.toLowerCase() === "certificatehold") {
             const expiration = new Date();
             expiration.setDate(expiration.getDate() + 1);
             return expiration;

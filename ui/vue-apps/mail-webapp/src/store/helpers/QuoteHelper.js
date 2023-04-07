@@ -92,8 +92,13 @@ function findFromNodeAndNextSiblings(partDoc, message) {
             ? `contains(.//*, "${to.dn}") and contains(.//*, "${to.address}")`
             : `contains(.//*, "${to.address}")`;
         const xpath = `//div[${toXPath} and not(ancestor::blockquote)]`;
-        const fromNode = partDoc?.evaluate(xpath, partDoc.body, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
-            ?.singleNodeValue;
+        const fromNode = partDoc?.evaluate(
+            xpath,
+            partDoc.body,
+            null,
+            XPathResult.FIRST_ORDERED_NODE_TYPE,
+            null
+        )?.singleNodeValue;
         let nodes;
         if (fromNode) {
             nodes = [fromNode];

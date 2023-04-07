@@ -81,7 +81,7 @@ class SMimePkiDBImpl implements SMimePkiDB {
         return (await this.connection).get("revocations", issuerHash + "-" + serialNumber);
     }
     async setRevocation(revocation: RevocationSchema, issuerHash: string): Promise<void> {
-        (await this.connection).put("revocations", revocation, issuerHash + "-" + revocation.serialNumber);
+        (await this.connection).put("revocations", revocation, issuerHash + "-" + revocation.revocation.serialNumber);
     }
     async clearRevocations(): Promise<void> {
         return (await this.connection).clear("revocations");

@@ -11,10 +11,15 @@ const aliceCertificate = pki.certificateFromPem(aliceCert);
 
 describe("cert", () => {
     test("revocation results are cached", async () => {
-        const route = "end:/api/smime_revocation/foo.bar/is_revoked";
+        const route = "end:/api/smime_revocation/foo.bar/revoked_clients";
         fetchMock.mock(
             route,
-            [{ status: RevocationResult.RevocationStatus.NOT_REVOKED, serialNumber: aliceCertificate.serialNumber }],
+            [
+                {
+                    status: RevocationResult.RevocationStatus.NOT_REVOKED,
+                    revocation: { serialNumber: aliceCertificate.serialNumber }
+                }
+            ],
             { overwriteRoutes: true }
         );
         await checkRevoked(aliceCertificate);
@@ -28,7 +33,7 @@ describe("cert", () => {
         const now = new Date();
         const validity = getRevocationCacheValidity({
             status: RevocationResult.RevocationStatus.NOT_REVOKED,
-            serialNumber: ""
+            revocation: { issuer: "", serialNumber: "" }
         });
         const diff = validity.getTime() - now.getTime();
 
@@ -40,8 +45,7 @@ describe("cert", () => {
         const now = new Date();
         const validity = getRevocationCacheValidity({
             status: RevocationResult.RevocationStatus.REVOKED,
-            reason: "certificateHold",
-            serialNumber: ""
+            revocation: { issuer: "", revocationReason: "certificateHold", serialNumber: "" }
         });
         const diff = validity.getTime() - now.getTime();
 
@@ -54,7 +58,7 @@ describe("cert", () => {
 
         const validity = getRevocationCacheValidity({
             status: RevocationResult.RevocationStatus.REVOKED,
-            serialNumber: ""
+            revocation: { issuer: "", serialNumber: "" }
         });
 
         expect(validity.getTime()).toBe(MAX_TIMESTAMP);

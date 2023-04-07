@@ -34,7 +34,6 @@ import org.junit.Test;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ChangeLogEntry;
-import net.bluemind.core.container.model.ContainerChangelog;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemChangelog;
@@ -347,26 +346,6 @@ public class SmimeCacertServiceTests extends AbstractServiceTests {
 			fail();
 		} catch (ServerFault e) {
 		}
-	}
-
-	@Test
-	public void testChangelog() throws Exception {
-
-		getServiceCacert(defaultSecurityContext, container.uid).create("test1", defaultSmimeCacert(CA_FILE_PATH));
-		getServiceCacert(defaultSecurityContext, container.uid).create("test2", defaultSmimeCacert(CA_FILE_PATH));
-		getServiceCacert(defaultSecurityContext, container.uid).delete("test1");
-		getServiceCacert(defaultSecurityContext, container.uid).update("test2", defaultSmimeCacert(CA_FILE_PATH));
-
-		// begin tests
-		ContainerChangelog log = getServiceCacert(defaultSecurityContext, container.uid).containerChangelog(null);
-
-		assertEquals(4, log.entries.size());
-
-		for (ChangeLogEntry entry : log.entries) {
-			System.out.println(entry.version);
-		}
-		log = getServiceCacert(defaultSecurityContext, container.uid).containerChangelog(log.entries.get(0).version);
-		assertEquals(3, log.entries.size());
 	}
 
 	@Test

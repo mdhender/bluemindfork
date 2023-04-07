@@ -3,6 +3,7 @@
         v-model="show"
         centered
         :title="$t('smime.preferences.import_field.modal.title')"
+        :cancel-title="$t('common.cancel')"
         :ok-disabled="!file || !!importErrorMsg"
         @ok.prevent="importPkcs12"
     >
