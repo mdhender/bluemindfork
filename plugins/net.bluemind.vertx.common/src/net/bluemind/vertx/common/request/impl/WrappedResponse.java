@@ -427,4 +427,14 @@ final class WrappedResponse implements HttpServerResponse {
 	public Cookie removeCookie(String name, String domain, String path, boolean invalidate) {
 		return impl.removeCookie(name, domain, path, invalidate);
 	}
+
+	@Override
+	public Future<Void> writeEarlyHints(MultiMap headers) {
+		return impl.writeEarlyHints(headers);
+	}
+
+	@Override
+	public void writeEarlyHints(MultiMap headers, Handler<AsyncResult<Void>> handler) {
+		impl.writeEarlyHints(headers, handler);
+	}
 }
