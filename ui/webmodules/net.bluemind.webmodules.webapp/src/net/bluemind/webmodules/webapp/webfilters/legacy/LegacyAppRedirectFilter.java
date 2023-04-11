@@ -14,11 +14,11 @@ import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.webmodule.server.IWebFilter;
 import net.bluemind.webmodule.server.NeedVertx;
+import net.bluemind.webmodule.server.WebserverConfiguration;
 
 public class LegacyAppRedirectFilter implements IWebFilter, NeedVertx {
 
 	private static final Map<String, String> redirect;
-
 
 	static {
 		redirect = new LegacyAppRedirectionLoader().load();
@@ -39,7 +39,7 @@ public class LegacyAppRedirectFilter implements IWebFilter, NeedVertx {
 	}
 
 	@Override
-	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request) {
+	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request, WebserverConfiguration conf) {
 		CompletableFuture<HttpServerRequest> completableFuture = new CompletableFuture<>();
 
 		if (match(request)) {
@@ -57,13 +57,5 @@ public class LegacyAppRedirectFilter implements IWebFilter, NeedVertx {
 	protected boolean match(HttpServerRequest request) {
 		return redirect.containsKey(request.path());
 	}
-
-
-
-
-
-
-
-
 
 }
