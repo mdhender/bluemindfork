@@ -1,5 +1,5 @@
 <template>
-    <bm-list-group>
+    <bm-list-group class="search-result-content-header">
         <bm-list-group-item class="bg-surface pl-4">
             {{ $t("common.search") }} :
             {{ $tc("common.messages", CONVERSATION_LIST_COUNT, { CONVERSATION_LIST_COUNT }) }}
@@ -13,7 +13,7 @@ import { BmListGroup, BmListGroupItem } from "@bluemind/ui-components";
 import { CONVERSATION_LIST_COUNT } from "~/getters";
 
 export default {
-    name: "SearchResultContent",
+    name: "SearchResultContentHeader",
     components: {
         BmListGroup,
         BmListGroupItem
@@ -23,3 +23,14 @@ export default {
     }
 };
 </script>
+<style lang="scss">
+@import "@bluemind/ui-components/src/css/mixins/responsiveness";
+
+.search-result-content-header {
+    @include until-lg {
+        .list-group-item {
+            justify-content: center;
+        }
+    }
+}
+</style>

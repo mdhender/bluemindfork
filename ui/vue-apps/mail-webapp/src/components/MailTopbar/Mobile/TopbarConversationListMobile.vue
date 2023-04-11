@@ -20,7 +20,7 @@
                 </template>
             </bm-dropdown>
             <div class="d-flex align-items-center toolbar">
-                <mail-search-form @showSearch="SET_SEARCH_MODE_MOBILE(true)" />
+                <mail-search-form />
                 <div class="options-for-mobile">
                     <messages-options-for-mobile @shown="darkened = true" @hidden="darkened = false" />
                 </div>
@@ -32,12 +32,11 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapState } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import { inject } from "@bluemind/inject";
 import { folderUtils } from "@bluemind/mail";
 import { BmAvatar, BmDropdown, BmLabelIcon } from "@bluemind/ui-components";
 import { CURRENT_MAILBOX, MY_MAILBOX, MY_TEMPLATES } from "~/getters";
-import { SET_SEARCH_MODE_MOBILE } from "~/mutations";
 import MailMailboxIcon from "../../MailMailboxIcon";
 import MailSearchForm from "../../MailSearch/MailSearchForm";
 import MessagesOptionsForMobile from "../../MessagesOptionsForMobile";
@@ -78,9 +77,6 @@ export default {
         folderIcon() {
             return folderIcon(this.currentFolder.imapName, this.CURRENT_MAILBOX.type);
         }
-    },
-    methods: {
-        ...mapMutations("mail", { SET_SEARCH_MODE_MOBILE })
     }
 };
 </script>

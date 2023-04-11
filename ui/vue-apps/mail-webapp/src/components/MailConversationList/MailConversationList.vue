@@ -3,10 +3,10 @@
         <section
             :aria-label="$t('mail.application.region.messagelist')"
             class="mail-conversation-list d-flex flex-column h-100"
-            :class="{ hidden: hiddenList }"
+            :class="{ hidden }"
         >
             <mail-conversation-list-header id="mail-conversation-list-header" />
-            <search-input-mobile v-if="searchModeMobile" class="d-lg-none" @focus="hideList" @blur="showList" />
+            <search-input-mobile v-if="searchMode" class="d-lg-none" @focus="hidden = true" @blur="hidden = false" />
             <search-result v-if="CONVERSATION_LIST_IS_FILTERED" class="flex-fill" />
             <folder-result v-else class="flex-fill" />
         </section>
@@ -38,7 +38,7 @@ export default {
     },
     data() {
         return {
-            hiddenList: false
+            hidden: false
         };
     },
     computed: {
@@ -50,7 +50,7 @@ export default {
         ...mapState("mail", ["activeFolder", "folders"]),
         ...mapState("mail", {
             conversationByKey: state => state.conversations.conversationByKey,
-            searchModeMobile: ({ conversationList }) => conversationList.search.searchModeMobile
+            searchMode: ({ conversationList }) => conversationList.search.searchMode
         }),
         folder() {
             return this.folders[this.activeFolder];
@@ -61,13 +61,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail", { FETCH_CONVERSATIONS, FETCH_MESSAGE_METADATA, REFRESH_CONVERSATION_LIST_KEYS }),
-        hideList() {
-            this.hiddenList = true;
-        },
-        showList() {
-            this.hiddenList = false;
-        }
+        ...mapActions("mail", { FETCH_CONVERSATIONS, FETCH_MESSAGE_METADATA, REFRESH_CONVERSATION_LIST_KEYS })
     },
     bus: {
         [PUSHED_FOLDER_CHANGES]: async function (folderUid) {
@@ -87,15 +81,18 @@ export default {
 
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
+
 .mail-conversation-list {
     background-color: $surface;
     outline: none;
     border-right: 1px solid $neutral-fg-lo2;
-
-    &.hidden {
-        .search-result,
-        .folder-result {
-            display: none;
+    @include until-lg {
+        &.hidden {
+            .search-result,
+            .folder-result {
+                display: none;
+            }
         }
     }
 }

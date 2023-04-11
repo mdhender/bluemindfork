@@ -1,10 +1,5 @@
 <template>
-    <component
-        :is="component"
-        v-bind="[$attrs, $props]"
-        class="mail-contact-card-slots text-truncate"
-        v-on="$listeners"
-    >
+    <component :is="component" v-bind="[$attrs, $props]" class="mail-contact-card-slots" v-on="$listeners">
         <template #default>
             <slot />
         </template>

@@ -1,5 +1,6 @@
 <template>
     <bm-form-input
+        ref="input"
         :value="value"
         class="mail-search-field flex-fill"
         variant="underline"
@@ -31,6 +32,11 @@ export default {
         size: {
             type: String,
             default: "sm"
+        }
+    },
+    methods: {
+        blur() {
+            this.$refs.input.blur();
         }
     }
 };

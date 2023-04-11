@@ -10,8 +10,7 @@ describe("[Mail-WebappStore][actions][helper] : SearchHelper.parseQuery", () => 
     });
     test("parse a query with a single word pattern and no folder", () => {
         expect(SearchHelper.parseQuery("mybeautifulpattern")).toEqual({
-            pattern: "mybeautifulpattern",
-            folder: undefined
+            pattern: "mybeautifulpattern"
         });
     });
     test("parse a query with a multiple words pattern and no folder", () => {
@@ -19,8 +18,7 @@ describe("[Mail-WebappStore][actions][helper] : SearchHelper.parseQuery", () => 
     });
     test("parse a query with a quoted multiple words pattern and no folder", () => {
         expect(SearchHelper.parseQuery('"my beautiful pattern"')).toEqual({
-            pattern: "my beautiful pattern",
-            folder: undefined
+            pattern: "my beautiful pattern"
         });
     });
     test("parse a query with a pattern and a folder", () => {
@@ -33,6 +31,13 @@ describe("[Mail-WebappStore][actions][helper] : SearchHelper.parseQuery", () => 
         expect(SearchHelper.parseQuery("mybeautifulpattern toto tata in:myhugefolder plop")).toEqual({
             pattern: "mybeautifulpattern",
             folder: "myhugefolder"
+        });
+    });
+    test("parse a query with a pattern and a folder and deep", () => {
+        expect(SearchHelper.parseQuery("mybeautifulpattern toto tata in:myhugefolder plop is:deep")).toEqual({
+            pattern: "mybeautifulpattern",
+            folder: "myhugefolder",
+            deep: true
         });
     });
 });

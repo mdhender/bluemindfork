@@ -32,7 +32,7 @@ export default {
             } else {
                 this.UNSELECT_ALL_CONVERSATIONS();
             }
-            this.$router.navigate("v:mail:home");
+            this.$router.navigate({ name: "v:mail:home", params: { search: null } });
         }
     }
 };
@@ -43,7 +43,7 @@ export default {
 
 .contextual-bar {
     & > .bm-icon-button {
-        border-right: $input-border-width solid $fill-primary-fg;
+        border-right: $input-border-width solid $fill-primary-fg-lo2;
     }
     & > .slot-wrapper {
         padding-left: $sp-5;

@@ -4,7 +4,7 @@
             <new-message :template="activeFolder === MY_TEMPLATES.key" />
         </div>
         <div class="search">
-            <mail-search-form @searchMode="isSearchMode = $event" />
+            <mail-search-form />
         </div>
         <div class="toolbar h-100 w-100">
             <mail-toolbar class="mx-3 mx-lg-0" :compact="isSearchMode" />
@@ -43,13 +43,13 @@ export default {
     },
     data() {
         return {
-            userSession: inject("UserSession"),
-            isSearchMode: false
+            userSession: inject("UserSession")
         };
     },
     computed: {
         ...mapState("mail", {
-            activeFolder: "activeFolder"
+            activeFolder: "activeFolder",
+            isSearchMode: ({ conversationList }) => conversationList.search.searchMode
         }),
         ...mapGetters("mail", {
             MY_TEMPLATES
@@ -78,6 +78,7 @@ export default {
 @import "~@bluemind/ui-components/src/css/_type";
 .topbar-desktop {
     display: flex;
+    flex: 1 1 auto;
     align-items: center;
 
     .new {

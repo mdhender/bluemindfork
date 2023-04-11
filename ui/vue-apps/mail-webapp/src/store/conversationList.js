@@ -102,6 +102,12 @@ const mutations = {
                 state._removed.push(state._keys[i]);
             }
         }
+    },
+
+    // Listeners
+    [RESET_CONVERSATIONS]: state => {
+        state._keys = [];
+        state._removed = [];
     }
 };
 
@@ -132,7 +138,7 @@ const actions = {
 };
 
 async function search({ filter, search, sort }, folder) {
-    let searchResults = await apiMessages.search(search, filter, sort, folder);
+    let searchResults = (await apiMessages.search(search, filter, sort, folder)) || [];
     return searchResults.map(({ id, folderRef }) => createConversationStub(id, folderRef));
 }
 

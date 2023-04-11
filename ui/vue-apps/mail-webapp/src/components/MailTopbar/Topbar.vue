@@ -2,7 +2,7 @@
     <div class="topbar">
         <topbar-desktop class="d-none d-lg-flex" />
         <topbar-actions-message-mobile v-if="hasMessageDisplayed || SEVERAL_CONVERSATIONS_SELECTED" class="d-lg-none" />
-        <topbar-search-mobile v-else-if="searchModeMobile" class="d-lg-none" />
+        <topbar-search-mobile v-else-if="isSearchMode" class="d-lg-none" />
         <topbar-conversation-list-mobile
             v-else
             class="d-lg-none"
@@ -25,7 +25,7 @@ export default {
     computed: {
         ...mapState("mail", {
             currentConversation: ({ conversations }) => conversations.currentConversation,
-            searchModeMobile: ({ conversationList }) => conversationList.search.searchModeMobile
+            isSearchMode: ({ conversationList }) => conversationList.search.searchMode
         }),
         ...mapGetters("mail", { ACTIVE_MESSAGE, SEVERAL_CONVERSATIONS_SELECTED }),
         hasMessageDisplayed() {
@@ -41,7 +41,7 @@ export default {
 
 .topbar {
     background-color: $surface-hi1;
-    min-height: base-px-to-rem(46);
+    min-height: base-px-to-rem(48);
     .topbar-desktop,
     .topbar-actions-message-mobile,
     .topbar-search-mobile,

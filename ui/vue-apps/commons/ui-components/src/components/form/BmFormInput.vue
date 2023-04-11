@@ -135,6 +135,10 @@ export default {
             this.$emit("focus");
             this.$refs["input"].focus();
         },
+        blur() {
+            this.$emit("blur");
+            this.$refs["input"].blur();
+        },
         setSelectionRange(start, end) {
             start = start || 0;
             end = end || this.$refs.input.value.length;

@@ -55,8 +55,11 @@ export default {
         return api(folder.remoteRef.uid).sortedIds(toSortDescriptor(filter, sort));
     },
 
-    async search({ pattern, folder }, filter, sort, currentFolder) {
-        const payload = { query: searchQuery(pattern, filter, folder && folder.uid), sort: toSearchSort(sort) };
+    async search({ pattern, folder, deep }, filter, sort, currentFolder) {
+        const payload = {
+            query: searchQuery(pattern, filter, folder && folder.uid, deep),
+            sort: toSearchSort(sort)
+        };
         const { results } = await folderApi(currentFolder.mailboxRef.uid).searchItems(payload);
         if (!results) {
             return [];
@@ -100,8 +103,13 @@ function groupByFolder(messages) {
     }, {});
 }
 
-function searchQuery(query, filter, folderUid) {
-    return { query, recordQuery: filterQuery(filter), maxResults: MAX_CHUNK_SIZE, scope: searchScope(folderUid) };
+function searchQuery(query, filter, folderUid, deep) {
+    return {
+        query,
+        recordQuery: filterQuery(filter),
+        maxResults: MAX_CHUNK_SIZE,
+        scope: searchScope(folderUid, deep)
+    };
 }
 
 function filterQuery(filter) {
@@ -114,8 +122,8 @@ function filterQuery(filter) {
     }
 }
 
-function searchScope(folderUid) {
-    return { folderScope: { folderUid }, isDeepTraversal: false };
+function searchScope(folderUid, deep = false) {
+    return { folderScope: { folderUid }, isDeepTraversal: deep };
 }
 
 function toSearchSort(sort) {

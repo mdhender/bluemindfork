@@ -32,8 +32,8 @@ const { DEFAULT_FOLDERS, folderIcon } = folderUtils;
 
 const OPTIONS = {
     ALL: "all",
-    CURRENT_AND_SUB: "current_and_sub",
-    CURRENT: "current"
+    CURRENT_FOLDER_AND_DESCENDANTS: "current_folder_and_descendants",
+    CURRENT_FOLDER: "current_folder"
 };
 
 export default {
@@ -41,26 +41,46 @@ export default {
     components: { BmFormSelect, BmLabelIcon, FolderTreeHeader },
     data() {
         return {
-            active: false,
             OPTIONS,
-            selectedOption: OPTIONS.ALL
+            selectedOption: null
         };
     },
     computed: {
-        ...mapGetters("mail", { CURRENT_MAILBOX }),
+        ...mapState("mail", { currentSearch: ({ conversationList }) => conversationList.search }),
         ...mapState("mail", ["activeFolder", "folders"]),
+        ...mapGetters("mail", { CURRENT_MAILBOX }),
         currentFolder() {
             return this.folders[this.activeFolder];
         },
         currentFolderName() {
             return this.currentFolder?.name;
+        },
+        context() {
+            switch (this.selectedOption) {
+                case OPTIONS.CURRENT_FOLDER_AND_DESCENDANTS:
+                    return { folder: this.currentFolder, deep: true };
+                case OPTIONS.CURRENT_FOLDER: {
+                    return { folder: this.currentFolder, deep: false };
+                }
+                default: {
+                    return {};
+                }
+            }
         }
     },
     watch: {
         currentFolder: {
             handler(folder) {
                 this.selectedOption =
-                    !folder || folder.imapName === DEFAULT_FOLDERS.INBOX ? OPTIONS.ALL : OPTIONS.CURRENT_AND_SUB;
+                    !folder || folder.imapName === DEFAULT_FOLDERS.INBOX
+                        ? OPTIONS.ALL
+                        : OPTIONS.CURRENT_FOLDER_AND_DESCENDANTS;
+            },
+            immediate: true
+        },
+        context: {
+            handler() {
+                this.$emit("changed", this.context);
             },
             immediate: true
         }
@@ -91,8 +111,8 @@ export default {
     & > .dropdown-toggle {
         &,
         &:hover {
-            border-color: transparent;
-            border-right-color: $neutral-fg-lo3;
+            border-color: transparent !important;
+            border-right-color: $neutral-fg-lo3 !important;
         }
     }
     .label {

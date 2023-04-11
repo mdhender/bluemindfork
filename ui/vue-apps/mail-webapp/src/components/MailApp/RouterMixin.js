@@ -23,7 +23,10 @@ import {
     SET_ROUTE_SORT,
     SET_ROUTE_SEARCH,
     SET_SEARCH_FOLDER,
-    SET_SEARCH_PATTERN
+    SET_SEARCH_DEEP,
+    SET_SEARCH_MODE,
+    SET_SEARCH_PATTERN,
+    SET_CONVERSATION_LIST
 } from "~/mutations";
 import MessageQueryParam from "~/router/MessageQueryParam";
 import SearchHelper from "../SearchHelper";
@@ -114,7 +117,10 @@ export default {
             SET_ROUTE_SEARCH,
             SET_ROUTE_SORT,
             SET_SEARCH_PATTERN,
-            SET_SEARCH_FOLDER
+            SET_SEARCH_DEEP,
+            SET_SEARCH_MODE,
+            SET_SEARCH_FOLDER,
+            SET_CONVERSATION_LIST
         }),
         async $_RouterMixin_fetchConversationlist() {
             await this.$_RouterMixin_ready(this.route.mailbox);

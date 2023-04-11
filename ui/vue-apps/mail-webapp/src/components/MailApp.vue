@@ -55,9 +55,9 @@ export default {
     name: "MailApp",
     components: {
         BmExtension,
-        BmRow,
         BmMultipane,
         BmMultipaneResizer,
+        BmRow,
         GlobalEvents,
         MailConversationList,
         Topbar,
