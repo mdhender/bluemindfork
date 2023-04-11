@@ -53,10 +53,7 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 	TextBox relayHost;
 
 	@UiField
-	IntegerBox cyrusMaxChildTextBox;
-
-	@UiField
-	IntegerBox cyrusRetentionTimeTextBox;
+	IntegerBox retentionTimeTextBox;
 
 	@UiField
 	ListBox archiveKindSelectBox;
@@ -145,7 +142,6 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 	public void loadModel(JavaScriptObject model) {
 		final String _CYRUS_RETENTION_TIME_DEFAULT = "7";
 		final String _CYRUS_ARCHIVE_DAYS_DEFAULT = "7";
-		final String _CYRUS_MAX_CHILD_DEFAULT = "200";
 		final String _ARCHIVE_KIND_DEFAULT = ArchiveKindValue.none.name();
 		final String _SDS_BACKUP_RETENTION_DAYS_DEFAULT = "90";
 
@@ -156,13 +152,9 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 			relayHost.setText(map.get(SysConfKeys.relayhost.name()));
 		}
 
-		String cyrusMaxChildValue = Optional.ofNullable(map.get(SysConfKeys.imap_max_child.name()))
-				.orElse(_CYRUS_MAX_CHILD_DEFAULT);
-		cyrusMaxChildTextBox.setText(cyrusMaxChildValue);
-
-		String cyrusRententionTime = Optional.ofNullable(map.get(SysConfKeys.cyrus_expunged_retention_time.name()))
+		String retentionTime = Optional.ofNullable(map.get(SysConfKeys.cyrus_expunged_retention_time.name()))
 				.orElse(_CYRUS_RETENTION_TIME_DEFAULT);
-		cyrusRetentionTimeTextBox.setText(cyrusRententionTime);
+		retentionTimeTextBox.setText(retentionTime);
 
 		int archiveKindIndex = ArchiveKindValue.valueOf(
 				Optional.ofNullable(map.get(SysConfKeys.archive_kind.name())).orElse(_ARCHIVE_KIND_DEFAULT)).index;
@@ -237,10 +229,8 @@ public class SysConfMailEditor extends CompositeGwtWidgetElement {
 			break;
 		}
 
-		map.putString(SysConfKeys.imap_max_child.name(), cyrusMaxChildTextBox.getText());
-
-		if (cyrusRetentionTimeTextBox.getValue() != null) {
-			map.putString(SysConfKeys.cyrus_expunged_retention_time.name(), cyrusRetentionTimeTextBox.getText());
+		if (retentionTimeTextBox.getValue() != null) {
+			map.putString(SysConfKeys.cyrus_expunged_retention_time.name(), retentionTimeTextBox.getText());
 		}
 	}
 

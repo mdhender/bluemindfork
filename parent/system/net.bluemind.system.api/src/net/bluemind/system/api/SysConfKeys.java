@@ -42,7 +42,6 @@ public enum SysConfKeys {
 	eas_max_heartbeat, eas_min_heartbeat, eas_sync_unknown, message_size_limit, mynetworks, sw_password, relayhost, //
 	auth_type, krb_ad_domain, krb_ad_ip, krb_domain, cas_url, cas_domain, krb_keytab, fwAdditionalIPs, //
 	dpBackupSkipTags, //
-	imap_max_child, // CYRUS: kill
 
 	nginx_worker_connections, //
 

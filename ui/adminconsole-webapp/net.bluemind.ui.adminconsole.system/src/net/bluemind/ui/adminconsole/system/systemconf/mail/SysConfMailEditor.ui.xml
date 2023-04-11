@@ -45,19 +45,11 @@
 		<table border="0">
 			<tr>
 				<td style='width:200px'>
-					<g:Label text="{c.cyrusMaxChild}:"></g:Label>
-				</td>
-				<td style='width:400px'>
-					<g:IntegerBox width="400px" ui:field="cyrusMaxChildTextBox" />
-				</td>
-			</tr>
-			<tr>
-				<td style='width:200px'>
 					<g:Label text="{c.cyrusRetention}:"></g:Label>
 				</td>
 				<td style='width:400px'>
 					<g:IntegerBox width="400px"
-						ui:field="cyrusRetentionTimeTextBox" />
+						ui:field="retentionTimeTextBox" />
 				</td>
 			</tr>
 		</table>
