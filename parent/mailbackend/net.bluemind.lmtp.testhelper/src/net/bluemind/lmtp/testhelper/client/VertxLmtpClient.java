@@ -42,7 +42,7 @@ public class VertxLmtpClient {
 
 	public VertxLmtpClient(Vertx vx, String host, int port) {
 		this.vertx = vx;
-		client = this.vertx.createNetClient(new NetClientOptions().setTcpNoDelay(true));
+		client = this.vertx.createNetClient(new NetClientOptions().setTcpNoDelay(true).setRegisterWriteHandler(true));
 		this.host = host;
 		this.port = port;
 		logger.info("LMTP client for {}:{}", host, port);

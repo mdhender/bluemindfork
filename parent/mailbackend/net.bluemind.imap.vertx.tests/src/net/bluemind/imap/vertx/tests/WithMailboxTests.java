@@ -30,6 +30,7 @@ import com.google.common.collect.Lists;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.net.NetClient;
+import io.vertx.core.net.NetClientOptions;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.jdbc.JdbcTestHelper;
@@ -110,7 +111,7 @@ public abstract class WithMailboxTests {
 	}
 
 	protected VXStoreClient client(Vertx vx) {
-		NetClient client = vx.createNetClient();
+		NetClient client = vx.createNetClient(new NetClientOptions().setRegisterWriteHandler(true));
 		NetClientConnectionSupport nccs = new NetClientConnectionSupport(vx, client);
 		return new VXStoreClient(nccs, "127.0.0.1", 1143, localPart + "@" + domain, localPart);
 	}

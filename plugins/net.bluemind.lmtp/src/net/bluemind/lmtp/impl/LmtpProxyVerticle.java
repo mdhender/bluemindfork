@@ -86,11 +86,11 @@ public class LmtpProxyVerticle extends AbstractVerticle {
 		try {
 			config = new LmtpConfig();
 
-			netClient = vertx.createNetClient(
-					new NetClientOptions().setTcpNoDelay(true).setReuseAddress(true).setTcpKeepAlive(true));
+			netClient = vertx.createNetClient(new NetClientOptions().setTcpNoDelay(true).setReuseAddress(true)
+					.setTcpKeepAlive(true).setRegisterWriteHandler(true));
 
 			NetServer srv = vertx.createNetServer(new NetServerOptions().setTcpNoDelay(true).setReuseAddress(true)
-					.setTcpKeepAlive(true).setAcceptBacklog(4096));
+					.setTcpKeepAlive(true).setRegisterWriteHandler(true).setAcceptBacklog(4096));
 
 			srv.connectHandler(onConnect());
 

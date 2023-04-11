@@ -57,6 +57,7 @@ public class ImapVerticle extends AbstractVerticle {
 		NetServerOptions opts = new NetServerOptions();
 		opts.setIdleTimeout(idle).setIdleTimeoutUnit(TimeUnit.SECONDS);
 		opts.setTcpFastOpen(true).setTcpNoDelay(true).setTcpQuickAck(true);
+		opts.setRegisterWriteHandler(true);
 		NetServer srv = vertx.createNetServer(opts);
 
 		srv.exceptionHandler(t -> logger.error("ImapEndpoint failure", t));

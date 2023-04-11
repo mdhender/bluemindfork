@@ -28,6 +28,7 @@ public class CoreStateListener implements IStateListener {
 
 	private Vertx vx;
 
+	@Override
 	public void init(Vertx vx) {
 		this.vx = vx;
 	}
