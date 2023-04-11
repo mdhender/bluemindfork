@@ -103,7 +103,9 @@ public class PostgreSQLService {
 		logger.info("new data server {} (address: {}), dbName {}", server.uid, server.value.address(), dbName);
 		INodeClient nc = NodeActivator.get(server.value.address());
 
-		configurePg(nc);
+		if (!NCUtils.connectedToMyself(nc)) {
+			configurePg(nc);
+		}
 
 		Pool pool = createDatabaseAndInitSchema(nc, dbName, server.value.ip);
 
