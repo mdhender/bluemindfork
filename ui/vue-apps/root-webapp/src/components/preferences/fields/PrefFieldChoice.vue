@@ -25,9 +25,11 @@ export default {
     name: "PrefFieldChoice",
     components: { BmFormRadio, BmFormRadioGroup },
     mixins: [OneSettingField],
-    props: {
-        choices: { type: Array, required: true },
-        imageMode: { type: Boolean, default: false }
+    props: { choices: { type: Array, required: true } },
+    computed: {
+        imageMode() {
+            return this.choices.every(({ svg, img }) => Boolean(svg) || Boolean(img));
+        }
     }
 };
 </script>

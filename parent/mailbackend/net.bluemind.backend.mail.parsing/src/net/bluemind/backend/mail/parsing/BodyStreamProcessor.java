@@ -555,7 +555,7 @@ public class BodyStreamProcessor {
 				break;
 			case "text/rfc822-headers":
 				part.dispositionType = DispositionType.ATTACHMENT;
-				part.fileName = "Undelivered Message Headers.txt";
+				part.fileName = "Original Message Headers.txt";
 				break;
 			case ContentTypeField.TYPE_MESSAGE_RFC822:
 				part.dispositionType = DispositionType.ATTACHMENT;

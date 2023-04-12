@@ -408,7 +408,7 @@ public class BodyStreamProcessorTests {
 		Assert.assertEquals("details.txt", secondChild.fileName);
 		Part thirdChild = result.body.structure.children.get(2);
 		Assert.assertEquals(DispositionType.ATTACHMENT, thirdChild.dispositionType);
-		Assert.assertEquals("Undelivered Message Headers.txt", thirdChild.fileName);
+		Assert.assertEquals("Original Message Headers.txt", thirdChild.fileName);
 	}
 
 	@Test

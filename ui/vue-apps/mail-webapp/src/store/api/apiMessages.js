@@ -1,9 +1,9 @@
-import { inject } from "@bluemind/inject";
 import map from "lodash.map";
 import flatmap from "lodash.flatmap";
 import chunk from "lodash.chunk";
+import { inject } from "@bluemind/inject";
 import { messageUtils } from "@bluemind/mail";
-
+import { extractFolderUid } from "@bluemind/mbox";
 import { ItemFlag } from "@bluemind/core.container.api";
 import { FolderAdaptor } from "../folders/helpers/FolderAdaptor";
 const { MessageAdaptor } = messageUtils;
@@ -66,7 +66,7 @@ export default {
         results.forEach(({ itemId, containerUid }) => {
             const resultKey = `${itemId}@${containerUid}`;
             if (!resultKeys.has(resultKey)) {
-                const folderRef = FolderAdaptor.toRef(FolderAdaptor.extractFolderUid(containerUid));
+                const folderRef = FolderAdaptor.toRef(extractFolderUid(containerUid));
                 filteredResults.push({ id: itemId, folderRef });
                 resultKeys.add(resultKey);
             }

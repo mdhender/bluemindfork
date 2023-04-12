@@ -421,7 +421,7 @@ public class SMTPProtocol implements AuthenticationServer, AutoCloseable {
 	 */
 	public void rcptWithDeliveryReport(Address address) throws IOException, SMTPException {
 		try {
-			sendCommand("RCPT", new String[] { "TO:" + address.getCanonicalMailAddress() + " NOTIFY=SUCCESS" });
+			sendCommand("RCPT", new String[] { "TO:" + address.getCanonicalMailAddress() + " NOTIFY=SUCCESS,FAILURE,DELAY" });
 
 			SMTPResponse response = readSingleLineResponse();
 			if (response.isERR())

@@ -13,7 +13,13 @@
         >
             <div v-if="transparent || noText" class="transparent-contact" :title="tooltip">
                 <template v-if="!noAvatar">
-                    <bm-avatar :size="avatarSize" :alt="dn" :urn="contact.urn" :icon="icon" :color="avatarColor" />
+                    <bm-avatar
+                        :size="avatarSize"
+                        :alt="dn || address"
+                        :urn="contact.urn"
+                        :icon="icon"
+                        :color="avatarColor"
+                    />
                 </template>
                 <span v-if="!noText" :class="textClass" class="contact-main-part">
                     <span :class="{ 'font-weight-bold': boldDn }">{{ dn }}</span>

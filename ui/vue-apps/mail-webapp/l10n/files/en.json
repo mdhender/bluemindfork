@@ -259,6 +259,7 @@
     "mail.content.file-type-compressed": "Archive",
     "mail.content.file-type-data": "Binary",
     "mail.content.file-type-excel": "Spreadsheet",
+    "mail.content.file-type-ics": "Calendar",
     "mail.content.file-type-image": "Image",
     "mail.content.file-type-message": "Message",
     "mail.content.file-type-pdf": "PDF",

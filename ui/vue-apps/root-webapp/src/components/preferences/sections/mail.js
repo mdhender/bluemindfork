@@ -37,7 +37,6 @@ export default function (i18n) {
                                 component: {
                                     name: "PrefFieldChoice",
                                     options: {
-                                        imageMode: true,
                                         setting: "mail_thread",
                                         needReload: true,
                                         choices: [
@@ -66,7 +65,6 @@ export default function (i18n) {
                                 component: {
                                     name: "PrefFieldChoice",
                                     options: {
-                                        imageMode: true,
                                         setting: "mail_message_list_style",
                                         autosave: true,
                                         choices: [
@@ -155,7 +153,8 @@ export default function (i18n) {
                                             i18n.t("preferences.mail.receipts.info.delivery"),
                                             i18n.t("preferences.mail.receipts.info.read")
                                         ],
-                                        readMoreLink: "path/to/doc.html"
+                                        readMoreLink:
+                                            "https://doc.bluemind.net/current/guide_de_l_utilisateur/la_messagerie/envoyer_un_message#dsn-mdn"
                                     }
                                 }
                             },
