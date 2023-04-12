@@ -34,6 +34,7 @@ import net.bluemind.network.topology.Topology;
 import net.bluemind.network.topology.TopologyException;
 import net.bluemind.pop3.endpoint.MailboxConnection;
 import net.bluemind.pop3.endpoint.Pop3Driver;
+import net.bluemind.pop3.endpoint.Pop3Error;
 
 public class MailApiPop3Driver implements Pop3Driver {
 
@@ -62,7 +63,7 @@ public class MailApiPop3Driver implements Pop3Driver {
 		try {
 			authapi.login(login, password, "pop3-endpoint").thenAccept(loginResponse -> {
 				if (loginResponse.authKey == null) {
-					coreConnection.completeExceptionally(new Exception("authkey is empty for login " + login));
+					coreConnection.completeExceptionally(new Pop3Error("authkey is empty for login " + login));
 				} else {
 					IServiceProvider prov = new VertxPromiseServiceProvider(clientProvider, cachingLocator,
 							loginResponse.authKey);

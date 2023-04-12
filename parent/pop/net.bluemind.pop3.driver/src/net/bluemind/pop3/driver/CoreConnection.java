@@ -62,6 +62,7 @@ import net.bluemind.lib.vertx.utils.MmapWriteStream;
 import net.bluemind.pop3.endpoint.MailItemData;
 import net.bluemind.pop3.endpoint.MailboxConnection;
 import net.bluemind.pop3.endpoint.Pop3Context;
+import net.bluemind.pop3.endpoint.Pop3Error;
 import net.bluemind.pop3.endpoint.Retr;
 import net.bluemind.pop3.endpoint.Stat;
 import net.bluemind.pop3.endpoint.TargetStream;
@@ -136,7 +137,7 @@ public class CoreConnection implements MailboxConnection {
 		return ctx.getMap().thenCompose(map -> {
 			if (map.get(id) == null) {
 				ctx.write("-ERR no such message, only " + map.size() + " messages in maildrop\r\n");
-				ret.completeExceptionally(new Exception("Cannot find mail with id " + id + " in maildrop"));
+				ret.completeExceptionally(new Pop3Error("Cannot find mail with id " + id + " in maildrop"));
 				return ret;
 			} else {
 				ctx.write("+OK " + id + " " + map.get(id).getMsgSize() + "\r\n");
@@ -168,7 +169,7 @@ public class CoreConnection implements MailboxConnection {
 		return ctx.getMap().thenCompose(map -> {
 			if (map.get(id) == null) {
 				ctx.write("-ERR no such message, only " + map.size() + " messages in maildrop\r\n");
-				ret.completeExceptionally(new Exception("Cannot find mail with id " + id + " in maildrop"));
+				ret.completeExceptionally(new Pop3Error("Cannot find mail with id " + id + " in maildrop"));
 				return ret;
 			} else {
 				ctx.write("+OK " + id + " " + map.get(id).getBodyMsgId() + "\r\n");
@@ -191,12 +192,12 @@ public class CoreConnection implements MailboxConnection {
 					Iterator<ItemVersion> recordIds = Iterables.concat(cs.created, cs.updated).iterator();
 
 					List<CompletableFuture<ItemValue<MailboxItem>>> list = ImmutableList.copyOf(recordIds).stream()
-							.map(item -> recApi.getCompleteById(item.id)).collect(Collectors.toList());
+							.map(item -> recApi.getCompleteById(item.id)).toList();
 
 					return CompletableFuture.allOf(list.stream().toArray(CompletableFuture[]::new)).thenAccept(v -> {
 						List<MailItemData> listMails = list.stream().map(CompletableFuture::join)
 								.map(i -> new MailItemData(i.internalId, i.value.body.guid, i.value.body.size))
-								.collect(Collectors.toList());
+								.toList();
 						ConcurrentMap<Integer, MailItemData> map = IntStream.range(0, listMails.size()).boxed()
 								.collect(Collectors.toConcurrentMap(it -> it + 1, listMails::get));
 						result.complete(map);
@@ -313,7 +314,7 @@ public class CoreConnection implements MailboxConnection {
 			MailItemData detail = map.get(messageId);
 			if (detail == null) {
 				stream.write("-ERR no such message");
-				return null;
+				return CompletableFuture.failedFuture(new Pop3Error("no such message"));
 			} else {
 				return inboxRef.get().thenCompose(inbox -> prov.instance(IMailboxItemsPromise.class, inbox.uid)
 						.getCompleteById(detail.getItemId())

@@ -20,6 +20,7 @@ package net.bluemind.pop3.endpoint;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -112,8 +113,22 @@ public class Pop3Session {
 			ctx.write("-ERR unknown command" + CRLF);
 		} else {
 			proc.run(ctx, cmd).exceptionally(ex -> {
-				logger.error("[{}] {} failed: {}", ctx.getLogin(), cmd, ex.getMessage(), ex);
 				ctx.write("-ERR command failed" + CRLF);
+				boolean logStackTrace = true;
+				String logMessage = ex.getMessage();
+				Throwable cause = ex.getCause();
+				if (ex instanceof CompletionException) {
+					logStackTrace = !(cause instanceof Pop3Error);
+					if (cause != null) {
+						logMessage = cause.getMessage();
+					}
+				}
+				if (logStackTrace) {
+					logger.error("[{}] {} failed: {}", ctx.getLogin(), cmd, logMessage, cause != null ? cause : ex); // NOSONAR:
+																														// used
+				} else {
+					logger.error("[{}] {} failed: {}", ctx.getLogin(), cmd, logMessage);
+				}
 				return null;
 			});
 		}
