@@ -36,6 +36,7 @@ import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
 import io.vertx.core.net.NetSocket;
+import net.bluemind.common.vertx.contextlogging.ContextualData;
 import net.bluemind.metrics.registry.MetricsRegistry;
 import net.bluemind.system.api.SystemState;
 
@@ -103,6 +104,7 @@ public class LmtpProxyVerticle extends AbstractVerticle {
 	}
 
 	private Handler<NetSocket> onConnect() {
+		ContextualData.put("endpoint", "lmtp");
 		return (NetSocket socket) -> {
 			socket.exceptionHandler(exceptionHandler(socket));
 			logger.info("connect from {}, initialize backend connection ", socket.remoteAddress());

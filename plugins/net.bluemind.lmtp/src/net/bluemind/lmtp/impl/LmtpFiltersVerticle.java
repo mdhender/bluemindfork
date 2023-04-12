@@ -39,6 +39,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
+import net.bluemind.common.vertx.contextlogging.ContextualData;
 import net.bluemind.lmtp.backend.FilterException;
 import net.bluemind.lmtp.backend.IMessageFilter;
 import net.bluemind.lmtp.backend.LmtpReply;
@@ -61,6 +62,7 @@ public class LmtpFiltersVerticle extends AbstractVerticle {
 	public void start() {
 		config = new LmtpConfig();
 		filtersHandler = (Message<MailMessage> event) -> {
+			ContextualData.put("endpoint", "lmtp");
 
 			try {
 				MailMessage tm = applyFilters(event.body());
