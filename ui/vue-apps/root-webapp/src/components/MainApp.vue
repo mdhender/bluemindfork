@@ -53,10 +53,9 @@ export default {
 
         return {
             applications: mapExtensions("net.bluemind.webapp", { apps: "application" })
-                .apps
-		//Deprecated end-point
-		.concat(mapExtensions("webapp.banner", { apps: "application" }).apps)
-		.filter(({ role }) => session.roles.includes(role))
+                .apps //Deprecated end-point
+                .concat(mapExtensions("webapp.banner", { apps: "application" }).apps)
+                .filter(({ role }) => session.roles.includes(role))
                 .map(application => ({
                     ...application,
                     path: BaseUri.test(application.href) ? application.href.replace(BaseUri, "") : application.href,
@@ -82,7 +81,6 @@ export default {
         };
     },
     computed: {
-        ...mapState({ applicationAlerts: state => state.alert.applicationAlerts }),
         ...mapState({ alerts: state => state.alert.filter(({ area }) => !area) }),
         ...mapState("root-app", ["appState", "showBanner"]),
         ...mapState("preferences", ["showPreferences"]),

@@ -9,7 +9,6 @@ import router from "@bluemind/router";
 import { initSentry } from "@bluemind/sentry";
 import store from "@bluemind/store";
 import { BmModalPlugin } from "@bluemind/ui-components";
-import UUIDGenerator from "@bluemind/uuid";
 import VueBus from "@bluemind/vue-bus";
 import { extend } from "@bluemind/vuex-router";
 import VueSockjsPlugin from "@bluemind/vue-sockjs";
@@ -37,7 +36,6 @@ async function initWebApp() {
     }
     const i18n = initI18N(userSession);
     Vue.component("DefaultAlert", DefaultAlert);
-    adaptLegacyNotificationSystem();
     router.addRoutes(routes);
     new Vue({
         el: "#app",
@@ -49,28 +47,6 @@ async function initWebApp() {
     if (userSession.userId) {
         new NotificationManager().setNotificationWhenReceivingMail(userSession);
     }
-}
-
-function adaptLegacyNotificationSystem() {
-    Vue.component("DisplayLegacyNotif", {
-        name: "DisplayLegacyNotif",
-        props: {
-            alert: {
-                type: Object,
-                default: () => ({})
-            }
-        },
-        template: "<span>{{alert.payload}}</span>"
-    });
-    document.addEventListener("ui-notification", displayLegacyNotification);
-}
-
-function displayLegacyNotification(event) {
-    const type = event.detail.type !== "error" ? "SUCCESS" : "ERROR";
-    store.dispatch("alert/" + type, {
-        alert: { uid: UUIDGenerator.generate(), name: "legacy notif", payload: event.detail.message },
-        options: { renderer: "DisplayLegacyNotif" }
-    });
 }
 
 function setVuePlugins(userSession) {
