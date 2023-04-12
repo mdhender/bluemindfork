@@ -331,9 +331,14 @@ imFieldByLabel["irc"] = "_IRC";
 function BMContact(/*nsIAbCard*/ aCard) {
     let props = aCard.vCardProperties;
     if (props) {
-        this._card = aCard.wrappedJSObject; 
-        this._getProp = function(propName, defValue) {
-            return this._card.getProperty(propName, defValue);
+        this._card = aCard.wrappedJSObject;
+        this._props = props.toPropertyMap();
+        this._getProp = function(propName, defValue, isCustomProp) {
+            if (isCustomProp) {
+                return this._card.getProperty(propName, defValue);
+            } else {
+                return this._props.has(propName) ? this._props.get(propName) : defValue;
+            }
         };
         this._setProp = function(propName, value) {
             if ([null, undefined, ""].includes(value)) {
@@ -345,7 +350,10 @@ function BMContact(/*nsIAbCard*/ aCard) {
             }
             this._card._properties.set(propName, "" + value);
         };
-        this.beforeSave = function() {};
+        this.beforeSave = function() {
+            // recalculate VCardProperties from modified properties
+            this._card._vCardProperties = VCardProperties.fromPropertyMap(this._card._properties);
+        };
    } else {
         this._card = aCard;
         this._getProp = function(propName, defValue) {
@@ -362,19 +370,19 @@ function BMContact(/*nsIAbCard*/ aCard) {
 
 BMContact.prototype = {
     getId: function() {
-        return this._getProp("bm-id", null);
+        return this._getProp("bm-id", null, true);
     },
     setId: function(value) {
         this._setProp("bm-id", value);
     },
     getExtId: function() {
-        return this._getProp("bm-extId", null);
+        return this._getProp("bm-extId", null, true);
     },
     setExtId: function(value) {
         this._setProp("bm-extId", value);
     },
     getFolder: function() {
-        return this._getProp("bm-folder", null);
+        return this._getProp("bm-folder", null, true);
     },
     setFolder: function(value) {
         this._setProp("bm-folder", value);
@@ -398,13 +406,13 @@ BMContact.prototype = {
         this._card.displayName = value;
     },
     getMiddleName: function() {
-        return this._getProp("X-BM-middleName", null);
+        return this._getProp("X-BM-middleName", null, true);
     },
     setMiddleName: function(value) {
         this._setProp("X-BM-middleName", value);
     },
     getSuffix: function() {
-        return this._getProp("X-BM-suffix", null);
+        return this._getProp("X-BM-suffix", null, true);
     },
     setSuffix: function(value) {
         this._setProp("X-BM-suffix", value);
@@ -416,7 +424,7 @@ BMContact.prototype = {
         this._setProp("NickName", value);
     },
     getGender: function() {
-        return this._getProp("X-BM-gender", null); 
+        return this._getProp("X-BM-gender", null, true); 
     },
     setGender: function(value) {
         this._setProp("X-BM-gender", value);
@@ -429,19 +437,19 @@ BMContact.prototype = {
         this._setProp("Notes", bmUtils.convertToPlainText(value));
     },
     getTitle: function() {
-        return this._getProp("Title");
+        return this._getProp("Title", null);
     },
     setTitle: function(value) {
         this._setProp("Title", value);
     },
     getCompany: function() {
-        return this._getProp("Company");
+        return this._getProp("Company", null);
     },
     setCompany: function(value) {
         this._setProp("Company", value); 
     },
     getJobTitle: function() {
-        return this._getProp("JobTitle");
+        return this._getProp("JobTitle", null);
     },
     setJobTitle: function(value) {
         this._setProp("JobTitle", value);
@@ -453,7 +461,7 @@ BMContact.prototype = {
         this._setProp("Department", value);
     },
     getRole: function() {
-        return this._getProp("X-BM-role", null);
+        return this._getProp("X-BM-role", null, true);
     },
     setRole: function(value) {
         this._setProp("X-BM-role", value);
@@ -513,7 +521,7 @@ BMContact.prototype = {
         if (webPage2) {
             sites.push({url:webPage2, label:"home"});
         }
-        let extras = JSON.parse(this._getProp("X-BM-extraWebPages", "[]"));
+        let extras = JSON.parse(this._getProp("X-BM-extraWebPages", "[]", true));
         extras.forEach(function(extra) {
             sites.push(extra);
         });
@@ -554,7 +562,7 @@ BMContact.prototype = {
         if (p != null) {
             phones.push({phone: p, label: "cell,voice"})
         }
-        let extras = JSON.parse(this._getProp("X-BM-extraPhones", "[]"));
+        let extras = JSON.parse(this._getProp("X-BM-extraPhones", "[]", true));
         extras.forEach(function(extra) {
             phones.push(extra);
         });
@@ -605,7 +613,7 @@ BMContact.prototype = {
                 ims.push({id: im, protocol: imLabelByField[imField], label:""});
             }
         }
-        let extras = JSON.parse(this._getProp("X-BM-extraIms", "[]"));
+        let extras = JSON.parse(this._getProp("X-BM-extraIms", "[]", true));
         extras.forEach(function(extra) {
             ims.push(extra);
         });
@@ -641,7 +649,7 @@ BMContact.prototype = {
         if (e) {
             emails.push({label:"", email:e});
         }
-        let extras = JSON.parse(this._getProp("X-BM-extraEmails", "[]"));
+        let extras = JSON.parse(this._getProp("X-BM-extraEmails", "[]", true));
         extras.forEach(function(extra) {
             emails.push(extra);
         });
@@ -680,7 +688,7 @@ BMContact.prototype = {
         addr.street = mergeStreet(street1, street2);
         addr.zipcode = this._getProp("HomeZipCode", null);
         addr.town = this._getProp("HomeCity", null);
-        addr.expresspostal = this._getProp("X-BM-homeExpresspostal", null);
+        addr.expresspostal = this._getProp("X-BM-homeExpresspostal", null, true);
         addr.state = this._getProp("HomeState", null);
         addr.country = this._getProp("HomeCountry", null);
         addr.label = "home";
@@ -706,7 +714,7 @@ BMContact.prototype = {
             addresses.push(addr);
         }
         
-        let extras = JSON.parse(this._getProp("X-BM-extraAddresses", "[]"));
+        let extras = JSON.parse(this._getProp("X-BM-extraAddresses", "[]", true));
         extras.forEach(function(extra) {
             addresses.push(extra);
         });
@@ -751,25 +759,25 @@ BMContact.prototype = {
         this._setProp("X-BM-extraAddresses", JSON.stringify(extras));
     },
     getTags: function() {
-        return JSON.parse(this._getProp("X-BM-tags", "[]"));
+        return JSON.parse(this._getProp("X-BM-tags", "[]", true));
     },
     setTags: function(value) {
         this._setProp("X-BM-tags", JSON.stringify(value));
     },
     getAssistant: function() {
-        return this._getProp("X-BM-assistant", null);
+        return this._getProp("X-BM-assistant", null, true);
     },
     setAssistant: function(value) {
         this._setProp("X-BM-assistant", value);
     },
     getManager: function() {
-        return this._getProp("X-BM-manager", null);
+        return this._getProp("X-BM-manager", null, true);
     },
     setManager: function(value) {
         this._setProp("X-BM-manager", value);
     },
     getSpouse: function() {
-        return this._getProp("X-BM-spouse", null);
+        return this._getProp("X-BM-spouse", null, true);
     },
     setSpouse: function(value) {
         this._setProp("X-BM-spouse", value);
@@ -779,7 +787,7 @@ BMContact.prototype = {
         return photoName != null;
     },
     getSecurity: function() {
-        return JSON.parse(this._getProp("X-BM-security", null));
+        return JSON.parse(this._getProp("X-BM-security", null, true));
     },
     setSecurity: function(value) {
         this._setProp("X-BM-security", JSON.stringify(value));
