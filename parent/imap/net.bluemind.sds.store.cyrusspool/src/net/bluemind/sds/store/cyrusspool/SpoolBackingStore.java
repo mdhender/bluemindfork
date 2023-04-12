@@ -106,7 +106,7 @@ public class SpoolBackingStore implements ISdsBackingStore {
 				ByteBufOutputStream bbo = new ByteBufOutputStream(bb);
 				OutputStream zst = new ZstdOutputStream(bbo, RecyclingBufferPool.INSTANCE, -3)) {
 			long copied = ByteStreams.copy(input, zst);
-			logger.info("Compressed {}byte(s) for {}", copied, req.guid);
+			logger.debug("Compressed {}byte(s) for {}", copied, req.guid);
 		} catch (IOException e) {
 			return exception(e);
 		}
@@ -194,12 +194,12 @@ public class SpoolBackingStore implements ISdsBackingStore {
 				// compute the fucking path...
 				path = CyrusFileSystemPathHelper.getFileSystemPath(cont.domainUid, desc, part, uri.imapUid);
 				if (onNode(targetPath, path, server, decompress)) {
-					logger.info("{} -> '{}'", guid, path);
+					logger.debug("{} -> '{}'", guid, path);
 					CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
 				}
 				path = CyrusFileSystemPathHelper.getHSMFileSystemPath(cont.domainUid, desc, part, uri.imapUid);
 				if (onNode(targetPath, path, server, decompress)) {
-					logger.info("{} -> '{}'", guid, path);
+					logger.debug("{} -> '{}'", guid, path);
 					CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
 				}
 			}
@@ -248,7 +248,7 @@ public class SpoolBackingStore implements ISdsBackingStore {
 		} else {
 			byte[] eml = nc.read(emlPath);
 			if (eml.length > 0) {
-				logger.info("Found {} byte(s) of mail data in {}, tgt is {}{}", eml.length, emlPath, targetPath,
+				logger.debug("Found {} byte(s) of mail data in {}, tgt is {}{}", eml.length, emlPath, targetPath,
 						(decompress ? "" : " (compressed)"));
 				if (decompress && emlPath.endsWith(".zst")) {
 					return compressedEml(targetPath, eml);
@@ -263,7 +263,7 @@ public class SpoolBackingStore implements ISdsBackingStore {
 	private boolean plainEml(String targetPath, byte[] eml) {
 		try {
 			Files.write(Paths.get(targetPath), eml);
-			logger.info("Wrote plain {} byte(s) to {}", eml.length, targetPath);
+			logger.debug("Wrote plain {} byte(s) to {}", eml.length, targetPath);
 			return true;
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
@@ -277,7 +277,7 @@ public class SpoolBackingStore implements ISdsBackingStore {
 				OutputStream out = Files.newOutputStream(Paths.get(targetPath))) {
 			long copied = in.transferTo(out);
 			out.flush();
-			logger.info("Wrote compressed {} byte(s) to {}", copied, targetPath);
+			logger.debug("Wrote compressed {} byte(s) to {}", copied, targetPath);
 			return true;
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -298,7 +298,7 @@ public class SpoolBackingStore implements ISdsBackingStore {
 		for (Path p : Arrays.asList(Paths.get(livePath(req.guid)), Paths.get(archivePath(req.guid)))) {
 			try {
 				if (Files.deleteIfExists(p)) {
-					logger.info("removed {}: {}", req.guid, p);
+					logger.debug("removed {}: {}", req.guid, p);
 					return CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
 				}
 			} catch (IOException e) {
