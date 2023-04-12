@@ -183,8 +183,6 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			return;
 		}
 
-		bs.setLastMonitored(sr.collections);
-
 		// tom: when push is enabled, can we have client changes ?
 		// assume NO
 
