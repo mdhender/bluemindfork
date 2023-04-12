@@ -197,12 +197,22 @@ export default {
             if (this.hasReadableContainers) {
                 const containers = this.selected.map(container => ({ ...container, offlineSync: true }));
                 await this.SUBSCRIBE_TO_CONTAINERS(containers);
-                if (this.containerType === ContainerType.MAILBOX && this.$route.path.startsWith("/mail/")) {
+                if (this.isContainerTypeUsedByCurrentApp(this.containerType)) {
                     this.$store.commit("preferences/fields/NEED_RELOAD", { id: this.fieldId });
                 }
                 this.$emit("subscribe", containers);
                 this.SUCCESS(SAVE_ALERT);
             }
+        },
+        isContainerTypeUsedByCurrentApp(type) {
+            const applicationByContainerType = {
+                [ContainerType.MAILBOX]: "/mail/",
+                [ContainerType.ADDRESSBOOK]: "/contacts/",
+                [ContainerType.CALENDAR]: "/calendar/",
+                [ContainerType.TODOLIST]: "/tasks/"
+            };
+            const path = this.$route.path + (this.$route.path.endsWith("/") ? "" : "/");
+            return path.startsWith(applicationByContainerType[type]);
         }
     }
 };

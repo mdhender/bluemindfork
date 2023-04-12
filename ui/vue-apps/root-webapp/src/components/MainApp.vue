@@ -88,7 +88,8 @@ export default {
             return this.$route.hash && this.$route.hash === "#about";
         },
         current() {
-            return this.applications.find(application => this.$route.path.startsWith(application.path));
+            const path = this.$route.path + (this.$route.path.endsWith("/") ? "" : "/");
+            return this.applications.find(application => path.startsWith(application.path));
         }
     },
     watch: {
