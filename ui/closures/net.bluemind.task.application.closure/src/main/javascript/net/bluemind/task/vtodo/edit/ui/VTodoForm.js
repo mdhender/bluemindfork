@@ -57,6 +57,13 @@ net.bluemind.task.vtodo.edit.ui.VTodoForm = function(ctx) {
   child.setId('summary');
   headerDiv.addChild(child, true);
 
+  /** @meaning tasks.form.delegation */
+  var MSG_DELEGATION = goog.getMsg('Delegated by');
+  var child = new net.bluemind.ui.form.TextField(MSG_DELEGATION);
+  child.setReadOnly(true);
+  child.setId('delegation');
+  headerDiv.addChild(child, true);
+
   /** @meaning tasks.form.dtstart */
   var MSG_DTSTART = goog.getMsg('Date start');
   child = new net.bluemind.ui.form.DateField(MSG_DTSTART, formatter.date, parser.date);
@@ -131,6 +138,9 @@ goog.inherits(net.bluemind.task.vtodo.edit.ui.VTodoForm, net.bluemind.ui.form.Fo
 net.bluemind.task.vtodo.edit.ui.VTodoForm.prototype.setModel = function(model) {
   goog.base(this, 'setModel', model);
   this.getChild('headerDiv').getChild('summary').setValue(model.summary);
+  if (model.organizer){
+    this.getChild('headerDiv').getChild('delegation').setValue(model.organizer.commonName);
+  }
   this.getChild('headerDiv').getChild('dtstart').setValue(model.start);
   this.getChild('headerDiv').getChild('due').setValue(model.due);
   this.getChild('headerDiv').getChild('priority').setValue(model.priority);

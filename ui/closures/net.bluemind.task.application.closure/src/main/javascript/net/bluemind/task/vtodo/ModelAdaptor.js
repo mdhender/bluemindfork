@@ -45,6 +45,15 @@ net.bluemind.task.vtodo.ModelAdaptor.prototype.vtodoToModelView = function(vtodo
 
   model.status = vtodo['value']['status'];
 
+  if (vtodo['value']['organizer']) {
+    model.organizer = {
+      commonName : vtodo['value']['organizer']['commonName'],
+      mailto : vtodo['value']['organizer']['mailto'],
+      dir : vtodo['value']['organizer']['dir'],
+      uri : vtodo['value']['organizer']['uri']
+    }
+  } 
+
   model.priority = vtodo['value']['priority'];
 
   if (vtodo['value']['alarm']) {
@@ -99,6 +108,16 @@ net.bluemind.task.vtodo.ModelAdaptor.prototype.vtodoFromModelView = function(mod
   } else {
     vtodo['value']['completed'] = null;
   }
+
+  if (model.organizer){
+    vtodo['value']['organizer'] = {
+      'commonName' : model.organizer.commonName,
+      'mailto' : model.organizer.mailto,
+      'dir' : model.organizer.dir,
+      'uri' : model.organizer.uri
+    }
+  }
+
   vtodo['value']['uid'] = model.uid || net.bluemind.mvp.UID.generate();
   vtodo['value']['status'] = model.status;
   vtodo['value']['percent'] = model.percent;

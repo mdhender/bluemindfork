@@ -33,6 +33,7 @@ goog.require("net.bluemind.ui.form.FormField");
 net.bluemind.ui.form.TextField = function(label, opt_renderer, opt_domHelper) {
   net.bluemind.ui.form.FormField.call(this, label, opt_renderer, opt_domHelper);
   this.addClassName(goog.getCssName('field-text'));
+  this.readOnly = false;
 }
 goog.inherits(net.bluemind.ui.form.TextField, net.bluemind.ui.form.FormField);
 
@@ -57,3 +58,26 @@ net.bluemind.ui.form.TextField.prototype.getValue = function() {
 net.bluemind.ui.form.TextField.prototype.setValue = function(value) {
   this.getChild('field').setValue(value || "");
 };
+
+net.bluemind.ui.form.TextField.prototype.setReadOnly = function(value) {
+  if (value != this.readOnly) {
+    this.readOnly = value;
+    this.applyReadOnly_();
+  }
+};
+net.bluemind.ui.form.TextField.prototype.applyReadOnly_ = function() {
+  if (this.isInDocument()) {
+    if (this.readOnly) {
+      this.getChild('field').getElement().setAttribute('readonly', 'true');
+    } else if (this.getChild('field').getElement().hasAttribute('readonly')) {
+      this.getChild('field').getElement().removeAttribute('readonly');
+    }
+  }
+};
+/** @override */
+net.bluemind.ui.form.TextField.prototype.enterDocument = function() {
+  goog.base(this, 'enterDocument');
+  this.applyReadOnly_();
+};
+
+
