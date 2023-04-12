@@ -45,6 +45,7 @@ import net.bluemind.keycloak.api.BluemindProviderComponent;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
 import net.bluemind.keycloak.api.IKeycloakBluemindProviderAdmin;
 import net.bluemind.keycloak.api.IKeycloakClientAdmin;
+import net.bluemind.keycloak.api.IKeycloakFlowAdmin;
 import net.bluemind.keycloak.api.IKeycloakKerberosAdmin;
 import net.bluemind.keycloak.api.IKeycloakUids;
 import net.bluemind.keycloak.api.KerberosComponent;
@@ -76,6 +77,9 @@ public class KeycloakHelper {
 		String clientId = IKeycloakUids.clientId(domain.uid);
 
 		keycloakAdminService.createRealm(realm);
+
+		IKeycloakFlowAdmin keycloakFlowService = provider.instance(IKeycloakFlowAdmin.class, realm);
+		keycloakFlowService.createByCopying(IKeycloakUids.keycloakFlowAlias, IKeycloakUids.bluemindFlowAlias);
 
 		IKeycloakBluemindProviderAdmin keycloakBluemindProviderService = provider
 				.instance(IKeycloakBluemindProviderAdmin.class, domain.uid);

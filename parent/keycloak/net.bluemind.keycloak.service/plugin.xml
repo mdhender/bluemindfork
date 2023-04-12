@@ -1,60 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension
-         point="net.bluemind.core.rest.apiEndpoint">
-      <endpoint
-            api="net.bluemind.keycloak.api.IKeycloakAdmin">
-      </endpoint>
-      <endpoint
-            api="net.bluemind.keycloak.api.IKeycloakClientAdmin">
-      </endpoint>
-      <endpoint
-            api="net.bluemind.keycloak.api.IKeycloakKerberosAdmin">
-      </endpoint>
-      <endpoint
-            api="net.bluemind.keycloak.api.IKeycloakBluemindProviderAdmin">
-      </endpoint>
-   </extension>
-   <extension
-         point="net.bluemind.core.rest.serviceFactory">
-      <serviceFactory
-            class="net.bluemind.keycloak.service.KeycloakAdminServiceFactory">
-      </serviceFactory>
-      <serviceFactory
-            class="net.bluemind.keycloak.service.KeycloakClientAdminServiceFactory">
-      </serviceFactory>
-      <serviceFactory
-            class="net.bluemind.keycloak.service.KeycloakKerberosAdminServiceFactory">
-      </serviceFactory>
-      <serviceFactory
-            class="net.bluemind.keycloak.service.KeycloakBluemindProviderAdminServiceFactory">
-      </serviceFactory>
-   </extension>
-   <extension
-         point="net.bluemind.server.hook.serverhook">
-      <hook
-            impl="net.bluemind.keycloak.config.KeycloakServerHook"
-            priority="1">
-      </hook>
-   </extension>
-   <extension
-         point="net.bluemind.domain.domainHook">
-      <hook
-            class="net.bluemind.keycloak.service.domainhook.DomainHook">
-      </hook>
-   </extension>
-   <extension
-         point="net.bluemind.directory.repairSupport">
-      <repairSupport
-            factory="net.bluemind.keycloak.internal.KeycloakRealmRepairSupport$Factory">
-      </repairSupport>
-   </extension>
-   <extension
-         point="net.bluemind.lib.vertx.verticles">
-      <verticle
-            impl="net.bluemind.keycloak.verticle.KeycloakKerberosVerticleFactory">
-      </verticle>
-   </extension>
+	<extension point="net.bluemind.core.rest.apiEndpoint">
+		<endpoint api="net.bluemind.keycloak.api.IKeycloakAdmin"></endpoint>
+		<endpoint api="net.bluemind.keycloak.api.IKeycloakClientAdmin"></endpoint>
+		<endpoint api="net.bluemind.keycloak.api.IKeycloakKerberosAdmin"></endpoint>
+		<endpoint api="net.bluemind.keycloak.api.IKeycloakBluemindProviderAdmin"></endpoint>
+		<endpoint api="net.bluemind.keycloak.api.IKeycloakFlowAdmin"></endpoint>
+	</extension>
+	<extension point="net.bluemind.core.rest.serviceFactory">
+		<serviceFactory class="net.bluemind.keycloak.service.KeycloakAdminServiceFactory"></serviceFactory>
+		<serviceFactory class="net.bluemind.keycloak.service.KeycloakClientAdminServiceFactory"></serviceFactory>
+		<serviceFactory class="net.bluemind.keycloak.service.KeycloakKerberosAdminServiceFactory"></serviceFactory>
+		<serviceFactory class="net.bluemind.keycloak.service.KeycloakBluemindProviderAdminServiceFactory"></serviceFactory>
+		<serviceFactory class="net.bluemind.keycloak.service.KeycloakFlowAdminServiceFactory"></serviceFactory>
+	</extension>
+	<extension point="net.bluemind.server.hook.serverhook">
+		<hook impl="net.bluemind.keycloak.config.KeycloakServerHook" priority="1"></hook>
+	</extension>
+	<extension point="net.bluemind.domain.domainHook">
+		<hook class="net.bluemind.keycloak.service.domainhook.DomainHook"></hook>
+	</extension>
+	<extension point="net.bluemind.directory.repairSupport">
+		<repairSupport factory="net.bluemind.keycloak.internal.KeycloakRealmRepairSupport$Factory"></repairSupport>
+	</extension>
+	<extension point="net.bluemind.lib.vertx.verticles">
+		<verticle impl="net.bluemind.keycloak.verticle.KeycloakKerberosVerticleFactory"></verticle>
+	</extension>
 
 </plugin>

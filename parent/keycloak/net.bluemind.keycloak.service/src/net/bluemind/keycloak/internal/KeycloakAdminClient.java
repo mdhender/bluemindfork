@@ -20,6 +20,7 @@ package net.bluemind.keycloak.internal;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -67,23 +68,24 @@ public abstract class KeycloakAdminClient {
 			try {
 				URI uri = new URI(spec);
 				HttpClient client = initHttpClient(uri);
-				client.request(method, uri.getPath() + (uri.getQuery() != null ? "?" + uri.getQuery() : "" ), reqHandler -> {
-					if (reqHandler.succeeded()) {
-						HttpClientRequest r = reqHandler.result();
-						r.response(responseHandler(future));
-						MultiMap headers = r.headers();
-						headers.add(HttpHeaders.AUTHORIZATION,
-								String.format("bearer %s", token.getString("access_token")));
-						headers.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
-						headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
-						if (body != null) {
-							byte[] data = body.toString().getBytes();
-							headers.add(HttpHeaders.CONTENT_LENGTH, Integer.toString(data.length));
-							r.write(Buffer.buffer(data));
-						}
-						r.end();
-					}
-				});
+				client.request(method, uri.getPath() + (uri.getQuery() != null ? "?" + uri.getQuery() : ""),
+						reqHandler -> {
+							if (reqHandler.succeeded()) {
+								HttpClientRequest r = reqHandler.result();
+								r.response(responseHandler(future));
+								MultiMap headers = r.headers();
+								headers.add(HttpHeaders.AUTHORIZATION,
+										String.format("bearer %s", token.getString("access_token")));
+								headers.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
+								headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
+								if (body != null) {
+									byte[] data = body.toString().getBytes();
+									headers.add(HttpHeaders.CONTENT_LENGTH, Integer.toString(data.length));
+									r.write(Buffer.buffer(data));
+								}
+								r.end();
+							}
+						});
 			} catch (Exception e) {
 				future.completeExceptionally(e);
 			}
@@ -163,6 +165,20 @@ public abstract class KeycloakAdminClient {
 			opts.setVerifyHost(false);
 		}
 		return VertxPlatform.getVertx().createHttpClient(opts);
+	}
+
+	protected JsonObject call(String callUri, HttpMethod method, JsonObject body) {
+		String callUrl = BASE_URL + callUri;
+
+		CompletableFuture<JsonObject> response = execute(callUrl, method, body);
+
+		JsonObject json;
+		try {
+			json = response.get(TIMEOUT, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			throw new ServerFault(e);
+		}
+		return json;
 	}
 
 }

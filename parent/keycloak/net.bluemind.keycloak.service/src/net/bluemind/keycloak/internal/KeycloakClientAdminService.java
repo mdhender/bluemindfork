@@ -35,12 +35,13 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.keycloak.api.IKeycloakClientAdmin;
+import net.bluemind.keycloak.api.IKeycloakUids;
 import net.bluemind.keycloak.api.OidcClient;
 import net.bluemind.role.api.BasicRoles;
 
 public class KeycloakClientAdminService extends KeycloakAdminClient implements IKeycloakClientAdmin {
 	private static final Logger logger = LoggerFactory.getLogger(KeycloakClientAdminService.class);
-	
+
 	private RBACManager rbacManager;
 	private String domainId;
 
@@ -55,6 +56,18 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 
 		logger.info("Realm {}: Create client {}", domainId, clientId);
 
+		// List flows to get our flow Id
+		String ourFlowId = null;
+		String flowsUri = "/admin/realms/" + domainId + "/authentication/flows";
+		JsonObject resp = call(flowsUri, HttpMethod.GET, null);
+		JsonArray flows = resp.getJsonArray("results");
+		for (int i = 0; i < flows.size(); i++) {
+			JsonObject curFlow = flows.getJsonObject(i);
+			if (IKeycloakUids.bluemindFlowAlias.equals(curFlow.getString("alias"))) {
+				ourFlowId = curFlow.getString("id");
+			}
+		}
+
 		JsonObject client = new JsonObject();
 		client.put("id", clientId);
 		client.put("clientId", clientId);
@@ -64,6 +77,23 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 		JsonArray redirectUris = new JsonArray();
 		redirectUris.add("*");
 		client.put("redirectUris", redirectUris);
+
+		JsonObject overrides = new JsonObject();
+		overrides.put("browser", ourFlowId);
+		client.put("authenticationFlowBindingOverrides", overrides);
+
+		JsonObject mapper = new JsonObject();
+		mapper.put("name", "bm_pubpriv");
+		mapper.put("protocol", "openid-connect");
+		mapper.put("protocolMapper", "oidc-usermodel-attribute-mapper");
+		mapper.put("consentRequired", false);
+		mapper.put("config",
+				new JsonObject().put("user.attribute", "bm_pubpriv").put("claim.name", "bm_pubpriv")
+						.put("aggregate.attrs", "false").put("multivalued", "false").put("access.token.claim", "true")
+						.put("userinfo.token.claim", "false").put("id.token.claim", "false"));
+		JsonArray protocolMappers = new JsonArray();
+		protocolMappers.add(mapper);
+		client.put("protocolMappers", protocolMappers);
 
 		CompletableFuture<JsonObject> response = execute(String.format(CLIENTS_URL, domainId), HttpMethod.POST, client);
 
@@ -96,9 +126,9 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 	@Override
 	public List<OidcClient> allOidcClients() throws ServerFault {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
-		
+
 		logger.info("Realm {}: Get OIDC clients", domainId);
-		
+
 		CompletableFuture<JsonObject> response = execute(String.format(CLIENTS_URL, domainId), HttpMethod.GET);
 		JsonObject json;
 		try {
@@ -107,11 +137,11 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 			logger.error("EXCeptkion " + e.getClass().getName() + " : " + e.getMessage(), e);
 			throw new ServerFault("Failed to fetch clients for realm " + domainId);
 		}
-		
+
 		List<OidcClient> ret = new ArrayList<>();
 		JsonArray results = json.getJsonArray("results");
 		results.forEach(cli -> {
-			if (cli != null && "openid-connect".equals(((JsonObject) cli).getString("protocol") )) {
+			if (cli != null && "openid-connect".equals(((JsonObject) cli).getString("protocol"))) {
 				ret.add(jsonToOidcClient(((JsonObject) cli)));
 			}
 		});
@@ -121,7 +151,7 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 	@Override
 	public OidcClient getOidcClient(String clientId) throws ServerFault {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
-		
+
 		logger.info("Realm {}: Get client {}", domainId, clientId);
 		String spec = String.format(CLIENTS_URL, domainId);
 		try {
@@ -139,7 +169,8 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 			throw new ServerFault("Failed to fetch client " + clientId + " in realm " + domainId);
 		}
 		JsonArray results = json.getJsonArray("results");
-		if (results == null || results.size() == 0 || !"openid-connect".equals(json.getJsonArray("results").getJsonObject(0).getString("protocol"))) {
+		if (results == null || results.size() == 0
+				|| !"openid-connect".equals(json.getJsonArray("results").getJsonObject(0).getString("protocol"))) {
 			return null;
 		}
 		return jsonToOidcClient(json.getJsonArray("results").getJsonObject(0));
@@ -148,9 +179,9 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 	@Override
 	public void deleteOidcClient(String clientId) throws ServerFault {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
-		
+
 		logger.info("Realm {}: Delete client {}", domainId, clientId);
-		
+
 		OidcClient oc = null;
 		try {
 			oc = getOidcClient(clientId);
@@ -161,15 +192,16 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 		if (oc == null) {
 			throw new ServerFault("Couldn't get client " + clientId + " in realm " + domainId + " to delete it");
 		}
-		
-		CompletableFuture<JsonObject> response = execute(String.format(CLIENTS_URL, domainId) + "/" + oc.id, HttpMethod.DELETE);
+
+		CompletableFuture<JsonObject> response = execute(String.format(CLIENTS_URL, domainId) + "/" + oc.id,
+				HttpMethod.DELETE);
 		try {
 			response.get(TIMEOUT, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			throw new ServerFault("Failed to delete client");
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private OidcClient jsonToOidcClient(JsonObject ret) {
 		if (ret == null) {

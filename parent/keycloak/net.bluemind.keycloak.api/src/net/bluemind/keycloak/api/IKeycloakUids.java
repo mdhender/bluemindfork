@@ -21,6 +21,8 @@ import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
 public interface IKeycloakUids {
+	public static final String keycloakFlowAlias = "browser";
+	public static final String bluemindFlowAlias = "browser-bluemind";
 
 	public static String defaultHost(String host, String realmId) {
 		return String.format("http://%s:8099/realms/%s/.well-known/openid-configuration", host, realmId);

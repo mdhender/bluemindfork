@@ -39,19 +39,19 @@ public abstract class ComponentService extends KeycloakAdminClient {
 
 	protected RBACManager rbacManager;
 	protected String domainId;
-	
+
 	public enum ComponentProvider {
-		BLUEMIND("Bluemind"),
-		KERBEROS("kerberos");
-		
+		BLUEMIND("Bluemind"), KERBEROS("kerberos");
+
 		private String providerId;
-		
+
 		ComponentProvider(String providerId) {
 			this.providerId = providerId;
 		}
+
 		public String getProviderId() {
-	        return providerId;
-	    }
+			return providerId;
+		}
 	}
 
 	protected ComponentService(BmContext context, String domainId) {
@@ -70,16 +70,17 @@ public abstract class ComponentService extends KeycloakAdminClient {
 			throw new ServerFault("Failed to create component " + component);
 		}
 	}
-	
-	protected List<JsonObject> allComponents(ComponentProvider provider) {		
-		CompletableFuture<JsonObject> response = execute(String.format(COMPONENTS_URL, domainId) + "?type=" + PROVIDER_TYPE, HttpMethod.GET);
+
+	protected List<JsonObject> allComponents(ComponentProvider provider) {
+		CompletableFuture<JsonObject> response = execute(
+				String.format(COMPONENTS_URL, domainId) + "?type=" + PROVIDER_TYPE, HttpMethod.GET);
 		JsonObject json;
 		try {
 			json = response.get(TIMEOUT, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			throw new ServerFault("Failed to get components for realm " + domainId, e);
 		}
-		
+
 		List<JsonObject> ret = new ArrayList<>();
 		JsonArray results = json.getJsonArray("results");
 		results.forEach(cmp -> {
@@ -87,33 +88,34 @@ public abstract class ComponentService extends KeycloakAdminClient {
 				ret.add(((JsonObject) cmp));
 			}
 		});
-		
+
 		return ret;
 	}
 
 	protected JsonObject getComponent(ComponentProvider provider, String componentName) {
-		CompletableFuture<JsonObject> response = execute(String.format(COMPONENTS_URL, domainId) + "?type=" + PROVIDER_TYPE, HttpMethod.GET);
+		CompletableFuture<JsonObject> response = execute(
+				String.format(COMPONENTS_URL, domainId) + "?type=" + PROVIDER_TYPE, HttpMethod.GET);
 		JsonObject json;
 		try {
 			json = response.get(TIMEOUT, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			throw new ServerFault("Failed to get components for realm " + domainId, e);
 		}
-		
+
 		JsonObject ret = null;
 		JsonArray results = json.getJsonArray("results");
 		if (results != null) {
-			for (int i=0 ; i < results.size() ; i++) {
-				if ( componentName.equals(results.getJsonObject(i).getString("name")) 
-					 && provider.getProviderId().equals(results.getJsonObject(i).getString("providerId"))) {
+			for (int i = 0; i < results.size(); i++) {
+				if (componentName.equals(results.getJsonObject(i).getString("name"))
+						&& provider.getProviderId().equals(results.getJsonObject(i).getString("providerId"))) {
 					ret = results.getJsonObject(i);
 				}
 			}
 		}
-		
+
 		return ret;
 	}
-	
+
 	protected void deleteComponent(ComponentProvider provider, String componentName) {
 		String cmpId = null;
 		try {
@@ -127,8 +129,9 @@ public abstract class ComponentService extends KeycloakAdminClient {
 		if (cmpId == null) {
 			throw new ServerFault("Failed to get component " + componentName + " (to delete it)");
 		}
-		
-		CompletableFuture<JsonObject> response = execute(String.format(COMPONENTS_URL, domainId) + "/" + cmpId, HttpMethod.DELETE);
+
+		CompletableFuture<JsonObject> response = execute(String.format(COMPONENTS_URL, domainId) + "/" + cmpId,
+				HttpMethod.DELETE);
 		try {
 			response.get(TIMEOUT, TimeUnit.SECONDS);
 		} catch (Exception e) {

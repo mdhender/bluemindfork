@@ -42,7 +42,6 @@ import net.bluemind.keycloak.utils.KeycloakHelper;
 import net.bluemind.role.api.BasicRoles;
 
 public class KeycloakAdminService extends KeycloakAdminClient implements IKeycloakAdmin {
-
 	private static final Logger logger = LoggerFactory.getLogger(KeycloakAdminService.class);
 
 	private static final String REALMS_ADMIN_URL = BASE_URL + "/admin/realms";
@@ -80,7 +79,6 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 		} catch (Exception e) {
 			throw new ServerFault("Failed to create realm");
 		}
-
 	}
 
 	@Override

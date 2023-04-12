@@ -1,3 +1,20 @@
+/* BEGIN LICENSE
+  * Copyright © Blue Mind SAS, 2012-2023
+  *
+  * This file is part of BlueMind. BlueMind is a messaging and collaborative
+  * solution.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of either the GNU Affero General Public License as
+  * published by the Free Software Foundation (version 3 of the License).
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  *
+  * See LICENSE.txt
+  * END LICENSE
+  */
 package net.bluemind.keycloak.service.tests;
 
 import java.net.InterfaceAddress;
@@ -28,6 +45,7 @@ import net.bluemind.domain.api.IDomains;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
 import net.bluemind.keycloak.api.IKeycloakBluemindProviderAdmin;
 import net.bluemind.keycloak.api.IKeycloakClientAdmin;
+import net.bluemind.keycloak.api.IKeycloakFlowAdmin;
 import net.bluemind.keycloak.api.IKeycloakKerberosAdmin;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
@@ -39,8 +57,8 @@ import net.bluemind.tests.defaultdata.PopulateHelper;
 public abstract class AbstractServiceTests {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractServiceTests.class);
 
-	protected static SecurityContext securityContext;	
-	
+	protected static SecurityContext securityContext;
+
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
@@ -51,24 +69,25 @@ public abstract class AbstractServiceTests {
 		ArrayList<String> esTagsLst = new ArrayList<String>();
 		esTagsLst.add("bm/es");
 		esServer.tags = esTagsLst;
-		
+
 		Server kcServer = new Server();
 		kcServer.ip = new BmConfIni().get("keycloak");
 		ArrayList<String> kcTagsLst = new ArrayList<String>();
 		kcTagsLst.add("bm/keycloak");
 		kcServer.tags = kcTagsLst;
-		
+
 		PopulateHelper.initGlobalVirt(kcServer, esServer);
-		securityContext = BmTestContext.contextWithSession("xxxxx", "yyyyy", "global.virt", SecurityContext.ROLE_SYSTEM).getSecurityContext();
-		
+		securityContext = BmTestContext.contextWithSession("xxxxx", "yyyyy", "global.virt", SecurityContext.ROLE_SYSTEM)
+				.getSecurityContext();
+
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 	}
-	
+
 	@AfterClass
 	public static void afterClass() throws Exception {
 		JdbcTestHelper.getInstance().afterTest();
 	}
-	
+
 	protected static boolean createDomainWithUser(String domainName, String userName, String userPassword) {
 		boolean wentOK = false;
 		try {
@@ -76,8 +95,9 @@ public abstract class AbstractServiceTests {
 			esServer.ip = new BmConfIni().get("es-host");
 			esServer.tags = Lists.newArrayList("bm/es");
 			PopulateHelper.createTestDomain(domainName, esServer);
-			
-			IDomainSettings settings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomainSettings.class, domainName);
+
+			IDomainSettings settings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(IDomainSettings.class, domainName);
 			Map<String, String> domainSettings = settings.get();
 			domainSettings.put(DomainSettingsKeys.mail_routing_relay.name(), "external@test.fr");
 			domainSettings.put(DomainSettingsKeys.domain_max_basic_account.name(), "");
@@ -88,15 +108,15 @@ public abstract class AbstractServiceTests {
 
 			StateContext.setState("reset");
 			StateContext.setState("core.started");
-			
+
 			wentOK = true;
 		} catch (Throwable t) {
 			logger.error(t.getClass().getName() + " : " + t.getMessage(), t);
 		}
-		
+
 		return wentOK;
 	}
-	
+
 	public static String getMyIpAddress() {
 		String ret = "127.0.0.1";
 		try {
@@ -123,10 +143,16 @@ public abstract class AbstractServiceTests {
 		}
 		return ret;
 	}
-	
+
 	protected abstract IKeycloakAdmin getKeycloakAdminService() throws ServerFault;
+
 	protected abstract IKeycloakClientAdmin getKeycloakClientAdminService() throws ServerFault;
+
 	protected abstract IKeycloakBluemindProviderAdmin getKeycloakBluemindProviderService() throws ServerFault;
+
 	protected abstract IKeycloakKerberosAdmin getKeycloakKerberosService() throws ServerFault;
+
+	protected abstract IKeycloakFlowAdmin getKeycloakFlowService() throws ServerFault;
+
 	protected abstract IDomains getDomainService() throws ServerFault;
 }

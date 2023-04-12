@@ -23,6 +23,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.Claim;
+import com.auth0.jwt.interfaces.DecodedJWT;
+
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
@@ -94,6 +98,17 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 					}
 					request.response().headers().add(HttpHeaders.SET_COOKIE,
 							ServerCookieEncoder.LAX.encode(openIdCookie));
+
+					DecodedJWT accessToken = JWT.decode(token.getString("access_token"));
+					Claim pubpriv = accessToken.getClaim("bm_pubpriv");
+					boolean privateComputer = "private".equals(pubpriv.asString());
+					Cookie privacyCo = new DefaultCookie("BMPRIVACY", Boolean.toString(privateComputer));
+					privacyCo.setPath("/");
+					if (SecurityConfig.secureCookies) {
+						privacyCo.setSecure(true);
+					}
+					request.response().headers().add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(privacyCo));
+
 				} else {
 					Cookie cookie = new DefaultCookie("BMSID", sid);
 					cookie.setPath("/");

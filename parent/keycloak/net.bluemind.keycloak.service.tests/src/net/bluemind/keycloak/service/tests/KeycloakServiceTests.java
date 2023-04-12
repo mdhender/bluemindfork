@@ -1,3 +1,20 @@
+/* BEGIN LICENSE
+  * Copyright © Blue Mind SAS, 2012-2023
+  *
+  * This file is part of BlueMind. BlueMind is a messaging and collaborative
+  * solution.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of either the GNU Affero General Public License as
+  * published by the Free Software Foundation (version 3 of the License).
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  *
+  * See LICENSE.txt
+  * END LICENSE
+  */
 package net.bluemind.keycloak.service.tests;
 
 import static org.junit.Assert.assertEquals;
@@ -31,10 +48,12 @@ import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
+import net.bluemind.keycloak.api.AuthenticationFlow;
 import net.bluemind.keycloak.api.BluemindProviderComponent;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
 import net.bluemind.keycloak.api.IKeycloakBluemindProviderAdmin;
 import net.bluemind.keycloak.api.IKeycloakClientAdmin;
+import net.bluemind.keycloak.api.IKeycloakFlowAdmin;
 import net.bluemind.keycloak.api.IKeycloakKerberosAdmin;
 import net.bluemind.keycloak.api.IKeycloakUids;
 import net.bluemind.keycloak.api.KerberosComponent;
@@ -51,6 +70,7 @@ public class KeycloakServiceTests extends AbstractServiceTests {
 	protected static IKeycloakClientAdmin keycloakClientAdminService = null;
 	protected static IKeycloakBluemindProviderAdmin keycloakBluemindProviderService = null;
 	protected static IKeycloakKerberosAdmin keycloakKerberosService = null;
+	protected static IKeycloakFlowAdmin keycloakFlowService = null;
 	protected static IDomains domainService = null;
 	protected static String testRealmName = null;
 	protected static String oidcClientName = null;
@@ -61,6 +81,7 @@ public class KeycloakServiceTests extends AbstractServiceTests {
 		keycloakClientAdminService = null;
 		keycloakBluemindProviderService = null;
 		keycloakKerberosService = null;
+		keycloakFlowService = null;
 		domainService = null;
 		testRealmName = "rlm" + System.currentTimeMillis() + ".loc";
 		oidcClientName = IKeycloakUids.clientId(testRealmName);
@@ -76,6 +97,9 @@ public class KeycloakServiceTests extends AbstractServiceTests {
 
 		keycloakKerberosService = getKeycloakKerberosService();
 		assertNotNull("Unable to instantiate keycloakKerberosService", keycloakKerberosService);
+
+		keycloakFlowService = getKeycloakFlowService();
+		assertNotNull("Unable to instantiate keycloakFlowService", keycloakFlowService);
 
 		domainService = getDomainService();
 		assertNotNull("Unable to instantiate domainService", domainService);
@@ -155,6 +179,16 @@ public class KeycloakServiceTests extends AbstractServiceTests {
 		} catch (Throwable t) {
 		}
 		assertNull("Unable to delete OIDC client", cli);
+	}
+
+	@Test
+	public void _045_authFlow() {
+		String flowAlias = "browser-bluemind";
+		keycloakFlowService.createByCopying("browser", flowAlias);
+		AuthenticationFlow authFlow = keycloakFlowService.getAuthenticationFlow(flowAlias);
+		assertEquals("Unable to get Authentication flow", flowAlias, authFlow.alias);
+		keycloakFlowService.deleteFlow(flowAlias);
+		assertNull("Unable to delete flow", keycloakFlowService.getAuthenticationFlow(flowAlias));
 	}
 
 	@Test
@@ -358,6 +392,10 @@ public class KeycloakServiceTests extends AbstractServiceTests {
 	protected IKeycloakKerberosAdmin getKeycloakKerberosService() throws ServerFault {
 		return ServerSideServiceProvider.getProvider(securityContext).instance(IKeycloakKerberosAdmin.class,
 				testRealmName);
+	}
+
+	protected IKeycloakFlowAdmin getKeycloakFlowService() throws ServerFault {
+		return ServerSideServiceProvider.getProvider(securityContext).instance(IKeycloakFlowAdmin.class, testRealmName);
 	}
 
 	protected IDomains getDomainService() throws ServerFault {
