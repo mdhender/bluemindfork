@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -36,9 +35,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Context;
+import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.eventbus.MessageProducer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.lib.vertx.VertxPlatform;
@@ -160,39 +162,28 @@ public class SysCommand extends AbstractVerticle {
 		return match;
 	}
 
-	@SuppressWarnings("serial")
-	private static class WsException extends RuntimeException {
-		public WsException(String s, Throwable t) {
-			super(s, t);
-		}
-
-	}
-
 	public static class WsEndpoint {
-
 		private final long rid;
 		private final String wsWriteAddress;
-		private DeliveryOptions del;
+		private final Context ctx;
+		private final MessageProducer<String> sender;
 
 		public WsEndpoint(String wsWriteAddress, long wsRid) {
 			this.wsWriteAddress = wsWriteAddress;
-			this.del = new DeliveryOptions().setSendTimeout(40000);
-
 			this.rid = wsRid;
+			Vertx vertx = VertxPlatform.getVertx();
+			this.sender = vertx.eventBus().sender(wsWriteAddress);
+			sender.deliveryOptions(new DeliveryOptions().setSendTimeout(TimeUnit.SECONDS.toMillis(60)));
+			this.ctx = vertx.getOrCreateContext();
 		}
 
 		public WsEndpoint write(String kind, JsonObject js) {
 			js.put("ws-rid", rid).put("kind", kind);
-			CompletableFuture<Void> block = new CompletableFuture<>();
-			VertxPlatform.eventBus().request(wsWriteAddress, js.encode(), del, ar -> {
-				if (ar.succeeded()) {
-					block.complete(null);
-				} else {
-					block.completeExceptionally(ar.cause());
+			this.ctx.runOnContext(v -> sender.write(js.encode(), ar -> {
+				if (ar.failed()) {
+					logger.error("write on {} failed: ", wsWriteAddress, ar.cause());
 				}
-			});
-			block.join();
-
+			}));
 			return this;
 		}
 
@@ -246,6 +237,7 @@ public class SysCommand extends AbstractVerticle {
 				wsEP.write("completion", new JsonObject().put("exit", 1));
 			}
 		}
+		event.reply(rc != null ? rc.getPid() : -1);
 		return ret;
 	}
 

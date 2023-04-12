@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpClosedException;
 import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.json.JsonObject;
 
@@ -42,7 +43,9 @@ public class WebSocketProcessHandler implements Handler<ServerWebSocket> {
 			ws.reject();
 		}
 		ws.exceptionHandler(t -> {
-			logger.error(t.getMessage(), t);
+			if (!(t instanceof HttpClosedException)) {
+				logger.error(t.getMessage(), t);
+			}
 		});
 		logger.info("Accepted websocket connection {}", ws);
 

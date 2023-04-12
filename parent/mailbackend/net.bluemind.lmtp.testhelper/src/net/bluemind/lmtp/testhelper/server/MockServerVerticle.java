@@ -31,7 +31,7 @@ public class MockServerVerticle extends AbstractVerticle {
 
 	@Override
 	public void start(Promise<Void> done) {
-		this.srv = vertx.createNetServer(new NetServerOptions().setTcpNoDelay(true));
+		this.srv = vertx.createNetServer(new NetServerOptions().setTcpNoDelay(true).setRegisterWriteHandler(true));
 		srv.connectHandler(sock -> {
 			LmtpServerSession session = new LmtpServerSession(vertx, sock);
 			session.start();

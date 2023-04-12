@@ -87,6 +87,8 @@ public abstract class BlueMindNode extends AbstractVerticle {
 		HttpServerOptions options = new HttpServerOptions();
 		options.setAcceptBacklog(1024).setReuseAddress(true);
 		options.setTcpNoDelay(true);
+		options.setRegisterWebSocketWriteHandlers(true);
+		options.setRegisterWriteHandler(true);
 		options(options);
 		return options;
 	}
