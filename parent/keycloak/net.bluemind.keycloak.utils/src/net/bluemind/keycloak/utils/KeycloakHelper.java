@@ -20,9 +20,13 @@ package net.bluemind.keycloak.utils;
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.StringTokenizer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +41,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
@@ -50,6 +55,7 @@ import net.bluemind.keycloak.api.IKeycloakKerberosAdmin;
 import net.bluemind.keycloak.api.IKeycloakUids;
 import net.bluemind.keycloak.api.KerberosComponent;
 import net.bluemind.keycloak.api.KerberosComponent.CachePolicy;
+import net.bluemind.keycloak.api.OidcClient;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.node.api.INodeClient;
@@ -207,6 +213,72 @@ public class KeycloakHelper {
 
 				}))).onFailure(t -> logger.error(t.getMessage(), t));
 
+	}
+
+	public static void updateForDomain(String domainUid) {
+		String clientId = IKeycloakUids.clientId(domainUid);
+		List<String> currentUrls = getDomainUrls(domainUid);
+
+		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		IKeycloakClientAdmin kcCientService = provider.instance(IKeycloakClientAdmin.class, domainUid);
+
+		OidcClient oc = kcCientService.getOidcClient(clientId);
+		if (!oc.redirectUris.containsAll(currentUrls) || !currentUrls.containsAll(oc.redirectUris)) {
+			oc.redirectUris = currentUrls;
+			kcCientService.updateClient(clientId, oc);
+			logger.info("Domain {} update : Urls changed : updated oidc client", domainUid);
+		} else {
+			logger.info("Domain {} update : Urls did not change (no need to update oidc client)", domainUid);
+		}
+
+		KerberosConfigHelper.updateKeycloakKerberosConf(domainUid);
+	}
+
+	public static List<String> getDomainUrls(String domainId) {
+		ArrayList<String> res = new ArrayList<String>();
+		SharedMap<String, String> sysconf = MQ.sharedMap(Shared.MAP_SYSCONF);
+		if ("global.virt".equals(domainId)) {
+			if (sysconf.get(SysConfKeys.external_url.name()) != null) {
+				res.add("https://" + sysconf.get(SysConfKeys.external_url.name()) + "/auth/openid");
+			}
+
+			String otherUrls = sysconf.get(SysConfKeys.other_urls.name());
+			if (otherUrls != null) {
+				StringTokenizer tokenizer = new StringTokenizer(otherUrls.trim(), " ");
+				while (tokenizer.hasMoreElements()) {
+					String url = "https://" + tokenizer.nextToken() + "/auth/openid";
+					res.add(url);
+				}
+			}
+			if (res.isEmpty()) {
+				res.add("https://configure_external_url_in_bluemind/");
+			}
+			return res;
+		}
+
+		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
+				.get(domainId);
+		if (domainSettings != null) {
+			if (domainSettings.get(DomainSettingsKeys.external_url.name()) != null) {
+				res.add("https://" + domainSettings.get(DomainSettingsKeys.external_url.name()) + "/auth/openid");
+			}
+
+			String otherUrls = domainSettings.get(DomainSettingsKeys.other_urls.name());
+			if (otherUrls != null) {
+				StringTokenizer tokenizer = new StringTokenizer(otherUrls.trim(), " ");
+				while (tokenizer.hasMoreElements()) {
+					String url = "https://" + tokenizer.nextToken() + "/auth/openid";
+					res.add(url);
+				}
+			}
+			if (res.isEmpty()) {
+				res.add("https://configure_external_url_in_bluemind/");
+			}
+			return res;
+		}
+
+		res.add("https://configure_external_url_in_bluemind/");
+		return res;
 	}
 
 	private static HttpClient initHttpClient(URI uri) {

@@ -56,13 +56,13 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 
 	@Override
 	public void handle(HttpServerRequest event) {
-
 		if (!Strings.isNullOrEmpty(event.params().get("code"))) {
 			List<String> forwadedFor = new ArrayList<>(event.headers().getAll("X-Forwarded-For"));
 			forwadedFor.add(event.remoteAddress().host());
 
 			String code = event.params().get("code");
 			String state = event.params().get("state");
+
 			JsonObject jsonState = new JsonObject(new String(b64UrlDecoder.decode(state.getBytes())));
 			String key = jsonState.getString("codeVerifierKey");
 			String codeVerifier = AuthenticationFilter.verify(key);
@@ -105,7 +105,7 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 								+ encode(domainSettings.get(OpenIdProperties.OPENID_CLIENT_SECRET.name()));
 						params += "&code=" + encode(code);
 						params += "&code_verifier=" + encode(codeVerifier);
-						params += "&redirect_uri=" + encode(event.scheme() + "://" + event.host() + "/auth/openid");
+						params += "&redirect_uri=" + encode("https://" + event.host() + "/auth/openid");
 						params += "&scope=openid";
 
 						byte[] postData = params.getBytes(StandardCharsets.UTF_8);
@@ -133,7 +133,13 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 
 	private void validateToken(HttpServerRequest request, List<String> forwadedFor, JsonObject token, String redirectTo,
 			String domainUid) {
-		DecodedJWT accessToken = JWT.decode(token.getString("access_token"));
+		DecodedJWT accessToken = null;
+		try {
+			accessToken = JWT.decode(token.getString("access_token"));
+		} catch (Throwable t) {
+			logger.error("Unexpected token endpoint response : " + token);
+			throw t;
+		}
 
 		Claim email = accessToken.getClaim("email");
 		if (email.isMissing() || email.isNull()) {

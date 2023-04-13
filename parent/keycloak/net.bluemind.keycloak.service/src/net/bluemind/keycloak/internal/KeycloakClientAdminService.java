@@ -37,6 +37,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.keycloak.api.IKeycloakClientAdmin;
 import net.bluemind.keycloak.api.IKeycloakUids;
 import net.bluemind.keycloak.api.OidcClient;
+import net.bluemind.keycloak.utils.KeycloakHelper;
 import net.bluemind.role.api.BasicRoles;
 
 public class KeycloakClientAdminService extends KeycloakAdminClient implements IKeycloakClientAdmin {
@@ -75,8 +76,9 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 		client.put("directAccessGrantsEnabled", true);
 
 		JsonArray redirectUris = new JsonArray();
-		redirectUris.add("*");
+		KeycloakHelper.getDomainUrls(domainId).forEach(url -> redirectUris.add(url));
 		client.put("redirectUris", redirectUris);
+		client.put("webOrigins", new JsonArray().add("+"));
 
 		JsonObject overrides = new JsonObject();
 		overrides.put("browser", ourFlowId);
@@ -199,6 +201,30 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 			response.get(TIMEOUT, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			throw new ServerFault("Failed to delete client");
+		}
+	}
+
+	@Override
+	public void updateClient(String clientId, OidcClient oc) throws ServerFault {
+		String clid = oc.id;
+		if (clid == null) {
+			OidcClient cli = null;
+			try {
+				cli = getOidcClient(clientId);
+			} catch (Throwable t) {
+			}
+			if (cli == null) {
+				throw new ServerFault("Couldn't get client " + clientId + " in realm " + domainId + " to update it");
+			}
+			clid = cli.id;
+		}
+
+		CompletableFuture<JsonObject> response = execute(String.format(CLIENTS_URL, domainId) + "/" + oc.id,
+				HttpMethod.PUT, oc.toJson());
+		try {
+			response.get(TIMEOUT, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			throw new ServerFault("Failed to update client " + clientId, e);
 		}
 	}
 

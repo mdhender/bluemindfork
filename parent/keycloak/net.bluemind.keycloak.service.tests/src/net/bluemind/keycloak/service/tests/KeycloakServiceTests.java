@@ -172,6 +172,13 @@ public class KeycloakServiceTests extends AbstractServiceTests {
 		assertEquals("Incorrect clientId value in OIDC Client", oidcClientName, cli.clientId);
 		assertFalse("Incorrect publicClient value in OIDC Client", cli.publicClient);
 
+		cli.redirectUris = List.of("https://one.url.loc", "https://two.urls.com", "https://trois.adresses.fr");
+		keycloakClientAdminService.updateClient(oidcClientName, cli);
+
+		OidcClient updcli = keycloakClientAdminService.getOidcClient(oidcClientName);
+		assertTrue("Failed to update client",
+				updcli.redirectUris.containsAll(cli.redirectUris) && cli.redirectUris.containsAll(updcli.redirectUris));
+
 		keycloakClientAdminService.deleteOidcClient(oidcClientName);
 		cli = null;
 		try {

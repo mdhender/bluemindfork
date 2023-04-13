@@ -17,24 +17,23 @@
   */
 package net.bluemind.keycloak.verticle;
 
-import net.bluemind.hornetq.client.OutOfProcessMessageHandler;
-import net.bluemind.hornetq.client.Topic;
-import net.bluemind.keycloak.utils.KerberosConfigHelper;
-import net.bluemind.hornetq.client.MQ.IMQConnectHandler;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.MQ.IMQConnectHandler;
 import net.bluemind.hornetq.client.OOPMessage;
+import net.bluemind.hornetq.client.OutOfProcessMessageHandler;
+import net.bluemind.hornetq.client.Topic;
+import net.bluemind.keycloak.utils.ConfigUpdateHelper;
 
 public class MQManager implements IMQConnectHandler, OutOfProcessMessageHandler {
 	private static final Logger logger = LoggerFactory.getLogger(MQManager.class);
-	
+
 	public static void init() {
 		MQ.init(new MQManager());
 	}
-	
+
 	@Override
 	public void handle(OOPMessage msg) {
 		String op = msg.getStringProperty("operation");
@@ -45,7 +44,7 @@ public class MQManager implements IMQConnectHandler, OutOfProcessMessageHandler 
 
 		String domainUid = msg.getStringProperty("domain");
 		if ("domain.updated".equals(op)) {
-			KerberosConfigHelper.updateKeycloakKerberosConf(domainUid);
+			ConfigUpdateHelper.updateRealmFor(domainUid);
 		}
 	}
 

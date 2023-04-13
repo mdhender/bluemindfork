@@ -22,4 +22,6 @@ Require-Bundle: net.bluemind.server.hook,
  net.bluemind.directory.service,
  net.bluemind.openid.api,
  net.bluemind.keycloak.utils,
- net.bluemind.hornetq.client
+ net.bluemind.hornetq.client,
+ net.bluemind.system.api,
+ net.bluemind.system.hook

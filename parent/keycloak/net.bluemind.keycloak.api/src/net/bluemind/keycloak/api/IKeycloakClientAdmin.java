@@ -41,12 +41,16 @@ public interface IKeycloakClientAdmin {
 
 	@GET
 	public List<OidcClient> allOidcClients() throws ServerFault;
-	
+
 	@GET
 	@Path("{clientId}")
 	public OidcClient getOidcClient(@PathParam(value = "clientId") String clientId) throws ServerFault;
-	
+
 	@DELETE
 	@Path("{clientId}")
 	public void deleteOidcClient(@PathParam(value = "clientId") String clientId) throws ServerFault;
+
+	@PUT
+	@Path("{clientId}")
+	public void updateClient(@PathParam(value = "clientId") String clientId, OidcClient client) throws ServerFault;
 }
