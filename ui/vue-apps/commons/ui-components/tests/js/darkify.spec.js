@@ -90,14 +90,14 @@ describe("darkifyHtml", () => {
 
     test("SVG attributes", () => {
         const svgRectNode = dom.querySelector("svg rect");
-        expect(svgRectNode.getAttribute("stroke")).toBe("rgb(199, 133, 255)");
-        expect(svgRectNode.getAttribute("fill")).toBe("rgb(255, 146, 255)");
+        expect(svgRectNode.getAttribute("stroke")).toBe("#C785FF");
+        expect(svgRectNode.getAttribute("fill")).toBe("#FF92FF");
         expect(svgRectNode.getAttribute("fill-opacity")).toBe("0.5");
     });
 
     test("deprecated attributes", () => {
-        expect(dom.querySelector("h1").getAttribute("text")).toBe("rgb(0, 94, 0)");
-        expect(dom.querySelector("font").getAttribute("color")).toBe("rgb(74, 175, 57)");
-        expect(dom.querySelector("#skyblue").getAttribute("bgcolor")).toBe("rgb(255, 255, 255)");
+        expect(dom.querySelector("h1").getAttribute("text")).toBe("#005E00");
+        expect(dom.querySelector("font").getAttribute("color")).toBe("#4AAF39");
+        expect(dom.querySelector("#skyblue").getAttribute("bgcolor")).toBe("#FFFFFF");
     });
 });

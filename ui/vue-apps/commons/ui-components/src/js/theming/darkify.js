@@ -1,4 +1,5 @@
 import { getDarkColor } from "roosterjs-color-utils";
+import Color from "color";
 
 export function darkifyCss(str, bgLvalue) {
     return searchAndReplaceColors(str, color => getDarkColor(color, bgLvalue));
@@ -186,6 +187,10 @@ const SUPPORTED_CSS_PROPERTIES = [
 
 const SUPPORTED_HTML_ATTRIBUTES = ["bgcolor", "color", "text", "stroke", "fill"];
 
+function hex(colorStr) {
+    return new Color(colorStr).hex();
+}
+
 function darkifyElement(el, darkifyColor) {
     if (el.tagName === "STYLE") {
         el.textContent = darkifyCss(el.textContent);
@@ -193,7 +198,7 @@ function darkifyElement(el, darkifyColor) {
     }
     for (const attr of el.attributes) {
         if (SUPPORTED_HTML_ATTRIBUTES.includes(attr.name)) {
-            attr.value = darkifyColor(attr.value);
+            attr.value = hex(darkifyColor(attr.value));
         }
     }
     for (const key of SUPPORTED_CSS_PROPERTIES) {
