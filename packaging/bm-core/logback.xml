@@ -30,15 +30,12 @@
 		<rollingPolicy
 			class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
 			<!-- daily rollover -->
-			<fileNamePattern>/var/log/bm/core.log.%d{yyyy-MM-dd}.%i.gz
-			</fileNamePattern>
-
+			<fileNamePattern>/var/log/bm/core.log.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
 			<!-- keep 60 days of history capped at 1.2GB total size -->
 			<maxHistory>60</maxHistory>
 			<MaxFileSize>60MB</MaxFileSize>
 			<totalSizeCap>1200MB</totalSizeCap>
 		</rollingPolicy>
-
 	</appender>
 
 	<logger name="org.apache.kafka.clients" level="WARN" />
@@ -50,40 +47,36 @@
 	<logger name="com.netflix.hollow.api.producer.AbstractHollowProducer" level="WARN" />
 
 	<!-- log XMPP -->
-	<appender name="XMPP"
-		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<File>/var/log/bm/xmpp.log</File>
+	<appender name="XMPP" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>/var/log/bm/xmpp.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<!-- rollover daily -->
+			<fileNamePattern>/var/log/bm/xmpp.log.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+			<maxFileSize>60MB</maxFileSize>
+			<maxHistory>20</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
+		</rollingPolicy>
 		<encoder>
 			<pattern>${DEFAULT_PATTERN}</pattern>
 		</encoder>
-		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<maxIndex>20</maxIndex>
-			<FileNamePattern>/var/log/bm/xmpp.log.%i.gz</FileNamePattern>
-		</rollingPolicy>
-		<triggeringPolicy
-			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-			<MaxFileSize>60000KB</MaxFileSize>
-		</triggeringPolicy>
 	</appender>
 	<logger name="net.bluemind.xmpp" level="INFO" additivity="false">
 		<appender-ref ref="XMPP" />
 	</logger>
 
 	<!-- log mailindex -->
-	<appender name="MailIndex"
-		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<File>/var/log/bm/mail-index.log</File>
+	<appender name="MailIndex" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>/var/log/bm/mail-index.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<!-- rollover daily -->
+			<fileNamePattern>/var/log/bm/mail-index.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+			<maxFileSize>60MB</maxFileSize>
+			<maxHistory>20</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
+		</rollingPolicy>
 		<encoder>
 			<pattern>${DEFAULT_PATTERN}</pattern>
 		</encoder>
-		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<maxIndex>20</maxIndex>
-			<FileNamePattern>/var/log/bm/mail-index.log.%i.gz</FileNamePattern>
-		</rollingPolicy>
-		<triggeringPolicy
-			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-			<MaxFileSize>60000KB</MaxFileSize>
-		</triggeringPolicy>
 	</appender>
 	<logger name="net.bluemind.index.mail" level="INFO" additivity="false">
 		<appender-ref ref="MailIndex" />
@@ -93,62 +86,55 @@
 	</logger>
 	
 	<!-- log call -->
-	<appender name="SlowRestCall"
-		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<File>/var/log/bm/slow-call.log</File>
+	<appender name="SlowRestCall" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>/var/log/bm/slow-call.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<!-- rollover daily -->
+			<fileNamePattern>/var/log/bm/slow-call.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+			<maxFileSize>60MB</maxFileSize>
+			<maxHistory>20</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
+		</rollingPolicy>
 		<encoder>
 			<pattern>${DEFAULT_PATTERN}</pattern>
 		</encoder>
-		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<maxIndex>20</maxIndex>
-			<FileNamePattern>/var/log/bm/slow-call.log.%i.gz</FileNamePattern>
-		</rollingPolicy>
-		<triggeringPolicy
-			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-			<MaxFileSize>60000KB</MaxFileSize>
-		</triggeringPolicy>
 	</appender>
 	<logger name="net.bluemind.core.rest.log.CallLogger" level="WARN" additivity="false">
 		<appender-ref ref="SlowRestCall" />
 	</logger>
 
 	<!-- RestSockJsProxyHandler -->
-	<appender name="RestSockJsProxyHandler"
-		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<File>/var/log/bm/js.log</File>
+	<appender name="RestSockJsProxyHandler" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>/var/log/bm/js.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<!-- rollover daily -->
+			<fileNamePattern>/var/log/bm/js.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+			<maxFileSize>60MB</maxFileSize>
+			<maxHistory>20</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
+		</rollingPolicy>
 		<encoder>
 			<pattern>${DEFAULT_PATTERN}</pattern>
 		</encoder>
-		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<maxIndex>20</maxIndex>
-			<FileNamePattern>/var/log/bm/js.log.%i.gz</FileNamePattern>
-		</rollingPolicy>
-		<triggeringPolicy
-			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-			<MaxFileSize>60000KB</MaxFileSize>
-		</triggeringPolicy>
 	</appender>
 	<logger name="net.bluemind.core.rest.sockjs.vertx.RestSockJsProxyHandler" level="INFO" additivity="false">
 		<appender-ref ref="RestSockJsProxyHandler" />
 	</logger>
 
 	<!-- SendmailHandler -->
-	<appender name="SendmailHandler"
-		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<File>/var/log/bm/sendmail.log</File>
+	<appender name="SendmailHandler" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>/var/log/bm/sendmail.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<!-- rollover daily -->
+			<fileNamePattern>/var/log/bm/sendmail.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+			<maxFileSize>60MB</maxFileSize>
+			<maxHistory>20</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
+		</rollingPolicy>
 		<encoder>
 			<pattern>${DEFAULT_PATTERN}</pattern>
 		</encoder>
-		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<maxIndex>20</maxIndex>
-			<FileNamePattern>/var/log/bm/sendmail.log.%i.gz</FileNamePattern>
-		</rollingPolicy>
-		<triggeringPolicy
-			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-			<MaxFileSize>60000KB</MaxFileSize>
-		</triggeringPolicy>
 	</appender>
-		
 	<logger name="net.bluemind.core.sendmail" level="INFO" additivity="false">
 		<appender-ref ref="SendmailHandler" />
 	</logger>
@@ -158,13 +144,13 @@
 			<endpoint>imap</endpoint>
 		</filter>
 		<file>/var/log/bm/imap.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<maxIndex>10</maxIndex>
-			<FileNamePattern>/var/log/bm/imap.log.%i.gz</FileNamePattern>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<!-- rollover daily -->
+			<fileNamePattern>/var/log/bm/imap.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+			<maxFileSize>100MB</maxFileSize>
+			<maxHistory>30</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
-		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-			<MaxFileSize>50000KB</MaxFileSize>
-		</triggeringPolicy>
 		<encoder>
 			<pattern>${DEFAULT_PATTERN}</pattern>
 		</encoder>
@@ -179,17 +165,18 @@
 			<endpoint>pop3</endpoint>
 		</filter>
 		<file>/var/log/bm/pop3.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<maxIndex>10</maxIndex>
-			<FileNamePattern>/var/log/bm/pop3.log.%i.gz</FileNamePattern>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<!-- rollover daily -->
+			<fileNamePattern>/var/log/bm/pop3.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+			<maxFileSize>100MB</maxFileSize>
+			<maxHistory>30</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
-		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-			<MaxFileSize>50000KB</MaxFileSize>
-		</triggeringPolicy>
 		<encoder>
 			<pattern>${DEFAULT_PATTERN}</pattern>
 		</encoder>
 	</appender>
+
 	<logger name="net.bluemind.pop3.endpoint" level="INFO" additivity="false">
 		<appender-ref ref="POP3"/>
 	</logger>

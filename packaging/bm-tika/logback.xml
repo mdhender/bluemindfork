@@ -4,20 +4,22 @@
   <property name="DEFAULT_PATTERN"
     value="%date{ISO8601, ${net.bluemind.property.system.timezone:-GMT}} [%thread] %c{1} %p - %m%n" />
 
-  <appender name="R" class="ch.qos.logback.core.rolling.RollingFileAppender">
+  <appender name="R"
+    class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
     <File>/var/log/bm-tika/tika.log</File>
     <encoder>
       <pattern>${DEFAULT_PATTERN}</pattern>
     </encoder>
-    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-      <maxIndex>5</maxIndex>
-      <FileNamePattern>/var/log/bm-tika/tika.log.%i.gz</FileNamePattern>
+    <rollingPolicy
+      class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <!-- daily rollover -->
+      <FileNamePattern>/var/log/bm-tika/tika.log.%d{yyyy-MM-dd}.%i.gz</FileNamePattern>
+      <maxHistory>5</maxHistory>
+      <MaxFileSize>30MB</MaxFileSize>
+      <totalSizeCap>1GB</totalSizeCap>
     </rollingPolicy>
-    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-      <MaxFileSize>30000KB</MaxFileSize>
-    </triggeringPolicy>
   </appender>
-
   <!-- Sentry send exceptions -->
   <appender name="Sentry" class="io.sentry.logback.SentryAppender">
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">

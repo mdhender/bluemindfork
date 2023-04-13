@@ -10,19 +10,21 @@
       <level>ERROR</level>
     </filter>
   </appender>
-  <appender name="ALL" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
+  <appender name="ALL"
+    class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
     <File>/var/log/bm-eas/eas.log</File>
     <encoder>
       <pattern>${DEFAULT_PATTERN}</pattern>
     </encoder>
-    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-      <maxIndex>5</maxIndex>
-      <FileNamePattern>/var/log/bm-eas/eas.log.%i.gz</FileNamePattern>
+    <rollingPolicy
+      class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <!-- daily rollover -->
+      <FileNamePattern>/var/log/bm-eas/eas.log.%d{yyyy-MM-dd}.%i.gz</FileNamePattern>
+      <maxHistory>5</maxHistory>
+      <MaxFileSize>50MB</MaxFileSize>
+      <totalSizeCap>1GB</totalSizeCap>
     </rollingPolicy>
-    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-      <MaxFileSize>50000KB</MaxFileSize>
-    </triggeringPolicy>
   </appender>
 
   <appender name="ASYNC_ALL" class="ch.qos.logback.classic.AsyncAppender">
@@ -31,21 +33,22 @@
     <appender-ref ref="ALL" />
   </appender>
 
-  <appender name="REQUESTS" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
+  <appender name="REQUESTS"
+    class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
     <File>/var/log/bm-eas/requests.log</File>
     <encoder>
       <pattern>${DEFAULT_PATTERN}</pattern>
     </encoder>
-    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-      <maxIndex>5</maxIndex>
-      <FileNamePattern>/var/log/bm-eas/requests.log.%i.gz</FileNamePattern>
+    <rollingPolicy
+      class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <!-- daily rollover -->
+      <FileNamePattern>/var/log/bm-requests/requests.log.%d{yyyy-MM-dd}.%i.gz</FileNamePattern>
+      <maxHistory>5</maxHistory>
+      <MaxFileSize>50MB</MaxFileSize>
+      <totalSizeCap>1GB</totalSizeCap>
     </rollingPolicy>
-    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-      <MaxFileSize>50000KB</MaxFileSize>
-    </triggeringPolicy>
   </appender>
-
   <appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
     <!-- in the absence of the class attribute, it is assumed that the
          desired discriminator type is
@@ -55,18 +58,21 @@
       <defaultValue>anonymous</defaultValue>
     </discriminator>
     <sift>
-      <appender name="FILE-${user}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <appender name="FILE-${user}"
+        class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
         <file>/var/log/bm-eas/user-eas-${user}.log</file>
-	<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-	  <maxIndex>10</maxIndex>
-	  <FileNamePattern>/var/log/bm-eas/user-eas-${user}.log.%i.gz</FileNamePattern>
-	</rollingPolicy>
-	<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-	  <MaxFileSize>5000KB</MaxFileSize>
-	</triggeringPolicy>
         <encoder>
           <pattern>${DEFAULT_PATTERN}</pattern>
         </encoder>
+        <rollingPolicy
+          class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+          <!-- daily rollover -->
+          <FileNamePattern>/var/log/bm-eas/user-eas-${user}.log.%d{yyyy-MM-dd}.%i.gz</FileNamePattern>
+          <maxHistory>10</maxHistory>
+          <MaxFileSize>50MB</MaxFileSize>
+          <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
       </appender>
     </sift>
   </appender>

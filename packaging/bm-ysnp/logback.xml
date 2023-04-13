@@ -10,19 +10,21 @@
       <level>ERROR</level>
     </filter>
   </appender>
-  <appender name="R" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
+  <appender name="R"
+    class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
     <File>/var/log/bm-ysnp/ysnp.log</File>
     <encoder>
       <pattern>${DEFAULT_PATTERN}</pattern>
     </encoder>
-    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-      <maxIndex>5</maxIndex>
-      <FileNamePattern>/var/log/bm-ysnp/ysnp.log.%i.gz</FileNamePattern>
+    <rollingPolicy
+      class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <!-- daily rollover -->
+      <FileNamePattern>/var/log/bm-ysnp/ysnp.log.%d{yyyy-MM-dd}.%i.gz</FileNamePattern>
+      <maxHistory>5</maxHistory>
+      <MaxFileSize>10MB</MaxFileSize>
+      <totalSizeCap>1GB</totalSizeCap>
     </rollingPolicy>
-    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-      <MaxFileSize>5000KB</MaxFileSize>
-    </triggeringPolicy>
   </appender>
 
   <logger name="io.netty.bootstrap" level="ERROR" />
