@@ -8,7 +8,6 @@ Require-Bundle: org.eclipse.core.runtime,
  io.vertx.core,
  slf4j.api;bundle-version="1.7.5",
  net.bluemind.lib.vertx,
- net.bluemind.lmtp;bundle-version="5.0.0",
  com.google.guava,
  org.apache.james.apache-mime4j-dom,
  org.apache.james.apache-mime4j-core,
@@ -17,6 +16,5 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.lmtp.testhelper.client,
- net.bluemind.lmtp.testhelper.model,
- net.bluemind.lmtp.testhelper.server
+ net.bluemind.lmtp.testhelper.model
 Automatic-Module-Name: net.bluemind.lmtp.testhelper

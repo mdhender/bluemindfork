@@ -17,7 +17,6 @@
 		<module>net.bluemind.backend.cyrus.index.tests</module>
 		<module>net.bluemind.lmtp.filter.tnef</module>
 		<module>net.bluemind.lmtp.testhelper</module>
-		<module>net.bluemind.lmtp.proxy.tests</module>
 		<module>net.bluemind.backend.postfix</module>
 		<module>net.bluemind.backend.postfix.tests</module>
 		<module>net.bluemind.backend.systemconf</module>

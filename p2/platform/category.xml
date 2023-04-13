@@ -397,7 +397,6 @@
    <bundle id="net.bluemind.lib.ristretto" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.lib.vertx" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.linkify" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.lmtp" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.lmtp.filter.imip" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.lmtp.filter.tnef" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.lmtp.testhelper" version="5.0.0.qualifier"/>
