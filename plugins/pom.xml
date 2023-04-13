@@ -45,7 +45,6 @@
 		<module>net.bluemind.eas.testhelper</module>
 		<module>net.bluemind.elasticsearch.initializer.tests</module>
 		<module>net.bluemind.elasticsearch.initializer</module>
-		<module>net.bluemind.imap.tagproducers</module>
 		<module>net.bluemind.imap.translate</module>
 		<module>net.bluemind.imap</module>
 		<module>net.bluemind.imap.tests</module>

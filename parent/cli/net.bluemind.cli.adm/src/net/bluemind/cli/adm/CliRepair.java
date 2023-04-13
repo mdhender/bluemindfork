@@ -17,7 +17,6 @@
   */
 package net.bluemind.cli.adm;
 
-import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,7 +36,6 @@ public class CliRepair {
 	protected final CliContext ctx;
 	protected final boolean dry;
 	private final boolean verbose;
-	protected Collection<String> askedRepairOps;
 
 	protected String domainUid;
 	protected ItemValue<DirEntry> dirEntry;

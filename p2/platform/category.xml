@@ -375,7 +375,6 @@
    <bundle id="net.bluemind.imap.serviceprovider" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.imap.serviceprovider.incore" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.imap.serviceprovider.rest" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.imap.tagproducers" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.imap.translate" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.imap.vertx" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.imip.parser" version="5.0.0.qualifier"/>

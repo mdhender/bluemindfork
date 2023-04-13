@@ -35,7 +35,7 @@ public class EmailHelper {
 			return null;
 		}
 
-		ArrayList<Email> sanitized = new ArrayList<Email>(emails.size());
+		ArrayList<Email> sanitized = new ArrayList<>(emails.size());
 
 		for (Email email : emails) {
 			String address = email.address.trim().toLowerCase();
@@ -56,7 +56,7 @@ public class EmailHelper {
 			return null;
 		}
 
-		ArrayList<Email> sanitized = new ArrayList<Email>(emails.size());
+		ArrayList<Email> sanitized = new ArrayList<>(emails.size());
 
 		for (Email email : emails) {
 			String address = email.address.trim().toLowerCase();

@@ -14,7 +14,6 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.4.0",
  org.reactivestreams.reactive-streams;bundle-version="1.0.3",
  io.netty;bundle-version="4.1.45"
 Bundle-ClassPath: .
-Export-Package: net.bluemind.eas.client,
- net.bluemind.eas.client.utils
+Export-Package: net.bluemind.eas.client
 Bundle-Vendor: blue-mind.net
 Automatic-Module-Name: net.bluemind.eas.client

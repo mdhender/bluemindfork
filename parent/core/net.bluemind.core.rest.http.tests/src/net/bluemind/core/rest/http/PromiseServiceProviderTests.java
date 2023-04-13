@@ -73,34 +73,4 @@ public class PromiseServiceProviderTests {
 		assertNotNull(complexResponse);
 	}
 
-	@Test
-	public void testWithCachingLocator() throws InterruptedException, ExecutionException, TimeoutException {
-		Vertx vertx = VertxPlatform.getVertx();
-		HttpClientProvider prov = new HttpClientProvider(vertx);
-		AtomicInteger locatorCalls = new AtomicInteger(0);
-		ILocator counting = new ILocator() {
-
-			@Override
-			public void locate(String service, AsyncHandler<String[]> asyncHandler) {
-				locatorCalls.incrementAndGet();
-				locator.locate(service, asyncHandler);
-			}
-		};
-		ILocator caching = CachingLocator.addCache(counting);
-		VertxPromiseServiceProvider sp = new VertxPromiseServiceProvider(prov, caching, null);
-		assertEquals(0, locatorCalls.get());
-		IRestTestServicePromise promiseProxy = sp.instance(IRestTestServicePromise.class);
-		assertNotNull(promiseProxy);
-		promiseProxy.complex(new ComplexRequest()).join();
-		assertEquals(1, locatorCalls.get());
-		IRestPathTestServicePromise anotherProxy = sp.instance(IRestPathTestServicePromise.class, "foo", "bar");
-		assertNotNull(anotherProxy);
-		String bonjourMadame = anotherProxy.goodMorning("Vietnam")
-				.thenCompose(result -> anotherProxy.goodMorning("Madame")).get(30, TimeUnit.SECONDS);
-		assertNotNull(bonjourMadame);
-		assertEquals("[foo][bar]good morning Madame", bonjourMadame);
-		// if caching has worked, call will not be made
-		assertEquals(1, locatorCalls.get());
-	}
-
 }

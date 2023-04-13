@@ -17,9 +17,6 @@
  */
 package net.bluemind.core.backup.continuous.restore.domains.crud;
 
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import net.bluemind.calendar.api.CalendarView;
@@ -42,8 +39,6 @@ public class RestoreCalendarView extends CrudItemRestore<CalendarView> {
 			.reader(new TypeReference<VersionnedItem<CalendarView>>() {
 			});
 	private final IServiceProvider target;
-
-	Set<String> validatedBooks = ConcurrentHashMap.newKeySet();
 
 	public RestoreCalendarView(RestoreLogger log, ItemValue<Domain> domain, IServiceProvider target,
 			RestoreState state) {

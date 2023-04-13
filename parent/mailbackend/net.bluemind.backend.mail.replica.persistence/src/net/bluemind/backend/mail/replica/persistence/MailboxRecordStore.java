@@ -258,28 +258,6 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 
 	}
 
-	public static class MailboxRecordItemV {
-		private String containerUid;
-		private long itemId;
-		private long imapUid;
-
-		private MailboxRecordItemV() {
-		}
-
-		public String containerUid() {
-			return containerUid;
-		}
-
-		public long imapUid() {
-			return imapUid;
-		}
-
-		public long itemId() {
-			return itemId;
-		}
-
-	}
-
 	// TODO: this query is a problem: access cross partitions
 	public List<MailboxRecordItemUri> getBodyGuidReferences(String guid) throws SQLException {
 		String query = "SELECT c.uid, ci.uid, encode(mbr.message_body_guid, 'hex'), mbr.imap_uid, c.owner " //

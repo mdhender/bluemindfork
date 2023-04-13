@@ -16,8 +16,7 @@ Export-Package: net.bluemind.imap,
  net.bluemind.imap.command.parser,
  net.bluemind.imap.impl,
  net.bluemind.imap.mime,
- net.bluemind.imap.mime.impl,
- net.bluemind.imap.sieve
+ net.bluemind.imap.mime.impl
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Eclipse-RegisterBuddy: net.bluemind.lib.parboiled
 Automatic-Module-Name: net.bluemind.imap
