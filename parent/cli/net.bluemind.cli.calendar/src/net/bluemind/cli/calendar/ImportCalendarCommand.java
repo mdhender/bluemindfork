@@ -32,13 +32,12 @@ import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.api.Regex;
 import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 
 @Command(name = "import", description = "import an ICS File")
 public class ImportCalendarCommand implements ICmdLet, Runnable {
-
 	public static class Reg implements ICmdLetRegistration {
 
 		@Override
@@ -52,20 +51,25 @@ public class ImportCalendarCommand implements ICmdLet, Runnable {
 		}
 	}
 
-	@Parameters(paramLabel = "<email>", description = "email address")
-	public String email;
+	private CliContext ctx;
+	private CliUtils cliUtils;
 
 	@Option(required = true, names = "--ics-file-path", description = "The path of the ics file. ex: </tmp/my_calendar.ics>")
 	public Path icsFilePath;
 
-	@Option(names = "--calendarUid", description = "calendar uid, default value is user default calendar")
-	public String calendarUid;
+	@ArgGroup(exclusive = true, multiplicity = "1")
+	private Scope scope;
+
+	private static class Scope {
+		@Option(names = "--calendarUid", required = false, description = "Import ICS to calendar UID")
+		private String calendarUid;
+
+		@Option(names = "--email", required = false, description = "Import ICS to default user calendar")
+		private String email;
+	}
 
 	@Option(names = "--dry", description = "Dry-run (do nothing)")
 	public boolean dry = false;
-
-	private CliContext ctx;
-	protected CliUtils cliUtils;
 
 	@Override
 	public Runnable forContext(CliContext ctx) {
@@ -76,29 +80,34 @@ public class ImportCalendarCommand implements ICmdLet, Runnable {
 
 	@Override
 	public void run() {
-		if (!Regex.EMAIL.validate(email)) {
-			throw new CliException("invalid email : " + email);
-		}
-
-		String userUid = cliUtils.getUserUidByEmail(email);
-
 		File file = icsFilePath.toFile();
 		if (!file.exists() || file.isDirectory()) {
 			throw new CliException("File " + icsFilePath + " doesn't exist.");
 		}
 
-		if (calendarUid == null) {
-			calendarUid = ICalendarUids.defaultUserCalendar(userUid);
-		}
-
-		if (!dry) {
-			runImportProcess();
-		} else {
-			ctx.info("DRY : calendar " + calendarUid + " of " + email + " was imported");
-		}
+		Optional.ofNullable(scope.email).ifPresentOrElse(this::importByEmail,
+				() -> runImportProcess(scope.calendarUid));
 	}
 
-	private void runImportProcess() {
+	private void importByEmail(String email) {
+		if (!Regex.EMAIL.validate(email)) {
+			throw new CliException("Invalid email: " + email);
+		}
+
+		String userUid = Optional.ofNullable(cliUtils.getUserUidByEmail(email))
+				.orElseThrow(() -> new CliException("User with email: " + email + " not found"));
+
+		runImportProcess(Optional.ofNullable(ICalendarUids.defaultUserCalendar(userUid))
+				.orElseThrow(() -> new CliException("No default calendar UID found for user: " + email)));
+	}
+
+	private void runImportProcess(String calendarUid) {
+		if (dry) {
+			ctx.info("DRY : calendar " + calendarUid + (scope.email != null ? " of " + scope.email : "")
+					+ " was imported");
+			return;
+		}
+
 		CliTaskMonitor rootMonitor = new CliTaskMonitor("import Calendar");
 		try {
 			rootMonitor.begin(2, "Begin import...");
@@ -117,11 +126,12 @@ public class ImportCalendarCommand implements ICmdLet, Runnable {
 					Thread.sleep(3000);
 					break;
 				case Success:
-					rootMonitor.end(true, "Completed", "calendar " + calendarUid + " of " + email + " was imported");
+					rootMonitor.end(true, "Completed", "calendar " + calendarUid
+							+ (scope.email != null ? " of " + scope.email : "") + " was imported");
 					break;
 				case InError:
-					rootMonitor.end(false, "Failed",
-							"calendar " + calendarUid + "import of " + email + " was in error.");
+					rootMonitor.end(false, "Failed", "calendar " + calendarUid + "import"
+							+ (scope.email != null ? " of " + scope.email : "") + " was in error.");
 					break;
 				default:
 					throw new IllegalArgumentException("Unexpected value: " + task.status().state);
