@@ -65,7 +65,7 @@ import { inject } from "@bluemind/inject";
 import { BmFormCheckbox, BmFormInput, BmModal, BmPagination, BmSpinner, BmTable } from "@bluemind/ui-components";
 import { mapActions } from "vuex";
 import { SUCCESS } from "@bluemind/alert.store";
-import { ContainerType } from "./container";
+import { isContainerTypeUsedByApp } from "./container";
 import { SAVE_ALERT } from "../../../Alerts/defaultAlerts";
 
 export default {
@@ -197,22 +197,12 @@ export default {
             if (this.hasReadableContainers) {
                 const containers = this.selected.map(container => ({ ...container, offlineSync: true }));
                 await this.SUBSCRIBE_TO_CONTAINERS(containers);
-                if (this.isContainerTypeUsedByCurrentApp(this.containerType)) {
+                if (isContainerTypeUsedByApp(this.containerType, this.$route)) {
                     this.$store.commit("preferences/fields/NEED_RELOAD", { id: this.fieldId });
                 }
                 this.$emit("subscribe", containers);
                 this.SUCCESS(SAVE_ALERT);
             }
-        },
-        isContainerTypeUsedByCurrentApp(type) {
-            const applicationByContainerType = {
-                [ContainerType.MAILBOX]: "/mail/",
-                [ContainerType.ADDRESSBOOK]: "/contacts/",
-                [ContainerType.CALENDAR]: "/calendar/",
-                [ContainerType.TODOLIST]: "/tasks/"
-            };
-            const path = this.$route.path + (this.$route.path.endsWith("/") ? "" : "/");
-            return path.startsWith(applicationByContainerType[type]);
         }
     }
 };

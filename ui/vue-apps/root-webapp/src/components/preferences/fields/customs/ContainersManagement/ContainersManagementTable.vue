@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import { ContainerType, isManaged } from "./container";
+import { ContainerType, isContainerTypeUsedByApp, isManaged } from "./container";
 import ManageMyContainerMenu from "./ManageMyContainerMenu";
 import { ERROR, LOADING, SUCCESS } from "@bluemind/alert.store";
 import { inject } from "@bluemind/inject";
@@ -181,16 +181,6 @@ export default {
         openShareModal(container) {
             this.$emit("open-share-modal", container);
         },
-        isContainerTypeUsedByCurrentApp(type) {
-            const applicationByContainerType = {
-                [ContainerType.MAILBOX]: "/mail/",
-                [ContainerType.ADDRESSBOOK]: "/contacts/",
-                [ContainerType.CALENDAR]: "/calendar/",
-                [ContainerType.TODOLIST]: "/tasks/"
-            };
-            const path = this.$route.path + (this.$route.path.endsWith("/") ? "" : "/");
-            return path.startsWith(applicationByContainerType[type]);
-        },
         async remove(container) {
             const modalContent = this.$t("preferences.delete_containers", {
                 type: this.$t("common.container_type_with_definite_article." + this.containerType)
@@ -251,7 +241,7 @@ export default {
         async toggleOfflineSync(container) {
             const updatedContainer = { ...container, offlineSync: !container.offlineSync };
             await this.SUBSCRIBE_TO_CONTAINERS([updatedContainer]);
-            if (this.isContainerTypeUsedByCurrentApp(this.containerType)) {
+            if (isContainerTypeUsedByApp(this.containerType, this.$route)) {
                 this.$store.commit("preferences/fields/NEED_RELOAD", { id: this.fieldId });
             }
             this.$emit("offline-sync-changed", updatedContainer);
@@ -260,7 +250,7 @@ export default {
         async toggleSubscription(container) {
             if (this.isSubscribed(container)) {
                 await this.REMOVE_SUBSCRIPTIONS([container.uid]);
-                if (this.isContainerTypeUsedByCurrentApp(this.containerType)) {
+                if (isContainerTypeUsedByApp(this.containerType, this.$route)) {
                     this.$store.commit("preferences/fields/NEED_RELOAD", { id: this.fieldId });
                 }
                 if (!this.isManaged(container)) {
@@ -272,7 +262,7 @@ export default {
             } else {
                 const updatedContainer = { ...container, offlineSync: true };
                 await this.SUBSCRIBE_TO_CONTAINERS([updatedContainer]);
-                if (this.isContainerTypeUsedByCurrentApp(this.containerType)) {
+                if (isContainerTypeUsedByApp(this.containerType, this.$route)) {
                     this.$store.commit("preferences/fields/NEED_RELOAD", { id: this.fieldId });
                 }
                 this.$emit("offline-sync-changed", updatedContainer);

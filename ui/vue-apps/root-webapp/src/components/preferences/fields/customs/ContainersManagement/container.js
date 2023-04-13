@@ -104,3 +104,15 @@ export function create(type) {
     }
     return container;
 }
+
+const APP_URL_BY_TYPE = {
+    [ContainerType.MAILBOX]: "/mail/",
+    [ContainerType.ADDRESSBOOK]: "/contacts/",
+    [ContainerType.CALENDAR]: "/calendar/",
+    [ContainerType.TODOLIST]: "/tasks/"
+};
+
+export function isContainerTypeUsedByApp(type, route) {
+    const path = route.path + (route.path.endsWith("/") ? "" : "/");
+    return path.startsWith(APP_URL_BY_TYPE[type]);
+}
