@@ -22,7 +22,6 @@ loader.keys().forEach(file => {
     });
 });
 
-extensions.register();
 export default {
     name: "MailHomeScreen",
     components: { BmExtension }

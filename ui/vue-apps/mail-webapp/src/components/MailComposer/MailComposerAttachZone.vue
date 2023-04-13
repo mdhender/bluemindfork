@@ -22,6 +22,7 @@ export default {
 
 <style lang="scss">
 .mail-composer-attach-zone {
+    height: 100%;
     & > .bm-illustration {
         position: absolute;
     }
