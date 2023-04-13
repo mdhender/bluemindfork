@@ -52,7 +52,7 @@ public abstract class KeycloakAdminClient {
 	protected static final String CLIENTS_CREDS_URL = CLIENTS_URL + "/%s/client-secret";
 	protected static final String COMPONENTS_URL = REALMS_ADMIN_URL + "/%s/components";
 
-	protected static final int TIMEOUT = 5000;
+	protected static final int TIMEOUT = 5;
 
 	public KeycloakAdminClient() {
 
