@@ -77,7 +77,7 @@ public class EventAttachmentHelper {
 				logger.debug(fee.getMessage(), fee);
 			}
 			attachments.addAll(event.attachments.stream()
-					.map(att -> new EventAttachment(att.publicUrl, att.name, Mime.getMimeType(att.name)))
+					.map(att -> new EventAttachment(att.publicUrl, att.name, Mime.getMimeType(att.name), att.cid))
 					.collect(Collectors.toList()));
 		}
 		return attachments;
@@ -90,7 +90,8 @@ public class EventAttachmentHelper {
 			byte[] attachmentAsBytes = loadAttachment(att, bytesRead, maxBytes);
 			consumed += attachmentAsBytes.length;
 			BodyPart binaryPart = new CalendarMailHelper().createBinaryPart(attachmentAsBytes);
-			binaryParts.add(new EventAttachment(att.publicUrl, att.name, Mime.getMimeType(att.name), binaryPart));
+			binaryParts
+					.add(new EventAttachment(att.publicUrl, att.name, Mime.getMimeType(att.name), binaryPart, att.cid));
 		} catch (IOException e) {
 			logger.warn("Cannot read event attachment from url {}", att.publicUrl, e);
 		}

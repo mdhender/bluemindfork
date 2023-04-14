@@ -28,19 +28,22 @@ public class EventAttachment {
 	public final String name;
 	public final String contentType;
 	public final Optional<BodyPart> part;
+	public final String cid;
 
-	public EventAttachment(String uri, String name, String contentType, BodyPart part) {
+	public EventAttachment(String uri, String name, String contentType, BodyPart part, String cid) {
 		this.uri = uri;
 		this.name = name;
 		this.contentType = contentType;
 		this.part = Optional.of(part);
+		this.cid = cid;
 	}
 
-	public EventAttachment(String uri, String name, String contentType) {
+	public EventAttachment(String uri, String name, String contentType, String cid) {
 		this.uri = uri;
 		this.name = name;
 		this.contentType = contentType;
 		this.part = Optional.empty();
+		this.cid = cid;
 	}
 
 	public boolean isBinaryAttachment() {
