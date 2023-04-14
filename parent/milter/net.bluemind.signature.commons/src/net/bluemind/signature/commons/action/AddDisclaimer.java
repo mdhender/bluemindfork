@@ -35,6 +35,7 @@ import org.apache.james.mime4j.dom.Header;
 import org.apache.james.mime4j.dom.Multipart;
 import org.apache.james.mime4j.dom.TextBody;
 import org.apache.james.mime4j.dom.field.ContentTypeField;
+import org.apache.james.mime4j.dom.field.FieldName;
 import org.apache.james.mime4j.field.Fields;
 import org.apache.james.mime4j.message.BasicBodyFactory;
 import org.apache.james.mime4j.message.BodyPart;
@@ -115,17 +116,26 @@ public class AddDisclaimer {
 		String html = variables.replace(configuration.get("html"), VariableDecorators.newLineToBr());
 		Document disclaimerContent = Jsoup.parse(html);
 		Elements images = disclaimerContent.getElementsByTag("img");
+		Body body = null;
 
 		boolean isMultipart = e.getParent() != null && e.getParent().getMimeType().startsWith("multipart");
-		Body body = null;
-		if (images.isEmpty() || !isMultipart) {
+		if (isMultipart) {
+			body = updateMultipartBodyWithDisclaimer(e, disclaimerContent, images, configuration);
+		} else if (!hasInlineImages(images)) {
 			body = updateBodyWithDisclaimer(e, disclaimerContent, configuration);
-		} else if (e.getParent() != null && "multipart/related".equals(e.getParent().getMimeType())) {
-			body = updateRelatedBodyWithDisclaimer(e, disclaimerContent, images, configuration);
 		} else {
 			body = createRelatedBodyWithDisclaimer(e, disclaimerContent, images, configuration);
 		}
+
 		replaceBody(e, body);
+	}
+
+	private boolean hasInlineImages(Elements images) {
+		return images.stream().filter(img -> {
+			String src = img.attr("src");
+			return src.startsWith("data:image/");
+		}).count() > 0;
+
 	}
 
 	private Body updateBodyWithDisclaimer(Entity e, Document disclaimerContent, Map<String, String> configuration) {
@@ -134,7 +144,7 @@ public class AddDisclaimer {
 		return toBodyPart(e, bodyContent.html());
 	}
 
-	private Body updateRelatedBodyWithDisclaimer(Entity e, Document disclaimerContent, Elements images,
+	private Body updateMultipartBodyWithDisclaimer(Entity e, Document disclaimerContent, Elements images,
 			Map<String, String> configuration) {
 		Multipart parent = (Multipart) e.getParent().getBody();
 		Document bodyContent = extractBody(e);
@@ -148,6 +158,7 @@ public class AddDisclaimer {
 
 	private Body createRelatedBodyWithDisclaimer(Entity e, Document disclaimerContent, Elements images,
 			Map<String, String> configuration) {
+
 		Multipart parent = new MultipartImpl("related");
 
 		addDisclaimerImagesToMessage(images, parent);
@@ -155,15 +166,20 @@ public class AddDisclaimer {
 		Body body = updateBodyWithDisclaimer(e, disclaimerContent, configuration);
 		BodyPart bp = new BodyPart();
 		bp.setBody(body);
-		bp.setHeader(e.getHeader());
-		bp.getHeader().setField(Fields.contentType(e.getMimeType() + "; charset=utf-8"));
+		Header bodyPartHeader = new HeaderImpl();
+		bodyPartHeader.setField(Fields.contentType(e.getMimeType() + "; charset=utf-8"));
+		bodyPartHeader.setField(Fields.contentTransferEncoding("quoted-printable"));
+		bp.setHeader(bodyPartHeader);
+
 		parent.addBodyPart(bp, 0);
+
 		BodyPart parentBodyPart = new BodyPart();
 		parentBodyPart.setMultipart(parent);
-		e.setHeader(parentBodyPart.getHeader());
 
-		body = parentBodyPart.getBody();
-		return body;
+		// set Content-Type multipart/related
+		e.getHeader().setField(parentBodyPart.getHeader().getField(FieldName.CONTENT_TYPE));
+
+		return parentBodyPart.getBody();
 	}
 
 	private void insertSignatureIntoHtmlPart(Document disclaimerContent, Document bodyContent,
