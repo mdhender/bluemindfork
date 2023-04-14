@@ -27,8 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.backend.mail.api.MailboxFolder;
-import net.bluemind.backend.mail.api.MailboxFolderSearchQuery;
 import net.bluemind.backend.mail.api.SearchResult;
+import net.bluemind.backend.mail.api.utils.MailIndexQuery;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.task.service.IServerTaskMonitor;
@@ -150,7 +150,7 @@ public class NoopMailIndexService implements IMailIndexService {
 	}
 
 	@Override
-	public SearchResult searchItems(String dirEntryUid, MailboxFolderSearchQuery query) {
+	public SearchResult searchItems(String domainUid, String dirEntryUid, MailIndexQuery query) {
 		logger.debug("NOOP");
 		return new SearchResult();
 	}

@@ -70,12 +70,12 @@ import com.netflix.spectator.api.Registry;
 
 import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.mail.api.MailboxFolder;
-import net.bluemind.backend.mail.api.MailboxFolderSearchQuery;
 import net.bluemind.backend.mail.api.MessageSearchResult;
 import net.bluemind.backend.mail.api.MessageSearchResult.Mbox;
 import net.bluemind.backend.mail.api.SearchQuery;
 import net.bluemind.backend.mail.api.SearchQuery.LogicalOperator;
 import net.bluemind.backend.mail.api.SearchResult;
+import net.bluemind.backend.mail.api.utils.MailIndexQuery;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.indexing.IDRange;
@@ -856,12 +856,12 @@ public class MailIndexService implements IMailIndexService {
 	private static final long TIME_BUDGET = TimeUnit.SECONDS.toNanos(15);
 
 	@Override
-	public SearchResult searchItems(String dirEntryUid, MailboxFolderSearchQuery searchQuery) {
+	public SearchResult searchItems(String domainUid, String dirEntryUid, MailIndexQuery searchQuery) {
 		SearchQuery query = searchQuery.query;
 		Client client = ESearchActivator.getClient();
 		String index = getIndexAliasName(dirEntryUid);
 		SearchRequestBuilder searchBuilder = client.prepareSearch(index);
-		QueryBuilder bq = buildEsQuery(query);
+		QueryBuilder bq = buildEsQuery(domainUid, dirEntryUid, searchQuery);
 
 		searchBuilder.setQuery(bq);
 		searchBuilder.setFetchSource(true);
@@ -963,26 +963,36 @@ public class MailIndexService implements IMailIndexService {
 		}).orElse(0);
 	}
 
-	private QueryBuilder buildEsQuery(SearchQuery query) {
+	private QueryBuilder buildEsQuery(String domainUid, String dirEntryUid, MailIndexQuery query) {
 		BoolQueryBuilder bq = QueryBuilders.boolQuery();
 
-		if (query.scope.folderScope != null && query.scope.folderScope.folderUid != null) {
-			bq.must(QueryBuilders.termQuery("in", query.scope.folderScope.folderUid));
+		if (query.query.scope.folderScope != null && query.query.scope.folderScope.folderUid != null) {
+			if (query.folderUids != null && !query.folderUids.isEmpty()) {
+
+				List<QueryBuilder> folderQueries = new ArrayList<>();
+				folderQueries.add(QueryBuilders.termQuery("in", query.query.scope.folderScope.folderUid));
+				for (String folder : query.folderUids) {
+					folderQueries.add(QueryBuilders.termQuery("in", folder));
+				}
+				bq.must(Queries.or(folderQueries));
+			} else {
+				bq.must(QueryBuilders.termQuery("in", query.query.scope.folderScope.folderUid));
+			}
 		}
 
 		bq.mustNot(QueryBuilders.termQuery("is", "deleted"));
-		bq = addSearchQuery(bq, query.query);
-		bq = addSearchRecordQuery(bq, query.recordQuery);
-		bq = addPreciseSearchQuery(bq, "messageId", query.messageId);
-		bq = addPreciseSearchQuery(bq, "references", query.references);
+		bq = addSearchQuery(bq, query.query.query);
+		bq = addSearchRecordQuery(bq, query.query.recordQuery);
+		bq = addPreciseSearchQuery(bq, "messageId", query.query.messageId);
+		bq = addPreciseSearchQuery(bq, "references", query.query.references);
 
-		if (query.headerQuery != null && !query.headerQuery.query.isEmpty()) {
-			List<QueryBuilder> builders = new ArrayList<>(query.headerQuery.query.size());
-			for (SearchQuery.Header headerQuery : query.headerQuery.query) {
+		if (query.query.headerQuery != null && !query.query.headerQuery.query.isEmpty()) {
+			List<QueryBuilder> builders = new ArrayList<>(query.query.headerQuery.query.size());
+			for (SearchQuery.Header headerQuery : query.query.headerQuery.query) {
 				String queryString = "headers." + headerQuery.name.toLowerCase() + ":\"" + headerQuery.value + "\"";
 				builders.add(QueryBuilders.queryStringQuery(queryString));
 			}
-			if (query.headerQuery.logicalOperator == LogicalOperator.AND) {
+			if (query.query.headerQuery.logicalOperator == LogicalOperator.AND) {
 				bq = bq.must(Queries.and(builders));
 			} else {
 				bq = bq.must(Queries.or(builders));

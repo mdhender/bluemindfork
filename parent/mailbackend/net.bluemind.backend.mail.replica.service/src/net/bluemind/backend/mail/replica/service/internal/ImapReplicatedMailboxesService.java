@@ -36,6 +36,7 @@ import net.bluemind.backend.mail.api.ImportMailboxItemSet;
 import net.bluemind.backend.mail.api.ImportMailboxItemsStatus;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
+import net.bluemind.backend.mail.api.utils.FolderTree;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;

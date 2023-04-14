@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.backend.mail.replica.service.internal;
+package net.bluemind.backend.mail.api.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

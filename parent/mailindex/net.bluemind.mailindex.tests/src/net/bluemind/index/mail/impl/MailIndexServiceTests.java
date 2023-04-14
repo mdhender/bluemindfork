@@ -50,6 +50,7 @@ import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxFolderSearchQuery;
 import net.bluemind.backend.mail.api.MessageSearchResult;
 import net.bluemind.backend.mail.api.SearchQuery;
+import net.bluemind.backend.mail.api.SearchQuery.FolderScope;
 import net.bluemind.backend.mail.api.SearchQuery.Header;
 import net.bluemind.backend.mail.api.SearchQuery.HeaderQuery;
 import net.bluemind.backend.mail.api.SearchQuery.LogicalOperator;
@@ -57,6 +58,7 @@ import net.bluemind.backend.mail.api.SearchQuery.SearchScope;
 import net.bluemind.backend.mail.api.SearchResult;
 import net.bluemind.backend.mail.api.SearchSort;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
+import net.bluemind.backend.mail.api.utils.MailIndexQuery;
 import net.bluemind.backend.mail.replica.indexing.IDSet;
 import net.bluemind.backend.mail.replica.indexing.MailSummary;
 import net.bluemind.core.container.model.ItemValue;
@@ -92,9 +94,9 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		query.scope = new SearchScope();
 		query.scope.isDeepTraversal = true;
 
-		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		MailIndexQuery q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		SearchResult sr = MailIndexActivator.getService().searchItems(userUid, q);
+		SearchResult sr = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertEquals(2, sr.totalResults);
 
 		// no sort criteria, default is by date DESC
@@ -102,13 +104,13 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 
 		// by date ASC
 		q.sort = SearchSort.byField("date", SearchSort.Order.Asc);
-		sr = MailIndexActivator.getService().searchItems(userUid, q);
+		sr = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertEquals(2, sr.totalResults);
 		assertTrue(sr.results.get(0).date.before(sr.results.get(1).date));
 
 		// by date DESC
 		q.sort = SearchSort.byField("date", SearchSort.Order.Desc);
-		sr = MailIndexActivator.getService().searchItems(userUid, q);
+		sr = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertEquals(2, sr.totalResults);
 		assertTrue(sr.results.get(0).date.after(sr.results.get(1).date));
 	}
@@ -136,9 +138,9 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		query.scope = new SearchScope();
 		query.scope.isDeepTraversal = true;
 
-		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		MailIndexQuery q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		SearchResult sr = MailIndexActivator.getService().searchItems(userUid, q);
+		SearchResult sr = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertEquals(1, sr.totalResults);
 	}
 
@@ -206,9 +208,9 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		query.scope = new SearchScope();
 		query.scope.isDeepTraversal = true;
 
-		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		MailIndexQuery q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		SearchResult sr = MailIndexActivator.getService().searchItems(userUid, q);
+		SearchResult sr = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertEquals(4, sr.totalResults);
 
 		// no sort criteria, default is by date DESC
@@ -218,7 +220,7 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 
 		// by date ASC
 		q.sort = SearchSort.byField("date", SearchSort.Order.Asc);
-		sr = MailIndexActivator.getService().searchItems(userUid, q);
+		sr = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertEquals(4, sr.totalResults);
 		assertTrue(sr.results.get(0).date.before(sr.results.get(1).date));
 		assertTrue(sr.results.get(1).date.before(sr.results.get(2).date));
@@ -226,7 +228,7 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 
 		// by date DESC
 		q.sort = SearchSort.byField("date", SearchSort.Order.Desc);
-		sr = MailIndexActivator.getService().searchItems(userUid, q);
+		sr = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertEquals(4, sr.totalResults);
 		assertTrue(sr.results.get(0).date.after(sr.results.get(1).date));
 		assertTrue(sr.results.get(1).date.after(sr.results.get(2).date));
@@ -585,9 +587,9 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		query.query = "SubjectTest";
 		query.scope = new SearchScope();
 		query.scope.isDeepTraversal = true;
-		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		MailIndexQuery q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+		SearchResult results = MailIndexActivator.getService().searchItems(null, userUid, q);
 
 		assertOnlyResultIsTestEml(results);
 	}
@@ -603,11 +605,11 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		query.query = "SubjectTest";
 		query.scope = new SearchScope();
 		query.scope.isDeepTraversal = true;
-		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		MailIndexQuery q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
 
-		SearchResult results1 = MailIndexActivator.getService().searchItems(userUid, q);
-		SearchResult results2 = MailIndexActivator.getService().searchItems(userUid2, q);
+		SearchResult results1 = MailIndexActivator.getService().searchItems(null, userUid, q);
+		SearchResult results2 = MailIndexActivator.getService().searchItems(null, userUid2, q);
 
 		assertEquals(0, results1.totalResults);
 		assertEquals(0, results2.totalResults);
@@ -617,8 +619,8 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		storeMessage(mboxUid2, userUid2, bodyUid, imapUid, Collections.emptyList());
 		ESearchActivator.refreshIndex(INDEX_NAME);
 
-		results1 = MailIndexActivator.getService().searchItems(userUid, q);
-		results2 = MailIndexActivator.getService().searchItems(userUid2, q);
+		results1 = MailIndexActivator.getService().searchItems(null, userUid, q);
+		results2 = MailIndexActivator.getService().searchItems(null, userUid2, q);
 
 		assertEquals(1, results1.totalResults);
 		assertEquals(1, results2.totalResults);
@@ -626,8 +628,8 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		MailIndexActivator.getService().resetMailboxIndex(userUid2);
 		ESearchActivator.refreshIndex(INDEX_NAME);
 
-		results1 = MailIndexActivator.getService().searchItems(userUid, q);
-		results2 = MailIndexActivator.getService().searchItems(userUid2, q);
+		results1 = MailIndexActivator.getService().searchItems(null, userUid, q);
+		results2 = MailIndexActivator.getService().searchItems(null, userUid2, q);
 
 		assertEquals(1, results1.totalResults);
 		assertEquals(0, results2.totalResults);
@@ -656,21 +658,21 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		query.query = "SubjectTest"; // Subject
 		query.scope = new SearchScope();
 		query.scope.isDeepTraversal = true;
-		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		MailIndexQuery q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+		SearchResult results = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertOnlyResultIsTestEml(results);
 
 		query.query = "Water"; // From
-		results = MailIndexActivator.getService().searchItems(userUid, q);
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertOnlyResultIsTestEml(results);
 
 		query.query = "Barrett"; // To
-		results = MailIndexActivator.getService().searchItems(userUid, q);
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertOnlyResultIsTestEml(results);
 
 		query.query = "Lost"; // Content
-		results = MailIndexActivator.getService().searchItems(userUid, q);
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertOnlyResultIsTestEml(results);
 	}
 
@@ -691,9 +693,9 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		query.query = "SubjectTest";
 		query.scope = new SearchScope();
 		query.scope.isDeepTraversal = true;
-		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		MailIndexQuery q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+		SearchResult results = MailIndexActivator.getService().searchItems(null, userUid, q);
 
 		assertEquals(totalSize, results.totalResults);
 		assertEquals(totalSize, results.results.size());
@@ -713,9 +715,9 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		query.query = "drug";
 		query.scope = new SearchScope();
 		query.scope.isDeepTraversal = true;
-		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		MailIndexQuery q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+		SearchResult results = MailIndexActivator.getService().searchItems(null, userUid, q);
 
 		assertOnlyResultIsTestEml(results);
 	}
@@ -735,9 +737,9 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		query.query = "invalid\"";
 		query.scope = new SearchScope();
 		query.scope.isDeepTraversal = true;
-		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		MailIndexQuery q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+		SearchResult results = MailIndexActivator.getService().searchItems(null, userUid, q);
 
 		assertEquals(0, results.totalResults);
 	}
@@ -769,9 +771,9 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		query.scope = new SearchScope();
 		query.scope.isDeepTraversal = true;
 
-		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		MailIndexQuery q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+		SearchResult results = MailIndexActivator.getService().searchItems(null, userUid, q);
 
 		assertEquals(1, results.totalResults);
 		MessageSearchResult messageSearchResult = results.results.get(0);
@@ -808,65 +810,65 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		query.scope = new SearchScope();
 		query.scope.isDeepTraversal = true;
 
-		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		MailIndexQuery q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+		SearchResult results = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertEquals(1, results.totalResults);
 
 		query.recordQuery = "is:unread";
 		query.query = null;
-		q = new MailboxFolderSearchQuery();
+		q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		results = MailIndexActivator.getService().searchItems(userUid, q);
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertEquals(1, results.totalResults);
 
 		query.recordQuery = "is:unread";
 		query.query = "SubjectTest";
-		q = new MailboxFolderSearchQuery();
+		q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		results = MailIndexActivator.getService().searchItems(userUid, q);
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertEquals(1, results.totalResults);
 
 		query.recordQuery = "is:unread subject:SubjectTest";
 		query.query = null;
-		q = new MailboxFolderSearchQuery();
+		q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		results = MailIndexActivator.getService().searchItems(userUid, q);
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertEquals(1, results.totalResults);
 
 		query.recordQuery = "is:unread";
 		query.query = "drug";
-		q = new MailboxFolderSearchQuery();
+		q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		results = MailIndexActivator.getService().searchItems(userUid, q);
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertEquals(1, results.totalResults);
 
 		query.recordQuery = "is:yeah";
 		query.query = "my drug";
-		q = new MailboxFolderSearchQuery();
+		q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		results = MailIndexActivator.getService().searchItems(userUid, q);
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertEquals(1, results.totalResults);
 
 		query.recordQuery = "is:yeah";
 		query.query = "\"my drug\"";
-		q = new MailboxFolderSearchQuery();
+		q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		results = MailIndexActivator.getService().searchItems(userUid, q);
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertEquals(1, results.totalResults);
 
 		query.recordQuery = "is:wat";
 		query.query = "drug";
-		q = new MailboxFolderSearchQuery();
+		q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		results = MailIndexActivator.getService().searchItems(userUid, q);
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertEquals(0, results.totalResults);
 
 		query.recordQuery = "is:unread";
 		query.query = "pouet";
-		q = new MailboxFolderSearchQuery();
+		q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		results = MailIndexActivator.getService().searchItems(userUid, q);
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertEquals(0, results.totalResults);
 
 	}
@@ -890,9 +892,9 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		query.headerQuery.query = Arrays.asList(headerQueryElement);
 		query.scope = new SearchScope();
 		query.scope.isDeepTraversal = true;
-		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		MailIndexQuery q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+		SearchResult results = MailIndexActivator.getService().searchItems(null, userUid, q);
 
 		assertEquals(1, results.totalResults);
 		MessageSearchResult messageSearchResult = results.results.get(0);
@@ -908,9 +910,9 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		headerQueryElement2.value = "John Water <john.water@pinkfloyd.net>";
 		query.headerQuery.query = Arrays.asList(headerQueryElement, headerQueryElement2);
 
-		q = new MailboxFolderSearchQuery();
+		q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		results = MailIndexActivator.getService().searchItems(userUid, q);
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
 
 		assertEquals(1, results.totalResults);
 
@@ -924,9 +926,9 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		headerQueryElement2.value = "John Water <john.water@pinkfloyd.net>";
 		query.headerQuery.query = Arrays.asList(headerQueryElement, headerQueryElement2);
 
-		q = new MailboxFolderSearchQuery();
+		q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		results = MailIndexActivator.getService().searchItems(userUid, q);
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
 
 		assertEquals(0, results.totalResults);
 	}
@@ -943,12 +945,12 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		query.maxResults = 10;
 		query.offset = 0;
 		query.messageId = "<7FA4B249-C434-4F98-A447-A0F0C8D42A4E@pinkfloy.net>";
-		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		MailIndexQuery q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
 		query.scope = new SearchScope();
 		query.scope.isDeepTraversal = true;
 
-		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+		SearchResult results = MailIndexActivator.getService().searchItems(null, userUid, q);
 
 		assertEquals(1, results.totalResults);
 		MessageSearchResult messageSearchResult = results.results.get(0);
@@ -958,13 +960,60 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		query.maxResults = 10;
 		query.offset = 0;
 		query.messageId = "idontexist";
-		q = new MailboxFolderSearchQuery();
+		q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
 		query.scope = new SearchScope();
 		query.scope.isDeepTraversal = true;
-		results = MailIndexActivator.getService().searchItems(userUid, q);
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
 
 		assertEquals(0, results.totalResults);
+	}
+
+	@Test
+	public void testRecursiveSearch() throws MimeIOException, IOException, InterruptedException, ExecutionException {
+		long imapUid = 1;
+		byte[] eml = Files.toByteArray(new File("data/test.eml"));
+		storeBody(bodyUid, eml);
+		storeMessage(mboxUid, userUid, bodyUid, imapUid, Collections.emptyList(), 44l);
+		storeMessage(mboxUid2, userUid, bodyUid, imapUid, Collections.emptyList(), 45l);
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		SearchQuery query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.scope = new SearchScope();
+		query.scope.folderScope = new FolderScope();
+		query.scope.folderScope.folderUid = mboxUid;
+		query.scope.isDeepTraversal = false;
+		query.query = "";
+		MailIndexQuery q = MailIndexQuery.folderQuery(new MailboxFolderSearchQuery(), Arrays.asList());
+		q.query = query;
+
+		SearchResult results = MailIndexActivator.getService().searchItems(null, userUid, q);
+
+		assertEquals(1, results.totalResults);
+		MessageSearchResult messageSearchResult = results.results.get(0);
+		assertEquals(44l, messageSearchResult.itemId);
+
+		query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.scope = new SearchScope();
+		query.scope.folderScope = new FolderScope();
+		query.scope.folderScope.folderUid = mboxUid;
+		query.scope.isDeepTraversal = true;
+		query.query = "";
+		q = MailIndexQuery.folderQuery(new MailboxFolderSearchQuery(), Arrays.asList(mboxUid2));
+		q.query = query;
+
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
+
+		assertEquals(2, results.totalResults);
+		messageSearchResult = results.results.get(0);
+		assertEquals(44l, messageSearchResult.itemId);
+		messageSearchResult = results.results.get(1);
+		assertEquals(45l, messageSearchResult.itemId);
+
 	}
 
 	@Test
@@ -979,12 +1028,12 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		query.maxResults = 10;
 		query.offset = 0;
 		query.references = "<19980507220459.5655.qmail@warren.demon.co.uk>";
-		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		MailIndexQuery q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
 		query.scope = new SearchScope();
 		query.scope.isDeepTraversal = true;
 
-		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+		SearchResult results = MailIndexActivator.getService().searchItems(null, userUid, q);
 
 		assertEquals(1, results.totalResults);
 		MessageSearchResult messageSearchResult = results.results.get(0);
@@ -994,11 +1043,11 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		query.maxResults = 10;
 		query.offset = 0;
 		query.references = "idontexist";
-		q = new MailboxFolderSearchQuery();
+		q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
 		query.scope = new SearchScope();
 		query.scope.isDeepTraversal = true;
-		results = MailIndexActivator.getService().searchItems(userUid, q);
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
 
 		assertEquals(0, results.totalResults);
 	}
@@ -1022,9 +1071,9 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		query.headerQuery.query = Arrays.asList(headerQueryElement);
 		query.scope = new SearchScope();
 		query.scope.isDeepTraversal = true;
-		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		MailIndexQuery q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+		SearchResult results = MailIndexActivator.getService().searchItems(null, userUid, q);
 
 		assertEquals(1, results.totalResults);
 		MessageSearchResult messageSearchResult = results.results.get(0);
@@ -1062,21 +1111,21 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 		query.scope = new SearchScope();
 		query.scope.isDeepTraversal = true;
 
-		MailboxFolderSearchQuery q = new MailboxFolderSearchQuery();
+		MailIndexQuery q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		SearchResult results = MailIndexActivator.getService().searchItems(userUid, q);
+		SearchResult results = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertEquals(1, results.totalResults);
 
 		query.query = "de:roger.water@pinkfloyd.net";
-		q = new MailboxFolderSearchQuery();
+		q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		results = MailIndexActivator.getService().searchItems(userUid, q);
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertEquals(1, results.totalResults);
 
 		query.query = "von:roger.water@pinkfloyd.net";
-		q = new MailboxFolderSearchQuery();
+		q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
 		q.query = query;
-		results = MailIndexActivator.getService().searchItems(userUid, q);
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
 		assertEquals(1, results.totalResults);
 
 	}
