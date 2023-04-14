@@ -8,6 +8,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.backup.continuous.api.IBackupStore;
 import net.bluemind.core.backup.continuous.api.Providers;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
@@ -40,7 +41,14 @@ public class OrgUnitHierarchyBackup<T> {
 		BaseContainerDescriptor descriptor = BaseContainerDescriptor.create(container.uid, container.name,
 				itemValue.uid, container.type, container.domainUid, container.defaultContainer);
 		IBackupStore<DirEntryAndValue<OrgUnit>> orgUnitBackupStream = Providers.get().forContainer(descriptor);
-		orgUnitHierarchyOf(itemValue.value.entry).forEach(orgUnit -> orgUnitBackupStream.store(orgUnit));
+		orgUnitHierarchyOf(itemValue.value.entry).forEach(orgUnit -> {
+			if (!orgUnit.uid.equals(orgUnit.value.entry.entryUid)) {
+				logger.error("OU[{}] for owner {} iv.uid {}, iv.value.entry.entryUid {}",
+						orgUnit.value.entry.displayName, itemValue.uid, orgUnit.uid, orgUnit.value.entry.entryUid);
+				throw new ServerFault("Prevent poisonPill write from" + orgUnit.uid);
+			}
+			orgUnitBackupStream.store(orgUnit);
+		});
 	}
 
 	private List<ItemValue<DirEntryAndValue<OrgUnit>>> orgUnitHierarchyOf(DirEntry dirEntry) {

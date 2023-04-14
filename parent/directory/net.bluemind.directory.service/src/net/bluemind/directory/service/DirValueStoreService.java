@@ -175,26 +175,34 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 	}
 
 	public void create(String uid, DirEntry dirEntry, Mailbox mailbox, T value) throws ServerFault {
-		super.create(uid, dirEntry.displayName,
-				new DirEntryAndValue<>(dirEntry, value, vcardAdapter.asVCard(domain, uid, value), mailbox));
+		DirEntryAndValue<T> dirEntryValue = new DirEntryAndValue<>(dirEntry, value,
+				vcardAdapter.asVCard(domain, uid, value), mailbox);
+		checkConsistency(uid, dirEntryValue);
+		super.create(uid, dirEntry.displayName, dirEntryValue);
 	}
 
 	public void createWithExtId(String uid, String extId, DirEntry dirEntry, T value) throws ServerFault {
-		super.create(uid, extId, dirEntry.displayName, new DirEntryAndValue<>(dirEntry, value,
-				vcardAdapter.asVCard(domain, uid, value), asMailbox(container.domainUid, uid, value)));
+		DirEntryAndValue<T> dirEntryValue = new DirEntryAndValue<>(dirEntry, value,
+				vcardAdapter.asVCard(domain, uid, value), asMailbox(container.domainUid, uid, value));
+		checkConsistency(uid, dirEntryValue);
+		super.create(uid, extId, dirEntry.displayName, dirEntryValue);
 	}
 
 	public void create(String uid, T value) throws ServerFault {
 		DirEntry dirEntry = adapter.asDirEntry(container.domainUid, uid, value);
-		super.create(uid, dirEntry.displayName, new DirEntryAndValue<>(dirEntry, value,
-				vcardAdapter.asVCard(domain, uid, value), asMailbox(container.domainUid, uid, value)));
+		DirEntryAndValue<T> dirEntryValue = new DirEntryAndValue<>(dirEntry, value,
+				vcardAdapter.asVCard(domain, uid, value), asMailbox(container.domainUid, uid, value));
+		checkConsistency(uid, dirEntryValue);
+		super.create(uid, dirEntry.displayName, dirEntryValue);
 	}
 
 	public void createWithExtId(String uid, String extId, T value) throws ServerFault {
 		DirEntry dirEntry = adapter.asDirEntry(container.domainUid, uid, value);
 		VCard card = vcardAdapter.asVCard(domain, uid, value);
-		super.create(uid, extId, dirEntry.displayName,
-				new DirEntryAndValue<>(dirEntry, value, card, asMailbox(container.domainUid, uid, value)));
+		DirEntryAndValue<T> dirEntryValue = new DirEntryAndValue<>(dirEntry, value, card,
+				asMailbox(container.domainUid, uid, value));
+		checkConsistency(uid, dirEntryValue);
+		super.create(uid, extId, dirEntry.displayName, dirEntryValue);
 	}
 
 	public void create(ItemValue<T> itemValue) throws ServerFault {
@@ -208,7 +216,14 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 		DirEntryAndValue<T> dirEntryValue = new DirEntryAndValue<>(dirEntry, value,
 				vcardAdapter.asVCard(domain, itemValue.uid, value),
 				asMailbox(container.domainUid, itemValue.uid, value));
+		checkConsistency(itemValue.item().uid, dirEntryValue);
 		super.create(itemValue.item(), dirEntryValue, handler);
+	}
+
+	private void checkConsistency(String uid, DirEntryAndValue<T> dirEntryValue) {
+		if (!uid.equals(dirEntryValue.entry.entryUid)) {
+			throw new ServerFault("Inconsistency " + uid + " vs " + dirEntryValue.entry.entryUid);
+		}
 	}
 
 	@Override
@@ -219,8 +234,10 @@ public abstract class DirValueStoreService<T> extends BaseDirStoreService<DirEnt
 
 	public void update(String uid, T value) throws ServerFault {
 		DirEntry dirEntry = adapter.asDirEntry(container.domainUid, uid, value);
-		update(uid, dirEntry.displayName, new DirEntryAndValue<>(dirEntry, value,
-				vcardAdapter.asVCard(domain, uid, value), asMailbox(container.domainUid, uid, value)));
+		DirEntryAndValue<T> dirEntryValue = new DirEntryAndValue<>(dirEntry, value,
+				vcardAdapter.asVCard(domain, uid, value), asMailbox(container.domainUid, uid, value));
+		checkConsistency(uid, dirEntryValue);
+		update(uid, dirEntry.displayName, dirEntryValue);
 		cache.invalidate(uid);
 	}
 
