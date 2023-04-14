@@ -45,47 +45,44 @@
     min-height: $scrollbar-thumb-border-radius * 2 + 10px !important;
 }
 
-// scroll arrow up
-.scroller-y::-webkit-scrollbar-button:single-button:vertical:decrement {
-    background-image: $arrow-image-up;
+.scroller-y::-webkit-scrollbar-button:single-button {
+    width: $scroll-width;
+    height: $scroll-width;
+    border: 0.5 * $scroll-width solid $scrollbar-color;
     &:hover {
-        background-image: $arrow-image-up-hover;
+        border-color: $scrollbar-color-hover;
     }
     &:active {
-        background-image: $arrow-image-up-active;
+        border-color: $scrollbar-color-active;
     }
 }
 
-// scroll arrow down
-.scroller-y::-webkit-scrollbar-button:single-button:vertical:increment {
-    background-image: $arrow-image-down;
-    &:hover {
-        background-image: $arrow-image-down-hover;
+.scroller-y::-webkit-scrollbar-button:single-button:vertical {
+    border-left-color: transparent !important;
+    border-right-color: transparent !important;
+
+    // scroll arrow up
+    &:decrement {
+        border-top-color: transparent !important;
     }
-    &:active {
-        background-image: $arrow-image-down-active;
+
+    // scroll arrow down
+    &:increment {
+        border-bottom-color: transparent !important;
     }
 }
 
-// scroll arrow left
-.scroller-y::-webkit-scrollbar-button:single-button:horizontal:decrement {
-    background-image: $arrow-image-left;
-    &:hover {
-        background-image: $arrow-image-left-hover;
-    }
-    &:active {
-        background-image: $arrow-image-left-active;
-    }
-}
+.scroller-y::-webkit-scrollbar-button:single-button:horizontal {
+    border-top-color: transparent !important;
+    border-bottom-color: transparent !important;
 
-// scroll arrow right
-.scroller-y::-webkit-scrollbar-button:single-button:horizontal:increment {
-    background-image: $arrow-image-right;
-    &:hover {
-        background-image: $arrow-image-right-hover;
-        cursor: grab !important;
+    // scroll arrow left
+    &:decrement {
+        border-left-color: transparent !important;
     }
-    &:active {
-        background-image: $arrow-image-right-active;
+
+    // scroll arrow right
+    &:increment {
+        border-right-color: transparent !important;
     }
 }
