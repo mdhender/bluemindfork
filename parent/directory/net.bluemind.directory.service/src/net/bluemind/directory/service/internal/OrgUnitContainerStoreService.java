@@ -33,6 +33,7 @@ import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirEntryPath;
 import net.bluemind.directory.api.OrgUnit;
 import net.bluemind.directory.api.OrgUnitPath;
 import net.bluemind.directory.api.OrgUnitQuery;
@@ -52,8 +53,8 @@ public class OrgUnitContainerStoreService extends DirValueStoreService<OrgUnit> 
 
 		@Override
 		public DirEntry asDirEntry(String domainUid, String uid, OrgUnit ou) {
-			return DirEntry.create(ou.parentUid, domainUid + "/ou/" + uid, DirEntry.Kind.ORG_UNIT, uid, ou.name, null,
-					false, false, false);
+			return DirEntry.create(ou.parentUid, IDirEntryPath.path(domainUid, uid, Kind.ORG_UNIT), Kind.ORG_UNIT, uid,
+					ou.name, null, false, false, false);
 
 		}
 	}

@@ -33,6 +33,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.IDirEntryPath;
 import net.bluemind.directory.service.DirEntryAndValue;
 import net.bluemind.directory.service.DirEntryHandler;
 import net.bluemind.directory.service.DirValueStoreService;
@@ -46,9 +47,9 @@ public class ExternalUserContainerStoreService extends DirValueStoreService<Exte
 
 		@Override
 		public DirEntry asDirEntry(String domainUid, String uid, ExternalUser eu) {
-			return DirEntry.create(eu.orgUnitUid, domainUid + "/externaluser/" + uid, DirEntry.Kind.EXTERNALUSER, uid,
-					eu.contactInfos.identification.formatedName.value, eu.defaultEmailAddress(), eu.hidden, eu.system,
-					eu.archived, eu.dataLocation);
+			return DirEntry.create(eu.orgUnitUid, IDirEntryPath.path(domainUid, uid, Kind.EXTERNALUSER),
+					Kind.EXTERNALUSER, uid, eu.contactInfos.identification.formatedName.value, eu.defaultEmailAddress(),
+					eu.hidden, eu.system, eu.archived, eu.dataLocation);
 		}
 	}
 
