@@ -78,20 +78,19 @@ public class SendReport implements Runnable {
 	public void run() {
 		try {
 			ListResult<Job> jobs = service.searchJob(JobQuery.withIdAndDomainUid(rid.jid, rid.domainUid));
-			if (jobs.total != 1) {
-				throw new ServerFault(String.format("%s jobs found with id %s on domain %s", String.valueOf(jobs.total),
-						rid.jid, rid.domainUid));
-			}
-			Job job = jobs.values.get(0);
-			if (job != null && job.sendReport && !job.recipients.isEmpty()) {
-				String domainUid = rid.domainUid;
+			if (jobs.total == 1) {
+				Job job = jobs.values.get(0);
+				if (job != null && job.sendReport && !job.recipients.isEmpty()) {
+					String domainUid = rid.domainUid;
 
-				String from = "no-reply@"
-						+ getDomainDefaultAlias(domainUid).orElseGet(() -> getExternalUrl().orElse(domainUid));
+					String from = "no-reply@"
+							+ getDomainDefaultAlias(domainUid).orElseGet(() -> getExternalUrl().orElse(domainUid));
 
-				logger.info("Sending report using sender address {}, and recipient address {}", from, job.recipients);
-				Message m = getMessage(rid, job, from);
-				mailer.send(SendmailCredentials.asAdmin0(), from, domainUid, m);
+					logger.info("Sending report using sender address {}, and recipient address {}", from,
+							job.recipients);
+					Message m = getMessage(rid, job, from);
+					mailer.send(SendmailCredentials.asAdmin0(), from, domainUid, m);
+				}
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
