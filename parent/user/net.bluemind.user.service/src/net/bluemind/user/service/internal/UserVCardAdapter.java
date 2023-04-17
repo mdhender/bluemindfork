@@ -25,9 +25,9 @@ import java.util.stream.Collectors;
 
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Communications.Email;
-import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
 import net.bluemind.addressbook.api.VCard.Kind;
 import net.bluemind.addressbook.api.VCard.Parameter;
+import net.bluemind.addressbook.service.internal.VCardSanitizer;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.directory.service.AbstractVCardAdapter;
 import net.bluemind.domain.api.Domain;
@@ -65,9 +65,7 @@ public class UserVCardAdapter extends AbstractVCardAdapter<User> {
 			}
 		}
 
-		if (null == ret.identification.formatedName || null == ret.identification.formatedName.value) {
-			ret.identification.formatedName = FormatedName.create(user.login);
-		}
+		VCardSanitizer.sanitizeFormattedName(ret, user.login);
 
 		return ret;
 	}

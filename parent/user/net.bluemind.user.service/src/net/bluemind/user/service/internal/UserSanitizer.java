@@ -60,7 +60,7 @@ public class UserSanitizer implements ISanitizer<User> {
 			obj.accountType = AccountType.FULL;
 		}
 		sanitize(obj);
-		new Sanitizer(context).create(obj.contactInfos);
+		new Sanitizer(context).update(current.contactInfos, obj.contactInfos);
 	}
 
 	private void sanitize(User user) {

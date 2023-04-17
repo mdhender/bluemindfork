@@ -259,8 +259,7 @@ public abstract class AbstractServiceTests {
 		VCard card = new VCard();
 
 		card.identification = new VCard.Identification();
-		card.identification.formatedName = VCard.Identification.FormatedName.create("default",
-				Arrays.<VCard.Parameter>asList());
+		card.identification.formatedName = null;
 
 		card.explanatory.categories = Arrays.asList(tagRef1, tagRef2);
 

@@ -27,6 +27,7 @@ import com.google.gwt.json.client.JSONObject;
 
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.gwt.js.JsVCard;
+import net.bluemind.addressbook.api.gwt.js.JsVCardIdentificationName;
 import net.bluemind.addressbook.api.gwt.serder.VCardGwtSerDer;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.commons.gwt.JsMapStringJsObject;
@@ -97,6 +98,7 @@ public class EditUserModelHandler implements IGwtModelHandler {
 			JsUser user = new UserGwtSerDer().serialize(value.value).isObject().getJavaScriptObject().cast();
 			map.put("user", user);
 			map.put("vcard", user.getContactInfos());
+			map.put("vcardName", user.getContactInfos().getIdentification().getName());
 			map.put("dirItem", new ItemValueGwtSerDer<>(new UserGwtSerDer()).serialize(value).isObject()
 					.getJavaScriptObject().cast());
 		});
@@ -143,8 +145,11 @@ public class EditUserModelHandler implements IGwtModelHandler {
 
 			updateExtId.thenCompose(v -> {
 				User u = new UserGwtSerDer().deserialize(new JSONObject(user));
-				u.contactInfos.identification.formatedName.value = u.contactInfos.identification.name.givenNames + " "
-						+ u.contactInfos.identification.name.familyNames;
+				if (!isIdentificalVCardNames(map.get("vcardName").cast(),
+						user.getContactInfos().getIdentification().getName())) {
+					u.contactInfos.identification.formatedName = null;
+				}
+
 				return users.update(s, u);
 			}).thenCompose(v -> {
 				if (map.getString("vcardPhoto") != null) {
@@ -185,6 +190,15 @@ public class EditUserModelHandler implements IGwtModelHandler {
 			});
 
 		}
+	}
+
+	private boolean isIdentificalVCardNames(JsVCardIdentificationName vCardName,
+			JsVCardIdentificationName updatedVCardName) {
+		return vCardName.getFamilyNames().equals(updatedVCardName.getFamilyNames())
+				&& vCardName.getGivenNames().equals(updatedVCardName.getGivenNames())
+				&& vCardName.getPrefixes().equals(updatedVCardName.getPrefixes())
+				&& vCardName.getSuffixes().equals(updatedVCardName.getSuffixes())
+				&& vCardName.getAdditionalNames().equals(updatedVCardName.getAdditionalNames());
 	}
 
 	native String btoa(String b64)

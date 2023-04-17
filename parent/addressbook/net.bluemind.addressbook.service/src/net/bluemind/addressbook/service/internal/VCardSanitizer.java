@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
@@ -223,7 +224,33 @@ public class VCardSanitizer implements ISanitizer<VCard> {
 		vcardGroupSanitizer.sanitize(card);
 	}
 
+	public static void sanitizeFormattedName(VCard card, String login) {
+		if (isNullFormattedName(card.identification.formatedName)) {
+			if (card.identification.name == null && login != null) {
+				card.identification.formatedName = FormatedName.create(login);
+			} else {
+				String formattedName = createFormattedNameFromIdentification(card);
+				if (formattedName != null) {
+					card.identification.formatedName = FormatedName.create(formattedName);
+				}
+			}
+		}
+	}
+
+	private static boolean isNullFormattedName(FormatedName formatedName) {
+		return formatedName == null || formatedName.value == null || formatedName.value.isBlank();
+	}
+
 	private void sanitizeFormattedName(VCard card) {
+		String formattedName = createFormattedNameFromIdentification(card);
+		if (formattedName != null
+				&& (card.identification.formatedName == null || card.identification.formatedName.value == null
+						|| card.identification.formatedName.value.trim().isEmpty())) {
+			card.identification.formatedName = FormatedName.create(formattedName);
+		}
+	}
+
+	private static String createFormattedNameFromIdentification(VCard card) {
 		List<String> names = new ArrayList<>(3);
 		String prefixes = card.identification.name.prefixes;
 		String givenName = card.identification.name.givenNames;
@@ -280,11 +307,7 @@ public class VCardSanitizer implements ISanitizer<VCard> {
 			}
 		}
 
-		if (!names.isEmpty()
-				&& (card.identification.formatedName == null || card.identification.formatedName.value == null
-						|| card.identification.formatedName.value.trim().isEmpty())) {
-			card.identification.formatedName = FormatedName.create(StringUtils.join(names, " "));
-		}
+		return !names.isEmpty() ? StringUtils.join(names, " ") : null;
 	}
 
 	@Override
