@@ -1,8 +1,8 @@
 import { pki } from "node-forge";
 import { ItemValue } from "@bluemind/core.container.api";
+import session from "@bluemind/session";
 import { RevocationResult, SmimeCacert, SmimeCACertClient, SmimeRevocationClient } from "@bluemind/smime.cacerts.api";
 import db from "./SMimePkiDB";
-import session from "../environnment/session";
 import { SMIME_CERT_USAGE } from "../../lib/constants";
 import { UntrustedCertificateEmailNotFoundError } from "../../lib/exceptions";
 

@@ -73,21 +73,6 @@ export interface Reconciliation<T> {
     deletedIds: number[];
 }
 
-export interface SessionInfo {
-    login: string;
-    accountType: string;
-    defaultEmail: string;
-    sid: string;
-    userId: string;
-    hasIM: string;
-    lang: string;
-    domain: string;
-    roles: string;
-    formatedName: string;
-    bmVersion: string;
-    bmBrandVersion: string;
-}
-
 export interface Flags {
     must: string[];
     mustNot: string[];

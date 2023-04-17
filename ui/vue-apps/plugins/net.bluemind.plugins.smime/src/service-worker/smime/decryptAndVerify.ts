@@ -1,11 +1,11 @@
 import { MailboxItem, MessageBody } from "@bluemind/backend.mail.api";
 import { ItemValue } from "@bluemind/core.container.api";
 import { fetchCompleteRequest, dispatchFetch } from "@bluemind/service-worker-utils";
+import session from "@bluemind/session";
 import { logger } from "../environnment/logger";
 import { isEncrypted, isSigned } from "../../lib/helper";
 import { invalidate, getBody, setReference } from "./cache/BodyCache";
 import decrypt from "./decrypt";
-import session from "../environnment/session";
 import verify from "./verify";
 
 export default async function (items: ItemValue<MailboxItem>[], folderUid: string) {

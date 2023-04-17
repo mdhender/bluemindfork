@@ -1,21 +1,21 @@
 import { MailAPI } from "./MailAPI";
 import { MailDB } from "./MailDB";
-import { SessionInfo } from "./entry";
+import { Session } from "@bluemind/session";
 import { EnvironmentDB } from "./EnvironmentDB";
 
-let instance: Session | null = null;
+let instance: SessionWrapper | null = null;
 
-export default class Session {
-    infos: SessionInfo;
+export default class SessionWrapper {
+    infos: Session;
     _api: MailAPI | null;
     _db: MailDB | null;
     _environment: EnvironmentDB | null;
 
-    constructor(infos: SessionInfo) {
-        this.infos = infos;
+    constructor(infos: Session) {
         this._api = null;
         this._db = null;
         this._environment = null;
+        this.infos = infos;
     }
 
     get api(): MailAPI {
@@ -46,32 +46,32 @@ export default class Session {
         return `user.${userId}@${domain.replace(/\./g, "_")}`;
     }
 
-    static async instance(): Promise<Session> {
+    static async instance(): Promise<SessionWrapper> {
         if (!instance) {
             const infos = await MailAPI.fetchSessionInfos();
-            instance = new Session(infos);
+            instance = new SessionWrapper(infos);
         }
         return instance;
     }
 
-    static async infos(): Promise<SessionInfo> {
-        return (await Session.instance()).infos;
+    static async infos(): Promise<Session> {
+        return (await SessionWrapper.instance()).infos;
     }
 
     static async api(): Promise<MailAPI> {
-        return (await Session.instance()).api;
+        return (await SessionWrapper.instance()).api;
     }
 
     static async db(): Promise<MailDB> {
-        return (await Session.instance()).db;
+        return (await SessionWrapper.instance()).db;
     }
 
     static async environment(): Promise<EnvironmentDB> {
-        return (await Session.instance()).environment;
+        return (await SessionWrapper.instance()).environment;
     }
 
     static async userAtDomain() {
-        return (await Session.instance()).userAtDomain;
+        return (await SessionWrapper.instance()).userAtDomain;
     }
 
     static clear() {

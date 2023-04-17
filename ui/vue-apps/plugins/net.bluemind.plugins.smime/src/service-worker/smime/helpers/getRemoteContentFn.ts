@@ -1,6 +1,6 @@
 import { MessageBody } from "@bluemind/backend.mail.api";
 import { fetchRequest, dispatchFetch } from "@bluemind/service-worker-utils";
-import session from "../../environnment/session";
+import session from "@bluemind/session";
 
 export default function (imapUid: number, folderUid: string) {
     return async (p: MessageBody.Part): Promise<string | Uint8Array> => {

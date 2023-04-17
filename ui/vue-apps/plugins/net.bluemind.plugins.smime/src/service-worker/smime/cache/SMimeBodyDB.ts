@@ -1,6 +1,6 @@
-import { MessageBody } from "@bluemind/backend.mail.api";
 import { DBSchema, IDBPDatabase, openDB } from "idb";
-import session from "../../environnment/session";
+import { MessageBody } from "@bluemind/backend.mail.api";
+import session from "@bluemind/session";
 
 interface SMimeSchema extends DBSchema {
     guid: {

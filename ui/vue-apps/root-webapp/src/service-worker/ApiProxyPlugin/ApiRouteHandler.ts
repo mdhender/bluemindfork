@@ -1,5 +1,5 @@
 import { EndPointMetadata } from "@bluemind/api.commons";
-import session from "../session";
+import session from "@bluemind/session";
 import { ApiEndPointClass, ExecutionParameters, IApiProxy } from "./types";
 
 export class ApiRouteHandler {

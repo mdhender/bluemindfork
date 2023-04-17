@@ -1,7 +1,7 @@
 import UUIDGenerator from "@bluemind/uuid";
 import { AddressBookClient, VCard } from "@bluemind/addressbook.api";
 import { VCardAdaptor, searchVCardsHelper } from "@bluemind/contact";
-import session from "../service-worker/environnment/session";
+import session from "@bluemind/session";
 
 export default async function (pem: string, dn: string, email: string): Promise<void> {
     const sid = await session.sid;

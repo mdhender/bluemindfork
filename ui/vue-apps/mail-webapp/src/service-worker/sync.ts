@@ -5,7 +5,7 @@ import { Limit } from "p-limit";
 import { logger } from "./logger";
 import Session from "./session";
 
-let limits: { [uid: string]: Limit } = {};
+const limits: { [uid: string]: Limit } = {};
 
 export async function syncMailFolders(): Promise<string[]> {
     Session.clear();
@@ -39,7 +39,7 @@ export async function syncOwnerSubscriptions(): Promise<OwnerSubscription[]> {
         },
         syncOptions.version
     );
-    let versionUpdated = version !== syncOptions.version;
+    const versionUpdated = version !== syncOptions.version;
     if (versionUpdated) {
         const ids = created.concat(updated);
         const updatedOwnerSubscriptions = await session.api.ownerSubscriptions.mget({ domain, userId }, ids);
@@ -67,7 +67,7 @@ async function syncMailFolderToVersion(uid: string, syncOptions: SyncOptions): P
             uid,
             syncOptions.version
         );
-        let versionUpdated = version !== syncOptions.version;
+        const versionUpdated = version !== syncOptions.version;
         if (versionUpdated) {
             const ids = created
                 .reverse()

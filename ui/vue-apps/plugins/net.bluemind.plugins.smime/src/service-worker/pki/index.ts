@@ -2,6 +2,7 @@ import { pki } from "node-forge";
 import { AddressBooksClient, AddressBookClient, VCardInfo } from "@bluemind/addressbook.api";
 import { searchVCardsHelper } from "@bluemind/contact";
 import { ItemContainerValue } from "@bluemind/core.container.api";
+import session from "@bluemind/session";
 import {
     checkBasicConstraints,
     checkExtendedKeyUsage,
@@ -11,7 +12,6 @@ import {
     getCaCerts
 } from "./cert";
 import { PKIStatus } from "../../lib/constants";
-import session from "../environnment/session";
 import {
     CertificateRecipientNotFoundError,
     InvalidCertificateError,

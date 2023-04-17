@@ -7,8 +7,8 @@
     "license": "AGPL-3.0-only",
     "dependencies": {
         "@bluemind/business-components": "^5.0.0",
-        "@bluemind/addressbook.api":"^5.0.0",
-        "@bluemind/alert.store":"^5.0.0",
+        "@bluemind/addressbook.api": "^5.0.0",
+        "@bluemind/alert.store": "^5.0.0",
         "@bluemind/api.commons": "^5.0.0",
         "@bluemind/backend.mail.api": "^5.0.0",
         "@bluemind/calendar.api": "^5.0.0",
@@ -26,7 +26,8 @@
         "@bluemind/mailmessage.api": "^5.0.0",
         "@bluemind/mbox": "^5.0.0",
         "@bluemind/router": "^5.0.0",
-        "@bluemind/sentry": "^5.0.0",       
+        "@bluemind/session": "^5.0.0",
+        "@bluemind/sentry": "^5.0.0",
         "@bluemind/service-worker-utils": "^5.0.0",
         "@bluemind/store": "^5.0.0",
         "@bluemind/task": "^5.0.0",
@@ -64,8 +65,8 @@
         "workbox-strategies": "^6.5.4"
     },
     "devDependencies": {
-        "@bluemind/conf":"^5.0.0",
-        "@bluemind/test-utils":"^5.0.0",
+        "@bluemind/conf": "^5.0.0",
+        "@bluemind/test-utils": "^5.0.0",
         "@types/lodash.sortedindexby": "^4.6.7",
         "@vue/test-utils": "^1.1.4",
         "lodash.merge": "^4.6.2",

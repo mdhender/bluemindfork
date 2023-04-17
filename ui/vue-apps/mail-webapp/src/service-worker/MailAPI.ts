@@ -1,4 +1,5 @@
-import { ChangeSet, FilteredChangeSet, MailFolder, MailItem, OwnerSubscription, SessionInfo } from "./entry";
+import { Session } from "@bluemind/session";
+import { ChangeSet, FilteredChangeSet, MailFolder, MailItem, OwnerSubscription } from "./entry";
 
 interface MailAPIOptions {
     sid: string;
@@ -31,7 +32,7 @@ interface IChangelogAPI<T, U> extends API<T, ChangelogAPIEndpointMethods> {
 abstract class ChangelogAPI<T, U> implements IChangelogAPI<T, U> {
     requestInit: RequestInit;
 
-    constructor(requestInit: RequestInit ) {
+    constructor(requestInit: RequestInit) {
         this.requestInit = requestInit;
     }
 
@@ -110,8 +111,8 @@ export class MailAPI {
         this.ownerSubscriptions = new OwnerSubscriptionsAPI(requestInit);
     }
 
-    static async fetchSessionInfos(): Promise<SessionInfo> {
-        return fetchAPI<SessionInfo>("/session-infos");
+    static async fetchSessionInfos(): Promise<Session> {
+        return fetchAPI<Session>("/session-infos");
     }
 }
 

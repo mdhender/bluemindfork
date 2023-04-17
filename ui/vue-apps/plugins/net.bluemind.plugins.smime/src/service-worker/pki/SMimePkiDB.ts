@@ -2,7 +2,7 @@ import { DBSchema, IDBPDatabase, openDB } from "idb";
 import { RevocationResult } from "@bluemind/smime.cacerts.api";
 import { logger } from "../environnment/logger";
 import { PKIEntry, PKIStatus } from "../../lib/constants";
-import session from "../environnment/session";
+import session from "@bluemind/session";
 
 type RevocationSchema = RevocationResult & {
     cacheValidity: Date;

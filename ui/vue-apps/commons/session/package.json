@@ -1,7 +1,7 @@
 {
-    "name": "@bluemind/global",
+    "name": "@bluemind/session",
     "version": "5.0.0",
-    "description": "BlueMind package to wrap globals objects",
+    "description": "BlueMind package to fetch and store user session",
     "license": "AGPL-3.0-only",
     "author": "Blue Mind SAS",
     "main": "src/index.ts"

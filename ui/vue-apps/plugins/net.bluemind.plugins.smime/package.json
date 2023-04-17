@@ -21,6 +21,7 @@
         "@bluemind/mailmessage.api": "^5.0.0",
         "@bluemind/mime": "^5.0.0",
         "@bluemind/mime-tree-walker": "^5.0.0",
+        "@bluemind/session": "^5.0.0",
         "@bluemind/smime.cacerts.api": "^5.0.0",
         "@bluemind/uuid": "^5.0.0",
         "emailjs-mime-parser": "^2.0.7",

@@ -1,8 +1,8 @@
 import { MailboxItemsClient, MailboxItem, MessageBody } from "@bluemind/backend.mail.api";
 import { MimeType } from "@bluemind/email"; // FIXME: move MimeType into @bluemind/mime
 import { MimeBuilder } from "@bluemind/mime";
+import session from "@bluemind/session";
 import { CRYPTO_HEADERS, SMIME_CERT_USAGE, SMIME_SIGNATURE_ERROR_PREFIX } from "../../lib/constants";
-import session from "../environnment/session";
 import { SmimeErrors } from "../../lib/exceptions";
 import buildSignedEml from "./helpers/SMimeSignedEmlBuilder";
 import pkcs7 from "../pkcs7";
