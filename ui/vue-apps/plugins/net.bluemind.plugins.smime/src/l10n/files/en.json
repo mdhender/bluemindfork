@@ -21,7 +21,7 @@
     "smime": {
         "mailapp": {
             "body_wrapper": {
-                "cant_display": "Why I can't I see this message ?"
+                "cant_display": "Why I can't see this message?"
             },
             "viewer": {
                 "add_certificate": {
