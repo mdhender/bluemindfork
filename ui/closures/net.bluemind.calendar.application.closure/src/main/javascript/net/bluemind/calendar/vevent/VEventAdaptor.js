@@ -266,7 +266,7 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.updateStates = function(mod
   model.states.master = model.states.master || !model.organizer && !model.states.meeting;
   model.states.master = model.states.master || this.ownCalendar_(model.organizer, calendar.dir);
   model.states.pending = (model.participation == 'NeedsAction');
-  model.states.tentative = (model.participation == 'Tentative' || model.status == 'Tentative');
+  model.states.tentative = (model.participation == 'Tentative' || (!model.states.meeting && model.status == 'Tentative'));
   model.states.declined = (model.participation == 'Declined');
   model.states.repeat = !!(model.rrule && model.rrule.freq);
   model.states.main = !goog.isDefAndNotNull(model.recurrenceId);
@@ -883,7 +883,7 @@ net.bluemind.calendar.vevent.VEventAdaptor.prototype.createVEvent = function() {
     'description' : '',
     'location' : '',
     'priority' : 5,
-    'status' : 'Tentative',
+    'status' : 'Confirmed',
     'exdate' : null,
     'categories' : [],
     'rrule' : null
