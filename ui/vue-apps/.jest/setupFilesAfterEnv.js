@@ -8,3 +8,5 @@ window.bmcSessionInfos = { lang: "fr", sid: "", userId: "" };
 
 global.TextDecoder = TextDecoder;
 global.TextEncoder = TextEncoder;
+
+global.navigator.serviceWorker = { controller: true };

@@ -2,9 +2,14 @@ import { mailTipUtils } from "@bluemind/mail";
 import { ADD_CERTIFICATE, CHECK_IF_ASSOCIATED, DISSOCIATE_CRYPTO_FILES } from "./actionTypes";
 import { SMIME_AVAILABLE } from "./getterTypes";
 import addCertificate from "../lib/addCertificate";
-import { DISPLAY_UNTRUSTED, SET_SW_ERROR, SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT } from "./mutationTypes";
 import {
-    IS_SW_AVAILABLE,
+    DISPLAY_UNTRUSTED,
+    SET_SW_AVAILABLE,
+    SET_SW_ERROR,
+    SET_HAS_PRIVATE_KEY,
+    SET_HAS_PUBLIC_CERT
+} from "./mutationTypes";
+import {
     PKIStatus,
     smimeErrorMsgRegex,
     SMIME_ENCRYPTION_ERROR_PREFIX,
@@ -18,6 +23,8 @@ const { MailTipTypes } = mailTipUtils;
 export default {
     namespaced: false,
     state: {
+        isServiceWorkerAvailable: !!navigator.serviceWorker?.controller,
+
         // preferences
         hasPrivateKey: false,
         hasPublicCert: false,
@@ -30,11 +37,11 @@ export default {
         signError: null
     },
     getters: {
-        [SMIME_AVAILABLE]: state => IS_SW_AVAILABLE && state.hasPublicCert && state.hasPrivateKey
+        [SMIME_AVAILABLE]: state => state.isServiceWorkerAvailable && state.hasPublicCert && state.hasPrivateKey
     },
     actions: {
-        async [CHECK_IF_ASSOCIATED]({ commit }) {
-            if (IS_SW_AVAILABLE) {
+        async [CHECK_IF_ASSOCIATED]({ commit, state }) {
+            if (state.isServiceWorkerAvailable) {
                 try {
                     const response = await fetch(SMIME_INTERNAL_API_URL, { method: "GET" });
                     const status = await response.json();
@@ -65,6 +72,9 @@ export default {
     mutations: {
         [DISPLAY_UNTRUSTED]: (state, messageKey) => {
             state.displayUntrusted.push(messageKey);
+        },
+        [SET_SW_AVAILABLE]: (state, isAvailable) => {
+            state.isServiceWorkerAvailable = isAvailable;
         },
         [SET_SW_ERROR]: (state, swError) => {
             state.swError = swError;

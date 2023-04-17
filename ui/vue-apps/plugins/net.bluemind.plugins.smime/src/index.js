@@ -25,10 +25,17 @@ import SmimeL10N from "./l10n/";
 import SmimeStore from "./store";
 import { CHECK_IF_ASSOCIATED } from "./store/actionTypes";
 import { SMIME_AVAILABLE } from "./store/getterTypes";
+import { SET_SW_AVAILABLE } from "./store/mutationTypes";
 import GetMailTipsHandler from "./commands/GetMailTipsHandler";
 
 TranslationRegistry.register(SmimeL10N);
 store.registerModule(["mail", "smime"], SmimeStore);
+
+navigator.serviceWorker?.addEventListener("controllerchange", () => {
+    const isServiceWorkerAvailable = !!navigator.serviceWorker.controller;
+    store.commit("mail/" + SET_SW_AVAILABLE, isServiceWorkerAvailable);
+    store.dispatch("mail/" + CHECK_IF_ASSOCIATED);
+});
 
 const userRoles = window.bmcSessionInfos.roles.split(",");
 if (userRoles.includes(BmRoles.CAN_USE_SMIME)) {

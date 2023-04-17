@@ -1,5 +1,5 @@
 <template>
-    <div v-if="IS_SW_AVAILABLE" class="pref-smime">
+    <div v-if="isServiceWorkerAvailable" class="pref-smime">
         <div v-if="swError">
             {{ $t("smime.preferences.service_worker.error") }}
         </div>
@@ -31,12 +31,11 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from "vuex";
+import { mapGetters } from "vuex";
 import { BaseField } from "@bluemind/preferences";
 import { BmButton, BmLabelIcon, BmReadMore } from "@bluemind/ui-components";
 import { DISSOCIATE_CRYPTO_FILES } from "../../store/actionTypes";
 import { SMIME_AVAILABLE } from "../../store/getterTypes";
-import { IS_SW_AVAILABLE } from "../../lib/constants";
 import ImportPkcs12Modal from "./ImportPkcs12Modal";
 import unsetKeyIllustration from "../../../assets/setting-encryption-key-unset.png";
 import setKeyIllustration from "../../../assets/setting-encryption-key-set.png";
@@ -47,11 +46,16 @@ export default {
     components: { BmButton, BmLabelIcon, BmReadMore, ImportPkcs12Modal },
     mixins: [BaseField, DocLinkMixin],
     data() {
-        return { IS_SW_AVAILABLE, setKeyIllustration, unsetKeyIllustration };
+        return { setKeyIllustration, unsetKeyIllustration };
     },
     computed: {
-        ...mapState("mail", ["hasPrivateKey", "hasPublicCert", "swError"]),
-        ...mapGetters("mail", [SMIME_AVAILABLE])
+        ...mapGetters("mail", [SMIME_AVAILABLE]),
+        isServiceWorkerAvailable() {
+            return this.$store.state.mail.smime.isServiceWorkerAvailable;
+        },
+        swError() {
+            return this.$store.state.mail.smime.swError;
+        }
     },
     methods: {
         openUploadModal() {

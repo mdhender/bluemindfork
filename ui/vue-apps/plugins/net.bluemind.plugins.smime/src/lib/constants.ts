@@ -39,7 +39,6 @@ export enum SMIME_CERT_USAGE {
     SIGN = "SIGN",
     ENCRYPT = "ENCRYPT"
 }
-export const IS_SW_AVAILABLE = !!navigator.serviceWorker?.controller;
 
 export const SMIME_ENCRYPTION_ERROR_PREFIX = "SMIME_ENCRYPTION_ERROR";
 export const SMIME_SIGNATURE_ERROR_PREFIX = "SMIME_SIGNATURE_ERROR";

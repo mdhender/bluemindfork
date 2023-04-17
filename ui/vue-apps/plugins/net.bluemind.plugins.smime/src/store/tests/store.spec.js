@@ -2,27 +2,22 @@ import Vue from "vue";
 import Vuex from "vuex";
 import cloneDeep from "lodash.clonedeep";
 import storeOptions from "../index";
-import { IS_SW_AVAILABLE, PKIStatus } from "../../lib/constants";
+import { PKIStatus } from "../../lib/constants";
 import { CHECK_IF_ASSOCIATED, DISSOCIATE_CRYPTO_FILES } from "../actionTypes";
 import { SMIME_AVAILABLE } from "../getterTypes";
-import { DISPLAY_UNTRUSTED } from "../mutationTypes";
-
-jest.mock("../../lib/constants", () => ({
-    ...jest.requireActual("../../lib/constants"),
-    IS_SW_AVAILABLE: true
-}));
-
+import { DISPLAY_UNTRUSTED, SET_SW_AVAILABLE } from "../mutationTypes";
 Vue.use(Vuex);
 
 describe("smime store", () => {
     let store;
     beforeEach(() => {
         store = new Vuex.Store(cloneDeep(storeOptions));
+        store.commit(SET_SW_AVAILABLE, true);
     });
 
     describe("associate & dissociate cert and private key", () => {
         test("[CHECK_IF_ASSOCIATED] smime is available if cert and key are available in service-worker", async () => {
-            expect(IS_SW_AVAILABLE).toBe(true); // mocked
+            expect(store.state.isServiceWorkerAvailable).toBe(true); // mocked
             expect(store.getters[SMIME_AVAILABLE]).toBe(false);
             global.fetch = () =>
                 Promise.resolve({
