@@ -18,8 +18,8 @@ body {
 @include dark-theme-selector {
     // Misc colors
 
-    --surface-hi2: #{mix($white, $gray-900, 8%)};
-    --surface-hi1: #{mix($white, $gray-900, 5%)};
+    --surface-hi2: #{mix($white, $gray-900, 5%)};
+    --surface-hi1: #{mix($white, $gray-900, 3%)};
     --surface: #{$gray-900};
     --backdrop: #{$gray-800};
     --modal-backdrop: #{rgba($gray-900, 0.75)};
@@ -33,7 +33,7 @@ body {
 
     --neutral-bg-hi1: #{$gray-700};
     --neutral-bg: #{$gray-800};
-    --neutral-bg-lo1: #{rgba($white, 0.05)};
+    --neutral-bg-lo1: #{rgba($white, 0.06)};
 
     --neutral-fg-hi1: #{rgba($white, 0.9)};
     --neutral-fg: #{rgba($white, 0.82)};
