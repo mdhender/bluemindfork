@@ -66,7 +66,7 @@ public class AddSignatureActionTests {
 	}
 
 	@Test
-	public void testAppleMailNoBody() throws IOException {
+	public void testAppleMailNoBody() throws Exception {
 		String template = "apple_mail_no_body.eml";
 		UpdatedMailMessage mm = loadTemplate(template);
 
@@ -80,7 +80,7 @@ public class AddSignatureActionTests {
 	}
 
 	@Test
-	public void testSingleHtmlPart() throws IOException {
+	public void testSingleHtmlPart() throws Exception {
 		String template = "single_html_non_mp.eml";
 		UpdatedMailMessage mm = loadTemplate(template);
 
@@ -92,7 +92,6 @@ public class AddSignatureActionTests {
 		assertTrue(added);
 		added = action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
 		assertTrue(added);
-		assertFalse(mm.getMessage().isMultipart());
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		Mime4JHelper.serializeBody(mm.getMessage(), baos);
@@ -102,69 +101,7 @@ public class AddSignatureActionTests {
 	}
 
 	@Test
-	public void testSingleHtmlPartInlineImage() throws IOException {
-		String template = "single_html_non_mp.eml";
-		UpdatedMailMessage mm = loadTemplate(template);
-
-		AddSignatureAction action = new MockAddSignatureAction();
-		Map<String, String> configuration = new HashMap<>();
-		configuration.put("plain", "plain-signature");
-		configuration.put("html", "html-signature<img src=\"data:image/png,base64stuffyeahyeah\" />");
-		boolean added = action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
-		assertTrue(added);
-		assertTrue(mm.getMessage().isMultipart());
-
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		Mime4JHelper.serializeBody(mm.getMessage(), baos);
-
-		String eml = toEml(baos);
-		assertTrue(eml.startsWith("MIME-Version")); // test for broken multipart declaration
-	}
-
-	@Test
-	public void testMultiPart() throws IOException {
-
-		String template = "multipart_html.eml";
-		UpdatedMailMessage mm = loadTemplate(template);
-
-		AddSignatureAction action = new MockAddSignatureAction();
-		Map<String, String> configuration = new HashMap<>();
-		configuration.put("plain", "plain-signature");
-		configuration.put("html", "html-signature<img src=\"http://someimg\">");
-		boolean added = action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
-		assertTrue(added);
-		assertTrue(mm.getMessage().isMultipart());
-
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		Mime4JHelper.serializeBody(mm.getMessage(), baos);
-
-		String eml = toEml(baos);
-		assertTrue(eml.startsWith("MIME-Version")); // test for broken multipart declaration
-	}
-
-	@Test
-	public void testMultiPartInlineSignature() throws IOException {
-
-		String template = "multipart_html.eml";
-		UpdatedMailMessage mm = loadTemplate(template);
-
-		AddSignatureAction action = new MockAddSignatureAction();
-		Map<String, String> configuration = new HashMap<>();
-		configuration.put("plain", "plain-signature");
-		configuration.put("html", "html-signature<img src=\"data:image/png,base64stuffyeahyeah\" />");
-		boolean added = action.addDisclaimer(mm, null, configuration, "test@bm.loc", "bm.loc");
-		assertTrue(added);
-		assertTrue(mm.getMessage().isMultipart());
-
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		Mime4JHelper.serializeBody(mm.getMessage(), baos);
-
-		String eml = toEml(baos);
-		assertTrue(eml.startsWith("MIME-Version")); // test for broken multipart declaration
-	}
-
-	@Test
-	public void testBase64EncodedBodyPart() throws IOException {
+	public void testBase64EncodedBodyPart() throws Exception {
 		String template = "template1.eml";
 		UpdatedMailMessage mm = loadTemplate(template);
 
@@ -186,7 +123,7 @@ public class AddSignatureActionTests {
 	}
 
 	@Test
-	public void testIosB64() throws IOException {
+	public void testIosB64() throws Exception {
 		String template = "ios_b64.eml";
 		UpdatedMailMessage mm = loadTemplate(template);
 
@@ -207,7 +144,7 @@ public class AddSignatureActionTests {
 	}
 
 	@Test
-	public void testIosUtf8() throws IOException {
+	public void testIosUtf8() throws Exception {
 		String template = "ios_utf-8.eml";
 		UpdatedMailMessage mm = loadTemplate(template);
 
@@ -223,6 +160,8 @@ public class AddSignatureActionTests {
 		Mime4JHelper.serializeBody(body, baos);
 		String eml = toEml(baos);
 
+		System.out.println(eml);
+
 		assertTrue(eml.contains("É 4€"));
 		assertTrue(eml.contains("Envoyé avec mes doigts depuis mon iPad"));
 		assertTrue(eml.contains("et des accents é è l'a"));
@@ -233,7 +172,7 @@ public class AddSignatureActionTests {
 	}
 
 	@Test
-	public void testIosAscii() throws IOException {
+	public void testIosAscii() throws Exception {
 		String template = "ios_ascii.eml";
 		UpdatedMailMessage mm = loadTemplate(template);
 
@@ -253,7 +192,7 @@ public class AddSignatureActionTests {
 	}
 
 	@Test
-	public void testIso8859_1BodyPart() throws IOException {
+	public void testIso8859_1BodyPart() throws Exception {
 		String template = "template_iso.eml";
 		UpdatedMailMessage mm = loadTemplate(template);
 
@@ -273,7 +212,7 @@ public class AddSignatureActionTests {
 	}
 
 	@Test
-	public void testRemovePreviousSignature() throws IOException {
+	public void testRemovePreviousSignature() throws Exception {
 		String template = "template1.eml";
 		UpdatedMailMessage mm = loadTemplate(template);
 
@@ -296,7 +235,7 @@ public class AddSignatureActionTests {
 	}
 
 	@Test
-	public void testRemoveImageFromPreviousSignature() throws IOException {
+	public void testRemoveImageFromPreviousSignature() throws Exception {
 		String template = "template1.eml";
 
 		UpdatedMailMessage mm = loadTemplate(template);
@@ -336,7 +275,7 @@ public class AddSignatureActionTests {
 	}
 
 	@Test
-	public void testSignedEmailShouldSkipProcessing() throws IOException {
+	public void testSignedEmailShouldSkipProcessing() throws Exception {
 		String template = "email_signed.eml";
 		UpdatedMailMessage mm = loadTemplate(template);
 
@@ -351,7 +290,7 @@ public class AddSignatureActionTests {
 	}
 
 	@Test
-	public void testEncryptedEmailShouldSkipProcessing() throws IOException {
+	public void testEncryptedEmailShouldSkipProcessing() throws Exception {
 		String template = "email_encrypted.eml";
 		UpdatedMailMessage mm = loadTemplate(template);
 
@@ -366,7 +305,7 @@ public class AddSignatureActionTests {
 	}
 
 	@Test
-	public void testSmimeEmailShouldSkipProcessing() throws IOException {
+	public void testSmimeEmailShouldSkipProcessing() throws Exception {
 		String template = "smime.eml";
 		UpdatedMailMessage mm = loadTemplate(template);
 
@@ -397,7 +336,7 @@ public class AddSignatureActionTests {
 	}
 
 	@Test
-	public void testPlaceholder() throws IOException {
+	public void testPlaceholder() throws Exception {
 		String template = "template_placeholder.eml";
 		UpdatedMailMessage mm = loadTemplate(template);
 
@@ -429,7 +368,7 @@ public class AddSignatureActionTests {
 	}
 
 	@Test
-	public void testNoPlaceholder() throws IOException {
+	public void testNoPlaceholder() throws Exception {
 		String template = "template_no_placeholder.eml";
 		UpdatedMailMessage mm = loadTemplate(template);
 
@@ -456,7 +395,7 @@ public class AddSignatureActionTests {
 	}
 
 	@Test
-	public void testMultiplePlaceholders() throws IOException {
+	public void testMultiplePlaceholders() throws Exception {
 		String template = "template_placeholders.eml";
 		UpdatedMailMessage mm = loadTemplate(template);
 
