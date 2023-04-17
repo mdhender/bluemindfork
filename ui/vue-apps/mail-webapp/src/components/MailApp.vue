@@ -106,6 +106,7 @@ import MailFolderSidebar from "./MailFolder/MailFolderSidebar";
 import MailConversationList from "./MailConversationList/MailConversationList";
 import MailToolbar from "./MailToolbar/";
 import MailSearchForm from "./MailSearchForm";
+import MailStore from "../store/";
 import MessagesOptionsForMobile from "./MessagesOptionsForMobile";
 import NewMessage from "./NewMessage";
 import NewTemplate from "./NewTemplate";
@@ -167,9 +168,18 @@ export default {
             return this.composerOrMessageIsDisplayed || this.SEVERAL_CONVERSATIONS_SELECTED;
         }
     },
+    beforeCreate() {
+        if (!this.$store.hasModule("mail")) {
+            this.$store.registerModule("mail", MailStore);
+        }
+    },
     created() {
         FaviconHelper.initFavicon(this.userSession, document.title);
-        // FaviconHelper.setFavicon(i++);
+    },
+    destroyed() {
+        if (this.$store.hasModule("mail")) {
+            this.$store.unregisterModule("mail");
+        }
     },
     methods: {
         onPanelResize(pane, container, size) {

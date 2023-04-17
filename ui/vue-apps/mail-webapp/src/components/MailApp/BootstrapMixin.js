@@ -3,7 +3,7 @@ import { mapActions, mapGetters, mapMutations } from "vuex";
 import { loadingStatusUtils, mailboxUtils } from "@bluemind/mail";
 import { MAILBOXES_ARE_LOADED, MAILBOX_BY_NAME, MY_MAILBOX, MY_MAILBOX_FOLDERS, MY_INBOX, MAILBOXES } from "~/getters";
 import { FETCH_FOLDERS, FETCH_MAILBOXES, LOAD_MAX_MESSAGE_SIZE, UNREAD_FOLDER_COUNT } from "~/actions";
-import { ADD_MAILBOXES, RESET_FOLDERS, RESET_MAILBOXES } from "~/mutations";
+import { ADD_MAILBOXES } from "~/mutations";
 
 const { LoadingStatus } = loadingStatusUtils;
 const { create, MailboxType } = mailboxUtils;
@@ -44,7 +44,6 @@ export default {
             }
         }
     },
-
     async created() {
         try {
             if (!this.MY_MAILBOX) {
@@ -64,10 +63,5 @@ export default {
             console.error("Error while bootstraping application... ", error);
             this.SET_APP_STATE("error");
         }
-    },
-
-    async destroyed() {
-        this.$store.commit(`mail/${RESET_MAILBOXES}`);
-        this.$store.commit(`mail/${RESET_FOLDERS}`);
     }
 };

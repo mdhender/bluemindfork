@@ -1,7 +1,6 @@
 import Vue from "vue";
 
 import router from "@bluemind/router";
-import store from "@bluemind/store";
 import { extensions } from "@bluemind/extensions";
 
 import MailAlertRenderer from "./components/MailAlertRenderer";
@@ -9,7 +8,6 @@ import * as MailAlertComponents from "./components/MailAlerts";
 import * as ThreadAlertComponents from "./components/MailThread/Alerts";
 import MailApp from "./components/MailApp";
 import mailRoutes from "./router";
-import MailStore from "./store/";
 import registerAPIClients from "./registerApiClients";
 import DecoratedFileItem from "./components/MailAttachment/DecoratedFileItem.vue";
 import MailViewerContent from "./components/MailViewer/MailViewerContent";
@@ -23,7 +21,6 @@ extensions.register("webapp.mail", "file-item", {
     }
 });
 registerAPIClients();
-store.registerModule("mail", MailStore);
 router.addRoutes(mailRoutes);
 
 registerMailtoHandler();

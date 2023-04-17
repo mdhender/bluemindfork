@@ -53,11 +53,13 @@ export default {
     watch: {
         "conversationList.sort": {
             deep: true,
-            handler() {
-                this.FETCH_CONVERSATION_LIST_KEYS({
-                    folder: this.folders[this.activeFolder],
-                    conversationsActivated: this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`]
-                });
+            handler(value, old) {
+                if (value !== old) {
+                    this.FETCH_CONVERSATION_LIST_KEYS({
+                        folder: this.folders[this.activeFolder],
+                        conversationsActivated: this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`]
+                    });
+                }
             }
         },
         "$route.params.messagequery": {
@@ -146,8 +148,5 @@ export default {
                 return this.$waitFor(() => this.MAILBOXES_ARE_LOADED && this.MAILBOX_BY_NAME(name), assert);
             }
         }
-    },
-    destroyed() {
-        this.RESET_CONVERSATIONS();
     }
 };

@@ -1,12 +1,11 @@
 import Vue from "vue";
-import store from "@bluemind/store";
 import { extensions } from "@bluemind/extensions";
 import injector from "@bluemind/inject";
 import { AttachmentClient } from "@bluemind/attachment.api";
-import FileHostingStore from "./store/";
 import AddAttachmentsHandler from "~/handlers/AddAttachmentsHandler";
 import RemoveAttachmentHandler from "~/handlers/RemoveAttachmentHandler";
 import RenderlessFileItem from "~/components/RenderlessFileItem";
+import RenderlessStore from "~/components/RenderlessStore";
 import PreviewInvalid from "~/components/PreviewInvalid";
 import CloudIcon from "~/components/CloudIcon";
 import DetachButton from "~/components/DetachButton";
@@ -21,6 +20,7 @@ Vue.component("chooser-button", ChooserButton);
 Vue.component("preview-invalid", PreviewInvalid);
 Vue.component("copy-to-drive-item", CopyToDriveItem);
 Vue.component("detach-item", DetachItem);
+Vue.component("fh-renderless-store", RenderlessStore);
 
 extensions.register("webapp", "net.bluemind.webmodules.filehosting", {
     command: {
@@ -88,9 +88,12 @@ extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
         role: "canRemoteAttach"
     }
 });
-
-store.registerModule(["mail", "filehosting"], FileHostingStore);
-
+extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
+    component: {
+        name: "fh-renderless-store",
+        path: "app.header"
+    }
+});
 injector.register({
     provide: "AttachmentPersistence",
     factory: () => {
