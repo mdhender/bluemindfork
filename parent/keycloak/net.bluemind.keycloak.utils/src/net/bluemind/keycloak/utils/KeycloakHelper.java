@@ -138,10 +138,11 @@ public class KeycloakHelper {
 		String krb_keytab = krbKeytab;
 		String cas_url = casUrl;
 		if (AuthTypes.KERBEROS.name().equals(auth_type)) {
+			Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
+					.get(domain.uid);
+			String domainExternalUrl = domainSettings.get(DomainSettingsKeys.external_url.name());
 
-			// This is a naming convention. Must be documented so AD admin can generate the
-			// keytab accordingly !
-			String serverPrincipal = "HTTP/bluemind." + domain.uid + "@" + krb_ad_domain;
+			String serverPrincipal = "HTTP/bluemind." + domainExternalUrl + "@" + krb_ad_domain;
 
 			String keytabPath = "/etc/bm-keycloak/" + domain.uid + ".keytab";
 			String kcServerAddr = Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address();
