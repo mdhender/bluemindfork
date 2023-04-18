@@ -391,7 +391,7 @@
     "mail.selection.alert.readonly": "Einige E-Mails sind schreibgeschützt.",
     "mail.state.unread": "Ungelesen",
     "mail.state.flagged": "Nachverfolgt",
-    "mail.topframe.dsn.delivery_date": "Geliefert am {dates}",
+    "mail.topframe.dsn.delivery_date": "Zugestellt am {dates}",
     "mail.topframe.dsn.failed.notice": "Wenden Sie sich für weitere Informationen an Ihren Administrator.",
     "mail.topframe.dsn.failed.summary.no_subject": "Ihre Nachricht konnte nicht an {recipient} zugestellt werden.",
     "mail.topframe.dsn.failed.summary": "{subject} konnte nicht an {recipient} zugestellt werden.",

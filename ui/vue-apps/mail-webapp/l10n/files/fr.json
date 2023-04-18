@@ -391,7 +391,7 @@
     "mail.selection.alert.readonly": "Certains messages sélectionnés sont en lecture seule. Certaines actions (comme Supprimer ou Déplacer) peuvent être indisponibles",
     "mail.state.unread": "Non lu",
     "mail.state.flagged": "Suivi",
-    "mail.topframe.dsn.delivery_date": "Délivré le {dates}",
+    "mail.topframe.dsn.delivery_date": "Distribué le {dates}",
     "mail.topframe.dsn.failed.notice": "Contactez votre administrateur pour plus de détails.",
     "mail.topframe.dsn.failed.summary.no_subject": "Votre message n’a pas pu être distribué à {recipient}.",
     "mail.topframe.dsn.failed.summary": "\"{subject}\" n’a pas pu être distribué à {recipient}.",

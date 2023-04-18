@@ -20,7 +20,7 @@ export default {
             type: String,
             default: "md",
             validator(value) {
-                return ["xs", "sm", "md", "lg", "xl"].includes(value);
+                return ["xxs", "xs", "sm", "md", "lg", "xl"].includes(value);
             }
         },
         overBackground: {
@@ -57,6 +57,14 @@ export default {
     &.illustration-over-background {
         #bg {
             fill: $surface;
+        }
+    }
+
+    &.illustration-xxs {
+        &,
+        & > svg {
+            width: $illustration-width-xxs;
+            height: $illustration-height-xxs;
         }
     }
 

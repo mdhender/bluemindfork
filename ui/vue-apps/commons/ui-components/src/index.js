@@ -80,6 +80,7 @@ export { default as BmPagination } from "./components/BmPagination";
 export { default as BmPopover } from "./components/BmPopover";
 export { default as BmProgress } from "./components/progressbar/BmProgress";
 export { default as BmProgressBar } from "./components/progressbar/BmProgressBar";
+export { default as BmResponsiveIllustration } from "./components/BmResponsiveIllustration";
 export { default as BmRichEditor } from "./components/BmRichEditor/BmRichEditor";
 export { default as BmRichEditorToolbar } from "./components/BmRichEditor/BmRichEditorToolbar";
 export { default as BmRow } from "./components/layout/BmRow";

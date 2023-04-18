@@ -1,34 +1,37 @@
 <template>
     <chain-of-responsibility :is-responsible="isDSN">
         <div class="delivery-status-notice-top-frame d-flex flex-column p-5">
-            <div class="d-flex flex-row align-items-center">
-                <img :src="success ? dsnImage : dsnFailedImage" class="align-self-center mr-5" />
-                <div class="flex-fill">
-                    <p class="mb-3">
-                        <i18n :path="summaryI18nPath">
-                            <template v-if="originalMessage" #subject>
-                                <template v-if="originalMessage.remoteRef">
-                                    <router-link :to="link">{{
-                                        originalMessage.subject || $t("mail.viewer.no.subject")
-                                    }}</router-link>
-                                </template>
-                                <template v-else>{{ originalMessage.subject }}</template>
+            <div class="main d-flex flex-row align-items-center">
+                <bm-responsive-illustration
+                    over-background
+                    :value="success ? 'delivered-true' : 'delivered-false'"
+                    class="mr-5"
+                />
+                <div class="spacer d-none d-lg-block ml-5"></div>
+                <div class="details flex-fill">
+                    <i18n :path="summaryI18nPath">
+                        <template v-if="originalMessage" #subject>
+                            <template v-if="originalMessage.remoteRef">
+                                <router-link :to="link">{{
+                                    originalMessage.subject || $t("mail.viewer.no.subject")
+                                }}</router-link>
                             </template>
-                            <template #recipient>
-                                <span
-                                    v-for="(recipient, index) in recipients"
-                                    :key="index"
-                                    class="font-weight-bold text-break-all"
-                                    >{{
-                                        recipients.length > 1 && index !== recipients.length - 1
-                                            ? `${recipient}, `
-                                            : recipient
-                                    }}</span
-                                >
-                            </template>
-                        </i18n>
-                    </p>
-                    <div class="medium mb-3">
+                            <template v-else>{{ originalMessage.subject }}</template>
+                        </template>
+                        <template #recipient>
+                            <span
+                                v-for="(recipient, index) in recipients"
+                                :key="index"
+                                class="font-weight-bold text-break-all"
+                                >{{
+                                    recipients.length > 1 && index !== recipients.length - 1
+                                        ? `${recipient}, `
+                                        : recipient
+                                }}</span
+                            >
+                        </template>
+                    </i18n>
+                    <div>
                         <template v-if="originalMessage">
                             <span>
                                 {{
@@ -43,12 +46,12 @@
                             $t("mail.topframe.dsn.delivery_date", { dates: deliveryDates.join(", ") })
                         }}</span>
                     </div>
-                    <span v-if="!success" class="d-none d-lg-block text-neutral regular-medium">
+                    <span v-if="!success" class="d-none d-lg-block text-neutral">
                         {{ $t("mail.topframe.dsn.failed.notice") }}
                     </span>
                 </div>
             </div>
-            <span v-if="!success" class="d-lg-none flex-fill text-neutral regular-medium">
+            <span v-if="!success" class="d-lg-none flex-fill text-neutral mt-4">
                 {{ $t("mail.topframe.dsn.failed.notice") }}
             </span>
         </div>
@@ -58,22 +61,19 @@
 <script>
 import { MimeType } from "@bluemind/email";
 import { messageUtils } from "@bluemind/mail";
+import { BmResponsiveIllustration } from "@bluemind/ui-components";
 import { FETCH_PART_DATA } from "~/actions";
 import ChainOfResponsibility from "../ChainOfResponsibility";
-import dsnImage from "./dsn.png";
-import dsnFailedImage from "./dsn-failed.png";
 import ReportTopFrameMixin from "./ReportTopFrameMixin";
 
 export default {
     name: "DeliveryStatusNoticeTopFrame",
-    components: { ChainOfResponsibility },
+    components: { BmResponsiveIllustration, ChainOfResponsibility },
     mixins: [ReportTopFrameMixin],
     props: { message: { type: Object, default: undefined } },
     data() {
         return {
             deliveryDates: undefined,
-            dsnFailedImage,
-            dsnImage,
             firstReport: undefined,
             isDSN: false,
             originalMessage: undefined,
@@ -178,6 +178,12 @@ function parseReportData_(reportData) {
 
 .delivery-status-notice-top-frame {
     background-color: $neutral-bg-lo1;
-    @extend %regular;
+    @extend %regular-medium;
+
+    .details {
+        display: flex;
+        flex-direction: column;
+        gap: $sp-4;
+    }
 }
 </style>
