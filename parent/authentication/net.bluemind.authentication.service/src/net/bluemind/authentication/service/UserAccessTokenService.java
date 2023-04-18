@@ -81,7 +81,7 @@ public class UserAccessTokenService implements IInCoreUserAccessToken {
 				if (refreshOpenIdToken.status == TokenStatus.TOKEN_OK) {
 					return refreshOpenIdToken;
 				}
-			} catch (OpenIdException e) {
+			} catch (Exception e) {
 				logger.warn("Cannot refresh token", e.getMessage());
 			}
 
