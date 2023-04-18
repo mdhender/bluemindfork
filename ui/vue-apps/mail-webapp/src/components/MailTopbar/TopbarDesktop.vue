@@ -1,13 +1,13 @@
 <template>
-    <div class="topbar-desktop" :class="{ 'search-mode': isSearchMode }">
+    <div class="topbar-desktop" :class="{ 'active-search': activeSearch }">
         <div class="new">
             <new-message :template="activeFolder === MY_TEMPLATES.key" />
         </div>
         <div class="search">
-            <mail-search-form />
+            <mail-search-box @active="activeSearch = $event" />
         </div>
         <div class="toolbar h-100 w-100">
-            <mail-toolbar class="mx-3 mx-lg-0" :compact="isSearchMode" />
+            <mail-toolbar class="mx-3 mx-lg-0" :compact="activeSearch" />
         </div>
 
         <div v-if="canSwitchWebmail" class="switch pr-5">
@@ -31,25 +31,25 @@ import { BmFormCheckbox } from "@bluemind/ui-components";
 import BmRoles from "@bluemind/roles";
 import { MY_TEMPLATES } from "~/getters";
 import NewMessage from "../NewMessage";
-import MailSearchForm from "../MailSearch/MailSearchForm";
+import MailSearchBox from "../MailSearch/MailSearchBox";
 import MailToolbar from "../MailToolbar/MailToolbar";
 
 export default {
     components: {
         BmFormCheckbox,
-        MailSearchForm,
+        MailSearchBox,
         MailToolbar,
         NewMessage
     },
     data() {
         return {
-            userSession: inject("UserSession")
+            userSession: inject("UserSession"),
+            activeSearch: false
         };
     },
     computed: {
         ...mapState("mail", {
-            activeFolder: "activeFolder",
-            isSearchMode: ({ conversationList }) => conversationList.search.searchMode
+            activeFolder: "activeFolder"
         }),
         ...mapGetters("mail", {
             MY_TEMPLATES
@@ -99,11 +99,11 @@ export default {
         width: 25%;
     }
 
-    &.search-mode {
+    &.active-search {
         & > .search {
             flex-grow: 2;
             max-width: 94rem;
-            .mail-search-form-context {
+            .mail-search-box-context {
                 width: calc(16.67vw - 3.5rem);
             }
         }

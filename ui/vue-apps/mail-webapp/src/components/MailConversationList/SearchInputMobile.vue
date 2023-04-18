@@ -1,34 +1,27 @@
 <template>
-    <!-- TODO i18n -->
     <div class="search-input-mobile">
-        <bm-form-input
-            ref="search"
-            v-model="pattern"
-            class="search-input"
-            variant="underline"
-            placeholder="Rechercher un mot-clé"
-            @keydown.enter="onSearch"
-            @focus="$emit('focus')"
-            @blur="$emit('blur')"
-            @click.stop
-        />
+        <mail-search-input ref="search" underline @keydown.enter.native="onSearch" @focus="$emit('focus')" />
     </div>
 </template>
 
 <script>
-import { BmFormInput } from "@bluemind/ui-components";
+import { mapMutations, mapState } from "vuex";
 import { SearchMixin } from "~/mixins";
+import { SET_CURRENT_SEARCH_FOLDER, SET_CURRENT_SEARCH_DEEP } from "~/mutations";
 import { folderUtils } from "@bluemind/mail";
-import { mapState } from "vuex";
+import MailSearchInput from "../MailSearch/MailSearchInput";
 
 const { DEFAULT_FOLDERS } = folderUtils;
 
 export default {
     name: "SearchInputMobile",
-    components: { BmFormInput },
+    components: { MailSearchInput },
     mixins: [SearchMixin],
     computed: {
         ...mapState("mail", ["folders", "activeFolder"]),
+        ...mapState("mail", {
+            currentSearch: ({ conversationList }) => conversationList.search.currentSearch
+        }),
         currentFolder() {
             return this.folders[this.activeFolder];
         }
@@ -37,9 +30,12 @@ export default {
         this.$refs.search.focus();
     },
     methods: {
+        ...mapMutations("mail", { SET_CURRENT_SEARCH_FOLDER, SET_CURRENT_SEARCH_DEEP }),
         onSearch() {
             const folder = this.currentFolder.imapName === DEFAULT_FOLDERS.INBOX ? { key: null } : this.currentFolder;
-            this.search(this.pattern, folder, true);
+            this.SET_CURRENT_SEARCH_FOLDER(folder);
+            this.SET_CURRENT_SEARCH_DEEP(true);
+            this.search();
             this.$refs.search.blur();
         }
     }
@@ -49,7 +45,7 @@ export default {
 @import "~@bluemind/ui-components/src/css/variables";
 
 .search-input-mobile {
-    & > .search-input {
+    & > .mail-search-input {
         background: $surface;
         & > input {
             border-color: $neutral-fg-lo3;

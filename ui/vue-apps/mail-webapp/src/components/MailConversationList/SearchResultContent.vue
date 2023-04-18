@@ -1,7 +1,7 @@
 <template>
     <div class="h-100 d-flex flex-column">
         <search-result-content-header />
-        <search-result-content-empty v-if="CONVERSATION_LIST_COUNT === 0" class="flex-fill" :pattern="search.pattern" />
+        <search-result-content-empty v-if="CONVERSATION_LIST_COUNT === 0" class="flex-fill" :pattern="pattern" />
         <mail-conversation-list-wrapper v-else class="flex-fill" />
     </div>
 </template>
@@ -22,7 +22,7 @@ export default {
     },
     computed: {
         ...mapGetters("mail", { CONVERSATION_LIST_COUNT }),
-        ...mapState("mail", { search: state => state.conversationList.search })
+        ...mapState("mail", { pattern: state => state.conversationList.search.searchQuery.pattern })
     }
 };
 </script>

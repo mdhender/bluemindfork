@@ -138,7 +138,7 @@ const actions = {
 };
 
 async function search({ filter, search, sort }, folder) {
-    let searchResults = (await apiMessages.search(search, filter, sort, folder)) || [];
+    let searchResults = (await apiMessages.search(search.currentSearch, filter, sort, folder)) || [];
     return searchResults.map(({ id, folderRef }) => createConversationStub(id, folderRef));
 }
 

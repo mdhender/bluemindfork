@@ -7233,10 +7233,10 @@ lru-cache@^6.0.0:
   dependencies:
     yallist "^4.0.0"
 
-lucene-query-parser@^1.2.0:
-  version "1.2.0"
-  resolved "https://forge.bluemind.net/nexus/repository/npmjs/lucene-query-parser/-/lucene-query-parser-1.2.0.tgz#46dad5b4ddc59abbf27f9df4c519d959c2033432"
-  integrity sha512-ZWbguSNYKmFEgw7+lfD4t9MKZkH0VlzidFRLaUJO+XnIYWp8MQxJI5ArpVEzLMIApZVT5Qias+dvLGu6ABtNMw==
+lucene@^2.1.1:
+  version "2.1.1"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/lucene/-/lucene-2.1.1.tgz#e710cc123b214eaf72a4c5f1da06943c0af44d86"
+  integrity sha512-l0qCX+pgXEZh/7sYQNG+vzhOIFRPjlJJkQ/irk9n7Ak3d+1MrU6F7IV31KILwFkUn153oLK8a2AIt48DzLdVPg==
 
 make-dir@^3.0.0, make-dir@^3.0.2, make-dir@^3.1.0:
   version "3.1.0"

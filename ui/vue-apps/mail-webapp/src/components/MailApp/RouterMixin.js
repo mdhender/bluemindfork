@@ -11,22 +11,28 @@ import {
     MAILBOXES_ARE_LOADED
 } from "~/getters";
 import {
-    RESET_CONVERSATIONS,
     RESET_ACTIVE_FOLDER,
+    RESET_CONVERSATIONS,
     SET_ACTIVE_FOLDER,
     SET_CONVERSATION_LIST_FILTER,
     SET_CONVERSATION_LIST_SORT,
+    SET_CONVERSATION_LIST,
+    SET_CURRENT_SEARCH_DEEP,
+    SET_CURRENT_SEARCH_FOLDER,
+    SET_CURRENT_SEARCH_PATTERN,
     SET_MAIL_THREAD_SETTING,
     SET_ROUTE_FILTER,
     SET_ROUTE_FOLDER,
     SET_ROUTE_MAILBOX,
-    SET_ROUTE_SORT,
     SET_ROUTE_SEARCH,
-    SET_SEARCH_FOLDER,
+    SET_ROUTE_SORT,
     SET_SEARCH_DEEP,
+    SET_SEARCH_FOLDER,
     SET_SEARCH_MODE,
     SET_SEARCH_PATTERN,
-    SET_CONVERSATION_LIST
+    SET_SEARCH_QUERY_DEEP,
+    SET_SEARCH_QUERY_FOLDER,
+    SET_SEARCH_QUERY_PATTERN
 } from "~/mutations";
 import MessageQueryParam from "~/router/MessageQueryParam";
 import SearchHelper from "../SearchHelper";
@@ -111,6 +117,10 @@ export default {
             SET_ACTIVE_FOLDER,
             SET_CONVERSATION_LIST_FILTER,
             SET_CONVERSATION_LIST_SORT,
+            SET_CONVERSATION_LIST,
+            SET_CURRENT_SEARCH_DEEP,
+            SET_CURRENT_SEARCH_FOLDER,
+            SET_CURRENT_SEARCH_PATTERN,
             SET_ROUTE_FILTER,
             SET_ROUTE_FOLDER,
             SET_ROUTE_MAILBOX,
@@ -120,16 +130,15 @@ export default {
             SET_SEARCH_DEEP,
             SET_SEARCH_MODE,
             SET_SEARCH_FOLDER,
-            SET_CONVERSATION_LIST
+            SET_SEARCH_QUERY_DEEP,
+            SET_SEARCH_QUERY_FOLDER,
+            SET_SEARCH_QUERY_PATTERN
         }),
         async $_RouterMixin_fetchConversationlist() {
             await this.$_RouterMixin_ready(this.route.mailbox);
             const folder = this.$_RouterMixin_resolveFolder();
             this.SET_CONVERSATION_LIST_FILTER(this.route.filter);
-            this.SET_SEARCH_PATTERN(this.route.search.pattern);
-            if (this.route.search.pattern) {
-                this.SET_SEARCH_FOLDER(this.$_RouterMixin_query.folder ? FolderAdaptor.toRef(folder) : undefined);
-            }
+            this.setSearchState(folder);
             if (!this.route.search.pattern || this.$_RouterMixin_query.folder || !this.activeFolder) {
                 this.SET_ACTIVE_FOLDER(folder);
             }
@@ -192,6 +201,15 @@ export default {
             } else {
                 return this.$waitFor(() => this.MAILBOXES_ARE_LOADED && this.MAILBOX_BY_NAME(name), assert);
             }
+        },
+        setSearchState(folder) {
+            this.SET_SEARCH_QUERY_PATTERN(this.route.search.pattern);
+            if (this.route.search.pattern) {
+                const folderRef = this.$_RouterMixin_query.folder ? FolderAdaptor.toRef(folder) : undefined;
+                this.SET_SEARCH_QUERY_FOLDER(folderRef);
+            }
+            const isDeep = !!this.route.search?.deep;
+            this.SET_SEARCH_QUERY_DEEP(isDeep);
         }
     }
 };

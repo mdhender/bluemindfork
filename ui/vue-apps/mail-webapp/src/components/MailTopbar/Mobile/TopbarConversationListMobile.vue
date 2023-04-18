@@ -20,7 +20,7 @@
                 </template>
             </bm-dropdown>
             <div class="d-flex align-items-center toolbar">
-                <mail-search-form />
+                <mail-search-box />
                 <div class="options-for-mobile">
                     <messages-options-for-mobile @shown="darkened = true" @hidden="darkened = false" />
                 </div>
@@ -38,7 +38,7 @@ import { folderUtils } from "@bluemind/mail";
 import { BmAvatar, BmDropdown, BmLabelIcon } from "@bluemind/ui-components";
 import { CURRENT_MAILBOX, MY_MAILBOX, MY_TEMPLATES } from "~/getters";
 import MailMailboxIcon from "../../MailMailboxIcon";
-import MailSearchForm from "../../MailSearch/MailSearchForm";
+import MailSearchBox from "../../MailSearch/MailSearchBox";
 import MessagesOptionsForMobile from "../../MessagesOptionsForMobile";
 import NewMessage from "../../NewMessage";
 const { folderIcon } = folderUtils;
@@ -51,7 +51,7 @@ export default {
         MailMailboxIcon,
         MessagesOptionsForMobile,
         NewMessage,
-        MailSearchForm
+        MailSearchBox
     },
     data() {
         return {

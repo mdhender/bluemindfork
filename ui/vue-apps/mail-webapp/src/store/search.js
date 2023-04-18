@@ -1,30 +1,67 @@
-import { CONVERSATION_LIST_IS_FILTERED } from "~/getters";
-import { SET_SEARCH_MODE, SET_SEARCH_FOLDER, SET_SEARCH_DEEP, SET_SEARCH_PATTERN } from "~/mutations";
+import { CONVERSATION_LIST_IS_FILTERED, HAS_PATTERN, IS_TYPING_IN_SEARCH } from "~/getters";
+import {
+    RESET_CURRENT_SEARCH_PATTERN,
+    SET_CURRENT_SEARCH_DEEP,
+    SET_CURRENT_SEARCH_FOLDER,
+    SET_CURRENT_SEARCH_PATTERN,
+    SET_SEARCH_QUERY_DEEP,
+    SET_SEARCH_QUERY_FOLDER,
+    SET_SEARCH_QUERY_PATTERN
+} from "~/mutations";
+import { RESET_CURRENT_SEARCH } from "~/actions";
 
 const state = {
-    pattern: null,
-    folder: null,
-    deep: false,
-    searchMode: false
+    searchQuery: {
+        pattern: null,
+        folder: null,
+        deep: true
+    },
+    currentSearch: {
+        pattern: null,
+        folder: null,
+        deep: true
+    }
 };
 
 const mutations = {
-    [SET_SEARCH_PATTERN](state, pattern) {
-        state.pattern = pattern;
+    [SET_SEARCH_QUERY_PATTERN](state, pattern) {
+        state.searchQuery.pattern = pattern;
+        state.currentSearch.pattern = pattern;
     },
-    [SET_SEARCH_FOLDER](state, folder) {
-        state.folder = folder;
+    [SET_SEARCH_QUERY_FOLDER](state, folder) {
+        state.searchQuery.folder = folder;
+        state.currentSearch.folder = folder;
     },
-    [SET_SEARCH_DEEP](state, deep) {
-        state.deep = deep;
+    [SET_SEARCH_QUERY_DEEP](state, deep) {
+        state.searchQuery.deep = deep;
+        state.currentSearch.deep = deep;
     },
-    [SET_SEARCH_MODE](state, value) {
-        state.searchMode = value;
+    [SET_CURRENT_SEARCH_PATTERN](state, pattern) {
+        state.currentSearch.pattern = pattern;
+    },
+    [SET_CURRENT_SEARCH_FOLDER](state, folder) {
+        state.currentSearch.folder = folder;
+    },
+    [SET_CURRENT_SEARCH_DEEP](state, deep) {
+        state.currentSearch.deep = deep;
+    },
+    [RESET_CURRENT_SEARCH_PATTERN](state) {
+        state.currentSearch.pattern = null;
+    }
+};
+
+const actions = {
+    [RESET_CURRENT_SEARCH]({ commit }) {
+        commit(RESET_CURRENT_SEARCH_PATTERN);
     }
 };
 
 const getters = {
-    [CONVERSATION_LIST_IS_FILTERED]: ({ pattern }) => !!pattern && pattern.trim().length > 0
+    [CONVERSATION_LIST_IS_FILTERED]: ({ searchQuery }) =>
+        !!searchQuery.pattern && searchQuery.pattern.trim().length > 0,
+    [HAS_PATTERN]: ({ currentSearch }) => currentSearch.pattern?.length >= 0,
+    [IS_TYPING_IN_SEARCH]: ({ currentSearch, searchQuery }) =>
+        currentSearch.pattern !== null && currentSearch.pattern !== searchQuery.pattern
 };
 
-export default { state, mutations, getters };
+export default { state, actions, mutations, getters };

@@ -31,7 +31,7 @@ import {
     SET_CONVERSATION_LIST_SORT,
     SET_CONVERSATION_LIST_STATUS,
     SET_CONVERSATION_LIST,
-    SET_SEARCH_PATTERN
+    SET_SEARCH_QUERY_PATTERN
 } from "~/mutations";
 
 jest.mock("../api/apiMessages");
@@ -61,7 +61,7 @@ describe("conversationList", () => {
             expect(store.state._keys.length).toEqual(ids.length);
         });
         test("REFRESH_CONVERSATION_LIST_KEYS search messages", async () => {
-            store.commit(SET_SEARCH_PATTERN, "Search pattern");
+            store.commit(SET_SEARCH_QUERY_PATTERN, "Search pattern");
             const ids = [1, 2, 3, 5, 7, 11, 13].map(id => ({ id, folderRef: {} }));
             apiMessages.search.mockResolvedValueOnce(ids);
             await store.dispatch(FETCH_CONVERSATION_LIST_KEYS, {
@@ -94,7 +94,7 @@ describe("conversationList", () => {
             expect(store.state._keys.length).toEqual(ids.length);
         });
         test("FETCH_CONVERSATION_LIST_KEYS search messages", async () => {
-            store.commit(SET_SEARCH_PATTERN, "Search pattern");
+            store.commit(SET_SEARCH_QUERY_PATTERN, "Search pattern");
             const ids = [1, 2, 3, 5, 7, 11, 13].map(id => ({ id, folderRef: {} }));
             apiMessages.search.mockResolvedValueOnce(ids);
             const promise = store.dispatch(FETCH_CONVERSATION_LIST_KEYS, {

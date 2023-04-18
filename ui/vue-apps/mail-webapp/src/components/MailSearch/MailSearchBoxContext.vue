@@ -1,35 +1,37 @@
 <template>
     <bm-form-select
         v-if="selectedOption"
-        v-model="selectedOption"
+        :value="selectedOption"
         :auto-min-width="false"
         :options="Object.values(OPTIONS)"
-        class="mail-search-form-context"
+        class="mail-search-box-context"
+        @input="update"
     >
         <template #header>
             <folder-tree-header v-if="CURRENT_MAILBOX" :mailbox="CURRENT_MAILBOX" />
         </template>
         <template #selected="{ selected }">
             <bm-label-icon :inline="false" class="selected label" :icon="getIcon(selected.value)">
-                {{ $t(`mail.search_form.context.${selected.value}`, { folder: currentFolderName }) }}
+                {{ $t(`mail.search.context.${selected.value}`, { folder: folder.name }) }}
             </bm-label-icon>
         </template>
         <template #item="{ item }">
             <bm-label-icon :inline="false" class="label" :icon="getIcon(item.value)">
-                {{ $t(`mail.search_form.context.${item.value}`, { folder: currentFolderName }) }}
+                {{ $t(`mail.search.context.${item.value}`, { folder: folder.name }) }}
             </bm-label-icon>
         </template>
     </bm-form-select>
 </template>
 
 <script>
-import { mapGetters, mapState } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 import { BmFormSelect, BmLabelIcon } from "@bluemind/ui-components";
 import { folderUtils } from "@bluemind/mail";
 import { CURRENT_MAILBOX } from "~/getters";
+import { SET_CURRENT_SEARCH_FOLDER, SET_CURRENT_SEARCH_DEEP } from "~/mutations";
 import FolderTreeHeader from "../MailFolder/FolderTreeHeader";
-const { DEFAULT_FOLDERS, folderIcon } = folderUtils;
 
+const { DEFAULT_FOLDERS, folderIcon } = folderUtils;
 const OPTIONS = {
     ALL: "all",
     CURRENT_FOLDER_AND_DESCENDANTS: "current_folder_and_descendants",
@@ -37,55 +39,44 @@ const OPTIONS = {
 };
 
 export default {
-    name: "MailSearchFormContext",
+    name: "MailSearchBoxContext",
     components: { BmFormSelect, BmLabelIcon, FolderTreeHeader },
+    props: {
+        folder: {
+            type: Object,
+            required: true
+        }
+    },
     data() {
         return {
-            OPTIONS,
-            selectedOption: null
+            OPTIONS
         };
     },
     computed: {
-        ...mapState("mail", { currentSearch: ({ conversationList }) => conversationList.search }),
-        ...mapState("mail", ["activeFolder", "folders"]),
+        ...mapState("mail", { currentSearch: ({ conversationList }) => conversationList.search.currentSearch }),
         ...mapGetters("mail", { CURRENT_MAILBOX }),
-        currentFolder() {
-            return this.folders[this.activeFolder];
-        },
-        currentFolderName() {
-            return this.currentFolder?.name;
-        },
-        context() {
-            switch (this.selectedOption) {
-                case OPTIONS.CURRENT_FOLDER_AND_DESCENDANTS:
-                    return { folder: this.currentFolder, deep: true };
-                case OPTIONS.CURRENT_FOLDER: {
-                    return { folder: this.currentFolder, deep: false };
-                }
-                default: {
-                    return {};
-                }
+        selectedOption() {
+            if (!this.currentSearch.folder) {
+                return OPTIONS.ALL;
+            } else if (this.currentSearch.deep) {
+                return OPTIONS.CURRENT_FOLDER_AND_DESCENDANTS;
+            } else {
+                return OPTIONS.CURRENT_FOLDER;
             }
         }
     },
     watch: {
-        currentFolder: {
-            handler(folder) {
-                this.selectedOption =
-                    !folder || folder.imapName === DEFAULT_FOLDERS.INBOX
-                        ? OPTIONS.ALL
-                        : OPTIONS.CURRENT_FOLDER_AND_DESCENDANTS;
-            },
-            immediate: true
-        },
-        context: {
-            handler() {
-                this.$emit("changed", this.context);
-            },
-            immediate: true
+        folder() {
+            this.SET_CURRENT_SEARCH_FOLDER(this.folder.imapName === DEFAULT_FOLDERS.INBOX ? null : this.folder);
+            this.SET_CURRENT_SEARCH_DEEP(true);
         }
     },
     methods: {
+        ...mapMutations("mail", { SET_CURRENT_SEARCH_FOLDER, SET_CURRENT_SEARCH_DEEP }),
+        update(selection) {
+            this.SET_CURRENT_SEARCH_FOLDER(selection === OPTIONS.ALL ? null : this.folder);
+            this.SET_CURRENT_SEARCH_DEEP(selection === OPTIONS.CURRENT_FOLDER_AND_DESCENDANTS);
+        },
         getIcon(option) {
             return option === OPTIONS.ALL || !this.currentFolder
                 ? "folders"
@@ -98,7 +89,7 @@ export default {
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/variables";
 
-.mail-search-form-context {
+.mail-search-box-context {
     .folder-tree-header,
     .dropdown-item {
         padding: $sp-4;
@@ -108,13 +99,7 @@ export default {
             align-items: center;
         }
     }
-    & > .dropdown-toggle {
-        &,
-        &:hover {
-            border-color: transparent !important;
-            border-right-color: $neutral-fg-lo3 !important;
-        }
-    }
+
     .label {
         gap: base-px-to-rem(4);
         display: flex;

@@ -1,32 +1,19 @@
+import { mapMutations, mapState } from "vuex";
 import { MailRoutesMixin } from "~/mixins";
 import { ConversationListStatus } from "~/store/conversationList";
-import { SET_CONVERSATION_LIST_STATUS, SET_SEARCH_MODE } from "~/mutations";
-import { mapMutations, mapState } from "vuex";
+import { SET_CONVERSATION_LIST_STATUS } from "~/mutations";
 
 const SPINNER_TIMEOUT = 250;
 
 export default {
-    data() {
-        return {
-            pattern: null
-        };
-    },
-    computed: {
-        ...mapState("mail", ["searchMode"])
-    },
-    watch: {
-        "currentSearch.pattern": {
-            async handler(pattern) {
-                this.pattern = pattern;
-                if (this.pattern) {
-                    this.SET_SEARCH_MODE(true);
-                }
-            }
-        }
-    },
     mixins: [MailRoutesMixin],
+    computed: {
+        ...mapState("mail", {
+            currentSearch: ({ conversationList }) => conversationList.search.currentSearch
+        })
+    },
     methods: {
-        ...mapMutations("mail", { SET_CONVERSATION_LIST_STATUS, SET_SEARCH_MODE }),
+        ...mapMutations("mail", { SET_CONVERSATION_LIST_STATUS }),
         buildSearchQuery(pattern, folder, deep) {
             let searchQuery = `"${pattern}"`;
             if (folder && folder.key) {
@@ -37,7 +24,8 @@ export default {
             }
             return searchQuery;
         },
-        updateRoute(pattern, folder, deep) {
+        updateRoute() {
+            const { pattern, folder, deep } = this.currentSearch;
             this.$router.navigate({
                 name: "v:mail:home",
                 params: {
@@ -46,9 +34,9 @@ export default {
                 }
             });
         },
-        search(pattern, folder, deep) {
+        search() {
             this.showSpinner();
-            this.updateRoute(pattern, folder, deep);
+            this.updateRoute();
             this.cancelSpinner();
         },
         showSpinner() {

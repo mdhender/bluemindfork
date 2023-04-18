@@ -1,4 +1,33 @@
-import LuceneQueryParser from "lucene-query-parser";
+import LuceneQueryParser from "lucene";
+
+function parseSearchPattern(pattern, keywords) {
+    if (!pattern) {
+        return {};
+    }
+    const result = {};
+    const termsOnly = [];
+    try {
+        const rootNode = LuceneQueryParser.parse(pattern);
+        const nodeFunction = node => {
+            if (keywords.includes(node.field)) {
+                const value = node.term ? node.term : LuceneQueryParser.toString(node).split(":")?.pop();
+                result[node.field] = value;
+            } else if (node.field) {
+                if (node.field === "<implicit>") {
+                    termsOnly.push(node.term);
+                } else {
+                    termsOnly.push(LuceneQueryParser.toString(node));
+                }
+            }
+        };
+        walkLuceneTree(rootNode, nodeFunction);
+
+        result.contains = termsOnly.join(" ");
+    } catch {
+        result.contains = pattern;
+    }
+    return result;
+}
 
 const folderParser = (node, result) => {
     if (node.field && node.field === "in") {
@@ -8,7 +37,7 @@ const folderParser = (node, result) => {
 };
 const deepParser = (node, result) => {
     if (node.field && node.field === "is") {
-        result.deep = node.term === "deep";
+        result.deep = result.deep || node.term === "deep";
     }
     return undefined;
 };
@@ -46,5 +75,5 @@ function walkLuceneTree(node, nodeFunction) {
     }
 }
 
-export const SearchHelper = { parseQuery, isSameSearch };
+export const SearchHelper = { parseQuery, parseSearchPattern, isSameSearch };
 export default SearchHelper;

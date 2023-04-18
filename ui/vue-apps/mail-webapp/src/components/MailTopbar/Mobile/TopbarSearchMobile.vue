@@ -1,18 +1,35 @@
 <template>
-    <contextual-bar class="topbar-search-mobile d-flex align-items-center shadow" @back="SET_SEARCH_MODE(false)">
-        {{ $t("common.action.search") }}
+    <contextual-bar
+        class="topbar-search-mobile d-flex align-items-center flex-fill"
+        @back="RESET_CURRENT_SEARCH_PATTERN()"
+    >
+        <div class="d-flex align-items-center justify-content-between">
+            <div>{{ $t("common.action.search") }}</div>
+            <mail-search-advanced-button variant="compact-on-fill-primary" size="lg" class="px-3" />
+        </div>
     </contextual-bar>
 </template>
 
 <script>
 import { mapMutations } from "vuex";
-import { SET_SEARCH_MODE, UNSELECT_ALL_CONVERSATIONS, UNSET_CURRENT_CONVERSATION } from "~/mutations";
+import {
+    RESET_CURRENT_SEARCH_PATTERN,
+    SET_CURRENT_SEARCH_PATTERN,
+    UNSELECT_ALL_CONVERSATIONS,
+    UNSET_CURRENT_CONVERSATION
+} from "~/mutations";
+import MailSearchAdvancedButton from "../../MailSearch/MailSearchAdvancedButton";
 import ContextualBar from "./ContextualBar";
 
 export default {
-    components: { ContextualBar },
+    components: { ContextualBar, MailSearchAdvancedButton },
     methods: {
-        ...mapMutations("mail", { UNSELECT_ALL_CONVERSATIONS, UNSET_CURRENT_CONVERSATION, SET_SEARCH_MODE }),
+        ...mapMutations("mail", {
+            RESET_CURRENT_SEARCH_PATTERN,
+            UNSELECT_ALL_CONVERSATIONS,
+            UNSET_CURRENT_CONVERSATION,
+            SET_CURRENT_SEARCH_PATTERN
+        }),
         back() {
             if (this.SELECTION_IS_EMPTY) {
                 this.UNSET_CURRENT_CONVERSATION();
@@ -24,3 +41,10 @@ export default {
     }
 };
 </script>
+<style lang="scss">
+.topbar-search-mobile {
+    & > .slot-wrapper {
+        flex: 1 1 auto;
+    }
+}
+</style>

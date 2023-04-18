@@ -2,32 +2,31 @@
     <div class="topbar">
         <topbar-desktop class="d-none d-lg-flex" />
         <topbar-actions-message-mobile v-if="hasMessageDisplayed || SEVERAL_CONVERSATIONS_SELECTED" class="d-lg-none" />
-        <topbar-search-mobile v-else-if="isSearchMode" class="d-lg-none" />
-        <topbar-conversation-list-mobile
-            v-else
-            class="d-lg-none"
-            @showFolders="$emit('showFolders')"
-            @showSearch="showSearch = true"
-        />
+        <topbar-search-mobile v-else-if="HAS_PATTERN" class="d-lg-none" />
+        <topbar-conversation-list-mobile v-else class="d-lg-none" @showFolders="$emit('showFolders')" />
+        <advanced-search-modal />
     </div>
 </template>
 
 <script>
-import { mapGetters, mapState } from "vuex";
-import { ACTIVE_MESSAGE, SEVERAL_CONVERSATIONS_SELECTED } from "~/getters";
+import { mapGetters } from "vuex";
+import { ACTIVE_MESSAGE, HAS_PATTERN, SEVERAL_CONVERSATIONS_SELECTED } from "~/getters";
 import TopbarActionsMessageMobile from "./Mobile/TopbarActionsMessageMobile";
 import TopbarConversationListMobile from "./Mobile/TopbarConversationListMobile";
 import TopbarDesktop from "./TopbarDesktop";
 import TopbarSearchMobile from "./Mobile/TopbarSearchMobile";
+import AdvancedSearchModal from "../MailSearch/AdvancedSearchForm/AdvancedSearchModal";
 
 export default {
-    components: { TopbarDesktop, TopbarActionsMessageMobile, TopbarConversationListMobile, TopbarSearchMobile },
+    components: {
+        AdvancedSearchModal,
+        TopbarActionsMessageMobile,
+        TopbarConversationListMobile,
+        TopbarDesktop,
+        TopbarSearchMobile
+    },
     computed: {
-        ...mapState("mail", {
-            currentConversation: ({ conversations }) => conversations.currentConversation,
-            isSearchMode: ({ conversationList }) => conversationList.search.searchMode
-        }),
-        ...mapGetters("mail", { ACTIVE_MESSAGE, SEVERAL_CONVERSATIONS_SELECTED }),
+        ...mapGetters("mail", { ACTIVE_MESSAGE, HAS_PATTERN, SEVERAL_CONVERSATIONS_SELECTED }),
         hasMessageDisplayed() {
             return Boolean(this.ACTIVE_MESSAGE || this.currentConversation);
         }
