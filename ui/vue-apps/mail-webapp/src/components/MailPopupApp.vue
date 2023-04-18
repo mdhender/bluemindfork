@@ -6,6 +6,7 @@ import { mapGetters } from "vuex";
 import { ACTIVE_MESSAGE, MY_TEMPLATES } from "~/getters";
 import { IS_POPUP } from "~/mutations";
 import MailAppMixin from "./MailApp/MailAppMixin";
+import MailStore from "../store/";
 
 export default {
     name: "MailPopupApp",
@@ -28,6 +29,9 @@ export default {
         }
     },
     beforeCreate() {
+        if (!this.$store.hasModule("mail")) {
+            this.$store.registerModule("mail", MailStore);
+        }
         this.$store.commit("root-app/HIDE_BANNER");
         this.$store.commit(`mail/${IS_POPUP}`);
     },
@@ -52,6 +56,11 @@ export default {
             }
             next(route);
         });
+    },
+    destroyed() {
+        if (this.$store.hasModule("mail")) {
+            this.$store.unregisterModule("mail");
+        }
     }
 };
 </script>

@@ -30,7 +30,7 @@ export default {
         },
         async $_BootstrapMixin_loadMailbox() {
             await this.FETCH_MAILBOXES();
-            const mailbox = this.MAILBOX_BY_NAME(this.route.mailbox);
+            const mailbox = this.MAILBOX_BY_NAME(this.$store.state.mail.route.mailbox);
             await this.FETCH_FOLDERS({ mailbox });
         },
         async $_BootstrapMixin_loadAllMailboxes() {
@@ -49,7 +49,7 @@ export default {
             if (!this.MY_MAILBOX) {
                 this.$_BootstrapMixin_initMyMailbox();
             }
-            if (this.route.mailbox) {
+            if (this.$store.state.mail.route.mailbox) {
                 await this.$_BootstrapMixin_loadMailbox();
             }
             await this.FETCH_FOLDERS({ mailbox: this.MY_MAILBOX });
