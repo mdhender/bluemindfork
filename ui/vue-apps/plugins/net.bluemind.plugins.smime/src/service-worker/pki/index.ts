@@ -26,17 +26,18 @@ import db from "./SMimePkiDB";
 export async function getCertificate(email: string): Promise<pki.Certificate> {
     const sid = await session.sid;
     const contactsInfo = await new AddressBooksClient(sid).search(searchVCardsHelper(email));
-    if (contactsInfo.total === 0) {
+    const withSecurityKey = contactsInfo.values!.filter(info => info.value.hasSecurityKey);
+    if (withSecurityKey.length === 0) {
         throw new CertificateRecipientNotFoundError(email);
     }
-    const byContainers = groupByContainer(contactsInfo.values);
+    const byContainers = groupByContainer(withSecurityKey);
 
     let pem: string | undefined;
     for (const [containerUid, uids] of Object.entries(byContainers)) {
         const contacts = await new AddressBookClient(sid, containerUid).multipleGet(uids);
-        const contact = contacts.find(contact => contact.value.security?.key?.value);
-        pem = contact?.value?.security?.key?.value;
-        if (pem) {
+        const contact = contacts.find(contact => contact.value.security && contact.value.security.keys.length > 0);
+        if (contact) {
+            pem = contact.value.security!.keys[0].value;
             break;
         }
     }

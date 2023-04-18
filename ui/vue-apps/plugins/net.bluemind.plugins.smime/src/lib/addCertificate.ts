@@ -17,8 +17,8 @@ export default async function (pem: string, dn: string, email: string): Promise<
     const client = new AddressBookClient(sid, personalAddressBookUid);
     const vCard = VCardAdaptor.toVCard(contact);
     const existingContact = await client.search(searchVCardsHelper(email));
-    if (existingContact.values.length === 0) {
+    if (existingContact.values!.length === 0) {
         return client.create(contact.uid, vCard);
     }
-    return client.update(existingContact.values[0].uid, vCard);
+    return client.update(existingContact.values![0]!.uid!, vCard);
 }

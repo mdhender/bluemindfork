@@ -14,9 +14,7 @@ export default {
                 emails: [{ value: contact.address }]
             },
             security: {
-                key: {
-                    value: contact.pem
-                }
+                keys: [{ value: contact.pem }]
             }
         };
     },

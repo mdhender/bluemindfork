@@ -974,11 +974,11 @@
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
 "@bluemind/addressbook.api@^5.0.0":
-  version "5.0.2572"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/addressbook.api/-/addressbook.api-5.0.2572.tgz#c1596424b57c490fa10f01c82654fcf130822dae"
-  integrity sha512-9zypy0D6r8HHODlcOsucpTmbhdIzvtVuhejk/fvoZkkrqDaf8uTt7LIgpYibp6Px5fkFTOYwRjY29FSsf+Y4ZA==
+  version "5.0.3591"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/addressbook.api/-/addressbook.api-5.0.3591.tgz#b7f09f9e9f60c621d89a93a59027df09ce9306e0"
+  integrity sha512-8sJUSj/8NQzrvBFwTvcu9aFzuAoL3Lbd4fEnyG+ruQBslLyon5DR5sTJEgPBbW+nNZpqXy7SRctBq3hjyItIGg==
   dependencies:
-    "@bluemind/api.commons" "^5.0.2572"
+    "@bluemind/api.commons" "^5.0.3591"
 
 "@bluemind/announcement.api@^5.0.0":
   version "5.0.2572"
@@ -993,6 +993,11 @@
   integrity sha512-qgtkK26be6lI/N3oz5fFEnp1Mtwlfls88aSMs2Wycvl0qviHoK7X7AcGYTAtOX3jEz6TEyGOLVzONZKwMfp1OQ==
 
 "@bluemind/api.commons@^5.0.2914", "@bluemind/api.commons@^5.0.3591":
+  version "5.0.3591"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/api.commons/-/api.commons-5.0.3591.tgz#dc986a9a160eb5ceab641c66fa503fd8156ffe97"
+  integrity sha512-N0eTif3GzBHfN9mo4mwQzqjvLnZE7FjyPcyHqTuVx0RGQN/Lm/yD+B7cUKFff/8fdKR/0xBaGtCO7kdmgOjoqQ==
+
+"@bluemind/api.commons@^5.0.3591":
   version "5.0.3591"
   resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/api.commons/-/api.commons-5.0.3591.tgz#dc986a9a160eb5ceab641c66fa503fd8156ffe97"
   integrity sha512-N0eTif3GzBHfN9mo4mwQzqjvLnZE7FjyPcyHqTuVx0RGQN/Lm/yD+B7cUKFff/8fdKR/0xBaGtCO7kdmgOjoqQ==
@@ -1024,6 +1029,13 @@
   integrity sha512-uinKUI0ruyj0G2QXPGdN460IVdPGEHCm70pEb6u6cFCMiBgUvWFAbuFnnvO+XGt7fRKpZzpoxMW2Ob4fUtkfQg==
   dependencies:
     "@bluemind/api.commons" "^5.0.2572"
+
+"@bluemind/core.commons@^5.0.0":
+  version "5.0.3591"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/core.commons/-/core.commons-5.0.3591.tgz#bb9b4e2740f8df796540ef3821913a9c15a368e7"
+  integrity sha512-txzJChfWvr5ewYSI1M+DLtRMx4vBMUBmfagwidUj/4wLndBrjCTMoimA/zgWbzKtEBrd9nfDjL9xcwqOyo/ZIA==
+  dependencies:
+    "@bluemind/api.commons" "^5.0.3591"
 
 "@bluemind/core.container.api@^5.0.0":
   version "5.0.2572"

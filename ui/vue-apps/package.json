@@ -21,6 +21,7 @@
         "@babel/preset-env": "^7.12.1",
         "@babel/preset-typescript": "^7.10.4",
         "@bluemind/conf": "^5.0.0",
+        "@bluemind/core.commons": "^5.0.0",
         "@bluemind/eslint-config": "^5.0.0",
         "@bluemind/prettier-config": "^5.0.0",
         "@bluemind/types": "^5.0.0",
