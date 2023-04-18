@@ -49,7 +49,6 @@ import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.base.GenericStream;
@@ -389,13 +388,11 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		if (owner.isPresent()) {
 			CalendarOwner calOwner = owner.get();
 			try (Sudo asUser = new Sudo(calOwner.userUid, calOwner.domainUid)) {
-				try {
-					IAttachment service = ServerSideServiceProvider.getProvider(asUser.context)
-							.instance(IAttachment.class, calOwner.domainUid);
-					return service.share(filename, GenericStream.simpleValue(binary, bin -> bin));
-				} catch (ServerFault e) {
-					logger.info("Cannot attach binary file as attachment: {}", e.getMessage());
-				}
+				IAttachment service = ServerSideServiceProvider.getProvider(asUser.context).instance(IAttachment.class,
+						calOwner.domainUid);
+				return service.share(filename, GenericStream.simpleValue(binary, bin -> bin));
+			} catch (Exception e) {
+				logger.info("Cannot attach binary file as attachment: {}", e.getMessage());
 			}
 		}
 		return null;
