@@ -86,8 +86,10 @@ public class VCardSanitizer implements ISanitizer<VCard> {
 	}
 
 	private void sanitizePemCertificates(VCard card) {
-		if (card.security.key != null && card.security.key.value != null && card.security.key.value.isBlank()) {
-			card.security.key = new Key();
+		for (Key cert : card.security.keys) {
+			if (cert != null && cert.value != null && cert.value.isBlank()) {
+				cert = new Key();
+			}
 		}
 	}
 

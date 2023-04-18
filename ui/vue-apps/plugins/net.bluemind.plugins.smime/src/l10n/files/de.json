@@ -6,8 +6,8 @@
                 "success": "Das Zertifikat wurde erfolgreich importiert.",
                 "error": "Das Zertifikat konnte nicht importiert werden."
             },
-            "untrusted": "Message was signed by sender but signature could not be verified.",
-            "decrypt_failed": "Unable to display the encrypted message.",
+            "untrusted": "Die E-Mail wurde vom Absender signiert, die Signatur konnte jedoch nicht verifiziert werden.",
+            "decrypt_failed": "Verschlüsselte E-Mail kann nicht angezeigt werden.",
             "encrypt_failed": "Fehler bei der Verschlüsselung der Nachricht",
             "sign_failed": "Fehler bei der Signatur der Nachricht",
             "recipients": {
@@ -21,7 +21,7 @@
     "smime": {
         "mailapp": {
             "body_wrapper": {
-                "cant_display": "Why I can't I see this message ?"
+                "cant_display": "Warum kann ich diese E-Mail nicht einsehen?"
             },
             "viewer": {
                 "add_certificate": {
@@ -31,7 +31,7 @@
             },
             "composer": {
                 "encrypt": "Verschlüsseln Sie die Nachricht",
-                "stop_encryption": "Disable the message encryption",
+                "stop_encryption": "E-Mail Verschlüsselung deaktivieren",
                 "stop_encryption_and_signature": "Signatur und Verschlüsselung deaktivieren",
                 "invalid_recipient": "Deaktivieren Sie die Nachrichtenverschlüsselung",
                 "encrypt_and_sign": "Verschlüsseln und Signieren der Nachricht",
@@ -42,34 +42,34 @@
         },
         "preferences": {
             "import_field": {
-                "title": "S/MIME encryption",
-                "cert_and_key_associated": "Your private key and public certificate have been associated.",
-                "cert_or_key_dissociated": "You do not have any public certificate or private key associated.",
+                "title": "S/MIME Verschlüsselung",
+                "cert_and_key_associated": "Ihr privater Schlüssel und das öffentliche Zertifikat wurden verbunden.",
+                "cert_or_key_dissociated": "Sie besitzen kein verbundenes öffentliches Zertifikat.",
                 "dissociate_warning": {
-                    "content": "All associated data will be removed from the browser. Some encrypted messages will no longer be readable.",
-                    "title": "Dissociate my certificate and my private key"
+                    "content": "Sämtliche verbundenen Daten werden vom Browser gelöscht. Eventuell können einige verschlüsselte E-Mails nicht mehr gelesen werden.",
+                    "title": "Mein Zertifikat und den privaten Schlüssel entfernen"
                 },
                 "modal": {
                     "email_not_found": "Ihr Zertifikat muss Ihrer Standard-E-Mail-Adresse \"{email}\" entsprechen.",
-                    "no_cert_found": "No certificate has been found",
-                    "no_private_key_found": "No private key has been found",
-                    "supported_formats": "Supported format: PKCS#12",
-                    "title": "Import my private key and my public certificate",
-                    "unlock_pkcs12": "Enter password to unlock PKCS#12 file:",
-                    "unsupported_file": "This file format is not supported."
+                    "no_cert_found": "Es konnte kein Zertifikat gefunden werden",
+                    "no_private_key_found": "Es konnte kein privater Schlüssel gefunden werden",
+                    "supported_formats": "Unterstütztes Format: PKCS#12",
+                    "title": "Privaten Schlüssen und öffentliches Zertifikat importieren",
+                    "unlock_pkcs12": "Passwort der PKCS#12 Datei:",
+                    "unsupported_file": "Dateiformat nicht unterstützt."
                 }
             },
             "encrypt_field": {
-                "title": "Message encryption by default",
-                "label": "By default, encrypt messages when sending"
+                "title": "E-Mail Verschlüsselung als Standard",
+                "label": "E-Mail Verschlüsselung als Standard festlegen"
             },
             "signature_field": {
-                "title": "Message signature by default",
-                "label": "By default, sign messages when sending"
+                "title": "E-Mails signieren als Standard",
+                "label": "E-Mails signieren als Standard festlegen"
             },
             "service_worker": {
-                "error": "Synchronization error...",
-                "undefined": "Your browser does not support S/MIME encryption."
+                "error": "Fehler bei der Synchronisation...",
+                "undefined": "Ihr Browser unterstützt keine S/MIME Verschlüsselung."
             }
         }
     }
