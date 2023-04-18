@@ -144,7 +144,8 @@ public class CertificateUtils {
 	public static Optional<byte[]> pkcs7PemToDer(String pkcs7) {
 		try {
 			Object obj;
-			while ((obj = new PEMParser(new StringReader(pkcs7)).readObject()) != null) {
+			PEMParser pemParser = new PEMParser(new StringReader(pkcs7));
+			while ((obj = pemParser.readObject()) != null) {
 				if (obj instanceof ContentInfo) {
 					return Optional.ofNullable(((ContentInfo) obj).getEncoded());
 				}

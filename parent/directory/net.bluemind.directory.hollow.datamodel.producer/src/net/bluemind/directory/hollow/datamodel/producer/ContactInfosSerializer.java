@@ -70,11 +70,7 @@ public abstract class ContactInfosSerializer extends DirEntrySerializer {
 		case AssistantTelephoneNumber:
 			return Value.NULL;
 		case UserX509Certificate:
-			return new ListValue(contactInfos().security.keys.stream()
-					.filter(key -> key.parameters.stream()
-							.anyMatch(parameter -> "MEDIATYPE".equalsIgnoreCase(parameter.label)
-									&& "application/pkcs7-mime".equalsIgnoreCase(parameter.value))) //
-					.map(this::certToValue) //
+			return new ListValue(contactInfos().security.keys.stream().map(this::certToValue) //
 					.filter(v -> v != Value.NULL) //
 					.toList());
 		case AddressBookX509Certificate:

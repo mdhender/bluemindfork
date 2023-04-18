@@ -197,6 +197,7 @@ public class VCardSanitizer implements ISanitizer<VCard> {
 				.collect(Collectors.toList());
 		card.communications.langs = card.communications.langs.stream().map(this::sanitizeBasicAttribute)
 				.collect(Collectors.toList());
+		card.security.keys = card.security.keys.stream().map(this::sanitizeBasicAttribute).collect(Collectors.toList());
 	}
 
 	private <T extends BasicAttribute> T sanitizeBasicAttribute(T attr) {

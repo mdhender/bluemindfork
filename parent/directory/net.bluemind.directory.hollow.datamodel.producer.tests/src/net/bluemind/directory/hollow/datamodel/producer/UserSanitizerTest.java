@@ -41,6 +41,8 @@ import net.bluemind.addressbook.api.VCard.Security.Key;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.directory.hollow.datamodel.producer.DirEntrySerializer.Property;
+import net.bluemind.directory.hollow.datamodel.producer.Value.ByteArrayValue;
+import net.bluemind.directory.hollow.datamodel.producer.Value.ListValue;
 import net.bluemind.user.api.User;
 
 public class UserSanitizerTest {
@@ -89,8 +91,10 @@ public class UserSanitizerTest {
 				null).get(Property.UserX509Certificate);
 
 		assertNotNull(property);
+		Value.ByteArrayValue dataValue = (ByteArrayValue) property.toList().get(0);
+
 		// http://www.java2s.com/example/java-api/org/bouncycastle/asn1/cms/contentinfo/getinstance-1-0.html
-		assertTrue(new ASN1InputStream(new ByteArrayInputStream(property.toByteArray()))
+		assertTrue(new ASN1InputStream(new ByteArrayInputStream(dataValue.toByteArray()))
 				.readObject() instanceof ASN1Sequence);
 	}
 
@@ -136,13 +140,14 @@ public class UserSanitizerTest {
 		user.contactInfos.security = Security.create(Arrays
 				.asList(Key.create(pkcs7, Arrays.asList(Parameter.create("MEDIATYPE", "application/pkcs7-mime")))));
 
-		Value property = new UserSerializer(ItemValue.create(Item.create(UUID.randomUUID().toString(), 0), user), null,
-				null).get(Property.UserX509Certificate);
+		Value.ListValue property = (ListValue) new UserSerializer(
+				ItemValue.create(Item.create(UUID.randomUUID().toString(), 0), user), null, null)
+				.get(Property.UserX509Certificate);
 
 		assertNotNull(property);
-		System.out.println(property);
+		Value.ByteArrayValue dataValue = (ByteArrayValue) property.toList().get(0);
+		byte[] data = dataValue.toByteArray();
 		// http://www.java2s.com/example/java-api/org/bouncycastle/asn1/cms/contentinfo/getinstance-1-0.html
-		assertTrue(new ASN1InputStream(new ByteArrayInputStream(property.toByteArray()))
-				.readObject() instanceof ASN1Sequence);
+		assertTrue(new ASN1InputStream(new ByteArrayInputStream(data)).readObject() instanceof ASN1Sequence);
 	}
 }
