@@ -372,14 +372,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 				csr.syncKey = serverChanges.syncKey;
 				csr.moreAvailable = serverChanges.moreAvailable;
 			} catch (CollectionNotFoundException cnf) {
-				logger.warn("Collection {} not found, sync OK", sc.getCollectionId());
-
-				// Sync OK to prevent android synchronization loop
-				csr.status = SyncStatus.OK;
-				csr.syncKey = sc.getSyncKey();
-				csr.commands = Collections.emptyList();
-				csr.responses = Collections.emptyList();
-
+				sr.invalidCollections.add(csr.collectionId);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 				csr.syncKey = sc.getSyncKey();
@@ -391,11 +384,9 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		}
 
 		sr.invalidCollections.forEach(collectionId -> {
-			// Sync OK, prevent sync loop
 			CollectionSyncResponse csr = new CollectionSyncResponse();
 			csr.collectionId = collectionId;
-			csr.status = SyncStatus.OK;
-			csr.syncKey = "0";
+			csr.status = SyncStatus.OBJECT_NOT_FOUND;
 			csr.commands = Collections.emptyList();
 			csr.responses = Collections.emptyList();
 			syncResponse.collections.add(csr);
