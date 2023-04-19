@@ -127,16 +127,15 @@ public class AuthenticationFilter implements IWebFilter {
 			return CompletableFuture.completedFuture(request);
 		}
 
-		String domainUid = getDomainUid(request);
-
-		if (domainUid == null) {
+		Optional<String> domainUid = getDomainUid(request);
+		if (domainUid.isEmpty()) {
 			redirectToGlobalExternalUrl(request);
 		}
 
-		if (isCasEnabled(domainUid)) {
-			redirectToCasServer(request, domainUid);
+		if (isCasEnabled(domainUid.get())) {
+			redirectToCasServer(request, domainUid.get());
 		} else {
-			redirectToOpenIdServer(request, domainUid);
+			redirectToOpenIdServer(request, domainUid.get());
 		}
 
 		return CompletableFuture.completedFuture(null);
@@ -243,8 +242,7 @@ public class AuthenticationFilter implements IWebFilter {
 
 		purgeSessionCookie(request.response().headers());
 
-		String domainUid = getDomainUid(request);
-		domainUid = domainUid == null ? "global.virt" : domainUid;
+		String domainUid = getDomainUid(request).orElse("global.virt");
 		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
 				.get(domainUid);
 		request.response().headers().add(HttpHeaders.LOCATION,
@@ -279,7 +277,7 @@ public class AuthenticationFilter implements IWebFilter {
 
 	}
 
-	private String getDomainUid(HttpServerRequest request) {
+	private Optional<String> getDomainUid(HttpServerRequest request) {
 		SharedMap<String, Map<String, String>> all = MQ
 				.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS);
 
@@ -290,7 +288,7 @@ public class AuthenticationFilter implements IWebFilter {
 			Map<String, String> values = all.get(domainUid);
 			String extUrl = values.get(DomainSettingsKeys.external_url.name());
 			if (request.host().equalsIgnoreCase(extUrl)) {
-				return domainUid;
+				return Optional.of(domainUid);
 			}
 		}
 
@@ -304,7 +302,7 @@ public class AuthenticationFilter implements IWebFilter {
 				StringTokenizer tokenizer = new StringTokenizer(otherUrls.trim(), " ");
 				while (tokenizer.hasMoreElements()) {
 					if (request.host().equalsIgnoreCase(tokenizer.nextToken())) {
-						return domainUid;
+						return Optional.of(domainUid);
 					}
 				}
 			}
@@ -313,7 +311,7 @@ public class AuthenticationFilter implements IWebFilter {
 		// Look for host in global external_url
 		SharedMap<String, String> sysconf = MQ.sharedMap(Shared.MAP_SYSCONF);
 		if (request.host().equalsIgnoreCase(sysconf.get(SysConfKeys.external_url.name()))) {
-			return "global.virt";
+			return Optional.of("global.virt");
 		}
 
 		// Look for host in global other_urls
@@ -322,12 +320,12 @@ public class AuthenticationFilter implements IWebFilter {
 			StringTokenizer tokenizer = new StringTokenizer(otherUrls.trim(), " ");
 			while (tokenizer.hasMoreElements()) {
 				if (request.host().equalsIgnoreCase(tokenizer.nextToken())) {
-					return "global.virt";
+					return Optional.of("global.virt");
 				}
 			}
 		}
 
-		return null;
+		return Optional.empty();
 	}
 
 	private String createCodeVerifier() {
