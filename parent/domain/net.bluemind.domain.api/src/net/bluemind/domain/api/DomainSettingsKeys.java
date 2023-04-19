@@ -54,5 +54,7 @@ public enum DomainSettingsKeys {
 	@NotNull
 	default_domain, //
 	@NotNull
-	ssl_certif_engine
+	ssl_certif_engine, //
+	@NotNull
+	nextcloudUrl
 }
