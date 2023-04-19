@@ -12,10 +12,20 @@ const WrapperComponent = {
     name: "EmbeddedAppWrapper",
     render(h) {
         return h("iframe", {
-            attrs: { src: this.url },
+            attrs: { src: this.src },
             on: { load: this.forwardNotice },
             staticClass: "flex-fill border-0 bg-surface"
         });
+    },
+    computed: {
+        src() {
+            const url = new URL(this.url, document.baseURI);
+            for (let param in this.$route.query) {
+                url.searchParams.set(param, this.$route.query[param]);
+            }
+            url.hash = this.$route.hash;
+            return url.toString();
+        }
     },
     methods: {
         forwardNotice() {
