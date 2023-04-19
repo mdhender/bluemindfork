@@ -26,18 +26,16 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.google.common.collect.Sets;
 
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.utils.CliUtils;
-import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.Regex;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
@@ -66,14 +64,64 @@ public class DirEntryTargetFilter {
 		}
 	}
 
-	private final String target;
+	private final boolean allDomains;
+	private final Optional<String> target;
+	private final Optional<String> dirEntryUid;
 	private final CliUtils cliUtils;
 	private final CliContext ctx;
 	private final Kind[] dirEntriesKind;
-	private final String dirEntryMatch;
+	private final Optional<String> dirEntryMatch;
 
-	public DirEntryTargetFilter(CliContext ctx, String target, Kind[] dirEntriesKind, String dirEntryMatch) {
-		this.target = target;
+	public static DirEntryTargetFilter allDomains(CliContext ctx, Kind[] dirEntriesKind,
+			Optional<String> dirEntryMatch) {
+		return new DirEntryTargetFilter(ctx, dirEntriesKind, dirEntryMatch);
+	}
+
+	/**
+	 * 
+	 * @param ctx
+	 * @param target         email or domain
+	 * @param dirEntriesKind
+	 * @param dirEntryMatch
+	 * @return
+	 */
+	public static DirEntryTargetFilter byTarget(CliContext ctx, String target, Kind[] dirEntriesKind,
+			Optional<String> dirEntryMatch) {
+		return Optional.of(target).filter(t -> t.equals("all"))
+				.map(t -> new DirEntryTargetFilter(ctx, dirEntriesKind, dirEntryMatch))
+				.orElseGet(() -> new DirEntryTargetFilter(ctx, false, target, dirEntriesKind, dirEntryMatch));
+	}
+
+	/**
+	 * 
+	 * @param ctx
+	 * @param entryUid       Directory entry UID
+	 * @param dirEntriesKind
+	 * @param dirEntryMatch
+	 * @return
+	 */
+	public static DirEntryTargetFilter byUid(CliContext ctx, String entryUid, Kind[] dirEntriesKind,
+			Optional<String> dirEntryMatch) {
+		return new DirEntryTargetFilter(ctx, true, entryUid, dirEntriesKind, dirEntryMatch);
+	}
+
+	private DirEntryTargetFilter(CliContext ctx, Kind[] dirEntriesKind, Optional<String> dirEntryMatch) {
+		this.allDomains = true;
+		this.target = Optional.empty();
+		this.dirEntryUid = Optional.empty();
+
+		this.dirEntriesKind = dirEntriesKind;
+		this.dirEntryMatch = dirEntryMatch;
+		this.ctx = ctx;
+		this.cliUtils = new CliUtils(ctx);
+	}
+
+	private DirEntryTargetFilter(CliContext ctx, boolean targetIsUid, String targetOrUid, Kind[] dirEntriesKind,
+			Optional<String> dirEntryMatch) {
+		this.allDomains = false;
+		this.target = !targetIsUid ? Optional.of(targetOrUid) : Optional.empty();
+		this.dirEntryUid = targetIsUid ? Optional.of(targetOrUid) : Optional.empty();
+
 		this.dirEntriesKind = dirEntriesKind;
 		this.dirEntryMatch = dirEntryMatch;
 		this.ctx = ctx;
@@ -81,60 +129,71 @@ public class DirEntryTargetFilter {
 	}
 
 	public List<DirEntryWithDomain> getEntries() {
-		List<String> domainUids = new ArrayList<>();
-		Optional<String> email = Optional.empty();
-
-		if (target.equals("all")) {
-			domainUids.addAll(cliUtils.getDomainUids());
-		} else {
-			domainUids.add(cliUtils.getDomainUidByEmailOrDomain(target));
-			email = getDefaultEmailFromTarget(domainUids.get(0));
+		if (allDomains) {
+			return getEntries(cliUtils.getDomainUids(), Optional.empty());
 		}
 
-		return getEntries(domainUids, email);
+		if (target.isPresent()) {
+			String targetDomainUid = target.map(cliUtils::getDomainUidByEmailOrDomain)
+					.orElseThrow(() -> new CliException("No target domain UID found"));
+
+			return target
+					.map(t -> getEntries(Arrays.asList(targetDomainUid), getDefaultEmailFromTarget(targetDomainUid, t)))
+					.orElse(Collections.emptyList());
+		}
+
+		return dirEntryUid.map(deu -> cliUtils.getDomainUids().stream()
+				.map(domainUid -> getDomainEntries(domainUid, dirEntryUid, Optional.empty())).flatMap(List::stream)
+				.filter(dewd -> deu.equals(dewd.dirEntry.uid)).findAny().map(Arrays::asList)
+				.orElse(Collections.emptyList())).orElse(Collections.emptyList());
 	}
 
 	private List<DirEntryWithDomain> getEntries(List<String> domainUids, Optional<String> email) {
-		List<DirEntryWithDomain> entries = domainUids.stream().map(domainUid -> getDomainEntries(domainUid, email))
-				.flatMap(List::stream).collect(Collectors.toList());
-		entries.sort((a, b) -> a.sortKey().compareTo(b.sortKey()));
-		return entries;
+		return domainUids.stream().map(domainUid -> getDomainEntries(domainUid,
+
+				Optional.empty(), email)).flatMap(List::stream).toList();
 	}
 
-	private List<DirEntryWithDomain> getDomainEntries(String domainUid, Optional<String> email) {
+	private List<DirEntryWithDomain> getDomainEntries(String domainUid, Optional<String> dirEntryUid,
+			Optional<String> email) {
 		IDirectory dirApi = ctx.adminApi().instance(IDirectory.class, domainUid);
+		List<ItemValue<DirEntry>> entries = new ArrayList<>();
 
-		List<ItemValue<DirEntry>> rootEntry = Collections.emptyList();
-		if (!email.isPresent() && Sets.newHashSet(dirEntriesKind).contains(Kind.DOMAIN)) {
-			DirEntry root = dirApi.getRoot();
-			rootEntry = Arrays.asList(ItemValue.create(domainUid, root));
-		}
+		dirEntryUid.filter(deu -> deu.equals(domainUid)).map(deu -> getRoot(dirApi, domainUid)).ifPresentOrElse(
+				entries::add, () -> email.filter(e -> Sets.newHashSet(dirEntriesKind).contains(Kind.DOMAIN))
+						.map(e -> getRoot(dirApi, domainUid)).ifPresent(entries::add));
 
 		DirEntryQuery q = DirEntryQuery.filterKind(dirEntriesKind);
 		q.hiddenFilter = false;
+		q.entryUidFilter = dirEntryUid.map(Arrays::asList).orElse(null);
 		q.emailFilter = email.orElse(null);
-		if (target.equals("admin0@global.virt")) {
+		if (target.filter(t -> t.equals("admin0@global.virt")).isPresent()) {
 			q.systemFilter = false;
 			q.kindsFilter = Arrays.asList(Kind.USER);
 		}
 
-		ListResult<ItemValue<DirEntry>> entries = dirApi.search(q);
+		entries.addAll(matchingEntries(dirApi.search(q).values));
 
-		if (dirEntryMatch != null && !dirEntryMatch.isEmpty()) {
-			Pattern p = Pattern.compile(dirEntryMatch, Pattern.CASE_INSENSITIVE);
-			entries.values = entries.values.stream().filter(de -> {
-				boolean match = false;
-				if (de.value != null && de.value.email != null) {
-					match = p.matcher(de.value.email).matches();
-				} else {
-					match = p.matcher(unaccent(de.displayName)).matches();
-				}
-				return match;
-			}).collect(Collectors.toList());
+		return entries.stream().map(de -> new DirEntryWithDomain(domainUid, de))
+				.sorted(Comparator.comparing(DirEntryWithDomain::sortKey)).toList();
+	}
+
+	private ItemValue<DirEntry> getRoot(IDirectory dirApi, String domainUid) {
+		return Optional.ofNullable(ctx.adminApi().instance(IDirectory.class, domainUid).getRoot())
+				.map(root -> ItemValue.create(domainUid, root)).orElse(null);
+	}
+
+	private List<ItemValue<DirEntry>> matchingEntries(List<ItemValue<DirEntry>> entries) {
+		return dirEntryMatch.map(dEM -> Pattern.compile(dEM, Pattern.CASE_INSENSITIVE))
+				.map(p -> entries.stream().filter(de -> isEntryMatching(p, de)).toList()).orElse(entries);
+	}
+
+	private boolean isEntryMatching(Pattern p, ItemValue<DirEntry> entry) {
+		if (entry.value != null && entry.value.email != null) {
+			return p.matcher(entry.value.email).matches();
 		}
 
-		return Stream.of(rootEntry, entries.values).flatMap(List::stream)
-				.map(de -> new DirEntryWithDomain(domainUid, de)).collect(Collectors.toList());
+		return p.matcher(unaccent(entry.displayName)).matches();
 	}
 
 	/**
@@ -143,7 +202,7 @@ public class DirEntryTargetFilter {
 	 * @param domainUid
 	 * @return null if target is not an email, defaultEmail otherwise
 	 */
-	private Optional<String> getDefaultEmailFromTarget(String domainUid) {
+	private Optional<String> getDefaultEmailFromTarget(String domainUid, String target) {
 		Optional<String> email = Optional.empty();
 
 		if (target.contains("@")) {

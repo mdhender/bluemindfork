@@ -79,7 +79,8 @@ public class ReconstructCommand implements ICmdLet, Runnable {
 		Set<String> uids = aliasMetadatas.stream() //
 				.map(metadata -> metadata.alias().replace("mailspool_alias_", "")) //
 				.collect(Collectors.toSet());
-		DirEntryTargetFilter targetFilter = new DirEntryTargetFilter(ctx, "all", dirEntryKind(), "");
+		DirEntryTargetFilter targetFilter = DirEntryTargetFilter.allDomains(ctx, dirEntryKind(), Optional.empty());
+
 		targetFilter.getEntries().stream() //
 				.filter(e -> uids.contains(e.dirEntry.uid)) //
 				.collect(Collectors.groupingBy(e -> e.domainUid)) //

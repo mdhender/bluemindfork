@@ -109,8 +109,8 @@ public class XferBackend implements ICmdLet, Runnable {
 			return;
 		}
 
-		DirEntryTargetFilter targetFilter = new DirEntryTargetFilter(ctx, target,
-				new Kind[] { Kind.USER, Kind.GROUP, Kind.MAILSHARE }, match);
+		DirEntryTargetFilter targetFilter = DirEntryTargetFilter.byTarget(ctx, target,
+				new Kind[] { Kind.USER, Kind.GROUP, Kind.MAILSHARE }, Optional.ofNullable(match));
 
 		ArrayBlockingQueue<ItemValue<DirEntry>> q = new ArrayBlockingQueue<>(workers);
 		ExecutorService pool = Executors.newFixedThreadPool(workers);

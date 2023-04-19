@@ -1,6 +1,7 @@
 package net.bluemind.cli.directory.common;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -19,6 +20,7 @@ import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
@@ -54,14 +56,25 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 	protected CliContext ctx;
 	protected CliUtils cliUtils;
 
-	@Parameters(paramLabel = "<target>", description = "email address, domain name or 'all' for all domains")
-	public String target;
+	@ArgGroup(exclusive = true, multiplicity = "1")
+	private Scope scope;
 
-	@Option(names = "--workers", description = "run with X workers")
-	public int workers = 1;
+	private static class Scope {
+		@Parameters(paramLabel = "<target>", description = "email address or domain name")
+		public String target;
+
+		@Option(names = "--direntry-uid", required = false, description = "Directory entry UID")
+		public String dirEntryUid;
+
+		@Option(names = "--all-domains", required = false, description = "All domains except global.virt")
+		public boolean allDomains;
+	}
+
+	@Option(names = "--workers", defaultValue = "1", description = "run with X workers (default: ${DEFAULT-VALUE})")
+	public int workers;
 
 	@Option(names = "--match", description = "regex that entity must match, for example : [a-c].*")
-	public String match = "";
+	public String match;
 
 	@Option(names = "--progress", description = "display progress messages")
 	public boolean progress = false;
@@ -81,13 +94,23 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 		return this;
 	}
 
+	public Runnable forTarget(String target) {
+		scope = new Scope();
+		scope.target = target;
+		return this;
+	}
+
 	public void run() {
-		DirEntryTargetFilter targetFilter = new DirEntryTargetFilter(ctx, target, getDirEntryKind(), match);
+		DirEntryTargetFilter targetFilter = targetFilterFromScope();
 
 		List<DirEntryWithDomain> entriesWithDomainUid = targetFilter.getEntries();
 		if (entriesWithDomainUid.isEmpty()) {
-			throw new CliException(String.format("Your search for '%s', filtered by '%s' did not match anything",
-					target, match.isEmpty() ? "" : match));
+			throw new CliException("Your search for "
+					+ (scope.allDomains ? "all domains except global.virt"
+							: "'" + Optional.ofNullable(scope.target).orElse(scope.dirEntryUid))
+					+ "'" //
+					+ (match != null ? ", filtered by '" + match + "'" : "") //
+					+ " did not match anything");
 		}
 		Set<String> domains = entriesWithDomainUid.stream().map(e -> e.domainUid).collect(Collectors.toSet());
 		preIterate(domains);
@@ -143,6 +166,22 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 			ctx.warn("Handled " + handled + " entries. " + noops + " entries have been ignored");
 		}
 		done();
+	}
+
+	private DirEntryTargetFilter targetFilterFromScope() {
+		if (scope.allDomains) {
+			return DirEntryTargetFilter.allDomains(ctx, getDirEntryKind(), Optional.ofNullable(match));
+		}
+
+		if (!Strings.isNullOrEmpty(scope.target)) {
+			return DirEntryTargetFilter.byTarget(ctx, scope.target, getDirEntryKind(), Optional.ofNullable(match));
+		}
+
+		if (!Strings.isNullOrEmpty(scope.dirEntryUid)) {
+			return DirEntryTargetFilter.byUid(ctx, scope.dirEntryUid, getDirEntryKind(), Optional.ofNullable(match));
+		}
+
+		throw new CliException("Invalid scope!");
 	}
 
 	/**
