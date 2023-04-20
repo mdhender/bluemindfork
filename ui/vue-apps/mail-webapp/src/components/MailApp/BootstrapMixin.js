@@ -59,9 +59,11 @@ export default {
             }
             await this.$_BootstrapMixin_loadAllMailboxes();
         } catch (error) {
-            // eslint-disable-next-line no-console
-            console.error("Error while bootstraping application... ", error);
-            this.SET_APP_STATE("error");
+            if (!this._isBeingDestroyed) {
+                // eslint-disable-next-line no-console
+                console.error("Error while bootstraping application... ", error);
+                this.SET_APP_STATE("error");
+            }
         }
     }
 };
