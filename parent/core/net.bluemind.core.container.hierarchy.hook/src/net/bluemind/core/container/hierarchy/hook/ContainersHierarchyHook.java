@@ -28,6 +28,7 @@ import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.directory.api.DirEntry;
+import net.bluemind.directory.api.DirectoryContainerType;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.system.api.SystemState;
 import net.bluemind.system.state.StateContext;
@@ -130,11 +131,12 @@ public class ContainersHierarchyHook extends ContainersHookAdapter {
 
 	@Override
 	public void onContainerDeleted(BmContext ctx, ContainerDescriptor cd) throws ServerFault {
-		hierarchyOp(ctx, cd, (hier, owner) -> {
-			logger.info("Container deleted {}, should delete in hierarchy", cd);
-			hier.delete(uid(cd));
-		});
-
+		if (!DirectoryContainerType.TYPE.equals(cd.type)) {
+			hierarchyOp(ctx, cd, (hier, owner) -> {
+				logger.info("Container deleted {}, should delete in hierarchy", cd);
+				hier.delete(uid(cd));
+			});
+		}
 	}
 
 }

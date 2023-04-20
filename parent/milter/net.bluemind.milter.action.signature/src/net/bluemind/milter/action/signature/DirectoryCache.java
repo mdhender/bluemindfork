@@ -44,6 +44,8 @@ import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
+import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.IDomains;
 import net.bluemind.mailflow.rbe.IClientContext;
 import net.bluemind.network.topology.Topology;
 
@@ -80,6 +82,13 @@ public class DirectoryCache extends AbstractVerticle {
 			}
 
 			String domainUid = ((JsonObject) message.body()).getString("domain");
+
+			IDomains domainService = provider.get().instance(IDomains.class);
+			ItemValue<Domain> domainVal = domainService.get(domainUid);
+			if (domainVal == null) {
+				logger.warn("Not able to update the changeset because domain {} not exists", domainUid);
+				return;
+			}
 
 			Long lastVersion = changesetVersion.getOrDefault(domainUid, Long.valueOf(0));
 

@@ -52,6 +52,7 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.DirEntryQuery;
+import net.bluemind.directory.api.DirectoryContainerType;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.exchange.publicfolders.common.PublicFolders;
 import net.bluemind.group.api.IGroup;
@@ -177,11 +178,12 @@ public class PublicFolderHierarchyHook implements IContainersHook, IAclHook {
 
 	@Override
 	public void onContainerDeleted(BmContext ctx, ContainerDescriptor cd) throws ServerFault {
-		hierarchyOp(ctx, cd, hier -> {
-			logger.info("Container deleted {}, should delete in hierarchy", cd);
-			hier.delete(uid(cd));
-		});
-
+		if (!DirectoryContainerType.TYPE.equals(cd.type)) {
+			hierarchyOp(ctx, cd, hier -> {
+				logger.info("Container deleted {}, should delete in hierarchy", cd);
+				hier.delete(uid(cd));
+			});
+		}
 	}
 
 	@Override

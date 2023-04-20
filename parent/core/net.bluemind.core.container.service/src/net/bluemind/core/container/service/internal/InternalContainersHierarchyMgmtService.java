@@ -31,11 +31,14 @@ import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchy
 import net.bluemind.core.container.api.internal.IInternalContainersFlatHierarchyMgmt;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ContainerDescriptor;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.persistence.ContainerStore;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
+import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.IDomains;
 
 public class InternalContainersHierarchyMgmtService implements IInternalContainersFlatHierarchyMgmt {
 
@@ -98,8 +101,17 @@ public class InternalContainersHierarchyMgmtService implements IInternalContaine
 	@Override
 	public void delete() {
 		logger.info("***** Containers hierarchy delete for owner: {} domainUid: {}", ownerUid, domainUid);
-		String hierUid = IFlatHierarchyUids.getIdentifier(ownerUid, domainUid);
+		IDomains domainService = context.provider().instance(IDomains.class);
+		ItemValue<Domain> domainVal = domainService.get(domainUid);
+		if (domainVal == null) {
+			logger.warn(
+					"Containers hierarchy cannot be delete for owner: {} domainUid: {} because domain does not exists",
+					ownerUid, domainUid);
+			return;
+		}
+
 		IContainers contApi = context.provider().instance(IContainers.class);
+		String hierUid = IFlatHierarchyUids.getIdentifier(ownerUid, domainUid);
 		ContainerDescriptor cd = contApi.getIfPresent(hierUid);
 		if (cd != null) {
 			IInternalContainersFlatHierarchy hierApi = context.provider()
