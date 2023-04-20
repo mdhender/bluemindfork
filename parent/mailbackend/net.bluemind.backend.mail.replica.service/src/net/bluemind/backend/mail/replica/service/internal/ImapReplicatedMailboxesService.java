@@ -101,9 +101,8 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 
 		if (value.fullName.equals(current.value.fullName)) {
 			logger.warn("Rename attempt to same name '{}'", value.fullName);
-			storeService.touch(current.uid);
-			ItemValue<MailboxFolder> touched = getCompleteById(id);
-			return Ack.create(touched.version);
+			ItemVersion touchVersion = storeService.touch(current.uid);
+			return touchVersion.ack();
 		}
 
 		FolderTree fullTree = FolderTree.of(all());
@@ -115,7 +114,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		curCopy.name = null;
 		curCopy.parentUid = null;
 		curCopy.fullName = value.fullName;
-		writeDelegate.update(curReplica.uid, curCopy);
+		Ack lastUpd = writeDelegate.update(curReplica.uid, curCopy);
 		for (ItemValue<MailboxFolder> tgt : renameTargets) {
 			ItemValue<MailboxReplica> parent = getCompleteReplica(tgt.value.parentUid);
 			ItemValue<MailboxReplica> replicaTgt = getCompleteReplica(tgt.uid);
@@ -123,9 +122,9 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 			tgtCopy.name = null;
 			tgtCopy.parentUid = null;
 			tgtCopy.fullName = parent.value.fullName + "/" + replicaTgt.value.name;
-			writeDelegate.update(tgt.uid, tgtCopy);
+			lastUpd = writeDelegate.update(tgt.uid, tgtCopy);
 		}
-		return Ack.create(storeService.getVersion());
+		return lastUpd;
 	}
 
 	@Override
@@ -136,7 +135,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 
 		ItemValue<MailboxReplica> folder = byReplicaName(value.fullName);
 		if (folder != null) {
-			return ItemIdentifier.of(folder.uid, folder.internalId, folder.version);
+			return ItemIdentifier.of(folder.uid, folder.internalId, folder.version, folder.timestamp());
 		}
 
 		FolderInternalIdCache.storeExpectedRecordId(container, value.fullName, hierId);
@@ -162,7 +161,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 		String pipoUid = UUID.randomUUID().toString();
 		writeDelegate.create(pipoUid, mr);
 		ItemValue<MailboxReplica> created = getCompleteReplica(pipoUid);
-		return ItemIdentifier.of(created.uid, created.internalId, created.version);
+		return ItemIdentifier.of(created.uid, created.internalId, created.version, created.timestamp());
 	}
 
 	@Override
@@ -193,7 +192,7 @@ public class ImapReplicatedMailboxesService extends BaseReplicatedMailboxesServi
 
 	private void notifyUpdate(ItemValue<MailboxFolder> parent, long version) {
 		EmitReplicationEvents.subtreeUpdated(container.uid, container.owner,
-				ItemIdentifier.of(parent.uid, parent.internalId, version), false);
+				ItemIdentifier.of(parent.uid, parent.internalId, version, parent.timestamp()), false);
 	}
 
 	@Override

@@ -17,6 +17,8 @@
   */
 package net.bluemind.core.container.model;
 
+import java.util.Date;
+
 import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
@@ -25,20 +27,20 @@ public class ItemIdentifier extends ItemVersion {
 	public String uid;
 
 	public ItemIdentifier() {
-		this(null, 0L, 0L);
+		this(null, 0L, 0L, null);
 	}
 
-	public ItemIdentifier(String uid, long id, long version) {
-		super(id, version);
+	public ItemIdentifier(String uid, long id, long version, Date timestamp) {
+		super(id, version, timestamp);
 		this.uid = uid;
 	}
 
-	public static ItemIdentifier of(String uid, long id, long version) {
-		return new ItemIdentifier(uid, id, version);
+	public static ItemIdentifier of(String uid, long id, long version, Date timestamp) {
+		return new ItemIdentifier(uid, id, version, timestamp);
 	}
 
 	public ItemIdentifier(ChangeLogEntry entry) {
-		this(entry.itemUid, entry.internalId, entry.version);
+		this(entry.itemUid, entry.internalId, entry.version, entry.date);
 	}
 
 }

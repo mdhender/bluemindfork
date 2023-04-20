@@ -41,6 +41,7 @@ import net.bluemind.backend.mail.replica.persistence.ReplicasStore.SubtreeLocati
 import net.bluemind.backend.mail.replica.service.names.MailboxNameValidator;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainerItemIdsCache;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.hierarchy.hook.HierarchyIdsHints;
@@ -69,7 +70,7 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 	}
 
 	@Override
-	public void create(String uid, MailboxReplica r) {
+	public Ack create(String uid, MailboxReplica r) {
 		logger.info("CREATE {} n:{} fn:{}", uid, r.name, r.fullName);
 		MailboxReplica replica = nameSanitizer.sanitizeNames(r);
 		if (!MailboxNameValidator.validate(replica)) {
@@ -113,7 +114,7 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 			created = storeService.createWithId(uid, subtreeItemId, null, replica.name, replica);
 		}
 
-		ItemIdentifier iid = ItemIdentifier.of(uid, created.id, created.version);
+		ItemIdentifier iid = ItemIdentifier.of(uid, created.id, created.version, created.timestamp);
 
 		String fn = replica.fullName;
 		if (root.ns == Namespace.shared && replica.parentUid != null) {
@@ -129,10 +130,11 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 
 		EmitReplicationEvents.mailboxCreated(container.uid, fn, iid);
 		EmitReplicationEvents.subtreeUpdated(container.uid, container.owner, iid);
+		return created.ack();
 	}
 
 	@Override
-	public void update(String uid, MailboxReplica r) {
+	public Ack update(String uid, MailboxReplica r) {
 		if (!MailboxNameValidator.validate(r)) {
 			throw new ServerFault("MailboxName validator failed '" + r.fullName + "' is not allowed");
 		}
@@ -168,8 +170,13 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 			}
 
 			EmitReplicationEvents.subtreeUpdated(container.uid, container.owner,
-					ItemIdentifier.of(uid, upd.id, upd.version), minorChange);
+					ItemIdentifier.of(uid, upd.id, upd.version, upd.timestamp), minorChange);
+			return upd.ack();
+		} else {
+			logger.warn("Nothing to update at uid {}", uid);
+			return Ack.create(0, null);
 		}
+
 	}
 
 	private boolean isMinorChange(MailboxReplica replica, ItemValue<MailboxReplica> previous) {
@@ -204,7 +211,7 @@ public class DbReplicatedMailboxesService extends BaseReplicatedMailboxesService
 			MboxReplicasCache.invalidate(uid);
 
 			EmitReplicationEvents.subtreeUpdated(container.uid, container.owner,
-					ItemIdentifier.of(uid, deleted.id, deleted.version));
+					ItemIdentifier.of(uid, deleted.id, deleted.version, deleted.timestamp));
 		}
 
 	}

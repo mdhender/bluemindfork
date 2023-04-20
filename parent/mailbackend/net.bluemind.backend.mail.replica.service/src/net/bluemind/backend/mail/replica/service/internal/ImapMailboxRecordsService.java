@@ -334,7 +334,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 					.filter(header -> header.name.equals(MailApiHeaders.X_BM_DRAFT_REFRESH_DATE)).findAny();
 			if (newRefreshDate.isPresent()
 					&& existingRefreshDate == Long.parseLong(newRefreshDate.get().firstValue())) {
-				return ImapItemIdentifier.of(existingItem.value.imapUid, id, existingItem.version);
+				return ImapItemIdentifier.of(existingItem.value.imapUid, id, existingItem.version,
+						existingItem.timestamp());
 			}
 			throw new ServerFault("Item " + id
 					+ " has been submitted for creation, but already exists having a different version or refresh header",
@@ -360,7 +361,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		IDbMailboxRecords recWriter = writeDelegate.get();
 		Ack ack = recWriter.createById(id, mr);
 
-		return ImapItemIdentifier.of(mr.imapUid, id, ack.version);
+		return ImapItemIdentifier.of(mr.imapUid, id, ack.version, ack.timestamp);
 	}
 
 	@Override
@@ -589,7 +590,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		IDbMailboxRecords writer = writeDelegate.get();
 		List<WithId<MailboxRecord>> slice = writer.slice(target.itemsId);
 		if (slice.isEmpty()) {
-			return Ack.create(0);
+			return Ack.create(0, null);
 		}
 		return writer.updates(slice.stream().map(op::touchFlags).toList());
 	}

@@ -115,14 +115,13 @@ public class WebAppDataService implements IWebAppData {
 		rbacManager.check(Verb.Write.name());
 		WebAppData old = get(uid);
 		if (old == null) {
-			logger.warn(
-					"trying to update WebAppData item with uid " + uid + " while it doesnt exist. Fallback on create.");
+			logger.warn("trying to update WebAppData item with uid {} while it doesnt exist. Fallback on create.", uid);
 			return create(uid, webAppData);
 		}
 		validator.update(old, webAppData);
 		Item item = Item.create(uid, null);
 		ItemVersion version = storeService.update(item, webAppData.key, webAppData);
-		return Ack.create(version.version);
+		return version.ack();
 	}
 
 	@Override
@@ -132,7 +131,7 @@ public class WebAppDataService implements IWebAppData {
 		validator.create(webAppData, existingKey);
 		Item item = Item.create(uid, null);
 		ItemVersion version = storeService.create(item, webAppData);
-		return Ack.create(version.version);
+		return version.ack();
 	}
 
 	@Override

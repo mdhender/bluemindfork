@@ -129,12 +129,12 @@ public class TodoListService implements ITodoList {
 		if (todo.uid != null) {
 			List<ItemValue<VTodo>> existing = getByIcsUid(todo.uid);
 			if (existing != null && !existing.isEmpty()) {
-				return Ack.create(existing.get(0).version);
+				return existing.get(0).identifier().ack();
 			}
 		}
 		ItemVersion iv = storeService.create(item, todo);
 		indexStore.create(Item.create(item.uid, iv.id), todo);
-		return Ack.create(iv.version);
+		return iv.ack();
 	}
 
 	private void doCreateOrUpdate(String uid, VTodo todo) throws ServerFault {
@@ -419,7 +419,7 @@ public class TodoListService implements ITodoList {
 	@Override
 	public Ack updateById(long id, VTodo value) {
 		Item item = Item.create(null, id);
-		return Ack.create(doUpdate(item, value).version);
+		return doUpdate(item, value).ack();
 	}
 
 	@Override

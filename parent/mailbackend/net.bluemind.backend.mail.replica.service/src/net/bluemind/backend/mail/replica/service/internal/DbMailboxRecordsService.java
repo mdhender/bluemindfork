@@ -20,6 +20,7 @@ package net.bluemind.backend.mail.replica.service.internal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -143,14 +144,13 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 
 	@Override
 	public Ack createById(long id, MailboxRecord mail) {
-		return Ack.create(create0(mail.imapUid + ".", id, mail).version);
+		return create0(mail.imapUid + ".", id, mail).ack();
 	}
 
 	private ItemVersion create0(String uid, Long internalId, MailboxRecord m) {
 		SubtreeLocation recordsLocation = locationOrFault();
 		MailboxRecord mail = fixRecordFlags(m);
-		ItemVersion version = null;
-		version = storeService.createWithId(uid, internalId, null, uid, mail);
+		ItemVersion version = storeService.createWithId(uid, internalId, null, uid, mail);
 
 		ItemValue<MailboxRecord> itemValue = ItemValue.create(uid, mail);
 		itemValue.internalId = version.id;
@@ -181,7 +181,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 			ItemValue<MailboxRecord> itemValue = ItemValue.create(uid, mail);
 			itemValue.internalId = version.id;
 			itemValue.version = version.version;
-			returned.add(ItemIdentifier.of(uid, version.id, version.version));
+			returned.add(ItemIdentifier.of(uid, version.id, version.version, version.timestamp));
 			toIndex.add(itemValue);
 		}
 		updateIndex(toIndex);
@@ -255,7 +255,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 		EmitReplicationEvents.recordUpdated(mailboxUniqueId, upd, mail);
 		EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, upd.version,
 				new long[] { upd.id });
-		return Ack.create(upd.version);
+		return upd.ack();
 	}
 
 	@Override
@@ -366,7 +366,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 	@Override
 	public Ack updates(List<MailboxRecord> recs) {
 		if (recs.isEmpty()) {
-			return Ack.create(getVersion());
+			return Ack.create(getVersion(), new Date());
 		}
 
 		return updatesImpl(recs);
@@ -481,7 +481,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 		}
 		EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, contVersion, itemIds,
 				createdIds);
-		return Ack.create(contVersion);
+		return Ack.create(contVersion, null);
 	}
 
 	private void updateIndex(List<ItemValue<MailboxRecord>> pushToIndex) {

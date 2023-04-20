@@ -137,13 +137,13 @@ public class AddressBookService implements IInCoreAddressBook {
 	@Override
 	public Ack createById(long id, VCard card) {
 		Item item = Item.create("vcard-by-id:" + id, id);
-		long version = createAndNotify(item, card);
-		return Ack.create(version);
+		ItemVersion version = createAndNotify(item, card);
+		return version.ack();
 	}
 
-	private long createAndNotify(Item item, VCard card) {
+	private ItemVersion createAndNotify(Item item, VCard card) {
 		rbacManager.check(Verb.Write.name());
-		long version = doCreate(item, card, null);
+		ItemVersion version = doCreate(item, card, null);
 		eventProducer.vcardCreated(item.uid);
 		emitNotification();
 		logger.info("createdById {} ({}) => v{}", item.id, item.uid, version);
@@ -151,7 +151,7 @@ public class AddressBookService implements IInCoreAddressBook {
 	}
 
 	@SuppressWarnings("serial")
-	private long doCreate(Item item, VCard card, byte[] photo) {
+	private ItemVersion doCreate(Item item, VCard card, byte[] photo) {
 
 		if (!isDomainAddressbook() && storeService.getItemCount() >= MAX_SIZE) {
 			throw new ServerFault("Max items count in addressbook exceeded", ErrorCode.MAX_ITEM_COUNT);
@@ -173,7 +173,7 @@ public class AddressBookService implements IInCoreAddressBook {
 				storeService.setIcon(item.uid, ImageUtils.resize(photo, 22, 22));
 			}
 		}
-		return version.version;
+		return version;
 	}
 
 	private boolean doCreateOrUpdate(String uid, VCard value, byte[] photo) {
@@ -200,11 +200,11 @@ public class AddressBookService implements IInCoreAddressBook {
 	@Override
 	public Ack updateById(long id, VCard card) {
 		Item item = Item.create(null, id);
-		long version = updateAndNotify(item, card);
-		return Ack.create(version);
+		ItemVersion version = updateAndNotify(item, card);
+		return version.ack();
 	}
 
-	private long updateAndNotify(Item item, VCard card) {
+	private ItemVersion updateAndNotify(Item item, VCard card) {
 		rbacManager.check(Verb.Write.name());
 		Updated upd = doUpdate(item, card, null);
 		if (upd.dnChanged) {
@@ -217,10 +217,10 @@ public class AddressBookService implements IInCoreAddressBook {
 
 	private static class Updated {
 		String uid;
-		long version;
+		ItemVersion version;
 		boolean dnChanged;
 
-		public Updated(String u, long v, boolean dnChanged) {
+		public Updated(String u, ItemVersion v, boolean dnChanged) {
 			this.uid = u;
 			this.version = v;
 			this.dnChanged = dnChanged;
@@ -299,7 +299,7 @@ public class AddressBookService implements IInCoreAddressBook {
 				storeService.setIcon(item.uid, ImageUtils.resize(photo, 22, 22));
 			}
 		}
-		return new Updated(item.uid, upd.version, directoryValueChanged);
+		return new Updated(item.uid, upd, directoryValueChanged);
 	}
 
 	private boolean doUpdateOrCreate(String uid, VCard card, byte[] photo) {

@@ -98,12 +98,16 @@ public class ItemValue<T> {
 		return item;
 	}
 
+	public Date timestamp() {
+		return updated != null ? updated : created;
+	}
+
 	public ItemIdentifier identifier() {
-		return ItemIdentifier.of(uid, internalId, version);
+		return ItemIdentifier.of(uid, internalId, version, timestamp());
 	}
 
 	public ItemVersion itemVersion() {
-		return new ItemVersion(internalId, version);
+		return new ItemVersion(internalId, version, timestamp());
 	}
 
 	@Override

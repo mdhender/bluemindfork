@@ -281,13 +281,13 @@ public class NoteService implements INote {
 	@Override
 	public Ack updateById(long id, VNote value) {
 		ItemVersion upd = storeService.update(id, value.subject, value);
-		return Ack.create(upd.version);
+		return upd.ack();
 	}
 
 	@Override
 	public Ack createById(long id, VNote value) {
 		ItemVersion version = storeService.createWithId("note-by-id-" + id, id, null, value.subject, value);
-		return Ack.create(version.version);
+		return version.ack();
 	}
 
 	@Override

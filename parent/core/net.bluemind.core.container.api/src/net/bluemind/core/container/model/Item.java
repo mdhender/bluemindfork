@@ -88,6 +88,10 @@ public class Item {
 		return ret;
 	}
 
+	public ItemVersion itemVersion() {
+		return new ItemVersion(id, version, updated != null ? updated : created);
+	}
+
 	public boolean match(ItemFlagFilter filter) {
 		for (ItemFlag f : filter.must) {
 			if (!flags.contains(f)) {

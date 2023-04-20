@@ -157,7 +157,7 @@ public class ReplicationEvents {
 		Handler<Message<JsonObject>> handler = (Message<JsonObject> event) -> {
 			JsonObject idJs = event.body();
 			ItemIdentifier iid = ItemIdentifier.of(idJs.getString("itemUid"), idJs.getLong("itemId"),
-					idJs.getLong("version"));
+					idJs.getLong("version"), null);
 			cons.unregister();
 			ret.complete(iid);
 		};
@@ -200,21 +200,6 @@ public class ReplicationEvents {
 					.create(Namespace.valueOf(js.getString("ns")), js.getString("name"));
 			cons.unregister();
 			ret.complete(root);
-		};
-		cons.handler(handler);
-		return ThreadContextHelper.inWorkerThread(ret);
-	}
-
-	public static CompletableFuture<ItemIdentifier> onMailboxCreated(String subtreeContainerUid, String folderName) {
-		CompletableFuture<ItemIdentifier> ret = new CompletableFuture<>();
-		String addr = MBOX_CREATE_ADDR + "." + subtreeContainerUid + "." + folderName;
-		MessageConsumer<JsonObject> cons = eb.consumer(addr);
-		Handler<Message<JsonObject>> handler = (Message<JsonObject> event) -> {
-			JsonObject idJs = event.body();
-			ItemIdentifier iid = ItemIdentifier.of(idJs.getString("itemUid"), idJs.getLong("itemId"),
-					idJs.getLong("version"));
-			cons.unregister();
-			ret.complete(iid);
 		};
 		cons.handler(handler);
 		return ThreadContextHelper.inWorkerThread(ret);

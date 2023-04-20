@@ -31,6 +31,7 @@ import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor;
+import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemChangelog;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -108,8 +109,9 @@ public class NoopDbReplicatedMailboxesService implements IDbReplicatedMailboxes,
 	}
 
 	@Override
-	public void update(String uid, MailboxReplica replica) {
+	public Ack update(String uid, MailboxReplica replica) {
 		logger.info("NOOP update on deleted mailbox {}@{}", mailboxRoot.name, domainUid);
+		return Ack.create(0L, null);
 	}
 
 	@Override
@@ -118,8 +120,9 @@ public class NoopDbReplicatedMailboxesService implements IDbReplicatedMailboxes,
 	}
 
 	@Override
-	public void create(String uid, MailboxReplica replica) {
+	public Ack create(String uid, MailboxReplica replica) {
 		logger.info("NOOP create on deleted mailbox {}@{}", mailboxRoot.name, domainUid);
+		return Ack.create(0L, null);
 	}
 
 	@Override

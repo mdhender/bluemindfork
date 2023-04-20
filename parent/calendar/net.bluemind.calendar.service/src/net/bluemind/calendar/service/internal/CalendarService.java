@@ -174,11 +174,11 @@ public class CalendarService implements IInternalCalendar {
 	@Override
 	public Ack createById(long id, VEventSeries event) throws ServerFault {
 		Item item = Item.create("vevent-by-id:" + id, id);
-		long version = create(item, event, false);
-		return Ack.create(version);
+		ItemVersion version = create(item, event, false);
+		return version.ack();
 	}
 
-	private long create(Item item, VEventSeries event, Boolean sendNotifications) {
+	private ItemVersion create(Item item, VEventSeries event, Boolean sendNotifications) {
 		rbacManager.check(Verb.Write.name());
 
 		if (event == null) {
@@ -189,14 +189,14 @@ public class CalendarService implements IInternalCalendar {
 			sendNotifications = false;
 		}
 
-		long version = doCreate(item, event, sendNotifications);
+		ItemVersion version = doCreate(item, event, sendNotifications);
 
 		emitNotification();
 
 		return version;
 	}
 
-	private long doCreate(Item item, VEventSeries event, boolean sendNotifications) throws ServerFault {
+	private ItemVersion doCreate(Item item, VEventSeries event, boolean sendNotifications) throws ServerFault {
 		rbacManager.check(Verb.Write.name());
 
 		if (Strings.isNullOrEmpty(event.icsUid)) {
@@ -218,7 +218,7 @@ public class CalendarService implements IInternalCalendar {
 		VEventMessage hookEventMsg = asHookEventMessage(item.uid, event, sendNotifications);
 		callHooks(hook -> hook.onEventCreated(hookEventMsg));
 
-		return version.version;
+		return version;
 	}
 
 	private void doCreateOrUpdate(String uid, VEventSeries event, boolean sendNotification) throws ServerFault {
@@ -252,8 +252,8 @@ public class CalendarService implements IInternalCalendar {
 	@Override
 	public Ack updateById(long id, VEventSeries event) {
 		Item item = Item.create(null, id);
-		long version = update(item, event, false);
-		return Ack.create(version);
+		ItemVersion version = update(item, event, false);
+		return version.ack();
 	}
 
 	@Override
@@ -262,7 +262,7 @@ public class CalendarService implements IInternalCalendar {
 		update(item, event, sendNotifications);
 	}
 
-	private long update(Item item, VEventSeries event, Boolean sendNotifications) {
+	private ItemVersion update(Item item, VEventSeries event, Boolean sendNotifications) {
 		rbacManager.check(Verb.Write.name());
 		if (event == null) {
 			throw new ServerFault("VEvent is null", ErrorCode.EVENT_ERROR);
@@ -275,7 +275,7 @@ public class CalendarService implements IInternalCalendar {
 		ItemVersion upd = doUpdate(item, event, sendNotifications);
 
 		emitNotification();
-		return upd.version;
+		return upd;
 	}
 
 	private ItemVersion doUpdate(Item item, VEventSeries event, Boolean sendNotifications) throws ServerFault {

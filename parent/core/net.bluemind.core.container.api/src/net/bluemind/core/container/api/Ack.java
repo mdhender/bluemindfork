@@ -22,6 +22,8 @@
  */
 package net.bluemind.core.container.api;
 
+import java.util.Date;
+
 import net.bluemind.core.api.BMApi;
 
 /**
@@ -37,16 +39,22 @@ public class Ack {
 	 */
 	public long version;
 
+	/**
+	 * Server date of the operation
+	 */
+	public Date timestamp;
+
 	public Ack() {
-		this(0L);
+		this(0L, new Date());
 	}
 
-	private Ack(long v) {
+	private Ack(long v, Date d) {
 		this.version = v;
+		this.timestamp = d;
 	}
 
-	public static Ack create(long v) {
-		return new Ack(v);
+	public static Ack create(long v, Date opTime) {
+		return new Ack(v, opTime);
 	}
 
 }

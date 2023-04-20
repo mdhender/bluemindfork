@@ -77,7 +77,7 @@ public class MapiFolderService implements IMapiFolder {
 
 		String dn = displayName(id, value);
 		ItemVersion iv = storeService.update(id, dn, value);
-		return Ack.create(iv.version);
+		return iv.ack();
 	}
 
 	private String displayName(long id, MapiRawMessage value) {
@@ -106,7 +106,7 @@ public class MapiFolderService implements IMapiFolder {
 		rbacManager.check(Verb.Write.name());
 
 		ItemVersion created = storeService.createWithId(uid(id, value), id, null, displayName(id, value), value);
-		return Ack.create(created.version);
+		return created.ack();
 	}
 
 	@Override

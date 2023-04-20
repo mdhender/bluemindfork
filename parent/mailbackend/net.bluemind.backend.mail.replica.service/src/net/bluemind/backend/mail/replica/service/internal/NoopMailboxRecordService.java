@@ -19,6 +19,7 @@
 package net.bluemind.backend.mail.replica.service.internal;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -143,7 +144,7 @@ public class NoopMailboxRecordService implements IDbMailboxRecords {
 	@Override
 	public Ack updates(List<MailboxRecord> records) {
 		logger.info("NOOP operation IDbMailboxRecords#updates");
-		return Ack.create(0L);
+		return Ack.create(0L, new Date());
 
 	}
 

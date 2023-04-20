@@ -17,30 +17,39 @@
   */
 package net.bluemind.core.container.model;
 
+import java.util.Date;
+
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.container.api.Ack;
 
 @BMApi(version = "3")
 public class ItemVersion implements Comparable<ItemVersion> {
 
 	public long id;
 	public long version;
+	public Date timestamp;
 
 	public ItemVersion() {
 		id = 0L;
 		version = 0L;
 	}
 
-	public ItemVersion(long id, long v) {
+	public ItemVersion(long id, long v, Date timestamp) {
 		this.id = id;
 		this.version = v;
+		this.timestamp = timestamp;
 	}
 
 	public ItemVersion(ChangeLogEntry cl) {
-		this(cl.internalId, cl.version);
+		this(cl.internalId, cl.version, cl.date);
 	}
 
 	public ItemVersion(ItemDescriptor cl) {
-		this(cl.internalId, cl.version);
+		this(cl.internalId, cl.version, cl.updated != null ? cl.updated : cl.created);
+	}
+
+	public Ack ack() {
+		return Ack.create(version, timestamp);
 	}
 
 	@Override

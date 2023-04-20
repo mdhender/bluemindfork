@@ -17,6 +17,8 @@
   */
 package net.bluemind.backend.mail.api;
 
+import java.util.Date;
+
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.container.model.ItemIdentifier;
 
@@ -28,12 +30,12 @@ public class ImapItemIdentifier extends ItemIdentifier {
 	public ImapItemIdentifier() {
 	}
 
-	public ImapItemIdentifier(long imapUid, long id, long version) {
-		super(null, id, version);
+	public ImapItemIdentifier(long imapUid, long id, long version, Date timestamp) {
+		super(null, id, version, timestamp);
 		this.imapUid = imapUid;
 	}
 
-	public static ImapItemIdentifier of(long imapUid, long id, long version) {
-		return new ImapItemIdentifier(imapUid, id, version);
+	public static ImapItemIdentifier of(long imapUid, long id, long version, Date timestamp) {
+		return new ImapItemIdentifier(imapUid, id, version, timestamp);
 	}
 }

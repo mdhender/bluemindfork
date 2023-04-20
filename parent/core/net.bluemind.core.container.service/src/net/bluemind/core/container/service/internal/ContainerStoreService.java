@@ -64,7 +64,6 @@ import net.bluemind.core.container.persistence.IWeightProvider;
 import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.container.service.ChangelogRenderers;
 import net.bluemind.core.container.service.IContainerStoreService;
-import net.bluemind.core.container.service.ItemUpdate;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
 import net.bluemind.core.jdbc.JdbcAbstractStore.SqlOperation;
@@ -348,7 +347,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			beforeCreationInBackupStore(iv);
 			handler.acceptConsumer(reservedIds -> backupStream.get().store(iv, reservedIds));
 
-			return ItemUpdate.of(created);
+			return created.itemVersion();
 		});
 	}
 
@@ -435,7 +434,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			handler.acceptConsumer(
 					reservedIds -> backupStream.get().store(ItemValue.create(updated, value), reservedIds));
 
-			return ItemUpdate.of(updated);
+			return updated.itemVersion();
 		});
 	}
 
@@ -471,7 +470,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			ItemValue<T> iv = ItemValue.create(item, value);
 			backupStream.get().store(iv);
 
-			return ItemUpdate.of(item);
+			return item.itemVersion();
 		});
 	}
 
@@ -503,7 +502,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 			}
 			itemStore.delete(item);
 			backupStream.get().delete(itemValue);
-			return ItemUpdate.of(item);
+			return item.itemVersion();
 		});
 	}
 
@@ -528,7 +527,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 			backupStream.get().delete(itemValue);
 
-			return ItemUpdate.of(item);
+			return item.itemVersion();
 		});
 	}
 
@@ -738,7 +737,7 @@ public class ContainerStoreService<T> implements IContainerStoreService<T> {
 
 				containerChangeEventProducer.get().produceEvent();
 			}
-			return new ItemVersion(item.id, item.version);
+			return item.itemVersion();
 		});
 	}
 

@@ -26,10 +26,10 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
-
 import net.bluemind.backend.mail.api.IBaseMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.container.api.Ack;
 import net.bluemind.core.container.api.IDataShardSupport;
 import net.bluemind.core.container.api.IReadByIdSupport;
 import net.bluemind.core.container.model.ItemValue;
@@ -44,11 +44,11 @@ public interface IDbReplicatedMailboxes
 
 	@PUT
 	@Path("{uid}")
-	void create(@PathParam("uid") String uid, MailboxReplica replica);
+	Ack create(@PathParam("uid") String uid, MailboxReplica replica);
 
 	@POST
 	@Path("{uid}")
-	void update(@PathParam("uid") String uid, MailboxReplica replica);
+	Ack update(@PathParam("uid") String uid, MailboxReplica replica);
 
 	@DELETE
 	@Path("{uid}")
