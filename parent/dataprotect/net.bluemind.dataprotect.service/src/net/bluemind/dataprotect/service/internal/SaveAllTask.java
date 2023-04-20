@@ -19,25 +19,19 @@
 
 package net.bluemind.dataprotect.service.internal;
 
-import java.io.ByteArrayInputStream;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.config.InstallationId;
 import net.bluemind.core.api.VersionInfo;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -62,8 +56,6 @@ import net.bluemind.node.api.FileDescription;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
-import net.bluemind.server.api.Assignment;
-import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.IInstallation;
 import net.bluemind.system.api.ISystemConfiguration;
@@ -77,10 +69,6 @@ public class SaveAllTask extends BlockingServerTask implements IServerTask {
 	private final PartGenerationIndex partGenerationIndex;
 	private IToolSession session;
 	private boolean cancelled;
-
-	private static final String backupRoot = "/var/backups/bluemind";
-	private static final String backupTemp = backupRoot + "/temp";
-	private static final String backupWork = backupRoot + "/work";
 
 	private enum BackupStatus {
 		OK(true, "Backup finished successfully"), //
@@ -186,38 +174,24 @@ public class SaveAllTask extends BlockingServerTask implements IServerTask {
 	}
 
 	private BackupStatus backup(IServerTaskMonitor monitor, IDPContext dpCtx) throws Exception {
-		List<String> skipTags = getSkipTags();
-
-		IServer serverApi = ctx.provider().instance(IServer.class, InstallationId.getIdentifier());
-		List<ItemValue<Server>> servers = serverApi.allComplete();
-
-		logger.info("Backup starting for {} servers.", servers.size());
-		monitor.begin(5, "Backup starting for " + servers.size() + " servers.");
-
-		if (!checkIntegrity(monitor.subWork(1), serverApi, servers, skipTags)) {
+		ServersToBackup serversToBackup = ServersToBackup.build(ctx);
+		if (!serversToBackup.checkIntegrity(Optional.of(monitor.subWork(1)))) {
 			return BackupStatus.INVALID_STATE;
 		}
 
-		checkParentGeneration(monitor.subWork(1), servers, skipTags);
+		logger.info("Backup starting for {} servers.", serversToBackup.servers.size());
+		monitor.begin(5, "Backup starting for " + serversToBackup.servers.size() + " servers.");
 
-		BackupStatus backupStatus = doBackup(monitor.subWork(1), dpCtx, servers, skipTags);
+		checkParentGeneration(monitor.subWork(1), serversToBackup);
+
+		BackupStatus backupStatus = doBackup(monitor.subWork(1), dpCtx, serversToBackup);
 
 		removeOldGenerations(monitor.subWork(1));
 
-		backupStatus = runPostBackupLocalScript(monitor.subWork(1), servers, backupStatus);
+		backupStatus = runPostBackupLocalScript(monitor.subWork(1), serversToBackup.servers, backupStatus);
 
 		logger.info("Backup complete with status: {}", backupStatus);
 		return backupStatus;
-	}
-
-	private List<String> getSkipTags() {
-		ISystemConfiguration sysApi = ctx.provider().instance(ISystemConfiguration.class);
-		List<String> skipTags = new ArrayList<>(sysApi.getValues().stringList(SysConfKeys.dpBackupSkipTags.name()));
-		skipTags.add("mail/smtp-edge");
-		for (String tag : skipTags) {
-			logger.debug("Skipping backup of tag {}", tag);
-		}
-		return skipTags;
 	}
 
 	private List<String> getSkipDataTypes() {
@@ -225,8 +199,8 @@ public class SaveAllTask extends BlockingServerTask implements IServerTask {
 		return sysApi.getValues().stringList(SysConfKeys.dataprotect_skip_datatypes.name());
 	}
 
-	private BackupStatus doBackup(IServerTaskMonitor monitor, IDPContext dpCtx, List<ItemValue<Server>> servers,
-			List<String> skipTags) throws Exception {
+	private BackupStatus doBackup(IServerTaskMonitor monitor, IDPContext dpCtx, ServersToBackup serversToBackup)
+			throws Exception {
 		InstallationVersion version = ctx.provider().instance(IInstallation.class).getVersion();
 		VersionInfo versionInfo = VersionInfo.create(version.softwareVersion, version.versionName);
 		DataProtectGeneration dpg = dps.getStore().newGeneration(versionInfo);
@@ -234,15 +208,14 @@ public class SaveAllTask extends BlockingServerTask implements IServerTask {
 		BackupStatus backupStatus = BackupStatus.OK;
 
 		logger.info("New backup generation {}", dpg.id);
-		monitor.begin(servers.size(), "Starting backup on all servers");
+		monitor.begin(serversToBackup.servers.size(), "Starting backup on all servers");
 		try {
-			for (ItemValue<Server> server : servers) {
+			for (ItemValue<Server> server : serversToBackup.servers) {
 				if (logger.isInfoEnabled()) {
 					logger.info("Starting backup on server {}", server.value.address());
 				}
 
-				Set<String> tags = server.value.tags.stream().filter(tag -> !skipTags.contains(tag))
-						.collect(Collectors.toSet());
+				Set<String> tags = serversToBackup.getServerBackupTags(server);
 				tags.add("bm/conf");
 
 				backupStatus = doBackupByTags(monitor.subWork(1), dpCtx, server, tags, backupStatus, dpg);
@@ -333,12 +306,12 @@ public class SaveAllTask extends BlockingServerTask implements IServerTask {
 		return pg;
 	}
 
-	private void checkParentGeneration(IServerTaskMonitor monitor, List<ItemValue<Server>> servers,
-			List<String> skipTags) throws InvalidParentGeneration {
-		monitor.begin(servers.size(), "Check parent backup generation");
+	private void checkParentGeneration(IServerTaskMonitor monitor, ServersToBackup serversToBackup)
+			throws InvalidParentGeneration {
+		monitor.begin(serversToBackup.servers.size(), "Check parent backup generation");
 
-		for (ItemValue<Server> server : servers) {
-			for (String tag : server.value.tags.stream().filter(tag -> !skipTags.contains(tag)).toList()) {
+		for (ItemValue<Server> server : serversToBackup.servers) {
+			for (String tag : serversToBackup.getServerBackupTags(server)) {
 				PartGeneration pg = new PartGeneration();
 				pg.tag = tag;
 				pg.server = server.uid;
@@ -492,124 +465,6 @@ public class SaveAllTask extends BlockingServerTask implements IServerTask {
 			monitor.log(String.format("Error running post-backup script %s on server %s: %s", scriptPath, server,
 					e.getMessage()));
 			logger.warn(String.format("Error running post-backup script %s on server %s", scriptPath, server), e);
-			return false;
-		}
-
-		return true;
-	}
-
-	private boolean checkIntegrity(IServerTaskMonitor monitor, IServer serverApi, List<ItemValue<Server>> servers,
-			List<String> skipTags) {
-
-		monitor.begin(servers.size(), String.format("Checking %s on each hosts", backupRoot));
-
-		String fn = backupTemp + "/check-" + UUID.randomUUID().toString() + ".torm";
-		ItemValue<Server> last = null;
-
-		boolean validBackupStore = true;
-		for (ItemValue<Server> server : servers) {
-			List<Assignment> serverAssignments = serverApi.getServerAssignments(server.uid);
-			if (serverAssignments.stream().allMatch(assignment -> skipTags.contains(assignment.tag))) {
-				continue;
-			}
-
-			INodeClient nc = NodeActivator.get(server.value.ip);
-			try {
-				if (last == null) {
-					NCUtils.execNoOut(nc, "rm -rf " + backupTemp + " " + backupWork);
-					nc.mkdirs(backupTemp);
-					nc.mkdirs(backupWork);
-					nc.writeFile(fn, new ByteArrayInputStream("YOU CAN SAFELY REMOVE THIS FILE".getBytes()));
-				}
-
-				last = server;
-
-				if (!System.getProperty("node.local.ipaddr", "nope").equals(server.value.ip)) {
-					if (!allowedMountPoint(monitor, server, nc) || !sharedDataStore(monitor, server, nc, fn)) {
-						validBackupStore = false;
-					}
-				} else {
-					// TEST MODE ONLY
-					Process p = Runtime.getRuntime()
-							.exec("sudo chown -R " + System.getProperty("user.name") + " /var/backups/bluemind");
-					p.waitFor(10, TimeUnit.SECONDS);
-
-				}
-
-				monitor.progress(1, String.format("%s checked on %s", backupRoot, server.value.address()));
-			} catch (Exception e) {
-				logger.error(e.getMessage());
-				monitor.end(false, String.format("Unable to check %s on %s", backupRoot, server.value.address()), "KO");
-				return false;
-			}
-		}
-
-		if (last != null) {
-			serverApi.submitAndWait(last.uid, "rm -f " + fn);
-		}
-
-		if (!validBackupStore) {
-			monitor.end(validBackupStore, String.format("Invalid state for %s on at least one server", backupRoot),
-					"KO");
-		} else {
-			monitor.end(validBackupStore, String.format("%s is ok on all servers", backupRoot), "OK");
-		}
-
-		return validBackupStore;
-	}
-
-	/**
-	 * Check if backup volume is shared between all BlueMind nodes
-	 * 
-	 * @param monitor
-	 * @param server
-	 * @param nc
-	 * @param fileName
-	 * @return
-	 */
-	private boolean sharedDataStore(IServerTaskMonitor monitor, ItemValue<Server> server, INodeClient nc,
-			String fileName) {
-		boolean found = nc.listFiles(fileName).size() == 1;
-		if (!found) {
-			monitor.log(String.format("%s is not shared on %s", backupRoot, server.value.address()));
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Check if backup is not stored on a forbidden mount point
-	 * 
-	 * @param monitor
-	 * @param server
-	 * @param nc
-	 * @return
-	 */
-	private boolean allowedMountPoint(IServerTaskMonitor monitor, ItemValue<Server> server, INodeClient nc) {
-		String statCmd = "/usr/bin/stat --format '%m'";
-		String backupMountPoint = backupRoot + "/";
-		List<String> forbidenMountPoint = Arrays.asList("/", "/var", "/var/");
-
-		ExitList output = NCUtils.exec(nc, statCmd + " " + backupMountPoint);
-		if (output.size() != 1) {
-			monitor.log(String.format("Invalid stat command output on server %s", server.value.address()));
-			return false;
-		}
-
-		String mountPoint = output.get(0);
-		try {
-			// Check stat output is a path
-			Paths.get(mountPoint);
-		} catch (InvalidPathException | NullPointerException ex) {
-			monitor.log(String.format("Invalid mount point %s for %s on server %s", mountPoint, backupRoot,
-					server.value.address()));
-			return false;
-		}
-
-		if (forbidenMountPoint.contains(mountPoint)) {
-			monitor.log(String.format("Forbiden mount point %s for %s on server %s", mountPoint, backupRoot,
-					server.value.address()));
 			return false;
 		}
 

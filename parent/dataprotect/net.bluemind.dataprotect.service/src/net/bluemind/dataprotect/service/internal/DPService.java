@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.core.api.ParametersValidator;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.task.api.TaskRef;
@@ -51,6 +52,7 @@ import net.bluemind.dataprotect.service.IRestoreActionProvider;
 import net.bluemind.directory.api.DirEntryQuery;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.role.api.BasicRoles;
+import net.bluemind.server.api.Server;
 
 public class DPService implements IDataProtect {
 
@@ -220,6 +222,15 @@ public class DPService implements IDataProtect {
 	@Override
 	public void syncWithFilesystem() throws ServerFault {
 		rbac.check(BasicRoles.ROLE_SYSTEM_MANAGER);
+
+		Collection<ItemValue<Server>> invalidServers = ServersToBackup.build(ctx).checkIntegrity();
+		if (!invalidServers.isEmpty()) {
+			throw new ServerFault(
+					"Backup partition unavailable on BlueMind server: "
+							+ invalidServers.stream().map(s -> s.value.address()).collect(Collectors.joining(", ")),
+					ErrorCode.NO_BACKUP_SERVER_FOUND);
+		}
+
 		List<DataProtectGeneration> storedGenerations = GenerationWriter.readGenerationFiles();
 		logger.info("rewriting generations using {} stored generations", storedGenerations.size());
 		dpgStore.rewriteGenerations(storedGenerations);
