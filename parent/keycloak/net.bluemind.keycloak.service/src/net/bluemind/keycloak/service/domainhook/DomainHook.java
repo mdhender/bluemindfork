@@ -17,6 +17,8 @@
   */
 package net.bluemind.keycloak.service.domainhook;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +29,7 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.hook.DomainHookAdapter;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
 import net.bluemind.keycloak.utils.AuthTypes;
+import net.bluemind.keycloak.utils.ConfigUpdateHelper;
 import net.bluemind.keycloak.utils.DomainAuthProperties;
 import net.bluemind.keycloak.utils.KerberosConfigHelper;
 import net.bluemind.keycloak.utils.KeycloakHelper;
@@ -54,6 +57,12 @@ public class DomainHook extends DomainHookAdapter {
 		if (AuthTypes.KERBEROS.name().equals(domain.value.properties.get(DomainAuthProperties.auth_type.name()))) {
 			KerberosConfigHelper.removeKrb5Conf(domain.uid);
 		}
+	}
+
+	@Override
+	public void onSettingsUpdated(BmContext context, ItemValue<Domain> domain, Map<String, String> previousSettings,
+			Map<String, String> currentSettings) throws ServerFault {
+		ConfigUpdateHelper.updateRealmFor(domain.uid);
 	}
 
 }

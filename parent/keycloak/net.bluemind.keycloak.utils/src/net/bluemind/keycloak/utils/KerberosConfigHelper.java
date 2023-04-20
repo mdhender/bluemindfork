@@ -23,19 +23,25 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Base64;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.json.JsonObject;
+import net.bluemind.core.api.fault.ErrorCode;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Shared;
 import net.bluemind.keycloak.api.IKeycloakKerberosAdmin;
 import net.bluemind.keycloak.api.KerberosComponent;
@@ -45,6 +51,7 @@ import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.TagDescriptor;
+import net.bluemind.system.api.SysConfKeys;
 
 public class KerberosConfigHelper {
 	private static final Logger logger = LoggerFactory.getLogger(KerberosConfigHelper.class);
@@ -63,8 +70,8 @@ public class KerberosConfigHelper {
 			return;
 		}
 
-		IKeycloakKerberosAdmin kerberosService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IKeycloakKerberosAdmin.class, domainUid);
+		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		IKeycloakKerberosAdmin kerberosService = provider.instance(IKeycloakKerberosAdmin.class, domainUid);
 		try {
 			kerberosService.deleteKerberosProvider(domainUid + "-kerberos");
 		} catch (Throwable t) {
@@ -74,11 +81,14 @@ public class KerberosConfigHelper {
 			String krb_ad_domain = domain.value.properties.get(DomainAuthProperties.krb_ad_domain.name());
 			String krb_keytab = domain.value.properties.get(DomainAuthProperties.krb_keytab.name());
 
+			SharedMap<String, String> smap = MQ.sharedMap(Shared.MAP_SYSCONF);
 			Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
 					.get(domain.uid);
 			String domainExternalUrl = domainSettings.get(DomainSettingsKeys.external_url.name());
+			String globalExternalUrl = smap.get(SysConfKeys.external_url.name());
+			String srvPrincHost = domainExternalUrl != null ? domainExternalUrl : globalExternalUrl;
 
-			String serverPrincipal = "HTTP/bluemind." + domainExternalUrl + "@" + krb_ad_domain;
+			String serverPrincipal = "HTTP/" + srvPrincHost + "@" + krb_ad_domain;
 
 			String keytabPath = "/etc/bm-keycloak/" + domain.uid + ".keytab";
 			String kcServerAddr = Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address();
@@ -92,12 +102,45 @@ public class KerberosConfigHelper {
 			kerb.setEnabled(true);
 			kerb.setDebug(true);
 			kerb.setCachePolicy(CachePolicy.DEFAULT);
-			kerb.setName(domainUid + "-kerberos");
-			kerb.setParentId(domainUid);
 
-			kerberosService.create(kerb);
+			if (!"global.virt".equals(domainUid) && domainExternalUrl == null) {
+				IKeycloakKerberosAdmin kerbProv = provider.instance(IKeycloakKerberosAdmin.class, "global.virt");
+				try {
+					kerbProv.deleteKerberosProvider("global.virt-kerberos");
+				} catch (Throwable t) {
+				}
+				kerb.setName("global.virt-kerberos");
+				kerb.setParentId("global.virt");
+				kerbProv.create(kerb);
+			} else {
+				kerb.setName(domainUid + "-kerberos");
+				kerb.setParentId(domainUid);
+				kerberosService.create(kerb);
+			}
 		}
+		KerberosConfigHelper.updateGlobalRealmKerb();
 		KerberosConfigHelper.updateKrb5Conf();
+	}
+
+	private static void updateGlobalRealmKerb() {
+		boolean found = false;
+
+		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		IDomains domainService = provider.instance(IDomains.class);
+		Iterator<ItemValue<Domain>> it = domainService.all().iterator();
+		while (it.hasNext() && !found) {
+			ItemValue<Domain> domain = it.next();
+			found = AuthTypes.KERBEROS.name().equals(domain.value.properties.get(DomainAuthProperties.auth_type.name()))
+					&& getExternalUrl(domain.uid) == null;
+		}
+
+		if (!found) {
+			IKeycloakKerberosAdmin kerbProv = provider.instance(IKeycloakKerberosAdmin.class, "global.virt");
+			try {
+				kerbProv.deleteKerberosProvider("global.virt-kerberos");
+			} catch (Throwable t) {
+			}
+		}
 	}
 
 	public static void updateKrb5Conf() {
@@ -140,6 +183,68 @@ public class KerberosConfigHelper {
 		updateKrb5Conf();
 	}
 
+	public static void checkKerberosConf(BmContext context, String domainUid, Map<String, String> settings) {
+		IDomains domainService = ServerSideServiceProvider.getProvider(context.getSecurityContext())
+				.instance(IDomains.class);
+		checkKerberosConf(context, domainService.get(domainUid).value, settings);
+	}
+
+	public static void checkKerberosConf(BmContext context, Domain domain) {
+		IDomains domainService = ServerSideServiceProvider.getProvider(context.getSecurityContext())
+				.instance(IDomains.class);
+		String domainUid = null;
+		Iterator<ItemValue<Domain>> it = domainService.all().iterator();
+		while (it.hasNext() && domainUid == null) {
+			ItemValue<Domain> d = it.next();
+			if (domain.name.equals(d.value.name)) {
+				domainUid = d.uid;
+			}
+		}
+
+		Map<String, String> settings = ServerSideServiceProvider.getProvider(context.getSecurityContext())
+				.instance(IDomainSettings.class, domainUid).get();
+		checkKerberosConf(context, domain, settings);
+	}
+
+	private static void checkKerberosConf(BmContext context, Domain domain, Map<String, String> settings) {
+		IDomains domainService = ServerSideServiceProvider.getProvider(context.getSecurityContext())
+				.instance(IDomains.class);
+
+		// If no kerb let go
+		String authType = domain.properties.get(DomainAuthProperties.auth_type.name());
+		if (!AuthTypes.KERBEROS.name().equals(authType)) {
+			return;
+		}
+
+		// external url mandatory if another kerb domain without external url exists
+		String extUrl = settings.get(DomainSettingsKeys.external_url.name());
+		if (extUrl == null) {
+			domainService.all().forEach(d -> {
+				Domain currDomain = d.value;
+				if (!currDomain.name.equals(domain.name)
+						&& AuthTypes.KERBEROS.name()
+								.equals(currDomain.properties.get(DomainAuthProperties.auth_type.name()))
+						&& getExternalUrl(context, currDomain.name) == null) {
+					throw new ServerFault(
+							"External Url is mandatory to enable Kerberos. Only one domain can have kerberos enabled without an external url, which is the case for "
+									+ currDomain.defaultAlias + ".",
+							ErrorCode.INVALID_PARAMETER);
+				}
+			});
+		}
+
+		// kerb params mandatory
+		if (domain.properties.get(DomainAuthProperties.krb_ad_domain.name()) == null) {
+			throw new ServerFault("AD Domain is mandatory for kerberos configuration", ErrorCode.INVALID_PARAMETER);
+		}
+		if (domain.properties.get(DomainAuthProperties.krb_ad_ip.name()) == null) {
+			throw new ServerFault("AD IP adress is mandatory for kerberos configuration", ErrorCode.INVALID_PARAMETER);
+		}
+		if (domain.properties.get(DomainAuthProperties.krb_keytab.name()) == null) {
+			throw new ServerFault("Keytab file is mandatory for kerberos configuration", ErrorCode.INVALID_PARAMETER);
+		}
+	}
+
 	private static String krb5Conf(JsonObject jsonConf) {
 		StringBuffer buf = new StringBuffer();
 
@@ -179,5 +284,15 @@ public class KerberosConfigHelper {
 		});
 
 		return conf;
+	}
+
+	private static String getExternalUrl(String domainUid) {
+		return getExternalUrl(null, domainUid);
+	}
+
+	private static String getExternalUrl(BmContext context, String domainUid) {
+		return ServerSideServiceProvider
+				.getProvider(context != null ? context.getSecurityContext() : SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domainUid).get().get(DomainSettingsKeys.external_url.name());
 	}
 }

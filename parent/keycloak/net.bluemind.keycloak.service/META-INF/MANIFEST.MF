@@ -24,4 +24,5 @@ Require-Bundle: net.bluemind.server.hook,
  net.bluemind.keycloak.utils,
  net.bluemind.hornetq.client,
  net.bluemind.system.api,
- net.bluemind.system.hook
+ net.bluemind.system.hook,
+ net.bluemind.core.validator

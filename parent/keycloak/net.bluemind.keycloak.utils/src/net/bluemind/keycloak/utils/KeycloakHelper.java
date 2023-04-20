@@ -141,8 +141,10 @@ public class KeycloakHelper {
 			Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
 					.get(domain.uid);
 			String domainExternalUrl = domainSettings.get(DomainSettingsKeys.external_url.name());
+			String globalExternalUrl = smap.get(SysConfKeys.external_url.name());
+			String srvPrincHost = domainExternalUrl != null ? domainExternalUrl : globalExternalUrl;
 
-			String serverPrincipal = "HTTP/bluemind." + domainExternalUrl + "@" + krb_ad_domain;
+			String serverPrincipal = "HTTP/" + srvPrincHost + "@" + krb_ad_domain;
 
 			String keytabPath = "/etc/bm-keycloak/" + domain.uid + ".keytab";
 			String kcServerAddr = Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address();
@@ -156,10 +158,21 @@ public class KeycloakHelper {
 			kerb.setEnabled(true);
 			kerb.setDebug(true);
 			kerb.setCachePolicy(CachePolicy.DEFAULT);
-			kerb.setName(realm + "-kerberos");
-			kerb.setParentId(realm);
 
-			provider.instance(IKeycloakKerberosAdmin.class, realm).create(kerb);
+			if (!"global.virt".equals(realm) && domainExternalUrl == null) {
+				IKeycloakKerberosAdmin kerbProv = provider.instance(IKeycloakKerberosAdmin.class, "global.virt");
+				try {
+					kerbProv.deleteKerberosProvider("global.virt-kerberos");
+				} catch (Throwable t) {
+				}
+				kerb.setName("global.virt-kerberos");
+				kerb.setParentId("global.virt");
+				kerbProv.create(kerb);
+			} else {
+				kerb.setName(realm + "-kerberos");
+				kerb.setParentId(realm);
+				provider.instance(IKeycloakKerberosAdmin.class, realm).create(kerb);
+			}
 		}
 		KerberosConfigHelper.updateKrb5Conf();
 

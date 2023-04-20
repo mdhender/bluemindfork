@@ -30,5 +30,8 @@
 	<extension point="net.bluemind.system.hook">
 		<observer class="net.bluemind.keycloak.service.domainhook.SysConfHook"></observer>
 	</extension>
+	<extension point="net.bluemind.core.validatorfactory">
+		<validatorfactory implementation="net.bluemind.keycloak.service.domainhook.DomainValidator$Factory"></validatorfactory>
+	</extension>
 
 </plugin>
