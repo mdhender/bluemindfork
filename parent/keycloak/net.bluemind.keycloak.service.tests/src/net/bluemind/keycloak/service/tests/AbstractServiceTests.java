@@ -155,4 +155,6 @@ public abstract class AbstractServiceTests {
 	protected abstract IKeycloakFlowAdmin getKeycloakFlowService() throws ServerFault;
 
 	protected abstract IDomains getDomainService() throws ServerFault;
+
+	protected abstract IDomainSettings getDomainSettingsService() throws ServerFault;
 }

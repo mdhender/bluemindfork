@@ -19,6 +19,7 @@ package net.bluemind.keycloak.service.tests;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
 import net.bluemind.keycloak.api.IKeycloakBluemindProviderAdmin;
@@ -55,5 +56,10 @@ public class KeycloakServiceHttpTests extends KeycloakServiceTests {
 	protected IDomains getDomainService() throws ServerFault {
 		return ClientSideServiceProvider.getProvider("http://localhost:8090", securityContext.getSessionId())
 				.instance(IDomains.class);
+	}
+
+	protected IDomainSettings getDomainSettingsService() throws ServerFault {
+		return ClientSideServiceProvider.getProvider("http://localhost:8090", securityContext.getSessionId())
+				.instance(IDomainSettings.class, testRealmName);
 	}
 }

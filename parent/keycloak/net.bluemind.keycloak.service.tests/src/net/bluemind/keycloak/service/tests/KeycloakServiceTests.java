@@ -32,6 +32,8 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -47,6 +49,7 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.keycloak.api.AuthenticationFlow;
 import net.bluemind.keycloak.api.BluemindProviderComponent;
@@ -72,6 +75,7 @@ public class KeycloakServiceTests extends AbstractServiceTests {
 	protected static IKeycloakKerberosAdmin keycloakKerberosService = null;
 	protected static IKeycloakFlowAdmin keycloakFlowService = null;
 	protected static IDomains domainService = null;
+	protected static IDomainSettings domainSettingsService = null;
 	protected static String testRealmName = null;
 	protected static String oidcClientName = null;
 
@@ -103,6 +107,9 @@ public class KeycloakServiceTests extends AbstractServiceTests {
 
 		domainService = getDomainService();
 		assertNotNull("Unable to instantiate domainService", domainService);
+
+		domainSettingsService = getDomainSettingsService();
+		assertNotNull("Unable to instantiate domainSettingsService", domainSettingsService);
 
 		domainService.all();
 	}
@@ -296,10 +303,6 @@ public class KeycloakServiceTests extends AbstractServiceTests {
 
 		domainService.create(testRealmName,
 				Domain.create(testRealmName, testRealmName, "Temporary test domain", new HashSet<String>()));
-		try {
-			keycloakAdminService.deleteRealm("global.virt");
-		} catch (Throwable t) {
-		}
 		assertNotNull("Unable to create Bluemind domain", domainService.get(testRealmName));
 		assertNotNull("Unable to find automaticalluy created kerberos realm",
 				keycloakAdminService.getRealm(testRealmName));
@@ -382,6 +385,88 @@ public class KeycloakServiceTests extends AbstractServiceTests {
 
 	}
 
+	@Test
+	public void _110_krbConfigRulesEnforced() {
+		testRealmName = "global.virt";
+		keycloakClientAdminService = getKeycloakClientAdminService();
+		keycloakKerberosService = getKeycloakKerberosService();
+
+		keycloakAdminService.createRealm("global.virt");
+		keycloakClientAdminService.create("global.virt-cli");
+
+		String domainOne = "d1-" + System.currentTimeMillis() + ".loc";
+		domainService.create(domainOne,
+				Domain.create(domainOne, domainOne, "Temporary test domain One", new HashSet<String>()));
+		Domain domain1 = domainService.get(domainOne).value;
+		domain1.properties.put("auth_type", "KERBEROS");
+		domain1.properties.put("krb_ad_domain", "DOMAIN-ONE.COM");
+		domain1.properties.put("krb_ad_ip", "192.168.0.111");
+		domain1.properties.put("krb_keytab", "VGhpcyBpcyBzdXBwb3NlZCB0byBiZSBhIGtleXRhYiBmaWxlLg==");
+		domainService.update(domainOne, domain1);
+		try {
+			TimeUnit.SECONDS.sleep(7);
+		} catch (InterruptedException e) {
+		}
+		KerberosComponent krbGlob = keycloakKerberosService.getKerberosProvider("global.virt-kerberos");
+		assertNotNull("Kerberos component wasn't added to global realm", krbGlob);
+		assertEquals("Kerberos component wasn't properly created on global realm", krbGlob.getKerberosRealm(),
+				"DOMAIN-ONE.COM");
+
+		String domainTwo = "d2-" + System.currentTimeMillis() + ".loc";
+		testRealmName = domainTwo;
+		domainSettingsService = getDomainSettingsService();
+		keycloakClientAdminService = getKeycloakClientAdminService();
+		keycloakKerberosService = getKeycloakKerberosService();
+
+		domainService.create(domainTwo,
+				Domain.create(domainTwo, domainTwo, "Temporary test domain Two", new HashSet<String>()));
+		Domain domain2 = domainService.get(domainTwo).value;
+		domain2.properties.put("auth_type", "KERBEROS");
+		domain2.properties.put("krb_ad_domain", "DOMAIN-TWO.BIZ");
+		domain2.properties.put("krb_ad_ip", "192.168.0.222");
+		domain2.properties.put("krb_keytab", "U29tZSBmYWtlIGtleXRhYiBmaWxlLCB5byE=");
+
+		boolean updateRejected = false;
+		try {
+			domainService.update(domainTwo, domain2);
+		} catch (Throwable t) {
+			updateRejected = true;
+		}
+		assertTrue("Adding a second kerberos domain without an external URL shouldn't have been allowed",
+				updateRejected);
+
+		Map<String, String> settings = domainSettingsService.get();
+		settings.put("external_url", "bluemind.domain-two.biz");
+		domainSettingsService.set(settings);
+		domain2 = domainService.get(domainTwo).value;
+		domain2.properties.put("auth_type", "KERBEROS");
+		domain2.properties.put("krb_ad_domain", "DOMAIN-TWO.BIZ");
+		domain2.properties.put("krb_ad_ip", "192.168.0.222");
+		domain2.properties.put("krb_keytab", "U29tZSBmYWtlIGtleXRhYiBmaWxlLCB5byE=");
+		domainService.update(domainTwo, domain2);
+		try {
+			TimeUnit.SECONDS.sleep(7);
+		} catch (InterruptedException e) {
+		}
+		KerberosComponent krbDomain = keycloakKerberosService.getKerberosProvider(domainTwo + "-kerberos");
+		assertNotNull("Kerberos component wasn't added to domain realm", krbDomain);
+		assertEquals("Kerberos component wasn't properly created on domain realm", krbDomain.getKerberosRealm(),
+				"DOMAIN-TWO.BIZ");
+
+		try {
+			keycloakAdminService.deleteRealm("global.virt");
+		} catch (Throwable t) {
+		}
+		try {
+			keycloakAdminService.deleteRealm(domainOne);
+		} catch (Throwable t) {
+		}
+		try {
+			keycloakAdminService.deleteRealm(domainTwo);
+		} catch (Throwable t) {
+		}
+	}
+
 	protected IKeycloakAdmin getKeycloakAdminService() throws ServerFault {
 		return ServerSideServiceProvider.getProvider(securityContext).instance(IKeycloakAdmin.class);
 	}
@@ -407,5 +492,9 @@ public class KeycloakServiceTests extends AbstractServiceTests {
 
 	protected IDomains getDomainService() throws ServerFault {
 		return ServerSideServiceProvider.getProvider(securityContext).instance(IDomains.class);
+	}
+
+	protected IDomainSettings getDomainSettingsService() throws ServerFault {
+		return ServerSideServiceProvider.getProvider(securityContext).instance(IDomainSettings.class, testRealmName);
 	}
 }
