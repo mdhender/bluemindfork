@@ -27,8 +27,8 @@ import { BmDropdownItemToggle, BmIconDropdown } from "@bluemind/ui-components";
 import { ERROR, REMOVE } from "@bluemind/alert.store";
 import { inject } from "@bluemind/inject";
 import { draftUtils, mailTipUtils, messageUtils } from "@bluemind/mail";
-import { SMIME_AVAILABLE } from "../../store/getterTypes";
-import { RESET_MISSING_CERTIFICATES } from "../../store/mutationTypes";
+import { SMIME_AVAILABLE } from "../../store/root-app/types";
+import { RESET_MISSING_CERTIFICATES } from "../../store/mail/types";
 import EncryptSignMixin from "../../mixins/EncryptSignMixin";
 import { hasEncryptionHeader, hasSignatureHeader, addHeaderValue } from "../../lib/helper";
 import { CRYPTO_HEADERS, ENCRYPTED_HEADER_NAME, SIGNED_HEADER_NAME, SMIMEPrefKeys } from "../../lib/constants";
@@ -70,7 +70,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("mail", { SMIME_AVAILABLE }),
+        ...mapGetters("smime", { SMIME_AVAILABLE }),
         title() {
             return this.hasEncryptionHeader
                 ? this.$t("smime.mailapp.composer.stop_encrypt_and_sign")

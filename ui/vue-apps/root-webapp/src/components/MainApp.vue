@@ -1,5 +1,6 @@
 <template>
     <div class="main-app d-flex flex-column h-100">
+        <bm-extension id="webapp" path="app.header" />
         <global-events target="self" @resize="appHeight" @dragover.prevent />
         <system-alert-area v-if="systemAlerts.length > 0" :system-alerts="systemAlerts" @remove="systemAlerts = []" />
         <bm-banner v-if="showBanner" :applications="applications" :user="user" :current-application="current" />
@@ -26,6 +27,7 @@ import { mapActions, mapMutations, mapState } from "vuex";
 import GlobalEvents from "vue-global-events";
 
 import { mapExtensions } from "@bluemind/extensions";
+import { BmExtension } from "@bluemind/extensions.vue";
 import { inject } from "@bluemind/inject";
 import { BmAlertArea } from "@bluemind/ui-components";
 
@@ -40,6 +42,7 @@ export default {
     components: {
         About,
         BmBanner,
+        BmExtension,
         Preferences,
         GlobalEvents,
         BmAlertArea,

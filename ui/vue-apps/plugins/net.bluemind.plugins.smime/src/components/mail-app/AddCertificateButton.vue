@@ -13,7 +13,7 @@
 <script>
 import { mapActions } from "vuex";
 import { BmIconButton } from "@bluemind/ui-components";
-import { ADD_CERTIFICATE } from "../../store/actionTypes";
+import { ADD_CERTIFICATE } from "../../store/mail/types";
 
 export default {
     name: "AddCertificateButton",

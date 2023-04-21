@@ -10,7 +10,7 @@
 <script>
 import { BmButton } from "@bluemind/ui-components";
 import { hasSignatureHeader, isVerified } from "../../../lib/helper";
-import { DISPLAY_UNTRUSTED } from "../../../store/mutationTypes";
+import { DISPLAY_UNTRUSTED } from "../../../store/mail/types";
 
 export default {
     name: "UntrustedSenderAlert",

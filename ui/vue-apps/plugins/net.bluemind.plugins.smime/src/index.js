@@ -16,31 +16,34 @@ import CertificateFileItem from "./components/mail-app/CertificateFileItem";
 import PrefSMime from "./components/preferences/PrefSMime";
 import SignErrorAlert from "./components/mail-app/alerts/SignErrorAlert";
 import SMimeBodyWrapper from "./components/mail-app/SMimeBodyWrapper";
+import SMimeMailRenderlessStore from "./components/mail-app/SMimeMailRenderlessStore";
+import SMimeRootRenderlessStore from "./components/root-app/SMimeRootRenderlessStore";
 import TrustedSender from "./components/mail-app/TrustedSender";
 import UntrustedSenderAlert from "./components/mail-app/alerts/UntrustedSenderAlert";
 import UntrustedSenderTrigger from "./components/mail-app/alerts/UntrustedSenderTrigger";
 import AddCertificateButton from "./components/mail-app/AddCertificateButton";
 import { SMIMEPrefKeys } from "./lib/constants";
 import SmimeL10N from "./l10n/";
-import SmimeStore from "./store";
-import { CHECK_IF_ASSOCIATED } from "./store/actionTypes";
-import { SMIME_AVAILABLE } from "./store/getterTypes";
-import { SET_SW_AVAILABLE } from "./store/mutationTypes";
+import { SMIME_AVAILABLE } from "./store/root-app/types";
 import GetMailTipsHandler from "./commands/GetMailTipsHandler";
 
 TranslationRegistry.register(SmimeL10N);
-store.registerModule(["mail", "smime"], SmimeStore);
 
-navigator.serviceWorker?.addEventListener("controllerchange", () => {
-    const isServiceWorkerAvailable = !!navigator.serviceWorker.controller;
-    store.commit("mail/" + SET_SW_AVAILABLE, isServiceWorkerAvailable);
-    store.dispatch("mail/" + CHECK_IF_ASSOCIATED);
+Vue.component("SMimeRootRenderlessStore", SMimeRootRenderlessStore);
+extensions.register("webapp", "net.bluemind.plugins.smime", {
+    component: {
+        name: "SMimeRootRenderlessStore",
+        path: "app.header"
+    }
 });
 
-const userRoles = window.bmcSessionInfos.roles.split(",");
-if (userRoles.includes(BmRoles.CAN_USE_SMIME)) {
-    store.dispatch("mail/" + CHECK_IF_ASSOCIATED);
-}
+Vue.component("SMimeMailRenderlessStore", SMimeMailRenderlessStore);
+extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
+    component: {
+        name: "SMimeMailRenderlessStore",
+        path: "app.header"
+    }
+});
 
 Vue.component("SMimeBodyWrapper", SMimeBodyWrapper);
 extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
@@ -178,7 +181,7 @@ function prefSmimeGroups() {
         {
             id: "smime_encrypt_pref",
             name: i18n.t("smime.preferences.encrypt_field.title"),
-            visible: () => store.getters["mail/" + SMIME_AVAILABLE],
+            visible: () => store.getters["smime/" + SMIME_AVAILABLE],
             fields: [
                 {
                     id: "field",
@@ -197,7 +200,7 @@ function prefSmimeGroups() {
         {
             id: "smime_signature_pref",
             name: i18n.t("smime.preferences.signature_field.title"),
-            visible: () => store.getters["mail/" + SMIME_AVAILABLE],
+            visible: () => store.getters["smime/" + SMIME_AVAILABLE],
             fields: [
                 {
                     id: "field",

@@ -85,7 +85,7 @@ import {
     BmModal,
     BmReadMore
 } from "@bluemind/ui-components";
-import { SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT } from "../../store/mutationTypes";
+import { SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT } from "../../store/root-app/types";
 import { SMIME_INTERNAL_API_URL, PKIEntry, smimeErrorMsgRegex, CRYPTO_HEADERS } from "../../lib/constants";
 import DocLinkMixin from "../../mixins/DocLinkMixin";
 import { InvalidCertificateError, InvalidKeyError } from "../../lib/exceptions";
@@ -115,7 +115,7 @@ export default {
         };
     },
     methods: {
-        ...mapMutations("mail", { SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT }),
+        ...mapMutations("smime", { SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT }),
         open() {
             this.file = undefined;
             this.unsupportedFile = false;

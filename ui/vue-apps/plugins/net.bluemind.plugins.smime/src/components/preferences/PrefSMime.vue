@@ -34,8 +34,7 @@
 import { mapGetters } from "vuex";
 import { BaseField } from "@bluemind/preferences";
 import { BmButton, BmLabelIcon, BmReadMore } from "@bluemind/ui-components";
-import { DISSOCIATE_CRYPTO_FILES } from "../../store/actionTypes";
-import { SMIME_AVAILABLE } from "../../store/getterTypes";
+import { DISSOCIATE_CRYPTO_FILES, SMIME_AVAILABLE } from "../../store/root-app/types";
 import ImportPkcs12Modal from "./ImportPkcs12Modal";
 import unsetKeyIllustration from "../../../assets/setting-encryption-key-unset.png";
 import setKeyIllustration from "../../../assets/setting-encryption-key-set.png";
@@ -49,12 +48,12 @@ export default {
         return { setKeyIllustration, unsetKeyIllustration };
     },
     computed: {
-        ...mapGetters("mail", [SMIME_AVAILABLE]),
+        ...mapGetters("smime", [SMIME_AVAILABLE]),
         isServiceWorkerAvailable() {
-            return this.$store.state.mail.smime.isServiceWorkerAvailable;
+            return this.$store.state.smime.isServiceWorkerAvailable;
         },
         swError() {
-            return this.$store.state.mail.smime.swError;
+            return this.$store.state.smime.swError;
         }
     },
     methods: {
@@ -76,7 +75,7 @@ export default {
                 }
             );
             if (confirm) {
-                await this.$store.dispatch("mail/" + DISSOCIATE_CRYPTO_FILES);
+                await this.$store.dispatch("smime/" + DISSOCIATE_CRYPTO_FILES);
                 this.NEED_RELOAD();
             }
         }

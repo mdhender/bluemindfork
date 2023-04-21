@@ -50,7 +50,7 @@ interface SessionPromise {
     hasIM: Promise<string>;
     lang: Promise<string>;
     login: Promise<string>;
-    roles: Promise<string>;
+    roles: Promise<string[]>;
     sid: Promise<string>;
     userId: Promise<string>;
 }
@@ -84,7 +84,7 @@ function init() {
             return instance().then(({ login }) => login);
         },
         get roles() {
-            return instance().then(({ roles }) => roles);
+            return instance().then(({ roles }) => roles.split(","));
         },
         get sid() {
             return instance().then(({ sid }) => sid);
