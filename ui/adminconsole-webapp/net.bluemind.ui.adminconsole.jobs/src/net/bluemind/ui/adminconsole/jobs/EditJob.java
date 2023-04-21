@@ -215,21 +215,16 @@ public class EditJob extends Composite implements IStatusFilterListener, IDomain
 	}
 
 	private void load(final String jobId, String domain, final Integer activeTab, final boolean firstTime) {
-		if (null == domain && !DomainsHolder.get().getSelectedDomain().uid.equals("global.virt")) {
-			domain = DomainsHolder.get().getSelectedDomain().uid;
-		}
 		this.domain = domain;
+
 		JobExecutionQuery jeq = new JobExecutionQuery();
 		jeq.jobId = jobId;
-		if (domain != null) {
-			jeq.domain = domain;
-		}
+		jeq.domain = domain;
 		jeq.statuses = statusFilter.getAcceptedStatus();
-
 		jeq.from = 0;
 		jeq.size = 20;
 
-		JobQuery jq = JobQuery.withIdAndDomainUid(jobId, domain);
+		JobQuery jq = JobQuery.withIdAndDomainUid(jobId, !"global.virt".equals(domain) ? domain : null);
 
 		jobApi.searchExecution(jeq, new AsyncHandler<ListResult<JobExecution>>() {
 			@Override

@@ -92,7 +92,7 @@ public class ScheduledJobService implements IInCoreJob {
 				continue;
 			}
 
-			if (query.domain != null && query.jobId != null && !bj.getJobId().equals(query.jobId)) {
+			if (query.jobId != null && !bj.getJobId().equals(query.jobId)) {
 				continue;
 			}
 
