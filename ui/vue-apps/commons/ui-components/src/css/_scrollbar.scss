@@ -8,16 +8,12 @@
     padding-right: $scroll-width;
 }
 
-// the element containing the scrollbar appears only on hover...
-.scroller-y.scroller-visible-on-hover {
-    visibility: hidden;
+// the scrollbar appears only on hover
+.scroller-y.scroller-visible-on-hover::-webkit-scrollbar {
+    display: none;
 }
-*:hover > .scroller-visible-on-hover {
-    visibility: visible;
-}
-// ... but elements under the one containing the scrollbar should be always visible
-.scroller-visible-on-hover > * {
-    visibility: visible !important;
+*:hover > .scroller-visible-on-hover::-webkit-scrollbar {
+    display: unset;
 }
 
 // set at least one style here in order to activate the customization of the scrollbar
