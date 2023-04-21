@@ -20,13 +20,12 @@ package net.bluemind.lib.ical4j.vcard.property;
 
 import java.util.List;
 
-import net.fortuna.ical4j.model.Escapable;
 import net.fortuna.ical4j.vcard.Group;
 import net.fortuna.ical4j.vcard.Parameter;
 import net.fortuna.ical4j.vcard.Property;
 import net.fortuna.ical4j.vcard.PropertyFactory;
 
-public class ABShowAs extends Property implements Escapable {
+public class ABShowAs extends Property {
 
 	private static final long serialVersionUID = 2721641714208540091L;
 

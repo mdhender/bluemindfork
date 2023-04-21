@@ -70,6 +70,7 @@ import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.DateList;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Dur;
+import net.fortuna.ical4j.model.Month;
 import net.fortuna.ical4j.model.NumberList;
 import net.fortuna.ical4j.model.Parameter;
 import net.fortuna.ical4j.model.ParameterList;
@@ -775,8 +776,8 @@ public class ICal4jHelper<T extends ICalendarElement> {
 			}
 			if (recur.getMonthList() != null) {
 				reccurringRule.byMonth = new ArrayList<>(recur.getMonthList().size());
-				for (Iterator<Integer> it = recur.getMonthList().iterator(); it.hasNext();) {
-					reccurringRule.byMonth.add(it.next());
+				for (Iterator<Month> it = recur.getMonthList().iterator(); it.hasNext();) {
+					reccurringRule.byMonth.add(it.next().getMonthOfYear());
 				}
 			}
 			if (recur.getSetPosList() != null) {

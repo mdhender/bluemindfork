@@ -80,9 +80,10 @@ export default {
                             imapUid: this.message.remoteRef.imapUid,
                             parts: [reportParts[0]]
                         });
-                        const reportData = this.$store.state.mail.partsData.partsByMessageKey[this.message.key][
-                            this.firstReport.address
-                        ];
+                        const reportData =
+                            this.$store.state.mail.partsData.partsByMessageKey[this.message.key][
+                                this.firstReport.address
+                            ];
                         const report = parseReportData(reportData);
                         this.originalMessage = await this.findMessage(report.originalMessageId);
                     }

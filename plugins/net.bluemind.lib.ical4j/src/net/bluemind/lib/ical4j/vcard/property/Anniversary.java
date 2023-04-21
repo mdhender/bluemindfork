@@ -24,14 +24,13 @@ import java.util.List;
 
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.DateTime;
-import net.fortuna.ical4j.model.Escapable;
 import net.fortuna.ical4j.util.Strings;
 import net.fortuna.ical4j.vcard.Group;
 import net.fortuna.ical4j.vcard.Parameter;
 import net.fortuna.ical4j.vcard.Property;
 import net.fortuna.ical4j.vcard.PropertyFactory;
 
-public class Anniversary extends Property implements Escapable {
+public class Anniversary extends Property {
 
 	public static final PropertyFactory<Property> FACTORY = new Factory();
 

@@ -42,7 +42,6 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.CalendarException;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.ComponentFactory;
-import net.fortuna.ical4j.model.Escapable;
 import net.fortuna.ical4j.model.Parameter;
 import net.fortuna.ical4j.model.ParameterFactory;
 import net.fortuna.ical4j.model.Property;
@@ -200,7 +199,7 @@ public class CalendarBuilder {
 						.filter(pf -> pf.supports(name)).findFirst();
 				ParameterFactory<? extends Parameter> factory = parameterFactory
 						.orElse(new UnknownParameterFactory(name));
-				final Parameter param = factory.createParameter(Strings.escapeNewline(value));
+				final Parameter param = factory.createParameter(Strings.escape(value));
 				property.getParameters().add(param);
 				if (param instanceof TzId && tzRegistry != null && !(property instanceof XProperty)
 						&& !(property instanceof UnknownProperty)) {
@@ -218,11 +217,7 @@ public class CalendarBuilder {
 
 				assertProperty(property);
 				try {
-					if (property instanceof Escapable) {
-						property.setValue(Strings.unescape(value));
-					} else {
-						property.setValue(value);
-					}
+					property.setValue(value);
 				} catch (Exception e) {
 					logger.warn("Error setValue for property {} to {} : {}", property.getName(), value, e.getMessage());
 				}

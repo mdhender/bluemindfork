@@ -3,18 +3,17 @@
         <bm-icon icon="info-circle" class="mr-4" />
         <p class="d-flex flex-column">
             <template v-for="(line, index) in lines"> {{ line }}<br :key="index" /> </template>
-            <pref-read-more v-if="readMoreLink" :href="readMoreLink" />
+            <bm-read-more v-if="readMoreLink" :href="readMoreLink" />
         </p>
     </div>
 </template>
 
 <script>
-import { BmIcon } from "@bluemind/ui-components";
-import PrefReadMore from "./PrefReadMore";
+import { BmReadMore, BmIcon } from "@bluemind/ui-components";
 
 export default {
     name: "PrefFieldInfo",
-    components: { BmIcon, PrefReadMore },
+    components: { BmIcon, BmReadMore },
     props: {
         lines: { type: Array, required: true },
         readMoreLink: { type: String, default: undefined }

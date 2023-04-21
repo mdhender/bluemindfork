@@ -20,13 +20,12 @@ package net.bluemind.lib.ical4j.vcard.property;
 
 import java.util.List;
 
-import net.fortuna.ical4j.model.Escapable;
 import net.fortuna.ical4j.vcard.Group;
 import net.fortuna.ical4j.vcard.Parameter;
 import net.fortuna.ical4j.vcard.Property;
 import net.fortuna.ical4j.vcard.PropertyFactory;
 
-public class Manager extends Property implements Escapable {
+public class Manager extends Property {
 
 	public static final PropertyFactory<Property> FACTORY = new Factory();
 

@@ -27,6 +27,7 @@ import net.fortuna.ical4j.model.ParameterList;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyFactory;
 import net.fortuna.ical4j.validate.ValidationException;
+import net.fortuna.ical4j.validate.ValidationResult;
 
 @SuppressWarnings("serial")
 public class UnknownProperty extends Property {
@@ -42,8 +43,8 @@ public class UnknownProperty extends Property {
 	}
 
 	@Override
-	public void validate() throws ValidationException {
-
+	public ValidationResult validate() throws ValidationException {
+		return ValidationResult.EMPTY;
 	}
 
 	@Override

@@ -24,6 +24,7 @@ import net.fortuna.ical4j.model.PropertyFactory;
 import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.property.DateProperty;
 import net.fortuna.ical4j.validate.ValidationException;
+import net.fortuna.ical4j.validate.ValidationResult;
 
 public class UtcProperty extends DateProperty {
 
@@ -77,8 +78,10 @@ public class UtcProperty extends DateProperty {
 
 	/**
 	 * {@inheritDoc}
+	 * 
+	 * @return
 	 */
-	public void validate() {
+	public ValidationResult validate() {
 		super.validate();
 
 		if (getDate() != null && !(getDate() instanceof DateTime)) {
@@ -90,5 +93,7 @@ public class UtcProperty extends DateProperty {
 		if (dateTime != null && !dateTime.isUtc()) {
 			throw new ValidationException(getName() + ": DATE-TIME value must be specified in UTC time");
 		}
+
+		return ValidationResult.EMPTY;
 	}
 }
