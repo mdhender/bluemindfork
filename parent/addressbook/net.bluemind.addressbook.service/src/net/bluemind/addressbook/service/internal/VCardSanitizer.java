@@ -243,9 +243,7 @@ public class VCardSanitizer implements ISanitizer<VCard> {
 
 	private void sanitizeFormattedName(VCard card) {
 		String formattedName = createFormattedNameFromIdentification(card);
-		if (formattedName != null
-				&& (card.identification.formatedName == null || card.identification.formatedName.value == null
-						|| card.identification.formatedName.value.trim().isEmpty())) {
+		if (formattedName != null && isNullFormattedName(formatedName.value)) {
 			card.identification.formatedName = FormatedName.create(formattedName);
 		}
 	}
