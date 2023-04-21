@@ -85,7 +85,7 @@ public class VCardSanitizerTests extends AbstractServiceTests {
 	public void testSanitize() throws SQLException, ServerFault {
 
 		// create 2 cards into 2 addressbooks
-		VCard card1 = defaultVCard();
+		VCard card1 = defaultVCardWithoutFormattedName();
 		card1.identification.formatedName = VCard.Identification.FormatedName.create("user1");
 		card1.communications.emails = Arrays.asList(VCard.Communications.Email.create("checked1@test.com"));
 		String uid1 = "test1_" + System.nanoTime();
@@ -96,7 +96,7 @@ public class VCardSanitizerTests extends AbstractServiceTests {
 		item1 = itemStoreBook1.get(uid1);
 		vCardStoreBook1.create(item1, card1);
 
-		VCard card2 = defaultVCard();
+		VCard card2 = defaultVCardWithoutFormattedName();
 		card2.identification.formatedName = VCard.Identification.FormatedName.create("user2");
 		card2.communications.emails = Arrays.asList(VCard.Communications.Email.create("checked2@test.com"));
 
@@ -107,7 +107,7 @@ public class VCardSanitizerTests extends AbstractServiceTests {
 		item2 = itemStoreBook2.get(uid2);
 		vCardStoreBook2.create(item2, card2);
 
-		VCard card3 = defaultVCard();
+		VCard card3 = defaultVCardWithoutFormattedName();
 		card3.identification.formatedName = VCard.Identification.FormatedName.create("user3");
 		card3.communications.emails = Arrays.asList(VCard.Communications.Email.create("checked3@test.com"));
 
@@ -118,7 +118,7 @@ public class VCardSanitizerTests extends AbstractServiceTests {
 		item3 = itemStoreBook2.get(uid3);
 		vCardStoreBook2.create(item3, card3);
 
-		VCard testCard = defaultVCard();
+		VCard testCard = defaultVCardWithoutFormattedName();
 		testCard.kind = Kind.group;
 		testCard.organizational.member = Arrays.asList(//
 				VCard.Organizational.Member.create(book1.uid, uid1, "fakeName", "fakemailto@fake.com"),
@@ -165,7 +165,7 @@ public class VCardSanitizerTests extends AbstractServiceTests {
 
 	@Test
 	public void testTrimName() {
-		VCard card = defaultVCard();
+		VCard card = defaultVCardWithoutFormattedName();
 		card.identification.formatedName = null;
 		card.identification.name = VCard.Identification.Name.create("familyNames  ", "givenNames  ",
 				" additionnalNames  ", " prefix ", "suffix ", Arrays.<VCard.Parameter>asList());
@@ -185,7 +185,7 @@ public class VCardSanitizerTests extends AbstractServiceTests {
 
 	@Test
 	public void formatedName_unset() {
-		VCard card = defaultVCard();
+		VCard card = defaultVCardWithoutFormattedName();
 		card.identification.name = VCard.Identification.Name.create("familyNames", "givenNames", "additionnalNames",
 				"prefix", "suffix ", Arrays.<VCard.Parameter>asList());
 		try {
@@ -198,7 +198,7 @@ public class VCardSanitizerTests extends AbstractServiceTests {
 
 	@Test
 	public void formatedName_emptyNullOrSpaceOnlyValue() {
-		VCard card = defaultVCard();
+		VCard card = defaultVCardWithoutFormattedName();
 		card.identification.name = VCard.Identification.Name.create("familyNames", "givenNames", "additionnalNames",
 				"prefix", "suffix ", Arrays.<VCard.Parameter>asList());
 		try {
@@ -209,7 +209,7 @@ public class VCardSanitizerTests extends AbstractServiceTests {
 
 		assertEquals("givenNames additionnalNames familyNames", card.identification.formatedName.value);
 
-		card = defaultVCard();
+		card = defaultVCardWithoutFormattedName();
 		card.identification.formatedName = FormatedName.create("");
 		card.identification.name = VCard.Identification.Name.create("familyNames", "givenNames", "additionnalNames",
 				"prefix", "suffix ", Arrays.<VCard.Parameter>asList());
@@ -221,7 +221,7 @@ public class VCardSanitizerTests extends AbstractServiceTests {
 
 		assertEquals("givenNames additionnalNames familyNames", card.identification.formatedName.value);
 
-		card = defaultVCard();
+		card = defaultVCardWithoutFormattedName();
 		card.identification.formatedName = FormatedName.create("  ");
 		card.identification.name = VCard.Identification.Name.create("familyNames", "givenNames", "additionnalNames",
 				"prefix", "suffix ", Arrays.<VCard.Parameter>asList());
@@ -236,7 +236,7 @@ public class VCardSanitizerTests extends AbstractServiceTests {
 
 	@Test
 	public void formatedName_set() {
-		VCard card = defaultVCard();
+		VCard card = defaultVCardWithoutFormattedName();
 		card.identification.formatedName = FormatedName.create("Formated Name");
 		List<Parameter> origParameters = new ArrayList<>(card.identification.formatedName.parameters);
 		card.identification.name = VCard.Identification.Name.create("familyNames", "givenNames", "additionnalNames",
@@ -259,7 +259,7 @@ public class VCardSanitizerTests extends AbstractServiceTests {
 
 	@Test
 	public void testTrimEmail() {
-		VCard card = defaultVCard();
+		VCard card = defaultVCardWithoutFormattedName();
 		card.communications.emails = Arrays.asList(VCard.Communications.Email.create("  this.is.calendar@bm.lan    "));
 		try {
 			new VCardSanitizer(testContext).sanitize(card, Optional.empty());
@@ -273,7 +273,7 @@ public class VCardSanitizerTests extends AbstractServiceTests {
 
 	@Test
 	public void testDeleteDListMembersWithoutEmail() {
-		VCard card = defaultVCard();
+		VCard card = defaultVCardWithoutFormattedName();
 
 		Member member1 = Member.create("container", "item1", "hasMail1", "hasMail1@hasMail.org");
 		Member member2 = Member.create("container", "item2", "hasNoMail2", null);
@@ -296,6 +296,12 @@ public class VCardSanitizerTests extends AbstractServiceTests {
 			assertTrue(member.commonName.startsWith("hasMail"));
 		}
 
+	}
+
+	private VCard defaultVCardWithoutFormattedName() {
+		VCard card = defaultVCard();
+		card.identification.formatedName = null;
+		return card;
 	}
 
 	protected IAddressBook getService(SecurityContext context) {
