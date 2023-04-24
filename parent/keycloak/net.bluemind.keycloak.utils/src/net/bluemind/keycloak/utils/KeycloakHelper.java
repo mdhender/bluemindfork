@@ -61,6 +61,7 @@ import net.bluemind.network.topology.Topology;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.openid.api.OpenIdProperties;
+import net.bluemind.server.api.Server;
 import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.SysConfKeys;
 
@@ -73,6 +74,20 @@ public class KeycloakHelper {
 	}
 
 	public static void initForDomain(ItemValue<Domain> domain) {
+		if (domain.value.properties != null && AuthTypes.EXTERNAL.name()
+				.equals(domain.value.properties.get(DomainAuthProperties.auth_type.name()))) {
+			initExternalForDomain(domain);
+		} else {
+			Optional<ItemValue<Server>> kcServer = Topology.get().anyIfPresent(TagDescriptor.bm_keycloak.getTag());
+			if (kcServer.isPresent()) {
+				initKeycloakForDomain(domain);
+			} else {
+				logger.warn("No keycloak server in topology. Skipping init for domain {}", domain.uid);
+			}
+		}
+	}
+
+	private static void initKeycloakForDomain(ItemValue<Domain> domain) {
 		logger.info("Init Keycloak realm for domain {}", domain.uid);
 
 		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
@@ -117,16 +132,15 @@ public class KeycloakHelper {
 				casUrl = domain.value.properties.get(DomainAuthProperties.cas_url.name());
 			}
 		} else {
-			if (realm.equals(smap.get(SysConfKeys.krb_domain.name()))) {
-				authType = smap.get(SysConfKeys.auth_type.name());
-				if (AuthTypes.KERBEROS.name().equals(authType)) {
-					krbAdDomain = smap.get(SysConfKeys.krb_ad_domain.name());
-					krbAdIp = smap.get(SysConfKeys.krb_ad_ip.name());
-					krbKeytab = smap.get(SysConfKeys.krb_keytab.name());
-				}
-				if (AuthTypes.CAS.name().equals(authType)) {
-					casUrl = smap.get(SysConfKeys.cas_url.name());
-				}
+			authType = smap.get(SysConfKeys.auth_type.name());
+			if (AuthTypes.KERBEROS.name().equals(authType)
+					&& domain.uid.equals(smap.get(SysConfKeys.krb_domain.name()))) {
+				krbAdDomain = smap.get(SysConfKeys.krb_ad_domain.name());
+				krbAdIp = smap.get(SysConfKeys.krb_ad_ip.name());
+				krbKeytab = smap.get(SysConfKeys.krb_keytab.name());
+			} else if (AuthTypes.CAS.name().equals(authType)
+					&& domain.uid.equals(smap.get(SysConfKeys.cas_domain.name()))) {
+				casUrl = smap.get(SysConfKeys.cas_url.name());
 			} else {
 				authType = AuthTypes.INTERNAL.name();
 			}
@@ -229,14 +243,133 @@ public class KeycloakHelper {
 
 	}
 
-	public static void updateForDomain(String domainUid) {
-		String clientId = IKeycloakUids.clientId(domainUid);
-		List<String> currentUrls = getDomainUrls(domainUid);
+	private static void initExternalForDomain(ItemValue<Domain> domain) {
+		logger.info("Init external authentication config for domain {}", domain.uid);
 
+		String opendIdHost = domain.value.properties.get(OpenIdProperties.OPENID_HOST.name());
+
+		URI uri;
+		try {
+			uri = new URI(opendIdHost);
+		} catch (URISyntaxException e) {
+			logger.error(e.getMessage(), e);
+			return;
+		}
+
+		HttpClient client = initHttpClient(uri);
+		client.request(HttpMethod.GET, uri.getPath())
+				.onSuccess(req -> req.send().onSuccess(res -> res.bodyHandler(body -> {
+					JsonObject conf = new JsonObject(new String(body.getBytes()));
+
+					boolean somethingChanged = false;
+
+					String key = OpenIdProperties.OPENID_AUTHORISATION_ENDPOINT.name();
+					String val = conf.getString("authorization_endpoint");
+					if (val == null && domain.value.properties.get(key) != null) {
+						domain.value.properties.remove(key);
+						somethingChanged = true;
+					} else if (val != null && !val.equals(domain.value.properties.get(key))) {
+						domain.value.properties.put(key, val);
+						somethingChanged = true;
+					}
+
+					key = OpenIdProperties.OPENID_TOKEN_ENDPOINT.name();
+					val = conf.getString("token_endpoint");
+					if (val == null && domain.value.properties.get(key) != null) {
+						domain.value.properties.remove(key);
+						somethingChanged = true;
+					} else if (val != null && !val.equals(domain.value.properties.get(key))) {
+						domain.value.properties.put(key, val);
+						somethingChanged = true;
+					}
+
+					key = OpenIdProperties.OPENID_JWKS_URI.name();
+					val = conf.getString("jwks_uri");
+					if (val == null && domain.value.properties.get(key) != null) {
+						domain.value.properties.remove(key);
+						somethingChanged = true;
+					} else if (val != null && !val.equals(domain.value.properties.get(key))) {
+						domain.value.properties.put(key, val);
+						somethingChanged = true;
+					}
+
+					key = OpenIdProperties.OPENID_ISSUER.name();
+					val = Optional.ofNullable(conf.getString("issuer")).orElse(conf.getString("access_token_issuer"));
+					if (val == null && domain.value.properties.get(key) != null) {
+						domain.value.properties.remove(key);
+						somethingChanged = true;
+					} else if (val != null && !val.equals(domain.value.properties.get(key))) {
+						domain.value.properties.put(key, val);
+						somethingChanged = true;
+					}
+
+					key = OpenIdProperties.OPENID_END_SESSION_ENDPOINT.name();
+					val = conf.getString("end_session_endpoint");
+					if (val == null && domain.value.properties.get(key) != null) {
+						domain.value.properties.remove(key);
+						somethingChanged = true;
+					} else if (val != null && !val.equals(domain.value.properties.get(key))) {
+						domain.value.properties.put(key, val);
+						somethingChanged = true;
+					}
+
+					if (somethingChanged) {
+						ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class)
+								.update(domain.uid, domain.value);
+					}
+				}))).onFailure(t -> logger.error(t.getMessage(), t));
+
+	}
+
+	public static void updateForDomain(String domainUid) {
+		ItemValue<Domain> domain = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomains.class).get(domainUid);
+		Optional<ItemValue<Server>> kcServer = Topology.get().anyIfPresent(TagDescriptor.bm_keycloak.getTag());
+		if (domain.value.properties != null && AuthTypes.EXTERNAL.name()
+				.equals(domain.value.properties.get(DomainAuthProperties.auth_type.name()))) {
+			initExternalForDomain(domain);
+			if (kcServer.isPresent()) {
+				try {
+					ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IKeycloakAdmin.class)
+							.deleteRealm(domainUid);
+				} catch (Throwable t) {
+				}
+				KerberosConfigHelper.updateGlobalRealmKerb();
+				KerberosConfigHelper.updateKrb5Conf();
+			}
+		} else if (kcServer.isPresent()) {
+			updateKeycloakForDomain(domainUid);
+		} else {
+			logger.warn("No keycloak server in topology. Skipping update for domain {}", domain.uid);
+		}
+	}
+
+	private static void updateKeycloakForDomain(String domainUid) {
 		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+		ItemValue<Domain> domain = provider.instance(IDomains.class).get(domainUid);
+
+		String clientId = IKeycloakUids.clientId(domainUid);
 		IKeycloakClientAdmin kcCientService = provider.instance(IKeycloakClientAdmin.class, domainUid);
 
-		OidcClient oc = kcCientService.getOidcClient(clientId);
+		OidcClient oc = null;
+		try {
+			oc = kcCientService.getOidcClient(clientId);
+			if (oc != null && (domain.value.properties == null
+					|| !oc.secret.equals(domain.value.properties.get(OpenIdProperties.OPENID_CLIENT_SECRET.name())))) {
+				oc = null;
+			}
+		} catch (Throwable t) {
+		}
+		if (oc == null) {
+			try {
+				provider.instance(IKeycloakAdmin.class).deleteRealm(domainUid);
+			} catch (Throwable t) {
+			}
+			initKeycloakForDomain(domain);
+			oc = kcCientService.getOidcClient(clientId);
+		}
+
+		List<String> currentUrls = getDomainUrls(domainUid);
 		if (!oc.redirectUris.containsAll(currentUrls) || !currentUrls.containsAll(oc.redirectUris)) {
 			oc.redirectUris = currentUrls;
 			kcCientService.updateClient(clientId, oc);
