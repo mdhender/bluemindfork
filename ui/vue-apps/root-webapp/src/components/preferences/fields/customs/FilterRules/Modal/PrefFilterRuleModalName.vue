@@ -5,12 +5,14 @@
         :label="$t('preferences.mail.filters.modal.name')"
         label-for="pref-filter-rule-modal-name-input"
         label-class="circled-number one d-flex align-items-center"
+        :invalid-feedback="$t('preferences.mail.filters.modal.name.empty')"
     >
         <bm-form-input
             id="pref-filter-rule-modal-name-input"
             ref="name-input"
             v-model="filter.name"
             :placeholder="$t('preferences.mail.filters.modal.name.placeholder')"
+            :state="inputState"
             required
             @keypress.enter.prevent="$emit('submit')"
         />
@@ -26,6 +28,11 @@ export default {
         filter: {
             type: Object,
             required: true
+        }
+    },
+    computed: {
+        inputState() {
+            return this.filter.name?.trim() ? null : false;
         }
     }
 };

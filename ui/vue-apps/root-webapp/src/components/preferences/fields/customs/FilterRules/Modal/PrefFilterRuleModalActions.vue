@@ -54,10 +54,10 @@ export default {
             required: true
         }
     },
+    data() {
+        return { allActions: all(this) };
+    },
     computed: {
-        allActions() {
-            return all(this);
-        },
         hasForwardAction() {
             return this.filter.actions.find(action => action.name === ACTIONS.FORWARD.name);
         },

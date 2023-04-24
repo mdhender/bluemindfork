@@ -167,6 +167,7 @@
     "preferences.mail.filters.matcher.MATCHES": "correspond à",
     "preferences.mail.filters.matcher.MATCHES.negate": "ne correspond pas",
     "preferences.mail.filters.modal.name": "Nom",
+    "preferences.mail.filters.modal.name.empty": "Renseignez un nom (champ obligatoire)",
     "preferences.mail.filters.modal.name.placeholder": "Le nom pour reconnaître ce filtre",
     "preferences.mail.filters.modal.criteria": "Conditions",
     "preferences.mail.filters.modal.criteria.add": "Ajouter une condition",
