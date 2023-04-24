@@ -1,3 +1,4 @@
+import UUIDGenerator from "@bluemind/uuid";
 import { isViewable } from "./part";
 
 export const FileStatus = {
@@ -34,9 +35,18 @@ function hasRemoteContent({ url }) {
     return url && url.startsWith("http");
 }
 
+function fileKey(messageKey) {
+    const fileUid = UUIDGenerator.generate();
+    if (messageKey) {
+        return fileUid + ":" + messageKey;
+    }
+    return fileUid;
+}
+
 export default {
     ActionButtons,
     FileStatus,
+    fileKey,
     hasRemoteContent,
     isAllowedToPreview,
     isLarge,

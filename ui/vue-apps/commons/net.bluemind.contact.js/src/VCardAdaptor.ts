@@ -4,10 +4,11 @@ import { create } from "./model";
 
 export default {
     toVCard(contact: { kind: VCard.Kind; dn: string; address: string; photo?: boolean; pem: string }): VCard {
+        const [givenNames, familyNames] = contact.dn.split(" ");
         return {
             kind: contact.kind,
             identification: {
-                formatedName: { value: contact.dn },
+                name: { givenNames: givenNames || "", familyNames: familyNames || "", value: "" },
                 photo: contact.photo
             },
             communications: {

@@ -10,7 +10,7 @@
                 <mail-contact-card-slots
                     :component="Contact"
                     :contact="recipient"
-                    class="overflow-hidden"
+                    class="text-truncate"
                     no-avatar
                     transparent
                     bold

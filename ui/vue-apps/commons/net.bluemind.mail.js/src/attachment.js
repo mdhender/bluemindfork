@@ -1,9 +1,8 @@
 import { getPartDownloadUrl, MimeType } from "@bluemind/email";
 import i18n from "@bluemind/i18n";
-import UUIDGenerator from "@bluemind/uuid";
 import file from "./file";
 
-const { FileStatus } = file;
+const { fileKey, FileStatus } = file;
 
 export function create(part, status) {
     const progress = status === FileStatus.NOT_LOADED ? { loaded: 0, total: 100 } : { loaded: 100, total: 100 };
@@ -59,9 +58,9 @@ const AttachmentAdaptor = {
         const adaptedAttachements = [];
         const adaptedFiles = [];
         attachments.forEach(att => {
-            const fileKey = UUIDGenerator.generate();
-            adaptedAttachements.push({ fileKey, address: att.address });
-            adaptedFiles.push(this.createFileFromPart(att, fileKey, message));
+            const key = fileKey(message.key);
+            adaptedAttachements.push({ fileKey: key, address: att.address });
+            adaptedFiles.push(this.createFileFromPart(att, key, message));
         });
         return {
             attachments: adaptedAttachements,

@@ -3,7 +3,7 @@
         v-if="hasSignatureHeader"
         :icon="isVerified ? 'check-stamp' : 'exclamation-sample'"
         :title="tooltip"
-        class="is-sender-trusted"
+        class="is-sender-trusted mr-3"
     />
 </template>
 

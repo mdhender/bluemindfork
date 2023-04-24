@@ -26,7 +26,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
@@ -39,7 +38,6 @@ import net.bluemind.addressbook.api.VCard.Identification.FormatedName;
 import net.bluemind.addressbook.api.VCard.Kind;
 import net.bluemind.addressbook.api.VCard.Organizational.Member;
 import net.bluemind.addressbook.api.VCard.Parameter;
-import net.bluemind.addressbook.api.VCard.Security.Key;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
@@ -86,11 +84,12 @@ public class VCardSanitizer implements ISanitizer<VCard> {
 	}
 
 	private void sanitizePemCertificates(VCard card) {
-		for (Key cert : card.security.keys) {
-			if (cert != null && cert.value != null && cert.value.isBlank()) {
-				cert = new Key();
-			}
+		if (card.security.keys == null) {
+			return;
 		}
+		card.security.keys = card.security.keys.stream().filter(cert -> {
+			return cert != null && cert.value != null && !cert.value.trim().isBlank();
+		}).toList();
 	}
 
 	private void sanitizeMembers(VCard card, Optional<String> containerUid) {

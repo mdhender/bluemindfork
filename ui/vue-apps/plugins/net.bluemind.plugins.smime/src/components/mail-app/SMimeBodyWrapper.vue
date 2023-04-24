@@ -1,15 +1,13 @@
 <script>
 import { MimeType } from "@bluemind/email";
-import { BmButton } from "@bluemind/ui-components";
+import { BmButton, BmIllustration } from "@bluemind/ui-components";
 import { isDecrypted, getHeaderValue, hasEncryptionHeader, hasSignatureHeader, isVerified } from "../../lib/helper";
 import { ENCRYPTED_HEADER_NAME, SIGNED_HEADER_NAME } from "../../lib/constants";
 import DocLinkMixin from "../../mixins/DocLinkMixin";
-import untrustedIllustration from "../../../assets/mail-app-untrusted.png";
-import undecryptedIllustration from "../../../assets/mail-app-undecrypted.png";
 
 export default {
     name: "SMimeBodyWrapper",
-    components: { BmButton },
+    components: { BmButton, BmIllustration },
     mixins: [DocLinkMixin],
     props: {
         message: {
@@ -20,12 +18,6 @@ export default {
             type: Function,
             required: true
         }
-    },
-    data() {
-        return {
-            untrustedIllustration,
-            undecryptedIllustration
-        };
     },
     computed: {
         isPreview() {
@@ -53,12 +45,12 @@ export default {
         }
     },
     render(h) {
-        const src = this.untrusted ? untrustedIllustration : undecryptedIllustration;
+        // const src = this.untrusted ? "encrypted" : "untrusted" ;
         const text = this.untrusted
             ? this.$t("common.whats_going_on")
             : this.$t("smime.mailapp.body_wrapper.cant_display");
         if ((!this.forceDisplay && this.untrusted) || this.undecrypted) {
-            const imgDiv = h("div", {}, [h("img", { attrs: { src } })]);
+            const illustration = h("bm-illustration", { props: { value: "encrypted", overBackground: true } });
             const headerName = this.untrusted ? SIGNED_HEADER_NAME : ENCRYPTED_HEADER_NAME;
             const href = this.isPreview
                 ? this.noSmimeOnPreviewLink
@@ -68,7 +60,7 @@ export default {
                 { props: { variant: "link" }, class: "mt-6", attrs: { href, target: "_blank" } },
                 text
             );
-            const children = [imgDiv, button];
+            const children = [illustration, button];
             return h("div", { class: "smime-body-wrapper py-8" }, [children]);
         } else {
             return this.next();

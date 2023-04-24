@@ -5,6 +5,7 @@
             :contact="message.from"
             :no-avatar="noAvatar"
             avatar-size="md"
+            class="text-truncate"
             show-address
             transparent
             bold-dn

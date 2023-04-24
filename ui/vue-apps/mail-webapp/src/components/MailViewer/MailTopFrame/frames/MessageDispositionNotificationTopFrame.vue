@@ -62,7 +62,12 @@ export default {
     name: "MessageDispositionNotificationTopFrame",
     components: { BmResponsiveIllustration, ChainOfResponsibility },
     mixins: [ReportTopFrameMixin],
-    props: { message: { type: Object, default: undefined } },
+    props: {
+        message: {
+            type: Object,
+            required: true
+        }
+    },
     data() {
         return { firstReport: undefined, isMDN: false, originalMessage: undefined };
     },

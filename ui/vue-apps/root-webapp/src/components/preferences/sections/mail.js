@@ -303,26 +303,6 @@ function main(i18n) {
                 ]
             },
             {
-                id: "filters",
-                name: i18n.t("preferences.mail.filters"),
-                description: i18n.t("preferences.mail.filters.desc"),
-                fields: [
-                    {
-                        id: "domain_filters",
-                        visible: { name: "RoleCondition", args: [Roles.READ_DOMAIN_FILTERS] },
-                        component: { name: "PrefDomainFilterRules" }
-                    },
-                    {
-                        id: "my_filters",
-                        visible: { name: "RoleCondition", args: [Roles.SELF_CHANGE_MAILBOX_FILTER] },
-                        component: {
-                            name: "PrefMyFilterRules",
-                            options: { autosave: true }
-                        }
-                    }
-                ]
-            },
-            {
                 id: "default_app",
                 name: i18n.t("preferences.mail.mailto_links"),
                 visible: { name: "RoleCondition", args: [Roles.HAS_MAIL_WEBAPP] },

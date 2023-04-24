@@ -59,11 +59,11 @@ export default {
         autocompleteExpandedResults() {
             let autocompleteExpandedResults;
             const { sortedAddresses } = this.$store.getters[`mail/${ADDRESS_AUTOCOMPLETE}`];
-            if (this.searchResults) {
+            if (this.searchResults?.total > 0) {
                 // remove contacts already set and remove duplicates
                 const contactsAlreadySet = this.contacts.map(({ address, dn }) => `${dn}<${address}>`);
                 const searchResultKeyFn = contact => `${contact.value.formatedName || ""}<${contact.value.mail || ""}>`;
-                const contacts = this.searchResults.values?.reduce((result, contact) => {
+                const contacts = this.searchResults.values.reduce((result, contact) => {
                     if (
                         !contactsAlreadySet.includes(searchResultKeyFn(contact)) &&
                         !result.some(r => searchResultKeyFn(r) === searchResultKeyFn(contact))
@@ -75,9 +75,9 @@ export default {
 
                 // sort by priority
                 const priorityFn = address => sortedAddresses.indexOf(address) || Number.MAX_VALUE;
-                contacts?.sort((a, b) => priorityFn(b.value.mail) - priorityFn(a.value.mail));
+                contacts.sort((a, b) => priorityFn(b.value.mail) - priorityFn(a.value.mail));
 
-                autocompleteExpandedResults = contacts?.map(vcardInfo => VCardInfoAdaptor.toContact(vcardInfo));
+                autocompleteExpandedResults = contacts.map(VCardInfoAdaptor.toContact);
             }
             return autocompleteExpandedResults || [];
         },

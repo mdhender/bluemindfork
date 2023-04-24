@@ -1,10 +1,10 @@
 <template>
-    <div v-if="isServiceWorkerAvailable" class="pref-smime">
+    <div v-if="isServiceWorkerAvailable" class="pref-smime d-flex align-items-center">
         <div v-if="swError">
             {{ $t("smime.preferences.service_worker.error") }}
         </div>
         <template v-else>
-            <img :src="SMIME_AVAILABLE ? setKeyIllustration : unsetKeyIllustration" class="mr-5" />
+            <bm-illustration :value="SMIME_AVAILABLE ? 'lock-true' : 'lock-false'" size="xs" class="mr-5" />
             <div class="d-inline-block align-middle">
                 <template v-if="SMIME_AVAILABLE">
                     <bm-label-icon icon="check-circle" :inline="false">
@@ -33,20 +33,15 @@
 <script>
 import { mapGetters } from "vuex";
 import { BaseField } from "@bluemind/preferences";
-import { BmButton, BmLabelIcon, BmReadMore } from "@bluemind/ui-components";
+import { BmButton, BmIllustration, BmLabelIcon, BmReadMore } from "@bluemind/ui-components";
 import { DISSOCIATE_CRYPTO_FILES, SMIME_AVAILABLE } from "../../store/root-app/types";
 import ImportPkcs12Modal from "./ImportPkcs12Modal";
-import unsetKeyIllustration from "../../../assets/setting-encryption-key-unset.png";
-import setKeyIllustration from "../../../assets/setting-encryption-key-set.png";
 import DocLinkMixin from "../../mixins/DocLinkMixin";
 
 export default {
     name: "PrefSMime",
-    components: { BmButton, BmLabelIcon, BmReadMore, ImportPkcs12Modal },
+    components: { BmButton, BmIllustration, BmLabelIcon, BmReadMore, ImportPkcs12Modal },
     mixins: [BaseField, DocLinkMixin],
-    data() {
-        return { setKeyIllustration, unsetKeyIllustration };
-    },
     computed: {
         ...mapGetters("smime", [SMIME_AVAILABLE]),
         isServiceWorkerAvailable() {

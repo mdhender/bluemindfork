@@ -20,7 +20,9 @@ export default {
     watch: {
         src: {
             handler: async function (emlUrl) {
-                this.previewMessage = await this.$store.dispatch(`mail/${IMPORT_EML}`, { emlUrl });
+                if (emlUrl) {
+                    this.previewMessage = await this.$store.dispatch(`mail/${IMPORT_EML}`, { emlUrl });
+                }
             },
             immediate: true
         }

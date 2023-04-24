@@ -38,11 +38,11 @@ async function setPrivateKey({ request }) {
 }
 
 async function setCertificate({ request }) {
-    const expectedEmail = new URL(request.url).searchParams.get("email");
+    const expectedAddress = new URL(request.url).searchParams.get("email");
     const blob = await request.blob();
     const cert = await blob.text();
     try {
-        await checkCertificate(pki.certificateFromPem(cert), new Date(), expectedEmail);
+        await checkCertificate(pki.certificateFromPem(cert), { date: new Date(), expectedAddress });
     } catch (error) {
         const errorMessage = `[${SMIME_UNTRUSTED_CERTIFICATE_ERROR_PREFIX}:${error.code}]` + error.message;
         return new Response(errorMessage, { status: 500 });

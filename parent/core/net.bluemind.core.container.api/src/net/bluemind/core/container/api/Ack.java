@@ -57,4 +57,8 @@ public class Ack {
 		return new Ack(v, opTime);
 	}
 
+	public static Ack create(long v) {
+		return new Ack(v, new Date());
+	}
+
 }

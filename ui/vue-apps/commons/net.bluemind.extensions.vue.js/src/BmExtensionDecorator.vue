@@ -11,10 +11,10 @@ export default {
     render: function (h, { props, data, scopedSlots }) {
         const extension = props.extensions[0];
         if (extension) {
-            return h(extension.name, { attrs: data.attrs }, [
+            return h(extension.name, { attrs: { ...data.attrs } }, [
                 h("bm-extension-decorator", {
                     props: { extensions: props.extensions.slice(1) },
-                    attrs: data.attrs,
+                    attrs: { ...data.attrs },
                     scopedSlots: { ...scopedSlots }
                 })
             ]);

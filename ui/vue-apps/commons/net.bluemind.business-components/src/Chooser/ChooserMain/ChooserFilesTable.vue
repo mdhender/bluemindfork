@@ -222,7 +222,8 @@ export default {
         }
         .icon-or-check-wrapper {
             $icon-size: map-get($icon-sizes, "md");
-            width: $icon-size + $sp-6;
+            width: $icon-size;
+            padding-right: $sp-6;
             height: $icon-size;
             position: relative;
             display: inline-block;

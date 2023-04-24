@@ -1,6 +1,6 @@
 <script>
 import Vue from "vue";
-import { inject } from "@bluemind/inject";
+import i18n from "@bluemind/i18n";
 import Part from "./Part";
 
 export default {
@@ -14,7 +14,7 @@ export default {
 };
 
 export function buildStructure(template, parameters = {}) {
-    const EmlTemplate = Vue.extend({ extends: template, i18n: inject("i18n") });
+    const EmlTemplate = Vue.extend({ extends: template, i18n });
     const emlTemplate = new EmlTemplate({ propsData: { parameters } });
     const element = document.createElement("div");
     emlTemplate.$mount(element);

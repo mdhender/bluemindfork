@@ -61,8 +61,8 @@ export default {
         transform: translateY(20px);
     }
     .bm-alert-area .bm-alert {
-        padding-top: $sp-3;
-        padding-bottom: $sp-3;
+        padding-top: $sp-5;
+        padding-bottom: $sp-5;
         margin-bottom: 0;
     }
 }

@@ -13,7 +13,6 @@
 
 <script>
 import { BmExtension } from "@bluemind/extensions.vue";
-import { mapState } from "vuex";
 import PreviewFileContent from "./PreviewFileContent";
 
 export default {
@@ -28,21 +27,6 @@ export default {
             type: Object,
             required: true
         }
-    },
-    data() {
-        return {
-            alert: {
-                alert: {
-                    name: "mail.BLOCK_REMOTE_CONTENT",
-                    uid: "BLOCK_REMOTE_CONTENT_PREVIEW",
-                    payload: this.message
-                },
-                options: { area: "preview-right-panel", renderer: "BlockedRemoteContent" }
-            }
-        };
-    },
-    computed: {
-        ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "preview-right-panel") })
     }
 };
 </script>

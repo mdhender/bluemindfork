@@ -1,8 +1,13 @@
 <template>
-    <main class="flex-fill mail-popup-app scroller-y"><router-view class="flex-fill" /></main>
+    <main class="flex-fill mail-popup-app scroller-y">
+        <bm-extension id="webapp.mail" path="app.header" />
+        <router-view class="flex-fill" />
+    </main>
 </template>
+
 <script>
 import { mapGetters } from "vuex";
+import { BmExtension } from "@bluemind/extensions.vue";
 import { ACTIVE_MESSAGE, MY_TEMPLATES } from "~/getters";
 import { IS_POPUP } from "~/mutations";
 import MailAppMixin from "./MailApp/MailAppMixin";
@@ -10,6 +15,7 @@ import MailStore from "../store/";
 
 export default {
     name: "MailPopupApp",
+    components: { BmExtension },
     mixins: [MailAppMixin],
     computed: {
         ...mapGetters("mail", { message: ACTIVE_MESSAGE, MY_TEMPLATES })
@@ -64,6 +70,7 @@ export default {
     }
 };
 </script>
+
 <style>
 .mail-popup-app .mail-composer {
     margin: 0 !important;

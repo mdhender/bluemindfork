@@ -1,6 +1,6 @@
 <template>
     <composer-alert class="encrypt-error-alert" :code="encryptError" :text="text" :doc="doc">
-        <bm-button class="stop-encryption" variant="text" @click="stopEncryption(message)">
+        <bm-button class="stop-encryption" variant="text" size="sm" @click="stopEncryption(message)">
             {{ $t("smime.mailapp.composer.stop_encryption") }}
         </bm-button>
     </composer-alert>

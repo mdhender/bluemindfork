@@ -16,11 +16,9 @@
                 @keyup.native.space.stop
             />
         </div>
-        <message-icon
-            v-if="!isConversation || isMessageListStyleFull"
-            :message="conversation"
-            :class="{ 'pt-3': isMessageListStyleFull }"
-        />
+        <div class="icon-wrapper">
+            <message-icon v-if="!isConversation || isMessageListStyleFull" :message="conversation" />
+        </div>
     </div>
 </template>
 
@@ -113,6 +111,16 @@ export default {
         .bm-check {
             top: base-px-to-rem(2);
             left: base-px-to-rem(4);
+        }
+    }
+
+    .icon-wrapper {
+        width: base-px-to-rem(16);
+        height: base-px-to-rem(16);
+        display: flex;
+        align-items: center;
+        .message-icon {
+            margin: auto;
         }
     }
 }

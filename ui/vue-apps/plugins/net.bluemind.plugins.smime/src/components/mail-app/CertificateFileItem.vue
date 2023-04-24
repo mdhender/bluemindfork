@@ -1,5 +1,4 @@
 <script>
-import { mapGetters } from "vuex";
 import { pki } from "node-forge";
 import { MimeType } from "@bluemind/email";
 import { base64ToArrayBuffer } from "@bluemind/arraybuffer";
@@ -19,9 +18,6 @@ export default {
             adaptedFile: null
         };
     },
-    computed: {
-        ...mapGetters("mail", ["ACTIVE_MESSAGE"])
-    },
     watch: {
         url(_, old) {
             URL.revokeObjectURL(old);
@@ -30,24 +26,17 @@ export default {
             async handler(newFile) {
                 this.adaptedFile = this.file;
                 try {
-                    if (
-                        [
-                            MimeType.X509_CERT,
-                            MimeType.CRYPTO_CERT,
-                            MimeType.PEM_FILE,
-                            MimeType.PKCS_7_SIGNED_DATA
-                        ].includes(this.file.mime)
-                    ) {
+                    if (canAdapt(this.file)) {
+                        const messageKey = this.file.key.split(":")[1];
+                        const message = this.$store.state.mail.conversations.messages[messageKey];
                         await this.$store.dispatch("mail/FETCH_PART_DATA", {
-                            folderUid: this.ACTIVE_MESSAGE.folderRef.uid,
-                            imapUid: this.ACTIVE_MESSAGE.remoteRef.imapUid,
+                            folderUid: message.folderRef.uid,
+                            imapUid: message.remoteRef.imapUid,
                             parts: [newFile],
-                            messageKey: this.ACTIVE_MESSAGE.key
+                            messageKey
                         });
                         const partData =
-                            this.$store.state.mail.partsData.partsByMessageKey[this.ACTIVE_MESSAGE.key][
-                                newFile.address
-                            ];
+                            this.$store.state.mail.partsData.partsByMessageKey[messageKey][newFile.address];
                         const { certificate, pem } = await this.certificateFromBase64(partData);
                         const { email, name } = extractCertificateInfos(certificate);
                         this.url = URL.createObjectURL(new File([pem], email));
@@ -101,5 +90,15 @@ function extractCertificateInfos(certificate) {
     const email = certificate.subject.attributes.find(({ name }) => name === "emailAddress")?.value;
     const name = certificate.subject.attributes.find(({ name }) => name === "commonName")?.value;
     return { email, name };
+}
+
+function canAdapt(file) {
+    const supportedMimeTypes = [
+        MimeType.X509_CERT,
+        MimeType.CRYPTO_CERT,
+        MimeType.PEM_FILE,
+        MimeType.PKCS_7_SIGNED_DATA
+    ];
+    return supportedMimeTypes.includes(file.mime) && file.key.includes(":"); // if ":" is in fileKey, 2nd part is messageKey
 }
 </script>

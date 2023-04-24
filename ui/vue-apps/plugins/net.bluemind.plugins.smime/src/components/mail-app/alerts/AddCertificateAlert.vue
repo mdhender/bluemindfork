@@ -6,7 +6,7 @@
                     <span class="name">{{ payload.ownerName }}</span>
                 </template>
             </i18n>
-            <span class="email font-weight-light">&lt;{{ payload.ownerEmail }}&gt;</span>
+            <span class="email">&lt;{{ payload.ownerEmail }}&gt;</span>
         </div>
         <bm-label-icon
             v-if="done"
@@ -67,18 +67,16 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/ui-components/src/css/_type";
 @import "~@bluemind/ui-components/src/css/variables";
 
 .add-certificate-alert {
     .name {
-        font-weight: $font-weight-bold;
-        color: $neutral-fg;
+        @extend %bold;
     }
-    .email {
-        font-weight: $font-weight-light;
-        color: $neutral-fg;
-    }
-    .feedback {
+    .email,
+    .feedback,
+    .name {
         color: $neutral-fg;
     }
 }
