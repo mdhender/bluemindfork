@@ -293,26 +293,7 @@ export default function (i18n) {
                             }
                         ]
                     },
-                    {
-                        id: "filters",
-                        name: i18n.t("preferences.mail.filters"),
-                        description: i18n.t("preferences.mail.filters.desc"),
-                        fields: [
-                            {
-                                id: "domain_filters",
-                                visible: { name: "RoleCondition", args: [Roles.READ_DOMAIN_FILTERS] },
-                                component: { name: "PrefDomainFilterRules" }
-                            },
-                            {
-                                id: "my_filters",
-                                visible: { name: "RoleCondition", args: [Roles.SELF_CHANGE_MAILBOX_FILTER] },
-                                component: {
-                                    name: "PrefMyFilterRules",
-                                    options: { autosave: true }
-                                }
-                            }
-                        ]
-                    },
+
                     {
                         id: "default_app",
                         name: i18n.t("preferences.mail.mailto_links"),
@@ -342,6 +323,34 @@ export default function (i18n) {
                         name: i18n.t("common.other_mailboxes"),
                         id: "group",
                         fields: [{ id: "field", component: { name: "PrefManageOtherMailboxes" } }]
+                    }
+                ]
+            },
+            {
+                id: "filters",
+                name: i18n.t("preferences.mail.filters_category"),
+                icon: "filter",
+                groups: [
+                    {
+                        id: "filter",
+                        name: i18n.t("preferences.mail.filters_group"),
+                        description: i18n.t("preferences.mail.filters.desc"),
+
+                        fields: [
+                            {
+                                id: "domain_filters",
+                                visible: { name: "RoleCondition", args: [Roles.READ_DOMAIN_FILTERS] },
+                                component: { name: "PrefDomainFilterRules" }
+                            },
+                            {
+                                id: "my_filters",
+                                visible: { name: "RoleCondition", args: [Roles.SELF_CHANGE_MAILBOX_FILTER] },
+                                component: {
+                                    name: "PrefMyFilterRules",
+                                    options: { autosave: true }
+                                }
+                            }
+                        ]
                     }
                 ]
             },
