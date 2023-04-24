@@ -2,7 +2,7 @@
     <div class="pref-filter-rule-forward-action-editor">
         <contact-input
             :contacts="contacts"
-            :max-contacts="1"
+            :max-contacts="maxContacts"
             :autocomplete-results="autocompleteResults"
             :validate-address-fn="validateAddress"
             @search="onSearch"
@@ -31,7 +31,7 @@ export default {
         }
     },
     data() {
-        return { autocompleteResults: [], maxContacts: 1 };
+        return { autocompleteResults: [], maxContacts: 10 };
     },
     computed: {
         contacts: {
@@ -54,7 +54,9 @@ export default {
                 return;
             }
             const searchResults = await inject("AddressBooksPersistence").search(searchVCardsHelper(pattern, 5, true));
-            this.autocompleteResults = searchResults.values.map(vcardInfo => VCardInfoAdaptor.toContact(vcardInfo));
+            this.autocompleteResults = searchResults.values
+                .map(VCardInfoAdaptor.toContact)
+                .filter(contact => contact.address !== inject("UserSession").defaultEmail);
         },
         updateEmails(contacts) {
             this.action.emails = contacts

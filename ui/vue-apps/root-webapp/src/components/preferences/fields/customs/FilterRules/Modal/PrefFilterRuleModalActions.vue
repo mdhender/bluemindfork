@@ -17,7 +17,7 @@
                             ref="actionCombo"
                             class="w-100"
                             :value="actionComboValue(action)"
-                            :options="actionChoices"
+                            :options="actionChoices(action.isNew)"
                             :placeholder="$t('preferences.mail.filters.modal.actions.add.placeholder')"
                             :auto-min-width="false"
                             @input="modifyActionType(index, $event)"
@@ -41,7 +41,8 @@
 </template>
 
 <script>
-import { all as allActions, resolve as resolveAction } from "../Actions/actionResolver.js";
+import { all, resolve } from "../Actions/actionResolver.js";
+import { ACTIONS } from "../filterRules";
 import { BmButton, BmIconButton, BmFormGroup, BmFormSelect } from "@bluemind/ui-components";
 
 export default {
@@ -53,14 +54,15 @@ export default {
             required: true
         }
     },
-    data() {
-        return {
-            actionChoices: allActions(this).map(a => ({ value: a, text: a.text }))
-        };
-    },
     computed: {
+        allActions() {
+            return all(this);
+        },
+        hasForwardAction() {
+            return this.filter.actions.find(action => action.name === ACTIONS.FORWARD.name);
+        },
         resolvedActions() {
-            return this.filter.actions?.map(a => (a.isNew ? a : resolveAction(a, this))) || [];
+            return this.filter.actions?.map(a => (a.isNew ? a : resolve(a, this))) || [];
         }
     },
     watch: {
@@ -71,8 +73,15 @@ export default {
         }
     },
     methods: {
+        actionChoices(isNew) {
+            let actions = this.allActions;
+            if (isNew && this.hasForwardAction) {
+                actions = actions.filter(action => action.name !== ACTIONS.FORWARD.name);
+            }
+            return actions.map(a => ({ value: a, text: a.text }));
+        },
         actionComboValue(action) {
-            return this.actionChoices.find(ac => ac.value.name === action.name)?.value;
+            return this.actionChoices(action.isNew).find(ac => ac.value.name === action.name)?.value;
         },
         modifyActionType(index, { name, parameters }) {
             this.filter.actions.splice(index, 1, { name, parameters });
