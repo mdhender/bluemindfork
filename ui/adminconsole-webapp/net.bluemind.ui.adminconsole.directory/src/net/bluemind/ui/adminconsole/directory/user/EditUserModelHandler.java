@@ -192,13 +192,22 @@ public class EditUserModelHandler implements IGwtModelHandler {
 		}
 	}
 
-	private boolean isIdentificalVCardNames(JsVCardIdentificationName vCardName,
+	private static boolean isIdentificalName(String oldName, String newName) {
+		if ((oldName == null || oldName.trim().isEmpty()) && (newName == null || newName.trim().isEmpty())) {
+			return true;
+		}
+
+		return oldName != null && newName != null && oldName.equals(newName);
+	}
+
+	private static boolean isIdentificalVCardNames(JsVCardIdentificationName vCardName,
 			JsVCardIdentificationName updatedVCardName) {
-		return vCardName.getFamilyNames().equals(updatedVCardName.getFamilyNames())
-				&& vCardName.getGivenNames().equals(updatedVCardName.getGivenNames())
-				&& vCardName.getPrefixes().equals(updatedVCardName.getPrefixes())
-				&& vCardName.getSuffixes().equals(updatedVCardName.getSuffixes())
-				&& vCardName.getAdditionalNames().equals(updatedVCardName.getAdditionalNames());
+		return isIdentificalName(vCardName.getFamilyNames(), updatedVCardName.getFamilyNames())
+				&& isIdentificalName(vCardName.getGivenNames(), updatedVCardName.getGivenNames())
+				&& isIdentificalName(vCardName.getPrefixes(), updatedVCardName.getPrefixes())
+				&& isIdentificalName(vCardName.getSuffixes(), updatedVCardName.getSuffixes())
+				&& isIdentificalName(vCardName.getAdditionalNames(), updatedVCardName.getAdditionalNames());
+
 	}
 
 	native String btoa(String b64)
