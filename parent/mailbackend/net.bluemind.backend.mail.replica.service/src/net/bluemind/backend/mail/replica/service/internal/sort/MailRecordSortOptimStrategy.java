@@ -26,7 +26,7 @@ import net.bluemind.core.container.model.SortDescriptor;
 
 public class MailRecordSortOptimStrategy extends MailRecordSortStrategy {
 
-	static final List<String> OPTIMIZED_COLUMNS = Arrays.asList("internal_date", "subject", "size", "sender");
+	static final List<String> OPTIMIZED_COLUMNS = Arrays.asList("internal_date", "date", "subject", "size", "sender");
 
 	public MailRecordSortOptimStrategy(SortDescriptor sortDesc) {
 		super(sortDesc);
@@ -54,7 +54,8 @@ public class MailRecordSortOptimStrategy extends MailRecordSortStrategy {
 	}
 
 	public static boolean isOptimizedSort(SortDescriptor sortDesc) {
-		return sortDesc.fields.size() == 1 && OPTIMIZED_COLUMNS.contains(sortDesc.fields.get(0).column);
+		return sortDesc.fields.size() == 1 && OPTIMIZED_COLUMNS.contains(sortDesc.fields.get(0).column)
+				|| sortDesc.fields.isEmpty();
 	}
 
 	public static boolean isOptimizedFilter(SortDescriptor sortDesc) {

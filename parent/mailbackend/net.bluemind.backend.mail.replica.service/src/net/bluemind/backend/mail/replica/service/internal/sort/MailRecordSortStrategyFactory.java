@@ -41,12 +41,12 @@ public abstract class MailRecordSortStrategyFactory {
 	}
 
 	private static MailboxRecordsSort getRecordsSortStrategy(boolean fastSortEnabled, SortDescriptor sortDesc) {
-		// This ia bypass for the RecordSortOptimizeUpgrader
+		// This is a bypass for the RecordSortOptimizeUpgrader
 		if (!fastSortEnabled) {
 			return MailboxRecordsSort.DEFAULT;
 		}
 		if (sortDesc != null && (MailRecordSortOptimStrategy.isOptimizedSort(sortDesc)
-				|| MailRecordSortOptimStrategy.isOptimizedFilter(sortDesc))) {
+				&& MailRecordSortOptimStrategy.isOptimizedFilter(sortDesc))) {
 			return MailboxRecordsSort.OPTIMIZED;
 		}
 
