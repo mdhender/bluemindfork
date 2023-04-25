@@ -185,6 +185,7 @@ public class BMPoolActivator extends Plugin {
 					config.setConnectionInitSql("CREATE SCHEMA IF NOT EXISTS " + schema);
 				}
 				config.setMaximumPoolSize(poolSize);
+				config.setLeakDetectionThreshold(5000);
 
 				long start = System.currentTimeMillis();
 				do {
