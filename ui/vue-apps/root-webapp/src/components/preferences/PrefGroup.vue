@@ -34,6 +34,7 @@ import PrefAllDayEventReminder from "./fields/customs/PrefAllDayEventReminder";
 import PrefAlwaysShowQuota from "./fields/customs/PrefAlwaysShowQuota";
 import PrefAPIKey from "./fields/customs/PrefAPIKey";
 import PrefAutomaticReply from "./fields/customs/PrefAutomaticReply";
+import PrefComposerDefaultFont from "./fields/customs/PrefComposerDefaultFont";
 import PrefMailtoLinks from "./fields/customs/PrefMailtoLinks";
 import PrefDeleteRecipientPriorities from "./fields/customs/PrefDeleteRecipientPriorities";
 import PrefDomainFilterRules from "./fields/customs/FilterRules/PrefDomainFilterRules";
@@ -74,6 +75,7 @@ export default {
         PrefAlwaysShowQuota,
         PrefAPIKey,
         PrefAutomaticReply,
+        PrefComposerDefaultFont,
         PrefMailtoLinks,
         PrefDeleteRecipientPriorities,
         PrefDomainFilterRules,

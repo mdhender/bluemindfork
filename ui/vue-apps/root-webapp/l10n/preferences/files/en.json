@@ -297,7 +297,8 @@
         "mail": {
             "compose": {
                 "title": "Composing messages",
-                "in_new_window": "Compose in new window"
+                "in_new_window": "Compose in new window",
+                "default_font": "Default writing font"
             }
         }
     }

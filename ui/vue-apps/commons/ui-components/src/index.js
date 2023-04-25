@@ -45,6 +45,7 @@ export { default as BmFormAutocompleteInput } from "./components/form/BmFormAuto
 export { default as BmFormCheckbox } from "./components/form/BmFormCheckbox";
 export { default as BmFormColorPicker } from "./components/form/BmFormColorPicker";
 export { default as BmFormDatePicker } from "./components/form/BmFormDatePicker";
+export { default as BmFormFontSelector } from "./components/form/BmFormFontSelector";
 export { default as BmFormGroup } from "./components/form/BmFormGroup";
 export { default as BmFormInput } from "./components/form/BmFormInput";
 export { default as BmFormInputNumber } from "./components/form/BmFormInputNumber";

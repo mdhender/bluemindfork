@@ -286,7 +286,8 @@
         "mail": {
             "compose": {
                 "title": "Verfassen von Nachrichten",
-                "in_new_window": "In neuem Fenster zusammenstellen"
+                "in_new_window": "In neuem Fenster zusammenstellen",
+                "default_font": "Standard-Schreibschriftart"
             }
         }
     }

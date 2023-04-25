@@ -301,7 +301,8 @@
         "mail": {
             "compose": {
                 "title": "Écriture des messages",
-                "in_new_window": "Par défaut écrire dans une nouvelle fenêtre"
+                "in_new_window": "Par défaut écrire dans une nouvelle fenêtre",
+                "default_font": "Police d'écriture par défaut"
             }
         }
     }
