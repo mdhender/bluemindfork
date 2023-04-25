@@ -36,6 +36,15 @@
 			</modules>
 		</profile>
 		<profile>
+			<id>fast</id>
+			<modules>
+				<module>clients</module>
+				<module>ui</module>
+				<module>mozilla</module>
+				<module>i18n</module>
+			</modules>
+		</profile>
+		<profile>
 			<id>doc</id>
 			<modules>
 				<module>rest-docs</module>
