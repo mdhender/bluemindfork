@@ -34,7 +34,7 @@ import picocli.CommandLine.Option;
 
 public abstract class ExportCommand extends SingleOrDomainOperation {
 
-	@Option(names = "--output-directory", description = "The output directory path, files will be save in an email named subdirectory, default is /tmp")
+	@Option(names = "--output-directory", description = "The output directory path, files will be save in an email named subdirectory", defaultValue = "/tmp")
 	public String rootDir = "/tmp";
 
 	@Option(names = "--dry", description = "Dry-run (do nothing)")

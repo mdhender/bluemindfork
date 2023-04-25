@@ -21,7 +21,10 @@ Require-Bundle: com.fasterxml.jackson.core.jackson-annotations,
  net.bluemind.node.api,
  net.bluemind.server.api;bundle-version="5.0.0",
  net.bluemind.dataprotect.api,
- net.bluemind.core.jdbc;bundle-version="5.0.0"
+ net.bluemind.core.jdbc;bundle-version="5.0.0",
+ net.bluemind.sds.store,
+ net.bluemind.dataprotect.sdsspool
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.backend.mail.dataprotect
+Export-Package: net.bluemind.backend.mail.dataprotect

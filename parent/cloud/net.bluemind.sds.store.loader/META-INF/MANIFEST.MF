@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.bluemind.sds.store.loader
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.sds.store,
+ net.bluemind.sds.store;visibility:=reexport,
  net.bluemind.system.api,
  net.bluemind.eclipse.common,
  io.vertx.core,

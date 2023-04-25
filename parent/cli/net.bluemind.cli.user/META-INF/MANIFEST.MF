@@ -31,7 +31,12 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.hornetq.client,
  net.bluemind.network.topology,
  net.bluemind.domain.api,
- net.datafaker;bundle-version="1.8.0"
+ net.datafaker;bundle-version="1.8.0",
+ net.bluemind.notes.api,
+ net.bluemind.backend.mail.dataprotect,
+ net.bluemind.dataprotect.sdsspool,
+ net.bluemind.system.api,
+ net.bluemind.sds.store.loader
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.cli.user
 Bundle-ActivationPolicy: lazy

@@ -26,6 +26,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,6 +36,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
 
+import net.bluemind.backend.mail.dataprotect.MailSdsBackup;
 import net.bluemind.cli.calendar.ExportCalendarCommand;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
@@ -42,11 +45,21 @@ import net.bluemind.cli.contact.ExportAddressBookCommand;
 import net.bluemind.cli.directory.common.SingleOrDomainOperation;
 import net.bluemind.cli.todolist.ExportTodolistCommand;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.dataprotect.sdsspool.SdsDataProtectSpool;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
-import net.bluemind.user.api.IUser;
+import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.IDomains;
+import net.bluemind.network.topology.Topology;
+import net.bluemind.sds.store.ISdsSyncStore;
+import net.bluemind.sds.store.loader.SdsStoreLoader;
+import net.bluemind.server.api.Server;
+import net.bluemind.server.api.TagDescriptor;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SystemConf;
 import net.bluemind.utils.FileUtils;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "export", description = "export user data to an archive file")
 public class UserExportCommand extends SingleOrDomainOperation {
@@ -64,17 +77,26 @@ public class UserExportCommand extends SingleOrDomainOperation {
 		}
 	}
 
-	public static final String rootDir = "/tmp/bm-export";
+	@Option(names = { "-o",
+			"--output-directory" }, defaultValue = "/tmp/bm-export", description = "output directory of exported users")
+	public final Path exportDirectory = Paths.get("/tmp/bm-export");
+
+	@Option(names = "--email-content", description = "download email messages content", negatable = true, defaultValue = "true", fallbackValue = "true")
+	public final boolean downloadEmailContent = true;
 
 	@Override
 	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) {
-		String outputDir = rootDir + "/" + UUID.randomUUID(); // BM-15290: Needed when using --match [a-c].*
-		File dir = new File(outputDir);
+		// BM-15290: Needed when using --match [a-c].*
+		Path outputDir = exportDirectory.resolve(UUID.randomUUID().toString()).toAbsolutePath();
+		ItemValue<Domain> domain = ctx.adminApi().instance(IDomains.class).get(domainUid);
+		if (domain == null) {
+			ctx.error("Unable to retrieve domain uid {}", domainUid);
+		}
+		File dir = outputDir.toFile();
 		try {
 			dir.mkdirs();
-			Arrays.asList("contact", "calendar", "task").forEach(data -> exportData(outputDir, de, data));
-
-			createEmailSymlink(outputDir, domainUid, de);
+			// TODO: missing notes
+			Arrays.asList("contact", "calendar", "task").forEach(data -> exportData(outputDir, domain, de, data));
 
 			ctx.info("Creating archive file, can take a moment...");
 			File archiveFile = createArchive(outputDir, de);
@@ -85,10 +107,10 @@ public class UserExportCommand extends SingleOrDomainOperation {
 
 	}
 
-	private File createArchive(String outputDir, ItemValue<DirEntry> de) {
-		File archiveFile = new File(rootDir + "/" + de.value.email + ".tgz");
+	private File createArchive(Path outputDir, ItemValue<DirEntry> de) {
+		Path archiveFile = exportDirectory.resolve(de.value.email + ".tgz");
 
-		try (OutputStream fOut = Files.newOutputStream(archiveFile.toPath());
+		try (OutputStream fOut = Files.newOutputStream(archiveFile);
 				BufferedOutputStream bOut = new BufferedOutputStream(fOut);
 				GzipCompressorOutputStream gzOut = new GzipCompressorOutputStream(bOut);
 				TarArchiveOutputStream tOut = new TarArchiveOutputStream(gzOut)) {
@@ -99,15 +121,11 @@ public class UserExportCommand extends SingleOrDomainOperation {
 		} catch (Exception e) {
 			throw new CliException("Error generating archive file", e);
 		}
-
-		return archiveFile;
+		return archiveFile.toFile();
 	}
 
-	private void addFileToTarGz(TarArchiveOutputStream tOut, String path, String base) throws IOException {
-		// resolve path
-		path = new File(path).getCanonicalPath();
-
-		File f = new File(path);
+	private void addFileToTarGz(TarArchiveOutputStream tOut, Path path, String base) throws IOException {
+		File f = path.toFile();
 		TarArchiveEntry tarEntry = new TarArchiveEntry(f, base);
 		tOut.putArchiveEntry(tarEntry);
 
@@ -121,13 +139,13 @@ public class UserExportCommand extends SingleOrDomainOperation {
 			File[] children = f.listFiles();
 			if (children != null) {
 				for (File child : children) {
-					addFileToTarGz(tOut, child.getCanonicalPath(), base + "/" + child.getName());
+					addFileToTarGz(tOut, child.toPath(), base + "/" + child.getName());
 				}
 			}
 		}
 	}
 
-	private void exportData(String outputDir, ItemValue<DirEntry> de, String dataType) {
+	private void exportData(Path outputDir, ItemValue<Domain> domain, ItemValue<DirEntry> de, String dataType) {
 		File outputDataDir = prepareTmpDir(outputDir, dataType);
 		try {
 			switch (dataType) {
@@ -152,49 +170,33 @@ public class UserExportCommand extends SingleOrDomainOperation {
 				todoExportCommand.forContext(ctx);
 				todoExportCommand.run();
 				break;
+//			case "notes":
+//				GenericStream.streamToFile(ctx.adminApi().instance(INotes.class, INoteUids.TYPE).exportAll(),
+//						outputDataDir);
+//				break;
+			case "email":
+				SdsDataProtectSpool backupSpool = null;
+				Map<String, ISdsSyncStore> sdsStores = new HashMap<>();
+				if (downloadEmailContent) {
+					backupSpool = new SdsDataProtectSpool(outputDataDir.toPath());
+					SystemConf config = ctx.adminApi().instance(ISystemConfiguration.class).getValues();
+					for (ItemValue<Server> server : Topology.get().all(TagDescriptor.mail_imap.getTag())) {
+						Optional<ISdsSyncStore> sdsSyncStore = new SdsStoreLoader().forSysconf(config, server.uid);
+						sdsSyncStore.ifPresent(store -> sdsStores.put(server.uid, store));
+					}
+				}
+				MailSdsBackup mailbackup = new MailSdsBackup(outputDataDir.toPath(), sdsStores, backupSpool);
+				mailbackup.backupMailbox(domain, de);
+				break;
 			}
+
 		} catch (Exception e) {
 			throw new CliException("Error when exporting " + dataType, e);
 		}
 	}
 
-	private void createEmailSymlink(String outputDir, String domainUid, ItemValue<DirEntry> de) {
-		File outputMailDir = prepareTmpDir(outputDir, "mail");
-		Path outputDataDir = Paths.get(outputMailDir.getAbsolutePath(), "data");
-		Path outputMetaDir = Paths.get(outputMailDir.getAbsolutePath(), "meta");
-		Path outputHsmDir = Paths.get(outputMailDir.getAbsolutePath(), "hsm");
-
-		String login = ctx.adminApi().instance(IUser.class, domainUid).getComplete(de.uid).value.login;
-
-		char firstDomainLetter = (Character.isLetter(domainUid.charAt(0))) ? domainUid.charAt(0) : 'q';
-
-		String cyrusPath = de.value.dataLocation + "__" + domainUid.replace('.', '_') + "/domain/" + firstDomainLetter
-				+ "/" + domainUid + "/" + firstLetterMailbox(login) + "/user/" + login.replace('.', '^');
-
-		String cyrusData = "/var/spool/cyrus/data/" + cyrusPath;
-		String cyrusMeta = "/var/spool/cyrus/meta/" + cyrusPath;
-		String cyrusHsm = "/var/spool/bm-hsm/cyrus-archives/" + cyrusPath;
-
-		try {
-			Files.createSymbolicLink(outputDataDir, new File(cyrusData).toPath());
-			Files.createSymbolicLink(outputMetaDir, new File(cyrusMeta).toPath());
-			Files.createSymbolicLink(outputHsmDir, new File(cyrusHsm).toPath());
-		} catch (Exception e) {
-			throw new CliException("Error when exporting mail", e);
-		}
-	}
-
-	private char firstLetterMailbox(String mbox) {
-		Character c = mbox.charAt(0);
-		if (Character.isDigit(c)) {
-			return 'q';
-		} else {
-			return c.charValue();
-		}
-	}
-
-	private File prepareTmpDir(String outputDir, String dataType) {
-		File dir = new File(outputDir + "/" + dataType);
+	private File prepareTmpDir(Path outputDir, String dataType) {
+		File dir = outputDir.resolve(dataType).toFile();
 		dir.mkdir();
 		return dir;
 	}
