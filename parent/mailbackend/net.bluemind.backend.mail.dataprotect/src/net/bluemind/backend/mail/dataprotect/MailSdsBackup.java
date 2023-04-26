@@ -25,12 +25,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -39,18 +36,18 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
-import javax.sql.DataSource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.MailboxFolder;
+import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.core.api.ListResult;
@@ -58,7 +55,6 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
-import net.bluemind.core.jdbc.JdbcActivator;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.dataprotect.sdsspool.SdsDataProtectSpool;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
@@ -90,10 +86,6 @@ public class MailSdsBackup {
 	private Map<String, ISdsSyncStore> productionStores = new HashMap<>();
 	private SdsDataProtectSpool backupStore = null;
 
-	private static final String SELECT_GUID_QUERY = "SELECT encode(message_body_guid, 'hex') AS guid, internal_date " //
-			+ "FROM t_mailbox_record JOIN t_container ON (t_mailbox_record.container_id = t_container.id) " //
-			+ "WHERE t_mailbox_record.subtree_id = ? AND t_container.uid = ?";
-
 	private ServerSideServiceProvider provider() {
 		return ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 	}
@@ -124,7 +116,7 @@ public class MailSdsBackup {
 			ItemValue<User> user = userApi.getComplete(de.uid);
 			try (MailSdsIndexWriter indexWriter = new MailSdsIndexWriter(jsonIndex)) {
 				backupSdsUser(tempFolder, indexWriter, domain, user);
-			} catch (SQLException | IOException e) {
+			} catch (IOException e) {
 				logger.error("Unable to backup user {}: {}", user, e.getMessage(), e);
 			}
 		} else if (Kind.MAILSHARE.equals(de.value.kind)) {
@@ -132,7 +124,7 @@ public class MailSdsBackup {
 			ItemValue<Mailshare> mailshare = mailshareApi.getComplete(de.uid);
 			try (MailSdsIndexWriter indexWriter = new MailSdsIndexWriter(jsonIndex)) {
 				backupSdsMailshare(tempFolder, indexWriter, domain, mailshare);
-			} catch (SQLException | IOException e) {
+			} catch (IOException e) {
 				logger.error("Unable to backup mailshare {}: {}", mailshare, e.getMessage(), e);
 			}
 		} else if (Kind.DOMAIN.equals(de.value.kind)) {
@@ -164,7 +156,7 @@ public class MailSdsBackup {
 					ItemValue<User> user = userApi.getComplete(diruser.uid);
 					try {
 						backupSdsUser(tempFolder, indexWriter, domain, user);
-					} catch (SQLException | IOException e) {
+					} catch (IOException e) {
 						logger.error("Unable to backup user {}: {}", user, e.getMessage(), e);
 					}
 				});
@@ -172,7 +164,7 @@ public class MailSdsBackup {
 					ItemValue<Mailshare> mailshare = mailshareApi.getComplete(dirmailshare.uid);
 					try {
 						backupSdsMailshare(tempFolder, indexWriter, domain, mailshare);
-					} catch (SQLException | IOException e) {
+					} catch (IOException e) {
 						logger.error("Unable to backup mailshare {}: {}", mailshare, e.getMessage(), e);
 					}
 				});
@@ -184,19 +176,18 @@ public class MailSdsBackup {
 	}
 
 	private Path backupSdsUser(Path basePath, MailSdsIndexWriter index, ItemValue<Domain> domain, ItemValue<User> user)
-			throws IOException, SQLException {
+			throws IOException {
 		Path outputPath = Paths.get(basePath.toAbsolutePath().toString(),
 				String.format("%s@%s.json", user.value.login, domain.value.defaultAlias));
 		IMailboxes mailboxApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IMailboxes.class,
 				domain.uid);
 		ItemValue<Mailbox> mailbox = mailboxApi.getComplete(user.uid);
 		CyrusPartition part = CyrusPartition.forServerAndDomain(mailbox.value.dataLocation, domain.uid);
-		DataSource ds = JdbcActivator.getInstance().getMailboxDataSource(user.value.dataLocation);
 		ISdsSyncStore productionStore = productionStores.get(user.value.dataLocation);
 
 		IDbReplicatedMailboxes mailboxapi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDbReplicatedMailboxes.class, part.name, "user." + mailbox.uid.replace('.', '^'));
-		generateSdsMailboxJson(ds, outputPath, domain, mailbox.uid, user.value.login, mailbox.value, mailboxapi.all(),
+		generateSdsMailboxJson(outputPath, domain, mailbox.uid, user.value.login, mailbox.value, mailboxapi.all(),
 				getSubtreeContainerId(domain.uid, mailbox.value, mailbox.uid), productionStore);
 		index.add(mailbox.uid, outputPath);
 		return outputPath;
@@ -209,24 +200,23 @@ public class MailSdsBackup {
 	}
 
 	private Path backupSdsMailshare(Path basePath, MailSdsIndexWriter index, ItemValue<Domain> domain,
-			ItemValue<Mailshare> mailshare) throws IOException, SQLException {
+			ItemValue<Mailshare> mailshare) throws IOException {
 		Path outputPath = Paths.get(basePath.toAbsolutePath().toString(),
 				String.format("mailshare_%s@%s.json", mailshare.value.name, domain.value.defaultAlias));
 		Mailbox mailbox = mailshare.value.toMailbox();
 		CyrusPartition part = CyrusPartition.forServerAndDomain(mailshare.value.dataLocation, domain.uid);
-		DataSource ds = JdbcActivator.getInstance().getMailboxDataSource(mailshare.value.dataLocation);
 		IDbReplicatedMailboxes mailboxapi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDbReplicatedMailboxes.class, part.name, mailshare.value.name);
 		ISdsSyncStore productionStore = productionStores.get(mailshare.value.dataLocation);
-		generateSdsMailboxJson(ds, outputPath, domain, mailshare.uid, mailshare.value.name, mailbox, mailboxapi.all(),
+		generateSdsMailboxJson(outputPath, domain, mailshare.uid, mailshare.value.name, mailbox, mailboxapi.all(),
 				getSubtreeContainerId(domain.uid, mailbox, mailshare.uid), productionStore);
 		index.add(mailshare.uid, outputPath);
 		return outputPath;
 	}
 
-	private void generateSdsMailboxJson(DataSource ds, Path outputPath, ItemValue<Domain> domain, String mailboxUid,
-			String userLogin, Mailbox mailbox, List<ItemValue<MailboxFolder>> folders, long subtreeContainerId,
-			ISdsSyncStore productionStore) throws SQLException, IOException {
+	private void generateSdsMailboxJson(Path outputPath, ItemValue<Domain> domain, String mailboxUid, String userLogin,
+			Mailbox mailbox, List<ItemValue<MailboxFolder>> folders, long subtreeContainerId,
+			ISdsSyncStore productionStore) throws IOException {
 		Set<PosixFilePermission> backupPermissions = PosixFilePermissions.fromString("rw-------");
 
 		try (OutputStream outStream = Files.newOutputStream(outputPath, StandardOpenOption.CREATE_NEW,
@@ -258,7 +248,7 @@ public class MailSdsBackup {
 				generator.writeStringField("name", folder.value.name);
 				generator.writeArrayFieldStart("messages");
 
-				generateSdsFolderContent(ds, folder, subtreeContainerId, generator, productionStore);
+				generateSdsFolderContent(folder, subtreeContainerId, generator, productionStore);
 
 				generator.writeEndArray();
 				generator.writeEndObject();
@@ -268,23 +258,24 @@ public class MailSdsBackup {
 		}
 	}
 
-	private void generateSdsFolderContent(DataSource ds, ItemValue<MailboxFolder> folder, long subtreeContainerId,
-			JsonGenerator generator, ISdsSyncStore productionStore) throws SQLException, IOException {
-
-		try (Connection conn = ds.getConnection(); PreparedStatement st = conn.prepareStatement(SELECT_GUID_QUERY)) {
-			st.setLong(1, subtreeContainerId);
-			st.setString(2, "mbox_records_" + folder.uid);
-			st.setMaxFieldSize(2048);
-			try (ResultSet rs = st.executeQuery()) {
-				while (rs.next()) {
-					String guid = rs.getString(1);
-					Date date = rs.getDate(2);
+	private void generateSdsFolderContent(ItemValue<MailboxFolder> folder, long subtreeContainerId,
+			JsonGenerator generator, ISdsSyncStore productionStore) {
+		IDbMailboxRecords mailboxItems = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDbMailboxRecords.class, folder.uid);
+		Lists.partition(mailboxItems.imapIdSet("1:*", ""), 1000).stream().map(mailboxItems::slice)
+				.flatMap(Collection::stream).forEach(irecord -> {
+					String guid = irecord.value.messageBody;
+					Date date = irecord.value.internalDate;
 					// This is just a safety against broken databases, not encountered in real life
 					if (guid != null && !guid.isEmpty()) {
-						generator.writeStartObject();
-						generator.writeStringField("g", guid);
-						generator.writeStringField("d", dateformat.format(date));
-						generator.writeEndObject();
+						try {
+							generator.writeStartObject();
+							generator.writeStringField("g", guid);
+							generator.writeStringField("d", dateformat.format(date));
+							generator.writeEndObject();
+						} catch (IOException ie) {
+							logger.warn("unable to generate json data for message_body_guid: {}", guid);
+						}
 						if (productionStore != null && backupStore != null) {
 							Path fp = backupStore.livePath(guid);
 							SdsResponse response = productionStore.downloadRaw(GetRequest.of("", guid, fp.toString()));
@@ -293,8 +284,6 @@ public class MailSdsBackup {
 							}
 						}
 					}
-				}
-			}
-		}
+				});
 	}
 }

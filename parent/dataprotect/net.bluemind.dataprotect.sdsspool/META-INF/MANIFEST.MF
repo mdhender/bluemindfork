@@ -5,7 +5,6 @@ Bundle-SymbolicName: net.bluemind.dataprotect.sdsspool;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: blue-mind.net
 Require-Bundle: org.eclipse.core.runtime,
- net.bluemind.dataprotect.service,
  net.bluemind.core.container.api;bundle-version="1.0.0",
  net.bluemind.server.api;bundle-version="1.0.0",
  net.bluemind.core.commons;bundle-version="1.0.0",

@@ -79,10 +79,10 @@ public class UserExportCommand extends SingleOrDomainOperation {
 
 	@Option(names = { "-o",
 			"--output-directory" }, defaultValue = "/tmp/bm-export", description = "output directory of exported users")
-	public final Path exportDirectory = Paths.get("/tmp/bm-export");
+	public Path exportDirectory = Paths.get("/tmp/bm-export");
 
 	@Option(names = "--email-content", description = "download email messages content", negatable = true, defaultValue = "true", fallbackValue = "true")
-	public final boolean downloadEmailContent = true;
+	public boolean downloadEmailContent;
 
 	@Override
 	public void synchronousDirOperation(String domainUid, ItemValue<DirEntry> de) {
@@ -96,7 +96,8 @@ public class UserExportCommand extends SingleOrDomainOperation {
 		try {
 			dir.mkdirs();
 			// TODO: missing notes
-			Arrays.asList("contact", "calendar", "task").forEach(data -> exportData(outputDir, domain, de, data));
+			Arrays.asList("contact", "calendar", "task", "email")
+					.forEach(data -> exportData(outputDir, domain, de, data));
 
 			ctx.info("Creating archive file, can take a moment...");
 			File archiveFile = createArchive(outputDir, de);
