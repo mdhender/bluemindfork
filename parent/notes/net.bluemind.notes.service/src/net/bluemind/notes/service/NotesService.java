@@ -55,11 +55,11 @@ import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.notes.api.INote;
-import net.bluemind.notes.api.INotes;
 import net.bluemind.notes.api.INoteUids;
-import net.bluemind.notes.api.VNotesQuery;
+import net.bluemind.notes.api.INotes;
 import net.bluemind.notes.api.VNote;
 import net.bluemind.notes.api.VNoteQuery;
+import net.bluemind.notes.api.VNotesQuery;
 import net.bluemind.notes.persistence.VNoteIndexStore;
 import net.bluemind.user.api.IUserSubscription;
 
@@ -135,7 +135,7 @@ public class NotesService implements INotes {
 
 	@Override
 	public List<ItemContainerValue<VNote>> search(VNotesQuery query) throws ServerFault {
-		List<ItemContainerValue<VNote>> ret = new ArrayList<ItemContainerValue<VNote>>();
+		List<ItemContainerValue<VNote>> ret = new ArrayList<>();
 
 		Set<String> containers = null == query.containers ? new HashSet<>() : new HashSet<>(query.containers);
 

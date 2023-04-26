@@ -50,7 +50,6 @@ public class VTodoService implements IVTodo {
 
 	@Override
 	public Stream exportAll() throws ServerFault {
-
 		List<ItemValue<VTodo>> todos = todoService.all();
 		return export(todos);
 	}
