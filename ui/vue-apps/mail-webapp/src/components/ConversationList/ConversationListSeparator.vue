@@ -28,6 +28,6 @@ export default {
     background-color: $neutral-bg;
     color: $neutral-fg;
     border-color: $neutral-fg-lo2;
-    padding: base-px-to-rem(2) $sp-4;
+    padding: base-px-to-rem(2) $sp-5 base-px-to-rem(2) $sp-4;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-conversation-viewer-header conversation-viewer-row pr-3 pb-6 d-flex justify-content-between">
+    <div class="mail-conversation-viewer-header conversation-viewer-row pr-6 pb-6 d-flex justify-content-between">
         <div class="title">{{ displayedSubject }}</div>
         <bm-icon-button
             v-if="!expanded"

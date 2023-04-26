@@ -1,84 +1,21 @@
-/** Customized scrollbars for WebKit based browsers. Only elements having the class 'scroller' are affected. */
+/** Customized scrollbars for WebKit based browsers. Only elements having the class 'scroller-y' are affected. */
 
-// the scrollbar appears automatically by default
 .scroller-y {
     overflow: scroll;
     overflow-x: hidden;
     overflow-y: overlay;
-    padding-right: $scroll-width;
-}
-
-// the scrollbar appears only on hover
-.scroller-y.scroller-visible-on-hover::-webkit-scrollbar {
-    display: none;
-}
-*:hover > .scroller-visible-on-hover::-webkit-scrollbar {
-    display: unset;
 }
 
 // set at least one style here in order to activate the customization of the scrollbar
 .scroller-y::-webkit-scrollbar {
     width: $scroll-width;
-    height: $scroll-width;
 }
 
-.scroller-y::-webkit-scrollbar-corner {
-    background-color: transparent;
-}
-
-.scroller-y::-webkit-scrollbar-thumb {
-    border: solid ($scroll-width * 0.3) transparent;
+.scroller-y:hover::-webkit-scrollbar-thumb {
+    border: solid 2px transparent;
     border-radius: $scrollbar-thumb-border-radius;
-    background-color: $scrollbar-color;
+    background-color: $scrollbar-color !important;
     background-clip: content-box;
-    &:hover {
-        background-color: $scrollbar-color-hover;
-    }
-    &:active {
-        background-color: $scrollbar-color-active;
-    }
     // since border is transparent, add it twice to have a correct visible min-height
     min-height: $scrollbar-thumb-border-radius * 2 + 10px !important;
-}
-
-.scroller-y::-webkit-scrollbar-button:single-button {
-    width: $scroll-width;
-    height: $scroll-width;
-    border: 0.5 * $scroll-width solid $scrollbar-color;
-    &:hover {
-        border-color: $scrollbar-color-hover;
-    }
-    &:active {
-        border-color: $scrollbar-color-active;
-    }
-}
-
-.scroller-y::-webkit-scrollbar-button:single-button:vertical {
-    border-left-color: transparent !important;
-    border-right-color: transparent !important;
-
-    // scroll arrow up
-    &:decrement {
-        border-top-color: transparent !important;
-    }
-
-    // scroll arrow down
-    &:increment {
-        border-bottom-color: transparent !important;
-    }
-}
-
-.scroller-y::-webkit-scrollbar-button:single-button:horizontal {
-    border-top-color: transparent !important;
-    border-bottom-color: transparent !important;
-
-    // scroll arrow left
-    &:decrement {
-        border-left-color: transparent !important;
-    }
-
-    // scroll arrow right
-    &:increment {
-        border-right-color: transparent !important;
-    }
 }

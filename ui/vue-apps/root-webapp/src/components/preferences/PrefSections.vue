@@ -47,7 +47,6 @@ export default {
 
 .pref-sections {
     position: relative;
-    overflow: auto;
     background-color: $surface;
     z-index: 1;
     .pref-section-navbar {

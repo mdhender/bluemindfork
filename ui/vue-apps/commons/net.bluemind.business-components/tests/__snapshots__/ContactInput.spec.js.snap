@@ -43,7 +43,7 @@ exports[`ContactInput ContactInput should match snapshot 1`] = `
         </div>
          
         <div
-          class="list-group suggestions shadow position-absolute list-no-borders z-index-200 overflow-auto"
+          class="list-group suggestions shadow position-absolute list-no-borders z-index-200 scroller-y"
           style="display: none;"
           tabindex="-1"
         >

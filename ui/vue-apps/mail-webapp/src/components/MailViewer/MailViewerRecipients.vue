@@ -39,7 +39,7 @@
             triggers="manuel"
             :show.sync="toShowMore"
             placement="bottom"
-            custom-class="recipients-popover"
+            custom-class="recipients-popover scroller-y"
             no-fade
         >
             <mail-viewer-recipients-more-content :message="message" @close="toShowMore = false" />
@@ -50,7 +50,7 @@
             triggers="manuel"
             :show.sync="ccShowMore"
             placement="bottom"
-            custom-class="recipients-popover"
+            custom-class="recipients-popover scroller-y"
             no-fade
         >
             <mail-viewer-recipients-more-content :message="message" @close="ccShowMore = false" />
@@ -61,7 +61,7 @@
             triggers="manuel"
             :show.sync="bccShowMore"
             placement="bottom"
-            custom-class="recipients-popover"
+            custom-class="recipients-popover scroller-y"
             no-fade
         >
             <mail-viewer-recipients-more-content :message="message" @close="bccShowMore = false" />
@@ -154,7 +154,6 @@ export default {
     max-width: 50vw !important;
     min-width: $popover-min-width;
     max-height: 65vh;
-    overflow: auto;
 
     .arrow {
         display: none;

@@ -5,7 +5,7 @@
         :target="target"
         placement="bottom"
         no-fade
-        custom-class="contact-card-popover"
+        custom-class="contact-card-popover scroller-y"
         @hidden="focusTarget"
     >
         <global-events
@@ -80,7 +80,6 @@ function mouseOver(mouseEvent, element) {
     max-width: 50vw !important;
     min-width: $popover-min-width;
     max-height: 65vh;
-    overflow: auto;
 
     .arrow {
         display: none;

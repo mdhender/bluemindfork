@@ -27,7 +27,7 @@
             <bm-icon-button
                 v-if="messageCompose.collapsedContent"
                 size="sm"
-                class="align-self-start mb-1"
+                class="align-self-start mx-5 my-6"
                 icon="3dots"
                 @click="expandContent"
             />

@@ -72,7 +72,7 @@
             <multipane class="w-100" layout="vertical" @paneResizeStop="onPanelResize">
                 <mail-conversation-list :class="{ 'd-none': hideListInResponsiveMode }" />
                 <multipane-resizer />
-                <div class="flex-grow-1 flex-basis-0 scroller-y scroller-visible-on-hover">
+                <div class="flex-grow-1 flex-basis-0 scroller-y">
                     <router-view />
                 </div>
             </multipane>

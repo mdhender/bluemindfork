@@ -21,7 +21,7 @@
                 @click.native="updateFormatState"
             />
         </template>
-        <div class="main-area flex-fill overflow-auto">
+        <div class="main-area flex-fill scroller-y">
             <div ref="roosterjs-container" class="roosterjs-container" @drop="onDrop" />
             <table-toolbar v-if="editor && tableToolbar.show" :editor="editor" :table="tableToolbar.table" />
             <global-events @dragover.capture="onDragover" />

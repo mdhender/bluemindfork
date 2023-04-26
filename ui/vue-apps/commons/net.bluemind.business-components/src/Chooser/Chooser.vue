@@ -1,7 +1,7 @@
 <template>
     <div class="chooser">
         <chooser-header />
-        <chooser-main />
+        <chooser-main class="scroller-y" />
         <chooser-footer :max-attachments-size="maxAttachmentsSize" @insert="insert" @cancel="resetChooser" />
     </div>
 </template>
@@ -56,7 +56,6 @@ export default {
         padding: $sp-4 $sp-7 $sp-1 $sp-7;
     }
     .chooser-main {
-        overflow: auto;
         height: 80%;
     }
     .chooser-footer {

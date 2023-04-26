@@ -161,6 +161,10 @@ export default {
     align-items: center;
     height: 100%;
 
+    @include from-lg {
+        padding-right: $sp-3 + $sp-2;
+    }
+
     .mail-folder-icon {
         min-width: 0;
         flex: 1;
@@ -169,6 +173,7 @@ export default {
     .instead-of-menu,
     .mail-folder-item-menu {
         width: base-px-to-rem(28);
+        flex: none;
     }
 
     .instead-of-menu {

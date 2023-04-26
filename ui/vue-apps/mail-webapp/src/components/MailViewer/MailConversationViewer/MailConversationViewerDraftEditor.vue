@@ -213,6 +213,8 @@ export default {
 @import "~@bluemind/ui-components/src/css/variables";
 
 .mail-conversation-viewer-draft-editor {
+    padding-right: $sp-6;
+
     .bm-contact-input-label {
         flex: none;
     }

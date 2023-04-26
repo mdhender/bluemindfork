@@ -26,6 +26,7 @@ export default {
         top: 1px;
         bottom: 1px;
         right: 1px;
+        margin-right: $sp-5;
         align-items: center;
         &:empty {
             display: none !important;

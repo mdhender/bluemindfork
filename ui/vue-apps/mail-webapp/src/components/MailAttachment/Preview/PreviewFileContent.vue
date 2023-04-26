@@ -7,6 +7,7 @@
         </bm-alert-area>
         <file-viewer-facade
             v-if="isAllowedToPreview && !hasBlockedRemoteContent && src"
+            class="scroller-y"
             :message="message"
             :file="{ ...file, url: src }"
         />
@@ -126,7 +127,6 @@ export default {
     .file-viewer-facade {
         width: 100%;
         height: 100%;
-        overflow: auto;
 
         .image-file-viewer {
             height: 100%;

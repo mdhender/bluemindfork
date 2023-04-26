@@ -91,6 +91,7 @@ export default {
     .instead-of-menu,
     .mail-folder-item-menu {
         width: base-px-to-rem(28);
+        flex: none;
     }
 
     .instead-of-menu {

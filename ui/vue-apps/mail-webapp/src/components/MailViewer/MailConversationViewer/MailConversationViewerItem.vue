@@ -26,7 +26,7 @@
             <slot name="subhead" />
             <div
                 v-if="isMessageExpanded && !message.composing"
-                class="d-flex pr-5 conversation-viewer-row flex-nowrap click-to-collapse-zone"
+                class="d-flex pr-6 conversation-viewer-row flex-nowrap click-to-collapse-zone"
                 @click="collapse"
             >
                 <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />

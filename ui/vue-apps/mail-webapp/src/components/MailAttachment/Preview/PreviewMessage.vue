@@ -105,6 +105,7 @@ export default {
     }
     .mail-inlines-block {
         padding-left: $sp-6;
+        padding-right: $sp-5;
     }
     .mail-sender-splitter {
         display: none;

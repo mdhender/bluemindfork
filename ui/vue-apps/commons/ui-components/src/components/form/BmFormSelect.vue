@@ -109,7 +109,7 @@ export default {
         },
         dropdownMenuClasses() {
             const classes = "mt-0 border border-secondary " + this.menuClass;
-            return this.scrollbar ? classes + " scrollbar" : classes;
+            return this.scrollbar ? classes + " scrollbar scroller-y" : classes;
         }
     },
     watch: {
@@ -206,7 +206,6 @@ function normalize(option) {
 
     .scrollbar {
         max-height: 25vh;
-        overflow: auto;
     }
 
     .dropdown-menu {

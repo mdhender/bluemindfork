@@ -43,6 +43,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
 @import "~@bluemind/ui-components/src/css/_type";
 @import "~@bluemind/ui-components/src/css/variables";
 
@@ -54,7 +55,6 @@ export default {
 
     .collapse-tree-btn {
         padding-left: $sp-3 !important;
-        padding-right: $sp-2 !important;
         gap: $sp-3 !important;
         justify-content: flex-start;
         width: 100%;
@@ -65,6 +65,10 @@ export default {
             display: flex;
             align-items: center;
             gap: $sp-3;
+
+            @include from-lg {
+                padding-right: $sp-3 + $sp-2;
+            }
 
             .folder-tree-avatar {
                 flex: none;

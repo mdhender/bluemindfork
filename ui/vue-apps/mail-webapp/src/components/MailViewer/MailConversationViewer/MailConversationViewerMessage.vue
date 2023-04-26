@@ -39,11 +39,10 @@
                     />
                 </div>
                 <div
-                    class="d-none d-lg-flex justify-content-end align-items-center text-neutral text-nowrap h-100"
-                    :class="{ 'pr-3': !isMessageExpanded }"
+                    class="d-none d-lg-flex justify-content-end align-items-center text-neutral text-nowrap h-100 pr-6"
                 >
                     <mail-conversation-viewer-flags class="pr-2" :message="message" />
-                    <div class="align-items-end pr-5" @click.stop="$emit('collapse')">
+                    <div class="align-items-end pr-6" @click.stop="$emit('collapse')">
                         {{ $d(message.date, "full_date_time_short") }}
                     </div>
                     <mail-viewer-toolbar
@@ -57,11 +56,11 @@
             </div>
         </template>
         <template slot="content">
-            <div v-if="!isMessageExpanded" class="d-flex flex-fill align-items-center pb-2 pr-3">
+            <div v-if="!isMessageExpanded" class="d-flex flex-fill align-items-center pb-2 pr-6">
                 <mail-attachment-icon class="mr-3" :message="message" />
                 <div class="text-truncate">{{ message.preview }}</div>
             </div>
-            <div v-else class="d-flex flex-fill pb-2 pr-3">
+            <div v-else class="d-flex flex-fill pb-2 pr-6">
                 <body-viewer
                     v-if="MESSAGE_IS_LOADED(message.key)"
                     class="flex-fill"

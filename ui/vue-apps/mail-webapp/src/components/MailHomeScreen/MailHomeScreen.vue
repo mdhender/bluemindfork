@@ -49,7 +49,7 @@ export default {
     align-items: center;
     height: 100%;
     width: 100%;
-    padding: $sp-6 0 $sp-5 $scroll-width;
+    padding: $sp-6 0 $sp-5;
 
     $text-and-actions-base-height: base-px-to-rem(260);
 

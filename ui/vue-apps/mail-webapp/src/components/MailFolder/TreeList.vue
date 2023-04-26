@@ -1,5 +1,5 @@
 <template>
-    <div class="h-100 bg-surface">
+    <div class="h-100">
         <user-folders v-for="mailbox in USER_MAILBOXES" :key="mailbox.key" :mailbox="mailbox" />
         <mailshare-folders />
         <group-folders />

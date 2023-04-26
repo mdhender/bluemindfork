@@ -13,7 +13,7 @@
                 </span>
                 <span class="draft-save-date d-none d-lg-inline-block">{{ formattedDraftSaveDate }}</span>
             </div>
-            <div class="d-flex flex-fill d-flex justify-content-end align-items-center text-neutral">
+            <div class="d-flex flex-fill d-flex justify-content-end align-items-center text-neutral pr-5">
                 <mail-viewer-draft-toolbar-for-mobile
                     class="d-lg-none"
                     :conversation="conversation"
@@ -39,10 +39,10 @@
             {{ message.to.map(to => to.dn || to.address).join(", ") }}
         </template>
         <template slot="content">
-            <div v-if="!isMessageExpanded" class="d-flex flex-fill align-items-center pb-2 pr-3">
+            <div v-if="!isMessageExpanded" class="d-flex flex-fill align-items-center pb-2 pr-5">
                 <div class="text-truncate">{{ message.preview }}</div>
             </div>
-            <div v-else class="d-flex flex-fill pb-2 pr-3">
+            <div v-else class="d-flex flex-fill pb-2 pr-5">
                 <body-viewer
                     class="flex-fill"
                     :message="message"

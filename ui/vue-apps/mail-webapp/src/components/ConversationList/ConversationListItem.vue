@@ -108,10 +108,7 @@ export default {
     align-items: flex-start;
     gap: $sp-5;
 
-    padding-left: $sp-5;
-    padding-right: $sp-4;
-    padding-top: base-px-to-rem(5);
-    padding-bottom: base-px-to-rem(7);
+    padding: base-px-to-rem(5) $sp-5 base-px-to-rem(7);
 
     &.conversation-list-item-full,
     &.conversation-list-item-compact {

@@ -6,7 +6,7 @@
                 <mail-folder-icon :mailbox="mailbox" :folder="folder" :class="{ 'font-weight-bold': isUnread }" />
                 <div class="folder-path">
                     <span class="d-inline-block text-truncate">{{ path.start }}</span>
-                    <span class="text-nowrap">{{ path.end }}</span>
+                    <span class="text-nowrap text-truncate">{{ path.end }}</span>
                 </div>
             </div>
         </folder-item>
@@ -74,7 +74,7 @@ export default {
 @import "~@bluemind/ui-components/src/css/mixins";
 
 .filtered-item .folder-item {
-    padding-right: $sp-3;
+    padding-right: $sp-3 + $sp-2;
 
     .mail-folder-icon {
         margin-left: $sp-6;

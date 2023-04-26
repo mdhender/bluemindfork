@@ -20,7 +20,7 @@
             @next="next"
         />
         <div class="content">
-            <bm-collapse v-model="expanded" :class="{ 'd-none': true, 'd-lg-block': expanded }">
+            <bm-collapse v-model="expanded" class="scroller-y" :class="{ 'd-none': true, 'd-lg-block': expanded }">
                 <preview-message :message="message" :active-file="file" />
             </bm-collapse>
             <preview-file :message="message" :file="file" />
@@ -130,9 +130,6 @@ export default {
             max-width: 25%;
             flex-grow: 0;
             flex-shrink: 0;
-        }
-        .collapse {
-            overflow: auto;
         }
         .preview-file {
             flex: 1 1 auto;

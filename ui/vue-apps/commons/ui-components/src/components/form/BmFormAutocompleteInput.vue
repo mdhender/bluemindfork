@@ -27,7 +27,7 @@
         <bm-list-group
             v-show="showAutocomplete"
             ref="suggestions"
-            class="suggestions shadow position-absolute list-no-borders z-index-200 overflow-auto"
+            class="suggestions shadow position-absolute list-no-borders z-index-200 scroller-y"
             tabindex="-1"
         >
             <bm-list-group-item

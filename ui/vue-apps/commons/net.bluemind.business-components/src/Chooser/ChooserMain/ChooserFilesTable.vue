@@ -227,6 +227,9 @@ export default {
             position: relative;
             display: inline-block;
             text-align: left;
+            .bm-file-icon {
+                width: $icon-size;
+            }
             .bm-check {
                 position: absolute;
                 top: base-px-to-rem(2);
