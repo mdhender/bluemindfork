@@ -88,8 +88,8 @@ public class RegisterExternalSystemCommand implements ICmdLet, Runnable, IExitCo
 		if (config != null) {
 			ctx.info("Importing config from file {}", config);
 			Properties props = new Properties();
-			try {
-				props.load(new FileReader(config.toFile()));
+			try (FileReader fr = new FileReader(config.toFile())) {
+				props.load(fr);
 				domain = props.getProperty("domain");
 				identifier = props.getProperty("identifier");
 				authEndpoint = props.getProperty("auth-endpoint");
