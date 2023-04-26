@@ -92,6 +92,7 @@
       <plugin id="net.bluemind.cli.mapi"/>
       <plugin id="net.bluemind.cli.metrics"/>
       <plugin id="net.bluemind.cli.node"/>
+      <plugin id="net.bluemind.cli.notes"/>
       <plugin id="net.bluemind.cli.oauth"/>
       <plugin id="net.bluemind.cli.ou"/>
       <plugin id="net.bluemind.cli.sds"/>

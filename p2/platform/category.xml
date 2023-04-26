@@ -116,6 +116,7 @@
    <bundle id="net.bluemind.cli.mapi" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.metrics" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.node" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.cli.notes" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.ou" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.sds" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.server" version="5.0.0.qualifier"/>

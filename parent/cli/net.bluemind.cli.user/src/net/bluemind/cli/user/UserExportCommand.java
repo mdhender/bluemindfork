@@ -45,6 +45,7 @@ import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.contact.ExportAddressBookCommand;
 import net.bluemind.cli.directory.common.SingleOrDomainOperation;
+import net.bluemind.cli.notes.ExportNotesCommand;
 import net.bluemind.cli.todolist.ExportTodolistCommand;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.dataprotect.sdsspool.SdsDataProtectSpool;
@@ -98,10 +99,8 @@ public class UserExportCommand extends SingleOrDomainOperation {
 		File dir = outputDir.toFile();
 		try {
 			dir.mkdirs();
-			// TODO: missing notes
-			Arrays.asList("contact", "calendar", "task", "email")
+			Arrays.asList("contact", "calendar", "task", "notes", "email")
 					.forEach(data -> exportData(outputDir, domain, de, data));
-
 			ctx.info("Creating archive file, can take a moment...");
 			File archiveFile = createArchive(outputDir, de);
 			ctx.info("Archive file for " + de.value.email + " created as : " + archiveFile.getAbsolutePath());
@@ -174,10 +173,13 @@ public class UserExportCommand extends SingleOrDomainOperation {
 				todoExportCommand.forContext(ctx);
 				todoExportCommand.run();
 				break;
-//			case "notes":
-//				GenericStream.streamToFile(ctx.adminApi().instance(INotes.class, INoteUids.TYPE).exportAll(),
-//						outputDataDir);
-//				break;
+			case "notes":
+				ExportNotesCommand notesExportCommand = new ExportNotesCommand();
+				notesExportCommand.forTarget(de.value.email);
+				notesExportCommand.rootDir = outputDataDir.getAbsolutePath();
+				notesExportCommand.forContext(ctx);
+				notesExportCommand.run();
+				break;
 			case "email":
 				SdsDataProtectSpool backupSpool = null;
 				SystemConf config = ctx.adminApi().instance(ISystemConfiguration.class).getValues();
@@ -195,7 +197,6 @@ public class UserExportCommand extends SingleOrDomainOperation {
 				mailbackup.backupMailbox(domain, de);
 				break;
 			}
-
 		} catch (Exception e) {
 			logger.error("error while exporting {}: {}", dataType, e.getMessage(), e);
 			throw new CliException("Error while exporting " + dataType, e);

@@ -26,9 +26,9 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
-
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.ListResult;
+import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IChangelogSupport;
 import net.bluemind.core.container.api.ICountingSupport;
@@ -158,5 +158,16 @@ public interface INote extends IChangelogSupport, ICountingSupport, ICrudByIdSup
 	@POST
 	@Path("_search")
 	public ListResult<ItemValue<VNote>> search(VNoteQuery query) throws ServerFault;
+
+	/**
+	 * Export all {@link VNote} from a notes container as json stream (VNote)
+	 * 
+	 * @see https://tools.ietf.org/html/rfc5545#section-3.6.2.
+	 * @return {@link net.bluemind.core.api.Stream} of VNote list.
+	 * @throws ServerFault common error object
+	 */
+	@GET
+	@Path("_exportall")
+	public Stream exportAll() throws ServerFault;
 
 }

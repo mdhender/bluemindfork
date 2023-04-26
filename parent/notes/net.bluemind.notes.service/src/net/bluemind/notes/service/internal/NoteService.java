@@ -20,6 +20,7 @@ package net.bluemind.notes.service.internal;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -28,7 +29,9 @@ import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.core.api.ListResult;
+import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
@@ -48,7 +51,10 @@ import net.bluemind.core.container.persistence.DataSourceRouter;
 import net.bluemind.core.container.service.ChangeLogUtil;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.rest.base.GenericStream;
+import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.core.sanitizer.Sanitizer;
+import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.validator.Validator;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.notes.api.INote;
@@ -418,5 +424,35 @@ public class NoteService implements INote {
 		} else {
 			update(noteItem.item(), noteItem.value);
 		}
+	}
+
+	@Override
+	public Stream exportAll() throws ServerFault {
+		// ACL is checked by all()
+		List<ItemValue<VNote>> allnotes = all();
+		if (allnotes == null || allnotes.isEmpty()) {
+			// we need to do this because otherwise, no data is sent on stream, and we don't
+			// get any stream at all (null) as a result
+			ItemValue<VNote> emptynote = ItemValue.create(Item.create("0", 0), null);
+			return GenericStream.simpleValue(emptynote, note -> JsonUtils.writer(note.getClass()).write(note));
+		}
+
+		final Iterator<ItemValue<VNote>> iterator = allnotes.iterator();
+		GenericStream<ItemValue<VNote>> stream = new GenericStream<>() {
+			@Override
+			protected Buffer serialize(ItemValue<VNote> note) throws Exception {
+				return Buffer.buffer(JsonUtils.writer(note.getClass()).write(note));
+			}
+
+			@Override
+			protected StreamState<ItemValue<VNote>> next() throws Exception {
+				if (iterator.hasNext()) {
+					return StreamState.data(iterator.next());
+				} else {
+					return StreamState.end();
+				}
+			}
+		};
+		return VertxStream.stream(stream);
 	}
 }
