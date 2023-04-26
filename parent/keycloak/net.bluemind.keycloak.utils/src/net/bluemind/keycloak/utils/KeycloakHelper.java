@@ -208,36 +208,35 @@ public class KeycloakHelper {
 		client.request(HttpMethod.GET, uri.getPath())
 				.onSuccess(req -> req.send().onSuccess(res -> res.bodyHandler(body -> {
 					JsonObject conf = new JsonObject(new String(body.getBytes()));
-					if (domain.value.properties == null) {
-						domain.value.properties = new HashMap<>();
-					}
 
-					domain.value.properties.put(OpenIdProperties.OPENID_REALM.name(), realm);
-					domain.value.properties.put(OpenIdProperties.OPENID_CLIENT_ID.name(), clientId);
-					domain.value.properties.put(OpenIdProperties.OPENID_CLIENT_SECRET.name(), secret);
-					domain.value.properties.put(OpenIdProperties.OPENID_HOST.name(), opendIdHost);
-					domain.value.properties.put(OpenIdProperties.OPENID_AUTHORISATION_ENDPOINT.name(),
+					Map<String, String> properties = domain.value.properties != null ? domain.value.properties
+							: new HashMap<>();
+
+					properties.put(OpenIdProperties.OPENID_REALM.name(), realm);
+					properties.put(OpenIdProperties.OPENID_CLIENT_ID.name(), clientId);
+					properties.put(OpenIdProperties.OPENID_CLIENT_SECRET.name(), secret);
+					properties.put(OpenIdProperties.OPENID_HOST.name(), opendIdHost);
+					properties.put(OpenIdProperties.OPENID_AUTHORISATION_ENDPOINT.name(),
 							conf.getString("authorization_endpoint"));
-					domain.value.properties.put(OpenIdProperties.OPENID_TOKEN_ENDPOINT.name(),
-							conf.getString("token_endpoint"));
-					domain.value.properties.put(OpenIdProperties.OPENID_JWKS_URI.name(), conf.getString("jwks_uri"));
+					properties.put(OpenIdProperties.OPENID_TOKEN_ENDPOINT.name(), conf.getString("token_endpoint"));
+					properties.put(OpenIdProperties.OPENID_JWKS_URI.name(), conf.getString("jwks_uri"));
 					String accessTokenIssuer = Optional.ofNullable(conf.getString("issuer"))
 							.orElse(conf.getString("access_token_issuer"));
-					domain.value.properties.put(OpenIdProperties.OPENID_ISSUER.name(), accessTokenIssuer);
-					domain.value.properties.put(OpenIdProperties.OPENID_END_SESSION_ENDPOINT.name(),
+					properties.put(OpenIdProperties.OPENID_ISSUER.name(), accessTokenIssuer);
+					properties.put(OpenIdProperties.OPENID_END_SESSION_ENDPOINT.name(),
 							conf.getString("end_session_endpoint"));
 
-					domain.value.properties.put(DomainAuthProperties.auth_type.name(), auth_type);
+					properties.put(DomainAuthProperties.auth_type.name(), auth_type);
 					if (AuthTypes.KERBEROS.name().equals(auth_type)) {
-						domain.value.properties.put(DomainAuthProperties.krb_ad_domain.name(), krb_ad_domain);
-						domain.value.properties.put(DomainAuthProperties.krb_ad_ip.name(), krb_ad_ip);
-						domain.value.properties.put(DomainAuthProperties.krb_keytab.name(), krb_keytab);
+						properties.put(DomainAuthProperties.krb_ad_domain.name(), krb_ad_domain);
+						properties.put(DomainAuthProperties.krb_ad_ip.name(), krb_ad_ip);
+						properties.put(DomainAuthProperties.krb_keytab.name(), krb_keytab);
 					}
 					if (AuthTypes.CAS.name().equals(auth_type)) {
-						domain.value.properties.put(DomainAuthProperties.cas_url.name(), cas_url);
+						properties.put(DomainAuthProperties.cas_url.name(), cas_url);
 					}
 
-					provider.instance(IDomains.class).update(domain.uid, domain.value);
+					provider.instance(IDomains.class).setProperties(domain.uid, properties);
 
 				}))).onFailure(t -> logger.error(t.getMessage(), t));
 

@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -558,4 +559,25 @@ public class DomainsService implements IInCoreDomains, IDomains {
 			return ItemValue.create(domain.uid, filtered);
 		}
 	}
+
+	@Override
+	public void setProperties(String uid, Map<String, String> properties) throws ServerFault {
+		rbacManager.forDomain(uid).check(BasicRoles.ROLE_ADMIN);
+		ParametersValidator.notNullAndNotEmpty(uid);
+
+		final ItemValue<Domain> domainItem = get(uid);
+		if (domainItem == null) {
+			throw new DomainNotFoundException(uid);
+		}
+
+		if (domainItem.value.properties == null) {
+			domainItem.value.properties = new HashMap<>();
+		}
+
+		domainItem.value.properties.putAll(properties);
+
+		store.update(domainItem.uid, domainItem.value.label, domainItem.value);
+		domainsCache.invalidate(domainItem.uid);
+	}
+
 }
