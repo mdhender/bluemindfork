@@ -27,9 +27,9 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.config.Token;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.context.SecurityContext;
-import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
@@ -37,17 +37,18 @@ import net.bluemind.sds.store.ISdsBackingStore;
 import net.bluemind.sds.store.ISdsBackingStoreFactory;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
+import net.bluemind.serviceprovider.SPResolver;
 import net.bluemind.system.api.ArchiveKind;
 
 public class SpoolStoreFactory implements ISdsBackingStoreFactory {
 
 	private static final Logger logger = LoggerFactory.getLogger(SpoolStoreFactory.class);
-	private ServerSideServiceProvider prov;
+	private IServiceProvider serviceProvider;
 	private List<ItemValue<Server>> backends;
 
 	public SpoolStoreFactory() {
-		this.prov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-		this.backends = prov.instance(IServer.class, "default").allComplete().stream()
+		this.serviceProvider = SPResolver.get().resolve(Token.admin0());
+		this.backends = serviceProvider.instance(IServer.class, "default").allComplete().stream()
 				.filter(ivs -> ivs.value.tags.contains("mail/imap")).collect(Collectors.toList());
 
 		for (ItemValue<Server> b : backends) {
@@ -87,7 +88,7 @@ public class SpoolStoreFactory implements ISdsBackingStoreFactory {
 
 	@Override
 	public ISdsBackingStore create(Vertx vertx, JsonObject configuration, String dataLocation) {
-		return new SpoolBackingStore(vertx, prov, Topology.get().datalocation(dataLocation));
+		return new SpoolBackingStore(vertx, serviceProvider, Topology.get().datalocation(dataLocation));
 	}
 
 }

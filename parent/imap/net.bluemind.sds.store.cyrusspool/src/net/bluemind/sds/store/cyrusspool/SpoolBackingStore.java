@@ -29,6 +29,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -59,6 +60,9 @@ import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
+import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.MQ.SharedMap;
+import net.bluemind.hornetq.client.Shared;
 import net.bluemind.lib.jutf7.UTF7Converter;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
@@ -78,22 +82,19 @@ import net.bluemind.sds.store.ISdsBackingStore;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.ArchiveKind;
 import net.bluemind.system.api.SysConfKeys;
-import net.bluemind.system.api.SystemConf;
-import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 
 public class SpoolBackingStore implements ISdsBackingStore {
 
 	private static final Logger logger = LoggerFactory.getLogger(SpoolBackingStore.class);
-	private final IServiceProvider prov;
-	private final SystemConf sysconf;
+	private final IServiceProvider serviceProvider;
+	private final SharedMap<String, String> sharedMap = MQ.sharedMap(Shared.MAP_SYSCONF);
 	private ItemValue<Server> backend;
 	private final INodeClient nc;
 
 	public SpoolBackingStore(@SuppressWarnings("unused") Vertx vertx, IServiceProvider prov,
 			ItemValue<Server> backend) {
-		this.prov = prov;
+		this.serviceProvider = prov;
 		this.backend = backend;
-		this.sysconf = LocalSysconfCache.get();
 		this.nc = NodeActivator.get(backend.value.address());
 	}
 
@@ -127,8 +128,14 @@ public class SpoolBackingStore implements ISdsBackingStore {
 		if (req.deliveryDate == null) {
 			return livePath(req.guid);
 		}
-		ArchiveKind archiveKind = ArchiveKind.fromName(sysconf.stringValue(SysConfKeys.archive_kind.name()));
-		Integer archiveDays = sysconf.integerValue(SysConfKeys.archive_days.name(), 0);
+		ArchiveKind archiveKind = ArchiveKind.fromName(sharedMap.get(SysConfKeys.archive_kind.name()));
+		Integer archiveDays;
+		try {
+			archiveDays = Integer
+					.parseInt(Optional.ofNullable(sharedMap.get(SysConfKeys.archive_days.name())).orElse("0"));
+		} catch (NumberFormatException nfe) {
+			archiveDays = 0;
+		}
 		if (archiveKind != null && archiveKind.supportsHsm() && archiveDays > 0
 				&& req.deliveryDate.toInstant().isBefore(Instant.now().plus(archiveDays, ChronoUnit.DAYS))) {
 			// deliveryDate is before now() + tierChangeDelay => direct insert to archive
@@ -173,15 +180,15 @@ public class SpoolBackingStore implements ISdsBackingStore {
 		}
 
 		// check old cyrus stuff
-		IReplicatedMailboxesMgmt mgmtApi = prov.instance(IReplicatedMailboxesMgmt.class);
+		IReplicatedMailboxesMgmt mgmtApi = serviceProvider.instance(IReplicatedMailboxesMgmt.class);
 		Set<MailboxRecordItemUri> refs = mgmtApi.getBodyGuidReferences(guid);
 		if (!refs.isEmpty()) {
 			MailboxRecordItemUri uri = refs.iterator().next();
-			IContainers contApi = prov.instance(IContainers.class);
+			IContainers contApi = serviceProvider.instance(IContainers.class);
 			ContainerDescriptor cont = contApi.getIfPresent(uri.containerUid);
-			IMailboxes mboxes = prov.instance(IMailboxes.class, cont.domainUid);
+			IMailboxes mboxes = serviceProvider.instance(IMailboxes.class, cont.domainUid);
 			ItemValue<Mailbox> mbox = mboxes.getComplete(uri.owner);
-			IDbReplicatedMailboxes folderApi = prov.instance(IDbReplicatedMailboxes.class, cont.domainUid,
+			IDbReplicatedMailboxes folderApi = serviceProvider.instance(IDbReplicatedMailboxes.class, cont.domainUid,
 					mbox.value.type.nsPrefix + mbox.value.name);
 			ItemValue<MailboxFolder> folder = folderApi.getComplete(uri.containerUid);
 			if (folder != null) { // Broken user folder ?

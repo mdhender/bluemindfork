@@ -36,8 +36,6 @@ import com.google.common.collect.Sets;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.context.SecurityContext;
-import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.dataprotect.api.IBackupWorker;
 import net.bluemind.dataprotect.api.IDPContext;
 import net.bluemind.domain.api.Domain;
@@ -45,6 +43,7 @@ import net.bluemind.domain.api.IDomains;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.Server;
+import net.bluemind.serviceprovider.SPResolver;
 import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.helper.ArchiveHelper;
 import net.bluemind.system.sysconf.helper.LocalSysconfCache;
@@ -69,9 +68,8 @@ public class MailSdsWorker implements IBackupWorker {
 		if (!ArchiveHelper.isSdsArchiveKind(sysconf)) {
 			return;
 		}
-		List<ItemValue<Domain>> domains = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IDomains.class).all().stream().filter(d -> !"global.virt".equals(d.uid))
-				.collect(Collectors.toList());
+		List<ItemValue<Domain>> domains = SPResolver.get().resolve(null).instance(IDomains.class).all().stream()
+				.filter(d -> !"global.virt".equals(d.uid)).collect(Collectors.toList());
 		try {
 			Path tempFolder = Files.createTempDirectory("sds-backup");
 			try {

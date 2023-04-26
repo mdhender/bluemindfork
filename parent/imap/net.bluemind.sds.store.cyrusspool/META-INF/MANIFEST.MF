@@ -18,7 +18,10 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.node.api,
  com.google.guava,
  com.github.luben.zstd,
- net.bluemind.system.sysconf.helper
+ net.bluemind.system.sysconf.helper,
+ net.bluemind.serviceprovider,
+ net.bluemind.config,
+ net.bluemind.hornetq.client
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.sds.store.cyrusspool
 Bundle-ActivationPolicy: lazy

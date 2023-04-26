@@ -35,7 +35,7 @@ import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Shared;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.imap.endpoint.driver.MailboxDriver;
-import net.bluemind.imap.serviceprovider.SPResolver;
+import net.bluemind.serviceprovider.SPResolver;
 import net.bluemind.system.api.SysConfKeys;
 
 public class MailApiDriver implements MailboxDriver {

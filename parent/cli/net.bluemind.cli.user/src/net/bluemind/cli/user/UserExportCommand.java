@@ -35,6 +35,8 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.bluemind.backend.mail.dataprotect.MailSdsBackup;
 import net.bluemind.cli.calendar.ExportCalendarCommand;
@@ -63,6 +65,7 @@ import picocli.CommandLine.Option;
 
 @Command(name = "export", description = "export user data to an archive file")
 public class UserExportCommand extends SingleOrDomainOperation {
+	private static final Logger logger = LoggerFactory.getLogger(UserExportCommand.class);
 
 	public static class Reg implements ICmdLetRegistration {
 
@@ -177,13 +180,15 @@ public class UserExportCommand extends SingleOrDomainOperation {
 //				break;
 			case "email":
 				SdsDataProtectSpool backupSpool = null;
+				SystemConf config = ctx.adminApi().instance(ISystemConfiguration.class).getValues();
 				Map<String, ISdsSyncStore> sdsStores = new HashMap<>();
 				if (downloadEmailContent) {
 					backupSpool = new SdsDataProtectSpool(outputDataDir.toPath());
-					SystemConf config = ctx.adminApi().instance(ISystemConfiguration.class).getValues();
 					for (ItemValue<Server> server : Topology.get().all(TagDescriptor.mail_imap.getTag())) {
 						Optional<ISdsSyncStore> sdsSyncStore = new SdsStoreLoader().forSysconf(config, server.uid);
 						sdsSyncStore.ifPresent(store -> sdsStores.put(server.uid, store));
+						logger.info("loaded sds store for server={}: {}", server.uid,
+								sdsSyncStore.isPresent() ? sdsSyncStore.get() : "no store at all (not good)");
 					}
 				}
 				MailSdsBackup mailbackup = new MailSdsBackup(outputDataDir.toPath(), sdsStores, backupSpool);
@@ -192,7 +197,8 @@ public class UserExportCommand extends SingleOrDomainOperation {
 			}
 
 		} catch (Exception e) {
-			throw new CliException("Error when exporting " + dataType, e);
+			logger.error("error while exporting {}: {}", dataType, e.getMessage(), e);
+			throw new CliException("Error while exporting " + dataType, e);
 		}
 	}
 

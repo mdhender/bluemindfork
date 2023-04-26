@@ -71,7 +71,7 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 	}
 
 	@Option(names = "--workers", defaultValue = "1", description = "run with X workers (default: ${DEFAULT-VALUE})")
-	public int workers;
+	public int workers = 1;
 
 	@Option(names = "--match", description = "regex that entity must match, for example : [a-c].*")
 	public String match;

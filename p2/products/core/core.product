@@ -284,8 +284,6 @@
       <plugin id="net.bluemind.im.sqlschema"/>
       <plugin id="net.bluemind.imap.driver.mailapi"/>
       <plugin id="net.bluemind.imap.endpoint"/>
-      <plugin id="net.bluemind.imap.serviceprovider"/>
-      <plugin id="net.bluemind.imap.serviceprovider.incore"/>
       <plugin id="net.bluemind.jdbc.driver.pgsql" fragment="true"/>
       <plugin id="net.bluemind.jdbc.pgsql.provider"/>
       <plugin id="net.bluemind.kafka.client"/>
@@ -400,6 +398,8 @@
       <plugin id="net.bluemind.server.persistence"/>
       <plugin id="net.bluemind.server.service"/>
       <plugin id="net.bluemind.server.sqlschema"/>
+      <plugin id="net.bluemind.serviceprovider"/>
+      <plugin id="net.bluemind.serviceprovider.incore"/>
       <plugin id="net.bluemind.signature.commons"/>
       <plugin id="net.bluemind.signature.commons.core"/>
       <plugin id="net.bluemind.slf4j"/>

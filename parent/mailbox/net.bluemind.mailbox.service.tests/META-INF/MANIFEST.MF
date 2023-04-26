@@ -41,7 +41,7 @@ Require-Bundle: org.junit,
  net.bluemind.mailbox.service,
  net.bluemind.backend.mail.replica.api,
  net.bluemind.backend.mailapi.storage,
- net.bluemind.imap.serviceprovider.incore,
+ net.bluemind.serviceprovider.incore,
  net.bluemind.imap.endpoint,
  net.bluemind.imap.driver.mailapi,
  net.bluemind.core.elasticsearch.testshelper

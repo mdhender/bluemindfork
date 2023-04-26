@@ -373,9 +373,6 @@
    <bundle id="net.bluemind.imap.endpoint" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.im.api" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.im.api.gwt" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.imap.serviceprovider" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.imap.serviceprovider.incore" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.imap.serviceprovider.rest" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.imap.translate" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.imap.vertx" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.imip.parser" version="5.0.0.qualifier"/>
@@ -541,6 +538,9 @@
    <bundle id="net.bluemind.server.persistence" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.server.service" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.server.sqlschema" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.serviceprovider" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.serviceprovider.incore" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.serviceprovider.rest" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.signature.commons" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.signature.commons.core" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.slf4j" version="5.0.0.qualifier"/>

@@ -38,11 +38,11 @@ import net.bluemind.delivery.lmtp.config.DeliveryConfig;
 import net.bluemind.delivery.lmtp.dedup.DuplicateDeliveryDb;
 import net.bluemind.delivery.lmtp.internal.LmtpDataCommand;
 import net.bluemind.delivery.lmtp.internal.LmtpMessageListenerAdapter;
-import net.bluemind.imap.serviceprovider.SPResolver;
 import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.network.topology.IServiceTopology;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.serviceprovider.SPResolver;
 
 public class LmtpStarter extends AbstractVerticle {
 

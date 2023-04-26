@@ -49,13 +49,11 @@ import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
-import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
+import net.bluemind.config.Token;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.context.SecurityContext;
-import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.dataprotect.sdsspool.SdsDataProtectSpool;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
@@ -70,6 +68,7 @@ import net.bluemind.mailshare.api.Mailshare;
 import net.bluemind.sds.dto.GetRequest;
 import net.bluemind.sds.dto.SdsResponse;
 import net.bluemind.sds.store.ISdsSyncStore;
+import net.bluemind.serviceprovider.SPResolver;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
@@ -85,18 +84,15 @@ public class MailSdsBackup {
 	private SystemConf sysconf;
 	private Map<String, ISdsSyncStore> productionStores = new HashMap<>();
 	private SdsDataProtectSpool backupStore = null;
-
-	private ServerSideServiceProvider provider() {
-		return ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-	}
+	IServiceProvider serviceProvider;
 
 	public MailSdsBackup(Path tempFolder) {
-		ISystemConfiguration sysApi = provider().instance(ISystemConfiguration.class);
-		this.sysconf = sysApi.getValues();
 		dateformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		dateformat.setTimeZone(TimeZone.getTimeZone("GMT"));
 		this.tempFolder = tempFolder;
 		this.jsonIndex = tempFolder.resolve("index.json");
+		serviceProvider = SPResolver.get().resolve(Token.admin0());
+		sysconf = serviceProvider.instance(ISystemConfiguration.class).getValues();
 	}
 
 	public MailSdsBackup(Path tempFolder, Map<String, ISdsSyncStore> productionStores,
@@ -107,9 +103,8 @@ public class MailSdsBackup {
 	}
 
 	public void backupMailbox(ItemValue<Domain> domain, ItemValue<DirEntry> de) {
-		IUser userApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class, domain.uid);
-		IMailshare mailshareApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IMailshare.class, domain.uid);
+		IUser userApi = serviceProvider.instance(IUser.class, domain.uid);
+		IMailshare mailshareApi = serviceProvider.instance(IMailshare.class, domain.uid);
 
 		if (Kind.USER.equals(de.value.kind)) {
 			logger.info("backup single user ({})", de.value.email);
@@ -128,7 +123,7 @@ public class MailSdsBackup {
 				logger.error("Unable to backup mailshare {}: {}", mailshare, e.getMessage(), e);
 			}
 		} else if (Kind.DOMAIN.equals(de.value.kind)) {
-			IDomains domainApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class);
+			IDomains domainApi = serviceProvider.instance(IDomains.class);
 			backupDomains(Arrays.asList(domainApi.get(de.uid)));
 		} else {
 			throw new ServerFault("Don't know how to backup direntry " + de);
@@ -143,12 +138,9 @@ public class MailSdsBackup {
 			for (ItemValue<Domain> domain : domains) {
 				logger.info("backup domain {}", domain.value.defaultAlias);
 				// For each user
-				IDirectory dirApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-						.instance(IDirectory.class, domain.uid);
-				IUser userApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IUser.class,
-						domain.uid);
-				IMailshare mailshareApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-						.instance(IMailshare.class, domain.uid);
+				IDirectory dirApi = serviceProvider.instance(IDirectory.class, domain.uid);
+				IUser userApi = serviceProvider.instance(IUser.class, domain.uid);
+				IMailshare mailshareApi = serviceProvider.instance(IMailshare.class, domain.uid);
 				ListResult<ItemValue<DirEntry>> users = dirApi.search(DirEntryQuery.filterKind(Kind.USER));
 				ListResult<ItemValue<DirEntry>> mailshares = dirApi.search(DirEntryQuery.filterKind(Kind.MAILSHARE));
 
@@ -179,24 +171,17 @@ public class MailSdsBackup {
 			throws IOException {
 		Path outputPath = Paths.get(basePath.toAbsolutePath().toString(),
 				String.format("%s@%s.json", user.value.login, domain.value.defaultAlias));
-		IMailboxes mailboxApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IMailboxes.class,
-				domain.uid);
+		IMailboxes mailboxApi = serviceProvider.instance(IMailboxes.class, domain.uid);
 		ItemValue<Mailbox> mailbox = mailboxApi.getComplete(user.uid);
 		CyrusPartition part = CyrusPartition.forServerAndDomain(mailbox.value.dataLocation, domain.uid);
 		ISdsSyncStore productionStore = productionStores.get(user.value.dataLocation);
 
-		IDbReplicatedMailboxes mailboxapi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IDbReplicatedMailboxes.class, part.name, "user." + mailbox.uid.replace('.', '^'));
+		IDbReplicatedMailboxes mailboxapi = serviceProvider.instance(IDbReplicatedMailboxes.class, part.name,
+				"user." + mailbox.uid.replace('.', '^'));
 		generateSdsMailboxJson(outputPath, domain, mailbox.uid, user.value.login, mailbox.value, mailboxapi.all(),
-				getSubtreeContainerId(domain.uid, mailbox.value, mailbox.uid), productionStore);
+				productionStore);
 		index.add(mailbox.uid, outputPath);
 		return outputPath;
-	}
-
-	private long getSubtreeContainerId(String domainUid, Mailbox mailbox, String mailboxUid) {
-		IContainers containerApi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IContainers.class);
-		return containerApi.get(IMailReplicaUids.subtreeUid(domainUid, mailbox.type, mailboxUid)).internalId;
 	}
 
 	private Path backupSdsMailshare(Path basePath, MailSdsIndexWriter index, ItemValue<Domain> domain,
@@ -205,18 +190,17 @@ public class MailSdsBackup {
 				String.format("mailshare_%s@%s.json", mailshare.value.name, domain.value.defaultAlias));
 		Mailbox mailbox = mailshare.value.toMailbox();
 		CyrusPartition part = CyrusPartition.forServerAndDomain(mailshare.value.dataLocation, domain.uid);
-		IDbReplicatedMailboxes mailboxapi = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IDbReplicatedMailboxes.class, part.name, mailshare.value.name);
+		IDbReplicatedMailboxes mailboxapi = serviceProvider.instance(IDbReplicatedMailboxes.class, part.name,
+				mailshare.value.name);
 		ISdsSyncStore productionStore = productionStores.get(mailshare.value.dataLocation);
 		generateSdsMailboxJson(outputPath, domain, mailshare.uid, mailshare.value.name, mailbox, mailboxapi.all(),
-				getSubtreeContainerId(domain.uid, mailbox, mailshare.uid), productionStore);
+				productionStore);
 		index.add(mailshare.uid, outputPath);
 		return outputPath;
 	}
 
 	private void generateSdsMailboxJson(Path outputPath, ItemValue<Domain> domain, String mailboxUid, String userLogin,
-			Mailbox mailbox, List<ItemValue<MailboxFolder>> folders, long subtreeContainerId,
-			ISdsSyncStore productionStore) throws IOException {
+			Mailbox mailbox, List<ItemValue<MailboxFolder>> folders, ISdsSyncStore productionStore) throws IOException {
 		Set<PosixFilePermission> backupPermissions = PosixFilePermissions.fromString("rw-------");
 
 		try (OutputStream outStream = Files.newOutputStream(outputPath, StandardOpenOption.CREATE_NEW,
@@ -247,9 +231,7 @@ public class MailSdsBackup {
 				generator.writeStringField("fullName", folder.value.fullName);
 				generator.writeStringField("name", folder.value.name);
 				generator.writeArrayFieldStart("messages");
-
-				generateSdsFolderContent(folder, subtreeContainerId, generator, productionStore);
-
+				generateSdsFolderContent(folder, generator, productionStore);
 				generator.writeEndArray();
 				generator.writeEndObject();
 			}
@@ -258,11 +240,10 @@ public class MailSdsBackup {
 		}
 	}
 
-	private void generateSdsFolderContent(ItemValue<MailboxFolder> folder, long subtreeContainerId,
-			JsonGenerator generator, ISdsSyncStore productionStore) {
-		IDbMailboxRecords mailboxItems = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IDbMailboxRecords.class, folder.uid);
-		Lists.partition(mailboxItems.imapIdSet("1:*", ""), 1000).stream().map(mailboxItems::slice)
+	private void generateSdsFolderContent(ItemValue<MailboxFolder> folder, JsonGenerator generator,
+			ISdsSyncStore productionStore) {
+		IDbMailboxRecords recordsApi = serviceProvider.instance(IDbMailboxRecords.class, folder.uid);
+		Lists.partition(recordsApi.imapIdSet("1:*", ""), 1000).stream().map(recordsApi::slice)
 				.flatMap(Collection::stream).forEach(irecord -> {
 					String guid = irecord.value.messageBody;
 					Date date = irecord.value.internalDate;
@@ -278,6 +259,13 @@ public class MailSdsBackup {
 						}
 						if (productionStore != null && backupStore != null) {
 							Path fp = backupStore.livePath(guid);
+							if (!fp.getParent().toFile().exists()) {
+								try {
+									Files.createDirectories(fp.getParent());
+								} catch (IOException ie) {
+									throw new ServerFault("unable to create directory " + fp.getParent());
+								}
+							}
 							SdsResponse response = productionStore.downloadRaw(GetRequest.of("", guid, fp.toString()));
 							if (!response.succeeded()) {
 								logger.warn("unable to download guid {}: {}", guid, response);

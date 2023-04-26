@@ -71,7 +71,6 @@
       <plugin id="net.bluemind.cli.adm"/>
       <plugin id="net.bluemind.cli.calendar"/>
       <plugin id="net.bluemind.cli.certificate"/>
-      <plugin id="net.bluemind.cli.oauth"/>
       <plugin id="net.bluemind.cli.cmd.api"/>
       <plugin id="net.bluemind.cli.contact"/>
       <plugin id="net.bluemind.cli.directory"/>
@@ -81,11 +80,11 @@
       <plugin id="net.bluemind.cli.hollow"/>
       <plugin id="net.bluemind.cli.hz"/>
       <plugin id="net.bluemind.cli.index"/>
+      <plugin id="net.bluemind.cli.inject.calendar"/>
       <plugin id="net.bluemind.cli.inject.common"/>
       <plugin id="net.bluemind.cli.inject.imap"/>
       <plugin id="net.bluemind.cli.inject.node"/>
       <plugin id="net.bluemind.cli.inject.ou"/>
-      <plugin id="net.bluemind.cli.inject.calendar"/>
       <plugin id="net.bluemind.cli.job"/>
       <plugin id="net.bluemind.cli.journaling"/>
       <plugin id="net.bluemind.cli.launcher"/>
@@ -93,6 +92,7 @@
       <plugin id="net.bluemind.cli.mapi"/>
       <plugin id="net.bluemind.cli.metrics"/>
       <plugin id="net.bluemind.cli.node"/>
+      <plugin id="net.bluemind.cli.oauth"/>
       <plugin id="net.bluemind.cli.ou"/>
       <plugin id="net.bluemind.cli.sds"/>
       <plugin id="net.bluemind.cli.server"/>
@@ -117,6 +117,7 @@
       <plugin id="net.bluemind.core.task.spi"/>
       <plugin id="net.bluemind.cti.api"/>
       <plugin id="net.bluemind.dataprotect.api"/>
+      <plugin id="net.bluemind.dataprotect.sdsspool"/>
       <plugin id="net.bluemind.deferredaction.api"/>
       <plugin id="net.bluemind.directory.api"/>
       <plugin id="net.bluemind.directory.hollow.datamodel"/>
@@ -163,11 +164,14 @@
       <plugin id="net.bluemind.role.api"/>
       <plugin id="net.bluemind.scheduledjob.api"/>
       <plugin id="net.bluemind.sds.store"/>
+      <plugin id="net.bluemind.sds.store.cyrusspool"/>
       <plugin id="net.bluemind.sds.store.loader"/>
       <plugin id="net.bluemind.sds.store.s3"/>
       <plugin id="net.bluemind.sds.store.scalityring"/>
       <plugin id="net.bluemind.serialization.client"/>
       <plugin id="net.bluemind.server.api"/>
+      <plugin id="net.bluemind.serviceprovider"/>
+      <plugin id="net.bluemind.serviceprovider.rest"/>
       <plugin id="net.bluemind.slf4j"/>
       <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>
       <plugin id="net.bluemind.startup.dropins"/>
