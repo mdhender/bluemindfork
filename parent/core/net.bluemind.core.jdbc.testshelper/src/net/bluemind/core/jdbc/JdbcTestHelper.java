@@ -93,7 +93,7 @@ public class JdbcTestHelper {
 		if (dataPool != null) {
 			logger.info("stop data pool");
 			stopPool(dataPool);
-			JdbcActivator.getInstance().setMailboxDataSource(new HashMap<String, DataSource>());
+			JdbcActivator.getInstance().setMailboxDataSource(new HashMap<>());
 		}
 
 		CachesTestHelper.invalidate();
@@ -117,7 +117,7 @@ public class JdbcTestHelper {
 			dataLocation = dbHost;
 		}
 
-		Map<String, DataSource> mailboxDataSource = new HashMap<String, DataSource>();
+		Map<String, DataSource> mailboxDataSource = new HashMap<>();
 
 		mailboxDataSource.put(dataLocation, dataPool.getDataSource());
 
@@ -166,9 +166,7 @@ public class JdbcTestHelper {
 		JdbcActivator.getInstance().addMailboxDataSource(ip, newPool.getDataSource());
 		otherPools.add(newPool);
 		DbSchemaService.getService(newPool.getDataSource(), true).initialize();
-
 		BMPoolActivator.getDefault().addMailboxDataSource(dataLocation, dataPool);
-
 	}
 
 	public void beforeTestWithoutSchema() throws Exception {

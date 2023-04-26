@@ -107,9 +107,8 @@ public class VEventService implements IVEvent {
 
 		// domain tags
 		ITags service = context.provider().instance(ITags.class, ITagUids.defaultTags(container.domainUid));
-		allTags.addAll(
-				service.all().stream().map(tag -> TagRef.create(ITagUids.defaultTags(container.domainUid), tag))
-						.collect(Collectors.toList()));
+		allTags.addAll(service.all().stream().map(tag -> TagRef.create(ITagUids.defaultTags(container.domainUid), tag))
+				.collect(Collectors.toList()));
 
 		MultipleCalendarICSImport multipleCalendarICSImport = new MultipleCalendarICSImport(calendarService, ics,
 				Optional.of(new CalendarOwner(container.domainUid, container.owner, calOwnerType)), allTags,
@@ -140,8 +139,7 @@ public class VEventService implements IVEvent {
 
 		List<List<String>> partitioned = Lists.partition(allUids, 30);
 		AtomicInteger index = new AtomicInteger(0);
-		GenericStream<String> stream = new GenericStream<String>() {
-
+		GenericStream<String> stream = new GenericStream<>() {
 			@Override
 			protected StreamState<String> next() throws Exception {
 				if (index.get() == partitioned.size()) {

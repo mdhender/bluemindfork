@@ -35,12 +35,10 @@ public class NoteMgmtService implements INoteMgmt {
 	private final ContainerStoreService<VNote> storeService;
 	private final Logger logger = LoggerFactory.getLogger(NoteMgmtService.class);
 	private final Container container;
-	private final BmContext context;
 
 	public NoteMgmtService(BmContext context, DataSource dataSource, Container container) {
 		this.container = container;
 		VNoteStore noteStore = new VNoteStore(dataSource, container);
-		this.context = context;
 		this.storeService = new ContainerStoreService<>(dataSource, context.getSecurityContext(), container, noteStore);
 	}
 

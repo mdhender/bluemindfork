@@ -73,7 +73,7 @@ public class RestoreNotesTask extends BlockingServerTask implements IServerTask 
 			monitor.begin(backLists.size(),
 					String.format("Starting restore for uid %s: Backup contains %d", item.entryUid, backLists.size()));
 
-			logger.info("Backup contains " + backLists.size() + " note(s)");
+			logger.info("Backup contains {} note(s)", backLists.size());
 			for (ContainerDescriptor backList : backLists) {
 				restore(back, live, backList, liveLists, monitor.subWork(1));
 			}
@@ -91,11 +91,11 @@ public class RestoreNotesTask extends BlockingServerTask implements IServerTask 
 		INote backupApi = back.provider().instance(INote.class, backList.uid);
 
 		List<String> allUids = backupApi.allUids();
-		monitor.begin(allUids.size() + 1, "Restoring " + backList.name + " [uid=" + backList.uid + "]");
+		monitor.begin(allUids.size() + 1.0, "Restoring " + backList.name + " [uid=" + backList.uid + "]");
 
 		String listUid = mapListUid(backList.uid);
 
-		if (liveLists.stream().filter(c -> c.uid.equals(listUid)).findFirst().isPresent()) {
+		if (liveLists.stream().anyMatch(c -> c.uid.equals(listUid))) {
 			INote liveABApi = live.provider().instance(INote.class, listUid);
 			liveABApi.reset();
 			monitor.progress(1, "reset done");

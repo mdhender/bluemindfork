@@ -35,14 +35,22 @@ import net.bluemind.pool.BMPoolActivator;
 public class JdbcActivator implements BundleActivator {
 
 	private static final Logger logger = LoggerFactory.getLogger(JdbcActivator.class);
-	private static JdbcActivator INSTANCE;
+	private static JdbcActivator instance;
 	private DataSource dataSource;
-	private Map<String, DataSource> mailboxDataSource = new HashMap<String, DataSource>();
+	private Map<String, DataSource> mailboxDataSource = new HashMap<>();
 	private String schemaName;
+
+	private synchronized void setInstance(JdbcActivator jdbcactivator) {
+		JdbcActivator.instance = jdbcactivator;
+	}
+
+	public static synchronized JdbcActivator getInstance() {
+		return instance;
+	}
 
 	@Override
 	public void start(BundleContext context) throws Exception {
-		JdbcActivator.INSTANCE = this;
+		setInstance(this);
 		try {
 			setDataSource(BMPoolActivator.getDefault().defaultPool().getDataSource());
 		} catch (Exception e) {
@@ -53,11 +61,7 @@ public class JdbcActivator implements BundleActivator {
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		dataSource = null;
-		JdbcActivator.INSTANCE = null;
-	}
-
-	public static JdbcActivator getInstance() {
-		return INSTANCE;
+		setInstance(null);
 	}
 
 	public DataSource getDataSource() {
@@ -77,6 +81,7 @@ public class JdbcActivator implements BundleActivator {
 	public void setMailboxDataSource(Map<String, DataSource> mailboxDataSource) {
 		this.mailboxDataSource = mailboxDataSource;
 		ServerSideServiceProvider.mailboxDataSource = mailboxDataSource;
+		PromiseServiceProvider.mailboxDataSource = mailboxDataSource;
 	}
 
 	public DataSource getMailboxDataSource(String datalocation) {
@@ -86,6 +91,7 @@ public class JdbcActivator implements BundleActivator {
 	public void addMailboxDataSource(String dataLocation, DataSource ds) {
 		mailboxDataSource.put(dataLocation, ds);
 		ServerSideServiceProvider.mailboxDataSource = mailboxDataSource;
+		PromiseServiceProvider.mailboxDataSource = mailboxDataSource;
 	}
 
 	public void restartDataSource() throws Exception {

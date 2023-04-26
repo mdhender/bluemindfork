@@ -71,8 +71,7 @@ public class MailApiDriver implements MailboxDriver {
 		IServiceProvider userProv = SPResolver.get().resolve(login.authKey);
 		AuthUser current = userProv.instance(IAuthentication.class).getCurrentUser();
 		logger.info("[{}] logged-in.", current.value.defaultEmail());
-		return new MailApiConnection(userProv, SPResolver.get().resolve(Token.admin0()), current,
-				MQ.sharedMap(Shared.MAP_SYSCONF));
+		return new MailApiConnection(userProv, SPResolver.get().resolve(Token.admin0()), current, sharedMap);
 	}
 
 	@Override
