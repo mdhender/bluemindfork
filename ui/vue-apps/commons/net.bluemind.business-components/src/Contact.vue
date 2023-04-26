@@ -70,7 +70,7 @@
                 </span>
             </bm-chip>
         </a>
-        <resolved-contact v-if="enableCard" :resolve="showContactCard" :recipient="recipient">
+        <resolved-contact v-if="enableCard && !invalid" :resolve="showContactCard" :recipient="recipient">
             <template v-slot:default="{ resolvedContact }">
                 <div>
                     <contact-popover
