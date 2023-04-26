@@ -33,6 +33,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.ReadStream;
@@ -42,8 +45,8 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.vertx.VertxStream;
-import net.bluemind.dataprotect.service.IDPContext;
-import net.bluemind.dataprotect.worker.DefaultWorker;
+import net.bluemind.dataprotect.api.IBackupWorker;
+import net.bluemind.dataprotect.api.IDPContext;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
@@ -60,10 +63,11 @@ import net.bluemind.system.helper.ArchiveHelper;
 import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 import net.bluemind.utils.ProgressPrinter;
 
-public class SdsSpoolWorker extends DefaultWorker {
+public class SdsSpoolWorker implements IBackupWorker {
 	private final Path rootPath;
 	private final SdsDataProtectSpool sdsSpool;
 	private final Map<String, Optional<ISdsSyncStore>> sdsStores;
+	private static final Logger logger = LoggerFactory.getLogger(SdsSpoolWorker.class);
 
 	public SdsSpoolWorker() {
 		rootPath = SdsDataProtectSpool.DEFAULT_PATH.getParent();

@@ -33,6 +33,5 @@ Require-Bundle: org.eclipse.core.runtime,
  slf4j.api
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: net.bluemind.dataprotect.service,
- net.bluemind.dataprotect.service.internal,
- net.bluemind.dataprotect.worker
+ net.bluemind.dataprotect.service.internal
 Automatic-Module-Name: net.bluemind.dataprotect.service

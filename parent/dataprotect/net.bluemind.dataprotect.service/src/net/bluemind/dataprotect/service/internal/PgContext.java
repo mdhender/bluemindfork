@@ -17,8 +17,8 @@
   */
 package net.bluemind.dataprotect.service.internal;
 
+import net.bluemind.dataprotect.api.IBackupWorker;
 import net.bluemind.dataprotect.api.PartGeneration;
-import net.bluemind.dataprotect.service.IBackupWorker;
 import net.bluemind.pool.Pool;
 
 public class PgContext {

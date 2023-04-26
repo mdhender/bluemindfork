@@ -22,10 +22,10 @@ package net.bluemind.dataprotect.service.tool;
 import java.util.Set;
 
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.dataprotect.service.IDPContext;
-import net.bluemind.dataprotect.service.IDPContext.ITool;
-import net.bluemind.dataprotect.service.IDPContext.IToolConfig;
-import net.bluemind.dataprotect.service.IDPContext.IToolSession;
+import net.bluemind.dataprotect.api.IDPContext;
+import net.bluemind.dataprotect.api.IDPContext.ITool;
+import net.bluemind.dataprotect.api.IDPContext.IToolConfig;
+import net.bluemind.dataprotect.api.IDPContext.IToolSession;
 import net.bluemind.server.api.Server;
 
 public class ToolBootstrap implements ITool {

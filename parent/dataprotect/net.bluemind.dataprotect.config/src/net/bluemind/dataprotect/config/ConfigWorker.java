@@ -22,7 +22,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
@@ -30,16 +29,14 @@ import com.google.common.io.ByteStreams;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.dataprotect.api.PartGeneration;
-import net.bluemind.dataprotect.service.IDPContext;
-import net.bluemind.dataprotect.worker.DefaultWorker;
+import net.bluemind.dataprotect.api.IBackupWorker;
+import net.bluemind.dataprotect.api.IDPContext;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.Server;
 
-public class ConfigWorker extends DefaultWorker {
-
+public class ConfigWorker implements IBackupWorker {
 	private static final String dir = "/var/backups/bluemind/work/conf";
 
 	@Override
@@ -80,16 +77,7 @@ public class ConfigWorker extends DefaultWorker {
 	}
 
 	@Override
-	public void dataDirsSaved(IDPContext ctx, String tag, ItemValue<Server> backedUp) throws ServerFault {
-	}
-
-	@Override
-	public void restore(IDPContext ctx, PartGeneration part, Map<String, Object> params) throws ServerFault {
-	}
-
-	@Override
 	public String getDataType() {
 		return "configuration";
 	}
-
 }

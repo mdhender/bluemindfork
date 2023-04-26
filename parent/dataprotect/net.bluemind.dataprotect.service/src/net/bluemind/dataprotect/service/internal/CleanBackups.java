@@ -29,15 +29,14 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
+import net.bluemind.dataprotect.api.IDPContext;
 import net.bluemind.dataprotect.api.IDataProtect;
 import net.bluemind.dataprotect.api.PartGeneration;
-import net.bluemind.dataprotect.service.IDPContext;
 import net.bluemind.dataprotect.service.tool.ToolConfig;
 import net.bluemind.server.api.IServer;
 
 public class CleanBackups {
 	private static final Logger logger = LoggerFactory.getLogger(CleanBackups.class);
-
 	private final IDPContext dpCtx;
 	private final IDataProtect backupApi;
 	private final IServer serverApi;

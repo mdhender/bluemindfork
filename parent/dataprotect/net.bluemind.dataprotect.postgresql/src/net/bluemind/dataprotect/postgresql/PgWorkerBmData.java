@@ -20,7 +20,6 @@ package net.bluemind.dataprotect.postgresql;
 import net.bluemind.dataprotect.postgresql.internal.AbstractPgWorker;
 
 public class PgWorkerBmData extends AbstractPgWorker {
-
 	public PgWorkerBmData() {
 		super();
 		dbName += "-data";
@@ -35,5 +34,4 @@ public class PgWorkerBmData extends AbstractPgWorker {
 	protected String getBackupDirectory() {
 		return "/var/backups/bluemind/work/pgsql-data";
 	}
-
 }

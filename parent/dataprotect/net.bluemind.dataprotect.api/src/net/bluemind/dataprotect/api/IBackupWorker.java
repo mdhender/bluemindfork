@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2023
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -17,14 +17,13 @@
  * END LICENSE
  */
 
-package net.bluemind.dataprotect.service;
+package net.bluemind.dataprotect.api;
 
 import java.util.Map;
 import java.util.Set;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.dataprotect.api.PartGeneration;
 import net.bluemind.server.api.Server;
 
 public interface IBackupWorker {
@@ -34,8 +33,8 @@ public interface IBackupWorker {
 	boolean supportsTag(String tag);
 
 	/**
-	 * This is called before the backup starts. This phase is used to put the
-	 * data in a backup-able state.
+	 * This is called before the backup starts. This phase is used to put the data
+	 * in a backup-able state.
 	 * 
 	 * For a database it means creating a dump, for a cyrus mail server it means
 	 * stopping it, etc.
@@ -48,9 +47,9 @@ public interface IBackupWorker {
 	void prepareDataDirs(IDPContext ctx, String tag, ItemValue<Server> toBackup) throws ServerFault;
 
 	/**
-	 * This is called after <code>prepareDataDirs</code>. Rsync will be used to
-	 * save those dirs. Symlinks are handled by the dataprotect code, so you
-	 * don't need special code here to check if the dir war symlinked elsewhere.
+	 * This is called after <code>prepareDataDirs</code>. Rsync will be used to save
+	 * those dirs. Symlinks are handled by the dataprotect code, so you don't need
+	 * special code here to check if the dir war symlinked elsewhere.
 	 * 
 	 * @return the dirs that need to be data protected
 	 */
@@ -66,10 +65,16 @@ public interface IBackupWorker {
 	 * @param backedUp
 	 * @throws ServerFault
 	 */
-	void dataDirsSaved(IDPContext ctx, String tag, ItemValue<Server> backedUp) throws ServerFault;
+	default void dataDirsSaved(IDPContext ctx, String tag, ItemValue<Server> backedUp) throws ServerFault {
+		// do nothing
+	}
 
-	public void restore(IDPContext ctx, PartGeneration part, Map<String, Object> params) throws ServerFault;
+	default public void restore(IDPContext ctx, PartGeneration part, Map<String, Object> params) throws ServerFault {
+		// do nothing
+	}
 
-	public void cleanup(IDPContext ctx, PartGeneration part, Map<String, Object> params) throws ServerFault;
+	default public void cleanup(IDPContext ctx, PartGeneration part, Map<String, Object> params) throws ServerFault {
+		// do nothing
+	}
 
 }

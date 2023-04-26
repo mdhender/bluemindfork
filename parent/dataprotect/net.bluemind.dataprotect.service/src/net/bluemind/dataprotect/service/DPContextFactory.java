@@ -20,6 +20,7 @@
 package net.bluemind.dataprotect.service;
 
 import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.dataprotect.api.IDPContext;
 import net.bluemind.dataprotect.service.internal.DPContext;
 
 public class DPContextFactory {

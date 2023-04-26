@@ -23,7 +23,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-import net.bluemind.dataprotect.service.IBackupWorker;
+import net.bluemind.dataprotect.api.IBackupWorker;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 
 public final class Workers {

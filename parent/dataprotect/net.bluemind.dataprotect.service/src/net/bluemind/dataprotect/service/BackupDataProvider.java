@@ -48,6 +48,7 @@ import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
+import net.bluemind.dataprotect.api.IBackupWorker;
 import net.bluemind.dataprotect.api.PartGeneration;
 import net.bluemind.dataprotect.api.Restorable;
 import net.bluemind.dataprotect.service.internal.DPContext;

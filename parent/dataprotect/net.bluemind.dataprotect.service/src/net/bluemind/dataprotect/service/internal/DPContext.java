@@ -23,11 +23,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.task.service.IServerTaskMonitor;
-import net.bluemind.dataprotect.service.IDPContext;
+import net.bluemind.dataprotect.api.IDPContext;
+import net.bluemind.dataprotect.api.IDPContext.ITool;
 import net.bluemind.dataprotect.service.tool.ToolBootstrap;
 
 public class DPContext implements IDPContext {
-
 	private final IServerTaskMonitor monitor;
 	private static final Logger logger = LoggerFactory.getLogger(DPContext.class);
 

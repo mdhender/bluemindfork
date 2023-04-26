@@ -27,6 +27,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
@@ -38,11 +40,11 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.dataprotect.api.IBackupWorker;
+import net.bluemind.dataprotect.api.IDPContext;
+import net.bluemind.dataprotect.api.IDPContext.IToolConfig;
+import net.bluemind.dataprotect.api.IDPContext.IToolSession;
 import net.bluemind.dataprotect.api.PartGeneration;
-import net.bluemind.dataprotect.service.IDPContext;
-import net.bluemind.dataprotect.service.IDPContext.IToolConfig;
-import net.bluemind.dataprotect.service.IDPContext.IToolSession;
-import net.bluemind.dataprotect.worker.DefaultWorker;
 import net.bluemind.node.api.ExitList;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;
@@ -51,13 +53,13 @@ import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 
-public abstract class AbstractPgWorker extends DefaultWorker {
-
+public abstract class AbstractPgWorker implements IBackupWorker {
 	protected String dbUser;
 	protected String dbPassword;
 	protected String dbName;
 	private Set<String> excludeData = Sets.newHashSet("t_container_changelog", "t_job_log_entry", "t_eas_*",
 			"t_message_body", "t_mailbox_replica", "t_mailbox_record");
+	private static final Logger logger = LoggerFactory.getLogger(AbstractPgWorker.class);
 
 	protected AbstractPgWorker() {
 		BmConfIni ini = new BmConfIni();
@@ -78,10 +80,7 @@ public abstract class AbstractPgWorker extends DefaultWorker {
 
 	@Override
 	public void prepareDataDirs(IDPContext ctx, String tag, ItemValue<Server> toBackup) throws ServerFault {
-		super.prepareDataDirs(ctx, tag, toBackup);
-
 		String dir = getBackupDirectory();
-
 		logger.info("Should do the dump of {} ...", dbName);
 		String s = dataString("scripts/dump.sh");
 		s = s.replace("${format}", "custom");

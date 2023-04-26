@@ -32,8 +32,8 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.dataprotect.service.IDPContext;
-import net.bluemind.dataprotect.worker.DefaultWorker;
+import net.bluemind.dataprotect.api.IBackupWorker;
+import net.bluemind.dataprotect.api.IDPContext;
 import net.bluemind.directory.hollow.datamodel.producer.DirectorySerializer;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.node.api.INodeClient;
@@ -41,7 +41,7 @@ import net.bluemind.node.api.NodeActivator;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 
-public class DirectoryWorker extends DefaultWorker {
+public class DirectoryWorker implements IBackupWorker {
 	private static final String dir = "/var/backups/bluemind/work/directory";
 
 	@Override
@@ -92,4 +92,5 @@ public class DirectoryWorker extends DefaultWorker {
 	public String getDataType() {
 		return "directory";
 	}
+
 }

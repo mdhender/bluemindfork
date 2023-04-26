@@ -33,20 +33,23 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.snapshots.SnapshotInfo;
 import org.elasticsearch.snapshots.SnapshotState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.dataprotect.service.IDPContext;
-import net.bluemind.dataprotect.worker.DefaultWorker;
+import net.bluemind.dataprotect.api.IBackupWorker;
+import net.bluemind.dataprotect.api.IDPContext;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.server.api.Server;
 
-public class ElasticWorker extends DefaultWorker {
+public class ElasticWorker implements IBackupWorker {
 	private static final String repo = "/var/spool/bm-elasticsearch/repo";
 	private static final String repository = "bm-elasticsearch";
 	private static final String snapshot = "snapshot-es";
+	private static final Logger logger = LoggerFactory.getLogger(ElasticWorker.class);
 
 	@Override
 	public boolean supportsTag(String tag) {

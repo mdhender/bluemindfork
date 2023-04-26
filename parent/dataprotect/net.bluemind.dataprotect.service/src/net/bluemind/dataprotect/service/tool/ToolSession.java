@@ -36,11 +36,11 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableSet;
 
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.dataprotect.api.IDPContext;
+import net.bluemind.dataprotect.api.IDPContext.IToolConfig;
+import net.bluemind.dataprotect.api.IDPContext.IToolSession;
 import net.bluemind.dataprotect.api.PartGeneration;
 import net.bluemind.dataprotect.service.BackupPath;
-import net.bluemind.dataprotect.service.IDPContext;
-import net.bluemind.dataprotect.service.IDPContext.IToolConfig;
-import net.bluemind.dataprotect.service.IDPContext.IToolSession;
 import net.bluemind.node.api.ExitList;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NCUtils;

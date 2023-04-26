@@ -29,14 +29,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Sets;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.dataprotect.service.IDPContext;
-import net.bluemind.dataprotect.worker.DefaultWorker;
+import net.bluemind.dataprotect.api.IBackupWorker;
+import net.bluemind.dataprotect.api.IDPContext;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.node.api.INodeClient;
@@ -46,8 +49,9 @@ import net.bluemind.system.api.SystemConf;
 import net.bluemind.system.helper.ArchiveHelper;
 import net.bluemind.system.sysconf.helper.LocalSysconfCache;
 
-public class MailSdsWorker extends DefaultWorker {
+public class MailSdsWorker implements IBackupWorker {
 	private final Path outputPath = Paths.get("/var/backups/bluemind/sds");
+	private static final Logger logger = LoggerFactory.getLogger(MailSdsWorker.class);
 
 	@Override
 	public boolean supportsTag(String tag) {

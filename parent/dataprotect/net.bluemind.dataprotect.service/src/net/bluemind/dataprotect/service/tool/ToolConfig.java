@@ -22,7 +22,7 @@ package net.bluemind.dataprotect.service.tool;
 import java.util.Set;
 
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.dataprotect.service.IDPContext.IToolConfig;
+import net.bluemind.dataprotect.api.IDPContext.IToolConfig;
 import net.bluemind.server.api.Server;
 
 public class ToolConfig implements IToolConfig {
