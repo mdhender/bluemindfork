@@ -22,9 +22,7 @@ import static java.util.stream.Collectors.toSet;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -55,15 +53,7 @@ import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.sanitizer.Sanitizer;
-import net.bluemind.core.task.api.ITask;
-import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.core.task.service.BlockingServerTask;
-import net.bluemind.core.task.service.IServerTaskMonitor;
-import net.bluemind.core.task.service.ITasksManager;
-import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.core.validator.Validator;
-import net.bluemind.directory.api.IDirEntryMaintenance;
-import net.bluemind.directory.api.RepairConfig;
 import net.bluemind.directory.api.ReservedIds;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
@@ -85,7 +75,6 @@ import net.bluemind.mailbox.service.IInCoreMailboxes;
 import net.bluemind.mailbox.service.IMailboxesStorage;
 import net.bluemind.mailbox.service.MailboxesStorageFactory;
 import net.bluemind.mailbox.service.common.DefaultFolder;
-import net.bluemind.mailbox.service.internal.repair.MailboxRepairSupport.MailboxMaintenanceOperation.DiagnosticReportCheckId;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
@@ -444,192 +433,6 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 	}
 
 	@Override
-	public TaskRef checkAndRepairAll() throws ServerFault {
-		rbacManager.check(BasicRoles.ROLE_MANAGE_MAILBOX);
-
-		String tuid = String.format("mbox_checkAndRepairAll-%s", domain.uid);
-		return context.provider().instance(ITasksManager.class).run(tuid, new BlockingServerTask() {
-
-			@Override
-			public void run(IServerTaskMonitor monitor) throws Exception {
-				checkAndRepairAllTask(monitor);
-				monitor.end(true, null, null);
-			}
-
-		});
-	}
-
-	@Override
-	public TaskRef checkAll() throws ServerFault {
-		rbacManager.check(BasicRoles.ROLE_MANAGE_MAILBOX);
-
-		String tuid = String.format("mbox_checkAll-%s", domain.uid);
-		return context.provider().instance(ITasksManager.class).run(tuid, new BlockingServerTask() {
-
-			@Override
-			public void run(IServerTaskMonitor monitor) throws Exception {
-
-				try {
-					checkAllTask(monitor);
-					monitor.end(true, null, null);
-				} catch (Exception e) {
-					monitor.end(false, e.getMessage(), null);
-				}
-			}
-
-		});
-	}
-
-	@Override
-	public TaskRef checkAndRepair(String uid) throws ServerFault {
-		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_MAILBOX);
-
-		String tuid = String.format("mbox_checkAndRepair-%s-%s", domain.uid, uid);
-		return context.provider().instance(ITasksManager.class).run(tuid, new BlockingServerTask() {
-
-			@Override
-			public void run(IServerTaskMonitor monitor) throws Exception {
-				try {
-
-					checkAndRepairTask(uid, monitor, true);
-					monitor.end(true, null, null);
-				} catch (Exception e) {
-					logger.error("error during check and repair of {}", uid, e);
-					monitor.end(false, e.getMessage(), null);
-				}
-			}
-
-		});
-	}
-
-	@Override
-	public TaskRef check(String uid) throws ServerFault {
-		rbacManager.forEntry(uid).check(BasicRoles.ROLE_MANAGE_MAILBOX);
-		String tuid = String.format("mbox_check-%s-%s", domain.uid, uid);
-		return context.provider().instance(ITasksManager.class).run(tuid, new BlockingServerTask() {
-
-			@Override
-			public void run(IServerTaskMonitor monitor) throws Exception {
-				checkAndRepairTask(uid, monitor, false);
-				monitor.end(true, null, null);
-			}
-
-		});
-	}
-
-	/**
-	 * Use {@link IDirEntryMaintenance#repair(Set)}
-	 * 
-	 * <pre>
-	 * <code>
-	 * {@code Set<String>} opsIds = IDirEntryMaintenance.getAvailableOperations()
-	 * 					.stream().map(mo -> mo.identifier)
-	 * 					.collect(Collectors.toSet());
-	 * 
-	 * for (String entryUid: IDirectory.search(
-	 * 			DirEntryQuery.filterKind(Kind.GROUP, Kind.MAILSHARE, Kind.RESOURCE, Kind.USER))
-	 * 		.values.stream()
-	 * 		.map(deiv -> deiv.uid)
-	 * 		.collect()Collectors.toSet()) {
-	 * 	IDirEntryMaintenance.repair(opsIds);
-	 * }
-	 * </code>
-	 * </pre>
-	 */
-	@Deprecated
-	public void checkAndRepairAllTask(IServerTaskMonitor monitor) throws ServerFault {
-		List<String> uids = storeService.allUids();
-
-		monitor.begin(uids.size(), "checking and repair mailboxes of " + domainUid);
-
-		for (String uid : storeService.allUids()) {
-			checkAndRepairTask(uid, monitor.subWork(1), true);
-		}
-	}
-
-	/**
-	 * Use {@link IDirEntryMaintenance#check(Set)}
-	 * 
-	 * <pre>
-	 * <code>
-	 * {@code Set<String>} opsIds = IDirEntryMaintenance.getAvailableOperations()
-	 * 					.stream().map(mo -> mo.identifier)
-	 * 					.collect(Collectors.toSet());
-	 * 
-	 * for (String entryUid: IDirectory.search(
-	 * 			DirEntryQuery.filterKind(Kind.GROUP, Kind.MAILSHARE, Kind.RESOURCE, Kind.USER))
-	 * 		.values.stream()
-	 * 		.map(deiv -> deiv.uid)
-	 * 		.collect()Collectors.toSet()) {
-	 * 	IDirEntryMaintenance.check(opsIds);
-	 * }
-	 * </code>
-	 * </pre>
-	 */
-	@Deprecated
-	private void checkAllTask(IServerTaskMonitor monitor) throws ServerFault {
-		List<String> uids = storeService.allUids();
-		monitor.begin(uids.size(), "checking and repair mailboxes of " + domainUid);
-
-		for (String uid : storeService.allUids()) {
-			checkAndRepairTask(uid, monitor, false);
-		}
-	}
-
-	/**
-	 * Use {@link IDirEntryMaintenance#repair(Set)}
-	 * 
-	 * <pre>
-	 * <code>
-	 * {@code Set<String>} opsIds = IDirEntryMaintenance.getAvailableOperations()
-	 * 					.stream().map(mo -> mo.identifier)
-	 * 					.collect(Collectors.toSet());
-	 * 
-	 * IDirEntryMaintenance.repair(opsIds);
-	 * </code>
-	 * </pre>
-	 */
-	@Deprecated
-	public void checkAndRepairTask(String uid, IServerTaskMonitor monitor) throws ServerFault {
-		checkAndRepairTask(uid, monitor, true);
-	}
-
-	/**
-	 * If not <code>repair</code>, use {@link IDirEntryMaintenance#check(Set)} If
-	 * <code>repair</code>, use {@link IDirEntryMaintenance#repair(Set)}
-	 * 
-	 * <pre>
-	 * <code>
-	 * {@code Set<String>} opsIds = IDirEntryMaintenance.getAvailableOperations()
-	 * 					.stream().map(mo -> mo.identifier)
-	 * 					.collect(Collectors.toSet());
-	 * 
-	 * if (repair) {
-	 * 	IDirEntryMaintenance.repair(opsIds);
-	 * } else {
-	 * 	IDirEntryMaintenance.check(opsIds);
-	 * }
-	 * </code>
-	 * </pre>
-	 */
-	@Deprecated
-	public void checkAndRepairTask(String uid, IServerTaskMonitor monitor, boolean repair) throws ServerFault {
-		monitor.begin(1, String.format("Check and repair mailbox %s@%s", uid, domainUid));
-		Set<String> opsIds = new HashSet<>(Arrays.asList(DiagnosticReportCheckId.mailboxExists.name(),
-				DiagnosticReportCheckId.mailboxIndexExists.name(), DiagnosticReportCheckId.mailboxAclsContainer.name(),
-				DiagnosticReportCheckId.mailboxAcls.name(), DiagnosticReportCheckId.mailboxHsm.name(),
-				DiagnosticReportCheckId.mailboxFilters.name(), DiagnosticReportCheckId.mailboxPostfixMaps.name(),
-				DiagnosticReportCheckId.mailboxAcls.name(), DiagnosticReportCheckId.mailboxImapHierarchy.name(),
-				DiagnosticReportCheckId.mailboxFilters.name(), DiagnosticReportCheckId.mailboxPostfixMaps.name(),
-				DiagnosticReportCheckId.mailboxSubscription.name()));
-
-		TaskRef tr = context.su().provider().instance(IDirEntryMaintenance.class, domainUid, uid)
-				.repair(RepairConfig.create(opsIds, !repair, true, true));
-		ITask itask = context.su().provider().instance(ITask.class, tr.id);
-		TaskUtils.forwardProgress(itask, monitor);
-	}
-
-	@Override
 	public void checkAvailabilty(Mailbox mailbox) throws ServerFault {
 		try {
 			if (mailboxStore.nameAlreadyUsed(null, mailbox)) {
@@ -911,5 +714,4 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 			storeService.deleteEmailByAlias(alias);
 		}
 	}
-
 }

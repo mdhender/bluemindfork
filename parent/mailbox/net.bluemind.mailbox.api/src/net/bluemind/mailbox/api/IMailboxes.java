@@ -1,7 +1,6 @@
 package net.bluemind.mailbox.api;
 
 import java.util.List;
-import java.util.Set;
 
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -14,8 +13,6 @@ import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
-import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.directory.api.IDirEntryMaintenance;
 import net.bluemind.mailbox.api.rules.MailFilterRule;
 
 @BMApi(version = "3")
@@ -144,90 +141,6 @@ public interface IMailboxes {
 	@GET
 	@Path("_byRouting")
 	public List<String> byRouting(@QueryParam("email") Mailbox.Routing routing) throws ServerFault;
-
-	/**
-	 * Use {@link IDirEntryMaintenance#repair(Set)}
-	 * 
-	 * <pre>
-	 * <code>
-	 * {@code Set<String>} opsIds = IDirEntryMaintenance.getAvailableOperations()
-	 * 					.stream().map(mo -> mo.identifier)
-	 * 					.collect(Collectors.toSet());
-	 * 
-	 * for (String entryUid: IDirectory.search(
-	 * 			DirEntryQuery.filterKind(Kind.GROUP, Kind.MAILSHARE, Kind.RESOURCE, Kind.USER))
-	 * 		.values.stream()
-	 * 		.map(deiv -> deiv.uid)
-	 * 		.collect()Collectors.toSet()) {
-	 * 	IDirEntryMaintenance.repair(opsIds);
-	 * }
-	 * </code>
-	 * </pre>
-	 */
-	@Deprecated
-	@POST
-	@Path("_check-and-repair-all")
-	public TaskRef checkAndRepairAll() throws ServerFault;
-
-	/**
-	 * Use {@link IDirEntryMaintenance#check(Set)}
-	 * 
-	 * <pre>
-	 * <code>
-	 * {@code Set<String>} opsIds = IDirEntryMaintenance.getAvailableOperations()
-	 * 					.stream().map(mo -> mo.identifier)
-	 * 					.collect(Collectors.toSet());
-	 * 
-	 * for (String entryUid: IDirectory.search(
-	 * 			DirEntryQuery.filterKind(Kind.GROUP, Kind.MAILSHARE, Kind.RESOURCE, Kind.USER))
-	 * 		.values.stream()
-	 * 		.map(deiv -> deiv.uid)
-	 * 		.collect()Collectors.toSet()) {
-	 * 	IDirEntryMaintenance.check(opsIds);
-	 * }
-	 * </code>
-	 * </pre>
-	 */
-	@Deprecated
-	@POST
-	@Path("_check-all")
-	public TaskRef checkAll() throws ServerFault;
-
-	/**
-	 * Use {@link IDirEntryMaintenance#repair(Set)}
-	 * 
-	 * <pre>
-	 * <code>
-	 * {@code Set<String>} opsIds = IDirEntryMaintenance.getAvailableOperations()
-	 * 					.stream().map(mo -> mo.identifier)
-	 * 					.collect(Collectors.toSet());
-	 * 
-	 * 	IDirEntryMaintenance.repair(opsIds);
-	 * </code>
-	 * </pre>
-	 */
-	@Deprecated
-	@POST
-	@Path("{uid}/_check-and-repair")
-	public TaskRef checkAndRepair(@PathParam("uid") String uid) throws ServerFault;
-
-	/**
-	 * Use {@link IDirEntryMaintenance#check(Set)}
-	 * 
-	 * <pre>
-	 * <code>
-	 * {@code Set<String>} opsIds = IDirEntryMaintenance.getAvailableOperations()
-	 * 					.stream().map(mo -> mo.identifier)
-	 * 					.collect(Collectors.toSet());
-	 * 
-	 * IDirEntryMaintenance.check(opsIds);
-	 * </code>
-	 * </pre>
-	 */
-	@Deprecated
-	@POST
-	@Path("{uid}/_check")
-	public TaskRef check(@PathParam("uid") String uid) throws ServerFault;
 
 	@POST
 	@Path("_mget")

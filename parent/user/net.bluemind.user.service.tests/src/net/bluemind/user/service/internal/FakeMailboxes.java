@@ -26,7 +26,6 @@ import net.bluemind.core.api.Email;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
-import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.MailFilter;
 import net.bluemind.mailbox.api.Mailbox;
@@ -138,26 +137,6 @@ public class FakeMailboxes implements IMailboxes {
 
 	@Override
 	public List<String> byRouting(Routing routing) throws ServerFault {
-		throw new ServerFault("not implemented");
-	}
-
-	@Override
-	public TaskRef checkAndRepairAll() throws ServerFault {
-		throw new ServerFault("not implemented");
-	}
-
-	@Override
-	public TaskRef checkAll() throws ServerFault {
-		throw new ServerFault("not implemented");
-	}
-
-	@Override
-	public TaskRef checkAndRepair(String uid) throws ServerFault {
-		throw new ServerFault("not implemented");
-	}
-
-	@Override
-	public TaskRef check(String uid) throws ServerFault {
 		throw new ServerFault("not implemented");
 	}
 
