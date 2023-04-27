@@ -66,4 +66,6 @@ public interface MailboxConnection {
 
 	CompletableFuture<Boolean> delete(Pop3Context ctx, List<Long> mailsToDelete);
 
+	String logId();
+
 }

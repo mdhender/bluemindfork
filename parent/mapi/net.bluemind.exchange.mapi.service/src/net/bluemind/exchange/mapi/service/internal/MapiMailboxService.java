@@ -28,14 +28,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerQuery;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ItemUri;
-import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.jdbc.JdbcAbstractStore;
@@ -48,10 +46,6 @@ import net.bluemind.exchange.mapi.hook.IMapiArtifactsHook;
 import net.bluemind.exchange.mapi.hook.MapiArtifactsHooks;
 import net.bluemind.exchange.mapi.persistence.MapiReplicaStore;
 import net.bluemind.exchange.publicfolders.common.PublicFolders;
-import net.bluemind.hornetq.client.MQ;
-import net.bluemind.hornetq.client.Topic;
-import net.bluemind.user.api.IUser;
-import net.bluemind.user.api.User;
 
 public class MapiMailboxService implements IMapiMailbox {
 
@@ -175,16 +169,4 @@ public class MapiMailboxService implements IMapiMailbox {
 			throw new ServerFault(e);
 		}
 	}
-
-	@Override
-	public void enablePerUserLog(boolean enable) {
-		IUser userApi = context.provider().instance(IUser.class, domainUid);
-		ItemValue<User> asUser = userApi.getComplete(mailboxUid);
-		String latd = asUser.value.login + "@" + domainUid;
-
-		JsonObject msg = new JsonObject().put("product", "bm-mapi").put("user", latd).put("enabled", enable);
-		logger.info("Reconfiguring logs for {}, enable: {}", latd, enable);
-		MQ.getProducer(Topic.LOGBACK_CONFIG).send(msg);
-	}
-
 }

@@ -128,6 +128,7 @@
       <plugin id="net.bluemind.common.hollow"/>
       <plugin id="net.bluemind.common.io"/>
       <plugin id="net.bluemind.common.logback" fragment="true"/>
+      <plugin id="net.bluemind.common.logback.listener"/>
       <plugin id="net.bluemind.common.reflect"/>
       <plugin id="net.bluemind.common.vertx.contextlogging"/>
       <plugin id="net.bluemind.config"/>

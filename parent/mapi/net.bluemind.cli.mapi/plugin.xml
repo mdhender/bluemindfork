@@ -9,7 +9,7 @@
             priority="500">
       </registration>
       <registration
-            impl="net.bluemind.cli.mapi.LoggingCommand$Reg"
+            impl="net.bluemind.cli.mapi.MapiLoggingCommand$Reg"
             priority="400">
       </registration>
    </extension>

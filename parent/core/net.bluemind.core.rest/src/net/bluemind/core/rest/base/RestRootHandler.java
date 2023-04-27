@@ -126,6 +126,10 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 	@Override
 	public void call(final RestRequest request, AsyncHandler<RestResponse> responseHandler) {
 		ContextualData.put("endpoint", "rest");
+		SecurityContext securityContext = getSecurityContext(request);
+		if (securityContext != null && !securityContext.isAnonymous()) {
+			ContextualData.put("user", securityContext.getSubject());
+		}
 		Tracer tracer = VertxPlatform.openTelemetry().getTracer("rest");
 		Span parentSpan = tracer.spanBuilder(request.path).startSpan();
 		try (Scope scope = parentSpan.makeCurrent()) {

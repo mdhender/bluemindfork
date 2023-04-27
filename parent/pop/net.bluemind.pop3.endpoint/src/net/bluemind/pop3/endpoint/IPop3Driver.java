@@ -19,8 +19,6 @@ package net.bluemind.pop3.endpoint;
 
 import java.util.concurrent.CompletableFuture;
 
-public interface Pop3Driver {
-
+public interface IPop3Driver {
 	CompletableFuture<MailboxConnection> connect(String login, String password);
-
 }

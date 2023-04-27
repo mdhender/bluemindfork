@@ -77,4 +77,8 @@ public interface MailboxConnection {
 
 	String imapAcl(SelectedFolder selected);
 
+	default String logId() {
+		return login();
+	}
+
 }

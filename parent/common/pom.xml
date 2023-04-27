@@ -15,6 +15,7 @@
 		<module>net.bluemind.common.hollow</module>
 		<module>net.bluemind.common.io</module>
 		<module>net.bluemind.common.logback</module>
+		<module>net.bluemind.common.logback.listener</module>
 		<module>net.bluemind.common.reflect</module>
 		<module>net.bluemind.common.task</module>
 		<module>net.bluemind.common.vertx.contextlogging</module>

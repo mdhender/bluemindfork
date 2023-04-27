@@ -37,6 +37,7 @@ import io.opentelemetry.api.OpenTelemetry;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
 import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
@@ -92,16 +93,26 @@ public final class VertxPlatform implements BundleActivator {
 		/* Propagation of endpoint ContextualData through the eventbus */
 		EventBus eb = vertx.eventBus();
 		eb.addOutboundInterceptor(event -> {
+			MultiMap headers = event.message().headers();
 			String endpoint = ContextualData.get("endpoint");
+			String user = ContextualData.get("user");
 			if (endpoint != null) {
-				event.message().headers().add("log-endpoint", endpoint);
+				headers.add("log-endpoint", endpoint);
+			}
+			if (user != null) {
+				headers.add("log-user", user);
 			}
 			event.next();
 		});
 		eb.addInboundInterceptor(event -> {
-			String requestId = event.message().headers().get("log-endpoint");
-			if (requestId != null) {
-				ContextualData.put("endpoint", requestId);
+			MultiMap headers = event.message().headers();
+			String endpoint = headers.get("log-endpoint");
+			String user = headers.get("log-user");
+			if (endpoint != null) {
+				ContextualData.put("endpoint", endpoint);
+			}
+			if (user != null) {
+				ContextualData.put("user", user);
 			}
 			event.next();
 		});

@@ -24,7 +24,6 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
-
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemUri;
@@ -45,10 +44,6 @@ public interface IMapiMailbox {
 
 	@DELETE
 	void delete() throws ServerFault;
-
-	@POST
-	@Path("_logging")
-	void enablePerUserLog(boolean enable);
 
 	/**
 	 * Finds an item's uid & container with its item_id.

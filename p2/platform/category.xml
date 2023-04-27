@@ -129,10 +129,12 @@
    <bundle id="net.bluemind.common.freemarker" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.common.hollow" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.common.io" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.common.logback" version="5.0.0.qualifier" />
+   <bundle id="net.bluemind.common.logback.listener" version="5.0.0.qualifier" />
    <bundle id="net.bluemind.common.reflect" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.common.task" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.commons.closure" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.commons.ui.closure" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.common.task" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.config" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.config.testfragment" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.contact.application.closure" version="5.0.0.qualifier"/>

@@ -372,4 +372,9 @@ public class CoreConnection implements MailboxConnection {
 			return ret;
 		});
 	}
+
+	@Override
+	public String logId() {
+		return me.value.login + "@" + me.domainUid;
+	}
 }

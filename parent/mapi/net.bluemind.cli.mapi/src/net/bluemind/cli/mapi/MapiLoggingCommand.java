@@ -22,18 +22,13 @@ import java.util.Optional;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
-import net.bluemind.cli.utils.CliUtils;
-import net.bluemind.core.api.Regex;
-import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.exchange.mapi.api.IMapiMailbox;
-import net.bluemind.mailbox.api.IMailboxes;
-import net.bluemind.mailbox.api.Mailbox;
+import net.bluemind.cli.user.LoggingCommand;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "logging", description = "Enable/Disable per-user MAPI logs")
-public class LoggingCommand implements ICmdLet, Runnable {
+public class MapiLoggingCommand implements ICmdLet, Runnable {
 
 	public static class Reg implements ICmdLetRegistration {
 
@@ -44,7 +39,7 @@ public class LoggingCommand implements ICmdLet, Runnable {
 
 		@Override
 		public Class<? extends ICmdLet> commandClass() {
-			return LoggingCommand.class;
+			return MapiLoggingCommand.class;
 		}
 	}
 
@@ -58,22 +53,12 @@ public class LoggingCommand implements ICmdLet, Runnable {
 
 	@Override
 	public void run() {
-		if (!Regex.EMAIL.validate(target)) {
-			ctx.error(target + " is not an email.");
-			return;
-		}
-		CliUtils cliUtils = new CliUtils(ctx);
-		String domainUid = cliUtils.getDomainUidByEmailOrDomain(target);
-
-		IMailboxes boxApi = ctx.adminApi().instance(IMailboxes.class, domainUid);
-		ItemValue<Mailbox> mailbox = boxApi.byEmail(target);
-		if (mailbox == null) {
-			ctx.error("Mailbox not found for email '" + target + "'");
-			return;
-		}
-		ctx.info("Switch logs " + (enable ? "ON" : "OFF") + " for " + target + " (mailbox uid " + mailbox.uid + ")");
-		IMapiMailbox mapiMboxApi = ctx.adminApi().instance(IMapiMailbox.class, domainUid, mailbox.uid);
-		mapiMboxApi.enablePerUserLog(enable);
+		LoggingCommand userLoggingCommand = new LoggingCommand();
+		userLoggingCommand.enable = enable;
+		userLoggingCommand.endpoint = LoggingCommand.Endpoint.MAPI;
+		userLoggingCommand.forTarget(target);
+		userLoggingCommand.forContext(ctx);
+		userLoggingCommand.run();
 	}
 
 	@Override

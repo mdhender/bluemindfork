@@ -49,6 +49,7 @@ import net.bluemind.imap.endpoint.ratelimiter.ThroughputLimiterRegistry;
 public class ImapContext {
 
 	private static final Logger logger = LoggerFactory.getLogger(ImapContext.class);
+	private static final Logger rawLogger = LoggerFactory.getLogger("net.bluemind.imap.endpoint.raw");
 
 	private final NetSocket ns;
 	private final Vertx vertx;
@@ -150,8 +151,11 @@ public class ImapContext {
 	}
 
 	public void clientCommand(RawImapCommand event) {
-		if (logger.isInfoEnabled()) {
-			logger.info("[{}] C: {} {}", logConnectionId, event.tag(), event.cmd());
+		if (logger.isDebugEnabled()) {
+			logger.debug("[{}] C: {} {}", logConnectionId, event.tag(), event.cmd());
+		}
+		if (rawLogger.isDebugEnabled()) {
+			rawLogger.debug("< {} {}\n", event.tag(), event.cmd());
 		}
 	}
 
@@ -161,14 +165,17 @@ public class ImapContext {
 	 * @return
 	 */
 	public Future<Void> write(Buffer b) {
-		logRespBuffer(b);
-		return sender.write(b);
+		return sender.write(b).onSuccess(f -> logRespBuffer(b))
+				.onFailure(t -> logger.error("Unable to send {} bytes", b.length(), t));
 	}
 
 	private void logRespBuffer(Buffer b) {
-		if (logger.isInfoEnabled()) {
-			logger.info("[{}] S: {}", logConnectionId,
+		if (logger.isDebugEnabled()) {
+			logger.debug("[{}] S: {}", logConnectionId,
 					truncate(b.toString(StandardCharsets.US_ASCII)).replaceAll("\r\n$", ""));
+		}
+		if (rawLogger.isDebugEnabled()) {
+			rawLogger.debug("> {}", b.toString(StandardCharsets.US_ASCII));
 		}
 	}
 
@@ -189,10 +196,14 @@ public class ImapContext {
 	}
 
 	public CompletableFuture<Void> writePromise(String resp) {
-		if (logger.isInfoEnabled()) {
-			logger.info("[{}] S: {}", logConnectionId, truncate(resp).replaceAll("\r\n$", ""));
-		}
-		return sender.write(Buffer.buffer(resp)).toCompletionStage().toCompletableFuture();
+		return sender.write(Buffer.buffer(resp)).onSuccess(f -> {
+			if (logger.isDebugEnabled()) {
+				logger.debug("[{}] S: {}", logConnectionId, truncate(resp).replaceAll("\r\n$", ""));
+			}
+			if (rawLogger.isDebugEnabled()) {
+				rawLogger.debug("> {}", resp);
+			}
+		}).toCompletionStage().toCompletableFuture();
 	}
 
 	public EventNexus nexus() {
@@ -225,6 +236,13 @@ public class ImapContext {
 
 	public void state(SessionState state) {
 		this.state = state;
+		switch (state) {
+		case AUTHENTICATED:
+			ContextualData.put("user", mailbox.logId());
+			break;
+		default:
+			break;
+		}
 		nexus.dispatchStateChanged(state);
 	}
 

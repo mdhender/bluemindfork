@@ -971,4 +971,15 @@ public class UserService implements IInCoreUser, IUser {
 	private ServerFault notFoundServerFault(String uid) {
 		return new ServerFault("User " + uid + " not found in domain " + domainName, ErrorCode.NOT_FOUND);
 	}
+
+	@Override
+	public void enablePerUserLog(String userUid, String endpoint, boolean enable) {
+		ItemValue<User> asUser = getComplete(userUid);
+		if (asUser != null) {
+			String latd = asUser.value.login + "@" + domainName;
+			JsonObject msg = new JsonObject().put("endpoint", endpoint).put("user", latd).put("enabled", enable);
+			logger.info("Reconfiguring logs for {} on {}, enable: {}", latd, endpoint, enable);
+			MQ.getProducer(Topic.LOGBACK_CONFIG).send(msg);
+		}
+	}
 }

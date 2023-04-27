@@ -43,6 +43,10 @@
             impl="net.bluemind.cli.user.UserSessionsCommand$Reg"
             priority="91">
       </registration>
+      <registration
+            impl="net.bluemind.cli.user.LoggingCommand$Reg"
+            priority="5">
+      </registration>
    </extension>
 
 </plugin>

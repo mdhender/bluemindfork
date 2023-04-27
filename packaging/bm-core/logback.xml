@@ -5,8 +5,7 @@
 	<conversionRule conversionWord="vcl" converterClass="net.bluemind.common.logback.ContextLoggingConverter"/>
 
 	<property name="DEFAULT_PATTERN"
-		value="%date{ISO8601, ${net.bluemind.property.system.timezone:-GMT}} [%thread] [%vcl{endpoint:-none}] %c{1} %p - %m%n" />
-	<variable name="endpoint" value="%vcl{endpoint:-none}" scope="context"/>
+		value="%date{ISO8601, ${net.bluemind.property.system.timezone:-GMT}} [%thread] [%vcl{endpoint:-none}:%vcl{user:-anon}] %c{1} %p - %m%n" />
 
 	<contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
 		<resetJUL>true</resetJUL>
@@ -18,7 +17,6 @@
 			<level>ERROR</level>
 		</filter>
 	</appender>
-
 
 	<appender name="R"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -139,7 +137,69 @@
 		<appender-ref ref="SendmailHandler" />
 	</logger>
 	
+	<!-- IMAP -->
+	<appender name="IMAPUSER" class="ch.qos.logback.classic.sift.SiftingAppender">
+		<discriminator class="net.bluemind.common.logback.ContextualDataDiscriminator">
+			<key>user</key>
+			<defaultValue>anon</defaultValue>
+		</discriminator>
+		<sift>
+			<appender name="FILE-${user}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+	            <level>DEBUG</level>
+	        </filter>
+			<filter class="net.bluemind.common.logback.EndpointFilter">
+				<endpoint>imap</endpoint>
+			</filter>
+			<filter class="net.bluemind.common.logback.PerUserFilter">
+				<endpoint>imap</endpoint>
+			</filter>
+			<file>/var/log/bm/imap/${user}.log</file>
+			<encoder>
+				<pattern>%date{ISO8601, ${net.bluemind.property.system.timezone:-GMT}} %c{1} %p - %m%n</pattern>
+			</encoder>
+			<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+				<!-- daily rollover -->
+				<FileNamePattern>/var/log/bm/imap/${user}.log.%d{yyyy-MM-dd}.%i.gz</FileNamePattern>
+					<maxHistory>10</maxHistory>
+					<MaxFileSize>50MB</MaxFileSize>
+					<totalSizeCap>1GB</totalSizeCap>
+				</rollingPolicy>
+			</appender>
+		</sift>
+	</appender>
+	<appender name="IMAPUSERRAW" class="ch.qos.logback.classic.sift.SiftingAppender">
+		<discriminator class="net.bluemind.common.logback.ContextualDataDiscriminator">
+			<key>user</key>
+			<defaultValue>anon</defaultValue>
+		</discriminator>
+		<sift>
+			<appender name="FILE-${user}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+	            <level>DEBUG</level>
+	        </filter>
+			<filter class="net.bluemind.common.logback.EndpointFilter">
+				<endpoint>imap</endpoint>
+			</filter>
+			<filter class="net.bluemind.common.logback.PerUserFilter"/>
+			<file>/var/log/bm/imap/${user}.raw.log</file>
+			<encoder>
+				<pattern>%m%n</pattern>
+			</encoder>
+			<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+				<!-- daily rollover -->
+				<FileNamePattern>/var/log/bm/imap/${user}.raw.log.%d{yyyy-MM-dd}.%i.gz</FileNamePattern>
+					<maxHistory>10</maxHistory>
+					<MaxFileSize>50MB</MaxFileSize>
+					<totalSizeCap>1GB</totalSizeCap>
+				</rollingPolicy>
+			</appender>
+		</sift>
+	</appender>
 	<appender name="IMAP" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
 		<filter class="net.bluemind.common.logback.EndpointFilter">
 			<endpoint>imap</endpoint>
 		</filter>
@@ -155,12 +215,50 @@
 			<pattern>${DEFAULT_PATTERN}</pattern>
 		</encoder>
 	</appender>
-	<!-- imap commands: not usefull in core -->
-	<logger name="net.bluemind.imap.endpoint" level="INFO" additivity="false">
+	<logger name="net.bluemind.imap.endpoint" level="DEBUG" additivity="false">
+		<appender-ref ref="IMAPUSER"/>
 		<appender-ref ref="IMAP"/>
 	</logger>
+	<logger name="net.bluemind.imap.endpoint.raw" level="DEBUG" additivity="false">
+		<appender-ref ref="IMAPUSERRAW"/>
+	</logger>
+	<!-- /IMAP -->
 
+	<!-- POP3 -->
+	<appender name="POP3USER" class="ch.qos.logback.classic.sift.SiftingAppender">
+		<discriminator class="net.bluemind.common.logback.ContextualDataDiscriminator">
+			<key>user</key>
+			<defaultValue>anon</defaultValue>
+		</discriminator>
+		<sift>
+			<appender name="FILE-${user}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+	            <level>DEBUG</level>
+	        </filter>
+			<filter class="net.bluemind.common.logback.EndpointFilter">
+				<endpoint>pop3</endpoint>
+			</filter>
+			<filter class="net.bluemind.common.logback.PerUserFilter">
+				<endpoint>pop3</endpoint>
+			</filter>
+			<file>/var/log/bm/pop3/${user}.log</file>
+			<encoder>
+				<pattern>%date{ISO8601, ${net.bluemind.property.system.timezone:-GMT}} %c{1} %p - %m%n</pattern>
+			</encoder>
+			<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+				<!-- daily rollover -->
+				<FileNamePattern>/var/log/bm/pop3/${user}.log.%d{yyyy-MM-dd}.%i.gz</FileNamePattern>
+					<maxHistory>10</maxHistory>
+					<MaxFileSize>50MB</MaxFileSize>
+					<totalSizeCap>1GB</totalSizeCap>
+				</rollingPolicy>
+			</appender>
+		</sift>
+	</appender>
 	<appender name="POP3" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
 		<filter class="net.bluemind.common.logback.EndpointFilter">
 			<endpoint>pop3</endpoint>
 		</filter>
@@ -176,16 +274,18 @@
 			<pattern>${DEFAULT_PATTERN}</pattern>
 		</encoder>
 	</appender>
-
-	<logger name="net.bluemind.pop3.endpoint" level="INFO" additivity="false">
+	<logger name="net.bluemind.pop3.endpoint" level="DEBUG" additivity="false">
 		<appender-ref ref="POP3"/>
+		<appender-ref ref="POP3USER"/>
 	</logger>
-
+	<!-- /POP3 -->
+	
 	<root level="INFO">
 		<appender-ref ref="R" />
 		<appender-ref ref="Sentry" />
 		<appender-ref ref="IMAP" />
+		<appender-ref ref="IMAPUSER"/>
 		<appender-ref ref="POP3" />
+		<appender-ref ref="POP3USER"/>
 	</root>
-
 </configuration>

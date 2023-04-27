@@ -95,11 +95,8 @@ public class Pop3Session {
 	}
 
 	private void onChunk(Pop3Context ctx, Buffer chunk) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("{} - C: {}", ctx.getLogin(), chunk);
-		}
-
 		String cmd = chunk.toString(StandardCharsets.US_ASCII);
+		ctx.logRequest(cmd);
 
 		int space = cmd.indexOf(' ');
 		String cmdKey = cmd.toLowerCase();
@@ -166,7 +163,7 @@ public class Pop3Session {
 					ctx.write("-ERR Invalid login or password\r\n");
 				}
 			}).exceptionally(ex -> {
-				logger.error(ex.getMessage());
+				logger.error("Connection error: {}", ex.getMessage());
 				ctx.write("-ERR Invalid login or password\r\n");
 				return null;
 			});

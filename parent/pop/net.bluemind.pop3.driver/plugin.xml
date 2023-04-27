@@ -4,7 +4,7 @@
    <extension
          point="net.bluemind.pop3.endpoint.driver">
       <driver
-            impl="net.bluemind.pop3.driver.MailApiPop3Driver"
+            impl="net.bluemind.pop3.driver.MailApiPop3Driver$MailPop3DriverFactory"
             priority="50">
       </driver>
    </extension>

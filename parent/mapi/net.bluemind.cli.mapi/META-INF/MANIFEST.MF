@@ -16,7 +16,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.backend.mail.replica.api,
  net.bluemind.todolist.api,
  net.bluemind.notes.api,
- net.bluemind.exchange.publicfolders.common
+ net.bluemind.exchange.publicfolders.common,
+ net.bluemind.cli.user,
+ net.bluemind.cli.directory.common;bundle-version="5.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.cli.mapi
 Bundle-ActivationPolicy: lazy

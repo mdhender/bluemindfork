@@ -38,17 +38,18 @@ import io.vertx.core.eventbus.MessageProducer;
 import io.vertx.core.net.NetSocket;
 import net.bluemind.common.vertx.contextlogging.ContextualData;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
+import net.bluemind.lib.vertx.VertxPlatform;
 
 public class Pop3Context {
 
 	private static final Logger logger = LoggerFactory.getLogger(Pop3Context.class);
-	private static final Pop3Driver driver = loadDriver();
+	private static final IPop3Driver driver = loadDriver();
 
-	private static Pop3Driver loadDriver() {
-		RunnableExtensionLoader<Pop3Driver> rel = new RunnableExtensionLoader<>();
-		List<Pop3Driver> loaded = rel.loadExtensionsWithPriority("net.bluemind.pop3.endpoint", "driver", "driver",
-				"impl");
-		return loaded.isEmpty() ? null : loaded.get(0);
+	private static IPop3Driver loadDriver() {
+		RunnableExtensionLoader<IPop3DriverFactory> rel = new RunnableExtensionLoader<>();
+		List<IPop3DriverFactory> loaded = rel.loadExtensionsWithPriority("net.bluemind.pop3.endpoint", "driver",
+				"driver", "impl");
+		return loaded.isEmpty() ? null : loaded.get(0).create(VertxPlatform.getVertx());
 	}
 
 	private NetSocket socket;
@@ -113,24 +114,29 @@ public class Pop3Context {
 	}
 
 	public CompletableFuture<Void> write(String s) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("S: {}", s.replaceAll("\r\n$", ""));
-		}
-		return sender.write(Buffer.buffer(s)).toCompletionStage().toCompletableFuture();
+		return sender.write(Buffer.buffer(s)).onSuccess(v -> {
+			if (logger.isDebugEnabled()) {
+				logger.debug("S: {}", s.replaceAll("\r\n$", ""));
+			}
+		}).onFailure(t -> logger.error("S: unable to send {}", s.replaceAll("\r\n$", ""), t)).toCompletionStage()
+				.toCompletableFuture();
 	}
 
 	public CompletableFuture<Void> write(ByteBuf bb) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("S: {} bytes", bb.readableBytes());
-		}
-		return sender.write(Buffer.buffer(bb)).toCompletionStage().toCompletableFuture();
+		return sender.write(Buffer.buffer(bb)).onSuccess(v -> {
+			if (logger.isDebugEnabled()) {
+				logger.debug("S: {} bytes", bb.readableBytes());
+			}
+		}).onFailure(t -> logger.error("S: unable to send {} bytes", bb.readableBytes(), t)).toCompletionStage()
+				.toCompletableFuture();
 	}
 
 	public Future<Void> writeFuture(String s) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("S: {}", s.replaceAll("\r\n$", ""));
-		}
-		return sender.write(Buffer.buffer(s));
+		return sender.write(Buffer.buffer(s)).onSuccess(v -> {
+			if (logger.isDebugEnabled()) {
+				logger.debug("S: {}", s.replaceAll("\r\n$", ""));
+			}
+		}).onFailure(t -> logger.error("S: unable to send {}", s.replaceAll("\r\n$", ""), t));
 	}
 
 	public void setLogin(String login) {
@@ -144,13 +150,13 @@ public class Pop3Context {
 	public CompletableFuture<Boolean> connect(String pass) {
 		CompletableFuture<Boolean> connectResult = new CompletableFuture<>();
 		if (login == null) {
-			connectResult.completeExceptionally(new Exception("login is null"));
+			connectResult.completeExceptionally(new Pop3Error("login is null"));
 			return connectResult;
 		}
 
 		if (driver == null) {
 			logger.warn("No driver available for {}", login);
-			connectResult.completeExceptionally(new Exception("No driver available for " + login));
+			connectResult.completeExceptionally(new Pop3Error("No driver available for " + login));
 			return connectResult;
 		}
 		driver.connect(login, pass).thenAccept(coreCon -> {
@@ -158,6 +164,7 @@ public class Pop3Context {
 				connectResult.complete(false);
 			} else {
 				this.con = coreCon;
+				ContextualData.put("user", con.logId());
 				connectResult.complete(true);
 			}
 		}).exceptionally(e -> {
@@ -182,7 +189,7 @@ public class Pop3Context {
 		if (con != null) {
 			con.close();
 		}
-		socket.close();
+		sender.close();
 	}
 
 	public NetSocket socket() {
@@ -191,5 +198,9 @@ public class Pop3Context {
 
 	public MailboxConnection connection() {
 		return con;
+	}
+
+	public void logRequest(String request) {
+		logger.info("{} - C: {}", getLogin(), request);
 	}
 }

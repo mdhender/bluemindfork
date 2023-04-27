@@ -22,29 +22,38 @@ import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.vertx.core.Vertx;
 import net.bluemind.authentication.api.IAuthenticationPromise;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.HttpClientProvider;
 import net.bluemind.core.rest.http.ILocator;
 import net.bluemind.core.rest.http.VertxPromiseServiceProvider;
-import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.IServiceTopology;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.network.topology.TopologyException;
+import net.bluemind.pop3.endpoint.IPop3Driver;
+import net.bluemind.pop3.endpoint.IPop3DriverFactory;
 import net.bluemind.pop3.endpoint.MailboxConnection;
-import net.bluemind.pop3.endpoint.Pop3Driver;
 import net.bluemind.pop3.endpoint.Pop3Error;
 
-public class MailApiPop3Driver implements Pop3Driver {
-
+public class MailApiPop3Driver implements IPop3Driver {
 	private static final Logger logger = LoggerFactory.getLogger(MailApiPop3Driver.class);
-	private HttpClientProvider clientProvider;
+	private final HttpClientProvider clientProvider;
+
+	public static class MailPop3DriverFactory implements IPop3DriverFactory {
+		@Override
+		public IPop3Driver create(Vertx vertx) {
+			return new MailApiPop3Driver(new HttpClientProvider(vertx));
+		}
+	}
+
+	public MailApiPop3Driver(HttpClientProvider clientProvider) {
+		this.clientProvider = clientProvider;
+	}
 
 	@Override
 	public CompletableFuture<MailboxConnection> connect(String login, String password) {
-		this.clientProvider = new HttpClientProvider(VertxPlatform.getVertx());
-
 		ILocator cachingLocator = (String service, AsyncHandler<String[]> asyncHandler) -> {
 			IServiceTopology topology = Topology.get();
 			try {

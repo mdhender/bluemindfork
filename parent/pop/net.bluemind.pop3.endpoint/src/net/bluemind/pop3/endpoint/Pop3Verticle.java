@@ -47,18 +47,14 @@ public class Pop3Verticle extends AbstractVerticle {
 
 	@Override
 	public void start(Promise<Void> startPromise) throws Exception {
-
 		Config conf = Pop3Config.get();
-
 		int port = conf.getInt("pop3.port");
-
-		logger.info("pop3 starting on port {}", port);
 		vertx.createNetServer().connectHandler(socket -> {
 			Pop3Session session = new Pop3Session(vertx, socket);
 			session.start();
 		}).listen(port, ar -> {
 			if (ar.failed()) {
-				logger.error("Problem", ar.cause());
+				logger.error("unable to listen on port {}: {}", port, ar.cause());
 				startPromise.fail(ar.cause());
 			} else {
 				logger.info("{} listening on port {}", ar.result(), port);

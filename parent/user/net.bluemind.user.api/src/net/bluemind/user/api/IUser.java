@@ -10,7 +10,6 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
-
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
@@ -229,6 +228,18 @@ public interface IUser
 	@GET
 	@Path("{uid}/vcard")
 	public VCard getVCard(@PathParam("uid") String uid) throws ServerFault;
+
+	/**
+	 * Toggle advanced per user logging for the specified product
+	 * 
+	 * @param userUid  user's unique id
+	 * @param endpoint endpoint name (IMAP,MAPI,POP3)
+	 * @param enable
+	 */
+	@POST
+	@Path("{userUid}/_logging/{endpoint}")
+	public void enablePerUserLog(@PathParam("userUid") String userUid, @PathParam("endpoint") String endpoint,
+			boolean enable);
 
 	/**
 	 * Modifies a {@link User}'s {@link net.bluemind.directory.api.AccountType}

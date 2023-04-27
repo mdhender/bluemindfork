@@ -38,8 +38,7 @@ public class Pop3Standalone implements IApplication {
 
 	@Override
 	public void stop() {
-		// TODO Auto-generated method stub
-
+		// ok
 	}
 
 }
