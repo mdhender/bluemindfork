@@ -30,8 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.json.JsonObject;
-import net.bluemind.core.api.fault.ErrorCode;
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -185,68 +183,6 @@ public class KerberosConfigHelper {
 		NCUtils.execNoOut(nodeClient, "rm -f /etc/bm-keycloak/" + domainUid + ".keytab");
 
 		updateKrb5Conf();
-	}
-
-	public static void checkKerberosConf(BmContext context, String domainUid, Map<String, String> settings) {
-		IDomains domainService = ServerSideServiceProvider.getProvider(context.getSecurityContext())
-				.instance(IDomains.class);
-		checkKerberosConf(context, domainService.get(domainUid).value, settings);
-	}
-
-	public static void checkKerberosConf(BmContext context, Domain domain) {
-		IDomains domainService = ServerSideServiceProvider.getProvider(context.getSecurityContext())
-				.instance(IDomains.class);
-		String domainUid = null;
-		Iterator<ItemValue<Domain>> it = domainService.all().iterator();
-		while (it.hasNext() && domainUid == null) {
-			ItemValue<Domain> d = it.next();
-			if (domain.name.equals(d.value.name)) {
-				domainUid = d.uid;
-			}
-		}
-
-		Map<String, String> settings = ServerSideServiceProvider.getProvider(context.getSecurityContext())
-				.instance(IDomainSettings.class, domainUid).get();
-		checkKerberosConf(context, domain, settings);
-	}
-
-	private static void checkKerberosConf(BmContext context, Domain domain, Map<String, String> settings) {
-		IDomains domainService = ServerSideServiceProvider.getProvider(context.getSecurityContext())
-				.instance(IDomains.class);
-
-		// If no kerb let go
-		String authType = domain.properties.get(DomainAuthProperties.auth_type.name());
-		if (!AuthTypes.KERBEROS.name().equals(authType)) {
-			return;
-		}
-
-		// external url mandatory if another kerb domain without external url exists
-		String extUrl = settings.get(DomainSettingsKeys.external_url.name());
-		if (extUrl == null) {
-			domainService.all().forEach(d -> {
-				Domain currDomain = d.value;
-				if (!currDomain.name.equals(domain.name)
-						&& AuthTypes.KERBEROS.name()
-								.equals(currDomain.properties.get(DomainAuthProperties.auth_type.name()))
-						&& getExternalUrl(context, currDomain.name) == null) {
-					throw new ServerFault(
-							"External Url is mandatory to enable Kerberos. Only one domain can have kerberos enabled without an external url, which is the case for "
-									+ currDomain.defaultAlias + ".",
-							ErrorCode.INVALID_PARAMETER);
-				}
-			});
-		}
-
-		// kerb params mandatory
-		if (domain.properties.get(DomainAuthProperties.krb_ad_domain.name()) == null) {
-			throw new ServerFault("AD Domain is mandatory for kerberos configuration", ErrorCode.INVALID_PARAMETER);
-		}
-		if (domain.properties.get(DomainAuthProperties.krb_ad_ip.name()) == null) {
-			throw new ServerFault("AD IP adress is mandatory for kerberos configuration", ErrorCode.INVALID_PARAMETER);
-		}
-		if (domain.properties.get(DomainAuthProperties.krb_keytab.name()) == null) {
-			throw new ServerFault("Keytab file is mandatory for kerberos configuration", ErrorCode.INVALID_PARAMETER);
-		}
 	}
 
 	private static String krb5Conf(JsonObject jsonConf) {

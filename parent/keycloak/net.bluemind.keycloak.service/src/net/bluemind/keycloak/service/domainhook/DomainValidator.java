@@ -26,7 +26,7 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.validator.IValidator;
 import net.bluemind.core.validator.IValidatorFactory;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.keycloak.utils.KerberosConfigHelper;
+import net.bluemind.keycloak.utils.AuthConfigHelper;
 
 public class DomainValidator implements IValidator<Domain> {
 	private final BmContext context;
@@ -37,11 +37,12 @@ public class DomainValidator implements IValidator<Domain> {
 
 	@Override
 	public void create(Domain domain) {
+		AuthConfigHelper.checkDomain(context, domain, true);
 	}
 
 	@Override
 	public void update(Domain oldValue, Domain newValue) {
-		KerberosConfigHelper.checkKerberosConf(context, newValue);
+		AuthConfigHelper.checkDomain(context, newValue, false);
 	}
 
 	public final static class Factory implements IValidatorFactory<Domain> {

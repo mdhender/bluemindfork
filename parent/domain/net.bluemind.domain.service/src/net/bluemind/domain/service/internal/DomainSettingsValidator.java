@@ -44,7 +44,7 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomains;
-import net.bluemind.keycloak.utils.KerberosConfigHelper;
+import net.bluemind.keycloak.utils.AuthConfigHelper;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.system.api.ISystemConfiguration;
@@ -73,7 +73,7 @@ public class DomainSettingsValidator {
 						.map(dd -> dd.isEmpty() ? null : dd));
 		checkDates(settings);
 		checkLanguage(settings);
-		KerberosConfigHelper.checkKerberosConf(context, domainUid, settings);
+		AuthConfigHelper.checkSettings(context, domainUid, settings);
 	}
 
 	public void update(BmContext context, Map<String, String> oldSettings, Map<String, String> newSettings,
@@ -113,7 +113,7 @@ public class DomainSettingsValidator {
 						.map(dd -> dd.isEmpty() ? null : dd));
 		checkDates(newSettings);
 		checkLanguage(newSettings);
-		KerberosConfigHelper.checkKerberosConf(context, domainUid, newSettings);
+		AuthConfigHelper.checkSettings(context, domainUid, newSettings);
 	}
 
 	private void checkSplitDomain(Map<String, String> settings) throws ServerFault {
