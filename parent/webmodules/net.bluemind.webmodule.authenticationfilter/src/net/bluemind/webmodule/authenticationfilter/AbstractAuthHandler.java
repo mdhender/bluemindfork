@@ -85,12 +85,10 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 
 				if (token != null) {
 					JsonObject cookie = new JsonObject();
-					cookie.put("access_token", token.getString("access_token"));
-					cookie.put("refresh_token", token.getString("refresh_token"));
 					cookie.put("sid", sid);
 					cookie.put("domain_uid", domainUid);
 
-					Cookie openIdCookie = new DefaultCookie("OpenIdToken", cookie.encode());
+					Cookie openIdCookie = new DefaultCookie("OpenIdSession", cookie.encode());
 					openIdCookie.setPath("/");
 					openIdCookie.setHttpOnly(true);
 					if (SecurityConfig.secureCookies) {
@@ -98,6 +96,24 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 					}
 					request.response().headers().add(HttpHeaders.SET_COOKIE,
 							ServerCookieEncoder.LAX.encode(openIdCookie));
+
+					Cookie accessCookie = new DefaultCookie("AccessToken", token.getString("access_token"));
+					accessCookie.setPath("/");
+					accessCookie.setHttpOnly(true);
+					if (SecurityConfig.secureCookies) {
+						accessCookie.setSecure(true);
+					}
+					request.response().headers().add(HttpHeaders.SET_COOKIE,
+							ServerCookieEncoder.LAX.encode(accessCookie));
+
+					Cookie refreshCookie = new DefaultCookie("RefreshToken", token.getString("refresh_token"));
+					refreshCookie.setPath("/");
+					refreshCookie.setHttpOnly(true);
+					if (SecurityConfig.secureCookies) {
+						refreshCookie.setSecure(true);
+					}
+					request.response().headers().add(HttpHeaders.SET_COOKIE,
+							ServerCookieEncoder.LAX.encode(refreshCookie));
 
 					DecodedJWT accessToken = JWT.decode(token.getString("access_token"));
 					Claim pubpriv = accessToken.getClaim("bm_pubpriv");

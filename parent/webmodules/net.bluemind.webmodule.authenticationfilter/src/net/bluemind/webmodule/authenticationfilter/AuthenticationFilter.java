@@ -74,7 +74,9 @@ public class AuthenticationFilter implements IWebFilter {
 	private static final Cache<String, String> codeVerifierCache = CacheBuilder.newBuilder()
 			.expireAfterWrite(10, TimeUnit.MINUTES).build();
 	private static final ServerCookieDecoder cookieDecoder = ServerCookieDecoder.LAX;
-	private static final String OPENID_COOKIE = "OpenIdToken";
+	private static final String OPENID_COOKIE = "OpenIdSession";
+	private static final String ACCESS_COOKIE = "AccessToken";
+	private static final String REFRESH_COOKIE = "RefreshToken";
 	private static final String BMSID_COOKIE = "BMSID";
 
 	public AuthenticationFilter() {
@@ -275,6 +277,23 @@ public class AuthenticationFilter implements IWebFilter {
 		}
 		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(openId));
 
+		Cookie access = new DefaultCookie(ACCESS_COOKIE, "delete");
+		access.setPath("/");
+		access.setMaxAge(0);
+		access.setHttpOnly(true);
+		if (SecurityConfig.secureCookies) {
+			access.setSecure(true);
+		}
+		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(access));
+
+		Cookie refresh = new DefaultCookie(REFRESH_COOKIE, "delete");
+		refresh.setPath("/");
+		refresh.setMaxAge(0);
+		refresh.setHttpOnly(true);
+		if (SecurityConfig.secureCookies) {
+			refresh.setSecure(true);
+		}
+		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(refresh));
 	}
 
 	private Optional<String> getDomainUid(HttpServerRequest request) {
@@ -304,6 +323,20 @@ public class AuthenticationFilter implements IWebFilter {
 					if (request.host().equalsIgnoreCase(tokenizer.nextToken())) {
 						return Optional.of(domainUid);
 					}
+				}
+			}
+		}
+
+		// Look for a CAS domain without external_url (no matter the request host)
+		it = all.keys().iterator();
+		while (it.hasNext()) {
+			String domainUid = it.next();
+			Map<String, String> values = all.get(domainUid);
+			String authType = values.get(DomainAuthProperties.auth_type.name());
+			if (AuthTypes.CAS.name().equals(authType)) {
+				String extUrl = values.get(DomainSettingsKeys.external_url.name());
+				if (extUrl == null || extUrl.trim().isEmpty()) {
+					return Optional.of(domainUid);
 				}
 			}
 		}

@@ -143,18 +143,20 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 		String key = null;
 		String cookieStr = Optional.ofNullable(request.headers.get("cookie")).orElse("");
 		Set<Cookie> cookies = cookieDecoder.decode(cookieStr);
-		Optional<Cookie> oidc = cookies.stream().filter(c -> "OpenIdToken".equals(c.name())).findFirst();
+		Optional<Cookie> oidc = cookies.stream().filter(c -> "OpenIdSession".equals(c.name())).findFirst();
 		MultiMap headers = MultiMap.caseInsensitiveMultiMap();
 
 		if (oidc.isPresent()) {
 			JsonObject token = new JsonObject(oidc.get().value());
-
 			key = token.getString("sid");
-
-			DecodedJWT accessToken = JWT.decode(token.getString("access_token"));
-
 			String domainUid = token.getString("domain_uid");
 
+			Optional<Cookie> atc = cookies.stream().filter(c -> "AccessToken".equals(c.name())).findFirst();
+			if (atc.isEmpty()) {
+				error(response, key, new ServerFault("No access token cookie"));
+				return;
+			}
+			DecodedJWT accessToken = JWT.decode(atc.get().value());
 			try {
 				AccessTokenValidator.validateSignature(domainUid, accessToken);
 			} catch (ServerFault sf) {
@@ -165,8 +167,13 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 			try {
 				AccessTokenValidator.validate(domainUid, accessToken);
 			} catch (ServerFault sf) {
+				Optional<Cookie> rtc = cookies.stream().filter(c -> "RefreshToken".equals(c.name())).findFirst();
+				if (rtc.isEmpty()) {
+					error(response, key, new ServerFault("No refresh token cookie"));
+					return;
+				}
 				CompletableFuture<Optional<JsonObject>> future = AccessTokenValidator.refreshToken(domainUid,
-						token.getString("refresh_token"));
+						rtc.get().value());
 				Optional<JsonObject> refreshedToken;
 				try {
 					refreshedToken = future.get(10, TimeUnit.SECONDS);
@@ -182,18 +189,26 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 
 				JsonObject rt = new JsonObject(refreshedToken.get().encode());
 				JsonObject cookie = new JsonObject();
-				cookie.put("access_token", rt.getString("access_token"));
-				cookie.put("refresh_token", rt.getString("refresh_token"));
 				cookie.put("sid", key);
 				cookie.put("domain_uid", domainUid);
 
-				Cookie openIdCookie = new DefaultCookie("OpenIdToken", cookie.encode());
+				Cookie openIdCookie = new DefaultCookie("OpenIdSession", cookie.encode());
 				openIdCookie.setPath("/");
 				openIdCookie.setHttpOnly(true);
 				openIdCookie.setSecure(true);
-
 				headers.add("Set-Cookie", ServerCookieEncoder.LAX.encode(openIdCookie));
 
+				Cookie accessCookie = new DefaultCookie("AccessToken", rt.getString("access_token"));
+				accessCookie.setPath("/");
+				accessCookie.setHttpOnly(true);
+				accessCookie.setSecure(true);
+				headers.add("Set-Cookie", ServerCookieEncoder.LAX.encode(accessCookie));
+
+				Cookie refreshCookie = new DefaultCookie("RefreshToken", rt.getString("refresh_token"));
+				refreshCookie.setPath("/");
+				refreshCookie.setHttpOnly(true);
+				refreshCookie.setSecure(true);
+				headers.add("Set-Cookie", ServerCookieEncoder.LAX.encode(refreshCookie));
 			}
 		}
 
