@@ -85,6 +85,8 @@
    <bundle id="net.bluemind.ui.adminconsole.videoconferencing" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.videoconferencing.api" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.videoconferencing.api.gwt" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.openid.api" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.openid.api.gwt" version="5.0.0.qualifier"/>
    <bundle id="com.google.jsinterop.annotations"/>
    <bundle id="net.bluemind.ui.extensions.gwt"/>
    <bundle id="com.google.gwt.user"/>

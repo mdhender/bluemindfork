@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.openid.api.gwt
+Bundle-SymbolicName: net.bluemind.openid.api.gwt;singleton:=true
+Bundle-Version: 5.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: net.bluemind.core.commons.gwt;bundle-version="5.0.0",
+ com.google.gwt.user;resolution:=optional,
+ net.bluemind.openid.api;bundle-version="5.0.0";visibility:=reexport,
+ net.bluemind.restbus.api.gwt;bundle-version="5.0.0";visibility:=reexport
+Bundle-Vendor: bluemind.net
+Automatic-Module-Name: net.bluemind.openid.api.gwt
+

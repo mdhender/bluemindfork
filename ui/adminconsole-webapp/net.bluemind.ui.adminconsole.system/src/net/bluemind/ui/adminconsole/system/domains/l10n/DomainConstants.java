@@ -283,6 +283,8 @@ public interface DomainConstants extends Messages {
 
 	String defaultDomain();
 
+	String domainSecurity();
+
 	String domainCertificate();
 
 	String externalUrlHelp();
@@ -316,4 +318,6 @@ public interface DomainConstants extends Messages {
 	String smimeCertificate();
 
 	String compositionFont();
+
+	String domainAuthentication();
 }

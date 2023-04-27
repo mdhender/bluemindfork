@@ -44,6 +44,7 @@ import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.ui.adminconsole.base.Actions;
 import net.bluemind.ui.adminconsole.base.ui.CrudActionBar;
+import net.bluemind.ui.adminconsole.system.domains.authentication.DomainAuthenticationEditor;
 import net.bluemind.ui.adminconsole.system.domains.certificate.DomainCertificateEditor;
 import net.bluemind.ui.adminconsole.system.domains.edit.bmservices.EditDomainBmServicesEditor;
 import net.bluemind.ui.adminconsole.system.domains.edit.extcal.EditExternalCalendarsEditor;
@@ -202,10 +203,13 @@ public class EditDomainScreen extends Composite implements IGwtCompositeScreenRo
 		tabs.push(Tab.create(null, c.externalCalendars(),
 				ScreenElement.create("editExternalCalendars", EditExternalCalendarsEditor.TYPE)));
 
+		JsArray<ScreenElement> editDomainSecurityContents = JsArray.createArray().cast();
+		editDomainSecurityContents.push(ScreenElement.create(null, DomainAuthenticationEditor.TYPE));
 		if (Ajax.TOKEN.getRoles().contains(BasicRoles.ROLE_MANAGE_CERTIFICATE)) {
-			tabs.push(Tab.create(null, c.domainCertificate(),
-					ScreenElement.create("editDomainCertificate", DomainCertificateEditor.TYPE)));
+			editDomainSecurityContents.push(ScreenElement.create(null, DomainCertificateEditor.TYPE));
 		}
+		ContainerElement editDomainSecurity = ContainerElement.create("editDomainSecurity", editDomainSecurityContents);
+		tabs.push(Tab.create(null, c.domainSecurity(), editDomainSecurity));
 
 		tabs.push(Tab.create(null, c.openIdRegistrations(),
 				ScreenElement.create("ediOopenIdRegistrations", EditOpenIdRegistrationsEditor.TYPE)));

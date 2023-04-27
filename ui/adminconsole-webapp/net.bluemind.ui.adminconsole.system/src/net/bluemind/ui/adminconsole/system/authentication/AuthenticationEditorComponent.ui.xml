@@ -1,0 +1,78 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui"
+	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:common="urn:import:net.bluemind.ui.common.client.forms"
+	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui">
+
+	<ui:with field="c"
+		type="net.bluemind.ui.adminconsole.system.authentication.l10n.AuthenticationEditorComponentConstants" />
+
+	<ui:style>	
+	.gdlist {
+		min-width: 200px;
+		padding-bottom: 9px;
+	}
+	</ui:style>
+
+	<g:HTMLPanel>
+		<table class="formContainer">
+			<common:TrPanel styleName="setting" ui:field="choicePanel" />
+		</table>
+		
+		<g:HTMLPanel ui:field="casAuthParams">
+			<table class="formContainer">
+				<common:StringEdit ui:field="casUrl" mandatory="true"
+					titleText="{c.casUrl}" readOnly="false" />
+			</table>
+		</g:HTMLPanel>
+
+		<g:HTMLPanel ui:field="krbAuthParams">
+			<table class="formContainer">
+				<common:StringEdit ui:field="krbAdDomain"
+					titleText="{c.krbAdDomain}" width="200px" mandatory="true" readOnly="false" />
+				<common:StringEdit ui:field="krbAdIp"
+					titleText="{c.krbAdIp}" mandatory="true" readOnly="false" />
+
+				<tr>
+					<td class="label">
+						<div style="display:none" ui:field="krbKtpassPrincNameLabel" title="{c.krbKtpassPrincNameHelp}">
+							<g:Label text="{c.krbKtpassPrincNameLabel}"></g:Label>
+							<sup><i class="fa fa-exclamation-circle" /></sup>
+						</div>
+					</td>
+					<td>
+						<g:Label visible="false" ui:field="krbKtpassPrincName"></g:Label>
+					</td>
+				</tr>
+
+				<tr>
+					<td class="label">
+						<common:MandatoryLabel text="{c.krbAdKeytabUpload}"></common:MandatoryLabel>
+					</td>
+					<td>
+						<g:FormPanel ui:field="krbAdKeytabUploadForm">
+							<g:HTMLPanel>
+								<g:CheckBox ui:field="krbAdKeytabFilePresent" enabled="false"/>
+								<g:FileUpload ui:field="krbAdKeytabFile" title="File" name="file"/>
+							</g:HTMLPanel>
+						</g:FormPanel>
+					</td>
+				</tr>
+			</table>
+		</g:HTMLPanel>
+		
+		<g:HTMLPanel ui:field="externalAuthParams">
+			<table class="formContainer">
+				<common:StringEdit ui:field="externalConfUrl" mandatory="true"
+					titleText="{c.externalConfUrl}" readOnly="false" />
+				<common:StringEdit ui:field="externalClientId" mandatory="true"
+					titleText="{c.externalClientId}" readOnly="false" />
+				<common:StringEdit ui:field="externalClientSecret" mandatory="true"
+					titleText="{c.externalClientSecret}" readOnly="false" />
+			</table>
+		</g:HTMLPanel>
+		
+	</g:HTMLPanel>
+</ui:UiBinder>
