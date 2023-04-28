@@ -6,7 +6,12 @@
             </template>
         </bm-alert-area>
         <transition name="slide-fade">
-            <bm-rich-editor-toolbar v-if="showTextFormattingToolbar" align="right" editor="composer" />
+            <bm-rich-editor-toolbar
+                v-if="showTextFormattingToolbar"
+                align="right"
+                editor="composer"
+                :default-font-family="defaultFont"
+            />
         </transition>
         <mail-composer-toolbar
             :message="message"
@@ -38,6 +43,9 @@ export default {
         ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "composer-footer") }),
         showTextFormattingToolbar() {
             return this.$store.state.mail.messageCompose.showFormattingToolbar;
+        },
+        defaultFont() {
+            return this.$store.state.settings.composer_default_font;
         }
     }
 };

@@ -157,6 +157,7 @@ export default {
             const identity = this.getIdentityForNewMessage();
             await this.setFrom(identity, message);
             this.$_ComposerInitMixin_SET_DRAFT_EDITOR_CONTENT(body || BmRichEditor.constants.NEW_LINE);
+
             this.$_ComposerInitMixin_SET_DRAFT_COLLAPSED_CONTENT(null);
             this.$_ComposerInitMixin_SET_SAVED_INLINE_IMAGES([]);
             return message;

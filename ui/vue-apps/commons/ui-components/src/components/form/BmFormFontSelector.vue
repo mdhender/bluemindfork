@@ -34,14 +34,19 @@ export default {
             type: Boolean,
             default: false
         },
+        defaultFont: {
+            type: String,
+            default: ""
+        },
         variant: {
             type: String,
             default: "inline"
         }
     },
+
     data() {
         return {
-            fontFamily: DEFAULT,
+            fontFamily: this.selected,
             families: [
                 {
                     value: "Red Hat Mono, Courier New, Courier, Lucida Sans Typewriter, Lucida Typewriter, monospace",
@@ -100,7 +105,7 @@ export default {
                     }
                 });
                 if (!found) {
-                    this.fontFamily = DEFAULT;
+                    this.fontFamily = this.selected;
                 }
             },
             immediate: true

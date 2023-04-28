@@ -5,6 +5,7 @@
         :format-state="editor_.formatState"
         :disabled="disabled || editor_.disabled"
         :class="classes"
+        :default-font="defaultFontFamily"
         @open-link-modal="editor_.openLinkModal"
         @click.native="editor_.updateFormatState"
     />
@@ -29,6 +30,10 @@ export default {
         align: {
             type: String,
             default: "left"
+        },
+        defaultFontFamily: {
+            type: String,
+            required: true
         }
     },
     computed: {

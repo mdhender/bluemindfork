@@ -6,7 +6,11 @@
         </bm-button-group>
 
         <bm-button-group>
-            <font-family-button :editor="editor" :disabled="disabled" :selection-font-family="formatState.fontName" />
+            <font-family-button
+                :editor="editor"
+                :disabled="disabled"
+                :selection-font-family="formatState.fontName || defaultFont"
+            />
             <font-size-button :editor="editor" :disabled="disabled" :selection-font-size="formatState.fontSize" />
             <bold-button :editor="editor" :disabled="disabled" :is-bold="!!formatState.isBold" />
             <italic-button :editor="editor" :disabled="disabled" :is-italic="!!formatState.isItalic" />
@@ -96,6 +100,10 @@ export default {
         formatState: {
             type: Object,
             required: true
+        },
+        defaultFont: {
+            type: String,
+            default: ""
         },
         disabled: {
             type: Boolean,

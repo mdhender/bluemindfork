@@ -1,5 +1,5 @@
 <template>
-    <bm-form-font-selector :selected="selected" :disabled="disabled" @input="setFontFamily" />
+    <bm-form-font-selector :selected="selectionFontFamily" :disabled="disabled" @input="setFontFamily" />
 </template>
 <script>
 import { setFontName } from "roosterjs-editor-api";
@@ -10,7 +10,7 @@ export default {
     name: "FontFamilyButton",
     components: { BmFormFontSelector },
     props: {
-        selected: {
+        selectionFontFamily: {
             type: String,
             default: DEFAULT
         },
@@ -18,6 +18,7 @@ export default {
             type: Object,
             required: true
         },
+
         disabled: {
             type: Boolean,
             default: false

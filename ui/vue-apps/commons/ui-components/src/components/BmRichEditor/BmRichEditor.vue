@@ -17,6 +17,7 @@
                 :editor="editor"
                 :focused-position="bubbleToolbar.focusedPosition"
                 :format-state="formatState"
+                :default-font="defaultFontFamily"
                 @open-link-modal="openLinkModal"
                 @click.native="updateFormatState"
             />
@@ -34,6 +35,7 @@
                 :editor="editor"
                 :format-state="formatState"
                 :disabled="disabled"
+                :default-font="defaultFontFamily"
                 full-toolbar
                 @open-link-modal="openLinkModal"
                 @click.native="updateFormatState"
@@ -67,6 +69,7 @@ import { MOVABLE_CONTENT_DROP_ID } from "./bmPlugins/adaptNode";
 import BmRichEditorRegistry from "./BmRichEditorRegistry";
 import darkifyingBaseLvalue from "../../js/theming/darkifyingBaseLvalue";
 import { getDarkColor } from "roosterjs-color-utils";
+import DEFAULT_FONT from "../../js/defaultFont";
 
 export default {
     name: "BmRichEditor",
@@ -100,6 +103,10 @@ export default {
         darkMode: {
             type: Boolean,
             default: false
+        },
+        defaultFontFamily: {
+            type: String,
+            default: DEFAULT_FONT
         }
     },
     data() {
@@ -257,9 +264,9 @@ export default {
                 new HyperLink(),
                 new TableResize()
             ];
-
             const options = {
                 defaultFormat: {
+                    fontFamily: this.defaultFontFamily,
                     backgroundColors: {
                         lightModeColor: "#ffffff",
                         darkModeColor: "var(--darkified-content-bg)"
@@ -315,6 +322,7 @@ function getTableParentNode(node, containerNode) {
         outline: none;
         background-color: #ffffff !important;
     }
+
     &.dark-mode .roosterjs-container {
         background-color: var(--darkified-content-bg) !important;
     }
@@ -323,11 +331,14 @@ function getTableParentNode(node, containerNode) {
         display: flex;
         flex-direction: column;
     }
+
     .roosterjs-container {
         flex: 1;
         padding: $sp-4;
     }
+
     $padding-with-border: $sp-5;
+
     &.has-border .roosterjs-container {
         padding: $padding-with-border;
     }
@@ -339,20 +350,25 @@ function getTableParentNode(node, containerNode) {
     &.has-border {
         border: $input-border-width solid $neutral-fg-lo1;
     }
+
     &.has-border:not(.disabled) {
         &.hover,
         &:hover {
             border-color: $neutral-fg-hi1;
+
             .full-toolbar {
                 border-top-color: $neutral-fg-hi1;
             }
         }
+
         &.has-focus {
             border: 2 * $input-border-width solid $secondary-fg;
+
             .roosterjs-container {
                 padding: calc(#{$padding-with-border} - #{$input-border-width});
                 padding-bottom: $padding-with-border;
             }
+
             .full-toolbar {
                 border-top: 2 * $input-border-width solid $secondary-fg;
                 padding: 0;
@@ -363,12 +379,14 @@ function getTableParentNode(node, containerNode) {
     &.disabled {
         background-color: $input-disabled-bg;
         border-color: $neutral-fg-disabled;
+
         .roosterjs-container {
             opacity: 0.5;
         }
     }
 
     min-height: base-px-to-rem(200);
+
     .roosterjs-container {
         img {
             vertical-align: unset; // reset bootstrap property set in reboot.scss
@@ -379,6 +397,7 @@ function getTableParentNode(node, containerNode) {
     .slide-fade-leave-active {
         transition: all 0.1s ease-out;
     }
+
     .slide-fade-enter,
     .slide-fade-leave-to {
         transform: translateY(20px);

@@ -9,6 +9,7 @@
         <bubble-text-toolbar
             v-else-if="bubbleToolbarType === BUBBLE_TOOLBAR_TYPES.TEXT"
             v-bind="[$attrs, $props]"
+            :default-font="defaultFont"
             v-on="$listeners"
         />
     </div>
@@ -42,6 +43,10 @@ export default {
         },
         formatState: {
             type: Object,
+            required: true
+        },
+        defaultFont: {
+            type: String,
             required: true
         }
     },
