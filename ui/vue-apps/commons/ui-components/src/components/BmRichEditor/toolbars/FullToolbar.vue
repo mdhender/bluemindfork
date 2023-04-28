@@ -9,7 +9,8 @@
             <font-family-button
                 :editor="editor"
                 :disabled="disabled"
-                :selection-font-family="formatState.fontName || defaultFont"
+                :selection-font-family="formatState.fontName"
+                :default-font="defaultFont"
             />
             <font-size-button :editor="editor" :disabled="disabled" :selection-font-size="formatState.fontSize" />
             <bold-button :editor="editor" :disabled="disabled" :is-bold="!!formatState.isBold" />
@@ -103,7 +104,7 @@ export default {
         },
         defaultFont: {
             type: String,
-            default: ""
+            required: true
         },
         disabled: {
             type: Boolean,

@@ -35,8 +35,7 @@ const getters = {
             default:
                 return window.matchMedia("(prefers-color-scheme: dark)").matches;
         }
-    },
-    COMPOSER_DEFAULT_FONT: state => state.composer_default_font
+    }
 };
 
 const mutations = {

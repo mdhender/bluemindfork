@@ -20,7 +20,7 @@
             :show-toolbar="false"
             :adapt-output="setCidDataAttr"
             :dark-mode="IS_COMPUTED_THEME_DARK"
-            :default-font-family="COMPOSER_DEFAULT_FONT"
+            :default-font-family="composer_default_font"
             class="flex-grow-1"
             name="composer"
             @input="updateEditorContent"
@@ -71,7 +71,8 @@ export default {
     },
     computed: {
         ...mapState("mail", ["messageCompose"]),
-        ...mapGetters("settings", ["IS_COMPUTED_THEME_DARK", "COMPOSER_DEFAULT_FONT"])
+        ...mapState("settings", ["composer_default_font"]),
+        ...mapGetters("settings", ["IS_COMPUTED_THEME_DARK"])
     },
     watch: {
         "message.key": {

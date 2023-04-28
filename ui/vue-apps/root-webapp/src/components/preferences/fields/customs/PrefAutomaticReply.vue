@@ -26,6 +26,7 @@
                     show-toolbar
                     has-border
                     :disabled="!value.enabled"
+                    :default-font-family="composerDefaultFont"
                     name="auto-reply"
                     @input="onInput"
                 />
@@ -76,6 +77,9 @@ export default {
     mixins: [CentralizedSaving],
     computed: {
         ...mapGetters("settings", ["IS_COMPUTED_THEME_DARK"]),
+        composerDefaultFont() {
+            return this.$store.state.settings.composer_default_font;
+        },
         userLang() {
             return this.$store.state.settings.lang;
         },

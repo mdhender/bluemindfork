@@ -69,7 +69,6 @@ import { MOVABLE_CONTENT_DROP_ID } from "./bmPlugins/adaptNode";
 import BmRichEditorRegistry from "./BmRichEditorRegistry";
 import darkifyingBaseLvalue from "../../js/theming/darkifyingBaseLvalue";
 import { getDarkColor } from "roosterjs-color-utils";
-import DEFAULT_FONT from "../../js/defaultFont";
 
 export default {
     name: "BmRichEditor",
@@ -106,7 +105,7 @@ export default {
         },
         defaultFontFamily: {
             type: String,
-            default: DEFAULT_FONT
+            required: true
         }
     },
     data() {

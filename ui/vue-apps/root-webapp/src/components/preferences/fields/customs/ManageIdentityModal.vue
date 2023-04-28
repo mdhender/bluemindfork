@@ -81,6 +81,7 @@
                     ref="rich-editor"
                     :init-value="identity.signature"
                     :dark-mode="IS_COMPUTED_THEME_DARK"
+                    :default-font-family="composer_default_font"
                     show-toolbar
                     has-border
                     class="mt-1"
@@ -183,6 +184,7 @@ export default {
     },
     computed: {
         ...mapState("root-app", ["identities"]),
+        ...mapState("settings", ["composer_default_font"]),
         ...mapGetters("root-app", ["DEFAULT_IDENTITY"]),
         ...mapGetters("settings", ["IS_COMPUTED_THEME_DARK"]),
         availableAddresses() {
