@@ -1,11 +1,10 @@
 <script>
 import BmButton from "../buttons/BmButton.vue";
-import BmDropdown from "../dropdown/BmDropdown.vue";
 import BmDropdownItemButton from "../dropdown/BmDropdownItemButton.vue";
 export default {
     name: "BmToolbarButton",
     inject: ["$context"],
-    components: { BmButton, BmDropdown, BmDropdownItemButton },
+    components: { BmButton, BmDropdownItemButton },
 
     computed: {
         context() {
@@ -14,15 +13,10 @@ export default {
     },
     render(h) {
         let options = { attrs: { ...this.$attrs }, on: { ...this.$listeners } };
-        let component;
         if (this.context === "toolbar") {
-            component = h("bm-button", options, this.$slots.default);
-        } else {
-            component = h("bm-dropdown-item-button", options, this.$slots.default);
+            return h("bm-button", options, this.$slots.default);
         }
-        return component;
+        return h("bm-dropdown-item-button", options, this.$slots.default);
     }
 };
 </script>
-
-BmButton

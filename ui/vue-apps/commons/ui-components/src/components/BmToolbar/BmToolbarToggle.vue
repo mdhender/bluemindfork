@@ -2,7 +2,12 @@
     <bm-toggleable-button v-if="context === 'toolbar'" v-bind="$attrs" :pressed="pressed" v-on="$listeners"
         ><slot></slot
     ></bm-toggleable-button>
-    <bm-dropdown-item-toggle v-else v-bind="$attrs" :checked="pressed" v-on="$listeners"
+    <bm-dropdown-item-toggle
+        v-else
+        v-bind="$attrs"
+        :checked="pressed"
+        v-on="$listeners"
+        @change="$emit('update:pressed', $event)"
         ><slot></slot
     ></bm-dropdown-item-toggle>
 </template>

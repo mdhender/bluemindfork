@@ -108,6 +108,7 @@ export { default as useModal } from "./composable/useModal";
 export { default as BmToggle } from "./directives/BmToggle";
 export { default as BmToolbar } from "./components/BmToolbar/BmToolbar";
 export { default as BmToolbarButton } from "./components/BmToolbar/BmToolbarButton";
+export { default as BmToolbarDropdown } from "./components/BmToolbar/BmToolbarDropdown";
 export { default as BmToolbarToggle } from "./components/BmToolbar/BmToolbarToggle";
 export { default as BmToggleableButton } from "./components/buttons/BmToggleableButton";
 export { default as BmToggleableIconButton } from "./components/buttons/BmToggleableIconButton";
