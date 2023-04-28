@@ -4,8 +4,10 @@
         v-bind="[$attrs, $props]"
         class="bm-icon-dropdown"
         :class="{
-            regular: regular,
-            compact: compact
+            regular,
+            compact,
+            'dropdown-split': split,
+            'dropdown-no-caret': noCaret
         }"
         :variant="'icon-' + variant"
         v-on="$listeners"
@@ -51,6 +53,14 @@ export default {
             validator: function (value) {
                 return ["sm", "md", "lg"].includes(value);
             }
+        },
+        split: {
+            type: Boolean,
+            default: false
+        },
+        noCaret: {
+            type: Boolean,
+            default: false
         }
     },
     computed: {
@@ -68,7 +78,7 @@ export default {
 @import "../../css/_variables";
 @import "../../css/mixins/_buttons";
 
-.bm-icon-dropdown.b-dropdown:not([no-caret]) {
+.bm-icon-dropdown.b-dropdown:not(.dropdown-no-caret) {
     .btn {
         justify-content: flex-start;
     }
@@ -78,7 +88,7 @@ export default {
         gap: base-px-to-rem(2);
         width: base-px-to-rem(52);
     }
-    &.regular[split] > .btn-sm {
+    &.regular.dropdown-split > .btn-sm {
         &:not(.dropdown-toggle-split) {
             width: base-px-to-rem(30);
         }
@@ -93,7 +103,7 @@ export default {
         gap: base-px-to-rem(4);
         width: base-px-to-rem(64);
     }
-    &.regular[split] > .btn-md {
+    &.regular.dropdown-split > .btn-md {
         &:not(.dropdown-toggle-split) {
             width: base-px-to-rem(37);
         }
@@ -108,7 +118,7 @@ export default {
         gap: base-px-to-rem(8);
         width: base-px-to-rem(76);
     }
-    &.regular[split] > .btn-lg {
+    &.regular.dropdown-split > .btn-lg {
         &:not(.dropdown-toggle-split) {
             width: base-px-to-rem(44);
         }
@@ -123,7 +133,7 @@ export default {
         gap: base-px-to-rem(2);
         width: base-px-to-rem(38);
     }
-    &.compact[split] > .btn-sm {
+    &.compact.dropdown-split > .btn-sm {
         &:not(.dropdown-toggle-split) {
             width: base-px-to-rem(21);
         }
@@ -139,7 +149,7 @@ export default {
         gap: base-px-to-rem(4);
         width: base-px-to-rem(46);
     }
-    &.compact[split] > .btn-md {
+    &.compact.dropdown-split > .btn-md {
         &:not(.dropdown-toggle-split) {
             width: base-px-to-rem(26);
         }
@@ -154,7 +164,7 @@ export default {
         gap: base-px-to-rem(6);
         width: base-px-to-rem(54);
     }
-    &.compact[split] > .btn-lg {
+    &.compact.dropdown-split > .btn-lg {
         &:not(.dropdown-toggle-split) {
             width: base-px-to-rem(31);
         }

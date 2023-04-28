@@ -196,10 +196,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
   >
     <div
       aria-label=""
-      class="dropdown b-dropdown bm-icon-dropdown d-inline-flex d-lg-none btn-group compact"
+      class="dropdown b-dropdown bm-icon-dropdown d-inline-flex d-lg-none btn-group compact dropdown-no-caret"
       icon="folder"
       label=""
-      no-caret=""
       title=""
     >
       <!---->
@@ -1149,10 +1148,9 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
   >
     <div
       aria-label=""
-      class="dropdown b-dropdown bm-icon-dropdown d-inline-flex d-lg-none btn-group compact"
+      class="dropdown b-dropdown bm-icon-dropdown d-inline-flex d-lg-none btn-group compact dropdown-no-caret"
       icon="3dots"
       label=""
-      no-caret=""
       right=""
       title=""
       toggle-class="btn-lg-simple-neutral"

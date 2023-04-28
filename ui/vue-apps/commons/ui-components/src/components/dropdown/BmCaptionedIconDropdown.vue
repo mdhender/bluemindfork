@@ -3,6 +3,9 @@
         ref="b_dropdown"
         v-bind="[$attrs, $props]"
         class="bm-captioned-icon-dropdown"
+        :class="{
+            'dropdown-split': split
+        }"
         variant="captioned-icon"
         v-on="$listeners"
     >
@@ -31,6 +34,10 @@ export default {
         caption: {
             type: String,
             required: true
+        },
+        split: {
+            type: Boolean,
+            default: false
         }
     }
 };
@@ -39,7 +46,7 @@ export default {
 <style lang="scss">
 @import "../../css/_variables";
 
-.bm-captioned-icon-dropdown.b-dropdown[split] {
+.bm-captioned-icon-dropdown.dropdown-split {
     .btn {
         &:not(.dropdown-toggle-split) {
             padding-right: base-px-to-rem(2);

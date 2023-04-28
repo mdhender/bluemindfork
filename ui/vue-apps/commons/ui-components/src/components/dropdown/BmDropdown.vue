@@ -5,7 +5,8 @@
         class="bm-dropdown"
         :class="{
             'dropdown-text': variant.startsWith('text'),
-            'dropdown-on-fill-primary': variant.endsWith('on-fill-primary')
+            'dropdown-on-fill-primary': variant.endsWith('on-fill-primary'),
+            'dropdown-split': split
         }"
         v-on="$listeners"
     >
@@ -61,6 +62,10 @@ export default {
             validator: function (value) {
                 return ["sm", "md", "lg"].includes(value);
             }
+        },
+        split: {
+            type: Boolean,
+            default: false
         }
     }
 };
@@ -84,7 +89,7 @@ export default {
         @include bm-button-all-sizes("fill");
     }
 
-    &.b-dropdown[split] {
+    &.b-dropdown.dropdown-split {
         & > .btn:not(.dropdown-toggle-split) {
             border-right: none;
             &:after {
