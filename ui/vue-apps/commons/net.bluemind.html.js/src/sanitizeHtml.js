@@ -107,7 +107,7 @@ function customSafeAttrValue(tag, name, value) {
 }
 
 function hasAllowedProtocol(url) {
-    return ALLOWED_LINK_PROTOCOLS.map(p => new RegExp(`${p}:`, "i").test(url)).reduce((a, b) => a || b);
+    return ALLOWED_LINK_PROTOCOLS.map(p => new RegExp(`^${p}:`, "i").test(url)).reduce((a, b) => a || b);
 }
 
 /**
