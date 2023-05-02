@@ -28,7 +28,6 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
-
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.container.api.IRestoreItemCrudSupport;
 import net.bluemind.core.container.model.ItemValue;
@@ -153,7 +152,8 @@ public interface IOrgUnits extends IRestoreItemCrudSupport<OrgUnit> {
 	 */
 	@GET
 	@Path("{uid}/_administrators")
-	public Set<String> getAdministrators(@PathParam(value = "uid") String uid);
+	public Set<String> getAdministrators(@PathParam(value = "uid") String uid,
+			@QueryParam(value = "hierarchical") boolean hierarchical);
 
 	/**
 	 * Get a list of {@link OrgUnitPath}s by the UID of an administrator or the

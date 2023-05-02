@@ -77,7 +77,7 @@ public class OrgAdminResourceGrid extends CommonOrgResourceGrid {
 					returnEmptyTable(constants.emptyRoleTable());
 				} else {
 					OrgUnitItem focusedItem = unitListMngt.focusedItem;
-					CompletableFuture<Set<String>> administratorsCf = dir.getAdministrators(focusedItem.getUid());
+					CompletableFuture<Set<String>> administratorsCf = dir.getAdministrators(focusedItem.getUid(), false);
 
 					administratorsCf.thenAccept(admin -> {
 						if (admin.isEmpty()) {

@@ -335,24 +335,54 @@ public class OrgUnitStoreTests {
 
 	@Test
 	public void testGetAdministrators() throws Exception {
-		OrgUnit ou = new OrgUnit();
-		ou.name = "checkthat";
-		ou.parentUid = null;
-		Item item = itemStore.create(Item.create("test1", null));
-		ouStore.create(item, ou);
+		OrgUnit root = new OrgUnit();
+		root.name = "parent-ou";
+		root.parentUid = null;
+		Item rootItem = itemStore.create(Item.create("root-ou", null));
+		ouStore.create(rootItem, root);
 
-		Item adminItem = itemStore.create(Item.create("adminTest1", null));
+		Item admin1 = itemStore.create(Item.create("admin1", null));
+		Item admin2 = itemStore.create(Item.create("admin2", null));
+		Item sub1Admin = itemStore.create(Item.create("sub1admin", null));
+		Item sub2Admin = itemStore.create(Item.create("sub2admin", null));
 
-		Item admin2Item = itemStore.create(Item.create("adminTest2", null));
+		ouStore.setAdminRoles(rootItem, admin1, new HashSet<>(Arrays.asList("role1", "role2", "role3")));
+		ouStore.setAdminRoles(rootItem, admin2, new HashSet<>(Arrays.asList("role1", "role2", "role3")));
 
-		ouStore.setAdminRoles(item, adminItem, new HashSet<>(Arrays.asList("role1", "role2", "role3")));
-		ouStore.setAdminRoles(item, admin2Item, new HashSet<>(Arrays.asList("role1", "role2", "role3")));
+		OrgUnit sub1 = new OrgUnit();
+		sub1.name = "sub-ou";
+		sub1.parentUid = "root-ou";
+		Item subItem1 = itemStore.create(Item.create("sub-ou1", null));
+		ouStore.create(subItem1, sub1);
 
-		Set<String> res = ouStore.getAdministrators(item);
-		assertEquals(new HashSet<>(Arrays.asList(adminItem.uid, admin2Item.uid)), res);
-		ouStore.setAdminRoles(item, adminItem, new HashSet<>());
-		res = ouStore.getAdministrators(item);
-		assertEquals(new HashSet<>(Arrays.asList(admin2Item.uid)), res);
+		ouStore.setAdminRoles(subItem1, sub1Admin, new HashSet<>(Arrays.asList("role1", "role2", "role3")));
+
+		OrgUnit sub2 = new OrgUnit();
+		sub2.name = "sub-o2";
+		sub2.parentUid = "root-ou";
+		Item subItem2 = itemStore.create(Item.create("sub-ou2", null));
+		ouStore.create(subItem2, sub2);
+
+		ouStore.setAdminRoles(subItem2, sub2Admin, new HashSet<>(Arrays.asList("role1", "role2", "role3")));
+
+		// ROOT having 2 admins
+		Set<String> res = ouStore.getAdministrators(rootItem, false);
+		assertEquals(new HashSet<>(Arrays.asList(admin1.uid, admin2.uid)), res);
+		// ROOT having 1 admin
+		ouStore.setAdminRoles(rootItem, admin1, new HashSet<>());
+		res = ouStore.getAdministrators(rootItem, false);
+		assertEquals(new HashSet<>(Arrays.asList(admin2.uid)), res);
+		// SUB1 having 1 admin + 1 root-admin
+		res = ouStore.getAdministrators(subItem1, false);
+		assertEquals(new HashSet<>(Arrays.asList(sub1Admin.uid)), res);
+		res = ouStore.getAdministrators(subItem1, true);
+		assertEquals(new HashSet<>(Arrays.asList(sub1Admin.uid, admin2.uid)), res);
+		// SUB2 having 1 admin + 1 root-admin
+		res = ouStore.getAdministrators(subItem2, false);
+		assertEquals(new HashSet<>(Arrays.asList(sub2Admin.uid)), res);
+		res = ouStore.getAdministrators(subItem2, true);
+		assertEquals(new HashSet<>(Arrays.asList(sub2Admin.uid, admin2.uid)), res);
+
 	}
 
 	@Test
@@ -460,12 +490,12 @@ public class OrgUnitStoreTests {
 		ouStore.setAdminRoles(item, adminItem, new HashSet<>(Arrays.asList("role1", "role2", "role3")));
 		ouStore.setAdminRoles(item, admin2Item, new HashSet<>(Arrays.asList("role1", "role2", "role3")));
 
-		assertEquals(ouStore.getAdministrators(item).size(), 2);
+		assertEquals(ouStore.getAdministrators(item, false).size(), 2);
 
 		ouStore.removeAdministrator("adminTest1");
 
-		assertEquals(ouStore.getAdministrators(item).size(), 1);
-		assertEquals(ouStore.getAdministrators(item).iterator().next(), "adminTest2");
+		assertEquals(ouStore.getAdministrators(item, false).size(), 1);
+		assertEquals(ouStore.getAdministrators(item, false).iterator().next(), "adminTest2");
 	}
 
 }

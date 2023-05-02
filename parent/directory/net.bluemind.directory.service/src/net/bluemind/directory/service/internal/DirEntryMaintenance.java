@@ -95,7 +95,7 @@ public class DirEntryMaintenance implements IDirEntryMaintenance, IInternalDirEn
 			IServiceProvider provider = context.su().provider();
 			IOrgUnits service = provider.instance(IOrgUnits.class, context.getSecurityContext().getContainerUid());
 			IDirectory dir = provider.instance(IDirectory.class, domainUid);
-			return service.getAdministrators(orgUnitUid).stream().flatMap(uid -> {
+			return service.getAdministrators(orgUnitUid, true).stream().flatMap(uid -> {
 				DirEntry entry = dir.findByEntryUid(uid);
 				if (entry == null) {
 					return Stream.empty();

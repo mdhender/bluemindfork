@@ -407,12 +407,12 @@ public class OrgUnitsTests {
 		orgUnits(domainAdminSC).setAdministratorRoles("ouTest", testUserUid,
 				ImmutableSet.<String>builder().add("manageMailshare").build());
 
-		Set<String> res = storeService.getAdministrators("ouTest");
+		Set<String> res = storeService.getAdministrators("ouTest", false);
 		assertEquals(ImmutableSet.<String>builder().add(testUserUid).build(), res);
 
 		orgUnits(domainAdminSC).setAdministratorRoles("ouTest", testUserUid, ImmutableSet.<String>builder().build());
 
-		res = storeService.getAdministrators("ouTest");
+		res = storeService.getAdministrators("ouTest", false);
 		assertEquals(ImmutableSet.<String>builder().build(), res);
 
 		try {
@@ -456,7 +456,7 @@ public class OrgUnitsTests {
 		storeService.create("ouTest", ou);
 		storeService.setAdministratorRoles("ouTest", testUserUid, ImmutableSet.<String>builder().add("test1").build());
 
-		Set<String> res = orgUnits(domainAdminSC).getAdministrators("ouTest");
+		Set<String> res = orgUnits(domainAdminSC).getAdministrators("ouTest", false);
 		assertEquals(ImmutableSet.<String>builder().add(testUserUid).build(), res);
 	}
 

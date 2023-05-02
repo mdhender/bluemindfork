@@ -261,15 +261,20 @@ public class OrgUnitStore extends AbstractItemValueStore<OrgUnit> {
 		}
 	}
 
-	public Set<String> getAdministrators(Item ouItem) throws SQLException {
-		List<String> admins = select(
-				"SELECT item.uid FROM t_container_item item, t_directory_ou_administrator WHERE ou_id = ? AND item.id = administrator_item_id ",
-				StringCreator.FIRST, Collections.emptyList(), new Object[] { ouItem.id });
-		if (admins == null) {
-			return null;
-		} else {
-			return new HashSet<>(admins);
-		}
+	private static final String GET_ADMINS_HIERARCHICAL = "WITH RECURSIVE parts(item_id, parentId, uid) " //
+			+ "AS (SELECT item_id, parent_item_id, i.uid from t_directory_ou ou, t_container_item i " //
+			+ "where i.id = ou.item_id and i.id = ? " //
+			+ "UNION ALL SELECT pou.item_id, pou.parent_item_id, pi.uid from t_directory_ou pou, t_container_item pi, parts " //
+			+ "where pi.id = pou.item_id and pou.item_id = parts.parentId) " //
+			+ "SELECT item.uid FROM t_container_item item, t_directory_ou_administrator " //
+			+ "WHERE ou_id in (select item_id from parts) AND item.id = administrator_item_id";
+
+	private static final String GET_ADMINS = "SELECT item.uid FROM t_container_item item, t_directory_ou_administrator WHERE ou_id = ? AND item.id = administrator_item_id";
+
+	public Set<String> getAdministrators(Item ouItem, boolean hierarchical) throws SQLException {
+		List<String> admins = select(hierarchical ? GET_ADMINS_HIERARCHICAL : GET_ADMINS, StringCreator.FIRST,
+				Collections.emptyList(), new Object[] { ouItem.id });
+		return new HashSet<>(admins);
 	}
 
 	public void removeAdministrator(String uid) throws SQLException {

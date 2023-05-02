@@ -158,7 +158,7 @@ public class OrgUnitContainerStoreService extends DirValueStoreService<OrgUnit> 
 		});
 	}
 
-	public Set<String> getAdministrators(String uid) {
+	public Set<String> getAdministrators(String uid, boolean hierarchical) {
 		return doOrFail(() -> {
 			Item ouItem = itemStore.get(uid);
 
@@ -166,7 +166,7 @@ public class OrgUnitContainerStoreService extends DirValueStoreService<OrgUnit> 
 				throw new ServerFault("ou not found ", ErrorCode.NOT_FOUND);
 			}
 
-			return orgUnitStore.getAdministrators(ouItem);
+			return orgUnitStore.getAdministrators(ouItem, hierarchical);
 		});
 	}
 

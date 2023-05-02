@@ -230,7 +230,7 @@ public class OrgUnits implements IOrgUnits {
 	}
 
 	@Override
-	public Set<String> getAdministrators(String uid) {
+	public Set<String> getAdministrators(String uid, boolean hierarchical) {
 		if (!rbacManager.forOrgUnit(uid).roles().contains(BasicRoles.ROLE_SHOW_OU)) {
 			throw new ServerFault(String.format("%s@%s Doesnt have role %s", //
 					context.getSecurityContext().getSubject(), context.getSecurityContext().getContainerUid(), //
@@ -242,7 +242,7 @@ public class OrgUnits implements IOrgUnits {
 			throw new ServerFault("ou " + uid + " not found", ErrorCode.NOT_FOUND);
 		}
 
-		return storeService.getAdministrators(uid);
+		return storeService.getAdministrators(uid, hierarchical);
 	}
 
 	@Override
