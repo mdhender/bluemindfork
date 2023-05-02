@@ -88,7 +88,7 @@ public class ScheduledJobService implements IInCoreJob {
 				continue;
 			}
 
-			if (query.domain != null && bj.getType() == JobKind.GLOBAL) {
+			if ((query.domain != null && !query.domain.equals("global.virt")) && bj.getType() == JobKind.GLOBAL) {
 				continue;
 			}
 
