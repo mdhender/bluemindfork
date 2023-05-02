@@ -15,7 +15,7 @@ export default {
     name: "TextPlainFileViewer",
     components: { MailViewerContentLoading },
     mixins: [FileViewerMixin],
-    $capabilities: ["text/plain", "text/*", "message/disposition-notification"],
+    $capabilities: ["text/*", "message/disposition-notification", "message/delivery-status"],
     data() {
         return {
             content: ""
