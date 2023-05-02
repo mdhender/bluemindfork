@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.vertx.core.http.HttpHeaders;
+import net.bluemind.common.vertx.contextlogging.ContextualData;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
@@ -139,15 +140,14 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 		if (key == null) {
 			securityContext = SecurityContext.ANONYMOUS.from(request.remoteAddresses, null);
 		} else {
-
 			securityContext = Sessions.sessionContext(key);
-
 			if (securityContext == null) {
 				response.success(RestResponse.invalidSession(String.format("session id %s is not valid", key)));
 				return;
 			}
 			securityContext = securityContext.from(request.remoteAddresses,
 					request.headers.get(RestHeaders.X_BM_ORIGIN));
+			ContextualData.put("user", securityContext.getSubjectDisplayName());
 		}
 
 		for (IRestFilter filter : filters) {
