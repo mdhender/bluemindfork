@@ -311,14 +311,18 @@ public class Authentication implements IInCoreAuthentication {
 
 	private boolean verifyNonEmptyCredentials(String login, String password, String origin) {
 		if (Strings.isNullOrEmpty(login)) {
-			logger.error("Empty login forbidden from {}, remote IPs {}", origin,
-					String.join(",", securityContext.getRemoteAddresses()));
+			if (logger.isErrorEnabled()) {
+				logger.error("Empty login forbidden from {}, remote IPs {}", origin,
+						String.join(",", securityContext.getRemoteAddresses()));
+			}
 			return false;
 		}
 
 		if (Strings.isNullOrEmpty(password)) {
-			logger.error("Empty password forbidden for login: {} from {}, remote IPs {}", login, origin,
-					String.join(",", securityContext.getRemoteAddresses()));
+			if (logger.isErrorEnabled()) {
+				logger.error("Empty password forbidden for login: {} from {}, remote IPs {}", login, origin,
+						String.join(",", securityContext.getRemoteAddresses()));
+			}
 			return false;
 		}
 
