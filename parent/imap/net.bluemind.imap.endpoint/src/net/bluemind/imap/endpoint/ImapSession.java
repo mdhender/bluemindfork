@@ -81,7 +81,7 @@ public class ImapSession implements StateChangeListener {
 			logger.info("Connection closed after {}ms", startTime.elapsed(TimeUnit.MILLISECONDS));
 		});
 
-		ns.write(Buffer.buffer(GREETING.duplicate()));
+		ctx.write(Buffer.buffer(GREETING.duplicate()));
 	}
 
 	@Override
