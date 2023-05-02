@@ -33,10 +33,11 @@ public class SecurityContext {
 
 	public static final String ROLE_ADMIN = "admin";
 
-	public static final SecurityContext ANONYMOUS = new SecurityContext(null, "anonymous", Collections.emptyList(),
-			Collections.emptyList(), Collections.emptyMap(), null, "en", "internal-anonymous", false);
+	public static final SecurityContext ANONYMOUS = new SecurityContext(null, "anonymous", "anon",
+			Collections.emptyList(), Collections.emptyList(), Collections.emptyMap(), null, "en", "internal-anonymous",
+			false);
 
-	public static final SecurityContext SYSTEM = new SecurityContext(null, "system", Collections.emptyList(),
+	public static final SecurityContext SYSTEM = new SecurityContext(null, "system", "sys", Collections.emptyList(),
 			Arrays.<String>asList(ROLE_SYSTEM), Collections.emptyMap(), "global.virt", "en", "internal-system", false);
 
 	public static final String TOKEN_FAKE_DOMAIN = "token-fake-domain";
@@ -44,6 +45,7 @@ public class SecurityContext {
 	private final long created;
 	private final String sessionId;
 	private final String subject;
+	private final String subjectDisplayName;
 	private final List<String> memberOf;
 	private final List<String> roles;
 	private final String domainUid;
@@ -63,40 +65,66 @@ public class SecurityContext {
 	 * @param roles
 	 * @param domainUid
 	 */
+	public SecurityContext(String sessionId, String subject, String subjectDisplayName, List<String> memberOf,
+			List<String> roles, String domainUid) {
+		this(sessionId, subject, subjectDisplayName, memberOf, roles, Collections.emptyMap(), domainUid, "en",
+				"unknown-origin", false);
+	}
+
 	public SecurityContext(String sessionId, String subject, List<String> memberOf, List<String> roles,
 			String domainUid) {
-		this(sessionId, subject, memberOf, roles, Collections.emptyMap(), domainUid, "en", "unknown-origin", false);
+		this(sessionId, subject, subject, memberOf, roles, Collections.emptyMap(), domainUid, "en", "unknown-origin",
+				false);
+	}
+
+	public SecurityContext(String sessionId, String subject, String subjectDisplayName, List<String> memberOf,
+			List<String> roles, String domainUid, String lang, String origin) {
+		this(sessionId, subject, subjectDisplayName, memberOf, roles, Collections.emptyMap(), domainUid, lang, origin,
+				true);
 	}
 
 	public SecurityContext(String sessionId, String subject, List<String> memberOf, List<String> roles,
 			String domainUid, String lang, String origin) {
-		this(sessionId, subject, memberOf, roles, Collections.emptyMap(), domainUid, lang, origin, true);
+		this(sessionId, subject, subject, memberOf, roles, Collections.emptyMap(), domainUid, lang, origin, true);
+	}
+
+	public SecurityContext(String sessionId, String subject, String subjectDisplayName, List<String> memberOf,
+			List<String> roles, Map<String, Set<String>> rolesByOrgUnit, String domainUid, String lang, String origin) {
+		this(sessionId, subject, subjectDisplayName, memberOf, roles, rolesByOrgUnit, domainUid, lang, origin, true);
 	}
 
 	public SecurityContext(String sessionId, String subject, List<String> memberOf, List<String> roles,
 			Map<String, Set<String>> rolesByOrgUnit, String domainUid, String lang, String origin) {
-		this(sessionId, subject, memberOf, roles, rolesByOrgUnit, domainUid, lang, origin, true);
+		this(sessionId, subject, subject, memberOf, roles, rolesByOrgUnit, domainUid, lang, origin, true);
+	}
+
+	public SecurityContext(String sessionId, String subject, String subjectDisplayName, List<String> memberOf,
+			List<String> roles, Map<String, Set<String>> rolesByOrgUnit, String domainUid, String lang, String origin,
+			boolean interactive) {
+		this(sessionId, subject, subjectDisplayName, memberOf, roles, rolesByOrgUnit, domainUid, lang, origin,
+				interactive, null);
 	}
 
 	public SecurityContext(String sessionId, String subject, List<String> memberOf, List<String> roles,
 			Map<String, Set<String>> rolesByOrgUnit, String domainUid, String lang, String origin,
 			boolean interactive) {
-		this(sessionId, subject, memberOf, roles, rolesByOrgUnit, domainUid, lang, origin, interactive, null);
+		this(sessionId, subject, subject, memberOf, roles, rolesByOrgUnit, domainUid, lang, origin, interactive, null);
 	}
 
-	public SecurityContext(String sessionId, String subject, List<String> memberOf, List<String> roles,
-			Map<String, Set<String>> rolesByOrgUnit, String domainUid, String lang, String origin, boolean interactive,
-			String ownerSubject) {
-		this(System.currentTimeMillis(), sessionId, subject, memberOf, roles, rolesByOrgUnit, domainUid, lang, origin,
-				interactive, null);
+	public SecurityContext(String sessionId, String subject, String subjectDisplayName, List<String> memberOf,
+			List<String> roles, Map<String, Set<String>> rolesByOrgUnit, String domainUid, String lang, String origin,
+			boolean interactive, String ownerSubject) {
+		this(System.currentTimeMillis(), sessionId, subject, subjectDisplayName, memberOf, roles, rolesByOrgUnit,
+				domainUid, lang, origin, interactive, null);
 	}
 
-	public SecurityContext(long created, String sessionId, String subject, List<String> memberOf, List<String> roles,
-			Map<String, Set<String>> rolesByOrgUnit, String domainUid, String lang, String origin, boolean interactive,
-			String ownerSubject) {
+	public SecurityContext(long created, String sessionId, String subject, String subjectDisplayName,
+			List<String> memberOf, List<String> roles, Map<String, Set<String>> rolesByOrgUnit, String domainUid,
+			String lang, String origin, boolean interactive, String ownerSubject) {
 		this.created = created;
 		this.sessionId = sessionId;
 		this.subject = subject;
+		this.subjectDisplayName = subjectDisplayName;
 		this.memberOf = Collections.unmodifiableList(memberOf);
 		this.roles = Collections.unmodifiableList(roles);
 		this.orgUnitsRoles = Collections.unmodifiableMap(rolesByOrgUnit);
@@ -125,6 +153,10 @@ public class SecurityContext {
 
 	public String getSubject() {
 		return subject;
+	}
+
+	public String getSubjectDisplayName() {
+		return subjectDisplayName;
 	}
 
 	public List<String> getMemberOf() {
@@ -188,8 +220,8 @@ public class SecurityContext {
 	}
 
 	public SecurityContext from(List<String> remoteAddresses, String headerOrigin) {
-		SecurityContext ret = new SecurityContext(created, sessionId, subject, memberOf, roles, orgUnitsRoles,
-				domainUid, lang, bestOrigin(origin, headerOrigin), interactive, ownerSubject);
+		SecurityContext ret = new SecurityContext(created, sessionId, subject, subjectDisplayName, memberOf, roles,
+				orgUnitsRoles, domainUid, lang, bestOrigin(origin, headerOrigin), interactive, ownerSubject);
 		ret.remoteAddresses = remoteAddresses;
 		return ret;
 	}

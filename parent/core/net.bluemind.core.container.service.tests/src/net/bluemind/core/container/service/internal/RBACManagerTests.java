@@ -329,7 +329,7 @@ public class RBACManagerTests {
 	}
 
 	private BmTestContext context(String subject, String domainUid) {
-		return new BmTestContext(
-				new SecurityContext(null, subject, Collections.emptyList(), Collections.emptyList(), domainUid));
+		return new BmTestContext(new SecurityContext(null, subject, subject, Collections.emptyList(),
+				Collections.emptyList(), domainUid));
 	}
 }

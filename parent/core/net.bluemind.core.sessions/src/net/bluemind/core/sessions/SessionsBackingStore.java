@@ -64,6 +64,7 @@ public class SessionsBackingStore {
 		jsonObject.put("created", sc.getCreated());
 		jsonObject.put("sessionId", sc.getSessionId());
 		jsonObject.put("subject", sc.getSubject());
+		jsonObject.put("subjectDisplayName", sc.getSubjectDisplayName());
 		jsonObject.put("domainUid", sc.getContainerUid());
 		jsonObject.put("lang", sc.getLang());
 		jsonObject.put("origin", sc.getOrigin());
@@ -83,6 +84,7 @@ public class SessionsBackingStore {
 		SecurityContext sc = new SecurityContext(jsonObject.getLong("created"), //
 				jsonObject.getString("sessionId"), //
 				jsonObject.getString("subject"), //
+				jsonObject.getString("subjectDisplayName", jsonObject.getString("subject")), //
 				jsonArrayToList(jsonObject.getJsonArray("memberOf")), //
 				jsonArrayToList(jsonObject.getJsonArray("roles")), //
 				jsonObject.getJsonObject("orgUnitsRoles") == null ? null
@@ -99,7 +101,7 @@ public class SessionsBackingStore {
 	}
 
 	private List<String> jsonArrayToList(JsonArray json) {
-		return json == null ? null : json.stream().map(e -> String.class.cast(e)).collect(Collectors.toList());
+		return json == null ? null : json.stream().map(String.class::cast).collect(Collectors.toList());
 	}
 
 	private void notifySessionRemovalListeners(String sessionId, SecurityContext securityContext) {

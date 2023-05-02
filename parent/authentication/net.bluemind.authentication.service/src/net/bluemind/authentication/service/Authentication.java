@@ -567,8 +567,9 @@ public class Authentication implements IInCoreAuthentication {
 							ouPath -> orgUnits.getAdministratorRoles(ouPath.uid, user.uid, groups))); // roles
 		}
 
-		return new SecurityContext(authKey, user.uid, groups, new ArrayList<>(getRoles(user.uid, groups, domainUid)),
-				rolesByOUs, domainUid, config.get("lang"), origin, interactive);
+		return new SecurityContext(authKey, user.uid, user.value.login + "@" + domainUid, groups,
+				new ArrayList<>(getRoles(user.uid, groups, domainUid)), rolesByOUs, domainUid, config.get("lang"),
+				origin, interactive);
 	}
 
 	private Set<String> getRoles(String userUid, List<String> groups, String domainUid) throws ServerFault {
