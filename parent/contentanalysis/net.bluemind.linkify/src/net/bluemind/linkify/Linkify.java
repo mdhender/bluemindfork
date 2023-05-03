@@ -163,7 +163,7 @@ public class Linkify {
 	}
 
 	private static String toHtmlImpl(String s) {
-		if (s.contains("</div>") || s.contains("</table>")) {
+		if (s.contains("</div>") || s.contains("</table>") || s.contains("<br>")) {
 			return s;
 		}
 
@@ -177,7 +177,6 @@ public class Linkify {
 		}
 		matcher.appendTail(sb);
 		trans = sb.toString();
-
 		trans = lfMatcher.collapseFrom(trans, '\n');
 		trans = lfMatcher.replaceFrom(trans, "<br>\n");
 

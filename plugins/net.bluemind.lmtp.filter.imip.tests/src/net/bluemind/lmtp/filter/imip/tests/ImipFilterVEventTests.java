@@ -19,6 +19,7 @@
 package net.bluemind.lmtp.filter.imip.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -464,6 +465,19 @@ public class ImipFilterVEventTests {
 
 		assertEquals("external@ext-domain.lan", evt.value.main.organizer.mailto);
 		assertEquals("user1@domain.lan", evt.value.main.attendees.get(0).mailto);
+	}
+
+	@Test
+	public void requestHandler_Event_Html_Invite() throws Exception {
+		setGlobalExternalUrl();
+
+		try (InputStream in = Ex2003Tests.class.getClassLoader().getResourceAsStream("ics/html_invite.eml");
+				Message parsed = Mime4JHelper.parse(in)) {
+			IMIPInfos imip = IMIPParserFactory.create().parse(parsed);
+			List<ICalendarElement> iCalendarElements = imip.iCalendarElements;
+			assertFalse(iCalendarElements.isEmpty());
+			iCalendarElements.forEach(c -> assertTrue(c.description.contains("<br>")));
+		}
 	}
 
 	@Test

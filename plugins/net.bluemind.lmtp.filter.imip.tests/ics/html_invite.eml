@@ -1,0 +1,273 @@
+Return-Path: <dprince@heros.bm.lan>
+Received: from dev.release.bluemind.net (localhost [127.0.0.1])
+	 by devenv with LMTPA;
+	 Thu, 04 May 2023 07:19:37 +0000
+X-Cyrus-Session-Id: cyrus-13437-1683184777-2-1548352506294754201
+X-Sieve: CMU Sieve 3.0
+Received: from 192.168.122.23 (LHLO devenv.dev.bluemind.net) by unknown with
+ LMTP; Thu, 4 May 2023 07:19:37 GMT
+Received: from [127.0.2.1] (dev.release.bluemind.net [192.168.122.23])
+	(Authenticated sender: admin0@global.virt)
+	by devenv.dev.bluemind.net (Postfix) with ESMTPSA id 302EC82E5C
+	for <bwayne@heros.bm.lan>; Thu,  4 May 2023 07:19:37 +0000 (UTC)
+MIME-Version: 1.0
+Date: Thu, 4 May 2023 07:19:36 +0000
+Subject: Invitation: test invite
+Sender: diana prince <dprince@heros.bm.lan>
+From: diana prince <dprince@heros.bm.lan>
+To: bruce wayne <bwayne@heros.bm.lan>, "BlueMind.Video"
+ <8ac3d3cb-1e5f-4d99-b5fa-afd260c06baf@18457b0e170.internal>
+Content-Type: multipart/mixed;
+ boundary="-=Part.1.59d45eec397fc33e.187e5a176c3.53c6c3aaf04ac937=-"
+Message-Id: <20230504071937.302EC82E5C@devenv.dev.bluemind.net>
+X-Bm-Milter-Handled: 9cd341e4-925d-476a-8806-81b51286f070
+X-Bm-Transport-Timestamp: 1683184777254
+X-BM-Event: 9da51aa8-6589-48b6-90f6-653b99f6552a; rsvp="true"
+
+---=Part.1.59d45eec397fc33e.187e5a176c3.53c6c3aaf04ac937=-
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="-=Part.0.767fd27375c592f1.187e5a176c1.d5c0c699856cf4a9=-"
+
+---=Part.0.767fd27375c592f1.187e5a176c1.d5c0c699856cf4a9=-
+Content-Type: text/html; charset=UTF-8;
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+  <style type=3D"text/css">
+
+body {
+  background: #F8F8F8;
+  color: #666;
+  padding: 15px;
+  font-size: small;
+  font-family: arial, sans-serif;
+}
+
+/** Header */
+
+h1 {
+  display: inline;
+}
+
+h1=2Einfo {
+ color: #049cdb;
+}
+
+h1=2Eupdate {
+  color: orange;
+}
+
+h1=2Ecancel {
+  color: red;
+}
+
+h1=2Eaccepted {
+  color: green;
+}
+
+h1=2Edeclined {
+  color:red;
+}
+
+/** Detail */
+
+h2 {
+  text-align:center;
+}
+
+=2Eupdated {
+  color: orange;
+  font-size: 80%;
+  font-style: italic;
+}
+
+=2Ekey {
+   text-align: right;
+   vertical-align: top;
+   padding-right: 15px;
+   color: #CCC;
+   font-style: italic;
+}
+
+=2Evalue {
+  color:#666;
+}
+
+=2Edate {
+  color: #2D2D2D;
+  font-weight:bold;
+  font-size: medium;
+}
+
+=2Etz {
+  font-size: smaller;
+  font-style: italic;
+  font-weight: normal;
+}
+
+=2Eattendees {
+  list-style-type: none;
+  padding: 0px;
+  margin: 0px;
+}
+
+=2Enote {
+  padding: 5px;
+  border: 1px solid #C6EDF9;
+  background: #DDF4FB;
+}
+
+=2Eat {
+   text-align: right;
+   vertical-align: top;
+   padding-right: 5px;
+   color: #CCC;
+   font-style: italic;
+   font-size: 90%;
+}
+
+</style></head>
+<body><h1 class=3D"info">
+  diana prince vous invite =C3=A0 une r=C3=A9union
+</h1>
+<p>
+	<h2>test invite :</h2>
+          le <span class=3D"date">vendredi 5 mai 2023</span> <br />
+          de <span class=3D"date">12:30</span> =C3=A0 <span class=3D"date"=
+>13:00</span>
+            <span class=3D"tz">(Europe/Paris)</span>
+</p>
+
+</body>
+</html>
+---=Part.0.767fd27375c592f1.187e5a176c1.d5c0c699856cf4a9=-
+Content-Type: text/calendar; charset=UTF-8; method=REQUEST
+Content-Transfer-Encoding: 8bit
+
+BEGIN:VCALENDAR
+PRODID:-//BlueMind//BlueMind Calendar//FR
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:REQUEST
+BEGIN:VTIMEZONE
+TZID:Europe/Paris
+TZURL:http://tzurl.org/zoneinfo-outlook/Europe/Paris
+X-LIC-LOCATION:Europe/Paris
+BEGIN:DAYLIGHT
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+TZNAME:CEST
+DTSTART:19700329T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+TZNAME:CET
+DTSTART:19701025T030000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+DTSTAMP:20230504T071936Z
+UID:9da51aa8-6589-48b6-90f6-653b99f6552a
+DTSTART;TZID=Europe/Paris:20230505T123000
+SUMMARY:test invite
+CLASS:PUBLIC
+DESCRIPTION:<html><body><videoconferencingtemplate id="8162859F-F6E4-4CA7-8DA7-07A372EEE93B"><br>~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~<span class="token-line" style="box-sizing: border-box\; color: rgb(57\, 58\, 52)\; font-family: SFMono-Regular\, Menlo\, Monaco\, Consolas\, "Liberation Mono"\, "Courier New"\, monospace\; font-size: 13.3px\; font-style: normal\; font-variant-ligatures: normal\; font-variant-caps: normal\; font-weight: 400\; letter-spacing: normal\; orphans: 2\; text-align: start\; text-indent: 0px\; text-transform: none\; white-space: pre\; widows: 2\; word-spacing: 0px\; -webkit-text-stroke-width: 0px\; background-color: rgb(246\, 248\, 250)\; text-decoration-thickness: initial\; text-decoration-style: initial\; text-decoration-color: initial\;"><span class="token plain" style="box-sizing: border-box\;">diana prince vous invite à une conférence.</span><br style="box-sizing: border-box\;"></span><span class="token-line" style="box-sizing: bord
+ er-box\; color: rgb(57\, 58\, 52)\; font-family: SFMono-Regular\, Menlo\, Monaco\, Consolas\, "Liberation Mono"\, "Courier New"\, monospace\; font-size: 13.3px\; font-style: normal\; font-variant-ligatures: normal\; font-variant-caps: normal\; font-weight: 400\; letter-spacing: normal\; orphans: 2\; text-align: start\; text-indent: 0px\; text-transform: none\; white-space: pre\; widows: 2\; word-spacing: 0px\; -webkit-text-stroke-width: 0px\; background-color: rgb(246\, 248\, 250)\; text-decoration-thickness: initial\; text-decoration-style: initial\; text-decoration-color: initial\;"><span class="token plain" style="box-sizing: border-box\;">Rejoindre : <a href="https://dev.4.8.release.bluemind.net/visio/83d16de6-89f3-4dfc-bd4b-fca2d22b1d2e" target="_blank">https://dev.4.8.release.bluemind.net/visio/83d16de6-89f3-4dfc-bd4b-fca2d22b1d2e</a></span></span>~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~<br></videoconferencingtemplate></body></html>
+PRIORITY:5
+STATUS:CONFIRMED
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN=bruce wayne;DIR="bm://18457b0e170.internal/users/85C5B3DA-3F9E-44B4-8029-629C2D3A3D67":MAILTO:bwayne@heros.bm.lan
+ATTENDEE;CUTYPE=RESOURCE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN=BlueMind.Video;DIR="bm://18457b0e170.internal/resources/8162859F-F6E4-4CA7-8DA7-07A372EEE93B":MAILTO:8ac3d3cb-1e5f-4d99-b5fa-afd260c06baf@18457b0e170.internal
+ORGANIZER;CN=diana prince:mailto:dprince@heros.bm.lan
+X-CONFERENCE:https://dev.4.8.release.bluemind.net/visio/89f3-4dfc-bd4b-fca2d22b1d2e
+X-CONFERENCE-ID:89f3-4dfc-bd4b-fca2d22b1d2e
+VERSION:2.0
+DTEND;TZID=Europe/Paris:20230505T130000
+TRANSP:OPAQUE
+X-MICROSOFT-CDO-BUSYSTATUS:BUSY
+X-MOZ-LASTACK:20230504T071936Z
+X-MICROSOFT-DISALLOW-COUNTER:false
+END:VEVENT
+END:VCALENDAR
+
+---=Part.0.767fd27375c592f1.187e5a176c1.d5c0c699856cf4a9=---
+
+---=Part.1.59d45eec397fc33e.187e5a176c3.53c6c3aaf04ac937=-
+Content-Type: application/ics; name="event.ics"
+Content-Disposition: attachment; filename="event.ics"
+Content-Transfer-Encoding: base64
+
+QkVHSU46VkNBTEVOREFSDQpQUk9ESUQ6LS8vQmx1ZU1pbmQvL0JsdWVNaW5kIENhbGVuZGFyLy9G
+Ug0KVkVSU0lPTjoyLjANCkNBTFNDQUxFOkdSRUdPUklBTg0KTUVUSE9EOlJFUVVFU1QNCkJFR0lO
+OlZUSU1FWk9ORQ0KVFpJRDpFdXJvcGUvUGFyaXMNClRaVVJMOmh0dHA6Ly90enVybC5vcmcvem9u
+ZWluZm8tb3V0bG9vay9FdXJvcGUvUGFyaXMNClgtTElDLUxPQ0FUSU9OOkV1cm9wZS9QYXJpcw0K
+QkVHSU46REFZTElHSFQNClRaT0ZGU0VURlJPTTorMDEwMA0KVFpPRkZTRVRUTzorMDIwMA0KVFpO
+QU1FOkNFU1QNCkRUU1RBUlQ6MTk3MDAzMjlUMDIwMDAwDQpSUlVMRTpGUkVRPVlFQVJMWTtCWU1P
+TlRIPTM7QllEQVk9LTFTVQ0KRU5EOkRBWUxJR0hUDQpCRUdJTjpTVEFOREFSRA0KVFpPRkZTRVRG
+Uk9NOiswMjAwDQpUWk9GRlNFVFRPOiswMTAwDQpUWk5BTUU6Q0VUDQpEVFNUQVJUOjE5NzAxMDI1
+VDAzMDAwMA0KUlJVTEU6RlJFUT1ZRUFSTFk7QllNT05USD0xMDtCWURBWT0tMVNVDQpFTkQ6U1RB
+TkRBUkQNCkVORDpWVElNRVpPTkUNCkJFR0lOOlZFVkVOVA0KRFRTVEFNUDoyMDIzMDUwNFQwNzE5
+MzZaDQpVSUQ6OWRhNTFhYTgtNjU4OS00OGI2LTkwZjYtNjUzYjk5ZjY1NTJhDQpEVFNUQVJUO1Ra
+SUQ9RXVyb3BlL1BhcmlzOjIwMjMwNTA1VDEyMzAwMA0KU1VNTUFSWTp0ZXN0IGludml0ZQ0KQ0xB
+U1M6UFVCTElDDQpERVNDUklQVElPTjp+Ln4ufi5+Ln4ufi5+Ln4ufi5+Ln4ufi5+Ln4ufi5+ZGlh
+bmEgcHJpbmNlIHZvdXMgaW52aXRlIMOgIHVuZSBjb25mw6lyZW5jZS5cblJlam9pbmRyZSA6IGh0
+dHBzOi8vZGV2LjQuOC5yZWxlYXNlLmJsdWVtaW5kLm5ldC92aXNpby84M2QxNmRlNi04OWYzLTRk
+ZmMtYmQ0Yi1mY2EyZDIyYjFkMmUgPGh0dHBzOi8vZGV2LjQuOC5yZWxlYXNlLmJsdWVtaW5kLm5l
+dC92aXNpby84M2QxNmRlNi04OWYzLTRkZmMtYmQ0Yi1mY2EyZDIyYjFkMmU+fi5+Ln4ufi5+Ln4u
+fi5+Ln4ufi5+Ln4ufi5+Ln4ufg0KWC1BTFQtREVTQztGTVRUWVBFPXRleHQvaHRtbDo8aHRtbD48
+Ym9keT48dmlkZW9jb25mZXJlbmNpbmd0ZW1wbGF0ZSBpZD0iODE2Mjg1OUYtRjZFNC00Q0E3LThE
+QTctMDdBMzcyRUVFOTNCIj48YnI+PGRpdj5+Ln4ufi5+Ln4ufi5+Ln4ufi5+Ln4ufi5+Ln4ufi5+
+PC9kaXY+PHNwYW4gY2xhc3M9InRva2VuLWxpbmUiIHN0eWxlPSJib3gtc2l6aW5nOiBib3JkZXIt
+Ym94XDsgY29sb3I6IHJnYig1N1wsIDU4XCwgNTIpXDsgZm9udC1mYW1pbHk6IFNGTW9uby1SZWd1
+bGFyXCwgTWVubG9cLCBNb25hY29cLCBDb25zb2xhc1wsICJMaWJlcmF0aW9uIE1vbm8iXCwgIkNv
+dXJpZXIgTmV3IlwsIG1vbm9zcGFjZVw7IGZvbnQtc2l6ZTogMTMuM3B4XDsgZm9udC1zdHlsZTog
+bm9ybWFsXDsgZm9udC12YXJpYW50LWxpZ2F0dXJlczogbm9ybWFsXDsgZm9udC12YXJpYW50LWNh
+cHM6IG5vcm1hbFw7IGZvbnQtd2VpZ2h0OiA0MDBcOyBsZXR0ZXItc3BhY2luZzogbm9ybWFsXDsg
+b3JwaGFuczogMlw7IHRleHQtYWxpZ246IHN0YXJ0XDsgdGV4dC1pbmRlbnQ6IDBweFw7IHRleHQt
+dHJhbnNmb3JtOiBub25lXDsgd2hpdGUtc3BhY2U6IHByZVw7IHdpZG93czogMlw7IHdvcmQtc3Bh
+Y2luZzogMHB4XDsgLXdlYmtpdC10ZXh0LXN0cm9rZS13aWR0aDogMHB4XDsgYmFja2dyb3VuZC1j
+b2xvcjogcmdiKDI0NlwsIDI0OFwsIDI1MClcOyB0ZXh0LWRlY29yYXRpb24tdGhpY2tuZXNzOiBp
+bml0aWFsXDsgdGV4dC1kZWNvcmF0aW9uLXN0eWxlOiBpbml0aWFsXDsgdGV4dC1kZWNvcmF0aW9u
+LWNvbG9yOiBpbml0aWFsXDsiPjxzcGFuIGNsYXNzPSJ0b2tlbiBwbGFpbiIgc3R5bGU9ImJveC1z
+aXppbmc6IGJvcmRlci1ib3hcOyI+ZGlhbmEgcHJpbmNlIHZvdXMgaW52aXRlIMOgIHVuZSBjb25m
+w6lyZW5jZS48L3NwYW4+PGJyIHN0eWxlPSJib3gtc2l6aW5nOiBib3JkZXItYm94XDsiPjwvc3Bh
+bj48c3BhbiBjbGFzcz0idG9rZW4tbGluZSIgc3R5bGU9ImJveC1zaXppbmc6IGJvcmRlci1ib3hc
+OyBjb2xvcjogcmdiKDU3XCwgNThcLCA1MilcOyBmb250LWZhbWlseTogU0ZNb25vLVJlZ3VsYXJc
+LCBNZW5sb1wsIE1vbmFjb1wsIENvbnNvbGFzXCwgIkxpYmVyYXRpb24gTW9ubyJcLCAiQ291cmll
+ciBOZXciXCwgbW9ub3NwYWNlXDsgZm9udC1zaXplOiAxMy4zcHhcOyBmb250LXN0eWxlOiBub3Jt
+YWxcOyBmb250LXZhcmlhbnQtbGlnYXR1cmVzOiBub3JtYWxcOyBmb250LXZhcmlhbnQtY2Fwczog
+bm9ybWFsXDsgZm9udC13ZWlnaHQ6IDQwMFw7IGxldHRlci1zcGFjaW5nOiBub3JtYWxcOyBvcnBo
+YW5zOiAyXDsgdGV4dC1hbGlnbjogc3RhcnRcOyB0ZXh0LWluZGVudDogMHB4XDsgdGV4dC10cmFu
+c2Zvcm06IG5vbmVcOyB3aGl0ZS1zcGFjZTogcHJlXDsgd2lkb3dzOiAyXDsgd29yZC1zcGFjaW5n
+OiAwcHhcOyAtd2Via2l0LXRleHQtc3Ryb2tlLXdpZHRoOiAwcHhcOyBiYWNrZ3JvdW5kLWNvbG9y
+OiByZ2IoMjQ2XCwgMjQ4XCwgMjUwKVw7IHRleHQtZGVjb3JhdGlvbi10aGlja25lc3M6IGluaXRp
+YWxcOyB0ZXh0LWRlY29yYXRpb24tc3R5bGU6IGluaXRpYWxcOyB0ZXh0LWRlY29yYXRpb24tY29s
+b3I6IGluaXRpYWxcOyI+PHNwYW4gY2xhc3M9InRva2VuIHBsYWluIiBzdHlsZT0iYm94LXNpemlu
+ZzogYm9yZGVyLWJveFw7Ij5SZWpvaW5kcmUgOiA8YSBocmVmPSJodHRwczovL2Rldi40LjgucmVs
+ZWFzZS5ibHVlbWluZC5uZXQvdmlzaW8vODNkMTZkZTYtODlmMy00ZGZjLWJkNGItZmNhMmQyMmIx
+ZDJlIiB0YXJnZXQ9Il9ibGFuayI+aHR0cHM6Ly9kZXYuNC44LnJlbGVhc2UuYmx1ZW1pbmQubmV0
+L3Zpc2lvLzgzZDE2ZGU2LTg5ZjMtNGRmYy1iZDRiLWZjYTJkMjJiMWQyZTwvYT48L3NwYW4+PC9z
+cGFuPjxkaXY+fi5+Ln4ufi5+Ln4ufi5+Ln4ufi5+Ln4ufi5+Ln4ufjwvZGl2Pjxicj48L3ZpZGVv
+Y29uZmVyZW5jaW5ndGVtcGxhdGU+PC9ib2R5PjwvaHRtbD4NClBSSU9SSVRZOjUNClNUQVRVUzpD
+T05GSVJNRUQNCkFUVEVOREVFO0NVVFlQRT1JTkRJVklEVUFMO1JPTEU9UkVRLVBBUlRJQ0lQQU5U
+O1BBUlRTVEFUPU5FRURTLUFDVElPTjtSU1ZQPVRSVUU7Q049YnJ1Y2Ugd2F5bmU7RElSPSJibTov
+LzE4NDU3YjBlMTcwLmludGVybmFsL3VzZXJzLzg1QzVCM0RBLTNGOUUtNDRCNC04MDI5LTYyOUMy
+RDNBM0Q2NyI6TUFJTFRPOmJ3YXluZUBoZXJvcy5ibS5sYW4NCkFUVEVOREVFO0NVVFlQRT1SRVNP
+VVJDRTtST0xFPVJFUS1QQVJUSUNJUEFOVDtQQVJUU1RBVD1ORUVEUy1BQ1RJT047UlNWUD1UUlVF
+O0NOPUJsdWVNaW5kLlZpZGVvO0RJUj0iYm06Ly8xODQ1N2IwZTE3MC5pbnRlcm5hbC9yZXNvdXJj
+ZXMvODE2Mjg1OUYtRjZFNC00Q0E3LThEQTctMDdBMzcyRUVFOTNCIjpNQUlMVE86OGFjM2QzY2It
+MWU1Zi00ZDk5LWI1ZmEtYWZkMjYwYzA2YmFmQDE4NDU3YjBlMTcwLmludGVybmFsDQpPUkdBTkla
+RVI7Q049ZGlhbmEgcHJpbmNlOm1haWx0bzpkcHJpbmNlQGhlcm9zLmJtLmxhbg0KWC1DT05GRVJF
+TkNFOmh0dHBzOi8vZGV2LjQuOC5yZWxlYXNlLmJsdWVtaW5kLm5ldC92aXNpby84M2QxNmRlNi04
+OWYzLTRkZmMtYmQ0Yi1mY2EyZDIyYjFkMmUNClgtQ09ORkVSRU5DRS1JRDo4M2QxNmRlNi04OWYz
+LTRkZmMtYmQ0Yi1mY2EyZDIyYjFkMmUNClZFUlNJT046Mi4wDQpEVEVORDtUWklEPUV1cm9wZS9Q
+YXJpczoyMDIzMDUwNVQxMzAwMDANClRSQU5TUDpPUEFRVUUNClgtTUlDUk9TT0ZULUNETy1CVVNZ
+U1RBVFVTOkJVU1kNClgtTU9aLUxBU1RBQ0s6MjAyMzA1MDRUMDcxOTM2Wg0KWC1NSUNST1NPRlQt
+RElTQUxMT1ctQ09VTlRFUjpmYWxzZQ0KRU5EOlZFVkVOVA0KRU5EOlZDQUxFTkRBUg0K
+
+---=Part.1.59d45eec397fc33e.187e5a176c3.53c6c3aaf04ac937=---
+
