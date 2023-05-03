@@ -122,7 +122,7 @@ public class OuGetRolesCommand implements ICmdLet, Runnable {
 	}
 
 	private Set<EntityRoles> getRolesForOu(String ouUid) {
-		return ctx.adminApi().instance(IOrgUnits.class, domain).getAdministrators(ouUid).stream()
+		return ctx.adminApi().instance(IOrgUnits.class, domain).getAdministrators(ouUid, false).stream()
 				.map(entityUid -> EntityRoles.build(entityUid, ctx.adminApi().instance(IOrgUnits.class, domain)
 						.getAdministratorRoles(ouUid, entityUid, Collections.emptyList())))
 				.collect(Collectors.toSet());
