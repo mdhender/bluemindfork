@@ -32,6 +32,7 @@ import org.apache.james.mime4j.dom.Header;
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.Multipart;
 import org.apache.james.mime4j.dom.SingleBody;
+import org.apache.james.mime4j.dom.field.ContentDispositionField;
 import org.apache.james.mime4j.dom.field.ContentTypeField;
 import org.apache.james.mime4j.message.BodyPart;
 import org.apache.james.mime4j.stream.Field;
@@ -113,10 +114,17 @@ public class IMIPParserImpl implements IIMIPParser {
 					try (FileOutputStream out = new FileOutputStream(tmpFile)) {
 						content.writeTo(out);
 					}
-					ContentTypeField nameHeader = (ContentTypeField) e.getHeader().getField("Content-Type");
 					String name = null;
-					if (nameHeader != null) {
-						name = nameHeader.getParameter("name");
+					ContentDispositionField disposition = (ContentDispositionField) e.getHeader()
+							.getField("Content-Disposition");
+					if (disposition != null) {
+						name = disposition.getFilename();
+					}
+					if (name == null) {
+						ContentTypeField nameHeader = (ContentTypeField) e.getHeader().getField("Content-Type");
+						if (nameHeader != null) {
+							name = nameHeader.getParameter("name");
+						}
 					}
 					if (name == null) {
 						name = cid;

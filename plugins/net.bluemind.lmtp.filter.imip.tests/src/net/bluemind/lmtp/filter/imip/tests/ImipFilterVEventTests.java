@@ -291,6 +291,38 @@ public class ImipFilterVEventTests {
 	}
 
 	@Test
+	public void requestHandler_Event_CID_Attachments_Disposition() throws Exception {
+		setGlobalExternalUrl();
+		IIMIPHandler handler = new FakeEventRequestHandlerFactory().create();
+
+		IMIPInfos imip = null;
+
+		try (InputStream in = Ex2003Tests.class.getClassLoader()
+				.getResourceAsStream("ics/bluemind_mapi_invitation_inline_disposition.eml");
+				Message parsed = Mime4JHelper.parse(in)) {
+			imip = IMIPParserFactory.create().parse(parsed);
+		}
+
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
+		handler.handle(imip, recipient, domain, user1Mailbox);
+
+		List<ItemValue<VEventSeries>> byIcsUid = user1Calendar.getByIcsUid(
+				"040000008200E00074C5B7101A82E00800000000DEE9BEDA6DF2D7010000000000000000100000007F3854933A325346B9433160D5F41CEA");
+		assertEquals(1, byIcsUid.size());
+
+		VEvent main = byIcsUid.get(0).value.main;
+		assertEquals(1, main.attachments.size());
+
+		AttachedFile attachedFile = main.attachments.get(0);
+		assertEquals("CID:a2008ab2-a526-4687-9bfb-259fd6c5bbdc", attachedFile.cid);
+		assertNotNull(attachedFile.publicUrl);
+
+		byte[] image = download(attachedFile.publicUrl);
+		assertEquals(7522, image.length);
+		assertEquals("Screenshot 2021-12-16 at 10.30.00.png", attachedFile.name);
+	}
+
+	@Test
 	public void requestHandler_Event_CID_Attachments_RecipientWithoutRoleShouldNotBlock() throws Exception {
 		setGlobalExternalUrl();
 		IIMIPHandler handler = new FakeEventRequestHandlerFactory().create();
