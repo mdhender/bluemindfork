@@ -27,41 +27,7 @@ public interface SysConfAuthConstants extends Messages {
 
 	String authTab();
 
-	String authTypeChoice();
-
 	String authType();
-
-	String authInternal();
-
-	String authCAS();
-
-	String authKerberos();
-
-	String authParameters();
-
-	String casUrl();
-
-	String casDomain();
-
-	String krbAdDomain();
-
-	String krbAdIp();
-
-	String krbDomain();
-
-	String krbKeyUpload();
-
-	String restartHps();
-
-	String restartHpsMsg();
-
-	String restartingHps();
-
-	String restartingHpsMsg();
-
-	String needToRestartHps();
-
-	String krbSubmit();
 
 	String defaultDomain();
 

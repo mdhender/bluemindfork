@@ -27,59 +27,8 @@
 							</table>
 						</g:HTMLPanel>
 					</f:FieldSetPanel>
-
-					<f:FieldSetPanel name="{c.authTypeChoice}">
-						<common:TrPanel styleName="setting" ui:field="choicePanel" />
-					</f:FieldSetPanel>
-
-					<g:HTMLPanel ui:field="casAuthParams">
-						<f:FieldSetPanel name="{c.authParameters}">
-							<common:StringEdit ui:field="casUrl" mandatory="true"
-								titleText="{c.casUrl}" readOnly="false" />
-							<g:Label text="{c.casDomain}:"></g:Label>
-							<g:ListBox ui:field="casDomain" title="{c.casDomain}" />
-						</f:FieldSetPanel>
-					</g:HTMLPanel>
-
-					<g:HTMLPanel ui:field="krbAuthParams">
-						<f:FieldSetPanel name="{c.authParameters}">
-							<common:StringEdit ui:field="krbAdDomain"
-								titleText="{c.krbAdDomain}" mandatory="true" readOnly="false" />
-							<common:StringEdit ui:field="krbAdIp"
-								titleText="{c.krbAdIp}" mandatory="true" readOnly="false" />
-						</f:FieldSetPanel>
-						<table class="formContainer">
-							<tr>
-								<td class="label">
-									<g:Label text="{c.krbDomain}:"></g:Label>
-								</td>
-								<td>
-									<g:ListBox ui:field="krbDomain" title="{c.krbDomain}" />
-								</td>
-							</tr>
-						</table>
-
-						<g:FormPanel ui:field="keyUploadForm">
-							<g:HTMLPanel>
-								<table class="formContainer">
-									<tr>
-										<td class="label">
-											<g:Label text="{c.krbKeyUpload}" />
-										</td>
-										<td class="label">
-											<g:CheckBox ui:field="keyFilePresent" />
-											<g:FileUpload ui:field="keyUpload" title="File"
-												name="file" />
-										</td>
-									</tr>
-								</table>
-							</g:HTMLPanel>
-						</g:FormPanel>
-					</g:HTMLPanel>
 				</table>
-
 			</g:HTMLPanel>
 		</g:ScrollPanel>
 	</g:HTMLPanel>
-
 </ui:UiBinder>
