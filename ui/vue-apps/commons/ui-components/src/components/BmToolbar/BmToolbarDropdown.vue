@@ -8,6 +8,12 @@ export default {
     name: "BmToolbarDropdown",
     inject: ["$context"],
     components: { BmButton, BmDropdown, BmDropdownDivider, BmDropdownGroup, BmDropdownItemButton },
+    props: {
+        extension: {
+            type: String,
+            default: undefined
+        }
+    },
     computed: {
         context() {
             return this.$context?.$options.name === "BButtonToolbar" ? "toolbar" : "menu";
@@ -15,7 +21,11 @@ export default {
     },
     render(h) {
         const options = { attrs: { ...this.$attrs }, on: { ...this.$listeners }, scopedSlots: this.$scopedSlots };
-
+        if (this.extension) {
+            const extensions = normalizeSlot(h("bm-extension", { props: { id: "webapp", path: this.extension } }));
+            if (extensions.length > 0) {
+            }
+        }
         if (this.context === "toolbar") {
             return h("bm-dropdown", options);
         } else {
