@@ -110,6 +110,7 @@ export { default as BmToolbar } from "./components/BmToolbar/BmToolbar";
 export { default as BmToolbarButton } from "./components/BmToolbar/BmToolbarButton";
 export { default as BmToolbarDropdown } from "./components/BmToolbar/BmToolbarDropdown";
 export { default as BmToolbarToggle } from "./components/BmToolbar/BmToolbarToggle";
+export { default as BmToolbarGroup } from "./components/BmToolbar/BmToolbarGroup";
 export { default as BmToggleableButton } from "./components/buttons/BmToggleableButton";
 export { default as BmToggleableIconButton } from "./components/buttons/BmToggleableIconButton";
 export { default as BmTooLargeBox } from "./components/modals/BmTooLargeBox";

@@ -6,12 +6,6 @@
     "author": "Blue Mind SAS",
     "main": "src/index.js",
     "dependencies": {
-<<<<<<< HEAD
-        "@bluemind/extensions":"^5.0.0"
-=======
-        "@bluemind/extensions": "^4.1.0",
-        "@bluemind/inject": "^4.1.0",
-        "lodash.camelcase": "^4.3.0"
->>>>>>> 0c143df0659 (BM-16669 Imp: Toolbar can now overflow in a menu)
+        "@bluemind/extensions": "^5.0.0"
     }
 }

@@ -20,26 +20,31 @@ export default {
         }
     },
     render(h) {
-        const options = { attrs: { ...this.$attrs }, on: { ...this.$listeners }, scopedSlots: this.$scopedSlots };
+        const { default: defaultSlot, ...scopedSlots } = this.$scopedSlots;
+        const options = { attrs: { ...this.$attrs }, on: { ...this.$listeners } };
+        const children = [...defaultSlot()];
         if (this.extension) {
             const extensions = normalizeSlot(h("bm-extension", { props: { id: "webapp", path: this.extension } }));
             if (extensions.length > 0) {
+                children.push(...extensions);
             }
         }
         if (this.context === "toolbar") {
-            return h("bm-dropdown", options);
+            return h("bm-dropdown", { ...options, scopedSlots: scopedSlots }, children);
         } else {
-            const children = [h("bm-dropdown-divider")];
             if (this.$attrs.split !== undefined) {
                 const content = this.$scopedSlots["button-content"]
                     ? this.$scopedSlots["button-content"]()
                     : this.$attrs.text;
-                children.push(h("bm-dropdown-item-button", { attrs: options.attrs, on: options.on }, content));
+                children.splice(0, 0, h("bm-dropdown-item-button", options, content));
             }
-            children.push(...this.$scopedSlots.default());
+            children.splice(0, 0, h("bm-dropdown-divider"));
             children.push(h("bm-dropdown-divider"));
             return h("bm-dropdown-group", children);
         }
     }
 };
+function normalizeSlot(slot) {
+    return (Array.isArray(slot) ? slot : slot ? [slot] : []).filter(vnode => Boolean(vnode.tag));
+}
 </script>

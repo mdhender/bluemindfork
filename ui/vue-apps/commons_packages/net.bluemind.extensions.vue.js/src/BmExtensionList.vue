@@ -1,26 +1,3 @@
-<template functional>
-    <div>
-        <template v-if="scopedSlots.default">
-            <template v-for="extension in props.extensions">
-                <slot v-bind="extension" />
-            </template>
-        </template>
-        <template v-else-if="props.decorator">
-            <component :is="props.decorator" v-for="(extension, idx) in props.extensions" :key="idx">
-                <component :is="extension.name" :key="extension.$id" v-bind="data.attrs" />
-            </component>
-        </template>
-        <template v-else>
-            <component
-                :is="extension.name"
-                v-for="(extension, idx) in props.extensions"
-                :key="idx"
-                v-bind="data.attrs"
-            />
-        </template>
-    </div>
-</template>
-
 <script>
 export default {
     name: "BmExtensionList",
@@ -43,12 +20,12 @@ export default {
             return props.extensions.map(extension =>
                 h(
                     props.decorator,
-                    { props: { key: extension.$id, ...extension.props }, attrs },
-                    h(extension.name, { props: { key: extension.$id }, attrs })
+                    { props: { ...extension.props }, attrs },
+                    h(extension.name, { attrs })
                 )
             );
         } else {
-            return props.extensions.map(extension => h(extension.name, { props: { key: extension.$id }, attrs }));
+            return props.extensions.map(extension => h(extension.name, { attrs }));
         }
     }
 };

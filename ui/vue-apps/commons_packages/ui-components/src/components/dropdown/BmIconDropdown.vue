@@ -1,5 +1,5 @@
 <template>
-    <b-dropdown
+    <bv-dropdown
         ref="b_dropdown"
         v-bind="[$attrs, $props]"
         class="bm-icon-dropdown"
@@ -18,17 +18,17 @@
             </slot>
         </template>
         <slot />
-    </b-dropdown>
+    </bv-dropdown>
 </template>
 
 <script>
-import { BDropdown } from "bootstrap-vue";
 import BmDropdownMixin from "./mixins/BmDropdownMixin";
 import BmIcon from "../BmIcon";
+import { BvDropdown } from "./BDropdown";
 
 export default {
     name: "BmIconDropdown",
-    components: { BDropdown, BmIcon },
+    components: { BvDropdown, BmIcon },
     mixins: [BmDropdownMixin],
     props: {
         variant: {

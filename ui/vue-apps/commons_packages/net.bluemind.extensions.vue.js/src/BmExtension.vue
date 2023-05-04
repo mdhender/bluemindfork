@@ -15,12 +15,7 @@ const BmExtensionType = {
 
 export default {
     name: "BmExtension",
-    components: {
-        BmExtensionChainOfResponsibility,
-        BmExtensionDecorator,
-        BmExtensionList,
-        BmExtensionRenderless
-    },
+    functional: true,
     props: {
         type: {
             type: String,

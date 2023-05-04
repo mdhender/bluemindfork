@@ -1,36 +1,47 @@
 <template>
-    <b-dropdown
+    <bv-dropdown
         ref="b_dropdown"
         v-bind="[$attrs, $props]"
+        :dropright="isSubMenu"
         class="bm-dropdown"
         :class="{
             'dropdown-text': variant.startsWith('text'),
             'dropdown-on-fill-primary': variant.endsWith('on-fill-primary'),
-            'dropdown-split': split
+            'dropdown-split': split,
+            'dropdown-sub-menu': isSubMenu
         }"
         v-on="$listeners"
+        @click="onClick"
+        @hide="onHide"
     >
         <template slot="button-content">
             <slot name="button-content">
                 <slot name="icon">
                     <bm-icon v-if="icon" :icon="icon" />
                 </slot>
-                <span>{{ text }}</span>
+                <span v-if="$scopedSlots['button-content']" class="dropdown-button-content">
+                    <slot name="button-content" />
+                </span>
+                <span v-if="text" class="dropdown-button-text">{{ text }}</span>
             </slot>
         </template>
         <slot />
-    </b-dropdown>
+    </bv-dropdown>
 </template>
 
 <script>
-import { BDropdown } from "bootstrap-vue";
 import BmDropdownMixin from "./mixins/BmDropdownMixin";
 import BmIcon from "../BmIcon";
+import { BvDropdown } from "./BDropdown";
 
 export default {
     name: "BmDropdown",
-    components: { BDropdown, BmIcon },
+    components: { BvDropdown, BmIcon },
     mixins: [BmDropdownMixin],
+    inject: {
+        getBvDropdown: { default: () => () => null }
+    },
+    inheritAttrs: false,
     props: {
         variant: {
             type: String,
@@ -70,6 +81,24 @@ export default {
             type: Boolean,
             default: false
         }
+    },
+    computed: {
+        isSubMenu() {
+            return !!this.getBvDropdown();
+        }
+    },
+    methods: {
+        onClick(event) {
+            // Close all parents dropdowns when clicking on the button part of a splitted dropdown
+            let parent = this.getBvDropdown();
+            while (parent) {
+                parent.hide(event);
+                parent = parent.$parent.getBvDropdown?.();
+            }
+        },
+        onHide(event) {
+            console.log("on hide", this._uid, event);
+        }
     }
 };
 </script>
@@ -90,6 +119,21 @@ export default {
     }
     &.dropdown-text > .btn {
         @include bm-button-all-sizes("fill");
+    }
+
+    // As a submenu
+    &.b-dropdown.dropdown-sub-menu {
+        width: 100%;
+
+        .dropdown-toggle-split {
+            flex: 0;
+        }
+
+        > .btn > .dropdown-button-text,
+        > .btn > .dropdown-button-content {
+            flex: 1;
+            text-align: left;
+        }
     }
 
     &.b-dropdown.dropdown-split {
