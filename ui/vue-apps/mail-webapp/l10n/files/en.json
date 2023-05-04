@@ -390,6 +390,8 @@
     "mail.search.context.current_folder": "{folder} only",
     "mail.search.label.contains": "Contains",
     "mail.search.label.subject": "Subject",
+    "mail.search.label.before": "Before",
+    "mail.search.label.after": "After",
     "mail.search.section.msg_and_attachments": "Message and attachments",
     "mail.selection.alert.readonly": "Some selected messages are read-only. Some actions (like Move or Remove) may not be available.",
     "mail.state.unread": "Unread",

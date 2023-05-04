@@ -7,21 +7,30 @@
         :busy="!newPattern"
         :cancel-title="$t('common.action.reset')"
         @cancel="cancel"
-        @hidden="SET_CURRENT_SEARCH_PATTERN(newPattern)"
+        @hide="SET_CURRENT_SEARCH_PATTERN(newPattern)"
         @ok="validateAndsearch"
     >
         <div class="item">
             <div class="label">{{ $t("mail.search.options.folder.label") }}</div>
-            <mail-search-box-context class="input" :folder="currentFolder" />
+            <mail-search-box-context class="search-input" :folder="currentFolder" />
         </div>
         <h3 class="section">{{ $t("mail.search.section.msg_and_attachments") }}</h3>
         <div class="item">
             <div class="label">{{ $t("mail.search.label.subject") }}</div>
-            <advanced-search-input :value.sync="subject" />
+            <string-search-input class="search-input" :value.sync="subject" />
         </div>
         <div class="item">
             <div class="label">{{ $t("mail.search.label.contains") }}</div>
-            <advanced-search-input :value.sync="contains" />
+            <string-search-input class="search-input" :value.sync="contains" />
+        </div>
+        <h3 class="section">{{ $t("common.date") }}</h3>
+        <div class="item d-flex align-items-center">
+            <div class="label">{{ $t("mail.search.label.after") }}</div>
+            <date-search-input class="search-input" :value.sync="after" />
+        </div>
+        <div class="item">
+            <div class="label">{{ $t("mail.search.label.before") }}</div>
+            <date-search-input class="search-input" :value.sync="before" />
         </div>
     </bm-modal>
 </template>
@@ -38,21 +47,20 @@ import {
     RESET_CURRENT_SEARCH_PATTERN
 } from "~/mutations";
 import MailSearchBoxContext from "../MailSearchBoxContext";
-import SearchHelper from "../../SearchHelper";
-import AdvancedSearchInput from "./AdvancedSearchInput";
-
-const PATTERN_KEYWORDS = {
-    SUBJECT: "subject"
-};
+import SearchHelper from "../SearchHelper";
+import StringSearchInput from "./StringSearchInput";
+import DateSearchInput from "./DateSearchInput";
+import PATTERN_KEYWORDS from "../SearchHelper/Keywords";
 
 export default {
     name: "AdvancedSearchModal",
-    components: { BmModal, MailSearchBoxContext, AdvancedSearchInput },
+    components: { BmModal, MailSearchBoxContext, StringSearchInput, DateSearchInput },
     mixins: [SearchMixin],
     data() {
         return {
             contains: null,
-            subject: null
+            subject: null,
+            date: null
         };
     },
     computed: {
@@ -64,21 +72,41 @@ export default {
             return this.folders[this.activeFolder];
         },
         newPattern() {
-            const subParts = Object.values(PATTERN_KEYWORDS).flatMap(keyword =>
-                this[keyword] ? `${keyword}:${this[keyword]}` : []
-            );
+            const subParts = Object.values(PATTERN_KEYWORDS).flatMap(keyword => {
+                return this[keyword] ? `${keyword}:${this.stringify(keyword)}` : [];
+            });
+
             if (this.contains) {
                 subParts.push(this.contains);
             }
             return subParts.join(" ");
+        },
+        before: {
+            get() {
+                return this.date?.max;
+            },
+            set(value) {
+                this.date = { ...this.date, max: value };
+            }
+        },
+        after: {
+            get() {
+                return this.date?.min;
+            },
+            set(value) {
+                this.date = { ...this.date, min: value };
+            }
         }
     },
     watch: {
         currentPattern: {
             handler() {
-                const groups = SearchHelper.parseSearchPattern(this.currentPattern, Object.values(PATTERN_KEYWORDS));
+                const keywords = Object.values(PATTERN_KEYWORDS);
+                const groups = SearchHelper.parseSearchPattern(this.currentPattern, keywords);
+                for (const keyword of keywords) {
+                    this[keyword] = groups[keyword];
+                }
                 this.contains = groups.contains;
-                this.subject = groups.subject;
             },
             immediate: true
         }
@@ -101,10 +129,21 @@ export default {
             event.preventDefault();
             this.contains = null;
             this.subject = null;
+            this.date = null;
         },
         validateAndsearch() {
             this.SET_CURRENT_SEARCH_PATTERN(this.newPattern);
             this.search();
+        },
+        stringify(keyword) {
+            switch (keyword) {
+                case "date": {
+                    return this.date?.min ? `[${this.date.min || "*"} TO ${this.date.max || "*"}]` : null;
+                }
+                default: {
+                    return this[keyword];
+                }
+            }
         }
     }
 };
@@ -131,6 +170,8 @@ export default {
             & > .item {
                 display: block;
                 width: 100%;
+                margin-bottom: $sp-6;
+
                 & > .input {
                     width: 100%;
                 }
@@ -143,13 +184,18 @@ export default {
                 display: flex;
                 align-items: center;
                 flex: 1 1 auto;
-
+                margin-bottom: $sp-4;
+                min-height: $input-height;
                 & > .label {
-                    width: 25%;
+                    display: table-cell;
+                    min-width: 25%;
                     text-align: end;
                 }
-                .input {
+                .search-input {
                     margin-left: $sp-6;
+                }
+                .date-search-input {
+                    min-width: 16rem;
                 }
                 .mail-search-box-context {
                     width: 20rem;

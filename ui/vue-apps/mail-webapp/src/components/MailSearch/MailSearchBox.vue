@@ -56,7 +56,7 @@ import {
 import MailSearchAdvancedButton from "./MailSearchAdvancedButton";
 import MailSearchBoxContext from "./MailSearchBoxContext";
 import MailSearchInput from "./MailSearchInput";
-import SearchHelper from "../SearchHelper";
+import SearchHelper from "./SearchHelper";
 
 export default {
     name: "MailSearchBox",

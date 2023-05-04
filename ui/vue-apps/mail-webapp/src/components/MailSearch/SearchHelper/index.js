@@ -1,6 +1,8 @@
 import LuceneQueryParser from "lucene";
+import patternParsers from "./patternParsers";
+import PATTERN_KEYWORDS from "./Keywords";
 
-function parseSearchPattern(pattern, keywords) {
+function parseSearchPattern(pattern) {
     if (!pattern) {
         return {};
     }
@@ -8,17 +10,24 @@ function parseSearchPattern(pattern, keywords) {
     const termsOnly = [];
     try {
         const rootNode = LuceneQueryParser.parse(pattern);
-        const nodeFunction = node => {
-            if (keywords.includes(node.field)) {
-                const value = node.term ? node.term : LuceneQueryParser.toString(node).split(":")?.pop();
-                result[node.field] = value;
-            } else if (node.field) {
-                if (node.field === "<implicit>") {
-                    termsOnly.push(node.term);
-                } else {
-                    termsOnly.push(LuceneQueryParser.toString(node));
-                }
+        const nodeFunction = (node, exit) => {
+            const field = node.field;
+            if (exit) {
+                return true;
             }
+
+            if (Object.values(PATTERN_KEYWORDS).includes(field)) {
+                let value = "";
+                if (patternParsers[field]) {
+                    value = patternParsers[field](node);
+                } else {
+                    value = patternParsers.default(node);
+                }
+                result[field] = value;
+            } else if (field) {
+                termsOnly.push(LuceneQueryParser.toString(node));
+            }
+            return !!field;
         };
         walkLuceneTree(rootNode, nodeFunction);
 
@@ -41,7 +50,7 @@ const deepParser = (node, result) => {
     }
     return undefined;
 };
-const parsers = [folderParser, deepParser];
+const queryParsers = [folderParser, deepParser];
 
 function parseQuery(expression) {
     let result = {};
@@ -49,7 +58,7 @@ function parseQuery(expression) {
         const rootNode = LuceneQueryParser.parse(expression);
         if (rootNode) {
             result.pattern = rootNode.left.term;
-            const nodeFunction = node => parsers.forEach(parser => parser(node, result));
+            const nodeFunction = node => queryParsers.forEach(parser => parser(node, result));
             walkLuceneTree(rootNode, nodeFunction);
         }
     }
@@ -64,13 +73,13 @@ function isSameSearch(previousPattern, pattern, previousFolderKey, folderKey, is
     return isSamePattern && isSameDepth && (isSameFolder || isAllFoldersAgain);
 }
 
-function walkLuceneTree(node, nodeFunction) {
-    nodeFunction(node);
+function walkLuceneTree(node, nodeFunction, context) {
+    context = nodeFunction(node, context);
     if (node.left) {
-        walkLuceneTree(node.left, nodeFunction);
+        walkLuceneTree(node.left, nodeFunction, context);
 
         if (node.right) {
-            walkLuceneTree(node.right, nodeFunction);
+            walkLuceneTree(node.right, nodeFunction, context);
         }
     }
 }
