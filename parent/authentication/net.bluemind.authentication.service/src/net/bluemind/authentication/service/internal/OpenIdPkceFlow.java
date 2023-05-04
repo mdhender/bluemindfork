@@ -31,8 +31,10 @@ import io.vertx.core.json.JsonObject;
 import net.bluemind.authentication.api.AccessTokenInfo;
 import net.bluemind.authentication.service.OpenIdContext;
 import net.bluemind.authentication.service.OpenIdContextCache;
+import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
-import net.bluemind.domain.service.internal.IInCoreDomainSettings;
+import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.IDomains;
 import net.bluemind.system.api.ExternalSystem;
 import net.bluemind.system.api.ExternalSystem.AuthKind;
 
@@ -48,9 +50,9 @@ public class OpenIdPkceFlow extends OpenIdFlow implements IOpenIdAuthFlow {
 		String applicationSecretKey = system.identifier + "_secret";
 		String tokenEndpointKey = system.identifier + "_tokenendpoint";
 
-		IInCoreDomainSettings settingsService = context.su().provider().instance(IInCoreDomainSettings.class,
-				context.getSecurityContext().getContainerUid());
-		Map<String, String> settings = settingsService.get();
+		IDomains domainService = context.su().provider().instance(IDomains.class);
+		ItemValue<Domain> domainVal = domainService.get(context.getSecurityContext().getContainerUid());
+		Map<String, String> settings = domainVal.value.properties;
 
 		String contextId = UUID.randomUUID().toString();
 		String secret = generateCodeVerifier();

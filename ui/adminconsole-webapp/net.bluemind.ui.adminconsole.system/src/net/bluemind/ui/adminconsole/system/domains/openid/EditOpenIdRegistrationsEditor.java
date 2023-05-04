@@ -20,6 +20,7 @@ package net.bluemind.ui.adminconsole.system.domains.openid;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
@@ -27,12 +28,15 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.ResizeLayoutPanel;
 
+import net.bluemind.core.commons.gwt.JsMapStringJsObject;
+import net.bluemind.core.commons.gwt.JsMapStringString;
+import net.bluemind.domain.api.gwt.js.JsDomain;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
 import net.bluemind.system.api.ExternalSystem;
 import net.bluemind.system.api.gwt.endpoint.ExternalSystemGwtEndpoint;
-import net.bluemind.ui.adminconsole.system.SettingsModel;
+import net.bluemind.ui.adminconsole.system.domains.DomainKeys;
 import net.bluemind.ui.common.client.forms.Ajax;
 
 public class EditOpenIdRegistrationsEditor extends CompositeGwtWidgetElement {
@@ -42,7 +46,7 @@ public class EditOpenIdRegistrationsEditor extends CompositeGwtWidgetElement {
 	@UiField
 	OpenIdGrid table;
 
-	SettingsModel domainSettings;
+	Map<String, String> domainProperties;
 
 	private static EditOpenIdRegistrationsEditorUiBinder uiBinder = GWT
 			.create(EditOpenIdRegistrationsEditorUiBinder.class);
@@ -69,7 +73,9 @@ public class EditOpenIdRegistrationsEditor extends CompositeGwtWidgetElement {
 	@Override
 	public void loadModel(JavaScriptObject model) {
 
-		domainSettings = SettingsModel.domainSettingsFrom(model);
+		JsMapStringJsObject map = model.cast();
+		JsDomain jsdomain = map.get(DomainKeys.domain.name()).cast();
+		domainProperties = jsdomain.getProperties().asMap();
 
 		new ExternalSystemGwtEndpoint(Ajax.TOKEN.getSessionId())
 				.getExternalSystems(new DefaultAsyncHandler<List<ExternalSystem>>() {
@@ -85,17 +91,17 @@ public class EditOpenIdRegistrationsEditor extends CompositeGwtWidgetElement {
 								String applicationSecretKey = system.identifier + "_secret";
 								String tokenEndpointKey = system.identifier + "_tokenendpoint";
 
-								String endpoint = domainSettings.get(endpointKey) != null
-										? domainSettings.get(endpointKey)
+								String endpoint = domainProperties.get(endpointKey) != null
+										? domainProperties.get(endpointKey)
 										: "";
-								String applicationId = domainSettings.get(applicationIdKey) != null
-										? domainSettings.get(applicationIdKey)
+								String applicationId = domainProperties.get(applicationIdKey) != null
+										? domainProperties.get(applicationIdKey)
 										: "";
-								String applicationSecret = domainSettings.get(applicationSecretKey) != null
-										? domainSettings.get(applicationSecretKey)
+								String applicationSecret = domainProperties.get(applicationSecretKey) != null
+										? domainProperties.get(applicationSecretKey)
 										: "";
-								String tokenEndpoint = domainSettings.get(tokenEndpointKey) != null
-										? domainSettings.get(tokenEndpointKey)
+								String tokenEndpoint = domainProperties.get(tokenEndpointKey) != null
+										? domainProperties.get(tokenEndpointKey)
 										: "";
 								OpenIdRegistration registration = new OpenIdRegistration(system.identifier, endpoint,
 										applicationId, applicationSecret, tokenEndpoint);
@@ -117,11 +123,16 @@ public class EditOpenIdRegistrationsEditor extends CompositeGwtWidgetElement {
 			String applicationSecretKey = system.systemIdentifier + "_secret";
 			String tokenEndpointKey = system.systemIdentifier + "_tokenendpoint";
 
-			domainSettings.putString(endpointKey, system.endpoint);
-			domainSettings.putString(applicationIdKey, system.applicationId);
-			domainSettings.putString(applicationSecretKey, system.applicationSecret);
-			domainSettings.putString(tokenEndpointKey, system.tokenEndpoint);
+			domainProperties.put(endpointKey, system.endpoint);
+			domainProperties.put(applicationIdKey, system.applicationId);
+			domainProperties.put(applicationSecretKey, system.applicationSecret);
+			domainProperties.put(tokenEndpointKey, system.tokenEndpoint);
+			JsMapStringString props = JsMapStringString.create(domainProperties);
 
+			JsMapStringJsObject map = model.cast();
+			JsDomain jsdomain = map.get(DomainKeys.domain.name()).cast();
+			jsdomain.setProperties(props);
+			map.put(DomainKeys.domain.name(), jsdomain);
 		});
 	}
 

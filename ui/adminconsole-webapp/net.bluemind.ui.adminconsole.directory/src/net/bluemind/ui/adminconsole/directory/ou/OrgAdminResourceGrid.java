@@ -77,7 +77,8 @@ public class OrgAdminResourceGrid extends CommonOrgResourceGrid {
 					returnEmptyTable(constants.emptyRoleTable());
 				} else {
 					OrgUnitItem focusedItem = unitListMngt.focusedItem;
-					CompletableFuture<Set<String>> administratorsCf = dir.getAdministrators(focusedItem.getUid(), false);
+					CompletableFuture<Set<String>> administratorsCf = dir.getAdministrators(focusedItem.getUid(),
+							false);
 
 					administratorsCf.thenAccept(admin -> {
 						if (admin.isEmpty()) {
@@ -100,8 +101,8 @@ public class OrgAdminResourceGrid extends CommonOrgResourceGrid {
 										OrgUnitListMgmt.CHECK_EVENT_BUS
 												.fireEvent(new OUCheckBoxEvent(unitListMngt.hasSelectedItems()));
 									} else {
-										returnEmptyTable(constants
-												.emptyRoleAdminTable(unitListMngt.getFirstSelectedItemName()));
+										returnEmptyTable(
+												constants.emptyRoleAdminTable(unitListMngt.getFirstSelectedItemName()));
 									}
 								}
 							});
@@ -125,8 +126,7 @@ public class OrgAdminResourceGrid extends CommonOrgResourceGrid {
 
 	void updateEmptyMsg(TreeAction action) {
 		if (action == TreeAction.UPDATE) {
-			setEmptyTableWidget(
-					new Label(constants.emptyRoleAdminTable(unitListMngt.getFirstSelectedItemName())));
+			setEmptyTableWidget(new Label(constants.emptyRoleAdminTable(unitListMngt.getFirstSelectedItemName())));
 		} else if (action == TreeAction.DELETE) {
 			setEmptyTableWidget(new Label(constants.emptyRoleTable()));
 		}

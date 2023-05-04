@@ -19,7 +19,6 @@ package net.bluemind.cli.oauth;
 
 import java.io.FileReader;
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -30,7 +29,7 @@ import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.domain.api.IDomainSettings;
+import net.bluemind.domain.api.IDomains;
 import net.bluemind.system.api.ExternalSystem;
 import net.bluemind.system.api.IExternalSystem;
 import picocli.CommandLine.Command;
@@ -123,15 +122,12 @@ public class RegisterExternalSystemCommand implements ICmdLet, Runnable, IExitCo
 		String applicationSecretKey = identifier + "_secret";
 		String tokenEndpointKey = identifier + "_tokenendpoint";
 
-		IDomainSettings settings = ctx.adminApi().instance(IDomainSettings.class, domainItem.uid);
-		Map<String, String> domainSettings = settings.get();
+		domainItem.value.properties.put(endpointKey, authEndpoint);
+		domainItem.value.properties.put(applicationIdKey, clientId);
+		domainItem.value.properties.put(applicationSecretKey, clientSecret);
+		domainItem.value.properties.put(tokenEndpointKey, tokenEndpoint);
 
-		domainSettings.put(endpointKey, authEndpoint);
-		domainSettings.put(applicationIdKey, clientId);
-		domainSettings.put(applicationSecretKey, clientSecret);
-		domainSettings.put(tokenEndpointKey, tokenEndpoint);
-
-		settings.set(domainSettings);
+		ctx.adminApi().instance(IDomains.class).update(domainItem.uid, domainItem.value);
 
 		ctx.info("Configuration saved for system {} on domain {}", identifier, domain);
 	}
