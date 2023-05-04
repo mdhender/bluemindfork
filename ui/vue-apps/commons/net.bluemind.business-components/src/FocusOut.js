@@ -3,7 +3,7 @@ export default {
     bind(el, binding, vnode) {
         el.tabIndex = 0;
         el.addEventListener("focusout", function (event) {
-            if (!el.contains(event?.relatedTarget)) {
+            if (!el.contains(event?.target)) {
                 if (vnode?.componentInstance) {
                     vnode.componentInstance.$emit("focusout");
                 } else {
