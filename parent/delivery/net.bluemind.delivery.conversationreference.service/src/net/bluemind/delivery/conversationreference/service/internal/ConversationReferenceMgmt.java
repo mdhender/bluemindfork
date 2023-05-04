@@ -47,7 +47,7 @@ public class ConversationReferenceMgmt implements IInCoreConversationReferenceMg
 			try {
 				long deletedRecords = store.deleteEntriesOlderThanOneYear();
 				totalDeletedRecords += deletedRecords;
-				logger.info("cleaned {} conversation references on {}", deletedRecords, datasource.getConnection());
+				logger.info("cleaned {} conversation references on {}", deletedRecords, datasource);
 			} catch (SQLException e) {
 				throw ServerFault.sqlFault(e);
 			}
