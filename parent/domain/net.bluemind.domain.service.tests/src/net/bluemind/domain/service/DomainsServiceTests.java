@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -65,6 +66,8 @@ import net.bluemind.core.tests.BmTestContext;
 import net.bluemind.directory.api.IOrgUnits;
 import net.bluemind.directory.api.OrgUnit;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.domain.service.internal.DomainStoreService;
 import net.bluemind.domain.service.tests.FakeDomainHook;
@@ -73,6 +76,9 @@ import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.Server;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.api.SystemConf;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 import net.bluemind.user.api.IUser;
 import net.bluemind.user.api.User;
@@ -377,8 +383,8 @@ public class DomainsServiceTests {
 		assertEquals(1, created.value.properties.size());
 		assertEquals("mind", created.value.properties.get("blue"));
 
-		ItemValue<Domain> getAsNonAdminShouldFilterProperties = ServerSideServiceProvider.getProvider(userSecurityContext)
-				.instance(IDomains.class).get("test.lan");
+		ItemValue<Domain> getAsNonAdminShouldFilterProperties = ServerSideServiceProvider
+				.getProvider(userSecurityContext).instance(IDomains.class).get("test.lan");
 		assertNotNull(getAsNonAdminShouldFilterProperties);
 		assertNotNull(getAsNonAdminShouldFilterProperties.value);
 		assertEquals("test.lan", getAsNonAdminShouldFilterProperties.uid);
@@ -670,4 +676,31 @@ public class DomainsServiceTests {
 		}
 	}
 
+	@Test
+	public void getExternalUrl() {
+		Domain domain = createDomain("test.lan");
+
+		try {
+			getService().getExternalUrl(domain.name);
+			fail("Test must thrown an exception");
+		} catch (ServerFault sf) {
+			assertEquals(ErrorCode.NOT_FOUND, sf.getCode());
+		}
+
+		ISystemConfiguration sysconfService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class);
+		SystemConf sysconf = sysconfService.getValues();
+		sysconf.values.put(SysConfKeys.external_url.name(), "this.is.global.external.url");
+		sysconfService.updateMutableValues(sysconf.values);
+
+		assertEquals("this.is.global.external.url", getService().getExternalUrl(domain.name));
+
+		IDomainSettings domainSettingsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domain.name);
+		Map<String, String> domainSettings = domainSettingsService.get();
+		domainSettings.put(DomainSettingsKeys.external_url.name(), "this.is.domain.external.url");
+		domainSettingsService.set(domainSettings);
+
+		assertEquals("this.is.domain.external.url", getService().getExternalUrl(domain.name));
+	}
 }

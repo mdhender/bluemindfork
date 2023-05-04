@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -76,6 +77,8 @@ import net.bluemind.mailbox.persistence.MailboxStore;
 import net.bluemind.resource.api.type.IResourceTypes;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.system.api.CertData.CertificateDomainEngine;
+import net.bluemind.system.api.ISystemConfiguration;
+import net.bluemind.system.api.SysConfKeys;
 
 public class DomainsService implements IInCoreDomains, IDomains {
 	private static final Logger logger = LoggerFactory.getLogger(DomainsService.class);
@@ -580,4 +583,16 @@ public class DomainsService implements IInCoreDomains, IDomains {
 		domainsCache.invalidate(domainItem.uid);
 	}
 
+	@Override
+	public String getExternalUrl(String domainUid) {
+		rbacManager.forDomain(domainUid).check(BasicRoles.ROLE_ADMIN);
+
+		return Optional.ofNullable(DomainSettingsCache.get(context).getIfPresent(domainUid))
+				.map(ds -> ds.get(DomainSettingsKeys.external_url.name()))
+				.orElseGet(() -> Optional
+						.ofNullable(context.su().provider().instance(ISystemConfiguration.class).getValues()
+								.stringValue(SysConfKeys.external_url.name()))
+						.orElseThrow(
+								() -> new ServerFault("No external URL found for this domain!", ErrorCode.NOT_FOUND)));
+	}
 }

@@ -166,4 +166,13 @@ public interface IDomains {
 	@Path("{uid}/roles")
 	Set<String> getRoles(@PathParam(value = "uid") String uid) throws ServerFault;
 
+	/**
+	 * Get effective domain external-url.
+	 * 
+	 * @param domainUid {@link Domain}'s unique id
+	 * @return domain external URL if defined, global external URL otherwisegitk
+	 */
+	@GET
+	@Path("{uid}/externalurl")
+	String getExternalUrl(@PathParam(value = "uid") String domainUid);
 }
