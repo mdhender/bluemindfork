@@ -147,7 +147,7 @@ export default {
         },
 
         // case of a new message
-        async initNewMessage(folder, { to = [], cc = [], bcc = [], subject, body }) {
+        async initNewMessage(folder, { to = [], cc = [], bcc = [], subject = "", body }) {
             const message = createEmpty(folder);
             message.to = to;
             message.cc = cc;
