@@ -39,6 +39,8 @@ public class DefaultCloneSupport implements CloneSupport {
 		IBackupReader reader = DefaultBackupStore.reader();
 		if (conf.mode.suspendBackupWrites()) {
 			DefaultBackupStore.store().pause();
+		} else {
+			leadership().applyForLeadership();
 		}
 		return new InstallFromBackupTask(conf, reader, new SysconfOverride(sysconfOverride), tm, prov);
 	}
