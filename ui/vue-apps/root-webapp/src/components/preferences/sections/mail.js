@@ -109,6 +109,18 @@ function main(i18n) {
                                 label: i18n.t("preferences.mail.compose.in_new_window")
                             }
                         }
+                    },
+                    {
+                        id: "default_font",
+                        component: {
+                            name: "PrefComposerDefaultFont",
+                            options: {
+                                setting: "composer_default_font",
+                                default: "montserrat",
+                                autosave: true,
+                                label: i18n.t("preferences.mail.compose.default_font")
+                            }
+                        }
                     }
                 ]
             },

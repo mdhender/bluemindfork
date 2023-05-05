@@ -41,7 +41,7 @@ describe("BMFormFontSelector", () => {
         expect(wrapper.find("button").text()).toBe(dropdownItemToBeSelected.text());
     });
 
-    test("input event is emitted when selection change", async () => {
+    test("input event is emitted when selection changes", async () => {
         const wrapper = defaultMount();
         await wrapper.findAll("[role=menuitem]").at(3).trigger("click"); // at(3) === GEORGIA
 

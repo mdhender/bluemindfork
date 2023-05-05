@@ -3,6 +3,7 @@
         :default-font="defaultFont"
         :selected="selectionFontFamily"
         :disabled="disabled"
+        variant="inline"
         @input="setFontFamily"
     />
 </template>

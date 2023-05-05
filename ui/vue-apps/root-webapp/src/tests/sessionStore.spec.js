@@ -33,6 +33,7 @@ describe("Store session", () => {
             always_show_from: "false",
             always_show_quota: "false",
             auto_select_from: "never",
+            composer_default_font: "montserrat",
             default_event_alert_mode: "Display",
             insert_signature: "true",
             logout_purge: "false",

@@ -3,6 +3,7 @@
         ref="rich-editor"
         class="bm-rich-editor d-flex flex-column"
         :class="{ 'has-border': hasBorder, disabled, 'has-focus': hasFocus, 'dark-mode': darkMode }"
+        :style="{ fontFamily: defaultFontValue }"
         @input="onChange"
         @contentchanged="onChange"
         @focusin="hasFocus = true"
@@ -68,6 +69,7 @@ import { MOVABLE_CONTENT_DROP_ID } from "./bmPlugins/adaptNode";
 
 import BmRichEditorRegistry from "./BmRichEditorRegistry";
 import darkifyingBaseLvalue from "../../js/theming/darkifyingBaseLvalue";
+import { fontFamilyByID } from "../../js/fontFamilies";
 import { getDarkColor } from "roosterjs-color-utils";
 
 export default {
@@ -122,6 +124,11 @@ export default {
             plugins: [new Default(this), new Movable(this), new NonEditable(this)],
             isReady: false
         };
+    },
+    computed: {
+        defaultFontValue() {
+            return fontFamilyByID(this.defaultFontFamily);
+        }
     },
     watch: {
         disabled(newVal) {
@@ -265,7 +272,7 @@ export default {
             ];
             const options = {
                 defaultFormat: {
-                    fontFamily: this.defaultFontFamily,
+                    fontFamily: this.defaultFontValue,
                     backgroundColors: {
                         lightModeColor: "#ffffff",
                         darkModeColor: "var(--darkified-content-bg)"

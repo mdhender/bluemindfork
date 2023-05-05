@@ -1,7 +1,7 @@
 <template>
     <bm-form-group :disabled="disabled" class="mb-6">
         <template #label>{{ $t("preferences.mail.compose.default_font") }}</template>
-        <bm-form-font-selector :default-font="value" :disabled="disabled" variant="outline" @input="setDefaultFont" />
+        <bm-form-font-selector :default-font="value" :disabled="disabled" @input="setDefaultFont" />
     </bm-form-group>
 </template>
 

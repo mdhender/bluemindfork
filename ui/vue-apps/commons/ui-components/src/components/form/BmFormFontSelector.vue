@@ -8,19 +8,23 @@
         @input="setFontFamily"
     >
         <template v-slot:selected="slotProps">
-            <span v-if="slotProps.selected" :class="`${slotProps.selected.id} selected-text`">
+            <span
+                v-if="slotProps.selected"
+                :style="{ fontFamily: fontFamilyValue(slotProps.selected.id) }"
+                class="selected-text"
+            >
                 {{ slotProps.selected.text }}</span
             >
         </template>
         <template v-slot:item="slotProps">
-            <span :class="slotProps.item.id"> {{ slotProps.item.text }}</span>
+            <span :style="{ fontFamily: fontFamilyValue(slotProps.item.id) }"> {{ slotProps.item.text }}</span>
         </template>
     </bm-form-select>
 </template>
 
 <script>
 import BmFormSelect from "./BmFormSelect";
-import DEFAULT from "../../js/defaultFont";
+import FONT_FAMILIES, { fontFamilyByID } from "../../js/fontFamilies";
 
 export default {
     name: "BmFormFontSelector",
@@ -40,44 +44,16 @@ export default {
         },
         variant: {
             type: String,
-            default: "inline"
+            default: "outline",
+            validator: function (value) {
+                return ["outline", "inline"].includes(value);
+            }
         }
     },
     data() {
         return {
             fontFamily: this.selected,
-            families: [
-                {
-                    value: "Red Hat Mono, Courier New, Courier, Lucida Sans Typewriter, Lucida Typewriter, monospace",
-                    text: "Mono",
-                    id: "mono"
-                },
-                {
-                    value: DEFAULT,
-                    text: this.$t("common.default"),
-                    id: "montserrat"
-                },
-                {
-                    value: "Garamond, Apple Garamond, Palatino Linotype, Palatino, Baskerville, Baskerville Old Face, serif",
-                    text: "Garamond",
-                    id: "garamond"
-                },
-                {
-                    value: "Georgia, Constantia, Lucida Bright, Lucidabright, Lucida Serif, Lucida, DejaVu Serif, serif",
-                    text: "Georgia",
-                    id: "georgia"
-                },
-                {
-                    value: "Helvetica Neue, Helvetica, Nimbus Sans, Arial, sans-serif",
-                    text: "Helvetica",
-                    id: "helvetica"
-                },
-                {
-                    value: "Verdana, Verdana Ref, Corbel, Lucida Grande, Lucida Sans Unicode, Lucida Sans, DejaVu Sans, Liberation Sans, sans-serif",
-                    text: "Verdana",
-                    id: "verdana"
-                }
-            ]
+            families: FONT_FAMILIES
         };
     },
     watch: {
@@ -104,7 +80,7 @@ export default {
                     }
                 });
                 if (!found) {
-                    this.fontFamily = this.families.find(family => family.id === this.defaultFont).value;
+                    this.fontFamily = fontFamilyByID(this.defaultFont);
                 }
             },
             immediate: true
@@ -112,10 +88,13 @@ export default {
     },
     created() {
         if (!this.selected) {
-            this.fontFamily = this.families.find(family => family.id === this.defaultFont).value;
+            this.fontFamily = fontFamilyByID(this.defaultFont);
         }
     },
     methods: {
+        fontFamilyValue(fontId) {
+            return fontFamilyByID(fontId);
+        },
         setFontFamily(family) {
             this.fontFamily = family;
             this.$emit(
@@ -127,7 +106,7 @@ export default {
 };
 
 function getLongestValue(obj) {
-    return obj.reduce((a, b) => (a?.value?.length > b.value.length ? a : b));
+    return obj.reduce((a, b) => (a.value.length > b.value.length ? a : b));
 }
 </script>
 
@@ -137,27 +116,6 @@ function getLongestValue(obj) {
 .font-family-button {
     & > .btn {
         font-weight: normal;
-    }
-    .mono {
-        font-family: "Red Hat Mono", "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
-    }
-    .georgia {
-        font-family: "Georgia", "Constantia", "Lucida Bright", "Lucidabright", "Lucida Serif", Lucida, "DejaVu Serif",
-            serif;
-    }
-    .garamond {
-        font-family: Garamond, "Apple Garamond", "Palatino Linotype", "Palatino", "Baskerville", "Baskerville Old Face",
-            serif;
-    }
-    .helvetica {
-        font-family: "Helvetica Neue", Helvetica, "Nimbus Sans", "Arial", sans-serif;
-    }
-    .monserrat {
-        font-family: "Montserrat", "montserrat", "Source Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    }
-    .verdana {
-        font-family: Verdana, "Verdana Ref", "Corbel", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans",
-            "DejaVu Sans", "Liberation Sans", sans-serif;
     }
 }
 </style>
