@@ -7,7 +7,7 @@ const { FileStatus } = fileUtils;
 
 export default async function addFhAttachment({ commit, dispatch }, { file, message, shareFn }) {
     const attachment = createFhAttachment(file, message);
-    const { files, attachments } = AttachmentAdaptor.extractFiles([attachment]);
+    const { files, attachments } = AttachmentAdaptor.extractFiles([attachment], message);
     const adaptedFile = files[0];
     const adaptedAttachment = attachments[0];
     commit("ADD_ATTACHMENT", { messageKey: message.key, attachment: adaptedAttachment });
