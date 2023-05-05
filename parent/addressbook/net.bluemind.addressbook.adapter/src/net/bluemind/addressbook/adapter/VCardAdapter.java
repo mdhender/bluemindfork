@@ -23,6 +23,7 @@ import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -61,6 +62,7 @@ import net.bluemind.tag.api.ITagUids;
 import net.bluemind.tag.api.ITags;
 import net.bluemind.tag.api.Tag;
 import net.bluemind.tag.api.TagRef;
+import net.bluemind.utils.SyncHttpClient;
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.vcard.ParameterFactory;
 import net.fortuna.ical4j.vcard.ParameterFactoryRegistry;
@@ -268,7 +270,32 @@ public final class VCardAdapter {
 		List<Property> keys = card.getProperties(Id.KEY);
 		retCard.security.keys = new ArrayList<>();
 		for (Property key : keys) {
-			retCard.security.keys.add(VCard.Security.Key.create(key.getValue(), fromVCard(key.getParameters())));
+			if (key instanceof Key) {
+				Key asKey = (Key) key;
+				if (asKey.getBinary() != null) {
+					String decoded = null;
+					try {
+						decoded = new String(Base64.getDecoder().decode(key.getValue()));
+					} catch (Exception e) {
+						decoded = key.getValue();
+					}
+
+					retCard.security.keys.add(VCard.Security.Key.create(decoded, fromVCard(key.getParameters())));
+				} else {
+					String url = asKey.getValue();
+					try {
+						String downloaded = SyncHttpClient.get(url);
+						List<Parameter> params = fromVCard(key.getParameters()).stream()
+								.filter(p -> !(p.label.equals("VALUE") && p.value.equalsIgnoreCase("url"))).toList();
+						retCard.security.keys.add(VCard.Security.Key.create(downloaded, params));
+					} catch (Exception e) {
+						LoggerFactory.getLogger(VCardAdapter.class).warn("Cannot download contact certificate from {}",
+								url, e);
+					}
+				}
+			} else {
+				retCard.security.keys.add(VCard.Security.Key.create(key.getValue(), fromVCard(key.getParameters())));
+			}
 		}
 
 		Note noteProp = (Note) card.getProperty(Id.NOTE);
@@ -505,7 +532,8 @@ public final class VCardAdapter {
 
 		for (VCard.Security.Key key : vcard.security.keys) {
 			try {
-				properties.add(new Key(toVCard(key.parameters), key.value));
+				String b64 = Base64.getEncoder().encodeToString(key.value.getBytes());
+				properties.add(new Key(toVCard(key.parameters), b64));
 			} catch (URISyntaxException | DecoderException e) {
 				LOGGER.warn(e.getMessage());
 			}

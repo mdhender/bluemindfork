@@ -16,8 +16,10 @@ Require-Bundle: org.eclipse.core.runtime,
  org.apache.commons.codec,
  org.jsoup,
  net.bluemind.directory.api,
- net.bluemind.core.rest,
+ net.bluemind.utils,
+ net.bluemind.core.context,
  net.bluemind.user.api,
+ net.bluemind.core.rest,
  net.bluemind.core.sessions
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
