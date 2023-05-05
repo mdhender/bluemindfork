@@ -461,10 +461,10 @@ var gBMSendSMIME = {
             let books = new AddressBooksClient(srv.value, logged.authKey, logged.authUser.domainUid);
             this._bookClients.clear();
             for (let email of emailAddresses) {
-                let certString = await this._getCertificate(books, srv.value, logged, email);
-                if (certString) {
-                    this._logger.info("import S/MIME public certificate for:" + email);
-                    this._importCertificate(certString);
+                let certs = await this._getCertificate(books, srv.value, logged, email);
+                if (certs && certs.length > 0) {
+                    this._logger.info("import S/MIME public certificates for:" + email);
+                    this._importCertificates(certs);
                 }
             }
         } catch(e) {
@@ -486,7 +486,7 @@ var gBMSendSMIME = {
                 }
                 let card = await book.getComplete(item.uid);
                 if (card) {
-                    return card.value.security.key.value;
+                    return card.value.security.keys;
                 }
             }
         } catch(e) {
@@ -494,15 +494,18 @@ var gBMSendSMIME = {
         }
         return null;
     },
-    _importCertificate: function(certString) {
-        try {
-            let certBytes = [];
-            for (let i = 0; i < certString.length; i++) {
-                certBytes.push(certString.charCodeAt(i));
+    _importCertificates: function(certs) {
+        for (let cert of certs) {
+            let certString = cert.value;
+            try {
+                let certBytes = [];
+                for (let i = 0; i < certString.length; i++) {
+                    certBytes.push(certString.charCodeAt(i));
+                }
+                this._certDB.importEmailCertificate(certBytes, certBytes.length, null);
+            } catch(e) {
+                this._logger.error(e);
             }
-            this._certDB.importEmailCertificate(certBytes, certBytes.length, null);
-        } catch(e) {
-            this._logger.error(e);
         }
     },
     _getEmailsNoCert: function() {
