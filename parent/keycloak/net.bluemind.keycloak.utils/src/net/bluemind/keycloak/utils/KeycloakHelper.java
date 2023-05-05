@@ -43,6 +43,7 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomains;
+import net.bluemind.domain.api.IInCoreDomains;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Shared;
@@ -236,7 +237,7 @@ public class KeycloakHelper {
 						properties.put(DomainAuthProperties.cas_url.name(), cas_url);
 					}
 
-					provider.instance(IDomains.class).setProperties(domain.uid, properties);
+					provider.instance(IInCoreDomains.class).setProperties(domain.uid, properties);
 
 				}))).onFailure(t -> logger.error(t.getMessage(), t));
 
