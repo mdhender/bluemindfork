@@ -102,6 +102,7 @@ public class CLIManager {
 					.sorted((c1, c2) -> c1.getName().compareTo(c2.getName())).collect(Collectors.toList());
 			ParentCommand parentCmd = new ParentCommand();
 			CommandLine groupCommand = new CommandLine(parentCmd);
+			groupCommand.getSubcommands().get("generate-completion").getCommandSpec().usageMessage().hidden(true);
 			groupCommand.setCommandName(group);
 			for (Class<? extends ICmdLet> cmd : commands) {
 				try {
