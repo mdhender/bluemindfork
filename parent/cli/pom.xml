@@ -10,6 +10,7 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>net.bluemind.cli.adm</module>
+		<module>net.bluemind.cli.auth.provider</module>
 		<module>net.bluemind.cli.calendar</module>
 		<module>net.bluemind.cli.certificate</module>
 		<module>net.bluemind.cli.cmd.api</module>
@@ -36,7 +37,6 @@
 		<module>net.bluemind.cli.metrics</module>
 		<module>net.bluemind.cli.node</module>
 		<module>net.bluemind.cli.notes</module>
-		<module>net.bluemind.cli.oauth</module>
 		<module>net.bluemind.cli.ou</module>
 		<module>net.bluemind.cli.server</module>
 		<module>net.bluemind.cli.sysconf</module>

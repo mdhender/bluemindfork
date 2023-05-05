@@ -6,6 +6,6 @@
 		<version>5.0.0-SNAPSHOT</version>
 		<artifactId>net.bluemind.cli.plugins</artifactId>
 	</parent>
-	<artifactId>net.bluemind.cli.oauth</artifactId>
+	<artifactId>net.bluemind.cli.auth.provider</artifactId>
 	<packaging>eclipse-plugin</packaging>
 </project>

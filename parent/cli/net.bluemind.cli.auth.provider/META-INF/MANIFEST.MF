@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.cli.auth.provider
+Bundle-SymbolicName: net.bluemind.cli.auth.provider;singleton:=true
+Bundle-Version: 5.0.0.qualifier
+Export-Package: net.bluemind.cli.auth.provider
+Bundle-Vendor: bluemind.net
+Automatic-Module-Name: net.bluemind.cli.auth.provider
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: net.bluemind.cli.cmd.api,
+ net.bluemind.system.api,
+ com.github.freva.ascii-table,
+ net.bluemind.domain.api,
+ net.bluemind.cli.utils

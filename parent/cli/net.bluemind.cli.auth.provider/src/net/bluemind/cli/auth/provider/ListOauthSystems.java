@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.cli.oauth;
+package net.bluemind.cli.auth.provider;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -33,7 +33,7 @@ import net.bluemind.system.api.IExternalSystem;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.IExitCodeGenerator;
 
-@Command(name = "list-openid-systems", description = "List registered external OpenId systems")
+@Command(name = "openid-list-provider", description = "List registered OpenId provider systems")
 public class ListOauthSystems implements ICmdLet, Runnable, IExitCodeGenerator {
 
 	private int exitCode = 0;
@@ -42,7 +42,7 @@ public class ListOauthSystems implements ICmdLet, Runnable, IExitCodeGenerator {
 
 		@Override
 		public Optional<String> group() {
-			return Optional.of("oauth");
+			return Optional.of("auth-provider");
 		}
 
 		@Override
