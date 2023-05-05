@@ -102,6 +102,7 @@ public class MailApiTestsBase {
 		System.setProperty("node.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + "," + PopulateHelper.FAKE_CYRUS_IP_2);
 		System.setProperty("imap.local.ipaddr", PopulateHelper.FAKE_CYRUS_IP + "," + PopulateHelper.FAKE_CYRUS_IP_2);
 		System.setProperty("ahcnode.fail.https.ok", "true");
+		System.setProperty("mapi.notification.fresh", "true");
 	}
 
 	@BeforeClass
@@ -109,6 +110,7 @@ public class MailApiTestsBase {
 		System.clearProperty("node.local.ipaddr");
 		System.clearProperty("imap.local.ipaddr");
 		System.clearProperty("ahcnode.fail.https.ok");
+		System.clearProperty("mapi.notification.fresh");
 	}
 
 	protected String imapRoot(ItemValue<Mailshare> share) {
