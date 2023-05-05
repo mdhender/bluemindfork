@@ -1,5 +1,5 @@
 <template>
-    <div class="mail-viewer-from">
+    <div class="mail-viewer-from text-truncate">
         <mail-contact-card-slots
             :component="Contact"
             :contact="message.from"
@@ -11,7 +11,7 @@
             bold-dn
             enable-card
         />
-        <bm-extension id="webapp.mail" path="viewer.sender.suffix" :message="message" />
+        <bm-extension id="webapp.mail" path="viewer.sender.suffix" :message="message" class="d-flex" />
     </div>
 </template>
 

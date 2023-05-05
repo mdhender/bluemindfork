@@ -1,7 +1,6 @@
 import { CRYPTO_HEADERS, ENCRYPTED_HEADER_NAME, SIGNED_HEADER_NAME } from "../lib/constants";
 
-const base =
-    "https://doc.bluemind.net/release/5.0/guide_de_l_administrateur/resolution_de_problemes/resolution_des_problemes_smime";
+const base = "https://doc.bluemind.net/release/5.0/resolution_de_problemes/resolution_des_problemes_smime";
 
 export default {
     data() {

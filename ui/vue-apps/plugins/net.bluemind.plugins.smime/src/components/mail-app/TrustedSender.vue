@@ -1,9 +1,10 @@
 <template>
     <bm-icon
         v-if="hasSignatureHeader"
-        :icon="isVerified ? 'check-stamp' : 'exclamation-sample'"
+        :icon="isVerified ? 'check-stamp' : 'exclamation-sample-fill'"
         :title="tooltip"
-        class="is-sender-trusted mr-3"
+        :variant="isVerified ? 'primary' : 'warning'"
+        class="mr-3"
     />
 </template>
 
@@ -34,10 +35,3 @@ export default {
     }
 };
 </script>
-
-<style lang="scss">
-@import "~@bluemind/ui-components/src/css/variables.scss";
-.is-sender-trusted.fa-check-stamp {
-    color: $primary-fg;
-}
-</style>

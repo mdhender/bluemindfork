@@ -17,7 +17,7 @@
             />
         </div>
         <div class="icon-wrapper">
-            <message-icon v-if="!isConversation || isMessageListStyleFull" :message="conversation" />
+            <message-icon :message="conversation" />
         </div>
     </div>
 </template>

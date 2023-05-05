@@ -4,7 +4,7 @@
             <bm-extension id="webapp.mail" path="viewer.header" :message="message" />
             <div class="conversation-viewer-message-head d-flex flex-fill justify-content-between align-items-start">
                 <div class="d-flex align-self-center overflow-hidden no-wrap flex-fill">
-                    <mail-viewer-from class="text-truncate" :message="message" no-avatar />
+                    <mail-viewer-from :message="message" no-avatar />
                     <mail-folder-icon
                         v-if="folder.key !== conversation.folderRef.key"
                         class="flex-fill"
