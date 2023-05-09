@@ -22,13 +22,13 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.authentication.api.AuthTypes;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.hook.DomainHookAdapter;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
-import net.bluemind.keycloak.utils.AuthTypes;
 import net.bluemind.keycloak.utils.ConfigUpdateHelper;
 import net.bluemind.keycloak.utils.DomainAuthProperties;
 import net.bluemind.keycloak.utils.KerberosConfigHelper;

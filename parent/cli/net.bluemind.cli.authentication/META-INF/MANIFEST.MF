@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.cli.authentication
+Bundle-SymbolicName: net.bluemind.cli.authentication;singleton:=true
+Bundle-Version: 5.0.0.qualifier
+Bundle-Vendor: bluemind.net
+Automatic-Module-Name: net.bluemind.cli.authentication
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: net.bluemind.cli.cmd.api,
+ net.bluemind.cli.utils,
+ net.bluemind.domain.api,
+ com.github.freva.ascii-table,
+ net.bluemind.system.api,
+ net.bluemind.authentication.api,
+ net.bluemind.openid.api

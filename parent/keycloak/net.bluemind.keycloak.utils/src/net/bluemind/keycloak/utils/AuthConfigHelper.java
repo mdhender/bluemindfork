@@ -24,7 +24,7 @@ package net.bluemind.keycloak.utils;
 
 import java.util.Iterator;
 import java.util.Map;
-
+import net.bluemind.authentication.api.AuthTypes;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;

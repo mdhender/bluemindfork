@@ -47,13 +47,13 @@ import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.authentication.api.AuthTypes;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.core.api.BMVersion;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Shared;
-import net.bluemind.keycloak.utils.AuthTypes;
 import net.bluemind.keycloak.utils.DomainAuthProperties;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.openid.api.OpenIdProperties;
@@ -203,7 +203,7 @@ public class AuthenticationFilter implements IWebFilter {
 		Map<String, String> domainProperties = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
 				.get(domainUid);
 		String authType = domainProperties.get(DomainAuthProperties.auth_type.name());
-		return AuthTypes.CAS.name().equals(authType);
+		return net.bluemind.authentication.api.AuthTypes.CAS.name().equals(authType);
 	}
 
 	private boolean needAuthentication(HttpServerRequest request, Optional<ForwardedLocation> forwardedLocation) {

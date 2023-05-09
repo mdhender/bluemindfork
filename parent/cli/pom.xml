@@ -10,6 +10,7 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>net.bluemind.cli.adm</module>
+		<module>net.bluemind.cli.authentication</module>
 		<module>net.bluemind.cli.auth.provider</module>
 		<module>net.bluemind.cli.calendar</module>
 		<module>net.bluemind.cli.certificate</module>

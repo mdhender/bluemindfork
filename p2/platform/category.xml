@@ -93,6 +93,8 @@
    <bundle id="net.bluemind.central.reverse.proxy.stream" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.chooser.application.closure" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.adm" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.cli.authentication" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.cli.auth.provider" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.calendar" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.certificate" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.cli.cmd.api" version="5.0.0.qualifier"/>

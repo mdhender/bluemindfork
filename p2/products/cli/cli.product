@@ -71,6 +71,7 @@
       <plugin id="net.bluemind.cli.adm"/>
       <plugin id="net.bluemind.cli.calendar"/>
       <plugin id="net.bluemind.cli.certificate"/>
+      <plugin id="net.bluemind.cli.authentication"/>
       <plugin id="net.bluemind.cli.auth.provider"/>
       <plugin id="net.bluemind.cli.cmd.api"/>
       <plugin id="net.bluemind.cli.contact"/>

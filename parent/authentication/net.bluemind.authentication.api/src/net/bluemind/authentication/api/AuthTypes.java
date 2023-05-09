@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.keycloak.utils;
+package net.bluemind.authentication.api;
 
 public enum AuthTypes {
 	INTERNAL, KERBEROS, CAS, EXTERNAL;
