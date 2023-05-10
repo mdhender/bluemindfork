@@ -22,6 +22,9 @@
             api="net.bluemind.system.api.ISecurityMgmt">
       </endpoint>
       <endpoint
+            api="net.bluemind.system.api.IInternalFirewallMgmt">
+      </endpoint>
+      <endpoint
             api="net.bluemind.system.api.IGlobalSettings">
       </endpoint>
       <endpoint
@@ -45,12 +48,16 @@
             class="net.bluemind.system.service.DomainTemplateFactory">
       </serviceFactory>
       <serviceFactory
-            class="net.bluemind.system.service.SystemConfigurationFactory"></serviceFactory>
+            class="net.bluemind.system.service.SystemConfigurationFactory">
+      </serviceFactory>
       <serviceFactory
       		class="net.bluemind.system.service.SecurityMgmtFactory">
       </serviceFactory>
       <serviceFactory
       		class="net.bluemind.system.service.InCoreSecurityMgmtFactory">
+      </serviceFactory>
+      <serviceFactory
+      		class="net.bluemind.system.service.InternalFirewallMgmtFactory">
       </serviceFactory>
       <serviceFactory
             class="net.bluemind.system.service.GlobalSettingsFactory">

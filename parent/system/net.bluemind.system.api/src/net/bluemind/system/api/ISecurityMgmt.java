@@ -30,15 +30,6 @@ import net.bluemind.core.task.api.TaskRef;
 @BMApi(version = "3")
 @Path("/system/security")
 public interface ISecurityMgmt {
-	/**
-	 * Update firewall rules
-	 * 
-	 * @return
-	 * @throws ServerFault
-	 */
-	@POST
-	@Path("_updatefirewallrules")
-	public TaskRef updateFirewallRules() throws ServerFault;
 
 	/**
 	 * Update external certificate/private key

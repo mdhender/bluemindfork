@@ -38,6 +38,7 @@ import net.bluemind.role.api.BasicRoles;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
 import net.bluemind.system.api.CertData;
+import net.bluemind.system.api.IInternalFirewallMgmt;
 import net.bluemind.system.api.ISecurityMgmt;
 import net.bluemind.system.hook.ISystemHook;
 import net.bluemind.system.iptables.UpdateFirewallRulesTask;
@@ -47,7 +48,7 @@ import net.bluemind.system.service.certificate.lets.encrypt.GenerateLetsEncryptC
 import net.bluemind.system.service.certificate.lets.encrypt.LetsEncryptCertificate;
 import net.bluemind.system.service.helper.SecurityCertificateHelper;
 
-public class SecurityMgmt implements ISecurityMgmt, IInCoreSecurityMgmt {
+public class SecurityMgmt implements ISecurityMgmt, IInCoreSecurityMgmt, IInternalFirewallMgmt {
 	private static final Logger logger = LoggerFactory.getLogger(SecurityMgmt.class);
 	private BmContext context;
 	private List<ISystemHook> hooks;

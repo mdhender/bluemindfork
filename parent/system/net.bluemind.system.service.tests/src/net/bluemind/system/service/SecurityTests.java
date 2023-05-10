@@ -54,6 +54,7 @@ import net.bluemind.server.api.Server;
 import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.CertData;
 import net.bluemind.system.api.CertData.CertificateDomainEngine;
+import net.bluemind.system.api.IInternalFirewallMgmt;
 import net.bluemind.system.api.ISecurityMgmt;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
@@ -102,7 +103,7 @@ public class SecurityTests {
 	@Test
 	public void updateFirewallRulesAsAnonymous() {
 		try {
-			ServerSideServiceProvider.getProvider(SecurityContext.ANONYMOUS).instance(ISecurityMgmt.class)
+			ServerSideServiceProvider.getProvider(SecurityContext.ANONYMOUS).instance(IInternalFirewallMgmt.class)
 					.updateFirewallRules();
 			fail("Only global domain users can update firewall");
 		} catch (ServerFault e) {
@@ -135,8 +136,6 @@ public class SecurityTests {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
 	}
-
-	
 
 	@Test
 	public void getAndApproveLetsEncryptTerms() {

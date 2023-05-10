@@ -9,6 +9,8 @@
       <validator
             class="net.bluemind.system.iptables.tools.SystemConfigurationValidator">
       </validator>
+      <observer
+            class="net.bluemind.system.iptables.FwAdditionalIPsHook">
+      </observer>
    </extension>
-
 </plugin>

@@ -18,8 +18,6 @@
   */
 package net.bluemind.ui.adminconsole.security.iptables;
 
-import java.util.HashMap;
-
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.core.shared.GWT;
@@ -33,7 +31,6 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.commons.gwt.JsMapStringJsObject;
 import net.bluemind.core.commons.gwt.JsMapStringString;
-import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.gwtconsoleapp.base.editor.ScreenRoot;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtScreenRoot;
@@ -42,10 +39,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.IGwtDelegateFactory;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
 import net.bluemind.gwtconsoleapp.base.notification.Notification;
 import net.bluemind.system.api.SysConfKeys;
-import net.bluemind.system.api.gwt.endpoint.SecurityMgmtGwtEndpoint;
-import net.bluemind.ui.adminconsole.base.Actions;
 import net.bluemind.ui.adminconsole.base.ui.CrudActionBar;
-import net.bluemind.ui.common.client.forms.Ajax;
 import net.bluemind.ui.common.client.forms.StringEdit;
 
 public class IpTablesEditor extends CompositeGwtWidgetElement implements IGwtCompositeScreenRoot {
@@ -102,22 +96,6 @@ public class IpTablesEditor extends CompositeGwtWidgetElement implements IGwtCom
 		instance.save(new DefaultAsyncHandler<Void>() {
 			@Override
 			public void success(Void value) {
-				doFirewallUpdate();
-			}
-		});
-	}
-
-	private void doFirewallUpdate() {
-		new SecurityMgmtGwtEndpoint(Ajax.TOKEN.getSessionId()).updateFirewallRules(new DefaultAsyncHandler<TaskRef>() {
-			@Override
-			public void success(TaskRef value) {
-				Notification.get().reportInfo("saved");
-				HashMap<String, String> ssr = new HashMap<>();
-				ssr.put("task", value.id + "");
-				ssr.put("pictures", null);
-				ssr.put("return", "security");
-				ssr.put("success", "security");
-				Actions.get().showWithParams2("progress", ssr);
 			}
 		});
 	}
