@@ -18,5 +18,5 @@
 package net.bluemind.authentication.api;
 
 public enum AuthTypes {
-	INTERNAL, KERBEROS, CAS, EXTERNAL;
+	INTERNAL, CAS, KERBEROS, OPENID;
 }

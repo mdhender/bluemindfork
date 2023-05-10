@@ -65,12 +65,12 @@
 		
 		<g:HTMLPanel ui:field="externalAuthParams">
 			<table class="formContainer">
-				<common:StringEdit ui:field="externalConfUrl" mandatory="true"
-					titleText="{c.externalConfUrl}" readOnly="false" />
-				<common:StringEdit ui:field="externalClientId" mandatory="true"
-					titleText="{c.externalClientId}" readOnly="false" />
-				<common:StringEdit ui:field="externalClientSecret" mandatory="true"
-					titleText="{c.externalClientSecret}" readOnly="false" />
+				<common:StringEdit ui:field="openidConfUrl" mandatory="true"
+					titleText="{c.openidConfUrl}" readOnly="false" />
+				<common:StringEdit ui:field="openidClientId" mandatory="true"
+					titleText="{c.openidClientId}" readOnly="false" />
+				<common:StringEdit ui:field="openidClientSecret" mandatory="true"
+					titleText="{c.openidClientSecret}" readOnly="false" />
 			</table>
 		</g:HTMLPanel>
 		

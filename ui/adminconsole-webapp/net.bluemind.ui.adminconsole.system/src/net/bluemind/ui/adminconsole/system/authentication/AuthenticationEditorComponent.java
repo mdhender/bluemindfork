@@ -19,6 +19,7 @@ package net.bluemind.ui.adminconsole.system.authentication;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
@@ -37,6 +38,7 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 
+import net.bluemind.authentication.api.AuthTypes;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.DomainSettingsKeys;
@@ -53,29 +55,6 @@ import net.bluemind.ui.common.client.forms.StringEdit;
 import net.bluemind.ui.common.client.forms.TrPanel;
 
 public class AuthenticationEditorComponent extends CompositeGwtWidgetElement {
-	public enum AuthType {
-		INTERNAL, CAS, KERBEROS, EXTERNAL;
-
-		public static AuthType getByIndex(int index) {
-			for (AuthType type : AuthType.values()) {
-				if (index == type.ordinal()) {
-					return type;
-				}
-			}
-			return INTERNAL;
-		}
-
-		public static int getIndexByName(String auth) {
-			auth = auth.toLowerCase().trim();
-			for (AuthType type : AuthType.values()) {
-				if (auth == type.name().toLowerCase()) {
-					return type.ordinal();
-				}
-			}
-			return INTERNAL.ordinal();
-		}
-	}
-
 	private static AuthenticationEditorComponentUiBinder uiBinder = GWT
 			.create(AuthenticationEditorComponentUiBinder.class);
 
@@ -146,13 +125,13 @@ public class AuthenticationEditorComponent extends CompositeGwtWidgetElement {
 	HTMLPanel externalAuthParams;
 
 	@UiField
-	StringEdit externalConfUrl;
+	StringEdit openidConfUrl;
 
 	@UiField
-	StringEdit externalClientId;
+	StringEdit openidClientId;
 
 	@UiField
-	StringEdit externalClientSecret;
+	StringEdit openidClientSecret;
 
 	private ListBox authTypeSel;
 
@@ -169,12 +148,9 @@ public class AuthenticationEditorComponent extends CompositeGwtWidgetElement {
 		initWidget(panel);
 
 		authTypeSel = new ListBox();
-		authTypeSel.addItem(constants.authInternal());
-		authTypeSel.addItem(constants.authCAS());
-		authTypeSel.addItem(constants.authKerberos());
-		authTypeSel.addItem(constants.authExternal());
-		authTypeSel
-				.addChangeHandler(event -> updateAuthType(AuthType.getByIndex(authTypeSel.getSelectedIndex()), false));
+		Stream.of(AuthTypes.values()).forEach(this::fillAuthTypeSel);
+
+		authTypeSel.addChangeHandler(event -> updateAuthType(getByIndex(authTypeSel.getSelectedIndex()), false));
 		choicePanel.add(new Label(constants.authType()), "label");
 		choicePanel.add(authTypeSel);
 
@@ -185,7 +161,24 @@ public class AuthenticationEditorComponent extends CompositeGwtWidgetElement {
 		GwtWidgetElement.register(TYPE, we -> new AuthenticationEditorComponent());
 	}
 
-	private void updateAuthType(AuthType authType, boolean updateList) {
+	private void fillAuthTypeSel(AuthTypes authType) {
+		switch (authType) {
+		case INTERNAL:
+			authTypeSel.addItem(constants.authInternal());
+			break;
+		case CAS:
+			authTypeSel.addItem(constants.authCAS());
+			break;
+		case KERBEROS:
+			authTypeSel.addItem(constants.authKerberos());
+			break;
+		case OPENID:
+			authTypeSel.addItem(constants.authExternal());
+			break;
+		}
+	}
+
+	private void updateAuthType(AuthTypes authType, boolean updateList) {
 		switch (authType) {
 		case INTERNAL:
 			casAuthParams.setVisible(false);
@@ -202,7 +195,7 @@ public class AuthenticationEditorComponent extends CompositeGwtWidgetElement {
 			krbAuthParams.setVisible(true);
 			externalAuthParams.setVisible(false);
 			break;
-		case EXTERNAL:
+		case OPENID:
 			casAuthParams.setVisible(false);
 			krbAuthParams.setVisible(false);
 			externalAuthParams.setVisible(true);
@@ -300,9 +293,9 @@ public class AuthenticationEditorComponent extends CompositeGwtWidgetElement {
 		this.domainUid = domainUid;
 		domainUrl = Optional.ofNullable(domainSettings.get(DomainSettingsKeys.external_url.name()));
 
-		AuthType authType = Arrays.stream(AuthType.values())
+		AuthTypes authType = Arrays.stream(AuthTypes.values())
 				.filter(at -> at.name().equals(domain.properties.get(SysConfKeys.auth_type.name()))).findFirst()
-				.orElse(AuthType.INTERNAL);
+				.orElse(AuthTypes.INTERNAL);
 
 		switch (authType) {
 		case INTERNAL:
@@ -316,23 +309,23 @@ public class AuthenticationEditorComponent extends CompositeGwtWidgetElement {
 			keytabContent = Optional.ofNullable(domain.properties.get(SysConfKeys.krb_keytab.name()));
 			manageAdKeytabPresence(keytabContent.isPresent());
 			break;
-		case EXTERNAL:
-			externalConfUrl.setStringValue(domain.properties.get(OpenIdProperties.OPENID_HOST.name()));
-			externalClientId.setStringValue(domain.properties.get(OpenIdProperties.OPENID_CLIENT_ID.name()));
-			externalClientSecret.setStringValue(domain.properties.get(OpenIdProperties.OPENID_CLIENT_SECRET.name()));
+		case OPENID:
+			openidConfUrl.setStringValue(domain.properties.get(OpenIdProperties.OPENID_HOST.name()));
+			openidClientId.setStringValue(domain.properties.get(OpenIdProperties.OPENID_CLIENT_ID.name()));
+			openidClientSecret.setStringValue(domain.properties.get(OpenIdProperties.OPENID_CLIENT_SECRET.name()));
 			break;
 		}
 
-		authTypeSel.setSelectedIndex(AuthType.getIndexByName(authType.name()));
+		authTypeSel.setSelectedIndex(getIndexByName(authType.name()));
 		updateAuthType(authType, true);
 	}
 
 	public void save(JsDomain domain) {
-		AuthType authType = AuthType.getByIndex(authTypeSel.getSelectedIndex());
+		AuthTypes authType = getByIndex(authTypeSel.getSelectedIndex());
 
 		// Force internal auth on global.virt
 		if (domain.getGlobal()) {
-			authType = AuthType.INTERNAL;
+			authType = AuthTypes.INTERNAL;
 		}
 
 		domain.getProperties().put(SysConfKeys.auth_type.name(), authType.name());
@@ -342,8 +335,8 @@ public class AuthenticationEditorComponent extends CompositeGwtWidgetElement {
 		manageExternal(domain, authType);
 	}
 
-	private void manageCas(JsDomain domain, AuthType authType) {
-		if (authType == AuthType.CAS) {
+	private void manageCas(JsDomain domain, AuthTypes authType) {
+		if (authType == AuthTypes.CAS) {
 			String url = casUrl.getStringValue();
 			if (url == null || !url.matches("^https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]/$")) {
 				throw new RuntimeException(AuthenticationEditorComponentConstants.INST.casUrlInvalid());
@@ -354,8 +347,8 @@ public class AuthenticationEditorComponent extends CompositeGwtWidgetElement {
 		}
 	}
 
-	private void manageKerberos(JsDomain domain, AuthType authType) {
-		if (authType == AuthType.KERBEROS) {
+	private void manageKerberos(JsDomain domain, AuthTypes authType) {
+		if (authType == AuthTypes.KERBEROS) {
 
 			domain.getProperties().put(SysConfKeys.krb_ad_domain.name(), trimNotNullOrBlank(
 					krbAdDomain.getStringValue(), AuthenticationEditorComponentConstants.INST.krbAdDomainInvalid()));
@@ -371,17 +364,17 @@ public class AuthenticationEditorComponent extends CompositeGwtWidgetElement {
 
 	}
 
-	private void manageExternal(JsDomain domain, AuthType authType) {
-		if (authType == AuthType.EXTERNAL) {
+	private void manageExternal(JsDomain domain, AuthTypes authType) {
+		if (authType == AuthTypes.OPENID) {
 			domain.getProperties().put(OpenIdProperties.OPENID_HOST.name(),
-					trimNotNullOrBlank(externalConfUrl.getStringValue(),
-							AuthenticationEditorComponentConstants.INST.externalConfUrlInvalid()));
+					trimNotNullOrBlank(openidConfUrl.getStringValue(),
+							AuthenticationEditorComponentConstants.INST.openidConfUrlInvalid()));
 			domain.getProperties().put(OpenIdProperties.OPENID_CLIENT_ID.name(),
-					trimNotNullOrBlank(externalClientId.getStringValue(),
-							AuthenticationEditorComponentConstants.INST.externalClientIdInvalid()));
+					trimNotNullOrBlank(openidClientId.getStringValue(),
+							AuthenticationEditorComponentConstants.INST.openidClientIdInvalid()));
 			domain.getProperties().put(OpenIdProperties.OPENID_CLIENT_SECRET.name(),
-					trimNotNullOrBlank(externalClientSecret.getStringValue(),
-							AuthenticationEditorComponentConstants.INST.externalClientSecretInvalid()));
+					trimNotNullOrBlank(openidClientSecret.getStringValue(),
+							AuthenticationEditorComponentConstants.INST.openidClientSecretInvalid()));
 		} else {
 			domain.getProperties().remove(OpenIdProperties.OPENID_HOST.name());
 			domain.getProperties().remove(OpenIdProperties.OPENID_CLIENT_ID.name());
@@ -392,5 +385,24 @@ public class AuthenticationEditorComponent extends CompositeGwtWidgetElement {
 	private String trimNotNullOrBlank(String value, String errorMsg) {
 		return Optional.ofNullable(value).map(String::trim).filter(s -> !s.isEmpty())
 				.orElseThrow(() -> new RuntimeException(errorMsg));
+	}
+
+	private AuthTypes getByIndex(int index) {
+		for (AuthTypes type : AuthTypes.values()) {
+			if (index == type.ordinal()) {
+				return type;
+			}
+		}
+		return AuthTypes.INTERNAL;
+	}
+
+	private int getIndexByName(String auth) {
+		auth = auth.toLowerCase().trim();
+		for (AuthTypes type : AuthTypes.values()) {
+			if (auth == type.name().toLowerCase()) {
+				return type.ordinal();
+			}
+		}
+		return AuthTypes.INTERNAL.ordinal();
 	}
 }

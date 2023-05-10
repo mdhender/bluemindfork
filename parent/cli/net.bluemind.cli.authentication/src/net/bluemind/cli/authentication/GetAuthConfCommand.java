@@ -132,7 +132,7 @@ public class GetAuthConfCommand implements ICmdLet, Runnable {
 			authTypeProperties = Set.of(SysConfKeys.krb_ad_domain.name(), SysConfKeys.krb_ad_ip.name(),
 					SysConfKeys.krb_keytab.name());
 			break;
-		case EXTERNAL:
+		case OPENID:
 			authTypeProperties = Set.of(OpenIdProperties.OPENID_HOST.name(), OpenIdProperties.OPENID_CLIENT_ID.name(),
 					OpenIdProperties.OPENID_CLIENT_SECRET.name());
 			break;

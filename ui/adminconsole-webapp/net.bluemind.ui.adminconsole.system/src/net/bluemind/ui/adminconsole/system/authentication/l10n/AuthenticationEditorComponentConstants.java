@@ -58,15 +58,15 @@ public interface AuthenticationEditorComponentConstants extends Constants {
 
 	String krbKtpassPrincNameHelp();
 
-	String externalConfUrl();
+	String openidConfUrl();
 
-	String externalConfUrlInvalid();
+	String openidConfUrlInvalid();
 
-	String externalClientId();
+	String openidClientId();
 
-	String externalClientIdInvalid();
+	String openidClientIdInvalid();
 
-	String externalClientSecret();
+	String openidClientSecret();
 
-	String externalClientSecretInvalid();
+	String openidClientSecretInvalid();
 }

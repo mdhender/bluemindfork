@@ -178,7 +178,7 @@ public class AuthConfigHelper {
 
 	private static void checkExternal(BmContext context, Domain domain, Map<String, String> settings) {
 		if (domain.properties != null
-				&& AuthTypes.EXTERNAL.name().equals(domain.properties.get(DomainAuthProperties.auth_type.name()))) {
+				&& AuthTypes.OPENID.name().equals(domain.properties.get(DomainAuthProperties.auth_type.name()))) {
 			if (settings == null || settings.get(DomainSettingsKeys.external_url.name()) == null
 					|| settings.get(DomainSettingsKeys.external_url.name()).trim().isEmpty()) {
 				throw new ServerFault("External_url is mandatory for a domain with external authentication",

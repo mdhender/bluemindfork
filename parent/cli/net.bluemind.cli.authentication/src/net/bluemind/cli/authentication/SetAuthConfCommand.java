@@ -166,7 +166,7 @@ public class SetAuthConfCommand implements ICmdLet, Runnable {
 		public String openIdClientSecret;
 
 		public void enable(ItemValue<Domain> domain) {
-			domain.value.properties.put(SysConfKeys.auth_type.name(), AuthTypes.EXTERNAL.name());
+			domain.value.properties.put(SysConfKeys.auth_type.name(), AuthTypes.OPENID.name());
 			domain.value.properties.put(OpenIdProperties.OPENID_HOST.name(), openIdServerUrl);
 			domain.value.properties.put(OpenIdProperties.OPENID_CLIENT_ID.name(), openIdClientId);
 			domain.value.properties.put(OpenIdProperties.OPENID_CLIENT_SECRET.name(), openIdClientSecret);

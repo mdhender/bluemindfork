@@ -76,7 +76,7 @@ public class KeycloakHelper {
 	}
 
 	public static void initForDomain(ItemValue<Domain> domain) {
-		if (domain.value.properties != null && AuthTypes.EXTERNAL.name()
+		if (domain.value.properties != null && AuthTypes.OPENID.name()
 				.equals(domain.value.properties.get(DomainAuthProperties.auth_type.name()))) {
 			initExternalForDomain(domain);
 		} else {
@@ -326,7 +326,7 @@ public class KeycloakHelper {
 		ItemValue<Domain> domain = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDomains.class).get(domainUid);
 		Optional<ItemValue<Server>> kcServer = Topology.get().anyIfPresent(TagDescriptor.bm_keycloak.getTag());
-		if (domain.value.properties != null && AuthTypes.EXTERNAL.name()
+		if (domain.value.properties != null && AuthTypes.OPENID.name()
 				.equals(domain.value.properties.get(DomainAuthProperties.auth_type.name()))) {
 			initExternalForDomain(domain);
 			if (kcServer.isPresent()) {
