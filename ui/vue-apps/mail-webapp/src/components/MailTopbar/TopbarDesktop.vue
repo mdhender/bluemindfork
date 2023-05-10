@@ -102,7 +102,7 @@ export default {
     &.active-search {
         & > .search {
             flex-grow: 2;
-            max-width: 75rem;
+            max-width: 80%;
             .mail-search-box-context {
                 width: calc(16.67vw - 3.5rem);
             }

@@ -8,6 +8,7 @@ import { ItemFlag } from "@bluemind/core.container.api";
 import { FolderAdaptor } from "../folders/helpers/FolderAdaptor";
 const { MessageAdaptor } = messageUtils;
 import { ConversationListFilter, SortOrder } from "../conversationList";
+import SearchHelper from "../../components/MailSearch/SearchHelper";
 
 const MAX_CHUNK_SIZE = 500;
 
@@ -103,15 +104,45 @@ function groupByFolder(messages) {
     }, {});
 }
 
-function searchQuery(query, filter, folderUid, deep) {
+function searchQuery(pattern, filter, folderUid, deep) {
+    const { query, recordQuery } = splitFields(pattern);
+    const completeRecordQuery = [...recordQuery, filterQuery(filter)].filter(Boolean).join(" AND ");
+    const completeQuery = query.join(" ");
     return {
-        query,
-        recordQuery: filterQuery(filter),
+        query: completeQuery,
+        recordQuery: completeRecordQuery,
         maxResults: MAX_CHUNK_SIZE,
         scope: searchScope(folderUid, deep)
     };
 }
 
+function splitFields(queryPattern) {
+    const query = [];
+    const recordQuery = [];
+    try {
+        const byFields = SearchHelper.parseSearchPattern(queryPattern);
+        const queryFieldsValues = Object.values(SearchHelper.QUERY_FIELDS);
+        const recordQueryFieldsValues = Object.values(SearchHelper.RECORD_QUERY_FIELDS);
+
+        for (const [field, val] of Object.entries(byFields)) {
+            const value = field === SearchHelper.QUERY_FIELDS.CONTENT ? escape(val) : `${field}:${val}`;
+            if (queryFieldsValues.includes(field)) {
+                query.push(value);
+            } else if (recordQueryFieldsValues.includes(field)) {
+                recordQuery.push(value);
+            }
+        }
+        return {
+            recordQuery,
+            query
+        };
+    } catch {
+        return {
+            recordQuery: [],
+            query: [escape(queryPattern)]
+        };
+    }
+}
 function filterQuery(filter) {
     switch (filter) {
         case ConversationListFilter.UNREAD:
@@ -162,4 +193,12 @@ function toSortDescriptor(filter, sort) {
             break;
     }
     return sortDescriptor;
+}
+
+function escape(term) {
+    const charsToEscape = ["\\", "+", "-", "&&", "||", "!", "(", ")", "{", "}", "[", "]", "^", '"', "~", "*", "?", ":"];
+    for (let i = 0; i < charsToEscape.length; i++) {
+        term = term.split(charsToEscape[i]).join("\\" + charsToEscape[i]);
+    }
+    return term;
 }

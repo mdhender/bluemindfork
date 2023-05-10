@@ -23,8 +23,16 @@
             <div class="label">{{ $t("mail.search.label.contains") }}</div>
             <string-search-input class="search-input" :value.sync="contains" />
         </div>
+        <div class="item checkbox-item">
+            <div class="label">{{ $t("common.attachment") }}</div>
+            <bm-form-checkbox v-model="hasAttachment" class="search-input" />
+        </div>
+        <div class="item">
+            <div class="label">{{ $t("mail.search.label.filename") }}</div>
+            <string-search-input class="search-input" :value.sync="filename" />
+        </div>
         <h3 class="section">{{ $t("common.date") }}</h3>
-        <div class="item d-flex align-items-center">
+        <div class="item">
             <div class="label">{{ $t("mail.search.label.after") }}</div>
             <date-search-input class="search-input" :value.sync="after" />
         </div>
@@ -37,7 +45,7 @@
 
 <script>
 import { mapActions, mapMutations, mapState } from "vuex";
-import { BmModal } from "@bluemind/ui-components";
+import { BmModal, BmFormCheckbox } from "@bluemind/ui-components";
 import { SearchMixin } from "~/mixins";
 import { RESET_CURRENT_SEARCH } from "~/actions";
 import {
@@ -50,17 +58,19 @@ import MailSearchBoxContext from "../MailSearchBoxContext";
 import SearchHelper from "../SearchHelper";
 import StringSearchInput from "./StringSearchInput";
 import DateSearchInput from "./DateSearchInput";
-import PATTERN_KEYWORDS from "../SearchHelper/Keywords";
+import parser from "../SearchHelper/patternParsers";
 
 export default {
     name: "AdvancedSearchModal",
-    components: { BmModal, MailSearchBoxContext, StringSearchInput, DateSearchInput },
+    components: { BmFormCheckbox, DateSearchInput, BmModal, MailSearchBoxContext, StringSearchInput },
     mixins: [SearchMixin],
     data() {
         return {
             contains: null,
             subject: null,
-            date: null
+            date: null,
+            filename: null,
+            has: null
         };
     },
     computed: {
@@ -72,8 +82,10 @@ export default {
             return this.folders[this.activeFolder];
         },
         newPattern() {
-            const subParts = Object.values(PATTERN_KEYWORDS).flatMap(keyword => {
-                return this[keyword] ? `${keyword}:${this.stringify(keyword)}` : [];
+            const subParts = Object.values(SearchHelper.PATTERN_KEYWORDS).flatMap(keyword => {
+                return this.stringify(keyword) && keyword !== SearchHelper.PATTERN_KEYWORDS.CONTENT
+                    ? `${keyword}:${this.stringify(keyword)}`
+                    : [];
             });
 
             if (this.contains) {
@@ -96,17 +108,26 @@ export default {
             set(value) {
                 this.date = { ...this.date, min: value };
             }
+        },
+        hasAttachment: {
+            get() {
+                return this.has?.includes("attachments");
+            },
+            set(value) {
+                this.has = value ? "attachments" : null;
+            }
         }
     },
     watch: {
         currentPattern: {
             handler() {
-                const keywords = Object.values(PATTERN_KEYWORDS);
-                const groups = SearchHelper.parseSearchPattern(this.currentPattern, keywords);
-                for (const keyword of keywords) {
-                    this[keyword] = groups[keyword];
+                this.resetFields();
+                const groups = SearchHelper.parseSearchPattern(this.currentPattern);
+                for (const keyword in groups) {
+                    const value = groups[keyword];
+                    this[keyword] = parser(value, keyword);
                 }
-                this.contains = groups.contains;
+                this.contains = groups.content;
             },
             immediate: true
         }
@@ -127,9 +148,7 @@ export default {
         },
         cancel(event) {
             event.preventDefault();
-            this.contains = null;
-            this.subject = null;
-            this.date = null;
+            this.resetFields();
         },
         validateAndsearch() {
             this.SET_CURRENT_SEARCH_PATTERN(this.newPattern);
@@ -140,10 +159,20 @@ export default {
                 case "date": {
                     return this.date?.min ? `[${this.date.min || "*"} TO ${this.date.max || "*"}]` : null;
                 }
+                case "has": {
+                    return this.hasAttachment ? "attachments" : null;
+                }
                 default: {
                     return this[keyword];
                 }
             }
+        },
+        resetFields() {
+            this.contains = null;
+            this.subject = null;
+            this.date = null;
+            this.has = null;
+            this.filename = null;
         }
     }
 };
@@ -154,11 +183,7 @@ export default {
 @import "@bluemind/ui-components/src/css/variables";
 
 #advanced-search-modal {
-    .modal-content {
-        overflow: visible;
-    }
     .modal-body {
-        overflow: visible;
         .section {
             margin-top: $sp-7;
             margin-bottom: $sp-6;
@@ -172,8 +197,19 @@ export default {
                 width: 100%;
                 margin-bottom: $sp-6;
 
-                & > .input {
+                & > .mail-search-box-context,
+                & > .string-search-input {
                     width: 100%;
+                }
+                &.checkbox-item {
+                    display: flex;
+                    align-items: center;
+                    .search-input {
+                        order: 1;
+                    }
+                    .label {
+                        order: 2;
+                    }
                 }
             }
         }

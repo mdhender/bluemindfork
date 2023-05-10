@@ -392,6 +392,7 @@
     "mail.search.label.subject": "Betreff",
     "mail.search.label.before": "Vor",
     "mail.search.label.after": "Nach",
+    "mail.search.label.filename": "Dateiname enthält",
     "mail.search.section.msg_and_attachments": "Nachricht und Anhänge",
     "mail.selection.alert.readonly": "Einige E-Mails sind schreibgeschützt.",
     "mail.state.unread": "Ungelesen",
