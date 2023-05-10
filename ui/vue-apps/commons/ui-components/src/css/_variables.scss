@@ -441,6 +441,12 @@ $pre-color: $neutral-fg-hi1;
 
 $theme-variants: "neutral", "primary", "secondary", "tertiary", "danger", "warning", "success", "info";
 
+// Separators
+
+$separator-thickness: base-px-to-rem(8);
+$separator-color: $neutral-bg-lo1;
+$resizer-hover-color: $neutral-bg;
+
 // Illustrations
 
 $illustration-width-xxs: 75px;

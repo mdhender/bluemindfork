@@ -69,13 +69,13 @@
             >
                 <mail-folder-sidebar />
             </section>
-            <multipane class="w-100" layout="vertical" @paneResizeStop="onPanelResize">
+            <bm-multipane class="w-100" layout="vertical" @paneResizeStop="onPanelResize">
                 <mail-conversation-list :class="{ 'd-none': hideListInResponsiveMode }" />
-                <multipane-resizer />
+                <bm-multipane-resizer />
                 <div class="flex-grow-1 flex-basis-0 scroller-y">
                     <router-view />
                 </div>
-            </multipane>
+            </bm-multipane>
         </bm-row>
         <new-message
             mobile
@@ -91,8 +91,7 @@ import GlobalEvents from "vue-global-events";
 import { BmExtension } from "@bluemind/extensions.vue";
 import { inject } from "@bluemind/inject";
 import BmRoles from "@bluemind/roles";
-import { BmFormCheckbox, BmIconButton, BmCol, BmRow } from "@bluemind/ui-components";
-import { Multipane, MultipaneResizer } from "@bluemind/vue-multipane";
+import { BmFormCheckbox, BmIconButton, BmCol, BmRow, BmMultipane, BmMultipaneResizer } from "@bluemind/ui-components";
 
 import {
     ACTIVE_MESSAGE,
@@ -122,14 +121,14 @@ export default {
         BmCol,
         BmExtension,
         BmRow,
+        BmMultipane,
+        BmMultipaneResizer,
         GlobalEvents,
         MailFolderSidebar,
         MailConversationList,
         MailSearchForm,
         MailToolbar,
         MessagesOptionsForMobile,
-        Multipane,
-        MultipaneResizer,
         NewMessage
     },
     mixins: [MailAppMixin, UnreadCountScheduler],
@@ -229,7 +228,7 @@ export default {
         z-index: 300;
         @include from-lg {
             background-color: $surface;
-            border-right: 1px solid $neutral-fg-lo2;
+            border-right: $separator-thickness solid $separator-color;
             z-index: 200;
         }
     }
@@ -261,35 +260,12 @@ export default {
         width: 100%;
     }
 
-    .multipane {
-        overflow-x: hidden;
-    }
-
-    .multipane-resizer {
-        @extend .z-index-110;
-        visibility: hidden;
-    }
-
     @media only screen {
         @include from-lg {
             .mail-conversation-list-wrapper {
                 min-width: 20%;
                 max-width: 70%;
                 width: 30%;
-            }
-            .layout-v > .multipane-resizer {
-                visibility: visible;
-                margin-left: -$sp-1 * 0.5;
-                left: 0;
-                width: $sp-1;
-                min-width: $sp-1;
-
-                &:active {
-                    margin-left: -$sp-1;
-                    border-right: ($sp-1 * 0.25) $neutral-fg solid;
-                    width: $sp-1 * 1.25;
-                    min-width: $sp-1 * 1.25;
-                }
             }
         }
     }

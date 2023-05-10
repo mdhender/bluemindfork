@@ -68,6 +68,8 @@ export { default as BmLogo } from "./assets/logo-bluemind.svg";
 export { default as BmModal } from "./components/modals/BmModal";
 export { default as BmModalPlugin } from "./plugins/BmModalPlugin";
 export { default as BmMoreItemsBadge } from "./components/BmMoreItemsBadge";
+export { default as BmMultipane } from "./components/layout/BmMultipane";
+export { default as BmMultipaneResizer } from "./components/layout/BmMultipaneResizer";
 export { default as BmNav } from "./components/nav/BmNav";
 export { default as BmNavbar } from "./components/navbar/BmNavbar";
 export { default as BmNavbarBrand } from "./components/navbar/BmNavbarBrand";

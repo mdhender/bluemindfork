@@ -72,6 +72,5 @@ export default {
 .mail-conversation-list {
     background-color: $surface;
     outline: none;
-    border-right: 1px solid $neutral-fg-lo2;
 }
 </style>
