@@ -31,7 +31,6 @@
 </template>
 
 <script>
-import MakeUniq from "../mixins/MakeUniq";
 import colors from "../css/exports/avatar.scss";
 import BmClipping from "../directives/BmClipping";
 import BmIcon from "./BmIcon";
@@ -44,7 +43,6 @@ export default {
     name: "BmAvatar",
     directives: { BmClipping },
     components: { BmIcon },
-    mixins: [MakeUniq],
     props: {
         size: {
             type: String,

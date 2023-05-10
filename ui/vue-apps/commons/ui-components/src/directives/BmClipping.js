@@ -1,3 +1,5 @@
+import isEqual from "lodash.isequal";
+
 function createClipPathCircle(ns) {
     const clipPath = document.createElementNS(ns, "clipPath");
     clipPath.setAttributeNS(null, "id", "bm-clip-path-circle");
@@ -55,6 +57,41 @@ function createMaskStatus(ns) {
     return mask;
 }
 
+function clip(el, binding) {
+    let { clip, mask } = typeof binding.value !== "object" ? { clip: binding.value, mask: "none" } : binding.value;
+    if (clip && clip !== "none") {
+        el.style.clipPath = `url(#bm-clip-path-${clip})`;
+    }
+    if (mask && mask !== "none") {
+        el.style.mask = `url(#bm-mask-${mask})`;
+    }
+    let align = "";
+    let ratio = "";
+
+    if (binding.modifiers.slice) {
+        ratio = "slice";
+    }
+    if (binding.modifiers.top) {
+        align = "xMidYMin";
+    }
+    if (binding.modifiers.left) {
+        align = "xMaxYMid";
+    }
+    if (binding.modifiers.bottom) {
+        align = "xMidYMax";
+    }
+    if (binding.modifiers.right) {
+        align = "xMinYMid";
+    }
+    if (binding.modifiers.extend) {
+        align = "";
+        ratio = "none";
+    }
+    if (ratio || align) {
+        el.setAttributeNS(null, "preserveAspectRatio", align + " " + ratio);
+    }
+}
+
 export default {
     bind(el, binding) {
         var ns = "http://www.w3.org/2000/svg";
@@ -79,37 +116,11 @@ export default {
 
             document.body.appendChild(shape);
         }
-        let { clip, mask } = typeof binding.value !== "object" ? { clip: binding.value, mask: "none" } : binding.value;
-        if (clip && clip !== "none") {
-            el.style.clipPath = `url(#bm-clip-path-${clip})`;
-        }
-        if (mask && mask !== "none") {
-            el.style.mask = `url(#bm-mask-${mask})`;
-        }
-        let align = "";
-        let ratio = "";
-
-        if (binding.modifiers.slice) {
-            ratio = "slice";
-        }
-        if (binding.modifiers.top) {
-            align = "xMidYMin";
-        }
-        if (binding.modifiers.left) {
-            align = "xMaxYMid";
-        }
-        if (binding.modifiers.bottom) {
-            align = "xMidYMax";
-        }
-        if (binding.modifiers.right) {
-            align = "xMinYMid";
-        }
-        if (binding.modifiers.extend) {
-            align = "";
-            ratio = "none";
-        }
-        if (ratio || align) {
-            el.setAttributeNS(null, "preserveAspectRatio", align + " " + ratio);
+        clip(el, binding);
+    },
+    update(el, binding) {
+        if (!isEqual(binding.value, binding.oldValue)) {
+            clip(el, binding);
         }
     }
 };
