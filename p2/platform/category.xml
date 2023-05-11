@@ -219,10 +219,11 @@
    <bundle id="net.bluemind.customproperties.service" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.databases.utils" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.addressbook" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.dataprotect.resource" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.api" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.api.gwt" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.calendar" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.dataprotect.config" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.dataprotect.common" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.directory" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.elastic" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.dataprotect.job" version="5.0.0.qualifier"/>

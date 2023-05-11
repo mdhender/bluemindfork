@@ -26,8 +26,6 @@ import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.json.client.JSONObject;
 
-import net.bluemind.calendar.api.CalendarSettingsData;
-import net.bluemind.calendar.api.gwt.endpoint.CalendarSettingsGwtEndpoint;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.commons.gwt.JsMapStringJsObject;
 import net.bluemind.core.container.api.IContainerManagementPromise;
@@ -35,7 +33,6 @@ import net.bluemind.core.container.api.gwt.endpoint.ContainerManagementGwtEndpoi
 import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.model.gwt.js.JsItemValue;
-import net.bluemind.domain.api.gwt.endpoint.DomainSettingsGwtEndpoint;
 import net.bluemind.domain.api.gwt.js.JsDomain;
 import net.bluemind.gwtconsoleapp.base.editor.ModelHandler;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtModelHandler;
@@ -46,7 +43,6 @@ import net.bluemind.resource.api.ResourceDescriptor;
 import net.bluemind.resource.api.gwt.endpoint.ResourcesGwtEndpoint;
 import net.bluemind.resource.api.gwt.js.JsResourceDescriptor;
 import net.bluemind.resource.api.gwt.serder.ResourceDescriptorGwtSerDer;
-import net.bluemind.ui.adminconsole.directory.calendar.CalendarSettingsModelHandler;
 import net.bluemind.ui.common.client.forms.Ajax;
 
 public class QCreateResourceModelHandler implements IGwtModelHandler {
@@ -74,14 +70,6 @@ public class QCreateResourceModelHandler implements IGwtModelHandler {
 						entries.add(AccessControlEntry.create(subject, Verb.All));
 					}
 					return cm.setAccessControlList(entries);
-				}).thenCompose(v -> {
-					return new DomainSettingsGwtEndpoint(Ajax.TOKEN.getSessionId(), domain.getUid()).promiseApi().get();
-				})
-
-				.thenCompose(settings -> {
-					CalendarSettingsData calSettings = CalendarSettingsModelHandler.createCalendarSettings(settings);
-					return new CalendarSettingsGwtEndpoint(Ajax.TOKEN.getSessionId(), "calendar:" + uid).promiseApi()
-							.set(calSettings);
 				}).whenComplete((a, e) -> {
 					if (e != null) {
 						handler.failure(e);

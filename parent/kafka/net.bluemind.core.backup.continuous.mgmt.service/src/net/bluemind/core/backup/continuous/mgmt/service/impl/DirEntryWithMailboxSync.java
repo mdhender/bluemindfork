@@ -127,8 +127,7 @@ public class DirEntryWithMailboxSync<T> {
 		List<OrgUnitPath> administeredOUs = ouApi.listByAdministrator(ivDir.uid, Collections.emptyList());
 		for (OrgUnitPath oup : administeredOUs) {
 			Set<String> roles = ouApi.getAdministratorRoles(oup.uid, ivDir.uid, Collections.emptyList());
-			AdminRoleEvent are = new AdminRoleEvent(domainApis.domain.uid, oup.uid, ivDir.uid, ivDir.value.kind,
-					roles);
+			AdminRoleEvent are = new AdminRoleEvent(domainApis.domain.uid, oup.uid, ivDir.uid, ivDir.value.kind, roles);
 			ouAdminBackup.onAdminRolesSet(are);
 		}
 	}

@@ -38,20 +38,12 @@ public class GroupSerializer extends DirEntrySerializer {
 		case DisplayName:
 			return new StringValue(group.displayName);
 		case SmtpAddress:
-			return getDefaultSmtp();
+			return getEmailAddress(group.value.name);
 		case Account:
 		case AddressBookDisplayNamePrintableAscii:
 			return new StringValue(group.value.name);
 		default:
 			return super.get(property);
-		}
-	}
-
-	private Value getDefaultSmtp() {
-		if (dirEntry.value.email != null) {
-			return new StringValue(dirEntry.value.email);
-		} else {
-			return new StringValue(group.value.name + "@" + domainUid);
 		}
 	}
 

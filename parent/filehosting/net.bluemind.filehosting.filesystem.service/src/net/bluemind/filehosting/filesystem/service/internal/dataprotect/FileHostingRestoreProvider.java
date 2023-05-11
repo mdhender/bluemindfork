@@ -48,6 +48,8 @@ import net.bluemind.dataprotect.api.RestorableKind;
 import net.bluemind.dataprotect.api.RestoreOperation;
 import net.bluemind.dataprotect.service.DPContextFactory;
 import net.bluemind.dataprotect.service.IRestoreActionProvider;
+import net.bluemind.dataprotect.service.action.IRestoreActionData;
+import net.bluemind.dataprotect.service.action.RestoreActionExecutor;
 import net.bluemind.filehosting.filesystem.service.internal.FileSystemFileHostingService;
 import net.bluemind.node.api.FileDescription;
 import net.bluemind.node.api.INodeClient;
@@ -60,8 +62,8 @@ public class FileHostingRestoreProvider implements IRestoreActionProvider {
 	private static final Logger logger = LoggerFactory.getLogger(FileHostingRestoreProvider.class);
 
 	@Override
-	public TaskRef run(final RestoreOperation op, final DataProtectGeneration backup, final Restorable item)
-			throws ServerFault {
+	public TaskRef run(final RestoreOperation op, final DataProtectGeneration backup, final Restorable item,
+			RestoreActionExecutor<? extends IRestoreActionData> executor) throws ServerFault {
 
 		ITasksManager tsk = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITasksManager.class);
 		IServerTask toRun = new BlockingServerTask() {

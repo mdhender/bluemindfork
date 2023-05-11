@@ -30,8 +30,12 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.system.schemaupgrader.runner,
  org.apache.commons.lang3,
  org.freemarker.freemarker,
- slf4j.api
+ slf4j.api,
+ net.bluemind.user.api,
+ org.apache.james.apache-mime4j-dom,
+ net.bluemind.core.sendmail
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: net.bluemind.dataprotect.service,
- net.bluemind.dataprotect.service.internal
+ net.bluemind.dataprotect.service.internal, 
+ net.bluemind.dataprotect.service.action
 Automatic-Module-Name: net.bluemind.dataprotect.service

@@ -27,13 +27,9 @@ public class ExternalUserSerializer extends ContactInfosSerializer {
 		case DisplayName:
 			return new StringValue(externalUser.displayName);
 		case SmtpAddress:
-			return getDefaultSmtp();
+			return getEmailAddress(null);
 		default:
 			return super.get(property);
 		}
-	}
-
-	private Value getDefaultSmtp() {
-		return (dirEntry.value.email != null) ? new StringValue(dirEntry.value.email) : Value.NULL;
 	}
 }

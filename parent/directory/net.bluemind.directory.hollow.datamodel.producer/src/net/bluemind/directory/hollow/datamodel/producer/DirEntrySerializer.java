@@ -26,6 +26,10 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.addressbook.api.AddressBookDescriptor;
+import net.bluemind.addressbook.api.IAddressBooksMgmt;
+import net.bluemind.calendar.api.CalendarDescriptor;
+import net.bluemind.calendar.api.ICalendarsMgmt;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.IServiceProvider;
@@ -103,6 +107,18 @@ public abstract class DirEntrySerializer {
 				ret = new MailshareSerializer(mailshare, dirEntry, domainUid);
 			}
 			break;
+		case CALENDAR:
+			CalendarDescriptor calendar = provider().instance(ICalendarsMgmt.class).getComplete(dirEntry.uid);
+			if (calendar != null) {
+				ret = new CalendarSerializer(calendar, dirEntry, domainUid);
+			}
+			break;
+		case ADDRESSBOOK:
+			AddressBookDescriptor addressbook = provider().instance(IAddressBooksMgmt.class).getComplete(dirEntry.uid);
+			if (addressbook != null) {
+				ret = new DomainAddressBookSerializer(addressbook, dirEntry, domainUid);
+			}
+			break;
 		case EXTERNALUSER:
 			ItemValue<ExternalUser> externalUser = provider().instance(IExternalUser.class, domainUid)
 					.getComplete(dirEntry.uid);
@@ -135,7 +151,7 @@ public abstract class DirEntrySerializer {
 		case Updated:
 			return dirEntry.updated != null ? new DateValue(dirEntry.updated) : new NullValue();
 		case Email:
-			return getEmailAddress();
+			return getEmailAddress(dirEntry.value.displayName);
 		case AddressBookManagerDistinguishedName:
 			return new StringValue("/");
 		case ThumbnailPhoto:
@@ -175,8 +191,15 @@ public abstract class DirEntrySerializer {
 
 	}
 
-	private Value getEmailAddress() {
-		return new StringValue(dirEntry.value.email);
+	protected Value getEmailAddress(String name) {
+		if (dirEntry.value.email != null) {
+			return new StringValue(dirEntry.value.email);
+		}
+		if (name != null) {
+			return new StringValue(name + "@" + domainUid);
+		}
+
+		return Value.NULL;
 	}
 
 }

@@ -18,6 +18,7 @@
  */
 package net.bluemind.calendar.api;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,4 +45,47 @@ public class CalendarSettingsData {
 				minDuration == null && //
 				timezoneId == null);
 	}
+
+	public static boolean validMinDuration(Integer minDuration) {
+		return minDuration == 60 || minDuration == 120 || minDuration == 720 || minDuration == 1440;
+	}
+
+	public static Integer toMillisOfDay(String value) {
+		double time = Double.parseDouble(value);
+		int timeHour = (int) Double.parseDouble(value);
+		int timeMinute = (int) ((time - timeHour) * 60);
+		int minutes = timeHour * 60 + timeMinute;
+		return minutes * 60 * 1000;
+	}
+
+	public static List<Day> getWorkingDays(String string) {
+		List<Day> days = new ArrayList<>();
+		for (String dayString : string.split(",")) {
+			switch (dayString.trim().toLowerCase()) {
+			case "mon":
+				days.add(Day.MO);
+				break;
+			case "tue":
+				days.add(Day.TU);
+				break;
+			case "wed":
+				days.add(Day.WE);
+				break;
+			case "thu":
+				days.add(Day.TH);
+				break;
+			case "fri":
+				days.add(Day.FR);
+				break;
+			case "sat":
+				days.add(Day.SA);
+				break;
+			case "sun":
+				days.add(Day.SU);
+				break;
+			}
+		}
+		return days;
+	}
+
 }

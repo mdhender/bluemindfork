@@ -26,10 +26,13 @@ import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.dataprotect.api.DataProtectGeneration;
 import net.bluemind.dataprotect.api.Restorable;
 import net.bluemind.dataprotect.api.RestoreOperation;
+import net.bluemind.dataprotect.service.action.IRestoreActionData;
+import net.bluemind.dataprotect.service.action.RestoreActionExecutor;
 
 public interface IRestoreActionProvider {
 
-	TaskRef run(RestoreOperation op, DataProtectGeneration backup, Restorable item) throws ServerFault;
+	TaskRef run(RestoreOperation op, DataProtectGeneration backup, Restorable item,
+			RestoreActionExecutor<? extends IRestoreActionData> executor) throws ServerFault;
 
 	List<RestoreOperation> operations();
 

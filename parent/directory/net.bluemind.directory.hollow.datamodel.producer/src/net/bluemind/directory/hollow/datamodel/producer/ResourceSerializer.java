@@ -36,14 +36,13 @@ public class ResourceSerializer extends DirEntrySerializer {
 	public Value get(Property property) {
 		switch (property) {
 		case DisplayName:
+		case Account:
+		case AddressBookDisplayNamePrintableAscii:
 			return new StringValue(resource.label);
 		case OfficeLocation:
 			return Value.NULL;
 		case SmtpAddress:
-			return new StringValue(dirEntry.value.email);
-		case Account:
-		case AddressBookDisplayNamePrintableAscii:
-			return new StringValue(resource.label);
+			return getEmailAddress(resource.label);
 		default:
 			return super.get(property);
 		}

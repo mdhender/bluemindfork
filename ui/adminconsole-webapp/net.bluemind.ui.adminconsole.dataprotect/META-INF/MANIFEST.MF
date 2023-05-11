@@ -36,6 +36,7 @@ Require-Bundle: net.bluemind.commons.ui.closure;bundle-version="5.0.0",
  net.bluemind.core.task.api.gwt;bundle-version="5.0.0";visibility:=reexport,
  net.bluemind.role.api,
  net.bluemind.ui.adminconsole.progress;bundle-version="5.0.0";visibility:=reexport,
+ net.bluemind.ui.adminconsole.directory;bundle-version="5.0.0";visibility:=reexport,
  net.bluemind.ui.gwttask
 Export-Package: net.bluemind.ui.adminconsole.dataprotect
 Automatic-Module-Name: net.bluemind.ui.adminconsole.dataprotect

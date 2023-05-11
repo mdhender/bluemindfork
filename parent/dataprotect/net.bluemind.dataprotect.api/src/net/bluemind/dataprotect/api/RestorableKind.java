@@ -26,6 +26,6 @@ import net.bluemind.core.api.BMApi;
 @BMApi(version = "3")
 public enum RestorableKind {
 
-	DOMAIN, USER, MAILSHARE, OU;
+	DOMAIN, USER, MAILSHARE, OU, ADDRESSBOOK, CALENDAR, RESOURCE;
 
 }

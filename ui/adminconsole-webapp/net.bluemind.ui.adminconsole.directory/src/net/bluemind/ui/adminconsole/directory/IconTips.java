@@ -41,4 +41,8 @@ public interface IconTips extends Constants {
 
 	String iconTipExternalUser();
 
+	String iconTipDomain();
+
+	String iconTipOU();
+
 }

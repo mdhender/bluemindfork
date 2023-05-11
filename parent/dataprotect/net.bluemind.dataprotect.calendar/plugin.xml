@@ -10,6 +10,12 @@
       <restore_action
             impl="net.bluemind.dataprotect.calendar.SendUserCalendarsICS">
       </restore_action>
+            <restore_action
+            impl="net.bluemind.dataprotect.calendar.RestoreDomainCalendars">
+      </restore_action>
+      <restore_action
+            impl="net.bluemind.dataprotect.calendar.SendDomainCalendarsICS">
+      </restore_action>
    </extension>
    
 </plugin>

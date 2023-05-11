@@ -30,8 +30,10 @@ import net.bluemind.dataprotect.api.DataProtectGeneration;
 import net.bluemind.dataprotect.api.Restorable;
 import net.bluemind.dataprotect.api.RestorableKind;
 import net.bluemind.dataprotect.api.RestoreOperation;
-import net.bluemind.dataprotect.calendar.impl.RestoreCalendarsTask;
+import net.bluemind.dataprotect.calendar.impl.RestoreUserCalendarsTask;
 import net.bluemind.dataprotect.service.IRestoreActionProvider;
+import net.bluemind.dataprotect.service.action.IRestoreActionData;
+import net.bluemind.dataprotect.service.action.RestoreActionExecutor;
 
 public class RestoreUserCalendars implements IRestoreActionProvider {
 
@@ -39,9 +41,10 @@ public class RestoreUserCalendars implements IRestoreActionProvider {
 	}
 
 	@Override
-	public TaskRef run(RestoreOperation op, DataProtectGeneration backup, Restorable item) throws ServerFault {
+	public TaskRef run(RestoreOperation op, DataProtectGeneration backup, Restorable item,
+			RestoreActionExecutor<? extends IRestoreActionData> executor) throws ServerFault {
 		ITasksManager tsk = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITasksManager.class);
-		return tsk.run(new RestoreCalendarsTask(backup, item));
+		return tsk.run(new RestoreUserCalendarsTask(backup, item));
 	}
 
 	@Override

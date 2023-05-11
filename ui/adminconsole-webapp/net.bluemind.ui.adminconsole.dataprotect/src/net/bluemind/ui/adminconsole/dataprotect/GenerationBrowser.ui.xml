@@ -15,6 +15,10 @@
 			display: inline-block;
 		}
 		
+		.filter-button {
+			line-height: 15px;
+		}
+		
 		.searchForm {
 				
 		}
@@ -34,7 +38,10 @@
 
 	<ui:with field="txt"
 		type="net.bluemind.ui.adminconsole.dataprotect.l10n.DPTexts" />
-
+		
+	<ui:with field="tips"
+		type="net.bluemind.ui.adminconsole.directory.IconTips" />
+		
 	<g:HTMLPanel height="100%">
 		<div class="{style.toolbar}">
 			<div>
@@ -42,16 +49,41 @@
 				</g:PushButton>
 			</div>
 			<g:FlowPanel styleName="{style.searchForm}">
-				<g:ToggleButton ui:field="domainsToggle" styleName="button button-first fa fa-lg fa-home">
+				<g:ToggleButton ui:field="domainsToggle"
+					title="{tips.iconTipDomain}"
+					styleName="fa fa-home button button-first {style.filter-button}">
 				</g:ToggleButton>
-				<g:ToggleButton ui:field="usersToggle" styleName="button button-middle fa fa-lg fa-user">
+				
+				<g:ToggleButton ui:field="usersToggle"
+					title="{tips.iconTipUser}"
+					styleName="fa fa-user button button-first {style.filter-button}">
 				</g:ToggleButton>
+
+				<g:ToggleButton ui:field="resourcesToggle"
+					title="{tips.iconTipResource}"
+					styleName="fa fa-briefcase button button-middle {style.filter-button}">
+				</g:ToggleButton>
+
 				<g:ToggleButton ui:field="mailsharesToggle"
-					styleName="button button-middle fa fa-lg fa-inbox">
+					title="{tips.iconTipMailshare}"
+					styleName="fa fa-inbox button button-middle {style.filter-button}">
 				</g:ToggleButton>
+
+				<g:ToggleButton ui:field="calendarsToggle"
+					title="{tips.iconTipCalendar}"
+					styleName="fa fa-calendar button button-middle {style.filter-button}">
+				</g:ToggleButton>
+
+				<g:ToggleButton ui:field="addressbooksToggle"
+					title="{tips.iconTipAddressBook}"
+					styleName="fa fa-book button button-middle {style.filter-button}">
+				</g:ToggleButton>
+		
 				<g:ToggleButton ui:field="ouToggle"
-					styleName="button button-middle fa fa-lg fa-sitemap">
+					title="{tips.iconTipOU}"
+					styleName="fa fa-sitemap button button-middle {style.filter-button}">
 				</g:ToggleButton>
+					
 				<g:TextBox ui:field="searchQuery" styleName="button-middle"/>
 				<g:PushButton ui:field="find" styleName="button fa fa-lg fa-search">
 				</g:PushButton>

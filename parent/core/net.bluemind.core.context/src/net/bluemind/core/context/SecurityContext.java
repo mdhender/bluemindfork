@@ -151,6 +151,11 @@ public class SecurityContext {
 		return sessionId;
 	}
 
+	/**
+	 * Returns the user / dirEntry uid
+	 * 
+	 * @return subject
+	 */
 	public String getSubject() {
 		return subject;
 	}

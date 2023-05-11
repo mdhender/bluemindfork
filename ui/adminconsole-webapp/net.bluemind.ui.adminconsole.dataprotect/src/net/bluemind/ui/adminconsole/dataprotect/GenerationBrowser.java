@@ -18,7 +18,7 @@
  */
 package net.bluemind.ui.adminconsole.dataprotect;
 
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -74,6 +74,9 @@ public class GenerationBrowser extends Composite implements IGwtScreenRoot {
 
 	public static final String TYPE = "bm.ac.DPGenerationBrowser";
 
+	private static final List<Kind> SUPPORTED_TYPES = Arrays.asList(Kind.USER, Kind.MAILSHARE, Kind.ORG_UNIT,
+			Kind.ADDRESSBOOK, Kind.CALENDAR, Kind.RESOURCE);
+
 	private HTMLPanel panel;
 
 	@UiField
@@ -84,6 +87,15 @@ public class GenerationBrowser extends Composite implements IGwtScreenRoot {
 
 	@UiField
 	ToggleButton domainsToggle;
+
+	@UiField
+	ToggleButton calendarsToggle;
+
+	@UiField
+	ToggleButton resourcesToggle;
+
+	@UiField
+	ToggleButton addressbooksToggle;
 
 	@UiField
 	ToggleButton usersToggle;
@@ -188,6 +200,21 @@ public class GenerationBrowser extends Composite implements IGwtScreenRoot {
 		filterToggled(domainsToggle.isDown());
 	}
 
+	@UiHandler("calendarsToggle")
+	void calendarsToggled(ClickEvent ce) {
+		filterToggled(calendarsToggle.isDown());
+	}
+
+	@UiHandler("resourcesToggle")
+	void resourcesToggled(ClickEvent ce) {
+		filterToggled(resourcesToggle.isDown());
+	}
+
+	@UiHandler("addressbooksToggle")
+	void addressbooksToggled(ClickEvent ce) {
+		filterToggled(addressbooksToggle.isDown());
+	}
+
 	@UiHandler("usersToggle")
 	void usersToggled(ClickEvent ce) {
 		filterToggled(usersToggle.isDown());
@@ -230,58 +257,57 @@ public class GenerationBrowser extends Composite implements IGwtScreenRoot {
 		LinkedList<Restorable> matches = new LinkedList<>();
 		int limit = 500;
 
-		if (activeFilters == 0 || usersToggle.isDown() || mailsharesToggle.isDown() || ouToggle.isDown()) {
+		if (activeFilters == 0 || usersToggle.isDown() || mailsharesToggle.isDown() || ouToggle.isDown()
+				|| domainsToggle.isDown() || calendarsToggle.isDown() || addressbooksToggle.isDown()
+				|| resourcesToggle.isDown()) {
 			for (ItemValue<DirEntry> de : content.entries) {
 				if (matches.size() >= limit) {
 					break;
 				}
 				DirEntry entry = de.value;
-				Kind det = entry.kind;
+				Kind dirEntryKind = entry.kind;
 
-				if (det != Kind.USER && det != Kind.MAILSHARE && det != Kind.ORG_UNIT) {
+				if (!SUPPORTED_TYPES.contains(dirEntryKind)) {
 					continue;
 				}
 				String path = entry.path;
-				GWT.log("On entry [" + entry.entryUid + "] of type " + det.name() + " with path " + path);
+				GWT.log("On entry [" + entry.entryUid + "] of type " + dirEntryKind.name() + " with path " + path);
 
-				int idx = path.indexOf('/');
-				String domainUid = path.substring(0, idx);
+				boolean isOrgUnitEntry = dirEntryKind == Kind.ORG_UNIT && (activeFilters == 0 || ouToggle.isDown())
+						&& matches(entry, q);
+				boolean isUserEntry = dirEntryKind == Kind.USER && (activeFilters == 0 || usersToggle.isDown())
+						&& matches(entry, q);
+				boolean isAdBookEntry = dirEntryKind == Kind.ADDRESSBOOK
+						&& (activeFilters == 0 || addressbooksToggle.isDown()) && matches(entry, q);
+				boolean isResourceEntry = dirEntryKind == Kind.RESOURCE
+						&& (activeFilters == 0 || resourcesToggle.isDown()) && matches(entry, q);
+				boolean isCalendarEntry = dirEntryKind == Kind.CALENDAR
+						&& (activeFilters == 0 || calendarsToggle.isDown()) && matches(entry, q);
+				boolean isMailshareEntry = dirEntryKind == Kind.MAILSHARE
+						&& (activeFilters == 0 || mailsharesToggle.isDown()) && matches(entry, q);
 
-				if (det == Kind.ORG_UNIT && (activeFilters == 0 || ouToggle.isDown())) {
-					if (matches(entry, q)) {
-						matches.add(Restorable.create(domainUid, entry));
-					}
-				}
-				if (det == Kind.USER && (activeFilters == 0 || usersToggle.isDown())) {
-					if (matches(entry, q)) {
-						matches.add(Restorable.create(domainUid, entry));
-					}
-				}
-				if (det == Kind.MAILSHARE && (activeFilters == 0 || mailsharesToggle.isDown())) {
-					if (matches(entry, q)) {
-						matches.add(Restorable.create(domainUid, entry));
-					}
+				if (isOrgUnitEntry || isUserEntry || isAdBookEntry || isResourceEntry || isCalendarEntry
+						|| isMailshareEntry) {
+					int idx = path.indexOf('/');
+					String domainUid = path.substring(0, idx);
+					matches.add(Restorable.create(domainUid, entry));
 				}
 			}
 		}
 		if (!DomainsHolder.get().getSelectedDomain().uid.equals("global.virt")) {
 			String domain = DomainsHolder.get().getSelectedDomain().uid;
-			Iterator<Restorable> iter = matches.iterator();
-			while (iter.hasNext()) {
-				Restorable rest = iter.next();
-				if (rest.kind == RestorableKind.DOMAIN) {
-					if (!rest.entryUid.equals(domain)) {
-						iter.remove();
-					}
-				} else {
-					if (!rest.domainUid.equals(domain)) {
-						iter.remove();
-					}
-				}
-			}
+			matches.removeIf(r -> differentDomain(r, domain));
 		}
 		GWT.log("Search matched " + matches.size() + " entries.");
 		restorables.setValues(matches);
+
+	}
+
+	private boolean differentDomain(Restorable restorable, String domain) {
+		if (restorable.kind == RestorableKind.DOMAIN) {
+			return !restorable.entryUid.equals(domain);
+		}
+		return !restorable.domainUid.equals(domain);
 	}
 
 	private boolean matches(DirEntry de, String q) {
@@ -293,23 +319,25 @@ public class GenerationBrowser extends Composite implements IGwtScreenRoot {
 
 	public void setInfosLabel() {
 		int users = 0;
+		int cals = 0;
+		int adbooks = 0;
+		int resources = 0;
 		int mailshares = 0;
 		int ous = 0;
 		for (ItemValue<DirEntry> de : content.entries) {
 			Kind det = de.value.kind;
 			switch (det) {
 			case ADDRESSBOOK:
+				adbooks++;
 				break;
 			case CALENDAR:
-				break;
-			case DOMAIN:
-				break;
-			case GROUP:
+				cals++;
 				break;
 			case MAILSHARE:
 				mailshares++;
 				break;
 			case RESOURCE:
+				resources++;
 				break;
 			case USER:
 				users++;
@@ -322,7 +350,8 @@ public class GenerationBrowser extends Composite implements IGwtScreenRoot {
 
 			}
 		}
-		genInfos.setText(texts().genInfos(version, content.domains.size(), users, mailshares, ous));
+		genInfos.setText(
+				texts().genInfos(version, content.domains.size(), users, mailshares, ous, cals, adbooks, resources));
 		find();
 	}
 

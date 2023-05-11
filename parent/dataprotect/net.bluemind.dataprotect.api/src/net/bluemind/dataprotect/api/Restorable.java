@@ -53,8 +53,15 @@ public class Restorable {
 		case ORG_UNIT:
 			ret.kind = RestorableKind.OU;
 			break;
-		case DOMAIN:
-			ret.kind = RestorableKind.DOMAIN;
+		case ADDRESSBOOK:
+			ret.kind = RestorableKind.ADDRESSBOOK;
+			break;
+		case CALENDAR:
+			ret.kind = RestorableKind.CALENDAR;
+			break;
+		case RESOURCE:
+			ret.kind = RestorableKind.RESOURCE;
+			break;
 		default:
 			throw new RuntimeException("unsupported entry backup " + d.path + " kind " + d.kind);
 		}

@@ -15,6 +15,8 @@ import net.bluemind.dataprotect.api.RestorableKind;
 import net.bluemind.dataprotect.api.RestoreOperation;
 import net.bluemind.dataprotect.mailbox.MboxRestoreService.Mode;
 import net.bluemind.dataprotect.service.IRestoreActionProvider;
+import net.bluemind.dataprotect.service.action.IRestoreActionData;
+import net.bluemind.dataprotect.service.action.RestoreActionExecutor;
 
 public abstract class AbstractRestoreActionProvider implements IRestoreActionProvider {
 
@@ -25,7 +27,8 @@ public abstract class AbstractRestoreActionProvider implements IRestoreActionPro
 	}
 
 	@Override
-	public TaskRef run(RestoreOperation op, DataProtectGeneration backup, Restorable item) throws ServerFault {
+	public TaskRef run(RestoreOperation op, DataProtectGeneration backup, Restorable item,
+			RestoreActionExecutor<? extends IRestoreActionData> executor) throws ServerFault {
 
 		ITasksManager tsk = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITasksManager.class);
 		IServerTask toRun = null;

@@ -49,6 +49,7 @@ import net.bluemind.dataprotect.persistence.DataProtectGenerationStore;
 import net.bluemind.dataprotect.persistence.GenerationWriter;
 import net.bluemind.dataprotect.persistence.RetentionPolicyStore;
 import net.bluemind.dataprotect.service.IRestoreActionProvider;
+import net.bluemind.dataprotect.service.action.RestoreActionExecutor;
 import net.bluemind.directory.api.DirEntryQuery;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.role.api.BasicRoles;
@@ -182,7 +183,7 @@ public class DPService implements IDataProtect {
 					ErrorCode.NOT_FOUND);
 		}
 
-		return matchingProvider.run(mathingOp, dataSource, restoreDefinition.item);
+		return matchingProvider.run(mathingOp, dataSource, restoreDefinition.item, new RestoreActionExecutor<>(ctx));
 	}
 
 	@Override

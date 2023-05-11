@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -32,9 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
-import net.bluemind.calendar.api.CalendarSettingsData;
-import net.bluemind.calendar.api.CalendarSettingsData.Day;
-import net.bluemind.calendar.api.ICalendarSettings;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.core.api.Email;
@@ -47,7 +43,6 @@ import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
-import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
@@ -270,14 +265,6 @@ public class VideoConferencingService implements IVideoConferencing {
 			resourcesService.setIcon(uid, provider.get().getIcon().get());
 		}
 
-		// calendar settings
-		IDomainSettings domSettingsService = sp.instance(IDomainSettings.class, domainUid);
-		Map<String, String> domSettings = domSettingsService.get();
-		CalendarSettingsData calSettings = createCalendarSettings(domSettings);
-		ICalendarSettings calSettingsService = sp.instance(ICalendarSettings.class,
-				ICalendarUids.resourceCalendar(uid));
-		calSettingsService.set(calSettings);
-
 		// default calendar acl
 		if (!descriptor.acls.isEmpty()) {
 			IContainerManagement containerManagementService = sp.instance(IContainerManagement.class,
@@ -305,78 +292,4 @@ public class VideoConferencingService implements IVideoConferencing {
 
 	}
 
-	private CalendarSettingsData createCalendarSettings(Map<String, String> domainSettings) {
-		CalendarSettingsData calSettings = new CalendarSettingsData();
-		if (domainSettings.containsKey("working_days")) {
-			calSettings.workingDays = getWorkingDays(domainSettings.get("working_days"));
-		} else {
-			calSettings.workingDays = Arrays.asList(Day.MO, Day.TU, Day.WE, Day.TH, Day.FR);
-		}
-		if (domainSettings.containsKey("timezone")) {
-			calSettings.timezoneId = domainSettings.get("timezone");
-		} else {
-			calSettings.timezoneId = "UTC";
-		}
-		if (domainSettings.containsKey("work_hours_start")) {
-			calSettings.dayStart = toMillisOfDay(domainSettings.get("work_hours_start"));
-		} else {
-			calSettings.dayStart = 9 * 60 * 60 * 1000;
-		}
-		if (domainSettings.containsKey("work_hours_end")) {
-			calSettings.dayEnd = toMillisOfDay(domainSettings.get("work_hours_end"));
-		} else {
-			calSettings.dayEnd = 18 * 60 * 60 * 1000;
-		}
-		if (domainSettings.containsKey("min_duration")) {
-			calSettings.minDuration = Math.max(60, Integer.parseInt(domainSettings.get("min_duration")));
-		} else {
-			calSettings.minDuration = 60;
-		}
-		if (!validMinDuration(calSettings.minDuration)) {
-			calSettings.minDuration = 60;
-		}
-		return calSettings;
-	}
-
-	private boolean validMinDuration(Integer minDuration) {
-		return minDuration == 60 || minDuration == 120 || minDuration == 720 || minDuration == 1440;
-	}
-
-	private Integer toMillisOfDay(String value) {
-		double time = Double.parseDouble(value);
-		int timeHour = (int) Double.parseDouble(value);
-		int timeMinute = (int) ((time - timeHour) * 60);
-		int minutes = timeHour * 60 + timeMinute;
-		return minutes * 60 * 1000;
-	}
-
-	private List<Day> getWorkingDays(String string) {
-		List<Day> days = new ArrayList<>();
-		for (String dayString : string.split(",")) {
-			switch (dayString.trim().toLowerCase()) {
-			case "mon":
-				days.add(Day.MO);
-				break;
-			case "tue":
-				days.add(Day.TU);
-				break;
-			case "wed":
-				days.add(Day.WE);
-				break;
-			case "thu":
-				days.add(Day.TH);
-				break;
-			case "fri":
-				days.add(Day.FR);
-				break;
-			case "sat":
-				days.add(Day.SA);
-				break;
-			case "sun":
-				days.add(Day.SU);
-				break;
-			}
-		}
-		return days;
-	}
 }

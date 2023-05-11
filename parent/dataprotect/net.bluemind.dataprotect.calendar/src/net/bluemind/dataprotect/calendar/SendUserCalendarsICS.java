@@ -31,13 +31,16 @@ import net.bluemind.dataprotect.api.RestorableKind;
 import net.bluemind.dataprotect.api.RestoreOperation;
 import net.bluemind.dataprotect.calendar.impl.SendUserCalendarsICSTask;
 import net.bluemind.dataprotect.service.IRestoreActionProvider;
+import net.bluemind.dataprotect.service.action.IRestoreActionData;
+import net.bluemind.dataprotect.service.action.RestoreActionExecutor;
 
 public class SendUserCalendarsICS implements IRestoreActionProvider {
 
 	@Override
-	public TaskRef run(RestoreOperation op, DataProtectGeneration backup, Restorable item) throws ServerFault {
+	public TaskRef run(RestoreOperation op, DataProtectGeneration backup, Restorable item,
+			RestoreActionExecutor<? extends IRestoreActionData> executor) throws ServerFault {
 		ITasksManager tsk = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITasksManager.class);
-		return tsk.run(new SendUserCalendarsICSTask(backup, item));
+		return tsk.run(new SendUserCalendarsICSTask(backup, item, executor));
 	}
 
 	@Override

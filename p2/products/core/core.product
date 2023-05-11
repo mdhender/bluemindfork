@@ -184,9 +184,10 @@
       <plugin id="net.bluemind.customproperties.api"/>
       <plugin id="net.bluemind.customproperties.service"/>
       <plugin id="net.bluemind.dataprotect.addressbook"/>
+      <plugin id="net.bluemind.dataprotect.resource"/>
       <plugin id="net.bluemind.dataprotect.api"/>
       <plugin id="net.bluemind.dataprotect.calendar"/>
-      <plugin id="net.bluemind.dataprotect.config"/>
+      <plugin id="net.bluemind.dataprotect.common"/>
       <plugin id="net.bluemind.dataprotect.directory"/>
       <plugin id="net.bluemind.dataprotect.elastic"/>
       <plugin id="net.bluemind.dataprotect.job"/>

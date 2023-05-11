@@ -257,13 +257,15 @@ public class DirectorySerializer implements DataSerializer {
 				}
 			}
 		}
+
 		return entries.stream().filter(this::supportedType).collect(Collectors.toList());
 	}
 
 	private boolean supportedType(ItemValue<DirEntry> iv) {
 		return !iv.value.system
 				&& (iv.value.kind == Kind.USER || iv.value.kind == Kind.GROUP || iv.value.kind == Kind.MAILSHARE
-						|| iv.value.kind == Kind.RESOURCE || iv.value.kind == Kind.EXTERNALUSER);
+						|| iv.value.kind == Kind.RESOURCE || iv.value.kind == Kind.EXTERNALUSER
+						|| iv.value.kind == Kind.ADDRESSBOOK || iv.value.kind == Kind.CALENDAR);
 	}
 
 	private Optional<AddressBookRecord> dirEntryToAddressBookRecord(ItemValue<Domain> domain, ItemValue<DirEntry> entry,

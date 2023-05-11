@@ -21,6 +21,7 @@ Require-Bundle: net.bluemind.dataprotect.service,
  net.bluemind.addressbook.api,
  org.apache.james.apache-mime4j-core,
  net.bluemind.core.rest.http,
- net.bluemind.core.caches.registry
+ net.bluemind.core.caches.registry,
+ net.bluemind.dataprotect.common
 Export-Package: net.bluemind.dataprotect.todolist.impl
 Automatic-Module-Name: net.bluemind.dataprotect.todolist

@@ -29,7 +29,8 @@ public interface DPTexts extends Messages {
 
 	String navigatorDesc();
 
-	String genInfos(String version, int domains, int users, int mailshares, int ous);
+	String genInfos(String version, int domains, int users, int mailshares, int ous, int cals, int adbooks,
+			int resources);
 
 	String colType();
 
@@ -38,12 +39,6 @@ public interface DPTexts extends Messages {
 	String colDomain();
 
 	String colActions();
-
-	String typeDomain();
-
-	String typeUser();
-
-	String typeMailshare();
 
 	String confirmForget();
 
@@ -71,8 +66,6 @@ public interface DPTexts extends Messages {
 
 	String sync();
 
-	String typeOU();
-
 	String backupES();
 
 	String replacemailbox();
@@ -85,22 +78,34 @@ public interface DPTexts extends Messages {
 
 	String completerestore();
 
+	String replaceresources();
+
 	String replacebooks();
+
+	String replacedomainbooks();
 
 	String replacecalendars();
 
+	String replacedomaincalendars();
+
 	String replacetodolists();
+
+	String sendresources();
 
 	String sendbooksvcf();
 
+	String senddomainbooksvcf();
+
 	String sendcalendarsics();
+
+	String senddomaincalendarsics();
 
 	String sendtodolistics();
 
 	String replacenotes();
 
 	String replacewebappdata();
-	
+
 	String retentionDaysTitle();
 
 	String replacesmimecerts();

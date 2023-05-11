@@ -21,7 +21,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.sendmail,
  net.bluemind.mime4j.common;bundle-version="5.0.0",
  net.bluemind.addressbook.userbook,
- net.bluemind.core.caches.registry
+ net.bluemind.core.caches.registry,
+ net.bluemind.system.api,
+ net.bluemind.dataprotect.common
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.dataprotect.addressbook.impl

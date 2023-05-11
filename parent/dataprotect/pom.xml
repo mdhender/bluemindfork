@@ -11,10 +11,12 @@
 	<modules>
 		<module>net.bluemind.dataprotect.addressbook.tests</module>
 		<module>net.bluemind.dataprotect.addressbook</module>
+		<module>net.bluemind.dataprotect.resource.tests</module>
+		<module>net.bluemind.dataprotect.resource</module>
 		<module>net.bluemind.dataprotect.api</module>
 		<module>net.bluemind.dataprotect.calendar.tests</module>
 		<module>net.bluemind.dataprotect.calendar</module>
-		<module>net.bluemind.dataprotect.config</module>
+		<module>net.bluemind.dataprotect.common</module>
 		<module>net.bluemind.dataprotect.directory</module>
 		<module>net.bluemind.dataprotect.elastic</module>
 		<module>net.bluemind.dataprotect.job</module>

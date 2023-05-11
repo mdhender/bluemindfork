@@ -44,20 +44,12 @@ public class UserSerializer extends ContactInfosSerializer {
 		case DisplayName:
 			return new StringValue(user.displayName);
 		case SmtpAddress:
-			return getDefaultSmtp();
+			return getEmailAddress(user.value.login);
 		case Account:
 		case AddressBookDisplayNamePrintableAscii:
 			return new StringValue(user.value.login);
 		default:
 			return super.get(property);
-		}
-	}
-
-	private Value getDefaultSmtp() {
-		if (dirEntry.value.email != null) {
-			return new StringValue(dirEntry.value.email);
-		} else {
-			return new StringValue(user.value.login + "@" + domainUid);
 		}
 	}
 

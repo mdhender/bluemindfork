@@ -46,6 +46,7 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
 import net.bluemind.ui.adminconsole.dataprotect.l10n.DPTexts;
 import net.bluemind.ui.adminconsole.dataprotect.l10n.DpTextsHelper;
+import net.bluemind.ui.adminconsole.directory.IconTips;
 import net.bluemind.ui.common.client.forms.Ajax;
 
 public class RestorablesTable extends DataGrid<ClientRestorable> {
@@ -60,6 +61,7 @@ public class RestorablesTable extends DataGrid<ClientRestorable> {
 	private GenerationContent content;
 
 	private static final DPTexts txt = DPTexts.INST;
+	private static final IconTips tips = IconTips.INST;
 
 	public RestorablesTable() {
 		this.locale = LocaleInfo.getCurrentLocale().getLocaleName();
@@ -76,14 +78,20 @@ public class RestorablesTable extends DataGrid<ClientRestorable> {
 			public TippedResource getValue(ClientRestorable j) {
 				switch (j.kind) {
 				case DOMAIN:
-					return new TippedResource("fa-home", txt.typeDomain());
+					return new TippedResource("fa-home", tips.iconTipDomain());
+				case RESOURCE:
+					return new TippedResource("fa-briefcase", tips.iconTipResource());
+				case CALENDAR:
+					return new TippedResource("fa-calendar", tips.iconTipCalendar());
+				case ADDRESSBOOK:
+					return new TippedResource("fa-book", tips.iconTipAddressBook());
 				case MAILSHARE:
-					return new TippedResource("fa-inbox", txt.typeMailshare());
+					return new TippedResource("fa-inbox", tips.iconTipMailshare());
 				case OU:
-					return new TippedResource("fa-sitemap", txt.typeOU());
+					return new TippedResource("fa-sitemap", tips.iconTipOU());
 				default:
 				case USER:
-					return new TippedResource("fa-user", txt.typeUser());
+					return new TippedResource("fa-user", tips.iconTipUser());
 				}
 			}
 		};

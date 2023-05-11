@@ -10,6 +10,12 @@
       <restore_action
             impl="net.bluemind.dataprotect.addressbook.SendUserBooksVCF">
       </restore_action>
+      <restore_action
+            impl="net.bluemind.dataprotect.addressbook.RestoreDomainAddressbooks">
+      </restore_action>
+      <restore_action
+            impl="net.bluemind.dataprotect.addressbook.SendDomainBooksVCF">
+      </restore_action>
    </extension>
    
 </plugin>

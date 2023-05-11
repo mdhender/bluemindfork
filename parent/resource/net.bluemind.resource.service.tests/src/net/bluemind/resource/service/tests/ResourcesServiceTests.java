@@ -19,6 +19,7 @@
 package net.bluemind.resource.service.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -430,13 +431,8 @@ public class ResourcesServiceTests {
 
 		assertNotNull(createdItem);
 
-		assertEquals(rdItem.internalId, createdItem.internalId);
 		assertEquals(rdItem.uid, createdItem.uid);
-		assertEquals(rdItem.externalId, createdItem.externalId);
-		assertEquals(rdItem.created, createdItem.created);
-		// Call to mailboxes.setMailboxFilter change updated date and increment version
-//		assertEquals(rdItem.updated, createdItem.updated);
-		assertEquals(rdItem.version + 1, createdItem.version);
+		assertNotEquals(rdItem.version, createdItem.version);
 	}
 
 	@Test

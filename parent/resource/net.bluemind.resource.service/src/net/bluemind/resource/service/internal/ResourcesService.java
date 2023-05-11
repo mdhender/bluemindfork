@@ -20,12 +20,16 @@ package net.bluemind.resource.service.internal;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.calendar.api.CalendarSettingsData;
+import net.bluemind.calendar.api.CalendarSettingsData.Day;
 import net.bluemind.calendar.api.ICalendar;
+import net.bluemind.calendar.api.ICalendarSettings;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.IFreebusyMgmt;
 import net.bluemind.calendar.api.IFreebusyUids;
@@ -56,6 +60,7 @@ import net.bluemind.directory.service.DirDomainValue;
 import net.bluemind.directory.service.DirEntryAndValue;
 import net.bluemind.directory.service.DirEventProducer;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.MailFilter;
@@ -163,7 +168,48 @@ public class ResourcesService implements IResources {
 
 		context.su().provider().instance(IFreebusyMgmt.class, fbContainerUid).add(calContainerDescriptor.uid);
 
+		// calendar settings
+		IDomainSettings domSettingsService = context.su().provider().instance(IDomainSettings.class, domainUid);
+		Map<String, String> domSettings = domSettingsService.get();
+		CalendarSettingsData calSettings = createCalendarSettings(domSettings);
+		ICalendarSettings calSettingsService = context.su().provider().instance(ICalendarSettings.class,
+				ICalendarUids.resourceCalendar(uid));
+		calSettingsService.set(calSettings);
+
 		dirEventProducer.changed(uid, storeService.getVersion());
+	}
+
+	private CalendarSettingsData createCalendarSettings(Map<String, String> domainSettings) {
+		CalendarSettingsData calSettings = new CalendarSettingsData();
+		if (domainSettings.containsKey("working_days")) {
+			calSettings.workingDays = CalendarSettingsData.getWorkingDays(domainSettings.get("working_days"));
+		} else {
+			calSettings.workingDays = Arrays.asList(Day.MO, Day.TU, Day.WE, Day.TH, Day.FR);
+		}
+		if (domainSettings.containsKey("timezone")) {
+			calSettings.timezoneId = domainSettings.get("timezone");
+		} else {
+			calSettings.timezoneId = "UTC";
+		}
+		if (domainSettings.containsKey("work_hours_start")) {
+			calSettings.dayStart = CalendarSettingsData.toMillisOfDay(domainSettings.get("work_hours_start"));
+		} else {
+			calSettings.dayStart = 9 * 60 * 60 * 1000;
+		}
+		if (domainSettings.containsKey("work_hours_end")) {
+			calSettings.dayEnd = CalendarSettingsData.toMillisOfDay(domainSettings.get("work_hours_end"));
+		} else {
+			calSettings.dayEnd = 18 * 60 * 60 * 1000;
+		}
+		if (domainSettings.containsKey("min_duration")) {
+			calSettings.minDuration = Math.max(60, Integer.parseInt(domainSettings.get("min_duration")));
+		} else {
+			calSettings.minDuration = 60;
+		}
+		if (!CalendarSettingsData.validMinDuration(calSettings.minDuration)) {
+			calSettings.minDuration = 60;
+		}
+		return calSettings;
 	}
 
 	private MailFilter discardRule() {
@@ -397,7 +443,7 @@ public class ResourcesService implements IResources {
 	@Override
 	public void restore(ItemValue<ResourceDescriptor> item, boolean isCreate) {
 		if (isCreate) {
-			createWithItem(item);
+			createWithItem(ItemValue.create(item.uid, item.value));
 		} else {
 			updateWithItem(item);
 		}

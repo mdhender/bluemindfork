@@ -38,7 +38,7 @@ public class MailshareSerializer extends DirEntrySerializer {
 		case DisplayName:
 			return new StringValue(mailshare.displayName);
 		case SmtpAddress:
-			return getDefaultSmtp();
+			return getEmailAddress(mailshare.value.name);
 		case Account:
 		case AddressBookDisplayNamePrintableAscii:
 			return new StringValue(mailshare.value.name);
@@ -46,13 +46,4 @@ public class MailshareSerializer extends DirEntrySerializer {
 			return super.get(property);
 		}
 	}
-
-	private Value getDefaultSmtp() {
-		if (dirEntry.value.email != null) {
-			return new StringValue(dirEntry.value.email);
-		} else {
-			return new StringValue(mailshare.value.name + "@" + domainUid);
-		}
-	}
-
 }

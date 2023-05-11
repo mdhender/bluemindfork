@@ -32,22 +32,34 @@ public class DpTextsHelper {
 			return DPTexts.INST.subfoldermailbox();
 		case "restore.filehosting":
 			return DPTexts.INST.restorefilehosting();
+		case "replace.resources":
+			return DPTexts.INST.replaceresources();
 		case "replace.ou":
 			return DPTexts.INST.replaceou();
 		case "replace.books":
 			return DPTexts.INST.replacebooks();
+		case "replace.domain.books":
+			return DPTexts.INST.replacedomainbooks();
 		case "replace.calendars":
 			return DPTexts.INST.replacecalendars();
+		case "replace.domain.calendars":
+			return DPTexts.INST.replacedomaincalendars();
 		case "replace.todolists":
 			return DPTexts.INST.replacetodolists();
 		case "replace.notes":
 			return DPTexts.INST.replacenotes();
 		case "replace.webappdata":
 			return DPTexts.INST.replacewebappdata();
+		case "send.resources":
+			return DPTexts.INST.sendresources();
 		case "send.books.vcf":
 			return DPTexts.INST.sendbooksvcf();
+		case "send.domain.books.vcf":
+			return DPTexts.INST.senddomainbooksvcf();
 		case "send.calendars.ics":
 			return DPTexts.INST.sendcalendarsics();
+		case "send.domain.calendars.ics":
+			return DPTexts.INST.senddomaincalendarsics();
 		case "send.todolist.ics":
 			return DPTexts.INST.sendtodolistics();
 		case "replace.smimecerts":
