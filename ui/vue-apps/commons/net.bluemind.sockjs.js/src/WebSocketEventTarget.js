@@ -6,8 +6,8 @@ export default class WebSocketEventTarget extends EventTarget {
         this.addEventListener(type, listener, {});
     }
 
-    unregister(type) {
-        this.removeEventListener(type);
+    unregister(type, listener) {
+        this.removeEventListener(type, listener);
     }
 
     addReplyListener(type, listener) {

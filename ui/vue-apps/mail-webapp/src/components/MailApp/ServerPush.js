@@ -6,6 +6,7 @@ import { WaitForMixin } from "~/mixins";
 
 export default {
     mixins: [WaitForMixin],
+    data: () => ({ listenerRegistry: [] }),
     computed: {
         ...mapState("mail", ["activeFolder", "folders"]),
         ...mapGetters("mail", { MAILBOXES, MY_MAILBOX_KEY, MAILBOXES_ARE_LOADED }),
@@ -15,30 +16,33 @@ export default {
     },
     async created() {
         try {
-            this.$_ServerPush_registerListener();
-            await this.$_ServerPush_sendMessage({ type: "INIT" }, false);
+            if (navigator.serviceWorker) {
+                navigator.serviceWorker.addEventListener("message", this._ServerPush_serviceWorkerListener);
+                this.listenerRegistry.push(() =>
+                    navigator.serviceWorker.removeEventListener("message", this._ServerPush_serviceWorkerListener)
+                );
+                this.$_ServerPush_serviceWorkerController?.postMessage({ type: "INIT" });
+            }
+            await this.$waitFor(MAILBOXES_ARE_LOADED);
+            this.MAILBOXES.forEach(mailbox => {
+                const callback = this.$_ServerPush_handle(mailbox);
+                this.$socket.register(`mailreplica.${mailbox.owner}.updated`, callback);
+                this.listenerRegistry.push(() =>
+                    this.$socket.unregister(`mailreplica.${mailbox.owner}.updated`, callback)
+                );
+            });
         } catch (error) {
             // eslint-disable-next-line no-console
             console.error("[SW] failed to init service worker", error);
         }
     },
-    watch: {
-        MAILBOXES_ARE_LOADED() {
-            if (this.MAILBOXES_ARE_LOADED) {
-                this.MAILBOXES.forEach(mailbox => {
-                    this.$socket.register(`mailreplica.${mailbox.owner}.updated`, this.$_ServerPush_handle(mailbox));
-                });
-            }
-        }
+    beforeDestroy() {
+        this.listenerRegistry.forEach(unregister => unregister());
     },
     methods: {
-        $_ServerPush_registerListener() {
-            if (navigator.serviceWorker) {
-                navigator.serviceWorker.addEventListener("message", event => {
-                    if (event.data.type === "refresh") {
-                        event.data.folderUids.forEach(folderUid => this.$_ServerPush_refreshUI(folderUid));
-                    }
-                });
+        $_ServerPush_serviceWorkerListener(event) {
+            if (event.data.type === "refresh") {
+                event.data.folderUids.forEach(folderUid => this.$_ServerPush_refreshUI(folderUid));
             }
         },
         async $_ServerPush_sendMessage(message, skipSync, defaultResponse = null) {

@@ -39,7 +39,7 @@ export default class WebSocketClient {
             await this.send({ method: Method.REGISTER, path }, listener);
         } catch (error) {
             // eslint-disable-next-line no-console
-            console.log("[Push] Waiting for websocket to be online", error);
+            console.warn("[Push] Waiting for websocket to be online", error);
         }
     }
 
@@ -49,7 +49,7 @@ export default class WebSocketClient {
 
     unregister(path, listener) {
         this.persistentRegistrations = this.persistentRegistrations.filter(
-            pending => pending.path !== path || pending.listener !== listener
+            pending => !(pending.path === path && pending.listener === listener)
         );
         return this.send({ method: Method.UNREGISTER, path }, listener);
     }
@@ -151,7 +151,10 @@ function send(request, listener) {
         }
     }
     if (request.method === Method.UNREGISTER) {
-        websocket.handler.unregister(request.path);
+        websocket.handler.unregister(request.path, listener);
+        if (websocket.handler.has(request.path)) {
+            return Promise.resolve();
+        }
     }
 
     websocket.plugins.dispatchEvent(new RestEvent("request", request));
@@ -230,9 +233,11 @@ function use(plugin, ...args) {
 
 function reset() {
     websocket.client.close();
+    websocket.client = null;
     websocket.handler.clear();
     websocket.plugins.clear();
     websocket.url = null;
+    websocket.online = false;
     clearTimeout(websocket.timers.heartbeat);
     clearTimeout(websocket.timers.ping);
     clearTimeout(websocket.timers.reconnect);

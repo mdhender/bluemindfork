@@ -4,6 +4,7 @@ import injector from "@bluemind/inject";
 
 jest.mock("@bluemind/inject");
 jest.mock("sockjs-client");
+jest.useFakeTimers();
 
 injector.getProvider.mockReturnValue({
     get: () => {
@@ -13,32 +14,42 @@ injector.getProvider.mockReturnValue({
 
 const websocket = {
     status: 200,
-    readyState: 0,
-    send(json) {
-        const data = JSON.parse(json);
-        data.statusCode = this.status;
-        setTimeout(() => this.onmessage({ data: JSON.stringify(data) }), 0);
-        if (!data.XTestDelay) {
-            jest.runOnlyPendingTimers();
-        }
-    },
-    open() {
-        if (this.readyState !== 1) {
-            this.readyState = 1;
-            this.onopen();
-        }
-    },
-    close() {
-        if (this.readyState !== 0) {
-            this.readyState = 0;
-            this.onclose();
-        }
-    }
+    readyState: 0
 };
+websocket.send = jest.fn(json => {
+    const data = JSON.parse(json);
+    data.statusCode = websocket.status;
+    setTimeout(() => websocket.onmessage({ data: JSON.stringify(data) }), 0);
+    if (!data.XTestDelay) {
+        jest.runOnlyPendingTimers();
+    }
+});
+websocket.open = jest.fn(() => {
+    if (websocket.readyState !== 1) {
+        websocket.readyState = 1;
+        websocket.onopen();
+    }
+});
+websocket.close = jest.fn(() => {
+    if (websocket.readyState !== 3) {
+        websocket.readyState = 3;
+        websocket.onclose();
+    }
+});
 
 describe("WebSocketClient", () => {
     beforeEach(() => {
-        SockJS.mockImplementation(() => websocket);
+        SockJS.mockClear();
+        SockJS.mockImplementation(() => {
+            websocket.readyState = 0;
+            websocket.status = 200;
+            return websocket;
+        });
+        websocket.send.mockClear();
+        websocket.open.mockClear();
+        websocket.close.mockClear();
+        websocket.readyState = 0;
+        websocket.status = 200;
     });
 
     afterEach(() => {
@@ -67,16 +78,11 @@ describe("WebSocketClient", () => {
         const socket = new WebSocketClient("server.local.host");
         websocket.open();
         const callback = jest.fn();
-        jest.useFakeTimers();
-        try {
-            await socket.ping(callback).then(() => {
-                jest.runOnlyPendingTimers();
-                expect(callback).toHaveBeenCalledTimes(2);
-            });
-            expect.hasAssertions();
-        } finally {
-            jest.useRealTimers();
-        }
+        await socket.ping(callback).then(() => {
+            jest.runOnlyPendingTimers();
+            expect(callback).toHaveBeenCalledTimes(2);
+        });
+        expect.hasAssertions();
     });
 
     test("Listener registered on a bus must be called each time a message is sent until unregistered", async () => {
@@ -164,20 +170,74 @@ describe("WebSocketClient", () => {
         expect(online).toHaveBeenCalledTimes(1);
         expect(ping).toHaveBeenCalledTimes(1);
     });
-
-    test.skip("After reconnection all registered listener are registered again", () => {
-        expect(false).toBeTruthy();
+    test("It doesn't matter if registering two time the same bus send two register request", async () => {
+        expect.hasAssertions();
+        const socket = new WebSocketClient("server.local.host");
+        websocket.open();
+        const callback = jest.fn();
+        const anotherCallback = jest.fn();
+        await socket.register("/1", callback);
+        await socket.register("/1", anotherCallback);
+        // Useless test ?...
+        expect(websocket.send).toHaveBeenCalled();
     });
-    test.skip("Registering to a bus while offline work once online", () => {
-        expect(false).toBeTruthy();
+    test("unregister send unregister request only if there is no listener", async done => {
+        const socket = new WebSocketClient("server.local.host");
+        websocket.open();
+        const callback = jest.fn();
+        const anotherCallback = jest.fn();
+        await socket.register("/1", callback);
+        await socket.register("/1", anotherCallback);
+        websocket.send.mockClear();
+        await socket.unregister("/1", callback);
+        expect(websocket.send).not.toHaveBeenCalled();
+        await socket.unregister("/1", anotherCallback);
+        expect(websocket.send).toHaveBeenCalledWith(expect.stringContaining('{"method":"unregister","path":"/1"'));
+        done();
+    });
+
+    test("After reconnection all registered listener are registered again", async () => {
+        expect.hasAssertions();
+        const socket = new WebSocketClient("server.local.host");
+        websocket.open();
+        const callback = jest.fn();
+        await socket.register("/1", callback);
+        websocket.close();
+        websocket.send.mockClear();
+        websocket.open();
+        expect(websocket.send).toHaveBeenCalledWith(expect.stringContaining('{"method":"register","path":"/1"'));
+    });
+
+    test("After reconnection listeners are not registered twice", async () => {
+        expect.hasAssertions();
+        const socket = new WebSocketClient("server.local.host");
+        websocket.open();
+        const callback = jest.fn();
+        await socket.register("/1", callback);
+        websocket.close();
+        websocket.open();
+        websocket.onmessage({ data: JSON.stringify({ requestId: "/1" }) });
+        expect(callback).toBeCalledTimes(1);
+    });
+
+    test("Registering to a bus while offline work once online", async () => {
+        expect.hasAssertions();
+        const socket = new WebSocketClient("server.local.host");
+        const callback = jest.fn();
+        await socket.register("/1", callback);
+        expect(websocket.send).not.toHaveBeenCalled();
+        websocket.open();
+        expect(websocket.send).toHaveBeenCalledWith(expect.stringContaining('{"method":"register","path":"/1"'));
+    });
+    test("Disconnect will try to reconnect automatically", () => {
+        new WebSocketClient("server.local.host");
+        websocket.open();
+        expect(SockJS).toHaveBeenCalledTimes(1);
+        websocket.close();
+        jest.runOnlyPendingTimers();
+        expect(SockJS).toHaveBeenCalledTimes(2);
     });
     test.skip("Failing to register to a bus do not leak the bus listener", () => {
-        expect(false).toBeTruthy();
-    });
-    test.skip("Registering two time the same bus should not (or should ?) send two register request", () => {
-        expect(false).toBeTruthy();
-    });
-    test.skip("Disconnect will try to reconnect automatically", () => {
         expect(false).toBeTruthy();
     });
 });

@@ -96,4 +96,29 @@ describe("EventTarget", () => {
         });
         target.dispatchEvent(new MyEvent("end"));
     });
+    test("has return true if EventTarget listen to this event type .", () => {
+        const target = new EventTarget();
+        const callback = jest.fn();
+        const callback2 = jest.fn();
+        target.addEventListener("any", callback);
+        target.addEventListener("any", callback2);
+        expect(target.has("any")).toBeTruthy();
+        expect(target.has("any", callback)).toBeTruthy();
+        target.removeEventListener("any", callback);
+        expect(target.has("any")).toBeTruthy();
+    });
+    test("has return false if EventTarget do not have a listener for this event type .", () => {
+        const target = new EventTarget();
+        const callback = jest.fn();
+        const callback2 = jest.fn();
+        const callback3 = jest.fn();
+        target.addEventListener("any", callback);
+        target.addEventListener("any", callback2);
+        expect(target.has("none")).toBeFalsy();
+        expect(target.has("any", callback3)).toBeFalsy();
+        target.removeEventListener("any", callback);
+        expect(target.has("any", callback)).toBeFalsy();
+        target.removeEventListener("any", callback2);
+        expect(target.has("any")).toBeFalsy();
+    });
 });
