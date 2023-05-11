@@ -24,8 +24,6 @@
             impl="net.bluemind.cli.adm.DumpCache$Reg"
             priority="500">
       </registration>
-
-
       <registration
             impl="net.bluemind.cli.adm.RepairOpsCommand$Reg"
             priority="600">
@@ -44,7 +42,11 @@
       </registration>
       <registration
             impl="net.bluemind.cli.adm.SentryCommand$Reg"
-            priority="603">
+            priority="604">
+      </registration>
+      <registration
+            impl="net.bluemind.cli.adm.UpdateFirewallCommand$Reg"
+            priority="605">
       </registration>
 
    </extension>
