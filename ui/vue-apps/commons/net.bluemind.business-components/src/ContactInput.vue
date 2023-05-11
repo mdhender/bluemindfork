@@ -55,6 +55,7 @@
                             data-browse
                             size="sm"
                             :items="canDisplayAutocomplete ? autocompleteResults : []"
+                            :max-results="maxContactsSuggestion"
                             :class="{ beingEdited: 'flex-fill' }"
                             @click.native="showAutocomplete(true)"
                             @selected="selectedContact => editFromAutocomplete(contact, selectedContact)"
@@ -93,6 +94,7 @@
                     v-model="value"
                     size="sm"
                     :items="canDisplayAutocomplete ? autocompleteResults : []"
+                    :max-results="maxContactsSuggestion"
                     :class="{ 'flex-fill': !beingEdited }"
                     :disabled="disabled"
                     data-browse
@@ -218,6 +220,9 @@ export default {
         },
         beingEdited() {
             return this.contacts_.find(contact => contact.edit);
+        },
+        maxContactsSuggestion() {
+            return this.showExpand ? 5 : 20;
         }
     },
     watch: {

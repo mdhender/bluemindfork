@@ -94,7 +94,7 @@ export default {
         showExpand() {
             return (
                 !this.expandSearch &&
-                this.autocompleteResults?.length < 5 &&
+                // this.autocompleteResults?.length < 20 &&
                 this.autocompleteExpandedResults?.length > this.autocompleteResults?.length
             );
         }
