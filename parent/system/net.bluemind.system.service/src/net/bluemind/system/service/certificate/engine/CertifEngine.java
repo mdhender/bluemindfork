@@ -22,9 +22,9 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.cert.CertPath;
@@ -36,8 +36,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.PKIXParameters;
 import java.security.cert.TrustAnchor;
 import java.security.cert.X509Certificate;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,8 +46,11 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openssl.PEMException;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +80,10 @@ public abstract class CertifEngine implements ICertifEngine {
 	protected CertData certData;
 	protected final SecurityCertificateHelper systemHelper;
 	protected ItemValue<Domain> domain;
+
+	static {
+		Security.addProvider(new BouncyCastleProvider());
+	}
 
 	private CertifEngine() {
 		this.systemHelper = new SecurityCertificateHelper();
@@ -278,8 +283,6 @@ public abstract class CertifEngine implements ICertifEngine {
 		// load privatekey
 		PrivateKey pk = null;
 		try {
-			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-
 			@SuppressWarnings("resource")
 			Object o = new PEMParser(new StringReader(new String(pkeyData))).readObject();
 			PrivateKeyInfo privateKeyInfo = null;
@@ -294,11 +297,8 @@ public abstract class CertifEngine implements ICertifEngine {
 				throw new ServerFault("privatekey format not handled " + o.getClass().getName());
 			}
 
-			pk = keyFactory.generatePrivate(new PKCS8EncodedKeySpec(privateKeyInfo.getEncoded()));
-		} catch (NoSuchAlgorithmException e) {
-			logger.error("error during pk validation: {}", e.getMessage(), e);
-			throw new ServerFault("error during private key validation", e);
-		} catch (InvalidKeySpecException e) {
+			pk = new JcaPEMKeyConverter().getPrivateKey(privateKeyInfo);
+		} catch (PEMException e) {
 			logger.error("error loading private key: {}", e.getMessage(), e);
 			throw new ServerFault("error loading private key : " + e.getMessage(), e);
 		} catch (IOException e) {
@@ -307,12 +307,12 @@ public abstract class CertifEngine implements ICertifEngine {
 		}
 
 		try {
-			Signature dsa = Signature.getInstance("SHA1withRSA");
+			Signature dsa = Signature.getInstance(pk.getAlgorithm());
 			dsa.initSign(pk);
 			dsa.update("testSign".getBytes());
 			byte[] signature = dsa.sign();
 
-			dsa = Signature.getInstance("SHA1withRSA");
+			dsa = Signature.getInstance(pk.getAlgorithm());
 			dsa.initVerify(cert.getPublicKey());
 			dsa.update("testSign".getBytes());
 			if (!dsa.verify(signature)) {

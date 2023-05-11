@@ -59,6 +59,10 @@ public class CertificateMgmtCheckCertificateTests {
 	private byte[] certificateData2;
 	private byte[] privateKeyData2;
 
+	private byte[] ecCaData;
+	private byte[] ecCertificateData;
+	private byte[] ecPrivateKeyData;
+
 	private String domainUid = "test.bm.lan";
 	private BmContext testContext;
 
@@ -85,6 +89,10 @@ public class CertificateMgmtCheckCertificateTests {
 		certificateData2 = Files.toByteArray(new File("data/certs/cert2.pem"));
 		privateKeyData = Files.toByteArray(new File("data/certs/privatekey"));
 		privateKeyData2 = Files.toByteArray(new File("data/certs/privatekey2"));
+
+		ecCaData = Files.toByteArray(new File("data/cert-ECC/chain1.pem"));
+		ecCertificateData = Files.toByteArray(new File("data/cert-ECC/cert1.pem"));
+		ecPrivateKeyData = Files.toByteArray(new File("data/cert-ECC/privkey1.pem"));
 	}
 
 	@After
@@ -97,6 +105,16 @@ public class CertificateMgmtCheckCertificateTests {
 
 		CertData certData = CertData.createWithDomainUid(CertificateDomainEngine.FILE, new String(caData),
 				new String(certificateData), new String(privateKeyData), domainUid);
+
+		ICertifEngine iCertifEngine = CertifEngineFactory.get(certData, testContext);
+		iCertifEngine.checkCertificate();
+	}
+
+	@Test
+	public void testCheckECCKey() throws ServerFault {
+
+		CertData certData = CertData.createWithDomainUid(CertificateDomainEngine.FILE, new String(ecCaData),
+				new String(ecCertificateData), new String(ecPrivateKeyData), domainUid);
 
 		ICertifEngine iCertifEngine = CertifEngineFactory.get(certData, testContext);
 		iCertifEngine.checkCertificate();
