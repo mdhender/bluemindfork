@@ -509,16 +509,14 @@ function isVisible(element) {
         border-top-color: transparent !important; // keep it to simplify vertical padding management
         border-left: none;
         border-right: none;
+        padding-left: 2 * $input-border-width;
+        padding-right: 2 * $input-border-width;
     }
     &.inline {
         border-color: transparent !important; // keep it to simplify padding management
     }
 
     padding: $input-border-width;
-    &.underline {
-        padding-left: 2 * $input-border-width;
-        padding-right: 2 * $input-border-width;
-    }
 
     label {
         color: $neutral-fg;
@@ -550,7 +548,7 @@ function isVisible(element) {
         }
     }
     &.disabled {
-        border-color: $neutral-fg-disabled;
+        border-color: $neutral-fg-disabled !important;
         &.underline {
             border-color: transparent;
         }
@@ -562,10 +560,6 @@ function isVisible(element) {
         height: calc(#{$input-height} - #{4 * $input-border-width});
         padding-top: 0 !important;
         padding-bottom: 0 !important;
-    }
-
-    &.disabled {
-        border-color: $neutral-fg-disabled !important;
     }
 
     .bm-contact-input-label:not(:empty) {
@@ -605,7 +599,7 @@ function isVisible(element) {
         .suggestions {
             border: none;
             padding: $sp-2;
-            max-height: max(33vh, #{$max-nb-suggestions * $suggestion-height});
+            max-height: max(35vh, #{$max-nb-suggestions * $suggestion-height});
 
             .list-group-item {
                 height: $suggestion-height;
@@ -614,6 +608,10 @@ function isVisible(element) {
                 }
                 padding: 0;
                 margin: 0;
+                .bm-contact-input-autocomplete-extra {
+                    padding-top: $sp-5;
+                    padding-bottom: $sp-5;
+                }
             }
         }
 
@@ -627,9 +625,6 @@ function isVisible(element) {
         display: inline-flex;
         align-items: center;
         margin: $sp-2 + $sp-1 $sp-3;
-    }
-
-    .contact {
         max-width: calc(100% - $inputMinWidth);
     }
 
