@@ -602,16 +602,13 @@ function isVisible(element) {
             max-height: max(35vh, #{$max-nb-suggestions * $suggestion-height});
 
             .list-group-item {
+                flex: none;
                 height: $suggestion-height;
                 .bm-contact-input-autocomplete-item {
                     flex: 1;
                 }
                 padding: 0;
                 margin: 0;
-                .bm-contact-input-autocomplete-extra {
-                    padding-top: $sp-5;
-                    padding-bottom: $sp-5;
-                }
             }
         }
 

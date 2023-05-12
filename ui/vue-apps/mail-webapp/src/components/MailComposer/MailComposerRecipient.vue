@@ -128,11 +128,10 @@ export default {
             this.debouncedSave();
         },
         validateDnAndAddress(input, contact) {
-            return contact.kind === "group"
-                ? !!contact.dn
-                : contact.dn
-                ? EmailValidator.validateDnAndAddress(input)
-                : EmailValidator.validateAddress(input);
+            if (contact.kind === "group") {
+                return Boolean(contact.dn);
+            }
+            return contact.dn ? EmailValidator.validateDnAndAddress(input) : EmailValidator.validateAddress(input);
         },
         async getMailTips() {
             await this.$execute("get-mail-tips", { context: getMailTipContext(this.message), message: this.message });
