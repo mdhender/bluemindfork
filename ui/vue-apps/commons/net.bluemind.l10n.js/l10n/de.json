@@ -220,6 +220,7 @@
     "common.undo": "Rückgängig",
     "common.threshold.hit": "{hit} {size}.",
     "common.path": "Pfad",
+    "common.size": "Größe",
     "common.file.size": "Größe der Datei",
     "common.files.selected": "Keine Datei ausgewählt | 1 Datei ausgewählt | {count} Dateien ausgewählt",
     "common": {

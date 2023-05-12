@@ -220,6 +220,7 @@
     "common.undo": "Annuler",
     "common.threshold.hit": "{hit} {size}.",
     "common.path": "Chemin",
+    "common.size": "Taille",
     "common.file.size": "Taille du fichier",
     "common.files.selected": "Pas de fichier sélectionné | 1 fichier sélectionné | {count} fichiers sélectionnés",
     "common": {

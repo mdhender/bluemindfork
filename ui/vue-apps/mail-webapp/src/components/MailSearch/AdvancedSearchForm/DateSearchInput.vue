@@ -31,14 +31,16 @@ export default {
 
 <style lang="scss">
 @import "@bluemind/ui-components/src/css/mixins/responsiveness";
+@import "@bluemind/ui-components/src/css/variables";
 
 .date-search-input {
     //FIXME: Remove these styles when the BmFormDatePicker will have an underline style
     @include from-lg {
         .input.b-form-datepicker {
-            border-left: none !important;
-            border-right: none !important;
-            border-top: none !important;
+            border-left-color: transparent !important;
+            border-right-color: transparent !important;
+            border-top-color: transparent !important;
+            border-bottom-color: $neutral-fg-lo2 !important;
             padding-left: $sp-5 !important;
             padding-right: $sp-5 !important;
         }

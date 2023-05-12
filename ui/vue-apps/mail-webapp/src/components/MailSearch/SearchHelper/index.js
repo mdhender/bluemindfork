@@ -25,7 +25,9 @@ export function parseSearchPattern(pattern) {
         };
         walkLuceneTree(rootNode, nodeFunction);
 
-        result.content = termsOnly.join(" ");
+        if (termsOnly.length > 0) {
+            result.content = termsOnly.join(" ");
+        }
     } catch {
         result.content = pattern;
     }

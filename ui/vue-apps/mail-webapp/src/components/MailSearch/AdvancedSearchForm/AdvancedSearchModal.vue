@@ -23,6 +23,10 @@
             <div class="label">{{ $t("mail.search.label.contains") }}</div>
             <string-search-input class="search-input" :value.sync="contains" />
         </div>
+        <div class="item">
+            <div class="label">{{ $t("common.size") }}</div>
+            <size-search-input :min.sync="sizeMin" :max.sync="sizeMax" class="search-input" />
+        </div>
         <div class="item checkbox-item">
             <div class="label">{{ $t("common.attachment") }}</div>
             <bm-form-checkbox v-model="hasAttachment" class="search-input" />
@@ -59,10 +63,11 @@ import SearchHelper from "../SearchHelper";
 import StringSearchInput from "./StringSearchInput";
 import DateSearchInput from "./DateSearchInput";
 import parser from "../SearchHelper/patternParsers";
+import SizeSearchInput from "./SizeSearchInput";
 
 export default {
     name: "AdvancedSearchModal",
-    components: { BmFormCheckbox, DateSearchInput, BmModal, MailSearchBoxContext, StringSearchInput },
+    components: { BmFormCheckbox, DateSearchInput, BmModal, MailSearchBoxContext, StringSearchInput, SizeSearchInput },
     mixins: [SearchMixin],
     data() {
         return {
@@ -70,7 +75,8 @@ export default {
             subject: null,
             date: null,
             filename: null,
-            has: null
+            has: null,
+            size: null
         };
     },
     computed: {
@@ -116,6 +122,22 @@ export default {
             set(value) {
                 this.has = value ? "attachments" : null;
             }
+        },
+        sizeMin: {
+            get() {
+                return this.size?.min;
+            },
+            set(value) {
+                this.size = { ...this.size, min: value };
+            }
+        },
+        sizeMax: {
+            get() {
+                return this.size?.max;
+            },
+            set(value) {
+                this.size = { ...this.size, max: value };
+            }
         }
     },
     watch: {
@@ -125,7 +147,7 @@ export default {
                 const groups = SearchHelper.parseSearchPattern(this.currentPattern);
                 for (const keyword in groups) {
                     const value = groups[keyword];
-                    this[keyword] = parser(value, keyword);
+                    this[keyword] = value && parser(value, keyword);
                 }
                 this.contains = groups.content;
             },
@@ -162,6 +184,9 @@ export default {
                 case "has": {
                     return this.hasAttachment ? "attachments" : null;
                 }
+                case "size": {
+                    return +this.sizeMin > 0 ? `>${this.sizeMin}` : +this.sizeMax > 0 ? `<${this.sizeMax}` : null;
+                }
                 default: {
                     return this[keyword];
                 }
@@ -173,6 +198,7 @@ export default {
             this.date = null;
             this.has = null;
             this.filename = null;
+            this.size = null;
         }
     }
 };
@@ -198,7 +224,8 @@ export default {
                 margin-bottom: $sp-6;
 
                 & > .mail-search-box-context,
-                & > .string-search-input {
+                & > .string-search-input,
+                & > .size-search-input {
                     width: 100%;
                 }
                 &.checkbox-item {

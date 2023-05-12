@@ -7,6 +7,8 @@ export default function parse(pattern, keyword) {
         switch (keyword) {
             case PATTERN_KEYWORDS.DATE:
                 return dateParser(node);
+            case PATTERN_KEYWORDS.SIZE:
+                return sizeParser(node);
             default:
                 return defaultParser(node);
         }
@@ -16,6 +18,22 @@ export default function parse(pattern, keyword) {
 }
 
 function dateParser(node) {
+    let { min, max } = rangeParser(node);
+    if (!min && !max && toIsoDate(node.term)) {
+        min = node.term;
+        max = node.term;
+    }
+    return { min: toIsoDate(min), max: toIsoDate(max) };
+}
+
+function sizeParser(node) {
+    const { min, max } = rangeParser(node);
+    return {
+        min: +min > 0 ? +min : null,
+        max: +max > 0 ? +max : null
+    };
+}
+function rangeParser(node) {
     let min, max;
     if (node.term_min) {
         min = node.term_min;
@@ -26,16 +44,12 @@ function dateParser(node) {
         } else {
             max = node.term.substring(1);
         }
-    } else if (toIsoDate(node.term)) {
-        min = node.term;
-        max = node.term;
     }
-
-    return { min: toIsoDate(min), max: toIsoDate(max) };
+    return { min, max };
 }
 
 function defaultParser(node) {
-    return node.term ? node.term : LuceneQueryParser.toString(node.right);
+    return node?.term ? node.term : LuceneQueryParser.toString(node.right);
 }
 
 function toIsoDate(str) {
