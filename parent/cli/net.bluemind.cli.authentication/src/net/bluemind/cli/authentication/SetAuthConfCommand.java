@@ -112,8 +112,19 @@ public class SetAuthConfCommand implements ICmdLet, Runnable {
 	}
 
 	private static class AuthKerberos {
-		@Option(required = true, names = { "--krb-ad-domain" }, description = "Active directory kerberos domain")
 		public String krbAdDomain;
+
+		@Option(required = true, names = { "--krb-ad-domain" }, paramLabel = "AD.DOMAIN.TLD", description = {
+				"Active directory kerberos domain", "Upper case only" })
+		public void setKrbAdDomain(String krbAdDomain) {
+			if (!krbAdDomain.equals(krbAdDomain.toUpperCase())) {
+				throw new ParameterException(spec.commandLine(),
+						"Active directory kerberos domain must be in upper case");
+			}
+
+			this.krbAdDomain = krbAdDomain;
+		}
+
 		@Option(required = true, names = { "--krb-ad-ip" }, description = "Active directory server IP or FQDN")
 		public String krbAdIp;
 
@@ -125,14 +136,18 @@ public class SetAuthConfCommand implements ICmdLet, Runnable {
 					"--krb-keytab" }, description = "Base64 encoded Active directory keytab content")
 			public String base64;
 
-			@Option(required = false, names = { "--krb-keytab-file" }, description = "Path to Active directory keytab")
 			public File file;
 
-			private String loadFromFile() {
+			@Option(required = false, names = { "--krb-keytab-file" }, description = "Path to Active directory keytab")
+			public void setKeytabFile(File file) {
 				if (file == null || !file.exists()) {
-					throw new CliException("Keytab file must exists and readable");
+					throw new ParameterException(spec.commandLine(), "Keytab file must exists and readable");
 				}
 
+				this.file = file;
+			}
+
+			private String loadFromFile() {
 				try {
 					return Base64.getEncoder().encodeToString(Files.readAllBytes(file.toPath()));
 				} catch (IOException e) {

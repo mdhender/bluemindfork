@@ -226,6 +226,14 @@ public class AuthenticationEditorComponent extends CompositeGwtWidgetElement {
 		krbAdKeytabFilePresent.addValueChangeHandler(changes -> manageAdKeytabPresence(changes.getValue()));
 
 		krbAdDomain.addValueChangeHandler(event -> manageKrbPrincName());
+		krbAdDomain.addKeyUpHandler(event -> uppercaseKrbAdDomain());
+	}
+
+	private void uppercaseKrbAdDomain() {
+		String current = krbAdDomain.getStringValue();
+		if (current != null && !current.isEmpty()) {
+			krbAdDomain.setStringValue(krbAdDomain.getStringValue().toUpperCase());
+		}
 	}
 
 	private void manageKrbPrincName() {
