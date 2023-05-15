@@ -1,6 +1,7 @@
 import escape from "lodash.escape";
 import { EmailExtractor, Flag, MimeType } from "@bluemind/email";
 import { createDocumentFragment } from "@bluemind/html-utils";
+import { inject } from "@bluemind/inject";
 
 import { LoadingStatus } from "./loading-status";
 import {
@@ -257,7 +258,7 @@ function extractRecipientsFromHeader(header, isReplyAll) {
 export function computeSubject(creationMode, previousMessage) {
     const subjectPrefix = creationMode === MessageCreationModes.FORWARD ? "Fw: " : "Re: ";
     if (!previousMessage.subject) {
-        return subjectPrefix;
+        return `${subjectPrefix} ${inject("i18n").t("mail.viewer.no.subject")}`;
     }
     // avoid subject prefix repetitions (like "Re: Re: Re: Re: My Subject")
     if (subjectPrefix !== previousMessage.subject.substring(0, subjectPrefix.length)) {
@@ -375,7 +376,7 @@ function headerForForward(message, userPrefTextOnly, vueI18n) {
     const fromLabel = vueI18n.t("mail.compose.forward.prev.message.info.from");
     const from = nameAndAddress(message.from, userPrefTextOnly);
     const subjectLabel = vueI18n.t("mail.compose.forward.prev.message.info.subject");
-    const subject = message.subject.trim();
+    const subject = message.subject?.trim();
     const noSubject = vueI18n.t("mail.viewer.no.subject");
     const toLabel = vueI18n.t("common.to");
     const to = message.to.map(to => nameAndAddress(to, userPrefTextOnly)).join(", ");
