@@ -24,7 +24,9 @@ package net.bluemind.keycloak.utils;
 
 import java.util.Iterator;
 import java.util.Map;
-import net.bluemind.authentication.api.AuthTypes;
+
+import net.bluemind.core.api.auth.AuthDomainProperties;
+import net.bluemind.core.api.auth.AuthTypes;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -35,7 +37,6 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomains;
-import net.bluemind.openid.api.OpenIdProperties;
 
 public class AuthConfigHelper {
 	public static void checkDomain(BmContext context, Domain domain, boolean create) {
@@ -73,7 +74,7 @@ public class AuthConfigHelper {
 
 		// If no kerb let go
 		String authType = domain.properties == null ? null
-				: domain.properties.get(DomainAuthProperties.auth_type.name());
+				: domain.properties.get(AuthDomainProperties.AUTH_TYPE.name());
 		if (!AuthTypes.KERBEROS.name().equals(authType)) {
 			return;
 		}
@@ -85,7 +86,7 @@ public class AuthConfigHelper {
 				Domain currDomain = d.value;
 				if (!currDomain.name.equals(domain.name)
 						&& AuthTypes.KERBEROS.name()
-								.equals(currDomain.properties.get(DomainAuthProperties.auth_type.name()))
+								.equals(currDomain.properties.get(AuthDomainProperties.AUTH_TYPE.name()))
 						&& getExternalUrl(context, currDomain.name) == null) {
 					throw new ServerFault(
 							"External Url is mandatory to enable Kerberos. Only one domain can have kerberos enabled without an external url, which is the case for "
@@ -96,13 +97,13 @@ public class AuthConfigHelper {
 		}
 
 		// kerb params mandatory
-		if (domain.properties.get(DomainAuthProperties.krb_ad_domain.name()) == null) {
+		if (domain.properties.get(AuthDomainProperties.KRB_AD_DOMAIN.name()) == null) {
 			throw new ServerFault("AD Domain is mandatory for kerberos configuration", ErrorCode.INVALID_PARAMETER);
 		}
-		if (domain.properties.get(DomainAuthProperties.krb_ad_ip.name()) == null) {
+		if (domain.properties.get(AuthDomainProperties.KRB_AD_IP.name()) == null) {
 			throw new ServerFault("AD IP adress is mandatory for kerberos configuration", ErrorCode.INVALID_PARAMETER);
 		}
-		if (domain.properties.get(DomainAuthProperties.krb_keytab.name()) == null) {
+		if (domain.properties.get(AuthDomainProperties.KRB_KEYTAB.name()) == null) {
 			throw new ServerFault("Keytab file is mandatory for kerberos configuration", ErrorCode.INVALID_PARAMETER);
 		}
 	}
@@ -136,7 +137,7 @@ public class AuthConfigHelper {
 				if (externalUrl == null || externalUrl.trim().isEmpty()) {
 					nbTotWithoutExtUrl++;
 					if (currProperties != null
-							&& AuthTypes.CAS.name().equals(currProperties.get(DomainAuthProperties.auth_type.name()))) {
+							&& AuthTypes.CAS.name().equals(currProperties.get(AuthDomainProperties.AUTH_TYPE.name()))) {
 						if (domainUid == null) {
 							throw new ServerFault(
 									"Domain creation is forbidden, because of the presence of a CAS domain without an external_url ("
@@ -170,15 +171,15 @@ public class AuthConfigHelper {
 
 		// cas url mandatory
 		if (domain.properties != null
-				&& AuthTypes.CAS.name().equals(domain.properties.get(DomainAuthProperties.auth_type.name()))
-				&& domain.properties.get(DomainAuthProperties.cas_url.name()) == null) {
+				&& AuthTypes.CAS.name().equals(domain.properties.get(AuthDomainProperties.AUTH_TYPE.name()))
+				&& domain.properties.get(AuthDomainProperties.CAS_URL.name()) == null) {
 			throw new ServerFault("CAS server URL is mandatory for CAS configuration", ErrorCode.INVALID_PARAMETER);
 		}
 	}
 
 	private static void checkExternal(BmContext context, Domain domain, Map<String, String> settings) {
 		if (domain.properties != null
-				&& AuthTypes.OPENID.name().equals(domain.properties.get(DomainAuthProperties.auth_type.name()))) {
+				&& AuthTypes.OPENID.name().equals(domain.properties.get(AuthDomainProperties.AUTH_TYPE.name()))) {
 			if (settings == null || settings.get(DomainSettingsKeys.external_url.name()) == null
 					|| settings.get(DomainSettingsKeys.external_url.name()).trim().isEmpty()) {
 				throw new ServerFault("External_url is mandatory for a domain with external authentication",
@@ -186,15 +187,15 @@ public class AuthConfigHelper {
 			}
 
 			// external auth params mandatory
-			if (domain.properties.get(OpenIdProperties.OPENID_HOST.name()) == null) {
+			if (domain.properties.get(AuthDomainProperties.OPENID_HOST.name()) == null) {
 				throw new ServerFault("OpenId configuration URL is mandatory for external authentication configuration",
 						ErrorCode.INVALID_PARAMETER);
 			}
-			if (domain.properties.get(OpenIdProperties.OPENID_CLIENT_ID.name()) == null) {
+			if (domain.properties.get(AuthDomainProperties.OPENID_CLIENT_ID.name()) == null) {
 				throw new ServerFault("Client ID is mandatory for external authentication configuration",
 						ErrorCode.INVALID_PARAMETER);
 			}
-			if (domain.properties.get(OpenIdProperties.OPENID_CLIENT_SECRET.name()) == null) {
+			if (domain.properties.get(AuthDomainProperties.OPENID_CLIENT_SECRET.name()) == null) {
 				throw new ServerFault("Client secret is mandatory for external authentication configuration",
 						ErrorCode.INVALID_PARAMETER);
 			}

@@ -9,7 +9,6 @@
 	<artifactId>net.bluemind.openid.plugins</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-		<module>net.bluemind.openid.api</module>
 		<module>net.bluemind.openid.configuration</module>
 		<module>net.bluemind.openid.utils</module>
 	</modules>

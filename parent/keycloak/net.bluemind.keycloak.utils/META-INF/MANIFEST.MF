@@ -6,7 +6,6 @@ Bundle-Version: 5.0.0.qualifier
 Export-Package: net.bluemind.keycloak.utils
 Require-Bundle: net.bluemind.keycloak.api,
  net.bluemind.server.api,
- net.bluemind.openid.api,
  slf4j.api,
  net.bluemind.core.rest,
  net.bluemind.domain.api,

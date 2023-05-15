@@ -44,9 +44,9 @@ import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.core.api.auth.AuthDomainProperties;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Shared;
-import net.bluemind.openid.api.OpenIdProperties;
 import net.bluemind.webmodule.authenticationfilter.internal.ExternalCreds;
 
 public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpServerRequest> {
@@ -76,7 +76,7 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 					.get(domainUid);
 
 			try {
-				String endpoint = domainSettings.get(OpenIdProperties.OPENID_TOKEN_ENDPOINT.name());
+				String endpoint = domainSettings.get(AuthDomainProperties.OPENID_TOKEN_ENDPOINT.name());
 				URI uri = new URI(endpoint);
 				HttpClient client = initHttpClient(uri);
 
@@ -100,9 +100,10 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 						headers.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
 						headers.add(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
 						String params = "grant_type=authorization_code";
-						params += "&client_id=" + encode(domainSettings.get(OpenIdProperties.OPENID_CLIENT_ID.name()));
+						params += "&client_id="
+								+ encode(domainSettings.get(AuthDomainProperties.OPENID_CLIENT_ID.name()));
 						params += "&client_secret="
-								+ encode(domainSettings.get(OpenIdProperties.OPENID_CLIENT_SECRET.name()));
+								+ encode(domainSettings.get(AuthDomainProperties.OPENID_CLIENT_SECRET.name()));
 						params += "&code=" + encode(code);
 						params += "&code_verifier=" + encode(codeVerifier);
 						params += "&redirect_uri=" + encode("https://" + event.host() + "/auth/openid");

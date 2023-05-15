@@ -474,7 +474,6 @@
    <bundle id="net.bluemind.notes.service" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.notes.sqlschema" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.notes.usernotes" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.openid.api" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.openid.configuration" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.openid.utils" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.osgi.log" version="5.0.0.qualifier"/>

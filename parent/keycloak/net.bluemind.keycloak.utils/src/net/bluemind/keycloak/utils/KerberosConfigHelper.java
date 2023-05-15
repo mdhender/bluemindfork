@@ -30,7 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.json.JsonObject;
-import net.bluemind.authentication.api.AuthTypes;
+import net.bluemind.core.api.auth.AuthDomainProperties;
+import net.bluemind.core.api.auth.AuthTypes;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
@@ -66,7 +67,7 @@ public class KerberosConfigHelper {
 				.instance(IDomains.class);
 		ItemValue<Domain> domain = domainsService.get(domainUid);
 		if (domain.value.properties == null
-				|| domain.value.properties.get(DomainAuthProperties.auth_type.name()) == null) {
+				|| domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name()) == null) {
 			logger.warn("skipping kerberos conf update for domain " + domainUid + " (no domain properties)");
 			return;
 		}
@@ -78,9 +79,9 @@ public class KerberosConfigHelper {
 		} catch (Throwable t) {
 		}
 
-		if (AuthTypes.KERBEROS.name().equals(domain.value.properties.get(DomainAuthProperties.auth_type.name()))) {
-			String krb_ad_domain = domain.value.properties.get(DomainAuthProperties.krb_ad_domain.name());
-			String krb_keytab = domain.value.properties.get(DomainAuthProperties.krb_keytab.name());
+		if (AuthTypes.KERBEROS.name().equals(domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name()))) {
+			String krb_ad_domain = domain.value.properties.get(AuthDomainProperties.KRB_AD_DOMAIN.name());
+			String krb_keytab = domain.value.properties.get(AuthDomainProperties.KRB_KEYTAB.name());
 
 			SharedMap<String, String> smap = MQ.sharedMap(Shared.MAP_SYSCONF);
 			Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
@@ -131,7 +132,7 @@ public class KerberosConfigHelper {
 		Iterator<ItemValue<Domain>> it = domainService.all().iterator();
 		while (it.hasNext() && !found) {
 			ItemValue<Domain> domain = it.next();
-			found = AuthTypes.KERBEROS.name().equals(domain.value.properties.get(DomainAuthProperties.auth_type.name()))
+			found = AuthTypes.KERBEROS.name().equals(domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name()))
 					&& getExternalUrl(domain.uid) == null;
 		}
 
@@ -166,7 +167,7 @@ public class KerberosConfigHelper {
 			currentConf.fieldNames().forEach(domainUid -> {
 				nodeClient.writeFile("/etc/bm-keycloak/" + domainUid + ".keytab",
 						new ByteArrayInputStream(currentConf.getJsonObject(domainUid)
-								.getString(DomainAuthProperties.krb_keytab.name()).getBytes(Charset.forName("UTF-8"))));
+								.getString(AuthDomainProperties.KRB_KEYTAB.name()).getBytes(Charset.forName("UTF-8"))));
 			});
 
 			logger.info("Keycloak restarting on server {}...", kcServerAddr);
@@ -200,8 +201,8 @@ public class KerberosConfigHelper {
 		jsonConf.fieldNames().forEach(domainUid -> {
 			JsonObject domConf = jsonConf.getJsonObject(domainUid);
 			buf.append("#    Bluemind domain: " + domainUid + "\n");
-			buf.append("     " + domConf.getString(DomainAuthProperties.krb_ad_domain.name()) + " = {\n");
-			buf.append("          kdc = " + domConf.getString(DomainAuthProperties.krb_ad_ip.name()) + "\n");
+			buf.append("     " + domConf.getString(AuthDomainProperties.KRB_AD_DOMAIN.name()) + " = {\n");
+			buf.append("          kdc = " + domConf.getString(AuthDomainProperties.KRB_AD_IP.name()) + "\n");
 			buf.append("     }\n\n");
 		});
 
@@ -212,15 +213,15 @@ public class KerberosConfigHelper {
 		JsonObject conf = new JsonObject();
 
 		ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class).all().forEach(domain -> {
-			if (AuthTypes.KERBEROS.name().equals(domain.value.properties.get(DomainAuthProperties.auth_type.name()))) {
+			if (AuthTypes.KERBEROS.name().equals(domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name()))) {
 				conf.put(domain.uid,
 						new JsonObject()
-								.put(DomainAuthProperties.krb_ad_domain.name(),
-										domain.value.properties.get(DomainAuthProperties.krb_ad_domain.name()))
-								.put(DomainAuthProperties.krb_ad_ip.name(),
-										domain.value.properties.get(DomainAuthProperties.krb_ad_ip.name()))
-								.put(DomainAuthProperties.krb_keytab.name(),
-										domain.value.properties.get(DomainAuthProperties.krb_keytab.name())));
+								.put(AuthDomainProperties.KRB_AD_DOMAIN.name(),
+										domain.value.properties.get(AuthDomainProperties.KRB_AD_DOMAIN.name()))
+								.put(AuthDomainProperties.KRB_AD_IP.name(),
+										domain.value.properties.get(AuthDomainProperties.KRB_AD_IP.name()))
+								.put(AuthDomainProperties.KRB_KEYTAB.name(),
+										domain.value.properties.get(AuthDomainProperties.KRB_KEYTAB.name())));
 			}
 		});
 

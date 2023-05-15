@@ -21,7 +21,6 @@ Require-Bundle: net.bluemind.webmodule.server,
  net.bluemind.system.api,
  com.auth0.java-jwt,
  net.bluemind.domain.api,
- net.bluemind.openid.api,
  net.bluemind.utils,
  net.bluemind.keycloak.utils
 Bundle-Vendor: www.bluemind.net

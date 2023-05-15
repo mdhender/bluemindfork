@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.json.JsonObject;
+import net.bluemind.core.api.auth.AuthDomainProperties;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -398,10 +399,11 @@ public class KeycloakServiceTests extends AbstractServiceTests {
 		domainService.create(domainOne,
 				Domain.create(domainOne, domainOne, "Temporary test domain One", new HashSet<String>()));
 		Domain domain1 = domainService.get(domainOne).value;
-		domain1.properties.put("auth_type", "KERBEROS");
-		domain1.properties.put("krb_ad_domain", "DOMAIN-ONE.COM");
-		domain1.properties.put("krb_ad_ip", "192.168.0.111");
-		domain1.properties.put("krb_keytab", "VGhpcyBpcyBzdXBwb3NlZCB0byBiZSBhIGtleXRhYiBmaWxlLg==");
+		domain1.properties.put(AuthDomainProperties.AUTH_TYPE.name(), "KERBEROS");
+		domain1.properties.put(AuthDomainProperties.KRB_AD_DOMAIN.name(), "DOMAIN-ONE.COM");
+		domain1.properties.put(AuthDomainProperties.KRB_AD_IP.name(), "192.168.0.111");
+		domain1.properties.put(AuthDomainProperties.KRB_KEYTAB.name(),
+				"VGhpcyBpcyBzdXBwb3NlZCB0byBiZSBhIGtleXRhYiBmaWxlLg==");
 		domainService.update(domainOne, domain1);
 		try {
 			TimeUnit.SECONDS.sleep(7);
@@ -421,10 +423,10 @@ public class KeycloakServiceTests extends AbstractServiceTests {
 		domainService.create(domainTwo,
 				Domain.create(domainTwo, domainTwo, "Temporary test domain Two", new HashSet<String>()));
 		Domain domain2 = domainService.get(domainTwo).value;
-		domain2.properties.put("auth_type", "KERBEROS");
-		domain2.properties.put("krb_ad_domain", "DOMAIN-TWO.BIZ");
-		domain2.properties.put("krb_ad_ip", "192.168.0.222");
-		domain2.properties.put("krb_keytab", "U29tZSBmYWtlIGtleXRhYiBmaWxlLCB5byE=");
+		domain2.properties.put(AuthDomainProperties.AUTH_TYPE.name(), "KERBEROS");
+		domain2.properties.put(AuthDomainProperties.KRB_AD_DOMAIN.name(), "DOMAIN-TWO.BIZ");
+		domain2.properties.put(AuthDomainProperties.KRB_AD_IP.name(), "192.168.0.222");
+		domain2.properties.put(AuthDomainProperties.KRB_KEYTAB.name(), "U29tZSBmYWtlIGtleXRhYiBmaWxlLCB5byE=");
 
 		boolean updateRejected = false;
 		try {
@@ -439,10 +441,10 @@ public class KeycloakServiceTests extends AbstractServiceTests {
 		settings.put("external_url", "bluemind.domain-two.biz");
 		domainSettingsService.set(settings);
 		domain2 = domainService.get(domainTwo).value;
-		domain2.properties.put("auth_type", "KERBEROS");
-		domain2.properties.put("krb_ad_domain", "DOMAIN-TWO.BIZ");
-		domain2.properties.put("krb_ad_ip", "192.168.0.222");
-		domain2.properties.put("krb_keytab", "U29tZSBmYWtlIGtleXRhYiBmaWxlLCB5byE=");
+		domain2.properties.put(AuthDomainProperties.AUTH_TYPE.name(), "KERBEROS");
+		domain2.properties.put(AuthDomainProperties.KRB_AD_DOMAIN.name(), "DOMAIN-TWO.BIZ");
+		domain2.properties.put(AuthDomainProperties.KRB_AD_IP.name(), "192.168.0.222");
+		domain2.properties.put(AuthDomainProperties.KRB_KEYTAB.name(), "U29tZSBmYWtlIGtleXRhYiBmaWxlLCB5byE=");
 		domainService.update(domainTwo, domain2);
 		try {
 			TimeUnit.SECONDS.sleep(7);

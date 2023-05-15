@@ -4,6 +4,7 @@ Bundle-Name: Context
 Bundle-SymbolicName: net.bluemind.core.commons;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Export-Package: net.bluemind.core.api,
+ net.bluemind.core.api.auth,
  net.bluemind.core.api.date,
  net.bluemind.core.api.fault,
  net.bluemind.core.email,

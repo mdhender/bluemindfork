@@ -8,8 +8,7 @@ Require-Bundle: net.bluemind.hornetq.client,
  net.bluemind.core.rest,
  net.bluemind.openid.utils,
  net.bluemind.domain.hook,
- slf4j.api,
- net.bluemind.openid.api
+ slf4j.api
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.openid.configuration
 Bundle-RequiredExecutionEnvironment: JavaSE-17

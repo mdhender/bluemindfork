@@ -46,11 +46,11 @@ import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.core.api.auth.AuthDomainProperties;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Shared;
 import net.bluemind.lib.vertx.VertxPlatform;
-import net.bluemind.openid.api.OpenIdProperties;
 
 public class AccessTokenValidator {
 
@@ -68,7 +68,7 @@ public class AccessTokenValidator {
 
 		String issuer = token.getIssuer();
 
-		String accessTokenIssuer = domainProperties.get(OpenIdProperties.OPENID_ISSUER.name());
+		String accessTokenIssuer = domainProperties.get(AuthDomainProperties.OPENID_ISSUER.name());
 		if (Strings.isNullOrEmpty(issuer) || !issuer.equals(accessTokenIssuer)) {
 			throw new ServerFault("Failed to validate token: iss");
 		}
@@ -93,8 +93,8 @@ public class AccessTokenValidator {
 		try {
 
 			if (!provider.containsKey(domainUid)) {
-				provider.put(domainUid, new GuavaCachedJwkProvider(
-						new UrlJwkProvider(new URL(domainProperties.get(OpenIdProperties.OPENID_JWKS_URI.name())))));
+				provider.put(domainUid, new GuavaCachedJwkProvider(new UrlJwkProvider(
+						new URL(domainProperties.get(AuthDomainProperties.OPENID_JWKS_URI.name())))));
 			}
 
 			Jwk jwk = provider.get(domainUid).get(token.getKeyId());
@@ -113,7 +113,7 @@ public class AccessTokenValidator {
 		CompletableFuture<Optional<JsonObject>> future = new CompletableFuture<>();
 
 		try {
-			String endpoint = domainProperties.get(OpenIdProperties.OPENID_TOKEN_ENDPOINT.name());
+			String endpoint = domainProperties.get(AuthDomainProperties.OPENID_TOKEN_ENDPOINT.name());
 
 			URI uri = new URI(endpoint);
 			HttpClient client = initHttpClient(uri);
@@ -138,8 +138,9 @@ public class AccessTokenValidator {
 					headers.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
 					headers.add(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
 					String params = "grant_type=refresh_token";
-					params += "&client_id=" + domainProperties.get(OpenIdProperties.OPENID_CLIENT_ID.name());
-					params += "&client_secret=" + domainProperties.get(OpenIdProperties.OPENID_CLIENT_SECRET.name());
+					params += "&client_id=" + domainProperties.get(AuthDomainProperties.OPENID_CLIENT_ID.name());
+					params += "&client_secret="
+							+ domainProperties.get(AuthDomainProperties.OPENID_CLIENT_SECRET.name());
 					params += "&refresh_token=" + refreshToken;
 					byte[] postData = params.getBytes(StandardCharsets.UTF_8);
 					headers.add(HttpHeaders.CONTENT_LENGTH, Integer.toString(postData.length));

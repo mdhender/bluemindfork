@@ -19,12 +19,12 @@ package net.bluemind.openid.configuration.internal;
 
 import java.util.Optional;
 
+import net.bluemind.core.api.auth.AuthDomainProperties;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.hook.DomainHookAdapter;
-import net.bluemind.openid.api.OpenIdProperties;
 import net.bluemind.openid.utils.AccessTokenValidator;
 
 public class OpenIdConfigurationDomainHook extends DomainHookAdapter {
@@ -32,23 +32,27 @@ public class OpenIdConfigurationDomainHook extends DomainHookAdapter {
 	@Override
 	public void onUpdated(BmContext context, ItemValue<Domain> previousValue, ItemValue<Domain> domain)
 			throws ServerFault {
-		String oldHost = Optional.ofNullable(previousValue.value.properties.get(OpenIdProperties.OPENID_HOST.name()))
+		String oldHost = Optional
+				.ofNullable(previousValue.value.properties.get(AuthDomainProperties.OPENID_HOST.name())).orElse("");
+		String newHost = Optional.ofNullable(domain.value.properties.get(AuthDomainProperties.OPENID_HOST.name()))
 				.orElse("");
-		String newHost = Optional.ofNullable(domain.value.properties.get(OpenIdProperties.OPENID_HOST.name())).orElse("");
 
-		String oldClient = Optional.ofNullable(previousValue.value.properties.get(OpenIdProperties.OPENID_CLIENT_ID.name()))
+		String oldClient = Optional
+				.ofNullable(previousValue.value.properties.get(AuthDomainProperties.OPENID_CLIENT_ID.name()))
 				.orElse("");
-		String newClient = Optional.ofNullable(domain.value.properties.get(OpenIdProperties.OPENID_CLIENT_ID.name()))
-				.orElse("");
+		String newClient = Optional
+				.ofNullable(domain.value.properties.get(AuthDomainProperties.OPENID_CLIENT_ID.name())).orElse("");
 
 		String oldSecret = Optional
-				.ofNullable(previousValue.value.properties.get(OpenIdProperties.OPENID_CLIENT_SECRET.name())).orElse("");
-		String newSecret = Optional.ofNullable(domain.value.properties.get(OpenIdProperties.OPENID_CLIENT_SECRET.name()))
+				.ofNullable(previousValue.value.properties.get(AuthDomainProperties.OPENID_CLIENT_SECRET.name()))
 				.orElse("");
+		String newSecret = Optional
+				.ofNullable(domain.value.properties.get(AuthDomainProperties.OPENID_CLIENT_SECRET.name())).orElse("");
 
-		String oldRealm = Optional.ofNullable(previousValue.value.properties.get(OpenIdProperties.OPENID_REALM.name()))
+		String oldRealm = Optional
+				.ofNullable(previousValue.value.properties.get(AuthDomainProperties.OPENID_REALM.name())).orElse("");
+		String newRealm = Optional.ofNullable(domain.value.properties.get(AuthDomainProperties.OPENID_REALM.name()))
 				.orElse("");
-		String newRealm = Optional.ofNullable(domain.value.properties.get(OpenIdProperties.OPENID_REALM.name())).orElse("");
 
 		if (!oldHost.equals(newHost) || !oldClient.equals(newClient) || !oldSecret.equals(newSecret)
 				|| !oldRealm.equals(newRealm)) {

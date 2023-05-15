@@ -47,16 +47,15 @@ import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
-import net.bluemind.authentication.api.AuthTypes;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.core.api.BMVersion;
+import net.bluemind.core.api.auth.AuthDomainProperties;
+import net.bluemind.core.api.auth.AuthTypes;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Shared;
-import net.bluemind.keycloak.utils.DomainAuthProperties;
 import net.bluemind.network.topology.Topology;
-import net.bluemind.openid.api.OpenIdProperties;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionData;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionsCache;
@@ -165,8 +164,8 @@ public class AuthenticationFilter implements IWebFilter {
 		String codeChallenge = b64UrlEncoder
 				.encodeToString(sha256.hashString(codeVerifier, StandardCharsets.UTF_8).asBytes());
 
-		String location = domainProperties.get(OpenIdProperties.OPENID_AUTHORISATION_ENDPOINT.name());
-		location += "?client_id=" + encode(domainProperties.get(OpenIdProperties.OPENID_CLIENT_ID.name()));
+		String location = domainProperties.get(AuthDomainProperties.OPENID_AUTHORISATION_ENDPOINT.name());
+		location += "?client_id=" + encode(domainProperties.get(AuthDomainProperties.OPENID_CLIENT_ID.name()));
 		location += "&redirect_uri=" + encode("https://" + request.host() + "/auth/openid");
 		location += "&code_challenge=" + encode(codeChallenge);
 		location += "&state=" + encode(state);
@@ -182,7 +181,7 @@ public class AuthenticationFilter implements IWebFilter {
 	private void redirectToCasServer(HttpServerRequest request, String domainUid) {
 		Map<String, String> domainProperties = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
 				.get(domainUid);
-		String casURL = domainProperties.get(DomainAuthProperties.cas_url.name());
+		String casURL = domainProperties.get(AuthDomainProperties.CAS_URL.name());
 		String location = casURL + "login?service=";
 		location += encode("https://" + request.host() + "/auth/cas");
 		request.response().headers().add(HttpHeaders.LOCATION, location);
@@ -202,8 +201,8 @@ public class AuthenticationFilter implements IWebFilter {
 	private boolean isCasEnabled(String domainUid) {
 		Map<String, String> domainProperties = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
 				.get(domainUid);
-		String authType = domainProperties.get(DomainAuthProperties.auth_type.name());
-		return net.bluemind.authentication.api.AuthTypes.CAS.name().equals(authType);
+		String authType = domainProperties.get(AuthDomainProperties.AUTH_TYPE.name());
+		return AuthTypes.CAS.name().equals(authType);
 	}
 
 	private boolean needAuthentication(HttpServerRequest request, Optional<ForwardedLocation> forwardedLocation) {
@@ -248,7 +247,7 @@ public class AuthenticationFilter implements IWebFilter {
 		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
 				.get(domainUid);
 		request.response().headers().add(HttpHeaders.LOCATION,
-				domainSettings.get(OpenIdProperties.OPENID_END_SESSION_ENDPOINT.name()));
+				domainSettings.get(AuthDomainProperties.OPENID_END_SESSION_ENDPOINT.name()));
 
 		request.response().setStatusCode(302);
 		request.response().end();
@@ -332,7 +331,7 @@ public class AuthenticationFilter implements IWebFilter {
 		while (it.hasNext()) {
 			String domainUid = it.next();
 			Map<String, String> values = all.get(domainUid);
-			String authType = values.get(DomainAuthProperties.auth_type.name());
+			String authType = values.get(AuthDomainProperties.AUTH_TYPE.name());
 			if (AuthTypes.CAS.name().equals(authType)) {
 				String extUrl = values.get(DomainSettingsKeys.external_url.name());
 				if (extUrl == null || extUrl.trim().isEmpty()) {

@@ -34,16 +34,16 @@ import com.github.freva.asciitable.AsciiTable;
 import com.github.freva.asciitable.Column;
 import com.github.freva.asciitable.HorizontalAlign;
 
-import net.bluemind.authentication.api.AuthTypes;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
+import net.bluemind.core.api.auth.AuthDomainProperties;
+import net.bluemind.core.api.auth.AuthTypes;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
-import net.bluemind.openid.api.OpenIdProperties;
 import net.bluemind.system.api.SysConfKeys;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -115,7 +115,7 @@ public class GetAuthConfCommand implements ICmdLet, Runnable {
 	private AuthSettings getDomainsAuthSettings(ItemValue<Domain> domain) {
 		AuthTypes authType = AuthTypes.INTERNAL;
 		try {
-			authType = AuthTypes.valueOf(domain.value.properties.get(SysConfKeys.auth_type.name()));
+			authType = AuthTypes.valueOf(domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name()));
 		} catch (IllegalArgumentException | NullPointerException e) {
 			return AuthSettings.internalAuthSettings(domain.uid);
 		}
@@ -126,15 +126,15 @@ public class GetAuthConfCommand implements ICmdLet, Runnable {
 		case INTERNAL:
 			return AuthSettings.internalAuthSettings(domain.uid);
 		case CAS:
-			authTypeProperties = Set.of(SysConfKeys.cas_url.name());
+			authTypeProperties = Set.of(AuthDomainProperties.CAS_URL.name());
 			break;
 		case KERBEROS:
-			authTypeProperties = Set.of(SysConfKeys.krb_ad_domain.name(), SysConfKeys.krb_ad_ip.name(),
-					SysConfKeys.krb_keytab.name());
+			authTypeProperties = Set.of(AuthDomainProperties.KRB_AD_DOMAIN.name(),
+					AuthDomainProperties.KRB_AD_IP.name(), SysConfKeys.krb_keytab.name());
 			break;
 		case OPENID:
-			authTypeProperties = Set.of(OpenIdProperties.OPENID_HOST.name(), OpenIdProperties.OPENID_CLIENT_ID.name(),
-					OpenIdProperties.OPENID_CLIENT_SECRET.name());
+			authTypeProperties = Set.of(AuthDomainProperties.OPENID_HOST.name(),
+					AuthDomainProperties.OPENID_CLIENT_ID.name(), AuthDomainProperties.OPENID_CLIENT_SECRET.name());
 			break;
 		}
 

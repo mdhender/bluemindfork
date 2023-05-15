@@ -29,18 +29,17 @@ import java.nio.file.Files;
 import java.util.Base64;
 import java.util.Optional;
 
-import net.bluemind.authentication.api.AuthTypes;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.cli.utils.CliUtils;
+import net.bluemind.core.api.auth.AuthDomainProperties;
+import net.bluemind.core.api.auth.AuthTypes;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
-import net.bluemind.openid.api.OpenIdProperties;
-import net.bluemind.system.api.SysConfKeys;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
@@ -102,13 +101,13 @@ public class SetAuthConfCommand implements ICmdLet, Runnable {
 		}
 
 		public void enable(ItemValue<Domain> domain) {
-			domain.value.properties.put(SysConfKeys.auth_type.name(), AuthTypes.CAS.name());
-			domain.value.properties.put(SysConfKeys.cas_url.name(), casUrl.toString());
+			domain.value.properties.put(AuthDomainProperties.AUTH_TYPE.name(), AuthTypes.CAS.name());
+			domain.value.properties.put(AuthDomainProperties.CAS_URL.name(), casUrl.toString());
 		}
 
 		public static void disable(ItemValue<Domain> domain) {
-			domain.value.properties.remove(SysConfKeys.auth_type.name());
-			domain.value.properties.remove(SysConfKeys.cas_url.name());
+			domain.value.properties.remove(AuthDomainProperties.AUTH_TYPE.name());
+			domain.value.properties.remove(AuthDomainProperties.CAS_URL.name());
 		}
 	}
 
@@ -143,17 +142,17 @@ public class SetAuthConfCommand implements ICmdLet, Runnable {
 		}
 
 		public void enable(ItemValue<Domain> domain) {
-			domain.value.properties.put(SysConfKeys.auth_type.name(), AuthTypes.KERBEROS.name());
-			domain.value.properties.put(SysConfKeys.krb_ad_domain.name(), krbAdDomain);
-			domain.value.properties.put(SysConfKeys.krb_ad_ip.name(), krbAdIp);
-			domain.value.properties.put(SysConfKeys.krb_keytab.name(),
+			domain.value.properties.put(AuthDomainProperties.AUTH_TYPE.name(), AuthTypes.KERBEROS.name());
+			domain.value.properties.put(AuthDomainProperties.KRB_AD_DOMAIN.name(), krbAdDomain);
+			domain.value.properties.put(AuthDomainProperties.KRB_AD_IP.name(), krbAdIp);
+			domain.value.properties.put(AuthDomainProperties.KRB_KEYTAB.name(),
 					Optional.ofNullable(keytab.base64).orElseGet(keytab::loadFromFile));
 		}
 
 		public static void disable(ItemValue<Domain> domain) {
-			domain.value.properties.remove(SysConfKeys.krb_ad_domain.name());
-			domain.value.properties.remove(SysConfKeys.krb_ad_ip.name());
-			domain.value.properties.remove(SysConfKeys.krb_keytab.name());
+			domain.value.properties.remove(AuthDomainProperties.KRB_AD_DOMAIN.name());
+			domain.value.properties.remove(AuthDomainProperties.KRB_AD_IP.name());
+			domain.value.properties.remove(AuthDomainProperties.KRB_KEYTAB.name());
 		}
 	}
 
@@ -166,16 +165,16 @@ public class SetAuthConfCommand implements ICmdLet, Runnable {
 		public String openIdClientSecret;
 
 		public void enable(ItemValue<Domain> domain) {
-			domain.value.properties.put(SysConfKeys.auth_type.name(), AuthTypes.OPENID.name());
-			domain.value.properties.put(OpenIdProperties.OPENID_HOST.name(), openIdServerUrl);
-			domain.value.properties.put(OpenIdProperties.OPENID_CLIENT_ID.name(), openIdClientId);
-			domain.value.properties.put(OpenIdProperties.OPENID_CLIENT_SECRET.name(), openIdClientSecret);
+			domain.value.properties.put(AuthDomainProperties.AUTH_TYPE.name(), AuthTypes.OPENID.name());
+			domain.value.properties.put(AuthDomainProperties.OPENID_HOST.name(), openIdServerUrl);
+			domain.value.properties.put(AuthDomainProperties.OPENID_CLIENT_ID.name(), openIdClientId);
+			domain.value.properties.put(AuthDomainProperties.OPENID_CLIENT_SECRET.name(), openIdClientSecret);
 		}
 
 		public static void disable(ItemValue<Domain> domain) {
-			domain.value.properties.remove(OpenIdProperties.OPENID_HOST.name());
-			domain.value.properties.remove(OpenIdProperties.OPENID_CLIENT_ID.name());
-			domain.value.properties.remove(OpenIdProperties.OPENID_CLIENT_SECRET.name());
+			domain.value.properties.remove(AuthDomainProperties.OPENID_HOST.name());
+			domain.value.properties.remove(AuthDomainProperties.OPENID_CLIENT_ID.name());
+			domain.value.properties.remove(AuthDomainProperties.OPENID_CLIENT_SECRET.name());
 		}
 	}
 
@@ -190,7 +189,7 @@ public class SetAuthConfCommand implements ICmdLet, Runnable {
 				.orElseThrow(() -> new CliException("Domain must not be global"));
 
 		Optional.ofNullable(scope.internal).ifPresent(
-				i -> domainItem.value.properties.put(SysConfKeys.auth_type.name(), AuthTypes.INTERNAL.name()));
+				i -> domainItem.value.properties.put(AuthDomainProperties.AUTH_TYPE.name(), AuthTypes.INTERNAL.name()));
 		Optional.ofNullable(scope.cas).ifPresentOrElse(s -> s.enable(domainItem), () -> AuthCas.disable(domainItem));
 		Optional.ofNullable(scope.kerberos).ifPresentOrElse(s -> s.enable(domainItem),
 				() -> AuthKerberos.disable(domainItem));

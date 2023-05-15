@@ -22,7 +22,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.authentication.api.AuthTypes;
+import net.bluemind.core.api.auth.AuthDomainProperties;
+import net.bluemind.core.api.auth.AuthTypes;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
@@ -30,7 +31,6 @@ import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.hook.DomainHookAdapter;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
 import net.bluemind.keycloak.utils.ConfigUpdateHelper;
-import net.bluemind.keycloak.utils.DomainAuthProperties;
 import net.bluemind.keycloak.utils.KerberosConfigHelper;
 import net.bluemind.keycloak.utils.KeycloakHelper;
 
@@ -54,7 +54,7 @@ public class DomainHook extends DomainHookAdapter {
 		logger.info("Delete Keycloak realm for domain {}", domain.uid);
 		IKeycloakAdmin service = context.provider().instance(IKeycloakAdmin.class);
 		service.deleteRealm(domain.uid);
-		if (AuthTypes.KERBEROS.name().equals(domain.value.properties.get(DomainAuthProperties.auth_type.name()))) {
+		if (AuthTypes.KERBEROS.name().equals(domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name()))) {
 			KerberosConfigHelper.removeKrb5Conf(domain.uid);
 		}
 	}

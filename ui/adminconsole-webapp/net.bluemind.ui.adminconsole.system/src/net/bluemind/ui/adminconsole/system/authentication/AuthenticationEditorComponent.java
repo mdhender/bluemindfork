@@ -38,16 +38,15 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 
-import net.bluemind.authentication.api.AuthTypes;
 import net.bluemind.core.api.AsyncHandler;
+import net.bluemind.core.api.auth.AuthDomainProperties;
+import net.bluemind.core.api.auth.AuthTypes;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.gwt.endpoint.DomainsGwtEndpoint;
 import net.bluemind.domain.api.gwt.js.JsDomain;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.CompositeGwtWidgetElement;
 import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
-import net.bluemind.openid.api.OpenIdProperties;
-import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.ui.adminconsole.system.SettingsModel;
 import net.bluemind.ui.adminconsole.system.authentication.l10n.AuthenticationEditorComponentConstants;
 import net.bluemind.ui.common.client.forms.Ajax;
@@ -294,25 +293,27 @@ public class AuthenticationEditorComponent extends CompositeGwtWidgetElement {
 		domainUrl = Optional.ofNullable(domainSettings.get(DomainSettingsKeys.external_url.name()));
 
 		AuthTypes authType = Arrays.stream(AuthTypes.values())
-				.filter(at -> at.name().equals(domain.properties.get(SysConfKeys.auth_type.name()))).findFirst()
-				.orElse(AuthTypes.INTERNAL);
+				.filter(at -> at.name().equals(domain.properties.get(AuthDomainProperties.AUTH_TYPE.name())))
+				.findFirst().orElse(AuthTypes.INTERNAL);
 
 		switch (authType) {
 		case INTERNAL:
 			break;
 		case CAS:
-			casUrl.setStringValue(domain.properties.get(SysConfKeys.cas_url.name()));
+			casUrl.setStringValue(domain.properties.get(AuthDomainProperties.CAS_URL.name()));
 			break;
 		case KERBEROS:
-			krbAdDomain.setStringValue(domain.properties.get(SysConfKeys.krb_ad_domain.name()));
-			krbAdIp.setStringValue(domain.properties.get(SysConfKeys.krb_ad_ip.name()));
-			keytabContent = Optional.ofNullable(domain.properties.get(SysConfKeys.krb_keytab.name()));
+			krbAdDomain.setStringValue(domain.properties.get(AuthDomainProperties.KRB_AD_DOMAIN.name()));
+			krbAdIp.setStringValue(domain.properties.get(AuthDomainProperties.KRB_AD_IP.name()));
+			keytabContent = Optional.ofNullable(domain.properties.get(AuthDomainProperties.KRB_KEYTAB.name()));
+			uppercaseKrbAdDomain();
+			manageKrbPrincName();
 			manageAdKeytabPresence(keytabContent.isPresent());
 			break;
 		case OPENID:
-			openidConfUrl.setStringValue(domain.properties.get(OpenIdProperties.OPENID_HOST.name()));
-			openidClientId.setStringValue(domain.properties.get(OpenIdProperties.OPENID_CLIENT_ID.name()));
-			openidClientSecret.setStringValue(domain.properties.get(OpenIdProperties.OPENID_CLIENT_SECRET.name()));
+			openidConfUrl.setStringValue(domain.properties.get(AuthDomainProperties.OPENID_HOST.name()));
+			openidClientId.setStringValue(domain.properties.get(AuthDomainProperties.OPENID_CLIENT_ID.name()));
+			openidClientSecret.setStringValue(domain.properties.get(AuthDomainProperties.OPENID_CLIENT_SECRET.name()));
 			break;
 		}
 
@@ -328,7 +329,7 @@ public class AuthenticationEditorComponent extends CompositeGwtWidgetElement {
 			authType = AuthTypes.INTERNAL;
 		}
 
-		domain.getProperties().put(SysConfKeys.auth_type.name(), authType.name());
+		domain.getProperties().put(AuthDomainProperties.AUTH_TYPE.name(), authType.name());
 
 		manageCas(domain, authType);
 		manageKerberos(domain, authType);
@@ -341,44 +342,43 @@ public class AuthenticationEditorComponent extends CompositeGwtWidgetElement {
 			if (url == null || !url.matches("^https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]/$")) {
 				throw new RuntimeException(AuthenticationEditorComponentConstants.INST.casUrlInvalid());
 			}
-			domain.getProperties().put(SysConfKeys.cas_url.name(), url);
+			domain.getProperties().put(AuthDomainProperties.CAS_URL.name(), url);
 		} else {
-			domain.getProperties().remove(SysConfKeys.cas_url.name());
+			domain.getProperties().remove(AuthDomainProperties.CAS_URL.name());
 		}
 	}
 
 	private void manageKerberos(JsDomain domain, AuthTypes authType) {
 		if (authType == AuthTypes.KERBEROS) {
-
-			domain.getProperties().put(SysConfKeys.krb_ad_domain.name(), trimNotNullOrBlank(
-					krbAdDomain.getStringValue(), AuthenticationEditorComponentConstants.INST.krbAdDomainInvalid()));
-			domain.getProperties().put(SysConfKeys.krb_ad_ip.name(), trimNotNullOrBlank(krbAdIp.getStringValue(),
-					AuthenticationEditorComponentConstants.INST.krbAdIpInvalid()));
-			domain.getProperties().put(SysConfKeys.krb_keytab.name(), keytabContent.orElseThrow(
+			domain.getProperties().put(AuthDomainProperties.KRB_AD_DOMAIN.name(),
+					trimNotNullOrBlank(krbAdDomain.getStringValue(),
+							AuthenticationEditorComponentConstants.INST.krbAdDomainInvalid()).toUpperCase());
+			domain.getProperties().put(AuthDomainProperties.KRB_AD_IP.name(), trimNotNullOrBlank(
+					krbAdIp.getStringValue(), AuthenticationEditorComponentConstants.INST.krbAdIpInvalid()));
+			domain.getProperties().put(AuthDomainProperties.KRB_KEYTAB.name(), keytabContent.orElseThrow(
 					() -> new RuntimeException(AuthenticationEditorComponentConstants.INST.keytabContentInvalid())));
 		} else {
-			domain.getProperties().remove(SysConfKeys.krb_ad_domain.name());
-			domain.getProperties().remove(SysConfKeys.krb_ad_ip.name());
-			domain.getProperties().remove(SysConfKeys.krb_keytab.name());
+			domain.getProperties().remove(AuthDomainProperties.KRB_AD_DOMAIN.name());
+			domain.getProperties().remove(AuthDomainProperties.KRB_AD_IP.name());
+			domain.getProperties().remove(AuthDomainProperties.KRB_KEYTAB.name());
 		}
-
 	}
 
 	private void manageExternal(JsDomain domain, AuthTypes authType) {
 		if (authType == AuthTypes.OPENID) {
-			domain.getProperties().put(OpenIdProperties.OPENID_HOST.name(),
+			domain.getProperties().put(AuthDomainProperties.OPENID_HOST.name(),
 					trimNotNullOrBlank(openidConfUrl.getStringValue(),
 							AuthenticationEditorComponentConstants.INST.openidConfUrlInvalid()));
-			domain.getProperties().put(OpenIdProperties.OPENID_CLIENT_ID.name(),
+			domain.getProperties().put(AuthDomainProperties.OPENID_CLIENT_ID.name(),
 					trimNotNullOrBlank(openidClientId.getStringValue(),
 							AuthenticationEditorComponentConstants.INST.openidClientIdInvalid()));
-			domain.getProperties().put(OpenIdProperties.OPENID_CLIENT_SECRET.name(),
+			domain.getProperties().put(AuthDomainProperties.OPENID_CLIENT_SECRET.name(),
 					trimNotNullOrBlank(openidClientSecret.getStringValue(),
 							AuthenticationEditorComponentConstants.INST.openidClientSecretInvalid()));
 		} else {
-			domain.getProperties().remove(OpenIdProperties.OPENID_HOST.name());
-			domain.getProperties().remove(OpenIdProperties.OPENID_CLIENT_ID.name());
-			domain.getProperties().remove(OpenIdProperties.OPENID_CLIENT_SECRET.name());
+			domain.getProperties().remove(AuthDomainProperties.OPENID_HOST.name());
+			domain.getProperties().remove(AuthDomainProperties.OPENID_CLIENT_ID.name());
+			domain.getProperties().remove(AuthDomainProperties.OPENID_CLIENT_SECRET.name());
 		}
 	}
 

@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.authentication.api;
+package net.bluemind.core.api.auth;
 
 public enum AuthTypes {
 	INTERNAL, CAS, KERBEROS, OPENID;
