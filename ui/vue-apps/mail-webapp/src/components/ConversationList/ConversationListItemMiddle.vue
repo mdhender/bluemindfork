@@ -63,7 +63,8 @@ import { BmExtension } from "@bluemind/extensions.vue";
 import { BmIcon } from "@bluemind/ui-components";
 import { DateComparator } from "@bluemind/date";
 import { Flag } from "@bluemind/email";
-import { folderUtils } from "@bluemind/mail";
+import { folderUtils, mailboxUtils } from "@bluemind/mail";
+
 import MailFolderIcon from "../MailFolderIcon";
 import {
     CONVERSATION_IS_SELECTED,
@@ -73,7 +74,7 @@ import {
     MY_SENT
 } from "~/getters";
 
-const { isDraftFolder } = folderUtils;
+const { isDraftFolder, isSentFolder } = folderUtils;
 
 const FLAG_COMPONENT = {
     [Flag.FLAGGED]: {
@@ -147,8 +148,9 @@ export default {
             return this.folders[this.conversation.folderRef.key];
         },
         fromOrToContacts() {
-            const folder = this.conversation.folderRef.key;
-            const isSentOrDraftBox = [this.MY_DRAFTS.key, this.MY_SENT.key].includes(folder);
+            const isShared = mailboxUtils.MailboxType.isShared(this.mailboxes[this.folder.mailboxRef.key]?.type);
+            const isSentOrDraftBox =
+                isSentFolder(this.folder.path, isShared) || isDraftFolder(this.folder.path, isShared);
             if (isSentOrDraftBox) {
                 const recipients = this.conversation.to?.length
                     ? this.conversation.to

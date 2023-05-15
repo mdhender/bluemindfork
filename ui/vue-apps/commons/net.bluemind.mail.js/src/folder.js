@@ -225,9 +225,14 @@ export function generateKey(folderUid) {
     return folderUid;
 }
 
-export function isDraftFolder(path) {
-    const rootFolderName = path.split("/")[0];
+export function isDraftFolder(path, isShared) {
+    const rootFolderName = path.split("/")[isShared ? 1 : 0];
     return DEFAULT_FOLDERS.DRAFTS === rootFolderName;
+}
+
+export function isSentFolder(path, isShared) {
+    const rootFolderName = path.split("/")[isShared ? 1 : 0];
+    return DEFAULT_FOLDERS.SENT === rootFolderName;
 }
 
 export function match(folder, pattern) {
@@ -286,6 +291,7 @@ export default {
     isDefault,
     isDescendantPath,
     isDraftFolder,
+    isSentFolder,
     isSharedRoot,
     isNameValid,
     isRoot,
