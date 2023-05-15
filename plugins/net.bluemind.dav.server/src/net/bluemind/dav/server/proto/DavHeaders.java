@@ -24,7 +24,7 @@ public class DavHeaders {
 
 	public static final String DAV_CAPS = "1, access-control, calendar-access, calendar-schedule, "
 			+ "calendar-auto-schedule, calendar-availability, inbox-availability, calendar-proxy, "
-			+ "calendarserver-private-events, calendarserver-private-comments, calendarserver-sharing, "
+			+ "calendarserver-private-events, calendarserver-sharing, "
 			+ "calendarserver-sharing-no-scheduling, calendar-query-extended, calendar-default-alarms, "
 			// + "calendar-managed-attachments, "
 			+ "calendarserver-partstat-changes, extended-mkcol, "

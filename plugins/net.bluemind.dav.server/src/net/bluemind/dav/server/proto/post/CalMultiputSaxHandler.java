@@ -15,7 +15,9 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
+import net.bluemind.calendar.helper.ical4j.VEventServiceHelper.CalendarProperties;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.dav.server.ics.ICS;
 import net.bluemind.dav.server.proto.NS;
 
 public class CalMultiputSaxHandler extends DefaultHandler {
@@ -55,8 +57,9 @@ public class CalMultiputSaxHandler extends DefaultHandler {
 			String ics = sb.toString();
 			try {
 				Consumer<ItemValue<VEventSeries>> consumer = (series -> events.add(new VEventPut(series, updateHref)));
-				VEventServiceHelper.parseCalendar(new ByteArrayInputStream(ics.getBytes()), Optional.empty(),
-						Collections.emptyList(), consumer);
+				CalendarProperties calendarProperties = VEventServiceHelper.parseCalendar(
+						new ByteArrayInputStream(ics.getBytes()), Optional.empty(), Collections.emptyList(), consumer);
+				ICS.adaptClassification(calendarProperties, events.stream().map(p -> p.getEvent()).toList());
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}

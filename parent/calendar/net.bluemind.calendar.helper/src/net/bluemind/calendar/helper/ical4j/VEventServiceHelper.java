@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -211,13 +212,16 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 
 	}
 
-	public static void parseCalendar(InputStream ics, Optional<CalendarOwner> owner, List<TagRef> allTags,
+	public static CalendarProperties parseCalendar(InputStream ics, Optional<CalendarOwner> owner, List<TagRef> allTags,
 			Consumer<ItemValue<VEventSeries>> consumer) {
 		File rootFolder = null;
+		CalendarProperties calendarProperties = null;
 		try {
 			rootFolder = Files.createTempDirectory(UUID.randomUUID().toString()).toFile();
 			File icsFile = new File(rootFolder, System.currentTimeMillis() + ".ics");
-			TimezoneInfo tzInfo = serializeToFile(ics, icsFile);
+			CalendarValues calendarValues = serializeToFile(ics, icsFile);
+			TimezoneInfo tzInfo = calendarValues.timezoneInfo;
+			calendarProperties = calendarValues.calendarProperties;
 			ObservanceMapper tzMapper = new ObservanceMapper(tzInfo.timezones);
 			Map<String, String> tzMapping = tzMapper.getTimezoneMapping();
 			parseICS(rootFolder, icsFile, tzInfo);
@@ -227,6 +231,7 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 		} finally {
 			deleteTmpFolder(rootFolder);
 		}
+		return calendarProperties;
 	}
 
 	private static void deleteTmpFolder(File rootFolder) {
@@ -317,14 +322,18 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 		return DatatypeConverter.printHexBinary(md.digest());
 	}
 
-	private static TimezoneInfo serializeToFile(InputStream ics, File icsFile) throws IOException, ParserException {
+	private static CalendarValues serializeToFile(InputStream ics, File icsFile) throws IOException, ParserException {
 		List<VTimeZone> tz = new ArrayList<>();
 		AtomicReference<String> globalTz = new AtomicReference<>();
+		AtomicReference<Calendar> calendarRef = new AtomicReference<>();
 		try (FileWriter writer = new FileWriter(icsFile);
 				Reader reader = new IcsReader(ics, writer);
 				UnfoldingReader unfoldingReader = new UnfoldingReader(reader, true)) {
 			CalendarBuilder builder = new CalendarBuilder();
 			BiConsumer<Calendar, Component> componentConsumer = (calendar, component) -> {
+
+				calendarRef.set(calendar);
+
 				if (Component.VTIMEZONE.equals(component.getName())) {
 					tz.add((VTimeZone) component);
 				}
@@ -336,7 +345,13 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 			builder.build(unfoldingReader, componentConsumer);
 		}
 
-		return new TimezoneInfo(tz, Optional.ofNullable(globalTz.get()));
+		CalendarProperties calendarProperties = new CalendarProperties();
+		if (calendarRef.get() != null) {
+			calendarProperties.putAll(calendarRef.get().getProperties().stream()
+					.collect(Collectors.toMap(Property::getName, Property::getValue)));
+		}
+
+		return new CalendarValues(new TimezoneInfo(tz, Optional.ofNullable(globalTz.get())), calendarProperties);
 	}
 
 	private static ItemValue<VEvent> fromComponent(Component component, Optional<String> globalTZ,
@@ -560,6 +575,16 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 		return convertToIcs(method, ItemValue.create(uid, series));
 	}
 
+	public static class CalendarValues {
+		public final TimezoneInfo timezoneInfo;
+		public final CalendarProperties calendarProperties;
+
+		public CalendarValues(TimezoneInfo timezoneInfo, CalendarProperties calendarProperties) {
+			this.timezoneInfo = timezoneInfo;
+			this.calendarProperties = calendarProperties;
+		}
+	}
+
 	private static class TimezoneInfo {
 		final List<VTimeZone> timezones;
 		final Optional<String> globalTZ;
@@ -568,6 +593,11 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 			this.timezones = timezones;
 			this.globalTZ = globalTZ;
 		}
+	}
+
+	@SuppressWarnings("serial")
+	public static class CalendarProperties extends HashMap<String, String> {
+
 	}
 
 }

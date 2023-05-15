@@ -21,12 +21,17 @@ package net.bluemind.dav.server.ics;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.calendar.helper.ical4j.VEventServiceHelper.CalendarProperties;
+import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.icalendar.api.ICalendarElement.Classification;
 import net.bluemind.lib.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.UnfoldingReader;
 import net.fortuna.ical4j.model.Calendar;
@@ -82,4 +87,27 @@ public class ICS {
 
 		}
 	}
+
+	public static void adaptClassification(CalendarProperties calendarProperties,
+			List<ItemValue<VEventSeries>> series) {
+		if (calendarProperties.containsKey("X-CALENDARSERVER-ACCESS")) {
+			Classification mapped = mapClassification(calendarProperties.get("X-CALENDARSERVER-ACCESS"));
+			for (ItemValue<VEventSeries> singleSeries : series) {
+				singleSeries.value.flatten().forEach(evt -> evt.classification = mapped);
+			}
+		}
+	}
+
+	private static Classification mapClassification(String value) {
+		switch (value) {
+		case "PUBLIC":
+			return Classification.Public;
+		case "PRIVATE":
+		case "CONFIDENTIAL":
+		case "RESTRICTED":
+		default:
+			return Classification.Private;
+		}
+	}
+
 }

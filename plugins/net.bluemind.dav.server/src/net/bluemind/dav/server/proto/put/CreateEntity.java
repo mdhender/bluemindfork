@@ -33,11 +33,13 @@ import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.VEventChanges;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.helper.ical4j.VEventServiceHelper;
+import net.bluemind.calendar.helper.ical4j.VEventServiceHelper.CalendarProperties;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ContainerDescriptor;
 import net.bluemind.core.container.model.ContainerUpdatesResult;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.dav.server.ics.ICS;
 import net.bluemind.dav.server.store.LoggedCore;
 import net.bluemind.dav.server.store.SyncTokens;
 import net.bluemind.todolist.adapter.VTodoAdapter;
@@ -133,14 +135,18 @@ abstract class CreateEntity {
 			logger.info("[{}] VEvent uid from query is {}", cal.uid, itemUid);
 			List<ItemValue<VEventSeries>> events = new LinkedList<>();
 			Consumer<ItemValue<VEventSeries>> consumer = series -> events.add(series);
-			VEventServiceHelper.parseCalendar(new ByteArrayInputStream(query.getCalendar().getBytes()),
-					Optional.empty(), Collections.emptyList(), consumer);
+			CalendarProperties calendarProperties = VEventServiceHelper.parseCalendar(
+					new ByteArrayInputStream(query.getCalendar().getBytes()), Optional.empty(), Collections.emptyList(),
+					consumer);
+
 			ICalendar calApi = lc.getCore().instance(ICalendar.class, cal.uid);
 			if (events.size() != 1) {
-				throw new ServerFault("woop");
+				throw new ServerFault("More than one event has been submitted to creation");
 			}
 
 			ItemValue<VEventSeries> series = events.get(0);
+
+			ICS.adaptClassification(calendarProperties, Arrays.asList(series));
 
 			ItemValue<VEventSeries> current = calApi.getComplete(itemUid);
 			ContainerUpdatesResult res = null;
