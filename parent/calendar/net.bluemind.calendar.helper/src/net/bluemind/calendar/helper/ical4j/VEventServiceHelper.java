@@ -29,6 +29,8 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -53,6 +55,8 @@ import net.bluemind.calendar.api.VEvent.Transparency;
 import net.bluemind.calendar.api.VEventCounter;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.core.api.date.BmDateTime;
+import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.icalendar.parser.CalendarOwner;
@@ -73,6 +77,7 @@ import net.fortuna.ical4j.model.PropertyList;
 import net.fortuna.ical4j.model.component.VTimeZone;
 import net.fortuna.ical4j.model.property.CalScale;
 import net.fortuna.ical4j.model.property.DtEnd;
+import net.fortuna.ical4j.model.property.Duration;
 import net.fortuna.ical4j.model.property.LastModified;
 import net.fortuna.ical4j.model.property.Method;
 import net.fortuna.ical4j.model.property.ProdId;
@@ -374,7 +379,12 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 		// DTEND
 		Property dtEndProperty = ical4j.getProperty(Property.DTEND);
 		if (dtEndProperty == null) {
-			vevent.value.dtend = vevent.value.dtstart;
+			Property duration = ical4j.getProperty(Property.DURATION);
+			if (duration != null) {
+				vevent.value.dtend = calculateDtEnd(vevent.value.dtstart, duration);
+			} else {
+				vevent.value.dtend = vevent.value.dtstart;
+			}
 		} else {
 			vevent.value.dtend = ICal4jHelper.parseIcsDate(ical4j.getEndDate(), globalTZ, tzMapping);
 		}
@@ -394,6 +404,26 @@ public class VEventServiceHelper extends ICal4jEventHelper<VEvent> {
 
 		return vevent;
 
+	}
+
+	private static BmDateTime calculateDtEnd(BmDateTime dtstart, Property duration) {
+		try {
+			Duration asDuration = (Duration) duration;
+			List<TemporalUnit> units = asDuration.getDuration().getUnits();
+			TemporalUnit unit = null;
+			if (units.contains(ChronoUnit.SECONDS)) {
+				unit = ChronoUnit.SECONDS;
+			} else {
+				unit = units.get(0);
+			}
+			long value = asDuration.getDuration().get(unit);
+			long millis = java.time.Duration.of(value, unit).toMillis();
+			long dtend = BmDateTimeWrapper.toTimestamp(dtstart.iso8601, dtstart.timezone) + millis;
+			return BmDateTimeWrapper.fromTimestamp(dtend, dtstart.timezone);
+		} catch (Exception e) {
+			logger.warn("Cannot calculate dtend based on the event duration", e);
+			return dtstart;
+		}
 	}
 
 	public static <T extends VEvent> VEventSeries normalizeEvent(List<T> list) {

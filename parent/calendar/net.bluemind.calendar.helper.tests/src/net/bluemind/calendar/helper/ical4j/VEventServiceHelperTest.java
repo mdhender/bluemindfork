@@ -572,6 +572,24 @@ public class VEventServiceHelperTest {
 
 	}
 
+	@Test
+	public void testDtEndCalculationBasedOnDuration() throws IOException, ServerFault {
+		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("dtstart_duration.ics");
+		String ics = FileUtils.streamString(in, true);
+		in.close();
+		List<ItemValue<VEventSeries>> events = toEvents(ics);
+		assertEquals(1, events.size());
+		VEvent main = events.get(0).value.main;
+		assertEquals(main.dtstart.iso8601, "2023-05-19T08:00:00.000Z");
+		assertEquals(main.dtstart.precision, Precision.DateTime);
+		assertEquals(main.dtstart.timezone, "UTC");
+
+		assertEquals(main.dtend.iso8601, "2023-05-19T08:15:00.000Z");
+		assertEquals(main.dtend.precision, Precision.DateTime);
+		assertEquals(main.dtend.timezone, "UTC");
+
+	}
+
 	private List<ItemValue<VEventSeries>> toEvents(String ics) {
 		List<ItemValue<VEventSeries>> ret = new LinkedList<>();
 		Consumer<ItemValue<VEventSeries>> consumer = ret::add;
