@@ -13,7 +13,7 @@ import {
     UNSELECT_ALL_CONVERSATIONS,
     UNSET_CURRENT_CONVERSATION
 } from "~/mutations";
-import { CONVERSATIONS_ACTIVATED, CONVERSATION_MESSAGE_BY_KEY, MY_MAILBOX, SELECTION_IS_EMPTY } from "~/getters";
+import { CONVERSATIONS_ACTIVATED, CONVERSATION_MESSAGE_BY_KEY, SELECTION_IS_EMPTY } from "~/getters";
 import { FETCH_CONVERSATION_IF_NOT_LOADED, FETCH_MESSAGE_IF_NOT_LOADED, FETCH_MESSAGE_METADATA } from "~/actions";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import MailConversationPanel from "./MailThread/MailConversationPanel";
@@ -28,7 +28,7 @@ export default {
     mixins: [ComposerInitMixin, WaitForMixin],
     computed: {
         ...mapState("mail", ["activeFolder", "folders"]),
-        ...mapGetters("mail", { CONVERSATION_MESSAGE_BY_KEY, MY_MAILBOX, SELECTION_IS_EMPTY })
+        ...mapGetters("mail", { CONVERSATION_MESSAGE_BY_KEY, SELECTION_IS_EMPTY })
     },
 
     watch: {
@@ -39,8 +39,7 @@ export default {
                     this.RESET_ACTIVE_MESSAGE();
                     this.UNSET_CURRENT_CONVERSATION();
 
-                    let assert = mailbox => mailbox && mailbox.loading === LoadingStatus.LOADED;
-                    await this.$waitFor(MY_MAILBOX, assert);
+                    await this.$waitFor("activeFolder");
                     await this.$waitFor(
                         () => this.$store.state["root-app"].identities,
                         ({ length }) => length

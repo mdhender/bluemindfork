@@ -228,26 +228,16 @@ function info(payload) {
     };
 }
 
-async function fetchConversationIfNotLoaded({ commit, state }, { uid, folder, conversationsActivated }) {
+async function fetchConversationIfNotLoaded({ commit, dispatch, state }, { uid, folder, conversationsActivated }) {
     const key = messageKey(uid, folder.key);
     if (!state.conversationByKey[key]) {
-        let refs;
-        if (conversationsActivated) {
-            refs = (await apiConversations.get(folder.mailboxRef, uid)).messageRefs;
-        } else {
-            uid = Number(uid);
-            refs = [{ itemId: uid, folderUid: folder.remoteRef.uid }];
-        }
-        const conversation = createConversationStub(uid, FolderAdaptor.toRef(folder));
-        conversation.loading = LoadingStatus.LOADING;
-        const conversationRef = { key: conversation.key, uid };
-        const messages = refs.map(({ itemId: internalId, folderUid }) =>
-            createOnlyMetadata({ internalId, folder: FolderAdaptor.toRef(folderUid), conversationRef })
-        );
-        commit(ADD_CONVERSATIONS, { conversations: [conversation] });
-        commit(ADD_MESSAGES, { messages, preserve: true });
+        commit(ADD_CONVERSATIONS, { conversations: [createConversationStub(uid, FolderAdaptor.toRef(folder))] });
     }
-    return state.conversationByKey[key];
+    const conversation = state.conversationByKey[key];
+    if (state.conversationByKey[key].loading === LoadingStatus.NOT_LOADED) {
+        await dispatch(FETCH_CONVERSATIONS, { conversations: [conversation], folder, conversationsActivated });
+    }
+    return conversation;
 }
 
 async function fetchConversations({ commit, state }, { conversations, folder, conversationsActivated }) {
@@ -449,7 +439,7 @@ async function deleteFlag({ commit, getters }, conversations, conversationsActiv
 
 function fakeConversationToMessage(conversation) {
     return createOnlyMetadata({
-        internalId: conversation.remoteRef.uid,
+        internalId: parseInt(conversation.remoteRef.uid),
         folder: conversation.folderRef,
         conversationRef: { key: conversation.key, uid: conversation.conversationUid }
     });

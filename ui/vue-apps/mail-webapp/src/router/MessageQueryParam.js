@@ -2,7 +2,8 @@ const MESSAGE_QUERY_PARTS = {
     mailbox: "m",
     folder: "d",
     search: "s",
-    filter: "f"
+    filter: "f",
+    sort: "o"
 };
 
 export default {
@@ -37,7 +38,14 @@ function partToRegexp(parts) {
 
 function messageQueryToPath(parts, messageQuery) {
     return Object.keys(parts)
-        .map(part => messageQuery[part] && "." + parts[part] + "/" + messageQuery[part])
+        .map(part => messageQuery[part] && "." + parts[part] + "/" + toString(messageQuery[part]))
         .filter(Boolean)
         .join("/");
+}
+
+function toString(param) {
+    if (typeof param === "object") {
+        return Object.values(param).join(" ");
+    }
+    return param;
 }

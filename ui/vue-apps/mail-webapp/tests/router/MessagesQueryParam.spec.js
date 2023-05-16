@@ -33,6 +33,14 @@ describe("MessageQueryParam", () => {
         params = MessageQueryParam.parse("/.m/a.mailbox/.d/INBOX/.s/search%20pattern/.f/unread");
         expect(params.search).toEqual("search%20pattern");
     });
+    test("Extract sort from a path", () => {
+        let params = MessageQueryParam.parse("/.o/date desc");
+        expect(params.sort).toEqual("date desc");
+        let definedKeys = Object.keys(params).filter(key => !!params[key]);
+        expect(definedKeys).toEqual(["sort"]);
+        params = MessageQueryParam.parse("/.m/a.mailbox/.d/INBOX/.s/search%20pattern/.o/date desc");
+        expect(params.sort).toEqual("date desc");
+    });
     test("Mailbox and folder support / and dot inside value", () => {
         let params = MessageQueryParam.parse("/.m/a.mailbox/.d/My/Folder/is.nice/.s/x/");
         expect(params.folder).toEqual("My/Folder/is.nice");

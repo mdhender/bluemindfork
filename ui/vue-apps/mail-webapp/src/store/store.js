@@ -55,7 +55,7 @@ import {
     SELECTION,
     USER_MAILBOXES
 } from "~/getters";
-import { IS_POPUP, SET_ACTIVE_FOLDER, SET_MAIL_THREAD_SETTING } from "~/mutations";
+import { IS_POPUP, SET_ACTIVE_FOLDER, SET_MAIL_THREAD_SETTING, RESET_ACTIVE_FOLDER } from "~/mutations";
 
 const { create, match } = folderUtils;
 const { LoadingStatus } = loadingStatusUtils;
@@ -81,6 +81,9 @@ export const mutations = {
             }
             parent = parent.parent && state.folders[parent.parent];
         }
+    },
+    [RESET_ACTIVE_FOLDER]: state => {
+        state.activeFolder = undefined;
     },
     [SET_MAIL_THREAD_SETTING]: (state, booleanValue) => {
         state.mailThreadSetting = booleanValue;

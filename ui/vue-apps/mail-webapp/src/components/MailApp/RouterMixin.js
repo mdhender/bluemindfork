@@ -12,12 +12,15 @@ import {
 } from "~/getters";
 import {
     RESET_CONVERSATIONS,
+    RESET_ACTIVE_FOLDER,
     SET_ACTIVE_FOLDER,
     SET_CONVERSATION_LIST_FILTER,
+    SET_CONVERSATION_LIST_SORT,
     SET_MAIL_THREAD_SETTING,
     SET_ROUTE_FILTER,
     SET_ROUTE_FOLDER,
     SET_ROUTE_MAILBOX,
+    SET_ROUTE_SORT,
     SET_ROUTE_SEARCH,
     SET_SEARCH_FOLDER,
     SET_SEARCH_PATTERN
@@ -27,6 +30,7 @@ import SearchHelper from "../SearchHelper";
 import { FolderAdaptor } from "~/store/folders/helpers/FolderAdaptor";
 import { ConversationListFilter } from "~/store/conversationList";
 import { WaitForMixin } from "~/mixins";
+import { SortField, SortOrder } from "../../store/conversationList";
 
 const { LoadingStatus } = loadingStatusUtils;
 
@@ -48,72 +52,50 @@ export default {
                 mailbox: query.mailbox,
                 folder: query.folder,
                 search: SearchHelper.parseQuery(query.search),
-                filter: (query.filter || ConversationListFilter.ALL).trim().toLowerCase()
+                filter: (query.filter || ConversationListFilter.ALL).trim().toLowerCase(),
+                sort: {
+                    field: query.sort?.split(" ")[0],
+                    order: query.sort?.split(" ")[1]
+                }
             };
         }
     },
     watch: {
-        "conversationList.sort": {
-            deep: true,
-            handler(value, old) {
-                if (value !== old) {
-                    this.FETCH_CONVERSATION_LIST_KEYS({
-                        folder: this.folders[this.activeFolder],
-                        conversationsActivated: this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`]
-                    });
-                }
-            }
-        },
         "$route.params.messagequery": {
             immediate: true,
             async handler() {
+                let changed = false;
                 if (this.route.folder !== this.$_RouterMixin_query.folder) {
                     this.SET_ROUTE_FOLDER(this.$_RouterMixin_query.folder);
+                    changed = true;
                 }
-
-                if (!isEqual(this.route.search, this.$_RouterMixin_query.search)) {
-                    this.SET_ROUTE_SEARCH(this.$_RouterMixin_query.search);
-                }
-
-                if (this.route.filter !== this.$_RouterMixin_query.filter) {
-                    this.SET_ROUTE_FILTER(this.$_RouterMixin_query.filter);
-                }
-
                 if (this.route.mailbox !== this.$_RouterMixin_query.mailbox) {
                     this.SET_ROUTE_MAILBOX(this.$_RouterMixin_query.mailbox);
+                    changed = true;
                 }
-            }
-        },
-
-        route: {
-            immediate: true,
-            deep: true,
-            async handler() {
-                await this.$_RouterMixin_ready(this.route.mailbox);
-                try {
-                    const folder = this.$_RouterMixin_resolveFolder();
-                    this.SET_CONVERSATION_LIST_FILTER(this.route.filter);
-                    this.SET_SEARCH_PATTERN(this.route.search.pattern);
-                    if (this.route.search.pattern) {
-                        this.SET_SEARCH_FOLDER(
-                            this.$_RouterMixin_query.folder ? FolderAdaptor.toRef(folder) : undefined
-                        );
-                    }
-                    if (!this.route.search.pattern || this.$_RouterMixin_query.folder || !this.activeFolder) {
-                        this.SET_ACTIVE_FOLDER(folder);
-                    }
+                if (changed) {
+                    this.RESET_ACTIVE_FOLDER();
                     this.RESET_CONVERSATIONS();
-                    await this.FETCH_CONVERSATION_LIST_KEYS({
-                        folder: this.folders[this.activeFolder],
-                        conversationsActivated: this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`]
-                    });
-                    if (folder?.unread === undefined) {
-                        await this.$store.dispatch(`mail/${UNREAD_FOLDER_COUNT}`, folder);
+                }
+                if (!isEqual(this.route.search, this.$_RouterMixin_query.search)) {
+                    this.SET_ROUTE_SEARCH(this.$_RouterMixin_query.search);
+                    changed = true;
+                }
+                if (this.route.filter !== this.$_RouterMixin_query.filter) {
+                    this.SET_ROUTE_FILTER(this.$_RouterMixin_query.filter);
+                    changed = true;
+                }
+                if (!isEqual(this.route.sort, this.$_RouterMixin_query.sort)) {
+                    this.SET_ROUTE_SORT(this.$_RouterMixin_query.sort);
+                    changed = true;
+                }
+                if (changed) {
+                    try {
+                        await this.$_RouterMixin_fetchConversationlist();
+                        //TODO: Add an alert here
+                    } catch {
+                        this.$router.push({ name: "mail:root" });
                     }
-                    //TODO: Sync query params with router params (navigate...)
-                } catch {
-                    //TODO: Add an alert here
-                    this.$router.push({ name: "mail:root" });
                 }
             }
         }
@@ -121,16 +103,60 @@ export default {
     methods: {
         ...mapActions("mail", { FETCH_CONVERSATION_LIST_KEYS }),
         ...mapMutations("mail", {
+            RESET_ACTIVE_FOLDER,
             RESET_CONVERSATIONS,
             SET_ACTIVE_FOLDER,
             SET_CONVERSATION_LIST_FILTER,
+            SET_CONVERSATION_LIST_SORT,
             SET_ROUTE_FILTER,
             SET_ROUTE_FOLDER,
             SET_ROUTE_MAILBOX,
             SET_ROUTE_SEARCH,
+            SET_ROUTE_SORT,
             SET_SEARCH_PATTERN,
             SET_SEARCH_FOLDER
         }),
+        async $_RouterMixin_fetchConversationlist() {
+            await this.$_RouterMixin_ready(this.route.mailbox);
+            const folder = this.$_RouterMixin_resolveFolder();
+            this.SET_CONVERSATION_LIST_FILTER(this.route.filter);
+            this.SET_SEARCH_PATTERN(this.route.search.pattern);
+            if (this.route.search.pattern) {
+                this.SET_SEARCH_FOLDER(this.$_RouterMixin_query.folder ? FolderAdaptor.toRef(folder) : undefined);
+            }
+            if (!this.route.search.pattern || this.$_RouterMixin_query.folder || !this.activeFolder) {
+                this.SET_ACTIVE_FOLDER(folder);
+            }
+            this.$_RouterMixin_setSort();
+            await this.FETCH_CONVERSATION_LIST_KEYS({
+                folder: this.folders[this.activeFolder],
+                conversationsActivated: this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`]
+            });
+            if (folder?.unread === undefined) {
+                await this.$store.dispatch(`mail/${UNREAD_FOLDER_COUNT}`, folder);
+            }
+            //TODO: Sync query params with router params (navigate...)
+        },
+        $_RouterMixin_setSort() {
+            const sort = { field: SortField.DATE, order: SortOrder.DESC };
+            if (this.route.sort.field) {
+                for (const field of Object.values(SortField)) {
+                    if (field === this.route.sort.field.toLowerCase()) {
+                        sort.field = field;
+                        break;
+                    }
+                }
+            }
+            if (this.route.sort.order) {
+                for (const order of Object.values(SortOrder)) {
+                    if (order === this.route.sort.order.toLowerCase()) {
+                        sort.order = order;
+                        break;
+                    }
+                }
+            }
+            this.SET_CONVERSATION_LIST_SORT(sort);
+        },
         $_RouterMixin_resolveFolder() {
             let path = this.route.folder;
             if (path) {
@@ -142,11 +168,9 @@ export default {
             }
             return this.MY_INBOX;
         },
-        $_RouterMixin_ready(name) {
-            const promises = [];
-            promises.push(this.$_RouterMixin_waitAndSetThreadSetting());
-            promises.push(this.$_RouterMixin__waitForMailboxes(name));
-            return Promise.all(promises);
+        async $_RouterMixin_ready(name) {
+            await this.$_RouterMixin_waitAndSetThreadSetting();
+            await this.$_RouterMixin_waitForMailboxes(name);
         },
         async $_RouterMixin_waitAndSetThreadSetting() {
             await this.$waitFor(
@@ -155,7 +179,7 @@ export default {
             );
             this.$store.commit(`mail/${SET_MAIL_THREAD_SETTING}`, this.mail_thread);
         },
-        async $_RouterMixin__waitForMailboxes(name) {
+        async $_RouterMixin_waitForMailboxes(name) {
             let assert = mailbox => mailbox && mailbox.loading === LoadingStatus.LOADED;
             if (!name) {
                 return this.$waitFor(MY_MAILBOX, assert);

@@ -1,10 +1,11 @@
-import { SET_ROUTE_FILTER, SET_ROUTE_FOLDER, SET_ROUTE_MAILBOX, SET_ROUTE_SEARCH } from "~/mutations";
+import { SET_ROUTE_FILTER, SET_ROUTE_FOLDER, SET_ROUTE_MAILBOX, SET_ROUTE_SEARCH, SET_ROUTE_SORT } from "~/mutations";
 export default {
     state: {
         folder: undefined,
         filter: undefined,
         mailbox: undefined,
-        search: undefined
+        search: undefined,
+        sort: { field: undefined, order: undefined }
     },
     mutations: {
         [SET_ROUTE_FILTER](state, filter) {
@@ -18,6 +19,9 @@ export default {
         },
         [SET_ROUTE_SEARCH](state, search) {
             state.search = search;
+        },
+        [SET_ROUTE_SORT](state, sort) {
+            state.sort = sort;
         }
     }
 };

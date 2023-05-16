@@ -48,7 +48,6 @@
 <script>
 import { BmIconDropdown, BmDropdownItemButton, BmDropdownDivider, BmDropdownHeader } from "@bluemind/ui-components";
 import { mapGetters, mapState } from "vuex";
-import { SET_CONVERSATION_LIST_SORT } from "~/mutations";
 import { SortField, SortOrder } from "~/store/conversationList";
 
 import {
@@ -83,7 +82,8 @@ export default {
                 return this.$store.state.mail.conversationList.sort;
             },
             set(value) {
-                this.$store.commit(`mail/${SET_CONVERSATION_LIST_SORT}`, value);
+                const path = this.$router.relative({ name: "v:mail:home", params: { sort: value } }, this.$route);
+                this.$router.push(path);
             }
         }
     },

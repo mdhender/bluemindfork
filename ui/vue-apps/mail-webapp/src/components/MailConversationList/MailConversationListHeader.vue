@@ -55,7 +55,7 @@ import {
     BmSortControl
 } from "@bluemind/ui-components";
 import { mapState, mapGetters, mapMutations } from "vuex";
-import { UNSELECT_ALL_CONVERSATIONS, SET_CONVERSATION_LIST_SORT, SET_SELECTION } from "~/mutations";
+import { UNSELECT_ALL_CONVERSATIONS, SET_SELECTION } from "~/mutations";
 import { ALL_CONVERSATIONS_ARE_SELECTED, SELECTION_IS_EMPTY, CONVERSATION_LIST_ALL_KEYS } from "~/getters";
 import { SortField, SortOrder } from "~/store/conversationList";
 const FILTER_INDEXES = { all: 0, unread: 1, flagged: 2 };
@@ -106,7 +106,8 @@ export default {
                 return this.$store.state.mail.conversationList.sort;
             },
             set(value) {
-                this.$store.commit(`mail/${SET_CONVERSATION_LIST_SORT}`, value);
+                const path = this.$router.relative({ name: "v:mail:home", params: { sort: value } }, this.$route);
+                this.$router.push(path);
             }
         }
     },
