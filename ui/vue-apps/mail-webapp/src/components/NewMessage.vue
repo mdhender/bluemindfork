@@ -83,7 +83,7 @@ export default {
 }
 
 .bm-floating-action-button.new-message {
-    position: absolute;
+    position: fixed;
     bottom: $sp-6;
     right: $sp-6;
     z-index: 110;
