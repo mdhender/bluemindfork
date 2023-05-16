@@ -60,7 +60,7 @@ export default {
             });
         }
     },
-    updated() {
+    beforeUpdate() {
         if (!this.$_BmCalendarMixin_lock) {
             this.$_BmCalendarMixin_lock = true;
             this.decorateCalendar();
