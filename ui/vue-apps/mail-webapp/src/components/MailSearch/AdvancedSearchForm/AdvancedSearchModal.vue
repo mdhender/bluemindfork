@@ -7,12 +7,30 @@
         :busy="!newPattern"
         :cancel-title="$t('common.action.reset')"
         @cancel="cancel"
-        @hide="SET_CURRENT_SEARCH_PATTERN(newPattern)"
+        @hide="sync"
         @ok="validateAndsearch"
     >
         <div class="item">
             <div class="label">{{ $t("mail.search.options.folder.label") }}</div>
             <mail-search-box-context class="search-input" :folder="currentFolder" />
+        </div>
+
+        <h3 class="section">{{ $t("mail.search.section.contacts") }}</h3>
+        <div class="item">
+            <div class="label">{{ $t("common.from") }}</div>
+            <contact-search-input class="search-input" :addresses.sync="from" :max-contacts="1" />
+        </div>
+        <div class="item">
+            <div class="label">{{ $t("common.to") }}</div>
+            <contact-search-input class="search-input" :addresses.sync="to" />
+        </div>
+        <div class="item">
+            <div class="label">{{ $t("common.cc") }}</div>
+            <contact-search-input class="search-input" :addresses.sync="cc" />
+        </div>
+        <div class="item">
+            <div class="label">{{ $t("common.with") }}</div>
+            <contact-search-input class="search-input" :addresses.sync="with_" />
         </div>
         <h3 class="section">{{ $t("mail.search.section.msg_and_attachments") }}</h3>
         <div class="item">
@@ -64,20 +82,36 @@ import StringSearchInput from "./StringSearchInput";
 import DateSearchInput from "./DateSearchInput";
 import parser from "../SearchHelper/patternParsers";
 import SizeSearchInput from "./SizeSearchInput";
+import ContactSearchInput from "./ContactSearchInput";
 
+function initData() {
+    return {
+        contains: null,
+        subject: null,
+        date: null,
+        filename: null,
+        has: null,
+        size: null,
+        cc: null,
+        to: null,
+        with: null,
+        from: null
+    };
+}
 export default {
     name: "AdvancedSearchModal",
-    components: { BmFormCheckbox, DateSearchInput, BmModal, MailSearchBoxContext, StringSearchInput, SizeSearchInput },
+    components: {
+        BmFormCheckbox,
+        BmModal,
+        ContactSearchInput,
+        DateSearchInput,
+        MailSearchBoxContext,
+        SizeSearchInput,
+        StringSearchInput
+    },
     mixins: [SearchMixin],
     data() {
-        return {
-            contains: null,
-            subject: null,
-            date: null,
-            filename: null,
-            has: null,
-            size: null
-        };
+        return initData();
     },
     computed: {
         ...mapState("mail", ["folders", "activeFolder"]),
@@ -138,6 +172,14 @@ export default {
             set(value) {
                 this.size = { ...this.size, max: value };
             }
+        },
+        with_: {
+            get() {
+                return this.with;
+            },
+            set(value) {
+                this.with = value;
+            }
         }
     },
     watch: {
@@ -179,7 +221,9 @@ export default {
         stringify(keyword) {
             switch (keyword) {
                 case "date": {
-                    return this.date?.min ? `[${this.date.min || "*"} TO ${this.date.max || "*"}]` : null;
+                    return this.date?.min || this.date?.max
+                        ? `{${this.date.min || "*"} TO ${this.date.max || "*"}}`
+                        : null;
                 }
                 case "has": {
                     return this.hasAttachment ? "attachments" : null;
@@ -187,18 +231,33 @@ export default {
                 case "size": {
                     return +this.sizeMin > 0 ? `>${this.sizeMin}` : +this.sizeMax > 0 ? `<${this.sizeMax}` : null;
                 }
+                case "to":
+                case "from":
+                case "cc":
+                case "with": {
+                    return !this[keyword]?.length
+                        ? null
+                        : Array.isArray(this[keyword]) && this[keyword].length > 1
+                        ? `(${this[keyword].join(" AND ")})`
+                        : this[keyword];
+                }
                 default: {
                     return this[keyword];
                 }
             }
         },
         resetFields() {
-            this.contains = null;
-            this.subject = null;
-            this.date = null;
-            this.has = null;
-            this.filename = null;
-            this.size = null;
+            const data = initData();
+            Object.keys(data).forEach(property => (this[property] = data[property]));
+        },
+        sync({ trigger }) {
+            if (trigger !== "cancel") {
+                if (this.newPattern) {
+                    this.SET_CURRENT_SEARCH_PATTERN(this.newPattern);
+                } else {
+                    this.$router.navigate({ name: "v:mail:home", params: { search: null } });
+                }
+            }
         }
     }
 };

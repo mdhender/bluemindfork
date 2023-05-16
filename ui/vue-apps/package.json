@@ -8,7 +8,8 @@
             "videoconferencing-saas-webapp",
             "webmodules/net.bluemind.webmodules.filehosting",
             "webmodules/net.bluemind.webmodules.styleguide",
-            "plugins/net.bluemind.plugins.smime"
+            "plugins/net.bluemind.plugins.smime",
+            "../../clients/js/generated"
         ],
         "nohoist": [
             "**/bootstrap-vue",

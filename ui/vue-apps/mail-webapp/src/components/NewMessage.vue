@@ -78,8 +78,7 @@ export default {
 @import "~@bluemind/ui-components/src/css/variables";
 
 .bm-button.btn-md.new-message {
-    width: 90%;
-    max-width: base-px-to-rem(240);
+    flex: 1 1 auto;
 }
 
 .bm-floating-action-button.new-message {

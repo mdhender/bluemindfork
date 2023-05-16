@@ -82,6 +82,7 @@ export default {
     align-items: center;
 
     .new {
+        padding: 0 $sp-5;
         display: flex;
         justify-content: center;
         width: 16.7%;
@@ -108,7 +109,7 @@ export default {
             }
         }
         & > .new {
-            padding: $sp-5;
+            height: base-px-to-rem(30);
             width: 3.5rem !important;
             .slot-wrapper {
                 display: none;

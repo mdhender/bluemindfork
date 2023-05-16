@@ -974,84 +974,79 @@
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
 "@bluemind/addressbook.api@^5.0.0":
-  version "5.0.3591"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/addressbook.api/-/addressbook.api-5.0.3591.tgz#b7f09f9e9f60c621d89a93a59027df09ce9306e0"
-  integrity sha512-8sJUSj/8NQzrvBFwTvcu9aFzuAoL3Lbd4fEnyG+ruQBslLyon5DR5sTJEgPBbW+nNZpqXy7SRctBq3hjyItIGg==
+  version "5.0.3598"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/addressbook.api/-/addressbook.api-5.0.3598.tgz#ac12998b64dc2dbf7f86f5e75bb853a8b71d18be"
+  integrity sha512-sZBVaLj117xZQZa8gYy8SuIqMTR0qouCPmU4HniZoekZQIYMm5l+EhMioRbh072nx4rp1eMjq0MML8qqcvLU6Q==
   dependencies:
-    "@bluemind/api.commons" "^5.0.3591"
+    "@bluemind/api.commons" "^5.0.3598"
 
 "@bluemind/announcement.api@^5.0.0":
-  version "5.0.2572"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/announcement.api/-/announcement.api-5.0.2572.tgz#09722874115ce655d2f1590190bb5b70a53c7ab5"
-  integrity sha512-QgW0fwW4iFmV+dyv+EQtKUxDQ9HFutsSbW+A2vmCM9/KC8qjzgDPsx7m/E44PpVGHB2y3bmaFG77UD/iANaOig==
+  version "5.0.3598"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/announcement.api/-/announcement.api-5.0.3598.tgz#16430b3e56c0e357707f3093b1a3bb156eeadb39"
+  integrity sha512-JRisSPrj9pWmCxYBri8u4j/ONv0OjLVr6KkwFiOvKZxKGhBY9sWWqBhtUBEw1VrdTrnGLcrgQ7JYQgqE5eqQow==
   dependencies:
-    "@bluemind/api.commons" "^5.0.2572"
+    "@bluemind/api.commons" "^5.0.3598"
 
-"@bluemind/api.commons@^5.0.0", "@bluemind/api.commons@^5.0.2572":
-  version "5.0.2572"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/api.commons/-/api.commons-5.0.2572.tgz#82c12ccdea3e4174083269c34a92c1bfdd46c7b0"
-  integrity sha512-qgtkK26be6lI/N3oz5fFEnp1Mtwlfls88aSMs2Wycvl0qviHoK7X7AcGYTAtOX3jEz6TEyGOLVzONZKwMfp1OQ==
-
-"@bluemind/api.commons@^5.0.3473", "@bluemind/api.commons@^5.0.3591":
-  version "5.0.3591"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/api.commons/-/api.commons-5.0.3591.tgz#dc986a9a160eb5ceab641c66fa503fd8156ffe97"
-  integrity sha512-N0eTif3GzBHfN9mo4mwQzqjvLnZE7FjyPcyHqTuVx0RGQN/Lm/yD+B7cUKFff/8fdKR/0xBaGtCO7kdmgOjoqQ==
+"@bluemind/api.commons@^5.0.0", "@bluemind/api.commons@^5.0.3598":
+  version "5.0.3598"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/api.commons/-/api.commons-5.0.3598.tgz#9db6c69697ea605bca477931a50819d0f9197fa5"
+  integrity sha512-UW4qdVa3zT9ZvgIgdZOPaEDeTzTN5pPwJv40AQhWBhgjDppTNaekpn2GLNqop1jbVn06nHQ9oydIekL/5tzCHA==
 
 "@bluemind/attachment.api@^5.0.0":
-  version "5.0.2572"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/attachment.api/-/attachment.api-5.0.2572.tgz#bc15ffd42f4352ea98f541b823a7a946224714d8"
-  integrity sha512-r2q4QudkNTBshcQUl0lxaTMGVPASnuVhkaDEyuQYAhZIlvw7Guuwx/AYxiRAlx9q2VR940tADk9ZWPqABPDMxw==
+  version "5.0.3598"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/attachment.api/-/attachment.api-5.0.3598.tgz#9615bd9b2c2b5c1f9d24e133f36a9ff7d56d5fbf"
+  integrity sha512-yz4MRmqd7cWNBvjtIqwxL5aLXKaNXfsY4uHaUSh3I62WTugpbqmcNdPJc9Gh7cWR+6f+PHFzihKrJHLQ9zIO5g==
   dependencies:
-    "@bluemind/api.commons" "^5.0.2572"
+    "@bluemind/api.commons" "^5.0.3598"
 
 "@bluemind/authentication.api@^5.0.0":
-  version "5.0.3591"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/authentication.api/-/authentication.api-5.0.3591.tgz#a527ff83eef92b6bd65208e0b2cd4dabd050805b"
-  integrity sha512-YKLF+N3ATaVb+1/Azx923SAg5DY62HJKgz3ss+54ZdM/B48KakPNjUN+oKVinHP2JzHiwReo7FBUcC5IjeeSRw==
+  version "5.0.3598"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/authentication.api/-/authentication.api-5.0.3598.tgz#619fe083239e64cb0fa99172fdca8508383afa92"
+  integrity sha512-AWOGBCTJEcxKmZRliyVVSBaSzP5BgzIWh6vIFh28nSMJljMhmmb1TvfV8yANJ460kR1VEj+4JovUksYAfQJD6A==
   dependencies:
-    "@bluemind/api.commons" "^5.0.3591"
+    "@bluemind/api.commons" "^5.0.3598"
 
 "@bluemind/backend.mail.api@^5.0.0":
-  version "5.0.2572"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/backend.mail.api/-/backend.mail.api-5.0.2572.tgz#4e4f730062066e90c8d4a4a0d041c5355cc9b4e8"
-  integrity sha512-ngkD7osNlOuZ9bKbs5c12VunMKtTqikMil48JUD5TNdzpcdN92zMQmXbvVeMPtQYu30bweqdmOedx7McIFU7gQ==
+  version "5.0.3598"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/backend.mail.api/-/backend.mail.api-5.0.3598.tgz#f782d6ef80ad7f7b107c3fb61073b3a5a0f89c79"
+  integrity sha512-lmXSIg5KZNbQyhwuGsEgzkq1HOgDDNSz3gR5Ivv/Rjb+iyWHGxJyaADa7/M6m3J4bGRZ0m3a+D9MyZfTJGH/xg==
   dependencies:
-    "@bluemind/api.commons" "^5.0.2572"
+    "@bluemind/api.commons" "^5.0.3598"
 
 "@bluemind/calendar.api@^5.0.0":
-  version "5.0.2572"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/calendar.api/-/calendar.api-5.0.2572.tgz#01fab7643a97fb4fb5a0e035d09c84416b5fd419"
-  integrity sha512-uinKUI0ruyj0G2QXPGdN460IVdPGEHCm70pEb6u6cFCMiBgUvWFAbuFnnvO+XGt7fRKpZzpoxMW2Ob4fUtkfQg==
+  version "5.0.3598"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/calendar.api/-/calendar.api-5.0.3598.tgz#c509475ea4418a43150a59963ed4c5d23ebc92ca"
+  integrity sha512-62dA+WLquMsDL7oQ+766Ba3HHiUGJJrz0t7knf6Uj1ecGRqLPoF1K1fqDRkUBCBYCn4PcJoAJop1bSV0RsOrVA==
   dependencies:
-    "@bluemind/api.commons" "^5.0.2572"
+    "@bluemind/api.commons" "^5.0.3598"
 
 "@bluemind/core.commons@^5.0.0":
-  version "5.0.3591"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/core.commons/-/core.commons-5.0.3591.tgz#bb9b4e2740f8df796540ef3821913a9c15a368e7"
-  integrity sha512-txzJChfWvr5ewYSI1M+DLtRMx4vBMUBmfagwidUj/4wLndBrjCTMoimA/zgWbzKtEBrd9nfDjL9xcwqOyo/ZIA==
+  version "5.0.3598"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/core.commons/-/core.commons-5.0.3598.tgz#67918f931cea70f592304ac264c89ef031bfd03c"
+  integrity sha512-tnRzG+spqTIbsqIcx1CrgYp93o1wAbclFb1iyiGSkkV1Z+QkmHjpSYuLYKFM8ESxb5FZ6BtZuLfLteeVNv+sqg==
   dependencies:
-    "@bluemind/api.commons" "^5.0.3591"
+    "@bluemind/api.commons" "^5.0.3598"
 
 "@bluemind/core.container.api@^5.0.0":
-  version "5.0.2572"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/core.container.api/-/core.container.api-5.0.2572.tgz#5d157d1489e73eec04db3bc749a8d49ee0367fd0"
-  integrity sha512-dMmMht7Ivvy+zRyFoMDisTfWWR0wL5/Dnhrs3HnyXrPYnv0UapHBqYhvMmxG/WI74bNNdj7++e3PrXZrYohT1A==
+  version "5.0.3598"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/core.container.api/-/core.container.api-5.0.3598.tgz#c66d3b4de8284ad77924489241ce83782841e6fe"
+  integrity sha512-KersHmw5NtJR4jyNivUSVYyCqqNk9zgcmWRwY+dkp36/e27pYnVoV64A56JkZRWSWuknsXzXkt8sLypPhpp52g==
   dependencies:
-    "@bluemind/api.commons" "^5.0.2572"
+    "@bluemind/api.commons" "^5.0.3598"
 
 "@bluemind/core.task.api@^5.0.0":
-  version "5.0.2572"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/core.task.api/-/core.task.api-5.0.2572.tgz#36decb903e292cb933939096736ff8cf148aeee4"
-  integrity sha512-p9oXNE6pUBpNB0LwJPJNj+Zqm4Dvn5KOVe08sDXYlubYB+jjqbWqxOharfWbewkw01i146TNPKOeRK5M8m0wHw==
+  version "5.0.3598"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/core.task.api/-/core.task.api-5.0.3598.tgz#a258416297c143f0aa8beb36d710489a0bdc7557"
+  integrity sha512-8CjDaF6x8QRWp/P2xrzwXuSXU8tzxKdAkOhPaHZddv2z3wVQkhuVKjidnO4uW4vx2MBjYRMW3VIEeLGdBSg0Wg==
   dependencies:
-    "@bluemind/api.commons" "^5.0.2572"
+    "@bluemind/api.commons" "^5.0.3598"
 
 "@bluemind/directory.api@^5.0.0":
-  version "5.0.2572"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/directory.api/-/directory.api-5.0.2572.tgz#7d87e4c1bb0a1d783611e6c5c62f7d1dffb213d9"
-  integrity sha512-IyAZphD+/ujQs/0dirzrXGdQgIWx2hsZCZqjZeknTB6uRPbhce+F2Nu1aae3MNc2tosohkUB2nKAILNuOwh8nA==
+  version "5.0.3598"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/directory.api/-/directory.api-5.0.3598.tgz#2db475d94977f049d8498d38b9f874fc5a9d25e4"
+  integrity sha512-AAKYl47CEDP1zMSX8657J5FcirWvvy5Vm1EvCk5NlrkJgfEbq9rqBRuk0ppkUiVlYN4s693fueKB1ImCbDN+6Q==
   dependencies:
-    "@bluemind/api.commons" "^5.0.2572"
+    "@bluemind/api.commons" "^5.0.3598"
 
 "@bluemind/emailjs-mime-builder@^2.0.5-bluemind2":
   version "2.0.5-bluemind2"
@@ -1065,67 +1060,67 @@
     ramda "^0.26.1"
 
 "@bluemind/filehosting.api@^5.0.0":
-  version "5.0.2572"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/filehosting.api/-/filehosting.api-5.0.2572.tgz#044e151ff1af587dbc991e567ebd48a3a4f6f1e2"
-  integrity sha512-6N90uIa9QAV9vtZg/W95K7vjOUJlWPU6hZNL/7yawpYWMT/5wFhg0z5dLOIGv25tuvdvKm5pDoQ9FfI9YqwSiA==
+  version "5.0.3598"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/filehosting.api/-/filehosting.api-5.0.3598.tgz#f5678015a2e473c6ab9c0fb8c80793d8226f9909"
+  integrity sha512-+r4TvbzuOJ9KM/tm1oNpdXfS4VVGXy9A8jfTVaQxxJCZ+s4lyaDLxrQOfy05+YuA8vkfj4ynGygl2fPjrJU6jA==
   dependencies:
-    "@bluemind/api.commons" "^5.0.2572"
+    "@bluemind/api.commons" "^5.0.3598"
 
 "@bluemind/mailbox.api@^5.0.0":
-  version "5.0.2572"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/mailbox.api/-/mailbox.api-5.0.2572.tgz#745d67c344338966104fc28f0d307d5d77c5db06"
-  integrity sha512-x/4wxh2aaBEutoRIfeeM+9nCIMLb6sluMuiShYVW31NzLXgQroTZ+xAXIKQzS+87u416f93RcLa3CPPEhRXa+w==
+  version "5.0.3598"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/mailbox.api/-/mailbox.api-5.0.3598.tgz#2be5b30a0c306aebe6ba34558b133280dc0d4bbc"
+  integrity sha512-aF4Q5mFOoFi+cYPqSZaGl10ks1yiVRorHYlUMkJ0Kq2ZDgkS9HyKBpByzd1TB0879Mye6vEuJPwkiVAArF2yNA==
   dependencies:
-    "@bluemind/api.commons" "^5.0.2572"
+    "@bluemind/api.commons" "^5.0.3598"
 
 "@bluemind/mailmessage.api@^5.0.0":
-  version "5.0.2572"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/mailmessage.api/-/mailmessage.api-5.0.2572.tgz#c49fac93fd309018d44eb522152aa652c83a632f"
-  integrity sha512-kmlfK/zc+0hpcebZr7WbH/OLbnrsAPjYbeHuVUntZRcrm68AdrSnvunc0GWDTnWt9fkr15bZ+aJFMZgUzUxqEg==
+  version "5.0.3598"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/mailmessage.api/-/mailmessage.api-5.0.3598.tgz#33c32450c6c35b09ce03acf7d4f259e259f7233c"
+  integrity sha512-W3+9uuwJPykMG6fJECLPCvdpjCoEUwIHouPqhYkaFcP0Zsk0Mz7In2ZrFyLWglbJLu3nT7HYCtV/IrbYFYnhUQ==
   dependencies:
-    "@bluemind/api.commons" "^5.0.2572"
+    "@bluemind/api.commons" "^5.0.3598"
 
 "@bluemind/smime.cacerts.api@^5.0.0":
-  version "5.0.3473"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/smime.cacerts.api/-/smime.cacerts.api-5.0.3473.tgz#1ec5b32d50ceffd2e3a8db5aceb0a10c7e4e9827"
-  integrity sha512-jgRfpNVXCdaLhCRG3t6W+lSs9tL2fCDIna8xyDuj3pt/+dchkHxcAFayYp4kdx8/UHsuZ2JUoAHN/XFHrjAQkw==
+  version "5.0.3598"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/smime.cacerts.api/-/smime.cacerts.api-5.0.3598.tgz#4a7c3702f7e25ca09b6c84e314432cecbb6b76de"
+  integrity sha512-apU4JNSAxLOpSqzZOtDE4uD+NCFxZ0R5x2GIOEqWKCzIV9bEOa0Q3T/ONtKFMddmD9whT6FqaLOCfKqc6GWgQw==
   dependencies:
-    "@bluemind/api.commons" "^5.0.3473"
+    "@bluemind/api.commons" "^5.0.3598"
 
 "@bluemind/system.api@^5.0.0":
-  version "5.0.2572"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/system.api/-/system.api-5.0.2572.tgz#9c0a991746c075e738243293ff1b789da2f73701"
-  integrity sha512-+McmySyq4tfpbo2nuVmkOQAx06bGe2d+IDjGdl5gHr8nG5b2K5YOJLWLgl6OjFajjTSVg+DlBPSFFRKXfT3ITA==
+  version "5.0.3598"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/system.api/-/system.api-5.0.3598.tgz#c1978dd8fbcbb9dcb8ff5c8870d06f29b75c8055"
+  integrity sha512-JZV8TQNHHlEmOXDEqFROQRHzkc6ZAbLhsv6YudHPgtvoAmGk9XVw8oy3lZ/xTs+sTOzJVzVVvAg3E0UYxeYgEQ==
   dependencies:
-    "@bluemind/api.commons" "^5.0.2572"
+    "@bluemind/api.commons" "^5.0.3598"
 
 "@bluemind/tag.api@^5.0.0":
-  version "5.0.2572"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/tag.api/-/tag.api-5.0.2572.tgz#c046c3a196d93ba36d53f4d9f5a631f3c1d71ef8"
-  integrity sha512-yDISxXk3XGCbX0IpDcM2kRtqgiwy1Ew6Io4grn7ZUY2T5E9U8uCwu9CyB2o2ZJpHJNoGmgU6tY+6m7MYiPs/JA==
+  version "5.0.3598"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/tag.api/-/tag.api-5.0.3598.tgz#6965c4089ffede02478642e0fd67421b83bffa45"
+  integrity sha512-reO2t/3KzjwlQwZvJiFQrOeVRjSRHnorqhf39iuRidrsmbJBiHeuVj7Af/tHH/7RVGOKvnJN0dK+x8xAOARc3g==
   dependencies:
-    "@bluemind/api.commons" "^5.0.2572"
+    "@bluemind/api.commons" "^5.0.3598"
 
 "@bluemind/todolist.api@^5.0.0":
-  version "5.0.2572"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/todolist.api/-/todolist.api-5.0.2572.tgz#23f9d4ab3fb72da7ea211264a997a84fe280abc8"
-  integrity sha512-7tr8azJ1K+uEZ9r0VflASqBzXfSL/I15RtmGZ1OdunRgpxAsdlMoCW40+U40g0CEKsLcSydGwoLslWkeRxvSVA==
+  version "5.0.3598"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/todolist.api/-/todolist.api-5.0.3598.tgz#5e9b28db6cd87edd52f54f44910b8f58a3fa3a0f"
+  integrity sha512-1/Q044yzoS1dVFYCt7Is2lCN8/UneMZyNNJ5CWdZp6dGESwj1FFzsYEfxCLHKFk5GpyXnQMB3HTWfviihlQrZw==
   dependencies:
-    "@bluemind/api.commons" "^5.0.2572"
+    "@bluemind/api.commons" "^5.0.3598"
 
 "@bluemind/user.api@^5.0.0":
-  version "5.0.2572"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/user.api/-/user.api-5.0.2572.tgz#6f0a57adc7366334789b881d2e985305f81b5310"
-  integrity sha512-FfLJwy3A7ve2Jaeo5fchigXBpBvMJn4tsQvhu16h5+UVQ5Iji644RZycp5TrKe9jNbVx8cOsZoecuEXPCZBxoQ==
+  version "5.0.3598"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/user.api/-/user.api-5.0.3598.tgz#8227114ab750f547ddad3fa71750771e6d8f720d"
+  integrity sha512-4N7pivmvsYOCATP/e79jGL7uG2xSCdeT9UAYDPlmT590rLyY9QukqSyyvcs0IQmZN2piVOiGzaujJUtjS2YReg==
   dependencies:
-    "@bluemind/api.commons" "^5.0.2572"
+    "@bluemind/api.commons" "^5.0.3598"
 
 "@bluemind/videoconferencing.saas.api@^5.0.0":
-  version "5.0.2572"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/videoconferencing.saas.api/-/videoconferencing.saas.api-5.0.2572.tgz#f3f5f981b21e32a18d73f6ddd86246bef75a3d20"
-  integrity sha512-6bO+ftIJYeFLScqFxC5+8SH/7Dd7dSy16qtUoWijZsdTjZ+/pmYz2gxmIdubDtK8ROQt1jA7ci26Yx2LCn7Gcw==
+  version "5.0.3598"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/videoconferencing.saas.api/-/videoconferencing.saas.api-5.0.3598.tgz#7f360871567cb9c2c41b52e34a03fa31c94fda1d"
+  integrity sha512-klV+4kUo52ohXV308rI0iNPQ8cWmlzKnTjRTuITGM97Or9mzE9XxZQGzPM5dSx/HLc9ropuzF131SxPK5LAFvg==
   dependencies:
-    "@bluemind/api.commons" "^5.0.2572"
+    "@bluemind/api.commons" "^5.0.3598"
 
 "@bluemind/vue-multipane@^0.10.1":
   version "0.10.1"
@@ -1133,11 +1128,11 @@
   integrity sha1-2gXiVZ5Ez8zOGz6iVxngJ/YidqI=
 
 "@bluemind/webappdata.api@^5.0.0":
-  version "5.0.2572"
-  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/webappdata.api/-/webappdata.api-5.0.2572.tgz#af640bc320c0c21f5c07ea8edae9aba23b8f5cb5"
-  integrity sha512-qyVEme5x46NreYl20/oiuK1mdvHmCQWlDNLMisLcttJ6Q0g9xGwESjTmJJ9HMgoHoVReN6AdpBIODN/gUHt8ow==
+  version "5.0.3598"
+  resolved "https://forge.bluemind.net/nexus/repository/bm-npm/@bluemind/webappdata.api/-/webappdata.api-5.0.3598.tgz#c420e3c9436d3d06d1f17abdd5b9df9f79f76957"
+  integrity sha512-n06U1JlRuMhU5kfcdnNSG4UlQbJcOW3I7xoXNb49iQlAGM7vauCKsHravIuHTK0eaCHcChio0LTg8YUYLLhpwA==
   dependencies:
-    "@bluemind/api.commons" "^5.0.2572"
+    "@bluemind/api.commons" "^5.0.3598"
 
 "@cnakazawa/watch@^1.0.3":
   version "1.0.4"

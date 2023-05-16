@@ -26,7 +26,9 @@ import db from "./SMimePkiDB";
 export async function getCertificate(email: string): Promise<pki.Certificate> {
     const sid = await session.sid;
     const contactsInfo = await new AddressBooksClient(sid).search(searchVCardsHelper(email));
-    const withSecurityKey = contactsInfo.values!.filter(info => info.value.hasSecurityKey);
+    const withSecurityKey = contactsInfo.values!.filter(
+        (info: ItemContainerValue<VCardInfo>) => info.value.hasSecurityKey
+    );
     if (withSecurityKey.length === 0) {
         throw new CertificateRecipientNotFoundError(email);
     }

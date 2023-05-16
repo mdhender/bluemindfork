@@ -37,7 +37,7 @@ const mutations = {
         state.currentSearch.deep = deep;
     },
     [SET_CURRENT_SEARCH_PATTERN](state, pattern) {
-        state.currentSearch.pattern = pattern;
+        state.currentSearch.pattern = pattern?.trim();
     },
     [SET_CURRENT_SEARCH_FOLDER](state, folder) {
         state.currentSearch.folder = folder;

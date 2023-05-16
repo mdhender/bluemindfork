@@ -7,7 +7,12 @@
             @keydown.enter="currentSearch.pattern ? search() : null"
         >
             <div class="d-flex flex-fill align-items-center box pl-1" :class="{ active }">
-                <mail-search-box-context v-if="active" class="context" :folder="currentFolder" />
+                <mail-search-box-context
+                    v-if="active"
+                    class="context"
+                    :folder="currentFolder"
+                    @update="searchIfValid"
+                />
                 <mail-search-input
                     ref="search"
                     resettable
@@ -22,7 +27,7 @@
                     size="lg"
                     class="mail-search-button"
                     variant="fill-accent"
-                    :disabled="isSameSearch"
+                    :disabled="!currentSearch.pattern || isSameSearch"
                     @click="searchIfValid"
                     @keydown.enter.native="searchIfValid"
                 >
@@ -128,7 +133,8 @@ export default {
         },
         shrinkBox(event) {
             const modal = document.getElementById("advanced-search-modal")?.getElementsByClassName("modal-content")[0];
-            if (!event.path.some(element => modal === element)) {
+            const path = event.path || event.composedPath();
+            if (!path.some(element => modal === element)) {
                 this.focusIn = false;
             }
             this.$refs.search.blur();

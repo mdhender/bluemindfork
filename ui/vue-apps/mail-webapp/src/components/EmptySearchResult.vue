@@ -2,12 +2,21 @@
     <div class="empty-search-result">
         <div>
             <p>
-                <i18n path="mail.list.search.no_result">
+                <i18n v-if="!searchQuery.folder" path="mail.list.search.no_result">
                     <template #pattern>
                         <br />
                         <span class="search-pattern">"{{ pattern }}"</span>
                         <br />
                     </template>
+                </i18n>
+                <i18n v-else path="mail.list.search.no_result.folder">
+                    <template #pattern>
+                        <br />
+                        <span class="search-pattern">"{{ pattern }}"</span>
+                        <br />
+                    </template>
+                    <template #folder> {{ folderName }} </template>
+                    <template v-if="searchQuery.deep" #sub> {{ $t("mail.list.search.no_result.deep") }} </template>
                 </i18n>
             </p>
             <p>{{ $t("common.search.try_otherwise") }}</p>
@@ -18,6 +27,7 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 import { BmIllustration } from "@bluemind/ui-components";
 
 export default {
@@ -27,6 +37,13 @@ export default {
         pattern: {
             type: String,
             required: true
+        }
+    },
+    computed: {
+        ...mapState("mail", ["folders"]),
+        ...mapState("mail", { searchQuery: state => state.conversationList.search.searchQuery }),
+        folderName() {
+            return this.folders[this.searchQuery.folder.key]?.name;
         }
     }
 };

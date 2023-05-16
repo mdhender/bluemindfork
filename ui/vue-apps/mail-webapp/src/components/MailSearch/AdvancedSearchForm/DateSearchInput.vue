@@ -37,12 +37,15 @@ export default {
     //FIXME: Remove these styles when the BmFormDatePicker will have an underline style
     @include from-lg {
         .input.b-form-datepicker {
-            border-left-color: transparent !important;
-            border-right-color: transparent !important;
-            border-top-color: transparent !important;
+            border-left: none !important;
+            border-right: none !important;
+            border-top: none !important;
             border-bottom-color: $neutral-fg-lo2 !important;
             padding-left: $sp-5 !important;
             padding-right: $sp-5 !important;
+            &:not(.show) {
+                padding-bottom: $sp-1 !important;
+            }
         }
     }
 }

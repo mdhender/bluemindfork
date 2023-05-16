@@ -76,11 +76,10 @@ export default {
         update(selection) {
             this.SET_CURRENT_SEARCH_FOLDER(selection === OPTIONS.ALL ? null : this.folder);
             this.SET_CURRENT_SEARCH_DEEP(selection === OPTIONS.CURRENT_FOLDER_AND_DESCENDANTS);
+            this.$emit("update");
         },
         getIcon(option) {
-            return option === OPTIONS.ALL || !this.currentFolder
-                ? "folders"
-                : folderIcon(this.currentFolder.imapName, this.CURRENT_MAILBOX.type);
+            return option === OPTIONS.ALL ? "folders" : folderIcon(this.folder.imapName, this.CURRENT_MAILBOX.type);
         }
     }
 };
