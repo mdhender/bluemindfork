@@ -23,7 +23,6 @@ import {
 } from "~/getters";
 import {
     ADD_MESSAGES,
-    REMOVE_MESSAGES,
     RESET_PARTS_DATA,
     SET_ACTIVE_MESSAGE,
     SET_MESSAGE_COMPOSING,
@@ -126,47 +125,34 @@ export default {
             this.debouncedSave();
         },
         async deleteDraft() {
-            if (isNewMessage(this.message)) {
-                this.$store.commit(`mail/${REMOVE_MESSAGES}`, { messages: [this.message] });
-                if (!this.$_ComposerActionsMixin_currentConversation) {
+            const isNew = isNewMessage(this.message);
+            let confirmed;
+            if (!isNew) {
+                const kind = this.isDraft ? "draft" : "template";
+                confirmed = await this.$bvModal.msgBoxConfirm(this.$t(`mail.compose.confirm_delete.${kind}.content`), {
+                    title: this.$t(`mail.compose.confirm_delete.${kind}.title`),
+                    okTitle: this.$t("common.delete"),
+                    cancelTitle: this.$t("common.cancel"),
+                    okVariant: "fill-accent",
+                    cancelVariant: "text",
+                    centered: true,
+                    hideHeaderClose: false,
+                    autoFocusButton: "ok"
+                });
+            }
+            if (isNew || confirmed) {
+                await this.$store.dispatch(`mail/${REMOVE_CONVERSATION_MESSAGES}`, {
+                    conversation: this.$_ComposerActionsMixin_CURRENT_CONVERSATION_METADATA,
+                    messages: [this.message]
+                });
+                this.removeAttachmentAndInlineTmpParts();
+                if (!this.$_ComposerActionsMixin_CONVERSATIONS_ACTIVATED) {
                     this.$router.navigate("v:mail:home");
                 } else {
                     this.$router.navigate({
                         name: "v:mail:conversation",
                         params: { conversation: this.$_ComposerActionsMixin_CURRENT_CONVERSATION_METADATA }
                     });
-                }
-            } else {
-                const kind = this.isDraft ? "draft" : "template";
-                const confirm = await this.$bvModal.msgBoxConfirm(
-                    this.$t(`mail.compose.confirm_delete.${kind}.content`),
-                    {
-                        title: this.$t(`mail.compose.confirm_delete.${kind}.title`),
-                        okTitle: this.$t("common.delete"),
-                        cancelTitle: this.$t("common.cancel"),
-                        okVariant: "fill-accent",
-                        cancelVariant: "text",
-                        centered: true,
-                        hideHeaderClose: false,
-                        autoFocusButton: "ok"
-                    }
-                );
-                if (confirm) {
-                    const conversation = this.$_ComposerActionsMixin_CURRENT_CONVERSATION_METADATA;
-                    await this.$store.dispatch(`mail/${REMOVE_CONVERSATION_MESSAGES}`, {
-                        conversation,
-                        messages: [this.message]
-                    });
-                    this.removeAttachmentAndInlineTmpParts();
-
-                    if (!this.$_ComposerActionsMixin_CONVERSATIONS_ACTIVATED) {
-                        this.$router.navigate("v:mail:home");
-                    } else {
-                        this.$router.navigate({
-                            name: "v:mail:conversation",
-                            params: { conversation: this.$_ComposerActionsMixin_CURRENT_CONVERSATION_METADATA }
-                        });
-                    }
                 }
             }
         },
@@ -189,11 +175,13 @@ export default {
             }
         },
         removeAttachmentAndInlineTmpParts() {
-            const service = inject("MailboxItemsPersistence", this.message.folderRef.uid);
             const addresses = this.message.attachments
                 .concat(this.$_ComposerActionsMixin_messageCompose.inlineImagesSaved)
                 .map(part => part.address);
-            addresses.forEach(address => service.removePart(address));
+            if (addresses?.length) {
+                const service = inject("MailboxItemsPersistence", this.message.folderRef.uid);
+                addresses.forEach(address => service.removePart(address));
+            }
         },
         async endEdition() {
             await this.saveAsap();
