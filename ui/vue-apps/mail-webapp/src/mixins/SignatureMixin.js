@@ -111,8 +111,9 @@ export default {
                     this.$_SignatureMixin_insertSignaturePref === "true"
                 ) {
                     const content = wrapPersonalSignature({ html: personalSignature.html, id: personalSignature.id });
-                    editorRef.insertContent(content, { triggerOnChange: !isNewMessage(this.message) });
-                    editorRef.insertContent(document.createElement("br"));
+                    const triggerOnChange = !isNewMessage(this.message);
+                    editorRef.insertContent(content, { triggerOnChange });
+                    editorRef.insertContent(document.createElement("br"), { triggerOnChange });
                     this.$store.commit(`mail/${SET_DRAFT_EDITOR_CONTENT}`, editorRef.getContent());
                 }
                 this.$_SignatureMixin_onPersonalSignatureChange();
