@@ -68,7 +68,7 @@ $hover-border-color: $neutral-fg-lo3;
 $active-border-color: $neutral-fg-lo2;
 
 .layout-v > .bm-multipane-resizer {
-    width: $separator-thickness;
+    width: $separator-thickness !important;
     &:hover::before {
         border-left: 1px solid $hover-border-color;
         border-right: 1px solid $hover-border-color;
@@ -80,7 +80,7 @@ $active-border-color: $neutral-fg-lo2;
 }
 
 .layout-h > .bm-multipane-resizer {
-    height: $separator-thickness;
+    height: $separator-thickness !important;
     svg {
         transform: rotate(90deg);
     }
