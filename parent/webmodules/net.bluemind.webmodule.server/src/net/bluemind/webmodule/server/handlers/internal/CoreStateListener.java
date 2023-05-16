@@ -15,7 +15,7 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.webmodule.maintenancefilter.internal;
+package net.bluemind.webmodule.server.handlers.internal;
 
 import net.bluemind.system.api.SystemState;
 import net.bluemind.system.stateobserver.IStateListener;

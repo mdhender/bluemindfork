@@ -168,7 +168,6 @@
       <plugin id="net.bluemind.webmodule.gwtserver"/>
       <plugin id="net.bluemind.webmodule.inputfilter"/>
       <plugin id="net.bluemind.webmodule.openidhandler"/>
-      <plugin id="net.bluemind.webmodule.maintenancefilter"/>
       <plugin id="net.bluemind.webmodule.server"/>
       <plugin id="net.bluemind.webmodules.fonts"/>
       <plugin id="net.bluemind.webmodules.launcher"/>

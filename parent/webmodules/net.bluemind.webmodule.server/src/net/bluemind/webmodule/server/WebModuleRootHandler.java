@@ -31,6 +31,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.lib.vertx.RouteMatcher;
+import net.bluemind.webmodule.server.handlers.MaintenanceHandler;
 
 public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 
@@ -116,8 +117,22 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 		request.exceptionHandler(error);
 		vertx.getOrCreateContext().exceptionHandler(error);
 
-		CompletableFuture<HttpServerRequest> root = CompletableFuture.completedFuture(request);
+		new MaintenanceHandler().handle(request)
+				.orElseGet(() -> searchFilters(request, CompletableFuture.completedFuture(request)))
+				.whenComplete((completedRequest, ex) -> {
+					if (completedRequest == null) {
+						return;
+					}
+					try {
+						modulesRouter.handle(completedRequest);
+					} catch (Exception t) {
+						onError(completedRequest, t);
+					}
+				});
+	}
 
+	private CompletableFuture<HttpServerRequest> searchFilters(HttpServerRequest request,
+			CompletableFuture<HttpServerRequest> root) {
 		for (IWebFilter filter : filters) {
 			root = root.thenCompose(req -> {
 				if (req == null) {
@@ -130,16 +145,7 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 			});
 		}
 
-		root.whenComplete((completedRequest, ex) -> {
-			if (completedRequest == null) {
-				return;
-			}
-			try {
-				modulesRouter.handle(completedRequest);
-			} catch (Exception t) {
-				onError(completedRequest, t);
-			}
-		});
+		return root;
 	}
 
 	private void onError(HttpServerRequest request, Throwable t) {

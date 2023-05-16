@@ -15,8 +15,9 @@
   * See LICENSE.txt
   * END LICENSE
   */
-package net.bluemind.webmodule.maintenancefilter;
+package net.bluemind.webmodule.server.handlers;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
@@ -25,28 +26,40 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-import net.bluemind.webmodule.maintenancefilter.internal.CoreState;
-import net.bluemind.webmodule.server.IWebFilter;
-import net.bluemind.webmodule.server.WebserverConfiguration;
+import net.bluemind.system.api.SystemState;
+import net.bluemind.webmodule.server.handlers.internal.CoreStateListener;
 
-public class MaintenanceFilter implements IWebFilter {
+public class MaintenanceHandler {
+	private static final Logger logger = LoggerFactory.getLogger(MaintenanceHandler.class);
 
-	private static final Logger logger = LoggerFactory.getLogger(MaintenanceFilter.class);
-
-	@Override
-	public CompletableFuture<HttpServerRequest> filter(HttpServerRequest request, WebserverConfiguration conf) {
-
+	public Optional<CompletableFuture<HttpServerRequest>> handle(HttpServerRequest request) {
 		if (request.path().startsWith("/setup/")) {
-			return CompletableFuture.completedFuture(request);
-		} else if (CoreState.notInstalled() || CoreState.needUpgrade()) {
-			return setupWizard(request);
-		} else if (CoreState.notRunning()) {
-			return error(request);
-		} else if (CoreState.ok()) {
-			return CompletableFuture.completedFuture(request);
-		} else {
-			return maintenance(request);
+			return Optional.of(CompletableFuture.completedFuture(request));
+		} else if (notInstalled()) {
+			return Optional.of(setupWizard(request));
+		} else if (needUpgrade()) {
+			return Optional.of(maintenance(request));
+		} else if (notRunning() || !ok()) {
+			return Optional.of(error(request));
 		}
+
+		return Optional.empty();
+	}
+
+	private boolean ok() {
+		return CoreStateListener.state == SystemState.CORE_STATE_RUNNING;
+	}
+
+	private boolean notRunning() {
+		return CoreStateListener.state == SystemState.CORE_STATE_UNKNOWN;
+	}
+
+	private boolean needUpgrade() {
+		return CoreStateListener.state == SystemState.CORE_STATE_UPGRADE;
+	}
+
+	private boolean notInstalled() {
+		return CoreStateListener.state == SystemState.CORE_STATE_NOT_INSTALLED;
 	}
 
 	private CompletableFuture<HttpServerRequest> setupWizard(HttpServerRequest req) {
@@ -62,8 +75,7 @@ public class MaintenanceFilter implements IWebFilter {
 	private CompletableFuture<HttpServerRequest> maintenance(HttpServerRequest req) {
 		logger.info("Redirect to maintenance page");
 		HttpServerResponse resp = req.response();
-		resp.headers().add(HttpHeaders.LOCATION, "/login/index.html?maintenance=true");
-		resp.setStatusCode(302);
+		resp.setStatusCode(503);
 		resp.end();
 		return CompletableFuture.completedFuture(null);
 	}
@@ -75,5 +87,4 @@ public class MaintenanceFilter implements IWebFilter {
 		resp.end();
 		return CompletableFuture.completedFuture(null);
 	}
-
 }

@@ -18,7 +18,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.core.rest,
  net.bluemind.core.container.api;bundle-version="5.0.0",
  net.bluemind.core.rest.http,
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ net.bluemind.system.api,
+ net.bluemind.system.stateobserver
 Closure-Bundle-Type: Embedded
 Web-Resources: web-resources
 Closure-Inputs: BundlesManager.js
