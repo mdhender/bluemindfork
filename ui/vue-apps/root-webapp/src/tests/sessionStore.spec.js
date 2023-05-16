@@ -30,8 +30,11 @@ describe("Store session", () => {
 
         await settingsStore.actions.FETCH_ALL_SETTINGS(context, vm);
         expect(context.commit).toHaveBeenCalledWith("SET_SETTINGS", {
+            always_ask_delivery_receipt: "false",
+            always_ask_read_receipt: "false",
             always_show_from: "false",
             always_show_quota: "false",
+            answer_read_confirmation: "ask",
             auto_select_from: "never",
             composer_default_font: "montserrat",
             default_event_alert_mode: "Display",
@@ -40,10 +43,8 @@ describe("Store session", () => {
             mySetting: "MY_SETTING",
             mail_message_list_style: "compact",
             mail_thread: "false",
-            trust_every_remote_content: "false",
-            always_ask_delivery_receipt: "false",
-            always_ask_read_receipt: "false",
-            answer_read_confirmation: "ask"
+            theme: "system",
+            trust_every_remote_content: "false"
         });
     });
 

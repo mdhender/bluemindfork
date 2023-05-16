@@ -37,6 +37,7 @@ module.exports = {
                 "^~/actions$": "<rootDir>/mail-webapp/src/store/types/actions",
                 "^~/getters$": "<rootDir>/mail-webapp/src/store/types/getters",
                 "^~/mutations$": "<rootDir>/mail-webapp/src/store/types/mutations",
+                "^!css-loader!sass-loader!(.*)$": "$1.scss",
                 "~(.*)$": "<rootDir>/mail-webapp/src$1"
             },
             testMatch: ["<rootDir>/mail-webapp/" + testFileMatcher]

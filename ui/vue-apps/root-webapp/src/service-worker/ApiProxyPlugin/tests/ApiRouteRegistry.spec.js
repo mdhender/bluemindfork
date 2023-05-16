@@ -68,18 +68,18 @@ describe("ApiRouteRegistry", () => {
             expect(ApiRouteRegistry.endpoints.size).toBe(1);
         });
 
-        test("register register one Handler per proxy  ", () => {
+        test("register one Handler per proxy  ", () => {
             const AProxy = class extends MockApiClient {
                 first() {}
             };
-            ApiRouteRegistry.register(AProxy, 0);
+            ApiRouteRegistry.register(AProxy, 0, "myRole");
             const AnotherProxy = class extends MockApiClient {
                 first() {}
             };
             const endpoint = ApiRouteRegistry.endpoints.values().next().value;
-            ApiRouteRegistry.register(AnotherProxy, 0);
-            expect(endpoint.chain).toHaveBeenNthCalledWith(1, AProxy, 0);
-            expect(endpoint.chain).toHaveBeenNthCalledWith(2, AnotherProxy, 0);
+            ApiRouteRegistry.register(AnotherProxy, 0, "anotherRole");
+            expect(endpoint.chain).toHaveBeenNthCalledWith(1, AProxy, 0, "myRole");
+            expect(endpoint.chain).toHaveBeenNthCalledWith(2, AnotherProxy, 0, "anotherRole");
         });
 
         test("register to accept different client with same class name ", () => {

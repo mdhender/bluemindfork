@@ -12,7 +12,7 @@ jest.mock("../smime/decryptAndVerify", () => jest.fn(() => []));
 jest.mock("../smime/encrypt", () => jest.fn());
 jest.mock("../smime/sign", () => jest.fn(item => item));
 
-jest.mock("../environnment/session", () =>
+jest.mock("@bluemind/session", () =>
     Promise.resolve({
         json: () =>
             Promise.resolve({

@@ -114,8 +114,8 @@ describe("EndPoint", () => {
     describe("chain", () => {
         test("to wrap api client in a ApiRouteHandler", () => {
             const endpoint = new EndPoint(metadatas.methods[0], metadatas);
-            endpoint.chain(MockApiClient, 0);
-            expect(ApiRouteHandler).toHaveBeenCalledWith(MockApiClient, metadatas.methods[0], 0);
+            endpoint.chain(MockApiClient, 0, "myRole");
+            expect(ApiRouteHandler).toHaveBeenCalledWith(MockApiClient, metadatas.methods[0], 0, "myRole");
         });
         test("to chain Handlers ", () => {
             const endpoint = new EndPoint(metadatas.methods[0], metadatas);

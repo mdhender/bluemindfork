@@ -49,7 +49,7 @@ import FileToolbar from "../MailAttachment/FileToolbar";
 import FiletypeOverlay from "../MailAttachment/Overlays/FiletypeOverlay";
 import MailInlinesBlock from "./MailInlinesBlock";
 import PreviewOverlay from "../MailAttachment/Overlays/PreviewOverlay";
-import MailTopFrame from "./MailTopFrame/MailTopFrame.vue";
+import MailTopFrame from "./MailTopFrame/MailTopFrame";
 
 const { create: createAttachment } = attachmentUtils;
 const { FileStatus, isUploading, isAllowedToPreview, ActionButtons } = fileUtils;

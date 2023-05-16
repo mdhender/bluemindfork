@@ -188,26 +188,26 @@ function main(i18n) {
                         }
                     },
                     {
-                        id: "ask_check_group",
+                        id: "ask_delivery",
                         component: {
-                            name: "PrefFieldCheckGroup",
+                            name: "PrefFieldCheck",
                             options: {
-                                checks: [
-                                    {
-                                        id: "ask_delivery",
-                                        label: i18n.t("preferences.mail.receipts.ask.delivery"),
-                                        setting: "always_ask_delivery_receipt",
-                                        default: "false",
-                                        autosave: true
-                                    },
-                                    {
-                                        id: "ask_read",
-                                        label: i18n.t("preferences.mail.receipts.ask.read"),
-                                        setting: "always_ask_read_receipt",
-                                        default: "false",
-                                        autosave: true
-                                    }
-                                ]
+                                setting: "always_ask_delivery_receipt",
+                                default: "false",
+                                autosave: true,
+                                label: i18n.t("preferences.mail.receipts.ask.delivery")
+                            }
+                        }
+                    },
+                    {
+                        id: "ask_read",
+                        component: {
+                            name: "PrefFieldCheck",
+                            options: {
+                                setting: "always_ask_read_receipt",
+                                default: "false",
+                                autosave: true,
+                                label: i18n.t("preferences.mail.receipts.ask.read")
                             }
                         }
                     },

@@ -21,7 +21,6 @@
 
 <script>
 import PrefFieldCheck from "./fields/PrefFieldCheck";
-import PrefFieldCheckGroup from "./fields/PrefFieldCheckGroup";
 import PrefFieldChoice from "./fields/PrefFieldChoice";
 import PrefFieldComboBox from "./fields/PrefFieldComboBox";
 import PrefFieldInfo from "./fields/PrefFieldInfo";
@@ -87,7 +86,6 @@ export default {
         PrefExtAccountCreation,
         PrefExtAccountList,
         PrefFieldCheck,
-        PrefFieldCheckGroup,
         PrefFieldChoice,
         PrefFieldComboBox,
         PrefFieldInfo,

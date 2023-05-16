@@ -67,14 +67,14 @@ const mockMultipleGet = jest.fn(uids => {
     if (uids.includes("2DF7A15F-12FD-4864-8279-12ADC6C08BAF")) {
         return [
             {
-                value: { security: { key: { parameters: [], value: otherCertificate } } },
+                value: { security: { keys: [{ parameters: [], value: otherCertificate }] } },
                 uid: "2DF7A15F-12FD-4864-8279-12ADC6C08BAF"
             }
         ];
     } else if (uids.includes("invalid")) {
         return [
             {
-                value: { security: { key: { parameters: [], value: invalidCertificate } } },
+                value: { security: { keys: [{ parameters: [], value: invalidCertificate }] } },
                 uid: "invalid"
             }
         ];
@@ -92,12 +92,12 @@ jest.mock("@bluemind/addressbook.api", () => ({
                     values: [
                         {
                             containerUid: "addressbook_2",
-                            value: { mail: "deux@devenv.blue" },
+                            value: { mail: "deux@devenv.blue", hasSecurityKey: false },
                             uid: "AAA"
                         },
                         {
                             containerUid: "addressbook_f8de2c4a.internal",
-                            value: { mail: "deux@devenv.blue" },
+                            value: { mail: "deux@devenv.blue", hasSecurityKey: true },
                             uid: "2DF7A15F-12FD-4864-8279-12ADC6C08BAF"
                         }
                     ]
@@ -108,14 +108,15 @@ jest.mock("@bluemind/addressbook.api", () => ({
                     values: [
                         {
                             containerUid: "addressbook_invalid.internal",
-                            value: { mail: "invalid@devenv.blue" },
+                            value: { mail: "invalid@devenv.blue", hasSecurityKey: true },
                             uid: "invalid"
                         }
                     ]
                 };
             } else {
                 return {
-                    total: 0
+                    total: 0,
+                    values: []
                 };
             }
         }
@@ -196,10 +197,6 @@ describe("pki", () => {
             const certificate = await getCertificate("test@mail.com");
             expect(certificate).toBeTruthy();
         });
-        test("calls multipleGet on several addressbooks if the user appears in multiple address books", async () => {
-            await getCertificate("test@mail.com");
-            expect(mockMultipleGet).toHaveBeenCalledTimes(2);
-        });
         test("raise an error if no certificate is found", async done => {
             try {
                 await getCertificate("unknown");
@@ -259,7 +256,7 @@ describe("pki", () => {
                 { value: { cert: anyExtendedKeyUsageCert } }
             ]);
             fetchMock.mock(
-                "end:/api/smime_revocation/foo.bar/is_revoked",
+                "end:/api/smime_revocation/foo.bar/revoked_clients",
                 [{ status: RevocationResult.RevocationStatus.NOT_REVOKED }],
                 { overwriteRoutes: true }
             );
@@ -369,27 +366,30 @@ describe("pki", () => {
         });
 
         test("untrusted if cert is revoked", async done => {
-            fetchMock.mock(
-                "end:/api/smime_revocation/foo.bar/is_revoked",
-                [{ status: RevocationResult.RevocationStatus.REVOKED, date: new Date().getTime() }],
-                { overwriteRoutes: true }
-            );
+            const revocation = {
+                status: RevocationResult.RevocationStatus.REVOKED,
+                revocation: { revocationDate: new Date().getTime() }
+            };
+            fetchMock.mock("end:/api/smime_revocation/foo.bar/revoked_clients", [revocation], {
+                overwriteRoutes: true
+            });
             try {
                 await checkCertificate(aliceCertificate);
                 done.fail("revoked certificate must not be trusted");
-            } catch (e) {
-                expect(e instanceof UntrustedCertificateError).toBe(true);
+            } catch (error) {
+                expect(error).toBeInstanceOf(UntrustedCertificateError);
                 done();
             }
         });
 
         test("cert is trusted if date checked is before revokation", async done => {
-            const revokedDate = new Date("2023-02-01");
-            fetchMock.mock(
-                "end:/api/smime_revocation/foo.bar/is_revoked",
-                [{ status: RevocationResult.RevocationStatus.REVOKED, date: revokedDate.getTime() }],
-                { overwriteRoutes: true }
-            );
+            const revocation = {
+                status: RevocationResult.RevocationStatus.REVOKED,
+                revocation: { revocationDate: new Date("2023-02-01").getTime() }
+            };
+            fetchMock.mock("end:/api/smime_revocation/foo.bar/revoked_clients", [revocation], {
+                overwriteRoutes: true
+            });
             try {
                 await checkCertificate(aliceCertificate, { date: new Date("2023-01-01") });
                 done();

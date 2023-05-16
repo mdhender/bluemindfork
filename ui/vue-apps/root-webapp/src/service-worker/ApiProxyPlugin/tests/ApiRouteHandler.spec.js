@@ -1,6 +1,6 @@
 import { ApiRouteHandler } from "../ApiRouteHandler";
-import Session from "../../session";
-jest.mock("../../session");
+import Session from "@bluemind/session";
+jest.mock("@bluemind/session");
 
 const mockEvent = {};
 const implementations = [];
@@ -105,8 +105,8 @@ describe("ApiRouteHandler", () => {
 
             await handler.execute(parameters);
             expect(implementations.length).toBe(2);
-            expect(implementations[1]).toBeInstanceOf(MockApiClient);
-            expect(implementations[1]).not.toBeInstanceOf(ExtendedMockApiClient);
+            expect(implementations[0]).toBeInstanceOf(MockApiClient);
+            expect(implementations[1]).toBeInstanceOf(ExtendedMockApiClient);
         });
     });
 });

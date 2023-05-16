@@ -39,10 +39,10 @@ describe("MimeParser", () => {
             const parser = await new MimeParser().parse(eml);
             expect(parser.structure).toMatchInlineSnapshot(`
                 Object {
-                  "address": "TEXT",
+                  "address": "1",
                   "children": Array [
                     Object {
-                      "address": "1",
+                      "address": "1.1",
                       "charset": "utf-8",
                       "children": Array [],
                       "dispositionType": "INLINE",
@@ -51,7 +51,7 @@ describe("MimeParser", () => {
                       "size": 45,
                     },
                     Object {
-                      "address": "2",
+                      "address": "1.2",
                       "charset": "utf-8",
                       "children": Array [],
                       "dispositionType": "INLINE",
@@ -69,10 +69,10 @@ describe("MimeParser", () => {
             const parser = await new MimeParser().parse(eml);
             expect(parser.structure).toMatchInlineSnapshot(`
                 Object {
-                  "address": "TEXT",
+                  "address": "1",
                   "children": Array [
                     Object {
-                      "address": "1",
+                      "address": "1.1",
                       "charset": "utf-8",
                       "children": Array [],
                       "dispositionType": "INLINE",
@@ -81,7 +81,7 @@ describe("MimeParser", () => {
                       "size": 223,
                     },
                     Object {
-                      "address": "2",
+                      "address": "1.2",
                       "charset": "us-ascii",
                       "children": Array [],
                       "contentId": "<0d196b557d8acd1f1f81a9f96a331f4c@bluemind.net>",
@@ -101,10 +101,10 @@ describe("MimeParser", () => {
             const parser = await new MimeParser().parse(eml);
             expect(parser.structure).toMatchInlineSnapshot(`
                 Object {
-                  "address": "TEXT",
+                  "address": "1",
                   "children": Array [
                     Object {
-                      "address": "1",
+                      "address": "1.1",
                       "charset": "utf-8",
                       "children": Array [],
                       "dispositionType": "INLINE",
@@ -113,7 +113,7 @@ describe("MimeParser", () => {
                       "size": 22,
                     },
                     Object {
-                      "address": "2",
+                      "address": "1.2",
                       "charset": "us-ascii",
                       "children": Array [],
                       "contentId": undefined,
@@ -133,13 +133,13 @@ describe("MimeParser", () => {
             const parser = await new MimeParser().parse(eml);
             expect(parser.structure).toMatchInlineSnapshot(`
                 Object {
-                  "address": "TEXT",
+                  "address": "1",
                   "children": Array [
                     Object {
-                      "address": "1",
+                      "address": "1.1",
                       "children": Array [
                         Object {
-                          "address": "1.1",
+                          "address": "1.1.1",
                           "charset": "utf-8",
                           "children": Array [],
                           "dispositionType": "INLINE",
@@ -148,10 +148,10 @@ describe("MimeParser", () => {
                           "size": 24,
                         },
                         Object {
-                          "address": "1.2",
+                          "address": "1.1.2",
                           "children": Array [
                             Object {
-                              "address": "1.2.1",
+                              "address": "1.1.2.1",
                               "charset": "utf-8",
                               "children": Array [],
                               "dispositionType": "INLINE",
@@ -160,7 +160,7 @@ describe("MimeParser", () => {
                               "size": 322,
                             },
                             Object {
-                              "address": "1.2.2",
+                              "address": "1.1.2.2",
                               "charset": "us-ascii",
                               "children": Array [],
                               "contentId": "<a0fdd7347c653e453159dd85588d6ad6@bluemind.net>",
@@ -177,7 +177,7 @@ describe("MimeParser", () => {
                       "mime": "multipart/alternative",
                     },
                     Object {
-                      "address": "2",
+                      "address": "1.2",
                       "charset": "us-ascii",
                       "children": Array [],
                       "contentId": undefined,
@@ -236,7 +236,7 @@ describe("MimeParser", () => {
         test("return attachment content", async () => {
             const eml = readEml("multi_mixed");
             const parser = await new MimeParser().parse(eml);
-            const content = parser.getPartContent("2");
+            const content = parser.getPartContent("1.2");
             expect(content instanceof ArrayBuffer).toBeTruthy();
             expect(content.byteLength).toBe(1738);
         });

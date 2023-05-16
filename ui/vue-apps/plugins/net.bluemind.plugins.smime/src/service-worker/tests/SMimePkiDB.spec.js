@@ -1,8 +1,8 @@
 import FDBFactory from "fake-indexeddb/lib/FDBFactory";
 import SMimePkiDB from "../pki/SMimePkiDB";
 import { PKIStatus } from "../../lib/constants";
-import "../environnment/session";
-jest.mock("../environnment/session", () => ({ userId: "my-user-id" }));
+import "@bluemind/session";
+jest.mock("@bluemind/session", () => ({ userId: "my-user-id" }));
 
 describe("SMimePkiDB", () => {
     beforeEach(async () => {

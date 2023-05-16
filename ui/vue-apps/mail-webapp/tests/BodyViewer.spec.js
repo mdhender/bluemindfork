@@ -1,3 +1,4 @@
+import i18n from "@bluemind/i18n";
 import flushPromises from "flush-promises";
 import inject from "@bluemind/inject";
 
@@ -5,11 +6,6 @@ inject.register({ provide: "UserSession", factory: () => ({ roles: "" }) });
 
 import { createStore, createWrapper } from "./testUtils";
 import BodyViewer from "../src/components/MailViewer/BodyViewer";
-
-// FIXME
-jest.mock("@bluemind/i18n", () => {
-    return { t: () => "Untitled" };
-});
 
 describe("BodyViewer.spec", () => {
     test("image/* file type is a viewer capacity", async () => {
@@ -82,5 +78,5 @@ function mountComponent(inlinePartsByCapabilities) {
     const key = Object.keys(mockedStore.state.mail.conversations.conversationByKey).pop();
     message.conversationRef = { key };
     mockedStore.commit("mail/ADD_MESSAGES", { messages: [message] });
-    return createWrapper(BodyViewer, { store: mockedStore }, { message });
+    return createWrapper(BodyViewer, { store: mockedStore, i18n }, { message });
 }
