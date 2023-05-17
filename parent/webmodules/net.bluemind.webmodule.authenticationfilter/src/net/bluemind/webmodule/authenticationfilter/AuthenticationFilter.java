@@ -164,17 +164,23 @@ public class AuthenticationFilter implements IWebFilter {
 		String codeChallenge = b64UrlEncoder
 				.encodeToString(sha256.hashString(codeVerifier, StandardCharsets.UTF_8).asBytes());
 
-		String location = domainProperties.get(AuthDomainProperties.OPENID_AUTHORISATION_ENDPOINT.name());
-		location += "?client_id=" + encode(domainProperties.get(AuthDomainProperties.OPENID_CLIENT_ID.name()));
-		location += "&redirect_uri=" + encode("https://" + request.host() + "/auth/openid");
-		location += "&code_challenge=" + encode(codeChallenge);
-		location += "&state=" + encode(state);
-		location += "&code_challenge_method=S256";
-		location += "&response_type=code";
-		location += "&scope=openid";
+		try {
+			String location = domainProperties.get(AuthDomainProperties.OPENID_AUTHORISATION_ENDPOINT.name());
+			location += "?client_id=" + encode(domainProperties.get(AuthDomainProperties.OPENID_CLIENT_ID.name()));
+			location += "&redirect_uri=" + encode("https://" + request.host() + "/auth/openid");
+			location += "&code_challenge=" + encode(codeChallenge);
+			location += "&state=" + encode(state);
+			location += "&code_challenge_method=S256";
+			location += "&response_type=code";
+			location += "&scope=openid";
 
-		request.response().headers().add(HttpHeaders.LOCATION, location);
-		request.response().setStatusCode(302);
+			request.response().headers().add(HttpHeaders.LOCATION, location);
+			request.response().setStatusCode(302);
+		} catch (NullPointerException n) {
+			logger.error("Unable to get OPENID location", n);
+			request.response().setStatusCode(500);
+		}
+
 		request.response().end();
 	}
 

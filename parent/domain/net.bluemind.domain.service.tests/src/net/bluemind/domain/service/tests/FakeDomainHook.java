@@ -53,6 +53,10 @@ public class FakeDomainHook implements IDomainHook {
 	}
 
 	@Override
+	public void onPropertiesUpdated(BmContext context, ItemValue<Domain> domain) throws ServerFault {
+	}
+
+	@Override
 	public void onDeleted(BmContext context, ItemValue<Domain> domain) throws ServerFault {
 		assertNotNull(context);
 		assertNotNull(domain);
@@ -74,19 +78,13 @@ public class FakeDomainHook implements IDomainHook {
 	@Override
 	public void onSettingsUpdated(BmContext context, ItemValue<Domain> domain, Map<String, String> previousSettings,
 			Map<String, String> currentSettings) throws ServerFault {
-
 	}
 
 	@Override
 	public void onBeforeDelete(BmContext context, ItemValue<Domain> domain) throws ServerFault {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void onDomainItemsDeleted(BmContext context, ItemValue<Domain> domain) throws ServerFault {
-		// TODO Auto-generated method stub
-
 	}
-
 }

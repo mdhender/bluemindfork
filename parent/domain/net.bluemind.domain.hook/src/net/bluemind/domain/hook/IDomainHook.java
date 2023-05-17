@@ -33,6 +33,8 @@ public interface IDomainHook {
 	public void onUpdated(BmContext context, ItemValue<Domain> previousValue, ItemValue<Domain> domain)
 			throws ServerFault;
 
+	public void onPropertiesUpdated(BmContext context, ItemValue<Domain> domain) throws ServerFault;
+
 	public void onSettingsUpdated(BmContext context, ItemValue<Domain> domain, Map<String, String> previousSettings,
 			Map<String, String> currentSettings) throws ServerFault;
 

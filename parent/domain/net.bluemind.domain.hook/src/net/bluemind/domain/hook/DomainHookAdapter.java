@@ -40,6 +40,11 @@ public class DomainHookAdapter implements IDomainHook {
 	}
 
 	@Override
+	public void onPropertiesUpdated(BmContext context, ItemValue<Domain> domain) throws ServerFault {
+		// empty impl
+	}
+
+	@Override
 	public void onSettingsUpdated(BmContext context, ItemValue<Domain> domain, Map<String, String> previousSettings,
 			Map<String, String> currentSettings) throws ServerFault {
 		// empty impl

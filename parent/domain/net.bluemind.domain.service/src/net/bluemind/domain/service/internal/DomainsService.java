@@ -580,6 +580,10 @@ public class DomainsService implements IInCoreDomains, IDomains {
 		domainItem.value.properties.putAll(properties);
 
 		store.update(domainItem.uid, domainItem.value.label, domainItem.value);
+
+		for (IDomainHook hook : hooks) {
+			hook.onPropertiesUpdated(context, domainItem);
+		}
 		domainsCache.invalidate(domainItem.uid);
 	}
 

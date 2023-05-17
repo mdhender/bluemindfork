@@ -56,33 +56,32 @@ public class DomainPublicFolderHierarchyHook implements IDomainHook {
 	public void onUpdated(BmContext context, ItemValue<Domain> previousValue, ItemValue<Domain> domain)
 			throws ServerFault {
 		// TODO Auto-generated method stub
+	}
 
+	@Override
+	public void onPropertiesUpdated(BmContext context, ItemValue<Domain> domain) throws ServerFault {
+		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public void onSettingsUpdated(BmContext context, ItemValue<Domain> domain, Map<String, String> previousSettings,
 			Map<String, String> currentSettings) throws ServerFault {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void onBeforeDelete(BmContext context, ItemValue<Domain> domain) throws ServerFault {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void onAliasesUpdated(BmContext context, ItemValue<Domain> domain, Set<String> previousAliases)
 			throws ServerFault {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void onDomainItemsDeleted(BmContext context, ItemValue<Domain> domain) throws ServerFault {
 		// TODO Auto-generated method stub
-
 	}
-
 }

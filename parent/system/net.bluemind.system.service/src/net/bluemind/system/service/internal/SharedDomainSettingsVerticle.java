@@ -19,6 +19,7 @@ package net.bluemind.system.service.internal;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,19 +57,22 @@ public class SharedDomainSettingsVerticle extends AbstractVerticle {
 	}
 
 	public static class SharedDomainSettingsDomainHook extends DomainHookAdapter {
-
 		@Override
 		public void onUpdated(BmContext context, ItemValue<Domain> previousValue, ItemValue<Domain> domain)
 				throws ServerFault {
-			SharedDomainSettingsVerticle.putDomainSettingsAndProperties(domain);
+			new SharedDomainSettingsVerticle().putDomainSettingsAndProperties(domain, Optional.empty());
+		}
+
+		@Override
+		public void onPropertiesUpdated(BmContext context, ItemValue<Domain> domain) throws ServerFault {
+			new SharedDomainSettingsVerticle().putDomainSettingsAndProperties(domain, Optional.empty());
 		}
 
 		@Override
 		public void onSettingsUpdated(BmContext context, ItemValue<Domain> domain, Map<String, String> previousSettings,
 				Map<String, String> currentSettings) throws ServerFault {
-			SharedDomainSettingsVerticle.putDomainSettingsAndProperties(domain);
+			new SharedDomainSettingsVerticle().putDomainSettingsAndProperties(domain, Optional.of(currentSettings));
 		}
-
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(SharedDomainSettingsVerticle.class);
@@ -79,7 +83,7 @@ public class SharedDomainSettingsVerticle extends AbstractVerticle {
 			IServiceProvider sysprov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 			IDomains domApi = sysprov.instance(IDomains.class);
 			domApi.all().stream().forEach(dom -> {
-				SharedDomainSettingsVerticle.putDomainSettingsAndProperties(dom);
+				putDomainSettingsAndProperties(dom, Optional.empty());
 				logger.info("SharedDomainPropertiesVerticle pre-load domain properties for {}", dom.uid);
 			});
 		}).exceptionally(t -> {
@@ -88,17 +92,14 @@ public class SharedDomainSettingsVerticle extends AbstractVerticle {
 		});
 	}
 
-	public static void putDomainSettingsAndProperties(ItemValue<Domain> domain) {
-
+	private void putDomainSettingsAndProperties(ItemValue<Domain> domain,
+			Optional<Map<String, String>> domainSettings) {
 		Map<String, String> infos = new HashMap<>();
 		infos.putAll(domain.value.properties);
-
-		IServiceProvider sysprov = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-		IDomainSettings domSettingsApi = sysprov.instance(IDomainSettings.class, domain.uid);
-		infos.putAll(domSettingsApi.get());
+		infos.putAll(domainSettings.orElseGet(() -> ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domain.uid).get()));
 
 		SharedMap<String, Map<String, String>> clusterConf = MQ.sharedMap(Shared.MAP_DOMAIN_SETTINGS);
 		clusterConf.put(domain.uid, infos);
 	}
-
 }
