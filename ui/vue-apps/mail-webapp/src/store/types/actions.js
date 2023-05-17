@@ -1,5 +1,4 @@
 // partsData
-export const COMPUTE_QUOTE_NODES = "COMPUTE_QUOTE_NODES";
 export const FETCH_PART_DATA = "FETCH_PART_DATA";
 
 // mailboxes

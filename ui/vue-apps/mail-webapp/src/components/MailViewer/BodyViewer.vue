@@ -39,7 +39,7 @@ import { BmExtension } from "@bluemind/extensions.vue";
 import { hasRemoteImages } from "@bluemind/html-utils";
 import { attachmentUtils, fileUtils, partUtils } from "@bluemind/mail";
 
-import { COMPUTE_QUOTE_NODES, FETCH_PART_DATA } from "~/actions";
+import { FETCH_PART_DATA } from "~/actions";
 import { CONVERSATION_MESSAGE_BY_KEY } from "~/getters";
 import { SET_PREVIEW_FILE_KEY, SET_PREVIEW_MESSAGE_KEY } from "~/mutations";
 
@@ -118,13 +118,9 @@ export default {
         if (hasImages) {
             this.triggerRemoteContent();
         }
-        const conversationMessages = this.message.conversationRef
-            ? this.CONVERSATION_MESSAGE_BY_KEY(this.message.conversationRef.key)
-            : [this.message];
-        this.COMPUTE_QUOTE_NODES({ message: this.message, conversationMessages });
     },
     methods: {
-        ...mapActions("mail", { FETCH_PART_DATA, COMPUTE_QUOTE_NODES }),
+        ...mapActions("mail", { FETCH_PART_DATA }),
         ...mapMutations("mail", { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_FILE_KEY }),
         download(file) {
             this.$refs.toolbar.download(file);

@@ -24,10 +24,9 @@ import { MimeType, InlineImageHelper } from "@bluemind/email";
 import { sanitizeHtml, blockRemoteImages } from "@bluemind/html-utils";
 import { BmIconButton, darkifyCss, darkifyHtml, darkifyingBaseLvalue } from "@bluemind/ui-components";
 import { messageUtils, partUtils } from "@bluemind/mail";
-
 import brokenImageIcon from "~/../assets/brokenImageIcon.png";
-import { QUOTE_NODES } from "~/getters";
 import { FETCH_PART_DATA } from "~/actions";
+import { CONVERSATION_MESSAGE_BY_KEY } from "~/getters";
 import QuoteHelper from "~/store/helpers/QuoteHelper";
 import InlineStyle from "~/components/InlineStyle";
 
@@ -46,25 +45,23 @@ export default {
         noDarkify: { type: Boolean, default: false }
     },
     data() {
-        return { collapse_: this.collapse && !isForward(this.message) };
+        return { collapse_: this.collapse && !isForward(this.message), collapsedDOM: undefined };
     },
     computed: {
         ...mapGetters("settings", ["IS_COMPUTED_THEME_DARK"]),
+        ...mapGetters("mail", [CONVERSATION_MESSAGE_BY_KEY]),
 
-        quoteNodes() {
-            return this.$store.getters[`mail/${QUOTE_NODES}`](this.message.key, this.file.address);
-        },
         blockImages() {
             return this.$store.state.mail.consultPanel.remoteImages.mustBeBlocked;
         },
         content() {
             return this.$store.state.mail.partsData.partsByMessageKey[this.message.key]?.[this.file.address];
         },
+        parsedDOM() {
+            return new DOMParser().parseFromString(this.content, "text/html");
+        },
         contentAsNode() {
-            let node = new DOMParser().parseFromString(this.content, "text/html");
-            if (this.isCollapseActive) {
-                node = QuoteHelper.removeQuotes(node, this.quoteNodes);
-            }
+            const node = this.isCollapseActive ? this.collapsedDOM : this.parsedDOM;
             if (!this.noDarkify && this.IS_COMPUTED_THEME_DARK) {
                 darkifyHtml(node.body, darkifyingBaseLvalue());
             }
@@ -106,7 +103,21 @@ export default {
             return extractedStyle + BM_STYLE;
         },
         isCollapseActive() {
-            return this.collapse_ && this.quoteNodes;
+            return this.collapse_ && this.collapsedDOM;
+        }
+    },
+    watch: {
+        async parsedDOM(value) {
+            if (value) {
+                const conversationMessages = this.message.conversationRef
+                    ? this.CONVERSATION_MESSAGE_BY_KEY(this.message.conversationRef.key)
+                    : [this.message];
+                const copy = value.cloneNode(true);
+                const quoteNodes = await this.computeQuoteNodes(conversationMessages, copy);
+                this.collapsedDOM = QuoteHelper.removeQuotes(copy, quoteNodes);
+            } else {
+                this.collapsedDOM = undefined;
+            }
         }
     },
     async created() {
@@ -121,9 +132,65 @@ export default {
         InlineImageHelper.cleanLocalImages(this.message.key);
     },
     methods: {
-        ...mapActions("mail", { FETCH_PART_DATA })
+        ...mapActions("mail", { FETCH_PART_DATA }),
+        async computeQuoteNodes(conversationMessages, htmlDoc) {
+            if (messageUtils.isReply(this.message)) {
+                const messageParts = this.$store.state.mail.partsData.partsByMessageKey[this.message.key];
+                if (messageParts) {
+                    let quoteNodes = QuoteHelper.findQuoteNodes(this.message, htmlDoc);
+                    if (!quoteNodes?.length) {
+                        // find quote using text comparison with related message
+                        quoteNodes = await findQuoteNodesUsingTextComparison(
+                            this.$store.dispatch,
+                            this.$store.state.mail.partsData.partsByMessageKey,
+                            this.message,
+                            conversationMessages,
+                            this.file
+                        );
+                    }
+                    return quoteNodes;
+                }
+            }
+        }
     }
 };
+
+async function findQuoteNodesUsingTextComparison(
+    dispatch,
+    partsByMessageKey,
+    message,
+    conversationMessages,
+    messagePart
+) {
+    const references = messageUtils.extractHeaderValues(message, messageUtils.MessageHeader.REFERENCES);
+
+    if (references && references.length > 0) {
+        const lastRef = references[references.length - 1];
+        const relatedMessage = conversationMessages.find(m => m.messageId === lastRef);
+        if (relatedMessage) {
+            let relatedParts = partsByMessageKey[relatedMessage.key];
+            if (!relatedParts) {
+                const inlines = getPartsFromCapabilities(relatedMessage, VIEWER_CAPABILITIES);
+                await dispatch(FETCH_PART_DATA, {
+                    messageKey: relatedMessage.key,
+                    folderUid: relatedMessage.folderRef.uid,
+                    imapUid: relatedMessage.remoteRef.imapUid,
+                    parts: inlines.filter(part => MimeType.isHtml(part))
+                });
+                relatedParts = partsByMessageKey[relatedMessage.key];
+            }
+
+            if (relatedParts) {
+                for (const relatedPart in Object.values(relatedParts)) {
+                    const quoteNodes = QuoteHelper.findQuoteNodesUsingTextComparison(messagePart, relatedPart);
+                    if (quoteNodes) {
+                        return quoteNodes;
+                    }
+                }
+            }
+        }
+    }
+}
 
 function extractStyleNotInBody(doc) {
     let result = "";
@@ -157,11 +224,11 @@ const BM_STYLE = `
             border: solid 1px var(--neutral-fg-lo1) !important;
             vertical-align: top;
         }
-        .blocked-background { 
-            background-image: url(${brokenImageIcon}); 
-            background-position: 7px 7px; 
-            background-repeat: no-repeat; 
-            border: solid 1px var(--neutral-fg-lo1) !important; 
+        .blocked-background {
+            background-image: url(${brokenImageIcon});
+            background-position: 7px 7px;
+            background-repeat: no-repeat;
+            border: solid 1px var(--neutral-fg-lo1) !important;
         }
         img.blocked-image:before {
             content: attr(alt);

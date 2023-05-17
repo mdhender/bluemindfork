@@ -1,20 +1,9 @@
 import { MimeType } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
-import { messageUtils, partUtils } from "@bluemind/mail";
 import Vue from "vue";
 
-import { COMPUTE_QUOTE_NODES, FETCH_PART_DATA } from "~/actions";
-import {
-    SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES,
-    RESET_PARTS_DATA,
-    SET_PART_DATA,
-    SET_QUOTE_NODES
-} from "~/mutations";
-import { QUOTE_NODES } from "~/getters";
-import QuoteHelper from "./helpers/QuoteHelper";
-
-const { MessageHeader, extractHeaderValues } = messageUtils;
-const { VIEWER_CAPABILITIES, getPartsFromCapabilities } = partUtils;
+import { FETCH_PART_DATA } from "~/actions";
+import { SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES, RESET_PARTS_DATA, SET_PART_DATA } from "~/mutations";
 
 export default {
     mutations: {
@@ -28,20 +17,6 @@ export default {
             state.partsByMessageKey = {};
             state.quoteNodesByMessageKey = {};
         },
-        [SET_QUOTE_NODES]: (state, { messageKey, quoteNodesByPartAddress }) => {
-            if (!state.quoteNodesByMessageKey[messageKey]) {
-                Vue.set(state.quoteNodesByMessageKey, messageKey, {});
-            }
-            if (quoteNodesByPartAddress) {
-                Object.keys(quoteNodesByPartAddress).forEach(partAddress => {
-                    Vue.set(
-                        state.quoteNodesByMessageKey[messageKey],
-                        partAddress,
-                        quoteNodesByPartAddress[partAddress]
-                    );
-                });
-            }
-        },
         // Listeners
         [SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES]: (state, { key, inlinePartsByCapabilities }) => {
             inlinePartsByCapabilities.forEach(({ parts }) => {
@@ -52,10 +27,6 @@ export default {
                 });
             });
         }
-    },
-
-    getters: {
-        [QUOTE_NODES]: state => (messageKey, partAddress) => state.quoteNodesByMessageKey[messageKey]?.[partAddress]
     },
 
     actions: {
@@ -82,42 +53,6 @@ export default {
                     commit(SET_PART_DATA, { messageKey, data: converted, address: part.address });
                 })
             );
-        },
-
-        async [COMPUTE_QUOTE_NODES](
-            { commit, dispatch, state: { partsByMessageKey } },
-            { message, conversationMessages }
-        ) {
-            if (messageUtils.isReply(message)) {
-                const messageParts = partsByMessageKey[message.key];
-                if (messageParts) {
-                    let quoteNodesByPartAddress = QuoteHelper.findQuoteNodes(messageParts, message);
-
-                    const atLeastOneQuoteNotFound = Object.values(quoteNodesByPartAddress).some(
-                        qn => qn === QuoteHelper.NOT_FOUND
-                    );
-                    if (atLeastOneQuoteNotFound) {
-                        // find quote using text comparison with related message
-                        quoteNodesByPartAddress = await findQuoteNodesUsingTextComparison(
-                            dispatch,
-                            partsByMessageKey,
-                            message,
-                            conversationMessages,
-                            messageParts,
-                            quoteNodesByPartAddress
-                        );
-                    }
-
-                    // clean-up
-                    Object.keys(quoteNodesByPartAddress).forEach(partAddress => {
-                        if (quoteNodesByPartAddress[partAddress] === QuoteHelper.NOT_FOUND) {
-                            delete quoteNodesByPartAddress[partAddress];
-                        }
-                    });
-
-                    commit(SET_QUOTE_NODES, { messageKey: message.key, quoteNodesByPartAddress });
-                }
-            }
         }
     },
 
@@ -126,12 +61,7 @@ export default {
          * Parts content keyed by message key and by part address.
          * @example partsByMessageKey["messageKey"]["partAddress"] = "partContent"
          */
-        partsByMessageKey: {},
-        /**
-         * The found quote nodes of each part.
-         * @example quoteNodesByMessageKey["messageKey"]["partAddress"] = [quoteNode1, quoteNode2]
-         */
-        quoteNodesByMessageKey: {}
+        partsByMessageKey: {}
     }
 };
 
@@ -153,51 +83,4 @@ function convertToBase64(blob) {
             resolve(reader.result);
         };
     });
-}
-
-async function findQuoteNodesUsingTextComparison(
-    dispatch,
-    partsByMessageKey,
-    message,
-    conversationMessages,
-    messageParts,
-    quoteNodesByPartAddress
-) {
-    const references = extractHeaderValues(message, MessageHeader.REFERENCES);
-
-    if (references && references.length > 0) {
-        const lastRef = references[references.length - 1];
-        const relatedMessage = conversationMessages.find(m => m.messageId === lastRef);
-        if (relatedMessage) {
-            let relatedParts = partsByMessageKey[relatedMessage.key];
-            if (!relatedParts) {
-                const inlines = getPartsFromCapabilities(relatedMessage, VIEWER_CAPABILITIES);
-                await dispatch(FETCH_PART_DATA, {
-                    messageKey: relatedMessage.key,
-                    folderUid: relatedMessage.folderRef.uid,
-                    imapUid: relatedMessage.remoteRef.imapUid,
-                    parts: inlines.filter(part => MimeType.isHtml(part))
-                });
-                relatedParts = partsByMessageKey[relatedMessage.key];
-            }
-
-            if (relatedParts) {
-                Object.keys(messageParts)
-                    .filter(partKey => quoteNodesByPartAddress[partKey] === QuoteHelper.NOT_FOUND)
-                    .forEach(partKey => {
-                        const messagePart = messageParts[partKey];
-                        let quoteNodes;
-                        const relatedMatchingContent = Object.values(relatedParts).find(relatedPart => {
-                            quoteNodes = QuoteHelper.findQuoteNodesUsingTextComparison(messagePart, relatedPart);
-                            return !!quoteNodes;
-                        });
-
-                        if (relatedMatchingContent) {
-                            quoteNodesByPartAddress[partKey] = quoteNodes;
-                        }
-                    });
-            }
-        }
-    }
-    return quoteNodesByPartAddress;
 }
