@@ -133,23 +133,10 @@ public class KeycloakHelper {
 			if (AuthTypes.CAS.name().equals(authType)) {
 				casUrl = domain.value.properties.get(AuthDomainProperties.CAS_URL.name());
 			}
-		} else {
-			authType = smap.get(SysConfKeys.auth_type.name());
-			if (AuthTypes.KERBEROS.name().equals(authType)
-					&& domain.uid.equals(smap.get(SysConfKeys.krb_domain.name()))) {
-				krbAdDomain = smap.get(SysConfKeys.krb_ad_domain.name());
-				krbAdIp = smap.get(SysConfKeys.krb_ad_ip.name());
-				krbKeytab = smap.get(SysConfKeys.krb_keytab.name());
-			} else if (AuthTypes.CAS.name().equals(authType)
-					&& domain.uid.equals(smap.get(SysConfKeys.cas_domain.name()))) {
-				casUrl = smap.get(SysConfKeys.cas_url.name());
-			} else {
-				authType = AuthTypes.INTERNAL.name();
-			}
 		}
 
 		String auth_type = authType;
-		String krb_ad_domain = krbAdDomain;
+		String krb_ad_domain = krbAdDomain != null ? krbAdDomain.toUpperCase() : null;
 		String krb_ad_ip = krbAdIp;
 		String krb_keytab = krbKeytab;
 		String cas_url = casUrl;
@@ -315,8 +302,8 @@ public class KeycloakHelper {
 					}
 
 					if (somethingChanged) {
-						ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IDomains.class)
-								.update(domain.uid, domain.value);
+						ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreDomains.class)
+								.setProperties(domain.uid, domain.value.properties);
 					}
 				}))).onFailure(t -> logger.error(t.getMessage(), t));
 
@@ -380,6 +367,34 @@ public class KeycloakHelper {
 		}
 
 		KerberosConfigHelper.updateKeycloakKerberosConf(domainUid);
+	}
+
+	public static void upgradeDomain(ItemValue<Domain> domain) {
+		if (domain.value.properties == null
+				|| domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name()) == null) {
+			Map<String, String> properties = domain.value.properties != null ? domain.value.properties
+					: new HashMap<>();
+			SharedMap<String, String> smap = MQ.sharedMap(Shared.MAP_SYSCONF);
+
+			String authType = smap.get("auth_type");
+			if (AuthTypes.KERBEROS.name().equals(authType) && domain.uid.equals(smap.get("krb_domain"))) {
+				properties.put(AuthDomainProperties.AUTH_TYPE.name(), AuthTypes.KERBEROS.name());
+				properties.put(AuthDomainProperties.KRB_AD_DOMAIN.name(), smap.get("krb_ad_domain"));
+				properties.put(AuthDomainProperties.KRB_AD_IP.name(), smap.get("krb_ad_ip"));
+				properties.put(AuthDomainProperties.KRB_KEYTAB.name(), smap.get("krb_keytab"));
+			} else if (AuthTypes.CAS.name().equals(authType) && domain.uid.equals(smap.get("cas_domain"))) {
+				properties.put(AuthDomainProperties.AUTH_TYPE.name(), AuthTypes.CAS.name());
+				properties.put(AuthDomainProperties.CAS_URL.name(), smap.get("cas_url"));
+			} else if (AuthTypes.OPENID.name().equals(authType)) {
+				properties.put(AuthDomainProperties.AUTH_TYPE.name(), AuthTypes.OPENID.name());
+			} else {
+				properties.put(AuthDomainProperties.AUTH_TYPE.name(), AuthTypes.INTERNAL.name());
+			}
+			ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreDomains.class)
+					.setProperties(domain.uid, properties);
+		}
+
+		initForDomain(domain);
 	}
 
 	public static List<String> getDomainUrls(String domainId) {

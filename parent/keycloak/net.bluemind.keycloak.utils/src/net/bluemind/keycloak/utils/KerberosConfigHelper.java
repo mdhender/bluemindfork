@@ -81,6 +81,7 @@ public class KerberosConfigHelper {
 
 		if (AuthTypes.KERBEROS.name().equals(domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name()))) {
 			String krb_ad_domain = domain.value.properties.get(AuthDomainProperties.KRB_AD_DOMAIN.name());
+			krb_ad_domain = krb_ad_domain != null ? krb_ad_domain.toUpperCase() : null;
 			String krb_keytab = domain.value.properties.get(AuthDomainProperties.KRB_KEYTAB.name());
 
 			SharedMap<String, String> smap = MQ.sharedMap(Shared.MAP_SYSCONF);

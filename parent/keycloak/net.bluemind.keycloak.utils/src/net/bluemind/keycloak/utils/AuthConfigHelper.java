@@ -22,6 +22,8 @@
   */
 package net.bluemind.keycloak.utils;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -169,11 +171,23 @@ public class AuthConfigHelper {
 			}
 		}
 
-		// cas url mandatory
+		// cas url mandatory and ending with /
 		if (domain.properties != null
-				&& AuthTypes.CAS.name().equals(domain.properties.get(AuthDomainProperties.AUTH_TYPE.name()))
-				&& domain.properties.get(AuthDomainProperties.CAS_URL.name()) == null) {
-			throw new ServerFault("CAS server URL is mandatory for CAS configuration", ErrorCode.INVALID_PARAMETER);
+				&& AuthTypes.CAS.name().equals(domain.properties.get(AuthDomainProperties.AUTH_TYPE.name()))) {
+			String casUrl = domain.properties.get(AuthDomainProperties.AUTH_TYPE.name());
+			if (casUrl == null || casUrl.trim().isEmpty()) {
+				throw new ServerFault("CAS server URL is mandatory for CAS configuration", ErrorCode.INVALID_PARAMETER);
+			}
+			try {
+				new URL(casUrl);
+			} catch (MalformedURLException e) {
+				throw new ServerFault("CAS server URL must be a valid http URL ending with a '/'",
+						ErrorCode.INVALID_PARAMETER);
+			}
+			if (!casUrl.startsWith("http") || !casUrl.endsWith("/")) {
+				throw new ServerFault("CAS server URL must be a valid http URL ending with a '/'",
+						ErrorCode.INVALID_PARAMETER);
+			}
 		}
 	}
 
