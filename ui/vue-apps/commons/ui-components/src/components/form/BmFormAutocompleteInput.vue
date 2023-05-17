@@ -177,7 +177,6 @@ export default {
 @import "../../css/_variables.scss";
 
 .bm-form-autocomplete-input {
-    min-width: 15vw;
     $max-nb-suggestions: 5;
     $suggestion-height: $input-height;
 

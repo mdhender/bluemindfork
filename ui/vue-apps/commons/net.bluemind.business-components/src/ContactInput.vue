@@ -589,13 +589,10 @@ function isVisible(element) {
         width: 100% !important;
     }
 
-    $inputMinWidth: 10vw;
     $max-nb-suggestions: 5;
     $suggestion-height: $input-height + $sp-2 + $line-height-small;
 
     .bm-form-autocomplete-input {
-        min-width: $inputMinWidth;
-
         .suggestions {
             border: none;
             padding: $sp-2;
@@ -622,7 +619,6 @@ function isVisible(element) {
         display: inline-flex;
         align-items: center;
         margin: $sp-2 + $sp-1 $sp-3;
-        max-width: calc(100% - $inputMinWidth);
     }
 
     .contact-wrapper:focus {
