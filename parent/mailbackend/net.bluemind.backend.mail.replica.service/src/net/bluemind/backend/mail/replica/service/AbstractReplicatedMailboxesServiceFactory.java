@@ -40,7 +40,6 @@ import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namesp
 import net.bluemind.backend.mail.replica.api.utils.Subtree;
 import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
 import net.bluemind.backend.mail.replica.service.internal.MailboxReplicaFlagProvider;
-import net.bluemind.backend.mail.replica.service.internal.hooks.DeletedDataMementos;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
@@ -67,12 +66,7 @@ public abstract class AbstractReplicatedMailboxesServiceFactory<T>
 		if (logger.isDebugEnabled()) {
 			logger.debug("Replicated mailboxes for {}", mailboxRoot.fullName());
 		}
-		Subtree sub = DeletedDataMementos.cachedSubtree(context, partition.domainUid, mailboxRoot);
-		if (sub == null) {
-			sub = SubtreeContainer.mailSubtreeUid(context, partition.domainUid, mailboxRoot);
-		} else {
-			return createNoopService(mailboxRoot, partition.domainUid);
-		}
+		Subtree sub = SubtreeContainer.mailSubtreeUid(context, partition.domainUid, mailboxRoot);
 		String uid = sub.subtreeUid();
 		DataSource ds = DataSourceRouter.get(context, uid);
 		String datalocation = DataSourceRouter.location(context, uid);
@@ -112,11 +106,6 @@ public abstract class AbstractReplicatedMailboxesServiceFactory<T>
 	protected abstract T create(MailboxReplicaRootDescriptor root, Container cont, BmContext context,
 			MailboxReplicaStore mboxReplicaStore, ContainerStoreService<MailboxReplica> storeService,
 			ContainerStore containerStore);
-
-	protected T createNoopService(MailboxReplicaRootDescriptor mailboxRoot, String domainUid) {
-		throw new UnsupportedOperationException(this.getClass().getName()
-				+ " does not provide a noop implementation for " + mailboxRoot.name + "@" + domainUid);
-	}
 
 	@Override
 	public T instance(BmContext context, String... params) {

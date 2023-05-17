@@ -145,13 +145,6 @@
       </container>
    </extension>
    <extension
-         point="net.bluemind.mailbox.hook">
-      <hook
-            class="net.bluemind.backend.mail.replica.service.internal.hooks.MailboxSubtreeHook">
-      </hook>
-   </extension>
-   
-   <extension
          point="net.bluemind.core.rest.eventBusAccessRule">
       <access-rule
             class="net.bluemind.backend.mail.replica.service.internal.hooks.SessionMailsNotifRuleAccess">
@@ -205,9 +198,6 @@
   </extension>
    <extension
          point="net.bluemind.core.caches.registry.registration">
-      <reg
-            impl="net.bluemind.backend.mail.replica.service.internal.hooks.DeletedDataMementos$Registration">
-      </reg>
       <reg
             impl="net.bluemind.backend.mail.replica.service.internal.MboxReplicasCache$Reg">
       </reg>

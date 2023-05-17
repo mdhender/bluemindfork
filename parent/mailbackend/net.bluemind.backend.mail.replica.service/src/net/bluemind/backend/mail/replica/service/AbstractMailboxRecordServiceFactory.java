@@ -26,12 +26,9 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.slf4j.LoggerFactory;
-
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
-import net.bluemind.backend.mail.replica.service.internal.NoopMailboxRecordService;
 import net.bluemind.backend.mail.replica.service.internal.RecordsItemFlagProvider;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
@@ -44,8 +41,6 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
-import net.bluemind.system.api.SystemState;
-import net.bluemind.system.state.StateContext;
 
 public abstract class AbstractMailboxRecordServiceFactory<T>
 		implements ServerSideServiceProvider.IServerSideServiceFactory<T> {
@@ -70,19 +65,11 @@ public abstract class AbstractMailboxRecordServiceFactory<T>
 		try {
 			ContainerStore cs = new ContainerStore(context, ds, context.getSecurityContext());
 			Container recordsContainer = cs.get(uid);
-			if (recordsContainer == null) {
-				LoggerFactory.getLogger(this.getClass()).warn("Missing container {}", uid);
-				return createNoopService();
-			}
 
 			DirEntry owner = context.su().provider().instance(IDirectory.class, recordsContainer.domainUid)
 					.findByEntryUid(recordsContainer.owner);
 			String subtreeContainerUid = IMailReplicaUids.subtreeUid(recordsContainer.domainUid, owner);
 			Container subtreeContainer = cs.get(subtreeContainerUid);
-			if (subtreeContainer == null) {
-				LoggerFactory.getLogger(this.getClass()).warn("Missing subtree container {}", subtreeContainerUid);
-				return createNoopService();
-			}
 			MailboxRecordStore recordStore = new MailboxRecordStore(ds, recordsContainer, subtreeContainer);
 
 			ContainerStoreService<MailboxRecord> storeService = new HookMailboxRecordStoreService(ds,
@@ -105,14 +92,6 @@ public abstract class AbstractMailboxRecordServiceFactory<T>
 			// some junit might fail on missing on domains_bluemind-noid missing
 		}
 		return storeService;
-	}
-
-	@SuppressWarnings("unchecked")
-	protected T createNoopService() {
-		if (StateContext.getState() == SystemState.CORE_STATE_CLONING) {
-			throw new ServerFault("NOOP service is not a good thing while cloning.");
-		}
-		return (T) new NoopMailboxRecordService();
 	}
 
 	@Override

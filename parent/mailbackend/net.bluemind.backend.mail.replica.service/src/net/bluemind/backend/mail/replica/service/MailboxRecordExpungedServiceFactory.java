@@ -22,13 +22,10 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.slf4j.LoggerFactory;
-
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.IMailboxRecordExpunged;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordExpungedStore;
 import net.bluemind.backend.mail.replica.service.internal.MailboxRecordExpungedService;
-import net.bluemind.backend.mail.replica.service.internal.NoopMailboxRecordExpungedService;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.ItemValue;
@@ -61,10 +58,6 @@ public class MailboxRecordExpungedServiceFactory
 		try {
 			ContainerStore cs = new ContainerStore(context, ds, context.getSecurityContext());
 			Container recordsContainer = cs.get(uid);
-			if (recordsContainer == null) {
-				LoggerFactory.getLogger(this.getClass()).warn("Missing container {}", uid);
-				return createNoopService();
-			}
 
 			IMailboxes mailboxesApi = context.su().provider().instance(IMailboxes.class, recordsContainer.domainUid);
 			ItemValue<Mailbox> mailbox = mailboxesApi.getComplete(recordsContainer.owner);
@@ -73,20 +66,13 @@ public class MailboxRecordExpungedServiceFactory
 			}
 			String subtreeContainerUid = IMailReplicaUids.subtreeUid(recordsContainer.domainUid, mailbox);
 			Container subtreeContainer = cs.get(subtreeContainerUid);
-			if (subtreeContainer == null) {
-				LoggerFactory.getLogger(this.getClass()).warn("Missing subtree container {}", subtreeContainerUid);
-				return createNoopService();
-			}
+
 			MailboxRecordExpungedStore recordStore = new MailboxRecordExpungedStore(ds, recordsContainer,
 					subtreeContainer);
 			return new MailboxRecordExpungedService(context, recordStore);
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
-	}
-
-	protected IMailboxRecordExpunged createNoopService() {
-		return new NoopMailboxRecordExpungedService();
 	}
 
 }

@@ -28,7 +28,6 @@ import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.service.internal.ImapMailboxRecordsService;
-import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.service.internal.ContainerStoreService;
 import net.bluemind.core.rest.BmContext;
@@ -44,11 +43,6 @@ public class ImapMailboxRecordsServiceFactory extends AbstractMailboxRecordServi
 	protected IMailboxItems create(DataSource ds, Container cont, BmContext context, String mailboxUniqueId,
 			MailboxRecordStore recordStore, ContainerStoreService<MailboxRecord> storeService) {
 		return new ImapMailboxRecordsService(ds, cont, context, mailboxUniqueId, recordStore, storeService);
-	}
-
-	@Override
-	protected IMailboxItems createNoopService() {
-		throw new ServerFault("noop service is not possible for " + getClass());
 	}
 
 }

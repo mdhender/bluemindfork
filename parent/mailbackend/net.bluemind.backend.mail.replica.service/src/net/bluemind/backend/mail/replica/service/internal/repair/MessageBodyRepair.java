@@ -100,8 +100,6 @@ public class MessageBodyRepair implements IDirEntryRepairSupport {
 
 	public static class MessageBodyMaintenance extends InternalMaintenanceOperation {
 
-		private static final String SUCCESS = "SUCCESS";
-		private static final String NOTHING_TO_DO = "NOTHING TO DO";
 		private final BmContext bmContext;
 
 		public MessageBodyMaintenance(BmContext bmContext) {

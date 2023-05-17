@@ -50,9 +50,4 @@ public class DbReplicatedMailboxesServiceFactory
 		return new DbReplicatedMailboxesService(root, cont, context, mboxReplicaStore, storeService, containerStore);
 	}
 
-	@Override
-	protected IDbReplicatedMailboxes createNoopService(MailboxReplicaRootDescriptor mailboxRoot, String domainUid) {
-		return new NoopDbReplicatedMailboxesService(mailboxRoot, domainUid);
-	}
-
 }

@@ -47,10 +47,4 @@ public class DbByContainerReplicatedMailboxesServiceFactory<T>
 		return IDbByContainerReplicatedMailboxes.class;
 	}
 
-	@Override
-	protected IDbByContainerReplicatedMailboxes createNoopService(MailboxReplicaRootDescriptor mailboxRoot,
-			String domainUid) {
-		return new NoopDbReplicatedMailboxesService(mailboxRoot, domainUid);
-	}
-
 }

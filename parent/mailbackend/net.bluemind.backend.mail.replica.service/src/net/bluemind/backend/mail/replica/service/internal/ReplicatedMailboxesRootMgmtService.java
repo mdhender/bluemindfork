@@ -47,7 +47,6 @@ import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Mailbo
 import net.bluemind.backend.mail.replica.api.MailboxReplicaRootDescriptor.Namespace;
 import net.bluemind.backend.mail.replica.api.utils.Subtree;
 import net.bluemind.backend.mail.replica.persistence.MailboxReplicaStore;
-import net.bluemind.backend.mail.replica.service.internal.hooks.DeletedDataMementos;
 import net.bluemind.backend.mail.replica.utils.SubtreeContainer;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainers;
@@ -87,13 +86,7 @@ public class ReplicatedMailboxesRootMgmtService implements IReplicatedMailboxesR
 	@Override
 	public void create(MailboxReplicaRootDescriptor root) {
 		String domainUid = partition.domainUid;
-		Subtree sub = DeletedDataMementos.cachedSubtree(context, domainUid, root);
-		if (sub != null) {
-			logger.warn("******** We DON'T want to create a new root {} for the deleted mailbox of {}", root.fullName(),
-					sub.ownerUid);
-			return;
-		}
-		sub = SubtreeContainer.mailSubtreeUid(context, domainUid, root);
+		Subtree sub = SubtreeContainer.mailSubtreeUid(context, domainUid, root);
 		String containerUid = sub.subtreeUid();
 		String ownerUid = sub.ownerUid;
 		IContainers contApi = context.provider().instance(IContainers.class);

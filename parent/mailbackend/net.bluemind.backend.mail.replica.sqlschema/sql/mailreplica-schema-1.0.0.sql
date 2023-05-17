@@ -141,16 +141,6 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trigger_message_record_purge AFTER DELETE OR INSERT ON t_mailbox_record
     FOR EACH ROW EXECUTE PROCEDURE trigger_message_record_purge();
 
-create table IF NOT EXISTS t_subtree_uid (
-    domain_uid  text not null,
-    mailbox_uid text not null,
-    mailbox_name text not null,
-    namespace text not null,
-    unique (domain_uid, mailbox_uid)
-);
-
-create index IF NOT EXISTS subtree_uid_idx ON t_subtree_uid (domain_uid, mailbox_name);
-
 CREATE TABLE IF NOT EXISTS v_conversation_by_folder (
     folder_id integer NOT NULL REFERENCES t_container ON DELETE CASCADE,
     size integer NULL,
