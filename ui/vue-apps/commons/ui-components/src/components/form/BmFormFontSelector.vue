@@ -48,12 +48,16 @@ export default {
             validator: function (value) {
                 return ["outline", "inline"].includes(value);
             }
+        },
+        extraFontFamilies: {
+            type: Array,
+            default: () => []
         }
     },
     data() {
         return {
             fontFamily: this.selected,
-            families: FONT_FAMILIES
+            families: [...FONT_FAMILIES, ...this.extraFontFamilies]
         };
     },
     watch: {
@@ -80,7 +84,7 @@ export default {
                     }
                 });
                 if (!found) {
-                    this.fontFamily = fontFamilyByID(this.defaultFont);
+                    this.fontFamily = this.fontFamilyValue(this.defaultFont);
                 }
             },
             immediate: true
@@ -88,12 +92,12 @@ export default {
     },
     created() {
         if (!this.selected) {
-            this.fontFamily = fontFamilyByID(this.defaultFont);
+            this.fontFamily = this.fontFamilyValue(this.defaultFont);
         }
     },
     methods: {
         fontFamilyValue(fontId) {
-            return fontFamilyByID(fontId);
+            return fontFamilyByID(fontId, this.extraFontFamilies);
         },
         setFontFamily(family) {
             this.fontFamily = family;

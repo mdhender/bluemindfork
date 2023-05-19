@@ -82,6 +82,7 @@
                     :init-value="identity.signature"
                     :dark-mode="IS_COMPUTED_THEME_DARK"
                     :default-font-family="composer_default_font"
+                    :extra-font-families="EXTRA_FONT_FAMILIES"
                     show-toolbar
                     has-border
                     class="mt-1"
@@ -186,7 +187,7 @@ export default {
         ...mapState("root-app", ["identities"]),
         ...mapState("settings", ["composer_default_font"]),
         ...mapGetters("root-app", ["DEFAULT_IDENTITY"]),
-        ...mapGetters("settings", ["IS_COMPUTED_THEME_DARK"]),
+        ...mapGetters("settings", ["IS_COMPUTED_THEME_DARK", "EXTRA_FONT_FAMILIES"]),
         availableAddresses() {
             return this.possibleIdentities.map(identity => identity.email);
         },

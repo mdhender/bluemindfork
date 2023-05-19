@@ -1,6 +1,7 @@
 <template>
     <bm-form-font-selector
         :default-font="defaultFont"
+        :extra-font-families="extraFontFamilies"
         :selected="selectionFontFamily"
         :disabled="disabled"
         variant="inline"
@@ -30,6 +31,10 @@ export default {
         defaultFont: {
             type: String,
             required: true
+        },
+        extraFontFamilies: {
+            type: Array,
+            default: () => []
         }
     },
     methods: {

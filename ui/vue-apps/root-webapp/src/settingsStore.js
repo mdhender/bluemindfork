@@ -35,6 +35,16 @@ const getters = {
             default:
                 return window.matchMedia("(prefers-color-scheme: dark)").matches;
         }
+    },
+    EXTRA_FONT_FAMILIES: state => {
+        return state.domain_composer_font_stack.split(";").map(fontValue => {
+            const fontName = fontValue.split(",")[0];
+            return {
+                id: fontName.toLowerCase(),
+                text: fontName,
+                value: fontValue.replaceAll(",", ", ")
+            };
+        });
     }
 };
 

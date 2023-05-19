@@ -7,6 +7,7 @@ describe("BMFormFontSelector", () => {
             propsData: {
                 selected: "mono",
                 defaultFont: "mono",
+                extraFontFamilies: props?.mockInjectedValues ?? [],
                 ...props
             },
             mocks: {
@@ -50,5 +51,18 @@ describe("BMFormFontSelector", () => {
         expect(wrapper.emitted("input")[0][0]).toHaveProperty("text");
         expect(wrapper.emitted("input")[0][0]).toHaveProperty("value");
         expect(wrapper.emitted("input")[0][0]).toMatchObject({ id: "georgia" });
+    });
+
+    test("extra fonts (from domain) can be injected", () => {
+        const wrapper = defaultMount({
+            mockInjectedValues: [
+                { text: "ExtraFont", id: "extra", value: "extra, font, from, admin" },
+                { text: "More fonts", id: "anyid", value: "morefont, courrier, whatever" }
+            ]
+        });
+
+        expect(wrapper.findAll("[role=menuitem").length).toBe(8);
+        expect(wrapper.findAll("[role=menuitem").at(6).text()).toBe("ExtraFont");
+        expect(wrapper.findAll("[role=menuitem").at(7).text()).toBe("More fonts");
     });
 });

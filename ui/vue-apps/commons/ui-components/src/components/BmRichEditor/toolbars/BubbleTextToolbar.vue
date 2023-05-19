@@ -6,6 +6,7 @@
                 :disabled="disabled"
                 :selection-font-family="formatState.fontName"
                 :default-font="defaultFont"
+                :extra-font-families="extraFontFamilies"
             />
             <font-size-button :editor="editor" :disabled="disabled" :selection-font-size="formatState.fontSize" />
             <bold-button :editor="editor" :disabled="disabled" :is-bold="!!formatState.isBold" />
@@ -67,6 +68,10 @@ export default {
         defaultFont: {
             type: String,
             required: true
+        },
+        extraFontFamilies: {
+            type: Array,
+            default: () => []
         },
         disabled: {
             type: Boolean,

@@ -6,6 +6,7 @@
         :disabled="disabled || editor_.disabled"
         :class="classes"
         :default-font="defaultFontFamily"
+        :extra-font-families="extraFontFamilies"
         @open-link-modal="editor_.openLinkModal"
         @click.native="editor_.updateFormatState"
     />
@@ -34,6 +35,10 @@ export default {
         defaultFontFamily: {
             type: String,
             required: true
+        },
+        extraFontFamilies: {
+            type: Array,
+            default: () => []
         }
     },
     computed: {

@@ -11,6 +11,7 @@
                 align="right"
                 editor="composer"
                 :default-font-family="defaultFont"
+                :extra-font-families="extraFontsFamilies"
             />
         </transition>
         <mail-composer-toolbar
@@ -46,6 +47,9 @@ export default {
         },
         defaultFont() {
             return this.$store.state.settings.composer_default_font;
+        },
+        extraFontsFamilies() {
+            return this.$store.getters["settings/EXTRA_FONT_FAMILIES"];
         }
     }
 };

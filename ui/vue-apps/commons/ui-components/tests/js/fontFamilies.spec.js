@@ -15,5 +15,17 @@ describe("fontFamilies", () => {
                 expect(fontFamilyByID(font.id)).toBe(font.value);
             });
         });
+
+        test("can extent list of matching font families by providing an extra object in parameters", () => {
+            const extraFonts = [
+                {
+                    id: "extra",
+                    text: "Extra",
+                    value: "Extra, extra, Extra Value"
+                }
+            ];
+
+            expect(fontFamilyByID("extra", extraFonts)).toBe("Extra, extra, Extra Value");
+        });
     });
 });

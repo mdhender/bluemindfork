@@ -19,6 +19,7 @@
                 :focused-position="bubbleToolbar.focusedPosition"
                 :format-state="formatState"
                 :default-font="defaultFontFamily"
+                :extra-font-families="extraFontFamilies"
                 @open-link-modal="openLinkModal"
                 @click.native="updateFormatState"
             />
@@ -37,6 +38,7 @@
                 :format-state="formatState"
                 :disabled="disabled"
                 :default-font="defaultFontFamily"
+                :extra-font-families="extraFontFamilies"
                 full-toolbar
                 @open-link-modal="openLinkModal"
                 @click.native="updateFormatState"
@@ -108,6 +110,10 @@ export default {
         defaultFontFamily: {
             type: String,
             required: true
+        },
+        extraFontFamilies: {
+            type: Array,
+            default: () => []
         }
     },
     data() {
@@ -125,9 +131,10 @@ export default {
             isReady: false
         };
     },
+
     computed: {
         defaultFontValue() {
-            return fontFamilyByID(this.defaultFontFamily);
+            return fontFamilyByID(this.defaultFontFamily, this.extraFontFamilies);
         }
     },
     watch: {
@@ -327,6 +334,8 @@ function getTableParentNode(node, containerNode) {
     .roosterjs-container {
         outline: none;
         background-color: #ffffff !important;
+        flex: 1;
+        padding: $sp-4;
     }
 
     &.dark-mode .roosterjs-container {
@@ -336,11 +345,6 @@ function getTableParentNode(node, containerNode) {
     .main-area {
         display: flex;
         flex-direction: column;
-    }
-
-    .roosterjs-container {
-        flex: 1;
-        padding: $sp-4;
     }
 
     $padding-with-border: $sp-5;

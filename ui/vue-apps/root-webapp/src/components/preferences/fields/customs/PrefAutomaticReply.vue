@@ -27,6 +27,7 @@
                     has-border
                     :disabled="!value.enabled"
                     :default-font-family="composerDefaultFont"
+                    :extra-font-families="EXTRA_FONT_FAMILIES"
                     name="auto-reply"
                     @input="onInput"
                 />
@@ -76,7 +77,7 @@ export default {
     },
     mixins: [CentralizedSaving],
     computed: {
-        ...mapGetters("settings", ["IS_COMPUTED_THEME_DARK"]),
+        ...mapGetters("settings", ["IS_COMPUTED_THEME_DARK", "EXTRA_FONT_FAMILIES"]),
         composerDefaultFont() {
             return this.$store.state.settings.composer_default_font;
         },
