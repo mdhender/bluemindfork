@@ -25,8 +25,7 @@ const FONT_FAMILIES = [
         id: "helvetica"
     },
     {
-        value:
-            "Verdana, Verdana Ref, Corbel, Lucida Grande, Lucida Sans Unicode, Lucida Sans, DejaVu Sans, Liberation Sans, sans-serif",
+        value: "Verdana, Verdana Ref, Corbel, Lucida Grande, Lucida Sans Unicode, Lucida Sans, DejaVu Sans, Liberation Sans, sans-serif",
         text: "Verdana",
         id: "verdana"
     }
