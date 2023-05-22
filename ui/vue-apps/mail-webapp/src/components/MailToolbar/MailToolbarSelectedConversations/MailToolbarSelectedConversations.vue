@@ -33,16 +33,16 @@
             <mail-toolbar-responsive-button
                 v-show="showMarkAsFlaggedInMain"
                 :title="markAsFlaggedAriaText()"
-                icon="flag-fill"
-                class="mark-as-flagged-btn"
-                :label="markAsFlaggedText"
+                icon="flag-outline"
+                :label="$t('mail.state.flagging')"
                 @click="markAsFlagged()"
             />
             <mail-toolbar-responsive-button
                 v-show="showMarkAsUnflaggedInMain"
                 :title="markAsUnflaggedAriaText()"
-                icon="flag-outline"
-                :label="markAsUnflaggedText"
+                icon="flag-fill"
+                class="mark-as-unflagged-btn"
+                :label="$t('mail.state.flagging')"
                 @click="markAsUnflagged()"
             />
             <mail-toolbar-selected-conversations-other-actions />
@@ -116,7 +116,7 @@ export default {
     display: flex;
     flex-direction: row;
 
-    .mark-as-flagged-btn {
+    .mark-as-unflagged-btn {
         .bm-captioned-icon-button,
         .bm-icon-button {
             .bm-icon {

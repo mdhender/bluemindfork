@@ -73,14 +73,14 @@ export default {
             if (this.conversation) {
                 return this.conversation.flags.includes(Flag.FLAGGED);
             } else if (this.$_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED) {
-                return !this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED;
+                return this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED;
             } else if (this.$_FlagMixin_CURRENT_CONVERSATION_METADATA) {
                 return this.$_FlagMixin_CURRENT_CONVERSATION_METADATA.flags.includes(Flag.FLAGGED);
             }
             return false;
         },
         showMarkAsUnflaggedInOthers() {
-            return false;
+            return this.showMarkAsFlaggedInOthers;
         }
     },
     methods: {
