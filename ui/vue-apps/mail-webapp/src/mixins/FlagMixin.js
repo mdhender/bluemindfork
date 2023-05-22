@@ -52,7 +52,7 @@ export default {
             if (this.conversation) {
                 return !this.conversation.flags.includes(Flag.FLAGGED);
             } else if (this.$_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED) {
-                return this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED;
+                return false;
             } else if (this.$_FlagMixin_CURRENT_CONVERSATION_METADATA) {
                 return !this.$_FlagMixin_CURRENT_CONVERSATION_METADATA.flags.includes(Flag.FLAGGED);
             }
@@ -62,10 +62,7 @@ export default {
             if (this.conversation) {
                 return false;
             } else if (this.$_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED) {
-                return (
-                    !this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED &&
-                    !this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED
-                ); // mixed or indeterminate state
+                return !this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED;
             }
             return false;
         },
@@ -73,14 +70,19 @@ export default {
             if (this.conversation) {
                 return this.conversation.flags.includes(Flag.FLAGGED);
             } else if (this.$_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED) {
-                return this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_FLAGGED;
+                return false;
             } else if (this.$_FlagMixin_CURRENT_CONVERSATION_METADATA) {
                 return this.$_FlagMixin_CURRENT_CONVERSATION_METADATA.flags.includes(Flag.FLAGGED);
             }
             return false;
         },
         showMarkAsUnflaggedInOthers() {
-            return this.showMarkAsFlaggedInOthers;
+            if (this.conversation) {
+                return false;
+            } else if (this.$_FlagMixin_SEVERAL_CONVERSATIONS_SELECTED) {
+                return !this.$_FlagMixin_ALL_SELECTED_CONVERSATIONS_ARE_UNFLAGGED;
+            }
+            return false;
         }
     },
     methods: {
