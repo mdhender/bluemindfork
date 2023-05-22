@@ -33,11 +33,16 @@ var { BMAuthService } = ChromeUtils.import("chrome://bm/content/modules/core2/BM
 Cu.importGlobalProperties(["File"]);
 
 let cloudFileProvInterface;
+let throwError;
 if (Ci.nsIMsgCloudFileProvider) {
     cloudFileProvInterface = Ci.nsIMsgCloudFileProvider;
+    throwError = function(cr) { throw cr };
 } else {
     // TB >= 67
     cloudFileProvInterface = cloudFileAccounts.constants;
+    throwError = function(cr, reject) {
+        reject(Components.Exception("", cr));
+    }
 }
 
 this.EXPORTED_SYMBOLS = ["bmFileProvider"];
@@ -129,7 +134,7 @@ bmFileProvider.prototype = {
                     onStartRequest: function() {},
                     onStopRequest: function(p, ctx, cr) {
                         if (!Components.isSuccessCode(cr)) {
-                            throw cr;
+                            throwError(cr, reject);
                         }
                         let dlUrl =  self._urlsForFiles[aFile.path];
                         let expire = self._expireForUrls[dlUrl];
