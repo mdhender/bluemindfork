@@ -30,10 +30,10 @@
                 icon="read"
                 @click="MARK_MESSAGE_AS_READ(message)"
             >
-                {{ $tc("mail.actions.mark_as_read", 1) }}
+                {{ $tc("mail.actions.mark_read", 1) }}
             </bm-dropdown-item-button>
             <bm-dropdown-item-button v-else icon="unread" @click="MARK_MESSAGE_AS_UNREAD(message)">
-                {{ $tc("mail.actions.mark_as_unread", 1) }}
+                {{ $tc("mail.actions.mark_unread", 1) }}
             </bm-dropdown-item-button>
             <bm-dropdown-divider />
             <bm-dropdown-item-button

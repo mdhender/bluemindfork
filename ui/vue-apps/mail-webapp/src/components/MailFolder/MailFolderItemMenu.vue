@@ -26,7 +26,7 @@
                 icon="read"
                 @click="MARK_FOLDER_AS_READ({ folder, mailbox })"
             >
-                {{ $t("mail.folder.mark_as_read") }}
+                {{ $t("mail.folder.mark_read") }}
             </bm-dropdown-item-button>
             <empty-folder-action v-slot="action" :folder="folder">
                 <bm-dropdown-item-button v-if="isTrash" icon="broom" @click="action.execute">

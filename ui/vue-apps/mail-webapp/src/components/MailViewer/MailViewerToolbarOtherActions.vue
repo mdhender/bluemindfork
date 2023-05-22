@@ -12,10 +12,10 @@
             class="other-viewer-actions"
         >
             <bm-dropdown-item v-if="!message.flags.includes(Flag.SEEN)" @click.stop="MARK_MESSAGE_AS_READ(message)">
-                {{ $tc("mail.actions.mark_as_read", 1) }}
+                {{ $tc("mail.actions.mark_read", 1) }}
             </bm-dropdown-item>
             <bm-dropdown-item v-else @click.stop="MARK_MESSAGE_AS_UNREAD(message)">
-                {{ $tc("mail.actions.mark_as_unread", 1) }}
+                {{ $tc("mail.actions.mark_unread", 1) }}
             </bm-dropdown-item>
             <bm-dropdown-item
                 v-if="!message.flags.includes(Flag.FLAGGED)"

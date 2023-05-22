@@ -11,10 +11,10 @@ export default {
             return currentConversation ? currentConversation.subject : "";
         },
         markAsReadText() {
-            return this.$tc("mail.actions.mark_as_read", this.selectionLength);
+            return this.$tc("mail.actions.mark_read", this.selectionLength);
         },
         markAsUnreadText() {
-            return this.$tc("mail.actions.mark_as_unread", this.selectionLength);
+            return this.$tc("mail.actions.mark_unread", this.selectionLength);
         },
         markAsFlaggedText() {
             return this.$tc("mail.actions.mark_flagged", this.selectionLength);
