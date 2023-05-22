@@ -92,7 +92,11 @@ export default {
             return autocompleteResults || [];
         },
         showExpand() {
-            return !this.expandSearch && this.autocompleteExpandedResults.length > this.autocompleteResults.length;
+            return (
+                !this.expandSearch &&
+                (this.autocompleteResults.length > 5 ||
+                    this.autocompleteExpandedResults.length > this.autocompleteResults.length)
+            );
         }
     },
     mounted() {
