@@ -300,8 +300,9 @@ net.bluemind.addressbook.service.AddressBooksService.prototype.expandGroup = fun
         return goog.Promise.resolve([]);
       }
       return this.ctx.service('addressbook').getItem(member['containerUid'], member['itemUid']).then(function(card) {
-        if (!card) {
-          return;
+        if (!card || !card['value']) {
+          members.push({'mailto': member['mailto'], 'cn': member['commonName']});
+          return goog.Promise.resolve([]);
         }
         if (card['value']['kind'] == 'group') {
           return this.expandGroup(member['containerUid'], member['itemUid'], expanded).then(function(m) {
@@ -311,7 +312,8 @@ net.bluemind.addressbook.service.AddressBooksService.prototype.expandGroup = fun
           members.push(card);
         }
       }, function(e){
-      	return null;
+      	members.push({'mailto': member['mailto'], 'cn': member['commonName']});
+        return goog.Promise.resolve([]);
       }, this);
     }, this);
     return goog.Promise.all(promises).then(function() {
