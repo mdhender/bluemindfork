@@ -57,8 +57,9 @@ export const VIEWER_CAPABILITIES = [
     MimeType.IMAGE,
     MimeType.MESSAGE,
     MimeType.PDF,
-    MimeType.TEXT,
     MimeType.VIDEO,
+    MimeType.TEXT_PLAIN,
+    MimeType.TEXT_HTML,
     MimeType.X509_CERT,
     MimeType.CRYPTO_CERT,
     MimeType.PEM_FILE
