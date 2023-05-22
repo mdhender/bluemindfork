@@ -42,7 +42,7 @@
                     "single": "„{subject}” jest przenoszony do {folder} ..."
                 },
                 "success": {
-                    "single": "\"{subject}” został przeniesiony do {folder}.",
+                    "single": "„{subject}” został przeniesiony do {folder}.",
                     "plural": "{count} wiadomości zostało przeniesionych do {folder}."
                 },
                 "error": {
@@ -53,22 +53,22 @@
             "rename_folder": {
                 "loading": "Folder {previousName} zmienia nazwę na {name} ...",
                 "success": "Folder {previousName} zmienił nazwę na {name}!",
-                "error": "Nazwa folderu \"{previousName}” nie mogła zostać zmieniona."
+                "error": "Nazwa folderu „{previousName}” nie mogła zostać zmieniona."
             },
             "remove_folder": {
                 "success": "Folder {nazwa} został usunięty!",
-                "error": "Nie można usunąć folderu \"{name}”!",
-                "loading": "Folder \"{name}” jest właśnie usuwany ..."
+                "error": "Nie można usunąć folderu „{name}”!",
+                "loading": "Folder „{name}” jest właśnie usuwany ..."
             },
             "remove_messages": {
-                "success": "”{subject}” został trwale usunięty. | Wybrane wiadomości zostały trwale usunięte.",
-                "loading": "”{subject}” jest trwale usuwany ... | Zaznaczone wiadomości są trwale usuwane ...",
-                "error": "Nie udało się usunąć trwale \"{subject}”. | Nie udało się trwale usunąć wybranych wiadomości."
+                "success": "„{subject}” został trwale usunięty. | Wybrane wiadomości zostały trwale usunięte.",
+                "loading": "„{subject}” jest trwale usuwany ... | Zaznaczone wiadomości są trwale usuwane ...",
+                "error": "Nie udało się usunąć trwale „{subject}”. | Nie udało się trwale usunąć wybranych wiadomości."
             },
             "send_message": {
-                "loading": "Trwa wysyłanie \"{subject}” ...",
-                "error": "\"{subject}” nie został wysłany: {reason}",
-                "success": "Pomyślnie wysłano \"{subject}”!"
+                "loading": "Trwa wysyłanie „{subject}” ...",
+                "error": "„{subject}” nie został wysłany: {reason}",
+                "success": "Pomyślnie wysłano „{subject}”!"
             }
         }
     },
@@ -81,20 +81,20 @@
     "mail.actions.folder.invalid.too_long": "Nazwa folderu jest za długa",
     "mail.actions.folder.subfolder.forbidden": "Niedozwolone podfoldery",
     "mail.actions.mark_read": "Oznacz jako przeczytane",
-    "mail.actions.mark_read.aria": "Oznacz {subject} jako przeczytane | Zaznacz wybrane wiadomości jako przeczytane",
+    "mail.actions.mark_read.aria": "Oznacz „{subject}” jako przeczytane | Zaznacz wybrane wiadomości jako przeczytane",
     "mail.actions.mark_unread": "Oznacz jako nieprzeczytane",
-    "mail.actions.mark_unread.aria": "Oznacz {subject} jako nieprzeczytany | Oznacz wybrane wiadomości jako nieprzeczytane",
+    "mail.actions.mark_unread.aria": "Oznacz „{subject}” jako nieprzeczytany | Oznacz wybrane wiadomości jako nieprzeczytane",
     "mail.actions.mark_flagged": "Oflaguj",
-    "mail.actions.mark_flagged.aria": "Oflaguj {subject} | Oflaguj wybrane wiadomości",
+    "mail.actions.mark_flagged.aria": "Oflaguj „{subject}” | Oflaguj wybrane wiadomości",
     "mail.actions.mark_unflagged": "Usuń flagę",
-    "mail.actions.mark_unflagged.aria": "Usuń flagę z {subject} | Usuń flagę z wybranych wiadomości",
-    "mail.actions.move.aria": "Przenieś {subject} | Przenieś wybrane wiadomości",
+    "mail.actions.mark_unflagged.aria": "Usuń flagę z „{subject}” | Usuń flagę z wybranych wiadomości",
+    "mail.actions.move.aria": "Przenieś „{subject}” | Przenieś wybrane wiadomości",
     "mail.actions.move.item.warning.self": "Ta wiadomość jest już w {path}",
     "mail.actions.move.item": "Przenieś wiadomość do {path} | Przenieś wybrane wiadomości do {path}",
     "mail.actions.move": "Przenieść",
     "mail.actions.purge.modal.title": "Usuń wiadomość | Usuń wiadomości",
     "mail.actions.purge": "Usuń trwale",
-    "mail.actions.remove.aria": "Usuń wiadomość {subject} | Usuń wybrane wiadomości",
+    "mail.actions.remove.aria": "Usuń wiadomość „{subject}” | Usuń wybrane wiadomości",
     "mail.actions.remove.compose.aria": "Usuń zapisywaną wiadomość",
     "mail.actions.remove": "Usuń",
     "mail.actions.save.aria": "Zachowaj pisaną wiadomość",
@@ -138,7 +138,7 @@
     "mail.folder.empty": "Opróżnij folder",
     "mail.folder.empty.confirm.content": "Trwale usunąć wiadomości z tego folderu?",
     "mail.folder.create_subfolder": "Utwórz podfolder",
-    "mail.folder.delete.dialog.question": "Usunąć folder \"{name}”?",
+    "mail.folder.delete.dialog.question": "Usunąć folder „{name}”?",
     "mail.folder.delete.dialog.title": "Usuń folder",
     "mail.folder.mark_read": "Oznacz wszystkie jako przeczytane",
     "mail.folder.new.from_pattern": "{0} (Nowy folder)",
@@ -197,7 +197,7 @@
     "mail.message.starter.write": "napisz",
     "mail.messages.multiple.drag_shadow": "Wybrana konwersacja| {count} wybranych konwersacji",
     "mail.actions.move.item.warning.readonly": "Nie można przenieść wiadomości w {path} (tylko do odczytu)",
-    "mail.actions.purge.modal.content": "Trwale usunąć wiadomość \"{subject}”? | Usunąć trwale wybrane wiadomości?",
+    "mail.actions.purge.modal.content": "Trwale usunąć wiadomość „{subject}”? | Usunąć trwale wybrane wiadomości?",
     "mail.actions.spam.aria": "Zgłoś tę wiadomość jako spam",
     "mail.application.region.message": "Wiadomość",
     "mail.compose.reply.body": "W dniu {date}, {name} napisał:",
@@ -207,7 +207,7 @@
     "mail.content.file-type": "Typ pliku : {fileType}.",
     "mail.draft.save.date.time": "Wersja robocza zapisana o {time}",
     "mail.error.email.address.invalid": "Niepoprawny adres e-mail.",
-    "mail.folder.delete.dialog.question.with_subfolders": "Usunąć folder \"{name}” i jego podfoldery?",
+    "mail.folder.delete.dialog.question.with_subfolders": "Usunąć folder „{name}” i jego podfoldery?",
     "mail.ics.accepted.tentatively": "Zaproszenie wstępnie zaakceptowane",
     "mail.ics.counter.schedule.proposal.exception": "Nowa propozycja terminu dla jednego ze spotkań",
     "mail.list.filter.flagged": "Oflagowane",
