@@ -209,10 +209,10 @@ export default {
         }
     }
 
-    .bm-form-input-md + .suggestions {
+    .form-input-md + .suggestions {
         top: calc(#{$input-height} - #{2 * $input-border-width});
     }
-    .bm-form-input-sm + .suggestions {
+    .form-input-sm + .suggestions {
         top: calc(#{$input-height-sm} - #{2 * $input-border-width});
     }
 }

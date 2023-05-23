@@ -49,7 +49,6 @@ export default {
     created() {
         this.$slots["nav-prev-month"] = this.$createElement(BmIcon, { props: { icon: "chevron-left" } });
         this.$slots["nav-next-month"] = this.$createElement(BmIcon, { props: { icon: "chevron-right" } });
-        this.$slots["button-content"] = this.$createElement(BmIcon, { props: { icon: "calendar" } });
         this.$on("context", this.decorateCalendar);
     },
     mounted() {
@@ -61,10 +60,15 @@ export default {
         }
     },
     beforeUpdate() {
+        this.$slots["button-content"] = this.$createElement(BmIcon, {
+            props: { icon: "calendar" },
+            class: "ornament-icon"
+        });
+    },
+    updated() {
         if (!this.$_BmCalendarMixin_lock) {
             this.$_BmCalendarMixin_lock = true;
             this.decorateCalendar();
-            this.$slots["button-content"] = this.$createElement(BmIcon, { props: { icon: "calendar" } });
             this.$nextTick(() => (this.$_BmCalendarMixin_lock = false));
         }
     },

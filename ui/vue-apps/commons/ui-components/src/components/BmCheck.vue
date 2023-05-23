@@ -28,7 +28,7 @@ export default {
 .bm-check.custom-checkbox .custom-control-input {
     & ~ .custom-control-label::before {
         border-radius: 1em;
-        border-color: $input-border-color;
+        border-color: $neutral-fg;
         background-clip: padding-box;
     }
 

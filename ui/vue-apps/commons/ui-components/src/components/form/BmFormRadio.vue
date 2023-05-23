@@ -79,7 +79,7 @@ $radio-button-offset: math.div($line-height-regular - $custom-radio-size, 2);
 
     .custom-radio .custom-control-input {
         & ~ .custom-control-label::before {
-            border-color: $input-border-color;
+            border-color: $neutral-fg;
         }
 
         &:checked ~ .custom-control-label::before {
