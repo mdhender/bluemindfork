@@ -68,8 +68,8 @@ import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.SysConfKeys;
 
 public class KeycloakHelper {
-
 	private static final Logger logger = LoggerFactory.getLogger(KeycloakHelper.class);
+	private static final int keycloakWaitMaxRetries = 8; // 5sec per retry => 40sec max wait
 
 	private KeycloakHelper() {
 
@@ -466,6 +466,23 @@ public class KeycloakHelper {
 		}
 
 		initForDomain(domain);
+	}
+
+	public static void waitForKeycloak() {
+		IKeycloakAdmin keycloakAdminService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IKeycloakAdmin.class);
+
+		int nbRetries = 0;
+		while (nbRetries < keycloakWaitMaxRetries) {
+			try {
+				keycloakAdminService.allRealms();
+				logger.warn("Done waiting for keycloak (got a response)");
+				return;
+			} catch (Throwable t) {
+			}
+			nbRetries++;
+		}
+		logger.warn("Wait for keycloak timed out (keycloak still not responding)");
 	}
 
 }

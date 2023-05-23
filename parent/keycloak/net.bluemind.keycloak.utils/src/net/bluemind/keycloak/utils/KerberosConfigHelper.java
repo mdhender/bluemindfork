@@ -43,7 +43,6 @@ import net.bluemind.domain.api.IDomains;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Shared;
-import net.bluemind.keycloak.api.IKeycloakAdmin;
 import net.bluemind.keycloak.api.IKeycloakKerberosAdmin;
 import net.bluemind.keycloak.api.KerberosComponent;
 import net.bluemind.keycloak.api.KerberosComponent.CachePolicy;
@@ -58,7 +57,6 @@ public class KerberosConfigHelper {
 	private static final Logger logger = LoggerFactory.getLogger(KerberosConfigHelper.class);
 	private static final String lastConfLocation = "/etc/bm-keycloak/krbconf.json";
 	private static final String krb5ConfPath = "/etc/krb5.conf";
-	private static final int keycloakWaitMaxRetries = 6; // 5sec per retry => 30sec max wait
 
 	public static void updateKeycloakKerberosConf(String domainUid) {
 		logger.info("Domain {} created/updated : updating kerberos conf (if needed)", domainUid);
@@ -173,7 +171,7 @@ public class KerberosConfigHelper {
 
 			logger.info("Keycloak restarting on server {}...", kcServerAddr);
 			NCUtils.execNoOut(nodeClient, "systemctl restart bm-keycloak.service");
-			waitForKeycloak();
+			KeycloakHelper.waitForKeycloak();
 			logger.info("Keycloak restarted on server {}", kcServerAddr);
 		} else {
 			logger.info("Kerberos config did not change. No need to update /etc/krb5.conf.");
@@ -239,18 +237,4 @@ public class KerberosConfigHelper {
 				.instance(IDomainSettings.class, domainUid).get().get(DomainSettingsKeys.external_url.name());
 	}
 
-	public static void waitForKeycloak() {
-		IKeycloakAdmin keycloakAdminService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IKeycloakAdmin.class);
-
-		int nbRetries = 0;
-		while (nbRetries < keycloakWaitMaxRetries) {
-			try {
-				keycloakAdminService.allRealms();
-				return;
-			} catch (Throwable t) {
-			}
-			nbRetries++;
-		}
-	}
 }
