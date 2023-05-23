@@ -30,14 +30,14 @@ registerDependencies(userSession);
 initWebApp(userSession);
 initSentry(userSession);
 
-function initWebApp(userSession) {
-    setDateTimeFormat(userSession);
+async function initWebApp(userSession) {
     initStore();
     setVuePlugins(userSession);
     Vue.component("DefaultAlert", DefaultAlert);
     router.addRoutes(routes);
     new Vue({ el: "#app", i18n, render: h => h(MainApp), router, store });
     if (userSession.userId) {
+        setDateTimeFormat(userSession);
         new NotificationManager().setNotificationWhenReceivingMail(userSession);
     }
 }
@@ -71,10 +71,12 @@ async function showNotification(message) {
     }
 }
 
-function setDateTimeFormat(session) {
-    inject("UserSettingsPersistence")
-        .getOne(session.userId, "timeformat")
-        .then(timeformat => i18n.setDateTimeFormat(generateDateTimeFormats(timeformat)));
+async function setDateTimeFormat(session) {
+    const timeformat = await inject("UserSettingsPersistence").getOne(session.userId, "timeformat");
+    const dateTimeFormats = generateDateTimeFormats(timeformat);
+    Object.entries(dateTimeFormats).forEach(entry => {
+        i18n.setDateTimeFormat(entry[0], entry[1]);
+    });
 }
 
 (async () => {

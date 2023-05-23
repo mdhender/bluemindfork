@@ -75,11 +75,9 @@ export default function (timeformat) {
     };
 
     const hour12 = timeformat === "h:mma";
-    if (hour12) {
-        Object.entries(dateTimeFormats).map(entry => {
-            dateTimeFormats[entry[0]] = { ...entry[1], hour12: true };
-        });
-    }
+    Object.entries(dateTimeFormats).map(entry => {
+        dateTimeFormats[entry[0]] = { ...entry[1], hour12 };
+    });
 
     return AvailableLanguages.reduce((obj, item) => Object.assign(obj, { [item.value]: dateTimeFormats }), {});
 }

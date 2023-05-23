@@ -215,7 +215,7 @@ export default {
                 gap: $sp-5;
 
                 .bm-form-time-picker {
-                    width: base-px-to-rem(65) !important;
+                    width: base-px-to-rem(90) !important;
                     min-width: 0;
                     flex: none;
                 }
