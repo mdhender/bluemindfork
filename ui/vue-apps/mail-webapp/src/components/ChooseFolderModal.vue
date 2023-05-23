@@ -37,9 +37,9 @@
                     >
                         <template #default="{ item }">
                             <div class="d-flex flex-fill align-items-center">
-                                <mail-folder-icon no-text :mailbox="allMailboxes[item.mailboxRef.key]" :folder="item" />
-                                <span class="pl-2 flex-fill"> {{ translatePath(item.path) }}</span>
-                                <mail-mailbox-icon :mailbox="allMailboxes[item.mailboxRef.key]" />
+                                <mail-folder-icon no-text :mailbox="itemMailbox(item)" :folder="item" />
+                                <span class="pl-2 flex-fill" :title="itemTitle(item)"> {{ itemName(item) }}</span>
+                                <mail-mailbox-icon :mailbox="itemMailbox(item)" />
                             </div>
                         </template>
                         <template v-if="!folderNameExists && !selectedExcluded" #extra="{ close, focus, goUp, goDown }">
@@ -142,7 +142,7 @@ export default {
     methods: {
         onSelected(folder) {
             this.selectedFolder = folder;
-            this.pattern = this.translatePath(folder.path);
+            this.pattern = this.itemName(folder);
         },
         itemsOrDefaults() {
             return this.pattern ? this.matchingFolders(this.isExcluded, this.mailboxes) : this.defaultFolders;
@@ -164,7 +164,16 @@ export default {
             return this.FOLDER_BY_PATH(path, this.mailboxes[0]);
         },
         createFolder,
-        translatePath
+        translatePath,
+        itemName(item) {
+            return item.path ? translatePath(item.path) : this.itemMailbox(item).dn;
+        },
+        itemTitle(item) {
+            return item.path || item.name;
+        },
+        itemMailbox(item) {
+            return this.allMailboxes[item.mailboxRef.key];
+        }
     }
 };
 </script>
