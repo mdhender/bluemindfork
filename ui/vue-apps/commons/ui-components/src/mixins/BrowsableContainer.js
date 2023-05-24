@@ -55,7 +55,7 @@ export default {
             }
         },
         focus() {
-            this.$_Container_focused.focus();
+            this.$_Container_focused?.focus();
             return this.$_Container_focused;
         }
     },
@@ -77,7 +77,8 @@ document.addEventListener("keydown", e => handleMetaKey(e, this));
 document.addEventListener("keyup", e => handleMetaKey(e, this));
 
 function init(vm) {
-    vm.$_Container_focusables = getFocusableChildren(vm.$el);
+    vm.$el.dataset.browseRoot = true;
+    vm.$_Container_focusables = getBrowsableElements(vm);
     if (vm.$_Container_focusables.length > 0) {
         vm.$_Container_focusables.sort((a, b) => (a.dataset.browseIndex || 99) - (b.dataset.browseIndex || 99));
         vm.$_Container_focused = vm.$_Container_focusables.find(el => el.dataset.browseDefault !== undefined);
@@ -148,6 +149,10 @@ function handleMetaKey(event) {
     ctrl = event.ctrlKey;
 }
 
+function getBrowsableElements(vm) {
+    return isVisible(vm.$el) ? getFocusableChildren(vm.$el) : [];
+}
+
 function getFocusableChildren(element) {
     let focusables = [];
     for (let i = 0; i < element.children.length; i++) {
@@ -212,5 +217,5 @@ function isVisible(element) {
         return true;
     }
     const visible = element.offsetWidth && element.offsetHeight && element.getClientRects().length;
-    return visible && (!element.parentElement || isVisible(element.parentElement));
+    return visible && (element.dataset.browseRoot || !element.parentElement || isVisible(element.parentElement));
 }

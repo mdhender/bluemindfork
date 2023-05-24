@@ -1,6 +1,6 @@
 <template>
     <div class="search-input-mobile">
-        <mail-search-input ref="search" underline @keydown.enter.native="onSearch" @focus="$emit('focus')" />
+        <mail-search-input ref="search" @keydown.enter.native="onSearch" @focus="$emit('focus')" />
     </div>
 </template>
 

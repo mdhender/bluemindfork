@@ -8,6 +8,7 @@
         :title="moveAriaText()"
         :aria-label="moveAriaText()"
         :compact="compact"
+        :right="compact"
         @shown="openMoveAutocomplete"
         @hide="resetPattern"
     >

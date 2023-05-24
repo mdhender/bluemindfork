@@ -4,8 +4,8 @@
         @back="RESET_CURRENT_SEARCH_PATTERN()"
     >
         <div class="d-flex align-items-center justify-content-between">
-            <div>{{ $t("common.action.search") }}</div>
-            <mail-search-advanced-button variant="compact-on-fill-primary" size="lg" class="px-3" />
+            <div class="bold">{{ $t("common.action.search") }}</div>
+            <mail-search-advanced-button variant="compact-on-fill-primary" size="lg" class="mx-3" />
         </div>
     </contextual-bar>
 </template>

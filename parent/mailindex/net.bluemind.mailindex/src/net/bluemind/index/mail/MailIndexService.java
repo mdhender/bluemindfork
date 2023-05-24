@@ -981,8 +981,9 @@ public class MailIndexService implements IMailIndexService {
 		}
 
 		bq.mustNot(QueryBuilders.termQuery("is", "deleted"));
-		bq = addSearchQuery(bq, query.query.query);
-		bq = addSearchRecordQuery(bq, query.query.recordQuery);
+		Operator defaultOperator = Operator.fromString(query.query.logicalOperator.toString());
+		bq = addSearchQuery(bq, query.query.query, defaultOperator);
+		bq = addSearchRecordQuery(bq, query.query.recordQuery, defaultOperator);
 		bq = addPreciseSearchQuery(bq, "messageId", query.query.messageId);
 		bq = addPreciseSearchQuery(bq, "references", query.query.references);
 
@@ -1010,18 +1011,18 @@ public class MailIndexService implements IMailIndexService {
 		}
 	}
 
-	private BoolQueryBuilder addSearchQuery(BoolQueryBuilder bq, String query) {
+	private BoolQueryBuilder addSearchQuery(BoolQueryBuilder bq, String query, Operator defaultOperator) {
 		if (!Strings.isNullOrEmpty(query)) {
 			return bq.must(JoinQueryBuilders.hasParentQuery(PARENT_TYPE, QueryBuilders.queryStringQuery(query)
-					.fields(DEFAULT_QUERY_STRING_FIELDS).defaultOperator(Operator.AND), false));
+					.fields(DEFAULT_QUERY_STRING_FIELDS).defaultOperator(defaultOperator), false));
 		} else {
 			return bq;
 		}
 	}
 
-	private BoolQueryBuilder addSearchRecordQuery(BoolQueryBuilder bq, String query) {
+	private BoolQueryBuilder addSearchRecordQuery(BoolQueryBuilder bq, String query, Operator defaultOperator) {
 		if (!Strings.isNullOrEmpty(query)) {
-			return bq.must(QueryBuilders.queryStringQuery(query));
+			return bq.must(QueryBuilders.queryStringQuery(query).defaultOperator(defaultOperator));
 		} else {
 			return bq;
 		}

@@ -1,5 +1,5 @@
 <template>
-    <div class="bm-form-input-number d-flex" :class="{ underline: variant === 'underline' }">
+    <div class="bm-form-input-number" :class="{ underline: variant === 'underline' }">
         <bm-button
             v-if="showButtons"
             :disabled="disabled || readOnly"
@@ -103,7 +103,7 @@ export default {
             this.onInput(parseInt(this.value) + this.step);
         },
         onInput(newValue) {
-            if (newValue !== "" && !this.readOnly) {
+            if (!this.readOnly) {
                 const min = parseFloat(this.min);
                 const max = parseFloat(this.max);
                 if (newValue >= min && newValue <= max) {
@@ -123,6 +123,7 @@ export default {
 @import "../../css/_variables.scss";
 
 .bm-form-input-number {
+    display: flex;
     .bm-form-input input[type="number"] {
         text-align: center;
         height: 100%;

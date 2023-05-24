@@ -1,7 +1,7 @@
 <template>
     <bm-form-input
         :value="search"
-        class="search-input"
+        class="pref-search-input"
         :placeholder="$t('common.search')"
         icon="search"
         resettable
@@ -33,7 +33,7 @@ export default {
 @import "~@bluemind/ui-components/src/css/mixins/responsiveness";
 @import "~@bluemind/ui-components/src/css/variables";
 
-.search-input {
+.pref-search-input {
     @include until-lg {
         background-color: $surface;
     }

@@ -6,61 +6,66 @@
         hide-header
         :busy="!newPattern"
         :cancel-title="$t('common.action.reset')"
+        content-class="bg-surface"
+        body-class="scroller-y"
         @cancel="cancel"
         @hide="sync"
         @ok="validateAndsearch"
     >
         <div class="item">
-            <div class="label">{{ $t("mail.search.options.folder.label") }}</div>
+            <label>{{ $t("mail.search.options.folder.label") }}</label>
             <mail-search-box-context class="search-input" :folder="currentFolder" />
         </div>
 
         <h3 class="section">{{ $t("mail.search.section.contacts") }}</h3>
         <div class="item">
-            <div class="label">{{ $t("common.from") }}</div>
+            <label>{{ $t("common.from") }}</label>
             <contact-search-input class="search-input" :addresses.sync="from" :max-contacts="1" />
         </div>
         <div class="item">
-            <div class="label">{{ $t("common.to") }}</div>
+            <label>{{ $t("common.to") }}</label>
             <contact-search-input class="search-input" :addresses.sync="to" />
         </div>
         <div class="item">
-            <div class="label">{{ $t("common.cc") }}</div>
+            <label>{{ $t("common.cc") }}</label>
             <contact-search-input class="search-input" :addresses.sync="cc" />
         </div>
         <div class="item">
-            <div class="label">{{ $t("common.with") }}</div>
+            <label>{{ $t("common.with") }}</label>
             <contact-search-input class="search-input" :addresses.sync="with_" />
         </div>
         <h3 class="section">{{ $t("mail.search.section.msg_and_attachments") }}</h3>
         <div class="item">
-            <div class="label">{{ $t("mail.search.label.subject") }}</div>
+            <label>{{ $t("mail.search.label.subject") }}</label>
             <string-search-input class="search-input" :value.sync="subject" />
         </div>
         <div class="item">
-            <div class="label">{{ $t("mail.search.label.contains") }}</div>
+            <label>{{ $t("mail.search.label.contains") }}</label>
             <string-search-input class="search-input" :value.sync="contains" />
         </div>
         <div class="item">
-            <div class="label">{{ $t("common.size") }}</div>
+            <label>{{ $t("common.size") }}</label>
             <size-search-input :min.sync="sizeMin" :max.sync="sizeMax" class="search-input" />
         </div>
         <div class="item checkbox-item">
-            <div class="label">{{ $t("common.attachment") }}</div>
-            <bm-form-checkbox v-model="hasAttachment" class="search-input" />
+            <label :for="uniqueAttachmentId" class="d-none d-lg-block">{{ $t("common.attachment") }}</label>
+            <bm-form-checkbox :id="uniqueAttachmentId" v-model="hasAttachment" class="search-input d-none d-lg-block" />
+            <bm-form-checkbox v-model="hasAttachment" class="search-input d-lg-none">
+                {{ $t("common.attachment") }}
+            </bm-form-checkbox>
         </div>
         <div class="item">
-            <div class="label">{{ $t("mail.search.label.filename") }}</div>
+            <label>{{ $t("mail.search.label.filename") }}</label>
             <string-search-input class="search-input" :value.sync="filename" />
         </div>
         <h3 class="section">{{ $t("common.date") }}</h3>
         <div class="item">
-            <div class="label">{{ $t("mail.search.label.after") }}</div>
-            <date-search-input class="search-input" :value.sync="after" />
+            <label>{{ $t("common.from_date") }}</label>
+            <date-search-input class="search-input" :value.sync="startingFrom" :max="until" />
         </div>
         <div class="item">
-            <div class="label">{{ $t("mail.search.label.before") }}</div>
-            <date-search-input class="search-input" :value.sync="before" />
+            <label>{{ $t("common.until") }}</label>
+            <date-search-input class="search-input" :value.sync="until" :min="startingFrom" />
         </div>
     </bm-modal>
 </template>
@@ -133,7 +138,7 @@ export default {
             }
             return subParts.join(" ");
         },
-        before: {
+        until: {
             get() {
                 return this.date?.max;
             },
@@ -141,7 +146,7 @@ export default {
                 this.date = { ...this.date, max: value };
             }
         },
-        after: {
+        startingFrom: {
             get() {
                 return this.date?.min;
             },
@@ -180,6 +185,9 @@ export default {
             set(value) {
                 this.with = value;
             }
+        },
+        uniqueAttachmentId() {
+            return `${this._uid}-attachment`;
         }
     },
     watch: {
@@ -204,12 +212,6 @@ export default {
             RESET_CURRENT_SEARCH_PATTERN
         }),
         ...mapActions("mail", { RESET_CURRENT_SEARCH }),
-        updateDeep(value) {
-            this.SET_CURRENT_SEARCH_DEEP(value);
-        },
-        updateFolder(value) {
-            this.SET_CURRENT_SEARCH_FOLDER(value);
-        },
         cancel(event) {
             event.preventDefault();
             this.resetFields();
@@ -222,7 +224,7 @@ export default {
             switch (keyword) {
                 case "date": {
                     return this.date?.min || this.date?.max
-                        ? `{${this.date.min || "*"} TO ${this.date.max || "*"}}`
+                        ? `[${this.date.min || "*"} TO ${this.date.max || "*"}]`
                         : null;
                 }
                 case "has": {
@@ -250,11 +252,12 @@ export default {
             const data = initData();
             Object.keys(data).forEach(property => (this[property] = data[property]));
         },
-        sync({ trigger }) {
-            if (trigger !== "cancel") {
-                if (this.newPattern) {
-                    this.SET_CURRENT_SEARCH_PATTERN(this.newPattern);
-                } else {
+        sync(event) {
+            if (event.trigger === "cancel") {
+                event.preventDefault();
+            } else {
+                this.SET_CURRENT_SEARCH_PATTERN(this.newPattern);
+                if (!this.newPattern) {
                     this.$router.navigate({ name: "v:mail:home", params: { search: null } });
                 }
             }
@@ -269,11 +272,14 @@ export default {
 
 #advanced-search-modal {
     .modal-body {
+        background-color: $surface;
         .section {
             margin-top: $sp-7;
             margin-bottom: $sp-6;
         }
-
+        label {
+            margin-bottom: 0;
+        }
         @include until-lg {
             padding: $sp-4;
 
@@ -293,7 +299,7 @@ export default {
                     .search-input {
                         order: 1;
                     }
-                    .label {
+                    label {
                         order: 2;
                     }
                 }
@@ -308,7 +314,7 @@ export default {
                 flex: 1 1 auto;
                 margin-bottom: $sp-4;
                 min-height: $input-height;
-                & > .label {
+                & > label {
                     display: table-cell;
                     min-width: 25%;
                     text-align: end;
@@ -324,6 +330,11 @@ export default {
                 }
             }
         }
+    }
+    .modal-footer {
+        background-color: $surface-hi1;
+        box-shadow: 0 0 0.5rem $shadow-color;
+        z-index: 1;
     }
 }
 </style>

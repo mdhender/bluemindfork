@@ -89,7 +89,6 @@ export default {
 .mail-conversation-list {
     background-color: $surface;
     outline: none;
-    border-right: 1px solid $neutral-fg-lo2;
     @include until-lg {
         &.search-typing {
             background-color: $neutral-bg;

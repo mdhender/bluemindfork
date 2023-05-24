@@ -1,5 +1,5 @@
 <template>
-    <div class="topbar-conversation-list-mobile" :class="{ darkened }">
+    <div class="topbar-conversation-list-mobile flex-fill" :class="{ darkened }">
         <div class="main w-100">
             <bm-dropdown
                 v-if="CURRENT_MAILBOX"
@@ -10,11 +10,11 @@
             >
                 <template #button-content>
                     <bm-avatar :alt="userSession.formatedName" />
-                    <bm-label-icon v-if="MY_MAILBOX === CURRENT_MAILBOX" :icon="folderIcon" class="ml-5">
+                    <bm-label-icon v-if="MY_MAILBOX === CURRENT_MAILBOX" :icon="folderIcon" class="ml-4 flex-fill">
                         {{ currentFolder.name }}
                     </bm-label-icon>
                     <template v-else>
-                        <mail-mailbox-icon class="ml-5" :mailbox="CURRENT_MAILBOX" />
+                        <mail-mailbox-icon class="ml-4" :mailbox="CURRENT_MAILBOX" />
                         <span class="ml-3">{{ currentFolder.name }}</span>
                     </template>
                 </template>
@@ -89,14 +89,21 @@ export default {
     .main {
         display: flex;
         justify-content: space-between;
-        .dropdown-toggle {
-            padding: $sp-4 base-px-to-rem(6) !important;
-        }
         .toolbar {
             gap: $sp-4;
         }
-        .mail-mailbox-icon {
-            margin-left: base-px-to-rem(14);
+        .bm-dropdown {
+            max-width: 65%;
+            .dropdown-toggle {
+                padding: $sp-4 base-px-to-rem(6) !important;
+                flex: 1 1 auto;
+                min-width: 0;
+                .bm-label-icon > div {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+            }
         }
     }
 
@@ -107,7 +114,6 @@ export default {
         top: 0;
         bottom: 0;
         width: 100%;
-        opacity: 0.5;
         z-index: 1;
     }
 }

@@ -7,7 +7,7 @@
             <mail-search-box @active="activeSearch = $event" />
         </div>
         <div class="toolbar h-100 w-100">
-            <mail-toolbar class="mx-3 mx-lg-0" :compact="activeSearch" />
+            <mail-toolbar :compact="activeSearch" />
         </div>
 
         <div v-if="canSwitchWebmail" class="switch pr-5">

@@ -677,6 +677,84 @@ public class MailIndexServiceTests extends AbstractSearchTests {
 	}
 
 	@Test
+	public void testSearchDefaultOperator()
+			throws MimeIOException, IOException, InterruptedException, ExecutionException {
+		byte[] eml = Files.toByteArray(new File("data/test.eml"));
+		storeBody(bodyUid, eml);
+		storeMessage("inbox", userUid, bodyUid, 1, Collections.emptyList(), 1l);
+
+		String data = new String(eml);
+		data = data.replace("roger.water@pinkfloyd.net", "david.gilmour@pinkfloyd.net");
+		data = data.replace("Roger Water", "David Gilmour");
+		storeBody(bodyUid1, data.getBytes());
+		storeMessage("inbox", userUid, bodyUid1, 2, Collections.emptyList(), 2l);
+
+		List<MailSummary> mails = new ArrayList<>();
+		MailSummary summary1 = new MailSummary();
+		summary1.uid = 1;
+		summary1.parentId = bodyUid;
+		summary1.flags = new HashSet<>(Arrays.asList("yeah"));
+		mails.add(summary1);
+
+		MailSummary summary2 = new MailSummary();
+		summary2.uid = 2;
+		summary2.parentId = bodyUid1;
+		summary2.flags = new HashSet<>(Arrays.asList("yeah", "yo"));
+
+		mails.add(summary2);
+
+		MailIndexActivator.getService().syncFlags(ItemValue.create(userUid, null), ItemValue.create("inbox", null),
+				mails);
+		ESearchActivator.refreshIndex(INDEX_NAME);
+
+		SearchQuery query = new SearchQuery();
+		query.maxResults = 10;
+		query.offset = 0;
+		query.scope = new SearchScope();
+		query.scope.isDeepTraversal = true;
+		MailIndexQuery q = MailIndexQuery.simpleQuery(new MailboxFolderSearchQuery());
+		q.query = query;
+
+		// Default operator default value
+		query.query = "from:roger.water@pinkfloyd.net drug";
+		SearchResult results = MailIndexActivator.getService().searchItems(null, userUid, q);
+		assertEquals(1, results.totalResults);
+		query.query = "";
+		query.recordQuery = "with:roger.water@pinkfloyd.net is:yeah";
+
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
+		assertEquals(1, results.totalResults);
+
+		// Default operator AND value
+		query.logicalOperator = LogicalOperator.AND;
+		query.recordQuery = "";
+		query.query = "from:roger.water@pinkfloyd.net drug";
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
+		assertEquals(1, results.totalResults);
+		query.query = "";
+		query.recordQuery = "with:roger.water@pinkfloyd.net is:yeah";
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
+		assertEquals(1, results.totalResults);
+
+		// Default operator AND value
+		query.logicalOperator = LogicalOperator.OR;
+		query.recordQuery = "";
+		query.query = "from:roger from:david";
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
+		assertEquals(2, results.totalResults);
+		query.query = "";
+		query.recordQuery = "with:roger is:yo";
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
+		assertEquals(2, results.totalResults);
+		// Tokenized pattern use default operator
+		query.recordQuery = "";
+		query.query = "from:roger.water@pinkfloyd.net";
+		results = MailIndexActivator.getService().searchItems(null, userUid, q);
+		assertEquals(2, results.totalResults);
+
+	}
+
+	@Test
 	public void testPaginatedSearch() throws MimeIOException, IOException, InterruptedException, ExecutionException {
 		byte[] eml = Files.toByteArray(new File("data/test.eml"));
 		storeBody(bodyUid, eml);

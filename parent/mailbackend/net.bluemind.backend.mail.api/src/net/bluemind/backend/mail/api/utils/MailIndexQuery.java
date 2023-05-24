@@ -19,9 +19,11 @@
 package net.bluemind.backend.mail.api.utils;
 
 import java.util.List;
+import java.util.Optional;
 
 import net.bluemind.backend.mail.api.MailboxFolderSearchQuery;
 import net.bluemind.backend.mail.api.SearchQuery;
+import net.bluemind.backend.mail.api.SearchQuery.LogicalOperator;
 
 public class MailIndexQuery extends MailboxFolderSearchQuery {
 
@@ -46,6 +48,7 @@ public class MailIndexQuery extends MailboxFolderSearchQuery {
 			query.query.maxResults = searchQuery.query.maxResults;
 			query.query.offset = searchQuery.query.offset;
 			query.query.scope = searchQuery.query.scope;
+			query.query.logicalOperator = Optional.ofNullable(query.query.logicalOperator).orElse(LogicalOperator.AND);
 		}
 		return query;
 	}

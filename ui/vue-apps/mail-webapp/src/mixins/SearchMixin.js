@@ -15,7 +15,7 @@ export default {
     methods: {
         ...mapMutations("mail", { SET_CONVERSATION_LIST_STATUS }),
         buildSearchQuery(pattern, folder, deep) {
-            let searchQuery = `"${pattern}"`;
+            let searchQuery = `"${encodeURI(pattern)}"`;
             if (folder && folder.key) {
                 searchQuery += ` AND in:${folder.key}`;
                 if (deep) {

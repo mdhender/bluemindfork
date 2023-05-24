@@ -3,6 +3,7 @@
 exports[`ContactInput ContactInput should match snapshot 1`] = `
 <div
   class="contact-input d-flex"
+  data-browse-root="true"
 >
   <label
     class="bm-contact-input-label"
@@ -23,7 +24,6 @@ exports[`ContactInput ContactInput should match snapshot 1`] = `
         data-browse=""
         data-browse-default=""
         data-browse-key="new"
-        tabindex="0"
       >
         <div
           class="bm-form-input form-input position-relative form-input-sm"

@@ -3,6 +3,7 @@
 exports[`BmTree BmTree should match snapshot 1`] = `
 <div
   class="bm-tree"
+  data-browse-root="true"
   role="tree"
 >
   <div
@@ -17,7 +18,6 @@ exports[`BmTree BmTree should match snapshot 1`] = `
       class="bm-tree-node-content d-flex bm-tree-node-level-0"
       data-browse=""
       role="treeitem"
-      tabindex="0"
     >
       <button
         aria-hidden="true"
@@ -62,7 +62,6 @@ exports[`BmTree BmTree should match snapshot 1`] = `
       class="bm-tree-node-content d-flex bm-tree-node-level-0"
       data-browse=""
       role="treeitem"
-      tabindex="-1"
     >
       <button
         aria-hidden="true"

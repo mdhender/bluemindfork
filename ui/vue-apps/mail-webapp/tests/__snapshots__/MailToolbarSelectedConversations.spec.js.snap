@@ -9,7 +9,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     style="display: none;"
   >
     <button
-      class="btn bm-icon-button d-inline-flex d-lg-none btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
+      class="btn bm-icon-button d-lg-none btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
       icon="plus-enveloppe"
       label=""
       title=""
@@ -71,7 +71,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     style="display: none;"
   >
     <button
-      class="btn bm-icon-button d-inline-flex d-lg-none btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
+      class="btn bm-icon-button d-lg-none btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
       icon="read"
       label=""
       title=""
@@ -132,7 +132,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     class="mail-toolbar-responsive-button mail-toolbar-item"
   >
     <button
-      class="btn bm-icon-button d-inline-flex d-lg-none btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
+      class="btn bm-icon-button d-lg-none btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
       icon="unread"
       label=""
       title=""
@@ -196,7 +196,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
   >
     <div
       aria-label=""
-      class="dropdown b-dropdown bm-icon-dropdown d-inline-flex d-lg-none btn-group compact dropdown-no-caret"
+      class="dropdown b-dropdown bm-icon-dropdown btn-group compact dropdown-no-caret"
       icon="folder"
       label=""
       title=""
@@ -573,7 +573,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     <div
       aria-label=""
       caption=""
-      class="dropdown b-dropdown bm-captioned-icon-dropdown d-none d-lg-inline-flex btn-group"
+      class="dropdown b-dropdown bm-captioned-icon-dropdown btn-group"
       icon="folder"
       label=""
       no-caret=""
@@ -959,7 +959,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     class="mail-toolbar-responsive-button mail-toolbar-item"
   >
     <button
-      class="btn bm-icon-button d-inline-flex d-lg-none btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
+      class="btn bm-icon-button d-lg-none btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
       icon="trash"
       label=""
       title=""
@@ -1020,7 +1020,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     class="mail-toolbar-responsive-button mail-toolbar-item"
   >
     <button
-      class="btn bm-icon-button d-inline-flex d-lg-none btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
+      class="btn bm-icon-button d-lg-none btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
       icon="flag-outline"
       label=""
       title=""
@@ -1082,7 +1082,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     style="display: none;"
   >
     <button
-      class="btn bm-icon-button d-inline-flex d-lg-none btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
+      class="btn bm-icon-button d-lg-none btn-icon-compact-on-fill-primary btn-lg compact on-fill-primary"
       icon="flag-fill"
       label=""
       title=""
@@ -1148,7 +1148,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
   >
     <div
       aria-label=""
-      class="dropdown b-dropdown bm-icon-dropdown d-inline-flex d-lg-none btn-group compact dropdown-no-caret"
+      class="dropdown b-dropdown bm-icon-dropdown btn-group compact dropdown-no-caret"
       icon="3dots"
       label=""
       right=""
@@ -1386,7 +1386,7 @@ exports[`MailToolbarSelectedConversations should match snapshot 1`] = `
     <div
       aria-label=""
       caption=""
-      class="dropdown b-dropdown bm-captioned-icon-dropdown d-none d-lg-inline-flex btn-group"
+      class="dropdown b-dropdown bm-captioned-icon-dropdown btn-group"
       icon="3dots"
       label=""
       no-caret=""

@@ -70,6 +70,7 @@
             no-caret
             class="other-viewer-actions"
             :compact="compact"
+            :right="compact"
         >
             <bm-dropdown-item :disabled="isSenderShown" @click="showSender">
                 {{ $tc("mail.actions.show_sender", 1) }}

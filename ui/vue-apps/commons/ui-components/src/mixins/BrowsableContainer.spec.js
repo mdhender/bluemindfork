@@ -208,6 +208,7 @@ describe("BrowsableContainer", () => {
                     "<span id='fourth' data-browse data-browse-index='4'></span>"
             }
         });
+        document.getElementById("first").focus(); // Force element focus despite its invisibility
         wrapper.vm.focus();
         expect(document.activeElement.id).toBe("first");
         wrapper.vm.focusNext();

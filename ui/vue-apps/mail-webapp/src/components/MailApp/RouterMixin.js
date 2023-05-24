@@ -26,10 +26,6 @@ import {
     SET_ROUTE_MAILBOX,
     SET_ROUTE_SEARCH,
     SET_ROUTE_SORT,
-    SET_SEARCH_DEEP,
-    SET_SEARCH_FOLDER,
-    SET_SEARCH_MODE,
-    SET_SEARCH_PATTERN,
     SET_SEARCH_QUERY_DEEP,
     SET_SEARCH_QUERY_FOLDER,
     SET_SEARCH_QUERY_PATTERN
@@ -126,10 +122,6 @@ export default {
             SET_ROUTE_MAILBOX,
             SET_ROUTE_SEARCH,
             SET_ROUTE_SORT,
-            SET_SEARCH_PATTERN,
-            SET_SEARCH_DEEP,
-            SET_SEARCH_MODE,
-            SET_SEARCH_FOLDER,
             SET_SEARCH_QUERY_DEEP,
             SET_SEARCH_QUERY_FOLDER,
             SET_SEARCH_QUERY_PATTERN
@@ -203,7 +195,7 @@ export default {
             }
         },
         setSearchState(folder) {
-            this.SET_SEARCH_QUERY_PATTERN(this.route.search.pattern);
+            this.SET_SEARCH_QUERY_PATTERN(this.route.search.pattern ? decodeURI(this.route.search.pattern) : null);
             if (this.route.search.pattern) {
                 const folderRef = this.$_RouterMixin_query.folder ? FolderAdaptor.toRef(folder) : undefined;
                 this.SET_SEARCH_QUERY_FOLDER(folderRef);

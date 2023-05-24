@@ -1,6 +1,29 @@
 <template>
     <div class="date-search-input">
-        <bm-form-date-picker :locale="userLang" placeholder="" class="input" :value="value" @input="update" />
+        <bm-form-date-picker
+            :locale="userLang"
+            variant="outline"
+            placeholder=""
+            class="d-lg-none"
+            :value="value"
+            :min="min_"
+            :max="max_"
+            resettable
+            @input="update"
+            @reset="update(null)"
+        />
+        <bm-form-date-picker
+            :locale="userLang"
+            variant="underline"
+            placeholder=""
+            class="d-none d-lg-block"
+            :value="value"
+            :min="min_"
+            :max="max_"
+            resettable
+            @input="update"
+            @reset="update(null)"
+        />
     </div>
 </template>
 
@@ -14,11 +37,25 @@ export default {
         value: {
             type: [String, Date],
             default: ""
+        },
+        min: {
+            type: [String, Date],
+            default: ""
+        },
+        max: {
+            type: [String, Date],
+            default: ""
         }
     },
     computed: {
         userLang() {
             return this.$store.state.settings.lang;
+        },
+        min_() {
+            return date(this.min);
+        },
+        max_() {
+            return date(this.max);
         }
     },
     methods: {
@@ -27,26 +64,10 @@ export default {
         }
     }
 };
-</script>
-
-<style lang="scss">
-@import "@bluemind/ui-components/src/css/mixins/responsiveness";
-@import "@bluemind/ui-components/src/css/variables";
-
-.date-search-input {
-    //FIXME: Remove these styles when the BmFormDatePicker will have an underline style
-    @include from-lg {
-        .input.b-form-datepicker {
-            border-left: none !important;
-            border-right: none !important;
-            border-top: none !important;
-            border-bottom-color: $neutral-fg-lo2 !important;
-            padding-left: $sp-5 !important;
-            padding-right: $sp-5 !important;
-            &:not(.show) {
-                padding-bottom: $sp-1 !important;
-            }
-        }
+function date(str) {
+    if (!str) {
+        return null;
     }
+    return new Date(str);
 }
-</style>
+</script>

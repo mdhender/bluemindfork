@@ -27,10 +27,8 @@ export default {
 @import "@bluemind/ui-components/src/css/mixins/responsiveness";
 
 .search-result-content-header {
-    @include until-lg {
-        .list-group-item {
-            justify-content: center;
-        }
+    .list-group-item {
+        justify-content: center;
     }
 }
 </style>

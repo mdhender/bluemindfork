@@ -1,14 +1,14 @@
 <template>
-    <div class="mail-search-box d-flex" role="search" :class="{ active }" @click.stop>
+    <div class="mail-search-box d-flex" role="search" :class="{ active }">
         <global-events v-if="focusIn" @keydown.escape="shrinkBox" @click="shrinkBox" />
         <div
             ref="search-box-lg"
             class="d-none d-lg-flex flex-fill"
             @keydown.enter="currentSearch.pattern ? search() : null"
         >
-            <div class="d-flex flex-fill align-items-center box pl-1" :class="{ active }">
+            <div class="d-flex flex-fill align-items-center box" :class="{ active }">
                 <mail-search-box-context
-                    v-if="active"
+                    v-if="active && currentFolder"
                     class="context"
                     :folder="currentFolder"
                     @update="searchIfValid"
@@ -134,10 +134,10 @@ export default {
         shrinkBox(event) {
             const modal = document.getElementById("advanced-search-modal")?.getElementsByClassName("modal-content")[0];
             const path = event.path || event.composedPath();
-            if (!path.some(element => modal === element)) {
+            if (!path.some(element => modal === element || this.$el === element)) {
                 this.focusIn = false;
+                this.$refs.search.blur();
             }
-            this.$refs.search.blur();
         },
         searchIfValid() {
             if (this.currentSearch.pattern) {
@@ -171,7 +171,7 @@ export default {
         }
     }
     .search-button-wrapper {
-        background: $surface;
+        background: $surface-hi1;
         margin-left: -$input-border-width * 2;
     }
     .mail-search-box-context > .dropdown-toggle {
@@ -181,26 +181,12 @@ export default {
             border-right-color: $neutral-fg-lo3 !important;
         }
     }
-    .mail-search-input > .bm-form-input > input {
-        @include from-lg {
-            border: none !important;
-        }
-    }
-}
-
-@include until-lg {
-    .box {
-        .form-control,
-        .form-control::placeholder,
-        .form-control:focus,
-        .toggle-button,
-        .toggle-button:focus,
-        .toggle-button:active,
-        .toggle-button::before,
-        .close,
-        .bm-icon {
-            color: $fill-primary-fg !important;
-            background: transparent !important;
+    .mail-search-input > input {
+        &,
+        &:hover {
+            @include from-lg {
+                border: none !important;
+            }
         }
     }
 }

@@ -1,14 +1,26 @@
 <template>
     <div class="size-search-input d-flex align-items-center">
-        <bm-form-select v-model="selectedComparison" variant="outline" :options="comparisonOptions" />
-        <bm-form-input v-model="value" class="d-lg-none number" min="0" variant="outline" type="number" />
-        <bm-form-input v-model="value" class="d-none d-lg-block number" min="0" variant="underline" type="number" />
-        <bm-form-select v-model="selectedUnit" variant="outline" class="unit" :options="unitOptions" />
+        <bm-form-select
+            v-model="selectedComparison"
+            variant="underline"
+            class="d-none d-lg-block"
+            :options="comparisonOptions"
+        />
+        <bm-form-select v-model="selectedComparison" variant="outline" class="d-lg-none" :options="comparisonOptions" />
+        <bm-form-input-number v-model="value" class="d-lg-none" min="0" variant="outline" type="number" />
+        <bm-form-input-number v-model="value" class="d-none d-lg-block" min="0" variant="underline" type="number" />
+        <bm-form-select v-model="selectedUnit" variant="outline" class="d-lg-none unit" :options="unitOptions" />
+        <bm-form-select
+            v-model="selectedUnit"
+            variant="underline"
+            class="d-none d-lg-block unit"
+            :options="unitOptions"
+        />
     </div>
 </template>
 
 <script>
-import { BmFormSelect, BmFormInput } from "@bluemind/ui-components";
+import { BmFormSelect, BmFormInputNumber } from "@bluemind/ui-components";
 
 const COMPARISON = {
     HIGHER: "higher",
@@ -21,7 +33,7 @@ const UNIT = {
 };
 export default {
     name: "SizeSearchInput",
-    components: { BmFormSelect, BmFormInput },
+    components: { BmFormSelect, BmFormInputNumber },
     props: {
         min: {
             type: Number,
@@ -71,15 +83,22 @@ export default {
                 if (size) {
                     const boundary = this.selectedComparison === COMPARISON.HIGHER ? "min" : "max";
                     this.$emit(`update:${boundary}`, size);
+                } else {
+                    this.$emit("update:min", 0);
+                    this.$emit("update:max", 0);
                 }
             },
             immediate: true
         },
         minMax: {
             handler() {
-                this.selectedComparison = !this.min && this.max ? COMPARISON.LOWER : COMPARISON.HIGHER;
+                this.selectedComparison = this.selectedComparison
+                    ? this.selectedComparison
+                    : !this.min && this.max
+                    ? COMPARISON.LOWER
+                    : COMPARISON.HIGHER;
 
-                const value = this.min ? this.min : this.max;
+                const value = this.min ? +this.min : +this.max;
                 let unit = UNIT.MO;
                 if (value && value < UNIT.KO) {
                     unit = UNIT.O;
@@ -87,7 +106,7 @@ export default {
                     unit = UNIT.KO;
                 }
                 this.selectedUnit = unit;
-                this.value = value ? value / this.selectedUnit : null;
+                this.value = value ? `${+value / +this.selectedUnit}` : null;
             },
             immediate: true
         }
@@ -103,14 +122,7 @@ export default {
     width: 100%;
     gap: $sp-4;
     @include from-lg {
-        //FIXME: To remove when there is an underline variant for the BmFormSelect component
-        .bm-form-select > .dropdown-toggle.btn.dropdown-toggle {
-            border-top-color: transparent !important;
-            border-right-color: transparent !important;
-            border-left-color: transparent !important;
-            border-bottom-color: $neutral-fg-lo2 !important;
-        }
-        .number {
+        .bm-form-input-number {
             flex: 0 0 7rem;
         }
     }
@@ -121,9 +133,6 @@ export default {
     }
     .unit {
         flex: 0 0 4rem;
-    }
-    .number > .form-control {
-        text-align: center;
     }
 }
 </style>

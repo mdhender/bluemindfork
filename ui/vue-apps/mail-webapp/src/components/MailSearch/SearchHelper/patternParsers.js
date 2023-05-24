@@ -18,8 +18,7 @@ export default function parse(pattern, keyword) {
             default:
                 return defaultParser(node);
         }
-    } catch (err) {
-        console.log(err);
+    } catch {
         return null;
     }
 }
@@ -41,12 +40,10 @@ function addressesParser(node) {
 
 function dateParser(node) {
     let { min, max } = rangeParser(node);
-    console.log("jj", min, max);
     if (!min && !max && toIsoDate(node.term)) {
         min = node.term;
         max = node.term;
     }
-    console.log({ min: toIsoDate(min), max: toIsoDate(max) });
     return { min: toIsoDate(min), max: toIsoDate(max) };
 }
 
@@ -66,20 +63,19 @@ const INCLUDE_RANGE_LIMITS = {
 };
 function rangeParser(node) {
     let min, max;
-    console.log("hello", node);
     if (node.term_min || node.term_max) {
         switch (node.inclusive) {
             case INCLUDE_RANGE_LIMITS.LEFT:
-                min = addDays(node.term_min, -1);
-                max = node.term_max;
+                min = node.term_min;
+                max = addDays(node.term_max, -1);
                 break;
             case INCLUDE_RANGE_LIMITS.RIGHT:
-                min = node.term_min;
-                max = addDays(node.term_max, 1);
+                min = addDays(node.term_min, 1);
+                max = node.term_max;
                 break;
-            case INCLUDE_RANGE_LIMITS.BOTH:
-                min = addDays(node.term_min, -1);
-                max = addDays(node.term_max, 1);
+            case INCLUDE_RANGE_LIMITS.NONE:
+                min = addDays(node.term_min, 1);
+                max = addDays(node.term_max, -1);
                 break;
             default:
                 min = node.term_min;

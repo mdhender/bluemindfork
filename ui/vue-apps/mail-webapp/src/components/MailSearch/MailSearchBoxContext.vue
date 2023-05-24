@@ -11,12 +11,12 @@
             <folder-tree-header v-if="CURRENT_MAILBOX" :mailbox="CURRENT_MAILBOX" />
         </template>
         <template #selected="{ selected }">
-            <bm-label-icon :inline="false" class="selected label" :icon="getIcon(selected.value)">
+            <bm-label-icon :inline="false" class="selected" :icon="getIcon(selected.value)">
                 {{ $t(`mail.search.context.${selected.value}`, { folder: folder.name }) }}
             </bm-label-icon>
         </template>
         <template #item="{ item }">
-            <bm-label-icon :inline="false" class="label" :icon="getIcon(item.value)">
+            <bm-label-icon :inline="false" :icon="getIcon(item.value)">
                 {{ $t(`mail.search.context.${item.value}`, { folder: folder.name }) }}
             </bm-label-icon>
         </template>
@@ -66,9 +66,12 @@ export default {
         }
     },
     watch: {
-        folder() {
-            this.SET_CURRENT_SEARCH_FOLDER(this.folder.imapName === DEFAULT_FOLDERS.INBOX ? null : this.folder);
-            this.SET_CURRENT_SEARCH_DEEP(true);
+        folder: {
+            handler() {
+                this.SET_CURRENT_SEARCH_FOLDER(this.folder.imapName === DEFAULT_FOLDERS.INBOX ? null : this.folder);
+                this.SET_CURRENT_SEARCH_DEEP(true);
+            },
+            immediate: true
         }
     },
     methods: {
@@ -87,6 +90,7 @@ export default {
 
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/variables";
+@import "@bluemind/ui-components/src/css/_type.scss";
 
 .mail-search-box-context {
     .folder-tree-header,
@@ -99,16 +103,15 @@ export default {
         }
     }
 
-    .label {
+    .bm-label-icon {
         gap: base-px-to-rem(4);
         display: flex;
-        align-items: center;
         &.selected > div {
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
         }
-        font-weight: $font-weight-normal;
+        @extend %regular;
     }
 }
 </style>

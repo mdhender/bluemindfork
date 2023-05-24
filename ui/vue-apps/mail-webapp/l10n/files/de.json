@@ -392,8 +392,6 @@
     "mail.search.context.current_folder": "Nur {folder}",
     "mail.search.label.contains": "Enthält",
     "mail.search.label.subject": "Betreff",
-    "mail.search.label.before": "Vor",
-    "mail.search.label.after": "Nach",
     "mail.search.label.filename": "Dateiname",
     "mail.search.label.higher": "Größer als",
     "mail.search.label.lower": "Kleiner als",

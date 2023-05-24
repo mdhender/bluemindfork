@@ -82,8 +82,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@bluemind/ui-components/src/css/_type.scss";
 @import "~@bluemind/ui-components/src/css/variables";
+@import "@bluemind/ui-components/src/css/_type.scss";
 
 .mail-conversation-viewer-draft {
     .conversation-viewer-draft-head {

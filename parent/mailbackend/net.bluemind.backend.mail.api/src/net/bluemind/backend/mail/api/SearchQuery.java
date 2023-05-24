@@ -74,6 +74,12 @@ public class SearchQuery {
 	public SearchScope scope;
 
 	/**
+	 * Defines the default search operator of {@link #query} and
+	 * {@link #recordQuery}
+	 */
+	public LogicalOperator logicalOperator = LogicalOperator.AND;
+
+	/**
 	 * The scope of a search
 	 */
 	@BMApi(version = "3")

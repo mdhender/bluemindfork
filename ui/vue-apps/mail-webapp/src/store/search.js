@@ -53,6 +53,7 @@ const mutations = {
 const actions = {
     [RESET_CURRENT_SEARCH]({ commit }) {
         commit(RESET_CURRENT_SEARCH_PATTERN);
+        commit(SET_CURRENT_SEARCH_DEEP, true);
     }
 };
 

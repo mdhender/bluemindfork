@@ -392,8 +392,6 @@
     "mail.search.context.current_folder": "{folder} uniquement",
     "mail.search.label.contains": "Contient",
     "mail.search.label.subject": "Objet",
-    "mail.search.label.before": "Avant",
-    "mail.search.label.after": "Après",
     "mail.search.label.filename": "Nom de fichier",
     "mail.search.label.higher": "Supérieure à",
     "mail.search.label.lower": "Inférieure à",

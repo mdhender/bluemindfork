@@ -50,7 +50,6 @@ export default {
     @include until-lg {
         background-color: $fill-primary-bg;
         color: $fill-primary-fg;
-        font-weight: $font-weight-bold;
     }
     @media print {
         display: none !important;

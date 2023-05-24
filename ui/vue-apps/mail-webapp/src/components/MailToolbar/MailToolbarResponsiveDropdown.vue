@@ -1,10 +1,8 @@
 <template>
-    <div class="mail-toolbar-responsive-dropdown mail-toolbar-item">
+    <div class="mail-toolbar-responsive-dropdown mail-toolbar-item" :class="{ compact }">
         <bm-icon-dropdown
-            v-if="compact"
             ref="icon-dropdown"
-            class="d-inline-flex"
-            variant="compact"
+            :variant="compact ? 'compact' : 'compact-on-fill-primary'"
             size="lg"
             v-bind="[$attrs, $props]"
             :title="title ? title : label"
@@ -12,28 +10,14 @@
         >
             <slot />
         </bm-icon-dropdown>
-        <template v-else>
-            <bm-icon-dropdown
-                ref="icon-dropdown"
-                class="d-inline-flex d-lg-none"
-                variant="compact-on-fill-primary"
-                size="lg"
-                v-bind="[$attrs, $props]"
-                :title="title ? title : label"
-                v-on="$listeners"
-            >
-                <slot />
-            </bm-icon-dropdown>
-            <bm-captioned-icon-dropdown
-                ref="captioned-icon-dropdown"
-                class="d-none d-lg-inline-flex"
-                v-bind="[$attrs, $props]"
-                :caption="label"
-                v-on="$listeners"
-            >
-                <slot />
-            </bm-captioned-icon-dropdown>
-        </template>
+        <bm-captioned-icon-dropdown
+            ref="captioned-icon-dropdown"
+            v-bind="[$attrs, $props]"
+            :caption="label"
+            v-on="$listeners"
+        >
+            <slot />
+        </bm-captioned-icon-dropdown>
     </div>
 </template>
 
@@ -76,3 +60,26 @@ export default {
     }
 };
 </script>
+<style lang="scss">
+@import "@bluemind/ui-components/src/css/mixins/responsiveness";
+
+.mail-toolbar-responsive-dropdown {
+    &.compact {
+        .bm-captioned-icon-dropdown {
+            display: none;
+        }
+    }
+    &:not(.compact) {
+        @include from-lg {
+            .bm-icon-dropdown {
+                display: none;
+            }
+        }
+    }
+    @include until-lg {
+        .bm-captioned-icon-dropdown {
+            display: none;
+        }
+    }
+}
+</style>
