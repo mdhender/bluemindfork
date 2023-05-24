@@ -348,13 +348,6 @@ public class DomainsServiceTests {
 		setAliases = getService().setAliases(domainUid, Collections.emptySet());
 		alias = TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), setAliases);
 		assertTrue(alias.state.succeed);
-
-//		try {
-//			
-//			fail("should fail because an external user using this alias exists");
-//		} catch (ServerFault e) {
-//			assertEquals(ErrorCode.INVALID_PARAMETER, e.getCode());
-//		}
 	}
 
 	@Test

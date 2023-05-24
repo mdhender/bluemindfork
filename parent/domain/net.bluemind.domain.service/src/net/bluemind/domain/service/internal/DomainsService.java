@@ -591,7 +591,7 @@ public class DomainsService implements IInCoreDomains, IDomains {
 	public String getExternalUrl(String domainUid) {
 		rbacManager.forDomain(domainUid).check(BasicRoles.ROLE_ADMIN);
 
-		return Optional.ofNullable(DomainSettingsCache.get(context).getIfPresent(domainUid))
+		return Optional.ofNullable(context.provider().instance(IDomainSettings.class, domainUid).get())
 				.map(ds -> ds.get(DomainSettingsKeys.external_url.name()))
 				.orElseGet(() -> Optional
 						.ofNullable(context.su().provider().instance(ISystemConfiguration.class).getValues()
