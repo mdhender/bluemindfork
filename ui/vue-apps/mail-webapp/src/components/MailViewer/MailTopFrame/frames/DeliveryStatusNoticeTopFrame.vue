@@ -168,7 +168,7 @@ function parseReportData_(reportData) {
     const lastAttemptDate = lastAttemptDateMatches?.length > 1 ? lastAttemptDateMatches[1] : undefined;
     const actionMatches = reportData.match(/Action\s*:\s*(.*)/i);
     const action = actionMatches?.length > 1 ? actionMatches[1] : undefined;
-    const success = ["delivered", "expanded"].includes(action);
+    const success = ["delivered", "expanded", "relayed"].includes(action);
     return { arrivalDate, lastAttemptDate, finalRecipient, success };
 }
 </script>
