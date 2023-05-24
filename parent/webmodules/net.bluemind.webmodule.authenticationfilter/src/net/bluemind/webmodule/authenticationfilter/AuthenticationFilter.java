@@ -105,15 +105,17 @@ public class AuthenticationFilter implements IWebFilter {
 		if (forwardedLocation.isPresent()) {
 			Optional<ResolvedLoc> resolved = forwardedLocation.get().resolve();
 			if (resolved.isPresent()) {
-				Optional<String> sessionId = sessionId(request);
-				if (sessionId.isPresent()) {
-					decorate(request, sessionId.get());
+				Optional<SessionData> sessionData = sessionId(request)
+						.map(sessionId -> SessionsCache.get().getIfPresent(sessionId));
+				if (sessionData.isPresent()) {
+					decorate(request, sessionData.get());
 				} else {
 					request.response().setStatusCode(302);
 					request.response().headers().add(HttpHeaders.LOCATION, "/bluemind_sso_logout");
 					request.response().end();
 					return CompletableFuture.completedFuture(null);
 				}
+
 				return CompletableFuture.completedFuture(request);
 			}
 		}
@@ -122,9 +124,10 @@ public class AuthenticationFilter implements IWebFilter {
 			return logout(request);
 		}
 
-		Optional<String> sessionId = sessionId(request);
-		if (sessionId.isPresent()) {
-			decorate(request, sessionId.get());
+		Optional<SessionData> sessionData = sessionId(request)
+				.map(sessionId -> SessionsCache.get().getIfPresent(sessionId));
+		if (sessionData.isPresent()) {
+			decorate(request, sessionData.get());
 			return CompletableFuture.completedFuture(request);
 		}
 
@@ -373,18 +376,8 @@ public class AuthenticationFilter implements IWebFilter {
 		return b64UrlEncoder.encodeToString(code);
 	}
 
-	private void decorate(HttpServerRequest request, String sessionId) {
-
+	private void decorate(HttpServerRequest request, SessionData sd) {
 		MultiMap headers = request.headers();
-
-		SessionData sd = SessionsCache.get().getIfPresent(sessionId);
-
-		if (sd == null) {
-			logger.error("session {} doesnt exists", sessionId);
-			request.response().setStatusCode(500);
-			request.response().end();
-			return;
-		}
 
 		headers.add("BMSessionId", sd.authKey);
 		headers.add("BMUserId", sd.getUserUid());
