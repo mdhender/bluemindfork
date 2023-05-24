@@ -333,12 +333,14 @@ public class KeycloakHelper {
 	}
 
 	private static void updateKeycloakForDomain(String domainUid) {
+		logger.info("Update keycloak config for domain {}", domainUid);
 		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 		ItemValue<Domain> domain = provider.instance(IDomains.class).get(domainUid);
 
 		String clientId = IKeycloakUids.clientId(domainUid);
 		IKeycloakClientAdmin kcCientService = provider.instance(IKeycloakClientAdmin.class, domainUid);
 
+		KeycloakHelper.waitForKeycloak();
 		OidcClient oc = null;
 		try {
 			oc = kcCientService.getOidcClient(clientId);
@@ -349,12 +351,23 @@ public class KeycloakHelper {
 		} catch (Throwable t) {
 		}
 		if (oc == null) {
+			IKeycloakKerberosAdmin krbProv = provider.instance(IKeycloakKerberosAdmin.class, "global.virt");
+			KerberosComponent krbComp = null;
+			if ("global.virt".equals(domainUid)) {
+				try {
+					krbComp = krbProv.getKerberosProvider("global.virt-kerberos");
+				} catch (Throwable t) {
+				}
+			}
 			try {
 				provider.instance(IKeycloakAdmin.class).deleteRealm(domainUid);
 			} catch (Throwable t) {
 			}
 			initKeycloakForDomain(domain);
 			oc = kcCientService.getOidcClient(clientId);
+			if (krbComp != null) {
+				krbProv.create(krbComp);
+			}
 		}
 
 		List<String> currentUrls = getDomainUrls(domainUid);

@@ -59,6 +59,9 @@ public class KerberosConfigHelper {
 	private static final String krb5ConfPath = "/etc/krb5.conf";
 
 	public static void updateKeycloakKerberosConf(String domainUid) {
+		if ("global.virt".equals(domainUid)) {
+			return;
+		}
 		logger.info("Domain {} created/updated : updating kerberos conf (if needed)", domainUid);
 
 		IDomains domainsService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
