@@ -1,52 +1,57 @@
 <template>
     <chain-of-responsibility :is-responsible="isMDN">
         <div class="message-disposition-notification-top-frame d-flex flex-column p-5">
-            <div class="main d-flex flex-row align-items-center">
-                <bm-responsive-illustration over-background value="read" class="mr-5" />
-                <div class="spacer d-none d-lg-block ml-5"></div>
-                <div class="details flex-fill">
-                    <i18n
-                        :path="originalMessage ? 'mail.topframe.mdn.summary' : 'mail.topframe.mdn.summary.no_subject'"
-                    >
-                        <template v-if="originalMessage" #subject>
-                            <router-link :to="link">{{
-                                originalMessage.subject || $t("mail.viewer.no.subject")
-                            }}</router-link>
-                        </template>
-                        <template #sender>
-                            <span v-if="message.from.dn" class="font-weight-bold">{{ message.from.dn }}</span>
-                            <span v-if="message.from.dn && message.from.address">&nbsp;&lt;</span
-                            ><span
-                                v-if="message.from.address"
-                                class="text-break-all"
-                                :class="{ 'font-weight-bold': !message.from.dn }"
-                                >{{ message.from.address }}</span
-                            ><span v-if="message.from.dn && message.from.address">&gt;</span>
-                        </template>
-                    </i18n>
-                    <div>
-                        <template v-if="originalMessage">
-                            <span>
-                                {{
-                                    $t("mail.topframe.report.send_date", {
-                                        date: $d(originalMessage.date, "short_date_time")
-                                    })
-                                }}
-                            </span>
-                            <br />
-                        </template>
-                        <span>{{
-                            $t("mail.topframe.mdn.opened_date", { date: $d(message.date, "short_date_time") })
-                        }}</span>
+            <top-frame-skeleton v-if="loading" />
+            <template v-else>
+                <div class="main d-flex flex-row align-items-center">
+                    <bm-responsive-illustration over-background value="read" class="mr-5" />
+                    <div class="spacer d-none d-lg-block ml-5"></div>
+                    <div class="details flex-fill">
+                        <i18n
+                            :path="
+                                originalMessage ? 'mail.topframe.mdn.summary' : 'mail.topframe.mdn.summary.no_subject'
+                            "
+                        >
+                            <template v-if="originalMessage" #subject>
+                                <router-link :to="link">{{
+                                    originalMessage.subject || $t("mail.viewer.no.subject")
+                                }}</router-link>
+                            </template>
+                            <template #sender>
+                                <span v-if="message.from.dn" class="font-weight-bold">{{ message.from.dn }}</span>
+                                <span v-if="message.from.dn && message.from.address">&nbsp;&lt;</span
+                                ><span
+                                    v-if="message.from.address"
+                                    class="text-break-all"
+                                    :class="{ 'font-weight-bold': !message.from.dn }"
+                                    >{{ message.from.address }}</span
+                                ><span v-if="message.from.dn && message.from.address">&gt;</span>
+                            </template>
+                        </i18n>
+                        <div>
+                            <template v-if="originalMessage">
+                                <span>
+                                    {{
+                                        $t("mail.topframe.report.send_date", {
+                                            date: $d(originalMessage.date, "short_date_time")
+                                        })
+                                    }}
+                                </span>
+                                <br />
+                            </template>
+                            <span>{{
+                                $t("mail.topframe.mdn.opened_date", { date: $d(message.date, "short_date_time") })
+                            }}</span>
+                        </div>
+                        <em class="d-none d-lg-block disclaimer">
+                            {{ $t("mail.topframe.mdn.notice") }}
+                        </em>
                     </div>
-                    <em class="d-none d-lg-block disclaimer">
-                        {{ $t("mail.topframe.mdn.notice") }}
-                    </em>
                 </div>
-            </div>
-            <em class="d-block d-lg-none flex-fill disclaimer mt-4">
-                {{ $t("mail.topframe.mdn.notice") }}
-            </em>
+                <em class="d-block d-lg-none flex-fill disclaimer mt-4">
+                    {{ $t("mail.topframe.mdn.notice") }}
+                </em>
+            </template>
         </div>
     </chain-of-responsibility>
 </template>
@@ -57,10 +62,11 @@ import { BmResponsiveIllustration } from "@bluemind/ui-components";
 import { FETCH_PART_DATA } from "~/actions";
 import ChainOfResponsibility from "../ChainOfResponsibility";
 import ReportTopFrameMixin from "./ReportTopFrameMixin";
+import TopFrameSkeleton from "./TopFrameSkeleton";
 
 export default {
     name: "MessageDispositionNotificationTopFrame",
-    components: { BmResponsiveIllustration, ChainOfResponsibility },
+    components: { BmResponsiveIllustration, ChainOfResponsibility, TopFrameSkeleton },
     mixins: [ReportTopFrameMixin],
     props: {
         message: {
@@ -69,13 +75,14 @@ export default {
         }
     },
     data() {
-        return { firstReport: undefined, isMDN: false, originalMessage: undefined };
+        return { firstReport: undefined, isMDN: false, originalMessage: undefined, loading: false };
     },
     priority: 0,
     watch: {
         "message.reports": {
             handler: async function (reportParts) {
                 if (reportParts?.length) {
+                    this.loading = true;
                     this.firstReport = reportParts[0];
                     this.isMDN = this.firstReport?.mime === MimeType.MESSAGE_DISPOSITION_NOTIFICATION;
                     if (this.isMDN) {
@@ -92,6 +99,7 @@ export default {
                         const report = parseReportData(reportData);
                         this.originalMessage = await this.findMessage(report.originalMessageId);
                     }
+                    this.loading = false;
                 }
             },
             immediate: true

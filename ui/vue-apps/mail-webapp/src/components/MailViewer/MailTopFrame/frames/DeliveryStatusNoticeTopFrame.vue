@@ -1,59 +1,62 @@
 <template>
     <chain-of-responsibility :is-responsible="isDSN">
         <div class="delivery-status-notice-top-frame d-flex flex-column p-5">
-            <div class="main d-flex flex-row align-items-center">
-                <bm-responsive-illustration
-                    over-background
-                    :value="success ? 'delivered-true' : 'delivered-false'"
-                    class="mr-5"
-                />
-                <div class="spacer d-none d-lg-block ml-5"></div>
-                <div class="details flex-fill">
-                    <i18n :path="summaryI18nPath">
-                        <template v-if="originalMessage" #subject>
-                            <template v-if="originalMessage.remoteRef">
-                                <router-link :to="link">{{
-                                    originalMessage.subject || $t("mail.viewer.no.subject")
-                                }}</router-link>
+            <top-frame-skeleton v-if="success === undefined" />
+            <template v-else>
+                <div class="main d-flex flex-row align-items-center">
+                    <bm-responsive-illustration
+                        over-background
+                        :value="success ? 'delivered-true' : 'delivered-false'"
+                        class="mr-5"
+                    />
+                    <div class="spacer d-none d-lg-block ml-5"></div>
+                    <div class="details flex-fill">
+                        <i18n :path="summaryI18nPath">
+                            <template v-if="originalMessage" #subject>
+                                <template v-if="originalMessage.remoteRef">
+                                    <router-link :to="link">{{
+                                        originalMessage.subject || $t("mail.viewer.no.subject")
+                                    }}</router-link>
+                                </template>
+                                <template v-else>{{ originalMessage.subject }}</template>
                             </template>
-                            <template v-else>{{ originalMessage.subject }}</template>
-                        </template>
-                        <template #recipient>
-                            <span
-                                v-for="(recipient, index) in recipients"
-                                :key="index"
-                                class="font-weight-bold text-break-all"
-                                >{{
-                                    recipients.length > 1 && index !== recipients.length - 1
-                                        ? `${recipient}, `
-                                        : recipient
-                                }}</span
-                            >
-                        </template>
-                    </i18n>
-                    <div>
-                        <template v-if="originalMessage">
-                            <span>
-                                {{
-                                    $t("mail.topframe.report.send_date", {
-                                        date: $d(originalMessage.date, "short_date_time")
-                                    })
-                                }}
-                            </span>
-                            <br />
-                        </template>
-                        <span v-if="success">{{
-                            $t("mail.topframe.dsn.delivery_date", { dates: deliveryDates.join(", ") })
-                        }}</span>
+                            <template #recipient>
+                                <span
+                                    v-for="(recipient, index) in recipients"
+                                    :key="index"
+                                    class="font-weight-bold text-break-all"
+                                    >{{
+                                        recipients.length > 1 && index !== recipients.length - 1
+                                            ? `${recipient}, `
+                                            : recipient
+                                    }}</span
+                                >
+                            </template>
+                        </i18n>
+                        <div>
+                            <template v-if="originalMessage">
+                                <span>
+                                    {{
+                                        $t("mail.topframe.report.send_date", {
+                                            date: $d(originalMessage.date, "short_date_time")
+                                        })
+                                    }}
+                                </span>
+                                <br />
+                            </template>
+                            <span v-if="success">{{
+                                $t("mail.topframe.dsn.delivery_date", { dates: deliveryDates.join(", ") })
+                            }}</span>
+                        </div>
+                        <span v-if="!success" class="d-none d-lg-block text-neutral">
+                            {{ $t("mail.topframe.dsn.failed.notice") }}
+                        </span>
                     </div>
-                    <span v-if="!success" class="d-none d-lg-block text-neutral">
-                        {{ $t("mail.topframe.dsn.failed.notice") }}
-                    </span>
                 </div>
-            </div>
-            <span v-if="!success" class="d-lg-none flex-fill text-neutral mt-4">
-                {{ $t("mail.topframe.dsn.failed.notice") }}
-            </span>
+                <span v-if="!success" class="d-lg-none flex-fill text-neutral mt-4">
+                    {{ $t("mail.topframe.dsn.failed.notice") }}
+                </span>
+            </template>
         </div>
     </chain-of-responsibility>
 </template>
@@ -65,10 +68,11 @@ import { BmResponsiveIllustration } from "@bluemind/ui-components";
 import { FETCH_PART_DATA } from "~/actions";
 import ChainOfResponsibility from "../ChainOfResponsibility";
 import ReportTopFrameMixin from "./ReportTopFrameMixin";
+import TopFrameSkeleton from "./TopFrameSkeleton";
 
 export default {
     name: "DeliveryStatusNoticeTopFrame",
-    components: { BmResponsiveIllustration, ChainOfResponsibility },
+    components: { BmResponsiveIllustration, ChainOfResponsibility, TopFrameSkeleton },
     mixins: [ReportTopFrameMixin],
     props: { message: { type: Object, required: true } },
     data() {

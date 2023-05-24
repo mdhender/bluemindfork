@@ -9,7 +9,7 @@ import Vue from "vue";
 import { BmExtension } from "@bluemind/extensions.vue";
 import { extensions } from "@bluemind/extensions";
 
-const loader = require.context("./frames", false, /\.vue$/);
+const loader = require.context("./frames", false, /TopFrame\.vue$/);
 loader.keys().forEach(file => {
     const component = loader(file).default;
     Vue.component(component.name, component);
