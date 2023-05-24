@@ -229,7 +229,7 @@ public class TaskManagerTests {
 		reader.exceptionHandler(event -> cdl.countDown());
 
 		try {
-			assertTrue(cdl.await(30, TimeUnit.SECONDS));
+			assertTrue("completion of " + taskRef.id + " took more than 30sec", cdl.await(30, TimeUnit.SECONDS));
 		} catch (InterruptedException e) {
 		}
 

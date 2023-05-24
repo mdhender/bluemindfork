@@ -65,7 +65,9 @@ public class PersistentQueue implements AutoCloseable {
 		root.mkdirs();
 		long id = uid.incrementAndGet();
 		File queueDir = new File(root, taskId + "." + id);
-		SingleChronicleQueue queue = SingleChronicleQueueBuilder.single(queueDir).build();
+		SingleChronicleQueue queue = SingleChronicleQueueBuilder.single(queueDir)//
+				.blockSize(64L << 13)// 512k, default is 64M (64L << 20)
+				.build();
 		return new PersistentQueue(taskId, id, queue);
 	}
 
