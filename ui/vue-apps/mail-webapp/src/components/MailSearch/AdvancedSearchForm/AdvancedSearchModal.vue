@@ -71,10 +71,9 @@
 </template>
 
 <script>
-import { mapActions, mapMutations, mapState } from "vuex";
+import { mapMutations, mapState } from "vuex";
 import { BmModal, BmFormCheckbox } from "@bluemind/ui-components";
 import { SearchMixin } from "~/mixins";
-import { RESET_CURRENT_SEARCH } from "~/actions";
 import {
     SET_CURRENT_SEARCH_DEEP,
     SET_CURRENT_SEARCH_FOLDER,
@@ -211,7 +210,6 @@ export default {
             SET_CURRENT_SEARCH_PATTERN,
             RESET_CURRENT_SEARCH_PATTERN
         }),
-        ...mapActions("mail", { RESET_CURRENT_SEARCH }),
         cancel(event) {
             event.preventDefault();
             this.resetFields();

@@ -8,7 +8,7 @@
         >
             <div class="d-flex flex-fill align-items-center box" :class="{ active }">
                 <mail-search-box-context
-                    v-if="active && currentFolder"
+                    v-if="active"
                     class="context"
                     :folder="currentFolder"
                     @update="searchIfValid"
@@ -86,7 +86,7 @@ export default {
             currentSearch: ({ conversationList }) => conversationList.search.currentSearch
         }),
         currentFolder() {
-            return this.folders[this.activeFolder];
+            return this.folders[this.activeFolder] || {};
         },
         active() {
             return !!this.currentSearch.pattern || this.focusIn;

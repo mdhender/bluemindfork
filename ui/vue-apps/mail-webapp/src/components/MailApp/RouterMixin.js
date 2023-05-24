@@ -197,7 +197,7 @@ export default {
         setSearchState(folder) {
             this.SET_SEARCH_QUERY_PATTERN(this.route.search.pattern ? decodeURI(this.route.search.pattern) : null);
             if (this.route.search.pattern) {
-                const folderRef = this.$_RouterMixin_query.folder ? FolderAdaptor.toRef(folder) : undefined;
+                const folderRef = this.$_RouterMixin_query.folder ? FolderAdaptor.toRef(folder) : null;
                 this.SET_SEARCH_QUERY_FOLDER(folderRef);
             }
             const isDeep = !!this.route.search?.deep;
