@@ -18,6 +18,7 @@
 package net.bluemind.webmodule.server.handlers;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
@@ -32,8 +33,18 @@ import net.bluemind.webmodule.server.handlers.internal.CoreStateListener;
 public class MaintenanceHandler {
 	private static final Logger logger = LoggerFactory.getLogger(MaintenanceHandler.class);
 
+	private final Set<String> noMaintenanceRoots;
+
+	public MaintenanceHandler(Set<String> noMaintenanceRoots) {
+		this.noMaintenanceRoots = noMaintenanceRoots;
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("No maintenance root for: " + String.join(", ", noMaintenanceRoots));
+		}
+	}
+
 	public Optional<CompletableFuture<HttpServerRequest>> handle(HttpServerRequest request) {
-		if (request.path().startsWith("/setup/")) {
+		if (noMaintenanceRoots.stream().anyMatch(r -> request.path().startsWith(r))) {
 			return Optional.of(CompletableFuture.completedFuture(request));
 		} else if (notInstalled()) {
 			return Optional.of(setupWizard(request));

@@ -80,6 +80,13 @@
                </documentation>
             </annotation>
          </attribute>
+         <attribute name="no-maintenance" type="boolean">
+            <annotation>
+               <documentation>
+                  Default to false
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 

@@ -127,6 +127,7 @@ public class WebModuleResolver {
 
 				WebModuleBuilder module = new WebModuleBuilder();
 				module.root = root;
+				module.noMaintenance = Boolean.valueOf(e.getAttribute("no-maintenance"));
 				if (e.getAttribute("index") != null) {
 					module.index = e.getAttribute("index");
 				}

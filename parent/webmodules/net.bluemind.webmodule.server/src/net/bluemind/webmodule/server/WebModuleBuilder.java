@@ -47,6 +47,7 @@ public class WebModuleBuilder {
 
 	public String root;
 	public String rootFile;
+	public boolean noMaintenance;
 	public String index = "index.html";
 
 	public Map<String, HandlerFactory<HttpServerRequest>> handlers = new HashMap<>();
@@ -98,6 +99,7 @@ public class WebModuleBuilder {
 		ret.resources = this.resources;
 		ret.root = root;
 		ret.rootFile = rootFile;
+		ret.noMaintenance = noMaintenance;
 
 		ret.js = new OrderedJsListBuilder(js).getJsList();
 
@@ -138,7 +140,7 @@ public class WebModuleBuilder {
 
 			return list;
 		}
-		
+
 		private void resolve(JsEntry js) {
 			unresolved.add(js.path);
 			for (JsDependency dependency : js.getDependencies()) {
@@ -179,8 +181,6 @@ public class WebModuleBuilder {
 		}
 	}
 
-
-
 	private WebResource findResourceBundle(String path) {
 		for (WebResource r : this.resources) {
 			if (r.getResource(path) != null) {
@@ -189,7 +189,7 @@ public class WebModuleBuilder {
 		}
 		return null;
 	}
-	
+
 	public void resolveJsBundles() {
 		// resolve js
 		for (JsEntry j : this.js) {

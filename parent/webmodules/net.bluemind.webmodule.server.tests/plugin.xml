@@ -5,6 +5,7 @@
          point="net.bluemind.webmodule">
       <web-module
             index="index.html"
+            no-maintenance="true"
             root="/tests">
          <handler
                class="net.bluemind.webmodule.server.testswebmodule.ThrowExceptionHandler"

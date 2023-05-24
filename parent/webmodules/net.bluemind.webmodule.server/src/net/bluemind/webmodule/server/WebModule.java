@@ -31,6 +31,7 @@ public class WebModule {
 
 	public String root;
 	public String rootFile;
+	public boolean noMaintenance;
 	public String index = "index.html";
 
 	public Handler<HttpServerRequest> defaultHandler;

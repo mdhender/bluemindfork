@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,7 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 	private final List<WebModule> modules;
 	private final List<IWebFilter> filters;
 	private final Supplier<WebserverConfiguration> conf;
+	private final MaintenanceHandler maintenanceHandler;
 
 	private final Vertx vertx;
 
@@ -58,6 +60,9 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 		for (WebModule module : modules) {
 			modulesRouter.allWithRegEx(module.root + ".*", moduleHandler(module));
 		}
+
+		maintenanceHandler = new MaintenanceHandler(roots.stream().filter(r -> r.noMaintenance).map(r -> r.root)
+				.map(r -> r.endsWith("/") ? r : r + "/").collect(Collectors.toSet()));
 
 		this.conf = conf;
 	}
@@ -117,7 +122,7 @@ public final class WebModuleRootHandler implements Handler<HttpServerRequest> {
 		request.exceptionHandler(error);
 		vertx.getOrCreateContext().exceptionHandler(error);
 
-		new MaintenanceHandler().handle(request)
+		maintenanceHandler.handle(request)
 				.orElseGet(() -> searchFilters(request, CompletableFuture.completedFuture(request)))
 				.whenComplete((completedRequest, ex) -> {
 					if (completedRequest == null) {
