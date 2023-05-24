@@ -26,6 +26,8 @@
 
         <bm-button-group>
             <align-button :editor="editor" :disabled="disabled" />
+            <indent-less-button :editor="editor" :disabled="disabled" />
+            <indent-more-button :editor="editor" :disabled="disabled" />
             <bullet-list-button :editor="editor" :disabled="disabled" :is-bullet="!!formatState.isBullet" />
             <number-list-button :editor="editor" :disabled="disabled" :is-numbering="!!formatState.isNumbering" />
         </bm-button-group>
@@ -61,6 +63,8 @@ import BulletListButton from "../editorButtons/BulletListButton";
 import FontFamilyButton from "../editorButtons/FontFamilyButton";
 import FontSizeButton from "../editorButtons/FontSizeButton";
 import ImageButton from "../editorButtons/ImageButton";
+import IndentLessButton from "../editorButtons/IndentLessButton.vue";
+import IndentMoreButton from "../editorButtons/IndentMoreButton.vue";
 import ItalicButton from "../editorButtons/ItalicButton";
 import LinkButton from "../editorButtons/LinkButton";
 import NumberListButton from "../editorButtons/NumberListButton";
@@ -87,6 +91,8 @@ export default {
         ItalicButton,
         LinkButton,
         NumberListButton,
+        IndentLessButton,
+        IndentMoreButton,
         RedoButton,
         StrikeThroughButton,
         TableButton,

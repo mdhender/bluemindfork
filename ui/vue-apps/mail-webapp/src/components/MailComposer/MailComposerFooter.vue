@@ -5,15 +5,22 @@
                 <component :is="slotProps.alert.renderer" :alert="slotProps.alert" />
             </template>
         </bm-alert-area>
-        <transition name="slide-fade">
-            <bm-rich-editor-toolbar
-                v-if="showTextFormattingToolbar"
-                align="right"
-                editor="composer"
-                :default-font-family="defaultFont"
-                :extra-font-families="extraFontsFamilies"
-            />
-        </transition>
+        <div class="rich-editor-footer">
+            <editor-registry editor="composer">
+                <template v-slot:default="{ editor, richEditor }">
+                    <bm-rich-editor-status-bar :editor="editor" class="align-self-end" />
+                    <transition name="slide-fade">
+                        <bm-rich-editor-toolbar
+                            v-if="showTextFormattingToolbar"
+                            align="right"
+                            :editor="richEditor"
+                            :default-font-family="defaultFont"
+                            :extra-font-families="extraFontsFamilies"
+                        />
+                    </transition>
+                </template>
+            </editor-registry>
+        </div>
         <mail-composer-toolbar
             :message="message"
             :is-signature-inserted="isSignatureInserted"
@@ -30,10 +37,12 @@
 import { mapState } from "vuex";
 import { BmAlertArea, BmRichEditorToolbar } from "@bluemind/ui-components";
 import MailComposerToolbar from "./MailComposerToolbar";
+import BmRichEditorStatusBar from "@bluemind/ui-components/src/components/BmRichEditor/BmRichEditorStatusBar";
+import EditorRegistry from "@bluemind/ui-components/src/components/BmRichEditor/EditorRegistry";
 
 export default {
     name: "MailComposerFooter",
-    components: { BmAlertArea, BmRichEditorToolbar, MailComposerToolbar },
+    components: { BmAlertArea, BmRichEditorToolbar, MailComposerToolbar, BmRichEditorStatusBar, EditorRegistry },
     props: {
         message: { type: Object, required: true },
         isSignatureInserted: { type: Boolean, required: true },
@@ -57,6 +66,7 @@ export default {
 
 <style lang="scss">
 @import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/type";
 
 .mail-composer-footer {
     background-color: $surface;
@@ -76,6 +86,16 @@ export default {
         padding-top: $sp-5;
         padding-bottom: $sp-5;
         margin-bottom: 0;
+    }
+
+    .rich-editor-footer {
+        position: relative;
+        .bm-rich-editor-status-bar {
+            position: absolute;
+            top: -$hint-height;
+            right: 0;
+            max-width: 100%;
+        }
     }
 }
 </style>

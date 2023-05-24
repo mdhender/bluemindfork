@@ -317,6 +317,12 @@
             "image": {
                 "tooltip": "Bild einfügen"
             },
+            "indent": {
+                "tooltip": "Einzug vergrößern"
+            },
+            "outdent": {
+                "tooltip": "Einzug verringern"
+            },
             "list": {
                 "tooltip": "Bullet-Liste"
             },
@@ -355,6 +361,9 @@
             },
             "underline": {
                 "tooltip": "Unterstreichen"
+            },
+            "hint": {
+                "tab": "Tastaturnavigation: Drücken Sie Esc gefolgt von Tab, um den Fokus zu verschieben."
             }
         }
     },

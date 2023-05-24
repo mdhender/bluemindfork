@@ -6,10 +6,10 @@
     "license": "AGPL-3.0-only",
     "main": "src/index.js",
     "dependencies": {
-        "@bluemind/alert.store":  "^5.0.0",
+        "@bluemind/alert.store": "^5.0.0",
         "@bluemind/email": "^5.0.0",
-        "@bluemind/file-utils": "^5.0.0",
         "@bluemind/extensions.vue": "^5.0.0",
+        "@bluemind/file-utils": "^5.0.0",
         "@fortawesome/fontawesome-svg-core": "^1.2.12",
         "@fortawesome/vue-fontawesome": "^0.1.4",
         "bootstrap": "^4.6.0",
@@ -29,5 +29,8 @@
         "roosterjs-editor-plugins": "^8.44.0",
         "roosterjs-editor-types": "^8.44.0",
         "vue-global-events": "^1.1.2"
+    },
+    "devDependencies": {
+        "@types/lodash.debounce": "^4.0.7"
     }
 }

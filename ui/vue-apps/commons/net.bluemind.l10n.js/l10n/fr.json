@@ -317,6 +317,12 @@
             "image": {
                 "tooltip": "Insérer une image"
             },
+            "indent": {
+                "tooltip": "Augmenter le retrait"
+            },
+            "outdent": {
+                "tooltip": "Réduire le retrait"
+            },
             "list": {
                 "tooltip": "Liste à puces"
             },
@@ -355,6 +361,9 @@
             },
             "underline": {
                 "tooltip": "Souligner"
+            },
+            "hint": {
+                "tab": "Navigation clavier : Appuyez sur Échap puis Tab pour déplacer le focus"
             }
         },
         "badge": {

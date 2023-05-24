@@ -24,26 +24,31 @@
                 @click.native="updateFormatState"
             />
         </template>
+
         <div class="main-area flex-fill scroller-y">
             <div ref="roosterjs-container" class="roosterjs-container" @drop="onDrop" />
             <table-toolbar v-if="editor && tableToolbar.show" :editor="editor" :table="tableToolbar.table" />
             <global-events @dragover.capture="onDragover" />
             <slot />
         </div>
-        <transition name="slide-fade">
-            <full-toolbar
-                v-if="showToolbar && editor"
-                class="justify-content-end"
-                :editor="editor"
-                :format-state="formatState"
-                :disabled="disabled"
-                :default-font="defaultFontFamily"
-                :extra-font-families="extraFontFamilies"
-                full-toolbar
-                @open-link-modal="openLinkModal"
-                @click.native="updateFormatState"
-            />
-        </transition>
+
+        <div class="editor-footer">
+            <bm-rich-editor-status-bar v-if="showToolbar && editor" class="align-self-end" :editor="editor" />
+            <transition name="slide-fade">
+                <full-toolbar
+                    v-if="showToolbar && editor"
+                    class="justify-content-end"
+                    :editor="editor"
+                    :format-state="formatState"
+                    :disabled="disabled"
+                    :default-font="defaultFontFamily"
+                    :extra-font-families="extraFontFamilies"
+                    full-toolbar
+                    @open-link-modal="openLinkModal"
+                    @click.native="updateFormatState"
+                />
+            </transition>
+        </div>
         <set-link-modal v-if="linkModal.show" :editor="editor" :init-link="linkModal" @close="onLinkModalClose" />
     </div>
 </template>
@@ -55,14 +60,16 @@ import { createLink, getFormatState, insertImage } from "roosterjs-editor-api";
 import { Editor } from "roosterjs-editor-core";
 import { getPositionRect, Position } from "roosterjs-editor-dom";
 import { ContentEdit, CutPasteListChain, HyperLink, ImageEdit, Paste, TableResize } from "roosterjs-editor-plugins";
-import { PositionType, QueryScope } from "roosterjs-editor-types";
-import GlobalEvents from "vue-global-events";
 
+import { PositionType, QueryScope, ExperimentalFeatures } from "roosterjs-editor-types";
+import GlobalEvents from "vue-global-events";
 import BmEditorEventListener from "./plugins/BmEditorEventListener";
+import { StatusBarPlugin, TabEventPlugin } from "./plugins";
 import BubbleToolbar from "./toolbars/BubbleToolbar";
 import TableToolbar from "./toolbars/TableToolbar";
 import SetLinkModal from "./modals/SetLinkModal";
 import FullToolbar from "./toolbars/FullToolbar";
+import BmRichEditorStatusBar from "./BmRichEditorStatusBar";
 import InsertContentMixin from "./mixins/InsertContentMixin";
 import Default from "./bmPlugins/Default";
 import Movable from "./bmPlugins/Movable";
@@ -73,10 +80,9 @@ import BmRichEditorRegistry from "./BmRichEditorRegistry";
 import darkifyingBaseLvalue from "../../js/theming/darkifyingBaseLvalue";
 import { fontFamilyByID } from "../../js/fontFamilies";
 import { getDarkColor } from "roosterjs-color-utils";
-
 export default {
     name: "BmRichEditor",
-    components: { BubbleToolbar, GlobalEvents, SetLinkModal, FullToolbar, TableToolbar },
+    components: { BubbleToolbar, GlobalEvents, SetLinkModal, FullToolbar, TableToolbar, BmRichEditorStatusBar },
     mixins: [InsertContentMixin],
     props: {
         name: {
@@ -158,7 +164,6 @@ export default {
         this.container = this.$refs["roosterjs-container"];
         document.addEventListener("selectionchange", this.onSelection);
         window.addEventListener("scroll", this.onScroll, true);
-
         this.initializeEditor();
         this.disableContainer(this.disabled);
         this.isReady = true;
@@ -268,7 +273,12 @@ export default {
             this.onSelection();
         },
         initializeEditor(content = this.initValue) {
-            const bmPlugins = [new BmEditorEventListener(this.$refs["rich-editor"])];
+            const bmPlugins = [
+                new BmEditorEventListener(this.$refs["rich-editor"]),
+                new StatusBarPlugin(),
+                new TabEventPlugin(["StatusBarPlugin"])
+            ];
+
             const roosterPlugins = [
                 new ImageEdit({ preserveRatio: true, borderColor: "var(--secondary-fg)" }),
                 new ContentEdit(),
@@ -288,8 +298,10 @@ export default {
                 initialContent: content,
                 inDarkMode: this.darkMode,
                 getDarkColor: color => getDarkColor(color, darkifyingBaseLvalue()),
-                plugins: [...bmPlugins, ...roosterPlugins]
+                plugins: [...bmPlugins, ...roosterPlugins],
+                experimentalFeatures: [ExperimentalFeatures.TabKeyTextFeatures]
             };
+
             this.editor = new Editor(this.container, options);
         },
         openLinkModal() {
@@ -328,6 +340,7 @@ function getTableParentNode(node, containerNode) {
 </script>
 
 <style lang="scss">
+@import "../../css/_type.scss";
 @import "../../css/_variables.scss";
 
 .bm-rich-editor {
@@ -400,6 +413,17 @@ function getTableParentNode(node, containerNode) {
     .roosterjs-container {
         img {
             vertical-align: unset; // reset bootstrap property set in reboot.scss
+        }
+    }
+
+    .editor-footer {
+        position: relative;
+
+        .bm-rich-editor-status-bar {
+            position: absolute;
+            top: -$hint-height;
+            right: 0;
+            max-width: 100%;
         }
     }
 

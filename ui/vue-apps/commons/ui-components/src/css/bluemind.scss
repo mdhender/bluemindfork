@@ -82,6 +82,10 @@ textarea.form-control {
     border-bottom-color: $primary-fg !important;
 }
 
+blockquote {
+    margin: 0 $sp-7;
+}
+
 a {
     outline-color: $neutral-fg-hi1;
     &:focus,

@@ -1,27 +1,25 @@
 <template>
     <full-toolbar
-        v-if="editor_ && isReady"
-        :editor="editor_.editor"
-        :format-state="editor_.formatState"
-        :disabled="disabled || editor_.disabled"
+        v-if="editor && isReady"
+        :editor="editor.editor"
+        :format-state="editor.formatState"
+        :disabled="disabled || editor.disabled"
         :class="classes"
         :default-font="defaultFontFamily"
         :extra-font-families="extraFontFamilies"
-        @open-link-modal="editor_.openLinkModal"
-        @click.native="editor_.updateFormatState"
+        @open-link-modal="editor.openLinkModal"
+        @click.native="editor.updateFormatState"
     />
 </template>
 <script>
-import Vue from "vue";
 import FullToolbar from "./toolbars/FullToolbar.vue";
-import BmRichEditorRegistry from "./BmRichEditorRegistry";
 
 export default {
     name: "BmRichEditorToolbar",
     components: { FullToolbar },
     props: {
         editor: {
-            type: [String, Vue],
+            type: [Object],
             required: true
         },
         disabled: {
@@ -42,15 +40,8 @@ export default {
         }
     },
     computed: {
-        editor_() {
-            if (typeof this.editor === "string") {
-                return BmRichEditorRegistry.get(this.editor);
-            } else {
-                return this.editor;
-            }
-        },
         isReady() {
-            return this.editor_?.isReady;
+            return this.editor?.isReady;
         },
         classes() {
             return {
