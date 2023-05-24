@@ -114,7 +114,9 @@ export default {
                     : [this.message];
                 const copy = value.cloneNode(true);
                 const quoteNodes = await this.computeQuoteNodes(conversationMessages, copy);
-                this.collapsedDOM = QuoteHelper.removeQuotes(copy, quoteNodes);
+                if (quoteNodes) {
+                    this.collapsedDOM = QuoteHelper.removeQuotes(copy, quoteNodes);
+                }
             } else {
                 this.collapsedDOM = undefined;
             }
