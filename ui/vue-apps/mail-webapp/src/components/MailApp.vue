@@ -72,7 +72,7 @@
             <bm-multipane class="flex-fill" layout="vertical" @paneResizeStop="onPanelResize">
                 <mail-conversation-list :class="{ 'd-none': hideListInResponsiveMode }" />
                 <bm-multipane-resizer class="d-none d-lg-flex" />
-                <div class="flex-grow-1 flex-basis-0 scroller-y">
+                <div class="flex-grow-1 flex-basis-0 scroller-y right-panel">
                     <router-view />
                 </div>
             </bm-multipane>
@@ -266,6 +266,14 @@ export default {
                 min-width: 20%;
                 max-width: 70%;
                 width: 30%;
+            }
+            .right-panel {
+                scroll-padding-bottom: base-px-to-rem(200);
+            }
+        }
+        @include until-lg {
+            .right-panel {
+                scroll-padding-bottom: base-px-to-rem(300);
             }
         }
     }
