@@ -218,6 +218,10 @@ export default {
                     width: base-px-to-rem(90) !important;
                     min-width: 0;
                     flex: none;
+
+                    .list-group-item {
+                        justify-content: center;
+                    }
                 }
             }
         }
