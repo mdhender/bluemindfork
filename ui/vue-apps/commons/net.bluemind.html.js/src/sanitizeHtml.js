@@ -35,7 +35,7 @@ const ADDITIONAL_ALLOWED_ATTRIBUTES_FOR_ANY_TAG = [
     "data-bm-signature"
 ];
 
-const ALLOWED_LINK_PROTOCOLS = ["http", "https", "mailto"];
+const ALLOWED_LINK_PROTOCOLS = ["http", "https", "mailto", "tel", "sip"];
 const LINK_REGEX = new RegExp(`^(${ALLOWED_LINK_PROTOCOLS.join("|")}):(.*)`, "i");
 
 export default function (html, avoidStyleInvading) {
@@ -100,10 +100,21 @@ function customSafeAttrValue(tag, name, value) {
         const linkInfo = value.match(LINK_REGEX);
         const protocol = linkInfo[1];
         const path = linkInfo[2];
-        value = `${protocol.toLowerCase()}:${path}`;
+        const rectified = protocol.toLowerCase();
+        value = `${rectified}:${path}`;
+
+        // SIP protocol specific
+        if (rectified === "sip") {
+            return safeSipPath(tag, name, path);
+        }
     }
 
     return xss.safeAttrValue(tag, name, value);
+}
+
+/** Since xss.safeAttrValue rejects SIP protocol, instead we use HTTP protocol to validate the value of the path.  */
+function safeSipPath(tag, name, path) {
+    return xss.safeAttrValue(tag, name, `https://${path}`) ? `sip:${path}` : "";
 }
 
 function hasAllowedProtocol(url) {
