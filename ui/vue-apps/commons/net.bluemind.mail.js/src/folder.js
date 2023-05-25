@@ -20,7 +20,7 @@ export function create(key, name, parent, mailbox) {
         imapName: name,
         path: folderPath,
         writable: mailbox.writable,
-        allowConversations: allowConversations(folderPath, mailbox),
+        allowConversations: allowConversations(folderPath),
         allowSubfolder: allowSubfolder(mailbox.writable, !parent, name, mailbox),
         default: defaultFolder,
         expanded: false,
@@ -90,11 +90,7 @@ export function allowSubfolder(writable, isRoot, name, mailbox) {
     return Boolean(writable && allowed);
 }
 
-export function allowConversations(path, mailbox) {
-    if (MailboxType.isShared(mailbox.type)) {
-        return false;
-    }
-
+export function allowConversations(path) {
     const rootFolderName = path.split("/")[0];
     return ![
         DEFAULT_FOLDERS.SENT,
