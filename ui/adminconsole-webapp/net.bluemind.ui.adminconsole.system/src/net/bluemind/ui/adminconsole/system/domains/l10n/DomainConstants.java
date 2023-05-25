@@ -314,6 +314,8 @@ public interface DomainConstants extends Messages {
 	String applicationSecret();
 
 	String tokenEndpoint();
-    
+
 	String smimeCertificate();
+
+	String compositionFont();
 }

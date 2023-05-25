@@ -100,6 +100,12 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 	@UiField
 	ListBox domainList;
 
+	@UiField
+	TextBox compositionFont;
+
+	@UiField
+	ListBox fallbackFonts;
+
 	private HashMap<String, Integer> languageMapping;
 
 	private HashMap<String, Integer> dateFormatMapping;
@@ -110,9 +116,13 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 
 	private HashMap<String, Integer> defaultAliasesMapping;
 
+	private HashMap<String, Integer> fallbackFontMapping;
+
 	private String domainDateFormat;
 
 	private static EditDomainGeneralUiBinder uiBinder = GWT.create(EditDomainGeneralUiBinder.class);
+
+	private static final String DEFAULT_FALLBACK_FONT = "sans-serif";
 
 	interface EditDomainGeneralUiBinder extends UiBinder<HTMLPanel, EditDomainGeneralEditor> {
 	}
@@ -124,6 +134,7 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		setDateFormat();
 		setTimeFormat();
 		setTimezone();
+		setFallbackFont();
 		aliases.addChangeHandler(evt -> setAvailableDefaultAliases());
 		aliases.setMinimumLength(48);
 	}
@@ -144,6 +155,20 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 			timeFormat.addItem(f.getValue());
 			timeFormatMapping.put(f.getKey(), index++);
 		}
+	}
+
+	private void setFallbackFont() {
+		fallbackFontMapping = new HashMap<>();
+		fallbackFonts.addItem(DEFAULT_FALLBACK_FONT);
+		fallbackFontMapping.put(DEFAULT_FALLBACK_FONT, 0);
+		fallbackFonts.addItem("serif");
+		fallbackFontMapping.put("serif", 1);
+		fallbackFonts.addItem("monospace");
+		fallbackFontMapping.put("monospace", 2);
+		fallbackFonts.addItem("cursive");
+		fallbackFontMapping.put("cursive", 3);
+		fallbackFonts.addItem("fantasy");
+		fallbackFontMapping.put("fantasy", 4);
 	}
 
 	private void setTimezone() {
@@ -239,6 +264,8 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		domainTz = null != domainTz ? domainTz : DEFAULT_TZ;
 		tz.setSelectedIndex(Optional.ofNullable(tzMapping.get(domainTz)).orElseGet(() -> tzMapping.get(DEFAULT_TZ)));
 
+		loadCompositionFont(model);
+
 		String externalUrlSetting = SettingsModel.domainSettingsFrom(model).get(DomainSettingsKeys.external_url.name());
 		if (null != externalUrlSetting) {
 			externalUrl.setText(externalUrlSetting);
@@ -269,6 +296,44 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		aliases.setReadOnly(defaultAlias.getSelectedValue(), true);
 	}
 
+	private void loadCompositionFont(JavaScriptObject model) {
+		String compositionSetting = SettingsModel.domainSettingsFrom(model)
+				.get(DomainSettingsKeys.domain_composer_font_stack.name());
+
+		if (compositionSetting == null || compositionSetting.isEmpty()) {
+			fallbackFonts.setSelectedIndex(fallbackFontMapping.get(DEFAULT_FALLBACK_FONT));
+			return;
+		}
+
+		String[] fontList = compositionSetting.split(";");
+		// keep only the first one
+		String[] compositionSplit = fontList[0].split(",");
+		String fallback = compositionSplit[compositionSplit.length - 1];
+		String font = fontList[0].replace("," + fallback, "");
+		Optional<Integer> ofNullable = Optional.ofNullable(fallbackFontMapping.get(fallback));
+		if (ofNullable.isPresent()) {
+			compositionFont.setText(font);
+			fallbackFonts.setSelectedIndex(ofNullable.get());
+		} else {
+			compositionFont.setText(compositionSetting);
+			fallbackFonts.setSelectedIndex(fallbackFontMapping.get(DEFAULT_FALLBACK_FONT));
+		}
+	}
+
+	private String saveCompositionFont() {
+		String font = compositionFont.getText();
+		String fallback = fallbackFonts.getSelectedItemText();
+
+		StringBuilder b = new StringBuilder();
+		if (font != null && !font.isEmpty()) {
+			b.append(font);
+			b.append(",");
+			b.append(fallback);
+		}
+
+		return b.toString();
+	}
+
 	@Override
 	public void saveModel(JavaScriptObject model) {
 		JsMapStringJsObject map = model.cast();
@@ -285,6 +350,9 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 				TimeFormatTranslation.getKeyByFormat(timeFormat.getSelectedItemText()));
 
 		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.timezone.name(), tz.getSelectedItemText());
+
+		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.domain_composer_font_stack.name(),
+				saveCompositionFont());
 
 		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.other_urls.name(), otherUrls.getText());
 		SettingsModel.domainSettingsFrom(model).putString(DomainSettingsKeys.external_url.name(),
@@ -314,4 +382,5 @@ public class EditDomainGeneralEditor extends CompositeGwtWidgetElement {
 		domainList.addItem("---", "");
 		SysConfAuthenticationEditor.expandDomainAlias(domainList, Arrays.asList(domain));
 	}
+
 }

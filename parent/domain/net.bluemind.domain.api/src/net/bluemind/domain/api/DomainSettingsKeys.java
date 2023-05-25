@@ -56,5 +56,6 @@ public enum DomainSettingsKeys {
 	@NotNull
 	ssl_certif_engine, //
 	@NotNull
-	nextcloudUrl
+	nextcloudUrl, //
+	domain_composer_font_stack
 }
