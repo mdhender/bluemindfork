@@ -354,7 +354,13 @@ public class AddressBookService implements IInCoreAddressBook {
 	public ListResult<ItemValue<VCardInfo>> search(VCardQuery query) {
 		rbacManager.check(Verb.Read.name());
 		ListResult<ItemValue<VCardInfo>> ret = new ListResult<>();
-		ListResult<String> res = indexStore.search(query);
+		ListResult<String> res;
+
+		try {
+			res = indexStore.search(query);
+		} catch (Exception e) {
+			throw new ServerFault(e);
+		}
 
 		List<ItemValue<VCardInfo>> values = storeService.getMultiple(res.values).stream().map(this::adapt)
 				.collect(Collectors.toList());

@@ -516,24 +516,30 @@ public class CalendarService implements IInternalCalendar {
 	}
 
 	@Override
-	public ListResult<ItemValue<VEventSeries>> search(VEventQuery query) throws ServerFault {
+	public ListResult<ItemValue<VEventSeries>> search(VEventQuery query) {
 		rbacManager.check(Verb.Read.name());
 		ListResult<ItemValue<VEventSeries>> ret = new ListResult<>();
-
 		List<ItemValue<VEventSeries>> items;
-		if (isPendingEventsSearch(query)) {
-			ListResult<ItemValue<VEventSeries>> res = searchPendingEvents(query);
-			items = filterValues(res.values.stream() //
-					.map(iv -> ItemValue.create(iv, iv.value.copy())).collect(Collectors.toList()));
-			ret.total = res.total;
-		} else {
-			if (query.attendee != null && query.attendee.calendarOwnerAsDir) {
-				Optional<DirEntry> owner = getCalendarOwner();
-				owner.ifPresent(de -> query.attendee.dir = "bm://" + de.path);
+
+		try {
+			if (isPendingEventsSearch(query)) {
+				ListResult<ItemValue<VEventSeries>> res;
+				res = searchPendingEvents(query);
+				items = filterValues(res.values.stream() //
+						.map(iv -> ItemValue.create(iv, iv.value.copy())).collect(Collectors.toList()));
+				ret.total = res.total;
+			} else {
+				if (query.attendee != null && query.attendee.calendarOwnerAsDir) {
+					Optional<DirEntry> owner = getCalendarOwner();
+					owner.ifPresent(de -> query.attendee.dir = "bm://" + de.path);
+				}
+				ListResult<String> res;
+				res = indexStore.search(query, searchInPrivate());
+				items = filterValues(storeService.getMultiple(res.values));
+				ret.total = res.total;
 			}
-			ListResult<String> res = indexStore.search(query, searchInPrivate());
-			items = filterValues(storeService.getMultiple(res.values));
-			ret.total = res.total;
+		} catch (Exception e) {
+			throw new ServerFault(e);
 		}
 
 		ret.values = items;
@@ -545,7 +551,7 @@ public class CalendarService implements IInternalCalendar {
 				&& query.attendee.partStatus == ParticipationStatus.NeedsAction;
 	}
 
-	private ListResult<ItemValue<VEventSeries>> searchPendingEvents(VEventQuery query) {
+	private ListResult<ItemValue<VEventSeries>> searchPendingEvents(VEventQuery query) throws Exception {
 		ListResult<ItemValue<VEventSeries>> res = PendingEventsCache.getIfPresent(container.uid);
 		if (res == null) {
 			Optional<DirEntry> owner = getCalendarOwner();

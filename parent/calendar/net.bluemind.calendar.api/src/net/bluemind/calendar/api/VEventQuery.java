@@ -25,18 +25,11 @@ import net.bluemind.core.api.date.BmDateTime;
 public class VEventQuery {
 
 	public String query;
-	public int from;
-	public int size;
-	public boolean escapeQuery;
+	public int from = 0;
+	public int size = -1;
+	public boolean escapeQuery = false;
 
-	// FIXME why not set default value in "default construtor like that
-	// public int size = 10000; ?
 	public VEventQuery() {
-		this.from = 0;
-		// Note that from + size can not be more than the
-		// index.max_result_window index setting which defaults to 10,000
-		this.size = 10000;
-		this.escapeQuery = false;
 	}
 
 	/**

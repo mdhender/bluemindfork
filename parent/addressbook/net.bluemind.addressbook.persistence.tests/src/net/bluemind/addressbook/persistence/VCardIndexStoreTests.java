@@ -155,7 +155,7 @@ public class VCardIndexStoreTests {
 	}
 
 	@Test
-	public void testSearch() {
+	public void testSearch() throws Exception {
 		VCardIndexStore indexStore2 = new VCardIndexStore(client, container2, null);
 
 		VCard card = new VCard();
@@ -207,7 +207,55 @@ public class VCardIndexStoreTests {
 	}
 
 	@Test
-	public void testSearchByCategory() {
+	public void testSearch_25000() throws Exception {
+		for (int i = 0; i < 25000; i++) {
+			VCard card = new VCard();
+			card.identification = new VCard.Identification();
+			card.identification.formatedName = VCard.Identification.FormatedName.create("card" + i,
+					Arrays.<VCard.Parameter>asList());
+			String uid = "test" + System.nanoTime();
+			indexStore.create(Item.create(uid, System.nanoTime()), card);
+		}
+
+		refreshIndexes();
+
+		// test with specific unique formatted name
+		ListResult<String> res = indexStore
+				.search(VCardQuery.create("value.identification.formatedName.value:card11111"));
+		assertEquals(1, res.total);
+
+		// test empty result
+		res = indexStore.search(VCardQuery.create("value.identification.formatedName.value:fakeName"));
+		assertEquals(0, res.total);
+
+		// test more than 10000
+		VCardQuery q = new VCardQuery();
+		q.size = 1000;
+		q.from = 15000;
+		res = indexStore.search(q);
+		assertEquals(1000, res.total);
+
+		// test more than 10000 with specific order
+		q.orderBy = VCardQuery.OrderBy.Pertinance;
+		res = indexStore.search(q);
+		assertEquals(1000, res.total);
+
+		// test specific from and size = 0
+		q.size = 0;
+		q.from = 15000;
+		res = indexStore.search(q);
+		assertEquals(0, res.total);
+
+		// test specific from and size = -1
+		q.size = -1;
+		q.from = 20000;
+		res = indexStore.search(q);
+		assertEquals(5000, res.total);
+
+	}
+
+	@Test
+	public void testSearchByCategory() throws Exception {
 		VCard card1 = new VCard();
 		TagRef tag1 = new TagRef();
 		tag1.label = "tag1";
@@ -235,7 +283,7 @@ public class VCardIndexStoreTests {
 	}
 
 	@Test
-	public void testSearchByEmail() {
+	public void testSearchByEmail() throws Exception {
 		VCard card = new VCard();
 
 		String email = "email" + System.currentTimeMillis() + "@domain.lan";
@@ -255,7 +303,7 @@ public class VCardIndexStoreTests {
 	}
 
 	@Test
-	public void testSearchByLongEmail() {
+	public void testSearchByLongEmail() throws Exception {
 		VCard card = new VCard();
 
 		String email = "pref-publique-cartesgrises@haute-garonne.gouv.fr";
@@ -272,7 +320,7 @@ public class VCardIndexStoreTests {
 	}
 
 	@Test
-	public void testSearchMatchAll() {
+	public void testSearchMatchAll() throws Exception {
 		VCard card = new VCard();
 		card.identification.formatedName.value = "john";
 
@@ -287,7 +335,7 @@ public class VCardIndexStoreTests {
 	}
 
 	@Test
-	public void testSearchSort() {
+	public void testSearchSort() throws Exception {
 
 		VCard card = new VCard();
 		card.identification.formatedName.value = "john";
@@ -314,7 +362,7 @@ public class VCardIndexStoreTests {
 	}
 
 	@Test
-	public void testSearchFormatedName() {
+	public void testSearchFormatedName() throws Exception {
 		VCard card = new VCard();
 		card.identification = new VCard.Identification();
 		card.identification.formatedName = VCard.Identification.FormatedName.create("Thomas",
@@ -332,7 +380,7 @@ public class VCardIndexStoreTests {
 	}
 
 	@Test
-	public void testUpdate() throws SQLException {
+	public void testUpdate() throws Exception {
 		VCard card = new VCard();
 		card.identification.formatedName.value = "batman";
 		Item item1 = itemStore.create(Item.create("uid" + System.nanoTime(), UUID.randomUUID().toString()));
@@ -357,7 +405,7 @@ public class VCardIndexStoreTests {
 	}
 
 	@Test
-	public void testUpdates() throws SQLException {
+	public void testUpdates() throws Exception {
 		VCard card = new VCard();
 		card.identification.formatedName.value = "batman";
 		Item item1 = itemStore.create(Item.create("uid" + System.nanoTime(), UUID.randomUUID().toString()));
@@ -397,5 +445,6 @@ public class VCardIndexStoreTests {
 
 	private void refreshIndexes() {
 		ElasticsearchTestHelper.getInstance().getClient().admin().indices().prepareRefresh(VCARD_WRITE_ALIAS).get();
+//		ElasticsearchTestHelper.getInstance().getClient().admin().indices().prepareRefresh(VCARD_READ_ALIAS).get();
 	}
 }

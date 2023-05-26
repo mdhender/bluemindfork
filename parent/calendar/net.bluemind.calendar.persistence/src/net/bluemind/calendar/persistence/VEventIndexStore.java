@@ -21,7 +21,9 @@ package net.bluemind.calendar.persistence;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 import org.apache.lucene.search.join.ScoreMode;
@@ -36,6 +38,10 @@ import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.PointInTimeBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,12 +63,15 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.lib.elasticsearch.Pit;
 import net.bluemind.lib.elasticsearch.Queries;
 import net.bluemind.network.topology.Topology;
 
 public class VEventIndexStore {
 
 	private static final Logger logger = LoggerFactory.getLogger(VEventIndexStore.class);
+
+	public static final int SIZE = 200;
 
 	public static final String VEVENT_WRITE_ALIAS = "event_write_alias";
 	public static final String VEVENT_READ_ALIAS = "event_read_alias";
@@ -104,11 +113,11 @@ public class VEventIndexStore {
 		ESearchActivator.deleteByQuery(VEVENT_WRITE_ALIAS, QueryBuilders.termQuery("containerUid", container.uid));
 	}
 
-	public ListResult<String> search(VEventQuery query) {
+	public ListResult<String> search(VEventQuery query) throws Exception {
 		return search(query, true);
 	}
 
-	public ListResult<String> search(VEventQuery query, boolean searchInPrivate) {
+	public ListResult<String> search(VEventQuery query, boolean searchInPrivate) throws Exception {
 
 		List<QueryBuilder> filters = new LinkedList<>();
 
@@ -154,13 +163,7 @@ public class VEventIndexStore {
 				musts.add(fieldLessThan("value.dtstart.iso8601", "value.dtstart.timezone", query.dateMax));
 			}
 
-			// has rrule without end or rrule.until in range
-			BmDateTime until = (query.dateMin != null) ? query.dateMin : query.dateMax;
-			ExistsQueryBuilder isRecurring = QueryBuilders.existsQuery("value.rrule");
-			QueryBuilder noEndDate = Queries.missing("value.rrule.until.iso8601");
-			QueryBuilder recurEndMatch = fieldGreaterOrEqualAt("value.rrule.until.iso8601",
-					"value.rrule.until.timezone", until);
-			QueryBuilder inRangeWhenReccuring = Queries.and(isRecurring, Queries.or(noEndDate, recurEndMatch));
+			QueryBuilder inRangeWhenReccuring = evaluateRruleUntilRangeFilter(query);
 
 			// build the global date range filter
 			QueryBuilder dateRangeFilter = Queries.or(Queries.and(musts), inRangeWhenReccuring);
@@ -175,40 +178,90 @@ public class VEventIndexStore {
 		for (QueryBuilder f : antiFilters) {
 			boolQ.mustNot(f);
 		}
+		logger.debug("vevent query {}", boolQ);
 
-		SearchRequestBuilder searchRequestBuilder = esearchClient.prepareSearch(VEVENT_READ_ALIAS) // index
-				.setQuery(boolQ) // query
-				.setFrom(query.from) // from
-				.setSize(query.size) // size
-				.setFetchSource(false).storedFields("uid"); // fetch uid
+		String[] sourceIncludeFields = { "uid" };
+		SearchRequestBuilder searchBuilder = ESearchActivator.getClient().prepareSearch(VEVENT_READ_ALIAS);
+		searchBuilder.setQuery(boolQ);
+		searchBuilder.setFetchSource(sourceIncludeFields, null);
+		searchBuilder.setTrackTotalHits(false);
 
-		logger.debug("vevent query {}", searchRequestBuilder);
+		if (query.from + query.size > 10000) {
+			return paginatedSearch(searchBuilder, query);
+		} else {
+			return simpleSearch(searchBuilder, query);
+		}
+	}
 
-		SearchResponse resp = searchRequestBuilder.execute().actionGet();
+	private ListResult<String> simpleSearch(SearchRequestBuilder searchBuilder, VEventQuery query) {
+		if (query.size > 0) {
+			searchBuilder.setFrom(query.from).setSize(query.size);
+		}
+		logger.debug("{}", searchBuilder);
+		SearchResponse sr = searchBuilder.execute().actionGet();
+		logger.debug("{}", sr);
 
-		logger.debug("vevent resp {}", resp);
-
-		List<String> uids = new ArrayList<>(resp.getHits().getHits().length);
-		for (SearchHit hit : resp.getHits().getHits()) {
-			uids.add(hit.field("uid").getValue());
+		SearchHits searchHits = sr.getHits();
+		List<String> uids = new ArrayList<>();
+		for (SearchHit h : searchHits.getHits()) {
+			Map<String, Object> source = h.getSourceAsMap();
+			uids.add((String) source.get("uid"));
 		}
 
 		ListResult<String> ret = new ListResult<>();
 		ret.values = uids;
-		ret.total = (int) resp.getHits().getTotalHits().value;
-
+		ret.total = uids.size();
 		return ret;
 	}
 
-	private QueryBuilder fieldGreaterThan(String field, String fieldTz, BmDateTime dt) {
-		QueryBuilder inRangeNoTz = Queries.and(//
-				Queries.missing(fieldTz), //
-				QueryBuilders.rangeQuery(field).gt(new BmDateTimeWrapper(dt).format("yyyy-MM-dd'T'HH:mm:ss.S")));
-		QueryBuilder inRangeWithTz = Queries.and(//
-				QueryBuilders.existsQuery(fieldTz), //
-				QueryBuilders.rangeQuery(field).gt(dt.iso8601));
+	private ListResult<String> paginatedSearch(SearchRequestBuilder searchBuilder, VEventQuery query) throws Exception {
+		searchBuilder.setSize(1000);
+		searchBuilder.setTrackTotalHits(false);
+		searchBuilder.addSort(SortBuilders.fieldSort("_shard_doc").order(SortOrder.ASC));
 
-		return Queries.and(QueryBuilders.existsQuery(field), Queries.or(inRangeNoTz, inRangeWithTz));
+		Client client = ESearchActivator.getClient();
+		List<String> uidsList = new ArrayList<>();
+		int position = 0;
+		Predicate<List<String>> continueSearch = uids -> query.size == -1
+				|| (query.size > 0 && uids.size() < query.size);
+		Predicate<Integer> hitInRange = pos -> (query.from > 0 && pos >= query.from)
+				&& (query.size == -1 || (query.size > 0 && pos < (query.from + query.size)));
+
+		try (Pit pit = Pit.allocate(client, VEVENT_READ_ALIAS, 60)) {
+			do {
+				searchBuilder.setPointInTime(new PointInTimeBuilder(pit.id));
+				pit.adaptSearch(searchBuilder);
+				logger.debug("{}", searchBuilder);
+				SearchResponse sr = searchBuilder.execute().actionGet();
+				logger.debug("{}", sr);
+				SearchHits searchHits = sr.getHits();
+				if (searchHits != null && searchHits.getHits() != null) {
+					for (SearchHit h : searchHits.getHits()) {
+						Map<String, Object> source = h.getSourceAsMap();
+						if (query.from == 0 || hitInRange.test(position)) {
+							uidsList.add((String) source.get("uid"));
+						}
+						pit.consumeHit(h);
+						position++;
+					}
+				}
+			} while (pit.hasNext() && continueSearch.test(uidsList));
+		}
+
+		ListResult<String> ret = new ListResult<>();
+		ret.values = uidsList;
+		ret.total = uidsList.size();
+		return ret;
+	}
+
+	private QueryBuilder evaluateRruleUntilRangeFilter(VEventQuery query) {
+		// has rrule without end or rrule.until in range
+		BmDateTime until = (query.dateMin != null) ? query.dateMin : query.dateMax;
+		ExistsQueryBuilder isRecurring = QueryBuilders.existsQuery("value.rrule");
+		QueryBuilder noEndDate = Queries.missing("value.rrule.until.iso8601");
+		QueryBuilder recurEndMatch = fieldGreaterOrEqualAt("value.rrule.until.iso8601", "value.rrule.until.timezone",
+				until);
+		return Queries.and(isRecurring, Queries.or(noEndDate, recurEndMatch));
 	}
 
 	private QueryBuilder fieldGreaterOrEqualAt(String field, String fieldTz, BmDateTime dt) {

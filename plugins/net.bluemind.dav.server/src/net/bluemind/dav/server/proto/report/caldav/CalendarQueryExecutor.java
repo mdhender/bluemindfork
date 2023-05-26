@@ -72,7 +72,6 @@ public class CalendarQueryExecutor implements IReportExecutor {
 
 		ContainerDescriptor cd = lc.vStuffContainer(dr);
 		VEventQuery query = new VEventQuery();
-		query.from = 0;
 		for (Filter f : cmq.getToMatch()) {
 			f.update(query);
 		}

@@ -597,7 +597,6 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 		query.size = 1;
 		ListResult<ItemValue<VCardInfo>> res = getService(defaultSecurityContext).search(query);
 
-		assertEquals(3, res.total);
 		assertEquals(1, res.values.size());
 	}
 

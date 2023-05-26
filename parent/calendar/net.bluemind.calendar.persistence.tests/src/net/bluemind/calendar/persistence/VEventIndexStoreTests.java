@@ -31,7 +31,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.admin.indices.template.get.GetIndexTemplatesResponse;
@@ -209,7 +208,45 @@ public class VEventIndexStoreTests {
 	}
 
 	@Test
-	public void testSearch() throws SQLException {
+	public void testSearch_25000() throws Exception {
+		for (int i = 0; i < 25000; i++) {
+			ItemValue<VEventSeries> event = defaultVEvent();
+			event.value.main.summary = "event" + i;
+			indexStore.create(Item.create(event.uid, System.nanoTime()), event.value);
+		}
+
+		indexStore.refresh();
+
+		// test with specific unique summary
+		ListResult<String> res = indexStore.search(VEventQuery.create("value.summary:event11111"));
+		assertEquals(1, res.total);
+
+		// test empty result
+		res = indexStore.search(VEventQuery.create("value.summary:fakeEvent"));
+		assertEquals(0, res.total);
+
+		// test more than 10000
+		VEventQuery q = new VEventQuery();
+		q.size = 1000;
+		q.from = 15000;
+		res = indexStore.search(q);
+		assertEquals(1000, res.total);
+
+		// test specific from and size = 0
+		q.size = 0;
+		q.from = 15000;
+		res = indexStore.search(q);
+		assertEquals(0, res.total);
+
+		// test specific from and size = -1
+		q.size = -1;
+		q.from = 20000;
+		res = indexStore.search(q);
+		assertEquals(5000, res.total);
+	}
+
+	@Test
+	public void testSearch() throws Exception {
 		ItemValue<VEventSeries> event = defaultVEvent();
 		event.value.main.summary = "yay";
 
@@ -247,7 +284,7 @@ public class VEventIndexStoreTests {
 	}
 
 	@Test
-	public void testSearchByOrganizer() throws SQLException {
+	public void testSearchByOrganizer() throws Exception {
 		ItemValue<VEventSeries> event = defaultVEvent();
 
 		event.value.main.organizer = new VEvent.Organizer("David Phan", "david@bm.lan");
@@ -269,7 +306,7 @@ public class VEventIndexStoreTests {
 	}
 
 	@Test
-	public void testNullOrganizer() throws SQLException {
+	public void testNullOrganizer() throws Exception {
 		ItemValue<VEventSeries> event = defaultVEvent();
 		event.value.main.summary = "testNullOrganizer";
 		event.value.main.organizer = null;
@@ -286,7 +323,7 @@ public class VEventIndexStoreTests {
 	}
 
 	@Test
-	public void testSearchByDateInterval() throws SQLException {
+	public void testSearchByDateInterval() throws Exception {
 		ItemValue<VEventSeries> event = defaultVEvent();
 		event.value.main.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(1983, 2, 13, 0, 0, 0, 0, ZoneId.of("UTC")),
 				Precision.Date);
@@ -372,7 +409,7 @@ public class VEventIndexStoreTests {
 	}
 
 	@Test
-	public void testSearchByAttendee() throws SQLException, InterruptedException, ExecutionException {
+	public void testSearchByAttendee() throws Exception {
 		ItemValue<VEventSeries> event = defaultVEvent();
 		indexStore.create(Item.create(event.uid, System.nanoTime()), event.value);
 
@@ -415,7 +452,7 @@ public class VEventIndexStoreTests {
 	}
 
 	@Test
-	public void testBug3286() throws SQLException {
+	public void testBug3286() throws Exception {
 		ItemValue<VEventSeries> event = defaultVEvent();
 		event.value.main.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2014, 5, 29, 8, 0, 0, 0, ZoneId.of("UTC")),
 				Precision.Date);
@@ -447,7 +484,7 @@ public class VEventIndexStoreTests {
 	}
 
 	@Test
-	public void testSearchRRule() throws SQLException {
+	public void testSearchRRule() throws Exception {
 		ItemValue<VEventSeries> event = defaultVEvent();
 		event.value.main.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(1983, 2, 13, 0, 0, 0, 0, ZoneId.of("UTC")),
 				Precision.Date);
@@ -491,7 +528,7 @@ public class VEventIndexStoreTests {
 	}
 
 	@Test
-	public void testSearchRRule_daily() throws SQLException {
+	public void testSearchRRule_daily() throws Exception {
 		ItemValue<VEventSeries> event = defaultVEvent();
 		event.value.main.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2002, 2, 13, 0, 0, 0, 0, ZoneId.of("UTC")),
 				Precision.Date);
@@ -547,7 +584,7 @@ public class VEventIndexStoreTests {
 	}
 
 	@Test
-	public void testSearchSummary() {
+	public void testSearchSummary() throws Exception {
 		ItemValue<VEventSeries> event = defaultVEvent();
 		event.value.main.summary = "kamoulox";
 
@@ -560,7 +597,7 @@ public class VEventIndexStoreTests {
 	}
 
 	@Test
-	public void testSearchSentence() {
+	public void testSearchSentence() throws Exception {
 		ItemValue<VEventSeries> event = defaultVEvent();
 		event.value.main.summary = "comité de direction";
 		indexStore.create(Item.create(event.uid, System.nanoTime()), event.value);
@@ -588,7 +625,7 @@ public class VEventIndexStoreTests {
 	}
 
 	@Test
-	public void testUpdates() {
+	public void testUpdates() throws Exception {
 		ItemValue<VEventSeries> event = defaultVEvent();
 		event.internalId = System.nanoTime();
 		event.value.main.summary = "coucou";

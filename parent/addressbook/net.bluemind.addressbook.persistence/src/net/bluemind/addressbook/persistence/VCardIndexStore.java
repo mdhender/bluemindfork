@@ -20,6 +20,8 @@ package net.bluemind.addressbook.persistence;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -31,8 +33,11 @@ import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.PointInTimeBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,11 +53,14 @@ import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.lib.elasticsearch.Pit;
 import net.bluemind.network.topology.Topology;
 
 public class VCardIndexStore {
 
 	private static final Logger logger = LoggerFactory.getLogger(VCardIndexStore.class);
+
+	public static final int SIZE = 200;
 
 	public static final String VCARD_WRITE_ALIAS = "contact_write_alias";
 	public static final String VCARD_READ_ALIAS = "contact_read_alias";
@@ -147,8 +155,7 @@ public class VCardIndexStore {
 				QueryBuilders.boolQuery().must(QueryBuilders.termQuery("containerUid", container.uid)));
 	}
 
-	public ListResult<String> search(VCardQuery query) {
-
+	public ListResult<String> search(VCardQuery query) throws Exception {
 		QueryBuilder queryString = null;
 		if (Strings.isNullOrEmpty(query.query)) {
 			queryString = QueryBuilders.matchAllQuery();
@@ -161,28 +168,93 @@ public class VCardIndexStore {
 				.must(QueryBuilders.termQuery("containerUid", container.uid));
 		logger.debug("vcard query {}", qb);
 
+		String[] sourceIncludeFields = { "uid" };
+		SearchRequestBuilder searchBuilder = ESearchActivator.getClient().prepareSearch(VCARD_READ_ALIAS);
+		searchBuilder.setQuery(qb);
+		searchBuilder.setFetchSource(sourceIncludeFields, null);
+		searchBuilder.setTrackTotalHits(false);
+
+		if (query.from + query.size > 10000) {
+			return paginatedSearch(searchBuilder, query);
+		} else {
+			return simpleSearch(searchBuilder, query);
+		}
+	}
+
+	private ListResult<String> simpleSearch(SearchRequestBuilder searchBuilder, VCardQuery query) {
 		SortBuilder<?> sort = null;
 		if (query.orderBy == null || query.orderBy == VCardQuery.OrderBy.FormatedName) {
 			sort = SortBuilders.fieldSort("sortName");
 		} else {
 			sort = SortBuilders.scoreSort();
 		}
-		SearchRequestBuilder preparedSearch = esearchClient.prepareSearch(VCARD_READ_ALIAS).setTypes(VCARD_TYPE)
-				.setQuery(qb);
-		if (query.size > 0) {
-			preparedSearch = preparedSearch.setFrom(query.from).setSize(query.size);
-		}
-		preparedSearch = preparedSearch.addSort(sort).setFetchSource(false).storedFields("uid");
-		SearchResponse resp = preparedSearch.execute().actionGet();
+		searchBuilder.addSort(sort);
 
-		List<String> uids = new ArrayList<>(resp.getHits().getHits().length);
-		for (SearchHit hit : resp.getHits().getHits()) {
-			uids.add(hit.field("uid").getValue());
+		if (query.size > 0) {
+			searchBuilder.setFrom(query.from).setSize(query.size);
+		}
+
+		logger.debug("{}", searchBuilder);
+		SearchResponse sr = searchBuilder.execute().actionGet();
+		logger.debug("{}", sr);
+		SearchHits searchHits = sr.getHits();
+
+		List<String> uids = new ArrayList<>();
+		for (SearchHit h : searchHits.getHits()) {
+			Map<String, Object> source = h.getSourceAsMap();
+			uids.add((String) source.get("uid"));
 		}
 
 		ListResult<String> ret = new ListResult<>();
 		ret.values = uids;
-		ret.total = (int) resp.getHits().getTotalHits().value;
+		ret.total = uids.size();
+		return ret;
+	}
+
+	private ListResult<String> paginatedSearch(SearchRequestBuilder searchBuilder, VCardQuery query) throws Exception {
+		searchBuilder.setSize(1000);
+		searchBuilder.setTrackTotalHits(false);
+		SortBuilder<?> sort = null;
+		if (query.orderBy == null || query.orderBy == VCardQuery.OrderBy.FormatedName) {
+			sort = SortBuilders.fieldSort("sortName");
+		} else {
+			sort = SortBuilders.fieldSort("_shard_doc").order(SortOrder.ASC);
+		}
+		searchBuilder.addSort(sort);
+
+		Client client = ESearchActivator.getClient();
+		List<String> uidsList = new ArrayList<>();
+		int position = 0;
+		Predicate<List<String>> continueSearch = uids -> query.size == -1
+				|| (query.size > 0 && uids.size() < query.size);
+		Predicate<Integer> hitInRange = pos -> (query.from > 0 && pos >= query.from)
+				&& (query.size == -1 || (query.size > 0 && pos < (query.from + query.size)));
+
+		try (Pit pit = Pit.allocate(client, VCARD_READ_ALIAS, 60)) {
+			do {
+				searchBuilder.setPointInTime(new PointInTimeBuilder(pit.id));
+				pit.adaptSearch(searchBuilder);
+				logger.debug("{}", searchBuilder);
+				SearchResponse sr = searchBuilder.execute().actionGet();
+				logger.debug("{}", sr);
+				SearchHits searchHits = sr.getHits();
+
+				if (searchHits != null && searchHits.getHits() != null) {
+					for (SearchHit h : searchHits.getHits()) {
+						Map<String, Object> source = h.getSourceAsMap();
+						if (query.from == 0 || hitInRange.test(position)) {
+							uidsList.add((String) source.get("uid"));
+						}
+						pit.consumeHit(h);
+						position++;
+					}
+				}
+			} while (pit.hasNext() && continueSearch.test(uidsList));
+		}
+
+		ListResult<String> ret = new ListResult<>();
+		ret.values = uidsList;
+		ret.total = uidsList.size();
 		return ret;
 	}
 
