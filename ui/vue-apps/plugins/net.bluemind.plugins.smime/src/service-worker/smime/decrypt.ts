@@ -19,9 +19,9 @@ export default async function (folderUid: string, item: ItemValue<MailboxItem>):
         const sid = await session.sid;
         const { address, mime, encoding, charset, fileName } = body.structure!;
         const key = await getMyPrivateKey();
-        const certificate = await getMyCertificate();
+        const pem = await getMyCertificate();
+        const certificate = await checkCertificate(pem, { date: new Date(body.date!) });
 
-        await checkCertificate(certificate, { date: new Date(body.date!) });
         const request = fetchRequest(sid, folderUid, imapUid!, address!, encoding!, mime!, charset!, fileName);
         const response = await dispatchFetch(request);
         const data = await response.blob();

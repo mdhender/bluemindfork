@@ -18,8 +18,8 @@ export default async function (item: MailboxItem, folderUid: string): Promise<Ma
             item.body.structure!
         );
         const key = await getMyPrivateKey();
-        const certificate = await getMyCertificate();
-        await checkCertificate(certificate, { smimeUsage: SMIME_CERT_USAGE.SIGN });
+        const pem = await getMyCertificate();
+        const certificate = await checkCertificate(pem, { smimeUsage: SMIME_CERT_USAGE.SIGN });
         const signedContent = await pkcs7.sign(unsignedMimeEntity, key, certificate);
         const eml = buildSignedEml(unsignedMimeEntity, signedContent, item.body);
         const address = await client.uploadPart(eml);

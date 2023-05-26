@@ -18,13 +18,11 @@ export default async function (item: MailboxItem, folderUid: string): Promise<Ma
             }
             const smimeUsage = SMIME_CERT_USAGE.ENCRYPT;
             if (kind === MessageBody.RecipientKind.Originator) {
-                const myCertificate = await getMyCertificate();
-                await checkCertificate(myCertificate, { expectedAddress: address, smimeUsage });
+                const myPem = await getMyCertificate();
+                const myCertificate = await checkCertificate(myPem, { expectedAddress: address, smimeUsage });
                 return myCertificate;
             }
-            const certificate = await getCertificate(address);
-            await checkCertificate(certificate, { smimeUsage });
-            return certificate;
+            return getCertificate(address, smimeUsage);
         });
         const certificates = await Promise.all(promises);
 

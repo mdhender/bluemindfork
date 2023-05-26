@@ -4,8 +4,60 @@ import session from "@bluemind/session";
 import { RevocationResult, SmimeCacert, SmimeCACertClient, SmimeRevocationClient } from "@bluemind/smime.cacerts.api";
 import db from "./SMimePkiDB";
 import { SMIME_CERT_USAGE } from "../../lib/constants";
-import { UntrustedCertificateEmailNotFoundError } from "../../lib/exceptions";
+import {
+    InvalidCertificateError,
+    UntrustedCertificateError,
+    UntrustedCertificateEmailNotFoundError
+} from "../../lib/exceptions";
+import { CheckOptions } from "../../types";
 
+export default async function checkCertificate(
+    pem: string | pki.Certificate,
+    options?: CheckOptions
+): Promise<pki.Certificate> {
+    let certificate;
+    if (typeof pem === "string") {
+        certificate = isPemReadable(pem);
+    } else {
+        certificate = pem;
+    }
+
+    try {
+        const caCerts = await getCaCerts();
+        if (caCerts.length === 0) {
+            throw "could not find any trusted CA certificates";
+        }
+        const caStore = pki.createCaStore(caCerts.map(item => item.value.cert));
+        pki.verifyCertificateChain(caStore, [certificate], { validityCheckDate: options?.date || new Date() });
+        checkBasicConstraints(certificate);
+        checkExtendedKeyUsage(certificate);
+        if (options?.expectedAddress) {
+            checkRecipientEmail(certificate, options.expectedAddress);
+        }
+        if (options?.smimeUsage) {
+            checkSmimeUsage(certificate, options.smimeUsage);
+        }
+        await checkRevoked(certificate, options?.date);
+    } catch (error: unknown) {
+        if (typeof error === "string") {
+            throw new UntrustedCertificateError(error);
+        } else if ((<pki.ForgePkiCertificateError>error).error?.startsWith("forge.pki.")) {
+            throw new UntrustedCertificateError((<pki.ForgePkiCertificateError>error).error);
+        }
+        throw error;
+    }
+    return certificate;
+}
+
+function isPemReadable(pem: string): pki.Certificate {
+    try {
+        return pki.certificateFromPem(pem);
+    } catch (error) {
+        throw new InvalidCertificateError(error);
+    }
+}
+
+// exported only for tests
 export async function checkRevoked(certificate: pki.Certificate, date?: Date) {
     const revocationResult = await getRevocation(certificate);
     if (
@@ -56,14 +108,14 @@ export function getRevocationCacheValidity(revocationResult: RevocationResult): 
     return expiration;
 }
 
-export function checkBasicConstraints(certificate: pki.Certificate) {
+function checkBasicConstraints(certificate: pki.Certificate) {
     const basicConstraints = <pki.BasicConstraintsExtension>certificate.getExtension("basicConstraints");
     if (basicConstraints && basicConstraints.cA === true) {
         throw "CA certificate cannot be used to sign or encrypt S/MIME message";
     }
 }
 
-export function checkExtendedKeyUsage(certificate: pki.Certificate) {
+function checkExtendedKeyUsage(certificate: pki.Certificate) {
     const anyExtendedKeyUsageOid = "2.5.29.37.0";
     const extendedKeyUsage = <pki.ExtendedKeyUsageExtension>certificate.getExtension("extKeyUsage");
     if (extendedKeyUsage && !extendedKeyUsage.emailProtection && !extendedKeyUsage[anyExtendedKeyUsageOid]) {
@@ -71,7 +123,7 @@ export function checkExtendedKeyUsage(certificate: pki.Certificate) {
     }
 }
 
-export function checkRecipientEmail(certificate: pki.Certificate, expectedEmail: string) {
+function checkRecipientEmail(certificate: pki.Certificate, expectedEmail: string) {
     const subjectAltName = <pki.SubjectAltNameExtension>certificate.getExtension("subjectAltName");
 
     const subjectAltNameMatch =
@@ -86,7 +138,7 @@ export function checkRecipientEmail(certificate: pki.Certificate, expectedEmail:
     }
 }
 
-export function checkSmimeUsage(certificate: pki.Certificate, smimeUsage: SMIME_CERT_USAGE) {
+function checkSmimeUsage(certificate: pki.Certificate, smimeUsage: SMIME_CERT_USAGE) {
     const keyUsage = <pki.KeyUsageExtension>certificate.getExtension("keyUsage");
     if (smimeUsage === SMIME_CERT_USAGE.SIGN && keyUsage && !keyUsage.nonRepudiation && !keyUsage.digitalSignature) {
         throw "this certificate can't be used to verify or sign message, keyUsage does not allow it (neither digitalSignature or nonRepudiation are set).";
@@ -96,7 +148,7 @@ export function checkSmimeUsage(certificate: pki.Certificate, smimeUsage: SMIME_
     }
 }
 
-let caCerts: ItemValue<SmimeCacert>[];
+let caCerts: ItemValue<SmimeCacert>[] | undefined;
 // FIXME: sync them ? todo via https://forge.bluemind.net/jira/browse/FEATWEBML-2107
 export async function getCaCerts(): Promise<ItemValue<SmimeCacert>[]> {
     if (!caCerts) {
@@ -106,4 +158,9 @@ export async function getCaCerts(): Promise<ItemValue<SmimeCacert>[]> {
         caCerts = await client.all();
     }
     return caCerts;
+}
+
+// usefull only for tests
+export function resetCaCerts() {
+    caCerts = undefined;
 }
