@@ -2,7 +2,7 @@
     <bm-dropdown
         ref="dropdown"
         class="bm-form-select"
-        :class="{ shown: isShown, 'form-select-inline': variant === 'inline' }"
+        :class="{ shown: isShown, underline: variant === 'underline', inline: variant === 'inline' }"
         variant="outline"
         :disabled="disabled"
         :boundary="boundary"
@@ -16,8 +16,11 @@
         <template #button-content>
             <div class="width-limits-control" :style="autoMinWidth ? { 'min-width': dropdownDefaultWidth + 'em' } : {}">
                 <slot :selected="selected" name="selected">
-                    <span class="selected-text font-weight-normal">
-                        {{ selectedText || placeholder }}
+                    <span v-if="selectedText" class="content selected-text">
+                        {{ selectedText }}
+                    </span>
+                    <span v-else class="content placeholder">
+                        {{ placeholder }}
                     </span>
                 </slot>
             </div>
@@ -62,7 +65,7 @@ export default {
             type: String,
             default: "outline",
             validator: function (value) {
-                return ["outline", "inline"].includes(value);
+                return ["outline", "underline", "inline"].includes(value);
             }
         },
         scrollbar: {
@@ -154,17 +157,20 @@ function normalize(option) {
 <style lang="scss">
 @import "../../css/mixins/_buttons.scss";
 @import "../../css/mixins/_focus.scss";
+@import "../../css/_type.scss";
 @import "../../css/_variables.scss";
 
 .bm-form-select {
-    $btn-padding: base-px-to-rem(9);
-
     line-height: $line-height-sm;
+
+    $padding-x: calc(#{$sp-5} - #{$input-border-width});
+    $padding-x-dimmed: calc(#{$sp-5} - #{2 * $input-border-width});
 
     .btn.dropdown-toggle {
         width: 100%;
+        height: $input-height;
         justify-content: space-between;
-        padding: $btn-padding;
+        padding: 0 $padding-x;
         gap: 0;
         outline: none;
 
@@ -173,7 +179,7 @@ function normalize(option) {
             $normal-stroke: $neutral-fg-lo1,
             $hovered-text: $neutral-fg-hi1,
             $hovered-stroke: $neutral-fg-hi1,
-            $disabled-text: $neutral-fg-disabled
+            $disabled-text: $neutral-fg-lo1
         );
     }
 
@@ -181,21 +187,41 @@ function normalize(option) {
     .btn.dropdown-toggle.focus,
     .btn.dropdown-toggle:focus {
         border: 2 * $input-border-width solid $secondary-fg !important;
-        padding: calc(#{$btn-padding} - #{$input-border-width});
+        padding: 0 $padding-x-dimmed;
         box-shadow: none !important;
     }
 
-    &.form-select-inline {
+    &.underline {
+        $padding-x: $sp-4;
+
         .btn.dropdown-toggle {
+            @include bm-button-variant(
+                $normal-text: $neutral-fg,
+                $normal-stroke: $neutral-fg-lo2,
+                $hovered-text: $neutral-fg-hi1,
+                $hovered-stroke: $neutral-fg,
+                $disabled-text: $neutral-fg-lo1
+            );
+
+            border-radius: 0 !important;
+            border-left: none !important;
+            border-right: none !important;
+            border-top-color: transparent !important;
+            padding: 0 $padding-x !important;
+        }
+    }
+
+    &.inline {
+        $padding-x: $sp-4;
+
+        .btn.dropdown-toggle {
+            height: calc(#{$input-height} - #{2 * $input-border-width});
             border: none !important;
+            padding: 0 $padding-x !important;
         }
 
-        &.shown .btn.dropdown-toggle {
-            padding: $btn-padding;
-        }
         .btn.dropdown-toggle.focus,
         .btn.dropdown-toggle:focus {
-            padding: $btn-padding;
             @include default-focus($neutral-fg);
             &.hover,
             &:hover {
@@ -210,13 +236,13 @@ function normalize(option) {
 
     .dropdown-menu {
         min-width: 100%;
-        top: -2 * $input-border-width !important;
     }
-    &:not(.form-select-inline) .dropdown-menu {
+    &:not(.inline) .dropdown-menu {
+        top: -2 * $input-border-width !important;
         padding: 0;
         border-width: 2 * $input-border-width !important;
     }
-    &.form-select-inline .dropdown-menu {
+    &.inline .dropdown-menu {
         border: none !important;
     }
 
@@ -230,12 +256,20 @@ function normalize(option) {
         padding-right: $sp-2;
     }
 
-    .selected-text {
+    .content {
+        @extend %regular;
         float: left;
         margin-right: $sp-2;
         max-width: 100%;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+
+    .placeholder {
+        color: $neutral-fg-lo1;
+    }
+    .disabled .placeholder {
+        color: $neutral-fg-disabled !important;
     }
 }
 </style>

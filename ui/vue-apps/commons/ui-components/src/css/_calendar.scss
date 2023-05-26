@@ -190,6 +190,7 @@
     .bm-calendar-weeknum {
         color: $primary-fg;
         padding-right: $sp-5;
+        white-space: nowrap;
 
         .row {
             align-items: flex-end;
@@ -224,7 +225,7 @@
             text-align: center;
         }
 
-        .bm-form-select.form-select-inline .btn.dropdown-toggle {
+        .bm-form-select.inline .btn.dropdown-toggle {
             padding-left: $sp-2;
             padding-right: $sp-2;
         }
