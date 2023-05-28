@@ -98,9 +98,6 @@ public class CacheBackingStore<V> {
 
 	public void cleanUp() {
 		cache.cleanUp();
-	}
-
-	public void cleanUpStore() {
 		writerLoader.ifPresent(wl -> wl.cleanUp(cache));
 	}
 }

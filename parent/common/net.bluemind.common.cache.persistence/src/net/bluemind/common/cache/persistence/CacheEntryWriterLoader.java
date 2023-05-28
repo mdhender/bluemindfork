@@ -104,8 +104,13 @@ public class CacheEntryWriterLoader<V> implements CacheWriter<String, V> {
 	private void delete(String key) {
 		File file = getCacheFile(key);
 		if (file.exists()) {
-			if (!file.delete()) {
-				logger.warn("Unable to delete file {}", file.getAbsoluteFile());
+			try {
+				if (!file.delete()) {
+					logger.debug("Unable to delete file {}", file.getAbsoluteFile());
+				}
+			} catch (SecurityException s) {
+				logger.debug("Delete file {} forbidden for security reason: {}", file.getAbsoluteFile(),
+						s.getMessage());
 			}
 		}
 	}
