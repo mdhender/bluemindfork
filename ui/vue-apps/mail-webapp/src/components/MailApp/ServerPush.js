@@ -19,7 +19,7 @@ export default {
             if (navigator.serviceWorker) {
                 navigator.serviceWorker.addEventListener("message", this.$_ServerPush_serviceWorkerListener);
                 this.listenerRegistry.push(() =>
-                    navigator.serviceWorker.removeEventListener("message", this.$_ServerPush_serviceWorkerListener);
+                    navigator.serviceWorker.removeEventListener("message", this.$_ServerPush_serviceWorkerListener)
                 );
                 this.$_ServerPush_serviceWorkerController?.postMessage({ type: "INIT" });
             }
