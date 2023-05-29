@@ -5,6 +5,7 @@
         </bm-form-checkbox>
         <bm-form-input-number
             :disabled="!isReminderSet"
+            show-buttons
             min="1"
             :value="settingWithUnit.value.toString()"
             class="align-middle mr-5"
