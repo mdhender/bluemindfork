@@ -11,7 +11,7 @@ export default {
     data() {
         return {
             alert: { name: "smime.untrusted_sender", uid: "SMIME_UNTRUSTED_SENDER" },
-            options: { area: "right-panel", icon: "lock-fill", renderer: "UntrustedSenderAlert" }
+            options: { area: "right-panel", icon: "exclamation-sample-fill", renderer: "UntrustedSenderAlert" }
         };
     },
     watch: {
