@@ -71,10 +71,6 @@ export default {
             type: String,
             default: "+Infinity"
         },
-        wrap: {
-            type: Boolean,
-            default: false
-        },
         readOnly: {
             type: Boolean,
             default: false
@@ -112,10 +108,6 @@ export default {
                 const max = parseFloat(this.max);
                 if (newValue >= min && newValue <= max) {
                     this.$emit("input", newValue.toString());
-                } else if (this.wrap && newValue < min) {
-                    this.$emit("input", this.max);
-                } else if (this.wrap && newValue > max) {
-                    this.$emit("input", this.min);
                 } else {
                     // FIXME: update BmFormInput state with this.value, but how.. ?
                 }
