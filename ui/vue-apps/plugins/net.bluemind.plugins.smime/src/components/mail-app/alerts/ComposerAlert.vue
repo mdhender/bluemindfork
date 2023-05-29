@@ -2,7 +2,6 @@
     <div class="composer-alert">
         <div class="text high">
             <div>{{ text }}</div>
-            <div v-if="code">({{ $t("common.error.code", { code }) }})</div>
             <bm-read-more :href="doc" />
         </div>
         <slot />
@@ -27,6 +26,11 @@ export default {
         text: {
             type: String,
             required: true
+        }
+    },
+    created() {
+        if (this.code) {
+            console.warn("[S/MIME] decrypt failed with error code ", this.code);
         }
     }
 };

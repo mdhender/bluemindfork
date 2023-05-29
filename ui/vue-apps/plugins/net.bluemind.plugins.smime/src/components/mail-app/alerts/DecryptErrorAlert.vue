@@ -1,8 +1,5 @@
 <template>
-    <div class="decrypt-error-alert">
-        {{ $t("alert.smime.decrypt_failed") }}
-        <span v-if="code" class="code"> ({{ $t("common.error.code", { code }) }})</span>
-    </div>
+    <div class="decrypt-error-alert">{{ $t("alert.smime.decrypt_failed") }}</div>
 </template>
 
 <script>
@@ -18,6 +15,9 @@ export default {
         code() {
             return this.alert.payload;
         }
+    },
+    created() {
+        console.warn("[S/MIME] decrypt failed with error code ", this.code);
     }
 };
 </script>
