@@ -72,17 +72,17 @@ export default {
                     const matchingTips = mailTips[0].matchingTips;
 
                     const disclaimer = matchingTips.find(isDisclaimer);
-                    this.$store.commit(SET_DISCLAIMER, disclaimer ? JSON.parse(disclaimer.value) : null);
+                    this.$store.commit("mail/" + SET_DISCLAIMER, disclaimer ? JSON.parse(disclaimer.value) : null);
 
                     const corporateSignature = matchingTips.find(isCorporateSignature);
                     if (corporateSignature) {
-                        this.$store.commit(SET_CORPORATE_SIGNATURE, JSON.parse(corporateSignature.value));
+                        this.$store.commit("mail/" + SET_CORPORATE_SIGNATURE, JSON.parse(corporateSignature.value));
                     } else {
-                        this.$store.commit(UNSET_CORPORATE_SIGNATURE);
+                        this.$store.commit("mail/" + UNSET_CORPORATE_SIGNATURE);
                     }
                 } else {
-                    this.$store.commit(SET_DISCLAIMER, null);
-                    this.$store.commit(UNSET_CORPORATE_SIGNATURE);
+                    this.$store.commit("mail/" + SET_DISCLAIMER, null);
+                    this.$store.commit("mail/" + UNSET_CORPORATE_SIGNATURE);
                 }
                 this.$_SignatureMixin_checkCorporateSignatureDone = true;
             },
