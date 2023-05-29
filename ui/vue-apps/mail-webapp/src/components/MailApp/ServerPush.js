@@ -18,9 +18,9 @@ export default {
         try {
             if (navigator.serviceWorker) {
                 navigator.serviceWorker.addEventListener("message", this.$_ServerPush_serviceWorkerListener);
-                this.listenerRegistry.push(() => {
+                this.listenerRegistry.push(() =>
                     navigator.serviceWorker.removeEventListener("message", this.$_ServerPush_serviceWorkerListener);
-                });
+                );
                 this.$_ServerPush_serviceWorkerController?.postMessage({ type: "INIT" });
             }
             await this.$waitFor(MAILBOXES_ARE_LOADED);
