@@ -8,11 +8,13 @@ export default {
             required: true
         }
     },
-    data() {
-        return {
-            alert: { name: "smime.untrusted_sender", uid: "SMIME_UNTRUSTED_SENDER" },
-            options: { area: "right-panel", icon: "exclamation-sample-fill", renderer: "UntrustedSenderAlert" }
-        };
+    computed: {
+        alert() {
+            return { name: "smime.untrusted_sender", uid: "SMIME_UNTRUSTED_SENDER_" + this.message.key };
+        },
+        options() {
+            return { area: "right-panel", icon: "exclamation-sample-fill", renderer: "UntrustedSenderAlert" };
+        }
     },
     watch: {
         "message.key": {

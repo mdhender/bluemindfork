@@ -9,11 +9,13 @@ export default {
             required: true
         }
     },
-    data() {
-        return {
-            alert: { name: "smime.decrypt_error", uid: "SMIME_DECRYPT_ERROR", payload: null },
-            options: { area: "right-panel", icon: "lock-fill", renderer: "DecryptErrorAlert", dismissible: false }
-        };
+    computed: {
+        alert() {
+            return { name: "smime.decrypt_error", uid: "SMIME_DECRYPT_ERROR_" + this.message.key, payload: null };
+        },
+        options() {
+            return { area: "right-panel", icon: "lock-fill", renderer: "DecryptErrorAlert", dismissible: false };
+        }
     },
     watch: {
         "message.headers": {
