@@ -1,4 +1,4 @@
-import { AvailableTimeFormats, AvailableDateFormats, AvailablesTimezones } from "@bluemind/date";
+import { AvailableTimeFormats, AvailableDateFormats } from "@bluemind/date";
 import { AvailableLanguages } from "@bluemind/i18n";
 import Roles from "@bluemind/roles";
 import NotificationManager from "../../../NotificationManager";
@@ -43,18 +43,7 @@ function main(i18n) {
                             }
                         }
                     },
-                    {
-                        id: "timezone",
-                        component: {
-                            name: "PrefFieldComboBox",
-                            options: {
-                                choices: AvailablesTimezones,
-                                label: i18n.t("preferences.general.timezone"),
-                                setting: "timezone",
-                                needReload: true
-                            }
-                        }
-                    },
+
                     {
                         id: "dateformat",
                         component: {
