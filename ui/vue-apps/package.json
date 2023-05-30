@@ -9,7 +9,7 @@
             "webmodules/net.bluemind.webmodules.filehosting",
             "webmodules/net.bluemind.webmodules.styleguide",
             "plugins/net.bluemind.plugins.smime",
-            "../../clients/js/generated"
+            "bm-api-clients/generated/**"
         ],
         "nohoist": [
             "**/bootstrap-vue",

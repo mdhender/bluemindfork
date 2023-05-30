@@ -12,6 +12,7 @@ module.exports = {
             js: "babel-eslint"
         }
     },
+    ignorePatterns: ["**/target/", "**/generated/"],
     overrides: [
         {
             files: ["**/*.ts", "**/*.tsx"],
