@@ -9,7 +9,7 @@ import PreviewTooLarge from "./components/MailAttachment/Preview/Fallback/Previe
 const { MailTipTypes } = mailTipUtils;
 
 export default function () {
-    extensions.register("webapp", "signature", {
+    extensions.register("webapp", "net.bluemind.webapp.mail.js", {
         command: {
             name: "get-mail-tips",
             fn: ({ context }) => {

@@ -115,6 +115,7 @@ extensions.register("webapp.mail", "net.bluemind.plugins.smime", {
 extensions.register("webapp", "net.bluemind.plugins.smime", {
     command: {
         name: "get-mail-tips",
+        priority: -1,
         fn: GetMailTipsHandler,
         role: BmRoles.CAN_USE_SMIME
     }

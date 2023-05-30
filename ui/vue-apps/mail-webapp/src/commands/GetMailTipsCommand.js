@@ -7,6 +7,8 @@ export default {
             if (context.filter.mailTips.length > 0) {
                 const mailTips = await inject("MailTipPersistence").getMailTips(context);
                 this.$store.commit(`mail/${SET_MAIL_TIPS}`, mailTips);
+            } else {
+                this.$store.commit(`mail/${SET_MAIL_TIPS}`, []);
             }
         }
     }

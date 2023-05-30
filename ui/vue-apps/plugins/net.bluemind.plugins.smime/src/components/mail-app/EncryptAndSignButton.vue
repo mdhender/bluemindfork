@@ -179,20 +179,15 @@ export default {
             },
             immediate: true
         },
-        async hasEncryptionHeader() {
-            if (this.hasEncryptionHeader) {
-                await this.$execute("get-mail-tips", {
-                    context: getMailTipContext(this.message),
-                    message: this.message
-                });
-            } else {
+        hasEncryptionHeader() {
+            if (!this.hasEncryptionHeader) {
                 this.$store.commit("mail/" + RESET_MISSING_CERTIFICATES);
             }
         }
     },
     methods: {
         ...mapActions("alert", { ERROR, REMOVE }),
-        async toggleAll() {
+        toggleAll() {
             if (this.hasEncryptionHeader) {
                 this.stopSignature(this.message);
                 this.stopEncryption(this.message);
@@ -200,6 +195,10 @@ export default {
                 this.startSignature(this.message);
                 this.startEncryption(this.message);
             }
+            this.$execute("get-mail-tips", {
+                context: getMailTipContext(this.message),
+                message: this.message
+            });
         },
         toggleEncryption() {
             if (this.hasEncryptionHeader) {
@@ -207,6 +206,10 @@ export default {
             } else {
                 this.startEncryption(this.message);
             }
+            this.$execute("get-mail-tips", {
+                context: getMailTipContext(this.message),
+                message: this.message
+            });
         },
         toggleSignature() {
             if (this.hasSignatureHeader) {
@@ -214,6 +217,10 @@ export default {
             } else {
                 this.startSignature(this.message);
             }
+            this.$execute("get-mail-tips", {
+                context: getMailTipContext(this.message),
+                message: this.message
+            });
         },
         handleError(condition, alert, options, priority) {
             if (condition) {
