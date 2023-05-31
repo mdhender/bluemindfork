@@ -51,6 +51,7 @@ import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.cyrus.partitions.MailboxDescriptor;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
+import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.IReplicatedMailboxesMgmt;
 import net.bluemind.backend.mail.replica.api.MailboxRecordItemUri;
 import net.bluemind.backend.mail.replica.api.Tier;
@@ -190,7 +191,7 @@ public class SpoolBackingStore implements ISdsBackingStore {
 			ItemValue<Mailbox> mbox = mboxes.getComplete(uri.owner);
 			IDbReplicatedMailboxes folderApi = serviceProvider.instance(IDbReplicatedMailboxes.class, cont.domainUid,
 					mbox.value.type.nsPrefix + mbox.value.name);
-			ItemValue<MailboxFolder> folder = folderApi.getComplete(uri.containerUid);
+			ItemValue<MailboxFolder> folder = folderApi.getComplete(IMailReplicaUids.uniqueId(uri.containerUid));
 			if (folder != null) { // Broken user folder ?
 				ItemValue<Server> server = Topology.get().datalocation(cont.datalocation);
 				CyrusPartition part = CyrusPartition.forServerAndDomain(server, cont.domainUid);
@@ -202,13 +203,15 @@ public class SpoolBackingStore implements ISdsBackingStore {
 				path = CyrusFileSystemPathHelper.getFileSystemPath(cont.domainUid, desc, part, uri.imapUid);
 				if (onNode(targetPath, path, server, decompress)) {
 					logger.debug("{} -> '{}'", guid, path);
-					CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
+					return CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
 				}
 				path = CyrusFileSystemPathHelper.getHSMFileSystemPath(cont.domainUid, desc, part, uri.imapUid);
 				if (onNode(targetPath, path, server, decompress)) {
 					logger.debug("{} -> '{}'", guid, path);
-					CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
+					return CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
 				}
+			} else {
+				logger.error("Broken user folder {} does not exist?", uri.containerUid);
 			}
 		}
 		SdsResponse sr = new SdsResponse();
