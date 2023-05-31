@@ -71,7 +71,6 @@ import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.directory.hollow.datamodel.AddressBookRecord;
-import net.bluemind.directory.hollow.datamodel.Cert;
 import net.bluemind.directory.hollow.datamodel.DataLocation;
 import net.bluemind.directory.hollow.datamodel.OfflineAddressBook;
 import net.bluemind.directory.hollow.datamodel.consumer.DirectoryVersionReader;
@@ -334,11 +333,11 @@ public class DirectorySerializer implements DataSerializer {
 		rec.primaryFaxNumber = serializer.get(DirEntrySerializer.Property.PrimaryFaxNumber).toString();
 		rec.assistantTelephoneNumber = serializer.get(DirEntrySerializer.Property.AssistantTelephoneNumber).toString();
 		rec.userCertificate = null;
-		List<byte[]> certs = (List<byte[]>) serializer.get(DirEntrySerializer.Property.AddressBookX509Certificate)
-				.toList();
-		rec.addressBookX509Certificate = certs.stream().map(val -> new Cert(val)).toList();
-		List<byte[]> certsDer = (List<byte[]>) serializer.get(DirEntrySerializer.Property.UserX509Certificate).toList();
-		rec.userX509Certificate = certsDer.stream().map(val -> new Cert(val)).toList();
+//		List<byte[]> certs = (List<byte[]>) serializer.get(DirEntrySerializer.Property.AddressBookX509Certificate)
+//				.toList();
+		rec.addressBookX509Certificate = Collections.emptyList();
+//		List<byte[]> certsDer = (List<byte[]>) serializer.get(DirEntrySerializer.Property.UserX509Certificate).toList();
+		rec.userX509Certificate = Collections.emptyList();
 		rec.thumbnail = serializer.get(DirEntrySerializer.Property.ThumbnailPhoto).toByteArray();
 		rec.hidden = serializer.get(DirEntrySerializer.Property.Hidden).toBoolean();
 		rec.anr = new AnrTokens().compute(rec);
