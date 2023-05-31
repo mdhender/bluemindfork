@@ -8,7 +8,7 @@
             :variant="btnVariant"
             size="lg"
             icon="minus"
-            @click="$emit()"
+            @click="decrement"
         />
         <bm-form-input type="number" v-bind="[$attrs, $props]" class="flex-fill" @update="onInput" />
         <bm-button
