@@ -22,7 +22,7 @@ import { mapActions, mapGetters } from "vuex";
 import linkifyHtml from "linkifyjs/html";
 import { MimeType, InlineImageHelper } from "@bluemind/email";
 import { sanitizeHtml, blockRemoteImages } from "@bluemind/html-utils";
-import { BmIconButton, darkifyCss, darkifyHtml, darkifyingBaseLvalue } from "@bluemind/ui-components";
+import { BmIconButton, darkifyHtml, darkifyingBaseLvalue } from "@bluemind/ui-components";
 import { messageUtils, partUtils } from "@bluemind/mail";
 import brokenImageIcon from "~/../assets/brokenImageIcon.png";
 import { FETCH_PART_DATA } from "~/actions";
@@ -96,11 +96,7 @@ export default {
             return html;
         },
         styles() {
-            let extractedStyle = extractStyleNotInBody(this.contentAsNode);
-            if (!this.noDarkify && this.IS_COMPUTED_THEME_DARK) {
-                extractedStyle = darkifyCss(extractedStyle, darkifyingBaseLvalue());
-            }
-            return extractedStyle + BM_STYLE;
+            return extractStyleNotInBody(this.contentAsNode) + BM_STYLE;
         },
         isCollapseActive() {
             return this.collapse_ && this.collapsedDOM;
