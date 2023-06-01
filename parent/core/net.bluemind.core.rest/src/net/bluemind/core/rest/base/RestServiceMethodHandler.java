@@ -131,13 +131,13 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 	public void call(RestRequest request, AsyncHandler<RestResponse> response) {
 		SecurityContext securityContext = null;
 		String key = request.headers.get(X_BM_API_KEY);
-		if (key == null) {
+		if (key == null || key.isEmpty()) {
 			key = request.params.get("apikey");
 		}
 
 		logger.debug("handle request {} from {}) with key {}", request.path, request.remoteAddresses, key);
 
-		if (key == null) {
+		if (key == null || key.isEmpty()) {
 			securityContext = SecurityContext.ANONYMOUS.from(request.remoteAddresses, null);
 		} else {
 			securityContext = Sessions.sessionContext(key);
