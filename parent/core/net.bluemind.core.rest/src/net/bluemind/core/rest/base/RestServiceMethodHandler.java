@@ -48,8 +48,8 @@ import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpHeaders;
-import net.bluemind.common.vertx.contextlogging.ContextualData;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.common.vertx.contextlogging.ContextualData;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
@@ -204,7 +204,12 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 				accessCookie.setSecure(true);
 				headers.add("Set-Cookie", ServerCookieEncoder.LAX.encode(accessCookie));
 
-				Cookie refreshCookie = new DefaultCookie("RefreshToken", rt.getString("refresh_token"));
+				String refreshToken = rtc.get().value();
+				if (rt.containsKey("refresh_token")) {
+					refreshToken = rt.getString("refresh_token");
+				}
+
+				Cookie refreshCookie = new DefaultCookie("RefreshToken", refreshToken);
 				refreshCookie.setPath("/");
 				refreshCookie.setHttpOnly(true);
 				refreshCookie.setSecure(true);
