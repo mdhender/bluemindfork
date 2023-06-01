@@ -65,11 +65,23 @@ public abstract class AbstractMailboxRecordServiceFactory<T>
 		try {
 			ContainerStore cs = new ContainerStore(context, ds, context.getSecurityContext());
 			Container recordsContainer = cs.get(uid);
+			if (recordsContainer == null) {
+				throw ServerFault.notFound("container for mailbox unique id=" + mailboxUniqueId + " (uid=" + uid
+						+ ") not found in dataSource=" + ds);
+			}
 
 			DirEntry owner = context.su().provider().instance(IDirectory.class, recordsContainer.domainUid)
 					.findByEntryUid(recordsContainer.owner);
+			if (owner == null) {
+				throw ServerFault
+						.notFound("owner " + recordsContainer.owner + "@" + recordsContainer.domainUid + " not found");
+			}
 			String subtreeContainerUid = IMailReplicaUids.subtreeUid(recordsContainer.domainUid, owner);
 			Container subtreeContainer = cs.get(subtreeContainerUid);
+			if (subtreeContainer == null) {
+				throw ServerFault.notFound("subtree uid=" + subtreeContainerUid + " for mailbox unique id="
+						+ mailboxUniqueId + " not found in dataSource=" + ds);
+			}
 			MailboxRecordStore recordStore = new MailboxRecordStore(ds, recordsContainer, subtreeContainer);
 
 			ContainerStoreService<MailboxRecord> storeService = new HookMailboxRecordStoreService(ds,
