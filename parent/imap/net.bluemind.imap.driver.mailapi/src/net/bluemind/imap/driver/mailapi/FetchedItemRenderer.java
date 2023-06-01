@@ -182,7 +182,7 @@ public class FetchedItemRenderer {
 			try {
 				Stream fullMsg = recApi.fetchComplete(rec.value.imapUid);
 				int len = body.get().size;
-				ByteBuf emlBuffer = readMmap(fullMsg, len).join();
+				ByteBuf emlBuffer = readMmap(fullMsg, len * 2).join();
 				return getPart(emlBuffer, f.section);
 			} catch (ServerFault sf) {
 				logger.error("could not fetch part  {}[{}]: {}", rec.value.imapUid, f.section, sf.getMessage());
@@ -193,7 +193,7 @@ public class FetchedItemRenderer {
 			try {
 				Stream fullMsg = recApi.fetchComplete(rec.value.imapUid);
 				int len = body.get().size;
-				return readMmap(fullMsg, len).join();
+				return readMmap(fullMsg, len * 2).join();
 			} catch (ServerFault sf) {
 				logger.error("could not fetch {}: {}", rec.value.imapUid, sf.getMessage());
 				return null;
