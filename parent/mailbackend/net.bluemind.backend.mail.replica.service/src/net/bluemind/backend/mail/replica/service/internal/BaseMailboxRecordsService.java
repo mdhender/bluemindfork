@@ -197,7 +197,7 @@ public class BaseMailboxRecordsService implements IChangelogSupport, ICountingSu
 		try {
 			MessageBodyObjectStore sds = sdsSuppply.get();
 			ByteBuf sdsDl = sds.openMmap(guid);
-			logger.info("Read {} aka {} from SDS ({}bytes)", imapUid, guid, sdsDl.readableBytes());
+			logger.debug("Read {} aka {} from SDS ({} bytes)", imapUid, guid, sdsDl.readableBytes());
 			return sdsDl;
 		} catch (ServerFault sf) {
 			throw sf;
