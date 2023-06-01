@@ -14,7 +14,7 @@ const WrapperComponent = {
         return h("iframe", {
             attrs: { src: this.src },
             on: { load: this.forwardNotice },
-            staticClass: "flex-fill border-0 bg-surface"
+            staticClass: "flex-fill border-0 bg-white"
         });
     },
     computed: {
