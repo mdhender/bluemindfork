@@ -32,7 +32,8 @@ const ADDITIONAL_ALLOWED_ATTRIBUTES_FOR_ANY_TAG = [
     CID_DATA_ATTRIBUTE,
     "data-bm-forward-separator",
     "data-bm-reply-separator",
-    "data-bm-signature"
+    "data-bm-signature",
+    "data-bm-darkified"
 ];
 
 const ALLOWED_LINK_PROTOCOLS = ["http", "https", "mailto", "tel", "sip"];

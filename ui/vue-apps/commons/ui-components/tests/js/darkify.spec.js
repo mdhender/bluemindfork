@@ -100,4 +100,9 @@ describe("darkifyHtml", () => {
         expect(dom.querySelector("font").getAttribute("color")).toBe("#4AAF39");
         expect(dom.querySelector("#skyblue").getAttribute("bgcolor")).toBe("#FFFFFF");
     });
+
+    test("double darkification", () => {
+        darkifyHtml(dom);
+        expect(dom.querySelector("h1").getAttribute("text")).toBe("#005E00");
+    });
 });

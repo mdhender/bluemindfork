@@ -191,9 +191,20 @@ function hex(colorStr) {
     return new Color(colorStr).hex();
 }
 
+function isDarkified(el) {
+    return el.hasAttribute("data-bm-darkified");
+}
+function markDarkified(el) {
+    el.setAttribute("data-bm-darkified", "");
+}
+
 function darkifyElement(el, darkifyColor) {
+    if (isDarkified(el)) {
+        return;
+    }
     if (el.tagName === "STYLE") {
         el.textContent = darkifyCss(el.textContent);
+        markDarkified(el);
         return;
     }
     for (const attr of el.attributes) {
@@ -208,6 +219,7 @@ function darkifyElement(el, darkifyColor) {
         }
         el.style.setProperty(key, darkifyColor(value));
     }
+    markDarkified(el);
 }
 
 function applyDeep(el, fn) {
