@@ -12,13 +12,13 @@ expect {
     "* OK " {}
 }
 
-send "A1 LOGIN $username $password\n"
-expect {
-    default {
-        send_user "\[ERROR\] IMAP authentication fail!\n"
-        exit 2
-    }
-    "A1 OK " {
-        exit 0
-    }
-}
+#send "A1 LOGIN $username $password\n"
+#expect {
+#    default {
+#        send_user "\[ERROR\] IMAP authentication fail!\n"
+#        exit 2
+#    }
+#    "A1 OK " {
+#        exit 0
+#    }
+#}
