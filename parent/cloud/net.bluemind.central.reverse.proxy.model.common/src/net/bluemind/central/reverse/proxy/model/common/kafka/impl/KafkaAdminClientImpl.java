@@ -15,6 +15,7 @@ import org.apache.kafka.clients.admin.ConsumerGroupListing;
 import org.apache.kafka.clients.admin.CreateTopicsOptions;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.admin.TopicDescription;
+import org.apache.kafka.common.Node;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.Uuid;
 import org.slf4j.Logger;
@@ -138,6 +139,19 @@ public class KafkaAdminClientImpl implements KafkaAdminClient {
 						promise.fail(t);
 					}
 				});
+		return promise.future();
+	}
+
+	@Override
+	public Future<Collection<Node>> describeCluster() {
+		Promise<Collection<Node>> promise = Promise.promise();
+		adminClient.describeCluster().nodes().whenComplete((result, t) -> {
+			if (Objects.isNull(t)) {
+				promise.complete(result);
+			} else {
+				promise.fail(t);
+			}
+		});
 		return promise.future();
 	}
 

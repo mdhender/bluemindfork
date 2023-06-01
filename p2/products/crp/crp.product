@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="crp" uid="crp" id="net.bluemind.central.reverse.proxy.launcher.crp" application="net.bluemind.central.reverse.proxy.launcher.crplauncher" version="5.0.0.qualifier" useFeatures="false" includeLaunchers="true">
+<product name="crp" uid="crp" id="net.bluemind.central.reverse.proxy.launcher.crp" application="net.bluemind.central.reverse.proxy.launcher.crplauncher" version="5.0.0.qualifier" useFeatures="false" includeLaunchers="true" autoIncludeRequirements="true">
 
    <configIni use="default">
    </configIni>
@@ -41,12 +41,12 @@
       <plugin id="io.vertx.core"/>
       <plugin id="io.vertx.micrometer"/>
       <plugin id="io.vertx.web"/>
+      <plugin id="jakarta.validation.jakarta.validation-api"/>
       <plugin id="jakarta.ws.rs-api"/>
       <plugin id="jakarta.xml.bind-api"/>
       <plugin id="javax.activation"/>
       <plugin id="javax.annotation"/>
       <plugin id="javax.inject"/>
-      <plugin id="jakarta.validation.jakarta.validation-api"/>
       <plugin id="javax.xml"/>
       <plugin id="jcl.over.slf4j"/>
       <plugin id="jul.to.slf4j"/>
@@ -63,6 +63,7 @@
       <plugin id="net.bluemind.central.reverse.proxy.model.client"/>
       <plugin id="net.bluemind.central.reverse.proxy.model.common"/>
       <plugin id="net.bluemind.central.reverse.proxy.stream"/>
+      <plugin id="net.bluemind.cloud.monitoring"/>
       <plugin id="net.bluemind.common.io"/>
       <plugin id="net.bluemind.core.commons"/>
       <plugin id="net.bluemind.core.container.api"/>
@@ -85,8 +86,9 @@
       <plugin id="net.bluemind.server.api"/>
       <plugin id="net.bluemind.slf4j"/>
       <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>
-      <plugin id="net.bluemind.startup.dropins" />
+      <plugin id="net.bluemind.startup.dropins"/>
       <plugin id="net.bluemind.system.api"/>
+      <plugin id="net.bluemind.system.application.registration"/>
       <plugin id="net.bluemind.systemd.notify"/>
       <plugin id="net.bluemind.tag.api"/>
       <plugin id="net.bluemind.user.api"/>
@@ -153,12 +155,12 @@
 
    <configurations>
       <plugin id="net.bluemind.sentry.settings" autoStart="true" startLevel="4" />
+      <plugin id="net.bluemind.startup.dropins" autoStart="true" startLevel="1" />
       <plugin id="org.apache.felix.scr" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="2" />
-      <plugin id="net.bluemind.startup.dropins" autoStart="true" startLevel="1" />
       <property name="osgi.noShutdown" value="true" />
       <property name="osgi.instance.area" value="/var/lib/bm-crp/" />
       <property name="eclipse.registry.MultiLanguage" value="true" />

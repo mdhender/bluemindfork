@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2022
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -16,24 +16,21 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.central.reverse.proxy.vertx.impl;
+package net.bluemind.system.application.registration;
 
 import io.vertx.core.Verticle;
-import net.bluemind.central.reverse.proxy.vertx.ConfigHolder;
-import net.bluemind.central.reverse.proxy.vertx.SessionManager;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class ProxyVerticleFactory implements IVerticleFactory {
+public class ApplicationRegistrationFactory implements IVerticleFactory {
 
 	@Override
 	public boolean isWorker() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public Verticle newInstance() {
-		SessionManager sessions = SessionManager.create(ConfigHolder.config);
-		return new ProxyVerticle(ConfigHolder.config, sessions);
+		return new ApplicationRegistration();
 	}
 
 }

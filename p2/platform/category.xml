@@ -745,4 +745,5 @@
    <bundle id="net.bluemind.common.vertx.msgpack"/>
    <bundle id="net.bluemind.webmodule.openidhandler"/>
    <bundle id="net.bluemind.imap.endpoint.notifications"/>
+   <bundle id="net.bluemind.system.application.registration"/>
 </site>

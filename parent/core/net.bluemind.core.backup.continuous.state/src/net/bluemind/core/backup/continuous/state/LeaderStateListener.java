@@ -17,6 +17,7 @@
  */
 package net.bluemind.core.backup.continuous.state;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,6 +27,7 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bluemind.config.InstallationId;
 import net.bluemind.core.backup.continuous.DefaultBackupStore;
 import net.bluemind.core.backup.continuous.api.IBackupStore;
 import net.bluemind.core.backup.continuous.api.InstallationWriteLeader;
@@ -37,7 +39,10 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
+import net.bluemind.system.api.IInstallation;
+import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SystemState;
+import net.bluemind.system.application.registration.ApplicationInfo;
 import net.bluemind.system.stateobserver.IStateListener;
 
 public class LeaderStateListener implements IStateListener {
@@ -47,6 +52,13 @@ public class LeaderStateListener implements IStateListener {
 
 	@Override
 	public void stateChanged(SystemState newState) {
+		if (newState != cur) {
+			try {
+				ApplicationInfo.update(info(newState));
+			} catch (Exception e) {
+				logger.warn("Cannot update core state", e);
+			}
+		}
 		if (newState != cur && newState == SystemState.CORE_STATE_DEMOTED) {
 			demote();
 		} else if (newState != cur && cur == SystemState.CORE_STATE_CLONING
@@ -54,6 +66,23 @@ public class LeaderStateListener implements IStateListener {
 			DefaultBackupStore.store().resume();
 		}
 		cur = newState;
+	}
+
+	private ApplicationInfo info(SystemState newState) {
+		String machineId;
+		try {
+			machineId = Files.readString(new File("/etc/machine-id").toPath()).replaceAll("\\r|\\n", "");
+		} catch (Exception e) {
+			machineId = "unknown";
+		}
+		ApplicationInfo info = new ApplicationInfo(
+				"bm-core", ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+						.instance(ISystemConfiguration.class).getValues().stringValue("host"),
+				machineId, InstallationId.getIdentifier());
+		info.state = newState.name();
+		info.version = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInstallation.class)
+				.getVersion().softwareVersion;
+		return info;
 	}
 
 	private void demote() {

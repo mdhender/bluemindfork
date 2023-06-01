@@ -70,7 +70,7 @@ public class KafkaTopicStore implements ITopicStore, TopicManager {
 	private static final AtomicInteger cidAlloc = new AtomicInteger();
 
 	static final String COMPRESSION_TYPE = "zstd";
-	static final int PARTITION_COUNT = KafkaStoreConfig.get().getInt("kafka.topic.partitionCount");
+	public static final int PARTITION_COUNT = KafkaStoreConfig.get().getInt("kafka.topic.partitionCount");
 	static final short REPL_FACTOR = (short) KafkaStoreConfig.get().getInt("kafka.topic.replicationFactor");
 
 	private AdminClient adminClient;

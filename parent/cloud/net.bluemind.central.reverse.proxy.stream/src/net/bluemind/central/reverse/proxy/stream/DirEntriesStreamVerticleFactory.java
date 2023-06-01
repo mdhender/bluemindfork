@@ -28,8 +28,7 @@ import net.bluemind.lib.vertx.IVerticleFactory;
 
 public class DirEntriesStreamVerticleFactory implements IVerticleFactory, IUniqueVerticleFactory {
 
-	private static final Config config = CrpConfig.get("Stream",
-			DirEntriesStreamVerticleFactory.class.getClassLoader());
+	public static final Config config = CrpConfig.get("Stream", DirEntriesStreamVerticleFactory.class.getClassLoader());
 
 	@Override
 	public boolean isWorker() {

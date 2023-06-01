@@ -9,6 +9,7 @@ import org.apache.kafka.clients.admin.ConsumerGroupListing;
 import org.apache.kafka.clients.admin.CreateTopicsOptions;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.admin.TopicDescription;
+import org.apache.kafka.common.Node;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.Uuid;
 
@@ -36,5 +37,7 @@ public interface KafkaAdminClient {
 	Future<Void> resetTopicOffset(String consumerGroupToBeReset, Collection<String> topicNames);
 
 	Future<Uuid> createTopic(NewTopic newTopic, CreateTopicsOptions options);
+
+	Future<Collection<Node>> describeCluster();
 
 }

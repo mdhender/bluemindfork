@@ -35,6 +35,7 @@
 		<module>net.bluemind.central.reverse.proxy.model.common</module>
 		<module>net.bluemind.central.reverse.proxy.model.tests</module>
 		<module>net.bluemind.central.reverse.proxy.stream</module>
+		<module>net.bluemind.cloud.monitoring</module>
 
 	</modules>
 </project>
