@@ -86,7 +86,6 @@ public class ResourceFilter implements IMessageFilter {
 		List<ResolvedBox> recipients = env.getRecipients();
 		if (recipients != null && !recipients.isEmpty()) {
 			for (ResolvedBox recipient : recipients) {
-				System.err.println("on " + recipient);
 				try {
 					String mailbox = getResourceMailbox(provider, recipient);
 					if (mailbox != null) {

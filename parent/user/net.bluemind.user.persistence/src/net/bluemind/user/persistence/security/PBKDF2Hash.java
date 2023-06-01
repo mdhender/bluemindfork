@@ -82,12 +82,7 @@ public class PBKDF2Hash implements Hash {
 	}
 
 	public static int iterations() {
-		try {
-			return HashConfig.get().getInt("bm.security.hash.pbkdf2.iterations");
-		} catch (Exception e) {
-			System.err.println("hashconf: " + HashConfig.get());
-			throw e;
-		}
+		return HashConfig.get().getInt("bm.security.hash.pbkdf2.iterations");
 	}
 
 	private static final Cache<String, Boolean> hashCache = CacheBuilder.newBuilder()
