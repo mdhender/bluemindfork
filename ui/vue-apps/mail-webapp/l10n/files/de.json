@@ -509,7 +509,7 @@
         "list": {
             "sort": {
                 "title": "Sortieren nach",
-                "field": {
+                "fields": {
                     "date": {
                         "label": "Datum",
                         "asc": "Datum (frühestes)",
