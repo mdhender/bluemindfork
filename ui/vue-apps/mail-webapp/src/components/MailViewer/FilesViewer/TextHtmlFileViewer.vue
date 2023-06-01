@@ -214,6 +214,12 @@ function extractStyleNotInBody(doc) {
 }
 
 const BM_STYLE = `
+        a {
+            color: var(--neutral-fg);
+        }
+        a:hover {
+            color: var(--neutral-fg-hi1);
+        }
         img.blocked-image {
             position: relative;
             min-height: 50px;
