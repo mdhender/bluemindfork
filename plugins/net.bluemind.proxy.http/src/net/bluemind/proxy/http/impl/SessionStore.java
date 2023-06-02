@@ -188,9 +188,6 @@ public class SessionStore implements ISessionStore {
 
 	public void cleanUp() {
 		sidSidData.cleanUp();
-		sidSidData.cleanUpStore();
-
 		cookieSids.cleanUp();
-		sidSidData.cleanUpStore();
 	}
 }
