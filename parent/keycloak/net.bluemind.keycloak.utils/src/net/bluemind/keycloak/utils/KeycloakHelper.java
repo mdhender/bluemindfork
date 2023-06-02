@@ -209,8 +209,8 @@ public class KeycloakHelper {
 							conf.getString("authorization_endpoint"));
 					properties.put(AuthDomainProperties.OPENID_TOKEN_ENDPOINT.name(), conf.getString("token_endpoint"));
 					properties.put(AuthDomainProperties.OPENID_JWKS_URI.name(), conf.getString("jwks_uri"));
-					String accessTokenIssuer = Optional.ofNullable(conf.getString("issuer"))
-							.orElse(conf.getString("access_token_issuer"));
+					String accessTokenIssuer = Optional.ofNullable(conf.getString("access_token_issuer"))
+							.orElse(conf.getString("issuer"));
 					properties.put(AuthDomainProperties.OPENID_ISSUER.name(), accessTokenIssuer);
 					properties.put(AuthDomainProperties.OPENID_END_SESSION_ENDPOINT.name(),
 							conf.getString("end_session_endpoint"));
@@ -282,7 +282,7 @@ public class KeycloakHelper {
 					}
 
 					key = AuthDomainProperties.OPENID_ISSUER.name();
-					val = Optional.ofNullable(conf.getString("issuer")).orElse(conf.getString("access_token_issuer"));
+					val = Optional.ofNullable(conf.getString("access_token_issuer")).orElse(conf.getString("issuer"));
 					if (val == null && domain.value.properties.get(key) != null) {
 						domain.value.properties.remove(key);
 						somethingChanged = true;
