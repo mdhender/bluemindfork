@@ -55,7 +55,9 @@ public class PimpMyRam implements IApplication {
 	private void pimpPostgresql(long totalMemMB) {
 		// this would be better if we include a file in the package
 		boolean isShard = new File("/usr/share/doc/bm-mailbox-role/").isDirectory();
-		if (totalMemMB > 47000) {
+		if (totalMemMB > 63000) {
+			writePg(isShard ? "mem.shard.64g" : "mem.64g");
+		} else if (totalMemMB > 47000) {
 			writePg(isShard ? "mem.shard.48g" : "mem.48g");
 		} else if (totalMemMB > 31000) {
 			writePg(isShard ? "mem.shard.32g" : "mem.32g");
