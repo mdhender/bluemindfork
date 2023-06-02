@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
@@ -197,8 +196,8 @@ public class ContainerShardingRepair implements IDirEntryRepairSupport {
 			if (mailbox != null && !dirEntry.dataLocation.equals(mailbox.value.dataLocation)) {
 				ops.add(dry -> {
 					monitor.log("{}mailbox is on {} but dirEntry on {}: moving dirEntry to mailbox location",
-							Level.WARN, dry ? "(dry mode) " : "", humanDataLocation(mailbox.value.dataLocation),
-							humanDataLocation(dirEntry.dataLocation));
+							Level.WARN, Boolean.TRUE.equals(dry) ? "(dry mode) " : "",
+							humanDataLocation(mailbox.value.dataLocation), humanDataLocation(dirEntry.dataLocation));
 					monitor.notify("{} mailbox is on {} but dirEntry on {}",
 							humanDataLocation(mailbox.value.dataLocation), humanDataLocation(dirEntry.dataLocation));
 					dirEntry.dataLocation = mailbox.value.dataLocation;
@@ -258,7 +257,8 @@ public class ContainerShardingRepair implements IDirEntryRepairSupport {
 						needFlushCacheGlobal = true;
 						for (ContainerWithDataSource toRemove : toRemoveCwds) {
 							ops.add(dry -> {
-								monitor.log("{}{} will be removed", dry ? "(dry mode) " : "", toRemove);
+								monitor.log("{}{} will be removed", Boolean.TRUE.equals(dry) ? "(dry mode) " : "",
+										toRemove);
 								if (Boolean.FALSE.equals(dry)) {
 									ContainerXfer.removeTargetContainers(context, toRemove.dataSource,
 											Lists.newArrayList(toRemove.getContainer()));
@@ -279,46 +279,45 @@ public class ContainerShardingRepair implements IDirEntryRepairSupport {
 					// Container will take it from you.
 					Optional<ContainerWithDataSource> cwdsToXfer = containersWithDs.stream().findFirst();
 					needFlushCacheGlobal = true;
-					cwdsToXfer.ifPresent(cwds -> {
-						ops.add(dry -> {
-							// Tell the dataSourceRouter where the container really is
-							dsCache.put(container.uid, Optional.ofNullable(cwds.getLocation()));
-							if (!isXferable(container)) {
-								monitor.log("cannot xfer {} (container is not xferable: removing)", Level.WARN, cwds);
-								monitor.notify("cannot xfer {} (container is not xferable: removing)", cwds);
-								if (Boolean.FALSE.equals(dry)) {
-									ContainerXfer.removeTargetContainers(context, cwds.dataSource,
-											Lists.newArrayList(cwds.getContainer()));
-								}
-								return;
-							}
-
-							monitor.log("{}{} will be moved to {}", Level.WARN, dry ? "(dry mode) " : "", cwds,
-									humanDataLocation(dirEntryLocation));
+					cwdsToXfer.ifPresent(cwds -> ops.add(dry -> {
+						// Tell the dataSourceRouter where the container really is
+						dsCache.put(container.uid, Optional.ofNullable(cwds.getLocation()));
+						if (!isXferable(container)) {
+							monitor.log("cannot xfer {} (container is not xferable: no xfer)", Level.WARN, cwds);
+							monitor.notify("cannot xfer {} (container is not xferable: no xfer)", cwds);
 							if (Boolean.FALSE.equals(dry)) {
-								ContainerXfer containerXfer = new ContainerXfer(//
-										cwds.getDataSource(), // origin
-										context.getMailboxDataSource(dirEntryLocation), // target
-										context, dirEntry);
-								try {
-									IDataShardSupport xferService = cwds.getDataShardService(dirEntryLocation);
-									if (xferService != null) {
-										containerXfer.xferContainer(xferService, cwds.getContainer());
-										// Yeah this is VERY uggly, but I really don't know how to fix those unknown
-										// caches everywhere
-
-									} else {
-										monitor.log("unable to xfer container {}: xferService not available",
-												Level.WARN, cwds);
-										monitor.notify("unable to xfer container {}: xferService not available", cwds);
-									}
-								} catch (SQLException e) {
-									monitor.log("{} xferContainer failed: {}", Level.WARN, cwds, e.getMessage());
-								}
-								containerXfer.executeCleanups(LoggerFactory.getLogger(getClass()));
+								ContainerXfer.removeTargetContainers(context, cwds.dataSource,
+										Lists.newArrayList(cwds.getContainer()));
 							}
-						});
-					});
+							return;
+						}
+
+						monitor.log("{}{} will be moved to {}", Level.WARN,
+								Boolean.TRUE.equals(dry) ? "(dry mode) " : "", cwds,
+								humanDataLocation(dirEntryLocation));
+						if (Boolean.FALSE.equals(dry)) {
+							ContainerXfer containerXfer = new ContainerXfer(//
+									cwds.getDataSource(), // origin
+									context.getMailboxDataSource(dirEntryLocation), // target
+									context, dirEntry);
+							try {
+								IDataShardSupport xferService = cwds.getDataShardService(dirEntryLocation);
+								if (xferService != null) {
+									containerXfer.xferContainer(xferService, cwds.getContainer());
+									// Yeah this is VERY uggly, but I really don't know how to fix those unknown
+									// caches everywhere
+
+								} else {
+									monitor.log("unable to xfer container {}: xferService not available", Level.WARN,
+											cwds);
+									monitor.notify("unable to xfer container {}: xferService not available", cwds);
+								}
+							} catch (SQLException e) {
+								monitor.log("{} xferContainer failed: {}", Level.WARN, cwds, e.getMessage());
+							}
+							containerXfer.executeCleanups(LoggerFactory.getLogger(getClass()));
+						}
+					}));
 				}
 			}
 
@@ -394,7 +393,7 @@ public class ContainerShardingRepair implements IDirEntryRepairSupport {
 	@Override
 	public Set<MaintenanceOperation> availableOperations(Kind kind) {
 		if (supportedKind(kind)) {
-			return ImmutableSet.of(containerOp);
+			return Set.of(containerOp);
 		} else {
 			return Collections.emptySet();
 		}
@@ -403,7 +402,7 @@ public class ContainerShardingRepair implements IDirEntryRepairSupport {
 	@Override
 	public Set<InternalMaintenanceOperation> ops(Kind kind) {
 		if (supportedKind(kind)) {
-			return ImmutableSet.of(new ContainerMaintenance(context));
+			return Set.of(new ContainerMaintenance(context));
 		} else {
 			return Collections.emptySet();
 		}
