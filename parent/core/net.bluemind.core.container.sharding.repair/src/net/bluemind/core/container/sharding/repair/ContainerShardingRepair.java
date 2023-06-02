@@ -236,7 +236,7 @@ public class ContainerShardingRepair implements IDirEntryRepairSupport {
 							monitor.log("{} router has the wrong location {} should be {}. Fixing the location",
 									Level.WARN, containerLogId, routerLocation, containerLocation);
 							monitor.notify("{} router has the wrong location {} should be {}. Fixing the location",
-									Level.WARN, containerLogId, routerLocation, containerLocation);
+									containerLogId, routerLocation, containerLocation);
 							if (Boolean.FALSE.equals(dry)) {
 								try {
 									directoryContainerStore.createOrUpdateContainerLocation(container,
