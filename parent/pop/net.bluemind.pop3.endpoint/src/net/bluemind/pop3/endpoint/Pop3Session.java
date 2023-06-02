@@ -18,6 +18,7 @@
 package net.bluemind.pop3.endpoint;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -34,6 +35,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetSocket;
 import io.vertx.core.parsetools.RecordParser;
+import net.bluemind.common.vertx.contextlogging.ContextualData;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 
@@ -63,7 +65,7 @@ public class Pop3Session {
 	}
 
 	private static Map<String, PopProcessor> buildProcMap() {
-		ConcurrentHashMap<String, PopProcessor> ret = new ConcurrentHashMap<>();
+		HashMap<String, PopProcessor> ret = new HashMap<>();
 		ret.put("user", new UserProcessor());
 		ret.put("pass", new PassProcessor());
 		ret.put("capa", new CapaProcessor());
@@ -81,9 +83,14 @@ public class Pop3Session {
 
 	public void start() {
 		Pop3Context ctx = new Pop3Context(vertx, socket);
-
 		RecordParser parser = RecordParser.newDelimited(CRLF, rec -> onChunk(ctx, rec));
-		socket.handler(parser::handle);
+		socket.handler(buf -> {
+			var coreCon = ctx.connection();
+			if (coreCon != null) {
+				ContextualData.put("user", coreCon.logId());
+			}
+			parser.handle(buf);
+		});
 
 		socket.closeHandler(v -> {
 			activeConnections.decrementAndGet();

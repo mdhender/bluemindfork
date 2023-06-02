@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
+import net.bluemind.common.vertx.contextlogging.ContextualData;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.rest.base.RestRequest;
 import net.bluemind.core.rest.base.RestResponse;
@@ -41,6 +42,7 @@ public class RestVertxRootHandler implements Handler<Message<VertxRestRequest>> 
 
 	@Override
 	public void handle(final Message<VertxRestRequest> message) {
+		ContextualData.clear();
 		try {
 			doCall(message);
 		} catch (Exception e) {

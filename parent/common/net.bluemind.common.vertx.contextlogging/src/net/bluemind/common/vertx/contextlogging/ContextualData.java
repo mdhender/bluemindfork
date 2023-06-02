@@ -34,6 +34,27 @@ public class ContextualData {
 	}
 
 	/**
+	 * Remove a value in the contextual data map.
+	 * 
+	 * @param key the key of the data in contextual data map
+	 */
+	public static void remove(String key) {
+		Objects.requireNonNull(key);
+		if (Vertx.currentContext() instanceof ContextInternal ctx) {
+			contextualDataMap(ctx).remove(key);
+		}
+	}
+
+	/**
+	 * Remove all values in the contextual data map.
+	 */
+	public static void clear() {
+		if (Vertx.currentContext() instanceof ContextInternal ctx) {
+			contextualDataMap(ctx).clear();
+		}
+	}
+
+	/**
 	 * Put a value in the contextual data map.
 	 *
 	 * @param key   the key of the data in the contextual data map

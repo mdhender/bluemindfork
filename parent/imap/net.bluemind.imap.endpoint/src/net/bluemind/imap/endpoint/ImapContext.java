@@ -123,6 +123,7 @@ public class ImapContext {
 		this.sender = new ContextProducer(vertx, ns);
 		this.logConnectionId = ns.writeHandlerID().replace("__vertx.net.", "").replace("-", "");
 		this.throughputLimiterRegistry = ThroughputLimiterRegistry.get(Drivers.activeDriver().maxLiteralSize());
+		ContextualData.clear();
 		ContextualData.put("endpoint", "imap");
 	}
 
@@ -236,12 +237,8 @@ public class ImapContext {
 
 	public void state(SessionState state) {
 		this.state = state;
-		switch (state) {
-		case AUTHENTICATED:
+		if (state.equals(SessionState.AUTHENTICATED)) {
 			ContextualData.put("user", mailbox.logId());
-			break;
-		default:
-			break;
 		}
 		nexus.dispatchStateChanged(state);
 	}

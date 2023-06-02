@@ -30,6 +30,7 @@ import io.netty.buffer.Unpooled;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetSocket;
+import net.bluemind.common.vertx.contextlogging.ContextualData;
 import net.bluemind.imap.endpoint.events.EventNexus;
 import net.bluemind.imap.endpoint.events.StateChangeListener;
 import net.bluemind.imap.endpoint.exec.ImapCommandHandler;
@@ -71,7 +72,13 @@ public class ImapSession implements StateChangeListener {
 
 		nexus.addStateListener(this);
 
-		ns.handler(split);
+		ns.handler(buffer -> {
+			var mailbox = ctx.mailbox();
+			if (mailbox != null) {
+				ContextualData.put("user", mailbox.logId());
+			}
+			split.handle(buffer);
+		});
 
 		ns.closeHandler(v -> {
 			ctx.close();

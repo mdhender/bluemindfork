@@ -110,6 +110,7 @@ public class Pop3Context {
 	public Pop3Context(Vertx vertx, NetSocket socket) {
 		this.socket = socket;
 		this.sender = new ContextProducer(vertx, socket);
+		ContextualData.clear();
 		ContextualData.put("endpoint", "pop3");
 	}
 

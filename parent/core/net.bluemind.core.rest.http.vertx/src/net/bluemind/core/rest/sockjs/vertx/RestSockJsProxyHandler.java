@@ -20,6 +20,7 @@ import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.parsetools.JsonEvent;
 import io.vertx.ext.web.handler.sockjs.SockJSSocket;
+import net.bluemind.common.vertx.contextlogging.ContextualData;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.base.IRestBusHandler;
@@ -49,7 +50,7 @@ public class RestSockJsProxyHandler implements Handler<JsonEvent> {
 	@Override
 	public void handle(JsonEvent jsEv) {
 		JsonObject msg = jsEv.objectValue();
-
+		ContextualData.clear();
 		RestRequestWithId request = parseRequest(msg);
 		if (logger.isDebugEnabled()) {
 			logger.debug("C [verb: {}]: {}", request.verb, msg.encode());
@@ -194,6 +195,8 @@ public class RestSockJsProxyHandler implements Handler<JsonEvent> {
 			handlers.remove(path);
 		}
 		Handler<Message<JsonObject>> handler = msg -> {
+			SecurityContext session = getSession(request);
+			ContextualData.put("user", session.getSubjectDisplayName());
 			JsonObject body = msg.body();
 			dispatchEventBusMessage(path, body);
 		};
