@@ -17,6 +17,9 @@
   */
 package net.bluemind.webmodule.authenticationfilter;
 
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
@@ -76,6 +79,7 @@ public class AuthenticationFilter implements IWebFilter {
 	private static final String OPENID_COOKIE = "OpenIdSession";
 	private static final String ACCESS_COOKIE = "AccessToken";
 	private static final String REFRESH_COOKIE = "RefreshToken";
+	private static final String ID_COOKIE = "IdToken";
 	private static final String BMSID_COOKIE = "BMSID";
 
 	public AuthenticationFilter() {
@@ -255,9 +259,39 @@ public class AuthenticationFilter implements IWebFilter {
 		String domainUid = getDomainUid(request).orElse("global.virt");
 		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
 				.get(domainUid);
-		request.response().headers().add(HttpHeaders.LOCATION,
-				domainSettings.get(AuthDomainProperties.OPENID_END_SESSION_ENDPOINT.name()));
 
+		String logoutUrl = null;
+		String redirUrl = null;
+		try {
+			URL reqUrl = new URL(request.absoluteURI());
+			redirUrl = "https://" + reqUrl.getHost() + "/";
+		} catch (MalformedURLException e) {
+		}
+		try {
+			redirUrl = URLEncoder.encode(redirUrl, java.nio.charset.StandardCharsets.UTF_8.toString());
+		} catch (UnsupportedEncodingException e) {
+		}
+
+		if (!AuthTypes.CAS.name().equals(domainSettings.get(AuthDomainProperties.AUTH_TYPE.name()))) {
+			logoutUrl = domainSettings.get(AuthDomainProperties.OPENID_END_SESSION_ENDPOINT.name());
+			String idToken = null;
+			if (request.cookies("IdToken").stream().findFirst().isPresent()) {
+				idToken = request.cookies("IdToken").stream().findFirst().get().getValue();
+			}
+			if (idToken != null) {
+				try {
+					idToken = URLEncoder.encode(idToken, java.nio.charset.StandardCharsets.UTF_8.toString());
+				} catch (UnsupportedEncodingException e) {
+				}
+				logoutUrl += "?post_logout_redirect_uri=" + redirUrl;
+				logoutUrl += "&id_token_hint=" + idToken;
+			}
+		} else {
+			logoutUrl = domainSettings.get(AuthDomainProperties.CAS_URL.name()) + "logout";
+			logoutUrl += "?url=" + redirUrl;
+		}
+
+		request.response().headers().add(HttpHeaders.LOCATION, logoutUrl);
 		request.response().setStatusCode(302);
 		request.response().end();
 
@@ -302,6 +336,15 @@ public class AuthenticationFilter implements IWebFilter {
 			refresh.setSecure(true);
 		}
 		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(refresh));
+
+		Cookie idc = new DefaultCookie(ID_COOKIE, "delete");
+		idc.setPath("/");
+		idc.setMaxAge(0);
+		idc.setHttpOnly(true);
+		if (SecurityConfig.secureCookies) {
+			idc.setSecure(true);
+		}
+		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(idc));
 	}
 
 	private Optional<String> getDomainUid(HttpServerRequest request) {

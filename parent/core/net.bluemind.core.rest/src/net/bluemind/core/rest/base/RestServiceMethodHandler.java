@@ -215,6 +215,12 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 				refreshCookie.setHttpOnly(true);
 				refreshCookie.setSecure(true);
 				headers.add("Set-Cookie", ServerCookieEncoder.LAX.encode(refreshCookie));
+
+				Cookie idCookie = new DefaultCookie("IdToken", rt.getString("id_token"));
+				idCookie.setPath("/");
+				idCookie.setHttpOnly(true);
+				idCookie.setSecure(true);
+				headers.add("Set-Cookie", ServerCookieEncoder.LAX.encode(idCookie));
 			}
 		}
 

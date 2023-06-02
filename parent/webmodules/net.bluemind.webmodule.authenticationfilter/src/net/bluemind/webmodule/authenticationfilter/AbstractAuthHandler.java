@@ -115,6 +115,14 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 					request.response().headers().add(HttpHeaders.SET_COOKIE,
 							ServerCookieEncoder.LAX.encode(refreshCookie));
 
+					Cookie idCookie = new DefaultCookie("IdToken", token.getString("id_token"));
+					idCookie.setPath("/");
+					idCookie.setHttpOnly(true);
+					if (SecurityConfig.secureCookies) {
+						idCookie.setSecure(true);
+					}
+					request.response().headers().add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(idCookie));
+
 					DecodedJWT accessToken = JWT.decode(token.getString("access_token"));
 					Claim pubpriv = accessToken.getClaim("bm_pubpriv");
 					boolean privateComputer = "private".equals(pubpriv.asString());

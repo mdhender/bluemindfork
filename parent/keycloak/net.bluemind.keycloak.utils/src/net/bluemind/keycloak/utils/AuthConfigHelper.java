@@ -174,7 +174,7 @@ public class AuthConfigHelper {
 		// cas url mandatory and ending with /
 		if (domain.properties != null
 				&& AuthTypes.CAS.name().equals(domain.properties.get(AuthDomainProperties.AUTH_TYPE.name()))) {
-			String casUrl = domain.properties.get(AuthDomainProperties.AUTH_TYPE.name());
+			String casUrl = domain.properties.get(AuthDomainProperties.CAS_URL.name());
 			if (casUrl == null || casUrl.trim().isEmpty()) {
 				throw new ServerFault("CAS server URL is mandatory for CAS configuration", ErrorCode.INVALID_PARAMETER);
 			}

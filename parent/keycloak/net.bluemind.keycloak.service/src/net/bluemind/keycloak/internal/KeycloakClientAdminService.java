@@ -79,6 +79,7 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 		KeycloakHelper.getDomainUrls(domainId).forEach(url -> redirectUris.add(url));
 		client.put("redirectUris", redirectUris);
 		client.put("webOrigins", new JsonArray().add("+"));
+		client.put("attributes", new JsonObject().put("post.logout.redirect.uris", "*"));
 
 		JsonObject overrides = new JsonObject();
 		overrides.put("browser", ourFlowId);
