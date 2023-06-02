@@ -58,8 +58,9 @@ let bmUtils = {
         .getService(Components.interfaces.nsIUUIDGenerator),
     _parserUtils: Components.classes["@mozilla.org/parserutils;1"]
         .getService(Components.interfaces.nsIParserUtils),
-    promptService: Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-        .getService(Components.interfaces.nsIPromptService),
+    promptService: Components.classes["@mozilla.org/embedcomp/prompt-service;1"] ?
+        Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService)
+        : Services.prompt,
     log: function(aMessage) {
         console.log(aMessage);
     },
@@ -136,7 +137,7 @@ let bmUtils = {
                                .getService(Components.interfaces.nsILoginManager);
         let logins = passwordManager.getAllLogins({});
         for (var i = 0; i < logins.length; i++) {
-            if (logins[i].hostname == aHostname) {            
+            if (logins[i].hostname == aHostname) {
                aPassword.value = logins[i].password;
                aUser.value = logins[i].username; 
                break;
@@ -148,23 +149,44 @@ let bmUtils = {
             .getService(Components.interfaces.nsILoginManager);
         let logins = passwordManager.getAllLogins({});
         for (var i = 0; i < logins.length; i++) {
-            if (logins[i].hostname == aHostname && (!aGoodLogin || aGoodLogin != logins[i].username)) {            
+            if (logins[i].hostname == aHostname && (!aGoodLogin || aGoodLogin != logins[i].username)) {
                passwordManager.removeLogin(logins[i]);
             }
         }
     },
-    updateCredentialsStored: function(aHostname, aLefPartLogin, aFullLogin) {
+    updateCredentialsStored: function(aHostname, aOldLogin, aNewLogin, aPassword) {
         let passwordManager = Components.classes["@mozilla.org/login-manager;1"]
                                .getService(Components.interfaces.nsILoginManager);
         let logins = passwordManager.getAllLogins({});
+        let loginFound = false;
         for (var i = 0; i < logins.length; i++) {
-            if (logins[i].hostname == aHostname && logins[i].username == aLefPartLogin) {
+            if (logins[i].hostname == aHostname && logins[i].username == aOldLogin) {
                let updated = logins[i].clone();
-               updated.username = aFullLogin;
+               updated.username = aNewLogin;
+               if (aPassword) {
+                updated.password = aPassword;
+               }
                passwordManager.modifyLogin(logins[i], updated);
+               loginFound = true;
                break;
             }
         }
+        if (!loginFound && aPassword) {
+            this.storeCredentials(aHostname, aNewLogin, aPassword);
+        }
+    },
+    storeCredentials: function(aHostname, aUsername, aPassword) {
+        let passwordManager = Components.classes["@mozilla.org/login-manager;1"].getService(Components.interfaces.nsILoginManager);
+        let loginInfo = Components.classes["@mozilla.org/login-manager/loginInfo;1"].createInstance(Components.interfaces.nsILoginInfo);
+        loginInfo.username=aUsername;
+        loginInfo.password=aPassword;
+        loginInfo.hostname="https://" + aHostname;
+        loginInfo.formSubmitURL=null;
+        loginInfo.httpRealm="https://" + aHostname;
+        loginInfo.usernameField="";
+        loginInfo.passwordField="";
+        loginInfo.origin="https://" + aHostname;
+        passwordManager.addLogin(loginInfo);
     },
     getSettings: function(/*object*/ user, /*object*/ pwd, /*object*/ srv, displayWindows, parentWin) {
         let server = this.getCharPref("extensions.bm.server");
@@ -204,6 +226,27 @@ let bmUtils = {
         this.session.password = pwd.value;
         return true;
     },
+    promptUsernameAndPassword: function(parentWin, server, user, pwd) {
+        if (Components.classes["@mozilla.org/embedcomp/prompt-service;1"]) {
+            let ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"].getService(Components.interfaces.nsIWindowWatcher);
+            let authPrompt = ww.getNewAuthPrompter(parentWin ? parentWin : null);
+            
+            authPrompt.promptUsernameAndPassword(this.getLocalizedString("dialogs.title"),
+                                                this.getLocalizedString("authprompt.message") + " " + server,
+                                                server,
+                                                Components.interfaces.nsIAuthPrompt.SAVE_PASSWORD_PERMANENTLY,
+                                                user, pwd);
+        } else {
+            //TB 115
+            Services.prompt.promptUsernameAndPassword(parentWin,
+                                                this.getLocalizedString("dialogs.title"),
+                                                this.getLocalizedString("authprompt.message") + " " + server,
+                                                user, pwd);
+            if (!user.value || !pwd.value) return;
+            //this prompt does not support save password : do it manualy
+            this.updateCredentialsStored(server, user.value, user.value, pwd.value);
+        }
+    },
     _getBmImapAccount: function(aBmSrv) {
 		let acctMgr = Components.classes["@mozilla.org/messenger/account-manager;1"].getService(Components.interfaces.nsIMsgAccountManager);
 		let accounts = acctMgr.accounts;
@@ -242,17 +285,7 @@ let bmUtils = {
 		if (account) {
 			let server = account.incomingServer;
 			if (server.password) {
-				let passwordManager = Components.classes["@mozilla.org/login-manager;1"].getService(Components.interfaces.nsILoginManager);
-				let loginInfo = Components.classes["@mozilla.org/login-manager/loginInfo;1"].createInstance(Components.interfaces.nsILoginInfo);
-				loginInfo.username=server.username;
-				loginInfo.password=server.password;
-				loginInfo.hostname="https://" + server.hostName;
-				loginInfo.formSubmitURL=null;
-				loginInfo.httpRealm="https://" + server.hostName;
-				loginInfo.usernameField="";
-                loginInfo.passwordField="";
-                loginInfo.origin="https://" + server.hostName;
-				passwordManager.addLogin(loginInfo);
+                this.storeCredentials(server.hostName, server.username, server.password);
 			} else {
 				this.session.user = server.username;
 			}

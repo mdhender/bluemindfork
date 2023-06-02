@@ -339,7 +339,7 @@ var gBMOverlay = {
 					linkHandler: "single-page"
 				});
 			} else {
-				await this._notify.notifyTools.notifyBackground({command: "activeTab", tabId: tabBm.id});
+				await this._notify.notifyTools.notifyBackground({command: "activateTab", matchUrl: "https://*" + aAskedUri + "/*"});
 			}
 			if (aAskedUri == "/cal") {
 				let self = this;

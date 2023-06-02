@@ -93,9 +93,9 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
     case "getBmTab":
       let bmTabs = await messenger.tabs.query({url: info.matchUrl});
       return bmTabs;
-    case "activeTab":
-      let activeTab = await messenger.tabs.update(info.tabId, {active: true});
-      return activeTab;
+    case "activateTab":
+      let activeTab = await messenger.tabs.query({url: info.matchUrl});
+      return await messenger.tabs.update(activeTab[0].id, {active: true});
     case "closeTab":
       await messenger.tabs.remove(info.tabId);
       return true;

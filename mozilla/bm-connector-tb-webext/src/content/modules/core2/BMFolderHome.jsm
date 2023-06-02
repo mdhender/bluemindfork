@@ -33,6 +33,12 @@ var { BMDlistHome, BMDlist } = ChromeUtils.import("chrome://bm/content/modules/c
 const historyDir = "jsaddrbook://history.sqlite";
 const prevHistoryDir = "moz-abmdbdirectory://history.mab";
 
+let disablePhotos = Components.classes["@mozilla.org/embedcomp/prompt-service;1"] ? false : true;
+if (disablePhotos) {
+    //TB 115 photo sync not working and causing phantom contact create/update
+    console.warn("photo sync disabled on thunderbird 115 until fix");
+}
+
 let BMFolderHome = {
     _logger: Components.classes["@blue-mind.net/logger;1"].getService().wrappedJSObject
                         .getLogger("BMFolderHome: "),
@@ -212,6 +218,9 @@ let BMFolderHome = {
         return Promise.resolve(changes);
     },
     getLocalPhotos: function(aFolder, aChanges) {
+        if (disablePhotos) {
+            return Promise.resolve([]);
+        }
         let directory = this._getDirectoryById(aFolder.id);
         let photos = [];
         for (let chg of aChanges) {
@@ -489,6 +498,7 @@ let BMFolderHome = {
         return this._dlistHome.fillDlistFromEntry(aEntry, list);
     },
     _setPhoto: function(aEntry, aContaineId, /*nsIAbCard*/ aCard) {
+        if (disablePhotos) return;
         if (aEntry.value.identification.photo) {
             let photoUri = bmUtils.session.baseUrl + "/api/addressbooks/" + aContaineId + "/" + aEntry.id + "/photo";
             this._logger.debug("get photo: " + photoUri);

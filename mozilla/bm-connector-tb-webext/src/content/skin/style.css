@@ -111,3 +111,17 @@ label.red {
 #menu-app-bm {
   list-style-image: url("chrome://bm/content/skin/BM_Icone01_16.png");
 }
+
+/* Spaces buttons */
+
+#bm-spaces-open-calendar {
+  list-style-image: url("chrome://bm/content/skin/calendar.png");
+}
+
+#bm-spaces-open-todolist {
+  list-style-image: url("chrome://bm/content/skin/tasks.png");
+}
+
+#bm-spaces-sync {
+  list-style-image: url("chrome://bm/content/skin/BM_Icone01_16.png");
+}

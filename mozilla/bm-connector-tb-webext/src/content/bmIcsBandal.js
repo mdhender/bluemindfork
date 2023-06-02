@@ -23,35 +23,49 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { bmUtils, HashMap, BMXPComObject, BmPrefListener, BMError } = ChromeUtils.import("chrome://bm/content/modules/bmUtils.jsm");
 var { BMAuthService } = ChromeUtils.import("chrome://bm/content/modules/core2/BMAuthService.jsm");
 
+function getWindow() {
+    // TB 115 : message window is inside is own browser
+    return window?.gTabmail?.tabInfo[0]?.chromeBrowser?.contentWindow?.messageBrowser?.contentWindow ?? window;
+}
+
 var gBMIcsBandal = {
     _logger: Components.classes["@blue-mind.net/logger;1"].getService().wrappedJSObject.getLogger("gBMIcsBandal: "),
     onLoad: function() {
         gBMIcsBandal._logger.debug("onLoad");
-        gMessageListeners.push(gBMIcsBandal);
+        
+        console.trace("gBMIcsBandal onLoad");
+
+        let win = getWindow();
+        if (!win || !win.gMessageListeners) return false;
+        win.gMessageListeners.push(gBMIcsBandal);
+        
         //extend tbHideMessageHeaderPane to remove bandal on folder change
-        gBMIcsBandal.tbHideMessageHeaderPaneOriginal = HideMessageHeaderPane;
-        gBMIcsBandal.tbHideMessageHeaderPane = HideMessageHeaderPane;
-        HideMessageHeaderPane = function ltnHideMessageHeaderPane() {
+        gBMIcsBandal.tbHideMessageHeaderPaneOriginal = win.HideMessageHeaderPane;
+        gBMIcsBandal.tbHideMessageHeaderPane = win.HideMessageHeaderPane;
+        win.HideMessageHeaderPane = function ltnHideMessageHeaderPane() {
             gBMIcsBandal.hideBandal();
             gBMIcsBandal.tbHideMessageHeaderPane.apply(null, arguments);
         };
+        return true;
     },
     hideBandal: function() {
-        let bandal = document.getElementById("bm-ics-bandal");
+        let win = getWindow();
+        let bandal = win.document.getElementById("bm-ics-bandal");
         bandal.collapsed = true;
-        let counter = document.getElementById("bm-counter-bandal");
+        let counter = win.document.getElementById("bm-counter-bandal");
         counter.collapsed = true;
     },
     changeBandalLinksOnclick: function(aState) {
-        let part = document.getElementById("bm-ics-bandal-participation");
+        let win = getWindow();
+        let part = win.document.getElementById("bm-ics-bandal-participation");
         if (this._otherUserLogin != null) {
             part.setAttribute("value", bmUtils.getLocalizedString("icsbandal.participationOf") + " " + this._otherUserDisplayName);
         } else {
             part.setAttribute("value", bmUtils.getLocalizedString("icsbandal.participation"));
         }
-        let accept = document.getElementById("bm-ics-bandal-accept");
-        let tentat = document.getElementById("bm-ics-bandal-tentative");
-        let declin = document.getElementById("bm-ics-bandal-decline");
+        let accept = win.document.getElementById("bm-ics-bandal-accept");
+        let tentat = win.document.getElementById("bm-ics-bandal-tentative");
+        let declin = win.document.getElementById("bm-ics-bandal-decline");
         let cpParam = ",'" + this._attendeeDir + "'";
         if (aState == "Accepted") {
             accept.setAttribute("class", "highlight");
@@ -97,39 +111,46 @@ var gBMIcsBandal = {
         this._clearCounterBandal();
     },
     _clearPartBandal: function() {
-        let partRow = document.getElementById("bm-ics-bandal-partRow");
+        let win = getWindow();
+        let partRow = win.document.getElementById("bm-ics-bandal-partRow");
         partRow.setAttribute("hidden" , "false");
-        let accept = document.getElementById("bm-ics-bandal-accept");
+        let accept = win.document.getElementById("bm-ics-bandal-accept");
         accept.setAttribute("class", "text-link");
-        let tentative = document.getElementById("bm-ics-bandal-tentative");
+        let tentative = win.document.getElementById("bm-ics-bandal-tentative");
         tentative.setAttribute("class", "text-link");
-        let decline = document.getElementById("bm-ics-bandal-decline");
+        let decline = win.document.getElementById("bm-ics-bandal-decline");
         decline.setAttribute("class", "text-link");
-        let title = document.getElementById("bm-ics-bandal-title");
-        let when = document.getElementById("bm-ics-bandal-when");
-        let where = document.getElementById("bm-ics-bandal-where");
+        let title = win.document.getElementById("bm-ics-bandal-title");
+        let when = win.document.getElementById("bm-ics-bandal-when");
+        let where = win.document.getElementById("bm-ics-bandal-where");
         title.setAttribute("value", "");
         when.setAttribute("value", "");
         where.setAttribute("value", "");
     },
     _clearCounterBandal: function() {
-        let counterRow = document.getElementById("bm-counter-bandal-decisionRow");
+        let win = getWindow();
+        let counterRow = win.document.getElementById("bm-counter-bandal-decisionRow");
         counterRow.setAttribute("hidden" , "false");
-        let accept = document.getElementById("bm-counter-bandal-accept");
+        let accept = win.document.getElementById("bm-counter-bandal-accept");
         accept.setAttribute("class", "text-link");
-        let decline = document.getElementById("bm-counter-bandal-decline");
+        let decline = win.document.getElementById("bm-counter-bandal-decline");
         decline.setAttribute("class", "text-link");
-        let title = document.getElementById("bm-counter-bandal-title");
-        let original = document.getElementById("bm-counter-bandal-original");
-        let where = document.getElementById("bm-counter-bandal-where");
-        let proposed = document.getElementById("bm-counter-bandal-proposed");
+        let title = win.document.getElementById("bm-counter-bandal-title");
+        let original = win.document.getElementById("bm-counter-bandal-original");
+        let where = win.document.getElementById("bm-counter-bandal-where");
+        let proposed = win.document.getElementById("bm-counter-bandal-proposed");
         title.setAttribute("value", "");
         original.setAttribute("value", "");
         where.setAttribute("value", "");
         proposed.setAttribute("value", "");
     },
     onEndHeaders: function() {
-        let dispMessage = gMessageDisplay.displayedMessage;
+        let dispMessage;
+        if (window.gMessageDisplay) {
+            dispMessage = window.gMessageDisplay.displayedMessage;
+        } else {
+            dispMessage = window.gTabmail.currentAboutMessage.gMessage;
+        }
         if (!dispMessage) return;
         let f = dispMessage.folder;
         if (!f) return;
@@ -209,8 +230,9 @@ var gBMIcsBandal = {
         }
     },
     _hideLightingImipBar: function() {
+        let win = getWindow();
         window.setTimeout(function() {
-            let imipBar = document.getElementById("imip-bar");
+            let imipBar = win.document.getElementById("imip-bar");
             if (imipBar) {
                 gBMIcsBandal._logger.debug("hide lightning imip bar");
                 imipBar.collapsed = true;
@@ -360,7 +382,7 @@ var gBMIcsBandal = {
         let msgNotificationBar = document.getElementById("msgNotificationBar");
         if (!msgNotificationBar) {
             //TB >= 78
-            msgNotificationBar = gMessageNotificationBar.msgNotificationBar;
+            msgNotificationBar = getWindow().gMessageNotificationBar.msgNotificationBar;
         }
         let priority;
         switch (aPriority) {
@@ -374,12 +396,20 @@ var gBMIcsBandal = {
                 priority = msgNotificationBar.PRIORITY_ERROR_LOW;
                 break;
         }
-        msgNotificationBar.appendNotification(errorMessage,
-                            errorCode,
-                            "",
-                            priority,
-                            [],
-                            null);
+        if (!window.gMessageDisplay) {
+            //TB 115
+            msgNotificationBar.appendNotification(errorCode, {
+                priority: priority,
+                label: errorMessage
+            }, []);
+        } else {
+            msgNotificationBar.appendNotification(errorMessage,
+                                errorCode,
+                                "",
+                                priority,
+                                [],
+                                null);
+        }
     },
     _getSeriesAndEvent: function(aEvent) {
         let cal = new CalendarClient(this._srv.value, this._authKey, this._containerUid);
@@ -429,7 +459,8 @@ var gBMIcsBandal = {
         this._fillPartBandal(seriesAndEvent.vevent);
         this.changeBandalLinksOnclick(state);
         
-        let bandal = document.getElementById("bm-ics-bandal");
+        let win = getWindow();
+        let bandal = win.document.getElementById("bm-ics-bandal");
         bandal.collapsed = false;
     },
     _getOtherUser: function(aLogin) {
@@ -465,10 +496,11 @@ var gBMIcsBandal = {
                 return Promise.reject();
             } else {
                 if (!otherCal.writable) {
+                    let win = getWindow();
                     self._logger.info("calendar is not writable: " + aLogin);
-                    let partRow = document.getElementById("bm-ics-bandal-partRow");
+                    let partRow = win.document.getElementById("bm-ics-bandal-partRow");
                     partRow.setAttribute("hidden" , "true");
-                    let counterRow = document.getElementById("bm-counter-bandal-decisionRow");
+                    let counterRow = win.document.getElementById("bm-counter-bandal-decisionRow");
                     counterRow.setAttribute("hidden" , "true");
                 }
                 self._otherUserDisplayName = dirEntry.displayName;
@@ -478,9 +510,10 @@ var gBMIcsBandal = {
         });
     },
     _fillPartBandal: function(aEvent) {
-        let title = document.getElementById("bm-ics-bandal-title");
-        let when = document.getElementById("bm-ics-bandal-when");
-        let where = document.getElementById("bm-ics-bandal-where");
+        let win = getWindow();
+        let title = win.document.getElementById("bm-ics-bandal-title");
+        let when = win.document.getElementById("bm-ics-bandal-when");
+        let where = win.document.getElementById("bm-ics-bandal-where");
         title.setAttribute("value", aEvent.summary);
         when.setAttribute("value",  this._dateString(aEvent.dtstart, aEvent.dtend));
         where.setAttribute("value", aEvent.location != null ? aEvent.location : "");
@@ -573,7 +606,8 @@ var gBMIcsBandal = {
         }
         this._fillCounterBandal(seriesAndEvent.vevent, counter);
         
-        let bandal = document.getElementById("bm-counter-bandal");
+        let win = getWindow();
+        let bandal = win.document.getElementById("bm-counter-bandal");
         bandal.collapsed = false;
     },
     _getCounter: function(seriesAndEvent, event) {
@@ -588,24 +622,25 @@ var gBMIcsBandal = {
         return null;
     },
     _fillCounterBandal: function(aEvent, counter) {
-        let title = document.getElementById("bm-counter-bandal-title");
-        let original = document.getElementById("bm-counter-bandal-original");
-        let where = document.getElementById("bm-ics-bandal-where");
-        let proposed = document.getElementById("bm-counter-bandal-proposed");
+        let win = getWindow();
+        let title = win.document.getElementById("bm-counter-bandal-title");
+        let original = win.document.getElementById("bm-counter-bandal-original");
+        let where = win.document.getElementById("bm-ics-bandal-where");
+        let proposed = win.document.getElementById("bm-counter-bandal-proposed");
         title.setAttribute("value", aEvent.summary);
         original.setAttribute("value",  this._dateString(aEvent.dtstart, aEvent.dtend));
         where.setAttribute("value", aEvent.location != null ? aEvent.location : "");
         proposed.setAttribute("value", this._dateString(counter.counter.dtstart, counter.counter.dtend));
 
-        let decision = document.getElementById("bm-counter-bandal-decision");
+        let decision = win.document.getElementById("bm-counter-bandal-decision");
         if (this._otherUserLogin != null) {
             decision.setAttribute("value", bmUtils.getLocalizedString("counterbandal.acceptFor") + " " + this._otherUserDisplayName);
         } else {
             decision.setAttribute("value", bmUtils.getLocalizedString("counterbandal.accept"));
         }
 
-        let accept = document.getElementById("bm-counter-bandal-accept");
-        let decline = document.getElementById("bm-counter-bandal-decline");
+        let accept = win.document.getElementById("bm-counter-bandal-accept");
+        let decline = win.document.getElementById("bm-counter-bandal-decline");
         accept.setAttribute("onclick", "gBMIcsBandal.acceptCounter(true)");
         decline.setAttribute("onclick", "gBMIcsBandal.acceptCounter(false)"); 
     },
@@ -658,8 +693,9 @@ var gBMIcsBandal = {
             });
             return cal.updates(changes);
         }).then(function() {
-            let accept = document.getElementById("bm-counter-bandal-accept");
-            let decline = document.getElementById("bm-counter-bandal-decline");
+            let win = getWindow();
+            let accept = win.document.getElementById("bm-counter-bandal-accept");
+            let decline = win.document.getElementById("bm-counter-bandal-decline");
             accept.removeAttribute("onclick");
             decline.removeAttribute("onclick");
             if (accepted) {
@@ -673,20 +709,24 @@ var gBMIcsBandal = {
         });
     },
     onUnload: function() {
-        for (let i = 0; i < gMessageListeners.length; i++) {
-            if (gMessageListeners[i] === gBMIcsBandal) {
+        let win = getWindow();
+        for (let i = 0; i < win.gMessageListeners.length; i++) {
+            if (win.gMessageListeners[i] === gBMIcsBandal) {
                 gBMIcsBandal._logger.info("remove message listener");
-                gMessageListeners.splice(i, 1);
+                win.gMessageListeners.splice(i, 1);
                 break;
             }
         }
-        HideMessageHeaderPane = gBMIcsBandal.tbHideMessageHeaderPaneOriginal;
+        win.HideMessageHeaderPane = gBMIcsBandal.tbHideMessageHeaderPaneOriginal;
     }
 }
 
 gBMIcsBandal.init();
-if (document.getElementById("msgHeaderView") && document.getElementById("msgHeaderView").loaded) {
-    gBMIcsBandal.onLoad();
-} else {
-    window.addEventListener("messagepane-loaded", gBMIcsBandal.onLoad, true);
+if (window.gMessageDisplay) {
+    // TB < 115
+    if (document.getElementById("msgHeaderView") && document.getElementById("msgHeaderView").loaded) {
+        gBMIcsBandal.onLoad();
+    } else {
+        window.addEventListener("messagepane-loaded", gBMIcsBandal.onLoad, true);
+    }
 }

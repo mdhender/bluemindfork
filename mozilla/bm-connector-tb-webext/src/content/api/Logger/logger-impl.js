@@ -209,25 +209,27 @@ var LoggerApi = class extends ExtensionCommon.ExtensionAPI {
                         }
                     };
 
-                    console.trace("Register component");
+                    var instance = null;
 
-                    let factory;
-                    if (ComponentUtils) {
-                        factory = ComponentUtils.generateNSGetFactory([Logger])(classID);
-                    } else {
-                        factory = XPCOMUtils.generateNSGetFactory([Logger])(classID);
-                    }
+                    var factory = {
+                        classID: classID,
+                        createInstance(iid) {
+                            if (!instance) {
+                                instance = new Logger();
+                            }
+                            return instance;
+                        }
+                    };
                     
-                    // WARNING: this assumes that Thunderbird is already running, as
-                    // Components.manager.registerFactory will be unavailable for a few
-                    // milliseconds after startup.
-                    Components.manager.registerFactory(classID, "Logger", contractID,
-                        factory);
+                    let reg = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
+                    reg.registerFactory(classID, "Logger", contractID, factory);
+
                     context.callOnClose({
                         close() {
-                            Components.manager.unregisterFactory(classID, factory);
+                            reg.unregisterFactory(classID, factory);
                         }
                     });
+                    
                 }
             }
         }

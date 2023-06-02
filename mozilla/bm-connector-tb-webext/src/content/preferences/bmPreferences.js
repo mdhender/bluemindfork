@@ -32,8 +32,6 @@ var gBMPreferences = {
     promptUsernameAndPassword: function() {
         let server = document.getElementById("bmserver").value;
         if (!server || server.trim() == "") return;
-        let ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"].getService(Components.interfaces.nsIWindowWatcher);
-        let authPrompt = ww.getNewAuthPrompter(window);
         let user = {};
         let pwd = {};
         bmUtils.getCredentialStored(server, user, pwd);
@@ -42,11 +40,9 @@ var gBMPreferences = {
             pwd.value = bmUtils.session.password;
         }
         let oldUser = user.value;
-        authPrompt.promptUsernameAndPassword(bmUtils.getLocalizedString("dialogs.title"),
-                                             bmUtils.getLocalizedString("authprompt.message") + " " + server,
-                                             server,
-                                             Components.interfaces.nsIAuthPrompt.SAVE_PASSWORD_PERMANENTLY,
-                                             user, pwd);
+
+        bmUtils.promptUsernameAndPassword(window, server, user, pwd);
+
         if (!user.value || !pwd.value) return;
         //remove old credentials stored
         bmUtils.removeCredentialStored(server, user.value);

@@ -31,6 +31,9 @@ try {
     //TB 78
 }
 
+// TB 115 signature preview does not show or collapse has expected, hack with flex prop
+let vboxHack = Components.classes["@mozilla.org/embedcomp/prompt-service;1"] ? false : true;
+
 function canAttachFilesFromHosting() {
     let accs = cloudFileAccounts.getAccountsForType("BlueMind");
     if (accs.length > 0) {
@@ -355,6 +358,9 @@ var gBMCompose = {
         if (MailE10SUtils) {
             let box = document.getElementById("bmSignature");
             box.setAttribute("collapsed", "false");
+            if (vboxHack) {
+                box.setAttribute("flex", "1");
+            }
             let browser = document.getElementById("bm-browser-signature");
             let preview = "data:text/html," + encodeURIComponent(aHtml);
             MailE10SUtils.loadURI(browser, preview);
@@ -398,6 +404,9 @@ var gBMCompose = {
     _hideSignature: function() {
         let box = document.getElementById("bmSignature");
         box.setAttribute("collapsed", "true");
+        if (vboxHack) {
+            box.setAttribute("flex", "0");
+        }
     },
     togglePreview: function() {
         let bro = document.getElementById("bm-browser-signature");
@@ -411,7 +420,11 @@ var gBMCompose = {
         let bro = document.getElementById("bm-browser-signature");
         let toggle =  document.getElementById("bm-toggle-signature");
         bro.setAttribute("collapsed", visible ? "false" : "true");
-        toggle.setAttribute("value", bmUtils.getLocalizedString("signature.show"));
+        toggle.setAttribute("value", bmUtils.getLocalizedString(visible ? "signature.hide" : "signature.show"));
+        if (vboxHack) {
+            let box = document.getElementById("bmSignature");
+            box.setAttribute("flex", visible ? "1" : "0");
+        }
         bmUtils.session.sigPreviewClosed = !visible;
     },
     observe: function(subject, topic, data) {
