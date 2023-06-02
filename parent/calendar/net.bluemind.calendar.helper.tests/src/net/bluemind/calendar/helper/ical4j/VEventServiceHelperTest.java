@@ -394,6 +394,22 @@ public class VEventServiceHelperTest {
 	}
 
 	@Test
+	public void testEnDecoding() throws IOException, ServerFault {
+		InputStream in = VEventServiceHelperTest.class.getClassLoader().getResourceAsStream("summary_specialchars.ics");
+		String ics = IOUtils.toString(in, Charset.defaultCharset());
+		in.close();
+		List<ItemValue<VEventSeries>> events = toEvents(ics);
+
+		assertEquals(1, events.size());
+		ItemValue<VEventSeries> event = events.get(0);
+
+		assertEquals("one,two, three", event.value.main.summary);
+		assertEquals("somewhere,elsewhere", event.value.main.location);
+		assertEquals("John,Smith", event.value.main.attendees.get(0).commonName);
+
+	}
+
+	@Test
 	public void dateTimeWithoutTimezone() {
 		VEventSeries series = new VEventSeries();
 		VEvent event = new VEvent();

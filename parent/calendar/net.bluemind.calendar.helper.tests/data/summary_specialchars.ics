@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//BlueMind//Line of fire//FR
+METHOD:PUBLISH
+BEGIN:VEVENT
+SUMMARY:one\,two\, three
+DTSTART;VALUE=DATE:20230310
+UID:ba34961e-6eb0-40ed-b2d8-62a4df322652
+LAST-MODIFIED:20230228T160004Z
+X-LINE-OF-FIRE:1
+LOCATION:somewhere\,elsewhere
+ATTENDEE;CN=John,Smith;DIR="ldap://example.com:6666/o=ABC%
+ 20Industries,c=US???(cn=Jim%20Dolittle)":mailto:jimdo@
+ example.com
+END:VEVENT
+END:VCALENDAR
+

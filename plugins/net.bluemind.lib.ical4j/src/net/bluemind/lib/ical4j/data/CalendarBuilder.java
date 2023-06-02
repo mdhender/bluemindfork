@@ -42,9 +42,11 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.CalendarException;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.ComponentFactory;
+import net.fortuna.ical4j.model.Encodable;
 import net.fortuna.ical4j.model.Parameter;
 import net.fortuna.ical4j.model.ParameterFactory;
 import net.fortuna.ical4j.model.Property;
+import net.fortuna.ical4j.model.PropertyCodec;
 import net.fortuna.ical4j.model.PropertyFactory;
 import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.TimeZoneRegistry;
@@ -67,7 +69,6 @@ import net.fortuna.ical4j.model.property.DateProperty;
 import net.fortuna.ical4j.model.property.XProperty;
 import net.fortuna.ical4j.util.CompatibilityHints;
 import net.fortuna.ical4j.util.Constants;
-import net.fortuna.ical4j.util.Strings;
 
 public class CalendarBuilder {
 
@@ -199,7 +200,8 @@ public class CalendarBuilder {
 						.filter(pf -> pf.supports(name)).findFirst();
 				ParameterFactory<? extends Parameter> factory = parameterFactory
 						.orElse(new UnknownParameterFactory(name));
-				final Parameter param = factory.createParameter(Strings.escape(value));
+				Parameter param = factory.createParameter(value);
+
 				property.getParameters().add(param);
 				if (param instanceof TzId && tzRegistry != null && !(property instanceof XProperty)
 						&& !(property instanceof UnknownProperty)) {
@@ -217,7 +219,15 @@ public class CalendarBuilder {
 
 				assertProperty(property);
 				try {
-					property.setValue(value);
+					if (property instanceof Encodable) {
+						try {
+							property.setValue(PropertyCodec.INSTANCE.decode(value));
+						} catch (Exception e) {
+							property.setValue(value);
+						}
+					} else {
+						property.setValue(value);
+					}
 				} catch (Exception e) {
 					logger.warn("Error setValue for property {} to {} : {}", property.getName(), value, e.getMessage());
 				}
