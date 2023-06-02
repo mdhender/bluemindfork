@@ -99,6 +99,11 @@ public class KeycloakHelper {
 		String realm = domain.uid;
 		String clientId = IKeycloakUids.clientId(domain.uid);
 
+		try {
+			keycloakAdminService.deleteRealm(realm);
+		} catch (Throwable t) {
+		}
+
 		keycloakAdminService.createRealm(realm);
 
 		IKeycloakFlowAdmin keycloakFlowService = provider.instance(IKeycloakFlowAdmin.class, realm);
@@ -358,10 +363,6 @@ public class KeycloakHelper {
 					krbComp = krbProv.getKerberosProvider("global.virt-kerberos");
 				} catch (Throwable t) {
 				}
-			}
-			try {
-				provider.instance(IKeycloakAdmin.class).deleteRealm(domainUid);
-			} catch (Throwable t) {
 			}
 			initKeycloakForDomain(domain);
 			oc = kcCientService.getOidcClient(clientId);
