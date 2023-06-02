@@ -37,4 +37,11 @@
 			</modules>
 		</profile>
 	</profiles>
+	<dependencies>
+		<dependency>
+			<groupId>net.bluemind</groupId>
+			<artifactId>bm-js-client</artifactId>
+			<version>5.0.0-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
 </project>
