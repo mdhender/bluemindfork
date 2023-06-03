@@ -114,17 +114,17 @@ public class Sudo extends CompositeGwtWidgetElement implements IGwtWidgetElement
 				new AuthenticationGwtEndpoint(Ajax.TOKEN.getSessionId()).suWithParams(latd, true,
 						new DefaultAsyncHandler<LoginResponse>() {
 
-					@Override
-					public void success(LoginResponse value) {
-						GWT.log("sudo success: " + value.authKey);
-						try {
-							openApp(app, latd, value.authKey);
-						} catch (RequestException e) {
-							Notification.get().reportError(e);
-						}
+							@Override
+							public void success(LoginResponse value) {
+								GWT.log("sudo success: " + value.authKey);
+								try {
+									openApp(app, latd, value.authKey);
+								} catch (RequestException e) {
+									Notification.get().reportError(e);
+								}
 
-					}
-				});
+							}
+						});
 			}
 		});
 		return al;
@@ -132,7 +132,7 @@ public class Sudo extends CompositeGwtWidgetElement implements IGwtWidgetElement
 
 	private void openApp(final String app, final String latd, final String token) throws RequestException {
 		StringBuilder url = new StringBuilder();
-		url.append("/bluemind_sso_security");
+		url.append("/auth/sudo");
 		final String tgt = url.toString();
 		RequestBuilder rb = new RequestBuilder(RequestBuilder.POST, tgt);
 
@@ -147,14 +147,10 @@ public class Sudo extends CompositeGwtWidgetElement implements IGwtWidgetElement
 
 			@Override
 			public void onResponseReceived(Request request, Response response) {
-				String cookie = response.getHeader("BMSsoCookie");
-				if (cookie != null) {
-					StringBuilder sb = new StringBuilder(255);
-					sb.append('/').append(app).append('/');
-					sb.append("?BMHPS=").append(cookie);
-					String u = sb.toString();
-					Window.Location.replace(u);
-				}
+				StringBuilder sb = new StringBuilder(255);
+				sb.append('/').append(app).append('/');
+				String u = sb.toString();
+				Window.Location.replace(u);
 			}
 
 			@Override

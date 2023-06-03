@@ -23,6 +23,10 @@
                class="net.bluemind.webmodule.authenticationfilter.CasHandler"
                path="cas">
          </handler>
+         <handler
+               class="net.bluemind.webmodule.authenticationfilter.SudoHandler"
+               path="sudo">
+         </handler>
       </web-module>
    </extension>
    <extension
