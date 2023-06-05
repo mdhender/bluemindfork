@@ -25,10 +25,6 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Strings;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
@@ -42,8 +38,6 @@ import net.bluemind.mailbox.api.Mailbox;
 
 public class ConversationReferenceService implements IConversationReference {
 
-	private static final Logger logger = LoggerFactory.getLogger(ConversationReferenceService.class);
-
 	private final ConversationReferenceStore store;
 	private final long mailboxId;
 
@@ -55,6 +49,17 @@ public class ConversationReferenceService implements IConversationReference {
 
 	private ConversationReference create(Long messageIdHash) throws SQLException {
 		return store.create(ConversationReference.of(messageIdHash, messageIdHash, mailboxId));
+	}
+
+	private boolean isValidMessageId(String msgid) {
+		if (msgid == null) {
+			return false;
+		}
+		if (msgid.isBlank() || msgid.isEmpty()) {
+			return false;
+		}
+		// Don't consider invalid message_ids (<x@x.c> is the bare minimum)
+		return msgid.startsWith("<") && msgid.endsWith(">") && msgid.length() > 6;
 	}
 
 	/*
@@ -79,7 +84,7 @@ public class ConversationReferenceService implements IConversationReference {
 	@Override
 	public Long lookup(String messageId, Set<String> references) {
 		HashFunction hf = Hashing.sipHash24();
-		if (Strings.isNullOrEmpty(messageId)) {
+		if (!isValidMessageId(messageId)) {
 			// This should not happen, because postfix, in from of us should protect from
 			// that, but it's not protected when injecting random emails from IMAP.
 			messageId = "<" + UUID.randomUUID() + "@random-message-id.invalid>";
@@ -88,8 +93,8 @@ public class ConversationReferenceService implements IConversationReference {
 		long returnedConversationId;
 
 		// Limit to 32 elements to avoid DoS
-		List<Long> referencesHash = references.stream().map(s -> hf.hashBytes(s.getBytes()).asLong()).limit(32)
-				.collect(Collectors.toList());
+		List<Long> referencesHash = references.stream().filter(this::isValidMessageId)
+				.map(s -> hf.hashBytes(s.getBytes()).asLong()).limit(32).collect(Collectors.toList());
 		referencesHash.add(messageIdHash);
 		ConversationReference returnedConversationReference;
 		try {

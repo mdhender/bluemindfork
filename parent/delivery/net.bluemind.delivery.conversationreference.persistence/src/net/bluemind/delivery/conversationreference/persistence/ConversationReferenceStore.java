@@ -45,7 +45,7 @@ public class ConversationReferenceStore extends JdbcAbstractStore {
 			""", INSERT_PARAMS).getMessage();
 
 	private static final String GET_QUERY = "SELECT conversation_id FROM " + TABLE
-			+ " WHERE mailbox_id = ? AND message_id_hash = ANY(?) LIMIT 1;";
+			+ " WHERE mailbox_id = ? AND message_id_hash = ANY(?) LIMIT 1";
 
 	private static final String DELETE_ENTRIES_OLDER_THAN_ONE_YEAR = "DELETE FROM " + TABLE + " WHERE expires < NOW()";
 
