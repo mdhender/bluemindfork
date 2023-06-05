@@ -9,6 +9,7 @@
             :max-contacts="maxContacts"
             @update:contacts="updateSelection"
             @search="debounceSearch"
+            @keydown.escape.native="escape"
         />
         <contact-input
             class="mobile"
@@ -95,10 +96,17 @@ export default {
                 "update:addresses",
                 contacts.map(({ address }) => address)
             );
+        },
+        escape(event) {
+            if (this.autocompleteResults.length > 0) {
+                event.stopPropagation();
+                this.autocompleteResults = [];
+            }
         }
     }
 };
 </script>
+
 <style lang="scss">
 @import "@bluemind/ui-components/src/css/mixins/responsiveness";
 
