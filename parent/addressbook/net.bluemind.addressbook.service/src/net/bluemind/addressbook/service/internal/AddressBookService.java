@@ -35,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.VCard;
@@ -150,7 +149,6 @@ public class AddressBookService implements IInCoreAddressBook {
 		return version;
 	}
 
-	@SuppressWarnings("serial")
 	private ItemVersion doCreate(Item item, VCard card, byte[] photo) {
 
 		if (!isDomainAddressbook() && storeService.getItemCount() >= MAX_SIZE) {
@@ -158,9 +156,8 @@ public class AddressBookService implements IInCoreAddressBook {
 		}
 
 		// ext point sanitizer
-		extSanitizer.create(card, ImmutableMap.of(CONTAINER_UID_PARAM, container.uid));
-
-		extValidator.create(card, ImmutableMap.of(CONTAINER_UID_PARAM, container.uid));
+		extSanitizer.create(card, Map.of(CONTAINER_UID_PARAM, container.uid));
+		extValidator.create(card, Map.of(CONTAINER_UID_PARAM, container.uid));
 
 		item.displayName = getDisplayName(card);
 		ItemVersion version = storeService.create(item, card);
@@ -270,7 +267,6 @@ public class AddressBookService implements IInCoreAddressBook {
 	 * @return
 	 * @throws ServerFault
 	 */
-	@SuppressWarnings("serial")
 	private Updated doUpdate(Item item, VCard card, byte[] photo) {
 		ItemValue<VCard> previousItemValue = item.uid != null ? storeService.get(item.uid, null)
 				: storeService.get(item.id, null);
@@ -286,8 +282,8 @@ public class AddressBookService implements IInCoreAddressBook {
 		boolean displayNameEquals = Objects.equals(getDisplayName(card), getDisplayName(previousItemValue.value));
 		boolean directoryValueChanged = !displayNameEquals || !emailEquals;
 
-		extSanitizer.update(previousItemValue.value, card, ImmutableMap.of(CONTAINER_UID_PARAM, container.uid));
-		extValidator.update(previousItemValue.value, card, ImmutableMap.of(CONTAINER_UID_PARAM, container.uid));
+		extSanitizer.update(previousItemValue.value, card, Map.of(CONTAINER_UID_PARAM, container.uid));
+		extValidator.update(previousItemValue.value, card, Map.of(CONTAINER_UID_PARAM, container.uid));
 
 		ItemVersion upd = storeService.update(item, getDisplayName(card), card);
 		if (photo != null) {
@@ -378,7 +374,7 @@ public class AddressBookService implements IInCoreAddressBook {
 	public void delete(String uid) {
 		rbacManager.check(Verb.Write.name());
 		doDelete(uid);
-		refreshGroupsFor(ImmutableList.of(ItemValue.create(uid, null)));
+		refreshGroupsFor(List.of(ItemValue.create(uid, null)));
 		eventProducer.vcardDeleted(uid);
 		emitNotification();
 	}
