@@ -271,8 +271,7 @@ public class AddressBookService implements IInCoreAddressBook {
 		ItemValue<VCard> previousItemValue = item.uid != null ? storeService.get(item.uid, null)
 				: storeService.get(item.id, null);
 		if (previousItemValue == null || previousItemValue.value == null) {
-			logger.error("VCard uid: {} doesn't exist !", item.uid);
-			throw new ServerFault("VCard uid:" + item.uid + " doesn't exist !", ErrorCode.NOT_FOUND);
+			throw ServerFault.notFound("VCard uid:" + item.uid + " doesn't exist");
 		}
 		item.uid = previousItemValue.uid;
 
