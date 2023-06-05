@@ -47,7 +47,6 @@ node="8022"
 hps="8079"
 webserver="8080"
 eas="8082"
-locator="8084"
 core="2501 8090"
 tika="8087"
 influxdb="8086"
@@ -73,7 +72,6 @@ bmPorts="${r"${cyrus}"} \
 	 ${r"${hps}"} \
 	 ${r"${webserver}"} \
 	 ${r"${eas}"} \
-	 ${r"${locator}"} \
 	 ${r"${core}"} \
 	 ${r"${tika}"} \
 	 ${r"${influxdb}"} \
