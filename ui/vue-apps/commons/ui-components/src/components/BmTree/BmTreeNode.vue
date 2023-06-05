@@ -58,78 +58,49 @@ const maxIndentLevel = 5;
 
 export default {
     name: "BmTreeNode",
-    components: {
-        BmButtonExpand,
-        BmCollapse
-    },
-    directives: {
-        BmToggle
-    },
+    components: { BmButtonExpand, BmCollapse },
+    directives: { BmToggle },
     mixins: [MakeUniq],
     props: {
-        value: {
-            type: Object,
-            required: true
-        },
-        level: {
-            type: Number,
-            default: 0
-        },
-        selected: {
-            type: [String, Number],
-            required: true
-        },
-        idProperty: {
-            type: [String, Function],
-            required: false,
-            default: "key"
-        },
-        isExpandedProperty: {
-            type: [String, Function, Object],
-            required: false,
-            default: "expanded"
-        },
-        childrenProperty: {
-            type: [String, Function],
-            required: true
-        },
-        hasChildrenProperty: {
-            type: [String, Function, Object],
-            required: false,
-            default: undefined
-        }
+        value: { type: Object, required: true },
+        level: { type: Number, default: 0 },
+        selected: { type: [String, Number], required: true },
+        idProperty: { type: [String, Function], default: "key" },
+        isExpandedProperty: { type: [String, Function, Object], default: "expanded" },
+        childrenProperty: { type: [String, Function], required: true },
+        hasChildrenProperty: { type: [String, Function, Object, Number], default: undefined }
     },
     data() {
-        return {
-            isExpanded: iteratee(this.isExpandedProperty)(this.value)
-        };
+        return { isExpanded: undefined, id: undefined, children: undefined, hasChildren: undefined, unwatchers: {} };
     },
     computed: {
-        id() {
-            return iteratee(this.idProperty)(this.value);
-        },
         indentLevel() {
             return Math.min(this.level, maxIndentLevel);
-        },
-        hasChildren() {
-            if (this.hasChildrenProperty === undefined) {
-                return this.children && this.children.length > 0;
-            }
-            return iteratee(this.hasChildrenProperty)(this.value);
-        },
-        children() {
-            return iteratee(this.childrenProperty)(this.value);
         }
     },
-    watch: {
-        value: {
-            deep: true,
-            handler() {
-                this.isExpanded = iteratee(this.isExpandedProperty)(this.value);
+    created() {
+        this.addIterateeWatcher("isExpandedProperty", expanded => (this.isExpanded = expanded));
+        this.addIterateeWatcher("idProperty", identifier => (this.id = identifier));
+        this.addIterateeWatcher("childrenProperty", children => {
+            this.children = children;
+            if (this.hasChildrenProperty === undefined) {
+                this.hasChildren = !!children?.length;
             }
-        }
+        });
+        this.addIterateeWatcher("hasChildrenProperty", hasChildren => (this.hasChildren = hasChildren));
+    },
+    destroyed() {
+        Object.values(this.unwatchers).forEach(unwatch => unwatch());
     },
     methods: {
+        addIterateeWatcher(propName, fn) {
+            if (this[propName] != undefined) {
+                this.unwatchers[propName] && this.unwatchers[propName]();
+                this.unwatchers[propName] = this.$watch(() => iteratee(this[propName])(this.value), fn, {
+                    immediate: true
+                });
+            }
+        },
         toggle() {
             this.isExpanded = !this.isExpanded;
             if (this.isExpanded) {

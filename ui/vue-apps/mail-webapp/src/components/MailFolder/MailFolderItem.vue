@@ -133,13 +133,13 @@ export default {
             }
         },
         async createSubFolder() {
+            this.SET_FOLDER_EXPANDED({ key: this.folder.key, expanded: true });
             const key = UUIDGenerator.generate();
             const mailbox = this.mailboxes[this.folder.mailboxRef.key];
             this.ADD_FOLDER(create(key, "", this.folder, mailbox));
             await this.$nextTick();
             // FIXME: FEATWEBML-1386
             this.TOGGLE_EDIT_FOLDER(key);
-            this.SET_FOLDER_EXPANDED({ key, expanded: true });
         },
         onFolderHoldOver() {
             if (this.folder.writable && this.FOLDER_HAS_CHILDREN(this.folder)) {
