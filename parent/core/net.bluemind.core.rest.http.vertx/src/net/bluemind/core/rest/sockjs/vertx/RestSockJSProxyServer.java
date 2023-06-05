@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.net.impl.ConnectionBase;
 import io.vertx.ext.web.handler.sockjs.SockJSSocket;
 import net.bluemind.core.rest.base.IRestBusHandler;
 import net.bluemind.core.rest.base.IRestCallHandler;
@@ -28,8 +29,11 @@ public class RestSockJSProxyServer implements Handler<SockJSSocket> {
 				.objectValueMode();
 		RestSockJsProxyHandler client = new RestSockJsProxyHandler(vertx, sock, proxy, restbus);
 
-		sock.exceptionHandler((Throwable e) -> {
-			logger.error("error in sock {}: {}", sock, e.getMessage());
+		sock.exceptionHandler(t -> {
+			String message = t.getMessage();
+			if (!ConnectionBase.CLOSED_EXCEPTION.getMessage().equals(message)) {
+				logger.error("error in sock {}: {}", sock, message);
+			}
 			sock.close();
 		});
 		sock.endHandler(v -> handleSocketClosed(client));
