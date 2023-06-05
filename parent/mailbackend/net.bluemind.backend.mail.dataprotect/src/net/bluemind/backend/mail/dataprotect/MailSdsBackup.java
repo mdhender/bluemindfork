@@ -51,6 +51,7 @@ import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.ListResult;
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
@@ -231,7 +232,20 @@ public class MailSdsBackup {
 				generator.writeStringField("fullName", folder.value.fullName);
 				generator.writeStringField("name", folder.value.name);
 				generator.writeArrayFieldStart("messages");
-				generateSdsFolderContent(folder, generator, productionStore);
+				IDbMailboxRecords recordsApi = null;
+				try {
+					recordsApi = serviceProvider.instance(IDbMailboxRecords.class, folder.uid);
+				} catch (ServerFault sf) {
+					if (ErrorCode.NOT_FOUND.equals(sf.getCode())) {
+						logger.error("Unable to backup user {} folder {}: folder uid={} not found", userLogin,
+								folder.value.fullName, folder.uid);
+					} else {
+						throw sf;
+					}
+				}
+				if (recordsApi != null) {
+					generateSdsFolderContent(folder, generator, productionStore, recordsApi);
+				}
 				generator.writeEndArray();
 				generator.writeEndObject();
 			}
@@ -241,8 +255,7 @@ public class MailSdsBackup {
 	}
 
 	private void generateSdsFolderContent(ItemValue<MailboxFolder> folder, JsonGenerator generator,
-			ISdsSyncStore productionStore) {
-		IDbMailboxRecords recordsApi = serviceProvider.instance(IDbMailboxRecords.class, folder.uid);
+			ISdsSyncStore productionStore, IDbMailboxRecords recordsApi) {
 		Lists.partition(recordsApi.imapIdSet("1:*", ""), 1000).stream().map(recordsApi::slice)
 				.flatMap(Collection::stream).forEach(irecord -> {
 					String guid = irecord.value.messageBody;
