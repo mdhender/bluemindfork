@@ -10,7 +10,9 @@
         v-on="$listeners"
     >
         <template slot="button-content">
-            <bm-icon :icon="icon" />
+            <slot name="icon">
+                <bm-icon :icon="icon" />
+            </slot>
             <span class="caption">{{ caption }}</span>
         </template>
         <slot />
@@ -29,7 +31,7 @@ export default {
     props: {
         icon: {
             type: String,
-            required: true
+            default: null
         },
         caption: {
             type: String,

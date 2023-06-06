@@ -11,7 +11,9 @@
         v-on="$listeners"
     >
         <template slot="button-content">
-            <bm-icon v-if="icon" :icon="icon" />
+            <slot name="icon">
+                <bm-icon v-if="icon" :icon="icon" />
+            </slot>
             <slot name="button-content" />
             <span>{{ text }}</span>
         </template>

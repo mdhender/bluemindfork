@@ -13,7 +13,9 @@
         v-on="$listeners"
     >
         <template slot="button-content">
-            <bm-icon :icon="icon" />
+            <slot name="icon">
+                <bm-icon :icon="icon" />
+            </slot>
         </template>
         <slot />
     </b-dropdown>
@@ -45,7 +47,7 @@ export default {
         },
         icon: {
             type: String,
-            required: true
+            default: null
         },
         size: {
             type: String,
