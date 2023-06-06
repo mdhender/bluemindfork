@@ -1,12 +1,17 @@
-import { MailConversationClient, OutboxClient } from "@bluemind/backend.mail.api";
+import {
+    ItemsTransferClient,
+    MailboxItemsClient,
+    MailConversationActionsClient,
+    MailConversationClient,
+    OutboxClient
+} from "@bluemind/backend.mail.api";
 import injector, { inject } from "@bluemind/inject";
 import { MailTipClient } from "@bluemind/mailmessage.api";
-import { ItemsTransferClientProxy, MailConversationActionsClientProxy, MailboxItemsClientProxy } from "./apiProxies";
 
 export default function () {
     injector.register({
         provide: "MailboxItemsPersistence",
-        factory: uid => new MailboxItemsClientProxy(inject("UserSession").sid, uid)
+        factory: uid => new MailboxItemsClient(inject("UserSession").sid, uid)
     });
 
     injector.register({
@@ -21,7 +26,7 @@ export default function () {
         provide: "ItemsTransferPersistence",
         factory: (sourceUid, destinationUid) => {
             const userSession = inject("UserSession");
-            return new ItemsTransferClientProxy(userSession.sid, sourceUid, destinationUid);
+            return new ItemsTransferClient(userSession.sid, sourceUid, destinationUid);
         }
     });
 
@@ -30,7 +35,7 @@ export default function () {
         factory: (mailboxUid, folderUid) => {
             const userSession = inject("UserSession");
             const conversationContainerId = "subtree_" + userSession.domain.replaceAll(".", "_") + "!" + mailboxUid;
-            return new MailConversationActionsClientProxy(userSession.sid, conversationContainerId, folderUid);
+            return new MailConversationActionsClient(userSession.sid, conversationContainerId, folderUid);
         }
     });
 

@@ -19,6 +19,7 @@ import {
     ContainerSyncClient,
     OwnerSubscriptionsClient
 } from "@bluemind/core.container.api";
+import { MailboxFoldersClient } from "@bluemind/backend.mail.api";
 import { TaskClient } from "@bluemind/core.task.api";
 import { DirectoryClient } from "@bluemind/directory.api";
 import { FirstDayOfWeek } from "@bluemind/i18n";
@@ -27,13 +28,14 @@ import { TagsClient } from "@bluemind/tag.api";
 import { TodoListClient, TodoListsClient, VTodoClient } from "@bluemind/todolist.api";
 import {
     UserClient,
+    UserExternalAccountClient,
     UserMailIdentitiesClient,
-    UserSubscriptionClient,
-    UserExternalAccountClient
+    UserSettingsClient,
+    UserSubscriptionClient
 } from "@bluemind/user.api";
 import { ExternalSystemClient } from "@bluemind/system.api";
 import VueBus from "@bluemind/vue-bus";
-import { MailboxesClientProxy, MailboxFoldersClientProxy, UserSettingsClientProxy } from "./apiProxies";
+import { MailboxesClient } from "@bluemind/mailbox.api";
 
 export default function (userSession) {
     injector.register({ provide: "UserSession", use: userSession });
@@ -119,7 +121,7 @@ export default function (userSession) {
 
     injector.register({
         provide: "MailboxesPersistence",
-        factory: () => new MailboxesClientProxy(userSession.sid, userSession.domain)
+        factory: () => new MailboxesClient(userSession.sid, userSession.domain)
     });
 
     injector.register({
@@ -145,7 +147,7 @@ export default function (userSession) {
     injector.register({
         provide: "MailboxFoldersPersistence",
         factory: mailboxUid => {
-            return new MailboxFoldersClientProxy(userSession.sid, userSession.domain.replaceAll(".", "_"), mailboxUid);
+            return new MailboxFoldersClient(userSession.sid, userSession.domain.replaceAll(".", "_"), mailboxUid);
         }
     });
 
@@ -186,7 +188,7 @@ export default function (userSession) {
 
     injector.register({
         provide: "UserSettingsPersistence",
-        factory: () => new UserSettingsClientProxy(userSession.sid, userSession.domain)
+        factory: () => new UserSettingsClient(userSession.sid, userSession.domain)
     });
 
     injector.register({
