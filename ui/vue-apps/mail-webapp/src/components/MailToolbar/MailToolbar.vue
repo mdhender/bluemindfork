@@ -1,5 +1,5 @@
 <template>
-    <bm-button-toolbar key-nav class="mail-toolbar flex-nowrap h-100">
+    <bm-button-toolbar v-if="displayed" key-nav class="mail-toolbar flex-nowrap h-100">
         <mail-toolbar-compose-message
             v-if="MESSAGE_IS_LOADED(ACTIVE_MESSAGE) && ACTIVE_MESSAGE.composing"
             :message="ACTIVE_MESSAGE"
@@ -56,6 +56,13 @@ export default {
                 return this.CONVERSATION_IS_LOADED(this.CURRENT_CONVERSATION_METADATA);
             }
             return false;
+        },
+        displayed() {
+            return (
+                (this.MESSAGE_IS_LOADED(this.ACTIVE_MESSAGE) && this.ACTIVE_MESSAGE.composing) ||
+                this.currentConversationIsLoaded ||
+                this.SEVERAL_CONVERSATIONS_SELECTED
+            );
         }
     }
 };
