@@ -5,6 +5,7 @@
         :fixed-width="fixedWidth"
         class="bm-icon"
         :class="[variantClass, `fa-${size}`]"
+        :style="customStyle"
         :rotation="rotation"
         :flip="flip"
         :transform="transform"
@@ -24,6 +25,7 @@
             :fixed-width="stackedIcon.fixedWidth"
             class="bm-icon"
             :class="[stackedIcon.class || variantClass, `fa-${stackedIcon.size || size}`]"
+            :style="stackedIcon.customStyle || customStyle"
             :rotation="stackedIcon.rotation || rotation"
             :flip="stackedIcon.flip || flip"
             :transform="stackedIcon.transform || transform"
@@ -49,6 +51,7 @@ export default {
         fixedWidth: { type: Boolean, default: false },
         flip: { type: String, default: undefined },
         icon: { type: [Object, Array, String], default: undefined },
+        customStyle: { type: [Object, Array, String], default: undefined },
         rotation: { type: String, default: undefined },
         size: {
             type: String,

@@ -40,6 +40,8 @@ export { default as BmDropzone } from "./components/BmDropzone";
 export { default as BmFileDropZone } from "./components/BmFileDropZone";
 export { default as BmFileIcon } from "./components/BmFileIcon";
 export { default as BmFloatingActionButton } from "./components/buttons/BmFloatingActionButton";
+export { default as BmFontColorIcon } from "./components/BmFontColorIcon";
+export { default as BmFontHighlightIcon } from "./components/BmFontHighlightIcon";
 export { default as BmForm } from "./components/form/BmForm";
 export { default as BmFormAutocompleteInput } from "./components/form/BmFormAutocompleteInput";
 export { default as BmFormCheckbox } from "./components/form/BmFormCheckbox";

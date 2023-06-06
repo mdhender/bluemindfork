@@ -4,14 +4,15 @@
         class="background-color-button"
         variant="compact"
         size="lg"
-        icon="text-highlight"
-        :style="iconStyle"
         :disabled="disabled"
         split
         :title="$t('styleguide.rich_editor.text_highlight.tooltip')"
         @click="setBackgroundColor"
     >
         <bm-form-color-picker v-model="pickerColor" :colors="backgroundColors" @input="setBackgroundColor" />
+        <template #icon>
+            <bm-font-highlight-icon :color="disabled ? undefined : selectedBackgroundColor" />
+        </template>
     </bm-icon-dropdown>
 </template>
 
@@ -21,6 +22,7 @@ import { getDarkColor } from "roosterjs-color-utils";
 import darkifyingBaseLvalue from "../../../js/theming/darkifyingBaseLvalue";
 
 import BmIconDropdown from "../../dropdown/BmIconDropdown";
+import BmFontHighlightIcon from "../../BmFontHighlightIcon";
 import BmFormColorPicker from "../../form/BmFormColorPicker";
 import colors from "../../../css/exports/picker.scss";
 
@@ -28,7 +30,7 @@ const defaultColors = Object.values(colors);
 
 export default {
     name: "BackgroundColorButton",
-    components: { BmIconDropdown, BmFormColorPicker },
+    components: { BmIconDropdown, BmFontHighlightIcon, BmFormColorPicker },
     props: {
         disabled: {
             type: Boolean,
@@ -42,17 +44,9 @@ export default {
     data() {
         return {
             backgroundColors: ["transparent", ...defaultColors],
-            selectedBackgroundColor: colors["yellow-light"],
+            selectedBackgroundColor: colors["yellow"],
             pickerColor: null
         };
-    },
-    computed: {
-        iconStyle() {
-            if (this.disabled) {
-                return {};
-            }
-            return { color: this.selectedBackgroundColor, stroke: "black", "stroke-width": "0.1px" };
-        }
     },
     mounted() {
         this.pickerColor = this.selectedBackgroundColor;
@@ -70,17 +64,3 @@ export default {
     }
 };
 </script>
-<style lang="scss">
-@import "../../../css/_variables.scss";
-.background-color-button {
-    .bm-form-color-picker .btn-toolbar {
-        stroke: initial;
-    }
-    .btn:not(.dropdown-toggle-split) {
-        color: inherit !important;
-        &.disabled {
-            color: $neutral-fg-disabled !important;
-        }
-    }
-}
-</style>
