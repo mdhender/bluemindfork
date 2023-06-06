@@ -22,7 +22,7 @@ import { mapActions, mapGetters } from "vuex";
 import linkifyHtml from "linkifyjs/html";
 import { MimeType, InlineImageHelper } from "@bluemind/email";
 import { sanitizeHtml, blockRemoteImages } from "@bluemind/html-utils";
-import { BmIconButton, darkifyHtml, darkifyingBaseLvalue } from "@bluemind/ui-components";
+import { BmIconButton } from "@bluemind/ui-components";
 import { messageUtils, partUtils } from "@bluemind/mail";
 import brokenImageIcon from "~/../assets/brokenImageIcon.png";
 import { FETCH_PART_DATA } from "~/actions";
@@ -41,14 +41,12 @@ export default {
     components: { BmIconButton, MailViewerContentLoading, InlineStyle },
     mixins: [FileViewerMixin],
     props: {
-        collapse: { type: Boolean, default: true },
-        noDarkify: { type: Boolean, default: false }
+        collapse: { type: Boolean, default: true }
     },
     data() {
         return { collapse_: this.collapse && !isForward(this.message), collapsedDOM: undefined };
     },
     computed: {
-        ...mapGetters("settings", ["IS_COMPUTED_THEME_DARK"]),
         ...mapGetters("mail", [CONVERSATION_MESSAGE_BY_KEY]),
 
         blockImages() {
@@ -61,11 +59,7 @@ export default {
             return new DOMParser().parseFromString(this.content, "text/html");
         },
         contentAsNode() {
-            const node = this.isCollapseActive ? this.collapsedDOM : this.parsedDOM;
-            if (!this.noDarkify && this.IS_COMPUTED_THEME_DARK) {
-                darkifyHtml(node.body, darkifyingBaseLvalue());
-            }
-            return node;
+            return this.isCollapseActive ? this.collapsedDOM : this.parsedDOM;
         },
         htmlWithImages() {
             const images = getPartsFromCapabilities(this.message, VIEWER_CAPABILITIES).filter(
@@ -131,6 +125,7 @@ export default {
     },
     methods: {
         ...mapActions("mail", { FETCH_PART_DATA }),
+
         async computeQuoteNodes(conversationMessages, htmlDoc) {
             if (messageUtils.isReply(this.message)) {
                 const messageParts = this.$store.state.mail.partsData.partsByMessageKey[this.message.key];

@@ -70,6 +70,14 @@ export default {
 
             // Some DevMode feature doesn't work without this...
             doc.addEventListener("click", () => this.$el.click());
+
+            const FORWARDED_EVENTS = {
+                copy: event => Object.assign(event, { selection: this.$el.contentWindow.getSelection() })
+            };
+
+            for (const [eventName, mapEvent] of Object.entries(FORWARDED_EVENTS)) {
+                doc.addEventListener(eventName, event => this.$emit(eventName, mapEvent(event)));
+            }
         }
     },
     render(h) {

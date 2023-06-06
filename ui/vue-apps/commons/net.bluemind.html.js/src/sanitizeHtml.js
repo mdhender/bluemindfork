@@ -33,7 +33,7 @@ const ADDITIONAL_ALLOWED_ATTRIBUTES_FOR_ANY_TAG = [
     "data-bm-forward-separator",
     "data-bm-reply-separator",
     "data-bm-signature",
-    "data-bm-darkified"
+    "data-bm-color-variables"
 ];
 const WINDOWS_FILEPATH_PROTOCOL = "[a-z]";
 const ALLOWED_LINK_PROTOCOLS = ["http", "https", "mailto", "tel", "sip", "file", WINDOWS_FILEPATH_PROTOCOL];

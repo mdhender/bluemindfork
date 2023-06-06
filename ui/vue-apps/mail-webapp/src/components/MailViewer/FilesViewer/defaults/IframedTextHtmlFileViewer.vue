@@ -1,33 +1,84 @@
-<template>
-    <text-html-file-viewer v-slot="content" v-bind="$props">
-        <i-frame class="border-0">
-            <template v-slot:head>
-                <base target="_blank" />
-                <link type="text/css" rel="stylesheet" href="css/montserrat/index.css" />
-            </template>
-            <template v-slot:style>
-                {{ content.styles }}
-                {{ IFRAME_STYLE }}
-            </template>
-            <!-- eslint-disable-next-line vue/no-v-html -->
-            <main v-html="content.html"></main>
-        </i-frame>
-    </text-html-file-viewer>
-</template>
-
 <script>
+import { mapGetters } from "vuex";
+import { html2text } from "@bluemind/html-utils";
+import { darkifyHtml, darkifyingBaseLvalue, getDarkifiedCss, undarkifyHtml } from "@bluemind/ui-components";
 import IFrame from "../../../IFrame";
 import FileViewerMixin from "../FileViewerMixin";
 import TextHtmlFileViewer from "./../TextHtmlFileViewer";
 
 export default {
     name: "IframedTextHtmlFileViewer",
-    components: { TextHtmlFileViewer, IFrame },
     mixins: [FileViewerMixin],
     $capabilities: ["text/html"],
     props: { collapse: { type: Boolean, default: true } },
     data() {
         return { IFRAME_STYLE };
+    },
+    computed: {
+        ...mapGetters("settings", ["IS_COMPUTED_THEME_DARK"])
+    },
+    methods: {
+        getDarkified({ htmlStr, cssStr }) {
+            const customProperties = new Map();
+            const htmlDoc = new DOMParser().parseFromString(htmlStr, "text/html");
+            darkifyHtml(htmlDoc, darkifyingBaseLvalue(), customProperties);
+            htmlStr = htmlDoc.documentElement.querySelector("body").innerHTML;
+            cssStr = getDarkifiedCss(cssStr, darkifyingBaseLvalue(), customProperties);
+            cssStr += "\nbody {\n";
+            for (const [key, value] of customProperties) {
+                cssStr += `    ${key}: ${value};\n`;
+            }
+            cssStr += "}\n";
+            return { htmlStr, cssStr };
+        },
+        undarkifyContent(event) {
+            const contentAsFragment = event.selection.getRangeAt(0).cloneContents();
+            undarkifyHtml(contentAsFragment);
+            const div = document.createElement("div");
+            div.appendChild(contentAsFragment.cloneNode(true));
+            event.clipboardData.setData("text/html", div.innerHTML);
+            event.clipboardData.setData("text/plain", html2text(div.innerHTML));
+        },
+        renderIFrame(h, { htmlStr, cssStr }) {
+            return h(
+                IFrame,
+                {
+                    staticClass: "border-0",
+                    on: {
+                        copy: event => {
+                            this.undarkifyContent(event);
+                            event.preventDefault();
+                        }
+                    }
+                },
+                [
+                    h("template", { slot: "head" }, [
+                        h("base", { attrs: { target: "_blank" } }),
+                        h("link", {
+                            attrs: { type: "text/css", rel: "stylesheet", href: "css/montserrat/index.css" }
+                        })
+                    ]),
+                    h("template", { slot: "style" }, cssStr),
+                    h("main", { domProps: { innerHTML: htmlStr } })
+                ]
+            );
+        },
+        renderTextHtmlFileViewerSlot(h, { html, styles }) {
+            let content = { htmlStr: html, cssStr: styles };
+            if (this.IS_COMPUTED_THEME_DARK) {
+                content = this.getDarkified(content);
+            }
+            content.cssStr += IFRAME_STYLE;
+            return this.renderIFrame(h, content);
+        }
+    },
+    render(h) {
+        return h(TextHtmlFileViewer, {
+            props: this.$props,
+            scopedSlots: {
+                default: props => this.renderTextHtmlFileViewerSlot(h, props)
+            }
+        });
     }
 };
 const IFRAME_STYLE = `

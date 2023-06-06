@@ -6,7 +6,7 @@
                 <files-block v-bind="scope" :expanded="true" />
             </template>
             <template v-slot:text-html="scope">
-                <text-html-file-viewer v-bind="scope" :collapse="false" no-darkify />
+                <text-html-file-viewer v-bind="scope" :collapse="false" />
             </template>
         </mail-viewer-content>
     </main>

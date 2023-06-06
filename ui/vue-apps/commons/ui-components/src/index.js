@@ -109,6 +109,7 @@ export { default as BmTreeNode } from "./components/BmTree/BmTreeNode";
 export { default as BrowsableContainer } from "./mixins/BrowsableContainer";
 export { default as MakeUniq } from "./mixins/MakeUniq";
 export { default as OverflownElements } from "./directives/OverflownElements";
+export { CUSTOM_PROPERTIES_NODE_ATTR } from "./js/theming/colorProcessing";
 export { default as darkifyingBaseLvalue } from "./js/theming/darkifyingBaseLvalue";
 export * from "./js/theming/darkify";
 
