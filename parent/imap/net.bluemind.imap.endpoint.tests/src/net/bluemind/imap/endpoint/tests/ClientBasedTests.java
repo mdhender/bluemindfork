@@ -214,9 +214,58 @@ public class ClientBasedTests {
 	}
 
 	@Test
+	public void testLogin01() throws IOException {
+		try (SocketClient sockc = new SocketClient()) {
+			sockc.write("A0 LOGIN tom@f8de2c4a.internal tom\r\n");
+			sockc.waitFor("User logged");
+		}
+	}
+
+	@Test
+	public void testLogin02() throws IOException {
+		try (SocketClient sockc = new SocketClient()) {
+			sockc.write("A0 LOGIN \"tom@f8de2c4a.internal\" tom\r\n");
+			sockc.waitFor("User logged");
+		}
+	}
+
+	@Test
+	public void testLogin03() throws IOException {
+		try (SocketClient sockc = new SocketClient()) {
+			sockc.write("A0 LOGIN \"tom@f8de2c4a.internal\" \"tom\"\r\n");
+			sockc.waitFor("User logged");
+		}
+	}
+
+	@Test
+	public void testLogin04() throws IOException {
+		try (SocketClient sockc = new SocketClient()) {
+			sockc.write("A0 LOGIN \"tom@f8de2c4a.internal\" \"tom\"\r\n");
+			sockc.waitFor("User logged");
+		}
+	}
+
+	@Test
+	public void testLogin05() throws IOException {
+		try (SocketClient sockc = new SocketClient()) {
+			sockc.write("A0 LOGIN \"tom@f8de2c4a.internal\" \"to\"m\"\r\n");
+			sockc.waitFor("User logged");
+		}
+	}
+
+	@Test
 	public void testLiteralStyleLogin() throws IOException {
 		try (SocketClient sockc = new SocketClient()) {
 			sockc.write("A0 LOGIN {21}\r\ntom@f8de2c4a.internal {3}\r\ntom\r\n");
+			sockc.waitFor("+ OK");
+			sockc.waitFor("User logged");
+		}
+	}
+
+	@Test
+	public void testLiteralStyleLogin01() throws IOException {
+		try (SocketClient sockc = new SocketClient()) {
+			sockc.write("A0 LOGIN {21}\r\n\"tom@f8de2c4a.internal\" {3}\r\n\"tom\"\r\n");
 			sockc.waitFor("+ OK");
 			sockc.waitFor("User logged");
 		}
