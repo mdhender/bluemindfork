@@ -1,6 +1,6 @@
 <template>
     <div class="mail-search-box d-flex" role="search" :class="{ active }">
-        <global-events v-if="focusIn" @keydown.escape="shrinkBox" @click="shrinkBox" />
+        <global-events v-if="focusIn" @click="shrinkBox" @keydown.enter="shrinkBox" @keydown.escape="blur" />
         <div
             ref="search-box-lg"
             class="d-none d-lg-flex flex-fill"
@@ -131,12 +131,15 @@ export default {
                 name: "v:mail:home"
             });
         },
+        blur() {
+            this.focusIn = false;
+            this.$refs.search.blur();
+        },
         shrinkBox(event) {
             const modal = document.getElementById("advanced-search-modal")?.getElementsByClassName("modal-content")[0];
             const path = event.path || event.composedPath();
             if (!path.some(element => modal === element || this.$el === element)) {
-                this.focusIn = false;
-                this.$refs.search.blur();
+                this.blur();
             }
         },
         searchIfValid() {
