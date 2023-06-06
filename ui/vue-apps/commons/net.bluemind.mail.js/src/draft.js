@@ -1,7 +1,7 @@
 import escape from "lodash.escape";
 import { EmailExtractor, Flag, MimeType } from "@bluemind/email";
+import i18n from "@bluemind/i18n";
 import { createDocumentFragment } from "@bluemind/html-utils";
-import { inject } from "@bluemind/inject";
 
 import { LoadingStatus } from "./loading-status";
 import {
@@ -258,7 +258,7 @@ function extractRecipientsFromHeader(header, isReplyAll) {
 export function computeSubject(creationMode, previousMessage) {
     const subjectPrefix = creationMode === MessageCreationModes.FORWARD ? "Fw: " : "Re: ";
     if (!previousMessage.subject) {
-        return `${subjectPrefix} ${inject("i18n").t("mail.viewer.no.subject")}`;
+        return `${subjectPrefix} ${i18n.t("mail.viewer.no.subject")}`;
     }
     // avoid subject prefix repetitions (like "Re: Re: Re: Re: My Subject")
     if (subjectPrefix !== previousMessage.subject.substring(0, subjectPrefix.length)) {
