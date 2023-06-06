@@ -31,7 +31,7 @@ export default async function extractAttachment({ commit, dispatch }, { file, me
             alernativePart
         );
         const updatedMessage = MessageAdaptor.toMailboxItem(message, structureWithReplacedPart);
-        updatedMessage.body.headers = [{ name: MessageHeader.X_BM_REWRITE, values: [Date.now()] }];
+        updatedMessage.body.headers.push({ name: MessageHeader.X_BM_REWRITE, values: [Date.now()] });
         await service.updateById(message.remoteRef.internalId, updatedMessage);
 
         const oldAddress = file.address;

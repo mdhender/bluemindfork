@@ -1,6 +1,13 @@
-import { ImapItemIdentifier, MailboxItem, MailboxItemsClient } from "@bluemind/backend.mail.api";
+import { ImapItemIdentifier, MailboxItem, MailboxItemsClient, MessageBody } from "@bluemind/backend.mail.api";
 import { Ack, ItemValue } from "@bluemind/core.container.api";
-import { hasToBeEncrypted, hasToBeSigned, isEncrypted, removeSignatureFromStructure } from "../lib/helper";
+import {
+    hasEncryptionHeader,
+    hasSignatureHeader,
+    hasToBeEncrypted,
+    hasToBeSigned,
+    isEncrypted,
+    removeSignatureFromStructure
+} from "../lib/helper";
 import decryptAndVerify from "./smime/decryptAndVerify";
 import { getCacheKey, getGuid } from "./smime/cache/SMimePartCache";
 import decrypt from "./smime/decrypt";
@@ -40,6 +47,9 @@ export default class SMimeApiProxy extends MailboxItemsClient {
         return this.next!(item);
     }
     async updateById(id: number, item: MailboxItem): Promise<Ack> {
+        if (cantRewriteMessage(item.body.headers || [])) {
+            throw "signed or encrypted message can't be rewritten";
+        }
         if (item.body.headers && hasToBeSigned(item.body.headers)) {
             item = await sign(item, this.replicatedMailboxUid);
         }
@@ -66,4 +76,10 @@ export default class SMimeApiProxy extends MailboxItemsClient {
         }
         return this.next!(imapUid, address, encoding, mime, charset, filename);
     }
+}
+
+function cantRewriteMessage(headers: MessageBody.Header[]) {
+    return (
+        !!headers.find(h => h.name === "X-BM-Rewrite") && (hasEncryptionHeader(headers) || hasSignatureHeader(headers))
+    );
 }
