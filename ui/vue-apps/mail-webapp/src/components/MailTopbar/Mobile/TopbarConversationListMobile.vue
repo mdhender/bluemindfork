@@ -92,6 +92,9 @@ export default {
         .toolbar {
             gap: $sp-4;
         }
+        .bm-avatar {
+            font-weight: $font-weight-normal;
+        }
         .bm-dropdown {
             max-width: 65%;
             .dropdown-toggle {
