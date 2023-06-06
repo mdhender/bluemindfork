@@ -37,8 +37,7 @@ export default {
     watch: {
         folders: {
             handler: function (value, oldValue) {
-                this.showMoreResultsButton =
-                    value.length % DEFAULT_LIMIT === 0 || (oldValue && oldValue.length !== value.length);
+                this.showMoreResultsButton = oldValue?.length !== value.length && value.length % DEFAULT_LIMIT === 0;
             },
             immediate: true
         }

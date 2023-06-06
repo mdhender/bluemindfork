@@ -16,7 +16,12 @@
 <script>
 import debounce from "lodash.debounce";
 import { BmFormInput } from "@bluemind/ui-components";
-import { SET_FOLDER_FILTER_LOADED, SET_FOLDER_FILTER_LOADING, SET_FOLDER_FILTER_PATTERN } from "~/mutations";
+import {
+    RESET_FOLDER_FILTER_LIMITS,
+    SET_FOLDER_FILTER_LOADED,
+    SET_FOLDER_FILTER_LOADING,
+    SET_FOLDER_FILTER_PATTERN
+} from "~/mutations";
 import { mapMutations, mapState } from "vuex";
 
 const SEARCH_DELAY = 500;
@@ -29,6 +34,7 @@ export default {
             folderSearchPattern_: "",
             debouncedSetPattern: debounce(() => {
                 this.SET_FOLDER_FILTER_PATTERN(this.folderSearchPattern_);
+                this.RESET_FOLDER_FILTER_LIMITS();
                 this.SET_FOLDER_FILTER_LOADED();
             }, SEARCH_DELAY)
         };
@@ -46,13 +52,19 @@ export default {
                     this.debouncedSetPattern();
                 } else {
                     this.SET_FOLDER_FILTER_PATTERN(null); // TODO handle reset here or in store, modify FilteredLitEmpty accordingly
+                    this.RESET_FOLDER_FILTER_LIMITS();
                     this.SET_FOLDER_FILTER_LOADED();
                 }
             }
         }
     },
     methods: {
-        ...mapMutations("mail", { SET_FOLDER_FILTER_LOADED, SET_FOLDER_FILTER_LOADING, SET_FOLDER_FILTER_PATTERN })
+        ...mapMutations("mail", {
+            RESET_FOLDER_FILTER_LIMITS,
+            SET_FOLDER_FILTER_LOADED,
+            SET_FOLDER_FILTER_LOADING,
+            SET_FOLDER_FILTER_PATTERN
+        })
     }
 };
 </script>
