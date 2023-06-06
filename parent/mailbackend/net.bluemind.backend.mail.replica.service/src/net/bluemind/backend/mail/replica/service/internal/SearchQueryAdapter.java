@@ -35,6 +35,10 @@ import net.bluemind.user.api.IUser;
 
 public class SearchQueryAdapter {
 
+	private SearchQueryAdapter() {
+
+	}
+
 	public static MailIndexQuery adapt(String domainUid, String dirEntryUid, MailboxFolderSearchQuery query) {
 		if (!isRecursive(query)) {
 			return MailIndexQuery.simpleQuery(query);
@@ -50,12 +54,16 @@ public class SearchQueryAdapter {
 				mboxRoot = "user." + provider.instance(IUser.class, domainUid).getComplete(dirEntryUid).value.login
 						.replace('.', '^');
 			}
+			List<String> folders = new ArrayList<>();
 			IMailboxFolders service = provider.instance(IMailboxFolders.class, partition, mboxRoot);
-			FolderTree fullTree = FolderTree.of(service.all());
-			List<String> folders = new ArrayList<>(
-					fullTree.children(service.getComplete(query.query.scope.folderScope.folderUid)).stream()
-							.map(f -> f.uid).toList());
-			folders.add(query.query.scope.folderScope.folderUid);
+			if (query.query.scope.folderScope != null && query.query.scope.folderScope.folderUid != null) {
+				FolderTree fullTree = FolderTree.of(service.all());
+				folders.add(query.query.scope.folderScope.folderUid);
+				folders.addAll(fullTree.children(service.getComplete(query.query.scope.folderScope.folderUid)).stream()
+						.map(f -> f.uid).toList());
+			} else {
+				folders.addAll(service.all().stream().map(f -> f.uid).toList());
+			}
 			return MailIndexQuery.folderQuery(query, folders);
 		}
 
