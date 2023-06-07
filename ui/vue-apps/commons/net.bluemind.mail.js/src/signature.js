@@ -79,6 +79,7 @@ function isSignatureLineEmpty(node) {
     return (
         !node ||
         (!(RENDERLESS ? node.textContent : node.innerText)?.trim() &&
+            node.nodeType !== Node.TEXT_NODE &&
             (node.nodeType !== Node.ELEMENT_NODE ||
                 (!node.querySelector("img[src]:not([src=''])") &&
                     !node.style.getPropertyValue("background-image") &&
