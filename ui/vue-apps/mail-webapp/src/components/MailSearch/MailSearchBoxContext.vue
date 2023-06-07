@@ -82,7 +82,7 @@ export default {
             this.$emit("update");
         },
         getIcon(option) {
-            return option === OPTIONS.ALL ? "folders" : folderIcon(this.folder.imapName, this.CURRENT_MAILBOX?.type);
+            return option === OPTIONS.ALL ? "folders" : folderIcon(this.folder.path, this.CURRENT_MAILBOX?.type);
         }
     }
 };

@@ -75,7 +75,7 @@ export default {
             return this.folders[this.activeFolder];
         },
         folderIcon() {
-            return folderIcon(this.currentFolder.imapName, this.CURRENT_MAILBOX.type);
+            return folderIcon(this.currentFolder.path, this.CURRENT_MAILBOX.type);
         }
     }
 };

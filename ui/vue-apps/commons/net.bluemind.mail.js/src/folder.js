@@ -53,28 +53,32 @@ export const DEFAULT_FOLDERS_WITH_ROOT = {
     ROOT: null
 };
 
-export function folderIcon(imapName, mailboxType) {
-    const modifier = MailboxType.isShared(mailboxType) ? "-shared" : "";
-    switch (imapName) {
+export function folderIcon(path, mailboxType) {
+    const isShared = MailboxType.isShared(mailboxType);
+    switch (isShared ? path.substring(path.indexOf("/") + 1) : path) {
         case DEFAULT_FOLDERS_WITH_ROOT.INBOX:
             return "inbox";
         case DEFAULT_FOLDERS_WITH_ROOT.DRAFTS:
-            return "pencil" + modifier;
+            return "pencil" + iconSuffix(isShared);
         case DEFAULT_FOLDERS_WITH_ROOT.TRASH:
-            return "trash" + modifier;
+            return "trash" + iconSuffix(isShared);
         case DEFAULT_FOLDERS_WITH_ROOT.JUNK:
             return "forbidden";
         case DEFAULT_FOLDERS_WITH_ROOT.OUTBOX:
             return "clock";
         case DEFAULT_FOLDERS_WITH_ROOT.SENT:
-            return "paper-plane" + modifier;
+            return "paper-plane" + iconSuffix(isShared);
         case DEFAULT_FOLDERS_WITH_ROOT.TEMPLATES:
             return "documents";
         case DEFAULT_FOLDERS_WITH_ROOT.ROOT:
             return "user";
         default:
-            return "folder" + modifier;
+            return "folder" + iconSuffix(isShared);
     }
+}
+
+function iconSuffix(isShared) {
+    return isShared ? "-shared" : "";
 }
 
 const DEFAULT_FOLDER_AS_ARRAY = Object.values(DEFAULT_FOLDERS);

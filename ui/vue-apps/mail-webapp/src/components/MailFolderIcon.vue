@@ -48,8 +48,11 @@ export default {
         }
     },
     computed: {
+        mailbox() {
+            return this.$store.state.mail.mailboxes[this.folder.mailboxRef.key];
+        },
         icon() {
-            return folderIcon(this.folder.imapName, this.mailbox?.type);
+            return folderIcon(this.folder.path, this.mailbox?.type);
         },
         ariaLabel() {
             switch (this.mailbox?.type) {
