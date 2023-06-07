@@ -7,6 +7,7 @@ import {
     computeCcRecipients,
     computeToRecipients,
     computeSubject,
+    createReplyOrForward,
     findIdentityFromMailbox,
     quotePreviousMessage,
     computeIdentityForReplyOrForward
@@ -35,6 +36,10 @@ const previousMessage = {
         folderRef: { uid: "my-uid" }
     }
 };
+
+jest.mock("@bluemind/inject", () => {
+    return { inject: () => ({ t: () => ({}) }) };
+});
 
 describe("Compute subject", () => {
     const message = { subject: "TrucTruc" };
@@ -222,6 +227,50 @@ describe("compute To and Cc recipients when replying", () => {
         previousMessage.to.push(currentIdentity);
         const cc = computeCcRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentIdentity);
         expect(cc.findIndex(recipient => recipient.address === currentIdentity.email)).toBe(-1);
+    });
+
+    test("Remove duplicates from TO recipients", () => {
+        previousMessage.to = [
+            { dn: "Toto A", address: "toto@bm.net" },
+            { dn: "Toto B", address: "toto@bm.net" },
+            { dn: "Toto C", address: "toto@bm.net" }
+        ];
+        const to = computeToRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentIdentity);
+        expect(to).toEqual([previousMessageFrom, { dn: "Toto A", address: "toto@bm.net" }]);
+    });
+
+    test("Remove duplicates from CC recipients", () => {
+        previousMessage.cc = [
+            { dn: "Toto A", address: "toto@bm.net" },
+            { dn: "Toto B", address: "toto@bm.net" },
+            { dn: "Toto C", address: "toto@bm.net" }
+        ];
+        const cc = computeCcRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentIdentity);
+        expect(cc).toEqual([{ dn: "Toto A", address: "toto@bm.net" }]);
+    });
+
+    test("Remove duplicates from CC if present in TO", () => {
+        previousMessage.to = [
+            { dn: "Toto A", address: "toto@bm.net" },
+            { dn: "Georges", address: "georges@bm.net" }
+        ];
+        previousMessage.cc = [
+            { dn: "Toto B", address: "toto@bm.net" },
+            { dn: "John", address: "john@bm.net" },
+            { dn: "Georges B", address: "georges@bm.net" }
+        ];
+        const message = createReplyOrForward(
+            previousMessage,
+            { key: "draktKey", remoteRef: {} },
+            MessageCreationModes.REPLY_ALL,
+            currentIdentity
+        );
+        expect(message.to).toEqual([
+            previousMessageFrom,
+            { dn: "Toto A", address: "toto@bm.net" },
+            { dn: "Georges", address: "georges@bm.net" }
+        ]);
+        expect(message.cc).toEqual([{ dn: "John", address: "john@bm.net" }]);
     });
 });
 

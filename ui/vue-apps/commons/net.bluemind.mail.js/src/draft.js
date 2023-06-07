@@ -66,7 +66,9 @@ export function createReplyOrForward(previousMessage, myDraftsFolder, creationMo
 
     if (creationMode === MessageCreationModes.REPLY_ALL || creationMode === MessageCreationModes.REPLY) {
         message.to = computeToRecipients(creationMode, previousMessage, identity);
-        message.cc = computeCcRecipients(creationMode, previousMessage, identity);
+        message.cc = computeCcRecipients(creationMode, previousMessage, identity)?.filter(
+            contact => !message.to.some(to => to.address === contact.address)
+        );
         handleIdentificationFields(message, previousMessage);
     }
 
@@ -186,6 +188,7 @@ export function computeCcRecipients(creationMode, previousMessage, senderIdentit
         const myself = identityToRecipient(senderIdentity);
         // keep previous cc except myself
         cc = previousMessage.cc.filter(recipient => recipient.address !== myself.address);
+        cc = removeDuplicatedContacts(cc);
     }
     return cc;
 }
@@ -219,7 +222,7 @@ export function computeToRecipients(creationMode, previousMessage, senderIdentit
             // respond to sender and all recipients except myself
             recipients.push(...previousMessage.to);
             recipients = recipients.filter(r => r.address !== myself.address);
-            // FIXME: avoid duplicates
+            recipients = removeDuplicatedContacts(recipients);
             if (recipients.length === 0) {
                 // I was alone, respond to myself then
                 recipients = [{ ...myself }];
@@ -237,6 +240,18 @@ export function computeToRecipients(creationMode, previousMessage, senderIdentit
         }
     }
     return recipients.filter(Boolean);
+}
+
+function removeDuplicatedContacts(contacts) {
+    const result = [],
+        addresses = [];
+    for (const contact of contacts) {
+        if (!addresses.includes(contact.address)) {
+            addresses.push(contact.address);
+            result.push(contact);
+        }
+    }
+    return result;
 }
 
 function extractRecipientsFromHeader(header, isReplyAll) {
