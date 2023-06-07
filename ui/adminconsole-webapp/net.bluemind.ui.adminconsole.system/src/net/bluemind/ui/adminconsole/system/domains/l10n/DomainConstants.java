@@ -111,8 +111,6 @@ public interface DomainConstants extends Messages {
 
 	String ssoProxy();
 
-	String xmppServer();
-
 	String adminConsole();
 
 	String calendarApplication();

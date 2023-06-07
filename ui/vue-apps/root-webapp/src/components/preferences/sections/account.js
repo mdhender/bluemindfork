@@ -216,7 +216,7 @@ function cti(i18n) {
         id: "cti",
         name: i18n.t("common.telephony"),
         icon: "phone",
-        visible: { name: "RoleCondition.every", args: [Roles.HAS_CTI, Roles.HAS_IM] },
+        visible: { name: "RoleCondition.every", args: [Roles.HAS_CTI] },
         groups: [
             {
                 id: "status",

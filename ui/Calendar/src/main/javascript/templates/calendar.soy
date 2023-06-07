@@ -80,12 +80,6 @@
         <div id="displayName">{$displayName}</div>
       </div>
       |
-      {if $im}
-        <a href="" onclick="var p = window.open('../im/#', 'IM', 'height=500, width=700, top=100, left=100, toolbar=no, menubar=no, location=no, resizable=yes, scrollbars=no, status=no'); p.focus(); localStorage.removeItem('bm-unread'); return false;">
-          <img  id="im-notifier" class='{css btn-im}' src="themes/default/images/im.png" title="IM"/> 
-        </a>
-        |
-      {/if}
       {if $roles['cti']}
         <a>
           <img id="dial" class='{css btn-dial}' src="themes/default/images/pad.png" title="{msg desc="Dialer link in banner"}Dialer{/msg}" style="cursor:pointer;" /> 

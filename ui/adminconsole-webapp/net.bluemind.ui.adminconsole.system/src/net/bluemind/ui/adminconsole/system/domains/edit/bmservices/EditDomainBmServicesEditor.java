@@ -51,9 +51,6 @@ public class EditDomainBmServicesEditor extends AssignmentWidget {
 	ListBox ssoProxy;
 
 	@UiField
-	ListBox xmppServer;
-
-	@UiField
 	ListBox adminConsole;
 
 	@UiField
@@ -85,7 +82,6 @@ public class EditDomainBmServicesEditor extends AssignmentWidget {
 		List<AssignmentWidget.TagListBoxMapping> mapping = Arrays.asList(new AssignmentWidget.TagListBoxMapping[] {
 				new AssignmentWidget.TagListBoxMapping(TagDescriptor.bm_core.getTag(), coreServer),
 				new AssignmentWidget.TagListBoxMapping(TagDescriptor.bm_hps.getTag(), ssoProxy),
-				new AssignmentWidget.TagListBoxMapping(TagDescriptor.bm_xmpp.getTag(), xmppServer),
 				new AssignmentWidget.TagListBoxMapping(TagDescriptor.bm_ac.getTag(), adminConsole),
 				new AssignmentWidget.TagListBoxMapping(TagDescriptor.bm_calendar.getTag(), calendarApplication),
 				new AssignmentWidget.TagListBoxMapping(TagDescriptor.bm_webmail.getTag(), webmailApplication),

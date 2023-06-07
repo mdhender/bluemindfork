@@ -69,4 +69,19 @@ Section: oldlibs
 Description: transitional package
  This is a transitional package. It can safely be removed. 
 
+Package: bm-xmpp
+Depends: bm-core, ${misc:Depends}
+Architecture: all
+Priority: extra
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed. 
  
+Package: bm-im
+Depends: bm-core, ${misc:Depends}
+Architecture: all
+Priority: extra
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed. 
+

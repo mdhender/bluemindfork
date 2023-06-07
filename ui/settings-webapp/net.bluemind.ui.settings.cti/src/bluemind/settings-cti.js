@@ -9,7 +9,7 @@ goog.global['gwtSettingsCTIScreensContributor'] = function() {
       'contributedAttribute' : 'childrens',
       'contribution' : {
         'type' : 'net.bluemind.ui.settings.cti.MainCtiPartProvider',
-        'roles': ['hasIM','hasCTI']
+        'roles': ['hasCTI']
       }
     },
     {

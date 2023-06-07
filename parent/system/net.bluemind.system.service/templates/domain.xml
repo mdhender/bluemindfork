@@ -63,10 +63,6 @@
 				<desc lang="fr">Serveur SSO</desc>
 				<desc lang="en">SSO proxy</desc>
 			</tag>
-			<tag value="bm/xmpp" multival="false" mandatory="true" autoAssign="true">
-				<desc lang="fr">Serveur XMPP</desc>
-				<desc lang="en">XMPP Server</desc>
-			</tag>
 			<tag value="bm/ac" multival="false" mandatory="true" autoAssign="true">
 				<desc lang="fr">Console d'administration</desc>
 				<desc lang="en">Administration console</desc>

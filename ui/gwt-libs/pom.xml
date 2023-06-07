@@ -25,7 +25,6 @@
 		<module>net.bluemind.user.api.gwt</module>
 		<module>net.bluemind.mailbox.api.gwt</module>
 		<module>net.bluemind.mailbox.identity.api.gwt</module>
-		<module>net.bluemind.im.api.gwt</module>
 		<module>net.bluemind.directory.api.gwt</module>
 		<module>net.bluemind.system.api.gwt</module>
 		<module>net.bluemind.authentication.api.gwt</module>

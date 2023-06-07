@@ -279,10 +279,6 @@
       <plugin id="net.bluemind.icalendar.parser"/>
       <plugin id="net.bluemind.icalendar.persistence"/>
       <plugin id="net.bluemind.icalendar.sqlschema"/>
-      <plugin id="net.bluemind.im.api"/>
-      <plugin id="net.bluemind.im.persistence"/>
-      <plugin id="net.bluemind.im.service"/>
-      <plugin id="net.bluemind.im.sqlschema"/>
       <plugin id="net.bluemind.imap.driver.mailapi"/>
       <plugin id="net.bluemind.imap.endpoint"/>
       <plugin id="net.bluemind.jdbc.driver.pgsql" fragment="true"/>
@@ -476,7 +472,6 @@
       <plugin id="net.bluemind.webmail.sqlschema"/>
       <plugin id="net.bluemind.xivo.client"/>
       <plugin id="net.bluemind.xivo.common"/>
-      <plugin id="net.bluemind.xmpp.coresession"/>
       <plugin id="net.java.dev.jna"/>
       <plugin id="net.sf.jtidy"/>
       <plugin id="org.apache.batik.anim"/>

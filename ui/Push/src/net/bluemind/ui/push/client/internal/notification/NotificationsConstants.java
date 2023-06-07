@@ -38,6 +38,4 @@ public interface NotificationsConstants extends Messages {
 
 	public String days();
 
-	public String subscriptionRequest(String from);
-
 }

@@ -29,7 +29,6 @@ import static net.bluemind.role.api.BasicRoles.ROLE_CTI;
 import static net.bluemind.role.api.BasicRoles.ROLE_DAV;
 import static net.bluemind.role.api.BasicRoles.ROLE_EAS;
 import static net.bluemind.role.api.BasicRoles.ROLE_EXTERNAL_IDENTITY;
-import static net.bluemind.role.api.BasicRoles.ROLE_IM;
 import static net.bluemind.role.api.BasicRoles.ROLE_MAIL;
 import static net.bluemind.role.api.BasicRoles.ROLE_MAIL_FORWARDING;
 import static net.bluemind.role.api.BasicRoles.ROLE_OUTLOOK;
@@ -56,7 +55,7 @@ public class BaseRolesProvider implements IRolesProvider {
 
 	@Override
 	public Set<String> getRoles() {
-		return ImmutableSet.<String>builder().add(ROLE_IM, ROLE_CTI, ROLE_MAIL, ROLE_CALENDAR, ROLE_EAS, ROLE_DAV,
+		return ImmutableSet.<String>builder().add(ROLE_CTI, ROLE_MAIL, ROLE_CALENDAR, ROLE_EAS, ROLE_DAV,
 				ROLE_MAIL_FORWARDING, ROLE_EXTERNAL_IDENTITY, ROLE_TBIRD, ROLE_OUTLOOK).build();
 	}
 
@@ -65,11 +64,6 @@ public class BaseRolesProvider implements IRolesProvider {
 		ResourceBundle rb = ResourceBundle.getBundle("OSGI-INF/l10n/bundle", locale);
 
 		return ImmutableSet.<RoleDescriptor>builder().add( //
-
-				RoleDescriptor
-						.create(ROLE_IM, CATEGORY_APPS, rb.getString("role.im.label"),
-								rb.getString("role.im.description"))//
-						.priotity(998).delegable(), //
 
 				RoleDescriptor
 						.create(ROLE_CTI, CATEGORY_APPS, rb.getString("role.cti.label"),

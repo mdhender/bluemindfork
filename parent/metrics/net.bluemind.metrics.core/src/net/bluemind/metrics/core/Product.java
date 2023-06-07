@@ -36,8 +36,6 @@ public enum Product {
 			TagDescriptor.bm_ac.getTag(), TagDescriptor.bm_settings.getTag(), TagDescriptor.bm_redirector.getTag(),
 			TagDescriptor.bm_webmail.getTag()),
 
-	XMPP("bm-xmpp", Family.JVM, new String[0], false, TagDescriptor.bm_xmpp.getTag()),
-
 	YSNP("bm-ysnp", Family.JVM, new String[0], true, TagDescriptor.mail_smtp.getTag(),
 			TagDescriptor.mail_smtp_edge.getTag()),
 

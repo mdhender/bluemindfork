@@ -19,7 +19,6 @@
 package net.bluemind.ui.push.client.internal;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
@@ -32,13 +31,10 @@ import net.bluemind.restbus.api.gwt.RestBusImpl;
 
 public class PushSetup {
 
-	private static ConnectionHandler connectionHandler;
-
 	/**
 	 * @param queue
 	 */
 	public static void forUser(final String queue) {
-		connectionHandler = new ConnectionHandler();
 		initConnection(queue);
 	}
 
@@ -53,45 +49,15 @@ public class PushSetup {
 		OnlineListener cl = new OnlineListener() {
 
 			public void onOpen() {
-                setMailNotificationHandler(mailboxUid);
-
+				setMailNotificationHandler(mailboxUid);
 				// open session
 				JSONObject message = new JSONObject();
 				message.put("sessionId", new JSONString(sid));
 				message.put("latd", new JSONString(login));
-
-				if (hasIM()) {
-					register("xmpp/session/" + sid + "/notification", new XmppNotificationHandler());
-
-					register("xmpp/muc/" + sid + "/notification", new MucNotificationHandler());
-
-					send("xmpp/sessions-manager:open", JsonUtils.safeEval(message.toString()),
-							new AsyncHandler<JavaScriptObject>() {
-
-								@Override
-								public void success(JavaScriptObject value) {
-
-									JSONObject msg = new JSONObject();
-									msg.put("origin", new JSONString("push"));
-
-									send("xmpp/session/" + sid + ":unread", JsonUtils.safeEval(msg.toString()));
-
-									send("xmpp/muc/" + sid + ":pending", JsonUtils.safeEval(msg.toString()));
-
-									connectionHandler.open();
-								}
-
-								@Override
-								public void failure(Throwable e) {
-								}
-							});
-				}
 			}
 
 			public void onClose() {
 				GWT.log("close !!");
-				connectionHandler.close();
-
 			}
 
 			@Override
@@ -110,8 +76,8 @@ public class PushSetup {
 
 	}
 
-    // register MailNotificationHandler only if new notifications are not active
-    private static native String setMailNotificationHandler(String mailboxUid) /*-{
+	// register MailNotificationHandler only if new notifications are not active
+	private static native String setMailNotificationHandler(String mailboxUid) /*-{
                     if (!$wnd.bundles.hasOwnProperty("net.bluemind.webmodules.webapp.wrapper")  && !$wnd.bundles.hasOwnProperty("net.bluemind.webapp.root.js")) {
                         @net.bluemind.ui.push.client.internal.PushSetup::register(Ljava/lang/String;Lnet/bluemind/ui/push/client/internal/MessageHandler;)(mailboxUid + ".notifications.mails", @net.bluemind.ui.push.client.internal.MailNotificationHandler::new()());
                     } else {
@@ -135,11 +101,7 @@ public class PushSetup {
 											return $wnd.bmcSessionInfos['defaultEmail'];
 											}-*/;
 
-	private static native boolean hasIM() /*-{
-											return $wnd.bmcSessionInfos['roles'].includes('hasIM');
-											}-*/;
-
-	private static <T extends JavaScriptObject> void register(String path, MessageHandler<T> xmppMessageHandler) {
+	private static <T extends JavaScriptObject> void register(String path, MessageHandler<T> messageHandler) {
 		RestBusImpl.get().sendMessage(GwtRestRequest.create(getSidFromPage(), "register", path, null),
 				new AsyncHandler<GwtRestResponse>() {
 
@@ -147,9 +109,9 @@ public class PushSetup {
 					public void success(GwtRestResponse value) {
 						JavaScriptObject body = value.getBody();
 						if (body != null) {
-							xmppMessageHandler.onMessage(body.cast());
+							messageHandler.onMessage(body.cast());
 						} else {
-							xmppMessageHandler.onMessage(null);
+							messageHandler.onMessage(null);
 						}
 					}
 

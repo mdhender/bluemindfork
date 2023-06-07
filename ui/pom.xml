@@ -22,7 +22,6 @@
 		<module>Calendar</module>
 		<module>Push</module>
 		<module>DefaultApp</module>
-		<module>IM</module>
 		<module>webmodules</module>
 		<module>roundcube</module>
 		<module>net.bluemind.ui.webmail.application</module>

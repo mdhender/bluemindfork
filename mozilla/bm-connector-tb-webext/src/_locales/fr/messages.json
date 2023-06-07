@@ -62,15 +62,6 @@
     "bm.icsbandal.where": {
         "message": "Lieu"
     },
-    "bm.preferences.im.add.label": {
-        "message": "Compte de messagerie instantanée BlueMind"
-    },
-    "bm.preferences.im.button.add.label": {
-        "message": "Configurer..."
-    },
-    "bm.preferences.im.label": {
-        "message": "Messagerie instantanée"
-    },
     "bm.preferences.import.button.label": {
         "message": "Importer..."
     },

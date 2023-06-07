@@ -19,7 +19,6 @@
 		<module>bm-cli</module>
 		<module>bm-tika</module>
 		<module>bm-xivobridge</module>
-		<module>bm-xmpp</module>
 		<module>bm-ysnp</module>
 		<module>bm-webserver</module>
 		<module>bm-contact</module>
@@ -41,7 +40,6 @@
 		<module>bm-tick-node</module>
 		<module>bm-postfix</module>
 		<module>bm-admin-console</module>
-		<module>bm-im</module>
 		<module>bm-plugin-core-ldap-import</module>
 		<module>bm-plugin-core-ldap-export</module>
 		<module>bm-plugin-admin-console-ldap-export</module>

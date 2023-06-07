@@ -218,23 +218,7 @@ public class RestSockJsProxyHandler implements Handler<JsonEvent> {
 			logger.debug("send event {} to {} , {}", request.id.orElse("<unknown id>"), request.path, jsBody);
 		}
 		jsBody.put("sockId", sock.writeHandlerID());
-		if (request.id.isPresent()
-				&& (request.path.equals("xmpp/sessions-manager:open")
-						|| (request.path.startsWith("xmpp/session/") && request.path.endsWith("/roster:entries")))
-				|| (request.path.startsWith("xmpp/muc/") && request.path.endsWith(":create"))) {
-			restbus.sendEvent(request, jsBody, m -> {
-				JsonObject body = m != null ? m.body() : null;
-				Buffer data = null;
-				if (body != null) {
-					data = Buffer.buffer(body.encode());
-				}
-				logger.debug("send RESPONSE {} WITH id !!! {} {}", request.path, request.id, body);
-				sendResponse(request.id, RestResponse.ok(200, data));
-			});
-			logger.debug("send EVENT {} WITH id !!! {} {}", request.path, request.id, jsBody);
-		} else {
-			restbus.sendEvent(request, jsBody);
-		}
+		restbus.sendEvent(request, jsBody);
 	}
 
 	private RestRequestWithId parseRequest(JsonObject msg) {

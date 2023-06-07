@@ -4,7 +4,6 @@ export default {
     HAS_MAIL: "hasMail",
     HAS_CALENDAR: "hasCalendar",
     HAS_CTI: "hasCTI",
-    HAS_IM: "hasIM",
     HAS_TBIRD: "hasTbird",
 
     SELF_CHANGE_MAIL_IDENTITIES: "selfChangeMailIdentities",

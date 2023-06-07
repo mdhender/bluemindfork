@@ -11,7 +11,6 @@ enable bm-pimp.service
 enable bm-tika.service
 enable bm-webserver.service
 enable bm-xivobridge.service
-enable bm-xmpp.service
 enable bm-ysnp.service
 enable bm-iptables.service
 enable bm-postgresql.service

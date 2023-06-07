@@ -29,12 +29,6 @@
     "bm.preferences.contact.label": {
         "message": "Kontakty BlueMind"
     },
-    "bm.preferences.im.add.label": {
-        "message": "Konto komunikatora BlueMind"
-    },
-    "bm.preferences.im.button.add.label": {
-        "message": "Skonfiguruj..."
-    },
     "bm.button.open.todolist.label": {
         "message": "Zadania"
     },
@@ -79,9 +73,6 @@
     },
     "bm.preferences.log.label": {
         "message": "Logowanie"
-    },
-    "bm.preferences.im.label": {
-        "message": "Komunikator"
     },
     "bm.preferences.log.pref.label": {
         "message": "Włącz szczegółowe rejestrowanie"

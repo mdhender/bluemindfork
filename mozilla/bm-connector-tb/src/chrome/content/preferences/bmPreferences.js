@@ -153,69 +153,6 @@ var gBMPreferences = {
                         "" + count + " " + bmUtils.getLocalizedString("import.willbeimported"));
         bmService.doSync();
     },
-    addXMPPAccount: function() {
-        let user = {};
-        let pwd = {};
-        let srv = {};
-        if (bmUtils.getSettings(user, pwd, srv, true)) {
-            let hostName = srv.value.replace("https://", "");
-            let xmppLogin = bmUtils.getEmailOfImapAccount(srv.value);
-            if (!xmppLogin) {
-                return;
-            }
-            let hasBmXmpp = false;
-            let imAccounts = Services.accounts.getAccounts();
-            while (imAccounts.hasMoreElements()) {
-                let acc = imAccounts.getNext();
-                this._logger.debug("im account id:" + acc.id);
-                let prefs = Services.prefs.getBranch("messenger.account." + acc.id + ".options.");
-                try {
-                    let imServer = prefs.getCharPref("server");
-                    this._logger.debug("im server:" + imServer);
-                    if (imServer == hostName) {
-                        hasBmXmpp = true;
-                    }
-                } catch(e) {
-                    //pref not exist
-                }
-            }
-            if (!hasBmXmpp) {
-                
-                Services.obs.addObserver(this, "account-connect-error", false);
-                Services.obs.addObserver(this, "account-connected", false);
-                
-                let acc = Services.accounts.createAccount(xmppLogin, "prpl-jabber");
-                acc.password = pwd.value;
-                acc.setString("server", hostName);
-                acc.autoLogin = true;
-                acc.save();
-                
-                try {
-                    acc.connect();
-                } catch (e) {
-                    //ok
-                }
-            
-                let inServer = MailServices.accounts.createIncomingServer(xmppLogin, "prpl-jabber", "im");
-                inServer.wrappedJSObject.imAccount = acc;
-                
-                let xmpp = MailServices.accounts.createAccount();
-                inServer.valid = false;
-                xmpp.incomingServer = inServer;
-                inServer.valid = true;
-                MailServices.accounts.notifyServerLoaded(inServer);
-                
-                try {
-                    acc.connect();
-                } catch (e) {
-                    //ok
-                }
-            } else {
-                Services.wm.getMostRecentWindow("mail:3pane").showChatTab();
-                window.close();
-            }
-        }
-    },
     observe: function(aObject, aTopic, aData) {
         let acc = aObject.QueryInterface(Components.interfaces.imIAccount);
         let prplAccount = acc.prplAccount;

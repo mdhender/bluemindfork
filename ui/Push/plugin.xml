@@ -7,22 +7,4 @@
          <web-resource bundle="net.bluemind.ui.push" />
       </web-module-provider>
    </extension>
-   <extension point="net.bluemind.webmodule">
-      <web-module-provider  module="/webapp,/visio">
-         <js async-loading="false" path="static/net.bluemind.ui.banner.im.js" >
-            <dependency path="js/vue.js" />
-         </js>
-      </web-module-provider>
-   </extension>   
-   <extension
-         point="net.bluemind.ui.commons.banner.widget">
-      <widget-entry
-            creator="bubbleCreator"
-            priority="100"
-            role="hasIM">
-      </widget-entry>
-   </extension>
-   <extension point="webapp.banner">
-      <component name="BmIMWidget" path="widget"></component>
-   </extension>
 </plugin>

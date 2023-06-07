@@ -36,7 +36,6 @@
 						<apiName>net.bluemind.attachment.api</apiName>
 						<apiName>net.bluemind.group.api</apiName>
 						<apiName>net.bluemind.icalendar.api</apiName>
-						<apiName>net.bluemind.im.api</apiName>
 						<apiName>net.bluemind.mailbox.api</apiName>
 						<apiName>net.bluemind.mailbox.identity.api</apiName>
 						<apiName>net.bluemind.mailshare.api</apiName>

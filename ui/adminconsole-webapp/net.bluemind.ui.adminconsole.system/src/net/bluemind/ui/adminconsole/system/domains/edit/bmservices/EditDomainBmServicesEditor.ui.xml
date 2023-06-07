@@ -30,14 +30,6 @@
 			</tr>
 			<tr>
 				<td style='width:200px'>
-					<g:Label text="{c.xmppServer}:"></g:Label>
-				</td>
-				<td style='width:400px'>
-					<g:ListBox multipleSelect="false" ui:field="xmppServer"></g:ListBox>
-				</td>
-			</tr>
-			<tr>
-				<td style='width:200px'>
 					<g:Label text="{c.adminConsole}:"></g:Label>
 				</td>
 				<td style='width:400px'>

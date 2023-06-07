@@ -20,9 +20,6 @@
 <!ENTITY bm.preferences.settings.label "BlueMind Settings">
 <!ENTITY bm.preferences.settings.settings.label "Configure your BlueMind preferences">
 <!ENTITY bm.preferences.settings.button.label "Settings...">
-<!ENTITY bm.preferences.im.label "Instant messaging">
-<!ENTITY bm.preferences.im.add.label "BlueMind instant messaging account">
-<!ENTITY bm.preferences.im.button.add.label "Configure...">
 <!ENTITY bm.preferences.log.label "Logging">
 <!ENTITY bm.preferences.log.pref.label "Enable debug logging">
 <!ENTITY bm.abnamedialog.local "BlueMind Directory">

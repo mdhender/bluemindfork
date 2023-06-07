@@ -65,15 +65,6 @@
     "bm.preferences.contact.label": {
         "message": "BlueMind Contacts"
     },
-    "bm.preferences.im.add.label": {
-        "message": "BlueMind instant messaging account"
-    },
-    "bm.preferences.im.button.add.label": {
-        "message": "Configure..."
-    },
-    "bm.preferences.im.label": {
-        "message": "Instant messaging"
-    },
     "bm.preferences.import.button.label": {
         "message": "Import..."
     },

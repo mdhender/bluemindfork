@@ -96,11 +96,6 @@
 		<module>net.bluemind.xivo.client</module>
 		<module>net.bluemind.xivo.common</module>
 		<module>net.bluemind.xivo.tests</module>
-		<module>net.bluemind.xmpp.coresession.tests</module>
-		<module>net.bluemind.xmpp.coresession</module>
-		<module>net.bluemind.xmpp.server.launcher</module>
-		<module>net.bluemind.xmpp.server.tests</module>
-		<module>net.bluemind.xmpp.server</module>
 		<module>net.bluemind.ysnp.bmcore</module>
 		<module>net.bluemind.ysnp.tests</module>
 		<module>net.bluemind.ysnp</module>

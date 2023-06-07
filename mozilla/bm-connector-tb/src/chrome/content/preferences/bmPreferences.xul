@@ -25,14 +25,6 @@
                 </hbox>
             </groupbox>
             <groupbox>
-                <caption label="&bm.preferences.im.label;"/>
-                <hbox align="center">
-                    <label value="&bm.preferences.im.add.label;"/>
-                    <spacer flex="1"/>
-                    <button label="&bm.preferences.im.button.add.label;" oncommand="gBMPreferences.addXMPPAccount();"/>
-                </hbox>
-            </groupbox>
-            <groupbox>
                 <caption label="&bm.preferences.log.label;"/>
                 <hbox align="center">
                     <checkbox preference="pref_logdebug" label="&bm.preferences.log.pref.label;"/>

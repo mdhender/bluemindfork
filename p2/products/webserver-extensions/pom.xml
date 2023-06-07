@@ -22,7 +22,6 @@
 		<module>adminconsole-filehosting</module>
 		<module>adminconsole-password-sizestrength</module>
 		<module>adminconsole</module>
-		<module>im</module>
 		<module>cti</module>
 		<module>filehosting</module>
 		<module>dav</module>

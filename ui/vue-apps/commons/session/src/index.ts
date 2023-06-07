@@ -7,7 +7,6 @@ export interface Session {
     defaultEmail: string;
     domain: string;
     formatedName: string;
-    hasIM: string;
     lang: string;
     login: string;
     roles: string;
@@ -47,7 +46,6 @@ interface SessionPromise {
     defaultEmail: Promise<string>;
     domain: Promise<string>;
     formatedName: Promise<string>;
-    hasIM: Promise<string>;
     lang: Promise<string>;
     login: Promise<string>;
     roles: Promise<string[]>;
@@ -73,9 +71,6 @@ function init() {
         },
         get formatedName() {
             return instance().then(({ formatedName }) => formatedName);
-        },
-        get hasIM() {
-            return instance().then(({ hasIM }) => hasIM);
         },
         get lang() {
             return instance().then(({ lang }) => lang);

@@ -36,16 +36,6 @@
         </groupbox>
         <groupbox>
             <hbox class="groupbox-title">
-                <label class="header" value="&bm.preferences.im.label;"/>
-            </hbox>
-            <hbox align="center">
-                <label value="&bm.preferences.im.add.label;"/>
-                <spacer flex="1"/>
-                <button label="&bm.preferences.im.button.add.label;" oncommand="gBMPreferences.addXMPPAccount();"/>
-            </hbox>
-        </groupbox>
-        <groupbox>
-            <hbox class="groupbox-title">
                 <label class="header" value="&bm.preferences.log.label;"/>
             </hbox>
             <hbox align="center">

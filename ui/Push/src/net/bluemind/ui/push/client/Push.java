@@ -21,15 +21,8 @@ package net.bluemind.ui.push.client;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.Style.Cursor;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Anchor;
 
-import net.bluemind.restbus.api.gwt.RestBus.OnlineListener;
-import net.bluemind.restbus.api.gwt.RestBusImpl;
 import net.bluemind.ui.push.client.internal.PushSetup;
 
 public class Push implements EntryPoint {
@@ -44,7 +37,6 @@ public class Push implements EntryPoint {
 	}
 
 	private void protectedModuleLoad() {
-		initWidget();
 
 		GWT.runAsync(new RunAsyncCallback() {
 
@@ -78,61 +70,11 @@ public class Push implements EntryPoint {
 
 	private static native String getQueueFromPage()
 	/*-{
-    return "client.session." + $wnd.bmcSessionInfos['sid'];
+	return "client.session." + $wnd.bmcSessionInfos['sid'];
 	}-*/;
 
 	private static native String consoleLog(String str)
 	/*-{
-    $wnd.console.log(str);
-	}-*/;
-
-	private static Element createBubble() {
-		final Anchor a = new AutoAttachAnchor();
-		a.getElement().setId("im-notifier");
-		a.getElement().setClassName("fa fa-lg fa-comments");
-		a.getElement().getStyle().setCursor(Cursor.POINTER);
-		a.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				showIM();
-			}
-		});
-
-		RestBusImpl.get().addListener(new OnlineListener() {
-
-			@Override
-			public void status(boolean online) {
-				a.setVisible(online);
-			}
-		});
-
-		return a.getElement();
-	}
-
-	private static native String initWidget()
-	/*-{
-    $wnd['bubbleCreator'] = function() {
-      var el = @net.bluemind.ui.push.client.Push::createBubble()();
-      return el;
-    };
-
-	}-*/;
-
-	private static native void showIM()
-	/*-{
-    var p = window
-        .open(
-            '',
-            'IM',
-            'height=500, width=700, top=100, left=100, toolbar=no, menubar=no, location=no, resizable=yes, scrollbars=no, status=no');
-    if (p.location == 'about:blank') {
-      p.location.href = '../im/#';
-      p.focus();
-    } else {
-      p.focus();
-    }
-    localStorage.removeItem('bm-unread');
-    return false;
+	$wnd.console.log(str);
 	}-*/;
 }

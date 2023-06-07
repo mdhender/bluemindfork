@@ -62,15 +62,6 @@
     "bm.preferences.contact.label": {
         "message": "BlueMind Kontakte"
     },
-    "bm.preferences.im.add.label": {
-        "message": "BlueMind Chat"
-    },
-    "bm.preferences.im.button.add.label": {
-        "message": "Konfigurieren..."
-    },
-    "bm.preferences.im.label": {
-        "message": "Chat"
-    },
     "bm.preferences.import.button.tooltiptext": {
         "message": "Kontakte importieren."
     },

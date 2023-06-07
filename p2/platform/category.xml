@@ -374,14 +374,9 @@
    <bundle id="net.bluemind.imap" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.imap.driver.mailapi" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.imap.endpoint" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.im.api" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.im.api.gwt" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.imap.translate" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.imap.vertx" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.imip.parser" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.im.persistence" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.im.service" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.im.sqlschema" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.jdbc.driver.pgsql" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.jdbc.pgsql.provider" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.jilter" version="5.0.0.qualifier"/>
@@ -652,7 +647,6 @@
    <bundle id="net.bluemind.ui.gwtuser" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.ui.imageupload" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.ui.imageupload.standalone" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.ui.instantmessaging" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.ui.mailbox" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.ui.metrics.application" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.ui.push" version="5.0.0.qualifier"/>
@@ -739,9 +733,6 @@
    <bundle id="net.bluemind.xivo.common" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.xivo.core" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.xivo.system" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.xmpp.coresession" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.xmpp.server" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.xmpp.server.launcher" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.ysnp" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.ysnp.bmcore" version="5.0.0.qualifier"/>
    <bundle id="net.freeutils.tnef" version="5.0.0.qualifier"/>

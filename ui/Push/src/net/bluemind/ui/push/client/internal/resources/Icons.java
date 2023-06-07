@@ -30,14 +30,4 @@ public interface Icons extends ClientBundle {
 
 	@Source("reminder.png")
 	ImageResource reminder();
-
-	@Source("chat.png")
-	ImageResource chat();
-
-	@Source("im-online.png")
-	ImageResource imOnline();
-
-	@Source("im-offline.png")
-	ImageResource imOffline();
-
 }

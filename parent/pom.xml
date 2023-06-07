@@ -39,7 +39,6 @@
 		<module>group</module>
 		<module>hps</module>
 		<module>icalendar</module>
-		<module>im</module>
 		<module>ldap</module>
 		<module>mailbackend</module>
 		<module>mailbox</module>

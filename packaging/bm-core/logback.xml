@@ -44,24 +44,6 @@
 	<logger name="com.netflix.hollow.core.read.engine.HollowBlobReader" level="WARN" />
 	<logger name="com.netflix.hollow.api.producer.AbstractHollowProducer" level="WARN" />
 
-	<!-- log XMPP -->
-	<appender name="XMPP" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>/var/log/bm/xmpp.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-			<!-- rollover daily -->
-			<fileNamePattern>/var/log/bm/xmpp.log.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
-			<maxFileSize>60MB</maxFileSize>
-			<maxHistory>20</maxHistory>
-			<totalSizeCap>1GB</totalSizeCap>
-		</rollingPolicy>
-		<encoder>
-			<pattern>${DEFAULT_PATTERN}</pattern>
-		</encoder>
-	</appender>
-	<logger name="net.bluemind.xmpp" level="INFO" additivity="false">
-		<appender-ref ref="XMPP" />
-	</logger>
-
 	<!-- log mailindex -->
 	<appender name="MailIndex" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>/var/log/bm/mail-index.log</file>

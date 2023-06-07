@@ -19,7 +19,6 @@
 		<module>push</module>
 		<module>tika</module>
 		<module>xivobridge</module>
-		<module>xmpp</module>
 		<module>ysnp</module>
 		<module>webserver</module>
 		<module>webserver-extensions</module>
