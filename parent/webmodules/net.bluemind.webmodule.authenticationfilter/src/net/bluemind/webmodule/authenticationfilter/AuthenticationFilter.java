@@ -25,11 +25,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Base64.Encoder;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -54,12 +52,12 @@ import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.core.api.BMVersion;
 import net.bluemind.core.api.auth.AuthDomainProperties;
 import net.bluemind.core.api.auth.AuthTypes;
-import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Shared;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.webmodule.authenticationfilter.internal.DomainsHelper;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionData;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionsCache;
 import net.bluemind.webmodule.server.IWebFilter;
@@ -135,13 +133,13 @@ public class AuthenticationFilter implements IWebFilter {
 			return CompletableFuture.completedFuture(request);
 		}
 
-		Optional<String> domainUid = getDomainUid(request);
+		Optional<String> domainUid = DomainsHelper.getDomainUid(request);
 		if (domainUid.isEmpty()) {
 			redirectToGlobalExternalUrl(request);
 		}
 
 		if (isCasEnabled(domainUid.get())) {
-			redirectToCasServer(request, domainUid.get());
+			DomainsHelper.redirectToCasServer(request, domainUid.get());
 		} else {
 			redirectToOpenIdServer(request, domainUid.get());
 		}
@@ -188,17 +186,6 @@ public class AuthenticationFilter implements IWebFilter {
 			request.response().setStatusCode(500);
 		}
 
-		request.response().end();
-	}
-
-	private void redirectToCasServer(HttpServerRequest request, String domainUid) {
-		Map<String, String> domainProperties = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
-				.get(domainUid);
-		String casURL = domainProperties.get(AuthDomainProperties.CAS_URL.name());
-		String location = casURL + "login?service=";
-		location += encode("https://" + request.host() + "/auth/cas");
-		request.response().headers().add(HttpHeaders.LOCATION, location);
-		request.response().setStatusCode(302);
 		request.response().end();
 	}
 
@@ -256,7 +243,7 @@ public class AuthenticationFilter implements IWebFilter {
 
 		purgeSessionCookie(request.response().headers());
 
-		String domainUid = getDomainUid(request).orElse("global.virt");
+		String domainUid = DomainsHelper.getDomainUid(request).orElse("global.virt");
 		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
 				.get(domainUid);
 
@@ -347,71 +334,6 @@ public class AuthenticationFilter implements IWebFilter {
 		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(idc));
 	}
 
-	private Optional<String> getDomainUid(HttpServerRequest request) {
-		SharedMap<String, Map<String, String>> all = MQ
-				.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS);
-
-		// Look for host in domains external_url
-		Iterator<String> it = all.keys().iterator();
-		while (it.hasNext()) {
-			String domainUid = it.next();
-			Map<String, String> values = all.get(domainUid);
-			String extUrl = values.get(DomainSettingsKeys.external_url.name());
-			if (request.host().equalsIgnoreCase(extUrl)) {
-				return Optional.of(domainUid);
-			}
-		}
-
-		// Look for host in domains other_urls
-		it = all.keys().iterator();
-		while (it.hasNext()) {
-			String domainUid = it.next();
-			Map<String, String> values = all.get(domainUid);
-			String otherUrls = values.get(DomainSettingsKeys.other_urls.name());
-			if (otherUrls != null) {
-				StringTokenizer tokenizer = new StringTokenizer(otherUrls.trim(), " ");
-				while (tokenizer.hasMoreElements()) {
-					if (request.host().equalsIgnoreCase(tokenizer.nextToken())) {
-						return Optional.of(domainUid);
-					}
-				}
-			}
-		}
-
-		// Look for a CAS domain without external_url (no matter the request host)
-		it = all.keys().iterator();
-		while (it.hasNext()) {
-			String domainUid = it.next();
-			Map<String, String> values = all.get(domainUid);
-			String authType = values.get(AuthDomainProperties.AUTH_TYPE.name());
-			if (AuthTypes.CAS.name().equals(authType)) {
-				String extUrl = values.get(DomainSettingsKeys.external_url.name());
-				if (extUrl == null || extUrl.trim().isEmpty()) {
-					return Optional.of(domainUid);
-				}
-			}
-		}
-
-		// Look for host in global external_url
-		SharedMap<String, String> sysconf = MQ.sharedMap(Shared.MAP_SYSCONF);
-		if (request.host().equalsIgnoreCase(sysconf.get(SysConfKeys.external_url.name()))) {
-			return Optional.of("global.virt");
-		}
-
-		// Look for host in global other_urls
-		String otherUrls = sysconf.get(SysConfKeys.other_urls.name());
-		if (otherUrls != null) {
-			StringTokenizer tokenizer = new StringTokenizer(otherUrls.trim(), " ");
-			while (tokenizer.hasMoreElements()) {
-				if (request.host().equalsIgnoreCase(tokenizer.nextToken())) {
-					return Optional.of("global.virt");
-				}
-			}
-		}
-
-		return Optional.empty();
-	}
-
 	private String createCodeVerifier() {
 		SecureRandom sr = new SecureRandom();
 		byte[] code = new byte[32];
@@ -494,5 +416,4 @@ public class AuthenticationFilter implements IWebFilter {
 	private String encode(String s) {
 		return URLEncoder.encode(s, StandardCharsets.UTF_8);
 	}
-
 }
