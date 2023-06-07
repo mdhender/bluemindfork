@@ -48,9 +48,6 @@ export default {
         }
     },
     computed: {
-        mailbox() {
-            return this.$store.state.mail.mailboxes[this.folder.mailboxRef.key];
-        },
         icon() {
             return folderIcon(this.folder.path, this.mailbox?.type);
         },
