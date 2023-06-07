@@ -251,7 +251,7 @@ export default {
             }
         },
         async remove() {
-            await inject("UserMailIdentitiesPersistence").remove(this.id);
+            await inject("UserMailIdentitiesPersistence").delete(this.id);
             this.show = false;
             this.REMOVE_IDENTITY(this.id);
             this.SUCCESS(SAVE_ALERT);
