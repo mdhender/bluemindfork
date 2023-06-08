@@ -153,7 +153,7 @@ export default {
                 autoFocusButton: "ok"
             });
             if (confirm) {
-                await inject("APIKeysPersistence").remove(key.sid);
+                await inject("APIKeysPersistence").delete(key.sid);
                 const index = this.keys.findIndex(k => k.sid === key.sid);
                 this.keys.splice(index, 1);
                 this.SUCCESS(SAVE_ALERT);

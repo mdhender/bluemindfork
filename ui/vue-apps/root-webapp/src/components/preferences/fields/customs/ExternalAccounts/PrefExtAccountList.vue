@@ -150,7 +150,7 @@ function updateExternalAccount(externalAccount) {
 
 function removeExternalAccount(externalAccount) {
     const service = inject("UserExternalAccountPersistence");
-    service.remove(externalAccount.identifier);
+    service.delete(externalAccount.identifier);
 }
 </script>
 

@@ -53,7 +53,7 @@ export default {
             inject("AddressBookPersistence", addressbook.uid).reset();
         },
         async remove(addressbook) {
-            await inject("AddressBooksMgmtPersistence").remove(addressbook.uid);
+            await inject("AddressBooksMgmtPersistence").delete(addressbook.uid);
             this.REMOVE_PERSONAL_ADDRESSBOOK(addressbook.uid);
             this.SUCCESS(SAVE_ALERT);
         },

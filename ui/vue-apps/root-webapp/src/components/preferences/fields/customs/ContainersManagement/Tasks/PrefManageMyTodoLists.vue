@@ -49,7 +49,7 @@ export default {
             inject("TodoListPersistence", container.uid).reset();
         },
         async remove(container) {
-            await inject("TodoListsPersistence").remove(container.uid);
+            await inject("TodoListsPersistence").delete(container.uid);
             this.REMOVE_PERSONAL_TODO_LIST(container.uid);
         },
         async create(container) {

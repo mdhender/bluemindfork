@@ -53,7 +53,7 @@ export default {
             inject("CalendarPersistence", calendar.uid).reset();
         },
         async remove(container) {
-            await inject("CalendarsMgmtPersistence").remove(container.uid);
+            await inject("CalendarsMgmtPersistence").delete(container.uid);
             this.REMOVE_PERSONAL_CALENDAR(container.uid);
             this.SUCCESS(SAVE_ALERT);
         },
