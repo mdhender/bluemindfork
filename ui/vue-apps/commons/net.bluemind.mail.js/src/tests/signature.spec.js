@@ -1,13 +1,6 @@
 import signatureUtils from "../signature";
 
 describe("Signature", () => {
-    beforeAll(() => {
-        // since our DOM is not rendered, functions like HTMElement.innerText will return nothing
-        signatureUtils.setRenderless(true);
-    });
-    afterAll(() => {
-        signatureUtils.setRenderless(false);
-    });
     test("Empty signature line", () => {
         let signatureLine = `<div>-=Awesome=-</div>`;
         let node = new DOMParser().parseFromString(signatureLine, "text/html")?.body.childNodes[0];
@@ -82,5 +75,12 @@ describe("Signature", () => {
         trimmed = `<div id="bm-composer-content-wrapper"><p style="margin-bottom: 0; margin-top: 0;">--<br></p><p style="margin-bottom: 0; margin-top: 0;">Pierre Baudracco / 06 82 84 63 67 / @pierrebod<br>BlueMind - www.bluemind.net - <a href="https://www.bluemind.net/breves/nouvelle-version-bluemind-4-0/" target="_blank">La seule messagerie compatible Outlook sans connecteur</a><br>Co-président du CNLL, vice-président du Hub Open Source de Systematic, président de SoLibre<br></p></div>`;
 
         expect(signatureUtils.trimSignature(signature)).toEqual(trimmed);
+
+        let signature2 = `<div style="color:red;"><br></div>
+        <div style="height: 20px; background-image: url('http://fakeurl.bluemind.net/image.png')"></div>
+        <div><br></div>`;
+        let trimmed2 = `<div style="height: 20px; background-image: url('http://fakeurl.bluemind.net/image.png')"></div>`;
+
+        expect(signatureUtils.trimSignature(signature2)).toEqual(trimmed2);
     });
 });

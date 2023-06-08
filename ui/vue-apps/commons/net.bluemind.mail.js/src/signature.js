@@ -68,23 +68,26 @@ function removeTextSignature(raw, content) {
     return raw.replace(regexp, "");
 }
 
-let RENDERLESS = false;
-
-function setRenderless(b) {
-    RENDERLESS = b;
-}
-
 function isSignatureLineEmpty(node) {
     // no text or no images
-    return (
-        !node ||
-        (!(RENDERLESS ? node.textContent : node.innerText)?.trim() &&
-            node.nodeType !== Node.TEXT_NODE &&
-            (node.nodeType !== Node.ELEMENT_NODE ||
-                (!node.querySelector("img[src]:not([src=''])") &&
-                    !node.style.getPropertyValue("background-image") &&
-                    !node.querySelector("[style*='background-image']")?.style.getPropertyValue("background-image"))))
-    );
+    if (!node) {
+        return true;
+    }
+    const hasContent = node.textContent?.trim();
+    if (!hasContent) {
+        const isElement = node.nodeType === Node.ELEMENT_NODE;
+        if (!isElement) {
+            return true;
+        }
+        const hasImage =
+            node.querySelector("img[src]:not([src=''])") ||
+            node.style.getPropertyValue("background-image") ||
+            node.querySelector("[style*='background-image']")?.style.getPropertyValue("background-image");
+        if (!hasImage) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /** Remove leading and trailing empty lines. */
@@ -130,7 +133,6 @@ export default {
     PERSONAL_SIGNATURE_SELECTOR,
     removeSignature,
     removeSignatureAttr,
-    setRenderless,
     trimSignature,
     wrapCorporateSignature,
     wrapDisclaimer,
