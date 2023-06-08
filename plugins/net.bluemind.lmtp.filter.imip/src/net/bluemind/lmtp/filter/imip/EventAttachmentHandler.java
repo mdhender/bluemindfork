@@ -116,7 +116,7 @@ public class EventAttachmentHandler {
 				} catch (IllegalStateException e) {
 				}
 			});
-			String url = attachApi.share(cid, stream).publicUrl;
+			String url = attachApi.share(cidValue.name, stream).publicUrl;
 			AttachedFile file = new AttachedFile();
 			file.name = cidValue.name;
 			file.publicUrl = url;
