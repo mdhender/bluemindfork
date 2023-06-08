@@ -20,7 +20,6 @@
 ?>
 <?php
 
-require_once('rcube/locator.php');
 require_once('MailboxHierarchyClient.php');
 
 /**
