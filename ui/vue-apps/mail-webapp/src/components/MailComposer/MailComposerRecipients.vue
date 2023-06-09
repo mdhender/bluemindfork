@@ -84,10 +84,6 @@ export default {
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .mail-composer-recipients {
-    .bm-contact-input-label {
-        flex: none;
-    }
-
     .cc-contact-input {
         $bcc-button-width: base-px-to-rem(24);
 

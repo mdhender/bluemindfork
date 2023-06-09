@@ -221,10 +221,6 @@ export default {
 .mail-conversation-viewer-draft-editor {
     padding-right: $sp-6;
 
-    .bm-contact-input-label {
-        flex: none;
-    }
-
     .to-contact-input {
         $expand-button-width: $icon-btn-width-compact;
 

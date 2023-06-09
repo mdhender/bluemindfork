@@ -17,7 +17,7 @@
         @autocompleteHidden="expandSearch = false"
         @delete="SET_ADDRESS_WEIGHT({ address: $event.address, weight: -1 })"
     >
-        {{ $t(`common.${recipientType}`) }}
+        <mail-composer-recipient-button :recipient-type="$t(`common.${recipientType}`)" />
     </mail-contact-card-slots>
 </template>
 
@@ -28,17 +28,19 @@ import { fetchContactMembers, RecipientAdaptor, VCardInfoAdaptor } from "@bluemi
 import { EmailValidator } from "@bluemind/email";
 import { ContactInput } from "@bluemind/business-components";
 import { mailTipUtils } from "@bluemind/mail";
+
 import apiAddressbooks from "~/store/api/apiAddressbooks";
 import { SET_ADDRESS_WEIGHT, SET_MESSAGE_BCC, SET_MESSAGE_CC, SET_MESSAGE_TO } from "~/mutations";
 import { ADDRESS_AUTOCOMPLETE } from "~/getters";
 import { ComposerActionsMixin } from "~/mixins";
 import MailContactCardSlots from "../MailContactCardSlots";
+import MailComposerRecipientButton from "./MailComposerRecipientButton.vue";
 
 const { getMailTipContext } = mailTipUtils;
 
 export default {
     name: "MailComposerRecipient",
-    components: { MailContactCardSlots },
+    components: { MailContactCardSlots, MailComposerRecipientButton },
     mixins: [ComposerActionsMixin],
     props: {
         message: { type: Object, required: true },

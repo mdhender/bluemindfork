@@ -3,8 +3,8 @@
         class="contact-input d-flex"
         :class="{ disabled, underline: variant === 'underline', inline: variant === 'inline' }"
     >
-        <label :for="makeUniq('new')" class="bm-contact-input-label"><slot /></label>
-        <div class="flex-fill d-flex">
+        <slot />
+        <div class="flex-fill d-flex pl-3">
             <div
                 v-overflown-elements
                 class="flex-fill d-flex"
@@ -565,14 +565,6 @@ function isVisible(element) {
         padding-bottom: 0 !important;
     }
 
-    .bm-contact-input-label:not(:empty) {
-        @include bold;
-        margin-top: base-px-to-rem(8);
-        margin-bottom: 0;
-        margin-right: $sp-3;
-        padding-left: 0.75rem;
-        padding-right: $sp-1;
-    }
     input,
     input:focus {
         border: unset;
