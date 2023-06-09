@@ -548,5 +548,7 @@ CREATE OR REPLACE TRIGGER virtual_conversation_by_folder_conversation_id_changed
         OLD.conversation_id IS NOT NULL
         -- but the conversation id was changed
         AND OLD.conversation_id != NEW.conversation_id
+        -- and the message was not already removed
+        AND NEW.system_flags & 4 = 0
     )
     EXECUTE PROCEDURE v_conversation_by_folder_conversation_id_changed();
