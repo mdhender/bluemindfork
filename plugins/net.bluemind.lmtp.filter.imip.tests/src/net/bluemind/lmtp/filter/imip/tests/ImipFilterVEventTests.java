@@ -260,6 +260,32 @@ public class ImipFilterVEventTests {
 	}
 
 	@Test
+	public void requestHandler_Event_Google_Attachments() throws Exception {
+		setGlobalExternalUrl();
+		IIMIPHandler handler = new FakeEventRequestHandlerFactory().create();
+
+		IMIPInfos imip = null;
+
+		try (InputStream in = Ex2003Tests.class.getClassLoader().getResourceAsStream("ics/google_attachment.eml");
+				Message parsed = Mime4JHelper.parse(in)) {
+			imip = IMIPParserFactory.create().parse(parsed);
+		}
+
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
+		handler.handle(imip, recipient, domain, user1Mailbox);
+
+		List<ItemValue<VEventSeries>> byIcsUid = user1Calendar.getByIcsUid("5r5fab74aetove4tjjuhq6e7kr@google.com");
+		assertEquals(1, byIcsUid.size());
+
+		VEvent main = byIcsUid.get(0).value.main;
+		assertEquals(1, main.attachments.size());
+
+		AttachedFile attachedFile = main.attachments.get(0);
+		assertEquals("ZOOM - BLOGPOST BLUEMIND - 060623", attachedFile.name);
+		assertNotNull(attachedFile.publicUrl);
+	}
+
+	@Test
 	public void requestHandler_Event_CID_Attachments() throws Exception {
 		setGlobalExternalUrl();
 		IIMIPHandler handler = new FakeEventRequestHandlerFactory().create();

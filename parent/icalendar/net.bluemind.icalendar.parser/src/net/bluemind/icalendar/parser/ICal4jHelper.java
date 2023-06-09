@@ -137,7 +137,8 @@ public class ICal4jHelper<T extends ICalendarElement> {
 	public static final String CONFERENCE_ID = "X-CONFERENCE-ID";
 	public static final String MAIL_TO = "mailto:";
 	public static final String CID = "X-CID";
-	public static final String FILE_NAME = "X-FILE-NAME";
+	public static final String FILE_NAME1 = "X-FILE-NAME";
+	public static final String FILE_NAME2 = "FILENAME";
 	public static final String EMAIL = "EMAIL";
 	public static final String ALT_DESC = "X-ALT-DESC";
 
@@ -402,8 +403,10 @@ public class ICal4jHelper<T extends ICalendarElement> {
 	private Optional<AttachedFile> addUriAttachment(Attach prop) {
 		String url = prop.getUri().toString();
 		String filename = null;
-		if (prop.getParameter(FILE_NAME) != null) {
-			filename = prop.getParameter(FILE_NAME).getValue();
+		if (prop.getParameter(FILE_NAME1) != null) {
+			filename = prop.getParameter(FILE_NAME1).getValue();
+		} else if (prop.getParameter(FILE_NAME2) != null) {
+			filename = prop.getParameter(FILE_NAME2).getValue();
 		} else {
 			filename = prop.getUri().getPath();
 		}
@@ -1068,7 +1071,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		if (iCalendarElement.attachments != null && !iCalendarElement.attachments.isEmpty()) {
 			for (AttachedFile attachment : iCalendarElement.attachments) {
 				ParameterList params = new ParameterList();
-				params.add(new XParameter(FILE_NAME, attachment.name));
+				params.add(new XParameter(FILE_NAME1, attachment.name));
 				if (attachment.cid != null) {
 					params.add(new XParameter(CID, attachment.cid));
 				}
