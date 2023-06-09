@@ -34,7 +34,7 @@ public interface AuthenticationEditorComponentConstants extends Constants {
 
 	String authKerberos();
 
-	String authExternal();
+	String authOpenID();
 
 	String authParameters();
 
