@@ -236,6 +236,7 @@ export default {
         gap: base-px-to-rem(1);
         .from-or-to-row {
             height: base-px-to-rem(24);
+            @extend %large;
         }
     }
 }
@@ -282,7 +283,7 @@ export default {
 
         .displayed-preview {
             flex: 1;
-            color: $neutral-fg-hi1;
+            color: $neutral-fg-lo1;
         }
     }
 
