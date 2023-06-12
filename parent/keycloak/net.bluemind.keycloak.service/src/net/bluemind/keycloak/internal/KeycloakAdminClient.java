@@ -22,6 +22,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
@@ -41,6 +44,8 @@ import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.TagDescriptor;
 
 public abstract class KeycloakAdminClient {
+
+	private static final Logger logger = LoggerFactory.getLogger(KeycloakAdminClient.class);
 
 	protected static final String BASE_URL = "http://"
 			+ Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address() + ":8099";
@@ -72,7 +77,7 @@ public abstract class KeycloakAdminClient {
 						reqHandler -> {
 							if (reqHandler.succeeded()) {
 								HttpClientRequest r = reqHandler.result();
-								r.response(responseHandler(future));
+								r.response(responseHandler(future, uri));
 								MultiMap headers = r.headers();
 								headers.add(HttpHeaders.AUTHORIZATION,
 										String.format("bearer %s", token.getString("access_token")));
@@ -102,7 +107,7 @@ public abstract class KeycloakAdminClient {
 			client.request(HttpMethod.POST, uri.getPath(), reqHandler -> {
 				if (reqHandler.succeeded()) {
 					HttpClientRequest r = reqHandler.result();
-					r.response(responseHandler(future));
+					r.response(responseHandler(future, uri));
 					MultiMap headers = r.headers();
 					headers.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
 					headers.add(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
@@ -123,15 +128,17 @@ public abstract class KeycloakAdminClient {
 		return future;
 	}
 
-	private Handler<AsyncResult<HttpClientResponse>> responseHandler(CompletableFuture<JsonObject> future) {
+	private Handler<AsyncResult<HttpClientResponse>> responseHandler(CompletableFuture<JsonObject> future, URI uri) {
 		return respHandler -> {
 			if (respHandler.succeeded()) {
 				HttpClientResponse resp = respHandler.result();
 				if (resp.statusCode() > 400) {
 					future.complete(null);
-					throw new ServerFault(resp.statusMessage());
+					if (logger.isWarnEnabled()) {
+						logger.warn("Failed to perform request {}: {}", uri, resp.statusMessage());
+					}
+					return;
 				}
-
 				resp.body(body -> {
 					if (body.result().length() > 0) {
 						try {

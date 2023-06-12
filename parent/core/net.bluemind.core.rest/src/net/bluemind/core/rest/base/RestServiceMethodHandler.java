@@ -167,7 +167,9 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 			try {
 				AccessTokenValidator.validate(domainUid, accessToken);
 			} catch (ServerFault sf) {
-				logger.error("Failed to validate AccessToken", sf);
+				if (logger.isDebugEnabled()) {
+					logger.debug("Failed to validate AccessToken: {}", sf.getMessage());
+				}
 				Optional<Cookie> rtc = cookies.stream().filter(c -> "RefreshToken".equals(c.name())).findFirst();
 				if (rtc.isEmpty()) {
 					error(response, key, new ServerFault("No refresh token cookie"));
