@@ -68,8 +68,10 @@ public class PublicFreebusyService implements IPublicFreebusy {
 			return null;
 		}
 
+		DirEntryQuery dirEntryFilter = DirEntryQuery.filterEmail(email);
+		dirEntryFilter.hiddenFilter = false;
 		ListResult<ItemValue<DirEntry>> entries = context.provider().instance(IDirectory.class, dom.uid)
-				.search(DirEntryQuery.filterEmail(email));
+				.search(dirEntryFilter);
 		if (entries.total == 1) {
 			return entries.values.get(0);
 		}
