@@ -107,6 +107,7 @@ export { default as BmTooLargeBox } from "./components/modals/BmTooLargeBox";
 export { default as BmTree } from "./components/BmTree/BmTree";
 export { default as BmTreeNode } from "./components/BmTree/BmTreeNode";
 export { default as BrowsableContainer } from "./mixins/BrowsableContainer";
+export { default as KeyNavGroup } from "./directives/KeyNavGroup";
 export { default as MakeUniq } from "./mixins/MakeUniq";
 export { default as OverflownElements } from "./directives/OverflownElements";
 export { CUSTOM_PROPERTIES_NODE_ATTR } from "./js/theming/colorProcessing";

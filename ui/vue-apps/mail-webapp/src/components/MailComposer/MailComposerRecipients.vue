@@ -17,8 +17,10 @@
                 <mail-composer-recipient :message="message" recipient-type="cc" />
                 <bm-button
                     v-if="displayedRecipientFields == (recipientModes.TO | recipientModes.CC)"
+                    v-key-nav-group:recipient-button
                     variant="text"
                     class="bcc-button text-nowrap"
+                    tabindex="1"
                     @click="displayedRecipientFields = recipientModes.TO | recipientModes.CC | recipientModes.BCC"
                 >
                     {{ $t("common.bcc") }}
@@ -37,7 +39,7 @@
 </template>
 
 <script>
-import { BmButton, BmIconButton, BmCol, BmRow } from "@bluemind/ui-components";
+import { BmButton, BmCol, BmIconButton, BmRow, KeyNavGroup } from "@bluemind/ui-components";
 import { EditRecipientsMixin } from "~/mixins";
 import MailComposerRecipient from "./MailComposerRecipient";
 import { MAX_RECIPIENTS } from "../../utils";
@@ -46,11 +48,12 @@ export default {
     name: "MailComposerRecipients",
     components: {
         BmButton,
-        BmIconButton,
         BmCol,
+        BmIconButton,
         BmRow,
         MailComposerRecipient
     },
+    directives: { KeyNavGroup },
     mixins: [EditRecipientsMixin],
     computed: {
         recipientCount() {
