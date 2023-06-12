@@ -73,7 +73,6 @@ export default {
 </script>
 
 <style lang="scss">
-@use "sass:math";
 @import "~@bluemind/ui-components/src/css/_type";
 @import "~@bluemind/ui-components/src/css/variables";
 
@@ -104,7 +103,7 @@ export default {
         line-height: $line-height-base;
         color: $fill-primary-fg;
         white-space: initial;
-        padding-top: math.div($avatar-height - $font-size-lg * $line-height-base, 2);
+        padding-top: base-px-to-rem(6);
     }
 
     .section-name {

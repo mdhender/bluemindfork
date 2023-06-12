@@ -96,6 +96,24 @@ b.medium,
     font-style: italic;
 }
 
+%large,
+.large {
+    font-weight: $font-weight-normal;
+    font-size: $font-size-lg;
+    line-height: $line-height-regular;
+    font-style: normal;
+}
+
+%large-bold,
+.large b,
+.large.bold,
+.large-bold {
+    font-weight: $font-weight-bold;
+    font-size: $font-size-lg;
+    line-height: $line-height-regular;
+    font-style: normal;
+}
+
 %caption,
 caption,
 .caption {

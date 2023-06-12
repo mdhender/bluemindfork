@@ -90,10 +90,6 @@ function addMimeType(file) {
     header.modal-header {
         background-color: $neutral-bg-lo1;
         padding-left: $sp-7;
-
-        & > .modal-title {
-            font-size: $font-size-lg;
-        }
     }
     .modal-content {
         height: 80vh;
