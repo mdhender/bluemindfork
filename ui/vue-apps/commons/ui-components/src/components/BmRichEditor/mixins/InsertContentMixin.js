@@ -53,7 +53,7 @@ export default {
 function findLastTextNode(node) {
     if (node.nodeType === Node.TEXT_NODE && node.textContent) {
         return node;
-    } else if (node.childNodes.length > 0) {
+    } else if (node.contentEditable !== "false" && node.childNodes.length > 0) {
         for (let i = node.childNodes.length - 1; i >= 0; i--) {
             const textNode = findLastTextNode(node.childNodes[i]);
             if (textNode) {

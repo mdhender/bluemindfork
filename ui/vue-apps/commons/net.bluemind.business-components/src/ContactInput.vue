@@ -70,7 +70,7 @@
                             @keydown.native.;.prevent="focusNext"
                             @autocompleteShown="$emit('autocompleteShown')"
                             @autocompleteHidden="$emit('autocompleteHidden')"
-                            @input="newValue => (newValue ? undefined : $refs.new.focus() && remove(contact))"
+                            @input="newValue => (newValue ? undefined : focus() && remove(contact))"
                         >
                             <template #default="{ item }">
                                 <bm-contact-input-autocomplete-item
@@ -119,13 +119,13 @@
                         <bm-contact-input-autocomplete-item
                             :contact="item"
                             :input-value="value"
-                            @delete="$emit('delete', item) && $refs.new.focus()"
+                            @delete="$emit('delete', item) && focus()"
                         />
                     </template>
                     <template #extra>
                         <bm-contact-input-autocomplete-extra
                             v-if="showExpand"
-                            @click.native="$emit('expandSearch') && $refs.new.focus()"
+                            @click.native="$emit('expandSearch') && focus()"
                         />
                     </template>
                 </bm-form-autocomplete-input>
@@ -295,7 +295,7 @@ export default {
     },
     updated() {
         if (!this.collapsed && this.requestFocusOnInput && isVisible(this.$refs.new?.$el)) {
-            this.$refs.new.focus();
+            this.focus();
             this.requestFocusOnInput = false;
         }
     },
@@ -478,6 +478,9 @@ export default {
                     elementClass: "contact-and-input"
                 });
             }
+        },
+        focus() {
+            this.$refs.new?.focus();
         }
     }
 };

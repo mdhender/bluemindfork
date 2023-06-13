@@ -131,8 +131,9 @@ export default {
             this.$emit("reset");
             this.focus();
         },
-        focus() {
+        async focus() {
             this.$emit("focus");
+            await this.$nextTick();
             this.$refs["input"].focus();
         },
         blur() {
