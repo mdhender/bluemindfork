@@ -17,6 +17,9 @@
   */
 package net.bluemind.backend.mail.replica.service.internal;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,8 +65,21 @@ public class EmitReplicationEvents {
 		eb.publish("mailreplica.newmail", copy);
 	}
 
+	public static record ItemIdImapUid(long itemId, long imapUid, Set<String> flags) {
+
+		public static ItemIdImapUid of(long itemId, MailboxRecord m) {
+			Set<String> flags = new LinkedHashSet<>();
+			m.flags.forEach(f -> flags.add(f.flag));
+			return new ItemIdImapUid(itemId, m.imapUid, flags);
+		}
+
+		public static ItemIdImapUid[] arrayOf(long itemId, MailboxRecord m) {
+			return new ItemIdImapUid[] { of(itemId, m) };
+		}
+	}
+
 	public static void mailboxChanged(SubtreeLocation recordsLocation, Container c, String mboxUniqueId, long version,
-			long[] allChangedIds, long... createdIds) {
+			ItemIdImapUid[] allChangedIds, long... createdIds) {
 		JsonObject payload = new JsonObject();
 		payload.put("mailbox", mboxUniqueId);
 		payload.put("container", IMailReplicaUids.mboxRecords(mboxUniqueId));
@@ -71,10 +87,16 @@ public class EmitReplicationEvents {
 		payload.put("owner", c.owner);
 		payload.put("domain", c.domainUid);
 		JsonArray changedIds = new JsonArray();
-		for (long l : allChangedIds) {
-			changedIds.add(l);
+		JsonArray flaggedImapUids = new JsonArray();
+		for (ItemIdImapUid l : allChangedIds) {
+			changedIds.add(l.itemId());
+			JsonArray flags = new JsonArray();
+			l.flags.forEach(flags::add);
+			JsonObject imapChange = new JsonObject().put("imap", l.imapUid).put("flags", flags);
+			flaggedImapUids.add(imapChange);
 		}
 		payload.put("itemIds", changedIds);
+		payload.put("imapChanges", flaggedImapUids);
 		JsonArray creates = new JsonArray();
 		for (long l : createdIds) {
 			creates.add(l);

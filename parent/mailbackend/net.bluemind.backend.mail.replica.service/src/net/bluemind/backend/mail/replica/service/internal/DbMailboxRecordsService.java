@@ -64,6 +64,7 @@ import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.RecordID;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore.SubtreeLocation;
+import net.bluemind.backend.mail.replica.service.internal.EmitReplicationEvents.ItemIdImapUid;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.Ack;
@@ -160,7 +161,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 			logger.debug("Sending event for created item {}", version);
 			EmitReplicationEvents.recordCreated(mailboxUniqueId, version.version, version.id, mail.imapUid);
 			EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, version.version,
-					new long[] { version.id }, version.id);
+					ItemIdImapUid.arrayOf(version.id, mail), version.id);
 			if (newMailNotificationCandidate(recordsLocation, itemValue)) {
 				newMailNotification(itemValue);
 			}
@@ -174,9 +175,11 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 		List<ItemIdentifier> returned = new ArrayList<>(mails.size());
 		List<ItemValue<MailboxRecord>> toIndex = new ArrayList<>(mails.size());
 		ItemVersion version = null;
+		MailboxRecord last = null;
 		for (MailboxRecord mail : mails) {
 			String uid = mail.imapUid + ".";
 			version = storeService.create(uid, uid, mail);
+			last = mail;
 
 			ItemValue<MailboxRecord> itemValue = ItemValue.create(uid, mail);
 			itemValue.internalId = version.id;
@@ -187,7 +190,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 		updateIndex(toIndex);
 		if (version != null) {
 			EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, version.version,
-					new long[] { version.id });
+					ItemIdImapUid.arrayOf(version.id, last));
 		}
 		return returned;
 	}
@@ -238,7 +241,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 
 		EmitReplicationEvents.recordUpdated(mailboxUniqueId, upd, mail);
 		EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, upd.version,
-				new long[] { upd.id });
+				ItemIdImapUid.arrayOf(upd.id, mail));
 	}
 
 	@Override
@@ -254,7 +257,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 
 		EmitReplicationEvents.recordUpdated(mailboxUniqueId, upd, mail);
 		EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, upd.version,
-				new long[] { upd.id });
+				ItemIdImapUid.arrayOf(upd.id, mail));
 		return upd.ack();
 	}
 
@@ -265,9 +268,10 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 		ItemVersion iv = storeService.delete(uid);
 		if (prev != null) {
 			expungeIndex(Collections.singletonList(prev.value.imapUid));
+			prev.value.flags.add(MailboxItemFlag.System.Deleted.value());
+			EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, iv.version,
+					ItemIdImapUid.arrayOf(iv.id, prev.value));
 		}
-		EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, iv.version,
-				new long[] { iv.id });
 	}
 
 	@Override
@@ -468,15 +472,15 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 		}
 
 		long[] createdIds = new long[crNotifs.size()];
-		long[] itemIds = new long[createdIds.length + upNotifs.size()];
+		ItemIdImapUid[] itemIds = new ItemIdImapUid[createdIds.length + upNotifs.size()];
 		int createIdx = 0;
 		for (CreateNotif create : crNotifs) {
 			EmitReplicationEvents.recordCreated(mailboxUniqueId, create.version, create.itemId, create.imapUid);
-			itemIds[createIdx] = create.itemId;
+			itemIds[createIdx] = new ItemIdImapUid(create.itemId, create.imapUid, Collections.emptySet());
 			createdIds[createIdx++] = create.itemId;
 		}
 		for (UpdateNotif update : upNotifs) {
-			itemIds[createIdx++] = update.itemUpdate.id;
+			itemIds[createIdx++] = ItemIdImapUid.of(update.itemUpdate.id, update.mr);
 			EmitReplicationEvents.recordUpdated(mailboxUniqueId, update.itemUpdate, update.mr);
 		}
 		EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, contVersion, itemIds,
@@ -537,17 +541,20 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 		logger.info("Should delete {} uid(s)", uids.size());
 		long[] asArray = uids.stream().mapToLong(Long::longValue).toArray();
 		AtomicLong lastVersion = new AtomicLong();
-		storeService.doOrFail(() -> {
+		ItemIdImapUid[] cleared = storeService.doOrFail(() -> {
 			List<RecordID> itemUids = recordStore.identifiers(asArray);
+			Set<String> del = Collections.singleton("\\Deleted");
+			ItemIdImapUid[] purged = itemUids.stream().map(rid -> new ItemIdImapUid(rid.itemId, rid.imapUid, del))
+					.toArray(ItemIdImapUid[]::new);
 			itemUids.forEach(rec -> {
 				ItemVersion iv = storeService.delete(rec.itemId);
 				lastVersion.set(iv.version);
 			});
-			return null;
+			return purged;
 		});
 		expungeIndex(uids);
 		EmitReplicationEvents.recordDeleted(mailboxUniqueId);
-		EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, lastVersion.get(), asArray);
+		EmitReplicationEvents.mailboxChanged(recordsLocation, container, mailboxUniqueId, lastVersion.get(), cleared);
 	}
 
 	private void expungeIndex(List<Long> uids) {

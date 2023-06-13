@@ -282,6 +282,7 @@
       <plugin id="net.bluemind.icalendar.sqlschema"/>
       <plugin id="net.bluemind.imap.driver.mailapi"/>
       <plugin id="net.bluemind.imap.endpoint"/>
+      <plugin id="net.bluemind.imap.endpoint.notifications"/>
       <plugin id="net.bluemind.jdbc.driver.pgsql" fragment="true"/>
       <plugin id="net.bluemind.jdbc.pgsql.provider"/>
       <plugin id="net.bluemind.kafka.client"/>
@@ -402,6 +403,10 @@
       <plugin id="net.bluemind.signature.commons.core"/>
       <plugin id="net.bluemind.slf4j"/>
       <plugin id="net.bluemind.slf4j.configuration" fragment="true"/>
+      <plugin id="net.bluemind.smime.cacerts.api"/>
+      <plugin id="net.bluemind.smime.cacerts.persistence"/>
+      <plugin id="net.bluemind.smime.cacerts.service"/>
+      <plugin id="net.bluemind.smime.cacerts.sqlschema"/>
       <plugin id="net.bluemind.soap"/>
       <plugin id="net.bluemind.ssl.hook"/>
       <plugin id="net.bluemind.startup.dropins"/>
@@ -466,10 +471,6 @@
       <plugin id="net.bluemind.webappdata.persistence"/>
       <plugin id="net.bluemind.webappdata.service"/>
       <plugin id="net.bluemind.webappdata.sqlschema"/>
-      <plugin id="net.bluemind.smime.cacerts.api"/>
-      <plugin id="net.bluemind.smime.cacerts.persistence"/>
-      <plugin id="net.bluemind.smime.cacerts.service"/>
-      <plugin id="net.bluemind.smime.cacerts.sqlschema"/>
       <plugin id="net.bluemind.webmail.sqlschema"/>
       <plugin id="net.bluemind.xivo.client"/>
       <plugin id="net.bluemind.xivo.common"/>

@@ -31,7 +31,8 @@
 	
 	<logger name="org.apache.kafka.clients" level="WARN" />
 	<logger name="org.apache.kafka.common" level="WARN" />
-
+	
+	<logger name="net.bluemind.imap.endpoint" level="DEBUG" />
 	
 	<logger name="OSGI" level="ERROR" />
 	<root level="INFO">

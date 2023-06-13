@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.WriteStream;
 import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.SessionState;
@@ -55,12 +54,6 @@ public class IdleProcessor extends AuthenticatedCommandProcessor<IdleCommand> {
 			this.ctx = ctx;
 		}
 
-		private Buffer toBuffer(IdleToken tok) {
-			Buffer buf = Buffer.buffer();
-			buf.appendString("* " + tok.count + " " + tok.kind + "\r\n");
-			return buf;
-		}
-
 		@Override
 		public WriteStream<IdleToken> exceptionHandler(Handler<Throwable> handler) {
 			return this;
@@ -68,12 +61,12 @@ public class IdleProcessor extends AuthenticatedCommandProcessor<IdleCommand> {
 
 		@Override
 		public Future<Void> write(IdleToken data) {
-			return ctx.write(toBuffer(data));
+			return ctx.write(data.toBuffer());
 		}
 
 		@Override
 		public void write(IdleToken data, Handler<AsyncResult<Void>> handler) {
-			ctx.write(toBuffer(data), handler);
+			ctx.write(data.toBuffer(), handler);
 		}
 
 		@Override

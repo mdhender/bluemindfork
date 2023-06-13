@@ -17,14 +17,42 @@
  */
 package net.bluemind.imap.endpoint.driver;
 
-public class IdleToken {
+import java.util.Set;
+import java.util.stream.Collectors;
 
-	public final int count;
-	public final String kind;
+import io.vertx.core.buffer.Buffer;
 
-	public IdleToken(String kind, int count) {
-		this.kind = kind;
-		this.count = count;
+public interface IdleToken {
+
+	Buffer toBuffer();
+
+	public static class CountToken implements IdleToken {
+		public final int count;
+		public final String kind;
+
+		public CountToken(String kind, int count) {
+			this.kind = kind;
+			this.count = count;
+		}
+
+		@Override
+		public Buffer toBuffer() {
+			Buffer buf = Buffer.buffer();
+			buf.appendString("* " + count + " " + kind + "\r\n");
+			return buf;
+		}
+
+	}
+
+	public static record FetchToken(long uid, Set<String> flags) implements IdleToken {
+
+		@Override
+		public Buffer toBuffer() {
+			Buffer buf = Buffer.buffer();
+			buf.appendString(
+					"* " + uid + " FETCH (FLAGS (" + flags.stream().collect(Collectors.joining(" ")) + "))\r\n");
+			return buf;
+		}
 	}
 
 }

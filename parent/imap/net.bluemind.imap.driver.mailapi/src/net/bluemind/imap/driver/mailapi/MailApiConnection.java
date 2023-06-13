@@ -61,6 +61,7 @@ import com.google.common.hash.Hashing;
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.Context;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.WriteStream;
 import net.bluemind.authentication.api.AuthUser;
 import net.bluemind.authentication.api.IAuthentication;
@@ -98,6 +99,7 @@ import net.bluemind.imap.endpoint.driver.AppendStatus.WriteStatus;
 import net.bluemind.imap.endpoint.driver.CopyResult;
 import net.bluemind.imap.endpoint.driver.FetchedItem;
 import net.bluemind.imap.endpoint.driver.IdleToken;
+import net.bluemind.imap.endpoint.driver.IdleToken.FetchToken;
 import net.bluemind.imap.endpoint.driver.ImapMailbox;
 import net.bluemind.imap.endpoint.driver.ListNode;
 import net.bluemind.imap.endpoint.driver.MailPart;
@@ -480,17 +482,41 @@ public class MailApiConnection implements MailboxConnection {
 			IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
 			String watchedUid = IMailReplicaUids.mboxRecords(selected.folder.uid);
 
-			this.activeCons = MQ.registerConsumer(Topic.MAPI_ITEM_NOTIFICATIONS, msg -> {
-
-				String contUid = msg.getStringProperty("containerUid");
+			this.activeCons = MQ.registerConsumer(Topic.IMAP_ITEM_NOTIFICATIONS, msg -> {
+				JsonObject jsMsg = msg.toJson();
+				String contUid = jsMsg.getString("containerUid");
 
 				if (watchedUid.equals(contUid)) {
-					logger.info("Stuff happenned on watched folder for {} -> {}", out, msg.toJson());
+					logger.info("Stuff happenned on watched folder for {} -> {}", out, msg);
 					Count exist = recApi.count(ItemFlagFilter.create().mustNot(ItemFlag.Deleted));
-					out.write(new IdleToken("EXISTS", (int) exist.total));
+					out.write(new IdleToken.CountToken("EXISTS", (int) exist.total));
 
+					List<FetchToken> changes = jsMsg.getJsonArray("changes").stream().map(JsonObject.class::cast)
+							.map(js -> js.mapTo(ImapChange.class)).map(ImapChange::fetch).toList();
+					Iterator<FetchToken> iter = changes.iterator();
+					iteratorToStream(iter, out);
 				}
 			});
+		}
+	}
+
+	private void iteratorToStream(Iterator<FetchToken> iter, WriteStream<IdleToken> out) {
+		while (iter.hasNext()) {
+			FetchToken ft = iter.next();
+			out.write(ft);
+			if (out.writeQueueFull()) {
+				out.drainHandler(v -> iteratorToStream(iter, out));
+				break;
+			}
+		}
+	}
+
+	private static class ImapChange {
+		public long imap;
+		public Set<String> flags;
+
+		public IdleToken.FetchToken fetch() {
+			return new FetchToken(imap, flags);
 		}
 	}
 

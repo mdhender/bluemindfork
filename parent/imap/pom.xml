@@ -12,6 +12,7 @@
 	<modules>
 		<module>net.bluemind.imap.endpoint</module>
 		<module>net.bluemind.imap.endpoint.tests</module>
+		<module>net.bluemind.imap.endpoint.notifications</module>
 		<module>net.bluemind.imap.docker.imaptest</module>
 		<module>net.bluemind.imap.endpoint.imaptest.tests</module>
 		<module>net.bluemind.imap.driver.mailapi</module>

@@ -44,6 +44,7 @@ public final class Topic {
 	public static final String HOOKS_DEVICE = "bm.core.hooks.device";
 	public static final String MAILFLOW_NOTIFICATIONS = "bm.core.mailflow.notifications";
 
+	public static final String IMAP_ITEM_NOTIFICATIONS = "imap.item.notifications";
 	public static final String MAPI_ITEM_NOTIFICATIONS = "mapi.item.notifications";
 	public static final String MAPI_DEFERRED_ACTION_NOTIFICATIONS = "mapi.deferred.action.notifications";
 	public static final String MAPI_HIERARCHY_NOTIFICATIONS = "mapi.hierarchy.notifications";

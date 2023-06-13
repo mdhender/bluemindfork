@@ -129,8 +129,8 @@
    <bundle id="net.bluemind.common.freemarker" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.common.hollow" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.common.io" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.common.logback" version="5.0.0.qualifier" />
-   <bundle id="net.bluemind.common.logback.listener" version="5.0.0.qualifier" />
+   <bundle id="net.bluemind.common.logback" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.common.logback.listener" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.common.reflect" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.common.task" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.commons.closure" version="5.0.0.qualifier"/>
@@ -744,4 +744,5 @@
    <bundle id="net.bluemind.imap.docker.imaptest"/>
    <bundle id="net.bluemind.common.vertx.msgpack"/>
    <bundle id="net.bluemind.webmodule.openidhandler"/>
+   <bundle id="net.bluemind.imap.endpoint.notifications"/>
 </site>
