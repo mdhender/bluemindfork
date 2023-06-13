@@ -7,13 +7,13 @@
         </bm-alert-area>
         <div class="rich-editor-footer">
             <editor-registry editor="composer">
-                <template v-slot:default="{ editor, richEditor }">
+                <template v-slot:default="{ editor, editorComponent }">
                     <bm-rich-editor-status-bar :editor="editor" class="align-self-end" />
                     <transition name="slide-fade">
                         <bm-rich-editor-toolbar
                             v-if="showTextFormattingToolbar"
                             align="right"
-                            :editor="richEditor"
+                            :editor="editorComponent"
                             :default-font-family="defaultFont"
                             :extra-font-families="extraFontsFamilies"
                         />

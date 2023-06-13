@@ -7,17 +7,17 @@ export default {
         editor: { type: [String, Object], required: true }
     },
     render(h, { props, scopedSlots }) {
-        let richEditor;
+        let editorComponent;
         if (typeof props.editor === "string") {
-            richEditor = BmRichEditorRegistry.get(props.editor);
+            editorComponent = BmRichEditorRegistry.get(props.editor);
         } else {
-            richEditor = props.editor;
+            editorComponent = props.editor;
         }
 
-        if (richEditor?.isReady) {
+        if (editorComponent?.isReady) {
             return scopedSlots.default({
-                richEditor,
-                editor: richEditor.editor
+                editorComponent,
+                editor: editorComponent.editor
             });
         }
         return "";

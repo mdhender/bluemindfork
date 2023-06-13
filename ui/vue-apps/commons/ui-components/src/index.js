@@ -89,6 +89,8 @@ export { default as BmReadMore } from "./components/buttons/BmReadMore";
 export { default as BmResponsiveIllustration } from "./components/BmResponsiveIllustration";
 export { default as BmRichEditor } from "./components/BmRichEditor/BmRichEditor";
 export { default as BmRichEditorToolbar } from "./components/BmRichEditor/BmRichEditorToolbar";
+export { default as BmRichEditorStatusBar } from "./components/BmRichEditor/BmRichEditorStatusBar";
+export { default as EditorRegistry } from "./components/BmRichEditor/EditorRegistry";
 export { default as BmRow } from "./components/layout/BmRow";
 export { default as BmScrollspy } from "./directives/BmScrollspy";
 export { default as BmSkeleton } from "./components/BmSkeleton";
