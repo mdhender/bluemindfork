@@ -40,10 +40,7 @@
 	<logger name="org.apache.kafka.common" level="WARN" />
 
 	<logger name="org.apache.directory.shared" level="ERROR" />
-
 	<logger name="org.apache.directory.ldap.client.api.LdapNetworkConnection" level="ERROR" />
-	<logger name="org.apache.directory.api.ldap.model.entry.DefaultAttribute" level="ERROR" />
-
 	<logger name="com.netflix.hollow.core.read.engine.HollowBlobReader" level="WARN" />
 	<logger name="com.netflix.hollow.api.producer.AbstractHollowProducer" level="WARN" />
 
