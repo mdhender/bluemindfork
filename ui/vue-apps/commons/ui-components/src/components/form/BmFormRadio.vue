@@ -38,16 +38,16 @@ export default {
 
 <style lang="scss">
 @use "sass:math";
-@import "../../css/_mixins.scss";
-@import "../../css/_variables.scss";
-@import "../../css/_type.scss";
+@import "../../css/utils/focus";
+@import "../../css/utils/variables";
+@import "../../css/utils/typography";
 
-$radio-button-offset: math.div($line-height-regular - $custom-radio-size, 2);
+$radio-button-offset: math.div($line-height - $custom-radio-size, 2);
 
 .bm-form-radio {
     & * {
         cursor: pointer !important;
-        @extend %regular;
+        @include regular;
     }
 
     & > .custom-radio > .custom-control-input {

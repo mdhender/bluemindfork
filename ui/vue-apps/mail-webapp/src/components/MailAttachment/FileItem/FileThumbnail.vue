@@ -58,7 +58,7 @@ export default {
 </script>
 <style lang="scss">
 @use "sass:map";
-@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 
 .file-thumbnail {
     aspect-ratio: 14 / 5;

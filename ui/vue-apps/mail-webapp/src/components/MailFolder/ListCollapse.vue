@@ -46,9 +46,9 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
-@import "~@bluemind/ui-components/src/css/_type";
-@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/utils/responsiveness";
+@import "~@bluemind/ui-components/src/css/utils/typography";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 
 .folder-list-collapse {
     padding-top: $sp-3;
@@ -83,7 +83,7 @@ export default {
                 text-overflow: ellipsis;
                 white-space: nowrap;
 
-                @extend %bold;
+                @include bold;
                 letter-spacing: -0.04em;
             }
         }

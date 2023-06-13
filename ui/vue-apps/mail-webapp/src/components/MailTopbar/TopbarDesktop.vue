@@ -73,9 +73,9 @@ export default {
 
 <style lang="scss">
 @use "sass:math";
-@import "~@bluemind/ui-components/src/css/variables";
-@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
-@import "~@bluemind/ui-components/src/css/_type";
+@import "~@bluemind/ui-components/src/css/utils/variables";
+@import "~@bluemind/ui-components/src/css/utils/responsiveness";
+@import "~@bluemind/ui-components/src/css/utils/typography";
 .topbar-desktop {
     display: flex;
     flex: 1 1 auto;
@@ -125,10 +125,10 @@ export default {
         order: 4;
 
         .switch-webmail label {
-            @extend %caption-bold;
+            @include caption-bold;
             max-width: $custom-switch-width * 3;
             color: $secondary-fg;
-            $switch-offset: math.div(2 * $line-height-small - $custom-switch-height, 2);
+            $switch-offset: math.div(2 * $line-height-caption - $custom-switch-height, 2);
             $switch-indicator-offset: $switch-offset +
                 math.div($custom-switch-height - $custom-switch-indicator-size, 2);
             &::before {

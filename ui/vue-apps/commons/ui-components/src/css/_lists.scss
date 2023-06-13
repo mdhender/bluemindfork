@@ -1,9 +1,7 @@
-@import "./_type.scss";
-
 .list-group-item {
     &,
     & .font-size-lg {
-        @extend %regular;
+        @include regular;
     }
     border-bottom: 1px solid $neutral-fg-lo2;
     background: none;

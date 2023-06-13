@@ -70,8 +70,8 @@ function mouseOver(mouseEvent, element) {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
-@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/utils/responsiveness";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 
 .contact-card-popover {
     @include until-lg {

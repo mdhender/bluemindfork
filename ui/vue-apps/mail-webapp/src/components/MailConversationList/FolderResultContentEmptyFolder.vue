@@ -43,7 +43,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/utils/variables.scss";
 
 .folder-result-content-empty-folder {
     display: flex;

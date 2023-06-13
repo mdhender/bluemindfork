@@ -47,7 +47,7 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "../../css/_variables";
+@import "../../css/utils/variables";
 .bm-table-size-chooser {
     flex: none;
     .cell {

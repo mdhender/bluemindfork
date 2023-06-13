@@ -127,8 +127,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "./_variables";
-@import "~@bluemind/ui-components/src/css/variables";
+@import "./variables";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 
 .pref-group {
     .pref-field {

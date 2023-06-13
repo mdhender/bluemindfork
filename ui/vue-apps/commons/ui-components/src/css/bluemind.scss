@@ -1,5 +1,4 @@
-@import "variables";
-@import "type";
+@import "utils/variables";
 @import "fileTypeIconsColors";
 @import "bootstrap";
 @import "~bootstrap-vue/src/index.scss";
@@ -11,7 +10,6 @@
 @import "dropdown";
 @import "inputs";
 @import "lists";
-@import "mixins";
 @import "modal";
 @import "scrollbar";
 @import "skeleton";
@@ -20,6 +18,8 @@
 
 @import "defaultTheme";
 @import "darkTheme";
+
+@import "./utils/text";
 
 .bg-surface {
     background-color: $surface !important;
@@ -35,7 +35,7 @@
 }
 
 textarea.form-control {
-    @extend %regular-high;
+    @include regular-high;
 
     $padding: $sp-5;
 

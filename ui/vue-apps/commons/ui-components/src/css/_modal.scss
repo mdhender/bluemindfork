@@ -1,6 +1,3 @@
-@import "type";
-@import "_buttons";
-
 .modal-content {
     border: unset;
     border-top: $modal-content-border-width solid $modal-content-border-color;
@@ -20,7 +17,7 @@
     gap: $sp-5;
 
     .modal-title {
-        @extend %title;
+        @include title;
     }
 
     .close {
@@ -37,7 +34,7 @@
     overflow: hidden;
     word-break: break-word;
     overflow-wrap: break-word;
-    @extend %regular-medium;
+    @include regular-medium;
     color: $neutral-fg;
     & > p {
         margin: 0;

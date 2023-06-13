@@ -103,7 +103,7 @@ export default {
 </script>
 <style lang="scss">
 @use "sass:math";
-@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 
 .mail-conversation-viewer-item {
     .avatar-wrapper {

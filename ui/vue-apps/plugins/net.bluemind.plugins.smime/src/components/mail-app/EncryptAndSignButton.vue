@@ -244,7 +244,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/variables.scss";
+@import "~@bluemind/ui-components/src/css/utils/variables.scss";
 
 .encrypt-and-sign-button {
     &.selected:not(.has-error) .btn {

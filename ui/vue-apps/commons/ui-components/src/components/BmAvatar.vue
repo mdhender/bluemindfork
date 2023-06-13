@@ -174,7 +174,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../css/_variables";
+@import "../css/utils/variables";
 
 @mixin status($radius) {
     width: $radius * 2;

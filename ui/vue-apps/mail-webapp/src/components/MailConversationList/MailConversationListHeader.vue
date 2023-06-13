@@ -131,11 +131,9 @@ export default {
 </script>
 
 <style lang="scss">
-@use "sass:map";
 @use "sass:math";
-@import "~@bluemind/ui-components/src/css/mixins";
-@import "~@bluemind/ui-components/src/css/variables";
-@import "../ConversationList/_variables.scss";
+@import "~@bluemind/ui-components/src/css/utils/variables";
+@import "../ConversationList/variables.scss";
 
 .mail-conversation-list-header {
     background-color: $surface;

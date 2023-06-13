@@ -24,8 +24,8 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/variables";
-@import "~@bluemind/ui-components/src/css/mixins";
+@import "~@bluemind/ui-components/src/css/utils/variables";
+@import "~@bluemind/ui-components/src/css/utils/text";
 
 $shadow-width: 240px;
 

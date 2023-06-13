@@ -24,12 +24,12 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/_type";
-@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/utils/typography";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 
 .badge.bm-todo-list-badge {
     padding: $sp-3 $sp-4 $sp-3 $sp-5;
     gap: $sp-4;
-    @extend %caption-bold;
+    @include caption-bold;
 }
 </style>

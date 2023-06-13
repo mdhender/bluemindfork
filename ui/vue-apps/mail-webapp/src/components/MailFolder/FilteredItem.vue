@@ -69,9 +69,9 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/_type";
-@import "~@bluemind/ui-components/src/css/variables";
-@import "~@bluemind/ui-components/src/css/mixins";
+@import "~@bluemind/ui-components/src/css/utils/typography";
+@import "~@bluemind/ui-components/src/css/utils/variables";
+@import "~@bluemind/ui-components/src/css/utils/text";
 
 .filtered-item .folder-item {
     padding-right: $sp-3 + $sp-2;
@@ -83,7 +83,7 @@ export default {
     .folder-path {
         margin-left: $sp-4;
         display: flex;
-        @extend %caption-bold;
+        @include caption-bold;
         color: $neutral-fg-lo1;
         *:first-child {
             @include text-overflow;

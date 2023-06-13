@@ -37,7 +37,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../css/variables";
+@import "../css/utils/variables";
 
 .bm-illustration {
     overflow: hidden;

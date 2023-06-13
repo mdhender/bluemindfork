@@ -22,8 +22,8 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "../css/_mixins.scss";
-@import "../css/_variables.scss";
+@import "../css/utils/_focus.scss";
+@import "../css/utils/variables.scss";
 
 .bm-check.custom-checkbox .custom-control-input {
     & ~ .custom-control-label::before {

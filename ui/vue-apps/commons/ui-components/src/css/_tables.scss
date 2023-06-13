@@ -22,7 +22,7 @@
     }
     thead th {
         color: $table-head-color;
-        @extend %caption-bold;
+        @include caption-bold;
         vertical-align: bottom;
         &.b-table-sort-icon-left {
             background-image: none !important;
@@ -51,7 +51,7 @@
 
     &.fixed-row-height {
         th {
-            $inner-height: $line-height-small + 2 * ($sp-4 + $sp-1);
+            $inner-height: $line-height-caption + 2 * ($sp-4 + $sp-1);
             height: calc(#{$inner-height} + #{$table-border-width});
         }
         td {

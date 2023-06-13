@@ -27,7 +27,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../css/mixins/_buttons";
+@import "../../css/utils/buttons";
 
 .bm-toggleable-button {
     &.active {

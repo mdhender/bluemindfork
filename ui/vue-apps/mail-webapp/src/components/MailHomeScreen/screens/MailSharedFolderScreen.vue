@@ -42,12 +42,12 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/type";
-@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/utils/typography";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 
 .mail-shared-folder-screen {
     .shared-folder {
-        @extend %bold;
+        @include bold;
         display: flex;
         gap: $sp-4;
 

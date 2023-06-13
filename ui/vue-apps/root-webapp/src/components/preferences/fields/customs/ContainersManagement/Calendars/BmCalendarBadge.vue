@@ -25,15 +25,15 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/_type";
-@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/utils/typography";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 
 .badge.bm-calendar-badge {
     display: flex !important;
     padding: 0;
     padding-right: $sp-4;
     gap: $sp-4;
-    @extend %caption-bold;
+    @include caption-bold;
 
     .bm-color-badge {
         margin: base-px-to-rem(-3);

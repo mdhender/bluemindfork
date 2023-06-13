@@ -102,8 +102,8 @@ function areEqual(filterA, filterB) {
 </script>
 
 <style lang="scss">
-@import "@bluemind/ui-components/src/css/_type.scss";
-@import "~@bluemind/ui-components/src/css/variables";
+@import "@bluemind/ui-components/src/css/utils/typography";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 
 $circled-number-size: base-px-to-rem(36);
 $circled-number-right-margin: $sp-4;
@@ -125,7 +125,7 @@ $field-left-margin: calc(#{$circled-number-size} + #{$circled-number-right-margi
                 border-radius: 50%;
                 border: solid 1px $secondary-fg;
 
-                @extend %h1;
+                @include h1;
                 color: $secondary-fg;
                 margin-bottom: 0;
             }

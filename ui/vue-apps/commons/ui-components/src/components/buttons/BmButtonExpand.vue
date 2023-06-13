@@ -33,7 +33,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../css/_variables";
+@import "../../css/utils/variables";
 
 .bm-button-expand {
     $icon-size: map-get($icon-sizes, "xs");

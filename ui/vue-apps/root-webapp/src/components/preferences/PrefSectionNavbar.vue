@@ -37,8 +37,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/_type";
-@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/utils/typography";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 
 .pref-section-navbar {
     width: 100%;
@@ -53,7 +53,7 @@ export default {
         }
 
         display: inline-block;
-        @extend %bold;
+        @include bold;
         padding-top: $sp-4;
         padding-bottom: $sp-4;
         border-bottom: 3px solid !important;

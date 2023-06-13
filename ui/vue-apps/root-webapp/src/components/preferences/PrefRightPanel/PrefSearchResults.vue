@@ -133,9 +133,9 @@ function parseNodeAndHighlight(node, search) {
 
 <style lang="scss">
 @use "sass:math";
-@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
-@import "~@bluemind/ui-components/src/css/variables";
-@import "../_variables";
+@import "~@bluemind/ui-components/src/css/utils/responsiveness";
+@import "~@bluemind/ui-components/src/css/utils/variables";
+@import "../variables";
 
 .pref-search-results {
     &.pref-empty-search-results {

@@ -45,8 +45,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../css/_mixins";
-@import "../css/_variables";
+@import "../css/utils/focus";
+@import "../css/utils/variables";
 
 .bm-pagination .page-item {
     .page-link {

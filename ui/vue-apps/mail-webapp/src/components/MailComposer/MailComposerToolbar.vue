@@ -248,8 +248,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/_type";
-@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/utils/typography";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 
 .mail-composer-toolbar {
     flex-wrap: wrap;
@@ -267,7 +267,7 @@ export default {
     }
 
     .save-message {
-        @extend %caption;
+        @include caption;
         margin-right: $sp-5;
         color: $neutral-fg-lo1;
         &.save-message-error {

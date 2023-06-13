@@ -94,8 +94,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/variables";
-@import "./_variables.scss";
+@import "~@bluemind/ui-components/src/css/utils/variables";
+@import "./variables.scss";
 
 .list-group-item.conversation-list-item {
     cursor: pointer;

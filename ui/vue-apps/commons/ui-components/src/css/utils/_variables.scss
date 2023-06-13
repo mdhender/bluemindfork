@@ -1,6 +1,6 @@
 @use "sass:map";
 @use "sass:math";
-@import "_colors.scss";
+@import "colors.scss";
 
 //
 // See node_modules/bootstrap/scss/_variables.scss for the file structure.
@@ -95,6 +95,11 @@ $line-height-base: math.div(base-px-to-rem(20), $font-size-base);
 
 $line-height-lg: math.div(base-px-to-rem(24), $font-size-base);
 $line-height-sm: math.div(base-px-to-rem(16), $font-size-base);
+
+$line-height-caption: base-px-to-rem(12);
+$line-height: base-px-to-rem(16);
+$line-height-medium: base-px-to-rem(20);
+$line-height-high: base-px-to-rem(24);
 
 $h1-font-size: base-px-to-rem(30);
 $h1-line-height: base-px-to-rem(40);
@@ -438,10 +443,15 @@ $pre-color: $neutral-fg-hi1;
 
 @import "~bootstrap/scss/functions";
 @import "~bootstrap/scss/variables";
-@import "scrollbarVariables";
 @import "~bootstrap/scss/mixins";
 
 $theme-variants: "neutral", "primary", "secondary", "tertiary", "danger", "warning", "success", "info";
+
+// Scrollbars
+
+$scroll-width: 8px;
+$scrollbar-color: $neutral-fg-lo2;
+$scrollbar-thumb-border-radius: 4px;
 
 // Separators
 

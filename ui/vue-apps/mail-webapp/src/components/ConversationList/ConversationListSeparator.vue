@@ -23,7 +23,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 .list-group-separator.conversation-list-separator {
     background-color: $neutral-bg;
     color: $neutral-fg;

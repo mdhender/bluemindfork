@@ -72,7 +72,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../../css/_variables";
+@import "../../../css/utils/variables";
 
 .font-size-button {
     .dropdown-item-content {

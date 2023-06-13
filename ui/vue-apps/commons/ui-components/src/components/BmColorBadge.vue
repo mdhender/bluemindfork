@@ -65,7 +65,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../css/_variables";
+@import "../css/utils/variables";
 
 .bm-color-badge {
     width: $color-badge-size;

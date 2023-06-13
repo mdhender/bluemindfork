@@ -40,7 +40,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../css/mixins/_buttons";
+@import "../../css/utils/buttons";
 
 .bm-button-copy.bm-toggleable-button {
     &.active {

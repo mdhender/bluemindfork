@@ -14,7 +14,7 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "../css/_variables.scss";
+@import "../css/utils/variables.scss";
 
 .bm-notice {
     margin: $tooltip-arrow-height 0 0;

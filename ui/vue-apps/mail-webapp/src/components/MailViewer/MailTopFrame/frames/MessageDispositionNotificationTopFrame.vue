@@ -119,12 +119,12 @@ function parseReportData(reportData) {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/_type";
-@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/utils/typography";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 
 .message-disposition-notification-top-frame {
     background-color: $neutral-bg-lo1;
-    @extend %regular-medium;
+    @include regular-medium;
 
     .details {
         display: flex;
@@ -134,7 +134,7 @@ function parseReportData(reportData) {
 
     .disclaimer {
         color: $neutral-fg;
-        @extend %caption-italic;
+        @include caption-italic;
         padding: $sp-3 0;
     }
 }

@@ -115,8 +115,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@bluemind/ui-components/src/css/variables";
-@import "@bluemind/ui-components/src/css/mixins/responsiveness";
+@import "@bluemind/ui-components/src/css/utils/variables";
+@import "@bluemind/ui-components/src/css/utils/responsiveness";
 
 .size-search-input {
     width: 100%;

@@ -121,7 +121,7 @@ async function fetchAndConsolidateExternalAccounts(externalSystems) {
 </script>
 
 <style lang="scss" scoped>
-@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 
 .pref-ext-account-creation {
     .pref-ext-account-creation-button {

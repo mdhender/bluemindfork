@@ -49,7 +49,7 @@
 
     .b-calendar-grid-weekdays {
         small {
-            @extend %caption-bold;
+            @include caption-bold;
             height: $weekdays-height;
         }
         border-bottom: none !important;
@@ -146,7 +146,7 @@
             height: $grid-row-height;
             margin-bottom: $grid-gap;
             span {
-                @extend %caption;
+                @include caption;
                 line-height: base-px-to-rem(22);
             }
         }

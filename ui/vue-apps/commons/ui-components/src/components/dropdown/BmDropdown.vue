@@ -74,18 +74,18 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../css/_type";
-@import "../../css/_variables";
-@import "../../css/mixins/_buttons";
+@import "../../css/utils/typography";
+@import "../../css/utils/variables";
+@import "../../css/utils/buttons";
 
 .bm-dropdown {
     & > .btn-text-thin {
         @include bm-button-text-variant("neutral");
-        @extend %regular;
+        @include regular;
     }
     & > .btn-text-thin-on-fill-primary {
         @include bm-button-text-variant("fill-primary");
-        @extend %regular;
+        @include regular;
     }
     &.dropdown-text > .btn {
         @include bm-button-all-sizes("fill");

@@ -1,151 +1,79 @@
-@import "_variables";
-@import "mixins/_responsiveness";
+@import "utils/responsiveness";
+@import "utils/typography";
 
-$line-height-small: base-px-to-rem(12);
-$line-height-regular: base-px-to-rem(16);
-$line-height-medium: base-px-to-rem(20);
-$line-height-high: base-px-to-rem(24);
-
-%h1,
 h1,
 .h1 {
-    font-weight: $font-weight-light;
-    font-size: $h1-font-size;
-    line-height: $h1-line-height;
-    font-style: normal;
+    @include h1;
 }
 
-%h2,
 h2,
 .h2 {
-    font-weight: $font-weight-bold;
-    font-size: $h2-font-size;
-    line-height: $h2-line-height;
-    font-style: normal;
+    @include h2;
 }
 
-%h3,
 h3,
 .h3 {
-    font-weight: $font-weight-bold;
-    font-size: $h3-font-size;
-    line-height: $h3-line-height;
-    font-style: normal;
+    @include h3;
 }
 
-%title,
 .title {
-    font-weight: $font-weight-light;
-    font-size: $title-font-size-sm;
-    line-height: $title-line-height-sm;
-    font-style: normal;
-    @include from-lg {
-        font-size: $title-font-size;
-        line-height: $title-line-height;
-    }
+    @include title;
 }
 
-%regular,
 .regular {
-    font-weight: $font-weight-normal;
-    font-size: $font-size-base;
-    line-height: $line-height-regular;
-    font-style: normal;
+    @include regular;
 }
 
-%regular-medium,
 .medium {
-    font-weight: $font-weight-normal;
-    font-size: $font-size-base;
-    line-height: $line-height-medium;
-    font-style: normal;
+    @include regular-medium;
 }
 
-%regular-high,
 body,
 .high {
-    font-weight: $font-weight-normal;
-    font-size: $font-size-base;
-    line-height: $line-height-high;
-    font-style: normal;
+    @include regular-high;
 }
 
-%bold,
 .bold {
-    font-weight: $font-weight-bold;
-    font-size: $font-size-base;
-    line-height: $line-height-regular;
-    font-style: normal;
+    @include bold;
 }
 
-%bold-medium,
 b.medium,
 .bold.medium,
 .bold-medium {
-    font-weight: $font-weight-bold;
-    font-size: $font-size-base;
-    line-height: $line-height-medium;
-    font-style: normal;
+    @include bold-medium;
 }
 
-%italic,
 .italic {
-    font-weight: $font-weight-normal;
-    font-size: $font-size-base;
-    line-height: $line-height-regular;
-    font-style: italic;
+    @include italic;
 }
 
-%large,
 .large {
-    font-weight: $font-weight-normal;
-    font-size: $font-size-lg;
-    line-height: $line-height-regular;
-    font-style: normal;
+    @include large;
 }
 
-%large-bold,
 .large b,
 .large.bold,
 .large-bold {
-    font-weight: $font-weight-bold;
-    font-size: $font-size-lg;
-    line-height: $line-height-regular;
-    font-style: normal;
+    @include large-bold;
 }
 
-%caption,
 caption,
 .caption {
-    font-weight: $font-weight-normal;
-    font-size: $font-size-sm;
-    line-height: $line-height-small;
-    letter-spacing: -0.01em;
-    font-style: normal;
+    @include caption;
 }
 
-%caption-bold,
 caption b,
 .caption b,
 .caption.bold,
 .caption-bold {
-    font-weight: $font-weight-bold;
-    font-size: $font-size-sm;
-    line-height: $line-height-small;
-    letter-spacing: -0.02em;
-    font-style: normal;
+    @include caption-bold;
 }
 
-%caption-italic,
 caption i,
 .caption i,
 .caption.italic,
 .caption-italic {
-    font-weight: $font-weight-normal;
-    font-size: $font-size-sm;
-    line-height: $line-height-small;
-    letter-spacing: -0.01em;
-    font-style: italic;
+    @include caption-italic;
 }
 
 hr {
@@ -170,7 +98,7 @@ mark,
 
 .blockquote-footer {
     display: block;
-    @extend %caption;
+    @include caption;
     color: $blockquote-small-color;
     margin-top: $sp-2;
 

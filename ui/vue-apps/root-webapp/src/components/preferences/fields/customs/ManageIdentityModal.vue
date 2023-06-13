@@ -362,8 +362,8 @@ function toIdentityDescription(id, identity) {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
-@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/utils/responsiveness";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 
 .manage-identity-modal-body {
     .fa-star-fill {

@@ -46,7 +46,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../css/_variables";
+@import "../../css/utils/variables";
 
 .bm-captioned-icon-dropdown.dropdown-split {
     .btn {

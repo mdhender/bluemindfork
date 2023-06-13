@@ -27,7 +27,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../css/_variables";
+@import "../../css/utils/variables";
 
 .dropdown-item {
     .dropdown-item-content {

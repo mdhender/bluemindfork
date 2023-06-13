@@ -123,8 +123,8 @@ export default {
 
 <style lang="scss">
 @use "sass:math";
-@import "~@bluemind/ui-components/src/css/variables";
-@import "../MailViewer/_variables.scss";
+@import "~@bluemind/ui-components/src/css/utils/variables";
+@import "../MailViewer/variables.scss";
 
 .files-block {
     display: flex;

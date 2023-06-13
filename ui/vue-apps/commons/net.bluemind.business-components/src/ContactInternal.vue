@@ -205,7 +205,7 @@ export default {
 
 <style lang="scss">
 @use "sass:math";
-@import "~@bluemind/ui-components/src/css/_variables.scss";
+@import "~@bluemind/ui-components/src/css/utils/variables.scss";
 
 $avatar-text-gap: $sp-4;
 

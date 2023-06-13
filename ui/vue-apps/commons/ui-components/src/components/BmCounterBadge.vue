@@ -47,7 +47,7 @@ export default {
 
 <style lang="scss">
 @use "sass:math";
-@import "../css/_variables";
+@import "../css/utils/variables";
 
 .bm-counter-badge {
     display: inline-flex;

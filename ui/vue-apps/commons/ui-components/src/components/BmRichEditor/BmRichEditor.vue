@@ -340,8 +340,8 @@ function getTableParentNode(node, containerNode) {
 </script>
 
 <style lang="scss">
-@import "../../css/_type.scss";
-@import "../../css/_variables.scss";
+@import "../../css/utils/typography";
+@import "../../css/utils/variables";
 
 .bm-rich-editor {
     .roosterjs-container {

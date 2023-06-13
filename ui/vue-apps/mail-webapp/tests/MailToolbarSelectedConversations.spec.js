@@ -1,5 +1,5 @@
 import MailToolbarSelectedConversations from "../src/components/MailToolbar/MailToolbarSelectedConversations";
-jest.mock("@bluemind/ui-components/src/css/_variables.scss", () => ({ iconsColors: "" }));
+jest.mock("@bluemind/ui-components/src/css/utils/_variables.scss", () => ({ iconsColors: "" }));
 import { createWrapper } from "./testUtils";
 jest.mock("@bluemind/ui-components/src/css/exports/avatar.scss", () => ({ 1: "#007bff" }));
 jest.mock("~/store/api/apiConversations");

@@ -45,7 +45,7 @@ export default {
 
 <style lang="scss">
 @use "sass:map";
-@import "../../css/_variables";
+@import "../../css/utils/variables";
 
 .bm-form-autocomplete-input {
     .bm-form-input {

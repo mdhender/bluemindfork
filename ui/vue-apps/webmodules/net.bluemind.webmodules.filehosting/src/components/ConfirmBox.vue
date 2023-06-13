@@ -36,7 +36,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 
 .fh-confirm-box {
     .text-neutral-fg-lo2 {

@@ -28,8 +28,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../css/_variables";
-@import "../../css/mixins/_buttons";
+@import "../../css/utils/variables";
+@import "../../css/utils/buttons";
 
 .btn-captioned-icon {
     @include bm-button-text-variant("neutral");

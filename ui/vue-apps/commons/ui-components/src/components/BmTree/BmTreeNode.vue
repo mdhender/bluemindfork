@@ -126,8 +126,8 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "../../css/mixins/_responsiveness.scss";
-@import "../../css/_variables.scss";
+@import "../../css/utils/responsiveness.scss";
+@import "../../css/utils/variables.scss";
 
 $btn-width: 1.25rem;
 @for $i from 0 through 5 {

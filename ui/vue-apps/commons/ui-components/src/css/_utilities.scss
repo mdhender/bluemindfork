@@ -1,5 +1,4 @@
 @import "~bootstrap/scss/utilities";
-@import "variables";
 
 @each $variant in $theme-variants {
     .bg-#{$variant} {

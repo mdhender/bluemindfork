@@ -1,4 +1,4 @@
-@import "../_variables";
+@import "variables";
 
 @mixin from-lg {
     @media (min-width: map-get($grid-breakpoints, "lg")) {

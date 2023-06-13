@@ -497,8 +497,8 @@ function isVisible(element) {
 
 <style lang="scss">
 @use "sass:math";
-@import "@bluemind/ui-components/src/css/_variables.scss";
-@import "@bluemind/ui-components/src/css/_type.scss";
+@import "@bluemind/ui-components/src/css/utils/variables.scss";
+@import "@bluemind/ui-components/src/css/utils/typography.scss";
 
 .contact-input {
     border: $input-border-width solid $neutral-fg-lo1;
@@ -563,7 +563,7 @@ function isVisible(element) {
     }
 
     .bm-contact-input-label:not(:empty) {
-        @extend %bold;
+        @include bold;
         margin-top: base-px-to-rem(8);
         margin-bottom: 0;
         margin-right: $sp-3;
@@ -590,7 +590,7 @@ function isVisible(element) {
     }
 
     $max-nb-suggestions: 5;
-    $suggestion-height: $input-height + $sp-2 + $line-height-small;
+    $suggestion-height: $input-height + $sp-2 + $line-height-caption;
 
     .bm-form-autocomplete-input {
         .suggestions {

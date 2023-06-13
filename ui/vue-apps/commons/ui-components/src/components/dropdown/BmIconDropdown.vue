@@ -77,8 +77,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../css/_variables";
-@import "../../css/mixins/_buttons";
+@import "../../css/utils/variables";
+@import "../../css/utils/buttons";
 
 .bm-icon-dropdown.b-dropdown:not(.dropdown-no-caret) {
     .btn {

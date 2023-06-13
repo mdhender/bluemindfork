@@ -108,7 +108,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@bluemind/ui-components/src/css/mixins/responsiveness";
+@import "@bluemind/ui-components/src/css/utils/responsiveness";
 
 .contact-search-input {
     .contact-input.desktop {

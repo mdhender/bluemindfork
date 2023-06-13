@@ -149,7 +149,7 @@ function userFolder(folder, id) {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/mixins";
+@import "~@bluemind/ui-components/src/css/utils/text";
 
 .pref-filter-rule-folder-action-editor {
     min-width: 0 !important;

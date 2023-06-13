@@ -108,7 +108,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/variables.scss";
+@import "~@bluemind/ui-components/src/css/utils/variables.scss";
 
 .mail-conversation-viewer-message {
     .conversation-viewer-message-head {

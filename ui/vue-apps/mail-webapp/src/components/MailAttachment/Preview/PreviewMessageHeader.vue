@@ -20,7 +20,7 @@ export default {
 
 <style lang="scss">
 @use "sass:map";
-@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 
 .preview-message-header.btn {
     justify-content: start;

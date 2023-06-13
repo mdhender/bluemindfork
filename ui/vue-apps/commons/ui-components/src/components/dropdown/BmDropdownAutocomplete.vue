@@ -66,8 +66,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../css/_variables.scss";
-@import "../../css/_mixins.scss";
+@import "../../css/utils/variables.scss";
+@import "../../css/utils/_text.scss";
 
 .bm-dropdown-autocomplete {
     .dropdown-divider {

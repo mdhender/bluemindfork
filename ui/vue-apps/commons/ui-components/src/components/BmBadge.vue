@@ -33,7 +33,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../css/_variables";
+@import "../css/utils/variables";
 
 .bm-badge {
     background-color: $neutral-bg !important;

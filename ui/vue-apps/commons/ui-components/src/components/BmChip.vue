@@ -66,7 +66,7 @@ export default {
 
 <style lang="scss">
 @use "sass:math";
-@import "../css/_variables";
+@import "../css/utils/variables";
 
 $chip-border-radius: math.div($chip-height-lg, 2);
 

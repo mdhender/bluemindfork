@@ -37,7 +37,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/type";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 
 .composer-alert {
     line-height: $line-height-medium;

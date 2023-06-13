@@ -83,8 +83,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/variables";
-@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/utils/variables";
+@import "~@bluemind/ui-components/src/css/utils/responsiveness";
 
 .mail-conversation-list {
     background-color: $surface;

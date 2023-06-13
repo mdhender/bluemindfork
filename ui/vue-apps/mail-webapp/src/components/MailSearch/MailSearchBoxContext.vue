@@ -89,8 +89,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/variables";
-@import "@bluemind/ui-components/src/css/_type.scss";
+@import "~@bluemind/ui-components/src/css/utils/variables";
+@import "@bluemind/ui-components/src/css/utils/typography";
 
 .mail-search-box-context {
     .folder-tree-header,
@@ -111,7 +111,7 @@ export default {
             white-space: nowrap;
             text-overflow: ellipsis;
         }
-        @extend %regular;
+        @include regular;
     }
 }
 </style>

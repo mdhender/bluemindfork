@@ -100,7 +100,7 @@ export default {
 };
 </script>
 <style lang="scss">
-@import "../css/_variables.scss";
+@import "../css/utils/variables.scss";
 
 .bm-choice-group .btn-group {
     // need this in order 'text-truncate' works

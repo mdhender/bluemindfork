@@ -115,7 +115,7 @@ function getLongestValue(obj) {
 </script>
 
 <style lang="scss">
-@import "../../css/_variables";
+@import "../../css/utils/variables";
 
 .font-family-button {
     & > .btn {

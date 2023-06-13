@@ -26,7 +26,7 @@ export default {
 
 <style lang="scss">
 @use "sass:math";
-@import "../../css/_variables";
+@import "../../css/utils/variables";
 
 $clip-path-width: 100px;
 $clip-path-height: 120px;

@@ -156,10 +156,10 @@ function normalize(option) {
 </script>
 
 <style lang="scss">
-@import "../../css/mixins/_buttons.scss";
-@import "../../css/mixins/_focus.scss";
-@import "../../css/_type.scss";
-@import "../../css/_variables.scss";
+@import "../../css/utils/buttons";
+@import "../../css/utils/focus";
+@import "../../css/utils/typography";
+@import "../../css/utils/variables";
 
 .bm-form-select {
     line-height: $line-height-sm;
@@ -258,7 +258,7 @@ function normalize(option) {
     }
 
     .content {
-        @extend %regular;
+        @include regular;
         float: left;
         margin-right: $sp-2;
         max-width: 100%;

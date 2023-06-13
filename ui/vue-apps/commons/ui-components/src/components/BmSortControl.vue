@@ -35,9 +35,9 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../css/_mixins.scss";
-@import "../css/_type.scss";
-@import "../css/_variables";
+@import "../css/utils/focus";
+@import "../css/utils/typography";
+@import "../css/utils/variables";
 
 .bm-sort-control {
     background: none;
@@ -54,7 +54,7 @@ export default {
     gap: $sp-2 + $sp-3;
     height: base-px-to-rem(24);
     padding: 0 $sp-4;
-    @extend %bold;
+    @include bold;
 
     .sort-arrows {
         display: inline-flex;
@@ -86,7 +86,7 @@ export default {
         color: $neutral-fg;
         gap: $sp-3;
         padding: 0;
-        @extend %caption-bold;
+        @include caption-bold;
 
         .sort-arrows {
             .bm-icon.caret {

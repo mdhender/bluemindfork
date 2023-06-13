@@ -1,0 +1,111 @@
+@mixin h1 {
+    font-weight: $font-weight-light;
+    font-size: $h1-font-size;
+    line-height: $h1-line-height;
+    font-style: normal;
+}
+
+@mixin h2 {
+    font-weight: $font-weight-bold;
+    font-size: $h2-font-size;
+    line-height: $h2-line-height;
+    font-style: normal;
+}
+
+@mixin h3 {
+    font-weight: $font-weight-bold;
+    font-size: $h3-font-size;
+    line-height: $h3-line-height;
+    font-style: normal;
+}
+
+@mixin title {
+    font-weight: $font-weight-light;
+    font-size: $title-font-size-sm;
+    line-height: $title-line-height-sm;
+    font-style: normal;
+    @include from-lg {
+        font-size: $title-font-size;
+        line-height: $title-line-height;
+    }
+}
+
+@mixin regular {
+    font-weight: $font-weight-normal;
+    font-size: $font-size-base;
+    line-height: $line-height;
+    font-style: normal;
+}
+
+@mixin regular-medium {
+    font-weight: $font-weight-normal;
+    font-size: $font-size-base;
+    line-height: $line-height-medium;
+    font-style: normal;
+}
+
+@mixin regular-high {
+    font-weight: $font-weight-normal;
+    font-size: $font-size-base;
+    line-height: $line-height-high;
+    font-style: normal;
+}
+
+@mixin bold {
+    font-weight: $font-weight-bold;
+    font-size: $font-size-base;
+    line-height: $line-height;
+    font-style: normal;
+}
+
+@mixin bold-medium {
+    font-weight: $font-weight-bold;
+    font-size: $font-size-base;
+    line-height: $line-height-medium;
+    font-style: normal;
+}
+
+@mixin italic {
+    font-weight: $font-weight-normal;
+    font-size: $font-size-base;
+    line-height: $line-height;
+    font-style: italic;
+}
+
+@mixin large {
+    font-weight: $font-weight-normal;
+    font-size: $font-size-lg;
+    line-height: $line-height;
+    font-style: normal;
+}
+
+@mixin large-bold {
+    font-weight: $font-weight-bold;
+    font-size: $font-size-lg;
+    line-height: $line-height;
+    font-style: normal;
+}
+
+@mixin caption {
+    font-weight: $font-weight-normal;
+    font-size: $font-size-sm;
+    line-height: $line-height-caption;
+    letter-spacing: -0.01em;
+    font-style: normal;
+}
+
+@mixin caption-bold {
+    font-weight: $font-weight-bold;
+    font-size: $font-size-sm;
+    line-height: $line-height-caption;
+    letter-spacing: -0.02em;
+    font-style: normal;
+}
+
+@mixin caption-italic {
+    font-weight: $font-weight-normal;
+    font-size: $font-size-sm;
+    line-height: $line-height-caption;
+    letter-spacing: -0.01em;
+    font-style: italic;
+}

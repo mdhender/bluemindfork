@@ -30,15 +30,15 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../css/_type.scss";
-@import "../../css/_variables.scss";
+@import "../../css/utils/typography";
+@import "../../css/utils/variables";
 
 .bm-rich-editor-status-bar {
     display: flex;
     align-items: center;
     gap: $sp-3;
     height: $hint-height;
-    @extend %caption;
+    @include caption;
     padding: 0 $sp-4;
     color: $neutral-fg-lo1;
     background: $surface;

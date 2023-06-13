@@ -60,7 +60,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../css/mixins/_buttons";
+@import "../../css/utils/buttons";
 
 @include set-button-icon-sizes(
     ".bm-button",

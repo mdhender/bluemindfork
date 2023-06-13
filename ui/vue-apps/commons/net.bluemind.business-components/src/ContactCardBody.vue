@@ -115,7 +115,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@bluemind/ui-components/src/css/_type.scss";
+@import "@bluemind/ui-components/src/css/utils/variables";
 
 .contact-card-body {
     ol {
@@ -135,7 +135,7 @@ export default {
     }
 
     .bm-icon-button-copy {
-        height: $line-height-regular;
+        height: $line-height;
     }
 
     .min-width-0 {

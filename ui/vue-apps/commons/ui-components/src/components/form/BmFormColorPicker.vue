@@ -83,7 +83,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../css/_variables";
+@import "../../css/utils/variables";
 
 .bm-form-color-picker {
     display: inline-flex;

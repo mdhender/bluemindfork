@@ -31,7 +31,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/mixins";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 
 .search-result {
     background-color: $backdrop;

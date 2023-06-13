@@ -23,7 +23,7 @@ export default {
 
 <style lang="scss">
 @use "sass:math";
-@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 
 .pref-field-info {
     color: $neutral-fg-lo1;

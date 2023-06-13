@@ -213,8 +213,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/type";
-@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/utils/typography";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 
 .conversation-list-item-full,
 .conversation-list-item-compact {
@@ -226,7 +226,7 @@ export default {
         .subject-row,
         .preview-row {
             height: base-px-to-rem(16);
-            @extend %caption;
+            @include caption;
         }
     }
 }
@@ -236,7 +236,7 @@ export default {
         gap: base-px-to-rem(1);
         .from-or-to-row {
             height: base-px-to-rem(24);
-            @extend %large;
+            @include large;
         }
     }
 }

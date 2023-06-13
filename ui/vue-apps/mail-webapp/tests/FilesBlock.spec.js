@@ -1,6 +1,6 @@
 import { BmProgress } from "@bluemind/ui-components";
 // FIXME: global mock ?
-jest.mock("@bluemind/ui-components/src/css/_variables.scss", () => ({ iconsColors: "" }));
+jest.mock("@bluemind/ui-components/src/css/utils/_variables.scss", () => ({ iconsColors: "" }));
 jest.mock("@bluemind/i18n", () => {
     return { t: () => "translated" };
 });

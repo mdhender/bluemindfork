@@ -1,6 +1,3 @@
-@import "./variables";
-@import "./type";
-
 $transition-opacity-ease-in-out: opacity 0.24s ease-in-out;
 
 .b-dropdown-form {
@@ -31,7 +28,7 @@ a.dropdown-item {
 .dropdown-header {
     padding: $sp-4;
     padding-left: $dropdown-spacer + $sp-4;
-    @extend %caption-bold;
+    @include caption-bold;
     color: $neutral-fg-lo1;
 }
 

@@ -53,7 +53,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../../css/_variables";
+@import "../../../css/utils/variables";
 
 .bm-rich-editor-bubble-toolbar {
     white-space: nowrap;

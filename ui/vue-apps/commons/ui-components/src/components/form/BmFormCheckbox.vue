@@ -22,11 +22,11 @@ export default {
 
 <style lang="scss">
 @use "sass:math";
-@import "../../css/_mixins.scss";
-@import "../../css/_variables.scss";
-@import "../../css/_type.scss";
+@import "../../css/utils/_focus.scss";
+@import "../../css/utils/variables.scss";
+@import "../../css/utils/typography";
 
-$checkbox-offset: math.div($line-height-regular - $custom-checkbox-size, 2);
+$checkbox-offset: math.div($line-height - $custom-checkbox-size, 2);
 
 $switch-padding: math.div($custom-switch-height - $custom-switch-indicator-size, 2);
 $switch-indicator-travel: $custom-switch-width - $custom-switch-indicator-size - 2 * $switch-padding;
@@ -37,7 +37,7 @@ $switch-indicator-travel: $custom-switch-width - $custom-switch-indicator-size -
 
 .bm-form-checkbox * {
     cursor: pointer;
-    @extend %regular;
+    @include regular;
 }
 
 .bm-form-checkbox .custom-control-input:focus {

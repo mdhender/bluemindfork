@@ -180,8 +180,8 @@ export default {
 @use "sass:map";
 @use "sass:math";
 
-@import "~@bluemind/ui-components/src/css/variables";
-@import "~@bluemind/ui-components/src/css/mixins/_responsiveness";
+@import "~@bluemind/ui-components/src/css/utils/variables";
+@import "~@bluemind/ui-components/src/css/utils/responsiveness";
 
 .chooser-files-table {
     .bm-table {

@@ -174,7 +174,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../css/_variables.scss";
+@import "../../css/utils/variables.scss";
 
 .bm-form-autocomplete-input {
     $max-nb-suggestions: 5;

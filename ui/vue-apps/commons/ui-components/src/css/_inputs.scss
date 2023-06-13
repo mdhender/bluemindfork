@@ -1,6 +1,4 @@
 @use "sass:map";
-@import "_variables.scss";
-@import "_type.scss";
 
 // Component size
 
@@ -217,7 +215,7 @@ $items-info: (
 // Form group
 
 .form-group label {
-    @extend %regular;
+    @include regular;
     text-align: start;
     margin-bottom: $sp-2;
 }
@@ -226,7 +224,7 @@ $items-info: (
     & ~ small,
     & ~ .invalid-feedback,
     & ~ .valid-feedback {
-        @extend %caption;
+        @include caption;
         text-align: start;
         margin-top: $sp-3;
     }

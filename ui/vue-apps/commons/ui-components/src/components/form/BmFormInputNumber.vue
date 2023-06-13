@@ -120,7 +120,7 @@ export default {
 <style lang="scss">
 @use "sass:map";
 @use "sass:math";
-@import "../../css/_variables.scss";
+@import "../../css/utils/variables.scss";
 
 .bm-form-input-number {
     display: flex;

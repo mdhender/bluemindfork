@@ -75,7 +75,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/variables";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 
 .bm-button.btn-md.new-message {
     flex: 1 1 auto;
