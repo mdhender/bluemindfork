@@ -2,11 +2,12 @@ package net.bluemind.core.backup.continuous.events;
 
 import java.util.concurrent.atomic.LongAdder;
 
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.client.Client;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.util.concurrent.RateLimiter;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.GetResponse;
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
@@ -25,6 +26,8 @@ import net.bluemind.index.mail.IndexableMessageBodyCache;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 
 public class MessageBodyESSourceHook implements IMessageBodyHook, ContinuousContenairization<IndexedMessageBodyDTO> {
+
+	private static final ObjectMapper mapper = new ObjectMapper();
 
 	@Override
 	public String type() {
@@ -52,31 +55,30 @@ public class MessageBodyESSourceHook implements IMessageBodyHook, ContinuousCont
 		}
 
 		try {
-			IElasticSourceHolder body = getIndexedMessageBody(mailboxRecord, domainUid, ownerId);
-			IndexedMessageBodyDTO dto = new IndexedMessageBodyDTO(body.asElasticSource());
+			byte[] body = getIndexedMessageBody(mailboxRecord, domainUid, ownerId);
+			IndexedMessageBodyDTO dto = new IndexedMessageBodyDTO(body);
 			save(domainUid, ownerId, mailboxRecord.messageBody, dto, create);
 		} catch (Exception e) {
 			logger.warn("Cannot resync pending data", e);
 		}
 	}
 
-	private IElasticSourceHolder getIndexedMessageBody(MailboxRecord mailboxRecord, String domainUid, String ownerId)
+	private byte[] getIndexedMessageBody(MailboxRecord mailboxRecord, String domainUid, String ownerId)
 			throws Exception {
 
 		// cache strategy
 		IElasticSourceHolder fromCache = IndexableMessageBodyCache.sourceHolder.getIfPresent(mailboxRecord.messageBody);
 		if (fromCache != null) {
 			cacheStrategy.add(1);
-			return fromCache;
+			return fromCache.asElasticSource();
 		}
 
-		// es reload strategy
-		Client client = ESearchActivator.getClient();
-		GetResponse getResp = client.prepareGet("mailspool_pending_read_alias", null, mailboxRecord.messageBody)
-				.setFetchSource(true).get();
-		if (!getResp.isSourceEmpty()) {
+		ElasticsearchClient esClient = ESearchActivator.getClient();
+		GetResponse<ObjectNode> response = esClient
+				.get(g -> g.index("mailspool_pending_read_alias").id(mailboxRecord.messageBody), ObjectNode.class);
+		if (response.found()) {
 			esStrategy.add(1);
-			return getResp::getSourceAsBytes;
+			return mapper.writeValueAsBytes(response.source());
 		}
 
 		// slow strategy
@@ -92,7 +94,7 @@ public class MessageBodyESSourceHook implements IMessageBodyHook, ContinuousCont
 		MessageBodyObjectStore sds = new MessageBodyObjectStore(prov.getContext(), mailbox.dataLocation);
 		ByteBuf mmapedBody = sds.openMmap(mailboxRecord.messageBody);
 		Stream stream = VertxStream.stream(Buffer.buffer(mmapedBody));
-		return IndexedMessageBody.createIndexBody(mailboxRecord.messageBody, stream);
+		return IndexedMessageBody.createIndexBody(mailboxRecord.messageBody, stream).asElasticSource();
 	}
 
 }

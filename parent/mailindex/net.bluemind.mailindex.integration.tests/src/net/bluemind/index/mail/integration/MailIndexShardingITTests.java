@@ -28,14 +28,15 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.elasticsearch.action.admin.indices.alias.get.GetAliasesResponse;
-import org.elasticsearch.client.Client;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.io.Files;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch.indices.GetAliasResponse;
 import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
@@ -57,7 +58,7 @@ public class MailIndexShardingITTests {
 
 	private String domainUid;
 	private IndexTestHelper testHelper;
-	private Client client;
+	private ElasticsearchClient client;
 
 	@Before
 	public void setup() throws Exception {
@@ -152,7 +153,8 @@ public class MailIndexShardingITTests {
 		System.err.println("index is " + index);
 		String val = "tron" + System.currentTimeMillis();
 		ESearchActivator.putMeta(index, "pipo", val);
-		String fetched = ESearchActivator.getMeta(index, "pipo");
+		String fetched = client.indices().get(g -> g.index(index)) //
+				.result().get("index").mappings().meta().get("pipo").to(String.class);
 		assertEquals(val, fetched);
 	}
 
@@ -218,11 +220,9 @@ public class MailIndexShardingITTests {
 				.get();
 	}
 
-	private String getUserAliasIndex(String userUid) {
-		GetAliasesResponse t = client.admin().indices().prepareGetAliases(getIndexAliasName(userUid)).execute()
-				.actionGet();
-
-		return t.getAliases().keysIt().next();
+	private String getUserAliasIndex(String userUid) throws ElasticsearchException, IOException {
+		GetAliasResponse t = client.indices().getAlias(a -> a.name(getIndexAliasName(userUid)));
+		return t.result().keySet().iterator().next();
 	}
 
 	private String getIndexAliasName(String entityId) {

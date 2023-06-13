@@ -20,7 +20,6 @@ package net.bluemind.backend.mail.replica.indexing;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -46,11 +45,6 @@ public class NoopMailIndexService implements IMailIndexService {
 	}
 
 	@Override
-	public void cleanupFolder(ItemValue<Mailbox> box, ItemValue<MailboxFolder> folder, Set<Integer> keySet) {
-		logger.debug("NOOP");
-	}
-
-	@Override
 	public List<MailSummary> fetchSummary(ItemValue<Mailbox> box, ItemValue<MailboxFolder> f, IDSet set) {
 		logger.debug("NOOP");
 		return Collections.emptyList();
@@ -59,13 +53,6 @@ public class NoopMailIndexService implements IMailIndexService {
 	@Override
 	public void syncFlags(ItemValue<Mailbox> box, ItemValue<MailboxFolder> folder, List<MailSummary> mails) {
 		logger.debug("NOOP");
-	}
-
-	@Override
-	public double getArchivedMailSum(String mailboxUid) {
-		logger.debug("NOOP");
-
-		return 0;
 	}
 
 	@Override
@@ -111,18 +98,9 @@ public class NoopMailIndexService implements IMailIndexService {
 		return Collections.emptyList();
 	}
 
-	private static final BulkOperation noopBulk = new BulkOperation() {
-
-		@Override
-		public void commit(boolean waitForRefresh) {
-			logger.debug("NOOP Bulk");
-		}
-	};
-
 	@Override
-	public BulkOperation startBulk() {
+	public void doBulk(List<BulkOp> operations) {
 		logger.debug("NOOP");
-		return noopBulk;
 	}
 
 	@Override
@@ -132,10 +110,9 @@ public class NoopMailIndexService implements IMailIndexService {
 	}
 
 	@Override
-	public void storeMessage(String mailboxUniqueId, ItemValue<MailboxRecord> mail, String user,
-			Optional<BulkOperation> bulk) {
+	public List<BulkOp> storeMessage(String mailboxUniqueId, ItemValue<MailboxRecord> mail, String user, boolean bulk) {
 		logger.debug("NOOP");
-
+		return Collections.emptyList();
 	}
 
 	@Override

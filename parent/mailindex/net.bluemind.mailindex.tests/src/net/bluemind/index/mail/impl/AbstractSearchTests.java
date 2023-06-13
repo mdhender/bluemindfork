@@ -27,8 +27,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Before;
 
 import com.google.common.collect.Lists;
@@ -36,9 +34,12 @@ import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
+import net.bluemind.backend.mail.replica.indexing.IMailIndexService.BulkOp;
 import net.bluemind.backend.mail.replica.indexing.IndexedMessageBody;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -68,7 +69,7 @@ public class AbstractSearchTests {
 
 	@Before
 	public void before() throws Exception {
-		ElasticsearchTestHelper.getInstance().beforeTest(25);
+		ElasticsearchTestHelper.getInstance().beforeTest(5);
 		JdbcTestHelper.getInstance().beforeTest();
 
 		JdbcActivator.getInstance().setDataSource(JdbcTestHelper.getInstance().getDataSource());
@@ -84,13 +85,15 @@ public class AbstractSearchTests {
 		VertxPlatform.spawnBlocking(30, TimeUnit.SECONDS);
 
 		System.out.println("Ensuring index exists....");
-		Client c = ESearchActivator.getClient();
+		ElasticsearchClient esClient = ESearchActivator.getClient();
 
-		c.admin().indices().prepareAliases().addAlias(INDEX_NAME, ALIAS, QueryBuilders.termQuery("owner", userUid))
-				.execute().actionGet();
-		c.admin().indices().prepareAliases().addAlias(INDEX_NAME, ALIAS2, QueryBuilders.termQuery("owner", userUid2))
-				.execute().actionGet();
-		ESearchActivator.deleteByQuery(INDEX_NAME, QueryBuilders.queryStringQuery(("in:" + folderUid)));
+		esClient.indices().putAlias(a -> a //
+				.index(INDEX_NAME).name(ALIAS).filter(f -> f.term(t -> t.field("owner").value(userUid))));
+		esClient.indices().putAlias(a -> a //
+				.index(INDEX_NAME).name(ALIAS2).filter(f -> f.term(t -> t.field("owner").value(userUid2))));
+		esClient.deleteByQuery(d -> d //
+				.index(INDEX_NAME).query(QueryBuilders.queryString(q -> q.query("in:" + folderUid))));
+
 		System.out.println("Bootstrap finished....");
 	}
 
@@ -150,6 +153,24 @@ public class AbstractSearchTests {
 		item.internalId = itemId;
 		item.value = mail;
 		MailIndexActivator.getService().storeMessage(mailboxUniqueId, item, userUid);
+	}
+
+	protected List<BulkOp> bulkMessage(String mailboxUniqueId, String userUid, String bodyUid, long imapUid,
+			List<MailboxItemFlag> flags) {
+		return bulkMessage(mailboxUniqueId, userUid, bodyUid, imapUid, flags, 44l);
+	}
+	
+	protected List<BulkOp> bulkMessage(String mailboxUniqueId, String userUid, String bodyUid, long imapUid,
+			List<MailboxItemFlag> flags, long itemId) {
+		MailboxRecord mail = new MailboxRecord();
+		mail.messageBody = bodyUid;
+		mail.imapUid = imapUid;
+		mail.flags = flags;
+
+		ItemValue<MailboxRecord> item = new ItemValue<>();
+		item.internalId = itemId;
+		item.value = mail;
+		return MailIndexActivator.getService().storeMessage(mailboxUniqueId, item, userUid, true);
 	}
 
 	protected String entryId(long imapUid) {

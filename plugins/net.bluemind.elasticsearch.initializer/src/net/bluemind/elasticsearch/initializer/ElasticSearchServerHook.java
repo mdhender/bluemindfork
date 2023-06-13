@@ -21,10 +21,10 @@ package net.bluemind.elasticsearch.initializer;
 import java.util.Arrays;
 import java.util.List;
 
-import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
@@ -54,11 +54,11 @@ public class ElasticSearchServerHook extends DefaultServerHook {
 			return;
 		}
 
-		Client client = null;
+		ElasticsearchClient client = null;
 		for (ISchemaInitializer initializer : initializers) {
 			if (tag.equals(initializer.getTag())) {
 				if (client == null) {
-					client = ESearchActivator.createClient(Arrays.asList(itemValue.value.address()));
+					client = ESearchActivator.getClient(Arrays.asList(itemValue.value.address()));
 				}
 				initializer.initializeSchema(client);
 			}

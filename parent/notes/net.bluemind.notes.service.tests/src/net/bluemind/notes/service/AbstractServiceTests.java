@@ -20,6 +20,7 @@ package net.bluemind.notes.service;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,12 +31,13 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
-import org.elasticsearch.client.transport.TransportClient;
 import org.junit.After;
 import org.junit.Before;
 
 import com.google.common.collect.Lists;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
@@ -95,7 +97,7 @@ public abstract class AbstractServiceTests {
 	protected String domainUid;
 	protected String owner;
 
-	protected TransportClient esearchClient;
+	protected ElasticsearchClient esearchClient;
 
 	ISystemConfiguration systemConfiguration;
 	private static final String GLOBAL_EXTERNAL_URL = "my.test.external.url";
@@ -225,8 +227,8 @@ public abstract class AbstractServiceTests {
 		return note;
 	}
 
-	protected void refreshIndex() {
-		esearchClient.admin().indices().prepareRefresh(VNoteIndexStore.VNOTE_WRITE_ALIAS).get();
+	protected void refreshIndex() throws ElasticsearchException, IOException {
+		esearchClient.indices().refresh(r -> r.index(VNoteIndexStore.VNOTE_WRITE_ALIAS));
 	}
 
 	protected void setGlobalExternalUrl() {

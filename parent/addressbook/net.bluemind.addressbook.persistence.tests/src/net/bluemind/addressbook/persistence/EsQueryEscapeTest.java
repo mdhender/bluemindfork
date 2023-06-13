@@ -21,68 +21,70 @@ package net.bluemind.addressbook.persistence;
 import org.junit.Assert;
 import org.junit.Test;
 
+import net.bluemind.addressbook.api.VCardQuery;
+
 public class EsQueryEscapeTest {
 
 	@Test
 	public void testEscapeNothing() throws Exception {
-		String query = "";
-		String escaped = new VCardIndexStore(null, null, null).escape(query);
+		VCardQuery query = VCardQuery.create("", true);
+		String escaped = VCardIndexStore.escape(query);
 
-		Assert.assertEquals(query, escaped);
+		Assert.assertEquals(query.query, escaped);
 	}
 
 	@Test
 	public void testNothingToEscape() throws Exception {
-		String query = "hello";
-		String escaped = new VCardIndexStore(null, null, null).escape(query);
+		VCardQuery query = VCardQuery.create("hello", true);
+		String escaped = VCardIndexStore.escape(query);
 
-		Assert.assertEquals(query, escaped);
+		Assert.assertEquals(query.query, escaped);
 	}
 
 	@Test
 	public void testSimpleEscape() throws Exception {
-		String query = "[test]";
-		String escaped = new VCardIndexStore(null, null, null).escape(query);
+		VCardQuery query = VCardQuery.create("[test]", true);
+		String escaped = VCardIndexStore.escape(query);
 
 		Assert.assertEquals("\\[test\\]", escaped);
 	}
 
 	@Test
 	public void testMultipleEscapes() throws Exception {
-		String query = "[te?st]";
-		String escaped = new VCardIndexStore(null, null, null).escape(query);
+		VCardQuery query = VCardQuery.create("[te?st]", true);
+		String escaped = VCardIndexStore.escape(query);
 
 		Assert.assertEquals("\\[te\\?st\\]", escaped);
 	}
 
 	@Test
 	public void testColonDoesNotGetEscaped() throws Exception {
-		String query = "[test]:value";
-		String escaped = new VCardIndexStore(null, null, null).escape(query);
+		VCardQuery query = VCardQuery.create("[test]:value", true);
+		String escaped = VCardIndexStore.escape(query);
 
 		Assert.assertEquals("\\[test\\]:value", escaped);
 	}
 
 	@Test
 	public void testColonDoesNotGetDetectedAsAlreadyEscaped() throws Exception {
-		String query = "[te\\:st]";
-		String escaped = new VCardIndexStore(null, null, null).escape(query);
+		VCardQuery query = VCardQuery.create("[te\\:st]", true);
+		String escaped = VCardIndexStore.escape(query);
 
 		Assert.assertEquals("\\[te\\:st\\]", escaped);
 	}
 
 	@Test
 	public void testAlreadyEscapedStringGetsEscapedAnyway() throws Exception {
-		String query = "\\[test\\]";
-		String escaped = new VCardIndexStore(null, null, null).escape(query);
+		VCardQuery query = VCardQuery.create("\\[test\\]", true);
+		String escaped = VCardIndexStore.escape(query);
 
 		Assert.assertEquals("\\\\\\[test\\\\\\]", escaped);
 	}
 
 	@Test
 	public void testColonEscapedAndOtherEscapes() throws Exception {
-		String query = "test:[v]a\\:ue";
-		String escaped = new VCardIndexStore(null, null, null).escape(query);
+		VCardQuery query = VCardQuery.create("test:[v]a\\:ue", true);
+		String escaped = VCardIndexStore.escape(query);
 
 		Assert.assertEquals("test:\\[v\\]a\\:ue", escaped);
 	}

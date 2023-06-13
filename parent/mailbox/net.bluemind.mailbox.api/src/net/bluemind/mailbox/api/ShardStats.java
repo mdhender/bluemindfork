@@ -28,13 +28,32 @@ public class ShardStats extends SimpleShardStats {
 
 	@BMApi(version = "3")
 	public enum State {
-		OK, HALF_FULL, FULL, SPLIT_NEEDED
+		OK, HALF_FULL, FULL, SPLIT_NEEDED;
+
+		public static State ofDuration(long duration) {
+			if (duration > 1000) {
+				return ShardStats.State.FULL;
+			} else if (duration > 500) {
+				return ShardStats.State.HALF_FULL;
+			} else {
+				return ShardStats.State.OK;
+			}
+		}
 	}
 
 	@BMApi(version = "3")
 	public static class MailboxStats {
 		public String mailboxUid;
 		public long docCount;
+
+		public MailboxStats() {
+
+		}
+
+		public MailboxStats(String mailboxUid, long docCount) {
+			this.mailboxUid = mailboxUid;
+			this.docCount = docCount;
+		}
 	}
 
 	@NotNull

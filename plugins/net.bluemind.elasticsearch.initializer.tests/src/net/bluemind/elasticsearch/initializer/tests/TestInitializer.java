@@ -18,7 +18,6 @@ public class TestInitializer extends AbstractSchemaInitializer {
 
 	@Override
 	public String getSchemaAsString() {
-
 		byte[] content = null;
 		try (InputStream schemaStream = TestInitializer.class.getResourceAsStream("test-schema.json");) {
 			content = ByteStreams.toByteArray(schemaStream);

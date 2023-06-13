@@ -1,18 +1,15 @@
 package net.bluemind.cli.index;
 
-import java.util.List;
+import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
-import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest.AliasActions;
-import org.elasticsearch.action.admin.indices.alias.get.GetAliasesAction;
-import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequestBuilder;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.client.Requests;
-import org.elasticsearch.cluster.metadata.AliasMetadata;
-
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch.indices.AliasDefinition;
+import co.elastic.clients.elasticsearch.indices.get_alias.IndexAliases;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
@@ -54,30 +51,44 @@ public class ReconstructCommand implements ICmdLet, Runnable {
 			return;
 		}
 
+		ElasticsearchClient esClient = ESearchActivator.getClient();
+
 		ctx.info("Checking existing alias on index: " + index);
-		Client client = ESearchActivator.getClient();
-		List<AliasMetadata> aliasMetadatas = new GetAliasesRequestBuilder(client, GetAliasesAction.INSTANCE).get()
-				.getAliases().get(index);
-		if (aliasMetadatas == null || aliasMetadatas.isEmpty()) {
+		IndexAliases aliases;
+		try {
+			aliases = esClient.indices().getAlias(a -> a.index(index)).get(index);
+		} catch (IOException | ElasticsearchException e) {
+			ctx.error("Failed to list aliases on index '" + index + "'", e);
+			aliases = null;
+		}
+
+		if (aliases == null || aliases.aliases().isEmpty()) {
 			ctx.warn("No aliases registred on index '" + index + "'");
 			return;
 		}
 
-		ctx.info(aliasMetadatas.size() + " aliases found on index: " + index);
+		Map<String, AliasDefinition> aliasDefinitions = aliases.aliases();
+		ctx.info(aliasDefinitions.size() + " aliases found on index: " + index);
 
 		ctx.info("Resetting index: " + index);
 		ESearchActivator.resetIndex(index);
 
 		ctx.info("Adding previous alias to index: " + index);
-		IndicesAliasesRequest addAliasRequest = Requests.indexAliasesRequest();
-		aliasMetadatas.stream() //
-				.map(metadata -> addAliasAction(index, metadata)) //
-				.forEach(addAliasRequest::addAliasAction);
-		client.admin().indices().aliases(addAliasRequest).actionGet();
+		try {
+			esClient.indices().updateAliases(u -> {
+				aliasDefinitions.entrySet().forEach(entry -> u.actions(a -> a //
+						.add(add -> add.index(index).alias(entry.getKey()).filter(entry.getValue().filter()))));
+				return u;
+			});
+		} catch (IOException | ElasticsearchException e) {
+			String missing = aliasDefinitions.keySet().stream().collect(Collectors.joining(","));
+			ctx.error("Failed to add aliases on index '" + index + "': " + missing, e);
+			return;
+		}
 
 		ctx.info("Starting dir entry consolidation");
-		Set<String> uids = aliasMetadatas.stream() //
-				.map(metadata -> metadata.alias().replace("mailspool_alias_", "")) //
+		Set<String> uids = aliasDefinitions.keySet().stream() //
+				.map(name -> name.replace("mailspool_alias_", "")) //
 				.collect(Collectors.toSet());
 		DirEntryTargetFilter targetFilter = DirEntryTargetFilter.allDomains(ctx, dirEntryKind(), Optional.empty());
 
@@ -96,11 +107,6 @@ public class ReconstructCommand implements ICmdLet, Runnable {
 								String.format("Fail to consolidate mailbox index for entry %s", entry));
 					});
 				});
-	}
-
-	private AliasActions addAliasAction(String index, AliasMetadata metadata) {
-		return AliasActions.add().alias(metadata.alias()).index(index).filter(metadata.filter().string())
-				.writeIndex(true);
 	}
 
 	private Kind[] dirEntryKind() {

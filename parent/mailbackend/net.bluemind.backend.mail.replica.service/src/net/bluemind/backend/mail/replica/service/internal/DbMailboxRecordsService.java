@@ -59,7 +59,7 @@ import net.bluemind.backend.mail.replica.api.Weight;
 import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.backend.mail.replica.indexing.IDSet;
 import net.bluemind.backend.mail.replica.indexing.IMailIndexService;
-import net.bluemind.backend.mail.replica.indexing.IMailIndexService.BulkOperation;
+import net.bluemind.backend.mail.replica.indexing.IMailIndexService.BulkOp;
 import net.bluemind.backend.mail.replica.persistence.MailboxRecordStore;
 import net.bluemind.backend.mail.replica.persistence.RecordID;
 import net.bluemind.backend.mail.replica.persistence.ReplicasStore;
@@ -199,14 +199,14 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 		return optRecordsLocation.orElseThrow(() -> new ServerFault("Missing subtree location"));
 	}
 
-	private void index(ItemValue<MailboxRecord> mail, Optional<BulkOperation> op) {
+	private List<BulkOp> index(ItemValue<MailboxRecord> mail) {
 		if (logger.isDebugEnabled()) {
 			SubtreeLocation recordsLocation = locationOrFault();
 
 			logger.debug("Indexing mail in mailbox {}:{}@{} in folder {}", mailboxUniqueId,
 					recordsLocation.subtreeContainer, recordsLocation.partition, recordsLocation.boxName);
 		}
-		indexService.storeMessage(mailboxUniqueId, mail, container.owner, op);
+		return indexService.storeMessage(mailboxUniqueId, mail, container.owner, true);
 	}
 
 	private ItemValue<MailboxFolder> getFolder() {
@@ -493,11 +493,8 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 			executorService.execute(() -> {
 				try {
 					long esTime = System.currentTimeMillis();
-					Optional<BulkOperation> bulkOp = Optional.of(indexService.startBulk());
-					for (ItemValue<MailboxRecord> forIndex : pushToIndex) {
-						index(forIndex, bulkOp);
-					}
-					bulkOp.ifPresent(bul -> bul.commit(false));
+					List<BulkOp> operations = pushToIndex.stream().flatMap(mail -> index(mail).stream()).toList();
+					indexService.doBulk(operations);
 					esTime = System.currentTimeMillis() - esTime;
 					logger.info("[{}] Es CRUD op, idx: {} in {}ms", mailboxUniqueId, pushToIndex.size(), esTime);
 				} catch (Exception e) {

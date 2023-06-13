@@ -25,10 +25,10 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import io.vertx.core.buffer.Buffer;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.Stream;
@@ -80,7 +80,7 @@ public class NoteService implements INote {
 	private RBACManager rbacManager;
 	private VNoteStore vnoteStore;
 
-	public NoteService(DataSource pool, Client esearchClient, Container container, BmContext bmContext) {
+	public NoteService(DataSource pool, ElasticsearchClient esearchClient, Container container, BmContext bmContext) {
 		this.bmContext = bmContext;
 		this.container = container;
 		this.vnoteStore = new VNoteStore(pool, container);

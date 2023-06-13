@@ -7,11 +7,9 @@
 		}
 	},
 	"mappings": {
-		"eml": {
-			"_source": {
-				"enabled": true
-			},
-			"enabled": false
-		}
+		"_source": {
+			"enabled": true
+		},
+		"enabled": false
 	}
 }

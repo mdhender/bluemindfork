@@ -29,12 +29,12 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
-import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import net.bluemind.calendar.api.VEvent;
@@ -115,7 +115,7 @@ public class CalendarService implements IInternalCalendar {
 
 	private CalendarAuditor auditor;
 
-	public CalendarService(DataSource pool, Client esearchClient, Container container, BmContext context,
+	public CalendarService(DataSource pool, ElasticsearchClient esClient, Container container, BmContext context,
 			CalendarAuditor auditor) throws ServerFault {
 		this.container = container;
 		this.context = context;
@@ -126,7 +126,7 @@ public class CalendarService implements IInternalCalendar {
 		storeService = new VEventContainerStoreService(context, pool, context.getSecurityContext(), container,
 				veventStore);
 
-		indexStore = new VEventIndexStore(esearchClient, container, DataSourceRouter.location(context, container.uid));
+		indexStore = new VEventIndexStore(esClient, container, DataSourceRouter.location(context, container.uid));
 
 		EventBus eventBus = VertxPlatform.eventBus();
 		calendarEventProducer = new CalendarEventProducer(container, eventBus);

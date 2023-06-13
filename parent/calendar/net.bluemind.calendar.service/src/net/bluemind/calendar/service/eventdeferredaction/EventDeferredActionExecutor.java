@@ -30,9 +30,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import org.apache.james.mime4j.MimeException;
-import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
 
 import freemarker.template.TemplateException;
 import net.bluemind.calendar.api.VEvent;

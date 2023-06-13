@@ -34,7 +34,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
-import org.elasticsearch.client.transport.TransportClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -42,6 +41,7 @@ import org.junit.rules.TestName;
 
 import com.google.common.collect.Lists;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Identification.Name;
@@ -118,7 +118,7 @@ public abstract class AbstractCalendarTests {
 	protected IDomainSettings domainSettings;
 	protected ISystemConfiguration systemConfiguration;
 
-	protected TransportClient esearchClient;
+	protected ElasticsearchClient esClient;
 
 	protected ItemValue<User> testUser;
 	protected SecurityContext userSecurityContext;
@@ -409,7 +409,7 @@ public abstract class AbstractCalendarTests {
 		tagRef2.itemUid = "tag2";
 
 		// elasticsearch
-		esearchClient = ElasticsearchTestHelper.getInstance().getClient();
+		esClient = ElasticsearchTestHelper.getInstance().getClient();
 		System.out.println("vx3 before() " + junitName.getMethodName());
 	}
 
@@ -565,7 +565,7 @@ public abstract class AbstractCalendarTests {
 	protected ICalendar getCalendarService(SecurityContext context, Container container) throws ServerFault {
 		BmContext ctx = new BmTestContext(context);
 		DataSource ds = DataSourceRouter.get(ctx, container.uid);
-		return new CalendarService(ds, esearchClient, container, ctx,
+		return new CalendarService(ds, esClient, container, ctx,
 				CalendarAuditor.auditor(IAuditManager.instance(), ctx, container));
 	}
 

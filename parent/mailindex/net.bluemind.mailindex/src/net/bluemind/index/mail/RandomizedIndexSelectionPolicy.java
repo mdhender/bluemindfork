@@ -19,8 +19,6 @@ package net.bluemind.index.mail;
 
 import java.util.List;
 
-import org.elasticsearch.client.Client;
-
 import io.netty.util.internal.ThreadLocalRandom;
 import net.bluemind.mailindex.hook.IIndexSelectionPolicy;
 
@@ -29,7 +27,7 @@ public class RandomizedIndexSelectionPolicy implements IIndexSelectionPolicy {
 	private static final ThreadLocalRandom random = ThreadLocalRandom.current();
 
 	@Override
-	public String getMailspoolIndexName(Client client, List<String> shards, String mailboxUid) {
+	public String getMailspoolIndexName(List<String> shards, String mailboxUid) {
 		return shards.get(random.nextInt(shards.size()));
 	}
 

@@ -18,12 +18,14 @@
  */
 package net.bluemind.addressbook.service;
 
+import static net.bluemind.addressbook.persistence.VCardIndexStore.VCARD_WRITE_ALIAS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -36,6 +38,7 @@ import java.util.UUID;
 
 import org.junit.Test;
 
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.addressbook.api.AddressBookBusAddresses;
@@ -65,6 +68,7 @@ import net.bluemind.core.container.persistence.AclStore;
 import net.bluemind.core.container.persistence.ChangelogStore;
 import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.rest.LocalJsonObject;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.tests.BmTestContext;
@@ -543,7 +547,7 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testSearchOrder() throws ServerFault {
+	public void testSearchOrder() throws Exception {
 		VCard card = defaultVCard();
 		card.identification.name = VCard.Identification.Name.create(".bbbbb", null, null, null, null,
 				Collections.emptyList());
@@ -574,7 +578,7 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testSearchTotal() throws ServerFault {
+	public void testSearchTotal() throws Exception {
 		VCard card = defaultVCard();
 		card.identification.name = VCard.Identification.Name.create(".bbbbb", null, null, null, null,
 				Collections.emptyList());
@@ -601,7 +605,7 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testSearch() throws ServerFault {
+	public void testSearch() throws Exception {
 		VCard card = defaultVCard();
 		card.identification.nickname = VCard.Identification.Nickname.create("Aachi");
 		getService(defaultSecurityContext).create("testUid1", card);
@@ -1372,6 +1376,10 @@ public class AddressBookServiceTests extends AbstractServiceTests {
 		item.updated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-26 11:46:00");
 		item.version = 17;
 		return ItemValue.create(item, defaultVCard());
+	}
+
+	protected void refreshIndexes() throws ElasticsearchException, IOException {
+		ElasticsearchTestHelper.getInstance().getClient().indices().refresh(r -> r.index(VCARD_WRITE_ALIAS));
 	}
 
 }

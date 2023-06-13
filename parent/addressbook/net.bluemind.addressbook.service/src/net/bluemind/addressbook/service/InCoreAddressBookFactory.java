@@ -19,10 +19,10 @@
 package net.bluemind.addressbook.service;
 
 import java.sql.SQLException;
+
 import javax.sql.DataSource;
 
-import org.elasticsearch.client.Client;
-
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.domainbook.DomainAddressBook;
 import net.bluemind.addressbook.service.internal.AddressBookService;
@@ -59,15 +59,14 @@ public class InCoreAddressBookFactory
 		}
 
 		if (!container.type.equals(IAddressBookUids.TYPE)) {
-			throw new ServerFault(
-					"Incompatible addressbook container: " + container.type + ", uid: " + container.uid);
+			throw new ServerFault("Incompatible addressbook container: " + container.type + ", uid: " + container.uid);
 		}
 
 		if (!isDefaultDomainAb(container) && ds.equals(context.getDataSource())) {
 			throw new ServerFault("wrong datasource container.uid " + container.uid);
 		}
 
-		Client esClient = ESearchActivator.getClient();
+		ElasticsearchClient esClient = ESearchActivator.getClient();
 		if (esClient == null) {
 			throw new ServerFault("elasticsearch was not found for contact indexing");
 		}

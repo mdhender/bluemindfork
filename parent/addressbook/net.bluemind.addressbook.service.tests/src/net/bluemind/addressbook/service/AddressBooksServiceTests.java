@@ -18,14 +18,16 @@
  */
 package net.bluemind.addressbook.service;
 
+import static net.bluemind.addressbook.persistence.VCardIndexStore.VCARD_WRITE_ALIAS;
 import static org.junit.Assert.assertEquals;
 
-import java.sql.SQLException;
+import java.io.IOException;
 import java.util.Arrays;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.IAddressBooks;
 import net.bluemind.addressbook.api.VCard;
@@ -40,6 +42,7 @@ import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.AclStore;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.user.api.IUserSubscription;
@@ -77,7 +80,7 @@ public class AddressBooksServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testSearch() throws ServerFault, SQLException {
+	public void testSearch() throws Exception {
 
 		VCard card = defaultVCard();
 		card.organizational = new VCard.Organizational();
@@ -167,5 +170,9 @@ public class AddressBooksServiceTests extends AbstractServiceTests {
 
 		assertEquals(7, res.total);
 		assertEquals(7, res.values.size());
+	}
+
+	protected void refreshIndexes() throws ElasticsearchException, IOException {
+		ElasticsearchTestHelper.getInstance().getClient().indices().refresh(r -> r.index(VCARD_WRITE_ALIAS));
 	}
 }

@@ -1,9 +1,9 @@
 package net.bluemind.imap.driver.mailapi;
 
-import org.elasticsearch.index.query.BoolQueryBuilder;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 
 public interface IUidSearchMatcher {
 
-	public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid);
+	public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid);
 
 }

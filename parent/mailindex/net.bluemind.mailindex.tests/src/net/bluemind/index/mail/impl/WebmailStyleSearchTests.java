@@ -22,18 +22,16 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
-import org.apache.lucene.search.join.ScoreMode;
-import org.elasticsearch.action.delete.DeleteResponse;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.join.query.JoinQueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.junit.Test;
 
-import io.vertx.core.json.JsonObject;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.Refresh;
+import co.elastic.clients.elasticsearch._types.query_dsl.ChildScoreMode;
+import co.elastic.clients.elasticsearch.core.DeleteResponse;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 
@@ -47,24 +45,21 @@ public class WebmailStyleSearchTests extends AbstractSearchTests {
 		addEml(2L, "data/testAttach.eml", 2, MailboxItemFlag.System.Flagged);
 		System.err.println("EMLs added.");
 		ESearchActivator.refreshIndex(INDEX_NAME);
-		QueryBuilder q = QueryBuilders.boolQuery()//
-				.must(JoinQueryBuilders.hasParentQuery("body", QueryBuilders.queryStringQuery("content:\"drug\""),
-						false))//
-				.must(QueryBuilders.termQuery("in", folderUid))//
-		;
-		System.err.println("Q: " + q);
-
-		Client client = ESearchActivator.getClient();
-		SearchResponse results = client.prepareSearch(INDEX_NAME)//
-				.setQuery(q).setFetchSource(true)//
+		ElasticsearchClient client = ESearchActivator.getClient();
+		SearchResponse<ObjectNode> results = client.search(s -> s //
+				.index(INDEX_NAME)//
+				.query(q -> q.bool(b -> b //
+						.must(m -> m.hasParent(c -> c.parentType("body")
+								.query(p -> p.queryString(qs -> qs.query("content:\"drug\""))).score(false)))
+						.must(m -> m.term(t -> t.field("in").value(folderUid))))) //
+				.source(so -> so.fetch(true)) //
 				.storedFields("date", "size", "headers.date", "headers.from", "headers.to", "headers.cc", "subject",
 						"content-type", "reply-to", "disposition-notification-to", "list-post", "x-priority",
 						"x-bm-event", "x-bm-rsvp", "x-bm-resourcebooking", "x-bm-folderuid", "x-bm-foldertype", "is")//
-				.setTypes("recordOrBody").setFrom(0).setSize(40)//
-				.execute().actionGet();
-		JsonObject js = new JsonObject(results.toString());
-		System.err.println("resp: " + js.encodePrettily());
-		assertTrue(results.getHits().getTotalHits().value > 0);
+				.from(0).size(40), ObjectNode.class);
+//		JsonObject js = new JsonObject(results.toString());
+		System.err.println("resp: " + results.toString());
+		assertTrue(results.hits().total().value() > 0);
 
 	}
 
@@ -76,41 +71,36 @@ public class WebmailStyleSearchTests extends AbstractSearchTests {
 		addEml(2L, "data/testAttach.eml", 2, MailboxItemFlag.System.Flagged);
 		System.err.println("EMLs added.");
 		ESearchActivator.refreshIndex(INDEX_NAME);
-		QueryBuilder q = QueryBuilders.boolQuery()//
-				.must(JoinQueryBuilders.hasParentQuery("body", QueryBuilders.queryStringQuery("content:\"drug\""),
-						false))//
-				.must(QueryBuilders.termQuery("in", folderUid))//
-		;
-		System.err.println("Q: " + q);
-
-		Client client = ESearchActivator.getClient();
-		SearchResponse results = client.prepareSearch(INDEX_NAME)//
-				.setQuery(q).setFetchSource(true)//
+		ElasticsearchClient client = ESearchActivator.getClient();
+		SearchResponse<ObjectNode> results = client.search(s -> s //
+				.index(INDEX_NAME) //
+				.query(q -> q.bool(b -> b //
+						.must(m -> m.hasParent(c -> c.parentType("body")
+								.query(p -> p.queryString(qs -> qs.query("content:\"drug\""))).score(false)))
+						.must(m -> m.term(t -> t.field("in").value(folderUid))))) //
+				.source(so -> so.fetch(true)) //
 				.storedFields("date", "size", "headers.date", "headers.from", "headers.to", "headers.cc", "subject",
 						"content-type", "reply-to", "disposition-notification-to", "list-post", "x-priority",
 						"x-bm-event", "x-bm-rsvp", "x-bm-resourcebooking", "x-bm-folderuid", "x-bm-foldertype", "is")//
-				.setTypes("recordOrBody").setFrom(0).setSize(40)//
-				.execute().actionGet();
-		JsonObject js = new JsonObject(results.toString());
-		System.err.println("resp: " + js.encodePrettily());
-		assertEquals(1, results.getHits().getTotalHits().value);
-		results.getHits().forEach((SearchHit hit) -> {
-			DeleteResponse delResponse = client.prepareDelete(INDEX_NAME, "recordOrBody", hit.getId())
-					.setRefreshPolicy(RefreshPolicy.WAIT_UNTIL).execute().actionGet();
+				.from(0).size(40), ObjectNode.class);
+//		JsonObject js = new JsonObject(results.toString());
+		System.err.println("resp: " + results.toString());
+		assertEquals(1, results.hits().total().value());
+		for (Hit<ObjectNode> hit : results.hits().hits()) {
+			DeleteResponse delResponse = client.delete(d -> d.index(INDEX_NAME).id(hit.id()).refresh(Refresh.WaitFor));
 			System.err.println("DEL: " + delResponse);
-		});
+		}
 
-		QueryBuilder orphans = QueryBuilders.boolQuery()
-				.mustNot(JoinQueryBuilders.hasChildQuery("record", QueryBuilders.matchAllQuery(), ScoreMode.None))//
-				.must(QueryBuilders.termQuery("body_msg_link", "body"));
+		SearchResponse<Void> orphanFound = client.search(s -> s //
+				.index(INDEX_NAME) //
+				.query(q -> q.bool(b -> b
+						.must(m -> m.hasChild(
+								c -> c.type("record").query(qa -> qa.matchAll(a -> a)).scoreMode(ChildScoreMode.None))) //
+						.must(m -> m.term(t -> t.field("body_msg_link").value("body"))))) //
+				.source(so -> so.fetch(true))//
+				.from(0).size(40), Void.class);
 
-		SearchResponse orphanFound = client.prepareSearch(INDEX_NAME)//
-				.setQuery(orphans).setFetchSource(true)//
-				.setTypes("recordOrBody").setFrom(0).setSize(40)//
-				.execute().actionGet();
-
-		System.err.println("ORPHANS:\n" + new JsonObject(orphanFound.toString()).encodePrettily());
-		assertEquals(1, orphanFound.getHits().getTotalHits().value);
+		assertEquals(1, orphanFound.hits().total().value());
 
 	}
 

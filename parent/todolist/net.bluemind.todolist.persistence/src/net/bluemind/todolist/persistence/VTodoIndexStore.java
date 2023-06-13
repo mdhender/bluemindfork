@@ -18,37 +18,33 @@
  */
 package net.bluemind.todolist.persistence;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Pattern;
 
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.ExistsQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Strings;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryStringQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.date.BmDateTime;
-import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.utils.JsonUtils;
-import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.lib.elasticsearch.EsBulk;
 import net.bluemind.lib.elasticsearch.Queries;
+import net.bluemind.lib.elasticsearch.exception.ElasticDocumentException;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.todolist.api.VTodo;
 import net.bluemind.todolist.api.VTodoQuery;
@@ -59,25 +55,31 @@ public class VTodoIndexStore {
 
 	public static final String VTODO_WRITE_ALIAS = "todo_write_alias";
 	public static final String VTODO_READ_ALIAS = "todo_read_alias";
-	public static final String VTODO_TYPE = "vtodo";
 
-	private static final Pattern alreadyEscapedRegex = Pattern.compile(".*?\\\\[\\[\\]+!-&|!(){}^\"~*?].*");
-	private static final Pattern escapeRegex = Pattern.compile("([+\\-!\\(\\){}\\[\\]^\"~*?\\\\]|[&\\|]{2})");
+	private final ElasticsearchClient esClient;
+	private final Container container;
+	private final long shardId;
+	private final Query containerQuery;
 
-	private Client esearchClient;
-	private Container container;
-	private long shardId;
+	public VTodoIndexStore(ElasticsearchClient esClient, Container container, String loc) {
+		this.esClient = esClient;
+		this.container = container;
+		this.shardId = loc == null ? 0 : Topology.get().datalocation(loc).internalId;
+		this.containerQuery = TermQuery.of(t -> t.field("containerUid").value(container.uid))._toQuery();
+	}
 
-	public static class ItemHolder {
+	public static class IndexableVTodo {
 		public String uid;
 		public String containerUid;
 		public VTodo value;
 	}
 
-	public VTodoIndexStore(Client esearchClient, Container container, String loc) {
-		this.esearchClient = esearchClient;
-		this.container = container;
-		this.shardId = loc == null ? 0 : Topology.get().datalocation(loc).internalId;
+	private IndexableVTodo asIndexable(String uid, VTodo todo) {
+		IndexableVTodo indexable = new IndexableVTodo();
+		indexable.uid = uid;
+		indexable.containerUid = container.uid;
+		indexable.value = todo;
+		return indexable;
 	}
 
 	public void create(Item item, VTodo todo) {
@@ -88,164 +90,107 @@ public class VTodoIndexStore {
 		store(item, todo);
 	}
 
-	public void delete(long id) {
-		esearchClient.prepareDelete().setIndex(VTODO_WRITE_ALIAS).setType(VTODO_TYPE).setId(getId(id)).execute()
-				.actionGet();
-	}
-
-	public void deleteAll() {
-		ESearchActivator.deleteByQuery(VTODO_WRITE_ALIAS, QueryBuilders.termQuery("containerUid", container.uid));
-	}
-
-	public ListResult<String> search(VTodoQuery query) {
-
-		List<QueryBuilder> filters = new LinkedList<>();
-
-		if (query.todoUid != null) {
-			filters.add(QueryBuilders.termQuery("value.uid", query.todoUid));
-		}
-		if (!Strings.nullToEmpty(query.query).trim().isEmpty()) {
-			filters.add(QueryBuilders.queryStringQuery(query.escapeQuery ? escape(query.query) : query.query));
-		}
-
-		if (query.dateMin != null || query.dateMax != null) {
-			List<QueryBuilder> musts = new ArrayList<>(2);
-			if (query.dateMin != null) {
-				musts.add(fieldGreaterThan("value.due.iso8601", "value.due.timezone", query.dateMin));
-			}
-
-			if (query.dateMax != null) {
-				musts.add(fieldLessThan("value.due.iso8601", "value.due.timezone", query.dateMax));
-			}
-
-			// has rrule without end or rrule.until in range
-			BmDateTime until = (query.dateMin != null) ? query.dateMin : query.dateMax;
-			ExistsQueryBuilder isRecurring = QueryBuilders.existsQuery("value.rrule");
-			QueryBuilder noEndDate = Queries.missing("value.rrule.until.iso8601");
-			QueryBuilder recurEndMatch = fieldGreaterThan("value.rrule.until.iso8601", "value.rrule.until.timezone",
-					until);
-			QueryBuilder inRangeWhenReccuring = Queries.and(isRecurring, Queries.or(noEndDate, recurEndMatch));
-
-			// build the global date range filter
-			QueryBuilder dateRangeFilter = Queries.or(Queries.and(musts), inRangeWhenReccuring);
-			filters.add(dateRangeFilter);
-		}
-
-		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-		filters.add(QueryBuilders.termQuery("containerUid", container.uid));
-
-		for (QueryBuilder f : filters) {
-			boolQuery.must(f);
-		}
-
-		SearchRequestBuilder searchRequestBuilder = esearchClient.prepareSearch(VTODO_READ_ALIAS) // index
-				.setQuery(boolQuery);
-		if (query.size > 0) {
-			searchRequestBuilder.setFrom(query.from).setSize(query.size);
-		}
-		searchRequestBuilder.setFetchSource(false).addStoredField("uid"); // fetch uid
-
-		logger.debug("vtodo query {}", searchRequestBuilder);
-
-		SearchResponse resp = searchRequestBuilder.execute().actionGet();
-
-		logger.debug("vtodo query response size {}", resp.getHits().getHits().length);
-
-		List<String> uids = new ArrayList<>(resp.getHits().getHits().length);
-		for (SearchHit hit : resp.getHits().getHits()) {
-			uids.add(hit.field("uid").getValue());
-		}
-
-		ListResult<String> ret = new ListResult<>();
-		ret.values = uids;
-		ret.total = (int) resp.getHits().getTotalHits().value;
-
-		return ret;
-	}
-
-	private QueryBuilder fieldGreaterThan(String field, String fieldTz, BmDateTime dt) {
-		QueryBuilder inRangeNoTz = Queries.and(//
-				Queries.missing(fieldTz), //
-				QueryBuilders.rangeQuery(field).gte(new BmDateTimeWrapper(dt).format("yyyy-MM-dd'T'HH:mm:ss.S")));
-		QueryBuilder inRangeWithTz = Queries.and(//
-				QueryBuilders.existsQuery(fieldTz), //
-				QueryBuilders.rangeQuery(field).gte(dt.iso8601));
-
-		return Queries.and(QueryBuilders.existsQuery(field), Queries.or(inRangeNoTz, inRangeWithTz));
-	}
-
-	private QueryBuilder fieldLessThan(String field, String fieldTz, BmDateTime dt) {
-		QueryBuilder inRangeNoTz = Queries.and(//
-				Queries.missing(fieldTz), //
-				QueryBuilders.rangeQuery(field).lt(new BmDateTimeWrapper(dt).format("yyyy-MM-dd'T'HH:mm:ss.S")));
-		QueryBuilder inRangeWithTz = Queries.and(//
-				QueryBuilders.existsQuery(fieldTz), //
-				QueryBuilders.rangeQuery(field).lt(dt.iso8601));
-
-		return Queries.and(QueryBuilders.existsQuery(field), Queries.or(inRangeNoTz, inRangeWithTz));
-	}
-
 	private void store(Item item, VTodo todo) {
-		byte[] json = null;
+		IndexableVTodo toIndex = asIndexable(item.uid, todo);
 		try {
-			json = asJson(item.uid, todo);
-		} catch (JsonProcessingException e) {
-			logger.error("error during vtodo serialization", e);
-			return;
+			esClient.index(i -> i.index(VTODO_WRITE_ALIAS).id(getId(item.id)).document(toIndex));
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticDocumentException(VTODO_WRITE_ALIAS, e);
 		}
-
-		esearchClient.prepareIndex(VTODO_WRITE_ALIAS, VTODO_TYPE).setSource(json, XContentType.JSON)
-				.setId(getId(item.id)).execute().actionGet();
-
 	}
 
 	public void updates(List<ItemValue<VTodo>> tasks) {
 		if (tasks.isEmpty()) {
 			return;
 		}
-		BulkRequestBuilder bulk = esearchClient.prepareBulk();
 
-		tasks.forEach(task -> {
-			byte[] json = null;
-			try {
-				json = asJson(task.uid, task.value);
-			} catch (JsonProcessingException e) {
-				logger.error("error during vtodo serialization", e);
-				return;
+		new EsBulk(esClient).commitAll(tasks, (task, b) -> b.index(idx -> idx //
+				.index(VTODO_WRITE_ALIAS) //
+				.id(getId(task.internalId)) //
+				.document(asIndexable(task.uid, task.value))));
+	}
+
+	public void delete(long id) {
+		try {
+			esClient.delete(d -> d.index(VTODO_WRITE_ALIAS).id(getId(id)));
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticDocumentException(VTODO_WRITE_ALIAS, e);
+		}
+	}
+
+	public void deleteAll() {
+		Query toDelete = QueryBuilders.bool(b -> b.must(containerQuery));
+		try {
+			esClient.deleteByQuery(d -> d.index(VTODO_WRITE_ALIAS).query(toDelete));
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticDocumentException(VTODO_WRITE_ALIAS, e);
+		}
+	}
+
+	public ListResult<String> search(VTodoQuery query) {
+		List<Query> queries = new LinkedList<>();
+		queries.add(containerQuery);
+
+		if (query.todoUid != null) {
+			queries.add(TermQuery.of(t -> t.field("value.uid").value(query.todoUid))._toQuery());
+		}
+		if (!Strings.nullToEmpty(query.query).trim().isEmpty()) {
+			queries.add(QueryStringQuery.of(q -> q.query(escape(query)).defaultOperator(Operator.And))._toQuery());
+		}
+
+		if (query.dateMin != null || query.dateMax != null) {
+			List<Query> between = new ArrayList<>(2);
+			if (query.dateMin != null) {
+				between.add(Queries.BmDateRange.gt("value.due", query.dateMin));
 			}
-			IndexRequestBuilder op = esearchClient.prepareIndex(VTODO_WRITE_ALIAS, VTODO_TYPE)
-					.setSource(json, XContentType.JSON).setId(getId(task.internalId));
-			bulk.add(op);
-		});
-		bulk.execute().actionGet();
+
+			if (query.dateMax != null) {
+				between.add(Queries.BmDateRange.lt("value.due", query.dateMax));
+			}
+
+			BmDateTime until = (query.dateMin != null) ? query.dateMin : query.dateMax;
+			Query dateQuery = BoolQuery.of(b -> b //
+					.should(s -> s.bool(b1 -> b1.must(between))) //
+					.should(s -> s.bool(b1 -> b1 //
+							.must(m -> m.exists(e -> e.field("value.rrule"))) //
+							.must(m -> m.bool(b2 -> b2 //
+									.should(sn -> sn.bool(b3 -> b3
+											.mustNot(m2 -> m2.exists(e -> e.field("value.rrule.until.iso8601")))))
+									.should(Queries.BmDateRange.gte("value.rrule.until", until)))))))
+					._toQuery();
+
+			queries.add(dateQuery);
+		}
+
+		Query searchQuery = QueryBuilders.bool(b -> b.must(queries));
+		try {
+			SearchResponse<Void> response = esClient.search(s -> {
+				s.index(VTODO_READ_ALIAS) //
+						.query(searchQuery) //
+						.source(src -> src.fetch(false)) //
+						.storedFields("uid");
+				return (query.size > 0) ? s.from(query.from).size(query.size) : s;
+			}, Void.class);
+
+			List<String> uids = response.hits().hits().stream()
+					.map(hit -> hit.fields().get("uid").toJson().asJsonArray().getString(0)).toList();
+			return ListResult.create(uids, response.hits().total().value());
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticDocumentException(VTODO_READ_ALIAS, e);
+		}
 	}
 
 	public void refresh() {
-		esearchClient.admin().indices().prepareRefresh(VTODO_WRITE_ALIAS).execute().actionGet();
-	}
-
-	private byte[] asJson(String uid, VTodo todo) throws JsonProcessingException {
-		ItemHolder holder = new ItemHolder();
-		holder.uid = uid;
-		holder.containerUid = container.uid;
-		holder.value = todo;
-		return JsonUtils.asBytes(holder);
-	}
-
-	/**
-	 * escape the elastic-search query string. we escape all but the ":" character,
-	 * since it also serves as the field:value separator
-	 * 
-	 * @param query
-	 * @return
-	 */
-	String escape(String query) {
-		if (alreadyEscapedRegex.matcher(query).matches()) {
-			logger.warn("Escaping already escaped query {}", query);
+		try {
+			esClient.indices().refresh(r -> r.index(VTODO_WRITE_ALIAS));
+		} catch (ElasticsearchException | IOException e) {
+			logger.error("[es][vtodo][{}] Unable to refresh {}, search results may be stale", container.uid,
+					VTODO_WRITE_ALIAS, e);
 		}
-		query = query.replace("\\:", "##");
-		query = escapeRegex.matcher(query).replaceAll("\\\\$1");
-		return query.replace("##", "\\:");
+	}
+
+	public static String escape(VTodoQuery query) {
+		return query.escapeQuery ? Queries.escape(query.query) : query.query;
 	}
 
 	private String getId(long itemId) {

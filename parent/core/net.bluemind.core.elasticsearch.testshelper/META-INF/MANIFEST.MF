@@ -7,7 +7,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: net.bluemind.pool;bundle-version="1.0.0",
  slf4j.api,
  net.bluemind.lib.elasticsearch;bundle-version="1.0.0";visibility:=reexport,
- net.bluemind.node.api
+ net.bluemind.node.api,
+ org.apache.httpcomponents.httpcore
 Bundle-Activator: net.bluemind.core.elasticsearch.ElasticsearchTestHelper
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.core.elasticsearch

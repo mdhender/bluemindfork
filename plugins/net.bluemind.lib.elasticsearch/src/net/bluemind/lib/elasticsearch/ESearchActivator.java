@@ -18,65 +18,30 @@
  */
 package net.bluemind.lib.elasticsearch;
 
-import java.io.File;
+import static java.util.stream.Collectors.joining;
+
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
+import org.apache.http.HttpHost;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Platform;
-import org.elasticsearch.action.ActionFuture;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.action.admin.cluster.state.ClusterStateResponse;
-import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
-import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
-import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest.AliasActions;
-import org.elasticsearch.action.admin.indices.alias.get.GetAliasesAction;
-import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequestBuilder;
-import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
-import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.action.support.master.AcknowledgedResponse;
-import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.client.Requests;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.cluster.routing.ShardRouting;
-import org.elasticsearch.common.bytes.BytesReference;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.TransportAddress;
-import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.QueryStringQueryBuilder;
-import org.elasticsearch.index.reindex.BulkByScrollResponse;
-import org.elasticsearch.index.reindex.DeleteByQueryAction;
-import org.elasticsearch.index.reindex.DeleteByQueryRequestBuilder;
-import org.elasticsearch.search.Scroll;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
-import org.elasticsearch.xcontent.XContentType;
+import org.elasticsearch.client.RestClient;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -85,16 +50,29 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.Files;
 
-import io.vertx.core.json.JsonObject;
+import co.elastic.clients.ApiClient;
+import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.HealthStatus;
+import co.elastic.clients.elasticsearch._types.analysis.Analyzer;
+import co.elastic.clients.elasticsearch.indices.PutMappingResponse;
+import co.elastic.clients.elasticsearch.indices.resolve_index.ResolveIndexItem;
+import co.elastic.clients.json.DelegatingDeserializer;
+import co.elastic.clients.json.JsonData;
+import co.elastic.clients.json.ObjectDeserializer;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.ElasticsearchTransport;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
+import net.bluemind.lib.elasticsearch.exception.ElasticIndexException;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.network.utils.NetworkHelper;
 
 public final class ESearchActivator implements BundleActivator {
 
 	private static final String ES_TAG = "bm/es";
-	private static final Map<String, Client> clients = new ConcurrentHashMap<>();
+	private static final Map<String, ElasticsearchTransport> transports = new ConcurrentHashMap<>();
 	private static final Map<String, Lock> refreshLocks = new ConcurrentHashMap<>();
 	private static final Map<String, IndexDefinition> indexes = new HashMap<>();
 	private static Logger logger = LoggerFactory.getLogger(ESearchActivator.class);
@@ -117,6 +95,10 @@ public final class ESearchActivator implements BundleActivator {
 	 */
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
+		@SuppressWarnings("unchecked")
+		ObjectDeserializer<Analyzer> unwrapped = (ObjectDeserializer<Analyzer>) DelegatingDeserializer
+				.unwrap(Analyzer._DESERIALIZER);
+		unwrapped.setTypeProperty("type", "custom");
 		IExtensionPoint ep = Platform.getExtensionRegistry().getExtensionPoint("net.bluemind.elasticsearch.schema");
 
 		for (IExtension ext : ep.getExtensions()) {
@@ -158,166 +140,77 @@ public final class ESearchActivator implements BundleActivator {
 	}
 
 	@VisibleForTesting
-	public static final void initClient(Client client) {
-		clients.put(ES_TAG, client);
+	public static final void initClient(ElasticsearchTransport transport) {
+		transports.put(ES_TAG, transport);
 	}
 
 	public static final void initClasspath() {
-		Client client = initClient(ES_TAG);
+		ElasticsearchTransport client = initTransport(ES_TAG);
 		if (client != null) {
-			clients.put(ES_TAG, client);
+			transports.put(ES_TAG, client);
 		} else {
 			logger.warn("elasticsearch node not found");
 		}
 	}
 
-	public static final void index(String index, String kind, String id, Map<String, Object> obj) {
-		IndexResponse result = asyncIndexImpl(index, kind, id, obj).actionGet();
-		logger.debug("[{}] +'{}', v:{}", index, id, result.getVersion());
+	public static ElasticsearchClient getClient(List<String> hosts) {
+		ElasticsearchTransport transport = ESearchActivator.createTansport(hosts);
+		return new ElasticsearchClient(transport);
 	}
 
-	public static final void asyncIndex(String index, String kind, String id, Map<String, Object> obj) {
-		asyncIndexImpl(index, kind, id, obj);
+	public static ElasticsearchClient getClient() {
+		ElasticsearchTransport transport = transports.computeIfAbsent(ES_TAG, ESearchActivator::initTransport);
+		return buildClient(ES_TAG, transport, ElasticsearchClient::new);
 	}
 
-	public static final void delete(String index, String kind, String id) {
-		Client cli = getClient();
-		cli.prepareDelete(index, kind, id).execute().actionGet();
+	public static ElasticsearchAsyncClient getAysncClient() {
+		ElasticsearchTransport transport = transports.computeIfAbsent(ES_TAG, ESearchActivator::initTransport);
+		return buildClient(ES_TAG, transport, ElasticsearchAsyncClient::new);
 	}
 
-	public static final void deleteByQuery(String index, String query) {
-
-		QueryStringQueryBuilder qb = QueryBuilders.queryStringQuery(query);
-		deleteByQuery(index, qb);
-	}
-
-	public static final void deleteByQuery(String index, QueryBuilder query) {
-		Client cli = getClient();
-		DeleteByQueryRequestBuilder req = new DeleteByQueryRequestBuilder(cli, DeleteByQueryAction.INSTANCE)
-				.abortOnVersionConflict(false);
-		req.source().setIndices(index).setQuery(query);
-		BulkByScrollResponse ret = req.get();
-		logger.info("deleteByQuery on index {} took {}", index, ret.getTook());
-	}
-
-	public static final SearchHits search(String index, String query) {
-		return search(index, query, 0, 256, "*");
-	}
-
-	public static final SearchHits search(String index, String query, int from, int size) {
-		return search(index, query, from, size, "*");
-	}
-
-	public static final SearchHits search(String index, String query, int from, int size, String field) {
-		Client cli = getClient();
-		QueryStringQueryBuilder q = QueryBuilders.queryStringQuery(query);
-
-		SearchResponse sr = cli.prepareSearch(index).setSearchType(SearchType.QUERY_THEN_FETCH) // type
-				.setQuery(q) // query
-				.addStoredField(field) // tweak API...
-				.setFrom(from).setSize(size) // pagination
-				.execute().actionGet();
-		SearchHits hits = sr.getHits();
-		logger.info("{} hit(s) {}ms.", hits.getTotalHits().value, sr.getTook().millis());
-
-		return hits;
-	}
-
-	public static SearchRequestBuilder prepareSearch(String index, String query) {
-		Client cli = getClient();
-		QueryStringQueryBuilder q = QueryBuilders.queryStringQuery(query).analyzeWildcard(true)
-				.defaultOperator(Operator.AND);
-
-		return cli.prepareSearch(index).setScroll((Scroll) null).setSearchType(SearchType.QUERY_THEN_FETCH).setQuery(q);
-	}
-
-	public static SearchRequestBuilder prepareSearch(String index, QueryBuilder query) {
-		Client cli = getClient();
-		return cli.prepareSearch(index).setScroll((Scroll) null).setSearchType(SearchType.QUERY_THEN_FETCH)
-				.setQuery(query);
-	}
-
-	public static final void update(String index, String kind, String id, String field, Object value) {
-		long time = System.currentTimeMillis();
-		Client cli = getClient();
-		UpdateRequestBuilder urb = cli.prepareUpdate().setIndex(index).setType(kind).setId(id);
-		urb.setDoc(field, value);
-		urb.execute().actionGet();
-		time = System.currentTimeMillis() - time;
-		logger.info("Update response for {}/{} in {}ms.", kind, id, time);
-	}
-
-	private static ActionFuture<IndexResponse> asyncIndexImpl(String index, String kind, String id,
-			Map<String, Object> obj) {
-		Client cli = getClient();
-		IndexRequestBuilder req = cli.prepareIndex(index, kind, id);
-		return req.setSource(obj).execute();
-	}
-
-	public static Client getClient(String tag) {
-		Client client = clients.computeIfAbsent(tag, ESearchActivator::initClient);
-		if (client == null) {
+	public static <T extends ApiClient<?, ?>> T buildClient(String tag, ElasticsearchTransport transport,
+			Function<ElasticsearchTransport, T> builder) {
+		if (transport == null) {
 			logger.error("no elasticsearch instance found for tag {}", tag);
-		}
-		return client;
-	}
-
-	public static Client getClient() {
-		return getClient(ES_TAG);
-	}
-
-	public static void putMeta(String index, String k, String v) {
-		JsonObject js = new JsonObject();
-		js.put("_meta", new JsonObject().put(k, v));
-		BytesReference br = BytesReference.fromByteBuffer(js.toBuffer().getByteBuf().nioBuffer());
-		AcknowledgedResponse resp = getClient().admin().indices()
-				.putMapping(Requests.putMappingRequest(index).type("_doc").source(br, XContentType.JSON)).actionGet();
-		logger.info("putMeta({}, {}, {}) => {}", index, k, v, resp.isAcknowledged());
-	}
-
-	public static String getMeta(String index, String key) {
-		GetMappingsResponse res = getClient().admin().indices().prepareGetMappings(index).get();
-		JsonObject mappings = new JsonObject(res.toString());
-		JsonObject meta = mappings.getJsonObject(index).getJsonObject("mappings").getJsonObject("_meta");
-		return Optional.ofNullable(meta).map(js -> js.getString(key)).orElse(null);
-	}
-
-	public static Client createClient(Collection<String> hosts) {
-		try {
-			org.elasticsearch.common.settings.Settings.Builder settingsBuilder = Settings.builder();
-
-			File mcastIdFile = new File("/etc/bm/mcast.id");
-			if (mcastIdFile.exists()) {
-				settingsBuilder.put("cluster.name",
-						"bluemind-" + Files.asCharSource(mcastIdFile, StandardCharsets.US_ASCII).readFirstLine());
-			} else {
-				logger.warn("/etc/bm/mcast.id not found");
-				settingsBuilder.put("cluster.name", "bluemind");
-			}
-
-			settingsBuilder.put("node.name", "client-" + UUID.randomUUID());
-			settingsBuilder.put("client.transport.ping_timeout", "20s");
-			Settings settings = settingsBuilder.build();
-			TransportClient cli = new PreBuiltTransportClient(settings);
-			StringBuilder hlist = new StringBuilder();
-			for (String host : hosts) {
-				cli.addTransportAddress(new TransportAddress(InetAddress.getByName(host), 9300));
-				hlist.append(' ').append(host);
-			}
-			logger.info("Created client with {} nodes:{}", hosts.size(), hlist);
-			return cli;
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+			return null;
+		} else {
+			return builder.apply(transport);
 		}
 	}
 
-	private static Client initClient(String tag) {
-		Collection<String> hosts = hosts(tag);
+	private static ElasticsearchTransport initTransport(String tag) {
+		List<String> hosts = hosts(tag);
 		if (hosts == null || hosts.isEmpty()) {
 			logger.warn("Es host missing for tag {}", tag);
 			return null;
 		}
-		return createClient(hosts);
+		return createTansport(hosts);
+	}
+
+	private static List<String> hosts(String tag) {
+		return Topology.get().nodes().stream().filter(iv -> iv.value.tags.contains(tag)).map(iv -> iv.value.address())
+				.toList();
+	}
+
+	public static ElasticsearchTransport createTansport(List<String> hosts) {
+		HttpHost[] httpHosts = hosts.stream().map(host -> new HttpHost(host, 9200)).toArray(l -> new HttpHost[l]);
+		RestClient restClient = RestClient.builder(httpHosts).build();
+		ElasticsearchTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
+		if (logger.isInfoEnabled()) {
+			logger.info("Created client with {} nodes:{}", hosts.size(), hosts.stream().collect(joining(" ")));
+		}
+
+		return transport;
+	}
+
+	public static void putMeta(String index, String k, String v) throws ElasticIndexException {
+		PutMappingResponse response;
+		try {
+			response = getClient().indices().putMapping(m -> m.index(index).meta(k, JsonData.of(v)));
+			logger.info("putMeta({}, {}, {}) => {}", index, k, v, response.acknowledged());
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticIndexException(index, e);
+		}
 	}
 
 	public static void refreshIndex(String index) {
@@ -340,89 +233,40 @@ public final class ESearchActivator implements BundleActivator {
 	}
 
 	private static void refresh(String index) {
-		Client cli = getClient();
 		long time = System.currentTimeMillis();
-		cli.admin().indices().prepareRefresh(index).execute().actionGet();
+		try {
+			getClient().indices().refresh(r -> r.index(index));
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticIndexException(index, e);
+		}
 		long ms = (System.currentTimeMillis() - time);
 		if (ms > 5) {
-			logger.info("time to refresh {} : {}ms", index, ms);
+			logger.info("time to refresh {}: {}ms", index, ms);
 		}
 	}
 
-	public static void disableFlush(String... indexes) {
-		Client cli = getClient();
-		logger.info("Disabling flush for {} indexes", indexes.length);
-		manageFlush(cli, true, indexes);
-	}
-
-	public static void enableFlush(String... indexes) {
-		Client cli = getClient();
-		logger.info("Enabling flush for {} indexes", indexes.length);
-		manageFlush(cli, false, indexes);
-	}
-
-	private static void manageFlush(Client cli, boolean disable, String... indexes) {
-		for (String index : indexes) {
-			UpdateSettingsRequest request = new UpdateSettingsRequest(index);
-			request.settings(Settings.builder().put("index.translog.disable_flush", disable).build());
-			try {
-				cli.admin().indices().updateSettings(request).actionGet();
-			} catch (Exception e) {
-				logger.warn("Cannot change flush settings of index {}:{}", index, e.getMessage());
-			}
-		}
-	}
-
-	public static void flush(String index) {
-		Client cli = getClient();
-		long time = System.currentTimeMillis();
-		cli.admin().indices().prepareFlush(index).execute().actionGet();
-		long ms = (System.currentTimeMillis() - time);
-		if (ms > 5) {
-			logger.info("time to flush {} : {}ms", index, ms);
-		}
-	}
-
-	public static void resetAll() {
-		Client client = ESearchActivator.getClient();
-		GetIndexResponse resp = client.admin().indices().prepareGetIndex().addIndices("*").get();
-		List<String> indices = Arrays.asList(resp.indices()).stream().filter(indexName -> !indexName.startsWith(".ds-"))
-				.collect(Collectors.toList());
-
-		if (!indices.isEmpty()) {
-			logger.warn("Full ES reset of {} ", indices);
-			client.admin().indices().prepareDelete(indices.toArray(new String[0])).get();
-		}
-	}
-
-	private static Collection<String> hosts(String tag) {
-		return Topology.get().nodes().stream().filter(iv -> iv.value.tags.contains(tag)).map(iv -> iv.value.address())
-				.collect(Collectors.toList());
+	public static void resetIndexes() {
+		indexes.keySet().forEach(ESearchActivator::resetIndex);
 	}
 
 	public static void resetIndex(String index) {
 		waitForElasticsearchHosts();
-		Client client = ESearchActivator.getClient();
-		resetIndex(client, index);
-	}
-
-	private static void resetIndex(Client client, String index) {
+		ElasticsearchClient esClient = ESearchActivator.getClient();
 		logger.info("Resetting index {}", index);
-		deleteIndex(client, index);
-		initIndex(client, index);
+		deleteIndex(esClient, index);
+		initIndex(esClient, index);
 	}
 
-	private static void deleteIndex(Client client, String index) {
-		deleteIfExists(client, index);
+	private static void deleteIndex(ElasticsearchClient esClient, String index) {
+		deleteIfExists(esClient, index);
 		IndexDefinition indexDefinition = indexes.get(index);
 		if (indexDefinition != null) {
 			int count = indexDefinition.count();
 			boolean isRewritable = indexDefinition.isRewritable();
 			if (count > 1 || isRewritable) {
-				long realCount = new GetAliasesRequestBuilder(client, GetAliasesAction.INSTANCE).get().getAliases()
-						.keySet().stream()//
+				long realCount = indexNames(esClient).stream() //
 						.filter(indexDefinition::supportsIndex) //
-						.map(indexName -> deleteIfExists(client, indexName)) //
+						.map(indexName -> deleteIfExists(esClient, indexName)) //
 						.count();
 				if (count != realCount) {
 					logger.warn("Found {} {} indexes which differs from the expected count of {}", realCount, index,
@@ -433,96 +277,83 @@ public final class ESearchActivator implements BundleActivator {
 		logger.info("All matching indices deleted for {}", index);
 	}
 
-	private static boolean deleteIfExists(Client client, String index) {
+	private static boolean deleteIfExists(ElasticsearchClient esClient, String index) {
 		try {
-			client.admin().indices().prepareDelete(index).execute().actionGet();
+			esClient.indices().delete(d -> d.index(index));
 			logger.info("index '{}' deleted.", index);
 			return true;
-		} catch (Exception e) {
-			logger.warn("index '{}' can't be delete: {}", index, e.getMessage());
-			return false;
-		}
-	}
-
-	private static Optional<IndexDefinition> indexDefinitionOf(String index) {
-		return indexes.values().stream().filter(item -> item.supportsIndex(index)).findFirst();
-	}
-
-	public static void addAliasTo(String aliasName, String indexName, boolean isWriteIndex) {
-		waitForElasticsearchHosts();
-		Client client = ESearchActivator.getClient();
-		logger.info("add alias {} to {} (write:{})", aliasName, indexName, isWriteIndex);
-		AliasActions addAliasActions = AliasActions.add().index(indexName).alias(aliasName).writeIndex(isWriteIndex);
-		IndicesAliasesRequest addAliasRequest = Requests.indexAliasesRequest().addAliasAction(addAliasActions);
-		client.admin().indices().aliases(addAliasRequest).actionGet();
-	}
-
-	private static void waitForElasticsearchHosts() {
-		Collection<String> hosts = hosts(ES_TAG);
-		if (hosts != null) {
-			for (String host : hosts) {
-				new NetworkHelper(host).waitForListeningPort(9300, 30, TimeUnit.SECONDS);
+		} catch (ElasticsearchException e) {
+			if (e.error() != null && "index_not_found_exception".equals(e.error().type())) {
+				logger.warn("index '{}' not found, can't be delete", index);
+				return false;
 			}
+			throw new ElasticIndexException(index, e);
+		} catch (IOException e) {
+			throw new ElasticIndexException(index, e);
 		}
 	}
 
 	public static Optional<String> initIndexIfNotExists(String index) {
-		return initIndexIfNotExists(getClient(), index);
+		ElasticsearchClient esClient = getClient();
+		return indexDefinitionOf(index).map(indexDefinition -> indexNames(esClient).stream() //
+				.filter(indexDefinition::supportsIndex) //
+				.findFirst() //
+				.orElseGet(() -> {
+					initIndex(esClient, indexDefinition.index);
+					return indexDefinition.index;
+				}));
 	}
 
-	public static Optional<String> initIndexIfNotExists(Client client, String index) {
-		return indexDefinitionOf(index).map(indexDefinition -> {
-			return new GetAliasesRequestBuilder(client, GetAliasesAction.INSTANCE).get().getAliases().keySet().stream() //
-					.filter(indexDefinition::supportsIndex) //
-					.findFirst() //
-					.orElseGet(() -> {
-						initIndex(client, indexDefinition.index);
-						return indexDefinition.index;
-					});
-		});
-	}
-
-	public static void initIndex(Client client, String index) {
-		Optional<IndexDefinition> indexDefinition = indexDefinitionOf(index);
-		if (!indexDefinition.isPresent()) {
-			logger.warn("no SCHEMA for {}", index);
-			try {
-				client.admin().indices().prepareCreate(index).execute().actionGet();
-			} catch (Exception e) {
-				logger.warn("failed to create indice {} : {}", index, e.getMessage());
-				throw e;
-			}
-		} else {
-			IndexDefinition definition = indexDefinition.get();
+	public static void initIndex(ElasticsearchClient esClient, String index) {
+		indexDefinitionOf(index).ifPresentOrElse(definition -> {
 			int count = definition.index.equals(index) ? definition.count() : 1;
 			byte[] schema = definition.schema;
 			try {
 				for (int i = 1; i <= count; i++) {
 					String indexName = (count == 1) ? index : index + "_" + i;
 					logger.info("init index '{}' with settings & schema", indexName);
-					client.admin().indices().prepareCreate(indexName).setSource(schema, XContentType.JSON).get();
+					esClient.indices().create(c -> c.index(indexName).withJson(new ByteArrayInputStream(schema)));
 					logger.info("index '{}' created, waiting for green...", indexName);
-					ClusterHealthResponse resp = client.admin().cluster().prepareHealth(indexName)
-							.setWaitForGreenStatus().get();
+					esClient.cluster().health(h -> h.index(indexName).waitForStatus(HealthStatus.Green));
 					definition.rewritableIndex().ifPresent(
-							rewritableIndex -> addRewritableIndexAliases(client, indexName, rewritableIndex));
-					logger.info("add index '{}' aliases", indexName);
-					logger.debug("index health {}", resp);
+							rewritableIndex -> addRewritableIndexAliases(esClient, indexName, rewritableIndex));
+					logger.info("added index '{}' aliases", indexName);
 				}
 			} catch (Exception e) {
-				logger.warn("failed to create indice '{}' : {}", index, e.getMessage(), e);
-				throw e;
+				throw new ElasticIndexException(index, e);
 			}
+		}, () -> {
+			logger.warn("no SCHEMA for {}", index);
+			try {
+				esClient.indices().create(c -> c.index(index));
+			} catch (Exception e) {
+				throw new ElasticIndexException(index, e);
+			}
+		});
+	}
+
+	public static List<String> indexNames(ElasticsearchClient esClient) {
+		try {
+			return esClient.indices().resolveIndex(r -> r.name("*")).indices() //
+					.stream().map(ResolveIndexItem::name).toList();
+		} catch (ElasticsearchException | IOException e) {
+			logger.error("[es][indices] Failed to list indices", e);
+			return Collections.emptyList();
 		}
 	}
 
-	private static void addRewritableIndexAliases(Client client, String name, RewritableIndex index) {
-		AliasActions readAlias = AliasActions.add().index(name).alias(index.readAlias()).writeIndex(false);
-		AliasActions writeAlias = AliasActions.add().index(name).alias(index.writeAlias()).writeIndex(true);
-		IndicesAliasesRequest addAliasRequest = Requests.indexAliasesRequest() //
-				.addAliasAction(readAlias) //
-				.addAliasAction(writeAlias);
-		client.admin().indices().aliases(addAliasRequest).actionGet();
+	private static void addRewritableIndexAliases(ElasticsearchClient esClient, String name, RewritableIndex index) {
+		try {
+			esClient.indices().updateAliases(u -> u //
+					.actions(a -> a.add(add -> add.index(name).alias(index.readAlias()).isWriteIndex(false)))
+					.actions(a -> a.add(add -> add.index(name).alias(index.writeAlias()).isWriteIndex(true))));
+		} catch (Exception e) {
+			throw new ElasticIndexException(name, e);
+		}
+	}
+
+	private static Optional<IndexDefinition> indexDefinitionOf(String index) {
+		return indexes.values().stream().filter(item -> item.supportsIndex(index)).findFirst();
 	}
 
 	public static byte[] getIndexSchema(String indexName) {
@@ -533,37 +364,12 @@ public final class ESearchActivator implements BundleActivator {
 		return indexes.get(indexName).rewritableIndex;
 	}
 
-	public static void resetIndexes() {
-		indexes.keySet().forEach(ESearchActivator::resetIndex);
-	}
-
 	public static void clearClientCache() {
-		clients.clear();
+		transports.clear();
 	}
 
 	public static MailspoolStats mailspoolStats() {
 		return new MailspoolStats(getClient());
-	}
-
-	public static String nodeId(String indexName) {
-		Client client = getClient();
-		ClusterStateResponse response = client.admin().cluster().prepareState()//
-				.setIndices(indexName).setRoutingTable(true).setBlocks(false).setNodes(false).setCustoms(false)
-				.setMetadata(true).get();
-		ShardRouting routing = response.getState().getRoutingTable().getIndicesRouting().get(indexName).shard(0)
-				.primaryShard();
-		return routing.currentNodeId();
-	}
-
-	public static long fsAvailableOnNode(String nodeId) {
-		Client client = getClient();
-		ClusterStatsResponse response = client.admin().cluster().prepareClusterStats().get();
-		return response.getNodesMap().get(nodeId).nodeStats().getFs().getTotal().getAvailable().getBytes();
-	}
-
-	public static long fsAvailable(String indexName) {
-		String indexNodeId = nodeId(indexName);
-		return fsAvailableOnNode(indexNodeId);
 	}
 
 	private static class IndexDefinition {
@@ -604,6 +410,15 @@ public final class ESearchActivator implements BundleActivator {
 				return name.startsWith(index + "_");
 			}
 			return false;
+		}
+	}
+
+	private static void waitForElasticsearchHosts() {
+		Collection<String> hosts = hosts(ES_TAG);
+		if (hosts != null) {
+			for (String host : hosts) {
+				new NetworkHelper(host).waitForListeningPort(9300, 30, TimeUnit.SECONDS);
+			}
 		}
 	}
 }

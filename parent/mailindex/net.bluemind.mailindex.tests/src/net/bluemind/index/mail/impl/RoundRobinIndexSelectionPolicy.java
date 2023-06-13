@@ -19,8 +19,6 @@ package net.bluemind.index.mail.impl;
 
 import java.util.List;
 
-import org.elasticsearch.client.Client;
-
 import net.bluemind.mailindex.hook.IIndexSelectionPolicy;
 
 public class RoundRobinIndexSelectionPolicy implements IIndexSelectionPolicy {
@@ -28,14 +26,15 @@ public class RoundRobinIndexSelectionPolicy implements IIndexSelectionPolicy {
 	private static int current = 0;
 
 	@Override
-	public String getMailspoolIndexName(Client client, List<String> shards, String mailboxUid) {
+	public String getMailspoolIndexName(List<String> shards, String mailboxUid) {
 		if (mailboxUid.equals("user00")) {
 			RoundRobinIndexSelectionPolicy.current = 0;
 		}
 		int shardIndex = Math.min(shards.size() - 1, RoundRobinIndexSelectionPolicy.current % 25);
 		String index = shards.get(shardIndex);
 		RoundRobinIndexSelectionPolicy.current++;
-		System.err.println("assigning " + index + " to " + mailboxUid);
+		System.err.println(
+				"assigning " + index + " to " + mailboxUid + " size: " + shards.size() + " index: " + shardIndex);
 		return index;
 	}
 

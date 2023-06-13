@@ -73,7 +73,7 @@ import net.bluemind.todolist.hook.TodoListHookAddress;
 public class TodoListServiceTests extends AbstractServiceTests {
 
 	@Test
-	public void testCreate() throws ServerFault, SQLException {
+	public void testCreate() throws Exception, SQLException {
 
 		VertxEventChecker<JsonObject> createdMessageChecker = new VertxEventChecker<>(TodoListHookAddress.CREATED);
 
@@ -134,7 +134,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testOrganizer() throws ServerFault {
+	public void testOrganizer() throws Exception {
 		VTodo todo = defaultVTodo();
 		String uid = "test_" + System.nanoTime();
 
@@ -148,7 +148,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testExternalOrganizer() throws ServerFault {
+	public void testExternalOrganizer() throws Exception {
 		VTodo todo = defaultVTodo();
 		String organizer = "ext" + System.currentTimeMillis() + "@extdomain.lan";
 		todo.organizer = new VTodo.Organizer(organizer);
@@ -166,7 +166,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testExternalAttendee() throws ServerFault {
+	public void testExternalAttendee() throws Exception {
 		VTodo todo = defaultVTodo();
 
 		String externalEmail = "external@attendee" + System.currentTimeMillis() + ".lan";
@@ -204,7 +204,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testUpdate() throws ServerFault {
+	public void testUpdate() throws Exception {
 
 		VertxEventChecker<JsonObject> updatedMessageChecker = new VertxEventChecker<>(TodoListHookAddress.UPDATED);
 
@@ -258,7 +258,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testDelete() throws ServerFault {
+	public void testDelete() throws Exception {
 
 		VertxEventChecker<JsonObject> deletedMessageChecker = new VertxEventChecker<>(TodoListHookAddress.DELETED);
 
@@ -285,7 +285,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testGetComplete() throws ServerFault {
+	public void testGetComplete() throws Exception {
 		VTodo todo = defaultVTodo();
 		String uid = "test_" + System.nanoTime();
 		getService(defaultSecurityContext).create(uid, todo);
@@ -312,7 +312,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testMUpdates() throws ServerFault, SQLException {
+	public void testMUpdates() throws Exception, SQLException {
 		VTodo new1 = defaultVTodo();
 		VTodo new2 = defaultVTodo();
 		String new1UID = "test1_" + System.nanoTime();
@@ -363,7 +363,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testSearch() throws ServerFault {
+	public void testSearch() throws Exception {
 		VTodo todo = defaultVTodo();
 		todo.summary = "yay";
 		String uid = "test_" + System.nanoTime();
@@ -401,7 +401,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testCreateImproperVTodo() throws ServerFault {
+	public void testCreateImproperVTodo() throws Exception {
 		VTodo vtodo = null;
 		String uid = "test_" + System.nanoTime();
 
@@ -413,7 +413,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testChangeset() throws ServerFault {
+	public void testChangeset() throws Exception {
 
 		getService(defaultSecurityContext).create("test1", defaultVTodo());
 		getService(defaultSecurityContext).create("test2", defaultVTodo());
@@ -438,7 +438,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testItemChangelog() throws ServerFault {
+	public void testItemChangelog() throws Exception {
 
 		getService(defaultSecurityContext).create("test1", defaultVTodo());
 		getService(defaultSecurityContext).update("test1", defaultVTodo());
@@ -467,7 +467,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testItemChangelogSeveralUpdates() throws ServerFault {
+	public void testItemChangelogSeveralUpdates() throws Exception {
 
 		getService(defaultSecurityContext).create("test1", defaultVTodo());
 		getService(defaultSecurityContext).update("test1", defaultVTodo());
@@ -482,7 +482,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testNoAttendee() throws ServerFault {
+	public void testNoAttendee() throws Exception {
 		VTodo todo = defaultVTodo();
 		todo.attendees = null;
 		String uid = "test_" + System.nanoTime();
@@ -494,7 +494,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testSearchByDateInterval() throws ServerFault {
+	public void testSearchByDateInterval() throws Exception {
 		VTodo todo = defaultVTodo();
 		ZonedDateTime temp = ZonedDateTime.of(1983, 2, 13, 0, 0, 0, 0, tz);
 		todo.dtstart = BmDateTimeWrapper.create(temp, Precision.DateTime);
@@ -512,7 +512,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testDeleteUnknownEvent() throws ServerFault {
+	public void testDeleteUnknownEvent() throws Exception {
 		try {
 			getService(defaultSecurityContext).delete(UUID.randomUUID().toString());
 		} catch (ServerFault sf) {
@@ -521,7 +521,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testUpdateUnknownEvent() throws ServerFault {
+	public void testUpdateUnknownEvent() throws Exception {
 		try {
 			getService(defaultSecurityContext).update(UUID.randomUUID().toString(), defaultVTodo());
 			fail();
@@ -531,7 +531,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testNoAlarm() throws ServerFault {
+	public void testNoAlarm() throws Exception {
 		VTodo todo = defaultVTodo();
 		todo.alarm = null;
 		todo.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2000, 12, 25, 19, 0, 0, 0, tz), Precision.DateTime);
@@ -547,7 +547,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testSetAlarm() throws ServerFault {
+	public void testSetAlarm() throws Exception {
 		VTodo todo = defaultVTodo();
 
 		todo.alarm = new ArrayList<ICalendarElement.VAlarm>(1);
@@ -580,7 +580,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testSpecialChars() throws ServerFault {
+	public void testSpecialChars() throws Exception {
 		VTodo todo = defaultVTodo();
 		todo.summary = "lision";
 
@@ -609,7 +609,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testCreateAllDay() throws ServerFault {
+	public void testCreateAllDay() throws Exception {
 		VTodo todo = defaultVTodo();
 		Calendar gmt = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 		gmt.set(Calendar.MILLISECOND, 0);
@@ -625,7 +625,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testUpdateStatus() throws ServerFault {
+	public void testUpdateStatus() throws Exception {
 		VTodo todo = defaultVTodo();
 		String uid = "test_" + System.nanoTime();
 		getService(defaultSecurityContext).create(uid, todo);
@@ -644,7 +644,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testUpdateTag() throws ServerFault {
+	public void testUpdateTag() throws Exception {
 		VTodo todo = defaultVTodo();
 		todo.categories = new ArrayList<TagRef>(1);
 		todo.categories.add(tagRef1);
@@ -670,7 +670,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testOnTagChanged() throws ServerFault, SQLException {
+	public void testOnTagChanged() throws Exception, SQLException {
 		VTodo todo = defaultVTodo();
 		String uid = "test_" + System.nanoTime();
 		getService(defaultSecurityContext).create(uid, todo);
@@ -696,7 +696,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testAll() throws ServerFault {
+	public void testAll() throws Exception {
 
 		List<ItemValue<VTodo>> vtodos = getService(defaultSecurityContext).all();
 		assertNotNull(vtodos);
@@ -726,7 +726,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testDailyOccurrences() throws ServerFault {
+	public void testDailyOccurrences() throws Exception {
 		ITodoList service = getService(defaultSecurityContext);
 
 		VTodo todo = defaultVTodo();
@@ -782,7 +782,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testWeeklyOccurrence() throws ServerFault {
+	public void testWeeklyOccurrence() throws Exception {
 
 		ITodoList service = getService(defaultSecurityContext);
 
@@ -851,7 +851,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testMonthlyByDayOccurrences() throws ServerFault {
+	public void testMonthlyByDayOccurrences() throws Exception {
 
 		ITodoList service = getService(defaultSecurityContext);
 
@@ -955,7 +955,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testMonthlyOccurrences() throws ServerFault {
+	public void testMonthlyOccurrences() throws Exception {
 		ITodoList service = getService(defaultSecurityContext);
 
 		VTodo todo = defaultVTodo();
@@ -1010,7 +1010,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testMonthlyOccurrencesException() throws ServerFault {
+	public void testMonthlyOccurrencesException() throws Exception {
 		ITodoList service = getService(defaultSecurityContext);
 
 		VTodo todo = defaultVTodo();
@@ -1053,7 +1053,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testYearlyOccurrences() throws ServerFault {
+	public void testYearlyOccurrences() throws Exception {
 		ITodoList service = getService(defaultSecurityContext);
 
 		VTodo todo = defaultVTodo();
@@ -1090,7 +1090,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testRDate() throws ServerFault {
+	public void testRDate() throws Exception {
 		ITodoList service = getService(defaultSecurityContext);
 
 		VTodo todo = defaultVTodo();
@@ -1183,7 +1183,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testMultipleGet() throws ServerFault {
+	public void testMultipleGet() throws Exception {
 		VTodo todo = defaultVTodo();
 		String uid = UUID.randomUUID().toString();
 		getService(defaultSecurityContext).create(uid, todo);
@@ -1210,7 +1210,7 @@ public class TodoListServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testMultipleGetById() throws ServerFault {
+	public void testMultipleGetById() throws Exception {
 		VTodo todo = defaultVTodo();
 		String uid = UUID.randomUUID().toString();
 		getService(defaultSecurityContext).create(uid, todo);

@@ -34,12 +34,16 @@ public class VCardQuery {
 	public OrderBy orderBy = OrderBy.FormatedName;
 	public boolean escapeQuery;
 
-	public static VCardQuery create(String query) {
+	public static VCardQuery create(String query, boolean escape) {
 		VCardQuery q = new VCardQuery();
 		q.size = -1;
 		q.from = 0;
 		q.query = query;
-		q.escapeQuery = false;
+		q.escapeQuery = escape;
 		return q;
+	}
+
+	public static VCardQuery create(String query) {
+		return create(query, false);
 	}
 }

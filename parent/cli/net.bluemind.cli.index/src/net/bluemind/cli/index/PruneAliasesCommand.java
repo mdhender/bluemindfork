@@ -18,11 +18,14 @@
  */
 package net.bluemind.cli.index;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
@@ -64,9 +67,14 @@ public class PruneAliasesCommand implements ICmdLet, Runnable {
 			}
 			if (!aliasToPrune.isEmpty()) {
 				if (apply) {
-					ESearchActivator.getClient().admin().indices().prepareAliases()
-							.removeAlias(ss.indexName, aliasToPrune.toArray(String[]::new)).execute().actionGet();
-					ctx.info("Removed {} alias(es) from {} ({})", aliasToPrune.size(), ss.indexName, aliasToPrune);
+					try {
+						ESearchActivator.getClient().indices()
+								.deleteAlias(d -> d.index(ss.indexName).name(new ArrayList<>(aliasToPrune)));
+						ctx.info("Removed {} alias(es) from {} ({})", aliasToPrune.size(), ss.indexName, aliasToPrune);
+					} catch (ElasticsearchException | IOException e) {
+						ctx.error("Failed to remove {} alias(es) from {} ({})", aliasToPrune.size(), ss.indexName,
+								aliasToPrune, e);
+					}
 				} else {
 					ctx.info("Should remove {} alias(es) from {} ({})", aliasToPrune.size(), ss.indexName,
 							aliasToPrune);

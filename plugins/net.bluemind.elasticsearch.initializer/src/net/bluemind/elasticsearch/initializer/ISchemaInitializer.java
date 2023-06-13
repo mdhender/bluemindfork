@@ -18,11 +18,11 @@
  */
 package net.bluemind.elasticsearch.initializer;
 
-import org.elasticsearch.client.Client;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 
 public interface ISchemaInitializer {
 
 	public String getTag();
 
-	public void initializeSchema(Client esearchClient);
+	public void initializeSchema(ElasticsearchClient esClient);
 }

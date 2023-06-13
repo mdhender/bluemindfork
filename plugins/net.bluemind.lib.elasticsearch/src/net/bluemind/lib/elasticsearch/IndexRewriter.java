@@ -1,41 +1,42 @@
 package net.bluemind.lib.elasticsearch;
 
-import static java.util.concurrent.TimeUnit.MINUTES;
+import static co.elastic.clients.elasticsearch._types.HealthStatus.Green;
 
-import org.elasticsearch.action.DocWriteRequest.OpType;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.action.admin.indices.alias.get.GetAliasesResponse;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
-import org.elasticsearch.action.admin.indices.get.GetIndexAction;
-import org.elasticsearch.action.admin.indices.get.GetIndexRequestBuilder;
-import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
-import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.reindex.BulkByScrollResponse;
-import org.elasticsearch.index.reindex.ReindexAction;
-import org.elasticsearch.index.reindex.ReindexRequestBuilder;
-import org.elasticsearch.xcontent.XContentType;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.Conflicts;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.OpType;
+import co.elastic.clients.elasticsearch.cluster.HealthResponse;
+import co.elastic.clients.elasticsearch.core.ReindexResponse;
+import co.elastic.clients.elasticsearch.indices.GetAliasResponse;
+import co.elastic.clients.elasticsearch.indices.IndicesStatsResponse;
+import co.elastic.clients.transport.endpoints.BooleanResponse;
 
 public class IndexRewriter {
 	private static final Logger logger = LoggerFactory.getLogger(IndexRewriter.class);
 
-	private final Client client;
+	private final ElasticsearchClient esClient;
 
 	public IndexRewriter() {
-		this.client = ESearchActivator.getClient();
+		this.esClient = ESearchActivator.getClient();
 	}
 
-	public void rewrite(RewritableIndex index) {
+	public void rewrite(RewritableIndex index) throws ElasticsearchException, IOException {
 		rewrite(index, "*");
 	}
 
-	public void rewrite(RewritableIndex index, String fromVersion) {
-		GetAliasesResponse response = client.admin().indices().prepareGetAliases(index.readAlias()).get();
-		String fromIndex = response.getAliases().keysIt().next();
-		if (!fromVersion.equals("*") && !indexVersion(fromIndex).startsWith(fromVersion)) {
+	public void rewrite(RewritableIndex index, String fromVersion) throws ElasticsearchException, IOException {
+		GetAliasResponse response = esClient.indices().getAlias(a -> a.name(index.readAlias()));
+		String fromIndex = response.result().keySet().iterator().next();
+		String version = esClient.indices().getSettings(s -> s.index(fromIndex).includeDefaults(true)) //
+				.get(fromIndex).settings().index().version().created();
+		if (!fromVersion.equals("*") && !version.startsWith(fromVersion)) {
 			return;
 		}
 
@@ -49,52 +50,45 @@ public class IndexRewriter {
 		deleteIndex(fromIndex);
 	}
 
-	private String indexVersion(String indexName) {
-		// Exemple de versions renvoyées par : /_settings
-		// 7: {"index": { "version": { "created": "7170599"} } }
-		// 6: {"index": { "version": { "created": "6081299", "upgraded": "6082299"} } }
-		GetSettingsResponse settings = client.admin().indices().prepareGetSettings(indexName).get();
-		String upgradedVersion = settings.getSetting(indexName, "index.version.upgraded");
-		return (upgradedVersion != null) ? upgradedVersion : settings.getSetting(indexName, "index.version.created");
-	}
-
-	private void createIndex(String toIndex, byte[] schema) {
-		IndicesExistsResponse existsResp = client.admin().indices().prepareExists(toIndex).get();
-		if (!existsResp.isExists()) {
-			client.admin().indices().prepareCreate(toIndex).setSource(schema, XContentType.JSON).get();
-			ClusterHealthResponse resp = client.admin().cluster().prepareHealth(toIndex).setWaitForGreenStatus().get();
-			logger.info("New index created: {} ({})", toIndex, resp);
+	private void createIndex(String toIndex, byte[] schema) throws ElasticsearchException, IOException {
+		BooleanResponse exists = esClient.indices().exists(e -> e.index(toIndex));
+		if (!exists.value()) {
+			esClient.indices().create(c -> c.index(toIndex).withJson(new ByteArrayInputStream(schema)));
+			HealthResponse response = esClient.cluster().health(h -> h.index(toIndex).waitForStatus(Green));
+			logger.info("New index created: {} ({})", toIndex, response);
 		}
 	}
 
-	private void moveAlias(String fromIndex, String toIndex, String alias, boolean writeIndex) {
-		client.admin().indices().prepareAliases() //
-				.removeAlias(fromIndex, alias) //
-				.addAlias(toIndex, alias, writeIndex) //
-				.get();
+	private void moveAlias(String fromIndex, String toIndex, String alias, boolean writeIndex)
+			throws ElasticsearchException, IOException {
+		esClient.indices().updateAliases(u -> u //
+				.actions(a -> a.remove(r -> r.index(fromIndex).alias(alias))) //
+				.actions(a -> a.add(add -> add.index(toIndex).alias(alias).isWriteIndex(writeIndex))));
 		logger.info("Alias {} moved from {} to {} (write={})", alias, fromIndex, toIndex, writeIndex);
 	}
 
-	private void reindex(String fromIndex, String toIndex) {
-		GetIndexResponse indexResponse = new GetIndexRequestBuilder(client, GetIndexAction.INSTANCE, fromIndex).get();
-		int numberOfShards = indexResponse.settings().get(fromIndex).getAsInt("index.number_of_shards", 1);
-		long docCount = client.admin().indices().prepareStats(fromIndex).get().getTotal().docs.getCount();
+	private void reindex(String fromIndex, String toIndex) throws ElasticsearchException, IOException {
+		IndicesStatsResponse statsResponse = esClient.indices().stats(s -> s.index(fromIndex));
+		int numberOfShards = (int) statsResponse.indices().get(fromIndex).total().shardStats().totalCount();
+		long docCount = statsResponse.indices().get(fromIndex).total().docs().count();
 		logger.info("Starting reindexation of {} with {} slice ({} docs)", fromIndex, numberOfShards, docCount);
-		ReindexRequestBuilder reindexBuilder = new ReindexRequestBuilder(client, ReindexAction.INSTANCE)
-				.source(fromIndex).destination(toIndex).setSlices(numberOfShards).abortOnVersionConflict(false);
-		reindexBuilder.destination().setOpType(OpType.INDEX);
-		reindexBuilder.source().setScroll("1d");
-		BulkByScrollResponse reindexResponse = reindexBuilder.get();
-		if (!reindexResponse.getBulkFailures().isEmpty()) {
-			logger.error("{} reindexation failures", reindexResponse.getBulkFailures().size());
-			reindexResponse.getBulkFailures().forEach(failure -> logger.error("- {}", failure.getMessage()));
+		ReindexResponse response = esClient.reindex(r -> r //
+				.source(s -> s.index(fromIndex)) //
+				.dest(d -> d.index(toIndex).opType(OpType.Index)) //
+				.slices(s -> s.value(numberOfShards)) //
+				.conflicts(Conflicts.Proceed) //
+				.scroll(s -> s.time("1d")));
+		if (!response.failures().isEmpty()) {
+			logger.error("Reindexation done with {} failures:", response.failures().size());
+			response.failures().forEach(failure -> logger.error("- {}", failure));
+		} else {
+			logger.info("Reindexation done for {} into {}: {}", fromIndex, toIndex, response);
 		}
-		logger.info("Reindexation done for {} into {}: {}", fromIndex, toIndex, reindexResponse);
 	}
 
 	private void deleteIndex(String fromIndex) {
 		try {
-			ESearchActivator.getClient().admin().indices().delete(new DeleteIndexRequest(fromIndex)).get(10, MINUTES);
+			esClient.indices().delete(d -> d.index(fromIndex).ignoreUnavailable(true));
 			logger.info("Deletion of {}", fromIndex);
 		} catch (Exception e) { // NOSONAR
 			logger.error("Failed to delete {}", fromIndex, e);

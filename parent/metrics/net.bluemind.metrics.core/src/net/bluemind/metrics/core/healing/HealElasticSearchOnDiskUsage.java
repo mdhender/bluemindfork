@@ -1,14 +1,14 @@
 package net.bluemind.metrics.core.healing;
 
+import java.io.IOException;
 import java.util.Optional;
 
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
-import org.elasticsearch.common.settings.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.HealthStatus;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Verticle;
 import io.vertx.core.eventbus.EventBus;
@@ -59,7 +59,7 @@ public class HealElasticSearchOnDiskUsage extends AbstractVerticle {
 					logger.error("ElasticSearch disk usage switched to CRITICAL");
 					return;
 				}
-				Client esClient = ESearchActivator.getClient();
+				ElasticsearchClient esClient = ESearchActivator.getClient();
 				if (esClient == null) {
 					logger.warn("ElasticSearch client is not available");
 					return;
@@ -68,11 +68,24 @@ public class HealElasticSearchOnDiskUsage extends AbstractVerticle {
 				// Mark all indices writable
 				// Warning: cluster can have all indices readonly, but still be GREEN
 				logger.info("Marking all indices writable again after high disk usage on {}", alert.datalocation);
-				esClient.admin().indices().prepareUpdateSettings()
-						.setSettings(Settings.builder().put("index.blocks.read_only_allow_delete", false)).get();
 
-				ClusterHealthResponse response = esClient.admin().cluster().prepareHealth().get();
-				if (response.getStatus() == ClusterHealthStatus.RED) {
+				HealthStatus healthStatus;
+				try {
+					esClient.indices().putSettings(p -> p //
+							.index("*").settings(s -> s.blocks(b -> b.readOnlyAllowDelete(false))));
+				} catch (ElasticsearchException | IOException e) {
+					logger.error("[es][full disk] Failed to mark all indices writable", e);
+					return;
+				}
+
+				try {
+					healthStatus = esClient.cluster().health().status();
+				} catch (ElasticsearchException | IOException e) {
+					logger.error("[es][full disk] Failed to assess cluster health, restarting", e);
+					healthStatus = HealthStatus.Red;
+				}
+
+				if (healthStatus == HealthStatus.Red) {
 					// Restart elasticsearch
 					logger.info("Restarting {} for healing after diskfull on {} (cluster status is RED)", product.name,
 							alert.datalocation);
@@ -85,7 +98,7 @@ public class HealElasticSearchOnDiskUsage extends AbstractVerticle {
 						logger.error("Unable to restart '{}': {}", product.name, String.join("\n", status.output));
 					}
 				} else {
-					logger.info("CLUSTER STATUS is {}, no need to heal", response.getStatus());
+					logger.info("CLUSTER STATUS is {}, no need to heal", healthStatus);
 				}
 			});
 		});

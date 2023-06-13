@@ -23,19 +23,24 @@ import static net.bluemind.addressbook.persistence.VCardIndexStore.VCARD_WRITE_A
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.json.JsonData;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Communications.Email;
 import net.bluemind.addressbook.api.VCardQuery;
@@ -52,7 +57,7 @@ import net.bluemind.tag.api.TagRef;
 
 public class VCardIndexStoreTests {
 
-	private Client client;
+	private ElasticsearchClient client;
 	private Container container;
 	private ItemStore itemStore;
 	private Container container2;
@@ -90,7 +95,7 @@ public class VCardIndexStoreTests {
 	}
 
 	@Test
-	public void testCreate() throws InterruptedException, SQLException {
+	public void testCreate() throws InterruptedException, SQLException, ElasticsearchException, IOException {
 		VCard card = new VCard();
 
 		card.identification = new VCard.Identification();
@@ -103,15 +108,17 @@ public class VCardIndexStoreTests {
 
 		indexStore.create(item, card);
 
-		client.admin().indices().prepareRefresh(VCARD_WRITE_ALIAS).execute().actionGet();
-		SearchResponse resp = client.prepareSearch(VCARD_READ_ALIAS).setTypes(VCardIndexStore.VCARD_TYPE)
-				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
+		refreshIndexes();
 
-		assertEquals(1, resp.getHits().getTotalHits().value);
+		SearchResponse<JsonData> response = client.search(s -> s //
+				.index(VCARD_READ_ALIAS) //
+				.query(TermQuery.of(t -> t.field("uid").value(item.uid))._toQuery()), JsonData.class);
+
+		assertEquals(1, response.hits().total().value());
 	}
 
 	@Test
-	public void testDelete() throws InterruptedException, SQLException {
+	public void testDelete() throws InterruptedException, SQLException, ElasticsearchException, IOException {
 		VCard card = new VCard();
 
 		card.identification = new VCard.Identification();
@@ -127,14 +134,16 @@ public class VCardIndexStoreTests {
 		indexStore.delete(item.uid);
 
 		indexStore.refresh();
-		SearchResponse resp = client.prepareSearch(VCARD_READ_ALIAS).setTypes(VCardIndexStore.VCARD_TYPE)
-				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
 
-		assertEquals(0, resp.getHits().getTotalHits().value);
+		SearchResponse<JsonData> response = client.search(s -> s //
+				.index(VCARD_READ_ALIAS) //
+				.query(TermQuery.of(t -> t.field("uid").value(item.uid))._toQuery()), JsonData.class);
+
+		assertEquals(0, response.hits().total().value());
 	}
 
 	@Test
-	public void testDeleteAll() throws SQLException {
+	public void testDeleteAll() throws SQLException, ElasticsearchException, IOException {
 		VCard card = new VCard();
 
 		card.identification = new VCard.Identification();
@@ -150,14 +159,15 @@ public class VCardIndexStoreTests {
 		indexStore.deleteAll();
 		indexStore.refresh();
 
-		SearchResponse resp = client.prepareSearch(VCARD_READ_ALIAS).setTypes(VCardIndexStore.VCARD_TYPE)
-				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
+		SearchResponse<JsonData> response = client.search(s -> s //
+				.index(VCARD_READ_ALIAS) //
+				.query(TermQuery.of(t -> t.field("uid").value(item.uid))._toQuery()), JsonData.class);
 
-		assertEquals(0, resp.getHits().getTotalHits().value);
+		assertEquals(0, response.hits().total().value());
 	}
 
 	@Test
-	public void testSearch() throws Exception {
+	public void testSearch() throws ElasticsearchException, IOException {
 		VCardIndexStore indexStore2 = new VCardIndexStore(client, container2, null);
 
 		VCard card = new VCard();
@@ -210,14 +220,16 @@ public class VCardIndexStoreTests {
 
 	@Test
 	public void testSearch_25000() throws Exception {
+        List<ItemValue<VCard>> allCards = new ArrayList<>();
 		for (int i = 0; i < 25000; i++) {
 			VCard card = new VCard();
 			card.identification = new VCard.Identification();
-			card.identification.formatedName = VCard.Identification.FormatedName.create("card" + i,
+			card.identification.formatedName = VCard.Identification.FormatedName.create(String.format("card%05d", i),
 					Arrays.<VCard.Parameter>asList());
-			String uid = "test" + System.nanoTime();
-			indexStore.create(Item.create(uid, System.nanoTime()), card);
+			String uid = String.format("test%05d", i);
+			allCards.add(ItemValue.create(Item.create(uid, System.nanoTime()), card));
 		}
+		indexStore.updates(allCards);
 
 		refreshIndexes();
 
@@ -236,23 +248,30 @@ public class VCardIndexStoreTests {
 		q.from = 15000;
 		res = indexStore.search(q);
 		assertEquals(1000, res.total);
+		assertEquals("test15000", res.values.get(0));
+		assertEquals("test15999", res.values.get(res.values.size() - 1));
 
 		// test more than 10000 with specific order
 		q.orderBy = VCardQuery.OrderBy.Pertinance;
 		res = indexStore.search(q);
 		assertEquals(1000, res.total);
+		assertEquals("test15000", res.values.get(0));
+		assertEquals("test15999", res.values.get(res.values.size() - 1));
 
 		// test specific from and size = 0
 		q.size = 0;
 		q.from = 15000;
 		res = indexStore.search(q);
 		assertEquals(0, res.total);
+		assertEquals(0, res.values.size());
 
 		// test specific from and size = -1
 		q.size = -1;
 		q.from = 20000;
 		res = indexStore.search(q);
 		assertEquals(5000, res.total);
+		assertEquals("test20000", res.values.get(0));
+		assertEquals("test24999", res.values.get(res.values.size() - 1));
 
 		// test specific from and size = -1 less than 10000
 		q.size = -1;
@@ -263,7 +282,7 @@ public class VCardIndexStoreTests {
 	}
 
 	@Test
-	public void testSearchByCategory() throws Exception {
+	public void testSearchByCategory() throws ElasticsearchException, IOException {
 		VCard card1 = new VCard();
 		TagRef tag1 = new TagRef();
 		tag1.label = "tag1";
@@ -291,7 +310,7 @@ public class VCardIndexStoreTests {
 	}
 
 	@Test
-	public void testSearchByEmail() throws Exception {
+	public void testSearchByEmail() throws ElasticsearchException, IOException {
 		VCard card = new VCard();
 
 		String email = "email" + System.currentTimeMillis() + "@domain.lan";
@@ -311,7 +330,7 @@ public class VCardIndexStoreTests {
 	}
 
 	@Test
-	public void testSearchByLongEmail() throws Exception {
+	public void testSearchByLongEmail() throws ElasticsearchException, IOException {
 		VCard card = new VCard();
 
 		String email = "pref-publique-cartesgrises@haute-garonne.gouv.fr";
@@ -328,7 +347,7 @@ public class VCardIndexStoreTests {
 	}
 
 	@Test
-	public void testSearchMatchAll() throws Exception {
+	public void testSearchMatchAll() throws ElasticsearchException, IOException {
 		VCard card = new VCard();
 		card.identification.formatedName.value = "john";
 
@@ -343,7 +362,7 @@ public class VCardIndexStoreTests {
 	}
 
 	@Test
-	public void testSearchSort() throws Exception {
+	public void testSearchSort() throws ElasticsearchException, IOException {
 
 		VCard card = new VCard();
 		card.identification.formatedName.value = "john";
@@ -360,8 +379,7 @@ public class VCardIndexStoreTests {
 		String uid3 = "test" + System.nanoTime();
 		indexStore.create(Item.create(uid3, System.nanoTime()), card);
 
-//		refreshIndexes();
-		indexStore.refresh();
+		refreshIndexes();
 
 		ListResult<String> res = indexStore.search(VCardQuery.create(null));
 		assertEquals(3, res.total);
@@ -371,7 +389,7 @@ public class VCardIndexStoreTests {
 	}
 
 	@Test
-	public void testSearchFormatedName() throws Exception {
+	public void testSearchFormatedName() throws ElasticsearchException, IOException {
 		VCard card = new VCard();
 		card.identification = new VCard.Identification();
 		card.identification.formatedName = VCard.Identification.FormatedName.create("Thomas",
@@ -389,7 +407,7 @@ public class VCardIndexStoreTests {
 	}
 
 	@Test
-	public void testUpdate() throws Exception {
+	public void testUpdate() throws SQLException, ElasticsearchException, IOException {
 		VCard card = new VCard();
 		card.identification.formatedName.value = "batman";
 		Item item1 = itemStore.create(Item.create("uid" + System.nanoTime(), UUID.randomUUID().toString()));
@@ -414,7 +432,7 @@ public class VCardIndexStoreTests {
 	}
 
 	@Test
-	public void testUpdates() throws Exception {
+	public void testUpdates() throws SQLException, ElasticsearchException, IOException {
 		VCard card = new VCard();
 		card.identification.formatedName.value = "batman";
 		Item item1 = itemStore.create(Item.create("uid" + System.nanoTime(), UUID.randomUUID().toString()));
@@ -452,8 +470,7 @@ public class VCardIndexStoreTests {
 
 	}
 
-	private void refreshIndexes() {
-		ElasticsearchTestHelper.getInstance().getClient().admin().indices().prepareRefresh(VCARD_WRITE_ALIAS).get();
-//		ElasticsearchTestHelper.getInstance().getClient().admin().indices().prepareRefresh(VCARD_READ_ALIAS).get();
+	private void refreshIndexes() throws ElasticsearchException, IOException {
+		client.indices().refresh(r -> r.index(VCARD_WRITE_ALIAS));
 	}
 }

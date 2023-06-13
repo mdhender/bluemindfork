@@ -6,27 +6,25 @@
 		}
 	},
 	"mappings": {
-		"vnote": {
-			"properties": {
-				"containerUid": {
-					"type": "keyword",
-					"index":true
-				},
-				"uid": {
-					"type": "keyword",
-					"store": true
-				},
-				"value": {
-					"properties": {
-					    "subject": {
-							"type": "text"
-						},
-					    "body": {
-							"type": "text"
-						},
-						"color": {
-							"type": "keyword"
-						}
+		"properties": {
+			"containerUid": {
+				"type": "keyword",
+				"index":true
+			},
+			"uid": {
+				"type": "keyword",
+				"store": true
+			},
+			"value": {
+				"properties": {
+				    "subject": {
+						"type": "text"
+					},
+				    "body": {
+						"type": "text"
+					},
+					"color": {
+						"type": "keyword"
 					}
 				}
 			}

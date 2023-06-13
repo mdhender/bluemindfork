@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -35,22 +36,24 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.lucene.search.join.ScoreMode;
-import org.elasticsearch.action.admin.indices.alias.get.GetAliasesResponse;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.join.query.JoinQueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Streams;
 import com.google.common.io.ByteStreams;
 
-import io.vertx.core.json.JsonObject;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.Refresh;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.ChildScoreMode;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.indices.GetAliasResponse;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.indexing.IMailIndexService;
@@ -95,7 +98,8 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 	static final int UPDATE_FLAGS_LOOPS = 20;
 
 	@Test
-	public void applyMailboxSpeed() throws IMAPException, InterruptedException, ExecutionException, TimeoutException {
+	public void applyMailboxSpeed() throws IMAPException, InterruptedException, ExecutionException, TimeoutException,
+			ElasticsearchException, IOException {
 		IUser userApi = suProvider().instance(IUser.class, domainUid);
 		ItemValue<User> theUser = userApi.getComplete(userUid);
 		assertNotNull(theUser);
@@ -123,19 +127,18 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 		}
 		msgCompletion.get(10, TimeUnit.SECONDS);
 
-		Client client = ESearchActivator.getClient();
+		ElasticsearchClient client = ESearchActivator.getClient();
 		int attempt = 0;
-		SearchResponse found = null;
-
-		BoolQueryBuilder freshMailQuery = QueryBuilders.boolQuery()//
-				.must(QueryBuilders.termQuery("uid", lastUid));
-
+		int finalLastUid = lastUid;
+		SearchResponse<Void> found = null;
 		do {
 			Thread.sleep(100);
-			found = client.prepareSearch("mailspool_alias_" + userUid).setQuery(freshMailQuery).execute().actionGet();
-		} while (found.getHits().getTotalHits().value == 0 && ++attempt < 400);
+			found = client.search(s -> s //
+					.index("mailspool_alias_" + userUid) //
+					.query(q -> q.bool(b -> b.must(m -> m.term(t -> t.field("uid").value(finalLastUid))))), Void.class);
+		} while (found.hits().total().value() == 0 && ++attempt < 400);
 		assertTrue("We tried " + attempt + " times & didn't found the doc with uid " + lastUid,
-				found.getHits().getTotalHits().value > 0);
+				found.hits().total().value() > 0);
 
 		System.err.println("Flags change starts");
 		long time = System.currentTimeMillis();
@@ -162,8 +165,8 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 	}
 
 	@Test
-	public void appendMailDeleteRecordExpunge()
-			throws IMAPException, InterruptedException, ExecutionException, TimeoutException {
+	public void appendMailDeleteRecordExpunge() throws IMAPException, InterruptedException, ExecutionException,
+			TimeoutException, ElasticsearchException, IOException {
 		IUser userApi = suProvider().instance(IUser.class, domainUid);
 		ItemValue<User> theUser = userApi.getComplete(userUid);
 		assertNotNull(theUser);
@@ -183,19 +186,17 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 		});
 		assertTrue(addedUid > 0);
 
-		Client client = ESearchActivator.getClient();
+		ElasticsearchClient client = ESearchActivator.getClient();
 		int attempt = 0;
-		SearchResponse found = null;
-
-		BoolQueryBuilder freshMailQuery = QueryBuilders.boolQuery()//
-				.must(QueryBuilders.termQuery("uid", addedUid));
-
+		SearchResponse<Void> found = null;
 		do {
 			Thread.sleep(50);
-			found = client.prepareSearch("mailspool_alias_" + userUid).setQuery(freshMailQuery).execute().actionGet();
-		} while (found.getHits().getTotalHits().value == 0 && ++attempt < 200);
+			found = client.search(s -> s //
+					.index("mailspool_alias_" + userUid) //
+					.query(q -> q.bool(b -> b.must(m -> m.term(t -> t.field("uid").value(addedUid))))), Void.class);
+		} while (found.hits().total().value() == 0 && ++attempt < 200);
 		assertTrue("We tried " + attempt + " times & didn't found the doc with uid " + addedUid,
-				found.getHits().getTotalHits().value > 0);
+				found.hits().total().value() > 0);
 
 		FlagsList trashed = new FlagsList();
 		trashed.add(Flag.SEEN);
@@ -218,8 +219,8 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 	}
 
 	@Test
-	public void moveEmail() throws InterruptedException {
-		Client client = ESearchActivator.getClient();
+	public void moveEmail() throws InterruptedException, ElasticsearchException, IOException {
+		ElasticsearchClient client = ESearchActivator.getClient();
 		IUser userApi = suProvider().instance(IUser.class, domainUid);
 		ItemValue<User> theUser = userApi.getComplete(userUid);
 		assertNotNull(theUser);
@@ -242,49 +243,54 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 		assertTrue(addedUid > 0);
 
 		int attempt = 0;
-		SearchResponse found = null;
-
-		BoolQueryBuilder freshMailQuery = QueryBuilders.boolQuery()//
-				.must(QueryBuilders.termQuery("in", inboxFolder.uid))//
-				.must(QueryBuilders.termQuery("uid", addedUid));
-
+		SearchResponse<Void> found = null;
 		do {
 			Thread.sleep(50);
-			found = client.prepareSearch(index).setQuery(freshMailQuery).execute().actionGet();
-		} while (found.getHits().getTotalHits().value == 0 && ++attempt < 200);
+			found = client.search(s -> s //
+					.index(index) //
+					.query(q -> q.bool(b -> b //
+							.must(m -> m.term(t -> t.field("in").value(inboxFolder.uid))) //
+							.must(m -> m.term(t -> t.field("uid").value(addedUid))))),
+					Void.class);
+		} while (found.hits().total().value() == 0 && ++attempt < 200);
 		assertTrue("We tried " + attempt + " times & didn't find the doc with uid " + addedUid,
-				found.getHits().getTotalHits().value > 0);
+				found.hits().total().value() > 0);
 
 		ESearchActivator.refreshIndex(index);
 
-		SearchResponse all = client.prepareSearch(index).setFetchSource(true).execute().actionGet();
-		assertEquals(2, all.getHits().getTotalHits().value);
+		SearchResponse<Void> all = client.search(s -> s.index(index).source(so -> so.fetch(true)), Void.class);
+		assertEquals(2, all.hits().total().value());
 
-		BoolQueryBuilder orphans = QueryBuilders.boolQuery()
-				.mustNot(JoinQueryBuilders.hasChildQuery("record", QueryBuilders.matchAllQuery(), ScoreMode.None)) //
-				.must(QueryBuilders.termQuery("body_msg_link", "body"));
+		Query orphans = new BoolQuery.Builder()
+				.mustNot(m -> m
+						.hasChild(c -> c.type("record").query(f -> f.matchAll(a -> a)).scoreMode(ChildScoreMode.None))) //
+				.must(m -> m.term(t -> t.field("body_msg_link").value("body"))).build()._toQuery();
 
-		SearchResponse orphanFound = client.prepareSearch(index)//
-				.setQuery(orphans).setFetchSource(true)//
-				.setTypes("recordOrBody").setFrom(0).setSize(40)//
-				.execute().actionGet();
+		SearchResponse<Void> orphanFound = client.search(s -> s //
+				.index(index) //
+				.query(orphans) //
+				.source(so -> so.fetch(true)) //
+				.from(0).size(40), Void.class);
 
-		assertEquals(0, orphanFound.getHits().getTotalHits().value);
+		assertEquals(0, orphanFound.hits().total().value());
 
-		found.getHits().forEach(hit -> {
-			System.err.println(" *** DELETE " + hit.getId());
-			client.prepareDelete(index, "recordOrBody", hit.getId()).setRefreshPolicy(RefreshPolicy.IMMEDIATE).execute()
-					.actionGet();
+		found.hits().hits().forEach(hit -> {
+			System.err.println(" *** DELETE " + hit.id());
+			try {
+				client.delete(d -> d.index(index).id(hit.id()).refresh(Refresh.True));
+			} catch (ElasticsearchException | IOException e) {
+				e.printStackTrace();
+			}
 		});
 
 		Thread.sleep(2000);
 
-		orphanFound = client.prepareSearch(index)//
-				.setQuery(orphans).setFetchSource(true)//
-				.setTypes("recordOrBody").setFrom(0).setSize(40)//
-				.execute().actionGet();
+		orphanFound = client.search(s -> s //
+				.index(index).query(orphans) //
+				.source(so -> so.fetch(true)) //
+				.from(0).size(40), Void.class);
 
-		assertEquals(1, orphanFound.getHits().getTotalHits().value);
+		assertEquals(1, orphanFound.hits().total().value());
 
 		FlagsList trashed = new FlagsList();
 		trashed.add(Flag.SEEN);
@@ -305,18 +311,18 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 		Thread.sleep(1000);
 		System.err.println("TEST ENDS");
 
-		orphanFound = client.prepareSearch(index)//
-				.setQuery(orphans).setFetchSource(true)//
-				.setTypes("recordOrBody").setFrom(0).setSize(40)//
-				.execute().actionGet();
+		orphanFound = client.search(s -> s //
+				.index(index).query(orphans) //
+				.source(so -> so.fetch(true)) //
+				.from(0).size(40), Void.class);
 
-		assertEquals(0, orphanFound.getHits().getTotalHits().value);
+		assertEquals(0, orphanFound.hits().total().value());
 
 	}
 
 	@Test
 	public void testIndexAttachment() throws Exception {
-		Client client = ESearchActivator.getClient();
+		ElasticsearchClient client = ESearchActivator.getClient();
 		IUser userApi = suProvider().instance(IUser.class, domainUid);
 		ItemValue<User> theUser = userApi.getComplete(userUid);
 		assertNotNull(theUser);
@@ -341,36 +347,34 @@ public class ReplicationIndexingTests extends AbstractRollingReplicationTests {
 		assertTrue(addedUid > 0);
 
 		int attempt = 0;
-		SearchResponse found = null;
-
-		BoolQueryBuilder freshMailQuery = QueryBuilders.boolQuery()//
-				.must(QueryBuilders.termQuery("in", inboxFolder.uid))//
-				.must(QueryBuilders.termQuery("uid", addedUid));
-
+		SearchResponse<ObjectNode> found = null;
 		do {
 			Thread.sleep(50);
-			found = client.prepareSearch(index).setQuery(freshMailQuery).execute().actionGet();
-		} while (found.getHits().getTotalHits().value == 0 && ++attempt < 200);
+			found = client.search(s -> s //
+					.index(index) //
+					.query(q -> q.bool(b -> b //
+							.must(m -> m.term(t -> t.field("in").value(inboxFolder.uid))) //
+							.must(m -> m.term(t -> t.field("uid").value(addedUid))))),
+					ObjectNode.class);
+		} while (found.hits().total().value() == 0 && ++attempt < 200);
 		assertTrue("We tried " + attempt + " times & didn't find the doc with uid " + addedUid,
-				found.getHits().getTotalHits().value > 0);
+				found.hits().total().value() > 0);
 
-		SearchHit hit = found.getHits().getAt(0);
-		List<String> isValue = (List<String>) hit.getSourceAsMap().get("is");
+		Hit<ObjectNode> hit = found.hits().hits().get(0);
+		List<String> isValue = Streams.stream(hit.source().get("is").elements()).map(n -> n.asText()).toList();
 		assertTrue(new HashSet<>(isValue).contains("seen"));
 
-		JsonObject source = new JsonObject(found.getHits().getAt(0).getSourceAsString());
-		String parentId = source.getString("parentId");
-
-		BoolQueryBuilder parentQuery = QueryBuilders.boolQuery()//
-				.must(QueryBuilders.idsQuery().addIds(parentId));
-
-		assertTrue(client.prepareSearch(index).setQuery(parentQuery).execute().actionGet().getHits().getAt(0)
-				.getSourceAsString().contains("This is analyzed text"));
+		String parentId = hit.source().get("parentId").asText();
+		SearchResponse<ObjectNode> parentResponse = client.search(s -> s //
+				.index(index) //
+				.query(q -> q.bool(b -> b.must(m -> m.ids(i -> i.values(parentId))))), ObjectNode.class);
+		String source = new ObjectMapper().writeValueAsString(parentResponse.hits().hits().get(0).source());
+		assertTrue(source.contains("This is analyzed text"));
 	}
 
-	private String getUserAliasIndex(String alias, Client client) {
-		GetAliasesResponse t = client.admin().indices().prepareGetAliases(alias).execute().actionGet();
-
-		return t.getAliases().keysIt().next();
+	private String getUserAliasIndex(String alias, ElasticsearchClient client)
+			throws ElasticsearchException, IOException {
+		GetAliasResponse t = client.indices().getAlias(a -> a.name(alias));
+		return t.result().keySet().iterator().next();
 	}
 }

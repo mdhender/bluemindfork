@@ -18,15 +18,13 @@
  */
 package net.bluemind.index.mail;
 
-import org.apache.lucene.search.join.ScoreMode;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.reindex.DeleteByQueryAction;
-import org.elasticsearch.index.reindex.DeleteByQueryRequestBuilder;
-import org.elasticsearch.join.query.JoinQueryBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.query_dsl.ChildScoreMode;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
@@ -48,17 +46,23 @@ public class ExpungeVerticle extends AbstractVerticle {
 
 	private void expunge(Message<JsonObject> message) {
 		String index = message.body().getString("index");
-
 		long time = System.currentTimeMillis();
-		QueryBuilder queryBuilder = QueryBuilders.boolQuery()
-				.mustNot(JoinQueryBuilders.hasChildQuery(MailIndexService.CHILD_TYPE, QueryBuilders.matchAllQuery(),
-						ScoreMode.None))//
-				.must(QueryBuilders.termQuery(MailIndexService.JOIN_FIELD, MailIndexService.PARENT_TYPE));
-		long deleted = new DeleteByQueryRequestBuilder(MailIndexService.getIndexClient(), DeleteByQueryAction.INSTANCE)
-				.filter(queryBuilder).source(index).get().getDeleted();
-
-		logger.info(" *** cleanup parents in {} ({} deletion(s)) took {} ms", index, deleted,
-				(System.currentTimeMillis() - time));
+		Query filter = QueryBuilders.bool() //
+				.mustNot(n -> n.hasChild(c -> c //
+						.type(MailIndexService.CHILD_TYPE) //
+						.scoreMode(ChildScoreMode.None) //
+						.query(q -> q.matchAll(a -> a))))
+				.must(m -> m.term(t -> t.field(MailIndexService.JOIN_FIELD).value(MailIndexService.PARENT_TYPE)))
+				.build()._toQuery();
+		ElasticsearchClient esClient = MailIndexService.getIndexClient();
+		try {
+			long deleted = esClient
+					.deleteByQuery(d -> d.index(index).query(t -> t.constantScore(s -> s.filter(filter)))).deleted();
+			logger.info(" *** cleanup parents in {} ({} deletion(s)) took {} ms", index, deleted,
+					(System.currentTimeMillis() - time));
+		} catch (Exception e) {
+			logger.error("[es][expunge] Unable to expunge message in {}", index, e);
+		}
 	}
 
 }

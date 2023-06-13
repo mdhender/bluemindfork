@@ -614,7 +614,7 @@ public class NoteServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testSearch_onSubject() throws ServerFault {
+	public void testSearch_onSubject() throws Exception {
 		VNote note = defaultVNote();
 		note.subject = "yay";
 		String uid = "test_" + System.nanoTime();
@@ -643,7 +643,7 @@ public class NoteServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testSearch_onBody() throws ServerFault {
+	public void testSearch_onBody() throws Exception {
 		VNote note = defaultVNote();
 		note.body = "yay";
 		String uid = "test_" + System.nanoTime();
@@ -672,7 +672,7 @@ public class NoteServiceTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testSearch_onColor() throws ServerFault {
+	public void testSearch_onColor() throws Exception {
 		VNote note = defaultVNote();
 		String uid = "test_" + System.nanoTime();
 		getServiceNote(defaultSecurityContext, container.uid).create(uid, note);

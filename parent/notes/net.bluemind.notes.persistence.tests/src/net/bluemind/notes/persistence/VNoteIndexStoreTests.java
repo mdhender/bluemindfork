@@ -23,18 +23,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.UUID;
 
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.junit.Before;
 import org.junit.Test;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
@@ -46,10 +45,11 @@ import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.notes.api.VNote;
 import net.bluemind.notes.api.VNoteQuery;
+import net.bluemind.notes.persistence.VNoteIndexStore.IndexableVNote;
 
 public class VNoteIndexStoreTests extends AbstractStoreTests {
 
-	private Client client;
+	private ElasticsearchClient client;
 	private VNoteIndexStore indexStore;
 	private Container container;
 	private ItemStore itemStore;
@@ -78,7 +78,7 @@ public class VNoteIndexStoreTests extends AbstractStoreTests {
 	}
 
 	@Test
-	public void testCreate() throws SQLException {
+	public void testCreate() throws SQLException, ElasticsearchException, IOException {
 		VNote note = defaultVNote();
 		String uid = "test" + System.nanoTime();
 		Item item = Item.create(uid, UUID.randomUUID().toString());
@@ -87,21 +87,19 @@ public class VNoteIndexStoreTests extends AbstractStoreTests {
 		indexStore.create(created, note);
 		indexStore.refresh();
 
-		SearchResponse resp = client.prepareSearch(VNOTE_READ_ALIAS).setTypes(VNoteIndexStore.VNOTE_TYPE)
-				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
-		assertEquals(1, resp.getHits().getTotalHits().value);
-		SearchHit hit = resp.getHits().getAt(0);
-		Map<String, Object> source = hit.getSourceAsMap();
-		assertEquals(uid, source.get("uid"));
-		assertEquals(container.uid, source.get("containerUid"));
+		SearchResponse<IndexableVNote> resp = client.search(
+				s -> s.index(VNOTE_READ_ALIAS).query(q -> q.term(t -> t.field("uid").value(item.uid))),
+				IndexableVNote.class);
+		assertEquals(1, resp.hits().total().value());
 
-		@SuppressWarnings("unchecked")
-		Map<String, String> sourceNote = (Map<String, String>) source.get("value");
-		assertEquals(note.subject, sourceNote.get("subject"));
+		IndexableVNote hit = resp.hits().hits().get(0).source();
+		assertEquals(uid, hit.uid);
+		assertEquals(container.uid, hit.containerUid);
+		assertEquals(note.subject, hit.value.subject);
 	}
 
 	@Test
-	public void testUpdate() throws SQLException {
+	public void testUpdate() throws SQLException, ElasticsearchException, IOException {
 		VNote note = defaultVNote();
 		String uid = "test" + System.nanoTime();
 		Item item = Item.create(uid, UUID.randomUUID().toString());
@@ -110,35 +108,34 @@ public class VNoteIndexStoreTests extends AbstractStoreTests {
 		indexStore.create(created, note);
 		indexStore.refresh();
 
-		SearchResponse resp = client.prepareSearch(VNOTE_READ_ALIAS).setTypes(VNoteIndexStore.VNOTE_TYPE)
-				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
-		assertEquals(1, resp.getHits().getTotalHits().value);
-		SearchHit hit = resp.getHits().getAt(0);
-		Map<String, Object> source = hit.getSourceAsMap();
-		assertEquals(uid, source.get("uid"));
-		assertEquals(container.uid, source.get("containerUid"));
+		SearchResponse<IndexableVNote> resp = client.search(
+				s -> s.index(VNOTE_READ_ALIAS).query(q -> q.term(t -> t.field("uid").value(item.uid))),
+				IndexableVNote.class);
+		assertEquals(1, resp.hits().total().value());
+
+		IndexableVNote hit = resp.hits().hits().get(0).source();
+		assertEquals(uid, hit.uid);
+		assertEquals(container.uid, hit.containerUid);
 
 		String updatedSubject = "updated" + System.currentTimeMillis();
 		note.subject = updatedSubject;
 		indexStore.update(created, note);
 		indexStore.refresh();
 
-		resp = client.prepareSearch(VNOTE_READ_ALIAS).setTypes(VNoteIndexStore.VNOTE_TYPE)
-				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
-		assertEquals(1, resp.getHits().getTotalHits().value);
-		hit = resp.getHits().getAt(0);
-		source = hit.getSourceAsMap();
-		assertEquals(uid, source.get("uid"));
-		assertEquals(container.uid, source.get("containerUid"));
+		resp = client.search(
+				s -> s.index(VNOTE_READ_ALIAS).query(q -> q.term(t -> t.field("uid").value(item.uid))),
+				IndexableVNote.class);
+		assertEquals(1, resp.hits().total().value());
 
-		@SuppressWarnings("unchecked")
-		Map<String, String> sourceNote = (Map<String, String>) source.get("value");
-		assertEquals(updatedSubject, sourceNote.get("subject"));
+		IndexableVNote updated = resp.hits().hits().get(0).source();
+		assertEquals(uid, updated.uid);
+		assertEquals(container.uid, updated.containerUid);
+		assertEquals(updatedSubject, updated.value.subject);
 
 	}
 
 	@Test
-	public void testDelete() throws SQLException {
+	public void testDelete() throws SQLException, ElasticsearchException, IOException {
 		VNote note = defaultVNote();
 		String uid = "test" + System.nanoTime();
 		Item item = Item.create(uid, UUID.randomUUID().toString());
@@ -147,23 +144,24 @@ public class VNoteIndexStoreTests extends AbstractStoreTests {
 		indexStore.create(created, note);
 		indexStore.refresh();
 
-		SearchResponse resp = client.prepareSearch(VNOTE_READ_ALIAS).setTypes(VNoteIndexStore.VNOTE_TYPE)
-				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
-		assertEquals(1, resp.getHits().getTotalHits().value);
-
-		SearchHit hit = resp.getHits().getAt(0);
+		SearchResponse<IndexableVNote> resp = client.search(
+				s -> s.index(VNOTE_READ_ALIAS).query(q -> q.term(t -> t.field("uid").value(item.uid))),
+				IndexableVNote.class);
+		assertEquals(1, resp.hits().total().value());
+		IndexableVNote hit = resp.hits().hits().get(0).source();
 		assertNotNull(hit);
 
 		indexStore.delete(created.id);
 		indexStore.refresh();
-		resp = client.prepareSearch(VNOTE_READ_ALIAS).setTypes(VNoteIndexStore.VNOTE_TYPE)
-				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
 
-		assertEquals(0, resp.getHits().getTotalHits().value);
+		resp = client.search(
+				s -> s.index(VNOTE_READ_ALIAS).query(q -> q.term(t -> t.field("uid").value(item.uid))),
+				IndexableVNote.class);
+		assertEquals(0, resp.hits().total().value());
 	}
 
 	@Test
-	public void testDeleteAll() throws SQLException {
+	public void testDeleteAll() throws SQLException, ElasticsearchException, IOException {
 		VNote note = defaultVNote();
 		String uid = "test" + System.nanoTime();
 		Item item = Item.create(uid, UUID.randomUUID().toString());
@@ -180,16 +178,16 @@ public class VNoteIndexStoreTests extends AbstractStoreTests {
 		indexStore.create(created2, note2);
 		indexStore.refresh();
 
-		SearchResponse resp = client.prepareSearch(VNOTE_READ_ALIAS).setTypes(VNoteIndexStore.VNOTE_TYPE)
-				.setQuery(QueryBuilders.termQuery("containerUid", container.uid)).execute().actionGet();
-		assertEquals(2, resp.getHits().getTotalHits().value);
+		SearchResponse<IndexableVNote> resp = client.search(s -> s.index(VNOTE_READ_ALIAS)
+				.query(q -> q.term(t -> t.field("containerUid").value(container.uid))), IndexableVNote.class);
+		assertEquals(2, resp.hits().total().value());
 
 		indexStore.deleteAll();
 		indexStore.refresh();
 
-		resp = client.prepareSearch(VNOTE_READ_ALIAS).setTypes(VNoteIndexStore.VNOTE_TYPE)
-				.setQuery(QueryBuilders.termQuery("containerUid", container.uid)).execute().actionGet();
-		assertEquals(0, resp.getHits().getTotalHits().value);
+		resp = client.search(s -> s.index(VNOTE_READ_ALIAS)
+				.query(q -> q.term(t -> t.field("containerUid").value(container.uid))), IndexableVNote.class);
+		assertEquals(0, resp.hits().total().value());
 	}
 
 	@Test

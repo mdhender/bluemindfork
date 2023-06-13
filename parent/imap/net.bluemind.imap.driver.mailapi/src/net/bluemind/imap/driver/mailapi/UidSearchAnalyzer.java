@@ -1,5 +1,6 @@
 package net.bluemind.imap.driver.mailapi;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -15,18 +16,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.LongStream;
 
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.join.query.JoinQueryBuilders;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.metrics.InternalMax;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.lib.elasticsearch.ESearchActivator;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.json.JsonData;
 
 public class UidSearchAnalyzer {
 
@@ -85,24 +85,24 @@ public class UidSearchAnalyzer {
 	private UidSearchAnalyzer() {
 	}
 
-	public static QueryBuilderResult buildQuery(String query, String folderUid, String meUid)
-			throws UidSearchException {
+	public static QueryBuilderResult buildQuery(ElasticsearchClient esClient, String query, String folderUid,
+			String meUid) throws UidSearchException {
 		query = query + " END";
-		int maxUid = 0;
 		boolean hasSequence = false;
-		BoolQueryBuilder qb = QueryBuilders.boolQuery();
-		Client client = ESearchActivator.getClient();
 
-		qb.must(QueryBuilders.termQuery("in", folderUid));
+		SearchResponse<Void> response;
+		try {
+			response = esClient.search(s -> s.index("mailspool_alias_" + meUid).size(0) //
+					.query(q -> q.bool(b -> b //
+							.must(m -> m.term(t -> t.field("in").value(folderUid))))) //
+					.aggregations("uid_max", a -> a.max(m -> m.field("uid"))), Void.class);
 
-		// Gets document with highest uid for keywords with sequences management
-		AggregationBuilder a = AggregationBuilders.max("uid_max").field("uid");
-		SearchResponse rMax = client.prepareSearch("mailspool_alias_" + meUid).setQuery(qb).addAggregation(a).setSize(0)
-				.execute().actionGet();
-		if (rMax.getAggregations().get("uid_max") != null) {
-			InternalMax uidMax = rMax.getAggregations().get("uid_max");
-			maxUid = (int) uidMax.getValue();
+		} catch (ElasticsearchException | IOException e) {
+			throw new UidSearchException("Unable to search max uid in 'mailspool_alias_" + meUid + "'");
 		}
+
+		Aggregate aggregate = response.aggregations().get("uid_max");
+		long maxUid = (aggregate != null) ? (long) aggregate.max().value() : 0l;
 
 		String subQuery = query;
 
@@ -112,7 +112,12 @@ public class UidSearchAnalyzer {
 		boolean isCertain = true;
 		// count for OR condition
 		int orCount = 0;
-		BoolQueryBuilder qbShould = QueryBuilders.boolQuery();
+
+		// Builder can only be built once
+		BoolQuery.Builder qb = new BoolQuery.Builder() //
+				.must(m -> m.term(t -> t.field("in").value(folderUid))) //
+				.mustNot(m -> m.term(t -> t.field("is").value("deleted")));
+		BoolQuery.Builder qbShould = new BoolQuery.Builder();
 		// Analyze query for the different authorized keywords
 		while (subQuery.length() != 0) {
 			int len = 0;
@@ -177,16 +182,16 @@ public class UidSearchAnalyzer {
 			if (orCount > 1) {
 				orCount = 0;
 				isCertain = true;
-				qb.must(qbShould);
-				qbShould = QueryBuilders.boolQuery();
+				qb.must(qbShould.build()._toQuery());
+				qbShould = new BoolQuery.Builder();
 			}
 			positiveKeyword = true;
 			subQuery = subQuery.substring(len);
 		}
-		return new QueryBuilderResult(qb, hasSequence);
+		return new QueryBuilderResult(qb.build()._toQuery(), hasSequence);
 	}
 
-	public record QueryBuilderResult(BoolQueryBuilder bq, boolean hasSequence) {
+	public record QueryBuilderResult(Query q, boolean hasSequence) {
 	}
 
 	public static boolean hasSequence(String query) {
@@ -207,20 +212,20 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
 			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String gr = matcher.group(1);
 				if (!positive) {
-					qb.mustNot(QueryBuilders.termQuery("is", gr.toLowerCase()));
+					qb.mustNot(m -> m.term(t -> t.field("is").value(gr.toLowerCase())));
 					return matcher.group(0);
 				}
 				if (certain) {
 					logger.info("termQuery must 'is' with '{}'", gr);
-					qb.must(QueryBuilders.termQuery("is", gr.toLowerCase()));
+					qb.must(m -> m.term(t -> t.field("is").value(gr.toLowerCase())));
 				} else {
 					logger.info("termQuery should 'is' with '{}'", gr);
-					qb.should(QueryBuilders.termQuery("is", gr.toLowerCase()));
+					qb.should(m -> m.term(t -> t.field("is").value(gr.toLowerCase())));
 				}
 				return matcher.group(0);
 			}
@@ -239,7 +244,7 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
 			Matcher matcher = compiledRE.matcher(query);
 
 			if (matcher.find()) {
@@ -247,15 +252,15 @@ public class UidSearchAnalyzer {
 
 				if (positive) {
 					logger.info("termQuery must not 'is' with '{}'", gr);
-					qb.mustNot(QueryBuilders.termQuery("is", gr.toLowerCase()));
+					qb.mustNot(m -> m.term(t -> t.field("is").value(gr.toLowerCase())));
 					return matcher.group();
 				}
 				if (certain) {
 					logger.info("termQuery must 'is' with '{}'", gr);
-					qb.must(QueryBuilders.termQuery("is", gr.toLowerCase()));
+					qb.must(m -> m.term(t -> t.field("is").value(gr.toLowerCase())));
 				} else {
 					logger.info("termQuery should 'is' with '{}'", gr);
-					qb.should(QueryBuilders.termQuery("is", gr.toLowerCase()));
+					qb.should(m -> m.term(t -> t.field("is").value(gr.toLowerCase())));
 				}
 				return matcher.group();
 			}
@@ -273,7 +278,7 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
 			Matcher matcher = compiledRE.matcher(query);
 
 			if (matcher.find()) {
@@ -281,15 +286,15 @@ public class UidSearchAnalyzer {
 
 				if (!positive) {
 					logger.info("termQuery must 'is' with '{}'", gr);
-					qb.mustNot(QueryBuilders.termQuery("is", gr.toLowerCase()));
+					qb.mustNot(m -> m.term(t -> t.field("is").value(gr.toLowerCase())));
 					return matcher.group(0);
 				}
 				if (certain) {
 					logger.info("termQuery must 'is' with '{}'", gr);
-					qb.must(QueryBuilders.termQuery("is", gr.toLowerCase()));
+					qb.must(m -> m.term(t -> t.field("is").value(gr.toLowerCase())));
 				} else {
 					logger.info("termQuery should 'is' with '{}'", gr);
-					qb.should(QueryBuilders.termQuery("is", gr.toLowerCase()));
+					qb.should(m -> m.term(t -> t.field("is").value(gr.toLowerCase())));
 				}
 				return matcher.group(0);
 			}
@@ -306,7 +311,7 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
 			Matcher matcher = compiledRE.matcher(query);
 
 			if (matcher.find()) {
@@ -314,16 +319,16 @@ public class UidSearchAnalyzer {
 
 				if (!positive) {
 					logger.info("termQuery must not 'is' with '{}'", flag);
-					qb.mustNot(QueryBuilders.termQuery("is", flag.toLowerCase()));
+					qb.mustNot(m -> m.term(t -> t.field("is").value(flag.toLowerCase())));
 					return matcher.group(0);
 				}
 
 				if (certain) {
 					logger.info("termQuery must 'is' with '{}'", flag);
-					qb.must(QueryBuilders.termQuery("is", flag.toLowerCase()));
+					qb.must(m -> m.term(t -> t.field("is").value(flag.toLowerCase())));
 				} else {
 					logger.info("termQuery should 'is' with '{}'", flag);
-					qb.should(QueryBuilders.termQuery("is", flag.toLowerCase()));
+					qb.should(m -> m.term(t -> t.field("is").value(flag.toLowerCase())));
 				}
 				return matcher.group(0);
 			}
@@ -340,7 +345,7 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
 			Matcher matcher = compiledRE.matcher(query);
 
 			if (matcher.find()) {
@@ -348,16 +353,16 @@ public class UidSearchAnalyzer {
 
 				if (positive) {
 					logger.info("termQuery must not 'is' with '{}'", flag);
-					qb.mustNot(QueryBuilders.termQuery("is", flag.toLowerCase()));
+					qb.mustNot(m -> m.term(t -> t.field("is").value(flag.toLowerCase())));
 					return matcher.group(0);
 				}
 
 				if (certain) {
 					logger.info("termQuery must 'is' with '{}'", flag);
-					qb.must(QueryBuilders.termQuery("is", flag.toLowerCase()));
+					qb.must(m -> m.term(t -> t.field("is").value(flag.toLowerCase())));
 				} else {
 					logger.info("termQuery should 'is' with '{}'", flag);
-					qb.should(QueryBuilders.termQuery("is", flag.toLowerCase()));
+					qb.should(m -> m.term(t -> t.field("is").value(flag.toLowerCase())));
 				}
 				return matcher.group(0);
 			}
@@ -375,7 +380,7 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
 			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String size = matcher.group(1);
@@ -383,19 +388,19 @@ public class UidSearchAnalyzer {
 				if (!positive) {
 					if (certain) {
 						logger.info("termQuery must 'size' lt '{}'", size);
-						qb.must(QueryBuilders.rangeQuery("size").lt(size));
+						qb.must(m -> m.range(r -> r.field("size").lt(JsonData.of(size))));
 					} else {
 						logger.info("termQuery should 'size' lt '{}'", size);
-						qb.should(QueryBuilders.rangeQuery("size").lt(size));
+						qb.should(m -> m.range(r -> r.field("size").lt(JsonData.of(size))));
 					}
 					return matcher.group(0);
 				}
 				if (certain) {
 					logger.info("rangeQuery must 'size' gt '{}'", size);
-					qb.must(QueryBuilders.rangeQuery("size").gt(size));
+					qb.must(m -> m.range(r -> r.field("size").gt(JsonData.of(size))));
 				} else {
 					logger.info("rangeQuery should 'size' gt '{}'", size);
-					qb.should(QueryBuilders.rangeQuery("size").gt(size));
+					qb.should(m -> m.range(r -> r.field("size").gt(JsonData.of(size))));
 				}
 				return matcher.group(0);
 			}
@@ -413,26 +418,26 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
 			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String size = matcher.group(1);
 				if (!positive) {
 					if (certain) {
 						logger.info("termQuery must 'size' gt '{}'", size);
-						qb.must(QueryBuilders.rangeQuery("size").gt(size));
+						qb.must(m -> m.range(r -> r.field("size").gt(JsonData.of(size))));
 					} else {
 						logger.info("termQuery should 'size' gt '{}'", size);
-						qb.should(QueryBuilders.rangeQuery("size").gt(size));
+						qb.should(m -> m.range(r -> r.field("size").gt(JsonData.of(size))));
 					}
 					return matcher.group(0);
 				}
 				if (certain) {
 					logger.info("termQuery must 'size' lt '{}'", size);
-					qb.must(QueryBuilders.rangeQuery("size").lt(size));
+					qb.must(m -> m.range(r -> r.field("size").lt(JsonData.of(size))));
 				} else {
 					logger.info("termQuery should 'size' lt '{}'", size);
-					qb.should(QueryBuilders.rangeQuery("size").lt(size));
+					qb.should(m -> m.range(r -> r.field("size").lt(JsonData.of(size))));
 				}
 				return matcher.group(0);
 			}
@@ -450,7 +455,7 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
 			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String dateString = matcher.group(1);
@@ -460,19 +465,19 @@ public class UidSearchAnalyzer {
 					if (!positive) {
 						if (certain) {
 							logger.info("termQuery must '{}' lt '{}'", INTERNAL_DATE, dateString);
-							qb.must(QueryBuilders.rangeQuery(INTERNAL_DATE).lt(date.getTime()));
+							qb.must(m -> m.range(r -> r.field(INTERNAL_DATE).lt(JsonData.of(date.getTime()))));
 						} else {
 							logger.info("termQuery should '{}' lt '{}'", INTERNAL_DATE, dateString);
-							qb.should(QueryBuilders.rangeQuery(INTERNAL_DATE).lt(date.getTime()));
+							qb.should(m -> m.range(r -> r.field(INTERNAL_DATE).lt(JsonData.of(date.getTime()))));
 						}
 						return matcher.group(0);
 					}
 					if (certain) {
 						logger.info("termQuery must '{}' gt '{}'", INTERNAL_DATE, dateString);
-						qb.must(QueryBuilders.rangeQuery(INTERNAL_DATE).gt(date.getTime()));
+						qb.must(m -> m.range(r -> r.field(INTERNAL_DATE).gt(JsonData.of(date.getTime()))));
 					} else {
 						logger.info("termQuery should '{}' gt '{}'", INTERNAL_DATE, dateString);
-						qb.should(QueryBuilders.rangeQuery(INTERNAL_DATE).gt(date.getTime()));
+						qb.should(m -> m.range(r -> r.field(INTERNAL_DATE).gt(JsonData.of(date.getTime()))));
 					}
 				} catch (ParseException e) {
 					logger.error(e.getMessage());
@@ -494,7 +499,7 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
 			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String dateString = matcher.group(1);
@@ -504,19 +509,19 @@ public class UidSearchAnalyzer {
 					if (!positive) {
 						if (certain) {
 							logger.info("termQuery must '{}' gt '{}'", INTERNAL_DATE, dateString);
-							qb.must(QueryBuilders.rangeQuery(INTERNAL_DATE).gt(date.getTime()));
+							qb.must(m -> m.range(r -> r.field(INTERNAL_DATE).gt(JsonData.of(date.getTime()))));
 						} else {
 							logger.info("termQuery should '{}' gt '{}'", INTERNAL_DATE, dateString);
-							qb.should(QueryBuilders.rangeQuery(INTERNAL_DATE).gt(date.getTime()));
+							qb.should(m -> m.range(r -> r.field(INTERNAL_DATE).gt(JsonData.of(date.getTime()))));
 						}
 						return matcher.group(0);
 					}
 					if (certain) {
 						logger.info("termQuery must '{}' lt '{}'", INTERNAL_DATE, dateString);
-						qb.must(QueryBuilders.rangeQuery(INTERNAL_DATE).lt(date.getTime()));
+						qb.must(m -> m.range(r -> r.field(INTERNAL_DATE).lt(JsonData.of(date.getTime()))));
 					} else {
 						logger.info("termQuery should '{}' lt '{}'", INTERNAL_DATE, dateString);
-						qb.should(QueryBuilders.rangeQuery(INTERNAL_DATE).lt(date.getTime()));
+						qb.should(m -> m.range(r -> r.field(INTERNAL_DATE).lt(JsonData.of(date.getTime()))));
 					}
 				} catch (ParseException e) {
 					logger.error("date parsing error: {}", e.getMessage());
@@ -536,25 +541,25 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
 			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
-				String dateString = matcher.group(1);
+				JsonData dateString = JsonData.of(matcher.group(1));
 
 				if (!positive) {
 					logger.info("termQuery must not '{}' eq '{}'", INTERNAL_DATE, dateString);
-					qb.mustNot(QueryBuilders.rangeQuery(INTERNAL_DATE).gte(dateString).lte(dateString)
-							.format(DATE_FORMAT));
+					qb.mustNot(m -> m
+							.range(r -> r.field(INTERNAL_DATE).gte(dateString).lte(dateString).format(DATE_FORMAT)));
 					return matcher.group(0);
 				}
 				if (certain) {
 					logger.info("termQuery must '{}' eq '{}'", INTERNAL_DATE, dateString);
-					qb.must(QueryBuilders.rangeQuery(INTERNAL_DATE).gte(dateString).lte(dateString)
-							.format(DATE_FORMAT));
+					qb.must(m -> m
+							.range(r -> r.field(INTERNAL_DATE).gte(dateString).lte(dateString).format(DATE_FORMAT)));
 				} else {
 					logger.info("termQuery should '{}' eq '{}'", INTERNAL_DATE, dateString);
-					qb.should(QueryBuilders.rangeQuery(INTERNAL_DATE).gte(dateString).lte(dateString)
-							.format(DATE_FORMAT));
+					qb.should(m -> m
+							.range(r -> r.field(INTERNAL_DATE).gte(dateString).lte(dateString).format(DATE_FORMAT)));
 				}
 				return matcher.group(0);
 			}
@@ -572,7 +577,7 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
 			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
 				String field = matcher.group(1).toLowerCase();
@@ -586,13 +591,13 @@ public class UidSearchAnalyzer {
 				if (!positive) {
 					if (body.isBlank()) {
 						logger.info("must not existsQuery 'headers.{}'", field);
-						qb.mustNot(QueryBuilders.existsQuery("headers." + field));
+						qb.mustNot(m -> m.exists(e -> e.field("headers." + field)));
 					} else {
 						// Special case for X-BM-ExternalID, as the ES mapping has another name for
 						// keyword type
-						field = (!field.equalsIgnoreCase(XBMEXTERNALID)) ? field : field + ".keyword";
-						logger.info("must not be termQuery 'headers.{}:{}'", field, body);
-						qb.mustNot(QueryBuilders.termQuery("headers." + field, body));
+						String fixedField = (!field.equalsIgnoreCase(XBMEXTERNALID)) ? field : field + ".keyword";
+						logger.info("must not be termQuery 'headers.{}:{}'", fixedField, body);
+						qb.mustNot(m -> m.term(t -> t.field("headers." + fixedField).value(body)));
 					}
 					return matcher.group(0);
 				}
@@ -600,21 +605,21 @@ public class UidSearchAnalyzer {
 				if (body.isBlank()) {
 					if (certain) {
 						logger.info("must existsQuery 'headers.{}'", field);
-						qb.must(QueryBuilders.existsQuery("headers." + field));
+						qb.must(m -> m.exists(e -> e.field("headers." + field)));
 					} else {
 						logger.info("should existsQuery 'headers.{}'", field);
-						qb.should(QueryBuilders.existsQuery("headers." + field));
+						qb.should(m -> m.exists(e -> e.field("headers." + field)));
 					}
 				} else {
 					// Special case for X-BM-ExternalID, as the ES mapping has another name for
 					// keyword type
-					field = (!field.equalsIgnoreCase(XBMEXTERNALID)) ? field : field + ".keyword";
+					String fixedField = (!field.equalsIgnoreCase(XBMEXTERNALID)) ? field : field + ".keyword";
 					if (certain) {
-						logger.info("must be termQuery 'headers." + field + ":" + body + "'");
-						qb.must(QueryBuilders.termQuery("headers." + field, body));
+						logger.info("must be termQuery 'headers." + fixedField + ":" + body + "'");
+						qb.must(m -> m.term(t -> t.field("headers." + fixedField).value(body)));
 					} else {
-						logger.info("should be termQuery 'headers." + field + ":" + body + "'");
-						qb.should(QueryBuilders.termQuery("headers." + field, body));
+						logger.info("should be termQuery 'headers." + fixedField + ":" + body + "'");
+						qb.should(m -> m.term(t -> t.field("headers." + fixedField).value(body)));
 					}
 				}
 				return matcher.group(0);
@@ -633,32 +638,30 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
 			Matcher matcher = compiledRE.matcher(query);
 			if (matcher.find()) {
-				String key = matcher.group(1).toLowerCase();
+				String match = matcher.group(1).toLowerCase();
+				String key = (match.equals("body") || match.equals("text")) ? "content" : match;
 				String value = matcher.group(2);
-				if (key.equals("body") || key.equals("text")) {
-					key = "content";
-				}
 				Map<String, Float> fields = new HashMap<>();
 				fields.put(key, 1.0F);
 
 				if (!positive) {
 					logger.info("matchPhrase must not '{}'='{}'", key, value);
-					qb.mustNot(JoinQueryBuilders.hasParentQuery(PARENT_TYPE, QueryBuilders.matchPhraseQuery(key, value),
-							false));
+					qb.mustNot(m -> m.hasParent(p -> p.parentType(PARENT_TYPE).score(false) //
+							.query(q -> q.matchPhrase(ph -> ph.field(key).query(value)))));
 					return matcher.group(0);
 				}
 
 				if (certain) {
 					logger.info("matchPhrase must '{}':'{}'", key, value);
-					qb.must(JoinQueryBuilders.hasParentQuery(PARENT_TYPE, QueryBuilders.matchPhraseQuery(key, value),
-							false));
+					qb.must(m -> m.hasParent(p -> p.parentType(PARENT_TYPE).score(false) //
+							.query(q -> q.matchPhrase(ph -> ph.field(key).query(value)))));
 				} else {
 					logger.info("matchPhrase should '{}':'{}'", key, value);
-					qb.should(JoinQueryBuilders.hasParentQuery(PARENT_TYPE, QueryBuilders.matchPhraseQuery(key, value),
-							false));
+					qb.should(m -> m.hasParent(p -> p.parentType(PARENT_TYPE).score(false) //
+							.query(q -> q.matchPhrase(ph -> ph.field(key).query(value)))));
 				}
 				return matcher.group(0);
 			}
@@ -675,7 +678,7 @@ public class UidSearchAnalyzer {
 		}
 
 		@Override
-		public String analyse(BoolQueryBuilder qb, String query, boolean positive, boolean certain, long maxUid) {
+		public String analyse(BoolQuery.Builder qb, String query, boolean positive, boolean certain, long maxUid) {
 			Set<Long> set = new HashSet<>();
 			long lowerBond = 0L;
 			Matcher matcher = compiledRE.matcher(query);
@@ -717,10 +720,12 @@ public class UidSearchAnalyzer {
 				}
 				if (positive) {
 					logger.info("termsQuery 'uid' must be in {}", set);
-					qb.must(QueryBuilders.termsQuery("uid", set));
+					qb.must(m -> m
+							.terms(t -> t.field("uid").terms(f -> f.value(set.stream().map(FieldValue::of).toList()))));
 				} else {
 					logger.info("termsQuery 'uid' must not be in {}", set);
-					qb.mustNot(QueryBuilders.termsQuery("uid", set));
+					qb.mustNot(m -> m
+							.terms(t -> t.field("uid").terms(f -> f.value(set.stream().map(FieldValue::of).toList()))));
 				}
 				return matcher.group(0);
 			}

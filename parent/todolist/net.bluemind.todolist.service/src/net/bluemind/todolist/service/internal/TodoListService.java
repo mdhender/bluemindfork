@@ -24,10 +24,10 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -77,7 +77,8 @@ public class TodoListService implements ITodoList {
 	private RBACManager rbacManager;
 	private VTodoStore vtodoStore;
 
-	public TodoListService(DataSource pool, Client esearchClient, Container container, BmContext bmContext) {
+	public TodoListService(DataSource pool, ElasticsearchClient esClient, Container container,
+			BmContext bmContext) {
 		this.bmContext = bmContext;
 		this.container = container;
 		this.vtodoStore = new VTodoStore(pool, container);
@@ -85,7 +86,7 @@ public class TodoListService implements ITodoList {
 		storeService = new VTodoContainerStoreService(bmContext, pool, bmContext.getSecurityContext(), container,
 				vtodoStore);
 
-		indexStore = new VTodoIndexStore(esearchClient, container, DataSourceRouter.location(bmContext, container.uid));
+		indexStore = new VTodoIndexStore(esClient, container, DataSourceRouter.location(bmContext, container.uid));
 
 		eventProducer = new TodoListEventProducer(container, bmContext.getSecurityContext(), VertxPlatform.eventBus());
 

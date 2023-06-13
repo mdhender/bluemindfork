@@ -19,7 +19,6 @@ package net.bluemind.backend.mail.replica.indexing;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,21 +35,21 @@ import net.bluemind.utils.ByteSizeUnit;
 
 public interface IMailIndexService {
 
-	public interface BulkOperation {
+	public record BulkOp(String index, String id, String routing, Map<String, Object> doc) {
+
+	}
+
+	public interface BulkAction {
 
 		void commit(boolean waitForRefresh);
 
 	}
 
-	public void deleteBox(ItemValue<Mailbox> box, String folderUid);
+	void deleteBox(ItemValue<Mailbox> box, String folderUid);
 
-	public void cleanupFolder(ItemValue<Mailbox> box, ItemValue<MailboxFolder> folder, Set<Integer> keySet);
+	List<MailSummary> fetchSummary(ItemValue<Mailbox> box, ItemValue<MailboxFolder> f, IDSet set);
 
-	public List<MailSummary> fetchSummary(ItemValue<Mailbox> box, ItemValue<MailboxFolder> f, IDSet set);
-
-	public void syncFlags(ItemValue<Mailbox> box, ItemValue<MailboxFolder> folder, List<MailSummary> mails);
-
-	public double getArchivedMailSum(String mailboxUid);
+	void syncFlags(ItemValue<Mailbox> box, ItemValue<MailboxFolder> folder, List<MailSummary> mails);
 
 	/**
 	 * check if alias exists, if not create it. If alias is an index, delete
@@ -60,48 +59,48 @@ public interface IMailIndexService {
 	 * 
 	 * @param entityId
 	 */
-	public void repairMailbox(String mailboxUid, IServerTaskMonitor iServerTaskMonitor);
+	void repairMailbox(String mailboxUid, IServerTaskMonitor iServerTaskMonitor);
 
-	public boolean checkMailbox(String mailboxUid);
+	boolean checkMailbox(String mailboxUid);
 
-	public void createMailbox(String mailboxUid);
+	void createMailbox(String mailboxUid);
 
-	public void deleteMailbox(String mailboxUid);
+	void deleteMailbox(String mailboxUid);
 
 	default void moveMailbox(String mailboxUid, String indexName) {
 		moveMailbox(mailboxUid, indexName, true);
 	}
 
-	public void moveMailbox(String mailboxUid, String indexName, boolean deleteSource);
+	void moveMailbox(String mailboxUid, String indexName, boolean deleteSource);
 
 	Set<String> getFolders(String entityId);
 
-	public List<ShardStats> getStats();
+	List<ShardStats> getStats();
 
 	default List<SimpleShardStats> getLiteStats() {
 		return getStats().stream().map(s -> s).collect(Collectors.toList());
 	}
 
-	BulkOperation startBulk();
+	void doBulk(List<BulkOp> operations);
 
 	Map<String, Object> storeBody(IndexedMessageBody body);
 
-	void storeMessage(String mailboxUniqueId, ItemValue<MailboxRecord> mail, String user, Optional<BulkOperation> bulk);
+	List<BulkOp> storeMessage(String mailboxUniqueId, ItemValue<MailboxRecord> mail, String user, boolean bulk);
 
 	default void storeMessage(String mailboxUniqueId, ItemValue<MailboxRecord> mail, String user) {
-		storeMessage(mailboxUniqueId, mail, user, Optional.empty());
+		storeMessage(mailboxUniqueId, mail, user, false);
 	}
 
-	public void expunge(ItemValue<Mailbox> box, ItemValue<MailboxFolder> folder, IDSet set);
+	void expunge(ItemValue<Mailbox> box, ItemValue<MailboxFolder> folder, IDSet set);
 
-	public void deleteBodyEntries(List<String> bodyIds);
+	void deleteBodyEntries(List<String> bodyIds);
 
-	public SearchResult searchItems(String domainUid, String dirEntryUid, MailIndexQuery query);
+	SearchResult searchItems(String domainUid, String dirEntryUid, MailIndexQuery query);
 
-	public long resetMailboxIndex(String mailboxUid);
+	long resetMailboxIndex(String mailboxUid);
 
 	long getMailboxConsumedStorage(String userEntityId, ByteSizeUnit bsu);
 
-	public void storeBodyAsByte(String uid, byte[] body);
+	void storeBodyAsByte(String uid, byte[] body);
 
 }

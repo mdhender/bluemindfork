@@ -1,43 +1,41 @@
 package net.bluemind.lib.elasticsearch;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.join.query.JoinQueryBuilders;
-import org.elasticsearch.script.Script;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.BucketOrder;
-import org.elasticsearch.search.aggregations.bucket.composite.CompositeAggregation;
-import org.elasticsearch.search.aggregations.bucket.composite.CompositeAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.composite.TermsValuesSourceBuilder;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation.Builder.ContainerBuilder;
+import co.elastic.clients.elasticsearch._types.aggregations.CompositeAggregationSource;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.MatchAllQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.util.NamedValue;
 import net.bluemind.lib.elasticsearch.MailspoolStats.FolderCount.SampleStrategy;
 
 public class MailspoolStats {
 	private static final Logger logger = LoggerFactory.getLogger(MailspoolStats.class);
 
-	private final Client client;
+	private final ElasticsearchClient esClient;
 
-	public MailspoolStats(Client client) {
-		this.client = client;
+	public MailspoolStats(ElasticsearchClient esClient) {
+		this.esClient = esClient;
 	}
 
-	public boolean exists(String mailboxUid) {
-		return client.admin().indices().prepareAliasesExist(getMailboxAlias(mailboxUid)).get().exists();
+	public boolean exists(String mailboxUid) throws ElasticsearchException, IOException {
+		return esClient.indices().existsAlias(e -> e.name(getMailboxAlias(mailboxUid))).value();
 	}
 
 	public static record FolderCount(String folderUid, long count) {
@@ -58,97 +56,94 @@ public class MailspoolStats {
 				boolean emptyFolder, boolean includeDeleted) {
 
 		}
-
 	}
 
-	public Optional<List<FolderCount>> countByFolders(String mailboxUid, FolderCount.Parameters parameters) {
-		QueryBuilder query = (parameters.includeDeleted) //
-				? QueryBuilders.matchAllQuery()
-				: QueryBuilders.boolQuery().mustNot(QueryBuilders.termQuery("is", "deleted"));
-		try {
-			return Optional.of((parameters.allFolders()) //
-					? countAllFolders(mailboxUid, parameters, query) //
-					: countSampleFolders(mailboxUid, parameters, query));
-		} catch (InterruptedException | ExecutionException e) {
-			logger.error("Unable to get the folder count for {}", mailboxUid, e);
-			return Optional.empty();
-		}
+	public List<FolderCount> countByFolders(String mailboxUid, FolderCount.Parameters parameters)
+			throws ElasticsearchException, IOException {
+		Query query = (parameters.includeDeleted) //
+				? MatchAllQuery.of(q -> q)._toQuery() //
+				: BoolQuery.of(b -> b.mustNot(mn -> mn.term(t -> t.field("is").value("deleted"))))._toQuery();
+		return (parameters.allFolders()) //
+				? countAllFolders(mailboxUid, parameters.sampleSize(), query) //
+				: countSampleFolders(mailboxUid, parameters, query);
 	}
 
-	private List<FolderCount> countAllFolders(String mailboxUid, FolderCount.Parameters parameters, QueryBuilder query)
-			throws InterruptedException, ExecutionException {
+	public List<FolderCount> countAllFolders(String mailboxUid, int pageSize, Query query)
+			throws ElasticsearchException, IOException {
 		String alias = getMailboxAlias(mailboxUid);
-		CompositeAggregationBuilder agg = AggregationBuilders
-				.composite("all", Arrays.asList(new TermsValuesSourceBuilder("in").field("in")))
-				.size(parameters.sampleSize());
+		Map<String, CompositeAggregationSource> aggSource = Map.of("in",
+				CompositeAggregationSource.of(s -> s.terms(t -> t.field("in"))));
+
 		List<FolderCount> allFolders = new ArrayList<>();
-		Map<String, Object> afterKey = null;
-		while (afterKey == null || !afterKey.isEmpty()) {
-			if (afterKey != null) {
-				agg.aggregateAfter(afterKey);
-			}
-			SearchResponse response = client.prepareSearch(alias) //
-					.setSize(0) //
-					.setQuery(query) //
-					.addAggregation(agg) //
-					.execute().get();
-
-			List<FolderCount> foldersCount = response.getAggregations().<CompositeAggregation>get("all").getBuckets()
-					.stream() //
-					.map(bucket -> new FolderCount((String) bucket.getKey().get("in"), bucket.getDocCount())).toList();
-
+		Map<String, FieldValue> afterKey = null;
+		do {
+			Map<String, FieldValue> afterKeyCopy = (afterKey == null) ? null : new HashMap<>(afterKey);
+			SearchResponse<Void> response = esClient.search(s -> s //
+					.size(0) //
+					.index(alias) //
+					.query(query) //
+					.aggregations("all", a -> a.composite(c -> {
+						c.sources(Arrays.asList(aggSource)).size(pageSize);
+						if (afterKeyCopy != null && !afterKeyCopy.isEmpty()) {
+							c.after(afterKeyCopy);
+						}
+						return c;
+					})), Void.class);
+			List<FolderCount> foldersCount = response.aggregations().get("all").composite().buckets().array().stream()
+					.map(bucket -> new FolderCount(bucket.key().get("in").stringValue(), bucket.docCount())).toList();
 			allFolders.addAll(foldersCount);
-			afterKey = (foldersCount.size() < parameters.sampleSize()) //
+			afterKey = (foldersCount.size() < pageSize) //
 					? Collections.emptyMap() //
-					: response.getAggregations().<CompositeAggregation>get("all").afterKey();
-		}
+					: response.aggregations().get("all").composite().afterKey();
+		} while (!afterKey.isEmpty());
 		return allFolders;
+
 	}
 
-	private List<FolderCount> countSampleFolders(String mailboxUid, FolderCount.Parameters parameters,
-			QueryBuilder query) throws InterruptedException, ExecutionException {
+	private List<FolderCount> countSampleFolders(String mailboxUid, FolderCount.Parameters parameters, Query query)
+			throws ElasticsearchException, IOException {
 		String alias = getMailboxAlias(mailboxUid);
 		int minDocCount = (parameters.emptyFolder) ? 0 : 1;
-		TermsAggregationBuilder agg = AggregationBuilders //
-				.terms("in") //
-				.field("in") //
-				.size(parameters.sampleSize()) //
-				.minDocCount(minDocCount);
-		if (SampleStrategy.RANDOM.equals(parameters.sampleStrategy)) {
-			agg //
-					.order(BucketOrder.aggregation("sample>random", "max", false)) //
-					.subAggregation(AggregationBuilders.sampler("sample").shardSize(1) //
-							.subAggregation(AggregationBuilders.stats("random").script(new Script("Math.random()"))));
-		}
+		SearchResponse<Void> response = esClient.search(s -> s //
+				.size(0) //
+				.index(alias) //
+				.query(query) //
+				.aggregations("in", a -> {
+					ContainerBuilder terms = a.terms(t -> { //
+						t.field("in").size(parameters.sampleSize()).minDocCount(minDocCount);
+						if (SampleStrategy.RANDOM.equals(parameters.sampleStrategy)) {
+							t.order(NamedValue.of("sample>random.max", SortOrder.Asc));
+						}
+						return t;
+					});
+					if (SampleStrategy.RANDOM.equals(parameters.sampleStrategy)) {
+						terms.aggregations("sample", a2 -> a2 //
+								.sampler(spl -> spl.shardSize(1)) //
+								.aggregations("random", a3 -> a3 //
+										.stats(st -> st.script(v -> v.inline(i -> i.source("Math.random()"))))));
+					}
+					return terms;
+				}), Void.class);
 
-		SearchResponse response = client.prepareSearch(alias) //
-				.setSize(0) //
-				.setQuery(query) //
-				.addAggregation(agg) //
-				.execute().get();
-
-		return response.getAggregations().<Terms>get("in").getBuckets().stream() //
-				.map(bucket -> new FolderCount(bucket.getKeyAsString(), bucket.getDocCount())) //
-				.toList();
+		return response.aggregations().get("in").sterms().buckets().array().stream()
+				.map(bucket -> new FolderCount(bucket.key().stringValue(), bucket.docCount())).toList();
 	}
 
-	public long missingParentCount(String mailboxUid) {
+	public long missingParentCount(String mailboxUid) throws ElasticsearchException, IOException {
 		String alias = getMailboxAlias(mailboxUid);
-		BoolQueryBuilder query = QueryBuilders.boolQuery()
-				.mustNot(JoinQueryBuilders.hasParentQuery("body", QueryBuilders.matchAllQuery(), false))
-				.mustNot(QueryBuilders.termQuery("body_msg_link", "body"));
+		SearchResponse<Void> response = esClient.search(s -> s //
+				.size(0) //
+				.index(alias) //
+				.trackTotalHits(t -> t.enabled(true)) //
+				.query(q -> q.bool(b -> b //
+						.mustNot(mn -> mn.hasParent(p -> p //
+								.parentType("body") //
+								.query(q2 -> q2.matchAll(a -> a)) //
+								.score(false))) //
+						.mustNot(mn -> mn.term(t -> t.field("body_msg_link").value("body"))))),
+				Void.class);
 
-		try {
-			SearchResponse response = client.prepareSearch(alias) //
-					.setSize(0) //
-					.setTrackTotalHits(true).setQuery(query) //
-					.execute().get();
-
-			return response.getHits().getTotalHits().value;
-		} catch (InterruptedException | ExecutionException e) {
-			logger.error("Unable to get the missing parent count for {}", mailboxUid, e);
-			return 0l;
-		}
+		return response.hits().total().value();
 	}
 
 	private String getMailboxAlias(String mailboxId) {

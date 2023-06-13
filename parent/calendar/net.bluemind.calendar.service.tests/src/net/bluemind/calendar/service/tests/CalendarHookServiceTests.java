@@ -34,13 +34,13 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
-import org.elasticsearch.client.transport.TransportClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.VEvent;
@@ -94,7 +94,7 @@ public class CalendarHookServiceTests {
 	protected SecurityContext defaultSecurityContext;
 	protected SecurityContext anotherSecurityContext;
 	protected Container container;
-	protected TransportClient esearchClient;
+	protected ElasticsearchClient esClient;
 	private String resUid;
 	private DirEntry userDirEntry;
 
@@ -150,7 +150,7 @@ public class CalendarHookServiceTests {
 
 		Sessions.get().put(anotherSecurityContext.getSessionId(), anotherSecurityContext);
 
-		esearchClient = ElasticsearchTestHelper.getInstance().getClient();
+		esClient = ElasticsearchTestHelper.getInstance().getClient();
 
 		resUid = UUID.randomUUID().toString();
 		getVideoConfService(SecurityContext.SYSTEM).createResource(resUid, VideoConferencingResourceDescriptor.create(
@@ -235,7 +235,7 @@ public class CalendarHookServiceTests {
 	protected ICalendar getCalendarService(SecurityContext context, Container container) throws ServerFault {
 		BmContext ctx = new BmTestContext(context);
 		DataSource ds = DataSourceRouter.get(ctx, container.uid);
-		return new CalendarService(ds, esearchClient, container, ctx,
+		return new CalendarService(ds, esClient, container, ctx,
 				CalendarAuditor.auditor(IAuditManager.instance(), ctx, container));
 	}
 

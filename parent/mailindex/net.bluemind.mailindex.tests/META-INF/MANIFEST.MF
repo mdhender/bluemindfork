@@ -24,5 +24,6 @@ Require-Bundle: org.junit,
  net.bluemind.backend.mail.replica.indexing,
  net.bluemind.backend.mail.api,
  net.bluemind.backend.mail.replica.api,
- org.apache.james.apache-mime4j-core
+ org.apache.james.apache-mime4j-core,
+ com.fasterxml.jackson.core.jackson-databind
 Automatic-Module-Name: net.bluemind.mailindex.tests

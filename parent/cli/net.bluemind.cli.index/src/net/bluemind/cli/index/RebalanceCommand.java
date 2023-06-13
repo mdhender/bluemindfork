@@ -18,6 +18,7 @@
  */
 package net.bluemind.cli.index;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -25,11 +26,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.reindex.UpdateByQueryAction;
-import org.elasticsearch.index.reindex.UpdateByQueryRequestBuilder;
-
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
@@ -147,8 +145,7 @@ public class RebalanceCommand implements ICmdLet, Runnable {
 			ctx.info("From {} ({}GB) to {} ({}GB)", source.indexName, srcGb, target.indexName, targetGb);
 			ctx.info("Move {} ({}) from {} to {} (size:{})", topSrc.mailboxUid, topSrc.docCount, source.indexName,
 					target.indexName, boxSize);
-
-			applyRebalance(mboxMgmt, topSrc.mailboxUid, target.indexName, boxSize);
+			applyRebalance(mboxMgmt, topSrc.mailboxUid, target.indexName);
 		}
 	}
 
@@ -170,7 +167,7 @@ public class RebalanceCommand implements ICmdLet, Runnable {
 				long boxSize = Math.round(((double) sourceStat.size / sourceStat.mailboxes.size()) * 1.5);
 				ctx.info("Move {} from {} to {} (size: {})", allocation.mbox, allocation.sourceIndex,
 						allocation.targetIndex, boxSize);
-				applyRebalance(mboxMgmt, allocation.mbox, allocation.targetIndex, boxSize);
+				applyRebalance(mboxMgmt, allocation.mbox, allocation.targetIndex);
 			});
 		}
 	}
@@ -220,19 +217,17 @@ public class RebalanceCommand implements ICmdLet, Runnable {
 	private void triggerExternalRefresh(List<AllocationShardStats> shardStats) {
 		ctx.info("Force refreshing indices");
 		shardStats.stream().forEach(stat -> {
-			Client client = ESearchActivator.getClient();
-			UpdateByQueryRequestBuilder updateByQuery = new UpdateByQueryRequestBuilder(client,
-					UpdateByQueryAction.INSTANCE);
+			ElasticsearchClient esClient = ESearchActivator.getClient();
 			try {
-				updateByQuery.source(stat.indexName).maxDocs(1).refresh(true)
-						.filter(QueryBuilders.termQuery("body_msg_link", "record")).get();
-			} catch (Exception e) {
-				ctx.info("Failed to force refresh {} (will use the current stat instead)", stat.indexName);
+				esClient.updateByQuery(u -> u.index(stat.indexName).maxDocs(1l).refresh(true)
+						.query(q -> q.term(t -> t.field("body_msg_link").value("record"))));
+			} catch (ElasticsearchException | IOException e) {
+				ctx.error("Failed to force refresh {} (will use the current stat instead)", stat.indexName, e);
 			}
 		});
 	}
 
-	private void applyRebalance(IMailboxMgmt mboxMgmt, String mailboxUid, String targetIndexName, long boxSize) {
+	private void applyRebalance(IMailboxMgmt mboxMgmt, String mailboxUid, String targetIndexName) {
 		if (!applyRebalance) {
 			return;
 		}

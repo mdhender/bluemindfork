@@ -1,11 +1,13 @@
 package net.bluemind.core.backup.continuous.mgmt.service.containers.mail;
 
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
+import java.io.IOException;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch.core.GetResponse;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.core.backup.continuous.api.IBackupStoreFactory;
@@ -22,6 +24,7 @@ public class IndexedMessageBodySync implements ContinuousContenairization<Indexe
 
 	private static final String INDEXED_MESSAGE_BODIES = "message_bodies_es_source";
 	private static final String INDEX_PENDING_READ_ALIAS = "mailspool_pending_read_alias";
+	private static final ObjectMapper objectMapper = new ObjectMapper();
 
 	private IBackupStoreFactory target;
 	private ItemValue<Domain> domain;
@@ -48,21 +51,23 @@ public class IndexedMessageBodySync implements ContinuousContenairization<Indexe
 
 	public void storeIndexedMessageBodies(BodyStat bodyStat, MailboxRecord mailboxRecord, MessageBody body) {
 		String messageBodyId = mailboxRecord.messageBody;
-		final Client client = ESearchActivator.getClient();
-		QueryBuilder matchSpecificFieldQuery = QueryBuilders.multiMatchQuery(messageBodyId, "_id");
-		SearchResponse r = client.prepareSearch(INDEX_PENDING_READ_ALIAS).setQuery(matchSpecificFieldQuery)
-				.setFetchSource(true).execute().actionGet();
-		if (r.getHits().getTotalHits().value == 1L) {
-			SearchHit searchHit = r.getHits().getAt(0);
-			IndexedMessageBodyDTO indexedMessageBody = new IndexedMessageBodyDTO(searchHit.getSourceRef().array());
-			save(domain.uid, cont.owner, messageBodyId, indexedMessageBody, true);
-			long total = bodyStat.esSource().incrementAndGet();
-			if (total % 100 == 0) {
-				contMon.log("sync {} item(s) es source for {}", total, cont.owner);
+		final ElasticsearchClient esClient = ESearchActivator.getClient();
+		try {
+			GetResponse<ObjectNode> response = esClient.get(g -> g.index(INDEX_PENDING_READ_ALIAS).id(messageBodyId),
+					ObjectNode.class);
+			if (response.found()) {
+				byte[] bytes = objectMapper.writeValueAsBytes(response.source());
+				IndexedMessageBodyDTO indexedMessageBody = new IndexedMessageBodyDTO(bytes);
+				save(domain.uid, cont.owner, messageBodyId, indexedMessageBody, true);
+				long total = bodyStat.esSource().incrementAndGet();
+				if (total % 100 == 0) {
+					contMon.log("sync {} item(s) es source for {}", total, cont.owner);
+				}
+			} else if (body != null) {
+				// fallback to building from MessageBody
 			}
-		} else if (body != null) {
+		} catch (ElasticsearchException | IOException e1) {
 			// fallback to building from MessageBody
-
 		}
 	}
 }

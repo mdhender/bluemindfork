@@ -18,7 +18,6 @@
  */
 package net.bluemind.addressbook.service;
 
-import static net.bluemind.addressbook.persistence.VCardIndexStore.VCARD_WRITE_ALIAS;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
@@ -30,7 +29,6 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
-import org.elasticsearch.client.transport.TransportClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -39,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.VCard;
@@ -85,7 +84,7 @@ public abstract class AbstractServiceTests {
 	protected SecurityContext defaultSecurityContext;
 	protected Container container;
 
-	protected TransportClient esearchClient;
+	protected ElasticsearchClient esearchClient;
 
 	protected Container domainTagContainer;
 	protected Container tagContainer;
@@ -276,10 +275,6 @@ public abstract class AbstractServiceTests {
 		card.organizational = organizational;
 
 		return card;
-	}
-
-	protected void refreshIndexes() {
-		ElasticsearchTestHelper.getInstance().getClient().admin().indices().prepareRefresh(VCARD_WRITE_ALIAS).get();
 	}
 
 }

@@ -17,7 +17,9 @@
   */
 package net.bluemind.cli.index;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,9 +27,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.elasticsearch.common.Strings;
-import org.elasticsearch.common.util.set.Sets;
+import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
@@ -144,7 +147,13 @@ public class MailboxEsCoherency extends SingleOrDomainOperation {
 
 	private Report reportAlias(MailspoolStats stats, String domainUid, ItemValue<DirEntry> de,
 			ItemValue<Mailbox> mailboxItem) {
-		long missingParentCount = stats.missingParentCount(de.uid);
+		long missingParentCount;
+		try {
+			missingParentCount = stats.missingParentCount(de.uid);
+		} catch (ElasticsearchException | IOException e) {
+			missingParentCount = 0;
+			ctx.error("Unable to get the missing parent count for entry '{}'", de.uid, e);
+		}
 
 		String subtree = IMailReplicaUids.subtreeUid(domainUid, de.value);
 		IDbByContainerReplicatedMailboxes replicatedMailboxesApi = ctx.adminApi()
@@ -157,13 +166,17 @@ public class MailboxEsCoherency extends SingleOrDomainOperation {
 		SampleStrategy strategy = SampleStrategy.valueOfCaseInsensitive(sampleStrategy).orElse(SampleStrategy.BIGGEST);
 		FolderCount.Parameters parameters = new FolderCount.Parameters(all, strategy, sampleSize, includeEsEmpty,
 				includeDeleted);
-		stats.countByFolders(de.uid, parameters) //
-				.ifPresent(countByFolders -> {
-					checkFolders(report, countByFolders);
-					if (all) {
-						checkMissingFolderInEs(report, mailboxesByUid, countByFolders);
-					}
-				});
+		List<FolderCount> countByFolders;
+		try {
+			countByFolders = stats.countByFolders(de.uid, parameters);
+		} catch (ElasticsearchException | IOException e) {
+			ctx.error("Unable to get the folder count for entry '{}'", de.uid, e);
+			countByFolders = Collections.emptyList();
+		}
+		checkFolders(report, countByFolders);
+		if (all) {
+			checkMissingFolderInEs(report, mailboxesByUid, countByFolders);
+		}
 
 		return report;
 	}

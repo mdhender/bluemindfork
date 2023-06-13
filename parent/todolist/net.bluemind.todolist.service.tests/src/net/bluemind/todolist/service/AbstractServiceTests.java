@@ -21,6 +21,7 @@ package net.bluemind.todolist.service;
 import static net.bluemind.todolist.persistence.VTodoIndexStore.VTODO_WRITE_ALIAS;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -34,12 +35,13 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
-import org.elasticsearch.client.transport.TransportClient;
 import org.junit.After;
 import org.junit.Before;
 
 import com.google.common.collect.Lists;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
@@ -84,7 +86,7 @@ public abstract class AbstractServiceTests {
 	protected SecurityContext defaultSecurityContext;
 	protected Container container;
 
-	protected TransportClient esearchClient;
+	protected ElasticsearchClient esearchClient;
 
 	protected Container tagContainer;
 
@@ -247,8 +249,8 @@ public abstract class AbstractServiceTests {
 		return todo;
 	}
 
-	protected void refreshIndex() {
-		esearchClient.admin().indices().prepareRefresh(VTODO_WRITE_ALIAS).get();
+	protected void refreshIndex() throws ElasticsearchException, IOException {
+		esearchClient.indices().refresh(r -> r.index(VTODO_WRITE_ALIAS));
 	}
 
 	protected Map<String, String> setGlobalExternalUrl() {

@@ -52,11 +52,6 @@ import javax.sql.DataSource;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHits;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,6 +60,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import com.google.common.io.ByteStreams;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -138,7 +136,7 @@ public class PopulateKafkaTests {
 	Path marker = Paths.get(CloneDefaults.MARKER_FILE_PATH);
 	private String s3;
 	private String bucket;
-	private Client client;
+	private ElasticsearchClient client;
 	private PopulatedContent dumpData;
 
 	@Before
@@ -347,7 +345,8 @@ public class PopulateKafkaTests {
 		doClone(store, prov);
 	}
 
-	private void checkClone(ServerSideServiceProvider prov, ItemValue<Domain> domFound, PopulatedContent dumpContent) {
+	private void checkClone(ServerSideServiceProvider prov, ItemValue<Domain> domFound, PopulatedContent dumpContent)
+			throws ElasticsearchException, IOException {
 		IMailboxes mailboxesApi = prov.instance(IMailboxes.class, domFound.uid);
 		ItemValue<Mailbox> mailboxSylvain = mailboxesApi.byName("sylvain");
 		assertNotNull(mailboxSylvain);
@@ -363,12 +362,10 @@ public class PopulateKafkaTests {
 		for (String guid : dumpContent.bodiesLoaded) {
 			assertTrue("ensure " + guid + " from kafka dump was cloned", apiMessageBodies.exists(guid));
 
-			BoolQueryBuilder singleIdQuery = QueryBuilders.boolQuery()//
-					.must(QueryBuilders.termQuery("_id", guid));
-			SearchResponse resp = client.prepareSearch("mailspool_pending_read_alias").setQuery(singleIdQuery).execute()
-					.actionGet();
-			SearchHits hitsResponse = resp.getHits();
-			long totalHits = hitsResponse.getTotalHits().value;
+			SearchResponse<Void> resp = client.search(s -> s //
+					.index("mailspool_pending_read_alias") //
+					.query(q -> q.ids(i -> i.values(guid))), Void.class);
+			long totalHits = resp.hits().total().value();
 			assertEquals("check " + guid + " exists in mailspool_pending", 1L, totalHits);
 
 		}

@@ -18,16 +18,18 @@
  */
 package net.bluemind.cli.mail;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
-import org.elasticsearch.client.Client;
-
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.lib.elasticsearch.exception.ElasticIndexException;
 import net.bluemind.system.api.IInstallation;
 import net.bluemind.system.api.PublicInfos;
 import picocli.CommandLine.Command;
@@ -48,24 +50,26 @@ public class IndexedMailCountCommand implements ICmdLet, Runnable {
 		long docs = 0;
 		PublicInfos infos = CliContext.get().adminApi().instance(IInstallation.class).getInfos();
 		ctx.info("infos: " + infos.softwareVersion + " " + infos.releaseName);
-		try (Client esclient = ESearchActivator.getClient()) {
-			do {
-				docs = esclient.admin().indices().prepareStats(INDEX_PENDING_READ_ALIAS).get().getTotal().docs
-						.getCount();
-				ctx.info("Found " + docs + " indexed mails");
-				if (progress != null) {
-					double perc = (double) docs / progress * 100;
-					ctx.info(df.format(LocalDateTime.now()) + ": Indexed " + docs + " of " + progress + " mails: "
-							+ Math.round(perc) + "%");
-					try {
-						Thread.sleep(60000);
-					} catch (InterruptedException e) {
-						System.exit(0);
-					}
+		ElasticsearchClient esclient = ESearchActivator.getClient();
+		do {
+			try {
+				docs = esclient.indices().stats(s -> s.index(INDEX_PENDING_READ_ALIAS)).all().total().docs().count();
+			} catch (ElasticsearchException | IOException e) {
+				ctx.error("Stats request fails on index: {}", INDEX_PENDING_READ_ALIAS);
+				throw new ElasticIndexException(INDEX_PENDING_READ_ALIAS, e);
+			}
+			ctx.info("Found " + docs + " indexed mails");
+			if (progress != null) {
+				double perc = (double) docs / progress * 100;
+				ctx.info(df.format(LocalDateTime.now()) + ": Indexed " + docs + " of " + progress + " mails: "
+						+ Math.round(perc) + "%");
+				try {
+					Thread.sleep(60000);
+				} catch (InterruptedException e) {
+					System.exit(0);
 				}
-			} while (progress != null && docs < progress);
-		}
-
+			}
+		} while (progress != null && docs < progress);
 	}
 
 	@Override

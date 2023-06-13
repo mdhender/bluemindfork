@@ -19,8 +19,6 @@ package net.bluemind.index.mail.integration;
 
 import java.util.List;
 
-import org.elasticsearch.client.Client;
-
 import net.bluemind.mailindex.hook.IIndexSelectionPolicy;
 
 public class TestIndexSelectionPolicy implements IIndexSelectionPolicy {
@@ -29,7 +27,7 @@ public class TestIndexSelectionPolicy implements IIndexSelectionPolicy {
 	private static int current = 0;
 
 	@Override
-	public String getMailspoolIndexName(Client client, List<String> shards, String mailboxUid) {
+	public String getMailspoolIndexName(List<String> shards, String mailboxUid) {
 		if (!distribute) {
 			return shards.get(0);
 		}

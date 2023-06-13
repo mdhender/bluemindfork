@@ -18,36 +18,27 @@
  */
 package net.bluemind.elasticsearch.initializer;
 
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
-import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import net.bluemind.lib.elasticsearch.ESearchActivator;
 
 public abstract class AbstractSchemaInitializer implements ISchemaInitializer {
 
 	private static Logger logger = LoggerFactory.getLogger(AbstractSchemaInitializer.class);
 
 	@Override
-	public void initializeSchema(Client esearchClient) {
+	public void initializeSchema(ElasticsearchClient esClient) {
 		String name = getIndexName();
-		IndicesExistsResponse resp = esearchClient.admin().indices().prepareExists(name).execute().actionGet();
-
-		// create index if not already exist
-		if (!resp.isExists()) {
-
-			String alias = getIndexName();
-			String index = getIndexName() + "-initial";
-			logger.info("creating index {} alias to {} ", index, alias);
-
-			// first we create the real index
-			esearchClient.admin().indices().prepareCreate(index).addMapping(getType(), getSchemaAsString()).execute()
-					.actionGet();
-
-			// we create the index alias
-			esearchClient.admin().indices().prepareAliases().addAlias(index, alias).execute().actionGet();
-
-		} else {
-			logger.info("schema for index {} already exist ", getIndexName());
+		try {
+			boolean exists = esClient.indices().exists(e -> e.index(name)).value();
+			// init index if not already exist
+			if (!exists) {
+				ESearchActivator.initIndex(esClient, name);
+			}
+		} catch (Exception e) {
+			logger.error("[es][server hook] Failed to initialize index {}", name, e);
 		}
 	}
 
@@ -55,6 +46,6 @@ public abstract class AbstractSchemaInitializer implements ISchemaInitializer {
 
 	public abstract String getType();
 
-	abstract protected String getIndexName();
+	protected abstract String getIndexName();
 
 }

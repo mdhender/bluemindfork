@@ -22,7 +22,7 @@ import java.net.Proxy;
 import java.util.Map;
 import java.util.Optional;
 
-import org.elasticsearch.common.Strings;
+import com.google.common.base.Strings;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;

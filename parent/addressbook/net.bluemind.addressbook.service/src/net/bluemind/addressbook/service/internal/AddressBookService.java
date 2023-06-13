@@ -30,12 +30,12 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
-import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import net.bluemind.addressbook.api.IAddressBook;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCard.Organizational.Member;
@@ -101,7 +101,8 @@ public class AddressBookService implements IInCoreAddressBook {
 
 	private final VCardStore vcardStore;
 
-	public AddressBookService(DataSource dataSource, Client esearchClient, Container container, BmContext context) {
+	public AddressBookService(DataSource dataSource, ElasticsearchClient esClient, Container container,
+			BmContext context) {
 		this.context = context;
 		this.securityContext = context.getSecurityContext();
 		this.container = container;
@@ -109,7 +110,7 @@ public class AddressBookService implements IInCoreAddressBook {
 		this.vcardStore = new VCardStore(dataSource, container);
 		this.eventProducer = new AddressBookEventProducer(container, securityContext, VertxPlatform.eventBus());
 
-		this.indexStore = new VCardIndexStore(esearchClient, container,
+		this.indexStore = new VCardIndexStore(esClient, container,
 				DataSourceRouter.location(context, container.uid));
 		this.storeService = new VCardContainerStoreService(context, dataSource, securityContext, container, vcardStore,
 				indexStore);

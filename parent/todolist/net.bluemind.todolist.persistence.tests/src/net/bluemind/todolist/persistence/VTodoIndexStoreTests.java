@@ -23,21 +23,21 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.UUID;
 
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
@@ -52,10 +52,11 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.icalendar.api.ICalendarElement.Status;
 import net.bluemind.todolist.api.VTodo;
 import net.bluemind.todolist.api.VTodoQuery;
+import net.bluemind.todolist.persistence.VTodoIndexStore.IndexableVTodo;
 
 public class VTodoIndexStoreTests {
 
-	private Client client;
+	private ElasticsearchClient client;
 	private Container container;
 	private ItemStore itemStore;
 	private VTodoIndexStore indexStore;
@@ -90,7 +91,7 @@ public class VTodoIndexStoreTests {
 	}
 
 	@Test
-	public void testCreate() throws SQLException {
+	public void testCreate() throws SQLException, ElasticsearchException, IOException {
 		VTodo todo = defaultVTodo();
 		String uid = "test" + System.nanoTime();
 		todo.uid = uid;
@@ -100,24 +101,20 @@ public class VTodoIndexStoreTests {
 		indexStore.create(created, todo);
 		indexStore.refresh();
 
-		SearchResponse resp = client.prepareSearch(VTODO_READ_ALIAS).setTypes(VTodoIndexStore.VTODO_TYPE)
-				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
-		assertEquals(1, resp.getHits().getTotalHits().value);
-		SearchHit hit = resp.getHits().getAt(0);
-		Map<String, Object> source = hit.getSourceAsMap();
-		assertEquals(uid, source.get("uid"));
-		assertEquals(container.uid, source.get("containerUid"));
+		SearchResponse<IndexableVTodo> resp = client.search(
+				s -> s.index(VTODO_READ_ALIAS).query(q -> q.term(t -> t.field("uid").value(item.uid))),
+				IndexableVTodo.class);
+		assertEquals(1, resp.hits().total().value());
 
-		@SuppressWarnings("unchecked")
-		Map<String, String> sourceTodo = (Map<String, String>) source.get("value");
-
-		sourceTodo.get("uid");
-		assertEquals(uid, sourceTodo.get("uid"));
-		assertEquals(todo.summary, sourceTodo.get("summary"));
+		IndexableVTodo hit = resp.hits().hits().get(0).source();
+		assertEquals(uid, hit.uid);
+		assertEquals(container.uid, hit.containerUid);
+		assertEquals(uid, hit.value.uid);
+		assertEquals(todo.summary, hit.value.summary);
 	}
 
 	@Test
-	public void testUpdate() throws SQLException {
+	public void testUpdate() throws SQLException, ElasticsearchException, IOException {
 		VTodo todo = defaultVTodo();
 		String uid = "test" + System.nanoTime();
 		Item item = Item.create(uid, UUID.randomUUID().toString());
@@ -126,35 +123,34 @@ public class VTodoIndexStoreTests {
 		indexStore.create(created, todo);
 		indexStore.refresh();
 
-		SearchResponse resp = client.prepareSearch(VTODO_READ_ALIAS).setTypes(VTodoIndexStore.VTODO_TYPE)
-				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
-		assertEquals(1, resp.getHits().getTotalHits().value);
-		SearchHit hit = resp.getHits().getAt(0);
-		Map<String, Object> source = hit.getSourceAsMap();
-		assertEquals(uid, source.get("uid"));
-		assertEquals(container.uid, source.get("containerUid"));
+		SearchResponse<IndexableVTodo> resp = client.search(
+				s -> s.index(VTODO_READ_ALIAS).query(q -> q.term(t -> t.field("uid").value(item.uid))),
+				IndexableVTodo.class);
+		assertEquals(1, resp.hits().total().value());
+
+		IndexableVTodo hit = resp.hits().hits().get(0).source();
+		assertEquals(uid, hit.uid);
+		assertEquals(container.uid, hit.containerUid);
 
 		String updatedSummary = "updated" + System.currentTimeMillis();
 		todo.summary = updatedSummary;
 		indexStore.update(created, todo);
 		indexStore.refresh();
 
-		resp = client.prepareSearch(VTODO_READ_ALIAS).setTypes(VTodoIndexStore.VTODO_TYPE)
-				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
-		assertEquals(1, resp.getHits().getTotalHits().value);
-		hit = resp.getHits().getAt(0);
-		source = hit.getSourceAsMap();
-		assertEquals(uid, source.get("uid"));
-		assertEquals(container.uid, source.get("containerUid"));
+		resp = client.search(
+				s -> s.index(VTODO_READ_ALIAS).query(q -> q.term(t -> t.field("uid").value(item.uid))),
+				IndexableVTodo.class);
+		assertEquals(1, resp.hits().total().value());
 
-		@SuppressWarnings("unchecked")
-		Map<String, String> sourceTodo = (Map<String, String>) source.get("value");
-		assertEquals(updatedSummary, sourceTodo.get("summary"));
+		IndexableVTodo updated = resp.hits().hits().get(0).source();
+		assertEquals(uid, updated.uid);
+		assertEquals(container.uid, updated.containerUid);
+		assertEquals(updatedSummary, updated.value.summary);
 
 	}
 
 	@Test
-	public void testDelete() throws SQLException {
+	public void testDelete() throws SQLException, ElasticsearchException, IOException {
 		VTodo todo = defaultVTodo();
 		String uid = "test" + System.nanoTime();
 		Item item = Item.create(uid, UUID.randomUUID().toString());
@@ -162,24 +158,25 @@ public class VTodoIndexStoreTests {
 
 		indexStore.create(created, todo);
 		indexStore.refresh();
+		SearchResponse<IndexableVTodo> resp = client.search(
+				s -> s.index(VTODO_READ_ALIAS).query(q -> q.term(t -> t.field("uid").value(item.uid))),
+				IndexableVTodo.class);
+		assertEquals(1, resp.hits().total().value());
 
-		SearchResponse resp = client.prepareSearch(VTODO_READ_ALIAS).setTypes(VTodoIndexStore.VTODO_TYPE)
-				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
-		assertEquals(1, resp.getHits().getTotalHits().value);
-
-		SearchHit hit = resp.getHits().getAt(0);
+		Hit<IndexableVTodo> hit = resp.hits().hits().get(0);
 		assertNotNull(hit);
 
 		indexStore.delete(created.id);
 		indexStore.refresh();
-		resp = client.prepareSearch(VTODO_READ_ALIAS).setTypes(VTodoIndexStore.VTODO_TYPE)
-				.setQuery(QueryBuilders.termQuery("uid", item.uid)).execute().actionGet();
 
-		assertEquals(0, resp.getHits().getTotalHits().value);
+		resp = client.search(
+				s -> s.index(VTODO_READ_ALIAS).query(q -> q.term(t -> t.field("uid").value(item.uid))),
+				IndexableVTodo.class);
+		assertEquals(0, resp.hits().total().value());
 	}
 
 	@Test
-	public void testDeleteAll() throws SQLException {
+	public void testDeleteAll() throws SQLException, ElasticsearchException, IOException {
 		VTodo todo = defaultVTodo();
 		String uid = "test" + System.nanoTime();
 		Item item = Item.create(uid, UUID.randomUUID().toString());
@@ -196,16 +193,16 @@ public class VTodoIndexStoreTests {
 		indexStore.create(created2, todo2);
 		indexStore.refresh();
 
-		SearchResponse resp = client.prepareSearch(VTODO_READ_ALIAS).setTypes(VTodoIndexStore.VTODO_TYPE)
-				.setQuery(QueryBuilders.termQuery("containerUid", container.uid)).execute().actionGet();
-		assertEquals(2, resp.getHits().getTotalHits().value);
+		SearchResponse<IndexableVTodo> resp = client.search(s -> s.index(VTODO_READ_ALIAS)
+				.query(q -> q.term(t -> t.field("containerUid").value(container.uid))), IndexableVTodo.class);
+		assertEquals(2, resp.hits().total().value());
 
 		indexStore.deleteAll();
 		indexStore.refresh();
 
-		resp = client.prepareSearch(VTODO_READ_ALIAS).setTypes(VTodoIndexStore.VTODO_TYPE)
-				.setQuery(QueryBuilders.termQuery("containerUid", container.uid)).execute().actionGet();
-		assertEquals(0, resp.getHits().getTotalHits().value);
+		resp = client.search(s -> s.index(VTODO_READ_ALIAS)
+				.query(q -> q.term(t -> t.field("containerUid").value(container.uid))), IndexableVTodo.class);
+		assertEquals(0, resp.hits().total().value());
 	}
 
 	@Test

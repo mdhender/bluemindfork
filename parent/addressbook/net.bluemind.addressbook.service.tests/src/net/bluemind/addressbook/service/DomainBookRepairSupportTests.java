@@ -25,7 +25,6 @@ import java.sql.SQLException;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.elasticsearch.client.transport.TransportClient;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -68,8 +67,6 @@ public class DomainBookRepairSupportTests {
 	protected ItemStore itemStore;
 
 	protected SecurityContext defaultSecurityContext;
-
-	protected TransportClient esearchClient;
 
 	protected Container tagContainer;
 

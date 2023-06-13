@@ -22,8 +22,7 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.elasticsearch.client.Client;
-
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
@@ -61,7 +60,7 @@ public class TodoListServiceFactory implements ServerSideServiceProvider.IServer
 
 		// FIXME Not sure why but todo must have it own system tag...
 
-		Client esClient = ESearchActivator.getClient();
+		ElasticsearchClient esClient = ESearchActivator.getClient();
 
 		if (esClient == null) {
 			throw new ServerFault("elasticsearch was not found for todo indexing");

@@ -44,6 +44,7 @@ Require-Bundle: org.junit,
  net.bluemind.serviceprovider.incore,
  net.bluemind.imap.endpoint,
  net.bluemind.imap.driver.mailapi,
- net.bluemind.core.elasticsearch.testshelper
+ net.bluemind.core.elasticsearch.testshelper,
+ net.bluemind.mailindex.schema
 Automatic-Module-Name: net.bluemind.mailbox.service.tests
 

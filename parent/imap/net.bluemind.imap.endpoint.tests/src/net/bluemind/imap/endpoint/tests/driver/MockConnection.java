@@ -74,6 +74,7 @@ public class MockConnection implements MailboxConnection {
 	@Override
 	public List<ListNode> list(String reference, String mailboxPattern) {
 		List<ListNode> ret = model.folders.values().stream().map(sf -> sf.folder).sorted((f1, f2) -> {
+			logger.info("comparing {}:{}", f1.value.fullName, f2.value.fullName);
 			if (f1.value.fullName.equals("INBOX")) {
 				return -1;
 			}

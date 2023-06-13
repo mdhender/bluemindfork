@@ -19,6 +19,7 @@
 package net.bluemind.calendar.service;
 
 import java.sql.SQLException;
+
 import javax.sql.DataSource;
 
 import net.bluemind.calendar.api.ICalendarUids;

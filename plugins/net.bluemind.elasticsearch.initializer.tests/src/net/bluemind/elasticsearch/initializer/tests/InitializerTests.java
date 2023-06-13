@@ -8,11 +8,10 @@ import java.util.Properties;
 
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Platform;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
-import org.elasticsearch.client.Client;
 import org.junit.Before;
 import org.junit.Test;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.elasticsearch.initializer.ElasticSearchServerHook;
@@ -47,10 +46,9 @@ public class InitializerTests {
 		hook.onServerTagged(null, iv, "tag/test");
 
 		// test index existance
-		Client client = ESearchActivator.createClient(Arrays.asList(elasticSearchHost));
-		IndicesExistsResponse resp = client.admin().indices().prepareExists(TestInitializer.indexName).execute()
-				.actionGet();
-		assertTrue(resp.isExists());
+		ElasticsearchClient client = ESearchActivator.getClient(Arrays.asList(elasticSearchHost));
+		boolean exists = client.indices().exists(e -> e.index(TestInitializer.indexName)).value();
+		assertTrue(exists);
 	}
 
 }

@@ -11,13 +11,17 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.elastic.client;bundle-version="6.4.1";visibility:=reexport,
  net.bluemind.network.utils,
  net.bluemind.network.topology,
- io.vertx.core
+ io.vertx.core,
+ org.apache.httpcomponents.httpcore,
+ com.fasterxml.jackson.core.jackson-databind;visibility:=reexport,
+ com.fasterxml.jackson.core.jackson-annotations;visibility:=reexport
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: .
 Export-Package: net.bluemind.lib.elasticsearch,
  net.bluemind.lib.elasticsearch.allocations,
  net.bluemind.lib.elasticsearch.allocations.newshard,
- net.bluemind.lib.elasticsearch.allocations.rebalance
+ net.bluemind.lib.elasticsearch.allocations.rebalance,
+ net.bluemind.lib.elasticsearch.exception
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.lib.elasticsearch
 

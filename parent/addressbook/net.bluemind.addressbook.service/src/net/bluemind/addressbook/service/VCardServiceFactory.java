@@ -22,8 +22,7 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.elasticsearch.client.Client;
-
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import net.bluemind.addressbook.api.IAddressBookUids;
 import net.bluemind.addressbook.api.IVCardService;
 import net.bluemind.addressbook.service.internal.AddressBookService;
@@ -67,7 +66,7 @@ public class VCardServiceFactory implements ServerSideServiceProvider.IServerSid
 			throw new ServerFault("Incompatible addressbook container: " + container.type + ", uid: " + container.uid);
 		}
 
-		Client esClient = ESearchActivator.getClient();
+		ElasticsearchClient esClient = ESearchActivator.getClient();
 		if (esClient == null) {
 			throw new ServerFault("elasticsearch was not found for contact indexing");
 		}

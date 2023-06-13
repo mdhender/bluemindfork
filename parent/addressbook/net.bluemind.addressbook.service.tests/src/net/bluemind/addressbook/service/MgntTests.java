@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -36,6 +37,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
@@ -108,7 +110,7 @@ public class MgntTests extends AbstractServiceTests {
 	}
 
 	@Test
-	public void testReindex() throws ServerFault, InterruptedException {
+	public void testReindex() throws ServerFault, Exception {
 
 		VCard card = defaultVCard();
 		card.identification.formatedName.value = "albert";
@@ -145,10 +147,9 @@ public class MgntTests extends AbstractServiceTests {
 		return null;
 	}
 
-	@Override
-	protected void refreshIndexes() {
-		ElasticsearchTestHelper.getInstance().getClient().admin().indices().prepareRefresh("contact").execute()
-				.actionGet();
+	protected void refreshIndexes() throws ElasticsearchException, IOException {
+		ElasticsearchTestHelper.getInstance().getClient().indices()
+				.refresh(r -> r.index(VCardIndexStore.VCARD_WRITE_ALIAS));
 	}
 
 	@Test

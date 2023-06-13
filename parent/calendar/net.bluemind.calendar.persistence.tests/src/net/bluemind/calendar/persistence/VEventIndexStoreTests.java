@@ -18,34 +18,34 @@
  */
 package net.bluemind.calendar.persistence;
 
+import static net.bluemind.calendar.persistence.VEventIndexStore.VEVENT_READ_ALIAS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
-import org.elasticsearch.action.admin.indices.template.get.GetIndexTemplatesResponse;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventAttendeeQuery;
 import net.bluemind.calendar.api.VEventQuery;
 import net.bluemind.calendar.api.VEventSeries;
+import net.bluemind.calendar.persistence.VEventIndexStore.IndexableVEventSeries;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
@@ -61,7 +61,7 @@ import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 
 public class VEventIndexStoreTests {
 
-	private Client client;
+	private ElasticsearchClient client;
 	private Container container;
 	private VEventIndexStore indexStore;
 
@@ -91,35 +91,30 @@ public class VEventIndexStoreTests {
 	}
 
 	@Test
-	public void testCreate() throws SQLException {
+	public void testCreate() throws SQLException, ElasticsearchException, IOException {
 		ItemValue<VEventSeries> event = defaultVEvent();
 
 		indexStore.create(Item.create(event.uid, System.nanoTime()), event.value);
 		indexStore.refresh();
 
-		SearchResponse resp = client.prepareSearch(VEventIndexStore.VEVENT_READ_ALIAS)
-				.setTypes(VEventIndexStore.VEVENT_TYPE).setQuery(QueryBuilders.termQuery("uid", event.uid)).execute()
-				.actionGet();
-		assertEquals(1, resp.getHits().getTotalHits().value);
-		SearchHit hit = resp.getHits().getAt(0);
-		Map<String, Object> source = hit.getSourceAsMap();
-		assertEquals(event.uid, source.get("uid"));
-		assertEquals(container.uid, source.get("containerUid"));
+		SearchResponse<IndexableVEventSeries> resp = client.search(s -> s.index(VEVENT_READ_ALIAS)
+				.query(q -> q.term(t -> t.field("uid").value(event.uid))), IndexableVEventSeries.class);
+		assertEquals(1, resp.hits().total().value());
 
-		@SuppressWarnings("unchecked")
-		List<Map<String, String>> sourceEvents = (List<Map<String, String>>) source.get("value");
-		assertEquals(1, sourceEvents.size());
+		IndexableVEventSeries hit = resp.hits().hits().get(0).source();
+		assertEquals(event.uid, hit.uid);
+		assertEquals(container.uid, hit.containerUid);
 
-		Map<String, String> sourceEvent = sourceEvents.get(0);
+		List<VEvent> events = hit.value;
+		assertEquals(1, events.size());
 
-		sourceEvent.get("uid");
-		assertEquals(event.uid, source.get("uid"));
-		assertEquals(event.value.main.summary, sourceEvent.get("summary"));
-		assertEquals(event.value.main.location, sourceEvent.get("location"));
+		VEvent esEvent = events.get(0);
+		assertEquals(event.value.main.summary, esEvent.summary);
+		assertEquals(event.value.main.location, esEvent.location);
 	}
 
 	@Test
-	public void testUpdate() throws SQLException {
+	public void testUpdate() throws SQLException, ElasticsearchException, IOException {
 		ItemValue<VEventSeries> event = defaultVEvent();
 
 		Item item = Item.create(event.uid, System.nanoTime());
@@ -127,63 +122,58 @@ public class VEventIndexStoreTests {
 		indexStore.create(item, event.value);
 		indexStore.refresh();
 
-		SearchResponse resp = client.prepareSearch(VEventIndexStore.VEVENT_READ_ALIAS)
-				.setTypes(VEventIndexStore.VEVENT_TYPE).setQuery(QueryBuilders.termQuery("uid", event.uid)).execute()
-				.actionGet();
-		assertEquals(1, resp.getHits().getTotalHits().value);
-		SearchHit hit = resp.getHits().getAt(0);
-		Map<String, Object> source = hit.getSourceAsMap();
-		assertEquals(event.uid, source.get("uid"));
-		assertEquals(container.uid, source.get("containerUid"));
+		SearchResponse<IndexableVEventSeries> resp = client.search(s -> s.index(VEVENT_READ_ALIAS)
+				.query(q -> q.term(t -> t.field("uid").value(event.uid))), IndexableVEventSeries.class);
+		assertEquals(1, resp.hits().total().value());
+
+		IndexableVEventSeries hit = resp.hits().hits().get(0).source();
+		assertEquals(event.uid, hit.uid);
+		assertEquals(container.uid, hit.containerUid);
 
 		String updatedSummary = "updated" + System.currentTimeMillis();
 		event.value.main.summary = updatedSummary;
 		indexStore.update(item, event.value);
 		indexStore.refresh();
 
-		resp = client.prepareSearch(VEventIndexStore.VEVENT_READ_ALIAS).setTypes(VEventIndexStore.VEVENT_TYPE)
-				.setQuery(QueryBuilders.termQuery("uid", event.uid)).execute().actionGet();
-		assertEquals(1, resp.getHits().getTotalHits().value);
-		hit = resp.getHits().getAt(0);
-		source = hit.getSourceAsMap();
-		assertEquals(event.uid, source.get("uid"));
-		assertEquals(container.uid, source.get("containerUid"));
+		resp = client.search(s -> s.index(VEVENT_READ_ALIAS)
+				.query(q -> q.term(t -> t.field("uid").value(event.uid))), IndexableVEventSeries.class);
+		assertEquals(1, resp.hits().total().value());
 
-		@SuppressWarnings("unchecked")
-		List<Map<String, String>> sourceEvents = (List<Map<String, String>>) source.get("value");
-		assertEquals(1, sourceEvents.size());
+		IndexableVEventSeries updateHit = resp.hits().hits().get(0).source();
+		assertEquals(event.uid, updateHit.uid);
+		assertEquals(container.uid, updateHit.containerUid);
 
-		Map<String, String> sourceEvent = sourceEvents.get(0);
-		assertEquals(updatedSummary, sourceEvent.get("summary"));
+		assertEquals(1, updateHit.value.size());
 
+		VEvent esEvent = updateHit.value.get(0);
+		assertEquals(updatedSummary, esEvent.summary);
 	}
 
 	@Test
-	public void testDelete() throws SQLException {
+	public void testDelete() throws SQLException, ElasticsearchException, IOException {
 		ItemValue<VEventSeries> event = defaultVEvent();
 
 		Item item = Item.create(event.uid, System.nanoTime());
 		indexStore.create(item, event.value);
 		indexStore.refresh();
 
-		SearchResponse resp = client.prepareSearch(VEventIndexStore.VEVENT_READ_ALIAS)
-				.setTypes(VEventIndexStore.VEVENT_TYPE).setQuery(QueryBuilders.termQuery("uid", event.uid)).execute()
-				.actionGet();
-		assertEquals(1, resp.getHits().getTotalHits().value);
+		SearchResponse<IndexableVEventSeries> resp = client.search(s -> s.index(VEVENT_READ_ALIAS)
+				.query(q -> q.term(t -> t.field("uid").value(event.uid))), IndexableVEventSeries.class);
+		assertEquals(1, resp.hits().total().value());
 
-		SearchHit hit = resp.getHits().getAt(0);
+		Hit<IndexableVEventSeries> hit = resp.hits().hits().get(0);
 		assertNotNull(hit);
 
 		indexStore.delete(item.id);
 		indexStore.refresh();
 
-		resp = client.prepareSearch(VEventIndexStore.VEVENT_READ_ALIAS).setTypes(VEventIndexStore.VEVENT_TYPE)
-				.setQuery(QueryBuilders.termQuery("uid", event.uid)).execute().actionGet();
-		assertEquals(0, resp.getHits().getTotalHits().value);
+		resp = client.search(s -> s.index(VEVENT_READ_ALIAS)
+				.query(q -> q.term(t -> t.field("uid").value(event.uid))), IndexableVEventSeries.class);
+		assertEquals(0, resp.hits().total().value());
 	}
 
 	@Test
-	public void testDeleteAll() throws SQLException {
+	public void testDeleteAll() throws SQLException, ElasticsearchException, IOException {
 		ItemValue<VEventSeries> event = defaultVEvent();
 
 		indexStore.create(Item.create(event.uid, System.nanoTime()), event.value);
@@ -194,27 +184,32 @@ public class VEventIndexStoreTests {
 		indexStore.create(Item.create(event2.uid, System.nanoTime()), event2.value);
 		indexStore.refresh();
 
-		SearchResponse resp = client.prepareSearch(VEventIndexStore.VEVENT_READ_ALIAS)
-				.setTypes(VEventIndexStore.VEVENT_TYPE).setQuery(QueryBuilders.termQuery("containerUid", container.uid))
-				.execute().actionGet();
-		assertEquals(2, resp.getHits().getTotalHits().value);
+		SearchResponse<IndexableVEventSeries> resp = client.search(
+				s -> s.index(VEVENT_READ_ALIAS)
+						.query(q -> q.term(t -> t.field("containerUid").value(container.uid))),
+				IndexableVEventSeries.class);
+		assertEquals(2, resp.hits().total().value());
 
 		indexStore.deleteAll();
 		indexStore.refresh();
 
-		resp = client.prepareSearch(VEventIndexStore.VEVENT_READ_ALIAS).setTypes(VEventIndexStore.VEVENT_TYPE)
-				.setQuery(QueryBuilders.termQuery("containerUid", container.uid)).execute().actionGet();
-		assertEquals(0, resp.getHits().getTotalHits().value);
+		resp = client.search(
+				s -> s.index(VEVENT_READ_ALIAS)
+						.query(q -> q.term(t -> t.field("containerUid").value(container.uid))),
+				IndexableVEventSeries.class);
+		assertEquals(0, resp.hits().total().value());
 	}
 
 	@Test
 	public void testSearch_25000() throws Exception {
+		List<ItemValue<VEventSeries>> allEvents = new ArrayList<>();
 		for (int i = 0; i < 25000; i++) {
 			ItemValue<VEventSeries> event = defaultVEvent();
 			event.value.main.summary = "event" + i;
-			indexStore.create(Item.create(event.uid, System.nanoTime()), event.value);
+			allEvents.add(ItemValue.create(Item.create(event.uid, System.nanoTime()), event.value));
 		}
-
+		indexStore.updates(allEvents);
+		
 		indexStore.refresh();
 
 		// test with specific unique summary
@@ -420,10 +415,6 @@ public class VEventIndexStoreTests {
 		ItemValue<VEventSeries> event = defaultVEvent();
 		indexStore.create(Item.create(event.uid, System.nanoTime()), event.value);
 
-		GetIndexTemplatesResponse ti = client.admin().indices().prepareGetTemplates("event").execute().actionGet();
-		System.out.println(ti.getIndexTemplates());
-		GetMappingsResponse resp = client.admin().indices().prepareGetMappings("event").execute().actionGet();
-		System.out.println(resp.getMappings().get("event").get("vevent").source());
 		ItemValue<VEventSeries> event2 = defaultVEvent();
 		event2.value.main.attendees.get(1).partStatus = ParticipationStatus.Accepted;
 		indexStore.create(Item.create(event2.uid, System.nanoTime()), event2.value);

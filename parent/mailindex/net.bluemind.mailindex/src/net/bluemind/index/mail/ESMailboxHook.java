@@ -18,7 +18,6 @@
  */
 package net.bluemind.index.mail;
 
-import org.elasticsearch.index.IndexNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,11 +57,7 @@ public class ESMailboxHook extends DefaultMailboxHook {
 			return;
 		}
 
-		try {
-			MailIndexActivator.getService().deleteMailbox(value.uid);
-		} catch (IndexNotFoundException e) {
-			logger.warn("Mailbox alias mailspool_alias_{} does not exist", value.uid);
-		}
+		MailIndexActivator.getService().deleteMailbox(value.uid);
 
 	}
 

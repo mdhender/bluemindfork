@@ -117,66 +117,64 @@
 		}
 	},
 	"mappings": {
-		"vcard": {
-			"properties": {
-				"containerUid": {
-					"type": "keyword",
-					"store": true
-				},
-				"uid": {
-					"type": "keyword",
-					"store": true
-				},
-				"sortName": {
-					"type": "keyword",
-					"store": true,
-					"normalizer": "uppercase"
-				},
-				"displayName": {
-					"type": "text",
-					"analyzer": "sort_index",
-					"search_analyzer": "default_search"
-				},
-				"value": {
-					"properties": {
-						"communications": {
-							"properties": {
-								"emails": {
-									"properties": {
-										"parameters": {
-											"properties": {
-												"label": {
-													"type": "keyword"
-												},
-												"value": {
-													"type": "keyword"
-												}
+		"properties": {
+			"containerUid": {
+				"type": "keyword",
+				"store": true
+			},
+			"uid": {
+				"type": "keyword",
+				"store": true
+			},
+			"sortName": {
+				"type": "keyword",
+				"store": true,
+				"normalizer": "uppercase"
+			},
+			"displayName": {
+				"type": "text",
+				"analyzer": "sort_index",
+				"search_analyzer": "default_search"
+			},
+			"value": {
+				"properties": {
+					"communications": {
+						"properties": {
+							"emails": {
+								"properties": {
+									"parameters": {
+										"properties": {
+											"label": {
+												"type": "keyword"
+											},
+											"value": {
+												"type": "keyword"
 											}
-										},
-										"value": {
-											"type": "text",
-											"analyzer": "email_index",
-											"search_analyzer": "email_search"
 										}
+									},
+									"value": {
+										"type": "text",
+										"analyzer": "email_index",
+										"search_analyzer": "email_search"
 									}
-								},
-								"tels": {
-									"properties": {
-										"parameters": {
-											"properties": {
-												"label": {
-													"type": "keyword"
-												},
-												"value": {
-													"type": "keyword"
-												}
+								}
+							},
+							"tels": {
+								"properties": {
+									"parameters": {
+										"properties": {
+											"label": {
+												"type": "keyword"
+											},
+											"value": {
+												"type": "keyword"
 											}
-										},
-										"value": {
-											"type": "text",
-											"analyzer": "phone_index",
-											"search_analyzer": "phone_search"
 										}
+									},
+									"value": {
+										"type": "text",
+										"analyzer": "phone_index",
+										"search_analyzer": "phone_search"
 									}
 								}
 							}

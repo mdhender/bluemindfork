@@ -19,10 +19,8 @@ package net.bluemind.mailindex.hook;
 
 import java.util.List;
 
-import org.elasticsearch.client.Client;
-
 public interface IIndexSelectionPolicy {
 
-	public String getMailspoolIndexName(Client client, List<String> shards, String mailboxUid);
+	public String getMailspoolIndexName(List<String> shards, String mailboxUid);
 
 }

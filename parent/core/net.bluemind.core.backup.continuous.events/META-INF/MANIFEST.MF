@@ -44,7 +44,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.backend.mail.replica.service,
  net.bluemind.core.caches.registry,
  com.github.ben-manes.caffeine;bundle-version="2.9.3",
- net.bluemind.mailindex
+ net.bluemind.mailindex,
+ com.fasterxml.jackson.core.jackson-databind
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.core.backup.continuous.events
 Export-Package: net.bluemind.core.backup.continuous.events

@@ -22,6 +22,7 @@ import static net.bluemind.calendar.persistence.VEventIndexStore.VEVENT_WRITE_AL
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -32,6 +33,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import net.bluemind.calendar.api.ICalendarsMgmt;
 import net.bluemind.calendar.api.VEventQuery;
 import net.bluemind.calendar.api.VEventSeries;
@@ -42,6 +44,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 
@@ -53,8 +56,7 @@ public class CalendarsMgntTests extends AbstractCalendarTests {
 	}
 
 	@Test
-	public void testReIndex() throws ServerFault, InterruptedException {
-
+	public void testReIndex() throws ServerFault, InterruptedException, ElasticsearchException, IOException {
 		VEventSeries event = defaultVEvent();
 
 		getCalendarService(userSecurityContext, userCalendarContainer).create("testUid", event, sendNotifications);
@@ -98,8 +100,8 @@ public class CalendarsMgntTests extends AbstractCalendarTests {
 
 	}
 
-	protected void refreshIndexes() {
-		ElasticsearchTestHelper.getInstance().getClient().admin().indices().prepareRefresh(VEVENT_WRITE_ALIAS).get();
+	protected void refreshIndexes() throws ElasticsearchException, IOException {
+		ElasticsearchTestHelper.getInstance().getClient().indices().refresh(r -> r.index(VEVENT_WRITE_ALIAS));
 	}
 
 }

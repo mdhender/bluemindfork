@@ -21,29 +21,23 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
-import org.elasticsearch.action.DocWriteRequest.OpType;
-import org.elasticsearch.action.admin.indices.alias.get.GetAliasesAction;
-import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequestBuilder;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.cluster.metadata.AliasMetadata;
-import org.elasticsearch.common.collect.ImmutableOpenMap;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.TermQueryBuilder;
-import org.elasticsearch.index.reindex.BulkByScrollResponse;
-import org.elasticsearch.index.reindex.ReindexAction;
-import org.elasticsearch.index.reindex.ReindexRequestBuilder;
-import org.elasticsearch.script.Script;
-import org.elasticsearch.script.ScriptType;
-
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.Conflicts;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.OpType;
+import co.elastic.clients.elasticsearch._types.Script;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
+import co.elastic.clients.elasticsearch.core.ReindexResponse;
+import co.elastic.clients.elasticsearch.indices.AliasDefinition;
+import co.elastic.clients.elasticsearch.indices.get_alias.IndexAliases;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.CliException;
 import net.bluemind.cli.cmd.api.ICmdLet;
@@ -84,64 +78,81 @@ public class ReindexMailIndexesCommand implements ICmdLet, Runnable {
 
 	@Override
 	public void run() {
-		Client client = ESearchActivator.getClient();
-		ImmutableOpenMap<String, List<AliasMetadata>> getAliasesResponse = new GetAliasesRequestBuilder(client,
-				GetAliasesAction.INSTANCE, new String[0]).get().getAliases();
+		ElasticsearchClient esClient = ESearchActivator.getClient();
+		Map<String, IndexAliases> indexAliases = null;
+		try {
+			indexAliases = esClient.indices().getAlias().result();
+		} catch (ElasticsearchException | IOException e) {
+			ctx.error("Failed to list indices alias", e);
+			return;
+		}
 
 		Optional<Script> code = loadScript();
-		int maxIndex = getMaxIndex(getAliasesResponse);
-		for (String index : getIndexList(getAliasesResponse)) {
-			reindex(client, index, getAliasesResponse.get(index), ++maxIndex, code);
+		int maxIndex = getMaxIndex(indexAliases.keySet());
+		for (String index : getIndexList(indexAliases.keySet())) {
+			String targetIndex = "mailspool_" + ++maxIndex;
+			try {
+				reindex(esClient, index, indexAliases.get(index), targetIndex, code);
+			} catch (ElasticsearchException | IOException e) {
+				ctx.error("Failed to reindex index {} to {}", index, targetIndex, e);
+				return;
+			}
+			swicthIndex(esClient, index, indexAliases.get(index), targetIndex);
 		}
 	}
 
-	private Set<String> getIndexList(ImmutableOpenMap<String, List<AliasMetadata>> getAliasesResponse) {
+	private Set<String> getIndexList(Set<String> indexNames) {
 		if (indexes != null) {
 			return Arrays.asList(indexes.split(",")).stream().map(i -> "mailspool_" + i.trim())
 					.collect(Collectors.toSet());
 		} else {
-			Set<String> toIndex = new HashSet<>();
-			for (Iterator<String> keysIt = getAliasesResponse.keysIt(); keysIt.hasNext();) {
-				String indexName = keysIt.next();
-				if (indexName.startsWith("mailspool") && !indexName.contains("pending")) {
-					toIndex.add(indexName);
-				}
-			}
-			return toIndex;
+			return indexNames.stream()
+					.filter(indexName -> indexName.startsWith("mailspool") && !indexName.contains("pending"))
+					.collect(Collectors.toSet());
 		}
-
 	}
 
-	private int getMaxIndex(ImmutableOpenMap<String, List<AliasMetadata>> getAliasesResponse) {
-		int max = 0;
-		for (Iterator<String> keysIt = getAliasesResponse.keysIt(); keysIt.hasNext();) {
-			String indexName = keysIt.next();
-			if (indexName.startsWith("mailspool") && !indexName.contains("pending")) {
-				max = Math.max(max, Integer.valueOf(indexName.substring("mailspool_".length())));
-			}
-		}
-		return max;
+	private int getMaxIndex(Set<String> indexNames) {
+		return indexNames.stream() //
+				.filter(indexName -> indexName.startsWith("mailspool") && !indexName.contains("pending"))
+				.mapToInt(indexName -> Integer.valueOf(indexName.substring("mailspool_".length()))).max().orElse(0);
 	}
 
-	private void reindex(Client client, String index, List<AliasMetadata> aliases, int targetIndexNumber,
-			Optional<Script> code) {
-		String targetIndex = "mailspool_" + targetIndexNumber;
+	private void reindex(ElasticsearchClient esClient, String index, IndexAliases aliases, String targetIndex,
+			Optional<Script> code) throws ElasticsearchException, IOException {
 		ctx.info("Reindexing records from {} to {}", index, targetIndex);
-		ESearchActivator.initIndex(client, targetIndex);
-		TermQueryBuilder bodiesQuery = QueryBuilders.termQuery("body_msg_link", "body");
-		moveAndReindex(client, Optional.empty(), index, targetIndex, bodiesQuery, "bodies");
+		ESearchActivator.initIndex(esClient, targetIndex);
+		Query bodiesQuery = TermQuery.of(t -> t.field("body_msg_link").value("body"))._toQuery();
+		moveAndReindex(esClient, Optional.empty(), index, targetIndex, bodiesQuery, "bodies");
 
-		for (AliasMetadata alias : aliases) {
-			String entityId = getEntityIdByAlias(alias.alias());
-			ctx.info("Reindexing records of alias {} owned by {}", alias.alias(), entityId);
-			TermQueryBuilder ownerQuery = QueryBuilders.termQuery("owner", entityId);
-			moveAndReindex(client, code, index, targetIndex, ownerQuery, "records");
-			ctx.info("Adding alias of {}", entityId);
-			client.admin().indices().prepareAliases().addAlias(targetIndex, alias.alias(), ownerQuery)
-					.removeAlias(index, alias.alias()).get();
+		for (String alias : aliases.aliases().keySet()) {
+			String entityId = getEntityIdByAlias(alias);
+			ctx.info("Reindexing records of alias {} owned by {}", alias, entityId);
+			Query ownerQuery = TermQuery.of(t -> t.field("owner").value(entityId))._toQuery();
+			moveAndReindex(esClient, code, index, targetIndex, ownerQuery, "records");
 		}
+	}
+
+	private void swicthIndex(ElasticsearchClient esClient, String index, IndexAliases aliases, String targetIndex) {
+		for (Entry<String, AliasDefinition> alias : aliases.aliases().entrySet()) {
+			String entityId = getEntityIdByAlias(alias.getKey());
+			ctx.info("Moving alias for {}", entityId);
+			try {
+				esClient.indices().updateAliases(u -> u //
+						.actions(a -> a.add(add -> add //
+								.index(targetIndex).alias(alias.getKey()).filter(alias.getValue().filter())))
+						.actions(a -> a.remove(r -> r.index(index).alias(alias.getKey()))));
+			} catch (ElasticsearchException | IOException e) {
+				ctx.warn("Failed to move alias for {}", entityId);
+			}
+		}
+
 		ctx.info("Deleting index {}", index);
-		client.admin().indices().prepareDelete(index).get();
+		try {
+			esClient.indices().delete(d -> d.index(index));
+		} catch (ElasticsearchException | IOException e) {
+			ctx.warn("Failed to delete index {}", index);
+		}
 	}
 
 	private Optional<Script> loadScript() {
@@ -151,7 +162,7 @@ public class ReindexMailIndexesCommand implements ICmdLet, Runnable {
 		try {
 			String code = new String(Files.readAllBytes(new File(script).toPath()));
 			ctx.info("Applying following code to reindex action:\r\n" + code);
-			return Optional.of(new Script(ScriptType.INLINE, "painless", code, Collections.emptyMap()));
+			return Optional.of(Script.of(s -> s.inline(i -> i.lang("painless").source(code))));
 		} catch (IOException e) {
 			throw new CliException("Cannot read code from script file " + script + ": " + e.getMessage());
 		}
@@ -161,18 +172,22 @@ public class ReindexMailIndexesCommand implements ICmdLet, Runnable {
 		return aliasValue.substring("mailspool_alias_".length());
 	}
 
-	private void moveAndReindex(Client client, Optional<Script> script, String srcIndex, String targetIndex,
-			TermQueryBuilder ownerQuery, String type) {
+	private void moveAndReindex(ElasticsearchClient esClient, Optional<Script> script, String srcIndex,
+			String targetIndex, Query query, String type) throws ElasticsearchException, IOException {
 		ctx.info("Reindexing index {} to {}", srcIndex, targetIndex);
+		ReindexResponse response = esClient.reindex(r -> {
+			r //
+					.source(s -> s.index(srcIndex).size(batchSize).query(query)) //
+					.dest(d -> d.index(targetIndex).opType(OpType.Index)) //
+					.slices(s -> s.value(slices)) //
+					.conflicts(Conflicts.Proceed) //
+					.scroll(s -> s.time("1d"));
+			script.ifPresent(r::script);
+			return r;
+		});
 
-		ReindexRequestBuilder builder = new ReindexRequestBuilder(client, ReindexAction.INSTANCE).source(srcIndex)
-				.destination(targetIndex).setSlices(slices).abortOnVersionConflict(false).filter(ownerQuery);
-		builder.destination().setOpType(OpType.INDEX);
-		builder.source().setSize(batchSize).setScroll("1d");
-		script.ifPresent(builder::script);
-		BulkByScrollResponse ret = builder.get();
 		ctx.info("Reindexing {} from index {} to {}: {}", type, srcIndex, targetIndex,
-				Matcher.quoteReplacement(ret.toString()));
+				Matcher.quoteReplacement(response.toString()));
 	}
 
 	@Override

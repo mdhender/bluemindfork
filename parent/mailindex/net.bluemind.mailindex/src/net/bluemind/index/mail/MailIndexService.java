@@ -1,7 +1,9 @@
 package net.bluemind.index.mail;
 
-import static com.google.common.collect.Maps.immutableEntry;
+import static java.util.Collections.singletonList;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,55 +21,49 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
-import org.apache.lucene.search.join.ScoreMode;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.DocWriteRequest.OpType;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.action.admin.indices.alias.get.GetAliasesResponse;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
-import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
-import org.elasticsearch.action.admin.indices.stats.IndexStats;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
-import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.cluster.metadata.AliasMetadata;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.reindex.BulkByScrollResponse;
-import org.elasticsearch.index.reindex.DeleteByQueryAction;
-import org.elasticsearch.index.reindex.DeleteByQueryRequestBuilder;
-import org.elasticsearch.index.reindex.ReindexAction;
-import org.elasticsearch.index.reindex.ReindexRequestBuilder;
-import org.elasticsearch.join.query.JoinQueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
-import org.elasticsearch.search.aggregations.metrics.InternalSum;
-import org.elasticsearch.search.aggregations.metrics.SumAggregationBuilder;
-import org.elasticsearch.search.builder.PointInTimeBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
-import org.elasticsearch.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Streams;
 import com.netflix.spectator.api.Registry;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.Conflicts;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.HealthStatus;
+import co.elastic.clients.elasticsearch._types.OpType;
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.ChildScoreMode;
+import co.elastic.clients.elasticsearch._types.query_dsl.ConstantScoreQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
+import co.elastic.clients.elasticsearch.cluster.HealthResponse;
+import co.elastic.clients.elasticsearch.core.GetResponse;
+import co.elastic.clients.elasticsearch.core.ReindexResponse;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
+import co.elastic.clients.elasticsearch.indices.GetAliasResponse;
+import co.elastic.clients.elasticsearch.indices.GetIndexResponse;
+import co.elastic.clients.elasticsearch.indices.get_alias.IndexAliases;
+import co.elastic.clients.elasticsearch.indices.stats.IndicesStats;
+import co.elastic.clients.json.JsonData;
+import co.elastic.clients.util.ObjectBuilder;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MessageSearchResult;
@@ -75,6 +71,7 @@ import net.bluemind.backend.mail.api.MessageSearchResult.Mbox;
 import net.bluemind.backend.mail.api.SearchQuery;
 import net.bluemind.backend.mail.api.SearchQuery.LogicalOperator;
 import net.bluemind.backend.mail.api.SearchResult;
+import net.bluemind.backend.mail.api.SearchSort;
 import net.bluemind.backend.mail.api.utils.MailIndexQuery;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
@@ -93,8 +90,15 @@ import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.core.task.service.NullTaskMonitor;
 import net.bluemind.index.MailIndexActivator;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.lib.elasticsearch.EsBulk;
+import net.bluemind.lib.elasticsearch.MailspoolStats;
+import net.bluemind.lib.elasticsearch.MailspoolStats.FolderCount;
 import net.bluemind.lib.elasticsearch.Pit;
+import net.bluemind.lib.elasticsearch.Pit.PaginableSearchQueryBuilder;
+import net.bluemind.lib.elasticsearch.Pit.PaginationParams;
 import net.bluemind.lib.elasticsearch.Queries;
+import net.bluemind.lib.elasticsearch.exception.ElasticDocumentException;
+import net.bluemind.lib.elasticsearch.exception.ElasticIndexException;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.ShardStats;
@@ -108,13 +112,9 @@ import net.bluemind.utils.EmailAddress;
 public class MailIndexService implements IMailIndexService {
 	public static final int SIZE = 200;
 
-	private static final Map<String, Float> DEFAULT_QUERY_STRING_FIELDS = java.util.stream.Stream
-			.of(immutableEntry("subject", 1.0F), immutableEntry("content", 1.0F), immutableEntry("filename", 1.0F),
-					immutableEntry("from", 1.0F), immutableEntry("to", 1.0F), immutableEntry("cc", 1.0F))
-			.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+	private static final List<String> DEFAULT_QUERY_STRING_FIELDS = Arrays //
+			.asList("subject", "content", "filename", "from", "to", "cc");
 	private static final Logger logger = LoggerFactory.getLogger(MailIndexService.class);
-	private static final String PENDING_TYPE = "eml";
-	static final String MAILSPOOL_TYPE = "recordOrBody";
 	public static final String JOIN_FIELD = "body_msg_link";
 	public static final String PARENT_TYPE = "body";
 	public static final String CHILD_TYPE = "record";
@@ -136,29 +136,39 @@ public class MailIndexService implements IMailIndexService {
 		VertxPlatform.executeBlockingPeriodic(TimeUnit.HOURS.toMillis(1), i -> getStats());
 	}
 
+	public static ElasticsearchClient getIndexClient() {
+		return ESearchActivator.getClient();
+	}
+
 	@Override
 	public Map<String, Object> storeBody(IndexedMessageBody body) {
 		logger.debug("Saving body {} to pending index", body);
 		Map<String, Object> content = bodyToDocument(body);
-		Client client = getIndexClient();
-		client.prepareIndex(INDEX_PENDING_WRITE_ALIAS, PENDING_TYPE).setId(body.uid).setSource(content).get();
+		ElasticsearchClient esClient = getIndexClient();
+		try {
+			esClient.index(i -> i.index(INDEX_PENDING_WRITE_ALIAS).id(body.uid).document(content));
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticDocumentException(INDEX_PENDING_WRITE_ALIAS, e);
+		}
 		return content;
 	}
 
 	@Override
 	public void storeBodyAsByte(String uid, byte[] body) {
 		logger.info("Restore {} to pending index", uid);
-		Client client = getIndexClient();
-		IndexableMessageBodyCache.sourceHolder.put(uid, () -> body);
-		client.prepareIndex(INDEX_PENDING_WRITE_ALIAS, PENDING_TYPE).setId(uid).setSource(body, XContentType.JSON)
-				.get();
+		ElasticsearchClient esClient = getIndexClient();
+		try {
+			esClient.index(i -> i.index(INDEX_PENDING_WRITE_ALIAS).id(uid).withJson(new ByteArrayInputStream(body)));
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticDocumentException(INDEX_PENDING_WRITE_ALIAS, e);
+		}
 	}
 
 	private Map<String, Object> bodyToDocument(IndexedMessageBody body) {
 		Map<String, Object> content = new HashMap<>();
 		content.put("content", body.content);
 		content.put("messageId", body.messageId.toString());
-		content.put("references", body.references.stream().map(Object::toString).collect(Collectors.toList()));
+		content.put("references", body.references.stream().map(Object::toString).toList());
 		content.put("preview", body.preview);
 		content.put("subject", body.subject.toString());
 		content.put("subject_kw", body.subject.toString());
@@ -167,105 +177,140 @@ public class MailIndexService implements IMailIndexService {
 		return content;
 	}
 
-	private List<String> filterMailspoolIndexNames(GetIndexResponse indexResponse) {
-		return Arrays.asList(indexResponse.indices()).stream()//
-				.filter(i -> !i.startsWith(INDEX_PENDING))
-				.filter(idx -> !Optional
-						.ofNullable(ESearchActivator.getMeta(idx, ESearchActivator.BM_MAINTENANCE_STATE_META_KEY))
-						.map(meta -> {
-							logger.warn("{} is not usable for new aliases as its maintenance state is {}", idx, meta);
-							return meta;
-						}).isPresent())
-				.collect(Collectors.toList());
-	}
-
 	@Override
 	public void deleteBodyEntries(List<String> bodyIds) {
-		Client client = getIndexClient();
-		deleteBodiesFromIndex(bodyIds, INDEX_PENDING_WRITE_ALIAS, PENDING_TYPE);
-		GetIndexResponse resp = client.admin().indices().prepareGetIndex().addIndices("mailspool*").get();
-		List<String> shards = filterMailspoolIndexNames(resp);
-		for (String index : shards) {
-			deleteBodiesFromIndex(bodyIds, index, MAILSPOOL_TYPE);
+		ElasticsearchClient esClient = getIndexClient();
+		deleteBodiesFromIndex(bodyIds, INDEX_PENDING_WRITE_ALIAS);
+		filteredMailspoolIndexNames(esClient).forEach(index -> deleteBodiesFromIndex(bodyIds, index));
+	}
+
+	private void deleteBodiesFromIndex(List<String> deletedOrphanBodies, String index) {
+		ElasticsearchClient esClient = getIndexClient();
+		try {
+			esClient.deleteByQuery(d -> d.index(index)
+					.query(q -> q.constantScore(s -> s.filter(f -> f.ids(i -> i.values(deletedOrphanBodies))))));
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticDocumentException(index, e);
 		}
 	}
 
 	@Override
 	public long resetMailboxIndex(String mailboxUid) {
 		String index = getIndexAliasName(mailboxUid);
-
-		return bulkDelete(index, QueryBuilders.termQuery("owner", mailboxUid));
-	}
-
-	private void deleteBodiesFromIndex(List<String> deletedOrphanBodies, String index, String type) {
-
-		QueryBuilder termQuery = QueryBuilders.idsQuery().addIds(deletedOrphanBodies.toArray(new String[0]));
-		QueryBuilder queryBuilder = QueryBuilders.constantScoreQuery(termQuery);
-
-		DeleteByQueryRequestBuilder req = new DeleteByQueryRequestBuilder(getIndexClient(),
-				DeleteByQueryAction.INSTANCE).abortOnVersionConflict(false);
-		req.source().setIndices(index).setTypes(type).setQuery(queryBuilder).get();
-	}
-
-	private static class EsBulk implements BulkOperation {
-
-		private BulkRequestBuilder bulk;
-
-		public EsBulk(BulkRequestBuilder bulk) {
-			this.bulk = bulk;
-		}
-
-		@Override
-		public void commit(boolean waitForRefresh) {
-			if (waitForRefresh) {
-				bulk.setRefreshPolicy(RefreshPolicy.WAIT_UNTIL);
-			}
-			int actions = bulk.numberOfActions();
-			if (actions == 0) {
-				logger.warn("Empty bulk, not running.");
-			} else {
-				bulk.execute().actionGet();
-			}
-		}
-
-	}
-
-	public BulkOperation startBulk() {
-		Client client = getIndexClient();
-		return new EsBulk(client.prepareBulk());
+		return bulkDelete(index, q -> q.term(t -> t.field("owner").value(mailboxUid)));
 	}
 
 	@Override
-	public void storeMessage(String mailboxUniqueId, ItemValue<MailboxRecord> item, String user,
-			Optional<BulkOperation> bulk) {
+	public void deleteBox(ItemValue<Mailbox> box, String folderUid) {
+		ElasticsearchClient esClient = getIndexClient();
+		String boxAlias = getIndexAliasName(box.uid);
+		getUserAliasIndex(boxAlias, esClient).ifPresentOrElse(boxIndex -> {
+			long count = bulkDelete(boxAlias, q -> q.term(t -> t.field("in").value(folderUid)));
+			logger.info("deleteBox {}:{} :  {} deleted", box.uid, folderUid, count);
+			cleanupParents(boxAlias, boxIndex);
+		}, () -> logger.error("Unable to delete mails in elasticsearch, alias not found (mailbox:{}, folder:{})",
+				box.uid, folderUid));
+
+	}
+
+	private long deleteSet(ItemValue<Mailbox> box, ItemValue<MailboxFolder> f, IDSet set) {
+		ElasticsearchClient esClient = getIndexClient();
+		String boxAlias = getIndexAliasName(box.uid);
+		return getUserAliasIndex(boxAlias, esClient).map(boxIndex -> {
+			long deletedCount = 0;
+			Iterator<IDRange> iter = set.iterator();
+			while (iter.hasNext()) {
+				deletedCount += bulkDelete(boxAlias, q -> q.bool(b -> b //
+						.must(m -> m.term(t -> t.field("in").value(f.uid))) //
+						.must(asFilter(iter, 1000))));
+			}
+			cleanupParents(boxAlias, boxIndex);
+			return deletedCount;
+		}).orElseGet(() -> {
+			logger.error("Unable to delete mails in elasticsearch, alias not found (mailbox:{}, folder:{}, set:{})",
+					box.uid, f.uid, set);
+			return 0l;
+		});
+	}
+
+	private void cleanupParents(String boxAlias, String boxIndex) {
+		/*
+		 * To be able to retrieve entries without an explicit owner field pointing to
+		 * the user this alias belongs to, we need to resolve the physical index name
+		 * this alias is assigned to.
+		 */
+		logger.info("Cleaning up parent-child hierarchy of alias/index {}/{}", boxAlias, boxIndex);
+		VertxPlatform.eventBus().publish("index.mailspool.cleanup", new JsonObject().put("index", boxIndex));
+	}
+
+	private Optional<String> getUserAliasIndex(String alias, ElasticsearchClient esClient) {
+		try {
+			GetAliasResponse response = esClient.indices().getAlias(a -> a.name(alias));
+			return Optional.of(response.result().keySet().iterator().next());
+		} catch (ElasticsearchException e) {
+			logger.warn("Elasticsearch user alias is missing: '{}'", alias);
+			return Optional.empty();
+		} catch (IOException e) {
+			logger.error("Unexcepted while looking for alias: '{}'", alias, e);
+			return Optional.empty();
+		}
+	}
+
+	private long bulkDelete(String indexName, Function<Query.Builder, ObjectBuilder<Query>> filter) {
+		ElasticsearchClient esClient = getIndexClient();
+		try {
+			return esClient.deleteByQuery(d -> d.index(indexName) //
+					.query(t -> t.constantScore(s -> s.filter(filter)))).deleted();
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticDocumentException(indexName, e);
+		}
+	}
+
+	private Query asFilter(Iterator<IDRange> iter, int max) {
+		BoolQuery.Builder builder = new BoolQuery.Builder();
+		int count = 0;
+		while (iter.hasNext() && count++ < max) {
+			IDRange range = iter.next();
+			orBuilder(builder, range);
+		}
+		return builder.build()._toQuery();
+	}
+
+	private void orBuilder(BoolQuery.Builder orBuilder, IDRange range) {
+		logger.debug("range {}", range);
+		if (range.isUnique()) {
+			orBuilder.should(s -> s.term(t -> t.field("uid").value(range.from())));
+		} else if (range.to() < 0) {
+			orBuilder.should(s -> s.range(r -> r.field("uid").gte(JsonData.of(range.from()))));
+		} else {
+			orBuilder.should(s -> s //
+					.range(r -> r.field("uid").gte(JsonData.of(range.from())).lte(JsonData.of(range.to()))));
+		}
+	}
+
+	@Override
+	public void doBulk(List<BulkOp> operations) {
+		new EsBulk(getIndexClient()).commitAll(operations,
+				(op, b) -> b.index(i -> i.index(op.index()).routing(op.routing()).id(op.id()).document(op.doc())));
+	}
+
+	@Override
+	public List<BulkOp> storeMessage(String mailboxUniqueId, ItemValue<MailboxRecord> item, String user, boolean bulk) {
+		ElasticsearchClient esClient = getIndexClient();
+		List<BulkOp> bulkOperation = new ArrayList<>();
 		MailboxRecord mail = item.value;
 		String parentUid = mail.messageBody;
-		logger.debug("Indexing message in mailbox {} using parent uid {}", mailboxUniqueId, parentUid);
-
 		String id = mailboxUniqueId + ":" + item.internalId;
-		Client client = getIndexClient();
 		String userAlias = getIndexAliasName(user);
 		Set<String> is = MessageFlagsHelper.asFlags(mail.flags);
-		Map<String, Object> parentDoc = Optional.ofNullable(IndexableMessageBodyCache.bodies.getIfPresent(parentUid))
-				.map(this::bodyToDocument).orElseGet(() -> {
-					GetResponse response = client.prepareGet(INDEX_PENDING_READ_ALIAS, PENDING_TYPE, parentUid).get();
-					if (response.isSourceEmpty()) {
-						try {
-							logger.warn("Pending index misses parent {} for imapUid {} in mailbox {}", parentUid,
-									item.value.imapUid, mailboxUniqueId);
-							return reloadFromDb(parentUid, mailboxUniqueId, mail);
-						} catch (Exception e) {
-							logger.warn("Cannot resync pending data", e);
-							return null;
-						}
-					} else {
-						return response.getSource();
-					}
-				});
 
-		if (parentDoc == null || parentDoc.isEmpty()) {
+		Map<String, Object> parentDoc = Optional //
+				.ofNullable(IndexableMessageBodyCache.bodies.getIfPresent(parentUid)).map(this::bodyToDocument) //
+				.orElseGet(() -> loadParentDoc(esClient, mailboxUniqueId, item));
+
+		if (parentDoc.isEmpty()) {
 			logger.info("Skipping indexation of {}:{}", mailboxUniqueId, parentUid);
-			return;
+			return Collections.emptyList();
 		}
 		Map<String, Object> mutableContent = new HashMap<>(parentDoc);
 
@@ -288,7 +333,7 @@ public class MailIndexService implements IMailIndexService {
 		if (mail.internalDate != null) {
 			mutableContent.put("internalDate", mail.internalDate.toInstant().toString());
 		}
-		mutableContent.put(JOIN_FIELD, ImmutableMap.of("name", CHILD_TYPE, "parent", parentUid));
+		mutableContent.put(JOIN_FIELD, Map.of("name", CHILD_TYPE, "parent", parentUid));
 
 		// deduplicate fields
 		mutableContent.remove("messageId");
@@ -301,8 +346,13 @@ public class MailIndexService implements IMailIndexService {
 		mutableContent.remove("to");
 		mutableContent.remove("cc");
 		String route = "partition_xxx";
-		GetResponse hasParent = client.prepareGet(userAlias, MAILSPOOL_TYPE, parentUid).setFetchSource(false).get();
-		if (!hasParent.isExists()) {
+		boolean parentExists;
+		try {
+			parentExists = esClient.exists(e -> e.index(userAlias).id(parentUid)).value();
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticDocumentException(userAlias, e);
+		}
+		if (!parentExists) {
 			parentDoc.remove("with");
 			// this field are not used for search
 			parentDoc.remove("headers");
@@ -312,276 +362,182 @@ public class MailIndexService implements IMailIndexService {
 			parentDoc.remove("is");
 			// this field is used for sorting on the child
 			parentDoc.remove("subject_kw");
-
 			parentDoc.put(JOIN_FIELD, PARENT_TYPE);
-			IndexRequestBuilder parentIdxReq = client.prepareIndex(userAlias, MAILSPOOL_TYPE).setSource(parentDoc)//
-					.setId(parentUid).setRouting(route);
-			if (bulk.isPresent()) {
-				bulk.map(EsBulk.class::cast).ifPresent(bulkImpl -> bulkImpl.bulk.add(parentIdxReq));
+
+			if (bulk) {
+				bulkOperation.add(new BulkOp(userAlias, parentUid, route, parentDoc));
 			} else {
-				parentIdxReq.execute().actionGet();
+				store(esClient, userAlias, parentUid, route, parentDoc);
 			}
 		}
-
-		IndexRequestBuilder childIdxReq = client.prepareIndex(userAlias, MAILSPOOL_TYPE).setSource(mutableContent)//
-				.setId(id).setRouting(route);
-		if (bulk.isPresent()) {
-			bulk.map(EsBulk.class::cast).ifPresent(bulkImpl -> bulkImpl.bulk.add(childIdxReq));
+		if (bulk) {
+			bulkOperation.add(new BulkOp(userAlias, id, route, mutableContent));
 		} else {
-			childIdxReq.execute().actionGet();
+			store(esClient, userAlias, id, route, mutableContent);
+		}
+
+		return bulkOperation;
+	}
+
+	public void store(ElasticsearchClient esClient, String index, String id, String route,
+			Map<String, Object> document) {
+		try {
+			esClient.index(i -> i.index(index).id(id).routing(route).document(document));
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticDocumentException(index, e);
 		}
 	}
 
-	private Map<String, Object> reloadFromDb(String uid, String mailboxUniqueId, MailboxRecord mail)
+	private Map<String, Object> loadParentDoc(ElasticsearchClient esClient, String mailboxUniqueId,
+			ItemValue<MailboxRecord> item) {
+		MailboxRecord mail = item.value;
+		String parentUid = mail.messageBody;
+		GetResponse<ObjectNode> response = null;
+		try {
+			response = esClient.get(i -> i //
+					.index(INDEX_PENDING_READ_ALIAS).id(parentUid), ObjectNode.class);
+		} catch (ElasticsearchException | IOException e1) {
+			logger.error("Failed to load parent id:{}, index:{}", parentUid, INDEX_PENDING_READ_ALIAS);
+		}
+		if (response == null || !response.found()) {
+			try {
+				logger.warn("Pending index misses parent {} for imapUid {} in mailbox {}", parentUid,
+						item.value.imapUid, mailboxUniqueId);
+				return reloadFromDb(parentUid, mailboxUniqueId, mail);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				return Collections.emptyMap();
+			} catch (Exception e) {
+				logger.warn("Cannot resync pending data", e);
+				return Collections.emptyMap();
+			}
+		} else {
+			ObjectNode node = response.source();
+			return new ObjectMapper().convertValue(node, new TypeReference<Map<String, Object>>() {
+			});
+		}
+	}
+
+	private Map<String, Object> reloadFromDb(String parentUid, String mailboxUniqueId, MailboxRecord mail)
 			throws InterruptedException, ExecutionException, TimeoutException {
 		IDbMailboxRecords service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDbMailboxRecords.class, mailboxUniqueId);
 		Stream eml = service.fetchComplete(mail.imapUid);
-		IndexedMessageBody indexData = IndexedMessageBody.createIndexBody(uid, eml);
+		IndexedMessageBody indexData = IndexedMessageBody.createIndexBody(parentUid, eml);
 		return storeBody(indexData);
-	}
-
-	@Override
-	public void deleteBox(ItemValue<Mailbox> box, String folderUid) {
-
-		logger.debug("deleteBox {} {}", box.uid, folderUid);
-		boolean exist = ensureAliasExists(getIndexAliasName(box.uid), getIndexClient());
-		if (!exist) {
-			return;
-		}
-		QueryBuilder q = QueryBuilders.constantScoreQuery(asFilter(folderUid));
-
-		long count = bulkDelete(getIndexAliasName(box.uid), q);
-		logger.info("deleteBox {}:{} :  {} deleted", box.uid, folderUid, count);
-
-		cleanupParents(getIndexAliasName(box.uid));
 	}
 
 	@Override
 	public void expunge(ItemValue<Mailbox> box, ItemValue<MailboxFolder> f, IDSet set) {
 		logger.info("(expunge) expunge: {} {}", f.displayName, set);
-
 		long deletedCount = deleteSet(box, f, set);
-
 		logger.info("expunge {} ({}) : {} deleted", f.displayName, set, deletedCount);
 	}
 
-	private void cleanupFolder(ItemValue<Mailbox> box, ItemValue<MailboxFolder> f, IDSet idSet) {
-		logger.info("(cleanupFolder) expunge: {} {}", f.displayName, idSet);
-
-		long deletedCount = deleteSet(box, f, idSet);
-
-		if (deletedCount > 0) {
-			logger.warn("cleanup of {} {} was needed : {}", f, idSet, deletedCount);
-		}
-	}
-
-	private long deleteSet(ItemValue<Mailbox> box, ItemValue<MailboxFolder> f, IDSet set) {
-		long deletedCount = 0;
-		Iterator<IDRange> iter = set.iterator();
-		while (iter.hasNext()) {
-			BoolQueryBuilder filter = QueryBuilders.boolQuery().must(asFilter(f.uid)).must(asFilter(iter, 1000));
-			QueryBuilder q = QueryBuilders.constantScoreQuery(filter);
-			deletedCount += bulkDelete(getIndexAliasName(box.uid), q);
-		}
-
-		cleanupParents(getIndexAliasName(box.uid));
-
-		return deletedCount;
-	}
-
 	@Override
-	public void cleanupFolder(ItemValue<Mailbox> box, ItemValue<MailboxFolder> f, Set<Integer> set) {
-		List<Integer> docIds = new ArrayList<>(set);
-		for (Integer uid : set) {
-			docIds.add(uid);
-		}
-		Collections.sort(docIds);
-		IDSet idSet = IDSet.create(docIds);
-		cleanupFolder(box, f, idSet);
-	}
-
-	public static Client getIndexClient() {
-		return ESearchActivator.getClient();
-	}
-
-	private long bulkDelete(String indexName, QueryBuilder q) {
-		return new DeleteByQueryRequestBuilder(getIndexClient(), DeleteByQueryAction.INSTANCE).filter(q)
-				.source(indexName).get().getDeleted();
-	}
-
-	private QueryBuilder asFilter(Iterator<IDRange> iter, int max) {
-		BoolQueryBuilder orBuilder = QueryBuilders.boolQuery();
-		int count = 0;
-		while (iter.hasNext() && count++ < max) {
-			IDRange range = iter.next();
-			orBuilder(orBuilder, range);
-		}
-		return orBuilder;
-	}
-
-	private QueryBuilder asFilter(String uid) {
-		return QueryBuilders.termQuery("in", uid);
-	}
-
-	private QueryBuilder asFilter(IDSet set) {
-		BoolQueryBuilder orBuilder = QueryBuilders.boolQuery();
-		for (IDRange range : set) {
-			orBuilder(orBuilder, range);
-		}
-		return orBuilder;
-	}
-
-	private void orBuilder(BoolQueryBuilder orBuilder, IDRange range) {
-		logger.debug("range {}", range);
-		if (range.isUnique()) {
-			orBuilder.should(QueryBuilders.termQuery("uid", range.from()));
-		} else if (range.to() < 0) {
-			orBuilder.should(QueryBuilders.rangeQuery("uid").from(range.from()));
-		} else {
-			// range with limit
-			orBuilder.should(QueryBuilders.rangeQuery("uid").from(range.from()).to(range.to()));
-		}
-	}
-
-	@Override
-	public List<MailSummary> fetchSummary(ItemValue<Mailbox> box, ItemValue<MailboxFolder> f, IDSet set) {
-		QueryBuilder query = QueryBuilders.boolQuery() //
-				.must(JoinQueryBuilders.hasParentQuery("body", QueryBuilders.matchAllQuery(), false)) //
-				.must(asFilter(f.uid)) //
-				.filter(asFilter(set));
-		query = QueryBuilders.constantScoreQuery(query);
-		return fetchSummary(query, box.uid);
-	}
-
-	private void cleanupParents(final String alias) {
-		/*
-		 * To be able to retrieve entries without an explicit owner field pointing to
-		 * the user this alias belongs to, we need to resolve the physical index name
-		 * this alias is assigned to.
-		 */
-		String index = getUserAliasIndex(alias, getIndexClient());
-		logger.info("Cleaning up parent-child hierarchy of alias/index {}/{}", alias, index);
-		VertxPlatform.eventBus().publish("index.mailspool.cleanup", new JsonObject().put("index", index));
-	}
-
-	private boolean ensureAliasExists(String alias, Client client) {
-		try {
-			GetAliasesResponse t = client.admin().indices().prepareGetAliases(alias).execute().actionGet();
-			return !t.getAliases().isEmpty();
-		} catch (Exception e) {
-			logger.error("ensureAliasExists({})", alias, e);
-			return false;
-		}
-	}
-
-	private String getUserAliasIndex(String alias, Client client) {
-		try {
-			GetAliasesResponse t = client.admin().indices().prepareGetAliases(alias).execute().actionGet();
-			return t.getAliases().keysIt().next();
-		} catch (Exception e) {
-			logger.error("getUserAliasIndex({})", alias, e);
-			return alias;
-		}
+	public List<MailSummary> fetchSummary(ItemValue<Mailbox> box, ItemValue<MailboxFolder> folderItem, IDSet set) {
+		ConstantScoreQuery.Builder builder = QueryBuilders.constantScore().filter(f -> f.bool(b -> b //
+				.must(m -> m.hasParent(p -> p.parentType(PARENT_TYPE).query(q -> q.matchAll(a -> a)).score(false))) //
+				.must(m -> m.term(t -> t.field("in").value(folderItem.uid))) //
+				.filter(asFilter(set)) //
+		));
+		return fetchSummary(builder.build()._toQuery(), box.uid);
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<MailSummary> fetchSummary(QueryBuilder query, String entityId) {
-		final Client client = getIndexClient();
+	private List<MailSummary> fetchSummary(Query query, String entityId) {
+		final ElasticsearchClient esClient = getIndexClient();
 
-		QueryBuilder withNeededFields = Queries.and(//
-				QueryBuilders.existsQuery("uid"), //
-				QueryBuilders.existsQuery("is"), //
-				QueryBuilders.existsQuery("parentId"), //
-				query);
-		String[] sourceIncludeFields = { "uid", "is", "parentId" };
-		List<MailSummary> ret = new ArrayList<>();
 		String index = getIndexAliasName(entityId);
-
-		try (Pit pit = Pit.allocate(client, index, 60)) {
-			do {
-				SearchRequestBuilder searchBuilder = client.prepareSearch(index) //
-						.setQuery(withNeededFields) //
-						.setFetchSource(sourceIncludeFields, null) //
-						.setPointInTime(new PointInTimeBuilder(pit.id)) //
-						.setTypes(MAILSPOOL_TYPE) //
-						.addSort(SortBuilders.fieldSort("_shard_doc").order(SortOrder.ASC)) //
-						.setTrackTotalHits(false) //
-						.setSize(SIZE);
-				pit.adaptSearch(searchBuilder);
-				SearchResponse r = searchBuilder.execute().actionGet();
-
-				if (r.getHits() != null && r.getHits().getHits() != null) {
-					for (SearchHit h : r.getHits().getHits()) {
-						Map<String, Object> source = h.getSourceAsMap();
-						MailSummary sum = new MailSummary();
-						sum.uid = source.get("uid") != null ? (int) source.get("uid") : null;
-						sum.flags = new HashSet<>((List<String>) source.get("is"));
-						sum.parentId = (String) source.get("parentId");
-						pit.consumeHit(h);
-						ret.add(sum);
-					}
-				}
-			} while (pit.hasNext());
+		QueryBuilders.bool().must( //
+				QueryBuilders.exists(e -> e.field("uid")), //
+				QueryBuilders.exists(e -> e.field("is")), //
+				QueryBuilders.exists(e -> e.field("parentId")), //
+				query);
+		List<String> sourceIncludeFields = Arrays.asList("uid", "is", "parentId");
+		List<MailSummary> summaries = new ArrayList<>();
+		PaginableSearchQueryBuilder paginableSearch = s -> s //
+				.source(so -> so.filter(f -> f.includes(sourceIncludeFields))) //
+				.query(query);
+		SortOptions sort = SortOptions.of(so -> so.field(f -> f.field("_shard_doc").order(SortOrder.Asc)));
+		try (Pit<ObjectNode> pit = Pit.allocate(esClient, index, 60, ObjectNode.class)) {
+			summaries = pit.allPages(paginableSearch, PaginationParams.all(sort, SIZE), this::toSummary);
+		} catch (ElasticsearchException e) {
+			SearchRequest request = paginableSearch.apply(new SearchRequest.Builder()).build();
+			logger.error("Failed to fetch summary in {}, query (w/o Pit): {}", index, request);
 		} catch (Exception e) {
 			throw new ServerFault(e);
 		}
 
-		return ret;
+		return summaries;
+	}
+
+	private MailSummary toSummary(Hit<ObjectNode> hit) {
+		ObjectNode source = hit.source();
+		MailSummary sum = new MailSummary();
+		sum.uid = source.get("uid") != null ? source.get("uid").asInt() : null;
+		sum.flags = new HashSet<>();
+		if (source.get("is").isArray()) {
+			for (JsonNode flag : source.get("is")) {
+				sum.flags.add(flag.asText());
+			}
+		}
+		sum.parentId = source.get("parentId").asText();
+		return sum;
+	}
+
+	private Query asFilter(IDSet set) {
+		BoolQuery.Builder builder = new BoolQuery.Builder();
+		for (IDRange range : set) {
+			orBuilder(builder, range);
+		}
+		return builder.build()._toQuery();
 	}
 
 	@Override
 	public void syncFlags(ItemValue<Mailbox> box, ItemValue<MailboxFolder> f, List<MailSummary> mails) {
-		if (mails.isEmpty())
+		if (mails.isEmpty()) {
 			return;
-		Client client = getIndexClient();
-
-		BulkRequestBuilder bulk = client.prepareBulk();
-		for (MailSummary sum : mails) {
-			String id = f.uid + ":" + sum.uid;
-			UpdateRequestBuilder urb = client.prepareUpdate().setIndex(getIndexAliasName(box.uid))
-					.setType(MAILSPOOL_TYPE).setId(id);
-			urb.setRouting(sum.parentId);
-			if (logger.isDebugEnabled()) {
-				logger.debug("update {} flags {} parentId {}", id, sum.flags, sum.parentId);
-			}
-			urb.setDoc("is", sum.flags);
-			bulk.add(urb);
 		}
-
-		bulk.execute().actionGet().getItems();
-
-	}
-
-	@Override
-	public double getArchivedMailSum(String userEntityId) {
-		final Client client = getIndexClient();
-
-		QueryBuilder q = QueryBuilders.boolQuery().must(QueryBuilders.termsQuery("owner", userEntityId))
-				.must(QueryBuilders.termQuery("is", "bmarchived"));
-
-		SumAggregationBuilder a = AggregationBuilders.sum("archivemailsizesum").field("size");
-
-		SearchResponse r = client.prepareSearch(getIndexAliasName(userEntityId)).setQuery(q).addAggregation(a)
-				.setFetchSource(false).execute().actionGet();
-
-		InternalSum sum = (InternalSum) r.getAggregations().get("archivemailsizesum");
-		return sum.getValue();
+		ElasticsearchClient esClient = getIndexClient();
+		String boxAlias = getIndexAliasName(box.uid);
+		new EsBulk(esClient).commitAll(mails, (mail, b) -> b.update(u -> u //
+				.index(boxAlias) //
+				.routing(mail.parentId) //
+				.id(f.uid + ":" + mail.uid) //
+				.action(a -> a.doc(Map.of("is", mail.flags)))));
 	}
 
 	@Override
 	public long getMailboxConsumedStorage(String userEntityId, ByteSizeUnit bsu) {
-		final Client client = getIndexClient();
-		QueryBuilder q = QueryBuilders.boolQuery().mustNot(QueryBuilders.termQuery("is", "deleted"))
-				.must(QueryBuilders.termQuery("owner", userEntityId));
+		final ElasticsearchClient esClient = getIndexClient();
+		String index = getIndexAliasName(userEntityId);
+		try {
+			SearchResponse<Void> response = esClient.search(s -> s //
+					.index(index) //
+					.size(0).source(so -> so.fetch(false)) //
+					.query(q -> q.bool(b -> b //
+							.must(m -> m.term(t -> t.field("owner").value(userEntityId))) //
+							.mustNot(m -> m.term(t -> t.field("is").value("deleted"))))) //
+					.aggregations("quota", a -> a.sum(sum -> sum.field("size"))), //
+					Void.class);
+			double result = response.aggregations().get("quota").sum().value();
+			return bsu.fromBytes((long) result);
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticDocumentException(index, e);
+		}
+	}
 
-		SumAggregationBuilder a = AggregationBuilders.sum("quota").field("size");
-		SearchResponse r = client.prepareSearch(getIndexAliasName(userEntityId)).setQuery(q).addAggregation(a)
-				.setFetchSource(false).execute().actionGet();
-
-		InternalSum sum = (InternalSum) r.getAggregations().get("quota");
-		long sumLong = Double.valueOf(sum.getValue()).longValue();
-		return bsu.fromBytes(sumLong);
+	@Override
+	public Set<String> getFolders(String entityId) {
+		final ElasticsearchClient esClient = getIndexClient();
+		Query query = QueryBuilders.bool(b -> b.must(m -> m.term(t -> t.field("owner").value(entityId))));
+		try {
+			return new MailspoolStats(esClient).countAllFolders(entityId, 100, query) //
+					.stream().map(FolderCount::folderUid).collect(Collectors.toSet());
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticDocumentException(getIndexAliasName(entityId), e);
+		}
 	}
 
 	@Override
@@ -590,219 +546,172 @@ public class MailIndexService implements IMailIndexService {
 	}
 
 	@Override
-	public Set<String> getFolders(String entityId) {
-		final Client client = getIndexClient();
-
-		final String indexName = getIndexAliasName(entityId);
-
-		QueryBuilder q = QueryBuilders.termQuery("owner", entityId);
-		SearchResponse r = client.prepareSearch(indexName).setTypes(MAILSPOOL_TYPE) //
-				.setQuery(q).addAggregation(AggregationBuilders.terms("in").field("in")).execute().actionGet();
-
-		StringTerms values = r.getAggregations().get("in");
-
-		return values.getBuckets().stream().map(a -> (String) a.getKey()).collect(Collectors.toSet());
-	}
-
-	@Override
 	public void deleteMailbox(String entityId) {
-		final Client client = getIndexClient();
-
-		long deletedCount = resetMailboxIndex(entityId);
-		logger.debug("deleteBox {} : {} deleted", entityId, deletedCount);
-
+		final ElasticsearchClient esClient = getIndexClient();
+		resetMailboxIndex(entityId);
+		String boxAlias = getIndexAliasName(entityId);
 		try {
-			client.admin().indices().prepareAliases().removeAlias("mailspool", getIndexAliasName(entityId)).execute()
-					.actionGet();
+			esClient.indices().updateAliases(u -> u //
+					.actions(a -> a.remove(r -> r.index("mailspool*").alias(boxAlias))));
 		} catch (ElasticsearchException e) {
-			logger.warn("Problem removing index or alias for mailbox {} {}", entityId, e.getMessage());
+			logger.warn("[es][mailbox] Mailbox alias {} does not exists: {}", boxAlias, e.getMessage());
+		} catch (IOException e) {
+			logger.error("[es][mailbox] Unable to delete mailbox alias {}", boxAlias, e);
 		}
 	}
 
 	@Override
 	public void repairMailbox(String entityId, IServerTaskMonitor monitor) {
 		monitor.begin(3, "Check index state for mailbox");
-		final Client client = getIndexClient();
-		if (client == null) {
+		final ElasticsearchClient esClient = getIndexClient();
+		if (esClient == null) {
 			logger.warn("elasticsearch in not (yet) available");
 			return;
 		}
 
-		GetIndexResponse resp = client.admin().indices().prepareGetIndex().addIndices("mailspool*").get();
-		List<String> shards = filterMailspoolIndexNames(resp);
-
+		List<String> shards = filteredMailspoolIndexNames(esClient);
 		if (shards.isEmpty()) {
 			logger.warn("no shards found");
 			return;
 		}
 
-		GetAliasesResponse t = client.admin().indices().prepareGetAliases(getIndexAliasName(entityId)).execute()
-				.actionGet();
+		String boxAlias = getIndexAliasName(entityId);
+		boolean aliasExists = getUserAliasIndex(boxAlias, esClient).isPresent();
+		try {
+			if (!aliasExists && esClient.indices().exists(e -> e.index(boxAlias)).value()) {
+				// an index has been created, we need an alias here
+				logger.info("indice {} is not an alias, delete it ", boxAlias);
+				esClient.indices().delete(d -> d.index(boxAlias));
+				monitor.log(String.format("indice %s is not an alias, delete it ", boxAlias));
+			}
 
-		if (t != null && t.getAliases().isEmpty() && client.admin().indices().prepareExists(getIndexAliasName(entityId))
-				.execute().actionGet().isExists()) {
-			// an index has been created, we need an alias here
-			logger.info("indice {} is not an alias, delete it ", getIndexAliasName(entityId));
-			client.admin().indices().prepareDelete(getIndexAliasName(entityId)).execute().actionGet();
-			monitor.log(String.format("indice %s is not an alias, delete it ", getIndexAliasName(entityId)));
-		}
+			if (!aliasExists) {
+				monitor.progress(1, "no alias, check mailspool index");
+				monitor.progress(1, String.format("create alias %s from mailspool ", boxAlias));
+				String indexName = MailIndexActivator.getMailIndexHook().getMailspoolIndexName(shards, entityId);
 
-		if (t == null || t.getAliases().isEmpty()) {
-			monitor.progress(1, "no alias, check mailspool index");
-			monitor.progress(1, String.format("create alias %s from mailspool ", getIndexAliasName(entityId)));
-			String indexName = MailIndexActivator.getMailIndexHook().getMailspoolIndexName(client, shards, entityId);
-
-			logger.info("create alias {} from {} ", getIndexAliasName(entityId), indexName);
-			client.admin().indices().prepareAliases()
-					.addAlias(indexName, getIndexAliasName(entityId), QueryBuilders.termQuery("owner", entityId))
-					.execute().actionGet();
-
+				logger.info("create alias {} from {} ", boxAlias, indexName);
+				esClient.indices().updateAliases(u -> u.actions(a -> a.add(ad -> ad //
+						.index(indexName).alias(boxAlias).filter(f -> f.term(t -> t.field("owner").value(entityId))))));
+			}
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticIndexException(boxAlias, e);
 		}
 	}
 
 	@Override
 	public boolean checkMailbox(String entityId) {
-		final Client client = getIndexClient();
-		if (client == null) {
+		final ElasticsearchClient esClient = getIndexClient();
+		if (esClient == null) {
 			logger.warn("elasticsearch in not (yet) available");
 			return true;
 		}
 
-		GetAliasesResponse t = client.admin().indices().prepareGetAliases(getIndexAliasName(entityId)).execute()
-				.actionGet();
-
-		return (t != null && !t.getAliases().isEmpty());
+		return getUserAliasIndex(getIndexAliasName(entityId), esClient).isPresent();
 	}
 
 	@Override
 	public void moveMailbox(String mailboxUid, String indexName, boolean deleteSource) {
-
-		Client client = ESearchActivator.getClient();
-
-		IndicesExistsResponse resp = client.admin().indices().prepareExists(indexName).get();
-		if (!resp.isExists()) {
-			// create new index if doesnt exsist
-			client.admin().indices().prepareCreate(indexName)
-					.setSource(ESearchActivator.getIndexSchema("mailspool"), XContentType.JSON).execute().actionGet();
-			ClusterHealthResponse healthResp = client.admin().cluster().prepareHealth(indexName).setWaitForGreenStatus()
-					.execute().actionGet();
-			logger.debug("index health response: {}", healthResp);
-
-		}
+		ElasticsearchClient esClient = ESearchActivator.getClient();
+		createMailspoolIfNotExists(indexName, esClient);
 
 		// retrieve "from" indexName
-		GetAliasesResponse aliasResp = client.admin().indices().prepareGetAliases(getIndexAliasName(mailboxUid)).get();
-		String fromIndex = aliasResp.getAliases().keysIt().next();
+		getUserAliasIndex(getIndexAliasName(mailboxUid), esClient).ifPresentOrElse(fromIndex -> {
+			// bulk copy mails
+			moveMailspoolBox(esClient, mailboxUid, fromIndex, indexName);
+			// move alias
+			moveBoxAlias(esClient, mailboxUid, fromIndex, indexName);
 
-		// move alias
-		client.admin().indices().prepareAliases().removeAlias(fromIndex, getIndexAliasName(mailboxUid))
-				.addAlias(indexName, getIndexAliasName(mailboxUid), QueryBuilders.termQuery("owner", mailboxUid)).get();
+			if (deleteSource) {
+				bulkDelete(fromIndex, q -> q.term(t -> t.field("owner").value(mailboxUid)));
+				VertxPlatform.eventBus().publish("index.mailspool.cleanup", new JsonObject().put("index", fromIndex));
+			}
+		}, () -> logger.error("Unable to move mailbox to {}, alias not found (mailbox:{})", indexName, mailboxUid));
 
-		// bulk copy mails
-		// msg body
-		ReindexRequestBuilder builder = new ReindexRequestBuilder(client, ReindexAction.INSTANCE).source(fromIndex)
-				.destination(indexName);
-		builder.destination().setOpType(OpType.INDEX);
-		builder.abortOnVersionConflict(false);
-		builder.filter(JoinQueryBuilders.hasChildQuery(CHILD_TYPE, QueryBuilders.termQuery("owner", mailboxUid),
-				ScoreMode.None));
-		BulkByScrollResponse copyResp = builder.get();
-		if (!copyResp.getBulkFailures().isEmpty()) {
-			logger.error("copy failure : {}", copyResp.getBulkFailures());
+	}
+
+	private void createMailspoolIfNotExists(String indexName, ElasticsearchClient esClient) {
+		boolean exists;
+		try {
+			exists = esClient.indices().exists(e -> e.index(indexName)).value();
+			if (!exists) {
+				// create new index if doesnt exsist
+				esClient.indices().create(c -> c.index(indexName)
+						.withJson(new ByteArrayInputStream(ESearchActivator.getIndexSchema("mailspool"))));
+				HealthResponse health = esClient.cluster()
+						.health(h -> h.index(indexName).waitForStatus(HealthStatus.Green));
+				logger.debug("index health response: {}", health);
+			}
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticIndexException(indexName, e);
 		}
-		logger.info("bulk copy of msgBody response {}", copyResp);
+	}
 
-		// copy msg
-		builder = new ReindexRequestBuilder(client, ReindexAction.INSTANCE).source(fromIndex).destination(indexName);
-		builder.destination().setOpType(OpType.INDEX);
-		builder.abortOnVersionConflict(false);
-		builder.filter(QueryBuilders.termQuery("owner", mailboxUid));
-		builder.refresh(true);
-		copyResp = builder.get();
-		if (!copyResp.getBulkFailures().isEmpty()) {
-			logger.error("copy failure : {}", copyResp.getBulkFailures());
+	private void moveMailspoolBox(ElasticsearchClient esClient, String mailboxUid, String fromIndex, String toIndex) {
+		try {
+			// msg body
+			ReindexResponse parentResponse = esClient.reindex(r -> r //
+					.source(s -> s //
+							.index(fromIndex) //
+							.query(q -> q.hasChild(c -> c //
+									.type(CHILD_TYPE) //
+									.query(f -> f.term(t -> t.field("owner").value(mailboxUid))) //
+									.scoreMode(ChildScoreMode.None)))) //
+					.dest(d -> d.index(toIndex).opType(OpType.Index)) //
+					.conflicts(Conflicts.Proceed));
+			if (!parentResponse.failures().isEmpty()) {
+				logger.error("copy failure : {}", parentResponse.failures());
+			}
+			logger.info("bulk copy of msgBody response {}", parentResponse);
+
+			// copy msg
+			ReindexResponse childResponse = esClient.reindex(r -> r //
+					.refresh(true) //
+					.source(s -> s.index(fromIndex).query(q -> q.term(t -> t.field("owner").value(mailboxUid)))) //
+					.dest(d -> d.index(toIndex).opType(OpType.Index)) //
+					.conflicts(Conflicts.Proceed));
+			if (!childResponse.failures().isEmpty()) {
+				logger.error("copy failure : {}", childResponse.failures());
+			}
+			logger.info("bulk copy of msg response {}", childResponse);
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticDocumentException(fromIndex, e);
 		}
+	}
 
-		logger.info("bulk copy of msg response {}", copyResp);
-
-		if (deleteSource) {
-			bulkDelete(fromIndex, QueryBuilders.termQuery("owner", mailboxUid));
-			VertxPlatform.eventBus().publish("index.mailspool.cleanup", new JsonObject().put("index", fromIndex));
+	private void moveBoxAlias(ElasticsearchClient esClient, String mailboxUid, String fromIndex, String indexName) {
+		String boxAlias = getIndexAliasName(mailboxUid);
+		try {
+			esClient.indices().updateAliases(u -> u //
+					.actions(a -> a.remove(r -> r.index(fromIndex).alias(boxAlias))) //
+					.actions(a -> a.add(ad -> ad.index(indexName).alias(boxAlias)
+							.filter(f -> f.term(t -> t.field("owner").value(mailboxUid))))));
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticIndexException(boxAlias, e);
 		}
 	}
 
 	public List<ShardStats> getStats() {
-		Client client = ESearchActivator.getClient();
-		GetIndexResponse resp = client.admin().indices().prepareGetIndex().addIndices("mailspool*").get();
-
-		List<ShardStats> ret = new ArrayList<>(resp.indices().length);
-		logger.debug("indices {} ", (Object) resp.indices());
+		ElasticsearchClient esClient = ESearchActivator.getClient();
+		List<String> indexNames = filteredMailspoolIndexNames(esClient);
+		List<ShardStats> ret = new ArrayList<>(indexNames.size());
+		logger.debug("indices {} ", indexNames);
 
 		long worstResponseTime = 0;
+		for (String indexName : indexNames) {
+			ShardStats is = indexStats(esClient, indexName, new ShardStats());
 
-		for (String indexName : filterMailspoolIndexNames(resp)) {
-			ShardStats is = new ShardStats();
-
-			IndexStats stat = client.admin().indices().prepareStats(indexName).get().getIndex(indexName);
-			is.size = stat.getTotal().store.getSizeInBytes();
-			SearchResponse aggResp = client.prepareSearch(indexName)
-					.addAggregation(AggregationBuilders.terms("countByOwner").size(500).field("owner")).get();
-
-			StringTerms agg = aggResp.getAggregations().get("countByOwner");
-
-			GetAliasesResponse aliasesRsp = client.admin().indices().prepareGetAliases().addIndices(indexName).get();
-
-			List<AliasMetadata> indexAliases = aliasesRsp.getAliases().get(indexName);
-			if (indexAliases == null) {
-				is.mailboxes = Collections.emptySet();
-			} else {
-				is.mailboxes = indexAliases.stream() //
-						.filter(a -> a.getAlias().startsWith("mailspool_alias_"))
-						.map(am -> am.getAlias().substring("mailspool_alias_".length()))//
-						.collect(Collectors.toSet());
-			}
-
-			is.topMailbox = agg.getBuckets().stream().map(b -> {
-				MailboxStats as = new ShardStats.MailboxStats();
-				as.mailboxUid = b.getKeyAsString();
-				as.docCount = b.getDocCount();
-				return as;
-			}).filter(as -> is.mailboxes.contains(as.mailboxUid)).collect(Collectors.toList());
-
-			is.docCount = stat.getTotal().docs.getCount();
-			is.indexName = indexName;
-			is.externalRefreshDuration = stat.getTotal().getRefresh().getExternalTotalTimeInMillis();
-			is.externalRefreshCount = stat.getTotal().getRefresh().getExternalTotal();
+			is.topMailbox = topMailbox(esClient, indexName, is.mailboxes);
 
 			is.state = ShardStats.State.OK;
-
-			// random search on top mailbox
-			// 0 to 500ms -> OK
-			// 500ms to 1000ms -> HALF_FULL
-			// > 1000ms -> FULL
-
 			if (!is.topMailbox.isEmpty()) {
 				MailboxStats topMailbox = is.topMailbox.get(0);
-				String randomToken = Long.toHexString(Double.doubleToLongBits(Math.random()));
-				QueryBuilder q = QueryBuilders.boolQuery()//
-						.must(JoinQueryBuilders.hasParentQuery(PARENT_TYPE,
-								QueryBuilders.queryStringQuery("content:\"" + randomToken + "\""), false));
-				SearchResponse results = client.prepareSearch(getIndexAliasName(topMailbox.mailboxUid))//
-						.setQuery(q).setFetchSource(true).setTypes(MAILSPOOL_TYPE).execute().actionGet();
-
-				long duration = results.getTook().millis();
-				if (duration > 1000) {
-					is.state = ShardStats.State.FULL;
-				} else if (duration > 500) {
-					is.state = ShardStats.State.HALF_FULL;
-				}
-
+				long duration = boxSearchDuration(esClient, topMailbox.mailboxUid);
+				is.state = ShardStats.State.ofDuration(duration);
 				worstResponseTime = Math.max(worstResponseTime, duration);
-
 				logger.info("{} response time : {}ms, state : {}", is.indexName, duration, is.state);
 				metricRegistry.timer(idFactory.name("response-time", "index", is.indexName)).record(duration,
 						TimeUnit.MILLISECONDS);
-
 			}
 
 			ret.add(is);
@@ -816,101 +725,123 @@ public class MailIndexService implements IMailIndexService {
 
 	@Override
 	public List<SimpleShardStats> getLiteStats() {
-		Client client = ESearchActivator.getClient();
-		GetIndexResponse resp = client.admin().indices().prepareGetIndex().addIndices("mailspool*").get();
+		ElasticsearchClient esClient = ESearchActivator.getClient();
+		List<String> indexNames = filteredMailspoolIndexNames(esClient);
+		logger.debug("indices {} ", indexNames);
+		return indexNames.stream() //
+				.map(indexName -> indexStats(esClient, indexName, new SimpleShardStats())) //
+				.sorted((a, b) -> (int) (b.docCount - a.docCount)).toList();
+	}
 
-		List<SimpleShardStats> ret = new ArrayList<>(resp.indices().length);
-		logger.debug("indices {} ", (Object) resp.indices());
-
-		for (String indexName : filterMailspoolIndexNames(resp)) {
-			SimpleShardStats is = new SimpleShardStats();
-
-			IndexStats stat = client.admin().indices().prepareStats(indexName).get().getIndex(indexName);
-			is.size = stat.getTotal().store.getSizeInBytes();
-
-			GetAliasesResponse aliasesRsp = client.admin().indices().prepareGetAliases().addIndices(indexName).get();
-
-			List<AliasMetadata> indexAliases = aliasesRsp.getAliases().get(indexName);
-			if (indexAliases == null) {
-				is.mailboxes = Collections.emptySet();
-			} else {
-				is.mailboxes = indexAliases.stream() //
-						.filter(a -> a.getAlias().startsWith("mailspool_alias_"))
-						.map(am -> am.getAlias().substring("mailspool_alias_".length()))//
-						.collect(Collectors.toSet());
-			}
-
-			is.docCount = stat.getTotal().docs.getCount();
-			is.deletedCount = stat.getTotal().docs.getDeleted();
-			is.externalRefreshCount = stat.getTotal().getRefresh().getExternalTotal();
-			is.externalRefreshDuration = stat.getTotal().getRefresh().getExternalTotalTimeInMillis();
-			is.indexName = indexName;
-
-			ret.add(is);
+	private <T extends SimpleShardStats> T indexStats(ElasticsearchClient esClient, String indexName, T is) {
+		is.indexName = indexName;
+		is.mailboxes = indexMailboxes(esClient, indexName);
+		IndicesStats stat;
+		try {
+			stat = esClient.indices().stats(s -> s.index(indexName)).indices().get(indexName);
+			is.size = stat.total().store().sizeInBytes();
+			is.docCount = stat.total().docs().count();
+			is.deletedCount = stat.total().docs().deleted();
+			is.externalRefreshCount = stat.total().refresh().externalTotal();
+			is.externalRefreshDuration = stat.total().refresh().externalTotalTimeInMillis();
+			return is;
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticIndexException(indexName, e);
 		}
+	}
 
-		Collections.sort(ret, (a, b) -> (int) (b.docCount - a.docCount));
-		return ret;
+	private List<ShardStats.MailboxStats> topMailbox(ElasticsearchClient esClient, String indexName,
+			Set<String> mailboxes) {
+		try {
+			SearchResponse<Void> aggResp = esClient.search(s -> s //
+					.index(indexName).size(0)
+					.aggregations("countByOwner", a -> a.terms(t -> t.field("owner").size(500))), Void.class);
+			return aggResp.aggregations().get("countByOwner").sterms().buckets().array().stream() //
+					.map(b -> new ShardStats.MailboxStats(b.key().stringValue(), b.docCount())) //
+					.filter(as -> mailboxes.contains(as.mailboxUid)) //
+					.toList();
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticIndexException(indexName, e);
+		}
+	}
+
+	private long boxSearchDuration(ElasticsearchClient esClient, String mailboxUid) {
+		try {
+			String randomToken = Long.toHexString(Double.doubleToLongBits(Math.random()));
+			SearchResponse<Void> results = esClient.search(s -> s //
+					.index(getIndexAliasName(mailboxUid)) //
+					.source(so -> so.fetch(false)) //
+					.query(q -> q.bool(b -> b.must(m -> m.hasParent(p -> p //
+							.parentType(PARENT_TYPE) //
+							.score(false) //
+							.query(f -> f.queryString(qs -> qs.query("content:\"" + randomToken + "\""))))))),
+					Void.class);
+			return results.took();
+		} catch (ElasticsearchException | IOException e) {
+			throw new ElasticDocumentException(getIndexAliasName(mailboxUid), e);
+		}
+	}
+
+	private Set<String> indexMailboxes(ElasticsearchClient esClient, String indexName) {
+		try {
+			IndexAliases aliasesRsp = esClient.indices().getAlias(a -> a.index(indexName)).get(indexName);
+			return aliasesRsp.aliases().keySet().stream().filter(a -> a.startsWith("mailspool_alias_")) //
+					.map(a -> a.substring("mailspool_alias_".length())) //
+					.collect(Collectors.toSet());
+		} catch (Exception e) {
+			return Collections.emptySet();
+		}
 	}
 
 	private static final long TIME_BUDGET = TimeUnit.SECONDS.toNanos(15);
 
+	private SortOrder toSortOrder(SearchSort.Order order) {
+		return order == SearchSort.Order.Asc ? SortOrder.Asc : SortOrder.Desc;
+	}
+
 	@Override
 	public SearchResult searchItems(String domainUid, String dirEntryUid, MailIndexQuery searchQuery) {
-		SearchQuery query = searchQuery.query;
-		Client client = ESearchActivator.getClient();
+		ElasticsearchClient esClient = ESearchActivator.getClient();
 		String index = getIndexAliasName(dirEntryUid);
-		SearchRequestBuilder searchBuilder = client.prepareSearch(index);
-		QueryBuilder bq = buildEsQuery(domainUid, dirEntryUid, searchQuery);
 
-		searchBuilder.setQuery(bq);
-		searchBuilder.setFetchSource(true);
-		searchBuilder.setTrackTotalHits(true);
-
-		if (searchQuery.sort != null && searchQuery.sort.hasCriterias()) {
-			searchQuery.sort.criteria
-					.forEach(c -> searchBuilder.addSort(c.field, SortOrder.fromString(c.order.name())));
-		} else {
-			searchBuilder.addSort("date", SortOrder.DESC);
-		}
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("{}", searchBuilder);
-		}
+		List<SortOptions> sortOptions = (searchQuery.sort != null && searchQuery.sort.hasCriterias())
+				? searchQuery.sort.criteria.stream() //
+						.map(c -> SortOptions.of(so -> so.field(f -> f.field(c.field).order(toSortOrder(c.order)))))
+						.toList()
+				: singletonList(SortOptions.of(so -> so.field(f -> f.field("date").order(SortOrder.Desc))));
+		Query query = buildEsQuery(searchQuery);
+		PaginableSearchQueryBuilder paginable = s -> s //
+				.source(so -> so.fetch(true)) //
+				.trackTotalHits(t -> t.enabled(true)) //
+				.query(query) //
+				.sort(sortOptions);
 
 		try {
-			if (query.offset == 0 && query.maxResults >= Integer.MAX_VALUE) {
-				return paginatedSearch(dirEntryUid, client, searchBuilder, index);
-			} else {
-				return simpleSearch(dirEntryUid, searchBuilder, query);
-			}
+			return (searchQuery.query.offset == 0 && searchQuery.query.maxResults >= Integer.MAX_VALUE)
+					? paginatedSearch(esClient, index, dirEntryUid, paginable)
+					: simpleSearch(esClient, index, dirEntryUid, paginable, searchQuery.query);
 		} catch (Exception e) {
-			logger.warn("Failed to search {} ({})", searchBuilder, e.getMessage());
+			logger.warn("Failed to search {} ({})", paginable.apply(new SearchRequest.Builder()), e.getMessage());
 			return SearchResult.noResult();
 		}
 	}
 
-	private SearchResult paginatedSearch(String dirEntryUid, Client client, SearchRequestBuilder searchBuilder,
-			String index) throws Exception {
-		searchBuilder.setSize(1000);
-
+	private SearchResult paginatedSearch(ElasticsearchClient esClient, String index, String dirEntryUid,
+			PaginableSearchQueryBuilder paginableSearch) throws ElasticsearchException, IOException {
 		int deduplicated = 0;
 		Map<Integer, InternalMessageSearchResult> results = new LinkedHashMap<>();
 		long totalHits = 0;
 		int handled = 0;
-
-		try (Pit pit = Pit.allocateUsingTimebudget(client, index, 60, TIME_BUDGET)) {
+		try (Pit<ObjectNode> pit = Pit.allocateUsingTimebudget(esClient, index, 60, TIME_BUDGET, ObjectNode.class)) {
 			do {
-				searchBuilder.setPointInTime(new PointInTimeBuilder(pit.id));
-				pit.adaptSearch(searchBuilder);
-				SearchResponse sr = searchBuilder.execute().actionGet();
-				SearchHits searchHits = sr.getHits();
+				SearchRequest request = pit.adaptSearch(paginableSearch);
+				SearchResponse<ObjectNode> sr = esClient.search(request, ObjectNode.class);
+				HitsMetadata<ObjectNode> searchHits = sr.hits();
 				if (totalHits == 0) {
-					totalHits = searchHits.getTotalHits().value;
-					searchBuilder.setTrackTotalHits(false);
+					totalHits = searchHits.total().value();
 				}
-				if (sr.getHits() != null && sr.getHits().getHits() != null) {
-					for (SearchHit h : sr.getHits().getHits()) {
+				if (sr.hits() != null && sr.hits().hits() != null) {
+					for (Hit<ObjectNode> h : sr.hits().hits()) {
 						handled++;
 						pit.consumeHit(h);
 						deduplicated += handleAndGetDeduplicatedHits(results, h);
@@ -922,34 +853,20 @@ public class MailIndexService implements IMailIndexService {
 		return createResult(dirEntryUid, totalHits, handled, results, deduplicated);
 	}
 
-	private SearchResult simpleSearch(String dirEntryUid, SearchRequestBuilder searchBuilder, SearchQuery query) {
-		searchBuilder.setFrom((int) query.offset);
-		searchBuilder.setSize((int) query.maxResults);
+	private SearchResult simpleSearch(ElasticsearchClient esClient, String index, String dirEntryUid,
+			PaginableSearchQueryBuilder paginableSearch, SearchQuery query) throws ElasticsearchException, IOException {
+		HitsMetadata<ObjectNode> hits = esClient.search(paginableSearch.andThen(s -> s //
+				.index(index).from((int) query.offset).size((int) query.maxResults)), ObjectNode.class).hits();
 
-		SearchResponse sr = searchBuilder.execute().actionGet();
-		SearchHits searchHits = sr.getHits();
-
-		Map<Integer, InternalMessageSearchResult> results = new LinkedHashMap<>();
 		int deduplicated = 0;
-		for (SearchHit sh : searchHits.getHits()) {
+		Map<Integer, InternalMessageSearchResult> results = new LinkedHashMap<>();
+		for (Hit<ObjectNode> sh : hits.hits()) {
 			deduplicated += handleAndGetDeduplicatedHits(results, sh);
 		}
-		return createResult(dirEntryUid, searchHits.getTotalHits().value, searchHits.getHits().length, results,
-				deduplicated);
+		return createResult(dirEntryUid, hits.total().value(), hits.hits().size(), results, deduplicated);
 	}
 
-	private SearchResult createResult(String dirEntryUid, long totalHits, int handled,
-			Map<Integer, InternalMessageSearchResult> results, int deduplicated) {
-		SearchResult result = new SearchResult();
-		result.results = new ArrayList<>(results.values());
-		result.totalResults = (int) (totalHits - deduplicated);
-		result.hasMoreResults = totalHits > results.size();
-		logger.info("[{}] results: {} (tried {}) / {}, hasMore: {}", dirEntryUid, results.size(), handled,
-				result.totalResults, result.hasMoreResults);
-		return result;
-	}
-
-	private int handleAndGetDeduplicatedHits(Map<Integer, InternalMessageSearchResult> results, SearchHit sh) {
+	private int handleAndGetDeduplicatedHits(Map<Integer, InternalMessageSearchResult> results, Hit<ObjectNode> sh) {
 		return safeResult(sh).map(result -> {
 			if (results.containsKey(result.itemId)) {
 				if (results.get(result.itemId).imapUid < result.imapUid) {
@@ -963,46 +880,72 @@ public class MailIndexService implements IMailIndexService {
 		}).orElse(0);
 	}
 
-	private QueryBuilder buildEsQuery(String domainUid, String dirEntryUid, MailIndexQuery query) {
-		BoolQueryBuilder bq = QueryBuilders.boolQuery();
+	private SearchResult createResult(String dirEntryUid, long totalHits, int handled,
+			Map<Integer, InternalMessageSearchResult> results, int deduplicated) {
+		SearchResult result = new SearchResult();
+		result.results = new ArrayList<>(results.values());
+		result.totalResults = (int) (totalHits - deduplicated);
+		result.hasMoreResults = totalHits > results.size();
+		logger.info("[{}] results: {} (tried {}) / {}, hasMore: {}", dirEntryUid, results.size(), handled,
+				result.totalResults, result.hasMoreResults);
+		return result;
+	}
 
+	private Query buildEsQuery(MailIndexQuery query) {
+		BoolQuery.Builder bq = QueryBuilders.bool();
 		if (query.query.scope.folderScope != null && query.query.scope.folderScope.folderUid != null) {
 			if (query.folderUids != null && !query.folderUids.isEmpty()) {
-
-				List<QueryBuilder> folderQueries = new ArrayList<>();
-				folderQueries.add(QueryBuilders.termQuery("in", query.query.scope.folderScope.folderUid));
-				for (String folder : query.folderUids) {
-					folderQueries.add(QueryBuilders.termQuery("in", folder));
-				}
-				bq.must(Queries.or(folderQueries));
+				bq.must(m -> m.bool(b -> {
+					query.folderUids.stream()
+							.forEach(folder -> b.should(s -> s.term(t -> t.field("in").value(folder))));
+					return b.minimumShouldMatch("1")
+							.should(s -> s.term(t -> t.field("in").value(query.query.scope.folderScope.folderUid)));
+				}));
 			} else {
-				bq.must(QueryBuilders.termQuery("in", query.query.scope.folderScope.folderUid));
+				bq.must(m -> m.term(t -> t.field("in").value(query.query.scope.folderScope.folderUid)));
 			}
 		}
 
-		bq.mustNot(QueryBuilders.termQuery("is", "deleted"));
-		Operator defaultOperator = Operator.fromString(query.query.logicalOperator.toString());
+		bq.mustNot(n -> n.term(t -> t.field("is").value("deleted")));
+		Operator defaultOperator = query.query.logicalOperator.toString().equals("AND") ? Operator.And : Operator.Or;
 		bq = addSearchQuery(bq, query.query.query, defaultOperator);
 		bq = addSearchRecordQuery(bq, query.query.recordQuery, defaultOperator);
 		bq = addPreciseSearchQuery(bq, "messageId", query.query.messageId);
 		bq = addPreciseSearchQuery(bq, "references", query.query.references);
 
 		if (query.query.headerQuery != null && !query.query.headerQuery.query.isEmpty()) {
-			List<QueryBuilder> builders = new ArrayList<>(query.query.headerQuery.query.size());
-			for (SearchQuery.Header headerQuery : query.query.headerQuery.query) {
+			List<Query> headerQueries = query.query.headerQuery.query.stream().map(headerQuery -> {
 				String queryString = "headers." + headerQuery.name.toLowerCase() + ":\"" + headerQuery.value + "\"";
-				builders.add(QueryBuilders.queryStringQuery(queryString));
-			}
-			if (query.query.headerQuery.logicalOperator == LogicalOperator.AND) {
-				bq = bq.must(Queries.and(builders));
-			} else {
-				bq = bq.must(Queries.or(builders));
-			}
+				return QueryBuilders.queryString(q -> q.query(queryString));
+			}).toList();
+			Query headerQuery = (query.query.headerQuery.logicalOperator == LogicalOperator.AND) //
+					? Queries.and(headerQueries) //
+					: Queries.or(headerQueries);
+			bq.must(headerQuery);
 		}
-		return bq;
+		return bq.build()._toQuery();
 	}
 
-	private Optional<InternalMessageSearchResult> safeResult(SearchHit sh) {
+	private BoolQuery.Builder addSearchQuery(BoolQuery.Builder bq, String query, Operator defaultOperator) {
+		return (Strings.isNullOrEmpty(query)) //
+				? bq //
+				: bq.must(m -> m.hasParent(p -> p.parentType(PARENT_TYPE).query(q -> q.queryString(s -> s //
+						.query(query).fields(DEFAULT_QUERY_STRING_FIELDS).defaultOperator(defaultOperator)))));
+	}
+
+	private BoolQuery.Builder addSearchRecordQuery(BoolQuery.Builder bq, String query, Operator defaultOperator) {
+		return (Strings.isNullOrEmpty(query)) //
+				? bq //
+				: bq.must(m -> m.queryString(s -> s.query(query).defaultOperator(defaultOperator)));
+	}
+
+	private BoolQuery.Builder addPreciseSearchQuery(BoolQuery.Builder bq, String searchField, String searchValue) {
+		return (searchValue == null) ? bq
+				: bq.must(m -> m.hasParent(p -> p.parentType(PARENT_TYPE).query(q -> q //
+						.term(t -> t.field(searchField).value(searchValue))).score(false)));
+	}
+
+	private Optional<InternalMessageSearchResult> safeResult(Hit<ObjectNode> sh) {
 		try {
 			return Optional.of(createSearchResult(sh));
 		} catch (Exception e) {
@@ -1011,56 +954,28 @@ public class MailIndexService implements IMailIndexService {
 		}
 	}
 
-	private BoolQueryBuilder addSearchQuery(BoolQueryBuilder bq, String query, Operator defaultOperator) {
-		if (!Strings.isNullOrEmpty(query)) {
-			return bq.must(JoinQueryBuilders.hasParentQuery(PARENT_TYPE, QueryBuilders.queryStringQuery(query)
-					.fields(DEFAULT_QUERY_STRING_FIELDS).defaultOperator(defaultOperator), false));
-		} else {
-			return bq;
-		}
-	}
-
-	private BoolQueryBuilder addSearchRecordQuery(BoolQueryBuilder bq, String query, Operator defaultOperator) {
-		if (!Strings.isNullOrEmpty(query)) {
-			return bq.must(QueryBuilders.queryStringQuery(query).defaultOperator(defaultOperator));
-		} else {
-			return bq;
-		}
-	}
-
-	private BoolQueryBuilder addPreciseSearchQuery(BoolQueryBuilder bq, String searchField, String searchValue) {
-		if (searchValue != null) {
-			return bq.must(JoinQueryBuilders.hasParentQuery(PARENT_TYPE,
-					QueryBuilders.termQuery(searchField, searchValue), false));
-		} else {
-			return bq;
-		}
-	}
-
 	@SuppressWarnings({ "unchecked" })
-	private InternalMessageSearchResult createSearchResult(SearchHit sh) {
-		Map<String, Object> source = sh.getSourceAsMap();
-		Integer itemId = source.get("itemId") != null ? (int) source.get("itemId") : null;
-		String folderUid = ((String) source.get("id")).split(":")[0];
+	private InternalMessageSearchResult createSearchResult(Hit<ObjectNode> sh) {
+		ObjectNode source = sh.source();
+		Integer itemId = source.get("itemId") != null ? source.get("itemId").asInt() : null;
+		String folderUid = source.get("id").asText().split(":")[0];
 		String contUid = "mbox_records_" + folderUid;
-		String subject = (String) source.get("subject");
+		String subject = source.get("subject").asText();
 		logger.debug("matching result itemId:{} subject:'{}' in folder:{}", itemId, subject, folderUid);
-		int size = (int) source.get("size");
+		int size = source.get("size").asInt();
 
-		String internalDate = (String) source.get("internalDate");
-		ZonedDateTime date;
-		if (internalDate != null) {
-			date = ZonedDateTime.parse(internalDate);
-		} else {
-			date = ZonedDateTime.parse((String) source.get("date"));
-		}
+		JsonNode internalDate = source.get("internalDate");
+		ZonedDateTime date = (internalDate != null) //
+				? ZonedDateTime.parse(internalDate.asText()) //
+				: ZonedDateTime.parse(source.get("date").asText());
 		Date messageDate = Date.from(date.toInstant());
 
-		List<String> flags = (List<String>) source.get("is");
+		List<String> flags = Streams.stream(source.get("is").elements()).map(JsonNode::asText).toList();
 		boolean seen = flags.contains("seen");
 		boolean flagged = flags.contains("flagged");
 
-		Map<String, String> headers = (Map<String, String>) source.get("headers");
+		Map<String, String> headers = Streams.stream(source.get("headers").fields())
+				.collect(Collectors.toMap(Entry::getKey, e -> e.getValue().asText()));
 
 		Mbox to = Mbox.create("unknown", "unknown");
 		try {
@@ -1080,14 +995,31 @@ public class MailIndexService implements IMailIndexService {
 		} catch (AddressException e) {
 			logger.warn("Failed to parse FROM {}", headers.get("from"));
 		}
-		boolean hasAttachment = !((List<String>) source.get("has")).isEmpty();
+		boolean hasAttachment = source.get("has") != null && source.get("has").elements().hasNext();
 
-		String preview = Strings.nullToEmpty((String) source.get("preview"));
+		String preview = source.get("preview") != null ? source.get("preview").asText() : "";
 
-		int imapUid = source.get("uid") != null ? (Integer) source.get("uid") : 0;
+		int imapUid = source.get("uid") != null ? source.get("uid").asInt() : 0;
 
 		return new InternalMessageSearchResult(contUid, itemId, subject, size, "IPM.Note", messageDate, from, to, seen,
 				flagged, hasAttachment, preview, imapUid);
+	}
+
+	private List<String> filteredMailspoolIndexNames(ElasticsearchClient esClient) {
+		try {
+			GetIndexResponse response = esClient.indices().get(i -> i.index("mailspool*"));
+			return filterMailspoolIndexNames(response);
+		} catch (ElasticsearchException | IOException e) {
+			return Collections.emptyList();
+		}
+	}
+
+	private List<String> filterMailspoolIndexNames(GetIndexResponse indexResponse) {
+		return indexResponse.result().entrySet().stream() //
+				.filter(e -> !e.getKey().startsWith(INDEX_PENDING))
+				.filter(e -> e.getValue().mappings().meta() == null
+						|| !e.getValue().mappings().meta().containsKey(ESearchActivator.BM_MAINTENANCE_STATE_META_KEY))
+				.map(Entry::getKey).sorted().toList();
 	}
 
 	public static class InternalMessageSearchResult extends MessageSearchResult {

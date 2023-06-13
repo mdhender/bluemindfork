@@ -37,18 +37,19 @@ import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.utils.IOUtils;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.core.TimeValue;
-import org.elasticsearch.index.query.MatchAllQueryBuilder;
-import org.elasticsearch.search.SearchHit;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.query_dsl.MatchAllQuery;
+import co.elastic.clients.elasticsearch.core.BulkResponse;
+import co.elastic.clients.elasticsearch.core.bulk.BulkResponseItem;
+import co.elastic.clients.elasticsearch.core.search.ResponseBody;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
+import net.bluemind.lib.elasticsearch.EsBulk;
+import net.bluemind.lib.elasticsearch.exception.ElasticBulkException;
 import net.bluemind.system.api.IInstallation;
 import net.bluemind.system.api.PublicInfos;
 import picocli.CommandLine.Command;
@@ -57,8 +58,7 @@ import picocli.CommandLine.Option;
 @Command(name = "indexreplicated", description = "Index pre-replicated messages")
 public class IndexPrereplicatedMailsCommand implements ICmdLet, Runnable {
 	private CliContext ctx;
-	public static final String tar = "/var/spool/bm-replication/bodies.replicated.tgz";
-	private static final String PENDING_TYPE = "eml";
+	private static final String TAR = "/var/spool/bm-replication/bodies.replicated.tgz";
 	private static final String INDEX_PENDING_READ_ALIAS = "mailspool_pending_read_alias";
 	private static final String INDEX_PENDING_WRITE_ALIAS = "mailspool_pending_write_alias";
 
@@ -70,9 +70,9 @@ public class IndexPrereplicatedMailsCommand implements ICmdLet, Runnable {
 		PublicInfos infos = CliContext.get().adminApi().instance(IInstallation.class).getInfos();
 		ctx.info("infos: " + infos.softwareVersion + " " + infos.releaseName);
 
-		File file = new File(tar);
+		File file = new File(TAR);
 		if (!file.exists()) {
-			ctx.info("File " + tar + " not found");
+			ctx.info("File " + TAR + " not found");
 			System.exit(0);
 		}
 
@@ -86,16 +86,17 @@ public class IndexPrereplicatedMailsCommand implements ICmdLet, Runnable {
 	private void extractAndIndex(File file) throws IOException {
 		List<IndexedMessageBody> queue = new ArrayList<>();
 		AtomicLong counter = new AtomicLong();
+		ElasticsearchClient esClient = ESearchActivator.getClient();
 		Consumer<IndexedMessageBody> consumer = msg -> {
 			queue.add(msg);
 			if (queue.size() == 100) {
 				long current = counter.addAndGet(100);
 				ctx.info("Indexed " + current + " mailbodies");
-				index(queue);
+				index(esClient, queue);
 				queue.clear();
 			}
 		};
-		Set<String> indexed = getIndexedUids();
+		Set<String> indexed = getIndexedUids(esClient);
 		ctx.info(indexed.size() + " mails have already been indexed.");
 		try (InputStream fi = Files.newInputStream(file.toPath());
 				InputStream bi = new BufferedInputStream(fi);
@@ -105,7 +106,7 @@ public class IndexPrereplicatedMailsCommand implements ICmdLet, Runnable {
 		}
 		long current = counter.addAndGet(queue.size());
 		ctx.info("Indexed " + current + " mailbodies");
-		index(queue);
+		index(esClient, queue);
 	}
 
 	private void extract(ArchiveInputStream archiveStream, Consumer<IndexedMessageBody> consumer, Set<String> indexed)
@@ -131,39 +132,49 @@ public class IndexPrereplicatedMailsCommand implements ICmdLet, Runnable {
 		return name.substring(0, name.indexOf('.'));
 	}
 
-	private Set<String> getIndexedUids() {
+	private Set<String> getIndexedUids(ElasticsearchClient esClient) throws ElasticsearchException, IOException {
 		Set<String> uids = new HashSet<>();
-		Client client = ESearchActivator.getClient();
-		SearchResponse r = client.prepareSearch(INDEX_PENDING_READ_ALIAS).setQuery(new MatchAllQueryBuilder())
-				.setFetchSource(false).setScroll(TimeValue.timeValueSeconds(180)).setTypes(PENDING_TYPE).setSize(10000)
-				.execute().actionGet();
+		ResponseBody<Void> response = esClient.search(s -> s.index(INDEX_PENDING_READ_ALIAS) //
+				.query(MatchAllQuery.of(q -> q)._toQuery()) //
+				.source(src -> src.fetch(false)) //
+				.scroll(t -> t.time("180s")) //
+				.size(10000), Void.class);
 
 		long current = 0;
-		while (current < r.getHits().getTotalHits().value) {
-			for (SearchHit h : r.getHits().getHits()) {
-				uids.add(h.getId());
-				current++;
+		while (current < response.hits().total().value()) {
+			response.hits().hits().stream().forEach(hit -> uids.add(hit.id()));
+			current += response.hits().hits().size();
+			String scrollId = response.scrollId();
+			if (current < response.hits().total().value()) {
+				response = esClient.scroll(s -> s.scrollId(scrollId).scroll(t -> t.time("180s")), Void.class);
 			}
-
-			if (current < r.getHits().getTotalHits().value) {
-				r = client.prepareSearchScroll(r.getScrollId()).setScroll(TimeValue.timeValueSeconds(180)).execute()
-						.actionGet();
-			}
-
 		}
+
+		String scrollId = response.scrollId();
+		esClient.clearScroll(c -> c.scrollId(scrollId));
 
 		return uids;
 	}
 
-	private void index(List<IndexedMessageBody> bodies) {
-		Client client = ESearchActivator.getClient();
-		EsBulk bulkOp = startBulk();
-		for (IndexedMessageBody body : bodies) {
-			IndexRequestBuilder request = client.prepareIndex(INDEX_PENDING_WRITE_ALIAS, PENDING_TYPE).setId(body.uid)
-					.setSource(body.toMap());
-			bulkOp.bulk.add(request);
+	private void index(ElasticsearchClient esClient, List<IndexedMessageBody> bodies) {
+		try {
+			new EsBulk(esClient).commitAll(bodies, (body, o) -> o.index(i -> i //
+					.index(INDEX_PENDING_WRITE_ALIAS) //
+					.id(body.uid) //
+					.document(body.toMap()))).ifPresent(this::reportErrors);
+		} catch (ElasticBulkException e) {
+			ctx.error("Bulk request fails on index: {} while indexing {} bodies", INDEX_PENDING_WRITE_ALIAS,
+					bodies.size(), e);
 		}
-		bulkOp.commit();
+	}
+
+	private void reportErrors(BulkResponse response) {
+		if (!response.errors()) {
+			return;
+		}
+		List<BulkResponseItem> failedItems = response.items().stream().filter(i -> i.error() != null).toList();
+		failedItems.forEach(i -> ctx.error("Bulk request failed on item id:{} error:{} stack:{}", //
+				i.id(), i.error().type(), i.error().stackTrace()));
 	}
 
 	@Override
@@ -183,27 +194,6 @@ public class IndexPrereplicatedMailsCommand implements ICmdLet, Runnable {
 		public Class<? extends ICmdLet> commandClass() {
 			return IndexPrereplicatedMailsCommand.class;
 		}
-	}
-
-	private static class EsBulk {
-
-		private BulkRequestBuilder bulk;
-
-		public EsBulk(BulkRequestBuilder bulk) {
-			this.bulk = bulk;
-		}
-
-		public void commit() {
-			if (bulk.numberOfActions() > 0) {
-				bulk.execute().actionGet();
-			}
-		}
-
-	}
-
-	public EsBulk startBulk() {
-		Client client = ESearchActivator.getClient();
-		return new EsBulk(client.prepareBulk());
 	}
 
 }

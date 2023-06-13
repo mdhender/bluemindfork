@@ -19,29 +19,29 @@
 package net.bluemind.index.mail.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
-import org.elasticsearch.action.admin.indices.alias.get.GetAliasesResponse;
-import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.io.Files;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.indices.GetAliasResponse;
+import co.elastic.clients.elasticsearch.indices.GetIndexResponse;
 import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
@@ -60,7 +60,7 @@ public class MailIndexShardingTests {
 
 	private String domainUid;
 	private IndexTestHelper testHelper;
-	private Client client;
+	private ElasticsearchClient client;
 
 	@Before
 	public void setup() throws Exception {
@@ -84,9 +84,8 @@ public class MailIndexShardingTests {
 	@Test
 	public void testDefaultInstallationCreates25Indexes() throws Exception {
 		populate(1);
-		GetIndexResponse resp = client.admin().indices().prepareGetIndex().addIndices("mailspool*").get();
-		List<String> shards = Arrays.asList(resp.indices()).stream().filter(i -> !i.equals("mailspool_pending"))
-				.collect(Collectors.toList());
+		GetIndexResponse resp = client.indices().get(g -> g.index("mailspool*"));
+		List<String> shards = resp.result().keySet().stream().filter(i -> !i.equals("mailspool_pending")).toList();
 
 		assertEquals(25, shards.size());
 	}
@@ -114,16 +113,11 @@ public class MailIndexShardingTests {
 		String uid = "user05";
 		String index = getUserAliasIndex(uid);
 		assertNotNull(index);
-		client.admin().indices().prepareAliases().removeAlias(index, getIndexAliasName(uid)).get();
-		try {
-			index = getUserAliasIndex(uid);
-			fail("alias should not be present");
-		} catch (Exception e) {
-
-		}
+		client.indices().deleteAlias(d -> d.index(index).name(getIndexAliasName(uid)));
+		assertFalse(getUserAliasExists(uid));
 
 		new MailIndexService().repairMailbox(uid, new NullTaskMonitor());
-		assertNotNull(getUserAliasIndex(uid));
+		assertTrue(getUserAliasExists(uid));
 	}
 
 	@Test
@@ -140,25 +134,33 @@ public class MailIndexShardingTests {
 		storeMessage(uid, uid, bodyUid, 1, Collections.emptyList());
 		ESearchActivator.refreshIndex(indexBefore);
 
-		SearchResponse resp = client.prepareSearch(indexBefore)
-				.setQuery(QueryBuilders.queryStringQuery("id:\"" + uid + ":" + 44 + "\"")).execute().get();
-		assertEquals(1L, resp.getHits().getTotalHits().value);
+		SearchResponse<Void> resp = client.search(s -> s //
+				.index(indexBefore) //
+				.query(q -> q.queryString(st -> st.query("id:\"" + uid + ":" + 44 + "\""))), Void.class);
+		assertEquals(1L, resp.hits().total().value());
 
 		new MailIndexService().moveMailbox(uid, "mailspool_20");
 
 		String indexAfter = getUserAliasIndex(uid);
 		assertEquals("mailspool_20", indexAfter);
 
-		resp = client.prepareSearch(indexAfter)
-				.setQuery(QueryBuilders.queryStringQuery("id:\"" + uid + ":" + 44 + "\"")).execute().get();
-		assertEquals(1L, resp.getHits().getTotalHits().value);
+		resp = client.search(s -> s //
+				.index(indexAfter) //
+				.query(q -> q.queryString(st -> st.query("id:\"" + uid + ":" + 44 + "\""))), Void.class);
+		assertEquals(1L, resp.hits().total().value());
 	}
 
-	private String getUserAliasIndex(String userUid) {
-		GetAliasesResponse t = client.admin().indices().prepareGetAliases(getIndexAliasName(userUid)).execute()
-				.actionGet();
+	private String getUserAliasIndex(String userUid) throws ElasticsearchException, IOException {
+		GetAliasResponse t = client.indices().getAlias(a -> a.name(getIndexAliasName(userUid)));
+		return t.result().keySet().iterator().next();
+	}
 
-		return t.getAliases().keysIt().next();
+	private boolean getUserAliasExists(String userUid) {
+		try {
+			return !client.indices().getAlias(a -> a.name(getIndexAliasName(userUid))).result().isEmpty();
+		} catch (ElasticsearchException | IOException e) {
+			return false;
+		}
 	}
 
 	private String getIndexAliasName(String entityId) {

@@ -17,16 +17,13 @@
   */
 package net.bluemind.cli.index;
 
+import java.io.IOException;
 import java.util.Optional;
 
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.Strings;
-import org.elasticsearch.index.IndexNotFoundException;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.metrics.Sum;
+import com.google.common.base.Strings;
 
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
@@ -83,15 +80,17 @@ public class MailboxInfoCommand extends SingleOrDomainOperation {
 	}
 
 	private Optional<Long> getESQuota(String mailboxId) {
+		SearchResponse<Void> response;
 		try {
-			QueryBuilder qb = QueryBuilders.boolQuery().mustNot(QueryBuilders.termQuery("is", "deleted"));
-			SearchResponse sr = ESearchActivator.getClient().prepareSearch(getMailboxAlias(mailboxId)).setQuery(qb)
-					.addAggregation(AggregationBuilders.sum("used_quota").field("size")).setSize(0).execute()
-					.actionGet();
+			response = ESearchActivator.getClient().search(s -> s //
+					.size(0) //
+					.index(getMailboxAlias(mailboxId)) //
+					.query(q -> q.bool(b -> b.mustNot(mn -> mn.term(t -> t.field("is").value("deleted"))))) //
+					.aggregations("used_quota", a -> a.sum(sum -> sum.field("size"))), Void.class);
 
-			Sum sum = (Sum) sr.getAggregations().get("used_quota");
-			return Optional.of((long) sum.getValue() / 1024); // to KiB
-		} catch (IndexNotFoundException e) {
+			double sum = response.aggregations().get("used_quota").sum().value();
+			return Optional.of((long) sum / 1024); // to KiB
+		} catch (ElasticsearchException | IOException e) {
 			return Optional.empty();
 		}
 	}

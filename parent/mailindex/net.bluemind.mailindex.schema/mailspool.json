@@ -6,6 +6,7 @@
 			"analysis": {
 				"analyzer": {
 					"default": {
+						"type": "custom",
 						"tokenizer": "standard",
 						"filter": [
 							"icu_folding",
@@ -35,151 +36,149 @@
 		}
 	},
 	"mappings": {
-		"recordOrBody": {
-			"_source": {
-				"enabled": true
+		"_source": {
+			"enabled": true
+		},
+		"properties": {
+			"body_msg_link": {
+				"type": "join",
+				"relations": {
+					"body": "record"
+				}
 			},
-			"properties": {
-				"body_msg_link": {
-					"type": "join",
-					"relations": {
-						"body": "record"
-					}
-				},
-				"parentId": {
-					"type": "keyword"
-				},
-				"content": {
-					"type": "text",
-					"norms": false
-				},
-				"messageId": {
-					"type": "keyword"
-				},
-				"references": {
-					"type": "keyword"
-				},
-				"preview": {
-					"type": "text",
-					"index": false
-				},
-				"subject": {
-					"type": "text",
-					"norms": false
-				},
-				"subject_kw": {
-					"type": "keyword"
-				},
-				"date": {
-					"type": "date"
-				},
-				"internalDate": {
-					"type": "date"
-				},
-				"owner": {
-					"type": "keyword"
-				},
-				"content-type": {
-					"type": "keyword",
-					"index": false
-				},
-				"uid": {
-					"type": "integer"
-				},
-				"itemId": {
-					"type": "integer"
-				},
-				"size": {
-					"type": "integer"
-				},
-				"in": {
-					"type": "keyword"
-				},
-				"is": {
-					"type": "keyword",
-					"norms": false
-				},
-				"has": {
-					"type": "keyword"
-				},
-				"filename": {
-					"type": "text",
-					"norms": false
-				},
-				"from": {
-					"type": "text",
-					"norms": false
-				},
-				"to": {
-					"type": "text",
-					"norms": false
-				},
-				"cc": {
-					"type": "text",
-					"norms": false
-				},
-				"with": {
-					"type": "text",
-					"norms": false
-				},
-				"id": {
-					"type": "keyword"
-				},
-				 "de": {
-		          "type": "alias",
-		          "path": "from" 
-		        },
-				"von": {
-		          "type": "alias",
-		          "path": "from" 
-		        },
-				"headers": {
-					"properties": {
-						"from": {
-							"type": "keyword"
-						},
-						"to": {
-							"type": "keyword"
-						},
-						"cc": {
-							"type": "keyword"
-						},
-						"reply-to": {
-							"type": "keyword",
-							"index": false
-						},
-						"list-post": {
-							"type": "keyword",
-							"index": false
-						},
-						"disposition-notification-to": {
-							"type": "keyword",
-							"index": false
-						},
-						"x-bm-event": {
-							"type": "keyword",
-							"index": false
-						},
-						"x-bm-resourcebooking": {
-							"type": "keyword",
-							"index": false
-						},
-						"x-bm-foldersharing": {
-							"type": "keyword",
-							"index": false
-						},
-						"x-bm-folderuid": {
-							"type": "keyword",
-							"index": false
-						},
-						"x-bm-foldertype": {
-							"type": "keyword",
-							"index": false
-						},
-						"x-priority": {
-							"type": "keyword",
-							"index": false
-						}
+			"parentId": {
+				"type": "keyword"
+			},
+			"content": {
+				"type": "text",
+				"norms": false
+			},
+			"messageId": {
+				"type": "keyword"
+			},
+			"references": {
+				"type": "keyword"
+			},
+			"preview": {
+				"type": "text",
+				"index": false
+			},
+			"subject": {
+				"type": "text",
+				"norms": false
+			},
+			"subject_kw": {
+				"type": "keyword"
+			},
+			"date": {
+				"type": "date"
+			},
+			"internalDate": {
+				"type": "date"
+			},
+			"owner": {
+				"type": "keyword"
+			},
+			"content-type": {
+				"type": "keyword",
+				"index": false
+			},
+			"uid": {
+				"type": "integer"
+			},
+			"itemId": {
+				"type": "integer"
+			},
+			"size": {
+				"type": "integer"
+			},
+			"in": {
+				"type": "keyword"
+			},
+			"is": {
+				"type": "keyword",
+				"norms": false
+			},
+			"has": {
+				"type": "keyword"
+			},
+			"filename": {
+				"type": "text",
+				"norms": false
+			},
+			"from": {
+				"type": "text",
+				"norms": false
+			},
+			"to": {
+				"type": "text",
+				"norms": false
+			},
+			"cc": {
+				"type": "text",
+				"norms": false
+			},
+			"with": {
+				"type": "text",
+				"norms": false
+			},
+			"id": {
+				"type": "keyword"
+			},
+			 "de": {
+	          "type": "alias",
+	          "path": "from" 
+	        },
+			"von": {
+	          "type": "alias",
+	          "path": "from" 
+	        },
+			"headers": {
+				"properties": {
+					"from": {
+						"type": "keyword"
+					},
+					"to": {
+						"type": "keyword"
+					},
+					"cc": {
+						"type": "keyword"
+					},
+					"reply-to": {
+						"type": "keyword",
+						"index": false
+					},
+					"list-post": {
+						"type": "keyword",
+						"index": false
+					},
+					"disposition-notification-to": {
+						"type": "keyword",
+						"index": false
+					},
+					"x-bm-event": {
+						"type": "keyword",
+						"index": false
+					},
+					"x-bm-resourcebooking": {
+						"type": "keyword",
+						"index": false
+					},
+					"x-bm-foldersharing": {
+						"type": "keyword",
+						"index": false
+					},
+					"x-bm-folderuid": {
+						"type": "keyword",
+						"index": false
+					},
+					"x-bm-foldertype": {
+						"type": "keyword",
+						"index": false
+					},
+					"x-priority": {
+						"type": "keyword",
+						"index": false
 					}
 				}
 			}

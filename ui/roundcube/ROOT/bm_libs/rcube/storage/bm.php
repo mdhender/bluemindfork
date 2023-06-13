@@ -114,8 +114,6 @@ class rcube_storage_bm extends rcube_imap {
     }
     $index = new Elastica\Search($this->client);
 
-    $index->addType('recordOrBody');
-
     foreach($query as $criterion) {
       $term = $criterion['term'];
       $val = $criterion['value'];

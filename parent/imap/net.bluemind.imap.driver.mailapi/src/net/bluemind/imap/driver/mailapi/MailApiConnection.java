@@ -38,17 +38,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.metrics.InternalMax;
-import org.elasticsearch.search.builder.PointInTimeBuilder;
-import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +50,10 @@ import com.google.common.collect.Streams;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.Context;
 import io.vertx.core.buffer.Buffer;
@@ -117,6 +110,9 @@ import net.bluemind.imap.endpoint.driver.UpdateMode;
 import net.bluemind.imap.endpoint.parsing.MailboxGlob;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.elasticsearch.Pit;
+import net.bluemind.lib.elasticsearch.Pit.PaginableSearchQueryBuilder;
+import net.bluemind.lib.elasticsearch.Pit.PaginationParams;
+import net.bluemind.lib.elasticsearch.exception.ElasticIndexException;
 import net.bluemind.lib.jutf7.UTF7Converter;
 import net.bluemind.lib.vertx.VertxContext;
 import net.bluemind.mailbox.api.IMailboxAclUids;
@@ -140,7 +136,7 @@ public class MailApiConnection implements MailboxConnection {
 	private final String userRootPrefix;
 
 	private final FolderResolver folderResolver;
-	private static final Supplier<Client> esClient = Suppliers.memoize(ESearchActivator::getClient);
+	private static final Supplier<ElasticsearchClient> esSupplier = Suppliers.memoize(ESearchActivator::getClient);
 	private static final long MAXIMUM_SEARCH_TIME = TimeUnit.SECONDS.toNanos(15);
 
 	private Consumer activeCons;
@@ -749,60 +745,42 @@ public class MailApiConnection implements MailboxConnection {
 	@Override
 	public List<Long> uids(SelectedFolder sel, String query) {
 		String index = "mailspool_alias_" + sel.mailbox.owner.uid;
-		int maxUid = 0;
 		// Really ?!
-		ESearchActivator.refreshIndex(index);
-
-		Client client = esClient.get();
-		// Gets document with highest uid for keywords with sequences management
-		AggregationBuilder a = AggregationBuilders.max("uid_max").field("uid");
-		SearchResponse rMax = client.prepareSearch(index)
-				.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.termQuery("in", sel.folder.uid)))
-				.addAggregation(a).setSize(0).execute().actionGet();
-		if (rMax.getAggregations().get("uid_max") != null) {
-			InternalMax uidMax = rMax.getAggregations().get("uid_max");
-			maxUid = (int) uidMax.getValue();
-		}
-		List<Long> uids = new ArrayList<>();
 		try {
-			QueryBuilderResult qbr = UidSearchAnalyzer.buildQuery(query, sel.folder.uid, me.uid);
+			ESearchActivator.refreshIndex(index);
+		} catch (ElasticIndexException e) {
+			logger.error("Failed to refresh index '{}', result might miss some uids", index, e);
+		}
 
-			SearchRequestBuilder searchBuilder = client.prepareSearch(index).setTrackTotalHits(true);
-			searchBuilder.setQuery(qbr.bq()).setFetchSource(false).addDocValueField("uid").setSize(1000).addSort("uid",
-					SortOrder.ASC);
-
-			long totalHits = 0;
-			try (Pit pit = Pit.allocateUsingTimebudget(client, index, 60, MAXIMUM_SEARCH_TIME)) {
-				do {
-					searchBuilder.setPointInTime(new PointInTimeBuilder(pit.id));
-					pit.adaptSearch(searchBuilder);
-					SearchResponse sr = searchBuilder.execute().actionGet();
-					SearchHits searchHits = sr.getHits();
-					if (totalHits == 0) {
-						totalHits = searchHits.getTotalHits().value;
-						searchBuilder.setTrackTotalHits(false);
-					}
-					if (sr.getHits() != null && sr.getHits().getHits() != null) {
-						for (SearchHit h : sr.getHits().getHits()) {
-							pit.consumeHit(h);
-							uids.add(Long.parseLong(h.getDocumentFields().get("uid").getValue().toString()));
-						}
-					}
-				} while (pit.hasNext());
-			} catch (Exception e) {
-				logger.error("[{}] unknown error: {}", this, e.getMessage(), e);
-				return null; // NOSONAR: null is used for error detection
+		ElasticsearchClient esClient = esSupplier.get();
+		try {
+			List<Long> uids;
+			QueryBuilderResult qbr = UidSearchAnalyzer.buildQuery(esClient, query, sel.folder.uid, me.uid);
+			PaginableSearchQueryBuilder paginableSearch = s -> s.source(src -> src.fetch(false)) //
+					.docvalueFields(f -> f.field("uid")) //
+					.query(qbr.q());
+			SortOptions sort = SortOptions.of(so -> so.field(f -> f.field("uid").order(SortOrder.Asc)));
+			try (Pit<Void> pit = Pit.allocateUsingTimebudget(esClient, index, 60, MAXIMUM_SEARCH_TIME, Void.class)) {
+				uids = pit.allPages(paginableSearch, PaginationParams.all(sort),
+						hit -> hit.fields().get("uid").toJson().asJsonArray().getJsonNumber(0).longValue());
 			}
 
 			// Empty uids list and seq is present -> return the greatest uid (see RFC 3501)
 			if (uids.isEmpty() && qbr.hasSequence()) {
-				return Arrays.asList(Long.valueOf(maxUid));
+				// Gets document with highest uid for keywords with sequences management
+				Aggregate aggregate = esClient.search(s -> s.index(index) //
+						.size(0) //
+						.query(q -> q.bool(b -> b.must(m -> m.term(t -> t.field("in").value(sel.folder.uid)))))
+						.aggregations("uid_max", a -> a.max(m -> m.field("uid"))), Void.class) //
+						.aggregations().get("uid_max");
+				long maxUid = (aggregate != null) ? (long) aggregate.max().value() : 0l;
+				return Arrays.asList(maxUid);
 			}
+			return uids;
 		} catch (Exception e) {
 			logger.error("[{}] unknown error: {}", this, e.getMessage(), e);
 			return null; // NOSONAR: null is used for error detection
 		}
-		return uids;
 	}
 
 	@Override

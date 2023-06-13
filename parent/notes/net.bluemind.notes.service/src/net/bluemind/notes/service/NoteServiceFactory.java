@@ -22,8 +22,7 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.elasticsearch.client.Client;
-
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
@@ -59,7 +58,7 @@ public class NoteServiceFactory implements ServerSideServiceProvider.IServerSide
 			throw new ServerFault("wrong datasource container.uid " + container.uid);
 		}
 
-		Client esClient = ESearchActivator.getClient();
+		ElasticsearchClient esClient = ESearchActivator.getClient();
 
 		if (esClient == null) {
 			throw new ServerFault("elasticsearch was not found for note indexing");

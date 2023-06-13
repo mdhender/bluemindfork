@@ -20,12 +20,12 @@ package net.bluemind.index;
 
 import java.util.List;
 
-import org.elasticsearch.client.Client;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import net.bluemind.backend.mail.replica.indexing.IMailIndexService;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.index.mail.MailIndexService;
@@ -76,8 +76,8 @@ public class MailIndexActivator implements BundleActivator {
 			init();
 		}
 		try {
-			Client client = ESearchActivator.getClient();
-			if (client == null) {
+			ElasticsearchClient esClient = ESearchActivator.getClient();
+			if (esClient == null) {
 				logger.error("Failed to obtain an elasticsearch client.");
 				return null;
 			}

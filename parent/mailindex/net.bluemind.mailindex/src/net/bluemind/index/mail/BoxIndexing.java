@@ -18,6 +18,7 @@
  */
 package net.bluemind.index.mail;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,31 +26,34 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.ConstantScoreQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.join.query.JoinQueryBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.json.JsonData;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.indexing.IDSet;
-import net.bluemind.backend.mail.replica.indexing.IMailIndexService.BulkOperation;
+import net.bluemind.backend.mail.replica.indexing.IMailIndexService;
+import net.bluemind.backend.mail.replica.indexing.IMailIndexService.BulkOp;
 import net.bluemind.backend.mail.replica.indexing.MailSummary;
 import net.bluemind.backend.mail.replica.indexing.MessageFlagsHelper;
 import net.bluemind.core.api.fault.ServerFault;
@@ -61,7 +65,6 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.task.service.IServerTaskMonitor;
 import net.bluemind.index.MailIndexActivator;
-import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.mailbox.api.Mailbox;
 import net.bluemind.mailbox.api.Mailbox.Routing;
 
@@ -75,10 +78,17 @@ public class BoxIndexing {
 	private final MailboxIndexingReport report;
 
 	public BoxIndexing(String domainUid) {
-		report = MailboxIndexingReport.create();
-
-		counter = new AtomicLong();
+		this.report = MailboxIndexingReport.create();
+		this.counter = new AtomicLong();
 		this.domainUid = domainUid;
+	}
+
+	public AtomicLong getCounter() {
+		return counter;
+	}
+
+	public MailboxIndexingReport getReport() {
+		return report;
 	}
 
 	public void resync(ItemValue<Mailbox> mailbox, IServerTaskMonitor monitor) throws ServerFault {
@@ -97,7 +107,6 @@ public class BoxIndexing {
 			Set<String> inDatabase = folders.stream().map(f -> f.uid).collect(Collectors.toSet());
 			Set<String> toDelete = Sets.difference(inIndex, inDatabase);
 			toDelete.forEach(fId -> MailIndexActivator.getService().deleteBox(mailbox, fId));
-
 		}), monitor.subWork(99));
 	}
 
@@ -137,21 +146,13 @@ public class BoxIndexing {
 		}
 	}
 
-	public AtomicLong getCounter() {
-		return counter;
-	}
-
-	public MailboxIndexingReport getReport() {
-		return report;
-	}
-
-	private void resyncSelectedFolder(ItemValue<Mailbox> mailbox, ItemValue<MailboxFolder> f,
+	private void resyncSelectedFolder(ItemValue<Mailbox> mailbox, ItemValue<MailboxFolder> folder,
 			IServerTaskMonitor monitor) {
 
-		logger.info("Resyncing folder {}:{} of box {}", f.uid, f.value.name, mailbox.uid);
-
+		logger.info("Resyncing folder {}:{} of box {}", folder.uid, folder.value.name, mailbox.uid);
+		ElasticsearchClient esClient = MailIndexService.getIndexClient();
 		IDbMailboxRecords mbItems = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IDbMailboxRecords.class, f.uid);
+				.instance(IDbMailboxRecords.class, folder.uid);
 
 		SortDescriptor sortDescriptor = new SortDescriptor();
 		SortDescriptor.Field field = new SortDescriptor.Field();
@@ -160,18 +161,18 @@ public class BoxIndexing {
 		sortDescriptor.fields = Arrays.asList(field);
 		List<Long> created = ((ISortingSupport) mbItems).sortedIds(sortDescriptor);
 
-		logger.info("Folder {}:{} containers {} created elements", f.uid, f.value.name, created.size());
+		logger.info("Folder {}:{} containers {} created elements", folder.uid, folder.value.name, created.size());
 		if (created.isEmpty()) {
-			deleteRemainingOrphans(mailbox.uid, f.uid);
+			deleteRemainingOrphans(esClient, mailbox.uid, folder.uid);
 			return;
 		}
-		monitor.begin(created.size(), "Syncing " + created.size() + " message(s) in " + f.value.name);
+		monitor.begin(created.size(), "Syncing " + created.size() + " message(s) in " + folder.value.name);
 
 		List<List<Long>> partitioned = Lists.partition(created, 50);
 
 		Set<Integer> existingDbEntries = new HashSet<>();
-		int lowestGlobal = Integer.MAX_VALUE;
-		int highestGlobal = 0;
+		AtomicInteger lowestGlobal = new AtomicInteger(Integer.MAX_VALUE);
+		AtomicInteger highestGlobal = new AtomicInteger(0);
 
 		for (List<Long> partialList : partitioned) {
 			long lowestUid = Long.MAX_VALUE;
@@ -182,43 +183,40 @@ public class BoxIndexing {
 				long imapUid = completeById.value.imapUid;
 				lowestUid = Math.min(lowestUid, imapUid);
 				highestUid = Math.max(highestUid, imapUid);
-				lowestGlobal = (int) Math.min(lowestUid, lowestGlobal);
-				highestGlobal = (int) Math.max(highestUid, highestGlobal);
+				lowestGlobal.set((int) Math.min(lowestUid, lowestGlobal.get()));
+				highestGlobal.set((int) Math.max(highestUid, highestGlobal.get()));
 				Collection<MailboxItemFlag> systemFlags = completeById.value.flags.stream()
 						.filter(item -> item.value != 0).collect(Collectors.toList());
 				flagMapping.put(new Record(imapUid, completeById.uid), systemFlags);
 				existingDbEntries.add((int) imapUid);
 			}
-			logger.info("Folder {}:{}, resyncing from {} to {}", f.uid, f.value.name, lowestUid, highestUid);
-			resyncUidRange(mailbox, f, (int) lowestUid, (int) highestUid, flagMapping, monitor);
+			logger.info("Folder {}:{}, resyncing from {} to {}", folder.uid, folder.value.name, lowestUid, highestUid);
+			resyncUidRange(mailbox, folder, (int) lowestUid, (int) highestUid, flagMapping, monitor);
 			monitor.progress(partialList.size(), null);
 		}
 
-		int[] arr = IntStream.range(lowestGlobal, highestGlobal + 1).filter(e -> !existingDbEntries.contains(e))
-				.toArray();
+		int[] arr = IntStream.range(lowestGlobal.get(), highestGlobal.get() + 1)
+				.filter(e -> !existingDbEntries.contains(e)).toArray();
 		List<Integer> list = Arrays.stream(arr).boxed().collect(Collectors.toList());
 		List<List<Integer>> partition = Lists.partition(list, 25000);
 
 		for (List<Integer> part : partition) {
-			BoolQueryBuilder orBuilder = QueryBuilders.boolQuery();
-			orBuilder.should(QueryBuilders.termsQuery("uid", part));
-
-			BoolQueryBuilder filter = QueryBuilders.boolQuery().must(QueryBuilders.termQuery("in", f.uid));
-			filter.must(orBuilder);
-			ConstantScoreQueryBuilder constantScoreQuery = QueryBuilders.constantScoreQuery(filter);
-			ESearchActivator.deleteByQuery("mailspool_alias_" + mailbox.uid, constantScoreQuery);
+			Query toDelete = BoolQuery.of(bq -> bq //
+					.filter(f -> f.term(t -> t.field("in").value(folder.uid))) //
+					.filter(f -> f.terms(t -> t //
+							.field("uid").terms(v -> v.value(part.stream().map(FieldValue::of).toList())))))
+					._toQuery();
+			delete(esClient, mailbox.uid, toDelete);
 		}
 
 		// delete unknown non-existing data in ES
-		if (lowestGlobal < highestGlobal) {
-			BoolQueryBuilder orBuilder = QueryBuilders.boolQuery();
-			orBuilder.should(QueryBuilders.rangeQuery("uid").from(0).to(lowestGlobal - 1));
-			orBuilder.should(QueryBuilders.rangeQuery("uid").from(highestGlobal + 1));
-
-			BoolQueryBuilder filter = QueryBuilders.boolQuery().must(QueryBuilders.termQuery("in", f.uid));
-			filter.must(orBuilder);
-			ConstantScoreQueryBuilder constantScoreQuery = QueryBuilders.constantScoreQuery(filter);
-			ESearchActivator.deleteByQuery("mailspool_alias_" + mailbox.uid, constantScoreQuery);
+		if (lowestGlobal.get() < highestGlobal.get()) {
+			Query toDelete = BoolQuery.of(bq -> bq //
+					.filter(f -> f.term(t -> t.field("in").value(folder.uid))) //
+					.filter(f -> f.range(r -> r.field("uid").gte(JsonData.of(0)).lt(JsonData.of(lowestGlobal.get())))) //
+					.filter(f -> f.range(r -> r.field("uid").gt(JsonData.of(highestGlobal.get()))))) //
+					._toQuery();
+			delete(esClient, mailbox.uid, toDelete);
 		}
 	}
 
@@ -234,15 +232,15 @@ public class BoxIndexing {
 
 		try {
 			List<Record> toIndex = new LinkedList<>();
-			for (Record imapRecord : flagMapping.keySet()) {
-				int imapUid = imapRecord.imapUid.intValue();
+			for (Map.Entry<Record, Collection<MailboxItemFlag>> entry : flagMapping.entrySet()) {
+				int imapUid = entry.getKey().imapUid.intValue();
 				MailSummary esSum = esSums.remove(imapUid);
 				if (esSum == null) {
 					// mail not found in elasticsearch
 					// index it !
-					toIndex.add(imapRecord);
+					toIndex.add(entry.getKey());
 				} else {
-					Collection<MailboxItemFlag> imapFlags = flagMapping.get(imapRecord);
+					Collection<MailboxItemFlag> imapFlags = entry.getValue();
 					if (!flagsEqual(imapFlags, esSum.flags)) {
 						// flags are desynchronized
 						// Synchronize them !
@@ -257,13 +255,11 @@ public class BoxIndexing {
 			IDbMailboxRecords service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 					.instance(IDbMailboxRecords.class, f.uid);
 
-			Optional<BulkOperation> bulkOp = Optional.of(MailIndexActivator.getService().startBulk());
-			for (Record r : toIndex) {
-				ItemValue<MailboxRecord> mail = service.getComplete(r.uid);
-				MailIndexActivator.getService().storeMessage(f.uid, mail, mailbox.uid, bulkOp);
-			}
-
-			bulkOp.ifPresent(bul -> bul.commit(false));
+			IMailIndexService indexService = MailIndexActivator.getService();
+			List<BulkOp> operations = toIndex.stream() //
+					.map(record -> service.getComplete(record.uid)) //
+					.flatMap(mail -> indexService.storeMessage(f.uid, mail, mailbox.uid, true).stream()).toList();
+			indexService.doBulk(operations);
 
 			// update flags
 			if (!toSync.isEmpty()) {
@@ -297,14 +293,20 @@ public class BoxIndexing {
 				throws ServerFault;
 	}
 
-	private void deleteRemainingOrphans(String mailboxUid, String folderUid) {
-		BoolQueryBuilder query = QueryBuilders.boolQuery() //
-				.must(QueryBuilders.termQuery("in", folderUid))
-				.mustNot(JoinQueryBuilders.hasParentQuery("body", QueryBuilders.matchAllQuery(), false))
-				.mustNot(QueryBuilders.termQuery("body_msg_link", "body"));
+	private void deleteRemainingOrphans(ElasticsearchClient esClient, String mailboxUid, String folderUid) {
+		Query toDelete = BoolQuery.of(bq -> bq //
+				.filter(f -> f.term(t -> t.field("in").value(folderUid)))
+				.mustNot(mn -> mn.hasParent(p -> p.parentType("body").query(q -> q.matchAll(a -> a)).score(false)))
+				.mustNot(mn -> mn.term(t -> t.field("body_msg_link").value("body"))))._toQuery();
+		delete(esClient, mailboxUid, toDelete);
+	}
 
-		ConstantScoreQueryBuilder constantScoreQuery = QueryBuilders.constantScoreQuery(query);
-		ESearchActivator.deleteByQuery("mailspool_alias_" + mailboxUid, constantScoreQuery);
+	private void delete(ElasticsearchClient esClient, String mailboxUid, Query query) {
+		try {
+			esClient.deleteByQuery(d -> d.index("mailspool_alias_" + mailboxUid).query(query));
+		} catch (ElasticsearchException | IOException e) {
+			logger.error("[es][resync] Unable to delete document in {}, query:{}", mailboxUid, query, e);
+		}
 	}
 
 	@Override
