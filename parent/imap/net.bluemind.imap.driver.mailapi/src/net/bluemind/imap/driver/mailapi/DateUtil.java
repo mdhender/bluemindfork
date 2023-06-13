@@ -26,7 +26,7 @@ public final class DateUtil {
 	private static final String[] MONTH_NAME = new String[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
 			"Sep", "Oct", "Nov", "Dec" };
 
-	private static final String[] DAY_NAME = new String[] { "--", "Sun, ", "Mon, ", "Tue, ", "Web, ", "Thu, ", "Fri, ",
+	private static final String[] DAY_NAME = new String[] { "--", "Sun, ", "Mon, ", "Tue, ", "Wed, ", "Thu, ", "Fri, ",
 			"Sat, " };
 
 	private static final ThreadLocal<Calendar> LOCAL_CAL = ThreadLocal
