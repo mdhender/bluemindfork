@@ -62,6 +62,9 @@
        <endpoint
             api="net.bluemind.backend.mail.api.IMailConversationActions">
       </endpoint>
+       <endpoint
+             api="net.bluemind.backend.mail.replica.api.ISyncDbMailboxRecords">
+       </endpoint>
    </extension>
    <extension
          point="net.bluemind.core.rest.serviceFactory">
