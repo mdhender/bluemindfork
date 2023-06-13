@@ -26,7 +26,6 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
-
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
 
@@ -44,6 +43,20 @@ public interface IAPIKeys {
 	 */
 	@PUT
 	public APIKey create(@QueryParam("displayName") String displayName) throws ServerFault;
+
+	/**
+	 * Creates an {@link APIKey} for the given core session using the provided key
+	 * as SID. The key will be usable as a valid password to impersonate the user.
+	 * 
+	 * @param key         SID the name of the {@link APIKey}
+	 * @param displayName the name of the {@link APIKey}
+	 * @return an {@link APIKey} to impersonate the user
+	 * @throws ServerFault
+	 */
+	@PUT
+	@Path("{key}")
+	public APIKey create(@PathParam("key") String key, @QueryParam("displayName") String displayName)
+			throws ServerFault;
 
 	/**
 	 * Deletes an {@link APIKey}

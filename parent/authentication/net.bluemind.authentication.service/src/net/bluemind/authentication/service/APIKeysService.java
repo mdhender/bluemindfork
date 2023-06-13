@@ -32,6 +32,7 @@ import net.bluemind.core.context.SecurityContext;
 
 public class APIKeysService implements IAPIKeys {
 
+	private static final String INVALID_SECURITY_CONTEXT = "Invalid securityContext";
 	private APIKeyStore store;
 	private SecurityContext context;
 
@@ -41,9 +42,9 @@ public class APIKeysService implements IAPIKeys {
 	}
 
 	@Override
-	public APIKey create(String displayName) throws ServerFault {
+	public APIKey create(String key, String displayName) throws ServerFault {
 		if (context.isAnonymous()) {
-			throw new ServerFault("Invalid securityContext", ErrorCode.PERMISSION_DENIED);
+			throw new ServerFault(INVALID_SECURITY_CONTEXT, ErrorCode.PERMISSION_DENIED);
 		}
 
 		if (displayName == null || displayName.trim().isEmpty()) {
@@ -51,7 +52,7 @@ public class APIKeysService implements IAPIKeys {
 		}
 
 		APIKey apikey = new APIKey();
-		apikey.sid = UUID.randomUUID().toString();
+		apikey.sid = key;
 		apikey.displayName = displayName;
 		store.create(apikey);
 
@@ -59,9 +60,14 @@ public class APIKeysService implements IAPIKeys {
 	}
 
 	@Override
+	public APIKey create(String displayName) throws ServerFault {
+		return create(UUID.randomUUID().toString(), displayName);
+	}
+
+	@Override
 	public void delete(String sid) throws ServerFault {
 		if (context.isAnonymous()) {
-			throw new ServerFault("Invalid securityContext", ErrorCode.PERMISSION_DENIED);
+			throw new ServerFault(INVALID_SECURITY_CONTEXT, ErrorCode.PERMISSION_DENIED);
 		}
 
 		store.delete(sid);
@@ -70,7 +76,7 @@ public class APIKeysService implements IAPIKeys {
 	@Override
 	public List<APIKey> list() throws ServerFault {
 		if (context.isAnonymous()) {
-			throw new ServerFault("Invalid securityContext", ErrorCode.PERMISSION_DENIED);
+			throw new ServerFault(INVALID_SECURITY_CONTEXT, ErrorCode.PERMISSION_DENIED);
 		}
 
 		return store.list();

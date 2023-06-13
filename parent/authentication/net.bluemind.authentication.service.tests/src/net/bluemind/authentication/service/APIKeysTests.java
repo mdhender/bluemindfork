@@ -25,6 +25,7 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -108,6 +109,17 @@ public class APIKeysTests {
 		assertNotNull(ret);
 		assertEquals(dn, ret.displayName);
 		assertNotNull(ret.sid);
+		assertNotNull(ret.domainUid);
+	}
+
+	@Test
+	public void createWithKey() throws ServerFault {
+		String dn = "key" + System.currentTimeMillis();
+		String key = UUID.randomUUID().toString();
+		APIKey ret = service.create(key, dn);
+		assertNotNull(ret);
+		assertEquals(dn, ret.displayName);
+		assertEquals(key, ret.sid);
 		assertNotNull(ret.domainUid);
 	}
 
