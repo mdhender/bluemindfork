@@ -398,8 +398,8 @@ public final class ClientSupport {
 		return run(new UIDStoreCommand(uidSet, fl, set));
 	}
 
-	public IMAPByteSource uidFetchPart(Integer uid, String address) {
-		return run(new UIDFetchPartCommand(uid, address));
+	public IMAPByteSource uidFetchPart(Integer uid, String address, String partial) {
+		return run(new UIDFetchPartCommand(uid, address, partial));
 	}
 
 	public List<MailThread> uidThreads() {

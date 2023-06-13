@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,9 +55,11 @@ import com.google.common.io.ByteStreams;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.streams.ReadStream;
+import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Recipient;
 import net.bluemind.backend.mail.api.MessageBody.RecipientKind;
@@ -75,17 +78,24 @@ public class FetchedItemRenderer {
 
 	private static final Logger logger = LoggerFactory.getLogger(FetchedItemRenderer.class);
 
+	private static final ByteBuf DEFAULT_NIL_BYTE_BUF = Unpooled.wrappedBuffer("NIL".getBytes());
+	private static final String SECTION_MIME_PATTERN = ".MIME";
+	private static final String SECTION_HEADER_PATTERN = ".HEADER";
+	private static final ByteBuf TWO_CRLF = Unpooled.wrappedBuffer("\r\n\r\n".getBytes());
 	private final IDbMailboxRecords recApi;
 	private final List<MailPart> fields;
 	private final IDbMessageBodies bodyApi;
+	private final IMailboxItems itemsApi;
 	private static final Set<String> DEFAULT_HEADERS = Sets.newHashSet("From", "To", "Cc", "Subject", "Message-ID",
 			"X-Bm-Event", "X-Bm-Todo", "X-BM-ResourceBooking", "X-BM-Event-Countered", "X-BM-Event-Canceled",
 			"X-BM-FOLDERSHARING", "X-ASTERISK-CALLERID");
 
-	public FetchedItemRenderer(IDbMessageBodies bodyApi, IDbMailboxRecords recApi, List<MailPart> fields) {
+	public FetchedItemRenderer(IDbMessageBodies bodyApi, IDbMailboxRecords recApi, IMailboxItems itemsApi,
+			List<MailPart> fields) {
 		this.recApi = recApi;
 		this.fields = fields;
 		this.bodyApi = bodyApi;
+		this.itemsApi = itemsApi;
 	}
 
 	public IDbMailboxRecords recApi() {
@@ -96,7 +106,6 @@ public class FetchedItemRenderer {
 		Map<String, ByteBuf> ret = new HashMap<>();
 
 		Supplier<MessageBody> body = Suppliers.memoize(() -> getBody(rec));
-
 		for (MailPart f : fields) {
 			String upField = f.name.toUpperCase();
 			switch (upField) {
@@ -141,12 +150,14 @@ public class FetchedItemRenderer {
 				break;
 			}
 		}
-
 		return ret;
 	}
 
 	private ByteBuf literalize(ByteBuf bodyPeek) {
 		int len = bodyPeek.readableBytes();
+		if (Buffer.buffer(bodyPeek).toString().equals("NIL")) {
+			return Unpooled.wrappedBuffer(bodyPeek);
+		}
 		ByteBuf lenBuf = Unpooled.wrappedBuffer(("{" + len + "}\r\n").getBytes());
 		return Unpooled.wrappedBuffer(lenBuf, bodyPeek);
 	}
@@ -158,12 +169,33 @@ public class FetchedItemRenderer {
 	private ByteBuf bodyPeek(IDbMailboxRecords recApi, Supplier<MessageBody> body, MailPart f,
 			WithId<MailboxRecord> rec) {
 		String section = f.section == null ? "" : f.section;
+		String partialString = f.partial == null ? "" : f.partial;
+		Partial partial = new Partial(partialString);
+
+		if (!partialString.isEmpty() && !partial.isValid) {
+			return null;
+		}
 		if (section.equalsIgnoreCase("header.fields")) {
 			return headers(body, f.options != null ? f.options : DEFAULT_HEADERS, rec);
 		} else if (section.equalsIgnoreCase("header")) {
 			return headers(body, DEFAULT_HEADERS, rec);
-		} else if (section.endsWith(".MIME") && partAddr(section.replace(".MIME", ""))) {
-			String part = f.section.replace(".MIME", "");
+		} else if (section.equalsIgnoreCase("text")) {
+			Stream fullMsg = recApi.fetchComplete(rec.value.imapUid);
+			int len = body.get().size;
+			ByteBuf emlBuffer = readMmap(fullMsg, len * 2).join();
+			emlBuffer.markReaderIndex();
+			int headerEndIndex = ByteBufUtil.indexOf(TWO_CRLF.duplicate(), emlBuffer);
+			if (headerEndIndex < 0) {
+				return null;
+			}
+			emlBuffer.readerIndex(headerEndIndex + 4);
+			emlBuffer.markReaderIndex();
+			if (partial.isValid) {
+				return emlBuffer.slice(partial.offset, partial.length);
+			}
+			return emlBuffer.slice(headerEndIndex + 4, len);
+		} else if (section.endsWith(SECTION_MIME_PATTERN) && partAddr(section.replace(SECTION_MIME_PATTERN, ""))) {
+			String part = f.section.replace(SECTION_MIME_PATTERN, "");
 			logger.info("Fetch mime headers of {}", part);
 			return body.get().structure.parts().stream().filter(p -> p.address.equalsIgnoreCase(part)).findAny()
 					.map(p -> {
@@ -175,8 +207,31 @@ public class FetchedItemRenderer {
 							b.append("Content-ID: " + p.contentId + "\r\n");
 						}
 						b.append("\r\n");
+						if (partial.isValid) {
+							return Unpooled.wrappedBuffer(b.toString().getBytes(), partial.offset, partial.length);
+						}
 						return Unpooled.wrappedBuffer(b.toString().getBytes());
-					}).orElse(null);
+					}).orElse(DEFAULT_NIL_BYTE_BUF);
+		} else if (section.endsWith(SECTION_HEADER_PATTERN) && partAddr(section.replace(SECTION_HEADER_PATTERN, ""))) {
+			String part = f.section.replace(SECTION_HEADER_PATTERN, "");
+			logger.info("Fetch headers of {}", part);
+			return body.get().structure.parts().stream().filter(p -> p.address.equalsIgnoreCase(part))
+					.filter(p -> p.mime.equals("message/rfc822")).findAny().map(p -> {
+						Stream messagePart = itemsApi.fetch(rec.value.imapUid, p.address, p.encoding, p.mime, p.charset,
+								p.fileName);
+						int len = p.size;
+						ByteBuf emlBuffer = readMmap(messagePart, len * 2).join();
+						emlBuffer.markReaderIndex();
+						int headerEndIndex = ByteBufUtil.indexOf(TWO_CRLF.duplicate(), emlBuffer);
+						if (headerEndIndex < 0) {
+							return DEFAULT_NIL_BYTE_BUF;
+						}
+						emlBuffer.markReaderIndex();
+						if (partial.isValid) {
+							return emlBuffer.slice(partial.offset, partial.length);
+						}
+						return emlBuffer.slice(0, headerEndIndex);
+					}).orElse(DEFAULT_NIL_BYTE_BUF);
 		} else if (partAddr(section)) {
 			// load eml part
 			try {
@@ -193,7 +248,11 @@ public class FetchedItemRenderer {
 			try {
 				Stream fullMsg = recApi.fetchComplete(rec.value.imapUid);
 				int len = body.get().size;
-				return readMmap(fullMsg, len * 2).join();
+				ByteBuf byteBuf = readMmap(fullMsg, len * 2).join();
+				if (partial.isValid) {
+					return byteBuf.slice(partial.offset, partial.length);
+				}
+				return byteBuf;
 			} catch (ServerFault sf) {
 				logger.error("could not fetch {}: {}", rec.value.imapUid, sf.getMessage());
 				return null;
@@ -333,6 +392,45 @@ public class FetchedItemRenderer {
 			CompletableFuture<ByteBuf> ex = new CompletableFuture<>();
 			ex.completeExceptionally(e);
 			return ex;
+		}
+	}
+
+	private class Partial {
+		public final boolean isValid;
+		public final int offset;
+		public final int length;
+
+		private record PartialBoundaries(int offset, int length) {
+		}
+
+		public Partial(String partial) {
+			isValid = isValidPartial(partial);
+			PartialBoundaries pb = getPartialBoundaries(partial);
+			offset = pb.offset;
+			length = pb.length;
+		}
+
+		private boolean isValidPartial(String partial) {
+			String[] partialArray = partial.split("\\.");
+			if (partialArray.length != 2) {
+				return false;
+			}
+			for (int i = 0; i < partialArray.length; i++) {
+				try {
+					Integer.parseInt(partialArray[i]);
+				} catch (NumberFormatException e) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		private PartialBoundaries getPartialBoundaries(String partial) {
+			if (!isValid) {
+				return new PartialBoundaries(0, 0);
+			}
+			int[] partialArray = Arrays.asList(partial.split("\\.")).stream().mapToInt(Integer::parseInt).toArray();
+			return new PartialBoundaries(partialArray[0], partialArray[1]);
 		}
 	}
 

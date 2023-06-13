@@ -271,7 +271,7 @@ public class BasicStoreTests extends LoggedTestCase {
 			Collection<MimeTree> bss = sc.uidFetchBodyStructure(uids);
 			for (MimeTree mt : bss) {
 				for (MimePart mp : mt) {
-					sc.uidFetchPart(mt.getUid(), mp.getAddress());
+					sc.uidFetchPart(mt.getUid(), mp.getAddress(), null);
 				}
 			}
 			assertEquals(uids.size(), bss.size());
@@ -551,7 +551,7 @@ public class BasicStoreTests extends LoggedTestCase {
 			Collection<MimeTree> mts = sc.uidFetchBodyStructure(Arrays.asList(1));
 			if (mts.size() == 1) {
 				System.out.println("mts[0]" + mts.iterator().next().toString());
-				IMAPByteSource part = sc.uidFetchPart(1, "1");
+				IMAPByteSource part = sc.uidFetchPart(1, "1", null);
 				try {
 					part.source().read();
 				} catch (IOException e) {
@@ -579,7 +579,7 @@ public class BasicStoreTests extends LoggedTestCase {
 			Integer uid = uids.iterator().next();
 
 			long nstime = System.nanoTime();
-			IMAPByteSource in = sc.uidFetchPart(uid, "1");
+			IMAPByteSource in = sc.uidFetchPart(uid, "1", null);
 			nstime = System.nanoTime() - nstime;
 			System.out.println("uidFetchPart took took " + nstime + "ns (" + (nstime / 1000000) + "ms) for " + in.size()
 					+ "byte(s)");

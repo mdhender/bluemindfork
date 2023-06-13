@@ -66,6 +66,7 @@ import io.vertx.core.streams.WriteStream;
 import net.bluemind.authentication.api.AuthUser;
 import net.bluemind.authentication.api.IAuthentication;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
+import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.AppendTx;
@@ -400,12 +401,13 @@ public class MailApiConnection implements MailboxConnection {
 			WriteStream<FetchedItem> output) {
 		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
 		IDbMessageBodies bodyApi = prov.instance(IDbMessageBodies.class, selected.partition);
+		IMailboxItems itemsApi = prov.instance(IMailboxItems.class, selected.folder.uid);
 		Iterator<List<Long>> slice = Lists
 				.partition(recApi.imapIdSet(idset, "-deleted"), DriverConfig.get().getInt("driver.records-mget"))
 				.iterator();
 		CompletableFuture<Void> ret = new CompletableFuture<>();
 		Context fetchContext = VertxPlatform.getVertx().getOrCreateContext();
-		FetchedItemRenderer renderer = new FetchedItemRenderer(bodyApi, recApi, fields);
+		FetchedItemRenderer renderer = new FetchedItemRenderer(bodyApi, recApi, itemsApi, fields);
 		fetchContext
 				.runOnContext(v -> pushNext(fetchContext, renderer, slice, Collections.emptyIterator(), ret, output));
 		return ret;

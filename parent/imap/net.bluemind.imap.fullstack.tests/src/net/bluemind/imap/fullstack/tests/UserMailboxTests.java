@@ -264,14 +264,14 @@ public class UserMailboxTests {
 			assertTrue(added > 0);
 			addUid.set(added);
 			assertTrue(sc.select("INBOX"));
-			try (IMAPByteSource fetch12 = sc.uidFetchPart(added, "1.2")) {
+			try (IMAPByteSource fetch12 = sc.uidFetchPart(added, "1.2", null)) {
 				assertNotNull(fetch12);
 				System.err.println("Got " + fetch12.size() + " byte(s)");
 				byte[] data = fetch12.source().read();
 				System.err.println("data: " + data.length);
 			}
 
-			try (IMAPByteSource fetch12 = sc.uidFetchPart(added, "1.2.MIME")) {
+			try (IMAPByteSource fetch12 = sc.uidFetchPart(added, "1.2.MIME", null)) {
 				assertNotNull(fetch12);
 				System.err.println("Got " + fetch12.size() + " byte(s)");
 				byte[] data = fetch12.source().read();
@@ -319,7 +319,7 @@ public class UserMailboxTests {
 			TaggedResult rcStyleHead = sc.tagged("uid fetch 1 (uid body.peek[header])");
 			assertTrue(rcStyleHead.isOk());
 
-			IMAPByteSource thePart = sc.uidFetchPart(1, "1");
+			IMAPByteSource thePart = sc.uidFetchPart(1, "1", null);
 			assertNotNull(thePart);
 
 		}

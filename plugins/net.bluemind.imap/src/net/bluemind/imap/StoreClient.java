@@ -354,8 +354,8 @@ public class StoreClient implements AutoCloseable {
 		return cs.uidStore(uidSet, fl, set);
 	}
 
-	public IMAPByteSource uidFetchPart(Integer uid, String address) {
-		return cs.uidFetchPart(uid, address);
+	public IMAPByteSource uidFetchPart(Integer uid, String address, String partial) {
+		return cs.uidFetchPart(uid, address, partial);
 	}
 
 	public List<MailThread> uidThreads() {

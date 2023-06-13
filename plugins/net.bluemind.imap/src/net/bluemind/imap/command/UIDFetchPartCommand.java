@@ -27,15 +27,32 @@ public class UIDFetchPartCommand extends Command<IMAPByteSource> {
 
 	private long uid;
 	private String section;
+	private String partial;
 
-	public UIDFetchPartCommand(long uid, String section) {
+	public UIDFetchPartCommand(long uid, String section, String partial) {
 		this.uid = uid;
 		this.section = section;
+		this.partial = partial;
 	}
 
 	@Override
 	protected CommandArgument buildCommand() {
-		String cmd = "UID FETCH " + uid + " (UID BODY.PEEK[" + section + "])";
+		StringBuilder sb = new StringBuilder();
+		sb.append("UID FETCH ");
+		sb.append(uid);
+		if (section == null) {
+			sb.append(" (BODY.PEEK[]");
+		} else {
+			sb.append(" (BODY.PEEK[" + section + "]");
+		}
+		if (partial != null) {
+			sb.append("<" + partial + ">");
+		}
+		sb.append(")");
+		String cmd = sb.toString();
+		if (logger.isDebugEnabled()) {
+			logger.debug("cmd: " + cmd);
+		}
 		CommandArgument args = new CommandArgument(cmd, null);
 		return args;
 	}
@@ -55,7 +72,8 @@ public class UIDFetchPartCommand extends Command<IMAPByteSource> {
 			if (ok.isOk()) {
 				data = IMAPByteSource.wrap(new byte[0]);
 			} else {
-				logger.warn("Fetch of part " + section + " in uid " + uid + " failed: " + ok.getPayload());
+				logger.warn("Fetch of part " + section + " partial " + partial + " in uid " + uid + " failed: "
+						+ ok.getPayload());
 			}
 		}
 	}
