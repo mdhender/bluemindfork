@@ -22,7 +22,7 @@
     "common.save": "Save",
     "common.print": "Print",
     "common.delete": "Delete",
-    "common.attachment": "Löschen",
+    "common.attachment": "Attachment",
     "common.attachments": "1 attachment | {count} attachments",
     "common.downloadAttachment": "Download attachment",
     "common.removeAttachment": "Remove attachment",
