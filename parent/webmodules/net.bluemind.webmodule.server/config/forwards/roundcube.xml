@@ -4,6 +4,7 @@
 		target="locator://bm/webmail:81/webmail" role="hasMail">
 		<whitelist>
 			<wl uri="/skins/bluemind/images/favicon.ico" />
+			<wl regex="^/webmail/net.bluemind.ui.push/(.*)$" />
 			<wl regex="^/webmail/css/(.*)$" />
 			<wl regex="^/webmail/js/(.*)$" />
 			<wl regex="^/webmail/style/(.*)$" />
