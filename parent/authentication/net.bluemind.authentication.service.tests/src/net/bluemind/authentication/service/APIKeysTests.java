@@ -116,7 +116,7 @@ public class APIKeysTests {
 	public void createWithKey() throws ServerFault {
 		String dn = "key" + System.currentTimeMillis();
 		String key = UUID.randomUUID().toString();
-		APIKey ret = service.create(key, dn);
+		APIKey ret = service.store(key, dn);
 		assertNotNull(ret);
 		assertEquals(dn, ret.displayName);
 		assertEquals(key, ret.sid);

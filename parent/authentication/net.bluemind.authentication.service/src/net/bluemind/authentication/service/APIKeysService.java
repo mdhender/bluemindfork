@@ -42,7 +42,7 @@ public class APIKeysService implements IAPIKeys {
 	}
 
 	@Override
-	public APIKey create(String key, String displayName) throws ServerFault {
+	public APIKey store(String key, String displayName) throws ServerFault {
 		if (context.isAnonymous()) {
 			throw new ServerFault(INVALID_SECURITY_CONTEXT, ErrorCode.PERMISSION_DENIED);
 		}
@@ -61,7 +61,7 @@ public class APIKeysService implements IAPIKeys {
 
 	@Override
 	public APIKey create(String displayName) throws ServerFault {
-		return create(UUID.randomUUID().toString(), displayName);
+		return store(UUID.randomUUID().toString(), displayName);
 	}
 
 	@Override

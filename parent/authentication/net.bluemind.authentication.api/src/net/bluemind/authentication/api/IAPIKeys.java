@@ -55,8 +55,7 @@ public interface IAPIKeys {
 	 */
 	@PUT
 	@Path("{key}")
-	public APIKey create(@PathParam("key") String key, @QueryParam("displayName") String displayName)
-			throws ServerFault;
+	public APIKey store(@PathParam("key") String key, @QueryParam("displayName") String displayName) throws ServerFault;
 
 	/**
 	 * Deletes an {@link APIKey}
