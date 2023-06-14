@@ -104,6 +104,13 @@ public class UserMailboxTests {
 	}
 
 	@Test
+	public void userCannotConnect() throws Exception {
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "JOHN")) {
+			assertFalse(sc.login());
+		}
+	}
+
+	@Test
 	public void userCanConnect() throws Exception {
 		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "john")) {
 			assertTrue(sc.login());

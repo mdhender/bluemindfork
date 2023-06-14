@@ -32,7 +32,7 @@ public class LoginCommand extends AnalyzedCommand {
 		super(raw);
 		FlatCommand flat = flattenAtoms(true);
 		try {
-			Credentials creds = parser(flat.fullCmd.toLowerCase());
+			Credentials creds = parser(flat.fullCmd);
 			this.login = creds.log();
 			this.password = creds.pass();
 		} catch (Exception e) {
