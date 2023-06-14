@@ -405,8 +405,10 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 			throw ServerFault.notFound("itemId " + itemId + " not found for unexpunge");
 		}
 
-		AppendTx unexpTx = foldersWriteDelegate.get().prepareAppend(container.id, 1);
+		AppendTx unexpTx = foldersWriteDelegate.get().prepareAppend(folderItemId, 1);
 		MailboxRecord freshRec = item.value.copy();
+		freshRec.flags = freshRec.flags.stream().filter(f -> !f.flag.equals("\\Deleted")).toList();
+		freshRec.internalFlags = freshRec.internalFlags.stream().filter(f -> f != InternalFlag.expunged).toList();
 		freshRec.imapUid = unexpTx.imapUid;
 		ItemVersion itemRec = writeDelegate.get().create(unexpTx.imapUid + ".", freshRec);
 		ItemValue<MailboxItem> fullFresh = getCompleteById(itemRec.id);
