@@ -64,16 +64,17 @@ import net.bluemind.webmodule.server.IWebFilter;
 import net.bluemind.webmodule.server.SecurityConfig;
 import net.bluemind.webmodule.server.WebserverConfiguration;
 import net.bluemind.webmodule.server.forward.ForwardedLocation;
-import net.bluemind.webmodule.server.forward.ForwardedLocation.ResolvedLoc;
 
 public class AuthenticationFilter implements IWebFilter {
-
 	private static final Logger logger = LoggerFactory.getLogger(AuthenticationFilter.class);
+
 	private static final HashFunction sha256 = Hashing.sha256();
 	private static final Encoder b64UrlEncoder = Base64.getUrlEncoder().withoutPadding();
 	private static final Cache<String, String> codeVerifierCache = CacheBuilder.newBuilder()
 			.expireAfterWrite(10, TimeUnit.MINUTES).build();
 	private static final ServerCookieDecoder cookieDecoder = ServerCookieDecoder.LAX;
+
+	private static final String REDIRECT_PROTO = "https://";
 	private static final String OPENID_COOKIE = "OpenIdSession";
 	private static final String ACCESS_COOKIE = "AccessToken";
 	private static final String REFRESH_COOKIE = "RefreshToken";
@@ -104,48 +105,46 @@ public class AuthenticationFilter implements IWebFilter {
 			return CompletableFuture.completedFuture(request);
 		}
 
-		if (forwardedLocation.isPresent()) {
-			Optional<ResolvedLoc> resolved = forwardedLocation.get().resolve();
-			if (resolved.isPresent()) {
-				Optional<SessionData> sessionData = sessionId(request)
-						.map(sessionId -> SessionsCache.get().getIfPresent(sessionId));
-				if (sessionData.isPresent()) {
-					decorate(request, sessionData.get());
-				} else {
-					request.response().setStatusCode(302);
-					request.response().headers().add(HttpHeaders.LOCATION, "/bluemind_sso_logout");
-					request.response().end();
-					return CompletableFuture.completedFuture(null);
-				}
+		return forwardedLocation.flatMap(fl -> fl.resolve()).map(resolved -> forwardedLocation(request))
+				.orElseGet(() -> notForwardedLocation(request));
+	}
 
-				return CompletableFuture.completedFuture(request);
-			}
-		}
-
+	private CompletableFuture<HttpServerRequest> notForwardedLocation(HttpServerRequest request) {
 		if (request.path().endsWith("/bluemind_sso_logout")) {
 			return logout(request);
 		}
 
-		Optional<SessionData> sessionData = sessionId(request)
-				.map(sessionId -> SessionsCache.get().getIfPresent(sessionId));
-		if (sessionData.isPresent()) {
-			decorate(request, sessionData.get());
+		return sessionExists(request).orElseGet(() -> {
+			DomainsHelper.getDomainUid(request).ifPresentOrElse(domainUid -> {
+				if (isCasEnabled(domainUid)) {
+					try {
+						CasHandler.CASRequest.build(request, domainUid).redirectToCasLogin();
+					} catch (Exception e) {
+						logger.error(e.getMessage(), e);
+						request.response().setStatusCode(500).end();
+					}
+				} else {
+					redirectToOpenIdServer(request, domainUid);
+				}
+			}, () -> redirectToGlobalExternalUrl(request));
+			return CompletableFuture.completedFuture(null);
+		});
+	}
+
+	private CompletableFuture<HttpServerRequest> forwardedLocation(HttpServerRequest request) {
+		return sessionExists(request).orElseGet(() -> {
+			request.response().setStatusCode(302);
+			request.response().headers().add(HttpHeaders.LOCATION, "/bluemind_sso_logout");
+			request.response().end();
+			return CompletableFuture.completedFuture((HttpServerRequest) null);
+		});
+	}
+
+	private Optional<CompletableFuture<HttpServerRequest>> sessionExists(HttpServerRequest request) {
+		return sessionId(request).map(sessionId -> SessionsCache.get().getIfPresent(sessionId)).map(sessionData -> {
+			decorate(request, sessionData);
 			return CompletableFuture.completedFuture(request);
-		}
-
-		Optional<String> domainUid = DomainsHelper.getDomainUid(request);
-		if (domainUid.isEmpty()) {
-			redirectToGlobalExternalUrl(request);
-		}
-
-		if (isCasEnabled(domainUid.get())) {
-			CasHandler.CASRequest.build(request, domainUid.get()).redirectToCasLogin();
-		} else {
-			redirectToOpenIdServer(request, domainUid.get());
-		}
-
-		return CompletableFuture.completedFuture(null);
-
+		});
 	}
 
 	private void redirectToOpenIdServer(HttpServerRequest request, String domainUid) {
@@ -172,7 +171,7 @@ public class AuthenticationFilter implements IWebFilter {
 		try {
 			String location = domainProperties.get(AuthDomainProperties.OPENID_AUTHORISATION_ENDPOINT.name());
 			location += "?client_id=" + encode(domainProperties.get(AuthDomainProperties.OPENID_CLIENT_ID.name()));
-			location += "&redirect_uri=" + encode("https://" + request.host() + "/auth/openid");
+			location += "&redirect_uri=" + encode(REDIRECT_PROTO + request.host() + "/auth/openid");
 			location += "&code_challenge=" + encode(codeChallenge);
 			location += "&state=" + encode(state);
 			location += "&code_challenge_method=S256";
@@ -191,7 +190,7 @@ public class AuthenticationFilter implements IWebFilter {
 
 	private void redirectToGlobalExternalUrl(HttpServerRequest request) {
 		SharedMap<String, String> sysconf = MQ.sharedMap(Shared.MAP_SYSCONF);
-		String location = "https://" + sysconf.get(SysConfKeys.external_url.name()) + request.path();
+		String location = REDIRECT_PROTO + sysconf.get(SysConfKeys.external_url.name()) + request.path();
 		location += request.query() != null ? "?" + request.query() : "";
 		request.response().headers().add(HttpHeaders.LOCATION, location);
 		request.response().setStatusCode(302);
@@ -247,35 +246,32 @@ public class AuthenticationFilter implements IWebFilter {
 		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
 				.get(domainUid);
 
-		String logoutUrl = null;
-		String redirUrl = null;
+		Optional<String> redirUrl = Optional.empty();
 		try {
 			URL reqUrl = new URL(request.absoluteURI());
-			redirUrl = "https://" + reqUrl.getHost() + "/";
-		} catch (MalformedURLException e) {
-		}
-		try {
-			redirUrl = URLEncoder.encode(redirUrl, java.nio.charset.StandardCharsets.UTF_8.toString());
-		} catch (UnsupportedEncodingException e) {
+			redirUrl = Optional.ofNullable(URLEncoder.encode(REDIRECT_PROTO + reqUrl.getHost() + "/",
+					java.nio.charset.StandardCharsets.UTF_8.toString()));
+		} catch (MalformedURLException | UnsupportedEncodingException e) {
+			logger.warn("Unable to get logout redirect URL", e);
+			redirUrl = Optional.empty();
 		}
 
+		String logoutUrl = null;
 		if (!AuthTypes.CAS.name().equals(domainSettings.get(AuthDomainProperties.AUTH_TYPE.name()))) {
 			logoutUrl = domainSettings.get(AuthDomainProperties.OPENID_END_SESSION_ENDPOINT.name());
-			String idToken = null;
-			if (request.cookies("IdToken").stream().findFirst().isPresent()) {
-				idToken = request.cookies("IdToken").stream().findFirst().get().getValue();
-			}
-			if (idToken != null) {
-				try {
-					idToken = URLEncoder.encode(idToken, java.nio.charset.StandardCharsets.UTF_8.toString());
-				} catch (UnsupportedEncodingException e) {
-				}
-				logoutUrl += "?post_logout_redirect_uri=" + redirUrl;
-				logoutUrl += "&id_token_hint=" + idToken;
-			}
+			logoutUrl += redirUrl.map(url -> "?post_logout_redirect_uri=" + url).orElse("");
+			logoutUrl += request.cookies(ID_COOKIE).stream().findFirst().map(io.vertx.core.http.Cookie::getValue)
+					.map(it -> {
+						try {
+							return URLEncoder.encode(it, java.nio.charset.StandardCharsets.UTF_8.toString());
+						} catch (UnsupportedEncodingException e) {
+							logger.warn("Unable to get ID token", e);
+							return null;
+						}
+					}).map(encodedIdToken -> "&id_token_hint=" + encodedIdToken).orElse("");
 		} else {
 			logoutUrl = domainSettings.get(AuthDomainProperties.CAS_URL.name()) + "logout";
-			logoutUrl += "?url=" + redirUrl;
+			logoutUrl += redirUrl.map(url -> "?url=" + url).orElse("");
 		}
 
 		request.response().headers().add(HttpHeaders.LOCATION, logoutUrl);
@@ -287,8 +283,9 @@ public class AuthenticationFilter implements IWebFilter {
 	}
 
 	public static void purgeSessionCookie(MultiMap headers) {
+		String delete = "delete";
 
-		Cookie bmSid = new DefaultCookie(BMSID_COOKIE, "delete");
+		Cookie bmSid = new DefaultCookie(BMSID_COOKIE, delete);
 		bmSid.setPath("/");
 		bmSid.setMaxAge(0);
 		bmSid.setHttpOnly(true);
@@ -297,7 +294,7 @@ public class AuthenticationFilter implements IWebFilter {
 		}
 		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(bmSid));
 
-		Cookie openId = new DefaultCookie(OPENID_COOKIE, "delete");
+		Cookie openId = new DefaultCookie(OPENID_COOKIE, delete);
 		openId.setPath("/");
 		openId.setMaxAge(0);
 		openId.setHttpOnly(true);
@@ -306,7 +303,7 @@ public class AuthenticationFilter implements IWebFilter {
 		}
 		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(openId));
 
-		Cookie access = new DefaultCookie(ACCESS_COOKIE, "delete");
+		Cookie access = new DefaultCookie(ACCESS_COOKIE, delete);
 		access.setPath("/");
 		access.setMaxAge(0);
 		access.setHttpOnly(true);
@@ -315,7 +312,7 @@ public class AuthenticationFilter implements IWebFilter {
 		}
 		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(access));
 
-		Cookie refresh = new DefaultCookie(REFRESH_COOKIE, "delete");
+		Cookie refresh = new DefaultCookie(REFRESH_COOKIE, delete);
 		refresh.setPath("/");
 		refresh.setMaxAge(0);
 		refresh.setHttpOnly(true);
@@ -324,7 +321,7 @@ public class AuthenticationFilter implements IWebFilter {
 		}
 		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(refresh));
 
-		Cookie idc = new DefaultCookie(ID_COOKIE, "delete");
+		Cookie idc = new DefaultCookie(ID_COOKIE, delete);
 		idc.setPath("/");
 		idc.setMaxAge(0);
 		idc.setHttpOnly(true);
