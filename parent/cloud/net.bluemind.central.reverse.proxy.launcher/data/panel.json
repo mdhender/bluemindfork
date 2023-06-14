@@ -1,0 +1,134 @@
+
+{
+    "datasource": {
+      "type": "marcusolsson-json-datasource",
+      "uid": "uidToReplace"
+    },
+    "fieldConfig": {
+      "defaults": {
+        "custom": {
+          "valueName": "last"
+        },
+        "mappings": [],
+        "thresholds": {
+          "mode": "absolute",
+          "steps": [
+            {
+              "color": "green",
+              "value": null
+            },
+            {
+              "color": "red",
+              "value": 80
+            }
+          ]
+        }
+      },
+      "overrides": []
+    },
+    "gridPos": {
+      "h": 8,
+      "w": 12,
+      "x": 0,
+      "y": 0
+    },
+    "id": 1,
+    "options": {
+      "useBackground": true,
+      "content": "graph LR\n      A --> B\n    ",
+      "nodeSize": {
+        "minWidth": 30,
+        "minHeight": 40
+      },
+      "legend": {
+        "show": true,
+        "asTable": true,
+        "displayMode": "table",
+        "gradient": {
+          "enabled": true,
+          "show": true
+        },
+        "hideEmpty": false,
+        "hideZero": false,
+        "placement": "bottom",
+        "sortBy": "last",
+        "sortDesc": true,
+        "stats": [
+          "mean",
+          "last",
+          "min",
+          "max",
+          "sum"
+        ]
+      },
+      "mermaidThemeVariablesDark": {
+        "common": {
+          "fontFamily": "Roboto,Helvetica Neue,Arial,sans-serif"
+        },
+        "classDiagram": {},
+        "flowChart": {},
+        "sequenceDiagram": {},
+        "stateDiagram": {},
+        "userJourneyDiagram": {}
+      },
+      "mermaidThemeVariablesLight": {
+        "common": {
+          "fontFamily": "Roboto,Helvetica Neue,Arial,sans-serif"
+        },
+        "classDiagram": {},
+        "flowChart": {},
+        "sequenceDiagram": {},
+        "stateDiagram": {},
+        "userJourneyDiagram": {}
+      },
+      "style": "",
+      "authPassword": "",
+      "authUsername": "",
+      "composites": [],
+      "contentUrl": "serverToReplace/monitoring/topology",
+      "maxWidth": true,
+      "mermaidServiceUrl": "",
+      "metricCharacterReplacements": [],
+      "moddedSeriesVal": 0,
+      "mode": "content",
+      "pluginVersion": "",
+      "useBasicAuth": false,
+      "valueName": "last"
+    },
+    "pluginVersion": "1.7.3",
+    "targets": [
+      {
+        "cacheDurationSeconds": 300,
+        "datasource": {
+          "type": "marcusolsson-json-datasource",
+          "uid": "a74313c2-a3bf-401b-be57-c76f4f4b96a9"
+        },
+        "fields": [
+          {
+            "jsonPath": "$.time",
+            "type": "time"
+          },
+          {
+            "jsonPath": "$.master",
+            "language": "jsonpath",
+            "name": "master",
+            "type": "number"
+          },
+          {
+            "jsonPath": "$.tail1",
+            "language": "jsonpath",
+            "name": "tail1",
+            "type": "number"
+          }
+        ],
+        "hide": false,
+        "method": "GET",
+        "queryParams": "",
+        "refId": "A",
+        "urlPath": ""
+      }
+    ],
+    "title": "BlueMind",
+    "type": "jdbranham-diagram-panel",
+    "description": ""
+  }

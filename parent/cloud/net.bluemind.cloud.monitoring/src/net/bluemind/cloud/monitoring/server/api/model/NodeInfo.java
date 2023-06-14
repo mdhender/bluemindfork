@@ -18,6 +18,8 @@
  */
 package net.bluemind.cloud.monitoring.server.api.model;
 
+import java.util.Map;
+
 public class NodeInfo {
 
 	public String product;
@@ -29,6 +31,7 @@ public class NodeInfo {
 	public NodeType type;
 	public String forestId;
 	public long timestamp;
+	public Map<String, String> metrics;
 
 	public NodeInfo() {
 

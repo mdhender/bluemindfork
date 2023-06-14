@@ -232,15 +232,15 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 		Thread.currentThread().setContextClassLoader(null);
 		Properties cp = new Properties();
 		Config conf = KafkaStoreConfig.get();
-		cp.setProperty("bootstrap.servers", bootstrapServer);
-		cp.setProperty("group.id", group);
-		cp.setProperty("client.id", clientId);
+		cp.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
+		cp.setProperty(ConsumerConfig.GROUP_ID_CONFIG, group);
+		cp.setProperty(ConsumerConfig.CLIENT_ID_CONFIG, clientId);
 		cp.setProperty(ConsumerConfig.METRIC_REPORTER_CLASSES_CONFIG, BluemindMetricsReporter.class.getCanonicalName());
 		cp.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getCanonicalName());
 		cp.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getCanonicalName());
-		cp.setProperty("enable.auto.commit", "false");
-		cp.setProperty("auto.commit.interval.ms", "1000");
-		cp.setProperty("auto.offset.reset", "earliest");
+		cp.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
+		cp.setProperty(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000");
+		cp.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
 		cp.setProperty(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG,
 				Long.toString(conf.getDuration("kafka.consumer.fetchMaxWait", TimeUnit.MILLISECONDS)));

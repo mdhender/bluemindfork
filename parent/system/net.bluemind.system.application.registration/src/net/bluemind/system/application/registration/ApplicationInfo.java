@@ -18,23 +18,27 @@
  */
 package net.bluemind.system.application.registration;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.system.application.registration.metrics.NodeMetrics;
 
 public class ApplicationInfo {
 
 	public String product;
 	public String address;
 	public String machineId;
-	public String state;
 	public String installationId;
+	public String state;
 	public String version;
+	public Map<String, String> metrics = new HashMap<>();
 
 	public ApplicationInfo() {
-
 	}
 
 	public ApplicationInfo(String product, String address, String machineId, String installationId) {
@@ -47,20 +51,37 @@ public class ApplicationInfo {
 	public static void register(ApplicationInfo info, Supplier<String> state, Supplier<String> version) {
 		Store store = new Store(info.product + info.machineId);
 		if (store.isEnabled()) {
-			info.state = state.get();
-			info.version = version.get();
-			VertxPlatform.getVertx().eventBus().send(ApplicationRegistration.APPLICATION_REGISTRATION,
-					JsonUtils.asString(info));
-			VertxPlatform.getVertx().setPeriodic(TimeUnit.HOURS.toMillis(1), (id) -> {
+			VertxPlatform.getVertx().setPeriodic(TimeUnit.SECONDS.toMillis(30), id -> {
 				info.state = state.get();
 				info.version = version.get();
-				VertxPlatform.getVertx().eventBus().publish(ApplicationRegistration.APPLICATION_REGISTRATION, info);
+				info.updateMetrics();
+				VertxPlatform.getVertx().eventBus().publish(ApplicationRegistration.APPLICATION_REGISTRATION,
+						JsonObject.mapFrom(info));
 			});
 		}
+
+	}
+
+	private void updateMetrics() {
+		if (!"bm-core".equals(product)) {
+			return;
+		}
+
+		boolean isTail = "CORE_STATE_CLONING".equals(state);
+		NodeMetrics.getMetrics(isTail).stream().forEach(m -> metrics.put(m.getName(), m.getDefaultValue()));
+
+		VertxPlatform.getVertx().eventBus().consumer(isTail ? "TAIL_METRICS" : "MASTER_METRICS", event -> {
+			JsonObject body = (JsonObject) event.body();
+			if (body.getString("key") != null && !body.getString("key").isEmpty()) {
+				metrics.put(body.getString("key"), body.getString("value"));
+			}
+		});
 	}
 
 	public static void update(ApplicationInfo info) {
-		VertxPlatform.getVertx().eventBus().publish(ApplicationRegistration.APPLICATION_REGISTRATION, info);
+		info.updateMetrics();
+		JsonObject mapFrom = JsonObject.mapFrom(info);
+		VertxPlatform.getVertx().eventBus().publish(ApplicationRegistration.APPLICATION_REGISTRATION, mapFrom);
 	}
 
 	public String toJson() {

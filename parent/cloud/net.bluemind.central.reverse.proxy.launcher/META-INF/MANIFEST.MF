@@ -12,7 +12,8 @@ Require-Bundle: com.typesafe.config,
  net.bluemind.systemd.notify,
  net.bluemind.central.reverse.proxy.common,
  net.bluemind.system.application.registration,
- net.bluemind.central.reverse.proxy.stream
+ net.bluemind.central.reverse.proxy.stream,
+ net.bluemind.lib.grafana
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: net.bluemind.central.reverse.proxy.launcher

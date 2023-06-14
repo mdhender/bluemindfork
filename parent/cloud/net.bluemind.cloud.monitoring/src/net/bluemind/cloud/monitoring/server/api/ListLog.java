@@ -53,7 +53,7 @@ public class ListLog extends NodeConsumer<List<String>> {
 				super.error(request, ret);
 			} else {
 				CompletableFuture<List<String>> clusterNodes = ret.map(nodes -> nodes.stream()
-						.filter(this::isNodeInfoTopic).findFirst().map(node -> this.retrieveBlueMindNodes(node))
+						.filter(this::isNodeInfoTopic).findFirst().map(this::retrieveBlueMindNodes)
 						.orElse(CompletableFuture.completedFuture(Collections.emptyList()))).result();
 				super.response(request, clusterNodes);
 			}

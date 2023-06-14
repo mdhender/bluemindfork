@@ -18,20 +18,29 @@
  */
 package net.bluemind.system.application.registration;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
+import io.vertx.core.json.JsonObject;
 import net.bluemind.core.utils.JsonUtils;
 
 public class ApplicationRegistration extends AbstractVerticle {
 
 	public static final String APPLICATION_REGISTRATION = "bm.application.registration";
+	public static final Logger logger = LoggerFactory.getLogger(ApplicationRegistration.class);
+	private final Store store;
+
+	public ApplicationRegistration(Store store) {
+		this.store = store;
+	}
 
 	@Override
 	public void start(Promise<Void> startPromise) throws Exception {
 
-		vertx.eventBus().consumer(APPLICATION_REGISTRATION, (event) -> {
-			var info = JsonUtils.read((String) event.body(), ApplicationInfo.class);
-			Store store = new Store("bm-crp");
+		vertx.eventBus().consumer(APPLICATION_REGISTRATION, event -> {
+			ApplicationInfo info = JsonUtils.read(((JsonObject) event.body()).encode(), ApplicationInfo.class);
 			Publisher applicationPublisher = store.getPublisher(new DefaultTopicDescriptor("bluemind_cluster",
 					"__nodes__", "system", "application-registration", info.product));
 			applicationPublisher.store(info.product, info.machineId.getBytes(), info.toJson().getBytes());

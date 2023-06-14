@@ -16,21 +16,26 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.system.application.registration;
+package net.bluemind.cloud.monitoring.server.api.model;
+
+import com.typesafe.config.Config;
 
 import io.vertx.core.Verticle;
+import net.bluemind.cloud.monitoring.server.MonitoringConfig;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class ApplicationRegistrationFactory implements IVerticleFactory {
+public class DataStateFactory implements IVerticleFactory {
+
+	private static final Config config = MonitoringConfig.get("Monitoring", DataStateFactory.class.getClassLoader());
 
 	@Override
 	public boolean isWorker() {
-		return true;
+		return false;
 	}
 
 	@Override
 	public Verticle newInstance() {
-		return new ApplicationRegistration(new Store("bm-crp"));
+		return new DataState(config);
 	}
 
 }

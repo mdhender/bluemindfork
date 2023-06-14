@@ -59,6 +59,7 @@
       <plugin id="net.bluemind.central.reverse.proxy"/>
       <plugin id="net.bluemind.central.reverse.proxy.common"/>
       <plugin id="net.bluemind.central.reverse.proxy.launcher"/>
+      <plugin id="net.bluemind.lib.grafana"/>
       <plugin id="net.bluemind.central.reverse.proxy.model"/>
       <plugin id="net.bluemind.central.reverse.proxy.model.client"/>
       <plugin id="net.bluemind.central.reverse.proxy.model.common"/>

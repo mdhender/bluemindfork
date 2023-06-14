@@ -51,6 +51,7 @@ public class KafkaTopicPublisher implements TopicPublisher {
 				comp.complete(null);
 			}
 		});
+
 		return comp;
 	}
 

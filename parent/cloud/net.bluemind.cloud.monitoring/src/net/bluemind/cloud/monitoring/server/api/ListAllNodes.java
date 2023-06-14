@@ -52,7 +52,6 @@ public class ListAllNodes extends NodeConsumer<Set<NodeInfo>> {
 
 	@Override
 	public void handle(HttpServerRequest request) {
-
 		adminClient.listTopics().andThen((ret) -> {
 			if (ret.failed()) {
 				super.error(request, ret);
@@ -60,7 +59,7 @@ public class ListAllNodes extends NodeConsumer<Set<NodeInfo>> {
 				CompletableFuture<Set<NodeInfo>> clusterNodes = ret.map(nodes -> nodes.stream()
 						.filter(this::isNodeInfoTopic).findFirst().map(node -> this.retrieveBlueMindNodes(node))
 						.orElse(CompletableFuture.completedFuture(Collections.emptySet()))).result();
-				super.response(request, clusterNodes);
+				response(request, clusterNodes);
 			}
 		});
 

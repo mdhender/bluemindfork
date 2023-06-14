@@ -87,6 +87,7 @@
    <bundle id="net.bluemind.central.reverse.proxy" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.central.reverse.proxy.common" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.central.reverse.proxy.launcher" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.lib.grafana" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.central.reverse.proxy.model" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.central.reverse.proxy.model.client" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.central.reverse.proxy.model.common" version="5.0.0.qualifier"/>

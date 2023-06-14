@@ -27,6 +27,8 @@ import net.bluemind.central.reverse.proxy.model.common.kafka.KafkaAdminClient;
 import net.bluemind.cloud.monitoring.server.api.ListAllBrokers;
 import net.bluemind.cloud.monitoring.server.api.ListAllNodes;
 import net.bluemind.cloud.monitoring.server.api.ListLog;
+import net.bluemind.cloud.monitoring.server.grafana.Metrics;
+import net.bluemind.cloud.monitoring.server.grafana.Topology;
 import net.bluemind.lib.vertx.RouteMatcher;
 
 public class MonitoringRouter {
@@ -39,6 +41,10 @@ public class MonitoringRouter {
 		routeMatcher.get("/monitoring/nodes", new ListAllNodes(adminClient, config, vertx));
 		routeMatcher.get("/monitoring/brokers", new ListAllBrokers(adminClient, config, vertx));
 		routeMatcher.get("/monitoring/topic/raw", new ListLog(adminClient, config, vertx));
+
+		// grafana
+		routeMatcher.get("/monitoring/metrics", new Metrics(adminClient, config, vertx));
+		routeMatcher.get("/monitoring/topology", new Topology(adminClient, config, vertx));
 
 		return routeMatcher;
 	}

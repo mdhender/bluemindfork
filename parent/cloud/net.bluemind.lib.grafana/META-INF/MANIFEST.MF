@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.lib.grafana
+Bundle-SymbolicName: net.bluemind.lib.grafana;singleton:=true
+Bundle-Version: 5.0.0.qualifier
+Bundle-Vendor: blue-mind.net
+Require-Bundle: org.eclipse.core.runtime,
+ io.vertx.core,
+ slf4j.api
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-ClassPath: .
+Export-Package: net.bluemind.lib.grafana.client,
+ net.bluemind.lib.grafana.dto,
+ net.bluemind.lib.grafana.config
+Import-Package: com.google.common.base
+Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: net.bluemind.lib.grafana
