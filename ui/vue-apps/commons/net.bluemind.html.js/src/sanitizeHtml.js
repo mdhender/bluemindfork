@@ -35,8 +35,8 @@ const ADDITIONAL_ALLOWED_ATTRIBUTES_FOR_ANY_TAG = [
     "data-bm-signature",
     "data-bm-darkified"
 ];
-
-const ALLOWED_LINK_PROTOCOLS = ["http", "https", "mailto", "tel", "sip"];
+const WINDOWS_FILEPATH_PROTOCOL = "[a-z]";
+const ALLOWED_LINK_PROTOCOLS = ["http", "https", "mailto", "tel", "sip", "file", WINDOWS_FILEPATH_PROTOCOL];
 const LINK_REGEX = new RegExp(`^(${ALLOWED_LINK_PROTOCOLS.join("|")}):(.*)`, "i");
 
 export default function (html, avoidStyleInvading) {
@@ -107,6 +107,16 @@ function customSafeAttrValue(tag, name, value) {
         // SIP protocol specific
         if (rectified === "sip") {
             return safeSipPath(tag, name, path);
+        }
+
+        // open bar for FILE protocol (asked by P.Baudracco)
+        if (rectified === "file") {
+            return value;
+        }
+
+        // open bar for WINDOWS path (asked by P.Baudracco)
+        if (new RegExp(WINDOWS_FILEPATH_PROTOCOL, "i").test(rectified)) {
+            return value;
         }
     }
 
