@@ -41,12 +41,14 @@ import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.ArchiveKind;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
+import net.bluemind.system.api.SystemState;
 import net.bluemind.system.api.hot.upgrade.HotUpgradeTask;
 import net.bluemind.system.api.hot.upgrade.HotUpgradeTaskFilter;
 import net.bluemind.system.api.hot.upgrade.HotUpgradeTaskStatus;
 import net.bluemind.system.api.hot.upgrade.IHotUpgrade;
 import net.bluemind.system.hook.ISystemConfigurationObserver;
 import net.bluemind.system.hook.ISystemConfigurationValidator;
+import net.bluemind.system.state.StateContext;
 
 public class MessageBodyTierChangeSysconfObserver
 		implements ISystemConfigurationObserver, ISystemConfigurationValidator {
@@ -121,6 +123,9 @@ public class MessageBodyTierChangeSysconfObserver
 	 */
 	@Override
 	public void validate(SystemConf previous, Map<String, String> modifications) throws ServerFault {
+		if (StateContext.getState() != SystemState.CORE_STATE_RUNNING) {
+			return;
+		}
 		ParametersValidator.notNull(modifications);
 		List<String> parameters = Arrays.asList(SysConfKeys.archive_kind.name(), SysConfKeys.archive_days.name(),
 				SysConfKeys.archive_size_threshold.name());
