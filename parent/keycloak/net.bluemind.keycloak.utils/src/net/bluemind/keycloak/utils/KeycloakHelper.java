@@ -17,11 +17,7 @@
   */
 package net.bluemind.keycloak.utils;
 
-import java.io.ByteArrayInputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,9 +27,8 @@ import java.util.StringTokenizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.HttpClientOptions;
-import io.vertx.core.http.HttpMethod;
+import com.google.common.base.Strings;
+
 import io.vertx.core.json.JsonObject;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.auth.AuthDomainProperties;
@@ -44,6 +39,7 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.domain.api.IInCoreDomains;
 import net.bluemind.hornetq.client.MQ;
@@ -57,35 +53,31 @@ import net.bluemind.keycloak.api.IKeycloakFlowAdmin;
 import net.bluemind.keycloak.api.IKeycloakKerberosAdmin;
 import net.bluemind.keycloak.api.IKeycloakUids;
 import net.bluemind.keycloak.api.KerberosComponent;
-import net.bluemind.keycloak.api.KerberosComponent.CachePolicy;
 import net.bluemind.keycloak.api.OidcClient;
-import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.Topology;
-import net.bluemind.node.api.INodeClient;
-import net.bluemind.node.api.NodeActivator;
-import net.bluemind.server.api.Server;
 import net.bluemind.server.api.TagDescriptor;
+import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
+import net.bluemind.system.api.SystemConf;
+import net.bluemind.utils.SyncHttpClient;
 
 public class KeycloakHelper {
 	private static final Logger logger = LoggerFactory.getLogger(KeycloakHelper.class);
-	private static final int keycloakWaitMaxRetries = 8; // 5sec per retry => 40sec max wait
+	private static final int KEYCLOAK_WAIT_MAX_RETRIES = 8; // 5sec per retry => 40sec max wait
+	private static final String GLOBAL_VIRT = "global.virt";
+	private static final String NO_REDIRECT_URI = "https://configure_external_url_in_bluemind";
 
 	private KeycloakHelper() {
 
 	}
 
 	public static void initForDomain(ItemValue<Domain> domain) {
+		waitForKeycloak();
 		if (domain.value.properties != null
 				&& AuthTypes.OPENID.name().equals(domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name()))) {
 			initExternalForDomain(domain);
 		} else {
-			Optional<ItemValue<Server>> kcServer = Topology.get().anyIfPresent(TagDescriptor.bm_keycloak.getTag());
-			if (kcServer.isPresent()) {
-				initKeycloakForDomain(domain);
-			} else {
-				logger.warn("No keycloak server in topology. Skipping init for domain {}", domain.uid);
-			}
+			initKeycloakForDomain(domain);
 		}
 	}
 
@@ -99,21 +91,16 @@ public class KeycloakHelper {
 		String realm = domain.uid;
 		String clientId = IKeycloakUids.clientId(domain.uid);
 
-		try {
-			keycloakAdminService.deleteRealm(realm);
-		} catch (Throwable t) {
-		}
-
 		keycloakAdminService.createRealm(realm);
 
 		IKeycloakFlowAdmin keycloakFlowService = provider.instance(IKeycloakFlowAdmin.class, realm);
-		keycloakFlowService.createByCopying(IKeycloakUids.keycloakFlowAlias, IKeycloakUids.bluemindFlowAlias);
+		keycloakFlowService.createByCopying(IKeycloakUids.KEYCLOAK_FLOW_ALIAS, IKeycloakUids.BLUEMIND_FLOW_ALIAS);
 
 		IKeycloakBluemindProviderAdmin keycloakBluemindProviderService = provider
 				.instance(IKeycloakBluemindProviderAdmin.class, domain.uid);
 		BluemindProviderComponent bpComponent = new BluemindProviderComponent();
 		bpComponent.setParentId(realm);
-		bpComponent.setName(realm + "-bmprovider");
+		bpComponent.setName(IKeycloakUids.bmProviderId(realm));
 
 		SharedMap<String, String> smap = MQ.sharedMap(Shared.MAP_SYSCONF);
 		bpComponent.setBmUrl(
@@ -122,67 +109,11 @@ public class KeycloakHelper {
 		bpComponent.setBmCoreToken(Token.admin0());
 		keycloakBluemindProviderService.create(bpComponent);
 
-		String authType = AuthTypes.INTERNAL.name();
-		String krbAdDomain = null;
-		String krbAdIp = null;
-		String krbKeytab = null;
-		String casUrl = null;
-		if (domain.value.properties != null
-				&& domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name()) != null) {
-			authType = domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name());
-			if (AuthTypes.KERBEROS.name().equals(authType)) {
-				krbAdDomain = domain.value.properties.get(AuthDomainProperties.KRB_AD_DOMAIN.name());
-				krbAdIp = domain.value.properties.get(AuthDomainProperties.KRB_AD_IP.name());
-				krbKeytab = domain.value.properties.get(AuthDomainProperties.KRB_KEYTAB.name());
-			}
-			if (AuthTypes.CAS.name().equals(authType)) {
-				casUrl = domain.value.properties.get(AuthDomainProperties.CAS_URL.name());
-			}
+		String authType = domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name());
+		if (Strings.isNullOrEmpty(authType)) {
+			authType = AuthTypes.INTERNAL.name();
+			domain.value.properties.put(AuthDomainProperties.AUTH_TYPE.name(), authType);
 		}
-
-		String auth_type = authType;
-		String krb_ad_domain = krbAdDomain != null ? krbAdDomain.toUpperCase() : null;
-		String krb_ad_ip = krbAdIp;
-		String krb_keytab = krbKeytab;
-		String cas_url = casUrl;
-		if (AuthTypes.KERBEROS.name().equals(auth_type)) {
-			Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
-					.get(domain.uid);
-			String domainExternalUrl = domainSettings.get(DomainSettingsKeys.external_url.name());
-			String globalExternalUrl = smap.get(SysConfKeys.external_url.name());
-			String srvPrincHost = domainExternalUrl != null ? domainExternalUrl : globalExternalUrl;
-
-			String serverPrincipal = "HTTP/" + srvPrincHost + "@" + krb_ad_domain;
-
-			String keytabPath = "/etc/bm-keycloak/" + domain.uid + ".keytab";
-			String kcServerAddr = Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address();
-			INodeClient nodeClient = NodeActivator.get(kcServerAddr);
-			nodeClient.writeFile(keytabPath, new ByteArrayInputStream(Base64.getDecoder().decode(krb_keytab)));
-
-			KerberosComponent kerb = new KerberosComponent();
-			kerb.setKerberosRealm(krb_ad_domain);
-			kerb.setServerPrincipal(serverPrincipal);
-			kerb.setKeyTab(keytabPath);
-			kerb.setEnabled(true);
-			kerb.setDebug(true);
-			kerb.setCachePolicy(CachePolicy.DEFAULT);
-
-			if (!"global.virt".equals(realm) && domainExternalUrl == null) {
-				IKeycloakKerberosAdmin kerbProv = provider.instance(IKeycloakKerberosAdmin.class, "global.virt");
-				try {
-					kerbProv.deleteKerberosProvider("global.virt-kerberos");
-				} catch (Throwable t) {
-				}
-				kerb.setName("global.virt-kerberos");
-				kerb.setParentId("global.virt");
-				kerbProv.create(kerb);
-			} else {
-				kerb.setName(realm + "-kerberos");
-				kerb.setParentId(realm);
-				provider.instance(IKeycloakKerberosAdmin.class, realm).create(kerb);
-			}
-		}
-		KerberosConfigHelper.updateKrb5Conf();
 
 		IKeycloakClientAdmin keycloakRealmAdminService = provider.instance(IKeycloakClientAdmin.class, domain.uid);
 		keycloakRealmAdminService.create(clientId);
@@ -190,49 +121,33 @@ public class KeycloakHelper {
 		String opendIdHost = IKeycloakUids
 				.defaultHost(Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address(), domain.uid);
 
-		URI uri;
+		JsonObject conf;
 		try {
-			uri = new URI(opendIdHost);
-		} catch (URISyntaxException e) {
-			logger.error(e.getMessage(), e);
-			return;
+			conf = getOpenIdConfiguration(opendIdHost);
+		} catch (Exception e) {
+			throw new ServerFault("Failed to fetch OpenId configuration " + e.getMessage());
 		}
+		Map<String, String> properties = domain.value.properties != null ? domain.value.properties : new HashMap<>();
 
-		HttpClient client = initHttpClient(uri);
-		client.request(HttpMethod.GET, uri.getPath())
-				.onSuccess(req -> req.send().onSuccess(res -> res.bodyHandler(body -> {
-					JsonObject conf = new JsonObject(new String(body.getBytes()));
+		properties.put(AuthDomainProperties.OPENID_REALM.name(), realm);
+		properties.put(AuthDomainProperties.OPENID_CLIENT_ID.name(), clientId);
+		properties.put(AuthDomainProperties.OPENID_CLIENT_SECRET.name(), secret);
+		properties.put(AuthDomainProperties.OPENID_HOST.name(), opendIdHost);
+		properties.put(AuthDomainProperties.OPENID_AUTHORISATION_ENDPOINT.name(),
+				conf.getString("authorization_endpoint"));
+		properties.put(AuthDomainProperties.OPENID_TOKEN_ENDPOINT.name(), conf.getString("token_endpoint"));
+		properties.put(AuthDomainProperties.OPENID_JWKS_URI.name(), conf.getString("jwks_uri"));
+		String accessTokenIssuer = Optional.ofNullable(conf.getString("access_token_issuer"))
+				.orElse(conf.getString("issuer"));
+		properties.put(AuthDomainProperties.OPENID_ISSUER.name(), accessTokenIssuer);
+		properties.put(AuthDomainProperties.OPENID_END_SESSION_ENDPOINT.name(), conf.getString("end_session_endpoint"));
 
-					Map<String, String> properties = domain.value.properties != null ? domain.value.properties
-							: new HashMap<>();
+		provider.instance(IInCoreDomains.class).setProperties(domain.uid, properties);
 
-					properties.put(AuthDomainProperties.OPENID_REALM.name(), realm);
-					properties.put(AuthDomainProperties.OPENID_CLIENT_ID.name(), clientId);
-					properties.put(AuthDomainProperties.OPENID_CLIENT_SECRET.name(), secret);
-					properties.put(AuthDomainProperties.OPENID_HOST.name(), opendIdHost);
-					properties.put(AuthDomainProperties.OPENID_AUTHORISATION_ENDPOINT.name(),
-							conf.getString("authorization_endpoint"));
-					properties.put(AuthDomainProperties.OPENID_TOKEN_ENDPOINT.name(), conf.getString("token_endpoint"));
-					properties.put(AuthDomainProperties.OPENID_JWKS_URI.name(), conf.getString("jwks_uri"));
-					String accessTokenIssuer = Optional.ofNullable(conf.getString("access_token_issuer"))
-							.orElse(conf.getString("issuer"));
-					properties.put(AuthDomainProperties.OPENID_ISSUER.name(), accessTokenIssuer);
-					properties.put(AuthDomainProperties.OPENID_END_SESSION_ENDPOINT.name(),
-							conf.getString("end_session_endpoint"));
-
-					properties.put(AuthDomainProperties.AUTH_TYPE.name(), auth_type);
-					if (AuthTypes.KERBEROS.name().equals(auth_type)) {
-						properties.put(AuthDomainProperties.KRB_AD_DOMAIN.name(), krb_ad_domain);
-						properties.put(AuthDomainProperties.KRB_AD_IP.name(), krb_ad_ip);
-						properties.put(AuthDomainProperties.KRB_KEYTAB.name(), krb_keytab);
-					}
-					if (AuthTypes.CAS.name().equals(auth_type)) {
-						properties.put(AuthDomainProperties.CAS_URL.name(), cas_url);
-					}
-
-					provider.instance(IInCoreDomains.class).setProperties(domain.uid, properties);
-
-				}))).onFailure(t -> logger.error(t.getMessage(), t));
+		if (AuthTypes.KERBEROS.name().equals(domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name()))) {
+			KerberosConfigHelper.createKeycloakKerberosConf(domain);
+			KerberosConfigHelper.updateKrb5Conf();
+		}
 
 	}
 
@@ -241,129 +156,97 @@ public class KeycloakHelper {
 
 		String opendIdHost = domain.value.properties.get(AuthDomainProperties.OPENID_HOST.name());
 
-		URI uri;
+		JsonObject conf;
 		try {
-			uri = new URI(opendIdHost);
-		} catch (URISyntaxException e) {
-			logger.error(e.getMessage(), e);
-			return;
+			conf = getOpenIdConfiguration(opendIdHost);
+		} catch (Exception e) {
+			throw new ServerFault("Failed to fetch OpenId configuration " + e.getMessage());
 		}
 
-		HttpClient client = initHttpClient(uri);
-		client.request(HttpMethod.GET, uri.getPath())
-				.onSuccess(req -> req.send().onSuccess(res -> res.bodyHandler(body -> {
-					JsonObject conf = new JsonObject(new String(body.getBytes()));
+		boolean somethingChanged = false;
 
-					boolean somethingChanged = false;
+		String key = AuthDomainProperties.OPENID_AUTHORISATION_ENDPOINT.name();
+		String val = conf.getString("authorization_endpoint");
+		somethingChanged = hasValueChanged(domain, somethingChanged, key, val);
 
-					String key = AuthDomainProperties.OPENID_AUTHORISATION_ENDPOINT.name();
-					String val = conf.getString("authorization_endpoint");
-					if (val == null && domain.value.properties.get(key) != null) {
-						domain.value.properties.remove(key);
-						somethingChanged = true;
-					} else if (val != null && !val.equals(domain.value.properties.get(key))) {
-						domain.value.properties.put(key, val);
-						somethingChanged = true;
-					}
+		key = AuthDomainProperties.OPENID_TOKEN_ENDPOINT.name();
+		val = conf.getString("token_endpoint");
+		somethingChanged = hasValueChanged(domain, somethingChanged, key, val);
 
-					key = AuthDomainProperties.OPENID_TOKEN_ENDPOINT.name();
-					val = conf.getString("token_endpoint");
-					if (val == null && domain.value.properties.get(key) != null) {
-						domain.value.properties.remove(key);
-						somethingChanged = true;
-					} else if (val != null && !val.equals(domain.value.properties.get(key))) {
-						domain.value.properties.put(key, val);
-						somethingChanged = true;
-					}
+		key = AuthDomainProperties.OPENID_JWKS_URI.name();
+		val = conf.getString("jwks_uri");
+		somethingChanged = hasValueChanged(domain, somethingChanged, key, val);
 
-					key = AuthDomainProperties.OPENID_JWKS_URI.name();
-					val = conf.getString("jwks_uri");
-					if (val == null && domain.value.properties.get(key) != null) {
-						domain.value.properties.remove(key);
-						somethingChanged = true;
-					} else if (val != null && !val.equals(domain.value.properties.get(key))) {
-						domain.value.properties.put(key, val);
-						somethingChanged = true;
-					}
+		key = AuthDomainProperties.OPENID_ISSUER.name();
+		val = Optional.ofNullable(conf.getString("access_token_issuer")).orElse(conf.getString("issuer"));
+		somethingChanged = hasValueChanged(domain, somethingChanged, key, val);
 
-					key = AuthDomainProperties.OPENID_ISSUER.name();
-					val = Optional.ofNullable(conf.getString("access_token_issuer")).orElse(conf.getString("issuer"));
-					if (val == null && domain.value.properties.get(key) != null) {
-						domain.value.properties.remove(key);
-						somethingChanged = true;
-					} else if (val != null && !val.equals(domain.value.properties.get(key))) {
-						domain.value.properties.put(key, val);
-						somethingChanged = true;
-					}
+		key = AuthDomainProperties.OPENID_END_SESSION_ENDPOINT.name();
+		val = conf.getString("end_session_endpoint");
+		somethingChanged = hasValueChanged(domain, somethingChanged, key, val);
 
-					key = AuthDomainProperties.OPENID_END_SESSION_ENDPOINT.name();
-					val = conf.getString("end_session_endpoint");
-					if (val == null && domain.value.properties.get(key) != null) {
-						domain.value.properties.remove(key);
-						somethingChanged = true;
-					} else if (val != null && !val.equals(domain.value.properties.get(key))) {
-						domain.value.properties.put(key, val);
-						somethingChanged = true;
-					}
-
-					if (somethingChanged) {
-						ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreDomains.class)
-								.setProperties(domain.uid, domain.value.properties);
-					}
-				}))).onFailure(t -> logger.error(t.getMessage(), t));
+		if (somethingChanged) {
+			ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreDomains.class)
+					.setProperties(domain.uid, domain.value.properties);
+		}
 
 	}
 
-	public static void updateForDomain(String domainUid) {
+	private static JsonObject getOpenIdConfiguration(String openIdHost) throws Exception {
+		String configuration = SyncHttpClient.get(openIdHost);
+		return new JsonObject(configuration);
+	}
+
+	private static boolean hasValueChanged(ItemValue<Domain> domain, boolean somethingChanged, String key, String val) {
+		if (val == null && domain.value.properties.get(key) != null) {
+			domain.value.properties.remove(key);
+			somethingChanged = true;
+		} else if (val != null && !val.equals(domain.value.properties.get(key))) {
+			domain.value.properties.put(key, val);
+			somethingChanged = true;
+		}
+		return somethingChanged;
+	}
+
+	public static void onDomainUpdate(String domainUid) {
 		ItemValue<Domain> domain = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IDomains.class).get(domainUid);
-		Optional<ItemValue<Server>> kcServer = Topology.get().anyIfPresent(TagDescriptor.bm_keycloak.getTag());
 		if (domain.value.properties != null
 				&& AuthTypes.OPENID.name().equals(domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name()))) {
 			initExternalForDomain(domain);
-			if (kcServer.isPresent()) {
-				try {
-					ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IKeycloakAdmin.class)
-							.deleteRealm(domainUid);
-				} catch (Throwable t) {
-				}
-				KerberosConfigHelper.updateGlobalRealmKerb();
-				KerberosConfigHelper.updateKrb5Conf();
-			}
-		} else if (kcServer.isPresent()) {
-			updateKeycloakForDomain(domainUid);
+			ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IKeycloakAdmin.class)
+					.deleteRealm(domainUid);
+			KerberosConfigHelper.updateGlobalRealmKerb();
+			KerberosConfigHelper.updateKrb5Conf();
 		} else {
-			logger.warn("No keycloak server in topology. Skipping update for domain {}", domain.uid);
+			updateKeycloakForDomain(domain);
 		}
 	}
 
-	private static void updateKeycloakForDomain(String domainUid) {
+	private static void updateKeycloakForDomain(ItemValue<Domain> domain) {
+
+		String domainUid = domain.uid;
+
 		logger.info("Update keycloak config for domain {}", domainUid);
 		ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-		ItemValue<Domain> domain = provider.instance(IDomains.class).get(domainUid);
 
 		String clientId = IKeycloakUids.clientId(domainUid);
 		IKeycloakClientAdmin kcCientService = provider.instance(IKeycloakClientAdmin.class, domainUid);
 
-		KeycloakHelper.waitForKeycloak();
-		OidcClient oc = null;
-		try {
-			oc = kcCientService.getOidcClient(clientId);
-			if (oc != null && (domain.value.properties == null || !oc.secret
-					.equals(domain.value.properties.get(AuthDomainProperties.OPENID_CLIENT_SECRET.name())))) {
-				oc = null;
-			}
-		} catch (Throwable t) {
+		OidcClient oc = kcCientService.getOidcClient(clientId);
+		if (oc != null && (domain.value.properties == null
+				|| !oc.secret.equals(domain.value.properties.get(AuthDomainProperties.OPENID_CLIENT_SECRET.name())))) {
+			oc = null;
 		}
+
 		if (oc == null) {
-			IKeycloakKerberosAdmin krbProv = provider.instance(IKeycloakKerberosAdmin.class, "global.virt");
+			IKeycloakKerberosAdmin krbProv = provider.instance(IKeycloakKerberosAdmin.class, GLOBAL_VIRT);
 			KerberosComponent krbComp = null;
-			if ("global.virt".equals(domainUid)) {
-				try {
-					krbComp = krbProv.getKerberosProvider("global.virt-kerberos");
-				} catch (Throwable t) {
-				}
+			if (GLOBAL_VIRT.equals(domainUid)) {
+				krbComp = krbProv.getKerberosProvider(KerberosConfigHelper.KRB_GLOBAL_VIRT_NAME);
 			}
+
+			provider.instance(IKeycloakAdmin.class).deleteRealm(domain.uid);
 			initKeycloakForDomain(domain);
 			oc = kcCientService.getOidcClient(clientId);
 			if (krbComp != null) {
@@ -377,98 +260,61 @@ public class KeycloakHelper {
 			kcCientService.updateClient(clientId, oc);
 			logger.info("Domain {} update : Urls changed : updated oidc client", domainUid);
 		} else {
-			logger.info("Domain {} update : Urls did not change (no need to update oidc client)", domainUid);
+			logger.debug("Domain {} update : Urls did not change (no need to update oidc client)", domainUid);
 		}
 
-		KerberosConfigHelper.updateKeycloakKerberosConf(domainUid);
-	}
-
-	public static void upgradeDomain(ItemValue<Domain> domain) {
-		if (domain.value.properties == null
-				|| domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name()) == null) {
-			Map<String, String> properties = domain.value.properties != null ? domain.value.properties
-					: new HashMap<>();
-			SharedMap<String, String> smap = MQ.sharedMap(Shared.MAP_SYSCONF);
-
-			String authType = smap.get("auth_type");
-			if (AuthTypes.KERBEROS.name().equals(authType) && domain.uid.equals(smap.get("krb_domain"))) {
-				properties.put(AuthDomainProperties.AUTH_TYPE.name(), AuthTypes.KERBEROS.name());
-				properties.put(AuthDomainProperties.KRB_AD_DOMAIN.name(), smap.get("krb_ad_domain"));
-				properties.put(AuthDomainProperties.KRB_AD_IP.name(), smap.get("krb_ad_ip"));
-				properties.put(AuthDomainProperties.KRB_KEYTAB.name(), smap.get("krb_keytab"));
-			} else if (AuthTypes.CAS.name().equals(authType) && domain.uid.equals(smap.get("cas_domain"))) {
-				properties.put(AuthDomainProperties.AUTH_TYPE.name(), AuthTypes.CAS.name());
-				properties.put(AuthDomainProperties.CAS_URL.name(), smap.get("cas_url"));
-			} else if (AuthTypes.OPENID.name().equals(authType)) {
-				properties.put(AuthDomainProperties.AUTH_TYPE.name(), AuthTypes.OPENID.name());
-			} else {
-				properties.put(AuthDomainProperties.AUTH_TYPE.name(), AuthTypes.INTERNAL.name());
-			}
-			ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInCoreDomains.class)
-					.setProperties(domain.uid, properties);
-		}
-
-		initForDomain(domain);
+		KerberosConfigHelper.updateKeycloakKerberosConf(domain);
 	}
 
 	public static List<String> getDomainUrls(String domainId) {
-		ArrayList<String> res = new ArrayList<String>();
-		SharedMap<String, String> sysconf = MQ.sharedMap(Shared.MAP_SYSCONF);
-		if ("global.virt".equals(domainId)) {
-			if (sysconf.get(SysConfKeys.external_url.name()) != null) {
-				res.add("https://" + sysconf.get(SysConfKeys.external_url.name()) + "/auth/openid");
+		List<String> res = new ArrayList<>();
+
+		SystemConf sysconf = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(ISystemConfiguration.class).getValues();
+		if (GLOBAL_VIRT.equals(domainId)) {
+			if (sysconf.stringValue(SysConfKeys.external_url.name()) != null) {
+				res.add(getOpenIdUrl(sysconf.stringValue(SysConfKeys.external_url.name())));
 			}
 
-			String otherUrls = sysconf.get(SysConfKeys.other_urls.name());
-			if (otherUrls != null) {
-				StringTokenizer tokenizer = new StringTokenizer(otherUrls.trim(), " ");
-				while (tokenizer.hasMoreElements()) {
-					String url = "https://" + tokenizer.nextToken() + "/auth/openid";
-					res.add(url);
-				}
-			}
+			String otherUrls = sysconf.stringValue(SysConfKeys.other_urls.name());
+			addOtherUrls(res, otherUrls);
 			if (res.isEmpty()) {
-				res.add("https://configure_external_url_in_bluemind/");
+				res.add(NO_REDIRECT_URI);
 			}
 			return res;
 		}
 
-		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
-				.get(domainId);
+		Map<String, String> domainSettings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domainId).get();
 		if (domainSettings != null) {
 			if (domainSettings.get(DomainSettingsKeys.external_url.name()) != null) {
-				res.add("https://" + domainSettings.get(DomainSettingsKeys.external_url.name()) + "/auth/openid");
+				res.add(getOpenIdUrl(domainSettings.get(DomainSettingsKeys.external_url.name())));
 			}
 
 			String otherUrls = domainSettings.get(DomainSettingsKeys.other_urls.name());
-			if (otherUrls != null) {
-				StringTokenizer tokenizer = new StringTokenizer(otherUrls.trim(), " ");
-				while (tokenizer.hasMoreElements()) {
-					String url = "https://" + tokenizer.nextToken() + "/auth/openid";
-					res.add(url);
-				}
-			}
+			addOtherUrls(res, otherUrls);
 			if (res.isEmpty()) {
-				res.add("https://configure_external_url_in_bluemind/");
+				res.add(NO_REDIRECT_URI);
 			}
 			return res;
 		}
 
-		res.add("https://configure_external_url_in_bluemind/");
+		res.add(NO_REDIRECT_URI);
 		return res;
 	}
 
-	private static HttpClient initHttpClient(URI uri) {
-		HttpClientOptions opts = new HttpClientOptions();
-		opts.setDefaultHost(uri.getHost());
-		opts.setSsl(uri.getScheme().equalsIgnoreCase("https"));
-		opts.setDefaultPort(
-				uri.getPort() != -1 ? uri.getPort() : (uri.getScheme().equalsIgnoreCase("https") ? 443 : 80));
-		if (opts.isSsl()) {
-			opts.setTrustAll(true);
-			opts.setVerifyHost(false);
+	private static void addOtherUrls(List<String> res, String otherUrls) {
+		if (otherUrls != null) {
+			StringTokenizer tokenizer = new StringTokenizer(otherUrls.trim(), " ");
+			while (tokenizer.hasMoreElements()) {
+				res.add(getOpenIdUrl(tokenizer.nextToken()));
+			}
 		}
-		return VertxPlatform.getVertx().createHttpClient(opts);
+	}
+
+	private static String getOpenIdUrl(String url) {
+		return "https://" + url + "/auth/openid";
+
 	}
 
 	public static void initForDomain(String domainId) {
@@ -487,16 +333,21 @@ public class KeycloakHelper {
 				.instance(IKeycloakAdmin.class);
 
 		int nbRetries = 0;
-		while (nbRetries < keycloakWaitMaxRetries) {
+		while (nbRetries < KEYCLOAK_WAIT_MAX_RETRIES) {
 			try {
 				keycloakAdminService.allRealms();
-				logger.warn("Done waiting for keycloak (got a response)");
 				return;
-			} catch (Throwable t) {
+			} catch (Exception e) {
+				// keycloak is not available yet
+			}
+
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
 			}
 			nbRetries++;
 		}
-		logger.warn("Wait for keycloak timed out (keycloak still not responding)");
+		throw new ServerFault("Wait for keycloak timed out (keycloak still not responding)");
 	}
 
 }

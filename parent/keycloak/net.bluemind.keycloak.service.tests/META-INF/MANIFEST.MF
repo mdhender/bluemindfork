@@ -21,10 +21,10 @@ Require-Bundle: net.bluemind.keycloak.api,
  slf4j.api,
  net.bluemind.core.rest.http.vertx,
  net.bluemind.core.task.service,
- net.bluemind.core.elasticsearch.testshelper,
  net.bluemind.resource.service,
  net.bluemind.system.state,
  net.bluemind.authentication.api,
- net.bluemind.authentication.service
+ net.bluemind.authentication.service,
+ net.bluemind.hornetq.client
 Automatic-Module-Name: net.bluemind.keycloak.service.tests
 Bundle-RequiredExecutionEnvironment: JavaSE-17

@@ -396,5 +396,9 @@ public enum ErrorCode {
 	/**
 	 * 
 	 */
-	INVALID_PEM_CERTIFICATE;
+	INVALID_PEM_CERTIFICATE,
+	/**
+	 * 
+	 */
+	INVALID_AUTH_PARAMETER;
 }

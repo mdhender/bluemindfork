@@ -57,14 +57,5 @@ public enum DomainSettingsKeys {
 	ssl_certif_engine, //
 	@NotNull
 	nextcloudUrl, //
-	domain_composer_font_stack, //
-	openid_host, //
-	openid_realm, //
-	openid_client_id, //
-	openid_client_secret, //
-	openid_authorization_endpoint, //
-	openid_token_endpoint, //
-	openid_end_session_endpoint, //
-	openid_jwks_uri, //
-	openid_issuer;
+	domain_composer_font_stack;
 }

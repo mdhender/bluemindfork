@@ -20,16 +20,15 @@ package net.bluemind.domain.service.tests;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.util.Map;
 import java.util.Set;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.domain.hook.IDomainHook;
+import net.bluemind.domain.hook.DomainHookAdapter;
 
-public class FakeDomainHook implements IDomainHook {
+public class FakeDomainHook extends DomainHookAdapter {
 
 	public static boolean created;
 	public static boolean updated;
@@ -53,10 +52,6 @@ public class FakeDomainHook implements IDomainHook {
 	}
 
 	@Override
-	public void onPropertiesUpdated(BmContext context, ItemValue<Domain> domain) throws ServerFault {
-	}
-
-	@Override
 	public void onDeleted(BmContext context, ItemValue<Domain> domain) throws ServerFault {
 		assertNotNull(context);
 		assertNotNull(domain);
@@ -73,18 +68,5 @@ public class FakeDomainHook implements IDomainHook {
 		assertNotNull(context);
 		assertNotNull(domain);
 		aliasesUpdated = true;
-	}
-
-	@Override
-	public void onSettingsUpdated(BmContext context, ItemValue<Domain> domain, Map<String, String> previousSettings,
-			Map<String, String> currentSettings) throws ServerFault {
-	}
-
-	@Override
-	public void onBeforeDelete(BmContext context, ItemValue<Domain> domain) throws ServerFault {
-	}
-
-	@Override
-	public void onDomainItemsDeleted(BmContext context, ItemValue<Domain> domain) throws ServerFault {
 	}
 }

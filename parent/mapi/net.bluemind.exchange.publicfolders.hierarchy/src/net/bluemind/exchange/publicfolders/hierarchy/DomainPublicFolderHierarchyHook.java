@@ -17,9 +17,6 @@
   */
 package net.bluemind.exchange.publicfolders.hierarchy;
 
-import java.util.Map;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,10 +26,10 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.Domain;
-import net.bluemind.domain.hook.IDomainHook;
+import net.bluemind.domain.hook.DomainHookAdapter;
 import net.bluemind.exchange.publicfolders.common.PublicFolders;
 
-public class DomainPublicFolderHierarchyHook implements IDomainHook {
+public class DomainPublicFolderHierarchyHook extends DomainHookAdapter {
 
 	private static final Logger logger = LoggerFactory.getLogger(DomainPublicFolderHierarchyHook.class);
 
@@ -52,36 +49,4 @@ public class DomainPublicFolderHierarchyHook implements IDomainHook {
 		chMgmt.delete();
 	}
 
-	@Override
-	public void onUpdated(BmContext context, ItemValue<Domain> previousValue, ItemValue<Domain> domain)
-			throws ServerFault {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void onPropertiesUpdated(BmContext context, ItemValue<Domain> domain) throws ServerFault {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void onSettingsUpdated(BmContext context, ItemValue<Domain> domain, Map<String, String> previousSettings,
-			Map<String, String> currentSettings) throws ServerFault {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void onBeforeDelete(BmContext context, ItemValue<Domain> domain) throws ServerFault {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void onAliasesUpdated(BmContext context, ItemValue<Domain> domain, Set<String> previousAliases)
-			throws ServerFault {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void onDomainItemsDeleted(BmContext context, ItemValue<Domain> domain) throws ServerFault {
-		// TODO Auto-generated method stub
-	}
 }

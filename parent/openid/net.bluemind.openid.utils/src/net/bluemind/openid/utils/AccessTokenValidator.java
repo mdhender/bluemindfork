@@ -19,8 +19,13 @@ package net.bluemind.openid.utils;
 
 import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.Builder;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 import java.security.interfaces.RSAPublicKey;
+import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,26 +42,20 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.common.base.Strings;
 
-import io.vertx.core.MultiMap;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.HttpClientOptions;
-import io.vertx.core.http.HttpClientRequest;
-import io.vertx.core.http.HttpClientResponse;
-import io.vertx.core.http.HttpHeaders;
-import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.auth.AuthDomainProperties;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Shared;
-import net.bluemind.lib.vertx.VertxPlatform;
 
 public class AccessTokenValidator {
 
 	private static final Logger logger = LoggerFactory.getLogger(AccessTokenValidator.class);
 
 	private static Map<String, GuavaCachedJwkProvider> provider = new HashMap<>();
+
+	private static HttpClient cli = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2)
+			.connectTimeout(Duration.ofSeconds(5)).build();
 
 	private AccessTokenValidator() {
 
@@ -110,70 +109,33 @@ public class AccessTokenValidator {
 		Map<String, String> domainProperties = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
 				.get(domainUid);
 
-		CompletableFuture<Optional<JsonObject>> future = new CompletableFuture<>();
+		String endpoint = domainProperties.get(AuthDomainProperties.OPENID_TOKEN_ENDPOINT.name());
 
-		try {
-			String endpoint = domainProperties.get(AuthDomainProperties.OPENID_TOKEN_ENDPOINT.name());
+		Builder requestBuilder = HttpRequest.newBuilder(URI.create(endpoint));
+		requestBuilder.header("Charset", StandardCharsets.UTF_8.name());
+		requestBuilder.header("Content-Type", "application/x-www-form-urlencoded");
+		String params = "grant_type=refresh_token";
+		params += "&client_id=" + domainProperties.get(AuthDomainProperties.OPENID_CLIENT_ID.name());
+		params += "&client_secret=" + domainProperties.get(AuthDomainProperties.OPENID_CLIENT_SECRET.name());
+		params += "&refresh_token=" + refreshToken;
+		byte[] postData = params.getBytes(StandardCharsets.UTF_8);
+		requestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(postData));
+		HttpRequest req = requestBuilder.build();
 
-			URI uri = new URI(endpoint);
-			HttpClient client = initHttpClient(uri);
+		return cli.sendAsync(req, BodyHandlers.ofString()).thenApply(resp -> {
 
-			client.request(HttpMethod.POST, uri.getPath(), reqHandler -> {
-				if (reqHandler.succeeded()) {
-					HttpClientRequest r = reqHandler.result();
-					r.response(respHandler -> {
-						if (respHandler.succeeded()) {
-							HttpClientResponse resp = respHandler.result();
-							resp.body(body -> {
-								JsonObject token = new JsonObject(new String(body.result().getBytes()));
-								future.complete(Optional.of(token));
-							});
-						} else {
-							future.complete(Optional.empty());
-							logger.error(reqHandler.cause().getMessage(), reqHandler.cause());
-						}
-					});
+			if (resp.statusCode() >= 400) {
+				logger.error("Failed to refresh token {}", resp.body());
+				return Optional.empty();
+			}
 
-					MultiMap headers = r.headers();
-					headers.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
-					headers.add(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
-					String params = "grant_type=refresh_token";
-					params += "&client_id=" + domainProperties.get(AuthDomainProperties.OPENID_CLIENT_ID.name());
-					params += "&client_secret="
-							+ domainProperties.get(AuthDomainProperties.OPENID_CLIENT_SECRET.name());
-					params += "&refresh_token=" + refreshToken;
-					byte[] postData = params.getBytes(StandardCharsets.UTF_8);
-					headers.add(HttpHeaders.CONTENT_LENGTH, Integer.toString(postData.length));
-					r.write(Buffer.buffer(postData));
-					r.end();
-				} else {
-					future.complete(Optional.empty());
-					logger.error(reqHandler.cause().getMessage(), reqHandler.cause());
-				}
-			});
-
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
-
-		return future;
+			JsonObject token = new JsonObject(resp.body());
+			return Optional.of(token);
+		});
 	}
 
 	public static void invalidateCache() {
 		provider.clear();
-	}
-
-	private static HttpClient initHttpClient(URI uri) {
-		HttpClientOptions opts = new HttpClientOptions();
-		opts.setDefaultHost(uri.getHost());
-		opts.setSsl(uri.getScheme().equalsIgnoreCase("https"));
-		opts.setDefaultPort(
-				uri.getPort() != -1 ? uri.getPort() : (uri.getScheme().equalsIgnoreCase("https") ? 443 : 80));
-		if (opts.isSsl()) {
-			opts.setTrustAll(true);
-			opts.setVerifyHost(false);
-		}
-		return VertxPlatform.getVertx().createHttpClient(opts);
 	}
 
 }

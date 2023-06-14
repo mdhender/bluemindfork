@@ -64,7 +64,8 @@ public class SharedDomainSettingsVerticle extends AbstractVerticle {
 		}
 
 		@Override
-		public void onPropertiesUpdated(BmContext context, ItemValue<Domain> domain) throws ServerFault {
+		public void onPropertiesUpdated(BmContext context, ItemValue<Domain> domain,
+				Map<String, String> previousProperties, Map<String, String> currentProperties) throws ServerFault {
 			new SharedDomainSettingsVerticle().putDomainSettingsAndProperties(domain, Optional.empty());
 		}
 

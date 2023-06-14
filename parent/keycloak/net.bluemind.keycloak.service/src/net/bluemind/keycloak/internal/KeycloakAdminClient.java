@@ -18,28 +18,25 @@
 package net.bluemind.keycloak.internal;
 
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.Builder;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
-import io.vertx.core.MultiMap;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.HttpClientOptions;
-import io.vertx.core.http.HttpClientRequest;
-import io.vertx.core.http.HttpClientResponse;
-import io.vertx.core.http.HttpHeaders;
+import com.google.common.base.Strings;
+
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.TagDescriptor;
 
@@ -59,126 +56,75 @@ public abstract class KeycloakAdminClient {
 
 	protected static final int TIMEOUT = 5;
 
-	public KeycloakAdminClient() {
-
-	}
+	private HttpClient cli = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2)
+			.connectTimeout(Duration.ofSeconds(TIMEOUT)).build();
 
 	protected CompletableFuture<JsonObject> execute(String spec, HttpMethod method) {
 		return execute(spec, method, null);
 	}
 
 	protected CompletableFuture<JsonObject> execute(String spec, HttpMethod method, JsonObject body) {
-		CompletableFuture<JsonObject> future = new CompletableFuture<>();
-		getToken().thenAccept(token -> {
-			try {
-				URI uri = new URI(spec);
-				HttpClient client = initHttpClient(uri);
-				client.request(method, uri.getPath() + (uri.getQuery() != null ? "?" + uri.getQuery() : ""),
-						reqHandler -> {
-							if (reqHandler.succeeded()) {
-								HttpClientRequest r = reqHandler.result();
-								r.response(responseHandler(future, uri));
-								MultiMap headers = r.headers();
-								headers.add(HttpHeaders.AUTHORIZATION,
-										String.format("bearer %s", token.getString("access_token")));
-								headers.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
-								headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
-								if (body != null) {
-									byte[] data = body.toString().getBytes();
-									headers.add(HttpHeaders.CONTENT_LENGTH, Integer.toString(data.length));
-									r.write(Buffer.buffer(data));
-								}
-								r.end();
-							}
-						});
-			} catch (Exception e) {
-				future.completeExceptionally(e);
-			}
-		});
-		return future;
-	}
-
-	private CompletableFuture<JsonObject> getToken() {
-		CompletableFuture<JsonObject> future = new CompletableFuture<>();
-
-		try {
-			URI uri = new URI(MASTER_TOKEN_URL);
-			HttpClient client = initHttpClient(uri);
-			client.request(HttpMethod.POST, uri.getPath(), reqHandler -> {
-				if (reqHandler.succeeded()) {
-					HttpClientRequest r = reqHandler.result();
-					r.response(responseHandler(future, uri));
-					MultiMap headers = r.headers();
-					headers.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
-					headers.add(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
-					String params = "grant_type=password&client_id=admin-cli&username=admin&password=" + Token.admin0();
-					byte[] postData = params.getBytes(StandardCharsets.UTF_8);
-					headers.add(HttpHeaders.CONTENT_LENGTH, Integer.toString(postData.length));
-					r.write(Buffer.buffer(postData));
-					r.end();
-				} else {
-					future.completeExceptionally(reqHandler.cause());
-				}
-
-			});
-
-		} catch (Exception e) {
-			future.completeExceptionally(e);
-		}
-		return future;
-	}
-
-	private Handler<AsyncResult<HttpClientResponse>> responseHandler(CompletableFuture<JsonObject> future, URI uri) {
-		return respHandler -> {
-			if (respHandler.succeeded()) {
-				HttpClientResponse resp = respHandler.result();
-				if (resp.statusCode() > 400) {
-					future.complete(null);
-					if (logger.isWarnEnabled()) {
-						logger.warn("Failed to perform request {}: {}", uri, resp.statusMessage());
-					}
-					return;
-				}
-				resp.body(body -> {
-					if (body.result().length() > 0) {
-						try {
-							future.complete(new JsonObject(body.result()));
-						} catch (Exception e) {
-
-							JsonObject json = new JsonObject();
-							json.put("results", new JsonArray(body.result()));
-							future.complete(json);
-						}
-
-					} else {
-						future.complete(null);
-					}
-				});
+		return getToken().thenCompose(token -> {
+			Builder requestBuilder = HttpRequest.newBuilder(URI.create(spec));
+			requestBuilder.timeout(Duration.ofSeconds(TIMEOUT));
+			requestBuilder.header("Authorization", "bearer " + token);
+			requestBuilder.header("Charset", StandardCharsets.UTF_8.name());
+			requestBuilder.header("Content-Type", "application/json");
+			if (body != null) {
+				byte[] data = body.toString().getBytes();
+				requestBuilder.method(method.name(), HttpRequest.BodyPublishers.ofByteArray(data));
 			} else {
-				future.completeExceptionally(respHandler.cause());
+				requestBuilder.method(method.name(), HttpRequest.BodyPublishers.noBody());
 			}
-		};
+			HttpRequest request = requestBuilder.build();
 
+			return cli.sendAsync(request, BodyHandlers.ofString()).thenApply(response -> {
+				if (response.statusCode() > 400) {
+					return null;
+				}
+				JsonObject ret = new JsonObject();
+				if (!Strings.isNullOrEmpty(response.body())) {
+					try {
+						ret = new JsonObject(response.body());
+					} catch (Exception e) {
+						ret.put("results", new JsonArray(response.body()));
+					}
+				}
+				return ret;
+			}).exceptionally(t -> {
+				logger.error("Failed to request {} {}: {}", method.name(), spec, t.getMessage());
+				return null;
+			});
+		});
 	}
 
-	private static HttpClient initHttpClient(URI uri) {
-		HttpClientOptions opts = new HttpClientOptions();
-		opts.setDefaultHost(uri.getHost());
-		opts.setSsl(uri.getScheme().equalsIgnoreCase("https"));
-		opts.setDefaultPort(
-				uri.getPort() != -1 ? uri.getPort() : (uri.getScheme().equalsIgnoreCase("https") ? 443 : 80));
-		if (opts.isSsl()) {
-			opts.setTrustAll(true);
-			opts.setVerifyHost(false);
-		}
-		return VertxPlatform.getVertx().createHttpClient(opts);
+	private CompletableFuture<String> getToken() {
+		String parameters = "grant_type=password&client_id=admin-cli&username=admin&password=" + Token.admin0();
+		byte[] postData = parameters.getBytes(StandardCharsets.UTF_8);
+
+		Builder requestBuilder = HttpRequest.newBuilder(URI.create(MASTER_TOKEN_URL));
+		requestBuilder.timeout(Duration.ofSeconds(TIMEOUT));
+		requestBuilder.header("Charset", StandardCharsets.UTF_8.name());
+		requestBuilder.header("Content-Type", "application/x-www-form-urlencoded");
+		requestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(postData));
+		HttpRequest request = requestBuilder.build();
+
+		return cli.sendAsync(request, BodyHandlers.ofString()).thenApply(response -> {
+			if (response.statusCode() > 400) {
+				return null;
+			}
+			return new JsonObject(response.body()).getString("access_token");
+		}).exceptionally(t -> {
+			logger.error("Failed to fetch admin token: {}", t.getMessage());
+			return null;
+		});
+
 	}
 
 	protected JsonObject call(String callUri, HttpMethod method, JsonObject body) {
 		String callUrl = BASE_URL + callUri;
 
 		CompletableFuture<JsonObject> response = execute(callUrl, method, body);
-
 		JsonObject json;
 		try {
 			json = response.get(TIMEOUT, TimeUnit.SECONDS);
@@ -186,6 +132,7 @@ public abstract class KeycloakAdminClient {
 			throw new ServerFault(e);
 		}
 		return json;
+
 	}
 
 }

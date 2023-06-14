@@ -112,8 +112,14 @@ public class KeycloakFlowAdminService extends KeycloakAdminClient implements IKe
 		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
 		logger.info("Realm {}: Get flow {}", domainId, flowAlias);
 
-		JsonArray results = call("/admin/realms/" + domainId + "/authentication/flows", HttpMethod.GET, null)
-				.getJsonArray("results");
+		JsonObject response = call("/admin/realms/" + domainId + "/authentication/flows", HttpMethod.GET, null);
+
+		if (response == null) {
+			logger.warn("Failed to fetch authentication flow {}", flowAlias);
+			return null;
+		}
+
+		JsonArray results = response.getJsonArray("results");
 		AuthenticationFlow res = null;
 		for (int i = 0; i < results.size() && res == null; i++) {
 			JsonObject cFlow = results.getJsonObject(i);

@@ -18,9 +18,7 @@
  */
 package net.bluemind.utils;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
 import java.net.ProxySelector;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -38,7 +36,11 @@ import net.bluemind.system.api.SysConfKeys;
 
 public class SyncHttpClient {
 
-	private static ProxySelector proxy() throws MalformedURLException, IOException {
+	private SyncHttpClient() {
+
+	}
+
+	private static ProxySelector proxy() {
 		Map<String, String> sysConfMap = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(ISystemConfiguration.class).getValues().values;
 		String proxyEnabled = sysConfMap.get(SysConfKeys.http_proxy_enabled.name());
@@ -46,7 +48,7 @@ public class SyncHttpClient {
 			return ProxySelector.getDefault();
 		} else {
 			String host = sysConfMap.get(SysConfKeys.http_proxy_hostname.name());
-			int port = Integer.valueOf(sysConfMap.get(SysConfKeys.http_proxy_port.name()));
+			int port = Integer.parseInt(sysConfMap.get(SysConfKeys.http_proxy_port.name()));
 			return ProxySelector.of(new InetSocketAddress(host, port));
 		}
 

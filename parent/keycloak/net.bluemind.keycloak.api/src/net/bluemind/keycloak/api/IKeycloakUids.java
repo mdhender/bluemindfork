@@ -17,12 +17,9 @@
   */
 package net.bluemind.keycloak.api;
 
-import net.bluemind.core.api.BMApi;
-
-@BMApi(version = "3")
 public interface IKeycloakUids {
-	public static final String keycloakFlowAlias = "browser";
-	public static final String bluemindFlowAlias = "browser-bluemind";
+	public static final String KEYCLOAK_FLOW_ALIAS = "browser";
+	public static final String BLUEMIND_FLOW_ALIAS = "browser-bluemind";
 
 	public static String defaultHost(String host, String realmId) {
 		return String.format("http://%s:8099/realms/%s/.well-known/openid-configuration", host, realmId);
@@ -30,6 +27,14 @@ public interface IKeycloakUids {
 
 	public static String clientId(String realmId) {
 		return realmId + "-cli";
+	}
+
+	public static String bmProviderId(String realmId) {
+		return realmId + "-bmprovider";
+	}
+
+	public static String kerberosComponentName(String realmId) {
+		return realmId + "-kerberos";
 	}
 
 }

@@ -17,20 +17,11 @@
   */
 package net.bluemind.keycloak.verticle;
 
-import io.vertx.core.Verticle;
-import net.bluemind.lib.vertx.IUniqueVerticleFactory;
-import net.bluemind.lib.vertx.IVerticleFactory;
+public class KeycloakVerticleAddress {
 
-public class KeycloakKerberosVerticleFactory implements IVerticleFactory, IUniqueVerticleFactory {
+	public static final String UPDATED = "keycloak.updated";
 
-	@Override
-	public boolean isWorker() {
-		return true;
+	private KeycloakVerticleAddress() {
+
 	}
-
-	@Override
-	public Verticle newInstance() {
-		return new KeycloakKerberosVerticle();
-	}
-
 }

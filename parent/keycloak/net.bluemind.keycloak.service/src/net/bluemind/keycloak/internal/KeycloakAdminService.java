@@ -77,7 +77,7 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 		try {
 			response.get(TIMEOUT, TimeUnit.SECONDS);
 		} catch (Exception e) {
-			throw new ServerFault("Failed to create realm");
+			throw new ServerFault("Failed to create realm", e);
 		}
 	}
 
@@ -89,7 +89,7 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 		try {
 			response.get(TIMEOUT, TimeUnit.SECONDS);
 		} catch (Exception e) {
-			throw new ServerFault("Failed to delete realm");
+			throw new ServerFault("Failed to delete realm", e);
 		}
 	}
 
@@ -126,7 +126,7 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 		try {
 			json = response.get(TIMEOUT, TimeUnit.SECONDS);
 		} catch (Exception e) {
-			throw new ServerFault("Failed to get realm");
+			throw new ServerFault("Failed to get realm", e);
 		}
 
 		return jsonToRealm(json);

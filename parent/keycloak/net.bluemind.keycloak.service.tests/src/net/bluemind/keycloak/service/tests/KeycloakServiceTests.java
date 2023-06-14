@@ -18,485 +18,232 @@
 package net.bluemind.keycloak.service.tests;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.Builder;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
-import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import io.vertx.core.json.JsonObject;
-import net.bluemind.core.api.auth.AuthDomainProperties;
-import net.bluemind.core.api.fault.ServerFault;
-import net.bluemind.core.context.SecurityContext;
-import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.task.api.TaskRef;
-import net.bluemind.core.task.api.TaskStatus;
-import net.bluemind.core.task.service.TaskUtils;
-import net.bluemind.domain.api.Domain;
-import net.bluemind.domain.api.IDomainSettings;
-import net.bluemind.domain.api.IDomains;
 import net.bluemind.keycloak.api.AuthenticationFlow;
 import net.bluemind.keycloak.api.BluemindProviderComponent;
-import net.bluemind.keycloak.api.IKeycloakAdmin;
-import net.bluemind.keycloak.api.IKeycloakBluemindProviderAdmin;
-import net.bluemind.keycloak.api.IKeycloakClientAdmin;
-import net.bluemind.keycloak.api.IKeycloakFlowAdmin;
-import net.bluemind.keycloak.api.IKeycloakKerberosAdmin;
 import net.bluemind.keycloak.api.IKeycloakUids;
 import net.bluemind.keycloak.api.KerberosComponent;
 import net.bluemind.keycloak.api.KerberosComponent.CachePolicy;
 import net.bluemind.keycloak.api.OidcClient;
 import net.bluemind.keycloak.api.Realm;
-import net.bluemind.pool.impl.BmConfIni;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class KeycloakServiceTests extends AbstractServiceTests {
-	private static final Logger logger = LoggerFactory.getLogger(KeycloakServiceTests.class);
-
-	protected static IKeycloakAdmin keycloakAdminService = null;
-	protected static IKeycloakClientAdmin keycloakClientAdminService = null;
-	protected static IKeycloakBluemindProviderAdmin keycloakBluemindProviderService = null;
-	protected static IKeycloakKerberosAdmin keycloakKerberosService = null;
-	protected static IKeycloakFlowAdmin keycloakFlowService = null;
-	protected static IDomains domainService = null;
-	protected static IDomainSettings domainSettingsService = null;
-	protected static String testRealmName = null;
-	protected static String oidcClientName = null;
 
 	@Test
-	public void _000_instantiateServices() {
-		keycloakAdminService = null;
-		keycloakClientAdminService = null;
-		keycloakBluemindProviderService = null;
-		keycloakKerberosService = null;
-		keycloakFlowService = null;
-		domainService = null;
-		testRealmName = "rlm" + System.currentTimeMillis() + ".loc";
-		oidcClientName = IKeycloakUids.clientId(testRealmName);
-
-		keycloakAdminService = getKeycloakAdminService();
-		assertNotNull("Unable to instantiate keycloakAdminService", keycloakAdminService);
-
-		keycloakClientAdminService = getKeycloakClientAdminService();
-		assertNotNull("Unable to instantiate keycloakClientAdminService", keycloakClientAdminService);
-
-		keycloakBluemindProviderService = getKeycloakBluemindProviderService();
-		assertNotNull("Unable to instantiate keycloakBluemindProviderService", keycloakBluemindProviderService);
-
-		keycloakKerberosService = getKeycloakKerberosService();
-		assertNotNull("Unable to instantiate keycloakKerberosService", keycloakKerberosService);
-
-		keycloakFlowService = getKeycloakFlowService();
-		assertNotNull("Unable to instantiate keycloakFlowService", keycloakFlowService);
-
-		domainService = getDomainService();
-		assertNotNull("Unable to instantiate domainService", domainService);
-
-		domainSettingsService = getDomainSettingsService();
-		assertNotNull("Unable to instantiate domainSettingsService", domainSettingsService);
-
-		domainService.all();
+	public void testCreateRealm() {
+		String domainUid = "testCreateRealm.lan";
+		getKeycloakAdminService().createRealm(domainUid);
+		Realm realm = getKeycloakAdminService().getRealm(domainUid);
+		assertNotNull(realm);
+		assertEquals(domainUid, realm.id);
 	}
 
 	@Test
-	public void _010_createRealm() {
-		assertNotNull("keycloakAdminService not correctly instantiated", keycloakAdminService);
-
-		keycloakAdminService.createRealm(testRealmName);
+	public void testDeleteRealm() {
+		String domainUid = "testDeleteRealm.lan";
+		getKeycloakAdminService().createRealm(domainUid);
+		getKeycloakAdminService().deleteRealm(domainUid);
+		Realm realm = getKeycloakAdminService().getRealm(domainUid);
+		assertNull(realm);
 	}
 
 	@Test
-	public void _020_allRealms() {
-		assertNotNull("keycloakAdminService not correctly instantiated", keycloakAdminService);
-
-		boolean foundMasterRealm = false;
-		boolean foundTestRealm = false;
-		List<Realm> lstRealms = keycloakAdminService.allRealms();
-		for (int i = 0; i < lstRealms.size(); i++) {
-			if ("master".equals(lstRealms.get(i).realm)) {
-				foundMasterRealm = true;
-			}
-			if (testRealmName.equals(lstRealms.get(i).realm)) {
-				foundTestRealm = true;
-			}
-		}
-		assertTrue("Did not find Keycloak realms", foundMasterRealm && foundTestRealm);
-	}
-
-	@Test
-	public void _030_getRealm() {
-		assertNotNull("keycloakAdminService not correctly instantiated", keycloakAdminService);
-
-		Realm testRealm = keycloakAdminService.getRealm(testRealmName);
-		assertEquals("Incorrect realm id", testRealmName, testRealm.id);
-		assertEquals("Incorrect realm name", testRealmName, testRealm.realm);
-		assertTrue("Realm should be enabled", testRealm.enabled);
-		assertTrue("loginWithEmailAllowed should be true", testRealm.loginWithEmailAllowed);
-		assertTrue("internationalizationEnabled should be true", testRealm.internationalizationEnabled);
-		assertEquals("Incorrect supportedLocales", 3, testRealm.supportedLocales.size());
-		assertTrue("supportedLocales: 'fr' is missing", testRealm.supportedLocales.contains("fr"));
-		assertTrue("supportedLocales: 'en' is missing", testRealm.supportedLocales.contains("en"));
-		assertTrue("supportedLocales: 'de' is missing", testRealm.supportedLocales.contains("de"));
-		assertEquals("Default locale should be 'fr'", "fr", testRealm.defaultLocale);
-		assertTrue("Unable to get test realm", testRealm != null && testRealmName.equals(testRealm.realm));
-	}
-
-	@Test
-	public void _040_oidcClient() {
-		assertTrue("Services not correctly instantiated",
-				keycloakAdminService != null && keycloakClientAdminService != null);
-
-		keycloakClientAdminService.create(oidcClientName);
-		assertNotNull("Unable to get oidc client secret", keycloakClientAdminService.getSecret(oidcClientName));
-
-		List<OidcClient> lstClients = keycloakClientAdminService.allOidcClients();
-		boolean foundClient = false;
-		for (int i = 0; i < lstClients.size(); i++) {
-			if (oidcClientName.equals(lstClients.get(i).clientId)) {
-				foundClient = true;
-			}
-		}
-		assertTrue("Did not find OIDC client", foundClient);
-
-		OidcClient cli = keycloakClientAdminService.getOidcClient(oidcClientName);
-		assertNotNull("Unable to get OIDC client", cli);
-		assertEquals("Incorrect clientId value in OIDC Client", oidcClientName, cli.clientId);
-		assertFalse("Incorrect publicClient value in OIDC Client", cli.publicClient);
-
-		cli.redirectUris = List.of("https://one.url.loc", "https://two.urls.com", "https://trois.adresses.fr");
-		keycloakClientAdminService.updateClient(oidcClientName, cli);
-
-		OidcClient updcli = keycloakClientAdminService.getOidcClient(oidcClientName);
-		assertTrue("Failed to update client",
-				updcli.redirectUris.containsAll(cli.redirectUris) && cli.redirectUris.containsAll(updcli.redirectUris));
-
-		keycloakClientAdminService.deleteOidcClient(oidcClientName);
-		cli = null;
+	public void testDeleteUnknownRealm() {
+		String domainUid = "testDeleteUnknownRealm.lan";
 		try {
-			cli = keycloakClientAdminService.getOidcClient(oidcClientName);
-		} catch (Throwable t) {
-		}
-		assertNull("Unable to delete OIDC client", cli);
-	}
-
-	@Test
-	public void _045_authFlow() {
-		String flowAlias = "browser-bluemind";
-		keycloakFlowService.createByCopying("browser", flowAlias);
-		AuthenticationFlow authFlow = keycloakFlowService.getAuthenticationFlow(flowAlias);
-		assertEquals("Unable to get Authentication flow", flowAlias, authFlow.alias);
-		keycloakFlowService.deleteFlow(flowAlias);
-		assertNull("Unable to delete flow", keycloakFlowService.getAuthenticationFlow(flowAlias));
-	}
-
-	@Test
-	public void _050_bluemindProvider() {
-		assertNotNull("keycloakBluemindProviderService not correctly instantiated", keycloakBluemindProviderService);
-
-		String bmProvName = testRealmName + "-bmprovider";
-		BluemindProviderComponent bpComponent = new BluemindProviderComponent();
-		bpComponent.setParentId(testRealmName);
-		bpComponent.setName(bmProvName);
-		bpComponent.setBmUrl("http://" + getMyIpAddress() + ":8090");
-		bpComponent.setBmCoreToken(securityContext.getSessionId());
-
-		keycloakBluemindProviderService.create(bpComponent);
-
-		List<BluemindProviderComponent> lstBmProviders = keycloakBluemindProviderService.allBluemindProviders();
-		boolean foundBmProvider = false;
-		for (int i = 0; i < lstBmProviders.size(); i++) {
-			if (bmProvName.equals(lstBmProviders.get(i).getName())) {
-				foundBmProvider = true;
-			}
-		}
-		assertTrue("Did not find Bluemind provider", foundBmProvider);
-
-		BluemindProviderComponent bp = keycloakBluemindProviderService.getBluemindProvider(bmProvName);
-		assertNotNull("Unable to get bluemind provider component", bp);
-		assertEquals("Incorrect name value in bluemind provider", bmProvName, bp.getName());
-		assertEquals("Incorrect bmUrl value in bluemind provider", "http://" + getMyIpAddress() + ":8090",
-				bp.getBmUrl());
-		assertTrue("Incorrect enabled value in bluemind provider", bp.isEnabled());
-
-		keycloakBluemindProviderService.deleteBluemindProvider(bmProvName);
-		bp = null;
-		try {
-			bp = keycloakBluemindProviderService.getBluemindProvider(bmProvName);
-		} catch (Throwable t) {
-		}
-		assertNull("Unable to delete bluemind provider", bp);
-	}
-
-	@Test
-	public void _060_kerberosProvider() {
-		assertNotNull("keycloakKerberosService not correctly instantiated", keycloakKerberosService);
-
-		String krbProvName = testRealmName + "-kerberos";
-		KerberosComponent kerb = new KerberosComponent();
-		kerb.setKerberosRealm("TEST-DOMAIN.LOCAL");
-		kerb.setServerPrincipal("HTTP/keycloak.test-domain.local@TEST-DOMAIN.LOCAL");
-		kerb.setKeyTab("/tmp/keytab");
-		kerb.setEnabled(true);
-		kerb.setDebug(true);
-		kerb.setCachePolicy(CachePolicy.DEFAULT);
-		kerb.setName(krbProvName);
-		kerb.setParentId(testRealmName);
-
-		keycloakKerberosService.create(kerb);
-
-		List<KerberosComponent> lstKrbProviders = keycloakKerberosService.allKerberosProviders();
-		boolean foundKrbProvider = false;
-		for (int i = 0; i < lstKrbProviders.size(); i++) {
-			if (krbProvName.equals(lstKrbProviders.get(i).getName())) {
-				foundKrbProvider = true;
-			}
-		}
-		assertTrue("Did not find Kerberos provider", foundKrbProvider);
-
-		KerberosComponent krb = keycloakKerberosService.getKerberosProvider(krbProvName);
-		assertNotNull("Unable to get kerberos provider component", krb);
-		assertEquals("Incorrect name value in kerberos provider", krbProvName, krb.getName());
-		assertEquals("Incorrect server principal value in kerberos provider",
-				"HTTP/keycloak.test-domain.local@TEST-DOMAIN.LOCAL", krb.getServerPrincipal());
-		assertTrue("Incorrect enabled value in kerberos provider", krb.isEnabled());
-
-		keycloakKerberosService.deleteKerberosProvider(krbProvName);
-		krb = null;
-		try {
-			krb = keycloakKerberosService.getKerberosProvider(krbProvName);
-		} catch (Throwable t) {
-		}
-		assertNull("Unable to delete kerberos provider", krb);
-	}
-
-	@Test
-	public void _070_deleteRealm() {
-		assertNotNull("keycloakAdminService not correctly instantiated", keycloakAdminService);
-
-		keycloakAdminService.deleteRealm(testRealmName);
-		assertNull("Unable to delete realm", keycloakAdminService.getRealm(testRealmName));
-	}
-
-	@Test
-	public void _080_domainHookOnCreate() {
-		testRealmName = "dmn" + System.currentTimeMillis() + ".loc";
-		oidcClientName = IKeycloakUids.clientId(testRealmName);
-		keycloakClientAdminService = getKeycloakClientAdminService();
-		assertTrue("Services not correctly instantiated",
-				domainService != null && keycloakAdminService != null && keycloakClientAdminService != null);
-
-		domainService.create(testRealmName,
-				Domain.create(testRealmName, testRealmName, "Temporary test domain", new HashSet<String>()));
-		assertNotNull("Unable to create Bluemind domain", domainService.get(testRealmName));
-		assertNotNull("Unable to find automaticalluy created kerberos realm",
-				keycloakAdminService.getRealm(testRealmName));
-		assertNotNull("Unable to get oidc client secret for automatically created realm",
-				keycloakClientAdminService.getSecret(oidcClientName));
-	}
-
-	@Test
-	public void _090_domainHookOnDelete() {
-		assertTrue("Services not correctly instantiated", domainService != null && keycloakAdminService != null);
-
-		try {
-			TaskRef taskRef = domainService.deleteDomainItems(testRealmName);
-			TaskStatus status = TaskUtils.wait(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), taskRef);
-			assertTrue(status.state.succeed);
-			domainService.delete(testRealmName);
-
-		} catch (Throwable e) {
-			logger.error("EXCeption " + e.getClass().getName() + " : " + e.getMessage(), e);
-		}
-		assertNull("Unable to delete Keycloak realm", keycloakAdminService.getRealm(testRealmName));
-	}
-
-	@Test
-	public void _100_bmPluginWorks() {
-		testRealmName = "dom" + System.currentTimeMillis() + ".loc";
-		oidcClientName = IKeycloakUids.clientId(testRealmName);
-		keycloakClientAdminService = getKeycloakClientAdminService();
-		keycloakBluemindProviderService = getKeycloakBluemindProviderService();
-
-		assertTrue("keycloakBluemindProviderService not correctly instantiated", keycloakAdminService != null
-				&& keycloakClientAdminService != null && keycloakBluemindProviderService != null);
-
-		assertTrue("Failed to create test domain", createDomainWithUser(testRealmName, "test.user", "somePassw0rd"));
-
-		keycloakAdminService.deleteRealm(testRealmName);
-		keycloakAdminService.createRealm(testRealmName);
-		keycloakClientAdminService.create(oidcClientName);
-
-		BluemindProviderComponent bpComponent = new BluemindProviderComponent();
-		bpComponent.setParentId(testRealmName);
-		bpComponent.setName(testRealmName + "-X" + securityContext.getSessionId());
-		bpComponent.setBmUrl("http://" + getMyIpAddress() + ":8090"); // peut-etre ou peut-etre pas
-		bpComponent.setBmCoreToken(securityContext.getSessionId());
-		keycloakBluemindProviderService.create(bpComponent);
-
-		String accessToken = null;
-		try {
-			String endpoint = "http://" + new BmConfIni().get("keycloak") + ":8099/realms/" + testRealmName
-					+ "/protocol/openid-connect/token";
-			Builder requestBuilder = HttpRequest.newBuilder(new URI(endpoint));
-			requestBuilder.header("Charset", StandardCharsets.UTF_8.name());
-			requestBuilder.header("Content-Type", "application/x-www-form-urlencoded");
-			String params = "grant_type=password";
-			params += "&client_id=" + oidcClientName;
-			params += "&client_secret=" + keycloakClientAdminService.getSecret(oidcClientName);
-			params += "&username=test.user@" + testRealmName;
-			params += "&password=somePassw0rd";
-			byte[] postData = params.getBytes(StandardCharsets.UTF_8);
-			requestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(postData));
-			HttpRequest req = requestBuilder.build();
-			HttpClient cli = HttpClient.newHttpClient();
-			HttpResponse<String> resp = cli.send(req, BodyHandlers.ofString());
-
-			if (resp.statusCode() >= 400) {
-				assertTrue("Failed to authenticate with keycloak", false);
-			} else {
-				JsonObject result = new JsonObject(resp.body());
-				accessToken = result.getString("access_token");
-			}
+			getKeycloakAdminService().deleteRealm(domainUid);
 		} catch (Exception e) {
-			logger.error("EXCeption " + e.getClass().getName() + " : " + e.getMessage(), e);
+			fail(e.getMessage());
 		}
-		assertNotNull("Failed to authenticate with keycloak", accessToken);
-
-		try {
-			keycloakAdminService.deleteRealm(testRealmName);
-		} catch (Throwable t) {
-		}
-
 	}
 
 	@Test
-	public void _110_krbConfigRulesEnforced() {
-		testRealmName = "global.virt";
-		keycloakClientAdminService = getKeycloakClientAdminService();
-		keycloakKerberosService = getKeycloakKerberosService();
+	public void testAllRealm() {
+		getKeycloakAdminService().createRealm("testAllRealm1.lan");
+		getKeycloakAdminService().createRealm("testAllRealm2.lan");
+		List<Realm> all = getKeycloakAdminService().allRealms();
+		assertEquals(3, all.size()); // 3 = testAllRealm1.lan, testAllRealm2.lan and keycloak master realm
+	}
 
-		keycloakAdminService.createRealm("global.virt");
-		keycloakClientAdminService.create("global.virt-cli");
+	@Test
+	public void testFetchUnknownRealm() {
+		assertNull(getKeycloakAdminService().getRealm("nope"));
+	}
 
-		String domainOne = "d1-" + System.currentTimeMillis() + ".loc";
-		domainService.create(domainOne,
-				Domain.create(domainOne, domainOne, "Temporary test domain One", new HashSet<String>()));
-		Domain domain1 = domainService.get(domainOne).value;
-		domain1.properties.put(AuthDomainProperties.AUTH_TYPE.name(), "KERBEROS");
-		domain1.properties.put(AuthDomainProperties.KRB_AD_DOMAIN.name(), "DOMAIN-ONE.COM");
-		domain1.properties.put(AuthDomainProperties.KRB_AD_IP.name(), "192.168.0.111");
-		domain1.properties.put(AuthDomainProperties.KRB_KEYTAB.name(),
-				"VGhpcyBpcyBzdXBwb3NlZCB0byBiZSBhIGtleXRhYiBmaWxlLg==");
-		domainService.update(domainOne, domain1);
+	@Test
+	public void testOidcClient() {
+		String domainUid = "testOidcClient.lan";
+		String cli = IKeycloakUids.clientId(domainUid);
+		getKeycloakAdminService().createRealm(domainUid);
+
+		getKeycloakClientAdminService(domainUid).create(cli);
+
+		OidcClient client = getKeycloakClientAdminService(domainUid).getOidcClient(cli);
+		assertNotNull(client);
+
+		String secret = getKeycloakClientAdminService(domainUid).getSecret(cli);
+		assertEquals(client.secret, secret);
+	}
+
+	@Test
+	public void testDeleteUnknownOidcClient() {
+		String domainUid = "testDeleteUnknownOidcClient.lan";
 		try {
-			TimeUnit.SECONDS.sleep(7);
-		} catch (InterruptedException e) {
-		}
-		KerberosComponent krbGlob = keycloakKerberosService.getKerberosProvider("global.virt-kerberos");
-		assertNotNull("Kerberos component wasn't added to global realm", krbGlob);
-		assertEquals("Kerberos component wasn't properly created on global realm", krbGlob.getKerberosRealm(),
-				"DOMAIN-ONE.COM");
-
-		String domainTwo = "d2-" + System.currentTimeMillis() + ".loc";
-		testRealmName = domainTwo;
-		domainSettingsService = getDomainSettingsService();
-		keycloakClientAdminService = getKeycloakClientAdminService();
-		keycloakKerberosService = getKeycloakKerberosService();
-
-		domainService.create(domainTwo,
-				Domain.create(domainTwo, domainTwo, "Temporary test domain Two", new HashSet<String>()));
-		Domain domain2 = domainService.get(domainTwo).value;
-		domain2.properties.put(AuthDomainProperties.AUTH_TYPE.name(), "KERBEROS");
-		domain2.properties.put(AuthDomainProperties.KRB_AD_DOMAIN.name(), "DOMAIN-TWO.BIZ");
-		domain2.properties.put(AuthDomainProperties.KRB_AD_IP.name(), "192.168.0.222");
-		domain2.properties.put(AuthDomainProperties.KRB_KEYTAB.name(), "U29tZSBmYWtlIGtleXRhYiBmaWxlLCB5byE=");
-
-		boolean updateRejected = false;
-		try {
-			domainService.update(domainTwo, domain2);
-		} catch (Throwable t) {
-			updateRejected = true;
-		}
-		assertTrue("Adding a second kerberos domain without an external URL shouldn't have been allowed",
-				updateRejected);
-
-		Map<String, String> settings = domainSettingsService.get();
-		settings.put("external_url", "bluemind.domain-two.biz");
-		domainSettingsService.set(settings);
-		domain2 = domainService.get(domainTwo).value;
-		domain2.properties.put(AuthDomainProperties.AUTH_TYPE.name(), "KERBEROS");
-		domain2.properties.put(AuthDomainProperties.KRB_AD_DOMAIN.name(), "DOMAIN-TWO.BIZ");
-		domain2.properties.put(AuthDomainProperties.KRB_AD_IP.name(), "192.168.0.222");
-		domain2.properties.put(AuthDomainProperties.KRB_KEYTAB.name(), "U29tZSBmYWtlIGtleXRhYiBmaWxlLCB5byE=");
-		domainService.update(domainTwo, domain2);
-		try {
-			TimeUnit.SECONDS.sleep(7);
-		} catch (InterruptedException e) {
-		}
-		KerberosComponent krbDomain = keycloakKerberosService.getKerberosProvider(domainTwo + "-kerberos");
-		assertNotNull("Kerberos component wasn't added to domain realm", krbDomain);
-		assertEquals("Kerberos component wasn't properly created on domain realm", krbDomain.getKerberosRealm(),
-				"DOMAIN-TWO.BIZ");
-
-		try {
-			keycloakAdminService.deleteRealm("global.virt");
-		} catch (Throwable t) {
-		}
-		try {
-			keycloakAdminService.deleteRealm(domainOne);
-		} catch (Throwable t) {
-		}
-		try {
-			keycloakAdminService.deleteRealm(domainTwo);
-		} catch (Throwable t) {
+			getKeycloakClientAdminService(domainUid).deleteOidcClient("nope");
+		} catch (Exception e) {
+			fail(e.getMessage());
 		}
 	}
 
-	protected IKeycloakAdmin getKeycloakAdminService() throws ServerFault {
-		return ServerSideServiceProvider.getProvider(securityContext).instance(IKeycloakAdmin.class);
+	@Test
+	public void testFetchUnknownOidcClient() {
+		String domainUid = "testFetchUnknownOidcClient.lan";
+		assertNull(getKeycloakClientAdminService(domainUid).getOidcClient("nope"));
 	}
 
-	protected IKeycloakClientAdmin getKeycloakClientAdminService() throws ServerFault {
-		return ServerSideServiceProvider.getProvider(securityContext).instance(IKeycloakClientAdmin.class,
-				testRealmName);
+	@Test
+	public void testFetchUnknownOidcClientSecret() {
+		String domainUid = "testFetchUnknownOidcClientSecret.lan";
+		assertNull(getKeycloakClientAdminService(domainUid).getSecret("nope"));
 	}
 
-	protected IKeycloakBluemindProviderAdmin getKeycloakBluemindProviderService() throws ServerFault {
-		return ServerSideServiceProvider.getProvider(securityContext).instance(IKeycloakBluemindProviderAdmin.class,
-				testRealmName);
+	@Test
+	public void testOidcClientUpdateRedirectUrls() throws Exception {
+		String domainUid = "testOidcClientRedirectUrls.lan";
+		String clientId = IKeycloakUids.clientId(domainUid);
+		getKeycloakAdminService().createRealm(domainUid);
+
+		getKeycloakClientAdminService(domainUid).create(clientId);
+
+		OidcClient client = getKeycloakClientAdminService(domainUid).getOidcClient(clientId);
+		assertEquals(1, client.redirectUris.size());
+		assertEquals("https://configure_external_url_in_bluemind", client.redirectUris.get(0)); // the fake one
+
+		String redirectUrl = "redirect.url";
+		client.redirectUris = List.of(redirectUrl);
+		getKeycloakClientAdminService(domainUid).updateClient(clientId, client);
+
+		client = getKeycloakClientAdminService(domainUid).getOidcClient(clientId);
+		assertEquals(1, client.redirectUris.size());
+		assertEquals(redirectUrl, client.redirectUris.get(0));
 	}
 
-	protected IKeycloakKerberosAdmin getKeycloakKerberosService() throws ServerFault {
-		return ServerSideServiceProvider.getProvider(securityContext).instance(IKeycloakKerberosAdmin.class,
-				testRealmName);
+	@Test
+	public void testAuthFlow() {
+		String domainUid = "testAuthFlow.lan";
+		String flowAlias = "browser-bluemind";
+		getKeycloakAdminService().createRealm(domainUid);
+
+		getKeycloakFlowService(domainUid).createByCopying("browser", flowAlias);
+		AuthenticationFlow authFlow = getKeycloakFlowService(domainUid).getAuthenticationFlow(flowAlias);
+		assertNotNull(authFlow);
+		assertEquals(flowAlias, authFlow.alias);
+
+		getKeycloakFlowService(domainUid).deleteFlow(flowAlias);
+		authFlow = getKeycloakFlowService(domainUid).getAuthenticationFlow(flowAlias);
+		assertNull(authFlow);
 	}
 
-	protected IKeycloakFlowAdmin getKeycloakFlowService() throws ServerFault {
-		return ServerSideServiceProvider.getProvider(securityContext).instance(IKeycloakFlowAdmin.class, testRealmName);
+	@Test
+	public void testFetchUnknownFlow() {
+		String domainUid = "testFetchUnknownFlow.lan";
+		assertNull(getKeycloakFlowService(domainUid).getAuthenticationFlow("nope"));
 	}
 
-	protected IDomains getDomainService() throws ServerFault {
-		return ServerSideServiceProvider.getProvider(securityContext).instance(IDomains.class);
+	@Test
+	public void testDeleteUnknownFlow() {
+		String domainUid = "testDeleteUnknownFlow.lan";
+		try {
+			getKeycloakFlowService(domainUid).deleteFlow("nope");
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
 	}
 
-	protected IDomainSettings getDomainSettingsService() throws ServerFault {
-		return ServerSideServiceProvider.getProvider(securityContext).instance(IDomainSettings.class, testRealmName);
+	@Test
+	public void testBlueMindProvider() {
+		String domainUid = "testBlueMindProvider.lan";
+		getKeycloakAdminService().createRealm(domainUid);
+
+		String providerName = IKeycloakUids.bmProviderId(domainUid);
+		BluemindProviderComponent bpComponent = new BluemindProviderComponent();
+		bpComponent.setParentId(domainUid);
+		bpComponent.setName(providerName);
+		bpComponent.setBmUrl("http://localhost:8090");
+		bpComponent.setBmCoreToken("toktok");
+
+		getKeycloakBluemindProviderService(domainUid).create(bpComponent);
+
+		BluemindProviderComponent provider = getKeycloakBluemindProviderService(domainUid)
+				.getBluemindProvider(providerName);
+		assertNotNull(provider);
+		assertTrue(provider.isEnabled());
+		assertEquals("http://localhost:8090", provider.getBmUrl());
+
+		getKeycloakBluemindProviderService(domainUid).deleteBluemindProvider(providerName);
+		provider = getKeycloakBluemindProviderService(domainUid).getBluemindProvider(providerName);
+		assertNull(provider);
 	}
+
+	@Test
+	public void testKerberosProvider() {
+		String domainUid = "testKerberosProvider.lan";
+		getKeycloakAdminService().createRealm(domainUid);
+
+		String providerName = IKeycloakUids.kerberosComponentName(domainUid);
+		KerberosComponent krbComponent = new KerberosComponent();
+		krbComponent.setKerberosRealm("TEST-DOMAIN.LOCAL");
+		krbComponent.setServerPrincipal("HTTP/keycloak.test-domain.local@TEST-DOMAIN.LOCAL");
+		krbComponent.setKeyTab("/tmp/keytab");
+		krbComponent.setEnabled(true);
+		krbComponent.setDebug(true);
+		krbComponent.setCachePolicy(CachePolicy.DEFAULT);
+		krbComponent.setName(providerName);
+		krbComponent.setParentId(domainUid);
+
+		getKeycloakKerberosService(domainUid).create(krbComponent);
+
+		KerberosComponent provider = getKeycloakKerberosService(domainUid).getKerberosProvider(providerName);
+		assertNotNull(provider);
+		assertEquals(providerName, provider.getName());
+		assertEquals("HTTP/keycloak.test-domain.local@TEST-DOMAIN.LOCAL", provider.getServerPrincipal());
+
+		assertTrue(provider.isEnabled());
+
+		getKeycloakKerberosService(domainUid).deleteKerberosProvider(providerName);
+		provider = getKeycloakKerberosService(domainUid).getKerberosProvider(providerName);
+		assertNull(provider);
+	}
+
+	@Test
+	public void testFetchUnknownComponent() {
+		String domainUid = "testFetchUnknownComponent.lan";
+		assertNull(getKeycloakKerberosService(domainUid).getKerberosProvider("nope"));
+		assertNull(getKeycloakBluemindProviderService(domainUid).getBluemindProvider("nope"));
+	}
+
+	@Test
+	public void testDeleteUnknownComponent() {
+		String domainUid = "testDeleteUnknownComponent.lan";
+		try {
+			getKeycloakKerberosService(domainUid).deleteKerberosProvider("nope");
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+
+		try {
+			getKeycloakBluemindProviderService(domainUid).deleteBluemindProvider("nope");
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+	}
+
 }

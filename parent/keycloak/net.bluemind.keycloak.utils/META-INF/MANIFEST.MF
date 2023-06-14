@@ -15,7 +15,9 @@ Require-Bundle: net.bluemind.keycloak.api,
  net.bluemind.system.api,
  net.bluemind.node.client,
  net.bluemind.node.api,
- net.bluemind.authentication.api
+ net.bluemind.authentication.api,
+ com.google.guava,
+ net.bluemind.utils
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.keycloak.utils
 Bundle-RequiredExecutionEnvironment: JavaSE-17

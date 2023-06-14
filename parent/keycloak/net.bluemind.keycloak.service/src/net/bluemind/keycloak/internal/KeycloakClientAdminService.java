@@ -17,7 +17,6 @@
   */
 package net.bluemind.keycloak.internal;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -64,7 +63,7 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 		JsonArray flows = resp.getJsonArray("results");
 		for (int i = 0; i < flows.size(); i++) {
 			JsonObject curFlow = flows.getJsonObject(i);
-			if (IKeycloakUids.bluemindFlowAlias.equals(curFlow.getString("alias"))) {
+			if (IKeycloakUids.BLUEMIND_FLOW_ALIAS.equals(curFlow.getString("alias"))) {
 				ourFlowId = curFlow.getString("id");
 			}
 		}
@@ -76,7 +75,7 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 		client.put("directAccessGrantsEnabled", true);
 
 		JsonArray redirectUris = new JsonArray();
-		KeycloakHelper.getDomainUrls(domainId).forEach(url -> redirectUris.add(url));
+		KeycloakHelper.getDomainUrls(domainId).forEach(redirectUris::add);
 		client.put("redirectUris", redirectUris);
 		client.put("webOrigins", new JsonArray().add("+"));
 		client.put("attributes", new JsonObject().put("post.logout.redirect.uris", "*"));
@@ -121,7 +120,10 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 		} catch (Exception e) {
 			throw new ServerFault("Failed to get client secret");
 		}
-
+		if (json == null) {
+			logger.warn("Failed to fetch secret");
+			return null;
+		}
 		return json.getString("value");
 
 	}
@@ -157,12 +159,7 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 
 		logger.info("Realm {}: Get client {}", domainId, clientId);
 		String spec = String.format(CLIENTS_URL, domainId);
-		try {
-			spec += "?clientId=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8.toString());
-		} catch (UnsupportedEncodingException e) {
-			logger.error("UnsupportedEncodingException : " + StandardCharsets.UTF_8.toString());
-			throw new ServerFault(e);
-		}
+		spec += "?clientId=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8);
 		CompletableFuture<JsonObject> response = execute(spec, HttpMethod.GET);
 		JsonObject json;
 		try {
@@ -170,6 +167,10 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 		} catch (Exception e) {
 			logger.error("EXCeptkion " + e.getClass().getName() + " : " + e.getMessage(), e);
 			throw new ServerFault("Failed to fetch client " + clientId + " in realm " + domainId);
+		}
+		if (json == null) {
+			logger.warn("Failed to fetch client id {}", clientId);
+			return null;
 		}
 		JsonArray results = json.getJsonArray("results");
 		if (results == null || results.size() == 0
@@ -185,18 +186,7 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 
 		logger.info("Realm {}: Delete client {}", domainId, clientId);
 
-		OidcClient oc = null;
-		try {
-			oc = getOidcClient(clientId);
-		} catch (Throwable t) {
-			logger.error("Couldn't get client " + clientId + " in realm " + domainId + " to delete it", t);
-			throw new ServerFault(t);
-		}
-		if (oc == null) {
-			throw new ServerFault("Couldn't get client " + clientId + " in realm " + domainId + " to delete it");
-		}
-
-		CompletableFuture<JsonObject> response = execute(String.format(CLIENTS_URL, domainId) + "/" + oc.id,
+		CompletableFuture<JsonObject> response = execute(String.format(CLIENTS_URL, domainId) + "/" + clientId,
 				HttpMethod.DELETE);
 		try {
 			response.get(TIMEOUT, TimeUnit.SECONDS);
@@ -207,6 +197,10 @@ public class KeycloakClientAdminService extends KeycloakAdminClient implements I
 
 	@Override
 	public void updateClient(String clientId, OidcClient oc) throws ServerFault {
+		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
+
+		logger.info("Realm {}: Update client {}", domainId, clientId);
+
 		String clid = oc.id;
 		if (clid == null) {
 			OidcClient cli = null;

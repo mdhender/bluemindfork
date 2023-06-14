@@ -399,6 +399,7 @@ public class DomainsService implements IInCoreDomains, IDomains {
 			@Override
 			public void run(IServerTaskMonitor monitor) throws Exception {
 				doSetAliases(domainItem, previousAliases, monitor);
+				// TODO change topic name
 				DomainsService.this.notify(DOMAIN_UPDATED, uid);
 			}
 		});
@@ -472,6 +473,7 @@ public class DomainsService implements IInCoreDomains, IDomains {
 		for (IDomainHook hook : hooks) {
 			hook.onUpdated(context, currentDomainItem, updatedDomainItem);
 		}
+		// TODO change topic name
 		notify(DOMAIN_UPDATED, domain.name);
 	}
 
@@ -577,12 +579,15 @@ public class DomainsService implements IInCoreDomains, IDomains {
 			domainItem.value.properties = new HashMap<>();
 		}
 
+		Map<String, String> oldProps = new HashMap<>();
+		oldProps.putAll(domainItem.value.properties);
+
 		domainItem.value.properties.putAll(properties);
 
 		store.update(domainItem.uid, domainItem.value.label, domainItem.value);
 
 		for (IDomainHook hook : hooks) {
-			hook.onPropertiesUpdated(context, domainItem);
+			hook.onPropertiesUpdated(context, domainItem, oldProps, properties);
 		}
 		domainsCache.invalidate(domainItem.uid);
 	}

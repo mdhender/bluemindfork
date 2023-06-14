@@ -34,8 +34,8 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.keycloak.api.Component;
 
 public abstract class ComponentService extends KeycloakAdminClient {
-	private static final Logger logger = LoggerFactory.getLogger(KeycloakKerberosAdminService.class);
-	public static final String PROVIDER_TYPE = "org.keycloak.storage.UserStorageProvider";
+	private static final Logger logger = LoggerFactory.getLogger(ComponentService.class);
+	private static final String PROVIDER_TYPE = "org.keycloak.storage.UserStorageProvider";
 
 	protected RBACManager rbacManager;
 	protected String domainId;
@@ -101,7 +101,10 @@ public abstract class ComponentService extends KeycloakAdminClient {
 		} catch (Exception e) {
 			throw new ServerFault("Failed to get components for realm " + domainId, e);
 		}
-
+		if (json == null) {
+			logger.warn("Failed to fetch component id {}", componentName);
+			return null;
+		}
 		JsonObject ret = null;
 		JsonArray results = json.getJsonArray("results");
 		if (results != null) {
@@ -117,25 +120,17 @@ public abstract class ComponentService extends KeycloakAdminClient {
 	}
 
 	protected void deleteComponent(ComponentProvider provider, String componentName) {
-		String cmpId = null;
-		try {
-			JsonObject cmp = getComponent(provider, componentName);
-			if (cmp != null) {
-				cmpId = cmp.getString("id");
-			}
-		} catch (Throwable t) {
-			throw new ServerFault("Failed to get component " + componentName + " (to delete it)", t);
+		JsonObject cmp = getComponent(provider, componentName);
+		if (cmp == null) {
+			return;
 		}
-		if (cmpId == null) {
-			throw new ServerFault("Failed to get component " + componentName + " (to delete it)");
-		}
-
-		CompletableFuture<JsonObject> response = execute(String.format(COMPONENTS_URL, domainId) + "/" + cmpId,
-				HttpMethod.DELETE);
+		CompletableFuture<JsonObject> response = execute(
+				String.format(COMPONENTS_URL, domainId) + "/" + cmp.getString("id"), HttpMethod.DELETE);
 		try {
 			response.get(TIMEOUT, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			throw new ServerFault("Failed to delete component " + componentName + " from realm " + domainId, e);
 		}
+
 	}
 }

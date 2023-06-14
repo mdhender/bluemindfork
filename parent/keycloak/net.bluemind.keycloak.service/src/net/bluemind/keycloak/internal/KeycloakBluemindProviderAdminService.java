@@ -48,7 +48,7 @@ public class KeycloakBluemindProviderAdminService extends ComponentService imple
 	public List<BluemindProviderComponent> allBluemindProviders() throws ServerFault {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
 		logger.info("Realm {}: Get all Bluemind providers", domainId);
-		
+
 		List<BluemindProviderComponent> ret = new ArrayList<>();
 		allComponents(ComponentProvider.BLUEMIND).forEach(cmp -> ret.add(jsonToBluemindProviderComponent(cmp)));
 		return ret;
@@ -58,7 +58,7 @@ public class KeycloakBluemindProviderAdminService extends ComponentService imple
 	public BluemindProviderComponent getBluemindProvider(String componentName) throws ServerFault {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
 		logger.info("Realm {}: Get Bluemind provider {}", domainId, componentName);
-		
+
 		return jsonToBluemindProviderComponent(getComponent(ComponentProvider.BLUEMIND, componentName));
 	}
 
@@ -66,10 +66,9 @@ public class KeycloakBluemindProviderAdminService extends ComponentService imple
 	public void deleteBluemindProvider(String componentName) throws ServerFault {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
 		logger.info("Realm {}: Delete bluemind provider {}", domainId, componentName);
-		
+
 		deleteComponent(ComponentProvider.BLUEMIND, componentName);
 	}
-	
 
 	BluemindProviderComponent jsonToBluemindProviderComponent(JsonObject ret) {
 		if (ret == null) {
@@ -80,26 +79,27 @@ public class KeycloakBluemindProviderAdminService extends ComponentService imple
 		bp.setId(ret.getString("id"));
 		bp.setParentId(ret.getString("parentId"));
 		bp.setName(ret.getString("name"));
-		
-		if (ret.getJsonObject("config").getJsonArray("bmDomain") != null) {
-			bp.setBmDomain(ret.getJsonObject("config").getJsonArray("bmDomain").getString(0));
+		JsonObject config = ret.getJsonObject("config");
+
+		if (config.getJsonArray("bmDomain") != null) {
+			bp.setBmDomain(config.getJsonArray("bmDomain").getString(0));
 		}
-		if (ret.getJsonObject("config").getJsonArray("bmUrl") != null) {
-			bp.setBmUrl(ret.getJsonObject("config").getJsonArray("bmUrl").getString(0));
+		if (config.getJsonArray("bmUrl") != null) {
+			bp.setBmUrl(config.getJsonArray("bmUrl").getString(0));
 		}
-		if (ret.getJsonObject("config").getJsonArray("bmCoreToken") != null) {
-			bp.setBmCoreToken(ret.getJsonObject("config").getJsonArray("bmCoreToken").getString(0));
+		if (config.getJsonArray("bmCoreToken") != null) {
+			bp.setBmCoreToken(config.getJsonArray("bmCoreToken").getString(0));
 		}
-		
-		if (ret.getJsonObject("config").getJsonArray("enabled") != null) {
-			bp.setEnabled(Boolean.valueOf(ret.getJsonObject("config").getJsonArray("enabled").getString(0)));
+
+		if (config.getJsonArray("enabled") != null) {
+			bp.setEnabled(Boolean.valueOf(config.getJsonArray("enabled").getString(0)));
 		}
-		
-		if (ret.getJsonObject("config").getJsonArray("cachePolicy") != null) {
-			bp.setCachePolicy(CachePolicy.valueOf(ret.getJsonObject("config").getJsonArray("cachePolicy").getString(0)));
+
+		if (config.getJsonArray("cachePolicy") != null) {
+			bp.setCachePolicy(CachePolicy.valueOf(config.getJsonArray("cachePolicy").getString(0)));
 		}
-		
+
 		return bp;
 	}
-	
+
 }

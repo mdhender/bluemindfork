@@ -49,7 +49,7 @@ public class KeycloakKerberosAdminService extends ComponentService implements IK
 	public List<KerberosComponent> allKerberosProviders() throws ServerFault {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
 		logger.info("Realm {}: Get all Kerberos providers", domainId);
-		
+
 		List<KerberosComponent> ret = new ArrayList<>();
 		allComponents(ComponentProvider.KERBEROS).forEach(cmp -> ret.add(jsonToKerberosComponent(cmp)));
 		return ret;
@@ -59,7 +59,7 @@ public class KeycloakKerberosAdminService extends ComponentService implements IK
 	public KerberosComponent getKerberosProvider(String componentName) throws ServerFault {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
 		logger.info("Realm {}: Get Kerberos provider {}", domainId, componentName);
-		
+
 		return jsonToKerberosComponent(getComponent(ComponentProvider.KERBEROS, componentName));
 	}
 
@@ -67,7 +67,7 @@ public class KeycloakKerberosAdminService extends ComponentService implements IK
 	public void deleteKerberosProvider(String componentName) throws ServerFault {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
 		logger.info("Realm {}: Delete kerberos provider {}", domainId, componentName);
-		
+
 		deleteComponent(ComponentProvider.KERBEROS, componentName);
 	}
 
@@ -75,40 +75,41 @@ public class KeycloakKerberosAdminService extends ComponentService implements IK
 		if (ret == null) {
 			return null;
 		}
-		
+
 		KerberosComponent kc = new KerberosComponent();
 		kc.setId(ret.getString("id"));
 		kc.setParentId(ret.getString("parentId"));
 		kc.setName(ret.getString("name"));
-		
-		if (ret.getJsonObject("config").getJsonArray("kerberosRealm") != null) {
-			kc.setKerberosRealm(ret.getJsonObject("config").getJsonArray("kerberosRealm").getString(0));
+
+		JsonObject config = ret.getJsonObject("config");
+		if (config.getJsonArray("kerberosRealm") != null) {
+			kc.setKerberosRealm(config.getJsonArray("kerberosRealm").getString(0));
 		}
-		if (ret.getJsonObject("config").getJsonArray("serverPrincipal") != null) {
-			kc.setServerPrincipal(ret.getJsonObject("config").getJsonArray("serverPrincipal").getString(0));
+		if (config.getJsonArray("serverPrincipal") != null) {
+			kc.setServerPrincipal(config.getJsonArray("serverPrincipal").getString(0));
 		}
-		if (ret.getJsonObject("config").getJsonArray("keyTab") != null) {
-			kc.setKeyTab(ret.getJsonObject("config").getJsonArray("keyTab").getString(0));
+		if (config.getJsonArray("keyTab") != null) {
+			kc.setKeyTab(config.getJsonArray("keyTab").getString(0));
 		}
 
+		if (config.getJsonArray("enabled") != null) {
+			kc.setEnabled(Boolean.valueOf(config.getJsonArray("enabled").getString(0)));
+		}
+		if (config.getJsonArray("debug") != null) {
+			kc.setDebug(Boolean.valueOf(config.getJsonArray("debug").getString(0)));
+		}
+		if (config.getJsonArray("allowPasswordAuthentication") != null) {
+			kc.setAllowPasswordAuthentication(
+					Boolean.valueOf(config.getJsonArray("allowPasswordAuthentication").getString(0)));
+		}
+		if (config.getJsonArray("updateProfileFirstLogin") != null) {
+			kc.setUpdateProfileFirstLogin(Boolean.valueOf(config.getJsonArray("updateProfileFirstLogin").getString(0)));
+		}
 
-		if (ret.getJsonObject("config").getJsonArray("enabled") != null) {
-			kc.setEnabled(Boolean.valueOf(ret.getJsonObject("config").getJsonArray("enabled").getString(0)));
+		if (config.getJsonArray("cachePolicy") != null) {
+			kc.setCachePolicy(CachePolicy.valueOf(config.getJsonArray("cachePolicy").getString(0)));
 		}
-		if (ret.getJsonObject("config").getJsonArray("debug") != null) {
-			kc.setDebug(Boolean.valueOf(ret.getJsonObject("config").getJsonArray("debug").getString(0)));
-		}
-		if (ret.getJsonObject("config").getJsonArray("allowPasswordAuthentication") != null) {
-			kc.setAllowPasswordAuthentication(Boolean.valueOf(ret.getJsonObject("config").getJsonArray("allowPasswordAuthentication").getString(0)));
-		}
-		if (ret.getJsonObject("config").getJsonArray("updateProfileFirstLogin") != null) {
-			kc.setUpdateProfileFirstLogin(Boolean.valueOf(ret.getJsonObject("config").getJsonArray("updateProfileFirstLogin").getString(0)));
-		}
-		
-		if (ret.getJsonObject("config").getJsonArray("cachePolicy") != null) {
-			kc.setCachePolicy(CachePolicy.valueOf(ret.getJsonObject("config").getJsonArray("cachePolicy").getString(0)));
-		}
-		
+
 		return kc;
 	}
 }

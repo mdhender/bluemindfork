@@ -17,12 +17,20 @@
   */
 package net.bluemind.keycloak.verticle;
 
-import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Verticle;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
+import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class KeycloakKerberosVerticle extends AbstractVerticle {
-	
+public class KeycloakConfigurationVerticleFactory implements IVerticleFactory, IUniqueVerticleFactory {
+
 	@Override
-	public void start() {
-		MQManager.init();
+	public boolean isWorker() {
+		return true;
 	}
+
+	@Override
+	public Verticle newInstance() {
+		return new KeycloakConfigurationVerticle();
+	}
+
 }
