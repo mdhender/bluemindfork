@@ -17,14 +17,11 @@
   */
 package net.bluemind.webmodule.authenticationfilter.internal;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringTokenizer;
 
-import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.core.api.auth.AuthDomainProperties;
 import net.bluemind.core.api.auth.AuthTypes;
@@ -106,16 +103,5 @@ public class DomainsHelper {
 		}
 
 		return Optional.empty();
-	}
-
-	public static void redirectToCasServer(HttpServerRequest request, String domainUid) {
-		Map<String, String> domainProperties = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
-				.get(domainUid);
-		String casURL = domainProperties.get(AuthDomainProperties.CAS_URL.name());
-		String location = casURL + "login?service=";
-		location += URLEncoder.encode("https://" + request.host() + "/auth/cas", StandardCharsets.UTF_8);
-		request.response().headers().add(HttpHeaders.LOCATION, location);
-		request.response().setStatusCode(302);
-		request.response().end();
 	}
 }

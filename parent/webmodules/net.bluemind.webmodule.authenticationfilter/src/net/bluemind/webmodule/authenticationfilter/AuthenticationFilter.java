@@ -139,7 +139,7 @@ public class AuthenticationFilter implements IWebFilter {
 		}
 
 		if (isCasEnabled(domainUid.get())) {
-			DomainsHelper.redirectToCasServer(request, domainUid.get());
+			CasHandler.CASRequest.build(request, domainUid.get()).redirectToCasLogin();
 		} else {
 			redirectToOpenIdServer(request, domainUid.get());
 		}
