@@ -35,10 +35,8 @@
 
 <script>
 import { mapState } from "vuex";
-import { BmAlertArea, BmRichEditorToolbar } from "@bluemind/ui-components";
+import { BmAlertArea, BmRichEditorToolbar, BmRichEditorStatusBar, EditorRegistry } from "@bluemind/ui-components";
 import MailComposerToolbar from "./MailComposerToolbar";
-import BmRichEditorStatusBar from "@bluemind/ui-components/src/components/BmRichEditor/BmRichEditorStatusBar";
-import EditorRegistry from "@bluemind/ui-components/src/components/BmRichEditor/EditorRegistry";
 
 export default {
     name: "MailComposerFooter",
