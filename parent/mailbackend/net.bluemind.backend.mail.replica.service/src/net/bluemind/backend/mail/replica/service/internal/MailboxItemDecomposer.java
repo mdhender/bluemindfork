@@ -86,7 +86,7 @@ public class MailboxItemDecomposer {
 					String replacedPartUid = UUID.randomUUID().toString();
 					SingleBody toRead = indexed.get(p.address);
 					try (InputStream in = toRead.getInputStream()) {
-						Files.copy(toRead.getInputStream(), partFile(replacedPartUid).toPath());
+						Files.copy(in, partFile(replacedPartUid).toPath());
 						p.address = replacedPartUid;
 					} catch (IOException e) {
 						throw new ServerFault(e);
