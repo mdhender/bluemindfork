@@ -5,13 +5,7 @@ exports[`ContactInput ContactInput should match snapshot 1`] = `
   class="contact-input d-flex"
   data-browse-root="true"
 >
-  <label
-    class="bm-contact-input-label"
-    for="new11"
-  >
-    To
-  </label>
-   
+  To 
   <div
     class="flex-fill d-flex"
   >
@@ -31,10 +25,11 @@ exports[`ContactInput ContactInput should match snapshot 1`] = `
           <input
             autocomplete="off"
             class="form-control form-control-sm"
-            data-browse=""
-            data-browse-default=""
+            data-browse="true"
+            data-browse-default="true"
             data-browse-key="new"
             icon=""
+            tabindex="0"
             type="text"
             variant="outline"
           />

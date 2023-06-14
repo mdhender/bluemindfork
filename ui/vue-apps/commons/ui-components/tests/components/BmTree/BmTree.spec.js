@@ -1,7 +1,6 @@
 import { mount } from "@vue/test-utils";
 import BmTree from "../../../src/components/BmTree";
 import cloneDeep from "lodash.clonedeep";
-import { setIgnoreVisibility } from "../../../src/mixins/BrowsableContainer";
 
 const exampleData = [
     {
@@ -172,8 +171,6 @@ describe("BmTree", () => {
     });
 
     test("Navigate in BmTree using up/down arrows", async () => {
-        setIgnoreVisibility(true);
-
         // select first node
         await wrapper.find(".bm-tree-node-content").trigger("click");
         wrapper.find(".bm-tree-node-content").element.focus();
@@ -214,7 +211,5 @@ describe("BmTree", () => {
         // go up
         await wrapper.find(".bm-tree").trigger("keydown.up");
         expect(document.activeElement.innerHTML).toContain("Level 0");
-
-        setIgnoreVisibility(false);
     });
 });

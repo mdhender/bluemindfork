@@ -6,18 +6,13 @@ const Vue = createLocalVue();
 
 describe("BrowsableContainer", () => {
     let TestComponent;
-    beforeAll(() => {
-        setIgnoreVisibility(true);
-    });
+
     beforeEach(() => {
         TestComponent = {
             template: "<div><slot /></div>",
             mixins: [BrowsableContainer]
         };
         document.body.focus();
-    });
-    afterAll(() => {
-        setIgnoreVisibility(false);
     });
     test("BrowsableContainer mixin is installed", () => {
         const wrapper = shallowMount(TestComponent, {
@@ -107,6 +102,49 @@ describe("BrowsableContainer", () => {
         });
         expect(document.activeElement.id).toBe("first");
     });
+
+    describe("Vertical Mode = true", () => {
+        test("Right is replaced by Down", async () => {
+            const wrapper = shallowMount(TestComponent, {
+                localVue: Vue,
+                slots: {
+                    default:
+                        "<span id='first' data-browse></span>" +
+                        "<span id='second' data-browse></span>" +
+                        "<span id='third' data-browse></span>"
+                }
+            });
+            await wrapper.setData({ vertical: true });
+            wrapper.vm.focus();
+
+            wrapper.trigger("keydown", { key: "Right" });
+            expect(document.activeElement.id).toBe("first");
+
+            wrapper.trigger("keydown", { key: "Down" });
+            expect(document.activeElement.id).toBe("second");
+        });
+        test("Left is replaced by Up", async () => {
+            const wrapper = shallowMount(TestComponent, {
+                localVue: Vue,
+                slots: {
+                    default:
+                        "<span id='first' data-browse></span>" +
+                        "<span id='second' data-browse></span>" +
+                        "<span id='third' data-browse></span>"
+                }
+            });
+            await wrapper.setData({ vertical: true });
+            wrapper.find("#second").element.focus();
+            expect(document.activeElement.id).toBe("second");
+
+            wrapper.trigger("keydown", { key: "Left" });
+            expect(document.activeElement.id).toBe("second");
+
+            wrapper.trigger("keydown", { key: "Up" });
+            expect(document.activeElement.id).toBe("first");
+        });
+    });
+
     test("Expect navigation to follow browse-index order", () => {
         const wrapper = shallowMount(TestComponent, {
             localVue: Vue,

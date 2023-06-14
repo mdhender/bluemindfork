@@ -2,7 +2,8 @@ export default {
     data() {
         return {
             /** Enable to navigate between items using the Tab key. */
-            tabNavigation: true
+            tabNavigation: true,
+            vertical: false
         };
     },
     methods: {
@@ -118,11 +119,19 @@ function handleNavigationKey(event, vm) {
     switch (event.key) {
         case "ArrowLeft":
         case "Left":
-            vm.focusPrevious();
+            !vm.vertical && vm.focusPrevious();
+            break;
+        case "ArrowUp":
+        case "Up":
+            vm.vertical && vm.focusPrevious();
             break;
         case "ArrowRight":
         case "Right":
-            vm.focusNext();
+            !vm.vertical && vm.focusNext();
+            break;
+        case "ArrowDown":
+        case "Down":
+            vm.vertical && vm.focusNext();
             break;
         case "Home":
             vm.focusFirst();
@@ -210,6 +219,10 @@ let ignoreVisibility = false;
 
 export function setIgnoreVisibility(b) {
     ignoreVisibility = b;
+}
+
+if (process.env.NODE_ENV === "test") {
+    setIgnoreVisibility(true);
 }
 
 function isVisible(element) {

@@ -1,6 +1,6 @@
-export const bmOrganization = {
+export const bmBuildings = {
     prefix: "fas",
-    iconName: "organization",
+    iconName: "buildings",
     icon: [
         12,
         12,

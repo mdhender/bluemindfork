@@ -44,6 +44,8 @@
             </mail-composer-recipient>
         </div>
         <mail-composer-recipient v-if="showBcc" ref="bccField" :message="message" recipient-type="bcc" />
+
+        <mail-composer-recipient-modal />
     </div>
 </template>
 
@@ -52,11 +54,11 @@ import capitalize from "lodash.capitalize";
 import { BmButton, KeyNavGroup } from "@bluemind/ui-components";
 import { EditRecipientsMixin } from "~/mixins";
 import MailComposerRecipient from "./MailComposerRecipient";
+import MailComposerRecipientModal from "./MailComposerRecipientModal.vue";
 import { MAX_RECIPIENTS } from "../../utils";
-
 export default {
     name: "MailComposerRecipients",
-    components: { BmButton, MailComposerRecipient },
+    components: { BmButton, MailComposerRecipient, MailComposerRecipientModal },
     directives: { KeyNavGroup },
     mixins: [EditRecipientsMixin],
     computed: {
