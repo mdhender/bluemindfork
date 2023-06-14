@@ -22,32 +22,18 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.security.cert.Certificate;
+import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-
-import javax.net.ssl.SSLPeerUnverifiedException;
-import javax.net.ssl.SSLSession;
-import javax.security.cert.X509Certificate;
 
 import org.junit.Test;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
+import io.netty.buffer.ByteBuf;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.net.NetSocket;
-import io.vertx.core.net.SocketAddress;
-import net.bluemind.imap.endpoint.ImapContext;
-import net.bluemind.imap.endpoint.ImapMetricsHolder;
 import net.bluemind.imap.endpoint.cmd.AnalyzedCommand;
 import net.bluemind.imap.endpoint.cmd.LoginCommand;
 import net.bluemind.imap.endpoint.cmd.RawCommandAnalyzer;
 import net.bluemind.imap.endpoint.cmd.RawImapCommand;
-import net.bluemind.imap.endpoint.parsing.ImapPartSplitter;
-import net.bluemind.imap.endpoint.parsing.ImapRequestParser;
-import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.imap.endpoint.parsing.Part;
 
 public class LoginParsingTests {
 
@@ -64,20 +50,12 @@ public class LoginParsingTests {
 	}
 
 	private void checkParsing(String command, String login, String password) {
-		ImapContext ctx = new ImapContext(VertxPlatform.getVertx(), new FakeNetSocket(), null);
-		CompletableFuture<RawImapCommand> cmdProm = new CompletableFuture<>();
 
-		Handler<RawImapCommand> rawHand = raw -> {
-			cmdProm.complete(raw);
-		};
-
-		ImapRequestParser imapRequestParser = new ImapRequestParser(rawHand);
-		ImapPartSplitter split = new ImapPartSplitter(ctx, imapRequestParser, ImapMetricsHolder.get());
-
-		Buffer toParse = Buffer.buffer(command + "\r\n");
-		split.handle(toParse);
-
-		RawImapCommand raw = cmdProm.join();
+		Buffer chunk = Buffer.buffer(command);
+		ByteBuf buf = chunk.getByteBuf();
+		Part part = Part.endOfCommand(buf);
+		List<Part> parts = Arrays.asList(part);
+		RawImapCommand raw = new RawImapCommand(parts);
 
 		AnalyzedCommand parsed = new RawCommandAnalyzer().analyze(raw);
 
@@ -87,237 +65,6 @@ public class LoginParsingTests {
 		assertEquals(login, res.login());
 		assertEquals(password, res.password());
 		System.err.println("login: " + res.login() + " 'password: '" + res.password() + "'");
-
-	}
-
-	private class FakeNetSocket implements NetSocket {
-
-		private final String id;
-
-		public FakeNetSocket() {
-			this.id = UUID.randomUUID().toString();
-		}
-
-		@Override
-		public Future<Void> write(Buffer data) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public boolean writeQueueFull() {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		@Override
-		public NetSocket exceptionHandler(Handler<Throwable> handler) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public NetSocket handler(Handler<Buffer> handler) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public NetSocket pause() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public NetSocket resume() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public NetSocket fetch(long amount) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public NetSocket endHandler(Handler<Void> endHandler) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public NetSocket setWriteQueueMaxSize(int maxSize) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public NetSocket drainHandler(Handler<Void> handler) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public String writeHandlerID() {
-			return id;
-		}
-
-		@Override
-		public void write(String str, Handler<AsyncResult<Void>> handler) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public Future<Void> write(String str) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public void write(String str, String enc, Handler<AsyncResult<Void>> handler) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public Future<Void> write(String str, String enc) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public void write(Buffer message, Handler<AsyncResult<Void>> handler) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public Future<Void> sendFile(String filename, long offset, long length) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public NetSocket sendFile(String filename, long offset, long length, Handler<AsyncResult<Void>> resultHandler) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public SocketAddress remoteAddress() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public SocketAddress remoteAddress(boolean real) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public SocketAddress localAddress() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public SocketAddress localAddress(boolean real) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public Future<Void> end() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public void end(Handler<AsyncResult<Void>> handler) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public Future<Void> close() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public void close(Handler<AsyncResult<Void>> handler) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public NetSocket closeHandler(Handler<Void> handler) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public NetSocket upgradeToSsl(Handler<AsyncResult<Void>> handler) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public Future<Void> upgradeToSsl() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public NetSocket upgradeToSsl(String serverName, Handler<AsyncResult<Void>> handler) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public Future<Void> upgradeToSsl(String serverName) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public boolean isSsl() {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		@Override
-		public SSLSession sslSession() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public X509Certificate[] peerCertificateChain() throws SSLPeerUnverifiedException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public List<Certificate> peerCertificates() throws SSLPeerUnverifiedException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public String indicatedServerName() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public String applicationLayerProtocol() {
-			// TODO Auto-generated method stub
-			return null;
-		}
 
 	}
 
