@@ -17,6 +17,7 @@
  */
 package net.bluemind.imap.endpoint;
 
+import java.nio.channels.ClosedChannelException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
@@ -166,8 +167,11 @@ public class ImapContext {
 	 * @return
 	 */
 	public Future<Void> write(Buffer b) {
-		return sender.write(b).onSuccess(f -> logRespBuffer(b))
-				.onFailure(t -> logger.error("Unable to send {} bytes", b.length(), t));
+		return sender.write(b).onSuccess(f -> logRespBuffer(b)).onFailure(t -> {
+			if (!(t instanceof ClosedChannelException)) {
+				logger.error("Unable to send {} bytes", b.length(), t);
+			}
+		});
 	}
 
 	private void logRespBuffer(Buffer b) {
