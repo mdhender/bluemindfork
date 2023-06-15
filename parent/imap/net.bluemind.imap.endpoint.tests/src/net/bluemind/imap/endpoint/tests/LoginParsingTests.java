@@ -46,7 +46,7 @@ public class LoginParsingTests {
 		checkParsing("11 login test.dev@devenv.blue AZERTY23", "test.dev@devenv.blue", "AZERTY23");
 		checkParsing("11 LOGIN test.dev@devenv.blue azerty23", "test.dev@devenv.blue", "azerty23");
 		checkParsing("11 LOGIN test.dev@devenv.blue azer\"ty23", "test.dev@devenv.blue", "azer\"ty23");
-		checkParsing("11 LOGIN test.dev@devenv.blue \"azer\"ty23\"", "test.dev@devenv.blue", "azer\"ty23");
+		checkParsing("11 LOGIN test.dev@devenv.blue \"azer\\\"ty23\"", "test.dev@devenv.blue", "azer\"ty23");
 	}
 
 	private void checkParsing(String command, String login, String password) {
