@@ -42,7 +42,7 @@ public class BodyStructureRenderer {
 				from0(sb, c);
 			}
 			sb.append(" \"").append(mimeSplit[1].toUpperCase());
-			sb.append("\" (BOUNDARY \"-=Part").append(root.address).append("=-\") NIL NIL NIL");
+			sb.append("\" (BOUNDARY \"-=Part.").append(root.address).append("=-\") NIL NIL NIL");
 			sb.append(")");
 		} else {
 			sb.append("(\"").append(mimeSplit[0].toUpperCase()).append("\" \"").append(mimeSplit[1].toUpperCase())
@@ -64,7 +64,7 @@ public class BodyStructureRenderer {
 			sb.append(" NIL");
 
 			// encoding
-			sb.append(" \"").append("8BIT").append("\"");
+			sb.append(" \"").append(root.encoding).append("\"");
 
 			// size
 			sb.append(" ").append(root.size);

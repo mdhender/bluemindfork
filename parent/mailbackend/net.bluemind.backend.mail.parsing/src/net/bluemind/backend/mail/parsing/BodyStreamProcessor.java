@@ -467,6 +467,7 @@ public class BodyStreamProcessor {
 		Part root = new Part();
 		root.mime = "multipart/" + mpBody.getSubType();
 		root.address = "TEXT";
+
 		List<Entity> subParts = mpBody.getBodyParts();
 		int idx = 1;
 		for (Entity sub : subParts) {

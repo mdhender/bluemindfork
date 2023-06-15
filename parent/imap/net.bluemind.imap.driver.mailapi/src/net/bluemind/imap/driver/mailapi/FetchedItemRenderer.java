@@ -87,8 +87,8 @@ public class FetchedItemRenderer {
 	private final IDbMessageBodies bodyApi;
 	private final IMailboxItems itemsApi;
 	private static final Set<String> DEFAULT_HEADERS = Sets.newHashSet("From", "To", "Cc", "Subject", "Message-ID",
-			"X-Bm-Event", "X-Bm-Todo", "X-BM-ResourceBooking", "X-BM-Event-Countered", "X-BM-Event-Canceled",
-			"X-BM-FOLDERSHARING", "X-ASTERISK-CALLERID");
+			"Content-Type", "X-Bm-Event", "X-Bm-Todo", "X-BM-ResourceBooking", "X-BM-Event-Countered",
+			"X-BM-Event-Canceled", "X-BM-FOLDERSHARING", "X-ASTERISK-CALLERID");
 
 	public FetchedItemRenderer(IDbMessageBodies bodyApi, IDbMailboxRecords recApi, IMailboxItems itemsApi,
 			List<MailPart> fields) {
@@ -311,7 +311,8 @@ public class FetchedItemRenderer {
 			case "content-type":
 				String ct = body.get().structure.mime;
 				if (ct != null) {
-					sb.append("Content-Type: " + ct + "\r\n");
+					Field ctf = Fields.contentType(body.get().structure.mime, Map.of("boundary", "-=Part.TEXT=-"));
+					sb.append(writeField(ctf));
 				}
 				break;
 			case "subject":
