@@ -21,17 +21,17 @@ package net.bluemind.backend.mail.replica.service.internal;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.bluemind.backend.mail.api.IMailboxFolders;
+import net.bluemind.backend.mail.api.IMailboxFoldersByContainer;
 import net.bluemind.backend.mail.api.MailboxFolderSearchQuery;
 import net.bluemind.backend.mail.api.utils.FolderTree;
 import net.bluemind.backend.mail.api.utils.MailIndexQuery;
+import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
-import net.bluemind.mailshare.api.IMailshare;
-import net.bluemind.user.api.IUser;
+import net.bluemind.mailbox.api.Mailbox.Type;
 
 public class SearchQueryAdapter {
 
@@ -45,17 +45,16 @@ public class SearchQueryAdapter {
 		} else {
 			ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
 			DirEntry entry = provider.instance(IDirectory.class, domainUid).findByEntryUid(dirEntryUid);
-			String mboxRoot = null;
-			String partition = domainUid.replace('.', '_');
+			String subtree = null;
 			if (entry.kind == Kind.MAILSHARE) {
-				mboxRoot = provider.instance(IMailshare.class, domainUid).getComplete(dirEntryUid).value.name
-						.replace('.', '^');
+				subtree = IMailReplicaUids.subtreeUid(domainUid, Type.mailshare, dirEntryUid);
+			} else if (entry.kind == Kind.GROUP) {
+				subtree = IMailReplicaUids.subtreeUid(domainUid, Type.group, dirEntryUid);
 			} else {
-				mboxRoot = "user." + provider.instance(IUser.class, domainUid).getComplete(dirEntryUid).value.login
-						.replace('.', '^');
+				subtree = IMailReplicaUids.subtreeUid(domainUid, Type.user, dirEntryUid);
 			}
 			List<String> folders = new ArrayList<>();
-			IMailboxFolders service = provider.instance(IMailboxFolders.class, partition, mboxRoot);
+			IMailboxFoldersByContainer service = provider.instance(IMailboxFoldersByContainer.class, subtree);
 			if (query.query.scope.folderScope != null && query.query.scope.folderScope.folderUid != null) {
 				FolderTree fullTree = FolderTree.of(service.all());
 				folders.add(query.query.scope.folderScope.folderUid);
