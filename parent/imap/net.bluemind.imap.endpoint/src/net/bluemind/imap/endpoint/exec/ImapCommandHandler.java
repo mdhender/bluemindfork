@@ -17,6 +17,7 @@
  */
 package net.bluemind.imap.endpoint.exec;
 
+import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -90,7 +91,10 @@ public class ImapCommandHandler implements Handler<RawImapCommand> {
 			});
 		}, true, (AsyncResult<Void> ar) -> {
 			if (ar.failed()) {
-				logger.error("Command {} processing failed", analyzedCmd, ar.cause());
+				Throwable t = ar.cause();
+				if (!(t instanceof ClosedChannelException)) {
+					logger.error("Command {} processing failed", analyzedCmd, t);
+				}
 			}
 			long ms = chrono.elapsed(TimeUnit.MILLISECONDS);
 			logger.info("[{}] {} execution took {}ms.", ctx, proc, ms);
