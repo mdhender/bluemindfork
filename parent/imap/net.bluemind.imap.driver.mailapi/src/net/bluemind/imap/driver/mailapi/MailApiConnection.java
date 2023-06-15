@@ -180,6 +180,11 @@ public class MailApiConnection implements MailboxConnection {
 
 	@Override
 	public SelectedFolder select(String fName) {
+		if (fName.isBlank()) {
+			logger.warn("[{}] Blank folder selected", this);
+			return null;
+		}
+
 		ImapMailbox resolved = folderResolver.resolveBox(fName);
 		if (resolved == null) {
 			logger.warn("[{}] Mailbox resolution failed for {}", this, fName);
