@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -81,6 +82,7 @@ import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplica.Acl;
 import net.bluemind.backend.mail.replica.api.WithId;
+import net.bluemind.backend.mail.replica.indexing.IDSet;
 import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.api.IOwnerSubscriptions;
 import net.bluemind.core.container.model.ItemFlag;
@@ -101,6 +103,8 @@ import net.bluemind.imap.endpoint.driver.CopyResult;
 import net.bluemind.imap.endpoint.driver.FetchedItem;
 import net.bluemind.imap.endpoint.driver.IdleToken;
 import net.bluemind.imap.endpoint.driver.IdleToken.FetchToken;
+import net.bluemind.imap.endpoint.driver.ImapIdSet;
+import net.bluemind.imap.endpoint.driver.ImapIdSet.IdKind;
 import net.bluemind.imap.endpoint.driver.ImapMailbox;
 import net.bluemind.imap.endpoint.driver.ListNode;
 import net.bluemind.imap.endpoint.driver.MailPart;
@@ -401,15 +405,33 @@ public class MailApiConnection implements MailboxConnection {
 		return ln;
 	}
 
+	private List<Long> resolveIdSet(IDbMailboxRecords recApi, ImapIdSet set) {
+		if (set.setStyle == IdKind.UID || set.serializedSet.equals("1:*")) {
+			return recApi.imapIdSet(set.serializedSet, "-deleted");
+		} else {
+			List<Long> fullList = recApi.imapIdSet("1:*", "-deleted");
+			long[] fullUidArray = fullList.stream().sorted().mapToLong(Long::longValue).toArray();
+			ListIterator<Long> iterator = IDSet.parse(set.serializedSet).iterateUid();
+			List<Long> ret = new ArrayList<>(fullUidArray.length);
+			while (iterator.hasNext()) {
+				int seq = iterator.next().intValue();
+				int position = seq - 1;
+				if (position >= 0 && position < fullUidArray.length) {
+					ret.add(fullUidArray[position]);
+				}
+			}
+			return ret;
+		}
+	}
+
 	@Override
-	public CompletableFuture<Void> fetch(SelectedFolder selected, String idset, List<MailPart> fields,
+	public CompletableFuture<Void> fetch(SelectedFolder selected, ImapIdSet idset, List<MailPart> fields,
 			WriteStream<FetchedItem> output) {
 		IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
 		IDbMessageBodies bodyApi = prov.instance(IDbMessageBodies.class, selected.partition);
 		IMailboxItems itemsApi = prov.instance(IMailboxItems.class, selected.folder.uid);
 		Iterator<List<Long>> slice = Lists
-				.partition(recApi.imapIdSet(idset, "-deleted"), DriverConfig.get().getInt("driver.records-mget"))
-				.iterator();
+				.partition(resolveIdSet(recApi, idset), DriverConfig.get().getInt("driver.records-mget")).iterator();
 		CompletableFuture<Void> ret = new CompletableFuture<>();
 		Context fetchContext = VertxPlatform.getVertx().getOrCreateContext();
 		FetchedItemRenderer renderer = new FetchedItemRenderer(bodyApi, recApi, itemsApi, fields);

@@ -35,6 +35,7 @@ import net.bluemind.imap.endpoint.driver.AppendStatus.WriteStatus;
 import net.bluemind.imap.endpoint.driver.CopyResult;
 import net.bluemind.imap.endpoint.driver.FetchedItem;
 import net.bluemind.imap.endpoint.driver.IdleToken;
+import net.bluemind.imap.endpoint.driver.ImapIdSet;
 import net.bluemind.imap.endpoint.driver.ListNode;
 import net.bluemind.imap.endpoint.driver.MailPart;
 import net.bluemind.imap.endpoint.driver.MailboxConnection;
@@ -95,7 +96,7 @@ public class MockConnection implements MailboxConnection {
 	}
 
 	@Override
-	public CompletableFuture<Void> fetch(SelectedFolder selected, String idset, List<MailPart> fetchSpec,
+	public CompletableFuture<Void> fetch(SelectedFolder selected, ImapIdSet idset, List<MailPart> fetchSpec,
 			WriteStream<FetchedItem> output) {
 		System.err.println("Fetch " + selected + " " + idset);
 		output.end();

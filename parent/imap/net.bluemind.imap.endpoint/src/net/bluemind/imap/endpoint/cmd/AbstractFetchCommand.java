@@ -27,13 +27,14 @@ import java.util.regex.Pattern;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.imap.endpoint.EndpointRuntimeException;
+import net.bluemind.imap.endpoint.driver.ImapIdSet;
 import net.bluemind.imap.endpoint.driver.MailPart;
 import net.bluemind.imap.endpoint.driver.MailPartBuilder;
 
 public abstract class AbstractFetchCommand extends AnalyzedCommand {
 
 	private List<MailPart> fields;
-	private String idset;
+	private ImapIdSet idset;
 
 	public AbstractFetchCommand(RawImapCommand raw, Pattern fetchTemplate) {
 		super(raw);
@@ -41,7 +42,7 @@ public abstract class AbstractFetchCommand extends AnalyzedCommand {
 		Matcher m = fetchTemplate.matcher(fetch);
 
 		if (m.find()) {
-			idset = m.group(1);
+			idset = fromSerializedSet(m.group(1));
 			String props = m.group(2);
 			this.fields = fetchSpec(props);
 		} else {
@@ -49,11 +50,13 @@ public abstract class AbstractFetchCommand extends AnalyzedCommand {
 		}
 	}
 
+	protected abstract ImapIdSet fromSerializedSet(String set);
+
 	public List<MailPart> fetchSpec() {
 		return fields;
 	}
 
-	public String idset() {
+	public ImapIdSet idset() {
 		return idset;
 	}
 

@@ -49,7 +49,7 @@ public interface MailboxConnection {
 	/*
 	 * Email operations
 	 */
-	CompletableFuture<Void> fetch(SelectedFolder selected, String idset, List<MailPart> fetchSpec,
+	CompletableFuture<Void> fetch(SelectedFolder selected, ImapIdSet idset, List<MailPart> fetchSpec,
 			WriteStream<FetchedItem> output);
 
 	QuotaRoot quota(SelectedFolder selected);

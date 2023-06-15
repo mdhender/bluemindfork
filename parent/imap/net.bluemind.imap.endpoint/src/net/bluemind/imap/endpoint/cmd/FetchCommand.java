@@ -19,12 +19,19 @@ package net.bluemind.imap.endpoint.cmd;
 
 import java.util.regex.Pattern;
 
+import net.bluemind.imap.endpoint.driver.ImapIdSet;
+
 public class FetchCommand extends AbstractFetchCommand {
 
 	private static final Pattern fetchTemplate = Pattern.compile("fetch ([^\\s]+) (.*)$", Pattern.CASE_INSENSITIVE);
 
 	public FetchCommand(RawImapCommand raw) {
 		super(raw, fetchTemplate);
+	}
+
+	@Override
+	protected ImapIdSet fromSerializedSet(String set) {
+		return ImapIdSet.sequences(set);
 	}
 
 }

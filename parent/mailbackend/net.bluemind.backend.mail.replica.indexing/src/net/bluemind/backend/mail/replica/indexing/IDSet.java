@@ -102,7 +102,7 @@ public class IDSet implements Iterable<IDRange> {
 		return ranges.listIterator();
 	}
 
-	public IDSetIterator iterateUid() {
+	public ListIterator<Long> iterateUid() {
 		return new IDSetIterator();
 	}
 
