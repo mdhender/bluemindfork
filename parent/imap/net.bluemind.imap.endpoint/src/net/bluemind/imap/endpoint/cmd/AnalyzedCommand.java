@@ -35,6 +35,13 @@ public abstract class AnalyzedCommand {
 		String fullCmd;
 		ByteBuf[] literals;
 
+		public static FlatCommand of(String cmd, ByteBuf... lits) {
+			FlatCommand ret = new FlatCommand();
+			ret.fullCmd = cmd;
+			ret.literals = lits;
+			return ret;
+		}
+
 		@Override
 		public String toString() {
 			return MoreObjects.toStringHelper(FlatCommand.class).add("c", fullCmd).add("lit", literals.length)

@@ -18,12 +18,9 @@
  */
 package net.bluemind.imap.endpoint.cmd;
 
-import java.util.regex.Pattern;
-
 public class CreateCommand extends AbstractFolderNameCommand {
-	private static final Pattern quotedString = Pattern.compile("create \"?([^\"]+)", Pattern.CASE_INSENSITIVE);
 
 	protected CreateCommand(RawImapCommand raw) {
-		super(raw, quotedString);
+		super(raw, "create");
 	}
 }

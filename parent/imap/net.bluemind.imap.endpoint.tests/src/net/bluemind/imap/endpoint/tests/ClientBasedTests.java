@@ -252,9 +252,9 @@ public class ClientBasedTests {
 			sockc.write("A0 LOGIN {21+}\r\ntom@f8de2c4a.internal {3+}\r\ntom\r\n");
 			sockc.waitFor("User logged");
 			sockc.clearQueue();
-			sockc.write("A1 CREATE {11}\r\nBonjour toi/et moi\r\n");
+			sockc.write("A1 CREATE {11+}\r\nBonjour toi\r\n");
 			sockc.waitFor("create completed");
-			assertNotNull("folder not found folders: " + mdl, mdl.byName("Bonjour toi/et moi"));
+			assertNotNull("folder not found folders: " + mdl, mdl.byName("Bonjour toi"));
 		}
 	}
 

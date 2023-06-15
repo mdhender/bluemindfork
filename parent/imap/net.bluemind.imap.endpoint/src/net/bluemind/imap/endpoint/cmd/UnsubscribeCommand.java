@@ -18,12 +18,9 @@
  */
 package net.bluemind.imap.endpoint.cmd;
 
-import java.util.regex.Pattern;
-
 public class UnsubscribeCommand extends AbstractFolderNameCommand {
-	private static final Pattern quotedString = Pattern.compile("unsubscribe \"?([^\"]+)", Pattern.CASE_INSENSITIVE);
 
 	protected UnsubscribeCommand(RawImapCommand raw) {
-		super(raw, quotedString);
+		super(raw, "unsubscribe");
 	}
 }

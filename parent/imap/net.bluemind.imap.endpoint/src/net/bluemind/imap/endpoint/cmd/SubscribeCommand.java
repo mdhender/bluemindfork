@@ -18,12 +18,9 @@
  */
 package net.bluemind.imap.endpoint.cmd;
 
-import java.util.regex.Pattern;
-
 public class SubscribeCommand extends AbstractFolderNameCommand {
-	private static final Pattern quotedString = Pattern.compile("subscribe \"?([^\"]+)", Pattern.CASE_INSENSITIVE);
 
 	protected SubscribeCommand(RawImapCommand raw) {
-		super(raw, quotedString);
+		super(raw, "subscribe");
 	}
 }

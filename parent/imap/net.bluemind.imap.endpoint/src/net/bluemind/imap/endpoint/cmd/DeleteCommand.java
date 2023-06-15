@@ -18,12 +18,9 @@
  */
 package net.bluemind.imap.endpoint.cmd;
 
-import java.util.regex.Pattern;
-
 public class DeleteCommand extends AbstractFolderNameCommand {
-	private static final Pattern quotedString = Pattern.compile("delete \"?([^\"]+)", Pattern.CASE_INSENSITIVE);
 
 	protected DeleteCommand(RawImapCommand raw) {
-		super(raw, quotedString);
+		super(raw, "delete");
 	}
 }

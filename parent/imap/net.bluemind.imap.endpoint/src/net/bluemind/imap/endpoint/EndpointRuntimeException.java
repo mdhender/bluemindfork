@@ -20,12 +20,16 @@ package net.bluemind.imap.endpoint;
 @SuppressWarnings("serial")
 public class EndpointRuntimeException extends RuntimeException {
 
-	public EndpointRuntimeException(Throwable e) {
-		super(e);
+	public EndpointRuntimeException(Throwable t) {
+		super(t);
 	}
 
 	public EndpointRuntimeException(String string) {
 		super(string);
+	}
+
+	public EndpointRuntimeException(String string, Throwable t) {
+		super(string, t);
 	}
 
 }

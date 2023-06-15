@@ -17,14 +17,10 @@
  */
 package net.bluemind.imap.endpoint.cmd;
 
-import java.util.regex.Pattern;
-
 public class ExamineCommand extends AbstractFolderNameCommand {
 
-	private static final Pattern quotedString = Pattern.compile("examine \"?([^\"]+)", Pattern.CASE_INSENSITIVE);
-
 	protected ExamineCommand(RawImapCommand raw) {
-		super(raw, quotedString);
+		super(raw, "examine");
 
 	}
 
