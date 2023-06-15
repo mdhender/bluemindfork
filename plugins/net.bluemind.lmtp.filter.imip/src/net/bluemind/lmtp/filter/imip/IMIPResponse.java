@@ -53,6 +53,18 @@ public class IMIPResponse {
 
 	}
 
+	public static IMIPResponse createRepliedResponse(String itemUid) {
+		IMIPResponse ret = new IMIPResponse();
+
+		StringBuilder eventIcsUid = new StringBuilder(itemUid);
+
+		RawField rf = new RawField("X-BM-Event-Replied", eventIcsUid.toString());
+		UnstructuredField bmExtId = UnstructuredFieldImpl.PARSER.parse(rf, DecodeMonitor.SILENT);
+		ret.headerFields = Arrays.asList(bmExtId);
+		return ret;
+
+	}
+
 	public static IMIPResponse createEventResponse(String itemUid, ICalendarElement calElement, boolean needResponse,
 			Map<String, String> additionalAttributes) {
 		return createNeedResponse(calHeader, itemUid, calElement, needResponse, additionalAttributes);

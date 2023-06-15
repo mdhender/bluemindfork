@@ -104,7 +104,7 @@ public class EventReplyHandler extends ReplyHandler implements IIMIPHandler {
 		}
 		logger.info("Updating event series {}", series.uid);
 		cal.update(series.uid, series.value, false);
-		return new IMIPResponse();
+		return IMIPResponse.createRepliedResponse(imip.uid);
 	}
 
 	private void removeAttendeesProposition(ItemValue<VEventSeries> series, VEvent vevent, Attendee attendee) {

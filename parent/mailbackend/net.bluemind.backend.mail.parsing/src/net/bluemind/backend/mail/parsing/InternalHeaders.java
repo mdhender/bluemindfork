@@ -31,7 +31,8 @@ public class InternalHeaders implements HeaderList {
 	private static final Set<String> fromSummaryClass = Sets.newHashSet("DATE", "FROM", "TO", "CC", "SUBJECT",
 			"CONTENT-TYPE", "REPLY-TO", "MAIL-REPLY-TO", "MAIL-FOLLOWUP-TO", "LIST-POST", "DISPOSITION-NOTIFICATION-TO",
 			"X-PRIORITY", "X-BM_HSM_ID", "X-BM_HSM_DATETIME", "X-BM-EVENT", "X-BM-TODO", "X-BM-EVENT-CANCELED",
-			"X-BM-RESOURCEBOOKING", "X-BM-FOLDERSHARING", "X-ASTERISK-CALLERID", "X-BM-EVENT-COUNTERED");
+			"X-BM-EVENT-REPLIED", "X-BM-RESOURCEBOOKING", "X-BM-FOLDERSHARING", "X-ASTERISK-CALLERID",
+			"X-BM-EVENT-COUNTERED");
 
 	private static final Set<String> fromMailApi = Sets.newHashSet(MailApiHeaders.ALL);
 

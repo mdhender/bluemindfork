@@ -89,7 +89,7 @@ public class FetchedItemRenderer {
 	private final IMailboxItems itemsApi;
 	private static final Set<String> DEFAULT_HEADERS = Sets.newHashSet("From", "To", "Cc", "Subject", "Message-ID",
 			"Date", "Content-Type", "X-Bm-Event", "X-Bm-Todo", "X-BM-ResourceBooking", "X-BM-Event-Countered",
-			"X-BM-Event-Canceled", "X-BM-FOLDERSHARING", "X-ASTERISK-CALLERID");
+			"X-BM-Event-Canceled", "X-BM-Event-Replied", "X-BM-FOLDERSHARING", "X-ASTERISK-CALLERID");
 
 	public FetchedItemRenderer(IDbMessageBodies bodyApi, IDbMailboxRecords recApi, IMailboxItems itemsApi,
 			List<MailPart> fields) {

@@ -1103,7 +1103,9 @@ public class ImipFilterVEventTests {
 
 		imip.method = ITIPMethod.REPLY;
 		IIMIPHandler replyHandler = new EventReplyHandler(recipient, null);
-		replyHandler.handle(imip, recipient, domain, user1Mailbox);
+		IMIPResponse response = replyHandler.handle(imip, recipient, domain, user1Mailbox);
+
+		assertTrue(response.headerFields.stream().anyMatch(f -> f.getName().equals("X-BM-Event-Replied")));
 
 		evt = user1Calendar.getComplete(event.uid);
 		assertNotNull(evt);
