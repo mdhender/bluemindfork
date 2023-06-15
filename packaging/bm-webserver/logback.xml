@@ -37,7 +37,7 @@
 	<appender name="DAV"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
-		<File>/var/log/bm-webserver/webserver.log</File>
+		<File>/var/log/bm-webserver/dav.log</File>
 		<encoder>
 			<pattern>${DEFAULT_PATTERN}</pattern>
 		</encoder>
