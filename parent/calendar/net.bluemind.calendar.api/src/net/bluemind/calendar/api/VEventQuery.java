@@ -26,7 +26,8 @@ public class VEventQuery {
 
 	public String query;
 	public int from = 0;
-	public int size = -1;
+	// index.max_result_window index setting which defaults to 10,000
+	public int size = 10000;
 	public boolean escapeQuery = false;
 
 	public VEventQuery() {
