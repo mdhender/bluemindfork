@@ -75,8 +75,8 @@
             box-sizing: border-box;
         }
 
-        &:hover::before,
-        &.hover::before {
+        &:hover:not(:active)::before,
+        &.hover:not(:active)::before {
             animation: radial-out 225ms forwards;
         }
     }
@@ -190,6 +190,13 @@
     @include bm-button-all-sizes("fill", $important);
 }
 
+@function is-fill-variant($variant) {
+    @return str-index($variant, "fill-") == 1;
+}
+@function hovered-bg($variant) {
+    @return if(is-fill-variant($variant), var(--#{$variant}-bg-hi1), var(--#{$variant}-bg-lo1));
+}
+
 @mixin bm-button-outline-variant($variant, $important: false) {
     @include bm-button-variant(
         $normal-text: var(--#{$variant}-fg),
@@ -198,7 +205,7 @@
         $normal-stroke: var(--#{$variant}-fg),
         $hovered-stroke: var(--#{$variant}-fg-hi1),
         $disabled-stroke: var(--#{$variant}-fg-disabled),
-        $hovered-bg: var(--#{$variant}-bg-lo1),
+        $hovered-bg: hovered-bg($variant),
         $important: $important
     );
     @include bm-button-all-sizes("outline", $important);
@@ -209,7 +216,7 @@
         $normal-text: var(--#{$variant}-fg),
         $hovered-text: var(--#{$variant}-fg-hi1),
         $disabled-text: var(--#{$variant}-fg-disabled),
-        $hovered-bg: var(--#{$variant}-bg-lo1),
+        $hovered-bg: hovered-bg($variant),
         $focused-stroke: var(--#{$variant}-fg),
         $focused-hovered-stroke: var(--#{$variant}-fg-hi1),
         $important: $important
@@ -222,7 +229,7 @@
         $normal-text: var(--#{$variant}-fg),
         $hovered-text: var(--#{$variant}-fg-hi1),
         $disabled-text: var(--#{$variant}-fg-disabled),
-        $hovered-bg: var(--#{$variant}-bg-lo1),
+        $hovered-bg: hovered-bg($variant),
         $focused-stroke: var(--#{$variant}-fg),
         $focused-hovered-stroke: var(--#{$variant}-fg-hi1),
         $important: $important
@@ -234,6 +241,7 @@
         $normal-text: var(--#{$variant}-fg),
         $hovered-text: var(--#{$variant}-fg-hi1),
         $disabled-text: var(--#{$variant}-fg-disabled),
+        $hovered-bg: hovered-bg($variant),
         $focused-stroke: var(--#{$variant}-fg),
         $focused-hovered-stroke: var(--#{$variant}-fg-hi1),
         $important: $important
