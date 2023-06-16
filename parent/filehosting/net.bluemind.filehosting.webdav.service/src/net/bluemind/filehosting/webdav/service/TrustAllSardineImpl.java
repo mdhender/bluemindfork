@@ -19,28 +19,62 @@
 package net.bluemind.filehosting.webdav.service;
 
 import java.io.IOException;
+import java.net.ProxySelector;
 import java.security.cert.X509Certificate;
+import java.time.Duration;
 
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.config.Registry;
+import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.VersionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.sardine.Version;
 import com.github.sardine.impl.SardineImpl;
 
 import net.bluemind.utils.Trust;
 
 public class TrustAllSardineImpl extends SardineImpl {
 
+	private static final int CONNECTION_TIMEOUT = Duration.ofMinutes(2).toMillisPart();
+	private static final int SOCKET_TIMEOUT = Duration.ofMinutes(4).toMillisPart();
+
 	private static final Logger logger = LoggerFactory.getLogger(TrustAllSardineImpl.class);
 
 	public TrustAllSardineImpl(String username, String password) {
 		super(username, password);
+	}
+
+	@Override
+	protected HttpClientBuilder configure(ProxySelector selector, CredentialsProvider credentials) {
+		Registry<ConnectionSocketFactory> schemeRegistry = this.createDefaultSchemeRegistry();
+		HttpClientConnectionManager cm = this.createDefaultConnectionManager(schemeRegistry);
+		String version = Version.getSpecification();
+		if (version == null) {
+			version = VersionInfo.UNAVAILABLE;
+		}
+		return HttpClients.custom().setUserAgent("Sardine/" + version).setDefaultCredentialsProvider(credentials)
+				.setRedirectStrategy(this.createDefaultRedirectStrategy())
+				.setDefaultRequestConfig(RequestConfig.custom()
+						// Only selectively enable this for PUT but not all entity enclosing methods
+						.setExpectContinueEnabled(false) //
+						.setConnectTimeout(CONNECTION_TIMEOUT) //
+						.setConnectionRequestTimeout(CONNECTION_TIMEOUT) //
+						.setSocketTimeout(SOCKET_TIMEOUT) //
+						.build())
+				.setConnectionManager(cm)
+				.setRoutePlanner(this.createDefaultRoutePlanner(this.createDefaultSchemePortResolver(), selector));
 	}
 
 	@Override
