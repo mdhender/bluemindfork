@@ -252,6 +252,12 @@ public class VCardIndexStoreTests {
 		res = indexStore.search(q);
 		assertEquals(5000, res.total);
 
+		// test specific from and size = -1 less than 10000
+		q.size = -1;
+		q.from = 100;
+		res = indexStore.search(q);
+		assertEquals(10, res.total);
+
 	}
 
 	@Test
