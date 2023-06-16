@@ -149,20 +149,34 @@ describe("darkify and undarkify CSS", () => {
 
     test("darkify keyword color", () => {
         const map = new Map();
-        expect(getDarkifiedCss("background: linear-gradient(0.25turn, orange, teal, purple);", undefined, map)).toBe(
-            "background: linear-gradient(0.25turn, var(--color_orange), var(--color_teal), var(--color_purple));"
+        expect(getDarkifiedCss("background: linear-gradient(0.25turn, Orange, goldenrod, gray);", undefined, map)).toBe(
+            "background: linear-gradient(0.25turn, var(--color_orange), var(--color_goldenrod), var(--color_gray));"
         );
         expect(map.get("--color_orange")).toBe("rgb(150, 79, 0)");
-        expect(map.get("--color_teal")).toBe("rgb(63, 164, 164)");
-        expect(map.get("--color_purple")).toBe("rgb(255, 146, 255)");
+        expect(map.get("--color_goldenrod")).toBe("rgb(139, 98, 0)");
+        expect(map.get("--color_gray")).toBe("rgb(139, 139, 139)");
     });
 
     test("undarkify keyword color", () => {
         expect(
             getUndarkifiedCss(
-                "background: linear-gradient(0.25turn, var(--color_orange), var(--color_teal), var(--color_purple));"
+                "background: linear-gradient(0.25turn, var(--color_orange), var(--color_goldenrod), var(--color_gray));"
             )
-        ).toBe("background: linear-gradient(0.25turn, orange, teal, purple);");
+        ).toBe("background: linear-gradient(0.25turn, orange, goldenrod, gray);");
+    });
+
+    // Deprecated CSS2 color
+
+    test("darkify CSS2 color", () => {
+        const map = new Map();
+        expect(
+            getDarkifiedCss("color: windowtext; background: menu; text-decoration-color: graytext;", undefined, map)
+        ).toBe(
+            "color: var(--color_windowtext); background: var(--color_menu); text-decoration-color: var(--color_graytext);"
+        );
+        expect(map.get("--color_windowtext")).toBe("var(--neutral-fg-hi1)");
+        expect(map.get("--color_menu")).toBe("var(--surface-hi1)");
+        expect(map.get("--color_graytext")).toBe("var(--neutral-fg-lo2)");
     });
 
     // Complex CSS

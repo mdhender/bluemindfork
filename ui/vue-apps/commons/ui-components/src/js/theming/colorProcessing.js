@@ -1,6 +1,6 @@
 export const CUSTOM_PROPERTIES_NODE_ATTR = "data-bm-color-variables";
 
-const KEYWORD_COLORS = [
+const CSS3_KEYWORD_COLORS = [
     "black",
     "silver",
     "gray",
@@ -149,6 +149,23 @@ const KEYWORD_COLORS = [
     "whitesmoke",
     "yellowgreen",
     "rebeccapurple"
+];
+
+const SUPPORTED_CSS2_KEYWORD_COLORS = [
+    "ActiveBorder",
+    "ButtonText",
+    "CaptionText",
+    "GrayText",
+    "Highlight",
+    "HighlightText",
+    "InfoBackground",
+    "InfoText",
+    "Menu",
+    "MenuText",
+    "Scrollbar",
+    "Window",
+    "WindowFrame",
+    "WindowText"
 ];
 
 const SUPPORTED_HTML_ATTRIBUTES = ["bgcolor", "color", "fill", "stroke", "text", "style"];
@@ -324,20 +341,73 @@ class HslColorStringUnprocessor extends ColorStringUnprocessor {
     }
 }
 
-class KeywordColorStringProcessor extends ColorStringProcessor {
+const keyword = {
+    proc: keywords => `(?<![\\w\\-.#])(${keywords.join("|")})\\b`,
+    unproc: keywords => `var\\(--color_(${keywords.join("|")})\\)`
+};
+
+class Css3KeywordColorStringProcessor extends ColorStringProcessor {
     constructor(fn, customPropertiesMap) {
         super(fn, customPropertiesMap);
-        super.regex = new RegExp(`(?<![\\w\\-.#])(${KEYWORD_COLORS.join("|")})`, "gi");
+        super.regex = new RegExp(keyword.proc(CSS3_KEYWORD_COLORS), "gi");
     }
 
     colorCustomPropertyName(match) {
-        return `color_${match[0]}`;
+        return `color_${match[0].toLowerCase()}`;
     }
 }
-class KeywordColorStringUnprocessor extends ColorStringUnprocessor {
+class Css3KeywordColorStringUnprocessor extends ColorStringUnprocessor {
     constructor() {
         super();
-        super.regex = new RegExp(`var\\(--color_(${KEYWORD_COLORS.join("|")})\\)`, "gi");
+        super.regex = new RegExp(keyword.unproc(CSS3_KEYWORD_COLORS), "gi");
+    }
+
+    colorValue(match) {
+        return match[1];
+    }
+}
+
+class Css2KeywordColorStringProcessor extends ColorStringProcessor {
+    constructor(customPropertiesMap) {
+        super(c => this.getFallbackColor(c), customPropertiesMap);
+        super.regex = new RegExp(keyword.proc(SUPPORTED_CSS2_KEYWORD_COLORS), "gi");
+    }
+
+    colorCustomPropertyName(match) {
+        return `color_${match[0].toLowerCase()}`;
+    }
+
+    getFallbackColor(color) {
+        switch (color.toLowerCase()) {
+            case "activeborder":
+                return "var(--neutral-fg)";
+            case "buttontext":
+                return "var(--neutral-fg)";
+            case "captiontext":
+                return "var(--neutral-fg-lo1)";
+            case "graytext":
+                return "var(--neutral-fg-lo2)";
+            case "highlight":
+                return "var(--fill-secondary-bg)";
+            case "highlighttext":
+                return "var(--fill-secondary-fg)";
+            case "menu":
+                return "var(--surface-hi1)";
+            case "menutext":
+                return "var(--neutral-fg)";
+            case "window":
+            case "windowframe":
+                return "var(--surface)";
+            case "windowtext":
+                return "var(--neutral-fg-hi1)";
+        }
+        return "var(--neutral-fg-hi1)";
+    }
+}
+class Css2KeywordColorStringUnprocessor extends ColorStringUnprocessor {
+    constructor() {
+        super();
+        super.regex = new RegExp(keyword.unproc(SUPPORTED_CSS2_KEYWORD_COLORS), "gi");
     }
 
     colorValue(match) {
@@ -389,7 +459,8 @@ export class ColorProcessor extends ColorMultipleProcessor {
             new HexColorStringProcessor(fn, customPropertiesMap),
             new RgbColorStringProcessor(fn, customPropertiesMap),
             new HslColorStringProcessor(fn, customPropertiesMap),
-            new KeywordColorStringProcessor(fn, customPropertiesMap)
+            new Css3KeywordColorStringProcessor(fn, customPropertiesMap),
+            new Css2KeywordColorStringProcessor(customPropertiesMap)
         );
     }
 }
@@ -399,7 +470,8 @@ export class ColorUnprocessor extends ColorMultipleProcessor {
             new HexColorStringUnprocessor(),
             new RgbColorStringUnprocessor(),
             new HslColorStringUnprocessor(),
-            new KeywordColorStringUnprocessor()
+            new Css3KeywordColorStringUnprocessor(),
+            new Css2KeywordColorStringUnprocessor()
         );
     }
 }
