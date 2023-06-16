@@ -243,6 +243,13 @@ public class VEventIndexStoreTests {
 		q.from = 20000;
 		res = indexStore.search(q);
 		assertEquals(5000, res.total);
+
+		// test specific size = -1
+		q.size = -1;
+		q.from = 0;
+		res = indexStore.search(q);
+		// 10 is default size forced by ES
+		assertEquals(10, res.total);
 	}
 
 	@Test
