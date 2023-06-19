@@ -95,7 +95,7 @@ import net.bluemind.hornetq.client.Consumer;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Topic;
-import net.bluemind.imap.driver.mailapi.UidSearchAnalyzer.QueryBUilderResult;
+import net.bluemind.imap.driver.mailapi.UidSearchAnalyzer.QueryBuilderResult;
 import net.bluemind.imap.endpoint.EndpointRuntimeException;
 import net.bluemind.imap.endpoint.driver.AppendStatus;
 import net.bluemind.imap.endpoint.driver.AppendStatus.WriteStatus;
@@ -742,7 +742,7 @@ public class MailApiConnection implements MailboxConnection {
 		}
 		List<Long> uids = new ArrayList<>();
 		try {
-			QueryBUilderResult qbr = UidSearchAnalyzer.buildQuery(query, sel.folder.uid, me.uid);
+			QueryBuilderResult qbr = UidSearchAnalyzer.buildQuery(query, sel.folder.uid, me.uid);
 
 			SearchRequestBuilder searchBuilder = client.prepareSearch(index).setTrackTotalHits(true);
 			searchBuilder.setQuery(qbr.bq()).setFetchSource(false).addDocValueField("uid").setSize(1000).addSort("uid",

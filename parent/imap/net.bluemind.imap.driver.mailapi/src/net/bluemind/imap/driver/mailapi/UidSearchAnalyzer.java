@@ -85,7 +85,7 @@ public class UidSearchAnalyzer {
 	private UidSearchAnalyzer() {
 	}
 
-	public static QueryBUilderResult buildQuery(String query, String folderUid, String meUid)
+	public static QueryBuilderResult buildQuery(String query, String folderUid, String meUid)
 			throws UidSearchException {
 		query = query + " END";
 		int maxUid = 0;
@@ -94,6 +94,9 @@ public class UidSearchAnalyzer {
 		Client client = ESearchActivator.getClient();
 
 		qb.must(QueryBuilders.termQuery("in", folderUid));
+
+		// we never return deleted items
+		qb.mustNot(QueryBuilders.termQuery("is", "deleted"));
 
 		// Gets document with highest uid for keywords with sequences management
 		AggregationBuilder a = AggregationBuilders.max("uid_max").field("uid");
@@ -183,10 +186,10 @@ public class UidSearchAnalyzer {
 			positiveKeyword = true;
 			subQuery = subQuery.substring(len);
 		}
-		return new QueryBUilderResult(qb, hasSequence);
+		return new QueryBuilderResult(qb, hasSequence);
 	}
 
-	public record QueryBUilderResult(BoolQueryBuilder bq, boolean hasSequence) {
+	public record QueryBuilderResult(BoolQueryBuilder bq, boolean hasSequence) {
 	}
 
 	public static boolean hasSequence(String query) {
