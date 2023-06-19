@@ -121,6 +121,8 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 	private long folderItemId;
 	private final Supplier<MailboxItemDecomposer> decomposer;
 
+	private static final MailboxItemFlag mdnSentFlag = new MailboxItemFlag("$MDNSent");
+
 	public ImapMailboxRecordsService(DataSource ds, Container cont, BmContext context, String mailboxUniqueId,
 			MailboxRecordStore recordStore, ContainerStoreService<MailboxRecord> storeService) {
 		super(ds, cont, context, mailboxUniqueId, recordStore, storeService, new ReplicasStore(ds));
@@ -201,7 +203,7 @@ public class ImapMailboxRecordsService extends BaseMailboxRecordsService impleme
 		}
 		// has the flags changed ?
 		ItemValue<MailboxItem> current = getCompleteById(id);
-		MailboxItemFlag mdnSentFlag = new MailboxItemFlag("$MDNSent");
+
 		if (current.value.flags.contains(mdnSentFlag) && !mail.flags.contains(mdnSentFlag)) {
 			logger.debug("cannot remove flag $MDNSent (on {})", id);
 			mail.flags.add(mdnSentFlag);
