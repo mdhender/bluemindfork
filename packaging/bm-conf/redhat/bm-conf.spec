@@ -62,6 +62,40 @@ getent passwd telegraf >/dev/null && /usr/sbin/usermod -a -G %{_bluemindgroup} t
 exit 0
 
 %post
+
+manageDeprecatedServices() {
+    local deprecatedServices="bm-lmtpd \
+        bm-sds-proxy \
+        bm-xmpp" 
+
+    for service in ${deprecatedServices}; do
+        deprecatedServices ${service}
+    done
+}
+
+removeCyrus() {
+    local cyrusServices="bm-cyrus-imapd \
+        bm-cyrus-syncclient@0 bm-cyrus-syncclient@1 bm-cyrus-syncclient@2 bm-cyrus-syncclient@3"
+
+    for service in ${cyrusServices}; do
+        deprecatedServices ${service}
+    done
+
+    [ -e /etc/cron.daily/bm-cyrus-imapd ] && rm -f /etc/cron.daily/bm-cyrus-imapd
+    [ -e /etc/systemd/system/bm-cyrus-imapd.service.wants ] && rm -rf /etc/systemd/system/bm-cyrus-imapd.service.wants
+}
+
+deprecatedServices() {
+    local service=${1}
+
+    echo "Purging deprecated service: "${service}
+    systemctl --no-reload disable --now ${service}.service
+}
+
+manageSystemUserGroup
+manageDeprecatedServices
+removeCyrus
+
 for file in /etc/bm/nodeclient_cert.pem \
     /etc/bm/nodeclient_key.pem \
     /etc/bm/nodeclient.p12 \
