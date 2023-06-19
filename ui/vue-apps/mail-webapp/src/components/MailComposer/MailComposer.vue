@@ -30,12 +30,7 @@
             "
             @check-and-repair="checkAndRepairFrom"
         />
-        <mail-composer-recipients
-            ref="recipients"
-            class="px-4"
-            :message="message"
-            :is-reply-or-forward="!!messageCompose.collapsedContent"
-        />
+        <mail-composer-recipients ref="recipients" class="px-4" :message="message" />
         <bm-form-input
             :value="subject"
             variant="underline"

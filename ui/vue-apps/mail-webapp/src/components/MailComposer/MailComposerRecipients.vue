@@ -1,36 +1,50 @@
 <template>
     <div class="mail-composer-recipients pr-1">
-        <bm-row class="align-items-center">
-            <bm-col :cols="displayedRecipientFields == recipientModes.TO ? 11 : 12">
-                <mail-composer-recipient :message="message" recipient-type="to" />
-            </bm-col>
-            <bm-col v-if="displayedRecipientFields == recipientModes.TO" cols="1" class="text-center">
-                <bm-icon-button
-                    variant="compact"
-                    icon="chevron"
-                    @click="displayedRecipientFields = recipientModes.TO | recipientModes.CC | recipientModes.BCC"
-                />
-            </bm-col>
-        </bm-row>
-        <div v-if="displayedRecipientFields > recipientModes.TO" class="d-flex align-items-center">
-            <div class="cc-contact-input">
-                <mail-composer-recipient :message="message" recipient-type="cc" />
-                <bm-button
-                    v-if="displayedRecipientFields == (recipientModes.TO | recipientModes.CC)"
-                    v-key-nav-group:recipient-button
-                    variant="text"
-                    class="bcc-button text-nowrap"
-                    tabindex="1"
-                    @click="displayedRecipientFields = recipientModes.TO | recipientModes.CC | recipientModes.BCC"
-                >
-                    {{ $t("common.bcc") }}
-                </bm-button>
-            </div>
+        <div class="d-flex align-items-center to-contact-input" :class="{ 'show-cc': showCc, 'show-bcc': showBcc }">
+            <mail-composer-recipient :message="message" recipient-type="to">
+                <template #end>
+                    <div class="end-buttons">
+                        <bm-button
+                            v-if="!showCc"
+                            v-key-nav-group:recipient-button
+                            variant="text"
+                            tabindex="1"
+                            @click="showCc = true"
+                        >
+                            {{ $t("common.cc") }}
+                        </bm-button>
+                        <bm-button
+                            v-if="!showCc && !showBcc"
+                            v-key-nav-group:recipient-button
+                            variant="text"
+                            tabindex="1"
+                            @click="showBcc = true"
+                        >
+                            {{ $t("common.bcc") }}
+                        </bm-button>
+                    </div>
+                </template>
+            </mail-composer-recipient>
         </div>
-        <bm-row
-            v-if="displayedRecipientFields == (recipientModes.TO | recipientModes.CC | recipientModes.BCC)"
-            class="align-items-center"
-        >
+        <div v-if="showCc" class="d-flex align-items-center cc-contact-input">
+            <mail-composer-recipient :message="message" recipient-type="cc">
+                <template #end>
+                    <div class="end-buttons">
+                        <bm-button
+                            v-if="!showBcc"
+                            v-key-nav-group:recipient-button
+                            variant="text"
+                            class="bcc-button text-nowrap"
+                            tabindex="1"
+                            @click="showBcc = true"
+                        >
+                            {{ $t("common.bcc") }}
+                        </bm-button>
+                    </div>
+                </template>
+            </mail-composer-recipient>
+        </div>
+        <bm-row v-if="showBcc" class="align-items-center">
             <bm-col>
                 <mail-composer-recipient :message="message" recipient-type="bcc" />
             </bm-col>
@@ -39,20 +53,14 @@
 </template>
 
 <script>
-import { BmButton, BmCol, BmIconButton, BmRow, KeyNavGroup } from "@bluemind/ui-components";
+import { BmButton, BmCol, BmRow, KeyNavGroup } from "@bluemind/ui-components";
 import { EditRecipientsMixin } from "~/mixins";
 import MailComposerRecipient from "./MailComposerRecipient";
 import { MAX_RECIPIENTS } from "../../utils";
 
 export default {
     name: "MailComposerRecipients",
-    components: {
-        BmButton,
-        BmCol,
-        BmIconButton,
-        BmRow,
-        MailComposerRecipient
-    },
+    components: { BmButton, BmCol, BmRow, MailComposerRecipient },
     directives: { KeyNavGroup },
     mixins: [EditRecipientsMixin],
     computed: {
@@ -87,23 +95,17 @@ export default {
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .mail-composer-recipients {
+    .to-contact-input,
     .cc-contact-input {
-        $bcc-button-width: base-px-to-rem(24);
-
         flex: 1;
         min-width: 0;
-        position: relative;
+    }
 
-        .contact-input {
-            padding-right: $bcc-button-width;
-        }
-
-        .bcc-button {
-            position: absolute;
-            width: $bcc-button-width;
-            right: 0;
-            bottom: base-px-to-rem(3);
-        }
+    .end-buttons {
+        display: flex;
+        gap: $sp-4;
+        align-items: flex-start;
+        flex: none;
     }
 
     .contact-input {

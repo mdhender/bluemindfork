@@ -26,40 +26,64 @@
                     :max-index="maxIndex"
                     after-avatar
                 />
-                <div class="to-contact-input">
-                    <mail-composer-recipient :message="message" recipient-type="to" />
-                    <mail-open-in-popup-with-shift v-slot="action" :href="route" :next="consult">
-                        <bm-icon-button
-                            variant="compact"
-                            class="expand-button"
-                            :title="action.label($t('mail.actions.extend'))"
-                            :disabled="anyAttachmentInError"
-                            :icon="action.icon('extend')"
-                            @click="saveAsap().then(() => action.execute(() => $router.navigate(route), $event))"
-                        />
-                    </mail-open-in-popup-with-shift>
+                <div class="to-contact-input" :class="{ 'show-cc': showCc, 'show-bcc': showBcc }">
+                    <mail-composer-recipient :message="message" recipient-type="to">
+                        <template #end>
+                            <div class="end-buttons">
+                                <bm-button
+                                    v-if="!showCc"
+                                    v-key-nav-group:recipient-button
+                                    variant="text"
+                                    tabindex="1"
+                                    @click="showCc = true"
+                                >
+                                    {{ $t("common.cc") }}
+                                </bm-button>
+                                <bm-button
+                                    v-if="!showCc && !showBcc"
+                                    v-key-nav-group:recipient-button
+                                    variant="text"
+                                    tabindex="1"
+                                    @click="showBcc = true"
+                                >
+                                    {{ $t("common.bcc") }}
+                                </bm-button>
+                                <mail-open-in-popup-with-shift v-slot="action" :href="route" :next="consult">
+                                    <bm-icon-button
+                                        variant="compact"
+                                        class="expand-button"
+                                        :title="action.label($t('mail.actions.extend'))"
+                                        :disabled="anyAttachmentInError"
+                                        :icon="action.icon('extend')"
+                                        @click="
+                                            saveAsap().then(() => action.execute(() => $router.navigate(route), $event))
+                                        "
+                                    />
+                                </mail-open-in-popup-with-shift>
+                            </div>
+                        </template>
+                    </mail-composer-recipient>
                 </div>
             </div>
         </template>
 
         <template slot="subhead">
-            <template v-if="displayedRecipientFields > recipientModes.TO">
+            <template v-if="showCc">
                 <div class="d-flex conversation-viewer-row flex-nowrap">
                     <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
+
                     <div class="cc-contact-input">
-                        <mail-composer-recipient :message="message" recipient-type="cc" />
-                        <bm-button
-                            v-if="!(displayedRecipientFields & recipientModes.BCC)"
-                            variant="text"
-                            class="bcc-button text-nowrap"
-                            @click="displayedRecipientFields |= recipientModes.BCC"
-                        >
-                            {{ $t("common.bcc") }}
-                        </bm-button>
+                        <mail-composer-recipient :message="message" recipient-type="cc">
+                            <template #end>
+                                <bm-button v-if="!showBcc" variant="text" @click="showBcc = true">
+                                    {{ $t("common.bcc") }}
+                                </bm-button>
+                            </template>
+                        </mail-composer-recipient>
                     </div>
                 </div>
             </template>
-            <template v-if="displayedRecipientFields & recipientModes.BCC">
+            <template v-if="showBcc">
                 <div class="d-flex conversation-viewer-row flex-nowrap">
                     <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
                     <mail-composer-recipient :message="message" recipient-type="bcc" />
@@ -134,7 +158,7 @@
 
 <script>
 import { mapMutations, mapState } from "vuex";
-import { BmButton, BmDropzone, BmFileDropZone, BmIconButton } from "@bluemind/ui-components";
+import { BmButton, BmDropzone, BmFileDropZone, BmIconButton, KeyNavGroup } from "@bluemind/ui-components";
 import { messageUtils } from "@bluemind/mail";
 import {
     ComposerActionsMixin,
@@ -176,6 +200,7 @@ export default {
         MailConversationViewerVerticalLine,
         MailOpenInPopupWithShift
     },
+    directives: { KeyNavGroup },
     mixins: [
         AddAttachmentsCommand,
         ComposerActionsMixin,
@@ -221,41 +246,17 @@ export default {
 .mail-conversation-viewer-draft-editor {
     padding-right: $sp-6;
 
-    .to-contact-input {
-        $expand-button-width: $icon-btn-width-compact;
-
+    .to-contact-input,
+    .cc-contact-input {
         flex: 1;
         min-width: 0;
-        position: relative;
-
-        .contact-input {
-            padding-right: $expand-button-width;
-        }
-
-        .expand-button {
-            position: absolute;
-            right: 0;
-            top: base-px-to-rem(2);
-        }
     }
 
-    .cc-contact-input {
-        $bcc-button-width: base-px-to-rem(24);
-
-        flex: 1;
-        min-width: 0;
-        position: relative;
-
-        .contact-input {
-            padding-right: $bcc-button-width + $sp-3;
-        }
-
-        .bcc-button {
-            position: absolute;
-            width: $bcc-button-width;
-            right: $sp-3;
-            bottom: base-px-to-rem(3);
-        }
+    .end-buttons {
+        display: flex;
+        gap: $sp-4;
+        align-items: flex-start;
+        flex: none;
     }
 
     .mail-composer-content .bm-rich-editor {

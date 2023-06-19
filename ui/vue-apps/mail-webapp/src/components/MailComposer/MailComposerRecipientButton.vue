@@ -1,6 +1,8 @@
 <template>
-    <div>
-        <bm-button v-key-nav-group:recipient-button variant="text-accent" @click="show = true">{{ recipientType }}</bm-button>
+    <div class="mail-composer-recipient-button">
+        <bm-button v-key-nav-group:recipient-button variant="text-accent" class="mx-3" @click="show = true">
+            {{ recipientType }}
+        </bm-button>
         <bm-modal id="recipient-picker" v-model="show" centered hide-footer />
     </div>
 </template>
@@ -27,3 +29,9 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+.mail-composer-recipient-button {
+    flex: none;
+}
+</style>
