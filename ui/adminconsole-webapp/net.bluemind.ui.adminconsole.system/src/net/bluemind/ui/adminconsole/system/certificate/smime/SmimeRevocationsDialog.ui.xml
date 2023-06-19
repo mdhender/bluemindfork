@@ -1,0 +1,67 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
+	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
+	xmlns:f="urn:import:net.bluemind.ui.common.client.forms"
+	xmlns:common="urn:import:net.bluemind.ui.common.client.forms"
+	xmlns:j="urn:import:net.bluemind.ui.adminconsole.system.certificate.smime">
+
+	<ui:style>
+	.inline {
+		display: inline-block;
+	}
+	
+	.warn {
+		border: 1px solid #fbc7c6;
+		background: #fddfde;
+		padding: 20px;
+	}
+	</ui:style>
+	
+	<ui:with field="c"
+		type="net.bluemind.ui.adminconsole.system.certificate.smime.l10n.SmimeCertificateConstants" />
+	
+	<g:DockLayoutPanel unit="PX">
+
+		<g:center>
+			<g:HTMLPanel>
+				<table border="0">
+					<tr >
+						<td style='width:50px'>
+							<g:Label text="{c.caIssuer}:" />
+						</td>
+						<td style='width:800px'>
+							<g:Label ui:field="issuer" />
+						</td>
+					</tr>
+					<tr>
+						<td style='width:50px'>
+							<g:Label text="{c.caSubject}:" />
+						</td>
+						<td style='width:800px'>
+							<g:Label ui:field="subject" />
+						</td>
+					</tr>
+					<tr>
+						<td style='width:200px'><br/></td>
+					</tr>
+					<tr>
+						<td style='width:500px' class="label">
+							<g:Label  text="{c.emptyRevocationLabel}" ui:field="emptyRevocationLabel" />
+						</td>
+					</tr>
+				</table>
+				<g:SimplePanel ui:field="revocationsListPanel">
+					<j:SmimeRevocationsGrid ui:field="revocationsGrid" />
+				</g:SimplePanel>
+			</g:HTMLPanel>
+		</g:center>
+
+		<g:south size="33">
+			<g:FlowPanel>
+				<f:DoneCancelActionBar ui:field="actionBar" />
+			</g:FlowPanel>
+		</g:south>
+	</g:DockLayoutPanel>
+
+</ui:UiBinder>

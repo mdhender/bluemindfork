@@ -1,4 +1,7 @@
-package net.bluemind.ui.adminconsole.system.certificate;
+package net.bluemind.ui.adminconsole.system.certificate.smime;
+
+import java.util.Collections;
+import java.util.List;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
@@ -20,6 +23,8 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.InlineHTML;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.SimplePanel;
 
 import net.bluemind.core.container.api.Ack;
 import net.bluemind.domain.api.Domain;
@@ -29,7 +34,9 @@ import net.bluemind.gwtconsoleapp.base.handler.DefaultAsyncHandler;
 import net.bluemind.gwtconsoleapp.base.notification.Notification;
 import net.bluemind.smime.cacerts.api.ISmimeCacertUids;
 import net.bluemind.smime.cacerts.api.SmimeCacert;
+import net.bluemind.smime.cacerts.api.SmimeCacertInfos;
 import net.bluemind.smime.cacerts.api.gwt.endpoint.SmimeCACertGwtEndpoint;
+import net.bluemind.ui.adminconsole.system.certificate.smime.l10n.SmimeCertificateConstants;
 
 public class SmimeCertificateEditorComponent extends CompositeGwtWidgetElement {
 
@@ -53,6 +60,18 @@ public class SmimeCertificateEditorComponent extends CompositeGwtWidgetElement {
 	@UiField
 	Button resetBtn;
 
+	@UiField
+	Button listBtn;
+
+	@UiField
+	SimplePanel certsListPanel;
+
+	@UiField
+	SmimeCertsGrid certsList;
+
+	@UiField
+	Label emptyCertLabel;
+
 	private static SmimeCertificateEditorComponentUiBinder uiBinder = GWT
 			.create(SmimeCertificateEditorComponentUiBinder.class);
 
@@ -61,6 +80,8 @@ public class SmimeCertificateEditorComponent extends CompositeGwtWidgetElement {
 	}
 
 	private static final SmimeCertificateEditorConstants constants = GWT.create(SmimeCertificateEditorConstants.class);
+
+	private static final SmimeCertificateConstants smimeConst = GWT.create(SmimeCertificateConstants.class);
 
 	interface SmimeCertificateEditorComponentUiBinder extends UiBinder<HTMLPanel, SmimeCertificateEditorComponent> {
 	}
@@ -77,6 +98,9 @@ public class SmimeCertificateEditorComponent extends CompositeGwtWidgetElement {
 		uploadBtn.setEnabled(false);
 		resetBtn.setVisible(true);
 		resetBtn.setEnabled(true);
+		certsListPanel.setVisible(false);
+		certsList.setVisible(false);
+		emptyCertLabel.setVisible(false);
 	}
 
 	public void setupUploadForm() {
@@ -111,6 +135,30 @@ public class SmimeCertificateEditorComponent extends CompositeGwtWidgetElement {
 		cacertData = null;
 	}
 
+	private void listCacertFiles() {
+		if (certsList.getValues().isEmpty()) {
+			new SmimeCACertGwtEndpoint(Ajax.TOKEN.getSessionId(), ISmimeCacertUids.domainCreatedCerts(domain.name))
+					.getCacertWithRevocations(new DefaultAsyncHandler<List<SmimeCacertInfos>>() {
+
+						@Override
+						public void success(List<SmimeCacertInfos> infos) {
+							loadCertList(infos);
+						}
+					});
+		} else {
+			loadCertList(Collections.emptyList());
+			emptyCertLabel.setVisible(false);
+		}
+	}
+
+	private void loadCertList(List<SmimeCacertInfos> infos) {
+		certsList.setValues(infos);
+		certsListPanel.setVisible(!infos.isEmpty());
+		certsList.setVisible(!infos.isEmpty());
+		listBtn.setText(infos.isEmpty() ? smimeConst.displayBtn() : smimeConst.hideBtn());
+		emptyCertLabel.setVisible(certsList.getValues().isEmpty());
+	}
+
 	private void uploadCacertFile() {
 		SmimeCacert cacert = SmimeCacert.create(cacertData);
 		final String uid = net.bluemind.ui.common.client.forms.tag.UUID.uuid().toLowerCase();
@@ -137,6 +185,7 @@ public class SmimeCertificateEditorComponent extends CompositeGwtWidgetElement {
 					public void success(Void value) {
 						Notification.get().reportInfo("All S/MIME Certificates have been deleted");
 						resetBtn.setEnabled(false);
+						loadCertList(Collections.emptyList());
 					}
 
 					@Override
@@ -161,6 +210,13 @@ public class SmimeCertificateEditorComponent extends CompositeGwtWidgetElement {
 				if (confirmResetAction()) {
 					reset();
 				}
+			}
+		});
+
+		listBtn.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				listCacertFiles();
 			}
 		});
 	}

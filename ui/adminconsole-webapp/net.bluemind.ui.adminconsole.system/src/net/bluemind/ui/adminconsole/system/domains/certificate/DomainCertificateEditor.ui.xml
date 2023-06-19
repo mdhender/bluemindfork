@@ -5,6 +5,7 @@
 	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
 	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui"
 	xmlns:my="urn:import:net.bluemind.ui.adminconsole.system.certificate"
+	xmlns:s="urn:import:net.bluemind.ui.adminconsole.system.certificate.smime"
 	xmlns:common="urn:import:net.bluemind.ui.common.client.forms">
 
 	<ui:with field="d"
@@ -25,7 +26,7 @@
 		<my:CertificateEditorComponent ui:field="certificateData" />
 		
 		<f:FieldSetPanel name="{d.smimeCertificate}" />
-		<my:SmimeCertificateEditorComponent ui:field="smimeData" />
+		<s:SmimeCertificateEditorComponent ui:field="smimeData" />
 		
 	</g:HTMLPanel>
 

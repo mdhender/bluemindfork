@@ -79,6 +79,6 @@ public interface ISmimeRevocation {
 	 */
 	@POST
 	@Path("fetch")
-	public List<SmimeRevocation> fetch(ItemValue<SmimeCacert> cacert) throws ServerFault;
+	public SmimeCacertInfos fetch(ItemValue<SmimeCacert> cacert) throws ServerFault;
 
 }

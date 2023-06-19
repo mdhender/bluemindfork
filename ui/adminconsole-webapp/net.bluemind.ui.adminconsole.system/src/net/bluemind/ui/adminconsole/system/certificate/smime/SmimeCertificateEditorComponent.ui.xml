@@ -4,11 +4,14 @@
 	ui:generateFormat='com.google.gwt.i18n.rebind.format.PropertiesFormat'
 	ui:generateLocales='default' ui:useSafeHtmlTemplates='true'
 	xmlns:common="urn:import:net.bluemind.ui.common.client.forms"
-	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui">
+	xmlns:f="urn:import:net.bluemind.ui.adminconsole.base.ui"
+	xmlns:j="urn:import:net.bluemind.ui.adminconsole.system.certificate.smime">
 
 	<ui:with field="c"
 		type="net.bluemind.ui.adminconsole.system.certificate.l10n.CertificateEditorComponentConstants" />
-
+	<ui:with field="s"
+		type="net.bluemind.ui.adminconsole.system.certificate.smime.l10n.SmimeCertificateConstants" />
+		
 	<g:HTMLPanel>
 		<g:HTMLPanel ui:field="smimePanel">
 			<g:HTMLPanel>
@@ -38,7 +41,27 @@
 						</td>
 						<td style='width:400px'/>
 						<td style='width:400px'>
-							<g:Button ui:field="resetBtn" text="{c.resetBtn}" styleName="button"/>
+							<g:Button ui:field="resetBtn" text="{s.resetBtn}" styleName="button"/>
+						</td>
+					</tr>
+					<tr>
+						<td style='width:400px'>
+							<g:Button ui:field="listBtn" text="{s.displayBtn}" styleName="button"/>
+						</td>
+					</tr>
+				</table>
+				
+				<table border="0">
+					<tr>
+						<td class="label">
+							<g:Label  text="{s.emptyCertLabel}" ui:field="emptyCertLabel" />
+						</td>
+					</tr>
+					<tr>
+						<td style='width:1000px'>
+							<g:SimplePanel ui:field="certsListPanel">
+								<j:SmimeCertsGrid ui:field="certsList" />
+							</g:SimplePanel>
 						</td>
 					</tr>
 				</table>

@@ -18,6 +18,7 @@
  */
 package net.bluemind.smime.cacerts.service.internal;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -45,7 +46,9 @@ import net.bluemind.core.validator.Validator;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.smime.cacerts.api.ISmimeCACert;
 import net.bluemind.smime.cacerts.api.ISmimeCacertUids;
+import net.bluemind.smime.cacerts.api.ISmimeRevocation;
 import net.bluemind.smime.cacerts.api.SmimeCacert;
+import net.bluemind.smime.cacerts.api.SmimeCacertInfos;
 import net.bluemind.smime.cacerts.persistence.SmimeCacertStore;
 import net.bluemind.smime.cacerts.service.IInCoreSmimeRevocation;
 
@@ -252,6 +255,20 @@ public class SmimeCACertService implements ISmimeCACert {
 		} else {
 			update(item.item(), item.value);
 		}
+	}
+
+	@Override
+	public List<SmimeCacertInfos> getCacertWithRevocations() throws ServerFault {
+		rbacManager.check(Verb.Read.name());
+		List<String> cacertUids = allUids();
+		List<SmimeCacertInfos> resultList = new ArrayList<>();
+		cacertUids.forEach(uid -> {
+			ItemValue<SmimeCacert> cacert = getComplete(uid);
+			SmimeCacertInfos cacertWithRevocations = bmContext.provider()
+					.instance(ISmimeRevocation.class, container.domainUid).fetch(cacert);
+			resultList.add(cacertWithRevocations);
+		});
+		return resultList;
 	}
 
 }

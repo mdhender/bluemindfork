@@ -38,6 +38,7 @@ import net.bluemind.smime.cacerts.api.ISmimeCACert;
 import net.bluemind.smime.cacerts.api.ISmimeCacertUids;
 import net.bluemind.smime.cacerts.api.ISmimeRevocation;
 import net.bluemind.smime.cacerts.api.SmimeCacert;
+import net.bluemind.smime.cacerts.api.SmimeCacertInfos;
 import net.bluemind.smime.cacerts.api.SmimeRevocation;
 import net.bluemind.utils.CertificateUtils;
 import picocli.CommandLine.Command;
@@ -68,7 +69,8 @@ public class SmimeCommandList implements ICmdLet, Runnable, IExitCodeGenerator {
 	@Option(required = true, names = { "--domain" }, description = "The domain, 'global.virt' invalid")
 	public String domain;
 
-    @Option(required = false, names = { "--revocations" }, description = "The revoked certificates, default false")
+	@Option(defaultValue = "false", names = {
+			"--revocations" }, description = "The revoked certificates, default false")
 	public boolean revocations = false;
 
 	@Option(required = false, names = { "--uid" }, description = "The S/MIME CA certificate uid, default all")
@@ -110,8 +112,7 @@ public class SmimeCommandList implements ICmdLet, Runnable, IExitCodeGenerator {
 		ISmimeRevocation revocationApi = ctx.adminApi().instance(ISmimeRevocation.class, domainItem.uid);
 		all.forEach(ca -> {
 			if (revocations) {
-				List<SmimeRevocation> revocations = revocationApi.fetch(ca);
-				display(ca, revocations);
+				display(ca, revocationApi.fetch(ca));
 			} else {
 				display(ca);
 			}
@@ -119,8 +120,9 @@ public class SmimeCommandList implements ICmdLet, Runnable, IExitCodeGenerator {
 
 	}
 
-	private void display(ItemValue<SmimeCacert> ca, List<SmimeRevocation> revocations) {
+	private void display(ItemValue<SmimeCacert> ca, SmimeCacertInfos cacertInfos) {
 		display(ca);
+		List<SmimeRevocation> revocations = cacertInfos.revocations;
 		if (revocations.isEmpty()) {
 			return;
 		}

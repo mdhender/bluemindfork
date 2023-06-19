@@ -37,7 +37,7 @@ import net.bluemind.gwtconsoleapp.base.editor.gwt.GwtWidgetElement;
 import net.bluemind.system.api.CertData.CertificateDomainEngine;
 import net.bluemind.ui.adminconsole.system.SettingsModel;
 import net.bluemind.ui.adminconsole.system.certificate.CertificateEditorComponent;
-import net.bluemind.ui.adminconsole.system.certificate.SmimeCertificateEditorComponent;
+import net.bluemind.ui.adminconsole.system.certificate.smime.SmimeCertificateEditorComponent;
 import net.bluemind.ui.adminconsole.system.domains.DomainKeys;
 
 public class DomainCertificateEditor extends CompositeGwtWidgetElement {

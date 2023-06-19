@@ -44,9 +44,9 @@ public interface ISmimeCACert extends IChangelogSupport, ICrudSupport<SmimeCacer
 		IRestoreItemCrudSupport<SmimeCacert> {
 
 	/**
-	 * List all S/MIME certificates of a container
+	 * List all S/MIME certificates
 	 * 
-	 * @return All {@link SmimeCacert} of the container
+	 * @return All {@link SmimeCacert}
 	 * @throws ServerFault common error object
 	 */
 	@GET
@@ -61,5 +61,15 @@ public interface ISmimeCACert extends IChangelogSupport, ICrudSupport<SmimeCacer
 	@POST
 	@Path("_reset")
 	void reset() throws ServerFault;
+
+	/**
+	 * List all S/MIME certificates with revocations
+	 * 
+	 * @return All {@link SmimeCacertInfos}
+	 * @throws ServerFault common error object
+	 */
+	@GET
+	@Path("_details")
+	List<SmimeCacertInfos> getCacertWithRevocations() throws ServerFault;
 
 }

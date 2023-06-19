@@ -58,7 +58,7 @@ import net.bluemind.user.api.gwt.endpoint.UserGwtEndpoint;
 public class OrgUnitsAdminRolesTree extends Composite {
 
 	private static final String FAKE_ROOT_UID = "ROOT";
-	public static final String TYPE = "bm.role.OrgUnitsRolesEditor";
+	public static final String TYPE = "bm.role.OrgUnitsAdminRolesTree";
 
 	ScrollPanel rolesPanel;
 

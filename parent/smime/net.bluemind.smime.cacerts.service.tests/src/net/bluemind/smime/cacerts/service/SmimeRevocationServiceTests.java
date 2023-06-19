@@ -47,6 +47,7 @@ import net.bluemind.smime.cacerts.api.ISmimeRevocation;
 import net.bluemind.smime.cacerts.api.RevocationResult;
 import net.bluemind.smime.cacerts.api.RevocationResult.RevocationStatus;
 import net.bluemind.smime.cacerts.api.SmimeCacert;
+import net.bluemind.smime.cacerts.api.SmimeCacertInfos;
 import net.bluemind.smime.cacerts.api.SmimeCertClient;
 import net.bluemind.smime.cacerts.api.SmimeRevocation;
 
@@ -120,9 +121,8 @@ public class SmimeRevocationServiceTests extends AbstractServiceTests {
 	public void test_refresh_uid() throws Exception {
 		ItemValue<SmimeCacert> cacert = createCacert("uid1");
 		// revocations fetched on SmimeCacert creation
-		List<SmimeRevocation> fetchedRevocations = getServiceRevocation(defaultSecurityContext, domainUid)
-				.fetch(cacert);
-		List<SmimeCertClient> clients = fetchedRevocations.stream()
+		SmimeCacertInfos fetchedRevocations = getServiceRevocation(defaultSecurityContext, domainUid).fetch(cacert);
+		List<SmimeCertClient> clients = fetchedRevocations.revocations.stream()
 				.map(r -> SmimeCertClient.create(r.serialNumber, r.issuer)).toList();
 
 		Set<RevocationResult> revokedResult = getServiceRevocation(defaultSecurityContext, domainUid)
@@ -136,10 +136,10 @@ public class SmimeRevocationServiceTests extends AbstractServiceTests {
 
 		revokedResult = getServiceRevocation(defaultSecurityContext, domainUid).areRevoked(clients);
 		assertFalse(revokedResult.isEmpty());
-		assertEquals(fetchedRevocations.size(), revokedResult.size());
+		assertEquals(fetchedRevocations.revocations.size(), revokedResult.size());
 		revokedResult.forEach(r -> {
 			assertEquals(RevocationStatus.REVOKED, r.status);
-			assertTrue(fetchedRevocations.stream().map(rv -> rv.serialNumber).toList()
+			assertTrue(fetchedRevocations.revocations.stream().map(rv -> rv.serialNumber).toList()
 					.contains(r.revocation.serialNumber));
 		});
 	}
@@ -148,9 +148,8 @@ public class SmimeRevocationServiceTests extends AbstractServiceTests {
 	public void test_refresh_all() throws Exception {
 		ItemValue<SmimeCacert> cacert = createCacert("uid1");
 		// revocations fetched on SmimeCacert creation
-		List<SmimeRevocation> fetchedRevocations = getServiceRevocation(defaultSecurityContext, domainUid)
-				.fetch(cacert);
-		List<SmimeCertClient> clients = fetchedRevocations.stream()
+		SmimeCacertInfos fetchedRevocations = getServiceRevocation(defaultSecurityContext, domainUid).fetch(cacert);
+		List<SmimeCertClient> clients = fetchedRevocations.revocations.stream()
 				.map(r -> SmimeCertClient.create(r.serialNumber, r.issuer)).toList();
 
 		Set<RevocationResult> revoked = getServiceRevocation(defaultSecurityContext, domainUid).areRevoked(clients);
@@ -163,10 +162,10 @@ public class SmimeRevocationServiceTests extends AbstractServiceTests {
 
 		revoked = getServiceRevocation(defaultSecurityContext, domainUid).areRevoked(clients);
 		assertFalse(revoked.isEmpty());
-		assertEquals(fetchedRevocations.size(), revoked.size());
+		assertEquals(fetchedRevocations.revocations.size(), revoked.size());
 		revoked.forEach(r -> {
 			assertEquals(RevocationStatus.REVOKED, r.status);
-			assertTrue(fetchedRevocations.stream().map(rv -> rv.serialNumber).toList()
+			assertTrue(fetchedRevocations.revocations.stream().map(rv -> rv.serialNumber).toList()
 					.contains(r.revocation.serialNumber));
 		});
 	}
@@ -175,9 +174,8 @@ public class SmimeRevocationServiceTests extends AbstractServiceTests {
 	public void test_fetch() throws Exception {
 		ItemValue<SmimeCacert> cacert = createCacert("uid1");
 		// revocations fetched on SmimeCacert creation
-		List<SmimeRevocation> fetchedRevocations = getServiceRevocation(defaultSecurityContext, domainUid)
-				.fetch(cacert);
-		List<SmimeCertClient> clients = fetchedRevocations.stream()
+		SmimeCacertInfos fetchedRevocations = getServiceRevocation(defaultSecurityContext, domainUid).fetch(cacert);
+		List<SmimeCertClient> clients = fetchedRevocations.revocations.stream()
 				.map(r -> SmimeCertClient.create(r.serialNumber, r.issuer)).toList();
 
 		Set<RevocationResult> revoked = getServiceRevocation(defaultSecurityContext, domainUid).areRevoked(clients);

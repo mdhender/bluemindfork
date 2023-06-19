@@ -18,6 +18,7 @@
  */
 package net.bluemind.smime.cacerts.service.internal;
 
+import java.security.cert.X509Certificate;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
@@ -34,15 +35,15 @@ import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.smime.cacerts.api.ISmimeCACert;
-import net.bluemind.role.api.BasicRoles;
 import net.bluemind.smime.cacerts.api.ISmimeRevocation;
 import net.bluemind.smime.cacerts.api.RevocationResult;
 import net.bluemind.smime.cacerts.api.SmimeCacert;
+import net.bluemind.smime.cacerts.api.SmimeCacertInfos;
 import net.bluemind.smime.cacerts.api.SmimeCertClient;
-import net.bluemind.smime.cacerts.api.SmimeCacert;
 import net.bluemind.smime.cacerts.api.SmimeRevocation;
 import net.bluemind.smime.cacerts.persistence.SmimeRevocationStore;
 import net.bluemind.smime.cacerts.service.IInCoreSmimeRevocation;
+import net.bluemind.utils.CertificateUtils;
 
 public class SmimeRevocationService implements ISmimeRevocation {
 
@@ -69,19 +70,17 @@ public class SmimeRevocationService implements ISmimeRevocation {
 			throw new ServerFault("User is not logged in", ErrorCode.PERMISSION_DENIED);
 		}
 
-		Set<RevocationResult> revokedList = clients.stream().map(c -> {
+		return clients.stream().map(c -> {
 			try {
 				SmimeRevocation byCertClient = storeService.getByCertClient(c);
 				if (byCertClient == null) {
-					byCertClient = (SmimeRevocation) SmimeRevocation.create(c.serialNumber, c.issuer);
+					byCertClient = SmimeRevocation.create(c.serialNumber, c.issuer);
 				}
 				return byCertClient;
 			} catch (SQLException e) {
 				throw new ServerFault(e.getMessage(), ErrorCode.SQL_ERROR);
 			}
-		}).distinct().map(r -> createRevocationResult(r)).collect(Collectors.toSet());
-
-		return revokedList;
+		}).distinct().map(this::createRevocationResult).collect(Collectors.toSet());
 	}
 
 	private RevocationResult createRevocationResult(SmimeRevocation revocation) {
@@ -98,7 +97,7 @@ public class SmimeRevocationService implements ISmimeRevocation {
 		cacertItems = provider.instance(ISmimeCACert.class, container.uid).all();
 
 		IInCoreSmimeRevocation incoreService = provider.instance(IInCoreSmimeRevocation.class, container.domainUid);
-		cacertItems.forEach(ca -> incoreService.refreshRevocations(ca));
+		cacertItems.forEach(incoreService::refreshRevocations);
 	}
 
 	@Override
@@ -112,10 +111,14 @@ public class SmimeRevocationService implements ISmimeRevocation {
 
 		bmContext.provider().instance(IInCoreSmimeRevocation.class, container.domainUid).refreshRevocations(cacert);
 	}
-	public List<SmimeRevocation> fetch(ItemValue<SmimeCacert> cacert) {
+
+	public SmimeCacertInfos fetch(ItemValue<SmimeCacert> cacert) {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN_SMIME);
 		try {
-			return storeService.get(cacert);
+			List<SmimeRevocation> revocations = storeService.get(cacert);
+			X509Certificate certificate = CertificateUtils.getCertificate(cacert.value.cert.getBytes());
+			return SmimeCacertInfos.create(cacert.uid, certificate.getIssuerX500Principal().getName(),
+					certificate.getSubjectX500Principal().getName(), revocations);
 		} catch (SQLException e) {
 			throw new ServerFault(e.getMessage(), ErrorCode.SQL_ERROR);
 		}
