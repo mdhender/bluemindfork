@@ -79,6 +79,7 @@ public class FetchedItemRenderer {
 	private static final Logger logger = LoggerFactory.getLogger(FetchedItemRenderer.class);
 
 	private static final ByteBuf DEFAULT_NIL_BYTE_BUF = Unpooled.wrappedBuffer("NIL".getBytes());
+	private static final ByteBuf DEFAULT_EMPTY_BYTE_BUF = Unpooled.wrappedBuffer("".getBytes());
 	private static final String SECTION_MIME_PATTERN = ".MIME";
 	private static final String SECTION_HEADER_PATTERN = ".HEADER";
 	private static final ByteBuf TWO_CRLF = Unpooled.wrappedBuffer("\r\n\r\n".getBytes());
@@ -158,6 +159,10 @@ public class FetchedItemRenderer {
 		if (Buffer.buffer(bodyPeek).toString().equals("NIL")) {
 			return Unpooled.wrappedBuffer(bodyPeek);
 		}
+		if (bodyPeek.capacity() == 0) {
+			ByteBuf doubleQuoteBuffer = Unpooled.wrappedBuffer(("\"\"").getBytes());
+			return Unpooled.wrappedBuffer(doubleQuoteBuffer, bodyPeek);
+		}
 		ByteBuf lenBuf = Unpooled.wrappedBuffer(("{" + len + "}\r\n").getBytes());
 		return Unpooled.wrappedBuffer(lenBuf, bodyPeek);
 	}
@@ -191,7 +196,7 @@ public class FetchedItemRenderer {
 			emlBuffer.readerIndex(headerEndIndex + 4);
 			emlBuffer.markReaderIndex();
 			if (partial.isValid) {
-				return emlBuffer.slice(partial.offset, partial.length);
+				return partial.getByteBufSlice(emlBuffer);
 			}
 			return emlBuffer.slice(headerEndIndex + 4, len);
 		} else if (section.endsWith(SECTION_MIME_PATTERN) && partAddr(section.replace(SECTION_MIME_PATTERN, ""))) {
@@ -208,7 +213,7 @@ public class FetchedItemRenderer {
 						}
 						b.append("\r\n");
 						if (partial.isValid) {
-							return Unpooled.wrappedBuffer(b.toString().getBytes(), partial.offset, partial.length);
+							return partial.getByteBufSlice(Unpooled.wrappedBuffer(b.toString().getBytes()));
 						}
 						return Unpooled.wrappedBuffer(b.toString().getBytes());
 					}).orElse(DEFAULT_NIL_BYTE_BUF);
@@ -228,7 +233,7 @@ public class FetchedItemRenderer {
 						}
 						emlBuffer.markReaderIndex();
 						if (partial.isValid) {
-							return emlBuffer.slice(partial.offset, partial.length);
+							return partial.getByteBufSlice(emlBuffer);
 						}
 						return emlBuffer.slice(0, headerEndIndex);
 					}).orElse(DEFAULT_NIL_BYTE_BUF);
@@ -250,7 +255,7 @@ public class FetchedItemRenderer {
 				int len = body.get().size;
 				ByteBuf byteBuf = readMmap(fullMsg, len * 2).join();
 				if (partial.isValid) {
-					return byteBuf.slice(partial.offset, partial.length);
+					return partial.getByteBufSlice(byteBuf);
 				}
 				return byteBuf;
 			} catch (ServerFault sf) {
@@ -432,6 +437,17 @@ public class FetchedItemRenderer {
 			}
 			int[] partialArray = Arrays.asList(partial.split("\\.")).stream().mapToInt(Integer::parseInt).toArray();
 			return new PartialBoundaries(partialArray[0], partialArray[1]);
+		}
+
+		public ByteBuf getByteBufSlice(ByteBuf fullByteBuf) {
+			if (offset > fullByteBuf.readableBytes()) {
+				return DEFAULT_EMPTY_BYTE_BUF.duplicate();
+			}
+			if ((offset + length) > fullByteBuf.readableBytes()) {
+				int finalIndex = fullByteBuf.readableBytes() - offset;
+				return fullByteBuf.slice(offset, finalIndex);
+			}
+			return fullByteBuf.slice(offset, length);
 		}
 	}
 
