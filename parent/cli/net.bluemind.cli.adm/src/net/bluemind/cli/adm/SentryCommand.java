@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import io.sentry.Sentry;
 import net.bluemind.cli.cmd.api.CliContext;
 import net.bluemind.cli.cmd.api.ICmdLet;
 import net.bluemind.cli.cmd.api.ICmdLetRegistration;
@@ -55,9 +54,6 @@ public class SentryCommand implements ICmdLet, Runnable {
 	@Option(names = "--web-dsn", description = "Sets a new sentry-web DSN", required = false)
 	public String webdsn = null;
 
-	@Option(names = "--test", description = "Test sending events")
-	public boolean testMode = false;
-
 	private CliContext ctx;
 
 	@Override
@@ -76,15 +72,6 @@ public class SentryCommand implements ICmdLet, Runnable {
 			map.put(SysConfKeys.sentry_web_endpoint.name(), webdsn);
 			configurationApi.updateMutableValues(map);
 		}
-		if (testMode) {
-			Sentry.init();
-			ctx.info("Sending a sentry test message");
-			Sentry.captureMessage("Testing " + System.currentTimeMillis());
-			ctx.info("Sending a sentry test exception");
-			Sentry.captureException(new Exception("Testing " + System.currentTimeMillis()));
-			Sentry.flush(5000);
-		}
-
 	}
 
 	@Override
