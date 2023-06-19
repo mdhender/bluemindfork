@@ -26,6 +26,8 @@
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
 			<level>ERROR</level>
 		</filter>
+		<!-- we don't care about errors without throwables -->
+		<filter class="net.bluemind.common.logback.ThrowableFilter" />
 	</appender>
 
 	<root level="INFO">
