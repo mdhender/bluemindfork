@@ -599,18 +599,19 @@ public class MailApiConnection implements MailboxConnection {
 
 	private List<MailboxItemFlag> flags(List<String> flags) {
 		return flags.stream().map(f -> {
-			switch (f) {
-			case "\\Seen":
+			String fl = f.toLowerCase();
+			switch (fl) {
+			case "\\seen":
 				return MailboxItemFlag.System.Seen.value();
-			case "\\Draft":
+			case "\\draft":
 				return MailboxItemFlag.System.Draft.value();
-			case "\\Deleted":
+			case "\\deleted":
 				return MailboxItemFlag.System.Deleted.value();
-			case "\\Flagged":
+			case "\\flagged":
 				return MailboxItemFlag.System.Flagged.value();
-			case "\\Answered":
+			case "\\answered":
 				return MailboxItemFlag.System.Answered.value();
-			case "\\Expunged":
+			case "\\expunged":
 				return null;
 			default:
 				return MailboxItemFlag.of(f, 0);
