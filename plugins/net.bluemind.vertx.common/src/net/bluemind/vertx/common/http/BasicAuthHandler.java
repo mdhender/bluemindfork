@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -196,7 +197,7 @@ public class BasicAuthHandler implements Handler<HttpServerRequest> {
 
 	@Override
 	public void handle(final HttpServerRequest r) {
-
+		MDC.clear();
 		if (CoreStateListener.state != SystemState.CORE_STATE_RUNNING) {
 			VertxPlatform.getVertx().setTimer(500, timerId -> {
 				logger.warn("Core state is {}", CoreStateListener.state);
