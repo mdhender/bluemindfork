@@ -12,6 +12,7 @@ export default {
             } else if (event.key === "ArrowLeft") {
                 event.shiftKey ? focusStart(nav[binding.arg]) : focusPrevious(event.target, nav[binding.arg]);
             }
+            event.stopImmediatePropagation();
         });
         ensureTabAccess(el);
     },

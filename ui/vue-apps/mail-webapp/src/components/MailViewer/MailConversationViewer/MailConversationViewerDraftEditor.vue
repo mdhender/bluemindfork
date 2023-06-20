@@ -26,16 +26,17 @@
                     :max-index="maxIndex"
                     after-avatar
                 />
-                <div class="to-contact-input" :class="{ 'show-cc': showCc, 'show-bcc': showBcc }">
-                    <mail-composer-recipient ref="toField" :message="message" recipient-type="to" >
-                    <bm-button
-                        v-if="!showCc"
-                        variant="text"
-                        class="cc-button text-nowrap"
-                        @click="showCc = true"
-                        @keydown.tab.prevent="focusToField"
-                    >
+                <div class="to-contact-input">
+                    <mail-composer-recipient ref="toField" :message="message" recipient-type="to">
+                        <template #end>
+                            <div class="end-buttons">
+                                <bm-button
+                                    v-if="!showCc"
+                                    v-key-nav-group:recipient-button
+                                    variant="text"
+                                    tabindex="1"
                                     @click="showCc = true"
+                                    @keydown.tab.prevent="focusToField"
                                 >
                                     {{ $t("common.cc") }}
                                 </bm-button>
@@ -45,7 +46,7 @@
                                     variant="text"
                                     tabindex="1"
                                     @click="showBcc = true"
-                        @keydown.tab.prevent="focusToField"
+                                    @keydown.tab.prevent="focusToField"
                                 >
                                     {{ $t("common.bcc") }}
                                 </bm-button>
@@ -67,19 +68,25 @@
                 </div>
             </div>
         </template>
-
         <template slot="subhead">
             <template v-if="showCc">
                 <div class="d-flex conversation-viewer-row flex-nowrap">
                     <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
-
                     <div class="cc-contact-input">
                         <mail-composer-recipient :message="message" recipient-type="cc">
                             <template #end>
-                                <bm-button v-if="!showBcc" variant="text" @click="showBcc = true">
-                            @keydown.tab.prevent="focusToField"
-                                    {{ $t("common.bcc") }}
-                                </bm-button>
+                                <div class="end-buttons">
+                                    <bm-button
+                                        v-if="!showBcc"
+                                        v-key-nav-group:recipient-button
+                                        variant="text"
+                                        tabindex="1"
+                                        @click="showBcc = true"
+                                        @keydown.tab.prevent="focusToField"
+                                    >
+                                        {{ $t("common.bcc") }}
+                                    </bm-button>
+                                </div>
                             </template>
                         </mail-composer-recipient>
                     </div>
@@ -215,6 +222,7 @@ export default {
     data() {
         return { showConversationDropzone: false };
     },
+
     computed: {
         ...mapState("mail", ["folders"]),
         route() {

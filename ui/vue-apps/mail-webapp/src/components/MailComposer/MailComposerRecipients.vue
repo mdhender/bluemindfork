@@ -1,6 +1,6 @@
 <template>
     <div class="mail-composer-recipients pr-1">
-        <div class="d-flex align-items-center to-contact-input" :class="{ 'show-cc': showCc, 'show-bcc': showBcc }">
+        <div class="d-flex align-items-center to-contact-input">
             <mail-composer-recipient ref="toField" :message="message" recipient-type="to">
                 <template #end>
                     <div class="end-buttons">
