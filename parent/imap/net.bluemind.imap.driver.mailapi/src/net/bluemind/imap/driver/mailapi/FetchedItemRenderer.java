@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -316,7 +317,8 @@ public class FetchedItemRenderer {
 			case "content-type":
 				String ct = body.get().structure.mime;
 				if (ct != null) {
-					Field ctf = Fields.contentType(body.get().structure.mime, Map.of("boundary", "-=Part.TEXT=-"));
+					String mime = body.get().structure.mime;
+					Field ctf = Fields.contentType(mime, contentTypeParams(mime));
 					sb.append(writeField(ctf));
 				}
 				break;
@@ -363,6 +365,14 @@ public class FetchedItemRenderer {
 		}
 		sb.append("\r\n");
 		return Unpooled.wrappedBuffer(sb.toString().getBytes());
+	}
+
+	private Map<String, String> contentTypeParams(String mime) {
+		if (mime.toLowerCase().startsWith("multipart/")) {
+			return Map.of("boundary", "-=Part.TEXT=-");
+		} else {
+			return Collections.emptyMap();
+		}
 	}
 
 	private Mailbox fromRecipient(Recipient r) {
