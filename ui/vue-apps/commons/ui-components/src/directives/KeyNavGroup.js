@@ -24,6 +24,9 @@ export default {
         if (nav[binding.arg].length === 0) {
             delete nav[binding.arg];
         }
+    },
+    inserted(el, binding) {
+        sortElementsByDOMOrder(nav[binding.arg]);
     }
 };
 
@@ -82,4 +85,8 @@ function ensureTabAccess(element) {
     if (!element.hasAttribute("tabindex") && !["INPUT", "BUTTON"].includes(element.tagName)) {
         element.setAttribute("tabindex", "-1");
     }
+}
+
+function sortElementsByDOMOrder(elements) {
+    elements.sort((a, b) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1));
 }
