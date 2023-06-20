@@ -35,8 +35,8 @@
                                     v-key-nav-group:recipient-button
                                     variant="text"
                                     tabindex="1"
-                                    @click="showCc = true"
-                                    @keydown.tab.prevent="focusToField"
+                                    @click="showAndFocusRecipientField('cc')"
+                                    @keydown.tab.prevent="focusRecipientField('to')"
                                 >
                                     {{ $t("common.cc") }}
                                 </bm-button>
@@ -45,8 +45,8 @@
                                     v-key-nav-group:recipient-button
                                     variant="text"
                                     tabindex="1"
-                                    @click="showBcc = true"
-                                    @keydown.tab.prevent="focusToField"
+                                    @click="showAndFocusRecipientField('bcc')"
+                                    @keydown.tab.prevent="focusRecipientField('to')"
                                 >
                                     {{ $t("common.bcc") }}
                                 </bm-button>
@@ -73,7 +73,7 @@
                 <div class="d-flex conversation-viewer-row flex-nowrap">
                     <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
                     <div class="cc-contact-input">
-                        <mail-composer-recipient :message="message" recipient-type="cc">
+                        <mail-composer-recipient ref="ccField" :message="message" recipient-type="cc">
                             <template #end>
                                 <div class="end-buttons">
                                     <bm-button
@@ -81,8 +81,8 @@
                                         v-key-nav-group:recipient-button
                                         variant="text"
                                         tabindex="1"
-                                        @click="showBcc = true"
-                                        @keydown.tab.prevent="focusToField"
+                                        @click="showAndFocusRecipientField('bcc')"
+                                        @keydown.tab.prevent="focusRecipientField('to')"
                                     >
                                         {{ $t("common.bcc") }}
                                     </bm-button>
@@ -95,7 +95,7 @@
             <template v-if="showBcc">
                 <div class="d-flex conversation-viewer-row flex-nowrap">
                     <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
-                    <mail-composer-recipient :message="message" recipient-type="bcc" />
+                    <mail-composer-recipient ref="bccField" :message="message" recipient-type="bcc" />
                 </div>
             </template>
             <div class="d-flex conversation-viewer-row flex-nowrap">
@@ -126,7 +126,6 @@
                 </div>
             </div>
         </template>
-
         <template slot="content">
             <div v-show="!showConversationDropzone" class="w-100">
                 <bm-file-drop-zone
@@ -166,6 +165,7 @@
 </template>
 
 <script>
+import capitalize from "lodash.capitalize";
 import { mapMutations, mapState } from "vuex";
 import { BmButton, BmDropzone, BmFileDropZone, BmIconButton, KeyNavGroup } from "@bluemind/ui-components";
 import { messageUtils } from "@bluemind/mail";
@@ -246,8 +246,13 @@ export default {
         consult() {
             this.$store.commit(`mail/${SET_MESSAGE_COMPOSING}`, { messageKey: this.message.key, composing: false });
         },
-        focusToField() {
-            this.$refs.toField?.$el.querySelector("input").focus();
+        async showAndFocusRecipientField(recipientType) {
+            this[`show${capitalize(recipientType)}`] = true;
+            await this.$nextTick();
+            this.focusRecipientField(recipientType);
+        },
+        focusRecipientField(recipientType) {
+            this.$refs[`${recipientType}Field`]?.$el.querySelector("input").focus();
         }
     }
 };

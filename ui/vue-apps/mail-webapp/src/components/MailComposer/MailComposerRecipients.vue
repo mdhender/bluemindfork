@@ -9,8 +9,8 @@
                             v-key-nav-group:recipient-button
                             variant="text"
                             tabindex="1"
-                            @click="showCc = true"
-                            @keydown.tab.prevent="focusToField"
+                            @click="showAndFocusRecipientField('cc')"
+                            @keydown.tab.prevent="focusRecipientField('to')"
                         >
                             {{ $t("common.cc") }}
                         </bm-button>
@@ -19,8 +19,8 @@
                             v-key-nav-group:recipient-button
                             variant="text"
                             tabindex="1"
-                            @click="showBcc = true"
-                            @keydown.tab.prevent="focusToField"
+                            @click="showAndFocusRecipientField('bcc')"
+                            @keydown.tab.prevent="focusRecipientField('to')"
                         >
                             {{ $t("common.bcc") }}
                         </bm-button>
@@ -29,7 +29,7 @@
             </mail-composer-recipient>
         </div>
         <div v-if="showCc" class="d-flex align-items-center cc-contact-input">
-            <mail-composer-recipient :message="message" recipient-type="cc">
+            <mail-composer-recipient ref="ccField" :message="message" recipient-type="cc">
                 <template #end>
                     <div class="end-buttons">
                         <bm-button
@@ -38,8 +38,8 @@
                             variant="text"
                             class="bcc-button text-nowrap"
                             tabindex="1"
-                            @click="showBcc = true"
-                            @keydown.tab.prevent="focusToField"
+                            @click="showAndFocusRecipientField('bcc')"
+                            @keydown.tab.prevent="focusRecipientField('to')"
                         >
                             {{ $t("common.bcc") }}
                         </bm-button>
@@ -47,23 +47,20 @@
                 </template>
             </mail-composer-recipient>
         </div>
-        <bm-row v-if="showBcc" class="align-items-center">
-            <bm-col>
-                <mail-composer-recipient :message="message" recipient-type="bcc" />
-            </bm-col>
-        </bm-row>
+        <mail-composer-recipient v-if="showBcc" ref="bccField" :message="message" recipient-type="bcc" />
     </div>
 </template>
 
 <script>
-import { BmButton, BmCol, BmRow, KeyNavGroup } from "@bluemind/ui-components";
+import capitalize from "lodash.capitalize";
+import { BmButton, KeyNavGroup } from "@bluemind/ui-components";
 import { EditRecipientsMixin } from "~/mixins";
 import MailComposerRecipient from "./MailComposerRecipient";
 import { MAX_RECIPIENTS } from "../../utils";
 
 export default {
     name: "MailComposerRecipients",
-    components: { BmButton, BmCol, BmRow, MailComposerRecipient },
+    components: { BmButton, MailComposerRecipient },
     directives: { KeyNavGroup },
     mixins: [EditRecipientsMixin],
     computed: {
@@ -92,8 +89,13 @@ export default {
         }
     },
     methods: {
-        focusToField() {
-            this.$refs.toField?.$el.querySelector("input").focus();
+        async showAndFocusRecipientField(recipientType) {
+            this[`show${capitalize(recipientType)}`] = true;
+            await this.$nextTick();
+            this.focusRecipientField(recipientType);
+        },
+        focusRecipientField(recipientType) {
+            this.$refs[`${recipientType}Field`]?.$el.querySelector("input").focus();
         }
     }
 };
