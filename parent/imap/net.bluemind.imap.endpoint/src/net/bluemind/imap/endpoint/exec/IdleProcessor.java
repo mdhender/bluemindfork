@@ -40,10 +40,15 @@ public class IdleProcessor extends AuthenticatedCommandProcessor<IdleCommand> {
 		ctx.state(SessionState.IDLING);
 
 		IdleWriteStream output = new IdleWriteStream(ctx);
-		ctx.mailbox().idleMonitor(ctx.selected(), output);
-		logger.info("Monitoring {}", ctx.selected());
-		ctx.write("+ idling\r\n");
-		completed.handle(Result.success());
+		try {
+			ctx.mailbox().idleMonitor(ctx.selected(), output);
+			logger.info("Monitoring {}", ctx.selected());
+			ctx.write("+ idling\r\n");
+			completed.handle(Result.success());
+		} catch (Exception e) {
+			ctx.write(command.raw().tag() + " NO unknown error: " + e.getMessage() + "\r\n");
+			completed.handle(Result.fail(e));
+		}
 	}
 
 	private static class IdleWriteStream implements WriteStream<IdleToken> {
