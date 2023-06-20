@@ -1,7 +1,7 @@
 <template>
     <div class="mail-composer-recipients pr-1">
         <div class="d-flex align-items-center to-contact-input" :class="{ 'show-cc': showCc, 'show-bcc': showBcc }">
-            <mail-composer-recipient :message="message" recipient-type="to">
+            <mail-composer-recipient ref="toField" :message="message" recipient-type="to">
                 <template #end>
                     <div class="end-buttons">
                         <bm-button
@@ -10,6 +10,7 @@
                             variant="text"
                             tabindex="1"
                             @click="showCc = true"
+                            @keydown.tab.prevent="focusToField"
                         >
                             {{ $t("common.cc") }}
                         </bm-button>
@@ -19,6 +20,7 @@
                             variant="text"
                             tabindex="1"
                             @click="showBcc = true"
+                            @keydown.tab.prevent="focusToField"
                         >
                             {{ $t("common.bcc") }}
                         </bm-button>
@@ -37,6 +39,7 @@
                             class="bcc-button text-nowrap"
                             tabindex="1"
                             @click="showBcc = true"
+                            @keydown.tab.prevent="focusToField"
                         >
                             {{ $t("common.bcc") }}
                         </bm-button>
@@ -86,6 +89,11 @@ export default {
                     : this.REMOVE({ uid: "MAX_RECIPIENTS" });
             },
             immediate: true
+        }
+    },
+    methods: {
+        focusToField() {
+            this.$refs.toField?.$el.querySelector("input").focus();
         }
     }
 };

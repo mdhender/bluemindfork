@@ -27,14 +27,14 @@
                     after-avatar
                 />
                 <div class="to-contact-input" :class="{ 'show-cc': showCc, 'show-bcc': showBcc }">
-                    <mail-composer-recipient :message="message" recipient-type="to">
-                        <template #end>
-                            <div class="end-buttons">
-                                <bm-button
-                                    v-if="!showCc"
-                                    v-key-nav-group:recipient-button
-                                    variant="text"
-                                    tabindex="1"
+                    <mail-composer-recipient ref="toField" :message="message" recipient-type="to" >
+                    <bm-button
+                        v-if="!showCc"
+                        variant="text"
+                        class="cc-button text-nowrap"
+                        @click="showCc = true"
+                        @keydown.tab.prevent="focusToField"
+                    >
                                     @click="showCc = true"
                                 >
                                     {{ $t("common.cc") }}
@@ -45,6 +45,7 @@
                                     variant="text"
                                     tabindex="1"
                                     @click="showBcc = true"
+                        @keydown.tab.prevent="focusToField"
                                 >
                                     {{ $t("common.bcc") }}
                                 </bm-button>
@@ -76,6 +77,7 @@
                         <mail-composer-recipient :message="message" recipient-type="cc">
                             <template #end>
                                 <bm-button v-if="!showBcc" variant="text" @click="showBcc = true">
+                            @keydown.tab.prevent="focusToField"
                                     {{ $t("common.bcc") }}
                                 </bm-button>
                             </template>
@@ -235,6 +237,9 @@ export default {
         ...mapMutations("mail", { REMOVE_MESSAGES }),
         consult() {
             this.$store.commit(`mail/${SET_MESSAGE_COMPOSING}`, { messageKey: this.message.key, composing: false });
+        },
+        focusToField() {
+            this.$refs.toField?.$el.querySelector("input").focus();
         }
     }
 };
