@@ -11,10 +11,6 @@ export const apiRoutes = [
     {
         capture: /\/api\/containers\/_subscriptions\/(.+)\/(.+)\/_list/,
         handler: listSubscriptions
-    },
-    {
-        capture: /\/api\/mail_folders\/(.+)\/(.+)\/_all/,
-        handler: allMailFolders
     }
 ];
 

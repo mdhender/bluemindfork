@@ -10,12 +10,16 @@ import { logger } from "./logger";
 import BrowserData from "./BrowserData";
 import MailboxItemsDBProxy from "./proxies/MailboxItemsDBProxy";
 import MailboxItemsCacheProxy from "./proxies/MailboxItemsCacheProxy";
+import MailboxFoldersDBProxy from "./proxies/MailboxFoldersDBProxy";
 
 extensions.register("serviceworker.handlers", "net.bluemind.webapp.mail.js", {
     "api-handler": { class: MailboxItemsDBProxy, priority: 128 }
 });
 extensions.register("serviceworker.handlers", "net.bluemind.webapp.mail.js", {
-    "api-handler": { class: MailboxItemsCacheProxy, priority: 128 }
+    "api-handler": { class: MailboxItemsCacheProxy, priority: 129 }
+});
+extensions.register("serviceworker.handlers", "net.bluemind.webapp.mail.js", {
+    "api-handler": { class: MailboxFoldersDBProxy, priority: 128 }
 });
 
 registerSessionInfoRoute();
