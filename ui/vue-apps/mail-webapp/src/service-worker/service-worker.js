@@ -8,14 +8,14 @@ import { syncMailbox, syncMailFolders, syncMailFolder } from "./sync";
 import Session from "./session";
 import { logger } from "./logger";
 import BrowserData from "./BrowserData";
-import MailItemDB from "./workbox/MailItemDB";
-import MailItemCache from "./workbox/MailItemCache";
+import MailboxItemsDBProxy from "./proxies/MailboxItemsDBProxy";
+import MailboxItemsCacheProxy from "./proxies/MailboxItemsCacheProxy";
 
 extensions.register("serviceworker.handlers", "net.bluemind.webapp.mail.js", {
-    "api-handler": { class: MailItemDB, priority: 128 }
+    "api-handler": { class: MailboxItemsDBProxy, priority: 128 }
 });
 extensions.register("serviceworker.handlers", "net.bluemind.webapp.mail.js", {
-    "api-handler": { class: MailItemCache, priority: 128 }
+    "api-handler": { class: MailboxItemsCacheProxy, priority: 128 }
 });
 
 registerSessionInfoRoute();

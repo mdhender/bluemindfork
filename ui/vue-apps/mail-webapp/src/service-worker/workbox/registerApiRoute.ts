@@ -1,9 +1,8 @@
 import { registerRoute } from "workbox-routing";
 import { RouteHandlerCallback, RouteHandlerCallbackOptions } from "workbox-core/types";
-import sortedIndexBy from "lodash.sortedindexby";
 import { HTTPMethod } from "workbox-routing/utils/constants";
 import pRetry from "p-retry";
-import { Field, FilteredChangeSet, Flags, MailItemLight, SortDescriptor } from "../entry";
+import { Field, FilteredChangeSet, Flags, MailItemLight } from "../entry";
 import { logger } from "../logger";
 import Session from "../session";
 import { syncMailFolder } from "../sync";
@@ -66,40 +65,6 @@ export async function multipleGetById({ request, params }: RouteHandlerCallbackO
                 const mailItems = await session.db.getMailItems(folderUid, ids);
                 const data = mailItems.filter(Boolean);
                 return responseFromCache(data);
-            }
-            return fetch(request);
-        } catch (error) {
-            console.debug(error);
-            return fetch(request);
-        }
-    }
-}
-
-export async function sortedIds({ request, params }: RouteHandlerCallbackOptions) {
-    if (params instanceof Array) {
-        const [folderUid] = params;
-        try {
-            request = request as Request;
-            const clonedRequest = request.clone();
-            const sortDescriptor = (await clonedRequest.json()) as SortDescriptor;
-            const session = await Session.instance();
-            if (await session.db.isSubscribed(folderUid)) {
-                const syncOptions = await session.db.getSyncOptions(folderUid);
-                if (syncOptions?.pending) {
-                    await syncMailFolder(folderUid);
-                }
-                const allMailItems: Array<MailItemLight> = await session.db.getAllMailItemLight(folderUid);
-                const iteratee = getIteratee(sortDescriptor.fields[0]);
-                const data: Array<MailItemLight> = [];
-                const ids: Array<number> = [];
-                allMailItems.forEach(item => {
-                    if (filterByFlags(sortDescriptor.filter, item.flags)) {
-                        const index = indexOf(data, item, iteratee, sortDescriptor.fields[0].dir);
-                        data.splice(index, 0, item);
-                        ids.splice(index, 0, item.internalId);
-                    }
-                });
-                return responseFromCache(ids);
             }
             return fetch(request);
         } catch (error) {
@@ -204,20 +169,6 @@ export function getIteratee(field: Field) {
         case "internal_date":
         default:
             return "date";
-    }
-}
-
-function indexOf(
-    array: Array<MailItemLight>,
-    value: MailItemLight,
-    iteratee: string,
-    direction: "Desc" | "Asc"
-): number {
-    const index = sortedIndexBy(array, value, iteratee);
-    if (direction === "Desc") {
-        return array.length - index;
-    } else {
-        return index;
     }
 }
 

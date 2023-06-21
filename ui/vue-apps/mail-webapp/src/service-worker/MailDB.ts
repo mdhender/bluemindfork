@@ -1,9 +1,12 @@
 import { openDB, DBSchema, IDBPDatabase, IDBPTransaction, StoreNames, StoreValue } from "idb";
 import sortedIndexBy from "lodash.sortedindexby";
-import { MailFolder, MailItem, MailItemLight, OwnerSubscription, Reconciliation } from "./entry";
+import { ContainerSubscriptionModel, ItemFlag, ItemValue } from "@bluemind/core.container.api";
+import { MailboxFolder, MailboxItem } from "@bluemind/backend.mail.api";
+import { MailItemLight, Reconciliation } from "./entry";
 import { logger } from "./logger";
 
 export type SyncOptionsType = "mail_folder" | "mail_item" | "owner_subscriptions";
+
 export interface SyncOptions {
     uid: string;
     version: number;
@@ -13,7 +16,7 @@ export interface SyncOptions {
 interface MailSchema extends DBSchema {
     mail_folders: {
         key: string;
-        value: MailFolder;
+        value: ItemValue<MailboxFolder>;
         indexes: { "by-mailboxRoot": string };
     };
     sync_options: {
@@ -23,7 +26,7 @@ interface MailSchema extends DBSchema {
     };
     mail_items: {
         key: [string, number];
-        value: MailItem;
+        value: ItemValue<MailboxItem>;
         indexes: { "by-folderUid": string };
     };
     mail_item_light: {
@@ -32,7 +35,7 @@ interface MailSchema extends DBSchema {
     };
     owner_subscriptions: {
         key: string;
-        value: OwnerSubscription;
+        value: ItemValue<ContainerSubscriptionModel>;
         indexes: { "by-type": string };
     };
 }
@@ -113,20 +116,20 @@ export class MailDB {
 
     async deleteOwnerSubscriptions(deletedIds: number[]) {
         const subscriptionUidsToDelete = (await this.getAllOwnerSubscriptions())
-            .filter(ownerSubscription => deletedIds.includes(ownerSubscription.internalId))
+            .filter(ownerSubscription => deletedIds.includes(ownerSubscription.internalId as number))
             .map(ownerSubscription => ownerSubscription.uid);
         const tx = (await this.dbPromise).transaction("owner_subscriptions", "readwrite");
         tx.onerror = event => {
             logger.error("[SW][DB] Failed to delete owner subscriptions", deletedIds, event);
         };
-        subscriptionUidsToDelete.forEach(uid => tx.objectStore("owner_subscriptions").delete(uid));
+        subscriptionUidsToDelete.forEach(uid => tx.objectStore("owner_subscriptions").delete(uid as string));
         await tx.done;
     }
 
     async deleteMailFolders(mailboxRoot: string, deletedIds: number[]) {
         const uids = (await this.getAllMailFolders(mailboxRoot))
-            .filter(mailFolder => deletedIds.includes(mailFolder.internalId))
-            .map(mailFolder => mailFolder.uid);
+            .filter(({ internalId }) => deletedIds.includes(internalId as number))
+            .map(({ uid }) => uid as string);
         const tx = (await this.dbPromise).transaction("mail_folders", "readwrite");
         uids.forEach(uid => tx.objectStore("mail_folders").delete(uid));
         await tx.done;
@@ -134,7 +137,7 @@ export class MailDB {
 
     async putMailFolders(
         mailboxRoot: string,
-        items: MailFolder[],
+        items: ItemValue<MailboxFolder>[],
         optionalTransaction?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[], IDBTransactionMode>
     ) {
         await this.putItems(
@@ -145,14 +148,14 @@ export class MailDB {
     }
 
     async putMailItems(
-        items: MailItem[],
+        items: ItemValue<MailboxItem>[],
         optionalTransaction?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[], IDBTransactionMode>
     ) {
         await this.putItems(items, "mail_items", optionalTransaction);
     }
 
     async putOwnerSubscriptions(
-        items: OwnerSubscription[],
+        items: ItemValue<ContainerSubscriptionModel>[],
         optionalTransaction?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[], IDBTransactionMode>
     ) {
         await this.putItems(items, "owner_subscriptions", optionalTransaction);
@@ -198,7 +201,7 @@ export class MailDB {
         return (await this.dbPromise).getAll("owner_subscriptions");
     }
 
-    async reconciliate(data: Reconciliation<MailItem>, syncOptions: SyncOptions) {
+    async reconciliate(data: Reconciliation<ItemValue<MailboxItem>>, syncOptions: SyncOptions) {
         const { items, uid, deletedIds } = data;
         const tx = (await this.dbPromise).transaction(["sync_options", "mail_items", "mail_item_light"], "readwrite");
         this.putMailItems(
@@ -212,7 +215,7 @@ export class MailDB {
     }
     async setMailItemLight(
         folderUid: string,
-        items: MailItem[],
+        items: ItemValue<MailboxItem>[],
         deleted: number[],
         optTx?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[], IDBTransactionMode>
     ) {
@@ -234,22 +237,19 @@ export class MailDB {
             }
         });
         const tx = (await this.dbPromise).transaction("mail_item_light", "readwrite");
-        // const tx = await this.getTx("mail_item_light", "readwrite", optTx);
 
         await tx.objectStore("mail_item_light").put(lights, folderUid);
         await tx.done;
     }
 }
 
-function toLight(mail: MailItem): MailItemLight {
+function toLight(mail: ItemValue<MailboxItem>): MailItemLight {
     return {
-        internalId: mail.internalId,
-        flags: mail.flags,
-        date: mail.value.body.date,
+        internalId: mail.internalId as number,
+        flags: mail.flags as ItemFlag[],
+        date: mail.value.body.date as number,
         subject: mail.value.body.subject?.toLowerCase().replace(/^(\W*|re\s*:)*/i, ""),
-        size: mail.value.body.size,
-        sender: mail.value.body.recipients
-            ?.find((recipient: any) => recipient.kind === "Originator")
-            ?.address?.toLowerCase()
+        size: mail.value.body.size as number,
+        sender: mail.value.body.recipients?.find(recipient => recipient.kind === "Originator")?.address?.toLowerCase()
     };
 }

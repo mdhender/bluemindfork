@@ -30,6 +30,8 @@ interface MailFolderValue {
     uidValidity: number;
 }
 
+import { ItemFlag } from "@bluemind/core.container.api";
+
 export type MailFolder = ItemValue<MailFolderValue>;
 interface MailItemValue {
     body: any;
@@ -46,11 +48,11 @@ export type MailItem = ItemValue<MailItemValue>;
 
 export type MailItemLight = {
     internalId: number;
-    flags: "Seen"[];
+    flags: ItemFlag[];
     date: number;
-    subject: string;
+    subject?: string;
     size: number;
-    sender: string;
+    sender?: string;
 };
 
 export interface FilteredChangeSet {

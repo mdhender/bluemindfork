@@ -305,7 +305,9 @@ describe("MailDB", () => {
             });
 
             test("getAllMailItemLight", async () => {
-                await (await db.dbPromise).put(
+                await (
+                    await db.dbPromise
+                ).put(
                     "mail_item_light",
                     {
                         internalId: 123,
@@ -317,7 +319,9 @@ describe("MailDB", () => {
                     },
                     "foo"
                 );
-                await (await db.dbPromise).put(
+                await (
+                    await db.dbPromise
+                ).put(
                     "mail_item_light",
                     {
                         internalId: 456,

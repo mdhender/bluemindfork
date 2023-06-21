@@ -95,4 +95,4 @@ if (!global.session) {
     global.session = init();
 }
 
-export default global.session.infos; // expiration must be internal in code but global at execution (cross JS)
+export default global.session.infos as SessionPromise; // expiration must be internal in code but global at execution (cross JS)
