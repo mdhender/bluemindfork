@@ -18,7 +18,8 @@ Require-Bundle: net.bluemind.core.commons,
  slf4j.api,
  net.bluemind.directory.api,
  net.bluemind.core.container.service;bundle-version="5.0.0",
- net.bluemind.core.container.api
+ net.bluemind.core.container.api,
+ org.apache.commons.commons-validator;bundle-version="1.7.0"
 Export-Package: net.bluemind.role.service
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bluemind.role.service.RolesServiceActivator

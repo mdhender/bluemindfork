@@ -323,6 +323,7 @@ public class VEventSanitizer {
 		}
 
 		if (!Strings.isNullOrEmpty(organizer.mailto)) {
+			organizer.mailto = organizer.mailto.replace("%20", "");
 			if (!Regex.EMAIL.validate(organizer.mailto)) {
 				organizer.mailto = null;
 			}
@@ -359,8 +360,11 @@ public class VEventSanitizer {
 				attendee.commonName = attendee.mailto;
 			}
 
-			if (!Strings.isNullOrEmpty(attendee.mailto) && !Regex.EMAIL.validate(attendee.mailto)) {
-				attendee.mailto = null;
+			if (!Strings.isNullOrEmpty(attendee.mailto)) {
+				attendee.mailto = attendee.mailto.replace("%20", "");
+				if (!Regex.EMAIL.validate(attendee.mailto)) {
+					attendee.mailto = null;
+				}
 			}
 			DirEntry dir = resolve(attendee.dir, attendee.mailto);
 			if (dir != null) {

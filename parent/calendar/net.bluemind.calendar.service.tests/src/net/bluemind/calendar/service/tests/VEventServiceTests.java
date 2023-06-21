@@ -510,6 +510,41 @@ public class VEventServiceTests extends AbstractCalendarTests {
 	}
 
 	@Test
+	public void testImportAppleCalendarAttendeeEmailFormat() throws ServerFault, IOException {
+		Stream ics = getIcsFromFile("testAppleCalEmailFormat.ics");
+
+		TaskRef taskRef = getVEventService(userSecurityContext, userCalendarContainer).importIcs(ics);
+		ImportStats stats = waitImportEnd(taskRef);
+		assertNotNull(stats);
+		assertEquals(1, stats.importedCount());
+
+		getCalendarService(userSecurityContext, userCalendarContainer).all().forEach(uid -> {
+			System.err.println("UID: " + uid);
+			ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer)
+					.getComplete(uid);
+			System.err.println("ICS: " + item.value.icsUid);
+		});
+
+		ItemValue<VEventSeries> item = getCalendarService(userSecurityContext, userCalendarContainer)
+				.getComplete("95c659b1-eaf8-4145-a314-9cb4566636b7");
+
+		VEvent vevent = item.value.main;
+		assertNotNull(vevent);
+
+		ZoneId tz = ZoneId.of("Pacific/Noumea");
+		ZonedDateTime dtstart = ZonedDateTime.of(1983, 2, 13, 2, 0, 0, 0, tz);
+
+		assertEquals(dtstart.toInstant().toEpochMilli(), new BmDateTimeWrapper(vevent.dtstart).toUTCTimestamp());
+		assertEquals("Pacific/Noumea", vevent.timezone());
+		assertEquals(dtstart, new BmDateTimeWrapper(vevent.dtstart).toDateTime());
+
+		assertEquals("TestSimpleImportEmail", vevent.summary);
+		assertNotNull(vevent.attendees);
+		assertEquals(1, vevent.attendees.size());
+		assertEquals("2ddcfd8c-1ad7-4b8c-a774-0ac1718f510f@bluemind.net", vevent.attendees.get(0).mailto);
+	}
+
+	@Test
 	public void testImportRRuleBySetPos() throws ServerFault, IOException {
 		Stream ics = getIcsFromFile("testBySetPosImport.ics");
 
@@ -1612,6 +1647,7 @@ public class VEventServiceTests extends AbstractCalendarTests {
 		}
 
 		TaskStatus status = task.status();
+		System.err.println("STATUS: " + status.state.name());
 		if (status.state == State.InError) {
 			throw new ServerFault("import error");
 		}

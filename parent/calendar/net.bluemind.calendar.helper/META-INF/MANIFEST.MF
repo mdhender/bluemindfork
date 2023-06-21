@@ -26,7 +26,8 @@ Require-Bundle: org.freemarker.freemarker;bundle-version="2.3.20",
  com.sun.mail.jakarta.mail,
  org.asynchttpclient.async-http-client,
  jakarta.xml.bind-api,
- net.bluemind.videoconferencing.utils
+ net.bluemind.videoconferencing.utils,
+ org.apache.commons.commons-validator;bundle-version="1.7.0"
 Export-Package: net.bluemind.calendar,
  net.bluemind.calendar.helper.ical4j,
  net.bluemind.calendar.helper.mail,
