@@ -49,10 +49,12 @@ export default {
 @import "../css/utils/variables";
 
 .bm-pagination .page-item {
+    background-color: $surface;
+
     .page-link {
         font-weight: $font-weight-bold;
         width: base-px-to-rem(32);
-        height: base-px-to-rem(26);
+        height: $pagination-height;
         padding: 0;
         background-color: transparent;
         border-color: $neutral-fg-lo3;

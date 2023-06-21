@@ -91,11 +91,11 @@ describe("Addressbooks list [RECIPIENT PICKER]", () => {
             expect(listItems.at(4).text()).toContain("George Abitbol");
         });
     });
-    it("should select item when clicked ", () => {
+    it("should emit selected item id when clicked", () => {
         const wrapper = AddressbookListSUT().withDefaultsContainers().mount();
 
         wrapper.find("[role='listitem']").trigger("click");
-        expect(wrapper.vm.$data.selected).toBe("addressbook_75a0d5b3.internal");
+        expect(wrapper.emitted("selected")[0]).toContain("addressbook_75a0d5b3.internal");
     });
 
     describe("Keyboard Navigation", () => {

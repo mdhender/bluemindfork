@@ -565,6 +565,7 @@
     "template.eml.mdn.html.quoted": "{to}{subject}{date}",
     "template.eml.mdn.html": "Ceci est une confirmation de lecture pour votre message{quoted}{notice}",
     "template.eml.mdn.subject": "Confirmation de lecture \"{subject}\"",
+    "recipientPicker.addressbook.empty": "Le carnet d'adresses {0} {addressBookName} est vide.",
     "recipientPicker.addressbook.shared.collected": "Collectés par {user}",
     "recipientPicker.addressbook.shared.others": "{addressBookName} de {user}",
     "recipientPicker.addressbook.shared.personnal": "Contacts de {user}",

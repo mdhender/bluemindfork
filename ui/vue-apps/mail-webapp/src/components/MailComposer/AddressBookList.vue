@@ -1,5 +1,5 @@
 <template>
-    <bm-list-group class="address-book-list">
+    <bm-list-group class="address-book-list scroller-y">
         <bm-list-group-item
             v-for="addressBook in addressBooksList"
             :key="addressBook.uid"
@@ -7,6 +7,7 @@
             button
             role="listitem"
             :class="{ active: selected === addressBook.uid }"
+            class="text-truncate"
             @click="selected = addressBook.uid"
         >
             <address-book-label-icon :address-book="addressBook" :user-id="userId" />
@@ -25,18 +26,29 @@ export default {
     mixins: [BrowsableContainer],
     props: {
         userId: { type: String, required: true },
-        addressbooks: { type: Array, required: true }
+        addressbooks: { type: Array, required: true },
+        selectedAddressbook: { type: String, default: "" }
     },
     data() {
         return {
-            selected: undefined,
             vertical: true
         };
     },
     computed: {
+        selected: {
+            get() {
+                return this.selectedAddressbook;
+            },
+            set(selection) {
+                this.$emit("selected", selection);
+            }
+        },
         addressBooksList() {
             return sortAddressBooks(this.addressbooks, this.userId);
         }
+    },
+    created() {
+        this.selected = this.addressBooksList[0]?.uid;
     }
 };
 
@@ -69,7 +81,9 @@ function isShared(addressBook, userId) {
 $padding-y: $sp-3 + $sp-2;
 
 .address-book-list {
+    background-color: $surface;
     .list-group-item {
+        flex: none;
         padding: $padding-y 0 $padding-y $sp-6;
         gap: $sp-4;
         border-color: $neutral-fg-lo3 !important;

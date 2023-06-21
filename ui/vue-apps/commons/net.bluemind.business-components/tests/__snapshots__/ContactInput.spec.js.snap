@@ -7,7 +7,7 @@ exports[`ContactInput ContactInput should match snapshot 1`] = `
 >
   To 
   <div
-    class="flex-fill d-flex"
+    class="flex-fill d-flex pl-3"
   >
     <div
       class="flex-fill d-flex flex-nowrap overflow-hidden"
