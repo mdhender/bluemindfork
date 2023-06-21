@@ -7,23 +7,13 @@ let instance: SessionWrapper | null = null;
 
 export default class SessionWrapper {
     infos: Session;
-    _api: MailAPI | null;
     _db: MailDB | null;
     _environment: EnvironmentDB | null;
 
     constructor(infos: Session) {
-        this._api = null;
         this._db = null;
         this._environment = null;
         this.infos = infos;
-    }
-
-    get api(): MailAPI {
-        if (!this._api) {
-            const { sid } = this.infos;
-            this._api = new MailAPI({ sid });
-        }
-        return this._api;
     }
 
     get db(): MailDB {
@@ -56,10 +46,6 @@ export default class SessionWrapper {
 
     static async infos(): Promise<Session> {
         return (await SessionWrapper.instance()).infos;
-    }
-
-    static async api(): Promise<MailAPI> {
-        return (await SessionWrapper.instance()).api;
     }
 
     static async db(): Promise<MailDB> {

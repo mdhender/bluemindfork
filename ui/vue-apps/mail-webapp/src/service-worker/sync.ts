@@ -1,25 +1,32 @@
-import { SyncOptions, SyncOptionsType } from "./MailDB";
-import { MailFolder, MailItem, OwnerSubscription } from "./entry";
 import pLimit from "p-limit";
 import { Limit } from "p-limit";
+import {
+    ContainerChangeset,
+    ContainerSubscriptionModel,
+    ItemFlag,
+    ItemValue,
+    ItemVersion,
+    OwnerSubscriptionsClient
+} from "@bluemind/core.container.api";
+import { MailboxFolder, MailboxFoldersClient, MailboxItem, MailboxItemsClient } from "@bluemind/backend.mail.api";
+import session from "@bluemind/session";
+import { SyncOptions, SyncOptionsType } from "./MailDB";
 import { logger } from "./logger";
-import Session from "./session";
+import SessionLegacy from "./session";
 
 const limits: { [uid: string]: Limit } = {};
 
 export async function syncMailFolders(): Promise<string[]> {
-    Session.clear();
+    SessionLegacy.clear();
     const updatedOwnerSubscription = await syncOwnerSubscriptions();
-    const session = await Session.instance();
-    const mailboxSubscriptions = await session.db.getOwnerSubscriptions("mailboxacl");
-    const userMailboxOfflineSync = mailboxSubscriptions.find(
-        subscription => subscription.value.owner === session.infos.userId
-    );
+    const { db } = await SessionLegacy.instance();
+    const subscriptions = await db.getOwnerSubscriptions("mailboxacl");
+    const userMailbox = subscriptions.find(async subscription => subscription.value.owner === (await session.userId));
     let updatedFolderUids: string[] = [];
-    if (userMailboxOfflineSync?.value.offlineSync) {
+    if (userMailbox?.value.offlineSync) {
         logger.log("[SYNC][SW] user mailbox is offline synced");
         updatedFolderUids = await syncMyMailbox();
-    } else if (updatedOwnerSubscription.find(subscription => subscription.uid === userMailboxOfflineSync?.uid)) {
+    } else if (updatedOwnerSubscription.find(subscription => subscription.uid === userMailbox?.uid)) {
         logger.log("[SYNC][SW] user mailbox is not offline synced, remove sync");
         await unsyncMyMailbox();
     } else {
@@ -28,24 +35,22 @@ export async function syncMailFolders(): Promise<string[]> {
     return updatedFolderUids;
 }
 
-export async function syncOwnerSubscriptions(): Promise<OwnerSubscription[]> {
-    const session = await Session.instance();
-    const { domain, userId } = session.infos;
-    const syncOptions = await getOrCreateSyncOptions(`${userId}@${domain}.subscriptions`, "owner_subscriptions");
-    const { created, updated, deleted, version } = await session.api.ownerSubscriptions.changeset(
-        {
-            domain,
-            userId
-        },
-        syncOptions.version
-    );
+export async function syncOwnerSubscriptions(): Promise<ItemValue<ContainerSubscriptionModel>[]> {
+    const { db } = await SessionLegacy.instance();
+    const domainUid = await session.domain;
+    const userUid = await session.userId;
+    const syncOptions = await getOrCreateSyncOptions(`${userUid}@${domainUid}.subscriptions`, "owner_subscriptions");
+    const client = new OwnerSubscriptionsClient(await session.sid, domainUid, userUid);
+    const changeset = await client.changesetById(syncOptions.version);
+    const { created, updated, deleted, version } = changeset as Required<ContainerChangeset<number>>;
+
     const versionUpdated = version !== syncOptions.version;
     if (versionUpdated) {
         const ids = created.concat(updated);
-        const updatedOwnerSubscriptions = await session.api.ownerSubscriptions.mget({ domain, userId }, ids);
-        await session.db.deleteOwnerSubscriptions(deleted);
-        await session.db.putOwnerSubscriptions(updatedOwnerSubscriptions);
-        await session.db.updateSyncOptions({ ...syncOptions, version });
+        const updatedOwnerSubscriptions = await client.multipleGetById(ids);
+        await db.deleteOwnerSubscriptions(deleted);
+        await db.putOwnerSubscriptions(updatedOwnerSubscriptions);
+        await db.updateSyncOptions({ ...syncOptions, version });
         return updatedOwnerSubscriptions;
     }
     return [];
@@ -62,24 +67,22 @@ export async function syncMailFolder(uid: string, pushedVersion?: number): Promi
 
 async function syncMailFolderToVersion(uid: string, syncOptions: SyncOptions): Promise<boolean> {
     try {
-        const session = await Session.instance();
-        const { created, updated, deleted, version } = await session.api.mailItem.filteredChangeset(
-            uid,
-            syncOptions.version
-        );
-        const versionUpdated = version !== syncOptions.version;
+        const { db } = await SessionLegacy.instance();
+        const client = new MailboxItemsClient(await session.sid, uid);
+        const filter = { must: [], mustNot: [ItemFlag.Deleted] };
+        const changeset = await client.filteredChangesetById(syncOptions.version, filter);
+        const { created, updated, deleted, version } = changeset as Required<ContainerChangeset<ItemVersion>>;
+        const versionUpdated = changeset.version !== syncOptions.version;
         if (versionUpdated) {
             const ids = created
                 .reverse()
                 .concat(updated.reverse())
-                .map(({ id }) => id);
-            const mailItems = await fetchMailItemsByChunks(ids, uid);
-            await session.db.reconciliate(
-                { uid, items: mailItems, deletedIds: deleted.map(({ id }) => id) },
-                { ...syncOptions, version }
-            );
+                .map(({ id }) => id as number);
+            const items = await fetchMailItemsByChunks(ids, uid);
+            const deletedIds = deleted.map(({ id }) => id as number);
+            await db.reconciliate({ uid, items, deletedIds }, { ...syncOptions, version });
         }
-        await session.db.updateSyncOptions({ ...syncOptions, version, pending: false });
+        await db.updateSyncOptions({ ...syncOptions, version, pending: false });
         return versionUpdated;
     } catch (error) {
         logger.error("[SW][MailFolder] error while syncing changeset", error);
@@ -88,12 +91,10 @@ async function syncMailFolderToVersion(uid: string, syncOptions: SyncOptions): P
 }
 
 export async function syncMyMailbox(): Promise<string[]> {
-    const session = await Session.instance();
-    const { domain, userId } = session.infos;
-    const updatedMailFolders = await syncMailbox(domain, userId);
+    const updatedMailFolders = await syncMailbox(await session.domain, await session.userId);
     return await Promise.all(
         updatedMailFolders
-            .map(async folder => await markFolderSyncAsPending(session, folder.uid))
+            .map(async folder => await markFolderSyncAsPending(folder.uid as string))
             .slice(0, 100)
             .map(async folderUidPromise => {
                 const folderUid = await folderUidPromise;
@@ -103,9 +104,13 @@ export async function syncMyMailbox(): Promise<string[]> {
     );
 }
 
-export async function syncMailbox(domain: string, userId: string, pushedVersion?: number): Promise<MailFolder[]> {
+export async function syncMailbox(
+    domain: string,
+    userId: string,
+    pushedVersion?: number
+): Promise<ItemValue<MailboxFolder>[]> {
     return await limit(userId + domain, async () => {
-        const syncOptions = await getOrCreateSyncOptions(await Session.userAtDomain(), "mail_folder");
+        const syncOptions = await getOrCreateSyncOptions(await SessionLegacy.userAtDomain(), "mail_folder");
         return pushedVersion && pushedVersion <= syncOptions.version
             ? []
             : syncMailboxToVersion(domain, userId, syncOptions);
@@ -116,35 +121,35 @@ export async function syncMailboxToVersion(
     domain: string,
     userId: string,
     syncOptions: SyncOptions
-): Promise<MailFolder[]> {
-    const session = await Session.instance();
+): Promise<ItemValue<MailboxFolder>[]> {
+    const { db } = await SessionLegacy.instance();
     const mailboxRoot = `user.${userId}`;
-    const { created, updated, deleted, version } = await session.api.mailFolder.changeset(
-        { domain, mailboxRoot },
-        syncOptions.version
-    );
+    const client = new MailboxFoldersClient(await session.sid, domain.replace(/\./g, "_"), `user.${userId}`);
+    const changeset = await client.changesetById(syncOptions.version);
+    const { created, updated, deleted, version } = changeset as Required<ContainerChangeset<number>>;
     if (version !== syncOptions.version) {
         const toBeUpdated = created.concat(updated);
-        const mailFolders = await session.api.mailFolder.mget({ domain, mailboxRoot }, toBeUpdated);
-        await session.db.deleteMailFolders(mailboxRoot, deleted);
-        await session.db.putMailFolders(mailboxRoot, mailFolders);
-        await session.db.updateSyncOptions({ ...syncOptions, version });
+        const mailFolders = await client.multipleGetById(toBeUpdated);
+        await db.deleteMailFolders(mailboxRoot, deleted);
+        await db.putMailFolders(mailboxRoot, mailFolders);
+        await db.updateSyncOptions({ ...syncOptions, version });
         return mailFolders;
     }
     return [];
 }
 
 export async function unsyncMyMailbox() {
-    const session = await Session.instance();
-    await session.db.deleteSyncOptions(session.userAtDomain);
-    const mailFolders = await session.db.getAllMailFolders(`user.${session.infos.userId}`);
-    mailFolders.forEach(mailFolder => session.db.deleteSyncOptions(mailFolder.uid));
+    const { db, userAtDomain } = await SessionLegacy.instance();
+    await db.deleteSyncOptions(userAtDomain);
+    const mailFolders = await db.getAllMailFolders(`user.${await session.userId}`);
+    mailFolders.forEach(mailFolder => db.deleteSyncOptions(mailFolder.uid as string));
 }
 
-async function fetchMailItemsByChunks(ids: number[], uid: string): Promise<MailItem[]> {
+async function fetchMailItemsByChunks(ids: number[], uid: string): Promise<ItemValue<MailboxItem>[]> {
     const chunks = [...chunk(ids, 200)];
-    const responses = await Promise.all(chunks.map(async chunk => (await Session.api()).mailItem.mget(uid, chunk)));
-    const result: MailItem[] = [];
+    const client = new MailboxItemsClient(await session.sid, uid);
+    const responses = await Promise.all(chunks.map(async chunk => client.multipleGetById(chunk)));
+    const result: ItemValue<MailboxItem>[] = [];
     return result.concat(...responses);
 }
 
@@ -164,7 +169,7 @@ function createSyncOptions(uid: string, type: SyncOptionsType): SyncOptions {
 }
 
 async function getOrCreateSyncOptions(uid: string, type: SyncOptionsType): Promise<SyncOptions> {
-    const db = await Session.db();
+    const db = await SessionLegacy.db();
     const syncOptions = await db.getSyncOptions(uid);
     if (!syncOptions) {
         const syncOptions = createSyncOptions(uid, type);
@@ -180,8 +185,8 @@ function* chunk<T>(array: T[], chunk_size: number) {
     }
 }
 
-const markFolderSyncAsPending = async (session: Session, folderUid: string): Promise<string> => {
-    const db = session.db;
+const markFolderSyncAsPending = async (folderUid: string): Promise<string> => {
+    const db = await SessionLegacy.db();
     const syncOptions = await getOrCreateSyncOptions(folderUid, "mail_item");
     await db.updateSyncOptions({ ...syncOptions, pending: true });
     return folderUid;

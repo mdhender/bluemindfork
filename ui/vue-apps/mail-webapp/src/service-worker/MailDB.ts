@@ -2,7 +2,6 @@ import { openDB, DBSchema, IDBPDatabase, IDBPTransaction, StoreNames, StoreValue
 import sortedIndexBy from "lodash.sortedindexby";
 import { ContainerSubscriptionModel, ItemFlag, ItemValue } from "@bluemind/core.container.api";
 import { MailboxFolder, MailboxItem } from "@bluemind/backend.mail.api";
-import { MailItemLight, Reconciliation } from "./entry";
 import { logger } from "./logger";
 
 export type SyncOptionsType = "mail_folder" | "mail_item" | "owner_subscriptions";
@@ -12,6 +11,21 @@ export interface SyncOptions {
     version: number;
     type: SyncOptionsType;
     pending?: boolean;
+}
+
+export type MailItemLight = {
+    internalId: number;
+    flags: ItemFlag[];
+    date: number;
+    subject?: string;
+    size: number;
+    sender?: string;
+};
+
+interface Reconciliation<T> {
+    uid: string;
+    items: T[];
+    deletedIds: number[];
 }
 interface MailSchema extends DBSchema {
     mail_folders: {

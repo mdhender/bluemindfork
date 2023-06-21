@@ -3,8 +3,8 @@ import { MailboxItemsClient } from "@bluemind/backend.mail.api";
 import { ItemFlag, ItemFlagFilter, SortDescriptor } from "@bluemind/core.container.api";
 import Session from "../session";
 import { syncMailFolder } from "../sync";
-import { MailItemLight } from "../entry";
 import sortedIndexBy from "lodash.sortedindexby";
+import { MailItemLight } from "../MailDB";
 
 export default class extends MailboxItemsClient {
     next?: (...args: Array<unknown>) => Promise<never>;
