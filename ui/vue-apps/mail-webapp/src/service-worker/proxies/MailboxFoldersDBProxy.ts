@@ -3,6 +3,7 @@ import pRetry from "p-retry";
 import { MailboxFolder, MailboxFoldersClient } from "@bluemind/backend.mail.api";
 import { ItemValue } from "@bluemind/core.container.api";
 import { logger } from "../logger";
+import db from "../MailDB";
 import SessionLegacy from "../session";
 
 export default class extends MailboxFoldersClient {
@@ -11,7 +12,6 @@ export default class extends MailboxFoldersClient {
         try {
             const uid = `${this.mailboxRoot}@${this.partition}`;
             return await retry(async () => {
-                const { db } = await SessionLegacy.instance();
                 if (await db.isSubscribed(uid)) {
                     return db.getAllMailFolders(this.mailboxRoot);
                 }

@@ -1,16 +1,21 @@
 import { openDB, DBSchema, IDBPDatabase } from "idb";
 import { logger } from "./logger";
+import { StringArraySupportOption } from "prettier";
 
 interface EnvironmentSchema extends DBSchema {
     system: {
         key: string;
-        value: { key: string; value: any };
+        value: { key: string; value: string };
     };
 }
 
 const VERSION = 1;
 
-export class EnvironmentDB {
+interface EnvironmentDB {
+    setMailboxCopyGuid(uid: string): Promise<void>;
+    getMailboxCopyGuid(): Promise<string | undefined>;
+}
+export class EnvironmentDBImpl implements EnvironmentDB {
     db: Promise<IDBPDatabase<EnvironmentSchema>>;
     constructor() {
         this.db = this.openDB();
@@ -47,3 +52,18 @@ export class EnvironmentDB {
         return data.value;
     }
 }
+
+let implementation: EnvironmentDB | null = null;
+async function instance(): Promise<EnvironmentDB> {
+    if (!implementation) {
+        implementation = new EnvironmentDBImpl();
+    }
+    return implementation;
+}
+
+const db: EnvironmentDB = {
+    setMailboxCopyGuid: uid => instance().then(db => db.setMailboxCopyGuid(uid)),
+    getMailboxCopyGuid: () => instance().then(db => db.getMailboxCopyGuid())
+};
+
+export default db;

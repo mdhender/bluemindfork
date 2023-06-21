@@ -10,7 +10,7 @@ import {
 } from "@bluemind/core.container.api";
 import { MailboxFolder, MailboxFoldersClient, MailboxItem, MailboxItemsClient } from "@bluemind/backend.mail.api";
 import session from "@bluemind/session";
-import { SyncOptions, SyncOptionsType } from "./MailDB";
+import { default as db, SyncOptions, SyncOptionsType } from "./MailDB";
 import { logger } from "./logger";
 import SessionLegacy from "./session";
 
@@ -19,7 +19,6 @@ const limits: { [uid: string]: Limit } = {};
 export async function syncMailFolders(): Promise<string[]> {
     SessionLegacy.clear();
     const updatedOwnerSubscription = await syncOwnerSubscriptions();
-    const { db } = await SessionLegacy.instance();
     const subscriptions = await db.getOwnerSubscriptions("mailboxacl");
     const userMailbox = subscriptions.find(async subscription => subscription.value.owner === (await session.userId));
     let updatedFolderUids: string[] = [];
@@ -36,7 +35,6 @@ export async function syncMailFolders(): Promise<string[]> {
 }
 
 export async function syncOwnerSubscriptions(): Promise<ItemValue<ContainerSubscriptionModel>[]> {
-    const { db } = await SessionLegacy.instance();
     const domainUid = await session.domain;
     const userUid = await session.userId;
     const syncOptions = await getOrCreateSyncOptions(`${userUid}@${domainUid}.subscriptions`, "owner_subscriptions");
@@ -67,7 +65,6 @@ export async function syncMailFolder(uid: string, pushedVersion?: number): Promi
 
 async function syncMailFolderToVersion(uid: string, syncOptions: SyncOptions): Promise<boolean> {
     try {
-        const { db } = await SessionLegacy.instance();
         const client = new MailboxItemsClient(await session.sid, uid);
         const filter = { must: [], mustNot: [ItemFlag.Deleted] };
         const changeset = await client.filteredChangesetById(syncOptions.version, filter);
@@ -122,7 +119,6 @@ export async function syncMailboxToVersion(
     userId: string,
     syncOptions: SyncOptions
 ): Promise<ItemValue<MailboxFolder>[]> {
-    const { db } = await SessionLegacy.instance();
     const mailboxRoot = `user.${userId}`;
     const client = new MailboxFoldersClient(await session.sid, domain.replace(/\./g, "_"), `user.${userId}`);
     const changeset = await client.changesetById(syncOptions.version);
@@ -139,7 +135,7 @@ export async function syncMailboxToVersion(
 }
 
 export async function unsyncMyMailbox() {
-    const { db, userAtDomain } = await SessionLegacy.instance();
+    const { userAtDomain } = await SessionLegacy.instance();
     await db.deleteSyncOptions(userAtDomain);
     const mailFolders = await db.getAllMailFolders(`user.${await session.userId}`);
     mailFolders.forEach(mailFolder => db.deleteSyncOptions(mailFolder.uid as string));
@@ -169,7 +165,6 @@ function createSyncOptions(uid: string, type: SyncOptionsType): SyncOptions {
 }
 
 async function getOrCreateSyncOptions(uid: string, type: SyncOptionsType): Promise<SyncOptions> {
-    const db = await SessionLegacy.db();
     const syncOptions = await db.getSyncOptions(uid);
     if (!syncOptions) {
         const syncOptions = createSyncOptions(uid, type);
@@ -186,7 +181,6 @@ function* chunk<T>(array: T[], chunk_size: number) {
 }
 
 const markFolderSyncAsPending = async (folderUid: string): Promise<string> => {
-    const db = await SessionLegacy.db();
     const syncOptions = await getOrCreateSyncOptions(folderUid, "mail_item");
     await db.updateSyncOptions({ ...syncOptions, pending: true });
     return folderUid;

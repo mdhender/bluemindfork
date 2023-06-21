@@ -1,6 +1,7 @@
 import { deleteDB } from "idb";
 import { logger } from "./logger";
-import Session from "./session";
+import db from "./EnvironmentDB";
+
 export default {
     async resetIfNeeded(userSession) {
         if (await areBrowserDataDeprecated(userSession.mailboxCopyGuid)) {
@@ -58,10 +59,10 @@ async function listDatabases(userSession) {
 }
 
 async function areBrowserDataDeprecated(remote) {
-    const local = await (await Session.environment()).getMailboxCopyGuid();
+    const local = await db.getMailboxCopyGuid();
     if (local === undefined) {
         logger.log(`[SW][BrowserData] Browser copy uid initialized (${remote}).`);
-        await (await Session.environment()).setMailboxCopyGuid(remote);
+        await db.setMailboxCopyGuid(remote);
         return false;
     }
     return local !== remote;

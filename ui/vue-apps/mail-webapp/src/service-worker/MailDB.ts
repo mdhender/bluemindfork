@@ -2,6 +2,8 @@ import { openDB, DBSchema, IDBPDatabase, IDBPTransaction, StoreNames, StoreValue
 import sortedIndexBy from "lodash.sortedindexby";
 import { ContainerSubscriptionModel, ItemFlag, ItemValue } from "@bluemind/core.container.api";
 import { MailboxFolder, MailboxItem } from "@bluemind/backend.mail.api";
+import session from "@bluemind/session";
+
 import { logger } from "./logger";
 
 export type SyncOptionsType = "mail_folder" | "mail_item" | "owner_subscriptions";
@@ -54,7 +56,32 @@ interface MailSchema extends DBSchema {
     };
 }
 
-export class MailDB {
+type MailDBTransaction = IDBPTransaction<MailSchema, StoreNames<MailSchema>[], IDBTransactionMode>;
+
+export interface MailDB {
+    getSyncOptions(uid: string): Promise<SyncOptions | undefined>;
+    updateSyncOptions(options: SyncOptions): Promise<string | undefined>;
+    isSubscribed(uid: string): Promise<boolean>;
+    deleteSyncOptions(uid: string): Promise<void>;
+    deleteOwnerSubscriptions(deletedIds: number[]): Promise<void>;
+    deleteMailFolders(mailboxRoot: string, deletedIds: number[]): Promise<void>;
+    putMailFolders(mailboxRoot: string, items: ItemValue<MailboxFolder>[], tx?: MailDBTransaction): Promise<void>;
+    putOwnerSubscriptions(items: ItemValue<ContainerSubscriptionModel>[], tx?: MailDBTransaction): Promise<void>;
+    getAllMailItemLight(folderUid: string, tx?: MailDBTransaction): Promise<MailItemLight[]>;
+    getMailItems(folderUid: string, ids: number[]): Promise<(ItemValue<MailboxItem> | undefined)[]>;
+    getAllMailFolders(mailboxRoot: string): Promise<ItemValue<MailboxFolder>[]>;
+    getOwnerSubscriptions(type: string): Promise<ItemValue<ContainerSubscriptionModel>[]>;
+    getAllOwnerSubscriptions(): Promise<ItemValue<ContainerSubscriptionModel>[]>;
+    reconciliate(data: Reconciliation<ItemValue<MailboxItem>>, syncOptions: SyncOptions): Promise<void>;
+    setMailItemLight(
+        folderUid: string,
+        items: ItemValue<MailboxItem>[],
+        deleted: number[],
+        tx?: MailDBTransaction
+    ): Promise<void>;
+}
+
+export class MailDBImpl implements MailDB {
     dbPromise: Promise<IDBPDatabase<MailSchema>>;
     constructor(userAtDomain: string) {
         this.dbPromise = this.openDB(userAtDomain);
@@ -89,7 +116,7 @@ export class MailDB {
         });
     }
 
-    async getTx<StoreName extends StoreNames<MailSchema>>(
+    private async getTx<StoreName extends StoreNames<MailSchema>>(
         storeName: StoreName,
         mode: IDBTransactionMode,
         tx?: IDBPTransaction<MailSchema, StoreName[], IDBTransactionMode>
@@ -97,15 +124,22 @@ export class MailDB {
         return tx || (await this.dbPromise).transaction([storeName], mode);
     }
 
-    async getSyncOptions(uid: string) {
-        return (await this.dbPromise).get("sync_options", uid);
+    private async putItems<T extends StoreValue<MailSchema, StoreName>, StoreName extends StoreNames<MailSchema>>(
+        items: T[],
+        storeName: StoreName,
+        optionalTransaction?: IDBPTransaction<MailSchema, StoreName[], IDBTransactionMode>
+    ) {
+        const tx = optionalTransaction || (await this.dbPromise).transaction(storeName, "readwrite");
+        await Promise.all(items.map(item => tx.objectStore(storeName).put?.(item)));
+        await tx.done;
     }
 
-    async getAllSyncOptions(type?: SyncOptionsType) {
-        if (type) {
-            return (await this.dbPromise).getAllFromIndex("sync_options", "by-type", type);
-        }
-        return (await this.dbPromise).getAll("sync_options");
+    private async putMailItems(items: ItemValue<MailboxItem>[], tx?: MailDBTransaction) {
+        await this.putItems(items, "mail_items", tx);
+    }
+
+    async getSyncOptions(uid: string) {
+        return (await this.dbPromise).get("sync_options", uid);
     }
 
     async updateSyncOptions(syncOptions: SyncOptions) {
@@ -149,52 +183,21 @@ export class MailDB {
         await tx.done;
     }
 
-    async putMailFolders(
-        mailboxRoot: string,
-        items: ItemValue<MailboxFolder>[],
-        optionalTransaction?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[], IDBTransactionMode>
-    ) {
+    async putMailFolders(mailboxRoot: string, items: ItemValue<MailboxFolder>[], tx?: MailDBTransaction) {
         await this.putItems(
             items.map(item => ({ ...item, mailboxRoot })),
             "mail_folders",
-            optionalTransaction
+            tx
         );
     }
 
-    async putMailItems(
-        items: ItemValue<MailboxItem>[],
-        optionalTransaction?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[], IDBTransactionMode>
-    ) {
-        await this.putItems(items, "mail_items", optionalTransaction);
+    async putOwnerSubscriptions(items: ItemValue<ContainerSubscriptionModel>[], tx?: MailDBTransaction) {
+        await this.putItems(items, "owner_subscriptions", tx);
     }
 
-    async putOwnerSubscriptions(
-        items: ItemValue<ContainerSubscriptionModel>[],
-        optionalTransaction?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[], IDBTransactionMode>
-    ) {
-        await this.putItems(items, "owner_subscriptions", optionalTransaction);
-    }
-
-    async putItems<T extends StoreValue<MailSchema, StoreName>, StoreName extends StoreNames<MailSchema>>(
-        items: T[],
-        storeName: StoreName,
-        optionalTransaction?: IDBPTransaction<MailSchema, StoreName[], IDBTransactionMode>
-    ) {
-        const tx = optionalTransaction || (await this.dbPromise).transaction(storeName, "readwrite");
-        await Promise.all(items.map(item => tx.objectStore(storeName).put?.(item)));
-        await tx.done;
-    }
-
-    async getAllMailItems(folderUid: string) {
-        return (await this.dbPromise).getAllFromIndex("mail_items", "by-folderUid", folderUid);
-    }
-
-    async getAllMailItemLight(
-        folderUid: string,
-        optTx?: IDBPTransaction<MailSchema, StoreNames<MailSchema>[], IDBTransactionMode>
-    ): Promise<MailItemLight[]> {
-        const tx = await this.getTx("mail_item_light", "readonly", optTx);
-        const store = tx.objectStore("mail_item_light");
+    async getAllMailItemLight(folderUid: string, tx?: MailDBTransaction): Promise<MailItemLight[]> {
+        const _tx = await this.getTx("mail_item_light", "readonly", tx);
+        const store = _tx.objectStore("mail_item_light");
         return (await store.get(folderUid)) || [];
     }
 
@@ -267,3 +270,34 @@ function toLight(mail: ItemValue<MailboxItem>): MailItemLight {
         sender: mail.value.body.recipients?.find(recipient => recipient.kind === "Originator")?.address?.toLowerCase()
     };
 }
+
+let implementation: MailDB | null = null;
+async function instance(): Promise<MailDB> {
+    if (!implementation) {
+        const name = `user.${await session.userId}@${(await session.domain).replace(/\./g, "_")}`;
+        implementation = new MailDBImpl(name);
+    }
+    return implementation;
+}
+
+const db: MailDB = {
+    getSyncOptions: uid => instance().then(db => db.getSyncOptions(uid)),
+    updateSyncOptions: options => instance().then(db => db.updateSyncOptions(options)),
+    isSubscribed: uid => instance().then(db => db.isSubscribed(uid)),
+    deleteSyncOptions: uid => instance().then(db => db.deleteSyncOptions(uid)),
+    deleteOwnerSubscriptions: deletedIds => instance().then(db => db.deleteOwnerSubscriptions(deletedIds)),
+    deleteMailFolders: (mailboxRoot, deletedIds) =>
+        instance().then(db => db.deleteMailFolders(mailboxRoot, deletedIds)),
+    putMailFolders: (mailboxRoot, items, tx) => instance().then(db => db.putMailFolders(mailboxRoot, items, tx)),
+    putOwnerSubscriptions: (items, tx) => instance().then(db => db.putOwnerSubscriptions(items, tx)),
+    getAllMailItemLight: (folderUid, tx) => instance().then(db => db.getAllMailItemLight(folderUid, tx)),
+    getMailItems: (folderUid, ids) => instance().then(db => db.getMailItems(folderUid, ids)),
+    getAllMailFolders: mailboxRoot => instance().then(db => db.getAllMailFolders(mailboxRoot)),
+    getOwnerSubscriptions: type => instance().then(db => db.getOwnerSubscriptions(type)),
+    getAllOwnerSubscriptions: () => instance().then(db => db.getAllOwnerSubscriptions()),
+    reconciliate: (data, syncOptions) => instance().then(db => db.reconciliate(data, syncOptions)),
+    setMailItemLight: (folderUid, items, deleted, tx) =>
+        instance().then(db => db.setMailItemLight(folderUid, items, deleted, tx))
+};
+
+export default db;

@@ -1,17 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import sortedIndexBy from "lodash.sortedindexby";
 import { MailboxItemsClient } from "@bluemind/backend.mail.api";
 import { ItemFlag, ItemFlagFilter, SortDescriptor } from "@bluemind/core.container.api";
-import Session from "../session";
 import { syncMailFolder } from "../sync";
-import sortedIndexBy from "lodash.sortedindexby";
-import { MailItemLight } from "../MailDB";
+import { default as db, MailItemLight } from "../MailDB";
 
 export default class extends MailboxItemsClient {
     next?: (...args: Array<unknown>) => Promise<never>;
 
     async count(filter: ItemFlagFilter) {
         try {
-            const db = await Session.db();
             if (await db.isSubscribed(this.replicatedMailboxUid)) {
                 const allMailItems = await db.getAllMailItemLight(this.replicatedMailboxUid);
                 const total = allMailItems.filter(item => filterByFlags(filter, item.flags)).length;
@@ -25,7 +23,6 @@ export default class extends MailboxItemsClient {
 
     async multipleGetById(ids: number[]) {
         try {
-            const db = await Session.db();
             if (await db.isSubscribed(this.replicatedMailboxUid)) {
                 const syncOptions = await db.getSyncOptions(this.replicatedMailboxUid);
                 if (syncOptions?.pending) {
@@ -41,7 +38,6 @@ export default class extends MailboxItemsClient {
     }
 
     async sortedIds(sort?: SortDescriptor) {
-        const db = await Session.db();
         sort = sort as SortDescriptor;
         if (await db.isSubscribed(this.replicatedMailboxUid)) {
             const syncOptions = await db.getSyncOptions(this.replicatedMailboxUid);
