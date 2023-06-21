@@ -1,8 +1,7 @@
 import { extensions } from "@bluemind/extensions";
 
-import registerApiRoute, { apiRoutes } from "./workbox/registerApiRoute";
-import registerSessionInfoRoute from "./workbox/registerSessionInfoRoute";
-import registerPartRoute from "./workbox/registerPartRoute";
+import registerSessionInfoRoute from "./routes/registerSessionInfoRoute";
+import registerPartRoute from "./routes/registerPartRoute";
 
 import { syncMailbox, syncMailFolders, syncMailFolder } from "./sync";
 import Session from "./session";
@@ -11,6 +10,7 @@ import BrowserData from "./BrowserData";
 import MailboxItemsDBProxy from "./proxies/MailboxItemsDBProxy";
 import MailboxItemsCacheProxy from "./proxies/MailboxItemsCacheProxy";
 import MailboxFoldersDBProxy from "./proxies/MailboxFoldersDBProxy";
+import OwnerSubscriptionsDBProxy from "./proxies/OwnerSubscriptionsDBProxy";
 
 extensions.register("serviceworker.handlers", "net.bluemind.webapp.mail.js", {
     "api-handler": { class: MailboxItemsDBProxy, priority: 128 }
@@ -21,12 +21,11 @@ extensions.register("serviceworker.handlers", "net.bluemind.webapp.mail.js", {
 extensions.register("serviceworker.handlers", "net.bluemind.webapp.mail.js", {
     "api-handler": { class: MailboxFoldersDBProxy, priority: 128 }
 });
-
+extensions.register("serviceworker.handlers", "net.bluemind.webapp.mail.js", {
+    "api-handler": { class: OwnerSubscriptionsDBProxy, priority: 128 }
+});
 registerSessionInfoRoute();
 registerPartRoute();
-
-// TODO: refactor them as a "serviceworker.handlers" extension
-registerApiRoute(apiRoutes);
 
 self.addEventListener("message", async ({ data }) => {
     switch (data.type) {
