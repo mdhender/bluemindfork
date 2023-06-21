@@ -12,12 +12,11 @@ import { MailboxFolder, MailboxFoldersClient, MailboxItem, MailboxItemsClient } 
 import session from "@bluemind/session";
 import { default as db, SyncOptions, SyncOptionsType } from "./MailDB";
 import { logger } from "./logger";
-import SessionLegacy from "./session";
 
 const limits: { [uid: string]: Limit } = {};
 
 export async function syncMailFolders(): Promise<string[]> {
-    SessionLegacy.clear();
+    session.revalidate();
     const updatedOwnerSubscription = await syncOwnerSubscriptions();
     const subscriptions = await db.getOwnerSubscriptions("mailboxacl");
     const userMailbox = subscriptions.find(async subscription => subscription.value.owner === (await session.userId));
@@ -107,7 +106,7 @@ export async function syncMailbox(
     pushedVersion?: number
 ): Promise<ItemValue<MailboxFolder>[]> {
     return await limit(userId + domain, async () => {
-        const syncOptions = await getOrCreateSyncOptions(await SessionLegacy.userAtDomain(), "mail_folder");
+        const syncOptions = await getOrCreateSyncOptions(await mailboxFullPath, "mail_folder");
         return pushedVersion && pushedVersion <= syncOptions.version
             ? []
             : syncMailboxToVersion(domain, userId, syncOptions);
@@ -135,8 +134,7 @@ export async function syncMailboxToVersion(
 }
 
 export async function unsyncMyMailbox() {
-    const { userAtDomain } = await SessionLegacy.instance();
-    await db.deleteSyncOptions(userAtDomain);
+    await db.deleteSyncOptions(await mailboxFullPath);
     const mailFolders = await db.getAllMailFolders(`user.${await session.userId}`);
     mailFolders.forEach(mailFolder => db.deleteSyncOptions(mailFolder.uid as string));
 }
@@ -185,3 +183,9 @@ const markFolderSyncAsPending = async (folderUid: string): Promise<string> => {
     await db.updateSyncOptions({ ...syncOptions, pending: true });
     return folderUid;
 };
+
+const mailboxFullPath: Promise<string> = new Promise(resolve =>
+    Promise.all([session.userId, session.domain]).then(([userId, domain]) =>
+        resolve(`user.${userId}@${domain.replace(/\./g, "_")}`)
+    )
+);

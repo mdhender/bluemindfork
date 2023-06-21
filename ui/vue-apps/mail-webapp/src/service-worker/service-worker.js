@@ -1,10 +1,10 @@
 import { extensions } from "@bluemind/extensions";
+import session from "@bluemind/session";
 
 import registerSessionInfoRoute from "./routes/registerSessionInfoRoute";
 import registerPartRoute from "./routes/registerPartRoute";
 
 import { syncMailbox, syncMailFolders, syncMailFolder } from "./sync";
-import Session from "./session";
 import { logger } from "./logger";
 import BrowserData from "./BrowserData";
 import MailboxItemsDBProxy from "./proxies/MailboxItemsDBProxy";
@@ -40,7 +40,7 @@ self.addEventListener("message", async ({ data }) => {
             }
             break;
         case "RESET":
-            await BrowserData.reset(await Session.infos());
+            await BrowserData.reset();
             break;
     }
 });
@@ -59,10 +59,9 @@ const synchronizeFolder = async data => {
 };
 
 const synchronizeHierarchy = async data => {
-    const { domain, userId } = await Session.infos();
-    if (data.body.owner === userId) {
+    if (data.body.owner === (await session.userId)) {
         logger.log(`[SYNC][SW] Hierarchy synchronization: ${data.body.owner} in v${data.body.version}`);
-        await syncMailbox(domain, userId, data.body.version);
+        await syncMailbox(await session.domain, await session.userId, data.body.version);
     }
 };
 

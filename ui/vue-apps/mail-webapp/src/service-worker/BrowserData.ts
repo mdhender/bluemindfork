@@ -1,15 +1,17 @@
 import { deleteDB } from "idb";
+import session from "@bluemind/session";
 import { logger } from "./logger";
 import db from "./EnvironmentDB";
+declare const self: ServiceWorkerGlobalScope;
 
 export default {
-    async resetIfNeeded(userSession) {
-        if (await areBrowserDataDeprecated(userSession.mailboxCopyGuid)) {
-            await this.reset(userSession);
+    async resetIfNeeded() {
+        if (await areBrowserDataDeprecated(await session.mailboxCopyGuid)) {
+            await this.reset();
         }
     },
 
-    async reset(userSession) {
+    async reset() {
         broadcast("RESET", { status: "START" });
         try {
             // Cache API
@@ -19,7 +21,7 @@ export default {
 
             // IndexedDB
             logger.log(`[SW][BrowserData] Resetting databases.`);
-            const databaseNames = await listDatabases(userSession);
+            const databaseNames = await listDatabases();
             await Promise.all(databaseNames.map(name => deleteDatabase(name)));
 
             broadcast("RESET", { status: "SUCCESS" });
@@ -30,15 +32,16 @@ export default {
     }
 };
 
-async function listDatabases(userSession) {
+async function listDatabases() {
     try {
         const databases = await indexedDB.databases();
-        return databases.map(({ name }) => name);
+        return databases.map(({ name }) => name as string);
     } catch {
         // remove catch once Firefox will support indexedDB.databases()
         // https://developer.mozilla.org/en-US/docs/Web/API/IDBFactory/databases#browser_compatibility
         // https://bugzilla.mozilla.org/show_bug.cgi?id=934640
-        const newWebmailDbName = `user.${userSession.userId}@${userSession.domain.replaceAll(".", "_")}:webapp/mail`;
+        const mailboxFullPath = `user.${await session.userId}@${(await session.domain).replaceAll(".", "_")}`;
+        const newWebmailDbName = `${mailboxFullPath}:webapp/mail`;
         return [
             "capabilities",
             "context",
@@ -52,13 +55,13 @@ async function listDatabases(userSession) {
             "auth",
             "deferredaction",
             newWebmailDbName,
-            userSession.userId + ":smime:body",
-            userSession.userId + ":smime:pki"
+            `${await session.userId}:smime:body`,
+            `${await session.userId}:smime:pki`
         ];
     }
 }
 
-async function areBrowserDataDeprecated(remote) {
+async function areBrowserDataDeprecated(remote: string) {
     const local = await db.getMailboxCopyGuid();
     if (local === undefined) {
         logger.log(`[SW][BrowserData] Browser copy uid initialized (${remote}).`);
@@ -68,19 +71,19 @@ async function areBrowserDataDeprecated(remote) {
     return local !== remote;
 }
 
-function broadcast(type, data) {
+function broadcast(type: string, data: Record<string, string>) {
     self.clients.matchAll().then(clients => {
         clients.forEach(client => client.postMessage({ type: type, ...data }));
     });
 }
 
-async function deleteCache(name) {
+async function deleteCache(name: string) {
     logger.log(`[SW][BrowserData] Start reseting cache ${name}.`);
     await caches.delete(name);
     logger.log(`[SW][BrowserData] Cache ${name} reseted.`);
 }
 
-async function deleteDatabase(name) {
+async function deleteDatabase(name: string) {
     logger.log(`[SW][BrowserData] Start deleting database ${name}.`);
     await deleteDB(name);
     logger.log(`[SW][BrowserData] Database ${name} deleted.`);

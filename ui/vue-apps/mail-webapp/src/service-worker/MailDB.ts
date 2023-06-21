@@ -83,12 +83,12 @@ export interface MailDB {
 
 export class MailDBImpl implements MailDB {
     dbPromise: Promise<IDBPDatabase<MailSchema>>;
-    constructor(userAtDomain: string) {
-        this.dbPromise = this.openDB(userAtDomain);
+    constructor(mailboxRoot: string) {
+        this.dbPromise = this.openDB(mailboxRoot);
     }
-    private async openDB(userAtDomain: string): Promise<IDBPDatabase<MailSchema>> {
+    private async openDB(mailboxRoot: string): Promise<IDBPDatabase<MailSchema>> {
         const schemaVersion = 11;
-        return await openDB<MailSchema>(`${userAtDomain}:webapp/mail`, schemaVersion, {
+        return await openDB<MailSchema>(`${mailboxRoot}:webapp/mail`, schemaVersion, {
             upgrade(db, oldVersion) {
                 logger.log(`[SW][DB] Upgrading from ${oldVersion} to ${schemaVersion}`);
                 if (oldVersion < schemaVersion) {
@@ -111,7 +111,7 @@ export class MailDBImpl implements MailDB {
             },
             blocking: async () => {
                 (await this.dbPromise).close();
-                this.dbPromise = this.openDB(userAtDomain);
+                this.dbPromise = this.openDB(mailboxRoot);
             }
         });
     }

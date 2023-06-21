@@ -4,7 +4,7 @@ import { MailboxFolder, MailboxFoldersClient } from "@bluemind/backend.mail.api"
 import { ItemValue } from "@bluemind/core.container.api";
 import { logger } from "../logger";
 import db from "../MailDB";
-import SessionLegacy from "../session";
+import session from "@bluemind/session";
 
 export default class extends MailboxFoldersClient {
     next?: (...args: Array<unknown>) => Promise<never>;
@@ -32,5 +32,5 @@ async function retry<T>(fn: () => Promise<T>): Promise<T> {
                 throw new Error(error);
             });
     };
-    return pRetry(wrapToThrowErrorOnFailure(fn), { retries: 1, onFailedAttempt: () => SessionLegacy.clear() });
+    return pRetry(wrapToThrowErrorOnFailure(fn), { retries: 1, onFailedAttempt: () => session.revalidate() });
 }
