@@ -2,6 +2,7 @@
     <div class="contact-list">
         <div class="table-wrapper scroller-y">
             <bm-table
+                ref="contactTable"
                 :items="contacts"
                 :fields="fields"
                 :busy="loading"
@@ -51,14 +52,14 @@ export default {
     name: "ContactList",
     components: { BmTable, BmPagination, BmSpinner, BmCheck /* BmIllustration */, AddressBookLabelIcon },
     props: {
+        addressbook: { type: Object, default: () => ({}) },
         contacts: { type: Array, required: true },
         loading: { type: Boolean, required: true },
-        addressbook: { type: Object, default: () => ({}) },
+        selected: { type: Array, required: true },
         userId: { type: String, required: true }
     },
     data() {
         return {
-            selected: [],
             fields: [
                 { key: "selected", label: "", class: "selected-cell" },
                 { key: "name", label: "", class: "name-cell text-truncate" },
@@ -69,12 +70,29 @@ export default {
             currentPage: 1
         };
     },
+    watch: {
+        selected: {
+            handler: function (value) {
+                const selectedUids = value.map(v => v.uid);
+                this.contacts.forEach((c, index) => {
+                    selectedUids.includes(c.uid)
+                        ? this.$refs.contactTable.selectRow(index)
+                        : this.$refs.contactTable.unselectRow(index);
+                });
+            },
+            immediate: true
+        }
+    },
     methods: {
         onRowSelected(items) {
-            this.selected = items.map(item => item.uid);
+            this.$emit("update:selected", items.map(toContact));
         }
     }
 };
+
+function toContact(contactItem) {
+    return { address: contactItem.email, dn: contactItem.name, uid: contactItem.uid };
+}
 </script>
 
 <style lang="scss">

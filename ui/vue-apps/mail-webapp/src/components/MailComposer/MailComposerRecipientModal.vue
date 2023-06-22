@@ -1,12 +1,7 @@
 <template>
-    <bm-modal
-        id="recipient-picker"
-        content-class="mail-composer-recipient-modal"
-        :title="$t('recipientPicker.title')"
-        size="xl"
-    >
-        <div class="picked-recipient"></div>
-
+    <bm-modal id="recipient-picker" :title="$t('recipientPicker.title')" size="custom">
+        <selected-contacts :contacts.sync="selectedContacts" />
+        <hr />
         <div class="recipient-modal-body d-flex">
             <address-book-list
                 :addressbooks="addressBooks"
@@ -14,7 +9,6 @@
                 :selected-addressbook="selectedAddressbookId"
                 @selected="selectedAddressbookId = $event"
             />
-
             <div class="flex-fill">
                 <contact-list
                     class="h-100"
@@ -22,6 +16,7 @@
                     :loading="loading"
                     :addressbook="selectedAddressbook"
                     :user-id="userId"
+                    :selected.sync="selectedContacts"
                 />
             </div>
         </div>
@@ -33,17 +28,19 @@ import { inject } from "@bluemind/inject";
 import { BmModal } from "@bluemind/ui-components";
 import AddressBookList from "./AddressBookList";
 import ContactList from "./ContactList";
+import SelectedContacts from "./SelectedContacts";
 
 export default {
     name: "MailComposerRecipientModal",
-    components: { BmModal, AddressBookList, ContactList },
+    components: { BmModal, AddressBookList, ContactList, SelectedContacts },
     data() {
         return {
             addressBooks: [],
-            userId: undefined,
-            selectedAddressbookId: undefined,
             contacts: [],
-            loading: false
+            loading: false,
+            selectedContacts: [],
+            selectedAddressbookId: undefined,
+            userId: undefined
         };
     },
     computed: {
@@ -94,17 +91,26 @@ export default {
 </script>
 
 <style lang="scss">
-@import "~@bluemind/ui-components/src/css/variables";
+@import "@bluemind/ui-components/src/css/variables";
 
-.mail-composer-recipient-modal {
+#recipient-picker {
     height: 80vh;
+    .modal-custom {
+        width: 79.6%;
+        max-width: 79.6%;
+    }
+    .modal-header {
+        background-color: $neutral-bg-lo1;
+    }
     .modal-body {
         padding: 0;
         background-color: $backdrop;
-        .recipient-modal-body {
-            height: 100%;
-            gap: $sp-4;
-        }
+    }
+    hr {
+        margin: 0;
+    }
+    .recipient-modal-body {
+        gap: $sp-4;
     }
 }
 </style>

@@ -1,5 +1,6 @@
 <template>
     <b-table
+        ref="bTable"
         v-bind="[$attrs, $props]"
         class="bm-table"
         :class="{ 'fixed-row-height': fixedRowHeight }"
@@ -92,6 +93,12 @@ export default {
                 this.curSortBy = field;
                 this.curSortDesc = false;
             }
+        },
+        selectRow(index) {
+            this.$refs.bTable.selectRow(index);
+        },
+        unselectRow(index) {
+            this.$refs.bTable.unselectRow(index);
         }
     }
 };

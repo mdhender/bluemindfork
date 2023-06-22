@@ -48,7 +48,7 @@
                             </template>
                         </contact>
                         <bm-form-autocomplete-input
-                            v-else
+                            v-else-if="!readonly"
                             ref="edit"
                             v-model="contact.input"
                             :data-browse-key="contact.key"
@@ -89,6 +89,7 @@
                     </div>
                 </div>
                 <bm-form-autocomplete-input
+                    v-if="!readonly"
                     v-show="!hiddenContactCount && contacts_.length < maxContacts"
                     ref="new"
                     v-model="value"
@@ -191,7 +192,7 @@ export default {
         disabled: { type: Boolean, default: false },
         maxContacts: { type: Number, default: Number.MAX_VALUE },
         showExpand: { type: Boolean, default: false },
-        validateAddressFn: { type: Function, required: true },
+        validateAddressFn: { type: Function, default: () => true },
         variant: {
             type: String,
             default: "outline",
@@ -202,7 +203,8 @@ export default {
         extension: {
             type: String,
             default: undefined
-        }
+        },
+        readonly: { type: Boolean, default: false }
     },
     data() {
         return {
@@ -494,7 +496,7 @@ function sameContact(c1, c2) {
 }
 
 function isVisible(element) {
-    return element.offsetWidth && element.offsetHeight && element.getClientRects().length;
+    return element && element.offsetWidth && element.offsetHeight && element.getClientRects().length;
 }
 </script>
 
