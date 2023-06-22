@@ -32,6 +32,7 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient<K, V> 
 	private KafkaConsumer<K, V> consumer;
 	private Handler<ConsumerRecord<K, V>> handler;
 	private Handler<ConsumerRecords<K, V>> batchHandler;
+	private boolean infinite = false;
 
 	public KafkaConsumerClientImpl(Vertx vertx, Properties props) {
 		this.vertx = vertx;
@@ -47,6 +48,12 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient<K, V> 
 	@Override
 	public KafkaConsumerClientImpl<K, V> batchHandler(Handler<ConsumerRecords<K, V>> batchHandler) {
 		this.batchHandler = batchHandler;
+		return this;
+	}
+
+	@Override
+	public KafkaConsumerClient<K, V> infinite(boolean infinite) {
+		this.infinite = infinite;
 		return this;
 	}
 
@@ -67,7 +74,7 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient<K, V> 
 		vertx.executeBlocking(pollingPromise -> {
 			final ConsumerRecords<K, V> records = consumer.poll(ofSeconds(POLL_DURATION_IN_SECONDS));
 			boolean hasRecord = handle(records);
-			if (isEmptyConsumption(hasRecord, emptyConsumptionPromise)) {
+			if (!infinite && isEmptyConsumption(hasRecord, emptyConsumptionPromise)) {
 				emptyConsumptionPromise.complete();
 			} else if (hasRecord) {
 				hadRecords = true;
@@ -85,7 +92,7 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient<K, V> 
 		if (records == null || records.count() == 0) {
 			return false;
 		}
-		logger.info("consuming {} records", records.count());
+		logger.debug("consuming {} records", records.count());
 		if (Objects.isNull(this.batchHandler) && !Objects.isNull(this.handler)) {
 			records.forEach(handler::handle);
 		} else if (!Objects.isNull(this.batchHandler)) {
@@ -97,4 +104,5 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient<K, V> 
 	private long upTimeInSeconds() {
 		return (System.currentTimeMillis() - startTimeInMillis) / 1000;
 	}
+
 }

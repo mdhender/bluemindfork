@@ -40,6 +40,7 @@ import net.bluemind.core.backup.continuous.store.RecordHandler;
 import net.bluemind.core.backup.continuous.store.TopicSubscriber;
 import net.bluemind.core.backup.store.kafka.config.KafkaStoreConfig;
 import net.bluemind.core.backup.store.kafka.config.KafkaStoreConfig.PoisonPillStrategy;
+import net.bluemind.core.backup.store.kafka.metrics.KafkaTopicMetrics;
 import net.bluemind.metrics.registry.IdFactory;
 
 public class KafkaTopicSubscriber implements TopicSubscriber {
@@ -198,7 +199,8 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 	}
 
 	private void reportLag(String gid, String cid, KafkaConsumer<byte[], byte[]> consumer) {
-		Gauge gauge = reg.gauge(idFactory.name("lag", "groupAndClient", gid + "-" + cid));
+		String id = gid + "-" + cid;
+		Gauge gauge = reg.gauge(idFactory.name("lag", "groupAndClient", id));
 		LongAdder sum = new LongAdder();
 		consumer.assignment().forEach(tp -> consumer.currentLag(tp).ifPresent(lag -> {
 			if (lag > 0 && logger.isDebugEnabled()) {
@@ -208,7 +210,7 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 		}));
 		logger.info("**** GLOBAL LAG {}", sum.sum());
 		gauge.set(sum.doubleValue());
-
+		KafkaTopicMetrics.get().addConsumerMetric(id, KafkaTopicMetrics.LAG, sum.sum());
 	}
 
 	private long lagValue(KafkaConsumer<byte[], byte[]> consumer) {
@@ -235,7 +237,6 @@ public class KafkaTopicSubscriber implements TopicSubscriber {
 		cp.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
 		cp.setProperty(ConsumerConfig.GROUP_ID_CONFIG, group);
 		cp.setProperty(ConsumerConfig.CLIENT_ID_CONFIG, clientId);
-		cp.setProperty(ConsumerConfig.METRIC_REPORTER_CLASSES_CONFIG, BluemindMetricsReporter.class.getCanonicalName());
 		cp.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getCanonicalName());
 		cp.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class.getCanonicalName());
 		cp.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");

@@ -35,20 +35,37 @@ import org.slf4j.LoggerFactory;
 
 import com.typesafe.config.Config;
 
-public class ForestInstancesLoader implements AutoCloseable {
+public class ForestInstancesLoader implements AutoCloseable, IForestInstanceLoad {
 
 	private static final Logger logger = LoggerFactory.getLogger(ForestInstancesLoader.class);
+
+	protected static final String BASE_PATH = "/bluemind.net/v5";
+
 	private final String zkBoot;
-	private final CuratorFramework curator;
 	private final String forestId;
+	protected CuratorFramework curator;
 
 	static {
 		System.setProperty("zookeeper.sasl.client", "false");
 	}
 
 	public ForestInstancesLoader(Config config) {
-		this.forestId = config.getString("bm.crp.stream.forest-id");
-		this.zkBoot = zkBootstrap(config);
+		this.forestId = getConfigForestId(config);
+		this.zkBoot = getConfigZkServer(config);
+		initZkClient();
+	}
+
+	@Override
+	public String getConfigForestId(Config config) {
+		return config.getString("bm.crp.stream.forest-id");
+	}
+
+	@Override
+	public String getConfigZkServer(Config config) {
+		return zkBootstrap(config);
+	}
+
+	protected void initZkClient() {
 		RetryPolicy rt = new BoundedExponentialBackoffRetry(100, 10000, 15);
 		this.curator = CuratorFrameworkFactory.newClient(zkBoot, rt);
 		curator.start();
@@ -58,12 +75,11 @@ public class ForestInstancesLoader implements AutoCloseable {
 			Thread.currentThread().interrupt();
 			throw new RuntimeException(e);
 		}
-
 	}
 
 	public Set<String> whiteListedInstances() {
 		try {
-			List<String> children = curator.getChildren().forPath("/bluemind.net/v5/" + forestId);
+			List<String> children = curator.getChildren().forPath(BASE_PATH + "/" + forestId);
 			logger.info("[forest {}] WhiteListed installations are: {}", forestId, children);
 			return Set.copyOf(children);
 		} catch (Exception e) {

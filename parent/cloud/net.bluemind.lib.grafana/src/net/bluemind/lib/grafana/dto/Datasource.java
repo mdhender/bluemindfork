@@ -27,18 +27,19 @@ import io.vertx.core.json.JsonObject;
 public class Datasource {
 	public static final Logger logger = LoggerFactory.getLogger(Datasource.class);
 
-	public String uid;
-	public String type;
-	public String name;
-	public String url;
-
-	public static final String DEFAULT_JSON_TYPE = "marcusolsson-json-datasource";
+	String uid;
+	String type;
+	String name;
+	String url;
 
 	public static Datasource lightFromJson(JsonObject datasourceObj) {
-		Datasource datasource = new Datasource();
-		datasource.uid = datasourceObj.getString("uid");
-		datasource.type = datasourceObj.getString("type");
-		return datasource;
+		if (datasourceObj != null) {
+			Datasource datasource = new Datasource();
+			datasource.uid = datasourceObj.getString("uid");
+			datasource.type = datasourceObj.getString("type");
+			return datasource;
+		}
+		return null;
 	}
 
 	public static Datasource fromJson(String response) {
@@ -54,10 +55,10 @@ public class Datasource {
 		return datasource;
 	}
 
-	public static String toJson(String name, String url) {
+	public String toJson() {
 		JsonObject obj = new JsonObject();
 		obj.put("name", name);
-		obj.put("type", DEFAULT_JSON_TYPE);
+		obj.put("type", type);
 		obj.put("url", url);
 		obj.put("access", "proxy");
 		obj.put("basicAuth", false);
@@ -69,5 +70,28 @@ public class Datasource {
 		obj.put("uid", uid);
 		obj.put("type", type);
 		return obj;
+	}
+
+	public Datasource copy() {
+		Datasource datasource = new Datasource();
+		datasource.uid = this.uid;
+		datasource.type = this.type;
+		datasource.name = this.name;
+		datasource.url = this.url;
+		return datasource;
+	}
+
+	public static Datasource createFromTemplate(String name, String url, String template) {
+		Datasource datasource = Datasource.fromJson(template);
+		if (datasource == null) {
+			return null;
+		}
+		datasource.name = name;
+		datasource.url = url;
+		return datasource;
+	}
+
+	public String getName() {
+		return name;
 	}
 }

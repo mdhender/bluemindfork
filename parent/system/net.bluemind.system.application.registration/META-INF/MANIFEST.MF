@@ -3,11 +3,13 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.system.application.registration
 Bundle-SymbolicName: net.bluemind.system.application.registration;singleton:=true
 Bundle-Version: 5.0.0.qualifier
-Export-Package: net.bluemind.system.application.registration
+Export-Package: net.bluemind.system.application.registration.hook,
+ net.bluemind.system.application.registration.model
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: slf4j.api,
  net.bluemind.lib.vertx,
  net.bluemind.system.api,
  net.bluemind.kafka.client,
- com.typesafe.config;bundle-version="1.4.2"
+ com.typesafe.config;bundle-version="1.4.2",
+ net.bluemind.eclipse.common
 Automatic-Module-Name: net.bluemind.system.application.registration

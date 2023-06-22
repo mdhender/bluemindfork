@@ -22,61 +22,59 @@ import io.netty.handler.codec.http.HttpMethod;
 import net.bluemind.lib.grafana.config.GrafanaConnection;
 import net.bluemind.lib.grafana.dto.Dashboard;
 import net.bluemind.lib.grafana.dto.Datasource;
-import net.bluemind.lib.grafana.dto.Panel;
+import net.bluemind.lib.grafana.exception.GrafanaException;
+import net.bluemind.lib.grafana.exception.GrafanaNotFoundException;
 import net.bluemind.lib.grafana.utils.ApiHttpHelper;
 
 public class GrafanaClient {
-
-	private static final String dashboardsPath = "/api/dashboards";
-	private static final String dashboardsDbPath = "/api/dashboards/db";
-	private static final String datasourcesPath = "/api/datasources";
-
 	private final ApiHttpHelper http;
 
 	public GrafanaClient(GrafanaConnection config) {
 		this.http = new ApiHttpHelper(config.host, config.apiKey);
 	}
 
-	public Dashboard getOrCreateDashboard(String uid, String title, Panel panel) throws Exception {
-		Dashboard dashboard = getDashboard(uid);
-		if (dashboard == null) {
+	public Dashboard getOrCreateDashboard(String uid, String title) throws GrafanaException, InterruptedException {
+		Dashboard dashboard = null;
+		try {
+			dashboard = getDashboard(uid);
+		} catch (GrafanaNotFoundException e) {
 			createDashboard(uid, title);
 			dashboard = getDashboard(uid);
 		}
-		dashboard.panel = panel;
-		updateDashboardPanel(dashboard);
 		return dashboard;
 	}
 
-	private void createDashboard(String uid, String title) throws Exception {
-		http.execute(dashboardsDbPath, HttpMethod.POST, Dashboard.toJsonPostRequest(null, title, uid));
+	private void createDashboard(String uid, String title) throws GrafanaException, InterruptedException {
+		http.execute(GrafanaService.dashboardsDbPath(), HttpMethod.POST, Dashboard.toJsonPostRequest(null, title, uid));
 	}
 
-	private void updateDashboardPanel(Dashboard dashboard) throws Exception {
-		http.execute(dashboardsDbPath, HttpMethod.POST, dashboard.toJsonPutRequest());
+	public void updateDashboard(Dashboard dashboard) throws GrafanaException, InterruptedException {
+		http.execute(GrafanaService.dashboardsDbPath(), HttpMethod.POST, dashboard.toJsonPutRequest());
 	}
 
-	private Dashboard getDashboard(String uid) throws Exception {
-		String url = dashboardsPath + "/uid/" + uid;
+	private Dashboard getDashboard(String uid) throws GrafanaException, InterruptedException {
+		String url = GrafanaService.dashboardsPath(uid);
 		String response = http.execute(url, HttpMethod.GET, null);
 		return Dashboard.fromJson(response);
 	}
 
-	public Datasource getOrCreateDatasource(String name, String url) throws Exception {
-		Datasource datasource = getDatasource(name);
-		if (datasource == null) {
-			datasource = createDatasource(name, url);
+	public Datasource getOrCreateDatasource(Datasource datasource) throws GrafanaException, InterruptedException {
+		Datasource ds = null;
+		try {
+			ds = getDatasource(datasource.getName());
+		} catch (GrafanaNotFoundException e) {
+			createDatasource(datasource);
+			ds = getDatasource(datasource.getName());
 		}
-		return datasource;
+		return ds;
 	}
 
-	private Datasource createDatasource(String name, String url) throws Exception {
-		String response = http.execute(datasourcesPath, HttpMethod.POST, Datasource.toJson(name, url));
-		return Datasource.fromJson(response);
+	private void createDatasource(Datasource datasource) throws GrafanaException, InterruptedException {
+		http.execute(GrafanaService.datasourcesPath(), HttpMethod.POST, datasource.toJson());
 	}
 
-	private Datasource getDatasource(String name) throws Exception {
-		String url = datasourcesPath + "/name/" + name;
+	private Datasource getDatasource(String name) throws GrafanaException, InterruptedException {
+		String url = GrafanaService.datasourcesPath(name);
 		String response = http.execute(url, HttpMethod.GET, null);
 		return Datasource.fromJson(response);
 	}

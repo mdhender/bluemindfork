@@ -1,11 +1,7 @@
 package net.bluemind.central.reverse.proxy.common.config;
 
 import java.io.File;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +17,7 @@ public class CrpConfig {
 
 	private static final String APPLICATION_RESOURCE = "resources/application.conf";
 	private static final String VERTICLE_RESOURCE = "resources/reference.conf";
+	private static final String KAFKA_CONFIG = "/etc/bm/kafka.properties";
 
 	public static class Kafka {
 		private Kafka() {
@@ -116,37 +113,25 @@ public class CrpConfig {
 		Config applicationConfig = systemPropertyConfig.withFallback(bundleConfig);
 
 		if (!applicationConfig.hasPath(CrpConfig.Kafka.BOOTSTRAP_SERVERS)) {
-			ConfigValue kafkaBootstrapServers = kafkaBootstrapServers()
-					.orElseThrow(() -> new RuntimeException("No configuration available for kafka bootstrap servers"));
-			applicationConfig = applicationConfig.withValue(CrpConfig.Kafka.BOOTSTRAP_SERVERS, kafkaBootstrapServers);
+			applicationConfig = applicationConfig.withFallback(kafkaBootstrapServersConfig());
 		}
 
 		return applicationConfig;
 	}
 
-	@Deprecated
-	private static Optional<ConfigValue> kafkaBootstrapServers() {
-		File properties = new File("/etc/bm/kafka.properties");
-		String originDescription = "value from /etc/bm/kafka.properties";
+	private static Config kafkaBootstrapServersConfig() {
+		File properties = new File(KAFKA_CONFIG);
 		if (!properties.exists()) {
 			properties = new File(System.getProperty("user.home") + "/kafka.properties");
-			originDescription = "value from ~/kafka.properties";
+		}
+		Config parseFile = ConfigFactory.parseFile(properties);
+		if (parseFile.hasPath("bootstrap.servers")) {
+			String bootstrapServers = parseFile.getString("bootstrap.servers");
+			ConfigValue bootstrapServer = ConfigValueFactory.fromAnyRef(bootstrapServers);
+			return ConfigFactory.empty().withValue(CrpConfig.Kafka.BOOTSTRAP_SERVERS, bootstrapServer);
 		}
 
-		return (properties.exists()) ? kafkaBootstrapServers(properties, originDescription) : Optional.empty();
+		throw new RuntimeException("No configuration available for kafka bootstrap servers");
 	}
 
-	@Deprecated
-	private static Optional<ConfigValue> kafkaBootstrapServers(File properties, String originDescription) {
-		Properties tmp = new Properties();
-		try (InputStream in = Files.newInputStream(properties.toPath())) {
-			tmp.load(in);
-			String bootstrapServers = tmp.getProperty("bootstrap.servers");
-			ConfigValue bootstrapServer = ConfigValueFactory.fromAnyRef(bootstrapServers, originDescription);
-			return Optional.of(bootstrapServer);
-		} catch (Exception e) {
-			logger.warn(e.getMessage());
-			return Optional.empty();
-		}
-	}
 }

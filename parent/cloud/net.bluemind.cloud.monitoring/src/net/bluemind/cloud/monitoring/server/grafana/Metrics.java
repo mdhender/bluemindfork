@@ -20,31 +20,19 @@ package net.bluemind.cloud.monitoring.server.grafana;
 
 import java.util.concurrent.CompletableFuture;
 
-import com.typesafe.config.Config;
-
-import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
-import net.bluemind.central.reverse.proxy.model.common.kafka.KafkaAdminClient;
-import net.bluemind.cloud.monitoring.server.api.NodeConsumer;
+import net.bluemind.cloud.monitoring.server.api.ApiCall;
 import net.bluemind.cloud.monitoring.server.api.model.DataState;
 
-public class Metrics extends NodeConsumer<String> {
+public class Metrics extends ApiCall<String> {
 
-	private final KafkaAdminClient adminClient;
-	private final Config config;
-	private final Vertx vertx;
-
-	public Metrics(KafkaAdminClient adminClient, Config config, Vertx vertx) {
-		this.adminClient = adminClient;
-		this.config = config;
-		this.vertx = vertx;
+	public Metrics() {
 	}
 
 	@Override
 	public void handle(HttpServerRequest request) {
 		request.response().headers().add("Access-Control-Allow-Origin", "*");
 		super.response(request, CompletableFuture.completedFuture(""));
-
 	}
 
 	@Override

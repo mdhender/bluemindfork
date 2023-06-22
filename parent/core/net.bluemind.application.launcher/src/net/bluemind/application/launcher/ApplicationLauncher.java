@@ -19,19 +19,11 @@
 package net.bluemind.application.launcher;
 
 import java.io.File;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.UnknownHostException;
-import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -63,8 +55,7 @@ import net.bluemind.pool.Pool;
 import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
-import net.bluemind.system.api.IInstallation;
-import net.bluemind.system.application.registration.ApplicationInfo;
+import net.bluemind.system.application.registration.model.ApplicationInfo;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.system.validation.ProductChecks;
 import net.bluemind.systemd.notify.Startup;
@@ -154,41 +145,7 @@ public class ApplicationLauncher implements IApplication {
 	}
 
 	private void registerBluemindNode() {
-		String machineId;
-		try {
-			machineId = Files.readString(new File("/etc/machine-id").toPath()).replaceAll("\\r|\\n", "");
-		} catch (Exception e) {
-			machineId = "unknown";
-		}
-
-		ApplicationInfo.register(
-				new ApplicationInfo("bm-core", getIpAddresses(), machineId, InstallationId.getIdentifier()),
-				() -> ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInstallation.class)
-						.getSystemState().name(),
-				() -> ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInstallation.class)
-						.getVersion().softwareVersion);
-	}
-
-	private String getIpAddresses() {
-		List<String> addrList = new ArrayList<>();
-		try {
-			for (Enumeration<NetworkInterface> eni = NetworkInterface.getNetworkInterfaces(); eni.hasMoreElements();) {
-				final NetworkInterface ifc = eni.nextElement();
-				if (ifc.isUp()) {
-					for (Enumeration<InetAddress> ena = ifc.getInetAddresses(); ena.hasMoreElements();) {
-						addrList.add(ena.nextElement().getHostAddress());
-					}
-				}
-			}
-		} catch (Exception e) {
-			logger.warn("Cannot detect IP", e);
-			try {
-				return Inet4Address.getLocalHost().getHostAddress();
-			} catch (UnknownHostException e1) {
-				return "unknown";
-			}
-		}
-		return addrList.stream().filter(ip -> !ip.startsWith("127.")).collect(Collectors.joining(",", "", ""));
+		ApplicationInfo.register(InstallationId.getIdentifier());
 	}
 
 	private void loadMailboxDataSource() {

@@ -1,0 +1,9 @@
+{
+  "editorMode": "builder",
+  "exemplar": true,
+  "expr": "INSTANCE",
+  "hide": false,
+  "legendFormat": "INSTANCE",
+  "range": true,
+  "refId": "REFID"
+}

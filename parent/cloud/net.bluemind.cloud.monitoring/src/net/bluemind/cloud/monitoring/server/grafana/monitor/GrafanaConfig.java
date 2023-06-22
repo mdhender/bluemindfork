@@ -15,7 +15,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.central.reverse.proxy.launcher;
+package net.bluemind.cloud.monitoring.server.grafana.monitor;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -42,6 +42,14 @@ public class GrafanaConfig {
 
 	}
 
+	public static class GrafanaConfigRoot {
+		private GrafanaConfigRoot() {
+
+		}
+
+		public static final String ACTIVE = "grafana.active";
+	}
+
 	public static class GrafanaConfigApi {
 		private GrafanaConfigApi() {
 
@@ -59,6 +67,8 @@ public class GrafanaConfig {
 		}
 
 		public static final String HOST = "grafana.server.host";
+		public static final String PORT = "grafana.server.port";
+		public static final String USERINFO = "grafana.server.userInfo";
 	}
 
 	public static class GrafanaConfigDatasource {
@@ -68,6 +78,14 @@ public class GrafanaConfig {
 
 		public static final String URL = "grafana.datasource.url";
 		public static final String NAME = "grafana.datasource.name";
+	}
+
+	public static class GrafanaConfigPanel {
+		private GrafanaConfigPanel() {
+
+		}
+
+		public static final String CONTENT_URL = "grafana.panel.contentUrl";
 	}
 
 	public static class GrafanaConfigDashboard {
@@ -141,6 +159,18 @@ public class GrafanaConfig {
 		} catch (IOException e) {
 			logger.error("New Grafana token api cannot be write to {}", GRAFANA_API_CONF);
 			logger.error(e.getMessage(), e);
+		}
+	}
+
+	public class GrafanaApiInfos {
+		public static final String USERINFO = GrafanaConfig.getOrDefaultStr(GrafanaConfigServer.USERINFO);
+		public static final String HOST = GrafanaConfig.getOrDefaultStr(GrafanaConfigServer.HOST);
+		public static final Integer PORT = GrafanaConfig.getOrDefaultInt(GrafanaConfigServer.PORT);
+		public static final String TOKEN = GrafanaConfig.getOrDefaultStr(GrafanaConfigApi.TOKEN);
+		public static final Integer ACCOUNTID = GrafanaConfig.getOrDefaultInt(GrafanaConfigApi.SERVICE_ACCOUNT_ID);
+		public static final String ACCOUNTNAME = GrafanaConfig.getOrDefaultStr(GrafanaConfigApi.SERVICE_ACCOUNT_NAME);
+
+		private GrafanaApiInfos() {
 		}
 	}
 

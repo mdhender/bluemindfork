@@ -21,5 +21,7 @@ public interface KafkaConsumerClient<K, V> {
 
 	KafkaConsumerClient<K, V> batchHandler(Handler<ConsumerRecords<K, V>> batchHandler);
 
+	KafkaConsumerClient<K, V> infinite(boolean infinite);
+
 	Future<Void> subscribe(List<String> topics);
 }

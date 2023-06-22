@@ -18,17 +18,13 @@
  */
 package net.bluemind.cloud.monitoring.server.grafana;
 
-import com.typesafe.config.Config;
-
 import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
-import net.bluemind.central.reverse.proxy.model.common.kafka.KafkaAdminClient;
 import net.bluemind.cloud.monitoring.server.api.model.DataState;
 
 public class Topology implements Handler<HttpServerRequest> {
 
-	public Topology(KafkaAdminClient adminClient, Config config, Vertx vertx) {
+	public Topology() {
 	}
 
 	@Override

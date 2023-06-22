@@ -17,7 +17,6 @@
  */
 package net.bluemind.core.backup.continuous.state;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,9 +39,9 @@ import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.system.api.IInstallation;
-import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SystemState;
-import net.bluemind.system.application.registration.ApplicationInfo;
+import net.bluemind.system.application.registration.model.ApplicationInfo;
+import net.bluemind.system.application.registration.model.ApplicationInfoModel;
 import net.bluemind.system.stateobserver.IStateListener;
 
 public class LeaderStateListener implements IStateListener {
@@ -68,19 +67,10 @@ public class LeaderStateListener implements IStateListener {
 		cur = newState;
 	}
 
-	private ApplicationInfo info(SystemState newState) {
-		String machineId;
-		try {
-			machineId = Files.readString(new File("/etc/machine-id").toPath()).replaceAll("\\r|\\n", "");
-		} catch (Exception e) {
-			machineId = "unknown";
-		}
-		ApplicationInfo info = new ApplicationInfo(
-				"bm-core", ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-						.instance(ISystemConfiguration.class).getValues().stringValue("host"),
-				machineId, InstallationId.getIdentifier());
-		info.state = newState.name();
-		info.version = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInstallation.class)
+	private ApplicationInfoModel info(SystemState newState) {
+		ApplicationInfoModel info = ApplicationInfo.createApplicationInfoModel(InstallationId.getIdentifier());
+		info.state.state = newState.name();
+		info.state.version = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IInstallation.class)
 				.getVersion().softwareVersion;
 		return info;
 	}

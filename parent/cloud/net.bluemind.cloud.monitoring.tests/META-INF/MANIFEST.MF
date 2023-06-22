@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.cloud.monitoring.tests
+Bundle-SymbolicName: net.bluemind.cloud.monitoring.tests;singleton:=true
+Bundle-Version: 5.0.0.qualifier
+Bundle-Vendor: www.blue-mind.net
+Require-Bundle: org.eclipse.core.runtime,
+ org.junit;bundle-version="3.8.2",
+ org.mockito.mockito-all,
+ slf4j.api,
+ net.bluemind.cloud.monitoring,
+ net.bluemind.system.application.registration
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-ActivationPolicy: lazy
+Export-Package: net.bluemind.cloud.monitoring.tests
+Automatic-Module-Name: net.bluemind.cloud.monitoring.tests

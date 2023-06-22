@@ -18,34 +18,31 @@
  */
 package net.bluemind.cloud.monitoring.server.api.model;
 
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import net.bluemind.system.application.registration.model.ApplicationInfoModel;
 
 public class NodeInfo {
 
-	public String product;
-	public String address;
-	public String machineId;
-	public String state;
-	public String installationId;
-	public String version;
 	public NodeType type;
 	public String forestId;
 	public long timestamp;
-	public Map<String, String> metrics;
 
-	public NodeInfo() {
+	public final ApplicationInfoModel info;
 
+	public NodeInfo(ApplicationInfoModel info) {
+		this.info = info;
+	}
+
+	@Override
+	public String toString() {
+		String msg = "[Node type = %s, forestId = %s, info = (%s)]";
+		return String.format(msg, type, forestId, info.toString());
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((address == null) ? 0 : address.hashCode());
-		result = prime * result + ((installationId == null) ? 0 : installationId.hashCode());
-		result = prime * result + ((machineId == null) ? 0 : machineId.hashCode());
-		result = prime * result + ((product == null) ? 0 : product.hashCode());
-		return result;
+		return info.hashCode();
 	}
 
 	@Override
@@ -57,27 +54,61 @@ public class NodeInfo {
 		if (getClass() != obj.getClass())
 			return false;
 		NodeInfo other = (NodeInfo) obj;
-		if (address == null) {
-			if (other.address != null)
+		if (info == null) {
+			if (other.info != null)
 				return false;
-		} else if (!address.equals(other.address))
+		} else if (!info.equals(other.info))
 			return false;
-		if (installationId == null) {
-			if (other.installationId != null)
+		if (type == null) {
+			if (other.type != null)
 				return false;
-		} else if (!installationId.equals(other.installationId))
+		} else if (!type.equals(other.type))
 			return false;
-		if (machineId == null) {
-			if (other.machineId != null)
+		if (forestId == null) {
+			if (other.forestId != null)
 				return false;
-		} else if (!machineId.equals(other.machineId))
-			return false;
-		if (product == null) {
-			if (other.product != null)
-				return false;
-		} else if (!product.equals(other.product))
+		} else if (!forestId.equals(other.forestId))
 			return false;
 		return true;
+	}
+
+	public String id() {
+		return "" + hashCode();
+	}
+
+	@JsonIgnore
+	public boolean isMaster() {
+		return NodeType.MASTER == type;
+	}
+
+	@JsonIgnore
+	public boolean isFork() {
+		return NodeType.FORK == type;
+	}
+
+	@JsonIgnore
+	public boolean isPrimaryNode() {
+		return isMaster() || isFork();
+	}
+
+	@JsonIgnore
+	public boolean isCrp() {
+		return NodeType.CRP == type;
+	}
+
+	@JsonIgnore
+	public boolean isTail() {
+		return NodeType.TAIL == type;
+	}
+
+	@JsonIgnore
+	public boolean isCloningState() {
+		return "CORE_STATE_CLONING".equals(info.state.state);
+	}
+
+	@JsonIgnore
+	public boolean isNotInstalledStateOrNoId() {
+		return "CORE_STATE_NOT_INSTALLED".equals(info.state.state) || "bluemind-noid".equals(info.installationId);
 	}
 
 }

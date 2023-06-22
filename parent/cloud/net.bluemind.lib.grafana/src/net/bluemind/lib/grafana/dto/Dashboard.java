@@ -24,23 +24,25 @@ import com.google.common.base.Strings;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.lib.grafana.exception.GrafanaException;
 
 public class Dashboard {
 	public static final Logger logger = LoggerFactory.getLogger(Dashboard.class);
+	public static final String DASHBOARD_NODE = "dashboard";
 
-	public String uid;
-	public String id;
-	public String title;
-	public Integer version;
+	String uid;
+	String id;
+	String title;
+	Integer version;
 	public Panel panel;
 
-	public static Dashboard fromJson(String response) throws Exception {
+	public static Dashboard fromJson(String response) throws GrafanaException {
 		if (Strings.isNullOrEmpty(response)) {
 			return null;
 		}
 
 		JsonObject jsonObj = new JsonObject(response);
-		JsonObject dashObject = jsonObj.getJsonObject("dashboard");
+		JsonObject dashObject = jsonObj.getJsonObject(DASHBOARD_NODE);
 		Dashboard d = new Dashboard();
 		d.id = dashObject.getString("id");
 		d.uid = dashObject.getString("uid");
@@ -52,13 +54,13 @@ public class Dashboard {
 		return d;
 	}
 
-	private void loadPanelWithDatasource(JsonObject jsonObj) throws Exception {
+	private void loadPanelWithDatasource(JsonObject jsonObj) throws GrafanaException {
 		JsonArray panelsArray = jsonObj.getJsonArray("panels");
 		if (panelsArray == null || panelsArray.isEmpty()) {
 			return;
 		}
 		if (panelsArray.size() > 1) {
-			throw new Exception("Too many panels");
+			throw new GrafanaException("Too many panels");
 		} else if (panelsArray.size() == 1) {
 			JsonObject panelObj = panelsArray.getJsonObject(0);
 			this.panel = new Panel(panelObj);
@@ -67,7 +69,7 @@ public class Dashboard {
 
 	public String toJsonPutRequest() {
 		JsonObject obj = new JsonObject(toJsonPostRequest(id, title, uid));
-		JsonObject dashObj = obj.getJsonObject("dashboard");
+		JsonObject dashObj = obj.getJsonObject(DASHBOARD_NODE);
 		dashObj.put("version", version);
 		if (!Strings.isNullOrEmpty(panel.json)) {
 			JsonArray panels = new JsonArray();
@@ -79,13 +81,16 @@ public class Dashboard {
 
 	public static String toJsonPostRequest(String id, String title, String uid) {
 		JsonObject obj = new JsonObject();
-		obj.put("overwrite", false);
+		obj.put("overwrite", true);
 		JsonObject dashObj = new JsonObject();
 		dashObj.put("id", id);
 		dashObj.put("title", title);
 		dashObj.put("uid", uid);
-		obj.put("dashboard", dashObj);
+		obj.put(DASHBOARD_NODE, dashObj);
 		return obj.encode();
 	}
 
+	public void setPanel(Panel panel) {
+		this.panel = panel;
+	}
 }

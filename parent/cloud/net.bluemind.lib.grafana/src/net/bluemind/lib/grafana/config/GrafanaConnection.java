@@ -17,12 +17,16 @@
   */
 package net.bluemind.lib.grafana.config;
 
+import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Base64;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,18 +34,25 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
 
 import io.netty.handler.codec.http.HttpMethod;
+import net.bluemind.lib.grafana.client.GrafanaService;
+import net.bluemind.lib.grafana.exception.GrafanaException;
+import net.bluemind.lib.grafana.exception.GrafanaServerException;
+import net.bluemind.lib.grafana.utils.ApiHttpHelper;
 
 public class GrafanaConnection {
 	public static final Logger logger = LoggerFactory.getLogger(GrafanaConnection.class);
 
-	private static final String SERVICE_ACCOUNT_PATH = "/api/serviceaccounts/";
-
 	public final String host;
+	public final Integer port;
 	public final String apiKey;
 	private ServiceAccountInfo serviceAccountInfo;
+	public final String userInfo;
 
-	public GrafanaConnection(String host, String token, Integer accountId, String accountName) throws Exception {
+	public GrafanaConnection(String userInfo, String host, Integer port, String token, Integer accountId,
+			String accountName) throws GrafanaException {
+		this.userInfo = userInfo;
 		this.host = host;
+		this.port = port;
 		this.serviceAccountInfo = new ServiceAccountInfo();
 		this.apiKey = Strings.isNullOrEmpty(token) ? refreshToken(accountName, accountId) : token;
 	}
@@ -66,69 +77,85 @@ public class GrafanaConnection {
 		return this.serviceAccountInfo.accountInit() && this.serviceAccountInfo.accountTokenInit();
 	}
 
-	private String refreshToken(String accountName, Integer accountId) throws Exception {
+	private String refreshToken(String accountName, Integer accountId) throws GrafanaException {
 		if (accountId != null && getServiceAccount(accountId) && this.serviceAccountInfo.accountInit()) {
 			createServiceAccountToken();
 		} else {
 			createServiceAccount(accountName);
 			createServiceAccountToken();
 		}
+
+		if (Strings.isNullOrEmpty(serviceAccountInfo.tokenKey())) {
+			throw new GrafanaException("Cannot continue without token");
+		}
 		return serviceAccountInfo.tokenKey();
 	}
 
-	private boolean getServiceAccount(Integer accountId) throws Exception {
-		HttpResponse<String> response = executeGetRequest(SERVICE_ACCOUNT_PATH + accountId);
-		boolean responseStatus = response != null && response.statusCode() <= 201;
-		if (responseStatus) {
-			this.serviceAccountInfo.setServiceAccount(response.body());
-		}
-		return responseStatus;
+	private boolean getServiceAccount(Integer accountId) throws GrafanaException {
+		HttpResponse<String> response = executeGetRequest(GrafanaService.serviceAccountsPath(accountId));
+		this.serviceAccountInfo.setServiceAccount(response.body());
+		return response.statusCode() <= 201;
 	}
 
-	private void createServiceAccount(String accountName) throws Exception {
+	private void createServiceAccount(String accountName) throws GrafanaException {
 		String body = "{\"name\":\"" + accountName + "\", \"role\":\"Admin\"}";
-		HttpResponse<String> response = executePostRequest(SERVICE_ACCOUNT_PATH, body);
-		boolean responseStatus = response != null && response.statusCode() <= 201;
-		if (responseStatus) {
-			this.serviceAccountInfo.setServiceAccount(response.body());
-		}
+		HttpResponse<String> response = executePostRequest(GrafanaService.serviceAccountsPath(), body);
+		this.serviceAccountInfo.setServiceAccount(response.body());
 	}
 
-	private void createServiceAccountToken() throws Exception {
+	private void createServiceAccountToken() throws GrafanaException {
 		String body = "{\"name\": \"" + serviceAccountInfo.accountName() + "-token\"}";
-		String path = SERVICE_ACCOUNT_PATH + serviceAccountInfo.accountId() + "/tokens";
+		String path = GrafanaService.serviceAccountsTokenPath(serviceAccountInfo.accountId());
 		HttpResponse<String> response = executePostRequest(path, body);
-		boolean responseStatus = response != null && response.statusCode() <= 201;
-		if (responseStatus) {
-			this.serviceAccountInfo.setServiceAccountToken(response.body());
+		this.serviceAccountInfo.setServiceAccountToken(response.body());
+	}
+
+	private HttpResponse<String> executePostRequest(String path, String body) throws GrafanaException {
+		try {
+			HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(20)).build();
+			URI uri = new URI("http", userInfo, host, port, path, null, null);
+			HttpRequest httpRequest = HttpRequest.newBuilder() //
+					.method(HttpMethod.POST.name(), HttpRequest.BodyPublishers.ofString(body)) //
+					.header("Content-Type", "application/json") //
+					.header("Authorization", "Basic " + encodedUserInfo()) //
+					.uri(uri) //
+					.build();
+			HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+			ApiHttpHelper.checkResponse(httpResponse);
+
+			return httpResponse;
+		} catch (ConnectException ce) {
+			throw new GrafanaServerException(String.format("Grafana server %s:%d cannot be reached.", host, port));
+		} catch (URISyntaxException | IOException | InterruptedException e) {
+			logger.error("Exception while calling {}:{}", path, HttpMethod.POST.name(), e);
+			throw new GrafanaException(e);
 		}
-
 	}
 
-	private HttpResponse<String> executePostRequest(String path, String body) throws Exception {
-		HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(20)).build();
-		URI uri = new URI("http", "admin:admin", host, 3000, path, null, null);
-		HttpRequest httpRequest = HttpRequest.newBuilder() //
-				.method(HttpMethod.POST.name(), HttpRequest.BodyPublishers.ofString(body)) //
-				.header("Content-Type", "application/json") //
-				.header("Authorization", "Basic YWRtaW46YWRtaW4=") //
-				.uri(uri) //
-				.build();
+	private HttpResponse<String> executeGetRequest(String path) throws GrafanaException {
+		try {
+			HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(20)).build();
+			URI uri = new URI("http", userInfo, host, port, path, null, null);
+			HttpRequest httpRequest = HttpRequest.newBuilder() //
+					.method(HttpMethod.GET.name(), BodyPublishers.noBody()) //
+					.header("Content-Type", "application/json") //
+					.header("Authorization", "Basic " + encodedUserInfo()) //
+					.uri(uri) //
+					.build();
 
-		return httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+			HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+			ApiHttpHelper.checkResponse(httpResponse);
+
+			return httpResponse;
+		} catch (ConnectException ce) {
+			throw new GrafanaServerException(String.format("Grafana server %s:%d cannot be reached.", host, port));
+		} catch (URISyntaxException | IOException | InterruptedException e) {
+			throw new GrafanaException(e);
+		}
 	}
 
-	private HttpResponse<String> executeGetRequest(String path) throws Exception {
-		HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(20)).build();
-		URI uri = new URI("http", "admin:admin", host, 3000, path, null, null);
-		HttpRequest httpRequest = HttpRequest.newBuilder() //
-				.method(HttpMethod.GET.name(), BodyPublishers.noBody()) //
-				.header("Content-Type", "application/json") //
-				.header("Authorization", "Basic YWRtaW46YWRtaW4=") //
-				.uri(uri) //
-				.build();
-
-		return httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+	private String encodedUserInfo() {
+		return Base64.getEncoder().encodeToString(userInfo.getBytes());
 	}
 
 }

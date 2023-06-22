@@ -18,6 +18,7 @@ import com.typesafe.config.Config;
 
 import net.bluemind.core.backup.continuous.store.TopicPublisher;
 import net.bluemind.core.backup.store.kafka.config.KafkaStoreConfig;
+import net.bluemind.core.backup.store.kafka.metrics.KafkaTopicMetrics;
 
 public class KafkaTopicPublisher implements TopicPublisher {
 
@@ -52,6 +53,11 @@ public class KafkaTopicPublisher implements TopicPublisher {
 			}
 		});
 
+		long sendRate = producer.metrics().entrySet().stream()
+				.filter(m -> KafkaTopicMetrics.SEND_RATE.equals(m.getKey().name()))
+				.map(e -> (double) e.getValue().metricValue()).reduce(0d, (sum, val) -> sum + val).longValue();
+		KafkaTopicMetrics.get().addProducerMetric(new String(key), KafkaTopicMetrics.SEND_RATE, sendRate);
+
 		return comp;
 	}
 
@@ -59,8 +65,6 @@ public class KafkaTopicPublisher implements TopicPublisher {
 		Config conf = KafkaStoreConfig.get();
 		Properties producerProps = new Properties();
 		producerProps.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
-		producerProps.setProperty(ProducerConfig.METRIC_REPORTER_CLASSES_CONFIG,
-				BluemindMetricsReporter.class.getCanonicalName());
 		producerProps.setProperty(ProducerConfig.COMPRESSION_TYPE_CONFIG, KafkaTopicStore.COMPRESSION_TYPE);
 		producerProps.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
 				"org.apache.kafka.common.serialization.ByteArraySerializer");

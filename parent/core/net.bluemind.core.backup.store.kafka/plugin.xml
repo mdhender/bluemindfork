@@ -8,5 +8,11 @@
             priority="200">
       </store>
    </extension>
+      <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.core.backup.store.kafka.metrics.KafkaPublishMetricsFactory">
+      </verticle>
+   </extension>
 
 </plugin>

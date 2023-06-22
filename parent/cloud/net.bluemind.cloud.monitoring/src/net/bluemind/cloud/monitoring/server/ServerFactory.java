@@ -18,14 +18,10 @@
  */
 package net.bluemind.cloud.monitoring.server;
 
-import com.typesafe.config.Config;
-
 import io.vertx.core.Verticle;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
 public class ServerFactory implements IVerticleFactory {
-
-	private static final Config config = MonitoringConfig.get("Monitoring", ServerFactory.class.getClassLoader());
 
 	@Override
 	public boolean isWorker() {
@@ -34,7 +30,7 @@ public class ServerFactory implements IVerticleFactory {
 
 	@Override
 	public Verticle newInstance() {
-		return new Server(config);
+		return new Server();
 	}
 
 }

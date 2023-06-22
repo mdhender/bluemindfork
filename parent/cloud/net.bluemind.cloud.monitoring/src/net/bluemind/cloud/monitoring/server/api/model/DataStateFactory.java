@@ -18,24 +18,20 @@
  */
 package net.bluemind.cloud.monitoring.server.api.model;
 
-import com.typesafe.config.Config;
-
 import io.vertx.core.Verticle;
-import net.bluemind.cloud.monitoring.server.MonitoringConfig;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
 import net.bluemind.lib.vertx.IVerticleFactory;
 
-public class DataStateFactory implements IVerticleFactory {
-
-	private static final Config config = MonitoringConfig.get("Monitoring", DataStateFactory.class.getClassLoader());
+public class DataStateFactory implements IVerticleFactory, IUniqueVerticleFactory {
 
 	@Override
 	public boolean isWorker() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public Verticle newInstance() {
-		return new DataState(config);
+		return new DataState();
 	}
 
 }

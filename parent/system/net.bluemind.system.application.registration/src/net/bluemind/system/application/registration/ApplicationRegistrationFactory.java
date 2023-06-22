@@ -18,10 +18,38 @@
  */
 package net.bluemind.system.application.registration;
 
-import io.vertx.core.Verticle;
-import net.bluemind.lib.vertx.IVerticleFactory;
+import java.util.List;
 
-public class ApplicationRegistrationFactory implements IVerticleFactory {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.vertx.core.Verticle;
+import net.bluemind.eclipse.common.RunnableExtensionLoader;
+import net.bluemind.lib.vertx.IUniqueVerticleFactory;
+import net.bluemind.lib.vertx.IVerticleFactory;
+import net.bluemind.system.application.registration.hook.DummyAppStatusInfoHook;
+import net.bluemind.system.application.registration.hook.IAppStatusInfoHook;
+
+public class ApplicationRegistrationFactory implements IVerticleFactory, IUniqueVerticleFactory {
+	static final Logger logger = LoggerFactory.getLogger(ApplicationRegistrationFactory.class);
+
+	private static IAppStatusInfoHook getHook() {
+		RunnableExtensionLoader<IAppStatusInfoHook> loader = new RunnableExtensionLoader<>();
+		IAppStatusInfoHook provider = null;
+		List<IAppStatusInfoHook> providers = loader.loadExtensions("net.bluemind.system.application.registration",
+				"appHook", "hook", "class");
+		if (providers.isEmpty()) {
+			logger.warn("no hook found for Application Status Infos");
+			provider = new DummyAppStatusInfoHook();
+		} else {
+			if (providers.size() > 1) {
+
+				logger.warn("too many hooks found for Application Status Infos ({})", providers.size());
+			}
+			provider = providers.get(0);
+		}
+		return provider;
+	}
 
 	@Override
 	public boolean isWorker() {
@@ -30,7 +58,8 @@ public class ApplicationRegistrationFactory implements IVerticleFactory {
 
 	@Override
 	public Verticle newInstance() {
-		return new ApplicationRegistration(new Store("bm-crp"));
+		return new ApplicationRegistration(new Store(System.getProperty("net.bluemind.property.product", "unknown")),
+				getHook());
 	}
 
 }

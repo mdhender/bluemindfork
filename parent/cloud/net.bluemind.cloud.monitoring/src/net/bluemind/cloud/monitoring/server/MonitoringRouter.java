@@ -29,6 +29,9 @@ import net.bluemind.cloud.monitoring.server.api.ListAllNodes;
 import net.bluemind.cloud.monitoring.server.api.ListLog;
 import net.bluemind.cloud.monitoring.server.grafana.Metrics;
 import net.bluemind.cloud.monitoring.server.grafana.Topology;
+import net.bluemind.cloud.monitoring.server.grafana.monitor.GrafanaConfig;
+import net.bluemind.cloud.monitoring.server.grafana.monitor.GrafanaConfig.GrafanaConfigRoot;
+import net.bluemind.cloud.monitoring.server.prometheus.MetricsEndpoint;
 import net.bluemind.lib.vertx.RouteMatcher;
 
 public class MonitoringRouter {
@@ -43,9 +46,13 @@ public class MonitoringRouter {
 		routeMatcher.get("/monitoring/topic/raw", new ListLog(adminClient, config, vertx));
 
 		// grafana
-		routeMatcher.get("/monitoring/metrics", new Metrics(adminClient, config, vertx));
-		routeMatcher.get("/monitoring/topology", new Topology(adminClient, config, vertx));
+		routeMatcher.get("/monitoring/metrics", new Metrics());
+		routeMatcher.get("/monitoring/topology", new Topology());
 
+		// prometheus
+		if (GrafanaConfig.get().getBoolean(GrafanaConfigRoot.ACTIVE)) {
+			routeMatcher.get("/monitoring/metrics_scraping", new MetricsEndpoint());
+		}
 		return routeMatcher;
 	}
 

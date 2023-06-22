@@ -17,15 +17,23 @@
   */
 package net.bluemind.lib.grafana.dto;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 public class Panel {
 
 	private static final String DATASOURCE_NODE = "datasource";
+	private static final String TARGETS_NODE = "targets";
 	private static final String CONTENT_URL_OPT = "contentUrl";
 
 	Datasource datasource;
 	String json;
+	Map<String, Target> targets = new HashMap<>();
 
 	public Panel(Datasource datasource, String json) {
 		this.datasource = datasource;
@@ -46,13 +54,44 @@ public class Panel {
 
 	public void updateJsonDatasource(String datasourceUrl) {
 		JsonObject panelObj = new JsonObject(json);
-		panelObj.remove(DATASOURCE_NODE);
 		panelObj.put(DATASOURCE_NODE, datasource.toLightJson());
 
 		JsonObject optionObj = panelObj.getJsonObject("options");
-		optionObj.remove(CONTENT_URL_OPT);
 		optionObj.put(CONTENT_URL_OPT, datasourceUrl + "/monitoring/topology");
 
 		this.json = panelObj.encode();
 	}
+
+	public void setTargetsFromJson() {
+		JsonObject jsonObj = new JsonObject(json);
+		JsonArray targetsArray = jsonObj.getJsonArray("targets");
+		if (targetsArray != null && !targetsArray.isEmpty()) {
+			for (Object t : targetsArray) {
+				Target target = Target.fromJson(((JsonObject) t));
+				targets.put(target.expression, target);
+			}
+		}
+	}
+
+	public void addMetricsTargets(Target template, List<String> metrics) {
+		for (int i = 0; i < metrics.size(); i++) {
+			Target target = template.copy();
+			target.applyMetric(metrics.get(i));
+			targets.put(metrics.get(i), target);
+		}
+
+		AtomicInteger a = new AtomicInteger(65);
+		targets.values().forEach(t -> t.setRefId(String.valueOf(Character.toChars(a.getAndIncrement()))));
+
+		updateTargets();
+	}
+
+	private void updateTargets() {
+		JsonObject jsonObj = new JsonObject(json);
+		JsonArray targetsArray = new JsonArray();
+		targets.values().stream().map(Target::toJson).forEach(targetsArray::add);
+		jsonObj.put(TARGETS_NODE, targetsArray);
+		json = jsonObj.encode();
+	}
+
 }

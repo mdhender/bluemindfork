@@ -37,5 +37,11 @@
          </property>
       </product>
    </extension>
+      <extension
+         point="net.bluemind.system.application.registration.appHook">
+      <hook
+            class="net.bluemind.application.launcher.CoreAppStatusInfoHook">
+      </hook>
+   </extension>
 
 </plugin>

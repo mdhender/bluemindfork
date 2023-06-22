@@ -37,6 +37,7 @@ import net.bluemind.cloud.monitoring.server.api.model.NodeType;
 import net.bluemind.cloud.monitoring.server.zk.Forest;
 import net.bluemind.cloud.monitoring.server.zk.ZkNode;
 import net.bluemind.core.utils.JsonUtils;
+import net.bluemind.system.application.registration.model.ApplicationInfoModel;
 
 public class ListAllNodes extends NodeConsumer<Set<NodeInfo>> {
 
@@ -74,9 +75,10 @@ public class ListAllNodes extends NodeConsumer<Set<NodeInfo>> {
 		CompletableFuture<Set<NodeInfo>> completion = new CompletableFuture<>();
 
 		Handler<ConsumerRecord<String, String>> recordHandler = (record) -> {
-			NodeInfo info = JsonUtils.read(record.value(), NodeInfo.class);
+			ApplicationInfoModel model = JsonUtils.read(record.value(), ApplicationInfoModel.class);
+			NodeInfo info = new NodeInfo(model);
 			info.timestamp = record.timestamp();
-			nodes.remove(info);
+			nodes.removeIf(n -> n.info.equals(info.info));
 			nodes.add(info);
 		};
 
@@ -86,27 +88,26 @@ public class ListAllNodes extends NodeConsumer<Set<NodeInfo>> {
 	}
 
 	private Set<NodeInfo> filterNodes(Set<NodeInfo> nodes) {
-		nodes.removeIf(
-				node -> node.state.equals("CORE_STATE_NOT_INSTALLED") || "bluemind-noid".equals(node.installationId));
+		nodes.removeIf(NodeInfo::isNotInstalledStateOrNoId);
 		return nodes;
 	}
 
 	private Set<NodeInfo> setNodeType(Set<NodeInfo> nodes) {
 		Set<ZkNode> zkInstances = null;
 		try (Forest forestInstanceLoader = new Forest(config)) {
-			zkInstances = forestInstanceLoader.whiteListedInstances();
+			zkInstances = forestInstanceLoader.whiteListedInstancesNode();
 		}
 
 		for (NodeInfo node : nodes) {
-			if (node.product.equals("bm-crp")) {
+			if (node.info.product.equals("bm-crp")) {
 				node.type = NodeType.CRP;
-				node.forestId = node.installationId;
-				node.installationId = null;
+				node.forestId = node.info.installationId;
+				node.info.installationId = null;
 			} else {
-				Optional<ZkNode> associatedZkNode = isManagedByCrp(node.installationId, zkInstances);
+				Optional<ZkNode> associatedZkNode = isManagedByCrp(node.info.installationId, zkInstances);
 				associatedZkNode.ifPresentOrElse(zkNode -> {
-					node.forestId = zkNode.forestId;
-					if (node.state.equals("CORE_STATE_CLONING")) {
+					node.forestId = zkNode.forestId();
+					if (node.isCloningState()) {
 						node.type = NodeType.TAIL;
 					} else {
 						node.type = NodeType.MASTER;
@@ -119,7 +120,7 @@ public class ListAllNodes extends NodeConsumer<Set<NodeInfo>> {
 
 	private Optional<ZkNode> isManagedByCrp(String installationId, Set<ZkNode> zkInstances) {
 		String cleanedId = installationId.replace("bluemind-", "");
-		return zkInstances.stream().filter(zk -> zk.installationId.equals(cleanedId)).findFirst();
+		return zkInstances.stream().filter(zk -> zk.installationId().equals(cleanedId)).findFirst();
 	}
 
 	@Override

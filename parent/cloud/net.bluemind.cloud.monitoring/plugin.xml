@@ -13,5 +13,10 @@
             impl="net.bluemind.cloud.monitoring.server.api.model.DataStateFactory">
       </verticle>
    </extension>
-
+   <extension
+         point="net.bluemind.lib.vertx.verticles">
+      <verticle
+            impl="net.bluemind.cloud.monitoring.server.grafana.monitor.UpdateDashboardTargetsFactory">
+      </verticle>
+   </extension>
 </plugin>

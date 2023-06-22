@@ -11,9 +11,16 @@ Require-Bundle: org.eclipse.core.runtime,
  com.typesafe.config;bundle-version="1.4.2",
  net.bluemind.core.commons,
  net.bluemind.kafka.client,
- net.bluemind.central.reverse.proxy.model.common
+ net.bluemind.central.reverse.proxy.model.common,
+ net.bluemind.central.reverse.proxy.stream,
+ io.prometheus.simpleclient;bundle-version="0.16.0",
+ io.prometheus.simpleclient_common;bundle-version="0.16.0",
+ net.bluemind.lib.grafana,
+ net.bluemind.system.application.registration,
+ com.fasterxml.jackson.core.jackson-annotations,
+ com.github.ben-manes.caffeine
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bluemind.cloud.monitoring.server.Activator
-Automatic-Module-Name: net.bluemind.cloud.monitoring
-Export-Package: net.bluemind.cloud.monitoring.server
+Export-Package: net.bluemind.cloud.monitoring.server.api.model,
+ net.bluemind.cloud.monitoring.server.grafana

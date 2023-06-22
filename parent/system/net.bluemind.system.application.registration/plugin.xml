@@ -7,5 +7,11 @@
             impl="net.bluemind.system.application.registration.ApplicationRegistrationFactory">
       </verticle>
    </extension>
+   
+   <extension-point 
+   		id="net.bluemind.system.application.registration.appHook" 
+   		name="appHook" 
+   		schema="schema/net.bluemind.system.application.registration.appHook.exsd"/>
+   
 
 </plugin>

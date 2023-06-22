@@ -36,11 +36,10 @@ import net.bluemind.central.reverse.proxy.model.common.kafka.KafkaAdminClient;
 
 public class Server extends AbstractVerticle {
 
-	private final Config config;
+	private static final Config config = MonitoringConfig.get();
 	private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
-	public Server(Config config) {
-		this.config = config;
+	public Server() {
 	}
 
 	@Override

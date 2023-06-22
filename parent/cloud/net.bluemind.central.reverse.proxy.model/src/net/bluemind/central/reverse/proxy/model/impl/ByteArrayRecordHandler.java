@@ -58,7 +58,7 @@ public class ByteArrayRecordHandler implements RecordHandler<byte[], byte[]> {
 			String domainUid = topicName.split("-")[1];
 			return valueMapper.mapDir(domainUid, rec.value()).map(dir -> storeClient.addDir(dir).map(v -> key));
 		default:
-			logger.info("[model] Skipping unknown type {}", key);
+			logger.debug("[model] Skipping unknown type {}", key);
 		}
 		return Optional.empty();
 	}

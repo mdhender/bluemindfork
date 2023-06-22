@@ -1,11 +1,6 @@
 package net.bluemind.cloud.monitoring.server;
 
 import java.io.File;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +13,10 @@ import com.typesafe.config.ConfigValueFactory;
 public class MonitoringConfig {
 
 	private static final Logger logger = LoggerFactory.getLogger(MonitoringConfig.class);
+	private static final Config INSTANCE = loadConfig();
 
-	private static final String APPLICATION_RESOURCE = "resources/application.conf";
-	private static final String VERTICLE_RESOURCE = "resources/reference.conf";
+	private static final String MONITORING_RESOURCE = "resources/monitoring.conf";
+	private static final String KAFKA_CONFIG = "/etc/bm/kafka.properties";
 
 	public static class Monitoring {
 		private Monitoring() {
@@ -43,64 +39,43 @@ public class MonitoringConfig {
 
 		}
 
-		public static final String APPLICATION_ID = "bm.stream.application-id";
+		public static final String APPLICATION_ID = "bm.monitoring.application-id";
 	}
-
-	private static Config config;
 
 	private MonitoringConfig() {
 
 	}
 
-	public static Config get(String name, ClassLoader loader) {
-		if (Objects.isNull(config)) {
-			config = applicationConfig();
-		}
-		Config referenceConfig = ConfigFactory.parseResourcesAnySyntax(loader, VERTICLE_RESOURCE);
-		Config resolvedConfig = config.withFallback(referenceConfig).resolve();
-		logger.info("{} config: {}", name, resolvedConfig.getConfig("bm.monitoring").root());
-
-		if (!resolvedConfig.hasPath("bm.kafka.bootstrap.servers")) {
-			ConfigValue kafkaBootstrapServers = kafkaBootstrapServers()
-					.orElseThrow(() -> new RuntimeException("No configuration available for kafka bootstrap servers"));
-			resolvedConfig = resolvedConfig.withValue("bm.kafka.bootstrap.servers", kafkaBootstrapServers);
-		}
-
-		return resolvedConfig;
+	public static Config get() {
+		return INSTANCE;
 	}
 
-	private static Config applicationConfig() {
+	private static Config loadConfig() {
 		Config systemPropertyConfig = ConfigFactory.defaultApplication();
-		Config bundleConfig = ConfigFactory.load(MonitoringConfig.class.getClassLoader(), APPLICATION_RESOURCE);
+		Config bundleConfig = ConfigFactory.load(MonitoringConfig.class.getClassLoader(), MONITORING_RESOURCE);
+		Config applicationConfig = systemPropertyConfig.withFallback(bundleConfig);
 
-		return systemPropertyConfig.withFallback(bundleConfig);
+		if (!applicationConfig.hasPath(MonitoringConfig.Kafka.BOOTSTRAP_SERVERS)) {
+			applicationConfig = applicationConfig.withFallback(kafkaBootstrapServersConfig());
+		}
 
+		logger.info("Monitoring config: {}", applicationConfig.getConfig("bm.monitoring").root());
+		return applicationConfig;
 	}
 
-	@Deprecated
-	private static Optional<ConfigValue> kafkaBootstrapServers() {
-		File properties = new File("/etc/bm/kafka.properties");
-		String originDescription = "value from /etc/bm/kafka.properties";
+	private static Config kafkaBootstrapServersConfig() {
+		File properties = new File(KAFKA_CONFIG);
 		if (!properties.exists()) {
 			properties = new File(System.getProperty("user.home") + "/kafka.properties");
-			originDescription = "value from ~/kafka.properties";
+		}
+		Config parseFile = ConfigFactory.parseFile(properties);
+		if (parseFile.hasPath("bootstrap.servers")) {
+			String bootstrapServers = parseFile.getString("bootstrap.servers");
+			ConfigValue bootstrapServer = ConfigValueFactory.fromAnyRef(bootstrapServers);
+			return ConfigFactory.empty().withValue(MonitoringConfig.Kafka.BOOTSTRAP_SERVERS, bootstrapServer);
 		}
 
-		return (properties.exists()) ? kafkaBootstrapServers(properties, originDescription) : Optional.empty();
-	}
-
-	@Deprecated
-	private static Optional<ConfigValue> kafkaBootstrapServers(File properties, String originDescription) {
-		Properties tmp = new Properties();
-		try (InputStream in = Files.newInputStream(properties.toPath())) {
-			tmp.load(in);
-			String bootstrapServers = tmp.getProperty("bootstrap.servers");
-			ConfigValue bootstrapServer = ConfigValueFactory.fromAnyRef(bootstrapServers, originDescription);
-			return Optional.of(bootstrapServer);
-		} catch (Exception e) {
-			logger.warn(e.getMessage());
-			return Optional.empty();
-		}
+		throw new RuntimeException("No configuration available for kafka bootstrap servers");
 	}
 
 }
