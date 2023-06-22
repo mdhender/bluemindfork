@@ -70,6 +70,8 @@ manageDeprecatedServices() {
     for service in ${deprecatedServices}; do
         deprecatedServices ${service}
     done
+
+    return 0
 }
 
 removeCyrus() {
@@ -82,6 +84,8 @@ removeCyrus() {
 
     [ -e /etc/cron.daily/bm-cyrus-imapd ] && rm -f /etc/cron.daily/bm-cyrus-imapd
     [ -e /etc/systemd/system/bm-cyrus-imapd.service.wants ] && rm -rf /etc/systemd/system/bm-cyrus-imapd.service.wants
+
+    return 0
 }
 
 deprecatedServices() {
@@ -91,6 +95,8 @@ deprecatedServices() {
     update-rc.d ${service} remove >/dev/null || true
     deb-systemd-helper purge ${service}'.service' >/dev/null || true
     deb-systemd-helper unmask ${service}'.service' >/dev/null || true
+
+    return 0
 }
 
 manageSystemUserGroup

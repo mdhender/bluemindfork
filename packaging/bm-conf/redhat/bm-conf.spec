@@ -71,6 +71,8 @@ manageDeprecatedServices() {
     for service in ${deprecatedServices}; do
         deprecatedServices ${service}
     done
+
+    return 0
 }
 
 removeCyrus() {
@@ -83,6 +85,8 @@ removeCyrus() {
 
     [ -e /etc/cron.daily/bm-cyrus-imapd ] && rm -f /etc/cron.daily/bm-cyrus-imapd
     [ -e /etc/systemd/system/bm-cyrus-imapd.service.wants ] && rm -rf /etc/systemd/system/bm-cyrus-imapd.service.wants
+
+    return 0
 }
 
 deprecatedServices() {
@@ -90,9 +94,10 @@ deprecatedServices() {
 
     echo "Purging deprecated service: "${service}
     systemctl --no-reload disable --now ${service}.service
+
+    return 0
 }
 
-manageSystemUserGroup
 manageDeprecatedServices
 removeCyrus
 
