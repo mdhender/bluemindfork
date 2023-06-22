@@ -1,6 +1,7 @@
 import { clientsClaim } from "workbox-core";
 import { registerRoute } from "workbox-routing";
 import { extensions } from "@bluemind/extensions";
+import BrowserData from "./BrowserData";
 import DefaultRoutes from "./DefaultRoutes";
 import { ApiRouteRegistry } from "./ApiProxyPlugin/ApiRouteRegistry";
 
@@ -28,3 +29,12 @@ registerRoute(DefaultRoutes.STYLES);
 registerRoute(DefaultRoutes.IMAGES);
 registerRoute(DefaultRoutes.SCRIPTS);
 registerRoute(DefaultRoutes.BLANK);
+registerRoute(DefaultRoutes.RESET);
+
+self.addEventListener("message", async ({ data }) => {
+    switch (data.type) {
+        case "RESET":
+            await BrowserData.reset();
+            break;
+    }
+});

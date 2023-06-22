@@ -1,12 +1,10 @@
 import { extensions } from "@bluemind/extensions";
 import session from "@bluemind/session";
 
-import registerSessionInfoRoute from "./routes/registerSessionInfoRoute";
 import registerPartRoute from "./routes/registerPartRoute";
 
 import { syncMailbox, syncMailFolders, syncMailFolder } from "./sync";
 import logger from "@bluemind/logger";
-import BrowserData from "./BrowserData";
 import MailboxItemsDBProxy from "./proxies/MailboxItemsDBProxy";
 import MailboxItemsCacheProxy from "./proxies/MailboxItemsCacheProxy";
 import MailboxFoldersDBProxy from "./proxies/MailboxFoldersDBProxy";
@@ -24,7 +22,6 @@ extensions.register("serviceworker.handlers", "net.bluemind.webapp.mail.js", {
 extensions.register("serviceworker.handlers", "net.bluemind.webapp.mail.js", {
     "api-handler": { class: OwnerSubscriptionsDBProxy, priority: 128 }
 });
-registerSessionInfoRoute();
 registerPartRoute();
 
 self.addEventListener("message", async ({ data }) => {
@@ -38,9 +35,6 @@ self.addEventListener("message", async ({ data }) => {
             } else {
                 await synchronizeFolder(data);
             }
-            break;
-        case "RESET":
-            await BrowserData.reset();
             break;
     }
 });

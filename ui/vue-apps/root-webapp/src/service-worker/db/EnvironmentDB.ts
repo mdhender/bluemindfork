@@ -1,6 +1,5 @@
 import { openDB, DBSchema, IDBPDatabase } from "idb";
 import logger from "@bluemind/logger";
-import { StringArraySupportOption } from "prettier";
 
 interface EnvironmentSchema extends DBSchema {
     system: {
