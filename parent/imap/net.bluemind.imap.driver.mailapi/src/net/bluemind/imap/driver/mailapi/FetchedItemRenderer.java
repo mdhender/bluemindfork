@@ -397,7 +397,7 @@ public class FetchedItemRenderer {
 
 	private static final Path TMP = Paths.get(System.getProperty("java.io.tmpdir"));
 
-	public static CompletableFuture<ByteBuf> readMmap(Stream s, int sizeHint) {
+	private CompletableFuture<ByteBuf> readMmap(Stream s, int sizeHint) {
 		try {
 			MmapWriteStream out = new MmapWriteStream(TMP, sizeHint);
 			ReadStream<Buffer> toRead = VertxStream.read(s);
@@ -405,9 +405,7 @@ public class FetchedItemRenderer {
 			toRead.resume();
 			return out.mmap();
 		} catch (IOException e) {
-			CompletableFuture<ByteBuf> ex = new CompletableFuture<>();
-			ex.completeExceptionally(e);
-			return ex;
+			return CompletableFuture.failedFuture(e);
 		}
 	}
 

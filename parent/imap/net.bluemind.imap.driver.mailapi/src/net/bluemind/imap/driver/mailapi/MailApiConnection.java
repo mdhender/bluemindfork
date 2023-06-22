@@ -22,10 +22,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -424,6 +426,16 @@ public class MailApiConnection implements MailboxConnection {
 		}
 	}
 
+	private Map<Long, Integer> itemIdToSeqNum(IDbMailboxRecords recApi) {
+		List<Long> fullList = recApi.imapIdSet("1:*", "-deleted");
+		long[] fullUidArray = fullList.stream().sorted().mapToLong(Long::longValue).toArray();
+		Map<Long, Integer> ret = new HashMap<>();
+		for (int i = 0; i < fullUidArray.length; i++) {
+			ret.put(fullUidArray[i], i + 1);
+		}
+		return ret;
+	}
+
 	@Override
 	public CompletableFuture<Void> fetch(SelectedFolder selected, ImapIdSet idset, List<MailPart> fields,
 			WriteStream<FetchedItem> output) {
@@ -435,14 +447,15 @@ public class MailApiConnection implements MailboxConnection {
 		CompletableFuture<Void> ret = new CompletableFuture<>();
 		Context fetchContext = VertxPlatform.getVertx().getOrCreateContext();
 		FetchedItemRenderer renderer = new FetchedItemRenderer(bodyApi, recApi, itemsApi, fields);
-		fetchContext
-				.runOnContext(v -> pushNext(fetchContext, renderer, slice, Collections.emptyIterator(), ret, output));
+		Map<Long, Integer> seqIndex = itemIdToSeqNum(recApi);
+		fetchContext.runOnContext(
+				v -> pushNext(fetchContext, seqIndex, renderer, slice, Collections.emptyIterator(), ret, output));
 		return ret;
 	}
 
-	private void pushNext(Context fetchContext, FetchedItemRenderer renderer, Iterator<List<Long>> idSliceIterator,
-			Iterator<WithId<MailboxRecord>> recsIterator, CompletableFuture<Void> ret,
-			WriteStream<FetchedItem> output) {
+	private void pushNext(Context fetchContext, Map<Long, Integer> seqIndex, FetchedItemRenderer renderer,
+			Iterator<List<Long>> idSliceIterator, Iterator<WithId<MailboxRecord>> recsIterator,
+			CompletableFuture<Void> ret, WriteStream<FetchedItem> output) {
 		while (recsIterator.hasNext()) {
 			WithId<MailboxRecord> rec = recsIterator.next();
 			if (rec.value.internalFlags.contains(InternalFlag.expunged)) {
@@ -450,15 +463,14 @@ public class MailApiConnection implements MailboxConnection {
 			}
 
 			long imapUid = rec.value.imapUid;
-			// always increment for valid sequences
 			FetchedItem fi = new FetchedItem();
 			fi.uid = (int) imapUid;
-			fi.seq = fi.uid;
+			fi.seq = seqIndex.get(rec.itemId);
 			fi.properties = renderer.renderFields(rec);
 			output.write(fi);
 			if (output.writeQueueFull()) {
 				output.drainHandler(v -> fetchContext.runOnContext(
-						w -> pushNext(fetchContext, renderer, idSliceIterator, recsIterator, ret, output)));
+						w -> pushNext(fetchContext, seqIndex, renderer, idSliceIterator, recsIterator, ret, output)));
 				return;
 			}
 		}
@@ -467,7 +479,7 @@ public class MailApiConnection implements MailboxConnection {
 			List<Long> slice = idSliceIterator.next();
 			List<WithId<MailboxRecord>> records = renderer.recApi().slice(slice);
 			fetchContext.runOnContext(
-					v -> pushNext(fetchContext, renderer, idSliceIterator, records.iterator(), ret, output));
+					v -> pushNext(fetchContext, seqIndex, renderer, idSliceIterator, records.iterator(), ret, output));
 		} else {
 			output.end(ar -> ret.complete(null));
 		}
