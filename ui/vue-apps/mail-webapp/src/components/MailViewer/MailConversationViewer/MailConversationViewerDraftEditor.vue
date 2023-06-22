@@ -28,42 +28,40 @@
                 />
                 <div class="to-contact-input">
                     <mail-composer-recipient ref="toField" :message="message" recipient-type="to">
-                        <template #end>
-                            <div class="end-buttons">
-                                <bm-button
-                                    v-if="!showCc"
-                                    v-key-nav-group:recipient-button
-                                    variant="text"
-                                    tabindex="1"
-                                    @click="showAndFocusRecipientField('cc')"
-                                    @keydown.tab.prevent="focusRecipientField('to')"
-                                >
-                                    {{ $t("common.cc") }}
-                                </bm-button>
-                                <bm-button
-                                    v-if="!showCc && !showBcc"
-                                    v-key-nav-group:recipient-button
-                                    variant="text"
-                                    tabindex="1"
-                                    @click="showAndFocusRecipientField('bcc')"
-                                    @keydown.tab.prevent="focusRecipientField('to')"
-                                >
-                                    {{ $t("common.bcc") }}
-                                </bm-button>
-                                <mail-open-in-popup-with-shift v-slot="action" :href="route" :next="consult">
-                                    <bm-icon-button
-                                        variant="compact"
-                                        class="expand-button"
-                                        :title="action.label($t('mail.actions.extend'))"
-                                        :disabled="anyAttachmentInError"
-                                        :icon="action.icon('extend')"
-                                        @click="
-                                            saveAsap().then(() => action.execute(() => $router.navigate(route), $event))
-                                        "
-                                    />
-                                </mail-open-in-popup-with-shift>
-                            </div>
-                        </template>
+                        <div class="end-buttons">
+                            <bm-button
+                                v-if="!showCc"
+                                v-key-nav-group:recipient-button
+                                variant="text"
+                                tabindex="-1"
+                                @click="showAndFocusRecipientField('cc')"
+                                @keydown.tab.prevent="focusRecipientField('to')"
+                            >
+                                {{ $t("common.cc") }}
+                            </bm-button>
+                            <bm-button
+                                v-if="!showCc && !showBcc"
+                                v-key-nav-group:recipient-button
+                                variant="text"
+                                tabindex="-1"
+                                @click="showAndFocusRecipientField('bcc')"
+                                @keydown.tab.prevent="focusRecipientField('to')"
+                            >
+                                {{ $t("common.bcc") }}
+                            </bm-button>
+                            <mail-open-in-popup-with-shift v-slot="action" :href="route" :next="consult">
+                                <bm-icon-button
+                                    variant="compact"
+                                    class="expand-button"
+                                    :title="action.label($t('mail.actions.extend'))"
+                                    :disabled="anyAttachmentInError"
+                                    :icon="action.icon('extend')"
+                                    @click="
+                                        saveAsap().then(() => action.execute(() => $router.navigate(route), $event))
+                                    "
+                                />
+                            </mail-open-in-popup-with-shift>
+                        </div>
                     </mail-composer-recipient>
                 </div>
             </div>
@@ -74,20 +72,18 @@
                     <mail-conversation-viewer-vertical-line :index="index" :max-index="maxIndex" after-avatar />
                     <div class="cc-contact-input">
                         <mail-composer-recipient ref="ccField" :message="message" recipient-type="cc">
-                            <template #end>
-                                <div class="end-buttons">
-                                    <bm-button
-                                        v-if="!showBcc"
-                                        v-key-nav-group:recipient-button
-                                        variant="text"
-                                        tabindex="1"
-                                        @click="showAndFocusRecipientField('bcc')"
-                                        @keydown.tab.prevent="focusRecipientField('to')"
-                                    >
-                                        {{ $t("common.bcc") }}
-                                    </bm-button>
-                                </div>
-                            </template>
+                            <div class="end-buttons">
+                                <bm-button
+                                    v-if="!showBcc"
+                                    v-key-nav-group:recipient-button
+                                    variant="text"
+                                    tabindex="-1"
+                                    @click="showAndFocusRecipientField('bcc')"
+                                    @keydown.tab.prevent="focusRecipientField('to')"
+                                >
+                                    {{ $t("common.bcc") }}
+                                </bm-button>
+                            </div>
                         </mail-composer-recipient>
                     </div>
                 </div>
@@ -275,6 +271,7 @@ export default {
         gap: $sp-4;
         align-items: flex-start;
         flex: none;
+        order: 12;
     }
 
     .mail-composer-content .bm-rich-editor {

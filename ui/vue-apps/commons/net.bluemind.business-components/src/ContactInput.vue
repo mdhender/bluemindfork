@@ -3,7 +3,7 @@
         class="contact-input d-flex"
         :class="{ disabled, underline: variant === 'underline', inline: variant === 'inline' }"
     >
-        <slot name="start" />
+        <slot />
         <div class="flex-fill d-flex pl-3">
             <div
                 v-overflown-elements
@@ -140,7 +140,6 @@
                 "
             />
         </div>
-        <slot name="end" />
     </div>
 </template>
 

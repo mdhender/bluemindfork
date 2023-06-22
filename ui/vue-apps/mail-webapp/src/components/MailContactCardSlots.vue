@@ -1,10 +1,7 @@
 <template>
     <component :is="component" v-bind="[$attrs, $props]" class="mail-contact-card-slots" v-on="$listeners">
-        <template #start>
-            <slot name="start" />
-        </template>
-        <template #end>
-            <slot name="end" />
+        <template #default>
+            <slot />
         </template>
         <template #email="slotProps">
             <router-link

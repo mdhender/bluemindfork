@@ -2,49 +2,45 @@
     <div class="mail-composer-recipients pr-1">
         <div class="d-flex align-items-center to-contact-input">
             <mail-composer-recipient ref="toField" :message="message" recipient-type="to">
-                <template #end>
-                    <div class="end-buttons">
-                        <bm-button
-                            v-if="!showCc"
-                            v-key-nav-group:recipient-button
-                            variant="text"
-                            tabindex="1"
-                            @click="showAndFocusRecipientField('cc')"
-                            @keydown.tab.prevent="focusRecipientField('to')"
-                        >
-                            {{ $t("common.cc") }}
-                        </bm-button>
-                        <bm-button
-                            v-if="!showCc && !showBcc"
-                            v-key-nav-group:recipient-button
-                            variant="text"
-                            tabindex="1"
-                            @click="showAndFocusRecipientField('bcc')"
-                            @keydown.tab.prevent="focusRecipientField('to')"
-                        >
-                            {{ $t("common.bcc") }}
-                        </bm-button>
-                    </div>
-                </template>
+                <div class="end-buttons">
+                    <bm-button
+                        v-if="!showCc"
+                        v-key-nav-group:recipient-button
+                        variant="text"
+                        tabindex="-1"
+                        @click="showAndFocusRecipientField('cc')"
+                        @keydown.tab.prevent="focusRecipientField('to')"
+                    >
+                        {{ $t("common.cc") }}
+                    </bm-button>
+                    <bm-button
+                        v-if="!showCc && !showBcc"
+                        v-key-nav-group:recipient-button
+                        variant="text"
+                        tabindex="-1"
+                        @click="showAndFocusRecipientField('bcc')"
+                        @keydown.tab.prevent="focusRecipientField('to')"
+                    >
+                        {{ $t("common.bcc") }}
+                    </bm-button>
+                </div>
             </mail-composer-recipient>
         </div>
         <div v-if="showCc" class="d-flex align-items-center cc-contact-input">
             <mail-composer-recipient ref="ccField" :message="message" recipient-type="cc">
-                <template #end>
-                    <div class="end-buttons">
-                        <bm-button
-                            v-if="!showBcc"
-                            v-key-nav-group:recipient-button
-                            variant="text"
-                            class="bcc-button text-nowrap"
-                            tabindex="1"
-                            @click="showAndFocusRecipientField('bcc')"
-                            @keydown.tab.prevent="focusRecipientField('to')"
-                        >
-                            {{ $t("common.bcc") }}
-                        </bm-button>
-                    </div>
-                </template>
+                <div class="end-buttons">
+                    <bm-button
+                        v-if="!showBcc"
+                        v-key-nav-group:recipient-button
+                        variant="text"
+                        class="bcc-button text-nowrap"
+                        tabindex="-1"
+                        @click="showAndFocusRecipientField('bcc')"
+                        @keydown.tab.prevent="focusRecipientField('to')"
+                    >
+                        {{ $t("common.bcc") }}
+                    </bm-button>
+                </div>
             </mail-composer-recipient>
         </div>
         <mail-composer-recipient v-if="showBcc" ref="bccField" :message="message" recipient-type="bcc" />
@@ -116,6 +112,7 @@ export default {
         gap: $sp-4;
         align-items: flex-start;
         flex: none;
+        order: 12;
     }
 
     .contact-input {

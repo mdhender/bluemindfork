@@ -7,9 +7,9 @@ export default {
         }
         nav[binding.arg].push(el);
         el.addEventListener("keydown", event => {
-            if (event.key === "ArrowRight") {
+            if (["ArrowRight", "Right", "ArrowDown", "Down"].includes(event.key)) {
                 event.shiftKey ? focusEnd(nav[binding.arg]) : focusNext(event.target, nav[binding.arg]);
-            } else if (event.key === "ArrowLeft") {
+            } else if (["ArrowLeft", "Left", "ArrowUp", "Up"].includes(event.key)) {
                 event.shiftKey ? focusStart(nav[binding.arg]) : focusPrevious(event.target, nav[binding.arg]);
             }
             event.stopImmediatePropagation();
