@@ -81,6 +81,10 @@ public class AuthenticationFilter implements IWebFilter {
 	private static final String ID_COOKIE = "IdToken";
 	private static final String BMSID_COOKIE = "BMSID";
 
+	@SuppressWarnings("serial")
+	private static class InvalidIdToken extends Exception {
+	}
+
 	public AuthenticationFilter() {
 		logger.info("AuthenticationFilter filter created.");
 	}
@@ -105,15 +109,12 @@ public class AuthenticationFilter implements IWebFilter {
 			return CompletableFuture.completedFuture(request);
 		}
 
-		return forwardedLocation.flatMap(fl -> fl.resolve()).map(resolved -> forwardedLocation(request))
-				.orElseGet(() -> notForwardedLocation(request));
+		return Optional.ofNullable(request.path()).filter(path -> path.endsWith("/bluemind_sso_logout"))
+				.map(path -> logout(request)).orElseGet(() -> forwardedLocation.flatMap(fl -> fl.resolve())
+						.map(resolved -> forwardedLocation(request)).orElseGet(() -> notForwardedLocation(request)));
 	}
 
 	private CompletableFuture<HttpServerRequest> notForwardedLocation(HttpServerRequest request) {
-		if (request.path().endsWith("/bluemind_sso_logout")) {
-			return logout(request);
-		}
-
 		return sessionExists(request).orElseGet(() -> {
 			DomainsHelper.getDomainUid(request).ifPresentOrElse(domainUid -> {
 				if (isCasEnabled(domainUid)) {
@@ -258,17 +259,22 @@ public class AuthenticationFilter implements IWebFilter {
 
 		String logoutUrl = null;
 		if (!AuthTypes.CAS.name().equals(domainSettings.get(AuthDomainProperties.AUTH_TYPE.name()))) {
-			logoutUrl = domainSettings.get(AuthDomainProperties.OPENID_END_SESSION_ENDPOINT.name());
-			logoutUrl += redirUrl.map(url -> "?post_logout_redirect_uri=" + url).orElse("");
-			logoutUrl += request.cookies(ID_COOKIE).stream().findFirst().map(io.vertx.core.http.Cookie::getValue)
-					.map(it -> {
-						try {
-							return URLEncoder.encode(it, java.nio.charset.StandardCharsets.UTF_8.toString());
-						} catch (UnsupportedEncodingException e) {
-							logger.warn("Unable to get ID token", e);
-							return null;
-						}
-					}).map(encodedIdToken -> "&id_token_hint=" + encodedIdToken).orElse("");
+			try {
+				logoutUrl = domainSettings.get(AuthDomainProperties.OPENID_END_SESSION_ENDPOINT.name());
+				logoutUrl += redirUrl.map(url -> "?post_logout_redirect_uri=" + url).orElse("");
+				logoutUrl += request.cookies(ID_COOKIE).stream().findFirst().map(io.vertx.core.http.Cookie::getValue)
+						.map(it -> {
+							try {
+								return URLEncoder.encode(it, java.nio.charset.StandardCharsets.UTF_8.toString());
+							} catch (UnsupportedEncodingException e) {
+								logger.warn("Unable to get ID token", e);
+								return null;
+							}
+						}).map(encodedIdToken -> "&id_token_hint=" + encodedIdToken)
+						.orElseThrow(() -> new InvalidIdToken());
+			} catch (InvalidIdToken iIT) {
+				logoutUrl = "/";
+			}
 		} else {
 			logoutUrl = domainSettings.get(AuthDomainProperties.CAS_URL.name()) + "logout";
 			logoutUrl += redirUrl.map(url -> "?url=" + url).orElse("");
