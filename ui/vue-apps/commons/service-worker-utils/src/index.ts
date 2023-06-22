@@ -29,13 +29,13 @@ export function fetchRequest(
     folderUid: string,
     imapUid: number,
     address: string,
-    encoding: string,
-    mime: string,
-    charset: string,
+    encoding?: string,
+    mime?: string,
+    charset?: string,
     filename?: string
 ): Request {
     const filenameParam = filename ? "&filename=" + filename : "";
-    const encodedMime = encodeURIComponent(mime!);
+    const encodedMime = encodeURIComponent(mime || "");
     const apiCoreUrl = `/api/mail_items/${folderUid}/part/${imapUid}/${address}?encoding=${encoding}&mime=${encodedMime}&charset=${charset}${filenameParam}`;
     const fetchParams: RequestInit = {
         headers: {
