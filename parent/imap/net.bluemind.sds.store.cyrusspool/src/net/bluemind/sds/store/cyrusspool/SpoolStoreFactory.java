@@ -88,7 +88,7 @@ public class SpoolStoreFactory implements ISdsBackingStoreFactory {
 
 	@Override
 	public ISdsBackingStore create(Vertx vertx, JsonObject configuration, String dataLocation) {
-		return new SpoolBackingStore(vertx, serviceProvider, Topology.get().datalocation(dataLocation));
+		return new SpoolBackingStore(serviceProvider, Topology.get().datalocation(dataLocation));
 	}
 
 }

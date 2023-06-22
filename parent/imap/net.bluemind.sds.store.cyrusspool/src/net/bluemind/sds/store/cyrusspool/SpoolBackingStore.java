@@ -45,7 +45,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
-import io.vertx.core.Vertx;
 import net.bluemind.backend.cyrus.partitions.CyrusFileSystemPathHelper;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.cyrus.partitions.MailboxDescriptor;
@@ -92,8 +91,7 @@ public class SpoolBackingStore implements ISdsBackingStore {
 	private ItemValue<Server> backend;
 	private final INodeClient nc;
 
-	public SpoolBackingStore(@SuppressWarnings("unused") Vertx vertx, IServiceProvider prov,
-			ItemValue<Server> backend) {
+	public SpoolBackingStore(IServiceProvider prov, ItemValue<Server> backend) {
 		this.serviceProvider = prov;
 		this.backend = backend;
 		this.nc = NodeActivator.get(backend.value.address());
@@ -110,13 +108,13 @@ public class SpoolBackingStore implements ISdsBackingStore {
 			long copied = ByteStreams.copy(input, zst);
 			logger.debug("Compressed {}byte(s) for {}", copied, req.guid);
 		} catch (IOException e) {
-			return exception(e);
+			return CompletableFuture.failedFuture(e);
 		}
 		try (InputStream input = new ByteBufInputStream(bb, true)) {
 			nc.writeFile(target, input);
 			return CompletableFuture.completedFuture(SdsResponse.UNTAGGED_OK);
 		} catch (IOException e) {
-			return exception(e);
+			return CompletableFuture.failedFuture(e);
 		}
 
 	}
@@ -144,12 +142,6 @@ public class SpoolBackingStore implements ISdsBackingStore {
 		} else {
 			return livePath(req.guid);
 		}
-	}
-
-	private static CompletableFuture<SdsResponse> exception(Throwable t) {
-		CompletableFuture<SdsResponse> sr = new CompletableFuture<>();
-		sr.completeExceptionally(t);
-		return sr;
 	}
 
 	@Override
