@@ -2,7 +2,7 @@
 import pRetry from "p-retry";
 import { MailboxFolder, MailboxFoldersClient } from "@bluemind/backend.mail.api";
 import { ItemValue } from "@bluemind/core.container.api";
-import { logger } from "../logger";
+import logger from "@bluemind/logger";
 import db from "../MailDB";
 import session from "@bluemind/session";
 

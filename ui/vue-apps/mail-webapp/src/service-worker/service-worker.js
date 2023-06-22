@@ -5,7 +5,7 @@ import registerSessionInfoRoute from "./routes/registerSessionInfoRoute";
 import registerPartRoute from "./routes/registerPartRoute";
 
 import { syncMailbox, syncMailFolders, syncMailFolder } from "./sync";
-import { logger } from "./logger";
+import logger from "@bluemind/logger";
 import BrowserData from "./BrowserData";
 import MailboxItemsDBProxy from "./proxies/MailboxItemsDBProxy";
 import MailboxItemsCacheProxy from "./proxies/MailboxItemsCacheProxy";

@@ -1,0 +1,8 @@
+{
+    "name": "@bluemind/logger",
+    "version": "5.0.0",
+    "description": "BlueMind logger package",
+    "license": "AGPL-3.0-only",
+    "author": "Blue Mind SAS",
+    "main": "src/index.ts"
+}

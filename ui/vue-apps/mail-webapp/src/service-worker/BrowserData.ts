@@ -1,6 +1,6 @@
 import { deleteDB } from "idb";
 import session from "@bluemind/session";
-import { logger } from "./logger";
+import logger from "@bluemind/logger";
 import db from "./EnvironmentDB";
 declare const self: ServiceWorkerGlobalScope;
 

@@ -1,6 +1,6 @@
 import { DBSchema, IDBPDatabase, openDB } from "idb";
 import { RevocationResult } from "@bluemind/smime.cacerts.api";
-import { logger } from "../environnment/logger";
+import logger from "@bluemind/logger";
 import { PKIEntry, PKIStatus } from "../../lib/constants";
 import session from "@bluemind/session";
 

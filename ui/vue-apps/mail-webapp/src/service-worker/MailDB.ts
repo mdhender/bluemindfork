@@ -4,7 +4,7 @@ import { ContainerSubscriptionModel, ItemFlag, ItemValue } from "@bluemind/core.
 import { MailboxFolder, MailboxItem } from "@bluemind/backend.mail.api";
 import session from "@bluemind/session";
 
-import { logger } from "./logger";
+import logger from "@bluemind/logger";
 
 export type SyncOptionsType = "mail_folder" | "mail_item" | "owner_subscriptions";
 

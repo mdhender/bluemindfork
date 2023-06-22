@@ -2,7 +2,7 @@ import { MailboxItem, MessageBody } from "@bluemind/backend.mail.api";
 import { ItemValue } from "@bluemind/core.container.api";
 import { fetchCompleteRequest, dispatchFetch } from "@bluemind/service-worker-utils";
 import session from "@bluemind/session";
-import { logger } from "../environnment/logger";
+import logger from "@bluemind/logger";
 import { isEncrypted, isSigned } from "../../lib/helper";
 import { invalidate, getBody, setReference } from "./cache/BodyCache";
 import decrypt from "./decrypt";

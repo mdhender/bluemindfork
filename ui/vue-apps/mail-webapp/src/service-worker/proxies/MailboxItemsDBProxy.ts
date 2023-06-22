@@ -83,7 +83,7 @@ function indexOf(
     return direction === "Desc" ? array.length - index : index;
 }
 
-export function filterByFlags(expected: ItemFlagFilter | undefined, flags: any[]) {
+export function filterByFlags(expected: ItemFlagFilter | undefined, flags: ItemFlag[]) {
     return (
         expected?.must?.every(flag => flags.includes(flag)) && !expected?.mustNot?.some(flag => flags.includes(flag))
     );

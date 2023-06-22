@@ -11,7 +11,7 @@ import {
 import { MailboxFolder, MailboxFoldersClient, MailboxItem, MailboxItemsClient } from "@bluemind/backend.mail.api";
 import session from "@bluemind/session";
 import { default as db, SyncOptions, SyncOptionsType } from "./MailDB";
-import { logger } from "./logger";
+import logger from "@bluemind/logger";
 
 const limits: { [uid: string]: Limit } = {};
 
