@@ -66,19 +66,20 @@ restart_exceptnode_bm() {
 }
 
 function memory_report() {
-  total_mem=0
-  for i in `$jps -q`; do
-    used=`$jmap -histo $i 2>&1 | grep '^Total' | awk '{print $3}'`
-    if [[ $used =~ ^-?[0-9]+$ ]]; then
-      total_mem=$(($total_mem + $used))
-      echo "Memory used for $i: $used"
-    fi
-  done
-  mega=$(($total_mem / 1024 / 1024))
-  echo "Total Blue Mind JVM memory: $total_mem ($mega MB)"
+    total_mem=0
+    for svc in $(systemctl list-dependencies --plain bluemind.target | grep -Fv bluemind.target | sort | uniq); do
+	curmem=$(systemctl show -p MemoryCurrent ${svc} |cut -b15-)
+	if [[ $curmem =~ ^[0-9]+$ ]]; then
+	    echo "Usage for ${svc} is ${curmem}"
+	    total_mem=$(($total_mem + $curmem))
+	fi
+    done
+
+    gigab=$(($total_mem / 1024 / 1024/ 1024))
+    echo "Total usage is ${total_mem} (${gigab} GB)"
 }
 
-# Wainting for https://github.com/systemd/systemd/issues/3174
+# Waiting for https://github.com/systemd/systemd/issues/3174
 function status_bm() {
   if systemctl status bluemind.target > /dev/null 2>&1; then
     status_bm_started
