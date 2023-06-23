@@ -1,6 +1,9 @@
 import { clientsClaim } from "workbox-core";
 import { registerRoute } from "workbox-routing";
 import { extensions } from "@bluemind/extensions";
+import logger from "@bluemind/logger";
+import session from "@bluemind/session";
+
 import BrowserData from "./BrowserData";
 import DefaultRoutes from "./DefaultRoutes";
 import { ApiRouteRegistry } from "./ApiProxyPlugin/ApiRouteRegistry";
@@ -29,12 +32,20 @@ registerRoute(DefaultRoutes.STYLES);
 registerRoute(DefaultRoutes.IMAGES);
 registerRoute(DefaultRoutes.SCRIPTS);
 registerRoute(DefaultRoutes.BLANK);
-registerRoute(DefaultRoutes.RESET);
 
 self.addEventListener("message", async ({ data }) => {
     switch (data.type) {
         case "RESET":
             await BrowserData.reset();
             break;
+    }
+});
+
+session.addEventListener("refresh", async () => {
+    try {
+        await BrowserData.resetIfNeeded();
+    } catch (e) {
+        logger.error("[SW][BrowserData] Fail to reset browser data");
+        logger.error(e);
     }
 });

@@ -1,4 +1,5 @@
 import global from "@bluemind/global";
+import isEqual from "lodash.isequal";
 
 interface SessionInfos {
     accountType: string;
@@ -13,6 +14,40 @@ interface SessionInfos {
     roles: string;
     sid: string;
     userId: string;
+}
+type SessionChangedEvent = CustomEvent<{ value: SessionInfos; old?: SessionInfos }>;
+type SessionRefreshEvent = CustomEvent<{ value: SessionInfos }>;
+
+interface SessionEventMap {
+    change: SessionChangedEvent;
+    refresh: SessionRefreshEvent;
+}
+
+type SessionEventType = keyof SessionEventMap;
+interface Session extends EventTarget {
+    accountType: Promise<string>;
+    bmBrandVersion: Promise<string>;
+    bmVersion: Promise<string>;
+    defaultEmail: Promise<string>;
+    domain: Promise<string>;
+    formatedName: Promise<string>;
+    mailboxCopyGuid: Promise<string>;
+    lang: Promise<string>;
+    login: Promise<string>;
+    roles: Promise<string[]>;
+    sid: Promise<string>;
+    userId: Promise<string>;
+    revalidate: () => void;
+    addEventListener<T extends SessionEventType>(
+        type: T,
+        listener: (this: Session, ev: SessionEventMap[T]) => unknown,
+        options?: boolean | AddEventListenerOptions
+    ): void;
+    removeEventListener<T extends SessionEventType>(
+        type: T,
+        listener: (this: Session, ev: SessionEventMap[T]) => unknown,
+        options?: boolean | AddEventListenerOptions
+    ): void;
 }
 
 const ANONYMOUS: SessionInfos = {
@@ -29,24 +64,33 @@ const ANONYMOUS: SessionInfos = {
     sid: "",
     userId: ""
 };
+
 const REFRESH_SESSION_INTERVAL = 30 * 1000;
 let infos: SessionInfos | undefined;
+let expiration = 0;
+const target = new EventTarget();
+
 async function instance(): Promise<SessionInfos> {
     if (!infos || shouldRefreshSession()) {
+        const old = infos;
         try {
             infos = await fetchSession();
-            global.session.expiration = Date.now() + REFRESH_SESSION_INTERVAL;
+            expiration = Date.now() + REFRESH_SESSION_INTERVAL;
         } catch (e) {
             // For now fetchSession should never fail...
             infos = ANONYMOUS;
-            global.session.expiration = Date.now() + 1000;
+            expiration = Date.now() + 1000;
         }
+        if (!isEqual(old, infos)) {
+            target.dispatchEvent(new CustomEvent("change", { detail: { old, value: infos } }));
+        }
+        target.dispatchEvent(new Event("refresh"));
     }
     return infos;
 }
 
 function shouldRefreshSession() {
-    return global.session.expiration < Date.now();
+    return expiration < Date.now();
 }
 
 async function fetchSession(): Promise<SessionInfos> {
@@ -60,23 +104,8 @@ async function fetchSession(): Promise<SessionInfos> {
     return Promise.reject(`Error while fetching infos ${response.status}`);
 }
 
-interface Session {
-    accountType: Promise<string>;
-    bmBrandVersion: Promise<string>;
-    bmVersion: Promise<string>;
-    defaultEmail: Promise<string>;
-    domain: Promise<string>;
-    formatedName: Promise<string>;
-    mailboxCopyGuid: Promise<string>;
-    lang: Promise<string>;
-    login: Promise<string>;
-    roles: Promise<string[]>;
-    sid: Promise<string>;
-    userId: Promise<string>;
-    revalidate: () => void;
-}
-function init() {
-    const session: Session = {
+if (!global.session) {
+    global.session = {
         get accountType() {
             return instance().then(({ accountType }) => accountType);
         },
@@ -114,14 +143,18 @@ function init() {
             return instance().then(({ userId }) => userId);
         },
         revalidate() {
-            global.session.expiration = Date.now() - 1;
+            expiration = Date.now() - 1;
+        },
+        addEventListener: function (...args: Parameters<EventTarget["addEventListener"]>): void {
+            target.removeEventListener(...args);
+        },
+        dispatchEvent: function (event: Event): boolean {
+            return target.dispatchEvent(event);
+        },
+        removeEventListener: function (...args: Parameters<EventTarget["removeEventListener"]>): void {
+            target.removeEventListener(...args);
         }
-    };
-    return { expiration: 0, infos: session };
+    } as Session;
 }
 
-if (!global.session) {
-    global.session = init();
-}
-
-export default global.session.infos as Session; // expiration must be internal in code but global at execution (cross JS)
+export default global.session as Session; // expiration must be internal in code but global at execution (cross JS)

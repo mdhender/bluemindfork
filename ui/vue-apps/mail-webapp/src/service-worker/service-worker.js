@@ -1,7 +1,7 @@
 import { extensions } from "@bluemind/extensions";
 import session from "@bluemind/session";
 
-import registerPartRoute from "./routes/registerPartRoute";
+import { PartRoute } from "./PartRoute";
 
 import { syncMailbox, syncMailFolders, syncMailFolder } from "./sync";
 import logger from "@bluemind/logger";
@@ -9,6 +9,7 @@ import MailboxItemsDBProxy from "./proxies/MailboxItemsDBProxy";
 import MailboxItemsCacheProxy from "./proxies/MailboxItemsCacheProxy";
 import MailboxFoldersDBProxy from "./proxies/MailboxFoldersDBProxy";
 import OwnerSubscriptionsDBProxy from "./proxies/OwnerSubscriptionsDBProxy";
+import { registerRoute } from "workbox-routing";
 
 extensions.register("serviceworker.handlers", "net.bluemind.webapp.mail.js", {
     "api-handler": { class: MailboxItemsDBProxy, priority: 128 }
@@ -22,7 +23,8 @@ extensions.register("serviceworker.handlers", "net.bluemind.webapp.mail.js", {
 extensions.register("serviceworker.handlers", "net.bluemind.webapp.mail.js", {
     "api-handler": { class: OwnerSubscriptionsDBProxy, priority: 128 }
 });
-registerPartRoute();
+
+registerRoute(PartRoute);
 
 self.addEventListener("message", async ({ data }) => {
     switch (data.type) {

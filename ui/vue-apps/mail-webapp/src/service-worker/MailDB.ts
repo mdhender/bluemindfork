@@ -110,7 +110,7 @@ export class MailDBImpl implements MailDB {
                 );
             },
             blocking: async () => {
-                (await this.dbPromise).close();
+                await this.close();
                 this.dbPromise = this.openDB(mailboxRoot);
             }
         });
@@ -137,7 +137,9 @@ export class MailDBImpl implements MailDB {
     private async putMailItems(items: ItemValue<MailboxItem>[], tx?: MailDBTransaction) {
         await this.putItems(items, "mail_items", tx);
     }
-
+    async close(): Promise<void> {
+        (await this.dbPromise).close();
+    }
     async getSyncOptions(uid: string) {
         return (await this.dbPromise).get("sync_options", uid);
     }
@@ -271,7 +273,7 @@ function toLight(mail: ItemValue<MailboxItem>): MailItemLight {
     };
 }
 
-let implementation: MailDB | null = null;
+let implementation: MailDBImpl | null = null;
 async function instance(): Promise<MailDB> {
     if (!implementation) {
         const name = `user.${await session.userId}@${(await session.domain).replace(/\./g, "_")}`;
@@ -279,6 +281,14 @@ async function instance(): Promise<MailDB> {
     }
     return implementation;
 }
+
+session.addEventListener("change", event => {
+    const { old, value } = event.detail;
+    if (value.userId != old?.userId && implementation) {
+        implementation?.close();
+        implementation = null;
+    }
+});
 
 const db: MailDB = {
     getSyncOptions: uid => instance().then(db => db.getSyncOptions(uid)),

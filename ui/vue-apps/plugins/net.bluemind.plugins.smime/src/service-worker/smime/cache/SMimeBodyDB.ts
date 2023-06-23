@@ -41,10 +41,13 @@ class SMimeBodyDBImpl implements SMimeBodyDB {
                 db.createObjectStore("body");
             },
             blocking: async () => {
-                (await this.connection).close();
+                await this.close();
                 this.connection = this.open(userId);
             }
         });
+    }
+    async close(): Promise<void> {
+        (await this.connection).close();
     }
     async setGuid(folderUid: string, imapUid: number, guid: string): Promise<void> {
         (await this.connection).put("guid", { guid, creation_time: Date.now() }, [folderUid, imapUid]);
@@ -82,13 +85,22 @@ class SMimeBodyDBImpl implements SMimeBodyDB {
         tx.done;
     }
 }
-let implementation: SMimeBodyDB | null = null;
+let implementation: SMimeBodyDBImpl | null = null;
 async function instance(): Promise<SMimeBodyDB> {
     if (!implementation) {
         implementation = new SMimeBodyDBImpl(await session.userId);
     }
     return implementation;
 }
+
+session.addEventListener("change", event => {
+    const { old, value } = event.detail;
+    if (value.userId != old?.userId && implementation) {
+        implementation?.close();
+        implementation = null;
+    }
+});
+
 const db: SMimeBodyDB = {
     setGuid: (folderUid, imapUid, guid) => instance().then(db => db.setGuid(folderUid, imapUid, guid)),
     getGuid: (folderUid, imapUid) => instance().then(db => db.getGuid(folderUid, imapUid)),

@@ -46,12 +46,14 @@ class SMimePkiDBImpl implements SMimePkiDB {
                 db.createObjectStore("revocations");
             },
             blocking: async () => {
-                (await this.connection).close();
+                await this.close();
                 this.connection = this.open(userId);
             }
         });
     }
-
+    async close(): Promise<void> {
+        (await this.connection).close();
+    }
     async clearMyCertAndKey(): Promise<void> {
         return (await this.connection).clear("my_key_and_cert");
     }
@@ -95,6 +97,15 @@ async function instance(): Promise<SMimePkiDB> {
     }
     return implementation;
 }
+
+session.addEventListener("change", event => {
+    const { old, value } = event.detail;
+    if (value.userId != old?.userId && implementation) {
+        implementation?.close();
+        implementation = null;
+    }
+});
+
 const db: SMimePkiDB = {
     clearMyCertAndKey: () => instance().then(db => db.clearMyCertAndKey()),
     getPrivateKey: () => instance().then(db => db.getPrivateKey()),
