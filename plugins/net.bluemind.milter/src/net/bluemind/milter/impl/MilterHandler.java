@@ -9,6 +9,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -165,28 +166,27 @@ public class MilterHandler implements JilterHandler {
 	private void applyMailModifications(JilterEOMActions eomActions, UpdatedMailMessage modifiedMail) {
 		if (!modifiedMail.bodyChangedBy.isEmpty()) {
 			logger.debug("replacing body ({})", modifiedMail.bodyChangedBy);
-			File out = null;
+			Path out = null;
 			try {
-				out = File.createTempFile("milter", ".eml");
+				out = File.createTempFile("milter", ".eml").toPath();
 
-				try (OutputStream outStream = Files.newOutputStream(out.toPath(), StandardOpenOption.TRUNCATE_EXISTING,
+				try (OutputStream outStream = Files.newOutputStream(out, StandardOpenOption.TRUNCATE_EXISTING,
 						StandardOpenOption.WRITE)) {
 					Mime4JHelper.serializeBody(modifiedMail.getBody(), outStream);
-					FileChannel asChannel = FileChannel.open(out.toPath(), StandardOpenOption.READ);
-					long fileLength = out.length();
+				}
+
+				try (FileChannel asChannel = FileChannel.open(out, StandardOpenOption.READ)) {
+					long fileLength = out.toFile().length();
 					MappedByteBuffer asByteBuffer = asChannel.map(MapMode.READ_ONLY, 0, fileLength);
+					Files.delete(out);
+
 					// update mail Content-Type header
 					eomActions.chgheader(FieldName.CONTENT_TYPE, 1,
 							modifiedMail.getMessage().getHeader().getField(FieldName.CONTENT_TYPE).getBody());
 					eomActions.replacebody(asByteBuffer);
-					asChannel.close();
 				}
 			} catch (IOException e) {
 				logger.error(e.getMessage(), e);
-			} finally {
-				if (out != null) {
-					out.delete();
-				}
 			}
 		}
 
