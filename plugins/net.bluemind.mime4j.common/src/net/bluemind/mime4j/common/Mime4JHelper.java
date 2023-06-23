@@ -111,7 +111,7 @@ public class Mime4JHelper {
 	private static final Logger logger = LoggerFactory.getLogger(Mime4JHelper.class);
 
 	private static List<AddressableEntity> expandParts(List<Entity> parts, String curAddr, int depth) {
-		List<AddressableEntity> ret = new LinkedList<AddressableEntity>();
+		List<AddressableEntity> ret = new LinkedList<>();
 		int idx = 1;
 		for (Entity e : parts) {
 			String mime = e.getMimeType();
@@ -149,7 +149,7 @@ public class Mime4JHelper {
 	}
 
 	private static List<AddressableEntity> expandAlternative(List<Entity> altParts, String curAddr) {
-		List<AddressableEntity> ret = new ArrayList<AddressableEntity>();
+		List<AddressableEntity> ret = new ArrayList<>();
 		int depth = 1;
 		for (Entity part : altParts) {
 			String addr = curAddr + depth;
@@ -168,11 +168,10 @@ public class Mime4JHelper {
 	}
 
 	public static IMailRewriter untouched(Mailbox from) {
-		logger.info("*** Pristine stream with custom from: " + from);
+		logger.info("*** Pristine stream with custom from: {}", from);
 		MessageImpl message = new MessageImpl();
 		BodyFactory bf = new BasicBodyFactory();
-		DontTouchHandler dth = new DontTouchHandler(message, bf, from);
-		return dth;
+		return new DontTouchHandler(message, bf, from);
 	}
 
 	/**
@@ -430,9 +429,9 @@ public class Mime4JHelper {
 	private static Set<String> refs(Message msg) {
 		Set<String> ref = new HashSet<>();
 		Optional.ofNullable(msg.getHeader().getField("in-reply-to")).ifPresent(f -> ref.add(f.getBody()));
-		Optional.ofNullable(msg.getHeader().getField("references")).ifPresent(refField -> {
-			Splitter.on(' ').trimResults().omitEmptyStrings().splitToStream(refField.getBody()).forEach(ref::add);
-		});
+		Optional.ofNullable(msg.getHeader().getField("references")).ifPresent(refField -> //
+		Splitter.on(' ').trimResults().omitEmptyStrings().splitToStream(refField.getBody()).forEach(ref::add)//
+		);
 		return ref;
 	}
 
@@ -522,7 +521,7 @@ public class Mime4JHelper {
 			replyTxt = htmlToText(reply);
 		}
 
-		if ("text/html".equals(e.getBody().getParent().getMimeType())) {
+		if (TEXT_HTML.equals(e.getBody().getParent().getMimeType())) {
 			try {
 				Document doc = Jsoup.parse(replyHtml);
 				Elements blockquotes = doc.getElementsByTag("blockquote");
@@ -552,7 +551,7 @@ public class Mime4JHelper {
 						+ "<blockquote type=\"cite\" style=\"padding-left:5px; border-left:2px solid #1010ff; margin-left:5px\">"
 						+ quotePart + "</blockquote>";
 			}
-		} else if ("text/plain".equals(e.getBody().getParent().getMimeType())) {
+		} else if (TEXT_PLAIN.equals(e.getBody().getParent().getMimeType())) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(replyTxt);
 			sb.append("\n");
@@ -570,7 +569,7 @@ public class Mime4JHelper {
 		doc.outputSettings(outputSettings);
 		doc.select("br").before("\\n");
 		doc.select("p").before("\\n");
-		String str = doc.html().replaceAll("\\\\n", "\n");
+		String str = doc.html().replace("\\\\n", "\n");
 		return Jsoup.clean(str, "", Safelist.none(), outputSettings);
 	}
 
