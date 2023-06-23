@@ -2,12 +2,12 @@
 
 exports[`ContactInput ContactInput should match snapshot 1`] = `
 <div
-  class="contact-input d-flex"
+  class="contact-input"
   data-browse-root="true"
 >
   To 
   <div
-    class="flex-fill d-flex pl-3"
+    class="contacts flex-fill d-flex"
   >
     <div
       class="flex-fill d-flex flex-nowrap overflow-hidden"

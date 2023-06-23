@@ -6,7 +6,10 @@
         :class="{ 'fixed-row-height': fixedRowHeight }"
         :sort-by.sync="curSortBy"
         :sort-desc.sync="curSortDesc"
-        v-on="$listeners"
+        v-on="listeners"
+        @row-selected="onRowSelected"
+        @context-changed="doSelectRows"
+        @input="doSelectRows"
     >
         <template v-for="field in fields" #[`head(${field.key})`]="data">
             <bm-sort-control
@@ -39,38 +42,31 @@ export default {
     components: { BmSortControl, BTable, BTr, BTd },
     extends: BTable,
     props: {
-        hover: {
-            type: Boolean,
-            default: true
-        },
-        sortIconLeft: {
-            type: Boolean,
-            default: true
-        },
-        striped: {
-            type: Boolean,
-            default: false
-        },
-        items: {
-            type: Array,
-            required: true
-        },
-        fill: {
-            type: Boolean,
-            default: true
-        },
-        fixedRowHeight: {
-            type: Boolean,
-            default: true
-        }
+        hover: { type: Boolean, default: true },
+        sortIconLeft: { type: Boolean, default: true },
+        striped: { type: Boolean, default: false },
+        items: { type: Array, required: true },
+        fill: { type: Boolean, default: true },
+        fixedRowHeight: { type: Boolean, default: true },
+        selected: { type: Array, default: () => [] }
     },
     data() {
         return {
             curSortBy: this.sortBy,
-            curSortDesc: this.sortDesc
+            curSortDesc: this.sortDesc,
+            selectedPerPage: {},
+            displayedItems: undefined
         };
     },
     computed: {
+        listeners() {
+            return Object.entries(this.$listeners).reduce((listeners, [name, value]) => {
+                if (name !== "row-selected") {
+                    listeners[name] = value;
+                }
+                return listeners;
+            }, {});
+        },
         filler() {
             const size = this.perPage - (this.items.length % this.perPage);
             const isLastPage = Math.ceil(this.items.length / this.perPage) === this.currentPage;
@@ -85,6 +81,23 @@ export default {
             return false;
         }
     },
+    watch: {
+        items() {
+            this.selectedPerPage = {};
+        },
+        selected: {
+            handler: function () {
+                this.doSelectRows();
+            },
+            immediate: true
+        }
+    },
+    mounted() {
+        this.$watch(
+            () => this.$refs.bTable.computedItems,
+            value => (this.displayedItems = value)
+        );
+    },
     methods: {
         sortControlClicked(field) {
             if (this.curSortBy === field) {
@@ -95,10 +108,73 @@ export default {
             }
         },
         selectRow(index) {
-            this.$refs.bTable.selectRow(index);
+            const page = Math.ceil((index + 1) / this.perPage);
+            const indexInPage = index - (this.currentPage - 1) * this.perPage;
+            if (page !== this.currentPage) {
+                if (!this.selectedPerPage[page]) {
+                    this.selectedPerPage[page] = [];
+                }
+                this.selectedPerPage[page][indexInPage] = this.items[index];
+            } else {
+                this.$refs.bTable.selectRow(indexInPage);
+            }
         },
         unselectRow(index) {
-            this.$refs.bTable.unselectRow(index);
+            const page = Math.ceil((index + 1) / this.perPage);
+            const indexInPage = index - (this.currentPage - 1) * this.perPage;
+            if (page !== this.currentPage) {
+                if (!this.selectedPerPage[page]) {
+                    this.selectedPerPage[page] = [];
+                }
+                this.selectedPerPage[page][indexInPage] = undefined;
+            } else {
+                this.$refs.bTable.unselectRow(indexInPage);
+            }
+        },
+        onRowSelected(items) {
+            if (this.isClear()) {
+                this.$emit("clearing-selection");
+            } else {
+                const itemsCopy = [...items];
+                this.selectedPerPage[this.currentPage] = this.$refs.bTable.selectedRows.map(isSelected =>
+                    isSelected ? itemsCopy.shift() : undefined
+                );
+                this.$listeners["row-selected"]?.call(
+                    this,
+                    Object.values(this.selectedPerPage)
+                        .flatMap(s => s)
+                        .filter(Boolean)
+                );
+            }
+        },
+        isClear() {
+            return this.displayedItems && this.displayedItems !== this.$refs.bTable.computedItems;
+        },
+        doSelectRow(index, doSelect) {
+            const isSelected = this.$refs.bTable.isRowSelected(index);
+            if (doSelect && !isSelected) {
+                this.selectRow(index);
+            } else if (!doSelect && isSelected) {
+                this.unselectRow(index);
+            }
+        },
+        async doSelectRows() {
+            await this.$waitFor(() => this.$refs.bTable, Boolean);
+            this.items.forEach((item, index) => {
+                this.doSelectRow(
+                    index,
+                    this.selected.some(s => s === item)
+                );
+            });
+        },
+        /** FIXME: WaitFor mixin exists in MailApp, should be common. */
+        $waitFor(subject, opt_assert, options = { immediate: true, deep: true }) {
+            let resolver;
+            const assert = opt_assert || Boolean;
+            const promise = new Promise(resolve => (resolver = resolve));
+            const unwatch = this.$watch(subject, value => assert(value) && resolver(), options);
+            promise.then(unwatch);
+            return promise;
         }
     }
 };

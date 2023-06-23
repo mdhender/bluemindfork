@@ -17,7 +17,7 @@
         @autocompleteHidden="expandSearch = false"
         @delete="SET_ADDRESS_WEIGHT({ address: $event.address, weight: -1 })"
     >
-        <mail-composer-recipient-button :recipient-type="$t(`common.${recipientType}`)" />
+        <mail-composer-recipient-button :recipient-type="$t(`common.${recipientType}`)" v-on="$listeners" />
         <slot />
     </mail-contact-card-slots>
 </template>

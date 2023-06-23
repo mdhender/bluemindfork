@@ -3,7 +3,10 @@
         v-key-nav-group:recipient-button
         class="mail-composer-recipient-button mr-3"
         variant="text-accent"
-        @click="$bvModal.show('recipient-picker')"
+        @click="
+            $bvModal.show('recipient-picker');
+            $emit('open-picker');
+        "
     >
         {{ recipientType }}
     </bm-button>

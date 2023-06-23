@@ -1,9 +1,10 @@
 <template>
     <div class="contact-list">
-        <div class="table-wrapper scroller-y">
+        <div class="overflow-auto">
             <bm-table
                 ref="contactTable"
                 :items="contacts"
+                :selected="selected"
                 :fields="fields"
                 :busy="loading"
                 :per-page="perPage"
@@ -12,8 +13,8 @@
                 selectable
                 selected-variant=""
                 show-empty
-                class="text-truncate scroller-y"
-                @row-selected="onRowSelected"
+                class="scroller-y"
+                @row-selected="$emit('selected', $event)"
             >
                 <template #table-busy>
                     <div class="text-center">
@@ -37,22 +38,39 @@
                         @click.native.prevent.stop="rowSelected ? unselectRow() : selectRow()"
                     />
                 </template>
+
+                <template #cell(name)="{ value }">
+                    <div class="d-flex align-items-center position-relative">
+                        <span class="text-truncate text-nowrap position-absolute w-100">{{ value }}</span>
+                    </div>
+                </template>
+
+                <template #cell(email)="{ value }">
+                    <div class="d-flex align-items-center position-relative">
+                        <span class="text-truncate text-nowrap position-absolute w-100">{{ value }}</span>
+                    </div>
+                </template>
+
+                <template #cell(tel)="{ value }">
+                    <div class="d-flex align-items-center position-relative">
+                        <span class="text-truncate text-nowrap position-absolute w-100">{{ value }}</span>
+                    </div>
+                </template>
             </bm-table>
         </div>
-        <div class="pagination-wrapper">
-            <bm-pagination v-model="currentPage" :total-rows="contacts.length" :per-page="perPage" />
-        </div>
+        <bm-pagination v-model="currentPage" :total-rows="contacts.length" :per-page="perPage" />
     </div>
 </template>
 
 <script>
-import { BmTable, BmPagination, BmSpinner, BmCheck /* BmIllustration */ } from "@bluemind/ui-components";
+import { BmPagination, BmSpinner, BmTable, BmCheck /* BmIllustration */ } from "@bluemind/ui-components";
 import AddressBookLabelIcon from "./AddressBookLabelIcon.vue";
+
 export default {
     name: "ContactList",
     components: { BmTable, BmPagination, BmSpinner, BmCheck /* BmIllustration */, AddressBookLabelIcon },
     props: {
-        addressbook: { type: Object, default: () => ({}) },
+        addressbook: { type: Object, required: true },
         contacts: { type: Array, required: true },
         loading: { type: Boolean, required: true },
         selected: { type: Array, required: true },
@@ -62,37 +80,15 @@ export default {
         return {
             fields: [
                 { key: "selected", label: "", class: "selected-cell" },
-                { key: "name", label: "", class: "name-cell text-truncate" },
-                { key: "email", label: "", class: "email-cell text-truncate" },
-                { key: "tel", label: "", class: "tel-cell text-truncate" }
+                { key: "name", label: "" },
+                { key: "email", label: "" },
+                { key: "tel", label: "", class: "tel-cell" }
             ],
-            perPage: 50,
+            perPage: 10,
             currentPage: 1
         };
-    },
-    watch: {
-        selected: {
-            handler: function (value) {
-                const selectedUids = value.map(v => v.uid);
-                this.contacts.forEach((c, index) => {
-                    selectedUids.includes(c.uid)
-                        ? this.$refs.contactTable.selectRow(index)
-                        : this.$refs.contactTable.unselectRow(index);
-                });
-            },
-            immediate: true
-        }
-    },
-    methods: {
-        onRowSelected(items) {
-            this.$emit("update:selected", items.map(toContact));
-        }
     }
 };
-
-function toContact(contactItem) {
-    return { address: contactItem.email, dn: contactItem.name, uid: contactItem.uid };
-}
 </script>
 
 <style lang="scss">
@@ -125,6 +121,9 @@ function toContact(contactItem) {
     .selected-cell {
         width: base-px-to-rem(40);
     }
+    .tel-cell {
+        width: 15%;
+    }
     .no-result {
         display: flex;
         flex-wrap: wrap;
@@ -137,7 +136,7 @@ function toContact(contactItem) {
         background-color: $backdrop;
         border-bottom: none !important;
     }
-    .pagination-wrapper {
+    .bm-pagination {
         padding-top: $pagination-padding-y;
         height: $pagination-wrapper-height;
     }

@@ -1,7 +1,12 @@
 <template>
     <div class="mail-composer-recipients pr-1">
         <div class="d-flex align-items-center to-contact-input">
-            <mail-composer-recipient ref="toField" :message="message" recipient-type="to">
+            <mail-composer-recipient
+                ref="toField"
+                :message="message"
+                recipient-type="to"
+                @open-picker="openPicker('to')"
+            >
                 <div class="end-buttons">
                     <bm-button
                         v-if="!showCc"
@@ -27,7 +32,12 @@
             </mail-composer-recipient>
         </div>
         <div v-if="showCc" class="d-flex align-items-center cc-contact-input">
-            <mail-composer-recipient ref="ccField" :message="message" recipient-type="cc">
+            <mail-composer-recipient
+                ref="ccField"
+                :message="message"
+                recipient-type="cc"
+                @open-picker="openPicker('cc')"
+            >
                 <div class="end-buttons">
                     <bm-button
                         v-if="!showBcc"
@@ -43,9 +53,15 @@
                 </div>
             </mail-composer-recipient>
         </div>
-        <mail-composer-recipient v-if="showBcc" ref="bccField" :message="message" recipient-type="bcc" />
+        <mail-composer-recipient
+            v-if="showBcc"
+            ref="bccField"
+            :message="message"
+            recipient-type="bcc"
+            @open-picker="openPicker('bcc')"
+        />
 
-        <mail-composer-recipient-modal />
+        <mail-composer-recipient-modal :selected.sync="selectedContacts" />
     </div>
 </template>
 
@@ -56,17 +72,29 @@ import { EditRecipientsMixin } from "~/mixins";
 import MailComposerRecipient from "./MailComposerRecipient";
 import MailComposerRecipientModal from "./MailComposerRecipientModal.vue";
 import { MAX_RECIPIENTS } from "../../utils";
+
 export default {
     name: "MailComposerRecipients",
     components: { BmButton, MailComposerRecipient, MailComposerRecipientModal },
     directives: { KeyNavGroup },
     mixins: [EditRecipientsMixin],
+    data() {
+        return { selectedContactsType: undefined };
+    },
     computed: {
         recipientCount() {
             return this.message.to.length + this.message.cc.length + this.message.bcc.length;
         },
         maxRecipientsExceeded() {
             return this.recipientCount > MAX_RECIPIENTS;
+        },
+        selectedContacts: {
+            get() {
+                return this.message[this.selectedContactsType];
+            },
+            set(value) {
+                this.message[this.selectedContactsType] = value;
+            }
         }
     },
     watch: {
@@ -94,6 +122,10 @@ export default {
         },
         focusRecipientField(recipientType) {
             this.$refs[`${recipientType}Field`]?.$el.querySelector("input").focus();
+        },
+        openPicker(recipientType) {
+            this.selectedContactsType = recipientType;
+            this.selectedContacts = this.message[recipientType];
         }
     }
 };

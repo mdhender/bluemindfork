@@ -4,27 +4,26 @@
         dialog-class="mail-composer-recipient-modal"
         :title="$t('recipientPicker.title')"
         size="xl"
-        body-class="overflow-hidden h-100"
+        body-class="overflow-hidden d-flex flex-column"
     >
         <selected-contacts :contacts.sync="selectedContacts" />
         <hr />
-        <div class="recipient-modal-body d-flex h-100">
+        <div class="recipient-modal-body d-flex flex-fill">
             <address-book-list
                 :addressbooks="addressBooks"
                 :user-id="userId"
-                :selected-addressbook="selectedAddressbookId"
-                @selected="selectedAddressbookId = $event"
+                :selected-addressbook="selectedAddressBookId"
+                @selected="selectedAddressBookId = $event"
             />
-            <div class="flex-fill overflow-auto">
-                <contact-list
-                    class="h-100"
-                    :contacts="contacts"
-                    :loading="loading"
-                    :addressbook="selectedAddressbook"
-                    :user-id="userId"
-                    :selected.sync="selectedContacts"
-                />
-            </div>
+            <contact-list
+                class="flex-fill"
+                :contacts="contacts"
+                :loading="loading"
+                :addressbook="selectedAddressBook"
+                :user-id="userId"
+                :selected="selectedForCurrentAddressBook"
+                @selected="updateSelected"
+            />
         </div>
     </bm-modal>
 </template>
@@ -39,23 +38,38 @@ import SelectedContacts from "./SelectedContacts";
 export default {
     name: "MailComposerRecipientModal",
     components: { BmModal, AddressBookList, ContactList, SelectedContacts },
+    props: {
+        selected: { type: Array, default: () => [] }
+    },
     data() {
         return {
             addressBooks: [],
             contacts: [],
             loading: false,
-            selectedContacts: [],
-            selectedAddressbookId: undefined,
+            selectedAddressBookId: undefined,
             userId: undefined
         };
     },
     computed: {
-        selectedAddressbook() {
-            return this.addressBooks.find(a => a.uid === this.selectedAddressbookId) || {};
+        selectedContacts: {
+            get() {
+                return this.selected;
+            },
+            set(value) {
+                this.$emit("update:selected", value);
+            }
+        },
+        selectedAddressBook() {
+            return this.addressBooks.find(a => a.uid === this.selectedAddressBookId) || {};
+        },
+        selectedForCurrentAddressBook() {
+            return this.selected
+                .map(({ dn, address }) => this.contacts.find(({ name, email }) => dn === name && address === email))
+                .filter(Boolean);
         }
     },
     watch: {
-        async selectedAddressbookId(value) {
+        async selectedAddressBookId(value) {
             this.loading = true;
             try {
                 if (!value) return [];
@@ -89,11 +103,32 @@ export default {
                 .filter(sub => sub.value.containerType === "addressbook")
                 .map(sub => sub.value.containerUid);
         },
-        addressbookById(addressbookId) {
-            return this.addressBooks.find(a => a.uid === addressbookId) || {};
+        updateSelected(contacts) {
+            const contactUids = contacts.map(({ uid }) => uid);
+            const selected = [...this.selected];
+            const previousUids = [];
+            this.selectedForCurrentAddressBook.forEach(previous => {
+                previousUids.push(previous.uid);
+                if (!contactUids.includes(previous.uid)) {
+                    const index = selected.findIndex(s =>
+                        previous.uid ? previous.uid === s.uid : s.dn === previous.name && s.address === previous.email
+                    );
+                    selected.splice(index, 1);
+                }
+            });
+            contacts.forEach(item => {
+                if (!previousUids.includes(item.uid)) {
+                    selected.push(toContact(item));
+                }
+            });
+            this.selectedContacts = selected;
         }
     }
 };
+
+function toContact(contactItem) {
+    return { address: contactItem.email, dn: contactItem.name, uid: contactItem.uid };
+}
 </script>
 
 <style lang="scss">

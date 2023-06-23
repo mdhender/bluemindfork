@@ -61,7 +61,8 @@ function ContactListSUT(defaultValues) {
         withContacts() {
             return ContactListSUT({
                 ...values,
-                contacts: [...values.contacts, { name: "Jhonny", email: "jhonny.begood@juin.com", tel: "0678541254" }]
+                contacts: [...values.contacts, { name: "Jhonny", email: "jhonny.begood@juin.com", tel: "0678541254" }],
+                selected: []
             });
         },
 
