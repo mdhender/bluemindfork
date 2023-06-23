@@ -1,15 +1,21 @@
 <template>
-    <bm-modal id="recipient-picker" :title="$t('recipientPicker.title')" size="custom">
+    <bm-modal
+        id="recipient-picker"
+        dialog-class="mail-composer-recipient-modal"
+        :title="$t('recipientPicker.title')"
+        size="xl"
+        body-class="overflow-hidden h-100"
+    >
         <selected-contacts :contacts.sync="selectedContacts" />
         <hr />
-        <div class="recipient-modal-body d-flex">
+        <div class="recipient-modal-body d-flex h-100">
             <address-book-list
                 :addressbooks="addressBooks"
                 :user-id="userId"
                 :selected-addressbook="selectedAddressbookId"
                 @selected="selectedAddressbookId = $event"
             />
-            <div class="flex-fill">
+            <div class="flex-fill overflow-auto">
                 <contact-list
                     class="h-100"
                     :contacts="contacts"
@@ -93,12 +99,8 @@ export default {
 <style lang="scss">
 @import "@bluemind/ui-components/src/css/variables";
 
-#recipient-picker {
+.mail-composer-recipient-modal {
     height: 80vh;
-    .modal-custom {
-        width: 79.6%;
-        max-width: 79.6%;
-    }
     .modal-header {
         background-color: $neutral-bg-lo1;
         padding-top: base-px-to-rem(16);

@@ -1,11 +1,6 @@
 <template>
-    <div class="selected-contacts selected d-flex bg-surface">
-        <contact-input
-            :contacts.sync="selectedContacts"
-            readonly
-            variant="inline"
-            class="mx-6 d-flex flex-fill align-items-center"
-        >
+    <div class="selected-contacts selected bg-surface">
+        <contact-input :contacts.sync="selectedContacts" readonly variant="inline" class="ml-6 flex-fill">
             <span class="selected-label">{{ $t("common.to") }}</span>
         </contact-input>
     </div>
@@ -37,8 +32,12 @@ export default {
 @import "@bluemind/ui-components/src/css/mixins/responsiveness";
 @import "@bluemind/ui-components/src/css/type";
 @import "@bluemind/ui-components/src/css/variables";
+@import "@bluemind/ui-components/src/css/mixins";
 
 .selected-contacts {
+    display: flex;
+    align-items: flex-start;
+
     min-height: $avatar-height-sm + base-px-to-rem(20);
     .contact-input {
         .selected-label {
@@ -52,9 +51,11 @@ export default {
             vertical-align: top;
             padding-top: base-px-to-rem(12);
         }
-    }
-    .contact-and-input:first-of-type .contact {
-        margin-left: 0;
+        .contacts {
+            @include scroller-y;
+            max-height: base-px-to-rem(124);
+            padding-top: base-px-to-rem(4);
+        }
     }
 }
 </style>

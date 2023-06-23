@@ -1,25 +1,23 @@
-@import "utils/variables";
-@import "fileTypeIconsColors";
-@import "bootstrap";
 @import "~bootstrap-vue/src/index.scss";
 @import "alert";
 @import "animations";
+@import "bootstrap";
 @import "buttons";
+@import "calendar";
 @import "customControls";
+@import "darkTheme";
+@import "defaultTheme";
 @import "dragAndDrop";
 @import "dropdown";
+@import "fileTypeIconsColors";
 @import "inputs";
 @import "lists";
 @import "modal";
-@import "scrollbar";
 @import "skeleton";
+@import "utils/scroller";
+@import "utils/text";
+@import "utils/variables";
 @import "zIndex";
-@import "calendar";
-
-@import "defaultTheme";
-@import "darkTheme";
-
-@import "./utils/text";
 
 .bg-surface {
     background-color: $surface !important;
@@ -122,6 +120,10 @@ a.nav-link:focus {
 
 .right-1 {
     right: $sp-1;
+}
+
+.scroller-y {
+    @include scroller-y;
 }
 
 .tooltip {

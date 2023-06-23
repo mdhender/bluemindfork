@@ -1,0 +1,22 @@
+@import "../scrollbarVariables";
+
+/** Customized scrollbars for WebKit based browsers. Only elements having the class 'scroller-y' are affected. */
+@mixin scroller-y() {
+    overflow: scroll;
+    overflow-x: hidden;
+    overflow-y: overlay;
+
+    // set at least one style here in order to activate the customization of the scrollbar
+    &::-webkit-scrollbar {
+        width: $scroll-width;
+    }
+    
+    &:hover::-webkit-scrollbar-thumb {
+        border: solid 2px transparent;
+        border-radius: $scrollbar-thumb-border-radius;
+        background-color: $scrollbar-color !important;
+        background-clip: content-box;
+        // since border is transparent, add it twice to have a correct visible min-height
+        min-height: $scrollbar-thumb-border-radius * 2 + 10px !important;
+    }
+}

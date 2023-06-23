@@ -52,7 +52,6 @@ export default {
                 const badgeElement = this.$el;
                 const parentElement = badgeElement.parentElement;
                 badgeElement.style.left = `${firstHiddenElementLeftPos}px`;
-                badgeElement.style.height = `${parentElement.offsetHeight}px`;
                 badgeElement.classList.replace("d-none", "d-flex");
                 // adjust visible elements and badge position
                 if (

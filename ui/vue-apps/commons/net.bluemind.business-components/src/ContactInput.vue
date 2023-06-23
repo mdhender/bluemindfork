@@ -1,10 +1,7 @@
 <template>
-    <div
-        class="contact-input d-flex"
-        :class="{ disabled, underline: variant === 'underline', inline: variant === 'inline' }"
-    >
+    <div class="contact-input" :class="{ disabled, underline: variant === 'underline', inline: variant === 'inline' }">
         <slot />
-        <div class="flex-fill d-flex pl-3">
+        <div class="contacts flex-fill d-flex">
             <div
                 v-overflown-elements
                 class="flex-fill d-flex"
@@ -506,6 +503,9 @@ function isVisible(element) {
 @import "@bluemind/ui-components/src/css/utils/typography.scss";
 
 .contact-input {
+    display: flex;
+    align-items: flex-start;
+
     border: $input-border-width solid $neutral-fg-lo1;
 
     &.underline {
@@ -560,6 +560,7 @@ function isVisible(element) {
     }
 
     .contact-and-input,
+    .bm-more-items-badge,
     .bm-form-input,
     .bm-form-input .form-control {
         height: calc(#{$input-height} - #{4 * $input-border-width});
