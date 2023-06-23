@@ -26,6 +26,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Verticle;
 import net.bluemind.lib.vertx.IVerticleFactory;
+import net.bluemind.lib.vertx.VertxContext;
 
 public class Pop3Verticle extends AbstractVerticle {
 
@@ -49,18 +50,16 @@ public class Pop3Verticle extends AbstractVerticle {
 	public void start(Promise<Void> startPromise) throws Exception {
 		Config conf = Pop3Config.get();
 		int port = conf.getInt("pop3.port");
-		vertx.createNetServer().connectHandler(socket -> {
-			Pop3Session session = new Pop3Session(vertx, socket);
-			session.start();
-		}).listen(port, ar -> {
-			if (ar.failed()) {
-				logger.error("unable to listen on port {}: {}", port, ar.cause());
-				startPromise.fail(ar.cause());
-			} else {
-				logger.info("{} listening on port {}", ar.result(), port);
-				startPromise.complete();
-			}
-		});
+		vertx.createNetServer().connectHandler(socket -> VertxContext.getOrCreateDuplicatedContext()
+				.runOnContext(v -> new Pop3Session(vertx, socket).start())).listen(port, ar -> {
+					if (ar.failed()) {
+						logger.error("unable to listen on port {}: {}", port, ar.cause());
+						startPromise.fail(ar.cause());
+					} else {
+						logger.info("{} listening on port {}", ar.result(), port);
+						startPromise.complete();
+					}
+				});
 
 	}
 

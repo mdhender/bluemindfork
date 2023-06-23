@@ -42,7 +42,6 @@ public class RestVertxRootHandler implements Handler<Message<VertxRestRequest>> 
 
 	@Override
 	public void handle(final Message<VertxRestRequest> message) {
-		ContextualData.clear();
 		try {
 			doCall(message);
 		} catch (Exception e) {

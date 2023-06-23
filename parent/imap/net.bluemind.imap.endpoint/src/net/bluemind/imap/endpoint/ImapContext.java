@@ -68,13 +68,14 @@ public class ImapContext {
 
 	private String idlingTag;
 
-	public static class ContextProducer implements MessageProducer<Buffer> {
+	public final Context vertxContext;
 
-		private Context ctx;
+	public static class ContextProducer implements MessageProducer<Buffer> {
+		private final Context vertxContext;
 		private NetSocket ns;
 
-		public ContextProducer(Vertx vx, NetSocket ns) {
-			this.ctx = vx.getOrCreateContext();
+		public ContextProducer(Context ctx, NetSocket ns) {
+			this.vertxContext = ctx;
 			this.ns = ns;
 		}
 
@@ -90,16 +91,13 @@ public class ImapContext {
 
 		@Override
 		public void write(Buffer body, Handler<AsyncResult<Void>> handler) {
-			ctx.runOnContext(v -> ns.write(body, handler));
+			vertxContext.runOnContext(v -> ns.write(body, handler));
 		}
 
 		@Override
 		public Future<Void> write(Buffer body) {
 			Promise<Void> prom = Promise.promise();
-			ctx.runOnContext(v -> {
-				Future<Void> future = ns.write(body);
-				future.onSuccess(prom::complete).onFailure(prom::fail);
-			});
+			vertxContext.runOnContext(v -> ns.write(body).onSuccess(prom::complete).onFailure(prom::fail));
 			return prom.future();
 		}
 
@@ -115,16 +113,16 @@ public class ImapContext {
 
 	}
 
-	public ImapContext(Vertx vertx, NetSocket ns, EventNexus nexus) {
+	public ImapContext(Vertx vertx, Context vertxContext, NetSocket ns, EventNexus nexus) {
 		this.vertx = vertx;
+		this.vertxContext = vertxContext;
 		this.ns = ns;
 		this.nexus = nexus;
 		this.state = SessionState.NOT_AUTHENTICATED;
 		this.clientId = Collections.emptyMap();
-		this.sender = new ContextProducer(vertx, ns);
+		this.sender = new ContextProducer(vertxContext, ns);
 		this.logConnectionId = ns.writeHandlerID().replace("__vertx.net.", "").replace("-", "");
 		this.throughputLimiterRegistry = ThroughputLimiterRegistry.get(Drivers.activeDriver().maxLiteralSize());
-		ContextualData.clear();
 		ContextualData.put("endpoint", "imap");
 	}
 
@@ -157,7 +155,7 @@ public class ImapContext {
 			logger.debug("[{}] C: {} {}", logConnectionId, event.tag(), event.cmd());
 		}
 		if (rawLogger.isDebugEnabled()) {
-			rawLogger.debug("< {} {}\n", event.tag(), event.cmd());
+			rawLogger.debug("< {} {}\n", event.tag(), event.cmd().strip());
 		}
 	}
 

@@ -132,9 +132,9 @@
 		</discriminator>
 		<sift>
 			<appender name="FILE-${user}" class="ch.qos.logback.core.rolling.RollingFileAppender">
-	        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-	            <level>DEBUG</level>
-	        </filter>
+			<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+				<level>DEBUG</level>
+			</filter>
 			<filter class="net.bluemind.common.logback.EndpointFilter">
 				<endpoint>imap</endpoint>
 			</filter>
@@ -162,13 +162,15 @@
 		</discriminator>
 		<sift>
 			<appender name="FILE-${user}" class="ch.qos.logback.core.rolling.RollingFileAppender">
-	        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-	            <level>DEBUG</level>
-	        </filter>
+			<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+				<level>DEBUG</level>
+			</filter>
 			<filter class="net.bluemind.common.logback.EndpointFilter">
 				<endpoint>imap</endpoint>
 			</filter>
-			<filter class="net.bluemind.common.logback.PerUserFilter"/>
+			<filter class="net.bluemind.common.logback.PerUserFilter">
+				<endpoint>imap</endpoint>
+			</filter>
 			<file>/var/log/bm/imap/${user}.raw.log</file>
 			<encoder>
 				<pattern>%m%n</pattern>
@@ -184,9 +186,9 @@
 		</sift>
 	</appender>
 	<appender name="IMAP" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
-        </filter>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
 		<filter class="net.bluemind.common.logback.EndpointFilter">
 			<endpoint>imap</endpoint>
 		</filter>
@@ -206,6 +208,10 @@
 		<appender-ref ref="IMAPUSER"/>
 		<appender-ref ref="IMAP"/>
 	</logger>
+	<logger name="net.bluemind.imap.driver" level="DEBUG" additivity="false">
+		<appender-ref ref="IMAPUSER"/>
+		<appender-ref ref="IMAP"/>
+	</logger>
 	<logger name="net.bluemind.imap.endpoint.raw" level="DEBUG" additivity="false">
 		<appender-ref ref="IMAPUSERRAW"/>
 	</logger>
@@ -219,9 +225,9 @@
 		</discriminator>
 		<sift>
 			<appender name="FILE-${user}" class="ch.qos.logback.core.rolling.RollingFileAppender">
-	        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-	            <level>DEBUG</level>
-	        </filter>
+			<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+				<level>DEBUG</level>
+			</filter>
 			<filter class="net.bluemind.common.logback.EndpointFilter">
 				<endpoint>pop3</endpoint>
 			</filter>
@@ -243,9 +249,9 @@
 		</sift>
 	</appender>
 	<appender name="POP3" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
-        </filter>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
 		<filter class="net.bluemind.common.logback.EndpointFilter">
 			<endpoint>pop3</endpoint>
 		</filter>
@@ -272,6 +278,7 @@
 		<appender-ref ref="Sentry" />
 		<appender-ref ref="IMAP" />
 		<appender-ref ref="IMAPUSER"/>
+		<appender-ref ref="IMAPUSERRAW"/>
 		<appender-ref ref="POP3" />
 		<appender-ref ref="POP3USER"/>
 	</root>

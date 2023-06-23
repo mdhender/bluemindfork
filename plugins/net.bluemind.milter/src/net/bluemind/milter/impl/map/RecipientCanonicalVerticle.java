@@ -53,7 +53,7 @@ public class RecipientCanonicalVerticle extends AbstractVerticle {
 	}
 
 	private class RecipientCanonicalBuffer implements Handler<Buffer> {
-		private final long IDLE_TIMEOUT = TimeUnit.HOURS.toMillis(1);
+		private static final long IDLE_TIMEOUT = TimeUnit.HOURS.toMillis(1);
 
 		private NetSocket event;
 		private long timerId;
@@ -65,7 +65,7 @@ public class RecipientCanonicalVerticle extends AbstractVerticle {
 		}
 
 		public void setTimeout() {
-			this.timerId = vertx.setTimer(IDLE_TIMEOUT, timerId -> event.close());
+			this.timerId = vertx.setTimer(IDLE_TIMEOUT, tid -> event.close());
 		}
 
 		@Override
@@ -97,14 +97,10 @@ public class RecipientCanonicalVerticle extends AbstractVerticle {
 	@Override
 	public void start() {
 		NetServer server = vertx.createNetServer();
-		server.connectHandler(new Handler<NetSocket>() {
-			@Override
-			public void handle(NetSocket event) {
-				RecipientCanonicalBuffer ssrb = new RecipientCanonicalBuffer(event);
-				ssrb.setTimeout();
-
-				event.handler(RecordParser.newDelimited("\n", ssrb));
-			}
+		server.connectHandler(socket -> {
+			RecipientCanonicalBuffer ssrb = new RecipientCanonicalBuffer(socket);
+			ssrb.setTimeout();
+			socket.handler(RecordParser.newDelimited("\n", ssrb));
 		});
 
 		logger.info("Recipient canonicalrewrite verticle listening on {}.", 25251);

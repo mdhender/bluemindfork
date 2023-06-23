@@ -44,7 +44,7 @@ public class RestNetVerticle extends AbstractVerticle {
 
 		RouteMatcher routeMatcher = new RouteMatcher(vertx);
 		RestRootHandler rootHandler = new RestRootHandler(vertx);
-		routeMatcher.noMatch(new RestHttpProxyHandler(getVertx(), rootHandler));
+		routeMatcher.noMatch(new RestHttpProxyHandler(vertx, rootHandler));
 		HttpRoutes.bindRoutes(vertx, rootHandler.executor(), routeMatcher);
 
 		httpServer.requestHandler(routeMatcher);

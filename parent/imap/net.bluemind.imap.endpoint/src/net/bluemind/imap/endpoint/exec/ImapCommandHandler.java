@@ -78,7 +78,7 @@ public class ImapCommandHandler implements Handler<RawImapCommand> {
 
 	private void processCommand(CommandProcessor<?> proc, AnalyzedCommand analyzedCmd) {
 		Stopwatch chrono = Stopwatch.createStarted();
-		ctx.vertx().executeBlocking((Promise<Void> prom) -> {
+		ctx.vertxContext.executeBlocking((Promise<Void> prom) -> {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Processing {}", analyzedCmd);
 			}

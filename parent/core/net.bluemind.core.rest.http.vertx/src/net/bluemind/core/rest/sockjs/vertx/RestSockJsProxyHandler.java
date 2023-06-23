@@ -50,7 +50,6 @@ public class RestSockJsProxyHandler implements Handler<JsonEvent> {
 	@Override
 	public void handle(JsonEvent jsEv) {
 		JsonObject msg = jsEv.objectValue();
-		ContextualData.clear();
 		RestRequestWithId request = parseRequest(msg);
 		if (logger.isDebugEnabled()) {
 			logger.debug("C [verb: {}]: {}", request.verb, msg.encode());

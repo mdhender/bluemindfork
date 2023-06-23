@@ -29,7 +29,7 @@ import io.vertx.core.parsetools.RecordParser;
 public class PostfixSenderVerticle extends AbstractVerticle {
 
 	private class SmtpdSenderRestrictionsBuffer implements Handler<Buffer> {
-		private final long IDLE_TIMEOUT = TimeUnit.HOURS.toMillis(1);
+		private static final long IDLE_TIMEOUT = TimeUnit.HOURS.toMillis(1);
 
 		private NetSocket event;
 		private long timerId;
@@ -39,7 +39,7 @@ public class PostfixSenderVerticle extends AbstractVerticle {
 		}
 
 		public void setTimeout() {
-			this.timerId = vertx.setTimer(IDLE_TIMEOUT, timerId -> event.close());
+			this.timerId = vertx.setTimer(IDLE_TIMEOUT, tid -> event.close());
 		}
 
 		@Override
@@ -56,16 +56,11 @@ public class PostfixSenderVerticle extends AbstractVerticle {
 	@Override
 	public void start() {
 		NetServer server = vertx.createNetServer();
-		server.connectHandler(new Handler<NetSocket>() {
-			@Override
-			public void handle(NetSocket event) {
-				SmtpdSenderRestrictionsBuffer ssrb = new SmtpdSenderRestrictionsBuffer(event);
-				ssrb.setTimeout();
-
-				event.handler(RecordParser.newDelimited("\n", ssrb));
-			}
+		server.connectHandler(event -> {
+			SmtpdSenderRestrictionsBuffer ssrb = new SmtpdSenderRestrictionsBuffer(event);
+			ssrb.setTimeout();
+			event.handler(RecordParser.newDelimited("\n", ssrb));
 		});
-
 		server.listen(25250, "127.0.0.1");
 	}
 

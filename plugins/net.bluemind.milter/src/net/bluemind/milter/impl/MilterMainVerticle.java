@@ -50,10 +50,7 @@ public class MilterMainVerticle extends AbstractVerticle {
 		NetServer srv = vertx.createNetServer(new NetServerOptions().setTcpNoDelay(true).setTcpKeepAlive(true)
 				.setTcpFastOpen(true).setRegisterWriteHandler(true).setTcpQuickAck(true));
 
-		srv.connectHandler(socket -> {
-			MilterSession session = new MilterSession(socket);
-			session.start();
-		});
+		srv.connectHandler(socket -> new MilterSession(socket).start());
 
 		srv.listen(2500, ar -> {
 			if (ar.succeeded()) {

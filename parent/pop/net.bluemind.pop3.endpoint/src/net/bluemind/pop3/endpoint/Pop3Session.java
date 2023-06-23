@@ -31,11 +31,13 @@ import org.slf4j.LoggerFactory;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.api.patterns.PolledMeter;
 
+import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetSocket;
 import io.vertx.core.parsetools.RecordParser;
 import net.bluemind.common.vertx.contextlogging.ContextualData;
+import net.bluemind.lib.vertx.VertxContext;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 
@@ -45,6 +47,7 @@ public class Pop3Session {
 	private static final Logger logger = LoggerFactory.getLogger(Pop3Session.class);
 	private final NetSocket socket;
 	private final Vertx vertx;
+	private final Context vertxContext;
 
 	private static final Registry registry = MetricsRegistry.get();
 	private static final IdFactory idFactory = new IdFactory("pop3", MetricsRegistry.get(), Pop3Session.class);
@@ -59,6 +62,7 @@ public class Pop3Session {
 	public Pop3Session(Vertx vertx, NetSocket socket) {
 		this.vertx = vertx;
 		this.socket = socket;
+		this.vertxContext = VertxContext.getOrCreateDuplicatedContext(vertx);
 
 		PolledMeter.using(registry).withId(idFactory.name("connections")).monitorValue(activeConnections);
 		activeConnections.addAndGet(1);
@@ -82,14 +86,16 @@ public class Pop3Session {
 	}
 
 	public void start() {
-		Pop3Context ctx = new Pop3Context(vertx, socket);
+		Pop3Context ctx = new Pop3Context(vertx, vertxContext, socket);
 		RecordParser parser = RecordParser.newDelimited(CRLF, rec -> onChunk(ctx, rec));
 		socket.handler(buf -> {
-			var coreCon = ctx.connection();
-			if (coreCon != null) {
-				ContextualData.put("user", coreCon.logId());
-			}
-			parser.handle(buf);
+			vertxContext.runOnContext(v -> {
+				var coreCon = ctx.connection();
+				if (coreCon != null) {
+					ContextualData.put("user", coreCon.logId());
+				}
+				parser.handle(buf);
+			});
 		});
 
 		socket.closeHandler(v -> {

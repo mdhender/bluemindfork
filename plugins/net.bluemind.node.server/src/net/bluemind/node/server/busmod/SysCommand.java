@@ -43,6 +43,7 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageProducer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import net.bluemind.lib.vertx.VertxContext;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.node.shared.ExecRequest;
 import net.bluemind.node.shared.ExecRequest.Options;
@@ -174,7 +175,7 @@ public class SysCommand extends AbstractVerticle {
 			Vertx vertx = VertxPlatform.getVertx();
 			this.sender = vertx.eventBus().sender(wsWriteAddress);
 			sender.deliveryOptions(new DeliveryOptions().setSendTimeout(TimeUnit.SECONDS.toMillis(60)));
-			this.ctx = vertx.getOrCreateContext();
+			this.ctx = VertxContext.getOrCreateDuplicatedContext(vertx);
 		}
 
 		public WsEndpoint write(String kind, JsonObject js) {

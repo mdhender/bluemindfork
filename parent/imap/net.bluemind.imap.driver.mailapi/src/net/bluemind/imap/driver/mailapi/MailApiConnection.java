@@ -119,7 +119,7 @@ import net.bluemind.imap.endpoint.parsing.MailboxGlob;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
 import net.bluemind.lib.elasticsearch.Pit;
 import net.bluemind.lib.jutf7.UTF7Converter;
-import net.bluemind.lib.vertx.VertxPlatform;
+import net.bluemind.lib.vertx.VertxContext;
 import net.bluemind.mailbox.api.IMailboxAclUids;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailbox.api.Mailbox;
@@ -445,7 +445,7 @@ public class MailApiConnection implements MailboxConnection {
 		Iterator<List<Long>> slice = Lists
 				.partition(resolveIdSet(recApi, idset), DriverConfig.get().getInt("driver.records-mget")).iterator();
 		CompletableFuture<Void> ret = new CompletableFuture<>();
-		Context fetchContext = VertxPlatform.getVertx().getOrCreateContext();
+		Context fetchContext = VertxContext.getOrCreateDuplicatedContext();
 		FetchedItemRenderer renderer = new FetchedItemRenderer(bodyApi, recApi, itemsApi, fields);
 		Map<Long, Integer> seqIndex = itemIdToSeqNum(recApi);
 		fetchContext.runOnContext(
@@ -522,8 +522,8 @@ public class MailApiConnection implements MailboxConnection {
 			logger.info("idle monitoring on {}", selected.folder);
 			IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
 			String watchedUid = IMailReplicaUids.mboxRecords(selected.folder.uid);
-
-			this.activeCons = MQ.registerConsumer(Topic.IMAP_ITEM_NOTIFICATIONS, msg -> {
+			Context idleContext = VertxContext.getOrCreateDuplicatedContext();
+			this.activeCons = MQ.registerConsumer(Topic.IMAP_ITEM_NOTIFICATIONS, msg -> idleContext.runOnContext(v -> {
 				JsonObject jsMsg = msg.toJson();
 				String contUid = jsMsg.getString("containerUid");
 
@@ -537,7 +537,7 @@ public class MailApiConnection implements MailboxConnection {
 					Iterator<FetchToken> iter = changes.iterator();
 					iteratorToStream(iter, out);
 				}
-			});
+			}));
 		}
 	}
 

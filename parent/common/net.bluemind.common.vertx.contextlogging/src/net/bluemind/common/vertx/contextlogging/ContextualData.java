@@ -16,13 +16,11 @@
 
 package net.bluemind.common.vertx.contextlogging;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import io.vertx.core.impl.ContextInternal;
 
@@ -33,25 +31,25 @@ public class ContextualData {
 	private ContextualData() {
 	}
 
-	/**
-	 * Remove a value in the contextual data map.
-	 * 
-	 * @param key the key of the data in contextual data map
-	 */
-	public static void remove(String key) {
-		Objects.requireNonNull(key);
-		if (Vertx.currentContext() instanceof ContextInternal ctx) {
-			contextualDataMap(ctx).remove(key);
-		}
+	private static boolean isDuplicatedContext(Context context) {
+		// Do not use Assert.checkNotNullParam with type io.vertx.core.Context as it is
+		// likely
+		// to trigger a performance issue via JDK-8180450.
+		// Identified via https://github.com/franz1981/type-pollution-agent
+		// So we cast to ContextInternal first:
+		ContextInternal actual = (ContextInternal) context;
+		Objects.requireNonNull(actual);
+		return actual.isDuplicate();
 	}
 
-	/**
-	 * Remove all values in the contextual data map.
-	 */
-	public static void clear() {
-		if (Vertx.currentContext() instanceof ContextInternal ctx) {
-			contextualDataMap(ctx).clear();
+	private static Context ensureDuplicatedContext() {
+		Context current = Vertx.currentContext();
+		if (current == null || !isDuplicatedContext(current)) {
+			throw new UnsupportedOperationException("Access to Context Locals are forbidden from a 'root' context  as "
+					+ "it can leak data between unrelated processing. Make sure the method runs on a 'duplicated' (local)"
+					+ " Context");
 		}
+		return current;
 	}
 
 	/**
@@ -63,9 +61,7 @@ public class ContextualData {
 	public static void put(String key, String value) {
 		Objects.requireNonNull(key);
 		Objects.requireNonNull(value);
-		if (Vertx.currentContext() instanceof ContextInternal ctx) {
-			contextualDataMap(ctx).put(key, value);
-		}
+		contextualDataMap((ContextInternal) ensureDuplicatedContext()).put(key, value);
 	}
 
 	/**
@@ -77,10 +73,7 @@ public class ContextualData {
 	 */
 	public static String get(String key) {
 		Objects.requireNonNull(key);
-		if (Vertx.currentContext() instanceof ContextInternal ctx) {
-			return contextualDataMap(ctx).get(key);
-		}
-		return null;
+		return contextualDataMap((ContextInternal) ensureDuplicatedContext()).get(key);
 	}
 
 	/**
@@ -95,27 +88,16 @@ public class ContextualData {
 	 */
 	public static String getOrDefault(String key, String defaultValue) {
 		Objects.requireNonNull(key);
-		if (Vertx.currentContext() instanceof ContextInternal ctx) {
-			return contextualDataMap(ctx).getOrDefault(key, defaultValue);
+		Context current = Vertx.currentContext();
+		if (isDuplicatedContext(current)) {
+			return contextualDataMap((ContextInternal) ensureDuplicatedContext()).getOrDefault(key, defaultValue);
+		} else {
+			return null;
 		}
-		return defaultValue;
-	}
-
-	/**
-	 * Get all values from the contextual data map.
-	 *
-	 * @return the values or {@code null} if the method is invoked on a non Vert.x
-	 *         thread
-	 */
-	public static Map<String, String> getAll() {
-		if (Vertx.currentContext() instanceof ContextInternal ctx) {
-			return new HashMap<>(contextualDataMap(ctx));
-		}
-		return Collections.emptyMap();
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static ConcurrentMap<String, String> contextualDataMap(ContextInternal ctx) {
+	private static ConcurrentMap<String, String> contextualDataMap(ContextInternal ctx) {
 		ConcurrentMap<Object, Object> lcd = Objects.requireNonNull(ctx).localContextData();
 		return (ConcurrentMap) lcd.computeIfAbsent(ContextualData.class, k -> new ConcurrentHashMap());
 	}

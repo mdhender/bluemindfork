@@ -65,8 +65,8 @@ public class Pop3Context {
 		private Context ctx;
 		private NetSocket ns;
 
-		public ContextProducer(Vertx vx, NetSocket ns) {
-			this.ctx = vx.getOrCreateContext();
+		public ContextProducer(Vertx vx, Context vertxContext, NetSocket ns) {
+			this.ctx = vertxContext;
 			this.ns = ns;
 		}
 
@@ -89,8 +89,7 @@ public class Pop3Context {
 		public Future<Void> write(Buffer body) {
 			Promise<Void> prom = Promise.promise();
 			ctx.runOnContext(v -> {
-				Future<Void> future = ns.write(body);
-				future.onSuccess(prom::complete).onFailure(prom::fail);
+				ns.write(body).onSuccess(prom::complete).onFailure(prom::fail);
 			});
 			return prom.future();
 		}
@@ -107,10 +106,9 @@ public class Pop3Context {
 
 	}
 
-	public Pop3Context(Vertx vertx, NetSocket socket) {
+	public Pop3Context(Vertx vertx, Context vertxContext, NetSocket socket) {
 		this.socket = socket;
-		this.sender = new ContextProducer(vertx, socket);
-		ContextualData.clear();
+		this.sender = new ContextProducer(vertx, vertxContext, socket);
 		ContextualData.put("endpoint", "pop3");
 	}
 

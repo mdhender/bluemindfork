@@ -81,7 +81,6 @@ public final class VertxPlatform implements BundleActivator {
 		}
 		logger.info("Starting vertx platform");
 
-		String productName = System.getProperty("net.bluemind.property.product", "jvm");
 		openTelemetry = GlobalOpenTelemetry.get();
 
 		// LC: Don't disable setPreferNativeTransport as it will disable unix sockets
@@ -94,8 +93,8 @@ public final class VertxPlatform implements BundleActivator {
 		EventBus eb = vertx.eventBus();
 		eb.addOutboundInterceptor(event -> {
 			MultiMap headers = event.message().headers();
-			String endpoint = ContextualData.get("endpoint");
-			String user = ContextualData.get("user");
+			String endpoint = ContextualData.getOrDefault("endpoint", null);
+			String user = ContextualData.getOrDefault("user", null);
 			if (endpoint != null) {
 				headers.add("log-endpoint", endpoint);
 			}
@@ -105,14 +104,16 @@ public final class VertxPlatform implements BundleActivator {
 			event.next();
 		});
 		eb.addInboundInterceptor(event -> {
-			MultiMap headers = event.message().headers();
-			String endpoint = headers.get("log-endpoint");
-			String user = headers.get("log-user");
-			if (endpoint != null) {
-				ContextualData.put("endpoint", endpoint);
-			}
-			if (user != null) {
-				ContextualData.put("user", user);
+			if (VertxContext.isOnDuplicatedContext()) {
+				MultiMap headers = event.message().headers();
+				String endpoint = headers.get("log-endpoint");
+				String user = headers.get("log-user");
+				if (endpoint != null) {
+					ContextualData.put("endpoint", endpoint);
+				}
+				if (user != null) {
+					ContextualData.put("user", user);
+				}
 			}
 			event.next();
 		});

@@ -68,6 +68,7 @@ import net.bluemind.eclipse.common.RunnableExtensionLoader;
 import net.bluemind.lib.vertx.BMExecutor;
 import net.bluemind.lib.vertx.BMExecutor.BMTask;
 import net.bluemind.lib.vertx.BMExecutor.BMTaskMonitor;
+import net.bluemind.lib.vertx.VertxContext;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
@@ -417,7 +418,7 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 		}
 		SecurityContext ctx = securityContext;
 
-		Context vertxCtx = Vertx.currentContext();
+		Context vertxCtx = VertxContext.getOrCreateDuplicatedContext(vertx);
 		for (IEventBusAccessRule rule : rules) {
 			if (rule.match(request.path)) {
 				vertxCtx.runOnContext(v -> {

@@ -27,6 +27,7 @@ import com.google.common.base.Stopwatch;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetSocket;
@@ -36,6 +37,7 @@ import net.bluemind.imap.endpoint.events.StateChangeListener;
 import net.bluemind.imap.endpoint.exec.ImapCommandHandler;
 import net.bluemind.imap.endpoint.parsing.ImapPartSplitter;
 import net.bluemind.imap.endpoint.parsing.ImapRequestParser;
+import net.bluemind.lib.vertx.VertxContext;
 
 public class ImapSession implements StateChangeListener {
 
@@ -49,12 +51,13 @@ public class ImapSession implements StateChangeListener {
 	}
 
 	private final ImapContext ctx;
+	private final Context vertxContext;
 	private final Stopwatch startTime;
 
 	public ImapSession(Vertx vertx, NetSocket ns, ImapMetricsHolder metricsHolder) {
+		vertxContext = VertxContext.getOrCreateDuplicatedContext(vertx);
 		EventNexus nexus = new EventNexus(ns.writeHandlerID(), vertx.eventBus());
-
-		this.ctx = new ImapContext(vertx, ns, nexus);
+		this.ctx = new ImapContext(vertx, vertxContext, ns, nexus);
 		this.startTime = Stopwatch.createStarted();
 
 		ns.exceptionHandler(t -> {
@@ -73,11 +76,13 @@ public class ImapSession implements StateChangeListener {
 		nexus.addStateListener(this);
 
 		ns.handler(buffer -> {
-			var mailbox = ctx.mailbox();
-			if (mailbox != null) {
-				ContextualData.put("user", mailbox.logId());
-			}
-			split.handle(buffer);
+			vertxContext.runOnContext(v -> {
+				var mailbox = ctx.mailbox();
+				if (mailbox != null) {
+					ContextualData.put("user", mailbox.logId());
+				}
+				split.handle(buffer);
+			});
 		});
 
 		ns.closeHandler(v -> {

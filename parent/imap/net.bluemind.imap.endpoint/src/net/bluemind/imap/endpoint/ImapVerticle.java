@@ -31,6 +31,7 @@ import io.vertx.core.Verticle;
 import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
 import net.bluemind.lib.vertx.IVerticleFactory;
+import net.bluemind.lib.vertx.VertxContext;
 
 public class ImapVerticle extends AbstractVerticle {
 
@@ -63,15 +64,16 @@ public class ImapVerticle extends AbstractVerticle {
 		srv.exceptionHandler(t -> logger.error("ImapEndpoint failure", t));
 
 		int port = conf.getInt("imap.port");
-		srv.connectHandler(ns -> ImapSession.create(vertx, ns, metricsHolder)).listen(port, ar -> {
-			if (ar.failed()) {
-				logger.error("Failed to listen on port {}", port, ar.cause());
-				startPromise.fail(ar.cause());
-			} else {
-				logger.info("Listening on port {}", port);
-				startPromise.complete();
-			}
-		});
+		srv.connectHandler(ns -> VertxContext.getOrCreateDuplicatedContext(vertx)
+				.runOnContext(v -> ImapSession.create(vertx, ns, metricsHolder))).listen(port, ar -> {
+					if (ar.failed()) {
+						logger.error("Failed to listen on port {}", port, ar.cause());
+						startPromise.fail(ar.cause());
+					} else {
+						logger.info("Listening on port {}", port);
+						startPromise.complete();
+					}
+				});
 
 	}
 

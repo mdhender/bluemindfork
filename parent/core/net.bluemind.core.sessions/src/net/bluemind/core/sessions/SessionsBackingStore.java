@@ -37,6 +37,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.common.cache.persistence.CacheBackingStore;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.lib.vertx.VertxContext;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class SessionsBackingStore {
@@ -105,7 +106,7 @@ public class SessionsBackingStore {
 	}
 
 	private void notifySessionRemovalListeners(String sessionId, SecurityContext securityContext) {
-		Context vertxContext = VertxPlatform.getVertx().getOrCreateContext();
+		Context vertxContext = VertxContext.getOrCreateDuplicatedContext(VertxPlatform.getVertx());
 		for (ISessionDeletionListener listener : SessionDeletionListeners.get()) {
 			notifySessionRemovalListener(listener, sessionId, securityContext, vertxContext);
 		}

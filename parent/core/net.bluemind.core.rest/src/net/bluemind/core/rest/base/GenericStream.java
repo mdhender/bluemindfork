@@ -42,6 +42,7 @@ import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.lib.vertx.Result;
+import net.bluemind.lib.vertx.VertxContext;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public abstract class GenericStream<T> implements ReadStream<Buffer> {
@@ -96,7 +97,7 @@ public abstract class GenericStream<T> implements ReadStream<Buffer> {
 		if (paused || ended) {
 			return;
 		}
-		readSome(VertxPlatform.getVertx().getOrCreateContext());
+		readSome(VertxContext.getOrCreateDuplicatedContext(VertxPlatform.getVertx()));
 	}
 
 	private CompletableFuture<Void> readSome(Context ctx) {
