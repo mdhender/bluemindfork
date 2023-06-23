@@ -67,12 +67,10 @@
 
 <script>
 import capitalize from "lodash.capitalize";
-import isEqual from "lodash.isequal";
-import { RecipientAdaptor } from "@bluemind/contact";
 import { BmButton, KeyNavGroup } from "@bluemind/ui-components";
 import { EditRecipientsMixin } from "~/mixins";
 import MailComposerRecipient from "./MailComposerRecipient";
-import MailComposerRecipientModal from "./MailComposerRecipientModal.vue";
+import MailComposerRecipientModal from "./MailComposerRecipientModal";
 import { MAX_RECIPIENTS } from "../../utils";
 
 export default {
@@ -84,21 +82,12 @@ export default {
         return { selectedContactsType: undefined };
     },
     computed: {
-        recipientCount() {
-            return this.message.to.length + this.message.cc.length + this.message.bcc.length;
-        },
-        maxRecipientsExceeded() {
-            return this.recipientCount > MAX_RECIPIENTS;
-        },
         selectedContacts: {
             get() {
-                return RecipientAdaptor.toContacts(this.message[this.selectedContactsType]);
+                return this.message[this.selectedContactsType];
             },
             set(value) {
-                const newValue = RecipientAdaptor.fromContacts(value);
-                if (!isEqual(this.message[this.selectedContactsType], newValue)) {
-                    this.message[this.selectedContactsType] = newValue;
-                }
+                this.message[this.selectedContactsType] = value;
             }
         }
     },
@@ -126,6 +115,10 @@ export default {
         },
         focusRecipientField(recipientType) {
             this.$refs[`${recipientType}Field`]?.$el.querySelector("input").focus();
+        },
+        openPicker(recipientType) {
+            this.selectedContactsType = recipientType;
+            this.selectedContacts = this.message[recipientType];
         }
     }
 };
