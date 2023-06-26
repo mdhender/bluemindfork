@@ -1,15 +1,14 @@
 import EventTarget from "../src/EventTarget";
-import MyEvent from "../src/Event";
 
 describe("EventTarget", () => {
     test("A listener is called when the associated event is dispatched until the listener is removed", done => {
         const target = new EventTarget();
         const callback = jest.fn();
         target.addEventListener("any", callback);
-        target.dispatchEvent(new MyEvent("any"));
-        target.dispatchEvent(new MyEvent("any"));
+        target.dispatchEvent(new Event("any"));
+        target.dispatchEvent(new Event("any"));
         target.removeEventListener("any", callback);
-        target.dispatchEvent(new MyEvent("any"));
+        target.dispatchEvent(new Event("any"));
         target.addEventListener("end", () => {
             expect(callback).toHaveBeenCalledTimes(2);
             done();
@@ -20,14 +19,31 @@ describe("EventTarget", () => {
         const target = new EventTarget();
         const callback = jest.fn();
         target.addEventListener("any", callback, { once: true });
-        target.dispatchEvent(new MyEvent("any"));
-        target.dispatchEvent(new MyEvent("any"));
-        target.dispatchEvent(new MyEvent("any"));
+        target.dispatchEvent(new Event("any"));
+        target.dispatchEvent(new Event("any"));
+        target.dispatchEvent(new Event("any"));
         target.addEventListener("end", () => {
             expect(callback).toHaveBeenCalledTimes(1);
             done();
         });
-        target.dispatchEvent(new MyEvent("end"));
+        target.dispatchEvent(new Event("end"));
+    });
+    test("A removed listener will not be called when event is dispatched.", done => {
+        const target = new EventTarget();
+        const callback = jest.fn();
+        const another = jest.fn();
+        target.addEventListener("any", callback);
+        target.addEventListener("any", another);
+        target.removeEventListener("any", callback);
+
+        target.dispatchEvent(new Event("any"));
+
+        target.addEventListener("end", () => {
+            expect(callback).toHaveBeenCalledTimes(0);
+            expect(another).toHaveBeenCalledTimes(1);
+            done();
+        });
+        target.dispatchEvent(new Event("end"));
     });
     test("Removing a type of event should remove all listeners.", done => {
         const target = new EventTarget();
@@ -35,23 +51,40 @@ describe("EventTarget", () => {
         const another = jest.fn();
         target.addEventListener("any", callback);
         target.addEventListener("any", another);
-        target.dispatchEvent(new MyEvent("any"));
+        target.removeEventListener("any");
+
+        target.dispatchEvent(new Event("any"));
+
+        target.addEventListener("end", () => {
+            expect(callback).toHaveBeenCalledTimes(0);
+            expect(another).toHaveBeenCalledTimes(0);
+            done();
+        });
+        target.dispatchEvent(new Event("end"));
+    });
+    test("Event can be re-add and re-removed.", done => {
+        const target = new EventTarget();
+        const callback = jest.fn();
+        const another = jest.fn();
+        target.addEventListener("any", callback);
+        target.addEventListener("any", another);
+        target.dispatchEvent(new Event("any"));
 
         target.removeEventListener("any", callback);
-        target.dispatchEvent(new MyEvent("any"));
+        target.dispatchEvent(new Event("any"));
 
         target.addEventListener("any", callback);
-        target.dispatchEvent(new MyEvent("any"));
+        target.dispatchEvent(new Event("any"));
 
         target.removeEventListener("any");
-        target.dispatchEvent(new MyEvent("any"));
+        target.dispatchEvent(new Event("any"));
 
         target.addEventListener("end", () => {
             expect(callback).toHaveBeenCalledTimes(2);
             expect(another).toHaveBeenCalledTimes(3);
             done();
         });
-        target.dispatchEvent(new MyEvent("end"));
+        target.dispatchEvent(new Event("end"));
     });
     test("Clear removes all listeners.", done => {
         const target = new EventTarget();
@@ -62,28 +95,24 @@ describe("EventTarget", () => {
         target.addEventListener("another", another);
         target.addEventListener("one", one);
         target.addEventListener("bite", bite);
-        target.dispatchEvent(new MyEvent("another"));
-        target.dispatchEvent(new MyEvent("one"));
-        target.dispatchEvent(new MyEvent("bite"));
-
-        target.removeEventListener("another");
-        target.dispatchEvent(new MyEvent("another"));
-        target.dispatchEvent(new MyEvent("one"));
-        target.dispatchEvent(new MyEvent("bite"));
+        target.dispatchEvent(new Event("another"));
+        target.dispatchEvent(new Event("one"));
+        target.dispatchEvent(new Event("bite"));
 
         target.clear();
-        target.dispatchEvent(new MyEvent("another"));
-        target.dispatchEvent(new MyEvent("one"));
-        target.dispatchEvent(new MyEvent("bite"));
+        target.dispatchEvent(new Event("another"));
+        target.dispatchEvent(new Event("one"));
+        target.dispatchEvent(new Event("bite"));
 
         target.addEventListener("end", () => {
             expect(another).toHaveBeenCalledTimes(1);
-            expect(one).toHaveBeenCalledTimes(2);
-            expect(bite).toHaveBeenCalledTimes(2);
+            expect(one).toHaveBeenCalledTimes(1);
+            expect(bite).toHaveBeenCalledTimes(1);
             done();
         });
         target.dispatchEvent(new Event("end"));
     });
+
     test("Dispatch can be called with a string or native event.", done => {
         const target = new EventTarget();
         const callback = jest.fn();
@@ -94,7 +123,7 @@ describe("EventTarget", () => {
             expect(callback).toHaveBeenCalledTimes(2);
             done();
         });
-        target.dispatchEvent(new MyEvent("end"));
+        target.dispatchEvent(new Event("end"));
     });
     test("has return true if EventTarget listen to this event type .", () => {
         const target = new EventTarget();

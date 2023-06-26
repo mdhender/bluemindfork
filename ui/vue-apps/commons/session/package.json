@@ -6,9 +6,10 @@
     "author": "Blue Mind SAS",
     "main": "src/index.ts",
     "dependencies": {
-        "lodash.isequal": "^4.5.0"
+        "lodash.isequal": "^4.5.0",
+        "@bluemind/event": "^5.0.0"
     },
     "devDependencies": {
-        "@types/lodash.isequal": "^4.5.6"
+        "@types/lodash.isequal": "^4.5.0"
     }
 }

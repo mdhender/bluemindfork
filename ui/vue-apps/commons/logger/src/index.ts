@@ -19,8 +19,10 @@ const styles = (method: keyof Logger) => {
 const prefix = "%cBM/ServiceWorker";
 
 function print(method: keyof Logger): LoggingFn {
-    return function (args: Parameters<LoggingFn>) {
-        console[method](...[prefix, styles(method).join(";")], ...args);
+    return function (...args: Parameters<LoggingFn>) {
+        if (process.env.NODE_ENV !== "test") {
+            console[method](...[prefix, styles(method).join(";")], ...args);
+        }
     };
 }
 

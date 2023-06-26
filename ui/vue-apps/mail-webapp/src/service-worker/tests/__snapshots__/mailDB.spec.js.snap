@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`MailDB API and store mail_items_light getAllMailItemLight 1`] = `
+exports[`MailDBImpl API and store mail_items_light getAllMailItemLight 1`] = `
 Object {
   "date": 9876543210,
   "flags": Array [],
@@ -11,7 +11,7 @@ Object {
 }
 `;
 
-exports[`MailDB API and store mail_items_light setMailItemLight 1`] = `
+exports[`MailDBImpl API and store mail_items_light setMailItemLight 1`] = `
 Array [
   Array [
     Object {

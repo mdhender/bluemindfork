@@ -1,4 +1,5 @@
 import global from "@bluemind/global";
+import { EventTarget } from "@bluemind/event";
 import isEqual from "lodash.isequal";
 
 interface SessionInfos {
@@ -16,7 +17,7 @@ interface SessionInfos {
     userId: string;
 }
 type SessionChangedEvent = CustomEvent<{ value: SessionInfos; old?: SessionInfos }>;
-type SessionRefreshEvent = CustomEvent<{ value: SessionInfos }>;
+type SessionRefreshEvent = CustomEvent<SessionInfos>;
 
 interface SessionEventMap {
     change: SessionChangedEvent;
@@ -41,12 +42,11 @@ interface Session extends EventTarget {
     addEventListener<T extends SessionEventType>(
         type: T,
         listener: (this: Session, ev: SessionEventMap[T]) => unknown,
-        options?: boolean | AddEventListenerOptions
+        options?: AddEventListenerOptions
     ): void;
     removeEventListener<T extends SessionEventType>(
         type: T,
-        listener: (this: Session, ev: SessionEventMap[T]) => unknown,
-        options?: boolean | AddEventListenerOptions
+        listener?: (this: Session, ev: SessionEventMap[T]) => unknown
     ): void;
 }
 
@@ -69,7 +69,6 @@ const REFRESH_SESSION_INTERVAL = 30 * 1000;
 let infos: SessionInfos | undefined;
 let expiration = 0;
 const target = new EventTarget();
-
 async function instance(): Promise<SessionInfos> {
     if (!infos || shouldRefreshSession()) {
         const old = infos;
@@ -84,7 +83,7 @@ async function instance(): Promise<SessionInfos> {
         if (!isEqual(old, infos)) {
             target.dispatchEvent(new CustomEvent("change", { detail: { old, value: infos } }));
         }
-        target.dispatchEvent(new Event("refresh"));
+        target.dispatchEvent(new CustomEvent("refresh", { detail: infos }));
     }
     return infos;
 }
@@ -94,14 +93,19 @@ function shouldRefreshSession() {
 }
 
 async function fetchSession(): Promise<SessionInfos> {
-    const response = await fetch("/session-infos");
-    if (response.ok) {
-        return response.json();
+    try {
+        const response = await fetch("/session-infos");
+        if (response.ok) {
+            return response.json();
+        }
+        if (response.status === 401) {
+            return Promise.reject(`${response.status} Unauthorized`);
+        }
+        return Promise.reject(`Error while fetching infos ${response.status}`);
+    } catch {
+        // If offline return last infos.
+        return infos || ANONYMOUS;
     }
-    if (response.status === 401) {
-        return Promise.reject(`${response.status} Unauthorized`);
-    }
-    return Promise.reject(`Error while fetching infos ${response.status}`);
 }
 
 if (!global.session) {
@@ -146,7 +150,7 @@ if (!global.session) {
             expiration = Date.now() - 1;
         },
         addEventListener: function (...args: Parameters<EventTarget["addEventListener"]>): void {
-            target.removeEventListener(...args);
+            target.addEventListener(...args);
         },
         dispatchEvent: function (event: Event): boolean {
             return target.dispatchEvent(event);

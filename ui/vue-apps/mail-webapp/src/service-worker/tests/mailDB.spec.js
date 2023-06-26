@@ -1,5 +1,5 @@
 import FDBFactory from "fake-indexeddb/lib/FDBFactory";
-import { MailDB } from "../MailDB";
+import { MailDBImpl } from "../MailDB";
 
 class MockDate extends Date {
     constructor() {
@@ -7,7 +7,7 @@ class MockDate extends Date {
     }
 }
 
-describe("MailDB", () => {
+describe("MailDBImpl", () => {
     describe("DB creation", () => {
         beforeEach(() => {
             global.indexedDB = new FDBFactory();
@@ -15,16 +15,16 @@ describe("MailDB", () => {
         });
 
         test("Test Singleton creation", async () => {
-            const db = new MailDB("foo");
+            const db = new MailDBImpl("foo");
             expect(db).toMatchInlineSnapshot(`
-                MailDB {
+                MailDBImpl {
                   "dbPromise": Promise {},
                 }
             `);
         });
         test("Change name return new db", async () => {
-            const db = new MailDB("foo");
-            const db2 = new MailDB("bar");
+            const db = new MailDBImpl("foo");
+            const db2 = new MailDBImpl("bar");
             expect((await db.dbPromise).name).not.toEqual((await db2.dbPromise).name);
         });
     });
@@ -34,7 +34,7 @@ describe("MailDB", () => {
             let db;
             beforeEach(() => {
                 global.indexedDB = new FDBFactory();
-                db = new MailDB("foo");
+                db = new MailDBImpl("foo");
             });
 
             test("getSyncOptions(uid) returns an item with correct uid", async () => {
@@ -45,24 +45,6 @@ describe("MailDB", () => {
                 }
                 const actual = await db.getSyncOptions("bar");
                 expect(actual).toEqual(sync_options.find(item => item.uid === "bar"));
-            });
-
-            test("getAllSyncOptions", async () => {
-                const sync_options = [{ uid: "bar" }];
-                for (const item of sync_options) {
-                    await (await db.dbPromise).add("sync_options", item);
-                }
-                const actual = await db.getAllSyncOptions();
-                expect(actual).toEqual(sync_options);
-            });
-
-            test("getAllSyncOptions by type", async () => {
-                const sync_options = [{ uid: "bar", type: "baz" }];
-                for (const item of sync_options) {
-                    await (await db.dbPromise).add("sync_options", item);
-                }
-                const actual = await db.getAllSyncOptions("baz");
-                expect(actual).toEqual(sync_options.filter(item => item.type === "baz"));
             });
 
             test("updateSyncOptions: unkown id create new object", async () => {
@@ -103,7 +85,7 @@ describe("MailDB", () => {
 
             beforeEach(() => {
                 global.indexedDB = new FDBFactory();
-                db = new MailDB("foo");
+                db = new MailDBImpl("foo");
             });
 
             test("getAllMailFolders", async () => {
@@ -196,7 +178,7 @@ describe("MailDB", () => {
 
             beforeEach(() => {
                 global.indexedDB = new FDBFactory();
-                db = new MailDB("foo");
+                db = new MailDBImpl("foo");
             });
 
             test("putMailItems", async () => {
@@ -208,30 +190,6 @@ describe("MailDB", () => {
                       Object {
                         "folderUid": "bar",
                         "internalId": "baz",
-                      },
-                    ]
-                `);
-            });
-
-            test("getAllMailItems", async () => {
-                const mails = [
-                    { folderUid: "bar", internalId: "baz" },
-                    { folderUid: "bar", internalId: "foo" },
-                    { folderUid: "baz", internalId: "foo" }
-                ];
-                for (const item of mails) {
-                    await (await db.dbPromise).put("mail_items", item);
-                }
-                const actual = await db.getAllMailItems("bar");
-                expect(actual).toMatchInlineSnapshot(`
-                    Array [
-                      Object {
-                        "folderUid": "bar",
-                        "internalId": "baz",
-                      },
-                      Object {
-                        "folderUid": "bar",
-                        "internalId": "foo",
                       },
                     ]
                 `);
@@ -263,7 +221,7 @@ describe("MailDB", () => {
 
             beforeEach(() => {
                 global.indexedDB = new FDBFactory();
-                db = new MailDB("foo");
+                db = new MailDBImpl("foo");
             });
 
             test("setMailItemLight", async () => {
@@ -343,7 +301,7 @@ describe("MailDB", () => {
 
             beforeEach(() => {
                 global.indexedDB = new FDBFactory();
-                db = new MailDB("foo");
+                db = new MailDBImpl("foo");
             });
 
             test("reconciliate some data", async () => {

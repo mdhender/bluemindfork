@@ -52,6 +52,16 @@ export async function syncOwnerSubscriptions(): Promise<ItemValue<ContainerSubsc
     }
     return [];
 }
+export async function isSubscribedAndSynced(uid: string) {
+    if (await db.isSubscribed(uid)) {
+        const syncOptions = await db.getSyncOptions(uid);
+        if (syncOptions?.pending) {
+            await syncMailFolder(uid);
+        }
+        return true;
+    }
+    return false;
+}
 
 export async function syncMailFolder(uid: string, pushedVersion?: number): Promise<boolean> {
     return await limit(uid, async () => {
@@ -106,7 +116,7 @@ export async function syncMailbox(
     pushedVersion?: number
 ): Promise<ItemValue<MailboxFolder>[]> {
     return await limit(userId + domain, async () => {
-        const syncOptions = await getOrCreateSyncOptions(await mailboxFullPath, "mail_folder");
+        const syncOptions = await getOrCreateSyncOptions(await getMailboxFullPath(), "mail_folder");
         return pushedVersion && pushedVersion <= syncOptions.version
             ? []
             : syncMailboxToVersion(domain, userId, syncOptions);
@@ -134,7 +144,7 @@ export async function syncMailboxToVersion(
 }
 
 export async function unsyncMyMailbox() {
-    await db.deleteSyncOptions(await mailboxFullPath);
+    await db.deleteSyncOptions(await getMailboxFullPath());
     const mailFolders = await db.getAllMailFolders(`user.${await session.userId}`);
     mailFolders.forEach(mailFolder => db.deleteSyncOptions(mailFolder.uid as string));
 }
@@ -184,8 +194,6 @@ const markFolderSyncAsPending = async (folderUid: string): Promise<string> => {
     return folderUid;
 };
 
-const mailboxFullPath: Promise<string> = new Promise(resolve =>
-    Promise.all([session.userId, session.domain]).then(([userId, domain]) =>
-        resolve(`user.${userId}@${domain.replace(/\./g, "_")}`)
-    )
-);
+async function getMailboxFullPath(): Promise<string> {
+    return `user.${await session.userId}@${(await session.domain).replace(/\./g, "_")}`;
+}

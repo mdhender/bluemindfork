@@ -12,15 +12,11 @@ jest.mock("../smime/decryptAndVerify", () => jest.fn(() => []));
 jest.mock("../smime/encrypt", () => jest.fn());
 jest.mock("../smime/sign", () => jest.fn(item => item));
 
-jest.mock("@bluemind/session", () =>
-    Promise.resolve({
-        json: () =>
-            Promise.resolve({
-                login: "mathilde.michau@blue-mind.net",
-                sid: "58a1ee1b-0c30-492c-a83f-4396f0a24730"
-            })
-    })
-);
+jest.mock("@bluemind/session", () => ({
+    login: Promise.resolve("mathilde.michau@blue-mind.net"),
+    sid: Promise.resolve("58a1ee1b-0c30-492c-a83f-4396f0a24730"),
+    addEventListener: jest.fn()
+}));
 
 describe("SMimeApiProxy", () => {
     const smimeApiProxy = new SMimeApiProxy("apiKey", "folderUid");

@@ -88,7 +88,7 @@ export class MailDBImpl implements MailDB {
     }
     private async openDB(mailboxRoot: string): Promise<IDBPDatabase<MailSchema>> {
         const schemaVersion = 11;
-        return await openDB<MailSchema>(`${mailboxRoot}:webapp/mail`, schemaVersion, {
+        return openDB<MailSchema>(`${mailboxRoot}:webapp/mail`, schemaVersion, {
             upgrade(db, oldVersion) {
                 logger.log(`[SW][DB] Upgrading from ${oldVersion} to ${schemaVersion}`);
                 if (oldVersion < schemaVersion) {
@@ -274,7 +274,9 @@ function toLight(mail: ItemValue<MailboxItem>): MailItemLight {
 }
 
 let implementation: MailDBImpl | null = null;
-async function instance(): Promise<MailDB> {
+
+// Export for testing purpose
+export async function instance(): Promise<MailDBImpl> {
     if (!implementation) {
         const name = `user.${await session.userId}@${(await session.domain).replace(/\./g, "_")}`;
         implementation = new MailDBImpl(name);

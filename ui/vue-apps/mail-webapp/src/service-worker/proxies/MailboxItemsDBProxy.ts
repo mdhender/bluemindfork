@@ -2,7 +2,7 @@
 import sortedIndexBy from "lodash.sortedindexby";
 import { MailboxItemsClient } from "@bluemind/backend.mail.api";
 import { ItemFlag, ItemFlagFilter, SortDescriptor } from "@bluemind/core.container.api";
-import { syncMailFolder } from "../sync";
+import { isSubscribedAndSynced } from "../sync";
 import { default as db, MailItemLight } from "../MailDB";
 
 export default class extends MailboxItemsClient {
@@ -10,7 +10,7 @@ export default class extends MailboxItemsClient {
 
     async count(filter: ItemFlagFilter) {
         try {
-            if (await db.isSubscribed(this.replicatedMailboxUid)) {
+            if (await isSubscribedAndSynced(this.replicatedMailboxUid)) {
                 const allMailItems = await db.getAllMailItemLight(this.replicatedMailboxUid);
                 const total = allMailItems.filter(item => filterByFlags(filter, item.flags)).length;
                 return { total };
@@ -23,11 +23,7 @@ export default class extends MailboxItemsClient {
 
     async multipleGetById(ids: number[]) {
         try {
-            if (await db.isSubscribed(this.replicatedMailboxUid)) {
-                const syncOptions = await db.getSyncOptions(this.replicatedMailboxUid);
-                if (syncOptions?.pending) {
-                    await syncMailFolder(this.replicatedMailboxUid);
-                }
+            if (await isSubscribedAndSynced(this.replicatedMailboxUid)) {
                 const mailItems = await db.getMailItems(this.replicatedMailboxUid, ids);
                 return mailItems.filter(NotNull);
             }
@@ -39,11 +35,7 @@ export default class extends MailboxItemsClient {
 
     async sortedIds(sort?: SortDescriptor) {
         sort = sort as SortDescriptor;
-        if (await db.isSubscribed(this.replicatedMailboxUid)) {
-            const syncOptions = await db.getSyncOptions(this.replicatedMailboxUid);
-            if (syncOptions?.pending) {
-                await syncMailFolder(this.replicatedMailboxUid);
-            }
+        if (await isSubscribedAndSynced(this.replicatedMailboxUid)) {
             const allMailItems: Array<MailItemLight> = await db.getAllMailItemLight(this.replicatedMailboxUid);
             const iteratee = getIteratee(sort?.fields?.at(0));
             const data: Array<MailItemLight> = [];
