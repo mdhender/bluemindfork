@@ -1,0 +1,10 @@
+{
+    "name": "@bluemind/bm-19791-dirty-fix",
+    "version": "5.0.0",
+    "description": "BlueMind pre install package",
+    "author": "Blue Mind SAS",
+    "license": "AGPL-3.0-only",
+    "scripts": {
+        "build": "sh /dev/null"
+    }
+}

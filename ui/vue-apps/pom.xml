@@ -22,6 +22,7 @@
 		</repository>
 	</repositories>
 	<modules>
+		<module>bm-19791-dirty-fix</module>
 		<module>bm-api-clients</module>
 		<module>mail-webapp</module>
 		<module>plugins</module>

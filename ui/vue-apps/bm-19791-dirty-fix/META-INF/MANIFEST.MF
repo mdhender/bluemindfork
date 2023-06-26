@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: bm-19791-dirty-fix 
+Bundle-SymbolicName: bm-19791-dirty-fix;singleton:=true
+Bundle-Version: 5.0.0.qualifier
+Bundle-Vendor: www.bluemind.net
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: bm-19791-dirty-fix
