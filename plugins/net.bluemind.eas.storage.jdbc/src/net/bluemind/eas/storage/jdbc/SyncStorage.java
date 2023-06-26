@@ -175,6 +175,10 @@ public class SyncStorage implements ISyncStorage {
 					bs.getUser().getUid());
 			ItemValue<ContainerSubscriptionModel> subscription = subs
 					.getCompleteById(collectionId.getSubscriptionId().get());
+			if (subscription == null || subscription.value == null) {
+				throw new CollectionNotFoundException(
+						"Failed to get hierarchy node. Invalid subscription " + collectionId.getSubscriptionId().get());
+			}
 			return getHierarchyNode(bs, subscription.value.owner, collectionId);
 		}
 		return getHierarchyNode(bs, bs.getUser().getUid(), collectionId);
