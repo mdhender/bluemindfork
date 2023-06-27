@@ -66,9 +66,9 @@ public class RestTestServiceTests {
 		for (int i = 0; i < 10; i++) {
 			try {
 				getRestTestService(SecurityContext.ANONYMOUS).throwNullpointer();
-				fail();
+				fail("An exception should be raised here");
 			} catch (Exception e) {
-				e.printStackTrace();
+//				e.printStackTrace();
 			}
 		}
 	}
