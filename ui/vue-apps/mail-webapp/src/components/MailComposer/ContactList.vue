@@ -23,7 +23,7 @@
                 </template>
 
                 <template #empty>
-                    <i18n path="recipientPicker.addressbook.empty" class="no-result">
+                    <i18n path="recipient_picker.addressbook.empty" class="no-result">
                         <address-book-label-icon
                             :address-book="addressbook"
                             :user-id="userId"

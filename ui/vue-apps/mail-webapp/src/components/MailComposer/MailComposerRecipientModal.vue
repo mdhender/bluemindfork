@@ -2,7 +2,7 @@
     <bm-modal
         id="recipient-picker"
         dialog-class="mail-composer-recipient-modal"
-        :title="$t('recipientPicker.title')"
+        :title="$t('recipient_picker.title')"
         size="xl"
         body-class="overflow-hidden d-flex flex-column"
     >
@@ -25,19 +25,33 @@
                 @selected="updateSelected"
             />
         </div>
+        <template #modal-footer>
+            <div>
+                <span v-if="selectedContacts.length" class="bold mr-6">
+                    {{
+                        $tc("recipient_picker.selected.count", selectedContacts.length, {
+                            count: selectedContacts.length
+                        })
+                    }}
+                </span>
+                <bm-button variant="fill-accent" @click="$bvModal.hide('recipient-picker')">
+                    {{ $t("common.done") }}
+                </bm-button>
+            </div>
+        </template>
     </bm-modal>
 </template>
 
 <script>
 import { inject } from "@bluemind/inject";
-import { BmModal } from "@bluemind/ui-components";
+import { BmButton, BmModal } from "@bluemind/ui-components";
 import AddressBookList from "./AddressBookList";
 import ContactList from "./ContactList";
 import SelectedContacts from "./SelectedContacts";
 
 export default {
     name: "MailComposerRecipientModal",
-    components: { BmModal, AddressBookList, ContactList, SelectedContacts },
+    components: { BmButton, BmModal, AddressBookList, ContactList, SelectedContacts },
     props: {
         selected: { type: Array, default: () => [] }
     },
@@ -132,6 +146,7 @@ function toContact(contactItem) {
 </script>
 
 <style lang="scss">
+@import "@bluemind/ui-components/src/css/type";
 @import "@bluemind/ui-components/src/css/variables";
 
 .mail-composer-recipient-modal {
@@ -151,6 +166,11 @@ function toContact(contactItem) {
     }
     .recipient-modal-body {
         gap: $sp-4;
+    }
+    .modal-footer {
+        padding: $sp-4;
+        z-index: 1;
+        box-shadow: $box-shadow-sm;
     }
 }
 </style>

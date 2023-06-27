@@ -44,7 +44,7 @@ export default {
         },
         name() {
             if (this.isShared) {
-                return this.$t(`recipientPicker.addressbook.shared.${this.namePrefix}`, {
+                return this.$t(`recipient_picker.addressbook.shared.${this.namePrefix}`, {
                     user: this.addressBook.ownerDisplayname,
                     addressBookName: this.addressBook.name
                 });

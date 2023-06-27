@@ -565,9 +565,10 @@
     "template.eml.mdn.html.quoted": "{to}{subject}{date}",
     "template.eml.mdn.html": "Dies ist eine Lesebestätigung für Ihre Nachricht{quoted}{notice}",
     "template.eml.mdn.subject": "Lesebestätigung \"{subject}\"",
-    "recipientPicker.addressbook.empty": "Das Adressbuch {0} {addressBookName} ist leer.",
-    "recipientPicker.addressbook.shared.collected": "Gesammelt von {user}",
-    "recipientPicker.addressbook.shared.others": "{addressBookName} von {user}",
-    "recipientPicker.addressbook.shared.personnal": "Kontakte von {user}",
-    "recipientPicker.title": "Empfänger hinzufügen"
+    "recipient_picker.addressbook.empty": "Das Adressbuch {0} {addressBookName} ist leer.",
+    "recipient_picker.addressbook.shared.collected": "Gesammelt von {user}",
+    "recipient_picker.addressbook.shared.others": "{addressBookName} von {user}",
+    "recipient_picker.addressbook.shared.personnal": "Kontakte von {user}",
+    "recipient_picker.selected.count": "{count} Kontakt ausgewählt|{count} Kontakte ausgewählt",
+    "recipient_picker.title": "Empfänger hinzufügen"
 }
