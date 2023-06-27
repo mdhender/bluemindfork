@@ -67,6 +67,8 @@
 
 <script>
 import capitalize from "lodash.capitalize";
+import isEqual from "lodash.isequal";
+import { RecipientAdaptor } from "@bluemind/contact";
 import { BmButton, KeyNavGroup } from "@bluemind/ui-components";
 import { EditRecipientsMixin } from "~/mixins";
 import MailComposerRecipient from "./MailComposerRecipient";
@@ -84,10 +86,13 @@ export default {
     computed: {
         selectedContacts: {
             get() {
-                return this.message[this.selectedContactsType];
+                return RecipientAdaptor.toContacts(this.message[this.selectedContactsType]);
             },
             set(value) {
-                this.message[this.selectedContactsType] = value;
+                const newValue = RecipientAdaptor.fromContacts(value);
+                if (!isEqual(this.message[this.selectedContactsType], newValue)) {
+                    this.message[this.selectedContactsType] = newValue;
+                }
             }
         }
     },
@@ -115,10 +120,6 @@ export default {
         },
         focusRecipientField(recipientType) {
             this.$refs[`${recipientType}Field`]?.$el.querySelector("input").focus();
-        },
-        openPicker(recipientType) {
-            this.selectedContactsType = recipientType;
-            this.selectedContacts = this.message[recipientType];
         }
     }
 };
