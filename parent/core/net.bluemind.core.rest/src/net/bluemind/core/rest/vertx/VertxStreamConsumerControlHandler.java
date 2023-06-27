@@ -65,21 +65,8 @@ public class VertxStreamConsumerControlHandler {
 	}
 
 	private void handleData(final String recvAddress) {
-		Handler<Message<VertxRestStreamObject>> handler = new Handler<Message<VertxRestStreamObject>>() {
-
-			@Override
-			public void handle(final Message<VertxRestStreamObject> msg) {
-
-				vertx.runOnContext(new Handler<Void>() {
-
-					@Override
-					public void handle(Void event) {
-						handleStreamObject(msg);
-
-					}
-				});
-
-			}
+		Handler<Message<VertxRestStreamObject>> handler = msg -> {
+			vertx.runOnContext(event -> handleStreamObject(msg));
 		};
 		cons = vertx.eventBus().consumer(recvAddress, handler);
 	}

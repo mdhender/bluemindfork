@@ -61,9 +61,17 @@ public class VertxStreamProducerControlHandler {
 			logger.debug("reciveve ready and stream from {}", b.substring("ready-and-resume:".length()));
 			stream(vertx, b.substring("ready-and-resume:".length()), true);
 		} else if (b.equals("resume")) {
-			producer.drain();
+			if (producer != null) {
+				producer.drain();
+			} else {
+				logger.error("received resume but producer is null. Can't do anything");
+			}
 		} else if (b.equals("pause")) {
-			producer.markQueueFull();
+			if (producer != null) {
+				producer.markQueueFull();
+			} else {
+				logger.error("received pause but producer is null. Can't do anything");
+			}
 		} else if (b.equals("close")) {
 			logger.info("close before completion !");
 			// something want wrong
