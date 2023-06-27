@@ -23,7 +23,11 @@
     .close {
         padding: initial;
         margin: initial;
-        @extend %btn-close, %btn-close-lg;
+        @extend .btn-close-lg;
+
+        @include until-lg {
+            margin-top: base-px-to-rem(-3);
+        }
     }
 }
 

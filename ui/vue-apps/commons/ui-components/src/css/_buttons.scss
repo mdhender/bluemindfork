@@ -183,10 +183,9 @@ fieldset:disabled a.btn {
     }
 }
 
-button.close,
-%btn-close {
+button.close {
     font-size: base-px-to-rem(32);
-    font-weight: normal;
+    font-weight: 400;
     $btn-size: map-get($btn-close-sizes, "md");
     line-height: $btn-size;
     width: $btn-size;
@@ -200,23 +199,20 @@ button.close,
         color: $neutral-fg-disabled;
     }
 }
-button.close[size="xs"],
-%btn-close-xs {
+button.close.btn-close-xs {
     font-size: base-px-to-rem(24);
-    font-weight: lighter;
+    font-weight: 200;
     $btn-size: map-get($btn-close-sizes, "xs");
     line-height: $btn-size;
     width: $btn-size;
 }
-button.close[size="sm"],
-%btn-close-sm {
+button.close.btn-close-sm {
     font-size: base-px-to-rem(24);
     $btn-size: map-get($btn-close-sizes, "sm");
     line-height: $btn-size;
     width: $btn-size;
 }
-button.close[size="lg"],
-%btn-close-lg {
+button.close.btn-close-lg {
     font-size: base-px-to-rem(40);
     $btn-size: map-get($btn-close-sizes, "lg");
     line-height: $btn-size;
