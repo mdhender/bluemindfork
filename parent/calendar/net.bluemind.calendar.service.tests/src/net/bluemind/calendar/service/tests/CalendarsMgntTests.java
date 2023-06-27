@@ -22,19 +22,26 @@ import static net.bluemind.calendar.persistence.VEventIndexStore.VEVENT_WRITE_AL
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.bluemind.calendar.api.ICalendarsMgmt;
 import net.bluemind.calendar.api.VEventQuery;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.persistence.VEventIndexStore;
 import net.bluemind.calendar.service.AbstractCalendarTests;
+import net.bluemind.common.task.Tasks;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 
@@ -63,23 +70,27 @@ public class CalendarsMgntTests extends AbstractCalendarTests {
 				.search(VEventQuery.create("testUid")).total);
 
 		TaskRef taskRef = getCalsMgmt().reindex(userCalendarContainer.uid);
-
-		ITask task = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITask.class,
-				"" + taskRef.id);
-		TaskStatus status = null;
-		while (true) {
-			status = task.status();
-			if (status.state != TaskStatus.State.InProgress && status.state != TaskStatus.State.NotStarted) {
-				break;
-			}
-			Thread.sleep(100);
-		}
+		TaskStatus status = waitFor(taskRef);
 
 		assertNotNull(status);
 		assertEquals(TaskStatus.State.Success, status.state);
 		refreshIndexes();
 		assertEquals(1, getCalendarService(userSecurityContext, userCalendarContainer)
 				.search(VEventQuery.create("testUid")).total);
+	}
+
+	private TaskStatus waitFor(TaskRef taskRef) {
+		Logger logger = LoggerFactory.getLogger(CalendarsMgntTests.class);
+		CompletableFuture<TaskStatus> futstatus = Tasks
+				.followStream(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), logger, null, taskRef);
+		try {
+			return futstatus.get(30, TimeUnit.SECONDS);
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
+			throw new ServerFault("follow stream failed: " + ie.getMessage());
+		} catch (ExecutionException | TimeoutException e) {
+			throw new ServerFault("follow stream failed: " + e.getMessage(), e);
+		}
 	}
 
 	private ICalendarsMgmt getCalsMgmt() throws ServerFault {

@@ -43,13 +43,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -66,6 +71,7 @@ import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.hook.CalendarHookAddress;
 import net.bluemind.calendar.occurrence.OccurrenceHelper;
 import net.bluemind.calendar.service.AbstractCalendarTests;
+import net.bluemind.common.task.Tasks;
 import net.bluemind.core.api.ListResult;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTime.Precision;
@@ -80,7 +86,6 @@ import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.core.container.persistence.ChangelogStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
-import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.api.TaskStatus.State;
@@ -1549,18 +1554,22 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		assertEquals(0, list.total);
 	}
 
-	private void waitFor(TaskRef taskRef) throws ServerFault {
-		ITask task = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITask.class, taskRef.id);
-		while (!task.status().state.ended) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
-		}
+	private void waitFor(TaskRef taskRef) {
+		Logger logger = LoggerFactory.getLogger(CalendarServiceTests.class);
+		CompletableFuture<TaskStatus> futstatus = Tasks
+				.followStream(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), logger, null, taskRef);
 
-		TaskStatus status = task.status();
-		if (status.state == State.InError) {
-			throw new ServerFault("import error");
+		TaskStatus status;
+		try {
+			status = futstatus.get(30, TimeUnit.SECONDS);
+			if (status.state == State.InError) {
+				throw new ServerFault("import error");
+			}
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
+			throw new ServerFault("follow stream failed: " + ie.getMessage());
+		} catch (ExecutionException | TimeoutException e) {
+			throw new ServerFault("follow stream failed: " + e.getMessage(), e);
 		}
 	}
 
@@ -1569,7 +1578,7 @@ public class CalendarServiceTests extends AbstractCalendarTests {
 		ICalendar service = getCalendarService(userSecurityContext, userCalendarContainer);
 
 		VEventSeries event = defaultVEvent();
-		Map<String, String> properties = new HashMap<String, String>();
+		Map<String, String> properties = new HashMap<>();
 		properties.put("wat", "da funk");
 		event.properties = properties;
 

@@ -26,9 +26,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
@@ -39,6 +45,7 @@ import net.bluemind.addressbook.api.IAddressBooksMgmt.ChangesetItem;
 import net.bluemind.addressbook.api.VCard;
 import net.bluemind.addressbook.api.VCardQuery;
 import net.bluemind.addressbook.persistence.VCardIndexStore;
+import net.bluemind.common.task.Tasks;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
@@ -52,7 +59,6 @@ import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.rest.vertx.VertxStream;
-import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.utils.JsonUtils;
@@ -85,6 +91,22 @@ public class MgntTests extends AbstractServiceTests {
 		return ServerSideServiceProvider.getProvider(context).instance(IAddressBook.class, container.uid);
 	}
 
+	private TaskStatus waitTaskRef(TaskRef taskRef) {
+		Logger logger = LoggerFactory.getLogger(MgntTests.class);
+		CompletableFuture<TaskStatus> futstatus = Tasks
+				.followStream(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), logger, null, taskRef);
+
+		TaskStatus status;
+		try {
+			return futstatus.get(30, TimeUnit.SECONDS);
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
+			throw new ServerFault("follow stream failed: " + ie.getMessage());
+		} catch (ExecutionException | TimeoutException e) {
+			throw new ServerFault("follow stream failed: " + e.getMessage(), e);
+		}
+	}
+
 	@Test
 	public void testReindex() throws ServerFault, InterruptedException {
 
@@ -110,18 +132,7 @@ public class MgntTests extends AbstractServiceTests {
 		assertEquals(0, getService(container, defaultSecurityContext).search(VCardQuery.create("GGtestUid")).total);
 
 		TaskRef taskRef = getBooksMgmt().reindex(container.uid);
-
-		ITask task = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITask.class,
-				"" + taskRef.id);
-		TaskStatus status = null;
-		while (true) {
-			status = task.status();
-			if (status.state != TaskStatus.State.InProgress && status.state != TaskStatus.State.NotStarted) {
-				break;
-			}
-			Thread.sleep(100);
-		}
-
+		TaskStatus status = waitTaskRef(taskRef);
 		assertNotNull(status);
 		assertEquals(TaskStatus.State.Success, status.state);
 		refreshIndexes();

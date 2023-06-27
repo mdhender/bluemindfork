@@ -35,9 +35,13 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.junit.Test;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.attachment.api.AttachedFile;
@@ -48,6 +52,7 @@ import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.service.AbstractCalendarTests;
 import net.bluemind.calendar.service.internal.VEventService;
+import net.bluemind.common.task.Tasks;
 import net.bluemind.core.api.ImportStats;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.date.BmDateTime;
@@ -64,7 +69,6 @@ import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.base.GenericStream;
 import net.bluemind.core.sessions.Sessions;
-import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.api.TaskStatus.State;
@@ -1632,27 +1636,24 @@ public class VEventServiceTests extends AbstractCalendarTests {
 
 	}
 
-	private ImportStats waitImportEnd(TaskRef taskRef) throws ServerFault {
-		long end = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(10);
-		ITask task = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITask.class, taskRef.id);
-		while (!task.status().state.ended) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				throw new ServerFault("interrupted");
-			}
-			if (System.currentTimeMillis() > end) {
-				throw new ServerFault("import took more than 1min");
-			}
-		}
+	private ImportStats waitImportEnd(TaskRef taskRef) {
+		Logger logger = LoggerFactory.getLogger(VEventServiceTests.class);
+		CompletableFuture<TaskStatus> futstatus = Tasks
+				.followStream(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM), logger, null, taskRef);
 
-		TaskStatus status = task.status();
-		System.err.println("STATUS: " + status.state.name());
-		if (status.state == State.InError) {
-			throw new ServerFault("import error");
+		TaskStatus status;
+		try {
+			status = futstatus.get(30, TimeUnit.SECONDS);
+			if (status.state == State.InError) {
+				throw new ServerFault("import error");
+			}
+			return JsonUtils.read(status.result, ImportStats.class);
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
+			throw new ServerFault("follow stream failed: " + ie.getMessage());
+		} catch (ExecutionException | TimeoutException e) {
+			throw new ServerFault("follow stream failed: " + e.getMessage(), e);
 		}
-
-		return JsonUtils.read(status.result, ImportStats.class);
 	}
 
 	protected IVEvent getVEventService(SecurityContext context, Container container) throws ServerFault {

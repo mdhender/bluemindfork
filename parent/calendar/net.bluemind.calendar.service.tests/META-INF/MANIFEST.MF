@@ -63,5 +63,6 @@ Require-Bundle: org.junit,
  net.bluemind.videoconferencing.api,
  net.bluemind.resource.api,
  net.bluemind.resource.helper,
- net.bluemind.core.rest.http
+ net.bluemind.core.rest.http,
+ net.bluemind.common.task
 Automatic-Module-Name: net.bluemind.calendar.service.tests

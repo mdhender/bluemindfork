@@ -35,5 +35,6 @@ Require-Bundle: org.junit,
  org.mockito.mockito-core,
  org.objenesis,
  net.bluemind.core.validator,
- net.bluemind.core.sanitizer
+ net.bluemind.core.sanitizer,
+ net.bluemind.common.task
 Automatic-Module-Name: net.bluemind.addressbook.service.tests
