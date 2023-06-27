@@ -26,16 +26,23 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 
 import net.bluemind.calendar.api.CalendarDescriptor;
 import net.bluemind.calendar.api.ICalendarsMgmt;
+import net.bluemind.common.task.Tasks;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.IContainerManagement;
 import net.bluemind.core.container.api.IContainerSync;
@@ -48,7 +55,6 @@ import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.sessions.Sessions;
-import net.bluemind.core.task.api.ITask;
 import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.api.TaskStatus;
 import net.bluemind.core.task.api.TaskStatus.State;
@@ -62,6 +68,8 @@ public class CalendarSyncTests {
 	private String domain = "bm.lan";
 	private String userUid = "admin";
 	protected SecurityContext context;
+	protected Supplier<ServerSideServiceProvider> provider = Suppliers
+			.memoize(() -> ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM));
 
 	@Before
 	public void before() throws Exception {
@@ -109,7 +117,7 @@ public class CalendarSyncTests {
 		String uid = UUID.randomUUID().toString();
 		CalendarDescriptor cd = CalendarDescriptor.create("invalid url", userUid, domain);
 
-		HashMap<String, String> settings = new HashMap<String, String>();
+		HashMap<String, String> settings = new HashMap<>();
 		settings.put("type", "externalIcs");
 		settings.put("icsUrl", "url");
 		cd.settings = settings;
@@ -149,7 +157,7 @@ public class CalendarSyncTests {
 		});
 		comp.join();
 
-		HashMap<String, String> settings = new HashMap<String, String>();
+		HashMap<String, String> settings = new HashMap<>();
 		settings.put("type", "externalIcs");
 		settings.put("icsUrl", "http://localhost:9898/fail");
 		cd.settings = settings;
@@ -179,7 +187,7 @@ public class CalendarSyncTests {
 		String uid = UUID.randomUUID().toString();
 		CalendarDescriptor cd = CalendarDescriptor.create(icsUrl, userUid, domain);
 
-		HashMap<String, String> settings = new HashMap<String, String>();
+		HashMap<String, String> settings = new HashMap<>();
 		settings.put("type", "externalIcs");
 		settings.put("icsUrl", icsUrl);
 		cd.settings = settings;
@@ -211,35 +219,36 @@ public class CalendarSyncTests {
 	}
 
 	private ContainerSyncResult syncCal(final String calUid) {
-		IContainerSync service = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-				.instance(IContainerSync.class, calUid);
+		IContainerSync service = provider.get().instance(IContainerSync.class, calUid);
 		TaskRef taskRef = service.sync();
 		assertNotNull(taskRef);
 		return waitTaskRef(taskRef);
 	}
 
-	private ContainerSyncResult waitTaskRef(TaskRef taskRef) throws ServerFault {
-		ITask task = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(ITask.class, taskRef.id);
-		while (!task.status().state.ended) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
+	private ContainerSyncResult waitTaskRef(TaskRef taskRef) {
+		Logger logger = LoggerFactory.getLogger(CalendarSyncTests.class);
+		CompletableFuture<TaskStatus> futstatus = Tasks.followStream(provider.get(), logger, null, taskRef);
+
+		TaskStatus status;
+		try {
+			status = futstatus.get(30, TimeUnit.SECONDS);
+			if (status.state == State.InError) {
+				throw new ServerFault("import error");
 			}
+			return JsonUtils.read(status.result, ContainerSyncResult.class);
+		} catch (InterruptedException ie) {
+			Thread.currentThread().interrupt();
+			throw new ServerFault("follow stream failed: " + ie.getMessage());
+		} catch (ExecutionException | TimeoutException e) {
+			throw new ServerFault("follow stream failed: " + e.getMessage(), e);
 		}
-
-		TaskStatus status = task.status();
-		if (status.state == State.InError) {
-			throw new ServerFault("import error");
-		}
-
-		return JsonUtils.read(status.result, ContainerSyncResult.class);
 	}
 
 	private void sync(String icsUrl) throws ServerFault {
 		String uid = UUID.randomUUID().toString();
 		CalendarDescriptor cd = CalendarDescriptor.create(icsUrl, userUid, domain);
 
-		HashMap<String, String> settings = new HashMap<String, String>();
+		HashMap<String, String> settings = new HashMap<>();
 		settings.put("type", "externalIcs");
 		settings.put("icsUrl", icsUrl);
 		cd.settings = settings;
