@@ -104,7 +104,7 @@ export default {
                 !this.hasRecipient ||
                 this.anyRecipientInError ||
                 this.anyAttachmentInError ||
-                this.this.maxRecipientsExceeded
+                this.maxRecipientsExceeded
             );
         }
     },
