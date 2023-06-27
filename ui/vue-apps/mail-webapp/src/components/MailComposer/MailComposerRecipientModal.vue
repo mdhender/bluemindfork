@@ -92,7 +92,10 @@ export default {
                     uid: contact.uid,
                     name: contact.value.identification.formatedName.value,
                     email: extractDefaultCommunication(contact, "emails"),
-                    tel: extractDefaultCommunication(contact, "tels")
+                    tel: extractDefaultCommunication(contact, "tels"),
+                    kind: contact.value.kind,
+                    members: contact.value.organizational?.member,
+                    urn: `${contact.uid}@${value}`
                 }));
             } finally {
                 this.loading = false;
@@ -141,7 +144,14 @@ export default {
 };
 
 function toContact(contactItem) {
-    return { address: contactItem.email, dn: contactItem.name, uid: contactItem.uid };
+    return {
+        address: contactItem.email,
+        dn: contactItem.name,
+        uid: contactItem.uid,
+        kind: contactItem.kind,
+        members: contactItem.members,
+        urn: contactItem.urn
+    };
 }
 </script>
 
