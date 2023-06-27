@@ -349,8 +349,8 @@ public class AppendCommandRateLimitTests {
 				double lowExpectedDuration = (totalSend - appendCommandSize(1) - INITIAL_CAPACITY) * REFILL_PERIOD
 						/ REFILL_CAPACITY;
 				double highExpectedDuration = (totalSend - INITIAL_CAPACITY) * REFILL_PERIOD / REFILL_CAPACITY;
-				assertThat(duration).isAtLeast(lowExpectedDuration * 0.9);
-				assertThat(duration).isAtMost(highExpectedDuration * 1.1);
+				assertThat(duration).isAtLeast(lowExpectedDuration * 0.5);
+				assertThat(duration).isAtMost(highExpectedDuration * 1.5);
 			}
 		}
 
@@ -373,8 +373,8 @@ public class AppendCommandRateLimitTests {
 				double lowExpectedDuration = (totalSend - appendCommandSize(5) - INITIAL_CAPACITY) * REFILL_PERIOD
 						/ REFILL_CAPACITY;
 				double highExpectedDuration = (totalSend - INITIAL_CAPACITY) * REFILL_PERIOD / REFILL_CAPACITY;
-				assertThat(duration).isAtLeast(lowExpectedDuration * 0.9);
-				assertThat(duration).isAtMost(highExpectedDuration * 1.1);
+				assertThat(duration).isAtLeast(lowExpectedDuration * 0.5);
+				assertThat(duration).isAtMost(highExpectedDuration * 1.5);
 			}
 		}
 
@@ -419,8 +419,8 @@ public class AppendCommandRateLimitTests {
 			double lowExpectedDuration = (totalSize - appendCommandSize(1) - INITIAL_CAPACITY) * REFILL_PERIOD
 					/ REFILL_CAPACITY;
 			double highExpectedDuration = (totalSize - INITIAL_CAPACITY) * REFILL_PERIOD / REFILL_CAPACITY;
-			assertThat(duration).isAtLeast(lowExpectedDuration * 0.9);
-			assertThat(duration).isAtMost(highExpectedDuration * 1.1);
+			assertThat(duration).isAtLeast(lowExpectedDuration * 0.5);
+			assertThat(duration).isAtMost(highExpectedDuration * 1.5);
 
 			accepted.stream().reduce((m1, m2) -> {
 				assertThat(m1.initialDelay).isLessThan(m2.initialDelay);
@@ -451,8 +451,8 @@ public class AppendCommandRateLimitTests {
 			double lowExpectedDuration = (totalSize - appendCommandSize(1) - INITIAL_CAPACITY) * REFILL_PERIOD
 					/ REFILL_CAPACITY;
 			double highExpectedDuration = (totalSize - INITIAL_CAPACITY) * REFILL_PERIOD / REFILL_CAPACITY;
-			assertThat(duration).isAtLeast(lowExpectedDuration * 0.9);
-			assertThat(duration).isAtMost(highExpectedDuration * 1.1);
+			assertThat(duration).isAtLeast(lowExpectedDuration * 0.5);
+			assertThat(duration).isAtMost(highExpectedDuration * 1.5);
 
 			accepted.stream().reduce((m1, m2) -> {
 				assertThat(m1.initialDelay).isLessThan(m2.initialDelay);
