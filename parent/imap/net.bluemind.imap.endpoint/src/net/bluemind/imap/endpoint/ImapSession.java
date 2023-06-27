@@ -75,15 +75,13 @@ public class ImapSession implements StateChangeListener {
 
 		nexus.addStateListener(this);
 
-		ns.handler(buffer -> {
-			vertxContext.runOnContext(v -> {
-				var mailbox = ctx.mailbox();
-				if (mailbox != null) {
-					ContextualData.put("user", mailbox.logId());
-				}
-				split.handle(buffer);
-			});
-		});
+		ns.handler(buffer -> vertxContext.runOnContext(v -> {
+			var mailbox = ctx.mailbox();
+			if (mailbox != null) {
+				ContextualData.put("user", mailbox.logId());
+			}
+			split.handle(buffer);
+		}));
 
 		ns.closeHandler(v -> {
 			ctx.close();
