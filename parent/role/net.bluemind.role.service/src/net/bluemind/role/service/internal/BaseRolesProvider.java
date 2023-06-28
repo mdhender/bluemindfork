@@ -460,12 +460,6 @@ public class BaseRolesProvider implements IRolesProvider {
 						.withParent(BasicRoles.ROLE_ADMIN),
 
 				RoleDescriptor
-						.create(BasicRoles.ROLE_WEBMAIL, CATEGORY_MAIL,
-								rb.getString("role.accessRoundcubeWebmail.label"),
-								rb.getString("role.accessRoundcubeWebmail.description"))
-						.giveRoles(BasicRoles.ROLE_MAIL).delegable(),
-
-				RoleDescriptor
 						.create(BasicRoles.ROLE_MAIL_WEBAPP, CATEGORY_MAIL, rb.getString("role.accessMailWebapp.label"), //
 								rb.getString("role.accessMailWebapp.description")) //
 						.giveRoles(BasicRoles.ROLE_MAIL).delegable(),

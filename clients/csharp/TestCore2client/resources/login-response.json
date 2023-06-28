@@ -253,7 +253,7 @@
          "mail_participation":"true",
          "mail_forward_unknown_to_relay":"false",
          "cal_set_im_presence":"false",
-         "default_app":"/webmail/",
+         "default_app":"/webapp/mail/",
          "lang":"fr",
          "defaultview":"week",
          "showweekends":"true",

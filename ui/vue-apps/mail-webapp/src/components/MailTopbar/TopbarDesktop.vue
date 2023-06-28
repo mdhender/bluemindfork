@@ -10,25 +10,11 @@
             <mail-toolbar :compact="activeSearch" />
         </div>
 
-        <div v-if="canSwitchWebmail" class="switch pr-5">
-            <bm-form-checkbox
-                switch
-                left-label
-                checked="true"
-                class="switch-webmail text-right text-secondary"
-                @change="switchWebmail"
-            >
-                {{ $t("mail.main.switch.webmail") }}
-            </bm-form-checkbox>
-        </div>
     </div>
 </template>
 
 <script>
 import { mapGetters, mapState } from "vuex";
-import { inject } from "@bluemind/inject";
-import { BmFormCheckbox } from "@bluemind/ui-components";
-import BmRoles from "@bluemind/roles";
 import { MY_TEMPLATES } from "~/getters";
 import NewMessage from "../NewMessage";
 import MailSearchBox from "../MailSearch/MailSearchBox";
@@ -36,14 +22,12 @@ import MailToolbar from "../MailToolbar/MailToolbar";
 
 export default {
     components: {
-        BmFormCheckbox,
         MailSearchBox,
         MailToolbar,
         NewMessage
     },
     data() {
         return {
-            userSession: inject("UserSession"),
             activeSearch: false
         };
     },
@@ -53,20 +37,7 @@ export default {
         }),
         ...mapGetters("mail", {
             MY_TEMPLATES
-        }),
-        canSwitchWebmail() {
-            return (
-                this.userSession &&
-                this.userSession.roles.includes(BmRoles.HAS_MAIL_WEBAPP) &&
-                this.userSession.roles.includes(BmRoles.HAS_WEBMAIL)
-            );
-        }
-    },
-    methods: {
-        async switchWebmail() {
-            await inject("UserSettingsPersistence").setOne(this.userSession.userId, "mail-application", '"webmail"');
-            location.replace("/webmail/");
-        }
+        })
     }
 };
 </script>
@@ -113,29 +84,6 @@ export default {
             width: 3.5rem !important;
             .slot-wrapper {
                 display: none;
-            }
-        }
-        & > .switch {
-            display: none !important;
-        }
-    }
-
-    & > .switch {
-        flex: 1 1;
-        order: 4;
-
-        .switch-webmail label {
-            @include caption-bold;
-            max-width: $custom-switch-width * 3;
-            color: $secondary-fg;
-            $switch-offset: math.div(2 * $line-height-caption - $custom-switch-height, 2);
-            $switch-indicator-offset: $switch-offset +
-                math.div($custom-switch-height - $custom-switch-indicator-size, 2);
-            &::before {
-                top: $switch-offset !important;
-            }
-            &::after {
-                top: $switch-indicator-offset !important;
             }
         }
     }

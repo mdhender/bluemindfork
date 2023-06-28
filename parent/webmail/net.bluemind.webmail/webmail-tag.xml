@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This file describes BM Domains configuration. -->
+<domainTemplate>
+	<hostTags>
+		<kind id="bm">
+			<tag value="bm/webmail" multival="false" mandatory="false" autoAssign="false">
+				<desc lang="fr">Application webmail</desc>
+				<desc lang="en">Webmail application</desc>
+			</tag>
+		</kind>
+	</hostTags>
+</domainTemplate>

@@ -704,6 +704,7 @@
    <bundle id="net.bluemind.smime.cacerts.sqlschema" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.webapp.mail.js" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.webapp.root.js" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.webmail" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.webmail.banner.closure" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.webmail.sqlschema" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.webmodule" version="5.0.0.qualifier"/>

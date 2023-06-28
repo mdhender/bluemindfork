@@ -19,7 +19,7 @@ export default function (i18n) {
 
 function main(i18n) {
     const availableDefaultApps = [
-        { text: i18n.t("common.application.webmail"), value: "/webmail/" },
+        { text: i18n.t("common.application.webmail"), value: "/webapp/mail/" },
         { text: i18n.t("common.application.calendar"), value: "/cal/" }
     ];
     return {

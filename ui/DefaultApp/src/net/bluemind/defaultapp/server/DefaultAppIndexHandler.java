@@ -52,11 +52,11 @@ public class DefaultAppIndexHandler extends AbstractIndexHandler {
 				: Collections.<String>emptySet();
 
 		if (defaultApp == null) {
-			defaultApp = "/webmail/";
+			defaultApp = "/webapp/mail/";
 		}
 		LinkedHashSet<String> apps = new LinkedHashSet<>();
 		apps.add(defaultApp);
-		apps.add("/webmail/");
+		apps.add("/webapp/mail/");
 		apps.add("/adminconsole/");
 		apps.add("/contact/");
 		apps.add("/cal/");
@@ -68,7 +68,7 @@ public class DefaultAppIndexHandler extends AbstractIndexHandler {
 			String app = it.next();
 			boolean ok = true;
 			switch (app) {
-			case "/webmail/":
+			case "/webapp/mail/":
 				ok = roles.contains(BasicRoles.ROLE_MAIL);
 				break;
 			case "/contact/":

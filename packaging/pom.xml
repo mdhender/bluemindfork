@@ -52,6 +52,7 @@
 		<module>bm-plugin-core-cti-xivo</module>
 		<module>bm-plugin-core-cti-wazo</module>
 		<module>bm-plugin-core-filehosting-filesystem</module>
+		<module>bm-plugin-core-webmail</module>
 		<module>python-bm-client</module>
 		<module>bm-plugin-core-password-bruteforce</module>
 		<module>bm-plugin-core-password-sizestrength</module>

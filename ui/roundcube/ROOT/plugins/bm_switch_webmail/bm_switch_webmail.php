@@ -42,7 +42,7 @@ class bm_switch_webmail extends rcube_plugin {
     }
     $sc = new BM\UserSettingsClient($_SESSION['bm']['core'], $_SESSION['bm_sso']['bmSid'], $_SESSION['bm_sso']['bmDomain']);
     $defaultMailApplication = $sc->getOne($_SESSION['bm_sso']['bmUserId'], "mail-application");
-    if ($defaultMailApplication == 'mail-webapp') {
+    if ($defaultMailApplication != 'webmail') {
         $this->redirectToMailApp();
     }
   }

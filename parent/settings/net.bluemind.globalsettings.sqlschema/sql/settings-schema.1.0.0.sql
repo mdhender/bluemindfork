@@ -20,7 +20,7 @@ insert into t_settings_global values (
   "work_hours_end"=>"18",
   "working_days"=>"mon,tue,wed,thu,fri",
   "show_declined_events"=>"false",
-  "default_app"=>"/webmail/",
+  "default_app"=>"/webapp/mail/",
   "sync_sequence"=>"0",
   "cal_set_im_presence"=>"false",
   "cal_set_phone_presence"=>"false",

@@ -5,7 +5,7 @@
          point="net.bluemind.ui.commons.banner.pendingActions">
       <module-pending-actions
             jsfunc="webmailPendingActions"
-            module="/webmail/">
+            module="/webapp/mail/">
       </module-pending-actions>
    </extension>
    <extension

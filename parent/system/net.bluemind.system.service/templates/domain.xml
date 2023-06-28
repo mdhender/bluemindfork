@@ -66,11 +66,7 @@
 			<tag value="bm/cal" multival="false" mandatory="true" autoAssign="true">
 				<desc lang="fr">Application calendrier</desc>
 				<desc lang="en">Calendar application</desc>
-			</tag>
-			<tag value="bm/webmail" multival="false" mandatory="true" autoAssign="true">
-				<desc lang="fr">Application webmail</desc>
-				<desc lang="en">Webmail application</desc>
-			</tag>
+			</tag>>
 			<tag value="bm/contact" multival="false" mandatory="true" autoAssign="true">
 				<desc lang="fr">Application contact</desc>
 				<desc lang="en">Contact application</desc>

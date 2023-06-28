@@ -78,7 +78,7 @@ public class TryMailAppFilter implements IWebFilter, NeedVertx {
 
 							@Override
 							public void success(String mailApplication) {
-								if (!mailApplication.equals("mail-webapp")) {
+								if (mailApplication.equals("webmail")) {
 									redirectToWebmail(request);
 									completableFuture.complete(null);
 								} else {
