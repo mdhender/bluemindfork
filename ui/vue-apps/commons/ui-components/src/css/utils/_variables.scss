@@ -387,6 +387,8 @@ $b-skeleton-background-color: $neutral-bg;
 
 // Modals
 
+$modal-footer-margin-between: 0;
+
 $modal-title-line-height: 3.5rem;
 
 $modal-content-bg: $surface-hi2;
@@ -395,14 +397,40 @@ $modal-content-border-width: 2px;
 $modal-content-box-shadow-xs: $box-shadow-sm;
 $modal-content-box-shadow-sm-up: $box-shadow;
 
+$modal-backdrop-bg: $modal-backdrop;
+$modal-backdrop-opacity: 1;
 $modal-header-border-width: unset;
 $modal-footer-border-width: unset;
 $modal-header-padding-y: 1rem;
 $modal-header-padding-x: 1rem;
 $modal-header-padding: $modal-header-padding-y $modal-header-padding-x 0 1.5rem;
 
-$modal-backdrop-bg: $modal-backdrop;
-$modal-backdrop-opacity: 1;
+$modal-sm: 360px;
+$modal-md: 560px;
+$modal-lg: 880px;
+$modal-xl: 100vw;
+$modal-max-width: 85%;
+
+$modal-heights: (
+    "sm": (
+        "sm": 34vh,
+        "md": 48vh,
+        "lg": 56vh,
+        "xl": 64vh
+    ),
+    "md": (
+        "sm": 44vh,
+        "md": 60vh,
+        "lg": 72vh,
+        "xl": 84vh
+    ),
+    "lg": (
+        "sm": 52vh,
+        "md": 68vh,
+        "lg": 80vh,
+        "xl": 92vh
+    )
+);
 
 // Alerts
 

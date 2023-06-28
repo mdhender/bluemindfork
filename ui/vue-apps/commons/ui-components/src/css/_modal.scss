@@ -1,68 +1,159 @@
-.modal-content {
-    border: unset;
-    border-top: $modal-content-border-width solid $modal-content-border-color;
-    box-shadow: $box-shadow-lg;
-}
+@use "sass:math";
 
-.modal-header,
-.modal-body,
-.modal-footer {
-    padding-left: base-px-to-rem(32);
-    padding-right: base-px-to-rem(24);
-}
+.modal-dialog {
+    width: $modal-max-width; // max-width is set by Bootstrap Vue from size variables
 
-.modal-header {
-    padding-top: base-px-to-rem(24);
-    padding-bottom: $sp-5;
-    gap: $sp-5;
-
-    .modal-title {
-        @include title;
+    @each $height-name, $height-values in $modal-heights {
+        @each $size-name, $height-value in $height-values {
+            &.modal-#{$size-name}.modal-height-#{$height-name} .modal-content {
+                height: $height-value;
+            }
+        }
     }
 
-    .close {
-        padding: initial;
-        margin: initial;
-        @extend .btn-close-lg;
+    .modal-content {
+        border: unset;
+        border-top: $modal-content-border-width solid $modal-content-border-color;
+        box-shadow: $box-shadow-lg;
+    }
 
-        @include until-lg {
-            margin-top: base-px-to-rem(-3);
+    .modal-body,
+    .modal-footer {
+        padding-left: base-px-to-rem(20);
+        padding-right: base-px-to-rem(20);
+        @include from-lg {
+            padding-left: base-px-to-rem(30);
+            padding-right: base-px-to-rem(28);
+        }
+    }
+
+    .modal-header {
+        padding: 0;
+
+        .modal-title {
+            @include title;
+            $btn-height: map-get($btn-close-sizes, "lg");
+            margin-top: math.div($btn-height - $title-line-height, 2);
+            overflow-wrap: break-word;
+            min-width: 0;
+        }
+
+        .modal-close {
+            @include until-lg {
+                display: none;
+            }
+            padding: initial;
+            margin: initial;
+            margin-right: $sp-4;
+        }
+    }
+
+    .modal-body {
+        padding-top: 0;
+        padding-bottom: $sp-5;
+        @include from-lg {
+            padding-top: $sp-5;
+            padding-bottom: $sp-6;
+        }
+        text-overflow: ellipsis;
+        overflow: hidden;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        @include regular-medium;
+        color: $neutral-fg;
+        & > p {
+            margin: 0;
+        }
+    }
+
+    .modal-footer {
+        z-index: $zindex-sticky;
+        padding-top: base-px-to-rem(14);
+        padding-bottom: base-px-to-rem(14);
+        @include from-lg {
+            padding-top: base-px-to-rem(18);
+            padding-bottom: base-px-to-rem(18);
+        }
+        gap: $sp-5 $sp-7;
+        & > .btn {
+            margin: 0;
+        }
+    }
+
+    &.modal-dialog-advanced {
+        .modal-content {
+            background-color: $surface;
+        }
+        .modal-header {
+            background-color: $neutral-bg-lo1;
+            border-bottom: 1px solid $neutral-fg-lo3;
+            .modal-close {
+                margin-right: 0;
+            }
+        }
+        .modal-body {
+            padding-top: $sp-6;
+            padding-bottom: $sp-6;
+        }
+        .modal-footer {
+            background-color: $surface-hi1;
+            box-shadow: $box-shadow-sm;
+            padding: $sp-5 $sp-6;
+        }
+    }
+    &.modal-dialog-scrollable .modal-body {
+        @include scroller-y;
+    }
+
+    &.modal-dialog-centered {
+        // prevent style invading with old apps (those using net.bluemind.commons.closure)
+        font-family: unset;
+        border: unset;
+        -webkit-box-shadow: unset;
+        box-shadow: unset;
+        z-index: unset;
+    }
+}
+
+// Manage full-screen modals on mobile:
+
+@include until-lg {
+    .modal {
+        transition: none !important;
+    }
+    .modal-dialog:not(.modal-sm) {
+        transition: none !important;
+        margin: 0;
+        &,
+        .modal-content {
+            max-width: none !important;
+            max-height: none !important;
+            width: 100vw !important;
+            height: 100vh !important;
+        }
+
+        .modal-content {
+            border: none;
+            box-shadow: none;
+        }
+
+        .modal-body {
+            padding-top: $sp-5;
+        }
+
+        .modal-footer {
+            background-color: $surface-hi1;
+            box-shadow: $box-shadow-sm;
+            padding: $sp-4;
         }
     }
 }
 
-.modal-body {
-    padding-top: $sp-5;
-    padding-bottom: $sp-7;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    word-break: break-word;
-    overflow-wrap: break-word;
-    @include regular-medium;
-    color: $neutral-fg;
-    & > p {
-        margin: 0;
-    }
-}
+// Move backdrop to modal to prevent visual artifact when closing full-screen modals:
 
-.modal-footer {
-    padding-top: base-px-to-rem(16);
-    padding-bottom: base-px-to-rem(16);
-    gap: $sp-5 $sp-7;
-    & > .btn {
-        margin: 0;
-    }
+.modal-backdrop {
+    background: none;
 }
-
-.modal-fluid {
-    max-width: 80%;
-}
-
-.modal-dialog.modal-dialog-centered {
-    // prevent style invading with old apps (those using net.bluemind.commons.closure)
-    font-family: unset;
-    border: unset;
-    -webkit-box-shadow: unset;
-    box-shadow: unset;
-    z-index: unset;
+.modal {
+    background-color: $modal-backdrop;
 }
