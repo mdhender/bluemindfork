@@ -1,5 +1,5 @@
 <template>
-    <bm-modal
+    <bm-modal-deprecated
         id="file-hosting-modal"
         :title="$tc('filehosting.add.large', fhFiles.length)"
         title-class="ml-2"
@@ -67,11 +67,11 @@
                 {{ isUploading ? $t("common.hide") : $t("common.done") }}
             </bm-button>
         </template>
-    </bm-modal>
+    </bm-modal-deprecated>
 </template>
 <script>
 import { mapActions, mapGetters } from "vuex";
-import { BmModal, BmButtonClose, BmButton, BmIcon, BmLabelIcon } from "@bluemind/ui-components";
+import { BmModalDeprecated, BmButtonClose, BmButton, BmIcon, BmLabelIcon } from "@bluemind/ui-components";
 import { computeUnit } from "@bluemind/file-utils";
 import { fileUtils } from "@bluemind/mail";
 import DetachmentItem from "./DetachmentItem";
@@ -82,7 +82,7 @@ const { FileStatus, isUploading } = fileUtils;
 
 export default {
     name: "FileHostingModal",
-    components: { BmModal, BmButtonClose, BmButton, BmIcon, DetachmentItem, BmLabelIcon },
+    components: { BmModalDeprecated, BmButtonClose, BmButton, BmIcon, DetachmentItem, BmLabelIcon },
     props: {
         sizeLimit: {
             type: Number,

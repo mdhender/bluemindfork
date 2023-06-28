@@ -1,5 +1,5 @@
 <template>
-    <bm-modal
+    <bm-modal-deprecated
         v-model="show"
         centered
         :title="$t('preferences.security.change_password')"
@@ -65,19 +65,19 @@
                 />
             </bm-form-group>
         </bm-form>
-    </bm-modal>
+    </bm-modal-deprecated>
 </template>
 
 <script>
 import { mapActions } from "vuex";
 import { inject } from "@bluemind/inject";
-import { BmForm, BmFormGroup, BmFormInput, BmModal } from "@bluemind/ui-components";
+import { BmForm, BmFormGroup, BmFormInput, BmModalDeprecated } from "@bluemind/ui-components";
 import { SUCCESS } from "@bluemind/alert.store";
 import { SAVE_ALERT } from "../../Alerts/defaultAlerts";
 
 export default {
     name: "ChangePasswordModal",
-    components: { BmForm, BmFormGroup, BmFormInput, BmModal },
+    components: { BmForm, BmFormGroup, BmFormInput, BmModalDeprecated },
     data() {
         return {
             show: false,

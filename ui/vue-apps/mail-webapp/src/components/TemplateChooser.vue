@@ -1,5 +1,5 @@
 <template>
-    <bm-modal
+    <bm-modal-deprecated
         dialog-class="template-chooser"
         :scrollable="false"
         :busy="loading"
@@ -29,13 +29,13 @@
             />
             <templates-list v-model="selected" class="templates-list flex-fill" @ok="useTemplate" />
         </div>
-    </bm-modal>
+    </bm-modal-deprecated>
 </template>
 <script>
 import debounce from "lodash.debounce";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { draftUtils } from "@bluemind/mail";
-import { BmModal, BmFormInput } from "@bluemind/ui-components";
+import { BmModalDeprecated, BmFormInput } from "@bluemind/ui-components";
 import { SET_TEMPLATE_CHOOSER_VISIBLE, SET_TEMPLATE_LIST_SEARCH_PATTERN } from "~/mutations";
 import { DEBOUNCED_SAVE_MESSAGE, FETCH_TEMPLATES_KEYS } from "~/actions";
 import { MY_TEMPLATES } from "~/getters";
@@ -45,7 +45,7 @@ const { isEditorContentEmpty, preserveFromOrDefault } = draftUtils;
 
 export default {
     name: "TemplateChooser",
-    components: { BmModal, BmFormInput, TemplatesList },
+    components: { BmModalDeprecated, BmFormInput, TemplatesList },
     mixins: [ComposerInitMixin],
     data() {
         return {

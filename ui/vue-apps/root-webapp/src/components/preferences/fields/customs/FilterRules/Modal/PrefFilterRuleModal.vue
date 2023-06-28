@@ -1,5 +1,5 @@
 <template>
-    <bm-modal
+    <bm-modal-deprecated
         :id="$attrs['id']"
         ref="pref-filter-rule-modal-bm-modal"
         class="pref-filter-rule-modal"
@@ -19,11 +19,11 @@
             <pref-filter-rule-modal-criteria :criteria.sync="filter_.exceptions" negative />
             <pref-filter-rule-modal-terminal :filter.sync="filter_" />
         </bm-form>
-    </bm-modal>
+    </bm-modal-deprecated>
 </template>
 
 <script>
-import { BmForm, BmModal } from "@bluemind/ui-components";
+import { BmForm, BmModalDeprecated } from "@bluemind/ui-components";
 import PrefFilterRuleModalActions from "./PrefFilterRuleModalActions";
 import PrefFilterRuleModalCriteria from "./PrefFilterRuleModalCriteria";
 import PrefFilterRuleModalName from "./PrefFilterRuleModalName";
@@ -33,7 +33,7 @@ export default {
     name: "PrefFilterRuleModal",
     components: {
         BmForm,
-        BmModal,
+        BmModalDeprecated,
         PrefFilterRuleModalActions,
         PrefFilterRuleModalCriteria,
         PrefFilterRuleModalName,

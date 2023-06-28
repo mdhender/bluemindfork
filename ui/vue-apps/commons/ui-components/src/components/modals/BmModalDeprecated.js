@@ -1,7 +1,7 @@
 import { BModal } from "bootstrap-vue";
 
 export default {
-    name: "BmModal",
+    name: "BmModalDeprecated",
     extends: BModal,
     props: {
         okVariant: {

@@ -7,7 +7,7 @@ export default {
         const BvModal = new Vue()._bv__modal.constructor;
         /**
          *
-         * @param {Component} Modal component. It must either extends BmModal or have a bm-modal as root component
+         * @param {Component} Modal component. It must either extends BmModalDeprecated or have a bm-modal as root component
          * @param {Object} props modal props values
          * @returns Modal instance
          */

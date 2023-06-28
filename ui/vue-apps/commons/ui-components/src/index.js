@@ -68,7 +68,7 @@ export { default as BmListGroup } from "./components/lists/BmListGroup";
 export { default as BmListGroupItem } from "./components/lists/BmListGroupItem";
 export { default as BmListGroupSeparator } from "./components/lists/BmListGroupSeparator";
 export { default as BmLogo } from "./assets/logo-bluemind.svg";
-export { default as BmModal } from "./components/modals/BmModal";
+export { default as BmModalDeprecated } from "./components/modals/BmModalDeprecated";
 export { default as BmModalPlugin } from "./plugins/BmModalPlugin";
 export { default as BmMoreItemsBadge } from "./components/BmMoreItemsBadge";
 export { default as BmMultipane } from "./components/layout/BmMultipane";

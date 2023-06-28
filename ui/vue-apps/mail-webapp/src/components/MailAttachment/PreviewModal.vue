@@ -1,5 +1,5 @@
 <template>
-    <bm-modal
+    <bm-modal-deprecated
         id="preview-modal"
         ref="modal"
         class="preview-modal position-relative"
@@ -33,12 +33,12 @@
                 <component :is="context.alert.renderer" :alert="context.alert" />
             </template>
         </bm-alert-area>
-    </bm-modal>
+    </bm-modal-deprecated>
 </template>
 
 <script>
 import { mapActions, mapMutations, mapState } from "vuex";
-import { BmAlertArea, BmCollapse, BmModal } from "@bluemind/ui-components";
+import { BmAlertArea, BmCollapse, BmModalDeprecated } from "@bluemind/ui-components";
 import { REMOVE } from "@bluemind/alert.store";
 
 import { RESET_PREVIEW, SET_PREVIEW_FILE_KEY } from "~/mutations";
@@ -53,7 +53,7 @@ export default {
     components: {
         BmAlertArea,
         BmCollapse,
-        BmModal,
+        BmModalDeprecated,
         PreviewFile,
         PreviewMessage,
         PreviewHeader,

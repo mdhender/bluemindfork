@@ -1,5 +1,5 @@
 <template>
-    <bm-modal
+    <bm-modal-deprecated
         v-if="folder"
         ref="modal"
         centered
@@ -25,11 +25,11 @@
             :text="validityCheck"
             class="position-absolute z-index-110 mx-2"
         />
-    </bm-modal>
+    </bm-modal-deprecated>
 </template>
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
-import { BmModal } from "@bluemind/ui-components";
+import { BmModalDeprecated } from "@bluemind/ui-components";
 import { BmFormInput, BmNotice } from "@bluemind/ui-components";
 import { folderUtils } from "@bluemind/mail";
 import { FOLDER_BY_PATH } from "~/getters";
@@ -39,7 +39,7 @@ const { isNameValid } = folderUtils;
 
 export default {
     name: "EditFolderModal",
-    components: { BmModal, BmFormInput, BmNotice },
+    components: { BmModalDeprecated, BmFormInput, BmNotice },
     data() {
         return { name: "", folder: null };
     },

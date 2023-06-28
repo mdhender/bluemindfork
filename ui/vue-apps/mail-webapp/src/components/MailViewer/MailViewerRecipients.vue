@@ -66,7 +66,7 @@
         >
             <mail-viewer-recipients-more-content :message="message" @close="bccShowMore = false" />
         </bm-popover>
-        <bm-modal
+        <bm-modal-deprecated
             v-if="message.to.length"
             id="mail-viewer-recipients-modal-to"
             v-model="toShowMore"
@@ -75,8 +75,8 @@
             hide-header
         >
             <mail-viewer-recipients-more-content :message="message" class="pt-5" hide-close />
-        </bm-modal>
-        <bm-modal
+        </bm-modal-deprecated>
+        <bm-modal-deprecated
             v-if="message.cc.length"
             id="mail-viewer-recipients-modal-cc"
             v-model="ccShowMore"
@@ -85,8 +85,8 @@
             hide-header
         >
             <mail-viewer-recipients-more-content :message="message" class="pt-5" hide-close />
-        </bm-modal>
-        <bm-modal
+        </bm-modal-deprecated>
+        <bm-modal-deprecated
             v-if="message.bcc.length"
             id="mail-viewer-recipients-modal-bcc"
             v-model="bccShowMore"
@@ -95,18 +95,18 @@
             hide-header
         >
             <mail-viewer-recipients-more-content :message="message" class="pt-5" hide-close />
-        </bm-modal>
+        </bm-modal-deprecated>
     </div>
 </template>
 
 <script>
-import { BmModal, BmPopover } from "@bluemind/ui-components";
+import { BmModalDeprecated, BmPopover } from "@bluemind/ui-components";
 import MailViewerRecipient from "./MailViewerRecipient";
 import MailViewerRecipientsMoreContent from "./MailViewerRecipientsMoreContent";
 
 export default {
     name: "MailViewerRecipients",
-    components: { BmModal, BmPopover, MailViewerRecipient, MailViewerRecipientsMoreContent },
+    components: { BmModalDeprecated, BmPopover, MailViewerRecipient, MailViewerRecipientsMoreContent },
     props: {
         message: {
             type: Object,

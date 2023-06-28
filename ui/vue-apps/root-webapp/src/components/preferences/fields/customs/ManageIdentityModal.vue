@@ -1,5 +1,5 @@
 <template>
-    <bm-modal
+    <bm-modal-deprecated
         v-model="show"
         centered
         :title="isNewIdentity ? $t('preferences.mail.identities.create') : $t('preferences.mail.identities.update')"
@@ -118,7 +118,7 @@
             </template>
             <template v-else><div /></template>
         </template>
-    </bm-modal>
+    </bm-modal-deprecated>
 </template>
 
 <script>
@@ -137,7 +137,7 @@ import {
     BmFormGroup,
     BmFormInput,
     BmIcon,
-    BmModal,
+    BmModalDeprecated,
     BmRichEditor,
     BmSpinner
 } from "@bluemind/ui-components";
@@ -156,7 +156,7 @@ export default {
         BmFormGroup,
         BmFormInput,
         BmIcon,
-        BmModal,
+        BmModalDeprecated,
         BmRichEditor,
         BmSpinner
     },

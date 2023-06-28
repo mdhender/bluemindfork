@@ -8,7 +8,7 @@
             :title="$tc('filehosting.drive.from')"
             @click="openChooser"
         />
-        <bm-modal
+        <bm-modal-deprecated
             id="chooser-modal"
             hide-footer
             centered
@@ -17,13 +17,13 @@
             :title="$t('filehosting.chooser')"
         >
             <chooser :max-attachments-size="maxAttachmentsSize" @insert="insertFiles" />
-        </bm-modal>
+        </bm-modal-deprecated>
     </div>
 </template>
 
 <script>
 import { inject } from "@bluemind/inject";
-import { BmIconButton, BmModal } from "@bluemind/ui-components";
+import { BmIconButton, BmModalDeprecated } from "@bluemind/ui-components";
 import { MimeType } from "@bluemind/email";
 import { Chooser } from "@bluemind/business-components";
 import { LINK_FH_ATTACHMENT } from "../store/types/actions";
@@ -31,7 +31,7 @@ import getContentWithLinks from "../helpers/getContentWithLinks";
 
 export default {
     name: "ChooserButton",
-    components: { BmIconButton, BmModal, Chooser },
+    components: { BmIconButton, BmModalDeprecated, Chooser },
     props: {
         message: {
             type: Object,

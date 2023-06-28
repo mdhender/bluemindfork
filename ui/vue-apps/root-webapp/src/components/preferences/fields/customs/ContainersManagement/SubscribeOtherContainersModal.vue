@@ -1,5 +1,5 @@
 <template>
-    <bm-modal
+    <bm-modal-deprecated
         v-model="show"
         centered
         lazy
@@ -57,12 +57,19 @@
             </template>
             <div v-else>{{ $t("preferences.add_containers." + containerType + ".nothing_to_add") }}</div>
         </template>
-    </bm-modal>
+    </bm-modal-deprecated>
 </template>
 
 <script>
 import { inject } from "@bluemind/inject";
-import { BmFormCheckbox, BmFormInput, BmModal, BmPagination, BmSpinner, BmTable } from "@bluemind/ui-components";
+import {
+    BmFormCheckbox,
+    BmFormInput,
+    BmModalDeprecated,
+    BmPagination,
+    BmSpinner,
+    BmTable
+} from "@bluemind/ui-components";
 import { mapActions } from "vuex";
 import { SUCCESS } from "@bluemind/alert.store";
 import { isContainerTypeUsedByApp } from "./container";
@@ -71,7 +78,7 @@ import { matchPattern } from "@bluemind/string";
 
 export default {
     name: "SubscribeOtherContainersModal",
-    components: { BmFormCheckbox, BmFormInput, BmModal, BmPagination, BmSpinner, BmTable },
+    components: { BmFormCheckbox, BmFormInput, BmModalDeprecated, BmPagination, BmSpinner, BmTable },
     props: {
         containerType: {
             type: String,

@@ -1,5 +1,5 @@
 <template>
-    <bm-modal
+    <bm-modal-deprecated
         id="advanced-search-modal"
         size="lg"
         :ok-title="$t('common.action.search')"
@@ -67,12 +67,12 @@
             <label>{{ $t("common.until") }}</label>
             <date-search-input class="search-input" :value.sync="until" :min="startingFrom" />
         </div>
-    </bm-modal>
+    </bm-modal-deprecated>
 </template>
 
 <script>
 import { mapMutations, mapState } from "vuex";
-import { BmModal, BmFormCheckbox } from "@bluemind/ui-components";
+import { BmModalDeprecated, BmFormCheckbox } from "@bluemind/ui-components";
 import { SearchMixin } from "~/mixins";
 import {
     SET_CURRENT_SEARCH_DEEP,
@@ -106,7 +106,7 @@ export default {
     name: "AdvancedSearchModal",
     components: {
         BmFormCheckbox,
-        BmModal,
+        BmModalDeprecated,
         ContactSearchInput,
         DateSearchInput,
         MailSearchBoxContext,

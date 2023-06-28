@@ -1,5 +1,5 @@
 <template>
-    <bm-modal
+    <bm-modal-deprecated
         v-model="show"
         centered
         lazy
@@ -40,7 +40,7 @@
             />
         </bm-form>
         <import-file v-if="showFileImport" ref="import-file" :container="container" class="mt-2 flex-grow-1" />
-    </bm-modal>
+    </bm-modal-deprecated>
 </template>
 
 <script>
@@ -48,7 +48,7 @@ import { ContainerHelper, ContainerType } from "./container";
 import CreateOrUpdateCalendar from "./Calendars/MyCalendars/CreateOrUpdateCalendar";
 import ImportFile from "./ImportFile";
 import { WARNING, SUCCESS } from "@bluemind/alert.store";
-import { BmForm, BmFormGroup, BmFormInput, BmModal } from "@bluemind/ui-components";
+import { BmForm, BmFormGroup, BmFormInput, BmModalDeprecated } from "@bluemind/ui-components";
 import UUIDGenerator from "@bluemind/uuid";
 import cloneDeep from "lodash.clonedeep";
 import { mapActions } from "vuex";
@@ -56,7 +56,7 @@ import { SAVE_ALERT } from "../../../Alerts/defaultAlerts";
 
 export default {
     name: "CreateOrUpdateContainerModal",
-    components: { BmForm, BmFormGroup, BmFormInput, BmModal, CreateOrUpdateCalendar, ImportFile },
+    components: { BmForm, BmFormGroup, BmFormInput, BmModalDeprecated, CreateOrUpdateCalendar, ImportFile },
     props: {
         containers: {
             type: Array,

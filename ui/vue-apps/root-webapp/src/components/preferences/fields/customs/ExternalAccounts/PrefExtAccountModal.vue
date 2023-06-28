@@ -1,5 +1,5 @@
 <template>
-    <bm-modal
+    <bm-modal-deprecated
         :id="$attrs['id']"
         ref="pref-ext-account-modal-bm-modal"
         class="pref-ext-account-modal"
@@ -78,13 +78,21 @@
                 {{ testAccountResultText }}
             </bm-label-icon>
         </bm-form>
-    </bm-modal>
+    </bm-modal-deprecated>
 </template>
 
 <script>
 import cloneDeep from "lodash.clonedeep";
 import { inject } from "@bluemind/inject";
-import { BmButton, BmForm, BmFormGroup, BmFormInput, BmLabelIcon, BmModal, BmSpinner } from "@bluemind/ui-components";
+import {
+    BmButton,
+    BmForm,
+    BmFormGroup,
+    BmFormInput,
+    BmLabelIcon,
+    BmModalDeprecated,
+    BmSpinner
+} from "@bluemind/ui-components";
 
 const TestStatus = {
     IDLE: Symbol("IDLE"),
@@ -96,7 +104,7 @@ const TestStatus = {
 
 export default {
     name: "PrefExtAccountModal",
-    components: { BmButton, BmForm, BmFormGroup, BmFormInput, BmLabelIcon, BmModal, BmSpinner },
+    components: { BmButton, BmForm, BmFormGroup, BmFormInput, BmLabelIcon, BmModalDeprecated, BmSpinner },
     props: {
         externalAccount: {
             type: Object,

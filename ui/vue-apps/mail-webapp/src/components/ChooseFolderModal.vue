@@ -1,5 +1,5 @@
 <template>
-    <bm-modal
+    <bm-modal-deprecated
         ref="choose-folder-modal"
         class="choose-folder-modal"
         body-class="choose-folder-modal-body"
@@ -81,12 +81,12 @@
                 </div>
             </div>
         </template>
-    </bm-modal>
+    </bm-modal-deprecated>
 </template>
 
 <script>
 import { mapGetters, mapState } from "vuex";
-import { BmFormAutocompleteInput, BmIcon, BmModal, BmNotice } from "@bluemind/ui-components";
+import { BmFormAutocompleteInput, BmIcon, BmModalDeprecated, BmNotice } from "@bluemind/ui-components";
 import { folderUtils, mailboxUtils } from "@bluemind/mail";
 import { FOLDER_BY_PATH } from "~/getters";
 import { FilterFolderMixin } from "~/mixins";
@@ -102,7 +102,7 @@ export default {
     components: {
         BmFormAutocompleteInput,
         BmIcon,
-        BmModal,
+        BmModalDeprecated,
         BmNotice,
         MailFolderIcon,
         MailFolderInput,

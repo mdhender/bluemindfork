@@ -1,5 +1,5 @@
 <template>
-    <bm-modal
+    <bm-modal-deprecated
         :id="$attrs['id']"
         ref="pref-tag-modal-bm-modal"
         class="pref-tag-modal"
@@ -26,16 +26,16 @@
                 />
             </bm-form-group>
         </bm-form>
-    </bm-modal>
+    </bm-modal-deprecated>
 </template>
 
 <script>
-import { BmForm, BmFormColorPicker, BmFormGroup, BmFormInput, BmModal } from "@bluemind/ui-components";
+import { BmForm, BmFormColorPicker, BmFormGroup, BmFormInput, BmModalDeprecated } from "@bluemind/ui-components";
 import tagColors from "./tagColors";
 
 export default {
     name: "PrefTagModal",
-    components: { BmForm, BmFormColorPicker, BmFormGroup, BmFormInput, BmModal },
+    components: { BmForm, BmFormColorPicker, BmFormGroup, BmFormInput, BmModalDeprecated },
     props: {
         tag: {
             type: Object,

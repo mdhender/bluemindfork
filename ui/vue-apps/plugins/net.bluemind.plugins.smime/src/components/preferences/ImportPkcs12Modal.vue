@@ -1,5 +1,5 @@
 <template>
-    <bm-modal
+    <bm-modal-deprecated
         v-model="show"
         centered
         :title="$t('smime.preferences.import_field.modal.title')"
@@ -67,7 +67,7 @@
                 @change="dropFile($event.target.files)"
             />
         </bm-form>
-    </bm-modal>
+    </bm-modal-deprecated>
 </template>
 
 <script>
@@ -82,7 +82,7 @@ import {
     BmFormGroup,
     BmFormInput,
     BmLabelIcon,
-    BmModal,
+    BmModalDeprecated,
     BmReadMore
 } from "@bluemind/ui-components";
 import { SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT } from "../../store/root-app/types";
@@ -92,7 +92,16 @@ import { InvalidCertificateError, InvalidKeyError } from "../../lib/exceptions";
 
 export default {
     name: "ImportPkcs12Modal",
-    components: { BmButton, BmFileDropZone, BmForm, BmFormGroup, BmFormInput, BmModal, BmLabelIcon, BmReadMore },
+    components: {
+        BmButton,
+        BmFileDropZone,
+        BmForm,
+        BmFormGroup,
+        BmFormInput,
+        BmModalDeprecated,
+        BmLabelIcon,
+        BmReadMore
+    },
     mixins: [DocLinkMixin],
     data() {
         return {

@@ -1,5 +1,5 @@
 <template>
-    <bm-modal v-model="show" centered modal-class="manage-shares-modal">
+    <bm-modal-deprecated v-model="show" centered modal-class="manage-shares-modal">
         <template #modal-title>
             <div v-if="showAvailabilitiesManagement" class="modal-title">
                 <bm-icon-button icon="arrow-back" size="lg" @click="back()" />
@@ -29,14 +29,14 @@
                 </template>
             </bm-alert-area>
         </template>
-    </bm-modal>
+    </bm-modal-deprecated>
 </template>
 
 <script>
 import { mapActions, mapState } from "vuex";
 import { inject } from "@bluemind/inject";
 import { REMOVE } from "@bluemind/alert.store";
-import { BmAlertArea, BmButton, BmButtonClose, BmIconButton, BmModal, BmRow } from "@bluemind/ui-components";
+import { BmAlertArea, BmButton, BmButtonClose, BmIconButton, BmModalDeprecated, BmRow } from "@bluemind/ui-components";
 import { ContainerType, isDefault } from "../container";
 import AvailabilitiesManagement from "./AvailabilitiesManagement";
 import ShareManagement from "./ShareManagement";
@@ -49,7 +49,7 @@ export default {
         BmButton,
         BmButtonClose,
         BmIconButton,
-        BmModal,
+        BmModalDeprecated,
         BmRow,
         ShareManagement
     },
