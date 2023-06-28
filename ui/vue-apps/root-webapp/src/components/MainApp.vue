@@ -6,13 +6,7 @@
         <bm-banner v-if="showBanner" :applications="applications" :user="user" :current-application="current" />
         <preferences v-if="showPreferences" :applications="applications" />
         <about v-if="showAbout" :version="software.version" />
-        <div
-            v-if="appState == 'error'"
-            class="text-danger text-center h2 d-flex flex-fill align-self-center align-items-center"
-        >
-            {{ $t("common.application.bootstrap.error") }}<br />
-            {{ $t("common.application.bootstrap.error.solution") }}
-        </div>
+        <app-error v-if="appState === 'error'" />
         <router-view v-else :class="showPreferences ? 'd-none d-lg-flex' : 'd-flex'" />
         <bm-alert-area class="main-alert-area" :alerts="alerts" :floating="true" @remove="REMOVE">
             <template v-slot="context">
@@ -32,6 +26,7 @@ import { inject } from "@bluemind/inject";
 import { BmAlertArea } from "@bluemind/ui-components";
 
 import About from "./About";
+import AppError from "./AppError";
 import BaseUri from "../routes/BaseUriRegExp";
 import BmBanner from "./banner/BmBanner";
 import Preferences from "./preferences/Preferences";
@@ -41,6 +36,7 @@ import favicon from "../../assets/favicon.png";
 export default {
     components: {
         About,
+        AppError,
         BmBanner,
         BmExtension,
         Preferences,
