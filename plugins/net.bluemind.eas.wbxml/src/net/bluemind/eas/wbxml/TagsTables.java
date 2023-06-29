@@ -289,6 +289,7 @@ public class TagsTables {
 			"FirstDayOfWeek", // 0x39
 			"OnlineMeetingConfLink", // 0x3A
 			"OnlineMeetingExternalLink", // 0x3B
+			"ClientUid", // 0x3C
 	};
 
 	/**
@@ -365,6 +366,10 @@ public class TagsTables {
 			"UserResponse", // 0x0C
 			"Unused_CP_8_0x0D", // 0x0D
 			"InstanceId", // 0x0E
+			"x", // 0x0F
+			"ProposedStartTime", // 0x10
+			"ProposedEndTime", // 0x11
+			"SendResponse", // 0x12
 	};
 
 	/**
@@ -545,6 +550,7 @@ public class TagsTables {
 			"ApplicationName", // 0x38 <4>
 			"ApprovedApplicationList", // 0x39 <4>
 			"Hash", // 0x3A <4>
+			"AccountOnlyRemoteWipe", // 0X3B
 	};
 
 	/**
@@ -635,7 +641,24 @@ public class TagsTables {
 			"BodyPartPreference", // 0x19
 			"BodyPart", // 0x1A
 			"Status", // 0x1B
-
+			"Add", // 0x1C
+			"Delete", // 0x1D
+			"ClientId", // 0x1E
+			"Content", // 0x1F
+			"Location", // 0x20
+			"Annotation", // 0x21
+			"Street", // 0x22
+			"City", // 0x23
+			"State", // 0x24
+			"Country", // 0x25
+			"PostalCode", // 0x26
+			"Latitude", // 0x27
+			"Longitude", // 0x28
+			"Accuracy", // 0x29
+			"Altitude", // 0x2A
+			"AltitudeAccuracy", // 0x2B
+			"LocationUri", // 0x2C
+			"InstanceId", // 0x2D
 	};
 
 	/**
@@ -750,6 +773,11 @@ public class TagsTables {
 			"ClientId", // 0x11
 			"Status", // 0x12
 			"AccountId", // 0x13
+			"x", // 0X14
+			"Forwardees", // 0x15
+			"Forwardee", // 0x16
+			"Name", // 0x17
+			"Email", // 0x18
 	};
 
 	/**
@@ -772,6 +800,11 @@ public class TagsTables {
 			"AccountId", // 0x11
 			"FirstDayOfWeek", // 0x12
 			"MeetingMessageType", // 0x13
+			"x", // 0X14
+			"IsDraft", // 0x15
+			"Bcc", // 0x16
+			"Send", // 0x17
+
 	};
 
 	/**
@@ -811,6 +844,36 @@ public class TagsTables {
 			"TemplateDescription", // 0x16
 			"ContentOwner", // 0x17
 			"RemoveRightsManagementDistribution", // 0x18
+	};
+
+	/**
+	 * Find
+	 */
+	public static final String[] CP_25 = { "Find", // 0x05
+			"SearchId", // 0x06
+			"ExecuteSearch", // 0x07
+			"MailBoxSearchCriterion", // 0x08
+			"Query", // 0x09
+			"Status", // 0x0A
+			"FreeText", // 0x0B
+			"Options", // 0x0C
+			"Range", // 0x0D
+			"DeepTraversal", // 0x0E
+			"x", // 0x0F
+			"x", // 0x10
+			"Response", // 0x11
+			"Result", // 0x12
+			"Properties", // 0x13
+			"Preview", // 0x14
+			"HasAttachments", // 0x15
+			"Total", // 0x16
+			"DisplayCc", // 0x17
+			"DisplayBcc", // 0x18
+			"GalSearchCriterion", // 0x19
+			"MaxPictures", // 0x20
+			"MaxSize", // 0x21
+			"Picture", // 0x22
+
 	};
 
 	public static final Map<String, Integer> NAMESPACES_IDS;
@@ -921,6 +984,10 @@ public class TagsTables {
 		NAMESPACES_IDS.put("RightsManagement", 24);
 		NAMESPACES_TAGS.put(24, CP_24);
 		createMappings("RightsManagement");
+
+		NAMESPACES_IDS.put("Find", 25);
+		NAMESPACES_TAGS.put(25, CP_25);
+		createMappings("Find");
 
 	}
 

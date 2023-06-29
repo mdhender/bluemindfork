@@ -57,6 +57,7 @@ public final class ParserTagsTablesIndex {
 		table.put(22, new NamespacedTable("Email2", TagsTables.CP_22)); // Email2
 		table.put(23, new NamespacedTable("Notes", TagsTables.CP_23)); // Notes
 		table.put(24, new NamespacedTable("RightsManagement", TagsTables.CP_24)); // RightsManagement
+		table.put(25, new NamespacedTable("Find", TagsTables.CP_25)); // Find
 
 		index = ImmutableMap.copyOf(table);
 	}
