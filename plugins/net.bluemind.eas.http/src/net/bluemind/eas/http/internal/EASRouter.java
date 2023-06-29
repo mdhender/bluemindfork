@@ -63,6 +63,12 @@ public final class EASRouter implements Handler<HttpServerRequest> {
 					endpoints.put("14." + cmd, point);
 				}
 			}
+			if (point.acceptsVersion(16.1)) {
+				for (String cmd : point.supportedCommands()) {
+					logger.info("Registering eas v16 {} endpoint {}", cmd, point);
+					endpoints.put("16." + cmd, point);
+				}
+			}
 		}
 	}
 

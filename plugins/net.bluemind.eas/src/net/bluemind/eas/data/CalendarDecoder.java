@@ -26,6 +26,8 @@ import java.util.TimeZone;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.google.common.base.Strings;
+
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.IApplicationData;
 import net.bluemind.eas.backend.MSAttendee;
@@ -307,7 +309,10 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 
 		// AS-CAL 2.2.2.38
 		// Reminder: number of minutes before the calendar item's start
-		calendar.setReminder(parseDOMInt(DOMUtils.getUniqueElement(domSource, "Reminder")));
+		Element reminder = DOMUtils.getUniqueElement(domSource, "Reminder");
+		if (Strings.isNullOrEmpty(reminder.getNodeValue())) {
+			calendar.setReminder(parseDOMInt(reminder));
+		}
 
 		calendar.setCategories(
 				parseDOMStringCollection(DOMUtils.getUniqueElement(domSource, "Categories"), "Category"));

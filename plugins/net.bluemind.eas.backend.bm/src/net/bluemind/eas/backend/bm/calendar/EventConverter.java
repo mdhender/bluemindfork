@@ -325,6 +325,12 @@ public class EventConverter {
 		Recurrence pr = msev.getRecurrence();
 		VEvent.RRule rrule = new VEvent.RRule();
 
+		// eas 16.1, iOS sends empty Recurrence
+		// <Recurrence xmlns="Calendar"/>
+		if (pr.type == null) {
+			return null;
+		}
+
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
 		switch (pr.type) {
@@ -620,7 +626,9 @@ public class EventConverter {
 
 		if (data.getRecurrence() != null) {
 			VEvent.RRule rrule = getRecurrence(data);
-			e.rrule = rrule;
+			if (rrule != null) {
+				e.rrule = rrule;
+			}
 
 			if (data.getExceptions() != null && !data.getExceptions().isEmpty()) {
 

@@ -26,7 +26,12 @@ import org.w3c.dom.NodeList;
 import net.bluemind.eas.config.global.GlobalConfig;
 
 public class DOMDumper {
+
 	private static boolean withData = GlobalConfig.DATA_IN_LOGS;
+
+	private DOMDumper() {
+
+	}
 
 	/**
 	 * Seeing email/cal/contact data is a security issue for some administrators.
@@ -51,11 +56,16 @@ public class DOMDumper {
 			// contact picture
 			trim(c, "Picture");
 
+			// attachment content
+			trim(c, "Content");
+
 			DOMUtils.serialise(c, out, true);
-			logger.info(prefix + out.toString());
+			if (logger.isInfoEnabled()) {
+				logger.info("{}{}", prefix, out);
+			}
 
 		} catch (Exception e) {
-
+			logger.warn(e.getMessage());
 		}
 	}
 
