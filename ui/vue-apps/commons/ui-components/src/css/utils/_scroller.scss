@@ -1,7 +1,7 @@
-@import "./variables";
+@import "variables";
 
 /** Customized scrollbars for WebKit based browsers. Only elements having the class 'scroller-y' are affected. */
-@mixin scroller-y() {
+@mixin scroller-y {
     overflow: scroll;
     overflow-x: hidden;
     overflow-y: overlay;
@@ -10,7 +10,7 @@
     &::-webkit-scrollbar {
         width: $scroll-width;
     }
-    
+
     &:hover::-webkit-scrollbar-thumb {
         border: solid 2px transparent;
         border-radius: $scrollbar-thumb-border-radius;
