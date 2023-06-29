@@ -25,7 +25,7 @@ public class AirSyncBaseResponse {
 	public static final class Attachment {
 		public enum Method {
 
-			Normal(1), Embedded(5), OLE(6);
+			NORMAL(1), EMBEDDED(5), OLE(6);
 
 			private final String xmlValue;
 
@@ -45,6 +45,9 @@ public class AirSyncBaseResponse {
 		public Integer estimateDataSize;
 		public String contentId;
 		public boolean isInline;
+		public String clientId;
+		public String contentType;
+		public String content;
 	}
 
 	public static class Body {
@@ -60,9 +63,9 @@ public class AirSyncBaseResponse {
 
 	public static class BodyPart extends Body {
 
-		public static enum Status {
+		public enum Status {
 
-			Success(1), TooLarge(176);
+			SUCCESS(1), TOO_LARGE(176);
 
 			private final String xmlValue;
 
@@ -82,7 +85,7 @@ public class AirSyncBaseResponse {
 
 	public enum NativeBodyType {
 
-		PlainText(1), HTML(2), RTF(3);
+		PLAIN_TEXT(1), HTML(2), RTF(3);
 
 		private final String xmlValue;
 

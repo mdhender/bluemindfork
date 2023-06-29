@@ -114,8 +114,8 @@ public class MeetingResponseProtocol implements IEasProtocol<MeetingResponseRequ
 							logger.error("Invalid meeting request for {}", r.requestId);
 							r.status = Status.InvalidMeetingRequest;
 						} else {
-							if ((invitation.instanceType == InstanceType.singleInstance
-									|| invitation.instanceType == InstanceType.exceptionToRecurring)
+							if ((invitation.instanceType == InstanceType.SINGLE_INSTANCE
+									|| invitation.instanceType == InstanceType.EXCEPTION_TO_RECURRING)
 									&& invitation.recurrenceId != null) {
 								request.instanceId = invitation.recurrenceId;
 							}

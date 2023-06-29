@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.calendar.api.VEvent.Transparency;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.core.api.date.BmDateTime;
@@ -43,9 +44,12 @@ import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.IApplicationData;
 import net.bluemind.eas.backend.MSAttendee;
 import net.bluemind.eas.backend.MSEvent;
+import net.bluemind.eas.backend.bm.mail.AttachmentHelper;
 import net.bluemind.eas.data.calendarenum.AttendeeStatus;
 import net.bluemind.eas.data.calendarenum.AttendeeType;
 import net.bluemind.eas.data.formatter.PlainBodyFormatter;
+import net.bluemind.eas.dto.base.AirSyncBaseResponse.Attachment;
+import net.bluemind.eas.dto.base.AirSyncBaseResponse.Attachment.Method;
 import net.bluemind.eas.dto.calendar.CalendarResponse;
 import net.bluemind.eas.dto.calendar.CalendarResponse.BusyStatus;
 import net.bluemind.eas.dto.calendar.CalendarResponse.EventException;
@@ -56,9 +60,12 @@ import net.bluemind.eas.dto.calendar.CalendarResponse.Sensitivity;
 import net.bluemind.eas.dto.user.MSUser;
 import net.bluemind.icalendar.api.ICalendarElement;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
+import net.bluemind.icalendar.api.ICalendarElement.Classification;
 import net.bluemind.icalendar.api.ICalendarElement.Organizer;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
+import net.bluemind.icalendar.api.ICalendarElement.RRule;
 import net.bluemind.icalendar.api.ICalendarElement.RRule.WeekDay;
+import net.bluemind.icalendar.api.ICalendarElement.Role;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm.Action;
 
@@ -98,89 +105,7 @@ public class EventConverter {
 				exceptions = new ArrayList<>(vevent.occurrences.size());
 			}
 			for (VEventOccurrence recurrence : vevent.occurrences) {
-				EventException e = new EventException();
-				e.deleted = false;
-
-				e.exceptionStartTime = new Date(new BmDateTimeWrapper(recurrence.recurid).toTimestamp(tz.getID()));
-				e.calendar = new CalendarResponse();
-
-				Calendar begin = Calendar.getInstance(tz);
-				begin.setTimeInMillis(new BmDateTimeWrapper(recurrence.dtstart).toTimestamp(tz.getID()));
-				e.calendar.startTime = begin.getTime();
-
-				Calendar end = Calendar.getInstance(tz);
-				end.setTimeInMillis(new BmDateTimeWrapper(recurrence.dtend).toTimestamp(tz.getID()));
-				e.calendar.endTime = end.getTime();
-
-				e.calendar.dtStamp = new Date();
-				e.calendar.subject = recurrence.summary;
-
-				e.location = recurrence.location;
-
-				// BM-9483
-				e.calendar.attendees = new ArrayList<CalendarResponse.Attendee>();
-				for (Attendee attendee : recurrence.attendees) {
-
-					MSAttendee msa = convertAttendee(attendee);
-					CalendarResponse.Attendee a = new CalendarResponse.Attendee();
-					a.email = msa.getEmail();
-					a.name = msa.getName();
-					switch (attendee.partStatus) {
-					case Accepted:
-						a.status = CalendarResponse.Attendee.AttendeeStatus.Accepted;
-						break;
-					case NeedsAction:
-						a.status = CalendarResponse.Attendee.AttendeeStatus.Tentative;
-						break;
-					case Declined:
-						a.status = CalendarResponse.Attendee.AttendeeStatus.Declined;
-						break;
-					case Tentative:
-						a.status = CalendarResponse.Attendee.AttendeeStatus.Tentative;
-						break;
-					default:
-						break;
-					}
-					switch (msa.getAttendeeType()) {
-					case REQUIRED:
-						a.type = CalendarResponse.Attendee.AttendeeType.Required;
-						break;
-					case RESOURCE:
-						a.type = CalendarResponse.Attendee.AttendeeType.Resource;
-						break;
-					case OPTIONAL:
-					default:
-						a.type = CalendarResponse.Attendee.AttendeeType.Optional;
-					}
-
-					if (me.getDefaultEmail().equals(attendee.mailto)) {
-						switch (attendee.partStatus) {
-						case Accepted:
-							e.responseType = CalendarResponse.ResponseType.Accepted;
-							e.appointmentReplyTime = new Date();
-							break;
-						case NeedsAction:
-							e.responseType = CalendarResponse.ResponseType.NotResponded;
-							break;
-						case Declined:
-							e.responseType = CalendarResponse.ResponseType.Declined;
-							e.appointmentReplyTime = new Date();
-							break;
-						case Tentative:
-							e.responseType = CalendarResponse.ResponseType.Tentative;
-							e.appointmentReplyTime = new Date();
-							break;
-						default:
-							break;
-						}
-					}
-
-					e.calendar.attendees.add(a);
-				}
-
-				e.onlineMeetingExternalLink = recurrence.conference;
-
-				exceptions.add(e);
+				convertOccurrence(me, tz, exceptions, recurrence);
 			}
 			mse.setExceptions(exceptions);
 
@@ -192,17 +117,97 @@ public class EventConverter {
 
 	}
 
+	private void convertOccurrence(MSUser me, TimeZone tz, List<EventException> exceptions,
+			VEventOccurrence recurrence) {
+		EventException e = new EventException();
+		e.deleted = false;
+
+		e.exceptionStartTime = new Date(new BmDateTimeWrapper(recurrence.recurid).toTimestamp(tz.getID()));
+		e.calendar = new CalendarResponse();
+
+		Calendar begin = Calendar.getInstance(tz);
+		begin.setTimeInMillis(new BmDateTimeWrapper(recurrence.dtstart).toTimestamp(tz.getID()));
+		e.calendar.startTime = begin.getTime();
+
+		Calendar end = Calendar.getInstance(tz);
+		end.setTimeInMillis(new BmDateTimeWrapper(recurrence.dtend).toTimestamp(tz.getID()));
+		e.calendar.endTime = end.getTime();
+
+		e.calendar.dtStamp = new Date();
+		e.calendar.subject = recurrence.summary;
+
+		e.location = recurrence.location;
+
+		// BM-9483
+		e.calendar.attendees = new ArrayList<CalendarResponse.Attendee>();
+		for (Attendee attendee : recurrence.attendees) {
+
+			MSAttendee msa = convertAttendee(attendee);
+			CalendarResponse.Attendee a = new CalendarResponse.Attendee();
+			a.email = msa.getEmail();
+			a.name = msa.getName();
+			switch (attendee.partStatus) {
+			case Accepted:
+				a.status = CalendarResponse.Attendee.AttendeeStatus.ACCEPTED;
+				break;
+			case NeedsAction:
+				a.status = CalendarResponse.Attendee.AttendeeStatus.TENTATIVE;
+				break;
+			case Declined:
+				a.status = CalendarResponse.Attendee.AttendeeStatus.DECLINED;
+				break;
+			case Tentative:
+				a.status = CalendarResponse.Attendee.AttendeeStatus.TENTATIVE;
+				break;
+			default:
+				break;
+			}
+			switch (msa.getAttendeeType()) {
+			case REQUIRED:
+				a.type = CalendarResponse.Attendee.AttendeeType.REQUIRED;
+				break;
+			case RESOURCE:
+				a.type = CalendarResponse.Attendee.AttendeeType.RESOURCE;
+				break;
+			case OPTIONAL:
+			default:
+				a.type = CalendarResponse.Attendee.AttendeeType.OPTIONAL;
+			}
+
+			if (me.getDefaultEmail().equals(attendee.mailto)) {
+				switch (attendee.partStatus) {
+				case Accepted:
+					e.responseType = CalendarResponse.ResponseType.ACCEPTED;
+					e.appointmentReplyTime = new Date();
+					break;
+				case NeedsAction:
+					e.responseType = CalendarResponse.ResponseType.NOT_RESPONDED;
+					break;
+				case Declined:
+					e.responseType = CalendarResponse.ResponseType.DECLINED;
+					e.appointmentReplyTime = new Date();
+					break;
+				case Tentative:
+					e.responseType = CalendarResponse.ResponseType.TENTATIVE;
+					e.appointmentReplyTime = new Date();
+					break;
+				default:
+					break;
+				}
+			}
+
+			e.calendar.attendees.add(a);
+		}
+
+		e.onlineMeetingExternalLink = recurrence.conference;
+
+		exceptions.add(e);
+	}
+
 	public MSEvent convert(MSUser me, String uid, VEvent vevent) {
 		MSEvent mse = new MSEvent();
 		mse.setUID(uid);
-		// FIXME: vevent timeupdate (david)
-		// if (vevent.getTimeUpdate() != null) {
-		// mse.setDtStamp(vevent.getTimeUpdate());
-		// } else {
-		// mse.setDtStamp(new Date());
-		// }
 		mse.setDtStamp(new Date());
-
 		mse.setSubject(vevent.summary);
 		PlainBodyFormatter pf = new PlainBodyFormatter();
 		mse.setDescription(pf.convert(vevent.description));
@@ -228,7 +233,7 @@ public class EventConverter {
 		mse.setEndTime(end.getTime());
 
 		if (vevent.attendees != null) {
-			for (VEvent.Attendee attendee : vevent.attendees) {
+			for (Attendee attendee : vevent.attendees) {
 				mse.addAttendee(convertAttendee(attendee));
 			}
 		}
@@ -259,10 +264,25 @@ public class EventConverter {
 		mse.setBusyStatus(busyStatus(vevent));
 		mse.setSensitivity(getSensitivity(vevent));
 
-		// FIXME event id (david)
-		// mse.setBmUID(e.getId());
+		if (vevent.attachments != null) {
+			convertAttachments(vevent, mse);
+		}
 
 		return mse;
+	}
+
+	private void convertAttachments(VEvent vevent, MSEvent mse) {
+		List<Attachment> attachments = new ArrayList<>();
+		vevent.attachments.forEach(attachment -> {
+			Attachment calendarAttachment = new Attachment();
+			calendarAttachment.displayName = attachment.name;
+			calendarAttachment.method = Method.NORMAL;
+			calendarAttachment.fileReference = AttachmentHelper
+					.getEventFileHostingAttachmentFileReference(attachment.publicUrl);
+//				calendarAttachment.estimateDataSize = null;
+			attachments.add(calendarAttachment);
+		});
+		mse.setAttachments(attachments);
 	}
 
 	/**
@@ -271,15 +291,15 @@ public class EventConverter {
 	 */
 	private Sensitivity getSensitivity(VEvent vevent) {
 		if (vevent.classification == null) {
-			return Sensitivity.Normal;
+			return Sensitivity.NORMAL;
 		}
 		switch (vevent.classification) {
 		case Confidential:
-			return Sensitivity.Confidential;
+			return Sensitivity.CONFIDENTIAL;
 		case Private:
-			return Sensitivity.Private;
+			return Sensitivity.PRIVATE;
 		default:
-			return Sensitivity.Normal;
+			return Sensitivity.NORMAL;
 		}
 	}
 
@@ -289,7 +309,7 @@ public class EventConverter {
 	 * @return
 	 */
 	private List<EventException> getException(VEvent vevent, TimeZone tz) {
-		List<EventException> ret = new LinkedList<EventException>();
+		List<EventException> ret = new LinkedList<>();
 		if (vevent.exdate != null) {
 			for (BmDateTime exception : vevent.exdate) {
 				EventException e = new EventException();
@@ -308,22 +328,20 @@ public class EventConverter {
 	}
 
 	private BusyStatus busyStatus(VEvent event) {
-		switch (event.transparency) {
-		case Transparent:
-			return BusyStatus.Free;
-		default:
-			return BusyStatus.Busy;
+		if (event.transparency == Transparency.Transparent) {
+			return BusyStatus.FREE;
 		}
+		return BusyStatus.BUSY;
 	}
 
 	/**
 	 * @param msev
 	 * @return
 	 */
-	private VEvent.RRule getRecurrence(MSEvent msev) {
+	private RRule getRecurrence(MSEvent msev) {
 		Date startDate = msev.getStartTime();
 		Recurrence pr = msev.getRecurrence();
-		VEvent.RRule rrule = new VEvent.RRule();
+		RRule rrule = new RRule();
 
 		// eas 16.1, iOS sends empty Recurrence
 		// <Recurrence xmlns="Calendar"/>
@@ -334,29 +352,29 @@ public class EventConverter {
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
 		switch (pr.type) {
-		case Daily:
-			rrule.frequency = VEvent.RRule.Frequency.DAILY;
+		case DAILY:
+			rrule.frequency = RRule.Frequency.DAILY;
 			rrule.byDay = daysOfWeek(pr.dayOfWeek);
 			break;
-		case Monthly:
-			rrule.frequency = VEvent.RRule.Frequency.MONTHLY;
+		case MONTHLY:
+			rrule.frequency = RRule.Frequency.MONTHLY;
 			break;
-		case Weekly:
-			rrule.frequency = VEvent.RRule.Frequency.WEEKLY;
+		case WEEKLY:
+			rrule.frequency = RRule.Frequency.WEEKLY;
 			rrule.byDay = daysOfWeek(pr.dayOfWeek);
 			break;
-		case Yearly:
-			rrule.frequency = VEvent.RRule.Frequency.YEARLY;
+		case YEARLY:
+			rrule.frequency = RRule.Frequency.YEARLY;
 			cal.setTimeInMillis(startDate.getTime());
 			cal.set(Calendar.DAY_OF_MONTH, pr.dayOfMonth);
 			cal.set(Calendar.MONTH, pr.monthOfYear - 1);
 			msev.setStartTime(cal.getTime());
 			break;
-		case YearlyByDay:
-			rrule.frequency = VEvent.RRule.Frequency.YEARLY;
+		case YEARLY_BY_DAY:
+			rrule.frequency = RRule.Frequency.YEARLY;
 			break;
-		case MonthlyByDay:
-			rrule.frequency = VEvent.RRule.Frequency.MONTHLY;
+		case MONTHLY_BY_DAY:
+			rrule.frequency = RRule.Frequency.MONTHLY;
 			List<WeekDay> dayOfWeek = daysOfWeek(pr.dayOfWeek);
 			for (WeekDay weekDay : dayOfWeek) {
 				weekDay.offset = pr.weekOfMonth;
@@ -394,32 +412,32 @@ public class EventConverter {
 	 * @param dayOfWeek
 	 * @return
 	 */
-	private List<VEvent.RRule.WeekDay> daysOfWeek(DayOfWeek dayOfWeek) {
+	private List<RRule.WeekDay> daysOfWeek(DayOfWeek dayOfWeek) {
 		if (dayOfWeek == null) {
 			return null;
 		}
-		List<VEvent.RRule.WeekDay> ret = new ArrayList<VEvent.RRule.WeekDay>(dayOfWeek.days.size());
+		List<RRule.WeekDay> ret = new ArrayList<>(dayOfWeek.days.size());
 
-		if (dayOfWeek.days.contains(Days.Sunday)) {
-			ret.add(VEvent.RRule.WeekDay.SU);
+		if (dayOfWeek.days.contains(Days.SUNDAY)) {
+			ret.add(RRule.WeekDay.SU);
 		}
-		if (dayOfWeek.days.contains(Days.Monday)) {
-			ret.add(VEvent.RRule.WeekDay.MO);
+		if (dayOfWeek.days.contains(Days.MONDAY)) {
+			ret.add(RRule.WeekDay.MO);
 		}
-		if (dayOfWeek.days.contains(Days.Tuesday)) {
-			ret.add(VEvent.RRule.WeekDay.TU);
+		if (dayOfWeek.days.contains(Days.TUESDAY)) {
+			ret.add(RRule.WeekDay.TU);
 		}
-		if (dayOfWeek.days.contains(Days.Wednesday)) {
-			ret.add(VEvent.RRule.WeekDay.WE);
+		if (dayOfWeek.days.contains(Days.WEDNESDAY)) {
+			ret.add(RRule.WeekDay.WE);
 		}
-		if (dayOfWeek.days.contains(Days.Thrusday)) {
-			ret.add(VEvent.RRule.WeekDay.TH);
+		if (dayOfWeek.days.contains(Days.THRUSDAY)) {
+			ret.add(RRule.WeekDay.TH);
 		}
-		if (dayOfWeek.days.contains(Days.Friday)) {
-			ret.add(VEvent.RRule.WeekDay.FR);
+		if (dayOfWeek.days.contains(Days.FRIDAY)) {
+			ret.add(RRule.WeekDay.FR);
 		}
-		if (dayOfWeek.days.contains(Days.Saturday)) {
-			ret.add(VEvent.RRule.WeekDay.SA);
+		if (dayOfWeek.days.contains(Days.SATURDAY)) {
+			ret.add(RRule.WeekDay.SA);
 		}
 		return ret;
 	}
@@ -439,20 +457,20 @@ public class EventConverter {
 		Recurrence r = new Recurrence();
 		switch (vevent.rrule.frequency) {
 		case DAILY:
-			r.type = Recurrence.Type.Daily;
+			r.type = Recurrence.Type.DAILY;
 			break;
 		case MONTHLY:
 			if (vevent.rrule.byDay == null) {
-				r.type = Recurrence.Type.Monthly;
+				r.type = Recurrence.Type.MONTHLY;
 				r.dayOfMonth = c.get(Calendar.DAY_OF_MONTH);
 			} else {
-				r.type = Recurrence.Type.MonthlyByDay;
+				r.type = Recurrence.Type.MONTHLY_BY_DAY;
 				r.weekOfMonth = c.get(Calendar.DAY_OF_WEEK_IN_MONTH);
 				r.dayOfWeek = getDayOfWeek(c.get(Calendar.DAY_OF_WEEK));
 			}
 			break;
 		case WEEKLY:
-			r.type = Recurrence.Type.Weekly;
+			r.type = Recurrence.Type.WEEKLY;
 			if (vevent.rrule.byDay != null) {
 				r.dayOfWeek = getDayOfWeek(vevent.rrule.byDay);
 			} else {
@@ -461,7 +479,7 @@ public class EventConverter {
 			}
 			break;
 		case YEARLY:
-			r.type = Recurrence.Type.Yearly;
+			r.type = Recurrence.Type.YEARLY;
 			r.dayOfMonth = c.get(Calendar.DAY_OF_MONTH);
 			r.monthOfYear = c.get(Calendar.MONTH) + 1;
 			break;
@@ -491,25 +509,25 @@ public class EventConverter {
 		DayOfWeek dow = new DayOfWeek();
 		switch (dayOfWeek) {
 		case 1:
-			dow.days = EnumSet.of(Days.Sunday);
+			dow.days = EnumSet.of(Days.SUNDAY);
 			break;
 		case 2:
-			dow.days = EnumSet.of(Days.Monday);
+			dow.days = EnumSet.of(Days.MONDAY);
 			break;
 		case 3:
-			dow.days = EnumSet.of(Days.Tuesday);
+			dow.days = EnumSet.of(Days.TUESDAY);
 			break;
 		case 4:
-			dow.days = EnumSet.of(Days.Wednesday);
+			dow.days = EnumSet.of(Days.WEDNESDAY);
 			break;
 		case 5:
-			dow.days = EnumSet.of(Days.Thrusday);
+			dow.days = EnumSet.of(Days.THRUSDAY);
 			break;
 		case 6:
-			dow.days = EnumSet.of(Days.Friday);
+			dow.days = EnumSet.of(Days.FRIDAY);
 			break;
 		case 7:
-			dow.days = EnumSet.of(Days.Saturday);
+			dow.days = EnumSet.of(Days.SATURDAY);
 			break;
 		default:
 			break;
@@ -522,47 +540,47 @@ public class EventConverter {
 	 * @param byDay
 	 * @return
 	 */
-	private DayOfWeek getDayOfWeek(List<VEvent.RRule.WeekDay> byDay) {
+	private DayOfWeek getDayOfWeek(List<RRule.WeekDay> byDay) {
 		DayOfWeek dow = new DayOfWeek();
 
 		dow.days = new HashSet<Days>(byDay.size());
 
-		if (byDay.contains(VEvent.RRule.WeekDay.SU)) {
-			dow.days.add(Days.Sunday);
+		if (byDay.contains(RRule.WeekDay.SU)) {
+			dow.days.add(Days.SUNDAY);
 		}
 
-		if (byDay.contains(VEvent.RRule.WeekDay.MO)) {
-			dow.days.add(Days.Monday);
+		if (byDay.contains(RRule.WeekDay.MO)) {
+			dow.days.add(Days.MONDAY);
 		}
 
-		if (byDay.contains(VEvent.RRule.WeekDay.TU)) {
-			dow.days.add(Days.Tuesday);
+		if (byDay.contains(RRule.WeekDay.TU)) {
+			dow.days.add(Days.TUESDAY);
 		}
 
-		if (byDay.contains(VEvent.RRule.WeekDay.WE)) {
-			dow.days.add(Days.Wednesday);
+		if (byDay.contains(RRule.WeekDay.WE)) {
+			dow.days.add(Days.WEDNESDAY);
 		}
 
-		if (byDay.contains(VEvent.RRule.WeekDay.TH)) {
-			dow.days.add(Days.Thrusday);
+		if (byDay.contains(RRule.WeekDay.TH)) {
+			dow.days.add(Days.THRUSDAY);
 		}
 
-		if (byDay.contains(VEvent.RRule.WeekDay.FR)) {
-			dow.days.add(Days.Friday);
+		if (byDay.contains(RRule.WeekDay.FR)) {
+			dow.days.add(Days.FRIDAY);
 		}
 
-		if (byDay.contains(VEvent.RRule.WeekDay.SA)) {
-			dow.days.add(Days.Saturday);
+		if (byDay.contains(RRule.WeekDay.SA)) {
+			dow.days.add(Days.SATURDAY);
 		}
 
 		return dow;
 	}
 
 	private Attendee convertAttendee(net.bluemind.eas.dto.calendar.CalendarResponse.Attendee a) {
-		VEvent.Attendee ret = new VEvent.Attendee();
+		Attendee ret = new Attendee();
 		ret.mailto = a.email;
 		ret.commonName = a.name;
-		ret.role = VEvent.Role.RequiredParticipant;
+		ret.role = Role.RequiredParticipant;
 		ret.partStatus = getParticipationStatus(a.status);
 		return ret;
 	}
@@ -582,7 +600,7 @@ public class EventConverter {
 		return msa;
 	}
 
-	private AttendeeStatus getAttendeeStatus(VEvent.ParticipationStatus status) {
+	private AttendeeStatus getAttendeeStatus(ParticipationStatus status) {
 		if (status == null) {
 			return AttendeeStatus.ACCEPT;
 		}
@@ -625,60 +643,63 @@ public class EventConverter {
 		ret.uid = data.getUID();
 
 		if (data.getRecurrence() != null) {
-			VEvent.RRule rrule = getRecurrence(data);
+			RRule rrule = getRecurrence(data);
 			if (rrule != null) {
 				e.rrule = rrule;
 			}
 
 			if (data.getExceptions() != null && !data.getExceptions().isEmpty()) {
-
-				List<VEventOccurrence> exceptions = new ArrayList<>(data.getExceptions().size());
-				Set<BmDateTime> exdate = new HashSet<BmDateTime>(data.getExceptions().size());
-
-				for (EventException excep : data.getExceptions()) {
-					Precision p = e.dtstart.precision;
-
-					if (excep.deleted) {
-						exdate.add(BmDateTimeWrapper.fromTimestamp(excep.exceptionStartTime.getTime(),
-								data.getTimeZone().getID(), p));
-					} else {
-						VEvent exception = e.copy();
-						exception.rrule = null;
-						exception.dtstart = BmDateTimeWrapper.fromTimestamp(excep.startTime.getTime(),
-								data.getTimeZone().getID(), p);
-						exception.dtend = BmDateTimeWrapper.fromTimestamp(excep.endTime.getTime(),
-								data.getTimeZone().getID(), p);
-						exception.summary = excep.subject;
-						exception.location = excep.location;
-
-						if (excep.attendees != null && !excep.attendees.isEmpty()) {
-							exception.attendees = new ArrayList<Attendee>(excep.attendees.size());
-							for (net.bluemind.eas.dto.calendar.CalendarResponse.Attendee a : excep.attendees) {
-								exception.attendees.add(convertAttendee(a));
-							}
-
-							// Exception is a meeting, organizer is expected
-							if (exception.organizer == null || exception.organizer.mailto == null
-									|| exception.organizer.mailto.isEmpty()) {
-								exception.organizer = new Organizer(bs.getUser().getDefaultEmail());
-							}
-
-						}
-
-						VEventOccurrence occ = VEventOccurrence.fromEvent(exception, BmDateTimeWrapper
-								.fromTimestamp(excep.exceptionStartTime.getTime(), data.getTimeZone().getID(), p));
-						exceptions.add(occ);
-					}
-				}
-
-				e.exdate = exdate;
-				ret.vevent.occurrences = exceptions;
+				convertExceptions(bs, ret, data, e);
 			}
 		}
 
 		ret.vevent.main = e;
 
 		return ret;
+	}
+
+	private void convertExceptions(BackendSession bs, ConvertedVEvent ret, MSEvent data, VEvent e) {
+		List<VEventOccurrence> exceptions = new ArrayList<>(data.getExceptions().size());
+		Set<BmDateTime> exdate = new HashSet<>(data.getExceptions().size());
+
+		for (EventException excep : data.getExceptions()) {
+			Precision p = e.dtstart.precision;
+
+			if (excep.deleted.booleanValue()) {
+				exdate.add(BmDateTimeWrapper.fromTimestamp(excep.exceptionStartTime.getTime(),
+						data.getTimeZone().getID(), p));
+			} else {
+				VEvent exception = e.copy();
+				exception.rrule = null;
+				exception.dtstart = BmDateTimeWrapper.fromTimestamp(excep.startTime.getTime(),
+						data.getTimeZone().getID(), p);
+				exception.dtend = BmDateTimeWrapper.fromTimestamp(excep.endTime.getTime(), data.getTimeZone().getID(),
+						p);
+				exception.summary = excep.subject;
+				exception.location = excep.location;
+
+				if (excep.attendees != null && !excep.attendees.isEmpty()) {
+					exception.attendees = new ArrayList<Attendee>(excep.attendees.size());
+					for (net.bluemind.eas.dto.calendar.CalendarResponse.Attendee a : excep.attendees) {
+						exception.attendees.add(convertAttendee(a));
+					}
+
+					// Exception is a meeting, organizer is expected
+					if (exception.organizer == null || exception.organizer.mailto == null
+							|| exception.organizer.mailto.isEmpty()) {
+						exception.organizer = new Organizer(bs.getUser().getDefaultEmail());
+					}
+
+				}
+
+				VEventOccurrence occ = VEventOccurrence.fromEvent(exception, BmDateTimeWrapper
+						.fromTimestamp(excep.exceptionStartTime.getTime(), data.getTimeZone().getID(), p));
+				exceptions.add(occ);
+			}
+		}
+
+		e.exdate = exdate;
+		ret.vevent.occurrences = exceptions;
 	}
 
 	// Exceptions.Exception.Body (section 2.2.3.9): This element is optional.
@@ -700,7 +721,7 @@ public class EventConverter {
 			e.location = "";
 		}
 
-		Precision p = data.getAllDayEvent() ? Precision.Date : Precision.DateTime;
+		Precision p = data.getAllDayEvent().booleanValue() ? Precision.Date : Precision.DateTime;
 		e.dtstart = BmDateTimeWrapper.fromTimestamp(data.getStartTime().getTime(), data.getTimeZone().getID(), p);
 		e.dtend = BmDateTimeWrapper.fromTimestamp(data.getEndTime().getTime(), data.getTimeZone().getID(), p);
 		if (data.getReminder() != null && data.getReminder() >= 0) {
@@ -713,7 +734,7 @@ public class EventConverter {
 		List<VEvent.Attendee> attendees = new ArrayList<>(data.getAttendees().size());
 
 		for (MSAttendee at : data.getAttendees()) {
-			logger.info(" * msAttendee " + at.getEmail() + " => " + at.getAttendeeStatus());
+			logger.info(" * msAttendee {} => {}", at.getEmail(), at.getAttendeeStatus());
 			attendees.add(convertAttendee(at));
 		}
 		e.attendees = attendees;
@@ -749,20 +770,20 @@ public class EventConverter {
 	 * @param sensitivity
 	 * @return
 	 */
-	private VEvent.Classification getClassification(VEvent vevent, Sensitivity sensitivity) {
+	private Classification getClassification(VEvent vevent, Sensitivity sensitivity) {
 		if (sensitivity == null) {
-			return vevent != null ? vevent.classification : VEvent.Classification.Public;
+			return vevent != null ? vevent.classification : Classification.Public;
 		}
 
 		switch (sensitivity) {
-		case Confidential:
-			return VEvent.Classification.Confidential;
-		case Private:
-			return VEvent.Classification.Private;
-		case Normal:
-		case Personal:
+		case CONFIDENTIAL:
+			return Classification.Confidential;
+		case PRIVATE:
+			return Classification.Private;
+		case NORMAL:
+		case PERSONAL:
 		default:
-			return VEvent.Classification.Public;
+			return Classification.Public;
 		}
 
 	}
@@ -771,23 +792,21 @@ public class EventConverter {
 	 * @param busyStatus
 	 * @return
 	 */
-	private VEvent.Transparency getTransparency(BusyStatus busyStatus) {
-		switch (busyStatus) {
-		case Free:
-			return VEvent.Transparency.Transparent;
-		default:
-			return VEvent.Transparency.Opaque;
+	private Transparency getTransparency(BusyStatus busyStatus) {
+		if (busyStatus == BusyStatus.FREE) {
+			return Transparency.Transparent;
 		}
+		return Transparency.Opaque;
 	}
 
 	/**
 	 * @param attendee
 	 * @return
 	 */
-	private VEvent.Attendee convertAttendee(MSAttendee attendee) {
-		VEvent.Attendee ret = new VEvent.Attendee();
+	private Attendee convertAttendee(MSAttendee attendee) {
+		Attendee ret = new VEvent.Attendee();
 		ret.mailto = attendee.getEmail();
-		ret.role = VEvent.Role.RequiredParticipant;
+		ret.role = Role.RequiredParticipant;
 		ret.partStatus = getParticipationStatus(attendee.getAttendeeStatus());
 		return ret;
 	}
@@ -797,22 +816,22 @@ public class EventConverter {
 	 * @param attendeeStatus
 	 * @return
 	 */
-	private VEvent.ParticipationStatus getParticipationStatus(AttendeeStatus attendeeStatus) {
+	private ParticipationStatus getParticipationStatus(AttendeeStatus attendeeStatus) {
 
-		VEvent.ParticipationStatus state = null;
+		ParticipationStatus state = null;
 
 		if (attendeeStatus != null) {
 			switch (attendeeStatus) {
 			case ACCEPT:
-				state = VEvent.ParticipationStatus.Accepted;
+				state = ParticipationStatus.Accepted;
 				break;
 			case DECLINE:
-				state = VEvent.ParticipationStatus.Declined;
+				state = ParticipationStatus.Declined;
 				break;
 			case NOT_RESPONDED:
 			case RESPONSE_UNKNOWN:
 			case TENTATIVE:
-				state = VEvent.ParticipationStatus.NeedsAction;
+				state = ParticipationStatus.NeedsAction;
 				break;
 			}
 		}
@@ -822,27 +841,27 @@ public class EventConverter {
 
 	private ParticipationStatus getParticipationStatus(
 			net.bluemind.eas.dto.calendar.CalendarResponse.Attendee.AttendeeStatus status) {
-		VEvent.ParticipationStatus ret = null;
+		ParticipationStatus ret = null;
 		if (status != null) {
 			switch (status) {
-			case Accepted:
-				ret = VEvent.ParticipationStatus.Accepted;
+			case ACCEPTED:
+				ret = ParticipationStatus.Accepted;
 				break;
-			case Declined:
-				ret = VEvent.ParticipationStatus.Declined;
+			case DECLINED:
+				ret = ParticipationStatus.Declined;
 				break;
-			case NotResponded:
-			case ResponseUnknown:
-			case Tentative:
-				ret = VEvent.ParticipationStatus.Tentative;
+			case NOT_RESPONDED:
+			case RESPONSE_UNKNOWN:
+			case TENTATIVE:
+				ret = ParticipationStatus.Tentative;
 				break;
 			default:
-				ret = VEvent.ParticipationStatus.NeedsAction;
+				ret = ParticipationStatus.NeedsAction;
 				break;
 
 			}
 		} else {
-			ret = VEvent.ParticipationStatus.NeedsAction;
+			ret = ParticipationStatus.NeedsAction;
 		}
 		return ret;
 	}

@@ -18,9 +18,9 @@
  */
 package net.bluemind.eas.backend.bm.mail;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,52 +36,52 @@ public class AttachmentHelper {
 
 	private static final Logger logger = LoggerFactory.getLogger(AttachmentHelper.class);
 
-	public final static String TYPE = "TYPE";
-	public final static String ATTACH = "ATTACH";
-	public final static String BM_FILEHOSTING = "BM-FILEHOSTING";
-	public final static String URL = "url";
-	public final static String COLLECTION_ID = "collectionId";
-	public final static String MESSAGE_ID = "messageId";
-	public final static String MIME_PART_ADDRESS = "mimePartAddress";
-	public final static String CONTENT_TYPE = "contentType";
-	public final static String CONTENT_TRANSFER_ENCODING = "contentTransferEncoding";
+	public static final String TYPE = "TYPE";
+	public static final String ATTACH = "ATTACH";
+	public static final String BM_FILEHOSTING = "BM-FILEHOSTING";
+	public static final String BM_FILEHOSTING_EVENT = "BM-FILEHOSTING-EVENT";
+	public static final String URL = "url";
+	public static final String COLLECTION_ID = "collectionId";
+	public static final String MESSAGE_ID = "messageId";
+	public static final String MIME_PART_ADDRESS = "mimePartAddress";
+	public static final String CONTENT_TYPE = "contentType";
+	public static final String CONTENT_TRANSFER_ENCODING = "contentTransferEncoding";
 
-	public static String getAttachmentId(String url, String contentType) {
-		String ret = String.format("%s_%s_%s", BM_FILEHOSTING, toB64(url), toB64(contentType));
+	private AttachmentHelper() {
 
-		try {
-			ret = URLEncoder.encode(ret, "utf-8");
-		} catch (UnsupportedEncodingException e) {
-			logger.error(e.getMessage(), e);
-		}
-		return ret;
 	}
 
-	public static String getAttachmentId(CollectionId collectionId, long mailboxItemId, String mimePartAddress,
-			String contentType, String contentTransferEncoding) {
+	public static String getEmailFileHostingAttachmentFileReference(String url, String contentType) {
+		String ret = BM_FILEHOSTING + "_" + toB64(url) + "_" + toB64(contentType);
+		return URLEncoder.encode(ret, StandardCharsets.UTF_8);
+	}
 
+	public static String getEmailAttachmentFileReference(CollectionId collectionId, long mailboxItemId,
+			String mimePartAddress, String contentType, String contentTransferEncoding) {
 		String ret = collectionId.getValue() + "_" + mailboxItemId + "_" + mimePartAddress + "_" + toB64(contentType);
 		if (contentTransferEncoding != null && !contentTransferEncoding.isEmpty()) {
 			String cte = toB64(contentTransferEncoding);
 			ret += "_" + cte;
 		}
-		try {
-			ret = URLEncoder.encode(ret, "utf-8");
-		} catch (UnsupportedEncodingException e) {
-			logger.error(e.getMessage(), e);
-		}
-		return ret;
+		return URLEncoder.encode(ret, StandardCharsets.UTF_8);
+	}
+
+	public static String getEventFileHostingAttachmentFileReference(String url) {
+		return URLEncoder.encode(BM_FILEHOSTING_EVENT + "_" + toB64(url), StandardCharsets.UTF_8);
 	}
 
 	public static Map<String, String> parseAttachmentId(String attId) {
-		String attachmentId = attId;
-		try {
-			attachmentId = URLDecoder.decode(attachmentId, "utf-8");
-		} catch (UnsupportedEncodingException e) {
-			logger.error(e.getMessage(), e);
-		}
+		String attachmentId = URLDecoder.decode(attId, StandardCharsets.UTF_8);
 
-		Map<String, String> data = new HashMap<String, String>();
+		Map<String, String> data = new HashMap<>();
+
+		if (attachmentId.startsWith(BM_FILEHOSTING_EVENT)) {
+			String[] tab = attachmentId.split("_");
+			data.put(TYPE, BM_FILEHOSTING_EVENT);
+			data.put(URL, fromB64(tab[1]));
+			data.put(CONTENT_TYPE, "application/octet-stream"); // fake
+			return data;
+		}
 
 		if (attachmentId.startsWith(BM_FILEHOSTING)) {
 			String[] tab = attachmentId.split("_");

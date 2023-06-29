@@ -19,7 +19,6 @@
 package net.bluemind.eas.command.itemoperations;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -244,8 +243,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 		return opResp;
 	}
 
-	private ItemOperationsResponse.Fetch processMailboxFetch(BackendSession bs, ItemOperationsRequest.Fetch fetchOp)
-			throws IOException, CollectionNotFoundException {
+	private ItemOperationsResponse.Fetch processMailboxFetch(BackendSession bs, ItemOperationsRequest.Fetch fetchOp) {
 		IContentsExporter exporter = backend.getContentsExporter(bs);
 		String serverId = fetchOp.serverId;
 
@@ -292,15 +290,13 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 			resp.longId = fetchOp.serverId;
 			resp.dataClass = "Email";
 
-			if (status == ItemOperationsResponse.Status.Success) {
-				Optional<AppData> optData = itemRef.getData();
-				AppData loaded = optData.orElse(null);
-				if (!optData.isPresent()) {
-					loaded = exporter.loadStructure(bs, fetchOp.options.bodyOptions, itemRef);
-					loaded.body = VertxLazyLoader.wrap(loaded.body);
-				}
-				resp.properties = loaded;
+			Optional<AppData> optData = itemRef.getData();
+			AppData loaded = optData.orElse(null);
+			if (!optData.isPresent()) {
+				loaded = exporter.loadStructure(bs, fetchOp.options.bodyOptions, itemRef);
+				loaded.body = VertxLazyLoader.wrap(loaded.body);
 			}
+			resp.properties = loaded;
 		} catch (ActiveSyncException e) {
 			resp.status = ItemOperationsResponse.Status.ServerError;
 			return resp;
@@ -330,8 +326,6 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 			resp.properties = loaded;
 		} catch (ActiveSyncException e) {
 			logger.error(e.getMessage(), e);
-			// FIXME was status =
-			// ItemOperationsStatus.DOCUMENT_LIBRARY_NOT_FOUND;
 			status = ItemOperationsResponse.Status.ServerError;
 
 		}
@@ -362,7 +356,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 			@Override
 			public void load(Callback<AirSyncBaseResponse> onLoad) {
 				try {
-					MSAttachementData data = exporter.getEmailAttachement(bs, fetchOp.fileReference);
+					MSAttachementData data = exporter.getAttachment(bs, fetchOp.fileReference);
 					AirSyncBaseResponse content = new AirSyncBaseResponse();
 					content.body = new AirSyncBaseResponse.Body();
 					content.contentType = data.getContentType();

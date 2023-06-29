@@ -107,7 +107,7 @@ public class OldFormats {
 			}
 			if (user.getEmails().contains(msa.getEmail())) {
 				status = status(msa.getAttendeeStatus());
-				if (status != AttendeeStatus.NotResponded) {
+				if (status != AttendeeStatus.NOT_RESPONDED) {
 					updatedAttendee.status = status;
 				}
 
@@ -136,33 +136,33 @@ public class OldFormats {
 
 		if (!cr.attendees.isEmpty()) {
 			if (organize) {
-				cr.meetingStatus = MeetingStatus.MeetingAndUserIsOrganizer;
+				cr.meetingStatus = MeetingStatus.MEETING_AND_USER_IS_ORGANIZER;
 			} else {
-				cr.meetingStatus = MeetingStatus.MeetingAndUserIsNotOrganizer;
+				cr.meetingStatus = MeetingStatus.MEETING_AND_USER_IS_NOT_ORGANIZER;
 			}
 			cr.responseRequested = ResponseRequestedHelper.isResponseRequested(event);
 		} else {
-			cr.meetingStatus = MeetingStatus.Appointment;
+			cr.meetingStatus = MeetingStatus.APPOINTMENT;
 		}
 
 		if (status != null) {
 			switch (status) {
-			case Accepted:
-				cr.responseType = ResponseType.Accepted;
+			case ACCEPTED:
+				cr.responseType = ResponseType.ACCEPTED;
 				cr.appointmentReplyTime = new Date();
 				break;
-			case Declined:
-				cr.responseType = ResponseType.Declined;
+			case DECLINED:
+				cr.responseType = ResponseType.DECLINED;
 				cr.appointmentReplyTime = new Date();
 				break;
-			case NotResponded:
-				cr.responseType = ResponseType.NotResponded;
+			case NOT_RESPONDED:
+				cr.responseType = ResponseType.NOT_RESPONDED;
 				break;
-			case ResponseUnknown:
-				cr.responseType = ResponseType.None;
+			case RESPONSE_UNKNOWN:
+				cr.responseType = ResponseType.NONE;
 				break;
-			case Tentative:
-				cr.responseType = ResponseType.Tentative;
+			case TENTATIVE:
+				cr.responseType = ResponseType.TENTATIVE;
 				cr.appointmentReplyTime = new Date();
 				break;
 			default:
@@ -170,10 +170,12 @@ public class OldFormats {
 
 			}
 		} else if (organize) {
-			cr.responseType = ResponseType.Organizer;
+			cr.responseType = ResponseType.ORGANIZER;
 		}
 
 		cr.disallowNewTimeProposal = event.isDisallowNewTimeProposal();
+
+		cr.attachments = event.getAttachments();
 
 		return cr;
 
@@ -188,7 +190,7 @@ public class OldFormats {
 			if (!ICalendarUids.defaultUserCalendar(user.getUid()).equals(node.containerUid)) {
 				// Event synced in a user_created_calendar
 				// Set as Appointment to prevent notification
-				cr.meetingStatus = MeetingStatus.Appointment;
+				cr.meetingStatus = MeetingStatus.APPOINTMENT;
 				// force no response requested
 				cr.responseRequested = false;
 
@@ -207,29 +209,29 @@ public class OldFormats {
 	private static AttendeeType type(net.bluemind.eas.data.calendarenum.AttendeeType attendeeType) {
 		switch (attendeeType) {
 		case REQUIRED:
-			return AttendeeType.Required;
+			return AttendeeType.REQUIRED;
 		case RESOURCE:
-			return AttendeeType.Resource;
+			return AttendeeType.RESOURCE;
 		case OPTIONAL:
 		default:
-			return AttendeeType.Optional;
+			return AttendeeType.OPTIONAL;
 		}
 	}
 
 	private static AttendeeStatus status(net.bluemind.eas.data.calendarenum.AttendeeStatus attendeeStatus) {
 		switch (attendeeStatus) {
 		case ACCEPT:
-			return AttendeeStatus.Accepted;
+			return AttendeeStatus.ACCEPTED;
 		case DECLINE:
-			return AttendeeStatus.Declined;
+			return AttendeeStatus.DECLINED;
 		case NOT_RESPONDED:
-			return AttendeeStatus.NotResponded;
+			return AttendeeStatus.NOT_RESPONDED;
 		case RESPONSE_UNKNOWN:
-			return AttendeeStatus.ResponseUnknown;
+			return AttendeeStatus.RESPONSE_UNKNOWN;
 		case TENTATIVE:
-			return AttendeeStatus.Tentative;
+			return AttendeeStatus.TENTATIVE;
 		default:
-			return AttendeeStatus.ResponseUnknown;
+			return AttendeeStatus.RESPONSE_UNKNOWN;
 		}
 	}
 

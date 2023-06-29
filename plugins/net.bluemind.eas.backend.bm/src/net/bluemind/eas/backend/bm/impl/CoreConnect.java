@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bluemind.addressbook.api.IAddressBook;
+import net.bluemind.attachment.api.IAttachment;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
@@ -157,6 +158,10 @@ public class CoreConnect {
 	 */
 	public ITodoList getTodoListService(BackendSession bs, String containerUid) throws ServerFault {
 		return provider(bs).instance(ITodoList.class, containerUid);
+	}
+
+	public IAttachment getAttachmentService(BackendSession bs, String containerUid) throws ServerFault {
+		return provider(bs).instance(IAttachment.class, containerUid);
 	}
 
 	protected ItemChangeReference getItemChange(CollectionId collectionId, long id, ItemDataType type,

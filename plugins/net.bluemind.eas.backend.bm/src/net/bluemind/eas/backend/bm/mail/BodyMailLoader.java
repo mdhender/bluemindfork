@@ -32,8 +32,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import org.apache.james.mime4j.dom.field.FieldName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Splitter;
 
@@ -67,8 +65,6 @@ public class BodyMailLoader extends CoreConnect {
 
 	private final BackendSession bs;
 	private final MailFolder folder;
-
-	private static final Logger logger = LoggerFactory.getLogger(BodyMailLoader.class);
 
 	/**
 	 * @param bs
@@ -177,17 +173,17 @@ public class BodyMailLoader extends CoreConnect {
 
 		for (Part p : attachments) {
 			if (!"application/ics".equals(p.mime)) {
-				Attachment at = newAttach(id, p);
+				Attachment at = createAttachmentFromPart(id, p);
 				ret.add(at);
 			}
 		}
 		return ret;
 	}
 
-	private Attachment newAttach(long id, Part p) {
+	private Attachment createAttachmentFromPart(long id, Part p) {
 		Attachment at = new Attachment();
 		at.displayName = p.fileName;
-		at.method = Method.Normal;
+		at.method = Method.NORMAL;
 
 		if (p.contentId != null) {
 			String contentId = p.contentId;
@@ -240,18 +236,19 @@ public class BodyMailLoader extends CoreConnect {
 			String type = tokens.get(0);
 			if (type != null && "filehosting".equals(type)) {
 				String url = params.get("url");
-				at.fileReference = AttachmentHelper.getAttachmentId(url, p.mime);
+				at.fileReference = AttachmentHelper.getEmailFileHostingAttachmentFileReference(url, p.mime);
 				at.displayName = params.get("name");
 				String size = params.get("size");
 				at.estimateDataSize = Integer.parseInt(size);
 
 			} else {
-				at.fileReference = AttachmentHelper.getAttachmentId(folder.collectionId, id, p.address, p.mime,
-						p.encoding);
+				at.fileReference = AttachmentHelper.getEmailAttachmentFileReference(folder.collectionId, id, p.address,
+						p.mime, p.encoding);
 				at.estimateDataSize = p.size;
 			}
 		} else {
-			at.fileReference = AttachmentHelper.getAttachmentId(folder.collectionId, id, p.address, p.mime, p.encoding);
+			at.fileReference = AttachmentHelper.getEmailAttachmentFileReference(folder.collectionId, id, p.address,
+					p.mime, p.encoding);
 			at.estimateDataSize = p.size;
 		}
 

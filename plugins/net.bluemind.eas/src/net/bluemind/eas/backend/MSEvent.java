@@ -18,12 +18,14 @@
  */
 package net.bluemind.eas.backend;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 
+import net.bluemind.eas.dto.base.AirSyncBaseResponse.Attachment;
 import net.bluemind.eas.dto.calendar.CalendarResponse.BusyStatus;
 import net.bluemind.eas.dto.calendar.CalendarResponse.EventException;
 import net.bluemind.eas.dto.calendar.CalendarResponse.MeetingStatus;
@@ -57,9 +59,11 @@ public class MSEvent implements IApplicationData {
 	private int bmUID;
 	private boolean disallowNewTimeProposal;
 	private String onlineMeetingExternalLink;
+	private List<Attachment> attachments;
 
 	public MSEvent() {
 		this.attendees = new HashSet<MSAttendee>();
+		this.attachments = new ArrayList<>();
 	}
 
 	public TimeZone getTimeZone() {
@@ -262,6 +266,14 @@ public class MSEvent implements IApplicationData {
 
 	public void setOnlineMeetingExternalLink(String onlineMeetingExternalLink) {
 		this.onlineMeetingExternalLink = onlineMeetingExternalLink;
+	}
+
+	public List<Attachment> getAttachments() {
+		return attachments;
+	}
+
+	public void setAttachments(List<Attachment> attachments) {
+		this.attachments = attachments;
 	}
 
 }

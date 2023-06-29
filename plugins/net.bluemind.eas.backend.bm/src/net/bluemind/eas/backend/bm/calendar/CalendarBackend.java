@@ -18,6 +18,8 @@
  */
 package net.bluemind.eas.backend.bm.calendar;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -30,21 +32,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.asynchttpclient.AsyncCompletionHandler;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.HttpResponseBodyPart;
+import org.asynchttpclient.Response;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.io.ByteSource;
+import com.google.common.io.CharSource;
 
+import io.netty.buffer.ByteBufOutputStream;
+import io.netty.buffer.Unpooled;
+import io.vertx.core.buffer.Buffer;
+import net.bluemind.attachment.api.AttachedFile;
+import net.bluemind.attachment.api.IAttachment;
 import net.bluemind.calendar.api.ICalendar;
 import net.bluemind.calendar.api.ICalendarUids;
 import net.bluemind.calendar.api.IFreebusyUids;
 import net.bluemind.calendar.api.IVFreebusy;
-import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.calendar.api.VFreebusy;
 import net.bluemind.calendar.api.VFreebusy.Slot;
 import net.bluemind.calendar.api.VFreebusyQuery;
+import net.bluemind.common.io.FileBackedOutputStream;
+import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.date.BmDateTime;
 import net.bluemind.core.api.date.BmDateTime.Precision;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
@@ -53,16 +68,19 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.Changes;
 import net.bluemind.eas.backend.HierarchyNode;
 import net.bluemind.eas.backend.IApplicationData;
 import net.bluemind.eas.backend.ItemChangeReference;
+import net.bluemind.eas.backend.MSAttachementData;
 import net.bluemind.eas.backend.MSEvent;
 import net.bluemind.eas.backend.MergedFreeBusy;
 import net.bluemind.eas.backend.MergedFreeBusy.SlotAvailability;
 import net.bluemind.eas.backend.bm.compat.OldFormats;
 import net.bluemind.eas.backend.bm.impl.CoreConnect;
+import net.bluemind.eas.backend.bm.mail.AttachmentHelper;
 import net.bluemind.eas.data.calendarenum.AttendeeStatus;
 import net.bluemind.eas.dto.base.AirSyncBaseResponse;
 import net.bluemind.eas.dto.base.AppData;
@@ -84,6 +102,7 @@ import net.bluemind.eas.store.ISyncStorage;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.Organizer;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
+import net.bluemind.proxy.support.AHCWithProxy;
 
 public class CalendarBackend extends CoreConnect {
 
@@ -132,8 +151,8 @@ public class CalendarBackend extends CoreConnect {
 				changes.items.add(ic);
 			}
 
-			logger.debug("getContentChanges(" + bs.getLoginAtDomain() + ", " + folder.containerUid + ", version: "
-					+ version + ") => " + changes.items.size() + " entries.");
+			logger.debug("getContentChanges({}, {}, version: {}) => {} entries.", bs.getLoginAtDomain(),
+					folder.containerUid, version, changes.items.size());
 
 		} catch (ServerFault e) {
 			if (e.getCode() == ErrorCode.PERMISSION_DENIED) {
@@ -158,6 +177,10 @@ public class CalendarBackend extends CoreConnect {
 		CollectionItem ret = null;
 		HierarchyNode folder = storage.getHierarchyNode(bs, collectionId);
 		ICalendar service = getService(bs, folder.containerUid);
+		MSEvent msEvent = (MSEvent) data;
+
+		Optional<List<AttachedFile>> attachments = storeAttachment(bs, msEvent);
+
 		try {
 			if (sid.isPresent()) {
 				String serverId = sid.get();
@@ -180,6 +203,11 @@ public class CalendarBackend extends CoreConnect {
 					ConvertedVEvent de = converter.convert(bs, oldEvent, data);
 
 					VEventSeries event = de.vevent;
+					if (attachments.isPresent()) {
+						event.main.attachments = attachments.get();
+					} else {
+						event.main.attachments = oldEvent.main.attachments;
+					}
 
 					// BM-5755
 					event.main.rdate = oldEvent.main.rdate;
@@ -190,33 +218,32 @@ public class CalendarBackend extends CoreConnect {
 					}
 
 					// BM-8000
-					MSEvent d = (MSEvent) data;
-					if (d.getBusyStatus() == null) {
+					if (msEvent.getBusyStatus() == null) {
 						event.main.transparency = oldEvent.main.transparency;
 					}
 
-					if (d.getStartTime().getTime() == 0 && d.getEndTime().getTime() == 0) {
+					if (msEvent.getStartTime().getTime() == 0 && msEvent.getEndTime().getTime() == 0) {
 						event.main.dtstart = oldEvent.main.dtstart;
 						event.main.dtend = oldEvent.main.dtend;
 					}
 
-					if (d.getLocation() == null) {
+					if (msEvent.getLocation() == null) {
 						event.main.location = oldEvent.main.location;
 					}
 
-					if (d.getReminder() == null) {
+					if (msEvent.getReminder() == null) {
 						event.main.alarm = oldEvent.main.alarm;
 					}
 
-					if (d.getSensitivity() == null) {
+					if (msEvent.getSensitivity() == null) {
 						event.main.classification = oldEvent.main.classification;
 					}
 
-					if (d.getSubject() == null) {
+					if (msEvent.getSubject() == null) {
 						event.main.summary = oldEvent.main.summary;
 					}
 
-					if (d.getAttendees() == null) {
+					if (msEvent.getAttendees() == null) {
 						event.main.attendees = oldEvent.main.attendees;
 					} else {
 						for (Attendee a : event.main.attendees) {
@@ -249,8 +276,8 @@ public class CalendarBackend extends CoreConnect {
 					try {
 						service.update(item.uid, event, true);
 						ret = CollectionItem.of(collectionId, id);
-						logger.info("Update event bs:" + bs.getLoginAtDomain() + ", collection: " + folder.containerUid
-								+ ", serverId: " + serverId + ", event title:" + event.main.summary);
+						logger.info("Update event bs: {}, collection: {}, serverId: {}, event title: {}",
+								bs.getLoginAtDomain(), folder.containerUid, serverId, event.main.summary);
 					} catch (Exception e) {
 						// trying to send a revert to the client (instead of
 						// sending error ?)
@@ -264,15 +291,15 @@ public class CalendarBackend extends CoreConnect {
 			} else {
 				ConvertedVEvent de = converter.convert(bs, data);
 				VEventSeries event = de.vevent;
-
+				if (attachments.isPresent()) {
+					event.main.attachments = attachments.get();
+				}
 				if (event.main.organizer.mailto == null) {
 					event.main.organizer = new Organizer(bs.getUser().getDefaultEmail());
 				}
 
-				MSEvent d = (MSEvent) data;
-
 				// BM-8000
-				if (d.getStartTime().getTime() == 0 && d.getEndTime().getTime() == 0) {
+				if (msEvent.getStartTime().getTime() == 0 && msEvent.getEndTime().getTime() == 0) {
 					Date now = new Date();
 					Date startTime = DateUtils.round(now, Calendar.HOUR);
 
@@ -282,9 +309,9 @@ public class CalendarBackend extends CoreConnect {
 						startTime = new Date(startTime.getTime() - 1800000);
 					}
 					Date endTime = new Date(startTime.getTime() + 1800000);
-					event.main.dtstart = BmDateTimeWrapper.fromTimestamp(startTime.getTime(), d.getTimeZone().getID(),
-							Precision.DateTime);
-					event.main.dtend = BmDateTimeWrapper.fromTimestamp(endTime.getTime(), d.getTimeZone().getID(),
+					event.main.dtstart = BmDateTimeWrapper.fromTimestamp(startTime.getTime(),
+							msEvent.getTimeZone().getID(), Precision.DateTime);
+					event.main.dtend = BmDateTimeWrapper.fromTimestamp(endTime.getTime(), msEvent.getTimeZone().getID(),
 							Precision.DateTime);
 				}
 
@@ -295,20 +322,45 @@ public class CalendarBackend extends CoreConnect {
 				ItemValue<VEventSeries> created = service.getComplete(uid);
 				ret = CollectionItem.of(collectionId, created.internalId);
 
-				logger.info("Create event bs:" + bs.getLoginAtDomain() + ", collection: " + folder.containerUid
-						+ ", serverId: " + ret + ", event title:" + event.main.summary);
-
+				logger.info("Create event bs: {}, collection: {}, serverId: {}, event title: {}", bs.getLoginAtDomain(),
+						folder.containerUid, ret, event.main.summary);
 			}
 
-		} catch (ServerFault e) {
-			logger.error("error during storing event", e);
-			throw new ActiveSyncException(e);
 		} catch (Exception e) {
-			logger.error("error during storing event", e);
 			throw new ActiveSyncException(e);
 		}
 
 		return ret;
+	}
+
+	private Optional<List<AttachedFile>> storeAttachment(BackendSession bs, MSEvent msEvent) {
+		if (msEvent.getAttachments() == null || msEvent.getAttachments().isEmpty()) {
+			return Optional.empty();
+		}
+
+		IAttachment attachmentService = getAttachmentService(bs, bs.getUser().getDomain());
+
+		List<AttachedFile> attachments = new ArrayList<>();
+		if (msEvent.getAttachments() != null && !msEvent.getAttachments().isEmpty()) {
+			msEvent.getAttachments().forEach(attachment -> {
+				try {
+					Stream document = streamAttachmentContent(attachment.content);
+					AttachedFile file = attachmentService.share(attachment.displayName, document);
+					attachments.add(file);
+				} catch (Exception e) {
+					logger.warn("[{}] Failed to attach '{}'", bs.getLoginAtDomain(), attachment.displayName, e);
+				}
+
+			});
+		}
+		return Optional.of(attachments);
+	}
+
+	private static Stream streamAttachmentContent(String content) throws IOException {
+		ByteSource bs = CharSource.wrap(content).asByteSource(StandardCharsets.UTF_8);
+		ByteBufOutputStream os = new ByteBufOutputStream(Unpooled.buffer());
+		bs.copyTo(os);
+		return VertxStream.stream(Buffer.buffer(os.buffer()));
 	}
 
 	/**
@@ -322,8 +374,6 @@ public class CalendarBackend extends CoreConnect {
 				for (CollectionItem serverId : serverIds) {
 					HierarchyNode folder = storage.getHierarchyNode(bs, serverId.collectionId);
 					ICalendar service = getService(bs, folder.containerUid);
-
-					// fixme deleteById(long itemid, boolean notification)
 					ItemValue<VEventSeries> evt = service.getCompleteById(serverId.itemId);
 					if (evt != null) {
 						service.delete(evt.uid, true);
@@ -359,7 +409,7 @@ public class CalendarBackend extends CoreConnect {
 			ParticipationStatus partStatus = fromStatus(status);
 			boolean rsvp = (partStatus == ParticipationStatus.NeedsAction);
 			if (instanceId == null) {
-				for (VEvent.Attendee a : vevent.value.main.attendees) {
+				for (Attendee a : vevent.value.main.attendees) {
 					if (bs.getUser().getEmails().contains(a.mailto)) {
 						a.partStatus = partStatus;
 						a.rsvp = rsvp;
@@ -371,7 +421,6 @@ public class CalendarBackend extends CoreConnect {
 						vevent.value.main.dtstart.timezone);
 				VEventOccurrence rec = vevent.value.occurrence(exceptionStart);
 				if (rec == null) {
-					// FIXME sure ?
 					// Create exception
 					VEventOccurrence exception = VEventOccurrence.fromEvent(vevent.value.main, exceptionStart);
 					Iterator<Attendee> it = exception.attendees.iterator();
@@ -421,11 +470,8 @@ public class CalendarBackend extends CoreConnect {
 		try {
 			HierarchyNode folder = storage.getHierarchyNode(bs, ic.getServerId().collectionId);
 			ICalendar service = getService(bs, folder.containerUid);
-
 			ItemValue<VEventSeries> event = service.getCompleteById(ic.getServerId().itemId);
-			AppData data = toAppData(bs, ic.getServerId().collectionId, event);
-
-			return data;
+			return toAppData(bs, ic.getServerId().collectionId, event);
 		} catch (Exception e) {
 			throw new ActiveSyncException(e.getMessage(), e);
 		}
@@ -530,18 +576,18 @@ public class CalendarBackend extends CoreConnect {
 		return ret;
 	}
 
-	private VEvent.ParticipationStatus fromStatus(AttendeeStatus status) {
+	private ParticipationStatus fromStatus(AttendeeStatus status) {
 		switch (status) {
 		case ACCEPT:
-			return VEvent.ParticipationStatus.Accepted;
+			return ParticipationStatus.Accepted;
 		case DECLINE:
-			return VEvent.ParticipationStatus.Declined;
+			return ParticipationStatus.Declined;
 		case RESPONSE_UNKNOWN:
 		case NOT_RESPONDED:
-			return VEvent.ParticipationStatus.NeedsAction;
+			return ParticipationStatus.NeedsAction;
 		default:
 		case TENTATIVE:
-			return VEvent.ParticipationStatus.Tentative;
+			return ParticipationStatus.Tentative;
 		}
 	}
 
@@ -589,6 +635,30 @@ public class CalendarBackend extends CoreConnect {
 		});
 
 		return ret;
+	}
+
+	public MSAttachementData getAttachment(BackendSession bs, Map<String, String> parsedAttId) {
+		String url = parsedAttId.get(AttachmentHelper.URL);
+		try (FileBackedOutputStream fbos = new FileBackedOutputStream(32000, "bm-eas-calendar-getattachment");
+				AsyncHttpClient ahc = AHCWithProxy.build(storage.getSystemConf())) {
+			return ahc.prepareGet(url).execute(new AsyncCompletionHandler<MSAttachementData>() {
+
+				@Override
+				public State onBodyPartReceived(HttpResponseBodyPart bodyPart) throws Exception {
+					fbos.write(bodyPart.getBodyPartBytes());
+					return State.CONTINUE;
+				}
+
+				@Override
+				public MSAttachementData onCompleted(Response response) throws Exception {
+					return new MSAttachementData("application/octet-stream", DisposableByteSource.wrap(fbos));
+				}
+			}).get(20, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+
+		return null;
 	}
 
 }

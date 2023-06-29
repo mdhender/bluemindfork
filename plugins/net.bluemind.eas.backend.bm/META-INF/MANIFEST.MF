@@ -49,7 +49,8 @@ Require-Bundle: org.apache.commons.codec;bundle-version="1.3.0",
  net.bluemind.network.topology,
  com.github.ben-manes.caffeine,
  net.bluemind.directory.hollow.datamodel.consumer,
- net.bluemind.proxy.support
+ net.bluemind.proxy.support,
+ net.bluemind.attachment.api
 Export-Package: net.bluemind.eas.backend.bm.contacts,
  net.bluemind.eas.backend.bm.mail,
  net.bluemind.eas.backend.bm.user

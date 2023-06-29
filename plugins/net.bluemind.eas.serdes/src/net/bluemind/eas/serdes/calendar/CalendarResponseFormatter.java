@@ -178,7 +178,7 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 					b.text("BusyStatus", e.calendar.busyStatus.xmlValue());
 				}
 				if (e.calendar.allDayEvent != null) {
-					b.text("AllDayEvent", e.calendar.allDayEvent ? "1" : "0");
+					b.text("AllDayEvent", e.calendar.allDayEvent.booleanValue() ? "1" : "0");
 				}
 				if (e.calendar.reminder != null) {
 					b.text("Reminder", e.calendar.reminder.toString());
@@ -216,7 +216,8 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 
 		if (protocolVersion > 12.1) {
 			if (calendar.responseRequested != null) {
-				b.text(NamespaceMapping.Calendar, "ResponseRequested", calendar.responseRequested ? "1" : "0");
+				b.text(NamespaceMapping.Calendar, "ResponseRequested",
+						calendar.responseRequested.booleanValue() ? "1" : "0");
 			}
 
 			if (calendar.appointmentReplyTime != null) {
@@ -228,7 +229,7 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 			}
 			if (calendar.disallowNewTimeProposal != null) {
 				b.text(NamespaceMapping.Calendar, "DisallowNewTimeProposal",
-						calendar.disallowNewTimeProposal ? "1" : "0");
+						calendar.disallowNewTimeProposal.booleanValue() ? "1" : "0");
 			}
 			if (protocolVersion > 14) {
 				if (notEmpty(calendar.onlineMeetingConfLink)) {
@@ -240,7 +241,35 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 			}
 		}
 
+		if (protocolVersion > 14.1) {
+			appendAttachments(b, calendar);
+		}
+
 		cb.onResult(b);
+	}
+
+	private void appendAttachments(IResponseBuilder responseBuilder, CalendarResponse calendar) {
+		if (calendar.attachments != null && !calendar.attachments.isEmpty()) {
+			responseBuilder.container(NamespaceMapping.AirSyncBase, "Attachments");
+			calendar.attachments.forEach(attachment -> {
+				responseBuilder.container("Attachment");
+				if (attachment.displayName != null) {
+					responseBuilder.text("DisplayName", attachment.displayName);
+				}
+				if (attachment.fileReference != null) {
+					responseBuilder.text("FileReference", attachment.fileReference);
+				}
+				if (attachment.method != null) {
+					responseBuilder.text("AttMethod", attachment.method.xmlValue());
+				}
+				if (attachment.estimateDataSize != null) {
+					responseBuilder.text("EstimatedDataSize", attachment.estimateDataSize.toString());
+				}
+
+				responseBuilder.endContainer(); // Attachment
+			});
+			responseBuilder.endContainer(); // Attachments
+		}
 	}
 
 	public void appendCalendarMeetingRequestResponse(IResponseBuilder b, double protocolVersion,
@@ -264,7 +293,7 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 			b.text(NamespaceMapping.Email, "InstanceType", calendar.instanceType.xmlValue());
 		}
 
-		if (calendar.instanceType == InstanceType.exceptionToRecurring) {
+		if (calendar.instanceType == InstanceType.EXCEPTION_TO_RECURRING) {
 			b.text(NamespaceMapping.Email, "RecurrenceId", MeetingRequestFastDateFormat.format(calendar.recurrenceId));
 		}
 
@@ -292,16 +321,15 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 
 		boolean responseRequested = false;
 		Date now = new Date();
-		if (calendar.startTime != null) {
-			if (now.before(calendar.startTime)) {
-				responseRequested = true;
-			}
+		if (calendar.startTime != null && now.before(calendar.startTime)) {
+			responseRequested = true;
 		}
 		if (calendar.recurrence != null) {
 			if (calendar.recurrence.until != null && calendar.recurrence.until.before(now)) {
 				responseRequested = false;
+			} else {
+				responseRequested = true;
 			}
-			responseRequested = true;
 		}
 		b.text(NamespaceMapping.Email, "ResponseRequested", responseRequested ? "1" : "0");
 
@@ -337,7 +365,8 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 					b.text(NamespaceMapping.Email2, "CalendarType", calendar.recurrence.calendarType.xmlValue());
 				}
 				if (calendar.recurrence.isLeapMonth != null) {
-					b.text(NamespaceMapping.Email2, "IsLeapMonth", calendar.recurrence.isLeapMonth ? "1" : "0");
+					b.text(NamespaceMapping.Email2, "IsLeapMonth",
+							calendar.recurrence.isLeapMonth.booleanValue() ? "1" : "0");
 				}
 				if (protocolVersion > 14.0 && calendar.recurrence.firstDayOfWeek != null) {
 					b.text(NamespaceMapping.Email2, "FirstDayOfWeek", calendar.recurrence.firstDayOfWeek.xmlValue());

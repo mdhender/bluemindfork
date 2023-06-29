@@ -23,11 +23,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import net.bluemind.eas.dto.base.AirSyncBaseResponse.Attachment;
+
 public class CalendarResponse {
 
-	public static enum BusyStatus {
+	public enum BusyStatus {
 
-		Free(0), Tentative(1), Busy(2), OutOfOffice(3);
+		FREE(0), TENTATIVE(1), BUSY(2), OUT_OF_OFFICE(3);
 
 		private final String xmlValue;
 
@@ -40,9 +42,9 @@ public class CalendarResponse {
 		}
 	}
 
-	public static enum Sensitivity {
+	public enum Sensitivity {
 
-		Normal(0), Personal(1), Private(2), Confidential(3);
+		NORMAL(0), PERSONAL(1), PRIVATE(2), CONFIDENTIAL(3);
 
 		private final String xmlValue;
 
@@ -55,10 +57,10 @@ public class CalendarResponse {
 		}
 	}
 
-	public static enum MeetingStatus {
+	public enum MeetingStatus {
 
-		Appointment(0), MeetingAndUserIsOrganizer(1), MeetingAndUserIsNotOrganizer(3), //
-		CanceledAndUserWasOrganizer(5), CancelReceived(7), CanceledAndUserWasNotOrganizer(9);
+		APPOINTMENT(0), MEETING_AND_USER_IS_ORGANIZER(1), MEETING_AND_USER_IS_NOT_ORGANIZER(3), //
+		CANCELED_AND_USER_WAS_ORGANIZER(5), CANCEL_RECEIVED(7), CANCELED_AND_USER_WAS_NOT_ORGANIZER(9);
 
 		private final String xmlValue;
 
@@ -73,10 +75,10 @@ public class CalendarResponse {
 	}
 
 	public static final class Attendee {
-		public static enum AttendeeStatus {
+		public enum AttendeeStatus {
 
-			ResponseUnknown(0), Tentative(2), Accepted(3), //
-			Declined(4), NotResponded(5);
+			RESPONSE_UNKNOWN(0), TENTATIVE(2), ACCEPTED(3), //
+			DECLINED(4), NOT_RESPONDED(5);
 
 			private final String xmlValue;
 
@@ -89,9 +91,9 @@ public class CalendarResponse {
 			}
 		}
 
-		public static enum AttendeeType {
+		public enum AttendeeType {
 
-			Required(1), Optional(2), Resource(3);
+			REQUIRED(1), OPTIONAL(2), RESOURCE(3);
 
 			private final String xmlValue;
 
@@ -111,9 +113,9 @@ public class CalendarResponse {
 	}
 
 	public static final class Recurrence {
-		public static enum Type {
+		public enum Type {
 
-			Daily(0), Weekly(1), Monthly(2), MonthlyByDay(3), Yearly(5), YearlyByDay(6);
+			DAILY(0), WEEKLY(1), MONTHLY(2), MONTHLY_BY_DAY(3), YEARLY(5), YEARLY_BY_DAY(6);
 
 			private final String xmlValue;
 
@@ -126,13 +128,13 @@ public class CalendarResponse {
 			}
 		}
 
-		public static enum CalendarType {
+		public enum CalendarType {
 
-			Default(0), Gregorian(1), GregorianUS(2), //
-			JapaneseEmperorEra(3), Taiwan(4), KoreaTangunEra(5), //
-			Hijri(6), Thai(7), HebrewLunar(8), GregorianMiddleEastFrench(9), //
-			GregorianArabic(10), GregorianTransliteratedEnglish(11), GregorianTransliteratedFrench(12), //
-			JapaneseLunar(14), ChineseLunar(15), KoreaLunar(20);
+			DEFAULT(0), GREGORIAN(1), GREGORIAN_US(2), //
+			JAPANESE_EMPEROR_ERA(3), TAIWAN(4), KOREA_TANGUN_ERA(5), //
+			HIJRI(6), THAI(7), HEBREW_LUNAR(8), GREGORIAN_MIDDLE_EAST_FRENCH(9), //
+			GREGORIAN_ARABIC(10), GREGORIAN_TRANSLITERATED_ENGLISH(11), GREGORIAN_TRANSLITERATED_FRENCH(12), //
+			JAPANESE_LUNAR(14), CHINESE_LUNAR(15), KOREA_LUNAR(20);
 
 			private final String xmlValue;
 
@@ -147,10 +149,10 @@ public class CalendarResponse {
 
 		public static final class DayOfWeek {
 
-			public static enum Days {
-				Sunday(1), Monday(2), Tuesday(4), //
-				Wednesday(8), Thrusday(16), Friday(32), //
-				Weekdays(62), Saturday(64), WeekendDays(65), LastDayOfMonth(127);
+			public enum Days {
+				SUNDAY(1), MONDAY(2), TUESDAY(4), //
+				WEDNESDAY(8), THRUSDAY(16), FRIDAY(32), //
+				WEEKDAYS(62), SATURDAY(64), WEEKEND_DAYS(65), LAST_DAY_OF_MONTH(127);
 
 				private final int xmlValue;
 
@@ -167,28 +169,28 @@ public class CalendarResponse {
 
 			public static DayOfWeek fromInt(Integer i) {
 				DayOfWeek dow = new DayOfWeek();
-				dow.days = new HashSet<Days>();
+				dow.days = new HashSet<>();
 
-				if ((i & Days.Monday.value()) == Days.Monday.value()) {
-					dow.days.add(Days.Monday);
+				if ((i & Days.MONDAY.value()) == Days.MONDAY.value()) {
+					dow.days.add(Days.MONDAY);
 				}
-				if ((i & Days.Tuesday.value()) == Days.Tuesday.value()) {
-					dow.days.add(Days.Tuesday);
+				if ((i & Days.TUESDAY.value()) == Days.TUESDAY.value()) {
+					dow.days.add(Days.TUESDAY);
 				}
-				if ((i & Days.Wednesday.value()) == Days.Wednesday.value()) {
-					dow.days.add(Days.Wednesday);
+				if ((i & Days.WEDNESDAY.value()) == Days.WEDNESDAY.value()) {
+					dow.days.add(Days.WEDNESDAY);
 				}
-				if ((i & Days.Thrusday.value()) == Days.Thrusday.value()) {
-					dow.days.add(Days.Thrusday);
+				if ((i & Days.THRUSDAY.value()) == Days.THRUSDAY.value()) {
+					dow.days.add(Days.THRUSDAY);
 				}
-				if ((i & Days.Friday.value()) == Days.Friday.value()) {
-					dow.days.add(Days.Friday);
+				if ((i & Days.FRIDAY.value()) == Days.FRIDAY.value()) {
+					dow.days.add(Days.FRIDAY);
 				}
-				if ((i & Days.Saturday.value()) == Days.Saturday.value()) {
-					dow.days.add(Days.Saturday);
+				if ((i & Days.SATURDAY.value()) == Days.SATURDAY.value()) {
+					dow.days.add(Days.SATURDAY);
 				}
-				if ((i & Days.Sunday.value()) == Days.Sunday.value()) {
-					dow.days.add(Days.Sunday);
+				if ((i & Days.SUNDAY.value()) == Days.SUNDAY.value()) {
+					dow.days.add(Days.SUNDAY);
 				}
 				return dow;
 			}
@@ -215,11 +217,11 @@ public class CalendarResponse {
 		public FirstDayOfWeek firstDayOfWeek;
 	}
 
-	public static enum FirstDayOfWeek {
+	public enum FirstDayOfWeek {
 
-		Sunday(0), Monday(1), Tuesday(2), //
-		Wednesday(3), Thrusday(4), Friday(5), //
-		Saturday(6);
+		SUNDAY(0), MONDAY(1), TUESDAY(2), //
+		WEDNESDAY(3), THRUSDAY(4), FRIDAY(5), //
+		SATURDAY(6);
 
 		private final String xmlValue;
 
@@ -247,10 +249,10 @@ public class CalendarResponse {
 		public String location;
 	}
 
-	public static enum ResponseType {
+	public enum ResponseType {
 
-		None(0), Organizer(1), Tentative(2), Accepted(3), //
-		Declined(4), NotResponded(5);
+		NONE(0), ORGANIZER(1), TENTATIVE(2), ACCEPTED(3), //
+		DECLINED(4), NOT_RESPONDED(5);
 
 		private final String xmlValue;
 
@@ -270,32 +272,32 @@ public class CalendarResponse {
 	 * namespace.
 	 *
 	 */
-	public static enum InstanceType {
+	public enum InstanceType {
 		/**
 		 * A single appointment.
 		 */
-		singleAppointment(0),
+		SINGLE_APPOINTMENT(0),
 
 		/**
 		 * A master recurring appointment.
 		 */
-		recurringMaster(1),
+		RECURRING_MASTER(1),
 
 		/**
 		 * A single instance of a recurring appointment.
 		 */
-		singleInstance(2),
+		SINGLE_INSTANCE(2),
 
 		/**
 		 * An exception to a recurring appointment.
 		 */
-		exceptionToRecurring(3),
+		EXCEPTION_TO_RECURRING(3),
 
 		/**
 		 * An orphan instance of a recurring appointment. The value 4 is not supported
 		 * by protocol versions 2.5, 12.0, 12.1, 14.0 and 14.1.
 		 */
-		orphanInstance(4);
+		ORPHAN_INSTANCE(4);
 
 		private final int xmlValue;
 
@@ -340,4 +342,6 @@ public class CalendarResponse {
 
 	public InstanceType instanceType;
 	public Date recurrenceId;
+
+	public List<Attachment> attachments;
 }

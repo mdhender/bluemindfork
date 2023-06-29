@@ -55,7 +55,7 @@ public final class GetAttachmentEndpoint implements IEasRequestEndpoint {
 
 		getAttachExecutor.<MSAttachementData>executeBlocking((prom) -> {
 			try {
-				MSAttachementData attach = backend.getContentsExporter(bs).getEmailAttachement(bs, an);
+				MSAttachementData attach = backend.getContentsExporter(bs).getAttachment(bs, an);
 				prom.complete(attach);
 			} catch (Exception e) {
 				prom.fail(e);

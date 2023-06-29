@@ -91,7 +91,6 @@ import net.bluemind.eas.dto.base.ChangeType;
 import net.bluemind.eas.dto.base.CollectionItem;
 import net.bluemind.eas.dto.base.DisposableByteSource;
 import net.bluemind.eas.dto.base.LazyLoaded;
-import net.bluemind.eas.dto.email.AttachmentResponse;
 import net.bluemind.eas.dto.email.EmailResponse;
 import net.bluemind.eas.dto.moveitems.MoveItemsResponse;
 import net.bluemind.eas.dto.sync.CollectionId;
@@ -234,7 +233,7 @@ public class MailBackend extends CoreConnect {
 
 			for (Entry<MailFolder, List<Long>> entry : items.entrySet()) {
 				MailFolder folder = entry.getKey();
-				if (moveToTrash) {
+				if (moveToTrash.booleanValue()) {
 
 					String mailboxUid = bs.getUser().getUid();
 					if (folder.collectionId.getSubscriptionId().isPresent()) {
@@ -339,55 +338,57 @@ public class MailBackend extends CoreConnect {
 				IMailRewriter rewriter = Mime4JHelper.untouched(getUserEmail(bs));
 				send(bs, mail.mailContent, rewriter, mail.saveInSent);
 			} else {
-
-				// BM-4930, ACMS-196, and many more...
-				if (infos.method == ITIPMethod.REPLY || infos.method == ITIPMethod.CANCEL
-						|| infos.method == ITIPMethod.COUNTER) {
-					logger.info(" **** Device {} sends IMIP email, method {}. user {}", bs.getDevId(), infos.method,
-							bs.getUser().getLoginAtDomain());
-					for (ICalendarElement element : infos.iCalendarElements) {
-						for (Attendee attendee : element.attendees) {
-							String email = attendee.mailto;
-							if (email != null && (email.equals(bs.getLoginAtDomain())
-									|| email.equals(bs.getUser().getDefaultEmail()))) {
-								ICalendar cs = getService(bs, ICalendar.class,
-										ICalendarUids.defaultUserCalendar(bs.getUser().getUid()));
-
-								ItemValue<VEventSeries> event = cs.getComplete(infos.uid);
-								if (event != null) {
-									element = checkForRecurrenceException(element, event);
-									if (element instanceof VEventOccurrence) {
-										VEventOccurrence uOccurr = (VEventOccurrence) element;
-										VEventOccurrence occu = event.value.occurrence(uOccurr.recurid);
-										if (occu != null) {
-											updateStatus(occu, attendee);
-											updateCounter(infos, attendee, event, occu, element);
-											cs.update(infos.uid, event.value, true);
-										} else {
-											logger.warn("did not found in {} occurrence with recurid {}", infos.uid,
-													uOccurr.recurid);
-										}
-									} else {
-										updateStatus(event.value.main, attendee);
-										updateCounter(infos, attendee, event,
-												VEventOccurrence.fromEvent(event.value.main, null), element);
-										cs.update(infos.uid, event.value, true);
-									}
-								} else {
-									logger.warn("did not found event with uid {}", infos.uid);
-								}
-
-							}
-						}
-					}
-				} else {
-					logger.warn(" **** Device {} tried to send an IMIP email, we prevented it. Method: {}, user: {}",
-							bs.getDevId(), infos.method, bs.getUser().getLoginAtDomain());
-				}
-
+				processImipInfos(bs, infos);
 			}
 		} catch (Exception e) {
 			throw new ServerErrorException(e);
+		}
+	}
+
+	private void processImipInfos(BackendSession bs, IMIPInfos infos) {
+		// BM-4930, ACMS-196, and many more...
+		if (infos.method == ITIPMethod.REPLY || infos.method == ITIPMethod.CANCEL
+				|| infos.method == ITIPMethod.COUNTER) {
+			logger.info(" **** Device {} sends IMIP email, method {}. user {}", bs.getDevId(), infos.method,
+					bs.getUser().getLoginAtDomain());
+			for (ICalendarElement element : infos.iCalendarElements) {
+				for (Attendee attendee : element.attendees) {
+					String email = attendee.mailto;
+					if (email != null
+							&& (email.equals(bs.getLoginAtDomain()) || email.equals(bs.getUser().getDefaultEmail()))) {
+						ICalendar cs = getService(bs, ICalendar.class,
+								ICalendarUids.defaultUserCalendar(bs.getUser().getUid()));
+
+						ItemValue<VEventSeries> event = cs.getComplete(infos.uid);
+						if (event != null) {
+							element = checkForRecurrenceException(element, event);
+							if (element instanceof VEventOccurrence) {
+								VEventOccurrence uOccurr = (VEventOccurrence) element;
+								VEventOccurrence occu = event.value.occurrence(uOccurr.recurid);
+								if (occu != null) {
+									updateStatus(occu, attendee);
+									updateCounter(infos, attendee, event, occu, element);
+									cs.update(infos.uid, event.value, true);
+								} else {
+									logger.warn("did not found in {} occurrence with recurid {}", infos.uid,
+											uOccurr.recurid);
+								}
+							} else {
+								updateStatus(event.value.main, attendee);
+								updateCounter(infos, attendee, event,
+										VEventOccurrence.fromEvent(event.value.main, null), element);
+								cs.update(infos.uid, event.value, true);
+							}
+						} else {
+							logger.warn("did not found event with uid {}", infos.uid);
+						}
+
+					}
+				}
+			}
+		} else {
+			logger.warn(" **** Device {} tried to send an IMIP email, we prevented it. Method: {}, user: {}",
+					bs.getDevId(), infos.method, bs.getUser().getLoginAtDomain());
 		}
 	}
 
@@ -577,20 +578,7 @@ public class MailBackend extends CoreConnect {
 		throw new ObjectNotFoundException(String.format("Failed to fetch attachment %s", attachmentId));
 	}
 
-	public AttachmentResponse getAttachmentMetadata(String attachmentId) throws ObjectNotFoundException {
-		if (attachmentId != null && !attachmentId.isEmpty()) {
-			Map<String, String> parsedAttId = AttachmentHelper.parseAttachmentId(attachmentId);
-			if (parsedAttId != null) {
-				String contentType = parsedAttId.get(AttachmentHelper.CONTENT_TYPE);
-				AttachmentResponse ar = new AttachmentResponse();
-				ar.contentType = contentType;
-				return ar;
-			}
-		}
-		throw new ObjectNotFoundException();
-	}
-
-	public void purgeFolder(BackendSession bs, HierarchyNode node, CollectionId collectionId, boolean deleteSubFolder)
+	public void purgeFolder(BackendSession bs, CollectionId collectionId, boolean deleteSubFolder)
 			throws NotAllowedException {
 		try {
 			MailFolder folder = storage.getMailFolder(bs, collectionId);
@@ -609,8 +597,7 @@ public class MailBackend extends CoreConnect {
 	public AppData fetch(BackendSession bs, BodyOptions bodyParams, ItemChangeReference ic) throws ActiveSyncException {
 		try {
 			MailFolder folder = storage.getMailFolder(bs, ic.getServerId().collectionId);
-			AppData data = toAppData(bs, bodyParams, folder, ic.getServerId().itemId);
-			return data;
+			return toAppData(bs, bodyParams, folder, ic.getServerId().itemId);
 		} catch (ActiveSyncException ase) {
 			throw ase;
 		} catch (Exception e) {

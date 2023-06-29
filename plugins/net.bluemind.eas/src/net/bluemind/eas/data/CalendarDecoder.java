@@ -35,6 +35,8 @@ import net.bluemind.eas.backend.MSEvent;
 import net.bluemind.eas.data.calendarenum.AttendeeStatus;
 import net.bluemind.eas.data.calendarenum.AttendeeType;
 import net.bluemind.eas.data.email.Type;
+import net.bluemind.eas.dto.base.AirSyncBaseResponse.Attachment;
+import net.bluemind.eas.dto.base.AirSyncBaseResponse.Attachment.Method;
 import net.bluemind.eas.dto.calendar.CalendarResponse;
 import net.bluemind.eas.dto.calendar.CalendarResponse.Attendee;
 import net.bluemind.eas.dto.calendar.CalendarResponse.BusyStatus;
@@ -70,149 +72,176 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		// Attendees
 		containerNode = DOMUtils.getDirectChildElement(syncData, "Attendees");
 		if (containerNode != null) {
-			// <Attendee>
-			// <Name>noIn TheDatabase</Name>
-			// <Email>notin@mydb.com</Email>
-			// <AttendeeType>1</AttendeeType>
-			// </Attendee>
-			// <Attendee>
-			// <Name>Fff Tt</Name>
-			// <Email>ff@tt.com</Email>
-			// <AttendeeType>2</AttendeeType>
-			// </Attendee>
-
-			NodeList children = containerNode.getChildNodes();
-			int len = children.getLength();
-			for (int i = 0; i < len; i++) {
-				Element attElem = (Element) children.item(i);
-				MSAttendee attendee = getAttendee(syncData, attElem);
-				msEvent.addAttendee(attendee);
-			}
+			decodeAttendees(syncData, containerNode, msEvent);
 		}
 
 		// Exceptions
 		containerNode = DOMUtils.getUniqueElement(syncData, "Exceptions");
 		if (containerNode != null) {
-			ArrayList<EventException> exceptions = new ArrayList<EventException>();
-			for (int i = 0, n = containerNode.getChildNodes().getLength(); i < n; i += 1) {
-				Element subnode = (Element) containerNode.getChildNodes().item(i);
-				EventException exception = new EventException();
-
-				exception.deleted = parseDOMInt2Boolean(DOMUtils.getUniqueElement(subnode, "Deleted"));
-				exception.exceptionStartTime = parseDOMDate(DOMUtils.getUniqueElement(subnode, "ExceptionStartTime"));
-				exception.startTime = parseDOMDate(DOMUtils.getUniqueElement(subnode, "StartTime"));
-				exception.endTime = parseDOMDate(DOMUtils.getUniqueElement(subnode, "EndTime"));
-				exception.subject = parseDOMString(DOMUtils.getUniqueElement(subnode, "Subject"));
-				exception.location = parseDOMString(DOMUtils.getUniqueElement(subnode, "Location"));
-
-				Element attendeesNode = DOMUtils.getDirectChildElement(subnode, "Attendees");
-				if (attendeesNode != null) {
-					NodeList att = attendeesNode.getChildNodes();
-					List<Attendee> attendees = new ArrayList<Attendee>(att.getLength());
-					for (int j = 0; j < att.getLength(); j++) {
-						Element attElem = (Element) att.item(j);
-						MSAttendee attendee = getAttendee(subnode, attElem);
-
-						Attendee a = new Attendee();
-						a.email = attendee.getEmail();
-						a.name = attendee.getName();
-						a.type = convertType(attendee.getAttendeeType());
-						a.status = convertStatus(attendee.getAttendeeStatus());
-						attendees.add(a);
-					}
-					exception.attendees = attendees;
-				}
-
-				exceptions.add(exception);
-			}
-			msEvent.setExceptions(exceptions);
+			decodeExceptions(containerNode, msEvent);
 		}
 
 		// Recurrence
 		containerNode = DOMUtils.getUniqueElement(syncData, "Recurrence");
 		if (containerNode != null) {
-			Recurrence recurrence = new Recurrence();
+			decodeRecurrence(containerNode, msEvent);
+		}
 
-			Date recurrenceUntil = parseDOMDate(DOMUtils.getUniqueElement(containerNode, "Until"));
-
-			if (recurrenceUntil != null) {
-				long recUntil = recurrenceUntil.getTime();
-				long duration = msEvent.getEndTime().getTime() - msEvent.getStartTime().getTime();
-				Date recUntilFixed = new Date(recUntil + duration);
-				recurrence.until = recUntilFixed;
-			}
-
-			recurrence.weekOfMonth = parseDOMInt(DOMUtils.getUniqueElement(containerNode, "WeekOfMonth"));
-			recurrence.monthOfYear = parseDOMInt(DOMUtils.getUniqueElement(containerNode, "MonthOfYear"));
-			recurrence.dayOfMonth = parseDOMInt(DOMUtils.getUniqueElement(containerNode, "DayOfMonth"));
-			recurrence.occurrences = parseDOMInt(DOMUtils.getUniqueElement(containerNode, "Occurrences"));
-			recurrence.interval = parseDOMInt(DOMUtils.getUniqueElement(containerNode, "Interval"));
-			Integer i = parseDOMInt(DOMUtils.getUniqueElement(containerNode, "DayOfWeek"));
-			if (i != null) {
-				recurrence.dayOfWeek = DayOfWeek.fromInt(i);
-			}
-
-			switch (parseDOMNoNullInt(DOMUtils.getUniqueElement(containerNode, "Type"))) {
-			case 0:
-				recurrence.type = Recurrence.Type.Daily;
-				break;
-			case 1:
-				recurrence.type = Recurrence.Type.Weekly;
-				break;
-			case 2:
-				recurrence.type = Recurrence.Type.Monthly;
-				break;
-			case 3:
-				recurrence.type = Recurrence.Type.MonthlyByDay;
-				break;
-			case 5:
-				recurrence.type = Recurrence.Type.Yearly;
-				break;
-			case 6:
-				recurrence.type = Recurrence.Type.YearlyByDay;
-				break;
-			}
-
-			msEvent.setRecurrence(recurrence);
+		containerNode = DOMUtils.getUniqueElement(syncData, "Attachments");
+		if (containerNode != null) {
+			decodeAttachments(containerNode, msEvent);
 		}
 
 		return msEvent;
 	}
 
+	private void decodeAttachments(Element containerNode, MSEvent msEvent) {
+		List<Attachment> attachments = new ArrayList<>();
+		for (int i = 0, n = containerNode.getChildNodes().getLength(); i < n; i += 1) {
+			Element node = (Element) containerNode.getChildNodes().item(i);
+
+			Attachment attachment = new Attachment();
+			attachment.clientId = parseDOMString(DOMUtils.getUniqueElement(node, "ClientId"));
+			attachment.method = Method.NORMAL;// Method.valueOf(parseDOMString(DOMUtils.getUniqueElement(node,
+												// "AttMethod")));
+			attachment.contentType = parseDOMString(DOMUtils.getUniqueElement(node, "ContentType"));
+			attachment.content = parseDOMString(DOMUtils.getUniqueElement(node, "Content"));
+			attachment.displayName = parseDOMString(DOMUtils.getUniqueElement(node, "DisplayName"));
+			attachments.add(attachment);
+		}
+
+		msEvent.setAttachments(attachments);
+	}
+
+	private void decodeRecurrence(Element containerNode, MSEvent msEvent) {
+		Recurrence recurrence = new Recurrence();
+
+		Date recurrenceUntil = parseDOMDate(DOMUtils.getUniqueElement(containerNode, "Until"));
+
+		if (recurrenceUntil != null) {
+			long recUntil = recurrenceUntil.getTime();
+			long duration = msEvent.getEndTime().getTime() - msEvent.getStartTime().getTime();
+			Date recUntilFixed = new Date(recUntil + duration);
+			recurrence.until = recUntilFixed;
+		}
+
+		recurrence.weekOfMonth = parseDOMInt(DOMUtils.getUniqueElement(containerNode, "WeekOfMonth"));
+		recurrence.monthOfYear = parseDOMInt(DOMUtils.getUniqueElement(containerNode, "MonthOfYear"));
+		recurrence.dayOfMonth = parseDOMInt(DOMUtils.getUniqueElement(containerNode, "DayOfMonth"));
+		recurrence.occurrences = parseDOMInt(DOMUtils.getUniqueElement(containerNode, "Occurrences"));
+		recurrence.interval = parseDOMInt(DOMUtils.getUniqueElement(containerNode, "Interval"));
+		Integer i = parseDOMInt(DOMUtils.getUniqueElement(containerNode, "DayOfWeek"));
+		if (i != null) {
+			recurrence.dayOfWeek = DayOfWeek.fromInt(i);
+		}
+
+		switch (parseDOMNoNullInt(DOMUtils.getUniqueElement(containerNode, "Type"))) {
+		case 0:
+			recurrence.type = Recurrence.Type.DAILY;
+			break;
+		case 1:
+			recurrence.type = Recurrence.Type.WEEKLY;
+			break;
+		case 2:
+			recurrence.type = Recurrence.Type.MONTHLY;
+			break;
+		case 3:
+			recurrence.type = Recurrence.Type.MONTHLY_BY_DAY;
+			break;
+		case 5:
+			recurrence.type = Recurrence.Type.YEARLY;
+			break;
+		case 6:
+			recurrence.type = Recurrence.Type.YEARLY_BY_DAY;
+			break;
+		default:
+			logger.warn("Unknown recurrence type {}",
+					parseDOMNoNullInt(DOMUtils.getUniqueElement(containerNode, "Type")));
+		}
+
+		msEvent.setRecurrence(recurrence);
+	}
+
+	private void decodeExceptions(Element containerNode, MSEvent msEvent) {
+		ArrayList<EventException> exceptions = new ArrayList<>();
+		for (int i = 0, n = containerNode.getChildNodes().getLength(); i < n; i += 1) {
+			Element subnode = (Element) containerNode.getChildNodes().item(i);
+			EventException exception = new EventException();
+
+			exception.deleted = parseDOMInt2Boolean(DOMUtils.getUniqueElement(subnode, "Deleted"));
+			exception.exceptionStartTime = parseDOMDate(DOMUtils.getUniqueElement(subnode, "ExceptionStartTime"));
+			exception.startTime = parseDOMDate(DOMUtils.getUniqueElement(subnode, "StartTime"));
+			exception.endTime = parseDOMDate(DOMUtils.getUniqueElement(subnode, "EndTime"));
+			exception.subject = parseDOMString(DOMUtils.getUniqueElement(subnode, "Subject"));
+			exception.location = parseDOMString(DOMUtils.getUniqueElement(subnode, "Location"));
+
+			Element attendeesNode = DOMUtils.getDirectChildElement(subnode, "Attendees");
+			if (attendeesNode != null) {
+				NodeList att = attendeesNode.getChildNodes();
+				List<Attendee> attendees = new ArrayList<>(att.getLength());
+				for (int j = 0; j < att.getLength(); j++) {
+					Element attElem = (Element) att.item(j);
+					MSAttendee attendee = getAttendee(subnode, attElem);
+
+					Attendee a = new Attendee();
+					a.email = attendee.getEmail();
+					a.name = attendee.getName();
+					a.type = convertType(attendee.getAttendeeType());
+					a.status = convertStatus(attendee.getAttendeeStatus());
+					attendees.add(a);
+				}
+				exception.attendees = attendees;
+			}
+
+			exceptions.add(exception);
+		}
+		msEvent.setExceptions(exceptions);
+	}
+
+	private void decodeAttendees(Element syncData, Element containerNode, MSEvent msEvent) {
+		NodeList children = containerNode.getChildNodes();
+		int len = children.getLength();
+		for (int i = 0; i < len; i++) {
+			Element attElem = (Element) children.item(i);
+			MSAttendee attendee = getAttendee(syncData, attElem);
+			msEvent.addAttendee(attendee);
+		}
+	}
+
 	private static CalendarResponse.Attendee.AttendeeType convertType(
 			net.bluemind.eas.data.calendarenum.AttendeeType attendeeType) {
 		if (attendeeType == null) {
-			return CalendarResponse.Attendee.AttendeeType.Optional;
+			return CalendarResponse.Attendee.AttendeeType.OPTIONAL;
 		}
 		switch (attendeeType) {
 		case REQUIRED:
-			return CalendarResponse.Attendee.AttendeeType.Required;
+			return CalendarResponse.Attendee.AttendeeType.REQUIRED;
 		case RESOURCE:
-			return CalendarResponse.Attendee.AttendeeType.Resource;
+			return CalendarResponse.Attendee.AttendeeType.RESOURCE;
 		case OPTIONAL:
 		default:
-			return CalendarResponse.Attendee.AttendeeType.Optional;
+			return CalendarResponse.Attendee.AttendeeType.OPTIONAL;
 		}
 	}
 
 	private static CalendarResponse.Attendee.AttendeeStatus convertStatus(
 			net.bluemind.eas.data.calendarenum.AttendeeStatus attendeeStatus) {
 		if (attendeeStatus == null) {
-			return CalendarResponse.Attendee.AttendeeStatus.ResponseUnknown;
+			return CalendarResponse.Attendee.AttendeeStatus.RESPONSE_UNKNOWN;
 		}
 		switch (attendeeStatus) {
 		case ACCEPT:
-			return CalendarResponse.Attendee.AttendeeStatus.Accepted;
+			return CalendarResponse.Attendee.AttendeeStatus.ACCEPTED;
 		case DECLINE:
-			return CalendarResponse.Attendee.AttendeeStatus.Declined;
+			return CalendarResponse.Attendee.AttendeeStatus.DECLINED;
 		case NOT_RESPONDED:
-			return CalendarResponse.Attendee.AttendeeStatus.NotResponded;
+			return CalendarResponse.Attendee.AttendeeStatus.NOT_RESPONDED;
 		case RESPONSE_UNKNOWN:
-			return CalendarResponse.Attendee.AttendeeStatus.ResponseUnknown;
+			return CalendarResponse.Attendee.AttendeeStatus.RESPONSE_UNKNOWN;
 		case TENTATIVE:
-			return CalendarResponse.Attendee.AttendeeStatus.Tentative;
+			return CalendarResponse.Attendee.AttendeeStatus.TENTATIVE;
 		default:
-			return CalendarResponse.Attendee.AttendeeStatus.ResponseUnknown;
+			return CalendarResponse.Attendee.AttendeeStatus.RESPONSE_UNKNOWN;
 		}
 	}
 
@@ -257,25 +286,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		// description
 		Element body = DOMUtils.getUniqueElement(domSource, "Body");
 		if (body != null) {
-			Element data = DOMUtils.getUniqueElement(body, "Data");
-			if (data != null) {
-				Type bodyType = Type
-						.fromInt(Integer.parseInt(DOMUtils.getUniqueElement(body, "Type").getTextContent()));
-				String txt = data.getTextContent();
-
-				if (bodyType == Type.PLAIN_TEXT) {
-					calendar.setDescription(txt);
-					logger.debug("Desc: {}", txt);
-				} else if (bodyType == Type.RTF) {
-					txt = RTFUtils.extractB64CompressedRTF(txt);
-					calendar.setDescription(txt);
-					logger.debug("Desc: {}", txt);
-				} else {
-					logger.warn("Unsupported body type: " + bodyType + "\n" + txt);
-				}
-			} else {
-				calendar.setDescription(null);
-			}
+			setEventDescription(calendar, body);
 		} else {
 			calendar.setDescription(null);
 		}
@@ -333,49 +344,73 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		}
 	}
 
+	private void setEventDescription(MSEvent calendar, Element body) {
+		Element data = DOMUtils.getUniqueElement(body, "Data");
+		if (data != null) {
+			Type bodyType = Type.fromInt(Integer.parseInt(DOMUtils.getUniqueElement(body, "Type").getTextContent()));
+			String txt = data.getTextContent();
+
+			if (bodyType == Type.PLAIN_TEXT) {
+				calendar.setDescription(txt);
+				logger.debug("Desc: {}", txt);
+			} else if (bodyType == Type.RTF) {
+				txt = RTFUtils.extractB64CompressedRTF(txt);
+				calendar.setDescription(txt);
+				logger.debug("Desc: {}", txt);
+			} else {
+				logger.warn("Unsupported body type: {}\n{}", bodyType, txt);
+			}
+		} else {
+			calendar.setDescription(null);
+		}
+	}
+
 	private BusyStatus getCalendarBusyStatus(Element domSource) {
 		switch (parseDOMNoNullInt(DOMUtils.getUniqueElement(domSource, "BusyStatus"))) {
 		case 0:
-			return BusyStatus.Free;
+			return BusyStatus.FREE;
 		case 1:
-			return BusyStatus.Tentative;
+			return BusyStatus.TENTATIVE;
 		case 2:
-			return BusyStatus.Busy;
+			return BusyStatus.BUSY;
 		case 3:
-			return BusyStatus.OutOfOffice;
+			return BusyStatus.OUT_OF_OFFICE;
+		default:
+			return null;
 		}
-		return null;
 	}
 
 	private Sensitivity getCalendarSensitivity(Element domSource) {
 		switch (parseDOMNoNullInt(DOMUtils.getUniqueElement(domSource, "Sensitivity"))) {
 		case 0:
-			return Sensitivity.Normal;
+			return Sensitivity.NORMAL;
 		case 1:
-			return Sensitivity.Personal;
+			return Sensitivity.PERSONAL;
 		case 2:
-			return Sensitivity.Private;
+			return Sensitivity.PRIVATE;
 		case 3:
-			return Sensitivity.Confidential;
+			return Sensitivity.CONFIDENTIAL;
+		default:
+			return null;
 		}
-		return null;
 	}
 
 	private MeetingStatus getMeetingStatus(Element domSource) {
 		switch (parseDOMNoNullInt(DOMUtils.getUniqueElement(domSource, "MeetingStatus"))) {
 		case 0:
-			return MeetingStatus.Appointment;
+			return MeetingStatus.APPOINTMENT;
 		case 1:
-			return MeetingStatus.MeetingAndUserIsOrganizer;
+			return MeetingStatus.MEETING_AND_USER_IS_ORGANIZER;
 		case 3:
-			return MeetingStatus.MeetingAndUserIsNotOrganizer;
+			return MeetingStatus.MEETING_AND_USER_IS_NOT_ORGANIZER;
 		case 5:
-			return MeetingStatus.CanceledAndUserWasOrganizer;
+			return MeetingStatus.CANCELED_AND_USER_WAS_ORGANIZER;
 		case 4:
 			return null;
 		case 7:
-			return MeetingStatus.CancelReceived;
+			return MeetingStatus.CANCEL_RECEIVED;
+		default:
+			return null;
 		}
-		return null;
 	}
 }

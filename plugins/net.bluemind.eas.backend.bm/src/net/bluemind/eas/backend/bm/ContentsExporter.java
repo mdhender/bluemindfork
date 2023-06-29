@@ -24,9 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.IDirectory;
 import net.bluemind.eas.backend.BackendSession;
@@ -37,6 +34,7 @@ import net.bluemind.eas.backend.MSAttachementData;
 import net.bluemind.eas.backend.bm.calendar.CalendarBackend;
 import net.bluemind.eas.backend.bm.contacts.ContactsBackend;
 import net.bluemind.eas.backend.bm.impl.CoreConnect;
+import net.bluemind.eas.backend.bm.mail.AttachmentHelper;
 import net.bluemind.eas.backend.bm.mail.MailBackend;
 import net.bluemind.eas.backend.bm.task.TaskBackend;
 import net.bluemind.eas.dto.base.AppData;
@@ -56,8 +54,6 @@ import net.bluemind.eas.exception.ObjectNotFoundException;
 
 public class ContentsExporter extends CoreConnect implements IContentsExporter {
 
-	private static final Logger logger = LoggerFactory.getLogger(ContentsExporter.class);
-
 	private MailBackend mailBackend;
 	private CalendarBackend calBackend;
 	private ContactsBackend contactsBackend;
@@ -70,7 +66,7 @@ public class ContentsExporter extends CoreConnect implements IContentsExporter {
 		this.calBackend = calendarExporter;
 		this.contactsBackend = contactsBackend;
 		this.taskBackend = taskBackend;
-		filterTypeCache = new ConcurrentHashMap<String, FilterType>();
+		filterTypeCache = new ConcurrentHashMap<>();
 	}
 
 	private boolean processFilterType(BackendSession bs, SyncState state, FilterType filterType,
@@ -158,15 +154,34 @@ public class ContentsExporter extends CoreConnect implements IContentsExporter {
 	}
 
 	@Override
-	public MSAttachementData getEmailAttachement(BackendSession bs, String attachmentId)
-			throws ObjectNotFoundException {
-		return mailBackend.getAttachment(bs, attachmentId);
+	public MSAttachementData getAttachment(BackendSession bs, String attachmentId) throws ActiveSyncException {
+
+		Map<String, String> parsedAttId = AttachmentHelper.parseAttachmentId(attachmentId);
+		String type = parsedAttId.get(AttachmentHelper.TYPE);
+
+		if (AttachmentHelper.BM_FILEHOSTING.equals(type)) {
+			return mailBackend.getAttachment(bs, attachmentId);
+		} else if (AttachmentHelper.BM_FILEHOSTING_EVENT.equals(type)) {
+			return calBackend.getAttachment(bs, parsedAttId);
+		}
+
+		throw new ActiveSyncException("Failed to fetch attachment " + attachmentId);
+
 	}
 
 	@Override
 	public AttachmentResponse getAttachmentMetadata(BackendSession bs, String attachmentId)
 			throws ObjectNotFoundException {
-		return mailBackend.getAttachmentMetadata(attachmentId);
+		if (attachmentId != null && !attachmentId.isEmpty()) {
+			Map<String, String> parsedAttId = AttachmentHelper.parseAttachmentId(attachmentId);
+			if (parsedAttId != null) {
+				String contentType = parsedAttId.get(AttachmentHelper.CONTENT_TYPE);
+				AttachmentResponse ar = new AttachmentResponse();
+				ar.contentType = contentType;
+				return ar;
+			}
+		}
+		throw new ObjectNotFoundException();
 	}
 
 	@Override
@@ -186,29 +201,6 @@ public class ContentsExporter extends CoreConnect implements IContentsExporter {
 					recip.entryUid = dirEntry.entryUid;
 					if (picture != null) {
 						ResolveRecipientsResponse.Response.Recipient.Picture pic = new ResolveRecipientsResponse.Response.Recipient.Picture();
-
-						// FIXME pic.data need some encoding and maybe it should
-						// be a jpeg picture
-						// https://forge.bluemind.net/stash/projects/BM/repos/bluemind-all/pull-requests/2270/overview?commentId=10817
-						// IUser users = getService(bs, IUser.class,
-						// bs.getUser().getDomain());
-						// byte[] data = users.getPhoto(dirEntry.entryUid);
-						// if (data != null && data.length >= 0) {
-						// if (picture.maxSize != null && data.length >
-						// picture.maxSize) {
-						// pic.status =
-						// ResolveRecipientsResponse.Response.Recipient.Picture.Status.MaxSizeExceeded;
-						// } else {
-						// // WOOT ?!
-						// pic.data = new String(data);
-						// pic.status =
-						// ResolveRecipientsResponse.Response.Recipient.Picture.Status.Success;
-						// }
-						// } else {
-						// pic.status =
-						// ResolveRecipientsResponse.Response.Recipient.Picture.Status.NoPhoto;
-						// }
-
 						pic.status = ResolveRecipientsResponse.Response.Recipient.Picture.Status.NoPhoto;
 						recip.picture = pic;
 					}
@@ -226,7 +218,6 @@ public class ContentsExporter extends CoreConnect implements IContentsExporter {
 				ret.add(recip);
 			}
 		} catch (Exception e) {
-			// FIXME copy/paste, maybe we should handle exceptions?
 			logger.error(e.getMessage(), e);
 		}
 

@@ -188,15 +188,15 @@ public class StructureMailLoader extends CoreConnect {
 			// msm.meetingMessageType =
 			// MeetingMessageType.InitialMeetingRequest;
 
-			ret.meetingRequest.instanceType = InstanceType.singleAppointment;
+			ret.meetingRequest.instanceType = InstanceType.SINGLE_APPOINTMENT;
 
 			if (msEvent.getRecurrence() != null) {
-				ret.meetingRequest.instanceType = InstanceType.recurringMaster;
+				ret.meetingRequest.instanceType = InstanceType.RECURRING_MASTER;
 			}
 
 			if (recurId != null) {
 				// specific occurrence of a recurring event
-				ret.meetingRequest.instanceType = InstanceType.exceptionToRecurring;
+				ret.meetingRequest.instanceType = InstanceType.EXCEPTION_TO_RECURRING;
 				// tz is GMT Sign Hours : Minutes. ex GMT+02:00
 				TimeZone tz = TimeZone.getTimeZone("GMT" + recurId.timezone);
 				Calendar begin = Calendar.getInstance(tz);

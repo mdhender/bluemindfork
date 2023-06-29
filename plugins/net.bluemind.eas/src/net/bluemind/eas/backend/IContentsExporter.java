@@ -54,7 +54,7 @@ public interface IContentsExporter {
 
 	AttachmentResponse getAttachmentMetadata(BackendSession bs, String attachmentName) throws ObjectNotFoundException;
 
-	MSAttachementData getEmailAttachement(BackendSession bs, String attachmentName) throws ObjectNotFoundException;
+	MSAttachementData getAttachment(BackendSession bs, String attachmentName) throws ActiveSyncException;
 
 	List<ResolveRecipientsResponse.Response.Recipient> resolveRecipients(BackendSession bs, List<String> to,
 			ResolveRecipientsRequest.Options.Picture picture);

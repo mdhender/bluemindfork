@@ -155,7 +155,7 @@ public class ContentsImporter implements IContentsImporter {
 	public void emptyFolderContent(BackendSession bs, HierarchyNode node, CollectionId collectionId,
 			boolean deleteSubFolder) throws CollectionNotFoundException, NotAllowedException {
 		if (ItemDataType.getValue(node.containerType) == ItemDataType.EMAIL) {
-			mailBackend.purgeFolder(bs, node, collectionId, deleteSubFolder);
+			mailBackend.purgeFolder(bs, collectionId, deleteSubFolder);
 		} else {
 			throw new NotAllowedException("emptyFolderContent is only supported for emails, collection was "
 					+ ItemDataType.getValue(node.containerType));

@@ -157,7 +157,7 @@ public class BodyAccumulator {
 	public NativeBodyType nativeBodyType() {
 		switch (needed) {
 		case PlainText:
-			return NativeBodyType.PlainText;
+			return NativeBodyType.PLAIN_TEXT;
 		case RTF:
 			return NativeBodyType.RTF;
 		default:

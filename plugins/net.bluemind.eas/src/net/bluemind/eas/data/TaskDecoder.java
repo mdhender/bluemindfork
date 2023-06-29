@@ -94,13 +94,13 @@ public class TaskDecoder extends Decoder implements IDataDecoder {
 	private Sensitivity getCalendarSensitivity(Element domSource) {
 		switch (parseDOMNoNullInt(DOMUtils.getUniqueElement(domSource, "Sensitivity"))) {
 		case 0:
-			return Sensitivity.Normal;
+			return Sensitivity.NORMAL;
 		case 1:
-			return Sensitivity.Personal;
+			return Sensitivity.PERSONAL;
 		case 2:
-			return Sensitivity.Private;
+			return Sensitivity.PRIVATE;
 		case 3:
-			return Sensitivity.Confidential;
+			return Sensitivity.CONFIDENTIAL;
 		}
 		return null;
 	}

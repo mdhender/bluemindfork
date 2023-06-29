@@ -93,15 +93,15 @@ public class TaskConverter {
 
 	private Sensitivity getSensitivity(VTodo vtodo) {
 		if (vtodo.classification == null) {
-			return Sensitivity.Normal;
+			return Sensitivity.NORMAL;
 		}
 		switch (vtodo.classification) {
 		case Confidential:
-			return Sensitivity.Confidential;
+			return Sensitivity.CONFIDENTIAL;
 		case Private:
-			return Sensitivity.Private;
+			return Sensitivity.PRIVATE;
 		default:
-			return Sensitivity.Normal;
+			return Sensitivity.NORMAL;
 		}
 	}
 
@@ -144,12 +144,12 @@ public class TaskConverter {
 		}
 
 		switch (sensitivity) {
-		case Confidential:
+		case CONFIDENTIAL:
 			return VTodo.Classification.Confidential;
-		case Personal:
-		case Private:
+		case PERSONAL:
+		case PRIVATE:
 			return VTodo.Classification.Private;
-		case Normal:
+		case NORMAL:
 		default:
 			return VTodo.Classification.Public;
 		}
