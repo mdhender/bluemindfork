@@ -1,0 +1,10 @@
+.navbar {
+    background-color: $fill-primary-bg;
+    color: $fill-primary-fg;
+    box-shadow: $box-shadow;
+
+    height: base-px-to-rem(48);
+    @include from-lg {
+        height: base-px-to-rem(42);
+    }
+}

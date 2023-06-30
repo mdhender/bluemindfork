@@ -296,14 +296,28 @@ $counter-badge-width: base-px-to-rem(26);
 
 // Navs
 
-$nav-link-disabled-color: $neutral-fg-disabled;
+$nav-link-disabled-color: $fill-primary-fg-disabled;
 
-$nav-tabs-border-color: $neutral-fg-lo2;
-$nav-tabs-link-hover-border-color: $neutral-fg-lo3 $neutral-fg-lo3 $nav-tabs-border-color;
-$nav-tabs-link-active-color: $neutral-fg;
-$nav-tabs-link-active-border-color: $neutral-fg-lo2 $neutral-fg-lo2 $neutral-fg-lo1;
+$nav-tabs-border-color: $fill-primary-fg;
+$nav-tabs-link-hover-border-color: $fill-primary-fg-hi1;
+$nav-tabs-link-active-color: $fill-primary-fg-hi1;
+$nav-tabs-link-active-border-color: $fill-primary-fg-hi1;
 
-$nav-divider-color: $neutral-fg-lo3;
+$nav-divider-color: $fill-primary-fg-lo2;
+
+// Navbar
+
+$navbar-padding-y: 0;
+$navbar-padding-x: 0;
+
+$navbar-light-color: $fill-primary-fg;
+$navbar-light-hover-color: $fill-primary-fg-hi1;
+$navbar-light-active-color: $fill-primary-fg-hi1;
+$navbar-light-disabled-color: $fill-primary-fg-disabled;
+$navbar-light-toggler-border-color: $fill-primary-fg-lo2;
+
+$navbar-light-brand-color: $navbar-light-color;
+$navbar-light-brand-hover-color: $navbar-light-hover-color;
 
 // Dropdowns
 
