@@ -112,7 +112,7 @@ $items-info: (
         .icon-wrapper,
         .reset-btn {
             top: 0;
-            bottom: 0;
+            height: 100%;
             &:not(.icon-left) {
                 left: auto;
                 right: $margin-x;

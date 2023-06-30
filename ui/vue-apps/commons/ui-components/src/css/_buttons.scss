@@ -183,42 +183,6 @@ fieldset:disabled a.btn {
     }
 }
 
-button.close {
-    font-size: base-px-to-rem(32);
-    font-weight: 400;
-    $btn-size: map-get($btn-close-sizes, "md");
-    line-height: $btn-size;
-    width: $btn-size;
-    flex: none;
-    opacity: 1 !important;
-    &:hover {
-        color: $neutral-fg-hi1;
-    }
-    &:disabled,
-    &.disabled {
-        color: $neutral-fg-disabled;
-    }
-}
-button.close.btn-close-xs {
-    font-size: base-px-to-rem(24);
-    font-weight: 200;
-    $btn-size: map-get($btn-close-sizes, "xs");
-    line-height: $btn-size;
-    width: $btn-size;
-}
-button.close.btn-close-sm {
-    font-size: base-px-to-rem(24);
-    $btn-size: map-get($btn-close-sizes, "sm");
-    line-height: $btn-size;
-    width: $btn-size;
-}
-button.close.btn-close-lg {
-    font-size: base-px-to-rem(40);
-    $btn-size: map-get($btn-close-sizes, "lg");
-    line-height: $btn-size;
-    width: $btn-size;
-}
-
 // reset bootstrap behavior (see bootstrap file button-group.scss l.42) to fix a border problem on hover
 .btn-group {
     > .btn:not(:first-child),
