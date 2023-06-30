@@ -9,10 +9,7 @@ export default {
     data: () => ({ listenerRegistry: [] }),
     computed: {
         ...mapState("mail", ["activeFolder", "folders"]),
-        ...mapGetters("mail", { MAILBOXES, MY_MAILBOX_KEY, MAILBOXES_ARE_LOADED }),
-        $_ServerPush_serviceWorkerController() {
-            return navigator.serviceWorker && navigator.serviceWorker.controller;
-        }
+        ...mapGetters("mail", { MAILBOXES, MY_MAILBOX_KEY, MAILBOXES_ARE_LOADED })
     },
     async created() {
         try {
@@ -21,7 +18,8 @@ export default {
                 this.listenerRegistry.push(() =>
                     navigator.serviceWorker.removeEventListener("message", this.$_ServerPush_serviceWorkerListener)
                 );
-                this.$_ServerPush_serviceWorkerController?.postMessage({ type: "INIT" });
+                await navigator.serviceWorker.ready;
+                navigator.serviceWorker.controller.postMessage({ type: "INIT" });
             }
             await this.$waitFor(MAILBOXES_ARE_LOADED);
             this.MAILBOXES.forEach(mailbox => {
@@ -46,8 +44,9 @@ export default {
             }
         },
         async $_ServerPush_sendMessage(message, skipSync, defaultResponse = null) {
-            if (this.$_ServerPush_serviceWorkerController && !skipSync) {
-                await this.$_ServerPush_serviceWorkerController.postMessage(message);
+            if (navigator.serviceWorker && !skipSync) {
+                await navigator.serviceWorker.ready;
+                navigator.serviceWorker.controller.postMessage(message);
             } else if (defaultResponse) {
                 await this.$_ServerPush_refreshUI(defaultResponse);
             }
