@@ -16,15 +16,30 @@
                 :selected-addressbook="selectedAddressBookId"
                 @selected="selectedAddressBookId = $event"
             />
-            <contact-list
-                class="flex-fill"
-                :contacts="contacts"
-                :loading="loading"
-                :addressbook="selectedAddressBook"
-                :user-id="userId"
-                :selected="selectedForCurrentAddressBook"
-                @selected="updateSelected"
-            />
+
+            <div class="flex-fill">
+                <bm-form-input
+                    v-model="search"
+                    :icon="!resettable ? 'search' : 'cancel'"
+                    left-icon
+                    :resettable="resettable"
+                    :placeholder="
+                        $t('recipientPicker.search_input.placeholder', { addressBookName: selectedAddressBook.name })
+                    "
+                    class="search-input"
+                    variant="underline"
+                    @reset="search = ''"
+                />
+                <contact-list
+                    class="h-100"
+                    :contacts="contacts"
+                    :loading="loading"
+                    :addressbook="selectedAddressBook"
+                    :user-id="userId"
+                    :selected="selectedForCurrentAddressBook"
+                    @selected="updateSelected"
+                />
+            </div>
         </div>
         <template #modal-footer>
             <div>
@@ -50,14 +65,14 @@
 import { mapActions, mapState } from "vuex";
 import { ERROR, REMOVE } from "@bluemind/alert.store";
 import { inject } from "@bluemind/inject";
-import { BmAlertArea, BmButton, BmModal } from "@bluemind/ui-components";
+import { BmAlertArea, BmButton, BmModal, BmFormInput } from "@bluemind/ui-components";
 import AddressBookList from "./AddressBookList";
 import ContactList from "./ContactList";
 import SelectedContacts from "./SelectedContacts";
 
 export default {
     name: "MailComposerRecipientModal",
-    components: { BmAlertArea, BmButton, BmModal, AddressBookList, ContactList, SelectedContacts },
+    components: { BmAlertArea, BmButton, BmModal, AddressBookList, ContactList, SelectedContacts, BmFormInput },
     props: {
         selected: { type: Array, default: () => [] }
     },
@@ -66,6 +81,7 @@ export default {
             addressBooks: [],
             contacts: [],
             loading: false,
+            search: "",
             selectedAddressBookId: undefined,
             userId: undefined
         };
@@ -87,6 +103,9 @@ export default {
             return this.selected
                 .map(({ dn, address }) => this.contacts.find(({ name, email }) => dn === name && address === email))
                 .filter(Boolean);
+        },
+        resettable() {
+            return Boolean(this.search);
         }
     },
     watch: {
@@ -189,6 +208,9 @@ function toContact(contactItem) {
         padding: $sp-4;
         z-index: 1;
         box-shadow: $box-shadow-sm;
+    }
+    .bm-form-input {
+        background-color: $surface;
     }
 }
 </style>
