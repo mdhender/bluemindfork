@@ -66,6 +66,7 @@ import { mapActions, mapState } from "vuex";
 import { ERROR, REMOVE } from "@bluemind/alert.store";
 import { inject } from "@bluemind/inject";
 import { BmAlertArea, BmButton, BmModal, BmFormInput } from "@bluemind/ui-components";
+import { searchVCardsHelper } from "@bluemind/contact";
 import AddressBookList from "./AddressBookList";
 import ContactList from "./ContactList";
 import SelectedContacts from "./SelectedContacts";
@@ -79,11 +80,13 @@ export default {
     data() {
         return {
             addressBooks: [],
-            contacts: [],
             loading: false,
+            userId: undefined,
+            selectedAddressbookId: undefined,
+            allContacts: [],
+            searchedContacts: [],
             search: "",
-            selectedAddressBookId: undefined,
-            userId: undefined
+            selectedAddressBookId: undefined
         };
     },
     computed: {
@@ -106,6 +109,12 @@ export default {
         },
         resettable() {
             return Boolean(this.search);
+        },
+        contacts() {
+            if (this.resettable) {
+                return this.searchedContacts;
+            }
+            return this.allContacts;
         }
     },
     watch: {
@@ -114,15 +123,17 @@ export default {
             try {
                 if (!value) return [];
                 const ids = await inject("AddressBookPersistence", value).sortedIds();
-                this.contacts = (await inject("AddressBookPersistence", value).multipleGetById(ids)).map(contact => ({
-                    uid: contact.uid,
-                    name: contact.value.identification.formatedName.value,
-                    email: extractDefaultCommunication(contact, "emails"),
-                    tel: extractDefaultCommunication(contact, "tels"),
-                    kind: contact.value.kind,
-                    members: contact.value.organizational?.member,
-                    urn: `${contact.uid}@${value}`
-                }));
+                this.allContacts = (await inject("AddressBookPersistence", value).multipleGetById(ids)).map(
+                    contact => ({
+                        uid: contact.uid,
+                        name: contact.value.identification.formatedName.value,
+                        email: extractDefaultCommunication(contact, "emails"),
+                        tel: extractDefaultCommunication(contact, "tels"),
+                        kind: contact.value.kind,
+                        members: contact.value.organizational?.member,
+                        urn: `${contact.uid}@${value}`
+                    })
+                );
             } finally {
                 this.loading = false;
             }
@@ -133,6 +144,26 @@ export default {
                         key => key.parameters.find(param => param.label === "DEFAULT" && param.value === true) !== -1
                     )?.value ?? ""
                 );
+            }
+        },
+        async search(searchValue) {
+            if (searchValue) {
+                this.loading = true;
+
+                const searchResults = await inject("AddressBooksPersistence").search(
+                    searchVCardsHelper(searchValue, 50, false, this.selectedAddressbookId)
+                );
+                this.searchedContacts =
+                    searchResults.total > 0
+                        ? searchResults.values.map(contact => ({
+                              uid: contact.uid,
+                              name: contact.displayName,
+                              email: contact.value.mail,
+                              tel: contact.value.tel
+                          }))
+                        : [];
+
+                this.loading = false;
             }
         }
     },
