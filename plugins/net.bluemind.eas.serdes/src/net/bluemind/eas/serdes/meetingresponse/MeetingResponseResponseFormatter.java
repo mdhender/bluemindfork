@@ -31,7 +31,7 @@ public class MeetingResponseResponseFormatter implements IEasResponseFormatter<M
 	public void format(IResponseBuilder builder, double protocolVersion, MeetingResponseResponse response,
 			Callback<Void> completion) {
 
-		builder.start(NamespaceMapping.MeetingResponse);
+		builder.start(NamespaceMapping.MEETING_RESPONSE);
 
 		if (response.results != null && !response.results.isEmpty()) {
 			for (Result res : response.results) {

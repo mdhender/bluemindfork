@@ -30,7 +30,7 @@ public class MoveItemsFormatter implements IEasResponseFormatter<MoveItemsRespon
 	@Override
 	public void format(IResponseBuilder builder, double protocolVersion, MoveItemsResponse response,
 			Callback<Void> completion) {
-		builder.start(NamespaceMapping.MoveItems);
+		builder.start(NamespaceMapping.MOVE_ITEMS);
 		for (Response item : response.moveItems) {
 			builder.container("Response");
 			builder.text("SrcMsgId", item.srcMsgId);

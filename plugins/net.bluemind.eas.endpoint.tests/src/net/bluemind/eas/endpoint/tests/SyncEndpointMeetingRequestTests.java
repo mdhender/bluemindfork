@@ -115,7 +115,7 @@ public class SyncEndpointMeetingRequestTests extends AbstractEndpointTest {
 		Element item = (Element) commands.getChildNodes().item(0);
 		assertEquals("Add", item.getNodeName());
 
-		assertEquals(MessageClass.ScheduleMeetingRequest.toString(14.1),
+		assertEquals(MessageClass.SCHEDULE_MEETING_REQUEST.toString(14.1),
 				DOMUtils.getUniqueElement(item, "MessageClass").getTextContent());
 		assertEquals("urn:content-classes:calendarmessage",
 				DOMUtils.getUniqueElement(item, "ContentClass").getTextContent());
@@ -148,7 +148,7 @@ public class SyncEndpointMeetingRequestTests extends AbstractEndpointTest {
 		Element item = (Element) commands.getChildNodes().item(0);
 		assertEquals("Add", item.getNodeName());
 
-		assertEquals(MessageClass.ScheduleMeetingRequest.toString(14.1),
+		assertEquals(MessageClass.SCHEDULE_MEETING_REQUEST.toString(14.1),
 				DOMUtils.getUniqueElement(item, "MessageClass").getTextContent());
 		assertEquals("urn:content-classes:calendarmessage",
 				DOMUtils.getUniqueElement(item, "ContentClass").getTextContent());

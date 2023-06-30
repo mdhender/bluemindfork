@@ -102,6 +102,9 @@
       <filter
             impl="net.bluemind.eas.command.provision.WipedDevicesFilter">
       </filter>
+      <handler
+            impl="net.bluemind.eas.command.find.FindEndpoint">
+      </handler>
    </extension>
    <extension
          point="net.bluemind.eas.protocol">
@@ -158,6 +161,9 @@
       </protocol>
       <protocol
             impl="net.bluemind.eas.command.sync.SyncProtocol">
+      </protocol>
+      <protocol
+            impl="net.bluemind.eas.command.find.FindProtocol">
       </protocol>
    </extension>
    <extension

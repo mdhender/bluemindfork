@@ -29,7 +29,6 @@ import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.IBackend;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
-import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.smartforward.SmartForwardRequest;
 import net.bluemind.eas.dto.smartforward.SmartForwardResponse;
 import net.bluemind.eas.exception.ActiveSyncException;
@@ -109,13 +108,7 @@ public class SmartForwardProtocol implements IEasProtocol<SmartForwardRequest, S
 		} else {
 			SmartForwardResponseFormatter formatter = new SmartForwardResponseFormatter();
 			IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
-			formatter.format(builder, bs.getProtocolVersion(), response, new Callback<Void>() {
-
-				@Override
-				public void onResult(Void data) {
-					completion.handle(null);
-				}
-			});
+			formatter.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 		}
 	}
 

@@ -32,7 +32,7 @@ public class SmartReplyResponseFormatter implements IEasResponseFormatter<SmartR
 		if (response == null) {
 			completion.onResult(null);
 		} else {
-			builder.start(NamespaceMapping.SmartReply);
+			builder.start(NamespaceMapping.SMART_REPLY);
 			builder.text("Status", response.status.xmlValue());
 			builder.end(completion);
 		}

@@ -31,7 +31,7 @@ public class FolderSyncResponseFormatter implements IEasResponseFormatter<Folder
 	@Override
 	public void format(IResponseBuilder builder, double protocolVersion, FolderSyncResponse response,
 			Callback<Void> completion) {
-		builder.start(NamespaceMapping.FolderSync).text("Status", response.status.xmlValue());
+		builder.start(NamespaceMapping.FOLDER_SYNC).text("Status", response.status.xmlValue());
 
 		if (response.syncKey != null) {
 			builder.text("SyncKey", response.syncKey);

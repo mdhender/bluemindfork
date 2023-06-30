@@ -79,7 +79,7 @@ public class ResponseBuilderTests extends TestCase {
 		WbxmlOutput output = WbxmlOutput.of(bos);
 		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(null, output);
 		LatchCountdown completion = new LatchCountdown();
-		builder.start(NamespaceMapping.Sync).end(completion);
+		builder.start(NamespaceMapping.SYNC).end(completion);
 		completion.expectCompletion();
 		byte[] wbxmlBytes = bos.toByteArray();
 		assertNotNull(wbxmlBytes);
@@ -93,7 +93,7 @@ public class ResponseBuilderTests extends TestCase {
 		WbxmlOutput output = WbxmlOutput.of(bos);
 		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(null, output);
 		LatchCountdown completion = new LatchCountdown();
-		builder.start(NamespaceMapping.Sync);
+		builder.start(NamespaceMapping.SYNC);
 		builder.container("Collections").container("Collection").endContainer().endContainer().end(completion);
 		completion.expectCompletion();
 		byte[] wbxmlBytes = bos.toByteArray();
@@ -112,10 +112,10 @@ public class ResponseBuilderTests extends TestCase {
 		WbxmlOutput output = WbxmlOutput.of(bos);
 		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(null, output);
 		LatchCountdown completion = new LatchCountdown();
-		builder.start(NamespaceMapping.Sync);
+		builder.start(NamespaceMapping.SYNC);
 		builder.container("Collections");
 		builder.container("Collection").endContainer();
-		builder.container(NamespaceMapping.Sync, "Collection").endContainer();
+		builder.container(NamespaceMapping.SYNC, "Collection").endContainer();
 		builder.endContainer(); // collections
 		builder.end(completion);
 		completion.expectCompletion();
@@ -131,7 +131,7 @@ public class ResponseBuilderTests extends TestCase {
 		WbxmlOutput output = WbxmlOutput.of(bos);
 		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(null, output);
 		LatchCountdown completion = new LatchCountdown();
-		builder.start(NamespaceMapping.Sync);
+		builder.start(NamespaceMapping.SYNC);
 		builder.container("Collections").container("Collection");
 		builder.text("SyncKey", "123456");
 		builder.token("MoreAvailable");
@@ -149,14 +149,14 @@ public class ResponseBuilderTests extends TestCase {
 		WbxmlOutput output = WbxmlOutput.of(bos);
 		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(null, output);
 		final LatchCountdown completion = new LatchCountdown();
-		builder.start(NamespaceMapping.Sync);
+		builder.start(NamespaceMapping.SYNC);
 		builder.container("Collections").container("Collection");
 		builder.text("SyncKey", "123456");
 		builder.container("Commands");
 		builder.container("Add");
 		builder.text("ServerId", "42:666");
 		builder.container("ApplicationData");
-		builder.container(NamespaceMapping.AirSyncBase, "Body");
+		builder.container(NamespaceMapping.AIR_SYNC_BASE, "Body");
 		DisposableByteSource streamable = randomStreamData(4 * 8192);
 		builder.stream("Data", streamable, new Callback<IResponseBuilder>() {
 
@@ -183,7 +183,7 @@ public class ResponseBuilderTests extends TestCase {
 		WbxmlOutput output = WbxmlOutput.of(bos);
 		IResponseBuilder builder = new WbxmlResponseBuilder(null, output);
 		final LatchCountdown completion = new LatchCountdown();
-		builder.start(NamespaceMapping.Sync);
+		builder.start(NamespaceMapping.SYNC);
 		builder.container("Collections").container("Collection");
 		builder.text("SyncKey", "123456");
 		builder.container("Commands");
@@ -198,11 +198,11 @@ public class ResponseBuilderTests extends TestCase {
 
 			@Override
 			public void beforeAsync(IResponseBuilder b, DisposableByteSource t, Callback<IResponseBuilder> forAsync) {
-				b.container(NamespaceMapping.Sync, "Add");
-				b.text(NamespaceMapping.Sync, "ServerId", "42:" + System.currentTimeMillis());
-				b.container(NamespaceMapping.Sync, "ApplicationData");
-				b.container(NamespaceMapping.AirSyncBase, "Body");
-				b.stream(NamespaceMapping.AirSyncBase, "Data", t, forAsync);
+				b.container(NamespaceMapping.SYNC, "Add");
+				b.text(NamespaceMapping.SYNC, "ServerId", "42:" + System.currentTimeMillis());
+				b.container(NamespaceMapping.SYNC, "ApplicationData");
+				b.container(NamespaceMapping.AIR_SYNC_BASE, "Body");
+				b.stream(NamespaceMapping.AIR_SYNC_BASE, "Data", t, forAsync);
 			}
 
 			@Override

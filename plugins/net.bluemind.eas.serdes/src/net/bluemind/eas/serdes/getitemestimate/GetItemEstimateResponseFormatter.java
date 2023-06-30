@@ -31,7 +31,7 @@ public class GetItemEstimateResponseFormatter implements IEasResponseFormatter<G
 	@Override
 	public void format(IResponseBuilder builder, double protocolVersion, GetItemEstimateResponse response,
 			Callback<Void> completion) {
-		builder.start(NamespaceMapping.GetItemEstimate);
+		builder.start(NamespaceMapping.GET_ITEM_ESTIMATE);
 
 		if (response.responses != null && !response.responses.isEmpty()) {
 

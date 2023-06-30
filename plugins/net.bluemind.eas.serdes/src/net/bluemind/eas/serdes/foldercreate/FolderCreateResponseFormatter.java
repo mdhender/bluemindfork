@@ -29,7 +29,7 @@ public class FolderCreateResponseFormatter implements IEasResponseFormatter<Fold
 	@Override
 	public void format(IResponseBuilder builder, double protocolVersion, FolderCreateResponse response,
 			Callback<Void> completion) {
-		builder.start(NamespaceMapping.FolderCreate);
+		builder.start(NamespaceMapping.FOLDER_CREATE);
 
 		builder.text("Status", response.status.xmlValue());
 

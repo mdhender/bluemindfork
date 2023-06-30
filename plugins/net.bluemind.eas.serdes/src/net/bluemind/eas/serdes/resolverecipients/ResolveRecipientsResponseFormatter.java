@@ -72,7 +72,7 @@ public class ResolveRecipientsResponseFormatter implements IEasResponseFormatter
 	@Override
 	public void format(IResponseBuilder builder, double protocolVersion, ResolveRecipientsResponse response,
 			Callback<Void> completion) {
-		builder.start(NamespaceMapping.ResolveRecipients);
+		builder.start(NamespaceMapping.RESOLVE_RECIPIENTS);
 
 		builder.text("Status", response.status.xmlValue());
 

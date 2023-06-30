@@ -72,7 +72,14 @@ public class CoreConnect {
 		return in;
 	}
 
-	public IMailboxFolders getIMailboxFoldersService(BackendSession bs, CollectionId collectionId) {
+	public IMailboxFolders getMailboxFoldersService(BackendSession bs) {
+		CyrusPartition part = CyrusPartition.forServerAndDomain(bs.getUser().getDataLocation(),
+				bs.getUser().getDomain());
+		String mailboxRoot = "user." + bs.getUser().getUid().replace('.', '^');
+		return provider(bs).instance(IMailboxFolders.class, part.name, mailboxRoot);
+	}
+
+	public IMailboxFolders getMailboxFoldersServiceByCollection(BackendSession bs, CollectionId collectionId) {
 		CyrusPartition part = CyrusPartition.forServerAndDomain(bs.getUser().getDataLocation(),
 				bs.getUser().getDomain());
 

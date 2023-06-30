@@ -26,7 +26,6 @@ import io.vertx.core.Handler;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
-import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.provision.ProvisionRequest;
 import net.bluemind.eas.dto.provision.ProvisionResponse;
 import net.bluemind.eas.dto.provision.ProvisionResponse.Policies.Policy.EASProvisionDoc;
@@ -114,13 +113,7 @@ public class ProvisionProtocol implements IEasProtocol<ProvisionRequest, Provisi
 		ProvisionResponseFormatter formatter = new ProvisionResponseFormatter();
 		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(),
 				responder.asOutput(ConnectionHeader.close));
-		formatter.format(builder, bs.getProtocolVersion(), response, new Callback<Void>() {
-
-			@Override
-			public void onResult(Void data) {
-				completion.handle(null);
-			}
-		});
+		formatter.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 	}
 
 	@Override

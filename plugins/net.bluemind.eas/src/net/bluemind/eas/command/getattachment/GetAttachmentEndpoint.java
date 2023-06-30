@@ -19,11 +19,10 @@
 package net.bluemind.eas.command.getattachment;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableList;
 
 import io.vertx.core.WorkerExecutor;
 import net.bluemind.eas.backend.BackendSession;
@@ -80,7 +79,7 @@ public final class GetAttachmentEndpoint implements IEasRequestEndpoint {
 
 	@Override
 	public Collection<String> supportedCommands() {
-		return ImmutableList.of("GetAttachment");
+		return List.of("GetAttachment");
 	}
 
 	@Override

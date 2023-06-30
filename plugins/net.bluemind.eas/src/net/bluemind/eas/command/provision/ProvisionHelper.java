@@ -30,18 +30,22 @@ public class ProvisionHelper {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProvisionHelper.class);
 
-	public static void forceProvisionProto14(String cmd, Responder resp) {
-		logger.info("Force provision protocol 14.1");
+	private ProvisionHelper() {
+
+	}
+
+	public static void forceProvision(String cmd, Responder resp) {
+		logger.info("Force provision protocol > 14");
 		errorStatus(cmd, resp, 142);
 	}
 
-	public static void forceWipeProto14(String cmd, Responder resp) {
-		logger.info("Force wipe protocol 14.1");
+	public static void forceWipe(String cmd, Responder resp) {
+		logger.info("Force wipe protocol > 14");
 		errorStatus(cmd, resp, 140);
 	}
 
 	private static void errorStatus(String cmd, Responder resp, int status) {
-		NamespaceMapping mapping = NamespaceMapping.valueOf(cmd);
+		NamespaceMapping mapping = NamespaceMapping.of(cmd);
 		Document doc = DOMUtils.createDoc(mapping.namespace(), mapping.root());
 		DOMUtils.createElementAndText(doc.getDocumentElement(), "Status", "" + status);
 		resp.sendResponse(mapping, doc);

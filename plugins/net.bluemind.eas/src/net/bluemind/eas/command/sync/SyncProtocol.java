@@ -168,7 +168,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 				try {
 					maxInterval = Integer.parseInt(maxString);
 				} catch (NumberFormatException nfe) {
-					logger.error("Invalid heartbeat value: " + maxString);
+					logger.error("Invalid heartbeat value: {}", maxString);
 				}
 			}
 			if (sr.heartbeatInterval > maxInterval) {
@@ -251,7 +251,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 				for (CollectionSyncRequest sc : collections) {
 					CollectionSyncResponse csr = new CollectionSyncResponse();
 					csr.collectionId = sc.getCollectionId().getValue();
-					CollectionChanges serverChanges = serverChanges(bs, sc, new ArrayList<String>());
+					CollectionChanges serverChanges = serverChanges(bs, sc, new ArrayList<>());
 					csr.commands = serverChanges.commands;
 					csr.status = serverChanges.status;
 					csr.syncKey = serverChanges.syncKey;
@@ -422,12 +422,9 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			return;
 		}
 
-		Callback<Void> cb = new Callback<Void>() {
-			@Override
-			public void onResult(Void dom) {
-				Backends.internalStorage().updateLastSync(bs);
-				completion.handle(null);
-			}
+		Callback<Void> cb = dom -> {
+			Backends.internalStorage().updateLastSync(bs);
+			completion.handle(null);
 		};
 		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
 		SyncResponseFormatter srf = new SyncResponseFormatter();
@@ -678,7 +675,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		IDataDecoder dd = decoders.get(dataClass);
 		logger.info("[{}] processing Add (cli: {})", bs.getLoginAtDomain(), clientId);
 		IApplicationData data = dd.decode(bs, syncData);
-		HashMap<String, IApplicationData> d = new HashMap<String, IApplicationData>();
+		HashMap<String, IApplicationData> d = new HashMap<>();
 		d.put(null, data);
 		try {
 			CollectionItem bmId = importer.importMessageChange(bs, collection.getCollectionId(), dataClass,

@@ -38,7 +38,6 @@ import net.bluemind.eas.backend.IBackend;
 import net.bluemind.eas.backend.MoveSourceAndDestination;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
-import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.base.CollectionItem;
 import net.bluemind.eas.dto.moveitems.MoveItemsRequest;
 import net.bluemind.eas.dto.moveitems.MoveItemsResponse;
@@ -93,7 +92,7 @@ public class MoveItemsProtocol implements IEasProtocol<MoveItemsRequest, MoveIte
 		this.bs = bs;
 
 		Multimap<MoveSourceAndDestination, CollectionItem> toMove = HashMultimap.create();
-		Map<String, Optional<HierarchyNode>> folderCache = new HashMap<String, Optional<HierarchyNode>>();
+		Map<String, Optional<HierarchyNode>> folderCache = new HashMap<>();
 
 		MoveItemsResponse response = new MoveItemsResponse();
 		response.moveItems = new ArrayList<>(query.moveItems.size());
@@ -127,11 +126,11 @@ public class MoveItemsProtocol implements IEasProtocol<MoveItemsRequest, MoveIte
 
 		toMove.asMap().forEach((folders, items) -> {
 			ItemDataType dataClass = ItemDataType.getValue(folders.getSource().containerType);
-			List<MoveItemsResponse.Response> res = new ArrayList<MoveItemsResponse.Response>(items.size());
+			List<MoveItemsResponse.Response> res = new ArrayList<>(items.size());
 
 			try {
 				res = backend.getContentsImporter(bs).importMoveItems(bs, dataClass, folders.getSource(),
-						folders.getDestination(), new ArrayList<CollectionItem>(items));
+						folders.getDestination(), new ArrayList<>(items));
 			} catch (ActiveSyncException e) {
 				logger.error(e.getMessage(), e);
 				for (CollectionItem ci : items) {
@@ -185,13 +184,7 @@ public class MoveItemsProtocol implements IEasProtocol<MoveItemsRequest, MoveIte
 		}
 		MoveItemsFormatter formatter = new MoveItemsFormatter();
 		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
-		formatter.format(builder, bs.getProtocolVersion(), response, new Callback<Void>() {
-
-			@Override
-			public void onResult(Void data) {
-				completion.handle(null);
-			}
-		});
+		formatter.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 	}
 
 	@Override

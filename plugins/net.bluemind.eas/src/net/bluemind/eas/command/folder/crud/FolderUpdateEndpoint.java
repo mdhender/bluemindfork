@@ -19,12 +19,11 @@
 package net.bluemind.eas.command.folder.crud;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-
-import com.google.common.collect.ImmutableList;
 
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.IEasRequestEndpoint;
@@ -50,7 +49,7 @@ public class FolderUpdateEndpoint extends WbxmlHandlerBase implements IEasReques
 
 	@Override
 	public Collection<String> supportedCommands() {
-		return ImmutableList.of("FolderUpdate");
+		return List.of("FolderUpdate");
 	}
 
 	@Override

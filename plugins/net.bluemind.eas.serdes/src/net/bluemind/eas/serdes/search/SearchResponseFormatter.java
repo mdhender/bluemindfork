@@ -44,7 +44,7 @@ public class SearchResponseFormatter implements IEasResponseFormatter<SearchResp
 	@Override
 	public void format(IResponseBuilder builder, final double protocolVersion, final SearchResponse response,
 			final Callback<Void> completion) {
-		builder.start(NamespaceMapping.Search).text("Status", response.status.xmlValue());
+		builder.start(NamespaceMapping.SEARCH).text("Status", response.status.xmlValue());
 
 		if (response.store != null) {
 			builder.container("Response").container("Store");
@@ -56,8 +56,8 @@ public class SearchResponseFormatter implements IEasResponseFormatter<SearchResp
 					@Override
 					public void onResult(IResponseBuilder data) {
 
-						data.text(NamespaceMapping.Search, "Range", response.range.min + "-" + response.range.max);
-						data.text(NamespaceMapping.Search, "Total", response.total.toString());
+						data.text(NamespaceMapping.SEARCH, "Range", response.range.min + "-" + response.range.max);
+						data.text(NamespaceMapping.SEARCH, "Total", response.total.toString());
 						data.endContainer(); // Response
 						data.endContainer(); // Store
 						data.end(completion);
@@ -91,18 +91,18 @@ public class SearchResponseFormatter implements IEasResponseFormatter<SearchResp
 
 	private void buildOneResult(IResponseBuilder builder, final double protocolVersion, final SearchResult result,
 			final Callback<IResponseBuilder> forAsync) {
-		builder.container(NamespaceMapping.Search, "Result");
+		builder.container(NamespaceMapping.SEARCH, "Result");
 		if (result.clazz != null) {
-			builder.text(NamespaceMapping.Sync, "Class", result.clazz);
+			builder.text(NamespaceMapping.SYNC, "Class", result.clazz);
 		}
 		if (result.longId != null) {
-			builder.text(NamespaceMapping.Search, "LongId", result.longId.toString());
+			builder.text(NamespaceMapping.SEARCH, "LongId", result.longId.toString());
 		}
 		if (result.collectionId != null) {
-			builder.text(NamespaceMapping.Sync, "CollectionId", result.collectionId.getValue());
+			builder.text(NamespaceMapping.SYNC, "CollectionId", result.collectionId.getValue());
 		}
 
-		builder.container(NamespaceMapping.Search, "Properties");
+		builder.container(NamespaceMapping.SEARCH, "Properties");
 
 		// Airsync
 

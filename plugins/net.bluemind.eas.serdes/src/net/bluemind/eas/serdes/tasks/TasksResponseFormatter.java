@@ -32,33 +32,33 @@ public class TasksResponseFormatter implements IEasFragmentFormatter<TasksRespon
 			Callback<IResponseBuilder> completion) {
 
 		if (notEmpty(response.subject)) {
-			builder.text(NamespaceMapping.Tasks, "Subject", response.subject);
+			builder.text(NamespaceMapping.TASKS, "Subject", response.subject);
 		}
 
 		if (response.importance != null) {
-			builder.text(NamespaceMapping.Tasks, "Importance", response.importance.xmlValue());
+			builder.text(NamespaceMapping.TASKS, "Importance", response.importance.xmlValue());
 		}
 
 		if (response.utcStartDate != null) {
-			builder.text(NamespaceMapping.Tasks, "UtcStartDate", FastDateTimeFormat.format(response.utcStartDate));
+			builder.text(NamespaceMapping.TASKS, "UtcStartDate", FastDateTimeFormat.format(response.utcStartDate));
 		}
 
 		if (response.startDate != null) {
-			builder.text(NamespaceMapping.Tasks, "StartDate", FastDateTimeFormat.format(response.startDate));
+			builder.text(NamespaceMapping.TASKS, "StartDate", FastDateTimeFormat.format(response.startDate));
 		}
 
 		if (response.utcDueDate != null) {
-			builder.text(NamespaceMapping.Tasks, "UtcDueDate", FastDateTimeFormat.format(response.utcDueDate));
+			builder.text(NamespaceMapping.TASKS, "UtcDueDate", FastDateTimeFormat.format(response.utcDueDate));
 		}
 
 		if (response.dueDate != null) {
-			builder.text(NamespaceMapping.Tasks, "DueDate", FastDateTimeFormat.format(response.dueDate));
+			builder.text(NamespaceMapping.TASKS, "DueDate", FastDateTimeFormat.format(response.dueDate));
 		}
 
 		if (response.categories != null && !response.categories.isEmpty()) {
-			builder.container(NamespaceMapping.Tasks, "Categories");
+			builder.container(NamespaceMapping.TASKS, "Categories");
 			for (String c : response.categories) {
-				builder.text(NamespaceMapping.Tasks, "Category", c);
+				builder.text(NamespaceMapping.TASKS, "Category", c);
 			}
 			builder.endContainer();
 		}
@@ -66,22 +66,22 @@ public class TasksResponseFormatter implements IEasFragmentFormatter<TasksRespon
 		// TODO: reccurence
 
 		if (response.complete != null) {
-			builder.text(NamespaceMapping.Tasks, "Complete", response.complete ? "1" : "0");
+			builder.text(NamespaceMapping.TASKS, "Complete", response.complete ? "1" : "0");
 		}
 
 		if (response.dateCompleted != null) {
-			builder.text(NamespaceMapping.Tasks, "DateCompleted", FastDateTimeFormat.format(response.dateCompleted));
+			builder.text(NamespaceMapping.TASKS, "DateCompleted", FastDateTimeFormat.format(response.dateCompleted));
 		}
 
 		if (response.sensitivity != null) {
-			builder.text(NamespaceMapping.Tasks, "Sensitivity", response.sensitivity.xmlValue());
+			builder.text(NamespaceMapping.TASKS, "Sensitivity", response.sensitivity.xmlValue());
 		}
 
 		if (response.reminderTime != null) {
-			builder.text(NamespaceMapping.Tasks, "ReminderTime", FastDateTimeFormat.format(response.reminderTime));
+			builder.text(NamespaceMapping.TASKS, "ReminderTime", FastDateTimeFormat.format(response.reminderTime));
 		}
 		if (response.reminderSet != null) {
-			builder.text(NamespaceMapping.Tasks, "ReminderSet", response.reminderSet ? "1" : "0");
+			builder.text(NamespaceMapping.TASKS, "ReminderSet", response.reminderSet ? "1" : "0");
 		}
 
 		// <xs:element name="OrdinalDate" type="xs:dateTime"/>

@@ -40,6 +40,8 @@ import net.bluemind.eas.backend.bm.task.TaskBackend;
 import net.bluemind.eas.dto.base.AppData;
 import net.bluemind.eas.dto.base.BodyOptions;
 import net.bluemind.eas.dto.email.AttachmentResponse;
+import net.bluemind.eas.dto.find.FindRequest;
+import net.bluemind.eas.dto.find.FindResponse.Response;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsRequest;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse.Response.Recipient;
@@ -50,6 +52,7 @@ import net.bluemind.eas.dto.sync.FilterType;
 import net.bluemind.eas.dto.sync.SyncState;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.ActiveSyncException;
+import net.bluemind.eas.exception.CollectionNotFoundException;
 import net.bluemind.eas.exception.ObjectNotFoundException;
 
 public class ContentsExporter extends CoreConnect implements IContentsExporter {
@@ -159,13 +162,11 @@ public class ContentsExporter extends CoreConnect implements IContentsExporter {
 		Map<String, String> parsedAttId = AttachmentHelper.parseAttachmentId(attachmentId);
 		String type = parsedAttId.get(AttachmentHelper.TYPE);
 
-		if (AttachmentHelper.BM_FILEHOSTING.equals(type)) {
-			return mailBackend.getAttachment(bs, attachmentId);
-		} else if (AttachmentHelper.BM_FILEHOSTING_EVENT.equals(type)) {
+		if (AttachmentHelper.BM_FILEHOSTING_EVENT.equals(type)) {
 			return calBackend.getAttachment(bs, parsedAttId);
+		} else {
+			return mailBackend.getAttachment(bs, attachmentId);
 		}
-
-		throw new ActiveSyncException("Failed to fetch attachment " + attachmentId);
 
 	}
 
@@ -227,6 +228,11 @@ public class ContentsExporter extends CoreConnect implements IContentsExporter {
 	@Override
 	public Availability fetchAvailability(BackendSession bs, String entryUid, Date startTime, Date endTime) {
 		return calBackend.fetchAvailability(bs, entryUid, startTime, endTime);
+	}
+
+	@Override
+	public Response find(BackendSession bs, FindRequest query) throws CollectionNotFoundException {
+		return mailBackend.find(bs, query);
 	}
 
 }

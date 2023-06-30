@@ -85,11 +85,11 @@ public class InlineBodyOutput implements IBodyOutput {
 						// BM-9841
 						if (ad.options != null && ad.options.range != null) {
 							int len = (int) body.body.data.size();
-							builder.text(NamespaceMapping.ItemOperations, "Range", "0-" + (len - 1));
-							builder.text(NamespaceMapping.ItemOperations, "Total", Integer.toString(len));
+							builder.text(NamespaceMapping.ITEM_OPERATIONS, "Range", "0-" + (len - 1));
+							builder.text(NamespaceMapping.ITEM_OPERATIONS, "Total", Integer.toString(len));
 						}
 
-						builder.base64(NamespaceMapping.ItemOperations, "Data", body.body.data, done);
+						builder.base64(NamespaceMapping.ITEM_OPERATIONS, "Data", body.body.data, done);
 					}
 				}
 			});

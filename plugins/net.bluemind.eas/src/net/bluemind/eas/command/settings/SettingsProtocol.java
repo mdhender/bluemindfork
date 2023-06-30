@@ -26,7 +26,6 @@ import io.vertx.core.Handler;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
-import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.settings.SettingsRequest;
 import net.bluemind.eas.dto.settings.SettingsResponse;
 import net.bluemind.eas.dto.settings.SettingsResponse.DeviceInformation;
@@ -96,13 +95,7 @@ public class SettingsProtocol implements IEasProtocol<SettingsRequest, SettingsR
 
 		SettingsResponseFormatter formatter = new SettingsResponseFormatter();
 		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
-		formatter.format(builder, bs.getProtocolVersion(), response, new Callback<Void>() {
-
-			@Override
-			public void onResult(Void data) {
-				completion.handle(null);
-			}
-		});
+		formatter.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 	}
 
 	@Override

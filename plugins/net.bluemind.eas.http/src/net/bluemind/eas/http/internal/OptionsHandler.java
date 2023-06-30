@@ -45,7 +45,7 @@ public final class OptionsHandler implements Handler<AuthorizedDeviceQuery> {
 		// BM-4843
 		headers.add(EasHeaders.Server.PROTOCOL_VERSIONS, "2.0,2.1,2.5,12.0,12.1,14.0,14.1,16.0,16.1");
 		headers.add(EasHeaders.Server.SUPPORTED_COMMANDS,
-				"Sync,SendMail,SmartForward,SmartReply,GetAttachment,GetHierarchy,CreateCollection,DeleteCollection,MoveCollection,FolderSync,FolderCreate,FolderDelete,FolderUpdate,MoveItems,GetItemEstimate,MeetingResponse,Search,Settings,Ping,ItemOperations,Provision,ResolveRecipients,ValidateCert");
+				"Sync,SendMail,SmartForward,SmartReply,GetAttachment,GetHierarchy,CreateCollection,DeleteCollection,MoveCollection,Find,FolderSync,FolderCreate,FolderDelete,FolderUpdate,MoveItems,GetItemEstimate,MeetingResponse,Search,Settings,Ping,ItemOperations,Provision,ResolveRecipients,ValidateCert");
 		headers.add("Public", "OPTIONS,POST");
 		headers.add(HttpHeaders.ALLOW, "OPTIONS,POST");
 		headers.add(HttpHeaders.CACHE_CONTROL, "private");

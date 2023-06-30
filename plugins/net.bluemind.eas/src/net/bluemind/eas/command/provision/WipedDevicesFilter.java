@@ -57,7 +57,7 @@ public final class WipedDevicesFilter implements IEasRequestFilter {
 			} else if (query.protocolVersion() < 14) {
 				responder.sendStatus(449);
 			} else {
-				ProvisionHelper.forceWipeProto14(query.command(), responder);
+				ProvisionHelper.forceWipe(query.command(), responder);
 			}
 		} else {
 			logger.debug("Not wiped.");
@@ -92,7 +92,7 @@ public final class WipedDevicesFilter implements IEasRequestFilter {
 
 			DOMUtils.createElement(root, "RemoteWipe");
 
-			responder.sendResponse(NamespaceMapping.Provision, ret);
+			responder.sendResponse(NamespaceMapping.PROVISION, ret);
 		} catch (Exception e) {
 			logger.error("Error creating provision RemoteWipe", e);
 		}

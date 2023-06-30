@@ -40,63 +40,63 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 	public void append(IResponseBuilder b, double protocolVersion, CalendarResponse calendar,
 			Callback<IResponseBuilder> cb) {
 		if (notEmpty(calendar.timezone)) {
-			b.text(NamespaceMapping.Calendar, "Timezone", calendar.timezone);
+			b.text(NamespaceMapping.CALENDAR, "Timezone", calendar.timezone);
 		}
 		if (calendar.dtStamp != null) {
-			b.text(NamespaceMapping.Calendar, "DtStamp", FastDateFormat.format(calendar.dtStamp));
+			b.text(NamespaceMapping.CALENDAR, "DtStamp", FastDateFormat.format(calendar.dtStamp));
 		}
 		if (calendar.startTime != null) {
-			b.text(NamespaceMapping.Calendar, "StartTime", FastDateFormat.format(calendar.startTime));
+			b.text(NamespaceMapping.CALENDAR, "StartTime", FastDateFormat.format(calendar.startTime));
 		}
 		if (notEmpty(calendar.subject)) {
-			b.text(NamespaceMapping.Calendar, "Subject", calendar.subject);
+			b.text(NamespaceMapping.CALENDAR, "Subject", calendar.subject);
 		}
 		if (notEmpty(calendar.location)) {
-			b.text(NamespaceMapping.Calendar, "Location", calendar.location);
+			b.text(NamespaceMapping.CALENDAR, "Location", calendar.location);
 		}
 		if (notEmpty(calendar.uid)) {
-			b.text(NamespaceMapping.Calendar, "UID", calendar.uid);
+			b.text(NamespaceMapping.CALENDAR, "UID", calendar.uid);
 		}
 		if (notEmpty(calendar.organizerName)) {
-			b.text(NamespaceMapping.Calendar, "OrganizerName", calendar.organizerName);
+			b.text(NamespaceMapping.CALENDAR, "OrganizerName", calendar.organizerName);
 		}
 		if (notEmpty(calendar.organizerEmail)) {
-			b.text(NamespaceMapping.Calendar, "OrganizerEmail", calendar.organizerEmail);
+			b.text(NamespaceMapping.CALENDAR, "OrganizerEmail", calendar.organizerEmail);
 		}
 		if (calendar.endTime != null) {
-			b.text(NamespaceMapping.Calendar, "EndTime", FastDateFormat.format(calendar.endTime));
+			b.text(NamespaceMapping.CALENDAR, "EndTime", FastDateFormat.format(calendar.endTime));
 		}
 		if (calendar.sensitivity != null) {
-			b.text(NamespaceMapping.Calendar, "Sensitivity", calendar.sensitivity.xmlValue());
+			b.text(NamespaceMapping.CALENDAR, "Sensitivity", calendar.sensitivity.xmlValue());
 		}
 		if (calendar.busyStatus != null) {
-			b.text(NamespaceMapping.Calendar, "BusyStatus", calendar.busyStatus.xmlValue());
+			b.text(NamespaceMapping.CALENDAR, "BusyStatus", calendar.busyStatus.xmlValue());
 		}
 
 		if (calendar.allDayEvent != null) {
-			b.text(NamespaceMapping.Calendar, "AllDayEvent", calendar.allDayEvent ? "1" : "0");
+			b.text(NamespaceMapping.CALENDAR, "AllDayEvent", calendar.allDayEvent ? "1" : "0");
 		}
 
 		if (calendar.reminder != null) {
-			b.text(NamespaceMapping.Calendar, "Reminder", calendar.reminder.toString());
+			b.text(NamespaceMapping.CALENDAR, "Reminder", calendar.reminder.toString());
 		}
 
 		if (calendar.meetingStatus != null) {
-			b.text(NamespaceMapping.Calendar, "MeetingStatus", calendar.meetingStatus.xmlValue());
+			b.text(NamespaceMapping.CALENDAR, "MeetingStatus", calendar.meetingStatus.xmlValue());
 		}
 
 		appendAttendees(b, calendar.attendees);
 
 		if (calendar.categories != null) {
-			b.container(NamespaceMapping.Calendar, "Categories");
+			b.container(NamespaceMapping.CALENDAR, "Categories");
 			for (String c : calendar.categories) {
-				b.text(NamespaceMapping.Calendar, "Category", c);
+				b.text(NamespaceMapping.CALENDAR, "Category", c);
 			}
 			b.endContainer();
 		}
 
 		if (calendar.recurrence != null) {
-			b.container(NamespaceMapping.Calendar, "Recurrence");
+			b.container(NamespaceMapping.CALENDAR, "Recurrence");
 			if (calendar.recurrence.type != null) {
 				b.text("Type", calendar.recurrence.type.xmlValue());
 			}
@@ -141,7 +141,7 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 		}
 
 		if (calendar.exceptions != null && !calendar.exceptions.isEmpty()) {
-			b.container(NamespaceMapping.Calendar, "Exceptions");
+			b.container(NamespaceMapping.CALENDAR, "Exceptions");
 			for (EventException e : calendar.exceptions) {
 				b.container("Exception");
 				if (e.deleted != null) {
@@ -194,7 +194,7 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 					appendAttendees(b, e.calendar.attendees);
 
 					if (e.appointmentReplyTime != null) {
-						b.text(NamespaceMapping.Calendar, "AppointmentReplyTime",
+						b.text(NamespaceMapping.CALENDAR, "AppointmentReplyTime",
 								FastDateFormat.format(e.appointmentReplyTime));
 					}
 
@@ -216,27 +216,27 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 
 		if (protocolVersion > 12.1) {
 			if (calendar.responseRequested != null) {
-				b.text(NamespaceMapping.Calendar, "ResponseRequested",
+				b.text(NamespaceMapping.CALENDAR, "ResponseRequested",
 						calendar.responseRequested.booleanValue() ? "1" : "0");
 			}
 
 			if (calendar.appointmentReplyTime != null) {
-				b.text(NamespaceMapping.Calendar, "AppointmentReplyTime",
+				b.text(NamespaceMapping.CALENDAR, "AppointmentReplyTime",
 						FastDateFormat.format(calendar.appointmentReplyTime));
 			}
 			if (calendar.responseType != null) {
-				b.text(NamespaceMapping.Calendar, "ResponseType", calendar.responseType.xmlValue());
+				b.text(NamespaceMapping.CALENDAR, "ResponseType", calendar.responseType.xmlValue());
 			}
 			if (calendar.disallowNewTimeProposal != null) {
-				b.text(NamespaceMapping.Calendar, "DisallowNewTimeProposal",
+				b.text(NamespaceMapping.CALENDAR, "DisallowNewTimeProposal",
 						calendar.disallowNewTimeProposal.booleanValue() ? "1" : "0");
 			}
 			if (protocolVersion > 14) {
 				if (notEmpty(calendar.onlineMeetingConfLink)) {
-					b.text(NamespaceMapping.Calendar, "OnlineMeetingConfLink", calendar.onlineMeetingConfLink);
+					b.text(NamespaceMapping.CALENDAR, "OnlineMeetingConfLink", calendar.onlineMeetingConfLink);
 				}
 				if (notEmpty(calendar.onlineMeetingExternalLink)) {
-					b.text(NamespaceMapping.Calendar, "OnlineMeetingExternalLink", calendar.onlineMeetingExternalLink);
+					b.text(NamespaceMapping.CALENDAR, "OnlineMeetingExternalLink", calendar.onlineMeetingExternalLink);
 				}
 			}
 		}
@@ -250,7 +250,7 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 
 	private void appendAttachments(IResponseBuilder responseBuilder, CalendarResponse calendar) {
 		if (calendar.attachments != null && !calendar.attachments.isEmpty()) {
-			responseBuilder.container(NamespaceMapping.AirSyncBase, "Attachments");
+			responseBuilder.container(NamespaceMapping.AIR_SYNC_BASE, "Attachments");
 			calendar.attachments.forEach(attachment -> {
 				responseBuilder.container("Attachment");
 				if (attachment.displayName != null) {
@@ -274,49 +274,49 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 
 	public void appendCalendarMeetingRequestResponse(IResponseBuilder b, double protocolVersion,
 			CalendarResponse calendar) {
-		b.container(NamespaceMapping.Email, "MeetingRequest");
+		b.container(NamespaceMapping.EMAIL, "MeetingRequest");
 
 		if (calendar.allDayEvent != null) {
-			b.text(NamespaceMapping.Email, "AllDayEvent", calendar.allDayEvent ? "1" : "0");
+			b.text(NamespaceMapping.EMAIL, "AllDayEvent", calendar.allDayEvent ? "1" : "0");
 		}
 		if (calendar.startTime != null) {
-			b.text(NamespaceMapping.Email, "StartTime", MeetingRequestFastDateFormat.format(calendar.startTime));
+			b.text(NamespaceMapping.EMAIL, "StartTime", MeetingRequestFastDateFormat.format(calendar.startTime));
 		}
 		if (calendar.dtStamp != null) {
-			b.text(NamespaceMapping.Email, "DtStamp", MeetingRequestFastDateFormat.format(calendar.dtStamp));
+			b.text(NamespaceMapping.EMAIL, "DtStamp", MeetingRequestFastDateFormat.format(calendar.dtStamp));
 		}
 		if (calendar.endTime != null) {
-			b.text(NamespaceMapping.Email, "EndTime", MeetingRequestFastDateFormat.format(calendar.endTime));
+			b.text(NamespaceMapping.EMAIL, "EndTime", MeetingRequestFastDateFormat.format(calendar.endTime));
 		}
 
 		if (calendar.instanceType != null) {
-			b.text(NamespaceMapping.Email, "InstanceType", calendar.instanceType.xmlValue());
+			b.text(NamespaceMapping.EMAIL, "InstanceType", calendar.instanceType.xmlValue());
 		}
 
 		if (calendar.instanceType == InstanceType.EXCEPTION_TO_RECURRING) {
-			b.text(NamespaceMapping.Email, "RecurrenceId", MeetingRequestFastDateFormat.format(calendar.recurrenceId));
+			b.text(NamespaceMapping.EMAIL, "RecurrenceId", MeetingRequestFastDateFormat.format(calendar.recurrenceId));
 		}
 
 		if (notEmpty(calendar.location)) {
 			if (protocolVersion < 16) {
-				b.text(NamespaceMapping.Email, "Location", calendar.location);
+				b.text(NamespaceMapping.EMAIL, "Location", calendar.location);
 			} else {
-				b.text(NamespaceMapping.AirSyncBase, "Location", calendar.location);
+				b.text(NamespaceMapping.AIR_SYNC_BASE, "Location", calendar.location);
 			}
 		}
 
 		if (notEmpty(calendar.organizerName) && notEmpty(calendar.organizerEmail)) {
-			b.text(NamespaceMapping.Email, "Organizer", calendar.organizerName + " <" + calendar.organizerEmail + ">");
+			b.text(NamespaceMapping.EMAIL, "Organizer", calendar.organizerName + " <" + calendar.organizerEmail + ">");
 		} else if (notEmpty(calendar.organizerEmail)) {
-			b.text(NamespaceMapping.Email, "Organizer", calendar.organizerEmail + " <" + calendar.organizerEmail + ">");
+			b.text(NamespaceMapping.EMAIL, "Organizer", calendar.organizerEmail + " <" + calendar.organizerEmail + ">");
 		} else if (notEmpty(calendar.organizerName)) {
-			b.text(NamespaceMapping.Email, "Organizer", calendar.organizerName);
+			b.text(NamespaceMapping.EMAIL, "Organizer", calendar.organizerName);
 		}
 
 		// TODO RecurrenceId
 
 		if (calendar.reminder != null) {
-			b.text(NamespaceMapping.Email, "Reminder", calendar.reminder.toString());
+			b.text(NamespaceMapping.EMAIL, "Reminder", calendar.reminder.toString());
 		}
 
 		boolean responseRequested = false;
@@ -331,74 +331,74 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 				responseRequested = true;
 			}
 		}
-		b.text(NamespaceMapping.Email, "ResponseRequested", responseRequested ? "1" : "0");
+		b.text(NamespaceMapping.EMAIL, "ResponseRequested", responseRequested ? "1" : "0");
 
 		if (calendar.recurrence != null) {
-			b.container(NamespaceMapping.Email, "Recurrences").container("Recurrence");
+			b.container(NamespaceMapping.EMAIL, "Recurrences").container("Recurrence");
 
 			if (calendar.recurrence.type != null) {
-				b.text(NamespaceMapping.Email, "Type", calendar.recurrence.type.xmlValue());
+				b.text(NamespaceMapping.EMAIL, "Type", calendar.recurrence.type.xmlValue());
 			}
 			if (calendar.recurrence.interval != null) {
-				b.text(NamespaceMapping.Email, "Interval", calendar.recurrence.interval.toString());
+				b.text(NamespaceMapping.EMAIL, "Interval", calendar.recurrence.interval.toString());
 			}
 			if (calendar.recurrence.until != null) {
-				b.text(NamespaceMapping.Email, "Until", FastDateFormat.format(calendar.recurrence.until));
+				b.text(NamespaceMapping.EMAIL, "Until", FastDateFormat.format(calendar.recurrence.until));
 			}
 			if (calendar.recurrence.occurrences != null) {
-				b.text(NamespaceMapping.Email, "Occurrences", calendar.recurrence.occurrences.toString());
+				b.text(NamespaceMapping.EMAIL, "Occurrences", calendar.recurrence.occurrences.toString());
 			}
 			if (calendar.recurrence.weekOfMonth != null) {
-				b.text(NamespaceMapping.Email, "WeekOfMonth", calendar.recurrence.weekOfMonth.toString());
+				b.text(NamespaceMapping.EMAIL, "WeekOfMonth", calendar.recurrence.weekOfMonth.toString());
 			}
 			if (calendar.recurrence.dayOfMonth != null) {
-				b.text(NamespaceMapping.Email, "DayOfMonth", calendar.recurrence.dayOfMonth.toString());
+				b.text(NamespaceMapping.EMAIL, "DayOfMonth", calendar.recurrence.dayOfMonth.toString());
 			}
 			if (calendar.recurrence.dayOfWeek != null) {
-				b.text(NamespaceMapping.Email, "DayOfWeek", calendar.recurrence.dayOfWeek.xmlValue());
+				b.text(NamespaceMapping.EMAIL, "DayOfWeek", calendar.recurrence.dayOfWeek.xmlValue());
 			}
 			if (calendar.recurrence.monthOfYear != null) {
-				b.text(NamespaceMapping.Email, "MonthOfYear", calendar.recurrence.monthOfYear.toString());
+				b.text(NamespaceMapping.EMAIL, "MonthOfYear", calendar.recurrence.monthOfYear.toString());
 			}
 			if (protocolVersion > 12.1) {
 				if (calendar.recurrence.calendarType != null) {
-					b.text(NamespaceMapping.Email2, "CalendarType", calendar.recurrence.calendarType.xmlValue());
+					b.text(NamespaceMapping.EMAIL_2, "CalendarType", calendar.recurrence.calendarType.xmlValue());
 				}
 				if (calendar.recurrence.isLeapMonth != null) {
-					b.text(NamespaceMapping.Email2, "IsLeapMonth",
+					b.text(NamespaceMapping.EMAIL_2, "IsLeapMonth",
 							calendar.recurrence.isLeapMonth.booleanValue() ? "1" : "0");
 				}
 				if (protocolVersion > 14.0 && calendar.recurrence.firstDayOfWeek != null) {
-					b.text(NamespaceMapping.Email2, "FirstDayOfWeek", calendar.recurrence.firstDayOfWeek.xmlValue());
+					b.text(NamespaceMapping.EMAIL_2, "FirstDayOfWeek", calendar.recurrence.firstDayOfWeek.xmlValue());
 				}
 			}
 			b.endContainer().endContainer(); // recurrences/recurrence
 		}
 
 		if (calendar.sensitivity != null) {
-			b.text(NamespaceMapping.Email, "Sensitivity", calendar.sensitivity.xmlValue());
+			b.text(NamespaceMapping.EMAIL, "Sensitivity", calendar.sensitivity.xmlValue());
 		}
 		if (calendar.busyStatus != null) {
-			b.text(NamespaceMapping.Email, "BusyStatus", calendar.busyStatus.xmlValue());
+			b.text(NamespaceMapping.EMAIL, "BusyStatus", calendar.busyStatus.xmlValue());
 		}
 		if (notEmpty(calendar.timezone)) {
-			b.text(NamespaceMapping.Email, "TimeZone", calendar.timezone);
+			b.text(NamespaceMapping.EMAIL, "TimeZone", calendar.timezone);
 		} else {
-			b.text(NamespaceMapping.Email, "TimeZone",
+			b.text(NamespaceMapping.EMAIL, "TimeZone",
 					"xP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAFAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAFAAIAAAAAAAAAxP///w==");
 		}
 
 		if (protocolVersion < 16) {
 			String globalObjId = ExtIdConverter.fromExtId(calendar.uid);
-			b.text(NamespaceMapping.Email, "GlobalObjId", toB64(ExtIdConverter.fromHexString(globalObjId)));
+			b.text(NamespaceMapping.EMAIL, "GlobalObjId", toB64(ExtIdConverter.fromHexString(globalObjId)));
 		} else {
-			b.text(NamespaceMapping.Calendar, "UID", calendar.uid);
+			b.text(NamespaceMapping.CALENDAR, "UID", calendar.uid);
 		}
 
 		if (protocolVersion > 12.1) {
-			b.text(NamespaceMapping.Email, "DisallowNewTimeProposal", "1");
+			b.text(NamespaceMapping.EMAIL, "DisallowNewTimeProposal", "1");
 			if (protocolVersion > 14) {
-				b.text(NamespaceMapping.Email2, "MeetingMessageType", "1");
+				b.text(NamespaceMapping.EMAIL_2, "MeetingMessageType", "1");
 			}
 		}
 		b.endContainer();
@@ -410,7 +410,7 @@ public class CalendarResponseFormatter implements IEasFragmentFormatter<Calendar
 
 	private void appendAttendees(IResponseBuilder b, List<Attendee> attendees) {
 		if (attendees != null && !attendees.isEmpty()) {
-			b.container(NamespaceMapping.Calendar, "Attendees");
+			b.container(NamespaceMapping.CALENDAR, "Attendees");
 			for (Attendee a : attendees) {
 				b.container("Attendee");
 				if (a.email != null) {

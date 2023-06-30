@@ -350,7 +350,7 @@ public class ItemOperationsEndpointTests extends AbstractEndpointTest {
 		assertNotNull(multipart);
 		Document doc = WBXMLTools.toXml(multipart.getBytes());
 		assertNotNull(doc);
-		NodeList nodes = doc.getElementsByTagNameNS(NamespaceMapping.ItemOperations.namespace(), "Data");
+		NodeList nodes = doc.getElementsByTagNameNS(NamespaceMapping.ITEM_OPERATIONS.namespace(), "Data");
 		assertEquals(1, nodes.getLength());
 		Element dataNode = (Element) nodes.item(0);
 		byte[] imageBytes = Base64.getDecoder().decode(dataNode.getTextContent());
@@ -370,9 +370,9 @@ public class ItemOperationsEndpointTests extends AbstractEndpointTest {
 		assertNotNull(multipart);
 		Document doc = WBXMLTools.toXml(multipart.getBytes());
 		assertNotNull(doc);
-		NodeList dataNodes = doc.getElementsByTagNameNS(NamespaceMapping.ItemOperations.namespace(), "Data");
+		NodeList dataNodes = doc.getElementsByTagNameNS(NamespaceMapping.ITEM_OPERATIONS.namespace(), "Data");
 		assertEquals(15, dataNodes.getLength());
-		NodeList typeNodes = doc.getElementsByTagNameNS(NamespaceMapping.AirSyncBase.namespace(), "ContentType");
+		NodeList typeNodes = doc.getElementsByTagNameNS(NamespaceMapping.AIR_SYNC_BASE.namespace(), "ContentType");
 		assertEquals(15, typeNodes.getLength());
 		for (int i = 0; i < dataNodes.getLength(); i++) {
 			Element dataNode = (Element) dataNodes.item(i);
@@ -395,7 +395,7 @@ public class ItemOperationsEndpointTests extends AbstractEndpointTest {
 		assertNotNull(multipart);
 		Document doc = WBXMLTools.toXml(multipart.getBytes());
 		assertNotNull(doc);
-		NodeList dataNodes = doc.getElementsByTagNameNS(NamespaceMapping.AirSyncBase.namespace(), "Data");
+		NodeList dataNodes = doc.getElementsByTagNameNS(NamespaceMapping.AIR_SYNC_BASE.namespace(), "Data");
 		assertEquals(5, dataNodes.getLength());
 		for (int i = 0; i < dataNodes.getLength(); i++) {
 			Element dataNode = (Element) dataNodes.item(i);

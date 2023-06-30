@@ -36,9 +36,9 @@ public class AirSyncBaseResponseFormatter implements IEasFragmentFormatter<AirSy
 			final Callback<IResponseBuilder> completion) {
 
 		if (airSyncBase.attachments != null && !airSyncBase.attachments.isEmpty()) {
-			builder.container(NamespaceMapping.AirSyncBase, "Attachments");
+			builder.container(NamespaceMapping.AIR_SYNC_BASE, "Attachments");
 			for (Attachment a : airSyncBase.attachments) {
-				builder.container(NamespaceMapping.AirSyncBase, "Attachment");
+				builder.container(NamespaceMapping.AIR_SYNC_BASE, "Attachment");
 				if (a.displayName != null) {
 					builder.text("DisplayName", a.displayName);
 				}
@@ -65,7 +65,7 @@ public class AirSyncBaseResponseFormatter implements IEasFragmentFormatter<AirSy
 		}
 
 		if (airSyncBase.body != null) {
-			builder.container(NamespaceMapping.AirSyncBase, "Body");
+			builder.container(NamespaceMapping.AIR_SYNC_BASE, "Body");
 
 			if (airSyncBase.body.type != null) {
 				builder.text("Type", airSyncBase.body.type.xmlValue());
@@ -101,11 +101,11 @@ public class AirSyncBaseResponseFormatter implements IEasFragmentFormatter<AirSy
 			logger.warn("bodyPart is not supported");
 		}
 		if (airSyncBase.nativeBodyType != null) {
-			builder.text(NamespaceMapping.AirSyncBase, "NativeBodyType", airSyncBase.nativeBodyType.xmlValue());
+			builder.text(NamespaceMapping.AIR_SYNC_BASE, "NativeBodyType", airSyncBase.nativeBodyType.xmlValue());
 		}
 
 		if (airSyncBase.contentType != null) {
-			builder.text(NamespaceMapping.AirSyncBase, "ContentType", airSyncBase.contentType);
+			builder.text(NamespaceMapping.AIR_SYNC_BASE, "ContentType", airSyncBase.contentType);
 		}
 
 		completion.onResult(builder);

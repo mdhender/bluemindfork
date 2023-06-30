@@ -29,7 +29,7 @@ public class PingResponseFormatter implements IEasResponseFormatter<PingResponse
 	@Override
 	public void format(IResponseBuilder builder, double protocolVersion, PingResponse response,
 			Callback<Void> completion) {
-		builder.start(NamespaceMapping.Ping);
+		builder.start(NamespaceMapping.PING);
 		builder.text("Status", response.status.xmlValue());
 		if (response.folders != null) {
 			builder.container("Folders");

@@ -47,7 +47,7 @@ public class ItemOperationsFormatter implements IEasResponseFormatter<ItemOperat
 	public void format(IResponseBuilder builder, final double protocolVersion, ItemOperationsResponse response,
 			final Callback<Void> completion) {
 		IResponseBuilder b = builder;
-		b.start(NamespaceMapping.ItemOperations);
+		b.start(NamespaceMapping.ITEM_OPERATIONS);
 		b.text("Status", response.status.xmlValue());
 
 		IBodyOutput tmp = null;
@@ -57,7 +57,7 @@ public class ItemOperationsFormatter implements IEasResponseFormatter<ItemOperat
 			tmp = new MultipartBodyOutput();
 		}
 		final IBodyOutput output = tmp;
-		b.container(NamespaceMapping.ItemOperations, "Response");
+		b.container(NamespaceMapping.ITEM_OPERATIONS, "Response");
 		IBuildOperation<Response, IResponseBuilder> buildOp = new IBuildOperation<ItemOperationsResponse.Response, IResponseBuilder>() {
 
 			@Override
@@ -94,7 +94,7 @@ public class ItemOperationsFormatter implements IEasResponseFormatter<ItemOperat
 	}
 
 	private void appendMove(IResponseBuilder b, Move item, Callback<IResponseBuilder> cb) {
-		b.container(NamespaceMapping.ItemOperations, "Move");
+		b.container(NamespaceMapping.ITEM_OPERATIONS, "Move");
 		b.text("Status", item.status.xmlValue());
 		b.text("ConversationId", item.conversationId);
 		b.endContainer();
@@ -105,41 +105,41 @@ public class ItemOperationsFormatter implements IEasResponseFormatter<ItemOperat
 			Callback<IResponseBuilder> cb) {
 		b.container("EmptyFolderContents");
 		b.text("Status", item.status.xmlValue());
-		b.text(NamespaceMapping.Sync, "CollectionId", item.collectionId);
+		b.text(NamespaceMapping.SYNC, "CollectionId", item.collectionId);
 		b.endContainer();
 		cb.onResult(b);
 	}
 
 	private void appendFetch(final IResponseBuilder b, double protocolVersion, IBodyOutput output, final Fetch item,
 			final Callback<IResponseBuilder> done) {
-		b.container(NamespaceMapping.ItemOperations, "Fetch");
+		b.container(NamespaceMapping.ITEM_OPERATIONS, "Fetch");
 
 		b.text("Status", item.status.xmlValue());
 		if (item.collectionId != null) {
-			b.text(NamespaceMapping.Sync, "CollectionId", item.collectionId);
+			b.text(NamespaceMapping.SYNC, "CollectionId", item.collectionId);
 		}
 		if (item.serverId != null) {
-			b.text(NamespaceMapping.Sync, "ServerId", item.serverId);
+			b.text(NamespaceMapping.SYNC, "ServerId", item.serverId);
 		}
 		if (item.longId != null) {
-			b.text(NamespaceMapping.Search, "LongId", item.longId);
+			b.text(NamespaceMapping.SEARCH, "LongId", item.longId);
 		}
 		if (item.dataClass != null) {
-			b.text(NamespaceMapping.Sync, "Class", item.dataClass);
+			b.text(NamespaceMapping.SYNC, "Class", item.dataClass);
 		}
 		if (item.linkId != null) {
-			b.text(NamespaceMapping.ItemOperations, "LinkId", item.linkId);
+			b.text(NamespaceMapping.ITEM_OPERATIONS, "LinkId", item.linkId);
 		}
 		if (item.fileReference != null) {
-			b.text(NamespaceMapping.AirSyncBase, "FileReference", item.fileReference);
+			b.text(NamespaceMapping.AIR_SYNC_BASE, "FileReference", item.fileReference);
 		}
 
-		if (item.status != Status.Success) {
+		if (item.status != Status.SUCCESS) {
 			b.endContainer();
 			done.onResult(b);
 			return;
 		}
-		b.container(NamespaceMapping.ItemOperations, "Properties");
+		b.container(NamespaceMapping.ITEM_OPERATIONS, "Properties");
 		AppDataFormatter adf = new AppDataFormatter(output);
 		adf.append(b, protocolVersion, item.properties, new Callback<IResponseBuilder>() {
 
@@ -175,7 +175,7 @@ public class ItemOperationsFormatter implements IEasResponseFormatter<ItemOperat
 				} else {
 					logger.warn("Using default content type of application/octet-stream");
 				}
-				b.text(NamespaceMapping.AirSyncBase, "ContentType", contentType);
+				b.text(NamespaceMapping.AIR_SYNC_BASE, "ContentType", contentType);
 				data.endContainer(); // Properties
 				data.endContainer(); // Fetch
 				done.onResult(data);

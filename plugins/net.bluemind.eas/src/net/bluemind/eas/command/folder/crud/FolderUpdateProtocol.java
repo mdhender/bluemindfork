@@ -29,7 +29,6 @@ import net.bluemind.eas.backend.IHierarchyImporter;
 import net.bluemind.eas.backend.SyncFolder;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
-import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.folderupdate.FolderUpdateRequest;
 import net.bluemind.eas.dto.folderupdate.FolderUpdateResponse;
 import net.bluemind.eas.dto.folderupdate.FolderUpdateResponse.Status;
@@ -128,14 +127,7 @@ public class FolderUpdateProtocol implements IEasProtocol<FolderUpdateRequest, F
 
 		FolderUpdateResponseFormatter format = new FolderUpdateResponseFormatter();
 		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
-		format.format(builder, bs.getProtocolVersion(), response, new Callback<Void>() {
-
-			@Override
-			public void onResult(Void data) {
-				completion.handle(null);
-			}
-		});
-
+		format.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 	}
 
 	@Override

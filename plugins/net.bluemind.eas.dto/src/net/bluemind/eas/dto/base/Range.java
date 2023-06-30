@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.eas.dto.search;
+package net.bluemind.eas.dto.base;
 
 public class Range {
 	public int min;

@@ -32,7 +32,7 @@ public class SendMailResponseFormatter implements IEasResponseFormatter<SendMail
 		if (response == null) {
 			completion.onResult(null);
 		} else {
-			builder.start(NamespaceMapping.SendMail);
+			builder.start(NamespaceMapping.SEND_MAIL);
 			builder.text("Status", response.status.xmlValue());
 			builder.end(completion);
 		}

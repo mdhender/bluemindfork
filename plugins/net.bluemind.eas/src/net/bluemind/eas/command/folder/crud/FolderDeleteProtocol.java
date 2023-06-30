@@ -28,7 +28,6 @@ import net.bluemind.eas.backend.IBackend;
 import net.bluemind.eas.backend.IHierarchyImporter;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
-import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.folderdelete.FolderDeleteRequest;
 import net.bluemind.eas.dto.folderdelete.FolderDeleteResponse;
 import net.bluemind.eas.dto.folderdelete.FolderDeleteResponse.Status;
@@ -109,14 +108,7 @@ public class FolderDeleteProtocol implements IEasProtocol<FolderDeleteRequest, F
 
 		FolderDeleteResponseFormatter format = new FolderDeleteResponseFormatter();
 		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
-		format.format(builder, bs.getProtocolVersion(), response, new Callback<Void>() {
-
-			@Override
-			public void onResult(Void data) {
-				completion.handle(null);
-			}
-		});
-
+		format.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 	}
 
 	@Override

@@ -25,6 +25,8 @@ import java.util.Map;
 import net.bluemind.eas.dto.base.AppData;
 import net.bluemind.eas.dto.base.BodyOptions;
 import net.bluemind.eas.dto.email.AttachmentResponse;
+import net.bluemind.eas.dto.find.FindRequest;
+import net.bluemind.eas.dto.find.FindResponse.Response;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsRequest;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse.Response.Recipient;
@@ -33,6 +35,7 @@ import net.bluemind.eas.dto.sync.FilterType;
 import net.bluemind.eas.dto.sync.SyncState;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.ActiveSyncException;
+import net.bluemind.eas.exception.CollectionNotFoundException;
 import net.bluemind.eas.exception.ObjectNotFoundException;
 
 /**
@@ -60,5 +63,7 @@ public interface IContentsExporter {
 			ResolveRecipientsRequest.Options.Picture picture);
 
 	Recipient.Availability fetchAvailability(BackendSession bs, String emailAddress, Date startTime, Date endTime);
+
+	Response find(BackendSession bs, FindRequest query) throws CollectionNotFoundException;
 
 }

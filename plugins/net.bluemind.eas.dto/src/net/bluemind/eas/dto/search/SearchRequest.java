@@ -19,6 +19,7 @@
 package net.bluemind.eas.dto.search;
 
 import net.bluemind.eas.dto.base.BodyOptions;
+import net.bluemind.eas.dto.base.Range;
 
 public class SearchRequest {
 

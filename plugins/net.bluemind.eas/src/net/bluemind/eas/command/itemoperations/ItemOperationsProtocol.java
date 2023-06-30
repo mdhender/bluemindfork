@@ -96,7 +96,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 		ItemOperationsResponse response = new ItemOperationsResponse();
 		response.style = query.style;
 		response.gzip = query.gzip;
-		response.status = Status.Success;
+		response.status = Status.SUCCESS;
 		for (ItemOperation op : query.itemOperations) {
 			ItemOperationsResponse.Response resp = null;
 			if (op instanceof ItemOperationsRequest.EmptyFolderContents) {
@@ -109,8 +109,8 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 				logger.warn("unsupported itemsOperations : {}", op.getClass());
 			}
 			if (resp != null) {
-				if (resp.status != Status.Success) {
-					resp.status = Status.PartialSuccess;
+				if (resp.status != Status.SUCCESS) {
+					resp.status = Status.PARTIAL_SUCCESS;
 				}
 				response.responses.add(resp);
 			}
@@ -124,7 +124,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 		// prot 14.0++
 		ItemOperationsResponse.Move respOp = new ItemOperationsResponse.Move();
 		respOp.conversationId = op.conversationId;
-		respOp.status = ItemOperationsResponse.Status.Success;
+		respOp.status = ItemOperationsResponse.Status.SUCCESS;
 
 		String[] convId = op.conversationId.split(":");
 
@@ -133,7 +133,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 			sourceFolder = store.getHierarchyNode(bs, CollectionId.of(convId[0]));
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			respOp.status = ItemOperationsResponse.Status.ServerError;
+			respOp.status = ItemOperationsResponse.Status.SERVER_ERROR;
 			return respOp;
 		}
 
@@ -142,7 +142,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 			destinationFolder = store.getHierarchyNode(bs, CollectionId.of(op.dstFldId));
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			respOp.status = ItemOperationsResponse.Status.ServerError;
+			respOp.status = ItemOperationsResponse.Status.SERVER_ERROR;
 			return respOp;
 		}
 
@@ -154,7 +154,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 					Arrays.asList(CollectionItem.of(op.conversationId)));
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			respOp.status = ItemOperationsResponse.Status.ServerError;
+			respOp.status = ItemOperationsResponse.Status.SERVER_ERROR;
 		}
 
 		return respOp;
@@ -166,12 +166,12 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 		try {
 			HierarchyNode node = store.getHierarchyNode(bs, op.collectionId);
 			backend.getContentsImporter(bs).emptyFolderContent(bs, node, op.collectionId, deleteSubFolders);
-			status = ItemOperationsResponse.Status.Success;
+			status = ItemOperationsResponse.Status.SUCCESS;
 		} catch (CollectionNotFoundException e) {
 			// FIXME should we use ObjectNotFound ?
-			status = ItemOperationsResponse.Status.ResourceAccessDenied;
+			status = ItemOperationsResponse.Status.RESOURCE_ACCESS_DENIED;
 		} catch (NotAllowedException e) {
-			status = ItemOperationsResponse.Status.ResourceAccessDenied;
+			status = ItemOperationsResponse.Status.RESOURCE_ACCESS_DENIED;
 		}
 
 		ItemOperationsResponse.EmptyFolderContents opResp = new ItemOperationsResponse.EmptyFolderContents();
@@ -188,35 +188,23 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 		if (response.style == ResponseStyle.Inline) {
 			WbxmlOutput output = responder.asOutput();
 			IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), output);
-			format.format(builder, bs.getProtocolVersion(), response, new Callback<Void>() {
-
-				@Override
-				public void onResult(Void data) {
-					logger.info("Formatter completed.");
-					completion.handle(null);
-				}
-			});
+			format.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 		} else {
 			final ByteArrayOutputStream forWbxml = new ByteArrayOutputStream();
 			IResponseBuilder wbxmlBuilder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), WbxmlOutput.of(forWbxml));
-			format.format(wbxmlBuilder, bs.getProtocolVersion(), response, new Callback<Void>() {
-
-				@Override
-				public void onResult(Void data) {
-
-					MultipartBuilder multipart = new MultipartBuilder();
-					multipart.wbxml(forWbxml.toByteArray());
-					for (Response r : response.responses) {
-						if (r instanceof ItemOperationsResponse.Fetch) {
-							ItemOperationsResponse.Fetch fetchResp = (net.bluemind.eas.dto.itemoperations.ItemOperationsResponse.Fetch) r;
-							multipart.asyncPart(fetchResp.properties.body);
-						}
+			format.format(wbxmlBuilder, bs.getProtocolVersion(), response, data -> {
+				MultipartBuilder multipart = new MultipartBuilder();
+				multipart.wbxml(forWbxml.toByteArray());
+				for (Response r : response.responses) {
+					if (r instanceof ItemOperationsResponse.Fetch) {
+						ItemOperationsResponse.Fetch fetchResp = (net.bluemind.eas.dto.itemoperations.ItemOperationsResponse.Fetch) r;
+						multipart.asyncPart(fetchResp.properties.body);
 					}
-					// responder.sendStatus(500);
-					multipart.build(responder, completion);
 				}
+				multipart.build(responder, completion);
 			});
 		}
+
 	}
 
 	@Override
@@ -226,19 +214,20 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 
 	private ItemOperationsResponse.Fetch fetch(Fetch op, BackendSession bs) {
 		ItemOperationsResponse.Fetch opResp = null;
-		StoreName store = StoreName.valueOf(op.store);
-		if (StoreName.mailbox.equals(store)) {
+		StoreName storeName = StoreName.valueOf(op.store);
+		if (StoreName.mailbox.equals(storeName)) {
 			try {
 				opResp = processMailboxFetch(bs, op);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 				opResp = new ItemOperationsResponse.Fetch();
-				opResp.status = ItemOperationsResponse.Status.ActionNotSupported;
+				opResp.status = ItemOperationsResponse.Status.ACTION_NOT_SUPPORTED;
 			}
 		} else {
-			logger.warn("ItemOperations is not implemented for store {}. Send status 156 ActionNotSupported", store);
+			logger.warn("ItemOperations is not implemented for store {}. Send status 156 ActionNotSupported",
+					storeName);
 			opResp = new ItemOperationsResponse.Fetch();
-			opResp.status = ItemOperationsResponse.Status.ActionNotSupported;
+			opResp.status = ItemOperationsResponse.Status.ACTION_NOT_SUPPORTED;
 		}
 		return opResp;
 	}
@@ -260,7 +249,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 			return processCollectionFetch(bs, exporter, fetchOp.collectionId, serverId, fetchOp.options.bodyOptions);
 		} else {
 			ItemOperationsResponse.Fetch fetchResp = new ItemOperationsResponse.Fetch();
-			fetchResp.status = Status.ActionNotSupported;
+			fetchResp.status = Status.ACTION_NOT_SUPPORTED;
 			return fetchResp;
 		}
 	}
@@ -284,7 +273,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 			ItemChangeReference itemRef = new ItemChangeReference(ItemDataType.EMAIL);
 			itemRef.setServerId(ci);
 
-			ItemOperationsResponse.Status status = ItemOperationsResponse.Status.Success;
+			ItemOperationsResponse.Status status = ItemOperationsResponse.Status.SUCCESS;
 
 			resp.status = status;
 			resp.longId = fetchOp.serverId;
@@ -298,7 +287,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 			}
 			resp.properties = loaded;
 		} catch (ActiveSyncException e) {
-			resp.status = ItemOperationsResponse.Status.ServerError;
+			resp.status = ItemOperationsResponse.Status.SERVER_ERROR;
 			return resp;
 		}
 
@@ -312,7 +301,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 		resp.serverId = serverId;
 		resp.collectionId = collectionId.getValue();
 
-		ItemOperationsResponse.Status status = ItemOperationsResponse.Status.Success;
+		ItemOperationsResponse.Status status = ItemOperationsResponse.Status.SUCCESS;
 		try {
 			HierarchyNode node = store.getHierarchyNode(bs, collectionId);
 			ItemDataType dataType = ItemDataType.getValue(node.containerType);
@@ -326,12 +315,12 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 			resp.properties = loaded;
 		} catch (ActiveSyncException e) {
 			logger.error(e.getMessage(), e);
-			status = ItemOperationsResponse.Status.ServerError;
+			status = ItemOperationsResponse.Status.SERVER_ERROR;
 
 		}
 
 		resp.status = status;
-		if (status != ItemOperationsResponse.Status.Success) {
+		if (status != ItemOperationsResponse.Status.SUCCESS) {
 			return resp;
 		}
 
@@ -347,7 +336,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 		try {
 			ar = exporter.getAttachmentMetadata(bs, fetchOp.fileReference);
 		} catch (ObjectNotFoundException e) {
-			resp.status = ItemOperationsResponse.Status.AttachementInvalid;
+			resp.status = ItemOperationsResponse.Status.ATTACHEMENT_INVALID;
 			return resp;
 		}
 
@@ -370,7 +359,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 			}
 		};
 
-		resp.status = ItemOperationsResponse.Status.Success;
+		resp.status = ItemOperationsResponse.Status.SUCCESS;
 		resp.properties = AppData.of(ar, VertxLazyLoader.wrap(lazy), fetchOp.options);
 		return resp;
 	}

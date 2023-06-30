@@ -19,12 +19,11 @@
 package net.bluemind.eas.command.search;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-
-import com.google.common.collect.ImmutableList;
 
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.IEasRequestEndpoint;
@@ -53,7 +52,7 @@ public class SearchEndpoint extends WbxmlHandlerBase implements IEasRequestEndpo
 
 	@Override
 	public Collection<String> supportedCommands() {
-		return ImmutableList.of("Search");
+		return List.of("Search");
 	}
 
 	@Override

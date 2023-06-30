@@ -20,33 +20,34 @@ package net.bluemind.eas.dto;
 
 public enum NamespaceMapping {
 
-	AirSyncBase(null, "AirSyncBase"), //
-	Sync("Sync", "AirSync"), //
-	Email(null, "Email"), //
-	Email2(null, "Email2"), //
-	Calendar(null, "Calendar"), //
-	Contacts(null, "Contacts"), //
-	Contacts2(null, "Contacts2"), //
+	AIR_SYNC_BASE(null, "AirSyncBase"), //
+	SYNC("Sync", "AirSync"), //
+	EMAIL(null, "Email"), //
+	EMAIL_2(null, "Email2"), //
+	CALENDAR(null, "Calendar"), //
+	CONTACTS(null, "Contacts"), //
+	CONTACTS_2(null, "Contacts2"), //
 	GAL(null, "GAL"), //
-	FolderSync("FolderSync", "FolderHierarchy"), //
-	FolderCreate("FolderCreate", "FolderHierarchy"), //
-	FolderDelete("FolderDelete", "FolderHierarchy"), //
-	FolderUpdate("FolderUpdate", "FolderHierarchy"), //
-	Settings("Settings", "Settings"), //
-	SendMail("SendMail", "ComposeMail"), //
-	SmartReply("SmartReply", "ComposeMail"), //
-	SmartForward("SmartForward", "ComposeMail"), //
-	GetAttachment("GetAttachment", "GetAttachment"), //
-	GetItemEstimate("GetItemEstimate", "GetItemEstimate"), //
-	Provision("Provision", "Provision"), //
-	MeetingResponse("MeetingResponse", "MeetingResponse"), //
-	MoveItems("MoveItems", "Move"), //
-	Ping("Ping", "Ping"), //
-	ItemOperations("ItemOperations", "ItemOperations"), //
-	ResolveRecipients("ResolveRecipients", "ResolveRecipients"), //
-	Search("Search", "Search"), //
-	Tasks("Tasks", "Tasks"), //
-	Options("Options", "AirSync");
+	FIND("Find", "Find"), //
+	FOLDER_SYNC("FolderSync", "FolderHierarchy"), //
+	FOLDER_CREATE("FolderCreate", "FolderHierarchy"), //
+	FOLDER_DELETE("FolderDelete", "FolderHierarchy"), //
+	FOLDER_UPDATE("FolderUpdate", "FolderHierarchy"), //
+	SETTINGS("Settings", "Settings"), //
+	SEND_MAIL("SendMail", "ComposeMail"), //
+	SMART_REPLY("SmartReply", "ComposeMail"), //
+	SMART_FORWARD("SmartForward", "ComposeMail"), //
+	GET_ATTACHMENT("GetAttachment", "GetAttachment"), //
+	GET_ITEM_ESTIMATE("GetItemEstimate", "GetItemEstimate"), //
+	PROVISION("Provision", "Provision"), //
+	MEETING_RESPONSE("MeetingResponse", "MeetingResponse"), //
+	MOVE_ITEMS("MoveItems", "Move"), //
+	PING("Ping", "Ping"), //
+	ITEM_OPERATIONS("ItemOperations", "ItemOperations"), //
+	RESOLVE_RECIPIENTS("ResolveRecipients", "ResolveRecipients"), //
+	SEARCH("Search", "Search"), //
+	TASKS("Tasks", "Tasks"), //
+	OPTIONS("Options", "AirSync");
 
 	private final String root;
 	private final String ns;
@@ -63,4 +64,14 @@ public enum NamespaceMapping {
 	public String root() {
 		return root;
 	}
+
+	public static NamespaceMapping of(String root) {
+		for (NamespaceMapping val : NamespaceMapping.values()) {
+			if (root.equals(val.root)) {
+				return val;
+			}
+		}
+		return null;
+	}
+
 }

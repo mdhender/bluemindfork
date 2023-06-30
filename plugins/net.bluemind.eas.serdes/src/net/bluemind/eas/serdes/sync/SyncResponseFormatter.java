@@ -42,7 +42,7 @@ public class SyncResponseFormatter implements IEasResponseFormatter<SyncResponse
 
 	public void format(IResponseBuilder builder, double protocolVersion, SyncResponse response,
 			final Callback<Void> completion) {
-		builder.start(NamespaceMapping.Sync);
+		builder.start(NamespaceMapping.SYNC);
 		Callback<IResponseBuilder> afterAll = new Callback<IResponseBuilder>() {
 
 			@Override
@@ -53,7 +53,7 @@ public class SyncResponseFormatter implements IEasResponseFormatter<SyncResponse
 		if (response.status == SyncStatus.OK) {
 			appendSyncOk(builder, protocolVersion, response, afterAll);
 		} else {
-			builder.text(NamespaceMapping.Sync, "Status", response.status.asXmlValue());
+			builder.text(NamespaceMapping.SYNC, "Status", response.status.asXmlValue());
 			if (response.limit != null) {
 				builder.text("Limit", Integer.toString(response.limit));
 			}
@@ -63,22 +63,22 @@ public class SyncResponseFormatter implements IEasResponseFormatter<SyncResponse
 
 	private void appendSyncOk(IResponseBuilder b, final double protocolVersion, SyncResponse response,
 			final Callback<IResponseBuilder> onDoc) {
-		b.text(NamespaceMapping.Sync, "Status", response.status.asXmlValue());
-		b.container(NamespaceMapping.Sync, "Collections");
+		b.text(NamespaceMapping.SYNC, "Status", response.status.asXmlValue());
+		b.container(NamespaceMapping.SYNC, "Collections");
 		IBuildOperation<CollectionSyncResponse, IResponseBuilder> collectionBuild = new IBuildOperation<CollectionSyncResponse, IResponseBuilder>() {
 
 			@Override
 			public void beforeAsync(IResponseBuilder b, CollectionSyncResponse csr,
 					final Callback<IResponseBuilder> forAsync) {
-				b.container(NamespaceMapping.Sync, "Collection");
-				b.text(NamespaceMapping.Sync, "SyncKey", csr.syncKey);
-				b.text(NamespaceMapping.Sync, "CollectionId", csr.collectionId);
-				b.text(NamespaceMapping.Sync, "Status", csr.status.asXmlValue());
+				b.container(NamespaceMapping.SYNC, "Collection");
+				b.text(NamespaceMapping.SYNC, "SyncKey", csr.syncKey);
+				b.text(NamespaceMapping.SYNC, "CollectionId", csr.collectionId);
+				b.text(NamespaceMapping.SYNC, "Status", csr.status.asXmlValue());
 
 				if (csr.moreAvailable) {
 					// LG G2 m'a tuer
 					// <MoreAvailable/> on the top because of LG G2
-					b.token(NamespaceMapping.Sync, "MoreAvailable");
+					b.token(NamespaceMapping.SYNC, "MoreAvailable");
 				}
 
 				int expectedLoads = 0;
@@ -112,7 +112,7 @@ public class SyncResponseFormatter implements IEasResponseFormatter<SyncResponse
 	private void buildCommands(IResponseBuilder b, final double protocolVersion, final CollectionSyncResponse csr,
 			final AppDataFormatter adf, final Callback<IResponseBuilder> onDoc) {
 		if (csr.commands != null && !csr.commands.isEmpty()) {
-			b.container(NamespaceMapping.Sync, "Commands");
+			b.container(NamespaceMapping.SYNC, "Commands");
 
 			Callback<IResponseBuilder> afterBuild = new Callback<IResponseBuilder>() {
 				@Override
@@ -127,10 +127,10 @@ public class SyncResponseFormatter implements IEasResponseFormatter<SyncResponse
 				@Override
 				public void beforeAsync(IResponseBuilder b, ServerChange srvChange,
 						final Callback<IResponseBuilder> forAsync) {
-					b.container(NamespaceMapping.Sync, srvChange.type.name());
-					b.text(NamespaceMapping.Sync, "ServerId", srvChange.item.toString());
+					b.container(NamespaceMapping.SYNC, srvChange.type.name());
+					b.text(NamespaceMapping.SYNC, "ServerId", srvChange.item.toString());
 					if (srvChange.data.isPresent()) {
-						b.container(NamespaceMapping.Sync, "ApplicationData");
+						b.container(NamespaceMapping.SYNC, "ApplicationData");
 						AppData data = srvChange.data.get();
 
 						adf.append(b, protocolVersion, data, new Callback<IResponseBuilder>() {
@@ -165,7 +165,7 @@ public class SyncResponseFormatter implements IEasResponseFormatter<SyncResponse
 	private void buildResponses(IResponseBuilder b, final double protocolVersion, final CollectionSyncResponse csr,
 			final AppDataFormatter adf, final Callback<IResponseBuilder> onDoc) {
 		if (csr.responses != null && !csr.responses.isEmpty()) {
-			b.container(NamespaceMapping.Sync, "Responses");
+			b.container(NamespaceMapping.SYNC, "Responses");
 
 			Callback<IResponseBuilder> afterBuild = new Callback<IResponseBuilder>() {
 
@@ -181,7 +181,7 @@ public class SyncResponseFormatter implements IEasResponseFormatter<SyncResponse
 				@Override
 				public void beforeAsync(IResponseBuilder b, ServerResponse srvResp,
 						final Callback<IResponseBuilder> forAsync) {
-					b.container(NamespaceMapping.Sync, srvResp.operation.name());
+					b.container(NamespaceMapping.SYNC, srvResp.operation.name());
 					if (srvResp.clientId != null) {
 						b.text("ClientId", srvResp.clientId);
 					}
@@ -191,7 +191,7 @@ public class SyncResponseFormatter implements IEasResponseFormatter<SyncResponse
 						logger.info("Data is missing {}", srvResp);
 						forAsync.onResult(b);
 					} else {
-						b.container(NamespaceMapping.Sync, "ApplicationData");
+						b.container(NamespaceMapping.SYNC, "ApplicationData");
 						AppData data = srvResp.fetch.get();
 						adf.append(b, protocolVersion, data, new Callback<IResponseBuilder>() {
 

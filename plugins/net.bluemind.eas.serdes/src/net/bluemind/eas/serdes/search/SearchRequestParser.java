@@ -27,7 +27,7 @@ import org.w3c.dom.NodeList;
 
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
-import net.bluemind.eas.dto.search.Range;
+import net.bluemind.eas.dto.base.Range;
 import net.bluemind.eas.dto.search.SearchRequest;
 import net.bluemind.eas.dto.search.SearchRequest.Store;
 import net.bluemind.eas.dto.search.SearchRequest.Store.Options;

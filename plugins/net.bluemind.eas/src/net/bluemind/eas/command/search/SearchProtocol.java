@@ -32,8 +32,7 @@ import io.vertx.core.Handler;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
-import net.bluemind.eas.dto.base.Callback;
-import net.bluemind.eas.dto.search.Range;
+import net.bluemind.eas.dto.base.Range;
 import net.bluemind.eas.dto.search.SearchRequest;
 import net.bluemind.eas.dto.search.SearchResponse;
 import net.bluemind.eas.dto.search.SearchResponse.Status;
@@ -100,7 +99,7 @@ public class SearchProtocol implements IEasProtocol<SearchRequest, SearchRespons
 	}
 
 	private void registerSources() {
-		RunnableExtensionLoader<ISearchSource> rel = new RunnableExtensionLoader<ISearchSource>();
+		RunnableExtensionLoader<ISearchSource> rel = new RunnableExtensionLoader<>();
 		List<ISearchSource> bs = rel.loadExtensions("net.bluemind.eas", "search", "search", "implementation");
 		for (ISearchSource ibs : bs) {
 			addRegisterSource(ibs.getStoreName(), ibs);
@@ -111,16 +110,16 @@ public class SearchProtocol implements IEasProtocol<SearchRequest, SearchRespons
 		Set<ISearchSource> set = sources.get(key);
 		if (set == null) {
 			if (logger.isDebugEnabled()) {
-				logger.debug("Add " + value.getClass().getName() + " in search sources for store " + key);
+				logger.debug("Add {} in search sources for store {}", value.getClass().getName(), key);
 			}
-			set = new HashSet<ISearchSource>();
+			set = new HashSet<>();
 			this.sources.put(key, set);
 		}
 		set.add(value);
 	}
 
 	public Results<SearchResult> search(BackendSession bs, SearchRequest request) {
-		Results<SearchResult> ret = new Results<SearchResult>();
+		Results<SearchResult> ret = new Results<>();
 		for (ISearchSource source : sources.get(request.store.name)) {
 			Results<SearchResult> rlist = source.search(bs, request);
 			ret.setNumFound(rlist.getNumFound());
@@ -137,13 +136,7 @@ public class SearchProtocol implements IEasProtocol<SearchRequest, SearchRespons
 
 		SearchResponseFormatter formatter = new SearchResponseFormatter();
 		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
-		formatter.format(builder, bs.getProtocolVersion(), response, new Callback<Void>() {
-
-			@Override
-			public void onResult(Void data) {
-				completion.handle(null);
-			}
-		});
+		formatter.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 	}
 
 	@Override

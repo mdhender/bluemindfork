@@ -36,37 +36,37 @@ public class EmailResponseFormatter implements IEasResponseFormatter<EmailRespon
 
 		// Email
 		if (notEmpty(email.to)) {
-			b.text(NamespaceMapping.Email, "To", email.to);
+			b.text(NamespaceMapping.EMAIL, "To", email.to);
 		}
 		if (notEmpty(email.cc)) {
-			b.text(NamespaceMapping.Email, "Cc", email.cc);
+			b.text(NamespaceMapping.EMAIL, "Cc", email.cc);
 		}
 		if (notEmpty(email.from)) {
-			b.text(NamespaceMapping.Email, "From", email.from);
+			b.text(NamespaceMapping.EMAIL, "From", email.from);
 		}
 		if (notEmpty(email.subject)) {
-			b.text(NamespaceMapping.Email, "Subject", email.subject);
+			b.text(NamespaceMapping.EMAIL, "Subject", email.subject);
 		}
 		if (notEmpty(email.replyTo)) {
-			b.text(NamespaceMapping.Email, "ReplyTo", email.replyTo);
+			b.text(NamespaceMapping.EMAIL, "ReplyTo", email.replyTo);
 		}
 		if (email.dateReceived != null) {
-			b.text(NamespaceMapping.Email, "DateReceived", sdf.format(email.dateReceived));
+			b.text(NamespaceMapping.EMAIL, "DateReceived", sdf.format(email.dateReceived));
 		}
 		if (notEmpty(email.displayTo)) {
-			b.text(NamespaceMapping.Email, "DisplayTo", email.displayTo);
+			b.text(NamespaceMapping.EMAIL, "DisplayTo", email.displayTo);
 		}
 		if (notEmpty(email.threadTopic)) {
-			b.text(NamespaceMapping.Email, "ThreadTopic", email.threadTopic);
+			b.text(NamespaceMapping.EMAIL, "ThreadTopic", email.threadTopic);
 		}
 		if (email.importance != null) {
-			b.text(NamespaceMapping.Email, "Importance", email.importance.xmlValue());
+			b.text(NamespaceMapping.EMAIL, "Importance", email.importance.xmlValue());
 		}
 
-		b.text(NamespaceMapping.Email, "Read", email.read ? "1" : "0");
+		b.text(NamespaceMapping.EMAIL, "Read", email.read ? "1" : "0");
 
 		if (email.messageClass != null) {
-			b.text(NamespaceMapping.Email, "MessageClass", email.messageClass.toString(protocolVersion));
+			b.text(NamespaceMapping.EMAIL, "MessageClass", email.messageClass.toString(protocolVersion));
 		}
 
 		if (email.meetingRequest != null) {
@@ -82,11 +82,11 @@ public class EmailResponseFormatter implements IEasResponseFormatter<EmailRespon
 	private void afterMeetingRequest(IResponseBuilder b, double protocolVersion, EmailResponse email,
 			SimpleDateFormat sdf) {
 		if (notEmpty(email.internetCPID)) {
-			b.text(NamespaceMapping.Email, "InternetCPID", email.internetCPID);
+			b.text(NamespaceMapping.EMAIL, "InternetCPID", email.internetCPID);
 		}
 
 		if (email.flag != null) {
-			b.container(NamespaceMapping.Email, "Flag");
+			b.container(NamespaceMapping.EMAIL, "Flag");
 
 			// FIXME not sure
 			// TODO and not implemented in v3
@@ -96,22 +96,22 @@ public class EmailResponseFormatter implements IEasResponseFormatter<EmailRespon
 			// email.flag.tasks);
 
 			if (email.flag.status != null) {
-				b.text(NamespaceMapping.Email, "Status", email.flag.status.xmlValue());
+				b.text(NamespaceMapping.EMAIL, "Status", email.flag.status.xmlValue());
 			}
 			if (notEmpty(email.flag.flagType)) {
-				b.text(NamespaceMapping.Email, "FlagType", email.flag.flagType);
+				b.text(NamespaceMapping.EMAIL, "FlagType", email.flag.flagType);
 			}
 			b.endContainer();
 		}
 
 		if (notEmpty(email.contentClass)) {
-			b.text(NamespaceMapping.Email, "ContentClass", email.contentClass);
+			b.text(NamespaceMapping.EMAIL, "ContentClass", email.contentClass);
 		}
 
 		if (email.categories != null) {
-			b.container(NamespaceMapping.Email, "Categories");
+			b.container(NamespaceMapping.EMAIL, "Categories");
 			for (String c : email.categories) {
-				b.text(NamespaceMapping.Email, "Category", c);
+				b.text(NamespaceMapping.EMAIL, "Category", c);
 			}
 			b.endContainer();
 		}
@@ -124,43 +124,43 @@ public class EmailResponseFormatter implements IEasResponseFormatter<EmailRespon
 		// Email2
 		if (protocolVersion > 12.1) {
 			if (notEmpty(email.umCallerID)) {
-				b.text(NamespaceMapping.Email2, "UmCallerID", email.umCallerID);
+				b.text(NamespaceMapping.EMAIL_2, "UmCallerID", email.umCallerID);
 			}
 			if (notEmpty(email.umUserNotes)) {
-				b.text(NamespaceMapping.Email2, "UmUserNotes", email.umUserNotes);
+				b.text(NamespaceMapping.EMAIL_2, "UmUserNotes", email.umUserNotes);
 			}
 			if (email.umAttOrder != null) {
-				b.text(NamespaceMapping.Email2, "UmAttOrder", email.umAttOrder.toString());
+				b.text(NamespaceMapping.EMAIL_2, "UmAttOrder", email.umAttOrder.toString());
 			}
 			if (notEmpty(email.conversationId)) {
-				b.text(NamespaceMapping.Email2, "ConversationId", email.conversationId);
+				b.text(NamespaceMapping.EMAIL_2, "ConversationId", email.conversationId);
 			}
 			if (notEmpty(email.conversationIndex)) {
-				b.text(NamespaceMapping.Email2, "ConversationIndex", email.conversationIndex);
+				b.text(NamespaceMapping.EMAIL_2, "ConversationIndex", email.conversationIndex);
 			}
 			if (email.lastVerbExecuted != null) {
-				b.text(NamespaceMapping.Email2, "LastVerbExecuted", email.lastVerbExecuted.xmlValue());
+				b.text(NamespaceMapping.EMAIL_2, "LastVerbExecuted", email.lastVerbExecuted.xmlValue());
 			}
 			if (email.lastVerbExecutionTime != null) {
-				b.text(NamespaceMapping.Email2, "LastVerbExecutionTime", sdf.format(email.lastVerbExecutionTime));
+				b.text(NamespaceMapping.EMAIL_2, "LastVerbExecutionTime", sdf.format(email.lastVerbExecutionTime));
 			}
 			if (email.receivedAsBcc != null) {
-				b.text(NamespaceMapping.Email2, "ReceivedAsBcc", email.receivedAsBcc ? "1" : "0");
+				b.text(NamespaceMapping.EMAIL_2, "ReceivedAsBcc", email.receivedAsBcc ? "1" : "0");
 			}
 			if (notEmpty(email.sender)) {
-				b.text(NamespaceMapping.Email2, "Sender", email.sender);
+				b.text(NamespaceMapping.EMAIL_2, "Sender", email.sender);
 			}
 			if (email.calendarType != null) {
-				b.text(NamespaceMapping.Email2, "CalendarType", email.calendarType.xmlValue());
+				b.text(NamespaceMapping.EMAIL_2, "CalendarType", email.calendarType.xmlValue());
 			}
 			if (email.isLeapMonth != null) {
-				b.text(NamespaceMapping.Email2, "IsLeapMonth", email.isLeapMonth ? "1" : "0");
+				b.text(NamespaceMapping.EMAIL_2, "IsLeapMonth", email.isLeapMonth ? "1" : "0");
 			}
 			if (notEmpty(email.accountId)) {
-				b.text(NamespaceMapping.Email2, "AccountId", email.accountId);
+				b.text(NamespaceMapping.EMAIL_2, "AccountId", email.accountId);
 			}
 			if (email.firstDayOfWeek != null) {
-				b.text(NamespaceMapping.Email2, "FirstDayOfWeek", email.firstDayOfWeek.xmlValue());
+				b.text(NamespaceMapping.EMAIL_2, "FirstDayOfWeek", email.firstDayOfWeek.xmlValue());
 			}
 		}
 	}

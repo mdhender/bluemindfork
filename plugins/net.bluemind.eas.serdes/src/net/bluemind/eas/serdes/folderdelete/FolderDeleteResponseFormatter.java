@@ -29,7 +29,7 @@ public class FolderDeleteResponseFormatter implements IEasResponseFormatter<Fold
 	@Override
 	public void format(IResponseBuilder builder, double protocolVersion, FolderDeleteResponse response,
 			Callback<Void> completion) {
-		builder.start(NamespaceMapping.FolderDelete);
+		builder.start(NamespaceMapping.FOLDER_DELETE);
 
 		builder.text("Status", response.status.xmlValue());
 

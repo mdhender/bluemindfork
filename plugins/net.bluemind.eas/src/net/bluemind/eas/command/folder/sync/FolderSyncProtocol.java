@@ -33,7 +33,6 @@ import net.bluemind.eas.backend.IBackend;
 import net.bluemind.eas.backend.IHierarchyExporter;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
-import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.base.ChangeType;
 import net.bluemind.eas.dto.foldersync.FolderSyncRequest;
 import net.bluemind.eas.dto.foldersync.FolderSyncResponse;
@@ -154,14 +153,7 @@ public class FolderSyncProtocol implements IEasProtocol<FolderSyncRequest, Folde
 
 		FolderSyncResponseFormatter format = new FolderSyncResponseFormatter();
 		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
-		format.format(builder, bs.getProtocolVersion(), response, new Callback<Void>() {
-
-			@Override
-			public void onResult(Void data) {
-				completion.handle(null);
-			}
-		});
-
+		format.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 	}
 
 	@Override

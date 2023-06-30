@@ -37,7 +37,6 @@ import net.bluemind.eas.data.calendarenum.AttendeeStatus;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
 import net.bluemind.eas.dto.base.AppData;
-import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.base.CollectionItem;
 import net.bluemind.eas.dto.calendar.CalendarResponse;
 import net.bluemind.eas.dto.calendar.CalendarResponse.InstanceType;
@@ -87,9 +86,8 @@ public class MeetingResponseProtocol implements IEasProtocol<MeetingResponseRequ
 		final AtomicInteger toProcess = new AtomicInteger(query.requests.size());
 		for (final Request request : query.requests) {
 			try {
-				ItemDataType dataClass = ItemDataType.EMAIL;
 				HierarchyNode node = store.getHierarchyNode(bs, CollectionId.of(request.collectionId));
-				dataClass = ItemDataType.getValue(node.containerType);
+				ItemDataType dataClass = ItemDataType.getValue(node.containerType);
 
 				ItemChangeReference ic = new ItemChangeReference(dataClass);
 				ic.setServerId(CollectionItem.of(sanitizeRequestId(request.requestId)));
@@ -106,59 +104,55 @@ public class MeetingResponseProtocol implements IEasProtocol<MeetingResponseRequ
 					r.requestId = request.requestId;
 				}
 
-				invitation(bs, itemRef, new Handler<CalendarResponse>() {
+				invitation(bs, itemRef, invitation -> {
+					if (invitation == null) {
+						logger.error("Invalid meeting request for {}", r.requestId);
+						r.status = Status.InvalidMeetingRequest;
+					} else {
+						if ((invitation.instanceType == InstanceType.SINGLE_INSTANCE
+								|| invitation.instanceType == InstanceType.EXCEPTION_TO_RECURRING)
+								&& invitation.recurrenceId != null) {
+							request.instanceId = invitation.recurrenceId;
+						}
+						r.status = Status.Success;
 
-					@Override
-					public void handle(CalendarResponse invitation) {
-						if (invitation == null) {
-							logger.error("Invalid meeting request for {}", r.requestId);
-							r.status = Status.InvalidMeetingRequest;
-						} else {
-							if ((invitation.instanceType == InstanceType.SINGLE_INSTANCE
-									|| invitation.instanceType == InstanceType.EXCEPTION_TO_RECURRING)
-									&& invitation.recurrenceId != null) {
-								request.instanceId = invitation.recurrenceId;
-							}
-							r.status = Status.Success;
-
-							AttendeeStatus attendeeStatus = null;
-							switch (request.userResponse) {
-							case Accepted:
-								attendeeStatus = AttendeeStatus.ACCEPT;
-								break;
-							case Declined:
-								attendeeStatus = AttendeeStatus.DECLINE;
-								break;
-							case TentativelyAccepted:
-								attendeeStatus = AttendeeStatus.TENTATIVE;
-								break;
-							default:
-								break;
-							}
-
-							long itemId = itemRef.getServerId().itemId;
-							if (itemRef.getType() == ItemDataType.EMAIL) {
-								itemId = invitation.itemUid;
-							}
-
-							IContentsImporter importer = backend.getContentsImporter(bs);
-							String calendarId = importer.importCalendarUserStatus(bs, itemId, attendeeStatus,
-									request.instanceId);
-
-							// 2.2.3.18 CalendarId
-							// If the meeting is declined, the response does not
-							// contain a CalendarId element.
-							if (attendeeStatus != AttendeeStatus.DECLINE) {
-								r.calendarId = calendarId;
-							}
-
-							// delete the email
-							deleteMeetingRequest(bs, itemRef);
+						AttendeeStatus attendeeStatus = null;
+						switch (request.userResponse) {
+						case Accepted:
+							attendeeStatus = AttendeeStatus.ACCEPT;
+							break;
+						case Declined:
+							attendeeStatus = AttendeeStatus.DECLINE;
+							break;
+						case TentativelyAccepted:
+							attendeeStatus = AttendeeStatus.TENTATIVE;
+							break;
+						default:
+							break;
 						}
 
-						response.results.add(r);
-						subRequestProcessed(toProcess, responseHandler, response);
+						long itemId = itemRef.getServerId().itemId;
+						if (itemRef.getType() == ItemDataType.EMAIL) {
+							itemId = invitation.itemUid;
+						}
+
+						IContentsImporter importer = backend.getContentsImporter(bs);
+						String calendarId = importer.importCalendarUserStatus(bs, itemId, attendeeStatus,
+								request.instanceId);
+
+						// 2.2.3.18 CalendarId
+						// If the meeting is declined, the response does not
+						// contain a CalendarId element.
+						if (attendeeStatus != AttendeeStatus.DECLINE) {
+							r.calendarId = calendarId;
+						}
+
+						// delete the email
+						deleteMeetingRequest(bs, itemRef);
 					}
+
+					response.results.add(r);
+					subRequestProcessed(toProcess, responseHandler, response);
 				});
 
 			} catch (Exception e) {
@@ -238,14 +232,7 @@ public class MeetingResponseProtocol implements IEasProtocol<MeetingResponseRequ
 			final Handler<Void> completion) {
 		MeetingResponseResponseFormatter formatter = new MeetingResponseResponseFormatter();
 		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
-		formatter.format(builder, bs.getProtocolVersion(), response, new Callback<Void>() {
-
-			@Override
-			public void onResult(Void data) {
-				completion.handle(null);
-			}
-		});
-
+		formatter.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 	}
 
 	@Override

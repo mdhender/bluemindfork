@@ -70,7 +70,7 @@ public class MultipartBuilder {
 		@Override
 		public void onResult(AirSyncBaseResponse data) {
 			try {
-				parts.add(new Part(data.body.data, (int) data.body.data.size()));
+				parts.add(new Part(data.body.data, data.body.data.size()));
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
@@ -162,28 +162,24 @@ public class MultipartBuilder {
 		final List<Part> parts = new LinkedList<>();
 		byte[] wbxmlBinary = asWbxml;
 		parts.add(new Part(DisposableByteSource.wrap(wbxmlBinary), wbxmlBinary.length));
-		LoadParts theNextCallback = new LoadParts(lazyParts.iterator(), parts, new Handler<Void>() {
-
-			@Override
-			public void handle(Void event) {
-
-				int size = parts.size();
+		LoadParts theNextCallback = new LoadParts(lazyParts.iterator(), parts, event -> {
+			int size = parts.size();
+			if (logger.isInfoEnabled()) {
 				logger.info("Multipart output with {} part(s) {}", size, Integer.toHexString(size));
-				ByteBuf byteBuf = Unpooled.buffer();
-				byteBuf = byteBuf.order(ByteOrder.LITTLE_ENDIAN);
-				byteBuf.writeInt(size);
-				int offset = 4 + 8 * parts.size();
-				for (Part p : parts) {
-					logger.info("partMetaData offset: {}, length: {}", offset, p.size);
-					byteBuf.writeInt(offset);
-					byteBuf.writeInt(p.size);
-					offset += p.size;
-				}
-				resp.write(Buffer.buffer(byteBuf));
-				WriteParts wp = new WriteParts(parts.iterator(), resp, completion);
-				wp.next();
 			}
-
+			ByteBuf byteBuf = Unpooled.buffer();
+			byteBuf = byteBuf.order(ByteOrder.LITTLE_ENDIAN);
+			byteBuf.writeInt(size);
+			int offset = 4 + 8 * parts.size();
+			for (Part p : parts) {
+				logger.info("partMetaData offset: {}, length: {}", offset, p.size);
+				byteBuf.writeInt(offset);
+				byteBuf.writeInt(p.size);
+				offset += p.size;
+			}
+			resp.write(Buffer.buffer(byteBuf));
+			WriteParts wp = new WriteParts(parts.iterator(), resp, completion);
+			wp.next();
 		});
 		theNextCallback.next();
 

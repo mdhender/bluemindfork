@@ -38,57 +38,57 @@ public class ContactResponseFormatter implements IEasFragmentFormatter<ContactRe
 			Callback<IResponseBuilder> cb) {
 
 		if (contact.anniversary != null) {
-			b.text(NamespaceMapping.Contacts, "Anniversary", formatDate(contact.anniversary));
+			b.text(NamespaceMapping.CONTACTS, "Anniversary", formatDate(contact.anniversary));
 		}
 
 		if (notEmpty(contact.assistantName)) {
-			b.text(NamespaceMapping.Contacts, "AssistantName", contact.assistantName);
+			b.text(NamespaceMapping.CONTACTS, "AssistantName", contact.assistantName);
 		}
 
 		// AssistantPhoneNumber
 
 		if (contact.birthday != null) {
-			b.text(NamespaceMapping.Contacts, "Birthday", formatDate(contact.birthday));
+			b.text(NamespaceMapping.CONTACTS, "Birthday", formatDate(contact.birthday));
 		}
 
 		if (notEmpty(contact.business2PhoneNumber)) {
-			b.text(NamespaceMapping.Contacts, "Business2PhoneNumber", contact.business2PhoneNumber);
+			b.text(NamespaceMapping.CONTACTS, "Business2PhoneNumber", contact.business2PhoneNumber);
 		}
 
 		if (notEmpty(contact.businessAddressCity)) {
-			b.text(NamespaceMapping.Contacts, "BusinessAddressCity", contact.businessAddressCity);
+			b.text(NamespaceMapping.CONTACTS, "BusinessAddressCity", contact.businessAddressCity);
 		}
 
 		if (notEmpty(contact.businessPhoneNumber)) {
-			b.text(NamespaceMapping.Contacts, "BusinessPhoneNumber", contact.businessPhoneNumber);
+			b.text(NamespaceMapping.CONTACTS, "BusinessPhoneNumber", contact.businessPhoneNumber);
 		}
 
 		if (notEmpty(contact.webPage)) {
-			b.text(NamespaceMapping.Contacts, "WebPage", contact.webPage);
+			b.text(NamespaceMapping.CONTACTS, "WebPage", contact.webPage);
 		}
 
 		if (notEmpty(contact.businessAddressCountry)) {
-			b.text(NamespaceMapping.Contacts, "BusinessAddressCountry", contact.businessAddressCountry);
+			b.text(NamespaceMapping.CONTACTS, "BusinessAddressCountry", contact.businessAddressCountry);
 		}
 
 		if (notEmpty(contact.department)) {
-			b.text(NamespaceMapping.Contacts, "Department", contact.department);
+			b.text(NamespaceMapping.CONTACTS, "Department", contact.department);
 		}
 
 		if (notEmpty(contact.email1Address)) {
-			b.text(NamespaceMapping.Contacts, "Email1Address", contact.email1Address);
+			b.text(NamespaceMapping.CONTACTS, "Email1Address", contact.email1Address);
 		}
 
 		if (notEmpty(contact.email2Address)) {
-			b.text(NamespaceMapping.Contacts, "Email2Address", contact.email2Address);
+			b.text(NamespaceMapping.CONTACTS, "Email2Address", contact.email2Address);
 		}
 
 		if (notEmpty(contact.email3Address)) {
-			b.text(NamespaceMapping.Contacts, "Email3Address", contact.email3Address);
+			b.text(NamespaceMapping.CONTACTS, "Email3Address", contact.email3Address);
 		}
 
 		if (notEmpty(contact.businessFaxNumber)) {
-			b.text(NamespaceMapping.Contacts, "BusinessFaxNumber", contact.businessFaxNumber);
+			b.text(NamespaceMapping.CONTACTS, "BusinessFaxNumber", contact.businessFaxNumber);
 		}
 
 		// FileAs
@@ -98,107 +98,107 @@ public class ContactResponseFormatter implements IEasFragmentFormatter<ContactRe
 		// WeightedRank
 
 		if (notEmpty(contact.firstName)) {
-			b.text(NamespaceMapping.Contacts, "FirstName", contact.firstName);
+			b.text(NamespaceMapping.CONTACTS, "FirstName", contact.firstName);
 		}
 
 		if (notEmpty(contact.middleName)) {
-			b.text(NamespaceMapping.Contacts, "MiddleName", contact.middleName);
+			b.text(NamespaceMapping.CONTACTS, "MiddleName", contact.middleName);
 		}
 
 		if (notEmpty(contact.homeAddressCity)) {
-			b.text(NamespaceMapping.Contacts, "HomeAddressCity", contact.homeAddressCity);
+			b.text(NamespaceMapping.CONTACTS, "HomeAddressCity", contact.homeAddressCity);
 		}
 
 		if (notEmpty(contact.homeAddressCountry)) {
-			b.text(NamespaceMapping.Contacts, "HomeAddressCountry", contact.homeAddressCountry);
+			b.text(NamespaceMapping.CONTACTS, "HomeAddressCountry", contact.homeAddressCountry);
 		}
 
 		if (notEmpty(contact.homeFaxNumber)) {
-			b.text(NamespaceMapping.Contacts, "HomeFaxNumber", contact.homeFaxNumber);
+			b.text(NamespaceMapping.CONTACTS, "HomeFaxNumber", contact.homeFaxNumber);
 		}
 
 		if (notEmpty(contact.homePhoneNumber)) {
-			b.text(NamespaceMapping.Contacts, "HomePhoneNumber", contact.homePhoneNumber);
+			b.text(NamespaceMapping.CONTACTS, "HomePhoneNumber", contact.homePhoneNumber);
 		}
 
 		if (notEmpty(contact.home2PhoneNumber)) {
-			b.text(NamespaceMapping.Contacts, "Home2PhoneNumber", contact.home2PhoneNumber);
+			b.text(NamespaceMapping.CONTACTS, "Home2PhoneNumber", contact.home2PhoneNumber);
 		}
 
 		if (notEmpty(contact.homeAddressPostalCode)) {
-			b.text(NamespaceMapping.Contacts, "HomeAddressPostalCode", contact.homeAddressPostalCode);
+			b.text(NamespaceMapping.CONTACTS, "HomeAddressPostalCode", contact.homeAddressPostalCode);
 		}
 
 		if (notEmpty(contact.homeAddressState)) {
-			b.text(NamespaceMapping.Contacts, "HomeAddressState", contact.homeAddressState);
+			b.text(NamespaceMapping.CONTACTS, "HomeAddressState", contact.homeAddressState);
 		}
 
 		if (notEmpty(contact.homeAddressStreet)) {
-			b.text(NamespaceMapping.Contacts, "HomeAddressStreet", contact.homeAddressStreet);
+			b.text(NamespaceMapping.CONTACTS, "HomeAddressStreet", contact.homeAddressStreet);
 		}
 
 		if (notEmpty(contact.mobilePhoneNumber)) {
-			b.text(NamespaceMapping.Contacts, "MobilePhoneNumber", contact.mobilePhoneNumber);
+			b.text(NamespaceMapping.CONTACTS, "MobilePhoneNumber", contact.mobilePhoneNumber);
 		}
 
 		if (notEmpty(contact.suffix)) {
-			b.text(NamespaceMapping.Contacts, "Suffix", contact.suffix);
+			b.text(NamespaceMapping.CONTACTS, "Suffix", contact.suffix);
 		}
 
 		if (notEmpty(contact.companyName)) {
-			b.text(NamespaceMapping.Contacts, "CompanyName", contact.companyName);
+			b.text(NamespaceMapping.CONTACTS, "CompanyName", contact.companyName);
 		}
 
 		if (notEmpty(contact.otherAddressCity)) {
-			b.text(NamespaceMapping.Contacts, "OtherAddressCity", contact.otherAddressCity);
+			b.text(NamespaceMapping.CONTACTS, "OtherAddressCity", contact.otherAddressCity);
 		}
 
 		if (notEmpty(contact.otherAddressCountry)) {
-			b.text(NamespaceMapping.Contacts, "OtherAddressCountry", contact.otherAddressCountry);
+			b.text(NamespaceMapping.CONTACTS, "OtherAddressCountry", contact.otherAddressCountry);
 		}
 
 		// CarPhoneNumber
 
 		if (notEmpty(contact.otherAddressPostalCode)) {
-			b.text(NamespaceMapping.Contacts, "OtherAddressPostalCode", contact.otherAddressPostalCode);
+			b.text(NamespaceMapping.CONTACTS, "OtherAddressPostalCode", contact.otherAddressPostalCode);
 		}
 
 		if (notEmpty(contact.otherAddressState)) {
-			b.text(NamespaceMapping.Contacts, "OtherAddressState", contact.otherAddressState);
+			b.text(NamespaceMapping.CONTACTS, "OtherAddressState", contact.otherAddressState);
 		}
 
 		if (notEmpty(contact.otherAddressStreet)) {
-			b.text(NamespaceMapping.Contacts, "OtherAddressStreet", contact.otherAddressStreet);
+			b.text(NamespaceMapping.CONTACTS, "OtherAddressStreet", contact.otherAddressStreet);
 		}
 
 		if (notEmpty(contact.pagerNumber)) {
-			b.text(NamespaceMapping.Contacts, "PagerNumber", contact.pagerNumber);
+			b.text(NamespaceMapping.CONTACTS, "PagerNumber", contact.pagerNumber);
 		}
 
 		if (notEmpty(contact.title)) {
-			b.text(NamespaceMapping.Contacts, "Title", contact.title);
+			b.text(NamespaceMapping.CONTACTS, "Title", contact.title);
 		}
 		if (notEmpty(contact.businessAddressPostalCode)) {
-			b.text(NamespaceMapping.Contacts, "BusinessAddressPostalCode", contact.businessAddressPostalCode);
+			b.text(NamespaceMapping.CONTACTS, "BusinessAddressPostalCode", contact.businessAddressPostalCode);
 		}
 
 		if (notEmpty(contact.lastName)) {
-			b.text(NamespaceMapping.Contacts, "LastName", contact.lastName);
+			b.text(NamespaceMapping.CONTACTS, "LastName", contact.lastName);
 		}
 		if (notEmpty(contact.spouse)) {
-			b.text(NamespaceMapping.Contacts, "Spouse", contact.spouse);
+			b.text(NamespaceMapping.CONTACTS, "Spouse", contact.spouse);
 		}
 
 		if (notEmpty(contact.businessAddressState)) {
-			b.text(NamespaceMapping.Contacts, "BusinessAddressState", contact.businessAddressState);
+			b.text(NamespaceMapping.CONTACTS, "BusinessAddressState", contact.businessAddressState);
 		}
 
 		if (notEmpty(contact.businessAddressStreet)) {
-			b.text(NamespaceMapping.Contacts, "BusinessAddressStreet", contact.businessAddressStreet);
+			b.text(NamespaceMapping.CONTACTS, "BusinessAddressStreet", contact.businessAddressStreet);
 		}
 
 		if (notEmpty(contact.jobTitle)) {
-			b.text(NamespaceMapping.Contacts, "JobTitle", contact.jobTitle);
+			b.text(NamespaceMapping.CONTACTS, "JobTitle", contact.jobTitle);
 		}
 
 		// YomiFirstName
@@ -212,11 +212,11 @@ public class ContactResponseFormatter implements IEasFragmentFormatter<ContactRe
 		// RadioPhoneNumber
 
 		if (notEmpty(contact.picture)) {
-			b.text(NamespaceMapping.Contacts, "Picture", contact.picture);
+			b.text(NamespaceMapping.CONTACTS, "Picture", contact.picture);
 		}
 
 		if (contact.categories != null && !contact.categories.isEmpty()) {
-			b.container(NamespaceMapping.Contacts, "Categories");
+			b.container(NamespaceMapping.CONTACTS, "Categories");
 			for (String cat : contact.categories) {
 				b.text("Category", cat);// meow
 			}
@@ -228,17 +228,17 @@ public class ContactResponseFormatter implements IEasFragmentFormatter<ContactRe
 		// Contacts2:GovernmentId
 
 		if (notEmpty(contact.imAddress)) {
-			b.text(NamespaceMapping.Contacts2, "IMAddress", contact.imAddress);
+			b.text(NamespaceMapping.CONTACTS_2, "IMAddress", contact.imAddress);
 		}
 		if (notEmpty(contact.imAddress2)) {
-			b.text(NamespaceMapping.Contacts2, "IMAddress2", contact.imAddress2);
+			b.text(NamespaceMapping.CONTACTS_2, "IMAddress2", contact.imAddress2);
 		}
 		if (notEmpty(contact.imAddress3)) {
-			b.text(NamespaceMapping.Contacts2, "IMAddress3", contact.imAddress3);
+			b.text(NamespaceMapping.CONTACTS_2, "IMAddress3", contact.imAddress3);
 		}
 
 		if (notEmpty(contact.managerName)) {
-			b.text(NamespaceMapping.Contacts2, "ManagerName", contact.managerName);
+			b.text(NamespaceMapping.CONTACTS_2, "ManagerName", contact.managerName);
 		}
 
 		// Contacts2:CompanyMainPhone
@@ -246,7 +246,7 @@ public class ContactResponseFormatter implements IEasFragmentFormatter<ContactRe
 		// Contacts2:AccountName
 
 		if (notEmpty(contact.nickName)) {
-			b.text(NamespaceMapping.Contacts2, "NickName", contact.nickName);
+			b.text(NamespaceMapping.CONTACTS_2, "NickName", contact.nickName);
 		}
 
 		// Contacts2:MMS

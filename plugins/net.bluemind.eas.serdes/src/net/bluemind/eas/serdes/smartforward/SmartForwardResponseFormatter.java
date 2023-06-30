@@ -32,7 +32,7 @@ public class SmartForwardResponseFormatter implements IEasResponseFormatter<Smar
 		if (response == null) {
 			completion.onResult(null);
 		} else {
-			builder.start(NamespaceMapping.SmartForward);
+			builder.start(NamespaceMapping.SMART_FORWARD);
 			builder.text("Status", response.status.xmlValue());
 			builder.end(completion);
 		}

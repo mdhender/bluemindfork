@@ -32,7 +32,6 @@ import net.bluemind.eas.backend.SendMailData;
 import net.bluemind.eas.dto.EasBusEndpoints;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
-import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.sendmail.SendMailRequest;
 import net.bluemind.eas.dto.sendmail.SendMailResponse;
 import net.bluemind.eas.dto.sendmail.SendMailResponse.Status;
@@ -122,15 +121,8 @@ public class SendMailProtocol implements IEasProtocol<SendMailRequest, SendMailR
 			completion.handle(null);
 		} else {
 			SendMailResponseFormatter formatter = new SendMailResponseFormatter();
-
 			IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
-			formatter.format(builder, bs.getProtocolVersion(), response, new Callback<Void>() {
-
-				@Override
-				public void onResult(Void data) {
-					completion.handle(null);
-				}
-			});
+			formatter.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 		}
 	}
 

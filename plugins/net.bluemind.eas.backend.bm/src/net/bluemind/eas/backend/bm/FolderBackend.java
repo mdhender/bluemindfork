@@ -102,7 +102,7 @@ public class FolderBackend extends CoreConnect {
 			folder.parentUid = IMailReplicaUids.uniqueId(parent.containerUid);
 		}
 		folder.name = sf.getDisplayName();
-		ItemIdentifier itemId = getIMailboxFoldersService(bs, sf.getParentId()).createBasic(folder);
+		ItemIdentifier itemId = getMailboxFoldersServiceByCollection(bs, sf.getParentId()).createBasic(folder);
 
 		long parentId = 0;
 		String mailboxUid = bs.getUser().getUid();
@@ -125,7 +125,7 @@ public class FolderBackend extends CoreConnect {
 	}
 
 	public boolean deleteMailFolder(BackendSession bs, CollectionId collectionId, String containerUid) {
-		IMailboxFolders mboxFolders = getIMailboxFoldersService(bs, collectionId);
+		IMailboxFolders mboxFolders = getMailboxFoldersServiceByCollection(bs, collectionId);
 
 		String uniqueId = IMailReplicaUids.uniqueId(containerUid);
 		ItemValue<MailboxFolder> folder = mboxFolders.getComplete(uniqueId);
@@ -143,7 +143,7 @@ public class FolderBackend extends CoreConnect {
 	public boolean updateMailFolder(BackendSession bs, HierarchyNode node, CollectionId collectionId,
 			String displayName) {
 
-		IMailboxFolders mboxFolders = getIMailboxFoldersService(bs, collectionId);
+		IMailboxFolders mboxFolders = getMailboxFoldersServiceByCollection(bs, collectionId);
 
 		String uniqueId = IMailReplicaUids.uniqueId(node.containerUid);
 		ItemValue<MailboxFolder> folder = mboxFolders.getComplete(uniqueId);

@@ -28,21 +28,6 @@ import net.bluemind.eas.dto.tasks.TasksResponse;
 
 public class EmailResponse {
 
-	public static enum Importance {
-
-		Low(0), Normal(1), High(2);
-
-		private final String xmlValue;
-
-		private Importance(int value) {
-			xmlValue = Integer.toString(value);
-		}
-
-		public String xmlValue() {
-			return xmlValue;
-		}
-	}
-
 	// public static enum MeetingMessageType {
 	//
 	// SlientUpdate(0), InitialMeetingRequest(1), FullUpdate(2), //
@@ -107,7 +92,7 @@ public class EmailResponse {
 	public String threadTopic;
 	public Importance importance;
 	public boolean read;
-	public MessageClass messageClass = MessageClass.Note;
+	public MessageClass messageClass = MessageClass.NOTE;
 	public CalendarResponse meetingRequest;
 	public String internetCPID;
 	public Flag flag;

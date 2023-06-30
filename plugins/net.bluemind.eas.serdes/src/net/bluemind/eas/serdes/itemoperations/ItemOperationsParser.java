@@ -100,6 +100,7 @@ public class ItemOperationsParser implements IEasRequestParser<ItemOperationsReq
 				break;
 			case "Options":
 				op.options = parseEmptyFolderContentsOptions(elt);
+				break;
 			default:
 				logger.warn("EmptyFolderContents element {} not supported ", elt.getNodeName());
 				break;
@@ -156,7 +157,12 @@ public class ItemOperationsParser implements IEasRequestParser<ItemOperationsReq
 				op.serverId = elt.getTextContent();
 				break;
 			case "CollectionId":
-				op.collectionId = CollectionId.of(elt.getTextContent());
+				String collectionId = elt.getTextContent();
+				// iOS sends "kDAMailAccountAllMailboxesFolderID" as collectionId when fetching
+				// result from 'Find' command with no specified folder (Find in all folders)
+				if (!"kDAMailAccountAllMailboxesFolderID".equals(collectionId)) {
+					op.collectionId = CollectionId.of(collectionId);
+				}
 				break;
 			case "LinkId":
 				op.linkId = elt.getTextContent();
@@ -167,7 +173,6 @@ public class ItemOperationsParser implements IEasRequestParser<ItemOperationsReq
 			case "FileReference":
 				op.fileReference = elt.getTextContent();
 				break;
-
 			case "Options":
 				op.options = parseFetchOptions(elt);
 				break;
@@ -255,14 +260,10 @@ public class ItemOperationsParser implements IEasRequestParser<ItemOperationsReq
 			}
 
 			Element elt = (Element) node;
-			switch (elt.getNodeName()) {
-			case "MoveAlways":
+			if ("MoveAlways".equals(elt.getNodeName())) {
 				ret.moveAlways = true;
-				break;
-
-			default:
-				logger.warn("Move.Optio,ns element {} not supported ", elt.getNodeName());
-				break;
+			} else {
+				logger.warn("Move.Options element {} not supported ", elt.getNodeName());
 			}
 		}
 		return ret;

@@ -19,12 +19,11 @@
 package net.bluemind.eas.command.sync;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-
-import com.google.common.collect.ImmutableList;
 
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.IEasRequestEndpoint;
@@ -71,7 +70,7 @@ public class SyncEndpoint extends WbxmlHandlerBase implements IEasRequestEndpoin
 
 	@Override
 	public Collection<String> supportedCommands() {
-		return ImmutableList.of("Sync");
+		return List.of("Sync");
 	}
 
 	@Override

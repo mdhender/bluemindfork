@@ -19,8 +19,8 @@
 package net.bluemind.eas.command.mail.smartforward;
 
 import java.util.Collection;
+import java.util.List;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteSource;
 
 import io.vertx.core.AsyncResult;
@@ -77,7 +77,7 @@ public class SmartForwardEndpoint12 extends MailRequestBase implements IEasReque
 
 	@Override
 	public Collection<String> supportedCommands() {
-		return ImmutableList.of("SmartForward");
+		return List.of("SmartForward");
 	}
 
 	@Override

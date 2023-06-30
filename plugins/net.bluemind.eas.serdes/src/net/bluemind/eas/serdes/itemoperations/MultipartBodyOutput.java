@@ -40,7 +40,7 @@ public class MultipartBodyOutput implements IBodyOutput {
 	@Override
 	public void appendBody(IResponseBuilder builder, double protocolVersion, AppData ad,
 			Callback<IResponseBuilder> done) {
-		builder.text(NamespaceMapping.ItemOperations, "Part", Integer.toString(partNumber++));
+		builder.text(NamespaceMapping.ITEM_OPERATIONS, "Part", Integer.toString(partNumber++));
 		done.onResult(builder);
 	}
 
@@ -48,7 +48,7 @@ public class MultipartBodyOutput implements IBodyOutput {
 	public void appendAttachment(IResponseBuilder builder, double protocolVersion, AppData ad,
 			Callback<IResponseBuilder> done) {
 		// builder.container(NamespaceMapping.ItemOperations, "Data");
-		builder.text(NamespaceMapping.ItemOperations, "Part", Integer.toString(partNumber++));
+		builder.text(NamespaceMapping.ITEM_OPERATIONS, "Part", Integer.toString(partNumber++));
 		// builder.endContainer();
 		done.onResult(builder);
 	}

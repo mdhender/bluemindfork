@@ -40,7 +40,7 @@ public class SettingsResponseFormatter implements IEasResponseFormatter<Settings
 		if (logger.isDebugEnabled()) {
 			logger.debug("Formatting {}", sr);
 		}
-		builder.start(NamespaceMapping.Settings);
+		builder.start(NamespaceMapping.SETTINGS);
 		builder.text("Status", sr.status.xmlValue());
 
 		if (sr.userInformation != null) {

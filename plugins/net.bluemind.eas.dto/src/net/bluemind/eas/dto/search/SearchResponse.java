@@ -20,6 +20,8 @@ package net.bluemind.eas.dto.search;
 
 import java.util.List;
 
+import net.bluemind.eas.dto.base.Range;
+
 public class SearchResponse {
 
 	public static enum Status {

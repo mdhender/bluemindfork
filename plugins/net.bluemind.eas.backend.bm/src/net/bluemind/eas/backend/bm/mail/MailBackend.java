@@ -43,6 +43,7 @@ import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.HttpResponseBodyPart;
 import org.asynchttpclient.Response;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
 import com.google.common.io.ByteStreams;
@@ -51,7 +52,12 @@ import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxFolder;
+import net.bluemind.backend.mail.api.MailboxFolderSearchQuery;
 import net.bluemind.backend.mail.api.MailboxItem;
+import net.bluemind.backend.mail.api.MessageSearchResult.Mbox;
+import net.bluemind.backend.mail.api.SearchQuery;
+import net.bluemind.backend.mail.api.SearchResult;
+import net.bluemind.backend.mail.api.SearchSort;
 import net.bluemind.backend.mail.api.flags.FlagUpdate;
 import net.bluemind.backend.mail.api.flags.MailboxItemFlag;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
@@ -68,6 +74,7 @@ import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.api.ContainerHierarchyNode;
 import net.bluemind.core.container.api.ContainerSubscriptionModel;
+import net.bluemind.core.container.api.IContainersFlatHierarchy;
 import net.bluemind.core.container.api.IOwnerSubscriptions;
 import net.bluemind.core.container.model.ContainerChangeset;
 import net.bluemind.core.container.model.ItemFlag;
@@ -91,7 +98,15 @@ import net.bluemind.eas.dto.base.ChangeType;
 import net.bluemind.eas.dto.base.CollectionItem;
 import net.bluemind.eas.dto.base.DisposableByteSource;
 import net.bluemind.eas.dto.base.LazyLoaded;
+import net.bluemind.eas.dto.base.Range;
 import net.bluemind.eas.dto.email.EmailResponse;
+import net.bluemind.eas.dto.email.Importance;
+import net.bluemind.eas.dto.find.FindRequest;
+import net.bluemind.eas.dto.find.FindRequest.Options;
+import net.bluemind.eas.dto.find.FindRequest.Query;
+import net.bluemind.eas.dto.find.FindResponse;
+import net.bluemind.eas.dto.find.FindResponse.Response.Result.Properties;
+import net.bluemind.eas.dto.find.FindResponse.Status;
 import net.bluemind.eas.dto.moveitems.MoveItemsResponse;
 import net.bluemind.eas.dto.sync.CollectionId;
 import net.bluemind.eas.dto.sync.SyncState;
@@ -243,7 +258,7 @@ public class MailBackend extends CoreConnect {
 								.getCompleteById(folder.collectionId.getSubscriptionId().get());
 						mailboxUid = sub.value.owner;
 					}
-					IMailboxFolders service = getIMailboxFoldersService(bs, folder.collectionId);
+					IMailboxFolders service = getMailboxFoldersServiceByCollection(bs, folder.collectionId);
 					ItemValue<MailboxFolder> source = service.getComplete(folder.uid);
 					HierarchyNode sourceHierarchyNode = storage.getHierarchyNode(bs.getUniqueIdentifier(),
 							bs.getUser().getDomain(), mailboxUid,
@@ -627,6 +642,95 @@ public class MailBackend extends CoreConnect {
 		EmailResponse er = EmailManager.getInstance().loadStructure(bs, folder, id);
 		LazyLoaded<BodyOptions, AirSyncBaseResponse> bodyProvider = BodyLoaderFactory.from(bs, folder, id, bodyParams);
 		return AppData.of(er, bodyProvider);
+	}
+
+	public FindResponse.Response find(BackendSession bs, FindRequest query) throws CollectionNotFoundException {
+		Optional<MailFolder> folder = Optional.empty();
+
+		FindResponse.Response response = new FindResponse.Response();
+
+		if (query.executeSearch.mailBoxSearchCriterion != null) {
+			Query searchQuery = query.executeSearch.mailBoxSearchCriterion.query;
+			Options options = query.executeSearch.mailBoxSearchCriterion.options;
+
+			if (!Strings.isNullOrEmpty(searchQuery.collectionId)) {
+				try {
+					folder = Optional.of(storage.getMailFolder(bs, CollectionId.of(searchQuery.collectionId)));
+				} catch (CollectionNotFoundException e) {
+					logger.warn("Failed to find folder {}", searchQuery.collectionId);
+					throw e;
+				}
+			}
+
+			MailboxFolderSearchQuery mailboxSearchQuery = new MailboxFolderSearchQuery();
+			mailboxSearchQuery.query = new SearchQuery();
+			mailboxSearchQuery.sort = SearchSort.byField("date", SearchSort.Order.Desc);
+			mailboxSearchQuery.query.recordQuery = "-is:deleted";
+			mailboxSearchQuery.query.query = searchQuery.freeText;
+			mailboxSearchQuery.query.scope = new net.bluemind.backend.mail.api.SearchQuery.SearchScope();
+			if (folder.isPresent()) {
+				mailboxSearchQuery.query.scope.folderScope = new net.bluemind.backend.mail.api.SearchQuery.FolderScope();
+				mailboxSearchQuery.query.scope.folderScope.folderUid = folder.get().uid;
+				if (options != null) {
+					mailboxSearchQuery.query.scope.isDeepTraversal = options.deepTraversal;
+				}
+			}
+
+			if (options != null && options.range != null) {
+				mailboxSearchQuery.query.offset = options.range.min;
+				mailboxSearchQuery.query.maxResults = options.range.max;
+			}
+
+			IMailboxFolders mailboxFolderService = getMailboxFoldersService(bs);
+			SearchResult results = mailboxFolderService.searchItems(mailboxSearchQuery);
+
+			IContainersFlatHierarchy flatH = getService(bs, IContainersFlatHierarchy.class, bs.getUser().getDomain(),
+					bs.getUser().getUid());
+
+			response.results = new ArrayList<>(results.results.size());
+			results.results.forEach(messageSearchResult -> {
+				FindResponse.Response.Result result = new FindResponse.Response.Result();
+
+				String collectionId = searchQuery.collectionId;
+				if (Strings.isNullOrEmpty(collectionId)) {
+					String nodeUid = ContainerHierarchyNode.uidFor(messageSearchResult.containerUid,
+							IMailReplicaUids.MAILBOX_RECORDS, bs.getUser().getDomain());
+					ItemValue<ContainerHierarchyNode> hierarchyNode = flatH.getComplete(nodeUid);
+					collectionId = Long.toString(hierarchyNode.internalId);
+				}
+
+				result.serverId = CollectionItem.of(collectionId, messageSearchResult.itemId).toString();
+				result.collectionId = collectionId;
+
+				Properties properties = new FindResponse.Response.Result.Properties();
+				properties.subject = messageSearchResult.subject;
+				properties.dateReceived = messageSearchResult.date;
+				properties.displayTo = mboxToString(messageSearchResult.to);
+				properties.importance = messageSearchResult.flagged ? Importance.HIGH : Importance.NORMAL;
+				properties.read = messageSearchResult.seen;
+				properties.preview = messageSearchResult.preview;
+				properties.from = mboxToString(messageSearchResult.from);
+				result.properties = properties;
+
+				response.results.add(result);
+			});
+			response.total = results.totalResults;
+			response.range = Range.create(options.range.min, (options.range.max + response.total.intValue() - 1));
+
+			return response;
+		}
+
+		response.status = Status.INVALID_REQUEST;
+		return response;
+
+	}
+
+	private String mboxToString(Mbox mbox) {
+		if (!Strings.isNullOrEmpty(mbox.displayName)) {
+			return "\"" + mbox.displayName + "\" <" + mbox.address + ">";
+		}
+		return mbox.address;
+
 	}
 
 }

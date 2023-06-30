@@ -34,15 +34,15 @@ public class ProvisionResponseFormatter implements IEasResponseFormatter<Provisi
 			return;
 		}
 
-		builder.start(NamespaceMapping.Provision);
+		builder.start(NamespaceMapping.PROVISION);
 
 		if (protocolVersion > 14 && response.deviceInformation != null) {
-			builder.container(NamespaceMapping.Settings, "DeviceInformation");
+			builder.container(NamespaceMapping.SETTINGS, "DeviceInformation");
 			builder.text("Status", "1");
 			builder.endContainer();
 		}
 
-		builder.text(NamespaceMapping.Provision, "Status", response.status.xmlValue());
+		builder.text(NamespaceMapping.PROVISION, "Status", response.status.xmlValue());
 
 		if (response.policies != null) {
 			builder.container("Policies").container("Policy");

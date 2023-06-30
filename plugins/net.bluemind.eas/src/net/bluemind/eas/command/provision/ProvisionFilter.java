@@ -57,7 +57,7 @@ public class ProvisionFilter implements IEasRequestFilter {
 			if (query.protocolVersion() < 14) {
 				resp.sendStatus(449);
 			} else {
-				ProvisionHelper.forceProvisionProto14(query.command(), resp);
+				ProvisionHelper.forceProvision(query.command(), resp);
 			}
 		}
 	}

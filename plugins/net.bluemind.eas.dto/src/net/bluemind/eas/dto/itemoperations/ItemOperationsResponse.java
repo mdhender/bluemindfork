@@ -32,25 +32,25 @@ public class ItemOperationsResponse {
 
 	public enum Status {
 
-		Success(1), //
-		ProtocoleError(2), //
-		ServerError(3), //
-		SpecifiedURIBad(4), //
-		AccessDenied(5), //
-		ObjectNotFound(6), //
-		FailedConnectServer(7), //
-		ByteRangeInvalid(8), //
-		StoreUnknown(9), //
-		FileEmpty(10), //
-		RequestedDataTooLarge(11), //
-		FailDownloadFileIOFailure(12), //
-		ItemFailedConversion(14), //
-		AttachementInvalid(15), //
-		ResourceAccessDenied(16), //
-		PartialSuccess(17), //
-		CredentialRequired(18), //
-		ProtocolError(155), //
-		ActionNotSupported(156);
+		SUCCESS(1), //
+		PROTOCOLE_ERROR(2), //
+		SERVER_ERROR(3), //
+		SPECIFIED_URI_BAD(4), //
+		ACCESS_DENIED(5), //
+		OBJECT_NOT_FOUND(6), //
+		FAILED_CONNECT_SERVER(7), //
+		BYTE_RANGE_INVALID(8), //
+		STORE_UNKNOWN(9), //
+		FILE_EMPTY(10), //
+		REQUESTED_DATA_TOO_LARGE(11), //
+		FAIL_DOWNLOAD_FILE_IO_FAILURE(12), //
+		ITEM_FAILED_CONVERSION(14), //
+		ATTACHEMENT_INVALID(15), //
+		RESOURCE_ACCESS_DENIED(16), //
+		PARTIAL_SUCCESS(17), //
+		CREDENTIAL_REQUIRED(18), //
+		PROTOCOL_ERROR(155), //
+		ACTION_NOT_SUPPORTED(156);
 
 		private final String xmlValue;
 

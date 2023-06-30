@@ -28,7 +28,6 @@ import io.vertx.core.Handler;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
-import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.getitemestimate.GetItemEstimateRequest;
 import net.bluemind.eas.dto.getitemestimate.GetItemEstimateRequest.Collection;
 import net.bluemind.eas.dto.getitemestimate.GetItemEstimateResponse;
@@ -104,13 +103,7 @@ public class GetItemEstimateProtocol implements IEasProtocol<GetItemEstimateRequ
 		}
 		GetItemEstimateResponseFormatter formatter = new GetItemEstimateResponseFormatter();
 		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
-		formatter.format(builder, bs.getProtocolVersion(), response, new Callback<Void>() {
-
-			@Override
-			public void onResult(Void data) {
-				completion.handle(null);
-			}
-		});
+		formatter.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 	}
 
 	@Override

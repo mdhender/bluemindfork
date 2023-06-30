@@ -29,7 +29,6 @@ import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.IBackend;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
-import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.smartreply.SmartReplyRequest;
 import net.bluemind.eas.dto.smartreply.SmartReplyResponse;
 import net.bluemind.eas.dto.smartreply.SmartReplyResponse.Status;
@@ -108,13 +107,7 @@ public class SmartReplyProtocol implements IEasProtocol<SmartReplyRequest, Smart
 		} else {
 			SmartReplyResponseFormatter formatter = new SmartReplyResponseFormatter();
 			IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
-			formatter.format(builder, bs.getProtocolVersion(), response, new Callback<Void>() {
-
-				@Override
-				public void onResult(Void data) {
-					completion.handle(null);
-				}
-			});
+			formatter.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 		}
 	}
 

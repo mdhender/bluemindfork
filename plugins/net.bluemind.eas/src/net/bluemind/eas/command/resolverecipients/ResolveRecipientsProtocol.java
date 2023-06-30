@@ -30,7 +30,6 @@ import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.IBackend;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
-import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsRequest;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse.Response.Recipient;
@@ -99,13 +98,7 @@ public class ResolveRecipientsProtocol implements IEasProtocol<ResolveRecipients
 			final Handler<Void> completion) {
 		ResolveRecipientsResponseFormatter formatter = new ResolveRecipientsResponseFormatter();
 		IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
-		formatter.format(builder, bs.getProtocolVersion(), response, new Callback<Void>() {
-
-			@Override
-			public void onResult(Void data) {
-				completion.handle(null);
-			}
-		});
+		formatter.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));
 	}
 
 	@Override

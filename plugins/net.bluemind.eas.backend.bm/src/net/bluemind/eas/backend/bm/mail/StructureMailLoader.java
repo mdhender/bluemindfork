@@ -47,6 +47,7 @@ import net.bluemind.eas.backend.bm.mail.loader.EventProvider;
 import net.bluemind.eas.dto.calendar.CalendarResponse;
 import net.bluemind.eas.dto.calendar.CalendarResponse.InstanceType;
 import net.bluemind.eas.dto.email.EmailResponse;
+import net.bluemind.eas.dto.email.Importance;
 import net.bluemind.eas.dto.email.EmailResponse.Flag.Status;
 import net.bluemind.eas.dto.email.EmailResponse.LastVerbExecuted;
 import net.bluemind.eas.dto.email.MessageClass;
@@ -108,7 +109,7 @@ public class StructureMailLoader extends CoreConnect {
 		EmailResponse ret = new EmailResponse();
 		ret.subject = item.body.subject;
 		ret.threadTopic = ret.subject;
-		ret.importance = EmailResponse.Importance.Normal;
+		ret.importance = Importance.NORMAL;
 		ret.contentClass = "urn:content-classes:message";
 		ret.internetCPID = "65001";
 
@@ -144,7 +145,7 @@ public class StructureMailLoader extends CoreConnect {
 			String uid = cancel.get().firstValue();
 			ret.meetingRequest = new CalendarResponse();
 			ret.meetingRequest.uid = uid;
-			ret.messageClass = MessageClass.ScheduleMeetingCanceled;
+			ret.messageClass = MessageClass.SCHEDULE_MEETING_CANCELED;
 			return ret;
 		}
 
@@ -184,7 +185,7 @@ public class StructureMailLoader extends CoreConnect {
 			ret.meetingRequest = OldFormats.update(msEvent, bs.getUser());
 			ret.meetingRequest.itemUid = vevent.internalId;
 			ret.contentClass = "urn:content-classes:calendarmessage";
-			ret.messageClass = MessageClass.ScheduleMeetingRequest;
+			ret.messageClass = MessageClass.SCHEDULE_MEETING_REQUEST;
 			// msm.meetingMessageType =
 			// MeetingMessageType.InitialMeetingRequest;
 
