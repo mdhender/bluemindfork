@@ -17,16 +17,21 @@
  */
 package net.bluemind.lib.vertx;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSSocket;
 
 public class RouteMatcher implements Handler<HttpServerRequest> {
+	private static final Logger logger = LoggerFactory.getLogger(RouteMatcher.class);
 
 	private final Router router;
 	private final Vertx vertx;
@@ -73,6 +78,12 @@ public class RouteMatcher implements Handler<HttpServerRequest> {
 	}
 
 	public SockJSHandler websocket(String prefix, SockJSHandlerOptions hOpts, Handler<SockJSSocket> sock) {
+		// add a default body handler needed for XHR POST requests
+		BodyHandler defaultBodyHandler = BodyHandler.create();
+		router.post(prefix + "/*").handler(ctx -> {
+			defaultBodyHandler.handle(ctx);
+			logger.info("XHR POST endpoint:{} headers:{}", ctx.request().absoluteURI(), ctx.request().headers());
+		});
 		SockJSHandler handler = SockJSHandler.create(vertx, hOpts);
 		router.route(prefix + "/*").subRouter(handler.socketHandler(sock));
 		return handler;
