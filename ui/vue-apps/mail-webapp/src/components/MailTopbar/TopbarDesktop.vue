@@ -47,6 +47,9 @@ export default {
 @import "~@bluemind/ui-components/src/css/utils/responsiveness";
 @import "~@bluemind/ui-components/src/css/utils/typography";
 .topbar-desktop {
+    background-color: $surface-hi1;
+    height: base-px-to-rem(48);
+
     display: flex;
     flex: 1 1 auto;
     align-items: center;

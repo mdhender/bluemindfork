@@ -39,17 +39,10 @@ export default {
 @import "~@bluemind/ui-components/src/css/utils/responsiveness";
 
 .topbar {
-    background-color: $surface-hi1;
-    min-height: base-px-to-rem(48);
-    .topbar-desktop,
-    .topbar-actions-message-mobile,
-    .topbar-search-mobile,
-    .topbar-conversation-list-mobile {
-        flex: 1 1 auto;
-    }
-    @include until-lg {
-        background-color: $fill-primary-bg;
-        color: $fill-primary-fg;
+    .navbar {
+        padding-right: $sp-3;
+        min-width: 0;
+        flex: 1;
     }
     @media print {
         display: none !important;
