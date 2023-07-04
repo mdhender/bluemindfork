@@ -203,6 +203,12 @@ public class MailboxRecordStoreTests {
 		assertNotNull(asBindings);
 		assertFalse(asBindings.isEmpty());
 
+		List<String> labels = boxRecordStore.labels();
+		System.err.println("labels: " + labels);
+		assertEquals(2, labels.size());
+		assertTrue(labels.contains("$john"));
+		assertTrue(labels.contains("$bang"));
+
 		// we check for 0 & empty list because the bodies are not created
 		asBindings = boxRecordStore.havingBodyVersionLowerThan(0);
 		assertNotNull(asBindings);

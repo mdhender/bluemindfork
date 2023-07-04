@@ -27,6 +27,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.cmd.UidExpungeCommand;
+import net.bluemind.imap.endpoint.driver.ImapIdSet;
 import net.bluemind.imap.endpoint.driver.UpdateMode;
 import net.bluemind.lib.vertx.Result;
 
@@ -41,7 +42,7 @@ public class UidExpungeProcessor extends SelectedStateCommandProcessor<UidExpung
 
 	@Override
 	protected void checkedOperation(UidExpungeCommand command, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
-		ctx.mailbox().updateFlags(ctx.selected(), command.idset(), UpdateMode.Add,
+		ctx.mailbox().updateFlags(ctx.selected(), ImapIdSet.uids(command.idset()), UpdateMode.Add,
 				Collections.singletonList("\\Expunged"));
 		ctx.write(command.raw().tag() + " OK Completed\r\n");
 		completed.handle(Result.success());

@@ -128,7 +128,7 @@ public class MockConnection implements MailboxConnection {
 	}
 
 	@Override
-	public void updateFlags(SelectedFolder sf, String idset, UpdateMode mode, List<String> flags) {
+	public void updateFlags(SelectedFolder sf, ImapIdSet idset, UpdateMode mode, List<String> flags) {
 		logger.info("[{}] Should update flags of {}", sf.folder.displayName, idset);
 	}
 

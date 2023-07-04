@@ -40,6 +40,7 @@ public class DovecotImaptestRunner extends GenericContainer<DovecotImaptestRunne
 		@Override
 		public void accept(OutputFrame t) {
 			String s = t.getUtf8String();
+			System.err.println("ERR: " + s);
 			logFrames.add(s);
 		}
 

@@ -85,7 +85,6 @@ import net.bluemind.backend.mail.replica.api.MailboxReplica;
 import net.bluemind.backend.mail.replica.api.MailboxReplica.Acl;
 import net.bluemind.backend.mail.replica.api.WithId;
 import net.bluemind.backend.mail.replica.indexing.IDSet;
-import net.bluemind.core.container.api.Count;
 import net.bluemind.core.container.api.IOwnerSubscriptions;
 import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
@@ -210,8 +209,9 @@ public class MailApiConnection implements MailboxConnection {
 		IDbMailboxRecords recApi = prov.instance(ISyncDbMailboxRecords.class, existing.uid);
 		long exist = recApi.count(NOT_DELETED).total;
 		long unseen = recApi.count(UNSEEN).total;
+		List<String> labels = recApi.labels();
 		CyrusPartition part = CyrusPartition.forServerAndDomain(resolved.owner.value.dataLocation, me.domainUid);
-		return new SelectedFolder(resolved, existing, recApi, part.name, exist, unseen);
+		return new SelectedFolder(resolved, existing, recApi, part.name, exist, unseen, labels);
 	}
 
 	private IDbReplicatedMailboxes resolvedFolderApi(ItemValue<Mailbox> owner) {
@@ -409,9 +409,9 @@ public class MailApiConnection implements MailboxConnection {
 
 	private List<Long> resolveIdSet(IDbMailboxRecords recApi, ImapIdSet set) {
 		if (set.setStyle == IdKind.UID || set.serializedSet.equals("1:*")) {
-			return recApi.imapIdSet(set.serializedSet, "-deleted");
+			return recApi.imapIdSet(set.serializedSet, "");
 		} else {
-			List<Long> fullList = recApi.imapIdSet("1:*", "-deleted");
+			List<Long> fullList = recApi.imapIdSet("1:*", "");
 			long[] fullUidArray = fullList.stream().sorted().mapToLong(Long::longValue).toArray();
 			ListIterator<Long> iterator = IDSet.parse(set.serializedSet).iterateUid();
 			List<Long> ret = new ArrayList<>(fullUidArray.length);
@@ -427,7 +427,7 @@ public class MailApiConnection implements MailboxConnection {
 	}
 
 	private Map<Long, Integer> itemIdToSeqNum(IDbMailboxRecords recApi) {
-		List<Long> fullList = recApi.imapIdSet("1:*", "-deleted");
+		List<Long> fullList = recApi.imapIdSet("1:*", "");
 		long[] fullUidArray = fullList.stream().sorted().mapToLong(Long::longValue).toArray();
 		Map<Long, Integer> ret = new HashMap<>();
 		for (int i = 0; i < fullUidArray.length; i++) {
@@ -465,6 +465,11 @@ public class MailApiConnection implements MailboxConnection {
 			long imapUid = rec.value.imapUid;
 			FetchedItem fi = new FetchedItem();
 			fi.uid = (int) imapUid;
+			Integer maybeNullSeq = seqIndex.get(rec.itemId);
+			if (maybeNullSeq == null) {
+				logger.warn("seqindex unknown for {} using {}", rec, seqIndex);
+				continue;
+			}
 			fi.seq = seqIndex.get(rec.itemId);
 			fi.properties = renderer.renderFields(rec);
 			output.write(fi);
@@ -503,9 +508,11 @@ public class MailApiConnection implements MailboxConnection {
 
 	@Override
 	public void notIdle() {
-		if (activeCons != null) {
-			activeCons.close();
-			activeCons = null;
+		synchronized (myMailbox) {
+			if (activeCons != null) {
+				activeCons.close();
+				activeCons = null;
+			}
 		}
 	}
 
@@ -515,28 +522,30 @@ public class MailApiConnection implements MailboxConnection {
 		if (selected == null) {
 			// the fucking RFC allows in authenticated state
 			// https://datatracker.ietf.org/doc/html/rfc2177
-			logger.info("[{}] Outlook-idiocracy : IDLE without having a folder selected", this);
-			activeCons = null;
+			notIdle();
 		} else {
 			logger.info("idle monitoring on {}", selected.folder);
 			IDbMailboxRecords recApi = prov.instance(IDbMailboxRecords.class, selected.folder.uid);
 			String watchedUid = IMailReplicaUids.mboxRecords(selected.folder.uid);
 			Context idleContext = VertxContext.getOrCreateDuplicatedContext();
-			this.activeCons = MQ.registerConsumer(Topic.IMAP_ITEM_NOTIFICATIONS, msg -> idleContext.runOnContext(v -> {
-				JsonObject jsMsg = msg.toJson();
-				String contUid = jsMsg.getString("containerUid");
+			synchronized (myMailbox) {
+				this.activeCons = MQ.registerConsumer(Topic.IMAP_ITEM_NOTIFICATIONS,
+						msg -> idleContext.runOnContext(v -> {
+							JsonObject jsMsg = msg.toJson();
+							String contUid = jsMsg.getString("containerUid");
 
-				if (watchedUid.equals(contUid)) {
-					logger.info("Stuff happenned on watched folder for {} -> {}", out, msg);
-					Count exist = recApi.count(ItemFlagFilter.create().mustNot(ItemFlag.Deleted));
-					out.write(new IdleToken.CountToken("EXISTS", (int) exist.total));
-
-					List<FetchToken> changes = jsMsg.getJsonArray("changes").stream().map(JsonObject.class::cast)
-							.map(js -> js.mapTo(ImapChange.class)).map(ImapChange::fetch).toList();
-					Iterator<FetchToken> iter = changes.iterator();
-					iteratorToStream(iter, out);
-				}
-			}));
+							if (watchedUid.equals(contUid)) {
+								logger.info("Stuff happenned on watched folder for {} -> {}", out, msg);
+								Map<Long, Integer> iidToSeq = itemIdToSeqNum(recApi);
+								out.write(new IdleToken.CountToken("EXISTS", iidToSeq.size()));
+								List<FetchToken> changes = jsMsg.getJsonArray("changes").stream()
+										.map(JsonObject.class::cast).map(js -> js.mapTo(ImapChange.class))
+										.map(ic -> ic.fetch(iidToSeq)).toList();
+								Iterator<FetchToken> iter = changes.iterator();
+								iteratorToStream(iter, out);
+							}
+						}));
+			}
 		}
 	}
 
@@ -554,9 +563,10 @@ public class MailApiConnection implements MailboxConnection {
 	private static class ImapChange {
 		public long imap;
 		public Set<String> flags;
+		public long iid;
 
-		public IdleToken.FetchToken fetch() {
-			return new FetchToken(imap, flags);
+		public IdleToken.FetchToken fetch(Map<Long, Integer> iidToSeq) {
+			return new FetchToken(iidToSeq.get(iid), imap, flags);
 		}
 	}
 
@@ -641,9 +651,9 @@ public class MailApiConnection implements MailboxConnection {
 	}
 
 	@Override
-	public void updateFlags(SelectedFolder selected, String idset, UpdateMode mode, List<String> flags) {
+	public void updateFlags(SelectedFolder selected, ImapIdSet idset, UpdateMode mode, List<String> flags) {
 		IDbMailboxRecords recApi = prov.instance(ISyncDbMailboxRecords.class, selected.folder.uid);
-		List<Long> toUpdate = recApi.imapIdSet(idset, "");
+		List<Long> toUpdate = resolveIdSet(recApi, idset);
 		updateFlags(selected, toUpdate, mode, flags);
 	}
 

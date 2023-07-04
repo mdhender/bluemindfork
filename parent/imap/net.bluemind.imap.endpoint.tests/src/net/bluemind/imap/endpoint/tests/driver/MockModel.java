@@ -17,6 +17,7 @@
  */
 package net.bluemind.imap.endpoint.tests.driver;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -60,7 +61,7 @@ public class MockModel {
 		ImapMailbox imapBox = new ImapMailbox();
 		imapBox.owner = mbItem;
 
-		SelectedFolder sf = new SelectedFolder(imapBox, item, null, "part_bidon", 3, 1);
+		SelectedFolder sf = new SelectedFolder(imapBox, item, null, "part_bidon", 3, 1, List.of("NotJunk"));
 		folders.put(uid.toString(), sf);
 	}
 

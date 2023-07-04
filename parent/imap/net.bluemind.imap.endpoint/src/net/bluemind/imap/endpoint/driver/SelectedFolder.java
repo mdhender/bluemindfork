@@ -18,6 +18,8 @@
  */
 package net.bluemind.imap.endpoint.driver;
 
+import java.util.List;
+
 import com.google.common.base.MoreObjects;
 
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
@@ -32,15 +34,17 @@ public class SelectedFolder {
 	public final String partition;
 	public final IDbMailboxRecords recApi;
 	public final ImapMailbox mailbox;
+	public final List<String> labels;
 
 	public SelectedFolder(ImapMailbox mailbox, ItemValue<MailboxReplica> f, IDbMailboxRecords recApi, String partition,
-			long exist, long unseen) {
+			long exist, long unseen, List<String> labels) {
 		this.mailbox = mailbox;
 		this.folder = f;
 		this.partition = partition;
 		this.exist = exist;
 		this.unseen = unseen;
 		this.recApi = recApi;
+		this.labels = labels;
 	}
 
 	@Override

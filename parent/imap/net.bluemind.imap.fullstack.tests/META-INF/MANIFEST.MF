@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: net.bluemind.imap.fullstack.tests
 Bundle-SymbolicName: net.bluemind.imap.fullstack.tests
 Bundle-Version: 5.0.0.qualifier
-Bundle-Activator: net.bluemind.imap.fullstack.tests.FullstackActivator
 Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  org.junit,

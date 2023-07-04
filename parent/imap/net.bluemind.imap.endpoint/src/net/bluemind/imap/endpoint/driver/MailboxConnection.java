@@ -56,7 +56,7 @@ public interface MailboxConnection {
 
 	AppendStatus append(String folder, List<String> flags, Date deliveryDate, ByteBuf buffer);
 
-	void updateFlags(SelectedFolder sf, String idset, UpdateMode mode, List<String> flags);
+	void updateFlags(SelectedFolder sf, ImapIdSet idset, UpdateMode mode, List<String> flags);
 
 	void updateFlags(SelectedFolder selected, List<Long> toUpdate, UpdateMode mode, List<String> flags);
 

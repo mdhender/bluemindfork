@@ -91,6 +91,9 @@ public class SearchQuery {
 	private String afterOr;
 	private String rawCommand;
 
+	/**
+	 * Defaults to <code>uid search not deleted</code>
+	 */
 	public SearchQuery() {
 		this(null);
 	}
@@ -107,6 +110,7 @@ public class SearchQuery {
 		rangeMax = null;
 		this.headers = new HashMap<>();
 		this.notHeaders = new HashMap<>();
+		this.notDeleted = true;
 	}
 
 	public Date getAfter() {

@@ -22,6 +22,8 @@
   */
 package net.bluemind.imap.endpoint.exec;
 
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +58,7 @@ public abstract class AbstractSelectorProcessor<T extends AbstractFolderNameComm
 		StringBuilder resp = new StringBuilder();
 		resp.append("* " + selected.exist + " EXISTS\r\n");
 		resp.append("* 0 RECENT\r\n");
-		resp.append("* FLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen)\r\n");
+		resp.append("* FLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen" + extraLabels(selected) + ")\r\n");
 		resp.append("* OK [PERMANENTFLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen \\*)] Ok\r\n");
 		resp.append("* OK [UNSEEN " + selected.unseen + "] Ok\r\n");
 		resp.append("* OK [UIDVALIDITY " + selected.folder.value.uidValidity + "] Ok\r\n");
@@ -76,6 +78,15 @@ public abstract class AbstractSelectorProcessor<T extends AbstractFolderNameComm
 		}
 
 		completed.handle(Result.success());
+	}
+
+	private String extraLabels(SelectedFolder selected) {
+		String labels = selected.labels.stream().collect(Collectors.joining(" "));
+		if (!labels.isBlank()) {
+			return " " + labels;
+		} else {
+			return "";
+		}
 	}
 
 	private void missingFolder(T sc, ImapContext ctx, Handler<AsyncResult<Void>> completed) {

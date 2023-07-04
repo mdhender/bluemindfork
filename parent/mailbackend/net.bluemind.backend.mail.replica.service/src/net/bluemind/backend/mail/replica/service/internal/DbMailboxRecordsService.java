@@ -634,7 +634,7 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 	public List<Long> imapIdSet(String set, String filter) {
 		boolean validSet = CharMatcher.inRange('0', '9').or(CharMatcher.anyOf(":,*")).matchesAllOf(set);
 		if (!validSet) {
-			throw new ServerFault("invalide idset '" + set + "'", ErrorCode.INVALID_PARAMETER);
+			throw new ServerFault("invalid idset '" + set + "'", ErrorCode.INVALID_PARAMETER);
 		}
 
 		ItemFlagFilter itemFilter = ItemFlagFilter.fromQueryString(Optional.ofNullable(filter).orElse(""));
@@ -656,6 +656,15 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 			createById(item.internalId, item.value);
 		} else {
 			updateById(item.internalId, item.value);
+		}
+	}
+
+	@Override
+	public List<String> labels() {
+		try {
+			return recordStore.labels();
+		} catch (SQLException e) {
+			throw ServerFault.sqlFault(e);
 		}
 	}
 

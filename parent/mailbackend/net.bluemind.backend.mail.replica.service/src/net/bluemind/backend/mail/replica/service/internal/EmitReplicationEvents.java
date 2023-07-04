@@ -92,7 +92,7 @@ public class EmitReplicationEvents {
 			changedIds.add(l.itemId());
 			JsonArray flags = new JsonArray();
 			l.flags.forEach(flags::add);
-			JsonObject imapChange = new JsonObject().put("imap", l.imapUid).put("flags", flags);
+			JsonObject imapChange = new JsonObject().put("imap", l.imapUid).put("flags", flags).put("iid", l.itemId);
 			flaggedImapUids.add(imapChange);
 		}
 		payload.put("itemIds", changedIds);

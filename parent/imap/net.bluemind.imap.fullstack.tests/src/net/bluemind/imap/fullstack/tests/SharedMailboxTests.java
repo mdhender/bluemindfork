@@ -120,7 +120,7 @@ public class SharedMailboxTests {
 
 		VertxPlatform.spawnBlocking(25, TimeUnit.SECONDS);
 
-		PopulateHelper.initGlobalVirt(pipo);
+		PopulateHelper.initGlobalVirt(pipo, esServer);
 		String domUid = "devenv.blue";
 		this.alias = "devenv.red";
 		PopulateHelper.addDomain(domUid, Routing.internal, alias);

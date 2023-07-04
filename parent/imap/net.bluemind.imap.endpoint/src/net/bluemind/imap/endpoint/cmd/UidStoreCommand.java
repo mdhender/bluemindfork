@@ -17,6 +17,8 @@
  */
 package net.bluemind.imap.endpoint.cmd;
 
+import net.bluemind.imap.endpoint.driver.ImapIdSet;
+
 /**
  * 
  * <code>uid store 19 +flags (\seen \deleted)</code>
@@ -27,4 +29,10 @@ public class UidStoreCommand extends AbstractStoreCommand {
 	public UidStoreCommand(RawImapCommand raw) {
 		super(raw);
 	}
+
+	@Override
+	protected ImapIdSet fromSerializedSet(String set) {
+		return ImapIdSet.uids(set);
+	}
+
 }

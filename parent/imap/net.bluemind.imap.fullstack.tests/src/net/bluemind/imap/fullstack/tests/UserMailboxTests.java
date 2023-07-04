@@ -32,10 +32,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.google.common.collect.Lists;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import com.google.common.hash.HashingInputStream;
@@ -47,6 +49,7 @@ import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.core.api.Stream;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
+import net.bluemind.core.elasticsearch.ElasticsearchTestHelper;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.core.rest.ServerSideServiceProvider;
 import net.bluemind.core.rest.base.GenericStream;
@@ -84,11 +87,19 @@ public class UserMailboxTests {
 		pipo.ip = PopulateHelper.FAKE_CYRUS_IP;
 		pipo.tags = Collections.singletonList("mail/imap");
 
+		Server esServer = new Server();
+		esServer.ip = ElasticsearchTestHelper.getInstance().getHost();
+		Assert.assertNotNull(esServer.ip);
+		esServer.tags = Lists.newArrayList("bm/es");
+
 		VertxPlatform.spawnBlocking(25, TimeUnit.SECONDS);
 
-		PopulateHelper.initGlobalVirt(pipo);
+		PopulateHelper.initGlobalVirt(pipo, esServer);
 		String domUid = "devenv.blue";
 		PopulateHelper.addDomain(domUid, Routing.internal);
+
+		ElasticsearchTestHelper.getInstance().beforeTest();
+
 		String userUid = PopulateHelper.addUser("john", "devenv.blue", Routing.internal);
 		assertNotNull(userUid);
 
@@ -224,7 +235,7 @@ public class UserMailboxTests {
 		AtomicInteger addUid = new AtomicInteger();
 		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "john")) {
 			assertTrue(sc.login());
-			HashingInputStream hash = new HashingInputStream(Hashing.murmur3_32(), bigEml());
+			HashingInputStream hash = new HashingInputStream(Hashing.murmur3_32_fixed(), bigEml());
 			int added = sc.append("INBOX", hash, new FlagsList());
 			assertTrue(added > 0);
 			addUid.set(added);
@@ -234,7 +245,7 @@ public class UserMailboxTests {
 			try (IMAPByteSource fetch12 = sc.uidFetchMessage(added)) {
 				assertNotNull(fetch12);
 				System.err.println("Got " + fetch12.size() + " byte(s)");
-				try (HashingInputStream hashAfter = new HashingInputStream(Hashing.murmur3_32(),
+				try (HashingInputStream hashAfter = new HashingInputStream(Hashing.murmur3_32_fixed(),
 						fetch12.source().openBufferedStream())) {
 					byte[] data = ByteStreams.toByteArray(hashAfter);
 					HashCode after = hashAfter.hash();
@@ -304,6 +315,7 @@ public class UserMailboxTests {
 			assertTrue(added > 0);
 			sc.select("INBOX");
 			Collection<Integer> existing = sc.uidSearch(new SearchQuery());
+			assertFalse(existing.isEmpty());
 			Collection<MimeTree> structs = sc.uidFetchBodyStructure(existing);
 			assertFalse(structs.isEmpty());
 			MimeTree mt = structs.iterator().next();
@@ -322,6 +334,69 @@ public class UserMailboxTests {
 			IMAPByteSource thePart = sc.uidFetchPart(1, "1", null);
 			assertNotNull(thePart);
 
+		}
+	}
+
+	@Test
+	public void testStoreNoParens() throws IMAPException {
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "john")) {
+			assertTrue(sc.login());
+			int added = sc.append("INBOX", eml(), new FlagsList());
+			assertTrue(added > 0);
+			sc.select("INBOX");
+			TaggedResult resUidStore = sc.tagged("uid store " + added + " +flags \\seen");
+			assertTrue(resUidStore.isOk());
+			for (String s : resUidStore.getOutput()) {
+				System.err.println("S: " + s);
+			}
+
+			TaggedResult resStore = sc.tagged("store 1 -flags \\seen");
+			assertTrue(resStore.isOk());
+
+			TaggedResult deleteBySeq = sc.tagged("store 1 +flags \\deleted");
+			assertTrue(deleteBySeq.isOk());
+			boolean fetched = false;
+			for (String s : deleteBySeq.getOutput()) {
+				System.err.println("S: " + s);
+				fetched |= s.contains("FETCH");
+			}
+			assertTrue("deleted message should be fetched by non-silent store", fetched);
+
+		}
+	}
+
+	@Test
+	public void testDeletionsAreFetched() throws IMAPException {
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "john")) {
+			assertTrue(sc.login());
+			int one = sc.append("INBOX", eml(), new FlagsList());
+			assertTrue(one > 0);
+			int two = sc.append("INBOX", eml(), new FlagsList());
+			assertTrue(two > 0);
+			int three = sc.append("INBOX", eml(), new FlagsList());
+			assertTrue(three > 0);
+
+			sc.select("INBOX");
+			Collection<FlagsList> full = sc.uidFetchFlags("1:*");
+			assertEquals(3, full.size());
+
+			FlagsList delFlag = FlagsList.of(Flag.DELETED, Flag.SEEN);
+			boolean res = sc.uidStore("" + two, delFlag, true);
+			assertTrue(res);
+
+			Collection<FlagsList> withDel = sc.uidFetchFlags("1:*");
+			assertEquals(withDel.size(), full.size());
+			for (FlagsList fl : withDel) {
+				System.err.println("fl: " + fl);
+			}
+
+			Collection<Integer> del = sc.uidSearchDeleted();
+			assertEquals(1, del.size());
+
+			SearchQuery sq = new SearchQuery();
+			sq.setNotDeleted(false);
+			Collection<Integer> basicSearch = sc.uidSearch(sq);
+			assertEquals(3, basicSearch.size());
 		}
 	}
 

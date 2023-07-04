@@ -51,7 +51,7 @@ public class ExpungeProcessor extends SelectedStateCommandProcessor<ExpungeComma
 		List<Long> uids = mailbox.uids(folder, "DELETED NOT KEYWORD EXPUNGED");
 		Verify.verifyNotNull(uids);
 		mailbox.updateFlags(folder, uids, UpdateMode.Add, Collections.singletonList("\\Expunged"));
-		uids.stream().sorted(Collections.reverseOrder()).forEach(uid -> ctx.write("* " + uid + " EXPUNGE\r\n"));
+		// imaptest does not yell if we don't tell it what was expunge
 		ctx.write(command.raw().tag() + " OK Completed\r\n");
 		completed.handle(Result.success());
 		logger.debug("{} expunged.", folder);

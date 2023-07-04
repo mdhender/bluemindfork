@@ -44,13 +44,13 @@ public interface IdleToken {
 
 	}
 
-	public static record FetchToken(long uid, Set<String> flags) implements IdleToken {
+	public static record FetchToken(int seq, long uid, Set<String> flags) implements IdleToken {
 
 		@Override
 		public Buffer toBuffer() {
 			Buffer buf = Buffer.buffer();
-			buf.appendString(
-					"* " + uid + " FETCH (FLAGS (" + flags.stream().collect(Collectors.joining(" ")) + "))\r\n");
+			buf.appendString("* " + seq + " FETCH (FLAGS (" + flags.stream().collect(Collectors.joining(" ")) + ") UID "
+					+ uid + ")\r\n");
 			return buf;
 		}
 	}

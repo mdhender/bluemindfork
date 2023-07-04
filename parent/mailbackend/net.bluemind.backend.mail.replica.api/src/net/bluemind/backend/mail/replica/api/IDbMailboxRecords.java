@@ -68,6 +68,10 @@ public interface IDbMailboxRecords extends IChangelogSupport, IDataShardSupport,
 	Weight weight();
 
 	@GET
+	@Path("_labels")
+	List<String> labels();
+
+	@GET
 	@Path("_all")
 	List<ItemValue<MailboxRecord>> all();
 

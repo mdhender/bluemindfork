@@ -95,9 +95,6 @@ public class UidSearchAnalyzer {
 
 		qb.must(QueryBuilders.termQuery("in", folderUid));
 
-		// we never return deleted items
-		qb.mustNot(QueryBuilders.termQuery("is", "deleted"));
-
 		// Gets document with highest uid for keywords with sequences management
 		AggregationBuilder a = AggregationBuilders.max("uid_max").field("uid");
 		SearchResponse rMax = client.prepareSearch("mailspool_alias_" + meUid).setQuery(qb).addAggregation(a).setSize(0)

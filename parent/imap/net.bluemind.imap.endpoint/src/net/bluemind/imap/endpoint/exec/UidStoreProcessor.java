@@ -43,7 +43,7 @@ public class UidStoreProcessor extends SelectedStateCommandProcessor<UidStoreCom
 			ctx.write(command.raw().tag() + " OK Completed\r\n");
 			completed.handle(Result.success());
 		} else {
-			String asFetch = command.raw().tag() + " UID FETCH " + command.idset() + " (FLAGS)";
+			String asFetch = command.raw().tag() + " UID FETCH " + command.idset().serializedSet + " (FLAGS)";
 			RawImapCommand raw = new RawImapCommand(
 					Collections.singletonList(Part.endOfCommand(Unpooled.wrappedBuffer(asFetch.getBytes()))));
 			UidFetchCommand fetch = new UidFetchCommand(raw);

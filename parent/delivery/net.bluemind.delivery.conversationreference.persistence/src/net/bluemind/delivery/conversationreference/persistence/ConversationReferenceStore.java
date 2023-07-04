@@ -66,10 +66,10 @@ public class ConversationReferenceStore extends JdbcAbstractStore {
 
 	public ConversationReference create(ConversationReference conversationReference) throws SQLException {
 		var conversationRefList = create(List.of(conversationReference));
-		if (conversationRefList != null) {
+		if (conversationRefList != null && !conversationRefList.isEmpty()) {
 			return conversationRefList.get(0);
 		} else {
-			return null;
+			return conversationReference;
 		}
 	}
 

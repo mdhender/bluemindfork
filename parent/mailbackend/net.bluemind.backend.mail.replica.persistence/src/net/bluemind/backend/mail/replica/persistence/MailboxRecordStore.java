@@ -375,4 +375,10 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 				Collectors.toMap(getSelector, a -> a, (v1, v2) -> v1, () -> new HashMap<>(2 * selectors.size())));
 		return selectors.stream().map(index::get).filter(Objects::nonNull).toList();
 	}
+
+	public List<String> labels() throws SQLException {
+		return select(
+				"SELECT DISTINCT unnest(other_flags) FROM t_mailbox_record WHERE subtree_id = ? AND container_id = ? ORDER BY 1",
+				StringCreator.FIRST, Collections.emptyList(), new Object[] { subtreeContainer.id, folderContainer.id });
+	}
 }

@@ -38,12 +38,16 @@ public class UIDSearchCommand extends AbstractUIDSearchCommand {
 
 	@Override
 	protected CommandArgument buildCommand() {
-		String cmd = "UID SEARCH NOT DELETED";
+		String prefix = "UID SEARCH";
+		String cmd = "";
 		if (sq.isUnseenOnly()) {
 			cmd += " UNSEEN";
 		}
 		if (sq.isAll()) {
 			cmd += " ALL";
+		}
+		if (sq.isNotDeleted()) {
+			cmd += " NOT DELETED";
 		}
 		if (sq.isNotSeen()) {
 			cmd += " NOT SEEN";
@@ -207,9 +211,6 @@ public class UIDSearchCommand extends AbstractUIDSearchCommand {
 		if (sq.getSeq() != null) {
 			cmd += " " + sq.getSeq();
 		}
-		if (sq.getRawCommand() != null) {
-			cmd = "UID SEARCH " + sq.getRawCommand();
-		}
 
 		Map<String, String> heads = sq.getHeaders();
 		if (!heads.isEmpty()) {
@@ -227,6 +228,14 @@ public class UIDSearchCommand extends AbstractUIDSearchCommand {
 
 		if (sq.getAfterOr() != null && sq.getBeforeOr() != null) {
 			cmd += " OR " + sq.getBeforeOr() + " " + sq.getAfterOr();
+		}
+		if (cmd.isBlank()) {
+			cmd = " ALL";
+		}
+		cmd = prefix + cmd;
+
+		if (sq.getRawCommand() != null) {
+			cmd = "UID SEARCH " + sq.getRawCommand();
 		}
 
 		return new CommandArgument(cmd, null);

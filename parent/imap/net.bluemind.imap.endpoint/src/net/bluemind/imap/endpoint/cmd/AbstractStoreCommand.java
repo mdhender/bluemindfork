@@ -30,13 +30,14 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Splitter;
 
 import net.bluemind.imap.endpoint.EndpointRuntimeException;
+import net.bluemind.imap.endpoint.driver.ImapIdSet;
 import net.bluemind.imap.endpoint.driver.UpdateMode;
 
-public class AbstractStoreCommand extends AnalyzedCommand {
+public abstract class AbstractStoreCommand extends AnalyzedCommand {
 
 	private static final Pattern fetchTemplate = Pattern.compile("(uid )?store ([^\\s]+) (.*)$",
 			Pattern.CASE_INSENSITIVE);
-	private String idset;
+	private ImapIdSet idset;
 	private List<String> flags;
 	private UpdateMode mode;
 	private boolean silent;
@@ -47,12 +48,14 @@ public class AbstractStoreCommand extends AnalyzedCommand {
 		Matcher m = fetchTemplate.matcher(fetch);
 
 		if (m.find()) {
-			idset = m.group(2);
+			idset = fromSerializedSet(m.group(2));
 			parseFlags(m);
 		} else {
 			throw new EndpointRuntimeException("Cannot analyze store cmd " + fetch);
 		}
 	}
+
+	protected abstract ImapIdSet fromSerializedSet(String set);
 
 	protected void parseFlags(Matcher m) {
 		String flagOrig = m.group(3);
@@ -71,16 +74,16 @@ public class AbstractStoreCommand extends AnalyzedCommand {
 			break;
 		}
 		silent = flagChange.contains(".silent");
-		int startIdx = flagChange.indexOf('(');
+		int startIdx = Math.max(flagChange.indexOf(' '), flagChange.indexOf('('));
 		int endIdx = flagChange.indexOf(')');
 		if (startIdx != -1 && endIdx != -1) {
 			flags = Splitter.on(' ').omitEmptyStrings().splitToList(flagOrig.substring(startIdx + 1, endIdx));
 		} else {
-			flags = Splitter.on(' ').omitEmptyStrings().splitToList(flagOrig);
+			flags = Splitter.on(' ').omitEmptyStrings().splitToList(flagOrig.substring(startIdx + 1));
 		}
 	}
 
-	public String idset() {
+	public ImapIdSet idset() {
 		return idset;
 	}
 
