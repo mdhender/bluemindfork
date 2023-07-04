@@ -45,8 +45,7 @@ export default {
         white-space: nowrap;
         color: $primary-fg-hi1;
 
-        @include bold;
-        letter-spacing: -0.04em;
+        @include bold-tight;
     }
 }
 </style>

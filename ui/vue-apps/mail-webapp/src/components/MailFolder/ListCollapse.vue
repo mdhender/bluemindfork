@@ -83,8 +83,7 @@ export default {
                 text-overflow: ellipsis;
                 white-space: nowrap;
 
-                @include bold;
-                letter-spacing: -0.04em;
+                @include bold-tight;
             }
         }
 

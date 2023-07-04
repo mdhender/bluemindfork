@@ -37,6 +37,10 @@ body,
     @include bold;
 }
 
+.bold-tight {
+    @include bold-tight;
+}
+
 b.medium,
 .bold.medium,
 .bold-medium {

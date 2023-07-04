@@ -58,6 +58,11 @@
     font-style: normal;
 }
 
+@mixin bold-tight {
+    @include bold;
+    letter-spacing: -0.04em;
+}
+
 @mixin bold-medium {
     font-weight: $font-weight-bold;
     font-size: $font-size-base;
