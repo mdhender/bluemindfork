@@ -67,6 +67,7 @@ import { ERROR, REMOVE } from "@bluemind/alert.store";
 import { inject } from "@bluemind/inject";
 import { BmAlertArea, BmButton, BmModal, BmFormInput } from "@bluemind/ui-components";
 import { searchVCardsHelper } from "@bluemind/contact";
+import debounce from "lodash.debounce";
 import AddressBookList from "./AddressBookList";
 import ContactList from "./ContactList";
 import SelectedContacts from "./SelectedContacts";
@@ -107,14 +108,14 @@ export default {
                 .map(({ dn, address }) => this.contacts.find(({ name, email }) => dn === name && address === email))
                 .filter(Boolean);
         },
-        resettable() {
-            return Boolean(this.search);
-        },
         contacts() {
-            if (this.resettable) {
+            if (this.resettable && this.searchedContacts != null) {
                 return this.searchedContacts;
             }
             return this.allContacts;
+        },
+        resettable() {
+            return Boolean(this.search);
         }
     },
     watch: {
@@ -146,7 +147,31 @@ export default {
                 );
             }
         },
-        async search(searchValue) {
+        search(searchValue) {
+            if (shouldResetSearch()) {
+                this.searchedContacts = null;
+            }
+            this.performSearch(searchValue);
+
+            function shouldResetSearch() {
+                return !this.searchedContacts?.length || searchValue === "";
+            }
+        }
+    },
+    async created() {
+        this.userId = inject("UserSession").userId;
+        this.addressBooks = await inject("ContainersPersistence").getContainers(await this.subscribedContainerUids());
+    },
+    methods: {
+        async subscribedContainerUids() {
+            return (await inject("OwnerSubscriptionsPersistence").list())
+                .filter(sub => sub.value.containerType === "addressbook")
+                .map(sub => sub.value.containerUid);
+        },
+        addressbookById(addressbookId) {
+            return this.addressBooks.find(a => a.uid === addressbookId) || {};
+        },
+        performSearch: debounce(async function (searchValue) {
             if (searchValue) {
                 this.loading = true;
 
@@ -165,19 +190,8 @@ export default {
 
                 this.loading = false;
             }
-        }
-    },
-    async created() {
-        this.userId = inject("UserSession").userId;
-        this.addressBooks = await inject("ContainersPersistence").getContainers(await this.subscribedContainerUids());
-    },
-    methods: {
+        }, 700),
         ...mapActions("alert", { ERROR, REMOVE }),
-        async subscribedContainerUids() {
-            return (await inject("OwnerSubscriptionsPersistence").list())
-                .filter(sub => sub.value.containerType === "addressbook")
-                .map(sub => sub.value.containerUid);
-        },
         updateSelected(contacts) {
             const contactUids = contacts.map(({ uid }) => uid);
             const selected = [...this.selected];
