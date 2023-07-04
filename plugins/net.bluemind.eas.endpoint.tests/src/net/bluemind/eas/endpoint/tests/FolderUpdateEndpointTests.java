@@ -96,7 +96,7 @@ public class FolderUpdateEndpointTests extends AbstractEndpointTest {
 		Document d = WBXMLTools.toXml(content.getBytes());
 
 		Element status = DOMUtils.getUniqueElement(d.getDocumentElement(), "Status");
-		assertEquals(FolderUpdateResponse.Status.DoesNotExist.xmlValue(), status.getTextContent());
+		assertEquals(FolderUpdateResponse.Status.DOES_NOT_EXIST.xmlValue(), status.getTextContent());
 	}
 
 	public void testUpdateFolderBadServerId() throws IOException {
@@ -113,7 +113,7 @@ public class FolderUpdateEndpointTests extends AbstractEndpointTest {
 		Document d = WBXMLTools.toXml(content.getBytes());
 
 		Element status = DOMUtils.getUniqueElement(d.getDocumentElement(), "Status");
-		assertEquals(FolderUpdateResponse.Status.InvalidRequest.xmlValue(), status.getTextContent());
+		assertEquals(FolderUpdateResponse.Status.INVALID_REQUEST.xmlValue(), status.getTextContent());
 	}
 
 	public void testUpdateFolderBadParentId() throws IOException {
@@ -130,7 +130,7 @@ public class FolderUpdateEndpointTests extends AbstractEndpointTest {
 		Document d = WBXMLTools.toXml(content.getBytes());
 
 		Element status = DOMUtils.getUniqueElement(d.getDocumentElement(), "Status");
-		assertEquals(FolderUpdateResponse.Status.InvalidRequest.xmlValue(), status.getTextContent());
+		assertEquals(FolderUpdateResponse.Status.INVALID_REQUEST.xmlValue(), status.getTextContent());
 	}
 
 	public void testUpdateFolderParentDoesNotExists() throws IOException {
@@ -153,7 +153,7 @@ public class FolderUpdateEndpointTests extends AbstractEndpointTest {
 		Document d = WBXMLTools.toXml(content.getBytes());
 
 		Element status = DOMUtils.getUniqueElement(d.getDocumentElement(), "Status");
-		assertEquals(FolderUpdateResponse.Status.ParentFolderNotFound.xmlValue(), status.getTextContent());
+		assertEquals(FolderUpdateResponse.Status.PARENT_FOLDER_NOT_FOUND.xmlValue(), status.getTextContent());
 	}
 
 	private F createFolder(String syncKey) throws IOException {

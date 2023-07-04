@@ -142,7 +142,7 @@ public class PingEndpointTests extends AbstractEndpointTest {
 		assertTrue(intervalValue > 0);
 		Element status = DOMUtils.getUniqueElement(pingResponse.getDocumentElement(), "Status");
 		assertNotNull(status);
-		assertEquals(PingResponse.Status.InvalidHeartbeatInterval.xmlValue(), status.getTextContent());
+		assertEquals(PingResponse.Status.INVALID_HEARTBEAT_INTERVAL.xmlValue(), status.getTextContent());
 	}
 
 	/**
@@ -175,7 +175,7 @@ public class PingEndpointTests extends AbstractEndpointTest {
 			assertNotNull(pingResponse);
 			Element status = DOMUtils.getUniqueElement(pingResponse.getDocumentElement(), "Status");
 			assertNotNull(status);
-			assertEquals(PingResponse.Status.MissingParameter.xmlValue(), status.getTextContent());
+			assertEquals(PingResponse.Status.MISSING_PARAMETER.xmlValue(), status.getTextContent());
 		} catch (TimeoutException e) {
 			e.printStackTrace();
 			fail("This should not timeout as ping does not know what to monitor");
@@ -221,7 +221,7 @@ public class PingEndpointTests extends AbstractEndpointTest {
 			assertNotNull(content);
 			assertEquals(200, lastAsyncResponse.getStatusCode());
 			Document pingResponse = WBXMLTools.toXml(content.getBytes());
-			assertEquals(PingResponse.Status.ChangesOccurred.xmlValue(),
+			assertEquals(PingResponse.Status.CHANGES_OCCURRED.xmlValue(),
 					DOMUtils.getUniqueElement(pingResponse.getDocumentElement(), "Status").getTextContent());
 			assertEquals(Integer.toString(inboxServerId),
 					DOMUtils.getUniqueElement(pingResponse.getDocumentElement(), "Folder").getTextContent());

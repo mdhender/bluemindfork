@@ -24,9 +24,9 @@ import net.bluemind.eas.dto.base.Range;
 
 public class SearchResponse {
 
-	public static enum Status {
+	public enum Status {
 
-		Success(1), ServerError(2);
+		SUCCESS(1), SERVER_ERROR(2);
 
 		private final String xmlValue;
 
@@ -41,12 +41,12 @@ public class SearchResponse {
 	}
 
 	public static final class Store {
-		public static enum Status {
+		public enum Status {
 
-			Success(1), InvalidRequest(2), ServerError(2), //
-			BadLink(4), AccessDenied(5), NotFound(6), ConnectionFailed(7), //
-			TooComplex(8), TimeOut(10), FolderSyncRequired(11), EndOfRetrievableRange(12), //
-			AccessBlocked(13), CredentialsRequired(14);
+			SUCCESS(1), INVALID_REQUEST(2), SERVER_ERROR(2), //
+			BAD_LINK(4), ACCESS_DENIED(5), NOT_FOUND(6), CONNECTION_FAILED(7), //
+			TOO_COMPLEX(8), TIMEOUT(10), FOLDER_SYNC_REQUIRED(11), END_OF_RETRIEVABLE_RANGE(12), //
+			ACCESS_BLOCKED(13), CREDENTIALS_REQUIRED(14);
 
 			private final String xmlValue;
 

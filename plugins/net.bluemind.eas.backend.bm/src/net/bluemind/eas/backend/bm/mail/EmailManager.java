@@ -138,7 +138,7 @@ public class EmailManager extends CoreConnect {
 				} else {
 					r.dstMsgId = r.srcMsgId;
 				}
-				r.status = Status.Success;
+				r.status = Status.SUCCESS;
 				ret.add(r);
 			}
 			return ret;
@@ -148,7 +148,7 @@ public class EmailManager extends CoreConnect {
 				MoveItemsResponse.Response r = new MoveItemsResponse.Response();
 				r.srcMsgId = srcFolder.collectionId.getValue() + ":" + id;
 				r.dstMsgId = r.srcMsgId;
-				r.status = Status.SourceOrDestinationLocked;
+				r.status = Status.SOURCE_OR_DESTINATION_LOCKED;
 				ret.add(r);
 			});
 			return ret;

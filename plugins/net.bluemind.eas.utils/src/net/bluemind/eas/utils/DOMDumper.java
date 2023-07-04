@@ -47,8 +47,10 @@ public class DOMDumper {
 			if (!withData) {
 				trim(c, "ApplicationData");
 				trim(c, "AirSyncBase:Data");
-				trim(c, "Data");
 			}
+
+			// always trim Data
+			trim(c, "Data");
 
 			// always trim Mime data (ComposeMail)
 			trim(c, "Mime");

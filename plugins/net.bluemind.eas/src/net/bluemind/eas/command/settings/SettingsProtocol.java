@@ -65,7 +65,7 @@ public class SettingsProtocol implements IEasProtocol<SettingsRequest, SettingsR
 		}
 
 		SettingsResponse response = new SettingsResponse();
-		response.status = SettingsStatus.Ok;
+		response.status = SettingsStatus.OK;
 		if (sr.userInformation != null && sr.userInformation.get != null) {
 			UserInformation ui = new SettingsResponse.UserInformation();
 			response.userInformation = ui;

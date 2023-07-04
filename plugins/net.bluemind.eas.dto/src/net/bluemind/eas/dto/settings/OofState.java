@@ -20,11 +20,11 @@ package net.bluemind.eas.dto.settings;
 
 public enum OofState {
 
-	disabled(0),
+	DISABLED(0),
 
-	global(1),
+	GLOBAL(1),
 
-	timeBased(2);
+	TIME_BASED(2);
 
 	private final String xmlValue;
 
@@ -39,11 +39,11 @@ public enum OofState {
 	public static OofState fromXml(String s) {
 		switch (s) {
 		case "0":
-			return OofState.disabled;
+			return OofState.DISABLED;
 		case "1":
-			return OofState.global;
+			return OofState.GLOBAL;
 		case "2":
-			return timeBased;
+			return TIME_BASED;
 		default:
 			return null;
 		}

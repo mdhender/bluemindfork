@@ -28,8 +28,20 @@ import net.bluemind.eas.dto.base.CollectionItem;
 public class CollectionSyncResponse {
 
 	public static class ServerChange {
-		public static enum ChangeType {
-			Add, Change, Delete, SoftDelete;
+		public enum ChangeType {
+
+			ADD("Add"), CHANGE("Change"), DELETE("Delete"), SOFT_DELETE("SoftDelete");
+
+			private final String value;
+
+			private ChangeType(String value) {
+				this.value = value;
+			}
+
+			public String xmlValue() {
+				return value;
+			}
+
 		}
 
 		public CollectionItem item;
@@ -42,8 +54,20 @@ public class CollectionSyncResponse {
 	 * Response items for client changes & fetch requests
 	 */
 	public static class ServerResponse {
-		public static enum Operation {
-			Add, Change, Delete, Fetch;
+
+		public enum Operation {
+			ADD("Add"), CHANGE("Change"), DELETE("Delete"), FETCH("Fetch");
+
+			private final String value;
+
+			private Operation(String value) {
+				this.value = value;
+			}
+
+			public String xmlValue() {
+				return value;
+			}
+
 		}
 
 		public SyncStatus ackStatus;
@@ -58,7 +82,7 @@ public class CollectionSyncResponse {
 		/**
 		 * data is present on Fetch
 		 */
-		public Optional<AppData> fetch;
+		public Optional<AppData> fetch = Optional.empty();
 
 	}
 

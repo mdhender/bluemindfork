@@ -24,9 +24,9 @@ import net.bluemind.eas.dto.settings.SettingsResponse.DeviceInformation;
 
 public class ProvisionResponse {
 
-	public static enum Status {
+	public enum Status {
 
-		Success(1), ProtocolError(2), ServerError(3);
+		SUCCESS(1), PROTOCOL_ERROR(2), SERVER_ERROR(3);
 
 		private final String xmlValue;
 
@@ -44,9 +44,9 @@ public class ProvisionResponse {
 
 		public static final class Policy {
 
-			public static enum Status {
+			public enum Status {
 
-				Success(1), NoPolicy(2), Unknown(3), Corrupted(4), Wrong(5);
+				SUCCESS(1), NO_POLICY(2), UNKNOWN(3), CORRUPTED(4), WRONG(5);
 
 				private final String xmlValue;
 

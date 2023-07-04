@@ -96,7 +96,7 @@ public class FolderCreateEndpointTests extends AbstractEndpointTest {
 		Document d = WBXMLTools.toXml(content.getBytes());
 
 		Element status = DOMUtils.getUniqueElement(d.getDocumentElement(), "Status");
-		assertEquals(FolderCreateResponse.Status.ParentFolderNotFound.xmlValue(), status.getTextContent());
+		assertEquals(FolderCreateResponse.Status.PARENT_FOLDER_NOT_FOUND.xmlValue(), status.getTextContent());
 	}
 
 	private String initFolder() throws IOException {

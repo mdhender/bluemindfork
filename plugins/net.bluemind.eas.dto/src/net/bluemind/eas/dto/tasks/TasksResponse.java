@@ -25,9 +25,9 @@ import net.bluemind.eas.dto.calendar.CalendarResponse.Recurrence;
 import net.bluemind.eas.dto.calendar.CalendarResponse.Sensitivity;
 
 public class TasksResponse {
-	public static enum Importance {
+	public enum Importance {
 
-		Low(0), Normal(1), High(2);
+		LOW(0), NORMAL(1), HIGH(2);
 
 		private final String xmlValue;
 

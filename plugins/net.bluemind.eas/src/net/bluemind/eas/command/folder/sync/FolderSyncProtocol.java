@@ -96,12 +96,12 @@ public class FolderSyncProtocol implements IEasProtocol<FolderSyncRequest, Folde
 		if (state == null) {
 			logger.error("SyncState is not valid. Send Invalid SyncKey to device: {}, key: {}", bs.getDevId(), syncKey);
 			resets.put(bs.getDevId(), System.currentTimeMillis());
-			response.status = Status.InvalidSyncKey;
+			response.status = Status.INVALID_SYNC_KEY;
 			responseHandler.handle(response);
 			return;
 		}
 
-		response.status = Status.Success;
+		response.status = Status.SUCCESS;
 		try {
 			FolderChanges changes = exporter.getChanges(bs, state);
 
@@ -125,7 +125,7 @@ public class FolderSyncProtocol implements IEasProtocol<FolderSyncRequest, Folde
 		} catch (Exception e) {
 			logger.error("Fail to send FolderHierarchy response", e);
 			response = new FolderSyncResponse();
-			response.status = Status.ServerError;
+			response.status = Status.SERVER_ERROR;
 			responseHandler.handle(response);
 		}
 	}

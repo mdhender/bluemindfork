@@ -79,7 +79,7 @@ public class FolderDeleteProtocol implements IEasProtocol<FolderDeleteRequest, F
 			store.getHierarchyNode(bs, query.serverId);
 		} catch (CollectionNotFoundException e1) {
 			logger.error("ServerId {} does not exist", query.serverId);
-			response.status = Status.DoesNotExist;
+			response.status = Status.DOES_NOT_EXIST;
 			responseHandler.handle(response);
 			return;
 		}
@@ -89,11 +89,11 @@ public class FolderDeleteProtocol implements IEasProtocol<FolderDeleteRequest, F
 
 		if (deleted) {
 			StateMachine sm = new StateMachine(store);
-			response.status = Status.Success;
+			response.status = Status.SUCCESS;
 			response.syncKey = sm.generateSyncKey(ItemDataType.FOLDER);
 			responseHandler.handle(response);
 		} else {
-			response.status = Status.ServerError;
+			response.status = Status.SERVER_ERROR;
 			responseHandler.handle(response);
 		}
 

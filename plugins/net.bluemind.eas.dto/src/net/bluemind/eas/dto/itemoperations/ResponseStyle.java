@@ -19,5 +19,5 @@
 package net.bluemind.eas.dto.itemoperations;
 
 public enum ResponseStyle {
-	Inline, Multipart;
+	INLINE, MULTIPART;
 }

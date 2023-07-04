@@ -47,9 +47,9 @@ import net.bluemind.eas.backend.bm.mail.loader.EventProvider;
 import net.bluemind.eas.dto.calendar.CalendarResponse;
 import net.bluemind.eas.dto.calendar.CalendarResponse.InstanceType;
 import net.bluemind.eas.dto.email.EmailResponse;
-import net.bluemind.eas.dto.email.Importance;
 import net.bluemind.eas.dto.email.EmailResponse.Flag.Status;
 import net.bluemind.eas.dto.email.EmailResponse.LastVerbExecuted;
+import net.bluemind.eas.dto.email.Importance;
 import net.bluemind.eas.dto.email.MessageClass;
 
 /**
@@ -124,16 +124,18 @@ public class StructureMailLoader extends CoreConnect {
 
 		if (item.flags.contains(MailboxItemFlag.System.Flagged.value())) {
 			ret.flag.flagType = "Flag for follow-up";
-			ret.flag.status = Status.Active;
+			ret.flag.status = Status.ACTIVE;
 		} else {
-			ret.flag.status = Status.Cleared;
+			ret.flag.status = Status.CLEARED;
 		}
 
 		if (item.flags.contains(MailboxItemFlag.System.Answered.value())) {
-			ret.lastVerbExecuted = LastVerbExecuted.ReplyToSender;
+			ret.lastVerbExecuted = LastVerbExecuted.REPLY_TO_SENDER;
 		} else if (item.flags.contains(new MailboxItemFlag("$Forwarded"))) {
-			ret.lastVerbExecuted = LastVerbExecuted.Forward;
+			ret.lastVerbExecuted = LastVerbExecuted.FORWARD;
 		}
+
+		ret.isDraft = item.flags.contains(MailboxItemFlag.System.Draft.value()) || "Drafts".equals(folder.fullName);
 
 		if (!"INBOX".equals(folder.fullName)) {
 			return ret;

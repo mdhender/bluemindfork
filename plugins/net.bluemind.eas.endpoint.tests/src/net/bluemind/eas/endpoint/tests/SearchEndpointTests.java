@@ -39,7 +39,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.eas.command.folder.sync.FolderSyncEndpoint;
 import net.bluemind.eas.command.search.SearchEndpoint;
-import net.bluemind.eas.dto.search.GAL;
+import net.bluemind.eas.dto.base.Picture;
 import net.bluemind.eas.dto.search.SearchResponse;
 import net.bluemind.eas.http.wbxml.WbxmlHandlerBase;
 import net.bluemind.eas.testhelper.mock.ResponseObject;
@@ -60,7 +60,7 @@ public class SearchEndpointTests extends AbstractEndpointTest {
 		Document d = WBXMLTools.toXml(content.getBytes());
 
 		Element status = DOMUtils.getUniqueElement(d.getDocumentElement(), "Status");
-		assertEquals(SearchResponse.Status.ServerError.xmlValue(), status.getTextContent());
+		assertEquals(SearchResponse.Status.SERVER_ERROR.xmlValue(), status.getTextContent());
 
 	}
 
@@ -77,7 +77,7 @@ public class SearchEndpointTests extends AbstractEndpointTest {
 		Document d = WBXMLTools.toXml(content.getBytes());
 
 		Element status = DOMUtils.getUniqueElement(d.getDocumentElement(), "Status");
-		assertEquals(SearchResponse.Status.ServerError.xmlValue(), status.getTextContent());
+		assertEquals(SearchResponse.Status.SERVER_ERROR.xmlValue(), status.getTextContent());
 
 	}
 
@@ -166,7 +166,7 @@ public class SearchEndpointTests extends AbstractEndpointTest {
 		assertNotNull(picture);
 
 		Element pictureStatus = DOMUtils.getUniqueElement(picture, "Status");
-		assertEquals(GAL.Picture.Status.NoPhoto.xmlValue(), pictureStatus.getTextContent());
+		assertEquals(Picture.Status.NO_PHOTO.xmlValue(), pictureStatus.getTextContent());
 	}
 
 	public void testGALSearchPictureMaxSize() throws Exception {
@@ -205,7 +205,7 @@ public class SearchEndpointTests extends AbstractEndpointTest {
 		assertNotNull(picture);
 
 		Element pictureStatus = DOMUtils.getUniqueElement(picture, "Status");
-		assertEquals(GAL.Picture.Status.MaxSizeExceeded.xmlValue(), pictureStatus.getTextContent());
+		assertEquals(Picture.Status.MAX_SIZE_EXCEEDED.xmlValue(), pictureStatus.getTextContent());
 	}
 
 	public void testGALSearchPicture() throws Exception {
@@ -243,7 +243,7 @@ public class SearchEndpointTests extends AbstractEndpointTest {
 		assertNotNull(picture);
 
 		Element pictureStatus = DOMUtils.getUniqueElement(picture, "Status");
-		assertEquals(GAL.Picture.Status.Success.xmlValue(), pictureStatus.getTextContent());
+		assertEquals(Picture.Status.SUCCESS.xmlValue(), pictureStatus.getTextContent());
 
 		Element data = DOMUtils.getUniqueElement(picture, "Data");
 		assertNotNull(data);

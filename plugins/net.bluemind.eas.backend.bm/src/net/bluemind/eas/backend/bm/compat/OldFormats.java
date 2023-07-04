@@ -304,20 +304,20 @@ public class OldFormats {
 		if (msTask.importance != null) {
 			switch (msTask.importance) {
 			case 9:
-				tr.importance = Importance.Low;
+				tr.importance = Importance.LOW;
 				break;
 			case 5:
-				tr.importance = Importance.Normal;
+				tr.importance = Importance.NORMAL;
 				break;
 			case 1:
-				tr.importance = Importance.High;
+				tr.importance = Importance.HIGH;
 				break;
 			default:
-				tr.importance = Importance.Normal;
+				tr.importance = Importance.NORMAL;
 				break;
 			}
 		} else {
-			tr.importance = Importance.Normal;
+			tr.importance = Importance.NORMAL;
 		}
 
 		tr.utcStartDate = msTask.utcStartDate;

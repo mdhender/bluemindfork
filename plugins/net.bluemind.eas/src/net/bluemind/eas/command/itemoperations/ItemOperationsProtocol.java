@@ -185,7 +185,7 @@ public class ItemOperationsProtocol implements IEasProtocol<ItemOperationsReques
 	public void write(BackendSession bs, final Responder responder, final ItemOperationsResponse response,
 			final Handler<Void> completion) {
 		ItemOperationsFormatter format = new ItemOperationsFormatter();
-		if (response.style == ResponseStyle.Inline) {
+		if (response.style == ResponseStyle.INLINE) {
 			WbxmlOutput output = responder.asOutput();
 			IResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), output);
 			format.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(null));

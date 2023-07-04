@@ -43,15 +43,9 @@ public class SyncResponseFormatter implements IEasResponseFormatter<SyncResponse
 	public void format(IResponseBuilder builder, double protocolVersion, SyncResponse response,
 			final Callback<Void> completion) {
 		builder.start(NamespaceMapping.SYNC);
-		Callback<IResponseBuilder> afterAll = new Callback<IResponseBuilder>() {
-
-			@Override
-			public void onResult(IResponseBuilder data) {
-				data.endContainer().end(completion); // end Collections
-			}
-		};
 		if (response.status == SyncStatus.OK) {
-			appendSyncOk(builder, protocolVersion, response, afterAll);
+			appendSyncOk(builder, protocolVersion, response,
+					responseBuilder -> responseBuilder.endContainer().end(completion));
 		} else {
 			builder.text(NamespaceMapping.SYNC, "Status", response.status.asXmlValue());
 			if (response.limit != null) {
@@ -114,35 +108,23 @@ public class SyncResponseFormatter implements IEasResponseFormatter<SyncResponse
 		if (csr.commands != null && !csr.commands.isEmpty()) {
 			b.container(NamespaceMapping.SYNC, "Commands");
 
-			Callback<IResponseBuilder> afterBuild = new Callback<IResponseBuilder>() {
-				@Override
-				public void onResult(IResponseBuilder data) {
-					data.endContainer(); // Commands
-					onDoc.onResult(data);
-				}
-			};
-
 			IBuildOperation<ServerChange, IResponseBuilder> commandBuild = new AsyncBuildHelper.IBuildOperation<ServerChange, IResponseBuilder>() {
 
 				@Override
 				public void beforeAsync(IResponseBuilder b, ServerChange srvChange,
 						final Callback<IResponseBuilder> forAsync) {
-					b.container(NamespaceMapping.SYNC, srvChange.type.name());
+					b.container(NamespaceMapping.SYNC, srvChange.type.xmlValue());
 					b.text(NamespaceMapping.SYNC, "ServerId", srvChange.item.toString());
 					if (srvChange.data.isPresent()) {
 						b.container(NamespaceMapping.SYNC, "ApplicationData");
-						AppData data = srvChange.data.get();
+						AppData appData = srvChange.data.get();
+						adf.append(b, protocolVersion, appData, responseBuilder -> {
+							responseBuilder.endContainer();
+							forAsync.onResult(responseBuilder);
 
-						adf.append(b, protocolVersion, data, new Callback<IResponseBuilder>() {
-
-							@Override
-							public void onResult(IResponseBuilder data) {
-								data.endContainer();
-								forAsync.onResult(data);
-							}
 						});
 					} else {
-						if (srvChange.type != ChangeType.Delete) {
+						if (srvChange.type != ChangeType.DELETE) {
 							logger.warn("Data is missing for {} {}", srvChange.type, srvChange.item);
 						}
 						forAsync.onResult(b);
@@ -155,7 +137,10 @@ public class SyncResponseFormatter implements IEasResponseFormatter<SyncResponse
 				}
 			};
 			AsyncBuildHelper<ServerChange, IResponseBuilder> asyncBuild = new AsyncBuildHelper<>(
-					csr.commands.iterator(), commandBuild, afterBuild);
+					csr.commands.iterator(), commandBuild, responseBuilder -> {
+						responseBuilder.endContainer(); // Commands
+						onDoc.onResult(responseBuilder);
+					});
 			asyncBuild.build(b);
 		} else {
 			onDoc.onResult(b);
@@ -166,40 +151,27 @@ public class SyncResponseFormatter implements IEasResponseFormatter<SyncResponse
 			final AppDataFormatter adf, final Callback<IResponseBuilder> onDoc) {
 		if (csr.responses != null && !csr.responses.isEmpty()) {
 			b.container(NamespaceMapping.SYNC, "Responses");
-
-			Callback<IResponseBuilder> afterBuild = new Callback<IResponseBuilder>() {
-
-				@Override
-				public void onResult(IResponseBuilder data) {
-					data.endContainer(); // Responses
-					buildCommands(data, protocolVersion, csr, adf, onDoc);
-				}
-			};
-
 			IBuildOperation<ServerResponse, IResponseBuilder> responseBuild = new IBuildOperation<CollectionSyncResponse.ServerResponse, IResponseBuilder>() {
 
 				@Override
 				public void beforeAsync(IResponseBuilder b, ServerResponse srvResp,
 						final Callback<IResponseBuilder> forAsync) {
-					b.container(NamespaceMapping.SYNC, srvResp.operation.name());
+					b.container(NamespaceMapping.SYNC, srvResp.operation.xmlValue());
 					if (srvResp.clientId != null) {
 						b.text("ClientId", srvResp.clientId);
 					}
 					b.text("ServerId", srvResp.item.toString());
 					b.text("Status", srvResp.ackStatus.asXmlValue());
-					if (srvResp.fetch == null || !srvResp.fetch.isPresent()) {
-						logger.info("Data is missing {}", srvResp);
+					if (srvResp.fetch.isEmpty()) {
+						// no data
 						forAsync.onResult(b);
 					} else {
 						b.container(NamespaceMapping.SYNC, "ApplicationData");
 						AppData data = srvResp.fetch.get();
-						adf.append(b, protocolVersion, data, new Callback<IResponseBuilder>() {
+						adf.append(b, protocolVersion, data, responseBuilder -> {
+							responseBuilder.endContainer(); // ApplicationData
+							forAsync.onResult(responseBuilder);
 
-							@Override
-							public void onResult(IResponseBuilder data) {
-								data.endContainer(); // ApplicationData
-								forAsync.onResult(data);
-							}
 						});
 					}
 				}
@@ -211,7 +183,10 @@ public class SyncResponseFormatter implements IEasResponseFormatter<SyncResponse
 			};
 
 			AsyncBuildHelper<ServerResponse, IResponseBuilder> asyncBuild = new AsyncBuildHelper<>(
-					csr.responses.iterator(), responseBuild, afterBuild);
+					csr.responses.iterator(), responseBuild, responseBuilder -> {
+						responseBuilder.endContainer(); // Responses
+						buildCommands(responseBuilder, protocolVersion, csr, adf, onDoc);
+					});
 			asyncBuild.build(b);
 		} else {
 			buildCommands(b, protocolVersion, csr, adf, onDoc);

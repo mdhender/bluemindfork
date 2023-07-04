@@ -18,11 +18,10 @@
  */
 package net.bluemind.eas.serdes.email;
 
-import java.text.SimpleDateFormat;
-
 import net.bluemind.eas.dto.NamespaceMapping;
 import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.email.EmailResponse;
+import net.bluemind.eas.serdes.FastDateTimeFormat;
 import net.bluemind.eas.serdes.IEasResponseFormatter;
 import net.bluemind.eas.serdes.IResponseBuilder;
 import net.bluemind.eas.serdes.calendar.CalendarResponseFormatter;
@@ -31,8 +30,6 @@ public class EmailResponseFormatter implements IEasResponseFormatter<EmailRespon
 
 	public void append(IResponseBuilder b, double protocolVersion, EmailResponse email,
 			Callback<IResponseBuilder> done) {
-
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSS'Z'");
 
 		// Email
 		if (notEmpty(email.to)) {
@@ -51,7 +48,7 @@ public class EmailResponseFormatter implements IEasResponseFormatter<EmailRespon
 			b.text(NamespaceMapping.EMAIL, "ReplyTo", email.replyTo);
 		}
 		if (email.dateReceived != null) {
-			b.text(NamespaceMapping.EMAIL, "DateReceived", sdf.format(email.dateReceived));
+			b.text(NamespaceMapping.EMAIL, "DateReceived", FastDateTimeFormat.format(email.dateReceived));
 		}
 		if (notEmpty(email.displayTo)) {
 			b.text(NamespaceMapping.EMAIL, "DisplayTo", email.displayTo);
@@ -74,13 +71,16 @@ public class EmailResponseFormatter implements IEasResponseFormatter<EmailRespon
 			calendarResponseFormatter.appendCalendarMeetingRequestResponse(b, protocolVersion, email.meetingRequest);
 		}
 
-		afterMeetingRequest(b, protocolVersion, email, sdf);
+		afterMeetingRequest(b, protocolVersion, email);
+
+		if (protocolVersion > 14.1) {
+			b.text(NamespaceMapping.EMAIL_2, "IsDraft", email.isDraft ? "1" : "0");
+		}
 
 		done.onResult(b);
 	}
 
-	private void afterMeetingRequest(IResponseBuilder b, double protocolVersion, EmailResponse email,
-			SimpleDateFormat sdf) {
+	private void afterMeetingRequest(IResponseBuilder b, double protocolVersion, EmailResponse email) {
 		if (notEmpty(email.internetCPID)) {
 			b.text(NamespaceMapping.EMAIL, "InternetCPID", email.internetCPID);
 		}
@@ -116,11 +116,10 @@ public class EmailResponseFormatter implements IEasResponseFormatter<EmailRespon
 			b.endContainer();
 		}
 
-		email2Namespace(b, protocolVersion, email, sdf);
+		email2Namespace(b, protocolVersion, email);
 	}
 
-	private void email2Namespace(IResponseBuilder b, double protocolVersion, EmailResponse email,
-			SimpleDateFormat sdf) {
+	private void email2Namespace(IResponseBuilder b, double protocolVersion, EmailResponse email) {
 		// Email2
 		if (protocolVersion > 12.1) {
 			if (notEmpty(email.umCallerID)) {
@@ -142,7 +141,8 @@ public class EmailResponseFormatter implements IEasResponseFormatter<EmailRespon
 				b.text(NamespaceMapping.EMAIL_2, "LastVerbExecuted", email.lastVerbExecuted.xmlValue());
 			}
 			if (email.lastVerbExecutionTime != null) {
-				b.text(NamespaceMapping.EMAIL_2, "LastVerbExecutionTime", sdf.format(email.lastVerbExecutionTime));
+				b.text(NamespaceMapping.EMAIL_2, "LastVerbExecutionTime",
+						FastDateTimeFormat.format(email.lastVerbExecutionTime));
 			}
 			if (email.receivedAsBcc != null) {
 				b.text(NamespaceMapping.EMAIL_2, "ReceivedAsBcc", email.receivedAsBcc ? "1" : "0");

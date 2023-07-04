@@ -20,9 +20,9 @@ package net.bluemind.eas.dto.sendmail;
 
 public class SendMailResponse {
 
-	public static enum Status {
+	public enum Status {
 
-		PreviouslySent(118), MailSubmissionFailed(120);
+		PREVIOUSLY_SENT(118), MAIL_SUBMISSION_FAILED(120);
 
 		private final String xmlValue;
 

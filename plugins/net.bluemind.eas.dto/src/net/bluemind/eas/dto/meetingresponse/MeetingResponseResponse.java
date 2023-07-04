@@ -23,9 +23,9 @@ import java.util.List;
 public class MeetingResponseResponse {
 
 	public static final class Result {
-		public static enum Status {
+		public enum Status {
 
-			Success(1), InvalidMeetingRequest(2), ServerMailboxError(3), ServerError(4);
+			SUCCESS(1), INVALID_MEETING_REQUEST(2), SERVER_MAILBOX_ERROR(3), SERVER_ERROR(4);
 
 			private final String xmlValue;
 

@@ -29,6 +29,7 @@ public class MSEmail implements IApplicationData {
 
 	private Boolean read;
 	private Boolean starred;
+	private String content;
 
 	public MSEmail() {
 		read = false;
@@ -49,6 +50,14 @@ public class MSEmail implements IApplicationData {
 
 	public void setStarred(Boolean starred) {
 		this.starred = starred;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
 	}
 
 }

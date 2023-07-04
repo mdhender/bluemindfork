@@ -48,12 +48,16 @@ import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
 import com.google.common.io.ByteStreams;
 
+import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.IMailboxFolders;
 import net.bluemind.backend.mail.api.IMailboxItems;
+import net.bluemind.backend.mail.api.ImapItemIdentifier;
 import net.bluemind.backend.mail.api.MailboxFolder;
 import net.bluemind.backend.mail.api.MailboxFolderSearchQuery;
 import net.bluemind.backend.mail.api.MailboxItem;
+import net.bluemind.backend.mail.api.MessageBody;
+import net.bluemind.backend.mail.api.MessageBody.Part;
 import net.bluemind.backend.mail.api.MessageSearchResult.Mbox;
 import net.bluemind.backend.mail.api.SearchQuery;
 import net.bluemind.backend.mail.api.SearchResult;
@@ -69,6 +73,7 @@ import net.bluemind.calendar.api.VEventCounter.CounterOriginator;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
 import net.bluemind.common.io.FileBackedOutputStream;
+import net.bluemind.core.api.Stream;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
@@ -81,6 +86,7 @@ import net.bluemind.core.container.model.ItemFlag;
 import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
+import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.Changes;
 import net.bluemind.eas.backend.HierarchyNode;
@@ -298,21 +304,27 @@ public class MailBackend extends CoreConnect {
 	public CollectionItem store(BackendSession bs, CollectionId collectionId, Optional<String> serverId,
 			IApplicationData data) throws ActiveSyncException {
 
+		MailFolder folder = storage.getMailFolder(bs, collectionId);
+		IMailboxItems service = getMailboxItemsService(bs, folder.uid);
+		MSEmail email = (MSEmail) data;
+
 		if (serverId.isPresent()) {
 			CollectionItem ci = CollectionItem.of(serverId.get());
-
-			MailFolder folder = storage.getMailFolder(bs, collectionId);
-
-			IMailboxItems service = getMailboxItemsService(bs, folder.uid);
-
-			MSEmail email = (MSEmail) data;
 			validateFlag(email.isRead(), MailboxItemFlag.System.Seen.value(), service, ci.itemId);
 			validateFlag(email.isStarred(), MailboxItemFlag.System.Flagged.value(), service, ci.itemId);
-
 			return ci;
+		} else {
+			// store new email (Draft)
+			Stream eml = VertxStream.stream(Buffer.buffer(email.getContent()));
+			String partId = service.uploadPart(eml);
+			Part part = Part.create(null, "message/rfc822", partId);
+			MessageBody messageBody = new MessageBody();
+			messageBody.structure = part;
+			MailboxItem mailboxItem = new net.bluemind.backend.mail.api.MailboxItem();
+			mailboxItem.body = messageBody;
+			ImapItemIdentifier created = service.create(mailboxItem);
+			return CollectionItem.of(collectionId, created.id);
 		}
-
-		return null;
 	}
 
 	private void validateFlag(Boolean property, MailboxItemFlag flag, IMailboxItems service, long itemId) {
@@ -708,7 +720,7 @@ public class MailBackend extends CoreConnect {
 				properties.displayTo = mboxToString(messageSearchResult.to);
 				properties.importance = messageSearchResult.flagged ? Importance.HIGH : Importance.NORMAL;
 				properties.read = messageSearchResult.seen;
-				properties.preview = messageSearchResult.preview;
+				properties.preview = truncate(messageSearchResult.preview, 255);
 				properties.from = mboxToString(messageSearchResult.from);
 				result.properties = properties;
 
@@ -722,7 +734,6 @@ public class MailBackend extends CoreConnect {
 
 		response.status = Status.INVALID_REQUEST;
 		return response;
-
 	}
 
 	private String mboxToString(Mbox mbox) {
@@ -730,7 +741,14 @@ public class MailBackend extends CoreConnect {
 			return "\"" + mbox.displayName + "\" <" + mbox.address + ">";
 		}
 		return mbox.address;
+	}
 
+	private String truncate(String text, int length) {
+		if (text.length() <= length) {
+			return text;
+		} else {
+			return text.substring(0, length);
+		}
 	}
 
 }

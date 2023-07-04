@@ -45,9 +45,9 @@ public class EmailResponse {
 	// }
 	// }
 
-	public static enum LastVerbExecuted {
+	public enum LastVerbExecuted {
 
-		Unknown(0), ReplyToSender(1), ReplyToAll(2), Forward(3);
+		UNKNOWN(0), REPLY_TO_SENDER(1), REPLY_TO_ALL(2), FORWARD(3);
 
 		private final String xmlValue;
 
@@ -61,9 +61,9 @@ public class EmailResponse {
 	}
 
 	public static final class Flag {
-		public static enum Status {
+		public enum Status {
 
-			Cleared(0), Complete(1), Active(2);
+			CLEARED(0), COMPLETE(1), ACTIVE(2);
 
 			private final String xmlValue;
 
@@ -113,5 +113,6 @@ public class EmailResponse {
 	public String accountId;
 	public FirstDayOfWeek firstDayOfWeek;
 	// public MeetingMessageType meetingMessageType;
+	public boolean isDraft;
 
 }

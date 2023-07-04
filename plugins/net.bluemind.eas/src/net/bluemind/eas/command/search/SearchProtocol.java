@@ -79,16 +79,16 @@ public class SearchProtocol implements IEasProtocol<SearchRequest, SearchRespons
 		if (query.store.name == null) {
 			logger.error("Invalid store name");
 
-			response.status = Status.ServerError;
+			response.status = Status.SERVER_ERROR;
 			responseHandler.handle(response);
 			return;
 		}
 
 		Results<SearchResult> searchResult = search(bs, query);
 
-		response.status = Status.Success;
+		response.status = Status.SUCCESS;
 		response.store = new SearchResponse.Store();
-		response.store.status = SearchResponse.Store.Status.Success;
+		response.store.status = SearchResponse.Store.Status.SUCCESS;
 		response.store.results = searchResult;
 		response.total = searchResult.getNumFound();
 		response.range = Range.create(query.store.options.range.min,

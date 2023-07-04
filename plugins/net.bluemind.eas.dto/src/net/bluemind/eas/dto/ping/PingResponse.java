@@ -23,10 +23,10 @@ import java.util.List;
 
 public class PingResponse {
 
-	public static enum Status {
+	public enum Status {
 
-		NoChanges(1), ChangesOccurred(2), MissingParameter(3), SyntaxError(4), //
-		InvalidHeartbeatInterval(5), TooManyFolders(6), FolderSyncRequired(7), ServerError(8);
+		NO_CHANGES(1), CHANGES_OCCURRED(2), MISSING_PARAMETER(3), SYNTAX_ERROR(4), //
+		INVALID_HEARTBEAT_INTERVAL(5), TOO_MANY_FOLDERS(6), FOLDER_SYNC_REQUIRED(7), SERVER_ERROR(8);
 
 		private final String xmlValue;
 

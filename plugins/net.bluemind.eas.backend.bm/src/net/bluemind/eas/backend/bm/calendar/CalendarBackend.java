@@ -19,7 +19,6 @@
 package net.bluemind.eas.backend.bm.calendar;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -42,7 +41,6 @@ import org.asynchttpclient.Response;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteSource;
-import com.google.common.io.CharSource;
 
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
@@ -341,25 +339,23 @@ public class CalendarBackend extends CoreConnect {
 		IAttachment attachmentService = getAttachmentService(bs, bs.getUser().getDomain());
 
 		List<AttachedFile> attachments = new ArrayList<>();
-		if (msEvent.getAttachments() != null && !msEvent.getAttachments().isEmpty()) {
-			msEvent.getAttachments().forEach(attachment -> {
-				try {
-					Stream document = streamAttachmentContent(attachment.content);
-					AttachedFile file = attachmentService.share(attachment.displayName, document);
-					attachments.add(file);
-				} catch (Exception e) {
-					logger.warn("[{}] Failed to attach '{}'", bs.getLoginAtDomain(), attachment.displayName, e);
-				}
+		msEvent.getAttachments().forEach(attachment -> {
+			try {
+				Stream document = streamFromByteSource(attachment.content);
+				AttachedFile file = attachmentService.share(attachment.displayName, document);
+				attachments.add(file);
+				logger.info("Attach file {}", attachment.displayName);
+			} catch (Exception e) {
+				logger.warn("[{}] Failed to attach '{}'", bs.getLoginAtDomain(), attachment.displayName, e);
+			}
 
-			});
-		}
+		});
 		return Optional.of(attachments);
 	}
 
-	private static Stream streamAttachmentContent(String content) throws IOException {
-		ByteSource bs = CharSource.wrap(content).asByteSource(StandardCharsets.UTF_8);
+	private static Stream streamFromByteSource(ByteSource content) throws IOException {
 		ByteBufOutputStream os = new ByteBufOutputStream(Unpooled.buffer());
-		bs.copyTo(os);
+		content.copyTo(os);
 		return VertxStream.stream(Buffer.buffer(os.buffer()));
 	}
 
@@ -544,7 +540,7 @@ public class CalendarBackend extends CoreConnect {
 
 		}
 		Availability a = new Availability();
-		a.status = Availability.Status.Success;
+		a.status = Availability.Status.SUCCESS;
 		a.mergedFreeBusy = sb.toString();
 
 		return a;
@@ -598,7 +594,7 @@ public class CalendarBackend extends CoreConnect {
 	public List<MoveItemsResponse.Response> move(BackendSession bs, HierarchyNode srcFolder, HierarchyNode dstFolder,
 			List<CollectionItem> items) {
 
-		List<MoveItemsResponse.Response> ret = new ArrayList<MoveItemsResponse.Response>(items.size());
+		List<MoveItemsResponse.Response> ret = new ArrayList<>(items.size());
 		items.forEach(item -> {
 			MoveItemsResponse.Response resp = new MoveItemsResponse.Response();
 
@@ -609,7 +605,7 @@ public class CalendarBackend extends CoreConnect {
 				if (evt == null) {
 					logger.error("Failed to find event {} in {}", item.itemId, srcFolder.containerUid);
 					resp.srcMsgId = item.toString();
-					resp.status = Status.ServerError;
+					resp.status = Status.SERVER_ERROR;
 					ret.add(resp);
 					return;
 				}
@@ -619,7 +615,7 @@ public class CalendarBackend extends CoreConnect {
 				evt.value.main.sequence = 0;
 				service.create(uid, evt.value, false);
 
-				resp.status = Status.Success;
+				resp.status = Status.SUCCESS;
 				resp.srcMsgId = item.toString();
 				resp.dstMsgId = dstFolder.collectionId.getValue() + ":" + uid;
 				ret.add(resp);
@@ -629,7 +625,7 @@ public class CalendarBackend extends CoreConnect {
 			} catch (ServerFault sf) {
 				logger.error(sf.getMessage());
 				resp.srcMsgId = item.toString();
-				resp.status = Status.ServerError;
+				resp.status = Status.SERVER_ERROR;
 				ret.add(resp);
 			}
 		});

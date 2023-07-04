@@ -108,7 +108,7 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 				logger.warn(
 						"[{}][{}] Don't know what to monitor, interval: {} toMonitor: {}. Send status 3 MissingParameter",
 						bs.getLoginAtDomain(), bs.getDevId(), intervalSeconds, bs.getLastMonitored());
-				response.status = Status.MissingParameter;
+				response.status = Status.MISSING_PARAMETER;
 				responseHandler.handle(response);
 				return;
 			}
@@ -136,7 +136,7 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 			if (bs.getLastMonitored() == null || bs.getLastMonitored().isEmpty()) {
 				logger.warn("[{}][{}]  Nothing to monitor. Send status 3 MissingParameter", bs.getLoginAtDomain(),
 						bs.getDevId());
-				response.status = Status.MissingParameter;
+				response.status = Status.MISSING_PARAMETER;
 				responseHandler.handle(response);
 				return;
 			}
@@ -150,7 +150,7 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 			if (intervalSeconds > maxInterval) {
 				logger.warn("[{}][{}] Send Heartbeat error: intervalSeconds {} > maxInterval {}", bs.getLoginAtDomain(),
 						bs.getDevId(), intervalSeconds, maxInterval);
-				response.status = Status.InvalidHeartbeatInterval;
+				response.status = Status.INVALID_HEARTBEAT_INTERVAL;
 				response.heartbeatInterval = maxInterval;
 				responseHandler.handle(response);
 				return;
@@ -160,7 +160,7 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 			if (intervalSeconds < minInterval) {
 				logger.warn("[{}][{}] Send Heartbeat error: intervalSeconds {} < minInterval {}", bs.getLoginAtDomain(),
 						bs.getDevId(), intervalSeconds, minInterval);
-				response.status = Status.InvalidHeartbeatInterval;
+				response.status = Status.INVALID_HEARTBEAT_INTERVAL;
 				response.heartbeatInterval = minInterval;
 				responseHandler.handle(response);
 				return;
@@ -199,7 +199,7 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 					consumers.forEach(MessageConsumer::unregister);
 					VertxPlatform.getVertx().cancelTimer(noChangesTimer);
 					PingResponse pr = new PingResponse();
-					pr.status = Status.ChangesOccurred;
+					pr.status = Status.CHANGES_OCCURRED;
 					pr.folders = new PingResponse.Folders();
 					pr.folders.folders.add(sc.getCollectionId().getValue());
 					responseHandler.handle(pr);
@@ -217,7 +217,7 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 				consumers.forEach(MessageConsumer::unregister);
 				VertxPlatform.getVertx().cancelTimer(noChangesTimer);
 				PingResponse pr = new PingResponse();
-				pr.status = Status.FolderSyncRequired;
+				pr.status = Status.FOLDER_SYNC_REQUIRED;
 				responseHandler.handle(pr);
 			};
 			hierCons.handler(hierChangeHandler);
@@ -238,16 +238,15 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 		} else {
 			logger.warn("[{}][{}] Don't know what to monitor, interval is null. Send status 3 MissingParameter",
 					bs.getLoginAtDomain(), bs.getDevId());
-			response.status = Status.MissingParameter;
+			response.status = Status.MISSING_PARAMETER;
 			responseHandler.handle(response);
-			return;
 		}
 
 	}
 
 	private PingResponse noChangesResponse() {
 		PingResponse pr = new PingResponse();
-		pr.status = Status.NoChanges;
+		pr.status = Status.NO_CHANGES;
 		return pr;
 	}
 

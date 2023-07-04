@@ -102,7 +102,7 @@ public class MoveItemsEndpointTests extends AbstractEndpointTest {
 		assertNotNull(status);
 
 		// Sucess
-		assertEquals(MoveItemsResponse.Response.Status.Success.xmlValue(), status.getTextContent());
+		assertEquals(MoveItemsResponse.Response.Status.SUCCESS.xmlValue(), status.getTextContent());
 		Element dst = DOMUtils.getUniqueElement(oneMoveResp, "DstMsgId");
 		assertNotNull(dst);
 
@@ -142,14 +142,14 @@ public class MoveItemsEndpointTests extends AbstractEndpointTest {
 		Element status = DOMUtils.getUniqueElement(e, "Status");
 		assertNotNull(status);
 		// Sucess
-		assertEquals(MoveItemsResponse.Response.Status.Success.xmlValue(), status.getTextContent());
+		assertEquals(MoveItemsResponse.Response.Status.SUCCESS.xmlValue(), status.getTextContent());
 
 		assertEquals(Node.ELEMENT_NODE, childs.item(1).getNodeType());
 		e = (Element) childs.item(1);
 		status = DOMUtils.getUniqueElement(e, "Status");
 		assertNotNull(status);
 		// dst folder does not exists
-		assertEquals(MoveItemsResponse.Response.Status.InvalidDestinationCollectionId.xmlValue(),
+		assertEquals(MoveItemsResponse.Response.Status.INVALID_DESTINATION_COLLECTION_ID.xmlValue(),
 				status.getTextContent());
 
 		assertEquals(Node.ELEMENT_NODE, childs.item(2).getNodeType());
@@ -157,7 +157,7 @@ public class MoveItemsEndpointTests extends AbstractEndpointTest {
 		status = DOMUtils.getUniqueElement(e, "Status");
 		assertNotNull(status);
 		// src folder does not exists
-		assertEquals(MoveItemsResponse.Response.Status.InvalidSourceCollectionId.xmlValue(), status.getTextContent());
+		assertEquals(MoveItemsResponse.Response.Status.INVALID_SOURCE_COLLECTION_ID.xmlValue(), status.getTextContent());
 
 		assertEquals(Node.ELEMENT_NODE, childs.item(3).getNodeType());
 		e = (Element) childs.item(3);

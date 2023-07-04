@@ -42,15 +42,15 @@ public class FlagsChange {
 
 		if (mailboxItem.flags.contains(MailboxItemFlag.System.Flagged.value())) {
 			em.flag.flagType = "Flag for follow-up";
-			em.flag.status = Status.Active;
+			em.flag.status = Status.ACTIVE;
 		} else {
-			em.flag.status = Status.Cleared;
+			em.flag.status = Status.CLEARED;
 		}
 
 		if (mailboxItem.flags.contains(MailboxItemFlag.System.Answered.value())) {
-			em.lastVerbExecuted = LastVerbExecuted.ReplyToSender;
+			em.lastVerbExecuted = LastVerbExecuted.REPLY_TO_SENDER;
 		} else if (mailboxItem.flags.contains(new MailboxItemFlag("$Forwarded"))) {
-			em.lastVerbExecuted = LastVerbExecuted.Forward;
+			em.lastVerbExecuted = LastVerbExecuted.FORWARD;
 		}
 
 		return em;

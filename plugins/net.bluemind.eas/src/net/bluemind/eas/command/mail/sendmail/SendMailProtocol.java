@@ -83,7 +83,7 @@ public class SendMailProtocol implements IEasProtocol<SendMailRequest, SendMailR
 					(AsyncResult<Message<String>> event) -> {
 						if (event.failed()) {
 							SendMailResponse response = new SendMailResponse();
-							response.status = Status.MailSubmissionFailed;
+							response.status = Status.MAIL_SUBMISSION_FAILED;
 							responseHandler.handle(response);
 							return;
 						}
@@ -104,7 +104,7 @@ public class SendMailProtocol implements IEasProtocol<SendMailRequest, SendMailR
 		} else {
 			logger.warn("Skipping duplicate send {} for {}", query.clientId, bs.getLoginAtDomain());
 			SendMailResponse response = new SendMailResponse();
-			response.status = Status.PreviouslySent;
+			response.status = Status.PREVIOUSLY_SENT;
 			responseHandler.handle(response);
 		}
 

@@ -39,11 +39,11 @@ import net.bluemind.eas.backend.bm.mail.MailBackend;
 import net.bluemind.eas.backend.bm.task.TaskBackend;
 import net.bluemind.eas.dto.base.AppData;
 import net.bluemind.eas.dto.base.BodyOptions;
+import net.bluemind.eas.dto.base.Picture;
 import net.bluemind.eas.dto.email.AttachmentResponse;
 import net.bluemind.eas.dto.find.FindRequest;
 import net.bluemind.eas.dto.find.FindResponse.Response;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsRequest;
-import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse.Response.Recipient;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse.Response.Recipient.Availability;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse.Response.Recipient.Type;
@@ -201,18 +201,14 @@ public class ContentsExporter extends CoreConnect implements IContentsExporter {
 					recip.displayName = dirEntry.displayName;
 					recip.entryUid = dirEntry.entryUid;
 					if (picture != null) {
-						ResolveRecipientsResponse.Response.Recipient.Picture pic = new ResolveRecipientsResponse.Response.Recipient.Picture();
-						pic.status = ResolveRecipientsResponse.Response.Recipient.Picture.Status.NoPhoto;
-						recip.picture = pic;
+						recip.picture = Picture.noPhoto();
 					}
 				} else {
 					recip.emailAddress = to;
-					recip.type = Type.Contact;
+					recip.type = Type.CONTACT;
 					recip.displayName = to;
 					if (picture != null) {
-						ResolveRecipientsResponse.Response.Recipient.Picture pic = new ResolveRecipientsResponse.Response.Recipient.Picture();
-						pic.status = ResolveRecipientsResponse.Response.Recipient.Picture.Status.NoPhoto;
-						recip.picture = pic;
+						recip.picture = Picture.noPhoto();
 					}
 				}
 

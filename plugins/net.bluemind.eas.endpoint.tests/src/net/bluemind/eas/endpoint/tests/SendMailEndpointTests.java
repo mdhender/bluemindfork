@@ -69,7 +69,7 @@ public class SendMailEndpointTests extends AbstractEndpointTest {
 		Document d = WBXMLTools.toXml(content.getBytes());
 
 		Element status = DOMUtils.getUniqueElement(d.getDocumentElement(), "Status");
-		assertEquals(SendMailResponse.Status.PreviouslySent.xmlValue(), status.getTextContent());
+		assertEquals(SendMailResponse.Status.PREVIOUSLY_SENT.xmlValue(), status.getTextContent());
 
 	}
 

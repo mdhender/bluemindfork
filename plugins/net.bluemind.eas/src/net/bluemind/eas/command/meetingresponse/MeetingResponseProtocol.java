@@ -107,14 +107,14 @@ public class MeetingResponseProtocol implements IEasProtocol<MeetingResponseRequ
 				invitation(bs, itemRef, invitation -> {
 					if (invitation == null) {
 						logger.error("Invalid meeting request for {}", r.requestId);
-						r.status = Status.InvalidMeetingRequest;
+						r.status = Status.INVALID_MEETING_REQUEST;
 					} else {
 						if ((invitation.instanceType == InstanceType.SINGLE_INSTANCE
 								|| invitation.instanceType == InstanceType.EXCEPTION_TO_RECURRING)
 								&& invitation.recurrenceId != null) {
 							request.instanceId = invitation.recurrenceId;
 						}
-						r.status = Status.Success;
+						r.status = Status.SUCCESS;
 
 						AttendeeStatus attendeeStatus = null;
 						switch (request.userResponse) {
@@ -159,7 +159,7 @@ public class MeetingResponseProtocol implements IEasProtocol<MeetingResponseRequ
 				logger.error(e.getMessage(), e);
 				MeetingResponseResponse.Result r = new MeetingResponseResponse.Result();
 				r.requestId = request.requestId;
-				r.status = Status.ServerError;
+				r.status = Status.SERVER_ERROR;
 				response.results.add(r);
 				subRequestProcessed(toProcess, responseHandler, response);
 			}

@@ -21,9 +21,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import net.bluemind.eas.dto.base.Picture;
 import net.bluemind.eas.dto.base.Range;
 import net.bluemind.eas.dto.email.Importance;
-import net.bluemind.eas.dto.search.GAL.Picture;
 
 public class FindResponse {
 

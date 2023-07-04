@@ -19,6 +19,7 @@
 package net.bluemind.eas.data;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -29,6 +30,7 @@ import org.w3c.dom.NodeList;
 import com.google.common.base.Strings;
 
 import net.bluemind.eas.backend.BackendSession;
+import net.bluemind.eas.backend.BufferByteSource;
 import net.bluemind.eas.backend.IApplicationData;
 import net.bluemind.eas.backend.MSAttendee;
 import net.bluemind.eas.backend.MSEvent;
@@ -102,10 +104,10 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 
 			Attachment attachment = new Attachment();
 			attachment.clientId = parseDOMString(DOMUtils.getUniqueElement(node, "ClientId"));
-			attachment.method = Method.NORMAL;// Method.valueOf(parseDOMString(DOMUtils.getUniqueElement(node,
-												// "AttMethod")));
+			attachment.method = Method.of(parseDOMString(DOMUtils.getUniqueElement(node, "AttMethod")));
 			attachment.contentType = parseDOMString(DOMUtils.getUniqueElement(node, "ContentType"));
-			attachment.content = parseDOMString(DOMUtils.getUniqueElement(node, "Content"));
+			attachment.content = BufferByteSource
+					.of(Base64.getDecoder().decode(parseDOMString(DOMUtils.getUniqueElement(node, "Content"))));
 			attachment.displayName = parseDOMString(DOMUtils.getUniqueElement(node, "DisplayName"));
 			attachments.add(attachment);
 		}

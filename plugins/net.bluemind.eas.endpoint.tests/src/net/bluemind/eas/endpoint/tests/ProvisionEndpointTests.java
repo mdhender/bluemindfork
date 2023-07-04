@@ -85,7 +85,7 @@ public class ProvisionEndpointTests extends AbstractEndpointTest {
 		DOMUtils.logDom(respDoc);
 		Element policy = DOMUtils.getUniqueElement(respDoc.getDocumentElement(), "Policy");
 		assertNotNull(policy);
-		assertEquals(ProvisionResponse.Policies.Policy.Status.Success.xmlValue(),
+		assertEquals(ProvisionResponse.Policies.Policy.Status.SUCCESS.xmlValue(),
 				DOMUtils.getUniqueElement(policy, "Status").getTextContent());
 		Element pk = DOMUtils.getUniqueElement(respDoc.getDocumentElement(), "PolicyKey");
 		assertNotNull(pk);

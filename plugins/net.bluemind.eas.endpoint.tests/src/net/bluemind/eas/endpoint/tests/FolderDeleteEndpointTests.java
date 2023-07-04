@@ -73,7 +73,7 @@ public class FolderDeleteEndpointTests extends AbstractEndpointTest {
 		Document d = WBXMLTools.toXml(content.getBytes());
 
 		Element status = DOMUtils.getUniqueElement(d.getDocumentElement(), "Status");
-		assertEquals(FolderDeleteResponse.Status.DoesNotExist.xmlValue(), status.getTextContent());
+		assertEquals(FolderDeleteResponse.Status.DOES_NOT_EXIST.xmlValue(), status.getTextContent());
 
 	}
 
@@ -90,7 +90,7 @@ public class FolderDeleteEndpointTests extends AbstractEndpointTest {
 		Document d = WBXMLTools.toXml(content.getBytes());
 
 		Element status = DOMUtils.getUniqueElement(d.getDocumentElement(), "Status");
-		assertEquals(FolderDeleteResponse.Status.InvalidRequest.xmlValue(), status.getTextContent());
+		assertEquals(FolderDeleteResponse.Status.INVALID_REQUEST.xmlValue(), status.getTextContent());
 	}
 
 	private F createFolder(String syncKey) throws IOException {

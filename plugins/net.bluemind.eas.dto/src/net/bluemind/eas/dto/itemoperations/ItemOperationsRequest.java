@@ -27,7 +27,7 @@ import net.bluemind.eas.dto.sync.CollectionId;
 
 public class ItemOperationsRequest {
 
-	public ResponseStyle style = ResponseStyle.Inline;
+	public ResponseStyle style = ResponseStyle.INLINE;
 	public boolean gzip = false;
 
 	public List<ItemOperation> itemOperations;

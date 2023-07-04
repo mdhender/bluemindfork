@@ -18,31 +18,9 @@
  */
 package net.bluemind.eas.dto.search;
 
+import net.bluemind.eas.dto.base.Picture;
+
 public class GAL {
-
-	public static final class Picture {
-
-		public static enum Status {
-
-			Success(1), NoPhoto(173), MaxSizeExceeded(174), //
-			MaxPicturesExceeded(175);
-
-			private final String xmlValue;
-
-			private Status(int value) {
-				xmlValue = Integer.toString(value);
-			}
-
-			public String xmlValue() {
-				return xmlValue;
-			}
-
-		}
-
-		public Status status;
-		public String data;
-
-	}
 
 	private String displayName;
 	public String phone;
@@ -56,6 +34,7 @@ public class GAL {
 	public String mobilePhone;
 	public String emailAddress;
 	public Picture picture;
+
 	// TODO rm:RightsManagementLicense
 
 	public void setDisplayName(String dn) {

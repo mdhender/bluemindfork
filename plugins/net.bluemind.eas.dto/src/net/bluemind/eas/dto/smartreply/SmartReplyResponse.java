@@ -20,9 +20,9 @@ package net.bluemind.eas.dto.smartreply;
 
 public class SmartReplyResponse {
 
-	public static enum Status {
+	public enum Status {
 
-		PreviouslySent(118), MessageReplyFailed(121);
+		PREVIOUSLY_SENT(118), MESSAGE_REPLY_FAILED(121);
 
 		private final String xmlValue;
 

@@ -43,6 +43,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.eas.backend.MSContact;
 import net.bluemind.eas.data.formatter.PlainBodyFormatter;
+import net.bluemind.eas.dto.base.Picture;
 import net.bluemind.eas.dto.search.GAL;
 import net.bluemind.eas.dto.search.SearchRequest;
 import net.bluemind.eas.dto.search.SearchResult;
@@ -471,35 +472,8 @@ public class ContactConverter {
 
 		if (picture != null) {
 			// BM-7273 force no photo because of iOS crash
-			res.picture = new GAL.Picture();
-			res.picture.status = GAL.Picture.Status.NoPhoto;
-
-			// res.picture = new GAL.Picture();
-			// // FIXME
-			// if (item.value.identification.photo) {
-			// try {
-			// byte[] photo = service.getPhoto(item.uid);
-			// if (photo != null) {
-			// String b64 = Base64.getEncoder().encodeToString(photo);
-			// if (picture.maxSize != null && b64.getBytes().length >
-			// picture.maxSize) {
-			// res.picture.status = GAL.Picture.Status.MaxSizeExceeded;
-			// } else {
-			// res.picture.status = GAL.Picture.Status.Success;
-			// res.picture.data = b64;
-			// }
-			// } else {
-			// res.picture.status = GAL.Picture.Status.NoPhoto;
-			// }
-			// } catch (Exception e) {
-			// logger.warn("Cannot load contaxt photo of uid {}:{}", item.uid,
-			// e.getMessage());
-			// res.picture.status = GAL.Picture.Status.NoPhoto;
-			// }
-			//
-			// } else {
-			// res.picture.status = GAL.Picture.Status.NoPhoto;
-			// }
+			res.picture = Picture.noPhoto();
+			res.picture.status = Picture.Status.NO_PHOTO;
 		}
 
 		if (res.getDisplayName() == null) {

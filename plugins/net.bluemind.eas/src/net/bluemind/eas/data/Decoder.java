@@ -21,6 +21,7 @@ package net.bluemind.eas.data;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.slf4j.Logger;
@@ -35,12 +36,12 @@ import net.bluemind.eas.utils.DOMUtils;
 public class Decoder {
 	protected Logger logger = LoggerFactory.getLogger(getClass());
 
-	public String parseDOMString(Element elt, String default_value) {
+	public String parseDOMString(Element elt, String defaultValue) {
 		if (elt != null) {
 			logger.debug("{}: {}", elt.getNodeName(), elt.getTextContent());
 			return elt.getTextContent();
 		}
-		return default_value;
+		return defaultValue;
 	}
 
 	public String parseDOMString(Element elt) {
@@ -55,22 +56,22 @@ public class Decoder {
 		}
 	}
 
-	public Byte parseDOMByte(Element elt, Byte default_value) {
+	public Byte parseDOMByte(Element elt, Byte defaultValue) {
 		if (elt != null) {
 			return parseByte(elt.getTextContent());
 		}
-		return default_value;
+		return defaultValue;
 	}
 
 	public Byte parseDOMByte(Element elt) {
 		return parseDOMByte(elt, null);
 	}
 
-	public Integer parseDOMInt(Element elt, Integer default_value) {
+	public Integer parseDOMInt(Element elt, Integer defaultValue) {
 		if (elt != null) {
 			return Integer.parseInt(elt.getTextContent());
 		}
-		return default_value;
+		return defaultValue;
 	}
 
 	public Integer parseDOMInt(Element elt) {
@@ -89,16 +90,15 @@ public class Decoder {
 		return EASTimeZoneHelper.from(easTz);
 	}
 
-	public ArrayList<String> parseDOMStringCollection(Element node, String elementName,
-			ArrayList<String> default_value) {
+	public List<String> parseDOMStringCollection(Element node, String elementName, List<String> defaultValue) {
 		if (node != null) {
-			return new ArrayList<String>(Arrays.asList(DOMUtils.getTexts(node, elementName)));
+			return new ArrayList<>(Arrays.asList(DOMUtils.getTexts(node, elementName)));
 		}
 
-		return default_value;
+		return defaultValue;
 	}
 
-	public ArrayList<String> parseDOMStringCollection(Element node, String elementName) {
+	public List<String> parseDOMStringCollection(Element node, String elementName) {
 		return parseDOMStringCollection(node, elementName, null);
 	}
 
@@ -110,11 +110,11 @@ public class Decoder {
 		return Boolean.parseBoolean(str);
 	}
 
-	public Boolean parseDOMBoolean(Element elt, Boolean default_value) {
+	public Boolean parseDOMBoolean(Element elt, Boolean defaultValue) {
 		if (elt != null) {
 			return parseBoolean(elt.getTextContent());
 		}
-		return default_value;
+		return defaultValue;
 	}
 
 	public Boolean parseDOMBoolean(Element elt) {

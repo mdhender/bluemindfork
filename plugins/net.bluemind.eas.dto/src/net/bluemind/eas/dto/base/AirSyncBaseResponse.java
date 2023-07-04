@@ -20,6 +20,8 @@ package net.bluemind.eas.dto.base;
 
 import java.util.Collection;
 
+import com.google.common.io.ByteSource;
+
 public class AirSyncBaseResponse {
 
 	public static final class Attachment {
@@ -37,6 +39,15 @@ public class AirSyncBaseResponse {
 				return xmlValue;
 			}
 
+			public static Method of(String value) {
+				for (Method val : Method.values()) {
+					if (value.equals(val.xmlValue)) {
+						return val;
+					}
+				}
+				return null;
+			}
+
 		}
 
 		public String displayName;
@@ -47,7 +58,7 @@ public class AirSyncBaseResponse {
 		public boolean isInline;
 		public String clientId;
 		public String contentType;
-		public String content;
+		public ByteSource content;
 	}
 
 	public static class Body {

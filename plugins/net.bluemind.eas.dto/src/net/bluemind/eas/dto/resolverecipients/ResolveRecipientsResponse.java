@@ -20,11 +20,13 @@ package net.bluemind.eas.dto.resolverecipients;
 
 import java.util.List;
 
+import net.bluemind.eas.dto.base.Picture;
+
 public class ResolveRecipientsResponse {
 
-	public static enum Status {
+	public enum Status {
 
-		Success(1), ProtocolError(5), ServerError(6);
+		SUCCESS(1), PROTOCOL_ERROR(5), SERVER_ERROR(6);
 
 		private final String xmlValue;
 
@@ -39,9 +41,9 @@ public class ResolveRecipientsResponse {
 	}
 
 	public static final class Response {
-		public static enum Status {
+		public enum Status {
 
-			Success(1), Ambiguous(2), AmbiguousAndPartial(3), NotResolve(4);
+			SUCCESS(1), AMBIGUOUS(2), AMBIGUOUS_AND_PARTIAL(3), NOT_RESOLVE(4);
 
 			private final String xmlValue;
 
@@ -56,9 +58,9 @@ public class ResolveRecipientsResponse {
 		}
 
 		public static final class Recipient {
-			public static enum Type {
+			public enum Type {
 
-				GAL(1), Contact(2);
+				GAL(1), CONTACT(2);
 
 				private final String xmlValue;
 
@@ -73,10 +75,10 @@ public class ResolveRecipientsResponse {
 			}
 
 			public static final class Availability {
-				public static enum Status {
+				public enum Status {
 
-					Success(1), TooManyRecipients(160), TooManyDistributionGroup(161), TemporaryFailure(
-							162), PermissionDenied(163);
+					SUCCESS(1), TOO_MANY_RECIPIENTS(160), TOO_MANY_DISTRIBUTION_GROUP(161), TEMPORARY_FAILURE(162),
+					PERMISSION_DENIED(163);
 
 					private final String xmlValue;
 
@@ -95,9 +97,9 @@ public class ResolveRecipientsResponse {
 			}
 
 			public static final class Certificate {
-				public static enum Status {
+				public enum Status {
 
-					Success(1), InvalidSMIMECertificate(7), Error(8);
+					SUCCESS(1), INVALID_SMIME_CERTIFICATE(7), ERROR(8);
 
 					private final String xmlValue;
 
@@ -116,30 +118,6 @@ public class ResolveRecipientsResponse {
 				public Integer recipientCount;
 				public String certificate;
 				public String miniCertificate;
-
-			}
-
-			public static final class Picture {
-
-				public static enum Status {
-
-					Success(1), NoPhoto(173), MaxSizeExceeded(174), //
-					MaxPicturesExceeded(175);
-
-					private final String xmlValue;
-
-					private Status(int value) {
-						xmlValue = Integer.toString(value);
-					}
-
-					public String xmlValue() {
-						return xmlValue;
-					}
-
-				}
-
-				public Status status;
-				public String data;
 
 			}
 

@@ -29,22 +29,10 @@ public class MoveItemsResponse {
 		public Status status;
 		public String dstMsgId;
 
-		public static enum Status {
-			InvalidSourceCollectionId(1), // 1 Invalid source collection ID.
-			InvalidDestinationCollectionId(2), // 2 Invalid destination
-												// collection ID.
-			Success(3), // 3 Success
-			SameSourceAndDestinationCollectionId(4), // 4 Source and
-														// destination
-														// collection IDs are
-														// the same.
-			ServerError(5), // 5 A failure occurred during the MoveItem
-							// operation.
-			ItemAlreadyExistsAtDestination(6), // 6 An item with that name
-												// already exists at the
-												// destination.
-			SourceOrDestinationLocked(7);// 7 Source or destination item was
-											// locked.
+		public enum Status {
+			INVALID_SOURCE_COLLECTION_ID(1), INVALID_DESTINATION_COLLECTION_ID(2), SUCCESS(3),
+			SAME_SOURCE_AND_DESTINATION_COLLECTION_ID(4), SERVER_ERROR(5), ITEM_ALREADY_EXISTS_AT_DESTINATION(6),
+			SOURCE_OR_DESTINATION_LOCKED(7);
 
 			private final String xmlValue;
 

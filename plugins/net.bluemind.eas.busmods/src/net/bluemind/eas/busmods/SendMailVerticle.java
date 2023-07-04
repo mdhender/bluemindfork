@@ -60,7 +60,7 @@ public class SendMailVerticle extends AbstractVerticle {
 					msg.reply((String) null);
 				} catch (ActiveSyncException e) {
 					logger.error("error send mail", e);
-					msg.reply(SendMailResponse.Status.MailSubmissionFailed.name());
+					msg.reply(SendMailResponse.Status.MAIL_SUBMISSION_FAILED.name());
 				}
 
 			}

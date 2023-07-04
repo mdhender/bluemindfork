@@ -87,7 +87,7 @@ public class SmartReplyEndpointTests extends AbstractEndpointTest {
 
 		assertEquals("SmartReply", d.getDocumentElement().getNodeName());
 		Element status = DOMUtils.getUniqueElement(d.getDocumentElement(), "Status");
-		assertEquals(SendMailResponse.Status.PreviouslySent.xmlValue(), status.getTextContent());
+		assertEquals(SendMailResponse.Status.PREVIOUSLY_SENT.xmlValue(), status.getTextContent());
 
 	}
 

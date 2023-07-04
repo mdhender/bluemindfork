@@ -56,7 +56,7 @@ public class ProvisionProtocol implements IEasProtocol<ProvisionRequest, Provisi
 	public void execute(BackendSession bs, ProvisionRequest req, Handler<ProvisionResponse> responseHandler) {
 		ProvisionResponse response = new ProvisionResponse();
 
-		response.status = ProvisionResponse.Status.Success;
+		response.status = ProvisionResponse.Status.SUCCESS;
 
 		if (req.deviceInformation != null && req.deviceInformation.set != null) {
 			response.deviceInformation = new SettingsResponse.DeviceInformation();
@@ -65,7 +65,7 @@ public class ProvisionProtocol implements IEasProtocol<ProvisionRequest, Provisi
 		if (req.policies != null) {
 			response.policies = new ProvisionResponse.Policies();
 			response.policies.policy.policyType = req.policies.policy.policyType;
-			response.policies.policy.status = Status.Success;
+			response.policies.policy.status = Status.SUCCESS;
 
 			String policyKey = req.policies.policy.policyKey;
 			if ("0".equals(policyKey) || isUnknown(policyKey)) {

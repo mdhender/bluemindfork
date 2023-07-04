@@ -68,7 +68,7 @@ public class ResolveRecipientsProtocol implements IEasProtocol<ResolveRecipients
 
 		ResolveRecipientsResponse response = new ResolveRecipientsResponse();
 
-		response.status = Status.Success;
+		response.status = Status.SUCCESS;
 
 		List<Recipient> recipients = backend.getContentsExporter(bs).resolveRecipients(bs, query.to,
 				query.options.picture);
@@ -78,7 +78,7 @@ public class ResolveRecipientsProtocol implements IEasProtocol<ResolveRecipients
 		for (Recipient recip : recipients) {
 			ResolveRecipientsResponse.Response r = new ResolveRecipientsResponse.Response();
 			r.recipients = new ArrayList<ResolveRecipientsResponse.Response.Recipient>(1);
-			r.status = ResolveRecipientsResponse.Response.Status.Success;
+			r.status = ResolveRecipientsResponse.Response.Status.SUCCESS;
 			r.recipientCount = 1;
 			r.to = recip.to;
 			r.recipients.add(recip);

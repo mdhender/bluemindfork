@@ -88,12 +88,12 @@ public class SmartForwardProtocol implements IEasProtocol<SmartForwardRequest, S
 			} catch (ActiveSyncException e) {
 				logger.error("error in smarForward", e);
 				SmartForwardResponse response = new SmartForwardResponse();
-				response.status = SmartForwardResponse.Status.MailSubmissionFailed;
+				response.status = SmartForwardResponse.Status.MAIL_SUBMISSION_FAILED;
 				responseHandler.handle(response);
 			}
 		} else {
 			SmartForwardResponse response = new SmartForwardResponse();
-			response.status = SmartForwardResponse.Status.PreviouslySent;
+			response.status = SmartForwardResponse.Status.PREVIOUSLY_SENT;
 			responseHandler.handle(response);
 		}
 

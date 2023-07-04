@@ -91,7 +91,7 @@ public class FolderCreateProtocol implements IEasProtocol<FolderCreateRequest, F
 				parent = store.getHierarchyNode(bs, parentId);
 			} catch (CollectionNotFoundException e1) {
 				logger.error("Cannot create folder '{}', parent id {} not found", displayName, query.parentId);
-				response.status = Status.ParentFolderNotFound;
+				response.status = Status.PARENT_FOLDER_NOT_FOUND;
 				responseHandler.handle(response);
 				return;
 			}
@@ -102,7 +102,7 @@ public class FolderCreateProtocol implements IEasProtocol<FolderCreateRequest, F
 		if (pim == null) {
 			logger.error("Cannot create folder '{}', unsupported type: {} ({})", displayName, query.type,
 					FolderType.getValue(query.type));
-			response.status = Status.InvalidRequest;
+			response.status = Status.INVALID_REQUEST;
 			responseHandler.handle(response);
 			return;
 		}
@@ -119,7 +119,7 @@ public class FolderCreateProtocol implements IEasProtocol<FolderCreateRequest, F
 		if (collectionId != null) {
 			StateMachine sm = new StateMachine(store);
 
-			response.status = Status.Success;
+			response.status = Status.SUCCESS;
 			response.serverId = collectionId.getValue();
 			response.syncKey = sm.generateSyncKey(ItemDataType.FOLDER);
 
@@ -137,7 +137,7 @@ public class FolderCreateProtocol implements IEasProtocol<FolderCreateRequest, F
 			logger.error("Fail to create folder '{}', type: {} ({})", displayName, query.type,
 					FolderType.getValue(query.type));
 			response = new FolderCreateResponse();
-			response.status = Status.ServerError;
+			response.status = Status.SERVER_ERROR;
 			responseHandler.handle(response);
 		}
 	}

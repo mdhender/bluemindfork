@@ -20,10 +20,10 @@ package net.bluemind.eas.dto.foldercreate;
 
 public class FolderCreateResponse {
 
-	public static enum Status {
+	public enum Status {
 
-		Success(1), AlreadyExists(2), SystemFolder(3), ParentFolderNotFound(5), //
-		ServerError(6), InvalidSyncKey(9), InvalidRequest(10), UnknownError(11), CodeUnknown(12);
+		SUCCESS(1), ALREADY_EXISTS(2), SYSTEM_FOLDER(3), PARENT_FOLDER_NOT_FOUND(5), //
+		SERVER_ERROR(6), INVALID_SYNC_KEY(9), INVALID_REQUEST(10), UNKNOWN_ERROR(11), CODE_UNKNOWN(12);
 
 		private final String xmlValue;
 

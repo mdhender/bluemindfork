@@ -42,17 +42,23 @@ public class EmailDecoder extends Decoder implements IDataDecoder {
 		if (flag != null) {
 			Element fs = DOMUtils.getUniqueElement(flag, "Status");
 			if (fs != null) {
-				int flagStatus = parseDOMInt(fs);
-				if (flagStatus == 0) {
-					mail.setStarred(false);
-				} else {
-					mail.setStarred(true);
-				}
+				mail.setStarred(parseDOMInt(fs) == 1);
 			} else {
 				mail.setStarred(false);
 			}
 		} else {
 			mail.setStarred(null);
+		}
+
+		Element body = DOMUtils.getUniqueElement(syncData, "Body");
+		if (body != null) {
+			for (int i = 0, n = body.getChildNodes().getLength(); i < n; i += 1) {
+				Element node = (Element) body.getChildNodes().item(i);
+				String tagName = node.getTagName();
+				if ("Data".equals(tagName)) {
+					mail.setContent(node.getTextContent());
+				}
+			}
 		}
 
 		return mail;

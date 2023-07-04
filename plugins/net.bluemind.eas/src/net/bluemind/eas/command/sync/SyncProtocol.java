@@ -347,10 +347,10 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 						icr.setServerId(sse.item);
 						AppData data = contentExporter.loadStructure(bs, null, icr);
 						conflicted.data = Optional.of(data);
-						if (sse.operation == Operation.Change) {
-							conflicted.type = ServerChange.ChangeType.Change;
-						} else if (sse.operation == Operation.Delete) {
-							conflicted.type = ServerChange.ChangeType.Add;
+						if (sse.operation == Operation.CHANGE) {
+							conflicted.type = ServerChange.ChangeType.CHANGE;
+						} else if (sse.operation == Operation.DELETE) {
+							conflicted.type = ServerChange.ChangeType.ADD;
 						}
 						conflicted.item = sse.item;
 						csr.commands.add(conflicted);
@@ -360,10 +360,10 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 				if (!clientErrorServerIds.isEmpty()) {
 					for (ServerResponse sse : clientErrorServerIds) {
 						sse.ackStatus = SyncStatus.OK;
-						sse.operation = Operation.Add;
+						sse.operation = Operation.ADD;
 						ServerChange err = new ServerChange();
 						err.item = sse.item;
-						err.type = ServerChange.ChangeType.Delete;
+						err.type = ServerChange.ChangeType.DELETE;
 						err.data = Optional.empty();
 						csr.commands.add(err);
 					}
@@ -558,7 +558,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		c.fetched += 1;
 		sr.fetch = Optional.of(fetched);
 		sr.ackStatus = SyncStatus.OK;
-		sr.operation = Operation.Fetch;
+		sr.operation = Operation.FETCH;
 		return sr;
 	}
 
@@ -626,13 +626,13 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			importer.importMessageChange(bs, collection.getCollectionId(), type, Optional.of(serverId), appData,
 					collection.options.conflictPolicy, syncState);
 			ServerResponse sr = new ServerResponse();
-			sr.operation = Operation.Change;
+			sr.operation = Operation.CHANGE;
 			sr.item = CollectionItem.of(serverId);
 			sr.ackStatus = SyncStatus.OK;
 			return sr;
 		} catch (ActiveSyncException e) {
 			ServerResponse sr = new ServerResponse();
-			sr.operation = Operation.Change;
+			sr.operation = Operation.CHANGE;
 			sr.item = CollectionItem.of(serverId);
 			sr.ackStatus = SyncStatus.CONFLICT;
 			return sr;
@@ -672,9 +672,9 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		String clientId = DOMUtils.getElementText(modification, "ClientId");
 
 		Element syncData = DOMUtils.getUniqueElement(modification, "ApplicationData");
-		IDataDecoder dd = decoders.get(dataClass);
-		logger.info("[{}] processing Add (cli: {})", bs.getLoginAtDomain(), clientId);
-		IApplicationData data = dd.decode(bs, syncData);
+		IDataDecoder decoder = decoders.get(dataClass);
+		logger.info("[{}] processing Add (dataClass: {}, cli: {})", bs.getLoginAtDomain(), dataClass, clientId);
+		IApplicationData data = decoder.decode(bs, syncData);
 		HashMap<String, IApplicationData> d = new HashMap<>();
 		d.put(null, data);
 		try {
@@ -684,9 +684,10 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 			sr.clientId = clientId;
 			sr.ackStatus = SyncStatus.OK;
 			sr.item = bmId;
-			sr.operation = Operation.Add;
+			sr.operation = Operation.ADD;
 			return sr;
 		} catch (ActiveSyncException e) {
+			logger.error(e.getMessage(), e);
 			ServerResponse sr = new ServerResponse();
 			sr.clientId = clientId;
 			sr.item = CollectionItem.of(collection.getCollectionId(), System.currentTimeMillis());
@@ -768,17 +769,17 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		srvChange.item = cr.getServerId();
 		switch (cr.getChangeType()) {
 		case CHANGE:
-			srvChange.type = ServerChange.ChangeType.Change;
+			srvChange.type = ServerChange.ChangeType.CHANGE;
 			break;
 		case DELETE:
-			srvChange.type = ServerChange.ChangeType.Delete;
+			srvChange.type = ServerChange.ChangeType.DELETE;
 			break;
 		case SOFTDELETE:
-			srvChange.type = ServerChange.ChangeType.SoftDelete;
+			srvChange.type = ServerChange.ChangeType.SOFT_DELETE;
 			break;
 		default:
 		case ADD:
-			srvChange.type = ServerChange.ChangeType.Add;
+			srvChange.type = ServerChange.ChangeType.ADD;
 			break;
 
 		}

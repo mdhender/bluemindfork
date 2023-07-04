@@ -20,6 +20,7 @@ package net.bluemind.eas.serdes.resolverecipients;
 
 import net.bluemind.eas.dto.NamespaceMapping;
 import net.bluemind.eas.dto.base.Callback;
+import net.bluemind.eas.dto.base.Picture;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse.Response;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse.Response.Recipient;
@@ -117,7 +118,7 @@ public class ResolveRecipientsResponseFormatter implements IEasResponseFormatter
 
 					if (recip.picture != null) {
 						builder.container("Picture");
-						builder.text("Status", Recipient.Picture.Status.NoPhoto.xmlValue());
+						builder.text("Status", Picture.Status.NO_PHOTO.xmlValue());
 						builder.endContainer();
 					}
 					builder.endContainer(); // Recipient

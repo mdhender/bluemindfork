@@ -51,7 +51,7 @@ public class ItemOperationsFormatter implements IEasResponseFormatter<ItemOperat
 		b.text("Status", response.status.xmlValue());
 
 		IBodyOutput tmp = null;
-		if (response.style == ResponseStyle.Inline) {
+		if (response.style == ResponseStyle.INLINE) {
 			tmp = new InlineBodyOutput();
 		} else {
 			tmp = new MultipartBodyOutput();

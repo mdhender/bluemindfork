@@ -20,7 +20,7 @@ package net.bluemind.eas.dto.settings;
 
 public enum SettingsStatus {
 
-	Ok(1);
+	OK(1);
 
 	private final String xmlValue;
 

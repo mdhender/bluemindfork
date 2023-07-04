@@ -144,7 +144,7 @@ public class SyncEndpointTaskTests extends AbstractEndpointTest {
 		DOMUtils.createElementAndText(body, "Data", "description w00t w00t");
 
 		DOMUtils.createElementAndText(appData, "Tasks:Subject", "acheter du pain");
-		DOMUtils.createElementAndText(appData, "Tasks:Importance", TasksResponse.Importance.High.xmlValue());
+		DOMUtils.createElementAndText(appData, "Tasks:Importance", TasksResponse.Importance.HIGH.xmlValue());
 		DOMUtils.createElementAndText(appData, "Tasks:UtcStartDate", "2016-01-17T14:00:00.000Z");
 		DOMUtils.createElementAndText(appData, "Tasks:StartDate", "2016-01-17T15:00:00.000Z");
 		DOMUtils.createElementAndText(appData, "Tasks:UtcDueDate", "2016-01-17T14:00:00.000Z");

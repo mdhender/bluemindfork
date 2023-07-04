@@ -20,10 +20,10 @@ package net.bluemind.eas.dto.folderdelete;
 
 public class FolderDeleteResponse {
 
-	public static enum Status {
+	public enum Status {
 
-		Success(1), SystemFolder(3), DoesNotExist(4), //
-		ServerError(6), InvalidSyncKey(9), InvalidRequest(10), UnknownError(11);
+		SUCCESS(1), SYSTEM_FOLDER(3), DOES_NOT_EXIST(4), //
+		SERVER_ERROR(6), INVALID_SYNC_KEY(9), INVALID_REQUEST(10), UNKNOWN_ERROR(11);
 
 		private final String xmlValue;
 

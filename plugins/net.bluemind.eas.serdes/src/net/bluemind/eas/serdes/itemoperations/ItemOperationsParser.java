@@ -47,7 +47,7 @@ public class ItemOperationsParser implements IEasRequestParser<ItemOperationsReq
 	public ItemOperationsRequest parse(OptionalParams optParams, Document doc, IPreviousRequestsKnowledge past) {
 		ItemOperationsRequest request = new ItemOperationsRequest();
 		if ("T".equals(optParams.acceptMultiPart())) {
-			request.style = ResponseStyle.Multipart;
+			request.style = ResponseStyle.MULTIPART;
 			if ("gzip".equals(optParams.acceptEncoding())) {
 				request.gzip = true;
 			}

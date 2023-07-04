@@ -37,7 +37,7 @@ public class FolderSyncResponseFormatter implements IEasResponseFormatter<Folder
 			builder.text("SyncKey", response.syncKey);
 		}
 
-		if (response.status == Status.Success) {
+		if (response.status == Status.SUCCESS) {
 			builder.container("Changes");
 
 			if (response.hasChanges()) {

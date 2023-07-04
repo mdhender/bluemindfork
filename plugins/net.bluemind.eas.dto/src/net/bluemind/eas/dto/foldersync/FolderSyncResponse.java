@@ -23,10 +23,10 @@ import java.util.List;
 
 public class FolderSyncResponse {
 
-	public static enum Status {
+	public enum Status {
 
-		Success(1), ServerError(6), InvalidSyncKey(9), InvalidRequest(10), //
-		UnknownError(11), CodeUnknown(12);
+		SUCCESS(1), SERVER_ERROR(6), INVALID_SYNC_KEY(9), INVALID_REQUEST(10), //
+		UNKNOWN_ERROR(11), CODE_UNKNOWN(12);
 
 		private final String xmlValue;
 

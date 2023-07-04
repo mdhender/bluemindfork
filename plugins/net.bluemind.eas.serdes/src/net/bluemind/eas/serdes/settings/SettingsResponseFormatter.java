@@ -88,7 +88,7 @@ public class SettingsResponseFormatter implements IEasResponseFormatter<Settings
 			builder.container("Oof");
 			builder.text("Status", "1");
 			builder.container("Get");
-			builder.text("OofState", OofState.disabled.xmlValue());
+			builder.text("OofState", OofState.DISABLED.xmlValue());
 			builder.endContainer().endContainer();
 		}
 		builder.end(completion);

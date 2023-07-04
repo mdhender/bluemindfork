@@ -101,7 +101,7 @@ public class MoveItemsProtocol implements IEasProtocol<MoveItemsRequest, MoveIte
 				logger.warn(
 						"Same source and destination collection id. Send status 4 SameSourceAndDestinationCollectionId");
 				appendResponseError(response, item,
-						MoveItemsResponse.Response.Status.SameSourceAndDestinationCollectionId);
+						MoveItemsResponse.Response.Status.SAME_SOURCE_AND_DESTINATION_COLLECTION_ID);
 				continue;
 			}
 
@@ -109,14 +109,14 @@ public class MoveItemsProtocol implements IEasProtocol<MoveItemsRequest, MoveIte
 
 			if (!srcFolder.isPresent()) {
 				logger.warn("Source folder is missing. Send status 1 InvalidSourceCollectionId");
-				appendResponseError(response, item, MoveItemsResponse.Response.Status.InvalidSourceCollectionId);
+				appendResponseError(response, item, MoveItemsResponse.Response.Status.INVALID_SOURCE_COLLECTION_ID);
 				continue;
 			}
 
 			Optional<HierarchyNode> dstFolder = folderCache.computeIfAbsent(item.dstFldId, this::getAndCheckFolder);
 			if (!dstFolder.isPresent()) {
 				logger.warn("Destination folder is missing. Send status 2 InvalidDestinationCollectionId");
-				appendResponseError(response, item, MoveItemsResponse.Response.Status.InvalidDestinationCollectionId);
+				appendResponseError(response, item, MoveItemsResponse.Response.Status.INVALID_DESTINATION_COLLECTION_ID);
 				continue;
 			}
 
@@ -137,7 +137,7 @@ public class MoveItemsProtocol implements IEasProtocol<MoveItemsRequest, MoveIte
 					MoveItemsResponse.Response r = new MoveItemsResponse.Response();
 					r.srcMsgId = folders.getSource().collectionId.getValue() + ":" + ci.itemId;
 					r.dstMsgId = r.srcMsgId;
-					r.status = Status.SourceOrDestinationLocked;
+					r.status = Status.SOURCE_OR_DESTINATION_LOCKED;
 					res.add(r);
 				}
 			}
