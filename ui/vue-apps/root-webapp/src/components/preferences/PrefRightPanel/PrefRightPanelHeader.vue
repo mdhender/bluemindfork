@@ -1,14 +1,9 @@
 <template>
     <div class="pref-right-panel-header">
-        <div class="d-flex d-lg-none py-4 px-3 align-items-center small-panel-header">
-            <bm-icon-button
-                variant="compact-on-fill-primary"
-                size="lg"
-                icon="arrow-back"
-                @click="SET_SELECTED_SECTION(null)"
-            />
+        <bm-navbar class="small-panel-header d-lg-none">
+            <bm-navbar-back @click="SET_SELECTED_SECTION(null)" />
             <template v-if="!openedInMobile">
-                <div class="bold">{{ selectedSection.name }}</div>
+                <bm-navbar-title :title="selectedSection.name" />
                 <bm-icon-button
                     class="ml-auto"
                     variant="compact-on-fill-primary"
@@ -18,7 +13,7 @@
                 />
             </template>
             <pref-search-input v-else class="flex-fill mx-3" />
-        </div>
+        </bm-navbar>
         <div class="d-none d-lg-flex align-items-center large-panel-header">
             <pref-search-input class="my-4 w-50" />
             <bm-button-close size="lg" class="ml-auto mr-5" @click="$emit('close')" />
@@ -28,12 +23,12 @@
 
 <script>
 import PrefSearchInput from "./PrefSearchInput";
-import { BmIconButton, BmButtonClose } from "@bluemind/ui-components";
+import { BmIconButton, BmButtonClose, BmNavbar, BmNavbarBack, BmNavbarTitle } from "@bluemind/ui-components";
 import { mapMutations, mapState } from "vuex";
 
 export default {
     name: "PrefRightPanelHeader",
-    components: { BmIconButton, BmButtonClose, PrefSearchInput },
+    components: { BmIconButton, BmButtonClose, BmNavbar, BmNavbarBack, BmNavbarTitle, PrefSearchInput },
     props: {
         selectedSection: {
             type: Object,
@@ -64,8 +59,7 @@ export default {
 
 .pref-right-panel-header {
     .small-panel-header {
-        background-color: $fill-primary-bg;
-        color: $fill-primary-fg;
+        padding-right: $sp-3;
     }
     .large-panel-header {
         padding-left: $prefs-padding-left;
