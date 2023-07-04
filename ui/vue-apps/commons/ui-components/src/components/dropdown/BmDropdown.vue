@@ -11,11 +11,12 @@
         v-on="$listeners"
     >
         <template slot="button-content">
-            <slot name="icon">
-                <bm-icon v-if="icon" :icon="icon" />
+            <slot name="button-content">
+                <slot name="icon">
+                    <bm-icon v-if="icon" :icon="icon" />
+                </slot>
+                <span>{{ text }}</span>
             </slot>
-            <slot name="button-content" />
-            <span>{{ text }}</span>
         </template>
         <slot />
     </b-dropdown>
