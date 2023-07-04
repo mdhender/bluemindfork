@@ -47,7 +47,6 @@ public class Repack implements IMaintenanceScript {
 	private static final long TIMEOUT_HOURS = 8;
 	private static final int DEFAULT_CHANGESET_PARTITION_COUNT = 256;
 	private static final int DEFAULT_CONVERSATION_REFERENCE_PARTITION_COUNT = 256;
-	private static final int DEFAULT_CONVERSATION_PARTITION_COUNT = 25;
 
 	private static final Logger logger = LoggerFactory.getLogger(Repack.class);
 

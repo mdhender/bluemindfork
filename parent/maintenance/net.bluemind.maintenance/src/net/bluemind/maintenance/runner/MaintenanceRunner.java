@@ -17,10 +17,10 @@
   */
 package net.bluemind.maintenance.runner;
 
-import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -57,8 +57,8 @@ public class MaintenanceRunner {
 				Date start = new Date();
 				maintenanceScript.run(monitor);
 				Date end = new Date();
-				TimeRangeAnnotation.annotate(maintenanceScript.name(), start, Optional.of(end), ImmutableMap.of("kind",
-						"maintenance", "product", "bm-core", "script", maintenanceScript.name()));
+				TimeRangeAnnotation.annotate(maintenanceScript.name(), start, Optional.of(end),
+						Map.of("kind", "maintenance", "product", "bm-core", "script", maintenanceScript.name()));
 			} catch (Exception e) {
 				monitor.log("maintenance script " + maintenanceScript + " failed: " + e);
 				logger.error("Maintenance script {} failed", maintenanceScript, e);
