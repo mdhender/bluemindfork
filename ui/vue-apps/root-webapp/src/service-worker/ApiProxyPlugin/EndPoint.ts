@@ -20,7 +20,7 @@ export class EndPoint {
         this.metadatas = metadatas;
         this.handler = null;
         this.url = `/api${[endpoint.path.value, metadatas.path.value].filter(Boolean).join("/")}`;
-        const query = this.metadatas.inParams.some(({ paramType }) => paramType === "QueryParam") ? "(\\?.*)?" : "";
+        const query = this.metadatas.inParams?.some(({ paramType }) => paramType === "QueryParam") ? "(\\?.*)?" : "";
         this.regExp = new RegExp(`${this.url.replace(/{[^}]+}/g, "([^_/][^/?]*)")}${query}$`);
     }
 
@@ -56,7 +56,7 @@ export class EndPoint {
         const query = new URL(request.url).searchParams;
         const result: ExecutionParameters = { client: [], method: [] };
         result.client = this.endpoint.path.parameters.map(() => params.shift() as string);
-        for (const input of this.metadatas.inParams) {
+        for (const input of this.metadatas.inParams || []) {
             switch (input.paramType) {
                 case "PathParam":
                     result.method.push(params.shift());
