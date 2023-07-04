@@ -1,8 +1,8 @@
 <template>
-    <div class="folder-sidebar-mobile-header d-lg-none d-flex py-3 px-4">
+    <bm-navbar class="folder-sidebar-mobile-header">
         <div class="flex-fill d-flex align-items-center">
             <bm-avatar :alt="displayname" />
-            <div class="text-truncate pl-5 pr-2">
+            <div class="text-truncate px-4 large">
                 {{ displayname }}
             </div>
         </div>
@@ -25,17 +25,17 @@
                 {{ $t("banner.menu.logout") }}
             </bm-dropdown-item>
         </bm-icon-dropdown>
-    </div>
+    </bm-navbar>
 </template>
 
 <script>
 import { mapMutations } from "vuex";
 import injector from "@bluemind/inject";
-import { BmAvatar, BmIconDropdown, BmDropdownItemButton, BmDropdownItem } from "@bluemind/ui-components";
+import { BmAvatar, BmIconDropdown, BmDropdownItemButton, BmDropdownItem, BmNavbar } from "@bluemind/ui-components";
 
 export default {
     name: "FolderSidebarMobileHeader",
-    components: { BmAvatar, BmIconDropdown, BmDropdownItemButton, BmDropdownItem },
+    components: { BmAvatar, BmIconDropdown, BmDropdownItemButton, BmDropdownItem, BmNavbar },
     data() {
         const userSession = injector.getProvider("UserSession").get();
         const displayname = userSession["formatedName"];
@@ -54,7 +54,9 @@ export default {
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .folder-sidebar-mobile-header {
-    background-color: $fill-primary-bg-hi1 !important;
-    color: $fill-primary-fg;
+    .bm-avatar {
+        margin: 0 base-px-to-rem(6);
+    }
+    padding-right: $sp-3 !important;
 }
 </style>

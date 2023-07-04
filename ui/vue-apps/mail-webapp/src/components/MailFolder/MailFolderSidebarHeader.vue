@@ -1,6 +1,6 @@
 <template>
     <div class="mail-folder-sidebar-header bg-surface">
-        <folder-sidebar-mobile-header />
+        <folder-sidebar-mobile-header class="d-lg-none" />
         <folder-search-input />
     </div>
 </template>
