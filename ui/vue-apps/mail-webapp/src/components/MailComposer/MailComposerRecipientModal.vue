@@ -6,6 +6,7 @@
         size="xl"
         body-class="overflow-hidden d-flex flex-column"
         centered
+        @change="search = ''"
     >
         <selected-contacts :contacts.sync="selectedContacts" />
         <hr />
@@ -29,6 +30,7 @@
                     class="search-input"
                     variant="underline"
                     @reset="search = ''"
+                    @keydown.enter="performSearch(search)"
                 />
                 <contact-list
                     class="h-100"
@@ -62,12 +64,12 @@
 </template>
 
 <script>
+import debounce from "lodash.debounce";
 import { mapActions, mapState } from "vuex";
 import { ERROR, REMOVE } from "@bluemind/alert.store";
-import { inject } from "@bluemind/inject";
 import { BmAlertArea, BmButton, BmModal, BmFormInput } from "@bluemind/ui-components";
+import { inject } from "@bluemind/inject";
 import { searchVCardsHelper } from "@bluemind/contact";
-import debounce from "lodash.debounce";
 import AddressBookList from "./AddressBookList";
 import ContactList from "./ContactList";
 import SelectedContacts from "./SelectedContacts";
@@ -87,7 +89,10 @@ export default {
             allContacts: [],
             searchedContacts: [],
             search: "",
-            selectedAddressBookId: undefined
+            selectedAddressBookId: undefined,
+            debounceSearch: debounce(function (searchValue) {
+                this.performSearch(searchValue);
+            }, 500)
         };
     },
     computed: {
@@ -120,7 +125,9 @@ export default {
     },
     watch: {
         async selectedAddressBookId(value) {
+            this.search = "";
             this.loading = true;
+
             try {
                 if (!value) return [];
                 const ids = await inject("AddressBookPersistence", value).sortedIds();
@@ -148,14 +155,10 @@ export default {
             }
         },
         search(searchValue) {
-            if (shouldResetSearch()) {
+            if (!this.searchedContacts?.length || searchValue === "") {
                 this.searchedContacts = null;
             }
-            this.performSearch(searchValue);
-
-            function shouldResetSearch() {
-                return !this.searchedContacts?.length || searchValue === "";
-            }
+            this.debounceSearch(searchValue);
         }
     },
     async created() {
@@ -171,7 +174,7 @@ export default {
         addressbookById(addressbookId) {
             return this.addressBooks.find(a => a.uid === addressbookId) || {};
         },
-        performSearch: debounce(async function (searchValue) {
+        async performSearch(searchValue) {
             if (searchValue) {
                 this.loading = true;
 
@@ -189,8 +192,9 @@ export default {
                         : [];
 
                 this.loading = false;
+                this.debounceSearch.cancel();
             }
-        }, 700),
+        },
         ...mapActions("alert", { ERROR, REMOVE }),
         updateSelected(contacts) {
             const contactUids = contacts.map(({ uid }) => uid);

@@ -45,7 +45,7 @@ describe("CONTACT LIST COMPONENT", () => {
 
     test("should display a message if an addressbook is empty", () => {
         const wrapper = ContactListSUT({}).mount();
-        expect(wrapper.text()).toEqual("le carnet est vide");
+        expect(wrapper.text()).toEqual("le carnet FAKE ADDRESSBOOK est vide");
     });
 });
 
@@ -72,10 +72,10 @@ function ContactListSUT(defaultValues) {
                     loading: values.loading ?? false,
                     contacts: values.contacts,
                     userId: values.userId ?? "USER_ANY_ID",
-                    addressbook: values.addressbook ?? {}
+                    addressbook: values.addressbook ?? { name: "FAKE ADDRESSBOOK" }
                 },
                 mocks: {
-                    $t: () => "le carnet est vide"
+                    $t: (_path, args) => " le carnet " + args.addressBookName + " est vide"
                 }
             });
         }

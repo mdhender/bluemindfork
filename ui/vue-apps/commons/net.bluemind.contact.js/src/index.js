@@ -9,7 +9,7 @@ import { inject } from "@bluemind/inject";
 
 const SEARCH_API_MAX_SIZE = 10000;
 
-function searchVCardsHelper(pattern, size = 5, noGroup = false, addressBook) {
+function searchVCardsHelper(pattern, size = 5, noGroup = false, addressBook = null) {
     if (size < 0) {
         size = SEARCH_API_MAX_SIZE;
     }
@@ -23,7 +23,7 @@ function searchVCardsHelper(pattern, size = 5, noGroup = false, addressBook) {
         ") AND (" +
         groupPart +
         "_exists_:value.communications.emails.value)" +
-        ` AND containerUid:${escape(addressBook)}`;
+        (addressBook ? ` AND containerUid:${escape(addressBook)}` : "");
 
     return { from: 0, size, query: esQuery, orderBy: VCardQuery.OrderBy.Pertinance, escapeQuery: false };
 }
