@@ -173,7 +173,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 			exception.startTime = parseDOMDate(DOMUtils.getUniqueElement(subnode, "StartTime"));
 			exception.endTime = parseDOMDate(DOMUtils.getUniqueElement(subnode, "EndTime"));
 			exception.subject = parseDOMString(DOMUtils.getUniqueElement(subnode, "Subject"));
-			exception.location = parseDOMString(DOMUtils.getUniqueElement(subnode, "Location"));
+			exception.location = getLocation(subnode);
 
 			Element attendeesNode = DOMUtils.getDirectChildElement(subnode, "Attendees");
 			if (attendeesNode != null) {
@@ -281,7 +281,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 
 	private void setEventCalendar(MSEvent calendar, Element domSource) {
 
-		calendar.setLocation(parseDOMString(DOMUtils.getUniqueElement(domSource, "Location")));
+		calendar.setLocation(getLocation(domSource));
 
 		// description
 		Element body = DOMUtils.getUniqueElement(domSource, "Body");
@@ -342,6 +342,41 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		if (calendar.getMeetingStatus() != null) {
 			logger.info("MeetingStatus: {}", calendar.getMeetingStatus());
 		}
+	}
+
+	private String getLocation(Element dom) {
+		Element element = DOMUtils.getUniqueElement(dom, "Location");
+		if (element == null) {
+			return null;
+		}
+
+		if (!element.hasChildNodes()) {
+			// protocol < 16
+			// <Location>In the kitchen</Location>
+			return parseDOMString(element);
+		}
+
+		// protocol > 16
+		// <Location xmlns="AirSyncBase">
+		// <DisplayName>BlueMind</DisplayName>
+		// <Annotation>40 Rue du Village d'Entreprises 31670 Labège France</Annotation>
+		// <Latitude>43.54280248150819</Latitude>
+		// <Longitude>1.51013808765032</Longitude>
+		// </Location>
+		//
+		// ignore Latitude and Longitude
+
+		StringBuilder location = new StringBuilder();
+		Element displayName = DOMUtils.getUniqueElement(element, "DisplayName");
+		if (displayName != null) {
+			location.append(displayName.getTextContent()).append(" ");
+		}
+		Element annotation = DOMUtils.getUniqueElement(element, "Annotation");
+		if (annotation != null) {
+			location.append(annotation.getTextContent()).append(" ");
+		}
+
+		return location.toString();
 	}
 
 	private void setEventDescription(MSEvent calendar, Element body) {
