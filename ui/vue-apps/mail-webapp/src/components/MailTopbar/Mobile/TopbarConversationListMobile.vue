@@ -1,31 +1,27 @@
 <template>
     <div class="topbar-conversation-list-mobile flex-fill" :class="{ darkened }">
-        <div class="main w-100">
+        <bm-navbar class="main w-100">
             <bm-dropdown
                 v-if="CURRENT_MAILBOX"
                 variant="text-on-fill-primary"
-                class="folder-menu-mobile"
+                class="folder-menu-mobile text-truncate"
                 size="lg"
                 @show.prevent="$emit('showFolders')"
             >
                 <template #button-content>
-                    <bm-avatar :alt="userSession.formatedName" />
-                    <bm-label-icon v-if="MY_MAILBOX === CURRENT_MAILBOX" :icon="folderIcon" class="ml-4 flex-fill">
-                        {{ currentFolder.name }}
-                    </bm-label-icon>
-                    <template v-else>
-                        <mail-mailbox-icon class="ml-4" :mailbox="CURRENT_MAILBOX" />
-                        <span class="ml-3">{{ currentFolder.name }}</span>
-                    </template>
+                    <bm-avatar class="session-avatar" :alt="userSession.formatedName" />
+                    <bm-icon v-if="MY_MAILBOX === CURRENT_MAILBOX" :icon="folderIcon" />
+                    <mail-mailbox-icon v-else :mailbox="CURRENT_MAILBOX" />
+                    <div class="bold-tight text-truncate">{{ currentFolder.name }}</div>
                 </template>
             </bm-dropdown>
-            <div class="d-flex align-items-center toolbar">
+            <div class="toolbar">
                 <mail-search-box />
                 <div class="options-for-mobile">
                     <messages-options-for-mobile @shown="darkened = true" @hidden="darkened = false" />
                 </div>
             </div>
-        </div>
+        </bm-navbar>
 
         <new-message class="new-mobile" :template="activeFolder === MY_TEMPLATES.key" mobile />
     </div>
@@ -35,7 +31,7 @@
 import { mapGetters, mapState } from "vuex";
 import { inject } from "@bluemind/inject";
 import { folderUtils } from "@bluemind/mail";
-import { BmAvatar, BmDropdown, BmLabelIcon } from "@bluemind/ui-components";
+import { BmAvatar, BmDropdown, BmIcon, BmNavbar } from "@bluemind/ui-components";
 import { CURRENT_MAILBOX, MY_MAILBOX, MY_TEMPLATES } from "~/getters";
 import MailMailboxIcon from "../../MailMailboxIcon";
 import MailSearchBox from "../../MailSearch/MailSearchBox";
@@ -47,7 +43,8 @@ export default {
     components: {
         BmAvatar,
         BmDropdown,
-        BmLabelIcon,
+        BmIcon,
+        BmNavbar,
         MailMailboxIcon,
         MessagesOptionsForMobile,
         NewMessage,
@@ -87,26 +84,28 @@ export default {
 @import "~@bluemind/ui-components/src/css/utils/typography";
 .topbar-conversation-list-mobile {
     .main {
-        display: flex;
-        justify-content: space-between;
-        .toolbar {
-            gap: $sp-4;
-        }
-        .bm-avatar {
-            font-weight: $font-weight-normal;
-        }
-        .bm-dropdown {
-            max-width: 65%;
+        .folder-menu-mobile {
+            flex: 1;
+            align-self: stretch;
             .dropdown-toggle {
-                padding: $sp-4 base-px-to-rem(6) !important;
-                flex: 1 1 auto;
                 min-width: 0;
-                .bm-label-icon > div {
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
+                justify-content: flex-start;
+                padding: 0 !important;
+                gap: $sp-4 !important;
+
+                .bm-avatar {
+                    font-weight: $font-weight-normal;
+                    &.session-avatar {
+                        margin: 0 base-px-to-rem(6);
+                    }
                 }
             }
+        }
+
+        .toolbar {
+            display: flex;
+            gap: $sp-4;
+            padding-left: $sp-3;
         }
     }
 
