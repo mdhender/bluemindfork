@@ -23,7 +23,18 @@
                 </template>
 
                 <template #empty>
-                    <i18n path="recipient_picker.addressbook.empty" class="no-result">
+                    <div v-if="searchNoResult" class="empty-search-result">
+                        <bm-illustration value="spider" size="sm" over-background />
+                        <i18n path="recipient_picker.search.no_result">
+                            <template #search>
+                                <br />
+                                <span class="search-pattern">"{{ search }}"</span>
+                                <br />
+                            </template>
+                        </i18n>
+                        <bm-button>{{ $t("recipient_picker.search.reset") }}</bm-button>
+                    </div>
+                    <i18n v-else path="recipient_picker.addressbook.empty" class="no-result">
                         <address-book-label-icon
                             :address-book="addressbook"
                             :user-id="userId"
@@ -71,18 +82,19 @@
 </template>
 
 <script>
-import { BmPagination, BmSpinner, BmTable, BmCheck /* BmIllustration */ } from "@bluemind/ui-components";
+import { BmPagination, BmSpinner, BmTable, BmCheck, BmIllustration } from "@bluemind/ui-components";
 import AddressBookLabelIcon from "./AddressBookLabelIcon.vue";
 
 export default {
     name: "ContactList",
-    components: { BmTable, BmPagination, BmSpinner, BmCheck /* BmIllustration */, AddressBookLabelIcon },
+    components: { BmTable, BmPagination, BmSpinner, BmCheck, BmIllustration, AddressBookLabelIcon },
     props: {
         addressbook: { type: Object, required: true },
         contacts: { type: Array, required: true },
         loading: { type: Boolean, required: true },
         selected: { type: Array, required: true },
-        userId: { type: String, required: true }
+        userId: { type: String, required: true },
+        search: { type: String, default: "" }
     },
     data() {
         return {
@@ -95,6 +107,11 @@ export default {
             perPage: 10,
             currentPage: 1
         };
+    },
+    computed: {
+        searchNoResult() {
+            return Boolean(this.search) && !this.loading && !this.contacts.length;
+        }
     }
 };
 </script>
@@ -177,6 +194,25 @@ export default {
         height: $pagination-wrapper-height;
         margin: 0;
         background-color: $surface-bg;
+    }
+
+    .empty-search-result {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding-top: $sp-7;
+        gap: $sp-6;
+
+        .search-pattern {
+            color: $primary-fg;
+            font-weight: $font-weight-bold;
+            word-break: break-all;
+        }
+
+        .bm-illustration {
+            max-width: 100%;
+        }
     }
 }
 </style>

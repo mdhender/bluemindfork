@@ -25,7 +25,7 @@
                     left-icon
                     :resettable="resettable"
                     :placeholder="
-                        $t('recipientPicker.search_input.placeholder', { addressBookName: selectedAddressBook.name })
+                        $t('recipient_picker.search_input.placeholder', { addressBookName: selectedAddressBook.name })
                     "
                     class="search-input"
                     variant="underline"
@@ -36,6 +36,7 @@
                     class="h-100"
                     :contacts="contacts"
                     :loading="loading"
+                    :search="search"
                     :addressbook="selectedAddressBook"
                     :user-id="userId"
                     :selected="selectedForCurrentAddressBook"

@@ -569,7 +569,9 @@
     "recipient_picker.addressbook.shared.collected": "Collected by {user}",
     "recipient_picker.addressbook.shared.others": "{user}'s {addressBookName}",
     "recipient_picker.addressbook.shared.personnal": "{user}'s contacts",
+    "recipient_picker.search_input.placeholder": "Search within {addressBookName}",
+    "recipient_picker.search.no_result": "No contact containing {search} was found.",
+    "recipient_picker.search.reset": "Reset search",
     "recipient_picker.selected.count": "{count} contact selected|{count} contacts selected",
-    "recipientPicker.search_input.placeholder": "Search within {addressBookName}",
     "recipient_picker.title": "Add recipients"
 }
