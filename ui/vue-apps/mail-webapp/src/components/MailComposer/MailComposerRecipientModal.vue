@@ -134,9 +134,7 @@ export default {
             this.selectedForCurrentAddressBook.forEach(previous => {
                 previousUids.push(previous.uid);
                 if (!contactUids.includes(previous.uid)) {
-                    const index = selected.findIndex(s =>
-                        previous.uid ? previous.uid === s.uid : s.dn === previous.name && s.address === previous.email
-                    );
+                    const index = selected.findIndex(s => s.dn === previous.name && s.address === previous.email);
                     selected.splice(index, 1);
                 }
             });
@@ -164,7 +162,7 @@ function toContact(contactItem) {
 
 <style lang="scss">
 @import "@bluemind/ui-components/src/css/type";
-@import "@bluemind/ui-components/src/css/variables";
+@import "@bluemind/ui-components/src/css/utils/variables";
 
 .mail-composer-recipient-modal {
     height: 80vh;

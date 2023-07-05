@@ -70,7 +70,7 @@
                 "error": "Fehler beim Markieren der Nachrichten."
             },
             "max_recipients_exceeded": {
-                "error": "Maximale Anzahl von Empfängern überschritten ({count} > {max})."
+                "error": "Die maximale Anzahl von {max} Empfängern wird überschritten."
             },
             "move_conversations": {
                 "loading": {

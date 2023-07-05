@@ -1,4 +1,4 @@
-@import "../scrollbarVariables";
+@import "./variables";
 
 /** Customized scrollbars for WebKit based browsers. Only elements having the class 'scroller-y' are affected. */
 @mixin scroller-y() {

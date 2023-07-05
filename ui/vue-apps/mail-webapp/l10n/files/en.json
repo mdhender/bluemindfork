@@ -70,7 +70,7 @@
                 "error": "Failed to mark selected messages as unread."
             },
             "max_recipients_exceeded": {
-                "error": "Maximum recipients exceeded ({count} > {max})."
+                "error": "The maximum number of {max} recipients is exceeded."
             },
             "move_conversations": {
                 "loading": {

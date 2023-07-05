@@ -105,16 +105,15 @@ export default {
     watch: {
         maxRecipientsExceeded: {
             handler: function (exceeded) {
-                exceeded
-                    ? this.ERROR({
-                          alert: {
-                              name: "mail.max_recipients_exceeded",
-                              uid: "MAX_RECIPIENTS",
-                              payload: { max: MAX_RECIPIENTS, count: this.recipientCount }
-                          },
-                          options: { area: "right-panel" }
-                      })
-                    : this.REMOVE({ uid: "MAX_RECIPIENTS" });
+                const alertInComposerUid = "MAX_RECIPIENTS";
+                const alertInPickerUid = "PICKER_MAX_RECIPIENTS";
+                if (exceeded) {
+                    this.ERROR(buildMaxRecipientsExceededAlert(alertInComposerUid, "right-panel"));
+                    this.ERROR(buildMaxRecipientsExceededAlert(alertInPickerUid, "recipient-picker"));
+                } else {
+                    this.REMOVE({ uid: alertInComposerUid });
+                    this.REMOVE({ uid: alertInPickerUid });
+                }
             },
             immediate: true
         }
@@ -130,6 +129,13 @@ export default {
         }
     }
 };
+
+function buildMaxRecipientsExceededAlert(uid, area) {
+    return {
+        alert: { name: "mail.max_recipients_exceeded", uid, payload: { max: MAX_RECIPIENTS } },
+        options: { area }
+    };
+}
 </script>
 
 <style lang="scss">

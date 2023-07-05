@@ -49,10 +49,10 @@ function contactContainerUid(contact) {
 </script>
 
 <style lang="scss">
-@import "@bluemind/ui-components/src/css/mixins/responsiveness";
 @import "@bluemind/ui-components/src/css/type";
-@import "@bluemind/ui-components/src/css/variables";
-@import "@bluemind/ui-components/src/css/mixins";
+@import "@bluemind/ui-components/src/css/utils/responsiveness";
+@import "@bluemind/ui-components/src/css/utils/scroller";
+@import "@bluemind/ui-components/src/css/utils/variables";
 
 .selected-contacts {
     display: flex;
@@ -62,7 +62,7 @@ function contactContainerUid(contact) {
     .contact-input {
         .selected-label {
             color: $neutral-fg-hi1;
-            @extend %bold;
+            @include bold;
             margin-right: $sp-5;
             @include from-lg {
                 margin-right: $sp-6;
