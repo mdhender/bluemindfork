@@ -169,6 +169,10 @@ public class BackupDataProvider implements AutoCloseable {
 		VersionInfo to = VersionInfo.create(ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IInstallation.class).getVersion().softwareVersion);
 
+		if (dpVersion.equals(to)) {
+			return;
+		}
+
 		UpgradeReport report = new UpgradeReport();
 		List<DatedUpdater> upgraders = SchemaUpgrade.getUpgradePath();
 		Set<UpdateAction> handledActions = new HashSet<>();
