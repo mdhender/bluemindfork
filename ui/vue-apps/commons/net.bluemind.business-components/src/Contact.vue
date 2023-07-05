@@ -7,9 +7,23 @@
         type="renderless"
         v-bind="{ ...$attrs }"
     >
-        <contact-internal v-bind="context" v-on="$listeners" />
+        <contact-internal v-bind="context" v-on="$listeners">
+            <template #email="slotProps">
+                <slot name="email" :email="slotProps.email" />
+            </template>
+            <template #actions="slotProps">
+                <slot name="actions" :contact="slotProps.contact" />
+            </template>
+        </contact-internal>
     </bm-extension>
-    <contact-internal v-else v-bind="{ ...$attrs }" v-on="$listeners" />
+    <contact-internal v-else v-bind="{ ...$attrs }" v-on="$listeners">
+        <template #email="slotProps">
+            <slot name="email" :email="slotProps.email" />
+        </template>
+        <template #actions="slotProps">
+            <slot name="actions" :contact="slotProps.contact" />
+        </template>
+    </contact-internal>
 </template>
 
 <script>
@@ -20,10 +34,7 @@ export default {
     name: "Contact",
     components: { ContactInternal, BmExtension },
     props: {
-        extension: {
-            type: String,
-            default: undefined
-        }
+        extension: { type: String, default: undefined }
     }
 };
 </script>
