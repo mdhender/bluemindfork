@@ -29,7 +29,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-import net.bluemind.eas.http.AuthenticatedEASQuery;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
 import net.bluemind.eas.http.EasUrls;
 import net.bluemind.eas.http.IEasRequestEndpoint;
@@ -85,47 +84,35 @@ public final class EASRouter implements Handler<HttpServerRequest> {
 	}
 
 	private Handler<AuthorizedDeviceQuery> postHandler() {
-		return new Handler<AuthorizedDeviceQuery>() {
-
-			@Override
-			public void handle(final AuthorizedDeviceQuery event) {
-				final String pointKey = "" + ((int) event.protocolVersion()) + "." + event.command();
-				IEasRequestEndpoint ep = endpoints.get(pointKey);
-				if (ep != null) {
-					try {
-						ep.handle(event);
-					} catch (Exception t) {
-						handlerException(event.request(), t);
-					}
-				} else {
-					event.request().endHandler(new Handler<Void>() {
-
-						@Override
-						public void handle(Void v) {
-							logger.warn("Missing endpoint for point key: {}", pointKey);
-							HttpServerResponse resp = event.request().response();
-							resp.setStatusCode(500).setStatusMessage("Not implemented").end();
-						}
-					});
+		return event -> {
+			final String pointKey = "" + ((int) event.protocolVersion()) + "." + event.command();
+			IEasRequestEndpoint ep = endpoints.get(pointKey);
+			if (ep != null) {
+				try {
+					ep.handle(event);
+				} catch (Exception t) {
+					handlerException(event.request(), t);
 				}
+			} else {
+				event.request().endHandler(v -> {
+					logger.warn("Missing endpoint for point key: {}", pointKey);
+					HttpServerResponse resp = event.request().response();
+					resp.setStatusCode(500).setStatusMessage("Not implemented").end();
+				});
 			}
 		};
 	}
 
 	@Override
 	public void handle(final HttpServerRequest event) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("request {}\n{}", event.absoluteURI(), event.headers());
+		}
 		final HttpServerRequest wrapped = Requests.wrap(event);
 		Requests.tag(wrapped, "m", event.method().name());
 		Requests.tag(wrapped, "rid", Long.toString(requestId.incrementAndGet()));
 		Requests.tag(wrapped, "ua", event.headers().get("User-Agent"));
-		wrapped.exceptionHandler(new Handler<Throwable>() {
-
-			@Override
-			public void handle(Throwable t) {
-				handlerException(event, t);
-			}
-
-		});
+		wrapped.exceptionHandler(t -> handlerException(event, t));
 		try {
 			rm.handle(wrapped);
 		} catch (Exception t) {
@@ -140,21 +127,18 @@ public final class EASRouter implements Handler<HttpServerRequest> {
 	}
 
 	private Handler<HttpServerRequest> validatingQueryHandler(Vertx vertx, Handler<AuthorizedDeviceQuery> next) {
-		BasicAuthHandler basicAuthHandler = new BasicAuthHandler(vertx, "bm-eas", BasicRoles.ROLE_EAS,
-				new EASQueryDecoder(new ApplyFiltersHandler(
-						new DeviceValidationHandler(vertx, new AuthorizedDevicesFiltersHandler(next)))));
-		return basicAuthHandler;
+		return new BasicAuthHandler(vertx, "bm-eas", BasicRoles.ROLE_EAS, new EASQueryDecoder(new ApplyFiltersHandler(
+				new DeviceValidationHandler(vertx, new AuthorizedDevicesFiltersHandler(next)))));
 	}
 
 	private Handler<HttpServerRequest> nonValidatingQueryHandler(Vertx vertx,
 			final Handler<AuthorizedDeviceQuery> next) {
 		return new BasicAuthHandler(vertx, "bm-eas", BasicRoles.ROLE_EAS,
-				new EASQueryDecoder(new ApplyFiltersHandler(new Handler<AuthenticatedEASQuery>() {
-					@Override
-					public void handle(AuthenticatedEASQuery event) {
+				new EASQueryDecoder(new ApplyFiltersHandler(event -> {
+					if (logger.isDebugEnabled()) {
 						logger.debug("[{}] no validation required.", event.loginAtDomain());
-						next.handle(new AuthorizedDeviceQuery(vertx, event, null));
 					}
+					next.handle(new AuthorizedDeviceQuery(vertx, event, null));
 				})));
 	}
 

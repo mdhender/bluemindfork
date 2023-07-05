@@ -42,7 +42,6 @@ import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.dto.EasBusEndpoints;
 import net.bluemind.eas.dto.IPreviousRequestsKnowledge;
 import net.bluemind.eas.dto.OptionalParams;
-import net.bluemind.eas.dto.base.Callback;
 import net.bluemind.eas.dto.ping.PingRequest;
 import net.bluemind.eas.dto.ping.PingRequest.Folders.Folder;
 import net.bluemind.eas.dto.ping.PingResponse;
@@ -115,7 +114,7 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 			logger.info("[{}][{}] Empty Ping, reusing cached heartbeat & monitored folders ({})", bs.getLoginAtDomain(),
 					bs.getDevId(), bs.getLastMonitored().size());
 		} else {
-			Set<CollectionSyncRequest> toMonitor = new HashSet<CollectionSyncRequest>();
+			Set<CollectionSyncRequest> toMonitor = new HashSet<>();
 			for (Folder folder : query.folders.folders) {
 				try {
 					CollectionSyncRequest sc = new CollectionSyncRequest();
@@ -281,13 +280,7 @@ public class PingProtocol implements IEasProtocol<PingRequest, PingResponse> {
 	public void write(BackendSession bs, Responder responder, PingResponse response, final Handler<Void> completion) {
 		PingResponseFormatter formatter = new PingResponseFormatter();
 		WbxmlResponseBuilder builder = new WbxmlResponseBuilder(bs.getLoginAtDomain(), responder.asOutput());
-		formatter.format(builder, bs.getProtocolVersion(), response, new Callback<Void>() {
-
-			@Override
-			public void onResult(Void data) {
-				completion.handle(data);
-			}
-		});
+		formatter.format(builder, bs.getProtocolVersion(), response, data -> completion.handle(data));
 	}
 
 	@Override

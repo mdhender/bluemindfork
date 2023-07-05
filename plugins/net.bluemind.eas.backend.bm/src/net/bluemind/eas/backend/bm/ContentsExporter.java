@@ -42,7 +42,9 @@ import net.bluemind.eas.dto.base.BodyOptions;
 import net.bluemind.eas.dto.base.Picture;
 import net.bluemind.eas.dto.email.AttachmentResponse;
 import net.bluemind.eas.dto.find.FindRequest;
+import net.bluemind.eas.dto.find.FindResponse;
 import net.bluemind.eas.dto.find.FindResponse.Response;
+import net.bluemind.eas.dto.find.FindResponse.Status;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsRequest;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse.Response.Recipient;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse.Response.Recipient.Availability;
@@ -228,7 +230,19 @@ public class ContentsExporter extends CoreConnect implements IContentsExporter {
 
 	@Override
 	public Response find(BackendSession bs, FindRequest query) throws CollectionNotFoundException {
-		return mailBackend.find(bs, query);
+		if (query.executeSearch.mailBoxSearchCriterion != null) {
+			return mailBackend.find(bs, query);
+		}
+
+		if (query.executeSearch.galSearchCriterion != null) {
+			// Don't know how to trigger a Find + GALSearchCriterion
+			logger.error("[{}] GALSearchCriterion not supported", bs.getUniqueIdentifier());
+		}
+
+		FindResponse.Response response = new FindResponse.Response();
+		response.status = Status.INVALID_REQUEST;
+		return response;
+
 	}
 
 }

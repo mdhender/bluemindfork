@@ -72,7 +72,6 @@ public class PingRequestParser implements IEasRequestParser<PingRequest> {
 
 	private Folders parseFolders(Element el) {
 		PingRequest.Folders folders = new PingRequest.Folders();
-
 		NodeList children = el.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
 			Node n = children.item(i);
@@ -82,13 +81,10 @@ public class PingRequestParser implements IEasRequestParser<PingRequest> {
 			Element child = (Element) n;
 			String childName = child.getNodeName();
 
-			switch (childName) {
-			case "Folder":
+			if ("Folder".equals(childName)) {
 				folders.folders.add(parseFolder(child));
-				break;
-			default:
+			} else {
 				logger.warn("Not managed Ping.Folders child {}", child);
-				break;
 			}
 		}
 		return folders;

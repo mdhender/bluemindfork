@@ -26,7 +26,7 @@ public class PingRequest {
 	public static final class Folders {
 		public static final class Folder {
 
-			public static enum Class {
+			public enum Class {
 				Email, Calendar, Contacts, Tasks, Notes;
 			}
 
@@ -34,7 +34,7 @@ public class PingRequest {
 			public Class clazz;
 		}
 
-		public List<Folder> folders = new ArrayList<Folder>();
+		public List<Folder> folders = new ArrayList<>();
 	}
 
 	public Integer heartbeatInterval;
