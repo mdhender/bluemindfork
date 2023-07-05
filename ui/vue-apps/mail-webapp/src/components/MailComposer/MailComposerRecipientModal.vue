@@ -39,19 +39,24 @@
                 </bm-button>
             </div>
         </template>
+        <bm-alert-area :alerts="alerts" @remove="REMOVE">
+            <template v-slot="{ alert }"><component :is="alert.renderer" :alert="alert" /></template>
+        </bm-alert-area>
     </bm-modal>
 </template>
 
 <script>
+import { mapActions, mapState } from "vuex";
+import { ERROR, REMOVE } from "@bluemind/alert.store";
 import { inject } from "@bluemind/inject";
-import { BmButton, BmModal } from "@bluemind/ui-components";
+import { BmAlertArea, BmButton, BmModal } from "@bluemind/ui-components";
 import AddressBookList from "./AddressBookList";
 import ContactList from "./ContactList";
 import SelectedContacts from "./SelectedContacts";
 
 export default {
     name: "MailComposerRecipientModal",
-    components: { BmButton, BmModal, AddressBookList, ContactList, SelectedContacts },
+    components: { BmAlertArea, BmButton, BmModal, AddressBookList, ContactList, SelectedContacts },
     props: {
         selected: { type: Array, default: () => [] }
     },
@@ -65,6 +70,7 @@ export default {
         };
     },
     computed: {
+        ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "recipient-picker") }),
         selectedContacts: {
             get() {
                 return this.selected;
@@ -115,6 +121,7 @@ export default {
         this.addressBooks = await inject("ContainersPersistence").getContainers(await this.subscribedContainerUids());
     },
     methods: {
+        ...mapActions("alert", { ERROR, REMOVE }),
         async subscribedContainerUids() {
             return (await inject("OwnerSubscriptionsPersistence").list())
                 .filter(sub => sub.value.containerType === "addressbook")

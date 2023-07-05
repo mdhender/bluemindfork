@@ -137,8 +137,10 @@ export default {
         border-bottom: none !important;
     }
     .bm-pagination {
-        padding-top: $pagination-padding-y;
+        padding: $pagination-padding-y 0 $pagination-padding-y $sp-5;
         height: $pagination-wrapper-height;
+        margin: 0;
+        background-color: $surface-bg;
     }
 }
 </style>
