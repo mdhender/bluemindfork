@@ -62,15 +62,16 @@ public class CoreServices implements ICoreServices {
 			this.entity = entity;
 		}
 
-		public void logInvalid(ImportLogger importLogger) {
+		public boolean isInvalid(ImportLogger importLogger, String kind) {
 			if (entity != null) {
-				return;
+				return true;
 			}
 
 			HashMap<String, String> messages = new HashMap<>(2);
-			messages.put("en", String.format("Unable to get entity UID: %s", uid));
-			messages.put("fr", String.format("Impossible d'obtenir l'entité d'UID: %s", uid));
+			messages.put("en", String.format("Unable to get entity UID: %s, Kind: %s", uid, kind));
+			messages.put("fr", String.format("Impossible d'obtenir l'entité d'UID: %s, type: %s", uid, kind));
 			importLogger.error(messages);
+			return false;
 		}
 	}
 
@@ -177,18 +178,17 @@ public class CoreServices implements ICoreServices {
 	@Override
 	public Set<String> getImportedGroupsExtId(ImportLogger importLogger) {
 		return groupService.allUids().stream().map(uid -> new ExtIdMapper<Group>(uid, groupService.getComplete(uid)))
-				.peek(gE -> gE.logInvalid(importLogger)).filter(gE -> gE.entity != null).map(gE -> gE.entity.externalId)
+				.filter(gE -> gE.isInvalid(importLogger, "group")).map(gE -> gE.entity.externalId)
 				.filter(extUid -> !Strings.isNullOrEmpty(extUid)).collect(Collectors.toSet());
 	}
 
 	@Override
 	public ExtUidState getUsersExtIdByState(ImportLogger importLogger) {
-		return new ExtUidState(
-				userService.allUids().stream().map(uid -> new ExtIdMapper<User>(uid, userService.getComplete(uid)))
-						.peek(uE -> uE.logInvalid(importLogger))
-						.filter(uE -> uE.entity != null && !Strings.isNullOrEmpty(uE.entity.externalId))
-						.map(uE -> uE.entity).collect(Collectors.partitioningBy(u -> u.value.archived,
-								Collectors.mapping(u1 -> u1.externalId, Collectors.toSet()))));
+		return new ExtUidState(userService.allUids().stream()
+				.map(uid -> new ExtIdMapper<User>(uid, userService.getComplete(uid)))
+				.filter(uE -> uE.isInvalid(importLogger, "user") && !Strings.isNullOrEmpty(uE.entity.externalId))
+				.map(uE -> uE.entity).collect(Collectors.partitioningBy(u -> u.value.archived,
+						Collectors.mapping(u1 -> u1.externalId, Collectors.toSet()))));
 	}
 
 	@Override
