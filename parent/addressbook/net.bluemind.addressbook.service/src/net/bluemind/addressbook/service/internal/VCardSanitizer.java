@@ -18,6 +18,8 @@
  */
 package net.bluemind.addressbook.service.internal;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -50,6 +52,8 @@ import net.bluemind.tag.service.TagsSanitizer;
 
 public class VCardSanitizer implements ISanitizer<VCard> {
 
+	private static final Date LIMIT_FOR_ANNIVERSARY = Date.valueOf(LocalDate.of(2200, 1, 1));
+
 	public static final class Factory implements ISanitizerFactory<VCard> {
 
 		@Override
@@ -80,6 +84,7 @@ public class VCardSanitizer implements ISanitizer<VCard> {
 		sanitizeEmails(card);
 		sanitizePemCertificates(card);
 		sanitizeMembers(card, containerUid);
+		sanitizeDates(card);
 		tagsSanitizer.sanitize(card.explanatory.categories);
 	}
 
@@ -308,6 +313,16 @@ public class VCardSanitizer implements ISanitizer<VCard> {
 		}
 
 		return !names.isEmpty() ? StringUtils.join(names, " ") : null;
+	}
+
+	private void sanitizeDates(VCard card) {
+		// Outlook create recurring all-day events from these dates, hence sanitization
+		if (card.identification.anniversary != null && card.identification.anniversary.after(LIMIT_FOR_ANNIVERSARY)) {
+			card.identification.anniversary = null;
+		}
+		if (card.identification.birthday != null && card.identification.birthday.after(LIMIT_FOR_ANNIVERSARY)) {
+			card.identification.birthday = null;
+		}
 	}
 
 	@Override

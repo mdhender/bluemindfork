@@ -23,7 +23,9 @@ import static net.bluemind.addressbook.persistence.VCardIndexStore.VCARD_WRITE_A
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.sql.Date;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -159,36 +161,32 @@ public class VCardIndexStoreTests {
 		VCardIndexStore indexStore2 = new VCardIndexStore(client, container2, null);
 
 		VCard card = new VCard();
-
 		card.identification = new VCard.Identification();
-
 		card.identification.formatedName = VCard.Identification.FormatedName.create("test1",
 				Arrays.<VCard.Parameter>asList());
+		card.identification.anniversary = Date.valueOf(LocalDate.of(2023, 12, 31)); // ts:1703977200
 		String uid = "test" + System.nanoTime();
-		Item item = Item.create(uid, UUID.randomUUID().toString());
+		Item item = Item.create(uid, System.nanoTime());
 		indexStore.create(item, card);
 
 		card = new VCard();
-
 		card.identification = new VCard.Identification();
-
 		card.identification.formatedName = VCard.Identification.FormatedName.create("testABC",
 				Arrays.<VCard.Parameter>asList());
 		card.identification.name = VCard.Identification.Name.create("toto", "firstname", null, null, null,
 				Arrays.<VCard.Parameter>asList());
-
+		card.identification.anniversary = Date.valueOf(LocalDate.of(2022, 12, 31)); // ts:1672441200
 		uid = "test" + System.nanoTime();
-		item = Item.create(uid, UUID.randomUUID().toString());
-
+		item = Item.create(uid, System.nanoTime());
 		indexStore.create(item, card);
 
 		indexStore2.create(Item.create("test2" + System.nanoTime(), System.nanoTime()), card);
 
 		refreshIndexes();
+
 		// check that filter on container is ok
 		ListResult<String> res = indexStore
 				.search(VCardQuery.create("value.identification.formatedName.value:testABC"));
-
 		assertEquals(1, res.total);
 
 		// test search on another field
@@ -201,9 +199,13 @@ public class VCardIndexStoreTests {
 
 		// test empty result
 		res = indexStore.search(VCardQuery.create("value.identification.formatedName.value:fakeName"));
-
 		assertEquals(0, res.total);
 
+		res = indexStore.search(VCardQuery.create("value.identification.anniversary:[1703977200000 TO *]"));
+		assertEquals(1, res.total);
+
+		res = indexStore.search(VCardQuery.create("value.identification.anniversary:[1672441200000 TO *]"));
+		assertEquals(2, res.total);
 	}
 
 	@Test
@@ -358,7 +360,8 @@ public class VCardIndexStoreTests {
 		String uid3 = "test" + System.nanoTime();
 		indexStore.create(Item.create(uid3, System.nanoTime()), card);
 
-		refreshIndexes();
+//		refreshIndexes();
+		indexStore.refresh();
 
 		ListResult<String> res = indexStore.search(VCardQuery.create(null));
 		assertEquals(3, res.total);
