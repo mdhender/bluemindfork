@@ -38,8 +38,9 @@
 
 <script>
 import { BmButton, BmIconButton, BmCol, BmRow } from "@bluemind/ui-components";
-import { ComposerActionsMixin, EditRecipientsMixin } from "~/mixins";
+import { EditRecipientsMixin } from "~/mixins";
 import MailComposerRecipient from "./MailComposerRecipient";
+import { MAX_RECIPIENTS } from "../../utils";
 
 export default {
     name: "MailComposerRecipients",
@@ -50,7 +51,32 @@ export default {
         BmRow,
         MailComposerRecipient
     },
-    mixins: [ComposerActionsMixin, EditRecipientsMixin]
+    mixins: [EditRecipientsMixin],
+    computed: {
+        recipientCount() {
+            return this.message.to.length + this.message.cc.length + this.message.bcc.length;
+        },
+        maxRecipientsExceeded() {
+            return this.recipientCount > MAX_RECIPIENTS;
+        }
+    },
+    watch: {
+        maxRecipientsExceeded: {
+            handler: function (exceeded) {
+                exceeded
+                    ? this.ERROR({
+                          alert: {
+                              name: "mail.max_recipients_exceeded",
+                              uid: "MAX_RECIPIENTS",
+                              payload: { max: MAX_RECIPIENTS, count: this.recipientCount }
+                          },
+                          options: { area: "right-panel" }
+                      })
+                    : this.REMOVE({ uid: "MAX_RECIPIENTS" });
+            },
+            immediate: true
+        }
+    }
 };
 </script>
 

@@ -69,6 +69,9 @@
                 "success": "{count} E-Mails erfolgreich als ungelesen markiert.",
                 "error": "Fehler beim Markieren der Nachrichten."
             },
+            "max_recipients_exceeded": {
+                "error": "Maximale Anzahl von Empfängern überschritten ({count} > {max})."
+            },
             "move_conversations": {
                 "loading": {
                     "single": "Konversation \"{subject}\" wird in den Ordner {folder} verschoben...",

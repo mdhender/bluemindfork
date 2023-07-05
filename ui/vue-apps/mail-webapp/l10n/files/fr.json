@@ -69,6 +69,9 @@
                 "success": "{count} messages ont bien été marqués comme non-lus.",
                 "error": "Les messages sélectionnés n'ont pas pu être marqués comme non-lus."
             },
+            "max_recipients_exceeded": {
+                "error": "Le nombre maximal de déstinataires est dépassé ({count} > {max})."
+            },
             "move_conversations": {
                 "loading": {
                     "single": "La conversation \"{subject}\" est en train d'être déplacée vers {folder}...",

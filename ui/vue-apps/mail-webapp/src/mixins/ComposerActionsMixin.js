@@ -1,6 +1,7 @@
 import cloneDeep from "lodash.clonedeep";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
+import { ERROR, REMOVE } from "@bluemind/alert.store";
 import { inject } from "@bluemind/inject";
 import { draftUtils, fileUtils, messageUtils } from "@bluemind/mail";
 import { ContactValidator } from "@bluemind/contact";
@@ -33,6 +34,7 @@ import {
 const { isNewMessage, createFromDraft } = draftUtils;
 const { FileStatus } = fileUtils;
 const { MessageStatus } = messageUtils;
+import { MAX_RECIPIENTS } from "../utils";
 
 /**
  * Provide composition Vuex actions to components
@@ -73,6 +75,9 @@ export default {
         anyAttachmentInError() {
             return this.message.attachments.some(a => a.status === FileStatus.ERROR);
         },
+        maxRecipientsExceeded() {
+            return this.message.to.length + this.message.cc.length + this.message.bcc.length > MAX_RECIPIENTS;
+        },
         hasRecipient() {
             return this.message.to.length > 0 || this.message.cc.length > 0 || this.message.bcc.length > 0;
         },
@@ -98,12 +103,14 @@ export default {
                 this.isSending ||
                 !this.hasRecipient ||
                 this.anyRecipientInError ||
-                this.anyAttachmentInError
+                this.anyAttachmentInError ||
+                this.this.maxRecipientsExceeded
             );
         }
     },
 
     methods: {
+        ...mapActions("alert", { ERROR, REMOVE }),
         ...mapActions("mail", {
             $_ComposerActionsMixin_SAVE_MESSAGE: SAVE_MESSAGE,
             $_ComposerActionsMixin_SEND_MESSAGE: SEND_MESSAGE,

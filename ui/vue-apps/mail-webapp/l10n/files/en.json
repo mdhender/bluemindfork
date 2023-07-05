@@ -69,6 +69,9 @@
                 "success": "Successfully marked {count} messages as unread.",
                 "error": "Failed to mark selected messages as unread."
             },
+            "max_recipients_exceeded": {
+                "error": "Maximum recipients exceeded ({count} > {max})."
+            },
             "move_conversations": {
                 "loading": {
                     "single": "Conversation \"{subject}\" is being moved to {folder}...",
