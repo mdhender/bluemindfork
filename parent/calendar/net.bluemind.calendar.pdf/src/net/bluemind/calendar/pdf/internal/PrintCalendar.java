@@ -48,9 +48,9 @@ import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.JPEGTranscoder;
 import org.apache.batik.transcoder.image.PNGTranscoder;
-
 import org.apache.fop.svg.PDFTranscoder;
-import org.apache.pdfbox.util.PDFMergerUtility;
+import org.apache.pdfbox.io.MemoryUsageSetting;
+import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMImplementation;
@@ -396,7 +396,7 @@ public abstract class PrintCalendar {
 					os.reset();
 				}
 				mergePdf.setDestinationStream(os);
-				mergePdf.mergeDocuments();
+				mergePdf.mergeDocuments(MemoryUsageSetting.setupMixed(1024 * 1024 * 4L));
 			} else {
 				ByteArrayInputStream bais = svgToByteArrayInputStream(pages.get(0));
 				TranscoderInput input = new TranscoderInput(bais);

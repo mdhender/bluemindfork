@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
 
-import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -47,7 +46,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
 import org.w3c.dom.Document;
 import org.w3c.tidy.Tidy;
 import org.xhtmlrenderer.pdf.ITextRenderer;
@@ -60,6 +60,7 @@ import freemarker.template.TemplateException;
 import net.bluemind.calendar.api.PrintOptions;
 import net.bluemind.calendar.api.PrintOptions.CalendarMetadata;
 import net.bluemind.calendar.api.VEvent;
+import net.bluemind.calendar.pdf.internal.imageio.ImageIOUtil;
 import net.bluemind.core.api.date.BmDateTimeWrapper;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemContainerValue;
@@ -170,11 +171,11 @@ public class PrintCalendarList extends PrintCalendar {
 	}
 
 	static {
-		cfg = new Configuration();
+		cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 
 		cfg.setClassForTemplateLoading(PrintCalendarList.class, "/tpl");
 		cfg.setTagSyntax(Configuration.AUTO_DETECT_TAG_SYNTAX);
-		BeansWrapper wrapper = new BeansWrapper();
+		BeansWrapper wrapper = new BeansWrapper(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 		wrapper.setExposeFields(true);
 		cfg.setObjectWrapper(wrapper);
 	}
@@ -428,10 +429,9 @@ public class PrintCalendarList extends PrintCalendar {
 		ByteArrayOutputStream ios = new ByteArrayOutputStream();
 		try {
 			PDDocument document = PDDocument.load(new ByteArrayInputStream(os.toByteArray()));
-			PDPage page1 = (PDPage) document.getDocumentCatalog().getAllPages().get(0);
-			BufferedImage bim = page1.convertToImage(BufferedImage.TYPE_INT_RGB, 300);
-
-			ImageIO.write(bim, "png", ios);
+			PDFRenderer pdfRenderer = new PDFRenderer(document);
+			BufferedImage bim = pdfRenderer.renderImageWithDPI(0, 300, ImageType.RGB);
+			ImageIOUtil.writeImage(bim, "PNG", ios, 300);
 		} catch (IOException e) {
 			throw new ServerFault(e);
 		}
@@ -441,7 +441,6 @@ public class PrintCalendarList extends PrintCalendar {
 
 	@Override
 	public byte[] sendPDFString() throws ServerFault {
-
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 
 		ITextRenderer renderer = new ITextRenderer();
