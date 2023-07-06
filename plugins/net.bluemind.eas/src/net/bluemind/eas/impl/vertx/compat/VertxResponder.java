@@ -67,7 +67,7 @@ public final class VertxResponder implements Responder {
 		resp.putHeader(EasHeaders.Server.MS_SERVER, HEADER_MS_SERVER);
 		resp.putHeader(HttpHeaders.SERVER, HEADER_SERVER);
 		resp.putHeader(HttpHeaders.CACHE_CONTROL, HEADER_CACHE);
-		resp.putHeader(HttpHeaders.CONNECTION, connection.value);
+		resp.putHeader(HttpHeaders.CONNECTION, connection.getValue());
 	}
 
 	public HttpServerResponse response() {
@@ -84,11 +84,11 @@ public final class VertxResponder implements Responder {
 			resp.setChunked(true);
 			WBXMLTools.toWbxml(ns.namespace(), doc, output);
 		} catch (ValidationException ve) {
-			logger.error("EAS is trying to send a non-conforming response: " + ve.getMessage(), ve);
+			logger.error("EAS is trying to send a non-conforming response: {}", ve.getMessage(), ve);
 			setASHeaders(con);
 			resp.setStatusCode(500).setStatusMessage(ve.getMessage() != null ? ve.getMessage() : "null").end();
 		} catch (IOException ioe) {
-			logger.error("Error generating wbxml for ns " + ns.namespace(), ioe);
+			logger.error("Error generating wbxml for ns {}", ns.namespace(), ioe);
 			setASHeaders(con);
 			resp.setStatusCode(500).setStatusMessage(ioe.getMessage() != null ? ioe.getMessage() : "null").end();
 		}
@@ -96,21 +96,21 @@ public final class VertxResponder implements Responder {
 
 	@Override
 	public void sendResponse(NamespaceMapping ns, Document doc) {
-		sendResponse(ns, doc, ConnectionHeader.close);
+		sendResponse(ns, doc, ConnectionHeader.CLOSE);
 	}
 
 	@Override
 	public void sendResponseFile(String contentType, InputStream file) throws IOException {
 		byte[] b = FileUtils.streamBytes(file, true);
 		resp.headers().add(HttpHeaders.CONTENT_TYPE, contentType);
-		setASHeaders(ConnectionHeader.close);
+		setASHeaders(ConnectionHeader.CLOSE);
 		resp.end(Buffer.buffer(b));
 	}
 
 	@Override
 	public void sendStatus(int statusCode) {
 		logger.info("to pda:\nHTTP {}\n", statusCode);
-		setASHeaders(ConnectionHeader.close);
+		setASHeaders(ConnectionHeader.CLOSE);
 		resp.setStatusCode(statusCode).end();
 	}
 
@@ -124,7 +124,7 @@ public final class VertxResponder implements Responder {
 
 	@Override
 	public WbxmlOutput asOutput() {
-		return asOutput(ConnectionHeader.keepAlive);
+		return asOutput(ConnectionHeader.KEEP_ALIVE);
 	}
 
 	@Override

@@ -23,7 +23,6 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
@@ -62,13 +61,7 @@ public class VertxOutput extends WbxmlOutput {
 			if (drained != null) {
 				if (resp.writeQueueFull()) {
 					logger.warn("GOT QUEUE FULL condition");
-					resp.drainHandler(new Handler<Void>() {
-
-						@Override
-						public void handle(Void event) {
-							drained.drained();
-						}
-					});
+					resp.drainHandler(handler -> drained.drained());
 				} else {
 					drained.drained();
 				}

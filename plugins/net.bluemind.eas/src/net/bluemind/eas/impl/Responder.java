@@ -30,11 +30,16 @@ import net.bluemind.eas.wbxml.WbxmlOutput;
 public interface Responder {
 
 	public enum ConnectionHeader {
-		close("close"), keepAlive("Keep-Alive");
-		public String value;
+		CLOSE("close"), KEEP_ALIVE("Keep-Alive");
+
+		private String value;
 
 		private ConnectionHeader(String value) {
 			this.value = value;
+		}
+
+		public String getValue() {
+			return value;
 		}
 	}
 

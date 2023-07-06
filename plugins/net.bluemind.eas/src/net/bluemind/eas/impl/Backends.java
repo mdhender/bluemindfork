@@ -31,10 +31,14 @@ public final class Backends {
 	private static final IBackend backend;
 	private static final ISyncStorage storage;
 
+	private Backends() {
+
+	}
+
 	static {
-		RunnableExtensionLoader<IStorageFactory> sto = new RunnableExtensionLoader<IStorageFactory>();
+		RunnableExtensionLoader<IStorageFactory> sto = new RunnableExtensionLoader<>();
 		List<IStorageFactory> storages = sto.loadExtensions("net.bluemind.eas", "storage", "storage", "implementation");
-		if (storages.size() > 0) {
+		if (!storages.isEmpty()) {
 			IStorageFactory stoFactoryImpl = storages.get(0);
 			storage = stoFactoryImpl.createStorage();
 
@@ -42,9 +46,9 @@ public final class Backends {
 			throw new RuntimeException("No storage implementation found");
 		}
 
-		RunnableExtensionLoader<IBackendFactory> rel = new RunnableExtensionLoader<IBackendFactory>();
+		RunnableExtensionLoader<IBackendFactory> rel = new RunnableExtensionLoader<>();
 		List<IBackendFactory> backs = rel.loadExtensions("net.bluemind.eas", "backend", "backend", "implementation");
-		if (backs.size() > 0) {
+		if (!backs.isEmpty()) {
 			IBackendFactory bf = backs.get(0);
 			backend = bf.create(storage);
 		} else {
@@ -52,10 +56,8 @@ public final class Backends {
 		}
 	}
 
-	/**
-	 * Called by activator to trigger the static initializer
-	 */
 	public static void classLoad() {
+		// Called by activator to trigger the static initializer
 	}
 
 	public static IBackend dataAccess() {

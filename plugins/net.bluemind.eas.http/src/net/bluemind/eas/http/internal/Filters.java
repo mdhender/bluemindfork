@@ -19,7 +19,6 @@
 package net.bluemind.eas.http.internal;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import net.bluemind.eas.http.IEasRequestFilter;
@@ -27,22 +26,22 @@ import net.bluemind.eas.utils.RunnableExtensionLoader;
 
 public class Filters {
 
-	private static List<IEasRequestFilter> filters;
+	private static List<IEasRequestFilter> requestFilters;
+
+	private Filters() {
+
+	}
 
 	public static List<IEasRequestFilter> get() {
-		return filters;
+		return requestFilters;
 	}
 
 	public static void classLoad() {
 		RunnableExtensionLoader<IEasRequestFilter> rel = new RunnableExtensionLoader<>();
-		filters = rel.loadExtensions("net.bluemind.eas.http", "endpoint", "filter", "impl");
-		Collections.sort(filters, new Comparator<IEasRequestFilter>() {
+		requestFilters = rel.loadExtensions("net.bluemind.eas.http", "endpoint", "filter", "impl");
+		Collections.sort(requestFilters, (o1, o2) -> Integer.compare(o1.priority(), o2.priority())
 
-			@Override
-			public int compare(IEasRequestFilter o1, IEasRequestFilter o2) {
-				return Integer.valueOf(o1.priority()).compareTo(Integer.valueOf(o2.priority()));
-			}
-		});
+		);
 	}
 
 }

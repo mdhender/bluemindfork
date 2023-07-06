@@ -22,7 +22,11 @@ import net.bluemind.lib.vertx.utils.CircuitBreaker;
 
 public class ProtocolCircuitBreaker {
 
-	public final static CircuitBreaker<BackendSession> INSTANCE = new CircuitBreaker<>("protocol",
+	private ProtocolCircuitBreaker() {
+
+	}
+
+	public static final CircuitBreaker<BackendSession> INSTANCE = new CircuitBreaker<>("protocol",
 			bs -> bs.getDeviceId() != null ? bs.getDeviceId().getUniqueIdentifier() : bs.getLoginAtDomain());
 
 }

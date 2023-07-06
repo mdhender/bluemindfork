@@ -132,13 +132,9 @@ public final class ProtocolExecutor {
 				if (res.succeeded()) {
 					VertxResponder responder = new VertxResponder(vertxReq, vertxReq.response(), vertx);
 					try {
-						protocol.write(bs, responder, res.result(), new Handler<Void>() {
-
-							@Override
-							public void handle(Void event) {
-								MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
-								MDC.put("user", "anonymous");
-							}
+						protocol.write(bs, responder, res.result(), handler -> {
+							MDC.put("user", bs.getLoginAtDomain().replace("@", "_at_"));
+							MDC.put("user", "anonymous");
 						});
 					} catch (Exception e) {
 						failSilently(e);

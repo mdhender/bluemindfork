@@ -21,11 +21,9 @@ package net.bluemind.eas.http.internal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.eas.dto.EasBusEndpoints;
 import net.bluemind.eas.dto.device.DeviceValidationRequest;
@@ -69,43 +67,26 @@ public class DeviceValidationHandler implements Handler<AuthenticatedEASQuery> {
 			logger.debug("Sending to validation: {}", event.deviceIdentifier());
 		}
 
-		eb.request(EasBusEndpoints.DEVICE_VALIDATION, new LocalJsonObject<>(validationRequest),
-				new Handler<AsyncResult<Message<LocalJsonObject<DeviceValidationResponse>>>>() {
+		eb.<LocalJsonObject<DeviceValidationResponse>>request(EasBusEndpoints.DEVICE_VALIDATION,
+				new LocalJsonObject<>(validationRequest), msg -> {
+					final HttpServerRequest httpReq = event.request();
+					httpReq.resume();
+					if (msg.failed()) {
+						httpReq.endHandler(handler -> httpReq.response().setStatusCode(500)
+								.setStatusMessage(msg.cause().getMessage()).end());
+						return;
+					}
 
-					@Override
-					public void handle(AsyncResult<Message<LocalJsonObject<DeviceValidationResponse>>> msg) {
-						final HttpServerRequest httpReq = event.request();
-						httpReq.resume();
-						if (msg.failed()) {
-							httpReq.endHandler(new Handler<Void>() {
-
-								@Override
-								public void handle(Void event) {
-									httpReq.response().setStatusCode(500).setStatusMessage(msg.cause().getMessage())
-											.end();
-								}
-							});
-							return;
-						}
-
-						DeviceValidationResponse validationResponse = msg.result().body().getValue();
-						if (validationResponse.success) {
-							AuthorizedDeviceQuery authorized = new AuthorizedDeviceQuery(vertx, event,
-									validationResponse.internalId);
-							Requests.tag(event.request(), "partnership", validationResponse.internalId);
-							next.handle(authorized);
-						} else {
-							logger.warn("[{}] device {} not authorized.", event.loginAtDomain(),
-									event.deviceIdentifier());
-							httpReq.endHandler(new Handler<Void>() {
-
-								@Override
-								public void handle(Void event) {
-									httpReq.response().setStatusCode(403).setStatusMessage("Device is not authorized")
-											.end();
-								}
-							});
-						}
+					DeviceValidationResponse validationResponse = msg.result().body().getValue();
+					if (validationResponse.success) {
+						AuthorizedDeviceQuery authorized = new AuthorizedDeviceQuery(vertx, event,
+								validationResponse.internalId);
+						Requests.tag(event.request(), "partnership", validationResponse.internalId);
+						next.handle(authorized);
+					} else {
+						logger.warn("[{}] device {} not authorized.", event.loginAtDomain(), event.deviceIdentifier());
+						httpReq.endHandler(handler -> httpReq.response().setStatusCode(403)
+								.setStatusMessage("Device is not authorized").end());
 					}
 				});
 

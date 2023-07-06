@@ -82,8 +82,8 @@ public final class EASQueryBuilder {
 		String devType = new String(data, i + 1, data[i]);
 		i += data[i] + 1;
 		String command = Base64CommandCodes.getCmd(cmdCode);
-		logger.info("[" + ar.login + "] protocol: " + protocolVersion + ", cmd: " + command + ", locInt: " + locale
-				+ ", devId: " + deviceId + ", policy: " + policyKey + ", type: " + devType);
+		logger.info("[{}] protocol: {}, cmd: {}, locInt: {}, devId: {}, policy: {}, type: {}", ar.login,
+				protocolVersion, command, locale, deviceId, policyKey, devType);
 
 		Base64OptParams op = new Base64OptParams();
 		op.setAcceptEncoding(ar.req.headers().get("Accept-Encoding"));

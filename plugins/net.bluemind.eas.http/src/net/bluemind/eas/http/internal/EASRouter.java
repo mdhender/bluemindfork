@@ -25,8 +25,11 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.eas.http.AuthorizedDeviceQuery;
@@ -112,6 +115,15 @@ public final class EASRouter implements Handler<HttpServerRequest> {
 		Requests.tag(wrapped, "m", event.method().name());
 		Requests.tag(wrapped, "rid", Long.toString(requestId.incrementAndGet()));
 		Requests.tag(wrapped, "ua", event.headers().get("User-Agent"));
+		if (!event.headers().contains("Authorization") && event.method() == HttpMethod.POST) {
+			// iOS sends command with no Authorization header
+			String cmd = event.getParam("Cmd");
+			if (!Strings.isNullOrEmpty(cmd)) {
+				Requests.tag(wrapped, "cmd", cmd);
+			}
+			Requests.tag(wrapped, "auth", "none");
+		}
+
 		wrapped.exceptionHandler(t -> handlerException(event, t));
 		try {
 			rm.handle(wrapped);
