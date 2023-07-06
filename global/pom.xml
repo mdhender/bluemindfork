@@ -63,13 +63,13 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<bm-plugins-version>1.0.623</bm-plugins-version>
+		<bm-plugins-version>1.0.626</bm-plugins-version>
 		<bm.metrics.agent>1.31.1</bm.metrics.agent>
 		<docker.devenv.tag>5.0.3539</docker.devenv.tag>
-		<target-platform-version>jdk17-103</target-platform-version>
+		<target-platform-version>jdk17-107</target-platform-version>
 
 		<!-- Not to be modified usually -->
-		<tycho-version>2.6.0</tycho-version>
+		<tycho-version>4.0.0</tycho-version>
 		<maven-source-plugin-version>3.2.1</maven-source-plugin-version>
 		<maven-clean-plugin-version>3.2.0</maven-clean-plugin-version>
 		<jacoco-maven-plugin-version>0.8.9-bm</jacoco-maven-plugin-version>
@@ -81,12 +81,12 @@
 		<maven-enforcer-plugin-version>3.1.0</maven-enforcer-plugin-version>
 		<maven-assembly-plugin-version>3.4.0</maven-assembly-plugin-version>
 		<maven-antrun-plugin-version>3.1.0</maven-antrun-plugin-version>
-		<org-json-version>20220320</org-json-version>
+		<org-json-version>20230618</org-json-version>
 		<xerces-version>2.12.2</xerces-version>
 		<junit-version>4.13.2</junit-version>
 
 		<!-- Minimum viable maven version -->
-		<maven-minimum-version>3.2.5</maven-minimum-version>
+		<maven-minimum-version>3.9.0</maven-minimum-version>
 
 		<!-- webui frontend -->
 		<frontend-maven-plugin.version>1.11.2</frontend-maven-plugin.version>
@@ -618,7 +618,7 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
-			<version>5.9.1</version>
+			<version>5.9.3</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

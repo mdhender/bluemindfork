@@ -560,9 +560,6 @@
       <plugin id="org.eclipse.osgi.util"/>
       <plugin id="org.freemarker.freemarker"/>
       <plugin id="org.hibernate.validator"/>
-      <plugin id="org.igniterealtime.smack.core"/>
-      <plugin id="org.igniterealtime.smack.extensions"/>
-      <plugin id="org.igniterealtime.smack.tcp"/>
       <plugin id="org.ini4j"/>
       <plugin id="org.iq80.snappy"/>
       <plugin id="org.jboss.logging.jboss-logging"/>
