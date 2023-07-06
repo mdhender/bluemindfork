@@ -505,14 +505,13 @@ public class MailApiConnection implements MailboxConnection {
 	public void notIdle() {
 		if (activeCons != null) {
 			activeCons.close();
+			activeCons = null;
 		}
 	}
 
 	@Override
 	public void idleMonitor(SelectedFolder selected, WriteStream<IdleToken> out) {
-		if (activeCons != null) {
-			activeCons.close();
-		}
+		notIdle();
 		if (selected == null) {
 			// the fucking RFC allows in authenticated state
 			// https://datatracker.ietf.org/doc/html/rfc2177
@@ -562,6 +561,7 @@ public class MailApiConnection implements MailboxConnection {
 	}
 
 	public void close() {
+		notIdle();
 		prov.instance(IAuthentication.class).logout();
 	}
 
