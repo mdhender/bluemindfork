@@ -3,6 +3,7 @@
         <contact-input
             :contacts.sync="selectedContacts"
             readonly
+            :enable-card="false"
             variant="inline"
             class="ml-6 flex-fill"
             @expand="expandContact"

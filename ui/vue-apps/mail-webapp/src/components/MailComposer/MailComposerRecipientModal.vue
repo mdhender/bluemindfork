@@ -20,6 +20,7 @@
 
             <div class="flex-fill">
                 <bm-form-input
+                    ref="inputSearch"
                     v-model="search"
                     :icon="!resettable ? 'search' : 'cancel'"
                     left-icon
@@ -41,6 +42,10 @@
                     :user-id="userId"
                     :selected="selectedForCurrentAddressBook"
                     @selected="updateSelected"
+                    @reset-search="
+                        search = '';
+                        $refs.inputSearch.focus();
+                    "
                 />
             </div>
         </div>
@@ -180,7 +185,7 @@ export default {
                 this.loading = true;
 
                 const searchResults = await inject("AddressBooksPersistence").search(
-                    searchVCardsHelper(searchValue, 50, false, this.selectedAddressbookId)
+                    searchVCardsHelper(searchValue, 50, false, this.selectedAddressBookId)
                 );
                 this.searchedContacts =
                     searchResults.total > 0

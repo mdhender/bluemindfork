@@ -32,7 +32,9 @@
                                 <br />
                             </template>
                         </i18n>
-                        <bm-button>{{ $t("recipient_picker.search.reset") }}</bm-button>
+                        <bm-button variant="text" size="sm" @click="$emit('reset-search')">{{
+                            $t("recipient_picker.search.reset")
+                        }}</bm-button>
                     </div>
                     <i18n v-else path="recipient_picker.addressbook.empty" class="no-result">
                         <address-book-label-icon
@@ -82,12 +84,12 @@
 </template>
 
 <script>
-import { BmPagination, BmSpinner, BmTable, BmCheck, BmIllustration } from "@bluemind/ui-components";
+import { BmPagination, BmSpinner, BmTable, BmCheck, BmIllustration, BmButton } from "@bluemind/ui-components";
 import AddressBookLabelIcon from "./AddressBookLabelIcon.vue";
 
 export default {
     name: "ContactList",
-    components: { BmTable, BmPagination, BmSpinner, BmCheck, BmIllustration, AddressBookLabelIcon },
+    components: { BmTable, BmPagination, BmSpinner, BmCheck, BmIllustration, BmButton, AddressBookLabelIcon },
     props: {
         addressbook: { type: Object, required: true },
         contacts: { type: Array, required: true },
@@ -104,7 +106,7 @@ export default {
                 { key: "email", label: "", class: "email-cell" },
                 { key: "tel", label: "", class: "tel-cell" }
             ],
-            perPage: 10,
+            perPage: 50,
             currentPage: 1
         };
     },
@@ -191,7 +193,7 @@ export default {
     }
     .bm-pagination {
         padding: $pagination-padding-y 0 $pagination-padding-y $sp-5;
-        height: $pagination-wrapper-height;
+        // height: $pagination-wrapper-height; // TODO: Do we still need it ?
         margin: 0;
         background-color: $surface-bg;
     }
@@ -206,13 +208,17 @@ export default {
 
         .search-pattern {
             color: $primary-fg;
-            font-weight: $font-weight-bold;
+            @include bold;
             word-break: break-all;
         }
 
         .bm-illustration {
-            max-width: 100%;
+            max-width: 160px;
         }
+    }
+    .no-result,
+    .empty-search-result {
+        cursor: default;
     }
 }
 </style>

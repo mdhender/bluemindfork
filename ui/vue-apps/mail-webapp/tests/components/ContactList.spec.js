@@ -1,6 +1,7 @@
 import { mount } from "@vue/test-utils";
 import ContactList from "../../src/components/MailComposer/ContactList";
 import { BmSpinner, BmTable } from "@bluemind/ui-components";
+
 describe("CONTACT LIST COMPONENT", () => {
     test("ContactList is a Vue instance ", () => {
         const wrapper = ContactListSUT();
@@ -30,52 +31,127 @@ describe("CONTACT LIST COMPONENT", () => {
         expect(checkbox.element).toBeChecked();
     });
 
+    test("click on row select an element", async () => {
+        const row = ContactListSUT({}).withContacts().mount().find("tbody>[role='row']");
+
+        expect(row.exists).toBeTruthy();
+        expect(row.find("input[type='checkbox']").element).not.toBeChecked();
+
+        await row.trigger("click");
+        expect(row.find("input[type='checkbox']").element).toBeChecked();
+    });
+
+    test("Contact list can have selected contacts at component initialisation", async () => {
+        const wrapper = ContactListSUT({})
+            .withContacts([
+                { name: "George Abitbol", email: "george@devenv.dev.bluemind.net", tel: "" },
+                { name: "Bertrand", email: "beber@avril.com", tel: "0678541232" },
+                { name: "Ferdinand", email: "F.1@badass.com", tel: "0671231254" },
+                { name: "Jhonny", email: "jhonny.begood@juin.com", tel: "0678441254" },
+                { name: "Alex", email: "laude.beer@paradox.com", tel: "067789254" },
+                { name: "Julien", email: "jul@nope.com", tel: "0675446554" }
+            ])
+            .withSelected([{ name: "George Abitbol" }, { name: "Ferdinand" }])
+            .mount();
+
+        await wrapper.vm.$nextTick(); //Default selection require awaiting for nextRender to be visible
+
+        expect(rowByText(wrapper, "George").find('input[type="checkbox"]').element).toBeChecked();
+        expect(rowByText(wrapper, "Bertrand").find('input[type="checkbox"]').element).not.toBeChecked();
+    });
+
     test("should display name, email, and telephone of contacts", () => {
         const wrapper = ContactListSUT({}).withContacts().mount();
 
-        const row = wrapper.find("tbody>[role='row']");
-        const cells = row.findAll("[role='cell']");
+        const cells = wrapper.find("tbody>[role='row']").findAll("[role='cell']");
         const name = cells.at(1).text();
         const email = cells.at(2).text();
         const tel = cells.at(3).text();
-        const firstLine = `${name}, ${email}, ${tel}`;
 
-        expect(firstLine).toBe("Jhonny, jhonny.begood@juin.com, 0678541254");
+        expect(`${name}, ${email}, ${tel}`).toBe("Jhonny, jhonny.begood@juin.com, 0678541254");
     });
 
     test("should display a message if an addressbook is empty", () => {
         const wrapper = ContactListSUT({}).mount();
         expect(wrapper.text()).toEqual("le carnet FAKE ADDRESSBOOK est vide");
     });
+    test("should display a message if search returns no result", () => {
+        const wrapper = ContactListSUT({}).withContacts().searchingFor("George").mount();
+
+        expect(wrapper.text()).toEqual("NO RESULT");
+    });
+    test("reset search can be done in empty search result page", async () => {
+        const wrapper = ContactListSUT({}).withContacts().searchingFor("George").mount();
+        expect(wrapper.find("button").exists()).toBeTruthy();
+
+        await wrapper.find("button").trigger("click");
+        expect(wrapper.emitted("reset-search")).toBeTruthy();
+    });
 });
+
+function rowByText(wrapper, textPattern) {
+    return wrapper
+        .findAll("tr[role='row']")
+        .filter(node => node.text().match(textPattern))
+        .at(0);
+}
 
 function ContactListSUT(defaultValues) {
     if (!defaultValues) {
         return mount(ContactList, {
-            propsData: { loading: true, contacts: [], userId: "USER_ANY_ID", addressbook: {} }
+            propsData: { loading: true, contacts: [], userId: "USER_ANY_ID", addressbook: {}, search: "", selected: [] }
         });
     }
 
-    const values = { contacts: [], ...defaultValues };
+    const values = { contacts: [], selected: [], ...defaultValues };
     return {
-        withContacts() {
+        withContacts(contacts) {
             return ContactListSUT({
                 ...values,
-                contacts: [...values.contacts, { name: "Jhonny", email: "jhonny.begood@juin.com", tel: "0678541254" }],
-                selected: []
+                contacts: [
+                    ...values.contacts,
+                    ...(contacts ?? [{ name: "Jhonny", email: "jhonny.begood@juin.com", tel: "0678541254" }])
+                ]
+            });
+        },
+        withSelected(selection) {
+            if (!values.contacts.length) throw new Error("withContacts() need to be called before selection!");
+
+            selection.forEach(s => {
+                const [key, match] = Object.entries(s)[0];
+                const selectedIndex = values.contacts.findIndex(c => c[key] === match);
+                values.selected.push(values.contacts[selectedIndex]); // ⛔ SELECTED CONTACTS MUST BE PASSED AS REFERENCE
+            });
+
+            return ContactListSUT({
+                ...values
             });
         },
 
+        searchingFor(searchPattern) {
+            return ContactListSUT({
+                ...values,
+                contacts: [],
+                search: searchPattern
+            });
+        },
         mount() {
             return mount(ContactList, {
                 propsData: {
                     loading: values.loading ?? false,
-                    contacts: values.contacts,
+                    contacts: values.contacts ?? [],
                     userId: values.userId ?? "USER_ANY_ID",
-                    addressbook: values.addressbook ?? { name: "FAKE ADDRESSBOOK" }
+                    addressbook: values.addressbook ?? { name: "FAKE ADDRESSBOOK" },
+                    selected: values.selected ?? [],
+                    search: values.search ?? ""
                 },
                 mocks: {
-                    $t: (_path, args) => " le carnet " + args.addressBookName + " est vide"
+                    $t: (path, args) =>
+                        path.includes("search") ? "NO RESULT" : " le carnet " + args.addressBookName + " est vide"
+                },
+
+                stubs: {
+                    i18n: true
                 }
             });
         }

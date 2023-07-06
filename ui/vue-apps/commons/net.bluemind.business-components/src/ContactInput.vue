@@ -30,7 +30,7 @@
                             "
                             :closeable="!disabled"
                             class="mw-100"
-                            enable-card
+                            :enable-card="enableCard"
                             :extension="extension"
                             @remove="onRemove(contact)"
                             @expand="$emit('expand', index)"
@@ -201,7 +201,8 @@ export default {
             type: String,
             default: undefined
         },
-        readonly: { type: Boolean, default: false }
+        readonly: { type: Boolean, default: false },
+        enableCard: { type: Boolean, default: true }
     },
     data() {
         return {
