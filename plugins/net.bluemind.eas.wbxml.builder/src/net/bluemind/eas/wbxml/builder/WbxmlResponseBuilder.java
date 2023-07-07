@@ -214,16 +214,11 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 		final EventBus eb = VertxPlatform.eventBus();
 		final IResponseBuilder self = this;
 		final Base64Output b64 = new Base64Output(output);
-		final Callback<IResponseBuilder> preComplete = new Callback<IResponseBuilder>() {
-
-			@Override
-			public void onResult(IResponseBuilder data) {
-				MDC.put("user", loginForSifting);
-				b64.flush();
-				completion.onResult(data);
-				MDC.put("user", "anonymous");
-			}
-
+		final Callback<IResponseBuilder> preComplete = responseBuilder -> {
+			MDC.put("user", loginForSifting);
+			b64.flush();
+			completion.onResult(responseBuilder);
+			MDC.put("user", "anonymous");
 		};
 		eb.request(ByteSourceEventProducer.REGISTER, source, (AsyncResult<Message<String>> streamIdMsg) -> {
 			MDC.put("user", loginForSifting);
@@ -304,7 +299,7 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 			final Callback<IResponseBuilder> completion) {
 		container(ns, name);
 		try {
-			encoder.startByteArray((int) streamable.size());
+			encoder.startByteArray(streamable.size());
 			streamToOutput(streamable, (IResponseBuilder data) -> {
 				MDC.put("user", loginForSifting);
 				encoder.endByteArray();
@@ -336,7 +331,7 @@ public class WbxmlResponseBuilder implements IResponseBuilder {
 			logger.error("rid: " + requestId + ", EAS sent a non-conforming response: " + ve.getMessage(), ve);
 		}
 		if (GlobalConfig.DATA_IN_LOGS) {
-			DOMDumper.dumpXml(logger, "rid: " + requestId + (valid ? ", VALID" : ", INVALID") + " wbxml sent to PDA:\n",
+			DOMDumper.dumpXml(logger, "rid: " + requestId + (valid ? ", " : ", INVALID") + " wbxml sent to device:\n",
 					debugDom);
 		}
 	}

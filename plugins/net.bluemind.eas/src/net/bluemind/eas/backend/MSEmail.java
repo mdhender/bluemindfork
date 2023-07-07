@@ -18,6 +18,8 @@
  */
 package net.bluemind.eas.backend;
 
+import com.google.common.io.ByteSource;
+
 import net.bluemind.eas.dto.type.ItemDataType;
 
 public class MSEmail implements IApplicationData {
@@ -29,7 +31,7 @@ public class MSEmail implements IApplicationData {
 
 	private Boolean read;
 	private Boolean starred;
-	private String content;
+	private ByteSource content;
 
 	public MSEmail() {
 		read = false;
@@ -52,11 +54,11 @@ public class MSEmail implements IApplicationData {
 		this.starred = starred;
 	}
 
-	public String getContent() {
+	public ByteSource getContent() {
 		return content;
 	}
 
-	public void setContent(String content) {
+	public void setContent(ByteSource content) {
 		this.content = content;
 	}
 

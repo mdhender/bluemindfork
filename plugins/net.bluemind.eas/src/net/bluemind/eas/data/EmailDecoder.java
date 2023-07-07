@@ -18,12 +18,28 @@
  */
 package net.bluemind.eas.data;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.james.mime4j.dom.Message;
+import org.apache.james.mime4j.dom.MessageServiceFactory;
+import org.apache.james.mime4j.dom.address.Mailbox;
+import org.apache.james.mime4j.field.Fields;
+import org.apache.james.mime4j.field.address.LenientAddressBuilder;
+import org.apache.james.mime4j.message.BasicBodyFactory;
 import org.w3c.dom.Element;
 
+import com.google.common.base.Splitter;
+import com.google.common.io.ByteStreams;
+
 import net.bluemind.eas.backend.BackendSession;
+import net.bluemind.eas.backend.BufferByteSource;
 import net.bluemind.eas.backend.IApplicationData;
 import net.bluemind.eas.backend.MSEmail;
+import net.bluemind.eas.data.email.Type;
 import net.bluemind.eas.utils.DOMUtils;
+import net.bluemind.mime4j.common.Mime4JHelper;
 
 public class EmailDecoder extends Decoder implements IDataDecoder {
 
@@ -50,17 +66,50 @@ public class EmailDecoder extends Decoder implements IDataDecoder {
 			mail.setStarred(null);
 		}
 
-		Element body = DOMUtils.getUniqueElement(syncData, "Body");
-		if (body != null) {
-			for (int i = 0, n = body.getChildNodes().getLength(); i < n; i += 1) {
-				Element node = (Element) body.getChildNodes().item(i);
-				String tagName = node.getTagName();
-				if ("Data".equals(tagName)) {
-					mail.setContent(node.getTextContent());
-				}
-			}
-		}
+		decodeBody(syncData, mail);
 
 		return mail;
+	}
+
+	private void decodeBody(Element syncData, MSEmail mail) {
+		Element body = DOMUtils.getUniqueElement(syncData, "Body");
+		if (body == null) {
+			return;
+		}
+		Type type = Type.fromInt(Integer.parseInt(DOMUtils.getUniqueElement(body, "Type").getTextContent()));
+		if (type == Type.MIME) {
+			mail.setContent(BufferByteSource.of(DOMUtils.getUniqueElement(body, "Data").getTextContent().getBytes()));
+		} else {
+			try (Message m = MessageServiceFactory.newInstance().newMessageBuilder().newMessage()) {
+				Element to = DOMUtils.getUniqueElement(syncData, "To");
+
+				if (to != null) {
+					List<Mailbox> recipients = new ArrayList<>();
+					Splitter.on(";").split(to.getTextContent()).forEach(
+							recipient -> recipients.add(LenientAddressBuilder.DEFAULT.parseMailbox(recipient)));
+					m.setTo(recipients);
+				}
+
+				Element subject = DOMUtils.getUniqueElement(syncData, "Subject");
+				if (subject != null) {
+					m.setSubject(subject.getTextContent());
+				}
+
+				String data = DOMUtils.getUniqueElement(body, "Data").getTextContent();
+				if (type == Type.PLAIN_TEXT) {
+					m.getHeader().setField(Fields.contentType(Mime4JHelper.TEXT_PLAIN));
+				} else if (type == Type.HTML) {
+					m.getHeader().setField(Fields.contentType(Mime4JHelper.TEXT_HTML));
+				}
+				m.setBody(new BasicBodyFactory().textBody(data));
+
+				// TOO Attachments
+
+				InputStream in = Mime4JHelper.asStream(m);
+				mail.setContent(BufferByteSource.of(ByteStreams.toByteArray(in)));
+			} catch (Exception e) {
+				logger.error("Failed to decode body", e);
+			}
+		}
 	}
 }

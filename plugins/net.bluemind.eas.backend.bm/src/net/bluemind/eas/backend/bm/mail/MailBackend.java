@@ -18,6 +18,7 @@
  */
 package net.bluemind.eas.backend.bm.mail;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -48,6 +49,8 @@ import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
 import com.google.common.io.ByteStreams;
 
+import io.netty.buffer.ByteBufOutputStream;
+import io.netty.buffer.Unpooled;
 import io.vertx.core.buffer.Buffer;
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.IMailboxFolders;
@@ -319,19 +322,42 @@ public class MailBackend extends CoreConnect {
 			CollectionItem ci = CollectionItem.of(serverId.get());
 			validateFlag(email.isRead(), MailboxItemFlag.System.Seen.value(), service, ci.itemId);
 			validateFlag(email.isStarred(), MailboxItemFlag.System.Flagged.value(), service, ci.itemId);
+
+			// update body in Drafts folder only
+			if ("Drafts".equals(folder.fullName) && email.getContent() != null) {
+				MessageBody messageBody = uploadPart(service, email);
+				ItemValue<MailboxItem> mailboxItem = service.getForUpdate(ci.itemId);
+				mailboxItem.value.body = messageBody;
+				service.updateById(ci.itemId, mailboxItem.value);
+			}
 			return ci;
 		} else {
 			// store new email (Draft)
-			Stream eml = VertxStream.stream(Buffer.buffer(email.getContent()));
-			String partId = service.uploadPart(eml);
-			Part part = Part.create(null, "message/rfc822", partId);
-			MessageBody messageBody = new MessageBody();
-			messageBody.structure = part;
-			MailboxItem mailboxItem = new net.bluemind.backend.mail.api.MailboxItem();
+			MessageBody messageBody = uploadPart(service, email);
+			MailboxItem mailboxItem = new MailboxItem();
 			mailboxItem.body = messageBody;
 			ImapItemIdentifier created = service.create(mailboxItem);
 			return CollectionItem.of(collectionId, created.id);
 		}
+	}
+
+	private MessageBody uploadPart(IMailboxItems service, MSEmail email) throws ActiveSyncException {
+		try {
+			Stream eml = streamFromByteSource(email.getContent());
+			String partId = service.uploadPart(eml);
+			Part part = Part.create(null, "message/rfc822", partId);
+			MessageBody messageBody = new MessageBody();
+			messageBody.structure = part;
+			return messageBody;
+		} catch (Exception e) {
+			throw new ActiveSyncException("Failed to store message");
+		}
+	}
+
+	private static Stream streamFromByteSource(ByteSource content) throws IOException {
+		ByteBufOutputStream os = new ByteBufOutputStream(Unpooled.buffer());
+		content.copyTo(os);
+		return VertxStream.stream(Buffer.buffer(os.buffer()));
 	}
 
 	private void validateFlag(Boolean property, MailboxItemFlag flag, IMailboxItems service, long itemId) {

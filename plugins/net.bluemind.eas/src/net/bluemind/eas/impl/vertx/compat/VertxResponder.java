@@ -76,7 +76,7 @@ public final class VertxResponder implements Responder {
 
 	@Override
 	public void sendResponse(NamespaceMapping ns, Document doc, ConnectionHeader con) {
-		DOMDumper.dumpXml(logger, "to pda:\n", doc);
+		DOMDumper.dumpXml(logger, "to device:\n", doc);
 		try {
 			Validator.get().checkResponse(14.1, doc);
 			setASHeaders(con);
@@ -109,7 +109,7 @@ public final class VertxResponder implements Responder {
 
 	@Override
 	public void sendStatus(int statusCode) {
-		logger.info("to pda:\nHTTP {}\n", statusCode);
+		logger.info("to device:\nHTTP {}\n", statusCode);
 		setASHeaders(ConnectionHeader.CLOSE);
 		resp.setStatusCode(statusCode).end();
 	}

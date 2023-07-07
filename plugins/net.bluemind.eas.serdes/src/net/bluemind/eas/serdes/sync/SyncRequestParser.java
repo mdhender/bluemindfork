@@ -149,12 +149,6 @@ public class SyncRequestParser implements IEasRequestParser<SyncRequest> {
 				collection.options.filterType = FilterType.getFilterType(filterType);
 			}
 
-		} else {
-			// BM-6600 Sync without Options (BB)
-			// force filterType to 3 days back to prevent full sync
-			// TODO store Options
-			logger.warn("Request without options. Force FilterType to THREE_DAYS_BACK");
-			collection.options.filterType = FilterType.THREE_DAYS_BACK;
 		}
 
 		Element perform = DOMUtils.getUniqueElement(col, "Commands");

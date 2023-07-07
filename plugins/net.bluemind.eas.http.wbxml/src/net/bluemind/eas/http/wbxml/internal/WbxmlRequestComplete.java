@@ -48,7 +48,7 @@ public class WbxmlRequestComplete implements Handler<Void> {
 				boolean valid = Validator.check(event.request(), event.protocolVersion(), document);
 				if (!valid || GlobalConfig.DATA_IN_LOGS) {
 					DOMDumper.dumpXml(logger, "rid: " + Requests.tag(event.request(), "rid")
-							+ (valid ? ", Valid document" : ", INVALID document") + " from pda:\n", document);
+							+ (valid ? ", " : ", INVALID") + " document from device:\n", document);
 				}
 				if (valid) {
 					// Validator.check will provide a bad request response if

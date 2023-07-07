@@ -77,20 +77,24 @@ public class ContentsExporter extends CoreConnect implements IContentsExporter {
 
 	private boolean processFilterType(BackendSession bs, SyncState state, FilterType filterType,
 			CollectionId collectionId) {
-		String key = bs.getDeviceId().getIdentifier() + "-" + collectionId.getFolderId();
+
+		String key = bs.getUniqueIdentifier() + "-" + collectionId.getFolderId();
 
 		if (filterType == null) {
-			// iOS no filtertype == ALL_ITEMS
+			// MS-ASCMD 2.2.3.68.2 FilterType (Sync)
+			// If the FilterType element is omitted, all objects are sent from the server
+			// without regard for their age.
 			filterType = FilterType.ALL_ITEMS;
+		} else {
+			filterTypeCache.put(key, filterType);
 		}
 
-		FilterType current = null;
+		FilterType previous = null;
 		if (filterTypeCache.containsKey(key)) {
-			current = filterTypeCache.get(key);
+			previous = filterTypeCache.get(key);
 		}
 
-		boolean hasChanged = current != null && current != filterType;
-		filterTypeCache.put(key, filterType);
+		boolean hasChanged = previous != null && previous != filterType;
 		filterType.filter(state, hasChanged);
 
 		return hasChanged;
