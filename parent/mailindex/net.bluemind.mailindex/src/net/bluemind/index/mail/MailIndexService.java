@@ -340,7 +340,6 @@ public class MailIndexService implements IMailIndexService {
 		mutableContent.remove("references");
 		// Those fields are used for search on the parent and not retrieved on the child
 		mutableContent.remove("content");
-		mutableContent.remove("filename");
 		// headers recipients are retrieved and sortby, those are not used
 		mutableContent.remove("from");
 		mutableContent.remove("to");
@@ -354,6 +353,7 @@ public class MailIndexService implements IMailIndexService {
 		}
 		if (!parentExists) {
 			parentDoc.remove("with");
+			parentDoc.remove("filename");
 			// this field are not used for search
 			parentDoc.remove("headers");
 			parentDoc.remove("size");
