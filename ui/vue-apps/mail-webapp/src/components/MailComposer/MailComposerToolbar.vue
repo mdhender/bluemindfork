@@ -9,7 +9,7 @@
                 type="submit"
                 variant="fill-accent"
                 icon="send"
-                :disabled="disableSend"
+                :disabled="isSendingDisabled"
                 @click.prevent="send"
             >
                 {{ $t("common.send") }}
@@ -101,7 +101,6 @@
 </template>
 
 <script>
-import { ContactValidator } from "@bluemind/contact";
 import { BmExtension } from "@bluemind/extensions.vue";
 import {
     BmButton,
@@ -156,20 +155,8 @@ export default {
         hasCorporateSignature() {
             return this.$store.state.mail.messageCompose.corporateSignature !== null;
         },
-        hasRecipient() {
-            return this.message.to.length > 0 || this.message.cc.length > 0 || this.message.bcc.length > 0;
-        },
-        isSending() {
-            return this.message.status === MessageStatus.SENDING;
-        },
         isSaving() {
             return this.message.status === MessageStatus.SAVING;
-        },
-        isInvalid() {
-            return this.message.status === MessageStatus.INVALID;
-        },
-        errorOccuredOnSave() {
-            return this.message.status === MessageStatus.SAVE_ERROR;
         },
         saveMessage() {
             const kind = this.isDraft ? "draft" : "template";
@@ -197,23 +184,6 @@ export default {
             return this.showFormattingToolbar
                 ? this.$tc("mail.actions.textformat.hide.aria")
                 : this.$tc("mail.actions.textformat.show.aria");
-        },
-        anyRecipientInError() {
-            return this.message.to
-                .concat(this.message.cc)
-                .concat(this.message.bcc)
-                .some(contact => !ContactValidator.validateContact(contact));
-        },
-
-        disableSend() {
-            return (
-                this.errorOccuredOnSave ||
-                this.isInvalid ||
-                this.isSending ||
-                !this.hasRecipient ||
-                this.anyRecipientInError ||
-                this.anyAttachmentInError
-            );
         },
         isSenderShown() {
             return this.IS_SENDER_SHOWN(this.userSettings);

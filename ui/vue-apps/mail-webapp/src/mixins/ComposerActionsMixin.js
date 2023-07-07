@@ -2,7 +2,8 @@ import cloneDeep from "lodash.clonedeep";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 
 import { inject } from "@bluemind/inject";
-import { draftUtils, fileUtils } from "@bluemind/mail";
+import { draftUtils, fileUtils, messageUtils } from "@bluemind/mail";
+import { ContactValidator } from "@bluemind/contact";
 
 import {
     DEBOUNCED_SAVE_MESSAGE,
@@ -31,6 +32,7 @@ import {
 
 const { isNewMessage, createFromDraft } = draftUtils;
 const { FileStatus } = fileUtils;
+const { MessageStatus } = messageUtils;
 
 /**
  * Provide composition Vuex actions to components
@@ -70,6 +72,34 @@ export default {
         },
         anyAttachmentInError() {
             return this.message.attachments.some(a => a.status === FileStatus.ERROR);
+        },
+        hasRecipient() {
+            return this.message.to.length > 0 || this.message.cc.length > 0 || this.message.bcc.length > 0;
+        },
+        isSending() {
+            return this.message.status === MessageStatus.SENDING;
+        },
+        isInvalid() {
+            return this.message.status === MessageStatus.INVALID;
+        },
+        errorOccuredOnSave() {
+            return this.message.status === MessageStatus.SAVE_ERROR;
+        },
+        anyRecipientInError() {
+            return this.message.to
+                .concat(this.message.cc)
+                .concat(this.message.bcc)
+                .some(contact => !ContactValidator.validateContact(contact));
+        },
+        isSendingDisabled() {
+            return (
+                this.errorOccuredOnSave ||
+                this.isInvalid ||
+                this.isSending ||
+                !this.hasRecipient ||
+                this.anyRecipientInError ||
+                this.anyAttachmentInError
+            );
         }
     },
 

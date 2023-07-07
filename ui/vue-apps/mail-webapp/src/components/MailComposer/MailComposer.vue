@@ -1,5 +1,5 @@
 <template>
-    <bm-form class="mail-composer flex-grow-1 d-flex flex-column bg-surface" @keypress.ctrl.enter="send">
+    <bm-form class="mail-composer flex-grow-1 d-flex flex-column bg-surface" @keypress.ctrl.enter="sendMessage">
         <mail-open-in-popup
             v-slot="action"
             :href="{ name: 'mail:popup:message', params: { messagepath } }"
@@ -148,6 +148,14 @@ export default {
         },
         subject() {
             return this.message.subject?.trim() || "";
+        }
+    },
+    methods: {
+        sendMessage() {
+            if (this.isSendingDisabled) {
+                return;
+            }
+            this.send();
         }
     }
 };
