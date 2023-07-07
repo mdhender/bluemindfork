@@ -122,8 +122,8 @@ public class ImapContext {
 		this.clientId = Collections.emptyMap();
 		this.sender = new ContextProducer(vertxContext, ns);
 		this.logConnectionId = ns.writeHandlerID().replace("__vertx.net.", "").replace("-", "");
-		this.throughputLimiterRegistry = ThroughputLimiterRegistry.get(Drivers.activeDriver().maxLiteralSize());
 		ContextualData.put("endpoint", "imap");
+		this.throughputLimiterRegistry = ThroughputLimiterRegistry.get(Drivers.activeDriver().maxLiteralSize());
 	}
 
 	public Vertx vertx() {

@@ -22,6 +22,7 @@ import io.netty.buffer.ByteBuf;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.parsetools.RecordParser;
+import net.bluemind.configfile.imap.ImapConfig;
 import net.bluemind.imap.endpoint.EndpointConfig;
 import net.bluemind.imap.endpoint.ImapContext;
 import net.bluemind.imap.endpoint.ImapMetricsHolder;
@@ -30,7 +31,7 @@ import net.bluemind.imap.endpoint.ratelimiter.ThroughputLimiter.LimiterResult;
 
 public class ImapPartSplitter implements Handler<Buffer> {
 
-	private static final int IMAP_LITERAL_CHUNK_SIZE = (int) EndpointConfig.get().getMemorySize("imap.chunk-size")
+	private static final int IMAP_LITERAL_CHUNK_SIZE = (int) EndpointConfig.get().getMemorySize(ImapConfig.CHUNK_SIZE)
 			.toBytes();
 
 	private final ImapRequestParser parser;

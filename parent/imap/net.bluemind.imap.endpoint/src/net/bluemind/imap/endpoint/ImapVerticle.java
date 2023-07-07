@@ -30,6 +30,7 @@ import io.vertx.core.Promise;
 import io.vertx.core.Verticle;
 import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
+import net.bluemind.configfile.imap.ImapConfig;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.lib.vertx.VertxContext;
 
@@ -54,7 +55,7 @@ public class ImapVerticle extends AbstractVerticle {
 	@Override
 	public void start(Promise<Void> startPromise) throws Exception {
 		Config conf = EndpointConfig.get();
-		int idle = (int) conf.getDuration("imap.idle-timeout", TimeUnit.SECONDS);
+		int idle = (int) conf.getDuration(ImapConfig.IDLE_TIMEOUT, TimeUnit.SECONDS);
 		NetServerOptions opts = new NetServerOptions();
 		opts.setIdleTimeout(idle).setIdleTimeoutUnit(TimeUnit.SECONDS);
 		opts.setTcpFastOpen(true).setTcpNoDelay(true).setTcpQuickAck(true);
@@ -63,7 +64,7 @@ public class ImapVerticle extends AbstractVerticle {
 
 		srv.exceptionHandler(t -> logger.error("ImapEndpoint failure", t));
 
-		int port = conf.getInt("imap.port");
+		int port = conf.getInt(ImapConfig.PORT);
 		srv.connectHandler(ns -> VertxContext.getOrCreateDuplicatedContext(vertx)
 				.runOnContext(v -> ImapSession.create(vertx, ns, metricsHolder))).listen(port, ar -> {
 					if (ar.failed()) {

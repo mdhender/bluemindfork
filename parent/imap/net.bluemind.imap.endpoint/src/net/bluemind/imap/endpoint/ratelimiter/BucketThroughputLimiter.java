@@ -5,6 +5,7 @@ import java.time.Duration;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
+import net.bluemind.configfile.imap.ImapConfig;
 import net.bluemind.imap.endpoint.EndpointConfig;
 
 public abstract class BucketThroughputLimiter implements ThroughputLimiter {
@@ -14,8 +15,8 @@ public abstract class BucketThroughputLimiter implements ThroughputLimiter {
 		private final Bandwidth bandwidth;
 		private final Bucket bucket;
 
-		private final long capacity = EndpointConfig.get().getBytes("imap.throughput.capacity");
-		private final Duration duration = EndpointConfig.get().getDuration("imap.throughput.period");
+		private final long capacity = EndpointConfig.get().getBytes(ImapConfig.Throughput.CAPACITY);
+		private final Duration duration = EndpointConfig.get().getDuration(ImapConfig.Throughput.PERIOD);
 
 		public Bucket4jStorage(int initialCapacity) {
 			Refill refill = Refill.greedy(capacity, duration);

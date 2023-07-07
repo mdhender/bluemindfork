@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.configfile
+Bundle-SymbolicName: net.bluemind.configfile
+Bundle-Version: 5.0.0.qualifier
+Require-Bundle: 
+ com.google.guava,
+ com.typesafe.config;visibility:=reexport,
+ com.github.ben-manes.caffeine,
+ net.bluemind.lib.vertx,
+ org.eclipse.osgi,
+ slf4j.api
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Export-Package: net.bluemind.configfile,
+ net.bluemind.configfile.imap
+Automatic-Module-Name: net.bluemind.configfile

@@ -24,6 +24,10 @@
             priority="60">
       </registration>
 	  <registration
+            impl="net.bluemind.cli.mail.ImapRateLimitCommand$Reg"
+            priority="60">
+      </registration>
+	  <registration
             impl="net.bluemind.cli.mail.UnexpungeCommand$Reg"
             priority="50">
       </registration>

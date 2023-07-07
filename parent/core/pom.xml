@@ -11,6 +11,7 @@
 	<modules>
 		<module>net.bluemind.application.launcher</module>
 		<module>net.bluemind.config</module>
+		<module>net.bluemind.configfile</module>
 		<module>net.bluemind.core.annotationvalidator.tests</module>
 		<module>net.bluemind.core.annotationvalidator</module>
 		<module>net.bluemind.core.auditlog</module>

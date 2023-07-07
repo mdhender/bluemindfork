@@ -39,6 +39,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
 import net.bluemind.config.InstallationId;
+import net.bluemind.configfile.ReloadableConfig;
 import net.bluemind.core.api.BMVersion;
 import net.bluemind.core.caches.registry.CacheRegistry;
 import net.bluemind.core.container.model.ItemValue;
@@ -57,6 +58,7 @@ import net.bluemind.server.api.Server;
 import net.bluemind.system.state.StateContext;
 import net.bluemind.system.validation.ProductChecks;
 import net.bluemind.systemd.notify.Startup;
+import sun.misc.Signal;
 
 public class ApplicationLauncher implements IApplication {
 
@@ -71,6 +73,9 @@ public class ApplicationLauncher implements IApplication {
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		logger.info("Starting BlueMind Application...");
+
+		Signal.handle(new Signal("HUP"),
+				signal -> VertxPlatform.eventBus().publish(ReloadableConfig.RELOAD_ADDRESS, Boolean.TRUE));
 
 		MQ.init(() -> {
 			try {
@@ -91,6 +96,7 @@ public class ApplicationLauncher implements IApplication {
 				}
 			}
 		});
+
 		return IApplication.EXIT_OK;
 	}
 
@@ -132,6 +138,7 @@ public class ApplicationLauncher implements IApplication {
 				}
 			});
 		};
+
 		VertxPlatform.spawnVerticles(done);
 	}
 

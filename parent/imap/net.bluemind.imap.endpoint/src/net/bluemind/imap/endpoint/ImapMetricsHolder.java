@@ -14,6 +14,7 @@ import com.netflix.spectator.api.Registry;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
+import net.bluemind.configfile.imap.ImapConfig;
 import net.bluemind.imap.endpoint.ratelimiter.ThroughputLimiter.LimiterResult;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
@@ -37,7 +38,7 @@ public class ImapMetricsHolder {
 
 	private final Map<BufferStatus, Counter> bufferStatusCounter = new EnumMap<>(BufferStatus.class);
 
-	private final Duration limiterLogPeriod = EndpointConfig.get().getDuration("imap.throughput.log-period");
+	private final Duration limiterLogPeriod = EndpointConfig.get().getDuration(ImapConfig.Throughput.LOG_PERIOD);
 
 	private final Bucket logLimitatedLimiter;
 

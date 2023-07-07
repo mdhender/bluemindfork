@@ -20,7 +20,9 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.mailbox.api,
  net.bluemind.network.topology,
  net.bluemind.system.api,
- org.apache.commons.compress
+ org.apache.commons.compress,
+ com.typesafe.config,
+ net.bluemind.configfile
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.cli.mail
 Bundle-ActivationPolicy: lazy

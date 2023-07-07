@@ -8,6 +8,7 @@ Bundle-Vendor: bluemind.net
 Require-Bundle: org.eclipse.core.runtime,
  com.bucket4j.core,
  io.vertx.core,
+ net.bluemind.configfile,
  net.bluemind.lib.vertx,
  slf4j.api,
  com.google.guava,

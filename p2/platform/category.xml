@@ -139,6 +139,7 @@
    <bundle id="net.bluemind.commons.ui.closure" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.config" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.config.testfragment" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.configfile" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.contact.application.closure" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.container.closure" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.content.analysis" version="5.0.0.qualifier"/>
