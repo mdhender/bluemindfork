@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>net.bluemind</groupId>
 		<version>5.0.0-SNAPSHOT</version>
-		<artifactId>net.bluemind.videoconferencing.plugins</artifactId>
+		<artifactId>net.bluemind.ui.webmodules</artifactId>
 	</parent>
 	<artifactId>net.bluemind.webmodules.videoconferencing.saas</artifactId>
 	<packaging>eclipse-plugin</packaging>

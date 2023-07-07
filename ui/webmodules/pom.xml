@@ -17,6 +17,7 @@
 		<module>net.bluemind.webmodules.webmail</module>
 		<module>net.bluemind.webmodules.webapp</module>
 		<module>net.bluemind.webmodules.loginapp</module>
+		<module>net.bluemind.webmodules.videoconferencing.saas</module>
 		<module>net.bluemind.ui.metrics.application</module>
 	</modules>
 </project>

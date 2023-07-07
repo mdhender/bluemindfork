@@ -24,6 +24,5 @@
 		<module>net.bluemind.videoconferencing.webex</module>
 		<module>net.bluemind.videoconferencing.zoom</module>
 		<module>net.bluemind.videoconferencing.utils</module>
-		<module>net.bluemind.webmodules.videoconferencing.saas</module>
 	</modules>
 </project>
