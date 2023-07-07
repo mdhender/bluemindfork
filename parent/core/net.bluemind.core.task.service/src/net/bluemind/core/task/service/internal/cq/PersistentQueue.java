@@ -82,6 +82,9 @@ public class PersistentQueue implements AutoCloseable {
 		this.subId = id;
 		this.queue = queue;
 		this.appender = onCqThread(queue::acquireAppender).join();
+		if (appender == null) {
+			throw new ServerFault("Appender cannot be null");
+		}
 	}
 
 	@Override
