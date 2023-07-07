@@ -52,7 +52,7 @@
          <sequence minOccurs="0" maxOccurs="unbounded">
             <element ref="whitelist"/>
          </sequence>
-         <attribute name="target" type="string" use="required">
+         <attribute name="target" type="string">
             <annotation>
                <documentation>
                   don't set a target if webserver is the target
@@ -73,7 +73,7 @@
                </documentation>
             </annotation>
          </attribute>
-         <attribute name="auth" type="string" use="required">
+         <attribute name="auth" type="string">
             <annotation>
                <documentation>
                   set to "true" if auth is required
@@ -86,6 +86,13 @@
    <element name="whitelist">
       <complexType>
          <attribute name="uri" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="regex" type="string">
             <annotation>
                <documentation>
                   

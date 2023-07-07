@@ -377,8 +377,8 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 	}
 
 	public List<String> labels() throws SQLException {
-		return select(
-				"SELECT DISTINCT unnest(other_flags) FROM t_mailbox_record WHERE subtree_id = ? AND container_id = ? ORDER BY 1",
-				StringCreator.FIRST, Collections.emptyList(), new Object[] { subtreeContainer.id, folderContainer.id });
+		return select("""
+				SELECT flag FROM t_mailbox_folder_flags WHERE container_id = ? ORDER BY 1 ASC
+				""", StringCreator.FIRST, Collections.emptyList(), new Object[] { folderContainer.id });
 	}
 }

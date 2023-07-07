@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -39,6 +40,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import com.google.common.collect.Lists;
 
 import net.bluemind.backend.cyrus.partitions.CyrusPartition;
 import net.bluemind.backend.mail.api.IMailboxFolders;
@@ -205,9 +208,7 @@ public class MailboxRecordStoreTests {
 
 		List<String> labels = boxRecordStore.labels();
 		System.err.println("labels: " + labels);
-		assertEquals(2, labels.size());
-		assertTrue(labels.contains("$john"));
-		assertTrue(labels.contains("$bang"));
+		assertEquals("an expunged record should not produce any label", labels.size(), 0);
 
 		// we check for 0 & empty list because the bodies are not created
 		asBindings = boxRecordStore.havingBodyVersionLowerThan(0);
@@ -254,6 +255,68 @@ public class MailboxRecordStoreTests {
 		Date after = new Date(it.created.getTime() + 1000);
 		existing = boxRecordStore.recentItems(after);
 		assertTrue(existing.isEmpty());
+	}
+
+	@Test
+	public void testLabelAdd() throws SQLException {
+		assertTrue("labels should be empty", boxRecordStore.labels().isEmpty());
+		for (int i = 0; i < 5; i++) {
+			MailboxRecord mb = simpleRecord();
+			mb.flags = Arrays.asList(MailboxItemFlag.of("$Junk", 0));
+			MessageBody body = body(mb.messageBody, new Date());
+			bodyStore.store(body);
+
+			String uniqueId = "rec" + System.nanoTime();
+			itemStore.create(Item.create(uniqueId, null));
+			Item it = itemStore.get(uniqueId);
+			boxRecordStore.create(it, mb);
+		}
+		assertEquals("labels should have $Junk once only", boxRecordStore.labels().size(), 1);
+		assertEquals("labels should have $Junk once only", boxRecordStore.labels().get(0), "$Junk");
+	}
+
+	@Test
+	public void testLabelRemove() throws SQLException {
+		assertTrue("labels should be empty", boxRecordStore.labels().isEmpty());
+		List<Item> mailboxRecordItems = new ArrayList<>();
+		for (int i = 0; i < 2; i++) {
+			MailboxRecord mb = simpleRecord();
+			mb.flags = Arrays.asList(MailboxItemFlag.of("$Junk", 0));
+			MessageBody body = body(mb.messageBody, new Date());
+			bodyStore.store(body);
+
+			String uniqueId = "rec" + System.nanoTime();
+			itemStore.create(Item.create(uniqueId, null));
+			Item it = itemStore.get(uniqueId);
+			boxRecordStore.create(it, mb);
+			mailboxRecordItems.add(it);
+		}
+		assertEquals("labels should have $Junk once only", boxRecordStore.labels().size(), 1);
+		assertEquals("labels should have $Junk once only", boxRecordStore.labels().get(0), "$Junk");
+
+		// delete all records: label should be there
+		MailboxRecord rec1 = boxRecordStore.get(mailboxRecordItems.get(0));
+		rec1.flags = Lists.newCopyOnWriteArrayList(rec1.flags);
+		rec1.flags.add(MailboxItemFlag.System.Deleted.value());
+		MailboxRecord rec2 = boxRecordStore.get(mailboxRecordItems.get(1));
+		rec2.flags = Lists.newCopyOnWriteArrayList(rec2.flags);
+		rec2.flags.add(MailboxItemFlag.System.Deleted.value());
+		assertEquals("labels should have $Junk once only", boxRecordStore.labels().size(), 1);
+		assertEquals("labels should have $Junk once only", boxRecordStore.labels().get(0), "$Junk");
+
+		// expunge one record: label should be there
+		rec1 = boxRecordStore.get(mailboxRecordItems.get(0));
+		rec1.internalFlags = EnumSet.of(InternalFlag.expunged);
+
+		boxRecordStore.update(mailboxRecordItems.get(0), rec1);
+		assertEquals("labels should have $Junk once only", boxRecordStore.labels().size(), 1);
+		assertEquals("labels should have $Junk once only", boxRecordStore.labels().get(0), "$Junk");
+
+		// expunge every record: label should be removed
+		rec2 = boxRecordStore.get(mailboxRecordItems.get(1));
+		rec2.internalFlags = EnumSet.of(InternalFlag.expunged);
+		boxRecordStore.update(mailboxRecordItems.get(1), rec2);
+		assertTrue("labels should be empty", boxRecordStore.labels().isEmpty());
 	}
 
 	private MailboxRecord simpleRecord() {

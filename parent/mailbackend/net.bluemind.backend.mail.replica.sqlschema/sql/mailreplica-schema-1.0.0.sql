@@ -474,3 +474,137 @@ CREATE OR REPLACE TRIGGER trigger_mailbox_record_expunged_delete
     AFTER DELETE ON t_mailbox_record FOR EACH ROW
     EXECUTE PROCEDURE fct_mailbox_record_expunged();
     
+
+-- Optimization to store distinct user flags per folder
+CREATE TABLE t_mailbox_folder_flags (
+    id bigint GENERATED ALWAYS AS IDENTITY,
+    container_id bigint not null references t_container(id),
+    occurrence integer not null default 1,
+    flag text not null,
+    UNIQUE(container_id, flag)
+    WITH (fillfactor = 80) -- Optimization to allow the maximum amount of HOT updates
+);
+
+
+CREATE OR REPLACE FUNCTION fct_mailbox_record_flag_update() RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    _flag text;
+    _flags_removed text[] := '{}';
+    _flags_added text[] := '{}';
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        FOREACH _flag IN ARRAY NEW.other_flags
+        LOOP
+            IF NOT _flag = ANY(_flags_added) THEN
+                _flags_added = array_append(_flags_added, _flag);
+            END IF;
+        END LOOP;
+    ELSIF TG_OP = 'UPDATE' THEN
+        -- record was expunged
+        IF OLD.system_flags & (1 << 31) = 0 AND NEW.system_flags & (1 << 31) = (1 << 31) THEN
+            _flags_removed = NEW.other_flags;
+        ELSE
+            -- flags where updated
+            FOREACH _flag IN ARRAY (NEW.other_flags || OLD.other_flags)
+            LOOP
+                IF _flag = ANY(OLD.other_flags) THEN
+                    IF NOT (_flag = ANY (NEW.other_flags)) THEN
+                        IF NOT _flag = ANY(_flags_removed) THEN
+                            _flags_removed = array_append(_flags_removed, _flag);
+                        END IF;
+                    END IF;
+                ELSE
+                    -- Flag added
+                    IF NOT _flag = ANY(_flags_added) THEN
+                        _flags_added = array_append(_flags_added, _flag);
+                    END IF;
+                END IF;
+            END LOOP;
+        END IF;
+    ELSIF TG_OP = 'DELETE' THEN
+        UPDATE t_mailbox_folder_flags SET occurrence = t_mailbox_folder_flags.occurrence - 1
+            WHERE container_id = OLD.container_id AND flag = ANY(OLD.other_flags);
+        RETURN OLD;
+    END IF;
+
+    IF array_length(_flags_removed, 1) > 0 THEN
+        UPDATE t_mailbox_folder_flags SET occurrence = t_mailbox_folder_flags.occurrence - 1
+            WHERE container_id = NEW.container_id AND flag = ANY(NEW.other_flags);
+    END IF;
+
+    IF array_length(_flags_added, 1) > 0 THEN
+        FOREACH _flag IN ARRAY _flags_added
+        LOOP
+            -- Flag added
+            INSERT INTO t_mailbox_folder_flags(container_id, flag)
+            VALUES (NEW.container_id, _flag)
+            ON CONFLICT(container_id, flag) DO UPDATE SET occurrence = t_mailbox_folder_flags.occurrence + 1;
+        END LOOP;
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+
+CREATE OR REPLACE FUNCTION fct_mailbox_record_flag_truncate() RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    TRUNCATE t_mailbox_folder_flags;
+    RETURN NEW;
+END;
+$$;
+
+-- Auto-removal of flags with no occurences
+CREATE OR REPLACE FUNCTION fct_mailbox_folder_flags_remove() RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    DELETE FROM t_mailbox_folder_flags WHERE container_id = NEW.container_id AND flag = NEW.flag;
+    RETURN NEW;
+END;
+$$;
+CREATE TRIGGER trigger_mailbox_folder_flags_zero AFTER UPDATE ON t_mailbox_folder_flags
+    FOR EACH ROW
+    WHEN (NEW.occurrence <= 0)
+    EXECUTE PROCEDURE fct_mailbox_folder_flags_remove();
+
+-- a non removed record was added
+CREATE TRIGGER
+    trigger_mailbox_record_flag_inserted AFTER INSERT ON t_mailbox_record
+    FOR EACH ROW
+    WHEN (
+        NEW.system_flags & (1 << 31) = 0
+        AND
+        NEW.other_flags IS NOT NULL
+        AND
+        array_length(NEW.other_flags, 1) > 0
+    )
+    EXECUTE PROCEDURE fct_mailbox_record_flag_update();
+
+-- a record was updated (record expunged, or flags updated)
+CREATE TRIGGER
+    trigger_mailbox_record_flag_updated AFTER UPDATE ON t_mailbox_record
+    FOR EACH ROW
+    WHEN (
+        NEW.other_flags IS DISTINCT FROM OLD.other_flags
+        OR
+        ((OLD.system_flags & (1 << 31)) = 0 AND (NEW.system_flags & (1 << 31)) = (1 << 31))
+    )
+    EXECUTE PROCEDURE fct_mailbox_record_flag_update();
+
+-- a record was updated (record removed, or flags updated)
+CREATE TRIGGER
+    trigger_mailbox_record_flag_deleted AFTER DELETE ON t_mailbox_record
+    FOR EACH ROW
+    WHEN (OLD.other_flags IS NOT NULL)
+    EXECUTE PROCEDURE fct_mailbox_record_flag_update();
+
+-- the record table was truncated
+CREATE TRIGGER
+    trigger_mailbox_record_flag_truncate AFTER TRUNCATE ON t_mailbox_record
+    FOR EACH STATEMENT
+    EXECUTE PROCEDURE fct_mailbox_record_flag_truncate();
