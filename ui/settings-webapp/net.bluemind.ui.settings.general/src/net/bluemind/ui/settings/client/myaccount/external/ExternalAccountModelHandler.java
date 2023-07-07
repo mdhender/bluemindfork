@@ -72,7 +72,7 @@ public class ExternalAccountModelHandler implements IGwtModelHandler {
 
 		List<CompletableFuture<CompleteExternalSystem>> systems = new ArrayList<>();
 		CompletableFuture<Void> call = service
-				.getExternalSystemsByAuthKind(EnumSet.of(AuthKind.API_KEY, AuthKind.SIMPLE_CREDENTIALS))
+				.getExternalSystemsByAuthKind(EnumSet.of(AuthKind.NONE, AuthKind.API_KEY, AuthKind.SIMPLE_CREDENTIALS))
 				.thenAccept(list -> {
 					list.forEach(extSystem -> {
 						systems.add(service.getLogo(extSystem.identifier).thenApply(logo -> {
