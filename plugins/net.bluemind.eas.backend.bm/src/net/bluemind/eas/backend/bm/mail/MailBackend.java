@@ -146,7 +146,7 @@ public class MailBackend extends CoreConnect {
 	}
 
 	public Changes getContentChanges(BackendSession bs, SyncState state, CollectionId collectionId,
-			boolean hasFilterTypeChanged) throws ActiveSyncException {
+			BodyOptions bodyOptions, boolean hasFilterTypeChanged) throws ActiveSyncException {
 
 		if (!bs.getUser().hasMailbox()) {
 			logger.info("MailRouting == NONE for user {}. Return no changes.", bs.getLoginAtDomain());
@@ -219,7 +219,14 @@ public class MailBackend extends CoreConnect {
 					ItemChangeReference ic = new ItemChangeReference(ItemDataType.EMAIL);
 					ic.setServerId(CollectionItem.of(collectionId, item.internalId));
 					ic.setChangeType(ChangeType.CHANGE);
-					ic.setData(AppData.of(FlagsChange.asEmailResponse(item.value), LazyLoaded.NOOP));
+					boolean isDraft = item.value.flags.contains(MailboxItemFlag.System.Draft.value())
+							|| "Drafts".equals(folder.fullName);
+
+					if (isDraft) {
+						ic.setData(toAppData(bs, bodyOptions, folder, ic.getServerId().itemId));
+					} else {
+						ic.setData(AppData.of(FlagsChange.asEmailResponse(item.value), LazyLoaded.NOOP));
+					}
 					changes.items.add(ic);
 				}
 			});

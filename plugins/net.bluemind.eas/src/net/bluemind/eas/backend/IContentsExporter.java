@@ -31,7 +31,7 @@ import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsRequest;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse.Response.Recipient;
 import net.bluemind.eas.dto.sync.CollectionId;
-import net.bluemind.eas.dto.sync.FilterType;
+import net.bluemind.eas.dto.sync.CollectionSyncRequest.Options;
 import net.bluemind.eas.dto.sync.SyncState;
 import net.bluemind.eas.dto.type.ItemDataType;
 import net.bluemind.eas.exception.ActiveSyncException;
@@ -46,7 +46,7 @@ import net.bluemind.eas.exception.ObjectNotFoundException;
  */
 public interface IContentsExporter {
 
-	Changes getChanged(BackendSession bs, SyncState state, FilterType filterType, CollectionId collectionId)
+	Changes getChanged(BackendSession bs, SyncState state, Options options, CollectionId collectionId)
 			throws ActiveSyncException;
 
 	AppData loadStructure(BackendSession bs, BodyOptions bodyOptions, ItemChangeReference ir)

@@ -448,7 +448,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		IContentsExporter contentExporter = backend.getContentsExporter(bs);
 
 		if (bs.getUnSynchronizedItemChange(c.getCollectionId()).isEmpty()) {
-			changes = contentExporter.getChanged(bs, state, c.options.filterType, c.getCollectionId());
+			changes = contentExporter.getChanged(bs, state, c.options, c.getCollectionId());
 		} else {
 			changes.version = state.version;
 		}

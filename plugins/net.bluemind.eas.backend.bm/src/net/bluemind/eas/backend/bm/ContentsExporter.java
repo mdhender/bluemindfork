@@ -50,6 +50,7 @@ import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse.Response
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse.Response.Recipient.Availability;
 import net.bluemind.eas.dto.resolverecipients.ResolveRecipientsResponse.Response.Recipient.Type;
 import net.bluemind.eas.dto.sync.CollectionId;
+import net.bluemind.eas.dto.sync.CollectionSyncRequest.Options;
 import net.bluemind.eas.dto.sync.FilterType;
 import net.bluemind.eas.dto.sync.SyncState;
 import net.bluemind.eas.dto.type.ItemDataType;
@@ -96,7 +97,7 @@ public class ContentsExporter extends CoreConnect implements IContentsExporter {
 	}
 
 	@Override
-	public Changes getChanged(BackendSession bs, SyncState state, FilterType filterType, CollectionId collectionId)
+	public Changes getChanged(BackendSession bs, SyncState state, Options options, CollectionId collectionId)
 			throws ActiveSyncException {
 		Changes changes = new Changes();
 		switch (state.type) {
@@ -107,8 +108,8 @@ public class ContentsExporter extends CoreConnect implements IContentsExporter {
 			changes = contactsBackend.getContentChanges(bs, state.version, collectionId);
 			break;
 		case EMAIL:
-			boolean hasFilterTypeChanged = processFilterType(bs, state, filterType, collectionId);
-			changes = mailBackend.getContentChanges(bs, state, collectionId, hasFilterTypeChanged);
+			boolean hasFilterTypeChanged = processFilterType(bs, state, options.filterType, collectionId);
+			changes = mailBackend.getContentChanges(bs, state, collectionId, options.bodyOptions, hasFilterTypeChanged);
 			break;
 		case TASKS:
 			changes = taskBackend.getContentChanges(bs, state.version, collectionId);
