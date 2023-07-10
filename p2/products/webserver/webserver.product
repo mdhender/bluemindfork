@@ -68,6 +68,7 @@
       <plugin id="net.bluemind.common.cache.persistence"/>
       <plugin id="net.bluemind.common.freemarker"/>
       <plugin id="net.bluemind.common.io"/>
+      <plugin id="net.bluemind.common.logback" fragment="true"/>
       <plugin id="net.bluemind.common.reflect"/>
       <plugin id="net.bluemind.commons.closure"/>
       <plugin id="net.bluemind.config"/>

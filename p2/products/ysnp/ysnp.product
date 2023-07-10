@@ -52,6 +52,7 @@
       <plugin id="net.bluemind.authentication.api"/>
       <plugin id="net.bluemind.common.cache.persistence"/>
       <plugin id="net.bluemind.common.io"/>
+      <plugin id="net.bluemind.common.logback" fragment="true"/>
       <plugin id="net.bluemind.common.reflect"/>
       <plugin id="net.bluemind.config"/>
       <plugin id="net.bluemind.core.caches.registry"/>
