@@ -64,7 +64,7 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 	private InstallationVersion version;
 
 	public LoginHandler() {
-		logger.info("LOGIN HANDLER");
+		// ok
 	}
 
 	@Override

@@ -20,7 +20,6 @@ package net.bluemind.webmodule.server.forward;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -47,17 +46,11 @@ public class FSConfigLoader extends AbstractXMLConfigLoader {
 	protected Collection<IOpenable> openDefinitions(String defs) {
 		File defDir = new File(defs);
 
-		File[] files = defDir.listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return name.endsWith(".xml");
-			}
-		});
+		File[] files = defDir.listFiles((directory, filename) -> filename.endsWith(".xml"));
 
-		List<IOpenable> l = new LinkedList<IOpenable>();
+		List<IOpenable> l = new LinkedList<>();
 		for (final File f : files) {
 			l.add(new IOpenable() {
-
 				@Override
 				public InputStream open() throws IOException {
 					return new FileInputStream(f);

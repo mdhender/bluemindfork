@@ -55,7 +55,7 @@
          <attribute name="target" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  don't set a target if webserver is the target
                </documentation>
             </annotation>
          </attribute>
@@ -73,10 +73,10 @@
                </documentation>
             </annotation>
          </attribute>
-         <attribute name="auth_kind" type="string" use="required">
+         <attribute name="auth" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  set to "true" if auth is required
                </documentation>
             </annotation>
          </attribute>
