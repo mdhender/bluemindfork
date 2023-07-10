@@ -13,6 +13,8 @@
                 :checked="selectionMode === SELECTION_MODE.MULTI && isSelected"
                 @change="$emit('check')"
                 @click.exact.native.stop
+                @click.shift.native.prevent
+                @click.ctrl.native.prevent
                 @keyup.native.space.stop
             />
         </div>
