@@ -79,4 +79,9 @@ public class MockModel {
 		return newName;
 	}
 
+	public MockModel reset() {
+		this.folders = new ConcurrentHashMap<>();
+		return this;
+	}
+
 }

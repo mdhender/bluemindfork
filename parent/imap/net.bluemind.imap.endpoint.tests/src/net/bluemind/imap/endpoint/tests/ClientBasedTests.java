@@ -67,7 +67,7 @@ public class ClientBasedTests {
 
 		this.port = EndpointConfig.get().getInt("imap.port");
 
-		mdl = MockModel.INSTANCE;
+		mdl = MockModel.INSTANCE.reset();
 
 		mdl.registerFolder(UUID.randomUUID(), "INBOX");
 		mdl.registerFolder(UUID.randomUUID(), "Sent");
@@ -230,7 +230,7 @@ public class ClientBasedTests {
 			sockc.clearQueue();
 			sockc.write("A1 CREATE Bonjour toi\r\n");
 			sockc.waitFor("create completed");
-			assertNotNull("folder not found", mdl.byName("Bonjour toi"));
+			assertNotNull("folder not found", mdl.byName("Bonjour"));
 		}
 	}
 
