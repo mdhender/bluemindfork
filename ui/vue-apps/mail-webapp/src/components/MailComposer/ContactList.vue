@@ -39,14 +39,22 @@
                     />
                 </template>
 
-                <template #cell(name)="{ value }">
-                    <div class="d-flex align-items-center position-relative">
+                <template #cell(name)="{ value, item }">
+                    <div class="name d-none d-lg-flex align-items-center position-relative">
                         <span class="text-truncate text-nowrap position-absolute w-100">{{ value }}</span>
+                    </div>
+                    <div class="mobile-name-and-email d-lg-none">
+                        <div class="name d-flex align-items-center position-relative h-50">
+                            <span class="text-truncate text-nowrap position-absolute w-100">{{ value }}</span>
+                        </div>
+                        <div class="email d-flex align-items-center position-relative h-50">
+                            <span class="text-truncate text-nowrap position-absolute w-100">{{ item.email }}</span>
+                        </div>
                     </div>
                 </template>
 
                 <template #cell(email)="{ value }">
-                    <div class="d-flex align-items-center position-relative">
+                    <div class="email d-flex align-items-center position-relative">
                         <span class="text-truncate text-nowrap position-absolute w-100">{{ value }}</span>
                     </div>
                 </template>
@@ -80,8 +88,8 @@ export default {
         return {
             fields: [
                 { key: "selected", label: "", class: "selected-cell" },
-                { key: "name", label: "" },
-                { key: "email", label: "" },
+                { key: "name", label: "", class: "name-cell" },
+                { key: "email", label: "", class: "email-cell" },
                 { key: "tel", label: "", class: "tel-cell" }
             ],
             perPage: 10,
@@ -92,6 +100,8 @@ export default {
 </script>
 
 <style lang="scss">
+@import "@bluemind/ui-components/src/css/utils/responsiveness";
+@import "@bluemind/ui-components/src/css/utils/typography";
 @import "@bluemind/ui-components/src/css/utils/variables";
 
 .contact-list {
@@ -107,6 +117,9 @@ export default {
         margin-bottom: 0 !important;
         td {
             height: $contact-height !important;
+            span {
+                line-height: $line-height-sm;
+            }
         }
         tbody > tr.b-table-row-selected > td {
             background-color: $secondary-bg-lo1;
@@ -121,8 +134,31 @@ export default {
     .selected-cell {
         width: base-px-to-rem(40);
     }
+    .name-cell {
+        .name {
+            color: $neutral-fg-hi1;
+        }
+        .email {
+            color: $neutral-fg-lo1;
+        }
+        .mobile-name-and-email {
+            height: base-px-to-rem(34);
+            margin: base-px-to-rem(4) 0 base-px-to-rem(5);
+            .email {
+                @include caption;
+            }
+        }
+    }
+    .email-cell {
+        @include until-lg {
+            display: none;
+        }
+    }
     .tel-cell {
         width: 15%;
+        @include until-lg {
+            display: none;
+        }
     }
     .no-result {
         display: flex;

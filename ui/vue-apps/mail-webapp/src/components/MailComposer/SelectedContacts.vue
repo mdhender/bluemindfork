@@ -58,7 +58,6 @@ function contactContainerUid(contact) {
     display: flex;
     align-items: flex-start;
 
-    min-height: $avatar-height-sm + base-px-to-rem(20);
     .contact-input {
         .selected-label {
             color: $neutral-fg-hi1;
@@ -73,8 +72,9 @@ function contactContainerUid(contact) {
         }
         .contacts {
             @include scroller-y;
+            min-height: base-px-to-rem(40);
             max-height: base-px-to-rem(124);
-            padding-top: base-px-to-rem(4);
+            padding: $sp-3 0;
         }
     }
 }

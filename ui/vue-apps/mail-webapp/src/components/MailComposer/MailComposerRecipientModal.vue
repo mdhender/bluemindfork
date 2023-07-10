@@ -5,6 +5,7 @@
         :title="$t('recipient_picker.title')"
         size="xl"
         body-class="overflow-hidden d-flex flex-column"
+        centered
     >
         <selected-contacts :contacts.sync="selectedContacts" />
         <hr />
@@ -165,12 +166,14 @@ function toContact(contactItem) {
 @import "@bluemind/ui-components/src/css/utils/variables";
 
 .mail-composer-recipient-modal {
-    height: 80vh;
     .modal-header {
         background-color: $neutral-bg-lo1;
         padding-top: base-px-to-rem(16);
         padding-bottom: base-px-to-rem(13);
         padding-left: $sp-7;
+    }
+    .modal-content {
+        height: 80vh;
     }
     .modal-body {
         padding: 0;
