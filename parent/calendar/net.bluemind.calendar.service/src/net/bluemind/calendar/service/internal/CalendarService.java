@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
+import com.google.common.base.Suppliers;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import io.vertx.core.Vertx;
@@ -99,7 +101,7 @@ public class CalendarService implements IInternalCalendar {
 
 	private VEventContainerStoreService storeService;
 	private VEventIndexStore indexStore;
-	private VEventSanitizer sanitizer;
+	private Supplier<VEventSanitizer> sanitizer;
 	private Container container;
 	private VEventSeriesStore veventStore;
 	private CalendarEventProducer calendarEventProducer;
@@ -120,7 +122,7 @@ public class CalendarService implements IInternalCalendar {
 		this.container = container;
 		this.context = context;
 		this.auditor = auditor;
-		sanitizer = new VEventSanitizer(context, container);
+		sanitizer = Suppliers.memoize(() -> new VEventSanitizer(context, container));
 
 		veventStore = new VEventSeriesStore(pool, container);
 		storeService = new VEventContainerStoreService(context, pool, context.getSecurityContext(), container,
@@ -203,7 +205,7 @@ public class CalendarService implements IInternalCalendar {
 			event.icsUid = item.uid;
 		}
 
-		sanitizer.sanitize(event, sendNotifications);
+		sanitizer.get().sanitize(event, sendNotifications);
 		extSanitizer.create(event);
 
 		auditor.actionValueSanitized(event);
@@ -302,7 +304,7 @@ public class CalendarService implements IInternalCalendar {
 			logger.error("ics uid was {} and is now {}", old.value.icsUid, event.icsUid);
 			throw new ServerFault("cannot modify ics uid", ErrorCode.INVALID_PARAMETER);
 		}
-		sanitizer.sanitize(event, sendNotifications);
+		sanitizer.get().sanitize(event, sendNotifications);
 		extSanitizer.update(old.value, event);
 
 		auditor.actionValueSanitized(event);
