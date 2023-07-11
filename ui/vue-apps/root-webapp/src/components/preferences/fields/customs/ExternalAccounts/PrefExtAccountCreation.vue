@@ -84,7 +84,8 @@ export default {
 
 async function fetchExternalSystems() {
     const service = inject("ExternalSystemPersistence");
-    const externalSystems = (await service.getExternalSystemsByAuthKind(["NONE", "SIMPLE_CREDENTIALS", "API_KEY"])) || [];
+    const externalSystems =
+        (await service.getExternalSystemsByAuthKind(["NONE", "SIMPLE_CREDENTIALS", "API_KEY"])) || [];
     const result = await Promise.all(
         externalSystems.map(async externalSystem => {
             const logoImageData = await service.getLogo(externalSystem.identifier);
