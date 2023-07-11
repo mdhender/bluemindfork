@@ -417,7 +417,7 @@ public final class ESearchActivator implements BundleActivator {
 		Collection<String> hosts = hosts(ES_TAG);
 		if (hosts != null) {
 			for (String host : hosts) {
-				new NetworkHelper(host).waitForListeningPort(9300, 30, TimeUnit.SECONDS);
+				new NetworkHelper(host).waitForListeningPort(9200, 30, TimeUnit.SECONDS);
 			}
 		}
 	}
