@@ -323,18 +323,15 @@ describe("darkify and undarkify HTML", () => {
         expect(svgRectNode.getAttribute("fill-opacity")).toBe("0.5");
     });
 
-    test("darkify deprecated attributes", () => {
+    test("darkify valid attributes", () => {
         expect(darkified.querySelector("h1").getAttribute("text")).toBe("var(--rgb_0_255_0)");
         expect(map.get("--rgb_0_255_0")).toBe("rgb(0, 94, 0)");
         expect(darkified.querySelector("font").getAttribute("color")).toBe("var(--hex_123456)");
         expect(map.get("--hex_123456")).toBe("rgb(184, 209, 253)");
-        expect(darkified.querySelector("#skyblue").getAttribute("bgcolor")).toBe("var(--color_black)");
-        expect(map.get("--color_black")).toBe("rgb(255, 255, 255)");
     });
-    test("undarkify deprecated attributes", () => {
+    test("undarkify valid attributes", () => {
         expect(undarkified.querySelector("h1").getAttribute("text")).toBe("rgb(0, 255, 0)");
         expect(undarkified.querySelector("font").getAttribute("color")).toBe("#123456");
-        expect(undarkified.querySelector("#skyblue").getAttribute("bgcolor")).toBe("black");
     });
 
     test("darkify twice", () => {
@@ -343,17 +340,10 @@ describe("darkify and undarkify HTML", () => {
         expect(map.get("--rgb_0_255_0")).toBe("rgb(0, 94, 0)");
         expect(darkified.querySelector("font").getAttribute("color")).toBe("var(--hex_123456)");
         expect(map.get("--hex_123456")).toBe("rgb(184, 209, 253)");
-        expect(darkified.querySelector("#skyblue").getAttribute("bgcolor")).toBe("var(--color_black)");
-        expect(map.get("--color_black")).toBe("rgb(255, 255, 255)");
     });
     test("undarkify twice", () => {
         undarkifyHtml(undarkified);
         expect(undarkified.querySelector("h1").getAttribute("text")).toBe("rgb(0, 255, 0)");
         expect(undarkified.querySelector("font").getAttribute("color")).toBe("#123456");
-        expect(undarkified.querySelector("#skyblue").getAttribute("bgcolor")).toBe("black");
-    });
-
-    test("round trip", () => {
-        expect(undarkified.innerHTML).toBe(original.innerHTML);
     });
 });

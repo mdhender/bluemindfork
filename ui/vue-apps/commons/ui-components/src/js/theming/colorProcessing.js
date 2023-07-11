@@ -168,7 +168,9 @@ const SUPPORTED_CSS2_KEYWORD_COLORS = [
     "WindowText"
 ];
 
-const SUPPORTED_HTML_ATTRIBUTES = ["bgcolor", "color", "fill", "stroke", "text", "style"];
+const SUPPORTED_HTML_ATTRIBUTES = ["color", "fill", "stroke", "text", "style"];
+
+const DEPRECATED_HTML_ATTRIBUTES = [{ name: "bgcolor", replacement: "backgroundColor" }];
 
 class ColorStringProcessor {
     #fn;
@@ -437,6 +439,11 @@ class ColorMultipleProcessor {
         for (const attr of el.attributes) {
             if (SUPPORTED_HTML_ATTRIBUTES.includes(attr.name)) {
                 attr.value = this.applyToString(attr.value);
+            } else {
+                const found = DEPRECATED_HTML_ATTRIBUTES.find(entry => entry.name === attr.name);
+                if (found) {
+                    el.style[found.replacement] = this.applyToString(attr.value);
+                }
             }
         }
     }
