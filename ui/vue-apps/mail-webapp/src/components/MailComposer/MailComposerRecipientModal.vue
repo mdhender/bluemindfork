@@ -31,9 +31,13 @@
                     class="search-input"
                     variant="underline"
                     @reset="search = ''"
-                    @keydown.enter="performSearch(search)"
+                    @keydown.enter="
+                        resetBeforeSearchIfRequired(search);
+                        performSearch(search);
+                    "
                 />
                 <contact-list
+                    v-highlight="highlightPattern"
                     class="h-100"
                     :contacts="contacts"
                     :loading="loading"
@@ -73,7 +77,7 @@
 import debounce from "lodash.debounce";
 import { mapActions, mapState } from "vuex";
 import { ERROR, REMOVE } from "@bluemind/alert.store";
-import { BmAlertArea, BmButton, BmModal, BmFormInput } from "@bluemind/ui-components";
+import { BmAlertArea, BmButton, BmModal, BmFormInput, Highlight } from "@bluemind/ui-components";
 import { inject } from "@bluemind/inject";
 import { searchVCardsHelper } from "@bluemind/contact";
 import AddressBookList from "./AddressBookList";
@@ -83,6 +87,7 @@ import SelectedContacts from "./SelectedContacts";
 export default {
     name: "MailComposerRecipientModal",
     components: { BmAlertArea, BmButton, BmModal, AddressBookList, ContactList, SelectedContacts, BmFormInput },
+    directives: { Highlight },
     props: {
         selected: { type: Array, default: () => [] }
     },
@@ -96,6 +101,7 @@ export default {
             searchedContacts: [],
             search: "",
             selectedAddressBookId: undefined,
+            highlightPattern: "",
             debounceSearch: debounce(function (searchValue) {
                 this.performSearch(searchValue);
             }, 500)
@@ -161,9 +167,7 @@ export default {
             }
         },
         search(searchValue) {
-            if (!this.searchedContacts?.length || searchValue === "") {
-                this.searchedContacts = null;
-            }
+            this.resetBeforeSearchIfRequired(searchValue);
             this.debounceSearch(searchValue);
         }
     },
@@ -172,6 +176,13 @@ export default {
         this.addressBooks = await inject("ContainersPersistence").getContainers(await this.subscribedContainerUids());
     },
     methods: {
+        resetBeforeSearchIfRequired(searchValue) {
+            if (!this.searchedContacts?.length || searchValue === "") {
+                this.searchedContacts = null;
+                this.highlightPattern = "";
+            }
+        },
+
         async subscribedContainerUids() {
             return (await inject("OwnerSubscriptionsPersistence").list())
                 .filter(sub => sub.value.containerType === "addressbook")
@@ -200,6 +211,8 @@ export default {
                 this.loading = false;
                 this.debounceSearch.cancel();
             }
+            await this.$nextTick();
+            this.highlightPattern = searchValue;
         },
         ...mapActions("alert", { ERROR, REMOVE }),
         updateSelected(contacts) {

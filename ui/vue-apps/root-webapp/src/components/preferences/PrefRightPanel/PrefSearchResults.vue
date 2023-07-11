@@ -31,7 +31,13 @@
             <div :key="group.id" class="group-header">
                 <pref-section-icon :section="GET_SECTION(group.id)" :set="(isCollapsed = isGroupCollapsed(group.id))" />
                 <bm-button-expand :expanded="!isCollapsed" @click="toggleGroup(group.id)" />
-                <pref-group ref="group" :group="group" :collapsed="isCollapsed" class="flex-fill" />
+                <pref-group
+                    ref="group"
+                    v-highlight="SEARCH_PATTERN"
+                    :group="group"
+                    :collapsed="isCollapsed"
+                    class="flex-fill"
+                />
             </div>
             <div v-if="index !== results.length - 1" :key="index" class="border-bottom border-neutral" />
         </template>
@@ -42,12 +48,13 @@
 import PrefGroup from "../PrefGroup";
 import PrefSectionIcon from "../PrefSectionIcon";
 import RightPanelAlerts from "../mixins/RightPanelAlerts";
-import { BmButton, BmButtonExpand, BmIllustration, BmSpinner } from "@bluemind/ui-components";
+import { BmButton, BmButtonExpand, BmIllustration, BmSpinner, Highlight } from "@bluemind/ui-components";
 import { mapGetters } from "vuex";
 
 export default {
     name: "PrefSearchResults",
     components: { BmButton, BmButtonExpand, BmIllustration, BmSpinner, PrefGroup, PrefSectionIcon },
+    directives: { Highlight },
     mixins: [RightPanelAlerts],
     props: {
         isLoading: {
@@ -71,23 +78,9 @@ export default {
     watch: {
         results() {
             this.expandedGroups = [];
-        },
-        isLoading() {
-            this.highLight();
-        },
-        expandedGroups() {
-            this.highLight();
         }
     },
     methods: {
-        async highLight() {
-            if (!this.isLoading && this.results.length > 0) {
-                await this.$nextTick();
-                this.$refs.group.forEach(groupRef => {
-                    parseNodeAndHighlight(groupRef.$el, this.SEARCH_PATTERN);
-                });
-            }
-        },
         isGroupCollapsed(groupId) {
             return this.expandedGroups.findIndex(id => groupId === id) === -1;
         },
@@ -108,27 +101,6 @@ export default {
         }
     }
 };
-
-function parseNodeAndHighlight(node, search) {
-    if (node.nodeType === Node.TEXT_NODE) {
-        const matchRegex = new RegExp(search, "gi");
-        const patternsToMark = [...node.textContent.matchAll(matchRegex)];
-        if (patternsToMark.length > 0) {
-            const replaceRegex = new RegExp("(" + search + ")", "gi");
-            const innerHTML = node.textContent.replaceAll(replaceRegex, "<mark>$1</mark>");
-            const newNode = document.createElement("span");
-            newNode.innerHTML = innerHTML;
-            node.parentNode.appendChild(newNode);
-            node.remove();
-        }
-    }
-
-    let i = 0;
-    while (i < node.childNodes.length) {
-        parseNodeAndHighlight(node.childNodes[i], search);
-        i++;
-    }
-}
 </script>
 
 <style lang="scss">
