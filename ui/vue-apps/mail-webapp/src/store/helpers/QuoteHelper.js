@@ -84,9 +84,9 @@ function findFromNodeAndNextSiblings(htmlDoc, message) {
             ({ dn, address }) => (!dn || matchingTo.includes(dn)) && matchingTo.includes(address)
         );
         const toXPath = to.dn
-            ? `contains(.//*, "${to.dn}") and contains(.//*, "${to.address}")`
-            : `contains(.//*, "${to.address}")`;
-        const xpath = `//div[${toXPath} and not(ancestor::blockquote)]`;
+            ? `contains(., "${to.dn}") and contains(., "${to.address}")`
+            : `contains(., "${to.address}")`;
+        const xpath = `//*[*[text()[${toXPath}]] and not(ancestor::blockquote)]`;
         const fromNode = htmlDoc?.evaluate(
             xpath,
             htmlDoc.body,
