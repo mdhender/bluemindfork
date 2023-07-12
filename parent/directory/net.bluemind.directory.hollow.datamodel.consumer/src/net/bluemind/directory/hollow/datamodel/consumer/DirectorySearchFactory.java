@@ -33,6 +33,17 @@ public class DirectorySearchFactory {
 		return new DefaultDirectorySearch(deserializer(domain));
 	}
 
+	/**
+	 * The instance returned here is not cached & is limited to the last snapshot.
+	 * Updates will not be tracked.
+	 * 
+	 * @param domain
+	 * @return
+	 */
+	public static SerializedDirectorySearch createSnapshot(String domain) {
+		return new DefaultDirectorySearch(new DirectoryDeserializer(domain, false));
+	}
+
 	public static BrowsableDirectorySearch browser(String domain) {
 		return new FilteredDirectorySearch(deserializer(domain), r -> !r.getHidden());
 	}

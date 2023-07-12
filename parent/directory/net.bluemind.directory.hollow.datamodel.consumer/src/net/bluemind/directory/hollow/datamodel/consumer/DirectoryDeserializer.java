@@ -80,6 +80,10 @@ public class DirectoryDeserializer {
 		this(new File(baseDataDir(), domain));
 	}
 
+	public DirectoryDeserializer(String domain, boolean watchChanges) {
+		this(new File(baseDataDir(), domain), watchChanges);
+	}
+
 	private static class LongevityConfig implements ObjectLongevityConfig {
 
 		@Override
