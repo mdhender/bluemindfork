@@ -87,6 +87,11 @@ public class AuthProvider {
 			return;
 		}
 
+		if ("admin0@global.virt".equals(externalCreds.getLoginAtDomain())) {
+			doSudo(remoteIps, handler, externalCreds);
+			return;
+		}
+
 		String domainName = externalCreds.getLoginAtDomain().split("@")[1];
 
 		IMailboxesPromise mailboxClient = getProvider(Token.admin0(), remoteIps).instance(IMailboxesPromise.class,
