@@ -109,25 +109,28 @@ public class AuthenticationFilter implements IWebFilter {
 			return CompletableFuture.completedFuture(request);
 		}
 
-		return Optional.ofNullable(request.path()).filter(path -> path.endsWith("/bluemind_sso_logout"))
-				.map(path -> logout(request)).orElseGet(() -> forwardedLocation.flatMap(fl -> fl.resolve())
-						.map(resolved -> forwardedLocation(request)).orElseGet(() -> notForwardedLocation(request)));
+		if (request.path().endsWith("/bluemind_sso_logout")) {
+			return logout(request);
+		}
+
+		return forwardedLocation.flatMap(fl -> fl.resolve()).map(resolved -> forwardedLocation(request))
+				.orElseGet(() -> notForwardedLocation(request));
 	}
 
 	private CompletableFuture<HttpServerRequest> notForwardedLocation(HttpServerRequest request) {
 		return sessionExists(request).orElseGet(() -> {
-			DomainsHelper.getDomainUid(request).ifPresentOrElse(domainUid -> {
-				if (isCasEnabled(domainUid)) {
-					try {
-						CasHandler.CASRequest.build(request, domainUid).redirectToCasLogin();
-					} catch (Exception e) {
-						logger.error(e.getMessage(), e);
-						request.response().setStatusCode(500).end();
-					}
-				} else {
-					redirectToOpenIdServer(request, domainUid);
+			String domainUid = DomainsHelper.getDomainUid(request);
+
+			if (isCasEnabled(domainUid)) {
+				try {
+					CasHandler.CASRequest.build(request, domainUid).redirectToCasLogin();
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+					request.response().setStatusCode(500).end();
 				}
-			}, () -> redirectToGlobalExternalUrl(request));
+			} else {
+				redirectToOpenIdServer(request, domainUid);
+			}
 			return CompletableFuture.completedFuture(null);
 		});
 	}
@@ -243,7 +246,7 @@ public class AuthenticationFilter implements IWebFilter {
 
 		purgeSessionCookie(request.response().headers());
 
-		String domainUid = DomainsHelper.getDomainUid(request).orElse("global.virt");
+		String domainUid = DomainsHelper.getDomainUid(request);
 		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
 				.get(domainUid);
 

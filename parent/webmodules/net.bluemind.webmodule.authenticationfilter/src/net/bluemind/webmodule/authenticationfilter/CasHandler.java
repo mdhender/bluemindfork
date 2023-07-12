@@ -73,8 +73,10 @@ public class CasHandler extends AbstractAuthHandler implements Handler<HttpServe
 		public final String casUrl;
 
 		public static CASRequest build(HttpServerRequest request) {
-			String domainUid = DomainsHelper.getDomainUid(request)
-					.orElseThrow(() -> new ServerFault("No domain found for URL: " + request.host()));
+			String domainUid = DomainsHelper.getDomainUid(request);
+			if ("global.virt".equals(domainUid)) {
+				throw new ServerFault("No valid domain found for URL: " + request.host());
+			}
 
 			return build(request, domainUid);
 		}
