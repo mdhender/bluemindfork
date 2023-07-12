@@ -76,6 +76,10 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 	private static final Pattern pathParamsMatcher = Pattern.compile(Pattern.quote("{") + "(.*?)" + Pattern.quote("}"));
 	private static final CharSequence X_BM_API_KEY = HttpHeaders.createOptimized("X-BM-ApiKey");
 	private static final ServerCookieDecoder cookieDecoder = ServerCookieDecoder.LAX;
+	private static final String OPENID_COOKIE = "OpenIdSession";
+	private static final String ACCESS_COOKIE = "AccessToken";
+	private static final String REFRESH_COOKIE = "RefreshToken";
+	private static final String ID_COOKIE = "IdToken";
 
 	public RestServiceMethodHandler(Endpoint endpoint, MethodDescriptor methodDescriptor, List<String> pathParamNames,
 			ParameterBuilder<? extends Object>[] parameterBuilders, Pattern pathRegexp, ResponseBuilder responseBuilder,
@@ -143,7 +147,7 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 		String key = null;
 		String cookieStr = Optional.ofNullable(request.headers.get("cookie")).orElse("");
 		Set<Cookie> cookies = cookieDecoder.decode(cookieStr);
-		Optional<Cookie> oidc = cookies.stream().filter(c -> "OpenIdSession".equals(c.name())).findFirst();
+		Optional<Cookie> oidc = cookies.stream().filter(c -> OPENID_COOKIE.equals(c.name())).findFirst();
 		MultiMap headers = MultiMap.caseInsensitiveMultiMap();
 
 		if (oidc.isPresent()) {
@@ -151,7 +155,7 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 			key = token.getString("sid");
 			String domainUid = token.getString("domain_uid");
 
-			Optional<Cookie> atc = cookies.stream().filter(c -> "AccessToken".equals(c.name())).findFirst();
+			Optional<Cookie> atc = cookies.stream().filter(c -> ACCESS_COOKIE.equals(c.name())).findFirst();
 			if (atc.isEmpty()) {
 				error(response, key, new ServerFault("No access token cookie"));
 				return;
@@ -170,7 +174,7 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Failed to validate AccessToken: {}", sf.getMessage());
 				}
-				Optional<Cookie> rtc = cookies.stream().filter(c -> "RefreshToken".equals(c.name())).findFirst();
+				Optional<Cookie> rtc = cookies.stream().filter(c -> REFRESH_COOKIE.equals(c.name())).findFirst();
 				if (rtc.isEmpty()) {
 					error(response, key, new ServerFault("No refresh token cookie"));
 					return;
@@ -195,34 +199,34 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 				cookie.put("sid", key);
 				cookie.put("domain_uid", domainUid);
 
-				Cookie openIdCookie = new DefaultCookie("OpenIdSession", cookie.encode());
+				Cookie openIdCookie = new DefaultCookie(OPENID_COOKIE, cookie.encode());
 				openIdCookie.setPath("/");
 				openIdCookie.setHttpOnly(true);
 				openIdCookie.setSecure(true);
-				headers.add("Set-Cookie", ServerCookieEncoder.LAX.encode(openIdCookie));
+				headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(openIdCookie));
 
-				Cookie accessCookie = new DefaultCookie("AccessToken", rt.getString("access_token"));
+				Cookie accessCookie = new DefaultCookie(ACCESS_COOKIE, rt.getString("access_token"));
 				accessCookie.setPath("/");
 				accessCookie.setHttpOnly(true);
 				accessCookie.setSecure(true);
-				headers.add("Set-Cookie", ServerCookieEncoder.LAX.encode(accessCookie));
+				headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(accessCookie));
 
 				String refreshToken = rtc.get().value();
 				if (rt.containsKey("refresh_token")) {
 					refreshToken = rt.getString("refresh_token");
 				}
 
-				Cookie refreshCookie = new DefaultCookie("RefreshToken", refreshToken);
+				Cookie refreshCookie = new DefaultCookie(REFRESH_COOKIE, refreshToken);
 				refreshCookie.setPath("/");
 				refreshCookie.setHttpOnly(true);
 				refreshCookie.setSecure(true);
-				headers.add("Set-Cookie", ServerCookieEncoder.LAX.encode(refreshCookie));
+				headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(refreshCookie));
 
-				Cookie idCookie = new DefaultCookie("IdToken", rt.getString("id_token"));
+				Cookie idCookie = new DefaultCookie(ID_COOKIE, rt.getString("id_token"));
 				idCookie.setPath("/");
 				idCookie.setHttpOnly(true);
 				idCookie.setSecure(true);
-				headers.add("Set-Cookie", ServerCookieEncoder.LAX.encode(idCookie));
+				headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(idCookie));
 			}
 		}
 
@@ -272,6 +276,35 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 		Sessions.get().invalidate(key);
 		RestResponse resp = RestResponse.invalidSession(String.format("invalid accesstoken: %s", e.getMessage()));
 		resp.headers.add("WWW-authenticate", "Bearer");
+
+		Cookie openIdCookie = new DefaultCookie(OPENID_COOKIE, "");
+		openIdCookie.setPath("/");
+		openIdCookie.setMaxAge(0);
+		openIdCookie.setHttpOnly(true);
+		openIdCookie.setSecure(true);
+		resp.headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(openIdCookie));
+
+		Cookie accessCookie = new DefaultCookie(ACCESS_COOKIE, "");
+		accessCookie.setPath("/");
+		accessCookie.setMaxAge(0);
+		accessCookie.setHttpOnly(true);
+		accessCookie.setSecure(true);
+		resp.headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(accessCookie));
+
+		Cookie refreshCookie = new DefaultCookie(REFRESH_COOKIE, "");
+		refreshCookie.setPath("/");
+		refreshCookie.setMaxAge(0);
+		refreshCookie.setHttpOnly(true);
+		refreshCookie.setSecure(true);
+		resp.headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(refreshCookie));
+
+		Cookie idCookie = new DefaultCookie(ID_COOKIE, "");
+		idCookie.setPath("/");
+		idCookie.setMaxAge(0);
+		idCookie.setHttpOnly(true);
+		idCookie.setSecure(true);
+		resp.headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(idCookie));
+
 		response.success(resp);
 	}
 
@@ -284,9 +317,7 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 			public void success(Object value) {
 				if (async) {
 					CompletableFuture<?> ret = (CompletableFuture<?>) value;
-					ret.thenAccept(val -> {
-						createResponse(request, response, val, headers);
-					}).exceptionally(e -> {
+					ret.thenAccept(val -> createResponse(request, response, val, headers)).exceptionally(e -> {
 						failure(e);
 						return null;
 					});

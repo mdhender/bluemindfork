@@ -122,8 +122,8 @@ net.bluemind.sync.SyncService.prototype.needSync = function() {
 net.bluemind.sync.SyncService.prototype.error = function(error) {
   goog.log.error(this.logger, '[' + this.getName() + '] : Failure during sync process', error);
   if (error && (error == 401 || error.errorCode == 'FORBIDDEN' || error.errorCode == 'AUTHENTICATION_FAIL')) {
-    var uri = goog.global.location.pathname;
-    goog.global.location.assign('/login/index.html?askedUri=' + goog.string.urlEncode(uri));
+    // reload page, webserver will redirect to keycloak
+    goog.global.location.reload();
   }
 
   return error;
