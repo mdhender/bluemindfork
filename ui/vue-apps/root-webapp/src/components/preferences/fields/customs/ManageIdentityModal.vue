@@ -67,7 +67,7 @@
                 </div>
             </div>
             <div v-if="!isMyMailbox && identity.mailboxUid" class="mb-5 w-100">
-                <bm-form-checkbox v-model="identity.sentFolder" value="" unchecked-value="Sent">
+                <bm-form-checkbox v-model="identity.sentFolder" value="" :unchecked-value="SENT_FOLDER">
                     {{
                         $tc("preferences.mail.identities.use_sentbox", 0, {
                             address: identity.email + " (" + identity.displayname + ")"
@@ -125,7 +125,7 @@
 import cloneDeep from "lodash.clonedeep";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { EmailValidator } from "@bluemind/email";
-import { signatureUtils } from "@bluemind/mail";
+import { signatureUtils, folderUtils } from "@bluemind/mail";
 import { sanitizeHtml } from "@bluemind/html-utils";
 import { inject } from "@bluemind/inject";
 import BmRoles from "@bluemind/roles";
@@ -144,6 +144,7 @@ import {
 import UUIDGenerator from "@bluemind/uuid";
 import { SUCCESS } from "@bluemind/alert.store";
 import { SAVE_ALERT } from "../../Alerts/defaultAlerts";
+const { DEFAULT_FOLDERS } = folderUtils;
 
 export default {
     name: "ManageIdentityModal",
@@ -180,7 +181,8 @@ export default {
             originalIdentity: {},
 
             emailInput: "",
-            canCreateExternalIdentity: false
+            canCreateExternalIdentity: false,
+            SENT_FOLDER: DEFAULT_FOLDERS.SENT
         };
     },
     computed: {
@@ -227,6 +229,9 @@ export default {
             this.modalStatus = "NOT-LOADED";
             this.show = true;
             this.identity = createEmpty(this.DEFAULT_IDENTITY);
+            if (this.isMyMailbox) {
+                this.identity.sentFolder = DEFAULT_FOLDERS.SENT;
+            }
             this.originalIdentity = {};
             this.emailInput = "";
             this.id = "";

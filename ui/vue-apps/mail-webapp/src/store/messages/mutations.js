@@ -7,6 +7,7 @@ import {
     MOVE_MESSAGES,
     REMOVE_ATTACHMENT,
     REMOVE_CONVERSATIONS,
+    REMOVE_MESSAGE_HEADER,
     REMOVE_MESSAGES,
     RESET_CONVERSATIONS,
     SET_ATTACHMENT_ADDRESS,
@@ -81,6 +82,12 @@ export default {
     },
     [SET_MESSAGE_HEADERS]: (state, { messageKey, headers }) => {
         state[messageKey].headers = headers;
+    },
+    [REMOVE_MESSAGE_HEADER]: (state, { messageKey, headerName }) => {
+        const index = state[messageKey].headers.findIndex(({ name }) => headerName === name);
+        if (index > -1) {
+            state[messageKey].headers.splice(index, 1);
+        }
     },
     [SET_MESSAGE_TO]: (state, { messageKey, to }) => {
         state[messageKey].to = to;
