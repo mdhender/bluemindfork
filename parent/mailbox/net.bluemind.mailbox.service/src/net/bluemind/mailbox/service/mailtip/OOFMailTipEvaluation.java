@@ -18,6 +18,8 @@
  */
 package net.bluemind.mailbox.service.mailtip;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -25,8 +27,6 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Strings;
 
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
@@ -82,7 +82,8 @@ public class OOFMailTipEvaluation implements IMailTipEvaluation {
 		}
 		MailFilter filter = mailboxes.getMailboxFilter(mailbox.uid);
 		if (filter.vacation.enabled && isActive(filter.vacation.start, filter.vacation.end)) {
-			return (!Strings.isNullOrEmpty(filter.vacation.textHtml)) ? filter.vacation.textHtml : filter.vacation.text;
+			String body = (!isNullOrEmpty(filter.vacation.textHtml)) ? filter.vacation.textHtml : filter.vacation.text;
+			return (!isNullOrEmpty(body)) ? body : filter.vacation.subject;
 		} else {
 			return null;
 		}
