@@ -1,8 +1,5 @@
 <template>
-    <contextual-bar
-        class="topbar-search-mobile d-flex align-items-center flex-fill"
-        @back="RESET_CURRENT_SEARCH_PATTERN()"
-    >
+    <contextual-bar class="topbar-search-mobile d-flex align-items-center flex-fill" @back="resetSearch">
         <div class="d-flex align-items-center justify-content-between">
             <div class="bold">{{ $t("common.action.search") }}</div>
             <mail-search-advanced-button variant="compact-on-fill-primary" size="lg" class="mx-3" />
@@ -11,32 +8,18 @@
 </template>
 
 <script>
-import { mapMutations } from "vuex";
-import {
-    RESET_CURRENT_SEARCH_PATTERN,
-    SET_CURRENT_SEARCH_PATTERN,
-    UNSELECT_ALL_CONVERSATIONS,
-    UNSET_CURRENT_CONVERSATION
-} from "~/mutations";
+import { mapActions } from "vuex";
+import { RESET_CURRENT_SEARCH } from "~/actions";
 import MailSearchAdvancedButton from "../../MailSearch/MailSearchAdvancedButton";
 import ContextualBar from "./ContextualBar";
 
 export default {
     components: { ContextualBar, MailSearchAdvancedButton },
     methods: {
-        ...mapMutations("mail", {
-            RESET_CURRENT_SEARCH_PATTERN,
-            UNSELECT_ALL_CONVERSATIONS,
-            UNSET_CURRENT_CONVERSATION,
-            SET_CURRENT_SEARCH_PATTERN
-        }),
-        back() {
-            if (this.SELECTION_IS_EMPTY) {
-                this.UNSET_CURRENT_CONVERSATION();
-            } else {
-                this.UNSELECT_ALL_CONVERSATIONS();
-            }
-            this.$router.navigate("v:mail:home");
+        ...mapActions("mail", { RESET_CURRENT_SEARCH }),
+        resetSearch() {
+            this.RESET_CURRENT_SEARCH();
+            this.$router.navigate({ name: "v:mail:home", params: { search: null } });
         }
     }
 };

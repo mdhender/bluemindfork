@@ -5,7 +5,7 @@
             size="lg"
             class="d-lg-none"
             icon="arrow-back"
-            @click="back()"
+            @click="$emit('back')"
         />
         <div class="slot-wrapper">
             <slot />
@@ -14,26 +14,12 @@
 </template>
 
 <script>
-import { mapMutations } from "vuex";
 import { BmIconButton } from "@bluemind/ui-components";
-import { UNSELECT_ALL_CONVERSATIONS, UNSET_CURRENT_CONVERSATION } from "~/mutations";
 
 export default {
     name: "ContextualBar",
     components: {
         BmIconButton
-    },
-    methods: {
-        ...mapMutations("mail", { UNSELECT_ALL_CONVERSATIONS, UNSET_CURRENT_CONVERSATION }),
-        back() {
-            this.$emit("back");
-            if (this.SELECTION_IS_EMPTY) {
-                this.UNSET_CURRENT_CONVERSATION();
-            } else {
-                this.UNSELECT_ALL_CONVERSATIONS();
-            }
-            this.$router.navigate({ name: "v:mail:home", params: { search: null } });
-        }
     }
 };
 </script>
