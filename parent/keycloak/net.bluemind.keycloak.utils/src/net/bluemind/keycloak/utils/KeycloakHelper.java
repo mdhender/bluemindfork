@@ -42,9 +42,6 @@ import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomains;
 import net.bluemind.domain.api.IInCoreDomains;
-import net.bluemind.hornetq.client.MQ;
-import net.bluemind.hornetq.client.MQ.SharedMap;
-import net.bluemind.hornetq.client.Shared;
 import net.bluemind.keycloak.api.BluemindProviderComponent;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
 import net.bluemind.keycloak.api.IKeycloakBluemindProviderAdmin;
@@ -101,10 +98,7 @@ public class KeycloakHelper {
 		BluemindProviderComponent bpComponent = new BluemindProviderComponent();
 		bpComponent.setParentId(realm);
 		bpComponent.setName(IKeycloakUids.bmProviderId(realm));
-
-		SharedMap<String, String> smap = MQ.sharedMap(Shared.MAP_SYSCONF);
-		bpComponent.setBmUrl(
-				smap.get(SysConfKeys.external_protocol.name()) + "://" + smap.get(SysConfKeys.external_url.name()));
+		bpComponent.setBmUrl("http://" + Topology.get().core().value.address() + ":8090");
 
 		bpComponent.setBmCoreToken(Token.admin0());
 		keycloakBluemindProviderService.create(bpComponent);

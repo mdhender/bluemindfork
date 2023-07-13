@@ -53,10 +53,8 @@ import net.bluemind.core.api.BMVersion;
 import net.bluemind.core.api.auth.AuthDomainProperties;
 import net.bluemind.core.api.auth.AuthTypes;
 import net.bluemind.hornetq.client.MQ;
-import net.bluemind.hornetq.client.MQ.SharedMap;
 import net.bluemind.hornetq.client.Shared;
 import net.bluemind.network.topology.Topology;
-import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.webmodule.authenticationfilter.internal.DomainsHelper;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionData;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionsCache;
@@ -189,15 +187,6 @@ public class AuthenticationFilter implements IWebFilter {
 			request.response().setStatusCode(500);
 		}
 
-		request.response().end();
-	}
-
-	private void redirectToGlobalExternalUrl(HttpServerRequest request) {
-		SharedMap<String, String> sysconf = MQ.sharedMap(Shared.MAP_SYSCONF);
-		String location = REDIRECT_PROTO + sysconf.get(SysConfKeys.external_url.name()) + request.path();
-		location += request.query() != null ? "?" + request.query() : "";
-		request.response().headers().add(HttpHeaders.LOCATION, location);
-		request.response().setStatusCode(302);
 		request.response().end();
 	}
 
