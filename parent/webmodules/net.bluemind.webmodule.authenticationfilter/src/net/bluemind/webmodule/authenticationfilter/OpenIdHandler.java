@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.common.base.Strings;
@@ -137,8 +138,8 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 		DecodedJWT accessToken = null;
 		try {
 			accessToken = JWT.decode(token.getString("access_token"));
-		} catch (Throwable t) {
-			logger.error("Unexpected token endpoint response : " + token);
+		} catch (JWTDecodeException t) {
+			logger.error("Unexpected token endpoint response : {}", token);
 			throw t;
 		}
 
