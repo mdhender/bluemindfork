@@ -1,5 +1,5 @@
 <template>
-    <bm-modal-deprecated
+    <bm-modal
         ref="set-link-modal"
         centered
         :title="$t('styleguide.rich_editor.link.tooltip')"
@@ -17,18 +17,18 @@
                 <bm-form-input id="url" v-model="url" required />
             </bm-form-group>
         </bm-form>
-    </bm-modal-deprecated>
+    </bm-modal>
 </template>
 
 <script>
 import BmForm from "../../form/BmForm";
 import BmFormGroup from "../../form/BmFormGroup";
 import BmFormInput from "../../form/BmFormInput";
-import BmModalDeprecated from "../../modals/BmModalDeprecated";
+import BmModal from "../../modals/BmModal";
 
 export default {
     name: "SetLinkModal",
-    components: { BmForm, BmFormGroup, BmFormInput, BmModalDeprecated },
+    components: { BmForm, BmFormGroup, BmFormInput, BmModal },
     props: {
         editor: {
             type: Object,
