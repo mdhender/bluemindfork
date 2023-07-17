@@ -29,7 +29,7 @@ export default {
             state.maxMessageSizeExceeded = false;
         },
         [SET_CORPORATE_SIGNATURE]: (state, mailTip) => {
-            if (!state.corporateSignature || state.corporateSignature.uid !== mailTip.uid) {
+            if (!state.corporateSignature || state.corporateSignature.html !== mailTip.html) {
                 state.corporateSignature = mailTip;
             }
         },
