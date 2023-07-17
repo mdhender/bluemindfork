@@ -55,6 +55,8 @@ public interface IContentsImporter {
 
 	void sendEmail(SendMailData mail) throws ActiveSyncException;
 
+	void sendDraft(BackendSession bs, String serverId, IApplicationData data) throws ActiveSyncException;
+
 	void replyEmail(BackendSession bs, ByteSource mailContent, Boolean saveInSent, String collectionId, String serverId,
 			boolean includePrevious) throws ActiveSyncException;
 

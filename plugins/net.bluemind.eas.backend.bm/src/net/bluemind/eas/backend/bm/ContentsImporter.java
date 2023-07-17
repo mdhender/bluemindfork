@@ -134,6 +134,11 @@ public class ContentsImporter implements IContentsImporter {
 	}
 
 	@Override
+	public void sendDraft(BackendSession bs, String serverId, IApplicationData data) throws ActiveSyncException {
+		mailBackend.sendDraft(bs, serverId, data);
+	}
+
+	@Override
 	public void replyEmail(BackendSession bs, ByteSource mailContent, Boolean saveInSent, String collectionId,
 			String serverId, boolean includePrevious) throws ActiveSyncException {
 		mailBackend.replyToEmail(bs, mailContent, saveInSent, collectionId, serverId, includePrevious);

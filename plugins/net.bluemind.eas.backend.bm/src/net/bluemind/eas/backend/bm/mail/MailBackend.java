@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.MessageServiceFactory;
 import org.apache.james.mime4j.dom.address.Mailbox;
+import org.apache.james.mime4j.message.MessageImpl;
 import org.apache.james.mime4j.parser.MimeStreamParser;
 import org.asynchttpclient.AsyncCompletionHandler;
 import org.asynchttpclient.AsyncHttpClient;
@@ -61,6 +62,8 @@ import net.bluemind.backend.mail.api.MailboxFolderSearchQuery;
 import net.bluemind.backend.mail.api.MailboxItem;
 import net.bluemind.backend.mail.api.MessageBody;
 import net.bluemind.backend.mail.api.MessageBody.Part;
+import net.bluemind.backend.mail.api.MessageBody.Recipient;
+import net.bluemind.backend.mail.api.MessageBody.RecipientKind;
 import net.bluemind.backend.mail.api.MessageSearchResult.Mbox;
 import net.bluemind.backend.mail.api.SearchQuery;
 import net.bluemind.backend.mail.api.SearchResult;
@@ -91,6 +94,7 @@ import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.ItemVersion;
 import net.bluemind.core.rest.vertx.VertxStream;
 import net.bluemind.eas.backend.BackendSession;
+import net.bluemind.eas.backend.BufferByteSource;
 import net.bluemind.eas.backend.Changes;
 import net.bluemind.eas.backend.HierarchyNode;
 import net.bluemind.eas.backend.IApplicationData;
@@ -99,6 +103,7 @@ import net.bluemind.eas.backend.MSAttachementData;
 import net.bluemind.eas.backend.MSEmail;
 import net.bluemind.eas.backend.MailFolder;
 import net.bluemind.eas.backend.SendMailData;
+import net.bluemind.eas.backend.SendMailData.Mode;
 import net.bluemind.eas.backend.bm.impl.CoreConnect;
 import net.bluemind.eas.dto.base.AirSyncBaseResponse;
 import net.bluemind.eas.dto.base.AppData;
@@ -311,6 +316,36 @@ public class MailBackend extends CoreConnect {
 		}
 	}
 
+	public void sendDraft(BackendSession bs, String serverId, IApplicationData data) throws ActiveSyncException {
+
+		MSEmail email = (MSEmail) data;
+
+		CollectionItem ci = CollectionItem.of(serverId);
+
+		MailFolder folder = storage.getMailFolder(bs, ci.collectionId);
+		IMailboxItems service = getMailboxItemsService(bs, folder.uid);
+
+		ItemValue<MailboxItem> draft = service.getCompleteById(ci.itemId);
+		MessageImpl message = email.getMessage();
+		mergeDraft(draft, message);
+
+		SendMailData mailData = new SendMailData();
+		mailData.backendSession = bs;
+		if (email.getMimeContent() != null) {
+			mailData.mailContent = email.getMimeContent();
+		} else {
+			try {
+				mailData.mailContent = BufferByteSource.of(Mime4JHelper.mmapedEML(message).nettyBuffer());
+			} catch (Exception e) {
+				throw new ActiveSyncException(e.getMessage());
+			}
+		}
+		mailData.saveInSent = true;
+		mailData.mode = Mode.Send;
+
+		sendEmail(mailData);
+	}
+
 	public CollectionItem store(BackendSession bs, CollectionId collectionId, Optional<String> serverId,
 			IApplicationData data) throws ActiveSyncException {
 
@@ -320,30 +355,85 @@ public class MailBackend extends CoreConnect {
 
 		if (serverId.isPresent()) {
 			CollectionItem ci = CollectionItem.of(serverId.get());
-			validateFlag(email.isRead(), MailboxItemFlag.System.Seen.value(), service, ci.itemId);
-			validateFlag(email.isStarred(), MailboxItemFlag.System.Flagged.value(), service, ci.itemId);
-
-			// update body in Drafts folder only
-			if ("Drafts".equals(folder.fullName) && email.getContent() != null) {
-				MessageBody messageBody = uploadPart(service, email);
-				ItemValue<MailboxItem> mailboxItem = service.getForUpdate(ci.itemId);
-				mailboxItem.value.body = messageBody;
-				service.updateById(ci.itemId, mailboxItem.value);
+			if ("Drafts".equals(folder.fullName)) {
+				// update body in Drafts folder only
+				updateBody(service, email, ci);
+			} else {
+				validateFlag(email.isRead(), MailboxItemFlag.System.Seen.value(), service, ci.itemId);
+				validateFlag(email.isStarred(), MailboxItemFlag.System.Flagged.value(), service, ci.itemId);
 			}
 			return ci;
 		} else {
 			// store new email (Draft)
-			MessageBody messageBody = uploadPart(service, email);
+			MessageBody messageBody;
+			if (email.getMimeContent() != null) {
+				messageBody = uploadPart(service, email.getMimeContent());
+			} else {
+				try {
+					messageBody = uploadPart(service,
+							BufferByteSource.of(Mime4JHelper.mmapedEML(email.getMessage()).nettyBuffer()));
+				} catch (Exception e) {
+					throw new ActiveSyncException(e.getMessage());
+				}
+			}
+
 			MailboxItem mailboxItem = new MailboxItem();
 			mailboxItem.body = messageBody;
+			mailboxItem.flags = Arrays.asList(MailboxItemFlag.System.Draft.value(),
+					MailboxItemFlag.System.Seen.value());
 			ImapItemIdentifier created = service.create(mailboxItem);
 			return CollectionItem.of(collectionId, created.id);
 		}
 	}
 
-	private MessageBody uploadPart(IMailboxItems service, MSEmail email) throws ActiveSyncException {
+	private void updateBody(IMailboxItems service, MSEmail email, CollectionItem ci) throws ActiveSyncException {
+		MessageBody messageBody = null;
+		ItemValue<MailboxItem> draft = service.getForUpdate(ci.itemId);
+		if (email.getMimeContent() != null) {
+			// MIME, replace the current draft
+			messageBody = uploadPart(service, email.getMimeContent());
+		} else {
+			MessageImpl message = email.getMessage();
+			mergeDraft(draft, message);
+			try {
+				messageBody = uploadPart(service, BufferByteSource.of(Mime4JHelper.mmapedEML(message).nettyBuffer()));
+			} catch (IOException e) {
+				logger.error("Failed to update draft {}, '{}'", ci, message.getSubject());
+			}
+		}
+		draft.value.body = messageBody;
+		draft.value.flags = Arrays.asList(MailboxItemFlag.System.Draft.value(), MailboxItemFlag.System.Seen.value());
+		service.updateById(ci.itemId, draft.value);
+	}
+
+	private void mergeDraft(ItemValue<MailboxItem> draft, MessageImpl message) {
+		if (message.getTo() == null) {
+			message.setTo(parseRecipients(draft.value.body.recipients, RecipientKind.Primary));
+		}
+		if (message.getCc() == null) {
+			message.setCc(parseRecipients(draft.value.body.recipients, RecipientKind.CarbonCopy));
+		}
+		if (message.getBcc() == null) {
+			message.setBcc(parseRecipients(draft.value.body.recipients, RecipientKind.BlindCarbonCopy));
+		}
+		if (message.getSubject() == null) {
+			message.setSubject(draft.value.body.subject);
+		}
+	}
+
+	private List<Mailbox> parseRecipients(List<Recipient> recipients, RecipientKind kind) {
+		List<Recipient> filtered = recipients.stream().filter(r -> r.kind == kind).toList();
+		List<Mailbox> mailboxes = new ArrayList<>();
+		filtered.forEach(recip -> {
+			String[] address = recip.address.split("@");
+			mailboxes.add(new Mailbox(recip.dn, address[0], address[1]));
+		});
+		return mailboxes;
+	}
+
+	private MessageBody uploadPart(IMailboxItems service, ByteSource content) throws ActiveSyncException {
 		try {
-			Stream eml = streamFromByteSource(email.getContent());
+			Stream eml = streamFromByteSource(content);
 			String partId = service.uploadPart(eml);
 			Part part = Part.create(null, "message/rfc822", partId);
 			MessageBody messageBody = new MessageBody();

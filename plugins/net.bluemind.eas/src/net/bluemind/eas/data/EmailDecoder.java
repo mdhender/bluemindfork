@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.james.mime4j.dom.Header;
 import org.apache.james.mime4j.dom.MessageBuilder;
@@ -77,12 +78,12 @@ public class EmailDecoder extends Decoder implements IDataDecoder {
 			mail.setStarred(null);
 		}
 
-		decodeBody(syncData, mail);
+		decodeApplicationData(syncData, mail);
 
 		return mail;
 	}
 
-	private void decodeBody(Element syncData, MSEmail mail) {
+	private void decodeApplicationData(Element syncData, MSEmail mail) {
 
 		List<Attachment> attachments = decodeAttachments(syncData);
 
@@ -93,7 +94,8 @@ public class EmailDecoder extends Decoder implements IDataDecoder {
 
 		if (body != null && Type
 				.fromInt(Integer.parseInt(DOMUtils.getUniqueElement(body, "Type").getTextContent())) == Type.MIME) {
-			mail.setContent(BufferByteSource.of(DOMUtils.getUniqueElement(body, "Data").getTextContent().getBytes()));
+			mail.setMimeContent(
+					BufferByteSource.of(DOMUtils.getUniqueElement(body, "Data").getTextContent().getBytes()));
 			return;
 		}
 
@@ -102,12 +104,17 @@ public class EmailDecoder extends Decoder implements IDataDecoder {
 			Header header = builder.newHeader();
 			MultipartImpl multipart = new MultipartImpl("mixed");
 
-			Element to = DOMUtils.getUniqueElement(syncData, "To");
-			if (to != null) {
-				List<Mailbox> recipients = new ArrayList<>();
-				Splitter.on(";").split(to.getTextContent())
-						.forEach(recipient -> recipients.add(LenientAddressBuilder.DEFAULT.parseMailbox(recipient)));
-				m.setTo(recipients);
+			Optional<List<Mailbox>> to = decodeRecipients(syncData, "To");
+			if (to.isPresent()) {
+				m.setTo(to.get());
+			}
+			Optional<List<Mailbox>> cc = decodeRecipients(syncData, "Cc");
+			if (cc.isPresent()) {
+				m.setCc(cc.get());
+			}
+			Optional<List<Mailbox>> bcc = decodeRecipients(syncData, "Bcc");
+			if (bcc.isPresent()) {
+				m.setBcc(bcc.get());
 			}
 
 			Element subject = DOMUtils.getUniqueElement(syncData, "Subject");
@@ -157,10 +164,31 @@ public class EmailDecoder extends Decoder implements IDataDecoder {
 			});
 			m.setMultipart(multipart);
 
-			mail.setContent(BufferByteSource.of(Mime4JHelper.mmapedEML(m).nettyBuffer()));
+			mail.setMessage(m);
 		} catch (Exception e) {
 			logger.error("Failed to decode body", e);
 		}
+	}
+
+	/**
+	 * 
+	 * <To xmlns="Email">bruce lee &lt;bruce.lee@bm.lan&gt;; jackie chan
+	 * &lt;jackie.chan@bm.lan&gt;</To> means: two recipients
+	 * 
+	 * <To xmlns="Email"/> means : an empty tag element means no recipient
+	 * 
+	 * The absence of <To/> tag element: keep the current draft recipients
+	 * 
+	 */
+	private Optional<List<Mailbox>> decodeRecipients(Element syncData, String type) {
+		Element data = DOMUtils.getUniqueElement(syncData, type);
+		if (data != null) {
+			List<Mailbox> recipients = new ArrayList<>();
+			Splitter.on(";").split(data.getTextContent())
+					.forEach(recipient -> recipients.add(LenientAddressBuilder.DEFAULT.parseMailbox(recipient)));
+			return Optional.of(recipients);
+		}
+		return Optional.empty();
 	}
 
 	private List<Attachment> decodeAttachments(Element syncData) {

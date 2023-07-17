@@ -21,6 +21,7 @@ package net.bluemind.eas.command.sync;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -121,7 +122,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 
 	public SyncProtocol() {
 		this.backend = Backends.dataAccess();
-		this.decoders = new HashMap<ItemDataType, IDataDecoder>();
+		this.decoders = new EnumMap<>(ItemDataType.class);
 		decoders.put(ItemDataType.CONTACTS, new ContactDecoder());
 		decoders.put(ItemDataType.CALENDAR, new CalendarDecoder());
 		decoders.put(ItemDataType.EMAIL, new EmailDecoder());
@@ -138,11 +139,7 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 	private boolean shouldFetchChanges(CollectionSyncRequest sc) {
 		Boolean inDOM = sc.isGetChanges();
 		if (inDOM == null) {
-			if ("0".equals(sc.getSyncKey())) {
-				return false;
-			} else {
-				return true;
-			}
+			return !"0".equals(sc.getSyncKey());
 		} else {
 			return inDOM;
 		}
@@ -335,38 +332,34 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 
 				List<Long> commands = serverChanges.commands.stream().map(cmd -> cmd.item.itemId)
 						.collect(Collectors.toList());
-				if (!clientConflictedServerIds.isEmpty()) {
-					IContentsExporter contentExporter = backend.getContentsExporter(bs);
-					for (ServerResponse sse : clientConflictedServerIds) {
-						if (commands.contains(sse.item.itemId)) {
-							// duplicate command
-							continue;
-						}
-						ServerChange conflicted = new ServerChange();
-						ItemChangeReference icr = new ItemChangeReference(dataClass);
-						icr.setServerId(sse.item);
-						AppData data = contentExporter.loadStructure(bs, null, icr);
-						conflicted.data = Optional.of(data);
-						if (sse.operation == Operation.CHANGE) {
-							conflicted.type = ServerChange.ChangeType.CHANGE;
-						} else if (sse.operation == Operation.DELETE) {
-							conflicted.type = ServerChange.ChangeType.ADD;
-						}
-						conflicted.item = sse.item;
-						csr.commands.add(conflicted);
+				IContentsExporter contentExporter = backend.getContentsExporter(bs);
+				for (ServerResponse sse : clientConflictedServerIds) {
+					if (commands.contains(sse.item.itemId)) {
+						// duplicate command
+						continue;
 					}
+					ServerChange conflicted = new ServerChange();
+					ItemChangeReference icr = new ItemChangeReference(dataClass);
+					icr.setServerId(sse.item);
+					AppData data = contentExporter.loadStructure(bs, null, icr);
+					conflicted.data = Optional.of(data);
+					if (sse.operation == Operation.CHANGE) {
+						conflicted.type = ServerChange.ChangeType.CHANGE;
+					} else if (sse.operation == Operation.DELETE) {
+						conflicted.type = ServerChange.ChangeType.ADD;
+					}
+					conflicted.item = sse.item;
+					csr.commands.add(conflicted);
 				}
 
-				if (!clientErrorServerIds.isEmpty()) {
-					for (ServerResponse sse : clientErrorServerIds) {
-						sse.ackStatus = SyncStatus.OK;
-						sse.operation = Operation.ADD;
-						ServerChange err = new ServerChange();
-						err.item = sse.item;
-						err.type = ServerChange.ChangeType.DELETE;
-						err.data = Optional.empty();
-						csr.commands.add(err);
-					}
+				for (ServerResponse sse : clientErrorServerIds) {
+					sse.ackStatus = SyncStatus.OK;
+					sse.operation = Operation.ADD;
+					ServerChange err = new ServerChange();
+					err.item = sse.item;
+					err.type = ServerChange.ChangeType.DELETE;
+					err.data = Optional.empty();
+					csr.commands.add(err);
 				}
 				csr.status = serverChanges.status;
 				csr.syncKey = serverChanges.syncKey;
@@ -622,21 +615,46 @@ public class SyncProtocol implements IEasProtocol<SyncRequest, SyncResponse> {
 		Element syncData = DOMUtils.getUniqueElement(modification, "ApplicationData");
 		IApplicationData appData = dd.decode(bs, syncData);
 
+		if (type == ItemDataType.EMAIL && DOMUtils.getUniqueElement(modification, "Send") != null) {
+			// MS-ASEMAIL 2.2.2.69 Send
+			//
+			// The Send element is an empty tag element, meaning it has no value or data
+			// type. It is distinguished only by the presence or absence of the <Send/> tag.
+			// The presence of the tag in a Sync command request indicates that the email is
+			// to be sent; the absence of the tag indicates that the email is to be saved as
+			// a draft.
+			try {
+				importer.sendDraft(bs, serverId, appData);
+				return clientChangeSuccess(serverId);
+			} catch (ActiveSyncException e) {
+				return clientChangeError(serverId, e);
+			}
+		}
+
 		try {
 			importer.importMessageChange(bs, collection.getCollectionId(), type, Optional.of(serverId), appData,
 					collection.options.conflictPolicy, syncState);
-			ServerResponse sr = new ServerResponse();
-			sr.operation = Operation.CHANGE;
-			sr.item = CollectionItem.of(serverId);
-			sr.ackStatus = SyncStatus.OK;
-			return sr;
+			return clientChangeSuccess(serverId);
 		} catch (ActiveSyncException e) {
-			ServerResponse sr = new ServerResponse();
-			sr.operation = Operation.CHANGE;
-			sr.item = CollectionItem.of(serverId);
-			sr.ackStatus = SyncStatus.CONFLICT;
-			return sr;
+			return clientChangeError(serverId, e);
 		}
+	}
+
+	private CollectionSyncResponse.ServerResponse clientChangeSuccess(String serverId) {
+		ServerResponse sr = new ServerResponse();
+		sr.operation = Operation.CHANGE;
+		sr.item = CollectionItem.of(serverId);
+		sr.ackStatus = SyncStatus.OK;
+		return sr;
+	}
+
+	private CollectionSyncResponse.ServerResponse clientChangeError(String serverId, Exception e) {
+		logger.error(e.getMessage(), e);
+		ServerResponse sr = new ServerResponse();
+		sr.operation = Operation.CHANGE;
+		sr.item = CollectionItem.of(serverId);
+		sr.ackStatus = SyncStatus.CONFLICT;
+		return sr;
 	}
 
 	/**

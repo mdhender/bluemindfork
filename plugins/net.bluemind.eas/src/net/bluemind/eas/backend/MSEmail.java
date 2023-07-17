@@ -18,6 +18,8 @@
  */
 package net.bluemind.eas.backend;
 
+import org.apache.james.mime4j.message.MessageImpl;
+
 import com.google.common.io.ByteSource;
 
 import net.bluemind.eas.dto.type.ItemDataType;
@@ -31,7 +33,8 @@ public class MSEmail implements IApplicationData {
 
 	private Boolean read;
 	private Boolean starred;
-	private ByteSource content;
+	private MessageImpl message;
+	private ByteSource mimeContent;
 
 	public MSEmail() {
 		read = false;
@@ -54,12 +57,20 @@ public class MSEmail implements IApplicationData {
 		this.starred = starred;
 	}
 
-	public ByteSource getContent() {
-		return content;
+	public ByteSource getMimeContent() {
+		return mimeContent;
 	}
 
-	public void setContent(ByteSource content) {
-		this.content = content;
+	public void setMimeContent(ByteSource content) {
+		this.mimeContent = content;
+	}
+
+	public void setMessage(MessageImpl message) {
+		this.message = message;
+	}
+
+	public MessageImpl getMessage() {
+		return message;
 	}
 
 }
