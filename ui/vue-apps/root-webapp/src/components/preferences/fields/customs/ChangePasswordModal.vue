@@ -1,7 +1,8 @@
 <template>
-    <bm-modal-deprecated
+    <bm-modal
         v-model="show"
         centered
+        dialog-class="change-password-modal-dialog"
         :title="$t('preferences.security.change_password')"
         :cancel-title="$t('common.cancel')"
         :ok-title="$t('common.save')"
@@ -65,19 +66,19 @@
                 />
             </bm-form-group>
         </bm-form>
-    </bm-modal-deprecated>
+    </bm-modal>
 </template>
 
 <script>
 import { mapActions } from "vuex";
 import { inject } from "@bluemind/inject";
-import { BmForm, BmFormGroup, BmFormInput, BmModalDeprecated } from "@bluemind/ui-components";
+import { BmForm, BmFormGroup, BmFormInput, BmModal } from "@bluemind/ui-components";
 import { SUCCESS } from "@bluemind/alert.store";
 import { SAVE_ALERT } from "../../Alerts/defaultAlerts";
 
 export default {
     name: "ChangePasswordModal",
-    components: { BmForm, BmFormGroup, BmFormInput, BmModalDeprecated },
+    components: { BmForm, BmFormGroup, BmFormInput, BmModal },
     data() {
         return {
             show: false,
@@ -170,3 +171,13 @@ function isASCII(str) {
     return true;
 }
 </script>
+
+<style lang="scss">
+@import "~@bluemind/ui-components/src/css/utils/variables";
+
+.change-password-modal-dialog {
+    .modal-body .form-group {
+        height: base-px-to-rem(70);
+    }
+}
+</style>
