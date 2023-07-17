@@ -1,5 +1,5 @@
 <template>
-    <bm-modal-deprecated :id="uniqueId" centered hide-footer hide-header @hidden="$emit('update:show', false)">
+    <bm-modal :id="uniqueId" centered hide-footer hide-header size="sm" @hidden="$emit('update:show', false)">
         <contact-card v-focus-out :contact="contact" @focusout="$emit('update:show', false)">
             <template #email="slotProps">
                 <slot name="email" :email="slotProps.email" />
@@ -8,17 +8,17 @@
                 <slot name="actions" :contact="slotProps.contact" />
             </template>
         </contact-card>
-    </bm-modal-deprecated>
+    </bm-modal>
 </template>
 
 <script>
-import { BmModalDeprecated } from "@bluemind/ui-components";
+import { BmModal } from "@bluemind/ui-components";
 import ContactCard from "./ContactCard";
 import FocusOut from "./FocusOut";
 
 export default {
     name: "ContactModal",
-    components: { BmModalDeprecated, ContactCard },
+    components: { BmModal, ContactCard },
     directives: { FocusOut },
     props: {
         contact: { type: Object, default: undefined },
