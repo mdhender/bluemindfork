@@ -35,7 +35,7 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    padding-top: $sp-7;
 
     .empty-folder-text {
         display: flex;
@@ -45,6 +45,7 @@ export default {
     }
 
     .bm-illustration {
+        flex: none;
         max-width: 100%;
     }
 }

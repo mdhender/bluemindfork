@@ -67,6 +67,7 @@ export default {
     }
 
     .bm-illustration {
+        flex: none;
         max-width: 100%;
     }
 }

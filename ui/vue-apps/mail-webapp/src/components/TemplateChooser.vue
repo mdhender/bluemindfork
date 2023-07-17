@@ -1,41 +1,71 @@
 <template>
-    <bm-modal-deprecated
+    <bm-modal
         dialog-class="template-chooser"
-        :scrollable="false"
+        variant="advanced"
+        scrollable
         :busy="loading"
         :cancel-title="$t('common.cancel')"
         :ok-disabled="!selected"
         :ok-title="$t('mail.actions.edit_from_template')"
-        :title="$t('mail.compose.template_chooser.title')"
         :visible="visible"
         centered
-        size="lg"
+        size="md"
+        height="lg"
         @hidden="SET_TEMPLATE_CHOOSER_VISIBLE(false)"
         @shown="SET_TEMPLATE_CHOOSER_VISIBLE(true)"
         @show="reset"
         @ok="useTemplate"
     >
-        <div class="d-flex flex-column h-100">
-            <bm-form-input
-                :value="pattern"
-                :placeholder="$t('common.search')"
-                icon="search"
-                resettable
-                left-icon
-                :aria-label="$t('common.search')"
-                autocomplete="off"
-                @reset="reset"
-                @input="search"
-            />
-            <templates-list v-model="selected" class="templates-list flex-fill" @ok="useTemplate" />
-        </div>
-    </bm-modal-deprecated>
+        <template #modal-header="{ close }">
+            <bm-modal-header
+                :class="{ 'with-mobile-search-input': showMobileSearchInput }"
+                :title="$t('mail.compose.template_chooser.title')"
+                @close="close"
+            >
+                <bm-form-input
+                    :value="pattern"
+                    :placeholder="$t('common.search')"
+                    class="desktop-search-input"
+                    variant="underline"
+                    icon="search"
+                    resettable
+                    left-icon
+                    :aria-label="$t('common.search')"
+                    autocomplete="off"
+                    @reset="reset"
+                    @input="search"
+                />
+                <bm-form-input
+                    v-if="showMobileSearchInput"
+                    :value="pattern"
+                    :placeholder="$t('common.search')"
+                    class="mobile-search-input"
+                    icon="search"
+                    resettable
+                    left-icon
+                    :aria-label="$t('common.search')"
+                    autocomplete="off"
+                    @reset="reset"
+                    @input="search"
+                />
+                <bm-icon-button
+                    v-else
+                    class="d-lg-none"
+                    variant="compact-on-fill-primary"
+                    size="lg"
+                    icon="search"
+                    @click="showMobileSearchInput = true"
+                />
+            </bm-modal-header>
+        </template>
+        <templates-list v-model="selected" class="templates-list flex-fill" @ok="useTemplate" />
+    </bm-modal>
 </template>
 <script>
 import debounce from "lodash.debounce";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { draftUtils } from "@bluemind/mail";
-import { BmModalDeprecated, BmFormInput } from "@bluemind/ui-components";
+import { BmModal, BmModalHeader, BmFormInput, BmIconButton } from "@bluemind/ui-components";
 import { SET_TEMPLATE_CHOOSER_VISIBLE, SET_TEMPLATE_LIST_SEARCH_PATTERN } from "~/mutations";
 import { DEBOUNCED_SAVE_MESSAGE, FETCH_TEMPLATES_KEYS } from "~/actions";
 import { MY_TEMPLATES } from "~/getters";
@@ -45,10 +75,11 @@ const { isEditorContentEmpty, preserveFromOrDefault } = draftUtils;
 
 export default {
     name: "TemplateChooser",
-    components: { BmModalDeprecated, BmFormInput, TemplatesList },
+    components: { BmModal, BmModalHeader, BmFormInput, BmIconButton, TemplatesList },
     mixins: [ComposerInitMixin],
     data() {
         return {
+            showMobileSearchInput: false,
             userPrefTextOnly: false, // FIXME: https://forge.bluemind.net/jira/browse/FEATWEBML-88,
             selected: 0,
             search: debounce(value => {
@@ -122,23 +153,59 @@ export default {
 };
 </script>
 <style lang="scss">
+@import "~@bluemind/ui-components/src/css/utils/responsiveness";
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
-.template-chooser {
-    &.modal-dialog {
-        .modal-body {
-            overflow: hidden !important;
+.template-chooser.modal-dialog .modal-content {
+    .modal-header {
+        z-index: 1;
+        border-bottom: none;
+
+        .additional-content {
+            padding: 0;
         }
-        .modal-content {
-            height: calc(100vh - 3.5rem);
-            max-height: calc(100vh - 3.5rem);
+
+        .desktop-search-input {
+            @include until-lg {
+                display: none !important;
+            }
+            $offset: $sp-6;
+            & > .form-control {
+                padding-left: $offset + map-get($icon-sizes, "md") + $sp-4 !important;
+                padding-right: $offset !important;
+            }
+            .icon-wrapper,
+            .reset-btn {
+                left: $offset !important;
+            }
+        }
+
+        @include until-lg {
+            .with-mobile-search-input .bm-navbar-title {
+                display: none;
+            }
+        }
+
+        .mobile-search-input {
+            @include from-lg {
+                display: none !important;
+            }
+            background-color: $surface !important;
+            margin: 0 $sp-4;
+            flex: 1;
+        }
+
+        .bm-icon-button {
+            margin: 0 $sp-3;
         }
     }
-    .templates-list {
-        background-color: $neutral-bg-lo1;
-        border-color: $neutral-fg;
-        border-width: 0 1px 1px 1px;
-        border-style: solid;
+
+    .modal-body {
+        padding: 0 !important;
+        background-color: $backdrop;
+        .templates-list {
+            height: 100%;
+        }
     }
 }
 </style>
