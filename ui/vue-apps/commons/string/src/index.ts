@@ -14,9 +14,9 @@ type MatchOptions = {
  * - accentsSensitive: Enables strict accents mode, a letter with accent will only match the same letter and accent
  * - startsWith: The target must start with the pattern. By default, the target only need to include the pattern to match
  */
-export function matchPattern(pattern: string, target: string | string[], options?: MatchOptions) {
-    const matcher = (text: string) =>
-        normalize(text, options)[options?.startsWith ? "startsWith" : "includes"](normalize(pattern, options));
+export function matchPattern(pattern: string, target?: string | (string | null | undefined)[], options?: MatchOptions) {
+    const matcher = (text?: string | null) =>
+        text && normalize(text, options)[options?.startsWith ? "startsWith" : "includes"](normalize(pattern, options));
     return Array.isArray(target) ? target.some(matcher) : matcher(target);
 }
 
