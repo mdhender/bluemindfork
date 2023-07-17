@@ -19,6 +19,7 @@ export default {
 .bm-notice {
     margin: $tooltip-arrow-height 0 0;
     background-color: $fill-danger-bg;
+    z-index: $zindex-tooltip;
 
     .arrow-up {
         position: relative;

@@ -1,92 +1,84 @@
 <template>
-    <bm-modal-deprecated
+    <bm-modal
         ref="choose-folder-modal"
         class="choose-folder-modal"
         body-class="choose-folder-modal-body"
-        header-class="choose-folder-modal-header"
         v-bind="[$attrs, $props]"
+        size="sm"
         :ok-disabled="!selectedFolder || inputState === false"
         centered
         auto-focus-button="ok"
-        :scrollable="false"
         @ok="$emit('ok', selectedFolder)"
         @cancel="doCancel"
         @hide="doCancel"
     >
-        <template #default>
-            <div class="d-flex">
-                <div class="mr-4">
-                    <bm-icon icon="folder" size="3xl" class="mr-2 text-neutral" />
-                </div>
-                <div class="modal-form-autocomplete flex-fill position-relative">
-                    <p>{{ $t("mail.actions.choose_folder.modal.combo.label") }}</p>
-                    <bm-form-autocomplete-input
-                        ref="autocomplete-input"
-                        v-model.trim="pattern"
-                        variant="outline"
-                        :items="itemsOrDefaults()"
-                        :state="inputState"
-                        icon="search"
-                        actionable-icon
-                        :max-results="maxFolders"
-                        autofocus
-                        extra
-                        @selected="onSelected"
-                        @input="onInputUpdate"
-                        @focusExtra="$refs['extra'].focus()"
-                    >
-                        <template #default="{ item }">
-                            <div class="d-flex flex-fill align-items-center">
-                                <mail-folder-icon no-text :mailbox="itemMailbox(item)" :folder="item" />
-                                <span class="pl-2 flex-fill" :title="itemTitle(item)"> {{ itemName(item) }}</span>
-                                <mail-mailbox-icon :mailbox="itemMailbox(item)" />
-                            </div>
-                        </template>
-                        <template v-if="!folderNameExists && !selectedExcluded" #extra="{ close, focus, goUp, goDown }">
-                            <div v-if="pattern" ref="extra" class="d-flex align-items-center" @click="close">
-                                <bm-icon icon="plus" />
-                                <span class="pl-2 flex-fill">
-                                    {{ $t("mail.folder.new.from_pattern", [pattern]) }}
-                                </span>
-                                <mail-mailbox-icon :mailbox="mailboxes[0]" />
-                            </div>
-                            <div v-else class="d-flex align-items-center">
-                                <mail-folder-input
-                                    ref="extra"
-                                    class="flex-fill pl-0"
-                                    :mailboxes="mailboxes"
-                                    @submit="
-                                        name => {
-                                            onSelected(createFolder(null, name, null, mailboxes[0]));
-                                            close();
-                                        }
-                                    "
-                                    @keydown.left.native.stop
-                                    @keydown.right.native.stop
-                                    @keydown.esc.native.stop="focus"
-                                    @keydown.up.native.stop="
-                                        focus();
-                                        goUp();
-                                    "
-                                    @keydown.down.native.stop="
-                                        focus();
-                                        goDown();
-                                    "
-                                />
-                                <mail-mailbox-icon :mailbox="mailboxes[0]" />
-                            </div>
-                        </template>
-                    </bm-form-autocomplete-input>
-                    <bm-notice v-if="inputState === false" class="position-absolute w-100" :text="selectedExcluded" />
-                </div>
-            </div>
-        </template>
-    </bm-modal-deprecated>
+        <bm-form-group :label="$t('mail.actions.choose_folder.modal.combo.label')" label-for="autocomplete-input">
+            <bm-form-autocomplete-input
+                id="autocomplete-input"
+                ref="autocomplete-input"
+                v-model.trim="pattern"
+                variant="outline"
+                :items="itemsOrDefaults()"
+                :state="inputState"
+                icon="search"
+                actionable-icon
+                :max-results="maxFolders"
+                autofocus
+                extra
+                @selected="onSelected"
+                @input="onInputUpdate"
+                @focusExtra="$refs['extra'].focus()"
+            >
+                <template #default="{ item }">
+                    <div class="d-flex flex-fill align-items-center">
+                        <mail-folder-icon no-text :mailbox="itemMailbox(item)" :folder="item" />
+                        <span class="pl-2 flex-fill" :title="itemTitle(item)"> {{ itemName(item) }}</span>
+                        <mail-mailbox-icon :mailbox="itemMailbox(item)" />
+                    </div>
+                </template>
+                <template v-if="!folderNameExists && !selectedExcluded" #extra="{ close, focus, goUp, goDown }">
+                    <div v-if="pattern" ref="extra" class="d-flex align-items-center" @click="close">
+                        <bm-icon icon="plus" />
+                        <span class="pl-2 flex-fill">
+                            {{ $t("mail.folder.new.from_pattern", [pattern]) }}
+                        </span>
+                        <mail-mailbox-icon :mailbox="mailboxes[0]" />
+                    </div>
+                    <div v-else class="d-flex align-items-center">
+                        <mail-folder-input
+                            ref="extra"
+                            class="flex-fill pl-0"
+                            :mailboxes="mailboxes"
+                            @submit="
+                                name => {
+                                    onSelected(createFolder(null, name, null, mailboxes[0]));
+                                    close();
+                                }
+                            "
+                            @keydown.left.native.stop
+                            @keydown.right.native.stop
+                            @keydown.esc.native.stop="focus"
+                            @keydown.up.native.stop="
+                                focus();
+                                goUp();
+                            "
+                            @keydown.down.native.stop="
+                                focus();
+                                goDown();
+                            "
+                        />
+                        <mail-mailbox-icon :mailbox="mailboxes[0]" />
+                    </div>
+                </template>
+            </bm-form-autocomplete-input>
+            <bm-notice v-if="inputState === false" class="position-absolute" :text="selectedExcluded" />
+        </bm-form-group>
+    </bm-modal>
 </template>
 
 <script>
 import { mapGetters, mapState } from "vuex";
-import { BmFormAutocompleteInput, BmIcon, BmModalDeprecated, BmNotice } from "@bluemind/ui-components";
+import { BmFormGroup, BmFormAutocompleteInput, BmModal, BmNotice } from "@bluemind/ui-components";
 import { folderUtils, mailboxUtils } from "@bluemind/mail";
 import { FOLDER_BY_PATH } from "~/getters";
 import { FilterFolderMixin } from "~/mixins";
@@ -100,9 +92,9 @@ const { MailboxType } = mailboxUtils;
 export default {
     name: "ChooseFolderModal",
     components: {
+        BmFormGroup,
         BmFormAutocompleteInput,
-        BmIcon,
-        BmModalDeprecated,
+        BmModal,
         BmNotice,
         MailFolderIcon,
         MailFolderInput,
@@ -184,12 +176,9 @@ export default {
     .bm-form-autocomplete-input .suggestions {
         overflow: unset !important;
     }
-}
-.choose-folder-modal-header {
-    .modal-title {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+
+    .form-group {
+        margin: 0;
     }
 }
 </style>

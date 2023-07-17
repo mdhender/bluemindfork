@@ -1,12 +1,15 @@
 <template>
-    <bm-modal-deprecated
+    <bm-modal
         v-if="folder"
         ref="modal"
+        size="sm"
         centered
         :title="title"
         :ok-title="okTitle"
         :ok-disabled="!state"
+        :cancel-title="$t('common.cancel')"
         :scrollable="false"
+        body-class="edit-folder-modal-body"
         @shown="$refs.input.focus()"
         @ok="edit"
     >
@@ -23,13 +26,13 @@
             v-if="state === false"
             id="rename-folder-input-notice"
             :text="validityCheck"
-            class="position-absolute z-index-110 mx-2"
+            class="position-absolute mx-2"
         />
-    </bm-modal-deprecated>
+    </bm-modal>
 </template>
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
-import { BmModalDeprecated } from "@bluemind/ui-components";
+import { BmModal } from "@bluemind/ui-components";
 import { BmFormInput, BmNotice } from "@bluemind/ui-components";
 import { folderUtils } from "@bluemind/mail";
 import { FOLDER_BY_PATH } from "~/getters";
@@ -39,7 +42,7 @@ const { isNameValid } = folderUtils;
 
 export default {
     name: "EditFolderModal",
-    components: { BmModalDeprecated, BmFormInput, BmNotice },
+    components: { BmModal, BmFormInput, BmNotice },
     data() {
         return { name: "", folder: null };
     },
@@ -106,3 +109,9 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+.modal-dialog .modal-body.edit-folder-modal-body {
+    overflow: visible;
+}
+</style>
