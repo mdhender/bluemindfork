@@ -27,7 +27,7 @@
         <bm-list-group
             v-show="showAutocomplete"
             ref="suggestions"
-            class="suggestions shadow position-absolute list-no-borders z-index-200 scroller-y"
+            class="suggestions shadow position-absolute list-no-borders scroller-y"
             tabindex="-1"
         >
             <bm-list-group-item
@@ -185,6 +185,7 @@ export default {
     }
 
     .suggestions {
+        z-index: $zindex-dropdown;
         cursor: pointer;
         background-color: $surface-hi2;
         width: 100%;

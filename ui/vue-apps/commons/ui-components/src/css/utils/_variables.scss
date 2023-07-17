@@ -265,6 +265,13 @@ $custom-range-thumb-box-shadow: $box-shadow-sm;
 $custom-range-thumb-active-bg: $fill-secondary-bg-hi1;
 $custom-range-thumb-disabled-bg: $fill-secondary-bg-disabled;
 
+// Z-index master list
+//
+// Modified to put dropdowns above all "background" elements, see
+// https://github.com/twbs/bootstrap/issues/31747
+
+$zindex-dropdown: 1055;
+
 // Tree
 
 $tree-expand-btn-width: base-px-to-rem(20);
