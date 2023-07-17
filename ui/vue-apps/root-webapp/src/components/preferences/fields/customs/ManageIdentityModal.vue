@@ -1,10 +1,13 @@
 <template>
-    <bm-modal-deprecated
+    <bm-modal
         v-model="show"
+        size="lg"
+        variant="advanced"
+        scrollable
+        height="lg"
         centered
         :title="isNewIdentity ? $t('preferences.mail.identities.create') : $t('preferences.mail.identities.update')"
-        body-class="row mx-0 manage-identity-modal-body"
-        modal-class="manage-identity-modal"
+        body-class="manage-identity-modal-body"
         @hidden="modalStatus = 'NOT-LOADED'"
     >
         <template v-if="modalStatus === 'LOADED'">
@@ -48,7 +51,7 @@
                     </div>
                 </div>
             </div>
-            <div class="mt-6 mb-5 w-100">
+            <div class="my-4">
                 <div class="mb-1">{{ $t("common.email_address") }}</div>
                 <bm-combo-box
                     v-if="possibleIdentitiesStatus === 'LOADED'"
@@ -63,11 +66,12 @@
                 <bm-form-input v-else v-model="identity.email" disabled />
                 <div v-if="possibleIdentitiesStatus === 'ERROR'" class="text-warning mt-1 word-break">
                     {{ $t("preferences.mail.identities.possible_identities_error") }} <br />
-                    {{ $t("common.application.bootstrap.error.solution") }}
+                    {{ $t("common.application.bootstrap.error.solution1") }} <br />
+                    {{ $t("common.application.bootstrap.error.solution2") }}
                 </div>
             </div>
-            <div v-if="!isMyMailbox && identity.mailboxUid" class="mb-5 w-100">
-                <bm-form-checkbox v-model="identity.sentFolder" value="" :unchecked-value="SENT_FOLDER">
+            <div v-if="!isMyMailbox && identity.mailboxUid" class="mb-5">
+                <bm-form-checkbox v-model="identity.sentFolder" value="" unchecked-value="SENT_FOLDER">
                     {{
                         $tc("preferences.mail.identities.use_sentbox", 0, {
                             address: identity.email + " (" + identity.displayname + ")"
@@ -75,7 +79,7 @@
                     }}
                 </bm-form-checkbox>
             </div>
-            <div class="w-100">
+            <div class="rich-editor-with-label">
                 {{ $t("common.signature") }}
                 <bm-rich-editor
                     ref="rich-editor"
@@ -98,11 +102,19 @@
         </div>
         <template #modal-footer>
             <template v-if="modalStatus === 'LOADED'">
+                <bm-icon-button
+                    v-if="!isNewIdentity"
+                    variant="compact"
+                    icon="trash"
+                    class="mr-auto d-lg-none"
+                    :disabled="identity.isDefault"
+                    @click="remove"
+                />
                 <bm-button
                     v-if="!isNewIdentity"
                     variant="outline"
                     icon="trash"
-                    class="mr-auto"
+                    class="mr-auto d-none d-lg-flex"
                     :disabled="identity.isDefault"
                     @click="remove"
                 >
@@ -118,7 +130,7 @@
             </template>
             <template v-else><div /></template>
         </template>
-    </bm-modal-deprecated>
+    </bm-modal>
 </template>
 
 <script>
@@ -137,7 +149,8 @@ import {
     BmFormGroup,
     BmFormInput,
     BmIcon,
-    BmModalDeprecated,
+    BmIconButton,
+    BmModal,
     BmRichEditor,
     BmSpinner
 } from "@bluemind/ui-components";
@@ -156,7 +169,8 @@ export default {
         BmFormGroup,
         BmFormInput,
         BmIcon,
-        BmModalDeprecated,
+        BmIconButton,
+        BmModal,
         BmRichEditor,
         BmSpinner
     },
@@ -371,6 +385,9 @@ function toIdentityDescription(id, identity) {
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .manage-identity-modal-body {
+    display: flex;
+    flex-direction: column;
+
     .fa-star-fill {
         color: $secondary-fg;
     }
@@ -382,7 +399,7 @@ function toIdentityDescription(id, identity) {
         @include from-lg {
             flex-direction: row;
         }
-        gap: $sp-6;
+        gap: $sp-5 $sp-7;
 
         .avatar-part {
             flex: none;
@@ -401,6 +418,20 @@ function toIdentityDescription(id, identity) {
             @include from-lg {
                 padding-top: base-px-to-rem(8);
             }
+
+            .form-group {
+                margin-bottom: $sp-4;
+            }
+        }
+    }
+
+    .rich-editor-with-label {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+
+        .bm-rich-editor {
+            flex: 1;
         }
     }
 
@@ -409,16 +440,7 @@ function toIdentityDescription(id, identity) {
     }
 
     .change-default {
-        cursor: default;
-        .bm-icon {
-            cursor: pointer;
-        }
-    }
-}
-
-.manage-identity-modal .modal-dialog {
-    @include from-lg {
-        max-width: 60%;
+        cursor: pointer;
     }
 }
 </style>
