@@ -109,7 +109,7 @@ export default {
         },
         async getBlobUrl(url) {
             try {
-                const res = await fetch(url);
+                const res = await fetch(encodeURI(url));
                 if (!res.ok) {
                     return null;
                 }

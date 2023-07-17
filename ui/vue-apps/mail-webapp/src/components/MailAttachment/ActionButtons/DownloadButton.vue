@@ -44,7 +44,7 @@ export default {
         // Force download to workaround for Chromium bug which does not pass through service worker when clicking on a HTML <a> link with a download attribute
         // https://bugs.chromium.org/p/chromium/issues/detail?id=468227,
         async download() {
-            const res = await fetch(this.file.url);
+            const res = await fetch(encodeURI(this.file.url));
             const blob = await res.blob();
             this.href = this.href ? this.href : URL.createObjectURL(blob);
             const link = createDownloadLink(this.href, this.file.name);
