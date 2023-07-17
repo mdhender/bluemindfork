@@ -1,5 +1,11 @@
 <template>
-    <bm-dropdown-item v-if="!fhFile" class="detach-item" :disabled="isToolarge" icon="cloud-up" @click.stop="detach">
+    <bm-dropdown-item
+        v-if="!fhFile && !isReadOnly"
+        class="detach-item"
+        :disabled="isToolarge"
+        icon="cloud-up"
+        @click.stop="detach"
+    >
         {{ $t("filehosting.detach") }}
     </bm-dropdown-item>
 </template>

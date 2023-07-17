@@ -1,4 +1,4 @@
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import { GET_FH_FILE } from "../store/types/getters";
 import { GET_CONFIGURATION } from "../store/types/actions";
 
@@ -15,12 +15,18 @@ export default {
         };
     },
     computed: {
+        ...mapState("mail", ["folders"]),
         ...mapGetters("mail", [GET_FH_FILE]),
         isToolarge() {
             return this.maxFilesize === null || !(this.maxFilesize > this.file.size || this.maxFilesize === 0);
         },
         fhFile() {
             return this.GET_FH_FILE(this.file);
+        },
+        isReadOnly() {
+            const CURRENT_CONVERSATION_METADATA = this.$store.getters["mail/CURRENT_CONVERSATION_METADATA"];
+            const folder = CURRENT_CONVERSATION_METADATA && this.folders[CURRENT_CONVERSATION_METADATA.folderRef.key];
+            return !folder.writable;
         }
     },
     async beforeMount() {
