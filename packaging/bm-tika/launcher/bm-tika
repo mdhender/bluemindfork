@@ -25,7 +25,6 @@ curdir=`dirname $0`
 pidfile=$1
 
 export DEFAULT_MEM=128
-export OOM="-XX:OnOutOfMemoryError=/usr/share/bm-tika/bin/oom_kill.sh"
 
 source ${curdir}/equinox-systemd.sh ${product}
 

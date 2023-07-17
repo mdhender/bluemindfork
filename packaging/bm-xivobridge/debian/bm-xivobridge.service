@@ -1,12 +1,15 @@
 [Unit]
 Description=BlueMind xivobridge Server
 ConditionPathExists=!/etc/bm/bm-xivobridge.disabled
+StartLimitIntervalSec=30
+StartLimitBurst=2
 After=bm-core.service
 PartOf=bluemind.target
 
 [Service]
 Type=notify
-Restart=no
+Restart=on-failure
+OOMPolicy=kill
 WorkingDirectory=/var/log
 TimeoutStartSec=90s
 GuessMainPID=no

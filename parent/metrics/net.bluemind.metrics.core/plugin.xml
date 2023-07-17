@@ -116,9 +116,6 @@
    <extension
        point="net.bluemind.lib.vertx.verticles">
      <verticle
-         impl="net.bluemind.metrics.core.healing.SafeRestartOnHprofVerticle$Factory">
-     </verticle>
-     <verticle
          impl="net.bluemind.metrics.core.healing.HealElasticSearchOnDiskUsage$Factory">
       </verticle>
    </extension>

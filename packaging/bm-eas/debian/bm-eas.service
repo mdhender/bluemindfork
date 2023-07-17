@@ -1,11 +1,16 @@
 [Unit]
 Description=BlueMind EAS Server
 ConditionPathExists=!/etc/bm/bm-eas.disabled
+StartLimitIntervalSec=30
+StartLimitBurst=2
 After=bm-core.service
 PartOf=bluemind.target
 
 [Service]
 Type=notify
+Restart=on-failure
+OOMPolicy=kill
+LimitNOFILE=1073741824
 WorkingDirectory=/var/log
 TimeoutStartSec=90s
 GuessMainPID=no

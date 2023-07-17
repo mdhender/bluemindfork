@@ -1,6 +1,8 @@
 [Unit]
 Description=BlueMind Core Server
 ConditionPathExists=!/etc/bm/bm-core.disabled
+StartLimitIntervalSec=30
+StartLimitBurst=2
 # optional dep on kafka if installed on same host https://unix.stackexchange.com/questions/423722/systemd-service-file-with-optional-dependency
 Wants=bm-kafka-broker.service
 After=bm-node.service postgresql.service bm-kafka-broker.service
@@ -9,11 +11,13 @@ PartOf=bluemind.target
 [Service]
 TasksMax=10000
 Type=notify
+Restart=on-failure
+OOMPolicy=kill
+LimitNOFILE=1073741824
 WorkingDirectory=/var/log
 TimeoutStartSec=300s
 GuessMainPID=no
 RemainAfterExit=no
-LimitNOFILE=65536
 SuccessExitStatus=129 143
 Environment="PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
 Environment=JAVA_HOME=/usr/lib/jvm/bm-jdk

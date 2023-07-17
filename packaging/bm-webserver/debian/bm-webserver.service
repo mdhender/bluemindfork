@@ -1,11 +1,16 @@
 [Unit]
 Description=BlueMind WEB Server
 ConditionPathExists=!/etc/bm/bm-webserver.disabled
+StartLimitIntervalSec=30
+StartLimitBurst=2
 After=bm-node.service
 PartOf=bluemind.target
 
 [Service]
 Type=notify
+Restart=on-failure
+OOMPolicy=kill
+LimitNOFILE=1073741824
 WorkingDirectory=/var/log
 TimeoutStartSec=90s
 GuessMainPID=no

@@ -3,8 +3,13 @@ Description=BlueMind Ysnp Server
 ConditionPathExists=!/etc/bm/bm-ysnp.disabled
 After=bm-core.service
 PartOf=bluemind.target
+StartLimitIntervalSec=30
+StartLimitBurst=3
 
 [Service]
+Restart=on-failure
+OOMPolicy=kill
+LimitNOFILE=65536
 Type=notify
 WorkingDirectory=/var/log
 TimeoutStartSec=90s
