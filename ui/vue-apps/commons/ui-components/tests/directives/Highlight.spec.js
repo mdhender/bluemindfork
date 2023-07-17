@@ -1,4 +1,4 @@
-import Highlight from "../../src/directives/Highlight";
+import Highlight, { highlightMatchingContent } from "../../src/directives/Highlight";
 import { mount } from "@vue/test-utils";
 describe("HIGHLIGHT Directive", () => {
     it("should return unchanged html if search is empty ", () => {
@@ -51,3 +51,21 @@ function fixture(text = undefined, options = {}) {
         }
     };
 }
+
+describe("Highlight Accent insensitive", () => {
+    it("should highlight when accent is given but word match anyway", () => {
+        expect(highlightMatchingContent("Dev", "developpeur")).toEqual("<mark>dev</mark>eloppeur");
+        expect(highlightMatchingContent("Dév", "developpeur")).toEqual("<mark>dev</mark>eloppeur");
+        expect(highlightMatchingContent("Dèv", "developpeur")).toEqual("<mark>dev</mark>eloppeur");
+    });
+
+    it("should highlight word with accent Even if word matching does not have it", () => {
+        expect(highlightMatchingContent("Dev", "développeur")).toEqual("<mark>dév</mark>eloppeur");
+        expect(highlightMatchingContent("dev", "dèveloppeur")).toEqual("<mark>dèv</mark>eloppeur");
+        expect(highlightMatchingContent("dav", "dàveloppeur")).toEqual("<mark>dàv</mark>eloppeur");
+    });
+
+    it("should match when accent is not the same but letter is", () => {
+        expect(highlightMatchingContent("dév", "dèveloppeur")).toEqual("<mark>dèv</mark>eloppeur");
+    });
+});

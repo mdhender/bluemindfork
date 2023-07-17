@@ -27,42 +27,18 @@
                     after-avatar
                 />
                 <div class="to-contact-input">
-                    <mail-composer-recipient ref="toField" :message="message" recipient-type="to">
-                        <div class="end-buttons">
-                            <bm-button
-                                v-if="!showCc"
-                                v-key-nav-group:recipient-button
-                                variant="text"
-                                tabindex="-1"
-                                @click="showAndFocusRecipientField('cc')"
-                                @keydown.tab.prevent="focusRecipientField('to')"
-                            >
-                                {{ $t("common.cc") }}
-                            </bm-button>
-                            <bm-button
-                                v-if="!showCc && !showBcc"
-                                v-key-nav-group:recipient-button
-                                variant="text"
-                                tabindex="-1"
-                                @click="showAndFocusRecipientField('bcc')"
-                                @keydown.tab.prevent="focusRecipientField('to')"
-                            >
-                                {{ $t("common.bcc") }}
-                            </bm-button>
-                            <mail-open-in-popup-with-shift v-slot="action" :href="route" :next="consult">
-                                <bm-icon-button
-                                    variant="compact"
-                                    class="expand-button"
-                                    :title="action.label($t('mail.actions.extend'))"
-                                    :disabled="anyAttachmentInError"
-                                    :icon="action.icon('extend')"
-                                    @click="
-                                        saveAsap().then(() => action.execute(() => $router.navigate(route), $event))
-                                    "
-                                />
-                            </mail-open-in-popup-with-shift>
-                        </div>
-                    </mail-composer-recipient>
+                    <mail-composer-recipients ref="recipients" class="px-4" :message="message">
+                        <mail-open-in-popup-with-shift v-slot="action" :href="route" :next="consult">
+                            <bm-icon-button
+                                variant="compact"
+                                class="expand-button"
+                                :title="action.label($t('mail.actions.extend'))"
+                                :disabled="anyAttachmentInError"
+                                :icon="action.icon('extend')"
+                                @click="saveAsap().then(() => action.execute(() => $router.navigate(route), $event))"
+                            />
+                        </mail-open-in-popup-with-shift>
+                    </mail-composer-recipients>
                 </div>
             </div>
         </template>
@@ -163,7 +139,7 @@
 <script>
 import capitalize from "lodash.capitalize";
 import { mapMutations, mapState } from "vuex";
-import { BmButton, BmDropzone, BmFileDropZone, BmIconButton, KeyNavGroup } from "@bluemind/ui-components";
+import { BmIconButton, BmButton, BmDropzone, BmFileDropZone, KeyNavGroup } from "@bluemind/ui-components";
 import { messageUtils } from "@bluemind/mail";
 import {
     ComposerActionsMixin,
@@ -178,7 +154,7 @@ import MailComposerAttachments from "../../MailComposer/MailComposerAttachments"
 import MailComposerAttachZone from "../../MailComposer/MailComposerAttachZone";
 import MailComposerContent from "../../MailComposer/MailComposerContent";
 import MailComposerFooter from "../../MailComposer/MailComposerFooter";
-import MailComposerRecipient from "../../MailComposer/MailComposerRecipient";
+import MailComposerRecipients from "../../MailComposer/MailComposerRecipients";
 import MailComposerSender from "../../MailComposer/MailComposerSender";
 import MailConversationViewerItem from "./MailConversationViewerItem";
 import MailConversationViewerItemMixin from "./MailConversationViewerItemMixin";
@@ -199,7 +175,7 @@ export default {
         MailComposerAttachZone,
         MailComposerContent,
         MailComposerFooter,
-        MailComposerRecipient,
+        MailComposerRecipients,
         MailComposerSender,
         MailConversationViewerItem,
         MailConversationViewerVerticalLine,

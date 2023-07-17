@@ -8,7 +8,7 @@
             class="ml-6 flex-fill"
             @expand="expandContact"
         >
-            <span class="selected-label">{{ $t("common.to") }}</span>
+            <span class="selected-label">{{ $t(`common.${contactsType}`) }}</span>
         </contact-input>
     </div>
 </template>
@@ -21,7 +21,8 @@ export default {
     name: "SelectedContacts",
     components: { ContactInput },
     props: {
-        contacts: { type: Array, default: undefined }
+        contacts: { type: Array, default: undefined },
+        contactsType: { type: String, required: true }
     },
     computed: {
         selectedContacts: {
@@ -39,7 +40,17 @@ export default {
             const contact = contacts[index];
             contact.members = await fetchContactMembers(contactContainerUid(contact), contact.uid);
             contacts.splice(index, 1, ...contact.members);
-            this.selectedContacts = contacts;
+            this.selectedContacts = this.removeDuplicates(contacts);
+        },
+        removeDuplicates(contacts) {
+            return contacts.reduce(
+                (allContacts, current) => (isDuplicate(allContacts, current) ? allContacts : [...allContacts, current]),
+                []
+            );
+
+            function isDuplicate(contacts, aContact) {
+                return contacts.findIndex(c => c.address === aContact.address) !== -1;
+            }
         }
     }
 };

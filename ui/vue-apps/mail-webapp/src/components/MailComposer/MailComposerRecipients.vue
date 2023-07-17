@@ -28,6 +28,7 @@
                     >
                         {{ $t("common.bcc") }}
                     </bm-button>
+                    <slot />
                 </div>
             </mail-composer-recipient>
         </div>
@@ -60,8 +61,10 @@
             recipient-type="bcc"
             @open-picker="selectedContactsType = 'bcc'"
         />
-
-        <mail-composer-recipient-modal :selected.sync="selectedContacts" />
+        <mail-composer-recipient-modal
+            :selected.sync="selectedContacts"
+            :recipient-contacts-type="selectedContactsType"
+        />
     </div>
 </template>
 
@@ -72,7 +75,7 @@ import { RecipientAdaptor } from "@bluemind/contact";
 import { BmButton, KeyNavGroup } from "@bluemind/ui-components";
 import { EditRecipientsMixin } from "~/mixins";
 import MailComposerRecipient from "./MailComposerRecipient";
-import MailComposerRecipientModal from "./MailComposerRecipientModal";
+import MailComposerRecipientModal from "../RecipientPicker/MailComposerRecipientModal";
 import { MAX_RECIPIENTS } from "../../utils";
 
 export default {

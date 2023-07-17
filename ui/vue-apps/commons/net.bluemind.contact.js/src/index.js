@@ -54,6 +54,25 @@ function guessName(address) {
         .join(" ");
 }
 
+function sortAddressBooks(addressBooks, userId) {
+    return addressBooks.sort((a, b) => {
+        if (!isShared(a, userId) != !isShared(b, userId)) return !isShared(a, userId) ? -1 : 1;
+
+        if (isDirectoryAddressBook(a.uid, a.domainUid) != isDirectoryAddressBook(b.uid, b.domainUid))
+            return isDirectoryAddressBook(a.uid, a.domainUid) ? -1 : 1;
+
+        if (isPersonalAddressBook(a.uid, a.owner) != isPersonalAddressBook(b.uid, b.owner))
+            return isPersonalAddressBook(a.uid, a.owner) ? -1 : 1;
+
+        if (isCollectAddressBook(a.uid, a.owner) != isCollectAddressBook(b.uid, b.owner))
+            return isCollectAddressBook(a.uid, a.owner) ? -1 : 1;
+
+        return a.name.localeCompare(b.name);
+    });
+}
+function isShared(addressBook, userId) {
+    return !isDirectoryAddressBook(addressBook.uid, addressBook.domainUid) && userId !== addressBook.owner;
+}
 function isDirectoryAddressBook(contactContainerUid, domain) {
     return contactContainerUid === `addressbook_${domain}`;
 }
@@ -166,7 +185,8 @@ export {
     searchVCardsByIdHelper,
     searchVCardsHelper,
     VCardAdaptor,
-    VCardInfoAdaptor
+    VCardInfoAdaptor,
+    sortAddressBooks
 };
 
 function escape(term) {

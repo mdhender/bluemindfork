@@ -1,11 +1,12 @@
 <template>
-    <b-table
+    <bm-internal-table
         ref="bTable"
         v-bind="[$attrs, $props]"
         class="bm-table"
         :class="{ 'fixed-row-height': fixedRowHeight }"
         :sort-by.sync="curSortBy"
         :sort-desc.sync="curSortDesc"
+        :tab-nav="tabNav"
         v-on="listeners"
         @row-selected="onRowSelected"
         @context-changed="doSelectRows"
@@ -30,16 +31,17 @@
                 <b-td :colspan="filler.span" aria-hidden>&nbsp;</b-td>
             </b-tr>
         </template>
-    </b-table>
+    </bm-internal-table>
 </template>
 
 <script>
-import BmSortControl from "../BmSortControl";
 import { BTable, BTr, BTd } from "bootstrap-vue";
+import BmSortControl from "../BmSortControl";
+import BmInternalTable from "./BmInternalTable";
 
 export default {
     name: "BmTable",
-    components: { BmSortControl, BTable, BTr, BTd },
+    components: { BmSortControl, BmInternalTable, /* BTable ,*/ BTr, BTd },
     extends: BTable,
     props: {
         hover: { type: Boolean, default: true },
@@ -48,7 +50,8 @@ export default {
         items: { type: Array, required: true },
         fill: { type: Boolean, default: true },
         fixedRowHeight: { type: Boolean, default: true },
-        selected: { type: Array, default: () => [] }
+        selected: { type: Array, default: () => [] },
+        tabNav: { type: Boolean, default: false }
     },
     data() {
         return {
@@ -107,9 +110,7 @@ export default {
                 this.curSortDesc = false;
             }
         },
-        selectRow(index) {
-            const page = Math.ceil((index + 1) / this.perPage);
-            const indexInPage = index - (this.currentPage - 1) * this.perPage;
+        selectRow(page, indexInPage, index) {
             if (page !== this.currentPage) {
                 if (!this.selectedPerPage[page]) {
                     this.selectedPerPage[page] = [];
@@ -119,9 +120,7 @@ export default {
                 this.$refs.bTable.selectRow(indexInPage);
             }
         },
-        unselectRow(index) {
-            const page = Math.ceil((index + 1) / this.perPage);
-            const indexInPage = index - (this.currentPage - 1) * this.perPage;
+        unselectRow(page, indexInPage) {
             if (page !== this.currentPage) {
                 if (!this.selectedPerPage[page]) {
                     this.selectedPerPage[page] = [];
@@ -150,21 +149,21 @@ export default {
         isClear() {
             return this.displayedItems && this.displayedItems !== this.$refs.bTable.computedItems;
         },
-        doSelectRow(index, doSelect) {
-            const isSelected = this.$refs.bTable.isRowSelected(index);
-            if (doSelect && !isSelected) {
-                this.selectRow(index);
+        doSelectRow(itemIndexInList, doSelect) {
+            const page = Math.ceil((itemIndexInList + 1) / this.perPage);
+            const indexInPage = itemIndexInList - (page - 1) * this.perPage;
+            const isSelected = this.selectedPerPage?.[page]?.[indexInPage];
+
+            if (doSelect) {
+                this.selectRow(page, indexInPage, itemIndexInList);
             } else if (!doSelect && isSelected) {
-                this.unselectRow(index);
+                this.unselectRow(page, indexInPage);
             }
         },
         async doSelectRows() {
             await this.$waitFor(() => this.$refs.bTable, Boolean);
             this.items.forEach((item, index) => {
-                this.doSelectRow(
-                    index,
-                    this.selected.some(s => s === item)
-                );
+                this.doSelectRow(index, this.selected.findIndex(selected => selected.uid === item.uid) !== -1);
             });
         },
         /** FIXME: WaitFor mixin exists in MailApp, should be common. */

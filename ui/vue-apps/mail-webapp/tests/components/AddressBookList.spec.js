@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import AddressBookList from "../../src/components/MailComposer/AddressBookList";
+import AddressBookList from "../../src/components/RecipientPicker/AddressBookList";
 import { bmBuildings } from "@bluemind/ui-components/src/icons/bmBuildings";
 import { bmUser } from "@bluemind/ui-components/src/icons/bmUser";
 import { bmEnvelopeUser } from "@bluemind/ui-components/src/icons/bmEnvelopeUser";
@@ -18,6 +18,16 @@ describe("Addressbooks list [RECIPIENT PICKER]", () => {
         const wrapper = AddressbookListSUT().withDefaultsContainers().mount();
 
         expect(wrapper.text()).toContain("Mes contacts", "Contacts collectés", "Collectés par George Abitbol");
+    });
+
+    it("Annuaire should be selected by default", async () => {
+        const wrapper = AddressbookListSUT().withDefaultsContainers().mount();
+
+        // Addressbooklist does not update selection himself but emit an event (parent should handle the change)
+        await wrapper.setProps({
+            selectedAddressbook: wrapper.emitted("selected")[0][0]
+        });
+        expect(wrapper.find(".active").text()).toEqual("Mes contacts");
     });
 
     it("shared addressbooks should contain the name of the owner in addition of addressbook type", () => {
@@ -91,11 +101,11 @@ describe("Addressbooks list [RECIPIENT PICKER]", () => {
             expect(listItems.at(4).text()).toContain("George Abitbol");
         });
     });
-    it("should emit selected item id when clicked", () => {
+    it("should emit selected item id when clicked", async () => {
         const wrapper = AddressbookListSUT().withDefaultsContainers().mount();
+        wrapper.findAll("[role='listitem']").at(0).trigger("click");
 
-        wrapper.find("[role='listitem']").trigger("click");
-        expect(wrapper.emitted("selected")[0]).toContain("addressbook_75a0d5b3.internal");
+        expect(wrapper.emitted("selected").pop()).toContain("addressbook_75a0d5b3.internal");
     });
 
     describe("Keyboard Navigation", () => {

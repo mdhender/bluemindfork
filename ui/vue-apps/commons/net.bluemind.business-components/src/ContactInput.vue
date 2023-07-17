@@ -294,9 +294,14 @@ export default {
         });
     },
     updated() {
-        if (!this.collapsed && this.requestFocusOnInput && isVisible(this.$refs.new?.$el)) {
-            this.focus();
-            this.requestFocusOnInput = false;
+        if (!this.collapsed && this.requestFocusOnInput) {
+            if (isVisible(this.$refs.new?.$el)) {
+                this.focus();
+                this.requestFocusOnInput = false;
+            } else if (this.readonly) {
+                this.focusFirst();
+                this.requestFocusOnInput = false;
+            }
         }
     },
     methods: {
@@ -410,7 +415,7 @@ export default {
         preventNext(event) {
             if (
                 event.target.selectionStart !== event.target.selectionEnd ||
-                event.target.selectionStart < event.target.value.length
+                event.target.selectionStart < event.target.value?.length
             ) {
                 event.stopPropagation();
             }

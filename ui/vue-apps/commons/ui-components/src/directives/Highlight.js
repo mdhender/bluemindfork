@@ -23,9 +23,8 @@ function findTextNodes(node) {
     });
     return textNodes;
 }
-function highlightMatchingContent(matchPattern, text) {
-    const replaceRegex = new RegExp("(" + matchPattern + ")", "gi");
-    return text.replaceAll(replaceRegex, "<mark>$1</mark>");
+export function highlightMatchingContent(matchPattern, text) {
+    return text.replaceAll(createAccentInsensitiveRegex(matchPattern), "<mark>$1</mark>");
 }
 
 function createHighlightedElement(highlightedContent, text) {
@@ -34,6 +33,32 @@ function createHighlightedElement(highlightedContent, text) {
     highlightedNode.innerHTML = highlightedContent;
 
     return highlightedNode;
+}
+
+function createAccentInsensitiveRegex(searchTerm) {
+    const normalizedSearchTerm = searchTerm.normalize("NFD").replace(/\p{Diacritic}/gu, "");
+    const regexString = [...normalizedSearchTerm].reduce(
+        (regexString, char, i) => regexString + enhancedRegexpChar(searchTerm[i], char),
+        ""
+    );
+    return new RegExp("(" + regexString + ")", "gi");
+}
+
+function enhancedRegexpChar(searchTerm, char) {
+    const normalizableCharsMap = new Map([
+        ["e", "[eéêè]"],
+        ["i", "[iîï]"],
+        ["a", "[aàâä]"],
+        ["o", "[oô]"],
+        ["c", "[cçĉ]"]
+    ]);
+    if (normalizableCharsMap.has(char)) {
+        return normalizableCharsMap.get(char);
+    }
+    if (normalizableCharsMap.has(searchTerm)) {
+        return normalizableCharsMap.get(searchTerm);
+    }
+    return char;
 }
 
 function unhighlight(node) {

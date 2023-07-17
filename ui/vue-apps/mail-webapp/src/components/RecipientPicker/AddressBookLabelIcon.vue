@@ -1,5 +1,5 @@
 <template>
-    <bm-label-icon :icon="icon">{{ name }}</bm-label-icon>
+    <bm-label-icon class="address-book-label-icon" :icon="icon">{{ name }}</bm-label-icon>
 </template>
 
 <script>

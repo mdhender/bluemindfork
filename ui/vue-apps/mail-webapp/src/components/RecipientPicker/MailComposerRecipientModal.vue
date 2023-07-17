@@ -8,17 +8,27 @@
         centered
         @change="search = ''"
     >
-        <selected-contacts :contacts.sync="selectedContacts" />
+        <div class="select-wrapper d-lg-none">
+            <address-book-mobile-dropdown
+                :address-books="addressBooks"
+                :selected-address-book="selectedAddressBook"
+                :user-id="userId"
+                @selected="selectedAddressBookId = $event"
+            />
+        </div>
+
+        <selected-contacts :contacts.sync="selectedContacts" :contacts-type="recipientContactsType" />
         <hr />
+
         <div class="recipient-modal-body d-flex flex-fill">
             <address-book-list
+                class="d-none d-lg-flex"
                 :addressbooks="addressBooks"
                 :user-id="userId"
                 :selected-addressbook="selectedAddressBookId"
                 @selected="selectedAddressBookId = $event"
             />
-
-            <div class="flex-fill">
+            <div class="d-flex flex-column flex-fill">
                 <bm-form-input
                     ref="inputSearch"
                     v-model="search"
@@ -37,8 +47,7 @@
                     "
                 />
                 <contact-list
-                    v-highlight="highlightPattern"
-                    class="h-100"
+                    class="flex-fill"
                     :contacts="contacts"
                     :loading="loading"
                     :search="search"
@@ -76,27 +85,38 @@
 <script>
 import debounce from "lodash.debounce";
 import { mapActions, mapState } from "vuex";
-import { ERROR, REMOVE } from "@bluemind/alert.store";
-import { BmAlertArea, BmButton, BmModal, BmFormInput, Highlight } from "@bluemind/ui-components";
 import { inject } from "@bluemind/inject";
-import { searchVCardsHelper } from "@bluemind/contact";
+import { ERROR, REMOVE } from "@bluemind/alert.store";
+import { searchVCardsHelper, sortAddressBooks } from "@bluemind/contact";
+import { BmAlertArea, BmButton, BmModal, BmFormInput } from "@bluemind/ui-components";
+import AddressBookLabelIcon from "./AddressBookLabelIcon";
 import AddressBookList from "./AddressBookList";
+import AddressBookMobileDropdown from "./AddressBookMobileDropdown.vue";
 import ContactList from "./ContactList";
 import SelectedContacts from "./SelectedContacts";
 
 export default {
     name: "MailComposerRecipientModal",
-    components: { BmAlertArea, BmButton, BmModal, AddressBookList, ContactList, SelectedContacts, BmFormInput },
-    directives: { Highlight },
+    components: {
+        AddressBookLabelIcon,
+        AddressBookList,
+        AddressBookMobileDropdown,
+        BmAlertArea,
+        BmButton,
+        BmFormInput,
+        BmModal,
+        ContactList,
+        SelectedContacts
+    },
     props: {
-        selected: { type: Array, default: () => [] }
+        selected: { type: Array, default: () => [] },
+        recipientContactsType: { type: String, default: "" }
     },
     data() {
         return {
             addressBooks: [],
             loading: false,
             userId: undefined,
-            selectedAddressbookId: undefined,
             allContacts: [],
             searchedContacts: [],
             search: "",
@@ -126,34 +146,34 @@ export default {
                 .filter(Boolean);
         },
         contacts() {
-            if (this.resettable && this.searchedContacts != null) {
-                return this.searchedContacts;
-            }
-            return this.allContacts;
+            const contacts = this.isSearching ? this.searchedContacts : this.allContacts;
+            return this.sortByName(contacts.slice());
+        },
+        isSearching() {
+            return this.resettable && this.searchedContacts != null;
         },
         resettable() {
             return Boolean(this.search);
         }
     },
     watch: {
-        async selectedAddressBookId(value) {
+        async selectedAddressBookId(addressbookId) {
             this.search = "";
             this.loading = true;
 
             try {
-                if (!value) return [];
-                const ids = await inject("AddressBookPersistence", value).sortedIds();
-                this.allContacts = (await inject("AddressBookPersistence", value).multipleGetById(ids)).map(
-                    contact => ({
-                        uid: contact.uid,
-                        name: contact.value.identification.formatedName.value,
-                        email: extractDefaultCommunication(contact, "emails"),
-                        tel: extractDefaultCommunication(contact, "tels"),
-                        kind: contact.value.kind,
-                        members: contact.value.organizational?.member,
-                        urn: `${contact.uid}@${value}`
-                    })
-                );
+                if (!addressbookId) return [];
+                const addressbookRepository = inject("AddressBookPersistence", addressbookId);
+                const ids = await addressbookRepository.sortedIds();
+                this.allContacts = (await addressbookRepository.multipleGetById(ids)).map(contact => ({
+                    uid: contact.uid,
+                    name: contact.value.identification.formatedName.value,
+                    email: extractDefaultCommunication(contact, "emails"),
+                    tel: extractDefaultCommunication(contact, "tels"),
+                    kind: contact.value.kind,
+                    members: contact.value.organizational?.member,
+                    urn: `${contact.uid}@${addressbookId}`
+                }));
             } finally {
                 this.loading = false;
             }
@@ -173,7 +193,10 @@ export default {
     },
     async created() {
         this.userId = inject("UserSession").userId;
-        this.addressBooks = await inject("ContainersPersistence").getContainers(await this.subscribedContainerUids());
+        this.addressBooks = sortAddressBooks(
+            await inject("ContainersPersistence").getContainers(await this.subscribedContainerUids()),
+            this.userId
+        );
     },
     methods: {
         resetBeforeSearchIfRequired(searchValue) {
@@ -232,6 +255,9 @@ export default {
                 }
             });
             this.selectedContacts = selected;
+        },
+        sortByName(contacts) {
+            return contacts.sort((a, b) => a.name.trim().localeCompare(b.name.trim()));
         }
     }
 };
@@ -265,6 +291,22 @@ function toContact(contactItem) {
     .modal-body {
         padding: 0;
         background-color: $backdrop;
+
+        .select-wrapper {
+            background-color: $surface;
+            padding: $sp-5;
+            .bm-form-select .address-book-label-icon {
+                max-width: 100%;
+                &,
+                > div {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+            }
+        }
+        .address-book-list {
+            max-width: 20%;
+        }
     }
     hr {
         margin: 0;

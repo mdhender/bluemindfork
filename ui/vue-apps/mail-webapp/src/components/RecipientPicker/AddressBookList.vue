@@ -1,7 +1,7 @@
 <template>
     <bm-list-group class="address-book-list scroller-y">
         <bm-list-group-item
-            v-for="addressBook in addressBooksList"
+            v-for="addressBook in addressbooks"
             :key="addressBook.uid"
             data-browse
             button
@@ -16,7 +16,6 @@
 </template>
 
 <script>
-import { isPersonalAddressBook, isDirectoryAddressBook, isCollectAddressBook } from "@bluemind/contact";
 import { BmListGroup, BmListGroupItem, BrowsableContainer } from "@bluemind/ui-components";
 import AddressBookLabelIcon from "./AddressBookLabelIcon";
 
@@ -31,7 +30,8 @@ export default {
     },
     data() {
         return {
-            vertical: true
+            vertical: true,
+            tabNavigation: false
         };
     },
     computed: {
@@ -42,36 +42,12 @@ export default {
             set(selection) {
                 this.$emit("selected", selection);
             }
-        },
-        addressBooksList() {
-            return sortAddressBooks(this.addressbooks, this.userId);
         }
     },
     created() {
-        this.selected = this.addressBooksList[0]?.uid;
+        this.selected = this.addressbooks[1]?.uid;
     }
 };
-
-function sortAddressBooks(addressBooks, userId) {
-    return addressBooks.sort((a, b) => {
-        if (!isShared(a, userId) != !isShared(b, userId)) return !isShared(a, userId) ? -1 : 1;
-
-        if (isDirectoryAddressBook(a.uid, a.domainUid) != isDirectoryAddressBook(b.uid, b.domainUid))
-            return isDirectoryAddressBook(a.uid, a.domainUid) ? -1 : 1;
-
-        if (isPersonalAddressBook(a.uid, a.owner) != isPersonalAddressBook(b.uid, b.owner))
-            return isPersonalAddressBook(a.uid, a.owner) ? -1 : 1;
-
-        if (isCollectAddressBook(a.uid, a.owner) != isCollectAddressBook(b.uid, b.owner))
-            return isCollectAddressBook(a.uid, a.owner) ? -1 : 1;
-
-        return a.name.localeCompare(b.name);
-    });
-}
-
-function isShared(addressBook, userId) {
-    return !isDirectoryAddressBook(addressBook.uid, addressBook.domainUid) && userId !== addressBook.owner;
-}
 </script>
 
 <style lang="scss">
@@ -84,7 +60,10 @@ $padding-y: $sp-3 + $sp-2;
     background-color: $surface;
     .list-group-item {
         flex: none;
-        padding: $padding-y 0 $padding-y $sp-6;
+        padding-top: $padding-y;
+        padding-right: $sp-3 + $sp-2 !important;
+        padding-bottom: $padding-y;
+        padding-left: $sp-6;
         gap: $sp-4;
         border-color: $neutral-fg-lo3 !important;
         height: $tree-node-height-tactile;
@@ -96,6 +75,14 @@ $padding-y: $sp-3 + $sp-2;
             &:hover {
                 background-color: $secondary-bg;
             }
+        }
+    }
+    .address-book-label-icon {
+        max-width: 100%;
+        &,
+        > div {
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
 }

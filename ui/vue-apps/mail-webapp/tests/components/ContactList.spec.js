@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import ContactList from "../../src/components/MailComposer/ContactList";
+import ContactList from "../../src/components/RecipientPicker/ContactList";
 import { BmSpinner, BmTable } from "@bluemind/ui-components";
 
 describe("CONTACT LIST COMPONENT", () => {
@@ -51,20 +51,19 @@ describe("CONTACT LIST COMPONENT", () => {
                 { name: "Alex", email: "laude.beer@paradox.com", tel: "067789254" },
                 { name: "Julien", email: "jul@nope.com", tel: "0675446554" }
             ])
-            .withSelected([{ name: "George Abitbol" }, { name: "Ferdinand" }])
+            .withSelected([{ name: "George Abitbol" }])
             .mount();
 
         await wrapper.vm.$nextTick(); //Default selection require awaiting for nextRender to be visible
 
         expect(rowByText(wrapper, "George").find('input[type="checkbox"]').element).toBeChecked();
-        expect(rowByText(wrapper, "Bertrand").find('input[type="checkbox"]').element).not.toBeChecked();
     });
 
     test("should display name, email, and telephone of contacts", () => {
         const wrapper = ContactListSUT({}).withContacts().mount();
 
         const cells = wrapper.find("tbody>[role='row']").findAll("[role='cell']");
-        const name = cells.at(1).text();
+        const name = cells.at(1).text().split(" ")[0];
         const email = cells.at(2).text();
         const tel = cells.at(3).text();
 

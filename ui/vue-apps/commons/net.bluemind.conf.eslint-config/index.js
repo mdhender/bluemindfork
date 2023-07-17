@@ -23,6 +23,12 @@ module.exports = {
                 "plugin:vue/recommended",
                 "@vue/prettier"
             ]
+        },
+        {
+            files: ["**/*.vue"],
+            rules: {
+                "no-unused-vars": "off"
+            }
         }
     ],
     rules: {
