@@ -1,4 +1,5 @@
 import i18n from "@bluemind/i18n";
+import { matchPattern } from "@bluemind/string";
 import { MailboxType } from "./mailbox";
 
 export function create(key, name, parent, mailbox) {
@@ -259,12 +260,9 @@ export function match(folder, pattern) {
     const path = pattern.toLowerCase().substring(0, start);
     if (path) {
         const matcher = new RegExp(`${path}[^/]*$`, "gi");
-        return (
-            matcher.test(folder.path) &&
-            (folder.name.toLowerCase().startsWith(name) || folder.imapName.toLowerCase().startsWith(name))
-        );
+        return matcher.test(folder.path) && matchPattern(name, [folder.name, folder.imapName], { startsWith: true });
     } else {
-        return folder.name.toLowerCase().includes(name) || folder.imapName.toLowerCase().includes(name);
+        return matchPattern(name, [folder.name, folder.imapName]);
     }
 }
 

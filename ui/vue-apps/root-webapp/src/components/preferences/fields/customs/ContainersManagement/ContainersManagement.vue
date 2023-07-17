@@ -74,6 +74,7 @@ import ImportModal from "./ImportModal";
 import ManageContainerSharesModal from "./ManageContainerSharesModal/ManageContainerSharesModal";
 import SubscribeOtherContainersModal from "./SubscribeOtherContainersModal";
 import { BmButton, BmFormInput, BmPagination } from "@bluemind/ui-components";
+import { matchPattern } from "@bluemind/string";
 
 export default {
     name: "ContainersManagement",
@@ -137,11 +138,8 @@ export default {
             return this.$t("preferences.create_container." + this.containerType + ".button");
         },
         filtered() {
-            const realPattern = this.pattern.toLowerCase();
-            return this.containers.filter(
-                container =>
-                    container.name.toLowerCase().includes(realPattern) ||
-                    container.ownerDisplayname.toLowerCase().includes(realPattern)
+            return this.containers.filter(container =>
+                matchPattern(this.pattern, [container.name, container.ownerDisplayname])
             );
         },
         showShareColumn() {

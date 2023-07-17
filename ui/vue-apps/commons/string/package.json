@@ -1,0 +1,8 @@
+{
+    "name": "@bluemind/string",
+    "version": "5.0.0",
+    "description": "Helper functions for string",
+    "license": "AGPL-3.0-only",
+    "author": "Blue Mind SAS",
+    "main": "src/index.ts"
+}

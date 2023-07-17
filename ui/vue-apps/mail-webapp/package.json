@@ -31,6 +31,7 @@
         "@bluemind/sentry": "^5.0.0",
         "@bluemind/service-worker-utils": "^5.0.0",
         "@bluemind/store": "^5.0.0",
+        "@bluemind/string": "^5.0.0",
         "@bluemind/task": "^5.0.0",
         "@bluemind/user.api": "^5.0.0",
         "@bluemind/uuid": "^5.0.0",

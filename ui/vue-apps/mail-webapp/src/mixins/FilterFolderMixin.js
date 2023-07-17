@@ -1,6 +1,7 @@
 import { mapGetters } from "vuex";
 import { folderUtils } from "@bluemind/mail";
 import { MAILBOXES, MAILBOX_FOLDERS, MY_INBOX, MY_TRASH } from "~/getters";
+import { matchPattern } from "@bluemind/string";
 
 const { createRoot } = folderUtils;
 
@@ -19,29 +20,11 @@ export default {
     },
     methods: {
         matchingFolders(isExcluded, includedMailboxes = []) {
-            const filtered = [];
-
-            const mailboxes =
-                includedMailboxes.length > 0 ? includedMailboxes : this.$store.getters[`mail/${MAILBOXES}`];
-            mailboxes.forEach(mailbox => {
-                const rootFolder = createRoot(mailbox);
-                if (mailbox.writable) {
-                    const folders = [rootFolder, ...this.$store.getters[`mail/${MAILBOX_FOLDERS}`](mailbox)];
-                    folders.forEach(folder => {
-                        if (
-                            !isExcluded(folder) &&
-                            (folder.path.toLowerCase().includes(this.pattern.toLowerCase()) ||
-                                folder.name.toLowerCase().includes(this.pattern.toLowerCase()))
-                        ) {
-                            filtered.push(folder);
-                        }
-                    });
-                }
-            });
-
-            if (filtered) {
-                return filtered.slice(0, this.maxFolders);
-            }
+            return (includedMailboxes.length ? includedMailboxes : this.$store.getters[`mail/${MAILBOXES}`])
+                .filter(mailbox => mailbox.writable)
+                .flatMap(mailbox => [createRoot(mailbox), ...this.$store.getters[`mail/${MAILBOX_FOLDERS}`](mailbox)])
+                .filter(folder => !isExcluded(folder) && matchPattern(this.pattern, [folder.path, folder.name]))
+                .slice(0, this.maxFolders);
         }
     }
 };

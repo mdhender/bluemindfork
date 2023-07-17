@@ -67,6 +67,7 @@ import { mapActions } from "vuex";
 import { SUCCESS } from "@bluemind/alert.store";
 import { isContainerTypeUsedByApp } from "./container";
 import { SAVE_ALERT } from "../../../Alerts/defaultAlerts";
+import { matchPattern } from "@bluemind/string";
 
 export default {
     name: "SubscribeOtherContainersModal",
@@ -143,11 +144,8 @@ export default {
             return this.allReadableContainers.length > 0;
         },
         suggested() {
-            const realPattern = this.pattern.toLowerCase();
-            return this.allReadableContainers.filter(
-                mailbox =>
-                    mailbox.name.toLowerCase().includes(realPattern) ||
-                    mailbox.ownerDisplayname.toLowerCase().includes(realPattern)
+            return this.allReadableContainers.filter(mailbox =>
+                matchPattern(this.pattern, [mailbox.name, mailbox.ownerDisplayname])
             );
         },
         totalRows() {
