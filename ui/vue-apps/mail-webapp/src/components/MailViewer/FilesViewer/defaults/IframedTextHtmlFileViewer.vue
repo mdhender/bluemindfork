@@ -2,9 +2,25 @@
 import { mapGetters } from "vuex";
 import { html2text } from "@bluemind/html-utils";
 import { darkifyHtml, darkifyingBaseLvalue, getDarkifiedCss, undarkifyHtml } from "@bluemind/ui-components";
+import { WEBSERVER_HANDLER_BASE_URL } from "@bluemind/email";
+import { convertBlobToBase64 } from "@bluemind/blob";
 import IFrame from "../../../IFrame";
 import FileViewerMixin from "../FileViewerMixin";
 import TextHtmlFileViewer from "./../TextHtmlFileViewer";
+
+const copyProcessors = [replaceImageParts, undarkifyHtml];
+
+function replaceImageParts(contentAsFragment) {
+    return Promise.all(
+        [...contentAsFragment.querySelectorAll("img[src]")]
+            .filter(el => el.attributes.src.nodeValue.startsWith(WEBSERVER_HANDLER_BASE_URL))
+            .map(async el => {
+                const data = await fetch(el.attributes.src.nodeValue);
+                const blob = await data.blob();
+                el.src = await convertBlobToBase64(blob);
+            })
+    );
+}
 
 export default {
     name: "IframedTextHtmlFileViewer",
@@ -31,13 +47,19 @@ export default {
             cssStr += "}\n";
             return { htmlStr, cssStr };
         },
-        undarkifyContent(event) {
+        async parseCopiedContent(event) {
             const contentAsFragment = event.selection.getRangeAt(0).cloneContents();
-            undarkifyHtml(contentAsFragment);
+            for (const copyProcessor of copyProcessors) {
+                await copyProcessor(contentAsFragment);
+            }
             const div = document.createElement("div");
             div.appendChild(contentAsFragment.cloneNode(true));
-            event.clipboardData.setData("text/html", div.innerHTML);
-            event.clipboardData.setData("text/plain", html2text(div.innerHTML));
+            navigator.clipboard.write([
+                new ClipboardItem({
+                    "text/html": new Blob([div.innerHTML], { type: "text/html" }),
+                    "text/plain": new Blob([html2text(div.innerHTML)], { type: "text/plain" })
+                })
+            ]);
         },
         renderIFrame(h, { htmlStr, cssStr }) {
             return h(
@@ -46,7 +68,7 @@ export default {
                     staticClass: "border-0",
                     on: {
                         copy: event => {
-                            this.undarkifyContent(event);
+                            this.parseCopiedContent(event);
                             event.preventDefault();
                         }
                     }

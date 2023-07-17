@@ -1,0 +1,12 @@
+{
+    "name": "@bluemind/blob",
+    "version": "5.0.0",
+    "description": "Helper functions for blob data",
+    "license": "AGPL-3.0-only",
+    "author": "Blue Mind SAS",
+    "main": "src/index.ts",
+    "dependencies": {
+        "@bluemind/backend.mail.api": "^5.0.0",
+        "@bluemind/email": "^5.0.0"
+    }
+}

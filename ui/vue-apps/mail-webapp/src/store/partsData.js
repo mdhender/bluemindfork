@@ -1,5 +1,5 @@
-import { MimeType } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
+import { convertBlob } from "@bluemind/blob";
 import Vue from "vue";
 
 import { FETCH_PART_DATA } from "~/actions";
@@ -43,13 +43,7 @@ export default {
                     commit(SET_PART_DATA, { messageKey, data: undefined, address: part.address });
 
                     const blob = await service.fetch(imapUid, part.address, part.encoding, part.mime, part.charset);
-                    const converted =
-                        MimeType.isHtml(part) ||
-                        MimeType.isText(part) ||
-                        MimeType.MESSAGE_DISPOSITION_NOTIFICATION === part.mime ||
-                        MimeType.MESSAGE_DELIVERY_STATUS === part.mime
-                            ? await convertAsText(blob, part)
-                            : await convertToBase64(blob);
+                    const converted = await convertBlob(blob, part);
                     commit(SET_PART_DATA, { messageKey, data: converted, address: part.address });
                 })
             );
@@ -64,23 +58,3 @@ export default {
         partsByMessageKey: {}
     }
 };
-
-function convertAsText(blob, part) {
-    return new Promise(resolve => {
-        const reader = new FileReader();
-        reader.readAsText(blob, part.charset);
-        reader.addEventListener("loadend", e => {
-            resolve(e.target.result);
-        });
-    });
-}
-
-function convertToBase64(blob) {
-    const reader = new FileReader();
-    reader.readAsDataURL(blob);
-    return new Promise(resolve => {
-        reader.onloadend = () => {
-            resolve(reader.result);
-        };
-    });
-}

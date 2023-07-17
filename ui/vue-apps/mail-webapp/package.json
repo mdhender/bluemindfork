@@ -10,6 +10,7 @@
         "@bluemind/addressbook.api": "^5.0.0",
         "@bluemind/alert.store": "^5.0.0",
         "@bluemind/api.commons": "^5.0.0",
+        "@bluemind/blob": "^5.0.0",
         "@bluemind/backend.mail.api": "^5.0.0",
         "@bluemind/calendar.api": "^5.0.0",
         "@bluemind/contact": "^5.0.0",
