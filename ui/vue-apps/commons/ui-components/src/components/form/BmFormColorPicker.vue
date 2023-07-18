@@ -5,7 +5,7 @@
                 <bm-color-badge :value="color" :selected="value === color" />
             </bm-button>
         </bm-button-toolbar>
-        <bm-button variant="text" class="open-customizer-btn" @click="openCustomizer">
+        <bm-button class="open-customizer-btn" variant="text" size="lg" @click="openCustomizer">
             {{ $t("styleguide.color-picker.customize") }}
         </bm-button>
         <b-form-input
@@ -83,18 +83,22 @@ export default {
 </script>
 
 <style lang="scss">
+@import "../../css/utils/responsiveness";
 @import "../../css/utils/variables";
 
 .bm-form-color-picker {
     display: inline-flex;
     flex-wrap: wrap;
     align-items: center;
-
-    padding: $sp-2;
+    padding: 0;
 
     .btn-toolbar {
+        padding: $sp-3;
         .bm-button {
-            padding: $sp-3;
+            padding: $sp-5;
+            @include from-lg {
+                padding: $sp-3;
+            }
         }
     }
 

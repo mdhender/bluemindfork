@@ -1,9 +1,10 @@
 <template>
-    <bm-modal-deprecated
+    <bm-modal
         :id="$attrs['id']"
         ref="pref-tag-modal-bm-modal"
-        class="pref-tag-modal"
+        content-class="pref-tag-modal"
         centered
+        size="sm"
         :title="tag.id ? $t('preferences.general.tags.edit') : $t('preferences.general.tags.create')"
         :cancel-title="$t('common.cancel')"
         :ok-title="tag.id ? $t('common.edit') : $t('common.create')"
@@ -26,16 +27,16 @@
                 />
             </bm-form-group>
         </bm-form>
-    </bm-modal-deprecated>
+    </bm-modal>
 </template>
 
 <script>
-import { BmForm, BmFormColorPicker, BmFormGroup, BmFormInput, BmModalDeprecated } from "@bluemind/ui-components";
+import { BmForm, BmFormColorPicker, BmFormGroup, BmFormInput, BmModal } from "@bluemind/ui-components";
 import tagColors from "./tagColors";
 
 export default {
     name: "PrefTagModal",
-    components: { BmForm, BmFormColorPicker, BmFormGroup, BmFormInput, BmModalDeprecated },
+    components: { BmForm, BmFormColorPicker, BmFormGroup, BmFormInput, BmModal },
     props: {
         tag: {
             type: Object,
@@ -95,3 +96,13 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/ui-components/src/css/utils/variables";
+
+.pref-tag-modal {
+    #color {
+        border: 1px solid $neutral-fg-lo3;
+    }
+}
+</style>
