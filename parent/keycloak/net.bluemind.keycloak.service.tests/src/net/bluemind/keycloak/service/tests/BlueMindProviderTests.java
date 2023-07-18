@@ -38,13 +38,10 @@ import java.util.List;
 import org.junit.Test;
 
 import io.vertx.core.json.JsonObject;
-import net.bluemind.hornetq.client.MQ;
-import net.bluemind.hornetq.client.MQ.SharedMap;
-import net.bluemind.hornetq.client.Shared;
 import net.bluemind.keycloak.api.IKeycloakUids;
 import net.bluemind.mailbox.api.Mailbox.Routing;
+import net.bluemind.network.topology.Topology;
 import net.bluemind.pool.impl.BmConfIni;
-import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class BlueMindProviderTests extends AbstractServiceTests {
@@ -52,11 +49,7 @@ public class BlueMindProviderTests extends AbstractServiceTests {
 	@Override
 	public void before() throws Exception {
 		super.before();
-
-		// BlueMindProvider is initialized using Sysconf shared map
-		SharedMap<String, String> smap = MQ.sharedMap(Shared.MAP_SYSCONF);
-		smap.put(SysConfKeys.external_protocol.name(), "http");
-		smap.put(SysConfKeys.external_url.name(), getMyIpAddress() + ":8090");
+		Topology.get().core().value.ip = getMyIpAddress();
 	}
 
 	@Test
@@ -94,8 +87,7 @@ public class BlueMindProviderTests extends AbstractServiceTests {
 		requestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(postData));
 		HttpRequest req = requestBuilder.build();
 		HttpClient cli = HttpClient.newHttpClient();
-		HttpResponse<String> resp = cli.send(req, BodyHandlers.ofString());
-		return resp;
+		return cli.send(req, BodyHandlers.ofString());
 	}
 
 	private static String getMyIpAddress() {
