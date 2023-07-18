@@ -42,20 +42,20 @@ describe("messageCompose", () => {
             store.commit(SET_DISCLAIMER, disclaimer);
             expect(store.state.disclaimer).toStrictEqual(disclaimer);
         });
-        test("dont change corporate signature or disclaimer if it's same uid", () => {
+        test("change corporate signature or disclaimer if it's not the same html", () => {
             const corpSign = { uid: "my-uid", html: "html sign" };
             store.commit(SET_CORPORATE_SIGNATURE, corpSign);
 
-            const corpSignWithSameUid = { uid: "my-uid", html: "just to check result" };
+            const corpSignWithSameUid = { uid: "my-uid", html: "html sign 2" };
             store.commit(SET_CORPORATE_SIGNATURE, corpSignWithSameUid);
-            expect(store.state.corporateSignature.html).toEqual("html sign");
+            expect(store.state.corporateSignature.html).toEqual("html sign 2");
 
             const disclaimer = { uid: "my-uid", html: "html sign" };
             store.commit(SET_DISCLAIMER, disclaimer);
 
-            const disclaimerWithSameUid = { uid: "my-uid", html: "just to check result" };
+            const disclaimerWithSameUid = { uid: "my-uid", html: "html sign 2" };
             store.commit(SET_DISCLAIMER, disclaimerWithSameUid);
-            expect(store.state.disclaimer.html).toEqual("html sign");
+            expect(store.state.disclaimer.html).toEqual("html sign 2");
         });
         test("SET_DRAFT_EDITOR_CONTENT", () => {
             store.commit(SET_DRAFT_EDITOR_CONTENT, "Content");
