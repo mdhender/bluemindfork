@@ -1,28 +1,37 @@
 <template>
     <div class="mail-viewer-recipients-more-content" tabindex="0" @keyup.esc="$emit('close')">
-        <div v-if="!hideClose" class="d-flex position-sticky top-0 pt-1">
-            <div class="flex-fill">
-                <bm-button-close class="align-self-end" @click="$emit('close')" />
+        <div class="header">
+            <div class="subject-and-date">
+                <div class="d-flex">
+                    <div class="custom-col-left">{{ $t("common.subject") }}</div>
+                    <div class="custom-col-right">{{ message.subject }}</div>
+                </div>
+                <div class="d-flex">
+                    <div class="custom-col-left">{{ $t("common.date") }}</div>
+                    <div class="custom-col-right">{{ new Date(message.date).toLocaleString() }}</div>
+                </div>
             </div>
+            <bm-button-close v-if="!hideClose" size="lg" @click="$emit('close')" />
         </div>
-        <div class="scroller-y pb-5">
+        <div class="body scroller-y">
             <div class="d-flex">
-                <div class="custom-col-left text-right pr-4">{{ $t("common.from") }}</div>
+                <div class="custom-col-left">{{ $t("common.from") }}</div>
                 <div class="custom-col-right">
                     <mail-contact-card-slots
                         :component="Contact"
                         :contact="message.from"
                         no-avatar
                         transparent
-                        bold
+                        bold-dn
                         show-address
+                        :text-truncate="false"
                         enable-card
                     />
                 </div>
             </div>
             <div class="d-flex">
-                <div class="custom-col-left text-right pr-4">{{ $t("common.to") }}</div>
-                <div class="custom-col-right d-flex flex-column">
+                <div class="custom-col-left">{{ $t("common.to") }}</div>
+                <div class="custom-col-right">
                     <mail-contact-card-slots
                         v-for="(contact, index) in message.to"
                         :key="`${contact.address}#${index}`"
@@ -30,7 +39,7 @@
                         :contact="contact"
                         no-avatar
                         transparent
-                        bold
+                        bold-dn
                         show-address
                         :text-truncate="false"
                         enable-card
@@ -38,8 +47,8 @@
                 </div>
             </div>
             <div v-if="message.cc && message.cc.length" class="d-flex">
-                <div class="custom-col-left text-right pr-4">{{ $t("common.cc") }}</div>
-                <div class="custom-col-right d-flex flex-column">
+                <div class="custom-col-left">{{ $t("common.cc") }}</div>
+                <div class="custom-col-right">
                     <mail-contact-card-slots
                         v-for="(contact, index) in message.cc"
                         :key="`${contact.address}#${index}`"
@@ -47,7 +56,7 @@
                         :contact="contact"
                         no-avatar
                         transparent
-                        bold
+                        bold-dn
                         show-address
                         :text-truncate="false"
                         enable-card
@@ -55,8 +64,8 @@
                 </div>
             </div>
             <div v-if="message.bcc && message.bcc.length" class="d-flex">
-                <div class="custom-col-left text-right pr-4">{{ $t("common.bcc") }}</div>
-                <div class="custom-col-right d-flex flex-column">
+                <div class="custom-col-left">{{ $t("common.bcc") }}</div>
+                <div class="custom-col-right">
                     <mail-contact-card-slots
                         v-for="(contact, index) in message.bcc"
                         :key="`${contact.address}#${index}`"
@@ -64,24 +73,12 @@
                         :contact="contact"
                         no-avatar
                         transparent
-                        bold
+                        bold-dn
                         show-address
                         :text-truncate="false"
                         enable-card
                     />
                 </div>
-            </div>
-            <div class="d-flex">
-                <div class="custom-col-left" />
-                <div class="custom-col-right"><hr class="mb-1 mt-3" /></div>
-            </div>
-            <div class="d-flex">
-                <div class="custom-col-left text-right pr-4">{{ $t("common.date") }}</div>
-                <div class="fcustom-col-right font-weight-bold">{{ new Date(message.date).toLocaleString() }}</div>
-            </div>
-            <div class="d-flex">
-                <div class="custom-col-left text-right pr-4">{{ $t("common.subject") }}</div>
-                <div class="custom-col-right font-weight-bold">{{ message.subject }}</div>
             </div>
         </div>
     </div>
@@ -112,16 +109,82 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/ui-components/src/css/utils/responsiveness";
+@import "~@bluemind/ui-components/src/css/utils/typography";
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .mail-viewer-recipients-more-content {
-    $left-col-width: 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    .header {
+        display: flex;
+        gap: $sp-5;
+        padding-top: $sp-6;
+        @include from-lg {
+            padding-top: $sp-5;
+        }
+        background-color: $neutral-bg-lo1;
+
+        .subject-and-date {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: $sp-5;
+            @include from-lg {
+                padding-top: base-px-to-rem(7);
+            }
+        }
+
+        border-bottom: 1px solid $neutral-fg-lo3;
+
+        padding-right: $sp-3;
+        padding-bottom: calc(#{$sp-6} - 1px);
+        @include from-lg {
+            padding-right: base-px-to-rem(14);
+            padding-bottom: calc(#{$sp-5 + $sp-3} - 1px);
+        }
+    }
+
+    .body {
+        min-height: 0;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: $sp-5;
+        padding-top: $sp-6;
+        @include from-lg {
+            padding-top: $sp-5 + $sp-3;
+        }
+        padding-bottom: $sp-6;
+    }
+
     .custom-col-left {
-        width: $left-col-width;
-        color: $neutral-fg;
+        flex: none;
+        width: base-px-to-rem(80);
+        @include from-lg {
+            width: base-px-to-rem(90);
+        }
+        color: $neutral-fg-hi1;
+        @include regular;
+        text-align: right;
+        padding-right: $sp-6;
     }
     .custom-col-right {
-        width: calc(100% - $left-col-width);
+        min-width: 0;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: $sp-3;
+        padding-right: $sp-6;
+        overflow-wrap: break-word;
+        word-break: break-all;
+        padding-right: $sp-3;
+        @include from-lg {
+            padding-right: $sp-7;
+        }
+        @include regular;
     }
 }
 </style>

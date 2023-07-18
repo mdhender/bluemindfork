@@ -39,7 +39,7 @@
             triggers="manuel"
             :show.sync="toShowMore"
             placement="bottom"
-            custom-class="recipients-popover scroller-y"
+            custom-class="recipients-popover"
             no-fade
         >
             <mail-viewer-recipients-more-content :message="message" @close="toShowMore = false" />
@@ -50,7 +50,7 @@
             triggers="manuel"
             :show.sync="ccShowMore"
             placement="bottom"
-            custom-class="recipients-popover scroller-y"
+            custom-class="recipients-popover"
             no-fade
         >
             <mail-viewer-recipients-more-content :message="message" @close="ccShowMore = false" />
@@ -61,52 +61,58 @@
             triggers="manuel"
             :show.sync="bccShowMore"
             placement="bottom"
-            custom-class="recipients-popover scroller-y"
+            custom-class="recipients-popover"
             no-fade
         >
             <mail-viewer-recipients-more-content :message="message" @close="bccShowMore = false" />
         </bm-popover>
-        <bm-modal-deprecated
+        <bm-modal
             v-if="message.to.length"
-            id="mail-viewer-recipients-modal-to"
             v-model="toShowMore"
+            size="sm"
+            height="lg"
+            modal-class="mail-viewer-recipients-modal"
             centered
             hide-footer
             hide-header
         >
-            <mail-viewer-recipients-more-content :message="message" class="pt-5" hide-close />
-        </bm-modal-deprecated>
-        <bm-modal-deprecated
+            <mail-viewer-recipients-more-content :message="message" hide-close />
+        </bm-modal>
+        <bm-modal
             v-if="message.cc.length"
-            id="mail-viewer-recipients-modal-cc"
             v-model="ccShowMore"
+            size="sm"
+            height="lg"
+            modal-class="mail-viewer-recipients-modal"
             centered
             hide-footer
             hide-header
         >
-            <mail-viewer-recipients-more-content :message="message" class="pt-5" hide-close />
-        </bm-modal-deprecated>
-        <bm-modal-deprecated
+            <mail-viewer-recipients-more-content :message="message" hide-close />
+        </bm-modal>
+        <bm-modal
             v-if="message.bcc.length"
-            id="mail-viewer-recipients-modal-bcc"
             v-model="bccShowMore"
+            size="sm"
+            height="lg"
+            modal-class="mail-viewer-recipients-modal"
             centered
             hide-footer
             hide-header
         >
-            <mail-viewer-recipients-more-content :message="message" class="pt-5" hide-close />
-        </bm-modal-deprecated>
+            <mail-viewer-recipients-more-content :message="message" hide-close />
+        </bm-modal>
     </div>
 </template>
 
 <script>
-import { BmModalDeprecated, BmPopover } from "@bluemind/ui-components";
+import { BmModal, BmPopover } from "@bluemind/ui-components";
 import MailViewerRecipient from "./MailViewerRecipient";
 import MailViewerRecipientsMoreContent from "./MailViewerRecipientsMoreContent";
 
 export default {
     name: "MailViewerRecipients",
-    components: { BmModalDeprecated, BmPopover, MailViewerRecipient, MailViewerRecipientsMoreContent },
+    components: { BmModal, BmPopover, MailViewerRecipient, MailViewerRecipientsMoreContent },
     props: {
         message: {
             type: Object,
@@ -129,33 +135,41 @@ export default {
     gap: $sp-3;
 }
 
-#mail-viewer-recipients-modal-to___BV_modal_outer_,
-#mail-viewer-recipients-modal-cc___BV_modal_outer_,
-#mail-viewer-recipients-modal-bcc___BV_modal_outer_ {
+.mail-viewer-recipients-modal {
     @include from-lg {
-        display: none;
+        display: none !important;
     }
-    .modal-dialog {
-        max-width: none;
-        width: 75%;
-        .modal-content {
-            max-height: 75%;
-            padding: 0;
-            .modal-body {
-                margin-bottom: 0;
-            }
-        }
+    .modal-body {
+        padding: 0 !important;
+    }
+    .mail-viewer-recipients-more-content {
+        height: 100%;
     }
 }
+
 .recipients-popover {
     @include until-lg {
         display: none !important;
     }
+
     max-width: 50vw !important;
     min-width: $popover-min-width;
-    max-height: 65vh;
+
+    .mail-viewer-recipients-more-content {
+        max-height: 65vh;
+    }
+
+    .popover-body {
+        padding: 0;
+    }
 
     .arrow {
+        display: none !important;
+    }
+}
+
+@include from-lg {
+    .recipients-popover + div > .modal-backdrop {
         display: none;
     }
 }

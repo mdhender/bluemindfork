@@ -15,7 +15,7 @@
                 class="text-truncate"
                 :title="$t('mail.actions.send_message.tooltip', { address: slotProps.email })"
             >
-                <strong>{{ slotProps.email }}</strong>
+                {{ slotProps.email }}
             </router-link>
         </template>
         <template #actions="slotProps">

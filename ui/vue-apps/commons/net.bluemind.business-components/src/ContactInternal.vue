@@ -2,9 +2,9 @@
     <div class="contact">
         <a
             :id="uniqueId"
-            class="btn btn-link text-truncate"
+            class="btn btn-link"
             role="button"
-            :class="{ 'avatar-on-left': !noAvatar && !expandable, invalid }"
+            :class="{ 'avatar-on-left': !noAvatar && !expandable, invalid, 'text-truncate': textTruncate }"
             tabindex="0"
             @click="showContactCard = !showContactCard"
             @keypress.enter="showContactCard = !showContactCard"
