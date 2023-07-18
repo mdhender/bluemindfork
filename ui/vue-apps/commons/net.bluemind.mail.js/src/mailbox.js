@@ -9,41 +9,44 @@ export const MailboxType = {
     }
 };
 
-export function create({ owner, dn, address, type }) {
+export function create({ owner, dn, address, type, imapName }) {
     switch (type) {
         case MailboxType.USER:
-            return createUserMailbox({ owner, dn, address });
+            return createUserMailbox({ owner, dn, address, imapName });
         case MailboxType.GROUP:
-            return createGroupMailbox({ owner, dn, address });
+            return createGroupMailbox({ owner, dn, address, imapName });
         case MailboxType.MAILSHARE:
-            return createSharedMailbox({ owner, dn, address });
+            return createSharedMailbox({ owner, dn, address, imapName });
     }
 }
 
-function createUserMailbox({ owner, dn, address }) {
+function createUserMailbox({ owner, dn, address, imapName }) {
     return {
         ...createBaseMailbox({ owner, name: address, dn, address, type: MailboxType.USER }),
         remoteRef: { uid: "user." + owner },
         key: "user." + owner,
-        root: ""
+        root: "",
+        imapName
     };
 }
 
-function createSharedMailbox({ owner, dn, address }) {
+function createSharedMailbox({ owner, dn, address, imapName }) {
     return {
         ...createBaseMailbox({ owner, name: dn, dn, address, type: MailboxType.MAILSHARE }),
         remoteRef: { uid: owner },
         key: owner,
-        root: dn
+        root: dn,
+        imapName
     };
 }
 
-function createGroupMailbox({ owner, dn, address }) {
+function createGroupMailbox({ owner, dn, address, imapName }) {
     return {
         ...createBaseMailbox({ owner, name: dn, dn, address, type: MailboxType.GROUP }),
         remoteRef: { uid: owner },
         key: owner,
-        root: dn
+        root: dn,
+        imapName
     };
 }
 

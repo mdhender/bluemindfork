@@ -40,7 +40,7 @@ export default {
                 a.dn.localeCompare(b.dn)
             ),
         [MAILBOX_BY_NAME]: (state, getters) => name =>
-            getters[MAILBOXES].find(mailbox => mailbox.name.toLowerCase() === name.toLowerCase()),
+            getters[MAILBOXES].find(mailbox => mailbox.imapName.toLowerCase() === name.toLowerCase()),
         [MAILBOXES_ARE_LOADED]: (state, getters) =>
             getters[MAILBOXES].length >= 1 && getters[MAILBOXES][getters[MAILBOXES].length - 1].remoteRef.id,
         [MAILBOXES]: state => state.keys.map(key => state[key]),
@@ -78,12 +78,13 @@ export default {
     actions: {
         [FETCH_MAILBOXES]: async ({ state, commit }) => {
             const subscriptions = await inject("OwnerSubscriptionsPersistence").list();
-            const mailboxUids = subscriptions
-                .filter(subscription => subscription.value.containerType === "mailboxacl")
-                .map(subscription => subscription.value.containerUid);
+            const mailboxUids = subscriptions.flatMap(subscription =>
+                subscription.value.containerType === "mailboxacl" ? subscription.value.containerUid : []
+            );
             const remoteMailboxes = (await inject("ContainersPersistence").getContainers(mailboxUids)).filter(
                 ({ verbs }) => verbs.some(verb => [Verb.Read, Verb.Write, Verb.All].includes(verb))
             );
+
             const dirEntries = await inject("DirectoryPersistence").getMultiple(
                 remoteMailboxes.map(({ owner }) => owner)
             );
