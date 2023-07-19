@@ -38,7 +38,8 @@
             min-width: 0;
         }
 
-        .modal-close {
+        .modal-close,
+        h5.modal-title + button.close {
             @include until-lg {
                 display: none;
             }
