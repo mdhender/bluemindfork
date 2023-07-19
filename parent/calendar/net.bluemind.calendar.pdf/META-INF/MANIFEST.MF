@@ -24,7 +24,8 @@ Require-Bundle: com.lowagie.itext,
  org.apache.xml.serializer,
  org.apache.xmlgraphics.fop,
  org.apache.xmlgraphics.batik-all,
- org.w3c.dom.svg
+ org.w3c.dom.svg,
+ org.w3c.css.sac
 Export-Package: net.bluemind.calendar.pdf,
  net.bluemind.calendar.pdf.internal
 Automatic-Module-Name: net.bluemind.calendar.pdf
