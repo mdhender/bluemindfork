@@ -55,12 +55,7 @@ export default {
                 {
                     title: this.$tc(titleKey, conversations.length),
                     okTitle: this.$t("common.delete"),
-                    cancelTitle: this.$t("common.cancel"),
-                    okVariant: "fill-accent",
-                    cancelVariant: "text",
-                    centered: true,
-                    hideHeaderClose: false,
-                    autoFocusButton: "ok"
+                    cancelTitle: this.$t("common.cancel")
                 }
             );
             if (confirm) {
@@ -97,12 +92,7 @@ export default {
                 {
                     title: this.$tc("mail.actions.purge.modal.title", messages.length),
                     okTitle: this.$t("common.delete"),
-                    cancelTitle: this.$t("common.cancel"),
-                    okVariant: "fill-accent",
-                    cancelVariant: "text",
-                    centered: true,
-                    hideHeaderClose: false,
-                    autoFocusButton: "ok"
+                    cancelTitle: this.$t("common.cancel")
                 }
             );
             if (confirm) {
@@ -122,12 +112,7 @@ export default {
             const confirm = await this.$bvModal.msgBoxConfirm(this.$t(textKey, { ...draft, ...formattedDate }), {
                 title: this.$t("mail.actions.purge.draft.modal.title"),
                 okTitle: this.$t("common.delete"),
-                cancelTitle: this.$t("common.cancel"),
-                okVariant: "fill-accent",
-                cancelVariant: "text",
-                centered: true,
-                hideHeaderClose: false,
-                autoFocusButton: "ok"
+                cancelTitle: this.$t("common.cancel")
             });
             if (confirm) {
                 if (conversation) {

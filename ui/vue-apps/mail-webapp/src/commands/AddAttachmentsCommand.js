@@ -49,11 +49,11 @@ async function renderTooLargeFilesModal(vm, files, sizeLimit) {
     });
 
     const props = {
+        size: "md",
         title: vm.$tc("mail.actions.attach.too_large", files.length),
         okTitle: vm.$tc("common.got_it"),
         bodyClass: "pb-4",
-        okVariant: "outline-accent",
-        centered: true
+        okVariant: "outline-accent"
     };
 
     await vm.$bvModal.msgBoxOk([content], props);

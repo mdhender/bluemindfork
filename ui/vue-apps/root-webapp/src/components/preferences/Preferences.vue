@@ -120,12 +120,7 @@ export default {
                 return await this.$bvModal.msgBoxConfirm(this.$t("preferences.leave_app.confirm"), {
                     title: this.$t("preferences.leave_app.confirm.title"),
                     cancelTitle: this.$t("common.cancel"),
-                    okTitle: this.$t("preferences.leave_app.confirm.button"),
-                    okVariant: "fill-accent",
-                    cancelVariant: "text",
-                    centered: true,
-                    hideHeaderClose: false,
-                    autoFocusButton: "cancel"
+                    okTitle: this.$t("preferences.leave_app.confirm.button")
                 });
             }
             return true;

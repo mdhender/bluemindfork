@@ -90,12 +90,7 @@ export default {
                 {
                     title: this.$t("preferences.mail.filters.remove", { name: item.label }),
                     okTitle: this.$t("common.delete"),
-                    cancelTitle: this.$t("common.cancel"),
-                    okVariant: "fill-accent",
-                    cancelVariant: "text",
-                    centered: true,
-                    hideHeaderClose: false,
-                    autoFocusButton: "ok"
+                    cancelTitle: this.$t("common.cancel")
                 }
             );
 

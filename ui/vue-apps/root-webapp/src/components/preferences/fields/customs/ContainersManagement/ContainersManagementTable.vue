@@ -188,12 +188,7 @@ export default {
             const confirm = await this.$bvModal.msgBoxConfirm(modalContent, {
                 title: this.$t("common.delete"),
                 okTitle: this.$t("common.delete"),
-                cancelTitle: this.$t("common.cancel"),
-                okVariant: "fill-accent",
-                cancelVariant: "text",
-                centered: true,
-                hideHeaderClose: false,
-                autoFocusButton: "ok"
+                cancelTitle: this.$t("common.cancel")
             });
             if (confirm) {
                 await this.REMOVE_SUBSCRIPTIONS([container.uid]);
@@ -207,12 +202,7 @@ export default {
                 {
                     title: this.$t("common.action.empty"),
                     okTitle: this.$t("common.action.empty"),
-                    cancelTitle: this.$t("common.cancel"),
-                    okVariant: "fill-accent",
-                    cancelVariant: "text",
-                    centered: true,
-                    hideHeaderClose: false,
-                    autoFocusButton: "ok"
+                    cancelTitle: this.$t("common.cancel")
                 }
             );
             if (confirm) {

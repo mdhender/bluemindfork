@@ -155,12 +155,7 @@ export default {
             return this.$bvModal.msgBoxConfirm(content, {
                 title,
                 okTitle: this.$t("common.delete"),
-                cancelTitle: this.$t("common.cancel"),
-                okVariant: "fill-accent",
-                cancelVariant: "text",
-                centered: true,
-                hideHeaderClose: false,
-                autoFocusButton: "ok"
+                cancelTitle: this.$t("common.cancel")
             });
         },
         isExcluded(folder) {

@@ -62,11 +62,7 @@ export default {
                     title: this.$t(`smime.preferences.import_field.dissociate_warning.title`),
                     okTitle: this.$t("common.dissociate"),
                     cancelTitle: this.$t("common.cancel"),
-                    okVariant: "fill-danger",
-                    cancelVariant: "text",
-                    centered: true,
-                    hideHeaderClose: false,
-                    autoFocusButton: "cancel"
+                    okVariant: "fill-danger"
                 }
             );
             if (confirm) {

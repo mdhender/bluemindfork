@@ -169,12 +169,7 @@ export default {
                 confirmed = await this.$bvModal.msgBoxConfirm(this.$t(`mail.compose.confirm_delete.${kind}.content`), {
                     title: this.$t(`mail.compose.confirm_delete.${kind}.title`),
                     okTitle: this.$t("common.delete"),
-                    cancelTitle: this.$t("common.cancel"),
-                    okVariant: "fill-accent",
-                    cancelVariant: "text",
-                    centered: true,
-                    hideHeaderClose: false,
-                    autoFocusButton: "ok"
+                    cancelTitle: this.$t("common.cancel")
                 });
             }
             if (isNew || confirmed) {

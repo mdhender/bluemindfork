@@ -145,12 +145,7 @@ export default {
             const confirm = await this.$bvModal.msgBoxConfirm(modalContent, {
                 title: this.$t("common.delete"),
                 okTitle: this.$t("common.delete"),
-                okVariant: "fill-accent",
-                cancelVariant: "text",
-                cancelTitle: this.$t("common.cancel"),
-                centered: true,
-                hideHeaderClose: false,
-                autoFocusButton: "ok"
+                cancelTitle: this.$t("common.cancel")
             });
             if (confirm) {
                 await inject("APIKeysPersistence").delete(key.sid);

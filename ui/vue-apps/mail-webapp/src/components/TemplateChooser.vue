@@ -138,12 +138,7 @@ export default {
                 return this.$bvModal.msgBoxConfirm(this.$t("mail.compose.template_chooser.confirm_overwrite.message"), {
                     title: this.$tc("mail.compose.template_chooser.confirm_overwrite.title"),
                     okTitle: this.$t("mail.compose.template_chooser.confirm_overwrite.action"),
-                    cancelTitle: this.$t("common.cancel"),
-                    okVariant: "fill-accent",
-                    cancelVariant: "text",
-                    centered: true,
-                    hideHeaderClose: false,
-                    autoFocusButton: "cancel"
+                    cancelTitle: this.$t("common.cancel")
                 });
             }
             return true;

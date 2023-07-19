@@ -61,12 +61,7 @@ export default {
             const confirm = await this.$bvModal.msgBoxConfirm(this.label, {
                 title: this.$t("preferences.advanced.reinit_local_data"),
                 okTitle: this.text,
-                cancelTitle: this.$t("common.cancel"),
-                okVariant: "fill-accent",
-                cancelVariant: "text",
-                centered: true,
-                hideHeaderClose: false,
-                autoFocusButton: "ok"
+                cancelTitle: this.$t("common.cancel")
             });
             if (confirm) {
                 localStorage.clear();

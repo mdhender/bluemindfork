@@ -28,10 +28,7 @@ export function renderMustDetachConfirmBox(vm, files, sizeLimit, message) {
         okTitle: vm.$tc("filehosting.share.start", files.length),
         cancelTitle: vm.$t("common.cancel"),
         bodyClass: "pb-4",
-        okVariant: "fill-accent",
-        cancelVariant: "text",
-        centered: true,
-        hideHeaderClose: false
+        autoFocusButton: "ok"
     };
 
     return { content, props };
@@ -57,14 +54,12 @@ export function renderShouldDetachConfirmBox(vm, files) {
         }
     });
     const props = {
+        size: "md",
         title: vm.$tc("filehosting.add.large", files.length),
         okTitle: vm.$tc("filehosting.share.start", files.length),
         cancelTitle: vm.$t("mail.actions.attach"), //TODO: use a better wording
         bodyClass: "pb-4",
-        okVariant: "fill-accent",
-        cancelVariant: "text",
-        centered: true,
-        hideHeaderClose: false
+        autoFocusButton: "ok"
     };
 
     return { content, props };
@@ -110,8 +105,7 @@ export async function renderTooLargeFilesModal(vm, files, sizeLimit) {
         title: vm.$tc("mail.actions.attach.too_large", files.length),
         okTitle: vm.$tc("common.got_it"),
         bodyClass: "pb-4",
-        okVariant: "outline",
-        centered: true
+        okVariant: "outline"
     };
 
     await vm.$bvModal.msgBoxOk([content], props);

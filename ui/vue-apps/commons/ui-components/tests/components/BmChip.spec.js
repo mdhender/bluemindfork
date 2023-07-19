@@ -19,7 +19,7 @@ jest.mock("../../src/css/exports/avatar.scss", () => ({
 import BmChip from "../../src/components/BmChip";
 
 describe("BmChip", () => {
-    let closeButtonSelector = ".bm-chip button.close";
+    let closeButtonSelector = ".bm-chip button.bm-button-close";
     let example = "efzefez@ezfef.fr";
 
     function defaultMount() {
@@ -39,7 +39,9 @@ describe("BmChip", () => {
         });
     }
 
-    let regexCloseButton = new RegExp(/<\s*button (.*?)class="(.*?)close(.*?)"(.*?)[^>]*>(.*?)<\s*\/\s*button>/);
+    let regexCloseButton = new RegExp(
+        /<\s*button (.*?)class="(.*?)bm-button-close(.*?)"(.*?)[^>]*>(.*?)<\s*\/\s*button>/
+    );
 
     test("is a Vue instance", () => {
         expect(defaultMount().vm).toBeTruthy();
@@ -52,13 +54,13 @@ describe("BmChip", () => {
     test("Simple BmChip display: a text", () => {
         const wrapper = defaultMount();
         expect(wrapper.text()).toContain(example);
-        expect(wrapper.html()).not.toMatch(regexCloseButton);
+        expect(wrapper.html().replace(/\n/g, "")).not.toMatch(regexCloseButton);
     });
 
     test("BmChip with a close button", () => {
         const wrapper = mountBmChip({ closeable: true }, example);
         expect(wrapper.text()).toContain(example);
-        expect(wrapper.html()).toMatch(regexCloseButton);
+        expect(wrapper.html().replace(/\n/g, "")).toMatch(regexCloseButton);
     });
 
     test("When clicking on close button, a remove event is fired", () => {
@@ -70,6 +72,6 @@ describe("BmChip", () => {
     test("No icon", () => {
         const wrapper = mountBmChip({ closeable: true }, example);
         expect(wrapper.text()).toContain(example);
-        expect(wrapper.html()).toMatch(regexCloseButton);
+        expect(wrapper.html().replace(/\n/g, "")).toMatch(regexCloseButton);
     });
 });
