@@ -18,6 +18,22 @@ export default {
             }
             return showModal(this._vm, component, props);
         };
+        for (const functionName of ["msgBoxConfirm", "msgBoxOk"]) {
+            const f = BvModal.prototype[functionName];
+            BvModal.prototype[functionName] = function (msg, options = {}) {
+                options = {
+                    size: "sm",
+                    centered: true,
+                    okVariant: "fill-accent",
+                    cancelVariant: "text",
+                    autoFocusButton: "cancel",
+                    hideHeaderClose: false,
+                    dialogClass: "msg-box",
+                    ...options
+                };
+                return f.call(this, msg, options);
+            };
+        }
     }
 };
 

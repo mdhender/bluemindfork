@@ -27,9 +27,18 @@
         }
     }
 
-    .modal-header {
-        padding: 0;
+    &.msg-box .modal-header {
+        padding: base-px-to-rem(14) base-px-to-rem(12) base-px-to-rem(14) base-px-to-rem(20);
+        @include from-lg {
+            padding: base-px-to-rem(20) base-px-to-rem(14) base-px-to-rem(20) base-px-to-rem(30);
+        }
+    }
 
+    &:not(.msg-box) .modal-header {
+        padding: 0;
+    }
+
+    .modal-header {
         .modal-title {
             @include title;
             $btn-height: map-get($btn-close-sizes, "lg");
@@ -122,7 +131,7 @@
     .modal {
         transition: none !important;
     }
-    .modal-dialog:not(.modal-sm) {
+    .modal-dialog:not(.msg-box):not(.modal-sm) {
         transition: none !important;
         margin: 0;
         &,
