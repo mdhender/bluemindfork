@@ -12,5 +12,6 @@ Require-Bundle:
  slf4j.api
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: net.bluemind.configfile,
- net.bluemind.configfile.imap
+ net.bluemind.configfile.imap,
+ net.bluemind.configfile.elastic
 Automatic-Module-Name: net.bluemind.configfile

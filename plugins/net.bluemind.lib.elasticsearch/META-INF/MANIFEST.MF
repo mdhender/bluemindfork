@@ -14,7 +14,13 @@ Require-Bundle: org.eclipse.core.runtime,
  io.vertx.core,
  org.apache.httpcomponents.httpcore,
  com.fasterxml.jackson.core.jackson-databind;visibility:=reexport,
- com.fasterxml.jackson.core.jackson-annotations;visibility:=reexport
+ com.fasterxml.jackson.core.jackson-annotations;visibility:=reexport,
+ net.bluemind.configfile,
+ net.bluemind.lib.vertx,
+ io.github.resilience4j.core,
+ io.github.resilience4j.retry,
+ org.apache.httpcomponents.httpclient,
+ org.apache.httpcomponents.httpasyncclient
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: .
 Export-Package: net.bluemind.lib.elasticsearch,

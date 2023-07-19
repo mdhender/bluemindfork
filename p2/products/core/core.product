@@ -50,6 +50,8 @@
       <plugin id="com.typesafe.config"/>
       <plugin id="com.typesafe.netty.reactive-streams"/>
       <plugin id="com.zaxxer.HikariCP"/>
+      <plugin id="io.github.resilience4j.core" />
+      <plugin id="io.github.resilience4j.retry"/>
       <plugin id="io.netty"/>
       <plugin id="io.opentelemetry"/>
       <plugin id="io.vertx.core"/>

@@ -37,9 +37,11 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
 import org.apache.http.HttpHost;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.InvalidRegistryObjectException;
 import org.eclipse.core.runtime.Platform;
 import org.elasticsearch.client.RestClient;
 import org.osgi.framework.Bundle;
@@ -50,6 +52,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.ByteStreams;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
 
 import co.elastic.clients.ApiClient;
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
@@ -64,18 +68,19 @@ import co.elastic.clients.json.JsonData;
 import co.elastic.clients.json.ObjectDeserializer;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
-import co.elastic.clients.transport.rest_client.RestClientTransport;
+import net.bluemind.configfile.elastic.ElasticsearchConfig;
 import net.bluemind.lib.elasticsearch.exception.ElasticIndexException;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.network.utils.NetworkHelper;
 
 public final class ESearchActivator implements BundleActivator {
+	private static Logger logger = LoggerFactory.getLogger(ESearchActivator.class);
 
+	private static Config config;
 	private static final String ES_TAG = "bm/es";
 	private static final Map<String, ElasticsearchTransport> transports = new ConcurrentHashMap<>();
 	private static final Map<String, Lock> refreshLocks = new ConcurrentHashMap<>();
 	private static final Map<String, IndexDefinition> indexes = new HashMap<>();
-	private static Logger logger = LoggerFactory.getLogger(ESearchActivator.class);
 
 	/**
 	 * key for {@link #putMeta(String, String, String)}. Indices with this prop will
@@ -95,12 +100,21 @@ public final class ESearchActivator implements BundleActivator {
 	 */
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
+		fixupElasticsearchClientSerde();
+		loadIndexSchema();
+		setupConfig();
+		logger.info("ES activator started , schemas : {}", indexes.keySet());
+	}
+
+	private static void fixupElasticsearchClientSerde() {
 		@SuppressWarnings("unchecked")
 		ObjectDeserializer<Analyzer> unwrapped = (ObjectDeserializer<Analyzer>) DelegatingDeserializer
 				.unwrap(Analyzer._DESERIALIZER);
 		unwrapped.setTypeProperty("type", "custom");
-		IExtensionPoint ep = Platform.getExtensionRegistry().getExtensionPoint("net.bluemind.elasticsearch.schema");
+	}
 
+	private static void loadIndexSchema() throws IOException, InvalidRegistryObjectException, CoreException {
+		IExtensionPoint ep = Platform.getExtensionRegistry().getExtensionPoint("net.bluemind.elasticsearch.schema");
 		for (IExtension ext : ep.getExtensions()) {
 			for (IConfigurationElement ce : ext.getConfigurationElements()) {
 				String index = ce.getAttribute("index");
@@ -124,8 +138,14 @@ public final class ESearchActivator implements BundleActivator {
 				}
 			}
 		}
-		logger.info("ES activator started , schemas : {}", indexes.keySet());
+	}
 
+	private static synchronized void setupConfig() {
+		config = ElasticsearchClientConfig.get();
+		ElasticsearchClientConfig.addListener(newConfig -> {
+			config = newConfig;
+			transports.clear();
+		});
 	}
 
 	/*
@@ -194,10 +214,26 @@ public final class ESearchActivator implements BundleActivator {
 
 	public static ElasticsearchTransport createTansport(List<String> hosts) {
 		HttpHost[] httpHosts = hosts.stream().map(host -> new HttpHost(host, 9200)).toArray(l -> new HttpHost[l]);
-		RestClient restClient = RestClient.builder(httpHosts).build();
-		ElasticsearchTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
+		RestClient restClient;
+		try {
+			ElasticsearchConfig.Client clientConfig = ElasticsearchConfig.Client.of(config);
+			restClient = RestClient.builder(httpHosts) //
+					.setRequestConfigCallback(builder -> builder //
+							.setConnectTimeout((int) clientConfig.timeout().connect().toMillis()) //
+							.setSocketTimeout((int) clientConfig.timeout().socket().toMillis()) //
+							.setConnectionRequestTimeout((int) clientConfig.timeout().request().toMillis()))
+					.setHttpClientConfigCallback(builder -> builder //
+							.setMaxConnTotal(clientConfig.pool().maxConnTotal()) //
+							.setMaxConnPerRoute(clientConfig.pool().maxConnPerRoute())) //
+					.build();
+		} catch (ConfigException e) {
+			restClient = RestClient.builder(httpHosts).build();
+			logger.error("[es] Elasticsearch client configuration is invalid, using defaults: {}", e.getMessage());
+		}
+		ElasticsearchTransport transport = new RetryingRestClientTransport(restClient, new JacksonJsonpMapper(),
+				config);
 		if (logger.isInfoEnabled()) {
-			logger.info("Created client with {} nodes:{}", hosts.size(), hosts.stream().collect(joining(" ")));
+			logger.info("[es] Created client with {} nodes:{}", hosts.size(), hosts.stream().collect(joining(" ")));
 		}
 
 		return transport;
@@ -207,7 +243,7 @@ public final class ESearchActivator implements BundleActivator {
 		PutMappingResponse response;
 		try {
 			response = getClient().indices().putMapping(m -> m.index(index).meta(k, JsonData.of(v)));
-			logger.info("putMeta({}, {}, {}) => {}", index, k, v, response.acknowledged());
+			logger.info("[es] putMeta({}, {}, {}) => {}", index, k, v, response.acknowledged());
 		} catch (ElasticsearchException | IOException e) {
 			throw new ElasticIndexException(index, e);
 		}

@@ -45,6 +45,8 @@
       <plugin id="com.netflix.spectator.api"/>
       <plugin id="com.sun.mail.jakarta.mail"/>
       <plugin id="com.typesafe.netty.reactive-streams"/>
+      <plugin id="io.github.resilience4j.core" />
+      <plugin id="io.github.resilience4j.retry"/>
       <plugin id="io.netty"/>
       <plugin id="io.vertx.core"/>
       <plugin id="io.vertx.web"/>
