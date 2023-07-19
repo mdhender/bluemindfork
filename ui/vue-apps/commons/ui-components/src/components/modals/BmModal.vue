@@ -22,6 +22,7 @@ export default {
                 return [null, "sm", "md", "lg"].includes(value);
             }
         },
+        centered: { type: Boolean, default: true },
         okVariant: { type: String, default: "fill-accent" },
         okIcon: { type: String, default: null },
         cancelVariant: { type: String, default: "text" },
