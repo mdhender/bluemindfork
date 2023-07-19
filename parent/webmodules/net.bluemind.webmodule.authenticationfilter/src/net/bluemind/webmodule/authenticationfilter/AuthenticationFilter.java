@@ -104,7 +104,7 @@ public class AuthenticationFilter implements IWebFilter {
 			if (logger.isDebugEnabled()) {
 				logger.debug("[{}] No auth needed", request.path());
 			}
-			return CompletableFuture.completedFuture(request);
+			return sessionExists(request).orElse(CompletableFuture.completedFuture(request));
 		}
 
 		if (request.path().endsWith("/bluemind_sso_logout")) {
