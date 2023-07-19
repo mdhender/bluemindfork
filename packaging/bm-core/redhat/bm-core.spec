@@ -9,8 +9,8 @@ ExcludeArch:        s390 s390x
 Requires(post):     systemd systemd-sysv
 Requires:           bm-jdk = 17.0.7+7-bluemind18, bm-conf = %{version}-%{release}, openssl, ca-certificates, bm-tika = %{version}-%{release}, bm-plugin-core-subscription = %{version}-%{release}, bm-upgraders-list = %{version}-%{release}
 Requires(post):     /bin/bash, initscripts
-Conflicts:          bm-soap, bm-plugin-core-dataprotect-upgrade, bm-plugin-core-hoster-report, bm-plugin-core-mapi-support, bm-plugin-core-monitoring, bm-locator, bm-plugin-core-videoconferencing-starleaf, bm-hps, bm-plugin-hps-cas, bm-plugin-hps-kerberos, bm-xmpp, bm-im
-Obsoletes:          bm-soap, bm-plugin-core-dataprotect-upgrade, bm-plugin-core-hoster-report, bm-plugin-core-mapi-support, bm-plugin-core-monitoring, bm-locator, bm-plugin-core-videoconferencing-starleaf, bm-hps, bm-plugin-hps-cas, bm-plugin-hps-kerberos, bm-xmpp, bm-im
+Conflicts:          bm-soap, bm-plugin-core-dataprotect-upgrade, bm-plugin-core-hoster-report, bm-plugin-core-mapi-support, bm-plugin-core-monitoring, bm-locator, bm-plugin-core-videoconferencing-starleaf, bm-hps, bm-plugin-hps-cas, bm-plugin-hps-kerberos, bm-plugin-hps-signature, bm-xmpp, bm-im
+Obsoletes:          bm-soap, bm-plugin-core-dataprotect-upgrade, bm-plugin-core-hoster-report, bm-plugin-core-mapi-support, bm-plugin-core-monitoring, bm-locator, bm-plugin-core-videoconferencing-starleaf, bm-hps, bm-plugin-hps-cas, bm-plugin-hps-kerberos, bm-plugin-hps-signature, bm-xmpp, bm-im
 
 %description
 BlueMind core server

@@ -65,6 +65,7 @@ exit 0
 
 manageDeprecatedServices() {
     local deprecatedServices="bm-lmtpd \
+        bm-hps \
         bm-sds-proxy \
         bm-xmpp" 
 
