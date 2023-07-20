@@ -48,7 +48,7 @@ public class Notification implements INotification {
 		if (caught instanceof ServerFault) {
 			ServerFault sf = (ServerFault) caught;
 			if (sf.getCode() == ErrorCode.FORBIDDEN) {
-				Window.Location.assign("/login/index.html?askedUri=" + URL.encode(Window.Location.getPath()));
+				Window.Location.assign("?askedUri=" + URL.encode(Window.Location.getPath()));
 				return;
 			}
 		}

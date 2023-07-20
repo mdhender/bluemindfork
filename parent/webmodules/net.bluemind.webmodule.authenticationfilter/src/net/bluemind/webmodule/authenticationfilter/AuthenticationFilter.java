@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.hash.HashFunction;
@@ -155,7 +156,12 @@ public class AuthenticationFilter implements IWebFilter {
 
 		String key = UUID.randomUUID().toString();
 		String path = Optional.ofNullable(request.path()).orElse("/");
-		path += request.query() != null ? "?" + request.query() : "";
+		String askedUri = request.params().get("askedUri");
+		if (!Strings.isNullOrEmpty(askedUri)) {
+			path = askedUri;
+		} else {
+			path += request.query() != null ? "?" + request.query() : "";
+		}
 
 		JsonObject jsonState = new JsonObject();
 		jsonState.put("codeVerifierKey", key);

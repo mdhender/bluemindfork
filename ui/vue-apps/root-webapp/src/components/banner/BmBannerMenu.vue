@@ -76,7 +76,7 @@ export default {
             }
         },
         loginUrl() {
-            return `/login/index.html?askedUri=${this.$router.options.base}${this.$route.fullPath}`;
+            return `?askedUri=${this.$router.options.base}${this.$route.fullPath}`;
         }
     },
     methods: {
