@@ -168,16 +168,24 @@ net.bluemind.ui.cti.Dialer.prototype.enterDocument = function() {
   this.getHandler().listen(this.input_.getKeyEventTarget(), goog.events.EventType.KEYDOWN, this.handleKeyDown);
 
   var that = this;
-  restClient.addListener(function() {
+
+  var waitForRestClient = function(resolve) {
+    if (goog.global['restClient']) {
+      resolve();
+    } else {
+      setTimeout(waitForRestClient.bind(this, resolve), 1000);
+    }
+  }
+  new goog.Promise(waitForRestClient).then(function() {
+    goog.global['restClient'].addListener(function() {
+      that.handleOnlineStatus_();
+    })
     that.handleOnlineStatus_();
-  })
-
-  this.handleOnlineStatus_();
-
+  });
 };
 
 net.bluemind.ui.cti.Dialer.prototype.handleOnlineStatus_ = function() {
-  var online = restClient.online();
+  var online = goog.global['restClient'].online();
   if (this.parentElement_.style) {
       if (online) {
         goog.style.setElementShown(this.parentElement_, true);

@@ -55,17 +55,10 @@ net.bluemind.events.CallToCTIHandler.prototype.handleUri = function(uri) {
     var client = new net.bluemind.cti.api.ComputerTelephonyIntegrationClient(this.ctx_.rpc, '',
         this.ctx_.user['domainUid'], this.ctx_.user['uid']);
   
-    client.dial(uri.getPath()).addCallback(function(number) {
-      this.dialing_ = false;
-      // TODO: message
-      // this.sp_.getNotificationHandler().ok(bluemind.i18n.data('Dialing ' +
-      // number));
-    }).addErrback(function(number) {
-      this.dialing_ = false;
-      // TODO: error management
-      // this.sp_.getNotificationHandler().error(bluemind.i18n.data('Fail to call
-      // ' + number));
-    });
+    var fn = function() {this.dialing_ = false}.bind(this);
+    client.dial(uri.getPath()).addFinally(function() {
+      setTimeout(fn, 3000)
+    },this);
   }
   return true;
 };

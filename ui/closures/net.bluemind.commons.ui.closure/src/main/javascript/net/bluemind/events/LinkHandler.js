@@ -108,17 +108,23 @@ net.bluemind.events.LinkHandler.prototype.disposeInternal = function() {
 net.bluemind.events.LinkHandler.prototype.handleEvent = function(e) {
   var element = e.target;
   var link = goog.dom.getAncestor(element, this.isLink_, true);
+  if (link && this.handleLink(link.href)) {
+    e.preventDefault();
+  }
+}
+net.bluemind.events.LinkHandler.prototype.handleLink = function(link) {
   if (link) {
-    var uri = this.uri_.resolve(goog.Uri.resolve(this.uri_, link.href));
+    var uri = this.uri_.resolve(goog.Uri.resolve(this.uri_, link));
     if (this.isExternal_(uri)) {
       var h = this.protocolHandlers_.get(uri.getScheme());
       if (h) {
         if (h.handleUri(uri)) {
-          e.preventDefault();
+          return true;
         }
       }
     }
   }
+  return false;
 };
 
 /**

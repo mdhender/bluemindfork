@@ -37,6 +37,7 @@ net.bluemind.contact.vcard.VCardEditPresenter = function(ctx, view) {
   this.handler.listen(this.view, 'delete', this.handleDelete);
   this.handler.listen(this.view, 'move', this.handleMove);
   this.handler.listen(this.view, 'mailto', this.handleMailto);
+  this.handler.listen(this.view, 'callto', this.handleCallto);
   this.handler.listen(this.view, 'tel', this.handleCallto);
   this.handler.listen(this.view, 'copy', this.handleCopy);
   this.handler.listen(this.view, 'create-tag', this.handleCreateTag);
@@ -242,7 +243,10 @@ net.bluemind.contact.vcard.VCardEditPresenter.prototype.handleMove = function(ev
 net.bluemind.contact.vcard.VCardEditPresenter.prototype.handleMailto = function(event) {
   var model = this.view.getModel();
   var email = model.emails && (model.emails.length > 0) && model.emails[0];
-  if (goog.array.contains(this.ctx.user['roles'], 'hasMail')) {
+  var handled = false;
+  if (this.ctx.handler("link")) {
+    handled = this.ctx.handler("link").handleLink('mailto:' + email.value);
+  } else if (goog.array.contains(this.ctx.user['roles'], 'hasMail')) {
     net.bluemind.events.MailToWebmailHandler.RCubeHelper.mailTo(email.value);
   } else {
     window.location.href = 'mailto:' + email.value;
@@ -260,7 +264,13 @@ net.bluemind.contact.vcard.VCardEditPresenter.prototype.handleCallto = function(
   var tel = model.tels && (model.tels.length > 0) && goog.array.find(model.tels, function(tel) {
     return goog.string.contains(tel.label, 'voice');
   });
-  window.location.href = 'tel:' + tel.value;
+  var handled = false;
+  if (this.ctx.handler("link")) {
+    handled = this.ctx.handler("link").handleLink( 'tel:' + tel.value);
+  }
+  if(!handled) {
+    window.location.href = 'tel:' + tel.value;
+  }
 };
 
 /**
