@@ -121,7 +121,8 @@ public class KeycloakDomainHookTests extends AbstractServiceTests {
 			assertTrue(status.state.succeed);
 			domainService.delete(domainUid);
 		} catch (Throwable e) {
-			fail(e.getMessage());
+			e.printStackTrace();
+			fail("Must not thrown an exception");
 		}
 		Realm realm = getKeycloakAdminService().getRealm(domainUid);
 		assertNull(realm);
@@ -133,7 +134,7 @@ public class KeycloakDomainHookTests extends AbstractServiceTests {
 		assertEquals(cli, properties.get(AuthDomainProperties.OPENID_CLIENT_ID.name()));
 		assertEquals(secret, properties.get(AuthDomainProperties.OPENID_CLIENT_SECRET.name()));
 
-		String keycloakHost = "http://" + new BmConfIni().get("keycloak") + ":8099/realms/" + domainUid;
+		String keycloakHost = "https://" + new BmConfIni().get("keycloak") + "/keycloak/realms/" + domainUid;
 		assertEquals(keycloakHost + "/protocol/openid-connect/auth",
 				properties.get(AuthDomainProperties.OPENID_AUTHORISATION_ENDPOINT.name()));
 		assertEquals(keycloakHost + "/protocol/openid-connect/token",
