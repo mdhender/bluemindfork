@@ -30,14 +30,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
@@ -56,6 +53,7 @@ import net.bluemind.core.api.auth.AuthTypes;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Shared;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.webmodule.authenticationfilter.internal.CodeVerifierCache;
 import net.bluemind.webmodule.authenticationfilter.internal.DomainsHelper;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionData;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionsCache;
@@ -69,8 +67,6 @@ public class AuthenticationFilter implements IWebFilter {
 
 	private static final HashFunction sha256 = Hashing.sha256();
 	private static final Encoder b64UrlEncoder = Base64.getUrlEncoder().withoutPadding();
-	private static final Cache<String, String> codeVerifierCache = CacheBuilder.newBuilder()
-			.expireAfterWrite(10, TimeUnit.MINUTES).build();
 	private static final ServerCookieDecoder cookieDecoder = ServerCookieDecoder.LAX;
 
 	private static final String REDIRECT_PROTO = "https://";
@@ -86,14 +82,6 @@ public class AuthenticationFilter implements IWebFilter {
 
 	public AuthenticationFilter() {
 		logger.info("AuthenticationFilter filter created.");
-	}
-
-	public static String verify(String key) {
-		return codeVerifierCache.getIfPresent(key);
-	}
-
-	public static void put(String key, String value) {
-		codeVerifierCache.put(key, value);
 	}
 
 	@Override
@@ -171,7 +159,7 @@ public class AuthenticationFilter implements IWebFilter {
 		String state = b64UrlEncoder.encodeToString(jsonState.encode().getBytes());
 
 		String codeVerifier = createCodeVerifier();
-		AuthenticationFilter.put(key, codeVerifier);
+		CodeVerifierCache.put(key, codeVerifier);
 
 		String codeChallenge = b64UrlEncoder
 				.encodeToString(sha256.hashString(codeVerifier, StandardCharsets.UTF_8).asBytes());
@@ -416,4 +404,5 @@ public class AuthenticationFilter implements IWebFilter {
 	private String encode(String s) {
 		return URLEncoder.encode(s, StandardCharsets.UTF_8);
 	}
+
 }

@@ -48,6 +48,7 @@ import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.auth.AuthDomainProperties;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Shared;
+import net.bluemind.webmodule.authenticationfilter.internal.CodeVerifierCache;
 import net.bluemind.webmodule.authenticationfilter.internal.ExternalCreds;
 
 public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpServerRequest> {
@@ -66,11 +67,13 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 
 			JsonObject jsonState = new JsonObject(new String(b64UrlDecoder.decode(state.getBytes())));
 			String key = jsonState.getString("codeVerifierKey");
-			String codeVerifier = AuthenticationFilter.verify(key);
+			String codeVerifier = CodeVerifierCache.verify(key);
 			if (Strings.isNullOrEmpty(codeVerifier)) {
 				error(event, new Throwable("Failed to fetch codeVerifier"));
 				return;
 			}
+
+			CodeVerifierCache.invalidate(key);
 
 			String domainUid = jsonState.getString("domain_uid");
 			Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
