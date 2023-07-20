@@ -80,8 +80,10 @@ public class FormHandler implements Handler<HttpServerRequest>, NeedVertx {
 			return;
 		}
 
-		if (!"admin0@global.virt".equals(login)) {
-			error(request, new ServerFault("invalid login", ErrorCode.INVALID_PARAMETER));
+		String userAgent = request.headers().contains("user-agent") ? request.headers().get("user-agent") : "";
+		if (!"admin0@global.virt".equals(login) && !userAgent.contains("Thunderbird")) {
+			error(request, new ServerFault("invalid request, login: " + login + ", ua: " + userAgent,
+					ErrorCode.INVALID_PARAMETER));
 			return;
 		}
 
