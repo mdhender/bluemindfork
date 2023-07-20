@@ -42,7 +42,7 @@ var RPCClientApi = class extends ExtensionCommon.ExtensionAPI {
               return "--photo--";
             if (aCommand.url.indexOf("auth/login") != -1)
               return "******";
-            if (aCommand.url.indexOf("login/native") != -1)
+            if (aCommand.url.indexOf("auth/form") != -1)
               return aData.replace(/password=.*?(?=&)/, "password=******");
             return aData;
           }
