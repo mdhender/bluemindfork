@@ -17,7 +17,6 @@
   */
 package net.bluemind.webmodule.authenticationfilter;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
@@ -167,26 +166,10 @@ public class FormHandler implements Handler<HttpServerRequest>, NeedVertx {
 		}
 
 		String q = "?authErrorCode=" + code;
-		if (askedUri != null) {
-			try {
-				new URI(askedUri);
-				q += "&askedUri=" + URLEncoder.encode(askedUri, StandardCharsets.UTF_8.toString());
-			} catch (URISyntaxException | UnsupportedEncodingException e1) {
-				logger.warn("asked uri is not a valid uri : {} ", askedUri, e1);
-			}
-		}
+		q += "&askedUri=" + URLEncoder.encode(askedUri, StandardCharsets.UTF_8);
+		q += "&userLogin=" + URLEncoder.encode(attributes.get("login"), StandardCharsets.UTF_8);
 
 		HttpServerResponse resp = req.response();
-
-		try {
-			String login = URLEncoder.encode(attributes.get("login"), StandardCharsets.UTF_8.toString());
-			q += "&userLogin=" + login;
-		} catch (UnsupportedEncodingException e1) {
-			logger.error("unsupported encoding", e1);
-			resp.setStatusCode(500);
-			resp.end();
-			return;
-		}
 
 		final boolean privateComputer = "priv".equals(attributes.get("priv"));
 
@@ -204,14 +187,12 @@ public class FormHandler implements Handler<HttpServerRequest>, NeedVertx {
 
 	private String checkAskedUri(MultiMap attributes) {
 		String askedUri = attributes.get("askedUri") != null ? attributes.get("askedUri") : "/";
-
 		try {
 			new URI(askedUri);
 		} catch (URISyntaxException e1) {
 			logger.warn("asked uri is not un uri : {} ", askedUri, e1);
 			askedUri = "/";
 		}
-
 		return askedUri;
 	}
 }
