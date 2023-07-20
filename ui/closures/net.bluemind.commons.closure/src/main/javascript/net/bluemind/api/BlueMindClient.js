@@ -35,7 +35,7 @@ net.bluemind.api.BlueMindClient.prototype.base;
  */
 net.bluemind.api.BlueMindClient.prototype.execute = function(cmd, data) {
   var result = new goog.async.Deferred();
-
+  cmd.maxRetries = 0;
   if (data != null) {
     cmd.getData = function() {
       var s = new goog.json.Serializer();
