@@ -46,7 +46,8 @@ import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
 
 public class PersistentQueue implements AutoCloseable {
 
-	private static final String QUEUES_ROOT = "/var/cache/bm-core/tasks-queues";
+	private static final String QUEUES_ROOT = System.getProperty("chronicle.queues.root",
+			"/var/cache/bm-core/tasks-queues");
 
 	private static final Logger logger = LoggerFactory.getLogger(PersistentQueue.class);
 
