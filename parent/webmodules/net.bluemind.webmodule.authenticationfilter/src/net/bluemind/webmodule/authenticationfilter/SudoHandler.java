@@ -74,6 +74,10 @@ public class SudoHandler extends AbstractAuthHandler implements Handler<HttpServ
 		prov.sessionId(login, password, forwadedFor, new AsyncHandler<String>() {
 			@Override
 			public void success(String sid) {
+
+				// purge admin0 cookies
+				AuthenticationCookie.purge(request);
+
 				Cookie cookie = new DefaultCookie(AuthenticationCookie.BMSID, sid);
 				cookie.setPath("/");
 				cookie.setHttpOnly(true);
