@@ -61,14 +61,14 @@ var gBMRemoteChooser = {
 		cmd.onSuccess = function(xhr) {
             self._logger.debug("Response headers:" + xhr.getAllResponseHeaders());
             let cookies = Services.cookies.getCookiesFromHost(host, {});
-            let hpsSession = null;
+            let bmSession = null;
             while (cookies.hasMoreElements()) {
                 let cookie = cookies.getNext().QueryInterface(Ci.nsICookie2);
-                if (cookie.name == "HPSSESSION") {
-                    hpsSession = cookie.value;
+                if (cookie.name == "BMSESSION") {
+                    bmSession = cookie.value;
                 }
             }
-            self._login(aServer, aLogin, aPassword, hpsSession);
+            self._login(aServer, aLogin, aPassword, bmSession);
 		};
 		cmd.onFailure = function(xhr) {
             let resp = xhr.responseText;
@@ -76,17 +76,17 @@ var gBMRemoteChooser = {
 		};
 		rpcClient.execute(cmd);
 	},
-    _login: function(aServer, aLogin, aPassword, aHpsSession) {
+    _login: function(aServer, aLogin, aPassword, aBmSession) {
         let host = aServer.replace("https://", "");
 		let url = aServer + "/login/index.html";
 		let postData = [["login", aLogin],
 						["password", aPassword],
 						["priv", "priv"],
 						["askedUri", "/"],
-                        ["csrfToken", aHpsSession]];
+                        ["csrfToken", aBmSession]];
 		let data = {
 			server: aServer,
-            hpsSession: aHpsSession,
+            bmSession: aBmSession,
 			cookiesHost: host
 		};
 		let self = this;

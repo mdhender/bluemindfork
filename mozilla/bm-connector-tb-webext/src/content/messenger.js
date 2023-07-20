@@ -194,13 +194,13 @@ var gBMOverlay = {
 			} else {
 				self._logger.debug("Response headers:" + xhr.getAllResponseHeaders());
 				let cookies = Services.cookies.getCookiesFromHost(host, {});
-				let hpsSession = null;
+				let bmSession = null;
 				for (let cookie of cookies) {
-					if (cookie.name == "HPSSESSION") {
-						hpsSession = cookie.value;
+					if (cookie.name == "BMSESSION") {
+						bmSession = cookie.value;
 					}
 				}
-				self._login(aServer, aApps, aLogin, aPassword, hpsSession);
+				self._login(aServer, aApps, aLogin, aPassword, bmSession);
 			}
 		};
 		cmd.onFailure = function(xhr) {
@@ -213,7 +213,7 @@ var gBMOverlay = {
 		};
 		rpcClient.execute(cmd);
 	},
-	_login: async function(aServer, aApps, aLogin, aPassword, aHpsSession) {
+	_login: async function(aServer, aApps, aLogin, aPassword, aBmSession) {
 		//REST login on /api using auth service :
 		// fail if BM is unavailalbe, find and update login right part if missing
 		let auth = BMAuthService.login(aServer, aLogin, aPassword);
@@ -223,7 +223,7 @@ var gBMOverlay = {
 			let pwd = {};
 			let srv = {};
 			if (bmUtils.getSettings(user, pwd, srv, false)) {
-				self._hpsLogin(srv.value, aApps, user.value, pwd.value, aHpsSession);
+				self._bmLogin(srv.value, aApps, user.value, pwd.value, aBmSession);
 			} else {
 				self._logger.info("not enouth settings");
 			}
@@ -237,18 +237,18 @@ var gBMOverlay = {
             self._logger.error(err);
 		});
 	},
-	_hpsLogin: async function(aServer, aApps, aLogin, aPassword, aHpsSession) {
+	_bmLogin: async function(aServer, aApps, aLogin, aPassword, aBmSession) {
 		let host = aServer.replace("https://", "");
-		let url = aServer + "/login/native";
+		let url = aServer + "/auth/form";
 		let postData = [["login", aLogin],
 						["password", aPassword],
 						["priv", "priv"],
 						["askedUri", aApps[0].bmApp],
-						["csrfToken", aHpsSession]];
+						["csrfToken", aBmSession]];
 		let data = {
 			server: aServer,
 			apps: aApps,
-			hpsSession: aHpsSession,
+			bmSession: aBmSession,
 			cookiesHost: host
 		};
 		let self = this;
@@ -282,7 +282,7 @@ var gBMOverlay = {
 			let cookies = Services.cookies.getCookiesFromHost(aData.cookiesHost, {});
 			let ssoCookie = null;
 			for (let cookie of cookies) {
-				if (cookie.name == "BMHPS") {
+				if (cookie.name == "BMSID") {
 					ssoCookie = cookie.value;
 				}
 			}
