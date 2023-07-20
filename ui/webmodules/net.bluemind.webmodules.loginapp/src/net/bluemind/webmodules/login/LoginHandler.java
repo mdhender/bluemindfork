@@ -51,7 +51,7 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 
 	private static final Logger logger = LoggerFactory.getLogger(LoginHandler.class);
 	static Configuration cfg;
-	private static final String defaultLanguage = "en";
+	private static final String DEFAULT_LANGUAGE = "en";
 
 	static {
 		cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
@@ -86,17 +86,8 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 		}
 		model.put("csrfToken", csrfToken);
 		model.put("storedRequestId", "x");
-		boolean privateComputer = true;
-		String cooks = request.headers().get(HttpHeaders.COOKIE);
-		if (cooks != null) {
-
-			for (Cookie c : ServerCookieDecoder.LAX.decode(cooks)) {
-				if ("BMPRIVACY".equalsIgnoreCase(c.name())) {
-					privateComputer = "true".equals(c.value());
-					break;
-				}
-			}
-		}
+		boolean privateComputer = isPrivateComputer(request);
+		model.put("priv", "" + privateComputer);
 
 		String userLogin = request.params().get("userLogin");
 		if (null == userLogin) {
@@ -104,39 +95,15 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 		}
 		model.put("userLogin", userLogin);
 
-		String error = request.params().get("authErrorCode");
-		if (error != null && !error.isEmpty()) {
-			if (error.equals("1") || error.equals("2")) {
-				model.put("authErrorMsg", resourceBundle.getString("login.error.1"));
-			} else {
-				// system error
-				model.put("authErrorMsg", resourceBundle.getString("login.error.10"));
-			}
-		}
+		setAuthErrorCode(request, model, resourceBundle);
 
-		model.put("priv", "" + privateComputer);
-
-		String askedUri = request.params().get("askedUri");
-		if (askedUri == null) {
-			askedUri = "/";
-		} else {
-			try {
-				new URI(askedUri);
-			} catch (URISyntaxException e) {
-				logger.warn("asked uri is not un uri : {} ", askedUri, e);
-				askedUri = "/";
-			}
-
-		}
+		String askedUri = parseAskedUri(request);
 		model.put("askedUri", askedUri);
+
 		if (version != null) {
 			model.put("bmVersion", version.versionName);
 			model.put("buildVersion", version.softwareVersion);
-			if (!version.softwareVersion.equals(version.databaseVersion)) {
-				model.put("version-not-ok", true);
-			} else {
-				model.put("version-not-ok", false);
-			}
+			model.put("version-not-ok", !version.softwareVersion.equals(version.databaseVersion));
 		} else {
 			logger.warn("version is not available, use bundle version");
 			model.put("bmVersion", BMVersion.getVersionName());
@@ -147,15 +114,56 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 		logger.debug("display login page with model {}", model);
 	}
 
+	private boolean isPrivateComputer(HttpServerRequest request) {
+		boolean privateComputer = true;
+		String cooks = request.headers().get(HttpHeaders.COOKIE);
+		if (cooks != null) {
+			for (Cookie c : ServerCookieDecoder.LAX.decode(cooks)) {
+				if ("BMPRIVACY".equalsIgnoreCase(c.name())) {
+					privateComputer = "true".equals(c.value());
+					break;
+				}
+			}
+		}
+		return privateComputer;
+	}
+
+	private void setAuthErrorCode(HttpServerRequest request, Map<String, Object> model, ResourceBundle resourceBundle) {
+		String error = request.params().get("authErrorCode");
+		if (error != null && !error.isEmpty()) {
+			if (error.equals("1") || error.equals("2")) {
+				model.put("authErrorMsg", resourceBundle.getString("login.error.1"));
+			} else {
+				// system error
+				model.put("authErrorMsg", resourceBundle.getString("login.error.10"));
+			}
+		}
+	}
+
+	private String parseAskedUri(HttpServerRequest request) {
+		String askedUri = request.params().get("askedUri");
+		if (askedUri == null) {
+			askedUri = "/";
+		} else {
+			try {
+				new URI(askedUri);
+			} catch (URISyntaxException e) {
+				logger.warn("asked uri is not un uri : {} ", askedUri, e);
+				askedUri = "/";
+			}
+		}
+		return askedUri;
+	}
+
 	@Override
 	protected String getLang(HttpServerRequest request) {
 		String acceptLang = request.headers().get("Accept-Language");
 		if (acceptLang == null) {
-			return defaultLanguage;
+			return DEFAULT_LANGUAGE;
 		}
 		return Locale.LanguageRange.parse(acceptLang).stream() //
 				.map(range -> Locale.forLanguageTag(range.getRange())).findFirst() //
-				.orElse(new Locale.Builder().setLanguage(defaultLanguage).build()).getLanguage().toLowerCase();
+				.orElse(new Locale.Builder().setLanguage(DEFAULT_LANGUAGE).build()).getLanguage().toLowerCase();
 	}
 
 	private ITaggedServiceProvider getProvider() {
@@ -176,23 +184,20 @@ public class LoginHandler extends AbstractIndexHandler implements NeedVertx {
 	}
 
 	private void loadVersion() {
-		vertx.setTimer(2000, timerId -> {
-			getProvider().instance("bm/core", IInstallationAsync.class)
-					.getVersion(new AsyncHandler<InstallationVersion>() {
+		vertx.setTimer(2000, timerId -> getProvider().instance("bm/core", IInstallationAsync.class)
+				.getVersion(new AsyncHandler<InstallationVersion>() {
 
-						@Override
-						public void success(InstallationVersion value) {
-							LoginHandler.this.version = value;
+					@Override
+					public void success(InstallationVersion value) {
+						LoginHandler.this.version = value;
 
-						}
+					}
 
-						@Override
-						public void failure(Throwable e) {
-							logger.error("error retrieving installation version (message:{}), try again ",
-									e.getMessage());
-							loadVersion();
-						}
-					});
-		});
+					@Override
+					public void failure(Throwable e) {
+						logger.error("error retrieving installation version (message:{}), try again ", e.getMessage());
+						loadVersion();
+					}
+				}));
 	}
 }
