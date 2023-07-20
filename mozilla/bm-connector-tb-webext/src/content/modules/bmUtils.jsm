@@ -180,12 +180,12 @@ let bmUtils = {
         let loginInfo = Components.classes["@mozilla.org/login-manager/loginInfo;1"].createInstance(Components.interfaces.nsILoginInfo);
         loginInfo.username=aUsername;
         loginInfo.password=aPassword;
-        loginInfo.hostname="https://" + aHostname;
+        loginInfo.hostname=aHostname;
         loginInfo.formSubmitURL=null;
-        loginInfo.httpRealm="https://" + aHostname;
+        loginInfo.httpRealm=aHostname;
         loginInfo.usernameField="";
         loginInfo.passwordField="";
-        loginInfo.origin="https://" + aHostname;
+        loginInfo.origin=aHostname;
         passwordManager.addLogin(loginInfo);
     },
     getSettings: function(/*object*/ user, /*object*/ pwd, /*object*/ srv, displayWindows, parentWin) {
@@ -212,14 +212,7 @@ let bmUtils = {
         }
         if (!user.value || !pwd.value) {
             if (!displayWindows) return false;
-            let ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"].getService(Components.interfaces.nsIWindowWatcher);
-            let authPrompt = ww.getNewAuthPrompter(parentWin ? parentWin : null);
-            
-            authPrompt.promptUsernameAndPassword(this.getLocalizedString("dialogs.title"),
-                                                this.getLocalizedString("authprompt.message") + " " + server,
-                                                server,
-                                                Components.interfaces.nsIAuthPrompt.SAVE_PASSWORD_PERMANENTLY,
-                                                user, pwd);
+            this.promptUsernameAndPassword(parentWin, server, user, pwd);
         }
         if (!user.value || !pwd.value) return false;
         this.session.user = user.value;
@@ -285,7 +278,7 @@ let bmUtils = {
 		if (account) {
 			let server = account.incomingServer;
 			if (server.password) {
-                this.storeCredentials(server.hostName, server.username, server.password);
+                this.storeCredentials("https://" + server.hostName, server.username, server.password);
 			} else {
 				this.session.user = server.username;
 			}
