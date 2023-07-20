@@ -268,8 +268,7 @@ public class AuthenticationFilter implements IWebFilter {
 								logger.warn("Unable to get ID token", e);
 								return null;
 							}
-						}).map(encodedIdToken -> "&id_token_hint=" + encodedIdToken)
-						.orElseThrow(() -> new InvalidIdToken());
+						}).map(encodedIdToken -> "&id_token_hint=" + encodedIdToken).orElseThrow(InvalidIdToken::new);
 			} catch (InvalidIdToken iIT) {
 				logoutUrl = "/";
 			}
