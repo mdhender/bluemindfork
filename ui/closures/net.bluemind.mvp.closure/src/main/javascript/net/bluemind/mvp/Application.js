@@ -201,7 +201,6 @@ net.bluemind.mvp.Application.prototype.bootstrap = function(ctx) {
             function() {
                 this.registerServices(ctx);
                 this.registerHelpers(ctx);
-                this.registerHandlers(ctx);
             },
             null,
             this

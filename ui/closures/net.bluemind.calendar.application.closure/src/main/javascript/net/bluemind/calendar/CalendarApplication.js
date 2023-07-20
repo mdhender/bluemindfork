@@ -169,6 +169,8 @@ goog.inherits(net.bluemind.calendar.CalendarApplication, net.bluemind.mvp.Applic
 /** @override */
 net.bluemind.calendar.CalendarApplication.prototype.bootstrap = function(ctx) {
   return goog.base(this, 'bootstrap', ctx).then(function() {
+    this.registerHandlers(ctx);
+  }, null, this).then(function() {
     return ctx.service('auth').get('calendar.calendars');
   }, null, this).then(function(uids) {
     if (!uids || uids.length == 0) {

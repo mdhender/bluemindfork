@@ -82,8 +82,9 @@ goog.inherits(net.bluemind.task.TaskApplication, net.bluemind.mvp.Application);
  * @param {net.bluemind.mvp.ApplicationContext} ctx Application context
  */
 net.bluemind.task.TaskApplication.prototype.bootstrap = function(ctx) {
-
-  return goog.base(this, 'bootstrap', ctx).thenCatch(function(error) {
+  return goog.base(this, 'bootstrap', ctx).then(function() {
+    this.registerHandlers(ctx);
+  }, null, this).thenCatch(function(error) {
     window.alert('An error occured during application initialization: ' + error);
   }, this)
 };

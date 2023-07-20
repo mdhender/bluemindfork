@@ -65,6 +65,8 @@ net.bluemind.chooser.ChooserApplication.prototype.registerHandlers = function(ct
 net.bluemind.chooser.ChooserApplication.prototype.bootstrap = function(ctx) {
   this.ctx = ctx;
   return goog.base(this, 'bootstrap', ctx).then(function() {
+    this.registerHandlers(ctx);
+  }, null, this).then(function() {
     this.setOptions({})
   }, null, this);
 };

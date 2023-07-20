@@ -108,7 +108,9 @@ net.bluemind.contact.ContactApplication.prototype.registerServices = function(ct
 
 /** @override */
 net.bluemind.contact.ContactApplication.prototype.bootstrap = function(ctx) {
-  return goog.base(this, 'bootstrap', ctx).thenCatch(function(error) {
+  return goog.base(this, 'bootstrap', ctx).then(function() {
+    this.registerHandlers(ctx);
+  }, null, this).thenCatch(function(error) {
     goog.log.error(this.logger, error.toString(), error);
     ctx.notifyError("startup error", error);
   }, this);
