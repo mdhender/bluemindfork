@@ -63,7 +63,7 @@ describe("conversationList", () => {
         test("REFRESH_CONVERSATION_LIST_KEYS search messages", async () => {
             store.commit(SET_SEARCH_QUERY_PATTERN, "Search pattern");
             const ids = [1, 2, 3, 5, 7, 11, 13].map(id => ({ id, folderRef: {} }));
-            apiMessages.search.mockResolvedValueOnce(ids);
+            apiMessages.search.mockResolvedValueOnce({ results: ids });
             await store.dispatch(FETCH_CONVERSATION_LIST_KEYS, {
                 folder: { key: "key", remoteRef: { uid: "uid" } }
             });
@@ -96,7 +96,7 @@ describe("conversationList", () => {
         test("FETCH_CONVERSATION_LIST_KEYS search messages", async () => {
             store.commit(SET_SEARCH_QUERY_PATTERN, "Search pattern");
             const ids = [1, 2, 3, 5, 7, 11, 13].map(id => ({ id, folderRef: {} }));
-            apiMessages.search.mockResolvedValueOnce(ids);
+            apiMessages.search.mockResolvedValueOnce({ results: ids });
             const promise = store.dispatch(FETCH_CONVERSATION_LIST_KEYS, {
                 folder: { key: "key", remoteRef: { uid: "uid" } }
             });

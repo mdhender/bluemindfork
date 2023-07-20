@@ -107,8 +107,7 @@ export default {
         [PUSHED_FOLDER_CHANGES]: async function (folderUid) {
             if (
                 !this.CONVERSATION_LIST_IS_FILTERED &&
-                ((!this.CONVERSATIONS_ACTIVATED && this.folders[this.activeFolder].remoteRef.uid === folderUid) ||
-                    (this.CONVERSATIONS_ACTIVATED && this.isCurrentMailbox()))
+                (this.folder.remoteRef.uid === folderUid || (this.CONVERSATIONS_ACTIVATED && this.isCurrentMailbox()))
             ) {
                 this.refreshList(folderUid);
             }

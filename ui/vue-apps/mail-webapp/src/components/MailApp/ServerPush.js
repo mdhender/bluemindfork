@@ -68,9 +68,7 @@ export default {
             if (folderUid in this.folders) {
                 this.$bus.$emit("mail-webapp/unread_folder_count", this.folders[folderUid]);
             }
-            if (folderUid === this.activeFolder) {
-                throttledFolderChanges(folderUid, this.$bus);
-            }
+            throttledFolderChanges(folderUid, this.$bus);
         }
     }
 };
