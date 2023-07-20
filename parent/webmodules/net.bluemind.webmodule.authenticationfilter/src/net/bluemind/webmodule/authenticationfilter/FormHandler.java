@@ -43,6 +43,7 @@ import io.vertx.core.http.HttpServerResponse;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.webmodule.authenticationfilter.internal.AuthenticationCookie;
 import net.bluemind.webmodule.authenticationfilter.internal.ExternalCreds;
 import net.bluemind.webmodule.server.CSRFTokenManager;
 import net.bluemind.webmodule.server.NeedVertx;
@@ -118,14 +119,14 @@ public class FormHandler implements Handler<HttpServerRequest>, NeedVertx {
 					return;
 				}
 
-				Cookie co = new DefaultCookie("BMSID", sid);
+				Cookie co = new DefaultCookie(AuthenticationCookie.BMSID, sid);
 				co.setPath("/");
 				co.setHttpOnly(true);
 				if (SecurityConfig.secureCookies) {
 					co.setSecure(true);
 				}
 
-				Cookie privacyCo = new DefaultCookie("BMPRIVACY", Boolean.toString(privateComputer));
+				Cookie privacyCo = new DefaultCookie(AuthenticationCookie.BMPRIVACY, Boolean.toString(privateComputer));
 				privacyCo.setPath("/");
 				if (SecurityConfig.secureCookies) {
 					privacyCo.setSecure(true);
@@ -189,7 +190,7 @@ public class FormHandler implements Handler<HttpServerRequest>, NeedVertx {
 
 		final boolean privateComputer = "priv".equals(attributes.get("priv"));
 
-		Cookie privacyCo = new DefaultCookie("BMPRIVACY", Boolean.toString(privateComputer));
+		Cookie privacyCo = new DefaultCookie(AuthenticationCookie.BMPRIVACY, Boolean.toString(privateComputer));
 		privacyCo.setPath("/");
 		if (SecurityConfig.secureCookies) {
 			privacyCo.setSecure(true);

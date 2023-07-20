@@ -37,6 +37,7 @@ import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import net.bluemind.core.api.AsyncHandler;
+import net.bluemind.webmodule.authenticationfilter.internal.AuthenticationCookie;
 import net.bluemind.webmodule.authenticationfilter.internal.ExternalCreds;
 import net.bluemind.webmodule.server.SecurityConfig;
 
@@ -65,7 +66,7 @@ public class SudoHandler extends AbstractAuthHandler implements Handler<HttpServ
 	}
 
 	private void createSession(HttpServerRequest request, List<String> forwadedFor) {
-		logger.info("Creating session for {}", login);
+		logger.info("Creating session for {}/{}", login, password);
 
 		AuthProvider prov = new AuthProvider(vertx);
 		ExternalCreds creds = new ExternalCreds();
@@ -73,7 +74,7 @@ public class SudoHandler extends AbstractAuthHandler implements Handler<HttpServ
 		prov.sessionId(login, password, forwadedFor, new AsyncHandler<String>() {
 			@Override
 			public void success(String sid) {
-				Cookie cookie = new DefaultCookie("BMSID", sid);
+				Cookie cookie = new DefaultCookie(AuthenticationCookie.BMSID, sid);
 				cookie.setPath("/");
 				cookie.setHttpOnly(true);
 				if (SecurityConfig.secureCookies) {
@@ -81,7 +82,8 @@ public class SudoHandler extends AbstractAuthHandler implements Handler<HttpServ
 				}
 				request.response().headers().add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(cookie));
 
-				Cookie privacyCo = new DefaultCookie("BMPRIVACY", Boolean.toString("true".equals(priv)));
+				Cookie privacyCo = new DefaultCookie(AuthenticationCookie.BMPRIVACY,
+						Boolean.toString("true".equals(priv)));
 				privacyCo.setPath("/");
 				if (SecurityConfig.secureCookies) {
 					privacyCo.setSecure(true);

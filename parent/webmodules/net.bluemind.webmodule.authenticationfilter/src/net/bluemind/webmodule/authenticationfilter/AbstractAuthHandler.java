@@ -38,6 +38,7 @@ import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.AsyncHandler;
+import net.bluemind.webmodule.authenticationfilter.internal.AuthenticationCookie;
 import net.bluemind.webmodule.authenticationfilter.internal.ExternalCreds;
 import net.bluemind.webmodule.server.NeedVertx;
 import net.bluemind.webmodule.server.SecurityConfig;
@@ -88,7 +89,7 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 					cookie.put("sid", sid);
 					cookie.put("domain_uid", domainUid);
 
-					Cookie openIdCookie = new DefaultCookie("OpenIdSession", cookie.encode());
+					Cookie openIdCookie = new DefaultCookie(AuthenticationCookie.OPENID_SESSION, cookie.encode());
 					openIdCookie.setPath("/");
 					openIdCookie.setHttpOnly(true);
 					if (SecurityConfig.secureCookies) {
@@ -97,7 +98,8 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 					request.response().headers().add(HttpHeaders.SET_COOKIE,
 							ServerCookieEncoder.LAX.encode(openIdCookie));
 
-					Cookie accessCookie = new DefaultCookie("AccessToken", token.getString("access_token"));
+					Cookie accessCookie = new DefaultCookie(AuthenticationCookie.ACCESS_TOKEN,
+							token.getString("access_token"));
 					accessCookie.setPath("/");
 					accessCookie.setHttpOnly(true);
 					if (SecurityConfig.secureCookies) {
@@ -106,7 +108,8 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 					request.response().headers().add(HttpHeaders.SET_COOKIE,
 							ServerCookieEncoder.LAX.encode(accessCookie));
 
-					Cookie refreshCookie = new DefaultCookie("RefreshToken", token.getString("refresh_token"));
+					Cookie refreshCookie = new DefaultCookie(AuthenticationCookie.REFRESH_TOKEN,
+							token.getString("refresh_token"));
 					refreshCookie.setPath("/");
 					refreshCookie.setHttpOnly(true);
 					if (SecurityConfig.secureCookies) {
@@ -115,7 +118,7 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 					request.response().headers().add(HttpHeaders.SET_COOKIE,
 							ServerCookieEncoder.LAX.encode(refreshCookie));
 
-					Cookie idCookie = new DefaultCookie("IdToken", token.getString("id_token"));
+					Cookie idCookie = new DefaultCookie(AuthenticationCookie.ID_TOKEN, token.getString("id_token"));
 					idCookie.setPath("/");
 					idCookie.setHttpOnly(true);
 					if (SecurityConfig.secureCookies) {
@@ -126,7 +129,8 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 					DecodedJWT accessToken = JWT.decode(token.getString("access_token"));
 					Claim pubpriv = accessToken.getClaim("bm_pubpriv");
 					boolean privateComputer = "private".equals(pubpriv.asString());
-					Cookie privacyCo = new DefaultCookie("BMPRIVACY", Boolean.toString(privateComputer));
+					Cookie privacyCo = new DefaultCookie(AuthenticationCookie.BMPRIVACY,
+							Boolean.toString(privateComputer));
 					privacyCo.setPath("/");
 					if (SecurityConfig.secureCookies) {
 						privacyCo.setSecure(true);
@@ -134,7 +138,7 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 					request.response().headers().add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(privacyCo));
 
 				} else {
-					Cookie cookie = new DefaultCookie("BMSID", sid);
+					Cookie cookie = new DefaultCookie(AuthenticationCookie.BMSID, sid);
 					cookie.setPath("/");
 					cookie.setHttpOnly(true);
 					if (SecurityConfig.secureCookies) {

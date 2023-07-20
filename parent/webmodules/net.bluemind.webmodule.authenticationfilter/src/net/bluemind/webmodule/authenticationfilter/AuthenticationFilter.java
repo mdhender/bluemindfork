@@ -39,9 +39,7 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
 import io.netty.handler.codec.http.cookie.Cookie;
-import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
-import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
@@ -53,12 +51,12 @@ import net.bluemind.core.api.auth.AuthTypes;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Shared;
 import net.bluemind.network.topology.Topology;
+import net.bluemind.webmodule.authenticationfilter.internal.AuthenticationCookie;
 import net.bluemind.webmodule.authenticationfilter.internal.CodeVerifierCache;
 import net.bluemind.webmodule.authenticationfilter.internal.DomainsHelper;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionData;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionsCache;
 import net.bluemind.webmodule.server.IWebFilter;
-import net.bluemind.webmodule.server.SecurityConfig;
 import net.bluemind.webmodule.server.WebserverConfiguration;
 import net.bluemind.webmodule.server.forward.ForwardedLocation;
 
@@ -70,11 +68,6 @@ public class AuthenticationFilter implements IWebFilter {
 	private static final ServerCookieDecoder cookieDecoder = ServerCookieDecoder.LAX;
 
 	private static final String REDIRECT_PROTO = "https://";
-	private static final String OPENID_COOKIE = "OpenIdSession";
-	private static final String ACCESS_COOKIE = "AccessToken";
-	private static final String REFRESH_COOKIE = "RefreshToken";
-	private static final String ID_COOKIE = "IdToken";
-	private static final String BMSID_COOKIE = "BMSID";
 
 	@SuppressWarnings("serial")
 	private static class InvalidIdToken extends Exception {
@@ -207,13 +200,14 @@ public class AuthenticationFilter implements IWebFilter {
 	private Optional<String> sessionId(HttpServerRequest request) {
 		String cookieStr = Optional.ofNullable(request.headers().get("cookie")).orElse("");
 		Set<Cookie> cookies = cookieDecoder.decode(cookieStr);
-		Optional<Cookie> oidc = cookies.stream().filter(c -> OPENID_COOKIE.equals(c.name())).findFirst();
+		Optional<Cookie> oidc = cookies.stream().filter(c -> AuthenticationCookie.OPENID_SESSION.equals(c.name()))
+				.findFirst();
 		if (oidc.isPresent()) {
 			JsonObject token = new JsonObject(oidc.get().value());
 			return Optional.of(token.getString("sid"));
 		}
 
-		Optional<Cookie> bmSid = cookies.stream().filter(c -> BMSID_COOKIE.equals(c.name())).findFirst();
+		Optional<Cookie> bmSid = cookies.stream().filter(c -> AuthenticationCookie.BMSID.equals(c.name())).findFirst();
 		if (bmSid.isPresent()) {
 			return Optional.of(bmSid.get().value());
 		}
@@ -227,7 +221,7 @@ public class AuthenticationFilter implements IWebFilter {
 			SessionsCache.get().invalidate(sessionId.get());
 		}
 
-		purgeSessionCookie(request.response().headers());
+		AuthenticationCookie.purge(request);
 
 		String domainUid = DomainsHelper.getDomainUid(request);
 		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
@@ -248,8 +242,8 @@ public class AuthenticationFilter implements IWebFilter {
 			try {
 				logoutUrl = domainSettings.get(AuthDomainProperties.OPENID_END_SESSION_ENDPOINT.name());
 				logoutUrl += redirUrl.map(url -> "?post_logout_redirect_uri=" + url).orElse("");
-				logoutUrl += request.cookies(ID_COOKIE).stream().findFirst().map(io.vertx.core.http.Cookie::getValue)
-						.map(it -> {
+				logoutUrl += request.cookies(AuthenticationCookie.ID_TOKEN).stream().findFirst()
+						.map(io.vertx.core.http.Cookie::getValue).map(it -> {
 							try {
 								return URLEncoder.encode(it, java.nio.charset.StandardCharsets.UTF_8.toString());
 							} catch (UnsupportedEncodingException e) {
@@ -271,55 +265,6 @@ public class AuthenticationFilter implements IWebFilter {
 
 		return CompletableFuture.completedFuture(null);
 
-	}
-
-	public static void purgeSessionCookie(MultiMap headers) {
-		String delete = "delete";
-
-		Cookie bmSid = new DefaultCookie(BMSID_COOKIE, delete);
-		bmSid.setPath("/");
-		bmSid.setMaxAge(0);
-		bmSid.setHttpOnly(true);
-		if (SecurityConfig.secureCookies) {
-			bmSid.setSecure(true);
-		}
-		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(bmSid));
-
-		Cookie openId = new DefaultCookie(OPENID_COOKIE, delete);
-		openId.setPath("/");
-		openId.setMaxAge(0);
-		openId.setHttpOnly(true);
-		if (SecurityConfig.secureCookies) {
-			openId.setSecure(true);
-		}
-		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(openId));
-
-		Cookie access = new DefaultCookie(ACCESS_COOKIE, delete);
-		access.setPath("/");
-		access.setMaxAge(0);
-		access.setHttpOnly(true);
-		if (SecurityConfig.secureCookies) {
-			access.setSecure(true);
-		}
-		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(access));
-
-		Cookie refresh = new DefaultCookie(REFRESH_COOKIE, delete);
-		refresh.setPath("/");
-		refresh.setMaxAge(0);
-		refresh.setHttpOnly(true);
-		if (SecurityConfig.secureCookies) {
-			refresh.setSecure(true);
-		}
-		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(refresh));
-
-		Cookie idc = new DefaultCookie(ID_COOKIE, delete);
-		idc.setPath("/");
-		idc.setMaxAge(0);
-		idc.setHttpOnly(true);
-		if (SecurityConfig.secureCookies) {
-			idc.setSecure(true);
-		}
-		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(idc));
 	}
 
 	private String createCodeVerifier() {
