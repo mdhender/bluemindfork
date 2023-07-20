@@ -55,7 +55,7 @@ export default {
 
 async function search(pattern, folder) {
     const ref = FolderAdaptor.toRef(folder);
-    const searchResults = (
+    const { results } = (
         await apiMessages.search(
             { pattern, folder: ref },
             undefined,
@@ -63,7 +63,7 @@ async function search(pattern, folder) {
             folder
         )
     ).slice(0, 100);
-    return searchResults.map(({ id, folderRef }) => createConversationStub(id, folderRef));
+    return results.map(({ id, folderRef }) => createConversationStub(id, folderRef));
 }
 
 async function list(folder) {

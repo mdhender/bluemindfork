@@ -23,7 +23,8 @@ import {
     SET_CONVERSATION_LIST_PAGE,
     SET_CONVERSATION_LIST_SORT,
     SET_CONVERSATION_LIST_STATUS,
-    SET_CONVERSATION_LIST
+    SET_CONVERSATION_LIST,
+    SET_HAS_MORE_RESULTS
 } from "~/mutations";
 import { FolderAdaptor } from "./folders/helpers/FolderAdaptor";
 import apiConversations from "./api/apiConversations";
@@ -123,9 +124,16 @@ const actions = {
         }
     },
     async [REFRESH_CONVERSATION_LIST_KEYS]({ commit, state, getters }, { folder, conversationsActivated }) {
-        const conversations = getters.CONVERSATION_LIST_IS_FILTERED
-            ? await search(state, folder)
-            : await list(state, folder, conversationsActivated);
+        let conversations = [];
+        let hasMoreResults = false;
+        if (getters.CONVERSATION_LIST_IS_FILTERED) {
+            const res = await search(state, folder);
+            hasMoreResults = res.hasMoreResults;
+            conversations = res.results;
+        } else {
+            conversations = await list(state, folder, conversationsActivated);
+        }
+        commit(SET_HAS_MORE_RESULTS, hasMoreResults);
         commit(SET_CONVERSATION_LIST, { conversations });
     },
     async [CONVERSATION_LIST_NEXT_PAGE]({ commit, state, getters }) {
@@ -138,8 +146,11 @@ const actions = {
 };
 
 async function search({ filter, search, sort }, folder) {
-    let searchResults = (await apiMessages.search(search.currentSearch, filter, sort, folder)) || [];
-    return searchResults.map(({ id, folderRef }) => createConversationStub(id, folderRef));
+    let { results, hasMoreResults } = await apiMessages.search(search.currentSearch, filter, sort, folder);
+    return {
+        results: results.map(({ id, folderRef }) => createConversationStub(id, folderRef)),
+        hasMoreResults
+    };
 }
 
 async function list(state, folder, conversationsActivated) {

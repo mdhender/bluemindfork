@@ -10,7 +10,7 @@ const { MessageAdaptor } = messageUtils;
 import { ConversationListFilter, SortOrder } from "../conversationList";
 import SearchHelper from "../../components/MailSearch/SearchHelper";
 
-const MAX_CHUNK_SIZE = 500;
+export const MAX_CHUNK_SIZE = 500;
 
 export default {
     multipleDeleteById(messages) {
@@ -61,9 +61,9 @@ export default {
             query: searchQuery(pattern, filter, folder && folder.uid, deep),
             sort: toSearchSort(sort)
         };
-        const { results } = await folderApi(currentFolder.mailboxRef.uid).searchItems(payload);
+        const { results, hasMoreResults } = await folderApi(currentFolder.mailboxRef.uid).searchItems(payload);
         if (!results) {
-            return [];
+            return {};
         }
         const resultKeys = new Set();
         const filteredResults = [];
@@ -75,7 +75,7 @@ export default {
                 resultKeys.add(resultKey);
             }
         });
-        return filteredResults;
+        return { results: filteredResults || [], hasMoreResults };
     },
     fetchComplete(message) {
         return api(message.folderRef.uid).fetchComplete(message.remoteRef.imapUid);

@@ -14,21 +14,26 @@
 </template>
 
 <script>
-import { mapGetters, mapState, mapActions } from "vuex";
+import { mapGetters, mapState, mapActions, mapMutations } from "vuex";
+import debounce from "lodash.debounce";
 import MailConversationListHeader from "./MailConversationListHeader";
 import SearchResult from "./SearchResult";
 import FolderResult from "./FolderResult";
 import {
-    CONVERSATIONS_ACTIVATED,
-    CONVERSATION_MESSAGE_BY_KEY,
+    CONVERSATION_LIST_COUNT,
     CONVERSATION_LIST_IS_FILTERED,
     CONVERSATION_LIST_KEYS,
+    CONVERSATION_MESSAGE_BY_KEY,
+    CONVERSATIONS_ACTIVATED,
     HAS_PATTERN,
     IS_TYPING_IN_SEARCH
 } from "~/getters";
+import { SET_CONVERSATION_LIST_STATUS } from "~/mutations";
 import { FETCH_CONVERSATIONS, FETCH_MESSAGE_METADATA, REFRESH_CONVERSATION_LIST_KEYS } from "~/actions";
 import { PUSHED_FOLDER_CHANGES } from "../VueBusEventTypes";
 import SearchInputMobile from "./SearchInputMobile";
+import { MAX_CHUNK_SIZE } from "~/store/api/apiMessages";
+import { ConversationListStatus } from "~/store/conversationList";
 
 export default {
     name: "MailConversationList",
@@ -46,6 +51,7 @@ export default {
     computed: {
         ...mapGetters("mail", {
             CONVERSATION_MESSAGE_BY_KEY,
+            CONVERSATION_LIST_COUNT,
             CONVERSATION_LIST_IS_FILTERED,
             CONVERSATION_LIST_KEYS,
             HAS_PATTERN,
@@ -53,7 +59,8 @@ export default {
         }),
         ...mapState("mail", ["activeFolder", "folders"]),
         ...mapState("mail", {
-            conversationByKey: state => state.conversations.conversationByKey
+            conversationByKey: state => state.conversations.conversationByKey,
+            hasMoreResults: state => state.conversationList.search.hasMoreResults
         }),
         folder() {
             return this.folders[this.activeFolder];
@@ -61,21 +68,49 @@ export default {
         mailConversationListWidth() {
             const width = this.$store.state.mail.conversationList.width;
             return width ? "width: " + width : "";
+        },
+        incompleteSearch() {
+            return !!this.hasMoreResults && this.CONVERSATION_LIST_COUNT < MAX_CHUNK_SIZE;
+        }
+    },
+    watch: {
+        async incompleteSearch(isIncomplete) {
+            if (isIncomplete) {
+                if (this.CONVERSATION_LIST_COUNT === 0) {
+                    this.SET_CONVERSATION_LIST_STATUS(ConversationListStatus.LOADING);
+                }
+                this.refreshSearchList();
+            }
         }
     },
     methods: {
-        ...mapActions("mail", { FETCH_CONVERSATIONS, FETCH_MESSAGE_METADATA, REFRESH_CONVERSATION_LIST_KEYS })
+        ...mapActions("mail", { FETCH_CONVERSATIONS, FETCH_MESSAGE_METADATA, REFRESH_CONVERSATION_LIST_KEYS }),
+        ...mapMutations("mail", { SET_CONVERSATION_LIST_STATUS }),
+        refreshSearchList: debounce(async function () {
+            await this.refreshList();
+            this.SET_CONVERSATION_LIST_STATUS(ConversationListStatus.SUCCESS);
+        }, 5000),
+        async refreshList() {
+            const conversationsActivated = this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`];
+            await this.REFRESH_CONVERSATION_LIST_KEYS({ folder: this.folder, conversationsActivated });
+
+            const conversations = this.CONVERSATION_LIST_KEYS.map(key => this.conversationByKey[key]);
+            await this.FETCH_CONVERSATIONS({ conversations, folder: this.folder, conversationsActivated });
+
+            this.FETCH_MESSAGE_METADATA({ messages: conversations.flatMap(({ messages }) => messages) });
+        },
+        isCurrentMailbox(folderUid) {
+            return this.folders[folderUid].mailboxRef.key === this.folder.mailboxRef.key;
+        }
     },
     bus: {
         [PUSHED_FOLDER_CHANGES]: async function (folderUid) {
-            if (!this.CONVERSATION_LIST_IS_FILTERED && this.folders[this.activeFolder].remoteRef.uid === folderUid) {
-                const conversationsActivated = this.$store.getters[`mail/${CONVERSATIONS_ACTIVATED}`];
-                await this.REFRESH_CONVERSATION_LIST_KEYS({ folder: this.folder, conversationsActivated });
-
-                const conversations = this.CONVERSATION_LIST_KEYS.map(key => this.conversationByKey[key]);
-                await this.FETCH_CONVERSATIONS({ conversations, folder: this.folder, conversationsActivated });
-
-                this.FETCH_MESSAGE_METADATA({ messages: conversations.flatMap(({ messages }) => messages) });
+            if (
+                !this.CONVERSATION_LIST_IS_FILTERED &&
+                ((!this.CONVERSATIONS_ACTIVATED && this.folders[this.activeFolder].remoteRef.uid === folderUid) ||
+                    (this.CONVERSATIONS_ACTIVATED && this.isCurrentMailbox()))
+            ) {
+                this.refreshList(folderUid);
             }
         }
     }

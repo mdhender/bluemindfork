@@ -4,6 +4,7 @@ import {
     SET_CURRENT_SEARCH_DEEP,
     SET_CURRENT_SEARCH_FOLDER,
     SET_CURRENT_SEARCH_PATTERN,
+    SET_HAS_MORE_RESULTS,
     SET_SEARCH_QUERY_DEEP,
     SET_SEARCH_QUERY_FOLDER,
     SET_SEARCH_QUERY_PATTERN
@@ -20,7 +21,8 @@ const state = {
         pattern: null,
         folder: null,
         deep: true
-    }
+    },
+    hasMoreResults: false
 };
 
 const mutations = {
@@ -44,6 +46,9 @@ const mutations = {
     },
     [SET_CURRENT_SEARCH_DEEP](state, deep) {
         state.currentSearch.deep = deep;
+    },
+    [SET_HAS_MORE_RESULTS](state, hasMoreResults) {
+        state.hasMoreResults = hasMoreResults;
     },
     [RESET_CURRENT_SEARCH_PATTERN](state) {
         state.currentSearch.pattern = null;
