@@ -36,7 +36,7 @@ function CTIWidgetCreator(element) {
 
 function initializeDialer(el) {
   var handler = new goog.events.EventHandler();
-
+  var dialing = false;
   handler.listen(el, goog.events.EventType.CLICK, function() {
     dialer.toggleVisibility();
   });
@@ -53,7 +53,14 @@ function initializeDialer(el) {
       goog.global['bmcSessionInfos']['domain'], goog.global['bmcSessionInfos']['userId']);
 
   handler.listen(dialer, goog.ui.Component.EventType.ACTION, function(e) {
-    client.dial(e.number);
+    if (!dialing) {
+      dialing = true;
+      client.dial(e.number).addCallback(function(number) {
+        dialing = false;
+      }).addErrback(function(number) {
+        dialing = false;
+      });
+    }
   });
 
   return el;

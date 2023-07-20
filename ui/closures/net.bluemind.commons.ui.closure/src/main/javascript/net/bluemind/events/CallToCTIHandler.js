@@ -36,6 +36,7 @@ goog.require('net.bluemind.cti.api.ComputerTelephonyIntegrationClient');
  */
 net.bluemind.events.CallToCTIHandler = function(ctx) {
   this.ctx_ = ctx;
+  this.dialing_ = false;
 };
 goog.inherits(net.bluemind.events.CallToCTIHandler, net.bluemind.events.LinkHandler.ProtocolHandler);
 
@@ -49,18 +50,22 @@ net.bluemind.events.CallToCTIHandler.prototype.ctx_;
  * @override
  */
 net.bluemind.events.CallToCTIHandler.prototype.handleUri = function(uri) {
-  var deferred = new goog.async.Deferred();
-  var client = new net.bluemind.cti.api.ComputerTelephonyIntegrationClient(this.ctx_.rpc, '',
-      this.ctx_.user['domainUid'], this.ctx_.user['uid']);
-
-  client.dial(uri.getPath()).addCallback(function(number) {
-    // TODO: message
-    // this.sp_.getNotificationHandler().ok(bluemind.i18n.data('Dialing ' +
-    // number));
-  }).addErrback(function(number) {
-    // TODO: error management
-    // this.sp_.getNotificationHandler().error(bluemind.i18n.data('Fail to call
-    // ' + number));
-  });
+  if (!this.dialing_) {
+    this.dialing_ = true;
+    var client = new net.bluemind.cti.api.ComputerTelephonyIntegrationClient(this.ctx_.rpc, '',
+        this.ctx_.user['domainUid'], this.ctx_.user['uid']);
+  
+    client.dial(uri.getPath()).addCallback(function(number) {
+      this.dialing_ = false;
+      // TODO: message
+      // this.sp_.getNotificationHandler().ok(bluemind.i18n.data('Dialing ' +
+      // number));
+    }).addErrback(function(number) {
+      this.dialing_ = false;
+      // TODO: error management
+      // this.sp_.getNotificationHandler().error(bluemind.i18n.data('Fail to call
+      // ' + number));
+    });
+  }
   return true;
 };
