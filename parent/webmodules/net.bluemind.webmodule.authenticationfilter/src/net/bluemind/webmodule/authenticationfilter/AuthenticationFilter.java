@@ -39,7 +39,9 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
 import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
+import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
@@ -57,6 +59,7 @@ import net.bluemind.webmodule.authenticationfilter.internal.DomainsHelper;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionData;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionsCache;
 import net.bluemind.webmodule.server.IWebFilter;
+import net.bluemind.webmodule.server.SecurityConfig;
 import net.bluemind.webmodule.server.WebserverConfiguration;
 import net.bluemind.webmodule.server.forward.ForwardedLocation;
 
@@ -166,6 +169,16 @@ public class AuthenticationFilter implements IWebFilter {
 			location += "&code_challenge_method=S256";
 			location += "&response_type=code";
 			location += "&scope=openid";
+
+			// BM-19877 hack
+			// used for "Back to Application" redirect
+			Cookie redirect = new DefaultCookie("BM_REDIRECT", path);
+			redirect.setPath("/");
+			redirect.setHttpOnly(false);
+			if (SecurityConfig.secureCookies) {
+				redirect.setSecure(true);
+			}
+			request.response().headers().add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(redirect));
 
 			request.response().headers().add(HttpHeaders.LOCATION, location);
 			request.response().setStatusCode(302);
