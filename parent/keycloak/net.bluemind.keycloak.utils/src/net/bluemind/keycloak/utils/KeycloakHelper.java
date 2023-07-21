@@ -251,6 +251,7 @@ public class KeycloakHelper {
 		List<String> currentUrls = getDomainUrls(domainUid);
 		if (!oc.redirectUris.containsAll(currentUrls) || !currentUrls.containsAll(oc.redirectUris)) {
 			oc.redirectUris = currentUrls;
+			oc.baseUrl = getExternalUrl(domainUid);
 			kcCientService.updateClient(clientId, oc);
 			logger.info("Domain {} update : Urls changed : updated oidc client", domainUid);
 		} else {
@@ -309,6 +310,23 @@ public class KeycloakHelper {
 	private static String getOpenIdUrl(String url) {
 		return "https://" + url + "/auth/openid";
 
+	}
+
+	public static String getExternalUrl(String domainId) {
+		if (GLOBAL_VIRT.equals(domainId)) {
+			SystemConf sysconf = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+					.instance(ISystemConfiguration.class).getValues();
+			return sysconf.stringValue(SysConfKeys.external_protocol.name()) + "://"
+					+ sysconf.stringValue(SysConfKeys.external_url.name());
+		}
+
+		Map<String, String> domainSettings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+				.instance(IDomainSettings.class, domainId).get();
+		if (domainSettings != null && domainSettings.get(DomainSettingsKeys.external_url.name()) != null) {
+			return "https://" + domainSettings.get(DomainSettingsKeys.external_url.name());
+		}
+
+		return NO_REDIRECT_URI;
 	}
 
 	public static void initForDomain(String domainId) {

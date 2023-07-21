@@ -63,6 +63,7 @@ public class KeycloakDomainHookTests extends AbstractServiceTests {
 		assertNotNull(client);
 		assertEquals(1, client.redirectUris.size());
 		assertEquals("https://configure_external_url_in_bluemind", client.redirectUris.get(0)); // Fake redirect uri
+		assertEquals("https://configure_external_url_in_bluemind", client.baseUrl); // Fake base url
 
 		String secret = getKeycloakClientAdminService(domainUid).getSecret(cli);
 		assertEquals(client.secret, secret);
@@ -95,6 +96,7 @@ public class KeycloakDomainHookTests extends AbstractServiceTests {
 		OidcClient client = getKeycloakClientAdminService(domainUid).getOidcClient(cli);
 		assertEquals(1, client.redirectUris.size());
 		assertEquals("https://" + domainExternalUrl + "/auth/openid", client.redirectUris.get(0));
+		assertEquals("https://" + domainExternalUrl, client.baseUrl);
 
 		domainExternalUrl = "updated.bm.lan";
 		settings = getDomainSettingsService(domainUid).get();
@@ -107,6 +109,19 @@ public class KeycloakDomainHookTests extends AbstractServiceTests {
 		client = getKeycloakClientAdminService(domainUid).getOidcClient(cli);
 		assertEquals(1, client.redirectUris.size());
 		assertEquals("https://" + domainExternalUrl + "/auth/openid", client.redirectUris.get(0));
+		assertEquals("https://" + domainExternalUrl, client.baseUrl);
+
+		settings.remove(DomainSettingsKeys.external_url.name());
+		getDomainSettingsService(domainUid).set(settings);
+
+		Thread.sleep(3000); // NOOOOOOOO
+
+		cli = IKeycloakUids.clientId(domainUid);
+		client = getKeycloakClientAdminService(domainUid).getOidcClient(cli);
+		assertEquals(1, client.redirectUris.size());
+		assertEquals("https://configure_external_url_in_bluemind", client.redirectUris.get(0));
+		assertEquals("https://configure_external_url_in_bluemind", client.baseUrl);
+
 	}
 
 	@Test
