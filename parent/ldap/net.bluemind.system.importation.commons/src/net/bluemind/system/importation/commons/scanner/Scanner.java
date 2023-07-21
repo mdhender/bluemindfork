@@ -476,8 +476,8 @@ public abstract class Scanner {
 			} catch (ServerFault sf) {
 				if (sf.getCode() == ErrorCode.INCLUSION_GROUP_LOOP) {
 					logger.warn("Error on group {} update, add members cause group loop",
-							groupManager.group.value.name);
-					importLogger.warning(Messages.groupMemberAddLoop(groupManager.group.value));
+							groupManager.entry.getDn().getName());
+					importLogger.warning(Messages.groupMemberAddLoop(groupManager.entry.getDn().getName()));
 				}
 			}
 

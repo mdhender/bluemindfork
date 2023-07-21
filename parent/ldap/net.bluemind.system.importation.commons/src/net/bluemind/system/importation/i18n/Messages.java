@@ -338,10 +338,10 @@ public class Messages {
 		return messages;
 	}
 
-	public static Map<String, String> groupMemberAddLoop(Group group) {
+	public static Map<String, String> groupMemberAddLoop(String groupDn) {
 		Map<String, String> messages = new HashMap<String, String>(2);
-		messages.put("en", "Error on group " + group.name + " update, add members cause group loop");
-		messages.put("fr", "Erreur lors de la mise à jour du groupe " + group.name
+		messages.put("en", "Error on group " + groupDn + " update, add members cause group loop");
+		messages.put("fr", "Erreur lors de la mise à jour du groupe " + groupDn
 				+ ", l'ajout de membres provoque une boucle de groupe");
 		return messages;
 	}
