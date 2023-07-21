@@ -102,9 +102,13 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 					addCookie(headers, AuthenticationCookie.BMSID, sid);
 				}
 
-				headers.add(HttpHeaders.LOCATION, redirectTo);
-				request.response().setStatusCode(302);
+				if ("admin0@global.virt".equals(creds.getLoginAtDomain())) {
+					headers.add(HttpHeaders.LOCATION, "/");
+				} else {
+					headers.add(HttpHeaders.LOCATION, redirectTo);
+				}
 
+				request.response().setStatusCode(302);
 				request.response().end();
 			}
 
