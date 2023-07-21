@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.Container;
 import net.bluemind.core.container.model.Item;
@@ -212,7 +213,7 @@ public class GroupStore extends AbstractItemValueStore<Group> {
 						parents.toArray(new Long[0]) });
 
 		if (count > 0) {
-			throw new ServerFault("Group loop detected");
+			throw new ServerFault("Group loop detected", ErrorCode.INCLUSION_GROUP_LOOP);
 		}
 	}
 

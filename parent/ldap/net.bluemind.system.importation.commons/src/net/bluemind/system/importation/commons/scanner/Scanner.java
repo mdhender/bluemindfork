@@ -47,6 +47,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
+import net.bluemind.core.api.fault.ErrorCode;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.domain.api.Domain;
@@ -470,7 +471,16 @@ public abstract class Scanner {
 
 		SetView<Member> membersToAdd = Sets.difference(ldapGroupMembers, bmGroupMembers);
 		if (!membersToAdd.isEmpty()) {
-			coreService.addMembers(groupManager.group.uid, new ArrayList<>(membersToAdd));
+			try {
+				coreService.addMembers(groupManager.group.uid, new ArrayList<>(membersToAdd));
+			} catch (ServerFault sf) {
+				if (sf.getCode() == ErrorCode.INCLUSION_GROUP_LOOP) {
+					logger.warn("Error on group {} update, add members cause group loop",
+							groupManager.group.value.name);
+					importLogger.warning(Messages.groupMemberAddLoop(groupManager.group.value));
+				}
+			}
+
 			if (groupManager.isSplitDomainGroup(importLogger)) {
 				membersToAdd.stream().filter(member -> member.type == Member.Type.user)
 						.forEach(member -> coreService.setUserMailRouting(Routing.external, member.uid));
@@ -500,8 +510,8 @@ public abstract class Scanner {
 			logger.error("Directory connection error", e);
 		}
 
-		logger.info(String.format("Ending group %s (%s) member add/delete enhancement in %dms", group.value.name,
-				group.uid, System.currentTimeMillis() - timeBefore));
+		logger.info("Ending group {} ({}) member add/delete enhancement in {}ms", group.value.name, group.uid,
+				System.currentTimeMillis() - timeBefore);
 	}
 
 	private Set<Member> getGroupMembers(GroupManager groupManager) {
