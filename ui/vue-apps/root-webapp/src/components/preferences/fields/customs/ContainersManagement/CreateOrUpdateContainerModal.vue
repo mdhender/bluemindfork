@@ -1,5 +1,5 @@
 <template>
-    <bm-modal-deprecated
+    <bm-modal
         v-model="show"
         centered
         lazy
@@ -7,15 +7,15 @@
         :cancel-title="$t('common.cancel')"
         :ok-title="isNew ? $t('common.create') : $t('common.save')"
         :ok-disabled="disableSave"
-        modal-class="create-or-update-container-modal"
-        body-class="row mt-3"
+        :modal-class="{ 'create-or-update-container-modal': true, 'is-calendar': isCalendarType }"
         @ok.prevent="save"
     >
         <bm-form class="w-100" @submit.prevent="save">
             <bm-form-group
                 :label="$t('common.label')"
+                class="label-form-group"
                 label-for="label"
-                :description="labelDesc()"
+                :description="isLabelValid === false ? null : labelDesc()"
                 :invalid-feedback="$t('preferences.create_container.name_already_exists')"
                 :state="isLabelValid"
             >
@@ -40,7 +40,7 @@
             />
         </bm-form>
         <import-file v-if="showFileImport" ref="import-file" :container="container" class="mt-2 flex-grow-1" />
-    </bm-modal-deprecated>
+    </bm-modal>
 </template>
 
 <script>
@@ -48,7 +48,7 @@ import { ContainerHelper, ContainerType } from "./container";
 import CreateOrUpdateCalendar from "./Calendars/MyCalendars/CreateOrUpdateCalendar";
 import ImportFile from "./ImportFile";
 import { WARNING, SUCCESS } from "@bluemind/alert.store";
-import { BmForm, BmFormGroup, BmFormInput, BmModalDeprecated } from "@bluemind/ui-components";
+import { BmForm, BmFormGroup, BmFormInput, BmModal } from "@bluemind/ui-components";
 import UUIDGenerator from "@bluemind/uuid";
 import cloneDeep from "lodash.clonedeep";
 import { mapActions } from "vuex";
@@ -56,7 +56,7 @@ import { SAVE_ALERT } from "../../../Alerts/defaultAlerts";
 
 export default {
     name: "CreateOrUpdateContainerModal",
-    components: { BmForm, BmFormGroup, BmFormInput, BmModalDeprecated, CreateOrUpdateCalendar, ImportFile },
+    components: { BmForm, BmFormGroup, BmFormInput, BmModal, CreateOrUpdateCalendar, ImportFile },
     props: {
         containers: {
             type: Array,
@@ -97,7 +97,10 @@ export default {
             return JSON.stringify(this.container) !== JSON.stringify(this.originalContainer);
         },
         isLabelValid() {
-            return this.container.name && !this.nameAlreadyExists;
+            if (this.container.name === "") {
+                return undefined;
+            }
+            return !this.nameAlreadyExists;
         },
         nameAlreadyExists() {
             return (
@@ -164,9 +167,20 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/ui-components/src/css/utils/responsiveness";
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
-.create-or-update-container-modal .fa-calendar {
-    color: $neutral-fg;
+.create-or-update-container-modal {
+    .modal-body {
+        @include until-lg {
+            padding-top: $sp-6;
+        }
+    }
+
+    &.is-calendar {
+        .fa-calendar {
+            color: $neutral-fg;
+        }
+    }
 }
 </style>

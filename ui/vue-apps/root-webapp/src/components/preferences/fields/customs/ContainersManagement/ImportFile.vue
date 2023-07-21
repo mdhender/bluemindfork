@@ -1,17 +1,17 @@
 <template>
-    <div v-if="file">
-        <div v-if="uploadStatus === 'IDLE'" class="d-flex align-items-center">
+    <div v-if="file" class="import-file">
+        <div v-if="uploadStatus === 'IDLE'" class="d-flex align-items-end mt-6">
             <bm-icon :icon="fileTypeIcon" />
-            <div class="regular ml-4">{{ file.name }}</div>
-            <bm-button-close class="ml-2" size="sm" @click="resetFile" />
+            <div class="regular text-truncate ml-4">{{ file.name }}</div>
+            <bm-button-close class="ml-4" size="sm" @click="resetFile" />
         </div>
         <template v-else>
-            <bm-progress :value="uploaded" :max="100" class="mt-4 mb-2" />
-            <div class="d-flex align-items-center">
+            <bm-progress :value="uploaded" :max="100" />
+            <div class="d-flex align-items-end">
                 <bm-icon :icon="fileTypeIcon" />
-                <div class="regular ml-4">{{ file.name }}</div>
+                <div class="regular text-truncate ml-4">{{ file.name }}</div>
             </div>
-            <div class="float-right">
+            <div class="align-self-end">
                 <bm-button-close v-if="uploadStatus === 'IN_PROGRESS' && autoUpload" size="sm" @click="cancelUpload" />
                 <div v-else-if="uploadStatus === 'SUCCESS'">
                     <bm-icon icon="check-circle" class="text-success" />
@@ -24,12 +24,12 @@
             </div>
         </template>
     </div>
-    <div v-else>
+    <div v-else class="import-file">
         <bm-file-drop-zone :should-activate-fn="shouldActivate" always-show-dropzone @drop-files="dropFile($event)">
             <template #dropZone>
-                <div class="text-center my-4">
-                    <bm-icon :icon="fileTypeIcon" size="lg" />
-                    <div class="bold my-5">
+                <div class="drop-zone-content">
+                    <div class="icon-and-text">
+                        <bm-icon :icon="fileTypeIcon" size="lg" />
                         {{ $t("preferences.display_containers.import_file." + container.type) }}
                     </div>
                     <div class="mb-5">{{ $t("common.or") }}</div>
@@ -142,3 +142,37 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/ui-components/src/css/utils/variables";
+
+.import-file {
+    height: base-px-to-rem(160);
+    display: flex;
+    flex-direction: column;
+    margin-top: $sp-2;
+    gap: $sp-5;
+
+    .bm-file-drop-zone {
+        height: 100%;
+
+        .drop-zone-content {
+            flex: 1;
+
+            &,
+            .icon-and-text {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            justify-content: space-evenly;
+
+            .icon-and-text {
+                gap: $sp-3;
+            }
+        }
+    }
+}
+</style>

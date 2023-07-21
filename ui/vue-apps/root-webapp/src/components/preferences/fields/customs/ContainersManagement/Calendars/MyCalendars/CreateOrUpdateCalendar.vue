@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="create-or-update-calendar">
         <bm-form-group label-for="calendar-type" :label="$t('preferences.calendar.my_calendars.type')">
             <bm-form-select
                 :value="value.settings.type || 'internal'"
@@ -11,6 +11,7 @@
         </bm-form-group>
         <bm-form-group
             v-if="value.settings.type === 'externalIcs'"
+            class="calendar-ics-url"
             :label="$t('common.external_ics.url')"
             label-for="calendar-ics-url"
             :state="icsUrlInputState"
@@ -135,3 +136,13 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/ui-components/src/css/utils/variables";
+
+.create-or-update-calendar {
+    .calendar-ics-url {
+        height: base-px-to-rem(70);
+    }
+}
+</style>
