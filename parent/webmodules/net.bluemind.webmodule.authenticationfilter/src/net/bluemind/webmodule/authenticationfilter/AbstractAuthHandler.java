@@ -88,63 +88,18 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 					JsonObject cookie = new JsonObject();
 					cookie.put("sid", sid);
 					cookie.put("domain_uid", domainUid);
+					addCookie(headers, AuthenticationCookie.OPENID_SESSION, cookie.encode());
 
-					Cookie openIdCookie = new DefaultCookie(AuthenticationCookie.OPENID_SESSION, cookie.encode());
-					openIdCookie.setPath("/");
-					openIdCookie.setHttpOnly(true);
-					if (SecurityConfig.secureCookies) {
-						openIdCookie.setSecure(true);
-					}
-					request.response().headers().add(HttpHeaders.SET_COOKIE,
-							ServerCookieEncoder.LAX.encode(openIdCookie));
-
-					Cookie accessCookie = new DefaultCookie(AuthenticationCookie.ACCESS_TOKEN,
-							token.getString("access_token"));
-					accessCookie.setPath("/");
-					accessCookie.setHttpOnly(true);
-					if (SecurityConfig.secureCookies) {
-						accessCookie.setSecure(true);
-					}
-					request.response().headers().add(HttpHeaders.SET_COOKIE,
-							ServerCookieEncoder.LAX.encode(accessCookie));
-
-					Cookie refreshCookie = new DefaultCookie(AuthenticationCookie.REFRESH_TOKEN,
-							token.getString("refresh_token"));
-					refreshCookie.setPath("/");
-					refreshCookie.setHttpOnly(true);
-					if (SecurityConfig.secureCookies) {
-						refreshCookie.setSecure(true);
-					}
-					request.response().headers().add(HttpHeaders.SET_COOKIE,
-							ServerCookieEncoder.LAX.encode(refreshCookie));
-
-					Cookie idCookie = new DefaultCookie(AuthenticationCookie.ID_TOKEN, token.getString("id_token"));
-					idCookie.setPath("/");
-					idCookie.setHttpOnly(true);
-					if (SecurityConfig.secureCookies) {
-						idCookie.setSecure(true);
-					}
-					request.response().headers().add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(idCookie));
+					addCookie(headers, AuthenticationCookie.ACCESS_TOKEN, token.getString("access_token"));
+					addCookie(headers, AuthenticationCookie.REFRESH_TOKEN, token.getString("refresh_token"));
+					addCookie(headers, AuthenticationCookie.ID_TOKEN, token.getString("id_token"));
 
 					DecodedJWT accessToken = JWT.decode(token.getString("access_token"));
 					Claim pubpriv = accessToken.getClaim("bm_pubpriv");
 					boolean privateComputer = "private".equals(pubpriv.asString());
-					Cookie privacyCo = new DefaultCookie(AuthenticationCookie.BMPRIVACY,
-							Boolean.toString(privateComputer));
-					privacyCo.setPath("/");
-					if (SecurityConfig.secureCookies) {
-						privacyCo.setSecure(true);
-					}
-					request.response().headers().add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(privacyCo));
-
+					addCookie(headers, AuthenticationCookie.BMPRIVACY, Boolean.toString(privateComputer));
 				} else {
-					Cookie cookie = new DefaultCookie(AuthenticationCookie.BMSID, sid);
-					cookie.setPath("/");
-					cookie.setHttpOnly(true);
-					if (SecurityConfig.secureCookies) {
-						cookie.setSecure(true);
-					}
-					headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(cookie));
+					addCookie(headers, AuthenticationCookie.BMSID, sid);
 				}
 
 				headers.add(HttpHeaders.LOCATION, redirectTo);
@@ -159,6 +114,16 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 			}
 
 		});
+	}
+
+	private void addCookie(MultiMap headers, String name, String value) {
+		Cookie cookie = new DefaultCookie(name, value);
+		cookie.setPath("/");
+		cookie.setHttpOnly(true);
+		if (SecurityConfig.secureCookies) {
+			cookie.setSecure(true);
+		}
+		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(cookie));
 	}
 
 	protected void error(HttpServerRequest req, Throwable e) {
