@@ -5,8 +5,9 @@
             {{ $t("preferences.security.api_key.generate") }}
         </bm-button>
 
-        <bm-modal-deprecated
+        <bm-modal
             v-model="showModal"
+            size="sm"
             :title="$t('preferences.security.api_key.generate')"
             :ok-title="$t('preferences.security.api_key.generate.modal.ok_button')"
             :ok-disabled="!projectLabelValid"
@@ -22,7 +23,7 @@
                     <bm-form-input id="project-label" ref="project-label-input" v-model="projectLabel" autofocus />
                 </bm-form-group>
             </bm-form>
-        </bm-modal-deprecated>
+        </bm-modal>
 
         <bm-table :items="keys" :fields="fields" :per-page="perPage" :current-page="currentPage" sort-by="displayName">
             <template #cell(icon)>
@@ -59,7 +60,7 @@ import {
     BmFormGroup,
     BmFormInput,
     BmIcon,
-    BmModalDeprecated,
+    BmModal,
     BmPagination,
     BmTable
 } from "@bluemind/ui-components";
@@ -77,7 +78,7 @@ export default {
         BmFormGroup,
         BmFormInput,
         BmIcon,
-        BmModalDeprecated,
+        BmModal,
         BmPagination,
         BmTable
     },
