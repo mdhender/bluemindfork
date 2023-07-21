@@ -15,7 +15,9 @@ public class CalMultiputQueryParser {
 
 	public CalMultiputQuery parse(DavResource res, MultiMap headers, Buffer body) {
 		for (String hn : headers.names()) {
-			logger.info("{}: {}", hn, headers.get(hn));
+			if (!"authorization".equals(hn)) {
+				logger.info("{}: {}", hn, headers.get(hn));
+			}
 		}
 		logger.info("[{}][{} Bytes]\n{}", res.getPath(), body.length(), body.toString());
 

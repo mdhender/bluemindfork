@@ -37,7 +37,9 @@ public interface IDavProtocol<Q, R> {
 
 	default void logReq(Logger logger, final HttpServerRequest r, Buffer body) {
 		for (String hn : r.headers().names()) {
-			logger.info("{}: {}", hn, r.headers().get(hn));
+			if (!"authorization".equals(hn)) {
+				logger.info("{}: {}", hn, r.headers().get(hn));
+			}
 		}
 		if (body != null) {
 			logger.info("parse '{}'\n{}", r.path(), body.toString());

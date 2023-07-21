@@ -46,7 +46,9 @@ public class PutProtocol implements IDavProtocol<PutQuery, PutResponse> {
 			@Override
 			public void handle(Buffer b) {
 				for (String hn : r.headers().names()) {
-					logger.info("{}: {}", hn, r.headers().get(hn));
+					if (!"authorization".equals(hn)) {
+						logger.info("{}: {}", hn, r.headers().get(hn));
+					}
 				}
 
 				String p = r.path();

@@ -48,7 +48,9 @@ public class PropPatchQueryParser {
 
 		if (logger.isDebugEnabled()) {
 			for (String hn : headers.names()) {
-				logger.debug("{}: {}", hn, headers.get(hn));
+				if (!"authorization".equals(hn)) {
+					logger.debug("{}: {}", hn, headers.get(hn));
+				}
 			}
 			logger.debug("[{}][{} Bytes]\n{}", dr.getPath(), body.length(), body.toString());
 		}
