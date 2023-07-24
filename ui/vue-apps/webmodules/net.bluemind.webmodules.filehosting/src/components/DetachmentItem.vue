@@ -14,7 +14,7 @@
                         {{ $t("filehosting.very_large_file") }}
                     </bm-label-icon>
                 </div>
-                <div><slot name="item-actions" /></div>
+                <slot name="item-actions" />
             </div>
         </div>
         <bm-progress

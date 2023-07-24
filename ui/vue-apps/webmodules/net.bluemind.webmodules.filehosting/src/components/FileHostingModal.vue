@@ -1,10 +1,12 @@
 <template>
-    <bm-modal-deprecated
+    <bm-modal
         id="file-hosting-modal"
         :title="$tc('filehosting.add.large', fhFiles.length)"
-        title-class="ml-2"
         dialog-class="modal-dialog-centered"
-        no-fade
+        variant="advanced"
+        size="sm"
+        height="lg"
+        scrollable
     >
         <div class="mr-4 ml-2">
             <div v-if="hasSomeErrorStatus" class="d-flex align-items-center mb-5">
@@ -52,7 +54,7 @@
                             class="ml-2"
                             @click="cancel(file.key)"
                         />
-                        <div v-else class="text-neutral regular ml-2 text-nowrap">
+                        <div v-else class="text-neutral regular ml-3 text-nowrap">
                             {{ $t("filehosting.import.successful") }}
                         </div>
                     </template>
@@ -67,11 +69,11 @@
                 {{ isUploading ? $t("common.hide") : $t("common.done") }}
             </bm-button>
         </template>
-    </bm-modal-deprecated>
+    </bm-modal>
 </template>
 <script>
 import { mapActions, mapGetters } from "vuex";
-import { BmModalDeprecated, BmButtonClose, BmButton, BmIcon, BmLabelIcon } from "@bluemind/ui-components";
+import { BmModal, BmButtonClose, BmButton, BmIcon, BmLabelIcon } from "@bluemind/ui-components";
 import { computeUnit } from "@bluemind/file-utils";
 import { fileUtils } from "@bluemind/mail";
 import DetachmentItem from "./DetachmentItem";
@@ -82,7 +84,7 @@ const { FileStatus, isUploading } = fileUtils;
 
 export default {
     name: "FileHostingModal",
-    components: { BmModalDeprecated, BmButtonClose, BmButton, BmIcon, DetachmentItem, BmLabelIcon },
+    components: { BmModal, BmButtonClose, BmButton, BmIcon, DetachmentItem, BmLabelIcon },
     props: {
         sizeLimit: {
             type: Number,
