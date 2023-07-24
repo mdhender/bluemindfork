@@ -1,6 +1,6 @@
 <template>
     <div class="chooser-footer">
-        <div class="pt-2 pb-3">
+        <div class="selected-files">
             {{ $tc("common.files.selected", filesCount, { count: filesCount }) }}
             <span v-if="filesCount > 0">({{ totalSizeUnits }})</span>
             <span v-if="isAboveDetachmentLimit" class="text-danger ml-1">
@@ -106,13 +106,16 @@ export default {
 @import "~@bluemind/ui-components/src/css/utils/responsiveness";
 
 .chooser-footer {
-    min-width: 100%;
-    padding: $sp-3 $sp-6 $sp-6 $sp-6;
-    border-top: 1px solid $border-color;
+    width: 100%;
+
+    .selected-files {
+        padding-bottom: $sp-5;
+        text-align: end;
+        color: $neutral-fg;
+    }
 
     .toolbars {
         display: flex;
-        flex-direction: row-reverse;
         flex: 1 1 auto;
         justify-content: space-between;
 

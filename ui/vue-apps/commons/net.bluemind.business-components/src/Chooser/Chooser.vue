@@ -1,13 +1,18 @@
 <template>
-    <div class="chooser">
-        <chooser-header />
-        <chooser-main class="scroller-y" />
-        <chooser-footer :max-attachments-size="maxAttachmentsSize" @insert="insert" @cancel="resetChooser" />
-    </div>
+    <bm-modal v-model="show" content-class="chooser" centered size="xl" height="lg" variant="advanced" scrollable>
+        <template #modal-header>
+            <chooser-header @close="resetChooser" />
+        </template>
+        <chooser-main />
+        <template #modal-footer>
+            <chooser-footer :max-attachments-size="maxAttachmentsSize" @insert="insert" @cancel="resetChooser" />
+        </template>
+    </bm-modal>
 </template>
 
 <script>
 import { mapState } from "vuex";
+import { BmModal } from "@bluemind/ui-components";
 import ChooserFooter from "./ChooserFooter/ChooserFooter";
 import ChooserHeader from "./ChooserHeader/ChooserHeader";
 import ChooserMain from "./ChooserMain/ChooserMain";
@@ -15,12 +20,17 @@ import { RESET_CHOOSER } from "./store/actions";
 
 export default {
     name: "Chooser",
-    components: { ChooserFooter, ChooserHeader, ChooserMain },
+    components: { BmModal, ChooserFooter, ChooserHeader, ChooserMain },
     props: {
         maxAttachmentsSize: {
             type: Number,
             required: true
         }
+    },
+    data() {
+        return {
+            show: false
+        };
     },
     computed: {
         ...mapState("chooser", ["insertAsLink", "selectedFiles"])
@@ -29,13 +39,19 @@ export default {
         this.resetChooser();
     },
     methods: {
+        open() {
+            this.show = true;
+        },
+        hide() {
+            this.show = false;
+        },
         insert() {
             this.$emit("insert", this.selectedFiles, this.insertAsLink);
             this.$store.dispatch(`chooser/${RESET_CHOOSER}`);
         },
         resetChooser() {
             this.$store.dispatch(`chooser/${RESET_CHOOSER}`);
-            this.$bvModal.hide("chooser-modal");
+            this.hide();
         }
     }
 };
@@ -45,19 +61,16 @@ export default {
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .chooser {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    .chooser-header {
-        padding: $sp-4 $sp-7 $sp-1 $sp-7;
+    .modal-header {
+        z-index: 1;
+        border-bottom: none !important;
     }
-    .chooser-main {
-        height: 80%;
+    .modal-body {
+        padding: 0 !important;
+        background-color: $backdrop;
     }
-    .chooser-footer {
-        box-shadow: $sp-5 $sp-2 $sp-4 $shadow-color;
+    .modal-footer {
+        padding-right: $sp-5 !important;
     }
 }
 </style>

@@ -2,9 +2,11 @@
     <chooser-files-table
         ref="search-result-table"
         class="search-result-files-table"
+        :class="{ 'no-result': items.length === 0 }"
         :display-fields="fields"
         :items="items"
         :busy="loading"
+        :hover="false"
     >
         <template v-if="error" #empty>
             <div class="text-center">
@@ -59,6 +61,10 @@ export default {
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .search-result-files-table {
+    &.no-result {
+        background-color: $backdrop;
+    }
+
     .name-column {
         width: 40%;
     }

@@ -1,6 +1,6 @@
 <template>
-    <div class="search-no-results text-center my-5">
-        <bm-illustration value="spider" size="md" />
+    <div class="search-no-results text-center">
+        <bm-illustration value="spider" size="md" over-background />
         <i18n path="chooser.search.no_results">
             <template #pattern>
                 <span class="search-pattern">{{ pattern }}</span>
@@ -32,5 +32,6 @@ export default {
     gap: $sp-6;
     align-items: center;
     padding-top: $sp-7;
+    cursor: default;
 }
 </style>

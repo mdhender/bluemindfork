@@ -1,7 +1,7 @@
 <template>
     <div class="chooser-main-toolbar">
-        <insert-button :disabled="disabledInsert" @click.native="$emit('insert')" />
         <cancel-button @click.native="$emit('cancel')" />
+        <insert-button :disabled="disabledInsert" @click.native="$emit('insert')" />
     </div>
 </template>
 
@@ -26,6 +26,6 @@ export default {
 
 .chooser-main-toolbar {
     display: flex;
-    gap: $sp-5 $sp-6;
+    gap: $sp-5 $sp-7;
 }
 </style>

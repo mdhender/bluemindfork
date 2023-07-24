@@ -1,30 +1,26 @@
 <template>
-    <div class="chooser-header">
-        <div class="header-top d-flex flex-fill mb-6">
+    <bm-modal-header class="chooser-header" :title="$t('filehosting.chooser')" v-on="$listeners">
+        <div class="d-flex flex-fill pl-4 mb-6">
             <chooser-breadcrumb :class="{ active: !HAS_VALID_PATTERN }" :path="path" class="mr-4" />
             <chooser-search :class="{ active: HAS_VALID_PATTERN }" />
         </div>
-
-        <span v-if="!HAS_VALID_PATTERN" class="font-weight-bold">{{ currentDirectory }}</span>
-    </div>
+    </bm-modal-header>
 </template>
 
 <script>
 import { mapGetters, mapState } from "vuex";
+import { BmModalHeader } from "@bluemind/ui-components";
 import ChooserBreadcrumb from "./ChooserBreadcrumb/ChooserBreadcrumb";
 import ChooserSearch from "./ChooserSearch/ChooserSearch";
 import { HAS_VALID_PATTERN } from "../store/getters";
 
 export default {
     name: "ChooserHeader",
-    components: { ChooserBreadcrumb, ChooserSearch },
+    components: { BmModalHeader, ChooserBreadcrumb, ChooserSearch },
 
     computed: {
         ...mapState("chooser", ["path", "pattern", "isSearchMode"]),
-        ...mapGetters("chooser", [HAS_VALID_PATTERN]),
-        currentDirectory() {
-            return this.path.split("/").filter(Boolean).pop();
-        }
+        ...mapGetters("chooser", [HAS_VALID_PATTERN])
     }
 };
 </script>
@@ -34,17 +30,6 @@ export default {
 @import "~@bluemind/ui-components/src/css/utils/responsiveness";
 
 .chooser-header {
-    width: 100%;
-    background-color: $neutral-bg-lo1;
-    padding-top: $sp-3;
-
-    .header-top {
-        max-width: 95%;
-        @include until-lg {
-            max-width: 100%;
-        }
-    }
-
     .chooser-breadcrumb {
         display: none;
         @include from-lg {

@@ -2,7 +2,6 @@
     <div class="chooser-files-table">
         <bm-table
             ref="table"
-            class="mb-1"
             :items="items"
             :fields="fields_"
             selectable
@@ -53,7 +52,7 @@
                 <span v-else>{{ displaySize(item.size) }} </span>
             </template>
         </bm-table>
-        <bm-pagination v-model="currentPage" class="ml-7 mt-5" :total-rows="items.length" :per-page="perPage" />
+        <bm-pagination v-model="currentPage" class="ml-7 mb-5" :total-rows="items.length" :per-page="perPage" />
     </div>
 </template>
 
@@ -180,14 +179,38 @@ export default {
 @use "sass:map";
 @use "sass:math";
 
-@import "~@bluemind/ui-components/src/css/utils/variables";
 @import "~@bluemind/ui-components/src/css/utils/responsiveness";
+@import "~@bluemind/ui-components/src/css/utils/typography";
+@import "~@bluemind/ui-components/src/css/utils/variables";
 
 .chooser-files-table {
+    background: $surface;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-5;
+
     .bm-table {
+        margin: 0 !important;
+
+        &,
+        .table-active {
+            background: none !important;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: $zindex-sticky;
+            background-color: $surface;
+            box-shadow: inset 0 -1px 0 $neutral-fg-lo3; // border for sticky header
+            > tr {
+                border-bottom: none;
+            }
+        }
+
         tr > th {
             vertical-align: middle;
-            background-color: $neutral-bg-lo1 !important;
+            background-color: $neutral-bg-lo1;
             @include until-lg {
                 display: none;
             }
@@ -199,21 +222,27 @@ export default {
             vertical-align: middle;
             background-image: none !important;
         }
-        & > tbody > tr:not(.b-table-empty-row):hover > td {
-            background-color: $neutral-bg-lo1 !important;
-            &.selected {
-                background-color: $secondary-bg-lo1 !important;
+
+        &.table-hover {
+            & > tbody {
+                tr:hover {
+                    background-color: $neutral-bg-lo1 !important;
+                }
+                tr.b-table-row-selected {
+                    @include bold;
+                    td {
+                        background: none !important;
+                    }
+                    background-color: $secondary-bg-lo1 !important;
+                    &:hover {
+                        background-color: $secondary-bg !important;
+                    }
+                }
             }
         }
         tr.b-table-empty-row {
             border-bottom: none;
-        }
-        tr > td.selected {
-            background-color: $secondary-bg !important;
-            font-weight: $font-weight-bold;
-        }
-        tr > td:not(.selected) {
-            background-color: $surface-hi2 !important;
+            background: none !important;
         }
         .select-column {
             text-align: right;

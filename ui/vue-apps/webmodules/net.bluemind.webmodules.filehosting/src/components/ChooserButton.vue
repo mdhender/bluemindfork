@@ -1,29 +1,19 @@
 <template>
     <div class="chooser-button">
         <bm-icon-button
-            v-b-modal.chooser
             variant="compact"
             size="lg"
             icon="cloud"
             :title="$tc('filehosting.drive.from')"
             @click="openChooser"
         />
-        <bm-modal-deprecated
-            id="chooser-modal"
-            hide-footer
-            centered
-            size="fluid"
-            :scrollable="false"
-            :title="$t('filehosting.chooser')"
-        >
-            <chooser :max-attachments-size="maxAttachmentsSize" @insert="insertFiles" />
-        </bm-modal-deprecated>
+        <chooser ref="chooser-modal" :max-attachments-size="maxAttachmentsSize" @insert="insertFiles" />
     </div>
 </template>
 
 <script>
 import { inject } from "@bluemind/inject";
-import { BmIconButton, BmModalDeprecated } from "@bluemind/ui-components";
+import { BmIconButton } from "@bluemind/ui-components";
 import { MimeType } from "@bluemind/email";
 import { Chooser } from "@bluemind/business-components";
 import { LINK_FH_ATTACHMENT } from "../store/types/actions";
@@ -31,7 +21,7 @@ import getContentWithLinks from "../helpers/getContentWithLinks";
 
 export default {
     name: "ChooserButton",
-    components: { BmIconButton, BmModalDeprecated, Chooser },
+    components: { BmIconButton, Chooser },
     props: {
         message: {
             type: Object,
@@ -45,10 +35,10 @@ export default {
     },
     methods: {
         openChooser() {
-            this.$bvModal.show("chooser-modal");
+            this.$refs["chooser-modal"].open();
         },
         async insertFiles(items, insertAsLink) {
-            this.$bvModal.hide("chooser-modal");
+            this.$refs["chooser-modal"].hide();
             if (insertAsLink) {
                 await this.linkAttachments(items);
             } else {
