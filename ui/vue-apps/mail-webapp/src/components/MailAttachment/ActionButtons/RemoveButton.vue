@@ -1,7 +1,7 @@
 <template>
     <bm-button-close
         class="remove-button"
-        size="sm"
+        size="md"
         :title="$tc('common.removeAttachment')"
         @click.stop="$emit('remove')"
     />
