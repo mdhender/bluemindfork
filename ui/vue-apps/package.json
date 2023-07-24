@@ -10,7 +10,7 @@
             "webmodules/net.bluemind.webmodules.styleguide",
             "plugins/net.bluemind.plugins.smime",
             "bm-api-clients/generated/**",
-            "pre-install/"
+            "bm-19791-dirty-fix"
         ],
         "nohoist": [
             "**/bootstrap-vue",
@@ -78,8 +78,7 @@
         "videoconferencing-saas": "cd videoconferencing-saas-webapp && yarn dev",
         "test": "jest",
         "test:coverage": "jest --coverage --collectCoverageFrom='./plugins/net.bluemind.plugins.smime/src/**/*[.ts|.js]' net.bluemind.plugins.smime",
-        "test-ci": "jest --ci --json --testResultsProcessor jest-jenkins-reporter --coverage --coverageReporters cobertura > jest.json",
-        "build": "sh /dev/null"
+        "test-ci": "jest --ci --json --testResultsProcessor jest-jenkins-reporter --coverage --coverageReporters cobertura > jest.json"
     },
     "prettier": "@bluemind/prettier-config",
     "browserslist": [
