@@ -567,8 +567,8 @@ public class Mime4JHelper {
 		Document.OutputSettings outputSettings = new Document.OutputSettings();
 		outputSettings.prettyPrint(false);
 		doc.outputSettings(outputSettings);
-		doc.select("br").before("\\n");
-		doc.select("p").before("\\n");
+		doc.select("br").before("\n");
+		doc.select("p").before("\n");
 		String str = doc.html().replace("\\\\n", "\n");
 		return Jsoup.clean(str, "", Safelist.none(), outputSettings);
 	}

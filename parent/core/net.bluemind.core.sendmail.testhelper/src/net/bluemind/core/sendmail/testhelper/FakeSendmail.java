@@ -27,6 +27,11 @@ public class FakeSendmail implements ISendmail {
 		return messages.stream().map(m -> m.from).collect(Collectors.toSet());
 	}
 
+	public void reset() {
+		this.mailSent = false;
+		this.messages = new ArrayList<>();
+	}
+
 	@Override
 	public SendmailResponse send(Mail m) {
 		mailSent = true;

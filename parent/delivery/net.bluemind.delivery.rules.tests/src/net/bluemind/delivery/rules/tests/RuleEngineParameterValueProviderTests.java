@@ -2,12 +2,12 @@ package net.bluemind.delivery.rules.tests;
 
 import static net.bluemind.mailbox.api.rules.conditions.MailFilterRuleKnownField.FROM_EMAIL;
 import static net.bluemind.mailbox.api.rules.conditions.MailFilterRuleKnownField.TO_EMAIL;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import net.bluemind.delivery.lmtp.common.DeliveryContent;
 import net.bluemind.mailbox.api.rules.MailFilterRule;

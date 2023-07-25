@@ -14,7 +14,7 @@ import org.apache.james.mime4j.dom.Entity;
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.Multipart;
 import org.apache.james.mime4j.dom.TextBody;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 import net.bluemind.backend.mail.replica.api.IDbByContainerReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
@@ -70,7 +70,7 @@ public class AbstractRuleEngineTests {
 	protected String emailUser2;
 	protected String emailUser2Alias;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		domainUid = "test" + System.currentTimeMillis() + ".lab";
 		JdbcTestHelper.getInstance().beforeTest();
@@ -110,13 +110,17 @@ public class AbstractRuleEngineTests {
 	}
 
 	protected RuleEngine engineOn(Message message) {
+		MailboxVacationSendersCache.Factory vacationCacheFactory = MailboxVacationSendersCache.Factory.build("/tmp");
+		return engineOn(message, vacationCacheFactory);
+	}
+
+	protected RuleEngine engineOn(Message message, MailboxVacationSendersCache.Factory vacationCacheFactory) {
 		var mailboxRecord = new MailboxRecord();
 		mailboxRecord.messageBody = "42";
 		String from = (message.getFrom() != null)
 				? message.getFrom().stream().findFirst().map(m -> m.getAddress()).orElse(null)
 				: null;
 		DeliveryContent content = new DeliveryContent(from, boxUser1, rootFolderUser1, message, mailboxRecord);
-		MailboxVacationSendersCache.Factory vacationCacheFactory = MailboxVacationSendersCache.Factory.build("/tmp");
 		IDeliveryContext deliveryContext = new IDeliveryContext() {
 			@Override
 			public IServiceProvider provider() {
@@ -181,7 +185,7 @@ public class AbstractRuleEngineTests {
 		if ("plain".equals(type)) {
 			return extractContent(partsByMimeType.get("text/plain").get(0));
 		} else if ("html".equals(type)) {
-			return extractContent(partsByMimeType.get("text/html").get(0));
+			return extractContent(partsByMimeType.get("text/html").get(0)).replaceAll("<br>\n\s*", "<br>");
 		}
 
 		return null;

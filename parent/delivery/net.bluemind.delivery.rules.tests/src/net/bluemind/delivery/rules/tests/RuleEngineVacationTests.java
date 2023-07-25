@@ -1,9 +1,7 @@
 package net.bluemind.delivery.rules.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -12,10 +10,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import net.bluemind.core.sendmail.testhelper.TestMail;
 import net.bluemind.delivery.lmtp.common.DeliveryContent;
+import net.bluemind.delivery.rules.MailboxVacationSendersCache;
 import net.bluemind.mailbox.api.rules.MailFilterRule;
 import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
 
@@ -40,7 +39,7 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 		DeliveryContent result = engineOn(message)
 				.apply(Arrays.asList(vacation("2021-01-01 00:00:00", "2022-01-01 00:00:01")));
 
-		assertNotNull(result.message());
+		assertThat(result.message()).isNotNull();
 		assertHasReplied();
 	}
 
@@ -57,7 +56,8 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 		DeliveryContent result = engineOn(message)
 				.apply(Arrays.asList(vacationWithoutHtml("2021-01-01 00:00:00", "2022-01-10 00:00:01")));
 
-		assertNotNull(result.message());
+		assertThat(result.message()).isNotNull();
+		;
 		TestMail mail = assertHasReplied();
 
 		final String expected = """
@@ -67,9 +67,10 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 				>Original message content
 				""";
 
-		assertTrue(mail.message.isMultipart());
+		assertThat(mail.message.isMultipart()).isTrue();
 		String extractContent = extractMsgBody(mail.message, "plain");
-		assertEquals(expected.trim(), extractContent.trim());
+		assertThat(extractContent.trim()).isEqualTo(expected.trim());
+		;
 	}
 
 	@Test
@@ -85,7 +86,8 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 		DeliveryContent result = engineOn(message)
 				.apply(Arrays.asList(vacation("2021-01-01 00:00:00", "2022-01-10 00:00:01")));
 
-		assertNotNull(result.message());
+		assertThat(result.message()).isNotNull();
+		;
 		TestMail mail = assertHasReplied();
 
 		final String expected = """
@@ -99,9 +101,11 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 				 </body>
 				</html>""";
 
-		assertTrue(mail.message.isMultipart());
+		assertThat(mail.message.isMultipart()).isTrue();
+		;
 		String extractContent = extractMsgBody(mail.message, "html");
-		assertEquals(expected, extractContent);
+		assertThat(extractContent).isEqualTo(expected);
+		;
 	}
 
 	@Test
@@ -117,7 +121,8 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 		DeliveryContent result = engineOn(message)
 				.apply(Arrays.asList(vacation("2021-01-01 00:00:00", "2022-01-10 00:00:01")));
 
-		assertNotNull(result.message());
+		assertThat(result.message()).isNotNull();
+		;
 		TestMail mail = assertHasReplied();
 
 		final String expected = """
@@ -127,9 +132,11 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 				>Original message content
 				""";
 
-		assertTrue(mail.message.isMultipart());
+		assertThat(mail.message.isMultipart()).isTrue();
+		;
 		String extractContent = extractMsgBody(mail.message, "plain");
-		assertEquals(expected.trim(), extractContent.trim());
+		assertThat(extractContent.trim()).isEqualTo(expected.trim());
+		;
 	}
 
 	@Test
@@ -145,7 +152,8 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 		DeliveryContent result = engineOn(message)
 				.apply(Arrays.asList(vacationWithoutHtml("2021-01-01 00:00:00", "2022-01-10 00:00:01")));
 
-		assertNotNull(result.message());
+		assertThat(result.message()).isNotNull();
+		;
 		TestMail mail = assertHasReplied();
 
 		final String expected = """
@@ -159,9 +167,9 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 				 </body>
 				</html>""";
 
-		assertTrue(mail.message.isMultipart());
+		assertThat(mail.message.isMultipart()).isTrue();
 		String extractContent = extractMsgBody(mail.message, "html");
-		assertEquals(expected, extractContent);
+		assertThat(extractContent).isEqualTo(expected);
 	}
 
 	@Test
@@ -176,7 +184,7 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 		DeliveryContent result = engineOn(message)
 				.apply(Arrays.asList(vacationWithoutHtml("2021-01-01 00:00:00", null)));
 
-		assertNotNull(result.message());
+		assertThat(result.message()).isNotNull();
 		assertHasReplied();
 	}
 
@@ -192,7 +200,7 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 		DeliveryContent result = engineOn(message)
 				.apply(Arrays.asList(vacationWithoutHtml(null, "2022-01-01 00:00:01")));
 
-		assertNotNull(result.message());
+		assertThat(result.message()).isNotNull();
 		assertHasReplied();
 	}
 
@@ -208,8 +216,8 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 		DeliveryContent result = engineOn(message)
 				.apply(Arrays.asList(vacationWithoutHtml("2021-01-01 00:00:00", "2022-01-01 00:00:01")));
 
-		assertNotNull(result.message());
-		assertFalse(mailer.mailSent);
+		assertThat(result.message()).isNotNull();
+		assertThat(mailer.mailSent).isFalse();
 	}
 
 	@Test
@@ -225,8 +233,8 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 		DeliveryContent result = engineOn(message)
 				.apply(Arrays.asList(vacationWithoutHtml("2021-01-01 00:00:00", "2023-01-01 00:00:01")));
 
-		assertNotNull(result.message());
-		assertFalse(mailer.mailSent);
+		assertThat(result.message()).isNotNull();
+		assertThat(mailer.mailSent).isFalse();
 
 		// from noreplytoto@bluemind.net
 		date = formatter.parse("2022-01-01 00:00:00");
@@ -239,8 +247,8 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 		result = engineOn(message)
 				.apply(Arrays.asList(vacationWithoutHtml("2021-01-01 00:00:00", "2023-01-01 00:00:01")));
 
-		assertNotNull(result.message());
-		assertFalse(mailer.mailSent);
+		assertThat(result.message()).isNotNull();
+		assertThat(mailer.mailSent).isFalse();
 
 		// from no-reply@bluemind.net
 		date = formatter.parse("2022-01-01 00:00:00");
@@ -253,9 +261,67 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 		result = engineOn(message)
 				.apply(Arrays.asList(vacationWithoutHtml("2021-01-01 00:00:00", "2023-01-01 00:00:01")));
 
-		assertNotNull(result.message());
-		assertFalse(mailer.mailSent);
+		assertThat(result.message()).isNotNull();
+		assertThat(mailer.mailSent).isFalse();
+	}
 
+	@Test
+	public void testRecipientCache() throws ParseException {
+		MailboxVacationSendersCache.Factory vacationCacheFactory = MailboxVacationSendersCache.Factory.build("/tmp");
+		Date date = formatter.parse("2022-01-01 00:00:00");
+		var message = new MessageBuilder("Subject") //
+				.from(emailUser2).to(emailUser1) //
+				.date(date) //
+				.content(null, "Original message content") //
+				.build();
+
+		var result = engineOn(message, vacationCacheFactory)
+				.apply(Arrays.asList(vacation("2021-01-01 00:00:00", "2022-01-01 00:00:01")));
+
+		assertThat(result.message()).isNotNull();
+		assertHasReplied();
+
+		mailer.reset();
+		result = engineOn(message, vacationCacheFactory)
+				.apply(Arrays.asList(vacation("2021-01-01 00:00:00", "2022-01-01 00:00:01")));
+
+		assertThat(result.message()).isNotNull();
+		assertWithMessage("no autoreply to the second mail from the same sender").that(mailer.mailSent).isFalse();
+
+		var message2 = new MessageBuilder("Subject") //
+				.from("noreply@bluemind.net").to(emailUser1) //
+				.date(date) //
+				.content(null, "Original message content") //
+				.build();
+
+		mailer.reset();
+		result = engineOn(message2, vacationCacheFactory)
+				.apply(Arrays.asList(vacationWithoutHtml("2021-01-01 00:00:00", "2023-01-01 00:00:01")));
+
+		assertThat(result.message()).isNotNull();
+		assertWithMessage("no autoreply to sender like noreply*").that(mailer.mailSent).isFalse();
+
+		mailer.reset();
+		result = engineOn(message, vacationCacheFactory)
+				.apply(Arrays.asList(vacation("2021-01-01 00:00:00", "2022-01-01 00:00:01")));
+
+		assertThat(result.message()).isNotNull();
+		assertWithMessage("still no autoreply to the third mail from the same sender").that(mailer.mailSent).isFalse();
+
+		mailer.reset();
+		result = engineOn(message, vacationCacheFactory)
+				.apply(Arrays.asList(vacationUnactive(originalBodyHtml, originalBody)));
+
+		assertThat(result.message()).isNotNull();
+		assertWithMessage("no autoreply on disabled vacation, reset recipient cache").that(mailer.mailSent).isFalse();
+
+		mailer.reset();
+		result = engineOn(message, vacationCacheFactory)
+				.apply(Arrays.asList(vacation("2021-01-01 00:00:00", "2022-01-01 00:00:01")));
+
+		assertThat(result.message()).isNotNull();
+		assertWithMessage("autoreply after recipient cache have been reset").that(mailer.mailSent).isTrue();
+		assertHasReplied();
 	}
 
 	@Test
@@ -271,8 +337,8 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 		DeliveryContent result = engineOn(message)
 				.apply(Arrays.asList(vacationWithoutHtml("2021-01-01 00:00:00", "2023-01-01 00:00:01")));
 
-		assertNotNull(result.message());
-		assertFalse(mailer.mailSent);
+		assertThat(result.message()).isNotNull();
+		assertThat(mailer.mailSent).isFalse();
 	}
 
 	@Test
@@ -288,8 +354,8 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 		DeliveryContent result = engineOn(message)
 				.apply(Arrays.asList(vacationWithoutHtml("2021-01-01 00:00:00", "2023-01-01 00:00:01")));
 
-		assertNotNull(result.message());
-		assertFalse(mailer.mailSent);
+		assertThat(result.message()).isNotNull();
+		assertThat(mailer.mailSent).isFalse();
 	}
 
 	@Test
@@ -305,8 +371,8 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 		DeliveryContent result = engineOn(message)
 				.apply(Arrays.asList(vacationWithoutHtml("2021-01-01 00:00:00", "2023-01-01 00:00:01")));
 
-		assertNotNull(result.message());
-		assertFalse(mailer.mailSent);
+		assertThat(result.message()).isNotNull();
+		assertThat(mailer.mailSent).isFalse();
 	}
 
 	@Test
@@ -322,8 +388,8 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 		DeliveryContent result = engineOn(message)
 				.apply(Arrays.asList(vacationWithoutHtml("2021-01-01 00:00:00", "2023-01-01 00:00:01")));
 
-		assertNotNull(result.message());
-		assertFalse(mailer.mailSent);
+		assertThat(result.message()).isNotNull();
+		assertThat(mailer.mailSent).isFalse();
 	}
 
 	@Test
@@ -339,18 +405,18 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 		DeliveryContent result = engineOn(message)
 				.apply(Arrays.asList(vacationWithoutHtml("2021-01-01 00:00:00", "2023-01-01 00:00:01")));
 
-		assertNotNull(result.message());
+		assertThat(result.message()).isNotNull();
 		assertHasReplied();
 	}
 
 	private TestMail assertHasReplied() {
-		assertTrue(mailer.mailSent);
+		assertThat(mailer.mailSent).isTrue();
 		List<TestMail> messages = mailer.messages;
-		assertEquals(1, messages.size());
+		assertThat(messages).hasSize(1);
 		TestMail reply = messages.get(0);
-		assertEquals(1, reply.to.size());
-		assertEquals(emailUser2, reply.to.iterator().next());
-		assertEquals(emailUser1, reply.from);
+		assertThat(reply.to).hasSize(1);
+		assertThat(reply.to.iterator().next()).isEqualTo(emailUser2);
+		assertThat(reply.from).isEqualTo(emailUser1);
 		return reply;
 	}
 
@@ -375,6 +441,12 @@ public class RuleEngineVacationTests extends AbstractRuleEngineTests {
 		rule.conditions = new ArrayList<>();
 		rule.conditions.add(MailFilterRuleCondition.between("date", start, end));
 		rule.addReply("On vacation", replyMessage, replyMessageHtml);
+		return rule;
+	}
+
+	private MailFilterRule vacationUnactive(String start, String end) throws ParseException {
+		MailFilterRule rule = vacation(start, end);
+		rule.active = false;
 		return rule;
 	}
 }

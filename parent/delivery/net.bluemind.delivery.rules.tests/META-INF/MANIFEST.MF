@@ -23,4 +23,7 @@ Require-Bundle: org.junit,
  net.bluemind.delivery.lmtp.common,
  org.apache.james.apache-mime4j-dom,
  org.apache.james.apache-mime4j-core,
- net.bluemind.mime4j.common
+ net.bluemind.mime4j.common,
+ com.google.truth,
+ com.google.truth.extensions.truth-java8-extension
+Import-Package: org.junit.jupiter.api

@@ -3,10 +3,10 @@ package net.bluemind.delivery.rules.tests;
 import static net.bluemind.backend.mail.api.flags.MailboxItemFlag.System.Deleted;
 import static net.bluemind.backend.mail.api.flags.MailboxItemFlag.System.Flagged;
 import static net.bluemind.backend.mail.api.flags.MailboxItemFlag.System.Seen;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import org.apache.james.mime4j.dom.Entity;
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.Multipart;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import net.bluemind.backend.mail.replica.api.IDbMailboxRecords;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
