@@ -1,24 +1,28 @@
 <template>
     <bm-spinner v-if="isLoading" class="d-flex justify-content-center" />
     <div v-else class="share-management">
-        <div class="mb-1">{{ $t("common.share_with") }}</div>
-        <bm-form-autocomplete-input
-            v-model="searchedInput"
-            :placeholder="$t('common.search')"
-            class="w-50"
-            icon="search"
-            left-icon
-            :items="suggestions"
-            @input="onInputUpdate"
-            @selected="onSelect"
-        >
-            <template #default="{ item }">
-                <contact :contact="item" transparent show-address bold-dn />
-                <span v-if="!item.urn"> ({{ $t("common.external") }}) </span>
-            </template>
-        </bm-form-autocomplete-input>
+        <bm-form-group class="section">
+            <label for="share-management-search-input" class="mb-1">{{ $t("common.share_with") }}</label>
+            <bm-form-autocomplete-input
+                id="share-management-search-input"
+                v-model="searchedInput"
+                :placeholder="$t('common.search')"
+                class="search-input"
+                icon="search"
+                left-icon
+                :items="suggestions"
+                @input="onInputUpdate"
+                @selected="onSelect"
+            >
+                <template #default="{ item }">
+                    <contact :contact="item" transparent show-address bold-dn />
+                    <span v-if="!item.urn"> ({{ $t("common.external") }}) </span>
+                </template>
+            </bm-form-autocomplete-input>
+        </bm-form-group>
         <hr />
         <internal-share-management
+            class="section"
             :container="container"
             :domain-acl="domainAcl"
             :dir-entries-acl="dirEntriesAcl"
@@ -26,14 +30,16 @@
             @dir-entry-acl-changed="onDirEntryAclChange"
             @domain-acl-changed="onDomainAclChange"
         />
-        <external-share-management
-            v-if="isCalendarType"
-            :container="container"
-            :external-shares="externalShares"
-            @remove="removeExternal"
-            @publish-mode-change="editPublishMode"
-        />
-        <hr />
+        <template v-if="isCalendarType">
+            <hr />
+            <external-share-management
+                class="section"
+                :container="container"
+                :external-shares="externalShares"
+                @remove="removeExternal"
+                @publish-mode-change="editPublishMode"
+            />
+        </template>
     </div>
 </template>
 
@@ -51,7 +57,7 @@ import { Verb } from "@bluemind/core.container.api";
 import { BaseDirEntry } from "@bluemind/directory.api";
 import { EmailValidator } from "@bluemind/email";
 import { inject } from "@bluemind/inject";
-import { BmFormAutocompleteInput, BmSpinner } from "@bluemind/ui-components";
+import { BmFormGroup, BmFormAutocompleteInput, BmSpinner } from "@bluemind/ui-components";
 import { Contact } from "@bluemind/business-components";
 import UUIDHelper from "@bluemind/uuid";
 import { SUCCESS } from "@bluemind/alert.store";
@@ -60,6 +66,7 @@ import { SAVE_ALERT_MODAL } from "../../../../Alerts/defaultAlerts";
 export default {
     name: "ShareManagement",
     components: {
+        BmFormGroup,
         BmFormAutocompleteInput,
         BmSpinner,
         Contact,
@@ -310,6 +317,17 @@ export default {
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .share-management {
+    .section {
+        margin: 0 $sp-5;
+        @include from-lg {
+            margin: 0 $sp-6;
+        }
+    }
+
+    #share-management-search-input .bm-form-input {
+        max-width: base-px-to-rem(300);
+    }
+
     .share-entry-body {
         display: flex;
         align-items: center;
@@ -327,6 +345,7 @@ export default {
     hr {
         margin-top: $sp-6;
         margin-bottom: $sp-6;
+        border-top: 1px solid $neutral-fg-lo3;
     }
 }
 </style>

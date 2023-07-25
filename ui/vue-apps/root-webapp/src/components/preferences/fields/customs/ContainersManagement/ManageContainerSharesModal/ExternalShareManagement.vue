@@ -1,6 +1,5 @@
 <template>
     <div class="external-share-management">
-        <hr />
         <bm-label-icon icon="world" class="h3 mb-5" :inline="false">
             {{ $t("preferences.manage_shares.outside_my_organization") }}
         </bm-label-icon>
@@ -26,11 +25,13 @@
                         :value="external.publishMode"
                         :options="publishModeOptions"
                         :auto-min-width="false"
+                        right
                         @input="editPublishMode(external)"
                     />
                     <bm-icon-button
                         v-if="canRemoveLink(external)"
-                        size="sm"
+                        variant="compact"
+                        size="lg"
                         icon="trash"
                         @click="removeLink(external)"
                     />

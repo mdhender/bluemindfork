@@ -1,11 +1,29 @@
 <template>
-    <bm-modal-deprecated v-model="show" centered modal-class="manage-shares-modal">
-        <template #modal-title>
-            <div v-if="showAvailabilitiesManagement" class="modal-title">
-                <bm-icon-button icon="arrow-back" size="lg" @click="back()" />
-                {{ $t("preferences.calendar.my_calendars.availabilities_advanced_management") }}
-            </div>
-            <div v-else class="modal-title">{{ initialModalTitle }}</div>
+    <bm-modal
+        v-model="show"
+        variant="advanced"
+        size="lg"
+        height="sm"
+        scrollable
+        centered
+        :modal-class="{
+            'manage-shares-modal': true,
+            'invisible-footer': !displayAvailabilitiesManagement || showAvailabilitiesManagement
+        }"
+    >
+        <template #modal-header>
+            <bm-modal-header class="d-lg-none" :title="modalTitle" @close="back()" />
+            <bm-modal-header class="d-none d-lg-block" @close="close()">
+                <template #title>
+                    <bm-icon-button
+                        v-if="showAvailabilitiesManagement"
+                        variant="compact"
+                        icon="arrow-back"
+                        @click="back()"
+                    />
+                    <div class="custom-modal-title">{{ modalTitle }}</div>
+                </template>
+            </bm-modal-header>
         </template>
 
         <availabilities-management v-if="showAvailabilitiesManagement" />
@@ -15,7 +33,13 @@
             :is-my-container="isOwnerMyself"
             :is-my-default-calendar="isMyDefaultCalendar"
         />
+
         <template #modal-footer>
+            <bm-alert-area v-show="alerts.length > 0" :alerts="alerts" stackable @remove="REMOVE">
+                <template #default="context">
+                    <component :is="context.alert.renderer" :alert="context.alert" />
+                </template>
+            </bm-alert-area>
             <bm-button
                 v-if="!showAvailabilitiesManagement && displayAvailabilitiesManagement"
                 variant="text"
@@ -23,20 +47,24 @@
             >
                 {{ $t("preferences.calendar.my_calendars.availabilities_advanced_management") }}
             </bm-button>
-            <bm-alert-area v-show="alerts.length > 0" :alerts="alerts" stackable @remove="REMOVE">
-                <template #default="context">
-                    <component :is="context.alert.renderer" :alert="context.alert" />
-                </template>
-            </bm-alert-area>
         </template>
-    </bm-modal-deprecated>
+    </bm-modal>
 </template>
 
 <script>
 import { mapActions, mapState } from "vuex";
 import { inject } from "@bluemind/inject";
 import { REMOVE } from "@bluemind/alert.store";
-import { BmAlertArea, BmButton, BmButtonClose, BmIconButton, BmModalDeprecated, BmRow } from "@bluemind/ui-components";
+import {
+    BmAlertArea,
+    BmButton,
+    BmButtonClose,
+    BmIconButton,
+    BmModal,
+    BmModalHeader,
+    BmNavbarBack,
+    BmRow
+} from "@bluemind/ui-components";
 import { ContainerType, isDefault } from "../container";
 import AvailabilitiesManagement from "./AvailabilitiesManagement";
 import ShareManagement from "./ShareManagement";
@@ -49,7 +77,9 @@ export default {
         BmButton,
         BmButtonClose,
         BmIconButton,
-        BmModalDeprecated,
+        BmModal,
+        BmModalHeader,
+        BmNavbarBack,
         BmRow,
         ShareManagement
     },
@@ -62,7 +92,10 @@ export default {
     },
     computed: {
         ...mapState({ alerts: state => state.alert.filter(({ area }) => area === "pref-modal") }),
-        initialModalTitle() {
+        modalTitle() {
+            if (this.showAvailabilitiesManagement) {
+                return this.$t("preferences.calendar.my_calendars.availabilities_advanced_management");
+            }
             if (this.isMyMailbox) {
                 return this.$t("preferences.mail.my_mailbox.modal_title");
             }
@@ -98,34 +131,57 @@ export default {
             this.showAvailabilitiesManagement = false;
             this.container = container;
         },
+        close() {
+            this.show = false;
+        },
         back() {
-            this.showAvailabilitiesManagement = false;
+            if (this.showAvailabilitiesManagement) {
+                this.showAvailabilitiesManagement = false;
+            } else {
+                this.close();
+            }
         }
     }
 };
 </script>
 
 <style lang="scss">
+@use "sass:math";
 @import "~@bluemind/ui-components/src/css/utils/responsiveness";
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .manage-shares-modal {
+    .bm-modal-header {
+        .title-and-close {
+            padding-left: base-px-to-rem(14);
+            .modal-title {
+                display: flex;
+                margin-top: 0 !important;
+                .custom-modal-title {
+                    padding-left: base-px-to-rem(16);
+                    $btn-height: map-get($btn-close-sizes, "lg");
+                    margin-top: math.div($btn-height - $title-line-height, 2);
+                }
+            }
+        }
+    }
+
     .modal-body {
-        padding-bottom: 0;
+        padding: $sp-6 0 !important;
     }
     .modal-footer .bm-alert-area {
         margin: 0;
     }
-    .modal-dialog {
-        @include from-lg {
-            max-width: 50%;
-        }
+    &.invisible-footer .modal-footer {
+        display: none !important;
     }
+
     .bm-alert-area {
         min-width: 100%;
         position: absolute;
         bottom: 0;
         left: 0;
+        z-index: $zindex-popover;
     }
 }
 </style>

@@ -15,6 +15,7 @@
                     :value="domainAcl"
                     :options="shareOptions(true)"
                     :auto-min-width="false"
+                    right
                     class="share-entry-col"
                     @input="onDomainAclChange"
                 />
@@ -32,6 +33,7 @@
                         :value="dirEntry.acl"
                         :options="shareOptions()"
                         :auto-min-width="false"
+                        right
                         class="share-entry-col"
                         @input="value => onDirEntryAclChange(dirEntry.uid, value)"
                     />

@@ -7,6 +7,7 @@
         :disabled="disabled"
         :boundary="boundary"
         :no-flip="noFlip"
+        :right="right"
         size="lg"
         :menu-class="dropdownMenuClasses"
         @show="isShown = true"
@@ -86,6 +87,10 @@ export default {
             default: true
         },
         noFlip: {
+            type: Boolean,
+            default: false
+        },
+        right: {
             type: Boolean,
             default: false
         },

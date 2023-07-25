@@ -2,11 +2,19 @@
     <div class="bm-modal-header">
         <bm-navbar class="modal-navbar-header">
             <bm-navbar-back @click="$emit('close')" />
-            <bm-navbar-title :title="title" />
+            <bm-navbar-title>
+                <slot name="title">
+                    {{ title }}
+                </slot>
+            </bm-navbar-title>
             <slot />
         </bm-navbar>
         <div class="title-and-close">
-            <p class="modal-title title default-title">{{ title }}</p>
+            <p class="modal-title title default-title">
+                <slot name="title">
+                    {{ title }}
+                </slot>
+            </p>
             <bm-button-close class="modal-close" size="lg" @click="$emit('close')" />
         </div>
         <div class="additional-content">
@@ -27,7 +35,7 @@ export default {
     props: {
         title: {
             type: String,
-            required: true
+            default: ""
         }
     }
 };

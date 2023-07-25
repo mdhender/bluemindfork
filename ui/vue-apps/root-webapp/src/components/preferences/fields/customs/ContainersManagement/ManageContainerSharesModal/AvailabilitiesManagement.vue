@@ -1,22 +1,25 @@
 <template>
     <bm-spinner v-if="isLoading" class="d-flex justify-content-center" />
-    <div v-else class="availabilities-advanced-management ml-4 mb-5">
-        {{ $t("preferences.calendar.my_calendars.add_calendar_to_my_availability") }}
-        <bm-form-autocomplete-input
-            v-model="searchedInput"
-            :placeholder="$t('common.search')"
-            icon="search"
-            class="w-50 mt-2"
-            left-icon
-            resettable
-            :items="suggestions"
-            @input="findSuggestions"
-            @selected="onSelect"
-        >
-            <template #default="{ item }"><bm-calendar-item :calendar="item" /></template>
-        </bm-form-autocomplete-input>
-        <h3 class="mt-4 mb-2">{{ $t("common.my_availabilities") }}</h3>
-        <div class="mb-2">{{ $t("preferences.calendar.my_calendars.choose_calendar_for_my_availabilities") }}</div>
+    <div v-else class="availabilities-advanced-management">
+        <bm-form-group>
+            <label for="availabilities-management-search-input" class="mb-1">
+                {{ $t("preferences.calendar.my_calendars.add_calendar_to_my_availability") }}
+            </label>
+            <bm-form-autocomplete-input
+                id="availabilities-management-search-input"
+                v-model="searchedInput"
+                :placeholder="$t('common.search')"
+                icon="search"
+                left-icon
+                :items="suggestions"
+                @input="findSuggestions"
+                @selected="onSelect"
+            >
+                <template #default="{ item }"><bm-calendar-item :calendar="item" /></template>
+            </bm-form-autocomplete-input>
+        </bm-form-group>
+        <h3 class="mt-6 mb-4">{{ $t("common.my_availabilities") }}</h3>
+        <div class="mb-4">{{ $t("preferences.calendar.my_calendars.choose_calendar_for_my_availabilities") }}</div>
         <div class="calendar-badges">
             <bm-calendar-badge
                 v-for="calendarUid in calendarsForMyAvailabilities"
@@ -33,14 +36,14 @@
 import { mapActions, mapState } from "vuex";
 import { inject } from "@bluemind/inject";
 import { SUCCESS } from "@bluemind/alert.store";
-import { BmFormAutocompleteInput, BmSpinner } from "@bluemind/ui-components";
+import { BmFormGroup, BmFormAutocompleteInput, BmSpinner } from "@bluemind/ui-components";
 import BmCalendarBadge from "../Calendars/BmCalendarBadge";
 import BmCalendarItem from "../Calendars/BmCalendarItem";
 import { SAVE_ALERT_MODAL } from "../../../../Alerts/defaultAlerts";
 
 export default {
     name: "AvailabilitiesManagement",
-    components: { BmCalendarBadge, BmCalendarItem, BmFormAutocompleteInput, BmSpinner },
+    components: { BmCalendarBadge, BmCalendarItem, BmFormGroup, BmFormAutocompleteInput, BmSpinner },
     data() {
         return {
             isLoading: true,
@@ -107,13 +110,23 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/ui-components/src/css/utils/responsiveness";
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
 .availabilities-advanced-management {
+    margin: 0 $sp-5;
+    @include from-lg {
+        margin: 0 $sp-6;
+    }
+
+    #availabilities-management-search-input .bm-form-input {
+        max-width: base-px-to-rem(300);
+    }
+
     .calendar-badges {
         display: flex;
         flex-wrap: wrap;
-        gap: $sp-2 $sp-4;
+        gap: $sp-4 $sp-5;
     }
 }
 </style>
