@@ -50,7 +50,7 @@
                 />
                 <bm-icon-button
                     v-else
-                    class="d-lg-none"
+                    class="d-lg-none search-button"
                     variant="compact-on-fill-primary"
                     size="lg"
                     icon="search"
@@ -195,7 +195,7 @@ export default {
             flex: 1;
         }
 
-        .bm-icon-button {
+        .search-button {
             margin: 0 $sp-3;
         }
     }
