@@ -536,7 +536,7 @@ public class MailApiConnection implements MailboxConnection {
 								out.write(new IdleToken.CountToken("EXISTS", iidToSeq.size()));
 								List<FetchToken> changes = jsMsg.getJsonArray("changes").stream()
 										.map(JsonObject.class::cast).map(js -> js.mapTo(ImapChange.class))
-										.map(ic -> ic.fetch(iidToSeq)).toList();
+										.map(ic -> ic.fetch(iidToSeq)).filter(Objects::nonNull).toList();
 								Iterator<FetchToken> iter = changes.iterator();
 								iteratorToStream(iter, out);
 							}
@@ -562,7 +562,13 @@ public class MailApiConnection implements MailboxConnection {
 		public long iid;
 
 		public IdleToken.FetchToken fetch(Map<Long, Integer> iidToSeq) {
-			return new FetchToken(iidToSeq.get(iid), imap, flags);
+			Integer maybeNullSeq = iidToSeq.get(iid);
+			if (maybeNullSeq == null) {
+				logger.warn("seqindex unknown for {} using {}", iid, iidToSeq);
+				return null;
+			}
+
+			return new FetchToken(maybeNullSeq, imap, flags);
 		}
 	}
 
