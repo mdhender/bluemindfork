@@ -87,7 +87,7 @@ public class LetsEncryptCertificate {
 	private SecurityCertificateHelper systemHelper;
 	private ICertifEngine certifEngine;
 
-	private enum LetsEncryptProperties {
+	public enum LetsEncryptProperties {
 		CERTIFICATE_END_DATE, TOS_APPROVAL, LETS_ENCRYPT_CONTACT;
 	}
 
@@ -144,13 +144,6 @@ public class LetsEncryptCertificate {
 		Proxy proxy = systemHelper.configureProxySession();
 		fetchCertificate(certifEngine.getCertData(), domainExternalUrl, proxy, monitor);
 
-		if (certificate != null && certificate.getCertificate() != null) {
-			certifEngine.getDomain().value.properties.put(LetsEncryptProperties.CERTIFICATE_END_DATE.name(),
-					new SimpleDateFormat(CERT_END_DATE_FORMAT).format(certificate.getCertificate().getNotAfter()));
-			certifEngine.getDomain().value.properties.put(LetsEncryptProperties.LETS_ENCRYPT_CONTACT.name(),
-					certifEngine.getCertData().email);
-			systemHelper.getDomainService().update(domainUid, certifEngine.getDomain().value);
-		}
 		monitor.progress(1, "Let's Encrypt certificate generated !");
 	}
 
@@ -450,6 +443,17 @@ public class LetsEncryptCertificate {
 
 	public static String getContactProperty(Domain d) {
 		return d.properties.get(LetsEncryptProperties.LETS_ENCRYPT_CONTACT.name());
+	}
+
+	public void updateDomainProperties() {
+		if (certificate != null && certificate.getCertificate() != null) {
+			ItemValue<Domain> domain = certifEngine.getDomain();
+			domain.value.properties.put(LetsEncryptProperties.CERTIFICATE_END_DATE.name(),
+					new SimpleDateFormat(CERT_END_DATE_FORMAT).format(certificate.getCertificate().getNotAfter()));
+			domain.value.properties.put(LetsEncryptProperties.LETS_ENCRYPT_CONTACT.name(),
+					certifEngine.getCertData().email);
+			systemHelper.getDomainService().update(domain.uid, domain.value);
+		}
 	}
 
 }

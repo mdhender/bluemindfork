@@ -51,6 +51,7 @@ public class GenerateLetsEncryptCertTask extends BlockingServerTask implements I
 		try {
 			letsEncryptCertificate.letsEncrypt(monitor);
 			letsEncryptCertificate.getCertifEngine().certificateMgmt(servers, hooks);
+			letsEncryptCertificate.updateDomainProperties();
 			monitor.end(true, "Let's Encrypt Certificate correctly imported", "");
 		} catch (LetsEncryptException e) {
 			monitor.end(false, e.getMessage(), "");

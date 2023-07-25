@@ -27,8 +27,10 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -70,6 +72,7 @@ import net.bluemind.system.api.ISecurityMgmt;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.service.certificate.lets.encrypt.LetsEncryptCertificate;
+import net.bluemind.system.service.certificate.lets.encrypt.LetsEncryptCertificate.LetsEncryptProperties;
 import net.bluemind.system.service.certificate.lets.encrypt.LetsEncryptException;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
@@ -208,9 +211,14 @@ public class CertificateMgmtUpdateCertificateTests {
 
 		service.approveLetsEncryptTos(domainUid);
 
+		String savedDate = new SimpleDateFormat(LetsEncryptCertificate.CERT_END_DATE_FORMAT).format(new Date());
+		domain.value.properties.put(LetsEncryptProperties.CERTIFICATE_END_DATE.name(), savedDate);
+		domain.value.properties.put(LetsEncryptProperties.LETS_ENCRYPT_CONTACT.name(), certificateData.email);
+
 		TaskRef tr = service.generateLetsEncrypt(certificateData);
 		ExtendedTaskStatus status = TaskUtils.wait(testContext.provider(), tr);
 		assertEquals(TaskStatus.State.InError, status.state);
+		assertEquals(savedDate, domain.value.properties.get(LetsEncryptProperties.CERTIFICATE_END_DATE.name()));
 
 		domain.value.properties.clear();
 		domainService.update(domainUid, domain.value);
