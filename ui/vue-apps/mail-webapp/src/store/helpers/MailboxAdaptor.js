@@ -9,7 +9,6 @@ export const MailboxAdaptor = {
             owner: item.owner,
             dn: dirEntry.displayName,
             address: dirEntry.email,
-            imapName: item.name,
             type
         });
         if (mailbox) {

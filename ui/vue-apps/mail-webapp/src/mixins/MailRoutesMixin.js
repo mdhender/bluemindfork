@@ -17,7 +17,7 @@ export default {
                 if (mailbox.key === this.$_MailRoutesMixin_MY_MAILBOX.key) {
                     return { name: "v:mail:home", params: { folder: folder.path, mailbox: null } };
                 } else {
-                    return { name: "v:mail:home", params: { folder: folder.path, mailbox: mailbox.imapName } };
+                    return { name: "v:mail:home", params: { folder: folder.path, mailbox: mailbox.name } };
                 }
             }
             return { name: "v:mail:home", params: { folder: null, mailbox: null } };

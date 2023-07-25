@@ -12,7 +12,6 @@ describe("MailboxAdaptor", () => {
                 Object {
                   "address": "mail@share.net",
                   "dn": "my mailshare",
-                  "imapName": "read.write",
                   "key": "2814CC5D-D372-4F66-A434-89863E99B8CD",
                   "loading": "NOT-LOADED",
                   "name": "my mailshare",
@@ -34,7 +33,6 @@ describe("MailboxAdaptor", () => {
                 Object {
                   "address": "alice@mails.net",
                   "dn": "Alice ",
-                  "imapName": "alice",
                   "key": "user.6793466E-F5D4-490F-97BF-DF09D3327BF4",
                   "loading": "NOT-LOADED",
                   "name": "alice@mails.net",
