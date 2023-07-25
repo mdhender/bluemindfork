@@ -57,9 +57,9 @@ public abstract class SingleOrDomainOperation implements ICmdLet, Runnable {
 	protected CliUtils cliUtils;
 
 	@ArgGroup(exclusive = true, multiplicity = "1")
-	private Scope scope;
+	public Scope scope;
 
-	private static class Scope {
+	public static class Scope {
 		@Parameters(paramLabel = "<target>", description = "email address or domain name")
 		public String target;
 
