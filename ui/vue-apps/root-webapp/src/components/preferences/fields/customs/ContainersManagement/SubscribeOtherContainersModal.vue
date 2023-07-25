@@ -1,63 +1,78 @@
 <template>
-    <bm-modal-deprecated
+    <bm-spinner v-if="loadingStatus === 'LOADING'" class="subscribe-other-containers-spinner" />
+    <bm-modal
+        v-else-if="allReadableContainers.length === 0"
         v-model="show"
+        size="sm"
+        centered
+        lazy
+        :title="modalTitle"
+        :ok-title="$t('common.got_it')"
+        ok-only
+    >
+        {{ $t("preferences.add_containers." + containerType + ".nothing_to_add") }}
+    </bm-modal>
+    <bm-modal
+        v-else
+        v-model="show"
+        variant="advanced"
+        size="md"
+        height="lg"
         centered
         lazy
         modal-class="add-containers-modal"
         :title="modalTitle"
         :cancel-title="$t('common.cancel')"
         :ok-title="okTitle"
-        :ok-only="allReadableContainers.length === 0"
-        :ok-disabled="allReadableContainers.length > 0 && selected.length === 0"
+        :ok-disabled="selected.length === 0"
         @ok="subscribe"
     >
-        <bm-spinner v-if="loadingStatus === 'LOADING'" class="d-flex justify-content-center" />
-        <template v-else>
-            <div class="selected-containers">
-                <div v-for="container in selected" :key="container.uid" class="d-inline-block">
-                    <slot name="selected" :container="container" :close-fn="removeFromSelected" />
-                </div>
+        <div v-if="selected.length > 0" class="selected-containers">
+            <div v-for="container in selected" :key="container.uid" class="d-inline-block">
+                <slot name="selected" :container="container" :close-fn="removeFromSelected" />
             </div>
-            <template v-if="allReadableContainers.length > 0">
-                <bm-form-input
-                    v-model="pattern"
-                    :placeholder="searchPlaceholder"
-                    icon="search"
-                    :class="{ 'mt-3': selected.length !== 0 }"
-                    class="mb-3"
-                    resettable
-                    left-icon
-                    :aria-label="searchPlaceholder"
-                    autocomplete="off"
-                    @reset="pattern = ''"
-                />
-                <bm-table
-                    v-if="suggested.length > 0"
-                    :items="suggested"
-                    :fields="fields"
-                    :per-page="perPage"
-                    :current-page="currentPage"
-                    sort-by="name"
-                    @row-clicked="toggleSelected"
-                >
-                    <template #cell(selected)="row">
-                        <bm-form-checkbox :checked="isSelected(row.item)" @change="toggleSelected(row.item)" />
-                    </template>
-                    <template #cell(name)="row">
-                        <slot name="item" :container="row.item" />
-                    </template>
-                    <template #cell(ownerDisplayname)="row">
-                        <span class="font-italic text-neutral text-truncate">
-                            {{ $t("common.shared_by", { name: row.value }) }}
-                        </span>
-                    </template>
-                </bm-table>
-                <div v-else>{{ $t("common.search.no_result") }}</div>
-                <bm-pagination v-model="currentPage" :total-rows="totalRows" :per-page="perPage" />
-            </template>
-            <div v-else>{{ $t("preferences.add_containers." + containerType + ".nothing_to_add") }}</div>
-        </template>
-    </bm-modal-deprecated>
+        </div>
+        <bm-form-input
+            v-model="pattern"
+            :placeholder="searchPlaceholder"
+            variant="underline"
+            icon="search"
+            resettable
+            left-icon
+            :aria-label="searchPlaceholder"
+            autocomplete="off"
+            @reset="pattern = ''"
+        />
+        <div class="scrollable scroller-y">
+            <bm-table
+                v-if="suggested.length > 0"
+                :items="suggested"
+                :fields="fields"
+                :per-page="perPage"
+                :current-page="currentPage"
+                :fill="false"
+                sort-by="name"
+                @row-clicked="toggleSelected"
+            >
+                <template #cell(selected)="row">
+                    <bm-form-checkbox :checked="isSelected(row.item)" @change="toggleSelected(row.item)" />
+                </template>
+                <template #cell(name)="row">
+                    <slot name="item" :container="row.item" />
+                </template>
+                <template #cell(ownerDisplayname)="row">
+                    <span class="font-italic text-neutral text-truncate">
+                        {{ $t("common.shared_by", { name: row.value }) }}
+                    </span>
+                </template>
+            </bm-table>
+            <div v-else class="no-search-result">
+                {{ $t("common.search.no_result") }}
+                <bm-illustration size="md" value="spider" over-background />
+            </div>
+            <bm-pagination v-model="currentPage" :total-rows="totalRows" :per-page="perPage" />
+        </div>
+    </bm-modal>
 </template>
 
 <script>
@@ -65,7 +80,8 @@ import { inject } from "@bluemind/inject";
 import {
     BmFormCheckbox,
     BmFormInput,
-    BmModalDeprecated,
+    BmIllustration,
+    BmModal,
     BmPagination,
     BmSpinner,
     BmTable
@@ -78,7 +94,7 @@ import { matchPattern } from "@bluemind/string";
 
 export default {
     name: "SubscribeOtherContainersModal",
-    components: { BmFormCheckbox, BmFormInput, BmModalDeprecated, BmPagination, BmSpinner, BmTable },
+    components: { BmFormCheckbox, BmFormInput, BmIllustration, BmModal, BmPagination, BmSpinner, BmTable },
     props: {
         containerType: {
             type: String,
@@ -101,7 +117,7 @@ export default {
             pattern: "",
             allReadableContainers: [],
             currentPage: 1,
-            perPage: 10,
+            perPage: 20,
             fields: [
                 {
                     key: "selected",
@@ -138,14 +154,10 @@ export default {
             });
         },
         okTitle() {
-            if (!this.hasReadableContainers) {
-                return this.$t("common.got_it");
-            } else {
-                return this.$tc("preferences.add_containers.add_n_containers", this.selected.length, {
-                    count: this.selected.length,
-                    type: this.$tc("common.container_type." + this.containerType, this.selected.length)
-                });
-            }
+            return this.$tc("preferences.add_containers.add_n_containers", this.selected.length, {
+                count: this.selected.length,
+                type: this.$tc("common.container_type." + this.containerType, this.selected.length)
+            });
         },
         hasReadableContainers() {
             return this.allReadableContainers.length > 0;
@@ -214,40 +226,84 @@ export default {
 </script>
 
 <style lang="scss">
+@use "sass:math";
 @import "~@bluemind/ui-components/src/css/utils/responsiveness";
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
-.add-containers-modal {
+.subscribe-other-containers-spinner {
+    $spinner-half-size: math.div(map-get($icon-sizes, "5xl"), 2);
+    position: fixed;
+    top: calc(50vh - #{$spinner-half-size});
+    left: calc(50vw - #{$spinner-half-size});
+}
+
+.add-containers-modal .modal-body {
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+
     .selected-containers {
+        flex: none;
         display: flex;
         flex-wrap: wrap;
-        gap: $sp-3 $sp-4;
-        padding-bottom: $sp-4;
+        gap: ($sp-3 + $sp-2) $sp-5;
+        padding: $sp-5;
+        border-bottom: 1px solid $neutral-fg-lo2;
     }
 
-    .b-table {
-        max-width: base-px-to-rem(500);
-        table-layout: fixed;
-    }
-    .selected-cell {
-        width: base-px-to-rem(40);
-    }
-    .name-cell {
-        width: 100%;
-        .contact {
-            margin-top: base-px-to-rem(4);
-        }
-    }
-    .shared-by-cell {
-        display: none;
-        @include from-lg {
-            display: table-cell;
-            width: 100%;
-        }
-    }
+    .scrollable {
+        flex: 1;
+        background-color: $backdrop;
 
-    .b-table tr {
-        cursor: pointer;
+        .b-table {
+            background-color: $surface;
+            table-layout: fixed;
+            margin: 0 !important;
+
+            thead {
+                display: none;
+            }
+            tr {
+                cursor: pointer;
+                border-bottom: 1px solid $neutral-fg-lo3 !important;
+            }
+
+            .selected-cell {
+                width: base-px-to-rem(40);
+            }
+            .name-cell {
+                width: 100%;
+                .contact {
+                    margin-top: base-px-to-rem(4);
+                }
+            }
+            .shared-by-cell {
+                display: none;
+                @include from-lg {
+                    display: table-cell;
+                    width: 100%;
+                }
+            }
+        }
+
+        .bm-pagination {
+            background-color: $surface;
+            margin: 0 !important;
+            padding: $sp-5;
+        }
+
+        .no-search-result {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: $sp-7;
+            gap: $sp-6;
+
+            .bm-illustration {
+                flex: none;
+            }
+        }
     }
 }
 </style>
