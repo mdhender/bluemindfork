@@ -75,6 +75,7 @@ import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionSetFlags;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionTransfer;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionUncategorize;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionUnfollow;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
 
 public class RuleEngine {
 	private static final Logger logger = LoggerFactory.getLogger(RuleEngine.class);
@@ -87,12 +88,18 @@ public class RuleEngine {
 	private final ParameterValueProvider parameterValueProvider;
 	private final MailboxVacationSendersCache.Factory vacationCacheFactory;
 
+	private static final List<MailFilterRuleCondition> vacationExtraConditions = Arrays.asList(
+			not(matches(Arrays.asList("from.email"), Arrays.asList("noreply*", "no-reply*"))),
+			not(contains("headers.x-dspam-result", Arrays.asList("Spam"))),
+			not(contains("headers.x-spam-flag", Arrays.asList("YES"))),
+			not(contains("headers.precedence", Arrays.asList("bulk", "list"))),
+			equal(Arrays.asList("to.email", "cc.email", "bcc.email"), Arrays.asList("BM_DYNAMIC_ADDRESSES_ME")));
+
 	private static final List<IMailFilterRuleCustomAction> CUSTOM_ACTIONS = load();
 
 	private static List<IMailFilterRuleCustomAction> load() {
 		RunnableExtensionLoader<IMailFilterRuleCustomAction> rel = new RunnableExtensionLoader<>();
 		return rel.loadExtensionsWithPriority("net.bluemind.delivery.rules", "action", "action", "impl");
-
 	}
 
 	public RuleEngine(IDeliveryContext ctx, ISendmail mailer, DeliveryContent content,
@@ -134,29 +141,22 @@ public class RuleEngine {
 
 	private void addVacationSpecificConditions(List<MailFilterRule> rules) {
 		rules.stream() //
-				.filter(rule -> MailFilterRule.Type.VACATION.equals(rule.type) && rule.active) //
+				.filter(rule -> MailFilterRule.Type.VACATION.equals(rule.type)) //
 				.findFirst() //
 				.ifPresent(vacation -> {
-					vacation.conditions
-							.add(not(matches(Arrays.asList("from.email"), Arrays.asList("noreply*", "no-reply*"))));
-					vacation.conditions.add(not(contains("headers.x-dspam-result", Arrays.asList("Spam"))));
-					vacation.conditions.add(not(contains("headers.x-spam-flag", Arrays.asList("YES"))));
-					vacation.conditions.add(not(contains("headers.precedence", Arrays.asList("bulk", "list"))));
-					vacation.conditions.add(equal(Arrays.asList("to.email", "cc.email", "bcc.email"),
-							Arrays.asList("BM_DYNAMIC_ADDRESSES_ME")));
+					// Vacation is not active or dates doesn't match: we can clear this box cache.
+					if (!vacation.active || !vacation.match(fieldValueProvider, parameterValueProvider)) {
+						vacationCacheFactory.clear(originalBox().mbox.uid);
+					}
+					vacation.conditions.addAll(vacationExtraConditions);
 				});
 	}
 
 	private List<MailFilterRule> matchingRules(List<MailFilterRule> rules) {
 		List<MailFilterRule> filtered = rules.stream() //
-				.filter(rule -> {
-					boolean match = rule.active && rule.trigger == Trigger.IN
-							&& rule.match(fieldValueProvider, parameterValueProvider);
-					if (!match && rule.type == MailFilterRule.Type.VACATION) {
-						vacationCacheFactory.clear(originalBox().mbox.uid);
-					}
-					return match;
-				}).toList();
+				.filter(rule -> rule.active && rule.trigger == Trigger.IN
+						&& rule.match(fieldValueProvider, parameterValueProvider))
+				.toList();
 		logger.info("[rules] {} matching out of {} rule(s)", filtered.size(), rules.size());
 		return filtered;
 	}
