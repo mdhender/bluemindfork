@@ -55,10 +55,9 @@
                     "email_not_found": "Your certificate must identify your default email address \"{email}\".",
                     "no_cert_found": "No certificate has been found.",
                     "no_private_key_found": "No private key has been found.",
-                    "supported_formats": "Supported format: PKCS#12",
+                    "drop_file": "Drop your PKCS#12 file",
                     "title": "Import my private key and my public certificate",
-                    "unlock_pkcs12": "Enter password to unlock PKCS#12 file:",
-                    "unsupported_file": "This file format is not supported."
+                    "unlock_pkcs12": "Enter password to unlock PKCS#12 file:"
                 }
             },
             "encrypt_field": {

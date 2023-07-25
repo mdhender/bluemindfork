@@ -1,19 +1,15 @@
 <template>
-    <bm-modal-deprecated
+    <bm-modal
         v-model="show"
+        size="sm"
         centered
+        content-class="import-pkcs12-modal-content"
         :title="$t('smime.preferences.import_field.modal.title')"
         :cancel-title="$t('common.cancel')"
         :ok-disabled="!file || !!importErrorMsg"
         @ok.prevent="importPkcs12"
     >
-        <bm-label-icon v-if="!file" class="mb-3" icon="info-circle">
-            {{ $t("smime.preferences.import_field.modal.supported_formats") }}
-        </bm-label-icon>
-        <bm-label-icon v-if="unsupportedFile" class="text-danger mb-3" icon="exclamation-circle-fill">
-            {{ $t("smime.preferences.import_field.modal.unsupported_file") }}
-        </bm-label-icon>
-        <bm-form class="mt-4">
+        <bm-form>
             <template v-if="file">
                 <bm-label-icon v-if="importErrorMsg" class="text-error" icon="exclamation-circle-fill">{{
                     file.name
@@ -46,9 +42,12 @@
                 @drop-files="dropFile($event)"
             >
                 <template #dropZone>
-                    <div class="text-center my-6">
-                        <h2 class="mt-4 mb-6">{{ $t("common.drop_file") }}</h2>
-                        <div class="mb-4">{{ $t("common.or") }}</div>
+                    <div class="drop-zone-content">
+                        <div class="icon-and-text">
+                            <bm-icon icon="file-type-certificate" size="lg" />
+                            {{ $t("smime.preferences.import_field.modal.drop_file") }}
+                        </div>
+                        <div class="mb-5">{{ $t("common.or") }}</div>
                         <bm-button variant="fill-accent" @click="openFilePicker">{{ $t("common.browse") }}</bm-button>
                     </div>
                 </template>
@@ -67,7 +66,7 @@
                 @change="dropFile($event.target.files)"
             />
         </bm-form>
-    </bm-modal-deprecated>
+    </bm-modal>
 </template>
 
 <script>
@@ -81,8 +80,9 @@ import {
     BmForm,
     BmFormGroup,
     BmFormInput,
+    BmIcon,
     BmLabelIcon,
-    BmModalDeprecated,
+    BmModal,
     BmReadMore
 } from "@bluemind/ui-components";
 import { SET_HAS_PRIVATE_KEY, SET_HAS_PUBLIC_CERT } from "../../store/root-app/types";
@@ -98,8 +98,9 @@ export default {
         BmForm,
         BmFormGroup,
         BmFormInput,
-        BmModalDeprecated,
+        BmIcon,
         BmLabelIcon,
+        BmModal,
         BmReadMore
     },
     mixins: [DocLinkMixin],
@@ -252,3 +253,39 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "~@bluemind/ui-components/src/css/utils/variables";
+
+.import-pkcs12-modal-content {
+    form {
+        height: base-px-to-rem(160);
+        display: flex;
+        flex-direction: column;
+        margin-top: $sp-2;
+        gap: $sp-5;
+
+        .bm-file-drop-zone {
+            height: 100%;
+
+            .drop-zone-content {
+                flex: 1;
+
+                &,
+                .icon-and-text {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    text-align: center;
+                }
+
+                justify-content: space-evenly;
+
+                .icon-and-text {
+                    gap: $sp-3;
+                }
+            }
+        }
+    }
+}
+</style>

@@ -55,10 +55,9 @@
                     "email_not_found": "Ihr Zertifikat muss Ihrer Standard-E-Mail-Adresse \"{email}\" entsprechen.",
                     "no_cert_found": "Es konnte kein Zertifikat gefunden werden",
                     "no_private_key_found": "Es konnte kein privater Schlüssel gefunden werden",
-                    "supported_formats": "Unterstütztes Format: PKCS#12",
+                    "drop_file": "PKCS#12 Datei ablegen",
                     "title": "Privaten Schlüssen und öffentliches Zertifikat importieren",
-                    "unlock_pkcs12": "Passwort der PKCS#12 Datei:",
-                    "unsupported_file": "Dateiformat nicht unterstützt."
+                    "unlock_pkcs12": "Passwort der PKCS#12 Datei:"
                 }
             },
             "encrypt_field": {
