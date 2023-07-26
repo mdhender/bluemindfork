@@ -121,7 +121,9 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 
 	protected void error(HttpServerRequest req, Throwable e) {
 		logger.error(e.getMessage());
-		req.response().setStatusCode(500);
+		AuthenticationCookie.purge(req);
+		req.response().headers().add(HttpHeaders.LOCATION, "/");
+		req.response().setStatusCode(302);
 		req.response().end();
 	}
 

@@ -125,7 +125,6 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 				return;
 			} catch (Exception e) {
 				error(event, e);
-				logger.error(e.getMessage(), e);
 			}
 		}
 
