@@ -27,9 +27,6 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-import io.netty.handler.codec.http.cookie.Cookie;
-import io.netty.handler.codec.http.cookie.DefaultCookie;
-import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
@@ -41,7 +38,6 @@ import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.webmodule.authenticationfilter.internal.AuthenticationCookie;
 import net.bluemind.webmodule.authenticationfilter.internal.ExternalCreds;
 import net.bluemind.webmodule.server.NeedVertx;
-import net.bluemind.webmodule.server.SecurityConfig;
 
 public abstract class AbstractAuthHandler implements NeedVertx {
 
@@ -88,18 +84,21 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 					JsonObject cookie = new JsonObject();
 					cookie.put("sid", sid);
 					cookie.put("domain_uid", domainUid);
-					addCookie(headers, AuthenticationCookie.OPENID_SESSION, cookie.encode());
+					AuthenticationCookie.add(headers, AuthenticationCookie.OPENID_SESSION, cookie.encode());
 
-					addCookie(headers, AuthenticationCookie.ACCESS_TOKEN, token.getString("access_token"));
-					addCookie(headers, AuthenticationCookie.REFRESH_TOKEN, token.getString("refresh_token"));
-					addCookie(headers, AuthenticationCookie.ID_TOKEN, token.getString("id_token"));
+					AuthenticationCookie.add(headers, AuthenticationCookie.ACCESS_TOKEN,
+							token.getString("access_token"));
+					AuthenticationCookie.add(headers, AuthenticationCookie.REFRESH_TOKEN,
+							token.getString("refresh_token"));
+					AuthenticationCookie.add(headers, AuthenticationCookie.ID_TOKEN, token.getString("id_token"));
 
 					DecodedJWT accessToken = JWT.decode(token.getString("access_token"));
 					Claim pubpriv = accessToken.getClaim("bm_pubpriv");
 					boolean privateComputer = "private".equals(pubpriv.asString());
-					addCookie(headers, AuthenticationCookie.BMPRIVACY, Boolean.toString(privateComputer));
+					AuthenticationCookie.add(headers, AuthenticationCookie.BMPRIVACY,
+							Boolean.toString(privateComputer));
 				} else {
-					addCookie(headers, AuthenticationCookie.BMSID, sid);
+					AuthenticationCookie.add(headers, AuthenticationCookie.BMSID, sid);
 				}
 
 				if ("admin0@global.virt".equals(creds.getLoginAtDomain())) {
@@ -120,18 +119,8 @@ public abstract class AbstractAuthHandler implements NeedVertx {
 		});
 	}
 
-	private void addCookie(MultiMap headers, String name, String value) {
-		Cookie cookie = new DefaultCookie(name, value);
-		cookie.setPath("/");
-		cookie.setHttpOnly(true);
-		if (SecurityConfig.secureCookies) {
-			cookie.setSecure(true);
-		}
-		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(cookie));
-	}
-
 	protected void error(HttpServerRequest req, Throwable e) {
-		logger.error(e.getMessage(), e);
+		logger.error(e.getMessage());
 		req.response().setStatusCode(500);
 		req.response().end();
 	}

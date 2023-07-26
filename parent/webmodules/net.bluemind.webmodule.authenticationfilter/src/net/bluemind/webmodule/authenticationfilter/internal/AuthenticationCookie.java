@@ -33,69 +33,44 @@ public class AuthenticationCookie {
 	public static final String ID_TOKEN = "IdToken";
 	public static final String BMSID = "BMSID";
 	public static final String BMPRIVACY = "BMPRIVACY";
+	public static final String BMREDIRECT = "BM_REDIRECT";
 
 	private AuthenticationCookie() {
 
+	}
+
+	public static void add(MultiMap headers, String name, String value) {
+		Cookie cookie = new DefaultCookie(name, value);
+		cookie.setPath("/");
+		cookie.setHttpOnly(true);
+		if (SecurityConfig.secureCookies) {
+			cookie.setSecure(true);
+		}
+		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(cookie));
 	}
 
 	public static void purge(HttpServerRequest request) {
 
 		MultiMap headers = request.response().headers();
 
-		Cookie bmSid = new DefaultCookie(AuthenticationCookie.BMSID, "");
-		bmSid.setPath("/");
-		bmSid.setMaxAge(0);
-		bmSid.setHttpOnly(true);
-		if (SecurityConfig.secureCookies) {
-			bmSid.setSecure(true);
-		}
-		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(bmSid));
+		delete(headers, AuthenticationCookie.BMSID);
+		delete(headers, AuthenticationCookie.OPENID_SESSION);
+		delete(headers, AuthenticationCookie.ACCESS_TOKEN);
+		delete(headers, AuthenticationCookie.ID_TOKEN);
+		delete(headers, AuthenticationCookie.BMPRIVACY);
+		delete(headers, AuthenticationCookie.BMREDIRECT);
 
-		Cookie openId = new DefaultCookie(AuthenticationCookie.OPENID_SESSION, "");
-		openId.setPath("/");
-		openId.setMaxAge(0);
-		openId.setHttpOnly(true);
-		if (SecurityConfig.secureCookies) {
-			openId.setSecure(true);
-		}
-		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(openId));
+	}
 
-		Cookie access = new DefaultCookie(AuthenticationCookie.ACCESS_TOKEN, "");
-		access.setPath("/");
-		access.setMaxAge(0);
-		access.setHttpOnly(true);
+	private static void delete(MultiMap headers, String cookieName) {
+		Cookie cookie = new DefaultCookie(cookieName, "");
+		cookie.setPath("/");
+		cookie.setMaxAge(0);
+		cookie.setHttpOnly(true);
 		if (SecurityConfig.secureCookies) {
-			access.setSecure(true);
+			cookie.setSecure(true);
 		}
-		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(access));
-
-		Cookie refresh = new DefaultCookie(AuthenticationCookie.REFRESH_TOKEN, "");
-		refresh.setPath("/");
-		refresh.setMaxAge(0);
-		refresh.setHttpOnly(true);
-		if (SecurityConfig.secureCookies) {
-			refresh.setSecure(true);
-		}
-		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(refresh));
-
-		Cookie idc = new DefaultCookie(AuthenticationCookie.ID_TOKEN, "");
-		idc.setPath("/");
-		idc.setMaxAge(0);
-		idc.setHttpOnly(true);
-		if (SecurityConfig.secureCookies) {
-			idc.setSecure(true);
-		}
-		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(idc));
-
-		Cookie bmPrivacy = new DefaultCookie(AuthenticationCookie.BMPRIVACY, "");
-		bmPrivacy.setPath("/");
-		bmPrivacy.setMaxAge(0);
-		bmPrivacy.setHttpOnly(true);
-		if (SecurityConfig.secureCookies) {
-			bmPrivacy.setSecure(true);
-		}
-		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(bmPrivacy));
-
+		headers.add(HttpHeaders.SET_COOKIE, ServerCookieEncoder.LAX.encode(cookie));
 	}
 
 }

@@ -172,7 +172,7 @@ public class AuthenticationFilter implements IWebFilter {
 
 			// BM-19877 hack
 			// used for "Back to Application" redirect
-			Cookie redirect = new DefaultCookie("BM_REDIRECT", path);
+			Cookie redirect = new DefaultCookie(AuthenticationCookie.BMREDIRECT, path);
 			redirect.setPath("/");
 			redirect.setHttpOnly(false);
 			if (SecurityConfig.secureCookies) {
