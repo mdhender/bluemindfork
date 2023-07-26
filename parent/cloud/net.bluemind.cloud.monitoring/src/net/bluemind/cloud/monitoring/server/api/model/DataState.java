@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalCause;
+import com.github.benmanes.caffeine.cache.Scheduler;
 import com.typesafe.config.Config;
 
 import io.prometheus.client.Gauge;
@@ -63,7 +64,8 @@ public class DataState extends AbstractVerticle {
 	private static String topology;
 	private static final String TOPOLOGY_CHANGED = "topology.changed";
 	private static final String NODE_TOPIC = "bluemind_cluster-__nodes__";
-	private static final Duration THREE_MINUTES = Duration.ofMinutes(3);
+	private static final Duration ONE_MINUTE = Duration.ofMinutes(1);
+	private static final Duration TWO_MINUTES = Duration.ofMinutes(2);
 	private static final long THREE_SECONDS = Duration.ofSeconds(3).toMillis();
 	private static Map<String, Gauge> gauges = new HashMap<>();
 	private static final Config config = MonitoringConfig.get();
@@ -76,18 +78,18 @@ public class DataState extends AbstractVerticle {
 		getZkNodeInfo();
 
 		clusterNodes = Caffeine.newBuilder() //
-				.removalListener((key, value, cause) -> {
+				.scheduler(Scheduler.systemScheduler()).removalListener((key, value, cause) -> {
 					if (RemovalCause.EXPIRED == cause) {
-						getZkNodeInfo();
 						updateMermaid();
 						logger.info("Topology updated to {}", getTopology());
 						vertx.setTimer(1, e -> vertx.eventBus().publish(TOPOLOGY_CHANGED, new JsonObject(metricKeys)));
 					}
 				}) //
-				.expireAfterWrite(THREE_MINUTES) //
+				.expireAfterWrite(TWO_MINUTES) //
 				.build();
 
 		vertx.setTimer(THREE_SECONDS, id -> consume("earliest"));
+		vertx.setPeriodic(ONE_MINUTE.toMillis(), id -> getZkNodeInfo());
 
 		startPromise.complete();
 	}
@@ -113,12 +115,16 @@ public class DataState extends AbstractVerticle {
 
 		Handler<ConsumerRecord<String, String>> recordHandler = (rec -> {
 			AtomicBoolean topicChangeDuringHarvesting = new AtomicBoolean(false);
-			ApplicationInfoModel info = JsonUtils.read(rec.value(), ApplicationInfoModel.class);
+			ApplicationInfoModel info = parseRecord(rec);
 			NodeInfo node = new NodeInfo(info);
 			if (node.info.product.equals("bm-crp")) {
 				node.forestId = node.info.installationId;
 				node.info.installationId = null;
 			}
+			if (node.isStopping()) {
+				return;
+			}
+			setNodeType(node);
 			if (!clusterNodes.asMap().containsKey(node.id())) {
 				topicChangeDuringHarvesting.set(true);
 			}
@@ -140,6 +146,15 @@ public class DataState extends AbstractVerticle {
 
 		done.thenRun(() -> logger.warn("Should never happen in inifinite mode"));
 
+	}
+
+	private ApplicationInfoModel parseRecord(ConsumerRecord<String, String> rec) {
+		try {
+			return JsonUtils.read(rec.value(), ApplicationInfoModel.class);
+		} catch (Exception e) {
+			logger.warn("Cannot parse record", e);
+			throw e;
+		}
 	}
 
 	private void setNodeType(NodeInfo node) {
@@ -173,7 +188,6 @@ public class DataState extends AbstractVerticle {
 	}
 
 	public void update(NodeInfo node) {
-		setNodeType(node);
 		clusterNodes.put(node.id(), node);
 		updateMermaid();
 	}

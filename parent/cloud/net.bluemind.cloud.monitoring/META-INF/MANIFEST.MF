@@ -23,4 +23,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bluemind.cloud.monitoring.server.Activator
 Export-Package: net.bluemind.cloud.monitoring.server.api.model,
- net.bluemind.cloud.monitoring.server.grafana
+ net.bluemind.cloud.monitoring.server.grafana,
+ net.bluemind.cloud.monitoring.server.grafana.monitor

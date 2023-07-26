@@ -1,0 +1,19 @@
+# Configuration for Grafana-Agent BlueMind
+
+server:
+  log_level: warn
+
+metrics:
+  global:
+    scrape_interval: ${interval}
+  wal_directory: ${wal_directory}
+  configs:
+    - name : bluemind agent
+      remote_write:
+        - url: ${remote_url}
+      scrape_configs:
+        - job_name: "prometheus"
+          scheme: "http"
+          metrics_path: "monitoring/metrics_scraping"
+          static_configs:
+            - targets: ["localhost:8081"]

@@ -42,7 +42,12 @@ public class NodeInfo {
 
 	@Override
 	public int hashCode() {
-		return info.hashCode();
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((forestId == null) ? 0 : forestId.hashCode());
+		result = prime * result + ((info == null) ? 0 : info.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		return result;
 	}
 
 	@Override
@@ -54,20 +59,17 @@ public class NodeInfo {
 		if (getClass() != obj.getClass())
 			return false;
 		NodeInfo other = (NodeInfo) obj;
+		if (forestId == null) {
+			if (other.forestId != null)
+				return false;
+		} else if (!forestId.equals(other.forestId))
+			return false;
 		if (info == null) {
 			if (other.info != null)
 				return false;
 		} else if (!info.equals(other.info))
 			return false;
-		if (type == null) {
-			if (other.type != null)
-				return false;
-		} else if (!type.equals(other.type))
-			return false;
-		if (forestId == null) {
-			if (other.forestId != null)
-				return false;
-		} else if (!forestId.equals(other.forestId))
+		if (type != other.type)
 			return false;
 		return true;
 	}
@@ -104,6 +106,11 @@ public class NodeInfo {
 	@JsonIgnore
 	public boolean isCloningState() {
 		return "CORE_STATE_CLONING".equals(info.state.state);
+	}
+
+	@JsonIgnore
+	public boolean isStopping() {
+		return "CORE_STATE_STOPPING".equals(info.state.state);
 	}
 
 	@JsonIgnore
