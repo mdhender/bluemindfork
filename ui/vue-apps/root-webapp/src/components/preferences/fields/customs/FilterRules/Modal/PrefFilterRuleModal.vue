@@ -1,9 +1,13 @@
 <template>
-    <bm-modal-deprecated
+    <bm-modal
         :id="$attrs['id']"
         ref="pref-filter-rule-modal-bm-modal"
         class="pref-filter-rule-modal"
         dialog-class="pref-filter-rule-modal-dialog"
+        variant="advanced"
+        size="lg"
+        height="lg"
+        scrollable
         centered
         :title="filter.index >= 0 ? $t('preferences.mail.filters.edit') : $t('preferences.mail.filters.create')"
         :cancel-title="$t('common.cancel')"
@@ -19,11 +23,11 @@
             <pref-filter-rule-modal-criteria :criteria.sync="filter_.exceptions" negative />
             <pref-filter-rule-modal-terminal :filter.sync="filter_" />
         </bm-form>
-    </bm-modal-deprecated>
+    </bm-modal>
 </template>
 
 <script>
-import { BmForm, BmModalDeprecated } from "@bluemind/ui-components";
+import { BmForm, BmModal } from "@bluemind/ui-components";
 import PrefFilterRuleModalActions from "./PrefFilterRuleModalActions";
 import PrefFilterRuleModalCriteria from "./PrefFilterRuleModalCriteria";
 import PrefFilterRuleModalName from "./PrefFilterRuleModalName";
@@ -33,7 +37,7 @@ export default {
     name: "PrefFilterRuleModal",
     components: {
         BmForm,
-        BmModalDeprecated,
+        BmModal,
         PrefFilterRuleModalActions,
         PrefFilterRuleModalCriteria,
         PrefFilterRuleModalName,
@@ -131,7 +135,6 @@ $circled-number-right-margin: $sp-4;
 $field-left-margin: calc(#{$circled-number-size} + #{$circled-number-right-margin});
 
 .pref-filter-rule-modal-dialog {
-    max-width: 66.5em !important;
     label,
     legend {
         &.circled-number {
@@ -173,10 +176,6 @@ $field-left-margin: calc(#{$circled-number-size} + #{$circled-number-right-margi
         & > :not(label):not(legend) {
             margin-left: $field-left-margin;
         }
-    }
-
-    footer {
-        border-top: 1px solid $neutral-fg-lo3;
     }
 }
 </style>
