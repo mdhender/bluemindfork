@@ -390,6 +390,7 @@
     "mail.preview.nopreview": "Ce fichier n'est pas prévisualisable",
     "mail.search.options.folder.current": "Ce dossier",
     "mail.search.options.folder.label": "Rechercher dans",
+    "mail.search.options.modal.title": "Paramètres de recherche",
     "mail.search.context.all": "Tous les dossiers",
     "mail.search.context.current_folder_and_descendants": "{folder} et ses sous-dossiers",
     "mail.search.context.current_folder": "{folder} uniquement",

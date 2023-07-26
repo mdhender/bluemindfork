@@ -1,13 +1,14 @@
 <template>
-    <bm-modal-deprecated
+    <bm-modal
         id="advanced-search-modal"
+        variant="advanced"
         size="lg"
+        height="lg"
+        scrollable
+        :title="$t('mail.search.options.modal.title')"
         :ok-title="$t('common.action.search')"
-        hide-header
         :busy="!newPattern"
         :cancel-title="$t('common.action.reset')"
-        content-class="bg-surface"
-        body-class="scroller-y"
         @cancel="cancel"
         @hide="sync"
         @ok="validateAndsearch"
@@ -67,12 +68,12 @@
             <label>{{ $t("common.until") }}</label>
             <date-search-input class="search-input" :value.sync="until" :min="startingFrom" />
         </div>
-    </bm-modal-deprecated>
+    </bm-modal>
 </template>
 
 <script>
 import { mapMutations, mapState } from "vuex";
-import { BmModalDeprecated, BmFormCheckbox } from "@bluemind/ui-components";
+import { BmModal, BmFormCheckbox } from "@bluemind/ui-components";
 import { SearchMixin } from "~/mixins";
 import {
     SET_CURRENT_SEARCH_DEEP,
@@ -106,7 +107,7 @@ export default {
     name: "AdvancedSearchModal",
     components: {
         BmFormCheckbox,
-        BmModalDeprecated,
+        BmModal,
         ContactSearchInput,
         DateSearchInput,
         MailSearchBoxContext,
@@ -270,7 +271,6 @@ export default {
 
 #advanced-search-modal {
     .modal-body {
-        background-color: $surface;
         .section {
             margin-top: $sp-7;
             margin-bottom: $sp-6;
@@ -328,11 +328,6 @@ export default {
                 }
             }
         }
-    }
-    .modal-footer {
-        background-color: $surface-hi1;
-        box-shadow: 0 0 0.5rem $shadow-color;
-        z-index: 1;
     }
 }
 </style>

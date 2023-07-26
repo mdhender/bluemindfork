@@ -390,6 +390,7 @@
     "mail.preview.nopreview": "Datei kann nicht in der Vorschau angezeigt werden",
     "mail.search.options.folder.current": "Aktueller Ordner",
     "mail.search.options.folder.label": "Suche in",
+    "mail.search.options.modal.title": "Sucheinstellungen",
     "mail.search.context.all": "Alle Ordner",
     "mail.search.context.current_folder_and_descendants": "{folder} und seine Unterordner",
     "mail.search.context.current_folder": "Nur {folder}",

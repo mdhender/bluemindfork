@@ -390,6 +390,7 @@
     "mail.preview.nopreview": "This file is not previewable",
     "mail.search.options.folder.current": "This folder",
     "mail.search.options.folder.label": "Search in",
+    "mail.search.options.modal.title": "Search parameters",
     "mail.search.context.all": "All folders",
     "mail.search.context.current_folder_and_descendants": "{folder} and its subfolders",
     "mail.search.context.current_folder": "{folder} only",
