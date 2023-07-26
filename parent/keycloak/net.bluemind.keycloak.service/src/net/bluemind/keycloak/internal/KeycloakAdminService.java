@@ -17,6 +17,7 @@
   */
 package net.bluemind.keycloak.internal;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -67,16 +68,14 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 		realm.put("loginWithEmailAllowed", true);
 		realm.put("loginTheme", "bluemind"); // provide by bm-keycloak
 		realm.put("internationalizationEnabled", true);
+		realm.put("accessCodeLifespanLogin", Duration.ofDays(1).toSeconds());
 		IDomainSettings domainSettingsService = context.provider().instance(IDomainSettings.class, domainId);
 		String lang = domainSettingsService.get().get(DomainSettingsKeys.lang.name());
 		realm.put("defaultLocale", Strings.isNullOrEmpty(lang) ? "en" : lang);
 		realm.put("supportedLocales", new JsonArray(Arrays.asList("en", "fr", "de")));
 
-		// idle timeout in sec (1 day)
-		realm.put("ssoSessionIdleTimeout", 86400);
-
-		// session timeout in sec (1 year)
-		realm.put("ssoSessionMaxLifespan", 31536000);
+		realm.put("ssoSessionIdleTimeout", Duration.ofDays(1).toSeconds());
+		realm.put("ssoSessionMaxLifespan", Duration.ofDays(365).toSeconds());
 
 		CompletableFuture<JsonObject> response = execute(REALMS_ADMIN_URL, HttpMethod.POST, realm);
 
@@ -156,6 +155,7 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 			supportedLocales.add(locales.getString(i));
 		}
 		realm.supportedLocales = supportedLocales;
+		realm.accessCodeLifespanLogin = ret.getInteger("accessCodeLifespanLogin");
 		return realm;
 	}
 

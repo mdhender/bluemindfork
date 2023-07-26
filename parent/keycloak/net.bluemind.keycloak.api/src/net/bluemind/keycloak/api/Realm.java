@@ -31,5 +31,6 @@ public class Realm {
 	public boolean internationalizationEnabled;
 	public String defaultLocale;
 	public List<String> supportedLocales;
+	public int accessCodeLifespanLogin; // login timeout, in seconds
 
 }
