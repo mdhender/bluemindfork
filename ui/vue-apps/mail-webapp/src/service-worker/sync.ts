@@ -19,7 +19,8 @@ export async function syncMailFolders(): Promise<string[]> {
     session.revalidate();
     const updatedOwnerSubscription = await syncOwnerSubscriptions();
     const subscriptions = await db.getOwnerSubscriptions("mailboxacl");
-    const userMailbox = subscriptions.find(async subscription => subscription.value.owner === (await session.userId));
+    const userId = await session.userId;
+    const userMailbox = subscriptions.find(subscription => subscription.value.owner === userId);
     let updatedFolderUids: string[] = [];
     if (userMailbox?.value.offlineSync) {
         logger.log("[SYNC][SW] user mailbox is offline synced");
