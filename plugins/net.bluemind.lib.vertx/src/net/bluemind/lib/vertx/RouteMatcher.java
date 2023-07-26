@@ -82,7 +82,7 @@ public class RouteMatcher implements Handler<HttpServerRequest> {
 		BodyHandler defaultBodyHandler = BodyHandler.create();
 		router.post(prefix + "/*").handler(ctx -> {
 			defaultBodyHandler.handle(ctx);
-			logger.info("XHR POST endpoint:{} headers:{}", ctx.request().absoluteURI(), ctx.request().headers());
+			logger.debug("XHR POST endpoint:{} headers:{}", ctx.request().absoluteURI(), ctx.request().headers());
 		});
 		SockJSHandler handler = SockJSHandler.create(vertx, hOpts);
 		router.route(prefix + "/*").subRouter(handler.socketHandler(sock));

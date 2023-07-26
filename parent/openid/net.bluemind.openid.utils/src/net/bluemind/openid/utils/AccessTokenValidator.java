@@ -39,6 +39,7 @@ import com.auth0.jwk.GuavaCachedJwkProvider;
 import com.auth0.jwk.Jwk;
 import com.auth0.jwk.UrlJwkProvider;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.common.base.Strings;
 
@@ -66,21 +67,26 @@ public class AccessTokenValidator {
 				.get(domainUid);
 
 		String issuer = token.getIssuer();
+		Claim email = token.getClaim("email");
+
+		if (email.isMissing() || email.isNull()) {
+			throw new ServerFault("Failed to validate token: invalid email");
+		}
 
 		String accessTokenIssuer = domainProperties.get(AuthDomainProperties.OPENID_ISSUER.name());
 		if (Strings.isNullOrEmpty(issuer) || !issuer.equals(accessTokenIssuer)) {
-			throw new ServerFault("Failed to validate token: iss");
+			throw new ServerFault("[" + email.asString() + "] Failed to validate token: invalid Issuer");
 		}
 
 		long now = new Date().getTime();
 		Long iat = token.getIssuedAt().getTime();
 		if (now < iat) {
-			throw new ServerFault("Failed to validate token: iat");
+			throw new ServerFault("[" + email.asString() + "] Failed to validate token: invalid Issued At");
 		}
 
 		Long exp = token.getExpiresAt().getTime();
 		if (now > exp) {
-			throw new ServerFault("Failed to validate token: exp");
+			throw new ServerFault("[" + email.asString() + "] Failed to validate token: Expired");
 		}
 
 	}

@@ -107,7 +107,7 @@ public class DomainsHelper {
 		}
 
 		if (logger.isWarnEnabled()) {
-			logger.warn("No BlueMind domain found for request: {}", request.host());
+			logger.warn("No BlueMind domain found for request: {}", request.absoluteURI());
 		}
 		return "global.virt";
 	}
