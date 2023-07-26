@@ -140,6 +140,7 @@
 			</filter>
 			<filter class="net.bluemind.common.logback.PerUserFilter">
 				<endpoint>imap</endpoint>
+				<userProvider class="net.bluemind.common.logback.VertxContextUserProvider" />
 			</filter>
 			<file>/var/log/bm/imap/${user}.log</file>
 			<encoder>
@@ -170,6 +171,7 @@
 			</filter>
 			<filter class="net.bluemind.common.logback.PerUserFilter">
 				<endpoint>imap</endpoint>
+				<userProvider class="net.bluemind.common.logback.VertxContextUserProvider" />
 			</filter>
 			<file>/var/log/bm/imap/${user}.raw.log</file>
 			<encoder>
@@ -233,6 +235,7 @@
 			</filter>
 			<filter class="net.bluemind.common.logback.PerUserFilter">
 				<endpoint>pop3</endpoint>
+				<userProvider class="net.bluemind.common.logback.VertxContextUserProvider" />
 			</filter>
 			<file>/var/log/bm/pop3/${user}.log</file>
 			<encoder>

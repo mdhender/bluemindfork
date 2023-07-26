@@ -22,22 +22,21 @@
   */
 package net.bluemind.common.logback;
 
-import org.slf4j.MDC;
-
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
-import net.bluemind.common.vertx.contextlogging.ContextualData;
 
 public final class PerUserFilter extends Filter<ILoggingEvent> {
 	private String endpoint;
+	private ContextUserProvider userProvider;
 
 	@Override
 	public FilterReply decide(ILoggingEvent event) {
-		String user = ContextualData.get("user");
-		if (user == null || user.equals("anon")) {
-			user = MDC.get("mapiUser");
+		if (!isStarted()) {
+			return FilterReply.NEUTRAL;
 		}
+
+		String user = userProvider.user();
 		if (user == null || user.equals("anon")) {
 			return FilterReply.DENY;
 		}
@@ -48,9 +47,13 @@ public final class PerUserFilter extends Filter<ILoggingEvent> {
 		this.endpoint = endpoint;
 	}
 
+	public void setUserProvider(ContextUserProvider userProvider) {
+		this.userProvider = userProvider;
+	}
+
 	@Override
 	public void start() {
-		if (this.endpoint != null) {
+		if (this.endpoint != null && userProvider != null) {
 			super.start();
 		}
 	}
