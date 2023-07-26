@@ -2,7 +2,7 @@
     <main class="flex-fill flex-column mail-app">
         <bm-extension id="webapp.mail" path="app.header" />
         <global-events @click="showFolders = false" />
-        <section :aria-label="$t('mail.application.region.mailtools')" class="shadow z-index-250">
+        <section :aria-label="$t('mail.application.region.mailtools')" class="z-index-250">
             <topbar class="d-flex align-items-center" @showFolders="showFolders = true" />
         </section>
         <bm-row class="flex-fill flex-nowrap mx-0">
