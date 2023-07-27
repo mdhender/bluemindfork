@@ -38,7 +38,7 @@ export default [
     },
     {
         match: criterion =>
-            [CRITERIA_TARGETS.HEADER].includes(criterion.target) &&
+            [CRITERIA_TARGETS.HEADER].includes(criterion.target.type) &&
             [CRITERIA_MATCHERS.EQUALS, CRITERIA_MATCHERS.CONTAINS].includes(criterion.matcher),
         name: (criterion, i18n) => defaultName(criterion, i18n),
         viewer: PrefFilterRuleTextCriterion,

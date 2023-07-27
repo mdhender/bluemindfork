@@ -11,7 +11,7 @@
         @remove="remove"
         @reset-data="resetData"
     >
-        <template v-slot:item="{ container }"><bm-todo-list-item :todo-list="container" /></template>
+        <template #item="{ container }"><bm-todo-list-item :todo-list="container" /></template>
     </containers-management>
 </template>
 

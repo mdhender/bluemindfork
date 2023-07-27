@@ -13,7 +13,7 @@
             @input="findSuggestions"
             @selected="onSelect"
         >
-            <template v-slot="{ item }"><bm-calendar-item :calendar="item" /></template>
+            <template #default="{ item }"><bm-calendar-item :calendar="item" /></template>
         </bm-form-autocomplete-input>
         <h3 class="mt-4 mb-2">{{ $t("common.my_availabilities") }}</h3>
         <div class="mb-2">{{ $t("preferences.calendar.my_calendars.choose_calendar_for_my_availabilities") }}</div>

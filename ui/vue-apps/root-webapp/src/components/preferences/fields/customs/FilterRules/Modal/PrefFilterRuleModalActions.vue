@@ -5,7 +5,7 @@
         :label="$t('preferences.mail.filters.modal.actions')"
         label-class="circled-number three d-flex align-items-center"
     >
-        <template v-for="(action, index) in filter.actions">
+        <template v-for="(action, index) in actions">
             <div
                 v-if="resolvedActions[index]"
                 :key="index"
@@ -24,17 +24,18 @@
                         />
                     </div>
                     <div v-if="resolvedActions[index].editor" class="col-6">
-                        <component :is="resolvedActions[index].editor" :action="action" class="w-100" />
+                        <component
+                            :is="resolvedActions[index].editor"
+                            :action="action"
+                            class="w-100"
+                            @update:action="updateAction(index, $event)"
+                        />
                     </div>
                 </div>
                 <bm-icon-button variant="compact" icon="cross" @click="removeAction(index)" />
             </div>
         </template>
-        <bm-button
-            v-if="!filter.actions || !filter.actions.some(c => c.isNew)"
-            variant="text-accent"
-            @click="addNewAction"
-        >
+        <bm-button v-if="!actions || !actions.some(c => c.isNew)" variant="text-accent" @click="addNewAction">
             {{ $t("preferences.mail.filters.modal.actions.add") }}
         </bm-button>
     </bm-form-group>
@@ -49,26 +50,27 @@ export default {
     name: "PrefFilterRuleModalActions",
     components: { BmButton, BmIconButton, BmFormGroup, BmFormSelect },
     props: {
-        filter: {
-            type: Object,
+        actions: {
+            type: Array,
             required: true
         }
     },
     data() {
-        return { allActions: all(this) };
+        return { allActions: all(this), showBoxOnNextUpdate: false };
     },
     computed: {
         hasForwardAction() {
-            return this.filter.actions.find(action => action.name === ACTIONS.FORWARD.name);
+            return this.actions.find(action => action.name === ACTIONS.FORWARD.name);
         },
         resolvedActions() {
-            return this.filter.actions?.map(a => (a.isNew ? a : resolve(a, this))) || [];
+            return this.actions?.map(a => (a.isNew ? a : resolve(a, this))) || [];
         }
     },
     watch: {
-        "filter.actions"() {
-            if (this.filter.actions?.length === 0) {
-                this.addNewAction();
+        actions() {
+            if (this.showBoxOnNextUpdate) {
+                this.showBoxOnNextUpdate = false;
+                this.showActionCombo();
             }
         }
     },
@@ -84,18 +86,30 @@ export default {
             return this.actionChoices(action.isNew).find(ac => ac.value.name === action.name)?.value;
         },
         modifyActionType(index, { name, parameters }) {
-            this.filter.actions.splice(index, 1, { name, parameters });
+            const updated = { name, parameters };
+            this.$emit(
+                "update:actions",
+                this.actions.map((action, i) => (index === i ? updated : action))
+            );
+        },
+        updateAction(index, value) {
+            this.$emit(
+                "update:actions",
+                this.actions.map((action, i) => (index === i ? value : action))
+            );
         },
         addNewAction() {
-            this.filter.actions.push({ isNew: true });
-            if (this.filter.actions.length > 1) {
-                this.$nextTick(this.showActionCombo);
-            }
+            this.$emit("update:actions", [...this.actions, { isNew: true }]);
+            this.showBoxOnNextUpdate = this.actions.length > 0;
         },
         removeAction(index) {
-            this.filter.actions.splice(index, 1);
+            this.$emit(
+                "update:actions",
+                this.actions.filter((criterion, i) => index !== i)
+            );
         },
-        showActionCombo() {
+        async showActionCombo() {
+            await this.$nextTick();
             const combos = this.$refs.actionCombo;
             const lastCombo = combos[combos.length - 1];
             lastCombo.$refs.dropdown.show();

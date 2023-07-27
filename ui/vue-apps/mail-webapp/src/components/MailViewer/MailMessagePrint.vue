@@ -2,10 +2,10 @@
     <main class="mail-message-print">
         <inline-style>{{ STYLES }}</inline-style>
         <mail-viewer-content :message="message">
-            <template v-slot:attachments-block="scope">
+            <template #attachments-block="scope">
                 <files-block v-bind="scope" :expanded="true" />
             </template>
-            <template v-slot:text-html="scope">
+            <template #text-html="scope">
                 <text-html-file-viewer v-bind="scope" :collapse="false" />
             </template>
         </mail-viewer-content>

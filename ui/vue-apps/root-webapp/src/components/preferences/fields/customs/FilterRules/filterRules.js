@@ -90,10 +90,6 @@ function readActions(rawActions) {
         .filter(Boolean);
 }
 
-export function createEmpty() {
-    return { criteria: [], actions: [], name: "", exceptions: [], manageable: true };
-}
-
 export function write(filter) {
     if (!filter.manageable) {
         return filter;

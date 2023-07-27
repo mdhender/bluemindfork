@@ -22,7 +22,7 @@
                 @toggle="toggle"
                 @select="selectFolder"
             >
-                <template v-slot="{ value }">
+                <template #default="{ value }">
                     <draggable-mail-folder-item :folder="value" />
                 </template>
             </bm-tree>

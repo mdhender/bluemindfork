@@ -1,7 +1,7 @@
 <template>
     <div class="preview-file-content">
         <bm-alert-area v-if="alerts.length > 0" :alerts="alerts" :file="file" class="shadow" @remove="REMOVE">
-            <template v-slot="slotProps">
+            <template #default="slotProps">
                 <component :is="slotProps.alert.renderer" :alert="slotProps.alert" />
             </template>
         </bm-alert-area>

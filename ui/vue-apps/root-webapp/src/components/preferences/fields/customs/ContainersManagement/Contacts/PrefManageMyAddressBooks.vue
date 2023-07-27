@@ -12,7 +12,7 @@
         @remove="remove"
         @reset-data="resetData"
     >
-        <template v-slot:item="{ container }"><bm-addressbook-item :addressbook="container" /></template>
+        <template #item="{ container }"><bm-addressbook-item :addressbook="container" /></template>
     </containers-management>
 </template>
 

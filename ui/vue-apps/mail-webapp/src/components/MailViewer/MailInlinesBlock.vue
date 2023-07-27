@@ -3,7 +3,7 @@
         <div v-for="(part, index) in parts" :key="part.address">
             <hr v-if="index !== 0" class="part-separator" />
             <file-viewer-facade :message="message" :file="part">
-                <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+                <template v-for="(_, slot) of $scopedSlots" #[slot]="scope">
                     <slot :name="slot" v-bind="scope" />
                 </template>
             </file-viewer-facade>

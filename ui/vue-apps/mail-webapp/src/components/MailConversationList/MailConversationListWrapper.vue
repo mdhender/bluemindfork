@@ -14,7 +14,7 @@
         @add-to-selection="addToSelection"
         @remove-from-selection="removeFromSelection"
     >
-        <template v-slot:actions="{ conversation }">
+        <template #actions="{ conversation }">
             <conversation-list-item-quick-action-buttons :conversation="conversation" />
         </template>
     </conversation-list>

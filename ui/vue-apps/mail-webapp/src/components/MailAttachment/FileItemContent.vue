@@ -16,7 +16,7 @@
                 :class="{ muted: isUploading(file) }"
             >
                 <template v-if="hover" #overlay="{ hasPreview }">
-                    <slot name="overlay" :hasPreview="hasPreview" :file="file" />
+                    <slot name="overlay" :has-preview="hasPreview" :file="file" />
                 </template>
             </file-thumbnail>
             <file-infos :file="file" :class="{ muted: isUploading(file) }">

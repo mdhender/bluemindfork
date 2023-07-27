@@ -1,6 +1,6 @@
 <template>
     <bm-form-group id="terminal-group" class="pref-filter-rule-modal-terminal mt-5">
-        <bm-form-checkbox v-model="filter.terminal" :value="true" :unchecked-value="false">
+        <bm-form-checkbox v-model="terminal" :value="true" :unchecked-value="false">
             {{ $t("preferences.mail.filters.modal.terminal") }}
         </bm-form-checkbox>
         <bm-read-more :href="readMore" :text="$t('preferences.mail.filters.modal.terminal.desc')" />
@@ -24,6 +24,16 @@ export default {
             readMore:
                 "https://doc.bluemind.net/release/5.0/guide_de_l_utilisateur/la_messagerie/appliquer_des_regles_de_tri_et_d_actions#ordonner-les-filtres-automatiques"
         };
+    },
+    computed: {
+        terminal: {
+            get() {
+                return this.filter.terminal;
+            },
+            set(terminal) {
+                this.$emit("update:filter", { ...this.filter, terminal });
+            }
+        }
     }
 };
 </script>

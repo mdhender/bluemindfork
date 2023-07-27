@@ -30,7 +30,7 @@
                 @reset-data="container => $emit('reset-data', container)"
                 @update="update"
             >
-                <template v-slot:item="{ container }"><slot name="item" :container="container" /></template>
+                <template #item="{ container }"><slot name="item" :container="container" /></template>
             </containers-management-table>
             <div v-else>{{ $t("common.search.no_result") }}</div>
             <bm-pagination v-model="currentPage" :total-rows="totalRows" :per-page="perPage" class="d-inline-flex" />
@@ -56,10 +56,10 @@
             :field-id="fieldId"
             @subscribe="containers => $emit('subscribe', containers)"
         >
-            <template v-slot:selected="{ container, closeFn }">
-                <slot name="badge-item" :container="container" :closeFn="closeFn" />
+            <template #selected="{ container, closeFn }">
+                <slot name="badge-item" :container="container" :close-fn="closeFn" />
             </template>
-            <template v-slot:item="{ container }">
+            <template #item="{ container }">
                 <slot name="item" :container="container" />
             </template>
         </subscribe-other-containers-modal>

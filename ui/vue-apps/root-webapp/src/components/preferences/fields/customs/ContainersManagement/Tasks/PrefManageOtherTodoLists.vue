@@ -10,8 +10,8 @@
         @subscribe="ADD_OTHER_TODO_LIST"
         @update="UPDATE_OTHER_TODO_LIST"
     >
-        <template v-slot:item="{ container }"><bm-todo-list-item :todo-list="container" /></template>
-        <template v-slot:badge-item="{ container, closeFn }">
+        <template #item="{ container }"><bm-todo-list-item :todo-list="container" /></template>
+        <template #badge-item="{ container, closeFn }">
             <bm-todo-list-badge :todo-list="container" closeable @close="closeFn(container)" />
         </template>
     </containers-management>

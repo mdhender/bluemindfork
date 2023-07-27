@@ -6,7 +6,7 @@
         :collapsed="collapsed"
         @toggle-tree="toggleTree"
     >
-        <template v-slot:title>
+        <template #title>
             <folder-tree-header :mailbox="MAILSHARES[0]" :name="$t('common.mailshares')" />
         </template>
     </mail-folder-tree>

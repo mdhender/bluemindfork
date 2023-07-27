@@ -12,7 +12,7 @@
         @drop="({ relatedData: folder }) => moveFolder(folder)"
     >
         <mail-folder-item :folder-key="folder.key" />
-        <template v-slot:shadow>
+        <template #shadow>
             <mail-folder-item-shadow :folder="folder" />
         </template>
     </bm-draggable>

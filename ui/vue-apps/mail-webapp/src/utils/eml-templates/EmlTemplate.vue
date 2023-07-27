@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/one-component-per-file -->
 <script>
 import Vue from "vue";
 import i18n from "@bluemind/i18n";

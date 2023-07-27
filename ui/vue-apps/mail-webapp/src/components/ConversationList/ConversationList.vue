@@ -19,11 +19,7 @@
         @keydown.ctrl.exact.65.prevent
     >
         <template v-for="conversationKey in conversationKeys">
-            <conversation-metadata
-                v-slot:default="{ conversation }"
-                :key="conversationKey"
-                :conversation-key="conversationKey"
-            >
+            <conversation-metadata v-slot="{ conversation }" :key="conversationKey" :conversation-key="conversationKey">
                 <div v-if="CONVERSATION_IS_LOADED(conversation)" class="bg-surface">
                     <conversation-list-separator
                         v-if="rangeByKey[conversation.key]"
@@ -46,7 +42,7 @@
                         @dragstart="draggedConversation = conversation.key"
                         @dragend="draggedConversation = null"
                     >
-                        <template v-slot:actions>
+                        <template #actions>
                             <slot name="actions" :conversation="conversation"></slot>
                         </template>
                     </draggable-conversation>

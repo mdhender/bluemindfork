@@ -1,6 +1,6 @@
 <template>
     <bm-alert-area class="system-alert-area p-0 m-0 z-index-750" :alerts="alerts" @remove="$emit('remove')">
-        <template v-slot="context">
+        <template #default="context">
             <bm-button
                 v-if="context.alert.link"
                 class="w-100 text-left font-weight-normal"

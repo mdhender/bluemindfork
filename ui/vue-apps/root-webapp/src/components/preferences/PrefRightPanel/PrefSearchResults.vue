@@ -24,7 +24,7 @@
             stackable
             @remove="REMOVE"
         >
-            <template v-slot="context"><component :is="context.alert.renderer" :alert="context.alert" /></template>
+            <template #default="context"><component :is="context.alert.renderer" :alert="context.alert" /></template>
         </bm-alert-area>
         <div class="border-bottom border-neutral" />
         <template v-for="(group, index) in results">

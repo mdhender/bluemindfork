@@ -22,7 +22,7 @@ registerMailtoHandler();
 // FIXME allow to use MailViewerContent in MessageFileViewer (avoid to import it due to circular dependency issue)
 Vue.component("MailViewerContent", MailViewerContent);
 
-Vue.component("mail-webapp", MailApp);
+Vue.component("MailWebapp", MailApp);
 const AlertComponents = { ...MailAlertComponents, ...ThreadAlertComponents };
 for (let component in AlertComponents) {
     Vue.component(component, AlertComponents[component]);

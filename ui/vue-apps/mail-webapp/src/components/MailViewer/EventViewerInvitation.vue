@@ -4,10 +4,10 @@
             <i18n
                 :path="message.eventInfo.isResourceBooking ? 'mail.ics.resource_got_invited' : 'mail.ics.got_invited'"
             >
-                <template v-slot:organizer>
+                <template #organizer>
                     {{ currentEvent.organizer.name }}
                 </template>
-                <template v-slot:summary>
+                <template #summary>
                     <span class="font-weight-bold">&laquo;{{ currentEvent.summary }}&raquo;</span>
                 </template>
             </i18n>

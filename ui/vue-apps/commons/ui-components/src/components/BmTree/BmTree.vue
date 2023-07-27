@@ -22,7 +22,7 @@
             @expand="toggleNode($event)"
             @click="onClick"
         >
-            <template v-slot="wrap">
+            <template #default="wrap">
                 <slot :value="wrap.value">
                     {{ wrap.value["label"] }}
                 </slot>

@@ -29,7 +29,7 @@
         </div>
         <preview-file-header :file="file" class="d-lg-none d-flex bottom-file-info" />
         <bm-alert-area class="preview-alert-area" :alerts="alerts" @remove="REMOVE">
-            <template v-slot="context">
+            <template #default="context">
                 <component :is="context.alert.renderer" :alert="context.alert" />
             </template>
         </bm-alert-area>

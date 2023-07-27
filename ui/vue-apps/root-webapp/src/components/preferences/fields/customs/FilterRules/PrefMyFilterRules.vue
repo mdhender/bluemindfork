@@ -1,6 +1,6 @@
 <template>
     <div class="pref-my-filter-rules">
-        <pref-filter-rule-modal ref="filters-editing-modal" :filter="editingFilter" @updateFilter="updateUserFilter" />
+        <pref-filter-rule-modal ref="filters-editing-modal" :filter="editingFilter" @save="updateUserFilter" />
         <hr />
         <pref-filter-rules-subset
             :filters="userFilters"
@@ -8,7 +8,7 @@
             editable
             @remove="removeUserFilter"
             @edit="
-                editingFilter = { ...$event };
+                editingFilter = $event;
                 $refs['filters-editing-modal'].show();
             "
             @up="moveUp"

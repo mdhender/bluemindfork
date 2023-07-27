@@ -10,8 +10,8 @@
         @subscribe="ADD_OTHER_ADDRESSBOOK"
         @update="UPDATE_OTHER_ADDRESSBOOK"
     >
-        <template v-slot:item="{ container }"><bm-addressbook-item :addressbook="container" /></template>
-        <template v-slot:badge-item="{ container, closeFn }">
+        <template #item="{ container }"><bm-addressbook-item :addressbook="container" /></template>
+        <template #badge-item="{ container, closeFn }">
             <bm-addressbook-badge :addressbook="container" closeable @close="closeFn(container)" />
         </template>
     </containers-management>

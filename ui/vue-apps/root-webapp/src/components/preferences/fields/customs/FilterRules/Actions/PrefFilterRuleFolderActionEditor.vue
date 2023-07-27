@@ -1,13 +1,13 @@
 <template>
     <bm-form-select
         v-if="userFolders.length > 0"
-        v-model="folderValue"
+        v-model="folder"
         :options="userFolders"
         :auto-min-width="false"
         class="pref-filter-rule-folder-action-editor"
         scrollbar
     >
-        <template v-slot:selected="slotProps">
+        <template #selected="slotProps">
             <div v-if="slotProps.selected" class="folder-path font-weight-normal" :title="slotProps.selected.value">
                 <bm-icon
                     class="mr-4"
@@ -23,7 +23,7 @@
                 {{ $t("preferences.mail.filters.modal.action.deliver.placeholder") }}
             </div>
         </template>
-        <template v-slot:item="slotProps">
+        <template #item="slotProps">
             <div class="folder-path" :title="slotProps.item.value">
                 <bm-icon
                     class="mr-4"
@@ -59,14 +59,15 @@ export default {
         };
     },
     computed: {
-        folderValue: {
+        folder: {
             get() {
                 return { subtree: this.action.subtree, id: this.action.id, folder: this.action.folder };
             },
             set(value) {
-                this.$set(this.action, "subtree", value?.subtree);
-                this.$set(this.action, "id", value?.id);
-                this.$set(this.action, "folder", value?.folder);
+                if (value) {
+                    const { subtree, id, folder } = value;
+                    this.$emit("update:action", { ...this.action, subtree, id, folder });
+                }
             }
         }
     },

@@ -2,12 +2,11 @@
     <contact-input
         class="pref-filter-rule-contact-criterion-editor"
         tabindex="0"
-        :contacts="contacts"
+        :contacts.sync="contacts"
         :max-contacts="1"
         :autocomplete-results="autocompleteResults"
         :validate-address-fn="validateAddress"
         @search="onSearch"
-        @update:contacts="updateEmails"
     />
 </template>
 
@@ -34,8 +33,10 @@ export default {
             get() {
                 return this.criterion.value ? [{ address: this.criterion.value, dn: this.dn }] : [];
             },
-            set(value) {
-                value.length > 0 ? (this.criterion.value = value[0].address) : (this.criterion.value = "");
+            set(contacts) {
+                const value = contacts.length > 0 ? contacts[0].address : "";
+                this.$emit("update:criterion", { ...this.criterion, value });
+                this.autocompleteResults = [];
             }
         }
     },
@@ -53,12 +54,6 @@ export default {
     methods: {
         async onSearch(pattern) {
             this.autocompleteResults = pattern ? await searchContacts(pattern) : [];
-        },
-        updateEmails(contacts) {
-            this.criterion.value = contacts
-                .map(contact => contact.address)
-                .filter(email => EmailValidator.validateAddress(email))[0];
-            this.autocompleteResults = [];
         },
         validateAddress: EmailValidator.validateAddress
     }

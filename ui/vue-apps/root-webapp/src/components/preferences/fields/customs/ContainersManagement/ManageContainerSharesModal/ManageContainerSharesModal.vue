@@ -24,7 +24,7 @@
                 {{ $t("preferences.calendar.my_calendars.availabilities_advanced_management") }}
             </bm-button>
             <bm-alert-area v-show="alerts.length > 0" :alerts="alerts" stackable @remove="REMOVE">
-                <template v-slot="context">
+                <template #default="context">
                     <component :is="context.alert.renderer" :alert="context.alert" />
                 </template>
             </bm-alert-area>

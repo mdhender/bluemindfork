@@ -45,7 +45,16 @@ export default {
     },
     methods: {
         onEdit() {
-            this.$emit("edit", { criteria: [], actions: [], active: true, terminal: false, editable: true });
+            this.$emit("edit", {
+                name: "",
+                criteria: [{ isNew: true, exception: false }],
+                actions: [{ isNew: true }],
+                exceptions: [],
+                terminal: false,
+                manageable: true,
+                active: true,
+                editable: true
+            });
         }
     }
 };

@@ -24,5 +24,8 @@ module.exports = {
                 "@vue/prettier"
             ]
         }
-    ]
+    ],
+    rules: {
+        "vue/multi-word-component-names": 0
+    }
 };

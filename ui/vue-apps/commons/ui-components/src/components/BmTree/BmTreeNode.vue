@@ -39,7 +39,7 @@
                 @click="childId => $emit('click', childId)"
                 @select="$emit('select', $event)"
             >
-                <template v-slot="wrapIt">
+                <template #default="wrapIt">
                     <slot :value="wrapIt.value" />
                 </template>
             </bm-tree-node>

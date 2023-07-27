@@ -1,7 +1,7 @@
 <template>
     <div class="pref-tags">
         <p>{{ $t("preferences.general.tags.desc") }}</p>
-        <pref-tag-modal ref="tag-editing-modal" :tag="editingTag" @updateTag="updateUserTag" />
+        <pref-tag-modal ref="tag-editing-modal" :tag="editingTag" @update:tag="updateUserTag" />
         <template v-if="!collapsed">
             <div class="pref-item-width"><hr /></div>
             <pref-tags-subset

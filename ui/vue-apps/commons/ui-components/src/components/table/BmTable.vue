@@ -7,7 +7,7 @@
         :sort-desc.sync="curSortDesc"
         v-on="$listeners"
     >
-        <template v-for="field in fields" v-slot:[`head(${field.key})`]="data">
+        <template v-for="field in fields" #[`head(${field.key})`]="data">
             <bm-sort-control
                 v-if="data.field.sortable"
                 :key="field.key"
@@ -18,10 +18,10 @@
                 {{ data.label }}
             </bm-sort-control>
         </template>
-        <template v-for="(index, name) in $scopedSlots" v-slot:[name]="data">
+        <template v-for="(index, name) in $scopedSlots" #[name]="data">
             <slot :name="name" v-bind="data" />
         </template>
-        <template v-if="filler" v-slot:custom-foot>
+        <template v-if="filler" #custom-foot>
             <b-tr v-for="index in filler.size" :key="index" :class="{ striped: (index + filler.padding) % 2 }">
                 <b-td :colspan="filler.span" aria-hidden>&nbsp;</b-td>
             </b-tr>

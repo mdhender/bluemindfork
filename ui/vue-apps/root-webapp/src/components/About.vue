@@ -15,12 +15,12 @@
             </div>
             <img :src="aboutVersionImg" alt="" class="mt-2" />
             <i18n path="banner.about.version" class="mt-2 flex-fill">
-                <template v-slot:brand>
+                <template #brand>
                     <strong class="font-weight-bold">
                         {{ $t("banner.about.version.brand", [version.brand]) }}
                     </strong>
                 </template>
-                <template v-slot:technical>{{ version.technical }}</template>
+                <template #technical>{{ version.technical }}</template>
             </i18n>
             <a
                 target="_blank"

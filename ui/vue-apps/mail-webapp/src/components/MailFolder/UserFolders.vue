@@ -5,12 +5,12 @@
         :collapsed="collapsed"
         @toggle-tree="toggleTree"
     >
-        <template v-slot:title>
+        <template #title>
             <bm-dropzone :accept="['folder']" :states="{ active: false }" :value="root">
                 <folder-tree-header :mailbox="mailbox" />
             </bm-dropzone>
         </template>
-        <template v-slot:footer>
+        <template #footer>
             <mail-folder-input
                 v-if="mailbox.writable"
                 size="sm"

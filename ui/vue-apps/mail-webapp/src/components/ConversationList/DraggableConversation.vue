@@ -21,9 +21,9 @@
             :selection-mode="selectionMode"
             @check="$emit('check')"
         >
-            <template v-slot:actions> <slot name="actions" /> </template>
+            <template #actions> <slot name="actions" /> </template>
         </conversation-list-item>
-        <template v-slot:shadow>
+        <template #shadow>
             <conversation-list-item-shadow :conversation="conversation" :count="shadowCount" />
         </template>
     </bm-draggable>
@@ -36,7 +36,7 @@
         tabindex="-1"
         @check="$emit('check')"
     >
-        <template v-slot:actions> <slot name="actions" /> </template>
+        <template #actions> <slot name="actions" /> </template>
     </conversation-list-item>
 </template>
 

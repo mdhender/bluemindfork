@@ -13,12 +13,12 @@
     >
         <bm-form class="mt-4" @submit.prevent="submit">
             <bm-form-group id="label-group" :label="$t('preferences.general.tags.modal.label')" label-for="label">
-                <bm-form-input id="label" ref="label-input" v-model="tag.label" required />
+                <bm-form-input id="label" ref="label-input" v-model="label" required />
             </bm-form-group>
             <bm-form-group id="color-group" label-for="color" :label="$t('preferences.general.tags.modal.color')">
                 <bm-form-color-picker
                     id="color"
-                    v-model="tag.color"
+                    v-model="color"
                     type="text"
                     required
                     pick-default
@@ -46,6 +46,22 @@ export default {
         return { tagValueOnShow: {}, tagColors };
     },
     computed: {
+        color: {
+            get() {
+                return this.tag.color;
+            },
+            set(color) {
+                this.$emit("update:tag", { ...this.tag, color });
+            }
+        },
+        label: {
+            get() {
+                return this.tag.label;
+            },
+            set(label) {
+                this.$emit("update:tag", { ...this.tag, label });
+            }
+        },
         okDisabled() {
             return (
                 !this.tag.label ||

@@ -13,23 +13,21 @@
         @shown="init"
     >
         <bm-form class="mt-4">
-            <pref-filter-rule-modal-name :filter="filterCopy" @submit="submit" />
-            <pref-filter-rule-modal-criteria :criteria="filterCopy.criteria" />
-            <pref-filter-rule-modal-actions :filter="filterCopy" />
-            <pref-filter-rule-modal-criteria :criteria="filterCopy.exceptions" negative />
-            <pref-filter-rule-modal-terminal :filter="filterCopy" />
+            <pref-filter-rule-modal-name :filter.sync="filter_" @submit="submit" />
+            <pref-filter-rule-modal-criteria :criteria.sync="filter_.criteria" />
+            <pref-filter-rule-modal-actions :actions.sync="filter_.actions" />
+            <pref-filter-rule-modal-criteria :criteria.sync="filter_.exceptions" negative />
+            <pref-filter-rule-modal-terminal :filter.sync="filter_" />
         </bm-form>
     </bm-modal>
 </template>
 
 <script>
-import cloneDeep from "lodash.clonedeep";
 import { BmForm, BmModal } from "@bluemind/ui-components";
 import PrefFilterRuleModalActions from "./PrefFilterRuleModalActions";
 import PrefFilterRuleModalCriteria from "./PrefFilterRuleModalCriteria";
 import PrefFilterRuleModalName from "./PrefFilterRuleModalName";
 import PrefFilterRuleModalTerminal from "./PrefFilterRuleModalTerminal";
-import { createEmpty } from "../filterRules";
 
 export default {
     name: "PrefFilterRuleModal",
@@ -49,25 +47,40 @@ export default {
     },
     data() {
         return {
-            filterCopy: {}
+            filter_: {}
         };
     },
     computed: {
+        sanitized() {
+            return sanitize(this.filter_);
+        },
         okDisabled() {
             return (
-                !this.filterCopy.name ||
-                this.filterCopy.name.trim() === "" ||
-                this.filterCopy.actions.length === 0 ||
-                areEqual(this.filter, this.filterCopy) ||
-                this.filterCopy.criteria.some(c => c.isNew)
+                !this.filter_.name ||
+                this.filter_.name.trim() === "" ||
+                this.filter_.criteria.every(({ isNew }) => isNew) ||
+                this.filter_.actions.every(({ isNew }) => isNew) ||
+                areEqual(this.filter, this.sanitized)
             );
+        }
+    },
+    watch: {
+        filter: {
+            handler(value) {
+                this.filter_ = {
+                    criteria: [{ isNew: true, exception: false }],
+                    actions: [{ isNew: true }],
+                    name: "",
+                    exceptions: [],
+                    manageable: true,
+                    ...value
+                };
+            },
+            immediate: true
         }
     },
     methods: {
         init() {
-            const emptyFilter = createEmpty();
-            const filter = cloneDeep(this.filter);
-            this.filterCopy = { ...emptyFilter, ...filter };
             document.querySelector("#pref-filter-rule-modal-name-input")?.focus();
         },
         show() {
@@ -77,7 +90,7 @@ export default {
             this.$refs["pref-filter-rule-modal-bm-modal"].hide();
         },
         save() {
-            this.$emit("updateFilter", this.filterCopy);
+            this.$emit("save", this.sanitized);
         },
         submit() {
             if (!this.okDisabled) {
@@ -88,6 +101,14 @@ export default {
     }
 };
 
+function sanitize(filter) {
+    return {
+        ...filter,
+        criteria: filter.criteria.filter(({ isNew }) => !isNew),
+        exceptions: filter.exceptions.filter(({ isNew }) => !isNew),
+        actions: filter.actions.filter(({ isNew }) => !isNew)
+    };
+}
 function areEqual(filterA, filterB) {
     return (
         (!filterA && !filterB) ||

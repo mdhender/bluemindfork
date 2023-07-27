@@ -6,7 +6,7 @@
             <bm-icon icon="exclamation-circle-fill" class="text-danger" size="lg" />
             <div class="ml-4">
                 <i18n :path="i18nPath" class="text-danger">
-                    <template v-slot:size>
+                    <template #size>
                         <strong class="font-weight-bold">{{ displayedSize }}</strong>
                     </template>
                 </i18n>

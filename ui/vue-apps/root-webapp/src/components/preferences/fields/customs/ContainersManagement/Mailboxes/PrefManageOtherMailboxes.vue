@@ -10,10 +10,10 @@
         @subscribe="ADD_OTHER_MAILBOXES"
         @update="UPDATE_OTHER_MAILBOX_CONTAINER"
     >
-        <template v-slot:item="{ container }">
+        <template #item="{ container }">
             <contact :contact="{ dn: container.ownerDisplayname }" transparent bold />
         </template>
-        <template v-slot:badge-item="{ container, closeFn }">
+        <template #badge-item="{ container, closeFn }">
             <contact
                 :contact="{ dn: container.ownerDisplayname }"
                 class="mr-2"

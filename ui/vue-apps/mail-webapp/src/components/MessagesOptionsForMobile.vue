@@ -10,7 +10,7 @@
     >
         <template v-if="showSortOptions">
             <bm-dropdown-header id="sort-header-label">
-                {{ this.$t("mail.list.sort.title") }}
+                {{ $t("mail.list.sort.title") }}
             </bm-dropdown-header>
             <bm-dropdown-item-button
                 v-for="(option, index) in sorts"
@@ -27,19 +27,19 @@
         </template>
         <template v-else>
             <bm-dropdown-item-button @click="showSortOptions = true">
-                {{ this.$t("mail.list.menu.sort") }}
+                {{ $t("mail.list.menu.sort") }}
             </bm-dropdown-item-button>
             <bm-dropdown-divider />
             <bm-dropdown-item-button v-if="!CONVERSATION_LIST_UNREAD_FILTER_ENABLED" @click="filterUnread">
-                {{ this.$t("mail.list.menu.filter") + " " + this.$t("mail.list.menu.filter.unread") }}
+                {{ $t("mail.list.menu.filter") + " " + $t("mail.list.menu.filter.unread") }}
             </bm-dropdown-item-button>
             <bm-dropdown-item-button v-if="!CONVERSATION_LIST_FLAGGED_FILTER_ENABLED" @click="filterFlagged">
-                {{ this.$t("mail.list.menu.filter") + " " + this.$t("mail.list.menu.filter.flagged") }}
+                {{ $t("mail.list.menu.filter") + " " + $t("mail.list.menu.filter.flagged") }}
             </bm-dropdown-item-button>
             <template v-if="CONVERSATION_LIST_FILTERED">
                 <bm-dropdown-divider />
                 <bm-dropdown-item-button @click="filterAll">
-                    {{ this.$t("mail.list.filter.remove") + " '" + this.$t("mail.list.menu.filter." + filter) + "'" }}
+                    {{ $t("mail.list.filter.remove") + " '" + $t("mail.list.menu.filter." + filter) + "'" }}
                 </bm-dropdown-item-button>
             </template>
         </template>

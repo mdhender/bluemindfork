@@ -1,7 +1,7 @@
 <template>
     <div class="mail-thread d-flex flex-column">
         <bm-alert-area class="thread-alert-area sticky-top" :alerts="alerts" @remove="REMOVE">
-            <template v-slot="context">
+            <template #default="context">
                 <component :is="context.alert.renderer" :alert="context.alert" />
             </template>
         </bm-alert-area>

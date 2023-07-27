@@ -1,13 +1,13 @@
 <template>
     <div class="mail-composer-footer">
         <bm-alert-area v-if="alerts.length > 0" :alerts="alerts" class="w-100">
-            <template v-slot="slotProps">
+            <template #default="slotProps">
                 <component :is="slotProps.alert.renderer" :alert="slotProps.alert" />
             </template>
         </bm-alert-area>
         <div class="rich-editor-footer">
             <editor-registry editor="composer">
-                <template v-slot:default="{ editor, editorComponent }">
+                <template #default="{ editor, editorComponent }">
                     <bm-rich-editor-status-bar :editor="editor" class="align-self-end" />
                     <transition name="slide-fade">
                         <bm-rich-editor-toolbar
@@ -24,8 +24,8 @@
         <mail-composer-toolbar
             :message="message"
             :is-signature-inserted="isSignatureInserted"
-            :is-delivery-status-requested.sync="isDeliveryStatusRequested"
-            :is-disposition-notification-requested.sync="isDispositionNotificationRequested"
+            :is-delivery-status-requested="isDeliveryStatusRequested"
+            :is-disposition-notification-requested="isDispositionNotificationRequested"
             @toggle-signature="$emit('toggle-signature')"
             @toggle-delivery-status="$emit('toggle-delivery-status')"
             @toggle-disposition-notification="$emit('toggle-disposition-notification')"

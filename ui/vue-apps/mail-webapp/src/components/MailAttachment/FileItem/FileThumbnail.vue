@@ -11,7 +11,7 @@
             <bm-icon :icon="matchingIcon" size="4xl" class="m-auto preview-file-type" />
         </div>
         <div class="thumbnail-overlay position-absolute">
-            <slot name="overlay" :hasPreview="hasPreview" />
+            <slot name="overlay" :has-preview="hasPreview" />
         </div>
     </div>
 </template>

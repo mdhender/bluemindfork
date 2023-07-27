@@ -10,8 +10,8 @@
         @subscribe="ADD_OTHER_CALENDARS"
         @update="UPDATE_OTHER_CALENDAR"
     >
-        <template v-slot:item="{ container }"><bm-calendar-item :calendar="container" /></template>
-        <template v-slot:badge-item="{ container, closeFn }">
+        <template #item="{ container }"><bm-calendar-item :calendar="container" /></template>
+        <template #badge-item="{ container, closeFn }">
             <bm-calendar-badge :calendar="container" closeable @close="closeFn(container)" />
         </template>
     </containers-management>

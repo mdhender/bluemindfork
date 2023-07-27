@@ -2,10 +2,10 @@
     <fh-confirm-box :files="files" class="fh-must-detach-confirm-box">
         <template #text>
             <i18n path="common.threshold.hit">
-                <template v-slot:hit>
+                <template #hit>
                     {{ $tc("filehosting.threshold.size", allFilesCount) }}
                 </template>
-                <template v-slot:size>
+                <template #size>
                     <strong class="font-weight-bold">{{ displaySize(sizeLimit) }}</strong>
                 </template>
             </i18n>

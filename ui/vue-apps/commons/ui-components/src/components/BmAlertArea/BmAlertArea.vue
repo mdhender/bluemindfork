@@ -9,7 +9,7 @@
                 :max-size="size(type)"
                 @remove="alerts => $emit('remove', alerts)"
             >
-                <template v-slot="context">
+                <template #default="context">
                     <slot :alert="context.alert">{{ context.alert.message }}</slot>
                 </template>
             </bm-alert-group>

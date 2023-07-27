@@ -6,17 +6,17 @@
                 <bm-icon class="ml-3 text-neutral" icon="caret-down" size="xs" />
             </bm-button>
             <bm-form-input
-                v-model="criterion.target.name"
+                v-model="target"
                 class="ml-3 flex-fill"
                 :placeholder="$t('preferences.mail.filters.modal.criteria.header.name.placeholder')"
                 required
             />
         </div>
         <div class="d-flex col-6">
-            <bm-form-select v-model="criterion.matcher" :options="options" @input="deleteValueIfNeeded" />
+            <bm-form-select v-model="matcher" :options="options" />
             <bm-form-input
-                v-if="criterion.matcher !== CRITERIA_MATCHERS.EXISTS"
-                v-model="criterion.value"
+                v-if="matcher !== CRITERIA_MATCHERS.EXISTS"
+                v-model="value"
                 class="ml-3 flex-fill"
                 required
             />
@@ -46,10 +46,34 @@ export default {
             }))
         };
     },
-    methods: {
-        deleteValueIfNeeded(matcher) {
-            if (matcher === CRITERIA_MATCHERS.EXISTS) {
-                delete this.criterion.value;
+    computed: {
+        matcher: {
+            get() {
+                return this.criterion.matcher;
+            },
+            set(matcher) {
+                const { value, ...criterion } = this.criterion;
+                if (matcher === CRITERIA_MATCHERS.EXISTS) {
+                    this.$emit("update:criterion", { ...criterion, matcher });
+                } else {
+                    this.$emit("update:criterion", { ...criterion, value, matcher });
+                }
+            }
+        },
+        value: {
+            get() {
+                return this.criterion.value || "";
+            },
+            set(value) {
+                this.$emit("update:criterion", { ...this.criterion, value });
+            }
+        },
+        target: {
+            get() {
+                return this.criterion.target.name;
+            },
+            set(name) {
+                this.$emit("update:criterion", { ...this.criterion, target: { ...this.criterion.target, name } });
             }
         }
     }

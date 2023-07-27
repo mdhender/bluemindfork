@@ -1,6 +1,6 @@
 <template>
     <mail-viewer-content class="preview-message" :message="message">
-        <template v-slot:attachments-block="scope">
+        <template #attachments-block="scope">
             <div class="mail-files">
                 <files-header :files="scope.files" :message="scope.message" />
                 <file-item
@@ -11,7 +11,7 @@
                     :class="file.key === activeFile.key ? 'active' : ''"
                     @click-item="previewOrDownload"
                 >
-                    <template v-slot:actions="{ file: slotFile }">
+                    <template #actions="{ file: slotFile }">
                         <file-toolbar ref="toolbar" :buttons="actionButtons" :file="slotFile" :message="message" />
                     </template>
                     <template #overlay="{ file: slotFile, hasPreview }">

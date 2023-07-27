@@ -28,7 +28,7 @@
             :mouse-in="mouseIn"
         />
         <conversation-list-item-actions>
-            <template v-slot:actions> <slot name="actions" /> </template>
+            <template #actions> <slot name="actions" /> </template>
         </conversation-list-item-actions>
     </bm-list-group-item>
 </template>

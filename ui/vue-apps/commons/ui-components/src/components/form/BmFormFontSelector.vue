@@ -7,7 +7,7 @@
         :disabled="disabled"
         @input="setFontFamily"
     >
-        <template v-slot:selected="slotProps">
+        <template #selected="slotProps">
             <span
                 v-if="slotProps.selected"
                 :style="{ fontFamily: fontFamilyValue(slotProps.selected.id) }"
@@ -16,7 +16,7 @@
                 {{ slotProps.selected.text }}</span
             >
         </template>
-        <template v-slot:item="slotProps">
+        <template #item="slotProps">
             <span :style="{ fontFamily: fontFamilyValue(slotProps.item.id) }"> {{ slotProps.item.text }}</span>
         </template>
     </bm-form-select>

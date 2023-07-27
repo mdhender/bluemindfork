@@ -12,7 +12,7 @@
         @remove="remove"
         @reset-data="resetData"
     >
-        <template v-slot:item="{ container }"><bm-calendar-item :calendar="container" /></template>
+        <template #item="{ container }"><bm-calendar-item :calendar="container" /></template>
     </containers-management>
 </template>
 

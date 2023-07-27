@@ -9,7 +9,7 @@
         <app-error v-if="appState === 'error'" />
         <router-view v-else :class="showPreferences ? 'd-none d-lg-flex' : 'd-flex'" />
         <bm-alert-area class="main-alert-area" :alerts="alerts" :floating="true" @remove="REMOVE">
-            <template v-slot="context">
+            <template #default="context">
                 <component :is="context.alert.renderer" :alert="context.alert" />
             </template>
         </bm-alert-area>

@@ -10,7 +10,7 @@
                 <bm-skeleton width="80%" />
             </div>
             <bm-tree :tree="tree" :has-children-property="() => false">
-                <template v-slot="{ value: { key } }">
+                <template #default="{ value: { key } }">
                     <bm-skeleton :width="key % 2 ? '50%' : '65%'" />
                 </template>
             </bm-tree>

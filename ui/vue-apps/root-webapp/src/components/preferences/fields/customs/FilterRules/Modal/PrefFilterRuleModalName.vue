@@ -10,7 +10,7 @@
         <bm-form-input
             id="pref-filter-rule-modal-name-input"
             ref="name-input"
-            v-model="filter.name"
+            v-model="name"
             :placeholder="$t('preferences.mail.filters.modal.name.placeholder')"
             :state="inputState"
             required
@@ -31,8 +31,16 @@ export default {
         }
     },
     computed: {
+        name: {
+            get() {
+                return this.filter.name;
+            },
+            set(name) {
+                this.$emit("update:filter", { ...this.filter, name });
+            }
+        },
         inputState() {
-            return this.filter.name?.trim() ? null : false;
+            return this.name?.trim() ? null : false;
         }
     }
 };

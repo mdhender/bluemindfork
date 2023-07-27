@@ -17,7 +17,7 @@
                 <slot name="actions" :file="slotProps.file" />
             </template>
             <template #overlay="slotProps">
-                <slot name="overlay" :hasPreview="slotProps.hasPreview" :file="slotProps.file" />
+                <slot name="overlay" :has-preview="slotProps.hasPreview" :file="slotProps.file" />
             </template>
         </file-item-content>
     </bm-extension>

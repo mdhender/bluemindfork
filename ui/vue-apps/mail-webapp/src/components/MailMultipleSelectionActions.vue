@@ -1,7 +1,7 @@
 <template>
     <div class="mail-multiple-selection-screen">
         <bm-alert-area :alerts="[]" class="w-100" @remove="REMOVE">
-            <template v-slot="context">
+            <template #default="context">
                 <component :is="context.alert.renderer" :alert="context.alert" />
             </template>
         </bm-alert-area>

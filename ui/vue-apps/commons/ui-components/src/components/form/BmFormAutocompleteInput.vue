@@ -43,7 +43,7 @@
             <template v-if="$slots.extra">
                 <bm-list-group-separator class="py-0" />
                 <bm-list-group-item ref="extra" :active="selectedResult_ === 'extra'">
-                    <slot name="extra" :close="closeSuggestions" :focus="focus" :goUp="goUp" :goDown="goDown" />
+                    <slot name="extra" :close="closeSuggestions" :focus="focus" :go-up="goUp" :go-down="goDown" />
                 </bm-list-group-item>
             </template>
         </bm-list-group>

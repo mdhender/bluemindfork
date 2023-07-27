@@ -12,7 +12,7 @@
             @input="onInputUpdate"
             @selected="onSelect"
         >
-            <template v-slot="{ item }">
+            <template #default="{ item }">
                 <contact :contact="item" transparent show-address bold-dn />
                 <span v-if="!item.urn"> ({{ $t("common.external") }}) </span>
             </template>

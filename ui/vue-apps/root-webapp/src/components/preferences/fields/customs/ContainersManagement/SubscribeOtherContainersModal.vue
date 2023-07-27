@@ -15,7 +15,7 @@
         <template v-else>
             <div class="selected-containers">
                 <div v-for="container in selected" :key="container.uid" class="d-inline-block">
-                    <slot name="selected" :container="container" :closeFn="removeFromSelected" />
+                    <slot name="selected" :container="container" :close-fn="removeFromSelected" />
                 </div>
             </div>
             <template v-if="allReadableContainers.length > 0">

@@ -1,7 +1,7 @@
 <template>
     <div id="scroll-area" class="pref-sections scroller-y" @scroll="({ target }) => SET_OFFSET(target.scrollTop)">
         <bm-alert-area :alerts="alerts" stackable @remove="REMOVE">
-            <template v-slot="context"><component :is="context.alert.renderer" :alert="context.alert" /></template>
+            <template #default="context"><component :is="context.alert.renderer" :alert="context.alert" /></template>
         </bm-alert-area>
         <div v-for="(section, index) in sections" :id="section.id" :key="section.id" class="mb-8 pref-section">
             <bm-list-group v-if="index !== 0" :id="'section-' + section.id" horizontal>

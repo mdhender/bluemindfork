@@ -9,7 +9,7 @@
                     @click-item="previewOrDownload"
                     @remote-content="triggerRemoteContent"
                 >
-                    <template v-slot:actions="{ file }">
+                    <template #actions="{ file }">
                         <file-toolbar ref="toolbar" :buttons="actionButtons" :file="file" :message="message" />
                     </template>
                     <template #overlay="slotProps">
@@ -19,12 +19,12 @@
                 </files-block>
             </slot>
             <event-viewer v-if="message.hasICS && currentEvent" :parts="inlines" :message="message">
-                <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+                <template v-for="(_, slot) of $scopedSlots" #[slot]="scope">
                     <slot :name="slot" v-bind="scope" />
                 </template>
             </event-viewer>
             <mail-inlines-block v-else :message="message" :parts="inlines">
-                <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+                <template v-for="(_, slot) of $scopedSlots" #[slot]="scope">
                     <slot :name="slot" v-bind="scope" />
                 </template>
             </mail-inlines-block>

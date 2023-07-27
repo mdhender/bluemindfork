@@ -34,6 +34,7 @@
                             :is="resolvedCriteria[index].editor"
                             :criterion="criterion"
                             class="w-100"
+                            @update:criterion="updateCriterion(index, $event)"
                             @reset="resetCriterion(index)"
                         />
                     </div>
@@ -70,6 +71,7 @@ export default {
     },
     data() {
         return {
+            showBoxOnNextUpdate: false,
             criterionChoices: allCriteria(this)
                 .map(c => ({ value: c, text: c.text }))
                 .filter(Boolean)
@@ -86,8 +88,9 @@ export default {
     },
     watch: {
         criteria() {
-            if (!this.negative && this.resolvedCriteria.length === 0) {
-                this.addNewCriterion();
+            if (this.showBoxOnNextUpdate) {
+                this.showBoxOnNextUpdate = false;
+                this.showCriterionCombo();
             }
         }
     },
@@ -98,30 +101,43 @@ export default {
             )?.value;
         },
         modifyCriterionType(index, { matcher, target }) {
-            this.criteria.splice(index, 1, {
-                ...this.criteria[index],
-                matcher,
-                target: { ...target },
-                isNew: false
-            });
+            const updated = { matcher, target: { ...target }, isNew: false };
+            this.$emit(
+                "update:criteria",
+                this.criteria.map((criterion, i) => (i === index ? updated : criterion))
+            );
         },
-        addNewCriterion(forceOpenCombo) {
-            this.criteria.push({ isNew: true, exception: this.negative });
-            if (this.negative || this.resolvedCriteria.length > 1 || forceOpenCombo) {
-                this.$nextTick(this.showCriterionCombo);
-            }
+        updateCriterion(index, value) {
+            this.$emit(
+                "update:criteria",
+                this.criteria.map((criterion, i) => (i === index ? value : criterion))
+            );
+        },
+        addNewCriterion() {
+            this.$emit("update:criteria", [...this.criteria, this.createCriterion()]);
+            this.showBoxOnNextUpdate = this.negative || this.resolvedCriteria.length > 0;
         },
         removeCriterion(index) {
-            this.criteria.splice(index, 1);
+            this.$emit(
+                "update:criteria",
+                this.criteria.filter((criterion, i) => index !== i)
+            );
         },
         resetCriterion(index) {
-            this.removeCriterion(index);
-            this.addNewCriterion(true);
+            this.$emit(
+                "update:criteria",
+                this.criteria.filter((criterion, i) => index !== i).concat(this.createCriterion())
+            );
+            this.showBoxOnNextUpdate = true;
         },
-        showCriterionCombo() {
+        async showCriterionCombo() {
+            await this.$nextTick();
             const combos = this.$refs.criterionCombo;
             const lastCombo = combos[combos.length - 1];
             lastCombo.$refs.dropdown.show();
+        },
+        createCriterion() {
+            return { isNew: true, exception: this.negative };
         }
     }
 };

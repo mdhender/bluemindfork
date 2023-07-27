@@ -1,18 +1,16 @@
 <template>
     <div class="bm-alert-group">
         <transition-group v-if="alerts.length <= maxSize || !stackable" name="grow-y">
-            <template>
-                <bm-alert v-for="alert in _alerts" :key="alert.uid" :variant="variant(alert)" show class="bm-alert">
-                    <bm-alert-icon :alert="alert" />
-                    <slot :alert="alert" />
-                    <span v-if="alert.dismissible" class="ml-auto pl-5">
-                        <bm-button-close @click="$emit('remove', alert)" />
-                    </span>
-                </bm-alert>
-            </template>
+            <bm-alert v-for="alert in _alerts" :key="alert.uid" :variant="variant(alert)" show class="bm-alert">
+                <bm-alert-icon :alert="alert" />
+                <slot :alert="alert" />
+                <span v-if="alert.dismissible" class="ml-auto pl-5">
+                    <bm-button-close @click="$emit('remove', alert)" />
+                </span>
+            </bm-alert>
         </transition-group>
         <bm-alert-stack v-else-if="stackable" :alerts="alerts" @remove="alerts => $emit('remove', alerts)">
-            <template v-slot="context">
+            <template #default="context">
                 <slot :alert="context.alert">{{ context.alert.message }}</slot>
             </template>
         </bm-alert-stack>

@@ -1,5 +1,5 @@
 <template>
-    <bm-form-input v-model="criterion.value" class="pref-filter-rule-text-criterion-editor" required />
+    <bm-form-input v-model="value" class="pref-filter-rule-text-criterion-editor" required />
 </template>
 
 <script>
@@ -12,6 +12,16 @@ export default {
         criterion: {
             type: Object,
             required: true
+        }
+    },
+    computed: {
+        value: {
+            get() {
+                return this.criterion.value;
+            },
+            set(value) {
+                this.$emit("update:criterion", { ...this.criterion, value });
+            }
         }
     }
 };
