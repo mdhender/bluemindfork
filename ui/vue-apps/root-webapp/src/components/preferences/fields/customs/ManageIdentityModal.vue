@@ -5,7 +5,6 @@
         variant="advanced"
         scrollable
         height="lg"
-        centered
         :title="isNewIdentity ? $t('preferences.mail.identities.create') : $t('preferences.mail.identities.update')"
         body-class="manage-identity-modal-body"
         @hidden="modalStatus = 'NOT-LOADED'"

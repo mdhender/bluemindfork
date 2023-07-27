@@ -72,7 +72,6 @@
             size="sm"
             height="lg"
             modal-class="mail-viewer-recipients-modal"
-            centered
             hide-footer
             hide-header
         >
@@ -84,7 +83,6 @@
             size="sm"
             height="lg"
             modal-class="mail-viewer-recipients-modal"
-            centered
             hide-footer
             hide-header
         >
@@ -96,7 +94,6 @@
             size="sm"
             height="lg"
             modal-class="mail-viewer-recipients-modal"
-            centered
             hide-footer
             hide-header
         >

@@ -6,7 +6,6 @@
         variant="advanced"
         size="xl"
         height="lg"
-        centered
         hide-footer
         :scrollable="false"
         @hidden="RESET_PREVIEW"

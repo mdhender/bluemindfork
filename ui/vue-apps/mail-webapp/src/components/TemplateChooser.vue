@@ -8,7 +8,6 @@
         :ok-disabled="!selected"
         :ok-title="$t('mail.actions.edit_from_template')"
         :visible="visible"
-        centered
         size="md"
         height="lg"
         @hidden="SET_TEMPLATE_CHOOSER_VISIBLE(false)"

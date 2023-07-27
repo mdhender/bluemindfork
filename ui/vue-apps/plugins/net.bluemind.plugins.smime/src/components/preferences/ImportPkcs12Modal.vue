@@ -2,7 +2,6 @@
     <bm-modal
         v-model="show"
         size="sm"
-        centered
         content-class="import-pkcs12-modal-content"
         :title="$t('smime.preferences.import_field.modal.title')"
         :cancel-title="$t('common.cancel')"

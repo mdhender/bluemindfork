@@ -1,5 +1,5 @@
 <template>
-    <bm-modal v-model="show" centered hide-footer size="sm" :title="$t('common.import')">
+    <bm-modal v-model="show" hide-footer size="sm" :title="$t('common.import')">
         <import-file :container="container" auto-upload />
     </bm-modal>
 </template>

@@ -1,7 +1,6 @@
 <template>
     <bm-modal
         ref="set-link-modal"
-        centered
         :title="$t('styleguide.rich_editor.link.tooltip')"
         :cancel-title="$t('common.cancel')"
         :ok-title="isNew ? $t('common.create') : $t('common.edit')"

@@ -8,7 +8,6 @@
         size="lg"
         height="lg"
         scrollable
-        centered
         :title="filter.index >= 0 ? $t('preferences.mail.filters.edit') : $t('preferences.mail.filters.create')"
         :cancel-title="$t('common.cancel')"
         :ok-title="filter.index >= 0 ? $t('common.edit') : $t('common.create')"

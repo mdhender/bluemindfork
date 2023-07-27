@@ -12,7 +12,6 @@
             :ok-title="$t('preferences.security.api_key.generate.modal.ok_button')"
             :ok-disabled="!projectLabelValid"
             :cancel-title="$t('common.cancel')"
-            centered
             @ok="generateAPIKey"
         >
             <bm-form class="mt-4" @submit.prevent="generateAndClose">

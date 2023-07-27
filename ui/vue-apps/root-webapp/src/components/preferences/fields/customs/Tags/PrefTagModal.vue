@@ -3,7 +3,6 @@
         :id="$attrs['id']"
         ref="pref-tag-modal-bm-modal"
         content-class="pref-tag-modal"
-        centered
         size="sm"
         :title="tag.id ? $t('preferences.general.tags.edit') : $t('preferences.general.tags.create')"
         :cancel-title="$t('common.cancel')"

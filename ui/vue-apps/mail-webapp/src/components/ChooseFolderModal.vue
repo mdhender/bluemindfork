@@ -6,7 +6,6 @@
         v-bind="[$attrs, $props]"
         size="sm"
         :ok-disabled="!selectedFolder || inputState === false"
-        centered
         auto-focus-button="ok"
         @ok="$emit('ok', selectedFolder)"
         @cancel="doCancel"

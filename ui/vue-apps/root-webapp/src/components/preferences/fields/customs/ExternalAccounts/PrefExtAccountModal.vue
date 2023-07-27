@@ -3,7 +3,6 @@
         :id="$attrs['id']"
         ref="pref-ext-account-modal-bm-modal"
         content-class="pref-ext-account-modal-content"
-        centered
         :title="
             externalAccount_.isNew
                 ? $t('preferences.account.external_accounts.modal.title.create')

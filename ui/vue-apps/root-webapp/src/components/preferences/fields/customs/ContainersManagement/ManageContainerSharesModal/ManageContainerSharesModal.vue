@@ -5,7 +5,6 @@
         size="lg"
         height="sm"
         scrollable
-        centered
         :modal-class="{
             'manage-shares-modal': true,
             'invisible-footer': !displayAvailabilitiesManagement || showAvailabilitiesManagement

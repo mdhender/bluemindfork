@@ -1,7 +1,6 @@
 <template>
     <bm-modal
         v-model="show"
-        centered
         lazy
         :title="modalTitle()"
         :cancel-title="$t('common.cancel')"

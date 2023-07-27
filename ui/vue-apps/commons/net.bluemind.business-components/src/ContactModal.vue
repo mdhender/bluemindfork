@@ -1,5 +1,5 @@
 <template>
-    <bm-modal :id="uniqueId" centered hide-footer hide-header size="sm" @hidden="$emit('update:show', false)">
+    <bm-modal :id="uniqueId" hide-footer hide-header size="sm" @hidden="$emit('update:show', false)">
         <contact-card v-focus-out :contact="contact" @focusout="$emit('update:show', false)">
             <template #email="slotProps">
                 <slot name="email" :email="slotProps.email" />

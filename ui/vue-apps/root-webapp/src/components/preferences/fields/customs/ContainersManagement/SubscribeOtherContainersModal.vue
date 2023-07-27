@@ -4,7 +4,6 @@
         v-else-if="allReadableContainers.length === 0"
         v-model="show"
         size="sm"
-        centered
         lazy
         :title="modalTitle"
         :ok-title="$t('common.got_it')"
@@ -18,7 +17,6 @@
         variant="advanced"
         size="md"
         height="lg"
-        centered
         lazy
         modal-class="add-containers-modal"
         :title="modalTitle"

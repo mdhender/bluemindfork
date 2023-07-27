@@ -3,7 +3,6 @@
         v-if="folder"
         ref="modal"
         size="sm"
-        centered
         :title="title"
         :ok-title="okTitle"
         :ok-disabled="!state"

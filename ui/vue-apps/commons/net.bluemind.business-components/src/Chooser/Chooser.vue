@@ -1,5 +1,5 @@
 <template>
-    <bm-modal v-model="show" content-class="chooser" centered size="xl" height="lg" variant="advanced" scrollable>
+    <bm-modal v-model="show" content-class="chooser" size="xl" height="lg" variant="advanced" scrollable>
         <template #modal-header>
             <chooser-header @close="resetChooser" />
         </template>

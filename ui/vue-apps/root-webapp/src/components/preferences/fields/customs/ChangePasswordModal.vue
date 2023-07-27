@@ -1,7 +1,6 @@
 <template>
     <bm-modal
         v-model="show"
-        centered
         dialog-class="change-password-modal-dialog"
         :title="$t('preferences.security.change_password')"
         :cancel-title="$t('common.cancel')"
