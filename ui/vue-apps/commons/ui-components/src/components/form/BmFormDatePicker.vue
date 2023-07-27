@@ -81,11 +81,10 @@ export default {
 
     position: relative;
 
-    .close {
+    .bm-button-close {
         position: absolute;
         top: 0;
-        bottom: 0;
-        left: auto;
+        height: 100%;
         right: 0;
         margin-right: $sp-5;
     }
