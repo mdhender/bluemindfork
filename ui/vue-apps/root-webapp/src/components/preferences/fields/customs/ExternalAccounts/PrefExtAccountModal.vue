@@ -1,8 +1,8 @@
 <template>
-    <bm-modal-deprecated
+    <bm-modal
         :id="$attrs['id']"
         ref="pref-ext-account-modal-bm-modal"
-        class="pref-ext-account-modal"
+        content-class="pref-ext-account-modal-content"
         centered
         :title="
             externalAccount_.isNew
@@ -63,36 +63,30 @@
                 <bm-button
                     id="authentication-test"
                     variant="outline"
-                    :disabled="testStatus === TestStatus.IN_PROGRESS || !externalAccount_.login || !hasCredentials"
+                    :disabled="!externalAccount_.login || !hasCredentials"
+                    :loading="testStatus === TestStatus.IN_PROGRESS"
                     @click="testAccount(externalAccount_)"
                 >
                     {{ $t("common.test") }}
                 </bm-button>
+                <div class="result-wrapper">
+                    <bm-label-icon
+                        v-if="testStatus !== TestStatus.IN_PROGRESS && testStatus !== TestStatus.IDLE"
+                        :icon="testAccountResultIcon"
+                        :class="testAccountResultIconClass"
+                    >
+                        {{ testAccountResultText }}
+                    </bm-label-icon>
+                </div>
             </bm-form-group>
-            <bm-spinner v-if="testStatus === TestStatus.IN_PROGRESS" :size="md" thick />
-            <bm-label-icon
-                v-else-if="testStatus !== TestStatus.IDLE"
-                :icon="testAccountResultIcon"
-                :class="testAccountResultIconClass"
-            >
-                {{ testAccountResultText }}
-            </bm-label-icon>
         </bm-form>
-    </bm-modal-deprecated>
+    </bm-modal>
 </template>
 
 <script>
 import cloneDeep from "lodash.clonedeep";
 import { inject } from "@bluemind/inject";
-import {
-    BmButton,
-    BmForm,
-    BmFormGroup,
-    BmFormInput,
-    BmLabelIcon,
-    BmModalDeprecated,
-    BmSpinner
-} from "@bluemind/ui-components";
+import { BmButton, BmForm, BmFormGroup, BmFormInput, BmLabelIcon, BmModal } from "@bluemind/ui-components";
 
 const TestStatus = {
     IDLE: Symbol("IDLE"),
@@ -104,7 +98,7 @@ const TestStatus = {
 
 export default {
     name: "PrefExtAccountModal",
-    components: { BmButton, BmForm, BmFormGroup, BmFormInput, BmLabelIcon, BmModalDeprecated, BmSpinner },
+    components: { BmButton, BmForm, BmFormGroup, BmFormInput, BmLabelIcon, BmModal },
     props: {
         externalAccount: {
             type: Object,
@@ -176,7 +170,6 @@ export default {
             }
         },
         async testAccount(externalAccount) {
-            this.testStatus = TestStatus.IN_PROGRESS;
             try {
                 const result = await testAccount(externalAccount);
                 switch (result) {
@@ -206,3 +199,21 @@ async function testAccount(externalAccount) {
     });
 }
 </script>
+
+<style lang="scss">
+@import "~@bluemind/ui-components/src/css/utils/variables";
+
+.pref-ext-account-modal-content {
+    .form-group#authentication-test-group {
+        > label {
+            margin-bottom: $sp-5;
+        }
+        > div {
+            .result-wrapper {
+                height: base-px-to-rem(20);
+                margin-top: $sp-5;
+            }
+        }
+    }
+}
+</style>
