@@ -60,7 +60,7 @@ public class RepairTaskMonitor implements IServerTaskMonitor {
 		if (config.logToCoreLog) {
 			logger.info("[BEGIN][{}]: {} {}", totalWork, logPrefix, log);
 		}
-		if (config.verbose) {
+		if (config.verbose && (!(delegate instanceof RepairTaskMonitor))) {
 			Level level = config.verbose ? Level.INFO : Level.DEBUG;
 			delegate.begin(totalWork, log, level);
 		}
@@ -71,7 +71,7 @@ public class RepairTaskMonitor implements IServerTaskMonitor {
 		if (config.logToCoreLog) {
 			logger.info("[PROGRESS][{}]: {} {}", doneWork, logPrefix, log);
 		}
-		if (config.verbose) {
+		if (config.verbose && (!(delegate instanceof RepairTaskMonitor))) {
 			Level level = config.verbose ? Level.INFO : Level.DEBUG;
 			delegate.progress(doneWork, log, level);
 		}
@@ -81,9 +81,11 @@ public class RepairTaskMonitor implements IServerTaskMonitor {
 	public void end(boolean success, String log, String result) {
 		boolean isSuccess = this.isSuccess() && success;
 		if (config.logToCoreLog) {
-			logger.info("[END][SUCCESS: {}][{}]: {}", isSuccess, result, logPrefix);
+			logger.info("[END][SUCCESS: {}][{}]: {}", isSuccess, result, log);
 		}
-		delegate.end(isSuccess, log, result);
+		if (!(delegate instanceof RepairTaskMonitor)) {
+			delegate.end(isSuccess, log, result);
+		}
 	}
 
 	public void end() {
@@ -92,8 +94,8 @@ public class RepairTaskMonitor implements IServerTaskMonitor {
 
 	boolean isSuccess() {
 		boolean isSuccess = this.success;
-		if (delegate instanceof RepairTaskMonitor) {
-			isSuccess &= ((RepairTaskMonitor) delegate).isSuccess();
+		if (delegate instanceof RepairTaskMonitor repairTaskMonitor) {
+			isSuccess &= repairTaskMonitor.isSuccess();
 		}
 		return isSuccess;
 	}
@@ -104,7 +106,9 @@ public class RepairTaskMonitor implements IServerTaskMonitor {
 			if (config.logToCoreLog) {
 				logger.info("{} {}", logPrefix, log);
 			}
-			delegate.log(log);
+			if (!(delegate instanceof RepairTaskMonitor)) {
+				delegate.log(log);
+			}
 		}
 	}
 
@@ -113,7 +117,7 @@ public class RepairTaskMonitor implements IServerTaskMonitor {
 		if (config.logToCoreLog) {
 			logger.info("[BEGIN][{}]: {} {}", totalWork, logPrefix, log);
 		}
-		if (config.verbose) {
+		if (config.verbose && (!(delegate instanceof RepairTaskMonitor))) {
 			delegate.begin(totalWork, log, level);
 		}
 	}
@@ -123,7 +127,7 @@ public class RepairTaskMonitor implements IServerTaskMonitor {
 		if (config.logToCoreLog) {
 			logger.info("[PROGRESS][{}]: {} {}", doneWork, logPrefix, log);
 		}
-		if (config.verbose) {
+		if (config.verbose && (!(delegate instanceof RepairTaskMonitor))) {
 			delegate.progress(doneWork, log, level);
 		}
 	}
@@ -144,7 +148,9 @@ public class RepairTaskMonitor implements IServerTaskMonitor {
 			if (config.logToCoreLog) {
 				logger.info("[{}] {}", logPrefix, log);
 			}
-			delegate.log(log, level);
+			if (!(delegate instanceof RepairTaskMonitor)) {
+				delegate.log(log, level);
+			}
 		}
 	}
 
@@ -153,7 +159,9 @@ public class RepairTaskMonitor implements IServerTaskMonitor {
 		if (config.logToCoreLog) {
 			logger.warn("{} {}", logPrefix, log, t);
 		}
-		delegate.log(log, t);
+		if (!(delegate instanceof RepairTaskMonitor)) {
+			delegate.log(log, t);
+		}
 		notify(logPrefix + " log: " + t.getMessage());
 	}
 
@@ -164,7 +172,7 @@ public class RepairTaskMonitor implements IServerTaskMonitor {
 				Object[] parameters = new Object[params.length + 1];
 				parameters[0] = logPrefix;
 				System.arraycopy(params, 0, parameters, 1, params.length);
-				logger.info("{} " + format, parameters);
+				logger.info("{} " + format, parameters); // NOSONAR: on purpose
 			}
 			delegate.log(format, params);
 		}
