@@ -139,7 +139,7 @@ export default {
         },
         isSingleMessage() {
             if (this.selectionLength === 1) {
-                return this.CURRENT_CONVERSATION_METADATA.size === 1;
+                return this.CURRENT_CONVERSATION_METADATA.messages.length === 1;
             }
             return false;
         },
