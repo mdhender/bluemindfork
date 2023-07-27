@@ -1,44 +1,49 @@
 <template>
-    <bm-modal-deprecated
+    <bm-modal
         id="preview-modal"
         ref="modal"
         class="preview-modal position-relative"
+        variant="advanced"
+        size="xl"
+        height="lg"
         centered
-        size="fluid"
         hide-footer
-        hide-header
         :scrollable="false"
         @hidden="RESET_PREVIEW"
     >
         <global-events @keydown.left="previous" @keydown.up="previous" @keydown.down="next" @keydown.right="next" />
 
-        <preview-header
-            :file="file"
-            :files-count="filesCount"
-            :message="message"
-            :expanded.sync="expanded"
-            @close="$refs.modal.hide()"
-            @previous="previous"
-            @next="next"
-        />
+        <template #modal-header>
+            <preview-header
+                :file="file"
+                :files-count="filesCount"
+                :message="message"
+                :expanded.sync="expanded"
+                @close="$refs.modal.hide()"
+                @previous="previous"
+                @next="next"
+            />
+        </template>
+
         <div class="content">
             <bm-collapse v-model="expanded" class="scroller-y" :class="{ 'd-none': true, 'd-lg-block': expanded }">
                 <preview-message :message="message" :active-file="file" />
             </bm-collapse>
-            <preview-file :message="message" :file="file" />
+            <div class="main-part">
+                <bm-alert-area class="preview-alert-area" :alerts="alerts" @remove="REMOVE">
+                    <template #default="context">
+                        <component :is="context.alert.renderer" :alert="context.alert" />
+                    </template>
+                </bm-alert-area>
+                <preview-file class="scroller-y" :message="message" :file="file" />
+            </div>
         </div>
-        <preview-file-header :file="file" class="d-lg-none d-flex bottom-file-info" />
-        <bm-alert-area class="preview-alert-area" :alerts="alerts" @remove="REMOVE">
-            <template #default="context">
-                <component :is="context.alert.renderer" :alert="context.alert" />
-            </template>
-        </bm-alert-area>
-    </bm-modal-deprecated>
+    </bm-modal>
 </template>
 
 <script>
 import { mapActions, mapMutations, mapState } from "vuex";
-import { BmAlertArea, BmCollapse, BmModalDeprecated } from "@bluemind/ui-components";
+import { BmAlertArea, BmCollapse, BmModal } from "@bluemind/ui-components";
 import { REMOVE } from "@bluemind/alert.store";
 
 import { RESET_PREVIEW, SET_PREVIEW_FILE_KEY } from "~/mutations";
@@ -46,19 +51,17 @@ import PreviewFile from "./Preview/PreviewFile";
 import PreviewMessage from "./Preview/PreviewMessage";
 import PreviewHeader from "./Preview/PreviewHeader";
 import GlobalEvents from "vue-global-events";
-import PreviewFileHeader from "./Preview/PreviewFileHeader";
 
 export default {
     name: "PreviewModal",
     components: {
         BmAlertArea,
         BmCollapse,
-        BmModalDeprecated,
+        BmModal,
         PreviewFile,
         PreviewMessage,
         PreviewHeader,
-        GlobalEvents,
-        PreviewFileHeader
+        GlobalEvents
     },
     data() {
         return { expanded: true };
@@ -114,42 +117,60 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@bluemind/ui-components/src/css/utils/responsiveness";
 @import "~@bluemind/ui-components/src/css/utils/variables";
+
 #preview-modal .modal-content {
     background-color: $surface;
 
+    .preview-message-header,
+    .collapse {
+        flex: none;
+        width: 25%;
+    }
+
+    .modal-header {
+        .preview-header {
+            flex: 1;
+            z-index: 1;
+        }
+
+        border-bottom: none !important;
+    }
+
     .modal-body {
+        padding: 0;
         .content {
             display: flex;
-            flex: 1 1 auto;
-            min-height: 0;
-            height: 80vh;
+            height: 100%;
         }
-        padding: 0;
-        .preview-message-header,
-        .collapse {
-            flex-basis: 25%;
-            max-width: 25%;
-            flex-grow: 0;
-            flex-shrink: 0;
+        .main-part {
+            flex: 1;
+            position: relative;
+
+            @include from-lg {
+                &::before {
+                    content: "";
+                    position: absolute;
+                    top: 0;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    pointer-events: none;
+                    box-shadow: inset 0 1px 0 $neutral-fg-lo3; // "inner" border-top
+                }
+            }
+
+            .preview-alert-area {
+                position: absolute;
+                width: 100%;
+                margin-bottom: 0;
+            }
+
+            .preview-file {
+                height: 100%;
+            }
         }
-        .preview-file {
-            flex: 1 1 auto;
-            overflow-y: auto;
-        }
-        .bottom-file-info {
-            flex: none;
-            height: base-px-to-rem(24);
-            align-items: center;
-        }
-    }
-    .preview-alert-area {
-        width: 25%;
-        display: inline-flex;
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        margin-bottom: 0;
     }
 }
 </style>

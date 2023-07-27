@@ -31,8 +31,5 @@ export default {
         width: $size;
         height: $size;
     }
-    &:hover {
-        background-color: $neutral-bg-lo1;
-    }
 }
 </style>

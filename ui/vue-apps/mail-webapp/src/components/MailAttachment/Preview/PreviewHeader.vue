@@ -7,62 +7,131 @@
         type="renderless"
         :file="file"
     >
-        <preview-file-header :file="context.file" class="d-none d-lg-flex" />
-        <bm-button-toolbar class="d-flex align-items-center">
-            <bm-icon-button
-                :disabled="filesCount <= 1"
-                tab-index="0"
-                :title="$t('mail.preview.previous')"
-                icon="chevron-left"
-                @click="$emit('previous')"
+        <div class="preview-header-desktop">
+            <preview-message-header
+                class="d-none d-lg-flex"
+                :expanded="expanded"
+                @click.native="$emit('update:expanded', !expanded)"
             />
-            <bm-icon-button
-                :disabled="filesCount <= 1"
-                :title="$t('mail.preview.next')"
-                icon="chevron-right"
-                @click="$emit('next')"
-            />
-            <bm-extension id="webapp" path="file.preview.actions" :file="context.file" icon-size="lg" />
-            <bm-icon-button
-                :disabled="!isPreviewable(context.file)"
-                :title="
-                    $t('mail.content.print', {
-                        fileType: $t('mail.content.' + matchingIcon),
-                        name: file.name
-                    })
-                "
-                icon="printer"
-                @click="print(file)"
-            />
-            <bm-icon-button
-                :href="file.url"
-                :download="file.name"
-                :title="
-                    $t('mail.content.download', {
-                        fileType: $t('mail.content.' + matchingIcon),
-                        name: file.name
-                    })
-                "
-                icon="download"
-            />
-            <bm-icon-button
-                :title="$t('mail.content.open-new-tab', { name: file.name })"
-                :disabled="!isPreviewable(context.file)"
-                icon="popup"
-                @click="open(context.file)"
-            />
-            <bm-button-close size="lg" class="ml-5" :title="$t('common.close_window')" @click="$emit('close')" />
-        </bm-button-toolbar>
-        <preview-message-header
-            class="bg-surface"
-            :expanded="expanded"
-            @click.native="$emit('update:expanded', !expanded)"
-        />
+            <div class="main-part">
+                <bm-button-toolbar class="px-5">
+                    <bm-icon-button
+                        :disabled="filesCount <= 1"
+                        tab-index="0"
+                        :title="$t('mail.preview.previous')"
+                        icon="chevron-left"
+                        @click="$emit('previous')"
+                    />
+                    <bm-icon-button
+                        :disabled="filesCount <= 1"
+                        :title="$t('mail.preview.next')"
+                        icon="chevron-right"
+                        @click="$emit('next')"
+                    />
+                </bm-button-toolbar>
+
+                <preview-file-header :file="context.file" />
+
+                <bm-button-toolbar>
+                    <bm-icon-button
+                        :disabled="!isPreviewable(context.file)"
+                        :title="
+                            $t('mail.content.print', {
+                                fileType: $t('mail.content.' + matchingIcon),
+                                name: file.name
+                            })
+                        "
+                        icon="printer"
+                        @click="print(file)"
+                    />
+                    <bm-icon-button
+                        :href="file.url"
+                        :download="file.name"
+                        :title="
+                            $t('mail.content.download', {
+                                fileType: $t('mail.content.' + matchingIcon),
+                                name: file.name
+                            })
+                        "
+                        icon="download"
+                    />
+                    <bm-icon-button
+                        :title="$t('mail.content.open-new-tab', { name: file.name })"
+                        :disabled="!isPreviewable(context.file)"
+                        icon="popup"
+                        @click="open(context.file)"
+                    />
+                    <bm-button-close
+                        size="lg"
+                        class="ml-5"
+                        :title="$t('common.close_window')"
+                        @click="$emit('close')"
+                    />
+                </bm-button-toolbar>
+            </div>
+        </div>
+
+        <bm-navbar class="preview-header-mobile">
+            <bm-navbar-back @click="$emit('close')" />
+            <preview-file-header :file="context.file" />
+            <bm-button-toolbar class="pl-3">
+                <bm-icon-button
+                    :disabled="filesCount <= 1"
+                    variant="compact-on-fill-primary"
+                    size="lg"
+                    tab-index="0"
+                    :title="$t('mail.preview.previous')"
+                    icon="chevron-left"
+                    @click="$emit('previous')"
+                />
+                <bm-icon-button
+                    :disabled="filesCount <= 1"
+                    variant="compact-on-fill-primary"
+                    size="lg"
+                    class="ml-3"
+                    :title="$t('mail.preview.next')"
+                    icon="chevron-right"
+                    @click="$emit('next')"
+                />
+                <bm-icon-dropdown
+                    variant="compact-on-fill-primary"
+                    size="lg"
+                    no-caret
+                    class="ml-5 mr-3"
+                    :title="$t('mail.actions.other')"
+                    icon="3dots-v"
+                >
+                    <bm-dropdown-item :disabled="!isPreviewable(context.file)" icon="printer" @click="print(file)">{{
+                        $t("mail.content.print", {
+                            fileType: $t("mail.content." + matchingIcon),
+                            name: file.name
+                        })
+                    }}</bm-dropdown-item>
+                    <bm-dropdown-item :href="file.url" :download="file.name" icon="download">{{
+                        $t("mail.content.download", {
+                            fileType: $t("mail.content." + matchingIcon),
+                            name: file.name
+                        })
+                    }}</bm-dropdown-item>
+                    <bm-dropdown-item :disabled="!isPreviewable(context.file)" icon="popup" @click="open(context.file)">
+                        {{ $t("mail.content.open-new-tab", { name: file.name }) }}
+                    </bm-dropdown-item>
+                </bm-icon-dropdown>
+            </bm-button-toolbar>
+        </bm-navbar>
     </bm-extension>
 </template>
 
 <script>
-import { BmButtonClose, BmIconButton, BmButtonToolbar } from "@bluemind/ui-components";
+import {
+    BmButtonClose,
+    BmButtonToolbar,
+    BmDropdownItem,
+    BmIconButton,
+    BmIconDropdown,
+    BmNavbar,
+    BmNavbarBack
+} from "@bluemind/ui-components";
 import { MimeType } from "@bluemind/email";
 import { BmExtension } from "@bluemind/extensions.vue";
 import PreviewFileHeader from "./PreviewFileHeader";
@@ -77,8 +146,12 @@ export default {
         PreviewMessageHeader,
         PreviewFileHeader,
         BmButtonClose,
+        BmButtonToolbar,
+        BmDropdownItem,
         BmIconButton,
-        BmButtonToolbar
+        BmIconDropdown,
+        BmNavbar,
+        BmNavbarBack
     },
     props: {
         file: {
@@ -119,31 +192,45 @@ export default {
 @import "@bluemind/ui-components/src/css/utils/responsiveness.scss";
 @import "~@bluemind/ui-components/src/css/utils/variables";
 
-.preview-header {
-    height: base-px-to-rem(40);
-    flex: none;
-    display: flex;
-    align-items: center;
-    padding-right: $sp-4;
-    background-color: $neutral-bg;
-    & > .preview-file-header {
-        order: 1;
+.preview-header .preview-header-desktop {
+    @include until-lg {
+        display: none !important;
     }
-    .preview-file-header {
-        flex: 1 1 auto;
-        min-height: 0;
-    }
-    & > .btn-toolbar {
-        order: 0;
-        justify-content: space-around;
-        width: 100%;
 
-        @include from-lg {
-            order: 2;
-            justify-content: flex-start;
-            flex: none;
-            width: auto;
+    height: base-px-to-rem(40);
+    background-color: $surface;
+    display: flex;
+
+    .preview-message-header {
+        flex: none;
+        width: 25%;
+    }
+
+    .main-part {
+        background-color: $neutral-bg;
+        flex: 1;
+        display: flex;
+
+        > .preview-file-header {
+            flex: 1;
         }
+        > .btn-toolbar {
+            flex: none;
+            align-items: center;
+            .bm-button-close {
+                margin-right: $sp-4;
+            }
+        }
+    }
+}
+
+.preview-header .preview-header-mobile {
+    @include from-lg {
+        display: none !important;
+    }
+
+    .btn-toolbar {
+        flex: none;
     }
 }
 </style>
