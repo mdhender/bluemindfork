@@ -1,13 +1,17 @@
 package net.bluemind.delivery.rules;
 
+import static java.util.Arrays.asList;
 import static net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition.contains;
 import static net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition.equal;
-import static net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition.matches;
+import static net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition.exists;
 import static net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition.not;
+import static net.bluemind.mailbox.api.rules.conditions.MailFilterRuleFilterContains.Comparator.FULLSTRING;
+import static net.bluemind.mailbox.api.rules.conditions.MailFilterRuleFilterContains.Comparator.PREFIX;
+import static net.bluemind.mailbox.api.rules.conditions.MailFilterRuleFilterContains.Comparator.SUBSTRING;
+import static net.bluemind.mailbox.api.rules.conditions.MailFilterRuleFilterContains.Modifier.CASE_INSENSITIVE;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -76,6 +80,7 @@ import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionTransfer;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionUncategorize;
 import net.bluemind.mailbox.api.rules.actions.MailFilterRuleActionUnfollow;
 import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleCondition;
+import net.bluemind.mailbox.api.rules.conditions.MailFilterRuleFilterContains.Modifier;
 
 public class RuleEngine {
 	private static final Logger logger = LoggerFactory.getLogger(RuleEngine.class);
@@ -88,12 +93,25 @@ public class RuleEngine {
 	private final ParameterValueProvider parameterValueProvider;
 	private final MailboxVacationSendersCache.Factory vacationCacheFactory;
 
-	private static final List<MailFilterRuleCondition> vacationExtraConditions = Arrays.asList(
-			not(matches(Arrays.asList("from.email"), Arrays.asList("noreply*", "no-reply*"))),
-			not(contains("headers.x-dspam-result", Arrays.asList("Spam"))),
-			not(contains("headers.x-spam-flag", Arrays.asList("YES"))),
-			not(contains("headers.precedence", Arrays.asList("bulk", "list"))),
-			equal(Arrays.asList("to.email", "cc.email", "bcc.email"), Arrays.asList("BM_DYNAMIC_ADDRESSES_ME")));
+	public static final List<String> mailingListHeader = asList("list-id", "list-help", "list-subscribe",
+			"list-unsubscribe", "list-post", "list-owner", "list-archive").stream().map(h -> "headers." + h).toList();
+
+	private static final List<MailFilterRuleCondition> vacationExtraConditions = asList(
+			not(contains("from.email", asList("MAILER-DAEMON", "LISTSERV", "majordomo", "noreply", "no-reply"), PREFIX,
+					CASE_INSENSITIVE) //
+					.or(contains("from.email", "-request@", SUBSTRING, Modifier.NONE))
+					.or(contains("from.email", "owner-", PREFIX, Modifier.NONE))), //
+			not(contains("headers.precedence", asList("bulk", "list", "junk"), FULLSTRING, CASE_INSENSITIVE)), //
+			not(exists("headers.auto-submitted"))
+					.or(contains("headers.auto-submitted", "no", FULLSTRING, CASE_INSENSITIVE)), //
+			not(exists("headers.x-ignorevacation"))
+					.or(contains("headers.x-ignorevacation", "no", FULLSTRING, CASE_INSENSITIVE)), //
+			not(exists(mailingListHeader)), //
+			not(contains("headers.x-dspam-result", "spam", FULLSTRING, CASE_INSENSITIVE)),
+			not(contains("headers.x-spam-flag", "yes", FULLSTRING, CASE_INSENSITIVE)),
+			equal(asList("to.email", "cc.email", "bcc.email"), asList("BM_DYNAMIC_ADDRESSES_ME")) //
+					.or(contains(asList("headers.resent-to", "headers.resent-cc", "headers.resent-bcc"),
+							"BM_DYNAMIC_ADDRESSES_ME")));
 
 	private static final List<IMailFilterRuleCustomAction> CUSTOM_ACTIONS = load();
 

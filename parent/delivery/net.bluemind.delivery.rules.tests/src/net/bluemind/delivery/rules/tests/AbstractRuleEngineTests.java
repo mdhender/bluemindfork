@@ -132,6 +132,7 @@ public class AbstractRuleEngineTests {
 				return null;
 			}
 		};
+		mailer.reset();
 		return new RuleEngine(deliveryContext, mailer, content, vacationCacheFactory);
 	}
 
