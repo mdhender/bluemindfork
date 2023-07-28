@@ -3,7 +3,7 @@ BMSDS="5.0.0-369"
 
 BMES="7.17.10-bluemind106"
 
-BMKEYCLOAK="22.0.0-bluemind53"
+BMKEYCLOAK="22.0.0-bluemind54"
 
 KAFKA="3.4.0-bluemind27"
 MINIO="2023.01.31-bluemind25"
