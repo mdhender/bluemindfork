@@ -43,6 +43,8 @@ import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageCodec;
+import io.vertx.micrometer.MicrometerMetricsOptions;
+import io.vertx.micrometer.VertxPrometheusOptions;
 import io.vertx.tracing.opentelemetry.OpenTelemetryOptions;
 import net.bluemind.common.vertx.contextlogging.ContextualData;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
@@ -83,10 +85,16 @@ public final class VertxPlatform implements BundleActivator {
 
 		openTelemetry = GlobalOpenTelemetry.get();
 
+		MicrometerMetricsOptions metricsOptions = new MicrometerMetricsOptions().setEnabled(true)
+				.setPrometheusOptions(new VertxPrometheusOptions().setEnabled(true).setPublishQuantiles(true))
+				.setJvmMetricsEnabled(true);
+
 		// LC: Don't disable setPreferNativeTransport as it will disable unix sockets
 		// too!
-		vertx = Vertx.vertx(new VertxOptions().setPreferNativeTransport(true)
-				.setTracingOptions(new OpenTelemetryOptions(openTelemetry)));
+		vertx = Vertx.vertx(new VertxOptions() //
+				.setPreferNativeTransport(true) //
+				.setTracingOptions(new OpenTelemetryOptions(openTelemetry)) //
+				.setMetricsOptions(metricsOptions));
 		vertx.exceptionHandler(t -> logger.error("Uncaught exception: {}", t.getMessage(), t));
 
 		/* Propagation of endpoint ContextualData through the eventbus */

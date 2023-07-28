@@ -18,7 +18,12 @@ Require-Bundle: org.eclipse.core.runtime,
  com.fasterxml.jackson.core.jackson-databind;bundle-version="2.10.1",
  net.bluemind.common.vertx.contextlogging;bundle-version="5.0.0";visibility:=reexport,
  io.opentelemetry;visibility:=reexport,
- io.vertx.opentelemetry
+ io.vertx.opentelemetry,
+ micrometer-core,
+ micrometer-commons,
+ micrometer-observation,
+ micrometer-registry-prometheus,
+ io.vertx.micrometer
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .

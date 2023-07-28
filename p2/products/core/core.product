@@ -50,11 +50,12 @@
       <plugin id="com.typesafe.config"/>
       <plugin id="com.typesafe.netty.reactive-streams"/>
       <plugin id="com.zaxxer.HikariCP"/>
-      <plugin id="io.github.resilience4j.core" />
+      <plugin id="io.github.resilience4j.core"/>
       <plugin id="io.github.resilience4j.retry"/>
       <plugin id="io.netty"/>
       <plugin id="io.opentelemetry"/>
       <plugin id="io.vertx.core"/>
+      <plugin id="io.vertx.micrometer"/>
       <plugin id="io.vertx.web"/>
       <plugin id="jakarta.activation-api"/>
       <plugin id="jakarta.validation.jakarta.validation-api"/>
@@ -65,6 +66,10 @@
       <plugin id="jcl.over.slf4j"/>
       <plugin id="jul.to.slf4j"/>
       <plugin id="log4j.over.slf4j"/>
+      <plugin id="micrometer-commons"/>
+      <plugin id="micrometer-core"/>
+      <plugin id="micrometer-observation"/>
+      <plugin id="micrometer-registry-prometheus"/>
       <plugin id="net.bluemind.addressbook.adapter"/>
       <plugin id="net.bluemind.addressbook.api"/>
       <plugin id="net.bluemind.addressbook.domainbook"/>
