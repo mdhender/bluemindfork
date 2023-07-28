@@ -1,5 +1,5 @@
 <template>
-    <div style="background-color: #ffffff">
+    <div style="background-color: var(--surface); background-color: #ffffff">
         <div
             v-for="file in files"
             :key="file.address"
