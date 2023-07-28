@@ -1,10 +1,10 @@
 <template>
-    <div>
+    <div class="blocked-remote-content">
         {{ $t("mail.content.alert.images.blocked") }}
         &nbsp;
         <bm-button variant="link" @click="unblockImages()">{{ $t("mail.content.alert.images.show") }}</bm-button>
         <br />
-        <bm-button variant="link" @click="trustSender()">
+        <bm-button variant="link" class="trust-sender">
             {{ $t("mail.content.alert.images.trust.sender", { sender: payload.from.address }) }}
         </bm-button>
     </div>
@@ -45,3 +45,11 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+.blocked-remote-content {
+    .trust-sender > .slot-wrapper {
+        white-space: normal;
+    }
+}
+</style>

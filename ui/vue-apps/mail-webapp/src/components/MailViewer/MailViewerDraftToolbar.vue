@@ -64,7 +64,6 @@ export default {
 @import "~@bluemind/ui-components/src/css/utils/variables";
 .mail-viewer-mobile-actions {
     bottom: 0;
-    box-shadow: 0 -0.125rem 0.125rem $shadow-color;
     justify-content: space-evenly;
 }
 </style>
