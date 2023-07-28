@@ -149,10 +149,16 @@ public class RestRootHandler implements IRestCallHandler, IRestBusHandler {
 	private void doCall(RestRequest request, AsyncHandler<RestResponse> rh) {
 		final long start = metrics.registry.clock().monotonicTime();
 		TreePathNode rootNode = pathsByMethod.get(request.method);
+		if (rootNode == null) {
+			rh.failure(new ServerFault("no service registered on " + request.method + " " + request.path,
+					ErrorCode.NOT_FOUND));
+			return;
+		}
 		final TreePathLeaf leaf = rootNode.leaf(request.path);
 
 		if (leaf == null) {
-			rh.failure(new ServerFault("no service registered on path " + request.path, ErrorCode.NOT_FOUND));
+			rh.failure(new ServerFault("no service registered on " + request.method + " " + request.path,
+					ErrorCode.NOT_FOUND));
 			return;
 		}
 		logger.debug("receive request {}", request);
