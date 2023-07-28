@@ -1,4 +1,9 @@
 
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("sw.js");
+  });
+}
 if (window.rcmail) {
   rcmail.addEventListener('init', function() {
     window.bluemind = window.bluemind || {};
