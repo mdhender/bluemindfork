@@ -33,8 +33,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
-import javax.sql.DataSource;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,7 +129,6 @@ public class UserService implements IInCoreUser, IUser {
 		this.userHooks = userHooks;
 		this.userPasswordUpdaters = userPasswordUpdaters;
 		userContainer = container;
-		DataSource pool = context.getDataSource();
 		this.domain = domain.value;
 		this.domainName = domain.uid;
 		globalVirt = "global.virt".equals(domain.uid);
@@ -142,7 +139,7 @@ public class UserService implements IInCoreUser, IUser {
 
 		apikeyStore = new APIKeyStore(context.getDataSource(), context.getSecurityContext());
 
-		groupStore = new GroupStore(pool, container);
+		groupStore = new GroupStore(context.getDataSource(), container);
 		sanitizer = new Sanitizer(context);
 		validator = new Validator(context);
 		passwordValidator = new PasswordValidator(context);
