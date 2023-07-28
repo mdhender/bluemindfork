@@ -20,6 +20,7 @@ package net.bluemind.core.rest.base;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import io.vertx.core.MultiMap;
 import io.vertx.core.buffer.Buffer;
@@ -50,8 +51,7 @@ public class RestRequest {
 
 	@Override
 	public String toString() {
-		return String.format("RestRequest [path=%s, method=%s, headers=%s, params=%s, remoteAddresses=%s, origin=%s]",
-				path, method, headers.toString(), params, remoteAddresses, origin);
+		return method + " " + path + " from: " + remoteAddresses.stream().collect(Collectors.joining(","));
 	}
 
 	public static RestRequest create(String remoteAddress, HttpMethod method, MultiMap headers, String path,
