@@ -11,7 +11,7 @@
         @dragstart="internalDrag = true"
         @dragend="internalDrag = false"
     >
-        <template v-if="editor && !disabled && bubbleToolbar.focusedPosition">
+        <template v-if="editor && !disabled && bubbleToolbar.focusedPosition && isEditable">
             <bubble-toolbar
                 v-show="bubbleToolbar.show"
                 :selection="selection"
@@ -141,6 +141,9 @@ export default {
     computed: {
         defaultFontValue() {
             return fontFamilyByID(this.defaultFontFamily, this.extraFontFamilies);
+        },
+        isEditable() {
+            return !this.editor.queryElements('[contenteditable="false"]', QueryScope.OnSelection).length;
         }
     },
     watch: {

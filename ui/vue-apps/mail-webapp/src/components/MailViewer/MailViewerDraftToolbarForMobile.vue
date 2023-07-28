@@ -9,7 +9,7 @@
         :title="$tc('mail.toolbar.more.aria')"
         v-on="$listeners"
     >
-        <bm-dropdown-item-button @click="$emit('edit')">
+        <bm-dropdown-item-button @click="openEditor">
             <bm-icon icon="pencil" />
             <span class="pl-1">{{ $t("mail.actions.edit") }}</span>
         </bm-dropdown-item-button>
@@ -23,7 +23,8 @@
 
 <script>
 import { BmIconDropdown, BmDropdownDivider, BmDropdownItemButton, BmIcon } from "@bluemind/ui-components";
-import { RemoveMixin, ComposerInitMixin } from "~/mixins";
+import { RemoveMixin, ComposerInitMixin, DraftMixin } from "~/mixins";
+import { SET_MESSAGE_COMPOSING } from "~/mutations";
 
 export default {
     name: "MailViewerDraftToolbarForMobile",
@@ -33,7 +34,7 @@ export default {
         BmDropdownItemButton,
         BmIcon
     },
-    mixins: [RemoveMixin, ComposerInitMixin],
+    mixins: [RemoveMixin, ComposerInitMixin, DraftMixin],
     props: {
         conversation: {
             type: Object,
@@ -42,6 +43,12 @@ export default {
         message: {
             type: Object,
             required: true
+        }
+    },
+    methods: {
+        async openEditor() {
+            await this.saveAndCloseOpenDrafts(this.conversation);
+            this.$store.commit(`mail/${SET_MESSAGE_COMPOSING}`, { messageKey: this.message.key, composing: true });
         }
     }
 };

@@ -1,13 +1,13 @@
 <template>
     <bm-button-toolbar class="bm-rich-editor-toolbar-base bubble-link-toolbar">
-        <bm-button variant="link" size="sm" class="link" icon="popup" @click="open">
+        <bm-button variant="link" class="link" icon="popup" @click="open">
             {{ url }}
         </bm-button>
 
-        <bm-button variant="text" size="lg" icon="pencil" @click="$emit('open-link-modal')">
+        <bm-button variant="text" icon="pencil" @click="$emit('open-link-modal')">
             {{ $t("common.edit") }}
         </bm-button>
-        <bm-button variant="text" size="lg" icon="unlink" @click.stop="removeLink(editor)">
+        <bm-button variant="text" icon="unlink" @click.stop="removeLink(editor)">
             {{ $t("styleguide.rich_editor.link.unlink") }}
         </bm-button>
     </bm-button-toolbar>
@@ -59,8 +59,7 @@ export default {
     white-space: nowrap;
 
     .bm-button {
-        padding-left: $sp-5;
-        padding-right: $sp-5;
+        padding: $sp-5 $sp-3 !important;
     }
 
     .link {
