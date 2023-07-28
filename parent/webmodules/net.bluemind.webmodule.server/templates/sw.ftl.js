@@ -1,6 +1,7 @@
 // insert a build version number here ${version} to invalidate the previous installed Service Worker on clients 
 const CACHE_NAME = "bm-assets";
 const files = ["${scope}/", "${files?join("\",\"", "", "\"]")};
+const UNREAD_CACHE_TIMEOUT = 10 * 1000; 
 
 self.addEventListener("install", function (event) {
     event.waitUntil(precacheredirected(files).then(self.skipWaiting()));
@@ -13,6 +14,8 @@ self.addEventListener("fetch", function (event) {
 async function serve(request) {
     if (/session-infos.js$/.test(request.url)) {
         return fetchSessionInfo(request);
+    } else if (/\/api\/mailboxes\/.*\/_unread$/.test(request.url)) {
+        return fromUnreadCache(request);
     } else if (request.destination === "document") {
         return fromNetwork(request);
     } else {
@@ -20,15 +23,42 @@ async function serve(request) {
     }
 }
 
+async function fromUnreadCache(request) {
+    const cache = await caches.open("bm-api-legacy");
+    let response = await cache.match(request);
+    if(!isUnreadResponseValid(response)) {
+        response = await fetch(request);
+        if(!isUnreadResponseValid(response)) {
+            response = new Response(response);
+            response.headers.set(date, new Date().toString());
+        }
+        cache.put(request, response.clone());
+    }
+    return response
+}
+
+
+function isUnreadResponseValid(response) {
+    if (!response || !response.headers.has("date")) {
+        return false;
+    }
+    const date = new Date(response.headers.get("date"));
+    if (date instanceof Date && !isNaN(date)) {
+        return Date.now() - date.getTime() < UNREAD_CACHE_TIMEOUT
+    }
+
+}
+
 async function fromCache(request) {
     const matching = await caches.match(request);
     return matching || fetch(request);
 }
 
-async function fromNetwork(request) {
+async function fromNetwork(request, opt_cache) {
+    const name = opt_cache || CACHE_NAME;
     try {
         const response = await fetch(request);
-        const cache = await caches.open(CACHE_NAME);
+        const cache = await caches.open(name);
         cache.put(request, response.clone());
         return response;
     } catch {
