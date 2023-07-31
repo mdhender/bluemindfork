@@ -60,5 +60,10 @@
 		"defaultHeap":128,
 		"defaultDirect":128,
 		"sparePercent":4
+	},{
+		"product":"bm-keycloak",
+		"defaultHeap":1024,
+		"defaultDirect":128,
+		"sparePercent":12
 	}
 ]
