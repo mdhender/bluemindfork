@@ -323,7 +323,7 @@ public class AuthenticationFilter implements IWebFilter {
 		if (sd.loginAtDomain.equals("admin0@global.virt")) {
 			defaultApp = "/adminconsole/";
 		}
-		headers.add("BMDefaultApp", defaultApp != null ? defaultApp : "/webmail/");
+		headers.add("BMDefaultApp", defaultApp != null ? defaultApp : "/webapp/mail/");
 		headers.add("BMPrivateComputer", "" + sd.isPrivateComputer());
 
 		headers.add("BMHasIM", "true");
