@@ -17,14 +17,14 @@ import DetachItem from "~/components/OtherActionsItems/DetachItem";
 
 TranslationRegistry.register(FilehostingL10N);
 
-Vue.component("fh-renderless-file-item", RenderlessFileItem);
-Vue.component("cloud-icon", CloudIcon);
-Vue.component("detach-button", DetachButton);
-Vue.component("chooser-button", ChooserButton);
-Vue.component("preview-invalid", PreviewInvalid);
-Vue.component("copy-to-drive-item", CopyToDriveItem);
-Vue.component("detach-item", DetachItem);
-Vue.component("fh-renderless-store", RenderlessStore);
+Vue.component("FhRenderlessFileItem", RenderlessFileItem);
+Vue.component("CloudIcon", CloudIcon);
+Vue.component("DetachButton", DetachButton);
+Vue.component("ChooserButton", ChooserButton);
+Vue.component("PreviewInvalid", PreviewInvalid);
+Vue.component("CopyToDriveItem", CopyToDriveItem);
+Vue.component("DetachItem", DetachItem);
+Vue.component("FhRenderlessStore", RenderlessStore);
 
 extensions.register("webapp", "net.bluemind.webmodules.filehosting", {
     command: {
@@ -45,7 +45,7 @@ extensions.register("webapp", "net.bluemind.webmodules.filehosting", {
 
 extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
     component: {
-        name: "fh-renderless-file-item",
+        name: "FhRenderlessFileItem",
         path: "message.file",
         priority: 10
     }
@@ -53,48 +53,48 @@ extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
 
 extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
     component: {
-        name: "cloud-icon",
+        name: "CloudIcon",
         path: "attachment.infos.tags"
     }
 });
 
 extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
     component: {
-        name: "detach-button",
+        name: "DetachButton",
         path: "composer.footer.toolbar",
         role: "canRemoteAttach"
     }
 });
 extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting.drive", {
     component: {
-        name: "chooser-button",
+        name: "ChooserButton",
         path: "composer.footer.toolbar",
         role: "canUseFilehosting"
     }
 });
 extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
     component: {
-        name: "preview-invalid",
+        name: "PreviewInvalid",
         path: "file.preview"
     }
 });
 extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting.drive", {
     component: {
-        name: "copy-to-drive-item",
+        name: "CopyToDriveItem",
         path: "file.actions",
         role: "canUseFilehosting"
     }
 });
 extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
     component: {
-        name: "detach-item",
+        name: "DetachItem",
         path: "file.actions",
         role: "canRemoteAttach"
     }
 });
 extensions.register("webapp.mail", "net.bluemind.webmodules.filehosting", {
     component: {
-        name: "fh-renderless-store",
+        name: "FhRenderlessStore",
         path: "app.header"
     }
 });
