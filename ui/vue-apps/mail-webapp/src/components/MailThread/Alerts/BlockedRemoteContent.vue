@@ -4,7 +4,7 @@
         &nbsp;
         <bm-button variant="link" @click="unblockImages()">{{ $t("mail.content.alert.images.show") }}</bm-button>
         <br />
-        <bm-button variant="link" class="trust-sender">
+        <bm-button variant="link" class="trust-sender" @click="trustSender()">
             {{ $t("mail.content.alert.images.trust.sender", { sender: payload.from.address }) }}
         </bm-button>
     </div>
