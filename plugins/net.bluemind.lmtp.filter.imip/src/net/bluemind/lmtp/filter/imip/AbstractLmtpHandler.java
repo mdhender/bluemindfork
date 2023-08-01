@@ -61,7 +61,7 @@ public abstract class AbstractLmtpHandler {
 	private final String origin;
 
 	public AbstractLmtpHandler(ResolvedBox recipient, LmtpAddress sender) {
-		String from = sender != null ? "_from_" + sender.getEmailAddress() : "";
+		String from = sender != null ? "_from_" + sender.email : "";
 		String to = recipient != null ? "_to_" + recipient.entry.email : "";
 		this.origin = "bm-lmtpd" + from + to;
 	}

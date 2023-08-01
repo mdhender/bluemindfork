@@ -164,11 +164,11 @@ public class ImipFilterVEventTests {
 		nodeServer.ip = DockerEnv.getIp("bluemind/node-tests");
 		nodeServer.tags = Lists.newArrayList("filehosting/data");
 
-		PopulateHelper.initGlobalVirt(esServer, pipo, nodeServer);
+		PopulateHelper.initGlobalVirt(pipo, nodeServer);
 
 		PopulateHelper.addDomainAdmin("admin0", "global.virt");
 
-		PopulateHelper.createTestDomain(domainUid, esServer, pipo, nodeServer);
+		PopulateHelper.createTestDomain(domainUid, pipo, nodeServer);
 
 		PopulateHelper.addDomainAdmin("admin", domainUid, Mailbox.Routing.internal);
 
@@ -450,6 +450,24 @@ public class ImipFilterVEventTests {
 
 		res = user1Calendar.getComplete(event.uid);
 		assertEquals(2, res.value.main.alarm.size());
+	}
+
+	@Test
+	public void requestHandler_setSenderAsOrganizerIfMissing() throws Exception {
+		IIMIPHandler handler = new FakeEventRequestHandlerFactory().create("test@test.loc");
+		ItemValue<VEvent> event = defaultVEvent();
+		event.value.organizer = null;
+
+		IMIPInfos imip = imip(ITIPMethod.REQUEST, defaultExternalSenderVCard(), event.uid);
+
+		imip.iCalendarElements = Arrays.asList(event.value);
+		imip.uid = event.uid;
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail("user1@domain.lan");
+
+		handler.handle(imip, recipient, domain, user1Mailbox);
+
+		ItemValue<VEventSeries> res = user1Calendar.getComplete(event.uid);
+		assertEquals("test@test.loc", res.value.main.organizer.mailto);
 	}
 
 	@Test

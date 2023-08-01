@@ -20,13 +20,24 @@ package net.bluemind.lmtp.filter.imip;
 
 import net.bluemind.core.sendmail.ISendmail;
 import net.bluemind.core.sendmail.testhelper.FakeSendmail;
+import net.bluemind.delivery.lmtp.common.LmtpAddress;
 
 public class FakeEventRequestHandlerFactory {
+
 	public EventRequestHandler create() {
-		return create(new FakeSendmail());
+		return create(new FakeSendmail(), null);
 	}
 
 	public EventRequestHandler create(ISendmail mailer) {
-		return new EventRequestHandler(mailer, null, null);
+		return create(mailer, null);
 	}
+
+	public EventRequestHandler create(String senderMail) {
+		return create(new FakeSendmail(), senderMail);
+	}
+
+	public EventRequestHandler create(ISendmail mailer, String sender) {
+		return new EventRequestHandler(mailer, null, new LmtpAddress(sender));
+	}
+
 }

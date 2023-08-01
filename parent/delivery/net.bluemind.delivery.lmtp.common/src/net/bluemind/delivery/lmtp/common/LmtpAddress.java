@@ -19,13 +19,10 @@ package net.bluemind.delivery.lmtp.common;
 
 public class LmtpAddress {
 
-	public String email;
+	public final String email;
 
-	public LmtpAddress(String e) {
-		this.email = e;
+	public LmtpAddress(String email) {
+		this.email = email;
 	}
 
-	public String getEmailAddress() {
-		return email;
-	}
 }

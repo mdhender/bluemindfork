@@ -69,6 +69,7 @@ import net.bluemind.delivery.lmtp.filters.PermissionDeniedException.MailboxInvit
 import net.bluemind.domain.api.Domain;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 import net.bluemind.icalendar.api.ICalendarElement.CUType;
+import net.bluemind.icalendar.api.ICalendarElement.Organizer;
 import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
 import net.bluemind.icalendar.api.ICalendarElement.Role;
 import net.bluemind.icalendar.api.ICalendarElement.VAlarm;
@@ -86,6 +87,7 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 	private static final Cache<String, Map<String, String>> senderSettingsCache = Caffeine.newBuilder().recordStats()
 			.expireAfterAccess(2, TimeUnit.MINUTES).build();
 
+	private final String smtpFrom;
 	private final ISendmail mailer;
 	private final EventAttachmentHandler attachmentHandler;
 
@@ -104,6 +106,7 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 
 	public EventRequestHandler(ISendmail mailer, ResolvedBox recipient, LmtpAddress sender) {
 		super(recipient, sender);
+		this.smtpFrom = sender.email;
 		this.mailer = mailer;
 		this.attachmentHandler = new EventAttachmentHandler(provider(), getCoreUrl());
 	}
@@ -147,6 +150,7 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 
 		ICalendar cal = provider().instance(ICalendar.class, calUid);
 
+		sanitizeOrganizer(series);
 		ensureUserAttendance(domain, recipientMailbox, series.main);
 		series.occurrences.forEach(occurrence -> ensureUserAttendance(domain, recipientMailbox, occurrence));
 
@@ -165,6 +169,15 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 
 		VEvent event = series.main == null ? series.occurrences.get(0) : series.main;
 		return IMIPResponse.createEventResponse(imip.uid, event, needResponse(domain, recipientMailbox, event));
+	}
+
+	private void sanitizeOrganizer(VEventSeries series) {
+		series.flatten().forEach(evt -> {
+			if (evt.organizer == null) {
+				evt.organizer = new Organizer(smtpFrom);
+			}
+		});
+
 	}
 
 	private void setDefaultAlarm(ItemValue<Domain> domain, String uid, VEventSeries series) {
