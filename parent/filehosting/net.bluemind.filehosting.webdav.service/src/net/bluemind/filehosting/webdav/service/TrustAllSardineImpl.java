@@ -27,15 +27,31 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 
+import org.apache.http.Consts;
+import org.apache.http.auth.AuthSchemeProvider;
+import org.apache.http.auth.params.AuthPNames;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.config.AuthSchemes;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
+import org.apache.http.impl.auth.BasicSchemeFactory;
+import org.apache.http.impl.auth.DigestSchemeFactory;
+import org.apache.http.impl.auth.KerberosSchemeFactory;
+import org.apache.http.impl.auth.NTLMSchemeFactory;
+import org.apache.http.impl.auth.SPNegoSchemeFactory;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.VersionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,8 +80,16 @@ public class TrustAllSardineImpl extends SardineImpl {
 		if (version == null) {
 			version = VersionInfo.UNAVAILABLE;
 		}
-		return HttpClients.custom().setUserAgent("Sardine/" + version).setDefaultCredentialsProvider(credentials)
-				.setRedirectStrategy(this.createDefaultRedirectStrategy())
+
+		Registry<AuthSchemeProvider> authSchemeRegistry = RegistryBuilder.<AuthSchemeProvider>create()
+				.register(AuthSchemes.BASIC, new BasicSchemeFactory(Consts.UTF_8))
+				.register(AuthSchemes.DIGEST, new DigestSchemeFactory(Consts.UTF_8))
+				.register(AuthSchemes.NTLM, new NTLMSchemeFactory())
+				.register(AuthSchemes.SPNEGO, new SPNegoSchemeFactory())
+				.register(AuthSchemes.KERBEROS, new KerberosSchemeFactory()).build();
+
+		return HttpClients.custom().setDefaultAuthSchemeRegistry(authSchemeRegistry).setUserAgent("Sardine/" + version)
+				.setDefaultCredentialsProvider(credentials).setRedirectStrategy(this.createDefaultRedirectStrategy())
 				.setDefaultRequestConfig(RequestConfig.custom()
 						// Only selectively enable this for PUT but not all entity enclosing methods
 						.setExpectContinueEnabled(false) //
@@ -75,6 +99,30 @@ public class TrustAllSardineImpl extends SardineImpl {
 						.build())
 				.setConnectionManager(cm)
 				.setRoutePlanner(this.createDefaultRoutePlanner(this.createDefaultSchemePortResolver(), selector));
+
+	}
+
+	@Override
+	protected <T> T execute(HttpClientContext context, HttpRequestBase request, ResponseHandler<T> responseHandler)
+			throws IOException {
+		HttpContext requestLocalContext = new BasicHttpContext(context);
+		try {
+			if (responseHandler != null) {
+				return this.client.execute(request, responseHandler, requestLocalContext);
+			} else {
+				request.getParams().setParameter(AuthPNames.CREDENTIAL_CHARSET, "UTF-8");
+				return (T) this.client.execute(request, requestLocalContext);
+			}
+		} catch (HttpResponseException e) {
+			// Don't abort if we get this exception, caller may want to repeat request.
+			throw e;
+		} catch (IOException e) {
+			request.abort();
+			throw e;
+		} finally {
+			context.setAttribute(HttpClientContext.USER_TOKEN,
+					requestLocalContext.getAttribute(HttpClientContext.USER_TOKEN));
+		}
 	}
 
 	@Override
