@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<forwards>
+	<forward path="/dav" auth="false" />
+	<forward path="/.well-known/caldav" auth="false" />
+	<forward path="/.well-known/carddav" auth="false" />
+</forwards>

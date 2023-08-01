@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<forwards>
-	<forward path="/im" auth="true" role="hasIM">
-		<whitelist>
-			<wl uri="/favicon.ico" />
-		</whitelist>
-
-	</forward>
-</forwards>
