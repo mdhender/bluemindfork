@@ -1,0 +1,5 @@
+{
+    "root.anonymous_screen.continue_as_guest": "Continuer en tant qu'invité",
+    "root.anonymous_screen.continue_as_user": "Vous avez un compte sur le domaine {domain} :",
+    "root.anonymous_screen.not_connected": "Vous n'êtes pas connecté"
+}

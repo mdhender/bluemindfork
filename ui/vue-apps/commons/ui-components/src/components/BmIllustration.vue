@@ -3,7 +3,12 @@
     <div
         role="img"
         class="bm-illustration"
-        :class="{ [`illustration-${size}`]: true, 'illustration-over-background': overBackground }"
+        :class="{
+            [`illustration-${size}`]: true,
+            [`illustration-from-lg-${sizeLg}`]: Boolean(sizeLg),
+            'illustration-over-background': overBackground,
+            'illustration-from-lg-over-background': overBackgroundLg ?? overBackground
+        }"
         v-html="svgData"
     />
 </template>
@@ -23,9 +28,20 @@ export default {
                 return ["xxs", "xs", "sm", "md", "lg", "xl"].includes(value);
             }
         },
+        sizeLg: {
+            type: String,
+            default: undefined,
+            validator(value) {
+                return ["xxs", "xs", "sm", "md", "lg", "xl", undefined].includes(value);
+            }
+        },
         overBackground: {
             type: Boolean,
             default: false
+        },
+        overBackgroundLg: {
+            type: Boolean,
+            default: undefined
         }
     },
     computed: {
@@ -37,7 +53,10 @@ export default {
 </script>
 
 <style lang="scss">
+@use "sass:map";
+
 @import "../css/utils/variables";
+@import "~@bluemind/ui-components/src/css/utils/responsiveness";
 
 .bm-illustration {
     overflow: hidden;
@@ -55,56 +74,47 @@ export default {
         fill: $backdrop;
     }
     &.illustration-over-background {
-        #bg {
-            fill: $surface;
+        @include until-lg {
+            #bg {
+                fill: $surface;
+            }
+        }
+    }
+    &.illustration-from-lg-over-background {
+        @include from-lg {
+            #bg {
+                fill: $surface;
+            }
         }
     }
 
-    &.illustration-xxs {
-        &,
-        & > svg {
-            width: $illustration-width-xxs;
-            height: $illustration-height-xxs;
+    $alert-variants: "danger", "warning", "success", "info", "neutral";
+
+    @each $variant in $alert-variants {
+        .alert-#{$variant} {
+            color: $neutral-fg-hi1;
+            background-color: var(--#{$variant}-bg);
+            border: none;
         }
     }
+    $illustration-sizes: "xxs", "xs", "s", "sm", "md", "lg", "xl";
 
-    &.illustration-xs {
-        &,
-        & > svg {
-            width: $illustration-width-xs;
-            height: $illustration-height-xs;
+    @each $size in $illustration-sizes {
+        &.illustration-#{$size} {
+            &,
+            & > svg {
+                width: map-get($illustration-width, $size);
+                height: map-get($illustration-height, $size);
+            }
         }
-    }
-
-    &.illustration-sm {
-        &,
-        & > svg {
-            width: $illustration-width-sm;
-            height: $illustration-height-sm;
-        }
-    }
-
-    &.illustration-md {
-        &,
-        & > svg {
-            width: $illustration-width;
-            height: $illustration-height;
-        }
-    }
-
-    &.illustration-lg {
-        &,
-        & > svg {
-            width: $illustration-width-lg;
-            height: $illustration-height-lg;
-        }
-    }
-
-    &.illustration-xl {
-        &,
-        & > svg {
-            width: $illustration-width-xl;
-            height: $illustration-height-xl;
+        &.illustration-from-lg-#{$size} {
+            @include from-lg {
+                &,
+                & > svg {
+                    width: map-get($illustration-width, $size);
+                    height: map-get($illustration-height, $size);
+                }
+            }
         }
     }
 }

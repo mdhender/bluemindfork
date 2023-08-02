@@ -6,7 +6,8 @@
         <bm-banner v-if="showBanner" :applications="applications" :user="user" :current-application="current" />
         <preferences v-if="showPreferences" :applications="applications" />
         <about v-if="showAbout" :version="software.version" />
-        <app-error v-if="appState === 'error'" />
+        <anonymous-screen v-if="!isLogged && !isAnonymous" @continue="isAnonymous = true" @login="goToLoginForm()" />
+        <app-error v-else-if="appState === 'error'" />
         <router-view v-else :class="showPreferences ? 'd-none d-lg-flex' : 'd-flex'" />
         <bm-alert-area class="main-alert-area" :alerts="alerts" :floating="true" @remove="REMOVE">
             <template #default="context">
@@ -26,6 +27,7 @@ import { inject } from "@bluemind/inject";
 import { BmAlertArea } from "@bluemind/ui-components";
 
 import About from "./About";
+import AnonymousScreen from "./AnonymousScreen";
 import AppError from "./AppError";
 import BaseUri from "../routes/BaseUriRegExp";
 import BmBanner from "./banner/BmBanner";
@@ -36,6 +38,7 @@ import favicon from "../../assets/favicon.png";
 export default {
     components: {
         About,
+        AnonymousScreen,
         AppError,
         BmBanner,
         BmExtension,
@@ -73,7 +76,8 @@ export default {
                     brand: session["bmBrandVersion"]
                 }
             },
-            systemAlerts: []
+            systemAlerts: [],
+            isAnonymous: false
         };
     },
     computed: {
@@ -86,6 +90,9 @@ export default {
         current() {
             const path = this.$route.path + (this.$route.path.endsWith("/") ? "" : "/");
             return this.applications.find(application => path.startsWith(application.path));
+        },
+        isLogged() {
+            return Boolean(inject("UserSession").userId);
         }
     },
     watch: {
@@ -141,6 +148,9 @@ export default {
             This issue must be tested on a real phone since browser device simulator does not disply the toolbar
             */
             document.documentElement.style.setProperty("--app-height", window.innerHeight + "px");
+        },
+        goToLoginForm() {
+            window.location.href = `?askedUri=${this.$router.options.base}${this.$route.fullPath}`;
         }
     },
     bus: {

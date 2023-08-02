@@ -16,6 +16,7 @@ import routes from "./routes";
 import BannerL10N from "../l10n/banner/";
 import registerDependencies from "./registerDependencies";
 import PreferencesStore from "./preferences/store";
+import RootAppL10N from "../l10n/root/";
 import RootAppStore from "./rootAppStore";
 import SettingsL10N from "../l10n/preferences/";
 import SettingsStore from "./settingsStore";
@@ -25,6 +26,7 @@ import Command from "../plugins/Command";
 
 const userSession = window.bmcSessionInfos;
 TranslationRegistry.register(BannerL10N);
+TranslationRegistry.register(RootAppL10N);
 TranslationRegistry.register(SettingsL10N);
 registerDependencies(userSession);
 initWebApp(userSession);

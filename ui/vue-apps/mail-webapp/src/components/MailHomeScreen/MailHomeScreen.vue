@@ -29,6 +29,7 @@ export default {
 </script>
 
 <style lang="scss">
+@use "sass:map";
 @import "~@bluemind/ui-components/src/css/utils/responsiveness";
 @import "~@bluemind/ui-components/src/css/utils/typography";
 @import "~@bluemind/ui-components/src/css/utils/variables";
@@ -126,8 +127,8 @@ export default {
         }
 
         .bm-illustration {
-            flex: 0 1 $illustration-height-lg + $space-saved;
-            min-height: $illustration-height-lg;
+            flex: 0 1 map-get($illustration-height, "lg") + $space-saved;
+            min-height: map-get($illustration-height, "lg");
             flex-direction: column;
 
             &:before {

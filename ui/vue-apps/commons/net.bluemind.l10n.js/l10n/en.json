@@ -230,6 +230,7 @@
         "display_anyway": "Display anyway",
         "dissociate": "Dissociate",
         "drop_file": "Drop your file",
+        "login": "Log in",
         "open_in_window": "Open in new window",
         "open_in_window_with_shift": "Press Shift to open in new window",
         "open_action_in_window_with_shift": "{action} (@:common.open_in_window_with_shift)",
