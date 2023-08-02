@@ -9,7 +9,7 @@ export default {
     createMixedPart,
     createRelatedPart,
     createTextPart,
-    createCalendarPart
+    createCalendarRequestPart
 };
 
 function createAttachmentParts(attachments, structure) {
@@ -68,12 +68,13 @@ function createInlineImageParts(structure, inlineImages) {
     return structure;
 }
 
-function createCalendarPart(address) {
+function createCalendarRequestPart(address) {
     return {
         mime: MimeType.TEXT_CALENDAR,
         address,
         encoding: "quoted-printable",
-        charset: "utf-8"
+        charset: "utf-8",
+        headers: [{ name: "Content-Type", values: [`${MimeType.TEXT_CALENDAR}; charset=UTF-8; method=REQUEST`] }]
     };
 }
 

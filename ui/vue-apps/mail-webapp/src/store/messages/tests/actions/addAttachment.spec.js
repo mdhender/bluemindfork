@@ -6,11 +6,9 @@ import {
     ADD_ATTACHMENT,
     ADD_FILE,
     REMOVE_ATTACHMENT,
-    REMOVE_FILE,
     SET_ATTACHMENT_ADDRESS,
     SET_FILE_PROGRESS,
-    SET_FILE_STATUS,
-    SET_MESSAGE_HAS_ATTACHMENT
+    SET_FILE_STATUS
 } from "~/mutations";
 
 const { FileStatus } = fileUtils;
@@ -21,7 +19,11 @@ describe("addAttachment action", () => {
         key: "blabla",
         folderRef: { uid: "folder-uid" },
         remoteRef: { uid: "remote-uid" },
-        attachments: []
+        structure: {
+            mime: "multipart/alternative",
+            address: "TEXT",
+            children: [{ mime: "text/plain" }, { mime: "text/html" }]
+        }
     };
     const file = new Blob(["myfilecontentasastring"], {
         size: 22,
@@ -58,18 +60,14 @@ describe("addAttachment action", () => {
     test("Attach text file", async () => {
         await addAttachment(context, actionParams);
         expect(mockedClient.uploadPart).toHaveBeenCalled();
-        expect(context.commit).toHaveBeenNthCalledWith(1, ADD_FILE, expect.anything());
-        expect(context.commit).toHaveBeenNthCalledWith(2, ADD_ATTACHMENT, expect.anything());
+        expect(context.commit).toHaveBeenNthCalledWith(1, ADD_ATTACHMENT, expect.anything());
+        expect(context.commit).toHaveBeenNthCalledWith(2, ADD_FILE, expect.anything());
         expect(context.commit).toHaveBeenNthCalledWith(
             3,
             SET_FILE_STATUS,
             expect.objectContaining({ status: FileStatus.NOT_LOADED })
         );
-        expect(context.commit).toHaveBeenNthCalledWith(4, SET_MESSAGE_HAS_ATTACHMENT, {
-            key: message.key,
-            hasAttachment: true
-        });
-        expect(context.commit).toHaveBeenNthCalledWith(5, SET_ATTACHMENT_ADDRESS, expect.anything());
+        expect(context.commit).toHaveBeenNthCalledWith(4, SET_ATTACHMENT_ADDRESS, expect.anything());
     });
 
     test("Attach local text file", async () => {
@@ -83,32 +81,23 @@ describe("addAttachment action", () => {
             SET_FILE_STATUS,
             expect.objectContaining({ status: FileStatus.ONLY_LOCAL })
         );
-        expect(context.commit).toHaveBeenNthCalledWith(5, SET_MESSAGE_HAS_ATTACHMENT, {
-            key: message.key,
-            hasAttachment: true
-        });
     });
 
     test("With error", async () => {
         mockedClient.uploadPart.mockImplementation(() => Promise.reject("error-reason"));
         await addAttachment(context, actionParams);
         expect(mockedClient.uploadPart).toHaveBeenCalled();
-        expect(context.commit).toHaveBeenNthCalledWith(1, ADD_FILE, expect.anything());
-        expect(context.commit).toHaveBeenNthCalledWith(2, ADD_ATTACHMENT, expect.anything());
-        expect(context.commit).toHaveBeenNthCalledWith(4, SET_MESSAGE_HAS_ATTACHMENT, {
-            key: message.key,
-            hasAttachment: true
-        });
+        expect(context.commit).toHaveBeenNthCalledWith(1, ADD_ATTACHMENT, expect.anything());
+        expect(context.commit).toHaveBeenNthCalledWith(2, ADD_FILE, expect.anything());
         expect(context.commit).toHaveBeenNthCalledWith(
-            5,
+            4,
             SET_FILE_PROGRESS,
             expect.objectContaining({
-                loaded: 100,
-                total: 100
+                progress: { loaded: 100, total: 100 }
             })
         );
         expect(context.commit).toHaveBeenNthCalledWith(
-            6,
+            5,
             SET_FILE_STATUS,
             expect.objectContaining({ status: FileStatus.ERROR })
         );
@@ -119,15 +108,9 @@ describe("addAttachment action", () => {
         jest.useFakeTimers();
         await addAttachment(context, actionParams);
         expect(mockedClient.uploadPart).toHaveBeenCalledWith(expect.anything(), expect.anything());
-        expect(context.commit).toHaveBeenNthCalledWith(1, ADD_FILE, expect.anything());
-        expect(context.commit).toHaveBeenNthCalledWith(2, ADD_ATTACHMENT, expect.anything());
+        expect(context.commit).toHaveBeenNthCalledWith(1, ADD_ATTACHMENT, expect.anything());
+        expect(context.commit).toHaveBeenNthCalledWith(2, ADD_FILE, expect.anything());
         jest.runAllTimers();
-        expect(context.commit).toHaveBeenNthCalledWith(5, REMOVE_ATTACHMENT, expect.anything());
-        expect(context.commit).toHaveBeenNthCalledWith(6, REMOVE_FILE, expect.anything());
-        expect(context.commit).toHaveBeenNthCalledWith(
-            7,
-            SET_MESSAGE_HAS_ATTACHMENT,
-            expect.objectContaining({ hasAttachment: false })
-        );
+        expect(context.commit).toHaveBeenNthCalledWith(4, REMOVE_ATTACHMENT, expect.anything());
     });
 });

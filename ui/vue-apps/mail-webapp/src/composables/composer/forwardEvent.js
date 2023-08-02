@@ -9,7 +9,7 @@ export async function setForwardEventStructure({ inlinePartsByCapabilities }, ne
     const calendarPartAddress = getPartsFromCapabilities({ inlinePartsByCapabilities }, [MimeType.TEXT_CALENDAR])?.pop()
         ?.address;
 
-    const calendarPart = PartsBuilder.createCalendarPart(calendarPartAddress);
+    const calendarPart = PartsBuilder.createCalendarRequestPart(calendarPartAddress);
 
     const structure = cloneDeep(newMessage.structure);
     let alternativePart;

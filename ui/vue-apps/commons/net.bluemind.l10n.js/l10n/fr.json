@@ -384,5 +384,8 @@
                 "close_button": "Retirer {item} de la sélection"
             }
         }
+    },
+    "event": {
+        "forward": "Transférer l'invitation"
     }
 }

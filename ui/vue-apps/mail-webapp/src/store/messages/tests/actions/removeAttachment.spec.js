@@ -4,7 +4,7 @@ import { fileUtils } from "@bluemind/mail";
 
 import { removeAttachment } from "../../actions/attachment";
 import { MY_DRAFTS } from "~/getters";
-import { REMOVE_ATTACHMENT, REMOVE_FILE } from "~/mutations";
+import { REMOVE_ATTACHMENT } from "~/mutations";
 import { DEBOUNCED_SAVE_MESSAGE } from "~/actions";
 
 const { FileStatus } = fileUtils;
@@ -17,9 +17,7 @@ describe("removeAttachment action", () => {
     const draftFolderKey = "draf:uid";
     const actionParams = {
         messageKey,
-        attachment: { address, fileKey: fileKey },
-        userPrefTextOnly: true,
-        myDraftsFolderKey: draftFolderKey,
+        address,
         messageCompose: {}
     };
 
@@ -43,7 +41,6 @@ describe("removeAttachment action", () => {
 
     test("Basic remove of an attachment", async () => {
         await removeAttachment(context, actionParams);
-        expect(context.commit).toHaveBeenCalledWith(REMOVE_FILE, { key: actionParams.attachment.fileKey });
         expect(context.commit).toHaveBeenCalledWith(REMOVE_ATTACHMENT, { messageKey, address });
         expect(context.dispatch).toHaveBeenCalledWith(DEBOUNCED_SAVE_MESSAGE, expect.anything());
     });
@@ -52,7 +49,6 @@ describe("removeAttachment action", () => {
         context.state[messageKey].attachments[0].status = FileStatus.ERROR;
         await removeAttachment(context, actionParams);
         expect(mockedClient.removePart).toHaveBeenCalledWith(address);
-        expect(context.commit).toHaveBeenCalledWith(REMOVE_FILE, { key: actionParams.attachment.fileKey });
         expect(context.commit).toHaveBeenCalledWith(REMOVE_ATTACHMENT, { messageKey, address });
         expect(context.dispatch).toHaveBeenCalledWith(DEBOUNCED_SAVE_MESSAGE, expect.anything());
     });

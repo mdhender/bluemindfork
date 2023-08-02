@@ -384,5 +384,8 @@
                 "close_button": "Remove {item} from selection"
             }
         }
+    },
+    "event": {
+        "forward": "Forward invitation"
     }
 }

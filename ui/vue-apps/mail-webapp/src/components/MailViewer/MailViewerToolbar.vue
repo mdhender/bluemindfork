@@ -27,6 +27,15 @@
                 @click.stop="action.execute(() => forward(message))"
             />
         </mail-open-in-popup-with-shift>
+        <mail-open-in-popup-with-shift v-if="isEventRequest" v-slot="action" :href="forwardEventRoute(message)">
+            <bm-icon-button
+                variant="regular-accent"
+                :size="size"
+                :title="action.label($t('event.forward'))"
+                icon="forward"
+                @click.stop="action.execute(() => forwardEvent(message))"
+            />
+        </mail-open-in-popup-with-shift>
         <mail-viewer-toolbar-other-actions
             v-if="!isFolderReadOnly"
             :size="size"
@@ -80,6 +89,9 @@ export default {
         ...mapState("mail", { folders: "folders" }),
         isFolderReadOnly() {
             return !this.folders[this.message.folderRef.key].writable;
+        },
+        isEventRequest() {
+            return this.message.headers.some(({ name }) => name === MessageHeader.X_BM_EVENT);
         }
     }
 };

@@ -1,6 +1,6 @@
 import Vue from "vue";
 import { inject } from "@bluemind/inject";
-import { LOAD_MAX_MESSAGE_SIZE } from "~/actions";
+import { LOAD_MAX_MESSAGE_SIZE, REMOVE_ATTACHMENT } from "~/actions";
 import {
     ADD_FILE,
     RESET_COMPOSER,
@@ -91,7 +91,7 @@ export default {
         },
 
         // Listeners
-        REMOVE_ATTACHMENT: (state, { address }) => {
+        [REMOVE_ATTACHMENT]: (state, { address }) => {
             const index = Object.values(state.uploadingFiles).findIndex(file => address === file.address);
             if (index > -1) {
                 const key = Object.keys(state.uploadingFiles)[index];

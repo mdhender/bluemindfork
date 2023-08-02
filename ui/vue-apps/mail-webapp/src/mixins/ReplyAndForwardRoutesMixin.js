@@ -33,6 +33,12 @@ export default {
         forwardRoute(message) {
             return this.$_ReplyAndForwardRoutesMixin_route(MessageCreationModes.FORWARD, message);
         },
+        forwardEventRoute(message) {
+            return this.$_ReplyAndForwardRoutesMixin_route(MessageCreationModes.FORWARD_EVENT, message);
+        },
+        forwardEvent(message) {
+            this.$router.push(this.$_ReplyAndForwardRoutesMixin_route(MessageCreationModes.FORWARD_EVENT, message));
+        },
         async forwardEml(conversation, message) {
             this.$router.push(this.$_ReplyAndForwardRoutesMixin_route(MessageCreationModes.FORWARD_AS_EML, message));
         },

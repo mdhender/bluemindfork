@@ -27,7 +27,7 @@ export async function addAttachment({ commit }, { message, attachment, content }
 
     const canceller = new AbortController();
     AbortControllers.set(file.key, canceller);
-
+    commit(ADD_FILE, { file });
     commit(SET_FILE_STATUS, {
         key: file.key,
         status: FileStatus.NOT_LOADED

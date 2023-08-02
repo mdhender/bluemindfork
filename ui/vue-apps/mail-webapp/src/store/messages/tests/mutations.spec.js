@@ -142,4 +142,199 @@ describe("mutations", () => {
             expect(state[message.key].from).toEqual("blabla");
         });
     });
+    describe("ADD and REMOVE attachment", () => {
+        const key = "key1";
+        const attachment = {
+            address: "1733A829-2AD8-4DA8-B185-E07DCA845A60",
+            charset: "us-ascii",
+            dispositionType: "ATTACHMENT",
+            encoding: "base64",
+            mime: "image/gif",
+            size: 2934590
+        };
+        const alernativeStructure = {
+            address: "TEXT",
+            children: [{ mime: "text/plain" }, { mime: "text/html" }],
+            mime: "multipart/alternative"
+        };
+        const mixedStructure = {
+            children: [
+                {
+                    address: "TEXT",
+                    children: [{ mime: "text/plain" }, { mime: "text/html" }],
+                    mime: "multipart/alternative"
+                },
+                {
+                    address: "add1",
+                    charset: "us-ascii",
+                    dispositionType: "ATTACHMENT",
+                    encoding: "base64",
+                    mime: "application/pdf",
+                    size: 4
+                },
+                {
+                    address: "add2",
+                    charset: "us-ascii",
+                    dispositionType: "ATTACHMENT",
+                    encoding: "base64",
+                    mime: "image/png",
+                    size: 10
+                }
+            ],
+            mime: "multipart/mixed"
+        };
+        describe("ADD_ATTACHMENT", () => {
+            test("update message structure with a multipart/mixed and the attachment", () => {
+                const key = "key1";
+                const state = {
+                    [key]: {
+                        structure: alernativeStructure
+                    }
+                };
+                mutations.ADD_ATTACHMENT(state, { messageKey: key, attachment });
+                expect(state[key].structure).toMatchInlineSnapshot(`
+                    Object {
+                      "children": Array [
+                        Object {
+                          "address": "TEXT",
+                          "children": Array [
+                            Object {
+                              "mime": "text/plain",
+                            },
+                            Object {
+                              "mime": "text/html",
+                            },
+                          ],
+                          "mime": "multipart/alternative",
+                        },
+                        Object {
+                          "address": "1733A829-2AD8-4DA8-B185-E07DCA845A60",
+                          "charset": "us-ascii",
+                          "dispositionType": "ATTACHMENT",
+                          "encoding": "base64",
+                          "mime": "image/gif",
+                          "size": 2934590,
+                        },
+                      ],
+                      "mime": "multipart/mixed",
+                    }
+                `);
+            });
+            test("add the attachment the a multipart/mixed message", () => {
+                const state = {
+                    [key]: {
+                        structure: mixedStructure
+                    }
+                };
+                mutations.ADD_ATTACHMENT(state, { messageKey: key, attachment });
+                expect(state[key].structure).toMatchInlineSnapshot(`
+                    Object {
+                      "children": Array [
+                        Object {
+                          "address": "TEXT",
+                          "children": Array [
+                            Object {
+                              "mime": "text/plain",
+                            },
+                            Object {
+                              "mime": "text/html",
+                            },
+                          ],
+                          "mime": "multipart/alternative",
+                        },
+                        Object {
+                          "address": "add1",
+                          "charset": "us-ascii",
+                          "dispositionType": "ATTACHMENT",
+                          "encoding": "base64",
+                          "mime": "application/pdf",
+                          "size": 4,
+                        },
+                        Object {
+                          "address": "add2",
+                          "charset": "us-ascii",
+                          "dispositionType": "ATTACHMENT",
+                          "encoding": "base64",
+                          "mime": "image/png",
+                          "size": 10,
+                        },
+                        Object {
+                          "address": "1733A829-2AD8-4DA8-B185-E07DCA845A60",
+                          "charset": "us-ascii",
+                          "dispositionType": "ATTACHMENT",
+                          "encoding": "base64",
+                          "mime": "image/gif",
+                          "size": 2934590,
+                        },
+                      ],
+                      "mime": "multipart/mixed",
+                    }
+                `);
+            });
+        });
+        describe("REMOVE_ATTACHMENT", () => {
+            test("remove an attachment updates the message structure", () => {
+                const state = {
+                    [key]: { structure: mixedStructure }
+                };
+                mutations.REMOVE_ATTACHMENT(state, { messageKey: key, address: "add1" });
+                expect(state[key].structure).toMatchInlineSnapshot(`
+                    Object {
+                      "children": Array [
+                        Object {
+                          "address": "TEXT",
+                          "children": Array [
+                            Object {
+                              "mime": "text/plain",
+                            },
+                            Object {
+                              "mime": "text/html",
+                            },
+                          ],
+                          "mime": "multipart/alternative",
+                        },
+                        Object {
+                          "address": "add2",
+                          "charset": "us-ascii",
+                          "dispositionType": "ATTACHMENT",
+                          "encoding": "base64",
+                          "mime": "image/png",
+                          "size": 10,
+                        },
+                      ],
+                      "mime": "multipart/mixed",
+                    }
+                `);
+            });
+            test("remove all attachments should remove the multipart/mixed part", () => {
+                const state = {
+                    [key]: { structure: mixedStructure }
+                };
+                mutations.REMOVE_ATTACHMENT(state, { messageKey: key, address: "add1" });
+                mutations.REMOVE_ATTACHMENT(state, { messageKey: key, address: "add2" });
+
+                expect(state[key].structure).toMatchInlineSnapshot(`
+                                  Object {
+                                    "address": "TEXT",
+                                    "children": Array [
+                                      Object {
+                                        "mime": "text/plain",
+                                      },
+                                      Object {
+                                        "mime": "text/html",
+                                      },
+                                    ],
+                                    "mime": "multipart/alternative",
+                                  }
+                              `);
+            });
+            test("remove a non existing attachment does not change the message structure", () => {
+                const state = {
+                    [key]: { structure: alernativeStructure }
+                };
+                mutations.REMOVE_ATTACHMENT(state, { messageKey: key, address: "add2" });
+                expect(state[key].structure).toEqual(alernativeStructure);
+            });
+        });
+    });
 });

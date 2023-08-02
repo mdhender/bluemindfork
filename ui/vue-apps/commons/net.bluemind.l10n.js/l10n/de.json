@@ -371,18 +371,22 @@
             "hint": {
                 "tab": "Tastaturnavigation: Drücken Sie Esc gefolgt von Tab, um den Fokus zu verschieben."
             }
-        }
-    },
-    "badge": {
-        "more_items": "+ {count} weitere"
-    },
-    "search": {
-        "default_placeholder": "Suche"
-    },
-    "all": "Alles",
-    "multi_select": {
+        },
         "badge": {
-            "close_button": "{item} aus der Selektion entfernen"
+            "more_items": "+ {count} weitere"
+        },
+        "search": {
+            "default_placeholder": "Suche"
+        },
+        "all": "Alles",
+        "multi_select": {
+            "badge": {
+                "close_button": "{item} aus der Selektion entfernen"
+            }
         }
+    },
+    "event": {
+        "forward": "Einladung weiterleiten"
     }
+    
 }

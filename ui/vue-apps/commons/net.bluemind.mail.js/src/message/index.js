@@ -97,7 +97,8 @@ export const MessageCreationModes = {
     FORWARD: "FORWARD",
     EDIT_AS_NEW: "EDIT_AS_NEW",
     EDIT: "EDIT",
-    FORWARD_AS_EML: "FORWARD_AS_EML"
+    FORWARD_AS_EML: "FORWARD_AS_EML",
+    FORWARD_EVENT: "FORWARD_EVENT"
 };
 
 export const MessageHeader = {

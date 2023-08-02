@@ -7,16 +7,27 @@ import storeOptions from "../messageCompose";
 import { LOAD_MAX_MESSAGE_SIZE } from "~/actions";
 import { IS_SENDER_SHOWN } from "~/getters";
 import {
+    ADD_FILE,
     SET_CORPORATE_SIGNATURE,
     SET_DISCLAIMER,
     SET_DRAFT_COLLAPSED_CONTENT,
     SET_DRAFT_EDITOR_CONTENT,
+    SET_FILE_ADDRESS,
+    SET_FILE_HEADERS,
+    SET_FILE_PROGRESS,
+    SET_FILE_STATUS,
     SET_MAIL_TIPS,
     SET_MAX_MESSAGE_SIZE,
     SHOW_SENDER
 } from "~/mutations";
 
 Vue.use(Vuex);
+
+const file1 = {
+    key: 1,
+    fileName: "image.jpg",
+    size: 100
+};
 
 describe("messageCompose", () => {
     let store;
@@ -92,6 +103,46 @@ describe("messageCompose", () => {
             ];
             store.commit(SET_MAIL_TIPS, mailTips);
             expect(store.state.mailTips).toBe(mailTips);
+        });
+    });
+    describe("uploadfingFiles", () => {
+        describe("ADD", () => {
+            test("ADD_FILE", () => {
+                store.commit(ADD_FILE, { file: file1 });
+                expect(store.state.uploadingFiles[file1.key]).toEqual(file1);
+            });
+        });
+        describe("File properties", () => {
+            beforeEach(() => {
+                store.commit(ADD_FILE, { file: file1 });
+            });
+            test("SET_FILE_PROGRESS", () => {
+                store.commit(SET_FILE_PROGRESS, {
+                    key: file1.key,
+                    progress: { loaded: 500, total: 10000 }
+                });
+                expect(store.state.uploadingFiles[file1.key]).toEqual(
+                    expect.objectContaining({ progress: { loaded: 500, total: 10000 } })
+                );
+            });
+            test("SET_FILE_STATUS", () => {
+                const status = "STATUS";
+                store.commit(SET_FILE_STATUS, { key: file1.key, status });
+                expect(store.state.uploadingFiles[file1.key]).toEqual(expect.objectContaining({ status }));
+            });
+            test("SET_FILE_ADDRESS", () => {
+                const address = "1234";
+                store.commit(SET_FILE_ADDRESS, { key: file1.key, address });
+                expect(store.state.uploadingFiles[file1.key]).toEqual(expect.objectContaining({ address }));
+            });
+            test("SET_FILE_HEADERS", () => {
+                const headers = [
+                    { name: "header1", value: "value1" },
+                    { name: "header2", value: "value2" }
+                ];
+                store.commit(SET_FILE_HEADERS, { key: file1.key, headers });
+                expect(store.state.uploadingFiles[file1.key]).toEqual(expect.objectContaining({ headers }));
+            });
         });
     });
 
