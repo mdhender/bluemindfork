@@ -72,6 +72,12 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 		realm.put("defaultLocale", Strings.isNullOrEmpty(lang) ? "en" : lang);
 		realm.put("supportedLocales", new JsonArray(Arrays.asList("en", "fr", "de")));
 
+		// idle timeout in sec (1 day)
+		realm.put("ssoSessionIdleTimeout", 86400);
+
+		// session timeout in sec (1 year)
+		realm.put("ssoSessionMaxLifespan", 31536000);
+
 		CompletableFuture<JsonObject> response = execute(REALMS_ADMIN_URL, HttpMethod.POST, realm);
 
 		try {
