@@ -16,6 +16,7 @@ export default {
         const parts = this.computeParts(remote.value.body.structure);
         const adapted = {
             remoteRef: { imapUid: remote.value.imapUid },
+            structure: remote.value.body.structure,
             flags: remote.value.flags,
             date: new Date(remote.value.body.date),
             ...computeRecipients(remote.value.body.recipients),

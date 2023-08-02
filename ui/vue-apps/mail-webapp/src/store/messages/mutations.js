@@ -23,6 +23,7 @@ import {
     SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES,
     SET_MESSAGE_INTERNAL_ID,
     SET_MESSAGE_PREVIEW,
+    SET_MESSAGE_STRUCTURE,
     SET_MESSAGE_SUBJECT,
     SET_MESSAGE_TMP_ADDRESSES,
     SET_MESSAGE_TO,
@@ -67,6 +68,9 @@ export default {
         if (state[messageKey]) {
             state[messageKey].composing = composing;
         }
+    },
+    [SET_MESSAGE_STRUCTURE]: (state, { messageKey, structure }) => {
+        state[messageKey].structure = structure;
     },
     [SET_MESSAGE_SUBJECT]: (state, { messageKey, subject }) => {
         state[messageKey].subject = subject;

@@ -7,7 +7,8 @@ export default {
     createInlineImageParts,
     createMixedPart,
     createRelatedPart,
-    createTextPart
+    createTextPart,
+    createCalendarPart
 };
 
 function createAttachmentParts(attachments, structure) {
@@ -64,4 +65,13 @@ function createInlineImageParts(structure, inlineImages) {
         structure.children[1] = createRelatedPart(childrenOfRelatedPart);
     }
     return structure;
+}
+
+function createCalendarPart(address) {
+    return {
+        mime: MimeType.TEXT_CALENDAR,
+        address,
+        encoding: "quoted-printable",
+        charset: "utf-8"
+    };
 }

@@ -19,6 +19,7 @@ import {
     SET_MESSAGE_BCC,
     SET_MESSAGE_CC,
     SET_MESSAGE_HEADERS,
+    SET_MESSAGE_STRUCTURE,
     SET_MESSAGE_SUBJECT,
     SET_MESSAGE_TMP_ADDRESSES,
     SET_MESSAGE_TO,
@@ -28,6 +29,7 @@ import {
 import apiMessages from "~/store/api/apiMessages";
 import { ComposerFromMixin } from "~/mixins";
 import { AddAttachmentsCommand } from "~/commands";
+import { createForwardStructure } from "./forwardEvent";
 
 const { LoadingStatus } = loadingStatusUtils;
 const {
@@ -130,6 +132,10 @@ export default {
                         const previous = await fetchRelatedFn();
                         return this.initReplyOrForward(folder, action, previous);
                     }
+                    case MessageCreationModes.FORWARD_EVENT: {
+                        const previous = await fetchRelatedFn();
+                        return this.initForwardEvent(folder, previous);
+                    }
                     case MessageCreationModes.EDIT_AS_NEW: {
                         const previous = await fetchRelatedFn();
                         return this.initEditAsNew(folder, previous);
@@ -225,6 +231,19 @@ export default {
                 { key: message.key, loading: LoadingStatus.LOADED }
             ]);
 
+            return message;
+        },
+
+        async initForwardEvent(folder, previous) {
+            const message = await this.initReplyOrForward(folder, MessageCreationModes.FORWARD, previous);
+
+            const messageWithTmpAddresses = await apiMessages.getForUpdate(previous);
+            const calendarPartAddress = getPartsFromCapabilities(messageWithTmpAddresses, [MimeType.TEXT_CALENDAR])?.[0]
+                ?.address;
+            const attachments = previous.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey]);
+
+            const structure = await createForwardStructure(folder, calendarPartAddress, attachments);
+            this.$store.commit(`mail/${SET_MESSAGE_STRUCTURE}`, { messageKey: message.key, structure });
             return message;
         },
 
