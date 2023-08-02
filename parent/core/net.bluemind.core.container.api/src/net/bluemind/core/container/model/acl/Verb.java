@@ -25,8 +25,8 @@ import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
 public enum Verb {
-	Invitation, Freebusy, SendOnBehalf, Read(Invitation, Freebusy), Write(Read, SendOnBehalf), Manage,
-	All(Write, Manage);
+	Invitation, Freebusy, SendOnBehalf, SendAs, Read(Invitation, Freebusy), Write(Read), Manage,
+	All(Write, Manage, SendAs, SendOnBehalf);
 
 	public final Verb[] verbs;
 

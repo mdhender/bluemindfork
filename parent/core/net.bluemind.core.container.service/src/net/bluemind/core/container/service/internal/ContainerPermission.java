@@ -25,6 +25,7 @@ public class ContainerPermission implements Permission {
 	public static final ContainerPermission INVIVATION = new ContainerPermission(Verb.Invitation);
 	public static final ContainerPermission FREEBUSY = new ContainerPermission(Verb.Freebusy);
 	public static final ContainerPermission SEND_ON_BEHALF = new ContainerPermission(Verb.SendOnBehalf);
+	public static final ContainerPermission SEND_AS = new ContainerPermission(Verb.SendAs);
 	public static final ContainerPermission READ = new ContainerPermission(Verb.Read);
 	public static final ContainerPermission WRITE = new ContainerPermission(Verb.Write);
 	public static final ContainerPermission MANAGE = new ContainerPermission(Verb.Manage);
@@ -64,6 +65,8 @@ public class ContainerPermission implements Permission {
 			return FREEBUSY;
 		case SendOnBehalf:
 			return SEND_ON_BEHALF;
+		case SendAs:
+			return SEND_AS;
 		case Read:
 			return READ;
 		case Write:
