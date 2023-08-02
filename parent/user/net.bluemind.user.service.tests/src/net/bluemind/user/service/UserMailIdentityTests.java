@@ -75,6 +75,7 @@ public class UserMailIdentityTests {
 	protected String domainUid;
 	private SecurityContext userSecurityContext;
 	private String userUid;
+	private String user1Uid;
 	private String user2Uid;
 	private SecurityContext user2SecurityContext;
 	private BmTestContext testContext;
@@ -115,6 +116,8 @@ public class UserMailIdentityTests {
 		testContext.provider().instance(IOrgUnits.class, domainUid).create("tlse", OrgUnit.create("tlse", null));
 
 		userUid = PopulateHelper.addUser("test", domainUid);
+		User user1 = PopulateHelper.getUser("test1", domainUid, Mailbox.Routing.none);
+		user1Uid = PopulateHelper.addUser(domainUid, user1);
 		User user2 = PopulateHelper.getUser("test2", domainUid, Mailbox.Routing.none);
 		user2.orgUnitUid = "tlse";
 		user2Uid = PopulateHelper.addUser(domainUid, user2);
@@ -293,9 +296,11 @@ public class UserMailIdentityTests {
 		List<IdentityDescription> res = service(userSecurityContext, userUid).getAvailableIdentities();
 		assertEquals(1, res.size());
 
+		// give SendOnBehalf right on user2 mbox to user0
 		// give Write right on user2 mbox to user1
 		testContext.provider().instance(IContainerManagement.class, IMailboxAclUids.uidForMailbox(user2Uid))
-				.setAccessControlList(Arrays.asList(AccessControlEntry.create(userUid, Verb.Write)));
+				.setAccessControlList(Arrays.asList(AccessControlEntry.create(userUid, Verb.SendOnBehalf),
+						AccessControlEntry.create(user1Uid, Verb.Write)));
 
 		res = service(userSecurityContext, userUid).getAvailableIdentities();
 		assertEquals(2, res.size());
@@ -316,9 +321,9 @@ public class UserMailIdentityTests {
 		List<IdentityDescription> res = service(adminTlseSecuriyContext, user2Uid).getAvailableIdentities();
 		assertEquals(1, res.size());
 
-		// give Write right on user1 mbox to user2
+		// give SendOnBehalf right on user1 mbox to user2
 		testContext.provider().instance(IContainerManagement.class, IMailboxAclUids.uidForMailbox(userUid))
-				.setAccessControlList(Arrays.asList(AccessControlEntry.create(user2Uid, Verb.Write)));
+				.setAccessControlList(Arrays.asList(AccessControlEntry.create(user2Uid, Verb.SendOnBehalf)));
 
 		// admin toulouse doesnt have right to manage userUid mailbox but he can
 		// access userUid mailbox identities thru user2 available identities
@@ -332,7 +337,7 @@ public class UserMailIdentityTests {
 	public void testGetIdentitiesRestrictedByAcls() {
 		// give Write access on user2 mbox to user1
 		testContext.provider().instance(IContainerManagement.class, IMailboxAclUids.uidForMailbox(user2Uid))
-				.setAccessControlList(Arrays.asList(AccessControlEntry.create(userUid, Verb.Write)));
+				.setAccessControlList(Arrays.asList(AccessControlEntry.create(userUid, Verb.SendAs)));
 		service(userSecurityContext, userUid).create("workUser2", defaultIdentity("test2@bm.lan", user2Uid));
 
 		List<IdentityDescription> identities = service(userSecurityContext, userUid).getIdentities();

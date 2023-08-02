@@ -123,12 +123,12 @@ public class UserMailIdentities implements IUserMailIdentities, IInternalUserMai
 		if (identity.mailboxUid == null) {
 			return;
 		}
-		// FIXME not sure it is necessary
+
 		try {
 			Container mailboxAclContainer = containerStore.get(IMailboxAclUids.uidForMailbox(identity.mailboxUid));
 
 			if (mailboxAclContainer != null) {
-				rbacManager.forContainer(mailboxAclContainer).check(Verb.Write.name(),
+				rbacManager.forContainer(mailboxAclContainer).check(Verb.SendAs.name(), Verb.SendOnBehalf.name(),
 						BasicRoles.ROLE_MANAGE_USER_MAIL_IDENTITIES);
 			} else {
 				throw new ServerFault(
@@ -171,7 +171,7 @@ public class UserMailIdentities implements IUserMailIdentities, IInternalUserMai
 		}
 
 		ContainerQuery query = ContainerQuery.type(IMailboxAclUids.TYPE);
-		query.verb = Arrays.asList(Verb.SendOnBehalf, Verb.Write, Verb.All);
+		query.verb = Arrays.asList(Verb.SendOnBehalf, Verb.SendAs, Verb.Write, Verb.All);
 		List<ContainerDescriptor> descriptors = containers.all(query);
 
 		return descriptors.stream().filter(d -> d.domainUid.equals(domainUid))
