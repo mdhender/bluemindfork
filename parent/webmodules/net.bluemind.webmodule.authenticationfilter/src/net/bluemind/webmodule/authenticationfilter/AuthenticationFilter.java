@@ -139,13 +139,7 @@ public class AuthenticationFilter implements IWebFilter {
 				.get(domainUid);
 
 		String key = UUID.randomUUID().toString();
-		String path = Optional.ofNullable(request.path()).orElse("/");
-		String askedUri = request.params().get("askedUri");
-		if (!Strings.isNullOrEmpty(askedUri)) {
-			path = askedUri;
-		} else {
-			path += request.query() != null ? "?" + request.query() : "";
-		}
+		String path = getPath(request);
 
 		JsonObject jsonState = new JsonObject();
 		jsonState.put("codeVerifierKey", key);
@@ -188,6 +182,21 @@ public class AuthenticationFilter implements IWebFilter {
 		}
 
 		request.response().end();
+	}
+
+	private String getPath(HttpServerRequest request) {
+		if (request.headers().contains(HttpHeaders.REFERER)) {
+			return request.headers().get(HttpHeaders.REFERER);
+		}
+
+		String path = Optional.ofNullable(request.path()).orElse("/");
+		String askedUri = request.params().get("askedUri");
+		if (!Strings.isNullOrEmpty(askedUri)) {
+			path = askedUri;
+		} else {
+			path += request.query() != null ? "?" + request.query() : "";
+		}
+		return path;
 	}
 
 	private boolean isCasEnabled(String domainUid) {
