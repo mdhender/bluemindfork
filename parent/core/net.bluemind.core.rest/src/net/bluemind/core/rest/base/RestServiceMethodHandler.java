@@ -241,7 +241,9 @@ public class RestServiceMethodHandler implements IRestCallHandler {
 		} else {
 			securityContext = Sessions.sessionContext(key);
 			if (securityContext == null) {
-				response.success(RestResponse.invalidSession(String.format("session id %s is not valid", key)));
+				String msg = "session id " + key + " is not valid";
+				error(response, key, new ServerFault(msg));
+				response.success(RestResponse.invalidSession(msg));
 				return;
 			}
 			securityContext = securityContext.from(request.remoteAddresses,
