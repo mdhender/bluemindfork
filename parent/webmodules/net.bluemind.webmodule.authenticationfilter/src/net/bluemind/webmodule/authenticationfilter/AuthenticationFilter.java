@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,7 @@ import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.vertx.core.MultiMap;
+import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
@@ -59,11 +61,12 @@ import net.bluemind.webmodule.authenticationfilter.internal.DomainsHelper;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionData;
 import net.bluemind.webmodule.authenticationfilter.internal.SessionsCache;
 import net.bluemind.webmodule.server.IWebFilter;
+import net.bluemind.webmodule.server.NeedVertx;
 import net.bluemind.webmodule.server.SecurityConfig;
 import net.bluemind.webmodule.server.WebserverConfiguration;
 import net.bluemind.webmodule.server.forward.ForwardedLocation;
 
-public class AuthenticationFilter implements IWebFilter {
+public class AuthenticationFilter implements IWebFilter, NeedVertx {
 	private static final Logger logger = LoggerFactory.getLogger(AuthenticationFilter.class);
 
 	private static final HashFunction sha256 = Hashing.sha256();
@@ -78,6 +81,12 @@ public class AuthenticationFilter implements IWebFilter {
 
 	public AuthenticationFilter() {
 		logger.info("AuthenticationFilter filter created.");
+	}
+
+	@Override
+	public void setVertx(Vertx vertx) {
+		// Every day, remove sessions files from disk that are not in cache
+		vertx.setPeriodic(TimeUnit.DAYS.toMillis(1), i -> SessionsCache.get().cleanUp());
 	}
 
 	@Override
@@ -128,10 +137,11 @@ public class AuthenticationFilter implements IWebFilter {
 	}
 
 	private Optional<CompletableFuture<HttpServerRequest>> sessionExists(HttpServerRequest request) {
-		return sessionId(request).map(sessionId -> SessionsCache.get().getIfPresent(sessionId)).map(sessionData -> {
-			decorate(request, sessionData);
-			return CompletableFuture.completedFuture(request);
-		});
+		return sessionId(request).map(sessionId -> SessionsCache.get().getCache().getIfPresent(sessionId))
+				.map(sessionData -> {
+					decorate(request, sessionData);
+					return CompletableFuture.completedFuture(request);
+				});
 	}
 
 	private void redirectToOpenIdServer(HttpServerRequest request, String domainUid) {
@@ -240,7 +250,7 @@ public class AuthenticationFilter implements IWebFilter {
 	private CompletableFuture<HttpServerRequest> logout(HttpServerRequest request) {
 		Optional<String> sessionId = sessionId(request);
 		if (sessionId.isPresent()) {
-			SessionsCache.get().invalidate(sessionId.get());
+			SessionsCache.get().getCache().invalidate(sessionId.get());
 		}
 
 		AuthenticationCookie.purge(request);

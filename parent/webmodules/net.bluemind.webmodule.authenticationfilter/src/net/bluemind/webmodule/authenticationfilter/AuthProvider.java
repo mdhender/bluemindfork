@@ -208,7 +208,7 @@ public class AuthProvider {
 	}
 
 	public CompletableFuture<Void> logout(String sessionId) {
-		SessionData session = SessionsCache.get().getIfPresent(sessionId);
+		SessionData session = SessionsCache.get().getCache().getIfPresent(sessionId);
 		if (session == null) {
 			return CompletableFuture.completedFuture(null);
 		}
