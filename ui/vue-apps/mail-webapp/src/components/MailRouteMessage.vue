@@ -19,8 +19,9 @@ import {
     UNSET_CURRENT_CONVERSATION
 } from "~/mutations";
 import { FETCH_MESSAGE_IF_NOT_LOADED } from "~/actions";
-import { WaitForMixin, ComposerInitMixin } from "~/mixins";
+import { WaitForMixin } from "~/mixins";
 import MailMessagePanel from "./MailThread/MailMessagePanel";
+import { useComposerInit } from "~/composables/composer/ComposerInit";
 
 const { isNewMessage } = draftUtils;
 const { LoadingStatus } = loadingStatusUtils;
@@ -29,7 +30,11 @@ const { MessageCreationModes } = messageUtils;
 export default {
     name: "MailRouteMessage",
     components: { MailMessagePanel },
-    mixins: [ComposerInitMixin, WaitForMixin],
+    mixins: [WaitForMixin],
+    setup() {
+        const { initRelatedMessage, initNewMessage } = useComposerInit();
+        return { initRelatedMessage, initNewMessage };
+    },
     computed: {
         ...mapState("mail", ["activeFolder", "folders"]),
         ...mapState("root-app", ["identities"]),

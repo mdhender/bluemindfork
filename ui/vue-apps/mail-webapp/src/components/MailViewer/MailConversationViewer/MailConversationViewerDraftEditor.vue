@@ -141,15 +141,11 @@ import capitalize from "lodash.capitalize";
 import { mapMutations, mapState } from "vuex";
 import { BmIconButton, BmButton, BmDropzone, BmFileDropZone, KeyNavGroup } from "@bluemind/ui-components";
 import { messageUtils } from "@bluemind/mail";
-import {
-    ComposerActionsMixin,
-    ComposerInitMixin,
-    ComposerMixin,
-    EditRecipientsMixin,
-    FileDropzoneMixin
-} from "~/mixins";
+import { ComposerActionsMixin, EditRecipientsMixin, FileDropzoneMixin } from "~/mixins";
+import { setFrom } from "~/composables/composer/ComposerFrom";
 import { AddAttachmentsCommand } from "~/commands";
 import { REMOVE_MESSAGES, SET_MESSAGE_COMPOSING } from "~/mutations";
+import { useComposer } from "~/composables/composer/Composer";
 import MailComposerAttachments from "../../MailComposer/MailComposerAttachments";
 import MailComposerAttachZone from "../../MailComposer/MailComposerAttachZone";
 import MailComposerContent from "../../MailComposer/MailComposerContent";
@@ -161,6 +157,7 @@ import MailConversationViewerItemMixin from "./MailConversationViewerItemMixin";
 import MailConversationViewerVerticalLine from "./MailConversationViewerVerticalLine";
 import MailOpenInPopupWithShift from "../../MailOpenInPopupWithShift";
 import MessagePathParam from "~/router/MessagePathParam";
+import { computed, ref } from "vue";
 
 const { MessageStatus } = messageUtils;
 
@@ -185,12 +182,45 @@ export default {
     mixins: [
         AddAttachmentsCommand,
         ComposerActionsMixin,
-        ComposerInitMixin,
-        ComposerMixin,
         EditRecipientsMixin,
         FileDropzoneMixin,
         MailConversationViewerItemMixin
     ],
+    props: {
+        message: {
+            type: Object,
+            required: true
+        }
+    },
+    setup(props) {
+        const content = ref(); // DOM ref="content"
+        const {
+            draggedFilesCount,
+            isSignatureInserted,
+            isSenderShown,
+            isDeliveryStatusRequested,
+            isDispositionNotificationRequested,
+            toggleSignature,
+            toggleDeliveryStatus,
+            toggleDispositionNotification,
+            checkAndRepairFrom
+        } = useComposer(
+            computed(() => props.message),
+            content
+        );
+        return {
+            draggedFilesCount,
+            isSignatureInserted,
+            isSenderShown,
+            isDeliveryStatusRequested,
+            isDispositionNotificationRequested,
+            toggleSignature,
+            toggleDeliveryStatus,
+            toggleDispositionNotification,
+            checkAndRepairFrom,
+            setFrom
+        };
+    },
     data() {
         return { showConversationDropzone: false };
     },

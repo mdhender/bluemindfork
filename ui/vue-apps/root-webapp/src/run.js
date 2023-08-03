@@ -22,7 +22,7 @@ import SettingsL10N from "../l10n/preferences/";
 import SettingsStore from "./settingsStore";
 import MainApp from "./components/MainApp";
 import NotificationManager from "./NotificationManager";
-import Command from "../plugins/Command";
+import Command, { useCommandRegistryProvider } from "@bluemind/command";
 
 const userSession = window.bmcSessionInfos;
 TranslationRegistry.register(BannerL10N);
@@ -37,7 +37,16 @@ async function initWebApp(userSession) {
     setVuePlugins(userSession);
     Vue.component("DefaultAlert", DefaultAlert);
     router.addRoutes(routes);
-    new Vue({ el: "#app", i18n, render: h => h(MainApp), router, store });
+    new Vue({
+        el: "#app",
+        i18n,
+        setup() {
+            useCommandRegistryProvider();
+        },
+        render: h => h(MainApp),
+        router,
+        store
+    });
     if (userSession.userId) {
         setDateTimeFormat(userSession);
         new NotificationManager().setNotificationWhenReceivingMail(userSession);

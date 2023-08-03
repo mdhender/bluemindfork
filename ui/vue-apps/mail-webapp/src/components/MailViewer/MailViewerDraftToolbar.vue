@@ -24,7 +24,7 @@
 
 <script>
 import { BmButtonToolbar, BmIconButton } from "@bluemind/ui-components";
-import { DraftMixin, ComposerInitMixin, RemoveMixin } from "~/mixins";
+import { DraftMixin, RemoveMixin } from "~/mixins";
 import { SET_MESSAGE_COMPOSING } from "~/mutations";
 import MessagePathParam from "~/router/MessagePathParam";
 import MailOpenInPopupWithShift from "../MailOpenInPopupWithShift";
@@ -32,7 +32,7 @@ import MailOpenInPopupWithShift from "../MailOpenInPopupWithShift";
 export default {
     name: "MailViewerDraftToolbar",
     components: { BmButtonToolbar, BmIconButton, MailOpenInPopupWithShift },
-    mixins: [DraftMixin, ComposerInitMixin, RemoveMixin],
+    mixins: [DraftMixin, RemoveMixin],
     props: {
         conversation: {
             type: Object,

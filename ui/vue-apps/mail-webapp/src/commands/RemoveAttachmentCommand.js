@@ -1,13 +1,14 @@
+import store from "@bluemind/store";
 import { REMOVE_ATTACHMENT } from "~/actions";
+import { useCommand } from "@bluemind/command";
 
-export default {
-    commands: {
-        async removeAttachment({ attachment, message }) {
-            await this.$store.dispatch(`mail/${REMOVE_ATTACHMENT}`, {
-                messageKey: message.key,
-                attachment,
-                messageCompose: this.$store.state.mail.messageCompose
-            });
-        }
-    }
-};
+async function removeAttachment({ attachment, message }) {
+    await store.dispatch(`mail/${REMOVE_ATTACHMENT}`, {
+        messageKey: message.key,
+        attachment,
+        messageCompose: store.state.mail.messageCompose
+    });
+}
+
+export default { commands: { removeAttachment } };
+export const useRemoveAttachmentCommand = () => useCommand("removeAttachment", removeAttachment);

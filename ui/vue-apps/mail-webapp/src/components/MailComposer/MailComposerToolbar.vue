@@ -60,7 +60,7 @@
                 type="file"
                 multiple
                 hidden
-                @change="$execute('add-attachments', { files: $event.target.files, message, maxSize })"
+                @change="execAddAttachments({ files: $event.target.files, message, maxSize })"
                 @click.stop="closeFilePicker()"
             />
             <bm-icon-button
@@ -114,7 +114,7 @@ import {
 import { draftUtils, messageUtils } from "@bluemind/mail";
 
 import { ComposerActionsMixin, FormattedDateMixin } from "~/mixins";
-import { AddAttachmentsCommand } from "~/commands";
+import { useAddAttachmentsCommand } from "~/commands";
 import {
     SET_SHOW_FORMATTING_TOOLBAR,
     SET_TEMPLATE_CHOOSER_TARGET,
@@ -139,12 +139,16 @@ export default {
         BmExtension,
         BmIcon
     },
-    mixins: [AddAttachmentsCommand, ComposerActionsMixin, FormattedDateMixin],
+    mixins: [ComposerActionsMixin, FormattedDateMixin],
     props: {
         message: { type: Object, required: true },
         isSignatureInserted: { type: Boolean, required: true },
         isDeliveryStatusRequested: { type: Boolean, required: true },
         isDispositionNotificationRequested: { type: Boolean, required: true }
+    },
+    setup() {
+        const { maxSize, execAddAttachments } = useAddAttachmentsCommand();
+        return { maxSize, execAddAttachments };
     },
     computed: {
         ...mapGetters("mail", { IS_SENDER_SHOWN }),

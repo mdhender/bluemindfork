@@ -17,7 +17,7 @@ import { CONVERSATIONS_ACTIVATED, CONVERSATION_MESSAGE_BY_KEY, SELECTION_IS_EMPT
 import { FETCH_CONVERSATION_IF_NOT_LOADED, FETCH_MESSAGE_IF_NOT_LOADED, FETCH_MESSAGE_METADATA } from "~/actions";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import MailConversationPanel from "./MailThread/MailConversationPanel";
-import { WaitForMixin, ComposerInitMixin } from "~/mixins";
+import { WaitForMixin } from "~/mixins";
 
 const { idToUid: conversationIdToUid } = conversationUtils;
 const { LoadingStatus } = loadingStatusUtils;
@@ -25,7 +25,8 @@ const { LoadingStatus } = loadingStatusUtils;
 export default {
     name: "MailRouteConversation",
     components: { MailConversationPanel },
-    mixins: [ComposerInitMixin, WaitForMixin],
+    mixins: [WaitForMixin],
+
     computed: {
         ...mapState("mail", ["activeFolder", "folders"]),
         ...mapGetters("mail", { CONVERSATION_MESSAGE_BY_KEY, SELECTION_IS_EMPTY })

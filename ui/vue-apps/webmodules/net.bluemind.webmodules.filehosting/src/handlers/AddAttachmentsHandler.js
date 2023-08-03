@@ -1,3 +1,4 @@
+import store from "@bluemind/store";
 import {
     renderMustDetachConfirmBox,
     renderShouldDetachConfirmBox,
@@ -13,7 +14,7 @@ let autoDetachmentLimit, maxFilesize;
 export default async function ({ files, message, maxSize }, { forceFilehosting }) {
     files = [...files];
     if (!autoDetachmentLimit || !maxFilesize) {
-        ({ autoDetachmentLimit, maxFilesize } = await this.$store.dispatch(`mail/${GET_CONFIGURATION}`));
+        ({ autoDetachmentLimit, maxFilesize } = await store.dispatch(`mail/${GET_CONFIGURATION}`));
     }
 
     const newAttachmentsSize = getFilesSize(files);
@@ -50,9 +51,9 @@ async function doDetach(files, message) {
     try {
         const { content, props } = renderFileHostingModal(this, message);
         this.$bvModal.open(content, props);
-        await Promise.all(files.map(file => this.$store.dispatch(`mail/${ADD_FH_ATTACHMENT}`, { file, message })));
+        await Promise.all(files.map(file => store.dispatch(`mail/${ADD_FH_ATTACHMENT}`, { file, message })));
         const newContent = getContentWithLinks(this, message);
-        this.$store.commit("mail/SET_DRAFT_EDITOR_CONTENT", newContent);
+        store.commit("mail/SET_DRAFT_EDITOR_CONTENT", newContent);
     } catch (e) {
         // eslint-disable-next-line no-console
         console.warn(e);

@@ -45,8 +45,9 @@ import { BmFileDropZone, BmIcon, BmIconButton, BmRichEditor } from "@bluemind/ui
 import { draftUtils, signatureUtils } from "@bluemind/mail";
 
 import { SET_DRAFT_COLLAPSED_CONTENT, SET_DRAFT_EDITOR_CONTENT } from "~/mutations";
-import { ComposerActionsMixin, ComposerInitMixin, FileDropzoneMixin, SignatureMixin, WaitForMixin } from "~/mixins";
+import { ComposerActionsMixin, FileDropzoneMixin, SignatureMixin, WaitForMixin } from "~/mixins";
 import MailViewerContentLoading from "../MailViewer/MailViewerContentLoading";
+import { useComposerInit } from "~/composables/composer/ComposerInit";
 
 const { isNewMessage } = draftUtils;
 const { PERSONAL_SIGNATURE_SELECTOR } = signatureUtils;
@@ -60,12 +61,16 @@ export default {
         BmRichEditor,
         MailViewerContentLoading
     },
-    mixins: [ComposerActionsMixin, ComposerInitMixin, FileDropzoneMixin, SignatureMixin, WaitForMixin],
+    mixins: [ComposerActionsMixin, FileDropzoneMixin, SignatureMixin, WaitForMixin],
     props: {
         message: {
             type: Object,
             required: true
         }
+    },
+    setup() {
+        const { initFromRemoteMessage } = useComposerInit();
+        return { initFromRemoteMessage };
     },
     data() {
         return { componentGotMounted: false, draggedFilesCount: -1, loading: false };

@@ -2,12 +2,12 @@ import { mapGetters } from "vuex";
 import { messageUtils } from "@bluemind/mail";
 import { CONVERSATIONS_ACTIVATED, MY_DRAFTS } from "~/getters";
 import MessagePathParam from "~/router/MessagePathParam";
-import { DraftMixin, ComposerInitMixin, MailRoutesMixin } from "~/mixins";
+import { DraftMixin, MailRoutesMixin } from "~/mixins";
 
 const { MessageCreationModes } = messageUtils;
 
 export default {
-    mixins: [DraftMixin, ComposerInitMixin, MailRoutesMixin],
+    mixins: [DraftMixin, MailRoutesMixin],
     computed: {
         ...mapGetters("mail", {
             $_ReplyAndForwardRoutesMixin_CONVERSATIONS_ACTIVATED: CONVERSATIONS_ACTIVATED,
@@ -39,6 +39,7 @@ export default {
         async $_ReplyAndForwardRoutesMixin_goTo(action, related, conversation) {
             if (conversation && this.$_ReplyAndForwardRoutesMixin_CONVERSATIONS_ACTIVATED) {
                 await this.saveAndCloseOpenDrafts(conversation);
+                // FIXME initRelatedMessage only available if useComposerInit() from component setup
                 this.initRelatedMessage(this.MY_DRAFTS, action, {
                     internalId: related.remoteRef.internalId,
                     folderKey: related.folderRef.key

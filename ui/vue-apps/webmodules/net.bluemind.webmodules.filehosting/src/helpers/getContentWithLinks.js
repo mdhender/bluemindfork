@@ -1,5 +1,6 @@
 import { LINKS_CLASSNAME, renderLinksWithFrameComponent } from "./renderers";
 import { fileUtils, messageUtils, signatureUtils } from "@bluemind/mail";
+import store from "@bluemind/store";
 import { GET_FH_FILE } from "../store/types/getters";
 
 const { CORPORATE_SIGNATURE_SELECTOR, PERSONAL_SIGNATURE_SELECTOR } = signatureUtils;
@@ -7,7 +8,7 @@ const { FileStatus } = fileUtils;
 const { MessageReplyAttributeSeparator, MessageForwardAttributeSeparator } = messageUtils;
 
 export default function (vm, message) {
-    const messageCompose = vm.$store.state.mail.messageCompose;
+    const messageCompose = store.state.mail.messageCompose;
     const template = document.createElement("template");
     template.innerHTML = messageCompose.editorContent;
     const fragment = template.content;
@@ -15,7 +16,7 @@ export default function (vm, message) {
     if (previousLinks) {
         previousLinks.remove();
     }
-    const files = getUploadedFiles(vm, message);
+    const files = getUploadedFiles(message);
     const composerLinks = renderLinksWithFrameComponent(vm, files);
     composerLinks.$mount();
     const signatureNode = getSignatureNode.call(this, fragment, messageCompose);
@@ -35,10 +36,10 @@ function getSignatureNode(fragment, messageCompose) {
     return signature;
 }
 
-function getUploadedFiles(vm, message) {
+function getUploadedFiles(message) {
     return message.attachments.flatMap(attachment => {
-        const fhFile = vm.$store.getters[`mail/${GET_FH_FILE}`]({ key: attachment.fileKey });
-        const file = vm.$store.state.mail.files[attachment.fileKey];
+        const fhFile = store.getters[`mail/${GET_FH_FILE}`]({ key: attachment.fileKey });
+        const file = store.state.mail.files[attachment.fileKey];
 
         return fhFile && file.status === FileStatus.UPLOADED ? { ...file, ...fhFile } : [];
     });

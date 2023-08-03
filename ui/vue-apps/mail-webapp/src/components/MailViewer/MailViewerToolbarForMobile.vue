@@ -73,7 +73,8 @@ import {
     MARK_MESSAGE_AS_UNREAD
 } from "~/actions";
 import { messageUtils } from "@bluemind/mail";
-import { RemoveMixin, ComposerInitMixin } from "~/mixins";
+import { RemoveMixin } from "~/mixins";
+import { useComposerInit } from "~/composables/composer/ComposerInit";
 
 const { MessageCreationModes } = messageUtils;
 
@@ -85,7 +86,7 @@ export default {
         BmDropdownDivider,
         BmDropdownItemButton
     },
-    mixins: [RemoveMixin, ComposerInitMixin],
+    mixins: [RemoveMixin],
     props: {
         message: {
             type: Object,
@@ -95,6 +96,10 @@ export default {
             type: Object,
             required: true
         }
+    },
+    setup() {
+        const { initReplyOrForward } = useComposerInit();
+        return { initReplyOrForward };
     },
     data() {
         return {

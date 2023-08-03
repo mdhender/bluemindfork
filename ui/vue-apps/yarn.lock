@@ -1763,6 +1763,13 @@
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/@types/json-schema/-/json-schema-7.0.11.tgz#d421b6c527a3037f7c84433fd2c4229e016863d3"
   integrity sha512-wOuvG1SN4Us4rez+tylwwwCV1psiNVOkJeM3AUWUNWg/jDQY2+HE/444y5gc+jBmRqASOm2Oeh5c1axHobwRKQ==
 
+"@types/lodash.camelcase@^4.3.7":
+  version "4.3.7"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/@types/lodash.camelcase/-/lodash.camelcase-4.3.7.tgz#b0a06a216542335c0326c0d2fbad3f121b1f29a7"
+  integrity sha512-Nfi6jpo9vuEOSIJP+mpbTezKyEt75DQlbwjiDvs/JctWkbnHDoyQo5lWqdvgNiJmVUjcmkfvlrvSEgJYvurOKg==
+  dependencies:
+    "@types/lodash" "*"
+
 "@types/lodash.debounce@^4.0.7":
   version "4.0.7"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/@types/lodash.debounce/-/lodash.debounce-4.0.7.tgz#0285879defb7cdb156ae633cecd62d5680eded9f"
@@ -1774,6 +1781,13 @@
   version "4.5.6"
   resolved "https://forge.bluemind.net/nexus/repository/npmjs/@types/lodash.isequal/-/lodash.isequal-4.5.6.tgz#ff42a1b8e20caa59a97e446a77dc57db923bc02b"
   integrity sha512-Ww4UGSe3DmtvLLJm2F16hDwEQSv7U0Rr8SujLUA2wHI2D2dm8kPu6Et+/y303LfjTIwSBKXB/YTUcAKpem/XEg==
+  dependencies:
+    "@types/lodash" "*"
+
+"@types/lodash.isplainobject@^4.0.7":
+  version "4.0.7"
+  resolved "https://forge.bluemind.net/nexus/repository/npmjs/@types/lodash.isplainobject/-/lodash.isplainobject-4.0.7.tgz#698e3231341b1aa0a16681e7aa8b10ee6d9a7d8c"
+  integrity sha512-fdHtdjpy7fXydEaRHx1dPa+2AVmLbmk2Gv7f0w/90BKCH0DkWo8pIrzygnB3rvgo6oKNb3cO9VaPpj9GLCr5Ug==
   dependencies:
     "@types/lodash" "*"
 

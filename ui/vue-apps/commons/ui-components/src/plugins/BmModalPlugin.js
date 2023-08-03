@@ -34,6 +34,14 @@ export default {
                 return f.call(this, msg, options);
             };
         }
+
+        Vue.mixin({
+            provide() {
+                return {
+                    bvModal: this.$bvModal // To inject in composables
+                };
+            }
+        });
     }
 };
 

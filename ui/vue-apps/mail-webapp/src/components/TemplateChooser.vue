@@ -73,13 +73,16 @@ import { SET_TEMPLATE_CHOOSER_VISIBLE, SET_TEMPLATE_LIST_SEARCH_PATTERN } from "
 import { DEBOUNCED_SAVE_MESSAGE, FETCH_TEMPLATES_KEYS } from "~/actions";
 import { MY_TEMPLATES } from "~/getters";
 import TemplatesList from "./TemplateChooser/TemplatesList";
-import { ComposerInitMixin } from "~/mixins";
+import { useComposerMerge } from "~/composables/composer/ComposerMerge";
 const { isEditorContentEmpty, preserveFromOrDefault } = draftUtils;
 
 export default {
     name: "TemplateChooser",
-    components: { BmModal, BmModalHeader, BmFormInput, BmIconButton, TemplatesList },
-    mixins: [ComposerInitMixin],
+    components: { BmModal, BmModalHeader, BmFormInput, TemplatesList, BmIconButton },
+    setup() {
+        const { mergeBody, mergeAttachments, mergeSubject, mergeRecipients } = useComposerMerge();
+        return { mergeBody, mergeAttachments, mergeSubject, mergeRecipients };
+    },
     data() {
         return {
             showMobileSearchInput: false,

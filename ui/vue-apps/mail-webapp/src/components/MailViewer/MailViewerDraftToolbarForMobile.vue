@@ -23,8 +23,9 @@
 
 <script>
 import { BmIconDropdown, BmDropdownDivider, BmDropdownItemButton, BmIcon } from "@bluemind/ui-components";
-import { RemoveMixin, ComposerInitMixin, DraftMixin } from "~/mixins";
+import { RemoveMixin, DraftMixin } from "~/mixins";
 import { SET_MESSAGE_COMPOSING } from "~/mutations";
+import { useComposerInit } from "~/composables/composer/ComposerInit";
 
 export default {
     name: "MailViewerDraftToolbarForMobile",
@@ -34,7 +35,7 @@ export default {
         BmDropdownItemButton,
         BmIcon
     },
-    mixins: [RemoveMixin, ComposerInitMixin, DraftMixin],
+    mixins: [RemoveMixin, DraftMixin],
     props: {
         conversation: {
             type: Object,
@@ -44,6 +45,9 @@ export default {
             type: Object,
             required: true
         }
+    },
+    setup() {
+        return useComposerInit();
     },
     methods: {
         async openEditor() {

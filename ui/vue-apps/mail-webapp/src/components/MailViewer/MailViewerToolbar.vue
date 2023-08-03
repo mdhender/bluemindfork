@@ -42,6 +42,9 @@ import { mapState } from "vuex";
 import { ReplyAndForwardRoutesMixin } from "~/mixins";
 import MailViewerToolbarOtherActions from "./MailViewerToolbarOtherActions";
 import MailOpenInPopupWithShift from "../MailOpenInPopupWithShift";
+import { messageUtils } from "@bluemind/mail";
+const { MessageHeader } = messageUtils;
+import { useComposerInit } from "~/composables/composer/ComposerInit";
 
 export default {
     name: "MailViewerToolbar",
@@ -68,6 +71,10 @@ export default {
                 return ["sm", "md"].includes(value);
             }
         }
+    },
+    setup() {
+        const { initRelatedMessage } = useComposerInit(); // required by reply and replayAll from ReplyAndForwardRoutesMixin
+        return { initRelatedMessage };
     },
     computed: {
         ...mapState("mail", { folders: "folders" }),

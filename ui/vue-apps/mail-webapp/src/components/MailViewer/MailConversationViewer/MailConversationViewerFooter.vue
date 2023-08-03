@@ -28,6 +28,7 @@ import { mapState } from "vuex";
 import { BmButtonToolbar, BmButton } from "@bluemind/ui-components";
 import { ReplyAndForwardRoutesMixin } from "~/mixins";
 import MailOpenInPopupWithShift from "../../MailOpenInPopupWithShift";
+import { useComposerInit } from "~/composables/composer/ComposerInit";
 
 export default {
     name: "MailConversationViewerFooter",
@@ -42,6 +43,10 @@ export default {
             required: true,
             type: Number
         }
+    },
+    setup() {
+        const { initRelatedMessage } = useComposerInit(); // required by reply and replayAll from ReplyAndForwardRoutesMixin
+        return { initRelatedMessage };
     },
     computed: {
         ...mapState("mail", { conversationByKey: ({ conversations }) => conversations.conversationByKey }),

@@ -58,7 +58,7 @@
                 class="h-100 my-2"
                 :should-activate-fn="shouldActivate"
                 @files-count="draggedFilesCount = $event"
-                @drop-files="$execute('add-attachments', { files: $event, message, maxSize })"
+                @drop-files="execAddAttachments({ files: $event, message, maxSize })"
             >
                 <template #dropZone>
                     <mail-composer-attach-zone :text="$tc('mail.new.attachments.drop.zone', draggedFilesCount)" />
@@ -68,7 +68,7 @@
                     :dragged-files-count="draggedFilesCount"
                     :message="message"
                     @files-count="draggedFilesCount = $event"
-                    @drop-files="$execute('add-attachments', { files: $event, message, maxSize })"
+                    @drop-files="execAddAttachments({ files: $event, message, maxSize })"
                 />
                 <mail-composer-content
                     ref="content"
@@ -94,9 +94,11 @@
 <script>
 import { mapGetters } from "vuex";
 import { BmDropzone, BmFileDropZone, BmIconButton, BmFormInput, BmForm } from "@bluemind/ui-components";
-import { ComposerActionsMixin, ComposerMixin, FileDropzoneMixin } from "~/mixins";
+import { ComposerActionsMixin, FileDropzoneMixin } from "~/mixins";
+import { useComposer } from "~/composables/composer/Composer";
+import { setFrom } from "~/composables/composer/ComposerFrom";
 import { MY_TEMPLATES } from "~/getters";
-import { AddAttachmentsCommand } from "~/commands";
+import { useAddAttachmentsCommand } from "~/commands";
 import MessagePathParam from "~/router/MessagePathParam";
 import MailComposerAttachments from "./MailComposerAttachments";
 import MailComposerContent from "./MailComposerContent";
@@ -106,6 +108,7 @@ import MailComposerSender from "./MailComposerSender";
 import TemplateChooser from "~/components/TemplateChooser";
 import MailOpenInPopup from "../MailOpenInPopup";
 import MailComposerAttachZone from "./MailComposerAttachZone";
+import { computed, ref } from "vue";
 
 export default {
     name: "MailComposer",
@@ -124,7 +127,47 @@ export default {
         MailOpenInPopup,
         TemplateChooser
     },
-    mixins: [AddAttachmentsCommand, ComposerActionsMixin, ComposerMixin, FileDropzoneMixin],
+    mixins: [ComposerActionsMixin, FileDropzoneMixin],
+    props: {
+        message: {
+            type: Object,
+            required: true
+        }
+    },
+    setup(props) {
+        const content = ref(); // DOM ref="content"
+        const { maxSize, execAddAttachments } = useAddAttachmentsCommand();
+        const {
+            draggedFilesCount,
+            isSignatureInserted,
+            isSenderShown,
+            isDeliveryStatusRequested,
+            isDispositionNotificationRequested,
+            toggleSignature,
+            toggleDeliveryStatus,
+            toggleDispositionNotification,
+            checkAndRepairFrom,
+            messageCompose
+        } = useComposer(
+            computed(() => props.message),
+            content
+        );
+        return {
+            draggedFilesCount,
+            isSignatureInserted,
+            isSenderShown,
+            isDeliveryStatusRequested,
+            isDispositionNotificationRequested,
+            toggleSignature,
+            toggleDeliveryStatus,
+            toggleDispositionNotification,
+            checkAndRepairFrom,
+            messageCompose,
+            maxSize,
+            execAddAttachments,
+            setFrom
+        };
+    },
     data() {
         return { showConversationDropzone: false };
     },

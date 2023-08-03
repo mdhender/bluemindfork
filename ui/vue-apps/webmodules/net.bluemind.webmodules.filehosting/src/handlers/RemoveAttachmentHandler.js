@@ -1,5 +1,6 @@
+import store from "@bluemind/store";
 import getContentWithLinks from "../helpers/getContentWithLinks";
 export default async function ({ message }) {
     const newContent = getContentWithLinks(this, message);
-    this.$store.commit("mail/SET_DRAFT_EDITOR_CONTENT", newContent);
+    store.commit("mail/SET_DRAFT_EDITOR_CONTENT", newContent);
 }
