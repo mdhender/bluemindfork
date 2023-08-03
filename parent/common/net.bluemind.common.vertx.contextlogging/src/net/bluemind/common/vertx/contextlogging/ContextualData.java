@@ -16,6 +16,8 @@
 
 package net.bluemind.common.vertx.contextlogging;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -93,6 +95,21 @@ public class ContextualData {
 			return contextualDataMap((ContextInternal) ensureDuplicatedContext()).getOrDefault(key, defaultValue);
 		} else {
 			return null;
+		}
+	}
+
+	/**
+	 * Get all values from the contextual data map
+	 * 
+	 * @return readonly copy vue of all the keys and values
+	 */
+
+	public static Map<String, String> getAll() {
+		Context current = Vertx.currentContext();
+		if (current == null || !isDuplicatedContext(current)) {
+			return Collections.emptyMap();
+		} else {
+			return Collections.unmodifiableMap(contextualDataMap((ContextInternal) current));
 		}
 	}
 

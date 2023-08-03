@@ -12,7 +12,7 @@
     <!-- we don't care about errors without throwables -->
     <filter class="net.bluemind.common.logback.ThrowableFilter" />
   </appender>
-  <appender name="R"
+  <appender name="all"
     class="ch.qos.logback.core.rolling.RollingFileAppender">
     <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
     <File>/var/log/bm-ysnp/ysnp.log</File>
@@ -28,10 +28,14 @@
       <totalSizeCap>1GB</totalSizeCap>
     </rollingPolicy>
   </appender>
-
+  <appender name="async_all" class="net.bluemind.common.logback.VertxAsyncAppender">
+      <queueSize>512</queueSize>
+      <discardingThreshold>0</discardingThreshold>
+      <appender-ref ref="all" />
+  </appender>
   <logger name="io.netty.bootstrap" level="ERROR" />
   <root level="INFO">
-    <appender-ref ref="R"/>
+    <appender-ref ref="async_all"/>
     <appender-ref ref="Sentry"/>
   </root>
 </configuration>

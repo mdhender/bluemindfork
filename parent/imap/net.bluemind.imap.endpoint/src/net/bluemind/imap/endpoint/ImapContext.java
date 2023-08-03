@@ -50,7 +50,7 @@ import net.bluemind.lib.vertx.ContextNetSocket;
 public class ImapContext {
 
 	private static final Logger logger = LoggerFactory.getLogger(ImapContext.class);
-	private static final Logger rawLogger = LoggerFactory.getLogger("net.bluemind.imap.endpoint.raw");
+	private static final Logger rawLogger = LoggerFactory.getLogger("net.bluemind.imap.endpoint_raw");
 
 	private final ContextNetSocket ns;
 	private final Vertx vertx;
@@ -150,7 +150,7 @@ public class ImapContext {
 			logger.debug("[{}] C: {} {}", logConnectionId, event.tag(), event.cmd());
 		}
 		if (rawLogger.isDebugEnabled()) {
-			rawLogger.debug("< {} {}\n", event.tag(), event.cmd().strip());
+			rawLogger.debug("< {} {}\n", event.tag(), event.cmd().stripTrailing());
 		}
 	}
 
@@ -173,7 +173,7 @@ public class ImapContext {
 					truncate(b.toString(StandardCharsets.US_ASCII)).replaceAll("\r\n$", ""));
 		}
 		if (rawLogger.isDebugEnabled()) {
-			rawLogger.debug("> {}", b.toString(StandardCharsets.US_ASCII));
+			rawLogger.debug("> {}", b.toString(StandardCharsets.US_ASCII).stripTrailing());
 		}
 	}
 
@@ -199,7 +199,7 @@ public class ImapContext {
 				logger.debug("[{}] S: {}", logConnectionId, truncate(resp).replaceAll("\r\n$", ""));
 			}
 			if (rawLogger.isDebugEnabled()) {
-				rawLogger.debug("> {}", resp);
+				rawLogger.debug("> {}", resp.stripTrailing());
 			}
 		}).toCompletionStage().toCompletableFuture();
 	}

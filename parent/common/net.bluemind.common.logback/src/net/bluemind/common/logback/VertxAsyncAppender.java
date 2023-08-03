@@ -22,53 +22,29 @@
   */
 package net.bluemind.common.logback;
 
-import static ch.qos.logback.core.util.OptionHelper.extractDefaultReplacement;
+import java.util.HashMap;
+import java.util.Map;
 
-import ch.qos.logback.classic.pattern.ClassicConverter;
+import ch.qos.logback.classic.AsyncAppender;
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import io.vertx.core.Vertx;
-import io.vertx.core.impl.ContextInternal;
 import net.bluemind.common.vertx.contextlogging.ContextualData;
 
 /**
- * Converts vertx ContextualData to logback
+ * This appender will copy all ContextualData properties to MDC for use in the
+ * AsyncAppender from logback-classic
+ * 
+ * Direct use of ContextualData is not possible because the logback async thread
+ * will not have access to ContextualData
  */
-public class ContextLoggingConverter extends ClassicConverter {
-
-	private String key;
-	private String defaultValue;
-
-	public ContextLoggingConverter() {
-		reset();
-	}
-
-	private void reset() {
-		key = null;
-		defaultValue = "";
-	}
-
+public class VertxAsyncAppender extends AsyncAppender {
 	@Override
-	public void start() {
-		String[] keyInfo = extractDefaultReplacement(getFirstOption());
-		key = keyInfo[0];
-		if (keyInfo[1] != null) {
-			defaultValue = keyInfo[1];
+	protected void append(ILoggingEvent eventObject) {
+		Map<String, String> cd = ContextualData.getAll();
+		if (!cd.isEmpty()) {
+			Map<String, String> mergedmap = new HashMap<>(eventObject.getMDCPropertyMap());
+			mergedmap.putAll(cd);
+			eventObject = new LoggingEventWrapper(eventObject, mergedmap);
 		}
-		super.start();
-	}
-
-	@Override
-	public String convert(ILoggingEvent event) {
-		ContextInternal context = (ContextInternal) Vertx.currentContext();
-		if (context != null && key != null) {
-			return ContextualData.getOrDefault(key, defaultValue);
-		}
-		return defaultValue;
-	}
-
-	@Override
-	public void stop() {
-		reset();
-		super.stop();
+		super.append(eventObject);
 	}
 }

@@ -20,7 +20,7 @@
       <totalSizeCap>1GB</totalSizeCap>
     </rollingPolicy>
   </appender>
-  <appender name="ASYNC_ALL" class="ch.qos.logback.classic.AsyncAppender">
+  <appender name="ASYNC_ALL" class="net.bluemind.common.logback.VertxAsyncAppender">
     <queueSize>500</queueSize>
     <discardingThreshold>0</discardingThreshold>
     <appender-ref ref="R" />

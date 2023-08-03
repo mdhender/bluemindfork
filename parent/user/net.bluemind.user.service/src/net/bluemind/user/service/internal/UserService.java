@@ -973,10 +973,12 @@ public class UserService implements IInCoreUser, IUser {
 	public void enablePerUserLog(String userUid, String endpoint, boolean enable) {
 		ItemValue<User> asUser = getComplete(userUid);
 		if (asUser != null) {
-			String latd = asUser.value.login + "@" + domainName;
-			JsonObject msg = new JsonObject().put("endpoint", endpoint).put("user", latd).put("enabled", enable);
-			logger.info("Reconfiguring logs for {} on {}, enable: {}", latd, endpoint, enable);
-			MQ.getProducer(Topic.LOGBACK_CONFIG).send(msg);
+			// IMAP/POP3 uses defaultEmail address in log, MAPI uses user_uid@domain_uid
+			List.of(asUser.value.defaultEmailAddress(), asUser.value.login + "@" + domainName).forEach(latd -> {
+				logger.info("Reconfiguring logs for {} on {}, enable: {}", latd, endpoint, enable);
+				MQ.getProducer(Topic.LOGBACK_CONFIG)
+						.send(new JsonObject().put("endpoint", endpoint).put("user", latd).put("enabled", enable));
+			});
 		}
 	}
 }

@@ -168,7 +168,7 @@ public class MailApiConnection implements MailboxConnection {
 
 	@Override
 	public String logId() {
-		return me.value.login + "@" + me.domainUid;
+		return me.value.defaultEmailAddress();
 	}
 
 	@Override

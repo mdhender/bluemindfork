@@ -1,288 +1,332 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<configuration scan="true">
-	<!-- converts vertx ContextualData to Logback -->
-	<conversionRule conversionWord="vcl" converterClass="net.bluemind.common.logback.ContextLoggingConverter"/>
+<configuration>
+        <property name="DEFAULT_PATTERN"
+                value="%date{ISO8601, ${net.bluemind.property.system.timezone:-GMT}} [%thread] [%mdc{endpoint:-none}:%mdc{user:-anon}] %c{1} %p - %m%n" />
 
-	<property name="DEFAULT_PATTERN"
-		value="%date{ISO8601, ${net.bluemind.property.system.timezone:-GMT}} [%thread] [%vcl{endpoint:-none}:%vcl{user:-anon}] %c{1} %p - %m%n" />
+        <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+                <resetJUL>true</resetJUL>
+        </contextListener>
 
-	<contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
-		<resetJUL>true</resetJUL>
-	</contextListener>
+        <!-- Sentry send exceptions -->
+        <appender name="Sentry" class="io.sentry.logback.SentryAppender">
+                <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                        <level>ERROR</level>
+                </filter>
+                <!-- we don't care about errors without throwables -->
+                <filter class="net.bluemind.common.logback.ThrowableFilter" />
+        </appender>
 
-	<!-- Sentry send exceptions -->
-	<appender name="Sentry" class="io.sentry.logback.SentryAppender">
-		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>ERROR</level>
-		</filter>
-		<!-- we don't care about errors without throwables -->
-		<filter class="net.bluemind.common.logback.ThrowableFilter" />
-	</appender>
+        <appender name="all"
+                class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
+                <File>/var/log/bm/core.log</File>
+                <encoder>
+                        <pattern>${DEFAULT_PATTERN}</pattern>
+                </encoder>
+                <rollingPolicy
+                        class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                        <!-- daily rollover -->
+                        <fileNamePattern>/var/log/bm/core.log.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+                        <!-- keep 60 days of history capped at 1.2GB total size -->
+                        <maxHistory>60</maxHistory>
+                        <MaxFileSize>60MB</MaxFileSize>
+                        <totalSizeCap>1200MB</totalSizeCap>
+                </rollingPolicy>
+        </appender>
+        <appender name="async_all" class="net.bluemind.common.logback.VertxAsyncAppender">
+                <queueSize>512</queueSize>
+                <discardingThreshold>0</discardingThreshold>
+                <appender-ref ref="all" />
+        </appender>
 
-	<appender name="R"
-		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
-		<File>/var/log/bm/core.log</File>
-		<encoder>
-			<pattern>${DEFAULT_PATTERN}</pattern>
-		</encoder>
-		<rollingPolicy
-			class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-			<!-- daily rollover -->
-			<fileNamePattern>/var/log/bm/core.log.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
-			<!-- keep 60 days of history capped at 1.2GB total size -->
-			<maxHistory>60</maxHistory>
-			<MaxFileSize>60MB</MaxFileSize>
-			<totalSizeCap>1200MB</totalSizeCap>
-		</rollingPolicy>
-	</appender>
+        <logger name="org.apache.kafka.clients" level="WARN" />
+        <logger name="org.apache.kafka.common" level="WARN" />
 
-	<logger name="org.apache.kafka.clients" level="WARN" />
-	<logger name="org.apache.kafka.common" level="WARN" />
+        <logger name="org.apache.directory.shared" level="ERROR" />
 
-	<logger name="org.apache.directory.shared" level="ERROR" />
+        <logger name="org.apache.directory.ldap.client.api.LdapNetworkConnection" level="ERROR" />
+        <logger name="org.apache.directory.api.ldap.model.entry.DefaultAttribute" level="ERROR" />
 
-	<logger name="org.apache.directory.ldap.client.api.LdapNetworkConnection" level="ERROR" />
-	<logger name="org.apache.directory.api.ldap.model.entry.DefaultAttribute" level="ERROR" />
+        <logger name="com.netflix.hollow.core.read.engine.HollowBlobReader" level="WARN" />
+        <logger name="com.netflix.hollow.api.producer.AbstractHollowProducer" level="WARN" />
 
-	<logger name="com.netflix.hollow.core.read.engine.HollowBlobReader" level="WARN" />
-	<logger name="com.netflix.hollow.api.producer.AbstractHollowProducer" level="WARN" />
+        <!-- log mailindex -->
+        <appender name="mailindex" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <file>/var/log/bm/mail-index.log</file>
+                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                        <!-- rollover daily -->
+                        <fileNamePattern>/var/log/bm/mail-index.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+                        <maxFileSize>60MB</maxFileSize>
+                        <maxHistory>20</maxHistory>
+                        <totalSizeCap>1GB</totalSizeCap>
+                </rollingPolicy>
+                <encoder>
+                        <pattern>${DEFAULT_PATTERN}</pattern>
+                </encoder>
+        </appender>
+        <appender name="async_mailindex" class="net.bluemind.common.logback.VertxAsyncAppender">
+                <queueSize>512</queueSize>
+                <discardingThreshold>0</discardingThreshold>
+                <appender-ref ref="mailindex" />
+        </appender>
+        <logger name="net.bluemind.index.mail" level="INFO" additivity="false">
+                <appender-ref ref="async_mailindex" />
+        </logger>
+        <logger name="net.bluemind.tika.client" level="INFO" additivity="false">
+                <appender-ref ref="async_mailindex" />
+        </logger>
 
-	<!-- log mailindex -->
-	<appender name="MailIndex" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>/var/log/bm/mail-index.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-			<!-- rollover daily -->
-			<fileNamePattern>/var/log/bm/mail-index.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
-			<maxFileSize>60MB</maxFileSize>
-			<maxHistory>20</maxHistory>
-			<totalSizeCap>1GB</totalSizeCap>
-		</rollingPolicy>
-		<encoder>
-			<pattern>${DEFAULT_PATTERN}</pattern>
-		</encoder>
-	</appender>
-	<logger name="net.bluemind.index.mail" level="INFO" additivity="false">
-		<appender-ref ref="MailIndex" />
-	</logger>
-	<logger name="net.bluemind.tika.client" level="INFO" additivity="false">
-		<appender-ref ref="MailIndex" />
-	</logger>
-	
-	<!-- log call -->
-	<appender name="SlowRestCall" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>/var/log/bm/slow-call.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-			<!-- rollover daily -->
-			<fileNamePattern>/var/log/bm/slow-call.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
-			<maxFileSize>60MB</maxFileSize>
-			<maxHistory>20</maxHistory>
-			<totalSizeCap>1GB</totalSizeCap>
-		</rollingPolicy>
-		<encoder>
-			<pattern>${DEFAULT_PATTERN}</pattern>
-		</encoder>
-	</appender>
-	<logger name="net.bluemind.core.rest.log.CallLogger" level="WARN" additivity="false">
-		<appender-ref ref="SlowRestCall" />
-	</logger>
+        <!-- log call -->
+        <appender name="slowrest" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <file>/var/log/bm/slow-call.log</file>
+                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                        <!-- rollover daily -->
+                        <fileNamePattern>/var/log/bm/slow-call.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+                        <maxFileSize>60MB</maxFileSize>
+                        <maxHistory>20</maxHistory>
+                        <totalSizeCap>1GB</totalSizeCap>
+                </rollingPolicy>
+                <encoder>
+                        <pattern>${DEFAULT_PATTERN}</pattern>
+                </encoder>
+        </appender>
+        <appender name="async_slowrest" class="net.bluemind.common.logback.VertxAsyncAppender">
+                <queueSize>512</queueSize>
+                <discardingThreshold>0</discardingThreshold>
+                <appender-ref ref="slowrest" />
+        </appender>
+        <logger name="net.bluemind.core.rest.log.CallLogger" level="WARN" additivity="false">
+                <appender-ref ref="async_slowrest" />
+        </logger>
 
-	<!-- RestSockJsProxyHandler -->
-	<appender name="RestSockJsProxyHandler" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>/var/log/bm/js.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-			<!-- rollover daily -->
-			<fileNamePattern>/var/log/bm/js.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
-			<maxFileSize>60MB</maxFileSize>
-			<maxHistory>20</maxHistory>
-			<totalSizeCap>1GB</totalSizeCap>
-		</rollingPolicy>
-		<encoder>
-			<pattern>${DEFAULT_PATTERN}</pattern>
-		</encoder>
-	</appender>
-	<logger name="net.bluemind.core.rest.sockjs.vertx.RestSockJsProxyHandler" level="INFO" additivity="false">
-		<appender-ref ref="RestSockJsProxyHandler" />
-	</logger>
+        <!-- RestSockJsProxyHandler -->
+        <appender name="restsockjs" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <file>/var/log/bm/js.log</file>
+                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                        <!-- rollover daily -->
+                        <fileNamePattern>/var/log/bm/js.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+                        <maxFileSize>60MB</maxFileSize>
+                        <maxHistory>20</maxHistory>
+                        <totalSizeCap>1GB</totalSizeCap>
+                </rollingPolicy>
+                <encoder>
+                        <pattern>${DEFAULT_PATTERN}</pattern>
+                </encoder>
+        </appender>
+        <appender name="async_restsockjs" class="net.bluemind.common.logback.VertxAsyncAppender">
+                <queueSize>512</queueSize>
+                <discardingThreshold>0</discardingThreshold>
+                <appender-ref ref="restsockjs" />
+        </appender>
+        <logger name="net.bluemind.core.rest.sockjs.vertx.RestSockJsProxyHandler" level="INFO" additivity="false">
+                <appender-ref ref="async_restsockjs" />
+        </logger>
 
-	<!-- SendmailHandler -->
-	<appender name="SendmailHandler" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>/var/log/bm/sendmail.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-			<!-- rollover daily -->
-			<fileNamePattern>/var/log/bm/sendmail.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
-			<maxFileSize>60MB</maxFileSize>
-			<maxHistory>20</maxHistory>
-			<totalSizeCap>1GB</totalSizeCap>
-		</rollingPolicy>
-		<encoder>
-			<pattern>${DEFAULT_PATTERN}</pattern>
-		</encoder>
-	</appender>
-	<logger name="net.bluemind.core.sendmail" level="INFO" additivity="false">
-		<appender-ref ref="SendmailHandler" />
-	</logger>
-	
-	<!-- IMAP -->
-	<appender name="IMAPUSER" class="ch.qos.logback.classic.sift.SiftingAppender">
-		<discriminator class="net.bluemind.common.logback.ContextualDataDiscriminator">
-			<key>user</key>
-			<defaultValue>anon</defaultValue>
-		</discriminator>
-		<sift>
-			<appender name="FILE-${user}" class="ch.qos.logback.core.rolling.RollingFileAppender">
-			<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-				<level>DEBUG</level>
-			</filter>
-			<filter class="net.bluemind.common.logback.EndpointFilter">
-				<endpoint>imap</endpoint>
-			</filter>
-			<filter class="net.bluemind.common.logback.PerUserFilter">
-				<endpoint>imap</endpoint>
-				<userProvider class="net.bluemind.common.logback.VertxContextUserProvider" />
-			</filter>
-			<file>/var/log/bm/imap/${user}.log</file>
-			<encoder>
-				<pattern>%date{ISO8601, ${net.bluemind.property.system.timezone:-GMT}} %c{1} %p - %m%n</pattern>
-			</encoder>
-			<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-				<!-- daily rollover -->
-				<FileNamePattern>/var/log/bm/imap/${user}.log.%d{yyyy-MM-dd}.%i.gz</FileNamePattern>
-					<maxHistory>10</maxHistory>
-					<MaxFileSize>50MB</MaxFileSize>
-					<totalSizeCap>1GB</totalSizeCap>
-				</rollingPolicy>
-			</appender>
-		</sift>
-	</appender>
-	<appender name="IMAPUSERRAW" class="ch.qos.logback.classic.sift.SiftingAppender">
-		<discriminator class="net.bluemind.common.logback.ContextualDataDiscriminator">
-			<key>user</key>
-			<defaultValue>anon</defaultValue>
-		</discriminator>
-		<sift>
-			<appender name="FILE-${user}" class="ch.qos.logback.core.rolling.RollingFileAppender">
-			<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-				<level>DEBUG</level>
-			</filter>
-			<filter class="net.bluemind.common.logback.EndpointFilter">
-				<endpoint>imap</endpoint>
-			</filter>
-			<filter class="net.bluemind.common.logback.PerUserFilter">
-				<endpoint>imap</endpoint>
-				<userProvider class="net.bluemind.common.logback.VertxContextUserProvider" />
-			</filter>
-			<file>/var/log/bm/imap/${user}.raw.log</file>
-			<encoder>
-				<pattern>%m%n</pattern>
-			</encoder>
-			<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-				<!-- daily rollover -->
-				<FileNamePattern>/var/log/bm/imap/${user}.raw.log.%d{yyyy-MM-dd}.%i.gz</FileNamePattern>
-					<maxHistory>10</maxHistory>
-					<MaxFileSize>50MB</MaxFileSize>
-					<totalSizeCap>1GB</totalSizeCap>
-				</rollingPolicy>
-			</appender>
-		</sift>
-	</appender>
-	<appender name="IMAP" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>INFO</level>
-		</filter>
-		<filter class="net.bluemind.common.logback.EndpointFilter">
-			<endpoint>imap</endpoint>
-		</filter>
-		<file>/var/log/bm/imap.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-			<!-- rollover daily -->
-			<fileNamePattern>/var/log/bm/imap.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
-			<maxFileSize>100MB</maxFileSize>
-			<maxHistory>30</maxHistory>
-			<totalSizeCap>1GB</totalSizeCap>
-		</rollingPolicy>
-		<encoder>
-			<pattern>${DEFAULT_PATTERN}</pattern>
-		</encoder>
-	</appender>
-	<logger name="net.bluemind.imap.endpoint" level="DEBUG" additivity="false">
-		<appender-ref ref="IMAPUSER"/>
-		<appender-ref ref="IMAP"/>
-	</logger>
-	<logger name="net.bluemind.imap.driver" level="DEBUG" additivity="false">
-		<appender-ref ref="IMAPUSER"/>
-		<appender-ref ref="IMAP"/>
-	</logger>
-	<logger name="net.bluemind.imap.endpoint.raw" level="DEBUG" additivity="false">
-		<appender-ref ref="IMAPUSERRAW"/>
-	</logger>
-	<!-- /IMAP -->
 
-	<!-- POP3 -->
-	<appender name="POP3USER" class="ch.qos.logback.classic.sift.SiftingAppender">
-		<discriminator class="net.bluemind.common.logback.ContextualDataDiscriminator">
-			<key>user</key>
-			<defaultValue>anon</defaultValue>
-		</discriminator>
-		<sift>
-			<appender name="FILE-${user}" class="ch.qos.logback.core.rolling.RollingFileAppender">
-			<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-				<level>DEBUG</level>
-			</filter>
-			<filter class="net.bluemind.common.logback.EndpointFilter">
-				<endpoint>pop3</endpoint>
-			</filter>
-			<filter class="net.bluemind.common.logback.PerUserFilter">
-				<endpoint>pop3</endpoint>
-				<userProvider class="net.bluemind.common.logback.VertxContextUserProvider" />
-			</filter>
-			<file>/var/log/bm/pop3/${user}.log</file>
-			<encoder>
-				<pattern>%date{ISO8601, ${net.bluemind.property.system.timezone:-GMT}} %c{1} %p - %m%n</pattern>
-			</encoder>
-			<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-				<!-- daily rollover -->
-				<FileNamePattern>/var/log/bm/pop3/${user}.log.%d{yyyy-MM-dd}.%i.gz</FileNamePattern>
-					<maxHistory>10</maxHistory>
-					<MaxFileSize>50MB</MaxFileSize>
-					<totalSizeCap>1GB</totalSizeCap>
-				</rollingPolicy>
-			</appender>
-		</sift>
-	</appender>
-	<appender name="POP3" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>INFO</level>
-		</filter>
-		<filter class="net.bluemind.common.logback.EndpointFilter">
-			<endpoint>pop3</endpoint>
-		</filter>
-		<file>/var/log/bm/pop3.log</file>
-		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-			<!-- rollover daily -->
-			<fileNamePattern>/var/log/bm/pop3.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
-			<maxFileSize>100MB</maxFileSize>
-			<maxHistory>30</maxHistory>
-			<totalSizeCap>1GB</totalSizeCap>
-		</rollingPolicy>
-		<encoder>
-			<pattern>${DEFAULT_PATTERN}</pattern>
-		</encoder>
-	</appender>
-	<logger name="net.bluemind.pop3.endpoint" level="DEBUG" additivity="false">
-		<appender-ref ref="POP3"/>
-		<appender-ref ref="POP3USER"/>
-	</logger>
-	<!-- /POP3 -->
-	
-	<root level="INFO">
-		<appender-ref ref="R" />
-		<appender-ref ref="Sentry" />
-		<appender-ref ref="IMAP" />
-		<appender-ref ref="IMAPUSER"/>
-		<appender-ref ref="IMAPUSERRAW"/>
-		<appender-ref ref="POP3" />
-		<appender-ref ref="POP3USER"/>
-	</root>
+        <!-- SendmailHandler -->
+        <appender name="sendmail" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <file>/var/log/bm/sendmail.log</file>
+                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                        <!-- rollover daily -->
+                        <fileNamePattern>/var/log/bm/sendmail.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+                        <maxFileSize>60MB</maxFileSize>
+                        <maxHistory>20</maxHistory>
+                        <totalSizeCap>1GB</totalSizeCap>
+                </rollingPolicy>
+                <encoder>
+                        <pattern>${DEFAULT_PATTERN}</pattern>
+                </encoder>
+        </appender>
+        <appender name="async_sendmail" class="net.bluemind.common.logback.VertxAsyncAppender">
+                <queueSize>512</queueSize>
+                <discardingThreshold>0</discardingThreshold>
+                <appender-ref ref="sendmail" />
+        </appender>
+        <logger name="net.bluemind.core.sendmail" level="INFO" additivity="false">
+                <appender-ref ref="async_sendmail" />
+        </logger>
+
+        <!-- IMAP -->
+        <appender name="imapuser" class="ch.qos.logback.classic.sift.SiftingAppender">
+                <discriminator class="ch.qos.logback.classic.sift.MDCBasedDiscriminator">
+                        <key>user</key>
+                        <defaultValue>anon</defaultValue>
+                </discriminator>
+                <sift>
+                        <appender name="FILE-${user}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                                <filter class="net.bluemind.common.logback.EndpointFilter">
+                                        <endpoint>imap</endpoint>
+                                </filter>
+                                <file>/var/log/bm/imap/${user}.log</file>
+                                <encoder>
+                                        <pattern>%date{ISO8601, ${net.bluemind.property.system.timezone:-GMT}} %c{1} %p - %m%n</pattern>
+                                </encoder>
+                                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                                        <!-- daily rollover -->
+                                        <FileNamePattern>/var/log/bm/imap/${user}.log.%d{yyyy-MM-dd}.%i.gz</FileNamePattern>
+                                        <maxHistory>10</maxHistory>
+                                        <MaxFileSize>50MB</MaxFileSize>
+                                        <totalSizeCap>1GB</totalSizeCap>
+                                </rollingPolicy>
+                        </appender>
+                </sift>
+        </appender>
+        <appender name="imapuser_raw" class="ch.qos.logback.classic.sift.SiftingAppender">
+                <discriminator class="ch.qos.logback.classic.sift.MDCBasedDiscriminator">
+                        <key>user</key>
+                        <defaultValue>anon</defaultValue>
+                </discriminator>
+                <sift>
+                        <appender name="FILE-${user}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                                <filter class="net.bluemind.common.logback.EndpointFilter">
+                                        <endpoint>imap</endpoint>
+                                </filter>
+                                <file>/var/log/bm/imap/${user}.raw.log</file>
+                                <encoder>
+                                        <pattern>%m%n</pattern>
+                                </encoder>
+                                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                                        <!-- daily rollover -->
+                                        <FileNamePattern>/var/log/bm/imap/${user}.raw.log.%d{yyyy-MM-dd}.%i.gz</FileNamePattern>
+                                        <maxHistory>10</maxHistory>
+                                        <MaxFileSize>50MB</MaxFileSize>
+                                        <totalSizeCap>1GB</totalSizeCap>
+                                </rollingPolicy>
+                        </appender>
+                </sift>
+        </appender>
+        <appender name="imap" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <file>/var/log/bm/imap.log</file>
+                <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                        <level>INFO</level>
+                </filter>
+                <filter class="net.bluemind.common.logback.EndpointFilter">
+                        <endpoint>imap</endpoint>
+                </filter>
+                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                        <!-- rollover daily -->
+                        <fileNamePattern>/var/log/bm/imap.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+                        <maxFileSize>100MB</maxFileSize>
+                        <maxHistory>30</maxHistory>
+                        <totalSizeCap>1GB</totalSizeCap>
+                </rollingPolicy>
+                <encoder>
+                        <pattern>${DEFAULT_PATTERN}</pattern>
+                </encoder>
+        </appender>
+        <appender name="async_imap" class="net.bluemind.common.logback.VertxAsyncAppender">
+                <queueSize>512</queueSize>
+                <discardingThreshold>0</discardingThreshold>
+                <appender-ref ref="imap" />
+        </appender>
+        <appender name="async_imapuser" class="net.bluemind.common.logback.VertxAsyncAppender">
+                <filter class="net.bluemind.common.logback.PerUserFilter">
+                        <endpoint>imap</endpoint>
+                        <userProvider class="net.bluemind.common.logback.VertxContextUserProvider" />
+                </filter>
+                <queueSize>512</queueSize>
+                <discardingThreshold>0</discardingThreshold>
+                <appender-ref ref="imapuser" />
+        </appender>
+        <appender name="async_imapuser_raw" class="net.bluemind.common.logback.VertxAsyncAppender">
+                <filter class="net.bluemind.common.logback.PerUserFilter">
+                        <endpoint>imap</endpoint>
+                        <userProvider class="net.bluemind.common.logback.VertxContextUserProvider" />
+                </filter>
+                <queueSize>512</queueSize>
+                <discardingThreshold>0</discardingThreshold>
+                <appender-ref ref="imapuser_raw" />
+        </appender>
+        <logger name="net.bluemind.imap.endpoint" level="DEBUG" additivity="false">
+                <appender-ref ref="async_imapuser"/>
+                <appender-ref ref="async_imap"/>
+        </logger>
+        <logger name="net.bluemind.imap.driver" level="DEBUG" additivity="false">
+                <appender-ref ref="async_imapuser"/>
+                <appender-ref ref="async_imap"/>
+        </logger>
+        <logger name="net.bluemind.imap.endpoint_raw" level="DEBUG" additivity="false">
+                <appender-ref ref="async_imapuser_raw"/>
+        </logger>
+        <!-- /IMAP -->
+
+        <!-- POP3 -->
+        <appender name="pop3" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <file>/var/log/bm/pop3.log</file>
+                <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                        <level>INFO</level>
+                </filter>
+                <filter class="net.bluemind.common.logback.EndpointFilter">
+                        <endpoint>pop3</endpoint>
+                </filter>
+                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                        <!-- rollover daily -->
+                        <fileNamePattern>/var/log/bm/pop3.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+                        <maxFileSize>100MB</maxFileSize>
+                        <maxHistory>30</maxHistory>
+                        <totalSizeCap>1GB</totalSizeCap>
+                </rollingPolicy>
+                <encoder>
+                        <pattern>${DEFAULT_PATTERN}</pattern>
+                </encoder>
+        </appender>
+        <appender name="async_pop3" class="net.bluemind.common.logback.VertxAsyncAppender">
+                <queueSize>512</queueSize>
+                <discardingThreshold>0</discardingThreshold>
+                <appender-ref ref="pop3" />
+        </appender>
+
+        <appender name="pop3user" class="ch.qos.logback.classic.sift.SiftingAppender">
+                <discriminator class="ch.qos.logback.classic.sift.MDCBasedDiscriminator">
+                        <key>user</key>
+                        <defaultValue>anon</defaultValue>
+                </discriminator>
+                <sift>
+                        <appender name="FILE-${user}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                                <filter class="net.bluemind.common.logback.EndpointFilter">
+                                        <endpoint>pop3</endpoint>
+                                </filter>
+                                <file>/var/log/bm/pop3/${user}.log</file>
+                                <encoder>
+                                        <pattern>%date{ISO8601, ${net.bluemind.property.system.timezone:-GMT}} %c{1} %p - %m%n</pattern>
+                                </encoder>
+                                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                                        <!-- daily rollover -->
+                                        <FileNamePattern>/var/log/bm/pop3/${user}.log.%d{yyyy-MM-dd}.%i.gz</FileNamePattern>
+                                        <maxHistory>10</maxHistory>
+                                        <MaxFileSize>50MB</MaxFileSize>
+                                        <totalSizeCap>1GB</totalSizeCap>
+                                </rollingPolicy>
+                        </appender>
+                </sift>
+        </appender>
+
+        <appender name="async_pop3user" class="net.bluemind.common.logback.VertxAsyncAppender">
+                <filter class="net.bluemind.common.logback.PerUserFilter">
+                        <endpoint>pop3</endpoint>
+                        <userProvider class="net.bluemind.common.logback.VertxContextUserProvider" />
+                </filter>
+                <queueSize>512</queueSize>
+                <discardingThreshold>0</discardingThreshold>
+                <appender-ref ref="pop3user" />
+        </appender>
+        <logger name="net.bluemind.pop3.endpoint" level="DEBUG" additivity="false">
+                <appender-ref ref="async_pop3user"/>
+                <appender-ref ref="async_pop3"/>
+        </logger>
+        <logger name="net.bluemind.pop3.driver" level="DEBUG" additivity="false">
+                <appender-ref ref="async_pop3user"/>
+                <appender-ref ref="async_pop3"/>
+        </logger>
+        <!-- /POP3 -->
+
+        <root level="INFO">
+                <appender-ref ref="Sentry" />
+                <appender-ref ref="async_all" />
+                <appender-ref ref="async_imap" />
+                <appender-ref ref="async_imapuser"/>
+                <appender-ref ref="async_pop3" />
+                <appender-ref ref="async_pop3user" />
+        </root>
 </configuration>

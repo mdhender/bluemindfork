@@ -20,7 +20,6 @@ package net.bluemind.common.logback;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
-import net.bluemind.common.vertx.contextlogging.ContextualData;
 
 public final class EndpointFilter extends Filter<ILoggingEvent> {
 	String endpoint;
@@ -30,7 +29,7 @@ public final class EndpointFilter extends Filter<ILoggingEvent> {
 		if (endpoint == null) {
 			return FilterReply.DENY;
 		}
-		return endpoint.equals(ContextualData.getOrDefault("endpoint", "none")) ? FilterReply.NEUTRAL
+		return endpoint.equals(event.getMDCPropertyMap().getOrDefault("endpoint", "none")) ? FilterReply.NEUTRAL
 				: FilterReply.DENY;
 	}
 

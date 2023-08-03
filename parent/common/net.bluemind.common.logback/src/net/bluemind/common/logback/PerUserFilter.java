@@ -35,9 +35,8 @@ public final class PerUserFilter extends Filter<ILoggingEvent> {
 		if (!isStarted()) {
 			return FilterReply.NEUTRAL;
 		}
-
 		String user = userProvider.user();
-		if (user == null || user.equals("anon")) {
+		if (user == null || "anon".equals(user) || "sys".equals(user)) {
 			return FilterReply.DENY;
 		}
 		return Boolean.getBoolean(user + "." + endpoint + ".logging") ? FilterReply.NEUTRAL : FilterReply.DENY;

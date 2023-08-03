@@ -4,7 +4,7 @@
 	<property name="DEFAULT_PATTERN"
 		value="%date{ISO8601, ${net.bluemind.property.system.timezone:-GMT}} [%thread] %c{1} %p - %m%n" />
 
-	<appender name="R"
+	<appender name="all"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
 		<File>/var/log/bm-webserver/webserver.log</File>
@@ -20,6 +20,11 @@
 			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
 	</appender>
+    <appender name="async_all" class="net.bluemind.common.logback.VertxAsyncAppender">
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <appender-ref ref="all" />
+    </appender>
 
 	<!-- Sentry send exceptions -->
 	<appender name="Sentry" class="io.sentry.logback.SentryAppender">
@@ -31,12 +36,12 @@
 	</appender>
 
 	<root level="INFO">
-		<appender-ref ref="R"/>
+		<appender-ref ref="async_all"/>
 		<appender-ref ref="Sentry"/>
 	</root>
 
 	<!-- log DAV -->
-	<appender name="DAV"
+	<appender name="dav"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
 		<File>/var/log/bm-webserver/dav.log</File>
@@ -52,10 +57,14 @@
 			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
 	</appender>
+    <appender name="async_dav" class="net.bluemind.common.logback.VertxAsyncAppender">
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <appender-ref ref="dav" />
+    </appender>
 	<logger name="net.bluemind.dav.server" level="INFO" additivity="false">
-		<appender-ref ref="DAV" />
+		<appender-ref ref="async_dav" />
 	</logger>
-
 
 	<!-- log /setup -->
 	<appender name="setup"
@@ -95,7 +104,12 @@
 			<totalSizeCap>1GB</totalSizeCap>
 		</rollingPolicy>
 	</appender>
+    <appender name="async_jslog" class="net.bluemind.common.logback.VertxAsyncAppender">
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <appender-ref ref="jslog" />
+    </appender>
 	<logger name="net.bluemind.webmodule.server.handlers.LogHandler" level="INFO" additivity="false">
-		<appender-ref ref="jslog" />
+		<appender-ref ref="async_jslog" />
 	</logger>
 </configuration>
