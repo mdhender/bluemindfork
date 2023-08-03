@@ -369,6 +369,12 @@ public class MailboxesService implements IMailboxes, IInCoreMailboxes {
 		return storeService.getFilter(mailboxUid).rules;
 	}
 
+	@Override
+	public List<MailFilterRule> getMailboxRulesByClient(String mailboxUid, String client) throws ServerFault {
+		rbacManager.forEntry(mailboxUid).check(BasicRoles.ROLE_MANAGE_MAILBOX_FILTER);
+		return storeService.getFilter(mailboxUid).rules.stream().filter(r -> client.equals(r.client)).toList();
+	}
+
 	private IMailboxesStorage mailboxStorage() {
 		return mailboxStorage;
 	}

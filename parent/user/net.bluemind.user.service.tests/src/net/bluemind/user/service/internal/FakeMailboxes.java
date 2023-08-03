@@ -165,4 +165,9 @@ public class FakeMailboxes implements IMailboxes {
 		throw new ServerFault("not implemented");
 	}
 
+	@Override
+	public List<MailFilterRule> getMailboxRulesByClient(String mailboxUid, String client) throws ServerFault {
+		throw new ServerFault("not implemented");
+	}
+
 }

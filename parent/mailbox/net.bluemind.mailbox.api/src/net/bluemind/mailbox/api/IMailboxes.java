@@ -121,6 +121,11 @@ public interface IMailboxes {
 	List<MailFilterRule> getMailboxRules(@PathParam("mailboxUid") String mailboxUid) throws ServerFault;
 
 	@GET
+	@Path("{mailboxUid}/_rulesByClient")
+	List<MailFilterRule> getMailboxRulesByClient(@PathParam("mailboxUid") String mailboxUid,
+			@QueryParam("client") String client) throws ServerFault;
+
+	@GET
 	@Path("{mailboxUid}/_acls")
 	public List<AccessControlEntry> getMailboxAccessControlList(@PathParam("mailboxUid") String mailboxUid)
 			throws ServerFault;

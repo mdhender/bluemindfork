@@ -87,7 +87,6 @@ public class MailboxStoreService extends ContainerStoreService<Mailbox> {
 		} catch (SQLException e) {
 			throw ServerFault.sqlFault(e);
 		}
-
 	}
 
 	public void setFilter(String mailboxUid, MailFilter filter) throws ServerFault {

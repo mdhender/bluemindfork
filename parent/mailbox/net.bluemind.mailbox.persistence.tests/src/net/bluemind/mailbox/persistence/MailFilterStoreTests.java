@@ -175,4 +175,10 @@ public class MailFilterStoreTests {
 		rule.addMarkAsImportant();
 		return rule;
 	}
+
+	private MailFilterRule defaultRuleWithClient(String client) {
+		MailFilterRule rule = defaultRule();
+		rule.client = client;
+		return rule;
+	}
 }

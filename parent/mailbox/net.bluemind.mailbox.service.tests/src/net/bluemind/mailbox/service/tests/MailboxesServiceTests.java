@@ -642,6 +642,36 @@ public class MailboxesServiceTests extends AbstractMailboxServiceTests {
 		assertEquals(1, retrievedFilter.rules.size());
 	}
 
+	@Test
+	public void testGetMailboxRules() throws Exception {
+		IMailboxes service = getService(defaultSecurityContext);
+		String uid1 = UUID.randomUUID().toString();
+		Mailbox mbox1 = defaultMailshare("mbox1");
+		service.create(uid1, mbox1);
+
+		MailFilterRule rule1 = new MailFilterRule();
+		rule1.name = "rule1";
+		rule1.client = "client1";
+		rule1.conditions.add(MailFilterRuleCondition.equal("subject", "SubjectTest"));
+		rule1.addMove("test");
+
+		MailFilterRule rule2 = new MailFilterRule();
+		rule2.name = "rule2";
+		rule2.conditions.add(MailFilterRuleCondition.equal("subject", "Toto"));
+		rule2.addMove("totomails");
+
+		MailFilter filter = MailFilter.create(rule1, rule2);
+		service.setMailboxFilter(uid1, filter);
+
+		List<MailFilterRule> mailboxRules = service.getMailboxRules(uid1);
+		assertTrue(mailboxRules.stream().anyMatch(r -> rule1.name.equals(r.name)));
+		assertTrue(mailboxRules.stream().anyMatch(r -> rule2.name.equals(r.name)));
+
+		mailboxRules = service.getMailboxRulesByClient(uid1, "client1");
+		assertTrue(mailboxRules.stream().anyMatch(r -> rule1.name.equals(r.name)));
+		assertTrue(mailboxRules.stream().noneMatch(r -> rule2.name.equals(r.name)));
+	}
+
 	private void doUserSetAcls(boolean mustFail, String uid, ArrayList<AccessControlEntry> accessControlEntries)
 			throws ServerFault {
 		try {
