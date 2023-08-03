@@ -369,6 +369,7 @@ public class FileSystemFileHostingService implements IInternalFileHostingService
 		FileHostingInfo info = new FileHostingInfo();
 		info.info = "BlueMind FileHosting";
 		info.type = Type.INTERNAL;
+		info.browsable = true;
 		return info;
 	}
 

@@ -275,6 +275,7 @@ public class SdsFileHostingService implements IInternalFileHostingService {
 		info.info = "BlueMind SDS filehosting";
 		info.type = Type.INTERNAL;
 		info.present = sds.get() != null;
+		info.browsable = false;
 		logger.debug("FileHostingInfo {} present {}", info.info, info.present);
 		return info;
 	}

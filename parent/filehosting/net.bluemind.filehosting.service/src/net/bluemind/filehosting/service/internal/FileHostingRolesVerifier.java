@@ -33,6 +33,10 @@ public class FileHostingRolesVerifier implements IRolesVerifier {
 			return removeRoles();
 		}
 
+		if (!info.browsable) {
+			return Set.of("canUseFilehosting");
+		}
+
 		return Collections.emptySet();
 	}
 

@@ -126,6 +126,8 @@ public class FileHostingService implements IFileHosting {
 		info.type = externalSystems > 0 ? Type.EXTERNAL : Type.INTERNAL;
 		info.info = delegates.stream().map(d -> d.info(context).info).reduce("",
 				(sum, infoString) -> sum.concat(infoString).concat("\n"));
+		info.browsable = delegates.stream().map(d -> d.info(context).browsable).reduce(false,
+				(browsable, browsableValue) -> browsable || browsableValue);
 		info.present = true;
 		return info;
 	}

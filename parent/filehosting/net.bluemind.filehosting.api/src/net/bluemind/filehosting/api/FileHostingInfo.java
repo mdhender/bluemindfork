@@ -26,6 +26,7 @@ public class FileHostingInfo {
 	public boolean present;
 	public FileHostingInfo.Type type;
 	public String info;
+	public boolean browsable = true;
 
 	public FileHostingInfo() {
 
