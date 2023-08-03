@@ -161,9 +161,9 @@ public class OutboxService implements IOutbox {
 			FlushInfo ret = new FlushInfo();
 			try (Message msg = Mime4JHelper.parse(in)) {
 				if (msg.getFrom() == null) {
-					org.apache.james.mime4j.dom.address.Mailbox from = SendmailHelper
+					org.apache.james.mime4j.dom.address.Mailbox fromCtx = SendmailHelper
 							.formatAddress(ctx.user.displayName, ctx.user.value.defaultEmail().address);
-					msg.setFrom(from);
+					msg.setFrom(fromCtx);
 				}
 				String fromMail = msg.getFrom().iterator().next().getAddress();
 				MailboxList rcptTo = allRecipients(msg);
@@ -247,14 +247,14 @@ public class OutboxService implements IOutbox {
 		}
 	}
 
-	private SendmailResponse send(String login, InputStream forSend, String fromMail, MailboxList rcptTo,
+	private SendmailResponse send(String login, InputStream forSend, String fromEnvelop, MailboxList rcptTo,
 			Message relatedMsg, boolean requestDSN) {
 		SendmailCredentials creds = SendmailCredentials.as(String.format("%s@%s", login, domainUid),
 				context.getSecurityContext().getSessionId());
-		SendmailResponse sendmailResponse = mailer.send(creds, fromMail, domainUid, rcptTo, forSend, requestDSN);
+		SendmailResponse sendmailResponse = mailer.send(creds, fromEnvelop, domainUid, rcptTo, forSend, requestDSN);
 
 		if (!sendmailResponse.getFailedRecipients().isEmpty()) {
-			sendNonDeliveryReport(sendmailResponse.getFailedRecipients(), creds, fromMail, relatedMsg);
+			sendNonDeliveryReport(sendmailResponse.getFailedRecipients(), creds, fromEnvelop, relatedMsg);
 		} else if (!sendmailResponse.isOk()) {
 			throw new ServerFault(sendmailResponse.toString());
 		}

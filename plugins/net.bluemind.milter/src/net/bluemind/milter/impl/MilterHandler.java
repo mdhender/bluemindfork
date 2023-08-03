@@ -339,7 +339,6 @@ public class MilterHandler implements JilterHandler {
 	private net.bluemind.mailflow.common.api.Message toBmMessage() {
 		net.bluemind.mailflow.common.api.Message msg = new net.bluemind.mailflow.common.api.Message();
 		msg.sendingAs = getSendingAs();
-
 		AddressList to = accumulator.getMessage().getTo();
 		if (null != to) {
 			msg.to = addressListToEmail(to);
@@ -362,6 +361,8 @@ public class MilterHandler implements JilterHandler {
 		}
 		if (null != accumulator.getMessage().getSender()) {
 			sendingAs.sender = accumulator.getMessage().getSender().getAddress();
+		} else if (null != accumulator.getEnvelope().getSender()) {
+			sendingAs.sender = accumulator.getEnvelope().getSender().getEmailAddress();
 		}
 		if (sendingAs.from == null) {
 			if (sendingAs.sender != null) {

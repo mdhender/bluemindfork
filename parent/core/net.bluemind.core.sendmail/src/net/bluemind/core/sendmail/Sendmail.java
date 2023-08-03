@@ -65,8 +65,8 @@ public class Sendmail implements ISendmail {
 	 * java.lang.String, org.apache.james.mime4j.dom.Message)
 	 */
 	@Override
-	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, Message m) {
-		return send(creds, fromEmail, userDomain, allRecipients(m), m);
+	public SendmailResponse send(SendmailCredentials creds, String fromEnvelop, String userDomain, Message m) {
+		return send(creds, fromEnvelop, userDomain, allRecipients(m), m);
 	}
 
 	/*
@@ -121,10 +121,10 @@ public class Sendmail implements ISendmail {
 	 * org.apache.james.mime4j.dom.Message)
 	 */
 	@Override
-	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
+	public SendmailResponse send(SendmailCredentials creds, String fromEnvelop, String userDomain, MailboxList rcptTo,
 			Message m) {
 		try (InputStream in = Mime4JHelper.asStream(m)) {
-			return send(creds, fromEmail, userDomain, rcptTo, in);
+			return send(creds, fromEnvelop, userDomain, rcptTo, in);
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 			return SendmailResponse.fail(e.getMessage());
@@ -132,19 +132,20 @@ public class Sendmail implements ISendmail {
 	}
 
 	@Override
-	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
+	public SendmailResponse send(SendmailCredentials creds, String fromEnvelop, String userDomain, MailboxList rcptTo,
 			InputStream inStream) {
-		return send(creds, fromEmail, userDomain, rcptTo, inStream, false);
+		return send(creds, fromEnvelop, userDomain, rcptTo, inStream, false);
 	}
 
 	@Override
-	public SendmailResponse send(SendmailCredentials creds, String fromEmail, String userDomain, MailboxList rcptTo,
+	public SendmailResponse send(SendmailCredentials creds, String fromEnvelop, String userDomain, MailboxList rcptTo,
 			InputStream inStream, boolean requestDSN) {
 		if (rcptTo == null) {
 			throw new ServerFault("null To: field in message");
 		}
 		SendmailResponse sendmailResponse = null;
 		List<FailedRecipient> failedRecipients = new ArrayList<>();
+		String from = creds.notAdminAndNotCurrentUser(fromEnvelop) ? creds.loginAtDomain : fromEnvelop;
 
 		String ip = Topology.get().any("mail/smtp").value.address();
 		try (SMTPProtocol smtp = new SMTPProtocol(ip,
@@ -158,7 +159,7 @@ public class Sendmail implements ISendmail {
 			}
 			smtp.ehlo(InetAddress.getLocalHost());
 			smtp.auth("PLAIN", creds.loginAtDomain, creds.authKey.toCharArray());
-			smtp.mail(new Address(fromEmail));
+			smtp.mail(new Address(from));
 
 			int requestedDSNs = 0;
 			for (Mailbox to : rcptTo) {
@@ -176,20 +177,20 @@ public class Sendmail implements ISendmail {
 			sendmailResponse = new SendmailResponse(smtp.data(inStream), failedRecipients, requestedDSNs);
 			smtp.quit();
 
-			logger.info("Email sent {}", getLog(creds, fromEmail, rcptTo, sendmailResponse, Optional.empty()));
+			logger.info("Email sent {}", getLog(creds, from, rcptTo, sendmailResponse, Optional.empty()));
 			return sendmailResponse;
 		} catch (Exception se) {
 			logger.error("Email not sent {}",
-					getLog(creds, fromEmail, rcptTo, sendmailResponse, Optional.of(se.getMessage())));
+					getLog(creds, from, rcptTo, sendmailResponse, Optional.of(se.getMessage())));
 			logger.error(se.getMessage(), se);
 
 			return SendmailResponse.fail(se.getMessage(), failedRecipients);
 		}
 	}
 
-	private String getLog(SendmailCredentials creds, String fromEmail, MailboxList rcptTo,
+	private String getLog(SendmailCredentials creds, String fromEnvelop, MailboxList rcptTo,
 			SendmailResponse sendmailResponse, Optional<String> exceptionMessage) {
-		return String.format("as: %s, from: %s, to %s, response: %s", creds.loginAtDomain, fromEmail,
+		return String.format("as: %s, from: %s, to %s, response: %s", creds.loginAtDomain, fromEnvelop,
 				String.join(",", rcptTo.stream().map(rcpt -> rcpt.getAddress()).collect(Collectors.toList())),
 				sendmailResponse != null ? sendmailResponse.toString() : exceptionMessage.orElse("Fail"));
 	}

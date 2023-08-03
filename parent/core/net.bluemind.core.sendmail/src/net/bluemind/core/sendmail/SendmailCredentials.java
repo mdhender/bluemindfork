@@ -19,4 +19,13 @@ public class SendmailCredentials {
 	public static SendmailCredentials asAdmin0() {
 		return new SendmailCredentials("admin0@global.virt", Token.admin0());
 	}
+
+	private boolean isAdminO() {
+		return this.equals(asAdmin0());
+	}
+
+	public boolean notAdminAndNotCurrentUser(String fromEmail) {
+		return !isAdminO() && !loginAtDomain.equals(fromEmail);
+
+	}
 }
