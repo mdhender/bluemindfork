@@ -30,6 +30,10 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.micrometer.core.instrument.Meter;
+import io.micrometer.core.instrument.config.MeterFilter;
+import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
 import io.opentelemetry.api.GlobalOpenTelemetry;
@@ -45,6 +49,8 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageCodec;
 import io.vertx.micrometer.MicrometerMetricsOptions;
 import io.vertx.micrometer.VertxPrometheusOptions;
+import io.vertx.micrometer.backends.BackendRegistries;
+import io.vertx.micrometer.impl.VertxMetricsFactoryImpl;
 import io.vertx.tracing.opentelemetry.OpenTelemetryOptions;
 import net.bluemind.common.vertx.contextlogging.ContextualData;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
@@ -86,8 +92,9 @@ public final class VertxPlatform implements BundleActivator {
 		openTelemetry = GlobalOpenTelemetry.get();
 
 		MicrometerMetricsOptions metricsOptions = new MicrometerMetricsOptions().setEnabled(true)
-				.setPrometheusOptions(new VertxPrometheusOptions().setEnabled(true).setPublishQuantiles(true))
-				.setJvmMetricsEnabled(true);
+				.setPrometheusOptions(new VertxPrometheusOptions().setEnabled(true)).setJvmMetricsEnabled(true);
+
+		metricsOptions.setFactory(new VertxMetricsFactoryImpl());
 
 		// LC: Don't disable setPreferNativeTransport as it will disable unix sockets
 		// too!
@@ -95,7 +102,21 @@ public final class VertxPlatform implements BundleActivator {
 				.setPreferNativeTransport(true) //
 				.setTracingOptions(new OpenTelemetryOptions(openTelemetry)) //
 				.setMetricsOptions(metricsOptions));
+
 		vertx.exceptionHandler(t -> logger.error("Uncaught exception: {}", t.getMessage(), t));
+		/*
+		 * After the Vert.x instance has been created, we can configure the metrics
+		 * registry to enable histogram buckets for percentile approximations.
+		 */
+		PrometheusMeterRegistry registry = (PrometheusMeterRegistry) BackendRegistries.getDefaultNow();
+		if (registry != null) {
+			registry.config().meterFilter(new MeterFilter() {
+				@Override
+				public DistributionStatisticConfig configure(Meter.Id id, DistributionStatisticConfig config) {
+					return DistributionStatisticConfig.builder().percentilesHistogram(true).build().merge(config);
+				}
+			});
+		}
 
 		/* Propagation of endpoint ContextualData through the eventbus */
 		EventBus eb = vertx.eventBus();
