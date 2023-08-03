@@ -26,10 +26,10 @@
          point="org.eclipse.core.runtime.products">
       <product
             application="net.bluemind.pop3.endpoint.standalone"
-            name="pop3">
+            name="pop-endpoint">
          <property
                name="appName"
-               value="pop3">
+               value="pop-endpoint">
          </property>
       </product>
    </extension>

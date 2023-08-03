@@ -23,8 +23,10 @@ import org.slf4j.LoggerFactory;
 import com.typesafe.config.Config;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Context;
 import io.vertx.core.Promise;
 import io.vertx.core.Verticle;
+import net.bluemind.lib.vertx.ContextNetSocket;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.lib.vertx.VertxContext;
 
@@ -50,17 +52,18 @@ public class Pop3Verticle extends AbstractVerticle {
 	public void start(Promise<Void> startPromise) throws Exception {
 		Config conf = Pop3Config.get();
 		int port = conf.getInt("pop3.port");
-		vertx.createNetServer().connectHandler(socket -> VertxContext.getOrCreateDuplicatedContext()
-				.runOnContext(v -> new Pop3Session(vertx, socket).start())).listen(port, ar -> {
-					if (ar.failed()) {
-						logger.error("unable to listen on port {}: {}", port, ar.cause());
-						startPromise.fail(ar.cause());
-					} else {
-						logger.info("{} listening on port {}", ar.result(), port);
-						startPromise.complete();
-					}
-				});
-
+		vertx.createNetServer().connectHandler(socket -> {
+			Context ctx = VertxContext.getOrCreateDuplicatedContext();
+			ctx.runOnContext(v -> new Pop3Session(vertx, ctx, new ContextNetSocket(ctx, socket)).start());
+		}).listen(port, ar -> {
+			if (ar.failed()) {
+				logger.error("unable to listen on port {}: {}", port, ar.cause());
+				startPromise.fail(ar.cause());
+			} else {
+				logger.info("{} listening on port {}", ar.result(), port);
+				startPromise.complete();
+			}
+		});
 	}
 
 }

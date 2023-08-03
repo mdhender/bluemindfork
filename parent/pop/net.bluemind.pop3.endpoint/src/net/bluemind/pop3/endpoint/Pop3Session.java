@@ -34,10 +34,9 @@ import com.netflix.spectator.api.patterns.PolledMeter;
 import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.net.NetSocket;
 import io.vertx.core.parsetools.RecordParser;
 import net.bluemind.common.vertx.contextlogging.ContextualData;
-import net.bluemind.lib.vertx.VertxContext;
+import net.bluemind.lib.vertx.ContextNetSocket;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
 
@@ -45,8 +44,7 @@ public class Pop3Session {
 
 	private static final String CRLF = "\r\n";
 	private static final Logger logger = LoggerFactory.getLogger(Pop3Session.class);
-	private final NetSocket socket;
-	private final Vertx vertx;
+	private final ContextNetSocket socket;
 	private final Context vertxContext;
 
 	private static final Registry registry = MetricsRegistry.get();
@@ -59,10 +57,9 @@ public class Pop3Session {
 
 	private static final Map<String, PopProcessor> procs = buildProcMap();
 
-	public Pop3Session(Vertx vertx, NetSocket socket) {
-		this.vertx = vertx;
+	public Pop3Session(Vertx vertx, Context context, ContextNetSocket socket) {
 		this.socket = socket;
-		this.vertxContext = VertxContext.getOrCreateDuplicatedContext(vertx);
+		this.vertxContext = context;
 
 		PolledMeter.using(registry).withId(idFactory.name("connections")).monitorValue(activeConnections);
 		activeConnections.addAndGet(1);
@@ -86,18 +83,16 @@ public class Pop3Session {
 	}
 
 	public void start() {
-		Pop3Context ctx = new Pop3Context(vertx, vertxContext, socket);
+		Pop3Context ctx = new Pop3Context(vertxContext, socket);
 		RecordParser parser = RecordParser.newDelimited(CRLF, rec -> onChunk(ctx, rec));
-		socket.handler(buf -> {
-			vertxContext.runOnContext(v -> {
-				var coreCon = ctx.connection();
-				if (coreCon != null) {
-					ContextualData.put("user", coreCon.logId());
-				}
-				parser.handle(buf);
-			});
-		});
 
+		socket.handler(buf -> {
+			var coreCon = ctx.connection();
+			if (coreCon != null) {
+				ContextualData.put("user", coreCon.logId());
+			}
+			parser.handle(buf);
+		});
 		socket.closeHandler(v -> {
 			activeConnections.decrementAndGet();
 			logger.info("{} - connection closed", ctx.getLogin());

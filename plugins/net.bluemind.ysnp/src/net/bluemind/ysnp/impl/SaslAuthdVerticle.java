@@ -30,12 +30,15 @@ import com.netflix.spectator.api.Timer;
 
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Context;
 import io.vertx.core.Promise;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetSocket;
 import io.vertx.core.net.SocketAddress;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.MQ.SharedMap;
+import net.bluemind.lib.vertx.ContextNetSocket;
+import net.bluemind.lib.vertx.VertxContext;
 import net.bluemind.lib.vertx.utils.PasswordDecoder;
 import net.bluemind.metrics.registry.IdFactory;
 import net.bluemind.metrics.registry.MetricsRegistry;
@@ -78,14 +81,16 @@ public class SaslAuthdVerticle extends AbstractVerticle {
 								: null))
 				.orElse(Optional.empty());
 
-		vertx.createNetServer().connectHandler(netsock -> handleNetSock(netsock, POLICY))
-				.listen(SocketAddress.domainSocketAddress(socketPath), res -> {
-					if (res.failed()) {
-						logger.error(res.cause().getMessage(), res.cause());
-					} else {
-						logger.info("Listening on {}", socketPath);
-					}
-				});
+		vertx.createNetServer().connectHandler(netsock -> {
+			Context ctx = VertxContext.getOrCreateDuplicatedContext();
+			ctx.runOnContext(v -> handleNetSock(new ContextNetSocket(ctx, netsock), POLICY));
+		}).listen(SocketAddress.domainSocketAddress(socketPath), res -> {
+			if (res.failed()) {
+				logger.error(res.cause().getMessage(), res.cause());
+			} else {
+				logger.info("Listening on {}", socketPath);
+			}
+		});
 	}
 
 	protected void handleNetSock(NetSocket netsock, ValidationPolicy vp) {

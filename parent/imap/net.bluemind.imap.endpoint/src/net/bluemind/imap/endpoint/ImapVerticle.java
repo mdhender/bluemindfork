@@ -26,11 +26,13 @@ import org.slf4j.LoggerFactory;
 import com.typesafe.config.Config;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Context;
 import io.vertx.core.Promise;
 import io.vertx.core.Verticle;
 import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
 import net.bluemind.configfile.imap.ImapConfig;
+import net.bluemind.lib.vertx.ContextNetSocket;
 import net.bluemind.lib.vertx.IVerticleFactory;
 import net.bluemind.lib.vertx.VertxContext;
 
@@ -40,7 +42,6 @@ public class ImapVerticle extends AbstractVerticle {
 	private static final ImapMetricsHolder metricsHolder = ImapMetricsHolder.get();
 
 	public static class EndpointFactory implements IVerticleFactory {
-
 		@Override
 		public boolean isWorker() {
 			return false;
@@ -65,16 +66,19 @@ public class ImapVerticle extends AbstractVerticle {
 		srv.exceptionHandler(t -> logger.error("ImapEndpoint failure", t));
 
 		int port = conf.getInt(ImapConfig.PORT);
-		srv.connectHandler(ns -> VertxContext.getOrCreateDuplicatedContext(vertx)
-				.runOnContext(v -> ImapSession.create(vertx, ns, metricsHolder))).listen(port, ar -> {
-					if (ar.failed()) {
-						logger.error("Failed to listen on port {}", port, ar.cause());
-						startPromise.fail(ar.cause());
-					} else {
-						logger.info("Listening on port {}", port);
-						startPromise.complete();
-					}
-				});
+		srv.connectHandler(ns -> {
+			Context context = VertxContext.getOrCreateDuplicatedContext(vertx);
+			context.runOnContext(
+					v -> ImapSession.create(vertx, context, new ContextNetSocket(context, ns), metricsHolder));
+		}).listen(port, ar -> {
+			if (ar.failed()) {
+				logger.error("Failed to listen on port {}", port, ar.cause());
+				startPromise.fail(ar.cause());
+			} else {
+				logger.info("Listening on port {}", port);
+				startPromise.complete();
+			}
+		});
 
 	}
 

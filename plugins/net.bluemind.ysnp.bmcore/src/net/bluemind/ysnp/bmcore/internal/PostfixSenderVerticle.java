@@ -20,11 +20,14 @@ package net.bluemind.ysnp.bmcore.internal;
 import java.util.concurrent.TimeUnit;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetSocket;
 import io.vertx.core.parsetools.RecordParser;
+import net.bluemind.lib.vertx.ContextNetSocket;
+import net.bluemind.lib.vertx.VertxContext;
 
 public class PostfixSenderVerticle extends AbstractVerticle {
 
@@ -56,10 +59,14 @@ public class PostfixSenderVerticle extends AbstractVerticle {
 	@Override
 	public void start() {
 		NetServer server = vertx.createNetServer();
-		server.connectHandler(event -> {
-			SmtpdSenderRestrictionsBuffer ssrb = new SmtpdSenderRestrictionsBuffer(event);
-			ssrb.setTimeout();
-			event.handler(RecordParser.newDelimited("\n", ssrb));
+		server.connectHandler(socket -> {
+			Context ctx = VertxContext.getOrCreateDuplicatedContext();
+			ctx.runOnContext(v -> {
+				ContextNetSocket ctxNetSocket = new ContextNetSocket(ctx, socket);
+				SmtpdSenderRestrictionsBuffer ssrb = new SmtpdSenderRestrictionsBuffer(ctxNetSocket);
+				ssrb.setTimeout();
+				ctxNetSocket.handler(RecordParser.newDelimited("\n", ssrb));
+			});
 		});
 		server.listen(25250, "127.0.0.1");
 	}

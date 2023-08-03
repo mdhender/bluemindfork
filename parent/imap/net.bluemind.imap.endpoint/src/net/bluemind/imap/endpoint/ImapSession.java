@@ -30,14 +30,13 @@ import io.netty.buffer.Unpooled;
 import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.net.NetSocket;
 import net.bluemind.common.vertx.contextlogging.ContextualData;
 import net.bluemind.imap.endpoint.events.EventNexus;
 import net.bluemind.imap.endpoint.events.StateChangeListener;
 import net.bluemind.imap.endpoint.exec.ImapCommandHandler;
 import net.bluemind.imap.endpoint.parsing.ImapPartSplitter;
 import net.bluemind.imap.endpoint.parsing.ImapRequestParser;
-import net.bluemind.lib.vertx.VertxContext;
+import net.bluemind.lib.vertx.ContextNetSocket;
 
 public class ImapSession implements StateChangeListener {
 
@@ -46,28 +45,20 @@ public class ImapSession implements StateChangeListener {
 	private static final ByteBuf GREETING = Unpooled
 			.unreleasableBuffer(Unpooled.directBuffer().writeBytes("* OK IMAP4 ready\r\n".getBytes()));
 
-	public static ImapSession create(Vertx vertx, NetSocket ns, ImapMetricsHolder metricsHolder) {
-		return new ImapSession(vertx, ns, metricsHolder);
+	public static ImapSession create(Vertx vertx, Context context, ContextNetSocket ns,
+			ImapMetricsHolder metricsHolder) {
+		return new ImapSession(vertx, context, ns, metricsHolder);
 	}
 
 	private final ImapContext ctx;
 	private final Context vertxContext;
 	private final Stopwatch startTime;
 
-	public ImapSession(Vertx vertx, NetSocket ns, ImapMetricsHolder metricsHolder) {
-		vertxContext = VertxContext.getOrCreateDuplicatedContext(vertx);
+	public ImapSession(Vertx vertx, Context context, ContextNetSocket ns, ImapMetricsHolder metricsHolder) {
+		vertxContext = context;
 		EventNexus nexus = new EventNexus(ns.writeHandlerID(), vertx.eventBus());
 		this.ctx = new ImapContext(vertx, vertxContext, ns, nexus);
 		this.startTime = Stopwatch.createStarted();
-
-		ns.exceptionHandler(t -> {
-			logger.error("ns {} failure: {}", ns, t.getMessage(), t);
-			ns.close(ar -> {
-				if (ar.failed()) {
-					logger.warn("Failed to close {}: {}", ns, ar.cause().getMessage());
-				}
-			});
-		});
 
 		ImapCommandHandler exec = new ImapCommandHandler(ctx);
 		ImapRequestParser parser = new ImapRequestParser(exec);
@@ -75,14 +66,17 @@ public class ImapSession implements StateChangeListener {
 
 		nexus.addStateListener(this);
 
-		ns.handler(buffer -> vertxContext.runOnContext(v -> {
+		ns.exceptionHandler(t -> {
+			logger.error("ns {} failure: {}", ns, t.getMessage(), t);
+			ns.close().onFailure(closeerr -> logger.warn("Failed to close {}: {}", ns, closeerr.getMessage()));
+		});
+		ns.handler(buffer -> {
 			var mailbox = ctx.mailbox();
 			if (mailbox != null) {
 				ContextualData.put("user", mailbox.logId());
 			}
 			split.handle(buffer);
-		}));
-
+		});
 		ns.closeHandler(v -> {
 			ctx.close();
 			parser.close();
@@ -90,7 +84,6 @@ public class ImapSession implements StateChangeListener {
 			nexus.close();
 			logger.info("Connection closed after {}ms", startTime.elapsed(TimeUnit.MILLISECONDS));
 		});
-
 		ctx.write(Buffer.buffer(GREETING.duplicate()));
 	}
 

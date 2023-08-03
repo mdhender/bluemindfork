@@ -21,11 +21,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Context;
 import io.vertx.core.Promise;
 import io.vertx.core.Verticle;
 import io.vertx.core.net.NetServer;
 import io.vertx.core.net.NetServerOptions;
+import net.bluemind.lib.vertx.ContextNetSocket;
 import net.bluemind.lib.vertx.IVerticleFactory;
+import net.bluemind.lib.vertx.VertxContext;
 
 public class MilterMainVerticle extends AbstractVerticle {
 
@@ -49,10 +52,10 @@ public class MilterMainVerticle extends AbstractVerticle {
 	public void start(Promise<Void> start) {
 		NetServer srv = vertx.createNetServer(new NetServerOptions().setTcpNoDelay(true).setTcpKeepAlive(true)
 				.setTcpFastOpen(true).setRegisterWriteHandler(true).setTcpQuickAck(true));
-
-		srv.connectHandler(socket -> new MilterSession(socket).start());
-
-		srv.listen(2500, ar -> {
+		srv.connectHandler(socket -> {
+			Context ctx = VertxContext.getOrCreateDuplicatedContext();
+			ctx.runOnContext(v -> new MilterSession(new ContextNetSocket(ctx, socket)).start());
+		}).listen(2500, ar -> {
 			if (ar.succeeded()) {
 				logger.info("Milter verticle listening on {}.", 2500);
 				start.complete();

@@ -30,14 +30,12 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.Promise;
-import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.MessageProducer;
-import io.vertx.core.net.NetSocket;
 import net.bluemind.common.vertx.contextlogging.ContextualData;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
+import net.bluemind.lib.vertx.ContextNetSocket;
 import net.bluemind.lib.vertx.VertxPlatform;
 
 public class Pop3Context {
@@ -52,8 +50,9 @@ public class Pop3Context {
 		return loaded.isEmpty() ? null : loaded.get(0).create(VertxPlatform.getVertx());
 	}
 
-	private NetSocket socket;
+	private ContextNetSocket socket;
 	private MessageProducer<Buffer> sender;
+	public final Context vertxContext;
 
 	private MailboxConnection con;
 	private String login;
@@ -61,12 +60,9 @@ public class Pop3Context {
 	public ConcurrentMap<Integer, Long> mailsToDelete = new ConcurrentHashMap<>();
 
 	public static class ContextProducer implements MessageProducer<Buffer> {
+		private ContextNetSocket ns;
 
-		private Context ctx;
-		private NetSocket ns;
-
-		public ContextProducer(Vertx vx, Context vertxContext, NetSocket ns) {
-			this.ctx = vertxContext;
+		public ContextProducer(ContextNetSocket ns) {
 			this.ns = ns;
 		}
 
@@ -82,16 +78,12 @@ public class Pop3Context {
 
 		@Override
 		public void write(Buffer body, Handler<AsyncResult<Void>> handler) {
-			ctx.runOnContext(v -> ns.write(body, handler));
+			ns.write(body, handler);
 		}
 
 		@Override
 		public Future<Void> write(Buffer body) {
-			Promise<Void> prom = Promise.promise();
-			ctx.runOnContext(v -> {
-				ns.write(body).onSuccess(prom::complete).onFailure(prom::fail);
-			});
-			return prom.future();
+			return ns.write(body);
 		}
 
 		@Override
@@ -103,39 +95,41 @@ public class Pop3Context {
 		public void close(Handler<AsyncResult<Void>> handler) {
 			ns.close(handler);
 		}
-
 	}
 
-	public Pop3Context(Vertx vertx, Context vertxContext, NetSocket socket) {
+	public Pop3Context(Context vertxContext, ContextNetSocket socket) {
 		this.socket = socket;
-		this.sender = new ContextProducer(vertx, vertxContext, socket);
+		this.vertxContext = vertxContext;
+		this.sender = new ContextProducer(socket);
 		ContextualData.put("endpoint", "pop3");
 	}
 
 	public CompletableFuture<Void> write(String s) {
-		return sender.write(Buffer.buffer(s)).onSuccess(v -> {
-			if (logger.isDebugEnabled()) {
-				logger.debug("S: {}", s.replaceAll("\r\n$", ""));
-			}
-		}).onFailure(t -> logger.error("S: unable to send {}", s.replaceAll("\r\n$", ""), t)).toCompletionStage()
-				.toCompletableFuture();
+		return writeFuture(s).toCompletionStage().toCompletableFuture();
 	}
 
 	public CompletableFuture<Void> write(ByteBuf bb) {
-		return sender.write(Buffer.buffer(bb)).onSuccess(v -> {
-			if (logger.isDebugEnabled()) {
-				logger.debug("S: {} bytes", bb.readableBytes());
+		CompletableFuture<Void> prom = new CompletableFuture<>();
+		sender.write(Buffer.buffer(bb), ar -> {
+			if (ar.succeeded()) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("S: {} bytes", bb.readableBytes());
+				}
+				prom.complete(null);
+			} else {
+				logger.error("S: unable to send {} bytes", bb.readableBytes(), ar.cause());
+				prom.completeExceptionally(ar.cause());
 			}
-		}).onFailure(t -> logger.error("S: unable to send {} bytes", bb.readableBytes(), t)).toCompletionStage()
-				.toCompletableFuture();
+		});
+		return prom;
 	}
 
 	public Future<Void> writeFuture(String s) {
 		return sender.write(Buffer.buffer(s)).onSuccess(v -> {
 			if (logger.isDebugEnabled()) {
-				logger.debug("S: {}", s.replaceAll("\r\n$", ""));
+				logger.debug("S: {}", s.stripTrailing());
 			}
-		}).onFailure(t -> logger.error("S: unable to send {}", s.replaceAll("\r\n$", ""), t));
+		}).onFailure(t -> logger.error("S: unable to send {}", s.stripTrailing(), t));
 	}
 
 	public void setLogin(String login) {
@@ -191,7 +185,7 @@ public class Pop3Context {
 		sender.close();
 	}
 
-	public NetSocket socket() {
+	public ContextNetSocket socket() {
 		return socket;
 	}
 

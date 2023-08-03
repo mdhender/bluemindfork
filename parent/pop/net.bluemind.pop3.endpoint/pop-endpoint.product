@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="pop-endpoint" uid="pop-endpoint" id="net.bluemind.pop3.endpoint.pop3" application="net.bluemind.pop3.endpoint.standalone" useFeatures="false" includeLaunchers="true">
+<product name="pop-endpoint" uid="pop-endpoint" id="net.bluemind.pop3.endpoint.pop3" application="net.bluemind.pop3.endpoint.standalone" useFeatures="false" includeLaunchers="true" autoIncludeRequirements="true">
 
    <configIni use="default">
    </configIni>
@@ -41,8 +41,9 @@
       <plugin id="io.netty"/>
       <plugin id="io.vertx.core"/>
       <plugin id="io.vertx.web"/>
-      <plugin id="jakarta.ws.rs-api"/>
       <plugin id="jakarta.validation.jakarta.validation-api"/>
+      <plugin id="jakarta.ws.rs-api"/>
+      <plugin id="javax.activation"/>
       <plugin id="javax.xml"/>
       <plugin id="net.bluemind.addressbook.api"/>
       <plugin id="net.bluemind.authentication.api"/>
@@ -124,12 +125,12 @@
 
    <configurations>
       <plugin id="net.bluemind.sentry.settings" autoStart="true" startLevel="4" />
+      <plugin id="net.bluemind.startup.dropins" autoStart="true" startLevel="1" />
       <plugin id="org.apache.felix.scr" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="2" />
-      <plugin id="net.bluemind.startup.dropins" autoStart="true" startLevel="1" />
       <property name="osgi.noShutdown" value="true" />
       <property name="osgi.instance.area" value="/var/lib/bm-pop3d/" />
       <property name="eclipse.registry.MultiLanguage" value="true" />

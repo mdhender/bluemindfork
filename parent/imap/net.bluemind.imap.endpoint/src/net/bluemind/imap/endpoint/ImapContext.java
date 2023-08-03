@@ -33,7 +33,6 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.DeliveryOptions;
@@ -46,13 +45,14 @@ import net.bluemind.imap.endpoint.driver.MailboxConnection;
 import net.bluemind.imap.endpoint.driver.SelectedFolder;
 import net.bluemind.imap.endpoint.events.EventNexus;
 import net.bluemind.imap.endpoint.ratelimiter.ThroughputLimiterRegistry;
+import net.bluemind.lib.vertx.ContextNetSocket;
 
 public class ImapContext {
 
 	private static final Logger logger = LoggerFactory.getLogger(ImapContext.class);
 	private static final Logger rawLogger = LoggerFactory.getLogger("net.bluemind.imap.endpoint.raw");
 
-	private final NetSocket ns;
+	private final ContextNetSocket ns;
 	private final Vertx vertx;
 	private final EventNexus nexus;
 	private final String logConnectionId;
@@ -71,11 +71,9 @@ public class ImapContext {
 	public final Context vertxContext;
 
 	public static class ContextProducer implements MessageProducer<Buffer> {
-		private final Context vertxContext;
-		private NetSocket ns;
+		private ContextNetSocket ns;
 
-		public ContextProducer(Context ctx, NetSocket ns) {
-			this.vertxContext = ctx;
+		public ContextProducer(ContextNetSocket ns) {
 			this.ns = ns;
 		}
 
@@ -91,14 +89,12 @@ public class ImapContext {
 
 		@Override
 		public void write(Buffer body, Handler<AsyncResult<Void>> handler) {
-			vertxContext.runOnContext(v -> ns.write(body, handler));
+			ns.write(body, handler);
 		}
 
 		@Override
 		public Future<Void> write(Buffer body) {
-			Promise<Void> prom = Promise.promise();
-			vertxContext.runOnContext(v -> ns.write(body).onSuccess(prom::complete).onFailure(prom::fail));
-			return prom.future();
+			return ns.write(body);
 		}
 
 		@Override
@@ -110,17 +106,16 @@ public class ImapContext {
 		public void close(Handler<AsyncResult<Void>> handler) {
 			ns.close(handler);
 		}
-
 	}
 
-	public ImapContext(Vertx vertx, Context vertxContext, NetSocket ns, EventNexus nexus) {
+	public ImapContext(Vertx vertx, Context vertxContext, ContextNetSocket ns, EventNexus nexus) {
 		this.vertx = vertx;
 		this.vertxContext = vertxContext;
 		this.ns = ns;
 		this.nexus = nexus;
 		this.state = SessionState.NOT_AUTHENTICATED;
 		this.clientId = Collections.emptyMap();
-		this.sender = new ContextProducer(vertxContext, ns);
+		this.sender = new ContextProducer(ns);
 		this.logConnectionId = ns.writeHandlerID().replace("__vertx.net.", "").replace("-", "");
 		ContextualData.put("endpoint", "imap");
 		this.throughputLimiterRegistry = ThroughputLimiterRegistry.get(Drivers.activeDriver().maxLiteralSize());
