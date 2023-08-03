@@ -25,6 +25,8 @@ package net.bluemind.common.logback.listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Verticle;
 import io.vertx.core.json.JsonObject;
@@ -54,6 +56,19 @@ public class LogbackReconfVerticle extends AbstractVerticle {
 	@Override
 	public void start() {
 		logger.info("LogbackReconfVerticle starting");
+		vertx.eventBus().consumer("system.signal.reload.config", msg -> {
+			logger.info("Triggering logback reconfiguration (SIGHUP received)");
+			LoggerContext loggerContext = (LoggerContext) org.slf4j.LoggerFactory.getILoggerFactory();
+			loggerContext.reset();
+			JoranConfigurator configurator = new JoranConfigurator();
+			configurator.setContext(loggerContext);
+			try {
+				configurator.doConfigure(System.getProperty("logback.configurationFile"));
+			} catch (Exception e) {
+				System.err.println("Unable to reconfigure logback: " + e);
+			}
+		});
+
 		MQ.init().thenAccept(v -> {
 			logger.info("LogbackReconfVerticle init done");
 			MQ.registerConsumer(Topic.LOGBACK_CONFIG, msg -> {
