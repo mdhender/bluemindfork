@@ -14,7 +14,6 @@ import org.apache.tika.parser.ParseContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -107,7 +106,7 @@ public final class ExtractTextWorker extends AbstractVerticle {
 	private String tikaExtract(String path) throws IOException, SAXException, TikaException {
 		final int limit = 512 * 1024;
 		final StringBuilder bodyTxt = new StringBuilder(1024 * 1024);
-		ContentHandler saxCh = new DefaultHandler() {
+		DefaultHandler saxCh = new DefaultHandler() {
 
 			private int total;
 			private boolean crAdded = false;
