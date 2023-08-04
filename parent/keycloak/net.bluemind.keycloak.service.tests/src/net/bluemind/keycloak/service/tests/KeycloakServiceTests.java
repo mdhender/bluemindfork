@@ -47,7 +47,7 @@ public class KeycloakServiceTests extends AbstractServiceTests {
 		assertTrue(realm.enabled);
 		assertTrue(realm.internationalizationEnabled);
 		assertTrue(realm.loginWithEmailAllowed);
-		assertEquals(604800, realm.accessCodeLifespanLogin);
+		assertEquals(86400, realm.accessCodeLifespanLogin);
 	}
 
 	@Test
