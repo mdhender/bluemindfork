@@ -105,7 +105,7 @@ public class TeamsProvider implements IVideoConferencingProvider {
 				.getProvider(SecurityContext.SYSTEM).instance(IInternalUserExternalAccount.class,
 						context.getSecurityContext().getContainerUid(), organizer.get());
 
-		UserAccount externalAccount = externalAccountService.get(PROVIDER_NAME);
+		UserAccount externalAccount = externalAccountService.get(ID);
 		if (externalAccount == null) {
 			throw ServerFault.notFound("No external account found for organizer: " + organizer.get());
 		}
