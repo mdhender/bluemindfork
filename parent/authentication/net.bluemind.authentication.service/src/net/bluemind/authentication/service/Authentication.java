@@ -399,7 +399,7 @@ public class Authentication implements IInCoreAuthentication {
 		AuthResult result = AuthResult.UNKNOWN;
 
 		if (authContext.domain == null) {
-			logger.warn("[{}@{}] authenticate: {}", authContext.getRealUserLogin(), authContext.domain.value.name,
+			logger.info("[{}@{}] authenticate: {}", authContext.getRealUserLogin(), authContext.domain.value.name,
 					result);
 			return AuthResult.NO;
 		}
