@@ -6,7 +6,7 @@
         <bm-nav-item v-if="!logged" :href="loginUrl" class="flex-fill">
             <bm-avatar :alt="user.displayname" size="sm" :status="status" />
             <span class="username text-truncate w-100 text-center">
-                {{ $t("common.login") }}
+                {{ $t("common.log_in") }}
             </span>
         </bm-nav-item>
         <bm-nav-item-dropdown right offset="5" class="flex-fill">
@@ -31,7 +31,7 @@
                 {{ $t("banner.menu.logout") }}
             </bm-dropdown-item>
             <bm-dropdown-item v-else icon="user" :href="loginUrl">
-                {{ $t("commin.login") }}
+                {{ $t("common.log_in") }}
             </bm-dropdown-item>
         </bm-nav-item-dropdown>
     </bm-navbar-nav>

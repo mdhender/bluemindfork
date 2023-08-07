@@ -230,7 +230,7 @@
         "display_anyway": "Trotzdem anzeigen",
         "dissociate": "Verknüpfung trennen",
         "drop_file": "Datei ablegen",
-        "login": "Anmelden",
+        "log_in": "Anmelden",
         "open_in_window": "In einem neuen Fenster öffnen",
         "open_in_window_with_shift": "Shift drücken, um in einem neuen Fenster zu öffnen",
         "open_action_in_window_with_shift": "{action} (@:common.open_in_window_with_shift)",

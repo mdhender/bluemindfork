@@ -14,7 +14,7 @@
                         <br />
                         <br />
                         <bm-icon icon="chevron-right" />
-                        <bm-button variant="text-accent" @click="$emit('login')">{{ $t("common.login") }}</bm-button>
+                        <bm-button variant="text-accent" @click="$emit('login')">{{ $t("common.log_in") }}</bm-button>
                     </div>
                     <bm-button variant="text" class="continue-as-guest" @click="$emit('continue')">{{
                         $t("root.anonymous_screen.continue_as_guest")
