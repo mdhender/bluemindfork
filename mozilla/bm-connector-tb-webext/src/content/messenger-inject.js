@@ -131,6 +131,11 @@ function onLoad(activatedWhileWindowOpen) {
                             oncommand="gBMOverlay.openPreferences();"/>
             </vbox>
         </panelview>
+    `, [], true);
+
+    if (document.getElementById("spacesToolbar")) {
+      // TB 102 +
+      WL.injectElements(`
         <!--Spaces (left panel)-->
         <button id="bm-spaces-open-calendar"
             class="spaces-toolbar-button"
@@ -150,7 +155,8 @@ function onLoad(activatedWhileWindowOpen) {
             tooltiptext="__MSG_bm.button.sync.tooltiptext__"
             insertafter="bm-spaces-open-todolist"
             oncommand="gBMOverlay.doSync();" />
-    `, [], true);
+      `, [], true);
+    }
 
     WL.injectCSS("chrome://bm/content/skin/style.css");
     WL.injectCSS("chrome://messenger/skin/shared/grid-layout.css");
