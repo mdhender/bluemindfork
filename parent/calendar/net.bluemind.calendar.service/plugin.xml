@@ -185,4 +185,10 @@
             impl="net.bluemind.calendar.service.internal.DomainCalendarRepair">
       </repair>
    </extension>
+   <extension
+         point="net.bluemind.core.container.hooks.container">
+      <hook
+            impl="net.bluemind.calendar.service.internal.FreebusyContainerHook">
+      </hook>
+   </extension>
 </plugin>

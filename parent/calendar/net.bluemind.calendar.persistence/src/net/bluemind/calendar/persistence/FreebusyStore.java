@@ -69,10 +69,10 @@ public class FreebusyStore extends JdbcAbstractStore {
 	public void remove(String calendar) throws SQLException {
 		List<String> calendars = get();
 		if (!calendars.isEmpty()) {
-			calendars.remove(calendar);
+			boolean found = calendars.remove(calendar);
 			if (calendars.isEmpty()) {
 				delete();
-			} else {
+			} else if (found) {
 				String query = "UPDATE t_freebusy set calendars = ? where container_id = ?";
 				update(query, calendars, statementValues, new Object[] { container.id });
 			}

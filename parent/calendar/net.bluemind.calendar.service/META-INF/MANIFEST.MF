@@ -67,7 +67,8 @@ Require-Bundle: net.bluemind.calendar.api;bundle-version="1.0.0",
  net.bluemind.domain.service,
  net.bluemind.core.container.repair,
  net.bluemind.eclipse.common,
- org.hibernate.validator;bundle-version="5.3.3"
+ org.hibernate.validator;bundle-version="5.3.3",
+ net.bluemind.core.container.hooks
 Export-Package: net.bluemind.calendar.service,
  net.bluemind.calendar.service.eventdeferredaction,
  net.bluemind.calendar.service.internal
