@@ -66,7 +66,8 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bluemind.todolist.usertodolist;bundle-version="5.0.0",
  net.bluemind.notes.usernotes;bundle-version="5.0.0",
  net.bluemind.addressbook.userbook;bundle-version="5.0.0",
- net.bluemind.smime.cacerts.api
+ net.bluemind.smime.cacerts.api,
+ net.bluemind.keycloak.api
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: net.bluemind.core.backup.continuous.clone
 Bundle-ActivationPolicy: lazy
