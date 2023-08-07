@@ -52,7 +52,9 @@ public class RuleAssignmentCache extends AbstractVerticle {
 	public static List<MailRuleActionAssignment> getStoredRuleAssignments(IClientContext mailflowContext,
 			String domain) {
 		if (!cache.containsKey(domain)) {
-			cache.put(domain, mailflowContext.provider().instance(IMailflowRules.class, domain).listAssignments());
+			List<MailRuleActionAssignment> listAssignments = mailflowContext.provider()
+					.instance(IMailflowRules.class, domain).listAssignments();
+			cache.put(domain, listAssignments);
 		}
 		return cache.get(domain);
 	}

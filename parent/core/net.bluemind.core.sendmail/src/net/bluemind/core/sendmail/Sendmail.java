@@ -146,6 +146,7 @@ public class Sendmail implements ISendmail {
 		SendmailResponse sendmailResponse = null;
 		List<FailedRecipient> failedRecipients = new ArrayList<>();
 		String from = creds.notAdminAndNotCurrentUser(fromEnvelop) ? creds.loginAtDomain : fromEnvelop;
+		logger.info("MMA-OUTBOX from envelop => {}", from);
 
 		String ip = Topology.get().any("mail/smtp").value.address();
 		try (SMTPProtocol smtp = new SMTPProtocol(ip,

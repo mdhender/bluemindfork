@@ -58,11 +58,15 @@ public class DomainAliasCache extends AbstractVerticle {
 
 	private static void fillCache() {
 		logger.debug("Invalidating domain <-> alias cache with {} entries", domainCache.size());
-		String host = "http://" + Topology.get().core().value.address() + ":8090";
-		domainCache = ClientSideServiceProvider.getProvider(host, Token.admin0()).instance(IDomains.class).all()
-				.stream().map(DomainAliasCache::expandAliases).map(Map::entrySet).flatMap(Set::stream)
+		domainCache = provider().instance(IDomains.class).all().stream().map(DomainAliasCache::expandAliases)
+				.map(Map::entrySet).flatMap(Set::stream)
 				.collect(Collectors.toConcurrentMap(entry -> entry.getKey(), entry -> entry.getValue()));
 		logger.info("Alias cache contains {} entries", domainCache.size());
+	}
+
+	public static ClientSideServiceProvider provider() {
+		String host = "http://" + Topology.get().core().value.address() + ":8090";
+		return ClientSideServiceProvider.getProvider(host, Token.admin0());
 	}
 
 	private static Map<String, ItemValue<Domain>> expandAliases(ItemValue<Domain> domain) {

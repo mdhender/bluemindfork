@@ -155,6 +155,7 @@ public class MilterHandler implements JilterHandler {
 		MilterPreActionsRegistry.get().forEach(action -> applyPreAction(action, modifiedMail));
 		logger.debug("Applied {} milter pre-actions", MilterPreActionsRegistry.get().size());
 		modifiedMail.removeHeaders.add(MilterHeaders.SIEVE_REDIRECT);
+		modifiedMail.envelopSender = Optional.ofNullable(accumulator.getEnvelope().getSender().getEmailAddress());
 
 		if (accumulator.getMessage().getHeader().getField(MilterHeaders.HANDLED) == null) {
 			int appliedActions = applyActions(modifiedMail);
@@ -282,8 +283,8 @@ public class MilterHandler implements JilterHandler {
 	private Integer applyActions(ItemValue<Domain> domain, MailflowRouting mailflowRouting,
 			UpdatedMailMessage modifiedMail) {
 		Integer executedActions = 0;
-
 		IClientContext mailflowContext = new ClientContext(domain);
+
 		List<MailRuleActionAssignment> storedRules = RuleAssignmentCache
 				.getStoredRuleAssignments(mailflowContext, domain.uid).stream()
 				.filter(rule -> rule.routing == mailflowRouting || rule.routing == MailflowRouting.ALL)
