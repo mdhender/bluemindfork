@@ -328,6 +328,27 @@ public class UserMailIdentityTests {
 
 	}
 
+	@Test
+	public void testGetIdentitiesRestrictedByAcls() {
+		// give Write access on user2 mbox to user1
+		testContext.provider().instance(IContainerManagement.class, IMailboxAclUids.uidForMailbox(user2Uid))
+				.setAccessControlList(Arrays.asList(AccessControlEntry.create(userUid, Verb.Write)));
+		service(userSecurityContext, userUid).create("workUser2", defaultIdentity("test2@bm.lan", user2Uid));
+
+		List<IdentityDescription> identities = service(userSecurityContext, userUid).getIdentities();
+		assertEquals(2, identities.size());
+		assertTrue(identities.stream().anyMatch(i -> "test2@bm.lan".equals(i.email)));
+
+		// user1 lost Write access to user2 mbox
+		testContext.provider().instance(IContainerManagement.class, IMailboxAclUids.uidForMailbox(user2Uid))
+				.setAccessControlList(Arrays.asList(AccessControlEntry.create(userUid, Verb.Read)));
+
+		identities = service(userSecurityContext, userUid).getIdentities();
+		assertEquals(1, identities.size());
+		assertTrue(identities.stream().noneMatch(i -> "test2@bm.lan".equals(i.email)));
+
+	}
+
 	protected IUserMailIdentities service(SecurityContext sc, String userUid) throws ServerFault {
 		return ServerSideServiceProvider.getProvider(sc).instance(IUserMailIdentities.class, domainUid, userUid);
 	}

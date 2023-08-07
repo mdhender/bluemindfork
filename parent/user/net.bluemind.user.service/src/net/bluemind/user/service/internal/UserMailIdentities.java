@@ -160,17 +160,7 @@ public class UserMailIdentities implements IUserMailIdentities, IInternalUserMai
 		return storeService.getIdentity(userUid, id);
 	}
 
-	@Override
-	public List<IdentityDescription> getIdentities() {
-		rbacManager.forEntry(userUid).check(BasicRoles.ROLE_SELF, BasicRoles.ROLE_MANAGE_USER_MAIL_IDENTITIES);
-		return storeService.getIdentities(userUid);
-	}
-
-	@Override
-	public List<IdentityDescription> getAvailableIdentities() {
-
-		rbacManager.forEntry(userUid).check(BasicRoles.ROLE_SELF, BasicRoles.ROLE_MANAGE_USER_MAIL_IDENTITIES);
-
+	private List<String> getMailboxAclUids() {
 		IContainers containers = null;
 		if (context.getSecurityContext().getSubject().equals(userUid)) {
 			containers = context.provider().instance(IContainers.class);
@@ -184,14 +174,29 @@ public class UserMailIdentities implements IUserMailIdentities, IInternalUserMai
 		query.verb = Arrays.asList(Verb.SendOnBehalf, Verb.Write, Verb.All);
 		List<ContainerDescriptor> descriptors = containers.all(query);
 
+		return descriptors.stream().filter(d -> d.domainUid.equals(domainUid))
+				.map(d -> d.uid.substring(IMailboxAclUids.MAILBOX_ACL_PREFIX.length())).toList();
+	}
+
+	@Override
+	public List<IdentityDescription> getIdentities() {
+		rbacManager.forEntry(userUid).check(BasicRoles.ROLE_SELF, BasicRoles.ROLE_MANAGE_USER_MAIL_IDENTITIES);
+
+		List<String> mboxUids = getMailboxAclUids();
+
+		return storeService.getIdentities(userUid).stream().filter(i -> mboxUids.contains(i.mbox)).toList();
+	}
+
+	@Override
+	public List<IdentityDescription> getAvailableIdentities() {
+		rbacManager.forEntry(userUid).check(BasicRoles.ROLE_SELF, BasicRoles.ROLE_MANAGE_USER_MAIL_IDENTITIES);
+
+		List<String> mailboxUids = getMailboxAclUids();
 		List<IdentityDescription> descrs = new LinkedList<>();
-		for (ContainerDescriptor descriptor : descriptors) {
-			if (descriptor.domainUid.equals(domainUid)) {
-				String mboxUid = descriptor.uid.substring(IMailboxAclUids.MAILBOX_ACL_PREFIX.length());
-				IMailboxIdentity mboxIdentity = context.su().provider().instance(IMailboxIdentity.class, domainUid,
-						mboxUid);
-				descrs.addAll(mboxIdentity.getPossibleIdentities());
-			}
+		for (String mboxUid : mailboxUids) {
+			IMailboxIdentity mboxIdentity = context.su().provider().instance(IMailboxIdentity.class, domainUid,
+					mboxUid);
+			descrs.addAll(mboxIdentity.getPossibleIdentities());
 		}
 		return descrs;
 	}
