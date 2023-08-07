@@ -12,7 +12,7 @@ const props = defineProps({
 
 const selectedAddressBookId = computed({
     get() {
-        return selectedAddressBookId.uid;
+        return props.selectedAddressBook.uid;
     },
     set(value) {
         emit("selected", value);
