@@ -29,6 +29,7 @@ import com.google.common.collect.ImmutableMap;
 import io.netty.buffer.Unpooled;
 import io.vertx.core.buffer.Buffer;
 import net.bluemind.core.api.Stream;
+import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.rest.base.RestRequest;
 import net.bluemind.core.rest.vertx.VertxStream;
 
@@ -79,6 +80,29 @@ public class DefaultBodyParameterCodecs {
 
 	}
 
+	public static class NonChunkedBodyParameterCodec<T> implements BodyParameterCodec<T> {
+
+		private final BodyParameterCodec<T> delegate;
+
+		public NonChunkedBodyParameterCodec(BodyParameterCodec<T> delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public T parse(RestRequest request) {
+			if (request.body == null && request.bodyStream != null) {
+				throw new ServerFault("API endpoint does not support chunked encoding");
+			}
+			return delegate.parse(request);
+		}
+
+		@Override
+		public void encode(T object, RestRequest request) {
+			delegate.encode(object, request);
+		}
+
+	}
+
 	public static class ByMimeTypeCodec<T> implements BodyParameterCodec<T> {
 
 		private Map<String, BodyParameterCodec<T>> codecs;
@@ -91,6 +115,7 @@ public class DefaultBodyParameterCodecs {
 
 		@Override
 		public T parse(RestRequest request) {
+
 			String m = request.headers.get("Content-Type");
 			if (Strings.isNullOrEmpty(m)) {
 				m = defaultMimeType;
@@ -238,7 +263,7 @@ public class DefaultBodyParameterCodecs {
 		@Override
 		public BodyParameterCodec<?> create(Class<?> parameterType, Type type) {
 			if (parameterType == byte[].class) {
-				return new ByteArrayBodyCodec();
+				return new NonChunkedBodyParameterCodec<>(new ByteArrayBodyCodec());
 			} else {
 				return null;
 			}
@@ -251,7 +276,7 @@ public class DefaultBodyParameterCodecs {
 		@Override
 		public BodyParameterCodec<?> create(Class<?> parameterType, Type type) {
 			if (parameterType == String.class) {
-				return new StringBodyCodec();
+				return new NonChunkedBodyParameterCodec<>(new StringBodyCodec());
 			} else {
 				return null;
 			}
@@ -263,7 +288,7 @@ public class DefaultBodyParameterCodecs {
 
 		@Override
 		public BodyParameterCodec<?> create(Class<?> parameterType, Type type) {
-			return new ObjectBodyCodec<>(type);
+			return new NonChunkedBodyParameterCodec<>(new ObjectBodyCodec<>(type));
 		}
 
 	}

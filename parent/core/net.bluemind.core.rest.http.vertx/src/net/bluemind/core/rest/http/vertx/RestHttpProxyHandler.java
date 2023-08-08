@@ -40,7 +40,7 @@ import net.bluemind.core.utils.JsonUtils;
 
 public class RestHttpProxyHandler implements Handler<HttpServerRequest> {
 	static final Logger logger = LoggerFactory.getLogger(RestHttpProxyHandler.class);
-	private static final long MAX = 1000 * 1000 * 10; // 10m
+	private static final long MAX_CONTENT_LENGTH = 1000 * 1000 * 10; // 10m
 	private Vertx vertx;
 	private IRestCallHandler proxy;
 
@@ -60,29 +60,16 @@ public class RestHttpProxyHandler implements Handler<HttpServerRequest> {
 	public void handle(final HttpServerRequest request) {
 		request.exceptionHandler(exceptionHandler(request));
 		String te = request.headers().get(HttpHeaders.TRANSFER_ENCODING);
-		boolean chuncked = "chunked".equals(te);
-		logger.debug("chunked {} : {}", chuncked, te);
-		if (!chuncked) {
+		boolean chunked = "chunked".equals(te);
+		logger.debug("chunked {} : {}", chunked, te);
+		if (!chunked) {
 			String clAsString = request.headers().get(HttpHeaders.CONTENT_LENGTH);
-			if (clAsString == null) {
-				// throw new IllegalArgumentException("Response not chunked and
-				// Content-Length not defined");
-			}
-
-			long contentLength = 0;
 			try {
-				contentLength = Long.parseLong(clAsString);
+				if (Long.parseLong(clAsString) > MAX_CONTENT_LENGTH) {
+					throw new IllegalArgumentException(
+							"Content-Length (" + clAsString + ") exceeds maximum size of (" + MAX_CONTENT_LENGTH + ")");
+				}
 			} catch (NumberFormatException e) {
-				// throw new IllegalArgumentException("Content-Length not valid
-				// : " + clAsString);
-			}
-
-			if (contentLength > MAX) {
-				logger.warn("forced 'chunking' on on heavy body ({} byte(s))", contentLength);
-				chuncked = true;
-				// throw new IndexOutOfBoundsException(
-				// String.format("Content-Length is too big : %s (max : %s )",
-				// contentLength, MAX));
 			}
 		}
 
@@ -93,11 +80,9 @@ public class RestHttpProxyHandler implements Handler<HttpServerRequest> {
 		AsyncHandler<RestResponse> handler = responseHandler(request);
 		AsyncHandler<RestResponse> wrapped = CallLogger.start(CALL_CLASS, rr).responseHandler(handler);
 
-		request.exceptionHandler((e) -> {
-			wrapped.failure(e);
-		});
+		request.exceptionHandler(wrapped::failure);
 
-		if (chuncked) {
+		if (chunked) {
 			rr.bodyStream = request;
 			handleBody(request, rr, wrapped);
 		} else {
