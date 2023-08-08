@@ -28,6 +28,9 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import io.netty.util.concurrent.FastThreadLocal;
@@ -54,6 +57,15 @@ public class TasksManager implements ITasksManager {
 	private static final Object ROOT_TASK_MARKER = new Object();
 	public static final String TASKS_MANAGER_EVENT = "tasks-manager";
 
+	private final Cache<String, TaskManager> completedTasks = Caffeine.newBuilder()//
+			.maximumSize(512)//
+			.expireAfterWrite(10, TimeUnit.MINUTES)//
+			.removalListener((String key, TaskManager value, RemovalCause cause) -> {
+				if (value != null) {
+					cleanupTask(value);
+				}
+			})//
+			.build();
 	private final ConcurrentHashMap<String, TaskManager> tasks = new ConcurrentHashMap<>();
 	private final ConcurrentHashMap<String, FutureThreadInfo> futures = new ConcurrentHashMap<>();
 	private final Vertx vertx;
@@ -149,7 +161,7 @@ public class TasksManager implements ITasksManager {
 				try {
 					serverTask.execute(loggingMonitor).thenAccept(r -> {
 						loggingMonitor.end(true, "", null);
-						vertx.setTimer(TimeUnit.MINUTES.toMillis(10), event -> cleanupTask(task));
+						completedTasks.put(taskId, task);
 					}).exceptionally(e -> {
 						String msg = e instanceof CompletionException && e.getCause() != null
 								? e.getCause().getMessage()
