@@ -69,8 +69,8 @@
                     {{ $t("common.application.bootstrap.error.solution2") }}
                 </div>
             </div>
-            <div v-if="!isMyMailbox && identity.mailboxUid" class="mb-5">
-                <bm-form-checkbox v-model="identity.sentFolder" value="" unchecked-value="SENT_FOLDER">
+            <div v-if="canUseOtherSentFolder" class="mb-5 w-100">
+                <bm-form-checkbox v-model="identity.sentFolder" value="" :unchecked-value="SENT_FOLDER">
                     {{
                         $tc("preferences.mail.identities.use_sentbox", 0, {
                             address: identity.email + " (" + identity.displayname + ")"
@@ -135,6 +135,7 @@
 <script>
 import cloneDeep from "lodash.clonedeep";
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
+import { Verb } from "@bluemind/core.container.api";
 import { EmailValidator } from "@bluemind/email";
 import { signatureUtils, folderUtils } from "@bluemind/mail";
 import { sanitizeHtml } from "@bluemind/html-utils";
@@ -230,6 +231,15 @@ export default {
         isMyMailbox() {
             const userId = inject("UserSession").userId;
             return this.identity.mailboxUid === userId;
+        },
+        canUseOtherSentFolder() {
+            return (
+                this.identity.mailboxUid &&
+                !this.isMyMailbox &&
+                this.$store.state.preferences.containers.otherMailboxesContainers.some(
+                    mbox => mbox.uid === `mailbox:acls-${this.identity.mailboxUid}` && mbox.verbs.includes(Verb.Write)
+                )
+            );
         }
     },
     methods: {
