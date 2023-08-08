@@ -13,5 +13,6 @@
 		<module>net.bluemind.keycloak.service</module>
 		<module>net.bluemind.keycloak.service.tests</module>
 		<module>net.bluemind.keycloak.utils</module>
+		<module>net.bluemind.keycloak.utils.endpoints</module>
 	</modules>
 </project>

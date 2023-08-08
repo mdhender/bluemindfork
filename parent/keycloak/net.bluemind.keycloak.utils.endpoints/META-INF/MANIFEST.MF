@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.keycloak.utils.endpoints
+Bundle-SymbolicName: net.bluemind.keycloak.utils.endpoints
+Bundle-Version: 5.0.0.qualifier
+Export-Package: net.bluemind.keycloak.utils.endpoints
+Bundle-Vendor: www.bluemind.net
+Automatic-Module-Name: net.bluemind.keycloak.utils.endpoints
+Bundle-RequiredExecutionEnvironment: JavaSE-17

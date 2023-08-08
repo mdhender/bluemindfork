@@ -44,7 +44,6 @@ import net.bluemind.keycloak.api.BluemindProviderComponent;
 import net.bluemind.keycloak.api.IKeycloakUids;
 import net.bluemind.keycloak.api.OidcClient;
 import net.bluemind.keycloak.api.Realm;
-import net.bluemind.pool.impl.BmConfIni;
 import net.bluemind.tests.defaultdata.PopulateHelper;
 
 public class KeycloakDomainHookTests extends AbstractServiceTests {
@@ -145,20 +144,15 @@ public class KeycloakDomainHookTests extends AbstractServiceTests {
 
 	private void assertDomainProperties(String domainUid, String cli, String secret, Map<String, String> properties) {
 		assertEquals(AuthTypes.INTERNAL.name(), properties.get(AuthDomainProperties.AUTH_TYPE.name()));
-		assertEquals(domainUid, properties.get(AuthDomainProperties.OPENID_REALM.name()));
-		assertEquals(cli, properties.get(AuthDomainProperties.OPENID_CLIENT_ID.name()));
 		assertEquals(secret, properties.get(AuthDomainProperties.OPENID_CLIENT_SECRET.name()));
 
-		String keycloakHost = "https://" + new BmConfIni().get("keycloak") + "/keycloak/realms/" + domainUid;
-		assertEquals(keycloakHost + "/protocol/openid-connect/auth",
-				properties.get(AuthDomainProperties.OPENID_AUTHORISATION_ENDPOINT.name()));
-		assertEquals(keycloakHost + "/protocol/openid-connect/token",
-				properties.get(AuthDomainProperties.OPENID_TOKEN_ENDPOINT.name()));
-		assertEquals(keycloakHost + "/protocol/openid-connect/logout",
-				properties.get(AuthDomainProperties.OPENID_END_SESSION_ENDPOINT.name()));
-		assertEquals(keycloakHost + "/protocol/openid-connect/certs",
-				properties.get(AuthDomainProperties.OPENID_JWKS_URI.name()));
-		assertEquals(keycloakHost, properties.get(AuthDomainProperties.OPENID_ISSUER.name()));
+		assertNull(properties.get(AuthDomainProperties.OPENID_REALM.name()));
+		assertNull(properties.get(AuthDomainProperties.OPENID_CLIENT_ID.name()));
+		assertNull(properties.get(AuthDomainProperties.OPENID_AUTHORISATION_ENDPOINT.name()));
+		assertNull(properties.get(AuthDomainProperties.OPENID_TOKEN_ENDPOINT.name()));
+		assertNull(properties.get(AuthDomainProperties.OPENID_END_SESSION_ENDPOINT.name()));
+		assertNull(properties.get(AuthDomainProperties.OPENID_JWKS_URI.name()));
+		assertNull(properties.get(AuthDomainProperties.OPENID_ISSUER.name()));
 
 		assertTrue(Strings.isNullOrEmpty(properties.get(AuthDomainProperties.CAS_URL.name())));
 		assertTrue(Strings.isNullOrEmpty(properties.get(AuthDomainProperties.KRB_AD_DOMAIN.name())));

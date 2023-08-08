@@ -22,7 +22,9 @@ Require-Bundle: net.bluemind.webmodule.server,
  com.auth0.java-jwt,
  net.bluemind.domain.api,
  net.bluemind.utils,
- net.bluemind.keycloak.utils
+ net.bluemind.keycloak.utils,
+ net.bluemind.keycloak.api,
+ net.bluemind.keycloak.utils.endpoints
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.webmodule.authentication
 Bundle-RequiredExecutionEnvironment: JavaSE-17

@@ -41,9 +41,11 @@ public class ExternalAuthConfigurationTests extends AbstractServiceTests {
 		PopulateHelper.createDomain(domainUid);
 
 		ItemValue<Domain> domain = getDomainService().get(domainUid);
+
 		domain.value.properties.put(AuthDomainProperties.AUTH_TYPE.name(), AuthTypes.OPENID.name());
 		domain.value.properties.put(AuthDomainProperties.OPENID_CLIENT_ID.name(), "clientId");
 		domain.value.properties.put(AuthDomainProperties.OPENID_CLIENT_SECRET.name(), "secret");
+		domain.value.properties.put(AuthDomainProperties.OPENID_HOST.name(), "http://openid.host/");
 
 		try {
 			getDomainService().update(domainUid, domain.value);

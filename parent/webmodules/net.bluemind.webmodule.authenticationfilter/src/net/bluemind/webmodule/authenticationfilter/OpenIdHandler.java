@@ -46,8 +46,11 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.auth.AuthDomainProperties;
+import net.bluemind.core.api.auth.AuthTypes;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Shared;
+import net.bluemind.keycloak.api.IKeycloakUids;
+import net.bluemind.keycloak.utils.endpoints.KeycloakEndpoints;
 import net.bluemind.webmodule.authenticationfilter.internal.CodeVerifierCache;
 import net.bluemind.webmodule.authenticationfilter.internal.ExternalCreds;
 
@@ -80,7 +83,12 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 					.get(domainUid);
 
 			try {
-				String endpoint = domainSettings.get(AuthDomainProperties.OPENID_TOKEN_ENDPOINT.name());
+				String endpoint;
+				if (AuthTypes.INTERNAL.name().equals(domainSettings.get(AuthDomainProperties.AUTH_TYPE.name()))) {
+					endpoint = KeycloakEndpoints.tokenEndpoint(domainUid);
+				} else {
+					endpoint = domainSettings.get(AuthDomainProperties.OPENID_TOKEN_ENDPOINT.name());
+				}
 				URI uri = new URI(endpoint);
 				HttpClient client = initHttpClient(uri);
 
@@ -104,8 +112,14 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 						headers.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
 						headers.add(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
 						String params = "grant_type=authorization_code";
-						params += "&client_id="
-								+ encode(domainSettings.get(AuthDomainProperties.OPENID_CLIENT_ID.name()));
+
+						if (AuthTypes.INTERNAL.name()
+								.equals(domainSettings.get(AuthDomainProperties.AUTH_TYPE.name()))) {
+							params += "&client_id=" + IKeycloakUids.clientId(domainUid);
+						} else {
+							params += "&client_id="
+									+ encode(domainSettings.get(AuthDomainProperties.OPENID_CLIENT_ID.name()));
+						}
 						params += "&client_secret="
 								+ encode(domainSettings.get(AuthDomainProperties.OPENID_CLIENT_SECRET.name()));
 						params += "&code=" + encode(code);

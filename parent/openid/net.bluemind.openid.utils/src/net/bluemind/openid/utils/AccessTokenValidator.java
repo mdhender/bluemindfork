@@ -45,9 +45,11 @@ import com.google.common.base.Strings;
 
 import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.auth.AuthDomainProperties;
+import net.bluemind.core.api.auth.AuthTypes;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Shared;
+import net.bluemind.keycloak.utils.endpoints.KeycloakEndpoints;
 
 public class AccessTokenValidator {
 
@@ -72,8 +74,13 @@ public class AccessTokenValidator {
 		if (email.isMissing() || email.isNull()) {
 			throw new ServerFault("Failed to validate token: invalid email");
 		}
+		String accessTokenIssuer;
+		if (AuthTypes.INTERNAL.name().equals(domainProperties.get(AuthDomainProperties.AUTH_TYPE.name()))) {
+			accessTokenIssuer = KeycloakEndpoints.issuerEndpoint(domainUid);
+		} else {
+			accessTokenIssuer = domainProperties.get(AuthDomainProperties.OPENID_ISSUER.name());
 
-		String accessTokenIssuer = domainProperties.get(AuthDomainProperties.OPENID_ISSUER.name());
+		}
 		if (Strings.isNullOrEmpty(issuer) || !issuer.equals(accessTokenIssuer)) {
 			throw new ServerFault("[" + email.asString() + "] Failed to validate token: invalid Issuer");
 		}
@@ -96,10 +103,14 @@ public class AccessTokenValidator {
 				.get(domainUid);
 
 		try {
-
 			if (!provider.containsKey(domainUid)) {
-				provider.put(domainUid, new GuavaCachedJwkProvider(new UrlJwkProvider(
-						new URL(domainProperties.get(AuthDomainProperties.OPENID_JWKS_URI.name())))));
+				String jkwsUri;
+				if (AuthTypes.INTERNAL.name().equals(domainProperties.get(AuthDomainProperties.AUTH_TYPE.name()))) {
+					jkwsUri = KeycloakEndpoints.jkwsUriEndpoint(domainUid);
+				} else {
+					jkwsUri = domainProperties.get(AuthDomainProperties.OPENID_JWKS_URI.name());
+				}
+				provider.put(domainUid, new GuavaCachedJwkProvider(new UrlJwkProvider(new URL(jkwsUri))));
 			}
 
 			Jwk jwk = provider.get(domainUid).get(token.getKeyId());
@@ -114,8 +125,12 @@ public class AccessTokenValidator {
 	public static CompletableFuture<Optional<JsonObject>> refreshToken(String domainUid, String refreshToken) {
 		Map<String, String> domainProperties = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
 				.get(domainUid);
-
-		String endpoint = domainProperties.get(AuthDomainProperties.OPENID_TOKEN_ENDPOINT.name());
+		String endpoint;
+		if (AuthTypes.INTERNAL.name().equals(domainProperties.get(AuthDomainProperties.AUTH_TYPE.name()))) {
+			endpoint = KeycloakEndpoints.tokenEndpoint(domainUid);
+		} else {
+			endpoint = domainProperties.get(AuthDomainProperties.OPENID_TOKEN_ENDPOINT.name());
+		}
 
 		Builder requestBuilder = HttpRequest.newBuilder(URI.create(endpoint));
 		requestBuilder.header("Charset", StandardCharsets.UTF_8.name());

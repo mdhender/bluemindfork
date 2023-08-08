@@ -52,7 +52,6 @@ import net.bluemind.keycloak.api.IKeycloakUids;
 import net.bluemind.keycloak.api.KerberosComponent;
 import net.bluemind.keycloak.api.OidcClient;
 import net.bluemind.network.topology.Topology;
-import net.bluemind.server.api.TagDescriptor;
 import net.bluemind.system.api.ISystemConfiguration;
 import net.bluemind.system.api.SysConfKeys;
 import net.bluemind.system.api.SystemConf;
@@ -112,30 +111,8 @@ public class KeycloakHelper {
 		IKeycloakClientAdmin keycloakRealmAdminService = provider.instance(IKeycloakClientAdmin.class, domain.uid);
 		keycloakRealmAdminService.create(clientId);
 		String secret = keycloakRealmAdminService.getSecret(clientId);
-		String opendIdHost = IKeycloakUids
-				.defaultHost(Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address(), domain.uid);
-
-		JsonObject conf;
-		try {
-			conf = getOpenIdConfiguration(opendIdHost);
-		} catch (Exception e) {
-			throw new ServerFault("Failed to fetch OpenId configuration " + e.getMessage());
-		}
 		Map<String, String> properties = domain.value.properties != null ? domain.value.properties : new HashMap<>();
-
-		properties.put(AuthDomainProperties.OPENID_REALM.name(), realm);
-		properties.put(AuthDomainProperties.OPENID_CLIENT_ID.name(), clientId);
 		properties.put(AuthDomainProperties.OPENID_CLIENT_SECRET.name(), secret);
-		properties.put(AuthDomainProperties.OPENID_HOST.name(), opendIdHost);
-		properties.put(AuthDomainProperties.OPENID_AUTHORISATION_ENDPOINT.name(),
-				conf.getString("authorization_endpoint"));
-		properties.put(AuthDomainProperties.OPENID_TOKEN_ENDPOINT.name(), conf.getString("token_endpoint"));
-		properties.put(AuthDomainProperties.OPENID_JWKS_URI.name(), conf.getString("jwks_uri"));
-		String accessTokenIssuer = Optional.ofNullable(conf.getString("access_token_issuer"))
-				.orElse(conf.getString("issuer"));
-		properties.put(AuthDomainProperties.OPENID_ISSUER.name(), accessTokenIssuer);
-		properties.put(AuthDomainProperties.OPENID_END_SESSION_ENDPOINT.name(), conf.getString("end_session_endpoint"));
-
 		provider.instance(IInCoreDomains.class).setProperties(domain.uid, properties);
 
 		if (AuthTypes.KERBEROS.name().equals(domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name()))) {

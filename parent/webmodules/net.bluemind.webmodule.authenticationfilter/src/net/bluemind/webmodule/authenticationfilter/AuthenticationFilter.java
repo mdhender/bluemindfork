@@ -54,6 +54,8 @@ import net.bluemind.core.api.auth.AuthDomainProperties;
 import net.bluemind.core.api.auth.AuthTypes;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Shared;
+import net.bluemind.keycloak.api.IKeycloakUids;
+import net.bluemind.keycloak.utils.endpoints.KeycloakEndpoints;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.webmodule.authenticationfilter.internal.AuthenticationCookie;
 import net.bluemind.webmodule.authenticationfilter.internal.CodeVerifierCache;
@@ -165,8 +167,15 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 				.encodeToString(sha256.hashString(codeVerifier, StandardCharsets.UTF_8).asBytes());
 
 		try {
-			String location = domainProperties.get(AuthDomainProperties.OPENID_AUTHORISATION_ENDPOINT.name());
-			location += "?client_id=" + encode(domainProperties.get(AuthDomainProperties.OPENID_CLIENT_ID.name()));
+			String location = "";
+
+			if (AuthTypes.INTERNAL.name().equals(domainProperties.get(AuthDomainProperties.AUTH_TYPE.name()))) {
+				location = KeycloakEndpoints.authorizationEndpoint(domainUid);
+				location += "?client_id=" + IKeycloakUids.clientId(domainUid);
+			} else {
+				location = domainProperties.get(AuthDomainProperties.OPENID_AUTHORISATION_ENDPOINT.name());
+				location += "?client_id=" + encode(domainProperties.get(AuthDomainProperties.OPENID_CLIENT_ID.name()));
+			}
 			location += "&redirect_uri=" + encode(REDIRECT_PROTO + request.host() + "/auth/openid");
 			location += "&code_challenge=" + encode(codeChallenge);
 			location += "&state=" + encode(state);
@@ -272,7 +281,11 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 		String logoutUrl = null;
 		if (!AuthTypes.CAS.name().equals(domainSettings.get(AuthDomainProperties.AUTH_TYPE.name()))) {
 			try {
-				logoutUrl = domainSettings.get(AuthDomainProperties.OPENID_END_SESSION_ENDPOINT.name());
+				if (AuthTypes.INTERNAL.name().equals(domainSettings.get(AuthDomainProperties.AUTH_TYPE.name()))) {
+					logoutUrl = KeycloakEndpoints.endSessionEndpoint(domainUid);
+				} else {
+					logoutUrl = domainSettings.get(AuthDomainProperties.OPENID_END_SESSION_ENDPOINT.name());
+				}
 				logoutUrl += redirUrl.map(url -> "?post_logout_redirect_uri=" + url).orElse("");
 				logoutUrl += request.cookies(AuthenticationCookie.ID_TOKEN).stream().findFirst()
 						.map(io.vertx.core.http.Cookie::getValue).map(it -> {
