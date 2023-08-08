@@ -8,18 +8,50 @@ import IFrame from "../../../IFrame";
 import FileViewerMixin from "../FileViewerMixin";
 import TextHtmlFileViewer from "./../TextHtmlFileViewer";
 
-const copyProcessors = [replaceImageParts, undarkifyHtml];
+const copyProcessors = [undarkifyHtml, removeImageWithPartSrc];
+const copyAsyncProcessors = [undarkifyHtml, replaceImageWithPartSrc];
 
-function replaceImageParts(contentAsFragment) {
-    return Promise.all(
-        [...contentAsFragment.querySelectorAll("img[src]")]
-            .filter(el => el.attributes.src.nodeValue.startsWith(WEBSERVER_HANDLER_BASE_URL))
-            .map(async el => {
-                const data = await fetch(el.attributes.src.nodeValue);
-                const blob = await data.blob();
-                el.src = await convertBlobToBase64(blob);
-            })
+const getAllImagesWithPartSrc = contentAsFragment =>
+    [...contentAsFragment.querySelectorAll("img[src]")].filter(el =>
+        el.attributes.src.nodeValue.startsWith(WEBSERVER_HANDLER_BASE_URL)
     );
+
+function removeImageWithPartSrc(contentAsFragment) {
+    return getAllImagesWithPartSrc(contentAsFragment).forEach(el => el.parentNode.removeChild(el));
+}
+
+function replaceImageWithPartSrc(contentAsFragment) {
+    return Promise.all(
+        getAllImagesWithPartSrc(contentAsFragment).map(async el => {
+            const data = await fetch(el.attributes.src.nodeValue);
+            const blob = await data.blob();
+            el.src = await convertBlobToBase64(blob);
+        })
+    );
+}
+
+function getFragmentHtml(fragment) {
+    const div = document.createElement("div");
+    div.appendChild(fragment.cloneNode(true));
+    return div.innerHTML;
+}
+
+function copyHtmlToClipboard(htmlContent, event) {
+    event.clipboardData.setData("text/html", htmlContent);
+    event.clipboardData.setData("text/plain", html2text(htmlContent));
+}
+
+function copyHtmlToClipboardAsync(htmlContent) {
+    try {
+        navigator.clipboard.write([
+            new ClipboardItem({
+                "text/html": new Blob([htmlContent], { type: "text/html" }),
+                "text/plain": new Blob([html2text(htmlContent)], { type: "text/plain" })
+            })
+        ]);
+    } catch {
+        // Async copy-paste is not supported by the browser, do nothing
+    }
 }
 
 export default {
@@ -47,19 +79,16 @@ export default {
             cssStr += "}\n";
             return { htmlStr, cssStr };
         },
-        async parseCopiedContent(event) {
-            const contentAsFragment = event.selection.getRangeAt(0).cloneContents();
-            for (const copyProcessor of copyProcessors) {
-                await copyProcessor(contentAsFragment);
+        async formatAndCopyContent(event) {
+            let contentAsFragment = event.selection.getRangeAt(0).cloneContents();
+            copyProcessors.forEach(processor => processor(contentAsFragment));
+            copyHtmlToClipboard(getFragmentHtml(contentAsFragment), event);
+
+            contentAsFragment = event.selection.getRangeAt(0).cloneContents();
+            for (const copyAsyncProcessor of copyAsyncProcessors) {
+                await copyAsyncProcessor(contentAsFragment);
             }
-            const div = document.createElement("div");
-            div.appendChild(contentAsFragment.cloneNode(true));
-            navigator.clipboard.write([
-                new ClipboardItem({
-                    "text/html": new Blob([div.innerHTML], { type: "text/html" }),
-                    "text/plain": new Blob([html2text(div.innerHTML)], { type: "text/plain" })
-                })
-            ]);
+            copyHtmlToClipboardAsync(getFragmentHtml(contentAsFragment));
         },
         renderIFrame(h, { htmlStr, cssStr }) {
             return h(
@@ -68,7 +97,7 @@ export default {
                     staticClass: "border-0",
                     on: {
                         copy: event => {
-                            this.parseCopiedContent(event);
+                            this.formatAndCopyContent(event);
                             event.preventDefault();
                         }
                     }
