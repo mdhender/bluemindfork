@@ -173,7 +173,8 @@ public class EventRequestHandler extends AbstractLmtpHandler implements IIMIPHan
 				changes.delete == null ? 0 : changes.delete.size(), calUid);
 
 		VEvent event = series.main == null ? series.occurrences.get(0) : series.main;
-		return IMIPResponse.createEventResponse(imip.uid, event, needResponse(domain, recipientMailbox, event));
+		return IMIPResponse.createEventResponse(imip.uid, event, needResponse(domain, recipientMailbox, event),
+				Map.of("calendar_uid", calUid));
 	}
 
 	private boolean recipientIsOrganizer(ItemValue<Domain> domain, List<ItemValue<VEventSeries>> vseries,

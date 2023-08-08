@@ -20,7 +20,6 @@ package net.bluemind.lmtp.filter.imip;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -95,10 +94,6 @@ public class IMIPResponse {
 	public static IMIPResponse createEventResponse(String itemUid, ICalendarElement calElement, boolean needResponse,
 			Map<String, String> additionalAttributes) {
 		return createNeedResponse(calHeader, itemUid, calElement, needResponse, additionalAttributes);
-	}
-
-	public static IMIPResponse createEventResponse(String itemUid, ICalendarElement calElement, boolean needResponse) {
-		return createNeedResponse(calHeader, itemUid, calElement, needResponse, Collections.emptyMap());
 	}
 
 	public static IMIPResponse createTodoResponse(String itemUid, ICalendarElement calElement, String type) {
