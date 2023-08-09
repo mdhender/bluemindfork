@@ -38,7 +38,6 @@ public class ImapCommandHandler implements Handler<RawImapCommand> {
 	private static final Logger logger = LoggerFactory.getLogger(ImapCommandHandler.class);
 
 	private final RawCommandAnalyzer anal;
-
 	private final ImapContext ctx;
 
 	public ImapCommandHandler(ImapContext ctx) {

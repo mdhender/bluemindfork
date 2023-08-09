@@ -186,88 +186,112 @@ public class FetchedItemRenderer {
 		} else if (section.equalsIgnoreCase("header")) {
 			return headers(body, DEFAULT_HEADERS, rec);
 		} else if (section.equalsIgnoreCase("text")) {
-			Stream fullMsg = recApi.fetchComplete(rec.value.imapUid);
-			int len = body.get().size;
-			ByteBuf emlBuffer = readMmap(fullMsg, len * 2).join();
-			emlBuffer.markReaderIndex();
-			int headerEndIndex = ByteBufUtil.indexOf(TWO_CRLF.duplicate(), emlBuffer);
-			if (headerEndIndex < 0) {
-				return null;
-			}
-			emlBuffer.readerIndex(headerEndIndex + 4);
-			emlBuffer.markReaderIndex();
-			if (partial.isValid) {
-				return partial.getByteBufSlice(emlBuffer);
-			}
-			return emlBuffer.slice(headerEndIndex + 4, len);
+			return bodyText(recApi, body, rec, partial);
 		} else if (section.endsWith(SECTION_MIME_PATTERN) && partAddr(section.replace(SECTION_MIME_PATTERN, ""))) {
-			String part = f.section.replace(SECTION_MIME_PATTERN, "");
-			logger.info("Fetch mime headers of {}", part);
-			return body.get().structure.parts().stream().filter(p -> p.address.equalsIgnoreCase(part)).findAny()
-					.map(p -> {
-						StringBuilder b = new StringBuilder();
-						b.append("Content-Type: " + p.mime + "\r\n");
-						// core returns a decoded version
-						b.append("Content-Transfer-Encoding: 8bit\r\n");
-						if (p.contentId != null) {
-							b.append("Content-ID: " + p.contentId + "\r\n");
-						}
-						b.append("\r\n");
-						if (partial.isValid) {
-							return partial.getByteBufSlice(Unpooled.wrappedBuffer(b.toString().getBytes()));
-						}
-						return Unpooled.wrappedBuffer(b.toString().getBytes());
-					}).orElse(DEFAULT_NIL_BYTE_BUF);
+			return mimePattern(body, f, partial);
 		} else if (section.endsWith(SECTION_HEADER_PATTERN) && partAddr(section.replace(SECTION_HEADER_PATTERN, ""))) {
-			String part = f.section.replace(SECTION_HEADER_PATTERN, "");
-			logger.info("Fetch headers of {}", part);
-			return body.get().structure.parts().stream().filter(p -> p.address.equalsIgnoreCase(part))
-					.filter(p -> p.mime.equals("message/rfc822")).findAny().map(p -> {
-						Stream messagePart = itemsApi.fetch(rec.value.imapUid, p.address, p.encoding, p.mime, p.charset,
-								p.fileName);
-						int len = p.size;
-						ByteBuf emlBuffer = readMmap(messagePart, len * 2).join();
-						emlBuffer.markReaderIndex();
-						int headerEndIndex = ByteBufUtil.indexOf(TWO_CRLF.duplicate(), emlBuffer);
-						if (headerEndIndex < 0) {
-							return DEFAULT_NIL_BYTE_BUF;
-						}
-						emlBuffer.markReaderIndex();
-						if (partial.isValid) {
-							return partial.getByteBufSlice(emlBuffer);
-						}
-						return emlBuffer.slice(0, headerEndIndex);
-					}).orElse(DEFAULT_NIL_BYTE_BUF);
+			return sectionHeaderPattern(body, f, rec, partial);
 		} else if (partAddr(section)) {
-			// load eml part
-			try {
-				Stream fullMsg = recApi.fetchComplete(rec.value.imapUid);
-				int len = body.get().size;
-				ByteBuf emlBuffer = readMmap(fullMsg, len * 2).join();
-				return getPart(emlBuffer, f.section);
-			} catch (ServerFault sf) {
-				logger.error("could not fetch part  {}[{}]: {}", rec.value.imapUid, f.section, sf.getMessage());
-				return null;
-			}
+			return bodyPart(recApi, body, f, rec);
 		} else if (section.isEmpty()) {
-			// full eml
-			try {
-				Stream fullMsg = recApi.fetchComplete(rec.value.imapUid);
-				int len = body.get().size;
-				ByteBuf byteBuf = readMmap(fullMsg, len * 2).join();
-				if (partial.isValid) {
-					return partial.getByteBufSlice(byteBuf);
-				}
-				return byteBuf;
-			} catch (ServerFault sf) {
-				logger.error("could not fetch {}: {}", rec.value.imapUid, sf.getMessage());
-				return null;
-			}
+			return fullEml(recApi, body, rec, partial);
 		} else {
 			logger.warn("unknown section '{}'", f.section);
 		}
 
 		return null;
+	}
+
+	private ByteBuf bodyPart(IDbMailboxRecords recApi, Supplier<MessageBody> body, MailPart f,
+			WithId<MailboxRecord> rec) {
+		// load eml part
+		try {
+			Stream fullMsg = recApi.fetchComplete(rec.value.imapUid);
+			int len = body.get().size;
+			ByteBuf emlBuffer = readMmap(fullMsg, len * 2).join();
+			return getPart(emlBuffer, f.section);
+		} catch (ServerFault sf) {
+			logger.error("could not fetch part  {}[{}]: {}", rec.value.imapUid, f.section, sf.getMessage());
+			return null;
+		}
+	}
+
+	private ByteBuf fullEml(IDbMailboxRecords recApi, Supplier<MessageBody> body, WithId<MailboxRecord> rec,
+			Partial partial) {
+		// full eml
+		try {
+			Stream fullMsg = recApi.fetchComplete(rec.value.imapUid);
+			int len = body.get().size;
+			ByteBuf byteBuf = readMmap(fullMsg, len * 2).join();
+			if (partial.isValid) {
+				return partial.getByteBufSlice(byteBuf);
+			}
+			return byteBuf;
+		} catch (ServerFault sf) {
+			logger.error("could not fetch {}: {}", rec.value.imapUid, sf.getMessage());
+			return null;
+		}
+	}
+
+	private ByteBuf sectionHeaderPattern(Supplier<MessageBody> body, MailPart f, WithId<MailboxRecord> rec,
+			Partial partial) {
+		String part = f.section.replace(SECTION_HEADER_PATTERN, "");
+		logger.info("Fetch headers of {}", part);
+		return body.get().structure.parts().stream().filter(p -> p.address.equalsIgnoreCase(part))
+				.filter(p -> p.mime.equals("message/rfc822")).findAny().map(p -> {
+					Stream messagePart = itemsApi.fetch(rec.value.imapUid, p.address, p.encoding, p.mime, p.charset,
+							p.fileName);
+					int len = p.size;
+					ByteBuf emlBuffer = readMmap(messagePart, len * 2).join();
+					emlBuffer.markReaderIndex();
+					int headerEndIndex = ByteBufUtil.indexOf(TWO_CRLF.duplicate(), emlBuffer);
+					if (headerEndIndex < 0) {
+						return DEFAULT_NIL_BYTE_BUF;
+					}
+					emlBuffer.markReaderIndex();
+					if (partial.isValid) {
+						return partial.getByteBufSlice(emlBuffer);
+					}
+					return emlBuffer.slice(0, headerEndIndex);
+				}).orElse(DEFAULT_NIL_BYTE_BUF);
+	}
+
+	private ByteBuf mimePattern(Supplier<MessageBody> body, MailPart f, Partial partial) {
+		String part = f.section.replace(SECTION_MIME_PATTERN, "");
+		logger.info("Fetch mime headers of {}", part);
+		return body.get().structure.parts().stream().filter(p -> p.address.equalsIgnoreCase(part)).findAny()
+				.map(p -> {
+					StringBuilder b = new StringBuilder();
+					b.append("Content-Type: " + p.mime + "\r\n");
+					// core returns a decoded version
+					b.append("Content-Transfer-Encoding: 8bit\r\n");
+					if (p.contentId != null) {
+						b.append("Content-ID: " + p.contentId + "\r\n");
+					}
+					b.append("\r\n");
+					if (partial.isValid) {
+						return partial.getByteBufSlice(Unpooled.wrappedBuffer(b.toString().getBytes()));
+					}
+					return Unpooled.wrappedBuffer(b.toString().getBytes());
+				}).orElse(DEFAULT_NIL_BYTE_BUF);
+	}
+
+	private ByteBuf bodyText(IDbMailboxRecords recApi, Supplier<MessageBody> body, WithId<MailboxRecord> rec,
+			Partial partial) {
+		Stream fullMsg = recApi.fetchComplete(rec.value.imapUid);
+		int len = body.get().size;
+		ByteBuf emlBuffer = readMmap(fullMsg, len * 2).join();
+		emlBuffer.markReaderIndex();
+		int headerEndIndex = ByteBufUtil.indexOf(TWO_CRLF.duplicate(), emlBuffer);
+		if (headerEndIndex < 0) {
+			return null;
+		}
+		emlBuffer.readerIndex(headerEndIndex + 4);
+		emlBuffer.markReaderIndex();
+		if (partial.isValid) {
+			return partial.getByteBufSlice(emlBuffer);
+		}
+		return emlBuffer.slice(headerEndIndex + 4, len);
 	}
 
 	private boolean partAddr(String s) {
