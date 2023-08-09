@@ -80,6 +80,7 @@ function isSignatureLineEmpty(node) {
             return true;
         }
         const hasImage =
+            (node.tagName === "IMG" && node.getAttribute("src")) ||
             node.querySelector("img[src]:not([src=''])") ||
             node.style.getPropertyValue("background-image") ||
             node.querySelector("[style*='background-image']")?.style.getPropertyValue("background-image");
