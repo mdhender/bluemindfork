@@ -17,11 +17,15 @@
   */
 package net.bluemind.keycloak.utils.endpoints;
 
+import net.bluemind.network.topology.Topology;
+import net.bluemind.server.api.TagDescriptor;
+
 public class KeycloakEndpoints {
 
 	private static final String ROOT = "/keycloak/realms/";
 
-	private static final String BACKEND_ROOT = "http://127.0.0.1:8099/realms/";
+	private static final String BACKEND_ROOT = "http://"
+			+ Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address() + ":8099/realms/";
 
 	private static final String PROTO = "/protocol/openid-connect";
 

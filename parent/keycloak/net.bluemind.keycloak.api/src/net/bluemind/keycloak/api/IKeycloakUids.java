@@ -21,10 +21,6 @@ public interface IKeycloakUids {
 	public static final String KEYCLOAK_FLOW_ALIAS = "browser";
 	public static final String BLUEMIND_FLOW_ALIAS = "browser-bluemind";
 
-	public static String defaultHost(String host, String realmId) {
-		return String.format("http://%s:8099/realms/%s/.well-known/openid-configuration", host, realmId);
-	}
-
 	public static String clientId(String realmId) {
 		return realmId + "-cli";
 	}

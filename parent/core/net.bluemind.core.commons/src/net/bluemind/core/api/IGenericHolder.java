@@ -15,7 +15,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.core.rest;
+package net.bluemind.core.api;
 
 public interface IGenericHolder {
 

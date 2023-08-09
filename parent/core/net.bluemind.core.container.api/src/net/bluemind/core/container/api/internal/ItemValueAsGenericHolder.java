@@ -17,8 +17,8 @@
  */
 package net.bluemind.core.container.api.internal;
 
+import net.bluemind.core.api.IGenericHolder;
 import net.bluemind.core.container.model.ItemValue;
-import net.bluemind.core.rest.IGenericHolder;
 
 public class ItemValueAsGenericHolder implements IGenericHolder {
 
