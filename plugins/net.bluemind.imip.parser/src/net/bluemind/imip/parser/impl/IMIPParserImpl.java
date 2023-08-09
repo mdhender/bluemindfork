@@ -88,10 +88,13 @@ public class IMIPParserImpl implements IIMIPParser {
 				imip.method = method;
 				imip.messageId = mid;
 
-				IMIPInfos parseiTIP = parseiTIP(imip, e);
-				parseiTIP.cid = extractedCidReferencedParts(parts, method);
-
-				return parseiTIP;
+				try {
+					IMIPInfos parseiTIP = new ITIPPartParser(imip).parse(e);
+					parseiTIP.cid = extractedCidReferencedParts(parts, method);
+					return parseiTIP;
+				} catch (Exception e1) {
+					logger.error("[" + imip.messageId + "] Parsing error", e1);
+				}
 			}
 		}
 
@@ -152,13 +155,4 @@ public class IMIPParserImpl implements IIMIPParser {
 		return ret;
 	}
 
-	private IMIPInfos parseiTIP(IMIPInfos imip, Entity e) {
-		ITIPPartParser partParser = new ITIPPartParser(imip);
-		try {
-			return partParser.parse(e);
-		} catch (Exception ioe) {
-			logger.error("[" + imip.messageId + "] Parsing error", ioe);
-			return null;
-		}
-	}
 }
