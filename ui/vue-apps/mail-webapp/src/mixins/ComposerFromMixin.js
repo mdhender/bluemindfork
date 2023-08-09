@@ -1,3 +1,4 @@
+import { Verb } from "@bluemind/core.container.api";
 import { inject } from "@bluemind/inject";
 import { draftUtils, messageUtils, folderUtils } from "@bluemind/mail";
 import { REMOVE_MESSAGE_HEADER, SET_MESSAGE_FROM, SET_MESSAGE_HEADERS, SET_PERSONAL_SIGNATURE } from "~/mutations";
@@ -26,15 +27,8 @@ export default {
             });
             const fullIdentity = this.setIdentity(identity);
             const rawIdentity = await inject("UserMailIdentitiesPersistence").get(fullIdentity.id);
-
-            let destinationMailboxUid;
-            if (rawIdentity.sentFolder !== DEFAULT_FOLDERS.SENT) {
-                destinationMailboxUid = rawIdentity.mailboxUid;
-            } else {
-                destinationMailboxUid = inject("UserSession").userId;
-            }
-
             const mailboxes = this.$store.state.mail.mailboxes;
+            const destinationMailboxUid = await computeDestinationMailbox(rawIdentity, mailboxes);
             let mailbox = mailboxes[`user.${destinationMailboxUid}`] || mailboxes[destinationMailboxUid];
             let sentFolderUid;
             if (mailbox) {
@@ -89,3 +83,25 @@ export default {
         }
     }
 };
+
+async function computeDestinationMailbox(rawIdentity, mailboxes) {
+    let destinationMailboxUid;
+    if (rawIdentity.sentFolder !== DEFAULT_FOLDERS.SENT) {
+        const mailboxInStore = mailboxes[`user.${rawIdentity.mailboxUid}`] || mailboxes[rawIdentity.mailboxUid];
+        let writable;
+        if (mailboxInStore) {
+            writable = mailboxInStore.writable;
+        } else {
+            const mailboxContainer = await inject("ContainersPersistence").get(
+                "mailbox:acls-" + rawIdentity.mailboxUid
+            );
+            writable = mailboxContainer.verbs.includes(Verb.Write);
+        }
+        if (writable) {
+            destinationMailboxUid = rawIdentity.mailboxUid;
+        }
+    } else {
+        destinationMailboxUid = inject("UserSession").userId;
+    }
+    return destinationMailboxUid;
+}
