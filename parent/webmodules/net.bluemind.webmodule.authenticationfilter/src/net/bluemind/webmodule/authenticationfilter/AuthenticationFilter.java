@@ -139,11 +139,10 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 	}
 
 	private Optional<CompletableFuture<HttpServerRequest>> sessionExists(HttpServerRequest request) {
-		return sessionId(request).map(sessionId -> SessionsCache.get().getCache().getIfPresent(sessionId))
-				.map(sessionData -> {
-					decorate(request, sessionData);
-					return CompletableFuture.completedFuture(request);
-				});
+		return sessionId(request).map(sessionId -> SessionsCache.get().getIfPresent(sessionId)).map(sessionData -> {
+			decorate(request, sessionData);
+			return CompletableFuture.completedFuture(request);
+		});
 	}
 
 	private void redirectToOpenIdServer(HttpServerRequest request, String domainUid) {
