@@ -284,6 +284,9 @@ public class MilterHandler implements JilterHandler {
 				.filter(rule -> rule.routing == mailflowRouting || rule.routing == MailflowRouting.ALL)
 				.collect(Collectors.toList());
 
+		storedRules.addAll(
+				MilterRuleActionsRegistry.get().stream().filter(rule -> rule.routing == mailflowRouting).toList());
+
 		List<RuleAction> matches = new MailflowRuleEngine(mailflowContext).evaluate(storedRules, toBmMessage());
 		for (RuleAction ruleAction : matches) {
 			try {
