@@ -137,8 +137,6 @@ public class AuthProvider {
 	}
 
 	private void doSudo(List<String> remoteIps, AsyncHandler<String> handler, ExternalCreds externalCreds) {
-		logger.info("[{}] sessionId (EXT)", externalCreds.getLoginAtDomain());
-
 		getProvider(Token.admin0(), remoteIps).instance(IAuthenticationPromise.class)
 				.suWithParams(externalCreds.getLoginAtDomain(), true).exceptionally(t -> null).thenAccept(lr -> {
 					if (lr == null) {

@@ -17,12 +17,16 @@
   */
 package net.bluemind.keycloak.utils.endpoints;
 
+import net.bluemind.hornetq.client.MQ;
+import net.bluemind.hornetq.client.MQ.SharedMap;
+import net.bluemind.hornetq.client.Shared;
 import net.bluemind.network.topology.Topology;
 import net.bluemind.server.api.TagDescriptor;
+import net.bluemind.system.api.SysConfKeys;
 
 public class KeycloakEndpoints {
 
-	private static final String ROOT = "/keycloak/realms/";
+	private static final String EXTERNAL_URL = getExternalUrl();
 
 	private static final String BACKEND_ROOT = "http://"
 			+ Topology.get().any(TagDescriptor.bm_keycloak.getTag()).value.address() + ":8099/realms/";
@@ -50,7 +54,11 @@ public class KeycloakEndpoints {
 	}
 
 	public static String issuerEndpoint(String domainUid) {
-		return ROOT + domainUid;
+		return "https://" + EXTERNAL_URL + "/keycloak/realms/" + domainUid;
 	}
 
+	private static String getExternalUrl() {
+		SharedMap<String, String> systemConfiguration = MQ.sharedMap(Shared.MAP_SYSCONF);
+		return systemConfiguration.get(SysConfKeys.external_url.name());
+	}
 }

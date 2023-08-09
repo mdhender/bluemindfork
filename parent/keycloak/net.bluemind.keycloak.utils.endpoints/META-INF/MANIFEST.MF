@@ -7,4 +7,7 @@ Export-Package: net.bluemind.keycloak.utils.endpoints
 Bundle-Vendor: www.bluemind.net
 Automatic-Module-Name: net.bluemind.keycloak.utils.endpoints
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: net.bluemind.network.topology
+Require-Bundle: net.bluemind.network.topology,
+ net.bluemind.hornetq.client,
+ net.bluemind.domain.api,
+ net.bluemind.system.api
