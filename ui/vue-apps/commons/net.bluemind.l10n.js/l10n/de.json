@@ -113,6 +113,7 @@
     "common.application.webmail": "Webmailer",
     "common.application.calendar": "Kalender",
     "common.application.contacts": "Kontakte",
+    "common.application.tasks": "Aufgaben",
     "common.my_account": "Mein Konto",
     "common.advanced": "Erweitert",
     "common.day": "Tag",
@@ -234,6 +235,7 @@
         "log_in": "Einloggen",
         "open_in_window": "In einem neuen Fenster öffnen",
         "open_in_window_with_shift": "Shift drücken, um in einem neuen Fenster zu öffnen",
+        "user": "Benutzer",
         "open_action_in_window_with_shift": "{action} (@:common.open_in_window_with_shift)",
         "whats_going_on": "Was passiert hier?"
     },

@@ -10,6 +10,7 @@
             :icon="icon"
             :actionable-icon="actionableIcon"
             :disabled="disabled"
+            :placeholder="placeholder"
             @input="onInput"
             @keyup.esc="
                 if (!closeAutocomplete) {
@@ -67,23 +68,11 @@ export default {
     },
     mixins: [AutocompleteMixin],
     props: {
-        selectedResult: {
-            type: Number,
-            default: 0
-        },
-        actionableIcon: {
-            type: Boolean,
-            required: false,
-            default: false
-        },
-        size: {
-            type: String,
-            default: "md"
-        },
-        disabled: {
-            type: Boolean,
-            default: false
-        }
+        selectedResult: { type: Number, default: 0 },
+        actionableIcon: { type: Boolean, default: false },
+        size: { type: String, default: "md" },
+        disabled: { type: Boolean, default: false },
+        placeholder: { type: String, default: undefined }
     },
     data() {
         return { selectedResult_: this.selectedResult };

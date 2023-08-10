@@ -95,6 +95,7 @@
                     :max-results="maxContactsSuggestion"
                     :class="{ 'flex-fill': !beingEdited }"
                     :disabled="disabled"
+                    :placeholder="placeholder"
                     data-browse
                     data-browse-default
                     data-browse-key="new"
@@ -202,7 +203,9 @@ export default {
             default: undefined
         },
         readonly: { type: Boolean, default: false },
-        enableCard: { type: Boolean, default: true }
+        enableCard: { type: Boolean, default: true },
+        selectOnly: { type: Boolean, default: false },
+        placeholder: { type: String, default: undefined }
     },
     data() {
         return {
@@ -374,7 +377,7 @@ export default {
             this.$emit("search", "");
         },
         create() {
-            if (this.value.trim() !== "") {
+            if (this.value.trim() !== "" && !this.selectOnly) {
                 const result = this.getDnAndAddress(this.value);
                 this.add({ address: result.address, dn: result.dn }); // FIXME: find dn on server when user enter email address directly ?
                 this.afterCreate();
