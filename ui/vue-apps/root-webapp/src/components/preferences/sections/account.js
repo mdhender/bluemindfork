@@ -13,7 +13,7 @@ export default function (i18n) {
         name: i18n.t("common.my_account"),
         icon: { name: "preferences" },
         priority: Number.MAX_SAFE_INTEGER,
-        categories: [main(i18n), security(i18n), cti(i18n), advanced(i18n), externalAccounts(i18n)]
+        categories: [main(i18n), security(i18n), cti(i18n), delegates(i18n), advanced(i18n), externalAccounts(i18n)]
     };
 }
 
@@ -263,6 +263,22 @@ function externalAccounts(i18n) {
                         component: { name: "PrefExtAccountList", options: { autosave: true } }
                     }
                 ]
+            }
+        ]
+    };
+}
+
+function delegates(i18n) {
+    return {
+        id: "delegates",
+        name: i18n.t("preferences.account.delegates"),
+        icon: "share",
+        visible: { name: "RoleCondition", args: [Roles.HAS_MAIL] },
+        groups: [
+            {
+                id: "group",
+                name: i18n.t("preferences.account.delegates"),
+                fields: [{ id: "field", component: { name: "PrefDelegates" } }]
             }
         ]
     };

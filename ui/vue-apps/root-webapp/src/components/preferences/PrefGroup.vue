@@ -34,7 +34,7 @@ import PrefAlwaysShowQuota from "./fields/customs/PrefAlwaysShowQuota";
 import PrefAPIKey from "./fields/customs/PrefAPIKey";
 import PrefAutomaticReply from "./fields/customs/PrefAutomaticReply";
 import PrefComposerDefaultFont from "./fields/customs/PrefComposerDefaultFont";
-import PrefMailtoLinks from "./fields/customs/PrefMailtoLinks";
+import PrefDelegates from "./fields/customs/PrefDelegates";
 import PrefDeleteRecipientPriorities from "./fields/customs/PrefDeleteRecipientPriorities";
 import PrefDomainFilterRules from "./fields/customs/FilterRules/PrefDomainFilterRules";
 import PrefDownloads from "./fields/customs/PrefDownloads";
@@ -45,6 +45,7 @@ import PrefEventReminder from "./fields/customs/PrefEventReminder";
 import PrefExtAccountCreation from "./fields/customs/ExternalAccounts/PrefExtAccountCreation";
 import PrefExtAccountList from "./fields/customs/ExternalAccounts/PrefExtAccountList";
 import PrefIMSetPhonePresence from "./fields/customs/PrefIMSetPhonePresence";
+import PrefMailtoLinks from "./fields/customs/PrefMailtoLinks";
 import PrefManageIdentities from "./fields/customs/PrefManageIdentities";
 import PrefManageMyAddressBooks from "./fields/customs/ContainersManagement/Contacts/PrefManageMyAddressBooks";
 import PrefManageMyCalendars from "./fields/customs/ContainersManagement/Calendars/MyCalendars/PrefManageMyCalendars";
@@ -75,7 +76,7 @@ export default {
         PrefAPIKey,
         PrefAutomaticReply,
         PrefComposerDefaultFont,
-        PrefMailtoLinks,
+        PrefDelegates,
         PrefDeleteRecipientPriorities,
         PrefDomainFilterRules,
         PrefDownloads,
@@ -94,6 +95,7 @@ export default {
         PrefFieldSelect,
         PrefFieldSwitch,
         PrefIMSetPhonePresence,
+        PrefMailtoLinks,
         PrefManageIdentities,
         PrefManageMyAddressBooks,
         PrefManageMyCalendars,
