@@ -94,6 +94,7 @@ bmFileProvider.prototype = {
         this._accountKey = aAccountKey;
         this._prefBranch = Services.prefs.getBranch("mail.cloud_files.accounts." + aAccountKey + ".");
         this._prefBranch.setCharPref("displayName", "BlueMind");
+        this._prefBranch.setCharPref("type", "BlueMind");
     },
   
     // for TB >= 67
