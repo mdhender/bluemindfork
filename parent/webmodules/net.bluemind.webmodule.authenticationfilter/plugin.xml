@@ -35,5 +35,11 @@
             class="net.bluemind.webmodule.authenticationfilter.ForwardSessionMessages">
       </vertx-forwarder>
    </extension>
+   <extension
+         point="net.bluemind.core.caches.registry.registration">
+      <reg
+            impl="net.bluemind.webmodule.authenticationfilter.internal.SessionsCache$CacheRegistration">
+      </reg>
+   </extension>
 
 </plugin>

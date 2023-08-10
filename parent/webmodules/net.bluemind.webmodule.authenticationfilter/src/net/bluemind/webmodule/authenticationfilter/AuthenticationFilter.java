@@ -45,6 +45,7 @@ import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
@@ -54,6 +55,7 @@ import net.bluemind.core.api.auth.AuthDomainProperties;
 import net.bluemind.core.api.auth.AuthTypes;
 import net.bluemind.hornetq.client.MQ;
 import net.bluemind.hornetq.client.Shared;
+import net.bluemind.hornetq.client.Topic;
 import net.bluemind.keycloak.api.IKeycloakUids;
 import net.bluemind.keycloak.utils.endpoints.KeycloakEndpoints;
 import net.bluemind.network.topology.Topology;
@@ -89,6 +91,16 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 	public void setVertx(Vertx vertx) {
 		// Every day, remove sessions files from disk that are not in cache
 		vertx.setPeriodic(TimeUnit.DAYS.toMillis(1), i -> SessionsCache.get().cleanUp());
+
+		vertx.eventBus().consumer(Topic.CORE_SESSIONS, (Message<JsonObject> event) -> {
+			JsonObject cm = event.body();
+			String op = cm.getString("operation");
+			if ("logout".equals(op)) {
+				String sid = cm.getString("sid");
+				SessionsCache.get().invalidate(sid);
+			}
+		});
+
 	}
 
 	@Override
@@ -258,7 +270,7 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 	private CompletableFuture<HttpServerRequest> logout(HttpServerRequest request) {
 		Optional<String> sessionId = sessionId(request);
 		if (sessionId.isPresent()) {
-			SessionsCache.get().getCache().invalidate(sessionId.get());
+			SessionsCache.get().invalidate(sessionId.get());
 		}
 
 		AuthenticationCookie.purge(request);

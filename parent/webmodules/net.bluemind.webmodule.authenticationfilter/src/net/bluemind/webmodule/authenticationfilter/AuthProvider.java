@@ -201,7 +201,7 @@ public class AuthProvider {
 			}
 		}
 
-		SessionsCache.get().getCache().put(sd.authKey, sd);
+		SessionsCache.get().put(sd.authKey, sd);
 		handler.success(sd.authKey);
 	}
 
@@ -216,7 +216,7 @@ public class AuthProvider {
 					if (fn != null) {
 						logger.error(fn.getMessage(), fn);
 					}
-					SessionsCache.get().getCache().invalidate(sessionId);
+					SessionsCache.get().invalidate(sessionId);
 				});
 	}
 

@@ -20,8 +20,17 @@ package net.bluemind.webmodule.authenticationfilter.internal;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
 import net.bluemind.common.cache.persistence.CacheBackingStore;
+import net.bluemind.core.caches.registry.CacheRegistry;
+import net.bluemind.core.caches.registry.ICacheRegistration;
 
 public class SessionsCache {
+
+	public static class CacheRegistration implements ICacheRegistration {
+		@Override
+		public void registerCaches(CacheRegistry cr) {
+			cr.register(SessionsCache.class, sessions.getCache());
+		}
+	}
 
 	private static final CacheBackingStore<SessionData> sessions = new CacheBackingStore<>(
 			Caffeine.newBuilder().recordStats(), "/var/cache/bm-sessions/core2", SessionData::toJson,
