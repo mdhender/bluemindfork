@@ -53,7 +53,7 @@ window.eval(`
     cancel: function () {\
       window.close();
     },\
-    multi: false,\
+    multi: true,\
     close: false\
   };\
   window.application.setOptions(options);`

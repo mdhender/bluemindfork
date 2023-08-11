@@ -178,7 +178,7 @@ bmFileProvider.prototype = {
             throw cloudFileProvInterface.offlineErr;
         this._logger.info("Upload file: " + aFile.leafName + " skip upload: " + aSkipUpload);
         if (this._uploadingFile && this._uploadingFile != aFile) {
-            this._logger.info("Adding file to queue");
+            this._logger.info("Adding file: " + aFile.leafName + " to queue");
             let uploader = new bmFileUploader(this, aFile, this._uploaderCallback.bind(this), aCallback, aSkipUpload);
             this._uploads.push(uploader);
             return;
@@ -499,7 +499,7 @@ bmFileProvider.prototype = {
             this._uploadingFile = nextUpload.file;
             this._uploader = nextUpload;
             try {
-                this.uploadFile(nextUpload.file, nextUpload.callback);
+                this._finishUpload(nextUpload.file, nextUpload.callback, nextUpload._skipUpload);
             } catch (ex) {
                 nextUpload.callback(nextUpload.requestObserver, Cr.NS_ERROR_FAILURE);
             }
@@ -524,7 +524,7 @@ bmFileUploader.prototype = {
     callback : null,
     request : null,
     uploadFile: function() {
-        this._logger.info("ready to upload file [" + this.file.leafName + "]");
+        this._logger.info("ready to upload file [" + this.file.leafName + "], skip upload: " + this._skipUpload);
         
         let onSuccess = function(aResponseText, aRequest) {
             this.request = null;

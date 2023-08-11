@@ -428,6 +428,10 @@ var gBMCompose = {
         bmUtils.session.sigPreviewClosed = !visible;
     },
     observe: function(subject, topic, data) {
+        if (!gMsgCompose) {
+            // prevent multiple callback for closed composers
+            return;
+        }
         let msg = subject.wrappedJSObject;
         onRemoteFileChoosed(msg.data);
     }
