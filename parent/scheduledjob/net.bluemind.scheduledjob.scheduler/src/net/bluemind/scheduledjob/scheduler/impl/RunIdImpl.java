@@ -51,6 +51,9 @@ public class RunIdImpl implements IScheduledJobRunId {
 		this.status = JobExitStatus.IN_PROGRESS;
 	}
 
+	public RunIdImpl() {
+	}
+
 	public void addEntry(LogEntry le) {
 		if (entries.size() >= 50000) {
 			logger.warn("Not recording '{}' in database, too much logs already.", le.content);
@@ -68,6 +71,18 @@ public class RunIdImpl implements IScheduledJobRunId {
 	public String toString() {
 		return "RunIdImpl [domainUid=" + domainUid + ", jid=" + jid + ", startTime=" + startTime + ", endTime="
 				+ endTime + ", groupId=" + groupId + ", status=" + status + "]";
+	}
+
+	public RunIdImpl copy() {
+		RunIdImpl copy = new RunIdImpl();
+		copy.domainUid = this.domainUid;
+		copy.jid = this.jid;
+		copy.startTime = this.startTime;
+		copy.endTime = this.endTime;
+		copy.groupId = this.groupId;
+		copy.entries = new LinkedHashSet<>(this.entries);
+		copy.status = this.status;
+		return copy;
 	}
 
 }

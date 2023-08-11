@@ -156,10 +156,12 @@ public class Scheduler implements IScheduler, IRecordingListener {
 		rid.status = status;
 		rid.endTime = endStamp;
 
+		RunIdImpl copy = rid.copy();
+
 		String key = rid.domainUid + "-" + rid.jid;
 		activeRecorders.get(key).finish();
 
-		SendReport sr = new SendReport(rid);
+		SendReport sr = new SendReport(copy);
 		exec.execute(sr);
 	}
 
