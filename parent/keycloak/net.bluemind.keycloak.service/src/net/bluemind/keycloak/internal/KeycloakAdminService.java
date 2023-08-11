@@ -69,6 +69,7 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 		realm.put("loginTheme", "bluemind"); // provide by bm-keycloak
 		realm.put("internationalizationEnabled", true);
 		realm.put("accessCodeLifespanLogin", Duration.ofDays(1).toSeconds());
+		realm.put("accessTokenLifespan", Duration.ofHours(1).toSeconds());
 		IDomainSettings domainSettingsService = context.provider().instance(IDomainSettings.class, domainId);
 		String lang = domainSettingsService.get().get(DomainSettingsKeys.lang.name());
 		realm.put("defaultLocale", Strings.isNullOrEmpty(lang) ? "en" : lang);
