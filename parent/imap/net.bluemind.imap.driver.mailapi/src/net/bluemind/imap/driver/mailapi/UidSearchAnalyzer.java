@@ -115,8 +115,7 @@ public class UidSearchAnalyzer {
 
 		// Builder can only be built once
 		BoolQuery.Builder qb = new BoolQuery.Builder() //
-				.must(m -> m.term(t -> t.field("in").value(folderUid))) //
-				.mustNot(m -> m.term(t -> t.field("is").value("deleted")));
+				.must(m -> m.term(t -> t.field("in").value(folderUid)));
 		BoolQuery.Builder qbShould = new BoolQuery.Builder();
 		// Analyze query for the different authorized keywords
 		while (subQuery.length() != 0) {

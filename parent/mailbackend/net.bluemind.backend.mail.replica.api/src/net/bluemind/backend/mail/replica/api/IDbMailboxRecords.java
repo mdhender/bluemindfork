@@ -75,9 +75,9 @@ public interface IDbMailboxRecords extends IChangelogSupport, IDataShardSupport,
 	@Path("_all")
 	List<ItemValue<MailboxRecord>> all();
 
-	@GET
+	@POST
 	@Path("_imapUidSet")
-	List<Long> imapIdSet(@QueryParam("set") String set, @QueryParam("filter") String filter);
+	List<Long> imapIdSet(String set, @QueryParam("filter") String filter);
 
 	/**
 	 * Quick alternative to {@link IDbMailboxRecords#multipleGetById(List)}, this

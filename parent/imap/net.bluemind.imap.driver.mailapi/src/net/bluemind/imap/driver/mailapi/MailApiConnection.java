@@ -72,6 +72,7 @@ import net.bluemind.backend.mail.replica.api.IDbMessageBodies;
 import net.bluemind.backend.mail.replica.api.IDbReplicatedMailboxes;
 import net.bluemind.backend.mail.replica.api.IMailReplicaUids;
 import net.bluemind.backend.mail.replica.api.ISyncDbMailboxRecords;
+import net.bluemind.backend.mail.replica.api.ImapBinding;
 import net.bluemind.backend.mail.replica.api.MailboxRecord;
 import net.bluemind.backend.mail.replica.api.MailboxRecord.InternalFlag;
 import net.bluemind.backend.mail.replica.api.MailboxReplica;
@@ -176,8 +177,8 @@ public class MailApiConnection implements MailboxConnection {
 		return MoreObjects.toStringHelper(MailApiConnection.class).add("id", me.value.defaultEmailAddress()).toString();
 	}
 
-	private static final ItemFlagFilter NOT_DELETED = ItemFlagFilter.create().mustNot(ItemFlag.Deleted);
-	private static final ItemFlagFilter UNSEEN = ItemFlagFilter.create().mustNot(ItemFlag.Seen, ItemFlag.Deleted);
+	private static final ItemFlagFilter IMAP_VISIBLE = ItemFlagFilter.create().skipExpunged();
+	private static final ItemFlagFilter UNSEEN = ItemFlagFilter.create().mustNot(ItemFlag.Seen).skipExpunged();
 
 	@Override
 	public SelectedFolder select(String fName) {
@@ -203,7 +204,7 @@ public class MailApiConnection implements MailboxConnection {
 		}
 
 		IDbMailboxRecords recApi = prov.instance(ISyncDbMailboxRecords.class, existing.uid);
-		long exist = recApi.count(NOT_DELETED).total;
+		long exist = recApi.count(IMAP_VISIBLE).total;
 		long unseen = recApi.count(UNSEEN).total;
 		List<String> labels = recApi.labels();
 		CyrusPartition part = CyrusPartition.forServerAndDomain(resolved.owner.value.dataLocation, me.domainUid);
@@ -408,14 +409,14 @@ public class MailApiConnection implements MailboxConnection {
 			return recApi.imapIdSet(set.serializedSet, "");
 		} else {
 			List<Long> fullList = recApi.imapIdSet("1:*", "");
-			long[] fullUidArray = fullList.stream().sorted().mapToLong(Long::longValue).toArray();
+			int total = fullList.size();
 			ListIterator<Long> iterator = IDSet.parse(set.serializedSet).iterateUid();
-			List<Long> ret = new ArrayList<>(fullUidArray.length);
+			List<Long> ret = new ArrayList<>(total);
 			while (iterator.hasNext()) {
 				int seq = iterator.next().intValue();
 				int position = seq - 1;
-				if (position >= 0 && position < fullUidArray.length) {
-					ret.add(fullUidArray[position]);
+				if (position >= 0 && position < total) {
+					ret.add(fullList.get(position));
 				}
 			}
 			return ret;
@@ -424,10 +425,10 @@ public class MailApiConnection implements MailboxConnection {
 
 	private Map<Long, Integer> itemIdToSeqNum(IDbMailboxRecords recApi) {
 		List<Long> fullList = recApi.imapIdSet("1:*", "");
-		long[] fullUidArray = fullList.stream().sorted().mapToLong(Long::longValue).toArray();
-		Map<Long, Integer> ret = new HashMap<>();
-		for (int i = 0; i < fullUidArray.length; i++) {
-			ret.put(fullUidArray[i], i + 1);
+		Map<Long, Integer> ret = new HashMap<>(2 * fullList.size());
+		Iterator<Long> uidIter = fullList.iterator();
+		for (int i = 1; uidIter.hasNext(); i++) {
+			ret.put(uidIter.next(), i);
 		}
 		return ret;
 	}
@@ -659,8 +660,7 @@ public class MailApiConnection implements MailboxConnection {
 		updateFlags(selected, toUpdate, mode, flags);
 	}
 
-	@Override
-	public void updateFlags(SelectedFolder selected, List<Long> toUpdate, UpdateMode mode, List<String> flags) {
+	private void updateFlags(SelectedFolder selected, List<Long> toUpdate, UpdateMode mode, List<String> flags) {
 		IDbMailboxRecords recApi = prov.instance(ISyncDbMailboxRecords.class, selected.folder.uid);
 		for (List<Long> slice : Lists.partition(toUpdate, DriverConfig.get().getInt("driver.records-mget"))) {
 			List<MailboxRecord> recs = recApi.slice(slice).stream().map(iv -> iv.value).collect(Collectors.toList()); // NOSONAR
@@ -782,6 +782,7 @@ public class MailApiConnection implements MailboxConnection {
 				long maxUid = (aggregate != null) ? (long) aggregate.max().value() : 0l;
 				return Arrays.asList(maxUid);
 			}
+			logger.info("[{}] {} enumerate '{}' -> {} uid(s)", this, sel, query, uids.size());
 			return uids;
 		} catch (Exception e) {
 			logger.error("[{}] unknown error: {}", this, e.getMessage(), e);
@@ -871,6 +872,23 @@ public class MailApiConnection implements MailboxConnection {
 		} else {
 			return net.bluemind.imap.endpoint.driver.Acl.RW;
 		}
+	}
+
+	@Override
+	public Map<Long, Integer> sequences(SelectedFolder sel) {
+		Map<Long, Integer> uidToSeq = new HashMap<>();
+		List<Long> itemIds = sel.recApi.imapIdSet("1:*", "");
+		Iterator<ImapBinding> bindings = sel.recApi.imapBindings(itemIds).iterator();
+		for (int i = 1; bindings.hasNext(); i++) {
+			uidToSeq.put(bindings.next().imapUid, i);
+		}
+		return uidToSeq;
+	}
+
+	@Override
+	public List<Long> uidSet(SelectedFolder sel, String set, ItemFlagFilter filter) {
+		List<Long> itemIds = sel.recApi.imapIdSet(set, ItemFlagFilter.toQueryString(filter));
+		return sel.recApi.imapBindings(itemIds).stream().map(ib -> ib.imapUid).toList();
 	}
 
 }

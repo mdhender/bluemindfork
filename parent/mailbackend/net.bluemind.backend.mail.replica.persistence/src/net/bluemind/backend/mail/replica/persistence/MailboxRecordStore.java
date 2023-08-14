@@ -317,18 +317,25 @@ public class MailboxRecordStore extends AbstractItemValueStore<MailboxRecord> {
 		String fsql = "";
 		if (!filter.must.isEmpty()) {
 			int v = filter.must.stream().map(this::adaptFlag).reduce(0, (f, flag) -> f | flag);
-			fsql += " AND (" + recAlias + ".system_flags::bit(32) & " + v + "::bit(32))=" + v + "::bit(32)";
+			fsql += " AND (" + recAlias + ".system_flags::bit(32) & (" + v + ")::bit(32))=(" + v + ")::bit(32)";
 		}
 		if (!filter.mustNot.isEmpty()) {
 			int v = filter.mustNot.stream().map(this::adaptFlag).reduce(0, (f, flag) -> f | flag);
-			fsql += " AND (" + recAlias + ".system_flags::bit(32) & " + v + "::bit(32))=0::bit(32)";
+			fsql += " AND (" + recAlias + ".system_flags::bit(32) & (" + v + ")::bit(32))=0::bit(32)";
+		}
+		if (filter.skipExpunged) {
+			int v = MailboxRecord.InternalFlag.expunged.value;
+			fsql += " AND (" + recAlias + ".system_flags::bit(32) & (" + v + ")::bit(32))=0::bit(32)";
 		}
 		return fsql;
 	}
 
 	public List<Long> imapIdset(String set, ItemFlagFilter itemFilter) throws SQLException {
 		String q = "select rec.item_id from t_mailbox_record rec WHERE rec.subtree_id = ? AND rec.container_id = ? AND "
-				+ asSql(set) + filterSql("rec", itemFilter) + " ORDER BY rec.imap_uid";
+				+ asSql(set) //
+				+ filterSql("rec", itemFilter) + //
+				" AND (rec.system_flags::bit(32) & (" + InternalFlag.expunged.value + ")::bit(32)) = 0::bit(32) " //
+				+ " ORDER BY rec.imap_uid";
 		return select(q, LongCreator.FIRST, Collections.emptyList(),
 				new Object[] { subtreeContainer.id, folderContainer.id });
 	}

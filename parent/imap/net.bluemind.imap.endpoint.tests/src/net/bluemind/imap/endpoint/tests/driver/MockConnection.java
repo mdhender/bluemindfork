@@ -20,6 +20,7 @@ package net.bluemind.imap.endpoint.tests.driver;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.streams.WriteStream;
+import net.bluemind.core.container.model.ItemFlagFilter;
 import net.bluemind.imap.endpoint.driver.Acl;
 import net.bluemind.imap.endpoint.driver.AppendStatus;
 import net.bluemind.imap.endpoint.driver.AppendStatus.WriteStatus;
@@ -113,14 +115,10 @@ public class MockConnection implements MailboxConnection {
 
 	@Override
 	public void idleMonitor(SelectedFolder selected, WriteStream<IdleToken> ctx) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void notIdle() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -131,11 +129,6 @@ public class MockConnection implements MailboxConnection {
 	@Override
 	public void updateFlags(SelectedFolder sf, ImapIdSet idset, UpdateMode mode, List<String> flags) {
 		logger.info("[{}] Should update flags of {}", sf.folder.displayName, idset);
-	}
-
-	@Override
-	public void updateFlags(SelectedFolder sf, List<Long> uids, UpdateMode mode, List<String> flags) {
-		logger.info("[{}] Should update flags of {}", sf.folder.displayName, uids);
 	}
 
 	@Override
@@ -197,5 +190,15 @@ public class MockConnection implements MailboxConnection {
 	@Override
 	public String imapAcl(SelectedFolder selected) {
 		return Acl.ALL;
+	}
+
+	@Override
+	public Map<Long, Integer> sequences(SelectedFolder sel) {
+		return Collections.emptyMap();
+	}
+
+	@Override
+	public List<Long> uidSet(SelectedFolder sel, String set, ItemFlagFilter filter) {
+		return Collections.emptyList();
 	}
 }

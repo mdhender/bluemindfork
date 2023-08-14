@@ -34,6 +34,7 @@ public class ItemFlagFilter {
 	public Collection<ItemFlag> must = EnumSet.noneOf(ItemFlag.class);
 	public Collection<ItemFlag> mustNot = EnumSet.noneOf(ItemFlag.class);
 	public Set<Long> skipVersions = new HashSet<>();
+	public boolean skipExpunged;
 
 	public static ItemFlagFilter create() {
 		return new ItemFlagFilter();
@@ -47,6 +48,11 @@ public class ItemFlagFilter {
 		for (ItemFlag f : flags) {
 			must.add(f);
 		}
+		return this;
+	}
+
+	public ItemFlagFilter skipExpunged() {
+		skipExpunged = true;
 		return this;
 	}
 

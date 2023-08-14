@@ -633,11 +633,10 @@ public class DbMailboxRecordsService extends BaseMailboxRecordsService
 		if (!validSet) {
 			throw new ServerFault("invalid idset '" + set + "'", ErrorCode.INVALID_PARAMETER);
 		}
-
 		ItemFlagFilter itemFilter = ItemFlagFilter.fromQueryString(Optional.ofNullable(filter).orElse(""));
 		try {
 			return recordStore.imapIdset(set, itemFilter);
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			throw ServerFault.sqlFault(e);
 		}
 	}

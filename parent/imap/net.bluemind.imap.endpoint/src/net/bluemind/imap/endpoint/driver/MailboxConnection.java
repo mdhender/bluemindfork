@@ -20,10 +20,12 @@ package net.bluemind.imap.endpoint.driver;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.streams.WriteStream;
+import net.bluemind.core.container.model.ItemFlagFilter;
 
 public interface MailboxConnection {
 
@@ -58,13 +60,15 @@ public interface MailboxConnection {
 
 	void updateFlags(SelectedFolder sf, ImapIdSet idset, UpdateMode mode, List<String> flags);
 
-	void updateFlags(SelectedFolder selected, List<Long> toUpdate, UpdateMode mode, List<String> flags);
-
 	int maxLiteralSize();
 
 	CopyResult copyTo(SelectedFolder source, String folder, String idset);
 
 	List<Long> uids(SelectedFolder sel, String query);
+
+	Map<Long, Integer> sequences(SelectedFolder sel);
+
+	List<Long> uidSet(SelectedFolder sel, String set, ItemFlagFilter filter);
 
 	/*
 	 * Imap system stuff
