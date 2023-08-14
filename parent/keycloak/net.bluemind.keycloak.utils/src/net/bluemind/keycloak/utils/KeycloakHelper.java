@@ -67,16 +67,6 @@ public class KeycloakHelper {
 
 	}
 
-	public static void initForDomain(ItemValue<Domain> domain) {
-		waitForKeycloak();
-		if (domain.value.properties != null
-				&& AuthTypes.OPENID.name().equals(domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name()))) {
-			initExternalForDomain(domain);
-		} else {
-			initKeycloakForDomain(domain);
-		}
-	}
-
 	private static void initKeycloakForDomain(ItemValue<Domain> domain) {
 		logger.info("Init Keycloak realm for domain {}", domain.uid);
 
@@ -314,7 +304,14 @@ public class KeycloakHelper {
 			throw ServerFault.notFound("Domain " + domainId + " not found");
 		}
 
-		initForDomain(domain);
+		waitForKeycloak();
+		if (domain.value.properties != null
+				&& AuthTypes.OPENID.name().equals(domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name()))) {
+			initExternalForDomain(domain);
+		} else {
+			initKeycloakForDomain(domain);
+		}
+
 	}
 
 	public static void waitForKeycloak() {

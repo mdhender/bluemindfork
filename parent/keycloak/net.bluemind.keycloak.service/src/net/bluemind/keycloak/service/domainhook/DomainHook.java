@@ -33,7 +33,6 @@ import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.hook.DomainHookAdapter;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
 import net.bluemind.keycloak.utils.KerberosConfigHelper;
-import net.bluemind.keycloak.utils.KeycloakHelper;
 import net.bluemind.keycloak.verticle.KeycloakVerticleAddress;
 import net.bluemind.lib.vertx.VertxPlatform;
 
@@ -46,7 +45,8 @@ public class DomainHook extends DomainHookAdapter {
 		if ("global.virt".equals(domain.uid)) {
 			return;
 		}
-		KeycloakHelper.initForDomain(domain);
+		IKeycloakAdmin service = context.provider().instance(IKeycloakAdmin.class);
+		service.initForDomain(domain.uid);
 	}
 
 	@Override

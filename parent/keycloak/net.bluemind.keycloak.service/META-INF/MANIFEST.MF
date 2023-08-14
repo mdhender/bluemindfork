@@ -20,9 +20,9 @@ Require-Bundle: net.bluemind.server.hook,
  net.bluemind.network.topology,
  net.bluemind.domain.hook,
  net.bluemind.directory.service,
- net.bluemind.keycloak.utils,
  net.bluemind.hornetq.client,
  net.bluemind.system.api,
  net.bluemind.system.hook,
  net.bluemind.core.validator,
- net.bluemind.authentication.api
+ net.bluemind.authentication.api,
+ net.bluemind.keycloak.utils

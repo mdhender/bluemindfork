@@ -23,7 +23,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
@@ -32,10 +31,7 @@ import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
 import net.bluemind.directory.service.IDirEntryRepairSupport;
 import net.bluemind.directory.service.RepairTaskMonitor;
-import net.bluemind.domain.api.Domain;
-import net.bluemind.domain.api.IDomains;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
-import net.bluemind.keycloak.utils.KeycloakHelper;
 
 public class KeycloakRealmRepairSupport implements IDirEntryRepairSupport {
 	private static final Logger logger = LoggerFactory.getLogger(KeycloakRealmRepairSupport.class);
@@ -88,10 +84,9 @@ public class KeycloakRealmRepairSupport implements IDirEntryRepairSupport {
 			if (keycloakAdminService.getRealm(domainUid) == null) {
 				logger.info("Repair keycloack configuration for domain {}", domainUid);
 
-				IDomains domainService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-						.instance(IDomains.class);
-				ItemValue<Domain> domain = domainService.get(domainUid);
-				KeycloakHelper.initForDomain(domain);
+				IKeycloakAdmin keycloakService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
+						.instance(IKeycloakAdmin.class);
+				keycloakService.initForDomain(domainUid);
 			} else {
 				logger.info("Keycloack configuration: nothing to repair for domain {}", domainUid);
 			}
