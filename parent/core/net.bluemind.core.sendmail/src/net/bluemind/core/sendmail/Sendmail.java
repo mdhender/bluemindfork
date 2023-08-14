@@ -34,6 +34,7 @@ import org.apache.james.mime4j.dom.address.MailboxList;
 import org.columba.ristretto.message.Address;
 import org.columba.ristretto.smtp.SMTPException;
 import org.columba.ristretto.smtp.SMTPProtocol;
+import org.columba.ristretto.smtp.SMTPResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,8 +146,6 @@ public class Sendmail implements ISendmail {
 		}
 		SendmailResponse sendmailResponse = null;
 		List<FailedRecipient> failedRecipients = new ArrayList<>();
-		String from = creds.notAdminAndNotCurrentUser(fromEnvelop) ? creds.loginAtDomain : fromEnvelop;
-		logger.info("MMA-OUTBOX from envelop => {}", from);
 
 		String ip = Topology.get().any("mail/smtp").value.address();
 		try (SMTPProtocol smtp = new SMTPProtocol(ip,
@@ -160,7 +159,7 @@ public class Sendmail implements ISendmail {
 			}
 			smtp.ehlo(InetAddress.getLocalHost());
 			smtp.auth("PLAIN", creds.loginAtDomain, creds.authKey.toCharArray());
-			smtp.mail(new Address(from));
+			smtp.mail(new Address(fromEnvelop));
 
 			int requestedDSNs = 0;
 			for (Mailbox to : rcptTo) {
@@ -178,14 +177,17 @@ public class Sendmail implements ISendmail {
 			sendmailResponse = new SendmailResponse(smtp.data(inStream), failedRecipients, requestedDSNs);
 			smtp.quit();
 
-			logger.info("Email sent {}", getLog(creds, from, rcptTo, sendmailResponse, Optional.empty()));
+			logger.info("Email sent {}", getLog(creds, fromEnvelop, rcptTo, sendmailResponse, Optional.empty()));
 			return sendmailResponse;
 		} catch (Exception se) {
-			logger.error("Email not sent {}",
-					getLog(creds, from, rcptTo, sendmailResponse, Optional.of(se.getMessage())));
-			logger.error(se.getMessage(), se);
-
-			return SendmailResponse.fail(se.getMessage(), failedRecipients);
+			if (se instanceof SMTPException sme && sme.getCode() == 530) {
+				return new SendmailResponse(new SMTPResponse(sme.getCode(), true, se.getMessage()));
+			} else {
+				logger.error("Email not sent {}",
+						getLog(creds, fromEnvelop, rcptTo, sendmailResponse, Optional.of(se.getMessage())));
+				logger.error(se.getMessage(), se);
+				return SendmailResponse.fail(se.getMessage(), failedRecipients);
+			}
 		}
 	}
 
