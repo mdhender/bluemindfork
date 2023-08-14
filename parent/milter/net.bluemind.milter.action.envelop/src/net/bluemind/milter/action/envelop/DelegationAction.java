@@ -31,6 +31,7 @@ import net.bluemind.core.container.model.acl.AccessControlEntry;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailflow.rbe.IClientContext;
+import net.bluemind.milter.IMilterListener;
 import net.bluemind.milter.action.DomainAliasCache;
 import net.bluemind.milter.action.MilterAction;
 import net.bluemind.milter.action.MilterActionException;
@@ -80,7 +81,7 @@ public class DelegationAction implements MilterAction {
 				if (!fromAddress.equalsIgnoreCase(sendAddress)) {
 					List<AccessControlEntry> acls = getAcls(fromAddress, sendAddress, domainItem);
 					if (acls.isEmpty()) {
-						// TODO FEATWEBML-2711 : pas de delegation rejeter le mail
+						modifier.errorStatus = IMilterListener.Status.DELEGATION_ACL_FAIL;
 					} else if (acls.stream().anyMatch(a -> "SendAs".equals(a.verb.name()))) {
 						modifier.addHeader("X-BM-Sender", modifier.envelopSender.get(), identifier());
 					}
