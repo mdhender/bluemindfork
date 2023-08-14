@@ -34,7 +34,9 @@ import net.bluemind.core.backup.continuous.DataElement;
 import net.bluemind.core.backup.continuous.restore.orphans.RestoreTopology.PromotingServer;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.IServiceProvider;
+import net.bluemind.core.task.api.TaskRef;
 import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.core.utils.JsonUtils.ValueReader;
 import net.bluemind.domain.api.Domain;
@@ -106,7 +108,8 @@ public class RestoreDomains {
 			// update it for keycloak properties
 			tweakKeycloakProps(target.instance(IDomains.class).get("global.virt"), domain);
 			domainApi.restore(domain, false);
-			target.instance(IKeycloakAdmin.class).initForDomain("global.virt");
+			TaskRef taskRef = target.instance(IKeycloakAdmin.class).initForDomain("global.virt");
+			TaskUtils.wait(target, taskRef);
 			return;
 		}
 		ItemValue<Domain> known = domainApi.get(domain.uid);

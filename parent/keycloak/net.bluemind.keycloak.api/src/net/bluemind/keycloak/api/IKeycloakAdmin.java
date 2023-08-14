@@ -27,6 +27,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import net.bluemind.core.api.BMApi;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.task.api.TaskRef;
 
 @BMApi(version = "3")
 @Path("/keycloak")
@@ -49,6 +50,6 @@ public interface IKeycloakAdmin {
 
 	@POST
 	@Path("{domainId}")
-	public void initForDomain(@PathParam(value = "domainId") String domainId) throws ServerFault;
+	public TaskRef initForDomain(@PathParam(value = "domainId") String domainId) throws ServerFault;
 
 }

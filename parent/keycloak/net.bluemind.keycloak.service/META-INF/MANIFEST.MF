@@ -25,4 +25,6 @@ Require-Bundle: net.bluemind.server.hook,
  net.bluemind.system.hook,
  net.bluemind.core.validator,
  net.bluemind.authentication.api,
- net.bluemind.keycloak.utils
+ net.bluemind.keycloak.utils,
+ net.bluemind.core.task.spi,
+ net.bluemind.core.task.service

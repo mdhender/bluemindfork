@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.core.rest.ServerSideServiceProvider;
+import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
 import net.bluemind.directory.api.MaintenanceOperation;
@@ -84,9 +86,11 @@ public class KeycloakRealmRepairSupport implements IDirEntryRepairSupport {
 			if (keycloakAdminService.getRealm(domainUid) == null) {
 				logger.info("Repair keycloack configuration for domain {}", domainUid);
 
-				IKeycloakAdmin keycloakService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-						.instance(IKeycloakAdmin.class);
-				keycloakService.initForDomain(domainUid);
+				ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+				IKeycloakAdmin keycloakService = provider.instance(IKeycloakAdmin.class);
+				TaskRef taskRef = keycloakService.initForDomain(domainUid);
+				TaskUtils.wait(provider, taskRef);
+
 			} else {
 				logger.info("Keycloack configuration: nothing to repair for domain {}", domainUid);
 			}

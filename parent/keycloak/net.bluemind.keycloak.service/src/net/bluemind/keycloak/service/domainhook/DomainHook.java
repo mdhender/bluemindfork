@@ -28,6 +28,8 @@ import net.bluemind.core.api.auth.AuthTypes;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.TaskUtils;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.hook.DomainHookAdapter;
@@ -46,7 +48,8 @@ public class DomainHook extends DomainHookAdapter {
 			return;
 		}
 		IKeycloakAdmin service = context.provider().instance(IKeycloakAdmin.class);
-		service.initForDomain(domain.uid);
+		TaskRef taskRef = service.initForDomain(domain.uid);
+		TaskUtils.wait(context.provider(), taskRef);
 	}
 
 	@Override

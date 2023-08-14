@@ -35,6 +35,10 @@ import io.vertx.core.json.JsonObject;
 import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
+import net.bluemind.core.task.api.TaskRef;
+import net.bluemind.core.task.service.BlockingServerTask;
+import net.bluemind.core.task.service.IServerTaskMonitor;
+import net.bluemind.core.task.service.ITasksManager;
 import net.bluemind.domain.api.DomainSettingsKeys;
 import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.keycloak.api.IKeycloakAdmin;
@@ -161,8 +165,24 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 	}
 
 	@Override
-	public void initForDomain(String domainId) throws ServerFault {
-		KeycloakHelper.initForDomain(domainId);
+	public TaskRef initForDomain(String domainId) throws ServerFault {
+		rbacManager.check(BasicRoles.ROLE_MANAGE_DOMAIN);
+
+		return context.provider().instance(ITasksManager.class).run(new BlockingServerTask() {
+
+			@Override
+			public void run(IServerTaskMonitor monitor) throws Exception {
+				monitor.begin(1, String.format("Init keycloak for domain %s ... ", domainId));
+				try {
+					KeycloakHelper.initForDomain(domainId);
+					monitor.end(true, String.format("Init keycloak for domain %s done ", domainId), "[]");
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+					monitor.end(false, String.format("Failed to init keycloak for domain %s ", domainId), "[]");
+				}
+
+			}
+		});
 	}
 
 }
