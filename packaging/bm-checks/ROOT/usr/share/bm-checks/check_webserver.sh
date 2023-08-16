@@ -7,7 +7,7 @@ WORKSPACE=`dirname $0`
 source ${WORKSPACE}"/check.lib"
 
 function check_webserver {
-    ret=$(curl --connect-timeout 30 --max-time 120 --silent -XOPTIONS http://localhost:8080/)
+    ret=$(curl --connect-timeout 30 --max-time 120 --silent -XOPTIONS http://localhost:8080/ping)
     result=$?
     
     if [[ "$result" > 0 ]]; then
