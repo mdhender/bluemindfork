@@ -19,13 +19,10 @@
 package net.bluemind.eas.backend.bm.mail;
 
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
-
-import com.google.common.base.Splitter;
 
 import net.bluemind.backend.mail.api.IMailboxItems;
 import net.bluemind.backend.mail.api.MailboxItem;
@@ -51,6 +48,7 @@ import net.bluemind.eas.dto.email.EmailResponse.Flag.Status;
 import net.bluemind.eas.dto.email.EmailResponse.LastVerbExecuted;
 import net.bluemind.eas.dto.email.Importance;
 import net.bluemind.eas.dto.email.MessageClass;
+import net.bluemind.utils.HeaderUtil;
 
 /**
  * Creates a {@link EmailResponse} from an imap uid.
@@ -144,9 +142,9 @@ public class StructureMailLoader extends CoreConnect {
 		Optional<Header> cancel = item.body.headers.stream().filter(h -> "x-bm-event-canceled".equalsIgnoreCase(h.name))
 				.findFirst();
 		if (cancel.isPresent()) {
-			String uid = cancel.get().firstValue();
+			HeaderUtil hUtil = new HeaderUtil(cancel.get().firstValue());
 			ret.meetingRequest = new CalendarResponse();
-			ret.meetingRequest.uid = uid;
+			ret.meetingRequest.uid = hUtil.getHeaderValue().map(HeaderUtil.Value::toString).orElseThrow();
 			ret.messageClass = MessageClass.SCHEDULE_MEETING_CANCELED;
 			return ret;
 		}
@@ -157,27 +155,8 @@ public class StructureMailLoader extends CoreConnect {
 			return ret;
 		}
 
-		String h = header.get().firstValue();
-		Iterator<String> it = Splitter.on(";").trimResults().split(h).iterator();
-		String eventUid = it.next();
-		BmDateTime recurId = null;
-		while (it.hasNext()) {
-			String n = it.next();
-			if (n.startsWith("recurid")) {
-				List<String> rec = Splitter.on("=").trimResults().splitToList(n);
-				if (rec.size() == 2) {
-					String recId = rec.get(1);
-					// substring to remove quotes
-					recId = recId.substring(1, recId.length() - 1);
-					recurId = BmDateTimeWrapper.create(recId);
-
-				}
-			} else if (n.startsWith("rsvp")) {
-				// TODO RSVP -> msm.meetingRequest.responseRequested
-			} else {
-				logger.error("Unknown value {} for X-BM-Event", n);
-			}
-		}
+		HeaderUtil hUtil = new HeaderUtil(header.get().firstValue());
+		String eventUid = hUtil.getHeaderValue().map(HeaderUtil.Value::toString).orElseThrow();
 
 		ItemValue<VEventSeries> vevent = new EventProvider(bs).get(eventUid);
 		if (vevent != null) {
@@ -197,6 +176,7 @@ public class StructureMailLoader extends CoreConnect {
 				ret.meetingRequest.instanceType = InstanceType.RECURRING_MASTER;
 			}
 
+			BmDateTime recurId = hUtil.getHeaderAttribute("recurid").map(HeaderUtil.Value::toDate).orElse(null);
 			if (recurId != null) {
 				// specific occurrence of a recurring event
 				ret.meetingRequest.instanceType = InstanceType.EXCEPTION_TO_RECURRING;
