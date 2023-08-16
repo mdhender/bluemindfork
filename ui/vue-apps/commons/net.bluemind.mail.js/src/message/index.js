@@ -9,6 +9,7 @@ import { Flag } from "@bluemind/email";
 import { LoadingStatus } from "../loading-status";
 import EmlParser from "./EmlParser";
 import MessageAdaptor from "./MessageAdaptor";
+import { getReportsParts, hasAttachment, computeParts } from "./structureParsers";
 
 export function createOnlyMetadata({ internalId, folder: { key, uid }, conversationRef, date }) {
     return {
@@ -70,10 +71,7 @@ export function create() {
             icsUid: "",
             needsReply: false
         },
-
-        attachments: [],
-        inlinePartsByCapabilities: [],
-        reports: []
+        structure: {}
     };
     return merge(createOnlyMetadata({ folder: {} }), emptyData);
 }
@@ -284,20 +282,23 @@ export function generateMessageIDHeader(address) {
 }
 
 export default {
+    computeParts,
     create,
     createEmlName,
     createOnlyMetadata,
     createWithMetadata,
+    EmlParser,
     extractHeaderValues,
     findDispositionNotificationHeaderIndex,
     generateMessageIDHeader,
+    getReportsParts,
+    hasAttachment,
     isFlagged,
     isForward,
     isImip,
     hasXbmImipEvent,
     isReply,
     isUnread,
-    EmlParser,
     MessageAdaptor,
     MessageCreationModes,
     MessageForwardAttributeSeparator,

@@ -1,5 +1,12 @@
 <template>
-    <bm-extension id="webapp" class="mail-top-frame" type="decorator" path="mail.topframe" :message="message">
+    <bm-extension
+        id="webapp"
+        class="mail-top-frame"
+        type="decorator"
+        path="mail.topframe"
+        :message="message"
+        :files="files"
+    >
         <div />
     </bm-extension>
 </template>
@@ -21,6 +28,9 @@ loader.keys().forEach(file => {
 export default {
     name: "MailTopFrame",
     components: { BmExtension },
-    props: { message: { type: Object, required: true } }
+    props: {
+        message: { type: Object, required: true },
+        files: { type: Array, required: true }
+    }
 };
 </script>

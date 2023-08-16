@@ -4,7 +4,7 @@
             v-if="hasButton(ActionButtons.PREVIEW) && isViewable(file)"
             :file="file"
             :disabled="!isAllowedToPreview(file)"
-            @preview="openPreview(file)"
+            @preview="$emit('preview')"
         />
         <download-button v-if="hasButton(ActionButtons.DOWNLOAD)" :ref="`download-button-${file.key}`" :file="file" />
         <bm-extension id="webapp" type="list" path="file.actions" :file="file" class="d-flex align-items-center" />
@@ -65,11 +65,7 @@ export default {
     },
     methods: {
         ...mapMutations("mail", { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_FILE_KEY }),
-        openPreview(file) {
-            this.SET_PREVIEW_MESSAGE_KEY(this.message.key);
-            this.SET_PREVIEW_FILE_KEY(file.key);
-            this.$bvModal.show("preview-modal");
-        },
+
         download(file) {
             this.$refs[`download-button-${file.key}`].download();
         },

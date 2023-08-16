@@ -2,7 +2,7 @@ import { getPartDownloadUrl, MimeType } from "@bluemind/email";
 import i18n from "@bluemind/i18n";
 import file from "./file";
 
-const { fileKey, FileStatus } = file;
+const { FileStatus } = file;
 
 export function create(part, status) {
     const progress = status === FileStatus.NOT_LOADED ? { loaded: 0, total: 100 } : { loaded: 100, total: 100 };
@@ -58,7 +58,7 @@ const AttachmentAdaptor = {
         const adaptedAttachements = [];
         const adaptedFiles = [];
         attachments.forEach(att => {
-            const key = fileKey(message.key);
+            const key = att.address + ":" + message.key;
             adaptedAttachements.push({ fileKey: key, address: att.address });
             adaptedFiles.push(this.createFileFromPart(att, key, message));
         });

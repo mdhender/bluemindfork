@@ -5,8 +5,9 @@
                 <component :is="slotProps.alert.renderer" :alert="slotProps.alert" />
             </template>
         </bm-alert-area>
-        <bm-extension id="webapp.mail" type="chain-of-responsibility" path="file.preview" :file="file_">
-            <file-viewer-facade v-if="isAllowedToPreview" class="scroller-y" :message="message" :file="file_" />
+        <bm-extension v-if="file" id="webapp.mail" type="chain-of-responsibility" path="file.preview" :file="file_">
+            <bm-spinner v-if="loading" />
+            <file-viewer-facade v-else-if="isAllowedToPreview" class="scroller-y" :message="message" :file="file_" />
             <no-preview v-else-if="!src" icon="spam" :text="$t('mail.preview.nopreview')" />
             <no-preview v-else :icon="matchingIcon" class="file-type" :text="$t('mail.preview.nopreview.type')" />
         </bm-extension>
@@ -20,7 +21,7 @@ import { WARNING } from "@bluemind/alert.store";
 import apiAddressbooks from "~/store/api/apiAddressbooks";
 import { SET_BLOCK_REMOTE_IMAGES } from "~/mutations";
 import { BmExtension } from "@bluemind/extensions.vue";
-import { BmAlertArea, BmIcon } from "@bluemind/ui-components";
+import { BmAlertArea, BmIcon, BmSpinner } from "@bluemind/ui-components";
 import { fileUtils } from "@bluemind/mail";
 import { REMOVE } from "@bluemind/alert.store";
 import { PreviewMixin } from "~/mixins";
@@ -35,6 +36,7 @@ export default {
         BmAlertArea,
         BmExtension,
         BmIcon,
+        BmSpinner,
         FileViewerFacade,
         NoPreview
     },
@@ -55,7 +57,8 @@ export default {
                 },
                 options: { area: "preview-right-panel", renderer: "BlockedRemoteContent" }
             },
-            src: null
+            src: null,
+            loading: false
         };
     },
     computed: {
@@ -70,7 +73,10 @@ export default {
     watch: {
         "file.url": {
             async handler() {
+                this.loading = true;
+                this.src = null;
                 this.src = await this.getFileUrl();
+                this.loading = false;
             },
             immediate: true
         },
@@ -79,7 +85,10 @@ export default {
         },
         blockedRemoteContent: {
             async handler() {
+                this.loading = true;
+                this.src = null;
                 this.src = await this.getFileUrl();
+                this.loading = false;
             },
             immediate: true
         }
@@ -116,6 +125,7 @@ export default {
                 const blob = await res.blob();
                 return URL.createObjectURL(blob);
             } catch (err) {
+                this.loading = false;
                 return null;
             }
         },
@@ -144,6 +154,13 @@ export default {
 
 .preview-file-content {
     background-color: $darkest;
+    .bm-spinner {
+        text-align: center;
+        height: 100%;
+        & > .spinner {
+            height: 100%;
+        }
+    }
 
     .file-viewer-facade {
         width: 100%;

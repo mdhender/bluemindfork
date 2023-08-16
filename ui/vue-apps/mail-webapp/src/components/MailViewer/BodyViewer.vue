@@ -1,7 +1,13 @@
 <template>
-    <bm-extension id="webapp.mail" path="viewer.body" type="chain-of-responsibility" :message="message">
+    <bm-extension
+        id="webapp.mail"
+        path="viewer.body"
+        type="chain-of-responsibility"
+        :message="message"
+        :inline-parts-by-capabilities="computedParts.inlinePartsByCapabilities"
+    >
         <div class="body-viewer">
-            <mail-top-frame :message="message" />
+            <mail-top-frame :message="message" :files="files" />
             <slot name="attachments-block" :files="files" :message="message">
                 <files-block
                     :files="files"
@@ -10,7 +16,13 @@
                     @remote-content="triggerRemoteContent"
                 >
                     <template #actions="{ file }">
-                        <file-toolbar ref="toolbar" :buttons="actionButtons" :file="file" :message="message" />
+                        <file-toolbar
+                            ref="toolbar"
+                            :buttons="actionButtons"
+                            :file="file"
+                            :message="message"
+                            @preview="previewFiles(file.key)"
+                        />
                     </template>
                     <template #overlay="slotProps">
                         <preview-overlay v-if="slotProps.hasPreview" />
@@ -18,8 +30,7 @@
                     </template>
                 </files-block>
             </slot>
-
-            <mail-inlines-block :message="message" :parts="inlines">
+            <mail-inlines-block :message="message" :parts="inlineParts">
                 <template v-for="(_, slot) of $scopedSlots" #[slot]="scope">
                     <slot :name="slot" v-bind="scope" />
                 </template>
@@ -30,13 +41,13 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
-import { MimeType, InlineImageHelper } from "@bluemind/email";
+import { MimeType } from "@bluemind/email";
 
 import { BmExtension } from "@bluemind/extensions.vue";
 import { hasRemoteImages } from "@bluemind/html-utils";
-import { attachmentUtils, fileUtils, partUtils } from "@bluemind/mail";
+import { attachmentUtils, fileUtils, partUtils, messageUtils } from "@bluemind/mail";
 
-import { FETCH_PART_DATA } from "~/actions";
+import { FETCH_PART_DATA, SET_FILES } from "~/actions";
 import { CONVERSATION_MESSAGE_BY_KEY } from "~/getters";
 import { SET_PREVIEW_FILE_KEY, SET_PREVIEW_MESSAGE_KEY } from "~/mutations";
 
@@ -47,9 +58,10 @@ import MailInlinesBlock from "./MailInlinesBlock";
 import PreviewOverlay from "../MailAttachment/Overlays/PreviewOverlay";
 import MailTopFrame from "./MailTopFrame/MailTopFrame";
 
-const { create: createAttachment } = attachmentUtils;
+const { create: createAttachment, AttachmentAdaptor } = attachmentUtils;
 const { FileStatus, isUploading, isAllowedToPreview, ActionButtons } = fileUtils;
 const { VIEWER_CAPABILITIES, getPartsFromCapabilities, isViewable } = partUtils;
+const { computeParts } = messageUtils;
 
 export default {
     name: "BodyViewer",
@@ -70,39 +82,41 @@ export default {
     },
     data() {
         return {
-            actionButtons: [ActionButtons.PREVIEW, ActionButtons.DOWNLOAD, ActionButtons.OTHER]
+            actionButtons: [ActionButtons.PREVIEW, ActionButtons.DOWNLOAD, ActionButtons.OTHER],
+            computedParts: {}
         };
     },
     computed: {
-        ...mapState("mail", { currentEvent: state => state.consultPanel.currentEvent }),
+        ...mapState("mail", {
+            currentEvent: state => state.consultPanel.currentEvent,
+            filesToPreview: state => state.files || {}
+        }),
         ...mapGetters("mail", { CONVERSATION_MESSAGE_BY_KEY }),
         contents() {
             return this.$store.state.mail.partsData.partsByMessageKey[this.message.key];
         },
-        inlines() {
-            let contents = this.$store.state.mail.partsData.partsByMessageKey[this.message.key] || [];
-            const cids = new CidSet(
-                this.parts.flatMap(({ address, mime }) =>
-                    MimeType.isHtml({ mime }) && contents[address] ? InlineImageHelper.cids(contents[address]) : []
-                )
-            );
-            return this.parts.filter(part => isViewable(part) && !(MimeType.isImage(part) && cids.has(part.contentId)));
-        },
-        parts() {
-            return getPartsFromCapabilities(this.message, VIEWER_CAPABILITIES);
+        inlineParts() {
+            return getPartsFromCapabilities(this.computedParts, VIEWER_CAPABILITIES);
         },
         files() {
-            const fallback = this.parts
+            const { files } = AttachmentAdaptor.extractFiles(this.computedParts.attachments, this.message);
+            const fallback = this.inlineParts
                 .filter(part => !isViewable(part))
                 .map(part => createAttachment(part, FileStatus.ONLY_LOCAL));
-            return [
-                ...this.message.attachments.map(({ fileKey }) => this.$store.state.mail.files[fileKey]),
-                ...fallback
-            ];
+            return [...files, ...fallback];
+        }
+    },
+    watch: {
+        "message.structure": {
+            handler(structure) {
+                this.computedParts = computeParts(structure);
+            },
+            deep: false,
+            immediate: true
         }
     },
     async created() {
-        const texts = this.parts.filter(part => MimeType.isHtml(part));
+        const texts = this.inlineParts.filter(part => MimeType.isHtml(part));
         await this.FETCH_PART_DATA({
             messageKey: this.message.key,
             folderUid: this.message.folderRef.uid,
@@ -115,13 +129,10 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mail", { FETCH_PART_DATA }),
+        ...mapActions("mail", { FETCH_PART_DATA, SET_FILES }),
         ...mapMutations("mail", { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_FILE_KEY }),
         download(file) {
             this.$refs.toolbar.download(file);
-        },
-        openPreview(file) {
-            this.$refs.toolbar.openPreview(file);
         },
         triggerRemoteContent() {
             this.$emit("remote-content", this.message);
@@ -129,23 +140,24 @@ export default {
         previewOrDownload(file) {
             if (!isUploading(file)) {
                 if (isAllowedToPreview(file)) {
-                    this.openPreview(file);
+                    this.previewFiles(file.key);
                 } else {
                     this.download(file);
                 }
             }
         },
+        previewFiles(fileKey) {
+            if (!Object.keys(this.filesToPreview).includes(fileKey)) {
+                this.SET_FILES({ files: this.files });
+            }
+            this.SET_PREVIEW_MESSAGE_KEY(this.message.key);
+            this.SET_PREVIEW_FILE_KEY(fileKey);
+            this.$bvModal.show("preview-modal");
+        },
         isViewable,
         isAllowedToPreview
     }
 };
-
-class CidSet extends Set {
-    has(cid) {
-        const r = /^<?([^>]*)>?$/;
-        return cid && super.has(cid.replace(r, "$1").toUpperCase());
-    }
-}
 </script>
 
 <style lang="scss">

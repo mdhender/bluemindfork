@@ -74,7 +74,10 @@ export default {
     name: "DeliveryStatusNoticeTopFrame",
     components: { BmResponsiveIllustration, ChainOfResponsibility, TopFrameSkeleton },
     mixins: [ReportTopFrameMixin],
-    props: { message: { type: Object, required: true } },
+    props: {
+        message: { type: Object, required: true },
+        files: { type: Array, required: true }
+    },
     data() {
         return {
             deliveryDates: undefined,
@@ -98,8 +101,9 @@ export default {
         }
     },
     watch: {
-        "message.reports": {
-            handler: async function (reportParts) {
+        "message.structure": {
+            handler: async function (structure) {
+                const reportParts = messageUtils.getReportsParts(structure);
                 if (reportParts?.length) {
                     this.firstReport = reportParts[0];
                     this.isDSN = this.firstReport?.mime === MimeType.MESSAGE_DELIVERY_STATUS;
@@ -133,9 +137,9 @@ export default {
     },
     methods: {
         async findOriginalMessage() {
-            const file = this.message.attachments
-                .map(a => this.$store.state.mail.files[a.fileKey])
-                .find(f => f.mime === MimeType.MESSAGE_RFC822 || f.mime === MimeType.TEXT_RFC822_HEADERS);
+            const file = this.files.find(
+                f => f.mime === MimeType.MESSAGE_RFC822 || f.mime === MimeType.TEXT_RFC822_HEADERS
+            );
             if (file) {
                 const fetched = await fetch(file.url);
                 const blob = await fetched.blob();

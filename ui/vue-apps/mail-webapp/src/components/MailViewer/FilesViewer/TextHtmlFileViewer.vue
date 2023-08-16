@@ -41,7 +41,8 @@ export default {
     components: { BmIconButton, MailViewerContentLoading, InlineStyle },
     mixins: [FileViewerMixin],
     props: {
-        collapse: { type: Boolean, default: true }
+        collapse: { type: Boolean, default: true },
+        relatedParts: { type: Array, required: true }
     },
     data() {
         return { collapse_: this.collapse && !isForward(this.message), collapsedDOM: undefined };
@@ -62,9 +63,7 @@ export default {
             return this.isCollapseActive ? this.collapsedDOM : this.parsedDOM;
         },
         htmlWithImages() {
-            const images = getPartsFromCapabilities(this.message, VIEWER_CAPABILITIES).filter(
-                part => MimeType.isImage(part) && part.contentId
-            );
+            const images = this.relatedParts.filter(part => MimeType.isImage(part) && part.contentId);
 
             const partsData = this.$store.state.mail.partsData.partsByMessageKey[this.message.key];
             const [localImages, remoteImages] = partition(images, i => partsData[i.address]);

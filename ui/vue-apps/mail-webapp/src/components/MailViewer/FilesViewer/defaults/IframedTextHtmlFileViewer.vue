@@ -58,7 +58,16 @@ export default {
     name: "IframedTextHtmlFileViewer",
     mixins: [FileViewerMixin],
     $capabilities: ["text/html"],
-    props: { collapse: { type: Boolean, default: true } },
+    props: {
+        collapse: {
+            type: Boolean,
+            default: true
+        },
+        relatedParts: {
+            type: Array,
+            required: true
+        }
+    },
     data() {
         return { IFRAME_STYLE };
     },

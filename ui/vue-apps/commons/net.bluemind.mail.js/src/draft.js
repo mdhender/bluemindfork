@@ -113,9 +113,6 @@ export function createFromDraft(previous, folder) {
     message.cc = previous.cc.slice();
     message.bcc = previous.bcc.slice();
     message.subject = previous.subject;
-    message.attachments = previous.attachments.slice();
-    message.hasAttacment = previous.hasAttacment;
-    message.inlinePartsByCapabilities = previous.inlinePartsByCapabilities.slice();
     message.preview = previous.preview;
     message.composing = true;
     return message;

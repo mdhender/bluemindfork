@@ -1,19 +1,15 @@
 import merge from "lodash.merge";
 
 import { MessageBody } from "@bluemind/backend.mail.api";
-import TreeWalker from "@bluemind/mime-tree-walker";
 
-import GetAttachmentPartsVisitor from "./GetAttachmentPartsVisitor";
-import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
-import GetReportPartsVisitor from "./GetReportPartsVisitor";
 import { createWithMetadata, hasXbmImipEvent, MessageHeader, MessageStatus } from "./index";
 import { LoadingStatus } from "../loading-status";
+import { hasAttachment } from "./structureParsers";
 
 export default {
     fromMailboxItem(remote, { key, uid }) {
         const message = createWithMetadata({ internalId: remote.internalId, folder: { key, uid } });
         const eventInfo = getEventInfo(remote.value.body.headers);
-        const parts = this.computeParts(remote.value.body.structure);
         const adapted = {
             remoteRef: { imapUid: remote.value.imapUid },
             structure: remote.value.body.structure,
@@ -24,13 +20,12 @@ export default {
             version: remote.version,
             conversationId: remote.value.conversationId,
             headers: remote.value.body.headers,
-            ...parts,
             size: remote.value.body.size / 1.33, // take into account the email base64 encoding : 33% more space
             subject: remote.value.body.subject,
             status: MessageStatus.IDLE,
             loading: LoadingStatus.LOADED,
             preview: remote.value.body.preview,
-            hasAttachment: parts.attachments.length > 0 || remote.value.body.smartAttach,
+            hasAttachment: hasAttachment(remote.value.body.structure),
             hasICS: eventInfo.hasICS,
             eventInfo
         };
@@ -49,20 +44,6 @@ export default {
             },
             imapUid: local.remoteRef.imapUid,
             flags: local.flags
-        };
-    },
-
-    computeParts(structure) {
-        const inlineVisitor = new GetInlinePartsVisitor();
-        const attachmentVisitor = new GetAttachmentPartsVisitor();
-        const reportVisitor = new GetReportPartsVisitor();
-
-        const walker = new TreeWalker(structure, [inlineVisitor, attachmentVisitor, reportVisitor]);
-        walker.walk();
-        return {
-            attachments: attachmentVisitor.result(),
-            inlinePartsByCapabilities: inlineVisitor.result(),
-            reports: reportVisitor.result()
         };
     }
 };

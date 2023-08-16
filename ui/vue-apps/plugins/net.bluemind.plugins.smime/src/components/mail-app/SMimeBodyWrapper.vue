@@ -17,6 +17,10 @@ export default {
         next: {
             type: Function,
             required: true
+        },
+        inlinePartsByCapabilities: {
+            type: Array,
+            required: true
         }
     },
     computed: {
@@ -30,10 +34,7 @@ export default {
             return hasSignatureHeader(this.message.headers) && !isVerified(this.message.headers);
         },
         isEncrypted() {
-            return (
-                hasEncryptionHeader(this.message.headers) ||
-                this.hasEncryptedPart(this.message.inlinePartsByCapabilities)
-            );
+            return hasEncryptionHeader(this.message.headers) || this.hasEncryptedPart(this.inlinePartsByCapabilities);
         },
         undecrypted() {
             return this.isEncrypted && !isDecrypted(this.message.headers);

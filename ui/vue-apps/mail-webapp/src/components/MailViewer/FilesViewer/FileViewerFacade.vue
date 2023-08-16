@@ -1,7 +1,13 @@
 <template>
     <div class="file-viewer-facade">
         <slot :name="slotName(file)" :message="message" :file="file">
-            <component :is="componentName" v-if="componentName" :message="message" :file="file"></component>
+            <component
+                :is="componentName"
+                v-if="componentName"
+                :message="message"
+                :file="file"
+                :related-parts="relatedParts"
+            ></component>
         </slot>
     </div>
 </template>
@@ -30,6 +36,7 @@ export default {
     name: "FileViewerFacade",
     components,
     mixins: [FileViewerMixin],
+    props: { relatedParts: { type: Array, default: () => [] } },
     computed: {
         componentName() {
             const fallback = this.file.mime.replace(/\/.*$/, "/*");

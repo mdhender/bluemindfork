@@ -67,6 +67,7 @@ export default {
     },
     computed: {
         ...mapState({ alerts: state => state.alert.filter(({ area }) => !area) }),
+        ...mapState("mail", ["files"]),
         message() {
             const message = this.$store.state.mail.conversations.messages[this.$store.state.mail.preview.messageKey];
 
@@ -78,21 +79,13 @@ export default {
                 : undefined;
         },
         file() {
-            return this.files.find(({ key }) => this.$store.state.mail.preview.fileKey === key);
+            return this.files[this.$store.state.mail.preview.fileKey];
         },
         fileIndex() {
-            return this.files.findIndex(({ key }) => this.$store.state.mail.preview.fileKey === key);
+            return Object.keys(this.files).findIndex(key => this.$store.state.mail.preview.fileKey === key);
         },
         filesCount() {
-            return this.files.length;
-        },
-        files() {
-            if (this.message && this.message.attachments) {
-                return this.message.attachments.map(({ fileKey }) => {
-                    return this.$store.state.mail.files[fileKey];
-                });
-            }
-            return [];
+            return Object.keys(this.files).length;
         }
     },
     methods: {
@@ -105,9 +98,10 @@ export default {
             this.selectPreview(this.fileIndex, index => index + this.filesCount - 1);
         },
         selectPreview(current, iterator) {
+            const files = Object.values(this.files);
             const index = iterator(current) % this.filesCount;
             if (index !== this.fileIndex) {
-                const file = this.files[index];
+                const file = files[index];
                 this.SET_PREVIEW_FILE_KEY(file.key);
             }
         }

@@ -12,7 +12,6 @@ export default class extends MimeParser {
         await super.parse(raw);
         this.body.structure = this.structure as MessageBody.Part;
         const message = this.message as PostalMime.Message;
-        message.attachments.some(({ disposition }) => disposition === "attachment");
         this.body.smartAttach = this.hasAttachment();
         this.body.preview = preview(message);
         this.body.recipients = [

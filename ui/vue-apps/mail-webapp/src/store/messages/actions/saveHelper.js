@@ -26,7 +26,7 @@ import { DISCLAIMER_SELECTOR } from "@bluemind/mail/src/signature";
 
 const { isNewMessage } = draftUtils;
 const { FileStatus } = fileUtils;
-const { MessageAdaptor, MessageHeader, MessageStatus, generateMessageIDHeader } = messageUtils;
+const { MessageAdaptor, MessageHeader, MessageStatus, generateMessageIDHeader, computeParts } = messageUtils;
 const { CORPORATE_SIGNATURE_PLACEHOLDER, CORPORATE_SIGNATURE_SELECTOR } = signatureUtils;
 
 export function isReadyToBeSaved(draft, files) {
@@ -90,7 +90,7 @@ async function prepareDraft(context, service, draft, messageCompose) {
 }
 
 async function createEmlOnServer(context, draft, service, structure) {
-    const inlinePartsByCapabilities = MessageAdaptor.computeParts(structure).inlinePartsByCapabilities;
+    const inlinePartsByCapabilities = computeParts(structure).inlinePartsByCapabilities;
     context.commit(SET_MESSAGE_INLINE_PARTS_BY_CAPABILITIES, { key: draft.key, inlinePartsByCapabilities });
 
     const { saveDate, headers } = forceMailRewriteOnServer(draft);

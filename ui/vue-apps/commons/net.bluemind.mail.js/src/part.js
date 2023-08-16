@@ -13,8 +13,8 @@ export function createFromFile(address, { name, type, size }) {
     };
 }
 
-export function getPartsFromCapabilities(message, availableCapabilities) {
-    const partsByCapabilities = message.inlinePartsByCapabilities.find(part =>
+export function getPartsFromCapabilities({ inlinePartsByCapabilities }, availableCapabilities) {
+    const partsByCapabilities = inlinePartsByCapabilities.find(part =>
         part.capabilities.every(capability =>
             availableCapabilities.some(available => capability.startsWith(available) || available === capability)
         )
@@ -52,6 +52,10 @@ export function isViewable({ mime }) {
     return VIEWER_CAPABILITIES.some(available => mime.startsWith(available));
 }
 
+export function isLeaf(part) {
+    return !part.children?.length && !MimeType.isMultipart(part);
+}
+
 export const VIEWER_CAPABILITIES = [
     MimeType.AUDIO,
     MimeType.IMAGE,
@@ -73,6 +77,7 @@ export default {
     createFromFile,
     getPartsFromCapabilities,
     isViewable,
+    isLeaf,
     mergePartsForRichEditor,
     mergePartsForTextarea,
     sanitizeTextPartForCyrus,

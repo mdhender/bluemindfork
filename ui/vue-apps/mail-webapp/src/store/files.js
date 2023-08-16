@@ -9,6 +9,7 @@ import {
     SET_FILE_PROGRESS,
     SET_FILE_URL
 } from "~/mutations";
+import { SET_FILES } from "~/actions";
 const state = {};
 
 const mutations = {
@@ -18,6 +19,7 @@ const mutations = {
     [ADD_FILES]: (state, { files }) => {
         files.forEach(file => Vue.set(state, file.key, file));
     },
+
     [REMOVE_FILE]: (state, { key }) => {
         if (state[key]?.url?.startsWith("blob:")) {
             URL.revokeObjectURL(state[key].url);
@@ -41,4 +43,11 @@ const mutations = {
     }
 };
 
-export default { state, mutations };
+const actions = {
+    [SET_FILES]: ({ state, commit }, { files }) => {
+        Object.keys(state).forEach(key => commit(REMOVE_FILE, { key }));
+        commit(ADD_FILES, { files });
+    }
+};
+
+export default { state, mutations, actions };

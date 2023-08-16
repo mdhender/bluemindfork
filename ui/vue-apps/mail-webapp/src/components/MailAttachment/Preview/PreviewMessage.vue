@@ -12,7 +12,13 @@
                     @click-item="previewOrDownload"
                 >
                     <template #actions="{ file: slotFile }">
-                        <file-toolbar ref="toolbar" :buttons="actionButtons" :file="slotFile" :message="message" />
+                        <file-toolbar
+                            ref="toolbar"
+                            :buttons="actionButtons"
+                            :file="slotFile"
+                            :message="message"
+                            @preview="previewFile(file.key)"
+                        />
                     </template>
                     <template #overlay="{ file: slotFile, hasPreview }">
                         <preview-overlay v-if="hasPreview" />
@@ -25,7 +31,7 @@
 </template>
 
 <script>
-import { mapMutations } from "vuex";
+import { mapMutations, mapState } from "vuex";
 import { partUtils, fileUtils } from "@bluemind/mail";
 import { SET_PREVIEW_MESSAGE_KEY, SET_PREVIEW_FILE_KEY } from "~/mutations";
 import MailViewerContent from "../../MailViewer/MailViewerContent";
@@ -62,25 +68,34 @@ export default {
             actionButtons: [ActionButtons.PREVIEW, ActionButtons.DOWNLOAD, ActionButtons.OTHER]
         };
     },
+    computed: {
+        ...mapState("mail", {
+            filesToPreview: state => state.files || {}
+        })
+    },
     methods: {
         ...mapMutations("mail", {
             SET_PREVIEW_MESSAGE_KEY,
             SET_PREVIEW_FILE_KEY
         }),
-        openPreview(file) {
-            this.$refs.toolbar[0].openPreview(file);
-        },
         download(file) {
             this.$refs.toolbar[0].download(file);
         },
         previewOrDownload(file) {
             if (!isUploading(file)) {
                 if (isAllowedToPreview(file)) {
-                    this.openPreview(file);
+                    this.previewFile(file.key);
                 } else {
                     this.download(file);
                 }
             }
+        },
+        previewFile(fileKey) {
+            if (!Object.keys(this.filesToPreview).includes(fileKey)) {
+                this.SET_FILES({ files: this.files });
+            }
+            this.SET_PREVIEW_MESSAGE_KEY(this.message.key);
+            this.SET_PREVIEW_FILE_KEY(fileKey);
         },
         isViewable,
         isLarge

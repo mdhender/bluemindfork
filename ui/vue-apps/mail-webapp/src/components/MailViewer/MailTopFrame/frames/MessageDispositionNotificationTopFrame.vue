@@ -59,6 +59,7 @@
 <script>
 import { MimeType } from "@bluemind/email";
 import { BmResponsiveIllustration } from "@bluemind/ui-components";
+import { messageUtils } from "@bluemind/mail";
 import { FETCH_PART_DATA } from "~/actions";
 import ChainOfResponsibility from "../ChainOfResponsibility";
 import ReportTopFrameMixin from "./ReportTopFrameMixin";
@@ -79,8 +80,9 @@ export default {
     },
     priority: 0,
     watch: {
-        "message.reports": {
-            handler: async function (reportParts) {
+        "message.structure": {
+            handler: async function (structure) {
+                const reportParts = messageUtils.getReportsParts(structure);
                 if (reportParts?.length) {
                     this.loading = true;
                     this.firstReport = reportParts[0];
