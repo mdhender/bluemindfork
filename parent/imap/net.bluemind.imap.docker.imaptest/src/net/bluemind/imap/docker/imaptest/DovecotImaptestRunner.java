@@ -49,7 +49,7 @@ public class DovecotImaptestRunner extends GenericContainer<DovecotImaptestRunne
 	private final ImapTestOutputConsumer consumer;
 
 	DovecotImaptestRunner(String cmd) {
-		super("docker.bluemind.net/bluemind/imaptest:5.0");
+		super("docker.bluemind.net/bluemind/imaptest:5.0.4859");
 
 		withCommand(cmd);
 		this.consumer = new ImapTestOutputConsumer();
