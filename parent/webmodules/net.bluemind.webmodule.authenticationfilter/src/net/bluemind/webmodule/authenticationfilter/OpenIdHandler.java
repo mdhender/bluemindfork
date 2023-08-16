@@ -61,88 +61,94 @@ public class OpenIdHandler extends AbstractAuthHandler implements Handler<HttpSe
 
 	@Override
 	public void handle(HttpServerRequest event) {
-		if (!Strings.isNullOrEmpty(event.params().get("code"))) {
-			List<String> forwadedFor = new ArrayList<>(event.headers().getAll("X-Forwarded-For"));
-			forwadedFor.add(event.remoteAddress().host());
+		if (Strings.isNullOrEmpty(event.params().get("code"))) {
+			event.response().end();
+			return;
+		}
 
-			String code = event.params().get("code");
-			String state = event.params().get("state");
+		List<String> forwadedFor = new ArrayList<>(event.headers().getAll("X-Forwarded-For"));
+		forwadedFor.add(event.remoteAddress().host());
 
-			JsonObject jsonState = new JsonObject(new String(b64UrlDecoder.decode(state.getBytes())));
-			String key = jsonState.getString("codeVerifierKey");
-			String codeVerifier = CodeVerifierCache.verify(key);
-			if (Strings.isNullOrEmpty(codeVerifier)) {
-				error(event, new Throwable("Failed to fetch codeVerifier"));
-				return;
-			}
+		String code = event.params().get("code");
+		String state = event.params().get("state");
 
-			CodeVerifierCache.invalidate(key);
+		JsonObject jsonState = new JsonObject(new String(b64UrlDecoder.decode(state.getBytes())));
+		String key = jsonState.getString("codeVerifierKey");
+		String codeVerifier = CodeVerifierCache.verify(key);
+		if (Strings.isNullOrEmpty(codeVerifier)) {
+			error(event, new Throwable("Failed to fetch codeVerifier"));
+			return;
+		}
 
-			String domainUid = jsonState.getString("domain_uid");
-			Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
-					.get(domainUid);
+		CodeVerifierCache.invalidate(key);
 
-			try {
-				String endpoint;
-				if (AuthTypes.INTERNAL.name().equals(domainSettings.get(AuthDomainProperties.AUTH_TYPE.name()))) {
-					endpoint = KeycloakEndpoints.tokenEndpoint(domainUid);
-				} else {
-					endpoint = domainSettings.get(AuthDomainProperties.OPENID_TOKEN_ENDPOINT.name());
-				}
-				URI uri = new URI(endpoint);
-				HttpClient client = initHttpClient(uri);
+		String domainUid = jsonState.getString("domain_uid");
+		Map<String, String> domainSettings = MQ.<String, Map<String, String>>sharedMap(Shared.MAP_DOMAIN_SETTINGS)
+				.get(domainUid);
 
-				client.request(HttpMethod.POST, uri.getPath(), reqHandler -> {
-					if (reqHandler.succeeded()) {
-						HttpClientRequest r = reqHandler.result();
-						r.response(respHandler -> {
-							if (respHandler.succeeded()) {
-								HttpClientResponse resp = respHandler.result();
-								resp.body(body -> {
-									JsonObject token = new JsonObject(new String(body.result().getBytes()));
-									String redirectTo = jsonState.getString("path");
-									validateToken(event, forwadedFor, token, redirectTo, domainUid);
-								});
-							} else {
-								error(event, respHandler.cause());
-							}
-						});
+		try {
+			URI uri = new URI(tokenEndpoint(domainUid, domainSettings));
+			HttpClient client = initHttpClient(uri);
 
-						MultiMap headers = r.headers();
-						headers.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
-						headers.add(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
-						String params = "grant_type=authorization_code";
-
-						if (AuthTypes.INTERNAL.name()
-								.equals(domainSettings.get(AuthDomainProperties.AUTH_TYPE.name()))) {
-							params += "&client_id=" + IKeycloakUids.clientId(domainUid);
+			client.request(HttpMethod.POST, uri.getPath(), reqHandler -> {
+				if (reqHandler.succeeded()) {
+					HttpClientRequest r = reqHandler.result();
+					r.response(respHandler -> {
+						if (respHandler.succeeded()) {
+							HttpClientResponse resp = respHandler.result();
+							resp.body(body -> {
+								JsonObject token = new JsonObject(new String(body.result().getBytes()));
+								String redirectTo = jsonState.getString("path");
+								validateToken(event, forwadedFor, token, redirectTo, domainUid);
+							});
 						} else {
-							params += "&client_id="
-									+ encode(domainSettings.get(AuthDomainProperties.OPENID_CLIENT_ID.name()));
+							error(event, respHandler.cause());
 						}
-						params += "&client_secret="
-								+ encode(domainSettings.get(AuthDomainProperties.OPENID_CLIENT_SECRET.name()));
-						params += "&code=" + encode(code);
-						params += "&code_verifier=" + encode(codeVerifier);
-						params += "&redirect_uri=" + encode("https://" + event.host() + "/auth/openid");
-						params += "&scope=openid";
+					});
 
-						byte[] postData = params.getBytes(StandardCharsets.UTF_8);
-						headers.add(HttpHeaders.CONTENT_LENGTH, Integer.toString(postData.length));
-						r.write(Buffer.buffer(postData));
-						r.end();
+					MultiMap headers = r.headers();
+					headers.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
+					headers.add(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
+					String params = "grant_type=authorization_code";
+
+					if (AuthTypes.INTERNAL.name().equals(domainSettings.get(AuthDomainProperties.AUTH_TYPE.name()))) {
+						params += "&client_id=" + IKeycloakUids.clientId(domainUid);
 					} else {
-						error(event, reqHandler.cause());
+						params += "&client_id="
+								+ encode(domainSettings.get(AuthDomainProperties.OPENID_CLIENT_ID.name()));
 					}
-				});
+					params += "&client_secret="
+							+ encode(domainSettings.get(AuthDomainProperties.OPENID_CLIENT_SECRET.name()));
+					params += "&code=" + encode(code);
+					params += "&code_verifier=" + encode(codeVerifier);
+					params += "&redirect_uri=" + encode("https://" + event.host() + "/auth/openid");
+					params += "&scope=openid";
 
-				return;
-			} catch (Exception e) {
-				error(event, e);
-			}
+					byte[] postData = params.getBytes(StandardCharsets.UTF_8);
+					headers.add(HttpHeaders.CONTENT_LENGTH, Integer.toString(postData.length));
+					r.write(Buffer.buffer(postData));
+					r.end();
+				} else {
+					error(event, reqHandler.cause());
+				}
+			});
+
+			return;
+		} catch (Exception e) {
+			error(event, e);
 		}
 
 		event.response().end();
+	}
+
+	private String tokenEndpoint(String domainUid, Map<String, String> domainSettings) {
+		String endpoint;
+		if (AuthTypes.INTERNAL.name().equals(domainSettings.get(AuthDomainProperties.AUTH_TYPE.name()))) {
+			endpoint = KeycloakEndpoints.tokenEndpoint(domainUid);
+		} else {
+			endpoint = domainSettings.get(AuthDomainProperties.OPENID_TOKEN_ENDPOINT.name());
+		}
+		return endpoint;
 	}
 
 	private String encode(String s) {
