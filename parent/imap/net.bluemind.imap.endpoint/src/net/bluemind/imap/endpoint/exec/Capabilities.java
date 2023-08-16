@@ -28,6 +28,7 @@ public class Capabilities {
 		this.all = Arrays.asList(//
 				"IMAP4rev1", //
 				"LITERAL+", //
+				"AUTH=PLAIN", //
 				"ID", //
 				"ACL", //
 				"RIGHTS=kxten", //

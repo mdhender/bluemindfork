@@ -56,12 +56,11 @@ public class ExpungeProcessor extends SelectedStateCommandProcessor<ExpungeComma
 		SelectedFolder folder = ctx.selected();
 		Map<Long, Integer> uidToSequence = mailbox.sequences(folder);
 		List<Long> uids = mailbox.uidSet(folder, "1:*", ItemFlagFilter.create().must(ItemFlag.Deleted));
-
+		logger.info("{} imap visible message(s), {} to expunge", uidToSequence.size(), uids.size());
 		Verify.verifyNotNull(uids);
 
 		StringBuilder resps = new StringBuilder();
 		if (!uids.isEmpty()) {
-			System.err.println("TO_EXPUNGE " + uids.size());
 			ImapIdSet asSet = ImapIdSet.uids(uids.stream().map(Object::toString).collect(Collectors.joining(",")));
 			mailbox.updateFlags(folder, asSet, UpdateMode.Add, Collections.singletonList("\\Expunged"));
 			// imaptest does not yell if we don't tell it what was expunge

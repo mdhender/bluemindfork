@@ -33,7 +33,7 @@ public class RawCommand {
 	public static AnalyzedCommand analyzed(String s) {
 		Part part = Part.endOfCommand(Unpooled.wrappedBuffer(s.getBytes()));
 		RawImapCommand raw = new RawImapCommand(Collections.singletonList(part));
-		return new RawCommandAnalyzer().analyze(raw);
+		return new RawCommandAnalyzer().analyze(null, raw);
 	}
 
 }

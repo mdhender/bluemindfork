@@ -22,30 +22,32 @@ import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import net.bluemind.common.vertx.contextlogging.ContextualData;
 import net.bluemind.imap.endpoint.ImapContext;
-import net.bluemind.imap.endpoint.ImapEndpointActivator;
-import net.bluemind.imap.endpoint.cmd.IdCommand;
+import net.bluemind.imap.endpoint.SessionState;
+import net.bluemind.imap.endpoint.cmd.AuthenticateCommand;
 import net.bluemind.lib.vertx.Result;
 
-public class IdProcessor implements CommandProcessor<IdCommand> {
+public class AuthenticateProcessor implements CommandProcessor<AuthenticateCommand> {
 
-	private static final Logger logger = LoggerFactory.getLogger(IdProcessor.class);
-
-	private static final String MY_ID = "* ID (\"name\" \"BlueMind\" \"version\" \""
-			+ ImapEndpointActivator.getVersion() + "\")\r\n";
+	private static final Logger logger = LoggerFactory.getLogger(AuthenticateProcessor.class);
 
 	@Override
-	public void operation(IdCommand id, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
-		String resp = MY_ID + id.raw().tag() + " OK Completed\r\n";
-		ctx.write(resp);
-		logger.info("Id-ed myself as version {} to {}", ImapEndpointActivator.getVersion(), id.clientId().get("name"));
-		ctx.clientId(id.clientId());
+	public void operation(AuthenticateCommand lc, ImapContext ctx, Handler<AsyncResult<Void>> completed) {
+		ctx.state(SessionState.IN_AUTH);
+		ContextualData.put("mech", lc.mech());
+		ContextualData.put("auth_tag", lc.raw().tag());
+		ctx.write("+\r\n");
+		if (logger.isInfoEnabled()) {
+			logger.info("auth with MECH {}", lc.mech());
+		}
+
 		completed.handle(Result.success());
 	}
 
 	@Override
-	public Class<IdCommand> handledType() {
-		return IdCommand.class;
+	public Class<AuthenticateCommand> handledType() {
+		return AuthenticateCommand.class;
 	}
 
 }

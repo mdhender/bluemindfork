@@ -57,7 +57,7 @@ public class LoginParsingTests {
 		List<Part> parts = Arrays.asList(part);
 		RawImapCommand raw = new RawImapCommand(parts);
 
-		AnalyzedCommand parsed = new RawCommandAnalyzer().analyze(raw);
+		AnalyzedCommand parsed = new RawCommandAnalyzer().analyze(null, raw);
 
 		assertNotNull(parsed);
 		assertTrue(parsed instanceof LoginCommand);

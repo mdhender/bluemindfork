@@ -56,7 +56,7 @@ public class ImapCommandHandler implements Handler<RawImapCommand> {
 	}
 
 	private void analyze(RawImapCommand event) {
-		AnalyzedCommand analyzedCmd = anal.analyze(event);
+		AnalyzedCommand analyzedCmd = anal.analyze(ctx, event);
 		if (analyzedCmd == null) {
 			if (logger.isWarnEnabled()) {
 				logger.warn("Command '{}' is not analyzed.", event.cmd());

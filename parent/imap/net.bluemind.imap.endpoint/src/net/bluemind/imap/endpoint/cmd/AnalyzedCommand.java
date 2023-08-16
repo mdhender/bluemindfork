@@ -29,7 +29,7 @@ import net.bluemind.imap.endpoint.parsing.Part.Type;
 
 public abstract class AnalyzedCommand {
 
-	private RawImapCommand raw;
+	private final RawImapCommand raw;
 
 	public static class FlatCommand {
 		String fullCmd;

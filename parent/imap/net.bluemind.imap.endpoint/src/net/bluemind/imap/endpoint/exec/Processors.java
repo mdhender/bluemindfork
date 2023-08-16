@@ -31,6 +31,8 @@ public class Processors {
 
 	static {
 		register(new LoginProcessor());
+		register(new AuthenticateProcessor());
+		register(new AuthenticatePlainProcessor());
 		register(new NoopProcessor());
 		register(new NamespaceProcessor());
 		register(new CapabilityProcessor());

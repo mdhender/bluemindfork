@@ -19,6 +19,6 @@ package net.bluemind.imap.endpoint;
 
 public enum SessionState {
 
-	NOT_AUTHENTICATED, AUTHENTICATED, SELECTED, IDLING, LOGOUT;
+	NOT_AUTHENTICATED, IN_AUTH, AUTHENTICATED, SELECTED, IDLING, LOGOUT;
 
 }

@@ -17,15 +17,41 @@
  */
 package net.bluemind.imap.endpoint.cmd;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.bluemind.common.vertx.contextlogging.ContextualData;
+import net.bluemind.imap.endpoint.ImapContext;
+import net.bluemind.imap.endpoint.SessionState;
+
 public class RawCommandAnalyzer {
 
-	public AnalyzedCommand analyze(RawImapCommand raw) {
+	private static final Logger logger = LoggerFactory.getLogger(RawCommandAnalyzer.class);
+
+	public AnalyzedCommand analyze(ImapContext ctx, RawImapCommand raw) {
+		if (ctx != null && ctx.state() == SessionState.IN_AUTH) {
+			if (logger.isInfoEnabled()) {
+				logger.info("{} raw.cmd: {}", ctx.state(), raw.cmd());
+			}
+			String mech = ContextualData.get("mech");
+			switch (mech) {
+			case "PLAIN":
+				return new AuthenticatePlainCommand(raw);
+			default:
+				logger.warn("authentication mech {} is not supported.", mech);
+				ctx.state(SessionState.NOT_AUTHENTICATED);
+				return null;
+			}
+		}
+
 		String cmd = raw.cmd().toLowerCase();
 		char base = cmd.charAt(0);
 		switch (base) {
 		case 'a':
 			if (cmd.startsWith("append ")) {
 				return new AppendCommand(raw);
+			} else if (cmd.startsWith("authenticate ")) {
+				return new AuthenticateCommand(raw);
 			}
 			return null;
 		case 'c':
