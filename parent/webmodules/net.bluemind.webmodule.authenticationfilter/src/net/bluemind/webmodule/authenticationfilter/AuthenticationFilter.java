@@ -215,11 +215,13 @@ public class AuthenticationFilter implements IWebFilter, NeedVertx {
 	}
 
 	private String getPath(HttpServerRequest request) {
-		if (request.headers().contains(HttpHeaders.REFERER)) {
+		String path = Optional.ofNullable(request.path()).orElse("/");
+
+		// visio hack otherwise it will redirect to /visio//
+		if ("/visio/".equals(path)) {
 			return request.headers().get(HttpHeaders.REFERER);
 		}
 
-		String path = Optional.ofNullable(request.path()).orElse("/");
 		String askedUri = request.params().get("askedUri");
 		if (!Strings.isNullOrEmpty(askedUri)) {
 			path = askedUri;
