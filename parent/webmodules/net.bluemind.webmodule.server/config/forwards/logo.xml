@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<forwards>
+	<forward path="/images" auth="false" />
+	<whitelist>
+		<wl uri="logo-bluemind.png" />
+	</whitelist>
+</forwards>
