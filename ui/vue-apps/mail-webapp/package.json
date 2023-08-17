@@ -58,6 +58,7 @@
         "lodash.sortedindexby": "^4.6.0",
         "lodash.sortedindexof": "^4.1.0",
         "lodash.throttle": "^4.1.1",
+        "lodash.unionwith": "^4.6.0",
         "lucene": "^2.1.1",
         "p-limit": "^3.1.0",
         "p-retry": "^4.4.0",

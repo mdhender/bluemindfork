@@ -34,7 +34,7 @@ import PrefAlwaysShowQuota from "./fields/customs/PrefAlwaysShowQuota";
 import PrefAPIKey from "./fields/customs/PrefAPIKey";
 import PrefAutomaticReply from "./fields/customs/PrefAutomaticReply";
 import PrefComposerDefaultFont from "./fields/customs/PrefComposerDefaultFont";
-import PrefDelegates from "./fields/customs/PrefDelegates";
+import PrefDelegates from "./fields/customs/Delegates/PrefDelegates";
 import PrefDeleteRecipientPriorities from "./fields/customs/PrefDeleteRecipientPriorities";
 import PrefDomainFilterRules from "./fields/customs/FilterRules/PrefDomainFilterRules";
 import PrefDownloads from "./fields/customs/PrefDownloads";
