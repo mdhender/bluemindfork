@@ -133,6 +133,11 @@ public class PartnershipProvider implements IDevicePartnershipProvider {
 					cache.put(cacheKey, dr);
 				}
 
+				if (device.value.protocolVersion == 0d) {
+					device.value.protocolVersion = req.protocolVersion;
+					deviceService.update(device.uid, device.value);
+				}
+
 				respHandler.handle(dr);
 
 			} else {
@@ -141,6 +146,7 @@ public class PartnershipProvider implements IDevicePartnershipProvider {
 				d.identifier = req.deviceIdentifier;
 				d.type = req.deviceType;
 				d.owner = me.uid;
+				d.protocolVersion = req.protocolVersion;
 
 				String deviceUid = UUID.randomUUID().toString();
 				deviceService.create(deviceUid, d);

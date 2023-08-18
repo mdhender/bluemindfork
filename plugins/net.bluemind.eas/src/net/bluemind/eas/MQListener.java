@@ -44,7 +44,8 @@ public class MQListener implements OutOfProcessMessageHandler {
 			// nothing
 		} else if ("wipe".equals(op)) {
 			String id = msg.getStringProperty("identifier");
-			WipedDevices.wipe(id);
+			String mode = msg.getStringProperty("mode");
+			WipedDevices.wipe(id, mode);
 		} else if ("unwipe".equals(op)) {
 			String id = msg.getStringProperty("identifier");
 			WipedDevices.unwipe(id);

@@ -53,7 +53,7 @@ public final class WipedDevicesFilter implements IEasRequestFilter {
 			Responder responder = new VertxResponder(query.request(), query.request().response());
 			if ("Provision".equals(query.command())) {
 				Policy policy = new MSEASProvisioningWBXML(query.protocolVersion());
-				sendRemoteWipeRequest(responder, policy);
+				sendRemoteWipeRequest(responder, policy, query.deviceIdentifier());
 			} else if (query.protocolVersion() < 14) {
 				responder.sendStatus(449);
 			} else {
@@ -74,8 +74,9 @@ public final class WipedDevicesFilter implements IEasRequestFilter {
 	/**
 	 * @param responder
 	 * @param policy
+	 * @param string
 	 */
-	public void sendRemoteWipeRequest(Responder responder, Policy policy) {
+	public void sendRemoteWipeRequest(Responder responder, Policy policy, String deviceIdentifier) {
 		try {
 			Document ret = DOMUtils.createDoc("Provision", "Provision");
 			Element root = ret.getDocumentElement();
@@ -90,7 +91,7 @@ public final class WipedDevicesFilter implements IEasRequestFilter {
 			Element data = DOMUtils.createElement(pol, "Data");
 			policy.serialize(data);
 
-			DOMUtils.createElement(root, "RemoteWipe");
+			DOMUtils.createElement(root, WipedDevices.getWipeMode(deviceIdentifier));
 
 			responder.sendResponse(NamespaceMapping.PROVISION, ret);
 		} catch (Exception e) {

@@ -27,6 +27,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -45,6 +46,7 @@ import net.bluemind.core.api.fault.ServerFault;
 import net.bluemind.core.commons.gwt.JsMapStringJsObject;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.device.api.Device;
+import net.bluemind.device.api.WipeMode;
 import net.bluemind.device.api.gwt.endpoint.DeviceGwtEndpoint;
 import net.bluemind.directory.api.BaseDirEntry.Kind;
 import net.bluemind.directory.api.DirEntry;
@@ -155,6 +157,9 @@ public class DevicePanel extends CompositeGwtWidgetElement {
 		deviceList.setWidget(0, idx++, new Label());
 		deviceList.setWidget(0, idx++, new Label());
 		deviceList.setWidget(0, idx++, new Label());
+		deviceList.setWidget(0, idx++, new Label());
+		deviceList.setWidget(0, idx++, new Label());
+		deviceList.setWidget(0, idx++, new Label());
 		deviceList.getRowFormatter().setStyleName(0, s.header());
 	}
 
@@ -192,12 +197,17 @@ public class DevicePanel extends CompositeGwtWidgetElement {
 		deviceList.setWidget(row, idx++, rmSyncKeysTxt);
 
 		// WIPE
-		if (d.value.isWipe) {
+		if (d.value.isWiped) {
 			unwipeDevice(d, row, idx++);
+			idx++;
 		} else {
-			wipeDevice(d, row, idx++);
+			wipeDevice(d, WipeMode.RemoteWipe, UserConstants.INST.wipeDevice(), row, idx++);
+			idx++;
+			if (canWipeAccountOnly(d.value)) {
+				wipeDevice(d, WipeMode.AccountOnlyRemoteWipe, UserConstants.INST.wipeAccountOnly(), row, idx++);
+				idx++;
+			}
 		}
-		idx++;
 
 		Trash trash = new Trash();
 		trash.setId("device-panel-trash-" + d.uid);
@@ -241,24 +251,24 @@ public class DevicePanel extends CompositeGwtWidgetElement {
 		};
 	}
 
-	private void wipeDevice(final ItemValue<Device> d, final int row, final int idx) {
+	private void wipeDevice(ItemValue<Device> d, WipeMode mode, String labelText, final int row, final int idx) {
 		Label img = new Label();
 		img.setStyleName("fa fa-pause");
 		img.getElement().setId("device-panel-wipe-" + d.uid);
 		img.getElement().getStyle().setCursor(Cursor.POINTER);
 
-		Label imgText = new Label(UserConstants.INST.wipeDevice());
+		Label imgText = new Label(labelText);
 		imgText.getElement().setId("device-panel-wipe-txt" + d.uid);
 		imgText.getElement().getStyle().setCursor(Cursor.POINTER);
 
-		img.addClickHandler(getWipeClickHandler(d, row, idx));
-		imgText.addClickHandler(getWipeClickHandler(d, row, idx));
+		img.addClickHandler(getWipeClickHandler(d, mode, row, idx));
+		imgText.addClickHandler(getWipeClickHandler(d, mode, row, idx));
 
 		deviceList.setWidget(row, idx, img);
 		deviceList.setWidget(row, idx + 1, imgText);
 	}
 
-	private ClickHandler getWipeClickHandler(final ItemValue<Device> d, final int row, final int idx) {
+	private ClickHandler getWipeClickHandler(ItemValue<Device> d, WipeMode mode, final int row, final int idx) {
 		return new ClickHandler() {
 
 			@Override
@@ -270,7 +280,11 @@ public class DevicePanel extends CompositeGwtWidgetElement {
 				sb.append(constants.confirmWipeDeviceWarning());
 				sb.append(" ****");
 				sb.append("\n");
-				sb.append(constants.confirmWipeDeviceWarningMsg());
+				if (mode == WipeMode.RemoteWipe) {
+					sb.append(constants.confirmWipeDeviceWarningMsg());
+				} else {
+					sb.append(constants.confirmWipeAccountWarningMsg());
+				}
 				sb.append("\n\n");
 				sb.append(constants.confirmWipeDevice(user.displayName, d.value.identifier));
 
@@ -280,7 +294,7 @@ public class DevicePanel extends CompositeGwtWidgetElement {
 
 						DeviceGwtEndpoint deviceService = getDeviceService();
 
-						deviceService.wipe(d.uid, new DefaultAsyncHandler<Void>() {
+						deviceService.wipe(d.uid, mode, new DefaultAsyncHandler<Void>() {
 
 							@Override
 							public void success(Void value) {
@@ -334,12 +348,20 @@ public class DevicePanel extends CompositeGwtWidgetElement {
 						@Override
 						public void success(Void value) {
 
-							wipeDevice(d, row, idx);
+							wipeDevice(d, WipeMode.RemoteWipe, UserConstants.INST.wipeDevice(), row, idx);
+							if (canWipeAccountOnly(d.value)) {
+								wipeDevice(d, WipeMode.AccountOnlyRemoteWipe, UserConstants.INST.wipeAccountOnly(), row,
+										idx + 2);
+							}
 						}
 					});
 				}
 			}
 		};
+	}
+
+	private boolean canWipeAccountOnly(Device value) {
+		return value.protocolVersion >= 16.1d;
 	}
 
 	private void removeDevice(ItemValue<Device> d, final int row) {
@@ -455,7 +477,15 @@ public class DevicePanel extends CompositeGwtWidgetElement {
 			setDeviceMessage(UserConstants.INST.noDevice());
 		} else {
 			addDeviceRowHeader();
-			devices.stream().filter(d -> d != null && d.value != null).forEach(d -> addDeviceRow(d));
+			devices.stream().filter(d -> d != null && d.value != null).map(d -> {
+				try {
+					String format = NumberFormat.getFormat("00.0").format(d.value.protocolVersion).replace(',', '.');
+					d.value.protocolVersion = Double.parseDouble(format);
+				} catch (NumberFormatException e) {
+					d.value.protocolVersion = 0;
+				}
+				return d;
+			}).forEach(this::addDeviceRow);
 		}
 	}
 

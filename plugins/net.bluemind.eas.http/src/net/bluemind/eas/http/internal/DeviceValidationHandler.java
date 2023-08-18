@@ -62,6 +62,7 @@ public class DeviceValidationHandler implements Handler<AuthenticatedEASQuery> {
 		validationRequest.password = event.sid();
 		validationRequest.deviceIdentifier = event.deviceIdentifier();
 		validationRequest.deviceType = event.deviceType();
+		validationRequest.protocolVersion = event.protocolVersion();
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Sending to validation: {}", event.deviceIdentifier());

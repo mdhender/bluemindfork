@@ -1,5 +1,5 @@
 /* BEGIN LICENSE
- * Copyright © Blue Mind SAS, 2012-2016
+ * Copyright © Blue Mind SAS, 2012-2022
  *
  * This file is part of BlueMind. BlueMind is a messaging and collaborative
  * solution.
@@ -16,14 +16,11 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.eas.dto.device;
+package net.bluemind.device.api;
 
-public class DeviceValidationRequest {
+import net.bluemind.core.api.BMApi;
 
-	public String loginAtDomain;
-	public String password;
-	public String deviceIdentifier;
-	public String deviceType;
-	public double protocolVersion;
-
+@BMApi(version = "3")
+public enum WipeMode {
+	AccountOnlyRemoteWipe, RemoteWipe
 }

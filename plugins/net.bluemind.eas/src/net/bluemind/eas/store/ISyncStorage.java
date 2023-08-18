@@ -18,7 +18,6 @@
  */
 package net.bluemind.eas.store;
 
-import java.util.List;
 import java.util.Map;
 
 import net.bluemind.eas.api.Account;
@@ -57,7 +56,7 @@ public interface ISyncStorage {
 	/**
 	 * @return
 	 */
-	List<String> getWipedDevices();
+	Map<String, String> getWipedDevices();
 
 	// Folder
 

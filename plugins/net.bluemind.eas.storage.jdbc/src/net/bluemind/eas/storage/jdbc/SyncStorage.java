@@ -20,7 +20,6 @@ package net.bluemind.eas.storage.jdbc;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -106,13 +105,14 @@ public class SyncStorage implements ISyncStorage {
 
 	// Device/Auth stuff
 	@Override
-	public List<String> getWipedDevices() {
+	public Map<String, String> getWipedDevices() {
 		try {
 			IDevices service = admin0Provider().instance(IDevices.class);
-			return service.listWiped().stream().map(d -> d.identifier).collect(Collectors.toList());
+			return service.listWiped().stream()
+					.collect(Collectors.toMap(entry -> entry.identifier, entry -> entry.wipeMode.name()));
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			return Collections.emptyList();
+			return Collections.emptyMap();
 		}
 	}
 

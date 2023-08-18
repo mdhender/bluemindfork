@@ -32,6 +32,7 @@ import net.bluemind.core.container.service.internal.RBACManager;
 import net.bluemind.core.rest.BmContext;
 import net.bluemind.device.api.Device;
 import net.bluemind.device.api.IDevice;
+import net.bluemind.device.api.WipeMode;
 import net.bluemind.role.api.BasicRoles;
 
 // FIXME zero check !! ( sanitizer, validator, check if device exists etc...)
@@ -119,12 +120,18 @@ public class DeviceService implements IDevice {
 	}
 
 	@Override
-	public void wipe(String uid) throws ServerFault {
+	public void wipe(String uid, WipeMode mode) throws ServerFault {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_USER_DEVICE);
 
 		ItemValue<Device> item = getOrFail(uid);
 
-		item.value.isWipe = true;
+		if (mode == WipeMode.AccountOnlyRemoteWipe && item.value.protocolVersion < 16.1d) {
+			throw new ServerFault("Wipe mode AccountOnlyRemoteWipe is not supported in protocol version "
+					+ item.value.protocolVersion);
+		}
+
+		item.value.isWiped = true;
+		item.value.wipeMode = mode;
 		item.value.wipeDate = new Date();
 		item.value.wipeBy = context.getSecurityContext().getSubject();
 
@@ -139,7 +146,8 @@ public class DeviceService implements IDevice {
 		rbacManager.check(BasicRoles.ROLE_MANAGE_USER_DEVICE);
 
 		ItemValue<Device> item = getOrFail(uid);
-		item.value.isWipe = false;
+		item.value.isWiped = false;
+		item.value.wipeMode = null;
 		item.value.unwipeDate = new Date();
 		item.value.unwipeBy = context.getSecurityContext().getSubject();
 

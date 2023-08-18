@@ -18,17 +18,19 @@
  */
 package net.bluemind.eas.command.provision;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vertx.core.impl.ConcurrentHashSet;
 import net.bluemind.eas.http.AuthenticatedEASQuery;
 import net.bluemind.eas.impl.Backends;
 
 public final class WipedDevices {
 
 	private static final Logger logger = LoggerFactory.getLogger(WipedDevices.class);
-	private static final ConcurrentHashSet<String> wipedDevicesIdentifiers = new ConcurrentHashSet<>();
+	private static final Map<String, String> wipedDevicesIdentifiers = new ConcurrentHashMap<>();
 
 	private WipedDevices() {
 
@@ -38,7 +40,7 @@ public final class WipedDevices {
 	 * Called from EasActivator
 	 */
 	public static void init() {
-		wipedDevicesIdentifiers.addAll(Backends.internalStorage().getWipedDevices());
+		Backends.internalStorage().getWipedDevices();
 	}
 
 	public static boolean isWiped(AuthenticatedEASQuery query) {
@@ -46,17 +48,22 @@ public final class WipedDevices {
 		if (devId == null) {
 			return false;
 		} else {
-			return wipedDevicesIdentifiers.contains(devId);
+			return wipedDevicesIdentifiers.containsKey(devId);
 		}
 	}
 
-	public static void wipe(String identifier) {
+	public static String getWipeMode(String identifier) {
+		return wipedDevicesIdentifiers.get(identifier);
+	}
+
+	public static void wipe(String identifier, String mode) {
 		logger.info("WIPE notification for device {}", identifier);
-		wipedDevicesIdentifiers.add(identifier);
+		wipedDevicesIdentifiers.put(identifier, mode);
 	}
 
 	public static void unwipe(String identifier) {
 		logger.info("Un-WIPE notification for device {}", identifier);
 		wipedDevicesIdentifiers.remove(identifier);
 	}
+
 }

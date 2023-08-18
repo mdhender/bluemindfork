@@ -159,6 +159,8 @@ public interface UserConstants extends Messages {
 
 	String confirmWipeDeviceWarning();
 
+	String confirmWipeAccountWarningMsg();
+
 	String confirmWipeDeviceWarningMsg();
 
 	String confirmWipeDevicePromptCheckFail();
@@ -194,5 +196,7 @@ public interface UserConstants extends Messages {
 	String accountTypeSwitchToFullVisioConfirm();
 
 	String accountTypeVisio();
+
+	String wipeAccountOnly();
 
 }

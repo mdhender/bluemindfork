@@ -42,6 +42,7 @@ import net.bluemind.core.container.persistence.ItemStore;
 import net.bluemind.core.context.SecurityContext;
 import net.bluemind.core.jdbc.JdbcTestHelper;
 import net.bluemind.device.api.Device;
+import net.bluemind.device.api.WipeMode;
 import net.bluemind.device.persistence.DeviceStore;
 
 public class DeviceStoreTests {
@@ -53,7 +54,6 @@ public class DeviceStoreTests {
 	public void before() throws Exception {
 		JdbcTestHelper.getInstance().beforeTest();
 
-		
 		SecurityContext securityContext = SecurityContext.ANONYMOUS;
 
 		ContainerStore containerHome = new ContainerStore(null, JdbcTestHelper.getInstance().getDataSource(),
@@ -152,7 +152,8 @@ public class DeviceStoreTests {
 		assertEquals(0, wiped.size());
 
 		Device d = defaultDevice();
-		d.isWipe = true;
+		d.isWiped = true;
+		d.wipeMode = WipeMode.AccountOnlyRemoteWipe;
 		String uid = "test_" + System.nanoTime();
 		itemStore.create(Item.create(uid, UUID.randomUUID().toString()));
 		Item item = itemStore.get(uid);
@@ -160,7 +161,7 @@ public class DeviceStoreTests {
 
 		wiped = deviceStore.getWipedDevice();
 		assertEquals(1, wiped.size());
-
+		assertEquals(WipeMode.AccountOnlyRemoteWipe, wiped.get(0).wipeMode);
 	}
 
 	@Test

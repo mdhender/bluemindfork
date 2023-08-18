@@ -64,7 +64,7 @@ public interface IDevice extends IRestoreItemCrudSupport<Device> {
 
 	@POST
 	@Path("_wipe/{uid}")
-	public void wipe(@PathParam(value = "uid") String uid) throws ServerFault;
+	public void wipe(@PathParam(value = "uid") String uid, WipeMode mode) throws ServerFault;
 
 	@POST
 	@Path("_unwipe/{uid}")

@@ -46,6 +46,7 @@ import net.bluemind.core.sessions.Sessions;
 import net.bluemind.device.api.Device;
 import net.bluemind.device.api.IDevice;
 import net.bluemind.device.api.IDevices;
+import net.bluemind.device.api.WipeMode;
 import net.bluemind.lib.vertx.VertxPlatform;
 import net.bluemind.role.api.BasicRoles;
 import net.bluemind.tests.defaultdata.PopulateHelper;
@@ -229,16 +230,30 @@ public class DeviceServiceTests {
 
 		// WIPE
 		try {
-			getDeviceService(SecurityContext.ANONYMOUS, userUid).wipe(uid);
+			getDeviceService(SecurityContext.ANONYMOUS, userUid).wipe(uid, WipeMode.RemoteWipe);
 			fail();
 		} catch (ServerFault e) {
 			assertEquals(ErrorCode.PERMISSION_DENIED, e.getCode());
 		}
-		getDeviceService(context, userUid).wipe(uid);
+
+		// WIPE using version < 16.1
+		device.protocolVersion = 14d;
+		getDeviceService(context, userUid).update(uid, device);
+		try {
+			getDeviceService(context, userUid).wipe(uid, WipeMode.AccountOnlyRemoteWipe);
+			fail();
+		} catch (ServerFault e) {
+
+		}
+		device.protocolVersion = 16.1d;
+		getDeviceService(context, userUid).update(uid, device);
+
+		getDeviceService(context, userUid).wipe(uid, WipeMode.AccountOnlyRemoteWipe);
 
 		ItemValue<Device> item = getDeviceService(context, userUid).getComplete(uid);
 
-		assertTrue(item.value.isWipe);
+		assertTrue(item.value.isWiped);
+		assertEquals(WipeMode.AccountOnlyRemoteWipe, item.value.wipeMode);
 		assertNotNull(item.value.wipeBy);
 		assertNotNull(item.value.wipeDate);
 		assertNull(item.value.unwipeBy);
@@ -258,7 +273,8 @@ public class DeviceServiceTests {
 
 		item = getDeviceService(context, userUid).getComplete(uid);
 
-		assertFalse(item.value.isWipe);
+		assertFalse(item.value.isWiped);
+		assertNull(item.value.wipeMode);
 		assertNotNull(item.value.wipeBy);
 		assertNotNull(item.value.wipeDate);
 		assertNotNull(item.value.unwipeBy);
@@ -339,6 +355,7 @@ public class DeviceServiceTests {
 		ret.identifier = "android" + UUID.randomUUID().toString();
 		ret.type = "Android";
 		ret.owner = UUID.randomUUID().toString();
+		ret.protocolVersion = 16.1;
 
 		return ret;
 	}

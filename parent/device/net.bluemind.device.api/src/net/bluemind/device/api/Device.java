@@ -35,10 +35,12 @@ public class Device {
 	public Date unwipeDate;
 	public String unwipeBy;
 
-	public boolean isWipe = false;
+	public boolean isWiped = false;
+	public WipeMode wipeMode;
 
 	public boolean hasPartnership = false;
 	public Integer policy = 0;
 
 	public Date lastSync;
+	public double protocolVersion;
 }

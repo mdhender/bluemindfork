@@ -70,7 +70,7 @@ public class EasServerSetup {
 		dev.hasPartnership = true;
 		dev.identifier = "junit-" + userUid;
 		dev.type = "junit-phone";
-		dev.isWipe = false;
+		dev.isWiped = false;
 		dev.owner = userUid;
 		devApi.create("junit-" + userUid, dev);
 

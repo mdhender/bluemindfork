@@ -27,6 +27,7 @@ import java.util.Date;
 import net.bluemind.core.container.model.Item;
 import net.bluemind.core.jdbc.Columns;
 import net.bluemind.device.api.Device;
+import net.bluemind.device.api.WipeMode;
 
 public class DeviceColumns {
 	public static final Columns cols = Columns.create() //
@@ -40,7 +41,9 @@ public class DeviceColumns {
 			.col("wipe")//
 			.col("partnership")//
 			.col("policy")//
-			.col("last_sync");
+			.col("last_sync")//
+			.col("protocol_version")//
+			.col("wipe_mode", "enum_wipe_mode");
 
 	public static DeviceStore.StatementValues<Device> values(Item it) {
 		return (final Connection con, final PreparedStatement statement, int index, final int currentRow,
@@ -56,12 +59,20 @@ public class DeviceColumns {
 			statement.setTimestamp(index++, getTimeStamp(value.unwipeDate));
 			statement.setString(index++, value.unwipeBy);
 
-			statement.setBoolean(index++, value.isWipe);
+			statement.setBoolean(index++, value.isWiped);
 
 			statement.setBoolean(index++, value.hasPartnership);
 			statement.setInt(index++, value.policy);
 
 			statement.setTimestamp(index++, getTimeStamp(value.lastSync));
+			statement.setFloat(index++, (float) value.protocolVersion);
+
+			if (value.wipeMode != null) {
+				statement.setString(index++, value.wipeMode.name());
+			} else {
+				statement.setString(index++, null);
+			}
+
 			statement.setLong(index++, it.id);
 
 			return index;
@@ -88,12 +99,18 @@ public class DeviceColumns {
 			value.unwipeDate = fromTimeStamp(rs.getTimestamp(index++));
 			value.unwipeBy = rs.getString(index++);
 
-			value.isWipe = rs.getBoolean(index++);
+			value.isWiped = rs.getBoolean(index++);
 
 			value.hasPartnership = rs.getBoolean(index++);
 			value.policy = rs.getInt(index++);
 
 			value.lastSync = fromTimeStamp(rs.getTimestamp(index++));
+			value.protocolVersion = rs.getFloat(index++);
+
+			String wipeModeAsString = rs.getString(index++);
+			if (wipeModeAsString != null) {
+				value.wipeMode = WipeMode.valueOf(wipeModeAsString);
+			}
 
 			return index;
 		};
