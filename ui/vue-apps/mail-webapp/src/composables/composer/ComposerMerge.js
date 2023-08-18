@@ -1,13 +1,11 @@
 import { computed, ref } from "vue";
 import { InlineImageHelper, MimeType } from "@bluemind/email";
 import { sanitizeHtml } from "@bluemind/html-utils";
-import { attachmentUtils, draftUtils, messageUtils, partUtils } from "@bluemind/mail";
+import { draftUtils, messageUtils, partUtils } from "@bluemind/mail";
 import store from "@bluemind/store";
 
 import { FETCH_PART_DATA } from "~/actions";
 import {
-    ADD_ATTACHMENT,
-    ADD_FILES,
     SET_DRAFT_EDITOR_CONTENT,
     SET_MESSAGE_BCC,
     SET_MESSAGE_CC,
@@ -16,10 +14,8 @@ import {
     SET_MESSAGE_TO,
     SET_SAVED_INLINE_IMAGES
 } from "~/mutations";
-import apiMessages from "~/store/api/apiMessages";
 
 const { COMPOSER_CAPABILITIES, getEditorContent } = draftUtils;
-const { AttachmentAdaptor } = attachmentUtils;
 
 const { getPartsFromCapabilities } = partUtils;
 const { MessageHeader } = messageUtils;
@@ -28,8 +24,8 @@ export function useComposerMerge() {
     const partsByMessageKey = computed(() => store.state.mail.partsData.partsByMessageKey);
     const userPrefTextOnly = ref(false); // FIXME: https://forge.bluemind.net/jira/browse/FEATWEBML-88
 
-    async function mergeBody(message, previousMessage) {
-        const parts = getPartsFromCapabilities(previousMessage, COMPOSER_CAPABILITIES);
+    async function mergeBody(message, previousMessage, inlinePartsByCapabilities) {
+        const parts = getPartsFromCapabilities({ inlinePartsByCapabilities }, COMPOSER_CAPABILITIES);
 
         await store.dispatch(`mail/${FETCH_PART_DATA}`, {
             messageKey: previousMessage.key,
@@ -58,16 +54,6 @@ export function useComposerMerge() {
         }
         store.commit(`mail/${SET_DRAFT_EDITOR_CONTENT}`, content);
         store.commit(`mail/${SET_SAVED_INLINE_IMAGES}`, []);
-    }
-
-    async function mergeAttachments(message, related) {
-        const messageWithTmpAddresses = await apiMessages.getForUpdate(related);
-        const { files, attachments } = AttachmentAdaptor.extractFiles(messageWithTmpAddresses.attachments, message);
-
-        attachments.forEach(attachment =>
-            store.commit(`mail/${ADD_ATTACHMENT}`, { messageKey: message.key, attachment })
-        );
-        store.commit(`mail/${ADD_FILES}`, { files });
     }
 
     async function mergeSubject(message, related) {
@@ -100,7 +86,6 @@ export function useComposerMerge() {
 
     return {
         mergeBody,
-        mergeAttachments,
         mergeSubject,
         mergeRecipients,
         mergeHeaders

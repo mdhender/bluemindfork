@@ -25,10 +25,7 @@ export default async function addFhAttachment({ commit, dispatch }, { file, mess
 function createFhAttachment(file) {
     const attachmentFromFile = {
         ...file,
-        ...createPartFromFile(UUIDGenerator.generate(), {
-            name: file.name,
-            size: 0
-        })
+        ...createPartFromFile({ address: UUIDGenerator.generate(), name: file.name, size: 0 })
     };
     const attachment = create(
         {

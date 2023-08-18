@@ -6,6 +6,12 @@ import GetInlinePartsVisitor from "./GetInlinePartsVisitor";
 import GetReportPartsVisitor from "./GetReportPartsVisitor";
 
 export function computeParts(structure) {
+    if (!structure || !Object.values(structure).length) {
+        return {
+            attachments: [],
+            inlinePartsByCapabilities: []
+        };
+    }
     const inlineVisitor = new GetInlinePartsVisitor();
     const attachmentVisitor = new GetAttachmentPartsVisitor();
 

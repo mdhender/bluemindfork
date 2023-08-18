@@ -10,18 +10,24 @@
             :title="$tc('mail.toolbar.more.aria')"
             v-on="$listeners"
         >
-            <bm-dropdown-item-button icon="reply" @click="initReplyOrForward(MessageCreationModes.REPLY, message)">
+            <bm-dropdown-item-button
+                icon="reply"
+                @click="initRelatedMessage(MY_DRAFTS, MessageCreationModes.REPLY, message)"
+            >
                 {{ $t("mail.content.reply.aria") }}
             </bm-dropdown-item-button>
             <bm-dropdown-divider />
             <bm-dropdown-item-button
                 icon="reply-all"
-                @click="initReplyOrForward(MessageCreationModes.REPLY_ALL, message)"
+                @click="initRelatedMessage(MY_DRAFTS, MessageCreationModes.REPLY_ALL, message)"
             >
                 {{ $t("mail.content.reply_all.aria") }}
             </bm-dropdown-item-button>
             <bm-dropdown-divider />
-            <bm-dropdown-item-button icon="forward" @click="initReplyOrForward(MessageCreationModes.FORWARD, message)">
+            <bm-dropdown-item-button
+                icon="forward"
+                @click="initRelatedMessage(MY_DRAFTS, MessageCreationModes.FORWARD, message)"
+            >
                 {{ $t("common.forward") }}
             </bm-dropdown-item-button>
             <bm-dropdown-divider />
@@ -64,7 +70,7 @@
 
 <script>
 import { BmButtonToolbar, BmIconDropdown, BmDropdownDivider, BmDropdownItemButton } from "@bluemind/ui-components";
-import { mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 import { Flag } from "@bluemind/email";
 import {
     MARK_MESSAGE_AS_FLAGGED,
@@ -74,6 +80,7 @@ import {
 } from "~/actions";
 import { messageUtils } from "@bluemind/mail";
 import { RemoveMixin } from "~/mixins";
+import { MY_DRAFTS } from "~/getters";
 import { useComposerInit } from "~/composables/composer/ComposerInit";
 
 const { MessageCreationModes } = messageUtils;
@@ -98,14 +105,17 @@ export default {
         }
     },
     setup() {
-        const { initReplyOrForward } = useComposerInit();
-        return { initReplyOrForward };
+        const { initRelatedMessage } = useComposerInit();
+        return { initRelatedMessage };
     },
     data() {
         return {
             MessageCreationModes,
             Flag
         };
+    },
+    computed: {
+        ...mapGetters("mail", { MY_DRAFTS })
     },
     methods: {
         ...mapActions("mail", {

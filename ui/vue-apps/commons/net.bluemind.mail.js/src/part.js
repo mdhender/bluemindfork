@@ -1,7 +1,7 @@
 import { mailText2Html, MimeType } from "@bluemind/email";
 import { html2text } from "@bluemind/html-utils";
 
-export function createFromFile(address, { name, type, size }) {
+export function createFromFile({ address, name, type, size }) {
     // default encoding and charset set by server
     return {
         address,

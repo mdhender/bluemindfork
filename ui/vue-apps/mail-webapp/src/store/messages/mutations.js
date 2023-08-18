@@ -27,6 +27,7 @@ import {
     SET_MESSAGE_SUBJECT,
     SET_MESSAGE_TMP_ADDRESSES,
     SET_MESSAGE_TO,
+    SET_MESSAGE_LOADING_STATUS,
     SET_MESSAGES_LOADING_STATUS,
     SET_MESSAGE_SIZE,
     SET_MESSAGES_STATUS
@@ -57,6 +58,11 @@ export default {
     },
     [SET_MESSAGE_SIZE]: (state, { key, size }) => {
         state[key].size = size;
+    },
+    [SET_MESSAGE_LOADING_STATUS]: (state, { messageKey, status }) => {
+        if (state[messageKey]) {
+            state[messageKey].loading = status;
+        }
     },
     [SET_MESSAGES_STATUS]: (state, messages) => {
         messages.forEach(m => (state[m.key].status = m.status));

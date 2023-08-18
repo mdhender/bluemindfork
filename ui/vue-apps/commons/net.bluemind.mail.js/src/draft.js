@@ -1,6 +1,7 @@
 import escape from "lodash.escape";
 import { EmailExtractor, Flag, MimeType } from "@bluemind/email";
 import i18n from "@bluemind/i18n";
+
 import { createDocumentFragment } from "@bluemind/html-utils";
 
 import { LoadingStatus } from "./loading-status";
@@ -51,30 +52,6 @@ export function createEmpty(folder) {
     message.remoteRef.imapUid = "1"; // faked imapUid because updateById needs it
 
     message.conversationRef = { key: message.key, internalId: 1 }; // faked conversationKey because it's necessary
-    return message;
-}
-
-export function createReplyOrForward(previousMessage, myDraftsFolder, creationMode, identity) {
-    const message = createEmpty(myDraftsFolder);
-
-    const draftInfoHeader = {
-        type: creationMode,
-        messageInternalId: previousMessage.remoteRef.internalId,
-        folderUid: previousMessage.folderRef.uid
-    };
-    message.headers = [{ name: MessageHeader.X_BM_DRAFT_INFO, values: [JSON.stringify(draftInfoHeader)] }];
-
-    if (creationMode === MessageCreationModes.REPLY_ALL || creationMode === MessageCreationModes.REPLY) {
-        message.to = computeToRecipients(creationMode, previousMessage, identity);
-        message.cc = computeCcRecipients(creationMode, previousMessage, identity)?.filter(
-            contact => !message.to.some(to => to.address === contact.address)
-        );
-        handleIdentificationFields(message, previousMessage);
-    }
-
-    message.loading = LoadingStatus.LOADING; // will be loaded once content has been computed
-    message.subject = computeSubject(creationMode, previousMessage);
-
     return message;
 }
 
@@ -239,7 +216,7 @@ export function computeToRecipients(creationMode, previousMessage, senderIdentit
     return recipients.filter(Boolean);
 }
 
-function removeDuplicatedContacts(contacts) {
+export function removeDuplicatedContacts(contacts) {
     const result = [],
         addresses = [];
     for (const contact of contacts) {
@@ -249,6 +226,18 @@ function removeDuplicatedContacts(contacts) {
         }
     }
     return result;
+}
+
+export function computeSubject(creationMode, previousMessage) {
+    const subjectPrefix = creationMode === MessageCreationModes.FORWARD ? "Fw: " : "Re: ";
+    if (!previousMessage.subject) {
+        return `${subjectPrefix} ${i18n.t("mail.viewer.no.subject")}`;
+    }
+    // avoid subject prefix repetitions (like "Re: Re: Re: Re: My Subject")
+    if (subjectPrefix !== previousMessage.subject.substring(0, subjectPrefix.length)) {
+        return subjectPrefix + previousMessage.subject;
+    }
+    return previousMessage.subject;
 }
 
 function extractRecipientsFromHeader(header, isReplyAll) {
@@ -262,21 +251,6 @@ function extractRecipientsFromHeader(header, isReplyAll) {
             { address: EmailExtractor.extractEmail(header.values[0]), dn: EmailExtractor.extractDN(header.values[0]) }
         ];
     }
-}
-
-/**
- * Compute the subject in function of creationMode (like "Re: My Subject" when replying).
- */
-export function computeSubject(creationMode, previousMessage) {
-    const subjectPrefix = creationMode === MessageCreationModes.FORWARD ? "Fw: " : "Re: ";
-    if (!previousMessage.subject) {
-        return `${subjectPrefix} ${i18n.t("mail.viewer.no.subject")}`;
-    }
-    // avoid subject prefix repetitions (like "Re: Re: Re: Re: My Subject")
-    if (subjectPrefix !== previousMessage.subject.substring(0, subjectPrefix.length)) {
-        return subjectPrefix + previousMessage.subject;
-    }
-    return previousMessage.subject;
 }
 
 export function getEditorContent(userPrefTextOnly, parts, partsByMessageKey, userLang) {
@@ -333,15 +307,15 @@ export const COMPOSER_CAPABILITIES = [MimeType.TEXT_HTML, MimeType.TEXT_PLAIN];
  * ...
  * </blockquote>`
  */
-export function quotePreviousMessage(previousMessageContent, previousMessage, creationMode, userPrefTextOnly, vueI18n) {
+export function quotePreviousMessage(previousMessageContent, previousMessage, creationMode, userPrefTextOnly) {
     let quotedContent = previousMessageContent;
     if (creationMode === MessageCreationModes.REPLY || creationMode === MessageCreationModes.REPLY_ALL) {
         quotedContent = quoteContent(userPrefTextOnly, previousMessageContent);
     }
     const header =
         creationMode === MessageCreationModes.FORWARD
-            ? headerForForward(previousMessage, userPrefTextOnly, vueI18n)
-            : headerForReply(previousMessage, userPrefTextOnly, vueI18n);
+            ? headerForForward(previousMessage, userPrefTextOnly)
+            : headerForReply(previousMessage, userPrefTextOnly);
 
     let quote = header + quotedContent;
 
@@ -355,10 +329,10 @@ export function quotePreviousMessage(previousMessageContent, previousMessage, cr
 /**
  *  A separator before the previous message (reply).
  */
-function headerForReply(message, userPrefTextOnly, vueI18n) {
-    const date = vueI18n.d(message.date, "full_date_time");
+function headerForReply(message, userPrefTextOnly) {
+    const date = i18n.d(message.date, "full_date_time");
     const name = nameAndAddress(message.from, userPrefTextOnly);
-    const replyInfo = vueI18n.t("mail.compose.reply.body", { date, name });
+    const replyInfo = i18n.t("mail.compose.reply.body", { date, name });
     return userPrefTextOnly ? `${replyInfo}\n` : `<p>${replyInfo}</p>`;
 }
 
@@ -383,19 +357,19 @@ function quoteContent(userPrefTextOnly, content) {
 /**
  *  A separator before the previous message (forward).
  */
-function headerForForward(message, userPrefTextOnly, vueI18n) {
-    const title = vueI18n.t("mail.compose.forward.prev.message.info.title");
-    const fromLabel = vueI18n.t("mail.compose.forward.prev.message.info.from");
+function headerForForward(message, userPrefTextOnly) {
+    const title = i18n.t("mail.compose.forward.prev.message.info.title");
+    const fromLabel = i18n.t("mail.compose.forward.prev.message.info.from");
     const from = nameAndAddress(message.from, userPrefTextOnly);
-    const subjectLabel = vueI18n.t("mail.compose.forward.prev.message.info.subject");
+    const subjectLabel = i18n.t("mail.compose.forward.prev.message.info.subject");
     const subject = message.subject?.trim();
-    const noSubject = vueI18n.t("mail.viewer.no.subject");
-    const toLabel = vueI18n.t("common.to");
+    const noSubject = i18n.t("mail.viewer.no.subject");
+    const toLabel = i18n.t("common.to");
     const to = message.to.map(to => nameAndAddress(to, userPrefTextOnly)).join(", ");
-    const ccLabel = vueI18n.t("common.cc");
+    const ccLabel = i18n.t("common.cc");
     const cc = message.cc?.map(cc => nameAndAddress(cc, userPrefTextOnly)).join(", ");
-    const dateLabel = vueI18n.t("mail.compose.forward.prev.message.info.date");
-    const date = vueI18n.d(message.date, "full_date_time");
+    const dateLabel = i18n.t("mail.compose.forward.prev.message.info.date");
+    const date = i18n.d(message.date, "full_date_time");
 
     if (userPrefTextOnly) {
         let text = `${title}\n`;
@@ -438,22 +412,22 @@ export function isEditorContentEmpty(content, userPrefTextOnly, signature) {
 }
 
 export default {
+    computeSubject,
     quotePreviousMessage,
     COMPOSER_CAPABILITIES,
-    computeCcRecipients, // INTERNAL METHOD (exported only for testing purpose)
     computeIdentityForReplyOrForward,
-    computeSubject, // INTERNAL METHOD (exported only for testing purpose)
-    computeToRecipients, // INTERNAL METHOD (exported only for testing purpose)
+    computeToRecipients,
     createEmpty,
     createFromDraft,
-    createReplyOrForward,
     draftInfoHeader,
     draftKey,
+    computeCcRecipients,
     findIdentityFromMailbox,
     findReplyOrForwardContentNode,
     getEditorContent,
     getLastGeneratedNewMessageKey,
     handleSeparator,
+    handleIdentificationFields,
     isEditorContentEmpty,
     isNewMessage,
     preserveFromOrDefault,

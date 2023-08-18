@@ -7,7 +7,6 @@ import {
     computeCcRecipients,
     computeToRecipients,
     computeSubject,
-    createReplyOrForward,
     findIdentityFromMailbox,
     quotePreviousMessage,
     computeIdentityForReplyOrForward
@@ -259,18 +258,18 @@ describe("compute To and Cc recipients when replying", () => {
             { dn: "John", address: "john@bm.net" },
             { dn: "Georges B", address: "georges@bm.net" }
         ];
-        const message = createReplyOrForward(
-            previousMessage,
-            { key: "draktKey", remoteRef: {} },
-            MessageCreationModes.REPLY_ALL,
-            currentIdentity
+
+        const to = computeToRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentIdentity);
+        const cc = computeCcRecipients(MessageCreationModes.REPLY_ALL, previousMessage, currentIdentity)?.filter(
+            contact => !previousMessage.to.some(to => to.address === contact.address)
         );
-        expect(message.to).toEqual([
+
+        expect(to).toEqual([
             previousMessageFrom,
             { dn: "Toto A", address: "toto@bm.net" },
             { dn: "Georges", address: "georges@bm.net" }
         ]);
-        expect(message.cc).toEqual([{ dn: "John", address: "john@bm.net" }]);
+        expect(cc).toEqual([{ dn: "John", address: "john@bm.net" }]);
     });
 });
 

@@ -1,18 +1,24 @@
-import { PartsBuilder } from "@bluemind/email";
-import { inject } from "@bluemind/inject";
+import cloneDeep from "lodash.clonedeep";
+import store from "@bluemind/store";
+import { PartsBuilder, MimeType } from "@bluemind/email";
+import { partUtils } from "@bluemind/mail";
+import { SET_MESSAGE_STRUCTURE } from "~/mutations";
 
-export async function createForwardStructure(folder, calendarAddress, attachments) {
-    const service = inject("MailboxItemsPersistence", folder.remoteRef.uid);
+const { getPartsFromCapabilities } = partUtils;
+export async function setForwardEventStructure({ inlinePartsByCapabilities }, newMessage) {
+    const calendarPartAddress = getPartsFromCapabilities({ inlinePartsByCapabilities }, [MimeType.TEXT_CALENDAR])?.pop()
+        ?.address;
 
-    const [textPlainAddress, textHtmlAddress] = await Promise.all([service.uploadPart(""), service.uploadPart("")]);
+    const calendarPart = PartsBuilder.createCalendarPart(calendarPartAddress);
 
-    let structure;
-
-    const textPart = PartsBuilder.createTextPart(textPlainAddress);
-    const htmlPart = PartsBuilder.createHtmlPart(textHtmlAddress);
-    const calendarPart = PartsBuilder.createCalendarPart(calendarAddress);
-    structure = PartsBuilder.createAlternativePart(textPart, htmlPart, calendarPart);
-    structure = PartsBuilder.createAttachmentParts(attachments, structure); // TODO refactor to separate mixed part and attachments
-
-    return structure;
+    const structure = cloneDeep(newMessage.structure);
+    let alternativePart;
+    if (structure.mime === MimeType.MULTIPART_MIXED) {
+        alternativePart = structure.children.find(({ mime }) => mime === MimeType.MULTIPART_ALTERNATIVE);
+    } else {
+        alternativePart = structure;
+    }
+    alternativePart.children.push(calendarPart);
+    store.commit(`mail/${SET_MESSAGE_STRUCTURE}`, { messageKey: newMessage.key, structure });
+    return newMessage;
 }

@@ -2,6 +2,7 @@ import MimeType from "./MimeType";
 
 export default {
     createAlternativePart,
+    createAttachmentPart,
     createAttachmentParts,
     createHtmlPart,
     createInlineImageParts,
@@ -73,5 +74,17 @@ function createCalendarPart(address) {
         address,
         encoding: "quoted-printable",
         charset: "utf-8"
+    };
+}
+
+function createAttachmentPart({ mime, address, fileName, size }) {
+    return {
+        address,
+        charset: "us-ascii",
+        dispositionType: "ATTACHMENT",
+        encoding: "base64",
+        fileName,
+        mime,
+        size
     };
 }

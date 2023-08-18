@@ -12,22 +12,27 @@ const { create } = attachmentUtils;
 const { FileStatus } = fileUtils;
 
 async function addAttachments({ files, message, maxSize }) {
-    files = [...files];
+    const filesBlob = [...files];
 
-    const totalSize = files.reduce((total, attachment) => total + attachment.size, message.size);
+    const totalSize = filesBlob.reduce((total, blob) => total + blob.size, message.size);
     if (totalSize > maxSize) {
         renderTooLargeFilesModal.call(this, files, maxSize);
         return;
     }
 
-    const promises = files.map(file => {
-        const part = createPartFromFile(UUIDGenerator.generate(), file);
+    const promises = filesBlob.map(fileBlob => {
+        const part = createPartFromFile({
+            address: UUIDGenerator.generate(),
+            name: fileBlob.name,
+            type: fileBlob.type,
+            size: fileBlob.size
+        });
         const attachment = create(part, FileStatus.NOT_LOADED);
 
         return store.dispatch(`mail/${ADD_ATTACHMENT}`, {
             message,
             attachment,
-            content: file
+            content: fileBlob
         });
     });
     await Promise.all(promises);

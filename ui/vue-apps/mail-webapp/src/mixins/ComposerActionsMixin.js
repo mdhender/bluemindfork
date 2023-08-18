@@ -32,8 +32,8 @@ import {
 } from "~/mutations";
 
 const { isNewMessage, createFromDraft } = draftUtils;
-const { FileStatus } = fileUtils;
 const { MessageStatus } = messageUtils;
+const { FileStatus } = fileUtils;
 import { MAX_RECIPIENTS } from "../utils";
 
 /**
