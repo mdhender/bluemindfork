@@ -494,7 +494,7 @@ var gBMSendSMIME = {
                 query: "value.kind: 'individual' AND value.communications.emails.value:" + email
             });
             if (!items) return;
-            let item = items.values.find(item => item.value.email == email && item.value.hasSecurityKey);
+            let item = items.values.find(v => v.value.mail == email && v.value.hasSecurityKey);
             if (item) {
                 let book = this._bookClients.get(item.containerUid);
                 if (!book) {
@@ -531,7 +531,14 @@ var gBMSendSMIME = {
                 .createInstance(Ci.nsISMimeJSHelper)
                 .getNoCertAddresses(gMsgCompose.compFields);
         } catch (e) {
-            return [];
+            // TB 102 +
+            let emailAddresses = [];
+            for (let email of getEncryptionCompatibleRecipients()) {
+                if (!gSMFields.haveValidCertForEmail(email)) {
+                  emailAddresses.push(email);
+                }
+            }
+            return emailAddresses;
         }
     }
 }
