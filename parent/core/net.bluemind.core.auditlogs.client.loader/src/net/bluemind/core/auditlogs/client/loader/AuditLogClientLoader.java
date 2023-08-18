@@ -41,10 +41,35 @@ public class AuditLogClientLoader {
 			return plugins.get(0);
 		}
 		logger.warn("Cannot find plugin 'net.bluemind.core.auditlogs', load NoopAuditLogClient");
-		return () -> NoopAuditLogClient.INSTANCE;
+		return new IAuditLogClientFactory() {
+
+			@Override
+			public IAuditLogClient load() {
+				return NoopAuditLogClient.INSTANCE;
+			}
+
+			@Override
+			public void initialize() {
+				//
+			}
+
+			@Override
+			public void initIfNotExists(String name) {
+				//
+			}
+		};
 	}
 
 	public IAuditLogClient get() {
 		return Topology.getIfAvailable().map(t -> auditLogClient.load()).orElse(NoopAuditLogClient.INSTANCE);
 	}
+
+	public void initialize() {
+		auditLogClient.initialize();
+	}
+
+	public void initIfNotExists(String name) {
+		auditLogClient.initIfNotExists(name);
+	}
+
 }

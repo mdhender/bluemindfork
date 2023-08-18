@@ -433,7 +433,6 @@
    <bundle id="net.bluemind.core.auditlogs" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.core.auditlogs.client.es" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.core.auditlogs.client.loader" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.lib.elasticsearch.datastreams" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.mailmessage.api" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.mailmessage.api.gwt" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.mailmessage.api.php" version="5.0.0.qualifier"/>

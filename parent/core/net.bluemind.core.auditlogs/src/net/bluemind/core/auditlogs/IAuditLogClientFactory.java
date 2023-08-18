@@ -22,4 +22,9 @@ package net.bluemind.core.auditlogs;
 public interface IAuditLogClientFactory {
 
 	public IAuditLogClient load();
+
+	public void initialize();
+
+	public void initIfNotExists(String name);
+
 }

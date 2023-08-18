@@ -31,8 +31,8 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch.indices.ResolveIndexResponse;
 import co.elastic.clients.transport.ElasticsearchTransport;
+import net.bluemind.core.auditlogs.client.loader.AuditLogClientLoader;
 import net.bluemind.lib.elasticsearch.ESearchActivator;
-import net.bluemind.lib.elasticsearch.datastreams.DataStreamActivator;
 import net.bluemind.node.api.INodeClient;
 import net.bluemind.node.api.NodeActivator;
 import net.bluemind.pool.impl.BmConfIni;
@@ -104,7 +104,8 @@ public class ElasticsearchTestHelper implements BundleActivator {
 			ESearchActivator.initClient(getTransport());
 			deleteAll();
 			ESearchActivator.resetIndexes();
-			DataStreamActivator.resetDataStreams();
+			AuditLogClientLoader auditLogClientProvider = new AuditLogClientLoader();
+			auditLogClientProvider.initialize();
 		} catch (Exception n) {
 			String host = getHost();
 			System.err.println("Starting checks on " + host + " after " + n.getMessage() + " klass: " + n.getClass());

@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="net.bluemind.lib.elasticsearch.datastreams" xmlns="http://www.w3.org/2001/XMLSchema">
+<schema targetNamespace="net.bluemind.core.auditlogs.client.es" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="net.bluemind.lib.elasticsearch.datastreams" id="net.bluemind.lib.elasticsearch.indextemplates" name="indextemplates"/>
+         <meta.schema plugin="net.bluemind.core.auditlogs.client.es" id="net.bluemind.core.auditlogs.client.es.datastreams.indextemplate" name="indextemplate"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]

@@ -2,7 +2,7 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="net.bluemind.lib.elasticsearch.indextemplates">
+         point="net.bluemind.core.auditlogs.client.es.datastreams.indextemplate">
       <schema
             datastream_name="audit_log"
             name="auditlogs_template"

@@ -57,7 +57,7 @@ Require-Bundle: net.bluemind.core.commons,
  com.github.ben-manes.caffeine,
  net.bluemind.system.pg,
  net.bluemind.system.systemcheck,
- net.bluemind.lib.elasticsearch.datastreams
+ net.bluemind.core.auditlogs.client.loader
 Bundle-ClassPath: .
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bluemind.system.service,

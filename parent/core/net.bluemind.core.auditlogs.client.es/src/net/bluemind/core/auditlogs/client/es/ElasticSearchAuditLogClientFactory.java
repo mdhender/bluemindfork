@@ -21,12 +21,24 @@ package net.bluemind.core.auditlogs.client.es;
 
 import net.bluemind.core.auditlogs.IAuditLogClient;
 import net.bluemind.core.auditlogs.IAuditLogClientFactory;
+import net.bluemind.core.auditlogs.client.es.datastreams.DataStreamActivator;
 
 public class ElasticSearchAuditLogClientFactory implements IAuditLogClientFactory {
 
 	@Override
 	public IAuditLogClient load() {
 		return new ElasticSearchAuditLogClient();
+	}
+
+	@Override
+	public void initialize() {
+		DataStreamActivator.resetDataStreams();
+
+	}
+
+	@Override
+	public void initIfNotExists(String name) {
+		DataStreamActivator.initDataStreamIfNotExists(name);
 	}
 
 }

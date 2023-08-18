@@ -17,7 +17,7 @@
  * END LICENSE
  */
 
-package net.bluemind.lib.elasticsearch.datastreams;
+package net.bluemind.core.auditlogs.client.es.datastreams;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -51,15 +51,14 @@ import net.bluemind.lib.elasticsearch.exception.ElasticIndexException;
 
 public class DataStreamActivator implements BundleActivator {
 
-	private static final String ES_TAG = "bm/es";
 	private static final Map<String, IndexTemplateDefinition> indexTemplates = new HashMap<>();
 	private static Logger logger = LoggerFactory.getLogger(DataStreamActivator.class);
 
 	@Override
 	public void start(BundleContext arg0) throws Exception {
 
-		IExtensionPoint ep = Platform.getExtensionRegistry().getExtensionPoint("net.bluemind.lib.elasticsearch",
-				"indextemplates");
+		IExtensionPoint ep = Platform.getExtensionRegistry()
+				.getExtensionPoint("net.bluemind.core.auditlogs.client.es.datastreams", "indextemplate");
 		for (IExtension ext : ep.getExtensions()) {
 			for (IConfigurationElement ce : ext.getConfigurationElements()) {
 				String index = ce.getAttribute("name");

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="net.bluemind.core.auditlogs.client.es.datastreams.indextemplate" name="indextemplate" schema="schema/net.bluemind.core.auditlogs.client.es.datastreams.indextemplate.exsd"/>
    <extension
          point="net.bluemind.core.auditlogs">
       <store

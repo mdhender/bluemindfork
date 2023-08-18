@@ -333,7 +333,6 @@
       <plugin id="net.bluemind.core.auditlogs"/>
       <plugin id="net.bluemind.core.auditlogs.client.loader"/>
       <plugin id="net.bluemind.core.auditlogs.client.es"/>
-      <plugin id="net.bluemind.lib.elasticsearch.datastreams"/>
       <plugin id="net.bluemind.mailmessage.api"/>
       <plugin id="net.bluemind.mailmessage.service"/>
       <plugin id="net.bluemind.mailshare.api"/>

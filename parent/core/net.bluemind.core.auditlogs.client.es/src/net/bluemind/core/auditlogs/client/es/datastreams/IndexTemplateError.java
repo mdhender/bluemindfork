@@ -1,4 +1,4 @@
-package net.bluemind.lib.elasticsearch.datastreams;
+package net.bluemind.core.auditlogs.client.es.datastreams;
 
 public class IndexTemplateError {
 	public String message;

@@ -7,10 +7,14 @@ Export-Package: net.bluemind.core.auditlogs.client.es
 Require-Bundle: net.bluemind.core.auditlogs,
  slf4j.api,
  net.bluemind.core.commons,
- net.bluemind.core.elasticsearch.testshelper,
  net.bluemind.core.container.persistence,
  com.fasterxml.jackson.core.jackson-databind,
- net.bluemind.network.topology
+ net.bluemind.network.topology,
+ net.bluemind.elastic.client,
+ net.bluemind.lib.elasticsearch,
+ net.bluemind.core.auditlogs.schema
 Bundle-Vendor: net.bluemind
 Automatic-Module-Name: net.bluemind.core.auditlogs.client.es
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: net.bluemind.core.auditlogs.client.es.datastreams.DataStreamActivator
 Bundle-RequiredExecutionEnvironment: JavaSE-17
