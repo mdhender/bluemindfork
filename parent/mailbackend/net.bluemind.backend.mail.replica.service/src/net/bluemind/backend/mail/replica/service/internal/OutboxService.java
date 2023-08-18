@@ -257,7 +257,7 @@ public class OutboxService implements IOutbox {
 		if (!sendmailResponse.getFailedRecipients().isEmpty()) {
 			sendNonDeliveryReport(sendmailResponse.getFailedRecipients(), creds, fromEnvelop, relatedMsg);
 		} else if (!sendmailResponse.isOk()) {
-			if (sendmailResponse.code == 530) {
+			if (sendmailResponse.code == 503) {
 				sendNonDeliveryAclReport(creds, fromEnvelop, relatedMsg);
 			} else {
 				throw new ServerFault(sendmailResponse.toString());

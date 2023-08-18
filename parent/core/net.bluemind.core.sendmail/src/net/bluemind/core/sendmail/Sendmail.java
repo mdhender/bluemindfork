@@ -180,7 +180,7 @@ public class Sendmail implements ISendmail {
 			logger.info("Email sent {}", getLog(creds, fromEnvelop, rcptTo, sendmailResponse, Optional.empty()));
 			return sendmailResponse;
 		} catch (Exception se) {
-			if (se instanceof SMTPException sme && sme.getCode() == 530) {
+			if (se instanceof SMTPException sme && sme.getCode() == 503) {
 				return new SendmailResponse(new SMTPResponse(sme.getCode(), true, se.getMessage()));
 			} else {
 				logger.error("Email not sent {}",

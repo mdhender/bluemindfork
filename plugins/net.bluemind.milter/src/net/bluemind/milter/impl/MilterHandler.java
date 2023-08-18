@@ -90,7 +90,7 @@ public class MilterHandler implements JilterHandler {
 		case REJECT:
 			return JilterStatus.SMFIS_REJECT;
 		case DELEGATION_ACL_FAIL:
-			return JilterStatus.makeCustomStatus("530", null,
+			return JilterStatus.makeCustomStatus("503", null,
 					new String[] { "Message cannot be delivered because of insufficient delegation rights." });
 		case CONTINUE:
 		default:

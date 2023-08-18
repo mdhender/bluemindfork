@@ -28,4 +28,30 @@ public class SendmailCredentials {
 		return !isAdminO() && !loginAtDomain.equals(fromEmail);
 
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((loginAtDomain == null) ? 0 : loginAtDomain.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SendmailCredentials other = (SendmailCredentials) obj;
+		if (loginAtDomain == null) {
+			if (other.loginAtDomain != null)
+				return false;
+		} else if (!loginAtDomain.equals(other.loginAtDomain))
+			return false;
+		return true;
+	}
+
 }

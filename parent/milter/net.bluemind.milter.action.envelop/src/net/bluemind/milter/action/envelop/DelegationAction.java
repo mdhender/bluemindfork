@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.container.model.acl.AccessControlEntry;
+import net.bluemind.core.container.model.acl.Verb;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.mailbox.api.IMailboxes;
 import net.bluemind.mailflow.rbe.IClientContext;
@@ -102,8 +103,9 @@ public class DelegationAction implements MilterAction {
 
 		List<AccessControlEntry> acls = mailboxService.getMailboxAccessControlList(fromMbUid);
 
-		return acls.stream().filter(a -> a.subject.equals(senderMbUid)
-				&& ("SendOnBehalf".equals(a.verb.name()) || "SendAs".equals(a.verb.name()))).toList();
+		return acls.stream()
+				.filter(a -> a.subject.equals(senderMbUid) && (Verb.SendOnBehalf == a.verb || Verb.SendAs == a.verb))
+				.toList();
 	}
 
 	private void checkSameFromAndSenderDomains(Message message, ItemValue<Domain> domainItem) {
