@@ -7,7 +7,7 @@
             [`illustration-${size}`]: true,
             [`illustration-from-lg-${sizeLg}`]: Boolean(sizeLg),
             'illustration-over-background': overBackground,
-            'illustration-from-lg-over-background': overBackgroundLg ?? overBackground
+            'illustration-from-lg-over-background': overBackgroundLg === undefined ? overBackground : overBackgroundLg
         }"
         v-html="svgData"
     />
