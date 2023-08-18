@@ -36,6 +36,10 @@
             priority="76">
       </registration>
       <registration
+            impl="net.bluemind.cli.user.UserSubscribeCommand$Reg"
+            priority="75">
+      </registration>
+      <registration
             impl="net.bluemind.cli.user.externalaccount.ExternalAccountImportCommand$Reg"
             priority="130">
       </registration>
