@@ -138,11 +138,11 @@ public class UserSubscribeCommand implements ICmdLet, Runnable {
 		private boolean usersAll;
 
 		@Option(required = false, names = { "--users-uids",
-				"-u" }, split = ",", description = "Users UIDs coma separated list.")
+				"-u" }, split = ",", description = "Users UIDs comma separated list.")
 		private List<String> usersUids;
 
 		@Option(required = false, names = { "--users-logins",
-				"-l" }, split = ",", description = "Users logins coma separated list.")
+				"-l" }, split = ",", description = "Users logins comma separated list.")
 		private List<String> usersLogins;
 
 		public Collection<String> getUids(Logger log, CliContext ctx, String domainUid) {
