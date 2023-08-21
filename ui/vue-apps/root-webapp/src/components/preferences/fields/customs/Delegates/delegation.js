@@ -31,11 +31,53 @@ export const useDelegation = () => {
     watch(todoListUid, async () => (acls.value.todoList.acl = await fetchAcl(todoListUid.value)), { immediate: true });
 };
 
+export const fetchAcls = async () => {
+    if (mailboxUid.value) {
+        acls.value.mailbox.acl = await fetchAcl(mailboxUid.value);
+    }
+    if (calendarUid.value) {
+        acls.value.calendar.acl = await fetchAcl(calendarUid.value);
+    }
+    if (addressBookUid.value) {
+        acls.value.addressBook.acl = await fetchAcl(addressBookUid.value);
+    }
+    if (todoListUid.value) {
+        acls.value.todoList.acl = await fetchAcl(todoListUid.value);
+    }
+};
+
 export const delegations = computed(() => {
     return Object.values(acls.value)
         .map(({ uid, acl }) =>
-            acl?.filter(({ verb }) => [Verb.SendOnBehalf, Verb.SendAs].includes(verb)).map(acl => ({ uid, acl }))
+            acl?.filter(({ verb }) => [Verb.SendOnBehalf, Verb.SendAs].includes(verb)).map(ac => ({ uid, ac }))
         )
         .flatMap(r => r)
         .filter(Boolean);
 });
+
+/** Delegates and their rights: { delegatUid1: {containerUid1: [verb1, verb2]} } */
+export const delegates = computed(() => {
+    const delegates = {};
+    delegations.value.forEach(d => {
+        if (!delegates[d.ac.subject]) {
+            delegates[d.ac.subject] = {};
+        }
+        if (!delegates[d.ac.subject][d.uid]) {
+            delegates[d.ac.subject][d.uid] = [];
+        }
+        delegates[d.ac.subject][d.uid].push(d.ac.verb);
+    });
+    return delegates;
+});
+
+export const removeDelegate = userUid => {
+    return Promise.all(
+        Object.values(acls.value).map(({ uid, acl }) =>
+            inject("ContainerManagementPersistence", uid).setAccessControlList(
+                acl.filter(
+                    ({ subject, verb }) => subject !== userUid || ![Verb.SendOnBehalf, Verb.SendAs].includes(verb)
+                )
+            )
+        )
+    );
+};

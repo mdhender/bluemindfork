@@ -110,7 +110,7 @@ import {
 } from "@bluemind/ui-components";
 import BmAppIcon from "../../../../BmAppIcon";
 
-import { acls, delegations, useDelegation } from "./delegation";
+import { acls, delegates, delegations, fetchAcls } from "./delegation";
 
 const apps = mapExtensions("net.bluemind.webapp", ["application"]).application;
 const findAppFn = bundle => apps?.find(({ $bundle }) => $bundle === bundle);
@@ -146,8 +146,7 @@ export default {
         visible: { type: Boolean, default: false }
     },
     setup() {
-        useDelegation();
-        return { acls, delegations };
+        return { acls, delegates, delegations, fetchAcls };
     },
     data() {
         return {
@@ -196,10 +195,10 @@ export default {
         }
     },
     watch: {
-        delegations: {
-            handler: function (value) {
+        delegate: {
+            handler: function () {
                 this.initialDelegationRight =
-                    value?.find(({ subject }) => subject === this.delegate)?.verb || Verb.SendOnBehalf;
+                    this.delegations?.find(({ subject }) => subject === this.delegate)?.verb || Verb.SendOnBehalf;
                 this.delegationRight = this.initialDelegationRight;
             },
             immediate: true
@@ -229,8 +228,9 @@ export default {
                 size: 10
             });
             const userUid = inject("UserSession").userId;
+            const excludedUsers = [userUid, ...Object.keys(this.delegates)];
             this.autocompleteResults = dirEntries.values
-                .filter(({ uid }) => uid !== userUid)
+                .filter(({ uid }) => !excludedUsers.includes(uid))
                 .map(DirEntryAdaptor.toContact);
         },
         async save() {
@@ -240,6 +240,7 @@ export default {
                     unionWith(acl, newAcl, (a, b) => a.subject === b.subject && a.verb === b.verb)
                 );
             });
+            fetchAcls();
             this.$refs.delegatesModal.hide();
         }
     }
