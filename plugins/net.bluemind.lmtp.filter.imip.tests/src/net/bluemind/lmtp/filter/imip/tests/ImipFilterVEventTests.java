@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -1832,6 +1833,69 @@ public class ImipFilterVEventTests {
 		assertEquals("external@ext-domain.lan", ext.mailto);
 		assertEquals(ParticipationStatus.Accepted, ext.partStatus);
 
+	}
+
+	@Test
+	public void testReplyHandler_ReplyOccurrenceShouldAddReccurIdToHeader() {
+		ItemValue<VEvent> event = defaultVEvent();
+
+		event.value.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 0, 0, 0, 0, defaultTz),
+				Precision.Date);
+		event.value.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 14, 0, 0, 0, 0, defaultTz),
+				Precision.Date);
+		RRule daily = new RRule();
+		daily.frequency = Frequency.DAILY;
+		event.value.rrule = daily;
+		event.value.organizer = new VEvent.Organizer(user1.value.defaultEmailAddress(domainUid));
+		event.value.attendees = new ArrayList<Attendee>(1);
+		VEvent.Attendee ext = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
+				VEvent.ParticipationStatus.NeedsAction, true, "", "", "", "external", "", "", null,
+				"external@ext-domain.lan");
+		event.value.attendees.add(ext);
+
+		// exception on 1st occurrence
+		VEventOccurrence exception = VEventOccurrence.fromEvent(event.value.copy(),
+				BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 0, 0, 0, 0, defaultTz), Precision.Date));
+		exception.dtstart = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 14, 0, 0, 0, 0, defaultTz),
+				Precision.Date);
+		exception.dtend = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 15, 0, 0, 0, 0, defaultTz),
+				Precision.Date);
+		exception.attendees = event.value.attendees;
+
+		VEventSeries series = new VEventSeries();
+		series.main = event.value;
+		series.occurrences = new ArrayList<VEventOccurrence>(1);
+		series.occurrences.add(exception);
+
+		user1Calendar.create(event.uid, series, false);
+
+		ItemValue<VEventSeries> evt = user1Calendar.getComplete(event.uid);
+		assertNotNull(evt);
+
+		IMIPInfos imip = imip(ITIPMethod.REPLY, defaultExternalSenderVCard(), event.uid);
+		exception.recurid = BmDateTimeWrapper.create(ZonedDateTime.of(2022, 2, 13, 0, 0, 0, 0, defaultTz),
+				Precision.Date);
+		ext = VEvent.Attendee.create(VEvent.CUType.Individual, "", VEvent.Role.Chair,
+				VEvent.ParticipationStatus.Accepted, true, "", "", "", "external", "", "", null,
+				"external@ext-domain.lan");
+		exception.attendees = new ArrayList<>();
+		exception.attendees.add(ext);
+
+		imip.iCalendarElements = Arrays.asList(exception);
+		ResolvedBox recipient = EnvelopeBuilder.lookupEmail(user1Mailbox.value.defaultEmail().address);
+
+		IIMIPHandler replyHandler = new EventReplyHandler(recipient, null);
+		IMIPResponse response = replyHandler.handle(imip, recipient, domain, user1Mailbox);
+
+		AtomicBoolean foundHeader = new AtomicBoolean();
+		response.headerFields.forEach(header -> {
+			if (header.getName().equals("X-BM-Event-Replied")) {
+				String value = header.getBody();
+				assertEquals(event.uid + "; recurid=\"2022-02-13\"", value);
+				foundHeader.set(true);
+			}
+		});
+		assertTrue(foundHeader.get());
 	}
 
 	@Test

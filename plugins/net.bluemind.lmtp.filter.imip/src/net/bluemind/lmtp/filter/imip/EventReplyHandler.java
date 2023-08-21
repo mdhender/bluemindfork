@@ -65,6 +65,7 @@ public class EventReplyHandler extends ReplyHandler implements IIMIPHandler {
 		ICalendar cal = provider().instance(ICalendar.class, calUid);
 		List<ItemValue<VEventSeries>> items = getAndValidateExistingSeries(cal, imip);
 		ItemValue<VEventSeries> series = items.get(0);
+		List<VEventOccurrence> imipOccurrences = new ArrayList<>();
 		for (ICalendarElement element : imip.iCalendarElements) {
 			VEvent vevent = (VEvent) element;
 			List<VEvent.Attendee> atts = vevent.attendees;
@@ -76,6 +77,7 @@ public class EventReplyHandler extends ReplyHandler implements IIMIPHandler {
 			VEvent ref = null;
 			if (vevent.exception()) {
 				VEventOccurrence occ = (VEventOccurrence) vevent;
+				imipOccurrences.add(occ);
 
 				// sanitize recurid to match master dtstart timezone
 				occ.recurid = BmDateTimeWrapper.create(occ.recurid.iso8601, series.value.main.dtstart.timezone,
@@ -104,7 +106,15 @@ public class EventReplyHandler extends ReplyHandler implements IIMIPHandler {
 		}
 		logger.info("Updating event series {}", series.uid);
 		cal.update(series.uid, series.value, false);
-		return IMIPResponse.createRepliedResponse(imip.uid);
+		if (imipMessageContainsASingleException(imipOccurrences)) {
+			return IMIPResponse.createRepliedToExceptionResponse(imip.uid, imipOccurrences.get(0).recurid.iso8601);
+		} else {
+			return IMIPResponse.createRepliedResponse(imip.uid);
+		}
+	}
+
+	private boolean imipMessageContainsASingleException(List<VEventOccurrence> imipOccurrences) {
+		return imipOccurrences.size() == 1;
 	}
 
 	private void removeAttendeesProposition(ItemValue<VEventSeries> series, VEvent vevent, Attendee attendee) {
