@@ -88,15 +88,6 @@ export default {
         }
     }
 
-    $alert-variants: "danger", "warning", "success", "info", "neutral";
-
-    @each $variant in $alert-variants {
-        .alert-#{$variant} {
-            color: $neutral-fg-hi1;
-            background-color: var(--#{$variant}-bg);
-            border: none;
-        }
-    }
     $illustration-sizes: "xxs", "xs", "s", "sm", "md", "lg", "xl";
 
     @each $size in $illustration-sizes {
