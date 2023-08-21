@@ -325,16 +325,16 @@ public class OutboxService implements IOutbox {
 	private void sendNonDeliveryReport(List<FailedRecipient> failedRecipients, SendmailCredentials creds, String sender,
 			Message relatedMsg) {
 		MessageImpl message = createNonDeliveryReportMessage(failedRecipients, relatedMsg);
-		sentIt(creds, sender, message);
+		sendIt(creds, sender, message);
 	}
 
 	private void sendNonDeliveryAclReport(SendmailCredentials creds, String sender, Message relatedMsg) {
 		MessageImpl message = createNonDeliveryAclReportMessage(relatedMsg, sender,
 				creds.notAdminAndNotCurrentUser(sender) ? creds.loginAtDomain : sender);
-		sentIt(creds, sender, message);
+		sendIt(creds, sender, message);
 	}
 
-	private void sentIt(SendmailCredentials creds, String sender, MessageImpl message) {
+	private void sendIt(SendmailCredentials creds, String sender, MessageImpl message) {
 		String from = "noreply@" + domainDefaultAlias();
 		String to = creds.notAdminAndNotCurrentUser(sender) ? creds.loginAtDomain : sender;
 		String toLocalPart = to.split("@")[0];

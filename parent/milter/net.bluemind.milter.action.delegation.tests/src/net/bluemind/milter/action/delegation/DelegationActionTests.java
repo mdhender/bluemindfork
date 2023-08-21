@@ -59,7 +59,6 @@ import net.bluemind.mailflow.rbe.IClientContext;
 import net.bluemind.milter.SmtpAddress;
 import net.bluemind.milter.action.DomainAliasCache;
 import net.bluemind.milter.action.UpdatedMailMessage;
-import net.bluemind.milter.action.delegation.DelegationAction;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;
@@ -203,7 +202,7 @@ public class DelegationActionTests {
 	@Test
 	public void testWithSenderOnBehalf() throws Exception {
 		String senderAddress = mailboxSendOnBehalf.value.defaultEmail().address;
-		UpdatedMailMessage mm = loadTemplate("sendOnBehalf.eml", senderAddress);
+		UpdatedMailMessage mm = loadTemplate("sendAs.eml", senderAddress);
 
 		SmtpAddress sender = new SmtpAddress(senderAddress);
 		SmtpAddress from = new SmtpAddress(mailboxFrom.value.defaultEmail().address);
@@ -258,8 +257,8 @@ public class DelegationActionTests {
 	}
 
 	private void assertMessageHeaders(UpdatedMailMessage mm, SmtpAddress sender, Verb v) {
-		Field hSender = mm.getMessage().getHeader().getField("X-BM-Sender");
-		if (v == Verb.SendAs) {
+		Field hSender = mm.getMessage().getHeader().getField("Sender");
+		if (v == Verb.SendOnBehalf) {
 			assertNotNull(hSender);
 			assertTrue(hSender.getBody().contains(sender.getEmailAddress()));
 		} else {

@@ -79,12 +79,13 @@ public class DelegationAction implements MilterAction {
 
 				String fromAddress = from.getLocalPart();
 				String sendAddress = modifier.envelopSender.get().split("@")[0];
+				Mailbox senderMailbox = new Mailbox(sendAddress, domainItem.value.defaultAlias);
 				if (!fromAddress.equalsIgnoreCase(sendAddress)) {
 					List<AccessControlEntry> acls = getAcls(fromAddress, sendAddress, domainItem);
 					if (acls.isEmpty()) {
 						modifier.errorStatus = IMilterListener.Status.DELEGATION_ACL_FAIL;
-					} else if (acls.stream().anyMatch(a -> Verb.SendAs == a.verb)) {
-						modifier.addHeader("X-BM-Sender", modifier.envelopSender.get(), identifier());
+					} else if (acls.stream().anyMatch(a -> Verb.SendOnBehalf == a.verb)) {
+						modifier.addHeader("Sender", senderMailbox.getAddress(), identifier());
 					}
 				}
 			}
