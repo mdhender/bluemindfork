@@ -103,16 +103,16 @@ export default {
         &.illustration-#{$size} {
             &,
             & > svg {
-                width: map-get($illustration-width, $size);
-                height: map-get($illustration-height, $size);
+                width: map-get($illustration-widths, $size);
+                height: map-get($illustration-heights, $size);
             }
         }
         &.illustration-from-lg-#{$size} {
             @include from-lg {
                 &,
                 & > svg {
-                    width: map-get($illustration-width, $size);
-                    height: map-get($illustration-height, $size);
+                    width: map-get($illustration-widths, $size);
+                    height: map-get($illustration-heights, $size);
                 }
             }
         }

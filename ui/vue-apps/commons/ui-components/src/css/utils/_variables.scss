@@ -520,29 +520,31 @@ $resizer-active-color: $secondary-fg-hi1;
 
 // Illustrations
 
-@function bm-illustration-size($size-map, $size-name, $size) {
-    @return map-merge(
-        $size-map,
+$illustration-widths: ();
+$illustration-heights: ();
+
+@mixin bm-illustration-size($size-name, $width, $height) {
+    $illustration-widths: map-merge(
+        $illustration-widths,
         (
-            $size-name: $size
+            $size-name: $width
         )
-    );
+    ) !global;
+    $illustration-heights: map-merge(
+        $illustration-heights,
+        (
+            $size-name: $height
+        )
+    ) !global;
 }
 
-$illustration-width: ();
-$illustration-height: ();
-$illustration-width: bm-illustration-size($illustration-width, "xxs", 75px);
-$illustration-height: bm-illustration-size($illustration-height, "xxs", 75px);
-$illustration-width: bm-illustration-size($illustration-width, "xs", 100px);
-$illustration-height: bm-illustration-size($illustration-height, "xs", 100px);
-$illustration-width: bm-illustration-size($illustration-width, "sm", 210px);
-$illustration-height: bm-illustration-size($illustration-height, "sm", 180px);
-$illustration-width: bm-illustration-size($illustration-width, "md", 350px);
-$illustration-height: bm-illustration-size($illustration-height, "md", 300px);
-$illustration-width: bm-illustration-size($illustration-width, "lg", 525px);
-$illustration-height: bm-illustration-size($illustration-height, "lg", 450px);
-$illustration-width: bm-illustration-size($illustration-width, "xl", 700px);
-$illustration-height: bm-illustration-size($illustration-height, "xl", 600px);
+@include bm-illustration-size("xxs", 75px, 75px);
+@include bm-illustration-size("xs", 100px, 100px);
+@include bm-illustration-size("sm", 210px, 180px);
+@include bm-illustration-size("md", 350px, 300px);
+@include bm-illustration-size("lg", 525px, 450px);
+@include bm-illustration-size("xl", 700px, 600px);
+
 // Icons
 
 $icon-sizes: ();

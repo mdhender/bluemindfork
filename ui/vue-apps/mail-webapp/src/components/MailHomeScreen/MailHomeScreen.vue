@@ -127,8 +127,8 @@ export default {
         }
 
         .bm-illustration {
-            flex: 0 1 map-get($illustration-height, "lg") + $space-saved;
-            min-height: map-get($illustration-height, "lg");
+            flex: 0 1 map-get($illustration-heights, "lg") + $space-saved;
+            min-height: map-get($illustration-heights, "lg");
             flex-direction: column;
 
             &:before {
