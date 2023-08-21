@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: net.bluemind.milter.envelop
-Bundle-SymbolicName: net.bluemind.milter.action.envelop;singleton:=true
+Bundle-Name: net.bluemind.milter.action.delegation
+Bundle-SymbolicName: net.bluemind.milter.action.delegation;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: bluemind.net
-Automatic-Module-Name: net.bluemind.milter.envelop
+Automatic-Module-Name: net.bluemind.milter.action.delegation
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.google.guava,
  slf4j.api,
@@ -23,4 +23,4 @@ Require-Bundle: com.google.guava,
  net.bluemind.mailbox.api,
  net.bluemind.mailbox.service,
  net.bluemind.core.rest.http
-Export-Package: net.bluemind.milter.action.envelop
+Export-Package: net.bluemind.milter.action.delegation

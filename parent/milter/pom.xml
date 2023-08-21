@@ -31,7 +31,7 @@
 		<module>net.bluemind.milter.action.journaling.tests</module>
 		<module>net.bluemind.milter.srs</module>
 		<module>net.bluemind.milter.srs.tests</module>
-		<module>net.bluemind.milter.action.envelop</module>
-		<module>net.bluemind.milter.action.envelop.tests</module>
+		<module>net.bluemind.milter.action.delegation</module>
+		<module>net.bluemind.milter.action.delegation.tests</module>
 	</modules>
 </project>

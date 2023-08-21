@@ -458,7 +458,7 @@
    <bundle id="net.bluemind.milter.action.eventforwarding" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.milter.action.misc" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.milter.action.signature" version="5.0.0.qualifier"/>
-   <bundle id="net.bluemind.milter.action.envelop" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.milter.action.delegation" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.milter.metrics" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.milter.srs" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.mime4j.bodies" version="5.0.0.qualifier"/>

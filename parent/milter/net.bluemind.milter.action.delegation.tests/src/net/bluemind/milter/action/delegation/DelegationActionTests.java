@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.milter.action.envelop;
+package net.bluemind.milter.action.delegation;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -59,6 +59,7 @@ import net.bluemind.mailflow.rbe.IClientContext;
 import net.bluemind.milter.SmtpAddress;
 import net.bluemind.milter.action.DomainAliasCache;
 import net.bluemind.milter.action.UpdatedMailMessage;
+import net.bluemind.milter.action.delegation.DelegationAction;
 import net.bluemind.mime4j.common.Mime4JHelper;
 import net.bluemind.server.api.IServer;
 import net.bluemind.server.api.Server;

@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.milter.action.envelop;
+package net.bluemind.milter.action.delegation;
 
 import net.bluemind.mailflow.api.MailRuleActionAssignment;
 import net.bluemind.mailflow.api.MailflowRouting;
@@ -30,7 +30,7 @@ public class DelegationRuleAction {
 		@Override
 		public MailRuleActionAssignment create() {
 			MailRuleActionAssignment assignment = new MailRuleActionAssignment();
-			assignment.actionIdentifier = "milter.delegation.envelop";
+			assignment.actionIdentifier = "milter.delegation";
 			assignment.routing = MailflowRouting.OUTGOING;
 			assignment.isActive = true;
 			assignment.position = 1;

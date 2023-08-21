@@ -16,7 +16,7 @@
  * See LICENSE.txt
  * END LICENSE
  */
-package net.bluemind.milter.action.envelop;
+package net.bluemind.milter.action.delegation;
 
 import java.util.List;
 import java.util.Map;
@@ -52,12 +52,12 @@ public class DelegationAction implements MilterAction {
 
 	@Override
 	public String identifier() {
-		return "milter.delegation.envelop";
+		return "milter.delegation";
 	}
 
 	@Override
 	public String description() {
-		return "Milter delegation action on envelop";
+		return "Milter delegation action";
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public class DelegationAction implements MilterAction {
 					List<AccessControlEntry> acls = getAcls(fromAddress, sendAddress, domainItem);
 					if (acls.isEmpty()) {
 						modifier.errorStatus = IMilterListener.Status.DELEGATION_ACL_FAIL;
-					} else if (acls.stream().anyMatch(a -> "SendAs".equals(a.verb.name()))) {
+					} else if (acls.stream().anyMatch(a -> Verb.SendAs == a.verb)) {
 						modifier.addHeader("X-BM-Sender", modifier.envelopSender.get(), identifier());
 					}
 				}
@@ -93,7 +93,6 @@ public class DelegationAction implements MilterAction {
 	}
 
 	private List<AccessControlEntry> getAcls(String fromAddress, String senderAddress, ItemValue<Domain> domainItem) {
-
 		String fromEmailAddress = fromAddress + "@" + domainItem.value.defaultAlias;
 		String senderEmailAddress = senderAddress + "@" + domainItem.value.defaultAlias;
 
@@ -101,9 +100,7 @@ public class DelegationAction implements MilterAction {
 		String fromMbUid = mailboxService.byEmail(fromEmailAddress).uid;
 		String senderMbUid = mailboxService.byEmail(senderEmailAddress).uid;
 
-		List<AccessControlEntry> acls = mailboxService.getMailboxAccessControlList(fromMbUid);
-
-		return acls.stream()
+		return mailboxService.getMailboxAccessControlList(fromMbUid).stream()
 				.filter(a -> a.subject.equals(senderMbUid) && (Verb.SendOnBehalf == a.verb || Verb.SendAs == a.verb))
 				.toList();
 	}

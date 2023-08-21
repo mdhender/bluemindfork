@@ -1,11 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: net.bluemind.milter.action.envelop.tests
-Bundle-SymbolicName: net.bluemind.milter.action.envelop.tests;singleton:=true
+Bundle-Name: net.bluemind.milter.action.delegation.tests
+Bundle-SymbolicName: net.bluemind.milter.action.delegation.tests;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: www.bluemind.net
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: net.bluemind.milter.action.envelop,
+Require-Bundle: net.bluemind.milter.action.delegation,
  org.junit,
  net.bluemind.milter,
  net.bluemind.core.container.persistence,
@@ -18,4 +18,4 @@ Require-Bundle: net.bluemind.milter.action.envelop,
  net.bluemind.core.jdbc.testshelper;bundle-version="1.0.0",
  net.bluemind.tests.defaultdata,
  net.bluemind.config
-Automatic-Module-Name: net.bluemind.milter.action.envelop.tests
+Automatic-Module-Name: net.bluemind.milter.action.delegation.tests

@@ -4,12 +4,12 @@
    <extension
          point="net.bluemind.milter.actionfactory">
       <action_factory
-            impl="net.bluemind.milter.action.envelop.DelegationAction$DelegationActionFactory"></action_factory>
+            impl="net.bluemind.milter.action.delegation.DelegationAction$DelegationActionFactory"></action_factory>
    </extension>
       <extension
          point="net.bluemind.milter.ruleactionfactory">
       <rule_action_factory
-            impl="net.bluemind.milter.action.envelop.DelegationRuleAction$DelegationRuleActionFactory"></rule_action_factory>
+            impl="net.bluemind.milter.action.delegation.DelegationRuleAction$DelegationRuleActionFactory"></rule_action_factory>
    </extension>
 </plugin>
  
