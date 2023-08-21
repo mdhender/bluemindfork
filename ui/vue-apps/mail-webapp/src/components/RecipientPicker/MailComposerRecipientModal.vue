@@ -77,7 +77,7 @@
             </div>
         </template>
         <bm-alert-area :alerts="alerts" @remove="REMOVE">
-            <template v-slot="{ alert }"><component :is="alert.renderer" :alert="alert" /></template>
+            <template #default="{ alert }"><component :is="alert.renderer" :alert="alert" /></template>
         </bm-alert-area>
     </bm-modal>
 </template>

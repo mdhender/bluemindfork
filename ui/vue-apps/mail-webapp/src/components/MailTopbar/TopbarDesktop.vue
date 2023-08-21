@@ -9,7 +9,6 @@
         <div class="toolbar h-100 w-100">
             <mail-toolbar :compact="activeSearch" />
         </div>
-
     </div>
 </template>
 
