@@ -298,7 +298,7 @@ public class MilterHandler implements JilterHandler {
 			try {
 				ExecutionMode mode = executeAction(ruleAction, mailflowContext, modifiedMail);
 				executedActions++;
-				if (mode == ExecutionMode.STOP_AFTER_EXECUTION) {
+				if (mode == ExecutionMode.STOP_AFTER_EXECUTION || modifiedMail.errorStatus != Status.CONTINUE) {
 					logger.debug("Stopping execution of Milter actions after ruleAssignment {}",
 							ruleAction.assignment.uid);
 					return executedActions;
