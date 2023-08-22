@@ -6,7 +6,7 @@ import org.apache.james.mime4j.dom.Message;
 
 public interface IMilterListener {
 	public static enum Status {
-		CONTINUE, REJECT, DISCARD;
+		CONTINUE, REJECT, DISCARD, DELEGATION_ACL_FAIL;
 	}
 
 	/**

@@ -121,7 +121,7 @@ public class VEventService implements IVEvent {
 		if (container.owner.equals(context.getSecurityContext().getSubject())) {
 			return context.getServiceProvider().instance(ITags.class, ITagUids.defaultTags(container.owner));
 		} else {
-			try (Sudo asUser = new Sudo(container.owner, container.domainUid)) {
+			try (Sudo asUser = Sudo.byUid(container.owner, container.domainUid)) {
 				return ServerSideServiceProvider.getProvider(asUser.context).instance(ITags.class,
 						ITagUids.defaultTags(container.owner));
 			}

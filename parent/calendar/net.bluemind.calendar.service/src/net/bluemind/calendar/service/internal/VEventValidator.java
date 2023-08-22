@@ -203,7 +203,7 @@ public class VEventValidator implements IValidator<VEventSeries> {
 
 		for (VEventCounter counter : vevent.counters) {
 			if (seen.contains(counter)) {
-				throw new ServerFault("Multiple event counter of one participant", ErrorCode.MULTIPLE_EVENT_COUNTERS);
+				throw new ServerFault("Multiple event counters of one participant", ErrorCode.MULTIPLE_EVENT_COUNTERS);
 			}
 			seen.add(counter);
 		}

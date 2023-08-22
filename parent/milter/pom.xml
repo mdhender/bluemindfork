@@ -27,6 +27,7 @@
 		<module>net.bluemind.milter.action.signature</module>
 		<module>net.bluemind.milter.action.signature.tests</module>
 		<module>net.bluemind.milter.action.journaling</module>
+		<module>net.bluemind.milter.action.eventforwarding</module>
 		<module>net.bluemind.milter.action.journaling.tests</module>
 		<module>net.bluemind.milter.srs</module>
 		<module>net.bluemind.milter.srs.tests</module>

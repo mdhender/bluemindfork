@@ -141,7 +141,7 @@ public class IcsHook implements ICalendarHook {
 					}
 				}
 			}
-		} catch (ServerFault e) {
+		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 
@@ -163,7 +163,7 @@ public class IcsHook implements ICalendarHook {
 			} else {
 				onAttendeeVersionUpdated(message, oldEventSeries, flatten);
 			}
-		} catch (ServerFault e) {
+		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 
@@ -399,11 +399,11 @@ public class IcsHook implements ICalendarHook {
 				if (!seriesSent) {
 					for (VEvent vEvent : message.vevent.occurrences) {
 						Optional<EventAttendeeTuple> attendee = getMatchingAttendeeForEvent(vEvent, dirEntry);
-						if (attendee.isPresent()) {
-							if (attendee.get().attendee.partStatus != ParticipationStatus.Declined) {
-								attendee.get().attendee.partStatus = ParticipationStatus.Declined;
-								sendParticipationToOrganizer(message, attendee.get(), vEvent);
-							}
+						if (attendee.isPresent()
+								&& (attendee.get().attendee.partStatus != ParticipationStatus.Declined)) {
+							attendee.get().attendee.partStatus = ParticipationStatus.Declined;
+							sendParticipationToOrganizer(message, attendee.get(), vEvent);
+
 						}
 					}
 				}
@@ -520,8 +520,15 @@ public class IcsHook implements ICalendarHook {
 			return;
 		}
 
-		String subject = "EventCounterProposalUpdateSubject.ftl";
-		String body = "EventCounterProposal.ftl";
+		String subject = null;
+		String body = null;
+		if (isAttendeeCounter(counter)) {
+			subject = "EventCounterNewAttendeesSubject.ftl";
+			body = "EventCounterNewAttendees.ftl";
+		} else {
+			subject = "EventCounterProposalUpdateSubject.ftl";
+			body = "EventCounterProposal.ftl";
+		}
 		Method method = Method.COUNTER;
 
 		Mailbox from = SendmailHelper.formatAddress(event.attendee.commonName, event.attendee.mailto);
@@ -542,7 +549,9 @@ public class IcsHook implements ICalendarHook {
 
 		String ics = null;
 		VEventOccurrence attendeeCounter = counter.copy();
-		attendeeCounter.attendees = Arrays.asList(event.attendee);
+		attendeeCounter.attendees = new ArrayList<>(
+				attendeeCounter.attendees.stream().filter(att -> att.role == Role.NonParticipant).toList());
+		attendeeCounter.attendees.add(event.attendee);
 		ics = VEventServiceHelper.convertToIcs(Optional.empty(), message.vevent.icsUid, method, attendeeCounter);
 
 		Map<String, String> senderSettings = getSenderSettings(message, fromDirEntry);
@@ -551,6 +560,10 @@ public class IcsHook implements ICalendarHook {
 					Messages.getEventUpdateMessages(locale), Messages.getEventParitipactionUpdateMessages(locale));
 		}, method, from, recipient, ics, data);
 
+	}
+
+	private boolean isAttendeeCounter(VEventOccurrence counter) {
+		return counter.attendees.stream().anyMatch(att -> att.role == Role.NonParticipant);
 	}
 
 	private void sendInvitationToAttendees(VEventMessage message, List<Attendee> attendees, VEvent event, String ics)
@@ -847,7 +860,6 @@ public class IcsHook implements ICalendarHook {
 			Map<String, String> senderSettings, String subjectTemplate, String template,
 			MessagesResolverProvider messagesResolverProvider, Method method, Mailbox from, Mailbox recipient,
 			String ics, Map<String, Object> data) {
-
 		List<Mailbox> attendeeListTo = new ArrayList<>(event.attendees.size());
 		List<Mailbox> attendeeListCc = new ArrayList<>(event.attendees.size());
 		for (ICalendarElement.Attendee attendee : event.attendees) {
@@ -954,7 +966,6 @@ public class IcsHook implements ICalendarHook {
 				if (!attachments.isEmpty() && !EventAttachmentHelper.hasBinaryAttachments(attachments)) {
 					data.put("attachments", attachments);
 				}
-
 				try (Message mail = buildMailMessage(from, from, attendeeListTo, attendeeListCc, subjectTemplate,
 						template, messagesResolverProvider.getResolver(new Locale(getLocale(settings))), data,
 						createBodyPart(message.itemUid, ics), settings, event, method, attachments)) {
@@ -1396,7 +1407,7 @@ public class IcsHook implements ICalendarHook {
 			DirEntry fromDirEntry = null;
 			if (organizer.dir != null) {
 				fromDirEntry = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-						.instance(IDirectory.class, message.securityContext.getContainerUid())
+						.instance(IDirectory.class, message.container.domainUid)
 						.getEntry(organizer.dir.substring("bm://".length()));
 			} else {
 				fromDirEntry = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)

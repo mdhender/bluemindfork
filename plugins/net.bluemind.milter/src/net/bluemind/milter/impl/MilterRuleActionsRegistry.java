@@ -19,8 +19,6 @@ package net.bluemind.milter.impl;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +45,7 @@ public class MilterRuleActionsRegistry {
 		RunnableExtensionLoader<MilterRuleActionsFactory> rel = new RunnableExtensionLoader<>();
 		loaded = rel
 				.loadExtensionsWithPriority("net.bluemind.milter", "ruleactionfactory", "rule_action_factory", "impl")
-                .stream().map(f -> f.create()).toList();
-        logger.info("{} implementations found for extensionpoint net.bluemind.milter.ruleactionfactory", loaded.size());
+				.stream().map(f -> f.create()).toList();
+		logger.info("{} implementations found for extensionpoint net.bluemind.milter.ruleactionfactory", loaded.size());
 	}
 }

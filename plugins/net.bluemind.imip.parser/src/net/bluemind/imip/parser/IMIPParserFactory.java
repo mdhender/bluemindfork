@@ -23,7 +23,11 @@ import net.bluemind.imip.parser.impl.IMIPParserImpl;
 public class IMIPParserFactory {
 
 	public static final IIMIPParser create() {
-		return new IMIPParserImpl();
+		return new IMIPParserImpl(IMIPParserConfig.defaultConfig());
+	}
+
+	public static final IIMIPParser create(IMIPParserConfig config) {
+		return new IMIPParserImpl(config);
 	}
 
 }

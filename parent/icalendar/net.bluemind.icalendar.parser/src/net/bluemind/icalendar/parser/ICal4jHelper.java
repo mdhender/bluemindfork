@@ -389,7 +389,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 		String filename = "attachment_" + index + "." + extension;
 		if (owner.isPresent()) {
 			CalendarOwner calOwner = owner.get();
-			try (Sudo asUser = new Sudo(calOwner.userUid, calOwner.domainUid)) {
+			try (Sudo asUser = Sudo.byUid(calOwner.userUid, calOwner.domainUid)) {
 				IAttachment service = ServerSideServiceProvider.getProvider(asUser.context).instance(IAttachment.class,
 						calOwner.domainUid);
 				return service.share(filename, GenericStream.simpleValue(binary, bin -> bin));
@@ -449,7 +449,7 @@ public class ICal4jHelper<T extends ICalendarElement> {
 				? Optional.of(ITagUids.defaultTags(calOwner.userUid))
 				: Optional.empty();
 		Optional<ITags> service = containerUid.map(uid -> {
-			try (Sudo asUser = new Sudo(calOwner.userUid, calOwner.domainUid)) {
+			try (Sudo asUser = Sudo.byUid(calOwner.userUid, calOwner.domainUid)) {
 				return ServerSideServiceProvider.getProvider(asUser.context).instance(ITags.class, uid);
 			}
 		});

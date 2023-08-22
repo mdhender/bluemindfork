@@ -18,6 +18,7 @@
  */
 package net.bluemind.core.rest.http;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -73,6 +74,12 @@ public class RestHttpTests extends RestTestServiceTests {
 		} catch (Exception e) {
 			System.err.println("Got a timeout as expected: " + e.getMessage());
 		}
+	}
+
+	@Test
+	public void testAsync() {
+		IRestTestService testService = getRestTestService(SecurityContext.ANONYMOUS);
+		assertEquals("async", testService.asyncMethodTest());
 	}
 
 	@Test

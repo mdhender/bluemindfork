@@ -30,9 +30,12 @@ import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.field.FieldName;
 import org.apache.james.mime4j.stream.RawField;
 
+import net.bluemind.milter.IMilterListener.Status;
+
 public class UpdatedMailMessage {
 	public final Map<String, Collection<String>> properties;
 	private Message message;
+	public Status errorStatus = Status.CONTINUE;
 
 	public Optional<String> envelopSender = Optional.empty();
 	public final Set<String> addRcpt = new HashSet<>();

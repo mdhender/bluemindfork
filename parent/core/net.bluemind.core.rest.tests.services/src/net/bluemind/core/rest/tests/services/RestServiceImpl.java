@@ -171,4 +171,13 @@ public class RestServiceImpl implements IRestTestService {
 		}
 	}
 
+	@Override
+	public String asyncMethodTest() {
+		return "sync";
+	}
+
+	public CompletableFuture<String> asyncMethodTest_async() {
+		return CompletableFuture.completedFuture("async");
+	}
+
 }

@@ -42,11 +42,18 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.imip.parser.IIMIPParser;
 import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.imip.parser.IMIPInfos.Cid;
+import net.bluemind.imip.parser.IMIPParserConfig;
 import net.bluemind.imip.parser.ITIPMethod;
 import net.bluemind.mime4j.common.Mime4JHelper;
 
 public class IMIPParserImpl implements IIMIPParser {
 	private static final Logger logger = LoggerFactory.getLogger(IMIPParserImpl.class);
+
+	private final IMIPParserConfig config;
+
+	public IMIPParserImpl(IMIPParserConfig config) {
+		this.config = config;
+	}
 
 	@Override
 	public IMIPInfos parse(Message m) {
@@ -80,8 +87,10 @@ public class IMIPParserImpl implements IIMIPParser {
 				try {
 					method = ITIPMethod.valueOf(mparam.toUpperCase());
 				} catch (Exception t) {
-					logger.info("[" + mid + "] Missing or invalid iTIP method (" + mparam + "), skipping.");
-					continue;
+					if (config.failOnMissingMethod) {
+						logger.info("[" + mid + "] Missing or invalid iTIP method (" + mparam + "), skipping.");
+						continue;
+					}
 				}
 				logger.info("[" + mid + "] method: " + method);
 				IMIPInfos imip = new IMIPInfos();

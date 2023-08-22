@@ -89,6 +89,9 @@ public class MilterHandler implements JilterHandler {
 			return JilterStatus.SMFIS_DISCARD;
 		case REJECT:
 			return JilterStatus.SMFIS_REJECT;
+		case DELEGATION_ACL_FAIL:
+			return JilterStatus.makeCustomStatus("530", null,
+					new String[] { "Message cannot be delivered because of insufficient delegation rights." });
 		case CONTINUE:
 		default:
 			return JilterStatus.SMFIS_CONTINUE;
@@ -142,7 +145,7 @@ public class MilterHandler implements JilterHandler {
 
 	}
 
-	private void forEachActions(JilterEOMActions eomActions) {
+	private Status forEachActions(JilterEOMActions eomActions) {
 		// Set message as not modified
 		// Use if more than one mail was sent using same SMTP connection
 		messageModified = false;
@@ -161,6 +164,8 @@ public class MilterHandler implements JilterHandler {
 		}
 
 		applyMailModifications(eomActions, modifiedMail);
+
+		return modifiedMail.errorStatus;
 	}
 
 	private void applyMailModifications(JilterEOMActions eomActions, UpdatedMailMessage modifiedMail) {
@@ -452,13 +457,13 @@ public class MilterHandler implements JilterHandler {
 		logger.debug("eom");
 		accumulator.done(properties);
 
-		forEachActions(eomActions);
+		Status actionStatus = forEachActions(eomActions);
 
 		JilterStatus ret = forEachListener(
 				listener -> listener.onMessage(accumulator.getEnvelope(), accumulator.getMessage()));
 
 		accumulator.reset();
-		return ret;
+		return actionStatus != Status.CONTINUE ? getJilterStatus(actionStatus) : ret;
 	}
 
 	@Override

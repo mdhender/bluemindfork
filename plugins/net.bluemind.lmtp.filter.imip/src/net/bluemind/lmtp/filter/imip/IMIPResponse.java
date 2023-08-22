@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.icalendar.api.ICalendarElement;
+import net.bluemind.icalendar.api.ICalendarElement.Attendee;
 
 public class IMIPResponse {
 
@@ -122,7 +123,8 @@ public class IMIPResponse {
 		return ret;
 	}
 
-	public static IMIPResponse createCounterResponse(String itemUid, String email, VEventOccurrence counterEvent) {
+	public static IMIPResponse createCounterResponse(String itemUid, String email, VEventOccurrence counterEvent,
+			List<Attendee> proposedAttendees) {
 		IMIPResponse ret = new IMIPResponse();
 
 		StringBuilder eventIcsUid = new StringBuilder(itemUid);
@@ -135,6 +137,17 @@ public class IMIPResponse {
 		RawField rf = new RawField("X-BM-Event-Countered", eventIcsUid.toString());
 		UnstructuredField bmExtId = UnstructuredFieldImpl.PARSER.parse(rf, DecodeMonitor.SILENT);
 		ret.headerFields = Arrays.asList(bmExtId);
+
+		if (!proposedAttendees.isEmpty()) {
+			ret.headerFields = new ArrayList<>(ret.headerFields);
+			proposedAttendees.forEach(attendee -> {
+				RawField attendeeHeader = new RawField("X-BM-COUNTER-ATTENDEE", attendee.mailto);
+				UnstructuredField attendeeHeaderField = UnstructuredFieldImpl.PARSER.parse(attendeeHeader,
+						DecodeMonitor.SILENT);
+				ret.headerFields.add(attendeeHeaderField);
+			});
+		}
+
 		return ret;
 
 	}

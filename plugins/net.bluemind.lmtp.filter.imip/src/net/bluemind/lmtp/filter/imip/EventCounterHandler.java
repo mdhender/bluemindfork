@@ -19,10 +19,12 @@
 package net.bluemind.lmtp.filter.imip;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import net.bluemind.calendar.api.ICalendar;
+import net.bluemind.calendar.api.VEvent;
 import net.bluemind.calendar.api.VEventCounter;
 import net.bluemind.calendar.api.VEventOccurrence;
 import net.bluemind.calendar.api.VEventSeries;
@@ -36,6 +38,8 @@ import net.bluemind.delivery.lmtp.common.ResolvedBox;
 import net.bluemind.delivery.lmtp.filters.PermissionDeniedException.CounterNotAllowedException;
 import net.bluemind.domain.api.Domain;
 import net.bluemind.icalendar.api.ICalendarElement.Attendee;
+import net.bluemind.icalendar.api.ICalendarElement.ParticipationStatus;
+import net.bluemind.icalendar.api.ICalendarElement.Role;
 import net.bluemind.imip.parser.IMIPInfos;
 import net.bluemind.mailbox.api.Mailbox;
 
@@ -55,30 +59,26 @@ public class EventCounterHandler extends AbstractLmtpHandler implements IIMIPHan
 		validateItemCount(imip, 1);
 		ItemValue<VEventSeries> currentSeries = items.get(0);
 
-		if (!currentSeries.value.acceptCounters) {
-			ServerFault fault = new ServerFault(new CounterNotAllowedException(recipientMailbox.uid));
-			fault.setCode(ErrorCode.EVENT_ACCEPTS_NO_COUNTERS);
-			throw fault;
-		}
-
 		VEventSeries propositionSeries = fromList(imip.properties, imip.iCalendarElements, imip.uid);
 		VEventOccurrence counterEvent = null;
+		List<Attendee> counterProposedAttendees;
 		if (propositionSeries.main != null) {
 			counterEvent = VEventOccurrence.fromEvent(propositionSeries.main, null);
-			for (Attendee att : currentSeries.value.main.attendees) {
-				if (counterEvent.attendees.get(0).mailto.equals(att.mailto)) {
-					att.partStatus = counterEvent.attendees.get(0).partStatus;
-				}
-			}
+			counterProposedAttendees = proposedattendees(counterEvent);
+			Attendee originator = originator(counterEvent, counterProposedAttendees);
+			updateOriginatorPartStat(originator, currentSeries.value.main);
+			addNewAttendees(counterEvent, currentSeries.value.main);
 		} else {
 			counterEvent = propositionSeries.occurrences.get(0);
+			counterProposedAttendees = proposedattendees(counterEvent);
+			Attendee originator = originator(counterEvent, counterProposedAttendees);
 			if (currentSeries.value.occurrence(counterEvent.recurid) == null) {
 				// counter on non-existing exception
 				List<VEventOccurrence> occurrences = new ArrayList<>(currentSeries.value.occurrences);
 				VEventOccurrence newOccurrence = VEventOccurrence.fromEvent(counterEvent.copy(), counterEvent.recurid);
 
 				for (Attendee att : currentSeries.value.main.attendees) {
-					if (!counterEvent.attendees.get(0).mailto.equals(att.mailto)) {
+					if (!originator.mailto.equals(att.mailto)) {
 						newOccurrence.attendees.add(att);
 					}
 				}
@@ -90,23 +90,45 @@ public class EventCounterHandler extends AbstractLmtpHandler implements IIMIPHan
 				timestamp += duration;
 				BmDateTime dtend = BmDateTimeWrapper.fromTimestamp(timestamp, newOccurrence.dtstart.timezone);
 				newOccurrence.dtend = dtend;
+				addNewAttendees(counterEvent, newOccurrence);
 				occurrences.add(newOccurrence);
 				currentSeries.value.occurrences = occurrences;
 			} else {
-				for (Attendee att : currentSeries.value.occurrence(counterEvent.recurid).attendees) {
-					if (counterEvent.attendees.get(0).mailto.equals(att.mailto)) {
-						att.partStatus = counterEvent.attendees.get(0).partStatus;
-					}
-				}
+				VEventOccurrence existingException = currentSeries.value.occurrence(counterEvent.recurid);
+				updateOriginatorPartStat(originator, existingException);
+				addNewAttendees(counterEvent, existingException);
 			}
 		}
 
-		Attendee originator = counterEvent.attendees.get(0);
-
+		Attendee originator = originator(counterEvent, counterProposedAttendees);
 		String commonName = originator.commonName;
 		String email = originator.mailto;
-		VEventCounter.CounterOriginator counterOriginator = VEventCounter.CounterOriginator.from(commonName, email);
 
+		if (!counterProposedAttendees.isEmpty()) {
+			autoAcceptAttendeeProposals(cal, currentSeries);
+		} else {
+			if (!currentSeries.value.acceptCounters) {
+				ServerFault fault = new ServerFault(new CounterNotAllowedException(recipientMailbox.uid));
+				fault.setCode(ErrorCode.EVENT_ACCEPTS_NO_COUNTERS);
+				throw fault;
+			}
+			updateEventWithCounterValues(cal, currentSeries, counterEvent, commonName, email);
+		}
+
+		return IMIPResponse.createCounterResponse(imip.uid, email, counterEvent, counterProposedAttendees);
+	}
+
+	private <T extends VEvent> void updateOriginatorPartStat(Attendee originator, T currentEvent) {
+		for (Attendee att : currentEvent.attendees) {
+			if (originator.mailto.equals(att.mailto)) {
+				att.partStatus = originator.partStatus;
+			}
+		}
+	}
+
+	private void updateEventWithCounterValues(ICalendar cal, ItemValue<VEventSeries> currentSeries,
+			VEventOccurrence counterEvent, String commonName, String email) {
+		VEventCounter.CounterOriginator counterOriginator = VEventCounter.CounterOriginator.from(commonName, email);
 		Optional<VEventCounter> counter = getExistingCounter(currentSeries.value.counters, counterEvent,
 				counterOriginator);
 		VEventCounter newCounter = null;
@@ -121,8 +143,27 @@ public class EventCounterHandler extends AbstractLmtpHandler implements IIMIPHan
 		}
 
 		cal.update(currentSeries.uid, currentSeries.value, false);
+	}
 
-		return IMIPResponse.createCounterResponse(imip.uid, email, counterEvent);
+	private void autoAcceptAttendeeProposals(ICalendar cal, ItemValue<VEventSeries> currentSeries) {
+		currentSeries.value.counters = Collections.emptyList();
+		cal.update(currentSeries.uid, currentSeries.value, true);
+	}
+
+	private void addNewAttendees(VEventOccurrence counterEvent, VEvent existingEvent) {
+		existingEvent.attendees.addAll(proposedattendees(counterEvent).stream().map(att -> {
+			att.role = Role.OptionalParticipant;
+			att.partStatus = ParticipationStatus.NeedsAction;
+			return att;
+		}).toList());
+	}
+
+	private Attendee originator(VEventOccurrence counter, List<Attendee> counterProposedAttendees) {
+		return counter.attendees.stream().filter(att -> !counterProposedAttendees.contains(att)).findAny().get();
+	}
+
+	private List<Attendee> proposedattendees(VEventOccurrence counter) {
+		return counter.attendees.stream().filter(att -> att.role == Role.NonParticipant).toList();
 	}
 
 }

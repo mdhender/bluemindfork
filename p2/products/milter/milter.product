@@ -101,6 +101,7 @@
       <plugin id="net.bluemind.milter.metrics"/>
       <plugin id="net.bluemind.milter.srs"/>
       <plugin id="net.bluemind.mime4j.common"/>
+      <plugin id="net.bluemind.milter.action.eventforwarding"/>
       <plugin id="net.bluemind.network.topology"/>
       <plugin id="net.bluemind.network.topology.consumer"/>
       <plugin id="net.bluemind.node.api"/>

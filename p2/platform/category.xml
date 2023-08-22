@@ -456,6 +456,7 @@
    <bundle id="net.bluemind.metrics.ui.role" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.milter" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.milter.action.journaling" version="5.0.0.qualifier"/>
+   <bundle id="net.bluemind.milter.action.eventforwarding" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.milter.action.misc" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.milter.action.signature" version="5.0.0.qualifier"/>
    <bundle id="net.bluemind.milter.metrics" version="5.0.0.qualifier"/>

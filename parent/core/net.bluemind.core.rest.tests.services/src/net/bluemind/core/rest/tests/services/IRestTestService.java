@@ -25,8 +25,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
-
 import net.bluemind.core.api.BMApi;
+import net.bluemind.core.api.BMAsyncMethod;
 import net.bluemind.core.api.fault.ServerFault;
 
 @Path("/test")
@@ -112,5 +112,10 @@ public interface IRestTestService extends IVirtualApi<ComplexRequest> {
 	@GET
 	@Path("longinparam/{uid}")
 	public String longInPathParam(@PathParam("uid") long uid) throws ServerFault;
+
+	@GET
+	@Path("asynctest")
+	@BMAsyncMethod
+	public String asyncMethodTest();
 
 }

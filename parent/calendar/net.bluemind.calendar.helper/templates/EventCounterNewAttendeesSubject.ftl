@@ -1,0 +1,1 @@
+${msg("counter.attendees.subject", attendee, title)}
