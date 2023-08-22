@@ -46,11 +46,24 @@ public class IMIPResponse {
 
 		StringBuilder eventIcsUid = new StringBuilder(itemUid);
 
-		RawField rf = new RawField("X-BM-Event-Canceled", eventIcsUid.toString());
+		return getCancelHeader(ret, eventIcsUid);
+
+	}
+
+	public static IMIPResponse createCanceledExceptionResponse(String uid, String iso8601) {
+		IMIPResponse ret = new IMIPResponse();
+
+		StringBuilder eventIcsUid = new StringBuilder(uid);
+		eventIcsUid.append("; recurid=\"" + iso8601 + "\"");
+
+		return getCancelHeader(ret, eventIcsUid);
+	}
+
+	private static IMIPResponse getCancelHeader(IMIPResponse ret, StringBuilder value) {
+		RawField rf = new RawField("X-BM-Event-Canceled", value.toString());
 		UnstructuredField bmExtId = UnstructuredFieldImpl.PARSER.parse(rf, DecodeMonitor.SILENT);
 		ret.headerFields = Arrays.asList(bmExtId);
 		return ret;
-
 	}
 
 	public static IMIPResponse createRepliedResponse(String itemUid) {

@@ -1458,7 +1458,17 @@ public class ImipFilterVEventTests {
 		IIMIPHandler cancelHandler = new EventCancelHandler(recipient, null);
 		imip = imip(ITIPMethod.CANCEL, defaultExternalSenderVCard(), exception.uid);
 		imip.iCalendarElements = Arrays.asList(exception.value.occurrences.get(0));
-		cancelHandler.handle(imip, recipient, domain, user1Mailbox);
+		IMIPResponse response = cancelHandler.handle(imip, recipient, domain, user1Mailbox);
+
+		AtomicBoolean foundHeader = new AtomicBoolean();
+		response.headerFields.forEach(header -> {
+			if (header.getName().equals("X-BM-Event-Canceled")) {
+				String value = header.getBody();
+				assertEquals(exception.uid + "; recurid=\"2016-11-23T07:44:03.000\"", value);
+				foundHeader.set(true);
+			}
+		});
+		assertTrue(foundHeader.get());
 
 		evt = user1Calendar.getComplete(event.uid);
 		assertNotNull(evt.value.main.rrule);

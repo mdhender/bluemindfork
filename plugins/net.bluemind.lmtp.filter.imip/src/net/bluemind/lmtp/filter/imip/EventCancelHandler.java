@@ -122,10 +122,20 @@ public class EventCancelHandler extends CancelHandler implements IIMIPHandler {
 					cal.delete(oneOccurence.uid, false);
 				}
 			}
-			return IMIPResponse.createCanceledResponse(imip.uid);
+
+			if (imipMessageContainsASingleException(series)) {
+				return IMIPResponse.createCanceledExceptionResponse(imip.uid,
+						series.occurrences.get(0).recurid.iso8601);
+			} else {
+				return IMIPResponse.createCanceledResponse(imip.uid);
+			}
 		} catch (Exception e) {
 			throw e;
 		}
+	}
+
+	private boolean imipMessageContainsASingleException(VEventSeries series) {
+		return series.occurrences.size() == 1 && series.main == null;
 	}
 
 }
