@@ -1,9 +1,15 @@
+// Import SASS utils first
 @import "utils/variables";
+@import "utils/scroller";
+@import "utils/text";
 
+// Then Bootstrap
 @import "~bootstrap-vue/src/index.scss";
+@import "bootstrap";
+
+// Then Bootstrap overrides and custom files
 @import "alert";
 @import "animations";
-@import "bootstrap";
 @import "buttons";
 @import "calendar";
 @import "customControls";
@@ -16,10 +22,7 @@
 @import "lists";
 @import "modal";
 @import "skeleton";
-@import "utils/scroller";
-@import "utils/text";
 @import "zIndex";
-
 
 .bg-surface {
     background-color: $surface !important;
