@@ -5,9 +5,9 @@ BMES="7.17.10-bluemind106"
 
 BMKEYCLOAK="22.0.0-bluemind58"
 
-KAFKA="3.4.0-bluemind27"
-MINIO="2023.01.31-bluemind25"
-WEED="3.42-bluemind25"
+KAFKA="3.5.1-bluemind29"
+MINIO="2023.08.16-bluemind29"
+WEED="3.55-bluemind29"
 
 BMJDK="17.0.7+7-bluemind18"
 BMSNZIP="1.0.4-bluemind4"
