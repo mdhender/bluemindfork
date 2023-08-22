@@ -81,3 +81,14 @@ export const removeDelegate = userUid => {
         )
     );
 };
+
+const setAclForDelegate = (containerUid, acl, delegate) => {
+    const previousAcl = Object.values(acls.value).find(({ uid }) => uid === containerUid).acl;
+    const newAcl = previousAcl.filter(({ subject }) => subject != delegate).concat(acl);
+    return inject("ContainerManagementPersistence", containerUid).setAccessControlList(newAcl);
+};
+
+export const setCalendarAcl = (acl, delegate) => setAclForDelegate(calendarUid.value, acl, delegate);
+export const setMailboxAcl = (acl, delegate) => setAclForDelegate(mailboxUid.value, acl, delegate);
+export const setTodoListAcl = (acl, delegate) => setAclForDelegate(todoListUid.value, acl, delegate);
+export const setContactsAcl = (acl, delegate) => setAclForDelegate(addressBookUid.value, acl, delegate);
