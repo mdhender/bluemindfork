@@ -37,6 +37,7 @@ import net.bluemind.config.Token;
 import net.bluemind.core.container.api.IContainers;
 import net.bluemind.core.container.model.BaseContainerDescriptor;
 import net.bluemind.core.container.model.ItemValue;
+import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.eas.backend.BackendSession;
 import net.bluemind.eas.backend.MailFolder;
@@ -92,7 +93,7 @@ public class BmSearchMailbox implements ISearchSource {
 			}
 		}
 		InternalState is = bs.getInternalState();
-		ClientSideServiceProvider prov = ClientSideServiceProvider.getProvider(is.coreUrl, Token.admin0())
+		IServiceProvider prov = ClientSideServiceProvider.getProvider(is.coreUrl, Token.admin0())
 				.setOrigin("bm-eas-BmSearchMailbox");
 		IContainers cont = prov.instance(IContainers.class);
 		BaseContainerDescriptor asContainer = cont.getLight(IMailReplicaUids.mboxRecords(folder.uid));

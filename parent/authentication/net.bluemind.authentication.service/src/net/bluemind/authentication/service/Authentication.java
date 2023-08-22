@@ -147,12 +147,14 @@ public class Authentication implements IInCoreAuthentication {
 
 	@Override
 	public LoginResponse login(String login, String password, String origin) throws ServerFault {
+		logger.info("SCL Authentication - login");
 		return loginWithParams(login, password, origin, false);
 	}
 
 	@Override
 	public LoginResponse loginWithParams(String login, String password, String origin, Boolean interactive)
 			throws ServerFault {
+		logger.info("SCL Authentication - loginWithParams");
 		if (!verifyNonEmptyCredentials(login, password, origin)) {
 			LoginResponse resp = new LoginResponse();
 			resp.status = Status.Bad;
@@ -458,6 +460,7 @@ public class Authentication implements IInCoreAuthentication {
 
 	@Override
 	public LoginResponse suWithParams(String login, Boolean inter) throws ServerFault {
+		logger.info("SCL Authentication - suWithParams");
 		boolean interactive = inter != null && inter;
 		String performer = securityContext.getSubject();
 		if (interactive && !securityContext.isDomainGlobal()) {
@@ -586,6 +589,7 @@ public class Authentication implements IInCoreAuthentication {
 	@Override
 	public SecurityContext buildContext(String sid, String origin, String domainUid, String userUid)
 			throws ServerFault {
+		logger.info("SCL Authentication - buildContext");
 		ItemValue<User> user = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IUser.class, domainUid).getComplete(userUid);
 		Map<String, String> settings = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)

@@ -48,6 +48,7 @@ import net.bluemind.authentication.api.LoginResponse;
 import net.bluemind.authentication.api.LoginResponse.Status;
 import net.bluemind.config.Token;
 import net.bluemind.core.api.fault.ServerFault;
+import net.bluemind.core.rest.IServiceProvider;
 import net.bluemind.core.rest.http.ClientSideServiceProvider;
 import net.bluemind.delivery.lmtp.common.LmtpEnvelope;
 import net.bluemind.delivery.lmtp.filters.FilterException;
@@ -60,7 +61,7 @@ public class TnefFilter implements IMessageFilter {
 
 	private static final Logger logger = LoggerFactory.getLogger(TnefFilter.class);
 
-	private final Supplier<ClientSideServiceProvider> apiProv;
+	private final Supplier<IServiceProvider> apiProv;
 
 	private DefaultAsyncHttpClient ahc;
 
@@ -69,7 +70,7 @@ public class TnefFilter implements IMessageFilter {
 		this.ahc = new DefaultAsyncHttpClient();
 	}
 
-	private ClientSideServiceProvider prov(String token) {
+	private IServiceProvider prov(String token) {
 		String core = Topology.get().core().value.address();
 		String addr = "http://" + core + ":8090";
 		return ClientSideServiceProvider.getProvider(addr, token).setOrigin("lmtp-tnef");

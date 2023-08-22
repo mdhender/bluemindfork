@@ -134,9 +134,11 @@ public class ClientSideServiceProvider implements IServiceProvider {
 		return this;
 	}
 
-	public ClientSideServiceProvider setOrigin(String origin) {
+	@Override
+	public IServiceProvider setOrigin(String origin) {
 		this.origin = origin;
 		return this;
 
 	}
+
 }

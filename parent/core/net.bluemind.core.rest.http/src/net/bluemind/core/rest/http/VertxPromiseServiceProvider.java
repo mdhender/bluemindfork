@@ -70,4 +70,11 @@ public class VertxPromiseServiceProvider extends VertxServiceProvider implements
 		return instance("bm/core", interfaceClass, params);
 	}
 
+	@Override
+	public IServiceProvider setOrigin(String origin) {
+		this.origin = origin;
+		return this;
+
+	}
+
 }

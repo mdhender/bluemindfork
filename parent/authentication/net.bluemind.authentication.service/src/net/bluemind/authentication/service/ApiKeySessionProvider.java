@@ -36,16 +36,20 @@ public class ApiKeySessionProvider implements ISessionsProvider {
 	private final IInCoreAuthentication coreAuth;
 
 	public ApiKeySessionProvider() {
+		logger.info("SCL - ApiKeySessionProvider");
 		this.coreAuth = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
 				.instance(IInCoreAuthentication.class);
 	}
 
 	@Override
 	public Optional<SecurityContext> get(String token) {
+		logger.info("SCL - ApiKeySessionProvider get");
 		IAPIKeys keyService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM).instance(IAPIKeys.class);
 		return Optional.ofNullable(keyService.get(token)).map(apiKey -> {
 
 			logger.info("[{}@{}] Building context for api key}", apiKey.subject, apiKey.domainUid);
+
+			// TODO SCL : ajouter auditlog de login
 			return coreAuth.buildContext(apiKey.sid, "apikey-of-" + apiKey.subject, apiKey.domainUid, apiKey.subject);
 		});
 	}

@@ -35,4 +35,6 @@ public interface IServiceProvider {
 	 */
 	public <T> T instance(Class<T> interfaceClass, String... params) throws ServerFault;
 
+	public IServiceProvider setOrigin(String origin);
+
 }

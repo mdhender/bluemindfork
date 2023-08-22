@@ -136,7 +136,6 @@ public class CalendarService implements IInternalCalendar {
 		final boolean isRemote = this.isRemoteCalendar(context, container);
 		calendarEventProducer.serviceAccessed(container.uid, origin, context.getSecurityContext().isInteractive(),
 				isRemote);
-		logger.info("SCL - origin calendar service : " + origin);
 
 		extSanitizer = new Sanitizer(context, container);
 		extValidator = new Validator(context);

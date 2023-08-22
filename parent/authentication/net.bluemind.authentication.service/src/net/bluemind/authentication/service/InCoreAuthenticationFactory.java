@@ -21,6 +21,9 @@ package net.bluemind.authentication.service;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.bluemind.authentication.api.incore.IInCoreAuthentication;
 import net.bluemind.authentication.provider.IAuthProvider;
 import net.bluemind.authentication.provider.ILoginSessionValidator;
@@ -34,12 +37,14 @@ public class InCoreAuthenticationFactory
 		implements ServerSideServiceProvider.IServerSideServiceFactory<IInCoreAuthentication> {
 
 	private static final String PROVIDER_PLUGIN_ID = "net.bluemind.authentication.provider";
+	private static final Logger logger = LoggerFactory.getLogger(InCoreAuthenticationFactory.class);
 
 	private final List<IAuthProvider> authProviders;
 	private final List<ILoginValidationListener> loginListeners;
 	private final List<ILoginSessionValidator> sessionValidators;
 
 	public InCoreAuthenticationFactory() {
+		logger.info("SCL - InCoreAuthenticationFactory");
 		RunnableExtensionLoader<IAuthProvider> rel = new RunnableExtensionLoader<IAuthProvider>();
 		this.authProviders = rel.loadExtensions(PROVIDER_PLUGIN_ID, "authprovider", "auth_provider", "impl");
 		// max prio will be first

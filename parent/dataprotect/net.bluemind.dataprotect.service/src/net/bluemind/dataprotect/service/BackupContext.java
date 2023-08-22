@@ -56,6 +56,11 @@ public class BackupContext implements BmContext {
 			}
 		}
 
+		@Override
+		public IServiceProvider setOrigin(String origin) {
+			return this;
+		}
+
 	}
 
 	public BackupContext(Supplier<javax.sql.DataSource> ds, Supplier<DataSource> dataPool, SecurityContext ctx) {

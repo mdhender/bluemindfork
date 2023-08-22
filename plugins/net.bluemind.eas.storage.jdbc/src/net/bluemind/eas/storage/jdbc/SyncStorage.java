@@ -87,7 +87,7 @@ public class SyncStorage implements ISyncStorage {
 		return ClientSideServiceProvider.getProvider(locateCore(), Token.admin0()).setOrigin("bm-eas-syncStorage");
 	}
 
-	private ClientSideServiceProvider provider(BackendSession bs) {
+	private IServiceProvider provider(BackendSession bs) {
 		return ClientSideServiceProvider.getProvider(locateCore(), bs.getSid())
 				.setOrigin("bm-eas-syncStorage-" + bs.getUniqueIdentifier());
 	}
@@ -285,7 +285,7 @@ public class SyncStorage implements ISyncStorage {
 	@Override
 	public boolean deleteFolder(BackendSession bs, ItemDataType type, HierarchyNode node) {
 		boolean ret = false;
-		ClientSideServiceProvider cssp = provider(bs);
+		IServiceProvider cssp = provider(bs);
 
 		IContainers containers = cssp.instance(IContainers.class);
 

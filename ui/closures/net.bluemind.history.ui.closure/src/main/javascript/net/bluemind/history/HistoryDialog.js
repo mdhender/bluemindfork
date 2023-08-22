@@ -77,7 +77,7 @@ net.bluemind.history.HistoryDialog.prototype.show = function(entries) {
 
     if (entry['origin'] != null) {
       var lowerOrigin = entry['origin'].toLowerCase();
-      if (lowerOrigin.indexOf("hps") != -1) {
+      if (lowerOrigin.indexOf("bm-webserver") != -1) {
         entry['origin'] = 'BlueMind Web';
       } else if ((lowerOrigin == 'bm-eas') || (lowerOrigin.indexOf("bm-eas-router") != -1)
           || (lowerOrigin.indexOf("bm-eas-sync") != -1) || (lowerOrigin.indexOf("bm-eas-partnership") != -1)) {

@@ -55,6 +55,7 @@ import net.bluemind.webmodule.authenticationfilter.internal.SessionsCache;
 public class AuthProvider {
 
 	public static final int DEFAULT_MAX_SESSIONS_PER_USER = 5;
+	private static final String BM_WEBSERVER_AUTHFILTER = "bm-webserver-authfilter";
 
 	private static final Logger logger = LoggerFactory.getLogger(AuthProvider.class);
 	private HttpClientProvider clientProvider;
@@ -120,20 +121,18 @@ public class AuthProvider {
 
 		logger.info("authenticating {}", loginAtDomain);
 		IAuthenticationPromise auth = sp.instance(TagDescriptor.bm_core.getTag(), IAuthenticationPromise.class);
-		auth.loginWithParams(loginAtDomain.toLowerCase(), password, "bm-webserver-authfilter", true)
-				.exceptionally(e -> {
-					logger.error("error during authentication of {}", loginAtDomain, e);
-					handler.failure(new ServerFault("error login: No server assigned or server not avalaible"));
-					return null;
-				}).thenAccept(lr -> {
-					logger.info("Authenticated {}, response: {}", loginAtDomain, lr.status);
-					if (lr.status == Status.Ok || lr.status == Status.Expired) {
-						handlerLoginSuccess(lr, remoteIps, handler);
-					} else {
-						handler.failure(
-								new ServerFault("error during login " + lr.message, ErrorCode.INVALID_PASSWORD));
-					}
-				});
+		auth.loginWithParams(loginAtDomain.toLowerCase(), password, BM_WEBSERVER_AUTHFILTER, true).exceptionally(e -> {
+			logger.error("error during authentication of {}", loginAtDomain, e);
+			handler.failure(new ServerFault("error login: No server assigned or server not avalaible"));
+			return null;
+		}).thenAccept(lr -> {
+			logger.info("Authenticated {}, response: {}", loginAtDomain, lr.status);
+			if (lr.status == Status.Ok || lr.status == Status.Expired) {
+				handlerLoginSuccess(lr, remoteIps, handler);
+			} else {
+				handler.failure(new ServerFault("error during login " + lr.message, ErrorCode.INVALID_PASSWORD));
+			}
+		});
 	}
 
 	private void doSudo(List<String> remoteIps, AsyncHandler<String> handler, ExternalCreds externalCreds) {
@@ -223,7 +222,9 @@ public class AuthProvider {
 	private VertxPromiseServiceProvider getProvider(String apiKey, List<String> remoteIps) {
 		ILocator lc = (String service, AsyncHandler<String[]> asyncHandler) -> asyncHandler.success(
 				new String[] { Topology.get().anyIfPresent(service).map(s -> s.value.address()).orElse("127.0.0.1") });
-		return new VertxPromiseServiceProvider(clientProvider, lc, apiKey, remoteIps);
+		VertxPromiseServiceProvider prov = new VertxPromiseServiceProvider(clientProvider, lc, apiKey, remoteIps);
+		prov.setOrigin(BM_WEBSERVER_AUTHFILTER);
+		return prov;
 
 	}
 

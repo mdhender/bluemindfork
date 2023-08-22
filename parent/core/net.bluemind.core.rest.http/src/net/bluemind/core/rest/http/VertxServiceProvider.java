@@ -32,6 +32,7 @@ public class VertxServiceProvider implements ITaggedServiceProvider {
 	private ILocator locator;
 	private HttpClientProvider clientProvider;
 	private List<String> remoteIps;
+	protected String origin;
 
 	public VertxServiceProvider(HttpClientProvider httpClientProvider, ILocator locator, String apiKey) {
 		this(httpClientProvider, locator, apiKey, Collections.emptyList());
@@ -59,6 +60,9 @@ public class VertxServiceProvider implements ITaggedServiceProvider {
 		LocateJITVertxHttpClientFactory<?, A> factory = new LocateJITVertxHttpClientFactory<>(syncApi, interfaceClass,
 				apiKey, clientProvider, locator, tag);
 		factory.setRemoteIps(remoteIps);
+		if (origin != null) {
+			factory.setOrigin(origin);
+		}
 		return factory.client(apiKey, params);
 	}
 

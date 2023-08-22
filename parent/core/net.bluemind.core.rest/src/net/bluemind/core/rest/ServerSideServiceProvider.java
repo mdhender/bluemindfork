@@ -72,4 +72,10 @@ public class ServerSideServiceProvider implements IServiceProvider {
 	public BmContext getContext() {
 		return context;
 	}
+
+	@Override
+	public IServiceProvider setOrigin(String origin) {
+		return this;
+
+	}
 }

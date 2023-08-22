@@ -17,14 +17,12 @@
   */
 package net.bluemind.core.rest.http;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
 import org.junit.Before;
@@ -34,7 +32,6 @@ import io.vertx.core.Vertx;
 import net.bluemind.core.api.AsyncHandler;
 import net.bluemind.core.rest.tests.services.ComplexRequest;
 import net.bluemind.core.rest.tests.services.ComplexResponse;
-import net.bluemind.core.rest.tests.services.IRestPathTestServicePromise;
 import net.bluemind.core.rest.tests.services.IRestTestServicePromise;
 import net.bluemind.lib.vertx.VertxPlatform;
 
