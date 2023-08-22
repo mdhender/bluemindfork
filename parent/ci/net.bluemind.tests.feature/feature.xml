@@ -68,6 +68,13 @@
          unpack="false"/>
 
    <plugin
+         id="net.bluemind.startup.services"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="net.bluemind.config.testfragment"
          download-size="0"
          install-size="0"

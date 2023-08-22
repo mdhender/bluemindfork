@@ -66,7 +66,7 @@
 		<bm-plugins-version>1.0.632</bm-plugins-version>
 		<bm.metrics.agent>1.31.1</bm.metrics.agent>
 		<docker.devenv.tag>5.0.4859</docker.devenv.tag>
-		<target-platform-version>jdk17-123</target-platform-version>
+		<target-platform-version>jdk17-124</target-platform-version>
 
 		<!-- Not to be modified usually -->
 		<tycho-version>4.0.0</tycho-version>
@@ -108,10 +108,10 @@
 		<repository>
 			<id>bluemind-deps</id>
 			<layout>p2</layout>
-			<url>https://forge.bluemind.net/staging/p2/dependencies/${target-platform-version}/</url>
+            <url>https://forge.bluemind.net/staging/p2/dependencies/${target-platform-version}/</url>
 			<!--<url>file:///Users/tom/git/target-platform-jdk11/bm-platform/target/repository</url>-->
 			<!--<url>file:///home/melanie/Documents/DEV/repos/bluemind-all-dev-tests/bm-target-platform-jdk11/bm-platform/target/repository</url>-->
-			<!--<url>file:///home/elie/Code/bm-target-platform/bm-platform/target/repository</url>-->
+            <!-- <url>file:///home/elie/Code/bm-target-platform/bm-platform/target/repository</url> -->
 		</repository>
 		<repository>
 			<id>nexus-central</id>
@@ -339,7 +339,7 @@
 						<forkedProcessTimeoutInSeconds>2400</forkedProcessTimeoutInSeconds>
 						<systemPropertyVariables>
 							<net.fortuna.ical4j.timezone.cache.impl>net.fortuna.ical4j.util.MapTimeZoneCache</net.fortuna.ical4j.timezone.cache.impl>
-						</systemPropertyVariables>
+                        </systemPropertyVariables>
 					</configuration>
 				</plugin>
 				<plugin>

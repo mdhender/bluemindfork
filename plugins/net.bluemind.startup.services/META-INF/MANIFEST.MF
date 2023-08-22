@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: net.bluemind.startup.services
+Bundle-SymbolicName: net.bluemind.startup.services;singleton:=true
+Bundle-Version: 5.0.0.qualifier
+Bundle-Vendor: bluemind.net
+Require-Bundle: org.eclipse.osgi,
+ slf4j.api,
+ org.apache.felix.dependencymanager;visibility:=reexport
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: net.bluemind.startup.services
+Export-Package: net.bluemind.startup.services
+Bundle-ActivationPolicy: lazy

@@ -86,6 +86,7 @@
 		<module>net.bluemind.slf4j</module>
 		<module>net.bluemind.slf4j.configuration</module>
 		<module>net.bluemind.startup.dropins</module>
+		<module>net.bluemind.startup.services</module>
 		<module>net.bluemind.system.nginx</module>
 		<module>net.bluemind.tika.server</module>
 		<module>net.bluemind.utils</module>
