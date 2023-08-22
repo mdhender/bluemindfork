@@ -326,24 +326,24 @@ describe("darkify and undarkify HTML", () => {
     test("darkify valid attributes", () => {
         expect(darkified.querySelector("h1").getAttribute("text")).toBe("var(--rgb_0_255_0)");
         expect(map.get("--rgb_0_255_0")).toBe("rgb(0, 94, 0)");
-        expect(darkified.querySelector("font").getAttribute("color")).toBe("var(--hex_123456)");
-        expect(map.get("--hex_123456")).toBe("rgb(184, 209, 253)");
     });
     test("undarkify valid attributes", () => {
         expect(undarkified.querySelector("h1").getAttribute("text")).toBe("rgb(0, 255, 0)");
-        expect(undarkified.querySelector("font").getAttribute("color")).toBe("#123456");
     });
 
     test("darkify twice", () => {
         darkifyHtml(darkified, undefined, map);
         expect(darkified.querySelector("h1").getAttribute("text")).toBe("var(--rgb_0_255_0)");
         expect(map.get("--rgb_0_255_0")).toBe("rgb(0, 94, 0)");
-        expect(darkified.querySelector("font").getAttribute("color")).toBe("var(--hex_123456)");
-        expect(map.get("--hex_123456")).toBe("rgb(184, 209, 253)");
+        expect(darkified.querySelector("[style]").getAttribute("style")).toBe(
+            "background-color: var(--color_yellow); color: var(--color_red)"
+        );
+        expect(map.get("--color_yellow")).toBe("rgb(56, 62, 0)");
+        expect(map.get("--color_red")).toBe("rgb(255, 39, 17)");
     });
     test("undarkify twice", () => {
         undarkifyHtml(undarkified);
         expect(undarkified.querySelector("h1").getAttribute("text")).toBe("rgb(0, 255, 0)");
-        expect(undarkified.querySelector("font").getAttribute("color")).toBe("#123456");
+        expect(undarkified.querySelector("[style]").getAttribute("style")).toBe("background-color: yellow; color: red");
     });
 });

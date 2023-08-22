@@ -168,9 +168,12 @@ const SUPPORTED_CSS2_KEYWORD_COLORS = [
     "WindowText"
 ];
 
-const SUPPORTED_HTML_ATTRIBUTES = ["color", "fill", "stroke", "text", "style"];
+const SUPPORTED_HTML_ATTRIBUTES = ["fill", "stroke", "text", "style"];
 
-const DEPRECATED_HTML_ATTRIBUTES = [{ name: "bgcolor", replacement: "backgroundColor" }];
+const DEPRECATED_HTML_ATTRIBUTES = [
+    { name: "bgcolor", replacement: "backgroundColor" },
+    { name: "color", replacement: "color" }
+];
 
 class ColorStringProcessor {
     #fn;
