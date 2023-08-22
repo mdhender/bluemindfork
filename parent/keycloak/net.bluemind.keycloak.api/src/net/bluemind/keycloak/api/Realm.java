@@ -23,14 +23,16 @@ import net.bluemind.core.api.BMApi;
 
 @BMApi(version = "3")
 public class Realm {
-
 	public String id;
 	public String realm;
 	public boolean enabled;
 	public boolean loginWithEmailAllowed;
+	public String loginTheme;
 	public boolean internationalizationEnabled;
 	public String defaultLocale;
 	public List<String> supportedLocales;
 	public int accessCodeLifespanLogin; // login timeout, in seconds
-
+	public int accessTokenLifespan;
+	public int ssoSessionIdleTimeout;
+	public int ssoSessionMaxLifespan;
 }

@@ -81,14 +81,12 @@ public class KeycloakRealmRepairSupport implements IDirEntryRepairSupport {
 
 		@Override
 		public void repair(String domainUid, DirEntry entry, RepairTaskMonitor monitor) {
-			IKeycloakAdmin keycloakAdminService = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM)
-					.instance(IKeycloakAdmin.class);
+			ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
+			IKeycloakAdmin keycloakAdminService = provider.instance(IKeycloakAdmin.class);
 			if (keycloakAdminService.getRealm(domainUid) == null) {
 				logger.info("Repair keycloack configuration for domain {}", domainUid);
 
-				ServerSideServiceProvider provider = ServerSideServiceProvider.getProvider(SecurityContext.SYSTEM);
-				IKeycloakAdmin keycloakService = provider.instance(IKeycloakAdmin.class);
-				TaskRef taskRef = keycloakService.initForDomain(domainUid);
+				TaskRef taskRef = keycloakAdminService.initForDomain(domainUid);
 				TaskUtils.wait(provider, taskRef);
 
 			} else {

@@ -11,4 +11,5 @@ Require-Bundle: net.bluemind.cli.cmd.api,
  net.bluemind.domain.api,
  com.github.freva.ascii-table,
  net.bluemind.system.api,
- net.bluemind.authentication.api
+ net.bluemind.authentication.api,
+ net.bluemind.keycloak.api

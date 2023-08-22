@@ -152,6 +152,7 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 		realm.realm = ret.getString("realm");
 		realm.enabled = ret.getBoolean("enabled");
 		realm.loginWithEmailAllowed = ret.getBoolean("loginWithEmailAllowed");
+		realm.loginTheme = ret.getString("loginTheme");
 		realm.internationalizationEnabled = ret.getBoolean("internationalizationEnabled");
 		realm.defaultLocale = ret.getString("defaultLocale");
 		JsonArray locales = ret.getJsonArray("supportedLocales");
@@ -161,6 +162,9 @@ public class KeycloakAdminService extends KeycloakAdminClient implements IKeyclo
 		}
 		realm.supportedLocales = supportedLocales;
 		realm.accessCodeLifespanLogin = ret.getInteger("accessCodeLifespanLogin");
+		realm.accessTokenLifespan = ret.getInteger("accessTokenLifespan");
+		realm.ssoSessionIdleTimeout = ret.getInteger("ssoSessionIdleTimeout");
+		realm.ssoSessionMaxLifespan = ret.getInteger("ssoSessionMaxLifespan");
 		return realm;
 	}
 

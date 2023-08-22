@@ -22,8 +22,10 @@
   */
 package net.bluemind.cli.authentication;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,12 +45,19 @@ import net.bluemind.core.api.auth.AuthTypes;
 import net.bluemind.core.container.model.ItemValue;
 import net.bluemind.core.utils.JsonUtils;
 import net.bluemind.domain.api.Domain;
+import net.bluemind.domain.api.DomainSettingsKeys;
+import net.bluemind.domain.api.IDomainSettings;
 import net.bluemind.domain.api.IDomains;
+import net.bluemind.keycloak.api.BluemindProviderComponent;
+import net.bluemind.keycloak.api.IKeycloakAdmin;
+import net.bluemind.keycloak.api.IKeycloakBluemindProviderAdmin;
+import net.bluemind.keycloak.api.IKeycloakUids;
+import net.bluemind.keycloak.api.Realm;
 import net.bluemind.system.api.SysConfKeys;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "get-conf", description = "Get domains authentication configuration")
+@Command(name = "get-conf", description = "Get domain authentication configurations")
 public class GetAuthConfCommand implements ICmdLet, Runnable {
 	public static class Reg implements ICmdLetRegistration {
 		@Override
@@ -64,17 +73,72 @@ public class GetAuthConfCommand implements ICmdLet, Runnable {
 
 	private static class AuthSettings {
 		public final String domainUid;
-		public final AuthTypes authType;
+		public final String authType;
 		public final Map<String, String> properties;
 
-		public AuthSettings(String domainUid, AuthTypes authType, Map<String, String> properties) {
+		public AuthSettings(String domainUid, String authType, Map<String, String> properties) {
 			this.domainUid = domainUid;
 			this.authType = authType;
 			this.properties = properties;
 		}
 
-		public static AuthSettings internalAuthSettings(String domainUid) {
-			return new AuthSettings(domainUid, AuthTypes.INTERNAL, Collections.emptyMap());
+		public static AuthSettings invalid(String domainUid, String errorMessage) {
+			return new AuthSettings(domainUid, "INVALID", Map.of("Error", errorMessage));
+		}
+
+		public static AuthSettings internal(boolean jsonOutput, String domainUid, Realm realm,
+				BluemindProviderComponent component) {
+			return new AuthSettings(domainUid, AuthTypes.INTERNAL.name(),
+					realmProperties(jsonOutput, realm, component));
+		}
+
+		private static Map<String, String> realmProperties(boolean jsonOutput, Realm realm,
+				BluemindProviderComponent component) {
+			Map<String, String> properties = new HashMap<>();
+			if (realm == null) {
+				properties.put("realmStatus", "realm not found!");
+			} else {
+				properties.put("id", realm.id);
+				properties.put("realm", realm.realm);
+				properties.put("enabled", Boolean.toString(realm.enabled));
+				properties.put("accessCodeLifespanLogin", //
+						jsonOutput ? String.valueOf(realm.accessCodeLifespanLogin)
+								: secondsToString(realm.accessCodeLifespanLogin));
+				properties.put("accessTokenLifespan", jsonOutput ? String.valueOf(realm.accessTokenLifespan)
+						: secondsToString(realm.accessTokenLifespan));
+				properties.put("ssoSessionMaxLifespan", jsonOutput ? String.valueOf(realm.ssoSessionMaxLifespan)
+						: secondsToString(realm.ssoSessionMaxLifespan));
+				properties.put("ssoSessionIdleTimeout", jsonOutput ? String.valueOf(realm.ssoSessionIdleTimeout)
+						: secondsToString(realm.ssoSessionIdleTimeout));
+			}
+
+			if (component == null) {
+				properties.put("componentStatus", "Keycloak BlueMind component not found!");
+			} else {
+				properties.put("componentName", component.getName());
+				properties.put("componentBmUrl", component.getBmUrl());
+			}
+
+			return properties;
+		}
+
+		private static String secondsToString(int seconds) {
+			Duration duration = Duration.ofSeconds(seconds);
+
+			String durationAsString = "";
+			if (duration.toDaysPart() > 0) {
+				durationAsString += duration.toDaysPart() + " days ";
+			}
+
+			if (duration.toHoursPart() > 0) {
+				durationAsString += duration.toHoursPart() + " hours ";
+			}
+
+			if (duration.toMinutesPart() > 0) {
+				durationAsString += duration.toMinutesPart() + " minutes";
+			}
+
+			return durationAsString;
 		}
 	}
 
@@ -83,7 +147,7 @@ public class GetAuthConfCommand implements ICmdLet, Runnable {
 
 	@Option(names = "--json", required = false, defaultValue = "false", description = {
 			"Display authentication configuration using Json format", "Table format otherwise" })
-	public Boolean json;
+	public boolean json;
 
 	@Option(required = false, names = {
 			"--domain" }, description = "Get authentication configuration from this domain UID or alias")
@@ -92,8 +156,9 @@ public class GetAuthConfCommand implements ICmdLet, Runnable {
 	@Override
 	public void run() {
 		IDomains domainsClient = ctx.adminApi().instance(IDomains.class);
-		List<AuthSettings> domainsAuthSettings = Optional.ofNullable(domain).map(cliUtils::getDomainUidByDomain)
-				.map(domainsClient::get).map(Arrays::asList).orElseGet(domainsClient::all).stream()
+		List<AuthSettings> domainsAuthSettings = Optional.ofNullable(domain) //
+				.map(cliUtils::getDomainUidByDomain).map(domainsClient::get).map(Arrays::asList) //
+				.orElseGet(domainsClient::all).stream() //
 				.filter(d -> !d.value.global).map(this::getDomainsAuthSettings).toList();
 
 		ctx.info(json ? JsonUtils.asString(domainsAuthSettings) : domainsAsTable(domainsAuthSettings));
@@ -105,10 +170,10 @@ public class GetAuthConfCommand implements ICmdLet, Runnable {
 						new Column().header("Domain UID").dataAlign(HorizontalAlign.LEFT)
 								.with(domainAuthSettings -> domainAuthSettings.domainUid),
 						new Column().header("Auth type").dataAlign(HorizontalAlign.LEFT)
-								.with(domainAuthSettings -> domainAuthSettings.authType.name()),
+								.with(domainAuthSettings -> domainAuthSettings.authType),
 						new Column().header("Auth properties").dataAlign(HorizontalAlign.LEFT)
 								.with(domainAuthSettings -> domainAuthSettings.properties.entrySet().stream()
-										.map(e -> e.getKey() + " => " + e.getValue())
+										.map(e -> e.getKey() + ": " + e.getValue())
 										.collect(Collectors.joining("\n")))));
 	}
 
@@ -117,14 +182,23 @@ public class GetAuthConfCommand implements ICmdLet, Runnable {
 		try {
 			authType = AuthTypes.valueOf(domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name()));
 		} catch (IllegalArgumentException | NullPointerException e) {
-			return AuthSettings.internalAuthSettings(domain.uid);
+			return AuthSettings.invalid(domain.uid, "Null or invalid AUTH_TYPE propery: '"
+					+ domain.value.properties.get(AuthDomainProperties.AUTH_TYPE.name()) + "'");
 		}
 
 		Set<String> authTypeProperties = Collections.emptySet();
 
 		switch (authType) {
 		case INTERNAL:
-			return AuthSettings.internalAuthSettings(domain.uid);
+			String domainId = ctx.adminApi().instance(IDomainSettings.class, domain.uid).get()
+					.get(DomainSettingsKeys.external_url.name()) != null ? domain.uid : "global.virt";
+
+			Realm realm = ctx.adminApi().instance(IKeycloakAdmin.class, domain.uid).getRealm(domainId);
+			BluemindProviderComponent component = ctx.adminApi()
+					.instance(IKeycloakBluemindProviderAdmin.class, domain.uid)
+					.getBluemindProvider(IKeycloakUids.bmProviderId(domainId));
+
+			return AuthSettings.internal(json, domain.uid, realm, component);
 		case CAS:
 			authTypeProperties = Set.of(AuthDomainProperties.CAS_URL.name());
 			break;
@@ -139,7 +213,7 @@ public class GetAuthConfCommand implements ICmdLet, Runnable {
 		}
 
 		domain.value.properties.keySet().retainAll(authTypeProperties);
-		return new AuthSettings(domain.uid, authType, domain.value.properties);
+		return new AuthSettings(domain.uid, authType.name(), domain.value.properties);
 	}
 
 	@Override
