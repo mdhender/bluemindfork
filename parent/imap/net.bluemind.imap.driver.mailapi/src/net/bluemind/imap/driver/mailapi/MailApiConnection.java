@@ -326,7 +326,7 @@ public class MailApiConnection implements MailboxConnection {
 	public List<ListNode> list(String reference, String mailboxPattern) {
 		List<NamespacedFolder> withShares = fullHierarchyLoad();
 		int before = withShares.size();
-		Predicate<NamespacedFolder> filter = matcher(mailboxPattern);
+		Predicate<NamespacedFolder> filter = matcher(reference, mailboxPattern);
 		withShares = withShares.stream().filter(filter).toList();
 		int after = withShares.size();
 		logger.debug("List filtered by '{}' {} folders -> {} folder(s)", mailboxPattern, before, after);
@@ -367,15 +367,18 @@ public class MailApiConnection implements MailboxConnection {
 		return withShares;
 	}
 
-	private Predicate<NamespacedFolder> matcher(String mailboxPattern) {
+	private Predicate<NamespacedFolder> matcher(String reference, String mailboxPattern) {
 		String sanitized = CharMatcher.is('"').removeFrom(mailboxPattern);
 		if (sanitized.equalsIgnoreCase("inbox")) {
 			sanitized = "INBOX";
 		}
 		final String san = UTF7Converter.decode(sanitized);
 		Predicate<String> globPred = MailboxGlob.matcher(san);
-
-		return nf -> globPred.test(nf.fullNameWithMountpoint());
+		final String refSan = UTF7Converter.decode(reference);
+		return nf -> {
+			String fn = nf.fullNameWithMountpoint();
+			return fn.startsWith(refSan) && globPred.test(fn);
+		};
 	}
 
 	private ListNode asListNode(NamespacedFolder f) {

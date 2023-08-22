@@ -273,6 +273,21 @@ public class SharedMailboxTests {
 	}
 
 	@Test
+	public void listOnlySharedMboxUsingReference() throws Exception {
+		try (StoreClient sc = new StoreClient("127.0.0.1", 1143, "john@devenv.blue", "john")) {
+			assertTrue(sc.login());
+			String folder = DriverConfig.get().getString(DriverConfig.SHARED_VIRTUAL_ROOT) + "/" + mboxShare.value.name;
+			TaggedResult subList = sc.tagged("LIST \"" + UTF7Converter.encode(folder) + "\" \"*\"");
+			assertTrue(subList.isOk());
+			for (String s : subList.getOutput()) {
+				System.err.println(s);
+			}
+			// root, sent, trash, ok completed.
+			assertEquals(4, subList.getOutput().length);
+		}
+	}
+
+	@Test
 	public void deliveryToSharedMboxOverLmtp() throws Exception {
 		String from = "wick" + System.currentTimeMillis() + "@continental.lan";
 		try (SMTPProtocol smtp = new SMTPProtocol("127.0.0.1", 2400)) {
