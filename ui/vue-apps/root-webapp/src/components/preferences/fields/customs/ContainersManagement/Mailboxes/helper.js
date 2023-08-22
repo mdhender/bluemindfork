@@ -2,10 +2,9 @@ import { Verb } from "@bluemind/core.container.api";
 
 const MailboxAcl = {
     HAS_NO_RIGHTS: 0,
-    CAN_SEND_ON_MY_BEHALF: 1,
-    CAN_READ_MY_MAILBOX: 2,
-    CAN_EDIT_MY_MAILBOX: 3,
-    CAN_MANAGE_SHARES: 4
+    CAN_READ_MY_MAILBOX: 1,
+    CAN_EDIT_MY_MAILBOX: 2,
+    CAN_MANAGE_SHARES: 3
 };
 
 export default {
@@ -16,10 +15,6 @@ export default {
         {
             text: i18n.tc("preferences.manage_shares.has_no_rights", 1),
             value: MailboxAcl.HAS_NO_RIGHTS
-        },
-        {
-            text: i18n.t("preferences.mail.my_mailbox.can_send_on_my_behalf"),
-            value: MailboxAcl.CAN_SEND_ON_MY_BEHALF
         },
         {
             text: i18n.t("preferences.mail.my_mailbox.can_read_my_mailbox"),
@@ -36,8 +31,6 @@ export default {
     ],
     aclToVerb: acl => {
         switch (acl) {
-            case MailboxAcl.CAN_SEND_ON_MY_BEHALF:
-                return Verb.SendOnBehalf;
             case MailboxAcl.CAN_READ_MY_MAILBOX:
                 return Verb.Read;
             case MailboxAcl.CAN_EDIT_MY_MAILBOX:
@@ -50,8 +43,6 @@ export default {
     },
     verbToAcl: verb => {
         switch (verb) {
-            case Verb.SendOnBehalf:
-                return MailboxAcl.CAN_SEND_ON_MY_BEHALF;
             case Verb.Read:
                 return MailboxAcl.CAN_READ_MY_MAILBOX;
             case Verb.Write:

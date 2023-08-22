@@ -145,7 +145,6 @@
     "preferences.mail.mailto_links.action.done.info.2": "Si la boîte de dialogue ne s’affiche pas, c’est que BlueMind est déjà enregistré ou bloqué par votre navigateur.",
     "preferences.mail.my_mailbox.switch_offline_sync": "Activer la messagerie hors-ligne sur ma boîte aux lettres.",
     "preferences.mail.my_mailbox.modal_title": "Gérer les partages pour ma boîte aux lettres",
-    "preferences.mail.my_mailbox.can_send_on_my_behalf": "Peut envoyer de ma part",
     "preferences.mail.my_mailbox.can_read_my_mailbox": "Peut lire ma boîte aux lettres",
     "preferences.mail.my_mailbox.can_edit_my_mailbox": "Peut modifier ma boîte aux lettres",
     "preferences.mail.my_mailbox.can_edit_my_mailbox_and_manage_shares": "Peut modifier ma boîte aux lettres et gérer mes partages",
