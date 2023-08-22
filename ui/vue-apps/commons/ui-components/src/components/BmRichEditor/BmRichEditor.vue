@@ -294,8 +294,7 @@ export default {
                 defaultFormat: {
                     fontFamily: this.defaultFontValue,
                     backgroundColors: {
-                        lightModeColor: "#ffffff",
-                        darkModeColor: "var(--darkified-content-bg)"
+                        darkModeColor: "transparent"
                     }
                 },
                 initialContent: content,

@@ -43,7 +43,6 @@ export default function (html, avoidStyleInvading) {
     if (avoidStyleInvading) {
         html = preventStyleInvading(html);
     }
-    html = removeRoosterJsWhiteBackgrounds(html);
 
     const customWhiteList = {
         ...xss.whiteList,
@@ -188,8 +187,4 @@ export function computeNewSelector(selectorText) {
         .map(selector => selector.trim().replace(/^([\s>+~]*(html|body)(\.[^\s>]*)?[\s]*)*/g, ""))
         .map(selector => "#" + WRAPPER_ID + " " + selector)
         .join(",");
-}
-
-function removeRoosterJsWhiteBackgrounds(html) {
-    return html.replaceAll("background-color: rgb(255, 255, 255)", "");
 }
