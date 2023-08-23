@@ -2,20 +2,54 @@
     <bm-modal
         id="recipient-picker"
         dialog-class="mail-composer-recipient-modal"
-        :title="$t('recipient_picker.title')"
+        variant="advanced"
         size="xl"
-        body-class="overflow-hidden d-flex flex-column"
-        centered
+        height="md"
         @change="search = ''"
     >
-        <div class="select-wrapper d-lg-none">
-            <address-book-mobile-dropdown
-                :address-books="addressBooks"
-                :selected-address-book="selectedAddressBook"
-                :user-id="userId"
-                @selected="selectedAddressBookId = $event"
-            />
-        </div>
+        <template #modal-header="{ close }">
+            <bm-modal-header
+                :title="$t('recipient_picker.title')"
+                @close="
+                    if (showMobileSearchInput) showMobileSearchInput = false;
+                    else close();
+                "
+            >
+                <bm-form-input
+                    v-if="showMobileSearchInput"
+                    ref="mobile-search-input"
+                    v-model="search"
+                    class="mobile-search-input d-lg-none"
+                    autofocus
+                    icon="search"
+                    left-icon
+                    :placeholder="
+                        $t('recipient_picker.search_input.placeholder', { addressBookName: selectedAddressBook.name })
+                    "
+                    variant="inline-on-fill-primary"
+                    @keydown.enter="
+                        resetBeforeSearchIfRequired(search);
+                        performSearch(search);
+                    "
+                />
+                <template v-else>
+                    <address-book-mobile-dropdown
+                        class="d-lg-none"
+                        :address-books="addressBooks"
+                        :selected-address-book="selectedAddressBook"
+                        :user-id="userId"
+                        @selected="selectedAddressBookId = $event"
+                    />
+                    <bm-icon-button
+                        class="d-lg-none mx-3"
+                        variant="compact-on-fill-primary"
+                        size="lg"
+                        icon="search"
+                        @click="showMobileSearchInput = true"
+                    />
+                </template>
+            </bm-modal-header>
+        </template>
 
         <selected-contacts :contacts.sync="selectedContacts" :contacts-type="recipientContactsType" />
         <hr />
@@ -30,15 +64,15 @@
             />
             <div class="d-flex flex-column flex-fill">
                 <bm-form-input
-                    ref="inputSearch"
+                    ref="desktop-search-input"
                     v-model="search"
+                    class="desktop-search-input d-none d-lg-block"
                     :icon="!resettable ? 'search' : 'cancel'"
                     left-icon
                     :resettable="resettable"
                     :placeholder="
                         $t('recipient_picker.search_input.placeholder', { addressBookName: selectedAddressBook.name })
                     "
-                    class="search-input"
                     variant="underline"
                     @reset="search = ''"
                     @keydown.enter="
@@ -57,7 +91,7 @@
                     @selected="updateSelected"
                     @reset-search="
                         search = '';
-                        $refs.inputSearch.focus();
+                        displayedSearchInput().focus();
                     "
                 />
             </div>
@@ -88,7 +122,7 @@ import { mapActions, mapState } from "vuex";
 import { inject } from "@bluemind/inject";
 import { ERROR, REMOVE } from "@bluemind/alert.store";
 import { searchVCardsHelper, sortAddressBooks } from "@bluemind/contact";
-import { BmAlertArea, BmButton, BmModal, BmFormInput } from "@bluemind/ui-components";
+import { BmAlertArea, BmButton, BmIconButton, BmModal, BmModalHeader, BmFormInput } from "@bluemind/ui-components";
 import AddressBookLabelIcon from "./AddressBookLabelIcon";
 import AddressBookList from "./AddressBookList";
 import AddressBookMobileDropdown from "./AddressBookMobileDropdown.vue";
@@ -103,8 +137,10 @@ export default {
         AddressBookMobileDropdown,
         BmAlertArea,
         BmButton,
+        BmIconButton,
         BmFormInput,
         BmModal,
+        BmModalHeader,
         ContactList,
         SelectedContacts
     },
@@ -119,6 +155,7 @@ export default {
             userId: undefined,
             allContacts: [],
             searchedContacts: [],
+            showMobileSearchInput: false,
             search: "",
             selectedAddressBookId: undefined,
             highlightPattern: "",
@@ -189,6 +226,11 @@ export default {
         search(searchValue) {
             this.resetBeforeSearchIfRequired(searchValue);
             this.debounceSearch(searchValue);
+        },
+        showMobileSearchInput(value) {
+            if (value === false) {
+                this.search = "";
+            }
         }
     },
     async created() {
@@ -258,6 +300,14 @@ export default {
         },
         sortByName(contacts) {
             return contacts.sort((a, b) => a.name.trim().localeCompare(b.name.trim()));
+        },
+
+        displayedSearchInput() {
+            const el = this.$refs["mobile-search-input"]?.$el;
+            if (el && window.getComputedStyle(el).display !== "none") {
+                return this.$refs["mobile-search-input"];
+            }
+            return this.$refs["desktop-search-input"];
         }
     }
 };
@@ -275,22 +325,29 @@ function toContact(contactItem) {
 </script>
 
 <style lang="scss">
-@import "@bluemind/ui-components/src/css/type";
+@import "@bluemind/ui-components/src/css/utils/responsiveness";
 @import "@bluemind/ui-components/src/css/utils/variables";
 
 .mail-composer-recipient-modal {
     .modal-header {
-        background-color: $neutral-bg-lo1;
-        padding-top: base-px-to-rem(16);
-        padding-bottom: base-px-to-rem(13);
-        padding-left: $sp-7;
+        z-index: 1;
+        @include until-lg {
+            .bm-navbar-title {
+                display: none;
+            }
+        }
+        .address-book-mobile-dropdown {
+            height: 100%;
+            min-width: 0;
+            flex: 1;
+        }
     }
-    .modal-content {
-        height: 80vh;
-    }
+
     .modal-body {
-        padding: 0;
+        padding: 0 !important;
         background-color: $backdrop;
+        display: flex;
+        flex-direction: column;
 
         .select-wrapper {
             background-color: $surface;
@@ -305,7 +362,8 @@ function toContact(contactItem) {
             }
         }
         .address-book-list {
-            max-width: 20%;
+            min-width: 15%;
+            max-width: 25%;
         }
     }
     hr {
@@ -314,12 +372,13 @@ function toContact(contactItem) {
     .recipient-modal-body {
         gap: $sp-4;
     }
-    .modal-footer {
-        padding: $sp-4;
-        z-index: 1;
-        box-shadow: $box-shadow-sm;
+
+    .bm-form-input.mobile-search-input {
+        margin-left: $sp-5;
+        margin-right: $sp-3;
+        flex: 1;
     }
-    .bm-form-input {
+    .bm-form-input.desktop-search-input {
         background-color: $surface;
     }
 }

@@ -1,5 +1,5 @@
 <template>
-    <bm-label-icon class="address-book-label-icon" :icon="icon">{{ name }}</bm-label-icon>
+    <bm-label-icon class="address-book-label-icon" :icon="icon" :title="name" :inline="false">{{ name }}</bm-label-icon>
 </template>
 
 <script>
@@ -61,3 +61,13 @@ export default {
     }
 };
 </script>
+
+<style lang="scss">
+@import "@bluemind/ui-components/src/css/utils/text";
+
+.address-book-label-icon {
+    > div {
+        @include text-overflow;
+    }
+}
+</style>

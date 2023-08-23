@@ -71,7 +71,11 @@ function contactContainerUid(contact) {
     align-items: flex-start;
 
     .contact-input {
+        padding: 0 !important;
+        border: none !important;
+
         .selected-label {
+            flex: none;
             color: $neutral-fg-hi1;
             @include bold;
             margin-right: $sp-5;
