@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import net.bluemind.core.auditlogs.IAuditLogClient;
 import net.bluemind.core.auditlogs.IAuditLogClientFactory;
 import net.bluemind.eclipse.common.RunnableExtensionLoader;
+import net.bluemind.network.topology.Topology;
 
 public class AuditLogClientLoader {
 	private static final Logger logger = LoggerFactory.getLogger(AuditLogClientLoader.class);
@@ -44,6 +45,6 @@ public class AuditLogClientLoader {
 	}
 
 	public IAuditLogClient get() {
-		return auditLogClient.load();
+		return Topology.getIfAvailable().map(t -> auditLogClient.load()).orElse(NoopAuditLogClient.INSTANCE);
 	}
 }
