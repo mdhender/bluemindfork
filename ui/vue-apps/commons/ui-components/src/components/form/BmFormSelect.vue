@@ -2,8 +2,13 @@
     <bm-dropdown
         ref="dropdown"
         class="bm-form-select"
-        :class="{ shown: isShown, underline: variant === 'underline', inline: variant === 'inline' }"
-        variant="outline"
+        :class="{
+            shown: isShown,
+            outline: variant === 'outline',
+            underline: variant === 'underline',
+            inline: isInline
+        }"
+        :variant="dropdownVariant"
         :disabled="disabled"
         :boundary="boundary"
         :no-flip="noFlip"
@@ -67,7 +72,7 @@ export default {
             type: String,
             default: "outline",
             validator: function (value) {
-                return ["outline", "underline", "inline"].includes(value);
+                return ["outline", "underline", "inline", "inline-on-fill-primary"].includes(value);
             }
         },
         scrollbar: {
@@ -103,6 +108,15 @@ export default {
         return { isShown: false, options_: this.options.map(option => normalize(option)) };
     },
     computed: {
+        isInline() {
+            return this.variant.startsWith("inline");
+        },
+        dropdownVariant() {
+            if (this.isInline) {
+                return this.variant.endsWith("on-fill-primary") ? "text-on-fill-primary" : "text";
+            }
+            return "outline";
+        },
         selected() {
             const selected = this.options_.find(item => isEqual(item.value, this.value));
             if (!selected && this.value !== undefined) {
@@ -169,69 +183,78 @@ function normalize(option) {
 .bm-form-select {
     line-height: $line-height-sm;
 
-    $padding-x: calc(#{$sp-5} - #{$input-border-width});
-    $padding-x-dimmed: calc(#{$sp-5} - #{2 * $input-border-width});
-
     .btn.dropdown-toggle {
         width: 100%;
         height: $input-height;
         justify-content: space-between;
-        padding: 0 $padding-x;
-        gap: 0;
-        outline: none;
-
-        @include bm-button-variant(
-            $normal-text: $neutral-fg,
-            $normal-stroke: $neutral-fg-lo1,
-            $hovered-text: $neutral-fg-hi1,
-            $hovered-stroke: $neutral-fg-hi1,
-            $disabled-text: $neutral-fg-lo1
-        );
+        gap: 0 !important;
     }
 
-    &.shown .btn.dropdown-toggle,
-    .btn.dropdown-toggle.focus,
-    .btn.dropdown-toggle:focus {
-        border: 2 * $input-border-width solid $secondary-fg !important;
-        padding: 0 $padding-x-dimmed;
-        box-shadow: none !important;
-    }
-
-    &.underline {
-        $padding-x: $sp-4;
+    &.outline {
+        $padding-x: calc(#{$sp-5} - #{$input-border-width});
+        $padding-x-dimmed: calc(#{$sp-5} - #{2 * $input-border-width});
 
         .btn.dropdown-toggle {
             @include bm-button-variant(
                 $normal-text: $neutral-fg,
-                $normal-stroke: $neutral-fg-lo2,
                 $hovered-text: $neutral-fg-hi1,
-                $hovered-stroke: $neutral-fg,
-                $disabled-text: $neutral-fg-lo1
+                $disabled-text: $neutral-fg-disabled,
+                $normal-stroke: $neutral-fg-lo1,
+                $hovered-stroke: $neutral-fg-hi1,
+                $disabled-stroke: $neutral-fg-disabled,
+                $hovered-bg: $neutral-bg-lo1
             );
+            outline: none;
+            padding: 0 $padding-x;
+        }
+        &.shown .btn.dropdown-toggle,
+        .btn.dropdown-toggle.focus,
+        .btn.dropdown-toggle:focus {
+            border: 2 * $input-border-width solid $secondary-fg !important;
+            padding: 0 $padding-x-dimmed;
+            box-shadow: none !important;
+        }
+    }
 
+    &:not(.inline).underline {
+        .btn.dropdown-toggle {
+            @include bm-button-variant(
+                $normal-text: $neutral-fg,
+                $hovered-text: $neutral-fg-hi1,
+                $disabled-text: $neutral-fg-disabled,
+                $normal-stroke: $neutral-fg-lo2,
+                $hovered-stroke: $neutral-fg,
+                $disabled-stroke: transparent,
+                $hovered-bg: $neutral-bg-lo1
+            );
             border-radius: 0 !important;
             border-left: none !important;
             border-right: none !important;
             border-top-color: transparent !important;
-            padding: 0 $padding-x !important;
+            padding: 0 $sp-4 !important;
+        }
+        &.shown .btn.dropdown-toggle,
+        .btn.dropdown-toggle.focus,
+        .btn.dropdown-toggle:focus {
+            border-bottom: 2 * $input-border-width solid $secondary-fg !important;
+            box-shadow: none !important;
         }
     }
 
     &.inline {
-        $padding-x: $sp-4;
-
         .btn.dropdown-toggle {
-            height: calc(#{$input-height} - #{2 * $input-border-width});
-            border: none !important;
-            padding: 0 $padding-x !important;
+            padding: 0 $sp-4 !important;
         }
-
-        .btn.dropdown-toggle.focus,
-        .btn.dropdown-toggle:focus {
-            @include default-focus($neutral-fg);
-            &.hover,
-            &:hover {
-                @include default-focus($neutral-fg-hi1);
+        &.dropdown-on-fill-primary {
+            .btn.dropdown-toggle {
+                @include bm-button-variant(
+                    $normal-text: $fill-primary-fg,
+                    $hovered-text: $fill-primary-fg-hi1,
+                    $disabled-text: $fill-primary-fg-disabled,
+                    $hovered-bg: $fill-primary-bg-hi1,
+                    $focused-stroke: $fill-primary-fg,
+                    $focused-hovered-stroke: $fill-primary-fg-hi1
+                );
             }
         }
     }
@@ -262,8 +285,10 @@ function normalize(option) {
         padding-right: $sp-2;
     }
 
-    .content {
+    &:not(.dropdown-on-fill-primary) .content {
         @include regular;
+    }
+    .content {
         float: left;
         margin-right: $sp-2;
         max-width: 100%;
@@ -276,6 +301,14 @@ function normalize(option) {
     }
     .disabled .placeholder {
         color: $neutral-fg-disabled !important;
+    }
+    &.dropdown-on-fill-primary {
+        .placeholder {
+            color: $fill-primary-fg-lo1;
+        }
+        .disabled .placeholder {
+            color: $fill-primary-fg-disabled !important;
+        }
     }
 }
 </style>
