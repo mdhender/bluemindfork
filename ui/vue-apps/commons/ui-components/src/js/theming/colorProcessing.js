@@ -444,7 +444,7 @@ class ColorMultipleProcessor {
                 attr.value = this.applyToString(attr.value);
             } else {
                 const found = DEPRECATED_HTML_ATTRIBUTES.find(entry => entry.name === attr.name);
-                if (found) {
+                if (found && !el.style[found.replacement]) {
                     el.style[found.replacement] = this.applyToString(attr.value);
                 }
             }
