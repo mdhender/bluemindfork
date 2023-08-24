@@ -1,5 +1,7 @@
+import without from "lodash.without";
 import { computed, ref, watch } from "vue";
 import { Verb } from "@bluemind/core.container.api";
+import i18n from "@bluemind/i18n";
 import { inject } from "@bluemind/inject";
 import store from "@bluemind/store";
 
@@ -92,3 +94,62 @@ export const setCalendarAcl = (acl, delegate) => setAclForDelegate(calendarUid.v
 export const setMailboxAcl = (acl, delegate) => setAclForDelegate(mailboxUid.value, acl, delegate);
 export const setTodoListAcl = (acl, delegate) => setAclForDelegate(todoListUid.value, acl, delegate);
 export const setContactsAcl = (acl, delegate) => setAclForDelegate(addressBookUid.value, acl, delegate);
+
+export const Right = {
+    NONE: { verbs: [], text: () => i18n.t("preferences.account.delegates.right.none") },
+    REVIEWER: {
+        verbs: [Verb.Read],
+        text: () => i18n.t("preferences.account.delegates.right.reviewer"),
+        textWithDescription: () =>
+            i18n.t("preferences.account.delegates.right.reviewer.with_description", {
+                reviewer: i18n.t("preferences.account.delegates.right.reviewer")
+            })
+    },
+    AUTHOR: {
+        verbs: [Verb.Read, Verb.Write],
+        text: () => i18n.t("preferences.account.delegates.right.author"),
+        textWithDescription: () =>
+            i18n.t("preferences.account.delegates.right.author.with_description", {
+                author: i18n.t("preferences.account.delegates.right.author")
+            })
+    },
+    EDITOR: {
+        verbs: [Verb.Read, Verb.Write, Verb.Manage],
+        text: () => i18n.t("preferences.account.delegates.right.editor"),
+        textWithDescription: () =>
+            i18n.t("preferences.account.delegates.right.editor.with_description", {
+                editor: i18n.t("preferences.account.delegates.right.editor")
+            })
+    }
+};
+
+export const rightToAcl = (right, subject) => {
+    return right.verbs.map(verb => ({ verb, subject }));
+};
+
+const orderedRights = [Right.EDITOR, Right.AUTHOR, Right.REVIEWER, Right.NONE];
+
+export const aclToRight = (acl, delegate, defaultRight) => {
+    if (!acl || !delegate) {
+        return defaultRight;
+    }
+
+    const filteredAclVerbs = acl
+        .filter(({ subject, verb }) => subject === delegate && [Verb.Read, Verb.Write, Verb.Manage].includes(verb))
+        .map(({ verb }) => verb);
+
+    for (const right of orderedRights) {
+        const rightVerbs = right.verbs;
+        if (without(rightVerbs, ...filteredAclVerbs).length === 0) {
+            return right;
+        }
+    }
+};
+
+const getRight = (acl, delegate) => {
+    return aclToRight(acl, delegate, Right.NONE);
+};
+export const getCalendarRight = delegate => getRight(acls.value.calendar.acl, delegate);
+export const getTodoListRight = delegate => getRight(acls.value.todoList.acl, delegate);
+export const getMessageRight = delegate => getRight(acls.value.mailbox.acl, delegate);
+export const getContactsRight = delegate => getRight(acls.value.addressBook.acl, delegate);

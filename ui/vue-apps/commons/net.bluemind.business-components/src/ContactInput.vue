@@ -316,7 +316,7 @@ export default {
             return this.validateAddressFn(contact.input, contact);
         },
         add(contact) {
-            if ((contact.kind === "group" && contact.dn) || contact.address.trim()) {
+            if ((contact.kind.match(/group/i) && contact.dn) || contact.address.trim()) {
                 this.contacts_.push(toItem(contact));
             }
         },

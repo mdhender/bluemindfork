@@ -27,9 +27,9 @@ const editDelegate = userUid => {
         <p>{{ $t("preferences.account.delegates.description") }}</p>
         <p v-if="!delegations.length">{{ $t("preferences.account.delegates.none") }}</p>
         <pref-delegates-table v-else @edit="editDelegate" />
-        <bm-button icon="plus" variant="outline" @click="createDelegate">
+        <bm-button icon="plus" variant="outline" size="lg" @click="createDelegate">
             {{ $t("preferences.account.delegates.create") }}
         </bm-button>
-        <pref-delegates-modal :visible.sync="showEditForm" :delegate="delegate" />
+        <pref-delegates-modal :visible.sync="showEditForm" :delegate.sync="delegate" />
     </div>
 </template>

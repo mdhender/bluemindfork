@@ -7,7 +7,7 @@
         :visible="visible"
         :title="!delegate ? $t('preferences.account.delegates.create') : $t('preferences.account.delegates.edit')"
         @hidden="$emit('update:visible', false)"
-        @show="changed = false"
+        @show="init"
     >
         <contact-input
             class="d-flex align-items-center"
@@ -39,13 +39,7 @@
                     {{ $t("common.application.calendar") }}
                 </span>
             </div>
-            <bm-form-select
-                v-model="calendarRight"
-                class="w-100 py-4"
-                :options="rights"
-                placeholder="Aucun Droit"
-                @input="changed = true"
-            />
+            <bm-form-select v-model="calendarRight" class="w-100 py-4" :options="rights" @input="changed = true" />
             <bm-form-checkbox>
                 {{ $t("preferences.account.delegates.calendar.invitations") }}
                 <bm-icon class="pl-4" icon="open-envelope" />
@@ -59,13 +53,7 @@
                     {{ $t("common.application.tasks") }}
                 </span>
             </div>
-            <bm-form-select
-                v-model="todoListRight"
-                class="w-100 py-4"
-                :options="rights"
-                placeholder="Aucun Droit"
-                @input="changed = true"
-            />
+            <bm-form-select v-model="todoListRight" class="w-100 py-4" :options="rights" @input="changed = true" />
         </div>
         <!-- Mailboxes -->
         <div class="pt-2 pb-4">
@@ -74,13 +62,7 @@
                     {{ $t("common.application.webmail") }}
                 </span>
             </div>
-            <bm-form-select
-                v-model="messageRight"
-                class="w-100 py-4"
-                :options="rights"
-                placeholder="Aucun Droit"
-                @input="changed = true"
-            />
+            <bm-form-select v-model="messageRight" class="w-100 py-4" :options="rights" @input="changed = true" />
         </div>
         <!-- Contacts -->
         <div class="pt-2 pb-4">
@@ -89,13 +71,7 @@
                     {{ $t("common.application.contacts") }}
                 </span>
             </div>
-            <bm-form-select
-                v-model="contactsRight"
-                class="w-100 py-4"
-                :options="rights"
-                placeholder="Aucun Droit"
-                @input="changed = true"
-            />
+            <bm-form-select v-model="contactsRight" class="w-100 py-4" :options="rights" @input="changed = true" />
         </div>
         <!-- Footer -->
         <template #modal-footer>
@@ -115,7 +91,6 @@
 </template>
 
 <script>
-import without from "lodash.without";
 import { ContactInput } from "@bluemind/business-components";
 import { DirEntryAdaptor } from "@bluemind/contact";
 import { Verb } from "@bluemind/core.container.api";
@@ -136,9 +111,12 @@ import BmAppIcon from "../../../../BmAppIcon";
 
 import {
     acls,
+    aclToRight,
     delegates,
     delegations,
     fetchAcls,
+    Right,
+    rightToAcl,
     setCalendarAcl,
     setContactsAcl,
     setMailboxAcl,
@@ -152,13 +130,6 @@ const todoListApp = findAppFn("net.bluemind.webmodules.todolist");
 const messageApp = findAppFn("net.bluemind.webapp.mail.js");
 const contactsApp = findAppFn("net.bluemind.webmodules.contact");
 import { computed } from "vue";
-
-const Right = {
-    NONE: { verbs: [] },
-    REVIEWER: { verbs: [Verb.Read] },
-    AUTHOR: { verbs: [Verb.Read, Verb.Write] },
-    EDITOR: { verbs: [Verb.Read, Verb.Write, Verb.Manage] }
-};
 
 export default {
     name: "PrefDelegatesModal",
@@ -207,25 +178,10 @@ export default {
             messageRight: undefined,
             contactsRight: undefined,
             rights: [
-                { value: Right.NONE, text: this.$t("preferences.account.delegates.right.none") },
-                {
-                    value: Right.REVIEWER,
-                    text: this.$t("preferences.account.delegates.right.reviewer.with_description", {
-                        reviewer: this.$t("preferences.account.delegates.right.reviewer")
-                    })
-                },
-                {
-                    value: Right.AUTHOR,
-                    text: this.$t("preferences.account.delegates.right.author.with_description", {
-                        author: this.$t("preferences.account.delegates.right.author")
-                    })
-                },
-                {
-                    value: Right.EDITOR,
-                    text: this.$t("preferences.account.delegates.right.editor.with_description", {
-                        editor: this.$t("preferences.account.delegates.right.editor")
-                    })
-                }
+                { value: Right.NONE, text: Right.NONE.text() },
+                { value: Right.REVIEWER, text: Right.REVIEWER.textWithDescription() },
+                { value: Right.AUTHOR, text: Right.AUTHOR.textWithDescription() },
+                { value: Right.EDITOR, text: Right.EDITOR.textWithDescription() }
             ]
         };
     },
@@ -248,15 +204,18 @@ export default {
             },
             immediate: true
         },
-        selectedDelegate(value) {
-            this.initialDelegationRight =
-                this.delegations?.find(({ subject }) => subject === value)?.verb || Verb.SendOnBehalf;
-            this.delegationRight = this.initialDelegationRight;
+        selectedDelegate: {
+            handler: function (value) {
+                this.initialDelegationRight =
+                    this.delegations?.find(({ subject }) => subject === value)?.verb || Verb.SendOnBehalf;
+                this.delegationRight = this.initialDelegationRight;
 
-            this.calendarRight = aclToRight(this.acls.calendar.acl, value, Right.AUTHOR);
-            this.todoListRight = aclToRight(this.acls.todoList.acl, value, Right.AUTHOR);
-            this.messageRight = aclToRight(this.acls.mailbox.acl, value, Right.NONE);
-            this.contactsRight = aclToRight(this.acls.addressBook.acl, value, Right.NONE);
+                this.calendarRight = aclToRight(this.acls.calendar.acl, value, Right.AUTHOR);
+                this.todoListRight = aclToRight(this.acls.todoList.acl, value, Right.AUTHOR);
+                this.messageRight = aclToRight(this.acls.mailbox.acl, value, Right.NONE);
+                this.contactsRight = aclToRight(this.acls.addressBook.acl, value, Right.NONE);
+            },
+            immediate: true
         }
     },
     methods: {
@@ -268,6 +227,12 @@ export default {
                       })
                   ]
                 : [];
+        },
+        init() {
+            this.changed = false;
+            if (!this.delegate) {
+                this.selectedContacts = [];
+            }
         },
         async onSearch(pattern) {
             if (!pattern) {
@@ -307,29 +272,6 @@ export default {
         }
     }
 };
-
-function rightToAcl(right, subject) {
-    return right.verbs.map(verb => ({ verb, subject }));
-}
-
-const orderedRights = [Right.EDITOR, Right.AUTHOR, Right.REVIEWER, Right.NONE];
-
-function aclToRight(acl, delegate, defaultRight) {
-    if (!acl || !delegate) {
-        return defaultRight;
-    }
-
-    const filteredAclVerbs = acl
-        .filter(({ subject, verb }) => subject === delegate && [Verb.Read, Verb.Write, Verb.Manage].includes(verb))
-        .map(({ verb }) => verb);
-
-    for (const right of orderedRights) {
-        const rightVerbs = right.verbs;
-        if (without(rightVerbs, ...filteredAclVerbs).length === 0) {
-            return right;
-        }
-    }
-}
 </script>
 
 <style lang="scss">
